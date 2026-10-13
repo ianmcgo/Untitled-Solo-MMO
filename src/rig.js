@@ -934,6 +934,7 @@ function mobLook(m) {
     if (key === "royal_guard") return { kind: "human", look: { skull: true, skin: 0xe0dccc, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "chain", color2: 0xd8b040 }, legs: 0xe0dccc, barefoot: true, head: { type: "cap", color: 0x5a5a62 }, weapon: "sword", weaponId: "bronze_sword", prop: { girth: 0.75 } } };
     return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
   }
+  if (key === "tide_priest") return { kind: "human", look: { skull: true, skin: 0x7aa6a6, noFace: true, headRegion: "bone", eyesGlow: 0x4dd0e1, top: { type: "robe", color: 0x14303a, trim: 0x4dd0e1, glowTrim: true }, head: { type: "hood", color: 0x0f2530 }, legs: 0x14303a, barefoot: true, weapon: "staff", weaponId: "holly_staff" } };
   if (model === "ghoul") {
     const warden = key === "ossuary_warden";
     return { kind: "human", look: { skin: warden ? 0x6a8a74 : 0x8fa890, noFace: true, eyesGlow: warden ? 0x69f0ae : 0xff3030, claws: true, barefoot: true, top: { type: "rags", color: warden ? 0x1c2621 : 0x3a3a30, sleeves: "none" }, legs: 0x4a4a3e, hair: { style: "long", color: 0x6a6a60 }, head: warden ? { type: "hood", color: 0x1c2621 } : null, prop: { arm: 0.72, leg: 0.82, headR: 0.118, girth: 0.82 } } };

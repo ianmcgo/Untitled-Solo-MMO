@@ -72,7 +72,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0 }, board: { day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -1112,6 +1112,50 @@ function tickFish() {
   else if (f.state === "bite" && S.time > f.until) { S.fish = null; log("The fish slips the hook.", "sys"); }
 }
 
+function enterBattlefield() {
+  if (invCount("chapel_sigil") < 1) return "You need a Chapel Sigil.";
+  if (partyInCombat()) return "Not during a fight.";
+  removeItem("chapel_sigil", 1);
+  if (player.mounted) dismount(null);
+  enterZone(BATTLEFIELD.zone, ZONES[BATTLEFIELD.zone].start.x, ZONES[BATTLEFIELD.zone].start.y);
+  S.bf = { t0: S.time, until: S.time + BATTLEFIELD.minutes * 60, won: false };
+  S.spawnAt = S.zone.spawns.map(() => S.time + 3);
+  log("The sigil crumbles and the door grinds open. Defeat the Tidebound Priest within " + BATTLEFIELD.minutes + " minutes!", "foe");
+  sfx("notify");
+  return "";
+}
+
+function tickBattlefield() {
+  const b = S.bf;
+  if (!b || b.won) return;
+  if (S.ko || !S.party.some(p => p.alive)) { S.bf = null; return; }
+  if (S.time >= b.until) {
+    S.bf = null;
+    log("The water rises and sweeps you out of the chapel. Time's up.", "foe");
+    enterZone("marsh", 640, 2050);
+    return;
+  }
+  const boss = S.mobs.find(m => m.famKey === "tide_priest");
+  if (b.seen && boss && !boss.alive && !b.won) winBattlefield();
+  if (boss && boss.alive) b.seen = true;
+}
+
+function winBattlefield() {
+  S.bf.won = true;
+  save.stats.bfWins++;
+  for (const m of S.mobs) if (m.alive && m.summonedBy) onKO(m, player);
+  const pool = BATTLEFIELD.rewards.filter(id => !hasItem(id));
+  const prize = pool.length ? pick(pool) : null;
+  log("The Tidebound Priest sinks beneath the water. The chapel falls silent.", "loot");
+  if (prize) giveItem(prize, 1);
+  save.gil += BATTLEFIELD.gil;
+  log("You obtain " + BATTLEFIELD.gil + " crystals.", "loot");
+  gainXp(BATTLEFIELD.xp);
+  sfx("fanfare");
+  uiEvent("bf", { prize });
+  saveGame();
+}
+
 function boardDay() { return Math.floor(Date.now() / 86400000); }
 
 function boardToday() {
@@ -1705,7 +1749,7 @@ function updateMob(m, dt) {
   if (m.state === "combat") {
     for (const [e, v] of m.enmity) m.enmity.set(e, Math.max(1, v * (1 - 0.04 * dt)));
     const t = topEnmity(m);
-    if (!t || Math.hypot(m.x - m.home.x, m.y - m.home.y) > CONFIG.leash) {
+    if (!t || (!S.zone.battlefield && Math.hypot(m.x - m.home.x, m.y - m.home.y) > CONFIG.leash)) {
       if (t) log("The " + m.name + " loses interest.", "sys");
       m.state = "return";
       m.enmity.clear();
@@ -1766,18 +1810,30 @@ function bossPhases(m, t) {
   const frac = m.hp / m.maxHp;
   if (f.phases && m.phase < f.phases.length && frac <= f.phases[m.phase]) {
     m.phase++;
-    log("The " + m.name + " calls for his Royal Guards!", "foe");
+    log("The " + m.name + " " + (f.addsText || "calls for his Royal Guards!"), "foe");
     popText(m, "Rise!", "#ffd54f", 18, 1.4, 30);
     ring(m, "#ffd54f", 70, 0.9, "burst");
     sfx("tpready", m);
     vfx("levelup", { tgt: m });
     for (const sgn of [-1, 1]) {
-      const g = spawnExtra("royal_guard", Math.max(1, m.lv - 2), m.x + sgn * 60, m.y + 40);
+      const g = spawnExtra(f.adds || "royal_guard", Math.max(1, m.lv - 2), m.x + sgn * 60, m.y + 40);
       g.summonedBy = m;
       aggro(g, t);
       addEnmity(g, t, 50);
     }
     S.shake = Math.max(S.shake, 0.3);
+  }
+  if (f.pulse && frac <= f.pulse.at && S.time >= (m.nextPulse || 0)) {
+    if (!m.nextPulse) { m.nextPulse = S.time + 4; log("The water around the " + m.name + " begins to churn...", "foe"); }
+    else {
+      m.nextPulse = S.time + f.pulse.every;
+      log("The " + m.name + " unleashes " + f.pulse.name + "!", "foe");
+      popText(m, f.pulse.name, "#4fc3f7", 18, 1.4, 30);
+      ring(m, "#4fc3f7", f.pulse.r * 0.6, 1.0, "burst");
+      S.shake = Math.max(S.shake, 0.35);
+      sfx(f.pulse.el, m);
+      for (const p of S.party) if (p.alive && dist(p, m) <= f.pulse.r) { vfx("nuke", { src: m, tgt: p, el: f.pulse.el }); applyDamage(m, p, Math.round(f.pulse.dmg * m.lv * rand(0.9, 1.1)), { color: "#4fc3f7", size: 18 }); }
+    }
   }
   if (f.enrage && !m.enraged && frac <= f.enrage) {
     m.enraged = true;
@@ -2099,6 +2155,7 @@ function enterZone(id, x, y) {
   const prev = S.zoneId;
   S.fish = null;
   if (S.race && id !== RACE.zone) S.race = null;
+  if (S.bf && id !== BATTLEFIELD.zone) { if (!S.bf.won) log("You leave the Chapel Depths. The battle is lost.", "sys"); S.bf = null; }
   S.zoneId = id;
   S.zone = ZONES[id];
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
@@ -2372,7 +2429,7 @@ function harvestGarden(i) {
   return "";
 }
 
-function spawnAllowed(sp) { return !sp.time || sp.time === period(); }
+function spawnAllowed(sp) { if (sp.bf && !(S.bf && !S.bf.won)) return false; return !sp.time || sp.time === period(); }
 
 function spawnMob(i) {
   const sp = S.zone.spawns[i];
@@ -2496,6 +2553,7 @@ function step(dt) {
   if (S.fish) tickFish();
   if (S.race) tickRace();
   if (S.pet) tickPet();
+  if (S.bf) tickBattlefield();
   if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
@@ -3047,6 +3105,12 @@ const TALK = {
     openDialog(n.name, "Notes pinned to the board ask for supplies. " + (left ? left + " request" + (left > 1 ? "s are" : " is") + " still open today." : "Every request is filled for today. New notes go up tomorrow."), [
       { label: "Read the requests", fn: () => { closeDialog(); openModal("board"); } }
     ]);
+  },
+  talkChapelDoor(n) {
+    const have = invCount("chapel_sigil");
+    openDialog(n.name, "A sealed door half-sunk in black water. A socket in the stone is shaped like a sigil. Something vast breathes beyond it." + (have ? " You carry " + have + " Chapel Sigil" + (have > 1 ? "s" : "") + "." : " You need a Chapel Sigil. The Drowned sometimes carry them, and Vela in Saltreach sells them."), have ? [
+      { label: "Use a Chapel Sigil and enter (" + BATTLEFIELD.minutes + "-minute battle)", fn: () => { closeDialog(); const why = enterBattlefield(); if (why) { log(why, "sys"); sfx("error"); } } }
+    ] : []);
   },
   talkIlsa(n) {
     const g = questOptions("ilsa", n);

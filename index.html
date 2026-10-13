@@ -43,6 +43,9 @@
   .bar.hp > i { background: linear-gradient(var(--hp1), var(--hp2)); }
   .bar.mp > i { background: linear-gradient(var(--mp1), var(--mp2)); }
   .bar.tp > i { background: linear-gradient(var(--tp1), var(--tp2)); }
+  .bar.xp { height: 4px; margin-top: 2px; }
+  .bar.xp > i { background: linear-gradient(#d4f59a, #7cb342); }
+  #xpbar { display: none; }
   .bar.cast > i { background: linear-gradient(#a8d4ff, #4d8fe0); }
   .bar.warn > i { background: linear-gradient(#ffab70, #e2482a); }
   .bar .ghost { background: rgba(255,255,255,.35); transition: width .6s ease-out .25s; }
@@ -468,15 +471,15 @@
     #clock .el { display: none; }
     #trBtns button { width: 28px; height: 28px; font-size: 13px; }
     #tracker { position: absolute; right: 0; top: 100%; margin-top: 4px; width: 150px; font-size: 10px; }
-    #chat { width: 56vw; bottom: calc(196px + var(--sab)); }
+    #chat { width: calc(100vw - 3 * var(--slot) - 60px); max-width: 60vw; bottom: calc(8px + var(--sab)); left: calc(6px + var(--sal)); }
     #pool { bottom: calc(420px + var(--sab)); width: 210px; }
     #chat:not(.min) #log { height: 160px; }
     #bottom { left: auto; right: calc(6px + var(--sar)); transform: none; align-items: flex-end; }
-    #actionBar { max-width: calc(var(--slot) * 5 + 16px); }
+    #actionBar { max-width: calc(var(--slot) * 3 + 8px); flex-wrap: wrap-reverse; justify-content: flex-end; }
     #barWrap { padding: 4px; }
     #pager { flex-direction: row; }
     #barWrap { flex-direction: column-reverse; align-items: flex-end; }
-    #xpRow { position: fixed; left: 0; right: 0; bottom: 0; padding: 0 6px calc(2px + var(--sab)); font-size: 9px; }
+    #xpRow { display: none; }
     #xpt, #crystals { display: none; }
     #big { bottom: calc(150px + var(--sab)); right: calc(8px + var(--sar)); grid-template-columns: auto auto auto auto; gap: 6px; align-items: center; }
     .bb { width: 46px; height: 46px; font-size: 9px; }
@@ -519,7 +522,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.7.0 · built 2026-10-13 15:11 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.8.0 · built 2026-10-13 15:38 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5636,6 +5639,12 @@ const ITEMS = {
   corsair_jerkin: { name: "Corsair Jerkin", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "MNK", "RDM"], lv: 13, price: 5000, stats: { def: 13, dex: 3, agi: 3, hp: 20 } },
   gull_hat: { name: "Gull Feather Hat", kind: "equip", icon: "👒", slot: "head", jobs: ALL_J, lv: 13, price: 2600, stats: { def: 5, agi: 2, mp: 10 } },
   tide_ring: { name: "Tide Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 12, rare: true, stats: { hp: 20, mp: 20, mnd: 2 }, desc: "A gift from the harbor master." },
+  chapel_sigil: { name: "Chapel Sigil", kind: "mat", icon: "🔱", price: 400, stack: 3, rarity: "rare", desc: "A tarnished sigil that opens the sealed door of the Drowned Chapel. Used up on entry." },
+  tide_crown: { name: "Tide Crown", kind: "equip", icon: "👑", slot: "head", jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { def: 8, hp: 25, mp: 25, int: 3, mnd: 3 }, desc: "Taken from the Tidebound Priest." },
+  abyssal_staff: { name: "Abyssal Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 20, delay: 3.6, jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { int: 8, mnd: 6, mp: 30 }, desc: "Still dripping seawater." },
+  drowned_blade: { name: "Drowned Blade", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 19, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 15, rare: true, nm: true, rarity: "epic", stats: { acc: 5, str: 3 }, desc: "Its edge never dries." },
+  priest_mantle: { name: "Priest's Mantle", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { def: 16, hp: 30, mp: 30, eva: 6 }, desc: "Heavy with the weight of the tide." },
+  tidebreaker_bow: { name: "Tidebreaker Bow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 17, delay: 3.0, jobs: ["RNG", "WAR", "THF"], lv: 15, rare: true, nm: true, rarity: "epic", stats: { agi: 3, acc: 5 }, desc: "Strung with kelp that never snaps." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
   mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
   iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
@@ -5786,8 +5795,9 @@ const FAMILIES = {
   bog_toad: { name: "Bog Toad", color: "#5f7a3a", radius: 14, hpMul: 1.15, attMul: 1.0, defMul: 1.0, delay: 3.0, speed: 90, aggro: { sound: 120 }, link: false, tpMove: { name: "Tongue Lash", mul: 1.8 }, weak: { ice: 1.25 }, loot: [["toad_oil", 0.45], ["water_crystal", 0.3], ["healing_herb", 0.2], ["hi_potion", 0.05]], gil: [6, 10], model: "toad" },
   bog_leech: { name: "Bog Leech", color: "#5a2a2a", radius: 13, hpMul: 1.1, attMul: 0.95, defMul: 1.1, delay: 3.2, speed: 60, int: 4, aggro: { magic: 140, lowhp: 170 }, link: false, tpMove: { name: "Blood Drain", mul: 1.6, drain: true }, weak: { fire: 1.3 }, loot: [["worm_silk", 0.3], ["water_crystal", 0.3], ["ether", 0.08]], model: "worm", tint: 0x4a2226 },
   mire_goblin: { name: "Mire Goblin", color: "#58663a", radius: 15, hpMul: 1.05, attMul: 1.05, defMul: 1.05, delay: 3.0, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", tpMove: { name: "Bog Bomb", mul: 1.7, aoe: 75 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.25], ["mire_reed", 0.3], ["fire_crystal", 0.2], ["hi_potion", 0.06]], gil: [8, 14], model: "goblin" },
-  drowned: { name: "Drowned One", color: "#6f9a9a", radius: 15, hpMul: 1.2, attMul: 1.1, defMul: 1.05, delay: 3.0, speed: 85, aggro: { sound: 130, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Sodden Grasp", mul: 1.9, drain: true }, weak: { light: 1.5, lightning: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.35], ["ether", 0.1], ["hi_potion", 0.06]], model: "ghoul" },
+  drowned: { name: "Drowned One", color: "#6f9a9a", radius: 15, hpMul: 1.2, attMul: 1.1, defMul: 1.05, delay: 3.0, speed: 85, aggro: { sound: 130, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Sodden Grasp", mul: 1.9, drain: true }, weak: { light: 1.5, lightning: 1.2 }, loot: [["chapel_sigil", 0.12], ["bone_chip", 0.35], ["water_crystal", 0.35], ["ether", 0.1], ["hi_potion", 0.06]], model: "ghoul" },
   marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
+  tide_priest: { name: "Tidebound Priest", color: "#4dd0e1", radius: 20, hpMul: 3.2, attMul: 1.1, defMul: 1.2, delay: 3.6, speed: 80, int: 6, aggro: { sight: 240, sound: 220 }, link: false, tpMove: { name: "Drowning Tide", mul: 1.6, aoe: 110 }, weak: { lightning: 1.4, light: 1.3 }, nm: true, boss: true, scale: 1.6, aura: "#4dd0e1", respawn: 30, phases: [0.65], adds: "drowned", addsText: "calls the drowned up from the water!", enrage: 0.2, pulse: { at: 0.5, every: 22, dmg: 4, r: 170, name: "Maelstrom", el: "water" }, loot: [], gil: [40, 60], model: "ghoul" },
   chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.3], ["goblin_totem", 0.3], ["raider_helm", 0.25], ["iron_sword", 0.2], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
 };
 
@@ -6046,6 +6056,19 @@ ZONES.marsh = {
   },
   start: { x: 1400, y: 95 }
 };
+ZONES.marsh.npcs.push({ id: "chapel_door", x: 600, y: 2120 });
+
+ZONES.depths = {
+  name: "Chapel Depths", w: 1200, h: 900, theme: "crypt", battlefield: true,
+  exits: [{ x: 0, y: 400, w: 24, h: 100, to: "marsh", tx: 640, ty: 2050, label: "Chapel Steps" }],
+  npcs: [],
+  walls: [{ x: 0, y: 0, w: 260, h: 220 }, { x: 0, y: 680, w: 260, h: 220 }, { x: 940, y: 0, w: 260, h: 220 }, { x: 940, y: 680, w: 260, h: 220 }, { x: 260, y: 0, w: 680, h: 60 }, { x: 260, y: 840, w: 680, h: 60 }],
+  pillars: [[380, 300], [380, 600], [820, 300], [820, 600]],
+  water: [{ x: 1030, y: 450, r: 110 }],
+  spawns: [{ fam: "tide_priest", lv: [16, 16], x: 860, y: 450, bf: true }],
+  landmarks: [],
+  start: { x: 80, y: 450 }
+};
 
 ZONES.den.paths.push({ w: 34, pts: [[1250, 1120], [1200, 1400], [1200, 1600], [1200, 2100]] });
 
@@ -6066,6 +6089,7 @@ const NPCS = {
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
   crystal_town: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
+  chapel_door: { name: "Sealed Chapel Door", prop: "tablet", talk: "talkChapelDoor" },
   ilsa: { name: "Ilsa, Harbor Master", model: "ilsa", talk: "talkIlsa" },
   marn: { name: "Marn, Fishmonger", model: "marn", talk: "talkMarn" },
   vela: { name: "Vela, Outfitter", model: "vela", talk: "talkVela" },
@@ -6198,6 +6222,7 @@ const BESTIARY = {
   marsh_hare: { type: "Beast", lore: "Long-legged hares that live among the reeds. Peaceful, quick and very hard to catch." },
   old_croaker: { type: "Amphibian", lore: "A toad the size of a cart, older than the Outpost. The reed cutters leave it offerings and keep their distance." },
   mirelord_gax: { type: "Beastman", lore: "A self-crowned goblin lord who rules Mire Village with a notched cleaver and a booming laugh." },
+  tide_priest: { type: "Undead", lore: "A priest who drowned holding the chapel against the rising marsh, and never stopped holding it. The sigils were his; he wants them back." },
   ossuary_warden: { type: "Undead", lore: "A ghoul draped in grave silk that keeps watch over the ossuary. It drains warmth from the air around it." }
 };
 
@@ -6243,6 +6268,7 @@ const ACHIEVEMENTS = [
   { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", gil: 150, test: s => (s.stats.ride || 0) >= 20000 },
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
+  { id: "priest", icon: "🔱", name: "Tidebreaker", desc: "Defeat the Tidebound Priest in the Chapel Depths.", gil: 500, test: s => (s.stats.bfWins || 0) >= 1 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
@@ -6299,7 +6325,7 @@ const WEATHER = {
 
 const SHOPS = {
   marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
-  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe"]
+  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil"]
 };
 const MOUNT_COATS = {
   teal: { name: "Marsh Teal", main: 0x3f6f6a, dark: 0x2a4a48, glow: 0x6ff0e8, price: 0 },
@@ -6321,6 +6347,8 @@ const PETS = {
   frost: { name: "Frost Sprite", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Frost Lance", weak: "fire" },
   gale: { name: "Gale Sprite", el: "wind", col: 0xaed581, eye: 0xf1f8e9, pact: "Cyclone", weak: "earth" }
 };
+
+const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["tide_crown", "abyssal_staff", "drowned_blade", "priest_mantle", "tidebreaker_bow"], gil: 1500, xp: 3000 };
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -6396,7 +6424,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0 }, board: { day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -7436,6 +7464,50 @@ function tickFish() {
   else if (f.state === "bite" && S.time > f.until) { S.fish = null; log("The fish slips the hook.", "sys"); }
 }
 
+function enterBattlefield() {
+  if (invCount("chapel_sigil") < 1) return "You need a Chapel Sigil.";
+  if (partyInCombat()) return "Not during a fight.";
+  removeItem("chapel_sigil", 1);
+  if (player.mounted) dismount(null);
+  enterZone(BATTLEFIELD.zone, ZONES[BATTLEFIELD.zone].start.x, ZONES[BATTLEFIELD.zone].start.y);
+  S.bf = { t0: S.time, until: S.time + BATTLEFIELD.minutes * 60, won: false };
+  S.spawnAt = S.zone.spawns.map(() => S.time + 3);
+  log("The sigil crumbles and the door grinds open. Defeat the Tidebound Priest within " + BATTLEFIELD.minutes + " minutes!", "foe");
+  sfx("notify");
+  return "";
+}
+
+function tickBattlefield() {
+  const b = S.bf;
+  if (!b || b.won) return;
+  if (S.ko || !S.party.some(p => p.alive)) { S.bf = null; return; }
+  if (S.time >= b.until) {
+    S.bf = null;
+    log("The water rises and sweeps you out of the chapel. Time's up.", "foe");
+    enterZone("marsh", 640, 2050);
+    return;
+  }
+  const boss = S.mobs.find(m => m.famKey === "tide_priest");
+  if (b.seen && boss && !boss.alive && !b.won) winBattlefield();
+  if (boss && boss.alive) b.seen = true;
+}
+
+function winBattlefield() {
+  S.bf.won = true;
+  save.stats.bfWins++;
+  for (const m of S.mobs) if (m.alive && m.summonedBy) onKO(m, player);
+  const pool = BATTLEFIELD.rewards.filter(id => !hasItem(id));
+  const prize = pool.length ? pick(pool) : null;
+  log("The Tidebound Priest sinks beneath the water. The chapel falls silent.", "loot");
+  if (prize) giveItem(prize, 1);
+  save.gil += BATTLEFIELD.gil;
+  log("You obtain " + BATTLEFIELD.gil + " crystals.", "loot");
+  gainXp(BATTLEFIELD.xp);
+  sfx("fanfare");
+  uiEvent("bf", { prize });
+  saveGame();
+}
+
 function boardDay() { return Math.floor(Date.now() / 86400000); }
 
 function boardToday() {
@@ -8029,7 +8101,7 @@ function updateMob(m, dt) {
   if (m.state === "combat") {
     for (const [e, v] of m.enmity) m.enmity.set(e, Math.max(1, v * (1 - 0.04 * dt)));
     const t = topEnmity(m);
-    if (!t || Math.hypot(m.x - m.home.x, m.y - m.home.y) > CONFIG.leash) {
+    if (!t || (!S.zone.battlefield && Math.hypot(m.x - m.home.x, m.y - m.home.y) > CONFIG.leash)) {
       if (t) log("The " + m.name + " loses interest.", "sys");
       m.state = "return";
       m.enmity.clear();
@@ -8090,18 +8162,30 @@ function bossPhases(m, t) {
   const frac = m.hp / m.maxHp;
   if (f.phases && m.phase < f.phases.length && frac <= f.phases[m.phase]) {
     m.phase++;
-    log("The " + m.name + " calls for his Royal Guards!", "foe");
+    log("The " + m.name + " " + (f.addsText || "calls for his Royal Guards!"), "foe");
     popText(m, "Rise!", "#ffd54f", 18, 1.4, 30);
     ring(m, "#ffd54f", 70, 0.9, "burst");
     sfx("tpready", m);
     vfx("levelup", { tgt: m });
     for (const sgn of [-1, 1]) {
-      const g = spawnExtra("royal_guard", Math.max(1, m.lv - 2), m.x + sgn * 60, m.y + 40);
+      const g = spawnExtra(f.adds || "royal_guard", Math.max(1, m.lv - 2), m.x + sgn * 60, m.y + 40);
       g.summonedBy = m;
       aggro(g, t);
       addEnmity(g, t, 50);
     }
     S.shake = Math.max(S.shake, 0.3);
+  }
+  if (f.pulse && frac <= f.pulse.at && S.time >= (m.nextPulse || 0)) {
+    if (!m.nextPulse) { m.nextPulse = S.time + 4; log("The water around the " + m.name + " begins to churn...", "foe"); }
+    else {
+      m.nextPulse = S.time + f.pulse.every;
+      log("The " + m.name + " unleashes " + f.pulse.name + "!", "foe");
+      popText(m, f.pulse.name, "#4fc3f7", 18, 1.4, 30);
+      ring(m, "#4fc3f7", f.pulse.r * 0.6, 1.0, "burst");
+      S.shake = Math.max(S.shake, 0.35);
+      sfx(f.pulse.el, m);
+      for (const p of S.party) if (p.alive && dist(p, m) <= f.pulse.r) { vfx("nuke", { src: m, tgt: p, el: f.pulse.el }); applyDamage(m, p, Math.round(f.pulse.dmg * m.lv * rand(0.9, 1.1)), { color: "#4fc3f7", size: 18 }); }
+    }
   }
   if (f.enrage && !m.enraged && frac <= f.enrage) {
     m.enraged = true;
@@ -8423,6 +8507,7 @@ function enterZone(id, x, y) {
   const prev = S.zoneId;
   S.fish = null;
   if (S.race && id !== RACE.zone) S.race = null;
+  if (S.bf && id !== BATTLEFIELD.zone) { if (!S.bf.won) log("You leave the Chapel Depths. The battle is lost.", "sys"); S.bf = null; }
   S.zoneId = id;
   S.zone = ZONES[id];
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
@@ -8696,7 +8781,7 @@ function harvestGarden(i) {
   return "";
 }
 
-function spawnAllowed(sp) { return !sp.time || sp.time === period(); }
+function spawnAllowed(sp) { if (sp.bf && !(S.bf && !S.bf.won)) return false; return !sp.time || sp.time === period(); }
 
 function spawnMob(i) {
   const sp = S.zone.spawns[i];
@@ -8820,6 +8905,7 @@ function step(dt) {
   if (S.fish) tickFish();
   if (S.race) tickRace();
   if (S.pet) tickPet();
+  if (S.bf) tickBattlefield();
   if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
@@ -9371,6 +9457,12 @@ const TALK = {
     openDialog(n.name, "Notes pinned to the board ask for supplies. " + (left ? left + " request" + (left > 1 ? "s are" : " is") + " still open today." : "Every request is filled for today. New notes go up tomorrow."), [
       { label: "Read the requests", fn: () => { closeDialog(); openModal("board"); } }
     ]);
+  },
+  talkChapelDoor(n) {
+    const have = invCount("chapel_sigil");
+    openDialog(n.name, "A sealed door half-sunk in black water. A socket in the stone is shaped like a sigil. Something vast breathes beyond it." + (have ? " You carry " + have + " Chapel Sigil" + (have > 1 ? "s" : "") + "." : " You need a Chapel Sigil. The Drowned sometimes carry them, and Vela in Saltreach sells them."), have ? [
+      { label: "Use a Chapel Sigil and enter (" + BATTLEFIELD.minutes + "-minute battle)", fn: () => { closeDialog(); const why = enterBattlefield(); if (why) { log(why, "sys"); sfx("error"); } } }
+    ] : []);
   },
   talkIlsa(n) {
     const g = questOptions("ilsa", n);
@@ -10303,7 +10395,7 @@ function buildParty() {
     row.className = "pf glass";
     const job = JOBS[p.job] || { icon: "?", color: "#ccc" };
     row.innerHTML = '<div class="por" style="border-color:' + (p.color || job.color) + '">' + job.icon + "<em></em></div><div><div class=\"top\"><span class=\"nm\"></span><span class=\"jb\"></span></div><div class=\"bars\">" +
-      '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div></div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
+      '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div>' + (p === player ? '<div class="bar xp" title="Experience"><i id="pfXp"></i></div>' : "") + '</div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
     row.onclick = () => { setTarget(p); sfx("select"); };
     const q = s => row.querySelector(s);
     const bars = row.querySelectorAll(".bars .bar");
@@ -10520,6 +10612,7 @@ function drawMinimap() {
   }
   for (const mb of S.mobs) {
     if (!mb.alive || mb.despawned) continue;
+    if (dist(mb, player) > 360 && player.target !== mb && !(mb.state === "combat" && mb.enmity && [...mb.enmity.keys()].some(isParty))) continue;
     dot(mb.x, mb.y, mb.fam.nm ? 6 : 4, mb.passive ? "#c8b48a" : "#e07a5f", mb.fam.nm ? "#ff4d6d" : mb.state === "combat" ? "#ff2a2a" : "#000");
   }
   if (S.race && RACE.checkpoints[S.race.next]) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 9, "rgba(255,213,79,.85)", "#000"); }
@@ -10666,6 +10759,7 @@ function uiEvent(type, d) {
   if (type === "target") { tgtCmdOpen(d); return; }
   if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name + (d.gil ? " · +" + d.gil + " 💠" : ""), "r-epic"); return; }
   if (type === "bond") { toast("💞", "Bond level " + d.lv, MERCS[d.id].name, "r-rare"); return; }
+  if (type === "bf") { toast("🔱", "Victory!", d.prize ? ITEMS[d.prize].name : "The chapel is quiet", "r-epic"); return; }
   if (type === "race") { UI.mmForce = true; return; }
   if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
   if (type === "beast") { toast("📖", "Bestiary", d.name, "r-uncommon"); return; }
@@ -10730,6 +10824,7 @@ function updateBottom() {
   setTxt($("lvl"), "Lv " + player.lv + " " + player.job + (player.sub ? "/" + player.sub + Math.floor(player.lv / 2) : ""));
   const need = xpNeed(j.lv);
   setW($("xpfill"), need ? 100 * j.xp / need : 100);
+  if ($("pfXp")) setW($("pfXp"), need ? 100 * j.xp / need : 100);
   setTxt($("xpt"), need ? j.xp + " / " + need + " XP (" + Math.floor(100 * j.xp / need) + "%)" : "Level cap");
   setTxt($("crystals"), "💠 " + save.gil);
   const ci = chainInfo();
@@ -10788,8 +10883,9 @@ function updateFish() {
 function updateRace() {
   const el = $("raceBox");
   if (!el) return;
-  const r = S.race;
-  el.classList.toggle("on", !!r);
+  const r = S.race, b = S.bf && !S.bf.won ? S.bf : null;
+  el.classList.toggle("on", !!(r || b));
+  if (b) { const left = Math.max(0, b.until - S.time); setHtml(el, "🔱 <b>" + Math.floor(left / 60) + ":" + String(Math.floor(left % 60)).padStart(2, "0") + "</b> <span class=\"sub\">· Defeat the Tidebound Priest</span>"); return; }
   if (!r) return;
   const t = S.time - r.t0, cp = RACE.checkpoints[r.next];
   const d = cp ? Math.round(Math.hypot(player.x - cp.x, player.y - cp.y) / 20) : 0;
@@ -11739,8 +11835,16 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v5.7.0 · built 2026-10-13 15:11 PDT";
+const BUILD_INFO = "v5.8.0 · built 2026-10-13 15:38 PDT";
 const UPDATES = [
+  { v: "5.8.0", date: "2026-10-13", title: "Battlefield: the Chapel Depths", items: [
+    "New battlefield: use a Chapel Sigil at the sealed door in the Drowned Chapel (Ashen Marsh) to fight the Tidebound Priest, a level 16 boss with summoned Drowned, a Maelstrom area attack and an enrage, against a 15-minute timer.",
+    "Win one of five new level 15 treasures (Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle, Tidebreaker Bow) plus crystals and XP. New achievement: Tidebreaker.",
+    "Chapel Sigils drop from the Drowned and are sold by Vela.",
+    "Screen changes: your XP bar now sits under your health in your party frame; on phones the chat log sits in the bottom-left corner and the action bar stacks three wide on the right.",
+    "Monsters only show on the minimap when they're near you (or fighting your party, or targeted).",
+    "Character creation now starts as male with the second-lightest skin tone."
+  ] },
   { v: "5.7.0", date: "2026-10-13", title: "Ranger and Summoner", items: [
     "New advanced job: Ranger. Bows (Shortbow, Yew Bow, Steel Longbow) fire from range, so you can stay back while the monster comes to you. Sharpshot, Barrage and Shadowbind; weapon skills Piercing Arrow, Flaming Volley and Gale Arrow. Arrows streak across to the target.",
     "New advanced job: Summoner. Call an Ember, Frost or Gale Sprite to fight beside you (it joins your party frame and drains a little MP every 3 seconds). Blood Pact makes it unleash its element; Elemental Siphon pulls MP back; Release sends it home.",
@@ -11999,6 +12103,12 @@ function tabHelp() {
     ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–14 gear), home point, trade board, docks"],
     ["Ashen Marsh", "9–16", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("🔱 Battlefield: the Chapel Depths", ul([
+    "A sealed door stands in the Drowned Chapel ruins of the Ashen Marsh. A <b>Chapel Sigil</b> opens it (the Drowned sometimes carry one; Vela in Saltreach sells them). The sigil is used up when you enter.",
+    "Inside, defeat the <b>Tidebound Priest</b> (level 16 boss) within " + BATTLEFIELD.minutes + " minutes. At 65% HP it raises two Drowned; below half it casts Maelstrom on everyone near it every 22 seconds; below 20% it enrages. It never leashes inside the chapel.",
+    "Victory: " + BATTLEFIELD.gil + " crystals, " + BATTLEFIELD.xp + " XP and one treasure you don't own yet: Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle or Tidebreaker Bow. Leaving, wiping or running out of time ends the attempt.",
+    "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
+  ]));
   h += sec("⚓ Saltreach Harbor", ul([
     "A second town, through the south exit of the Ashen Marsh. You can set your home point at its crystal.",
     "<b>Ilsa</b>, the harbor master: <i>Catch of the Day</i> (level 6, 3 Harbor Bream → Sea Rod) and <i>Salt and Steel</i> (level 12, 5 Mire Goblins → Tide Ring).",
@@ -12098,7 +12208,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "5.7.0";
+const GAME_VERSION = "5.8.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -14580,6 +14690,7 @@ function mobLook(m) {
     if (key === "royal_guard") return { kind: "human", look: { skull: true, skin: 0xe0dccc, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "chain", color2: 0xd8b040 }, legs: 0xe0dccc, barefoot: true, head: { type: "cap", color: 0x5a5a62 }, weapon: "sword", weaponId: "bronze_sword", prop: { girth: 0.75 } } };
     return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
   }
+  if (key === "tide_priest") return { kind: "human", look: { skull: true, skin: 0x7aa6a6, noFace: true, headRegion: "bone", eyesGlow: 0x4dd0e1, top: { type: "robe", color: 0x14303a, trim: 0x4dd0e1, glowTrim: true }, head: { type: "hood", color: 0x0f2530 }, legs: 0x14303a, barefoot: true, weapon: "staff", weaponId: "holly_staff" } };
   if (model === "ghoul") {
     const warden = key === "ossuary_warden";
     return { kind: "human", look: { skin: warden ? 0x6a8a74 : 0x8fa890, noFace: true, eyesGlow: warden ? 0x69f0ae : 0xff3030, claws: true, barefoot: true, top: { type: "rags", color: warden ? 0x1c2621 : 0x3a3a30, sleeves: "none" }, legs: 0x4a4a3e, hair: { style: "long", color: 0x6a6a60 }, head: warden ? { type: "hood", color: 0x1c2621 } : null, prop: { arm: 0.72, leg: 0.82, headR: 0.118, girth: 0.82 } } };
@@ -16782,7 +16893,8 @@ function showCharCreate() {
     return l;
   };
   CC.look = randomLook();
-  CC.look.height = 2; CC.look.girth = 2;
+  CC.look.build = 0; CC.look.skin = 1; CC.look.height = 2; CC.look.girth = 2;
+  CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[0][0]);
   CC.name = "";
   $("ldSub").textContent = "Create your character";
   const box = $("charSel");
