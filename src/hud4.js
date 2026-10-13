@@ -11,7 +11,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], board: ["Trade Board", "📋", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -622,6 +622,7 @@ function uiEvent(type, d) {
   if (type === "target") { tgtCmdOpen(d); return; }
   if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name + (d.gil ? " · +" + d.gil + " 💠" : ""), "r-epic"); return; }
   if (type === "bond") { toast("💞", "Bond level " + d.lv, MERCS[d.id].name, "r-rare"); return; }
+  if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
   if (type === "beast") { toast("📖", "Bestiary", d.name, "r-uncommon"); return; }
   if (type === "item") {
     const it = ITEMS[d.id];
@@ -715,7 +716,20 @@ function updateBottom() {
   setTxt($("mountLbl"), player.mounted ? "Dismount" : "Mount");
 }
 
+function updatePool() {
+  const el = $("pool");
+  if (!el) return;
+  const p = S.pool || [];
+  if (!p.length) { if (el.classList.contains("on")) { el.classList.remove("on"); el.innerHTML = ""; UI.poolSig = ""; } return; }
+  const sig = p.map(e => e.seq + ":" + e.mine + ":" + Math.ceil(e.until - S.time)).join("|");
+  if (sig === UI.poolSig) return;
+  UI.poolSig = sig;
+  el.classList.add("on");
+  el.innerHTML = '<div class="ph">🎲 TREASURE POOL</div>' + p.map(e => '<div class="pe"><span>' + (ITEMS[e.id].icon || "📦") + "</span><b>" + esc(ITEMS[e.id].name) + " <small>" + Math.max(0, Math.ceil(e.until - S.time)) + "s</small></b>" + (e.mine == null ? '<button data-lot="' + e.seq + '" class="pri">Lot</button><button data-pass="' + e.seq + '">Pass</button>' : "<small>" + (e.mine ? "Lot " + e.mine : "Passed") + "</small>") + "</div>").join("");
+}
+
 function updateHud(dt) {
+  updatePool();
   UI.phone = window.innerWidth <= 720;
   updateParty();
   updateTarget();
@@ -729,6 +743,8 @@ function updateHud(dt) {
 }
 
 function initHud() {
+  $("pool").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; e.stopPropagation(); if (b.dataset.lot) lotPool(+b.dataset.lot, false); else if (b.dataset.pass) lotPool(+b.dataset.pass, true); UI.poolSig = ""; });
+  for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("pool").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("tCmd").addEventListener("click", e => { const b = e.target.closest("[data-tc]"); if (b) { e.stopPropagation(); onTgtCmd(b.dataset.tc); } });
   for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("tCmd").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("chatTabs").addEventListener("click", e => {

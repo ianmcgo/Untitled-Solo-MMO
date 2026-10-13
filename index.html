@@ -73,6 +73,14 @@
   #tCmd button:hover { border-color: #e6c36a; }
   #tCmd button.pri { border-color: #e6c36a; color: #ffe7a8; }
   #tCmd button.off { opacity: 0.45; }
+  #pool { position: absolute; left: calc(10px + var(--sal)); bottom: calc(230px + var(--sab)); width: 250px; padding: 7px 8px; display: none; pointer-events: auto; z-index: 6; }
+  #pool.on { display: block; }
+  #pool .ph { font-size: 11px; color: var(--gold); letter-spacing: .06em; margin-bottom: 4px; }
+  #pool .pe { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-top: 1px solid rgba(255,255,255,.07); font-size: 12.5px; }
+  #pool .pe:first-of-type { border-top: 0; }
+  #pool .pe b { flex: 1; font-weight: 600; }
+  #pool .pe small { color: var(--muted); }
+  #pool button { padding: 3px 8px; font-size: 12px; border-radius: 6px; }
   #tCmd .tcHead button { padding: 2px 8px; text-align: center; }
   #tCmd .tcInfo { flex-basis: 100%; font-size: 12.5px; color: #d8d0bc; line-height: 1.4; }
   #target { position: absolute; left: 50%; top: calc(8px + var(--sat)); transform: translateX(-50%); width: 360px; padding: 7px 10px 8px; display: none; }
@@ -453,6 +461,7 @@
     #trBtns button { width: 28px; height: 28px; font-size: 13px; }
     #tracker { position: absolute; right: 0; top: 100%; margin-top: 4px; width: 150px; font-size: 10px; }
     #chat { width: 56vw; bottom: calc(196px + var(--sab)); }
+    #pool { bottom: calc(420px + var(--sab)); width: 210px; }
     #chat:not(.min) #log { height: 160px; }
     #bottom { left: auto; right: calc(6px + var(--sar)); transform: none; align-items: flex-end; }
     #actionBar { grid-template-columns: repeat(5, var(--slot)); }
@@ -502,7 +511,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.1.0 · built 2026-10-13 13:47 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.2.0 · built 2026-10-13 13:53 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -520,6 +529,7 @@
       <div id="tChain"></div>
     </div>
     <div id="tCmd" class="glass"></div>
+    <div id="pool" class="glass"></div>
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
@@ -5317,6 +5327,7 @@ void main() {
 <script>
 const CONFIG = {
   levelCap: 15,
+  poolTime: 45,
   meleeRange: 42,
   tpMax: 3000,
   tpPerDelay: 40,
@@ -5727,7 +5738,8 @@ const ZONES = {
     npcs: [
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
       { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
-      { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] }
+      { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
+      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }
     ],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
@@ -5946,6 +5958,8 @@ const NPCS = {
   rhea: { name: "Captain Rhea", model: "rhea", talk: "talkRhea" },
   tobin: { name: "Tobin, Job Master", model: "tobin", talk: "talkTobin" },
   pell: { name: "Pell, Merchant", model: "pell", talk: "talkPell" },
+  garrick: { name: "Garrick, Smith", model: "garrick", talk: "talkGarrick" },
+  trade_board: { name: "Trade Board", prop: "board", talk: "talkBoard" },
   odette: { name: "Odette, Furnishings", model: "odette", talk: "talkOdette", shop: "furniture" },
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
@@ -6101,10 +6115,35 @@ const ACHIEVEMENTS = [
   { id: "bond", icon: "💞", name: "Kindred Spirits", desc: "Reach bond level 5 with a companion.", gil: 250, test: s => Object.values(s.bond).some(b => b >= COMPANION_CFG.bondSteps[5]) },
   { id: "bestiary10", icon: "📖", name: "Naturalist", desc: "Record 10 creatures in the bestiary.", gil: 100, test: s => Object.keys(s.bestiary).length >= 10 },
   { id: "bestiary_all", icon: "📕", name: "Complete Bestiary", desc: "Record every creature in the bestiary.", gil: 500, test: s => Object.keys(BESTIARY).every(k => s.bestiary[k]) },
+  { id: "trader", icon: "📋", name: "Odd Jobs", desc: "Fill 10 trade board requests.", gil: 150, test: s => (s.stats.trades || 0) >= 10 },
+  { id: "augment", icon: "🔨", name: "Tinkerer", desc: "Augment a piece of gear.", gil: 80, test: s => Object.keys(s.augments || {}).length >= 1 },
+  { id: "lotwin", icon: "🎲", name: "Lucky Roll", desc: "Win a treasure pool lot.", gil: 40, test: s => (s.stats.lotsWon || 0) >= 1 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
 ];
+
+const TRADE_REQUESTS = [
+  { id: "t_copper", who: "The forge", items: { copper_ore: 4 }, gil: 160, xp: 60 },
+  { id: "t_iron", who: "The forge", items: { iron_ore: 3 }, gil: 320, xp: 120 },
+  { id: "t_logs", who: "The carpenters", items: { ash_log: 4 }, gil: 150, xp: 60 },
+  { id: "t_herbs", who: "The infirmary", items: { healing_herb: 5 }, gil: 140, xp: 50 },
+  { id: "t_pouch", who: "Captain Rhea's quartermaster", items: { goblin_pouch: 3 }, gil: 180, xp: 80 },
+  { id: "t_wing", who: "A cobbler", items: { bat_wing: 3 }, gil: 200, xp: 80 },
+  { id: "t_silk", who: "A tailor", items: { worm_silk: 3 }, gil: 220, xp: 90 },
+  { id: "t_bone", who: "The chapel", items: { bone_chip: 4 }, gil: 260, xp: 110 },
+  { id: "t_oil", who: "An alchemist", items: { toad_oil: 3 }, gil: 380, xp: 160 },
+  { id: "t_reed", who: "The basket weavers", items: { mire_reed: 4 }, gil: 300, xp: 130 },
+  { id: "t_ingot", who: "The armoury", items: { bronze_ingot: 2 }, gil: 340, xp: 140 },
+  { id: "t_potion", who: "A nervous traveller", items: { potion: 3 }, gil: 150, xp: 40 },
+  { id: "t_fire", who: "The lamplighters", items: { fire_crystal: 2 }, gil: 110, xp: 40 },
+  { id: "t_water", who: "The well keeper", items: { water_crystal: 2 }, gil: 110, xp: 40 }
+];
+const TRADE_DAILY = 3;
+
+const AUGMENT_STATS = [["str", 1, 3], ["dex", 1, 3], ["vit", 1, 3], ["agi", 1, 3], ["int", 1, 3], ["mnd", 1, 3], ["att", 2, 6], ["def", 2, 5], ["acc", 2, 5], ["eva", 2, 5], ["hp", 6, 15], ["mp", 5, 12]];
+const AUGMENT_CFG = { max: 2, gilPerLv: 60, mats: { iron_ore: 1, fire_crystal: 1 }, reforgeGilPerLv: 40 };
+const STAT_LABELS = { str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT", mnd: "MND", att: "Attack", def: "Defense", acc: "Accuracy", eva: "Evasion", hp: "HP", mp: "MP" };
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -6168,7 +6207,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0 }
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -6396,12 +6435,14 @@ function buildStats(ch) {
   const g = { hp: 0, mp: 0, acc: 0, att: 0, def: 0, eva: 0 };
   for (const k of ATTRS) g[k] = 0;
   let dmg = 3, delay = 2.4, wtype = "h2h";
+  const augs = ch.kind === "pc" && typeof save !== "undefined" && save.augments ? save.augments : null;
   for (const slot of SLOTS) {
     const id = ch.gear[slot];
     if (!id) continue;
     const it = ITEMS[id];
     if (it.wtype) { dmg = it.dmg; delay = it.delay; wtype = it.wtype; }
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
+    if (augs && augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
   }
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
   if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
@@ -6967,6 +7008,7 @@ function dropLoot(m) {
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1)) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
+    if (ITEMS[id].kind === "equip" && S.party.length > 1) { addToPool(id); continue; }
     giveItem(id, 1);
   }
   if (m.fam.gil) {
@@ -6975,6 +7017,127 @@ function dropLoot(m) {
     log("You obtain " + g + " crystals.", "loot");
     sfx("coin");
   }
+}
+
+function addToPool(id) {
+  S.pool = S.pool || [];
+  S.pool.push({ id, until: S.time + CONFIG.poolTime, lots: {}, mine: null, seq: ++S.mobSeq });
+  log("The " + ITEMS[id].name + " goes into the treasure pool.", "loot");
+  sfx("loot");
+  uiEvent("pool", { id });
+}
+
+function poolUpgrade(merc, id) {
+  const it = ITEMS[id], cur = merc.gear[it.slot];
+  if (mercCanWear(merc.mercId, id)) return false;
+  if (!cur) return true;
+  const c = ITEMS[cur];
+  return (it.lv || 0) > (c.lv || 0) || ((it.lv || 0) === (c.lv || 0) && (it.dmg || 0) + Object.values(it.stats || {}).reduce((a, b) => a + b, 0) > (c.dmg || 0) + Object.values(c.stats || {}).reduce((a, b) => a + b, 0));
+}
+
+function lotPool(seq, pass) {
+  const e = (S.pool || []).find(x => x.seq === seq);
+  if (!e || e.mine != null) return;
+  if (pass) { e.mine = 0; log("You pass on the " + ITEMS[e.id].name + ".", "sys"); }
+  else { e.mine = 1 + Math.floor(Math.random() * 999); log("You lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); }
+  sfx("select");
+  tickPool(true);
+}
+
+function tickPool(force) {
+  if (!S.pool || !S.pool.length) return;
+  for (const e of S.pool.slice()) {
+    for (const m of S.party) {
+      if (m === player || !m.mercId || e.lots[m.mercId] != null) continue;
+      if (S.time < e.until - CONFIG.poolTime + 1.5) continue;
+      if (poolUpgrade(m, e.id)) { e.lots[m.mercId] = 1 + Math.floor(Math.random() * 999); log(m.name + " lots " + e.lots[m.mercId] + " on the " + ITEMS[e.id].name + ".", "party"); }
+      else e.lots[m.mercId] = 0;
+    }
+    const allIn = e.mine != null && S.party.every(m => m === player || !m.mercId || e.lots[m.mercId] != null);
+    if (!allIn && S.time < e.until) continue;
+    if (e.mine == null) { e.mine = 1 + Math.floor(Math.random() * 999); log("Time's up: you lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); }
+    S.pool.splice(S.pool.indexOf(e), 1);
+    let best = e.mine, who = e.mine > 0 ? "me" : null;
+    for (const k in e.lots) if (e.lots[k] > best) { best = e.lots[k]; who = k; }
+    if (!who) { log("Nobody wanted the " + ITEMS[e.id].name + ". It is lost.", "sys"); continue; }
+    if (who === "me") { save.stats.lotsWon++; giveItem(e.id, 1); continue; }
+    const it = ITEMS[e.id], own = save.mercGear[who] = save.mercGear[who] || {};
+    if (own[it.slot]) giveItem(own[it.slot], 1, true);
+    own[it.slot] = e.id;
+    log(MERCS[who].name + " obtains the " + it.name + " and puts it on.", "party");
+    partySay(S.party.find(p => p.mercId === who), "gift", true);
+    syncAllies(false);
+  }
+  if (force) saveGame();
+}
+
+function boardDay() { return Math.floor(Date.now() / 86400000); }
+
+function boardToday() {
+  const day = boardDay();
+  if (save.board.day !== day) save.board = { day, done: [] };
+  const rnd = seeded(hashStr(String(save.created || 1) + ":" + day));
+  const pool = TRADE_REQUESTS.slice();
+  const out = [];
+  while (out.length < TRADE_DAILY && pool.length) out.push(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+  return out;
+}
+
+function fillTrade(id) {
+  const r = boardToday().find(x => x.id === id);
+  if (!r) return "That request is gone.";
+  if (save.board.done.includes(id)) return "Already filled today.";
+  for (const it in r.items) if (invCount(it) < r.items[it]) return "You need " + r.items[it] + " " + ITEMS[it].name + ".";
+  for (const it in r.items) removeItem(it, r.items[it]);
+  save.board.done.push(id);
+  save.stats.trades++;
+  save.gil += r.gil;
+  log("Trade filled for " + r.who + ": +" + r.gil + " crystals.", "loot");
+  sfx("coin");
+  gainXp(r.xp);
+  saveGame();
+  return "";
+}
+
+function augmentCost(id, reforge) {
+  const lv = Math.max(1, ITEMS[id].lv || 1);
+  return { gil: lv * (reforge ? AUGMENT_CFG.reforgeGilPerLv : AUGMENT_CFG.gilPerLv), mats: AUGMENT_CFG.mats };
+}
+
+function canAugment(id, reforge) {
+  const it = ITEMS[id];
+  if (!it || it.kind !== "equip") return "Only equipment can be augmented.";
+  if (!hasItem(id)) return "You don't have that.";
+  const cur = save.augments[id] || [];
+  if (!reforge && cur.length >= AUGMENT_CFG.max) return "That piece can't take more augments. Try reforging.";
+  if (reforge && !cur.length) return "Nothing to reforge yet.";
+  const c = augmentCost(id, reforge);
+  if (save.gil < c.gil) return "You need " + c.gil + " crystals.";
+  for (const m in c.mats) if (invCount(m) < c.mats[m]) return "You need " + c.mats[m] + " " + ITEMS[m].name + ".";
+  return "";
+}
+
+function rollAugment(taken) {
+  const opts = AUGMENT_STATS.filter(a => !taken.includes(a[0]));
+  const [k, lo, hi] = pick(opts);
+  return [k, lo + Math.floor(Math.random() * (hi - lo + 1))];
+}
+
+function augmentItem(id, reforge) {
+  const why = canAugment(id, reforge);
+  if (why) { sfx("error"); return why; }
+  const c = augmentCost(id, reforge);
+  save.gil -= c.gil;
+  for (const m in c.mats) removeItem(m, c.mats[m]);
+  let cur = reforge ? [] : (save.augments[id] || []).slice();
+  const n = reforge ? (save.augments[id] || []).length : 1;
+  for (let i = 0; i < n; i++) cur.push(rollAugment(cur.map(a => a[0])));
+  save.augments[id] = cur;
+  log("Garrick " + (reforge ? "reforges" : "augments") + " your " + ITEMS[id].name + ": " + cur.map(([k, v]) => STAT_LABELS[k] + " +" + v).join(", ") + ".", "loot");
+  sfx("unlock");
+  refreshPlayer(false);
+  saveGame();
+  return "";
 }
 
 function knows(ch, sp) {
@@ -8243,6 +8406,7 @@ function step(dt) {
   S.lmTimer -= dt;
   if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); } }
   tickSynth(dt);
+  if (S.pool && S.pool.length) tickPool(false);
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
   S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
@@ -8297,7 +8461,7 @@ function tabNext(list) {
 }
 
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && !n.away && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const people = S.npcs.filter(n => !n.crystal && !n.away && !n.prop && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const list = people.concat(crystals);
   if (!list.length) return false;
@@ -8706,6 +8870,17 @@ const TALK = {
     }
     if (adv.length) { openDialog(n.name, "Level " + player.lv + ". You've outgrown the basic callings. I can teach the advanced jobs to those who prove themselves." + advNote, opts.concat(adv)); return; }
     openDialog(n.name, "Your support job runs at half your main job's level. A Warrior with White Mage support can cure; a White Mage with Black Mage support can nuke." + (player.lv < 6 ? " Reach level 6 and I'll tell you about the advanced jobs." : ""), opts);
+  },
+  talkGarrick(n) {
+    openDialog(n.name, "Gear's only as good as the hands that finish it. Bring me iron ore, a fire essence and some crystals, and I'll work a little extra into any piece you own: up to two augments each. Don't like what you got? I can reforge it.", [
+      { label: "Augment gear", fn: () => { closeDialog(); openModal("forge"); } }
+    ]);
+  },
+  talkBoard(n) {
+    const left = boardToday().filter(r => !save.board.done.includes(r.id)).length;
+    openDialog(n.name, "Notes pinned to the board ask for supplies. " + (left ? left + " request" + (left > 1 ? "s are" : " is") + " still open today." : "Every request is filled for today. New notes go up tomorrow."), [
+      { label: "Read the requests", fn: () => { closeDialog(); openModal("board"); } }
+    ]);
   },
   talkPell(n) {
     openDialog(n.name, "Potions, ethers, arms and armor. Crystals talks, friend.", [
@@ -9371,7 +9546,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], board: ["Trade Board", "📋", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -9982,6 +10157,7 @@ function uiEvent(type, d) {
   if (type === "target") { tgtCmdOpen(d); return; }
   if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name + (d.gil ? " · +" + d.gil + " 💠" : ""), "r-epic"); return; }
   if (type === "bond") { toast("💞", "Bond level " + d.lv, MERCS[d.id].name, "r-rare"); return; }
+  if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
   if (type === "beast") { toast("📖", "Bestiary", d.name, "r-uncommon"); return; }
   if (type === "item") {
     const it = ITEMS[d.id];
@@ -10075,7 +10251,20 @@ function updateBottom() {
   setTxt($("mountLbl"), player.mounted ? "Dismount" : "Mount");
 }
 
+function updatePool() {
+  const el = $("pool");
+  if (!el) return;
+  const p = S.pool || [];
+  if (!p.length) { if (el.classList.contains("on")) { el.classList.remove("on"); el.innerHTML = ""; UI.poolSig = ""; } return; }
+  const sig = p.map(e => e.seq + ":" + e.mine + ":" + Math.ceil(e.until - S.time)).join("|");
+  if (sig === UI.poolSig) return;
+  UI.poolSig = sig;
+  el.classList.add("on");
+  el.innerHTML = '<div class="ph">🎲 TREASURE POOL</div>' + p.map(e => '<div class="pe"><span>' + (ITEMS[e.id].icon || "📦") + "</span><b>" + esc(ITEMS[e.id].name) + " <small>" + Math.max(0, Math.ceil(e.until - S.time)) + "s</small></b>" + (e.mine == null ? '<button data-lot="' + e.seq + '" class="pri">Lot</button><button data-pass="' + e.seq + '">Pass</button>' : "<small>" + (e.mine ? "Lot " + e.mine : "Passed") + "</small>") + "</div>").join("");
+}
+
 function updateHud(dt) {
+  updatePool();
   UI.phone = window.innerWidth <= 720;
   updateParty();
   updateTarget();
@@ -10089,6 +10278,8 @@ function updateHud(dt) {
 }
 
 function initHud() {
+  $("pool").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; e.stopPropagation(); if (b.dataset.lot) lotPool(+b.dataset.lot, false); else if (b.dataset.pass) lotPool(+b.dataset.pass, true); UI.poolSig = ""; });
+  for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("pool").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("tCmd").addEventListener("click", e => { const b = e.target.closest("[data-tc]"); if (b) { e.stopPropagation(); onTgtCmd(b.dataset.tc); } });
   for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("tCmd").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("chatTabs").addEventListener("click", e => {
@@ -10151,7 +10342,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -10167,11 +10358,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board"]) if (S.modal === t) tabs.unshift(t);
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -10432,6 +10623,7 @@ function tabInventory() {
     const it = ITEMS[s.id];
     h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Essence", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
+    if (augText(s.id)) h += '<div class="sub" style="margin-top:4px;color:#ce93d8">✨ Augments: ' + esc(augText(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
       const next = statsFor(Object.assign({}, save.gear, { [it.slot]: s.id }));
@@ -10795,6 +10987,41 @@ function tabBestiary() {
   return h;
 }
 
+function augText(id) {
+  const a = save.augments[id];
+  return a && a.length ? a.map(([k, v]) => STAT_LABELS[k] + " +" + v).join(", ") : "";
+}
+
+function tabForge() {
+  const c0 = AUGMENT_CFG;
+  let h = '<div class="sub" style="margin-bottom:8px">Each augment costs ' + c0.gilPerLv + ' crystals per item level, ' + Object.keys(c0.mats).map(m => c0.mats[m] + " " + ITEMS[m].name).join(" and ") + ". Up to " + c0.max + " augments per piece; reforging rerolls them all for " + c0.reforgeGilPerLv + " crystals per level plus the same materials. Augments apply to every copy of that item you own.</div>";
+  if (UI.forgeMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.forgeMsg) + "</div>";
+  const ids = [...new Set(Object.values(save.gear).concat(save.inventory.filter(x => ITEMS[x.id].kind === "equip").map(x => x.id)))].filter(Boolean);
+  if (!ids.length) return h + '<div class="item"><span class="sub">You have no equipment.</span></div>';
+  for (const id of ids) {
+    const it = ITEMS[id], cur = save.augments[id] || [];
+    const worn = Object.values(save.gear).includes(id);
+    const c = augmentCost(id, false), r = augmentCost(id, true);
+    h += '<div class="item"><div><b>' + (it.icon || "") + " " + esc(it.name) + "</b>" + (worn ? ' <span class="sub">(equipped)</span>' : "") + '<div class="sub">' + (cur.length ? "✨ " + esc(augText(id)) : "No augments") + "</div></div><div style=\"display:flex;gap:5px\">" +
+      (cur.length < c0.max ? '<button data-a="augment" data-v="' + id + '"' + (canAugment(id, false) ? " disabled" : "") + ">Augment · " + c.gil + " 💠</button>" : "") +
+      (cur.length ? '<button data-a="reforge" data-v="' + id + '"' + (canAugment(id, true) ? " disabled" : "") + ">Reforge · " + r.gil + " 💠</button>" : "") + "</div></div>";
+  }
+  return h;
+}
+
+function tabBoard() {
+  const list = boardToday();
+  let h = '<div class="sub" style="margin-bottom:8px">Townsfolk pin up requests each day. Fill them for crystals and experience. New notes go up at midnight (UTC).</div>';
+  if (UI.boardMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.boardMsg) + "</div>";
+  for (const r of list) {
+    const done = save.board.done.includes(r.id);
+    const need = Object.keys(r.items).map(it => ITEMS[it].name + " " + Math.min(invCount(it), r.items[it]) + "/" + r.items[it]).join(", ");
+    const ready = Object.keys(r.items).every(it => invCount(it) >= r.items[it]);
+    h += '<div class="item"' + (done ? ' style="opacity:.5"' : "") + "><div><b>" + esc(r.who) + '</b><div class="sub">Wants: ' + esc(need) + " · Pays " + r.gil + " 💠 + " + r.xp + " XP</div></div>" + (done ? '<span class="sub">Filled ✓</span>' : '<button data-a="trade" data-v="' + r.id + '"' + (ready ? "" : " disabled") + ">Hand over</button>") + "</div>";
+  }
+  return h;
+}
+
 function tabAchievements() {
   const got = ACHIEVEMENTS.filter(a => save.ach[a.id]).length;
   let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked. Most come with a crystal reward.</div>";
@@ -10896,6 +11123,9 @@ function onMenuClick(e) {
   else if (a === "hire") hireMerc(v);
   else if (a === "dismiss") dismissMerc(v);
   else if (a === "stance") setStance(v);
+  else if (a === "augment") { UI.forgeMsg = augmentItem(v, false); renderModal(); return; }
+  else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
+  else if (a === "trade") { UI.boardMsg = fillTrade(v); renderModal(); return; }
   else if (a === "mgive") { const [id, it] = v.split(":"); giveMercGear(id, it); }
   else if (a === "mtake") { const [id, sl] = v.split(":"); takeMercGear(id, sl); }
   else if (a === "open") { openMenu(v); return; }
@@ -10951,8 +11181,15 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v5.1.0 · built 2026-10-13 13:47 PDT";
+const BUILD_INFO = "v5.2.0 · built 2026-10-13 13:53 PDT";
 const UPDATES = [
+  { v: "5.2.0", date: "2026-10-13", title: "Treasure pool, Trade Board and the Forge", items: [
+    "Treasure pool: with companions in your party, equipment drops go into a pool above the chat. Lot or Pass; companions lot on upgrades for their job and wear what they win.",
+    "Trade Board in the Outpost: three supply requests a day for crystals and XP.",
+    "Garrick the smith: augment any equipment with up to two random stat bonuses, or reforge to reroll them. Augments show in the item details.",
+    "Three new achievements: Odd Jobs, Tinkerer and Lucky Roll.",
+    "Tab in town skips signs and boards and goes straight to people."
+  ] },
   { v: "5.1.0", date: "2026-10-13", title: "Thief and Monk", items: [
     "New advanced job: Thief. Daggers (A), Steal (lift an item off a monster), Sneak Attack (next hit is a sure critical with bonus damage), Flee (run 80% faster). Thieves crit 5% more often, and Treasure Hunter raises drop chances by 20% while you're a Thief.",
     "New advanced job: Monk. Hand-to-Hand (A) with Martial Arts (faster, harder fists), a 14% chance to follow up with a kick, Boost (next hit +50% and extra TP), Focus (accuracy and crits) and Chakra (heal yourself). Monks raise their fists in a boxing guard.",
@@ -11186,6 +11423,16 @@ function tabHelp() {
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
     "<b>Wages:</b> the hiring fee covers the first game day; after that each companion takes about 15% of their fee per game day. Wages wait until a fight ends. Time away from the game is free."
   ]));
+  h += sec("🎲 Treasure pool", ul([
+    "With companions in the party, equipment drops go into the treasure pool (the panel above the chat) instead of straight into your bag. Other loot still goes to your bag.",
+    "Press <b>Lot</b> to roll 1–999 or <b>Pass</b>. Companions lot only on pieces their job can use that beat what they're wearing. Highest lot wins. If a companion wins, they wear it right away (their old piece comes to your bag).",
+    "If you don't choose within 45 seconds you lot automatically. If everyone passes, the item is lost."
+  ]));
+  h += sec("📋 Trade Board and 🔨 Forge", ul([
+    "The <b>Trade Board</b> by the north path of the Outpost posts three requests a day (new ones at midnight UTC): hand over the materials for crystals and XP.",
+    "<b>Garrick the smith</b>, by the stalls, augments equipment: each augment adds a random bonus (STR, DEX, VIT, AGI, INT, MND, Attack, Defense, Accuracy, Evasion, HP or MP). Up to 2 per piece. Cost: 60 crystals per item level, 1 Iron Ore and 1 Fire Essence. Reforging rerolls all of a piece's augments for 40 crystals per level plus the same materials.",
+    "Augments belong to the item type: every copy of that item you own shares them. They only apply to you, not to companions wearing the same piece."
+  ]));
   h += sec("📖 Bestiary (Y)", ul([
     "A creature is recorded the first time you meet it: come within sight or target it. You learn its type, where it lives and a little lore.",
     "Defeat one to learn how it hunts (sight, sound, magic, weakness), whether it calls for help and its special attack.",
@@ -11231,7 +11478,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "5.1.0";
+const GAME_VERSION = "5.2.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -13065,6 +13312,7 @@ const MERC_BASE = {
 const NPC_LOOK = {
   rhea: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: 0x8a3a20 }, top: { type: "tabard", color: 0x9aa0a8, region: "chain", color2: 0x2f5c9a }, pauldrons: 0xb8bec6, cape: 0x1d3f75, legs: 0x3a3a44, boots: 0x3a2618, gloves: 0x5a3a22, belt: 0x4a2e1a, weapon: "sword" },
   tobin: { build: 0, skin: SKIN_TONES[0], hair: { style: "bald", color: 0xdedede }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x5a3a7a, trim: 0xd8b050, sleeves: "wide" }, legs: 0x3a2a4a, weapon: "staff", alwaysDrawn: true },
+  garrick: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: HAIR_COLORS[0] }, beard: 0x8a5a2c, longBeard: true, top: { type: "apron", color: 0x3a2a20, color2: 0x6a4a30 }, legs: 0x3a3028, boots: 0x2a1e14, gloves: 0x4a3020, belt: 0x2a1e14, weapon: "club", alwaysDrawn: false, prop: { girth: 1.2, shoulder: 0.215 } },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },
   brann: { build: 0, skin: SKIN_TONES[2], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
   ysolde: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
@@ -14944,6 +15192,15 @@ function propView(n) {
     const L = new THREE.PointLight(col, 10, 16, 1.5); L.position.y = 2.2;
     g.add(ped, bowl, coals, flame, flame2, L);
     v.flame = [flame, flame2]; v.light = L; v.meta.headTop = 2.6;
+  } else if (n.prop === "board") {
+    const wood = std({ color: 0x6a4a2a, roughness: 0.85 });
+    for (const sx of [-0.8, 0.8]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.2, 0.14), wood); post.position.set(sx, 1.1, 0); post.castShadow = true; g.add(post); }
+    const plank = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.1, 0.08), std({ color: 0x8a6a42, roughness: 0.9 })); plank.position.set(0, 1.55, 0.04); plank.castShadow = true;
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.08, 0.45), wood); roof.position.set(0, 2.2, 0.08); roof.rotation.x = -0.25;
+    g.add(plank, roof);
+    const cols = [0xf2ead8, 0xe8dcc0, 0xf8f0e0, 0xead8b8, 0xf0e4cc];
+    for (let i = 0; i < 6; i++) { const note = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.42), std({ color: cols[i % cols.length], roughness: 1 })); note.position.set(-0.6 + (i % 3) * 0.6, 1.8 - Math.floor(i / 3) * 0.5, 0.09); note.rotation.z = (i * 0.37 % 0.3) - 0.15; g.add(note); }
+    v.meta.headTop = 2.4;
   } else if (n.prop === "tablet") {
     const slab = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 0.3), stone); slab.position.y = 1.1; slab.castShadow = true;
     const runes = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.6), new THREE.MeshBasicMaterial({ color: 0x80cbc4, transparent: true, opacity: 0.35 })); runes.position.set(0, 1.15, 0.16);
