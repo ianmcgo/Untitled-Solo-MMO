@@ -14,7 +14,9 @@
 | P5b Paladin and Red Mage | Done (v4.3.0) |
 | P5c Quests (11) | Done (v4.4.0) |
 | P5d Sunken Crypt | Done (v4.5.0) |
-| P6 Residence, Pip, storage | Not started |
+| P6a Residence, Pip, storage, furniture | Done (v4.6.0) |
+| P6b Gardening, crafting, gathering | Next |
+| P7 Test and tune | Not started |
 
 ---
 
@@ -499,10 +501,24 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Rig: looks for the King (crown, cape, tabard), Sentinel (helm, mail, great axe) and Royal Guards.
 - Tests: `test/p5dunit.js` (layout, exit, gate solid, brazier order/wrong/right, key drop, door, phases, enrage, coffer sealing, chest loot and refill, save round trip, cooldown). `p5shots.js` has crypt scenes.
 
+## Phase 6a: residence, Pip, storage and the rest of the batch (v4.6.0)
+
+- **Residence.** Door exit (`kind: "door"`) on the west cottage of the Outpost → `ZONES.residence` (theme `house`, indoor, 10×8 `grid`). `buildHouse` draws floor, walls, door frame, windows with lights and beams; `syncFurniture` rebuilds `W3.furnRoot` from `save.furniture` whenever it changes (`furnitureMesh` per `ITEMS[id].model`). Furniture is solid through `furnitureRects()` in `keepOutOfRects` (rugs are `flat`). Pip is a prop NPC (`prop: "nubbin"`) with its own view (bobbing fuzzball that faces the player).
+- **Storage** (`save.storage`): `storageCap()` = `CONFIG.storageBase` + placed furniture `storage`; `storeItem(bagIdx)` / `retrieveItem(storageIdx)` respect stacks and capacity; key items can't be stored. Menu tab `storage` (via Pip).
+- **Furniture** (`save.furniture` = `{ id, c, r, rot }`): `furnFoot`, `furnCells`, `furnFits` (bounds, `grid.blocked`, overlaps unless one piece is flat), `placeFurniture`, `removeFurniture` (refuses if stored items wouldn't fit), `rotateFurniture`. Menu tab `home` (via Pip) draws the grid; `furnishings` is Odette's shop (`FURNITURE_SHOP`). Quest `home` uses `check: "furniture"` (`QUEST_CHECKS`).
+- **NPC schedules.** Outpost NPC entries carry `home` (house index) and `sleep: [bed, wake]` in game hours. `updateNpcs` walks a sleeping NPC to `npcDoor` (front of the house, by its rotation) and sets `away`; in the morning they reappear at the door and walk back to `post`. Away NPCs aren't drawn, labelled, targetable, talkable or on the minimap. `moveToward` now stops within `stop + 0.05` (a float edge kept NPCs 6.0000 px from the door).
+- **Monsters.** `spreadSpawns` relaxes spawn points apart (170 px in the Hollow, 120 elsewhere) and out of walls/water at load; wander radius is 150 (field) / 90. Spawns can be `passive` (set for low-level goblins and worms in the Hollow): `buildMob` copies `aggro` per mob and `detects` reads `m.aggro`; passive mobs only fight when attacked and the target frame says "passive". Detection types and aggro decals are no longer shown (`updateAggroHints` disabled; setting removed).
+- **Loot.** Only NMs drop equipment: regular family loot lists hold materials and consumables; the 5a drop gear moved onto the NM tables; chests hold materials and consumables.
+- **Currency** text is "crystals" (💠); identifiers stay `gil`. **Home points** only in town (the Hollow crystal is gone; `normalizeSave` resets a non-town home).
+- **Menus.** `MAIN_TABS` is character/inventory/skills/actions/quests/map/settings; Help, Updates, System and Credits are buttons under Settings (and keyboard H). System lost Controls/About (Help has controls). `tabCredits` and the title-screen `#ldCred` carry the maker's links. The Character tab lists only jobs with progress. `gameConfirm(title, text, onYes, opts)` replaces every `confirm()` (`#confirmBox`, Enter/Esc). The what's-new card after an update is a toast + log line.
+- **Loading showcase.** Zone loading screens show a random subject from `LORE` (monster family, NM or NPC) rendered with the preview renderer (`startShowcase` / `renderShowcase` / `stopShowcase`, `showcaseEntity` fakes an entity for `buildEntityRig`).
+- Tests: `test/p6unit.js` (door, Odette, bedtimes and returns, no talking indoors, Pip, storage cap, placement rules, Storage Chest capacity, quest completion, store/retrieve, pack-away refusal, rotation, solidity, save round trip, passive monsters, spawn spacing).
+
 ## Version log
 
 | Version | Change |
 |---|---|
+| 4.6.0 | Phase 6a: residence, Pip, storage, NPC schedules, passive monsters, NM-only gear, crystals, menu rework, in-game confirms, loading showcase (above). |
 | 4.5.0 | Phase 5d: the Sunken Crypt (above). Creation labels sex instead of build. |
 | 4.4.0 | Phase 5c: quests (above). |
 | 4.3.0 | Phase 5b: Paladin and Red Mage (above). |

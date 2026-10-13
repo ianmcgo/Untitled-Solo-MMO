@@ -120,7 +120,7 @@ function syncEntity(e, dt) {
     const k = (S.time - e.deadAt - 1.4) / 1.0;
     g.position.y -= clamp(k, 0, 1) * 1.2;
     g.visible = !e.despawned && k < 1;
-  } else g.visible = !(e === player && VIEW.first);
+  } else g.visible = !(e === player && VIEW.first) && !(e.kind === "npc" && e.away);
   if (v.kind === "human") poseHuman(v, e, dt);
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);
@@ -193,6 +193,23 @@ function propView(n) {
     if (n.chest === "king") { const chain = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 20), std({ color: 0xcfd8dc, emissive: 0x80cbc4, emissiveIntensity: 0.4 })); chain.rotation.x = Math.PI / 2; chain.position.y = 0.8; chain.scale.set(1.1, 1, 0.7); g.add(chain); v.chain = chain; }
   } else if (n.prop === "throne") {
     v.meta.headTop = 4.5;
+  } else if (n.prop === "nubbin") {
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 12), std({ color: 0x5a8a3a, roughness: 1 }));
+    body.position.y = 0.55; body.castShadow = true;
+    const fuzz = new THREE.Mesh(new THREE.SphereGeometry(0.55, 10, 8), std({ color: 0x6a9a44, roughness: 1, transparent: true, opacity: 0.45 }));
+    fuzz.position.y = 0.55;
+    const eyeMat = std({ color: 0x101010 }), whiteMat = std({ color: 0xffffff });
+    for (const sgn of [-1, 1]) {
+      const w = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), whiteMat); w.position.set(sgn * 0.18, 0.65, 0.42);
+      const p = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), eyeMat); p.position.set(sgn * 0.18, 0.66, 0.53);
+      const foot = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 6), std({ color: 0x4a6a2a })); foot.position.set(sgn * 0.2, 0.1, 0.1); foot.scale.set(1, 0.6, 1.3);
+      g.add(w, p, foot);
+    }
+    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.02, 6, 10, Math.PI), eyeMat); mouth.position.set(0, 0.45, 0.48); mouth.rotation.x = Math.PI; g.add(mouth);
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.3, 6), std({ color: 0x3a6a2a })); stem.position.y = 1.15;
+    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), std({ color: 0x7ac050 })); leaf.position.set(0.1, 1.3, 0); leaf.scale.set(1.4, 0.5, 0.9);
+    g.add(body, fuzz, stem, leaf);
+    v.bob = body; v.parts = [fuzz, stem, leaf]; v.meta.headTop = 1.5;
   }
   return v;
 }
@@ -218,6 +235,13 @@ function syncNpc(n, dt) {
       v.flame[0].visible = v.flame[1].visible = lit;
       v.flame[0].scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.12, k);
       v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
+    }
+    if (v.bob) {
+      const b = Math.sin(S.time * 3 + n.x) * 0.05;
+      v.group.position.y += Math.max(0, b * 2);
+      v.group.scale.set(1 + b * 0.5, 1 - b * 0.5, 1 + b * 0.5);
+      const face = Math.atan2(player.y - n.y, player.x - n.x);
+      v.group.rotation.y = Math.PI / 2 - face;
     }
     if (v.lid) {
       const st = chestState(n);

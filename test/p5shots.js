@@ -45,6 +45,15 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     { name: 'den-throne', js: `player.x = 1700; player.y = 800; player.face = 0; VIEW.yaw = 0; S.mobs.forEach(m=>m.state='idle');`, wait: 4000 },
     { name: 'den-ray', js: `VIEW.pitch = 0.34; VIEW.dist = 8; VIEW.yaw = 0; player.x = 1700; player.y = 800;`, wait: 3000 },
     { name: 'den-top', js: `player.x = 1700; player.y = 800; VIEW.pitch = 1.1; VIEW.dist = 16; VIEW.yaw = 0;`, wait: 3000 },
+    { name: 'loadshow', pre: `enterZone('hollow', 120, 1100);`, js: ``, wait: 1, shotLoading: true },
+    { name: 'home-door', pre: `setH(21); enterZone('outpost', 262, 440);`, js: `player.face = -Math.PI/2; VIEW.yaw = -Math.PI/2; VIEW.dist = 9;`, wait: 4000 },
+    { name: 'home-night', js: `setH(23.5); for (let i = 0; i < 60 * 6; i++) { S.time += 1/60; step(1/60); } player.x = 610; player.y = 440; VIEW.yaw = -Math.PI/2;`, wait: 3500 },
+    { name: 'home-in', pre: `setH(12); enterZone('residence', 200, 250);`, js: `save.gil = 9000; ['wooden_chair','wooden_table','simple_bed','storage_chest','floor_lamp','round_rug','bookshelf','hearth','potted_plant'].forEach(id => giveItem(id, 1, true)); placeFurniture('round_rug', 4, 3, 0); placeFurniture('wooden_table', 4, 3, 0); placeFurniture('wooden_chair', 3, 4, 1); placeFurniture('simple_bed', 7, 0, 0); placeFurniture('storage_chest', 2, 0, 0); placeFurniture('floor_lamp', 9, 4, 0); placeFurniture('bookshelf', 4, 0, 0); placeFurniture('hearth', 0, 3, 0); placeFurniture('potted_plant', 9, 0, 0); player.x = 200; player.y = 270; player.face = -Math.PI/2; VIEW.yaw = -Math.PI/2; VIEW.dist = 9; VIEW.pitch = 0.5;`, wait: 4000 },
+    { name: 'home-pip', js: `player.x = 110; player.y = 120; VIEW.yaw = Math.PI * 1.25; VIEW.dist = 5; player.target = S.npcs.find(n => n.id === 'pip');`, wait: 2500 },
+    { name: 'home-arrange', js: `openMenu('home'); UI.pick = 'wooden_chair'; renderModal();`, wait: 1500 },
+    { name: 'home-storage', js: `openMenu('storage');`, wait: 1500 },
+    { name: 'credits', js: `openMenu('credits');`, wait: 1500 },
+    { name: 'settings', js: `openMenu('settings');`, wait: 1500 },
     { name: 'crypt-hall', pre: `setH(12); save.jobs[save.mainJob].lv = 10; refreshPlayer(true); enterZone('crypt', 620, 700);`, js: `S.mobs.forEach(m=>m.state='idle'); player.face = 0; VIEW.yaw = 0; VIEW.dist = 10;`, wait: 5000 },
     { name: 'crypt-lit', js: `for (const el of brazierOrder()) { const n = S.npcs.find(x => x.id === 'brazier_' + el); TALK.talkBrazier(n); S.dialog.all[0].fn(); } player.x = 1000; player.y = 700; VIEW.yaw = 0;`, wait: 3000 },
     { name: 'crypt-throne', js: `save.keyItems.push('crypt_key'); player.x = 1900; player.y = 700; VIEW.yaw = 0; VIEW.dist = 12; S.mobs.forEach(m=>m.state='idle');`, wait: 4000 },
@@ -60,7 +69,7 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   ].filter(s => !only || only.split(',').includes(s.name));
   for (const sc of scenes) {
     try {
-      if (sc.pre) { await page.evaluate('(()=>{' + sc.pre + '})()'); await page.waitForFunction(() => !VIEW.loading, null, { timeout: 200000 }); }
+      if (sc.pre) { await page.evaluate('(()=>{' + sc.pre + '})()'); if (sc.shotLoading) { await page.waitForTimeout(700); await page.screenshot({ path: out + '-' + sc.name + '-loading.png' }); } await page.waitForFunction(() => !VIEW.loading, null, { timeout: 200000 }); }
       await page.evaluate('(()=>{' + sc.js + '})()');
     } catch (e) { errs.push('scene ' + sc.name + ': ' + e.message); }
     await page.waitForTimeout(sc.wait);

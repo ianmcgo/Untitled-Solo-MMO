@@ -95,7 +95,7 @@ function renderModal() {
     const s = player.stats;
     const j = save.jobs[save.mainJob];
     h += "<div>" + JOBS[player.job].name + " Lv." + player.lv + (player.sub ? " / " + JOBS[player.sub].name + " Lv." + Math.floor(player.lv / 2) : "") + "</div>";
-    h += '<div class="sub" style="margin-bottom:8px">XP ' + j.xp + " / " + (xpNeed(j.lv) || "cap") + " · " + save.gil + " gil · Home point: " + ZONES[save.home.zone].name + "</div>";
+    h += '<div class="sub" style="margin-bottom:8px">XP ' + j.xp + " / " + (xpNeed(j.lv) || "cap") + " · " + save.gil + " crystals · Home point: " + ZONES[save.home.zone].name + "</div>";
     h += '<div class="grid2">';
     const rows = [["HP", player.maxHp], ["MP", player.maxMp], ["STR", s.str], ["DEX", s.dex], ["VIT", s.vit], ["AGI", s.agi], ["INT", s.int], ["MND", s.mnd], ["ATT", s.att], ["DEF", s.def], ["ACC", s.acc], ["EVA", s.eva], ["DMG", s.dmg], ["Delay", s.delay]];
     for (const [k, v] of rows) h += "<b>" + k + "</b><span>" + v + "</span>";
@@ -117,7 +117,7 @@ function renderModal() {
       const label = { none: "Not started", active: "In progress", killed: "Report to Captain Rhea", done: "Complete" }[st];
       let prog = "";
       if (id === "pouches" && st === "active") prog = " (" + Math.min(3, invCount("goblin_pouch")) + "/3)";
-      if (id === "riding" && st === "active") prog = " (" + Math.min(3, invCount("healing_herb")) + "/3 herbs, " + Math.min(300, save.gil) + "/300 gil)";
+      if (id === "riding" && st === "active") prog = " (" + Math.min(3, invCount("healing_herb")) + "/3 herbs, " + Math.min(300, save.gil) + "/300 crystals)";
       if (id === "support" && st === "active") prog = " (" + Math.min(2, invCount("bat_wing")) + "/2 wings, " + Math.min(1, invCount("worm_silk")) + "/1 silk)";
       h += '<div class="item"><div><div>' + esc(QUESTS[id].name) + ' <span class="sub">· ' + esc(QUESTS[id].giver) + '</span></div><div class="d">' + esc(QUESTS[id].desc) + '</div></div><span class="d">' + label + prog + "</span></div>";
     }
@@ -149,7 +149,7 @@ function renderModal() {
       }
     }
   } else if (S.modal === "mercs") {
-    h += '<div class="sub" style="margin-bottom:6px">Party ' + S.party.length + " / " + CONFIG.maxParty + " · " + save.gil + " gil · Fees are paid once per hire.</div>";
+    h += '<div class="sub" style="margin-bottom:6px">Party ' + S.party.length + " / " + CONFIG.maxParty + " · " + save.gil + " crystals · Fees are paid once per hire.</div>";
     for (const id in MERCS) {
       const m = MERCS[id];
       const hired = save.hired.includes(id);
@@ -311,7 +311,7 @@ function updateHud() {
   const need = xpNeed(j.lv);
   $("xpfill").style.width = (need ? 100 * j.xp / need : 100) + "%";
   $("xpt").textContent = need ? j.xp + "/" + need + " XP" : "Level cap";
-  $("gil").textContent = save.gil + " gil";
+  $("crystals").textContent = save.gil + " crystals";
   S.party.forEach((p, i) => {
     $("pm" + i + "n").textContent = (p === player ? "★ You" : p.name);
     $("pm" + i + "j").textContent = p.job + p.lv + (p.sub ? "/" + p.sub + Math.floor(p.lv / 2) : "") + (p.casting ? " · casting" : p.regenerating ? " · regen" : p.engaged ? " · ⚔" : "");

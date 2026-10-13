@@ -55,11 +55,11 @@ function newSave() {
     v: 2, name: "Adventurer", mainJob: "WAR", subJob: null, supportUnlocked: false,
     jobs, skills,
     gear: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" },
-    inventory: [{ id: "ash_club", qty: 1 }, { id: "ash_staff", qty: 1 }, { id: "linen_robe", qty: 1 }, { id: "potion", qty: 3 }],
+    inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], created: Date.now()
   };
 }
 
@@ -74,7 +74,7 @@ function normalizeSave(d) {
   out.look = Object.assign(newSave().look, d.look || {});
   out.mountLicense = !!d.mountLicense;
   out.hired = (Array.isArray(d.hired) ? d.hired : []).filter(id => MERCS[id]).slice(0, CONFIG.maxParty - 1);
-  out.home = d.home && ZONES[d.home.zone] && NPCS[d.home.npc] ? d.home : newSave().home;
+  out.home = d.home && ZONES[d.home.zone] && ZONES[d.home.zone].safe && NPCS[d.home.npc] && ZONES[d.home.zone].npcs.some(n => n.id === d.home.npc) ? d.home : newSave().home;
   out.inventory = d.inventory.filter(s => s && ITEMS[s.id] && s.qty > 0);
   out.gear = {};
   for (const slot of SLOTS) if (d.gear[slot] && ITEMS[d.gear[slot]]) out.gear[slot] = d.gear[slot];
@@ -89,6 +89,8 @@ function normalizeSave(d) {
   out.qprog = d.qprog && typeof d.qprog === "object" ? d.qprog : {};
   out.keyItems = (Array.isArray(d.keyItems) ? d.keyItems : []).filter(id => ITEMS[id] && ITEMS[id].kind === "key");
   out.crypt = Object.assign({ solved: false, lit: [] }, d.crypt || {});
+  out.storage = (Array.isArray(d.storage) ? d.storage : []).filter(s => s && ITEMS[s.id] && s.qty > 0);
+  out.furniture = (Array.isArray(d.furniture) ? d.furniture : []).filter(f => f && ITEMS[f.id] && ITEMS[f.id].kind === "furniture" && Number.isInteger(f.c) && Number.isInteger(f.r));
   if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
   return out;
 }
@@ -138,8 +140,9 @@ function createChar(opts) {
   d.name = opts.name;
   d.mainJob = JOBS[opts.job] ? opts.job : "WAR";
   d.look = Object.assign(newSave().look, opts.look || {});
-  if (d.mainJob === "WHM") { d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" }; d.inventory = [{ id: "bronze_sword", qty: 1 }, { id: "ash_staff", qty: 1 }, { id: "leather_vest", qty: 1 }, { id: "potion", qty: 3 }]; }
-  else if (d.mainJob === "BLM") { d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" }; d.inventory = [{ id: "bronze_sword", qty: 1 }, { id: "ash_club", qty: 1 }, { id: "leather_vest", qty: 1 }, { id: "potion", qty: 3 }]; }
+  if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" };
+  else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" };
+  d.inventory = [{ id: "potion", qty: 3 }];
   const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   try { localStorage.setItem(charKey(id), JSON.stringify(d)); } catch (e) {}
   r.chars.push(charSummary(id, d));
@@ -387,11 +390,11 @@ function hireMerc(id) {
   const m = MERCS[id];
   if (!mercAvailable(id) || save.hired.includes(id)) return;
   if (save.hired.length >= CONFIG.maxParty - 1) { log("Your party is full. Dismiss someone first.", "sys"); sfx("error"); return; }
-  if (save.gil < m.fee) { log("You can't afford " + m.name + "'s fee (" + m.fee + " gil).", "sys"); sfx("error"); return; }
+  if (save.gil < m.fee) { log("You can't afford " + m.name + "'s fee (" + m.fee + " crystals).", "sys"); sfx("error"); return; }
   save.gil -= m.fee;
   save.hired.push(id);
   rebuildParty();
-  log("You hire " + m.name + " for " + m.fee + " gil.", "loot");
+  log("You hire " + m.name + " for " + m.fee + " crystals.", "loot");
   partySay(S.party.find(p => p.mercId === id), "hire", true);
   sfx("unlock");
   saveGame();
@@ -440,7 +443,7 @@ function buildMob(famKey, L, x, y, spawnIdx) {
   st.dmg = 6 + 1.25 * L;
   st.delay = f.delay;
   return {
-    id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, stats: st, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
+    id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
     x, y, px: x, py: y, home: { x, y }, radius: Math.round(f.radius * (f.scale || 1)), color: f.color, speed: f.speed, delay: f.delay, swingTimer: f.delay,
     state: "idle", enmity: new Map(), face: Math.random() * Math.PI * 2, alive: true, buffs: {}, chain: null, burst: null,
     spawnIdx, wanderTimer: 0, wanderDir: { x: 0, y: 0 }, readying: null, flash: 0, casting: null, recasts: {}, deadAt: 0, target: null, moving: false,
@@ -740,7 +743,7 @@ function dropLoot(m) {
   if (m.fam.gil) {
     const g = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
     save.gil += g;
-    log("You obtain " + g + " gil.", "loot");
+    log("You obtain " + g + " crystals.", "loot");
     sfx("coin");
   }
 }
@@ -1059,7 +1062,7 @@ function tickBuffs(e) {
 function moveToward(e, tx, ty, dt, stop, speedMul) {
   const dx = tx - e.x, dy = ty - e.y;
   const d = Math.hypot(dx, dy);
-  if (d <= stop) return true;
+  if (d <= stop + 0.05) return true;
   const step = Math.min(e.speed * (speedMul || 1) * dt, d - stop);
   e.x += (dx / d) * step;
   e.y += (dy / d) * step;
@@ -1108,7 +1111,7 @@ function closedBarrierRects(z) {
 }
 
 function keepOutOfRects(e) {
-  const rects = zoneRects(S.zone).concat(closedBarrierRects(S.zone));
+  const rects = zoneRects(S.zone).concat(closedBarrierRects(S.zone), S.zoneId === "residence" ? furnitureRects() : []);
   for (const r of rects) {
     const nx = clamp(e.x, r.x, r.x + r.w), ny = clamp(e.y, r.y, r.y + r.h);
     const dx = e.x - nx, dy = e.y - ny;
@@ -1145,7 +1148,7 @@ function autoAttack(a, dt) {
 
 function detects(m, p) {
   if (p.mounted) return false;
-  const a = m.fam.aggro;
+  const a = m.aggro;
   if (!a) return false;
   const d = dist(m, p);
   if (a.sight && d <= a.sight) {
@@ -1175,7 +1178,7 @@ function updateMob(m, dt) {
     }
     const nx = m.x + m.wanderDir.x * m.speed * 0.3 * dt;
     const ny = m.y + m.wanderDir.y * m.speed * 0.3 * dt;
-    if (Math.hypot(nx - m.home.x, ny - m.home.y) < 70) { m.x = nx; m.y = ny; }
+    if (Math.hypot(nx - m.home.x, ny - m.home.y) < (S.zone.theme === "field" ? 150 : 90)) { m.x = nx; m.y = ny; }
     for (const p of S.party) if (p.alive && detects(m, p)) { aggro(m, p); break; }
     return;
   }
@@ -1577,7 +1580,8 @@ function enterZone(id, x, y) {
     if (fixed && fixed > Date.now()) { S.spawnAt[i] = S.time + (fixed - Date.now()) / 1000; return; }
     spawnMob(i);
   });
-  S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2 }, NPCS[n.id]));
+  S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: 60 }, NPCS[n.id]));
+  for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
   const rnd = seeded(hashStr(id));
   S.decor = [];
   const nRocks = S.zone.theme === "town" ? 6 : S.zone.theme === "cave" ? 26 : S.zone.theme === "crypt" ? 0 : 30;
@@ -1588,6 +1592,38 @@ function enterZone(id, x, y) {
   if (prev !== id) sfx("zone");
   onZoneEntered();
   saveGame();
+}
+
+function npcDoor(n) {
+  const hs = (S.zone.houses || [])[n.home];
+  if (!hs) return null;
+  return hs.rot ? { x: hs.x + hs.w / 2 + 22, y: hs.y } : { x: hs.x, y: hs.y + hs.h / 2 + 22 };
+}
+function npcAsleep(n) {
+  if (!n.sleep) return false;
+  const v = vana();
+  const h = v.hour + v.minute / 60;
+  const [bed, wake] = n.sleep;
+  return bed > wake ? (h >= bed || h < wake) : (h >= bed && h < wake);
+}
+function updateNpcs(dt) {
+  for (const n of S.npcs) {
+    if (!n.sleep) continue;
+    const door = npcDoor(n);
+    if (!door) continue;
+    const asleep = npcAsleep(n);
+    if (asleep) {
+      if (n.away) continue;
+      if (!n.heading) { n.heading = true; if (dist(n, player) < 700) log(n.name.split(",")[0] + " heads home for the night.", "sys"); }
+      n.moving = true;
+      if (moveToward(n, door.x, door.y, dt, 6, 1)) { n.away = true; n.heading = false; n.moving = false; if (player.target === n) player.target = null; if (S.pendingTalk === n) S.pendingTalk = null; }
+    } else {
+      if (n.away) { n.away = false; n.x = door.x; n.y = door.y; if (dist(n, player) < 700) log(n.name.split(",")[0] + " steps out for the day.", "sys"); }
+      n.heading = false;
+      if (dist(n, n.post) > 6) { n.moving = true; moveToward(n, n.post.x, n.post.y, dt, 4, 1); }
+      else { n.moving = false; if (Math.abs(normAng(n.face - Math.PI / 2)) > 0.05 && !(player.target === n && dist(n, player) < CONFIG.talkRange)) n.face += normAng(Math.PI / 2 - n.face) * Math.min(1, dt * 4); }
+    }
+  }
 }
 
 function spawnAllowed(sp) { return !sp.time || sp.time === period(); }
@@ -1603,7 +1639,9 @@ function spawnMob(i) {
       if (S.time > 1 && Math.hypot(sp.x - player.x, sp.y - player.y) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
     }
   }
-  S.mobs.push(buildMob(fam, lv, sp.x, sp.y, i));
+  const mob = buildMob(fam, lv, sp.x, sp.y, i);
+  if (sp.passive && !mob.fam.nm) { mob.aggro = null; mob.passive = true; }
+  S.mobs.push(mob);
   S.spawnAt[i] = null;
 }
 
@@ -1648,10 +1686,11 @@ function step(dt) {
   updatePlayer(dt);
   for (const a of S.party) if (a !== player) updateAlly(a, dt);
   for (const m of S.mobs) updateMob(m, dt);
+  updateNpcs(dt);
   for (const p of S.party) { if (p.alive) { tickBuffs(p); tickCasting(p); } }
   const bodies = S.party.concat(S.mobs).filter(e => e.alive);
   for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) separate(bodies[i], bodies[j]);
-  for (const n of S.npcs) for (const p of S.party) separate(p, n, true);
+  for (const n of S.npcs) if (!n.away) for (const p of S.party) separate(p, n, true);
   for (const e of bodies) { keepOutOfWater(e); keepOutOfRects(e); keepInZone(e); }
   for (const e of S.party.concat(S.mobs)) {
     e.moving = Math.hypot(e.x - e.px, e.y - e.py) > 0.05;
@@ -1715,7 +1754,7 @@ function tabNext(list) {
 }
 
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const people = S.npcs.filter(n => !n.crystal && !n.away && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const list = people.concat(crystals);
   if (!list.length) return false;
@@ -1802,7 +1841,7 @@ function playerAct(act) {
 
 function nearNpc() {
   let best = null, bd = CONFIG.talkRange + 20;
-  for (const n of S.npcs) { const d = dist(n, player); if (d < bd) { bd = d; best = n; } }
+  for (const n of S.npcs) { if (n.away) continue; const d = dist(n, player); if (d < bd) { bd = d; best = n; } }
   return best;
 }
 
@@ -1831,7 +1870,7 @@ function questMarker(n) {
 
 function giveReward(r) {
   if (r.xp) gainXp(r.xp);
-  if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " gil.", "loot"); sfx("coin"); }
+  if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " crystals.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
   if (r.items) for (const [id, n] of r.items) giveItem(id, n);
   if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Ask Tobin to change jobs.", "npc"); }
@@ -1842,11 +1881,13 @@ function questOfferable(id) {
   const q = QUESTS[id];
   return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done");
 }
+const QUEST_CHECKS = { furniture: () => save.furniture.length >= 2 };
 function questComplete(id) {
   const q = QUESTS[id];
   if (save.quests[id] !== "active") return false;
   if (q.kill) return (save.qprog[id] || 0) >= q.kill.n;
   if (q.items) return Object.keys(q.items).every(it => invCount(it) >= q.items[it]);
+  if (q.check) return !!QUEST_CHECKS[q.check]();
   return false;
 }
 function acceptQuest(id) {
@@ -1877,6 +1918,7 @@ function questOptions(npcId, n) {
 }
 function questProgressText(id) {
   const q = QUESTS[id];
+  if (q.check === "furniture") return "Furniture placed " + Math.min(2, save.furniture.length) + "/2";
   if (q.kill) return q.kill.name + " " + Math.min(q.kill.n, save.qprog[id] || 0) + "/" + q.kill.n;
   if (q.items) return Object.keys(q.items).map(it => ITEMS[it].name + " " + Math.min(q.items[it], invCount(it)) + "/" + q.items[it]).join(", ");
   return "";
@@ -1905,12 +1947,137 @@ function openChest(n) {
   if (!got) giveItem("crypt_dust", 1);
   const g = randInt(40, 90) * (n.chest === "king" ? 4 : n.chest === "vault" ? 2 : 1);
   save.gil += g;
-  log("You find " + g + " gil in the " + n.name.toLowerCase() + ".", "loot");
+  log("You find " + g + " crystals in the " + n.name.toLowerCase() + ".", "loot");
   sfx("coin");
   save.timers["chest:" + n.id] = Date.now() + 20 * 60 * 1000;
   ring(n, "#ffd54f", 40, 0.7, "sparkle");
   vfx("levelup", { tgt: n });
   saveGame();
+}
+
+function storageCap() {
+  let cap = CONFIG.storageBase;
+  for (const f of save.furniture) cap += ITEMS[f.id].storage || 0;
+  return cap;
+}
+function storageCount() { return save.storage.reduce((n, s) => n + s.qty, 0); }
+function storageUsed() { return save.storage.length; }
+function storeItem(idx) {
+  const s = save.inventory[idx];
+  if (!s) return false;
+  const it = ITEMS[s.id];
+  if (it.kind === "key") return false;
+  const stack = it.stack || 1;
+  let left = s.qty;
+  for (const t of save.storage) if (t.id === s.id && t.qty < stack && left > 0) { const add = Math.min(stack - t.qty, left); t.qty += add; left -= add; }
+  while (left > 0) {
+    if (save.storage.length >= storageCap()) break;
+    const add = Math.min(stack, left);
+    save.storage.push({ id: s.id, qty: add });
+    left -= add;
+  }
+  const moved = s.qty - left;
+  if (!moved) { log("Your storage is full.", "sys"); sfx("error"); return false; }
+  s.qty = left;
+  if (s.qty <= 0) save.inventory.splice(idx, 1);
+  log("You store " + (moved > 1 ? moved + " " + it.name + "s" : an(it.name)) + ".", "sys");
+  sfx("select");
+  saveGame();
+  return true;
+}
+function retrieveItem(idx) {
+  const s = save.storage[idx];
+  if (!s) return false;
+  const it = ITEMS[s.id];
+  const before = s.qty;
+  const free = CONFIG.inventorySize - save.inventory.length;
+  let can = 0;
+  for (const t of save.inventory) if (t.id === s.id) can += (it.stack || 1) - t.qty;
+  can += free * (it.stack || 1);
+  const take = Math.min(before, can);
+  if (take <= 0) { log("Your bag is full.", "sys"); sfx("error"); return false; }
+  giveItem(s.id, take, true);
+  s.qty -= take;
+  if (s.qty <= 0) save.storage.splice(idx, 1);
+  log("You take " + (take > 1 ? take + " " + it.name + "s" : an(it.name)) + " out of storage.", "sys");
+  sfx("select");
+  saveGame();
+  return true;
+}
+function furnFoot(id, rot) {
+  const it = ITEMS[id];
+  const fp = it.fp || [1, 1];
+  return rot % 2 ? { w: fp[1], h: fp[0] } : { w: fp[0], h: fp[1] };
+}
+function furnCells(f) {
+  const { w, h } = furnFoot(f.id, f.rot || 0);
+  const out = [];
+  for (let r = f.r; r < f.r + h; r++) for (let c = f.c; c < f.c + w; c++) out.push([c, r]);
+  return out;
+}
+function furnFits(id, c, r, rot, skip) {
+  const g = S.zone.grid || ZONES.residence.grid;
+  const { w, h } = furnFoot(id, rot);
+  if (c < 0 || r < 0 || c + w > g.cols || r + h > g.rows) return "Doesn't fit there.";
+  const flat = !!(ITEMS[id].fp && FURNITURE_MODELS[ITEMS[id].model] && FURNITURE_MODELS[ITEMS[id].model].flat);
+  for (let rr = r; rr < r + h; rr++) for (let cc = c; cc < c + w; cc++) {
+    if (g.blocked.some(([bc, br]) => bc === cc && br === rr)) return "That spot is blocked.";
+    for (const f of save.furniture) {
+      if (f === skip) continue;
+      const otherFlat = !!(FURNITURE_MODELS[ITEMS[f.id].model] && FURNITURE_MODELS[ITEMS[f.id].model].flat);
+      if (flat || otherFlat) continue;
+      if (furnCells(f).some(([fc, fr]) => fc === cc && fr === rr)) return "Something is already there.";
+    }
+  }
+  return "";
+}
+function placeFurniture(id, c, r, rot) {
+  if (invCount(id) < 1) return "You don't have that.";
+  const why = furnFits(id, c, r, rot || 0, null);
+  if (why) return why;
+  removeItem(id, 1);
+  save.furniture.push({ id, c, r, rot: rot || 0 });
+  log("Pip places the " + ITEMS[id].name + ".", "npc");
+  sfx("unlock");
+  saveGame();
+  S.furnDirty = true;
+  return "";
+}
+function removeFurniture(i) {
+  const f = save.furniture[i];
+  if (!f) return "";
+  if (ITEMS[f.id].storage && storageUsed() > storageCap() - ITEMS[f.id].storage) return "Your stored items wouldn't fit without it.";
+  if (save.inventory.length >= CONFIG.inventorySize && !save.inventory.some(s => s.id === f.id && s.qty < (ITEMS[f.id].stack || 1))) return "Your bag is full.";
+  save.furniture.splice(i, 1);
+  giveItem(f.id, 1, true);
+  log("Pip packs away the " + ITEMS[f.id].name + ".", "npc");
+  sfx("select");
+  saveGame();
+  S.furnDirty = true;
+  return "";
+}
+function rotateFurniture(i) {
+  const f = save.furniture[i];
+  if (!f) return "";
+  const rot = ((f.rot || 0) + 1) % 4;
+  const why = furnFits(f.id, f.c, f.r, rot, f);
+  if (why) return why;
+  f.rot = rot;
+  saveGame();
+  S.furnDirty = true;
+  return "";
+}
+function furnitureRects() {
+  const g = ZONES.residence.grid;
+  const cw = ZONES.residence.w / g.cols, ch = ZONES.residence.h / g.rows;
+  const out = [];
+  for (const f of save.furniture) {
+    const m = FURNITURE_MODELS[ITEMS[f.id].model];
+    if (m && m.flat) continue;
+    const { w, h } = furnFoot(f.id, f.rot || 0);
+    out.push({ x: f.c * cw + 4, y: f.r * ch + 4, w: w * cw - 8, h: h * ch - 8 });
+  }
+  return out;
 }
 
 const TALK = {
@@ -1992,7 +2159,7 @@ const TALK = {
     openDialog(n.name, "Your support job runs at half your main job's level. A Warrior with White Mage support can cure; a White Mage with Black Mage support can nuke." + (player.lv < 6 ? " Reach level 6 and I'll tell you about the advanced jobs." : ""), opts);
   },
   talkPell(n) {
-    openDialog(n.name, "Potions, ethers, arms and armor. Gil talks, friend.", [
+    openDialog(n.name, "Potions, ethers, arms and armor. Crystals talks, friend.", [
       { label: "Trade", fn: () => { closeDialog(); openModal("shop"); } }
     ].concat(questOptions("pell", n)));
   },
@@ -2001,7 +2168,7 @@ const TALK = {
     if (save.mountLicense) { openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. It won't come into town or caves, and it bolts if anything hits you, so dismount before a fight.", []); return; }
     if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
-      openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 gil, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
+      openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
         { label: "I'll get them", fn: () => { q.riding = "active"; log("Quest accepted: " + QUESTS.riding.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
       ]);
       return;
@@ -2009,7 +2176,7 @@ const TALK = {
     const herbs = invCount("healing_herb");
     if (save.gil >= 300 && herbs >= 3) {
       openDialog(n.name, "Herbs and coin. Good. She's yours: a Thornstrider, antlers and all. Treat her well.", [
-        { label: "Pay 300 gil and hand over the herbs", fn: () => {
+        { label: "Pay 300 crystals and hand over the herbs", fn: () => {
           save.gil -= 300; removeItem("healing_herb", 3);
           q.riding = "done"; save.mountLicense = true;
           log("Quest complete: " + QUESTS.riding.name + ". You can now ride a Thornstrider. Press R or Mount in open country.", "npc");
@@ -2017,13 +2184,25 @@ const TALK = {
           saveGame(); closeDialog();
         } }
       ]);
-    } else openDialog(n.name, "You have " + herbs + " of 3 Healing Herbs and " + save.gil + " of 300 gil.", []);
+    } else openDialog(n.name, "You have " + herbs + " of 3 Healing Herbs and " + save.gil + " of 300 crystals.", []);
   },
   talkBrann(n) {
     const hired = save.hired.length;
     openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee once and they'll follow you anywhere. Up to five at a time.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
     ].concat(questOptions("brann", n)));
+  },
+  talkPip(n) {
+    const placed = save.furniture.length;
+    openDialog(n.name, placed ? "Welcome home! " + placed + " piece" + (placed === 1 ? "" : "s") + " of furniture, " + storageUsed() + "/" + storageCap() + " storage slots used. What do you need?" : "Oh! You must be the new tenant. I'm Pip. I mind the cottage: I'll keep your things and arrange whatever furniture you bring. It's a bit bare in here. Odette by the west wall sells furniture.", [
+      { label: "Storage", fn: () => { closeDialog(); openModal("storage"); } },
+      { label: "Arrange furniture", fn: () => { closeDialog(); openModal("home"); } }
+    ]);
+  },
+  talkOdette(n) {
+    openDialog(n.name, "Chairs, tables, beds, a good hearth. Everything a cottage wants. Pip at your place will set it all up.", [
+      { label: "Browse furniture", fn: () => { closeDialog(); openModal("furnishings"); } }
+    ].concat(questOptions("odette", n)));
   },
   talkBrazier(n) {
     const el = n.element;
@@ -2153,6 +2332,8 @@ function setJob(main, sub) {
   saveGame();
 }
 
+function shopListFor(kind) { return kind === "furniture" ? FURNITURE_SHOP.slice() : shopList(); }
+
 function shopList() {
   return SHOP.filter(id => {
     const it = ITEMS[id];
@@ -2169,7 +2350,7 @@ function buy(id) {
   if (save.gil < it.price) { log("You cannot afford the " + it.name + ".", "sys"); sfx("error"); return; }
   if (!giveItem(id, 1, true)) return;
   save.gil -= it.price;
-  log("You buy " + an(it.name) + " for " + it.price + " gil.", "loot");
+  log("You buy " + an(it.name) + " for " + it.price + " crystals.", "loot");
   sfx("coin");
   saveGame();
 }
@@ -2179,7 +2360,7 @@ function sell(id) {
   if (p <= 0) { log("Pell won't buy that.", "sys"); sfx("error"); return; }
   if (!removeItem(id, 1)) return;
   save.gil += p;
-  log("You sell " + an(ITEMS[id].name) + " for " + p + " gil.", "loot");
+  log("You sell " + an(ITEMS[id].name) + " for " + p + " crystals.", "loot");
   sfx("coin");
   saveGame();
 }
@@ -2271,7 +2452,7 @@ function runCommand(text) {
     case "attack": case "a": toggleEngage(false); return;
     case "target": case "ta": {
       if (!arg) { cycleTarget(); return; }
-      const t = findNamed(S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 900).concat(S.npcs, S.party), arg);
+      const t = findNamed(S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 900).concat(S.npcs.filter(n => !n.away), S.party), arg);
       if (!t) { log("No one called \"" + arg + "\" nearby.", "sys"); sfx("error"); return; }
       if (isMob(t)) setTarget(t); else player.target = t;
       sfx("select");
@@ -2288,8 +2469,7 @@ function runCommand(text) {
       if (!isMob(t)) { log(t ? t.name + " is not an enemy." : "You have no target.", "sys"); return; }
       const [c] = conOf(t);
       const f = t.fam;
-      const aggro = f.aggro ? Object.keys(f.aggro).map(k => ({ sight: "sight", sound: "sound", magic: "magic", lowhp: "low HP" }[k])).join(", ") : "passive";
-      log("The " + t.name + " (Lv." + t.lv + ") seems like " + (c === "Too Weak" ? "too weak to be worthwhile" : c === "Easy Prey" ? "easy prey" : c === "Decent Challenge" ? "a decent challenge" : c === "Even Match" ? "an even match" : c === "Tough" ? "a tough opponent" : c === "Very Tough" ? "a very tough opponent" : "an incredibly tough opponent") + ". Detects by: " + aggro + "." + (f.nm ? " It is a notorious monster!" : ""), "sys");
+      log("The " + t.name + " (Lv." + t.lv + ") seems like " + (c === "Too Weak" ? "too weak to be worthwhile" : c === "Easy Prey" ? "easy prey" : c === "Decent Challenge" ? "a decent challenge" : c === "Even Match" ? "an even match" : c === "Tough" ? "a tough opponent" : c === "Very Tough" ? "a very tough opponent" : "an incredibly tough opponent") + "." + (t.passive ? " It looks peaceful unless provoked." : "") + (f.nm ? " It is a notorious monster!" : ""), "sys");
       return;
     }
     case "cast": case "ma": castBy("ma"); return;
