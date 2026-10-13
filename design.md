@@ -16,7 +16,7 @@
 | P5d Sunken Crypt | Done (v4.5.0) |
 | P6a Residence, Pip, storage, furniture | Done (v4.6.0) |
 | P6b Gardening, crafting, gathering | Done (v4.7.0) |
-| P7 Test and tune | Not started |
+| P7 Test and tune | Done (v4.8.0) |
 
 ---
 
@@ -525,10 +525,16 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - **Zone-change crash fix.** The loading showcase is skipped on phones, Low quality and low-memory devices, and `releasePreview()` disposes the preview WebGL context after loading, after character creation and when the Character tab closes, so only one extra context ever exists.
 - Tests: `test/p6bunit.js`.
 
+## Phase 7: test and tune (v4.8.0)
+
+- **Performance.** `perfTick()` (called from `draw`) counts frames against `performance.now()` once a second. With `settings.adaptive` (default on) two slow seconds (< 28 fps) drop `W3.pr` by 0.15 (floor 0.6) and six fast ones (> 52 fps) raise it by 0.1 up to `W3.prCap` (the quality's pixel-ratio cap), via `setPixelRatio` + `resizeRenderer`. `settings.fps` (or `/fps`) shows `#fpsBox` (fps, render scale, draw calls). `settings.draw` (`near` / `normal` / `far` → `DRAW_DIST` 1000 / 1700 / 2600 px) is the monster culling distance in `syncEntity`, and name plates use 60% of it (max 900). Devices reporting `navigator.deviceMemory < 4` default to Low quality.
+- **Balance.** `test/p1bot.js` now uses `/rest` when hurt (set `BOT_REST=0` to disable) and accepts `BOT_HOUR` to force the game hour. 30-minute runs: WAR/WHM/BLM reach 4–6 by day (0–1 defeats) and 4–6 by night (0–3 defeats). Night needs no extra tuning now that resting is fast.
+
 ## Version log
 
 | Version | Change |
 |---|---|
+| 4.8.0 | Phase 7: performance settings and balance check (above). |
 | 4.7.0 | Phase 6b: gathering, crafting, gardening; no heal effects at full; preview context released (above). |
 | 4.6.x | Skin palette, creation preview fix, hair lists by sex. |
 | 4.6.0 | Phase 6a: residence, Pip, storage, NPC schedules, passive monsters, NM-only gear, crystals, menu rework, in-game confirms, loading showcase (above). |

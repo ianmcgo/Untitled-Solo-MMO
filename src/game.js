@@ -2631,6 +2631,7 @@ const COMMANDS = [
   ["/time", "Show the game time and weekday."],
   ["/where", "Show your zone and position."],
   ["/clear", "Clear the chat log."],
+  ["/fps", "Show or hide the frame-rate counter."],
   ["/wave, /bow, /cheer…", "Emotes: " + Object.keys(EMOTES).join(", ") + "."],
   ["/help", "List commands."]
 ];
@@ -2705,6 +2706,7 @@ function runCommand(text) {
     case "time": case "clock": log(clockText() + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); return;
     case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
     case "clear": if (typeof clearLog === "function") clearLog(); return;
+    case "fps": if (typeof VIEW !== "undefined" && VIEW.settings) { VIEW.settings.fps = !VIEW.settings.fps; saveSettings(VIEW.settings); log("FPS counter " + (VIEW.settings.fps ? "on" : "off") + ".", "sys"); } return;
     case "help": case "?": case "commands": for (const [c, d] of COMMANDS) log(c + " — " + d, "sys"); return;
   }
   if (EMOTES[cmd]) {

@@ -28,7 +28,7 @@ Paste this into the project's custom instructions:
 | P5d Sunken Crypt | Done (v4.5.0) |
 | P6a Residence, Pip, storage, furniture, NPC schedules | Done (v4.6.0) |
 | P6b Gardening, crafting, gathering | Done (v4.7.0) |
-| P7 Test and tune (night difficulty, phone frame rate) | Not started |
+| P7 Test and tune (night difficulty, phone frame rate) | Done (v4.8.0) |
 
 ## How to build and test
 Needs Node 18+, and for audio Python 3 with numpy and scipy plus ffmpeg.

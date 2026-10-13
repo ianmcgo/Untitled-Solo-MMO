@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "4.7.0",
-  "releaseTitle": "Phase 6b: gathering, crafting, gardening",
+  "version": "4.8.0",
+  "releaseTitle": "Phase 7: test and tune",
   "description": "",
   "main": "index.js",
   "scripts": {

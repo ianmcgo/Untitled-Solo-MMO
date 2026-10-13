@@ -1,5 +1,6 @@
 const H = require('./harness.js'); const { G, tick, alllog } = H; const S = G.S; const P = () => G.player;
 const job = process.argv[3] || 'WAR', sub = process.argv[4] || null, minutes = +(process.argv[5] || 30);
+if (process.env.BOT_HOUR) { const v = G.vana(); let d = +process.env.BOT_HOUR - v.hour - v.minute / 60; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; }
 const order = ['mira', 'kael', 'sable', 'rook', 'fen'];
 let errors = 0, deaths = 0, hires = [];
 if (job === 'PLD' || job === 'RDM') { G.save.jobsUnlocked[job] = true; G.setJob(job, null); if (job === 'RDM') G.equip('linen_robe'); }
@@ -32,7 +33,8 @@ for (let i = 0; i < steps; i++) {
     if (p.hp < p.maxHp * 0.3 && G.save.inventory.some(s => s.id === 'potion')) G.useItem('potion');
     continue;
   }
-  if (!inCombat && (p.hp < p.maxHp * 0.85 || (p.maxMp && p.mp < p.maxMp * 0.6) || S.party.some(a => a.alive && a.hp < a.maxHp * 0.7))) { S.moveTarget = null; continue; }
+  if (!inCombat && (p.hp < p.maxHp * 0.85 || (p.maxMp && p.mp < p.maxMp * 0.6) || S.party.some(a => a.alive && a.hp < a.maxHp * 0.7))) { S.moveTarget = null; if (!p.resting && process.env.BOT_REST !== '0') G.runCommand('/rest'); continue; }
+  if (p.resting) G.runCommand('/stand');
   const t = inCombat ? S.mobs.find(m => m.alive && m.state === 'combat' && m.enmity.size) : pickTarget();
   if (t) { p.target = t; G.toggleEngage(true); }
 }

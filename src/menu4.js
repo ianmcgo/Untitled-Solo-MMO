@@ -748,6 +748,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "4.8.0", date: "2026-10-13", title: "Phase 7: test and tune", items: [
+    "Performance settings: draw distance (near / normal / far) hides far monsters and name plates; auto resolution lowers the render scale when the frame rate drops below about 28 fps and raises it again when there's headroom; an FPS counter (also /fps).",
+    "Phones with little memory now start on Low graphics automatically.",
+    "Balance check with the new /rest: 30-minute test runs reach level 4–6 with 0–3 defeats, by day and by night, so night difficulty is left as is."
+  ] },
   { v: "4.7.0", date: "2026-10-13", title: "Phase 6b: gathering, crafting, gardening", items: [
     "Gathering: Mining, Logging and Harvesting points in Rocky Hollow and the Goblin Den (rocks with ore, log piles, herb patches). Each needs a Pickaxe, Hatchet or Sickle from Pell. Tools break 25% of the time, less as your gathering skill rises. Points run dry after 1–3 uses and reappear elsewhere 45 s later.",
     "Crafting (N or the Crafting tab, or /craft): Smithing, Woodworking, Clothcraft and Alchemy with 23 recipes. One crystal plus ingredients, 3 seconds, anywhere outside combat. Success starts at 65% and moves 7% per skill level; working above a recipe's level can make high-quality +1 items. Failure breaks the crystal and loses some ingredients. Skills cap at 20.",
@@ -946,6 +951,10 @@ function tabHelp() {
     "Seeds: Herb Seeds (3–6 Healing Herbs), Ash Sapling (2–4 Ash Logs), Wildgrass Seeds (2–4 crystals), Moonbloom Seeds (Ethers and a chance at rare materials; a rare drop)."
   ]));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
+  h += sec("📱 Performance", ul([
+    "Settings → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
+    "Settings → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
+  ]));
   h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
