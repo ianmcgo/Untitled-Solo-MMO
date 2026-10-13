@@ -1,5 +1,6 @@
 const CONFIG = {
   levelCap: 15,
+  foodMinutes: 30,
   poolTime: 45,
   meleeRange: 42,
   tpMax: 3000,
@@ -146,8 +147,8 @@ const ABILITIES = {
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -251,6 +252,15 @@ const ITEMS = {
   mud_eel: { name: "Mud Eel", kind: "mat", icon: "🐍", price: 48, stack: 12, desc: "Slippery, strong and ugly." },
   bog_perch: { name: "Bog Perch", kind: "mat", icon: "🐟", price: 64, stack: 12, desc: "Striped green and brown, like the marsh." },
   ghost_koi: { name: "Ghost Koi", kind: "mat", icon: "🐠", price: 320, stack: 12, rarity: "rare", desc: "Pale as moonlight. Said to bite only in bad weather." },
+  grain_flour: { name: "Grain Flour", kind: "mat", icon: "🌾", price: 8, stack: 24, desc: "Milled in the Outpost. A cooking staple." },
+  rock_salt: { name: "Rock Salt", kind: "mat", icon: "🧂", price: 6, stack: 24, desc: "Coarse salt for the cook pot." },
+  grilled_minnow: { name: "Grilled Minnow", kind: "food", icon: "🍢", price: 20, stack: 12, food: { hp: 10, dex: 1 }, desc: "Crunchy and salty." },
+  herb_bread: { name: "Herb Bread", kind: "food", icon: "🍞", price: 24, stack: 12, food: { mp: 15, mnd: 2 }, desc: "Warm bread flecked with herbs. Mages swear by it." },
+  carp_stew: { name: "Carp Stew", kind: "food", icon: "🍲", price: 40, stack: 12, food: { hp: 25, vit: 2 }, desc: "Hearty and filling." },
+  shad_skewer: { name: "Shad Skewer", kind: "food", icon: "🍡", price: 60, stack: 12, food: { att: 8, str: 2, acc: 4 }, desc: "Fighters' food: quick, salty, full of fire." },
+  eel_pie: { name: "Eel Pie", kind: "food", icon: "🥧", price: 80, stack: 12, food: { hp: 40, def: 8 }, desc: "A thick-crusted marsh pie. Sits like armour." },
+  perch_chowder: { name: "Perch Chowder", kind: "food", icon: "🥣", price: 95, stack: 12, food: { mp: 30, int: 3, mnd: 3 }, desc: "Creamy chowder that clears the head." },
+  pike_feast: { name: "Pike Feast", kind: "food", icon: "🍱", price: 260, stack: 12, rarity: "rare", food: { hp: 60, str: 3, vit: 3, att: 12 }, desc: "A banquet built around a Lakeking Pike." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
   mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
   iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
@@ -310,7 +320,7 @@ const ITEMS = {
   goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
-const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait"];
+const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -320,7 +330,8 @@ const CRAFTS = {
   smithing: { name: "Smithing", crystal: "fire_crystal", icon: "⚒️" },
   woodworking: { name: "Woodworking", crystal: "wind_crystal", icon: "🪚" },
   clothcraft: { name: "Clothcraft", crystal: "earth_crystal", icon: "🧶" },
-  alchemy: { name: "Alchemy", crystal: "water_crystal", icon: "⚗️" }
+  alchemy: { name: "Alchemy", crystal: "water_crystal", icon: "⚗️" },
+  cooking: { name: "Cooking", crystal: "fire_crystal", icon: "🍳" }
 };
 
 const RECIPES = [
@@ -346,7 +357,14 @@ const RECIPES = [
   { id: "r_potion", craft: "alchemy", lv: 0, mats: { healing_herb: 2 }, out: "potion", qty: 2, hq: "potion_hq" },
   { id: "r_potted_plant", craft: "alchemy", lv: 2, mats: { healing_herb: 3 }, out: "potted_plant" },
   { id: "r_ether", craft: "alchemy", lv: 3, mats: { healing_herb: 1, bat_wing: 1 }, out: "ether", hq: "ether_hq" },
-  { id: "r_hi_potion", craft: "alchemy", lv: 6, mats: { potion: 2, bone_chip: 1 }, out: "hi_potion" }
+  { id: "r_hi_potion", craft: "alchemy", lv: 6, mats: { potion: 2, bone_chip: 1 }, out: "hi_potion" },
+  { id: "r_grilled_minnow", craft: "cooking", lv: 0, mats: { pond_minnow: 1, rock_salt: 1 }, out: "grilled_minnow", qty: 2 },
+  { id: "r_herb_bread", craft: "cooking", lv: 2, mats: { grain_flour: 2, healing_herb: 1 }, out: "herb_bread", qty: 2 },
+  { id: "r_carp_stew", craft: "cooking", lv: 4, mats: { moat_carp: 1, healing_herb: 1, rock_salt: 1 }, out: "carp_stew", qty: 2 },
+  { id: "r_shad_skewer", craft: "cooking", lv: 7, mats: { silver_shad: 2, rock_salt: 1 }, out: "shad_skewer", qty: 2 },
+  { id: "r_eel_pie", craft: "cooking", lv: 10, mats: { mud_eel: 1, grain_flour: 2 }, out: "eel_pie", qty: 2 },
+  { id: "r_perch_chowder", craft: "cooking", lv: 13, mats: { bog_perch: 1, grain_flour: 1, healing_herb: 1 }, out: "perch_chowder", qty: 2 },
+  { id: "r_pike_feast", craft: "cooking", lv: 16, mats: { lakeking_pike: 1, grain_flour: 2, healing_herb: 2 }, out: "pike_feast", qty: 3 }
 ];
 
 const MERCS = {
@@ -802,6 +820,8 @@ const ACHIEVEMENTS = [
   { id: "lotwin", icon: "🎲", name: "Lucky Roll", desc: "Win a treasure pool lot.", gil: 40, test: s => (s.stats.lotsWon || 0) >= 1 },
   { id: "angler", icon: "🎣", name: "Angler", desc: "Catch a fish.", gil: 30, test: s => (s.stats.fish || 0) >= 1 },
   { id: "bigcatch", icon: "🐠", name: "The Big One", desc: "Land a Lakeking Pike or a Ghost Koi.", gil: 200, test: s => (s.stats.bigFish || 0) >= 1 },
+  { id: "fed", icon: "🍲", name: "Well Fed", desc: "Eat a meal.", gil: 20, test: s => (s.stats.meals || 0) >= 1 },
+  { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", gil: 200, test: s => (s.crafts.cooking || 0) >= 10 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
@@ -823,7 +843,9 @@ const TRADE_REQUESTS = [
   { id: "t_fire", who: "The lamplighters", items: { fire_crystal: 2 }, gil: 110, xp: 40 },
   { id: "t_water", who: "The well keeper", items: { water_crystal: 2 }, gil: 110, xp: 40 },
   { id: "t_carp", who: "The tavern cook", items: { moat_carp: 3 }, gil: 120, xp: 50 },
-  { id: "t_eel", who: "A smokehouse", items: { mud_eel: 2 }, gil: 180, xp: 90 }
+  { id: "t_eel", who: "A smokehouse", items: { mud_eel: 2 }, gil: 180, xp: 90 },
+  { id: "t_stew", who: "The barracks cook", items: { carp_stew: 2 }, gil: 160, xp: 70 },
+  { id: "t_bread", who: "A hungry patrol", items: { herb_bread: 3 }, gil: 120, xp: 50 }
 ];
 const TRADE_DAILY = 3;
 

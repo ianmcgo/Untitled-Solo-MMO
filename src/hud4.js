@@ -259,13 +259,6 @@ function buildParty() {
     p.ui = { row, nm: q(".nm"), jb: q(".jb"), lv: q(".por em"), hp: bars[0].firstChild, hpT: bars[0].lastChild, mp: bars[1].firstChild, mpT: bars[1].lastChild, mpBar: bars[1], tp: bars[2].firstChild, bufs: q(".bufs"), cb: q(".cb"), cbI: q(".cb i") };
     el.appendChild(row);
   });
-  if (S.party.length === 1) {
-    const tip = document.createElement("div");
-    tip.id = "soloTip";
-    tip.className = "glass";
-    tip.textContent = "Solo. Hire companions from Brann at the Mercenary Hall.";
-    el.appendChild(tip);
-  }
 }
 function updateParty() {
   const key = S.party.map(p => (p.mercId || "me") + p.job).join(",");
@@ -391,7 +384,6 @@ function updateTopRight() {
   const el = DAY_ELEMENTS[v.dayIndex];
   const wx = weatherNow(), wi = wx && WEATHER_INFO[wx];
   setHtml($("clock"), (wi ? '<span title="' + wi.name + '">' + (isNight() && wi.nightIcon ? wi.nightIcon : wi.icon) + "</span> " : isNight() ? "🌙 " : "☀️ ") + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + ' <span class="el" style="color:' + ELEMENT_COLORS[el] + ";border-color:" + ELEMENT_COLORS[el] + '88">' + DAY_NAMES[v.dayIndex] + "</span>");
-  setTxt($("btnSound"), AUDIO.settings && AUDIO.settings.muted ? "🔇" : "🔊");
 }
 
 function zoneMapCanvas(zoneId) {
@@ -779,8 +771,6 @@ function initHud() {
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
   $("btnMenu").onclick = () => S.modal ? closeModal() : openMenu("character");
-  $("btnQuests").onclick = () => openMenu("quests");
-  $("btnSound").onclick = () => { toggleMute(); updateTopRight(); };
   const ci = $("chatIn");
   UI.cmdHist = []; UI.cmdIdx = 0;
   ci.addEventListener("keydown", e => {
