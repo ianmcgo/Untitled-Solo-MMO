@@ -919,6 +919,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "6.1.0", date: "2026-10-13", title: "Dark Knight and Bard", items: [
+    "New advanced job: Dark Knight (Tobin's The Shadowed Path, level 10). Scythes, Last Resort, Soulfire and Blood Blade, plus dark magic: Blight, Drain, Mind Drain and Stun.",
+    "New advanced job: Bard (Tobin's A Traveler's Song, level 10). Party songs for attack, accuracy, attack speed, HP and MP over time; Drowsy Lullaby puts a monster to sleep; Encore speeds up your singing.",
+    "New weapon type: scythes, with four weapon skills (Slice, Nightreap, Spiral Reap, Grim Harvest). Bronze, Iron and Steel Scythes at Pell's, the Rimefrost Scythe at Vela's.",
+    "New gear: Shadow Plate, Minstrel's Coat (Pell) and Troubadour's Coat (Vela). Dark Knights can wear warrior armor and use swords and great axes; Bards can wear red mage clothing and use daggers.",
+    "New companions at the Mercenary Hall: Mordrin, a Dark Knight, and Lyra, a Bard who keeps two songs on the party and lulls extra monsters to sleep. Each joins once you've unlocked their job."
+  ] },
   { v: "6.0.0", date: "2026-10-13", title: "The Adventurers' Guild", items: [
     "Maera has opened the Adventurers' Guild in Ashenreach Outpost, just west of Captain Rhea.",
     "Three bounties go up every day (midnight UTC). Accept up to three at a time, defeat the monsters anywhere in the world, and turn them in to Maera for guild points, crystals and experience.",
@@ -1170,9 +1177,11 @@ function tabHelp() {
     ["Thief (advanced)", "Damage", "Dagger A, Steal, Sneak Attack (sure critical), Flee; +5% critical hits; Treasure Hunter (+20% drop chance)"],
     ["Ranger (advanced)", "Ranged damage", "Archery A: shoots from 230 range, Sharpshot (+40 accuracy), Barrage (next shot fires 3 arrows), Shadowbind (pin a monster for 12 s)"],
     ["Summoner (advanced)", "Pet mage", "Summoning A: Ember, Frost, Gale and (level 15) Stone Sprites fight beside you and drain MP every 3 s; Blood Pact (sprite's elemental attack), Elemental Siphon (MP back), Release"],
+    ["Dark Knight (advanced)", "Damage", "Scythe A (new weapon type), great axe and sword B. Last Resort (+25% attack, −15% defense), Soulfire (10: hits burn your own HP for extra damage), Blood Blade (15: hits drain HP). Dark Magic A: Blight (damage over time, lowers attack), Drain (5), Mind Drain (12: steals MP), Stun (17: stops a readied move)"],
+    ["Bard (advanced)", "Support", "Songs reach every ally within range and last 2 minutes; each person holds two songs and a third replaces the oldest. Battle Minuet (attack), Mending Paeon (HP over time), Wellspring Ballad (MP over time), Keen Madrigal (accuracy), Swift March (attack speed), Drowsy Lullaby (5: puts a monster to sleep until it's hit; bosses are immune), tier II Paeon (13) and Minuet (17), Encore (15: songs sing three times faster). Dagger B"],
     ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"]
   ]) + ul([
-    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing) <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). Each job keeps its own level.",
+    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per game day (about 58 real minutes). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));

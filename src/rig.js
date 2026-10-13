@@ -291,6 +291,8 @@ const JOB_TINT = {
   THF: { shirt: 0x4a3f36, pants: 0x2f2a26, robe: 0x4a3f36, trim: 0xa1887f },
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
+  DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  BRD: { shirt: 0x8a5a20, pants: 0x3a2e24, robe: 0x8a5a20, trim: 0xffd54f },
   SMN: { shirt: 0x2a6a78, pants: 0x2a2a38, robe: 0x2a6a78, trim: 0xd8c070, deep: 0x1f4f5f }
 };
 
@@ -323,6 +325,9 @@ const ITEM_LOOK = {
   marsh_boots: { boots: 0x3f4a2a },
   hunters_coat: { top: { type: "coat", color: 0x3f5a2c, trim: 0xb08a50 } },
   evoker_robe: { top: { type: "robe", deep: true } },
+  shadow_plate: { top: { type: "mail", color: 0x3a3442, region: "chain" }, pauldrons: 0x4a4258 },
+  minstrel_coat: { top: { type: "coat", color: 0x9a6a2a, trim: 0xffd54f } },
+  troubadour_coat: { top: { type: "coat", color: 0x6a2a4a, trim: 0xffd54f } },
   brigand_vest: { top: { type: "vest", color: 0x2f2a28, region: "leather", under: 0x5a4a3a } },
   training_gi: { top: { type: "tunic", color: 0xe8e0cc, region: "cloth" }, belt: 0x2a2a2a },
   mire_mantle: { top: { type: "robe", color: 0x2f4030, trim: 0x8aa070 }, head: { type: "hood", color: 0x2f4030 } }
@@ -337,6 +342,8 @@ const MERC_BASE = {
   dorn: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x8a8a8a },
   lisette: { build: 1, skin: SKIN_TONES[0], hair: { style: "bun", color: HAIR_COLORS[4] } },
   vesper: { build: 1, skin: SKIN_TONES[3], hair: { style: "long", color: HAIR_COLORS[6] } },
+  mordrin: { build: 0, skin: SKIN_TONES[0], hair: { style: "long", color: 0x1d1d22 }, beard: 0x1d1d22 },
+  lyra: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[4] } },
   corin: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[2] }, beard: HAIR_COLORS[2] },
   wren: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: HAIR_COLORS[4] } },
   tamsin: { build: 1, skin: SKIN_TONES[2], hair: { style: "bun", color: HAIR_COLORS[0] } }
@@ -832,6 +839,19 @@ function weaponEntry(kind, id) {
     R.add(gBall(V3(0, 0.96, 0), 0.05, 1, 1, 1, 10), "w", holly ? 0xb070ff : 0x7ad7ff, "glow", true);
     R.add(gRing(V3(0, 0.78, 0), 0.025, 0.008, "y", 10), "w", gold, "metal");
     tip = [0.6, 1.0];
+  } else if (kind === "scythe") {
+    R.add(gTaper(V3(0, -0.5, 0), V3(0, 1.0, 0), 0.022, 0.02, 8), "w", 0x3a2a22, "wood");
+    R.add(gTaper(V3(0, 0.1, 0), V3(0, 0.22, 0), 0.026, 0.026, 8), "w", grip, "leather");
+    const sh = new THREE.Shape();
+    sh.moveTo(0, 0.03); sh.quadraticCurveTo(0.3, 0.12, 0.62, -0.12); sh.quadraticCurveTo(0.3, 0.0, 0, -0.04); sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: 0.01, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 1 });
+    g.translate(0, 0, -0.005);
+    const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 0.62, (uv.getY(i) + 0.12) / 0.24);
+    g.rotateY(Math.PI / 2);
+    g.translate(0, 0.96, 0);
+    R.add(g, "w", id && /rime/.test(id) ? 0xbfe6f5 : blade, "metal");
+    R.add(gBall(V3(0, 1.0, 0), 0.03, 1, 1, 1, 8), "w", gold, "metal");
+    tip = [0.7, 0.95];
   } else if (kind === "greataxe") {
     R.add(gTaper(V3(0, -0.4, 0), V3(0, 0.95, 0), 0.024, 0.022, 8), "w", wood, "wood");
     for (const s of [-1, 1]) {
@@ -848,7 +868,7 @@ function weaponEntry(kind, id) {
     tip = [0.62, 1.02];
   }
   const e = R.finish();
-  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, club: 0.9 }[kind] || 1;
+  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9 }[kind] || 1;
   if (k !== 1) { e.geo.scale(k, k, k); e.geo.computeBoundingSphere(); e.geo.boundingSphere.radius *= 1.6; tip = tip.map(x => x * k); }
   e.tip = tip;
   RIG.weaponCache.set(key, e);

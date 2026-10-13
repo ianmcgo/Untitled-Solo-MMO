@@ -97,9 +97,9 @@ const SC_TABLE = [
 const ATTRS = ["str", "dex", "vit", "agi", "int", "mnd"];
 const SLOTS = ["main", "head", "body", "hands", "legs", "feet", "ring"];
 const SLOT_NAMES = { main: "Main", head: "Head", body: "Body", hands: "Hands", legs: "Legs", feet: "Feet", ring: "Ring" };
-const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN"];
+const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN", "DRK", "BRD"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
-const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 }, THF: { quest: "thf", lv: 6 }, MNK: { quest: "mnk", lv: 6 }, RNG: { quest: "rng", lv: 6 }, SMN: { quest: "smn", lv: 6 } };
+const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 }, THF: { quest: "thf", lv: 6 }, MNK: { quest: "mnk", lv: 6 }, RNG: { quest: "rng", lv: 6 }, SMN: { quest: "smn", lv: 6 }, DRK: { quest: "drk", lv: 10 }, BRD: { quest: "brd", lv: 10 } };
 
 const JOBS = {
   WAR: { name: "Warrior", color: "#e57373", icon: "⚔️", hp: [70, 14], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [6, 0.5] },
@@ -110,10 +110,16 @@ const JOBS = {
   THF: { name: "Thief", color: "#a1887f", icon: "🗝️", hp: [58, 11], mp: [0, 0], str: [7, 0.7], dex: [10, 1.0], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.6], mnd: [6, 0.5], advanced: true },
   MNK: { name: "Monk", color: "#ffb74d", icon: "👊", hp: [76, 15], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [10, 1.0], agi: [7, 0.7], int: [5, 0.4], mnd: [6, 0.6], advanced: true },
   RNG: { name: "Ranger", color: "#9ccc65", icon: "🏹", hp: [56, 11], mp: [0, 0], str: [7, 0.7], dex: [9, 0.9], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.5], mnd: [6, 0.5], advanced: true },
+  DRK: { name: "Dark Knight", color: "#8e6bbf", icon: "🌑", hp: [64, 13], mp: [10, 3], str: [10, 1.0], dex: [8, 0.8], vit: [8, 0.7], agi: [7, 0.6], int: [8, 0.7], mnd: [5, 0.4], advanced: true },
+  BRD: { name: "Bard", color: "#ffd54f", icon: "🎵", hp: [54, 10], mp: [16, 5], str: [7, 0.6], dex: [8, 0.7], vit: [7, 0.6], agi: [7, 0.7], int: [7, 0.6], mnd: [8, 0.8], advanced: true },
   SMN: { name: "Summoner", color: "#4dd0e1", icon: "🔮", hp: [44, 8], mp: [30, 9], str: [5, 0.4], dex: [6, 0.5], vit: [6, 0.5], agi: [6, 0.6], int: [9, 0.9], mnd: [10, 1.0], advanced: true }
 };
 
 const WEAPON_SKILLS = {
+  slice: { name: "Slice", wtype: "scythe", skill: 5, props: ["Scission"], ftp: [1.6, 2.1, 2.7] },
+  nightreap: { name: "Nightreap", wtype: "scythe", skill: 22, props: ["Induration", "Reverberation"], ftp: [1.9, 2.6, 3.3] },
+  spiral_reap: { name: "Spiral Reap", wtype: "scythe", skill: 40, props: ["Gravitation", "Scission"], ftp: [2.3, 3.1, 3.9] },
+  grim_harvest: { name: "Grim Harvest", wtype: "scythe", skill: 75, props: ["Gravitation", "Distortion"], ftp: [2.7, 3.5, 4.5] },
   fast_blade: { name: "Fast Blade", wtype: "sword", skill: 5, props: ["Scission", "Detonation"], ftp: [1.5, 2.0, 2.5] },
   burning_blade: { name: "Burning Blade", wtype: "sword", skill: 22, props: ["Liquefaction"], ftp: [1.8, 2.6, 3.4] },
   red_lotus_blade: { name: "Red Lotus Blade", wtype: "sword", skill: 40, props: ["Liquefaction", "Detonation"], ftp: [2.2, 3.0, 3.8] },
@@ -146,6 +152,10 @@ const WEAPON_SKILLS = {
 
 const ABILITIES = {
   provoke: { name: "Provoke", job: "WAR", lv: 1, recast: 30, target: "enemy", enmity: 600, desc: "Draws the target's attention to you." },
+  last_resort: { name: "Last Resort", job: "DRK", lv: 1, recast: 120, target: "self", buff: "last_resort", dur: 30, desc: "Attack +25%, Defense −15% for 30 s." },
+  soulfire: { name: "Soulfire", job: "DRK", lv: 10, recast: 300, target: "self", buff: "soulfire", dur: 30, desc: "For 30 s, each hit burns some of your own HP to deal extra damage." },
+  blood_blade: { name: "Blood Blade", job: "DRK", lv: 15, recast: 600, target: "self", buff: "blood_blade", dur: 30, desc: "For 30 s, your hits drain HP from the target." },
+  encore: { name: "Encore", job: "BRD", lv: 15, recast: 300, target: "self", buff: "encore", dur: 60, desc: "Your songs take a third of the time to sing for 60 s." },
   berserk: { name: "Berserk", job: "WAR", lv: 3, recast: 60, target: "self", buff: "berserk", dur: 30, desc: "Attack +25%, Defense −25% for 30 s." },
   divine_seal: { name: "Divine Seal", job: "WHM", lv: 3, recast: 60, target: "self", buff: "divine_seal", dur: 60, desc: "Your next Cure heals twice as much." },
   elemental_seal: { name: "Elemental Seal", job: "BLM", lv: 3, recast: 60, target: "self", buff: "elemental_seal", dur: 60, desc: "Your next nuke deals 50% more damage." },
@@ -167,8 +177,8 @@ const ABILITIES = {
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -198,12 +208,24 @@ const SPELLS = {
   thunder2: { name: "Thunder II", jobs: { BLM: 17 }, mp: 40, cast: 3.0, recast: 10, kind: "nuke", element: "lightning", power: 82, stat: "int", target: "enemy", desc: "Heavy lightning damage." },
   fire3: { name: "Fire III", jobs: { BLM: 20 }, mp: 62, cast: 3.5, recast: 14, kind: "nuke", element: "fire", power: 120, stat: "int", target: "enemy", desc: "Massive fire damage." },
   stone_sprite: { name: "Stone Sprite", jobs: { SMN: 15 }, mp: 18, cast: 3.0, recast: 10, kind: "summon", element: "earth", pet: "stone", target: "self", desc: "Calls a sturdy earth sprite. It slowly drains your MP." },
+  blight: { name: "Blight", jobs: { DRK: 3 }, mp: 8, cast: 1.5, recast: 8, kind: "dot", element: "dark", buff: "blight", power: 6, target: "enemy", skill: "dark", desc: "Dark damage over time and lowers the target's attack." },
+  drain: { name: "Drain", jobs: { DRK: 5 }, mp: 12, cast: 2.5, recast: 20, kind: "drain", element: "dark", power: 16, target: "enemy", skill: "dark", desc: "Steals HP from the target." },
+  mind_drain: { name: "Mind Drain", jobs: { DRK: 12 }, mp: 4, cast: 2.5, recast: 30, kind: "aspir", element: "dark", power: 10, target: "enemy", skill: "dark", desc: "Steals MP from the target." },
+  stun: { name: "Stun", jobs: { DRK: 17 }, mp: 10, cast: 0.5, recast: 30, kind: "debuff", element: "dark", buff: "stun", dur: 4, enmity: 150, target: "enemy", skill: "dark", desc: "Stuns the target for 4 s and stops a readied move." },
+  battle_minuet: { name: "Battle Minuet", jobs: { BRD: 1 }, mp: 6, cast: 2.0, recast: 8, kind: "song", song: "minuet", pow: 0.12, dur: 120, target: "self", skill: "singing", desc: "Party song: attack +12% for 2 minutes." },
+  mending_paeon: { name: "Mending Paeon", jobs: { BRD: 3 }, mp: 6, cast: 2.0, recast: 8, kind: "song", song: "paeon", pow: 1, dur: 120, target: "self", skill: "singing", desc: "Party song: restores a little HP every 3 s." },
+  drowsy_lullaby: { name: "Drowsy Lullaby", jobs: { BRD: 5 }, mp: 8, cast: 2.0, recast: 20, kind: "debuff", element: "light", buff: "sleep", dur: 30, enmity: 60, target: "enemy", skill: "singing", desc: "Puts the target to sleep for up to 30 s. Any damage wakes it. Bosses are immune." },
+  wellspring_ballad: { name: "Wellspring Ballad", jobs: { BRD: 7 }, mp: 4, cast: 2.0, recast: 8, kind: "song", song: "ballad", pow: 1, dur: 120, target: "self", skill: "singing", desc: "Party song: restores a little MP every 3 s." },
+  keen_madrigal: { name: "Keen Madrigal", jobs: { BRD: 9 }, mp: 8, cast: 2.0, recast: 8, kind: "song", song: "madrigal", pow: 15, dur: 120, target: "self", skill: "singing", desc: "Party song: accuracy +15 for 2 minutes." },
+  swift_march: { name: "Swift March", jobs: { BRD: 11 }, mp: 10, cast: 2.0, recast: 8, kind: "song", song: "march", pow: 0.12, dur: 120, target: "self", skill: "singing", desc: "Party song: attack speed +12% for 2 minutes." },
+  mending_paeon2: { name: "Mending Paeon II", jobs: { BRD: 13 }, mp: 10, cast: 2.0, recast: 8, kind: "song", song: "paeon", pow: 2, dur: 120, target: "self", skill: "singing", desc: "Party song: restores more HP every 3 s." },
+  battle_minuet2: { name: "Battle Minuet II", jobs: { BRD: 17 }, mp: 12, cast: 2.0, recast: 8, kind: "song", song: "minuet", pow: 0.2, dur: 120, target: "self", skill: "singing", desc: "Party song: attack +20% for 2 minutes." },
   protect: { name: "Protect", jobs: { WHM: 7, PLD: 9, RDM: 9 }, mp: 9, cast: 2.0, recast: 10, kind: "buff", buff: "protect", dur: 600, target: "ally", desc: "Defense +15% for 10 minutes." }
 };
 
-const SKILL_NAMES = { archery: "Archery", summoning: "Summoning Magic", dagger: "Dagger", sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
-const COMBAT_SKILLS = ["sword", "dagger", "club", "staff", "greataxe", "h2h", "archery"];
-const MAGIC_SKILLS = ["healing", "divine", "elemental", "enfeebling", "enhancing", "summoning"];
+const SKILL_NAMES = { scythe: "Scythe", dark: "Dark Magic", singing: "Singing", archery: "Archery", summoning: "Summoning Magic", dagger: "Dagger", sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
+const COMBAT_SKILLS = ["sword", "dagger", "club", "staff", "greataxe", "scythe", "h2h", "archery"];
+const MAGIC_SKILLS = ["healing", "divine", "elemental", "enfeebling", "enhancing", "dark", "summoning", "singing"];
 const SKILL_RATINGS = {
   WAR: { archery: "D", sword: "B", dagger: "B", club: "B", staff: "B", greataxe: "A", h2h: "D" },
   WHM: { club: "B", staff: "C", h2h: "E", healing: "B", divine: "C", enhancing: "B" },
@@ -213,6 +235,8 @@ const SKILL_RATINGS = {
   RNG: { archery: "A", dagger: "B", sword: "D", club: "E" },
   SMN: { summoning: "A", staff: "B", club: "C", dagger: "E" },
   MNK: { h2h: "A", staff: "B", club: "C" },
+  DRK: { scythe: "A", greataxe: "B", sword: "B", dagger: "C", club: "C", dark: "A", elemental: "C" },
+  BRD: { singing: "A", dagger: "B", sword: "C", staff: "C", club: "D" },
   RDM: { sword: "B", dagger: "B", club: "D", staff: "D", h2h: "E", healing: "C", divine: "D", elemental: "C", enfeebling: "B", enhancing: "B" }
 };
 const RATING_CAP = { A: [3, 5.5], B: [3, 5], C: [2, 4.5], D: [2, 4], E: [1, 3.5] };
@@ -256,6 +280,13 @@ const ITEMS = {
   yew_bow: { name: "Yew Bow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 10, delay: 3.0, jobs: ["RNG", "WAR", "THF"], lv: 6, price: 950, stats: { agi: 1 } },
   steel_longbow: { name: "Steel Longbow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 15, delay: 3.1, jobs: ["RNG", "WAR", "THF"], lv: 11, price: 2700, stats: { agi: 2, acc: 3 } },
   hunters_coat: { name: "Hunter's Coat", kind: "equip", icon: "🧥", slot: "body", jobs: ["RNG", "THF"], lv: 5, price: 1000, stats: { def: 6, agi: 2, acc: 3 } },
+  bronze_scythe: { name: "Bronze Scythe", kind: "equip", icon: "🌙", slot: "main", wtype: "scythe", dmg: 11, delay: 4.4, jobs: ["DRK"], lv: 1, price: 140 },
+  iron_scythe: { name: "Iron Scythe", kind: "equip", icon: "🌙", slot: "main", wtype: "scythe", dmg: 17, delay: 4.4, jobs: ["DRK"], lv: 6, price: 1200, stats: { str: 1 } },
+  steel_scythe: { name: "Steel Scythe", kind: "equip", icon: "🌙", slot: "main", wtype: "scythe", dmg: 25, delay: 4.5, jobs: ["DRK"], lv: 11, price: 3200, stats: { str: 2, acc: 2 } },
+  rime_scythe: { name: "Rimefrost Scythe", kind: "equip", icon: "🌙", slot: "main", wtype: "scythe", dmg: 36, delay: 4.5, jobs: ["DRK"], lv: 17, price: 10400, stats: { str: 4, acc: 4 } },
+  shadow_plate: { name: "Shadow Plate", kind: "equip", icon: "🛡️", slot: "body", jobs: ["DRK", "WAR"], lv: 5, price: 1100, stats: { def: 8, str: 2, int: 1 } },
+  minstrel_coat: { name: "Minstrel's Coat", kind: "equip", icon: "🧥", slot: "body", jobs: ["BRD", "RDM"], lv: 5, price: 1000, stats: { def: 5, mp: 15, mnd: 1, agi: 1 } },
+  troubadour_coat: { name: "Troubadour's Coat", kind: "equip", icon: "🧥", slot: "body", jobs: ["BRD"], lv: 14, price: 6200, stats: { def: 12, mp: 35, mnd: 3, agi: 2, hp: 15 } },
   sprite_staff: { name: "Sprite Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 8, delay: 3.6, jobs: ["SMN", "WHM", "BLM"], lv: 1, price: 120, stats: { mp: 10, mnd: 1 } },
   evoker_robe: { name: "Evoker's Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["SMN"], lv: 5, price: 1000, stats: { def: 5, mp: 25, mnd: 2, int: 1 } },
   bronze_dagger: { name: "Bronze Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 4, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 1, price: 70 },
@@ -395,7 +426,16 @@ const ITEMS = {
   goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
-const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!Array.isArray(it.jobs) || it.jobs === ALL_J) continue;
+  if (it.slot === "main" && ["greataxe", "sword"].includes(it.wtype) && it.jobs.includes("WAR") && !it.jobs.includes("DRK")) it.jobs.push("DRK");
+  if (it.slot === "main" && it.wtype === "dagger" && !it.jobs.includes("BRD")) it.jobs.push("BRD");
+  if (it.slot !== "main" && it.slot !== "ring" && it.jobs.includes("WAR") && !it.jobs.includes("DRK")) it.jobs.push("DRK");
+  if (it.slot !== "main" && it.slot !== "ring" && it.jobs.includes("RDM") && !it.jobs.includes("BRD")) it.jobs.push("BRD");
+}
+
+const SHOP = ["bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -454,6 +494,8 @@ const MERCS = {
   vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Elemental Seal on every one." },
   wren: { name: "Wren", job: "THF", role: "dd", fee: 240, color: "#a1887f", requires: { job: "THF" }, desc: "A quick-fingered Thief. Steals from everything, opens with Sneak Attack and chains dagger skills." },
   corin: { name: "Corin", job: "RNG", role: "dd", fee: 250, color: "#9ccc65", requires: { job: "RNG" }, desc: "A quiet Ranger. Shoots from range, uses Sharpshot and Barrage, and binds runners in place." },
+  mordrin: { name: "Mordrin", job: "DRK", role: "dd", fee: 300, color: "#8e6bbf", requires: { job: "DRK" }, desc: "A grim Dark Knight. Swings a scythe with Last Resort and Soulfire, drains life back when he's hurt, and stuns dangerous moves." },
+  lyra: { name: "Lyra", job: "BRD", role: "bard", fee: 300, color: "#ffd54f", requires: { job: "BRD" }, desc: "A bright Bard. Keeps two songs on the party, lulls extra monsters to sleep, and fights with a dagger in between." },
   tamsin: { name: "Tamsin", job: "MNK", role: "dd", fee: 260, color: "#ffb74d", requires: { job: "MNK" }, desc: "A cheerful Monk. Boosts, focuses and pummels, and mends herself with Chakra." }
 };
 
@@ -882,6 +924,10 @@ const QUESTS = {
     intro: "A Monk needs no blade. Fists, Boost and Focus, and Chakra to mend their own wounds. Training starts with a poultice: 3 Healing Herbs, and 2 Bone Chips ground into it. Don't ask why. It works.", progress: "2 Bone Chips from the undead and 3 Healing Herbs.", turn: "Good. Wrap your hands in these and hit things. That's most of it, honestly." },
   rng: { name: "Steady Aim", giver: "Tobin", npc: "tobin", lv: 6, items: { bat_wing: 3, ash_lumber: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Ash Lumber to learn the Ranger's craft.", reward: { xp: 300, gil: 0, item: "shortbow", qty: 1, unlock: "RNG" },
     intro: "A Ranger fights from afar: bow and arrow, Sharpshot and Barrage, and Shadowbind to pin a foe in place. Fletching starts with good wood and good feathers. Bring me 3 Bat Wings for the fletching and 2 Ash Lumber for the bow.", progress: "3 Bat Wings and 2 Ash Lumber. Woodworkers make lumber from Ash Logs.", turn: "Good wood, fair feathers. Here's your first bow. Keep your distance and let the arrows do the work." },
+  drk: { name: "The Shadowed Path", giver: "Tobin", npc: "tobin", lv: 10, items: { crypt_dust: 2, bone_chip: 3 }, desc: "Bring Tobin 2 Crypt Dust and 3 Bone Chips to walk the Dark Knight's path.", reward: { xp: 600, gil: 0, item: "bronze_scythe", qty: 1, unlock: "DRK" },
+    intro: "A Dark Knight trades a little of their own life for power: scythes, Drain, Blight, and Last Resort. It isn't a path for the careful. Bring me dust from the Sunken Crypt and bones from the restless dead, and I'll show you how it's done.", progress: "2 Crypt Dust and 3 Bone Chips. The Crypt has both; the Wandering Bones carry chips at night.", turn: "You carry the crypt's chill with you now. Take this scythe, and don't let it take you." },
+  brd: { name: "A Traveler's Song", giver: "Tobin", npc: "tobin", lv: 10, items: { mire_reed: 3, bat_wing: 2 }, desc: "Bring Tobin 3 Mire Reeds and 2 Bat Wings so he can teach you the Bard's songs.", reward: { xp: 600, gil: 0, item: "minstrel_coat", qty: 1, unlock: "BRD" },
+    intro: "Bards fight with a dagger in one hand and a song in the other. Their songs lift the whole party: sharper blades, faster swings, wounds that close on their own. I'll teach you, but I need reeds for a pipe and bat wings for the drum skin.", progress: "3 Mire Reeds from the Ashen Marsh and 2 Bat Wings. Bats come out at night.", turn: "Listen to that. A little shaky, but it carries. Here's a coat fit for the road." },
   smn: { name: "The Calling", giver: "Tobin", npc: "tobin", lv: 6, items: { fire_crystal: 2, wind_crystal: 2, healing_herb: 2 }, desc: "Bring Tobin 2 Fire Essences, 2 Wind Essences and 2 Healing Herbs to learn to call sprites.", reward: { xp: 300, gil: 0, item: "sprite_staff", qty: 1, unlock: "SMN" },
     intro: "A Summoner calls elemental sprites to fight for them. The sprites drink your MP while they're out, so mind it. To make the first calling, I'll need 2 Fire Essences, 2 Wind Essences, and 2 Healing Herbs to calm the sprite afterward.", progress: "2 Fire Essences, 2 Wind Essences and 2 Healing Herbs.", turn: "Listen... there. A spark answered. Take this staff and call it with Ember Sprite." },
   support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 5, desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
@@ -939,6 +985,8 @@ const MERC_PERSONAL = {
   wren: ["Nice pickings today.", "I only steal from monsters now. Mostly.", "My mum ran a pawn shop in the capital. I learned to tell real silver by the smell.", "You never check your pockets around me. I like that you trust me.", "Whatever we find, half's yours. I mean it."],
   corin: ["...Clean shot.", "I grew up hunting the ridges above the Hollow. Quiet work.", "My father made bows. I still use his knife to carve the arrows.", "You give me room to shoot. Not everyone does.", "I'll keep watching your back. Always."],
   tamsin: ["Ha! Good fight!", "Breathe in, punch out. That's the whole secret.", "I trained at a temple up in the cliffs. Three hundred steps every morning, carrying water.", "You hit harder than you did when we met. I noticed.", "Fists together, always."],
+  mordrin: ["...", "The scythe asks a price. I pay it gladly.", "I was a knight of the capital once. They didn't like what I became.", "You don't flinch at the dark. Good.", "Whatever comes, I'll take the first cut for you."],
+  lyra: ["La la! Did you hear that? Perfect pitch.", "Every town has a song. I'm collecting them.", "I learned on a reed pipe my grandmother carved. I still have it.", "You fight to my tempo now. Have you noticed?", "I'm writing a ballad about us. It doesn't end yet."],
   vesper: ["Open a chain. I'll do the rest.", "The burst is the only honest moment in a fight.", "I was thrown out of the academy for setting the library alight. Small fire. Mostly.", "You understand the rhythm. Few do.", "Every burst from now on is for us."]
 };
 
@@ -1117,7 +1165,7 @@ const WEATHER = {
 
 const SHOPS = {
   marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
-  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil", "frost_sword", "frost_greataxe", "glacier_staff", "rime_dagger", "frost_claws", "frost_bow", "frost_mail", "snowfur_coat", "frost_robe", "fur_hat"]
+  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil", "frost_sword", "frost_greataxe", "glacier_staff", "rime_dagger", "frost_claws", "frost_bow", "frost_mail", "snowfur_coat", "frost_robe", "fur_hat", "rime_scythe", "troubadour_coat"]
 };
 const MOUNT_COATS = {
   teal: { name: "Marsh Teal", main: 0x3f6f6a, dark: 0x2a4a48, glow: 0x6ff0e8, price: 0 },

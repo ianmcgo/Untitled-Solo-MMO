@@ -3,8 +3,8 @@ const UI = {
   watch: null, hpGhost: 0, ghostTarget: null, actKeys: null, actCtx: "", trackerMin: false, slotText: [], phone: false, lastFog: 0,
   prevZone: null, menuSig: "", menuSigAt: 0, sel: null, pick: null, filter: "all", cmp: null, pv: null, frameT: 0
 };
-const ACT_ICON = { steal: "🫳", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", chakra: "🧘", sharpshot: "🎯", barrage: "🏹", shadowbind: "⛓️", release: "🌀", blood_pact: "🔮", siphon: "💠", provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", sentinel: "🛡️", shield_bash: "💥", convert: "🔄" };
-const SPELL_ICON = { cure3: "✚", banish2: "✴", stone2: "◆", water2: "💧", aero2: "🌀", fire2: "🔥", blizzard2: "❄", ember_sprite: "🔥", frost_sprite: "❄", gale_sprite: "🌪️", cure: "✚", cure2: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡", flash: "✨", slow: "🐌", paralyze: "🧊", protect: "🔰" };
+const ACT_ICON = { last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", steal: "🫳", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", chakra: "🧘", sharpshot: "🎯", barrage: "🏹", shadowbind: "⛓️", release: "🌀", blood_pact: "🔮", siphon: "💠", provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", sentinel: "🛡️", shield_bash: "💥", convert: "🔄" };
+const SPELL_ICON = { blight: "☠️", drain: "🩸", mind_drain: "🌀", stun: "💫", battle_minuet: "🎵", mending_paeon: "💚", drowsy_lullaby: "💤", wellspring_ballad: "💧", keen_madrigal: "🎯", swift_march: "🥁", mending_paeon2: "💚", battle_minuet2: "🎵", cure3: "✚", banish2: "✴", stone2: "◆", water2: "💧", aero2: "🌀", fire2: "🔥", blizzard2: "❄", ember_sprite: "🔥", frost_sprite: "❄", gale_sprite: "🌪️", cure: "✚", cure2: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡", flash: "✨", slow: "🐌", paralyze: "🧊", protect: "🔰" };
 const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5 };
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
