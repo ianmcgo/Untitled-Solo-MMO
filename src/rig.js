@@ -3,7 +3,7 @@ const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "f
 const ATLAS_SIZE = 1024, ATLAS_CELL = 256;
 const RIG = { atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
-const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x9a6440, 0x6b4128];
+const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xd4a07a, 0xc98d64, 0x9a6440, 0x6b4128, 0x4a2c1c, 0x2e1b12];
 const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald"];
 const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
@@ -286,21 +286,21 @@ const ITEM_LOOK = {
 
 const MERC_BASE = {
   kael: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[1] } },
-  rook: { build: 0, skin: SKIN_TONES[3], hair: { style: "spiky", color: HAIR_COLORS[5] } },
+  rook: { build: 0, skin: SKIN_TONES[6], hair: { style: "spiky", color: HAIR_COLORS[5] } },
   mira: { build: 1, skin: SKIN_TONES[0], hair: { style: "long", color: HAIR_COLORS[3] } },
-  fen: { build: 0, skin: SKIN_TONES[2], hair: { style: "bob", color: HAIR_COLORS[2] } },
-  sable: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: 0x2a2440 } },
+  fen: { build: 0, skin: SKIN_TONES[4], hair: { style: "bob", color: HAIR_COLORS[2] } },
+  sable: { build: 1, skin: SKIN_TONES[6], hair: { style: "ponytail", color: 0x2a2440 } },
   dorn: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x8a8a8a },
   lisette: { build: 1, skin: SKIN_TONES[0], hair: { style: "bun", color: HAIR_COLORS[4] } },
-  vesper: { build: 1, skin: SKIN_TONES[4], hair: { style: "long", color: HAIR_COLORS[6] } }
+  vesper: { build: 1, skin: SKIN_TONES[7], hair: { style: "long", color: HAIR_COLORS[6] } }
 };
 
 const NPC_LOOK = {
   rhea: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: 0x8a3a20 }, top: { type: "tabard", color: 0x9aa0a8, region: "chain", color2: 0x2f5c9a }, pauldrons: 0xb8bec6, cape: 0x1d3f75, legs: 0x3a3a44, boots: 0x3a2618, gloves: 0x5a3a22, belt: 0x4a2e1a, weapon: "sword" },
   tobin: { build: 0, skin: SKIN_TONES[0], hair: { style: "bald", color: 0xdedede }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x5a3a7a, trim: 0xd8b050, sleeves: "wide" }, legs: 0x3a2a4a, weapon: "staff", alwaysDrawn: true },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },
-  brann: { build: 0, skin: SKIN_TONES[3], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
-  ysolde: { build: 1, skin: SKIN_TONES[0], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
+  brann: { build: 0, skin: SKIN_TONES[5], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
+  ysolde: { build: 1, skin: SKIN_TONES[4], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
 };
 
 function lookFor(job, gear, base) {
@@ -826,7 +826,12 @@ function mobLook(m) {
   if (key === "grimtooth") return { kind: "human", look: goblinLook("grimtooth") };
   if (model === "chieftain") return { kind: "human", look: goblinLook("chieftain") };
   if (model === "goblin") return { kind: "human", look: goblinLook(m.famKey === "den_goblin" ? "raider" : "goblin") };
-  if (model === "skeleton") return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
+  if (model === "skeleton") {
+    if (key === "hollow_king") return { kind: "human", look: { skull: true, skin: 0xd8d0b8, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "cloth", color2: 0xd8b040 }, cape: 0x3a1030, legs: 0xd8d0b8, barefoot: true, head: { type: "crown" }, weapon: "sword", weaponId: "iron_sword", prop: { girth: 0.85 } } };
+    if (key === "crypt_sentinel") return { kind: "human", look: { skull: true, skin: 0xc8d0c8, noFace: true, headRegion: "bone", eyesGlow: 0x80cbc4, top: { type: "mail", color: 0x4a5a5a, region: "chain" }, pauldrons: 0x5a6a6a, legs: 0xc8d0c8, barefoot: true, head: { type: "helm", color: 0x4a5a5a }, weapon: "greataxe", weaponId: "bronze_greataxe", prop: { girth: 0.85 } } };
+    if (key === "royal_guard") return { kind: "human", look: { skull: true, skin: 0xe0dccc, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "chain", color2: 0xd8b040 }, legs: 0xe0dccc, barefoot: true, head: { type: "cap", color: 0x5a5a62 }, weapon: "sword", weaponId: "bronze_sword", prop: { girth: 0.75 } } };
+    return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
+  }
   if (model === "ghoul") {
     const warden = key === "ossuary_warden";
     return { kind: "human", look: { skin: warden ? 0x6a8a74 : 0x8fa890, noFace: true, eyesGlow: warden ? 0x69f0ae : 0xff3030, claws: true, barefoot: true, top: { type: "rags", color: warden ? 0x1c2621 : 0x3a3a30, sleeves: "none" }, legs: 0x4a4a3e, hair: { style: "long", color: 0x6a6a60 }, head: warden ? { type: "hood", color: 0x1c2621 } : null, prop: { arm: 0.72, leg: 0.82, headR: 0.118, girth: 0.82 } } };

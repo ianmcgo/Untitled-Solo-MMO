@@ -493,6 +493,7 @@ function draw(dt) {
   for (const m of S.mobs) syncEntity(m, dt);
   for (const n of S.npcs) syncNpc(n, dt);
   syncDecor(dt);
+  syncBarriers();
   for (const [e, v] of VIEW.views) {
     const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e);
     if (!alive) { destroyView(v); VIEW.views.delete(e); }

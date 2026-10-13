@@ -32,7 +32,7 @@ function* buildFieldSteps(zone) {
   const cs = zone.indoor ? 8 : 12;
   const x0 = -M, y0 = -M, w = zone.w + 2 * M, h = zone.h + 2 * M;
   const cols = Math.ceil(w / cs) + 1, rows = Math.ceil(h / cs) + 1;
-  const amps = { town: [0.7, 0.12, 6], field: [2.6, 0.35, 11], cave: [0.8, 0.45, 13], house: [0, 0, 0] }[theme];
+  const amps = { town: [0.7, 0.12, 6], field: [2.6, 0.35, 11], cave: [0.8, 0.45, 13], crypt: [0.25, 0.1, 12], house: [0, 0, 0] }[theme];
   const paths = zone.paths || [];
   const waters = zone.water || [];
   const pathW = (px, py) => {
@@ -217,9 +217,9 @@ function buildVegetation(field, root) {
   const bark = texBark();
   const pineTex = texFoliage("pine", [48, 82, 52]);
   const leafTex = texFoliage("leaf", [74, 110, 48]);
-  const rockTex = theme === "cave" ? texCaveRock() : texRock();
+  const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
   const pines = [], leafy = [], rocks = [], smallRocks = [], tufts = [], stal = [];
-  const want = theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
+  const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
   const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts;
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
@@ -448,7 +448,7 @@ function buildCave(field, root) {
     flame.position.y = 2.0;
     g.add(post, flame);
     g.position.set(tx * U, field.heightAt(tx, ty), ty * U);
-    if (i < (W3.quality === "low" ? 3 : 7)) {
+    if (i < (W3.quality === "low" ? 6 : 12)) {
       const L = new THREE.PointLight(0xff9a40, 16, 26, 1.4);
       L.position.y = 2.1;
       L.userData.phase = i * 1.7;
@@ -460,7 +460,7 @@ function buildCave(field, root) {
   });
   const rnd = rngFor(z, "crystals");
   const crystalColors = [0x4dd0e1, 0xb388ff, 0x80cbc4];
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < (themeOf(z) === "crypt" ? 0 : 18); i++) {
     let px, py, tries = 0;
     do { px = field.x0 + rnd() * field.w; py = field.y0 + rnd() * field.h; tries++; } while (tries < 40 && !(field.outsideE(px, py) > -30 && field.outsideE(px, py) < 120));
     const c = crystalColors[i % 3];
@@ -546,10 +546,85 @@ function buildRuins(field, root) {
   root.add(g);
 }
 
+function buildCrypt(field, root) {
+  const z = field.zone;
+  const bricks = texBricks();
+  const stoneMat = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0x8a8894, roughness: 0.95 });
+  const darkMat = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0x3a3842, roughness: 0.9 });
+  const rnd = rngFor(z, "crypt");
+  for (const [x, y] of z.pillars || []) {
+    const gy = field.heightAt(x, y) - 0.2;
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 1.6), stoneMat);
+    base.position.set(x * U, gy + 0.25, y * U);
+    const h = 5.5 + rnd() * 1.5;
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.58, h, 10), stoneMat);
+    col.position.set(x * U, gy + 0.5 + h / 2, y * U);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.4, 1.5), stoneMat);
+    cap.position.set(x * U, gy + 0.5 + h + 0.2, y * U);
+    base.castShadow = col.castShadow = cap.castShadow = true; base.receiveShadow = col.receiveShadow = true;
+    root.add(base, col, cap);
+  }
+  W3.barrierMeshes = {};
+  for (const b of z.barriers || []) {
+    const g = new THREE.Group();
+    const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    const gy = field.heightAt(cx, cy) - 0.3;
+    const horiz = b.w >= b.h;
+    const span = (horiz ? b.w : b.h) * U, thick = (horiz ? b.h : b.w) * U;
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(thick, 5.2, span + 1.2), darkMat);
+    frame.position.y = 2.6;
+    const hole = new THREE.Mesh(new THREE.BoxGeometry(thick + 0.1, 4.4, span - 0.4), new THREE.MeshBasicMaterial({ color: 0x05050a }));
+    hole.position.y = 2.2;
+    g.add(frame, hole);
+    const barsG = new THREE.Group();
+    const bars = Math.round(span / 0.6);
+    for (let i = 0; i <= bars; i++) {
+      const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 4.4, 6), std({ color: 0x6a6a72, metalness: 0.7, roughness: 0.5 }));
+      bar.position.set(0, 2.2, -span / 2 + 0.2 + i * (span - 0.4) / bars);
+      bar.castShadow = true;
+      barsG.add(bar);
+    }
+    for (const yy of [1.0, 2.2, 3.4]) { const rail = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, span - 0.4), std({ color: 0x5a5a62, metalness: 0.7, roughness: 0.5 })); rail.position.y = yy; barsG.add(rail); }
+    g.add(barsG);
+    g.position.set(cx * U, gy, cy * U);
+    if (horiz) g.rotation.y = Math.PI / 2;
+    root.add(g);
+    W3.barrierMeshes[b.id] = { group: g, bars: barsG, open: null };
+  }
+  for (const n of z.npcs) {
+    if (!NPCS[n.id] || NPCS[n.id].prop !== "throne") continue;
+    const gy = field.heightAt(n.x, n.y) - 0.1;
+    const g = new THREE.Group();
+    for (let i = 0; i < 3; i++) { const step = new THREE.Mesh(new THREE.BoxGeometry(6 - i * 1.4, 0.3, 4 - i * 0.8), stoneMat); step.position.y = 0.15 + i * 0.3; step.receiveShadow = true; g.add(step); }
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.7, 1.2), darkMat); seat.position.set(0, 1.25, 0.2);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(1.5, 3.0, 0.35), darkMat); back.position.set(0, 2.4, -0.45);
+    for (const sgn of [-1, 1]) { const arm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.9, 1.1), darkMat); arm.position.set(sgn * 0.68, 1.5, 0.15); g.add(arm); }
+    for (const sgn of [-1, 1]) { const spike = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.9, 6), std({ color: 0xc8a040, metalness: 0.6, roughness: 0.4 })); spike.position.set(sgn * 0.5, 4.3, -0.45); g.add(spike); }
+    seat.castShadow = back.castShadow = true;
+    g.add(seat, back);
+    g.position.set(n.x * U, gy, n.y * U);
+    g.rotation.y = Math.PI / 2;
+    root.add(g);
+  }
+}
+
+function syncBarriers() {
+  if (!W3.barrierMeshes || !S.zone.barriers) return;
+  for (const b of S.zone.barriers) {
+    const m = W3.barrierMeshes[b.id];
+    if (!m) continue;
+    const open = barrierOpen(b);
+    if (m.open === null) { m.open = open; m.bars.position.y = open ? 4.6 : 0; continue; }
+    if (open !== m.open) { m.open = open; if (open && typeof sfx === "function") sfx("unlock"); }
+    const ty = m.open ? 4.6 : 0;
+    m.bars.position.y += (ty - m.bars.position.y) * 0.04;
+  }
+}
+
 function buildExits(field, root) {
   const z = field.zone;
   const planks = texPlanks();
-  const rock = themeOf(z) === "cave" ? texCaveRock() : texRock();
+  const rock = themeOf(z) === "cave" || themeOf(z) === "crypt" ? texCaveRock() : texRock();
   const woodMat = std({ map: planks.map, normalMap: planks.normalMap });
   const rockMat = std({ map: rock.map, normalMap: rock.normalMap });
   for (const ex of z.exits) {
@@ -558,7 +633,7 @@ function buildExits(field, root) {
     const horiz = ex.x <= 0 || ex.x + ex.w >= z.w;
     const g = new THREE.Group();
     const span = 4.6;
-    const mat = themeOf(z) === "cave" ? rockMat : woodMat;
+    const mat = themeOf(z) === "cave" || themeOf(z) === "crypt" ? rockMat : woodMat;
     for (const s of [-1, 1]) {
       const p = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.2, 0.5), mat);
       p.position.set(0, 2.1, s * span / 2);
@@ -589,7 +664,7 @@ function buildWater(field, root) {
   });
   const geo = THREE.mergeGeometries(geos);
   const normals = texWaterNormals();
-  const cave = themeOf(z) === "cave";
+  const cave = themeOf(z) === "cave" || themeOf(z) === "crypt";
   let water;
   if (W3.quality === "low") {
     const nm = normals.clone();
@@ -744,7 +819,8 @@ function* buildZone3DSteps() {
   buildVegetation(field, root);
   yield { p: 0.88, t: "Raising buildings…" };
   if (themeOf(z) === "town") buildTown(field, root);
-  if (themeOf(z) === "cave") buildCave(field, root);
+  if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
+  if (themeOf(z) === "crypt") buildCrypt(field, root);
   buildRuins(field, root);
   buildExits(field, root);
   buildWater(field, root);
@@ -773,7 +849,7 @@ function updateSky(force) {
   const sunY = dir.y;
   const dayAmt = sstep(-0.18, 0.25, sunY);
   W3.daylight = dayAmt;
-  const cave = theme === "cave";
+  const cave = theme === "cave" || theme === "crypt";
   const indoor = theme === "house";
   const centre = p2w(player.x, player.y);
   W3.sky.visible = !cave && !indoor;
@@ -794,16 +870,20 @@ function updateSky(force) {
   W3.clouds.position.z = W3.camera.position.z;
   W3.clouds.material.map.offset.x = S.time * 0.0018;
   W3.clouds.material.map.offset.y = S.time * 0.0009;
-  const fogC = cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
+  const fogC = theme === "crypt" ? new THREE.Color(0x14141c) : cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
   W3.clouds.material.color.copy(new THREE.Color(0xffffff).lerp(fogC, 0.35).multiplyScalar(mix(0.18, 1, dayAmt)));
   W3.fog.color.copy(fogC);
-  if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
+  if (theme === "crypt") { W3.fog.near = 10; W3.fog.far = 95; }
+  else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else { W3.fog.near = mix(30, 70, dayAmt); W3.fog.far = mix(180, 420, dayAmt); }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
   const warm = 1 - sstep(0.05, 0.35, sunY);
-  if (cave) {
+  if (theme === "crypt") {
+    W3.sun.intensity = 0.9; W3.sun.color.set(0x9aa8c8);
+    W3.hemi.intensity = 1.4; W3.hemi.color.set(0x8890b8); W3.hemi.groundColor.set(0x3a3a44);
+  } else if (cave) {
     W3.sun.intensity = 0.55; W3.sun.color.set(0x8a9ad0);
     W3.hemi.intensity = 0.9; W3.hemi.color.set(0x7080b0); W3.hemi.groundColor.set(0x3a2a1c);
   } else if (sunY > -0.02) {

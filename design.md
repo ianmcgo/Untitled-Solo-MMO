@@ -13,7 +13,7 @@
 | P5a Bigger zones, NMs live, drop tables, XP chains, discovery XP, characters, chat commands | Done (v4.2.0) |
 | P5b Paladin and Red Mage | Done (v4.3.0) |
 | P5c Quests (11) | Done (v4.4.0) |
-| P5d Sunken Crypt | Not started |
+| P5d Sunken Crypt | Done (v4.5.0) |
 | P6 Residence, Pip, storage | Not started |
 
 ---
@@ -486,10 +486,24 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Quest list (11): Pouches for the Captain, Herbs for the Stall, Night Wings, Bones in the Ruins, A Second Calling, Riding License, The Oath of Steel, Scarlet Lessons, Grimtooth's Bounty, The Goblin Chieftain, The Warden's Vigil. The Hollow King (P5d), Make It Home and Green Thumb (P6) come with their content.
 - Tests: `test/p5cunit.js`.
 
+## Phase 5d: the Sunken Crypt (v4.5.0)
+
+- Zone `crypt` (2600×1400, theme `crypt`): `walls` carve the six rooms, `barriers` are doors (`brazier_gate` opens when `save.crypt.solved`; `throne_door` when `save.keyItems` has `crypt_key`); `barrierOpen`, `closedBarrierRects` (solid in `keepOutOfRects`), and a bump message with a 6 s cooldown in `updatePlayer`. `pillars` are drawn by `buildCrypt`, which also builds portcullis gates (`W3.barrierMeshes`, bars rise in `syncBarriers`) and the throne. Entry is a new south exit in the Den's Bone Pit.
+- Theme `crypt` is treated like a cave for sky, fog and water but with a brighter cool fill, more torch lights, no crystals, few rocks, and its own terrain palette and map colours.
+- Props: NPCs with `prop` (`brazier` + `element`, `tablet`, `chest` + `chest` table, `throne`) get a `propView` in `models3d.js` (flames and lights follow `brazierLit`, chest lids follow `chestState`, the coffer's chains show while sealed). They are targetable and talkable like NPCs; the minimap draws them.
+- Braziers: `brazierOrder()` is a seeded permutation from `save.created`; the tablet reads `BRAZIER_LINES` in that order. `talkBrazier` lights the next brazier in order (stored in `save.crypt.lit`) or snuffs all and `spawnExtra`s two skeletons (`spawnIdx null`, no respawn). All four lit sets `save.crypt.solved`.
+- Key items: `ITEMS[id].kind === "key"`; `dropLoot` routes them to `giveKeyItem` (`save.keyItems`, never duplicated, toast + log).
+- Chests: `chestState` (sealed / empty / closed), `openChest` rolls `CHEST_LOOT[table]` (guarantees Crypt Dust), gives gil and sets `save.timers["chest:<id>"]` for 20 real minutes.
+- Boss: `FAMILIES.hollow_king` (`boss: true`, `phases: [0.66, 0.33]`, `enrage: 0.2`). `bossPhases` runs each combat tick: summons two `royal_guard` per phase (`summonedBy`), enrage raises attack ×1.5, delay ×0.7 and sets `auraOverride` (red motes). `bossReset` on leash/return despawns guards and clears the enrage. `crypt_sentinel` is a fixed NM (600 s real-time cooldown) with the key in its loot. Names: `Hollow King` (the log adds "The").
+- Quest `hollowking` (Rhea, lv 9, after Warden) is a generic kill quest; reward includes the Ashen Medallion (Ex).
+- Rig: looks for the King (crown, cape, tabard), Sentinel (helm, mail, great axe) and Royal Guards.
+- Tests: `test/p5dunit.js` (layout, exit, gate solid, brazier order/wrong/right, key drop, door, phases, enrage, coffer sealing, chest loot and refill, save round trip, cooldown). `p5shots.js` has crypt scenes.
+
 ## Version log
 
 | Version | Change |
 |---|---|
+| 4.5.0 | Phase 5d: the Sunken Crypt (above). Creation labels sex instead of build. |
 | 4.4.0 | Phase 5c: quests (above). |
 | 4.3.0 | Phase 5b: Paladin and Red Mage (above). |
 | 4.2.0 | Phase 5a (above). |

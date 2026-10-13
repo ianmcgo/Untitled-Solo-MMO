@@ -77,12 +77,19 @@ function placeWeapon(v, e) {
   }
 }
 
+function footGround(e) {
+  const r = Math.max(4, (e.radius || 14) * 0.55);
+  let g = groundY(e.x, e.y);
+  for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r]]) { const h = groundY(e.x + dx, e.y + dy); if (h > g) g = h; }
+  return g;
+}
+
 function syncEntity(e, dt) {
   const v = viewFor(e);
   if (!v) return;
   const g = v.group;
   if (isMob(e) && player && player.target !== e && dist(e, player) > 1700) { g.visible = false; return; }
-  const gy = groundY(e.x, e.y) + (e === player && typeof jumpHeight === "function" ? jumpHeight(e) : 0);
+  const gy = footGround(e) + (e === player && typeof jumpHeight === "function" ? jumpHeight(e) : 0);
   const dead = e.alive === false;
   if (!dead || e.kind === "npc") {
     const yawT = Math.PI / 2 - (e.face || 0);
@@ -128,6 +135,7 @@ function syncEntity(e, dt) {
 function entityHeight(e) {
   const v = VIEW.views.get(e);
   if (e.kind === "npc" && e.crystal) return 3.4;
+  if (e.kind === "npc" && e.prop) { const v = VIEW.views.get(e); return v ? v.meta.headTop : 2; }
   let h = v ? v.meta.headTop * v.scale : 2.0;
   if (e.mounted && v && v.mount) h += v.group.position.y - groundY(e.x, e.y);
   return h;
@@ -148,7 +156,77 @@ function npcCrystalView(e) {
   return { g, spin: c };
 }
 
+function propView(n) {
+  const g = new THREE.Group();
+  const bt = texBricks();
+  const stone = std({ map: bt.map, normalMap: bt.normalMap, color: 0x8a8894 });
+  const v = { group: g, meta: { headTop: 2.0 }, scale: 1, sig: "prop:" + n.prop, prop: true, mat: null };
+  if (n.prop === "brazier") {
+    const col = new THREE.Color(ELEMENT_COLORS[n.element] || "#ffa040");
+    const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.6, 1.1, 8), stone); ped.position.y = 0.55; ped.castShadow = true;
+    const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.45, 0.5, 12, 1, true), std({ color: { fire: 0x3a2a22, wind: 0xa8a8b0, earth: 0x6a6258, water: 0x3a6a62 }[n.element] || 0x444, metalness: 0.5, roughness: 0.5, side: THREE.DoubleSide })); bowl.position.y = 1.3;
+    const coals = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.1, 12), std({ color: 0x2a2420 })); coals.position.y = 1.35;
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.45, 1.3, 10), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.9 })); flame.position.y = 2.1;
+    const flame2 = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.9, 8), new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0.85 })); flame2.position.y = 2.0;
+    const L = new THREE.PointLight(col, 10, 16, 1.5); L.position.y = 2.2;
+    g.add(ped, bowl, coals, flame, flame2, L);
+    v.flame = [flame, flame2]; v.light = L; v.meta.headTop = 2.6;
+  } else if (n.prop === "tablet") {
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 0.3), stone); slab.position.y = 1.1; slab.castShadow = true;
+    const runes = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.6), new THREE.MeshBasicMaterial({ color: 0x80cbc4, transparent: true, opacity: 0.35 })); runes.position.set(0, 1.15, 0.16);
+    const L = new THREE.PointLight(0x80cbc4, 3, 8, 1.6); L.position.set(0, 1.2, 0.6);
+    g.add(slab, runes, L);
+    v.meta.headTop = 2.4;
+  } else if (n.prop === "chest") {
+    const wood = std({ color: n.chest === "king" ? 0x5a3a2a : 0x6a4a2a, roughness: 0.8 });
+    const metal = std({ color: n.chest === "king" ? 0xd8b040 : 0x8a8a90, metalness: 0.7, roughness: 0.4 });
+    const box = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.7, 0.8), wood); box.position.y = 0.35; box.castShadow = true;
+    const lid = new THREE.Group();
+    const lidM = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.3, 10, 1, false, 0, Math.PI), wood); lidM.rotation.z = Math.PI / 2; lidM.position.set(0, 0, 0.4);
+    const band = new THREE.Mesh(new THREE.TorusGeometry(0.41, 0.03, 6, 14, Math.PI), metal); band.rotation.y = Math.PI / 2; band.position.set(0, 0, 0.4);
+    lid.add(lidM, band);
+    lid.position.set(0, 0.7, -0.4);
+    const lock = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.22, 0.08), metal); lock.position.set(0, 0.55, 0.42);
+    for (const sgn of [-1, 1]) { const strap = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.72, 0.84), metal); strap.position.set(sgn * 0.45, 0.35, 0); g.add(strap); }
+    g.add(box, lid, lock);
+    v.lid = lid; v.meta.headTop = 1.4;
+    if (n.chest === "king") { const chain = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 20), std({ color: 0xcfd8dc, emissive: 0x80cbc4, emissiveIntensity: 0.4 })); chain.rotation.x = Math.PI / 2; chain.position.y = 0.8; chain.scale.set(1.1, 1, 0.7); g.add(chain); v.chain = chain; }
+  } else if (n.prop === "throne") {
+    v.meta.headTop = 4.5;
+  }
+  return v;
+}
+
 function syncNpc(n, dt) {
+  if (n.prop) {
+    let v = VIEW.views.get(n);
+    if (!v) {
+      v = propView(n);
+      const pick = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, v.meta.headTop, 8), new THREE.MeshBasicMaterial({ visible: false }));
+      pick.position.y = v.meta.headTop / 2;
+      pick.userData.entity = n;
+      v.group.add(pick);
+      v.pick = pick;
+      v.crystal = true;
+      W3.scene.add(v.group);
+      VIEW.views.set(n, v);
+    }
+    v.group.position.set(n.x * U, groundY(n.x, n.y), n.y * U);
+    if (v.flame) {
+      const lit = brazierLit(n.element);
+      const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.1 + Math.sin(S.time * 23) * 0.05;
+      v.flame[0].visible = v.flame[1].visible = lit;
+      v.flame[0].scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.12, k);
+      v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
+    }
+    if (v.lid) {
+      const st = chestState(n);
+      const t = st === "empty" ? -1.9 : 0;
+      v.lid.rotation.x += (t - v.lid.rotation.x) * 0.08;
+      if (v.chain) v.chain.visible = st === "sealed";
+    }
+    return;
+  }
   if (n.crystal) {
     let v = VIEW.views.get(n);
     if (!v) {
