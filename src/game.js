@@ -72,7 +72,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -111,6 +111,7 @@ function normalizeSave(d) {
   out.gatherSkill = Object.assign(newSave().gatherSkill, d.gatherSkill || {});
   out.gardens = d.gardens && typeof d.gardens === "object" ? d.gardens : {};
   out.harvests = d.harvests || 0;
+  out.story = Object.assign(newSave().story, d.story && typeof d.story === "object" ? d.story : {});
   out.guild = Object.assign(newSave().guild, d.guild && typeof d.guild === "object" ? d.guild : {});
   if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
   if (!Array.isArray(out.guild.done)) out.guild.done = [];
@@ -838,6 +839,7 @@ function onKO(e, src) {
       if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
       bountyKill(e);
+      storyKill(e);
       for (const id in QUESTS) {
         const q = QUESTS[id];
         if (!q.kill || save.quests[id] !== "active") continue;
@@ -2646,7 +2648,8 @@ function spawnMob(i) {
   let fam = sp.fam, lv = randInt(sp.lv[0], sp.lv[1]);
   if (FEATURES.nms && sp.nm && (!sp.nm.time || sp.nm.time === period())) {
     const key = "nm:" + sp.nm.id;
-    if (!(save.timers[key] > Date.now()) && !S.mobs.some(m => m.alive && m.famKey === sp.nm.id) && Math.random() < sp.nm.chance) {
+    const story = storyWants(sp.nm.id);
+    if ((story || !(save.timers[key] > Date.now())) && !S.mobs.some(m => m.alive && m.famKey === sp.nm.id) && (story || Math.random() < sp.nm.chance)) {
       fam = sp.nm.id; lv = sp.nm.lv;
       if (S.time > 1 && Math.hypot(sp.x - player.x, sp.y - player.y) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
     }
@@ -2762,6 +2765,7 @@ function step(dt) {
   if (S.fish) tickFish();
   if (S.race) tickRace();
   if (S.pet) tickPet();
+  tickStory();
   if (S.bf) tickBattlefield();
   if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
@@ -2996,7 +3000,66 @@ function talkTo(n) {
   player.target = n;
   player.face = Math.atan2(n.y - player.y, n.x - player.x);
   n.face = Math.atan2(player.y - n.y, player.x - n.x);
+  const st = storyStep();
+  if (st && st.type === "talk" && st.npc === n.id && storyReady()) { storyScene(n.name, st.text, 0, () => advanceStory()); return; }
   TALK[n.talk](n);
+}
+
+function storyChapter() { return save.story.done ? null : STORY[save.story.ch] || null; }
+function storyStep() { const c = storyChapter(); return c ? c.steps[save.story.step] : null; }
+function storyReady() { const c = storyChapter(); return !!c && (save.story.step > 0 || player.lv >= c.lv); }
+function storyWants(fam) { const st = storyStep(); return !!st && st.type === "kill" && st.fam === fam && storyReady(); }
+
+function storyScene(who, pages, i, done) {
+  const last = i >= pages.length - 1;
+  openDialog(who, pages[i], [{ label: last ? "Continue" : "Next", fn: () => { if (last) { closeDialog(); done(); } else storyScene(who, pages, i + 1, done); } }]);
+}
+
+function advanceStory() {
+  const c = storyChapter(), st = storyStep();
+  if (!c || !st) return;
+  if (st.key) giveKeyItem(st.key);
+  save.story.step++;
+  save.story.prog = 0;
+  if (save.story.step >= c.steps.length) {
+    save.story.ch++;
+    save.story.step = 0;
+    if (save.story.ch >= STORY.length) save.story.done = true;
+    log("Story chapter complete: " + c.name + ".", "lvl");
+    uiEvent("story", { name: c.name, reward: c.reward });
+    giveReward(c.reward);
+    checkAchievements();
+  } else {
+    const nx = storyStep();
+    log("Story: " + nx.goal, "npc");
+    sfx("notify");
+    if (nx.type === "kill" && st.summon) summonStoryFoe(st.summon);
+  }
+  saveGame();
+}
+
+function summonStoryFoe(fam) {
+  const i = (S.zone.spawns || []).findIndex(sp => sp.nm && sp.nm.id === fam);
+  if (i < 0) return;
+  for (const m of S.mobs) if (m.spawnIdx === i && m.alive) { m.alive = false; m.despawned = true; m.deadAt = S.time - 99; }
+  S.mobs = S.mobs.filter(m => !(m.spawnIdx === i && m.despawned));
+  spawnMob(i);
+}
+
+function storyKill(e) {
+  const st = storyStep();
+  if (!st || st.type !== "kill" || st.fam !== e.famKey || !storyReady()) return;
+  save.story.prog++;
+  if (save.story.prog >= st.n) advanceStory();
+  else log("Story: " + (FAMILIES[st.fam] || NM_FAMILIES[st.fam] || {}).name + " " + save.story.prog + "/" + st.n + ".", "npc");
+}
+
+function tickStory() {
+  const st = storyStep();
+  if (!st || st.type !== "visit" || st.zone !== S.zoneId || !storyReady() || S.dialog || !player.alive) return;
+  const lm = (S.zone.landmarks || []).find(l => l.id === st.lm);
+  if (!lm || Math.hypot(player.x - lm.x, player.y - lm.y) > lm.r) return;
+  storyScene(lm.name, st.text, 0, () => advanceStory());
 }
 
 function questMarker(n) {
@@ -3005,6 +3068,7 @@ function questMarker(n) {
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
+  { const st = storyStep(); if (st && st.type === "talk" && st.npc === n.id && storyReady()) return true; }
   if (n.id === "maera") return Object.keys(save.guild.active).some(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && save.guild.active[id] >= b.n; }) || (player.lv >= 2 && !save.guild.total && !Object.keys(save.guild.active).length);
   return false;
 }

@@ -666,11 +666,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Mercs mordrin (DRK dd: meleeAI uses drain under 60% HP, stun on readied moves, blight, and the DRK self-buffs) and lyra (role "bard": bardAI picks the 2 best known songs by priority, refreshes when any nearby ally lacks one or < 12 s left, sings Paeon/Ballad out of combat when people are hurt/low MP, lullabies a second monster; otherwise meleeAI). mercGear entries for both; MERC_BASE looks; MERC_PERSONAL lines.
 - Tests: test/p19unit.js; p1bot supports DRK/BRD (merc orders include lyra/mordrin). harness exports MERCS. p5shots scenes drk, brd.
 
+## Phase 21: main story (v6.2.0)
+- `STORY` (data.js): 8 chapters {name, lv, reward, steps[]}. Step types: talk {npc, text[]}, visit {zone, lm, text[], key?, summon?}, kill {fam, n}. `goal` is the Quests-window line. Chapter lv gates step 0 only (storyReady).
+- Save `story { ch, step, prog, done }` (normalizeSave fills it). game.js: storyChapter/storyStep/storyReady/storyWants, storyScene (paged openDialog, last page "Continue"), advanceStory (gives step.key key item, moves on, chapter reward via giveReward + uiEvent "story" banner + checkAchievements; when a visit step has `summon`, summonStoryFoe(fam) replaces that NM spawn's mob and spawns the NM immediately), storyKill (kill handler), tickStory (per step: visit steps fire when inside the landmark radius and no dialog is open).
+- talkTo plays the story scene instead of the NPC's normal dialog when that NPC has the current talk step (talk again for the normal menu). questMarker shows for that NPC.
+- spawnMob NM roll: if storyWants(nm id) the NM spawns with chance 1 and ignores its timer.
+- New NM ashen_herald (base ice_wight, lv 22, hpMul 5.5) on a new frost spawn at the summit (2700, 330; nm chance 0, story only). Drops cinder_mantle (epic body). Items ashen_shard (key), ember_ring (final reward). Achievement story.
+- Quests tab shows storyBlock() above quests. Tests: test/p20unit.js (p8unit sets story.done so Rhea's normal dialog shows); p5shots scenes story, storyq.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.2.0 | Phase 21: eight-chapter main story, Ashen Herald, Ember of Ashenreach. |
 | 6.1.0 | Phase 20: Dark Knight and Bard, scythes, songs, Mordrin and Lyra. |
 | 6.0.0 | Phase 19: Adventurers' Guild, daily bounties, ranks, guild point shop. |
 | 5.9.0 | Phase 18: level 20, Frostspire Pass, snow weather, Warcry, tier-4 weapon skills. |

@@ -522,7 +522,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.1.0 · built 2026-10-13 16:09 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.2.0 · built 2026-10-13 16:14 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5682,6 +5682,9 @@ const ITEMS = {
   corsair_jerkin: { name: "Corsair Jerkin", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "MNK", "RDM"], lv: 13, price: 5000, stats: { def: 13, dex: 3, agi: 3, hp: 20 } },
   gull_hat: { name: "Gull Feather Hat", kind: "equip", icon: "👒", slot: "head", jobs: ALL_J, lv: 13, price: 2600, stats: { def: 5, agi: 2, mp: 10 } },
   tide_ring: { name: "Tide Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 12, rare: true, stats: { hp: 20, mp: 20, mnd: 2 }, desc: "A gift from the harbor master." },
+  ashen_shard: { name: "Ashen Shard", kind: "key", icon: "🕯️", desc: "A sliver of black stone, warm to the touch. Faint letters crawl across it." },
+  cinder_mantle: { name: "Cinderweave Mantle", kind: "equip", icon: "🧥", rare: true, nm: true, rarity: "epic", slot: "body", jobs: ALL_J, lv: 19, stats: { def: 24, hp: 40, mp: 40, str: 3, int: 3 }, desc: "Woven from ash that never settles. Faintly warm." },
+  ember_ring: { name: "Ember of Ashenreach", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 19, price: 0, stats: { hp: 50, mp: 50, str: 5, int: 5, mnd: 5, att: 8, acc: 8 }, desc: "A ring set with a coal that never cools. Given to the one who kept the embers." },
   guild_ring: { name: "Guild Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 5, price: 0, stats: { hp: 15, mp: 10, acc: 3, att: 3 }, desc: "Bronze-rank token of the Adventurers' Guild." },
   pathfinder_boots: { name: "Pathfinder Boots", kind: "equip", icon: "👢", ex: true, slot: "feet", jobs: ALL_J, lv: 10, price: 0, stats: { def: 7, agi: 3, eva: 4, hp: 10 }, desc: "Iron-rank boots. Made for long roads." },
   silver_insignia: { name: "Silver Insignia", kind: "equip", icon: "💍", ex: true, rarity: "rare", slot: "ring", jobs: ALL_J, lv: 14, price: 0, stats: { hp: 25, mp: 20, str: 2, int: 2, mnd: 2 }, desc: "Silver-rank insignia of the Adventurers' Guild." },
@@ -5880,6 +5883,7 @@ const FAMILIES = {
 };
 
 const NM_FAMILIES = {
+  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
   rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
   frost_wight: { hint: "Whispering Cairns, Frostspire Pass · night", base: "ice_wight", name: "The Frost Wight", hpMul: 3.6, attMul: 1.25, defMul: 1.25, scale: 1.45, aura: "#b3e5fc", loot: [["wight_shroud", 0.3], ["frost_ring", 0.3], ["bone_chip", 1], ["hi_potion", 0.6]], gil: [50, 70], respawn: 720 },
   old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["croaker_charm", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
@@ -6111,6 +6115,7 @@ ZONES.frost = {
     { id: "summit", name: "Summit Overlook", x: 2700, y: 300, r: 220, xp: 450 }
   ],
   spawns: [
+    { fam: "ice_wight", lv: [19, 20], x: 2700, y: 330, nm: { id: "ashen_herald", lv: 22, chance: 0 } },
     { fam: "snow_hare", lv: [15, 16], x: 400, y: 900, time: "day" }, { fam: "snow_hare", lv: [15, 16], x: 500, y: 1500, time: "day" }, { fam: "snow_hare", lv: [16, 17], x: 1300, y: 1600, time: "day" },
     { fam: "glacier_worm", lv: [15, 16], x: 650, y: 1150 }, { fam: "glacier_worm", lv: [16, 17], x: 1250, y: 1150 }, { fam: "glacier_worm", lv: [17, 18], x: 1700, y: 1250 },
     { fam: "ice_bat", lv: [15, 17], x: 900, y: 800, time: "night" }, { fam: "ice_bat", lv: [16, 17], x: 1100, y: 600, time: "night" }, { fam: "ice_bat", lv: [17, 18], x: 2000, y: 900, time: "night" },
@@ -6350,6 +6355,7 @@ const BESTIARY = {
   frost_goblin: { type: "Beastman", lore: "Goblins in thick fur who raid the ice caravans. They see a long way across the snow." },
   ice_wight: { type: "Undead", lore: "Frozen dead from the old cairns. Fire and light melt them; the cold makes them patient." },
   glacier_worm: { type: "Amorphous", lore: "Huge white worms that tunnel through packed snow and sense the warmth of magic." },
+  ashen_herald: { type: "Undead", lore: "A herald of the old Ember Throne, wrapped in ash that burns without heat. It speaks of a king who will return." },
   rimefang: { type: "Beastman", lore: "The frost goblins' war leader, an axe-swinging brute who wears a wolf pelt over his armour." },
   frost_wight: { type: "Undead", lore: "A wight lord who walks the cairns at night, wrapped in a shroud of frozen mist." },
   bog_toad: { type: "Amphibian", lore: "Bloated marsh toads that hunt by sound. Their oil keeps leather supple and smells for days." },
@@ -6362,6 +6368,48 @@ const BESTIARY = {
   tide_priest: { type: "Undead", lore: "A priest who drowned holding the chapel against the rising marsh, and never stopped holding it. The sigils were his; he wants them back." },
   ossuary_warden: { type: "Undead", lore: "A ghoul draped in grave silk that keeps watch over the ossuary. It drains warmth from the air around it." }
 };
+
+const STORY = [
+  { name: "Ash on the Wind", lv: 3, reward: { xp: 400, gil: 300 }, steps: [
+    { type: "talk", npc: "rhea", goal: "Talk to Captain Rhea in Ashenreach Outpost.", text: ["Ash has been falling over the Outpost for three nights now. Not from any fire we can find.", "Two of my scouts went to the Old Fort Ruins to look for the source and haven't come back. Go and see what's there. Carefully."] },
+    { type: "visit", zone: "hollow", lm: "fort", goal: "Search the Old Fort Ruins in Rocky Hollow.", text: ["Among the broken walls you find your scouts' camp, cold and empty. Burned into a fallen stone is a mark: a crown wreathed in flame.", "The ash here is thick, and it's still warm."] },
+    { type: "talk", npc: "rhea", goal: "Report to Captain Rhea.", text: ["A burning crown? I've seen that mark once, carved over the gate of the old Den before the goblins took it.", "Whatever this is, it's older than the Outpost. You've done well. Rest, and come back when you're stronger."] }
+  ] },
+  { name: "Beneath the Den", lv: 7, reward: { xp: 900, gil: 600 }, steps: [
+    { type: "talk", npc: "rhea", goal: "Talk to Captain Rhea.", text: ["The goblins in the Den have been hauling black stones up from the deep tunnels. My scouts saw the burning crown painted on the crates.", "Thin out their raiders, then get down to the Bone Pit and find out what they're digging for."] },
+    { type: "kill", fam: "den_goblin", n: 5, goal: "Defeat 5 Goblin Raiders in the Goblin Den." },
+    { type: "visit", zone: "den", lm: "pit", key: "ashen_shard", goal: "Search the Bone Pit at the bottom of the Goblin Den.", text: ["Half-buried among the bones is a sliver of black stone, warm in your hand. Letters crawl across its face, and they aren't any language you know.", "Tobin knows old scripts. He might be able to read it."] },
+    { type: "talk", npc: "tobin", goal: "Show the Ashen Shard to Tobin.", text: ["Let me see that. Hm. This is the old court script, from before the kingdoms.", "'The Ember Throne sleeps beneath the hollow crown. When the crown falls silent, the Herald will walk.' The hollow crown... the Hollow King in the Sunken Crypt. Nobody's disturbed him in centuries."] }
+  ] },
+  { name: "The Hollow Crown", lv: 10, reward: { xp: 1500, gil: 900 }, steps: [
+    { type: "talk", npc: "tobin", goal: "Talk to Tobin.", text: ["If the Hollow King is the seal, someone has to know whether it still holds. Go down into the Sunken Crypt and face him.", "If he's still keeping the throne asleep, he won't let you pass. If he isn't... well. Bring a full party."] },
+    { type: "kill", fam: "hollow_king", n: 1, goal: "Defeat the Hollow King in the Sunken Crypt." },
+    { type: "talk", npc: "tobin", goal: "Tell Tobin what happened.", text: ["He spoke as he fell? 'The bells have drowned, the Herald wakes.' That's no comfort at all.", "The only drowned bells I know of are in the old chapel in the Ashen Marsh. Talk to Rhea. She'll want to hear this."] }
+  ] },
+  { name: "Bells Under Water", lv: 12, reward: { xp: 2500, gil: 1200 }, steps: [
+    { type: "talk", npc: "rhea", goal: "Talk to Captain Rhea.", text: ["Tobin told me. A herald, a throne, drowned bells. I'd laugh if the ash weren't still falling.", "Go to the Drowned Chapel in the marsh. If something's waking down there, it's yours to put back to sleep."] },
+    { type: "visit", zone: "marsh", lm: "chapel", goal: "Go to the Drowned Chapel in the Ashen Marsh.", text: ["Under the black water you hear it: a slow tolling, far below, though no bell hangs in the chapel.", "The sealed door is warm. Whatever waits beyond it is listening to the bells."] },
+    { type: "kill", fam: "tide_priest", n: 1, goal: "Defeat the Tidebound Priest in the Chapel Depths (needs a Chapel Sigil)." },
+    { type: "talk", npc: "rhea", goal: "Report to Captain Rhea.", text: ["The priest was ringing them? For whom?", "There's a harbor south of the marsh. Saltreach. Ships have been sailing out of there loaded with black stone. Ilsa runs the docks; go and ask her where they're taking it."] }
+  ] },
+  { name: "The Harbor Ledger", lv: 14, reward: { xp: 3500, gil: 1500 }, steps: [
+    { type: "talk", npc: "ilsa", goal: "Talk to Ilsa, the harbor master in Saltreach.", text: ["Black stone? Yes, I've logged it. Crates and crates, paid in old coin. Mire goblins bring it to the docks at night.", "Stop the smugglers and I'll show you my ledger."] },
+    { type: "kill", fam: "mire_goblin", n: 6, goal: "Defeat 6 Mire Goblins in the Ashen Marsh." },
+    { type: "talk", npc: "ilsa", goal: "Return to Ilsa.", text: ["That should slow them. Here, the ledger. Every crate went the same way: overland, east through Frostspire Pass, to a goblin camp under the ice.", "Rimefang's camp. If you mean to follow, dress warmly."] }
+  ] },
+  { name: "Into the White", lv: 16, reward: { xp: 5000, gil: 2000 }, steps: [
+    { type: "visit", zone: "frost", lm: "icefall", summon: "rimefang", goal: "Find Icefall Camp in Frostspire Pass.", text: ["The camp is stacked high with black stone. Goblins are chipping it into blocks, building something.", "A roar shakes the snow off the tents. Rimefang has seen you."] },
+    { type: "kill", fam: "rimefang", n: 1, goal: "Defeat Rimefang at Icefall Camp." },
+    { type: "talk", npc: "ilsa", goal: "Tell Ilsa what you found.", text: ["A stair? Built from the black stone, up toward the summit?", "Then that's where the Herald is waiting. You've come this far. Don't stop now."] }
+  ] },
+  { name: "The Ashen Herald", lv: 19, reward: { xp: 7000, gil: 3000 }, steps: [
+    { type: "visit", zone: "frost", lm: "summit", summon: "ashen_herald", goal: "Climb to the Summit Overlook in Frostspire Pass.", text: ["At the top of the black stair stands a figure wrapped in ash that burns without heat.", "'The crown is silent. The bells have drowned. The throne remembers its king.' It raises a hand, and the snow turns to cinders."] },
+    { type: "kill", fam: "ashen_herald", n: 1, goal: "Defeat the Ashen Herald at the Summit Overlook." }
+  ] },
+  { name: "Embers Kept", lv: 19, reward: { xp: 0, gil: 5000, item: "ember_ring" }, steps: [
+    { type: "talk", npc: "rhea", goal: "Return to Captain Rhea in Ashenreach Outpost.", text: ["The ash stopped falling this morning. Every soul in the Outpost walked out to watch the sky clear.", "I don't know what that throne is, or who its king was. But I know who stood between it and us. Take this. It's been kept at the Outpost since before my time, waiting for someone who earned it."] }
+  ] }
+];
 
 const GUILD_RANKS = [["Copper", 0, "#b87333"], ["Bronze", 100, "#cd7f32"], ["Iron", 300, "#a0a8b0"], ["Silver", 700, "#d8dde4"], ["Gold", 1500, "#ffd54f"], ["Mythril", 3000, "#80deea"]];
 const GUILD_DAILY = 3;
@@ -6440,6 +6488,7 @@ const ACHIEVEMENTS = [
   { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", gil: 150, test: s => (s.stats.ride || 0) >= 20000 },
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
+  { id: "story", icon: "🕯️", name: "Keeper of the Embers", desc: "Complete the main story.", gil: 2000, test: s => !!(s.story && s.story.done) },
   { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", gil: 100, test: s => (s.stats.bounties || 0) >= 1 },
   { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", gil: 400, test: s => (s.guild && s.guild.total || 0) >= 700 },
   { id: "mythril", icon: "💎", name: "Mythril Legend", desc: "Reach Mythril rank in the Adventurers' Guild.", gil: 1500, test: s => (s.guild && s.guild.total || 0) >= 3000 },
@@ -6605,7 +6654,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -6644,6 +6693,7 @@ function normalizeSave(d) {
   out.gatherSkill = Object.assign(newSave().gatherSkill, d.gatherSkill || {});
   out.gardens = d.gardens && typeof d.gardens === "object" ? d.gardens : {};
   out.harvests = d.harvests || 0;
+  out.story = Object.assign(newSave().story, d.story && typeof d.story === "object" ? d.story : {});
   out.guild = Object.assign(newSave().guild, d.guild && typeof d.guild === "object" ? d.guild : {});
   if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
   if (!Array.isArray(out.guild.done)) out.guild.done = [];
@@ -7371,6 +7421,7 @@ function onKO(e, src) {
       if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
       bountyKill(e);
+      storyKill(e);
       for (const id in QUESTS) {
         const q = QUESTS[id];
         if (!q.kill || save.quests[id] !== "active") continue;
@@ -9179,7 +9230,8 @@ function spawnMob(i) {
   let fam = sp.fam, lv = randInt(sp.lv[0], sp.lv[1]);
   if (FEATURES.nms && sp.nm && (!sp.nm.time || sp.nm.time === period())) {
     const key = "nm:" + sp.nm.id;
-    if (!(save.timers[key] > Date.now()) && !S.mobs.some(m => m.alive && m.famKey === sp.nm.id) && Math.random() < sp.nm.chance) {
+    const story = storyWants(sp.nm.id);
+    if ((story || !(save.timers[key] > Date.now())) && !S.mobs.some(m => m.alive && m.famKey === sp.nm.id) && (story || Math.random() < sp.nm.chance)) {
       fam = sp.nm.id; lv = sp.nm.lv;
       if (S.time > 1 && Math.hypot(sp.x - player.x, sp.y - player.y) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
     }
@@ -9295,6 +9347,7 @@ function step(dt) {
   if (S.fish) tickFish();
   if (S.race) tickRace();
   if (S.pet) tickPet();
+  tickStory();
   if (S.bf) tickBattlefield();
   if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
@@ -9529,7 +9582,66 @@ function talkTo(n) {
   player.target = n;
   player.face = Math.atan2(n.y - player.y, n.x - player.x);
   n.face = Math.atan2(player.y - n.y, player.x - n.x);
+  const st = storyStep();
+  if (st && st.type === "talk" && st.npc === n.id && storyReady()) { storyScene(n.name, st.text, 0, () => advanceStory()); return; }
   TALK[n.talk](n);
+}
+
+function storyChapter() { return save.story.done ? null : STORY[save.story.ch] || null; }
+function storyStep() { const c = storyChapter(); return c ? c.steps[save.story.step] : null; }
+function storyReady() { const c = storyChapter(); return !!c && (save.story.step > 0 || player.lv >= c.lv); }
+function storyWants(fam) { const st = storyStep(); return !!st && st.type === "kill" && st.fam === fam && storyReady(); }
+
+function storyScene(who, pages, i, done) {
+  const last = i >= pages.length - 1;
+  openDialog(who, pages[i], [{ label: last ? "Continue" : "Next", fn: () => { if (last) { closeDialog(); done(); } else storyScene(who, pages, i + 1, done); } }]);
+}
+
+function advanceStory() {
+  const c = storyChapter(), st = storyStep();
+  if (!c || !st) return;
+  if (st.key) giveKeyItem(st.key);
+  save.story.step++;
+  save.story.prog = 0;
+  if (save.story.step >= c.steps.length) {
+    save.story.ch++;
+    save.story.step = 0;
+    if (save.story.ch >= STORY.length) save.story.done = true;
+    log("Story chapter complete: " + c.name + ".", "lvl");
+    uiEvent("story", { name: c.name, reward: c.reward });
+    giveReward(c.reward);
+    checkAchievements();
+  } else {
+    const nx = storyStep();
+    log("Story: " + nx.goal, "npc");
+    sfx("notify");
+    if (nx.type === "kill" && st.summon) summonStoryFoe(st.summon);
+  }
+  saveGame();
+}
+
+function summonStoryFoe(fam) {
+  const i = (S.zone.spawns || []).findIndex(sp => sp.nm && sp.nm.id === fam);
+  if (i < 0) return;
+  for (const m of S.mobs) if (m.spawnIdx === i && m.alive) { m.alive = false; m.despawned = true; m.deadAt = S.time - 99; }
+  S.mobs = S.mobs.filter(m => !(m.spawnIdx === i && m.despawned));
+  spawnMob(i);
+}
+
+function storyKill(e) {
+  const st = storyStep();
+  if (!st || st.type !== "kill" || st.fam !== e.famKey || !storyReady()) return;
+  save.story.prog++;
+  if (save.story.prog >= st.n) advanceStory();
+  else log("Story: " + (FAMILIES[st.fam] || NM_FAMILIES[st.fam] || {}).name + " " + save.story.prog + "/" + st.n + ".", "npc");
+}
+
+function tickStory() {
+  const st = storyStep();
+  if (!st || st.type !== "visit" || st.zone !== S.zoneId || !storyReady() || S.dialog || !player.alive) return;
+  const lm = (S.zone.landmarks || []).find(l => l.id === st.lm);
+  if (!lm || Math.hypot(player.x - lm.x, player.y - lm.y) > lm.r) return;
+  storyScene(lm.name, st.text, 0, () => advanceStory());
 }
 
 function questMarker(n) {
@@ -9538,6 +9650,7 @@ function questMarker(n) {
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
+  { const st = storyStep(); if (st && st.type === "talk" && st.npc === n.id && storyReady()) return true; }
   if (n.id === "maera") return Object.keys(save.guild.active).some(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && save.guild.active[id] >= b.n; }) || (player.lv >= 2 && !save.guild.total && !Object.keys(save.guild.active).length);
   return false;
 }
@@ -11158,6 +11271,7 @@ function uiEvent(type, d) {
   if (type === "bf") { toast("🔱", "Victory!", d.prize ? ITEMS[d.prize].name : "The chapel is quiet", "r-epic"); return; }
   if (type === "race") { UI.mmForce = true; return; }
   if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
+  if (type === "story") { banner("CHAPTER COMPLETE", d.name, rewardChips(d.reward)); return; }
   if (type === "guildrank") { banner(GUILD_RANKS[d.rank][0].toUpperCase() + " RANK", "Adventurers' Guild", ["🛒 New guild rewards"]); return; }
   if (type === "beast") { toast("📖", "Bestiary", d.name, "r-uncommon"); return; }
   if (type === "item") {
@@ -11714,11 +11828,21 @@ function tabActions() {
   return h;
 }
 
+function storyBlock() {
+  const done = save.story.done, c = storyChapter(), st = storyStep();
+  let h = '<h3 style="margin-top:0">🕯️ Main story</h3>';
+  if (done) return h + '<div class="item" style="display:block"><b style="font-family:var(--serif)">The story is complete</b><div class="sub">The ash has stopped falling. Thank you for playing through it.</div></div>';
+  const ready = storyReady();
+  const prog = st && st.type === "kill" ? " (" + save.story.prog + "/" + st.n + ")" : "";
+  h += '<div class="item" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-family:var(--serif)">Chapter ' + (save.story.ch + 1) + ": " + esc(c.name) + '</b><span class="sub">' + (save.story.ch + 1) + " / " + STORY.length + '</span></div><div class="sub" style="margin-top:4px">' + (ready ? esc(st.goal + prog) : "Reach level " + c.lv + " to continue the story.") + "</div></div>";
+  return h;
+}
+
 function tabQuests() {
-  let h = "";
+  let h = storyBlock() + "<h3>Quests</h3>";
   const order = ["active", "killed", "none", "done"];
   const ids = Object.keys(QUESTS).filter(id => save.quests[id] !== "none").sort((a, b) => order.indexOf(save.quests[a]) - order.indexOf(save.quests[b]));
-  if (!ids.length) return '<div class="sub">You have no quests yet. Talk to the people of the Outpost. A ❗ over someone means they have work for you.</div>';
+  if (!ids.length) return h + '<div class="sub">You have no quests yet. Talk to the people of the Outpost. A ❗ over someone means they have work for you.</div>';
   for (const id of ids) {
     const st = save.quests[id];
     const q = QUESTS[id];
@@ -12268,8 +12392,15 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v6.1.0 · built 2026-10-13 16:09 PDT";
+const BUILD_INFO = "v6.2.0 · built 2026-10-13 16:14 PDT";
 const UPDATES = [
+  { v: "6.2.0", date: "2026-10-13", title: "The Main Story: Embers of Ashenreach", items: [
+    "A main story in eight chapters. Ash is falling over the Outpost, and the trail leads from the Old Fort Ruins through the Goblin Den, the Sunken Crypt, the Drowned Chapel and Saltreach Harbor to the top of Frostspire Pass.",
+    "Captain Rhea starts it at level 3. Chapters unlock at levels 3, 7, 10, 12, 14, 16 and 19. Talking to the right person, reaching the right place or defeating the right foe moves the story on, with story scenes along the way.",
+    "The Quests window now shows your current story chapter and goal at the top. People with the next story scene have a ❗ over them.",
+    "Story foes: Rimefang shows himself when the story brings you to Icefall Camp, and a new boss, the Ashen Herald, waits at the Summit Overlook. It drops the Cinderweave Mantle.",
+    "Finishing the story earns the Ember of Ashenreach ring and the Keeper of the Embers achievement."
+  ] },
   { v: "6.1.0", date: "2026-10-13", title: "Dark Knight and Bard", items: [
     "New advanced job: Dark Knight (Tobin's The Shadowed Path, level 10). Scythes, Last Resort, Soulfire and Blood Blade, plus dark magic: Blight, Drain, Mind Drain and Stun.",
     "New advanced job: Bard (Tobin's A Traveler's Song, level 10). Party songs for attack, accuracy, attack speed, HP and MP over time; Drowsy Lullaby puts a monster to sleep; Encore speeds up your singing.",
@@ -12567,6 +12698,13 @@ function tabHelp() {
     "Victory: " + BATTLEFIELD.gil + " crystals, " + BATTLEFIELD.xp + " XP and one treasure you don't own yet: Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle or Tidebreaker Bow. Leaving, wiping or running out of time ends the attempt.",
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
   ]));
+  h += sec("🕯️ Main story: Embers of Ashenreach", ul([
+    "Eight chapters. Talk to <b>Captain Rhea</b> at level 3 to begin. Your current chapter and goal are always at the top of the Quests window, and a ❗ marks the person with your next story scene.",
+    "Chapters unlock at levels " + STORY.map(c => c.lv).filter((v, i, a) => a.indexOf(v) === i).join(", ") + ". The story takes you through every area in the game, so bring companions for the later chapters.",
+    "Some chapters need a boss: the Hollow King (Sunken Crypt), the Tidebound Priest (Chapel Depths battlefield; you need a Chapel Sigil), Rimefang (appears when the story brings you to Icefall Camp) and the Ashen Herald (level 22, at the Summit Overlook).",
+    "Story steps only count while that step is current: kills before then don't count.",
+    "Each chapter pays experience and crystals. The final chapter gives the Ember of Ashenreach, a level 19 ring for every job."
+  ]));
   h += sec("⚔️ The Adventurers' Guild", ul([
     "Talk to <b>Maera</b> in Ashenreach Outpost (west of Captain Rhea) to open the guild window.",
     "<b>Bounties:</b> " + GUILD_DAILY + " are posted each day (new ones at midnight UTC). Accept up to " + GUILD_ACTIVE + " at once. Kills count anywhere, with or without companions. Each bounty can be finished once per day; you can abandon one to free a slot.",
@@ -12680,7 +12818,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "6.1.0";
+const GAME_VERSION = "6.2.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
