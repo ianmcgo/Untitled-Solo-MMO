@@ -3,7 +3,8 @@ const job = process.argv[3] || 'WAR', sub = process.argv[4] || null, minutes = +
 if (process.env.BOT_HOUR) { const v = G.vana(); let d = +process.env.BOT_HOUR - v.hour - v.minute / 60; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; }
 const order = ['mira', 'kael', 'sable', 'rook', 'fen'];
 let errors = 0, deaths = 0, hires = [];
-if (job === 'PLD' || job === 'RDM') { G.save.jobsUnlocked[job] = true; G.setJob(job, null); if (job === 'RDM') G.equip('linen_robe'); }
+if (job === 'THF' || job === 'MNK') { G.save.jobsUnlocked[job] = true; G.setJob(job, null); const w = job === 'THF' ? 'bronze_dagger' : 'leather_cesti'; G.giveItem(w, 1, true); G.equip(w); G.giveItem('leather_vest', 1, true); G.equip('leather_vest'); }
+else if (job === 'PLD' || job === 'RDM') { G.save.jobsUnlocked[job] = true; G.setJob(job, null); if (job === 'RDM') G.equip('linen_robe'); }
 else if (job !== 'WAR') { G.setJob(job, null); G.giveItem(job === 'BLM' ? 'ash_staff' : 'ash_club', 1, true); G.giveItem('linen_robe', 1, true); G.equip(job === 'BLM' ? 'ash_staff' : 'ash_club'); G.equip('linen_robe'); }
 const mercOrder = { PLD: ['mira', 'sable', 'lisette', 'rook', 'fen'], RDM: ['kael', 'mira', 'dorn', 'sable', 'fen'] }[job];
 if (mercOrder) { order.length = 0; order.push(...mercOrder); G.save.jobsUnlocked.PLD = G.save.jobsUnlocked.RDM = true; }
