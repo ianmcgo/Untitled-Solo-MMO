@@ -159,7 +159,9 @@ function showCharSelect() {
 function showCharCreate() {
   const r = loadRoster();
   CC.job = "WAR";
-  CC.look = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: Math.floor(Math.random() * (HAIR_STYLES.length - 1)), hairColor: Math.floor(Math.random() * HAIR_COLORS.length) };
+  CC.look = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length) };
+  const firstStyles = HAIR_BY_SEX[CC.look.build];
+  CC.look.hairStyle = HAIR_STYLES.indexOf(firstStyles[Math.floor(Math.random() * (firstStyles.length - 1))]);
   CC.name = "";
   $("ldSub").textContent = "Create your character";
   const box = $("charSel");
@@ -183,7 +185,9 @@ function showCharCreate() {
     const l = CC.look;
     const sw = c => '<span class="sw" style="background:#' + c.toString(16).padStart(6, "0") + '"></span>';
     const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
-    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", HAIR_STYLES.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
+    const styles = HAIR_BY_SEX[l.build];
+    if (!styles.includes(HAIR_STYLES[l.hairStyle])) l.hairStyle = HAIR_STYLES.indexOf(styles[0]);
+    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
     $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + JOBS[CC.job].name + " Lv.1</small>";
   };
   paint();
@@ -203,8 +207,16 @@ function showCharCreate() {
     if (!b) return;
     if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); paint(); return; }
     if (b.dataset.look) {
-      const k = b.dataset.look, n = { build: 2, skin: SKIN_TONES.length, hairStyle: HAIR_STYLES.length, hairColor: HAIR_COLORS.length }[k];
-      CC.look[k] = ((CC.look[k] || 0) + parseInt(b.dataset.d, 10) + n) % n;
+      const k = b.dataset.look, d = parseInt(b.dataset.d, 10);
+      if (k === "hairStyle") {
+        const styles = HAIR_BY_SEX[CC.look.build];
+        const i = styles.indexOf(HAIR_STYLES[CC.look.hairStyle]);
+        CC.look.hairStyle = HAIR_STYLES.indexOf(styles[(i + d + styles.length) % styles.length]);
+      } else {
+        const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length }[k];
+        CC.look[k] = ((CC.look[k] || 0) + d + n) % n;
+        if (k === "build") CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[CC.look.build][0]);
+      }
       sfx("click"); paint(); return;
     }
     if (b.dataset.back) { UI.creating = false; if (UI.pv) UI.pv.override = null; sfx("close"); showCharSelect(); return; }

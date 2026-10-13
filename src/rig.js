@@ -5,6 +5,7 @@ const RIG = { atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: nu
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
 const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald"];
+const HAIR_BY_SEX = [["short", "spiky", "long", "ponytail", "bald"], ["long", "ponytail", "bob", "bun", "short"]];
 const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 
@@ -330,7 +331,10 @@ function lookFor(job, gear, base) {
   return L;
 }
 
-function stableKey(o) { return JSON.stringify(o, Object.keys(o).sort()); }
+function stableKey(o) {
+  const norm = v => v && typeof v === "object" && !Array.isArray(v) ? Object.keys(v).sort().reduce((acc, k) => { acc[k] = norm(v[k]); return acc; }, {}) : Array.isArray(v) ? v.map(norm) : v;
+  return JSON.stringify(norm(o));
+}
 
 function hairPieces(R, H, hc, hr, covered) {
   if (!H || H.style === "bald") return;
