@@ -13,7 +13,7 @@ Plan doc (roadmap, requirements, time estimates): "Ashenreach: Complete Game Pla
 ## Suggested project instructions
 Paste this into the project's custom instructions:
 
-> We're building Ashenreach, a single-player MMO in one self-contained index.html that plays and feels as close to Final Fantasy XI as possible, with a modern MMO HUD and progression, and hired NPC companions instead of other players. All names and art are original. Source is in ashenreach-source.zip; read design.md and HANDOFF.md before changing anything. Rules: no comments in code, explanations go in design.md. Deliver index.html (and the updated design.md) at the end of each phase. Phone first. Decisions so far: level cap 10, never de-level, one-time mercenary fee.
+> We're building Ashenreach, a single-player MMO in one self-contained index.html that plays like a classic party-based fantasy MMO, with a modern MMO HUD and progression, and hired NPC companions instead of other players. All names and art are original. Source is in ashenreach-source.zip; read design.md and HANDOFF.md before changing anything. Rules: no comments in code, explanations go in design.md. Deliver index.html (and the updated design.md) at the end of each phase. Phone first. Decisions so far: level cap 10, never de-level, one-time mercenary fee.
 
 ## Status
 | Phase | Status |

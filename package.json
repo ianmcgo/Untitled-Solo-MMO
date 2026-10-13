@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "4.8.1",
-  "releaseTitle": "Hotfix: aggro, targeting, residence",
+  "version": "4.9.0",
+  "releaseTitle": "Companions 2.0, bestiary and achievements",
   "description": "",
   "main": "index.js",
   "scripts": {

@@ -211,6 +211,7 @@ function addWind(mat, strength) {
 
 function buildVegetation(field, root) {
   const z = field.zone, theme = themeOf(z);
+  z.colliders = [];
   if (theme === "house") return;
   const rnd = rngFor(z, "veg");
   const q = W3.quality;
@@ -231,6 +232,7 @@ function buildVegetation(field, root) {
     const y = field.heightAt(px, py), s = 0.8 + rnd() * 0.7;
     const m = mtx(px * U, y - 0.2, py * U, s, s * (0.9 + rnd() * 0.4), s, rnd() * 6.28);
     (rnd() < (theme === "town" ? 0.4 : 0.6) ? pines : leafy).push(m);
+    z.colliders.push({ x: px, y: py, r: 4.6 * s });
     k++;
   }
   for (let k = 0, tries = 0; k < want.rocks && tries < want.rocks * 30; tries++) {
@@ -418,6 +420,7 @@ function buildTown(field, root) {
   const lampGlass = new THREE.MeshStandardMaterial({ color: 0xffe0a0, emissive: 0xffc070, emissiveIntensity: 0 });
   W3.windowMats.push(lampGlass);
   (z.lamps || []).forEach(([lx, ly], i) => {
+    if (z.colliders) z.colliders.push({ x: lx, y: ly, r: 4 });
     const g = new THREE.Group();
     const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 3, 6), lampPostMat);
     pole.position.y = 1.5;
@@ -441,6 +444,7 @@ function buildCave(field, root) {
   const torchMat = std({ color: 0x3b2a1a });
   const flameMat = new THREE.MeshBasicMaterial({ color: 0xffa040 });
   (z.torches || []).forEach(([tx, ty], i) => {
+    if (z.colliders) z.colliders.push({ x: tx, y: ty, r: 4 });
     const g = new THREE.Group();
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 1.8, 6), torchMat);
     post.position.y = 0.9;
@@ -587,9 +591,6 @@ function buildHouse(field, root) {
     const sill = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 0.3), beamMat);
     sill.position.set(win.position.x, 1.58, win.position.z); sill.rotation.y = rot;
     root.add(sill);
-    const L = new THREE.PointLight(0xffe8c0, 6, 10, 1.6);
-    L.position.set(win.position.x + (rot ? (wx === 0 ? 0.8 : -0.8) : 0), 2.2, win.position.z + (rot ? 0 : 0.8));
-    root.add(L);
     W3.windowMats.push(win.material);
   }
   const g = z.grid;
@@ -603,7 +604,7 @@ function buildHouse(field, root) {
   const rug = new THREE.Mesh(new THREE.CircleGeometry(1.2, 24), std({ color: 0x6a3a3a, roughness: 1 }));
   rug.rotation.x = -Math.PI / 2; rug.position.set(1.0 * cw, 0.02, 1.0 * ch);
   root.add(rug);
-  const amb = new THREE.PointLight(0xffe2b8, 8, 18, 1.4);
+  const amb = new THREE.PointLight(0xffe2b8, 14, 26, 1.2);
   amb.position.set(W / 2, 3.0, H / 2);
   root.add(amb);
   W3.furnRoot = new THREE.Group();
