@@ -1,0 +1,18 @@
+const fs=require('fs');
+const src=fs.readFileSync(process.argv[2]||'../dist/game.js','utf8');
+const ctx=new Proxy({},{get:(t,k)=>k in t?t[k]:()=>{},set:(t,k,v)=>(t[k]=v,true)});
+const alllog=[];
+function mkEl(id){const e={id,style:{},_t:'',dataset:{},children:[],scrollTop:0,scrollHeight:0,className:'',_html:'',
+ get innerHTML(){return this._html},set innerHTML(v){this._html=v;this.children=[]},
+ get textContent(){return this._t},set textContent(v){this._t=v;if(this.isLog)alllog.push(v)},
+ appendChild(c){this.children.push(c);if(this.id==='log')alllog.push(c._t);return c},removeChild(c){this.children.splice(this.children.indexOf(c),1)},remove(){},click(){},
+ get firstChild(){return this.children[0]},classList:{toggle(){},add(){},remove(){}},addEventListener(){},setAttribute(){},
+ getContext:()=>ctx,getBoundingClientRect:()=>({left:0,top:0,width:800,height:500}),width:800,height:500};return e}
+const els={};
+global.document={getElementById:id=>els[id]||(els[id]=mkEl(id)),createElement:()=>mkEl('x'),body:mkEl('body')};
+global.window={addEventListener(){},devicePixelRatio:1,innerWidth:400,innerHeight:800};
+const store={};global.localStorage={getItem:k=>store[k]??null,setItem:(k,v)=>store[k]=v,removeItem:k=>delete store[k]};
+let now=0,cb=null;global.performance={now:()=>now};global.requestAnimationFrame=f=>{cb=f};
+global.confirm=()=>true;global.Blob=function(){};global.URL={createObjectURL:()=>'',revokeObjectURL(){}};
+eval(src+`;globalThis.G={S,get save(){return save},set save(v){save=v},get player(){return player},ZONES,MERCS,ITEMS,CONFIG,FEATURES,enterZone,toggleEngage,playerAct,actionList,talkTo,TALK,openModal,closeModal,renderModal,setJob,buy,equip,useItem,returnHome,giveItem,toggleMount,dismount,detects,hireMerc,dismissMerc,exportSaveText,importSaveText,applyLoadedSave,startNewGame,skillCap,skillOf,vana,period,isNight,dist,removeItem,invCount,sell,refreshPlayer,gainXp,homePos,nearestMob,onModalClick};`);
+module.exports={G,tick:(ms)=>{now+=ms;cb(now)},alllog,store,els};

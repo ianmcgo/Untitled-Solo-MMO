@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Untitled Solo RPG</title>
+<style>
+  :root { --bg:#0e0f14; --panel:#1a1c25; --panel2:#262a38; --text:#e6e6ea; --muted:#9aa0ad; --hp:#d9534f; --mp:#4c8be0; --tp:#e0b44c; --xp:#9ad06b; --accent:#ffd54f; --line:#343848; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:var(--bg); color:var(--text); font:14px/1.35 system-ui, -apple-system, sans-serif; }
+  body { display:flex; flex-direction:column; align-items:center; padding:8px; gap:8px; }
+  .w { width:100%; max-width:820px; }
+  #topbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; }
+  #zoneName { font-weight:700; }
+  #clock { color:#cfd8ff; }
+  #lvl { color:var(--muted); }
+  #xpbar { flex:1; min-width:110px; height:8px; background:#333; border-radius:4px; overflow:hidden; }
+  #xpfill { height:100%; background:var(--xp); width:0; }
+  #gil { color:var(--accent); }
+  #wrap { position:relative; }
+  #wrap { height:62vh; min-height:300px; max-height:760px; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#000; }
+  @media (min-width:900px) { #wrap { height:min(72vh, 560px); } }
+  canvas { width:100%; height:100%; display:block; touch-action:none; -webkit-user-select:none; user-select:none; }
+  #overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; font-family:system-ui, sans-serif; }
+  .plate { position:absolute; left:0; top:0; text-align:center; white-space:nowrap; will-change:transform; }
+  .plate .pn { font-size:12px; font-weight:600; text-shadow:0 1px 2px #000, 0 0 3px #000; }
+  .plate.tgt .pn { font-size:13px; }
+  .plate .pb, .plate .pc { width:46px; height:4px; margin:2px auto 0; background:rgba(0,0,0,.65); border-radius:2px; overflow:hidden; }
+  .plate .pb div, .plate .pc div { height:100%; }
+  .floater { position:absolute; left:0; top:0; font-weight:800; text-shadow:0 0 3px #000, 0 2px 3px #000, 0 0 1px #000; white-space:nowrap; will-change:transform; }
+  #joy { position:absolute; width:110px; height:110px; margin:-55px 0 0 -55px; border-radius:50%; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.25); display:none; pointer-events:none; }
+  #knob { position:absolute; left:33px; top:33px; width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.35); }
+  #hint { position:absolute; left:8px; bottom:6px; font-size:11px; color:rgba(255,255,255,.55); pointer-events:none; text-shadow:0 1px 2px #000; }
+  #flash { position:absolute; inset:0; pointer-events:none; opacity:0; mix-blend-mode:screen; }
+  .sw { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-2px; margin-left:4px; border:1px solid #0006; }
+  .opt { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+  .opt button.on { border-color:var(--accent); color:var(--accent); }
+  #hud { display:grid; grid-template-columns:1.25fr 1fr; gap:8px; }
+  @media (max-width:560px) { #hud { grid-template-columns:1fr; } }
+  .panel { background:var(--panel); border-radius:6px; padding:6px 8px; }
+  .member { display:grid; grid-template-columns:78px 1fr; gap:6px; align-items:center; padding:3px 4px; border-radius:4px; cursor:pointer; }
+  .member.sel { background:var(--panel2); }
+  .member.ko { opacity:.4; }
+  .nm { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .jb { font-size:10px; color:var(--muted); }
+  .bars { display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px; }
+  .bar { height:12px; background:#333; border-radius:3px; overflow:hidden; position:relative; }
+  .bar > div { height:100%; width:0; }
+  .bar span { position:absolute; inset:0; font-size:9px; line-height:12px; text-align:center; text-shadow:0 0 2px #000, 0 0 2px #000; }
+  .thin { height:4px; margin-top:3px; }
+  .row { display:flex; justify-content:space-between; gap:6px; align-items:baseline; }
+  #tName { font-weight:600; }
+  .sub { font-size:11px; color:var(--muted); }
+  #tInfo { font-size:11px; color:var(--muted); margin-top:4px; min-height:15px; }
+  #chainInfo { font-size:11px; margin-top:2px; min-height:15px; }
+  #macros, #cmds { display:flex; flex-wrap:wrap; gap:6px; }
+  button { background:#2b2f3d; color:var(--text); border:1px solid #444; border-radius:5px; padding:7px 10px; font:inherit; font-size:13px; cursor:pointer; }
+  button:disabled { opacity:.4; cursor:default; }
+  .mac { min-width:96px; text-align:left; padding:5px 8px; }
+  .mac.dim { opacity:.5; }
+  .mac .k { font-size:10px; color:var(--muted); margin-right:4px; }
+  .mac .c { display:block; font-size:10px; color:var(--muted); }
+  .mac.ws { border-color:#6b5a2a; }
+  .mac.ws.ready { border-color:var(--accent); box-shadow:0 0 6px rgba(255,213,79,.45); }
+  .mac.ja { border-color:#2f6a40; }
+  .mac.ma { border-color:#2f4f78; }
+  .mac .sc { color:#f6a5ff; }
+  #log { height:150px; overflow-y:auto; background:var(--panel); border-radius:6px; padding:5px 8px; font-family:ui-monospace, Menlo, monospace; font-size:12px; }
+  #log .you { color:#9ad06b; } #log .foe { color:#ff8a80; } #log .sys { color:#aaa; } #log .ally { color:#8ec5ff; }
+  #log .loot { color:#ffd54f; } #log .sc { color:#f6a5ff; } #log .npc { color:#e8d9b0; } #log .skill { color:#80cbc4; } #log .party { color:#b3e5fc; font-style:italic; }
+  #help { font-size:11px; color:#888; }
+  #ko { position:absolute; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px; background:rgba(0,0,0,.65); border-radius:6px; font-size:22px; font-weight:700; text-align:center; }
+  #ko .sub { font-size:12px; font-weight:400; }
+  #dialog { position:fixed; left:50%; transform:translateX(-50%); bottom:10px; width:calc(100% - 20px); max-width:640px; background:rgba(18,20,28,.97); border:1px solid #666; border-radius:8px; padding:12px; display:none; z-index:10; }
+  #dlgWho { font-weight:700; color:var(--accent); margin-bottom:4px; }
+  #dlgOpts { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  #modal { position:fixed; inset:0; background:rgba(8,9,13,.97); display:none; flex-direction:column; padding:12px; z-index:20; }
+  #modal .inner { width:100%; max-width:640px; margin:0 auto; display:flex; flex-direction:column; height:100%; }
+  #mTabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
+  #mTabs button.on { border-color:var(--accent); color:var(--accent); }
+  #mTabs .x { margin-left:auto; }
+  #mBody { overflow-y:auto; flex:1; }
+  .item { display:flex; justify-content:space-between; align-items:center; gap:8px; background:var(--panel); padding:7px 9px; border-radius:5px; margin-bottom:5px; }
+  .item .d { font-size:11px; color:var(--muted); }
+  .item .bad { color:#ff8a80; }
+  .grid2 { display:grid; grid-template-columns:repeat(4, auto); gap:4px 14px; font-size:13px; justify-content:start; }
+  .grid2 b { color:var(--muted); font-weight:500; }
+  h3 { margin:12px 0 6px; font-size:14px; color:var(--accent); }
+</style>
+</head>
+<body>
+<div id="topbar" class="w"><span id="zoneName"></span><span id="clock"></span><span id="lvl"></span><div id="xpbar"><div id="xpfill"></div></div><span id="xpt" class="sub"></span><span id="gil"></span></div>
+<div id="wrap" class="w">
+  <canvas id="game"></canvas>
+  <div id="overlay"></div>
+  <div id="flash"></div>
+  <div id="joy"><div id="knob"></div></div>
+  <div id="hint">Drag to look · pinch or scroll to zoom · left thumb to move</div>
+  <div id="ko"><div>You were defeated.</div><div class="sub">You'll lose 10% of this level's XP and return to your home point.</div><button id="btnHome">Return to Home Point</button></div>
+</div>
+<div id="hud" class="w">
+  <div class="panel" id="party"></div>
+  <div class="panel" id="target">
+    <div class="row"><span id="tName">No target</span><span class="sub" id="tCon"></span></div>
+    <div class="bars" style="grid-template-columns:2fr 1fr; margin-top:4px">
+      <div class="bar"><div id="tHp" style="background:var(--hp)"></div><span id="tHpT"></span></div>
+      <div class="bar"><div id="tTp" style="background:var(--tp)"></div><span id="tTpT"></span></div>
+    </div>
+    <div class="bar thin"><div id="tSwing" style="background:#c78f8f"></div></div>
+    <div id="tInfo"></div>
+    <div id="chainInfo"></div>
+  </div>
+</div>
+<div id="macros" class="w"></div>
+<div id="cmds" class="w">
+  <button id="btnEngage">Engage (F)</button>
+  <button id="btnTarget">Target (Tab)</button>
+  <button id="btnTalk">Talk (E)</button>
+  <button id="btnMount" style="display:none">Mount (R)</button>
+  <button id="btnItems">Items (I)</button>
+  <button id="btnStatus">Status (C)</button>
+  <button id="btnSettings">Settings</button>
+</div>
+<div id="log" class="w"></div>
+<div id="help" class="w">WASD to move (or the left side of the screen on phones) · drag, arrow keys or Q to turn the camera · scroll or pinch to zoom · V first person · R mount · tap or Tab to target · F engage · 1–0 actions · E talk · I items · C status · K skills · Esc cancel · stand still out of combat to regenerate</div>
+<div id="dialog"><div id="dlgWho"></div><div id="dlgText"></div><div id="dlgOpts"></div></div>
+<div id="modal"><div class="inner"><div id="mTabs"></div><div id="mBody"></div></div></div>
+<!--SCRIPTS-->
+</body>
+</html>

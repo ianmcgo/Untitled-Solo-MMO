@@ -1,0 +1,28 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+const npc = id => S.npcs.find(n => n.id === id);
+G.enterZone('outpost', 610, 440);
+ok(!!npc('ysolde'), 'Ysolde stands in the Outpost');
+G.toggleMount(); ok(!P().mounted, 'no mount without a license');
+G.TALK.talkYsolde(npc('ysolde')); ok(!S.dialog.all.some(o => o.label === "I'll get them"), 'Ysolde refuses below level 5'); 
+G.save.jobs.WAR.lv = 5; G.refreshPlayer(true);
+G.TALK.talkYsolde(npc('ysolde')); S.dialog.all.find(o => o.label === "I'll get them").fn();
+ok(G.save.quests.riding === 'active', 'riding quest accepted');
+G.save.gil = 500; G.giveItem('healing_herb', 3, true);
+G.TALK.talkYsolde(npc('ysolde')); S.dialog.all[0].fn();
+ok(G.save.mountLicense && G.save.gil === 200 && G.invCount('healing_herb') === 0, 'license granted for 300 gil and 3 herbs');
+G.toggleMount(); ok(!P().mounted, 'cannot ride in town');
+G.save.gil = 1000; G.hireMerc('kael');
+G.enterZone('hollow', 120, 500); run(1);
+G.toggleMount(); ok(P().mounted && S.party.every(p => p.mounted), 'mount in the field, companions ride too');
+const x0 = P().x; S.keys.d = true; run(1); S.keys.d = false;
+const moved = P().x - x0; ok(moved > 140 * 1.9 && moved < 140 * 2.4, 'mounted speed about 2.2x (' + Math.round(moved) + ' px/s)');
+const m = S.mobs.find(mm => mm.alive && mm.fam.aggro);
+ok(m && !G.detects(m, P()), 'monsters ignore riders');
+G.toggleMount(); ok(!P().mounted && !S.party.some(p => p.mounted), 'dismount');
+G.toggleMount(); const t = G.nearestMob(); P().target = t; G.toggleEngage(false); ok(!P().mounted && P().engaged, 'engaging dismounts');
+P().engaged = false; P().attackTarget = null; for (const mm of S.mobs) { mm.state = 'idle'; mm.enmity.clear(); }
+G.toggleMount(); G.enterZone('outpost', 990, 400); ok(!P().mounted, 'entering town dismounts');
+const back = G.importSaveText(G.exportSaveText()); ok(back.mountLicense === true && back.look && back.look.hairStyle != null, 'license and appearance survive save files');
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');
