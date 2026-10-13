@@ -263,6 +263,13 @@ const JOB_TINT = {
 const ITEM_LOOK = {
   leather_vest: { top: { type: "vest", color: 0x7a5230, region: "leather" } },
   scale_mail: { top: { type: "mail", color: 0x9aa0a8, region: "chain" }, pauldrons: 0xa8aeb6 },
+  kite_shield: { shield: { color: 0x8a90a0, trim: 0xc8a040, emblem: 0x2f5c9a } },
+  scarlet_tabard: { top: { type: "tabard", color: 0xa0242c, region: "cloth", color2: 0xd8c070 }, hat: 0xa0242c },
+  raider_helm: { head: { type: "cap", color: 0x6a6a72 } },
+  scavenger_cap: { head: { type: "cap", color: 0x7a6a4a } },
+  nightwing_gloves: { gloves: 0x3a2850, glovesRegion: "leather" },
+  burrower_trousers: { legs: 0x7a5a3a, legsRegion: "leather" },
+  gravedigger_boots: { boots: 0x2a2a2e },
   linen_robe: { top: { type: "robe" } },
   linen_robe_hq: { top: { type: "robe" } },
   cotton_robe: { top: { type: "robe", deep: true } },
@@ -314,6 +321,8 @@ function lookFor(job, gear, base) {
     if (il.legs) { L.legs = il.legs; L.legsRegion = il.legsRegion; }
     if (il.boots) L.boots = il.boots;
     if (il.pauldrons) L.pauldrons = il.pauldrons;
+    if (il.shield) L.shield = il.shield;
+    if (il.hat) L.hat = il.hat;
   }
   if (!L.boots) L.shoes = 0x3a2a1e;
   L.weapon = gear.main ? ITEMS[gear.main].wtype : null;
@@ -376,10 +385,11 @@ function humanEntry(L) {
   const topC = top.color, topR = top.region || "cloth";
   const legC = L.legs != null ? L.legs : 0x4a3a2c, legR = L.legsRegion || "cloth";
   const sleeves = top.sleeves || (top.type === "robe" ? "wide" : top.type === "fur" ? "none" : "long");
-  const sleeveC = top.type === "vest" ? (top.under || 0xd8cfb8) : top.type === "tabard" ? 0x9aa0a8 : top.type === "apron" ? topC : top.type === "fur" ? skin : topC;
-  const sleeveR = top.type === "vest" ? "cloth" : top.type === "tabard" ? "chain" : topR;
+  const sleeveC = top.type === "vest" ? (top.under || 0xd8cfb8) : top.type === "tabard" ? (top.region === "cloth" ? topC : 0x9aa0a8) : top.type === "apron" ? topC : top.type === "fur" ? skin : topC;
+  const sleeveR = top.type === "vest" ? "cloth" : top.type === "tabard" ? (top.region === "cloth" ? "cloth" : "chain") : topR;
   const hr = pr.headR, hc = headY + hr * 0.82;
-  const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy"].includes(L.head.type);
+  if (!L.head && L.hat) L.head = { type: "feathered", color: L.hat, color2: 0xd8c070 };
+  const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered"].includes(L.head.type);
 
   R.add(gBall(V3(0, hc, 0.005), hr, 0.94, 1.04, 1.0, 20), "head", skin, L.noFace ? (L.headRegion || "skin") : "face");
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, "skin");
@@ -437,6 +447,15 @@ function humanEntry(L) {
     if (L.pauldrons) {
       R.add(gPartSphere(V3(ax * 1.04, shY + 0.01, 0), 0.085 * gi, 0, Math.PI * 0.55, 1.15, 0.8, 1.05, 14), "upArm" + sd, L.pauldrons, "metal");
       R.add(gRing(V3(ax * 1.04, shY - 0.015, 0), 0.093 * gi, 0.01, "y", 16), "upArm" + sd, 0xc8a040, "metal");
+    }
+    if (L.shield && s < 0) {
+      const sy = (elY + wrY) / 2, sx = ex - 0.075;
+      const shG = new THREE.CylinderGeometry(0.155, 0.135, 0.022, 7);
+      shG.rotateZ(Math.PI / 2);
+      shG.translate(sx, sy, 0);
+      R.add(shG, "foreArm" + sd, L.shield.color, "metal");
+      R.add(gRing(V3(sx - 0.012, sy, 0), 0.15, 0.012, "x", 7), "foreArm" + sd, L.shield.trim || 0xc8a040, "metal");
+      R.add(gBall(V3(sx - 0.02, sy, 0), 0.045, 0.5, 1, 1, 8), "foreArm" + sd, L.shield.emblem || 0x2f5c9a, "metal");
     }
 
     const hx = s * pr.hip;
@@ -517,6 +536,11 @@ function humanEntry(L) {
       R.add(gPartSphere(hp, hr * 1.08, 0, Math.PI * 0.38, 1, 1.04, 1.04, 16), "head", H.color, "cloth");
       R.add(gBall(V3(0, hc + hr * 0.25, -hr * 1.05), hr * 0.22, 1.3, 1, 1, 8), "head", H.color, "cloth");
       R.add(gBox(V3(0.03, hc - hr * 0.2, -hr * 1.08), 0.04, 0.16, 0.01, 0.2, 0, 0.2), "head", H.color, "cloth");
+    } else if (H.type === "feathered") {
+      R.add(gCyl(V3(0, hc + hr * 0.45, 0), hr * 1.75, hr * 1.75, 0.02, 20), "head", H.color, "cloth");
+      R.add(gPartSphere(V3(0, hc + hr * 0.42, 0), hr * 1.02, 0, Math.PI * 0.5, 1, 1.0, 1.0, 16), "head", H.color, "cloth");
+      R.add(gRing(V3(0, hc + hr * 0.5, 0), hr * 1.02, 0.012, "y", 18), "head", H.color2 || 0xd8c070, "trim");
+      R.add(gTaper(V3(hr * 0.5, hc + hr * 0.75, -hr * 0.6), V3(hr * 1.3, hc + hr * 2.0, -hr * 1.5), 0.028, 0.004, 6, 0.3), "head", 0xf4f1e8, "feather");
     } else if (H.type === "crown") {
       R.add(gRing(V3(0, hc + hr * 0.55, 0), hr * 0.85, 0.02, "y", 18), "head", 0xd8b040, "metal");
       for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; R.add(gTaper(V3(Math.sin(a) * hr * 0.85, hc + hr * 0.55, Math.cos(a) * hr * 0.85), V3(Math.sin(a) * hr * 0.9, hc + hr * 0.95, Math.cos(a) * hr * 0.9), 0.025, 0.003, 5), "head", 0xd8b040, "metal"); }

@@ -11,8 +11,8 @@
 | P3 Characters and effects | Done |
 | P4 Interface, audio, loading screens, jumping | Done |
 | P5a Bigger zones, NMs live, drop tables, XP chains, discovery XP, characters, chat commands | Done (v4.2.0) |
-| P5b Paladin and Red Mage | Next |
-| P5c Quests | Not started |
+| P5b Paladin and Red Mage | Done (v4.3.0) |
+| P5c Quests | Next |
 | P5d Sunken Crypt | Not started |
 | P6 Residence, Pip, storage | Not started |
 
@@ -466,10 +466,22 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - `test/p5unit.js`: zone layout checks, Tab targeting, chains, landmarks, solid walls and pillars, NM cooldowns and pops, Rare duplicates, level-gated drops, rarity tiers, drop-rate bounds, companions catching up, Chieftain cooldown, resting vs standing, companions sitting, standing up on move, command aliases, /target, /check, unknown commands and plain speech.
 - `test/p5shots.js <index.html> <out> <w> <h> <mobile> [scenes]`: drives character creation, logs in, screenshots jump frames, the town, resting, the version popup, the ruins, chains with an NM, the Den, the map, Help, Updates and the inventory, logs out and logs back in.
 
+## Phase 5b: Paladin and Red Mage (v4.3.0)
+
+- `JOBS.PLD` and `JOBS.RDM` carry `advanced: true`. `ADVANCED_JOBS` maps each to its Tobin quest (`pld`, `rdm`) and unlock level (6). `BASE_JOBS` is what character creation offers. `save.jobsUnlocked` records unlocks; `normalizeSave` also derives them from completed quests and resets a locked main or support job to WAR / none. `jobUnlocked(j)` gates `setJob`, the Jobs tab, support-job choice and `mercAvailable` (Dorn requires PLD, Lisette RDM).
+- Tobin's dialogue builds an `adv` option list at level 6+ (ask / accept / turn in for each job) and appends it to every branch, so the support-job conversation never hides it. `giveReward` handles `reward.unlock`.
+- New spell kinds: `debuff` (`castDebuff`: Flash always lands and draws `enmity`; Slow/Paralyze roll `magicHit` + 10) and `buff` (`castBuff`, Protect). Skills `enfeebling` and `enhancing` were added to `newSkillSet`, `MAGIC_SKILLS` and `SPELL_SKILL`. Effects: `stat()` applies Sentinel (def ×1.5), Protect (def ×1.15), Flash (acc ×0.6); `swingDelay(e)` applies Slow (×1.25) in `autoAttack` and `updateMob`; `swing` skips 25% of a paralyzed attacker's swings; `addEnmity` doubles under Sentinel.
+- Abilities: Sentinel (buff), Shield Bash (`doAbility`: light damage, clears `readying`, interrupts casting, 350 enmity), Convert (swap HP and MP, clamped to maxima).
+- Companion AI: tanks also use Flash when not on top or when it has worn off, Sentinel under 50% HP or when losing hate, Shield Bash on a readied TP move, and a self-Cure under 40% with no healer in the party. `hybridMagic` (role `hybrid`, Lisette) runs before melee: emergency Cure, Convert at low MP, keeps Dia/Slow/Paralyze on the target, bursts open skillchains, and nukes every 9–13 s above 60% MP. `mercGear` has PLD and RDM sets.
+- Gear: swords, Ash Club, Scale Mail, robes and the NM pieces list PLD/RDM where classic MMO would. New items Kite Shield (accessory slot, `shield: true`) and Scarlet Tabard (RDM). `rig.js` draws a shield on the left forearm (`L.shield`), a cloth tabard with the job colour, a feathered hat (`L.hat` → `head.type "feathered"`), and the 5a drop gear.
+- HUD: target chips for Flash/Slow/Paralyze with seconds left; icons for the new actions; level-6 banner hint.
+- Tests: `test/p5bunit.js` (locks, Tobin flow for both quests, action lists, shield slot, Slow/Paralyze/Flash/Sentinel/Shield Bash/Convert effects, companions casting, save-file round trip). `p1bot.js` accepts PLD and RDM (unlocking them and hiring Lisette/Dorn).
+
 ## Version log
 
 | Version | Change |
 |---|---|
+| 4.3.0 | Phase 5b: Paladin and Red Mage (above). |
 | 4.2.0 | Phase 5a (above). |
 | 4.1.0 | Renamed the game to Untitled Solo RPG. Title screen shows version and build date/time (`package.json` version, stamped by `build.mjs`). Save keys unchanged. Source pushed to GitHub. |
 | 4.0 | Phase 4 build: interface, audio, loading screens, jumping. |

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "4.2.0",
-  "releaseTitle": "Phase 5a: a bigger world, /rest, loading screens",
+  "version": "4.3.0",
+  "releaseTitle": "Phase 5b: Paladin and Red Mage",
   "description": "",
   "main": "index.js",
   "scripts": {

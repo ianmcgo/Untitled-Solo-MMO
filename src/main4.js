@@ -106,7 +106,7 @@ async function boot() {
 
 const CC = { job: "WAR", look: null, name: "" };
 const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" }, WHM: { main: "ash_club", head: "bronze_cap", body: "linen_robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "linen_robe" } };
-const JOB_BLURB = { WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
+const JOB_BLURB = { PLD: "", RDM: "", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
 
 function fmtAgo(t) {
   const d = Date.now() - t;
@@ -160,7 +160,7 @@ function showCharCreate() {
   const box = $("charSel");
   box.innerHTML = '<div class="ccForm"><div id="ccPv"><div class="lbl" id="ccLbl"></div></div><div class="ccOpts">' +
     '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters"></label>' +
-    '<div class="ccSec">Job</div><div class="ccJobs">' + Object.keys(JOBS).map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '">' + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb"></div>' +
+    '<div class="ccSec">Job</div><div class="ccJobs">' + BASE_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '">' + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb"></div>' +
     '<div class="ccSec">Appearance <small>· drag the model to turn it</small></div><div class="ccLook" id="ccLook"></div>' +
     '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>' +
     '<div class="ccErr" id="ccErr"></div>' +

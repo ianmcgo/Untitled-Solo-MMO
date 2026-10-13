@@ -46,7 +46,7 @@ function ring(e, color, grow, life, kind) {
   S.effects.push({ x: e.x, y: e.y, t: 0, life: life || 0.5, color, r0: e.radius || 14, r1: (e.radius || 14) + (grow || 30), kind: kind || "ring" });
 }
 
-function newSkillSet() { return { sword: 0, club: 0, staff: 0, greataxe: 0, h2h: 0, healing: 0, divine: 0, elemental: 0 }; }
+function newSkillSet() { return { sword: 0, club: 0, staff: 0, greataxe: 0, h2h: 0, healing: 0, divine: 0, elemental: 0, enfeebling: 0, enhancing: 0 }; }
 
 function newSave() {
   const jobs = {}, skills = {};
@@ -57,8 +57,8 @@ function newSave() {
     gear: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" },
     inventory: [{ id: "ash_club", qty: 1 }, { id: "ash_staff", qty: 1 }, { id: "linen_robe", qty: 1 }, { id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
-    quests: { pouches: "none", support: "none", riding: "none", chieftain: "none" },
-    mountLicense: false, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
+    mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, created: Date.now()
   };
 }
@@ -78,8 +78,10 @@ function normalizeSave(d) {
   out.inventory = d.inventory.filter(s => s && ITEMS[s.id] && s.qty > 0);
   out.gear = {};
   for (const slot of SLOTS) if (d.gear[slot] && ITEMS[d.gear[slot]]) out.gear[slot] = d.gear[slot];
-  if (!JOBS[out.mainJob]) out.mainJob = "WAR";
-  if (out.subJob && (!JOBS[out.subJob] || !out.supportUnlocked)) out.subJob = null;
+  out.jobsUnlocked = Object.assign(newSave().jobsUnlocked, d.jobsUnlocked || {});
+  for (const j in ADVANCED_JOBS) if (out.quests[ADVANCED_JOBS[j].quest] === "done") out.jobsUnlocked[j] = true;
+  if (!JOBS[out.mainJob] || !jobUnlockedIn(out, out.mainJob)) out.mainJob = "WAR";
+  if (out.subJob && (!JOBS[out.subJob] || !out.supportUnlocked || !jobUnlockedIn(out, out.subJob))) out.subJob = null;
   out.gil = Math.max(0, Math.floor(out.gil || 0));
   out.timers = d.timers && typeof d.timers === "object" ? d.timers : {};
   out.name = String(d.name || "Adventurer").slice(0, 12);
@@ -202,6 +204,9 @@ function importSaveText(text) {
   return normalizeSave(d);
 }
 
+function jobUnlockedIn(sv, j) { return !!JOBS[j] && (!JOBS[j].advanced || !!(sv.jobsUnlocked && sv.jobsUnlocked[j])); }
+function jobUnlocked(j) { return jobUnlockedIn(save, j); }
+
 function capFor(rating, lv) {
   if (!rating || lv < 1) return 0;
   const r = RATING_CAP[rating];
@@ -221,6 +226,8 @@ function skillOf(ch, skill) {
 
 function spellSkill(sp) {
   if (sp.kind === "heal") return "healing";
+  if (sp.kind === "debuff") return "enfeebling";
+  if (sp.kind === "buff") return "enhancing";
   if (sp.kind === "dot" || sp.element === "light") return "divine";
   return "elemental";
 }
@@ -305,6 +312,8 @@ function mercGear(m, lv) {
   if (job === "WAR" && role === "tank") return lv >= 5 ? { main: "bronze_greataxe", head: "bronze_cap", body: "scale_mail", legs: "leather_trousers" } : { main: "bronze_greataxe", head: "bronze_cap", body: "leather_vest", legs: "leather_trousers" };
   if (job === "WAR") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", hands: "leather_gloves" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", hands: "leather_gloves" };
   if (job === "WHM") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: lv >= 3 ? "leather_boots" : undefined } : { main: "ash_club", body: "linen_robe" };
+  if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", ring: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
+  if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
 }
 
@@ -359,12 +368,13 @@ function mercAvailable(id) {
   const r = MERCS[id].requires;
   if (!JOBS[MERCS[id].job]) return false;
   if (r && r.quest && save.quests[r.quest] !== "done") return false;
+  if (r && r.job && !jobUnlocked(r.job)) return false;
   return true;
 }
 
 function mercLockedReason(id) {
   const r = MERCS[id].requires || {};
-  if (r.job) return "Unlocks with the " + r.job + " job";
+  if (r.job) return "Unlocks with the " + JOBS[r.job].name + " job (Tobin, level " + ADVANCED_JOBS[r.job].lv + ")";
   if (r.quest) return "Unlocks after " + QUESTS[r.quest].name;
   return "";
 }
@@ -440,6 +450,9 @@ function stat(e, k) {
   if (k === "att" && b.berserk) v *= 1.25;
   if (k === "def" && b.berserk) v *= 0.75;
   if (k === "def" && b.dia) v *= 0.9;
+  if (k === "def" && b.sentinel) v *= 1.5;
+  if (k === "def" && b.protect) v *= 1.15;
+  if (k === "acc" && b.flash) v *= 0.6;
   return v;
 }
 
@@ -467,8 +480,11 @@ function recastLeft(e, key) { return Math.max(0, (e.recasts[key] || 0) - S.time)
 
 function addEnmity(m, e, amt) {
   if (!e || !e.alive || !isParty(e) || !m.alive) return;
+  if (e.buffs && e.buffs.sentinel) amt *= 2;
   m.enmity.set(e, (m.enmity.get(e) || 0) + amt);
 }
+
+function swingDelay(e) { return e.delay * (e.buffs && e.buffs.slow ? 1.25 : 1); }
 
 function topEnmity(m) {
   let best = null, bv = -1;
@@ -531,6 +547,11 @@ function applyDamage(src, tgt, amt, opt) {
 function swing(a, d) {
   const tpGain = Math.round(CONFIG.tpPerDelay * a.delay);
   a.lastSwing = S.time;
+  if (a.buffs && a.buffs.paralyze && Math.random() < 0.25) {
+    log(subj(a) + " " + vb(a, "are", "is") + " paralyzed.", cls(a));
+    popText(a, "Paralyzed", "#b3e5fc", 13, 0.9, 10);
+    return;
+  }
   if (a === player) trySkillUp(a.stats.wtype, d.lv);
   if (Math.random() * 100 >= hitChance(a, d)) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
@@ -826,6 +847,28 @@ function doAbility(a, id, t) {
     if (a !== player) partySay(a, "provoke");
     return;
   }
+  if (id === "shield_bash") {
+    const dmg = Math.max(1, Math.round((8 + a.lv * 3) * rand(0.9, 1.1)));
+    log(subj(a) + " " + vb(a, "use") + " Shield Bash on the " + t.name + " for " + dmg + " damage.", cls(a));
+    sfx("blunt", a);
+    vfx("hit", { src: a, tgt: t, crit: true, slash: false });
+    if (t.readying) { t.readying = null; log("The " + t.name + "'s " + t.fam.tpMove.name + " is interrupted!", cls(a)); popText(t, "Interrupted", "#bbbbbb", 12, 0.9, 14); sfx("interrupt", t); }
+    if (t.casting) interruptCast(t);
+    applyDamage(a, t, dmg, { enmity: ab.enmity });
+    if (t.alive) aggro(t, a);
+    return;
+  }
+  if (id === "convert") {
+    const hp = a.hp, mp = a.mp;
+    a.hp = Math.max(1, Math.min(a.maxHp, mp));
+    a.mp = Math.min(a.maxMp, hp);
+    log(subj(a) + " " + vb(a, "use") + " Convert. HP " + hp + " → " + a.hp + ", MP " + mp + " → " + a.mp + ".", cls(a));
+    popText(a, "Convert", "#f48fb1", 14, 1.2, 14);
+    ring(a, "#f48fb1", 30, 0.6);
+    sfx("buff", a);
+    vfx("buff", { tgt: a, id: "convert" });
+    return;
+  }
   a.buffs[ab.buff] = { until: S.time + ab.dur };
   log(subj(a) + " " + vb(a, "use") + " " + ab.name + ".", cls(a));
   popText(a, ab.name, "#9ad06b", 13, 1.2, 14);
@@ -866,6 +909,8 @@ function finishCast(a) {
   if (sp.kind === "heal") castHeal(a, t, sp);
   else if (sp.kind === "nuke") castNuke(a, t, sp);
   else if (sp.kind === "dot") castDia(a, t, sp);
+  else if (sp.kind === "debuff") castDebuff(a, t, sp);
+  else if (sp.kind === "buff") castBuff(a, t, sp);
   if (a !== player && a.mp < a.maxMp * 0.15) partySay(a, "lowmp");
 }
 
@@ -914,6 +959,30 @@ function castNuke(a, t, sp) {
   }
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + (burst ? "Magic Burst! " : "") + "The " + t.name + " takes " + dmg + " damage" + (resist < 1 ? " (resisted)" : "") + ".", burst ? "sc" : cls(a));
   applyDamage(a, t, dmg, { color: col, size: burst ? 26 : 20, enmity: 60 + dmg * 1.5 });
+}
+
+function castDebuff(a, t, sp) {
+  const col = ELEMENT_COLORS[sp.element] || "#ddd";
+  const landed = sp.buff === "flash" || Math.random() * 100 < magicHit(a, t, sp) + 10;
+  ring(t, col, 30, 0.5, "element");
+  sfx(sp.element === "light" ? "light" : "cast", t);
+  vfx("nuke", { src: a, tgt: t, el: sp.element, dia: true });
+  if (!landed) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20); aggro(t, a); return; }
+  t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed" }[sp.buff] + ".", cls(a));
+  popText(t, sp.name, col, 14, 1.1);
+  addEnmity(t, a, sp.enmity || 60);
+  aggro(t, a);
+}
+
+function castBuff(a, t, sp) {
+  t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + obj(t) + ".", cls(a));
+  popText(t, sp.name, "#9ad06b", 13, 1.1, 14);
+  ring(t, "#9ad06b", 26, 0.5);
+  sfx("buff", t);
+  vfx("buff", { tgt: t, id: sp.buff });
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && m.enmity.has(t)) addEnmity(m, a, 30);
 }
 
 function castDia(a, t, sp) {
@@ -1037,7 +1106,7 @@ function autoAttack(a, dt) {
   if (a.casting) return;
   a.swingTimer -= dt;
   if (a.swingTimer <= 0) {
-    if (dist(a, t) <= CONFIG.meleeRange) { a.face = Math.atan2(t.y - a.y, t.x - a.x); swing(a, t); a.swingTimer = a.delay; }
+    if (dist(a, t) <= CONFIG.meleeRange) { a.face = Math.atan2(t.y - a.y, t.x - a.x); swing(a, t); a.swingTimer = swingDelay(a); }
     else a.swingTimer = 0;
   }
 }
@@ -1101,7 +1170,7 @@ function updateMob(m, dt) {
     if (m.swingTimer <= 0) {
       if (dist(m, t) <= CONFIG.meleeRange) {
         swing(m, t);
-        m.swingTimer = m.delay;
+        m.swingTimer = swingDelay(m);
         if (m.alive && m.tp >= 1000 && m.fam.tpMove) {
           m.readying = { t: 1.0, target: t, start: S.time };
           log("The " + m.name + " readies " + m.fam.tpMove.name + ".", "foe");
@@ -1198,11 +1267,45 @@ function meleeAI(a, tgt, dt) {
   if (a.role === "tank") {
     const prov = acts.find(x => x.id === "provoke");
     if (prov && tgt.state === "combat" && topEnmity(tgt) !== a && allyTry(a, prov, tgt)) return;
+    const flash = acts.find(x => x.id === "flash");
+    if (flash && tgt.state === "combat" && (topEnmity(tgt) !== a || !tgt.buffs.flash) && allyTry(a, flash, tgt)) return;
+    const sent = acts.find(x => x.id === "sentinel");
+    if (sent && tgt.state === "combat" && (a.hp < a.maxHp * 0.5 || topEnmity(tgt) !== a) && allyTry(a, sent, a)) return;
+    const bash = acts.find(x => x.id === "shield_bash");
+    if (bash && tgt.readying && allyTry(a, bash, tgt)) return;
+    const cure = acts.find(x => x.id === "cure");
+    if (cure && a.hp < a.maxHp * 0.4 && !S.party.some(p => p !== a && p.alive && p.role === "healer") && allyTry(a, cure, a)) return;
   }
+  if (a.role === "hybrid" && hybridMagic(a, tgt, acts)) return;
   const bers = acts.find(x => x.id === "berserk");
   if (bers && a.role !== "tank" && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, bers, a)) return;
   if (bers && a.role === "tank" && a.hp > a.maxHp * 0.7 && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, bers, a)) return;
   allyWeaponSkill(a, tgt, acts);
+}
+
+function hybridMagic(a, tgt, acts) {
+  const living = S.party.filter(p => p.alive);
+  let low = null;
+  for (const p of living) if (!low || p.hp / p.maxHp < low.hp / low.maxHp) low = p;
+  const healer = S.party.some(p => p !== a && p.alive && p.role === "healer" && !p.casting);
+  const cure = acts.find(x => x.id === "cure");
+  if (cure && low && low.hp / low.maxHp < (healer ? 0.3 : 0.5) && a.mp > a.maxMp * 0.2 && allyTry(a, cure, low)) return true;
+  const conv = acts.find(x => x.id === "convert");
+  if (conv && a.mp < a.maxMp * 0.15 && a.hp > a.maxHp * 0.6 && allyTry(a, conv, a)) return true;
+  if (tgt.state !== "combat" || dist(a, tgt) > CONFIG.castRange) return false;
+  for (const id of ["dia", "slow", "paralyze"]) {
+    const sp = acts.find(x => x.id === id);
+    if (sp && !tgt.buffs[id] && a.mp > a.maxMp * 0.3 && allyTry(a, sp, tgt)) return true;
+  }
+  if (tgt.burst && S.time <= tgt.burst.until) {
+    const nk = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "nuke" && tgt.burst.el.includes(SPELLS[x.id].element)).sort((p, q) => SPELLS[q.id].power - SPELLS[p.id].power)[0];
+    if (nk && allyTry(a, nk, tgt)) return true;
+  }
+  if (S.time >= (a.nextNuke || 0) && a.mp > a.maxMp * 0.6) {
+    const nukes = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "nuke").sort((p, q) => { const wp = (tgt.fam.weak || {})[SPELLS[p.id].element] || 1, wq = (tgt.fam.weak || {})[SPELLS[q.id].element] || 1; return SPELLS[q.id].power * wq - SPELLS[p.id].power * wp; });
+    if (nukes.length && allyTry(a, nukes[0], tgt)) { a.nextNuke = S.time + rand(9, 13); return true; }
+  }
+  return false;
 }
 
 function allyWeaponSkill(a, tgt, acts) {
@@ -1640,7 +1743,7 @@ function questMarker(n) {
   const q = save.quests, lv = player.lv;
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.pouches === "done" && q.chieftain === "none") || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
-  if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1);
+  if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
   return false;
 }
 
@@ -1648,6 +1751,7 @@ function giveReward(r) {
   if (r.xp) gainXp(r.xp);
   if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " gil.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
+  if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Ask Tobin to change jobs.", "npc"); }
   sfx("fanfare");
 }
 
@@ -1687,15 +1791,26 @@ const TALK = {
   talkTobin(n) {
     const q = save.quests;
     const opts = [{ label: "Change jobs", fn: () => { closeDialog(); openModal("job"); } }];
+    const adv = [];
+    if (player.lv >= 6) {
+      const turnIn = (id, mats, label) => {
+        if (mats.every(([it, k]) => invCount(it) >= k)) adv.push({ label, fn: () => { mats.forEach(([it, k]) => removeItem(it, k)); q[id] = "done"; log("Quest complete: " + QUESTS[id].name + ".", "npc"); giveReward(QUESTS[id].reward); refreshPlayer(false); saveGame(); closeDialog(); openModal("job"); } });
+      };
+      if (q.pld === "none") adv.push({ label: "Ask about the Paladin's oath", fn: () => openDialog(n.name, "A Paladin stands between the party and harm: sword and shield, Cures for the wounded, Flash to blind the foe. Bring me 2 Bone Chips from the undead and 1 Iron Ore from the Den's raiders, and I'll hear your oath.", [{ label: "Accept", fn: () => { q.pld = "active"; log("Quest accepted: " + QUESTS.pld.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      else if (q.pld === "active") turnIn("pld", [["bone_chip", 2], ["iron_ore", 1]], "Take the Paladin's oath");
+      if (q.rdm === "none") adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      else if (q.rdm === "active") turnIn("rdm", [["worm_silk", 2], ["fire_crystal", 1], ["water_crystal", 1]], "Present the dye materials");
+    }
+    const advNote = (q.pld === "active" ? " The oath needs 2 Bone Chips and 1 Iron Ore." : "") + (q.rdm === "active" ? " The scarlet lessons need 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal." : "");
     if (!save.supportUnlocked) {
       if (player.lv < CONFIG.supportUnlockLevel) {
         openDialog(n.name, "Every job keeps its own level and its own weapon skills. Come back when you've reached level " + CONFIG.supportUnlockLevel + ", and I'll teach you to call on a second job.", opts);
         return;
       }
       if (q.support === "none") {
-        openDialog(n.name, "Level " + player.lv + " already? Then you're ready to learn a support job. Prove your patience: bring me 2 Bat Wings and 1 Worm Silk. Bats only stir at night, mind you.", opts.concat([
+        openDialog(n.name, "Level " + player.lv + " already? Then you're ready to learn a support job. Prove your patience: bring me 2 Bat Wings and 1 Worm Silk. Bats only stir at night, mind you." + advNote, opts.concat([
           { label: "Accept", fn: () => { q.support = "active"; log("Quest accepted: " + QUESTS.support.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
-        ]));
+        ], adv));
         return;
       }
       if (q.support === "active") {
@@ -1708,12 +1823,13 @@ const TALK = {
               giveReward(QUESTS.support.reward);
               refreshPlayer(false); saveGame(); closeDialog(); openModal("job");
             } }
-          ]);
-        } else openDialog(n.name, "You have " + invCount("bat_wing") + " of 2 Bat Wings and " + invCount("worm_silk") + " of 1 Worm Silk. Bats come out at night in Rocky Hollow; worms tunnel there day and night.", opts);
+          ].concat(adv));
+        } else openDialog(n.name, "You have " + invCount("bat_wing") + " of 2 Bat Wings and " + invCount("worm_silk") + " of 1 Worm Silk. Bats come out at night in Rocky Hollow; worms tunnel there day and night." + advNote, opts.concat(adv));
         return;
       }
     }
-    openDialog(n.name, "Your support job runs at half your main job's level. A Warrior with White Mage support can cure; a White Mage with Black Mage support can nuke.", opts);
+    if (adv.length) { openDialog(n.name, "Level " + player.lv + ". You've outgrown the basic callings. I can teach the advanced jobs to those who prove themselves." + advNote, opts.concat(adv)); return; }
+    openDialog(n.name, "Your support job runs at half your main job's level. A Warrior with White Mage support can cure; a White Mage with Black Mage support can nuke." + (player.lv < 6 ? " Reach level 6 and I'll tell you about the advanced jobs." : ""), opts);
   },
   talkPell(n) {
     openDialog(n.name, "Potions, ethers, arms and armor. Gil talks, friend.", [
@@ -1815,7 +1931,9 @@ function unequip(slot) {
 
 function setJob(main, sub) {
   if (sub === main) sub = null;
+  if (!jobUnlocked(main)) { log(JOBS[main].name + " is locked. Tobin can teach it once you reach level " + ADVANCED_JOBS[main].lv + ".", "sys"); sfx("error"); return; }
   if (sub && !save.supportUnlocked) { log("Support jobs are locked. Talk to Tobin.", "sys"); return; }
+  if (sub && !jobUnlocked(sub)) { log(JOBS[sub].name + " is locked. Tobin can teach it once you reach level " + ADVANCED_JOBS[sub].lv + ".", "sys"); sfx("error"); return; }
   save.mainJob = main;
   save.subJob = sub;
   for (const slot of SLOTS) {
