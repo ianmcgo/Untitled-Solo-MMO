@@ -115,6 +115,26 @@ function normalizeSave(d) {
   return out;
 }
 
+const MEM_STORE = new Map();
+const STORE = {
+  get(k) {
+    if (MEM_STORE.has(k)) return MEM_STORE.get(k);
+    try { return localStorage.getItem(k); } catch (e) { return null; }
+  },
+  set(k, v) {
+    try { localStorage.setItem(k, v); MEM_STORE.delete(k); return true; } catch (e) {}
+    try { localStorage.removeItem(CONFIG.saveKey); localStorage.setItem(k, v); MEM_STORE.delete(k); return true; } catch (e) {}
+    MEM_STORE.set(k, v);
+    if (!S.storageWarned) {
+      S.storageWarned = true;
+      S.storageFull = true;
+      if (typeof log === "function") log("Your browser's storage is full or blocked, so this character can't be saved between visits. Use System → Save to file to keep a copy, or free up space for this site.", "foe");
+    }
+    return false;
+  },
+  remove(k) { MEM_STORE.delete(k); try { localStorage.removeItem(k); } catch (e) {} }
+};
+
 const ROSTER_KEY = "usr_roster_v1";
 const MAX_CHARS = 8;
 const charKey = id => "usr_char_" + id;
@@ -125,16 +145,16 @@ function charSummary(id, d, prev) {
 
 function loadRoster() {
   let r = null;
-  try { r = JSON.parse(localStorage.getItem(ROSTER_KEY)); } catch (e) {}
+  try { r = JSON.parse(STORE.get(ROSTER_KEY)); } catch (e) {}
   if (r && Array.isArray(r.chars)) return r;
   r = { chars: [], current: null };
   try {
-    const raw = localStorage.getItem(CONFIG.saveKey);
+    const raw = STORE.get(CONFIG.saveKey);
     if (raw) {
       const d = normalizeSave(JSON.parse(raw));
       if (d) {
         const id = "c" + Date.now().toString(36);
-        localStorage.setItem(charKey(id), JSON.stringify(d));
+        STORE.set(charKey(id), JSON.stringify(d));
         r.chars.push(charSummary(id, d));
         r.current = id;
       }
@@ -144,11 +164,11 @@ function loadRoster() {
   return r;
 }
 
-function saveRoster(r) { try { localStorage.setItem(ROSTER_KEY, JSON.stringify(r)); } catch (e) {} }
+function saveRoster(r) { STORE.set(ROSTER_KEY, JSON.stringify(r)); }
 
 function loadChar(id) {
   try {
-    const raw = localStorage.getItem(charKey(id));
+    const raw = STORE.get(charKey(id));
     if (raw) { const d = normalizeSave(JSON.parse(raw)); if (d) return d; }
   } catch (e) {}
   return null;
@@ -164,7 +184,7 @@ function createChar(opts) {
   else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" };
   d.inventory = [{ id: "potion", qty: 3 }];
   const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
-  try { localStorage.setItem(charKey(id), JSON.stringify(d)); } catch (e) {}
+  STORE.set(charKey(id), JSON.stringify(d));
   r.chars.push(charSummary(id, d));
   r.current = id;
   saveRoster(r);
@@ -175,7 +195,7 @@ function deleteChar(id) {
   const r = loadRoster();
   r.chars = r.chars.filter(c => c.id !== id);
   if (r.current === id) r.current = null;
-  try { localStorage.removeItem(charKey(id)); } catch (e) {}
+  STORE.remove(charKey(id));
   saveRoster(r);
 }
 
@@ -203,14 +223,14 @@ function saveGame() {
     if (player && player.alive && !S.ko && S.zoneId && ZONES[S.zoneId]) save.loc = { zone: S.zoneId, x: Math.round(player.x), y: Math.round(player.y), face: +(player.face || 0).toFixed(2) };
     const txt = JSON.stringify(save);
     if (S.charId) {
-      localStorage.setItem(charKey(S.charId), txt);
+      STORE.set(charKey(S.charId), txt);
       const r = loadRoster();
       const i = r.chars.findIndex(c => c.id === S.charId);
       const sum = charSummary(S.charId, save, i >= 0 ? r.chars[i] : null);
       if (i >= 0) r.chars[i] = sum; else r.chars.push(sum);
       saveRoster(r);
     }
-    localStorage.setItem(CONFIG.saveKey, txt);
+    if (!S.charId) STORE.set(CONFIG.saveKey, txt);
   } catch (e) {}
 }
 

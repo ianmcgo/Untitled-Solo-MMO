@@ -865,6 +865,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.3.1", date: "2026-10-13", title: "Fix: starting a new character on phones", items: [
+    "Fixed: pressing Begin your journey could drop you back on the character screen when the browser's storage for the site was full or blocked (other pages on the same web address share that space). The game now starts anyway, warns you that progress can't be kept, and points you to System → Save to file.",
+    "The game also stops writing a second backup copy of your save, which halves how much storage it uses.",
+    "New title screen: the game opens on the title with a Press Start button, then shows your characters."
+  ] },
   { v: "5.3.0", date: "2026-10-13", title: "Fishing and weather", items: [
     "Fishing: buy a Willow Rod and bait from Pell, cast at any pond or lake, and reel in when something bites. Seven fish across the Outpost, Rocky Hollow and the Ashen Marsh, including two rare catches. Fishing skill shows in the Skills tab.",
     "Weather: outdoor areas now have clear skies, clouds, rain, wind, fog and thunderstorms that change every few game hours. Rain falls, storms flash and rumble, fog closes in, clouds race in the wind.",
@@ -1031,7 +1036,7 @@ function tabHelp() {
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or use the Rest action on action bar page 2) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("👥 Characters", ul([
-    "On the title screen you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
+    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
