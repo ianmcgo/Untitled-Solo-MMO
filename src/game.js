@@ -36,6 +36,18 @@ function vana() {
 function isNight() { const h = vana().hour; return h >= 18 || h < 6; }
 function period() { return isNight() ? "night" : "day"; }
 function dayElement() { return DAY_ELEMENTS[vana().dayIndex]; }
+function weatherNow(zoneId) {
+  const id = zoneId || S.zoneId, tbl = WEATHER[id];
+  if (!tbl) return null;
+  const mins = (Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000;
+  const slot = Math.floor(mins / 180);
+  const r = seeded(hashStr(id + ":w:" + slot))();
+  const tot = tbl.reduce((a, w) => a + w[1], 0);
+  let acc = 0;
+  for (const [k, w] of tbl) { acc += w / tot; if (r < acc) return k; }
+  return tbl[0][0];
+}
+function weatherElement() { const w = weatherNow(); return w && WEATHER_INFO[w].el || null; }
 function clockText() { const v = vana(); return DAY_NAMES[v.dayIndex] + " " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0"); }
 
 function popText(e, text, color, size, life, yOff) {
@@ -59,8 +71,8 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0 }, board: { day: 0, done: [] }, augments: {}
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -924,6 +936,73 @@ function tickPool(force) {
   if (force) saveGame();
 }
 
+function nearWater(e, reach) {
+  for (const w of S.zone.water || []) if (Math.hypot(e.x - w.x, e.y - w.y) < w.r + (reach || FISH_CFG.reach)) return w;
+  return null;
+}
+
+function startFishing() {
+  if (!player.alive) return "You are KO'd.";
+  if (S.fish) return "You're already fishing.";
+  if (invCount("fishing_rod") < 1) return "You need a Willow Rod. Pell sells them.";
+  if (!FISH[S.zoneId]) return "Nothing bites here.";
+  const w = nearWater(player);
+  if (!w) return "Stand at the water's edge to fish.";
+  if (player.engaged || inCombatWith(player)) return "You can't fish during a fight.";
+  if (player.mounted) return "Dismount first.";
+  if (invCount("bait") < 1) return "You're out of Fishing Bait. Pell sells it.";
+  if (player.resting) standUp(player, true);
+  removeItem("bait", 1);
+  player.face = Math.atan2(w.y - player.y, w.x - player.x);
+  const rainy = ["rain", "storm"].includes(weatherNow());
+  S.fish = { state: "wait", at: S.time + rand(FISH_CFG.waitMin, FISH_CFG.waitMax) * (rainy ? 0.75 : 1), x: player.x, y: player.y };
+  log("You cast your line.", "you");
+  sfx("click", player);
+  return "";
+}
+
+function stopFishing(msg) {
+  if (!S.fish) return;
+  S.fish = null;
+  if (msg) log(msg, "sys");
+}
+
+function pickFish() {
+  const w = weatherNow();
+  const tbl = FISH[S.zoneId].filter(f => !f[3] || f[3] === w);
+  const tot = tbl.reduce((a, f) => a + f[2], 0);
+  let r = Math.random() * tot;
+  for (const f of tbl) { r -= f[2]; if (r <= 0) return f; }
+  return tbl[0];
+}
+
+function reelFish() {
+  const f = S.fish;
+  if (!f || f.state !== "bite") return;
+  S.fish = null;
+  const [id, lv] = pickFish();
+  const skill = save.gatherSkill.fishing || 0;
+  const chance = clamp(62 + (skill - lv) * 6, 12, 95);
+  if (Math.random() * 100 >= chance) { log("You reel in hard, but the line goes slack. It got away.", "sys"); sfx("miss", player); return; }
+  save.stats.fish++;
+  if (ITEMS[id].rarity === "rare") { save.stats.bigFish++; S.shake = Math.max(S.shake, 0.15); }
+  giveItem(id, 1);
+  log("You catch " + an(ITEMS[id].name) + "!", "loot");
+  if (skill < FISH_CFG.cap && Math.random() < (lv >= skill - 2 ? 0.55 : 0.2)) {
+    save.gatherSkill.fishing = Math.round((skill + (lv > skill ? 0.3 : 0.1)) * 10) / 10;
+    log("Fishing skill rises to " + save.gatherSkill.fishing.toFixed(1) + ".", "sys");
+  }
+  saveGame();
+}
+
+function tickFish() {
+  const f = S.fish;
+  if (!f) return;
+  if (!player.alive || Math.hypot(player.x - f.x, player.y - f.y) > 6 || player.engaged || inCombatWith(player)) { stopFishing("You reel in your line."); return; }
+  if (f.state === "wait" && S.time >= f.at) { f.state = "bite"; f.until = S.time + FISH_CFG.bite; log("Something's biting! Reel it in!", "loot"); sfx("notify", player); uiEvent("bite", {}); }
+  else if (f.state === "bite" && S.time > f.until) { S.fish = null; log("The fish slips the hook.", "sys"); }
+}
+
 function boardDay() { return Math.floor(Date.now() / 86400000); }
 
 function boardToday() {
@@ -1235,6 +1314,7 @@ function castNuke(a, t, sp) {
   let dmg = (sp.power + 1.5 * dStat) * (1 + 0.08 * (a.lv - 1));
   dmg *= (t.fam.weak && t.fam.weak[sp.element]) || 1;
   if (sp.element === dayElement()) dmg *= 1.1;
+  if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
   let resist = 1;
   if (Math.random() * 100 >= magicHit(a, t, sp)) resist = Math.random() < 0.75 ? 0.5 : 0.25;
   dmg *= resist;
@@ -1299,6 +1379,7 @@ function useItem(id) {
   if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
+  if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
   if (it.mpRestore && player.mp >= player.maxMp) { log("Your MP is already full.", "sys"); sfx("error"); return; }
   if (it.heal) {
@@ -1866,6 +1947,7 @@ function partyInCombat() {
 
 function enterZone(id, x, y) {
   const prev = S.zoneId;
+  S.fish = null;
   S.zoneId = id;
   S.zone = ZONES[id];
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
@@ -2260,6 +2342,7 @@ function step(dt) {
   if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); } }
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
+  if (S.fish) tickFish();
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
   S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
@@ -2985,6 +3068,8 @@ function initParty() {
 const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", laugh: "laughs", nod: "nods", clap: "claps", point: "points", salute: "salutes", panic: "panics", cry: "cries", thumbsup: "gives a thumbs up" };
 const COMMANDS = [
   ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
+  ["/fish", "Cast a line at the water's edge (needs a Willow Rod and Fishing Bait). Type it again when something bites to reel in."],
+  ["/weather", "Show the current weather and its element bonus."],
   ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
   ["/party", "Open the Party tab: companions, stance, gear, bond and wages. Also P."],
   ["/bestiary", "Open the bestiary. Also Y."],
@@ -3039,6 +3124,8 @@ function runCommand(text) {
   switch (cmd) {
     case "rest": case "heal": case "sit": toggleRest(); return;
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
+    case "fish": { if (S.fish && S.fish.state === "bite") { reelFish(); return; } const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
+    case "weather": { const w = weatherNow(); log(w ? "Weather: " + WEATHER_INFO[w].name + (WEATHER_INFO[w].el ? " (" + WEATHER_INFO[w].el + " spells +10%)" : "") + "." : "No weather here.", "sys"); return; }
     case "party": if (typeof openMenu === "function") openMenu("party"); return;
     case "bestiary": case "beasts": if (typeof openMenu === "function") openMenu("bestiary"); return;
     case "achievements": case "ach": if (typeof openMenu === "function") openMenu("achievements"); return;

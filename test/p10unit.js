@@ -19,7 +19,7 @@ const aug = G.save.augments[P().gear.main];
 ok(aug.every(([k]) => P().stats[k] !== undefined || ['hp', 'mp'].includes(k)), 'augments feed into your stats');
 const reqs = G.boardToday();
 ok(reqs.length === 3 && new Set(reqs.map(r => r.id)).size === 3, 'the board shows three different requests today');
-const r = reqs[0];
+const r = reqs[0]; for (const it in r.items) G.removeItem(it, G.invCount(it));
 ok(G.fillTrade(r.id) !== '', 'a request needs its items');
 for (const it in r.items) G.giveItem(it, r.items[it], true);
 const g0 = G.save.gil;

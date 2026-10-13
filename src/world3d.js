@@ -973,6 +973,32 @@ function skyColors(sunY) {
   return c;
 }
 
+function updateRain(amt, windy) {
+  if (!amt) { if (W3.rain) W3.rain.visible = false; return; }
+  const N = W3.quality === "low" ? 700 : 1600;
+  if (!W3.rain || W3.rain.userData.n !== N) {
+    if (W3.rain) { W3.scene.remove(W3.rain); W3.rain.geometry.dispose(); W3.rain.material.dispose(); }
+    const pos = new Float32Array(N * 6);
+    for (let i = 0; i < N; i++) { const x = (Math.random() - 0.5) * 60, y = Math.random() * 30, z = (Math.random() - 0.5) * 60; pos.set([x, y, z, x, y - 0.6, z], i * 6); }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    W3.rain = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0xaab8c8, transparent: true, opacity: 0.45, depthWrite: false }));
+    W3.rain.frustumCulled = false;
+    W3.rain.userData.n = N;
+    W3.scene.add(W3.rain);
+  }
+  const r = W3.rain;
+  r.visible = true;
+  r.material.opacity = 0.35 + 0.35 * amt;
+  r.position.set(W3.camera.position.x, W3.camera.position.y - 12, W3.camera.position.z);
+  const p = r.geometry.attributes.position.array, fall = 0.55, drift = windy ? 0.18 : 0.03;
+  for (let i = 0; i < p.length; i += 6) {
+    p[i + 1] -= fall; p[i + 4] -= fall; p[i] += drift; p[i + 3] += drift * 1.4;
+    if (p[i + 4] < 0) { const x = (Math.random() - 0.5) * 60, z = (Math.random() - 0.5) * 60; p[i] = x; p[i + 1] = 30; p[i + 2] = z; p[i + 3] = x - drift * 3; p[i + 4] = 29.4; p[i + 5] = z; }
+  }
+  r.geometry.attributes.position.needsUpdate = true;
+}
+
 function updateSky(force) {
   const z = S.zone, theme = themeOf(z);
   const v = vana();
@@ -1000,17 +1026,23 @@ function updateSky(force) {
   W3.moon.material.opacity = 1 - dayAmt;
   W3.clouds.position.x = W3.camera.position.x;
   W3.clouds.position.z = W3.camera.position.z;
-  W3.clouds.material.map.offset.x = S.time * 0.0018;
-  W3.clouds.material.map.offset.y = S.time * 0.0009;
+  const wx = !cave && !indoor && typeof weatherNow === "function" ? weatherNow() : null;
+  const wet = wx === "rain" || wx === "storm", gloom = wet ? 0.55 : wx === "cloudy" ? 0.35 : wx === "fog" ? 0.3 : 0;
+  W3.cloudOff = (W3.cloudOff || 0) + (1 / 60) * (wx === "wind" || wx === "storm" ? 4 : 1);
+  W3.clouds.material.map.offset.x = W3.cloudOff * 0.0018;
+  W3.clouds.material.map.offset.y = W3.cloudOff * 0.0009;
+  updateRain(wet ? (wx === "storm" ? 1 : 0.7) : 0, wx === "wind" || wx === "storm");
   const fogC = theme === "crypt" ? new THREE.Color(0x14141c) : cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
   W3.clouds.material.color.copy(new THREE.Color(0xffffff).lerp(fogC, 0.35).multiplyScalar(mix(0.18, 1, dayAmt)));
   W3.fog.color.copy(fogC);
+  if (gloom) W3.fog.color.lerp(W3.gloomColor || (W3.gloomColor = new THREE.Color(0x6a7078)), gloom * (0.3 + 0.7 * dayAmt));
   if (S.zone.mist) W3.fog.color.lerp(W3.mistColor || (W3.mistColor = new THREE.Color(0x8a9a8c)), 0.45 * (0.4 + 0.6 * dayAmt));
   if (theme === "crypt") { W3.fog.near = 10; W3.fog.far = 95; }
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
   else { W3.fog.near = mix(30, 70, dayAmt); W3.fog.far = mix(180, 420, dayAmt); }
+  if (!cave && !indoor && (wx === "fog" || wet)) { const k = wx === "fog" ? 0.45 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
   const warm = 1 - sstep(0.05, 0.35, sunY);
@@ -1021,7 +1053,7 @@ function updateSky(force) {
     W3.sun.intensity = 0.55; W3.sun.color.set(0x8a9ad0);
     W3.hemi.intensity = 0.9; W3.hemi.color.set(0x7080b0); W3.hemi.groundColor.set(0x3a2a1c);
   } else if (sunY > -0.02) {
-    W3.sun.intensity = mix(0.4, 3.0, sstep(-0.02, 0.3, sunY));
+    W3.sun.intensity = mix(0.4, 3.0, sstep(-0.02, 0.3, sunY)) * (1 - gloom * 0.6);
     W3.sun.color.setRGB(1, mix(0.92, 0.62, warm), mix(0.85, 0.42, warm));
     W3.hemi.intensity = mix(0.6, 0.75, dayAmt);
     W3.hemi.color.copy(fogC).lerp(new THREE.Color(0xbfd8ff), 0.5);
@@ -1029,6 +1061,11 @@ function updateSky(force) {
   } else {
     W3.sun.intensity = 1.4; W3.sun.color.set(0x9db4ff);
     W3.hemi.intensity = 1.0; W3.hemi.color.set(0x5a6ea8); W3.hemi.groundColor.set(0x1c2028);
+  }
+  if (wx === "storm") {
+    W3.flashT = (W3.flashT || 0) - 1 / 60;
+    if (W3.flashT <= 0 && Math.random() < 0.004) { W3.flashT = 0.18; if (typeof sfx === "function") sfx("lightning"); }
+    if (W3.flashT > 0) W3.hemi.intensity += 3.5 * Math.min(1, W3.flashT / 0.09);
   }
   W3.sun.position.copy(centre).addScaledVector(lightDir, 90);
   W3.sun.target.position.copy(centre);

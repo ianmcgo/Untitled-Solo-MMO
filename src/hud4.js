@@ -389,7 +389,8 @@ function updateTopRight() {
   setTxt($("zoneName"), S.zone.name);
   const v = vana();
   const el = DAY_ELEMENTS[v.dayIndex];
-  setHtml($("clock"), (isNight() ? "🌙 " : "☀️ ") + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + ' <span class="el" style="color:' + ELEMENT_COLORS[el] + ";border-color:" + ELEMENT_COLORS[el] + '88">' + DAY_NAMES[v.dayIndex] + "</span>");
+  const wx = weatherNow(), wi = wx && WEATHER_INFO[wx];
+  setHtml($("clock"), (wi ? '<span title="' + wi.name + '">' + (isNight() && wi.nightIcon ? wi.nightIcon : wi.icon) + "</span> " : isNight() ? "🌙 " : "☀️ ") + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + ' <span class="el" style="color:' + ELEMENT_COLORS[el] + ";border-color:" + ELEMENT_COLORS[el] + '88">' + DAY_NAMES[v.dayIndex] + "</span>");
   setTxt($("btnSound"), AUDIO.settings && AUDIO.settings.muted ? "🔇" : "🔊");
 }
 
@@ -728,8 +729,21 @@ function updatePool() {
   el.innerHTML = '<div class="ph">🎲 TREASURE POOL</div>' + p.map(e => '<div class="pe"><span>' + (ITEMS[e.id].icon || "📦") + "</span><b>" + esc(ITEMS[e.id].name) + " <small>" + Math.max(0, Math.ceil(e.until - S.time)) + "s</small></b>" + (e.mine == null ? '<button data-lot="' + e.seq + '" class="pri">Lot</button><button data-pass="' + e.seq + '">Pass</button>' : "<small>" + (e.mine ? "Lot " + e.mine : "Passed") + "</small>") + "</div>").join("");
 }
 
+function updateFish() {
+  const el = $("fishBox");
+  if (!el) return;
+  const f = S.fish;
+  const key = f ? f.state : "";
+  if (key === UI.fishKey) return;
+  UI.fishKey = key;
+  el.classList.toggle("on", !!f);
+  el.classList.toggle("bite", key === "bite");
+  el.innerHTML = !f ? "" : key === "bite" ? '<b>🎣 Something\'s biting!</b><button data-fish="reel" class="pri">Reel in! (Space)</button>' : '<span>🎣 Waiting for a bite…</span><button data-fish="stop">Stop</button>';
+}
+
 function updateHud(dt) {
   updatePool();
+  updateFish();
   UI.phone = window.innerWidth <= 720;
   updateParty();
   updateTarget();
@@ -743,6 +757,8 @@ function updateHud(dt) {
 }
 
 function initHud() {
+  $("fishBox").addEventListener("click", e => { const b = e.target.closest("[data-fish]"); if (!b) return; e.stopPropagation(); if (b.dataset.fish === "reel") reelFish(); else stopFishing("You reel in your line."); UI.fishKey = null; });
+  for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("fishBox").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("pool").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; e.stopPropagation(); if (b.dataset.lot) lotPool(+b.dataset.lot, false); else if (b.dataset.pass) lotPool(+b.dataset.pass, true); UI.poolSig = ""; });
   for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("pool").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("tCmd").addEventListener("click", e => { const b = e.target.closest("[data-tc]"); if (b) { e.stopPropagation(); onTgtCmd(b.dataset.tc); } });

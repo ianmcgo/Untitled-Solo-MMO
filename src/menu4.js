@@ -328,6 +328,11 @@ function tabSkills() {
   for (const sk of COMBAT_SKILLS) h += row(sk);
   const mg = MAGIC_SKILLS.map(row).join("");
   if (mg) h += "<h3>Magic</h3>" + mg;
+  h += "<h3>Gathering and fishing</h3>";
+  for (const [k, label, cap] of [["mining", "Mining", 20], ["logging", "Logging", 20], ["harvesting", "Harvesting", 20], ["fishing", "Fishing", FISH_CFG.cap]]) {
+    const v = save.gatherSkill[k] || 0;
+    h += '<div class="item"><div style="flex:1"><div>' + label + '</div><div class="bar tp" style="margin:4px 0"><i style="width:' + (100 * v / cap) + '%"></i></div></div><span class="sub">' + v.toFixed(1) + " / " + cap + "</span></div>";
+  }
   return h;
 }
 
@@ -341,7 +346,7 @@ function tabActions() {
   });
   h += '<div class="opt"><button data-a="slotclear"' + (UI.pick ? "" : " disabled") + '>Clear selected slot</button><button data-a="barreset">Reset to defaults</button></div>';
   const known = actionList(player).map(a => ({ kind: a.kind, id: a.id }));
-  const items = ["potion", "hi_potion", "ether", "potion_hq", "ether_hq"].filter(id => invCount(id) > 0 || id === "potion" || id === "ether").map(id => ({ kind: "item", id }));
+  const items = ["potion", "hi_potion", "ether", "potion_hq", "ether_hq", "fishing_rod"].filter(id => invCount(id) > 0 || id === "potion" || id === "ether").map(id => ({ kind: "item", id }));
   const groups = [["Weapon skills", known.filter(a => a.kind === "ws")], ["Abilities", known.filter(a => a.kind === "ja")], ["Spells", known.filter(a => a.kind === "ma")], ["Items", items]];
   const onBar = new Set(hb.pages.flat().filter(Boolean).map(a => a.kind + ":" + a.id));
   for (const [title, list] of groups) {
@@ -860,6 +865,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.3.0", date: "2026-10-13", title: "Fishing and weather", items: [
+    "Fishing: buy a Willow Rod and bait from Pell, cast at any pond or lake, and reel in when something bites. Seven fish across the Outpost, Rocky Hollow and the Ashen Marsh, including two rare catches. Fishing skill shows in the Skills tab.",
+    "Weather: outdoor areas now have clear skies, clouds, rain, wind, fog and thunderstorms that change every few game hours. Rain falls, storms flash and rumble, fog closes in, clouds race in the wind.",
+    "Weather affects magic: rain, wind and storms boost water, wind and lightning spells by 10%.",
+    "Two new achievements: Angler and The Big One. The Trade Board can now ask for fish."
+  ] },
   { v: "5.2.0", date: "2026-10-13", title: "Treasure pool, Trade Board and the Forge", items: [
     "Treasure pool: with companions in your party, equipment drops go into a pool above the chat. Lot or Pass; companions lot on upgrades for their job and wear what they win.",
     "Trade Board in the Outpost: three supply requests a day for crystals and XP.",
@@ -1099,6 +1110,17 @@ function tabHelp() {
     "<b>Gear:</b> give companions equipment from your bag in the Party tab. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
     "<b>Wages:</b> the hiring fee covers the first game day; after that each companion takes about 15% of their fee per game day. Wages wait until a fight ends. Time away from the game is free."
+  ]));
+  h += sec("🎣 Fishing", ul([
+    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or action bar) or type <b>/fish</b>. Each cast uses one bait.",
+    "Wait for a bite, then press <b>Reel in!</b> (or Space, Enter or F) within about 2 seconds. Walking away, fighting or changing area pulls your line in.",
+    "Catches: Outpost pond: Pond Minnow, Moat Carp. Rocky Hollow lakes: Moat Carp, Silver Shad, and the rare Lakeking Pike. Ashen Marsh ponds: Mud Eel, Bog Perch, and the rare Ghost Koi, which only bites in rain or storms.",
+    "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to Pell, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
+  ]));
+  h += sec("🌦️ Weather", ul([
+    "Each outdoor area has its own weather, changing every 3 game hours (about 7 real minutes): clear, cloudy, rain, wind, fog or thunderstorms. The icon next to the clock shows it; /weather tells you more.",
+    "Rain boosts water spells by 10%, wind boosts wind spells and thunderstorms boost lightning spells. This stacks with the day's element.",
+    "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not."
   ]));
   h += sec("🎲 Treasure pool", ul([
     "With companions in the party, equipment drops go into the treasure pool (the panel above the chat) instead of straight into your bag. Other loot still goes to your bag.",

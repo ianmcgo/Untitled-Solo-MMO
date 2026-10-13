@@ -587,11 +587,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Forge: NPC `garrick` (NPC_LOOK: bald, long beard, dark apron, club; home 2, sleeps 22-6.5) at (690, 640); TALK.talkGarrick opens modal "forge". `save.augments[itemId] = [[stat, value], ...]` (max 2, `AUGMENT_STATS` ranges, `STAT_LABELS`). `augmentCost` (60/lv, reforge 40/lv, mats iron_ore + fire_crystal), `canAugment`, `augmentItem(id, reforge)` (reforge rerolls the same count without duplicate stats). buildStats adds augments only for `ch.kind === "pc"` (the player and statsFor copies). Inventory detail shows augments.
 - cycleNpcTarget skips props. Achievements trader, augment, lotwin. Tests: test/p10unit.js; p5unit/p6unit adjusted (7 townsfolk with bed times).
 
+## Phase 12: fishing and weather (v5.3.0)
+- Weather: data `WEATHER[zoneId] = [[kind, weight], ...]` (outpost, hollow, marsh; other zones have none) and `WEATHER_INFO[kind] { name, icon, nightIcon?, el? }`. game.js `weatherNow(zoneId)` picks by a seed of zone + 3-game-hour slot (about 7.2 real minutes), so it is the same for everyone and survives reloads. `weatherElement()`; nukes get ×1.1 when the spell element matches (stacks with the day element). `/weather`. HUD clock shows the weather icon.
+- Weather visuals (world3d `updateSky`): `gloom` (rain/storm 0.55, cloudy 0.35, fog 0.3) dims the sun and greys the fog; fog ×0.45 and rain ×0.7 on fog distances; wind/storm speed up cloud drift (`W3.cloudOff`); storm lightning flashes add to hemi intensity for 0.18 s with sfx("lightning"). `updateRain(amt, windy)`: a LineSegments rain box (700 drops on low, 1600 otherwise) following the camera, recycled when below ground.
+- Fishing: items fishing_rod (kind use, `fishing: true`; useItem starts fishing; can go on the action bar), bait (mat, 1 per cast), fish pond_minnow, moat_carp, silver_shad, lakeking_pike (rare), mud_eel, bog_perch, ghost_koi (rare). `FISH[zoneId] = [[id, lv, weight, weather?]]`, `FISH_CFG { waitMin 3, waitMax 9, bite 2.4, reach 70, cap 20 }`.
+- Flow: `startFishing()` (needs rod, bait, `nearWater` within r + 70 px, no fight, not mounted) sets `S.fish { state: "wait", at, x, y }` (rain/storm wait ×0.75). `tickFish()` turns it to "bite" for 2.4 s (uiEvent "bite"), then escape; moving > 6 px, fighting or changing zone cancels. `reelFish()` picks a fish (weather-gated entries), success 62 + 6·(skill − lv) clamped 12–95, skill-up chance, stats.fish / bigFish. `/fish` casts or reels.
+- UI: `#fishBox` (center bottom; pulses gold on a bite) with Reel/Stop; Space, Enter or F reels during a bite (main4 onKey). Skills tab now lists Mining, Logging, Harvesting and Fishing. Trade Board gained fish requests (t_carp, t_eel). Achievements angler, bigcatch.
+- Tests: test/p11unit.js (weather variety, none indoors, stable slot, rod/bait/water checks, catch, skill, escape, walk-away). p10unit clears requested items first so starting potions don't satisfy a request. p5shots scenes rain, fog.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.3.0 | Phase 12: fishing, weather (visuals and element bonuses). |
 | 5.2.0 | Phase 11: treasure pool, Trade Board, Garrick augments. |
 | 5.1.0 | Phase 10: Thief and Monk jobs, dagger/h2h weapon skills and gear, Wren and Tamsin. |
 | 5.0.0 | Phase 9: level cap 15, Ashen Marsh, tier II spells, level 11 gear, 2 NMs, 2 quests. |
