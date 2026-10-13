@@ -1,0 +1,325 @@
+const NOISE = (() => {
+  const P = new Uint8Array(512);
+  const r = seeded(1337);
+  const perm = Array.from({ length: 256 }, (_, i) => i);
+  for (let i = 255; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
+  for (let i = 0; i < 512; i++) P[i] = perm[i & 255];
+  const fade = t => t * t * (3 - 2 * t);
+  const h = (x, y, s) => P[(P[(x & 255) + (s & 255)] + (y & 255)) & 511] / 255;
+  function value(x, y, period, s) {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const xf = x - xi, yf = y - yi;
+    const p = period || 0;
+    const w = v => p ? ((v % p) + p) % p : v;
+    const a = h(w(xi), w(yi), s || 0), b = h(w(xi + 1), w(yi), s || 0), c = h(w(xi), w(yi + 1), s || 0), d = h(w(xi + 1), w(yi + 1), s || 0);
+    const u = fade(xf), v = fade(yf);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+  }
+  function fbm(x, y, oct, period, s) {
+    let sum = 0, amp = 0.5, f = 1, norm = 0;
+    for (let o = 0; o < oct; o++) {
+      sum += amp * value(x * f, y * f, period ? period * f : 0, (s || 0) + o * 31);
+      norm += amp; amp *= 0.5; f *= 2;
+    }
+    return sum / norm;
+  }
+  function ridge(x, y, oct, period, s) {
+    let sum = 0, amp = 0.5, f = 1, norm = 0;
+    for (let o = 0; o < oct; o++) {
+      sum += amp * (1 - Math.abs(value(x * f, y * f, period ? period * f : 0, (s || 0) + o * 17) * 2 - 1));
+      norm += amp; amp *= 0.5; f *= 2;
+    }
+    return sum / norm;
+  }
+  function hash2(x, y) { return h(x | 0, y | 0, 7); }
+  return { value, fbm, ridge, hash2 };
+})();
+
+const TEXLIB = { cache: {}, anisotropy: 4 };
+
+function makeCanvas(w, h) {
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  return c;
+}
+
+function paintPixels(w, h, fn) {
+  const c = makeCanvas(w, h);
+  const g = c.getContext("2d");
+  const img = g.createImageData(w, h);
+  const d = img.data;
+  const out = [0, 0, 0, 255];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      fn(x, y, out);
+      const i = (y * w + x) * 4;
+      d[i] = out[0]; d[i + 1] = out[1]; d[i + 2] = out[2]; d[i + 3] = out[3];
+    }
+  }
+  g.putImageData(img, 0, 0);
+  return c;
+}
+
+function heightToNormalCanvas(w, h, hf, strength) {
+  return paintPixels(w, h, (x, y, o) => {
+    const l = hf[y * w + ((x - 1 + w) % w)], r = hf[y * w + ((x + 1) % w)];
+    const u = hf[((y - 1 + h) % h) * w + x], d = hf[((y + 1) % h) * w + x];
+    let nx = (l - r) * strength, ny = (u - d) * strength, nz = 1;
+    const len = Math.hypot(nx, ny, nz);
+    nx /= len; ny /= len; nz /= len;
+    o[0] = (nx * 0.5 + 0.5) * 255; o[1] = (ny * 0.5 + 0.5) * 255; o[2] = (nz * 0.5 + 0.5) * 255; o[3] = 255;
+  });
+}
+
+function toTexture(canvas, color, repeat) {
+  const t = new THREE.CanvasTexture(canvas);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.anisotropy = TEXLIB.anisotropy;
+  if (color) t.colorSpace = THREE.SRGBColorSpace;
+  if (repeat) t.repeat.set(repeat[0], repeat[1]);
+  t.needsUpdate = true;
+  return t;
+}
+
+function heightField(w, h, fn) {
+  const hf = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) hf[y * w + x] = fn(x, y);
+  return hf;
+}
+
+function texPair(key, w, h, heightFn, colorFn, strength) {
+  if (TEXLIB.cache[key]) return TEXLIB.cache[key];
+  const hf = heightField(w, h, heightFn);
+  const albedo = paintPixels(w, h, (x, y, o) => colorFn(x, y, hf[y * w + x], o));
+  const normal = heightToNormalCanvas(w, h, hf, strength || 4);
+  const pair = { map: toTexture(albedo, true), normalMap: toTexture(normal, false) };
+  TEXLIB.cache[key] = pair;
+  return pair;
+}
+
+function mix(a, b, t) { return a + (b - a) * t; }
+function sstep(e0, e1, x) { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); }
+function setRGB(o, r, g, b) { o[0] = clamp(r, 0, 255); o[1] = clamp(g, 0, 255); o[2] = clamp(b, 0, 255); o[3] = 255; }
+
+function texDetailNormal() {
+  if (TEXLIB.cache.detail) return TEXLIB.cache.detail;
+  const S2 = 256, P = 16;
+  const hf = heightField(S2, S2, (x, y) => NOISE.fbm(x / S2 * P, y / S2 * P, 4, P, 3) * 0.7 + NOISE.value(x / S2 * P * 4, y / S2 * P * 4, P * 4, 9) * 0.3);
+  const t = toTexture(heightToNormalCanvas(S2, S2, hf, 6), false);
+  TEXLIB.cache.detail = t;
+  return t;
+}
+
+function texRock() {
+  return texPair("rock", 256, 256,
+    (x, y) => NOISE.ridge(x / 256 * 6, y / 256 * 6, 5, 6, 11) * 0.8 + NOISE.fbm(x / 256 * 24, y / 256 * 24, 2, 24, 5) * 0.2,
+    (x, y, hv, o) => { const n = NOISE.fbm(x / 256 * 10, y / 256 * 10, 3, 10, 2); const v = 85 + hv * 70 + n * 30; setRGB(o, v * 1.02, v * 0.98, v * 0.93); }, 7);
+}
+
+function texCaveRock() {
+  return texPair("caverock", 256, 256,
+    (x, y) => NOISE.ridge(x / 256 * 5, y / 256 * 5, 5, 5, 21),
+    (x, y, hv, o) => { const n = NOISE.fbm(x / 256 * 8, y / 256 * 8, 3, 8, 4); const v = 50 + hv * 55 + n * 20; const moss = sstep(0.62, 0.75, n) * 0.6; setRGB(o, v * (1 - moss * 0.3), v * (1 + moss * 0.25), v * (1.05 - moss * 0.3)); }, 7);
+}
+
+function texBark() {
+  return texPair("bark", 128, 256,
+    (x, y) => NOISE.fbm(x / 128 * 12, y / 256 * 3, 4, 12, 31) * 0.7 + NOISE.value(x / 128 * 32, y / 256 * 6, 32, 2) * 0.3,
+    (x, y, hv, o) => { const v = 55 + hv * 60; setRGB(o, v * 1.1, v * 0.82, v * 0.6); }, 6);
+}
+
+function texFoliage(key, base) {
+  return texPair(key, 128, 128,
+    (x, y) => NOISE.fbm(x / 128 * 10, y / 128 * 10, 3, 10, 41),
+    (x, y, hv, o) => { const v = 0.7 + hv * 0.6; setRGB(o, base[0] * v, base[1] * v, base[2] * v); }, 4);
+}
+
+function texPlanks() {
+  return texPair("planks", 256, 256,
+    (x, y) => {
+      const board = Math.floor(y / 32);
+      const edge = (y % 32) < 2 ? -0.6 : 0;
+      return NOISE.fbm(x / 256 * 2 + board * 3.1, y / 256 * 40, 3, 0, 51) * 0.5 + edge + NOISE.value(x / 256 * 64, board * 5, 0, 3) * 0.1;
+    },
+    (x, y, hv, o) => { const board = Math.floor(y / 32); const tint = 0.85 + NOISE.hash2(board, 3) * 0.3; const v = (90 + hv * 70) * tint; setRGB(o, v * 1.15, v * 0.86, v * 0.6); }, 5);
+}
+
+function texBricks() {
+  return texPair("bricks", 256, 256,
+    (x, y) => {
+      const row = Math.floor(y / 32), off = row % 2 ? 32 : 0;
+      const bx = (x + off) % 64, by = y % 32;
+      const mortar = bx < 3 || by < 3 ? -0.7 : 0;
+      return mortar + NOISE.fbm(x / 256 * 16, y / 256 * 16, 3, 16, 61) * 0.4;
+    },
+    (x, y, hv, o) => {
+      const row = Math.floor(y / 32), off = row % 2 ? 32 : 0;
+      const id = Math.floor((x + off) / 64) + row * 7;
+      const tint = 0.85 + NOISE.hash2(id, 11) * 0.3;
+      const v = hv < -0.3 ? 70 : (120 + hv * 60) * tint;
+      setRGB(o, v * 1.02, v * 0.97, v * 0.9);
+    }, 5);
+}
+
+function texRoof() {
+  return texPair("roof", 256, 256,
+    (x, y) => { const row = Math.floor(y / 24), off = row % 2 ? 16 : 0; const sx = (x + off) % 32, sy = y % 24; return (sy / 24) * 0.6 + (sx < 2 ? -0.4 : 0) + NOISE.fbm(x / 256 * 20, y / 256 * 20, 2, 20, 71) * 0.2; },
+    (x, y, hv, o) => { const row = Math.floor(y / 24), off = row % 2 ? 16 : 0; const id = Math.floor((x + off) / 32) + row * 9; const t = 0.8 + NOISE.hash2(id, 5) * 0.35; const v = (70 + hv * 60) * t; setRGB(o, v * 1.25, v * 0.62, v * 0.48); }, 5);
+}
+
+function texCloth(key, c1, c2) {
+  return texPair(key, 128, 128,
+    (x, y) => ((x % 4 < 2) !== (y % 4 < 2) ? 0.6 : 0.4) + NOISE.fbm(x / 128 * 8, y / 128 * 8, 2, 8, 81) * 0.2,
+    (x, y, hv, o) => { const stripe = Math.floor(x / 32) % 2 ? c1 : c2; const v = 0.8 + hv * 0.3; setRGB(o, stripe[0] * v, stripe[1] * v, stripe[2] * v); }, 2);
+}
+
+function texCobble() {
+  return texPair("cobble", 256, 256,
+    (x, y) => {
+      const cs = 32;
+      const cx = Math.floor(x / cs), cy = Math.floor(y / cs);
+      let best = 9, second = 9;
+      for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+        const gx = cx + i, gy = cy + j;
+        const px = (gx + NOISE.hash2(((gx % 8) + 8) % 8, ((gy % 8) + 8) % 8)) * cs, py = (gy + NOISE.hash2(((gy % 8) + 8) % 8 + 40, ((gx % 8) + 8) % 8)) * cs;
+        const d = Math.hypot(x - px, y - py) / cs;
+        if (d < best) { second = best; best = d; } else if (d < second) second = d;
+      }
+      return clamp((second - best) * 3, 0, 1) * 0.8 + NOISE.fbm(x / 256 * 16, y / 256 * 16, 2, 16, 91) * 0.2;
+    },
+    (x, y, hv, o) => { const v = hv < 0.15 ? 60 : 100 + hv * 70; setRGB(o, v * 1.0, v * 0.97, v * 0.92); }, 6);
+}
+
+function texGrassBlade() {
+  if (TEXLIB.cache.blade) return TEXLIB.cache.blade;
+  const c = makeCanvas(64, 64);
+  const g = c.getContext("2d");
+  g.clearRect(0, 0, 64, 64);
+  const r = seeded(5);
+  for (let i = 0; i < 14; i++) {
+    const x0 = 6 + r() * 52, lean = (r() - 0.5) * 18, hgt = 30 + r() * 32;
+    const grd = g.createLinearGradient(0, 64, 0, 64 - hgt);
+    grd.addColorStop(0, "rgb(52,74,30)");
+    grd.addColorStop(1, r() < 0.3 ? "rgb(170,170,90)" : "rgb(120,150,62)");
+    g.fillStyle = grd;
+    g.beginPath();
+    g.moveTo(x0 - 2, 64);
+    g.quadraticCurveTo(x0 + lean * 0.4, 64 - hgt * 0.6, x0 + lean, 64 - hgt);
+    g.quadraticCurveTo(x0 + lean * 0.4 + 1, 64 - hgt * 0.6, x0 + 2, 64);
+    g.closePath();
+    g.fill();
+  }
+  const t = toTexture(c, true);
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  TEXLIB.cache.blade = t;
+  return t;
+}
+
+function texWaterNormals() {
+  if (TEXLIB.cache.water) return TEXLIB.cache.water;
+  const S2 = 256, P = 8;
+  const hf = heightField(S2, S2, (x, y) => NOISE.fbm(x / S2 * P, y / S2 * P, 4, P, 101) + 0.5 * NOISE.fbm(x / S2 * P * 3 + 0.5, y / S2 * P * 3, 3, P * 3, 103));
+  const t = toTexture(heightToNormalCanvas(S2, S2, hf, 10), false);
+  TEXLIB.cache.water = t;
+  return t;
+}
+
+function texClouds() {
+  if (TEXLIB.cache.clouds) return TEXLIB.cache.clouds;
+  const S2 = 512, P = 6;
+  const c = paintPixels(S2, S2, (x, y, o) => {
+    const n = NOISE.fbm(x / S2 * P, y / S2 * P, 5, P, 111);
+    const a = sstep(0.48, 0.72, n);
+    o[0] = 255; o[1] = 255; o[2] = 255; o[3] = a * 230;
+  });
+  const t = toTexture(c, true);
+  TEXLIB.cache.clouds = t;
+  return t;
+}
+
+function texGlow() {
+  if (TEXLIB.cache.glow) return TEXLIB.cache.glow;
+  const c = makeCanvas(64, 64);
+  const g = c.getContext("2d");
+  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0, "rgba(255,255,255,1)");
+  grd.addColorStop(0.3, "rgba(255,255,255,0.5)");
+  grd.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grd;
+  g.fillRect(0, 0, 64, 64);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  TEXLIB.cache.glow = t;
+  return t;
+}
+
+const TERRAIN_THEMES = {
+  town: { grassA: [74, 104, 44], grassB: [98, 122, 52], dirt: [120, 96, 66], rock: [118, 112, 104], sand: [170, 158, 120], cliff: [104, 100, 92] },
+  field: { grassA: [92, 108, 50], grassB: [124, 128, 62], dirt: [128, 104, 74], rock: [116, 110, 102], sand: [176, 162, 124], cliff: [110, 104, 96] },
+  cave: { grassA: [78, 76, 80], grassB: [96, 90, 92], dirt: [110, 92, 74], rock: [96, 92, 100], sand: [120, 110, 96], cliff: [80, 78, 88], moss: [62, 92, 58] },
+  house: { grassA: [120, 92, 62], grassB: [128, 98, 66], dirt: [110, 84, 58], rock: [100, 90, 80], sand: [120, 100, 80], cliff: [80, 70, 60] }
+};
+
+function bakeTerrainAlbedo(field, size) {
+  const z = field.zone, th = TERRAIN_THEMES[z.theme] || TERRAIN_THEMES.field;
+  const W = size, H = Math.max(64, Math.round(size * field.h / field.w));
+  const sx = field.w / W, sy = field.h / H;
+  const cob = z.theme === "town";
+  const c = paintPixels(W, H, (ix, iy, o) => {
+    const px = field.x0 + (ix + 0.5) * sx, py = field.y0 + (iy + 0.5) * sy;
+    const hgt = field.heightAt(px, py);
+    const slope = Math.min(1, Math.hypot(field.heightAt(px + 8, py) - hgt, field.heightAt(px, py + 8) - hgt) / 0.4 * 0.5);
+    const n1 = NOISE.fbm(px * 0.0035, py * 0.0035, 4, 0, 201);
+    const n2 = NOISE.fbm(px * 0.02, py * 0.02, 3, 0, 203);
+    const n3 = NOISE.value(px * 0.25, py * 0.25, 0, 207);
+    let r = mix(th.grassA[0], th.grassB[0], n1), g = mix(th.grassA[1], th.grassB[1], n1), b = mix(th.grassA[2], th.grassB[2], n1);
+    if (th.moss) { const m = sstep(0.55, 0.7, n1); r = mix(r, th.moss[0], m); g = mix(g, th.moss[1], m); b = mix(b, th.moss[2], m); }
+    const patch = sstep(0.6, 0.72, n2) * 0.7;
+    r = mix(r, th.dirt[0], patch); g = mix(g, th.dirt[1], patch); b = mix(b, th.dirt[2], patch);
+    const pw = field.pathWeight(px, py);
+    if (pw > 0) {
+      if (cob && field.plazaWeight(px, py) > 0.5) {
+        const cx = ((px * 4) % 256 + 256) % 256 | 0, cy = ((py * 4) % 256 + 256) % 256 | 0;
+        const cb = field.cobbleHeight(cx, cy);
+        const v = cb < 0.15 ? 70 : 105 + cb * 60;
+        const t2 = pw * field.plazaWeight(px, py);
+        r = mix(r, v, t2); g = mix(g, v * 0.97, t2); b = mix(b, v * 0.92, t2);
+      } else {
+        const t2 = pw * (0.85 + 0.15 * n2);
+        r = mix(r, th.dirt[0] * (0.9 + n3 * 0.2), t2); g = mix(g, th.dirt[1] * (0.9 + n3 * 0.2), t2); b = mix(b, th.dirt[2] * (0.9 + n3 * 0.2), t2);
+      }
+    }
+    const shore = field.shoreWeight(px, py);
+    if (shore > 0) { r = mix(r, th.sand[0], shore); g = mix(g, th.sand[1], shore); b = mix(b, th.sand[2], shore); }
+    const rock = clamp(sstep(0.25, 0.6, slope) + field.outside(px, py) * 0.8, 0, 1);
+    if (rock > 0) {
+      const rv = 0.75 + NOISE.ridge(px * 0.03, py * 0.03, 3, 0, 209) * 0.5;
+      r = mix(r, th.cliff[0] * rv, rock); g = mix(g, th.cliff[1] * rv, rock); b = mix(b, th.cliff[2] * rv, rock);
+    }
+    const speck = 0.88 + n3 * 0.24;
+    setRGB(o, r * speck, g * speck, b * speck);
+  });
+  const t = toTexture(c, true);
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  return t;
+}
+
+let COBBLE_HF = null;
+function cobbleHeight(x, y) {
+  if (!COBBLE_HF) {
+    texCobble();
+    const cs = 32;
+    COBBLE_HF = heightField(256, 256, (px, py) => {
+      const cx = Math.floor(px / cs), cy = Math.floor(py / cs);
+      let best = 9, second = 9;
+      for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+        const gx = cx + i, gy = cy + j;
+        const qx = (gx + NOISE.hash2(((gx % 8) + 8) % 8, ((gy % 8) + 8) % 8)) * cs, qy = (gy + NOISE.hash2(((gy % 8) + 8) % 8 + 40, ((gx % 8) + 8) % 8)) * cs;
+        const d = Math.hypot(px - qx, py - qy) / cs;
+        if (d < best) { second = best; best = d; } else if (d < second) second = d;
+      }
+      return clamp((second - best) * 3, 0, 1);
+    });
+  }
+  return COBBLE_HF[(y & 255) * 256 + (x & 255)];
+}
