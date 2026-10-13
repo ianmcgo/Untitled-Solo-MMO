@@ -1073,6 +1073,15 @@ const STORY = [
   ] }
 ];
 
+const RACES = {
+  human: { name: "Human", icon: "🧑", sex: null, hp: 1, mp: 1, speed: 1, attrs: {}, blurb: "Balanced at everything. No strengths, no weaknesses." },
+  elari: { name: "Elari", icon: "🧝", sex: null, hp: 0.88, mp: 1.15, speed: 1, attrs: { dex: 2, agi: 1, int: 2, mnd: 2, vit: -2 }, rangedAcc: 8, blurb: "Tall, long-eared and graceful. Strong magic and a sharp eye with a bow (+ranged accuracy), but frail: less HP and VIT." },
+  pipkin: { name: "Pipkin", icon: "🧸", sex: null, hp: 0.8, mp: 1.3, speed: 1.08, attrs: { int: 4, mnd: 3, agi: 2, str: -3, vit: -2 }, attMul: 0.92, blurb: "Small, round and doll-like. The best spellcasters of all and quick on their feet, but weak: low HP, STR and attack." },
+  ursan: { name: "Ursan", icon: "🐻", sex: 0, hp: 1.25, mp: 0.75, speed: 0.94, attrs: { str: 3, vit: 4, int: -3, mnd: -2, agi: -2 }, blurb: "Huge, shaggy and tough as stone. The most HP, STR and VIT, but poor at magic and a little slow. Always male." },
+  nekari: { name: "Nekari", icon: "🐱", sex: 1, hp: 0.9, mp: 1.1, speed: 1.06, attrs: { agi: 3, dex: 2, int: 2, mnd: 1, str: -1, vit: -1 }, blurb: "Cat-eared and lithe. Fast, nimble and good with magic, but slight: a little less HP. Always female." }
+};
+const RACE_ORDER = ["human", "elari", "pipkin", "ursan", "nekari"];
+
 const AH_CATS = { materials: "Materials", consumables: "Consumables", weapons: "Weapons", armor: "Armor" };
 const AH_CFG = { fee: 0.03, maxListings: 7, checkMs: 60000, expireMs: 3 * 3600000, tickMins: 360 };
 const AH_NEWS = {
