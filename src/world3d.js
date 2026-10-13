@@ -334,6 +334,23 @@ function roofGeo(w, d, hgt) {
 }
 
 function buildTown(field, root) {
+  for (const [dx, dy, dw, dh] of field.zone.docks || []) {
+    const wood = std({ color: 0x7a5a3a, roughness: 0.9 }), dark = std({ color: 0x4a3420, roughness: 0.9 });
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(dw * U, 0.18, dh * U), wood);
+    const y = Math.max(field.waterLevel || 0, field.heightAt(dx + dw / 2, dy)) + 0.35;
+    deck.position.set((dx + dw / 2) * U, y, (dy + dh / 2) * U); deck.castShadow = true; deck.receiveShadow = true; root.add(deck);
+    for (let k = 0; k <= 4; k++) for (const sx of [0, 1]) { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 2.2, 6), dark); post.position.set((dx + sx * dw) * U, y - 0.9, (dy + k * dh / 4) * U); root.add(post); }
+  }
+  for (const [bx, by, rot] of field.zone.boats || []) {
+    const g = new THREE.Group();
+    const hull = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 0.7, 6, 10, 1, false, 0, Math.PI), std({ color: 0x5a3a24, roughness: 0.8, side: THREE.DoubleSide }));
+    hull.rotation.z = Math.PI / 2; hull.rotation.y = Math.PI / 2; hull.position.y = 0.2;
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 5, 6), std({ color: 0x4a3420 })); mast.position.y = 2.6;
+    const sail = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 3), std({ color: 0xe8e0cc, side: THREE.DoubleSide, roughness: 1 })); sail.position.set(0, 3, 0.1);
+    g.add(hull, mast, sail);
+    g.position.set(bx * U, (field.waterLevel || 0) + 0.1, by * U); g.rotation.y = rot || 0;
+    root.add(g);
+  }
   const z = field.zone;
   const planks = texPlanks(), bricks = texBricks(), roof = texRoof();
   const wallMat = std({ map: planks.map, normalMap: planks.normalMap });

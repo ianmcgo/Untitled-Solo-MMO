@@ -606,11 +606,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - HUD: `#actionBar` is a wrapping flex row; `#actionBar .slot.empty` is hidden (the menu's .barEdit still shows empty slots); an empty bar shows a hint via :has(). Removed the solo tip (#soloTip) and the top-right Quests/Sound buttons (J and Settings remain).
 - Tests: test/p12unit.js. Helper scripts used per release: build 1 + all unit tests, then build 4 + copy + commit + push.
 
+## Phase 14: Saltreach Harbor (v5.5.0)
+- Zone `ZONES.harbor` (1400x1000, safe, theme town), defined just before ZONES.marsh. Linked: marsh south exit (x 2200, y 2376) to harbor north exit (x 450). Marsh got a path to its exit. Sea = three big water circles off the south edge; plaza, 5 houses, 2 stalls, 5 lamps. New zone fields `docks: [[x, y, w, h]]` (plank deck + posts) and `boats: [[x, y, rot]]` (hull, mast, sail) built in world3d `buildTown`.
+- NPCs: ilsa (quests; talkIlsa), marn (shop "marn"), vela (shop "vela"), crystal_harbor (home point; normalizeSave accepts any safe zone crystal), and the shared `trade_board` id (same board, same daily requests). NPC_LOOK entries for the three.
+- Shops: `SHOPS { marn, vela }` + `SHOP_NAMES`; `shopList(kind)` falls back to SHOP (Pell). Talk handlers set `S.shopKind` before opening the shop modal; tabShop reads it.
+- Items: sea_rod (fishing; +10 catch chance; startFishing accepts either rod), harbor_bream, sea_bass, tidecaller_tuna (rare; stats.tuna), grilled_bass food + r_grilled_bass (Cooking 12), level 13-14 gear (tidesteel_sword, boarding_axe, coral_staff, tidesteel_dagger, shark_claws, harbor_mail, sailcloth_robe, corsair_jerkin, gull_hat), tide_ring (quest reward).
+- Quests: catchday (Ilsa, lv 6, 3 harbor_bream, sea_rod), saltsteel (Ilsa, lv 12, 5 mire_goblin, tide_ring). FISH.harbor, WEATHER.harbor. Achievements harbor, tuna.
+- Tests: test/p13unit.js. p5shots scenes harbor, harbor2.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.5.0 | Phase 14: Saltreach Harbor town, Ilsa/Marn/Vela, sea fishing, level 13-14 gear. |
 | 5.4.0 | Phase 13: cooking craft, meals with timed buffs; action bar hides empty slots; removed solo tip and Quests/Sound buttons. |
 | 5.3.1 | Hotfix: storage-full fallback (phone character start), title screen. |
 | 5.3.0 | Phase 12: fishing, weather (visuals and element bonuses). |
