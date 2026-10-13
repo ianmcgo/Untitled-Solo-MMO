@@ -73,6 +73,11 @@
   #tCmd button:hover { border-color: #e6c36a; }
   #tCmd button.pri { border-color: #e6c36a; color: #ffe7a8; }
   #tCmd button.off { opacity: 0.45; }
+  #fishBox { position: absolute; left: 50%; bottom: calc(150px + var(--sab)); transform: translateX(-50%); padding: 8px 14px; display: none; align-items: center; gap: 10px; pointer-events: auto; z-index: 7; font-size: 14px; }
+  #fishBox.on { display: flex; }
+  #fishBox button { padding: 6px 14px; border-radius: 8px; }
+  #fishBox.bite { border-color: #ffd54f; box-shadow: 0 0 18px rgba(255,213,79,.55); animation: fishPulse .5s ease-in-out infinite alternate; }
+  @keyframes fishPulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.06); } }
   #pool { position: absolute; left: calc(10px + var(--sal)); bottom: calc(230px + var(--sab)); width: 250px; padding: 7px 8px; display: none; pointer-events: auto; z-index: 6; }
   #pool.on { display: block; }
   #pool .ph { font-size: 11px; color: var(--gold); letter-spacing: .06em; margin-bottom: 4px; }
@@ -530,6 +535,7 @@
     </div>
     <div id="tCmd" class="glass"></div>
     <div id="pool" class="glass"></div>
+    <div id="fishBox" class="glass"></div>
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>

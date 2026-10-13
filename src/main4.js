@@ -15,6 +15,7 @@ function onKey(e) {
     if (n >= 1 && n <= S.dialog.all.length) S.dialog.all[n - 1].fn();
     return;
   }
+  if (S.fish && S.fish.state === "bite" && (k === " " || k === "spacebar" || k === "enter" || k === "f")) { e.preventDefault(); reelFish(); return; }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
   if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
   if (k === "f") { toggleEngage(false); return; }
