@@ -694,7 +694,7 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
-  { v: "4.6.2", date: "2026-10-13", title: "Skin tone palette", items: ["Character creation offers four skin tones: light, fair, tan and dark. Saved characters keep their look."] },
+  { v: "4.6.3", date: "2026-10-13", title: "Skin tone palette", items: ["Character creation offers four skin tones: light, fair, tan and dark brown. Saved characters keep their look."] },
   { v: "4.6.0", date: "2026-10-13", title: "Phase 6a: your residence, Pip and storage", items: [
     "Your residence: the door is on the west cottage of the Outpost. Pip the Nubbin keeps it. Odette sells furniture by the west wall.",
     "Storage with Pip: 20 slots, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. You can't pack a piece away if your stored items wouldn't fit.",

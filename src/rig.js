@@ -3,7 +3,7 @@ const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "f
 const ATLAS_SIZE = 1024, ATLAS_CELL = 256;
 const RIG = { atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
-const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x4a2c1c];
+const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
 const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald"];
 const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];

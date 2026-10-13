@@ -488,7 +488,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.6.2 · built 2026-10-13 11:53 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.6.3 · built 2026-10-13 11:55 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>
@@ -10084,9 +10084,9 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v4.6.2 · built 2026-10-13 11:53 PDT";
+const BUILD_INFO = "v4.6.3 · built 2026-10-13 11:55 PDT";
 const UPDATES = [
-  { v: "4.6.2", date: "2026-10-13", title: "Skin tone palette", items: ["Character creation offers four skin tones: light, fair, tan and dark. Saved characters keep their look."] },
+  { v: "4.6.3", date: "2026-10-13", title: "Skin tone palette", items: ["Character creation offers four skin tones: light, fair, tan and dark brown. Saved characters keep their look."] },
   { v: "4.6.0", date: "2026-10-13", title: "Phase 6a: your residence, Pip and storage", items: [
     "Your residence: the door is on the west cottage of the Outpost. Pip the Nubbin keeps it. Odette sells furniture by the west wall.",
     "Storage with Pip: 20 slots, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. You can't pack a piece away if your stored items wouldn't fit.",
@@ -10262,7 +10262,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "4.6.2";
+const GAME_VERSION = "4.6.3";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -11718,7 +11718,7 @@ const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "f
 const ATLAS_SIZE = 1024, ATLAS_CELL = 256;
 const RIG = { atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
-const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x4a2c1c];
+const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
 const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald"];
 const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
