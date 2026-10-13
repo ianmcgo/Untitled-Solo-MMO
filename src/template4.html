@@ -64,7 +64,6 @@
   .pf .bufs span { background: #11131c; border: 1px solid var(--edge); border-radius: 4px; padding: 0 2px; }
   .pf .cb { position: absolute; left: 44px; right: 7px; bottom: 1px; height: 2px; }
   .pf .st { position: absolute; left: 3px; top: 3px; font-size: 9px; }
-  #soloTip { font-size: 11px; color: var(--muted); padding: 5px 8px; }
 
   #tCmd { position: absolute; right: calc(10px + var(--sar)); bottom: calc(12px + var(--sab)); width: 230px; max-height: 52vh; overflow-y: auto; display: none; flex-direction: column; gap: 5px; padding: 8px; pointer-events: auto; z-index: 6; }
   #tCmd.on { display: flex; }
@@ -172,9 +171,11 @@
   #pager { display: flex; flex-direction: column; align-items: center; gap: 2px; }
   #pager button { width: 24px; height: 20px; padding: 0; font-size: 10px; }
   #pager span { font-size: 11px; color: var(--gold); font-weight: 700; }
-  #actionBar { display: grid; grid-template-columns: repeat(10, var(--slot)); gap: 4px; }
+  #actionBar { display: flex; flex-wrap: wrap; gap: 4px; min-height: var(--slot); max-width: calc(var(--slot) * 10 + 36px); }
   .slot { width: var(--slot); height: var(--slot); border-radius: 9px; position: relative; padding: 0; display: grid; place-items: center; overflow: visible; background: radial-gradient(circle at 50% 35%, #2c3248, #141722); border: 1px solid rgba(255,255,255,.14); }
   .slot.empty { background: rgba(0,0,0,.35); border-style: dashed; }
+  #actionBar .slot.empty { display: none; }
+  #actionBar:not(:has(.slot:not(.empty)))::after { content: "Add actions from the Action Bar menu (B)"; font-size: 11px; color: var(--muted); align-self: center; padding: 0 6px; }
   .slot .ic { font-size: 22px; line-height: 1; filter: drop-shadow(0 1px 1px #000); }
   .slot .hk { position: absolute; left: 4px; top: 2px; font-size: 9px; color: #d6d8e0; font-weight: 700; text-shadow: 0 0 2px #000; }
   .slot .cost { position: absolute; right: 3px; bottom: 2px; font-size: 9px; color: #9cc5ff; font-weight: 700; text-shadow: 0 0 2px #000, 0 0 2px #000; }
@@ -469,7 +470,7 @@
     #pool { bottom: calc(420px + var(--sab)); width: 210px; }
     #chat:not(.min) #log { height: 160px; }
     #bottom { left: auto; right: calc(6px + var(--sar)); transform: none; align-items: flex-end; }
-    #actionBar { grid-template-columns: repeat(5, var(--slot)); }
+    #actionBar { max-width: calc(var(--slot) * 5 + 16px); }
     #barWrap { padding: 4px; }
     #pager { flex-direction: row; }
     #barWrap { flex-direction: column-reverse; align-items: flex-end; }
@@ -539,7 +540,7 @@
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
-      <div id="trBtns"><button id="btnQuests" title="Quests (J)">📜</button><button id="btnSound" title="Sound">🔊</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
+      <div id="trBtns"><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>

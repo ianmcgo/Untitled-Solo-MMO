@@ -64,7 +64,6 @@
   .pf .bufs span { background: #11131c; border: 1px solid var(--edge); border-radius: 4px; padding: 0 2px; }
   .pf .cb { position: absolute; left: 44px; right: 7px; bottom: 1px; height: 2px; }
   .pf .st { position: absolute; left: 3px; top: 3px; font-size: 9px; }
-  #soloTip { font-size: 11px; color: var(--muted); padding: 5px 8px; }
 
   #tCmd { position: absolute; right: calc(10px + var(--sar)); bottom: calc(12px + var(--sab)); width: 230px; max-height: 52vh; overflow-y: auto; display: none; flex-direction: column; gap: 5px; padding: 8px; pointer-events: auto; z-index: 6; }
   #tCmd.on { display: flex; }
@@ -172,9 +171,11 @@
   #pager { display: flex; flex-direction: column; align-items: center; gap: 2px; }
   #pager button { width: 24px; height: 20px; padding: 0; font-size: 10px; }
   #pager span { font-size: 11px; color: var(--gold); font-weight: 700; }
-  #actionBar { display: grid; grid-template-columns: repeat(10, var(--slot)); gap: 4px; }
+  #actionBar { display: flex; flex-wrap: wrap; gap: 4px; min-height: var(--slot); max-width: calc(var(--slot) * 10 + 36px); }
   .slot { width: var(--slot); height: var(--slot); border-radius: 9px; position: relative; padding: 0; display: grid; place-items: center; overflow: visible; background: radial-gradient(circle at 50% 35%, #2c3248, #141722); border: 1px solid rgba(255,255,255,.14); }
   .slot.empty { background: rgba(0,0,0,.35); border-style: dashed; }
+  #actionBar .slot.empty { display: none; }
+  #actionBar:not(:has(.slot:not(.empty)))::after { content: "Add actions from the Action Bar menu (B)"; font-size: 11px; color: var(--muted); align-self: center; padding: 0 6px; }
   .slot .ic { font-size: 22px; line-height: 1; filter: drop-shadow(0 1px 1px #000); }
   .slot .hk { position: absolute; left: 4px; top: 2px; font-size: 9px; color: #d6d8e0; font-weight: 700; text-shadow: 0 0 2px #000; }
   .slot .cost { position: absolute; right: 3px; bottom: 2px; font-size: 9px; color: #9cc5ff; font-weight: 700; text-shadow: 0 0 2px #000, 0 0 2px #000; }
@@ -469,7 +470,7 @@
     #pool { bottom: calc(420px + var(--sab)); width: 210px; }
     #chat:not(.min) #log { height: 160px; }
     #bottom { left: auto; right: calc(6px + var(--sar)); transform: none; align-items: flex-end; }
-    #actionBar { grid-template-columns: repeat(5, var(--slot)); }
+    #actionBar { max-width: calc(var(--slot) * 5 + 16px); }
     #barWrap { padding: 4px; }
     #pager { flex-direction: row; }
     #barWrap { flex-direction: column-reverse; align-items: flex-end; }
@@ -516,7 +517,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.3.1 · built 2026-10-13 14:08 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.4.0 · built 2026-10-13 14:38 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -539,7 +540,7 @@
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
-      <div id="trBtns"><button id="btnQuests" title="Quests (J)">📜</button><button id="btnSound" title="Sound">🔊</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
+      <div id="trBtns"><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
@@ -5333,6 +5334,7 @@ void main() {
 <script>
 const CONFIG = {
   levelCap: 15,
+  foodMinutes: 30,
   poolTime: 45,
   meleeRange: 42,
   tpMax: 3000,
@@ -5479,8 +5481,8 @@ const ABILITIES = {
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -5584,6 +5586,15 @@ const ITEMS = {
   mud_eel: { name: "Mud Eel", kind: "mat", icon: "🐍", price: 48, stack: 12, desc: "Slippery, strong and ugly." },
   bog_perch: { name: "Bog Perch", kind: "mat", icon: "🐟", price: 64, stack: 12, desc: "Striped green and brown, like the marsh." },
   ghost_koi: { name: "Ghost Koi", kind: "mat", icon: "🐠", price: 320, stack: 12, rarity: "rare", desc: "Pale as moonlight. Said to bite only in bad weather." },
+  grain_flour: { name: "Grain Flour", kind: "mat", icon: "🌾", price: 8, stack: 24, desc: "Milled in the Outpost. A cooking staple." },
+  rock_salt: { name: "Rock Salt", kind: "mat", icon: "🧂", price: 6, stack: 24, desc: "Coarse salt for the cook pot." },
+  grilled_minnow: { name: "Grilled Minnow", kind: "food", icon: "🍢", price: 20, stack: 12, food: { hp: 10, dex: 1 }, desc: "Crunchy and salty." },
+  herb_bread: { name: "Herb Bread", kind: "food", icon: "🍞", price: 24, stack: 12, food: { mp: 15, mnd: 2 }, desc: "Warm bread flecked with herbs. Mages swear by it." },
+  carp_stew: { name: "Carp Stew", kind: "food", icon: "🍲", price: 40, stack: 12, food: { hp: 25, vit: 2 }, desc: "Hearty and filling." },
+  shad_skewer: { name: "Shad Skewer", kind: "food", icon: "🍡", price: 60, stack: 12, food: { att: 8, str: 2, acc: 4 }, desc: "Fighters' food: quick, salty, full of fire." },
+  eel_pie: { name: "Eel Pie", kind: "food", icon: "🥧", price: 80, stack: 12, food: { hp: 40, def: 8 }, desc: "A thick-crusted marsh pie. Sits like armour." },
+  perch_chowder: { name: "Perch Chowder", kind: "food", icon: "🥣", price: 95, stack: 12, food: { mp: 30, int: 3, mnd: 3 }, desc: "Creamy chowder that clears the head." },
+  pike_feast: { name: "Pike Feast", kind: "food", icon: "🍱", price: 260, stack: 12, rarity: "rare", food: { hp: 60, str: 3, vit: 3, att: 12 }, desc: "A banquet built around a Lakeking Pike." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
   mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
   iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
@@ -5643,7 +5654,7 @@ const ITEMS = {
   goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
-const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait"];
+const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -5653,7 +5664,8 @@ const CRAFTS = {
   smithing: { name: "Smithing", crystal: "fire_crystal", icon: "⚒️" },
   woodworking: { name: "Woodworking", crystal: "wind_crystal", icon: "🪚" },
   clothcraft: { name: "Clothcraft", crystal: "earth_crystal", icon: "🧶" },
-  alchemy: { name: "Alchemy", crystal: "water_crystal", icon: "⚗️" }
+  alchemy: { name: "Alchemy", crystal: "water_crystal", icon: "⚗️" },
+  cooking: { name: "Cooking", crystal: "fire_crystal", icon: "🍳" }
 };
 
 const RECIPES = [
@@ -5679,7 +5691,14 @@ const RECIPES = [
   { id: "r_potion", craft: "alchemy", lv: 0, mats: { healing_herb: 2 }, out: "potion", qty: 2, hq: "potion_hq" },
   { id: "r_potted_plant", craft: "alchemy", lv: 2, mats: { healing_herb: 3 }, out: "potted_plant" },
   { id: "r_ether", craft: "alchemy", lv: 3, mats: { healing_herb: 1, bat_wing: 1 }, out: "ether", hq: "ether_hq" },
-  { id: "r_hi_potion", craft: "alchemy", lv: 6, mats: { potion: 2, bone_chip: 1 }, out: "hi_potion" }
+  { id: "r_hi_potion", craft: "alchemy", lv: 6, mats: { potion: 2, bone_chip: 1 }, out: "hi_potion" },
+  { id: "r_grilled_minnow", craft: "cooking", lv: 0, mats: { pond_minnow: 1, rock_salt: 1 }, out: "grilled_minnow", qty: 2 },
+  { id: "r_herb_bread", craft: "cooking", lv: 2, mats: { grain_flour: 2, healing_herb: 1 }, out: "herb_bread", qty: 2 },
+  { id: "r_carp_stew", craft: "cooking", lv: 4, mats: { moat_carp: 1, healing_herb: 1, rock_salt: 1 }, out: "carp_stew", qty: 2 },
+  { id: "r_shad_skewer", craft: "cooking", lv: 7, mats: { silver_shad: 2, rock_salt: 1 }, out: "shad_skewer", qty: 2 },
+  { id: "r_eel_pie", craft: "cooking", lv: 10, mats: { mud_eel: 1, grain_flour: 2 }, out: "eel_pie", qty: 2 },
+  { id: "r_perch_chowder", craft: "cooking", lv: 13, mats: { bog_perch: 1, grain_flour: 1, healing_herb: 1 }, out: "perch_chowder", qty: 2 },
+  { id: "r_pike_feast", craft: "cooking", lv: 16, mats: { lakeking_pike: 1, grain_flour: 2, healing_herb: 2 }, out: "pike_feast", qty: 3 }
 ];
 
 const MERCS = {
@@ -6135,6 +6154,8 @@ const ACHIEVEMENTS = [
   { id: "lotwin", icon: "🎲", name: "Lucky Roll", desc: "Win a treasure pool lot.", gil: 40, test: s => (s.stats.lotsWon || 0) >= 1 },
   { id: "angler", icon: "🎣", name: "Angler", desc: "Catch a fish.", gil: 30, test: s => (s.stats.fish || 0) >= 1 },
   { id: "bigcatch", icon: "🐠", name: "The Big One", desc: "Land a Lakeking Pike or a Ghost Koi.", gil: 200, test: s => (s.stats.bigFish || 0) >= 1 },
+  { id: "fed", icon: "🍲", name: "Well Fed", desc: "Eat a meal.", gil: 20, test: s => (s.stats.meals || 0) >= 1 },
+  { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", gil: 200, test: s => (s.crafts.cooking || 0) >= 10 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
@@ -6156,7 +6177,9 @@ const TRADE_REQUESTS = [
   { id: "t_fire", who: "The lamplighters", items: { fire_crystal: 2 }, gil: 110, xp: 40 },
   { id: "t_water", who: "The well keeper", items: { water_crystal: 2 }, gil: 110, xp: 40 },
   { id: "t_carp", who: "The tavern cook", items: { moat_carp: 3 }, gil: 120, xp: 50 },
-  { id: "t_eel", who: "A smokehouse", items: { mud_eel: 2 }, gil: 180, xp: 90 }
+  { id: "t_eel", who: "A smokehouse", items: { mud_eel: 2 }, gil: 180, xp: 90 },
+  { id: "t_stew", who: "The barracks cook", items: { carp_stew: 2 }, gil: 160, xp: 70 },
+  { id: "t_bread", who: "A hungry patrol", items: { herb_bread: 3 }, gil: 120, xp: 50 }
 ];
 const TRADE_DAILY = 3;
 
@@ -6258,8 +6281,8 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0 }, board: { day: 0, done: [] }, augments: {}
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -6516,6 +6539,8 @@ function buildStats(ch) {
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
     if (augs && augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
   }
+  const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
+  if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
   if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
   s.dmg = dmg;
@@ -7143,6 +7168,32 @@ function tickPool(force) {
   if (force) saveGame();
 }
 
+function eatFood(id) {
+  const it = ITEMS[id];
+  if (player.engaged || inCombatWith(player)) { log("You can't eat during a fight.", "sys"); sfx("error"); return; }
+  if (save.food && save.food.until > Date.now() && save.food.id !== id) log("You set aside the " + ITEMS[save.food.id].name + " and eat something else.", "sys");
+  removeItem(id, 1);
+  save.food = { id, until: Date.now() + CONFIG.foodMinutes * 60000 };
+  save.stats.meals++;
+  player.buffs.food = { until: S.time + CONFIG.foodMinutes * 60 };
+  log("You eat the " + it.name + ". " + foodText(it.food) + " for " + CONFIG.foodMinutes + " minutes.", "you");
+  popText(player, it.name, "#ffcc80", 13, 1.2, 14);
+  sfx("cure", player);
+  refreshPlayer(false);
+  saveGame();
+}
+
+function foodText(fd) { return Object.keys(fd).map(k => STAT_LABELS[k] + " +" + fd[k]).join(", "); }
+
+function tickFood() {
+  const f = save.food;
+  if (!f) { if (player.buffs.food) delete player.buffs.food; return; }
+  const left = (f.until - Date.now()) / 1000;
+  if (left <= 0) { save.food = null; delete player.buffs.food; log("The effects of your " + (ITEMS[f.id] ? ITEMS[f.id].name : "meal") + " wear off.", "sys"); refreshPlayer(false); return; }
+  if (!player.buffs.food) player.buffs.food = { until: S.time + left + 1 };
+  else player.buffs.food.until = S.time + left + 1;
+}
+
 function nearWater(e, reach) {
   for (const w of S.zone.water || []) if (Math.hypot(e.x - w.x, e.y - w.y) < w.r + (reach || FISH_CFG.reach)) return w;
   return null;
@@ -7586,6 +7637,7 @@ function useItem(id) {
   if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
+  if (it.kind === "food") { eatFood(id); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
   if (it.mpRestore && player.mp >= player.maxMp) { log("Your MP is already full.", "sys"); sfx("error"); return; }
@@ -8546,7 +8598,7 @@ function step(dt) {
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); } }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); } }
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
@@ -9365,7 +9417,7 @@ function runCommand(text) {
     case "ws": castBy("ws"); return;
     case "item": case "use": {
       const q = arg.toLowerCase();
-      const s = save.inventory.find(x => ITEMS[x.id].kind === "use" && ITEMS[x.id].name.toLowerCase() === q) || save.inventory.find(x => ITEMS[x.id].kind === "use" && ITEMS[x.id].name.toLowerCase().includes(q));
+      const s = save.inventory.find(x => ["use", "food"].includes(ITEMS[x.id].kind) && ITEMS[x.id].name.toLowerCase() === q) || save.inventory.find(x => ["use", "food"].includes(ITEMS[x.id].kind) && ITEMS[x.id].name.toLowerCase().includes(q));
       if (!s || !q) { log("You don't have a usable item called \"" + arg + "\".", "sys"); sfx("error"); return; }
       useItem(s.id);
       return;
@@ -9941,13 +9993,6 @@ function buildParty() {
     p.ui = { row, nm: q(".nm"), jb: q(".jb"), lv: q(".por em"), hp: bars[0].firstChild, hpT: bars[0].lastChild, mp: bars[1].firstChild, mpT: bars[1].lastChild, mpBar: bars[1], tp: bars[2].firstChild, bufs: q(".bufs"), cb: q(".cb"), cbI: q(".cb i") };
     el.appendChild(row);
   });
-  if (S.party.length === 1) {
-    const tip = document.createElement("div");
-    tip.id = "soloTip";
-    tip.className = "glass";
-    tip.textContent = "Solo. Hire companions from Brann at the Mercenary Hall.";
-    el.appendChild(tip);
-  }
 }
 function updateParty() {
   const key = S.party.map(p => (p.mercId || "me") + p.job).join(",");
@@ -10073,7 +10118,6 @@ function updateTopRight() {
   const el = DAY_ELEMENTS[v.dayIndex];
   const wx = weatherNow(), wi = wx && WEATHER_INFO[wx];
   setHtml($("clock"), (wi ? '<span title="' + wi.name + '">' + (isNight() && wi.nightIcon ? wi.nightIcon : wi.icon) + "</span> " : isNight() ? "🌙 " : "☀️ ") + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + ' <span class="el" style="color:' + ELEMENT_COLORS[el] + ";border-color:" + ELEMENT_COLORS[el] + '88">' + DAY_NAMES[v.dayIndex] + "</span>");
-  setTxt($("btnSound"), AUDIO.settings && AUDIO.settings.muted ? "🔇" : "🔊");
 }
 
 function zoneMapCanvas(zoneId) {
@@ -10461,8 +10505,6 @@ function initHud() {
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
   $("btnMenu").onclick = () => S.modal ? closeModal() : openMenu("character");
-  $("btnQuests").onclick = () => openMenu("quests");
-  $("btnSound").onclick = () => { toggleMute(); updateTopRight(); };
   const ci = $("chatIn");
   UI.cmdHist = []; UI.cmdIdx = 0;
   ci.addEventListener("keydown", e => {
@@ -10761,7 +10803,7 @@ function stopShowcase() {
 function invSorted() {
   return save.inventory.map((s, i) => ({ s, i })).filter(({ s }) => {
     const it = ITEMS[s.id];
-    if (UI.filter === "use") return it.kind === "use";
+    if (UI.filter === "use") return it.kind === "use" || it.kind === "food";
     if (UI.filter === "gear") return it.kind === "equip";
     if (UI.filter === "mat") return it.kind === "mat" || it.kind === "crystal" || it.kind === "tool";
     if (UI.filter === "rare") return it.rare || it.ex || it.kind === "furniture" || ["rare", "epic"].includes(itemRarity(s.id));
@@ -10784,7 +10826,7 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Essence", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Essence", food: "Food", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (augText(s.id)) h += '<div class="sub" style="margin-top:4px;color:#ce93d8">✨ Augments: ' + esc(augText(s.id)) + "</div>";
     if (it.kind === "equip") {
@@ -10794,7 +10836,8 @@ function tabInventory() {
       h += '<div class="cmp"><span class="sub">vs ' + (cur ? esc(ITEMS[cur].name) : "nothing") + ":</span> " + statDeltaHTML(base, next, true) + "</div>";
     }
     h += '<div class="acts">';
-    if (it.kind === "use") h += '<button data-a="use" data-v="' + s.id + '">Use</button><button data-a="tobar" data-v="' + s.id + '">Add to action bar</button>';
+    if (it.kind === "use" || it.kind === "food") h += '<button data-a="use" data-v="' + s.id + '">' + (it.kind === "food" ? "Eat" : "Use") + '</button><button data-a="tobar" data-v="' + s.id + '">Add to action bar</button>';
+    if (it.food) h += '<div class="sub" style="margin-top:4px;color:#ffcc80">🍲 ' + esc(foodText(it.food)) + " for " + CONFIG.foodMinutes + " minutes. One meal at a time.</div>";
     if (it.kind === "equip") { const why = canEquip(s.id); h += why ? '<span class="sub bad" style="color:#ff8a80">' + esc(why) + "</span>" : '<button data-a="equip" data-v="' + s.id + '">Equip</button>'; h += '<button data-a="compare" data-v="' + s.id + '">Compare on character</button>'; }
     h += '<button data-a="drop" data-v="' + UI.sel + '">Drop</button></div></div>';
   } else h += '<div class="sub" style="margin-top:10px">Tap an item to see details.</div>';
@@ -10832,7 +10875,7 @@ function tabActions() {
   });
   h += '<div class="opt"><button data-a="slotclear"' + (UI.pick ? "" : " disabled") + '>Clear selected slot</button><button data-a="barreset">Reset to defaults</button></div>';
   const known = actionList(player).map(a => ({ kind: a.kind, id: a.id }));
-  const items = ["potion", "hi_potion", "ether", "potion_hq", "ether_hq", "fishing_rod"].filter(id => invCount(id) > 0 || id === "potion" || id === "ether").map(id => ({ kind: "item", id }));
+  const items = ["potion", "hi_potion", "ether", "potion_hq", "ether_hq", "fishing_rod"].concat(Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food")).filter(id => invCount(id) > 0 || id === "potion" || id === "ether").map(id => ({ kind: "item", id }));
   const groups = [["Weapon skills", known.filter(a => a.kind === "ws")], ["Abilities", known.filter(a => a.kind === "ja")], ["Spells", known.filter(a => a.kind === "ma")], ["Items", items]];
   const onBar = new Set(hb.pages.flat().filter(Boolean).map(a => a.kind + ":" + a.id));
   for (const [title, list] of groups) {
@@ -11349,8 +11392,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v5.3.1 · built 2026-10-13 14:08 PDT";
+const BUILD_INFO = "v5.4.0 · built 2026-10-13 14:38 PDT";
 const UPDATES = [
+  { v: "5.4.0", date: "2026-10-13", title: "Food and cooking", items: [
+    "New craft: Cooking. Seven recipes from Grilled Minnow to the Pike Feast, made from your catches, herbs, Grain Flour and Rock Salt (new at Pell's).",
+    "Meals give 30 real minutes of bonuses such as HP, MP, Attack, Defense and stats. One meal at a time; the Well Fed buff shows on your party frame.",
+    "The Trade Board can ask for Carp Stew and Herb Bread. New achievements: Well Fed and Head Chef.",
+    "Cleaner screen: the action bar hides empty slots (assign actions from the Action Bar menu, B), the \"Solo. Hire companions\" note is gone, and the Quests and Sound buttons are removed from the top right (quests are on J and in the menu; sound is in Settings)."
+  ] },
   { v: "5.3.1", date: "2026-10-13", title: "Fix: starting a new character on phones", items: [
     "Fixed: pressing Begin your journey could drop you back on the character screen when the browser's storage for the site was full or blocked (other pages on the same web address share that space). The game now starts anyway, warns you that progress can't be kept, and points you to System → Save to file.",
     "The game also stops writing a second backup copy of your save, which halves how much storage it uses.",
@@ -11649,10 +11698,15 @@ function tabHelp() {
   ]));
   h += sec("⚒️ Crafting", ul([
     "Open the Crafting tab (N, or /craft). Pick a craft, then Synthesize. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
-    "Each synthesis uses one elemental essence: Fire for Smithing, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
+    "Each synthesis uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
     "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure uses up the essence and loses some ingredients.",
     "Skill rises on recipes near or above your level, up to " + CONFIG.craftCap + "."
   ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, RECIPES.filter(r => r.craft === k).map(r => ITEMS[r.out].name).join(", ")])));
+  h += sec("🍳 Cooking and food", ul([
+    "Cooking is a craft (Crafting tab) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
+    "Eat a meal from your bag or action bar for " + CONFIG.foodMinutes + " real minutes of bonuses (it keeps counting while you're away). One meal at a time: eating another replaces it. You can't eat mid-fight.",
+    "Meals: " + Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food").map(k => ITEMS[k].name + " (" + foodText(ITEMS[k].food) + ")").join(" · ") + "."
+  ]));
   h += sec("🌱 Gardening", ul([
     "Place a Flowerpot in your residence (Odette sells them), then select it in Arrange to plant, water, feed and harvest.",
     "A plant grows through three stages of 10 real minutes each, but only while watered: water it at every stage.",
@@ -11668,7 +11722,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "5.3.1";
+const GAME_VERSION = "5.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

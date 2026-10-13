@@ -71,8 +71,8 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0 }, board: { day: 0, done: [] }, augments: {}
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -329,6 +329,8 @@ function buildStats(ch) {
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
     if (augs && augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
   }
+  const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
+  if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
   if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
   s.dmg = dmg;
@@ -956,6 +958,32 @@ function tickPool(force) {
   if (force) saveGame();
 }
 
+function eatFood(id) {
+  const it = ITEMS[id];
+  if (player.engaged || inCombatWith(player)) { log("You can't eat during a fight.", "sys"); sfx("error"); return; }
+  if (save.food && save.food.until > Date.now() && save.food.id !== id) log("You set aside the " + ITEMS[save.food.id].name + " and eat something else.", "sys");
+  removeItem(id, 1);
+  save.food = { id, until: Date.now() + CONFIG.foodMinutes * 60000 };
+  save.stats.meals++;
+  player.buffs.food = { until: S.time + CONFIG.foodMinutes * 60 };
+  log("You eat the " + it.name + ". " + foodText(it.food) + " for " + CONFIG.foodMinutes + " minutes.", "you");
+  popText(player, it.name, "#ffcc80", 13, 1.2, 14);
+  sfx("cure", player);
+  refreshPlayer(false);
+  saveGame();
+}
+
+function foodText(fd) { return Object.keys(fd).map(k => STAT_LABELS[k] + " +" + fd[k]).join(", "); }
+
+function tickFood() {
+  const f = save.food;
+  if (!f) { if (player.buffs.food) delete player.buffs.food; return; }
+  const left = (f.until - Date.now()) / 1000;
+  if (left <= 0) { save.food = null; delete player.buffs.food; log("The effects of your " + (ITEMS[f.id] ? ITEMS[f.id].name : "meal") + " wear off.", "sys"); refreshPlayer(false); return; }
+  if (!player.buffs.food) player.buffs.food = { until: S.time + left + 1 };
+  else player.buffs.food.until = S.time + left + 1;
+}
+
 function nearWater(e, reach) {
   for (const w of S.zone.water || []) if (Math.hypot(e.x - w.x, e.y - w.y) < w.r + (reach || FISH_CFG.reach)) return w;
   return null;
@@ -1399,6 +1427,7 @@ function useItem(id) {
   if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
+  if (it.kind === "food") { eatFood(id); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
   if (it.mpRestore && player.mp >= player.maxMp) { log("Your MP is already full.", "sys"); sfx("error"); return; }
@@ -2359,7 +2388,7 @@ function step(dt) {
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); } }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); } }
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
@@ -3178,7 +3207,7 @@ function runCommand(text) {
     case "ws": castBy("ws"); return;
     case "item": case "use": {
       const q = arg.toLowerCase();
-      const s = save.inventory.find(x => ITEMS[x.id].kind === "use" && ITEMS[x.id].name.toLowerCase() === q) || save.inventory.find(x => ITEMS[x.id].kind === "use" && ITEMS[x.id].name.toLowerCase().includes(q));
+      const s = save.inventory.find(x => ["use", "food"].includes(ITEMS[x.id].kind) && ITEMS[x.id].name.toLowerCase() === q) || save.inventory.find(x => ["use", "food"].includes(ITEMS[x.id].kind) && ITEMS[x.id].name.toLowerCase().includes(q));
       if (!s || !q) { log("You don't have a usable item called \"" + arg + "\".", "sys"); sfx("error"); return; }
       useItem(s.id);
       return;

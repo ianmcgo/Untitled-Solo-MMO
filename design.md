@@ -600,11 +600,18 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - game.js `STORE { get, set, remove }` wraps localStorage. On a failed set it removes the legacy CONFIG.saveKey copy and retries, then falls back to an in-memory `MEM_STORE` and sets `S.storageFull` (one log line). All roster/char reads and writes go through STORE. `saveGame` no longer writes the legacy CONFIG.saveKey copy once a character id exists (it is still read once for migration). enterWorld logs and toasts a warning when S.storageFull.
 - Title screen: boot ends in `showTitle()` (loading screen in "ready" state with #ldStart "Press Start", tap or any key) which then calls `showCharSelect()`. p5shots clicks #ldStart first and saves a -title shot.
 
+## Phase 13: food and cooking, cleaner HUD (v5.4.0)
+- CRAFTS.cooking (fire essence); 7 recipes r_grilled_minnow ... r_pike_feast (lv 0-16, 2-3 servings). Mats grain_flour, rock_salt in SHOP. Food items `kind: "food"` with `food: { stat: bonus }`.
+- `eatFood(id)` (no eating in a fight) stores `save.food { id, until (Date.now based) }`, CONFIG.foodMinutes 30, stats.meals; useItem routes food there. buildStats adds the food bonus for `kind === "pc"` while active. `tickFood()` (every 2 s) keeps a `player.buffs.food` mirror (BUFF "Well Fed" 🍲) and clears it on expiry with a refresh. `foodText()` formats bonuses with STAT_LABELS. Inventory shows Eat + bonus line; foods can go on the action bar; /item finds foods. Trade requests t_stew, t_bread; achievements fed, chef.
+- HUD: `#actionBar` is a wrapping flex row; `#actionBar .slot.empty` is hidden (the menu's .barEdit still shows empty slots); an empty bar shows a hint via :has(). Removed the solo tip (#soloTip) and the top-right Quests/Sound buttons (J and Settings remain).
+- Tests: test/p12unit.js. Helper scripts used per release: build 1 + all unit tests, then build 4 + copy + commit + push.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.4.0 | Phase 13: cooking craft, meals with timed buffs; action bar hides empty slots; removed solo tip and Quests/Sound buttons. |
 | 5.3.1 | Hotfix: storage-full fallback (phone character start), title screen. |
 | 5.3.0 | Phase 12: fishing, weather (visuals and element bonuses). |
 | 5.2.0 | Phase 11: treasure pool, Trade Board, Garrick augments. |

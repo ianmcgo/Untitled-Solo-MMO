@@ -275,7 +275,7 @@ function stopShowcase() {
 function invSorted() {
   return save.inventory.map((s, i) => ({ s, i })).filter(({ s }) => {
     const it = ITEMS[s.id];
-    if (UI.filter === "use") return it.kind === "use";
+    if (UI.filter === "use") return it.kind === "use" || it.kind === "food";
     if (UI.filter === "gear") return it.kind === "equip";
     if (UI.filter === "mat") return it.kind === "mat" || it.kind === "crystal" || it.kind === "tool";
     if (UI.filter === "rare") return it.rare || it.ex || it.kind === "furniture" || ["rare", "epic"].includes(itemRarity(s.id));
@@ -298,7 +298,7 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Essence", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Essence", food: "Food", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (augText(s.id)) h += '<div class="sub" style="margin-top:4px;color:#ce93d8">✨ Augments: ' + esc(augText(s.id)) + "</div>";
     if (it.kind === "equip") {
@@ -308,7 +308,8 @@ function tabInventory() {
       h += '<div class="cmp"><span class="sub">vs ' + (cur ? esc(ITEMS[cur].name) : "nothing") + ":</span> " + statDeltaHTML(base, next, true) + "</div>";
     }
     h += '<div class="acts">';
-    if (it.kind === "use") h += '<button data-a="use" data-v="' + s.id + '">Use</button><button data-a="tobar" data-v="' + s.id + '">Add to action bar</button>';
+    if (it.kind === "use" || it.kind === "food") h += '<button data-a="use" data-v="' + s.id + '">' + (it.kind === "food" ? "Eat" : "Use") + '</button><button data-a="tobar" data-v="' + s.id + '">Add to action bar</button>';
+    if (it.food) h += '<div class="sub" style="margin-top:4px;color:#ffcc80">🍲 ' + esc(foodText(it.food)) + " for " + CONFIG.foodMinutes + " minutes. One meal at a time.</div>";
     if (it.kind === "equip") { const why = canEquip(s.id); h += why ? '<span class="sub bad" style="color:#ff8a80">' + esc(why) + "</span>" : '<button data-a="equip" data-v="' + s.id + '">Equip</button>'; h += '<button data-a="compare" data-v="' + s.id + '">Compare on character</button>'; }
     h += '<button data-a="drop" data-v="' + UI.sel + '">Drop</button></div></div>';
   } else h += '<div class="sub" style="margin-top:10px">Tap an item to see details.</div>';
@@ -346,7 +347,7 @@ function tabActions() {
   });
   h += '<div class="opt"><button data-a="slotclear"' + (UI.pick ? "" : " disabled") + '>Clear selected slot</button><button data-a="barreset">Reset to defaults</button></div>';
   const known = actionList(player).map(a => ({ kind: a.kind, id: a.id }));
-  const items = ["potion", "hi_potion", "ether", "potion_hq", "ether_hq", "fishing_rod"].filter(id => invCount(id) > 0 || id === "potion" || id === "ether").map(id => ({ kind: "item", id }));
+  const items = ["potion", "hi_potion", "ether", "potion_hq", "ether_hq", "fishing_rod"].concat(Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food")).filter(id => invCount(id) > 0 || id === "potion" || id === "ether").map(id => ({ kind: "item", id }));
   const groups = [["Weapon skills", known.filter(a => a.kind === "ws")], ["Abilities", known.filter(a => a.kind === "ja")], ["Spells", known.filter(a => a.kind === "ma")], ["Items", items]];
   const onBar = new Set(hb.pages.flat().filter(Boolean).map(a => a.kind + ":" + a.id));
   for (const [title, list] of groups) {
@@ -865,6 +866,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.4.0", date: "2026-10-13", title: "Food and cooking", items: [
+    "New craft: Cooking. Seven recipes from Grilled Minnow to the Pike Feast, made from your catches, herbs, Grain Flour and Rock Salt (new at Pell's).",
+    "Meals give 30 real minutes of bonuses such as HP, MP, Attack, Defense and stats. One meal at a time; the Well Fed buff shows on your party frame.",
+    "The Trade Board can ask for Carp Stew and Herb Bread. New achievements: Well Fed and Head Chef.",
+    "Cleaner screen: the action bar hides empty slots (assign actions from the Action Bar menu, B), the \"Solo. Hire companions\" note is gone, and the Quests and Sound buttons are removed from the top right (quests are on J and in the menu; sound is in Settings)."
+  ] },
   { v: "5.3.1", date: "2026-10-13", title: "Fix: starting a new character on phones", items: [
     "Fixed: pressing Begin your journey could drop you back on the character screen when the browser's storage for the site was full or blocked (other pages on the same web address share that space). The game now starts anyway, warns you that progress can't be kept, and points you to System → Save to file.",
     "The game also stops writing a second backup copy of your save, which halves how much storage it uses.",
@@ -1163,10 +1170,15 @@ function tabHelp() {
   ]));
   h += sec("⚒️ Crafting", ul([
     "Open the Crafting tab (N, or /craft). Pick a craft, then Synthesize. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
-    "Each synthesis uses one elemental essence: Fire for Smithing, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
+    "Each synthesis uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
     "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure uses up the essence and loses some ingredients.",
     "Skill rises on recipes near or above your level, up to " + CONFIG.craftCap + "."
   ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, RECIPES.filter(r => r.craft === k).map(r => ITEMS[r.out].name).join(", ")])));
+  h += sec("🍳 Cooking and food", ul([
+    "Cooking is a craft (Crafting tab) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
+    "Eat a meal from your bag or action bar for " + CONFIG.foodMinutes + " real minutes of bonuses (it keeps counting while you're away). One meal at a time: eating another replaces it. You can't eat mid-fight.",
+    "Meals: " + Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food").map(k => ITEMS[k].name + " (" + foodText(ITEMS[k].food) + ")").join(" · ") + "."
+  ]));
   h += sec("🌱 Gardening", ul([
     "Place a Flowerpot in your residence (Odette sells them), then select it in Arrange to plant, water, feed and harvest.",
     "A plant grows through three stages of 10 real minutes each, but only while watered: water it at every stage.",

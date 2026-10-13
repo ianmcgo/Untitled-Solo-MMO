@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "5.3.1",
-  "releaseTitle": "Fix: starting a new character on phones",
+  "version": "5.4.0",
+  "releaseTitle": "Food and cooking",
   "description": "",
   "main": "index.js",
   "scripts": {
