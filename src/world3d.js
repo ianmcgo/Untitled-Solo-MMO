@@ -231,7 +231,7 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 50, exit: 180 })) continue;
     const y = field.heightAt(px, py), s = 0.8 + rnd() * 0.7;
     const m = mtx(px * U, y - 0.2, py * U, s, s * (0.9 + rnd() * 0.4), s, rnd() * 6.28);
-    (rnd() < (theme === "town" ? 0.4 : 0.6) ? pines : leafy).push(m);
+    (rnd() < (theme === "town" ? 0.4 : z.palette === "snow" ? 0.85 : 0.6) ? pines : leafy).push(m);
     z.colliders.push({ x: px, y: py, r: 4.6 * s });
     k++;
   }
@@ -289,8 +289,10 @@ function buildVegetation(field, root) {
   ]);
   noisyGeo(leafGeo, 0.18, 7);
   const barkMat = std({ map: bark.map, normalMap: bark.normalMap });
-  const pineMat = std({ map: pineTex.map, normalMap: pineTex.normalMap, color: 0xd8e8d0 });
-  const leafMat = std({ map: leafTex.map, normalMap: leafTex.normalMap });
+  const snowy = z.palette === "snow";
+  const pineMat = std({ map: pineTex.map, normalMap: pineTex.normalMap, color: snowy ? 0xf2f6fa : 0xd8e8d0 });
+  const leafMat = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0xffffff });
+  if (snowy) { pineMat.emissive = new THREE.Color(0x3a4a50); leafMat.emissive = new THREE.Color(0x30383a); }
   addWind(pineMat, 0.02);
   addWind(leafMat, 0.03);
   if (pines.length) { root.add(instanced(trunkGeo, barkMat, pines, true)); root.add(instanced(pineGeo, pineMat, pines, true)); }
@@ -810,7 +812,12 @@ function buildWater(field, root) {
   const normals = texWaterNormals();
   const cave = themeOf(z) === "cave" || themeOf(z) === "crypt";
   let water;
-  if (W3.quality === "low") {
+  if (z.palette === "snow") {
+    const nm = normals.clone();
+    nm.needsUpdate = true;
+    nm.repeat.set(2, 2);
+    water = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xd4eaf4, roughness: 0.12, metalness: 0.15, normalMap: nm, normalScale: new THREE.Vector2(0.25, 0.25) }));
+  } else if (W3.quality === "low") {
     const nm = normals.clone();
     nm.needsUpdate = true;
     nm.repeat.set(4, 4);
@@ -990,7 +997,46 @@ function skyColors(sunY) {
   return c;
 }
 
-function updateRain(amt, windy) {
+function flakeTex() {
+  const c = document.createElement("canvas"); c.width = c.height = 32;
+  const g = c.getContext("2d"), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.45, "rgba(255,255,255,0.8)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
+  return new THREE.CanvasTexture(c);
+}
+
+function updateSnow(amt, windy) {
+  if (!amt) { if (W3.snow) W3.snow.visible = false; return; }
+  const N = W3.quality === "low" ? 1400 : 3200;
+  if (!W3.snow || W3.snow.userData.n !== N) {
+    if (W3.snow) { W3.scene.remove(W3.snow); W3.snow.geometry.dispose(); W3.snow.material.dispose(); }
+    const pos = new Float32Array(N * 3), ph = new Float32Array(N);
+    for (let i = 0; i < N; i++) { pos.set([(Math.random() - 0.5) * 50, 2 + Math.random() * 22, (Math.random() - 0.5) * 50], i * 3); ph[i] = Math.random() * 6.28; }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    W3.snow = new THREE.Points(g, new THREE.PointsMaterial({ map: flakeTex(), alphaTest: 0.05, color: 0xffffff, size: 0.16, sizeAttenuation: true, transparent: true, opacity: 0.9, depthWrite: false, fog: false }));
+    W3.snow.frustumCulled = false;
+    W3.snow.userData = { n: N, ph };
+    W3.scene.add(W3.snow);
+  }
+  const r = W3.snow;
+  r.visible = true;
+  r.material.size = windy ? 0.2 : 0.16;
+  r.position.set(W3.camera.position.x, W3.camera.position.y - 10, W3.camera.position.z);
+  const p = r.geometry.attributes.position.array, ph = r.userData.ph, fall = windy ? 0.14 : 0.05, drift = windy ? 0.22 : 0.0;
+  const t = S.time;
+  for (let i = 0, j = 0; i < p.length; i += 3, j++) {
+    p[i + 1] -= fall * (0.7 + 0.3 * Math.sin(ph[j]));
+    p[i] += drift + Math.sin(t * 1.3 + ph[j]) * 0.012;
+    p[i + 2] += Math.cos(t * 1.1 + ph[j]) * 0.01;
+    if (p[i + 1] < 0 || p[i] > 25) { p[i] = (Math.random() - 0.5) * 50 - (windy ? 10 : 0); p[i + 1] = 24; p[i + 2] = (Math.random() - 0.5) * 50; }
+  }
+  r.geometry.attributes.position.needsUpdate = true;
+}
+
+function updateRain(amt, windy, snow) {
+  updateSnow(snow ? amt : 0, windy);
+  if (snow) amt = 0;
   if (!amt) { if (W3.rain) W3.rain.visible = false; return; }
   const N = W3.quality === "low" ? 700 : 1600;
   if (!W3.rain || W3.rain.userData.n !== N) {
@@ -1007,10 +1053,11 @@ function updateRain(amt, windy) {
   const r = W3.rain;
   r.visible = true;
   r.material.opacity = 0.35 + 0.35 * amt;
+  r.material.color.setHex(snow ? 0xffffff : 0xaab8c8);
   r.position.set(W3.camera.position.x, W3.camera.position.y - 12, W3.camera.position.z);
-  const p = r.geometry.attributes.position.array, fall = 0.55, drift = windy ? 0.18 : 0.03;
+  const p = r.geometry.attributes.position.array, fall = snow ? 0.09 : 0.55, drift = windy ? (snow ? 0.12 : 0.18) : 0.03;
   for (let i = 0; i < p.length; i += 6) {
-    p[i + 1] -= fall; p[i + 4] -= fall; p[i] += drift; p[i + 3] += drift * 1.4;
+    p[i + 1] -= fall; p[i + 4] = snow ? p[i + 1] - 0.12 : p[i + 4] - fall; p[i] += drift; p[i + 3] = snow ? p[i] + 0.05 : p[i + 3] + drift * 1.4;
     if (p[i + 4] < 0) { const x = (Math.random() - 0.5) * 60, z = (Math.random() - 0.5) * 60; p[i] = x; p[i + 1] = 30; p[i + 2] = z; p[i + 3] = x - drift * 3; p[i + 4] = 29.4; p[i + 5] = z; }
   }
   r.geometry.attributes.position.needsUpdate = true;
@@ -1044,22 +1091,23 @@ function updateSky(force) {
   W3.clouds.position.x = W3.camera.position.x;
   W3.clouds.position.z = W3.camera.position.z;
   const wx = !cave && !indoor && typeof weatherNow === "function" ? weatherNow() : null;
-  const wet = wx === "rain" || wx === "storm", gloom = wet ? 0.55 : wx === "cloudy" ? 0.35 : wx === "fog" ? 0.3 : 0;
+  const snowy = wx === "snow" || wx === "blizzard";
+  const wet = wx === "rain" || wx === "storm", gloom = wet ? 0.55 : wx === "blizzard" ? 0.5 : wx === "cloudy" || wx === "snow" ? 0.35 : wx === "fog" ? 0.3 : 0;
   W3.cloudOff = (W3.cloudOff || 0) + (1 / 60) * (wx === "wind" || wx === "storm" ? 4 : 1);
   W3.clouds.material.map.offset.x = W3.cloudOff * 0.0018;
   W3.clouds.material.map.offset.y = W3.cloudOff * 0.0009;
-  updateRain(wet ? (wx === "storm" ? 1 : 0.7) : 0, wx === "wind" || wx === "storm");
+  updateRain(wet ? (wx === "storm" ? 1 : 0.7) : snowy ? (wx === "blizzard" ? 1 : 0.6) : 0, wx === "wind" || wx === "storm" || wx === "blizzard", snowy);
   const fogC = theme === "crypt" ? new THREE.Color(0x14141c) : cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
   W3.clouds.material.color.copy(new THREE.Color(0xffffff).lerp(fogC, 0.35).multiplyScalar(mix(0.18, 1, dayAmt)));
   W3.fog.color.copy(fogC);
-  if (gloom) W3.fog.color.lerp(W3.gloomColor || (W3.gloomColor = new THREE.Color(0x6a7078)), gloom * (0.3 + 0.7 * dayAmt));
+  if (gloom) W3.fog.color.lerp(snowy ? (W3.snowFog || (W3.snowFog = new THREE.Color(0xc4ccd4))) : W3.gloomColor || (W3.gloomColor = new THREE.Color(0x6a7078)), (snowy ? 1.4 : 1) * gloom * (0.3 + 0.7 * dayAmt));
   if (S.zone.mist) W3.fog.color.lerp(W3.mistColor || (W3.mistColor = new THREE.Color(0x8a9a8c)), 0.45 * (0.4 + 0.6 * dayAmt));
   if (theme === "crypt") { W3.fog.near = 10; W3.fog.far = 95; }
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
   else { W3.fog.near = mix(30, 70, dayAmt); W3.fog.far = mix(180, 420, dayAmt); }
-  if (!cave && !indoor && (wx === "fog" || wet)) { const k = wx === "fog" ? 0.45 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
+  if (!cave && !indoor && (wx === "fog" || wet || wx === "blizzard")) { const k = wx === "fog" ? 0.45 : wx === "blizzard" ? 0.22 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
   const warm = 1 - sstep(0.05, 0.35, sunY);

@@ -638,11 +638,22 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Creation defaults: male, skin index 1, first male hairstyle, average height and build.
 - Tests: test/p16unit.js; p5shots scenes chapel, depths, depths2.
 
+## Phase 18: level 20 and Frostspire Pass (v5.9.0)
+- CONFIG.levelCap 20; xpTable adds 10200, 11650, 13200, 14850, 16600. p8unit now checks cap/table consistency instead of a fixed 15.
+- `ZONES.frost` (3000x2400, theme field, palette "snow" in TERRAIN_THEMES): west exit to harbor (1330, 430); harbor east exit at (1376, 380) to (110, 1200). Landmarks gate, icefall, frozenlake, cairns, summit. Four rock walls; cairn ruins. Spawns lv 15-20; NMs rimefang (Icefall, any time, lv 21) and frost_wight (cairns, night).
+- Families: snow_hare (peaceful, day), ice_bat (sound, night, link), frost_goblin (sight 185, link, goblinLook "frost"), ice_wight (sound + lowhp, night, skeleton icy look), glacier_worm (magic). All weak to fire. Bestiary entries for all + NMs.
+- WEATHER.frost: snow, clear, blizzard, cloudy, fog. WEATHER_INFO snow/blizzard map to element ice. world3d `updateRain(amt, windy, snow)`: snow uses white slow particles; snow is a separate `W3.snow` Points cloud (`updateSnow`, round `flakeTex`, swaying drift; windy = faster, sideways) and rain is hidden; blizzard multiplies fog distance by 0.22 and snowy gloom lerps fog toward 0xc4ccd4. Snow palette: lake drawn as a still ice disc (pale, low roughness), 85% pines, foliage tinted and lifted by emissive for a frosted look, minimap uses snow colors and an ice lake.
+- Spells cure4 (WHM 19), thunder2 (BLM 17), fire3 (BLM 20), stone_sprite (SMN 15, PETS.stone). Ability warcry (WAR 15): `buffs.warcry` on party members within 300 px; stat() multiplies att by 1.2.
+- Tier-4 weapon skills at skill 75 (vorpal_arc, shadow_fang, moonfall, earthshaker, ruinous_cleave, thousand_palms, starfall_arrow).
+- Items frost_shard; Frostforged gear lv 16-17 + fur_hat in SHOPS.vela; NM drops rimefang_axe, frost_ring, wight_shroud. Quest frozencargo (Ilsa, lv 16, 6 frost_goblin, fur_hat). Achievements lv20, frost.
+- Tests: test/p17unit.js; p5shots scenes frost, blizzard. harness exports WEAPON_SKILLS.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.9.0 | Phase 18: level 20, Frostspire Pass, snow weather, Warcry, tier-4 weapon skills. |
 | 5.8.0 | Phase 17: Chapel Depths battlefield; XP bar in party frame, phone chat bottom-left, minimap range, creation defaults. |
 | 5.7.0 | Phase 16: Ranger and Summoner jobs, sprites, bows, Corin. |
 | 5.6.0 | Phase 15: Thornstrider coats, Swift Saddle, Hollow Run time trial; gear fit fixes. |

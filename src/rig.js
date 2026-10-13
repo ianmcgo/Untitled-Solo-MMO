@@ -612,6 +612,8 @@ function goblinLook(variant) {
   if (variant === "chieftain") return Object.assign(base, { skin: 0x6a7a34, top: { type: "mail", color: 0x55585e, region: "chain" }, head: { type: "horned", color: 0x4a4a44, color2: 0xe8dcc0 }, cape: 0x8a1f1f, pauldrons: 0x6a6a64, weapon: "greataxe", sack: false, prop: { leg: 0.62, torso: 0.56, headR: 0.18, arm: 0.62, shoulder: 0.22, hip: 0.11, neck: 0.04, girth: 1.25 } });
   const p = { leg: 0.5, torso: 0.42, headR: 0.16, arm: 0.5, shoulder: 0.165, hip: 0.09, neck: 0.04, girth: 1.05 };
   if (variant === "raider") return Object.assign(base, { skin: 0x6a7a40, top: { type: "tunic", color: 0x4a3a2a, region: "leather" }, head: { type: "cap", color: 0x55585e }, weapon: "dagger", prop: p });
+  if (variant === "frost") return Object.assign(base, { skin: 0x7a8a6a, top: { type: "fur", color: 0xd8d0c0, region: "fur", sleeves: "none" }, head: { type: "hood", color: 0xc8c0b0 }, legs: 0x5a5048, boots: 0x3a3028, weapon: "dagger", prop: p });
+  if (variant === "rimefang") return Object.assign(base, { skin: 0x6a7a5a, top: { type: "mail", color: 0x6a7480, region: "chain" }, cape: 0xd8d0c0, pauldrons: 0x8a94a0, head: { type: "horned", color: 0x5a6470, color2: 0xe8f4ff }, eyesGlow: 0x80d8ff, weapon: "greataxe", sack: false, prop: Object.assign({}, p, { girth: 1.2, headR: 0.17, torso: 0.47 }) });
   if (variant === "mire") return Object.assign(base, { skin: 0x5f7040, top: { type: "tunic", color: 0x3a4a30, region: "leather" }, head: { type: "hood", color: 0x4a5a3a }, legs: 0x3a3428, weapon: "dagger", prop: p });
   if (variant === "gax") return Object.assign(base, { skin: 0x56683a, top: { type: "mail", color: 0x4a5048, region: "chain" }, head: { type: "horned", color: 0x3a3f36, color2: 0xd8cca8 }, cape: 0x2f4a2a, eyesGlow: 0xffab40, weapon: "greataxe", sack: false, prop: Object.assign({}, p, { girth: 1.2, headR: 0.17, torso: 0.47 }) });
   if (variant === "grimtooth") return Object.assign(base, { skin: 0x8a8a3a, top: { type: "vest", color: 0x5a2a20, region: "leather", under: 0x3a2a1a }, head: { type: "bandana", color: 0x2a2a2a }, eyesGlow: 0xff3a2a, weapon: "dagger", prop: p });
@@ -926,12 +928,14 @@ function mobLook(m) {
   if (key === "grimtooth") return { kind: "human", look: goblinLook("grimtooth") };
   if (model === "chieftain") return { kind: "human", look: goblinLook("chieftain") };
   if (key === "mirelord_gax") return { kind: "human", look: goblinLook("gax") };
-  if (model === "goblin") return { kind: "human", look: goblinLook(m.famKey === "den_goblin" ? "raider" : m.famKey === "mire_goblin" ? "mire" : "goblin") };
+  if (key === "rimefang") return { kind: "human", look: goblinLook("rimefang") };
+  if (model === "goblin") return { kind: "human", look: goblinLook(m.famKey === "den_goblin" ? "raider" : m.famKey === "mire_goblin" ? "mire" : m.famKey === "frost_goblin" ? "frost" : "goblin") };
   if (model === "toad") return { kind: "toad", col: key === "old_croaker" ? 0x6a8a30 : 0x5f7a3a };
   if (model === "skeleton") {
     if (key === "hollow_king") return { kind: "human", look: { skull: true, skin: 0xd8d0b8, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "cloth", color2: 0xd8b040 }, cape: 0x3a1030, legs: 0xd8d0b8, barefoot: true, head: { type: "crown" }, weapon: "sword", weaponId: "iron_sword", prop: { girth: 0.85 } } };
     if (key === "crypt_sentinel") return { kind: "human", look: { skull: true, skin: 0xc8d0c8, noFace: true, headRegion: "bone", eyesGlow: 0x80cbc4, top: { type: "mail", color: 0x4a5a5a, region: "chain" }, pauldrons: 0x5a6a6a, legs: 0xc8d0c8, barefoot: true, head: { type: "helm", color: 0x4a5a5a }, weapon: "greataxe", weaponId: "bronze_greataxe", prop: { girth: 0.85 } } };
     if (key === "royal_guard") return { kind: "human", look: { skull: true, skin: 0xe0dccc, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "chain", color2: 0xd8b040 }, legs: 0xe0dccc, barefoot: true, head: { type: "cap", color: 0x5a5a62 }, weapon: "sword", weaponId: "bronze_sword", prop: { girth: 0.75 } } };
+    if (key === "ice_wight" || key === "frost_wight") return { kind: "human", look: { skull: true, skin: 0xd4eef8, noFace: true, headRegion: "bone", eyesGlow: 0x40c4ff, top: { type: key === "frost_wight" ? "robe" : "rags", color: 0x6a8aa0, trim: 0xb3e5fc, glowTrim: key === "frost_wight" }, legs: 0xd4eef8, barefoot: true, head: key === "frost_wight" ? { type: "hood", color: 0x4a6a80 } : null, weapon: "sword", weaponId: "iron_sword", prop: { girth: key === "frost_wight" ? 0.95 : 0.75 } } };
     return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
   }
   if (key === "tide_priest") return { kind: "human", look: { skull: true, skin: 0x7aa6a6, noFace: true, headRegion: "bone", eyesGlow: 0x4dd0e1, top: { type: "robe", color: 0x14303a, trim: 0x4dd0e1, glowTrim: true }, head: { type: "hood", color: 0x0f2530 }, legs: 0x14303a, barefoot: true, weapon: "staff", weaponId: "holly_staff" } };
@@ -939,7 +943,7 @@ function mobLook(m) {
     const warden = key === "ossuary_warden";
     return { kind: "human", look: { skin: warden ? 0x6a8a74 : 0x8fa890, noFace: true, eyesGlow: warden ? 0x69f0ae : 0xff3030, claws: true, barefoot: true, top: { type: "rags", color: warden ? 0x1c2621 : 0x3a3a30, sleeves: "none" }, legs: 0x4a4a3e, hair: { style: "long", color: 0x6a6a60 }, head: warden ? { type: "hood", color: 0x1c2621 } : null, prop: { arm: 0.72, leg: 0.82, headR: 0.118, girth: 0.82 } } };
   }
-  if (model === "bat") return { kind: "bat", col: key === "duskwing" ? 0x3a2a5a : 0x5a4a6a, eye: key === "duskwing" ? 0xd080ff : 0xff3030 };
+  if (model === "bat") return { kind: "bat", col: key === "duskwing" ? 0x3a2a5a : f.tint || 0x5a4a6a, eye: key === "duskwing" ? 0xd080ff : f.tint ? 0x80d8ff : 0xff3030 };
   if (model === "worm") return { kind: "worm", col: key === "king_wiggles" ? 0xc8a050 : f.tint || 0xb8866a };
   if (model === "hare") return { kind: "hare", col: f.tint || 0xc8a27a };
   return { kind: "human", look: goblinLook("goblin") };

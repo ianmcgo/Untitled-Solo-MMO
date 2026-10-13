@@ -317,7 +317,7 @@ function tabInventory() {
 }
 
 function tabSkills() {
-  let h = '<div class="sub" style="margin-bottom:10px">Skills rise as you use them, up to a cap set by your job and level. Each job keeps its own skills. Weapon skills unlock at weapon skill 5, 22 and 40.</div>';
+  let h = '<div class="sub" style="margin-bottom:10px">Skills rise as you use them, up to a cap set by your job and level. Each job keeps its own skills. Weapon skills unlock at weapon skill 5, 22, 40 and 75.</div>';
   h += "<h3>Combat</h3>";
   const row = sk => {
     const cap = skillCap(player, sk);
@@ -883,6 +883,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.9.0", date: "2026-10-13", title: "Level 20 and Frostspire Pass", items: [
+    "Level cap raised to 20.",
+    "New area: Frostspire Pass (levels 15–20), through the east exit of Saltreach Harbor, with five landmarks and falling snow. Blizzards thicken the air.",
+    "New monsters: Snow Hare, Ice Bat, Frost Goblin, Ice Wight and Glacier Worm. New notorious monsters: Rimefang and The Frost Wight, with the Frost Ring, Rimefang's Axe and the Wight Shroud.",
+    "New spells and abilities: Cure IV (WHM 19), Thunder II (BLM 17), Fire III (BLM 20), Stone Sprite (SMN 15) and Warcry (WAR 15, +20% attack for nearby allies).",
+    "Tier-four weapon skills at skill 75: Vorpal Arc, Shadow Fang, Moonfall, Earthshaker, Ruinous Cleave, Thousand Palms and Starfall Arrow.",
+    "Frostforged gear (level 16–17) and the Fur Hat at Vela's in Saltreach. New quest: Ilsa's Frozen Cargo. New achievements for reaching level 20 and entering the pass."
+  ] },
   { v: "5.8.0", date: "2026-10-13", title: "Battlefield: the Chapel Depths", items: [
     "New battlefield: use a Chapel Sigil at the sealed door in the Drowned Chapel (Ashen Marsh) to fight the Tidebound Priest, a level 16 boss with summoned Drowned, a Maelstrom area attack and an enrage, against a 15-minute timer.",
     "Win one of five new level 15 treasures (Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle, Tidebreaker Bow) plus crystals and XP. New achievement: Tidebreaker.",
@@ -1111,14 +1119,14 @@ function tabHelp() {
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
-    ["Warrior", "Tank or damage", "Provoke, Berserk, great axe A, sword B"],
-    ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Protect, Divine Seal"],
-    ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"],
+    ["Warrior", "Tank or damage", "Provoke, Berserk, Warcry (level 15: +20% attack for nearby allies), great axe A, sword B"],
+    ["White Mage", "Healer", "Cure through Cure IV (level 19), Dia, Banish, Protect, Divine Seal"],
+    ["Black Mage", "Nuker", "Stone → Thunder, tier II nukes (Thunder II at 17), Fire III (level 20), Elemental Seal, magic bursts"],
     ["Paladin (advanced)", "Tank", "Sword A, Cure, Flash, Protect, Sentinel, Shield Bash, shields"],
     ["Red Mage (advanced)", "Hybrid", "Sword B, Dia, Cure, nukes, Slow, Paralyze, Convert"],
     ["Thief (advanced)", "Damage", "Dagger A, Steal, Sneak Attack (sure critical), Flee; +5% critical hits; Treasure Hunter (+20% drop chance)"],
     ["Ranger (advanced)", "Ranged damage", "Archery A: shoots from 230 range, Sharpshot (+40 accuracy), Barrage (next shot fires 3 arrows), Shadowbind (pin a monster for 12 s)"],
-    ["Summoner (advanced)", "Pet mage", "Summoning A: Ember, Frost and Gale Sprites fight beside you and drain MP every 3 s; Blood Pact (sprite's elemental attack), Elemental Siphon (MP back), Release"],
+    ["Summoner (advanced)", "Pet mage", "Summoning A: Ember, Frost, Gale and (level 15) Stone Sprites fight beside you and drain MP every 3 s; Blood Pact (sprite's elemental attack), Elemental Siphon (MP back), Release"],
     ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"]
   ]) + ul([
     "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing) <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). Each job keeps its own level.",
@@ -1147,6 +1155,7 @@ function tabHelp() {
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
     ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–14 gear), home point, trade board, docks"],
+    ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
     ["Ashen Marsh", "9–16", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🔱 Battlefield: the Chapel Depths", ul([
@@ -1154,6 +1163,13 @@ function tabHelp() {
     "Inside, defeat the <b>Tidebound Priest</b> (level 16 boss) within " + BATTLEFIELD.minutes + " minutes. At 65% HP it raises two Drowned; below half it casts Maelstrom on everyone near it every 22 seconds; below 20% it enrages. It never leashes inside the chapel.",
     "Victory: " + BATTLEFIELD.gil + " crystals, " + BATTLEFIELD.xp + " XP and one treasure you don't own yet: Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle or Tidebreaker Bow. Leaving, wiping or running out of time ends the attempt.",
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
+  ]));
+  h += sec("❄️ Frostspire Pass", ul([
+    "Through the east exit of Saltreach Harbor. The highest area so far (levels 15–20). It snows most of the time; blizzards thicken the air and cut how far you can see.",
+    "<b>Snow Hares</b> are peaceful (by day). <b>Ice Bats</b> hear you and hunt in packs at night. <b>Frost Goblins</b> see a long way across the snow and call each other. <b>Glacier Worms</b> sense magic. At night <b>Ice Wights</b> rise at the cairns and smell weakness. Everything here is weak to fire.",
+    "Notorious monsters: <b>Rimefang</b> (Icefall Camp, any time; drops Rimefang's Axe and the Frost Ring) and <b>The Frost Wight</b> (Whispering Cairns, at night; drops the Wight Shroud and the Frost Ring).",
+    "Quest: Ilsa's <i>Frozen Cargo</i> (level 16, 6 Frost Goblins, rewards a Fur Hat).",
+    "Frost Shards drop from the pass's monsters. Vela in Saltreach now sells level 16–17 Frostforged gear and the Fur Hat."
   ]));
   h += sec("⚓ Saltreach Harbor", ul([
     "A second town, through the south exit of the Ashen Marsh. You can set your home point at its crystal.",
