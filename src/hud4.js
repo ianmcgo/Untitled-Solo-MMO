@@ -252,7 +252,7 @@ function buildParty() {
     row.className = "pf glass";
     const job = JOBS[p.job] || { icon: "?", color: "#ccc" };
     row.innerHTML = '<div class="por" style="border-color:' + (p.color || job.color) + '">' + job.icon + "<em></em></div><div><div class=\"top\"><span class=\"nm\"></span><span class=\"jb\"></span></div><div class=\"bars\">" +
-      '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div></div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
+      '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div>' + (p === player ? '<div class="bar xp" title="Experience"><i id="pfXp"></i></div>' : "") + '</div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
     row.onclick = () => { setTarget(p); sfx("select"); };
     const q = s => row.querySelector(s);
     const bars = row.querySelectorAll(".bars .bar");
@@ -469,6 +469,7 @@ function drawMinimap() {
   }
   for (const mb of S.mobs) {
     if (!mb.alive || mb.despawned) continue;
+    if (dist(mb, player) > 360 && player.target !== mb && !(mb.state === "combat" && mb.enmity && [...mb.enmity.keys()].some(isParty))) continue;
     dot(mb.x, mb.y, mb.fam.nm ? 6 : 4, mb.passive ? "#c8b48a" : "#e07a5f", mb.fam.nm ? "#ff4d6d" : mb.state === "combat" ? "#ff2a2a" : "#000");
   }
   if (S.race && RACE.checkpoints[S.race.next]) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 9, "rgba(255,213,79,.85)", "#000"); }
@@ -615,6 +616,7 @@ function uiEvent(type, d) {
   if (type === "target") { tgtCmdOpen(d); return; }
   if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name + (d.gil ? " · +" + d.gil + " 💠" : ""), "r-epic"); return; }
   if (type === "bond") { toast("💞", "Bond level " + d.lv, MERCS[d.id].name, "r-rare"); return; }
+  if (type === "bf") { toast("🔱", "Victory!", d.prize ? ITEMS[d.prize].name : "The chapel is quiet", "r-epic"); return; }
   if (type === "race") { UI.mmForce = true; return; }
   if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
   if (type === "beast") { toast("📖", "Bestiary", d.name, "r-uncommon"); return; }
@@ -679,6 +681,7 @@ function updateBottom() {
   setTxt($("lvl"), "Lv " + player.lv + " " + player.job + (player.sub ? "/" + player.sub + Math.floor(player.lv / 2) : ""));
   const need = xpNeed(j.lv);
   setW($("xpfill"), need ? 100 * j.xp / need : 100);
+  if ($("pfXp")) setW($("pfXp"), need ? 100 * j.xp / need : 100);
   setTxt($("xpt"), need ? j.xp + " / " + need + " XP (" + Math.floor(100 * j.xp / need) + "%)" : "Level cap");
   setTxt($("crystals"), "💠 " + save.gil);
   const ci = chainInfo();
@@ -737,8 +740,9 @@ function updateFish() {
 function updateRace() {
   const el = $("raceBox");
   if (!el) return;
-  const r = S.race;
-  el.classList.toggle("on", !!r);
+  const r = S.race, b = S.bf && !S.bf.won ? S.bf : null;
+  el.classList.toggle("on", !!(r || b));
+  if (b) { const left = Math.max(0, b.until - S.time); setHtml(el, "🔱 <b>" + Math.floor(left / 60) + ":" + String(Math.floor(left % 60)).padStart(2, "0") + "</b> <span class=\"sub\">· Defeat the Tidebound Priest</span>"); return; }
   if (!r) return;
   const t = S.time - r.t0, cp = RACE.checkpoints[r.next];
   const d = cp ? Math.round(Math.hypot(player.x - cp.x, player.y - cp.y) / 20) : 0;

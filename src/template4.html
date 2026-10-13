@@ -43,6 +43,9 @@
   .bar.hp > i { background: linear-gradient(var(--hp1), var(--hp2)); }
   .bar.mp > i { background: linear-gradient(var(--mp1), var(--mp2)); }
   .bar.tp > i { background: linear-gradient(var(--tp1), var(--tp2)); }
+  .bar.xp { height: 4px; margin-top: 2px; }
+  .bar.xp > i { background: linear-gradient(#d4f59a, #7cb342); }
+  #xpbar { display: none; }
   .bar.cast > i { background: linear-gradient(#a8d4ff, #4d8fe0); }
   .bar.warn > i { background: linear-gradient(#ffab70, #e2482a); }
   .bar .ghost { background: rgba(255,255,255,.35); transition: width .6s ease-out .25s; }
@@ -468,15 +471,15 @@
     #clock .el { display: none; }
     #trBtns button { width: 28px; height: 28px; font-size: 13px; }
     #tracker { position: absolute; right: 0; top: 100%; margin-top: 4px; width: 150px; font-size: 10px; }
-    #chat { width: 56vw; bottom: calc(196px + var(--sab)); }
+    #chat { width: calc(100vw - 3 * var(--slot) - 60px); max-width: 60vw; bottom: calc(8px + var(--sab)); left: calc(6px + var(--sal)); }
     #pool { bottom: calc(420px + var(--sab)); width: 210px; }
     #chat:not(.min) #log { height: 160px; }
     #bottom { left: auto; right: calc(6px + var(--sar)); transform: none; align-items: flex-end; }
-    #actionBar { max-width: calc(var(--slot) * 5 + 16px); }
+    #actionBar { max-width: calc(var(--slot) * 3 + 8px); flex-wrap: wrap-reverse; justify-content: flex-end; }
     #barWrap { padding: 4px; }
     #pager { flex-direction: row; }
     #barWrap { flex-direction: column-reverse; align-items: flex-end; }
-    #xpRow { position: fixed; left: 0; right: 0; bottom: 0; padding: 0 6px calc(2px + var(--sab)); font-size: 9px; }
+    #xpRow { display: none; }
     #xpt, #crystals { display: none; }
     #big { bottom: calc(150px + var(--sab)); right: calc(8px + var(--sar)); grid-template-columns: auto auto auto auto; gap: 6px; align-items: center; }
     .bb { width: 46px; height: 46px; font-size: 9px; }

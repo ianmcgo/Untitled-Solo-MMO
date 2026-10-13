@@ -629,11 +629,21 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Gear: shortbow, yew_bow, steel_longbow, hunters_coat, sprite_staff, evoker_robe (SHOP). Companion corin (RNG dd) with mercGear tiers and MERC_PERSONAL. Achievements summoner, sniper (stats.summons, stats.rngKills).
 - Tests: test/p15unit.js; p5shots scenes ranger, summoner.
 
+## Phase 17: battlefield and HUD moves (v5.8.0)
+- Battlefield zone `ZONES.depths` (1200x900, theme crypt, `battlefield: true`): corner walls, 4 pillars, a pool, exit west to the marsh. Spawn `{ fam: "tide_priest", lv 16, bf: true }`; `spawnAllowed` blocks `bf` spawns unless `S.bf` is active and not won. Bosses don't leash in battlefield zones.
+- Entry: prop NPC `chapel_door` (tablet prop) pushed onto ZONES.marsh at (600, 2120); TALK.talkChapelDoor; `enterBattlefield()` consumes a `chapel_sigil`, enters at the zone start, sets `S.bf { t0, until (+15 min), won }` and schedules the boss 3 s later. `tickBattlefield()` (per step): wipe/KO clears S.bf, timeout sweeps you to the marsh, boss death after it was seen calls `winBattlefield()` (kills leftover adds, gives one un-owned item from BATTLEFIELD.rewards, 1500 gil, 3000 XP, stats.bfWins, uiEvent "bf"). enterZone away from depths clears S.bf.
+- Boss family `tide_priest` (hpMul 3.2, attMul 1.1, delay 3.6, TP move Drowning Tide AoE 1.6, weak lightning/light, phases [0.65] with `adds: "drowned"` and `addsText`, `pulse { at 0.5, every 22, dmg 4·lv, r 170, Maelstrom, water }`, enrage 0.2). bossPhases now reads `f.adds`/`f.addsText` (default royal_guard) and runs the pulse. Tuned with a rules-build sim (lv 15 WAR + 5 companions at skill cap: 5/6 wins in ~70 s). Look: skull, hooded teal robe with glowing trim, staff. Bestiary entry.
+- Items chapel_sigil (Drowned 12% drop, Vela shop), tide_crown, abyssal_staff, drowned_blade, priest_mantle, tidebreaker_bow (nm, epic). `BATTLEFIELD { zone, minutes 15, rewards, gil, xp }`. Achievement priest. HUD #raceBox doubles as the battlefield timer.
+- HUD: the player's party frame has a 4 px XP bar (`#pfXp`); the bottom XP bar (#xpbar) is hidden; on phones #xpRow is hidden, the chat sits bottom-left (width 100vw - 3 slots - 60, max 60vw) and the action bar is 3 wide, wrapping upward. Minimap shows mobs only within 360 px, targeted, or fighting the party.
+- Creation defaults: male, skin index 1, first male hairstyle, average height and build.
+- Tests: test/p16unit.js; p5shots scenes chapel, depths, depths2.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.8.0 | Phase 17: Chapel Depths battlefield; XP bar in party frame, phone chat bottom-left, minimap range, creation defaults. |
 | 5.7.0 | Phase 16: Ranger and Summoner jobs, sprites, bows, Corin. |
 | 5.6.0 | Phase 15: Thornstrider coats, Swift Saddle, Hollow Run time trial; gear fit fixes. |
 | 5.5.0 | Phase 14: Saltreach Harbor town, Ilsa/Marn/Vela, sea fishing, level 13-14 gear. |

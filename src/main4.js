@@ -194,7 +194,8 @@ function showCharCreate() {
     return l;
   };
   CC.look = randomLook();
-  CC.look.height = 2; CC.look.girth = 2;
+  CC.look.build = 0; CC.look.skin = 1; CC.look.height = 2; CC.look.girth = 2;
+  CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[0][0]);
   CC.name = "";
   $("ldSub").textContent = "Create your character";
   const box = $("charSel");
