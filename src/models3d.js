@@ -193,6 +193,26 @@ function propView(n) {
     if (n.chest === "king") { const chain = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 20), std({ color: 0xcfd8dc, emissive: 0x80cbc4, emissiveIntensity: 0.4 })); chain.rotation.x = Math.PI / 2; chain.position.y = 0.8; chain.scale.set(1.1, 1, 0.7); g.add(chain); v.chain = chain; }
   } else if (n.prop === "throne") {
     v.meta.headTop = 4.5;
+  } else if (n.prop === "gather") {
+    if (n.gtype === "mining") {
+      const rt = texRock();
+      const rock = new THREE.Mesh(noisyGeo(new THREE.IcosahedronGeometry(0.8, 1), 0.2, 11), std({ map: rt.map, normalMap: rt.normalMap }));
+      rock.position.y = 0.55; rock.castShadow = true;
+      g.add(rock);
+      for (let i = 0; i < 5; i++) { const ore = new THREE.Mesh(new THREE.OctahedronGeometry(0.12, 0), std({ color: 0xd8a040, emissive: 0xd8a040, emissiveIntensity: 0.5, metalness: 0.8, roughness: 0.3 })); const a = i / 5 * Math.PI * 2; ore.position.set(Math.cos(a) * 0.62, 0.5 + Math.sin(i * 2.1) * 0.25, Math.sin(a) * 0.62); g.add(ore); }
+      v.meta.headTop = 1.4;
+    } else if (n.gtype === "logging") {
+      const bark = texBark();
+      const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.7, 10), std({ map: bark.map, normalMap: bark.normalMap })); stump.position.y = 0.35; stump.castShadow = true;
+      const top = new THREE.Mesh(new THREE.CircleGeometry(0.42, 10), std({ color: 0xc8a070 })); top.rotation.x = -Math.PI / 2; top.position.y = 0.71;
+      g.add(stump, top);
+      for (let i = 0; i < 3; i++) { const lg = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 1.4, 8), std({ map: bark.map, normalMap: bark.normalMap })); lg.rotation.set(0, i * 0.7, Math.PI / 2); lg.position.set(0.5 + i * 0.1, 0.16 + i * 0.26, 0.3 - i * 0.2); g.add(lg); }
+      v.meta.headTop = 1.2;
+    } else {
+      for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2, r = 0.25 + (i % 3) * 0.14; const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.9 + (i % 2) * 0.3, 5), std({ color: i % 3 === 0 ? 0x7cb342 : 0x558b2f })); leaf.position.set(Math.cos(a) * r, 0.45, Math.sin(a) * r); leaf.rotation.set(Math.sin(a) * 0.4, 0, -Math.cos(a) * 0.4); g.add(leaf); }
+      for (let i = 0; i < 4; i++) { const fl = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 5), std({ color: [0xffeb3b, 0xf48fb1, 0xffffff, 0xce93d8][i], emissive: 0x332200, emissiveIntensity: 0.3 })); const a = i * 1.6; fl.position.set(Math.cos(a) * 0.3, 0.95 + (i % 2) * 0.15, Math.sin(a) * 0.3); g.add(fl); }
+      v.meta.headTop = 1.3;
+    }
   } else if (n.prop === "nubbin") {
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 12), std({ color: 0x5a8a3a, roughness: 1 }));
     body.position.y = 0.55; body.castShadow = true;

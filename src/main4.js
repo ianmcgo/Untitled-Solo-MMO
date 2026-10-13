@@ -3,7 +3,7 @@ function onKey(e) {
   if (UI.confirmOpen) { if (k === "escape") $("confirmBox").querySelector(".no").click(); if (k === "enter") $("confirmBox").querySelector(".yes").click(); e.preventDefault(); return; }
   if (!UI.started) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help" };
+  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft" };
   if (S.modal) {
     if (k === "escape") closeModal();
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
@@ -219,7 +219,7 @@ function showCharCreate() {
       }
       sfx("click"); paint(); return;
     }
-    if (b.dataset.back) { UI.creating = false; if (UI.pv) UI.pv.override = null; sfx("close"); showCharSelect(); return; }
+    if (b.dataset.back) { UI.creating = false; releasePreview(); sfx("close"); showCharSelect(); return; }
     if (b.dataset.create) create();
   };
 }
@@ -230,6 +230,7 @@ async function enterWorld(id, fresh) {
   UI.entering = true;
   UI.creating = false;
   if (UI.pv) UI.pv.override = null;
+  releasePreview();
   startAudio();
   sfx("select");
   const ld = $("loading");

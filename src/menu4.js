@@ -12,13 +12,14 @@ function openMenu(tab) {
 function openModal(tab) { openMenu(tab); }
 function closeModal() {
   if (!S.modal) return;
+  if (S.modal === "character") releasePreview();
   S.modal = null;
   $("menu").style.display = "none";
   sfx("close");
 }
 
 function menuSig() {
-  return [save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length].join("|");
+  return [save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -38,7 +39,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -99,7 +100,7 @@ function attachPreview(wrapId) {
       const canvas = document.createElement("canvas");
       canvas.id = "pvCanvas";
       const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      r.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
       r.outputColorSpace = THREE.SRGBColorSpace;
       r.toneMapping = THREE.ACESFilmicToneMapping;
       r.toneMappingExposure = 1.25;
@@ -120,6 +121,18 @@ function attachPreview(wrapId) {
   if (UI.pv.failed) return;
   wrap.insertBefore(UI.pv.canvas, wrap.firstChild);
   UI.pv.sized = 0;
+}
+
+function releasePreview() {
+  const pv = UI.pv;
+  if (!pv || pv.failed) return;
+  try {
+    if (pv.holder) { pv.scene.remove(pv.holder); pv.view && pv.view.mat && pv.view.mat.dispose(); }
+    pv.r.dispose();
+    pv.r.forceContextLoss();
+    if (pv.canvas.parentNode) pv.canvas.parentNode.removeChild(pv.canvas);
+  } catch (e) {}
+  UI.pv = null;
 }
 
 function previewEntity(o) {
@@ -241,6 +254,7 @@ function renderShowcase(now) {
 function startShowcase() {
   const wrap = $("ldPv");
   if (!wrap || typeof attachPreview !== "function" || !RIG.atlas) return;
+  if (window.innerWidth <= 720 || W3.quality === "low" || (navigator.deviceMemory && navigator.deviceMemory < 4)) return;
   attachPreview("ldPv");
   if (!UI.pv || UI.pv.failed) return;
   const key = LORE_KEYS[Math.floor(Math.random() * LORE_KEYS.length)];
@@ -254,10 +268,11 @@ function startShowcase() {
   wrap.style.display = "block";
 }
 function stopShowcase() {
+  const was = !!UI.showcase;
   UI.showcase = null;
   const wrap = $("ldPv");
   if (wrap) wrap.style.display = "none";
-  if (UI.pv && UI.pv.sig && UI.pv.sig.startsWith("show:")) UI.pv.sig = null;
+  if (was) releasePreview();
 }
 
 function invSorted() {
@@ -286,7 +301,7 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
@@ -470,12 +485,28 @@ function tabCredits() {
   return h;
 }
 
+function tabCraft() {
+  if (!UI.craft) UI.craft = "smithing";
+  const c = UI.craft;
+  let h = '<div class="invTop">' + Object.keys(CRAFTS).map(k => '<button data-a="craftsel" data-v="' + k + '"' + (k === c ? ' class="on"' : "") + ">" + CRAFTS[k].icon + " " + CRAFTS[k].name + ' <span class="sub">' + craftSkill(k).toFixed(1) + "</span></button>").join("") + "</div>";
+  h += '<div class="sub" style="margin-bottom:8px">' + CRAFTS[c].name + " skill " + craftSkill(c).toFixed(1) + " / " + CONFIG.craftCap + " · needs " + an(ITEMS[CRAFTS[c].crystal].name) + " (have " + invCount(CRAFTS[c].crystal) + ") · about " + CONFIG.synthTime + " s per synthesis, anywhere outside combat.</div>";
+  const list = RECIPES.filter(r => r.craft === c).sort((a, b) => a.lv - b.lv);
+  for (const r of list) {
+    const ok = recipeMatsOk(r);
+    const why = canSynth(r);
+    const mats = Object.keys(r.mats).map(id => '<span class="' + (invCount(id) >= r.mats[id] ? "ok" : "bad") + '">' + esc(ITEMS[id].name) + " " + Math.min(invCount(id), r.mats[id]) + "/" + r.mats[id] + "</span>").join(" · ");
+    h += '<div class="item" style="align-items:flex-start"><div><div>' + (ITEMS[r.out].icon || "") + " " + esc(ITEMS[r.out].name) + (r.qty > 1 ? " ×" + r.qty : "") + ' <span class="sub">Lv.' + r.lv + " · " + synthChance(r) + "% success" + (r.hq ? " · HQ " + synthHqChance(r) + "%" : "") + '</span></div><div class="d">' + mats + '</div></div><button data-a="synth" data-v="' + r.id + '"' + (why ? " disabled" : "") + ' title="' + esc(why || "Synthesize") + '">Synthesize</button></div>';
+  }
+  if (UI.craftMsg) h += '<div class="sub" style="color:#ff8a80;margin-top:6px">' + esc(UI.craftMsg) + "</div>";
+  return h;
+}
+
 function tabFurnishings() {
-  let h = '<div class="sub" style="margin-bottom:6px">Odette sells furniture for your residence. 💠 ' + save.gil + " crystals · Pip at the cottage places it.</div><h3>Buy</h3>";
-  FURNITURE_SHOP.forEach(id => { const it = ITEMS[id]; const fp = it.fp || [1, 1]; h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (it.icon || "") + "</span><div><div>" + esc(it.name) + ' <span class="sub">' + fp[0] + "×" + fp[1] + (it.storage ? " · +" + it.storage + " storage" : "") + '</span></div><div class="d">' + esc(it.desc || "") + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < it.price ? " disabled" : "") + ">" + it.price + " gil</button></div>"; });
+  let h = '<div class="sub" style="margin-bottom:6px">Odette sells furniture and seeds for your residence. 💠 ' + save.gil + " crystals · Pip at the cottage places it.</div><h3>Buy</h3>";
+  FURNITURE_SHOP.concat(SEED_SHOP).forEach(id => { const it = ITEMS[id]; const fp = it.fp || [1, 1]; h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (it.icon || "") + "</span><div><div>" + esc(it.name) + ' <span class="sub">' + fp[0] + "×" + fp[1] + (it.storage ? " · +" + it.storage + " storage" : "") + '</span></div><div class="d">' + esc(it.desc || "") + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < it.price ? " disabled" : "") + ">" + it.price + " gil</button></div>"; });
   h += "<h3>Sell</h3>";
-  const sellable = save.inventory.filter(s => ITEMS[s.id].kind === "furniture" && sellPrice(s.id) > 0);
-  if (!sellable.length) h += '<div class="sub">No furniture to sell.</div>';
+  const sellable = save.inventory.filter(s => (ITEMS[s.id].kind === "furniture" || ITEMS[s.id].kind === "seed") && sellPrice(s.id) > 0);
+  if (!sellable.length) h += '<div class="sub">No furniture or seeds to sell.</div>';
   sellable.forEach(s => { h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="sell" data-v="' + s.id + '">' + sellPrice(s.id) + " gil</button></div>"; });
   return h;
 }
@@ -516,7 +547,24 @@ function tabHome() {
   h += "</div>";
   if (UI.furnSel != null && save.furniture[UI.furnSel]) {
     const f = save.furniture[UI.furnSel];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (ITEMS[f.id].icon || "📦") + "</span><div><b>" + esc(ITEMS[f.id].name) + '</b><div class="tags">Tile ' + f.c + "," + f.r + " · " + (f.rot || 0) * 90 + "°" + (ITEMS[f.id].storage ? " · +" + ITEMS[f.id].storage + " storage" : "") + '</div></div></div><div class="acts"><button data-a="rotf" data-v="' + UI.furnSel + '">↻ Rotate</button><button data-a="packf" data-v="' + UI.furnSel + '">Pack away</button></div></div>';
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (ITEMS[f.id].icon || "📦") + "</span><div><b>" + esc(ITEMS[f.id].name) + '</b><div class="tags">Tile ' + f.c + "," + f.r + " · " + (f.rot || 0) * 90 + "°" + (ITEMS[f.id].storage ? " · +" + ITEMS[f.id].storage + " storage" : "") + "</div></div></div>";
+    if (ITEMS[f.id].garden) {
+      const g = gardenOf(UI.furnSel);
+      if (!g) {
+        const seeds = save.inventory.filter(s => ITEMS[s.id].kind === "seed");
+        h += '<div class="sub" style="margin-top:6px">Empty flowerpot. ' + (seeds.length ? "Plant:" : "Odette sells seeds.") + '</div><div class="acts">' + seeds.map(s => '<button data-a="plant" data-v="' + UI.furnSel + ":" + s.id + '">' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + " ×" + s.qty + "</button>").join("") + "</div>";
+      } else {
+        const stageName = ["Seeded", "Sprout", "Growing", "Ready to harvest"][g.stage];
+        const left = g.stage < 3 && g.watered ? Math.max(0, Math.ceil((GARDEN_STAGE_MS - (Date.now() - g.since)) / 60000)) : null;
+        h += '<div class="sub" style="margin-top:6px">' + esc(ITEMS[g.seed].name) + " · " + stageName + " (stage " + Math.min(3, g.stage) + "/3)" + (g.stage < 3 ? (g.watered ? " · next stage in about " + left + " min" : " · <b style=\"color:#81d4fa\">needs water</b>") : "") + (g.crystal ? " · fed " + g.crystal : " · not fed") + "</div>";
+        h += '<div class="acts">';
+        if (g.stage < 3 && !g.watered) h += '<button data-a="water" data-v="' + UI.furnSel + '">💧 Water</button>';
+        if (!g.crystal) { const cr = save.inventory.filter(s => ITEMS[s.id].kind === "crystal"); h += cr.map(s => '<button data-a="feed" data-v="' + UI.furnSel + ":" + s.id + '">' + (ITEMS[s.id].icon || "") + " Feed " + esc(ITEMS[s.id].name) + "</button>").join(""); }
+        if (g.stage >= 3) h += '<button data-a="harvest" data-v="' + UI.furnSel + '" class="pri">🌿 Harvest</button>';
+        h += "</div>";
+      }
+    }
+    h += '<div class="acts"><button data-a="rotf" data-v="' + UI.furnSel + '">↻ Rotate</button><button data-a="packf" data-v="' + UI.furnSel + '">Pack away</button></div></div>';
   }
   if (UI.homeMsg) h += '<div class="sub" style="color:#ff8a80;margin-top:6px">' + esc(UI.homeMsg) + "</div>";
   return h;
@@ -646,6 +694,12 @@ function onMenuClick(e) {
   else if (a === "hire") hireMerc(v);
   else if (a === "dismiss") dismissMerc(v);
   else if (a === "open") { openMenu(v); return; }
+  else if (a === "craftsel") { UI.craft = v; UI.craftMsg = ""; sfx("tab"); renderModal(); return; }
+  else if (a === "synth") { UI.craftMsg = startSynth(v); closeModal(); return; }
+  else if (a === "plant") { const [i, id] = v.split(":"); UI.homeMsg = plantSeed(+i, id); if (UI.homeMsg) sfx("error"); renderModal(); return; }
+  else if (a === "water") { UI.homeMsg = waterGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
+  else if (a === "feed") { const [i, id] = v.split(":"); UI.homeMsg = feedGarden(+i, id); if (UI.homeMsg) sfx("error"); renderModal(); return; }
+  else if (a === "harvest") { UI.homeMsg = harvestGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
   else if (a === "store") { storeItem(+v); renderModal(); return; }
   else if (a === "retrieve") { retrieveItem(+v); renderModal(); return; }
   else if (a === "pickf") { UI.pick = UI.pick === v ? null : v; UI.furnSel = null; UI.homeMsg = ""; sfx("tab"); renderModal(); return; }
@@ -694,6 +748,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "4.7.0", date: "2026-10-13", title: "Phase 6b: gathering, crafting, gardening", items: [
+    "Gathering: Mining, Logging and Harvesting points in Rocky Hollow and the Goblin Den (rocks with ore, log piles, herb patches). Each needs a Pickaxe, Hatchet or Sickle from Pell. Tools break 25% of the time, less as your gathering skill rises. Points run dry after 1–3 uses and reappear elsewhere 45 s later.",
+    "Crafting (N or the Crafting tab, or /craft): Smithing, Woodworking, Clothcraft and Alchemy with 23 recipes. One crystal plus ingredients, 3 seconds, anywhere outside combat. Success starts at 65% and moves 7% per skill level; working above a recipe's level can make high-quality +1 items. Failure breaks the crystal and loses some ingredients. Skills cap at 20.",
+    "Gardening: place a Flowerpot at home, plant seeds, water at each of three 10-minute real-time stages, and feed a crystal for a bigger harvest. Herb Seeds, Ash Saplings and Wildgrass Seeds (grows crystals) from Odette; Moonbloom Seeds are a rare drop.",
+    "New quest: Green Thumb (Pip): harvest a flowerpot. Make It Home now rewards a flowerpot and herb seeds.",
+    "Healing effects no longer play when there's nothing to heal: Cure on a full-HP target shows 'No effect', potions and ethers won't be used at full, and the crystal only sparkles if someone needed it.",
+    "Fix: the loading-screen model now only shows on larger screens, and its 3D view is released after loading, to stop phones running out of graphics memory on zone changes."
+  ] },
   { v: "4.6.4", date: "2026-10-13", title: "Creation fixes", items: ["Hair style and colour now update on the character creation preview (and the character tab preview refreshes properly when gear changes).", "Male and female characters have their own hair style lists (male: short, spiky, long, ponytail, shaved; female: long, ponytail, bob, bun, short)."] },
   { v: "4.6.3", date: "2026-10-13", title: "Skin tone palette", items: ["Character creation offers four skin tones: light, fair, tan and dark brown. Saved characters keep their look."] },
   { v: "4.6.0", date: "2026-10-13", title: "Phase 6a: your residence, Pip and storage", items: [
@@ -865,6 +927,23 @@ function tabHelp() {
   h += sec("🌙 Townsfolk", ul([
     "People in the Outpost go home at night and come back out in the morning, each at their own hour: Ysolde 19:30–5:30, Tobin 20:00–7:00, Pell 21:00–6:30, Odette 21:30–6:00, Rhea 22:00–6:00, Brann 23:00–7:30 (game time).",
     "While someone is indoors you can't talk or trade with them. The Home Point Crystal is always there."
+  ]));
+  h += sec("⛏️ Gathering", ul([
+    "Look for ore rocks, log piles and herb patches in Rocky Hollow and the Goblin Den (grey, brown and green dots on the minimap). Tap one to gather.",
+    "Each needs a tool from Pell: Pickaxe (mining), Hatchet (logging), Sickle (harvesting). A tool breaks 25% of the time, minus 1% per skill level (never below 5%).",
+    "A point runs dry after 1–3 uses and a new one appears elsewhere 45 seconds later. Gathering raises its own skill, up to 20."
+  ]));
+  h += sec("⚒️ Crafting", ul([
+    "Open the Crafting tab (N, or /craft). Pick a craft, then Synthesize. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
+    "Each synthesis uses one crystal: Fire for Smithing, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
+    "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure breaks the crystal and loses some ingredients.",
+    "Skill rises on recipes near or above your level, up to " + CONFIG.craftCap + "."
+  ]) + tbl(["Craft", "Crystal", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, RECIPES.filter(r => r.craft === k).map(r => ITEMS[r.out].name).join(", ")])));
+  h += sec("🌱 Gardening", ul([
+    "Place a Flowerpot in your residence (Odette sells them), then select it in Arrange to plant, water, feed and harvest.",
+    "A plant grows through three stages of 10 real minutes each, but only while watered: water it at every stage.",
+    "Feed it one crystal. A matching crystal grows extra: Earth for herbs, Wind for ash, Water for moonbloom. Wildgrass grows crystals of whichever element you feed it.",
+    "Seeds: Herb Seeds (3–6 Healing Herbs), Ash Sapling (2–4 Ash Logs), Wildgrass Seeds (2–4 crystals), Moonbloom Seeds (Ethers and a chance at rare materials; a rare drop)."
   ]));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
   h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));

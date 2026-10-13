@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "4.6.4",
-  "releaseTitle": "Phase 6a: residence, Pip, storage",
+  "version": "4.7.0",
+  "releaseTitle": "Phase 6b: gathering, crafting, gardening",
   "description": "",
   "main": "index.js",
   "scripts": {

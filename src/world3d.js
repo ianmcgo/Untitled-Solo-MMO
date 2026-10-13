@@ -555,7 +555,7 @@ function buildHouse(field, root) {
   const beamMat = std({ color: 0x4a3220, roughness: 0.9 });
   const W = z.w * U, H = z.h * U, wallH = 3.4;
   const floor = new THREE.Mesh(new THREE.BoxGeometry(W + 2, 0.3, H + 2), floorMat);
-  floor.position.set(W / 2, 0.0, H / 2);
+  floor.position.set(W / 2, -0.15, H / 2);
   floor.receiveShadow = true;
   root.add(floor);
   const mkWall = (x, zz, len, rot) => {
@@ -598,11 +598,11 @@ function buildHouse(field, root) {
   for (const [c, r] of g.blocked) {
     if (c === 0 || c === 1) continue;
     const mat = new THREE.Mesh(new THREE.BoxGeometry(cw, 0.04, ch), std({ color: 0x8a6a48 }));
-    mat.position.set((c + 0.5) * cw, 0.17, (r + 0.5) * ch);
+    mat.position.set((c + 0.5) * cw, 0.02, (r + 0.5) * ch);
     root.add(mat);
   }
   const rug = new THREE.Mesh(new THREE.CircleGeometry(1.2, 24), std({ color: 0x6a3a3a, roughness: 1 }));
-  rug.rotation.x = -Math.PI / 2; rug.position.set(1.0 * cw, 0.17, 1.0 * ch);
+  rug.rotation.x = -Math.PI / 2; rug.position.set(1.0 * cw, 0.02, 1.0 * ch);
   root.add(rug);
   const amb = new THREE.PointLight(0xffe2b8, 8, 18, 1.4);
   amb.position.set(W / 2, 3.0, H / 2);
@@ -626,6 +626,13 @@ function furnitureMesh(f) {
     case "chest": box(1.5, 0.8, 1.0, 0, 0.4, 0, wood); box(1.5, 0.3, 1.0, 0, 0.95, 0, dark); box(0.2, 0.25, 0.1, 0, 0.7, 0.52, std({ color: 0xc8a040, metalness: 0.6 })); break;
     case "wardrobe": box(Wm - 0.3, 3.0, 1.2, 0, 1.5, 0, wood); box(0.05, 2.6, 0.05, 0, 1.5, 0.63, dark); for (const sx of [-1, 1]) box(0.08, 0.3, 0.06, sx * 0.25, 1.5, 0.64, std({ color: 0xc8a040, metalness: 0.6 })); break;
     case "bookshelf": box(Wm - 0.3, 2.6, 0.9, 0, 1.3, 0, dark); for (let i = 0; i < 4; i++) { box(Wm - 0.5, 0.06, 0.8, 0, 0.5 + i * 0.6, 0, wood); for (let k = 0; k < 7; k++) box(0.14, 0.4, 0.55, -Wm / 2 + 0.45 + k * 0.42, 0.75 + i * 0.6, 0.05, std({ color: [0x8a3a3a, 0x3a5a8a, 0x5a7a3a, 0xc8a040, 0x6a3a7a][(i + k) % 5] })); } break;
+    case "pot": {
+      const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.32, 0.5, 12), std({ color: 0xb0603a })); pot.position.y = 0.25;
+      const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.06, 12), std({ color: 0x3a2a1c })); soil.position.y = 0.5;
+      g.add(pot, soil);
+      g.userData.pot = true;
+      break;
+    }
     case "plant": { const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.22, 0.45, 10), std({ color: 0xa0603a })); pot.position.y = 0.22; g.add(pot); for (let i = 0; i < 7; i++) { const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.9, 5), std({ color: 0x3a8a3a })); const a = i / 7 * Math.PI * 2; leaf.position.set(Math.cos(a) * 0.15, 0.8, Math.sin(a) * 0.15); leaf.rotation.set(Math.sin(a) * 0.6, 0, -Math.cos(a) * 0.6); g.add(leaf); } break; }
     case "lamp": { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 2.0, 8), dark); post.position.y = 1.0; const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.45, 0.5, 12, 1, true), std({ color: 0xe8d8a8, emissive: 0xffd080, emissiveIntensity: 0.6, side: THREE.DoubleSide })); shade.position.y = 2.1; const L = new THREE.PointLight(0xffd8a0, 8, 9, 1.5); L.position.y = 2.0; g.add(post, shade, L); break; }
     case "rug": { const r = new THREE.Mesh(new THREE.CircleGeometry(Math.min(Wm, Dm) / 2 - 0.1, 28), std({ color: 0x8a4a4a, roughness: 1 })); r.rotation.x = -Math.PI / 2; r.position.y = 0.02; const ring = new THREE.Mesh(new THREE.RingGeometry(Math.min(Wm, Dm) / 2 - 0.4, Math.min(Wm, Dm) / 2 - 0.25, 28), std({ color: 0xd8b060, roughness: 1 })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.025; g.add(r, ring); break; }
@@ -638,20 +645,30 @@ function furnitureMesh(f) {
 
 function syncFurniture() {
   if (!W3.furnRoot || S.zoneId !== "residence") return;
-  const sig = JSON.stringify(save.furniture);
+  const sig = JSON.stringify(save.furniture) + JSON.stringify(save.gardens);
   if (sig !== W3.furnSig) {
     W3.furnSig = sig;
     disposeTree(W3.furnRoot);
     while (W3.furnRoot.children.length) W3.furnRoot.remove(W3.furnRoot.children[0]);
     const g = ZONES.residence.grid;
     const cw = ZONES.residence.w / g.cols * U, ch = ZONES.residence.h / g.rows * U;
-    for (const f of save.furniture) {
+    save.furniture.forEach((f, i) => {
       const { w, h } = furnFoot(f.id, f.rot || 0);
       const m = furnitureMesh(f);
-      m.position.set((f.c + w / 2) * cw, 0.15, (f.r + h / 2) * ch);
+      const gd = ITEMS[f.id].garden ? save.gardens[i] : null;
+      if (gd) {
+        const st = gd.stage, gr = ITEMS[gd.seed].grows;
+        const col = gr.crystal ? 0x9ccc65 : gd.seed === "ash_sapling" ? 0x4a7a3a : gd.seed === "moonbloom_seeds" ? 0x9fa8da : 0x5a9a3a;
+        if (st >= 1) for (let k = 0; k < 2 + st * 2; k++) { const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.06 + st * 0.02, 0.3 + st * 0.25, 5), std({ color: col })); const a = k / (2 + st * 2) * Math.PI * 2; leaf.position.set(Math.cos(a) * 0.12 * st, 0.55 + (0.15 + st * 0.12), Math.sin(a) * 0.12 * st); leaf.rotation.set(Math.sin(a) * 0.5, 0, -Math.cos(a) * 0.5); m.add(leaf); }
+        else { const sp = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.18, 4), std({ color: 0x8bc34a })); sp.position.y = 0.6; m.add(sp); }
+        if (st >= 3) for (let k = 0; k < 3; k++) { const fl = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 5), std({ color: gd.seed === "moonbloom_seeds" ? 0xe3f2fd : gr.crystal ? 0xffd54f : 0xff8a65, emissive: 0x442200, emissiveIntensity: 0.4 })); fl.position.set(Math.cos(k * 2.1) * 0.2, 1.25, Math.sin(k * 2.1) * 0.2); m.add(fl); }
+        if (gd.crystal) { const L = new THREE.PointLight(new THREE.Color(ELEMENT_COLORS[gd.crystal] || "#fff"), 2, 3, 2); L.position.y = 0.9; m.add(L); }
+        if (st < 3 && !gd.watered) { const dry = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.4, 16), new THREE.MeshBasicMaterial({ color: 0x81d4fa, transparent: true, opacity: 0.5, side: THREE.DoubleSide })); dry.rotation.x = -Math.PI / 2; dry.position.y = 0.56; m.add(dry); }
+      }
+      m.position.set((f.c + w / 2) * cw, 0, (f.r + h / 2) * ch);
       m.rotation.y = -(f.rot || 0) * Math.PI / 2;
       W3.furnRoot.add(m);
-    }
+    });
   }
   for (const m of W3.furnRoot.children) if (m.userData.flame) { const k = 0.9 + Math.sin(S.time * 11) * 0.12; m.userData.flame.scale.set(k, 1 + Math.sin(S.time * 7) * 0.15, k); }
 }

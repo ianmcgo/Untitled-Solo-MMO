@@ -585,7 +585,7 @@ function updateAuras(dt) {
     }
   }
   for (const p of S.party) {
-    if (!p.alive || !p.regenerating || Math.random() > dt * 3) continue;
+    if (!p.alive || !p.regenerating || (p.hp >= p.maxHp && p.mp >= p.maxMp) || Math.random() > dt * 3) continue;
     const g = groundAt(p);
     FX.add.spawn(g.x + rnd(-0.4, 0.4), g.y + rnd(0.2, 1.4), g.z + rnd(-0.4, 0.4), 0, rnd(0.4, 0.9), 0, 1.2, 0.1, 0.02, C(0xd8ffd8), C(0x7cdc8a), 0, 0, 0.6);
   }
