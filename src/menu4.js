@@ -821,6 +821,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.0.0", date: "2026-10-13", title: "Level 15 and the Ashen Marsh", items: [
+    "Level cap raised to 15 for every job. XP for levels 11–15: 4,450 · 5,400 · 6,450 · 7,600 · 8,850.",
+    "New area: the Ashen Marsh, south of Rocky Hollow (levels 9–16). Misty ponds, a sunken causeway, a goblin stilt village and a drowned chapel.",
+    "New monsters: Bog Toad (a brand-new model), Bog Leech, Mire Goblin, the Drowned and Reed Hares. Two notorious monsters: Old Croaker and Mirelord Gax.",
+    "New spells: Cure III (WHM 13), Banish II (WHM 15), Stone II, Water II, Aero II, Fire II and Blizzard II (BLM 11–15; Stone II for RDM at 15). Paladins learn Cure II at 11, Red Mages at 14.",
+    "New gear at level 10–14: Steel Sword, Steel Greataxe, Oak Staff, Oak Club, Chain Mail, Wizard's Robe, Iron Helm and Wool Hat in Pell's shop; Croaker Charm, Gax's Cleaver and Mire Mantle from the new NMs.",
+    "New quests: Into the Mire (Captain Rhea) and The Mirelord (Brann). Captain Rhea now lists her other jobs alongside her first one.",
+    "Bestiary gains 7 entries; two new achievements (Veteran, Into the Mire)."
+  ] },
   { v: "4.9.0", date: "2026-10-13", title: "Companions 2.0, bestiary and achievements", items: [
     "Party tab (P): set your companions' stance (Assist, Follow, Hold), give them gear from your bag and see bond and wages. /stance works too.",
     "Bond: companions grow closer as you fight together. Each bond level up to 5 adds 3% to their stats and unlocks a personal line.",
@@ -1010,8 +1019,16 @@ function tabHelp() {
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, home point"],
     ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
-    ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"]
+    ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
+    ["Ashen Marsh", "9–16", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("🐸 The Ashen Marsh", ul([
+    "Through the south exit of Rocky Hollow. Thick mist cuts how far you can see, especially at night.",
+    "<b>Bog Toads</b> hear footsteps. <b>Bog Leeches</b> taste magic and blood (they come for casters and the wounded). <b>Mire Goblins</b> see far and call each other. At night the <b>Drowned</b> rise around the chapel. <b>Reed Hares</b> are peaceful.",
+    "Notorious monsters: <b>Old Croaker</b> (Croaker's Pool, by day; drops the Croaker Charm) and <b>Mirelord Gax</b> (Mire Village; drops Gax's Cleaver and the Mire Mantle).",
+    "Quests: Captain Rhea's <i>Into the Mire</i> (level 10, 6 Bog Toads, rewards Marsh Boots) and Brann's <i>The Mirelord</i> (level 13).",
+    "Gathering: iron-rich ore, willow logs and Mire Reeds. Pell sells level 11 steel, oak and chain gear."
+  ]));
   h += sec("🏚️ The Sunken Crypt", ul([
     "Enter from the Bone Pit at the bottom of the Goblin Den. Bring a full party of level 9 or higher.",
     "<b>Brazier Hall:</b> read the Worn Inscription on the north wall, then light the four braziers in that order (tap one and choose Light it). The wrong order snuffs them and raises two skeletons. The right order opens the sealed gate to the crossroads.",

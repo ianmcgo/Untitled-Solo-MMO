@@ -1005,9 +1005,11 @@ function updateSky(force) {
   const fogC = theme === "crypt" ? new THREE.Color(0x14141c) : cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
   W3.clouds.material.color.copy(new THREE.Color(0xffffff).lerp(fogC, 0.35).multiplyScalar(mix(0.18, 1, dayAmt)));
   W3.fog.color.copy(fogC);
+  if (S.zone.mist) W3.fog.color.lerp(W3.mistColor || (W3.mistColor = new THREE.Color(0x8a9a8c)), 0.45 * (0.4 + 0.6 * dayAmt));
   if (theme === "crypt") { W3.fog.near = 10; W3.fog.far = 95; }
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
+  else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
   else { W3.fog.near = mix(30, 70, dayAmt); W3.fog.far = mix(180, 420, dayAmt); }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
