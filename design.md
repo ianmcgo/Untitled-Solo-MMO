@@ -622,11 +622,19 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - HUD: #btnMount shows only on coarse pointers when licensed (class "has"); minimap mob dots no longer use con colors.
 - Tests: test/p14unit.js; p5shots scenes stable, race, race2, lineup, lineup2, fitBLM, fitBLMside, fitWAR, fitWARfight.
 
+## Phase 16: Ranger and Summoner (v5.7.0)
+- JOBS RNG, SMN (advanced; ADVANCED_JOBS quests rng/smn at lv 6 through Tobin's generic questOptions). ALL_JOBS includes both. Skills: COMBAT archery, MAGIC summoning; ratings RNG archery A, SMN summoning A; WAR archery D, THF archery C.
+- Ranged: `reach(e)` = CONFIG.bowRange 230 for wtype archery, else meleeRange; used by autoAttack, player chase, meleeAI approach, ally WS and WS checks. Mobs are unchanged (they still need melee range). swing(): archery fires vfx("arrow") (particle streak in effects3d) and consumes the `barrage` buff to loose 3 swings (guarded by a.volley). `sharpshot` adds +40 acc in stat(). `shadowbind` sets mob buffs.bind (12 s); updateMob skips moveToward while bound. WS piercing_arrow / flaming_volley / gale_arrow (archery 5/22/40). Bow weapon model kind "archery" (curved limbs, grip, string; steel/yew tints).
+- Summoner: spells ember_sprite / frost_sprite / gale_sprite (kind "summon", target "self"; resolveTarget returns the player). `summonPet` builds an ally `{ pet: true, petKey, job "MNK" stats, role "pet" }` in S.pet and S.party (meleeAI fights). `PETS[key] { name, el, col, eye, pact, weak }`. `tickPet` drains 1 + lv/6 MP every 3 s and releases on 0 MP, death, job change or not SMN; mounting or starting a race releases it. rebuildParty keeps S.pet; syncAllies rebuilds pet stats at your level. Abilities release, blood_pact (24 + 7·lv + 1.2·INT + 0.8·summoning skill, x element weakness, dealt by the pet), siphon (MP 20 + 3·lv). Pet model = batEntry(col, eye) via rigSigFor "pet|key"; party frame tag "Sprite".
+- Gear: shortbow, yew_bow, steel_longbow, hunters_coat, sprite_staff, evoker_robe (SHOP). Companion corin (RNG dd) with mercGear tiers and MERC_PERSONAL. Achievements summoner, sniper (stats.summons, stats.rngKills).
+- Tests: test/p15unit.js; p5shots scenes ranger, summoner.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.7.0 | Phase 16: Ranger and Summoner jobs, sprites, bows, Corin. |
 | 5.6.0 | Phase 15: Thornstrider coats, Swift Saddle, Hollow Run time trial; gear fit fixes. |
 | 5.5.0 | Phase 14: Saltreach Harbor town, Ilsa/Marn/Vela, sea fishing, level 13-14 gear. |
 | 5.4.0 | Phase 13: cooking craft, meals with timed buffs; action bar hides empty slots; removed solo tip and Quests/Sound buttons. |

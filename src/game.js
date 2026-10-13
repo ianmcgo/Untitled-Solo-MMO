@@ -70,9 +70,9 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0 }, board: { day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -272,7 +272,10 @@ function skillOf(ch, skill) {
   return skillCap(ch, skill);
 }
 
+function reach(e) { return e && e.stats && e.stats.wtype === "archery" ? CONFIG.bowRange : CONFIG.meleeRange; }
+
 function spellSkill(sp) {
+  if (sp.kind === "summon") return "summoning";
   if (sp.kind === "heal") return "healing";
   if (sp.kind === "debuff") return "enfeebling";
   if (sp.kind === "buff") return "enhancing";
@@ -353,7 +356,7 @@ function buildStats(ch) {
   ch.delay = delay;
   ch.hp = ch.hp == null ? s.maxHp : Math.min(ch.hp, s.maxHp);
   ch.mp = ch.mp == null ? s.maxMp : Math.min(ch.mp, s.maxMp);
-  ch.color = ch.mercId ? MERCS[ch.mercId].color : JOBS[ch.job].color;
+  ch.color = ch.mercId ? MERCS[ch.mercId].color : ch.pet ? (ch.color || "#4dd0e1") : JOBS[ch.job].color;
 }
 
 function makeChar(o) {
@@ -371,6 +374,7 @@ function mercGear(m, lv) {
   if (job === "WHM") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: lv >= 3 ? "leather_boots" : undefined } : { main: "ash_club", body: "linen_robe" };
   if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", ring: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
   if (job === "THF") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
+  if (job === "RNG") return lv >= 11 ? { main: "steel_longbow", body: "hunters_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "yew_bow", body: "hunters_coat", feet: "leather_boots" } : { main: "shortbow", body: "leather_vest" };
   if (job === "MNK") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
@@ -461,6 +465,48 @@ function tickWages() {
   }
 }
 
+function summonPet(a, sp) {
+  if (a !== player) return;
+  if (S.pet) releasePet(null);
+  const P = PETS[sp.pet];
+  const pet = makeChar({ kind: "ally", pet: true, petKey: sp.pet, name: P.name, job: "MNK", sub: null, role: "pet", speed: 160, lv: player.lv });
+  pet.gear = {};
+  pet.x = player.x + Math.cos(player.face) * 30; pet.y = player.y + Math.sin(player.face) * 30;
+  pet.px = pet.x; pet.py = pet.y;
+  buildStats(pet);
+  pet.color = "#" + P.col.toString(16).padStart(6, "0");
+  S.pet = pet;
+  S.party.push(pet);
+  S.petTick = S.time + 3;
+  save.stats.summons++;
+  log("You call forth the " + P.name + "!", "you");
+  popText(pet, P.name, pet.color, 13, 1.2, 14);
+  vfx("buff", { tgt: pet, id: "summon" });
+  sfx("burst", pet);
+}
+
+function releasePet(msg) {
+  const pet = S.pet;
+  if (!pet) return;
+  S.pet = null;
+  S.party = S.party.filter(p => p !== pet);
+  for (const m of S.mobs) m.enmity && m.enmity.delete(pet);
+  if (player.target === pet) player.target = null;
+  if (msg) log(msg, "sys");
+}
+
+function tickPet() {
+  const pet = S.pet;
+  if (!pet) return;
+  if (!pet.alive || player.job !== "SMN" || !player.alive) { releasePet("Your " + pet.name + " fades away."); return; }
+  if (S.time >= S.petTick) {
+    S.petTick = S.time + 3;
+    const cost = 1 + Math.floor(player.lv / 6);
+    if (player.mp < cost) { releasePet("You run out of MP and your " + pet.name + " fades away."); return; }
+    player.mp -= cost;
+  }
+}
+
 function makeMerc(id) {
   return makeChar({ kind: "ally", mercId: id, name: MERCS[id].name, job: MERCS[id].job, sub: null, role: MERCS[id].role, speed: 150, nextNuke: 0 });
 }
@@ -478,6 +524,7 @@ function refreshPlayer(full) {
 function syncAllies(full) {
   for (const a of S.party) {
     if (a === player) continue;
+    if (a.pet) { a.lv = player.lv; a.hp = null; buildStats(a); a.color = "#" + PETS[a.petKey].col.toString(16).padStart(6, "0"); continue; }
     const hpPct = a.maxHp ? a.hp / a.maxHp : 1;
     const mpPct = a.maxMp ? a.mp / a.maxMp : 1;
     a.lv = player.lv;
@@ -492,6 +539,7 @@ function syncAllies(full) {
 function rebuildParty() {
   const old = S.party;
   S.party = [player];
+  if (S.pet) S.party.push(S.pet);
   save.hired.forEach((id, i) => {
     let m = old.find(p => p.mercId === id);
     if (!m) {
@@ -600,6 +648,7 @@ function stat(e, k) {
   if (k === "def" && b.protect) v *= 1.15;
   if (k === "acc" && b.flash) v *= 0.6;
   if (k === "acc" && b.focus) v += 25;
+  if (k === "acc" && b.sharpshot) v += 40;
   return v;
 }
 
@@ -704,6 +753,16 @@ function swing(a, d) {
   const sneak = !!b.sneak_attack, boost = !!b.boost;
   if (sneak) delete b.sneak_attack;
   if (boost) delete b.boost;
+  const bow = a.stats && a.stats.wtype === "archery";
+  if (bow) vfx("arrow", { src: a, tgt: d });
+  if (bow && b.barrage && !a.volley) {
+    delete b.barrage;
+    a.volley = true;
+    log(subj(a) + " " + vb(a, "loose") + " a Barrage!", cls(a));
+    for (let k = 0; k < 3 && d.alive; k++) swing(a, d);
+    a.volley = false;
+    return;
+  }
   if (!sneak && Math.random() * 100 >= hitChance(a, d)) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
     popText(d, "Miss", "#bbbbbb", 14, 0.8);
@@ -720,7 +779,7 @@ function swing(a, d) {
   a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
-  const wt = isMob(a) ? "blunt" : (a.stats.wtype === "sword" || a.stats.wtype === "greataxe" ? "slash" : "blunt");
+  const wt = isMob(a) ? "blunt" : (a.stats.wtype === "sword" || a.stats.wtype === "greataxe" || a.stats.wtype === "archery" ? "slash" : "blunt");
   sfx(crit ? "crit" : wt === "slash" ? "slash" : "blunt", a);
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
@@ -756,6 +815,7 @@ function onKO(e, src) {
     const byParty = [...e.enmity.keys()].some(isParty);
     if (byParty || (src && isParty(src))) {
       save.stats.kills++;
+      if (player.job === "RNG") save.stats.rngKills++;
       noteBeast(e, true);
       if (e.fam.nm) { save.stats.nm++; save.nmKilled[e.famKey] = (save.nmKilled[e.famKey] || 0) + 1; }
       for (const id of save.hired) if (S.party.some(p => p.mercId === id)) addBond(id, e.fam.nm ? 4 : xpFor(e.lv, player.lv) > 0 ? 1 : 0);
@@ -1146,7 +1206,7 @@ function checkAction(a, act, t) {
   if (act.kind === "ws") {
     if (a.tp < 1000) return "Not enough TP.";
     if (!a.engaged || !t || !isMob(t) || !t.alive) return "You must be engaged to use a weapon skill.";
-    if (dist(a, t) > CONFIG.meleeRange) return "Target is out of range.";
+    if (dist(a, t) > reach(a)) return "Target is out of range.";
     return "";
   }
   if (act.kind === "ja") {
@@ -1258,6 +1318,45 @@ function doAbility(a, id, t) {
     if (t.alive) aggro(t, a);
     return;
   }
+  if (id === "shadowbind") {
+    t.buffs.bind = { until: S.time + 12 };
+    log(subj(a) + " " + vb(a, "use") + " Shadowbind. The " + t.name + " is pinned in place!", cls(a));
+    popText(t, "Bound", "#b39ddb", 13, 1);
+    ring(t, "#7e57c2", 30, 0.8);
+    sfx("buff", a);
+    addEnmity(t, a, ab.enmity);
+    aggro(t, a);
+    return;
+  }
+  if (id === "release") {
+    if (!S.pet) { log("You have no sprite out.", "sys"); return; }
+    releasePet("You release your " + S.pet.name + ".");
+    return;
+  }
+  if (id === "blood_pact") {
+    const pet = S.pet;
+    if (!pet || !pet.alive) { log("You need a sprite out for a Blood Pact.", "sys"); a.recasts["ja:" + id] = 0; sfx("error"); return; }
+    const P = PETS[pet.petKey];
+    let dmg = Math.round((24 + a.lv * 7 + a.stats.int * 1.2 + skillOf(a, "summoning") * 0.8) * rand(0.9, 1.1));
+    if (t.fam.weak && t.fam.weak[P.el]) dmg = Math.round(dmg * t.fam.weak[P.el]);
+    pet.face = Math.atan2(t.y - pet.y, t.x - pet.x);
+    log(pet.name + " uses " + P.pact + "! The " + t.name + " takes " + dmg + " damage.", cls(a));
+    popText(pet, P.pact, "#4dd0e1", 13, 1.2, 14);
+    vfx("nuke", { src: pet, tgt: t, el: P.el });
+    sfx(P.el, t);
+    if (a === player) trySkillUp("summoning", t.lv);
+    applyDamage(pet, t, dmg, { color: ELEMENT_COLORS[P.el], size: 22, enmity: ab.enmity + dmg });
+    return;
+  }
+  if (id === "siphon") {
+    if (!S.pet || !S.pet.alive) { log("You need a sprite out to siphon from.", "sys"); a.recasts["ja:" + id] = 0; sfx("error"); return; }
+    const gain = Math.min(a.maxMp - a.mp, 20 + a.lv * 3);
+    a.mp += gain;
+    log(subj(a) + " " + vb(a, "draw") + " " + gain + " MP from the " + S.pet.name + ".", cls(a));
+    popText(a, "+" + gain + " MP", "#64b5f6", 14, 1);
+    sfx("buff", a);
+    return;
+  }
   if (id === "steal") {
     a.face = Math.atan2(t.y - a.y, t.x - a.x);
     const pool = (t.fam.loot || []).filter(([it]) => ITEMS[it] && ITEMS[it].kind !== "equip" && ITEMS[it].kind !== "key");
@@ -1334,6 +1433,7 @@ function finishCast(a) {
   else if (sp.kind === "dot") castDia(a, t, sp);
   else if (sp.kind === "debuff") castDebuff(a, t, sp);
   else if (sp.kind === "buff") castBuff(a, t, sp);
+  else if (sp.kind === "summon") summonPet(a, sp);
   if (a !== player && a.mp < a.maxMp * 0.15) partySay(a, "lowmp");
 }
 
@@ -1561,7 +1661,7 @@ function autoAttack(a, dt) {
   if (a.casting) return;
   a.swingTimer -= dt;
   if (a.swingTimer <= 0) {
-    if (dist(a, t) <= CONFIG.meleeRange) { a.face = Math.atan2(t.y - a.y, t.x - a.x); swing(a, t); a.swingTimer = swingDelay(a); }
+    if (dist(a, t) <= reach(a)) { a.face = Math.atan2(t.y - a.y, t.x - a.x); swing(a, t); a.swingTimer = swingDelay(a); }
     else a.swingTimer = 0;
   }
 }
@@ -1620,7 +1720,7 @@ function updateMob(m, dt) {
       if (m.readying.t <= 0) execTpMove(m);
       return;
     }
-    moveToward(m, t.x, t.y, dt, CONFIG.meleeRange - 8);
+    if (!m.buffs.bind) moveToward(m, t.x, t.y, dt, CONFIG.meleeRange - 8);
     m.face = Math.atan2(t.y - m.y, t.x - m.x);
     m.swingTimer -= dt;
     if (m.swingTimer <= 0) {
@@ -1776,7 +1876,7 @@ function meleeAI(a, tgt, dt) {
   a.attackTarget = tgt;
   a.target = tgt;
   a.engaged = true;
-  moveToward(a, tgt.x, tgt.y, dt, CONFIG.meleeRange - 8);
+  moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8);
   autoAttack(a, dt);
   const acts = actionList(a);
   if (a.role === "tank") {
@@ -1799,9 +1899,9 @@ function meleeAI(a, tgt, dt) {
   if (chak && a.hp < a.maxHp * 0.5 && allyTry(a, chak, a)) return;
   const stl = acts.find(x => x.id === "steal");
   if (stl && !tgt.stolen && tgt.state === "combat" && allyTry(a, stl, tgt)) return;
-  for (const id of ["focus", "boost", "sneak_attack"]) {
+  for (const id of ["focus", "boost", "sneak_attack", "sharpshot", "barrage"]) {
     const x = acts.find(q => q.id === id);
-    if (x && !a.buffs[id] && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, x, a)) return;
+    if (x && !a.buffs[id] && dist(a, tgt) <= reach(a) && allyTry(a, x, a)) return;
   }
   allyWeaponSkill(a, tgt, acts);
 }
@@ -1832,7 +1932,7 @@ function hybridMagic(a, tgt, acts) {
 }
 
 function allyWeaponSkill(a, tgt, acts) {
-  if (a.tp < 1000 || dist(a, tgt) > CONFIG.meleeRange) return;
+  if (a.tp < 1000 || dist(a, tgt) > reach(a)) return;
   const wss = acts.filter(x => x.kind === "ws");
   if (!wss.length) return;
   const c = tgt.chain;
@@ -1924,7 +2024,7 @@ function updatePlayer(dt) {
     moved = true;
     if (moveToward(player, S.moveTarget.x, S.moveTarget.y, dt, 3, player.mounted ? mountMul() : 1)) S.moveTarget = null;
   } else if (S.chase && player.attackTarget && player.attackTarget.alive) {
-    if (dist(player, player.attackTarget) > CONFIG.meleeRange - 4) { moveToward(player, player.attackTarget.x, player.attackTarget.y, dt, CONFIG.meleeRange - 10); moved = true; }
+    if (dist(player, player.attackTarget) > reach(player) - 4) { moveToward(player, player.attackTarget.x, player.attackTarget.y, dt, reach(player) - 10); moved = true; }
   }
   if (moved) {
     touch(player);
@@ -2395,6 +2495,7 @@ function step(dt) {
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
   if (S.race) tickRace();
+  if (S.pet) tickPet();
   if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
@@ -2525,6 +2626,7 @@ function buySaddle() {
 function startRace() {
   if (!save.mountLicense) return "You need a riding license.";
   if (partyInCombat()) return "Not during a fight.";
+  if (S.pet) releasePet(null);
   enterZone(RACE.zone, RACE.start.x, RACE.start.y);
   for (const p of S.party) if (p.alive) { p.mounted = true; p.engaged = false; p.attackTarget = null; }
   S.race = { t0: S.time, next: 0 };
@@ -2576,6 +2678,7 @@ function toggleMount() {
   if (!canRideHere()) { log("Your Thornstrider won't come into " + (S.zone.theme === "town" ? "town" : "here") + ". Call it in open country.", "sys"); sfx("error"); return; }
   if (!player.alive || player.casting || player.engaged || partyInCombat()) { log("You can't call your mount during a fight.", "sys"); sfx("error"); return; }
   standUp(player, true);
+  if (S.pet) releasePet("Your " + S.pet.name + " fades as you mount.");
   for (const p of S.party) if (p.alive) { p.mounted = true; p.engaged = false; p.attackTarget = null; p.casting = null; }
   S.chase = false;
   log("You whistle for your Thornstrider and swing into the saddle.", "you");
@@ -2594,6 +2697,7 @@ function resolveTarget(act) {
   if (act.kind === "ws") return player.attackTarget;
   if (act.kind === "ja") return ABILITIES[act.id].target === "self" ? player : (isMob(player.target) ? player.target : player.attackTarget);
   const sp = SPELLS[act.id];
+  if (sp.target === "self") return player;
   if (sp.target === "ally") return isParty(player.target) && player.target.alive ? player.target : player;
   return isMob(player.target) ? player.target : player.attackTarget;
 }
@@ -3130,6 +3234,7 @@ function setJob(main, sub) {
   if (!jobUnlocked(main)) { log(JOBS[main].name + " is locked. Tobin can teach it once you reach level " + ADVANCED_JOBS[main].lv + ".", "sys"); sfx("error"); return; }
   if (sub && !save.supportUnlocked) { log("Support jobs are locked. Talk to Tobin.", "sys"); return; }
   if (sub && !jobUnlocked(sub)) { log(JOBS[sub].name + " is locked. Tobin can teach it once you reach level " + ADVANCED_JOBS[sub].lv + ".", "sys"); sfx("error"); return; }
+  if (S.pet) releasePet("Your " + S.pet.name + " fades away.");
   save.mainJob = main;
   save.subJob = sub;
   for (const slot of SLOTS) {

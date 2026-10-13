@@ -351,6 +351,10 @@ function splash(p, color, scale) {
 }
 
 const VFX = {
+  arrow(d) {
+    const a = anchor(d.src, 0.6), b = anchor(d.tgt, 0.5);
+    for (let i = 1; i <= 10; i++) { const t = i / 10; burst(FX.add, { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t + Math.sin(t * Math.PI) * 0.4, z: a.z + (b.z - a.z) * t }, 1, { c0: 0xfff3c0, c1: 0xc8a060, speed: 0.05, life: 0.06 + t * 0.12, size: 0.07, alpha: 0.9 }); }
+  },
   hit(d) {
     const p = anchor(d.tgt, 0.55);
     const from = anchor(d.src, 0.55);
