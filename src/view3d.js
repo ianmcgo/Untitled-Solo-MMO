@@ -194,7 +194,16 @@ function updateCamera(dt) {
     cam.lookAt(cam.position.x + f.x, cam.position.y - Math.sin(VIEW.pitch - 0.34), cam.position.z + f.y);
   } else {
     const f = camForward();
-    const horiz = Math.cos(VIEW.pitch) * VIEW.dist, vert = Math.sin(VIEW.pitch) * VIEW.dist;
+    let want = VIEW.dist;
+    const h0 = Math.cos(VIEW.pitch), v0 = Math.sin(VIEW.pitch);
+    for (let i = 1; i <= 16; i++) {
+      const d = VIEW.dist * i / 16;
+      const sx = VIEW.camTarget.x - f.x * h0 * d, sz = VIEW.camTarget.z - f.y * h0 * d;
+      if (groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(1.6, d - VIEW.dist / 16); break; }
+    }
+    if (VIEW.camEff == null) VIEW.camEff = want;
+    VIEW.camEff = want < VIEW.camEff ? want : VIEW.camEff + (want - VIEW.camEff) * Math.min(1, dt * 2.5);
+    const horiz = h0 * VIEW.camEff, vert = v0 * VIEW.camEff;
     let cx = VIEW.camTarget.x - f.x * horiz, cz = VIEW.camTarget.z - f.y * horiz, cy = VIEW.camTarget.y + vert;
     const ground = groundY(cx / U, cz / U) + 0.6;
     if (cy < ground) cy = ground;
@@ -345,6 +354,24 @@ function buildZoneNow() {
   VIEW.yaw = player.face || 0;
   VIEW.camTarget = null;
 }
+async function buildZoneAsync(job, p0, p1) {
+  clearViews();
+  const gen = buildZone3DSteps();
+  let last = performance.now(), r;
+  while (!(r = gen.next()).done) {
+    if (performance.now() - last < 28) continue;
+    const v = r.value || {};
+    loaderProgress(p0 + (p1 - p0) * (v.p || 0), v.t);
+    await frames(1);
+    if (job !== VIEW.zoneJob) return false;
+    last = performance.now();
+  }
+  if (!RIG.atlas) buildAtlas();
+  VIEW.yaw = player.face || 0;
+  VIEW.camTarget = null;
+  VIEW.camEff = null;
+  return true;
+}
 function onZoneEntered() {
   if (!W3.renderer) return;
   if (!$("loading")) { buildZoneNow(); return; }
@@ -357,11 +384,11 @@ async function loadZoneAsync(job) {
   const t0 = performance.now();
   await frames(2);
   if (job !== VIEW.zoneJob) return;
-  loaderProgress(VIEW.booting ? 0.6 : 0.3, "Shaping the land…");
+  loaderProgress(VIEW.booting ? 0.6 : 0.1, "Shaping the land…");
   await frames(1);
   if (job !== VIEW.zoneJob) return;
-  buildZoneNow();
-  loaderProgress(VIEW.booting ? 0.8 : 0.7, "Gathering everyone…");
+  if (!(await buildZoneAsync(job, VIEW.booting ? 0.6 : 0.1, VIEW.booting ? 0.85 : 0.85))) return;
+  loaderProgress(0.9, "Gathering everyone…");
   await frames(1);
   if (job !== VIEW.zoneJob) return;
   draw(1 / 60);
@@ -378,15 +405,29 @@ async function loadZoneAsync(job) {
 }
 function zoneReady() { return VIEW.loading ? new Promise(r => (VIEW.zoneWaiters = VIEW.zoneWaiters || []).push(r)) : Promise.resolve(); }
 
+const JUMP = { windup: 0.11, air: 0.64, land: 0.22 };
+function jumpPhase(e) {
+  if (e !== player || VIEW.jumpStart == null) return null;
+  const t = S.time - VIEW.jumpStart;
+  const m = player.mounted;
+  const wu = m ? 0.04 : JUMP.windup, air = m ? 0.7 : JUMP.air, land = m ? 0.12 : JUMP.land;
+  if (t < 0) return null;
+  if (t < wu) return { phase: "windup", k: t / wu, air: 0, wu, airT: air, land };
+  if (t < wu + air) return { phase: "air", k: (t - wu) / air, air: Math.sin(Math.PI * (t - wu) / air), wu, airT: air, land };
+  if (t < wu + air + land) return { phase: "land", k: (t - wu - air) / land, air: 0, wu, airT: air, land };
+  return { phase: "done", k: 1, air: 0 };
+}
 function jumpHeight(e) {
-  if (e !== player || VIEW.jumpStart == null) return 0;
-  const k = (S.time - VIEW.jumpStart) / 0.62;
-  if (k >= 1 || k < 0) { if (k >= 1) { VIEW.jumpStart = null; if (typeof sfx === "function") sfx(player.mounted ? "hoof" : "step"); } return 0; }
-  return Math.sin(Math.PI * k) * (player.mounted ? 1.1 : 0.85);
+  const j = jumpPhase(e);
+  if (!j) return 0;
+  if (j.phase === "done") { VIEW.jumpStart = null; return 0; }
+  if (j.phase === "land" && !VIEW.jumpLanded) { VIEW.jumpLanded = true; if (typeof sfx === "function") sfx(player.mounted ? "hoof" : "step"); if (typeof fxFootstep === "function") { const v = VIEW.views.get(player); if (v) { fxFootstep(player, v); fxFootstep(player, v); } } }
+  return j.air * (player.mounted ? 1.1 : 0.9);
 }
 function tryJump() {
-  if (S.ko || S.modal || S.dialog || !player.alive || player.casting || VIEW.jumpStart != null) return;
+  if (S.ko || S.modal || S.dialog || !player.alive || player.casting || VIEW.jumpStart != null || player.resting) return;
   VIEW.jumpStart = S.time;
+  VIEW.jumpLanded = false;
   if (typeof sfx === "function") sfx("jump");
 }
 
@@ -400,17 +441,7 @@ function graphicsSettingsHTML() {
     appearanceHTML();
 }
 
-function appearanceHTML() {
-  const l = save.look;
-  const sw = c => '<span class="sw" style="background:#' + c.toString(16).padStart(6, "0") + '"></span>';
-  const btn = (k, label) => '<button data-a="look" data-v="' + k + '">' + label + "</button>";
-  return "<h3>Appearance</h3><div class=\"opt\">" +
-    btn("build", "Build: " + (l.build ? "B" : "A")) +
-    btn("skin", "Skin " + sw(SKIN_TONES[l.skin])) +
-    btn("hairStyle", "Hair: " + HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) +
-    btn("hairColor", "Hair colour " + sw(HAIR_COLORS[l.hairColor])) +
-    '</div><div class="sub">Changes show on your character right away.</div>';
-}
+function appearanceHTML() { return ""; }
 
 function handleSettingAction(a, v) {
   const s = VIEW.settings;

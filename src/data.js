@@ -17,7 +17,10 @@ const CONFIG = {
   castRange: 230,
   abilityRange: 230,
   talkRange: 70,
-  xpTable: [0, 150, 330, 540, 780, 1050, 1350, 1680, 2040, 2430],
+  xpTable: [0, 200, 400, 650, 950, 1300, 1700, 2200, 2850, 3600],
+  chainWindow: 60,
+  chainMax: 5,
+  chainStep: 0.1,
   respawn: 30,
   leash: 520,
   linkRange: 150,
@@ -26,8 +29,11 @@ const CONFIG = {
   itemRecast: 3,
   deathXpLossPct: 0.1,
   regenDelay: 3,
-  regenHp: 0.03,
-  regenMp: 0.04,
+  regenHp: 0.006,
+  regenMp: 0.008,
+  restHp: 0.035,
+  restMp: 0.045,
+  restDelay: 2,
   allyRegen: 0.05,
   allyReviveAfter: 6,
   outOfCombatAfter: 3,
@@ -189,7 +195,7 @@ const ITEMS = {
   bronze_greataxe: { name: "Bronze Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 14, delay: 4.0, jobs: ["WAR"], lv: 1, price: 150 },
   bronze_cap: { name: "Bronze Cap", kind: "equip", icon: "⛑️", slot: "head", jobs: ALL_J, lv: 1, price: 50, stats: { def: 2 } },
   bronze_cap_hq: { name: "Bronze Cap +1", kind: "equip", icon: "⛑️", hq: true, slot: "head", jobs: ALL_J, lv: 1, price: 130, stats: { def: 3, hp: 5 } },
-  chieftain_cap: { name: "Chieftain's Cap", kind: "equip", icon: "👑", slot: "head", jobs: ALL_J, lv: 5, price: 2000, stats: { def: 4, hp: 10, str: 2, dex: 2, int: 2, mnd: 2 } },
+  chieftain_cap: { name: "Chieftain's Cap", kind: "equip", icon: "👑", ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 5, price: 2000, stats: { def: 4, hp: 10, str: 2, dex: 2, int: 2, mnd: 2 } },
   leather_vest: { name: "Leather Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ALL_J, lv: 1, price: 120, stats: { def: 4, hp: 6 } },
   scale_mail: { name: "Scale Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR"], lv: 5, price: 1100, stats: { def: 9, hp: 15 } },
   linen_robe: { name: "Linen Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM"], lv: 1, price: 110, stats: { def: 3, mp: 10 } },
@@ -198,10 +204,17 @@ const ITEMS = {
   leather_gloves: { name: "Leather Gloves", kind: "equip", icon: "🧤", slot: "hands", jobs: ALL_J, lv: 2, price: 90, stats: { def: 2, dex: 1 } },
   leather_trousers: { name: "Leather Trousers", kind: "equip", icon: "👖", slot: "legs", jobs: ALL_J, lv: 2, price: 110, stats: { def: 3 } },
   leather_boots: { name: "Leather Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 3, price: 100, stats: { def: 2, agi: 1 } },
-  captains_ring: { name: "Captain's Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 1, price: 0, stats: { hp: 12, mp: 12, acc: 5, att: 5 } },
+  captains_ring: { name: "Captain's Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 1, price: 0, stats: { hp: 12, mp: 12, acc: 5, att: 5 } },
   raiders_ring: { name: "Raider's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_J, lv: 4, price: 0, stats: { str: 2, acc: 4, att: 4 } },
   duskwing_boots: { name: "Duskwing Boots", kind: "equip", icon: "🥾", rare: true, slot: "feet", jobs: ALL_J, lv: 4, price: 0, stats: { def: 3, agi: 3, eva: 4 } },
   silkworm_gloves: { name: "Silkworm Gloves", kind: "equip", icon: "🧤", rare: true, slot: "hands", jobs: ["WHM", "BLM"], lv: 4, price: 0, stats: { def: 2, int: 2, mnd: 2, mp: 10 } },
+  scavenger_cap: { name: "Scavenger's Cap", kind: "equip", icon: "⛑️", rarity: "uncommon", slot: "head", jobs: ALL_J, lv: 3, price: 300, stats: { def: 3, agi: 1, hp: 4 } },
+  nightwing_gloves: { name: "Nightwing Gloves", kind: "equip", icon: "🧤", rarity: "uncommon", slot: "hands", jobs: ALL_J, lv: 4, price: 340, stats: { def: 2, dex: 2, acc: 2 } },
+  burrower_trousers: { name: "Burrower's Trousers", kind: "equip", icon: "👖", rarity: "uncommon", slot: "legs", jobs: ALL_J, lv: 3, price: 320, stats: { def: 4, vit: 2 } },
+  hare_charm: { name: "Hare Charm", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 1, price: 260, stats: { agi: 2, eva: 3 } },
+  bonecharm_ring: { name: "Bonecharm Ring", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 4, price: 420, stats: { int: 2, mnd: 2, mp: 6 } },
+  gravedigger_boots: { name: "Gravedigger's Boots", kind: "equip", icon: "🥾", rarity: "uncommon", slot: "feet", jobs: ALL_J, lv: 7, price: 700, stats: { def: 4, vit: 2, hp: 8 } },
+  raider_helm: { name: "Raider Helm", kind: "equip", icon: "⛑️", rarity: "rare", slot: "head", jobs: ["WAR"], lv: 7, price: 900, stats: { def: 6, str: 2, att: 3 } },
   wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
   simple_bed: { name: "Simple Bed", kind: "furniture", icon: "🛏️", fp: [2, 3], price: 300, model: "bed", desc: "A sturdy bed with a wool blanket." },
   wooden_table: { name: "Wooden Table", kind: "furniture", icon: "🪑", fp: [2, 2], price: 200, model: "table", desc: "Seats four, if you have four chairs." },
@@ -213,7 +226,7 @@ const ITEMS = {
   floor_lamp: { name: "Floor Lamp", kind: "furniture", icon: "🕯️", fp: [1, 1], price: 150, model: "lamp", desc: "A warm glow for long evenings." },
   round_rug: { name: "Round Rug", kind: "furniture", icon: "⭕", fp: [2, 2], price: 180, model: "rug", desc: "Soft underfoot." },
   hearth: { name: "Stone Hearth", kind: "furniture", icon: "🔥", fp: [2, 1], price: 1200, model: "hearth", desc: "Crackles pleasantly." },
-  goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
+  goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
 const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "iron_sword", "holly_staff"];
@@ -275,25 +288,27 @@ const MERC_LINES = {
   victory: ["Nice work.", "That's that.", "Next!"]
 };
 
-const FEATURES = { crafting: false, gathering: false, residence: false, nms: false, water: true, mounts: false };
+const FEATURES = { crafting: false, gathering: false, residence: false, nms: true, water: true, mounts: false };
 
 const FAMILIES = {
-  goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.55], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.1], ["bronze_cap", 0.04]], gil: [3, 6], model: "goblin" },
-  bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: { sound: 110 }, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["bat_wing", 0.6], ["wind_crystal", 0.35]], model: "bat" },
-  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["worm_silk", 0.5], ["earth_crystal", 0.35], ["healing_herb", 0.3], ["ether", 0.05]], model: "worm" },
-  ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.35], ["ether", 0.1]], model: "ghoul" },
-  den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["iron_ore", 0.25], ["ash_log", 0.2]], gil: [3, 6], model: "goblin" },
-  skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.45], ["water_crystal", 0.25]], model: "skeleton" },
-  hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.35], ["earth_crystal", 0.2]], model: "hare" },
-  chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.6], ["goblin_totem", 0.5], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
+  goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08], ["bronze_cap", 0.03], ["scavenger_cap", 0.03, 3]], gil: [3, 6], model: "goblin" },
+  bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: { sound: 110 }, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05], ["nightwing_gloves", 0.03, 3]], model: "bat" },
+  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06], ["burrower_trousers", 0.03, 3]], model: "worm" },
+  ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05], ["gravedigger_boots", 0.03]], model: "ghoul" },
+  den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05], ["raider_helm", 0.02], ["iron_sword", 0.01]], gil: [3, 6], model: "goblin" },
+  skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.25], ["ether", 0.06], ["bonecharm_ring", 0.03]], model: "skeleton" },
+  hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06], ["hare_charm", 0.03]], model: "hare" },
+  chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.3], ["goblin_totem", 0.3], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
 };
 
 const NM_FAMILIES = {
-  grimtooth: { base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.6], ["goblin_pouch", 1], ["fire_crystal", 1]], gil: [12, 16], respawn: 300 },
-  duskwing: { base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.6], ["bat_wing", 1], ["wind_crystal", 1]], respawn: 300 },
-  king_wiggles: { base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.6], ["worm_silk", 1], ["earth_crystal", 1]], respawn: 300 },
-  ossuary_warden: { base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.6], ["bone_chip", 1], ["water_crystal", 1]], respawn: 360 }
+  grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
+  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  ossuary_warden: { hint: "Bone Pit, Goblin Den · any time", base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.3], ["bone_chip", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 360 }
 };
+
+const RARITY = { common: ["Common", "#e8e8e8"], uncommon: ["Uncommon", "#6fd36f"], rare: ["Rare", "#6aa9ff"], epic: ["Epic", "#c48cff"] };
 
 const DAY_NAMES = ["Emberday", "Stoneday", "Tideday", "Galeday", "Frostday", "Stormday", "Dawnday", "Duskday"];
 const DAY_ELEMENTS = ["fire", "earth", "water", "wind", "ice", "lightning", "light", "dark"];
@@ -302,7 +317,7 @@ const ZONES = {
   outpost: {
     name: "Ashenreach Outpost", w: 1100, h: 800, safe: true, theme: "town",
     exits: [
-      { x: 1076, y: 350, w: 24, h: 100, to: "hollow", tx: 120, ty: 500, label: "Rocky Hollow" }
+      { x: 1076, y: 350, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" }
     ],
     npcs: [
       { id: "rhea", x: 560, y: 210 }, { id: "tobin", x: 840, y: 250 }, { id: "pell", x: 380, y: 520 },
@@ -333,48 +348,88 @@ const ZONES = {
     grid: { cols: 10, rows: 8, blocked: [[0, 0], [1, 0], [0, 1], [1, 1], [4, 7], [5, 7], [4, 6], [5, 6]] }
   },
   hollow: {
-    name: "Rocky Hollow", w: 1600, h: 1000, theme: "field",
+    name: "Rocky Hollow", w: 3200, h: 2200, theme: "field",
     exits: [
-      { x: 0, y: 450, w: 24, h: 100, to: "outpost", tx: 990, ty: 400, label: "Outpost" },
-      { x: 1576, y: 450, w: 24, h: 100, to: "den", tx: 120, ty: 450, label: "Goblin Den" }
+      { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 990, ty: 400, label: "Outpost" },
+      { x: 3176, y: 1030, w: 24, h: 100, to: "den", tx: 120, ty: 800, label: "Goblin Den" }
     ],
-    npcs: [{ id: "crystal_hollow", x: 1460, y: 560 }],
-    spawns: [
-      { fam: "goblin", lv: [2, 3], x: 700, y: 330 }, { fam: "goblin", lv: [2, 3], x: 750, y: 370 }, { fam: "goblin", lv: [1, 2], x: 380, y: 260 },
-      { fam: "goblin", lv: [3, 4], x: 900, y: 720 }, { fam: "goblin", lv: [3, 4], x: 950, y: 690 },
-      { fam: "goblin", lv: [5, 5], x: 1350, y: 760, nm: { id: "grimtooth", lv: 6, chance: 0.15 } },
-      { fam: "bat", lv: [1, 2], x: 700, y: 230, time: "night" }, { fam: "bat", lv: [2, 3], x: 1180, y: 380, time: "night", nm: { id: "duskwing", lv: 6, chance: 0.12 } }, { fam: "bat", lv: [1, 1], x: 320, y: 820, time: "night" },
-      { fam: "skeleton", lv: [4, 5], x: 1050, y: 250, time: "night" }, { fam: "skeleton", lv: [4, 5], x: 1300, y: 860, time: "night" },
-      { fam: "hare", lv: [1, 2], x: 300, y: 600, time: "day" }, { fam: "hare", lv: [1, 2], x: 640, y: 240, time: "day" }, { fam: "hare", lv: [2, 3], x: 1200, y: 760, time: "day" },
-      { fam: "worm", lv: [1, 2], x: 600, y: 640 }, { fam: "worm", lv: [2, 3], x: 1100, y: 860, nm: { id: "king_wiggles", lv: 5, chance: 0.15, time: "day" } }, { fam: "worm", lv: [1, 2], x: 1380, y: 200 }
-    ],
-    water: [{ x: 800, y: 440, r: 110 }, { x: 1180, y: 600, r: 55 }],
-    paths: [{ w: 46, pts: [[-500, 500], [0, 500], [300, 520], [560, 640], [800, 645], [1000, 700], [1250, 700], [1420, 560], [1600, 500], [2100, 500]] }],
-    gather: {
-      mining: { n: 2, at: [[300, 150], [1000, 140], [1500, 880], [200, 940], [1250, 930]], loot: [["copper_ore", 0.6], ["iron_ore", 0.08], ["fire_crystal", 0.1], ["earth_crystal", 0.1]] },
-      logging: { n: 2, at: [[140, 300], [560, 880], [1500, 300], [880, 100], [1300, 420]], loot: [["ash_log", 0.75], ["wind_crystal", 0.15]] },
-      harvesting: { n: 2, at: [[250, 650], [650, 420], [1050, 520], [1450, 640], [380, 520]], loot: [["healing_herb", 0.7], ["worm_silk", 0.1], ["water_crystal", 0.12]] }
+    npcs: [{ id: "crystal_hollow", x: 2950, y: 1260 }],
+    walls: [{ x: 850, y: 1380, w: 170, h: 440 }, { x: 1980, y: 180, w: 400, h: 170 }, { x: 2330, y: 1820, w: 440, h: 150 }],
+    ruins: {
+      walls: [[2370, 500, 2520, 500, 2.6], [2600, 500, 2730, 500, 1.4], [2730, 500, 2730, 620, 2.2], [2730, 700, 2730, 800, 1.0], [2370, 800, 2450, 800, 1.8], [2580, 800, 2730, 800, 2.4], [2370, 500, 2370, 640, 2.0], [2370, 720, 2370, 800, 1.2]],
+      pillars: [[2450, 580, 3.4], [2650, 580, 2.0], [2450, 720, 1.2], [2650, 720, 3.0], [2200, 560, 2.6], [2860, 900, 1.6]]
     },
-    start: { x: 70, y: 500 }
+    landmarks: [
+      { id: "meadow", name: "Shepherd's Meadow", x: 480, y: 1300, r: 240, xp: 40 },
+      { id: "mirror", name: "Mirror Lake", x: 1250, y: 650, r: 300, xp: 50 },
+      { id: "burrow", name: "Burrow Flats", x: 1450, y: 1900, r: 260, xp: 60 },
+      { id: "reed", name: "Reed Pond", x: 2000, y: 1500, r: 200, xp: 50 },
+      { id: "fort", name: "Old Fort Ruins", x: 2550, y: 650, r: 230, xp: 80 },
+      { id: "camp", name: "Goblin Camp", x: 2650, y: 1450, r: 230, xp: 80 },
+      { id: "hcrystal", name: "Eastern Crystal", x: 2950, y: 1260, r: 170, xp: 40 }
+    ],
+    spawns: [
+      { fam: "hare", lv: [1, 2], x: 350, y: 1300, time: "day" }, { fam: "hare", lv: [1, 2], x: 620, y: 1450, time: "day" }, { fam: "hare", lv: [1, 2], x: 420, y: 800, time: "day" },
+      { fam: "worm", lv: [1, 2], x: 700, y: 1250 }, { fam: "worm", lv: [1, 2], x: 300, y: 1700 }, { fam: "worm", lv: [2, 2], x: 600, y: 420 },
+      { fam: "goblin", lv: [1, 2], x: 750, y: 800 }, { fam: "goblin", lv: [1, 2], x: 500, y: 1800 },
+      { fam: "bat", lv: [1, 2], x: 700, y: 650, time: "night" }, { fam: "bat", lv: [1, 2], x: 300, y: 1500, time: "night" },
+      { fam: "goblin", lv: [2, 3], x: 1350, y: 1200 }, { fam: "goblin", lv: [2, 3], x: 1400, y: 1250 }, { fam: "goblin", lv: [2, 3], x: 1700, y: 800 },
+      { fam: "hare", lv: [2, 3], x: 1100, y: 1150, time: "day" }, { fam: "worm", lv: [2, 3], x: 1000, y: 400 },
+      { fam: "bat", lv: [2, 3], x: 1550, y: 500, time: "night" }, { fam: "skeleton", lv: [3, 4], x: 1800, y: 1300, time: "night" },
+      { fam: "worm", lv: [3, 4], x: 1250, y: 1850 }, { fam: "worm", lv: [3, 4], x: 1650, y: 1950, nm: { id: "king_wiggles", lv: 5, chance: 0.15, time: "day" } }, { fam: "worm", lv: [3, 3], x: 1500, y: 2050 },
+      { fam: "hare", lv: [3, 3], x: 1150, y: 2000, time: "day" },
+      { fam: "goblin", lv: [4, 4], x: 2450, y: 900 }, { fam: "goblin", lv: [4, 4], x: 2250, y: 650 },
+      { fam: "skeleton", lv: [4, 5], x: 2550, y: 620, time: "night" }, { fam: "skeleton", lv: [4, 5], x: 2800, y: 420, time: "night" }, { fam: "skeleton", lv: [4, 5], x: 2150, y: 450, time: "night" },
+      { fam: "bat", lv: [3, 4], x: 2500, y: 700, time: "night", nm: { id: "duskwing", lv: 6, chance: 0.12 } }, { fam: "bat", lv: [3, 4], x: 2600, y: 650, time: "night" },
+      { fam: "goblin", lv: [4, 5], x: 2600, y: 1400 }, { fam: "goblin", lv: [4, 5], x: 2650, y: 1480 }, { fam: "goblin", lv: [4, 5], x: 2750, y: 1420 },
+      { fam: "goblin", lv: [5, 5], x: 2850, y: 1600, nm: { id: "grimtooth", lv: 6, chance: 0.15 } }, { fam: "goblin", lv: [5, 6], x: 2500, y: 1650 }
+    ],
+    water: [{ x: 1250, y: 650, r: 170 }, { x: 2000, y: 1500, r: 90 }],
+    paths: [
+      { w: 46, pts: [[-500, 1100], [0, 1100], [400, 1120], [800, 1010], [1200, 980], [1650, 1050], [2100, 1150], [2500, 1160], [2900, 1150], [3200, 1080], [3700, 1080]] },
+      { w: 34, pts: [[2100, 1150], [2300, 950], [2515, 860], [2515, 650]] },
+      { w: 34, pts: [[1650, 1050], [1550, 1450], [1420, 1850]] },
+      { w: 30, pts: [[2500, 1160], [2650, 1450]] }
+    ],
+    gather: {
+      mining: { n: 3, at: [[300, 300], [1000, 250], [2900, 1900], [200, 2000], [1250, 2100], [2850, 300]], loot: [["copper_ore", 0.6], ["iron_ore", 0.08], ["fire_crystal", 0.1], ["earth_crystal", 0.1]] },
+      logging: { n: 3, at: [[140, 600], [560, 1950], [3000, 600], [880, 200], [1900, 650], [2100, 2050]], loot: [["ash_log", 0.75], ["wind_crystal", 0.15]] },
+      harvesting: { n: 3, at: [[250, 1450], [900, 650], [1750, 1350], [2350, 1450], [500, 1000], [1300, 1600]], loot: [["healing_herb", 0.7], ["worm_silk", 0.1], ["water_crystal", 0.12]] }
+    },
+    start: { x: 70, y: 1100 }
   },
   den: {
-    name: "Goblin Den", w: 1400, h: 900, theme: "cave",
-    exits: [{ x: 0, y: 400, w: 24, h: 100, to: "hollow", tx: 1480, ty: 500, label: "Rocky Hollow" }],
+    name: "Goblin Den", w: 2400, h: 1600, theme: "cave",
+    exits: [{ x: 0, y: 750, w: 24, h: 100, to: "hollow", tx: 3080, ty: 1090, label: "Rocky Hollow" }],
     npcs: [],
-    spawns: [
-      { fam: "den_goblin", lv: [6, 7], x: 400, y: 250 }, { fam: "den_goblin", lv: [6, 7], x: 440, y: 290 },
-      { fam: "den_goblin", lv: [7, 8], x: 700, y: 620 }, { fam: "den_goblin", lv: [7, 8], x: 750, y: 660 }, { fam: "den_goblin", lv: [7, 8], x: 800, y: 610 },
-      { fam: "bat", lv: [5, 6], x: 300, y: 700 }, { fam: "bat", lv: [5, 6], x: 620, y: 150 },
-      { fam: "ghoul", lv: [7, 8], x: 1000, y: 230 }, { fam: "ghoul", lv: [7, 8], x: 1050, y: 290 }, { fam: "ghoul", lv: [8, 9], x: 1000, y: 720, nm: { id: "ossuary_warden", lv: 10, chance: 0.15 } },
-      { fam: "chieftain", lv: [11, 11], x: 1260, y: 450 }
+    walls: [{ x: 0, y: 0, w: 760, h: 520 }, { x: 0, y: 1080, w: 760, h: 520 }, { x: 1000, y: 700, w: 620, h: 200 }, { x: 1620, y: 0, w: 180, h: 520 }, { x: 1620, y: 1080, w: 180, h: 520 }],
+    landmarks: [
+      { id: "mouth", name: "Den Mouth", x: 380, y: 800, r: 230, xp: 80 },
+      { id: "pool", name: "Underground Pool", x: 1250, y: 380, r: 260, xp: 100 },
+      { id: "pit", name: "Bone Pit", x: 1250, y: 1250, r: 260, xp: 120 },
+      { id: "throne", name: "Chieftain's Throne", x: 2100, y: 800, r: 280, xp: 150 }
     ],
-    water: [{ x: 600, y: 430, r: 80 }],
-    paths: [{ w: 40, pts: [[-500, 450], [0, 450], [300, 560], [700, 590], [1000, 520], [1260, 450]] }],
-    torches: [[200, 300], [200, 620], [520, 200], [820, 760], [1100, 420], [1200, 300], [1200, 620]],
+    spawns: [
+      { fam: "bat", lv: [5, 6], x: 350, y: 640 }, { fam: "bat", lv: [5, 6], x: 520, y: 980 },
+      { fam: "den_goblin", lv: [5, 6], x: 560, y: 760 }, { fam: "den_goblin", lv: [5, 6], x: 600, y: 820 },
+      { fam: "den_goblin", lv: [6, 7], x: 880, y: 300 }, { fam: "den_goblin", lv: [6, 7], x: 880, y: 1300 },
+      { fam: "bat", lv: [5, 6], x: 1450, y: 250 }, { fam: "worm", lv: [6, 7], x: 1050, y: 200 },
+      { fam: "den_goblin", lv: [6, 7], x: 1200, y: 560 }, { fam: "den_goblin", lv: [6, 7], x: 1260, y: 600 },
+      { fam: "ghoul", lv: [7, 8], x: 1100, y: 1300 }, { fam: "ghoul", lv: [7, 8], x: 1180, y: 1360 }, { fam: "ghoul", lv: [7, 8], x: 1450, y: 1250 },
+      { fam: "skeleton", lv: [7, 8], x: 1350, y: 1450 }, { fam: "ghoul", lv: [8, 9], x: 1250, y: 1050, nm: { id: "ossuary_warden", lv: 10, chance: 0.15 } },
+      { fam: "den_goblin", lv: [7, 8], x: 1950, y: 600 }, { fam: "den_goblin", lv: [7, 8], x: 1950, y: 1000 }, { fam: "den_goblin", lv: [8, 8], x: 2050, y: 800 },
+      { fam: "chieftain", lv: [11, 11], x: 2220, y: 800 }
+    ],
+    water: [{ x: 1300, y: 260, r: 100 }],
+    paths: [
+      { w: 40, pts: [[-500, 800], [0, 800], [400, 800], [880, 800], [950, 480], [1400, 560], [1710, 640], [2150, 800]] },
+      { w: 40, pts: [[880, 800], [950, 1120], [1400, 1120], [1710, 960], [2150, 800]] }
+    ],
+    torches: [[300, 640], [300, 960], [850, 600], [850, 1000], [1050, 560], [1520, 420], [1050, 1250], [1450, 1350], [1900, 560], [1900, 1040], [2280, 660], [2280, 940]],
     gather: {
-      mining: { n: 3, at: [[200, 120], [520, 800], [900, 120], [1150, 820], [860, 460], [300, 450]], loot: [["iron_ore", 0.45], ["copper_ore", 0.3], ["fire_crystal", 0.15]] }
+      mining: { n: 3, at: [[200, 600], [700, 1000], [1100, 150], [1500, 1500], [2300, 500], [2300, 1100]], loot: [["iron_ore", 0.45], ["copper_ore", 0.3], ["fire_crystal", 0.15]] }
     },
-    start: { x: 70, y: 450 }
+    start: { x: 70, y: 800 }
   }
 };
 

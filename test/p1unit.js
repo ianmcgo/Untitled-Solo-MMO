@@ -57,7 +57,7 @@ ok(G.save.home.zone === 'hollow', 'home point set in the Hollow');
 const j = G.save.jobs.WAR; j.xp = 500;
 P().hp = 0; P().alive = false; S.ko = true;
 G.returnHome();
-ok(j.xp === 500 - Math.floor(1050 * 0.1) && S.zoneId === 'hollow' && P().alive && P().hp === P().maxHp, 'death costs 10% of the level requirement and returns to the Hollow crystal (xp ' + j.xp + ')');
+ok(j.xp === 500 - Math.floor(G.CONFIG.xpTable[j.lv] * 0.1) && S.zoneId === 'hollow' && P().alive && P().hp === P().maxHp, 'death costs 10% of the level requirement and returns to the Hollow crystal (xp ' + j.xp + ')');
 j.xp = 20; P().alive = false; S.ko = true; G.returnHome();
 ok(j.xp === 0 && j.lv === 5, 'XP never goes negative and you never de-level');
 

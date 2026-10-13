@@ -117,6 +117,18 @@
   #log.f-system div:not(.sys):not(.npc):not(.party) { display: none; }
   #chat.min #log { height: 54px; overflow: hidden; background: linear-gradient(rgba(10,12,20,0), rgba(10,12,20,.55)); border-color: transparent; box-shadow: none; pointer-events: none; }
   #chat.min #chatTabs button:not(.tog) { display: none; }
+  #verPop { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); z-index: 25; width: min(380px, 90vw); padding: 14px 16px; display: none; pointer-events: auto; border-color: var(--gold); box-shadow: 0 0 28px rgba(241,207,115,.3); animation: tin .3s ease-out; }
+  #verPop .vpT { font: 700 16px var(--serif); color: var(--gold); margin-bottom: 6px; }
+  #verPop .vpB { font-size: 12.5px; line-height: 1.55; color: #e2dfd6; }
+  #verPop .vpB ul { margin: 6px 0 0 18px; padding: 0; }
+  #verPop .vpB .sub { color: var(--muted); font-size: 11.5px; }
+  #verPop .vpA { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+  #verPop .vpA button { padding: 7px 14px; }
+  #verPop .vpA .pri { border-color: var(--gold); color: var(--gold); }
+  #chatIn { margin-top: 4px; height: 26px; padding: 0 9px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(10,12,20,.7); color: #f2efe6; font: 12px system-ui; outline: none; pointer-events: auto; }
+  #chatIn:focus { border-color: var(--gold); background: rgba(10,12,20,.9); }
+  #chatIn::placeholder { color: #8c8a84; }
+  #log .say { color: #f4f1e8; }
 
   #bottom { position: absolute; left: 50%; bottom: calc(8px + var(--sab)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; }
   #castBar { width: 260px; display: none; padding: 4px 7px; text-align: center; font-size: 11px; }
@@ -247,10 +259,23 @@
   .cell.empty { background: rgba(0,0,0,.25); border-style: dashed; cursor: default; }
   .cell.sel { outline: 2px solid var(--gold); outline-offset: 1px; }
   .r-common { border-color: rgba(255,255,255,.18); }
-  .r-hq { border-color: #6fd36f; box-shadow: inset 0 0 8px rgba(111,211,111,.35); }
-  .r-rare { border-color: #c48cff; box-shadow: inset 0 0 10px rgba(196,140,255,.45); }
-  .r-ex { border-color: #ffb74d; box-shadow: inset 0 0 10px rgba(255,183,77,.4); }
-  .r-gear { border-color: #6aa9ff; }
+  .r-uncommon { border-color: #6fd36f; box-shadow: inset 0 0 8px rgba(111,211,111,.35); }
+  .r-rare { border-color: #6aa9ff; box-shadow: inset 0 0 10px rgba(106,169,255,.45); }
+  .r-epic { border-color: #c48cff; box-shadow: inset 0 0 10px rgba(196,140,255,.5); }
+  .toast.r-uncommon { border-color: #6fd36f; }
+  .toast.r-rare { border-color: #6aa9ff; box-shadow: 0 0 14px rgba(106,169,255,.4); }
+  .toast.r-epic { border-color: #c48cff; box-shadow: 0 0 14px rgba(196,140,255,.45); }
+  .help details { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 8px 11px; margin-bottom: 7px; }
+  .help summary { cursor: pointer; font: 700 14px var(--serif); color: var(--gold); }
+  .help p, .help li { font-size: 12.5px; line-height: 1.6; color: #d8d6cf; }
+  .help ul { margin: 4px 0 4px 18px; padding: 0; }
+  .help table { border-collapse: collapse; font-size: 12px; margin: 4px 0; width: 100%; }
+  .help td, .help th { border-bottom: 1px solid rgba(255,255,255,.08); padding: 3px 6px; text-align: left; }
+  .help th { color: var(--gold); font-weight: 600; }
+  .upd { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 9px 12px; margin-bottom: 8px; }
+  .upd h4 { margin: 0 0 4px; font: 700 14px var(--serif); color: var(--gold); }
+  .upd h4 small { color: var(--muted); font: 11px system-ui; margin-left: 6px; }
+  .upd li { font-size: 12.5px; line-height: 1.55; color: #d8d6cf; }
   .detail { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--edge); }
   .detail .hd { display: flex; gap: 10px; align-items: center; }
   .detail .hd .ic { font-size: 30px; }
@@ -281,6 +306,10 @@
   #loading.zone { background: radial-gradient(ellipse at 50% 45%, rgba(30,26,18,.97), rgba(5,5,7,.99)); }
   #loading .crest { width: 74px; height: 74px; border-radius: 50%; border: 2px solid var(--edge2); display: grid; place-items: center; font-size: 34px; color: var(--gold); box-shadow: 0 0 30px rgba(241,207,115,.25), inset 0 0 18px rgba(241,207,115,.2); animation: crest 3s ease-in-out infinite; }
   #loading.zone .crest { width: 54px; height: 54px; font-size: 24px; }
+  #loading .crest { position: relative; }
+  #loading .crest::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--gold); border-right-color: rgba(241,207,115,.35); animation: ldspin 1s linear infinite; will-change: transform; }
+  #loading.ready .crest::after { display: none; }
+  @keyframes ldspin { to { transform: rotate(360deg); } }
   @keyframes crest { 50% { box-shadow: 0 0 46px rgba(241,207,115,.45), inset 0 0 22px rgba(241,207,115,.35); } }
   #ldTitle { font: 700 34px var(--serif); letter-spacing: .14em; color: var(--gold); text-shadow: 0 0 20px rgba(241,207,115,.35), 0 3px 6px #000; }
   #loading.zone #ldTitle { font-size: 26px; letter-spacing: .06em; }
@@ -296,6 +325,50 @@
   #ldStart small { display: block; font: 11px system-ui; color: #ddd; letter-spacing: 0; margin-top: 2px; }
   #loading.ready #ldStart { display: block; }
   #loading.ready #ldBar, #loading.ready #ldText { display: none; }
+  #loading.roster #ldTip { display: none; }
+  #loading.roster { justify-content: flex-start; padding-top: max(26px, 5vh); overflow-y: auto; gap: 8px; }
+  #loading.roster .crest { width: 48px; height: 48px; font-size: 22px; }
+  #loading.roster #ldTitle { font-size: 26px; }
+  #charSel { display: none; width: min(560px, 94vw); text-align: left; margin-top: 6px; }
+  .ccList { display: flex; flex-direction: column; gap: 8px; }
+  .ccCard { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid var(--edge); cursor: pointer; transition: background .15s, border-color .15s; }
+  .ccCard:hover { background: rgba(241,207,115,.08); border-color: var(--gold); }
+  .ccPor { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; border: 2px solid; flex: none; }
+  .ccInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .ccInfo b { font: 700 16px var(--serif); color: var(--gold); }
+  .ccInfo span { font-size: 12px; color: #e2dfd6; }
+  .ccInfo small { font-size: 11px; color: var(--muted); }
+  .ccBtns { display: flex; gap: 6px; }
+  .ccBtns .pri, .ccFoot .pri, .ccAct .pri { border-color: var(--gold); color: var(--gold); background: linear-gradient(#3a321c, #1c180e); font-weight: 700; }
+  .ccBtns .del { padding: 7px 9px; opacity: .7; }
+  .ccBtns .del:hover { opacity: 1; border-color: #ff8a80; color: #ff8a80; }
+  .ccEmpty { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; border: 1px dashed var(--edge); border-radius: 12px; }
+  .ccFoot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 10px; }
+  .ccFoot .pri { padding: 10px 18px; font: 700 14px var(--serif); }
+  .ccForm { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+  #ccPv { position: relative; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; background: radial-gradient(ellipse at 50% 70%, #33384f, #0b0c13 70%); border: 1px solid var(--edge); }
+  #ccPv canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+  #ccPv .lbl { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font: 700 16px var(--serif); color: var(--gold); text-shadow: 0 2px 4px #000; pointer-events: none; }
+  #ccPv .lbl small { display: block; font: 11px system-ui; color: #ddd; }
+  .ccOpts { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+  .ccOpts label { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 12px; }
+  .ccOpts input { height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--edge2); background: rgba(10,12,20,.8); color: #f2efe6; font: 15px var(--serif); outline: none; }
+  .ccOpts input:focus { border-color: var(--gold); }
+  .ccSec { font: 700 13px var(--serif); color: var(--gold); margin-top: 6px; }
+  .ccSec small { font: 11px system-ui; color: var(--muted); font-weight: 400; }
+  .ccJobs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ccJobs button { flex: 1; min-width: 100px; padding: 8px 6px; }
+  .ccJobs button.on { border-color: var(--jc); color: #fff; background: color-mix(in srgb, var(--jc) 30%, #141722); box-shadow: inset 0 0 0 1px var(--jc); }
+  .ccLook { display: flex; flex-direction: column; gap: 4px; }
+  .ccRow { display: grid; grid-template-columns: 1fr 30px 70px 30px; align-items: center; gap: 4px; }
+  .ccRow span { color: var(--muted); font-size: 12px; }
+  .ccRow b { text-align: center; font-weight: 600; font-size: 12px; }
+  .ccRow button { padding: 4px 0; }
+  .ccRow .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 1px solid #000; vertical-align: -3px; }
+  .ccWarn { font-size: 11.5px; color: #ffb74d; margin-top: 4px; }
+  .ccErr { font-size: 12px; color: #ff8a80; min-height: 16px; }
+  .ccAct { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
+  .ccAct .pri { padding: 10px 18px; font: 700 14px var(--serif); }
   .bb.jmp { width: 46px; height: 46px; }
   @media (max-width: 900px) {
     :root { --slot: 46px; }
@@ -354,6 +427,10 @@
     #mNav button { flex: none; padding: 7px 9px; font-size: 12px; }
     #mNav .x { margin-top: 0; margin-left: auto; }
     .charGrid { grid-template-columns: 1fr; }
+    .ccForm { grid-template-columns: 1fr; }
+    #ccPv { aspect-ratio: auto; height: 34vh; }
+    .ccCard { padding: 8px 10px; gap: 8px; }
+    .ccBtns .pri { padding: 7px 10px; }
     #pvWrap { aspect-ratio: auto; height: 46vh; }
     .paper { grid-template-columns: repeat(4, 1fr); }
   }
@@ -375,7 +452,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">__VERSION__</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="ldTip"></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">__VERSION__</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>
   <div id="flash"></div>
@@ -393,10 +470,10 @@
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
-      <div id="trBtns"><button id="btnQuests" title="Quests (J)">📜</button><button id="btnSound" title="Sound">🔊</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
+      <div id="trBtns"><button id="btnHelp" title="Help (H)">❓</button><button id="btnUpdates" title="Updates">📰</button><button id="btnQuests" title="Quests (J)">📜</button><button id="btnSound" title="Sound">🔊</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
-    <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div></div>
+    <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
       <div id="barWrap" class="glass"><div id="pager"><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>

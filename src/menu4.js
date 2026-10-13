@@ -37,7 +37,7 @@ function renderModal() {
   for (const t of ["shop", "job", "mercs"]) if (S.modal === t) tabs.unshift(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">🪙 ' + save.gil + " gil · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -90,8 +90,8 @@ function tabCharacter() {
   return h;
 }
 
-function attachPreview() {
-  const wrap = $("pvWrap");
+function attachPreview(wrapId) {
+  const wrap = $(wrapId || "pvWrap");
   if (!wrap || typeof THREE === "undefined") return;
   if (!UI.pv) {
     try {
@@ -121,8 +121,16 @@ function attachPreview() {
   UI.pv.sized = 0;
 }
 
-function previewEntity() {
-  return { kind: "pc", job: player.job, sub: player.sub, lv: player.lv, gear: Object.assign({}, save.gear), alive: true, engaged: false, casting: null, moving: false, mounted: false, x: 0, y: 0, face: 0, lastSwing: -9, lastHit: -9, lastWS: -9, buffs: {}, tp: 0, hp: 1, maxHp: 1, mp: 0, maxMp: 0, radius: 14, regenerating: false, stats: player.stats, swingTimer: 2, delay: player.delay };
+function previewEntity(o) {
+  const job = o ? o.job : player.job;
+  const gear = o ? o.gear : save.gear;
+  const wt = gear.main && ITEMS[gear.main] ? ITEMS[gear.main].wtype : "h2h";
+  const stats = o ? { wtype: wt, dmg: 1, acc: 1, eva: 1, att: 1, def: 1, str: 1, dex: 1, vit: 1, agi: 1, int: 1, mnd: 1, maxHp: 1, maxMp: 1 } : player.stats;
+  return { kind: "pc", job, sub: o ? null : player.sub, lv: o ? 1 : player.lv, gear: Object.assign({}, gear), alive: true, engaged: false, casting: null, moving: false, mounted: false, x: 0, y: 0, face: 0, lastSwing: -9, lastHit: -9, lastWS: -9, buffs: {}, tp: 0, hp: 1, maxHp: 1, mp: 0, maxMp: 0, radius: 14, regenerating: false, stats, swingTimer: 2, delay: o ? 3 : player.delay, resting: false };
+}
+function lookBase(look) {
+  const l = look || {};
+  return { build: l.build || 0, skin: SKIN_TONES[l.skin || 0], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
 }
 function renderPreview(now) {
   const pv = UI.pv;
@@ -132,8 +140,9 @@ function renderPreview(now) {
   const w = pv.canvas.clientWidth, h = pv.canvas.clientHeight;
   if (!w || !h) return;
   if (pv.sized !== w * 10000 + h) { pv.sized = w * 10000 + h; pv.r.setSize(w, h, false); pv.cam.aspect = w / h; pv.cam.updateProjectionMatrix(); }
-  const L = lookFor(player.job, save.gear, playerBase());
-  const sig = stableKey(L);
+  const o = pv.override;
+  const L = o ? lookFor(o.job, o.gear, lookBase(o.look)) : lookFor(player.job, save.gear, playerBase());
+  const sig = stableKey(L) + (o ? "|cc" : "");
   if (sig !== pv.sig) {
     if (pv.holder) { pv.scene.remove(pv.holder); pv.view && pv.view.mat && pv.view.mat.dispose(); }
     const entry = entryFor("h|" + sig, () => humanEntry(L));
@@ -142,7 +151,7 @@ function renderPreview(now) {
     holder.add(inst.mesh);
     const weapon = makeWeapon(L.weapon, L.weaponId);
     pv.view = { group: holder, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, kind: "human", weapon, weaponKind: L.weapon, alwaysDrawn: false, weaponDrawn: null, style: "pc", stride: 1.7, scale: 1, mount: null, sink: 0 };
-    pv.ent = previewEntity();
+    pv.ent = previewEntity(o);
     pv.scene.add(holder);
     pv.holder = holder;
     pv.sig = sig;
@@ -162,7 +171,7 @@ function invSorted() {
     if (UI.filter === "use") return it.kind === "use";
     if (UI.filter === "gear") return it.kind === "equip";
     if (UI.filter === "mat") return it.kind === "mat" || it.kind === "crystal" || it.kind === "tool";
-    if (UI.filter === "rare") return it.rare || it.ex || it.kind === "furniture";
+    if (UI.filter === "rare") return it.rare || it.ex || it.kind === "furniture" || ["rare", "epic"].includes(itemRarity(s.id));
     return true;
   });
 }
@@ -182,7 +191,7 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [it.rare ? "Rare" : "", it.ex ? "Exclusive" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " gil" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " gil" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
@@ -243,7 +252,8 @@ function tabActions() {
 function tabQuests() {
   let h = "";
   const order = ["active", "killed", "none", "done"];
-  const ids = Object.keys(QUESTS).sort((a, b) => order.indexOf(save.quests[a]) - order.indexOf(save.quests[b]));
+  const ids = Object.keys(QUESTS).filter(id => save.quests[id] !== "none").sort((a, b) => order.indexOf(save.quests[a]) - order.indexOf(save.quests[b]));
+  if (!ids.length) return '<div class="sub">You have no quests yet. Talk to the people of the Outpost. A ❗ over someone means they have work for you.</div>';
   for (const id of ids) {
     const st = save.quests[id];
     const q = QUESTS[id];
@@ -264,6 +274,11 @@ function tabMap() {
   const f = exploredFor(S.zoneId);
   const pct = Math.round(100 * f.s.split("").filter(c => c === "1").length / f.s.length);
   h += '<div class="sub" style="margin-top:4px">' + esc(S.zone.name) + " · " + pct + "% explored</div>";
+  const lms = S.zone.landmarks || [];
+  if (lms.length) {
+    const found = lms.filter(l => save.landmarks[S.zoneId + ":" + l.id]);
+    h += '<div class="sub" style="margin-top:4px">🧭 Landmarks ' + found.length + "/" + lms.length + (found.length ? ": " + found.map(l => esc(l.name)).join(" · ") : " · explore to find them for bonus XP") + "</div>";
+  }
   h += "<h3>World</h3>" + worldMapSVG();
   return h;
 }
@@ -301,6 +316,7 @@ function drawZoneMap() {
     lbl((questMarker(n) ? "❗ " : "") + n.name.split(",")[0], n.x, n.y - 10 / s, cr ? "#7ff3ff" : "#ead9ae");
   }
   for (const p of S.party) if (p !== player) { g.beginPath(); g.arc(p.x, p.y, 5 / s, 0, 7); g.fillStyle = "#62b6ff"; g.fill(); }
+  for (const l of z.landmarks || []) if (save.landmarks[S.zoneId + ":" + l.id]) lbl("🧭 " + l.name, l.x, l.y, "#e9dcb4");
   g.save(); g.translate(player.x, player.y); g.rotate(player.face || 0); g.scale(1 / s, 1 / s);
   g.beginPath(); g.moveTo(12, 0); g.lineTo(-8, -8); g.lineTo(-3, 0); g.lineTo(-8, 8); g.closePath(); g.fillStyle = "#fff"; g.fill(); g.lineWidth = 2; g.strokeStyle = "#000"; g.stroke();
   g.restore();
@@ -333,11 +349,14 @@ function tabSettings() {
 function tabSystem() {
   let h = "<h3>Save data</h3>";
   h += '<div class="sub" style="margin-bottom:8px">Your progress saves automatically in this browser. Save to a file for a backup, or load a file to restore one or move to another device.</div>';
-  h += '<div class="opt"><button data-a="savefile">💾 Save to file</button><button data-a="loadfile">📂 Load from file</button><button data-a="newgame">Start a new game</button></div>';
+  h += '<div class="opt"><button data-a="savefile">💾 Save to file</button><button data-a="loadfile">📂 Load from file</button></div>';
+  h += "<h3>Character</h3><div class=\"sub\" style=\"margin-bottom:8px\">" + esc(save.name) + " · " + JOBS[save.mainJob].name + " Lv." + player.lv + " · " + loadRoster().chars.length + " of " + MAX_CHARS + " characters. Appearance was set at creation and can't be changed.</div>";
+  h += '<div class="opt"><button data-a="logout">👥 Change character</button></div>';
   h += '<input type="file" id="loadInput" accept=".json,application/json" style="display:none">';
   h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes.</div>";
-  h += "<h3>Controls</h3><div class=\"sub\" style=\"line-height:1.7\"><b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap to target, tap again to attack or talk.<br><b>Keyboard:</b> WASD move · drag, arrows or Q/E turn · scroll zoom · V first person · Tab target · F attack · Enter talk · 1–0 action bar (Shift for page 2) · [ ] switch page · R mount · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map.<br>Stand still out of combat to regenerate HP and MP.</div>";
-  h += "<h3>About</h3><div class=\"sub\">Untitled Solo RPG · Phase 4 build · all art, music and sound are generated for this game.</div>";
+  h += "<h3>Controls</h3><div class=\"sub\" style=\"line-height:1.7\"><b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap to target, tap again to attack or talk.<br><b>Keyboard:</b> WASD move · drag, arrows or Q/E turn · scroll zoom · V first person · Tab target (nearest first, press again to cycle) · F attack · Enter talk · 1–0 action bar (Shift for page 2) · [ ] switch page · R mount · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map · H help.<br>Stand still out of combat to regenerate HP and MP.</div>";
+  h += '<div class="opt" style="margin-top:8px"><button data-a="checkupd">🔄 Check for updates</button></div>';
+  h += "<h3>About</h3><div class=\"sub\">Untitled Solo RPG · " + BUILD_INFO + " · all art, music and sound are generated for this game.</div>";
   return h;
 }
 function tabShop() {
@@ -466,14 +485,9 @@ function onMenuClick(e) {
   else if (a === "hire") hireMerc(v);
   else if (a === "dismiss") dismissMerc(v);
   else if (a === "savefile") { downloadSave(); return; }
+  else if (a === "checkupd") { checkForUpdate(true); return; }
   else if (a === "loadfile") { $("loadInput").click(); return; }
-  else if (a === "newgame") {
-    if (typeof confirm === "function" && !confirm("Erase your progress and start over?")) return;
-    startNewGame();
-    UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
-    closeModal();
-    return;
-  }
+  else if (a === "logout") { closeModal(); logoutToSelect(); return; }
   renderModal();
 }
 function placeOnBar(a) {
@@ -499,4 +513,189 @@ function initMenu() {
   });
   m.addEventListener("change", e => { if (e.target.dataset && e.target.dataset.vol) sfx("click"); });
   applyUiSettings();
+}
+
+const BUILD_INFO = "__VERSION__";
+const UPDATES = [
+  { v: "4.2.0", date: "2026-10-13", title: "Phase 5a: a bigger world", items: [
+    "Character creation: choose a name, job and appearance before you start. Appearance is permanent. Keep up to 8 characters and pick one on the character select screen each time you play, like an MMO. System → Change character logs out to that screen.",
+    "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes.",
+    "A Rest action is on page 2 of the action bar.",
+    "Real loading screens: every area change shows a progress bar that moves while the land is shaped, instead of freezing.",
+    "New-version popup: the game checks for updates and offers to reload. After an update, a what's-new card shows the changes.",
+    "Jumping has a real animation: crouch, tuck, arms up, land.",
+    "Quests no longer appear in the journal until you've accepted them from someone.",
+    "Rocky Hollow is now four times larger (3200×2200): Shepherd's Meadow, Mirror Lake, Burrow Flats, Reed Pond, the Old Fort Ruins and a Goblin Camp, with rocky outcrops and a home point crystal by the eastern exit.",
+    "The Goblin Den is now four chambers joined by passages: Den Mouth, Underground Pool, Bone Pit and the Chieftain's Throne.",
+    "Notorious monsters are live. Grimtooth, Duskwing, King Wiggles and the Ossuary Warden pop from placeholder monsters. Their cooldowns run on the real clock, so a defeated NM stays down while you're offline.",
+    "Drop tables reworked to MMO rates: materials 15–40%, uncommon items 5–10%, gear 1–5%, NM and boss uniques 30%.",
+    "Seven new gear drops from regular monsters, from the Hare Charm to the Raider Helm.",
+    "Item rarity colours: common white, uncommon green, rare blue, epic purple. Rare items can only be held once; Ex items can't be sold.",
+    "EXP chains: defeat monsters back to back (within 60 s) for +10% XP per chain, up to +50%. The counter sits next to the XP bar.",
+    "Discovery XP: find the 11 landmarks across Rocky Hollow and the Goblin Den for bonus XP.",
+    "Smoother XP curve: 200 XP for level 2 up to 3,600 XP for level 10.",
+    "Tab now targets the closest person in town, and the closest enemy in the field; press again within 2 s to cycle by distance.",
+    "Companions catch up if they get left behind, and monsters stuck on a wall go home.",
+    "New Help (H) and Updates buttons."
+  ] },
+  { v: "4.1.0", date: "2026-10-13", title: "A new name", items: [
+    "The game is now called Untitled Solo RPG. Ashenreach Outpost keeps its name.",
+    "The title screen shows the version and build time.",
+    "Old saves and save files still load."
+  ] },
+  { v: "4.0", date: "2026-10-13", title: "Phase 4: interface and sound", items: [
+    "Modern MMO HUD: party and target frames, minimap, quest tracker, action bar, chat tabs, toasts and banners.",
+    "System menu with character preview, inventory, skills, action bar editor, quests, map with fog of war, settings and system.",
+    "Music, ambience and sound effects for every zone, time of day and battle.",
+    "Loading screens, Begin/Continue on the title screen, and jumping."
+  ] },
+  { v: "3.0", title: "Phase 3: characters and effects", items: ["Detailed characters, monsters and the Thornstrider mount, with gear that changes your look.", "Procedural animation, spell and skillchain effects, weapon trails.", "Riding License quest."] },
+  { v: "2.0", title: "Phase 2: the 3D world", items: ["3D terrain, trees, water reflections, a physical sky, sun, moon and stars that follow the game clock.", "classic MMO-style camera and touch controls."] },
+  { v: "1.0", title: "Phase 1: the rules", items: ["Combat, TP, weapon skills, skillchains, magic bursts, enmity, con colours and aggro.", "Hired companions, standing regen, home points, skills, support jobs and the real-time clock."] }
+];
+
+function tabUpdates() {
+  let h = '<div class="sub" style="margin-bottom:8px">' + BUILD_INFO + "</div>";
+  for (const u of UPDATES) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>";
+  return h;
+}
+
+function tabHelp() {
+  const sec = (title, body, open) => "<details" + (open ? " open" : "") + "><summary>" + title + "</summary>" + body + "</details>";
+  const ul = arr => "<ul>" + arr.map(x => "<li>" + x + "</li>").join("") + "</ul>";
+  const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
+  let h = '<div class="help">';
+  h += sec("🌅 Getting started", ul([
+    "You start alone in Ashenreach Outpost with 100 gil. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Tobin</b> to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
+    "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
+    "Your first hire is a big boost: Mira (White Mage) heals, Kael (Warrior) tanks. A full party is you plus five.",
+    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or use the Rest action on action bar page 2) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
+  ]), true);
+  h += sec("👥 Characters", ul([
+    "On the title screen you pick a character or create a new one: name (2–12 letters), job and appearance. <b>Appearance is permanent</b>, so take your time.",
+    "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, gil, quests and companions. System → Change character goes back to the select screen.",
+    "Deleting a character on the select screen is permanent."
+  ]));
+  h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
+  h += sec("🎮 Controls", ul([
+    "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a character to target, tap again to attack or talk · Target button picks the nearest.",
+    "<b>Keyboard:</b> WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
+    "1–0 use the action bar (Shift for page 2) · [ ] switch page · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map · H help."
+  ]));
+  h += sec("⚔️ Combat", ul([
+    "Auto-attack swings on your weapon's delay. Each hit builds <b>TP</b>; at 1000 TP you can use a weapon skill (more TP makes it stronger).",
+    "<b>Skillchains:</b> a weapon skill opens a chain; a matching weapon skill within about 6 s closes it for bonus damage. The target frame shows the open chain and its element.",
+    "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
+    "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
+    "<b>Con colours:</b> " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP.",
+    "<b>Aggro:</b> some monsters notice by sight (goblins), sound (bats, undead), magic (worms) or low HP (undead). The coloured ground markings show their range."
+  ]));
+  h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
+    ["Warrior", "Tank or damage", "Provoke, Berserk, great axe A, sword B"],
+    ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Divine Seal"],
+    ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"]
+  ]) + ul([
+    "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
+    "Companions cost a one-time fee, match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
+  ]));
+  h += sec("📈 Experience", ul([
+    "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
+    "Kill XP scales with the monster's con. Tougher monsters give much more.",
+    "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
+    "<b>Discovery:</b> landmarks give bonus XP the first time you reach them (🧭 toast). The Map shows how many you've found in each zone.",
+    "Quests give big XP rewards.",
+    "Defeat costs 10% of your current level's XP requirement, but you never lose a level."
+  ]));
+  const nmRows = Object.keys(NM_FAMILIES).map(k => { const n = NM_FAMILIES[k], u = ITEMS[n.loot[0][0]]; return ["☠ " + n.name, n.hint || "", (FAMILIES[n.base] || {}).name || "", u ? u.name : ""]; });
+  h += sec("☠ Notorious monsters", "<p>Rare, stronger versions of normal monsters with a coloured aura. They sometimes appear in place of a regular monster (its placeholder) when it respawns. After one is defeated it can't appear again for about 5 minutes of real time, even while you're offline. Each has a unique drop with about a 30% chance.</p>" + tbl(["Name", "Where and when", "Pops from", "Unique drop"], nmRows) + "<p>The Goblin Chieftain at the back of the Goblin Den is a fixed boss that returns every 3 minutes.</p>");
+  h += sec("💎 Loot and rarity", tbl(["Rarity", "Typical items", "Drop rate"], [
+    ['<span style="color:' + RARITY.common[1] + '">Common</span>', "Materials, crystals, potions", "15–40%"],
+    ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high quality, monster gear", "5–10% (gear 1–5%)"],
+    ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques", "about 30%"],
+    ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
+  ]) + ul(["<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold.", "Some monster gear only drops from higher-level monsters of that kind."]));
+  h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
+    ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, home point"],
+    ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs, home point by the eastern exit"],
+    ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit, Chieftain's Throne"]
+  ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals restore your party and can be set as your return point."]));
+  h += sec("📜 Quests", ul(Object.keys(QUESTS).map(id => "<b>" + esc(QUESTS[id].name) + "</b> (" + esc(QUESTS[id].giver) + "): " + esc(QUESTS[id].desc))));
+  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 gil and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
+  h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
+  return h + "</div>";
+}
+
+const GAME_VERSION = "__PKGVER__";
+const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
+const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
+
+function verCmp(a, b) {
+  const pa = String(a).split(".").map(n => parseInt(n, 10) || 0), pb = String(b).split(".").map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d > 0 ? 1 : -1; }
+  return 0;
+}
+
+async function fetchLatest() {
+  const urls = location.protocol.startsWith("http") ? LATEST_URLS : LATEST_URLS.slice(1);
+  for (const u of urls) {
+    try {
+      const r = await fetch(u + "?t=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) continue;
+      const j = await r.json();
+      if (j && j.version) return j;
+    } catch (e) {}
+  }
+  return null;
+}
+
+async function checkForUpdate(manual) {
+  if (/^__/.test(GAME_VERSION)) return;
+  const j = await fetchLatest();
+  if (!j) { if (manual) log("Couldn't check for updates right now.", "sys"); return; }
+  if (verCmp(j.version, GAME_VERSION) > 0) { if (manual || UI.verDismissed !== j.version) showVersionPopup(j); }
+  else if (manual) log("You have the latest version (v" + GAME_VERSION + ").", "sys");
+}
+
+function versionPop(html) {
+  let el = $("verPop");
+  if (!el) { el = document.createElement("div"); el.id = "verPop"; el.className = "glass"; $("ui").appendChild(el); }
+  el.innerHTML = html;
+  el.style.display = "block";
+  return el;
+}
+
+function showVersionPopup(j) {
+  const web = location.protocol.startsWith("http");
+  const el = versionPop('<div class="vpT">✨ New version available</div><div class="vpB">Version <b>v' + esc(j.version) + "</b> is out (you have v" + esc(GAME_VERSION) + ")." + (j.title ? "<br>" + esc(j.title) : "") + '<br><span class="sub">Your progress is saved first, so nothing is lost.</span></div><div class="vpA"><button data-v="reload" class="pri">' + (web ? "Reload now" : "Open latest") + '</button><button data-v="later">Later</button></div>');
+  sfx("notify");
+  el.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.v === "reload") {
+      saveGame();
+      if (web) { const u = new URL(location.href); u.searchParams.set("v", j.version); location.replace(u.toString()); }
+      else window.open(PLAY_URL, "_blank");
+    } else { UI.verDismissed = j.version; el.style.display = "none"; sfx("close"); }
+  };
+}
+
+function showWhatsNew() {
+  let seen = null;
+  try { seen = localStorage.getItem("usr_seen_version"); localStorage.setItem("usr_seen_version", GAME_VERSION); } catch (e) {}
+  if (/^__/.test(GAME_VERSION) || !seen || seen === GAME_VERSION) return;
+  const u = UPDATES[0];
+  const el = versionPop('<div class="vpT">📰 Updated to v' + esc(GAME_VERSION) + '</div><div class="vpB"><b>' + esc(u.title) + "</b><ul>" + u.items.slice(0, 5).map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>" + '<div class="vpA"><button data-v="all" class="pri">All updates</button><button data-v="ok">Play</button></div>');
+  el.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    el.style.display = "none";
+    if (b.dataset.v === "all") openMenu("updates"); else sfx("close");
+  };
+}
+
+function initVersionCheck() {
+  showWhatsNew();
+  setTimeout(() => checkForUpdate(false), 4000);
+  setInterval(() => checkForUpdate(false), 10 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkForUpdate(false); });
 }

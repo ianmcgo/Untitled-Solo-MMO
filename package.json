@@ -1,6 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "4.1.0",
+  "version": "4.2.0",
+  "releaseTitle": "Phase 5a: a bigger world, /rest, loading screens",
   "description": "",
   "main": "index.js",
   "scripts": {

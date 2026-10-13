@@ -117,6 +117,18 @@
   #log.f-system div:not(.sys):not(.npc):not(.party) { display: none; }
   #chat.min #log { height: 54px; overflow: hidden; background: linear-gradient(rgba(10,12,20,0), rgba(10,12,20,.55)); border-color: transparent; box-shadow: none; pointer-events: none; }
   #chat.min #chatTabs button:not(.tog) { display: none; }
+  #verPop { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); z-index: 25; width: min(380px, 90vw); padding: 14px 16px; display: none; pointer-events: auto; border-color: var(--gold); box-shadow: 0 0 28px rgba(241,207,115,.3); animation: tin .3s ease-out; }
+  #verPop .vpT { font: 700 16px var(--serif); color: var(--gold); margin-bottom: 6px; }
+  #verPop .vpB { font-size: 12.5px; line-height: 1.55; color: #e2dfd6; }
+  #verPop .vpB ul { margin: 6px 0 0 18px; padding: 0; }
+  #verPop .vpB .sub { color: var(--muted); font-size: 11.5px; }
+  #verPop .vpA { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+  #verPop .vpA button { padding: 7px 14px; }
+  #verPop .vpA .pri { border-color: var(--gold); color: var(--gold); }
+  #chatIn { margin-top: 4px; height: 26px; padding: 0 9px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(10,12,20,.7); color: #f2efe6; font: 12px system-ui; outline: none; pointer-events: auto; }
+  #chatIn:focus { border-color: var(--gold); background: rgba(10,12,20,.9); }
+  #chatIn::placeholder { color: #8c8a84; }
+  #log .say { color: #f4f1e8; }
 
   #bottom { position: absolute; left: 50%; bottom: calc(8px + var(--sab)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; }
   #castBar { width: 260px; display: none; padding: 4px 7px; text-align: center; font-size: 11px; }
@@ -247,10 +259,23 @@
   .cell.empty { background: rgba(0,0,0,.25); border-style: dashed; cursor: default; }
   .cell.sel { outline: 2px solid var(--gold); outline-offset: 1px; }
   .r-common { border-color: rgba(255,255,255,.18); }
-  .r-hq { border-color: #6fd36f; box-shadow: inset 0 0 8px rgba(111,211,111,.35); }
-  .r-rare { border-color: #c48cff; box-shadow: inset 0 0 10px rgba(196,140,255,.45); }
-  .r-ex { border-color: #ffb74d; box-shadow: inset 0 0 10px rgba(255,183,77,.4); }
-  .r-gear { border-color: #6aa9ff; }
+  .r-uncommon { border-color: #6fd36f; box-shadow: inset 0 0 8px rgba(111,211,111,.35); }
+  .r-rare { border-color: #6aa9ff; box-shadow: inset 0 0 10px rgba(106,169,255,.45); }
+  .r-epic { border-color: #c48cff; box-shadow: inset 0 0 10px rgba(196,140,255,.5); }
+  .toast.r-uncommon { border-color: #6fd36f; }
+  .toast.r-rare { border-color: #6aa9ff; box-shadow: 0 0 14px rgba(106,169,255,.4); }
+  .toast.r-epic { border-color: #c48cff; box-shadow: 0 0 14px rgba(196,140,255,.45); }
+  .help details { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 8px 11px; margin-bottom: 7px; }
+  .help summary { cursor: pointer; font: 700 14px var(--serif); color: var(--gold); }
+  .help p, .help li { font-size: 12.5px; line-height: 1.6; color: #d8d6cf; }
+  .help ul { margin: 4px 0 4px 18px; padding: 0; }
+  .help table { border-collapse: collapse; font-size: 12px; margin: 4px 0; width: 100%; }
+  .help td, .help th { border-bottom: 1px solid rgba(255,255,255,.08); padding: 3px 6px; text-align: left; }
+  .help th { color: var(--gold); font-weight: 600; }
+  .upd { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 9px 12px; margin-bottom: 8px; }
+  .upd h4 { margin: 0 0 4px; font: 700 14px var(--serif); color: var(--gold); }
+  .upd h4 small { color: var(--muted); font: 11px system-ui; margin-left: 6px; }
+  .upd li { font-size: 12.5px; line-height: 1.55; color: #d8d6cf; }
   .detail { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--edge); }
   .detail .hd { display: flex; gap: 10px; align-items: center; }
   .detail .hd .ic { font-size: 30px; }
@@ -281,6 +306,10 @@
   #loading.zone { background: radial-gradient(ellipse at 50% 45%, rgba(30,26,18,.97), rgba(5,5,7,.99)); }
   #loading .crest { width: 74px; height: 74px; border-radius: 50%; border: 2px solid var(--edge2); display: grid; place-items: center; font-size: 34px; color: var(--gold); box-shadow: 0 0 30px rgba(241,207,115,.25), inset 0 0 18px rgba(241,207,115,.2); animation: crest 3s ease-in-out infinite; }
   #loading.zone .crest { width: 54px; height: 54px; font-size: 24px; }
+  #loading .crest { position: relative; }
+  #loading .crest::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--gold); border-right-color: rgba(241,207,115,.35); animation: ldspin 1s linear infinite; will-change: transform; }
+  #loading.ready .crest::after { display: none; }
+  @keyframes ldspin { to { transform: rotate(360deg); } }
   @keyframes crest { 50% { box-shadow: 0 0 46px rgba(241,207,115,.45), inset 0 0 22px rgba(241,207,115,.35); } }
   #ldTitle { font: 700 34px var(--serif); letter-spacing: .14em; color: var(--gold); text-shadow: 0 0 20px rgba(241,207,115,.35), 0 3px 6px #000; }
   #loading.zone #ldTitle { font-size: 26px; letter-spacing: .06em; }
@@ -296,6 +325,50 @@
   #ldStart small { display: block; font: 11px system-ui; color: #ddd; letter-spacing: 0; margin-top: 2px; }
   #loading.ready #ldStart { display: block; }
   #loading.ready #ldBar, #loading.ready #ldText { display: none; }
+  #loading.roster #ldTip { display: none; }
+  #loading.roster { justify-content: flex-start; padding-top: max(26px, 5vh); overflow-y: auto; gap: 8px; }
+  #loading.roster .crest { width: 48px; height: 48px; font-size: 22px; }
+  #loading.roster #ldTitle { font-size: 26px; }
+  #charSel { display: none; width: min(560px, 94vw); text-align: left; margin-top: 6px; }
+  .ccList { display: flex; flex-direction: column; gap: 8px; }
+  .ccCard { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid var(--edge); cursor: pointer; transition: background .15s, border-color .15s; }
+  .ccCard:hover { background: rgba(241,207,115,.08); border-color: var(--gold); }
+  .ccPor { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; border: 2px solid; flex: none; }
+  .ccInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .ccInfo b { font: 700 16px var(--serif); color: var(--gold); }
+  .ccInfo span { font-size: 12px; color: #e2dfd6; }
+  .ccInfo small { font-size: 11px; color: var(--muted); }
+  .ccBtns { display: flex; gap: 6px; }
+  .ccBtns .pri, .ccFoot .pri, .ccAct .pri { border-color: var(--gold); color: var(--gold); background: linear-gradient(#3a321c, #1c180e); font-weight: 700; }
+  .ccBtns .del { padding: 7px 9px; opacity: .7; }
+  .ccBtns .del:hover { opacity: 1; border-color: #ff8a80; color: #ff8a80; }
+  .ccEmpty { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; border: 1px dashed var(--edge); border-radius: 12px; }
+  .ccFoot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 10px; }
+  .ccFoot .pri { padding: 10px 18px; font: 700 14px var(--serif); }
+  .ccForm { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+  #ccPv { position: relative; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; background: radial-gradient(ellipse at 50% 70%, #33384f, #0b0c13 70%); border: 1px solid var(--edge); }
+  #ccPv canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+  #ccPv .lbl { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font: 700 16px var(--serif); color: var(--gold); text-shadow: 0 2px 4px #000; pointer-events: none; }
+  #ccPv .lbl small { display: block; font: 11px system-ui; color: #ddd; }
+  .ccOpts { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+  .ccOpts label { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 12px; }
+  .ccOpts input { height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--edge2); background: rgba(10,12,20,.8); color: #f2efe6; font: 15px var(--serif); outline: none; }
+  .ccOpts input:focus { border-color: var(--gold); }
+  .ccSec { font: 700 13px var(--serif); color: var(--gold); margin-top: 6px; }
+  .ccSec small { font: 11px system-ui; color: var(--muted); font-weight: 400; }
+  .ccJobs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ccJobs button { flex: 1; min-width: 100px; padding: 8px 6px; }
+  .ccJobs button.on { border-color: var(--jc); color: #fff; background: color-mix(in srgb, var(--jc) 30%, #141722); box-shadow: inset 0 0 0 1px var(--jc); }
+  .ccLook { display: flex; flex-direction: column; gap: 4px; }
+  .ccRow { display: grid; grid-template-columns: 1fr 30px 70px 30px; align-items: center; gap: 4px; }
+  .ccRow span { color: var(--muted); font-size: 12px; }
+  .ccRow b { text-align: center; font-weight: 600; font-size: 12px; }
+  .ccRow button { padding: 4px 0; }
+  .ccRow .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 1px solid #000; vertical-align: -3px; }
+  .ccWarn { font-size: 11.5px; color: #ffb74d; margin-top: 4px; }
+  .ccErr { font-size: 12px; color: #ff8a80; min-height: 16px; }
+  .ccAct { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
+  .ccAct .pri { padding: 10px 18px; font: 700 14px var(--serif); }
   .bb.jmp { width: 46px; height: 46px; }
   @media (max-width: 900px) {
     :root { --slot: 46px; }
@@ -354,6 +427,10 @@
     #mNav button { flex: none; padding: 7px 9px; font-size: 12px; }
     #mNav .x { margin-top: 0; margin-left: auto; }
     .charGrid { grid-template-columns: 1fr; }
+    .ccForm { grid-template-columns: 1fr; }
+    #ccPv { aspect-ratio: auto; height: 34vh; }
+    .ccCard { padding: 8px 10px; gap: 8px; }
+    .ccBtns .pri { padding: 7px 10px; }
     #pvWrap { aspect-ratio: auto; height: 46vh; }
     .paper { grid-template-columns: repeat(4, 1fr); }
   }
@@ -375,7 +452,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.1.0 · built 2026-10-13 09:35 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="ldTip"></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.2.0 · built 2026-10-13 10:43 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>
   <div id="flash"></div>
@@ -393,10 +470,10 @@
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
-      <div id="trBtns"><button id="btnQuests" title="Quests (J)">📜</button><button id="btnSound" title="Sound">🔊</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
+      <div id="trBtns"><button id="btnHelp" title="Help (H)">❓</button><button id="btnUpdates" title="Updates">📰</button><button id="btnQuests" title="Quests (J)">📜</button><button id="btnSound" title="Sound">🔊</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
-    <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div></div>
+    <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
       <div id="barWrap" class="glass"><div id="pager"><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
@@ -5204,7 +5281,10 @@ const CONFIG = {
   castRange: 230,
   abilityRange: 230,
   talkRange: 70,
-  xpTable: [0, 150, 330, 540, 780, 1050, 1350, 1680, 2040, 2430],
+  xpTable: [0, 200, 400, 650, 950, 1300, 1700, 2200, 2850, 3600],
+  chainWindow: 60,
+  chainMax: 5,
+  chainStep: 0.1,
   respawn: 30,
   leash: 520,
   linkRange: 150,
@@ -5213,8 +5293,11 @@ const CONFIG = {
   itemRecast: 3,
   deathXpLossPct: 0.1,
   regenDelay: 3,
-  regenHp: 0.03,
-  regenMp: 0.04,
+  regenHp: 0.006,
+  regenMp: 0.008,
+  restHp: 0.035,
+  restMp: 0.045,
+  restDelay: 2,
   allyRegen: 0.05,
   allyReviveAfter: 6,
   outOfCombatAfter: 3,
@@ -5376,7 +5459,7 @@ const ITEMS = {
   bronze_greataxe: { name: "Bronze Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 14, delay: 4.0, jobs: ["WAR"], lv: 1, price: 150 },
   bronze_cap: { name: "Bronze Cap", kind: "equip", icon: "⛑️", slot: "head", jobs: ALL_J, lv: 1, price: 50, stats: { def: 2 } },
   bronze_cap_hq: { name: "Bronze Cap +1", kind: "equip", icon: "⛑️", hq: true, slot: "head", jobs: ALL_J, lv: 1, price: 130, stats: { def: 3, hp: 5 } },
-  chieftain_cap: { name: "Chieftain's Cap", kind: "equip", icon: "👑", slot: "head", jobs: ALL_J, lv: 5, price: 2000, stats: { def: 4, hp: 10, str: 2, dex: 2, int: 2, mnd: 2 } },
+  chieftain_cap: { name: "Chieftain's Cap", kind: "equip", icon: "👑", ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 5, price: 2000, stats: { def: 4, hp: 10, str: 2, dex: 2, int: 2, mnd: 2 } },
   leather_vest: { name: "Leather Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ALL_J, lv: 1, price: 120, stats: { def: 4, hp: 6 } },
   scale_mail: { name: "Scale Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR"], lv: 5, price: 1100, stats: { def: 9, hp: 15 } },
   linen_robe: { name: "Linen Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM"], lv: 1, price: 110, stats: { def: 3, mp: 10 } },
@@ -5385,10 +5468,17 @@ const ITEMS = {
   leather_gloves: { name: "Leather Gloves", kind: "equip", icon: "🧤", slot: "hands", jobs: ALL_J, lv: 2, price: 90, stats: { def: 2, dex: 1 } },
   leather_trousers: { name: "Leather Trousers", kind: "equip", icon: "👖", slot: "legs", jobs: ALL_J, lv: 2, price: 110, stats: { def: 3 } },
   leather_boots: { name: "Leather Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 3, price: 100, stats: { def: 2, agi: 1 } },
-  captains_ring: { name: "Captain's Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 1, price: 0, stats: { hp: 12, mp: 12, acc: 5, att: 5 } },
+  captains_ring: { name: "Captain's Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 1, price: 0, stats: { hp: 12, mp: 12, acc: 5, att: 5 } },
   raiders_ring: { name: "Raider's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_J, lv: 4, price: 0, stats: { str: 2, acc: 4, att: 4 } },
   duskwing_boots: { name: "Duskwing Boots", kind: "equip", icon: "🥾", rare: true, slot: "feet", jobs: ALL_J, lv: 4, price: 0, stats: { def: 3, agi: 3, eva: 4 } },
   silkworm_gloves: { name: "Silkworm Gloves", kind: "equip", icon: "🧤", rare: true, slot: "hands", jobs: ["WHM", "BLM"], lv: 4, price: 0, stats: { def: 2, int: 2, mnd: 2, mp: 10 } },
+  scavenger_cap: { name: "Scavenger's Cap", kind: "equip", icon: "⛑️", rarity: "uncommon", slot: "head", jobs: ALL_J, lv: 3, price: 300, stats: { def: 3, agi: 1, hp: 4 } },
+  nightwing_gloves: { name: "Nightwing Gloves", kind: "equip", icon: "🧤", rarity: "uncommon", slot: "hands", jobs: ALL_J, lv: 4, price: 340, stats: { def: 2, dex: 2, acc: 2 } },
+  burrower_trousers: { name: "Burrower's Trousers", kind: "equip", icon: "👖", rarity: "uncommon", slot: "legs", jobs: ALL_J, lv: 3, price: 320, stats: { def: 4, vit: 2 } },
+  hare_charm: { name: "Hare Charm", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 1, price: 260, stats: { agi: 2, eva: 3 } },
+  bonecharm_ring: { name: "Bonecharm Ring", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 4, price: 420, stats: { int: 2, mnd: 2, mp: 6 } },
+  gravedigger_boots: { name: "Gravedigger's Boots", kind: "equip", icon: "🥾", rarity: "uncommon", slot: "feet", jobs: ALL_J, lv: 7, price: 700, stats: { def: 4, vit: 2, hp: 8 } },
+  raider_helm: { name: "Raider Helm", kind: "equip", icon: "⛑️", rarity: "rare", slot: "head", jobs: ["WAR"], lv: 7, price: 900, stats: { def: 6, str: 2, att: 3 } },
   wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
   simple_bed: { name: "Simple Bed", kind: "furniture", icon: "🛏️", fp: [2, 3], price: 300, model: "bed", desc: "A sturdy bed with a wool blanket." },
   wooden_table: { name: "Wooden Table", kind: "furniture", icon: "🪑", fp: [2, 2], price: 200, model: "table", desc: "Seats four, if you have four chairs." },
@@ -5400,7 +5490,7 @@ const ITEMS = {
   floor_lamp: { name: "Floor Lamp", kind: "furniture", icon: "🕯️", fp: [1, 1], price: 150, model: "lamp", desc: "A warm glow for long evenings." },
   round_rug: { name: "Round Rug", kind: "furniture", icon: "⭕", fp: [2, 2], price: 180, model: "rug", desc: "Soft underfoot." },
   hearth: { name: "Stone Hearth", kind: "furniture", icon: "🔥", fp: [2, 1], price: 1200, model: "hearth", desc: "Crackles pleasantly." },
-  goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
+  goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
 const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "iron_sword", "holly_staff"];
@@ -5462,25 +5552,27 @@ const MERC_LINES = {
   victory: ["Nice work.", "That's that.", "Next!"]
 };
 
-const FEATURES = { crafting: false, gathering: false, residence: false, nms: false, water: true, mounts: false };
+const FEATURES = { crafting: false, gathering: false, residence: false, nms: true, water: true, mounts: false };
 
 const FAMILIES = {
-  goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.55], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.1], ["bronze_cap", 0.04]], gil: [3, 6], model: "goblin" },
-  bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: { sound: 110 }, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["bat_wing", 0.6], ["wind_crystal", 0.35]], model: "bat" },
-  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["worm_silk", 0.5], ["earth_crystal", 0.35], ["healing_herb", 0.3], ["ether", 0.05]], model: "worm" },
-  ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.35], ["ether", 0.1]], model: "ghoul" },
-  den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["iron_ore", 0.25], ["ash_log", 0.2]], gil: [3, 6], model: "goblin" },
-  skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.45], ["water_crystal", 0.25]], model: "skeleton" },
-  hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.35], ["earth_crystal", 0.2]], model: "hare" },
-  chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.6], ["goblin_totem", 0.5], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
+  goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08], ["bronze_cap", 0.03], ["scavenger_cap", 0.03, 3]], gil: [3, 6], model: "goblin" },
+  bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: { sound: 110 }, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05], ["nightwing_gloves", 0.03, 3]], model: "bat" },
+  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06], ["burrower_trousers", 0.03, 3]], model: "worm" },
+  ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05], ["gravedigger_boots", 0.03]], model: "ghoul" },
+  den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05], ["raider_helm", 0.02], ["iron_sword", 0.01]], gil: [3, 6], model: "goblin" },
+  skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.25], ["ether", 0.06], ["bonecharm_ring", 0.03]], model: "skeleton" },
+  hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06], ["hare_charm", 0.03]], model: "hare" },
+  chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.3], ["goblin_totem", 0.3], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
 };
 
 const NM_FAMILIES = {
-  grimtooth: { base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.6], ["goblin_pouch", 1], ["fire_crystal", 1]], gil: [12, 16], respawn: 300 },
-  duskwing: { base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.6], ["bat_wing", 1], ["wind_crystal", 1]], respawn: 300 },
-  king_wiggles: { base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.6], ["worm_silk", 1], ["earth_crystal", 1]], respawn: 300 },
-  ossuary_warden: { base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.6], ["bone_chip", 1], ["water_crystal", 1]], respawn: 360 }
+  grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
+  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  ossuary_warden: { hint: "Bone Pit, Goblin Den · any time", base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.3], ["bone_chip", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 360 }
 };
+
+const RARITY = { common: ["Common", "#e8e8e8"], uncommon: ["Uncommon", "#6fd36f"], rare: ["Rare", "#6aa9ff"], epic: ["Epic", "#c48cff"] };
 
 const DAY_NAMES = ["Emberday", "Stoneday", "Tideday", "Galeday", "Frostday", "Stormday", "Dawnday", "Duskday"];
 const DAY_ELEMENTS = ["fire", "earth", "water", "wind", "ice", "lightning", "light", "dark"];
@@ -5489,7 +5581,7 @@ const ZONES = {
   outpost: {
     name: "Ashenreach Outpost", w: 1100, h: 800, safe: true, theme: "town",
     exits: [
-      { x: 1076, y: 350, w: 24, h: 100, to: "hollow", tx: 120, ty: 500, label: "Rocky Hollow" }
+      { x: 1076, y: 350, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" }
     ],
     npcs: [
       { id: "rhea", x: 560, y: 210 }, { id: "tobin", x: 840, y: 250 }, { id: "pell", x: 380, y: 520 },
@@ -5520,48 +5612,88 @@ const ZONES = {
     grid: { cols: 10, rows: 8, blocked: [[0, 0], [1, 0], [0, 1], [1, 1], [4, 7], [5, 7], [4, 6], [5, 6]] }
   },
   hollow: {
-    name: "Rocky Hollow", w: 1600, h: 1000, theme: "field",
+    name: "Rocky Hollow", w: 3200, h: 2200, theme: "field",
     exits: [
-      { x: 0, y: 450, w: 24, h: 100, to: "outpost", tx: 990, ty: 400, label: "Outpost" },
-      { x: 1576, y: 450, w: 24, h: 100, to: "den", tx: 120, ty: 450, label: "Goblin Den" }
+      { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 990, ty: 400, label: "Outpost" },
+      { x: 3176, y: 1030, w: 24, h: 100, to: "den", tx: 120, ty: 800, label: "Goblin Den" }
     ],
-    npcs: [{ id: "crystal_hollow", x: 1460, y: 560 }],
-    spawns: [
-      { fam: "goblin", lv: [2, 3], x: 700, y: 330 }, { fam: "goblin", lv: [2, 3], x: 750, y: 370 }, { fam: "goblin", lv: [1, 2], x: 380, y: 260 },
-      { fam: "goblin", lv: [3, 4], x: 900, y: 720 }, { fam: "goblin", lv: [3, 4], x: 950, y: 690 },
-      { fam: "goblin", lv: [5, 5], x: 1350, y: 760, nm: { id: "grimtooth", lv: 6, chance: 0.15 } },
-      { fam: "bat", lv: [1, 2], x: 700, y: 230, time: "night" }, { fam: "bat", lv: [2, 3], x: 1180, y: 380, time: "night", nm: { id: "duskwing", lv: 6, chance: 0.12 } }, { fam: "bat", lv: [1, 1], x: 320, y: 820, time: "night" },
-      { fam: "skeleton", lv: [4, 5], x: 1050, y: 250, time: "night" }, { fam: "skeleton", lv: [4, 5], x: 1300, y: 860, time: "night" },
-      { fam: "hare", lv: [1, 2], x: 300, y: 600, time: "day" }, { fam: "hare", lv: [1, 2], x: 640, y: 240, time: "day" }, { fam: "hare", lv: [2, 3], x: 1200, y: 760, time: "day" },
-      { fam: "worm", lv: [1, 2], x: 600, y: 640 }, { fam: "worm", lv: [2, 3], x: 1100, y: 860, nm: { id: "king_wiggles", lv: 5, chance: 0.15, time: "day" } }, { fam: "worm", lv: [1, 2], x: 1380, y: 200 }
-    ],
-    water: [{ x: 800, y: 440, r: 110 }, { x: 1180, y: 600, r: 55 }],
-    paths: [{ w: 46, pts: [[-500, 500], [0, 500], [300, 520], [560, 640], [800, 645], [1000, 700], [1250, 700], [1420, 560], [1600, 500], [2100, 500]] }],
-    gather: {
-      mining: { n: 2, at: [[300, 150], [1000, 140], [1500, 880], [200, 940], [1250, 930]], loot: [["copper_ore", 0.6], ["iron_ore", 0.08], ["fire_crystal", 0.1], ["earth_crystal", 0.1]] },
-      logging: { n: 2, at: [[140, 300], [560, 880], [1500, 300], [880, 100], [1300, 420]], loot: [["ash_log", 0.75], ["wind_crystal", 0.15]] },
-      harvesting: { n: 2, at: [[250, 650], [650, 420], [1050, 520], [1450, 640], [380, 520]], loot: [["healing_herb", 0.7], ["worm_silk", 0.1], ["water_crystal", 0.12]] }
+    npcs: [{ id: "crystal_hollow", x: 2950, y: 1260 }],
+    walls: [{ x: 850, y: 1380, w: 170, h: 440 }, { x: 1980, y: 180, w: 400, h: 170 }, { x: 2330, y: 1820, w: 440, h: 150 }],
+    ruins: {
+      walls: [[2370, 500, 2520, 500, 2.6], [2600, 500, 2730, 500, 1.4], [2730, 500, 2730, 620, 2.2], [2730, 700, 2730, 800, 1.0], [2370, 800, 2450, 800, 1.8], [2580, 800, 2730, 800, 2.4], [2370, 500, 2370, 640, 2.0], [2370, 720, 2370, 800, 1.2]],
+      pillars: [[2450, 580, 3.4], [2650, 580, 2.0], [2450, 720, 1.2], [2650, 720, 3.0], [2200, 560, 2.6], [2860, 900, 1.6]]
     },
-    start: { x: 70, y: 500 }
+    landmarks: [
+      { id: "meadow", name: "Shepherd's Meadow", x: 480, y: 1300, r: 240, xp: 40 },
+      { id: "mirror", name: "Mirror Lake", x: 1250, y: 650, r: 300, xp: 50 },
+      { id: "burrow", name: "Burrow Flats", x: 1450, y: 1900, r: 260, xp: 60 },
+      { id: "reed", name: "Reed Pond", x: 2000, y: 1500, r: 200, xp: 50 },
+      { id: "fort", name: "Old Fort Ruins", x: 2550, y: 650, r: 230, xp: 80 },
+      { id: "camp", name: "Goblin Camp", x: 2650, y: 1450, r: 230, xp: 80 },
+      { id: "hcrystal", name: "Eastern Crystal", x: 2950, y: 1260, r: 170, xp: 40 }
+    ],
+    spawns: [
+      { fam: "hare", lv: [1, 2], x: 350, y: 1300, time: "day" }, { fam: "hare", lv: [1, 2], x: 620, y: 1450, time: "day" }, { fam: "hare", lv: [1, 2], x: 420, y: 800, time: "day" },
+      { fam: "worm", lv: [1, 2], x: 700, y: 1250 }, { fam: "worm", lv: [1, 2], x: 300, y: 1700 }, { fam: "worm", lv: [2, 2], x: 600, y: 420 },
+      { fam: "goblin", lv: [1, 2], x: 750, y: 800 }, { fam: "goblin", lv: [1, 2], x: 500, y: 1800 },
+      { fam: "bat", lv: [1, 2], x: 700, y: 650, time: "night" }, { fam: "bat", lv: [1, 2], x: 300, y: 1500, time: "night" },
+      { fam: "goblin", lv: [2, 3], x: 1350, y: 1200 }, { fam: "goblin", lv: [2, 3], x: 1400, y: 1250 }, { fam: "goblin", lv: [2, 3], x: 1700, y: 800 },
+      { fam: "hare", lv: [2, 3], x: 1100, y: 1150, time: "day" }, { fam: "worm", lv: [2, 3], x: 1000, y: 400 },
+      { fam: "bat", lv: [2, 3], x: 1550, y: 500, time: "night" }, { fam: "skeleton", lv: [3, 4], x: 1800, y: 1300, time: "night" },
+      { fam: "worm", lv: [3, 4], x: 1250, y: 1850 }, { fam: "worm", lv: [3, 4], x: 1650, y: 1950, nm: { id: "king_wiggles", lv: 5, chance: 0.15, time: "day" } }, { fam: "worm", lv: [3, 3], x: 1500, y: 2050 },
+      { fam: "hare", lv: [3, 3], x: 1150, y: 2000, time: "day" },
+      { fam: "goblin", lv: [4, 4], x: 2450, y: 900 }, { fam: "goblin", lv: [4, 4], x: 2250, y: 650 },
+      { fam: "skeleton", lv: [4, 5], x: 2550, y: 620, time: "night" }, { fam: "skeleton", lv: [4, 5], x: 2800, y: 420, time: "night" }, { fam: "skeleton", lv: [4, 5], x: 2150, y: 450, time: "night" },
+      { fam: "bat", lv: [3, 4], x: 2500, y: 700, time: "night", nm: { id: "duskwing", lv: 6, chance: 0.12 } }, { fam: "bat", lv: [3, 4], x: 2600, y: 650, time: "night" },
+      { fam: "goblin", lv: [4, 5], x: 2600, y: 1400 }, { fam: "goblin", lv: [4, 5], x: 2650, y: 1480 }, { fam: "goblin", lv: [4, 5], x: 2750, y: 1420 },
+      { fam: "goblin", lv: [5, 5], x: 2850, y: 1600, nm: { id: "grimtooth", lv: 6, chance: 0.15 } }, { fam: "goblin", lv: [5, 6], x: 2500, y: 1650 }
+    ],
+    water: [{ x: 1250, y: 650, r: 170 }, { x: 2000, y: 1500, r: 90 }],
+    paths: [
+      { w: 46, pts: [[-500, 1100], [0, 1100], [400, 1120], [800, 1010], [1200, 980], [1650, 1050], [2100, 1150], [2500, 1160], [2900, 1150], [3200, 1080], [3700, 1080]] },
+      { w: 34, pts: [[2100, 1150], [2300, 950], [2515, 860], [2515, 650]] },
+      { w: 34, pts: [[1650, 1050], [1550, 1450], [1420, 1850]] },
+      { w: 30, pts: [[2500, 1160], [2650, 1450]] }
+    ],
+    gather: {
+      mining: { n: 3, at: [[300, 300], [1000, 250], [2900, 1900], [200, 2000], [1250, 2100], [2850, 300]], loot: [["copper_ore", 0.6], ["iron_ore", 0.08], ["fire_crystal", 0.1], ["earth_crystal", 0.1]] },
+      logging: { n: 3, at: [[140, 600], [560, 1950], [3000, 600], [880, 200], [1900, 650], [2100, 2050]], loot: [["ash_log", 0.75], ["wind_crystal", 0.15]] },
+      harvesting: { n: 3, at: [[250, 1450], [900, 650], [1750, 1350], [2350, 1450], [500, 1000], [1300, 1600]], loot: [["healing_herb", 0.7], ["worm_silk", 0.1], ["water_crystal", 0.12]] }
+    },
+    start: { x: 70, y: 1100 }
   },
   den: {
-    name: "Goblin Den", w: 1400, h: 900, theme: "cave",
-    exits: [{ x: 0, y: 400, w: 24, h: 100, to: "hollow", tx: 1480, ty: 500, label: "Rocky Hollow" }],
+    name: "Goblin Den", w: 2400, h: 1600, theme: "cave",
+    exits: [{ x: 0, y: 750, w: 24, h: 100, to: "hollow", tx: 3080, ty: 1090, label: "Rocky Hollow" }],
     npcs: [],
-    spawns: [
-      { fam: "den_goblin", lv: [6, 7], x: 400, y: 250 }, { fam: "den_goblin", lv: [6, 7], x: 440, y: 290 },
-      { fam: "den_goblin", lv: [7, 8], x: 700, y: 620 }, { fam: "den_goblin", lv: [7, 8], x: 750, y: 660 }, { fam: "den_goblin", lv: [7, 8], x: 800, y: 610 },
-      { fam: "bat", lv: [5, 6], x: 300, y: 700 }, { fam: "bat", lv: [5, 6], x: 620, y: 150 },
-      { fam: "ghoul", lv: [7, 8], x: 1000, y: 230 }, { fam: "ghoul", lv: [7, 8], x: 1050, y: 290 }, { fam: "ghoul", lv: [8, 9], x: 1000, y: 720, nm: { id: "ossuary_warden", lv: 10, chance: 0.15 } },
-      { fam: "chieftain", lv: [11, 11], x: 1260, y: 450 }
+    walls: [{ x: 0, y: 0, w: 760, h: 520 }, { x: 0, y: 1080, w: 760, h: 520 }, { x: 1000, y: 700, w: 620, h: 200 }, { x: 1620, y: 0, w: 180, h: 520 }, { x: 1620, y: 1080, w: 180, h: 520 }],
+    landmarks: [
+      { id: "mouth", name: "Den Mouth", x: 380, y: 800, r: 230, xp: 80 },
+      { id: "pool", name: "Underground Pool", x: 1250, y: 380, r: 260, xp: 100 },
+      { id: "pit", name: "Bone Pit", x: 1250, y: 1250, r: 260, xp: 120 },
+      { id: "throne", name: "Chieftain's Throne", x: 2100, y: 800, r: 280, xp: 150 }
     ],
-    water: [{ x: 600, y: 430, r: 80 }],
-    paths: [{ w: 40, pts: [[-500, 450], [0, 450], [300, 560], [700, 590], [1000, 520], [1260, 450]] }],
-    torches: [[200, 300], [200, 620], [520, 200], [820, 760], [1100, 420], [1200, 300], [1200, 620]],
+    spawns: [
+      { fam: "bat", lv: [5, 6], x: 350, y: 640 }, { fam: "bat", lv: [5, 6], x: 520, y: 980 },
+      { fam: "den_goblin", lv: [5, 6], x: 560, y: 760 }, { fam: "den_goblin", lv: [5, 6], x: 600, y: 820 },
+      { fam: "den_goblin", lv: [6, 7], x: 880, y: 300 }, { fam: "den_goblin", lv: [6, 7], x: 880, y: 1300 },
+      { fam: "bat", lv: [5, 6], x: 1450, y: 250 }, { fam: "worm", lv: [6, 7], x: 1050, y: 200 },
+      { fam: "den_goblin", lv: [6, 7], x: 1200, y: 560 }, { fam: "den_goblin", lv: [6, 7], x: 1260, y: 600 },
+      { fam: "ghoul", lv: [7, 8], x: 1100, y: 1300 }, { fam: "ghoul", lv: [7, 8], x: 1180, y: 1360 }, { fam: "ghoul", lv: [7, 8], x: 1450, y: 1250 },
+      { fam: "skeleton", lv: [7, 8], x: 1350, y: 1450 }, { fam: "ghoul", lv: [8, 9], x: 1250, y: 1050, nm: { id: "ossuary_warden", lv: 10, chance: 0.15 } },
+      { fam: "den_goblin", lv: [7, 8], x: 1950, y: 600 }, { fam: "den_goblin", lv: [7, 8], x: 1950, y: 1000 }, { fam: "den_goblin", lv: [8, 8], x: 2050, y: 800 },
+      { fam: "chieftain", lv: [11, 11], x: 2220, y: 800 }
+    ],
+    water: [{ x: 1300, y: 260, r: 100 }],
+    paths: [
+      { w: 40, pts: [[-500, 800], [0, 800], [400, 800], [880, 800], [950, 480], [1400, 560], [1710, 640], [2150, 800]] },
+      { w: 40, pts: [[880, 800], [950, 1120], [1400, 1120], [1710, 960], [2150, 800]] }
+    ],
+    torches: [[300, 640], [300, 960], [850, 600], [850, 1000], [1050, 560], [1520, 420], [1050, 1250], [1450, 1350], [1900, 560], [1900, 1040], [2280, 660], [2280, 940]],
     gather: {
-      mining: { n: 3, at: [[200, 120], [520, 800], [900, 120], [1150, 820], [860, 460], [300, 450]], loot: [["iron_ore", 0.45], ["copper_ore", 0.3], ["fire_crystal", 0.15]] }
+      mining: { n: 3, at: [[200, 600], [700, 1000], [1100, 150], [1500, 1500], [2300, 500], [2300, 1100]], loot: [["iron_ore", 0.45], ["copper_ore", 0.3], ["fire_crystal", 0.15]] }
     },
-    start: { x: 70, y: 450 }
+    start: { x: 70, y: 800 }
   }
 };
 
@@ -5589,7 +5721,7 @@ const S = {
   shake: 0, keys: {}, moveTarget: null, chase: false, pendingTalk: null, zoneCooldown: 0,
   lastCombat: -999, itemReadyAt: 0, mobSeq: 0, spawnAt: [], nmDeadUntil: {}, ko: false, dialog: null,
   modal: null, saveTimer: 0, macroKey: "", macros: [], lastPeriod: null, periodTimer: 0, timeShift: 0,
-  sayCooldown: {}, partyKey: ""
+  sayCooldown: {}, partyKey: "", chain: { n: -1, until: 0 }, lastTab: -9, lmTimer: 0, charId: null
 };
 let save, player;
 
@@ -5645,7 +5777,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: { pouches: "none", support: "none", riding: "none", chieftain: "none" },
     mountLicense: false, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, created: Date.now()
   };
 }
 
@@ -5667,18 +5799,113 @@ function normalizeSave(d) {
   if (!JOBS[out.mainJob]) out.mainJob = "WAR";
   if (out.subJob && (!JOBS[out.subJob] || !out.supportUnlocked)) out.subJob = null;
   out.gil = Math.max(0, Math.floor(out.gil || 0));
+  out.timers = d.timers && typeof d.timers === "object" ? d.timers : {};
+  out.name = String(d.name || "Adventurer").slice(0, 12);
+  out.landmarks = d.landmarks && typeof d.landmarks === "object" ? d.landmarks : {};
   return out;
 }
 
+const ROSTER_KEY = "usr_roster_v1";
+const MAX_CHARS = 8;
+const charKey = id => "usr_char_" + id;
+
+function charSummary(id, d, prev) {
+  return { id, name: d.name || "Adventurer", job: d.mainJob, lv: d.jobs[d.mainJob].lv, zone: d.home && ZONES[d.home.zone] ? ZONES[d.home.zone].name : "Ashenreach Outpost", look: Object.assign({}, d.look), created: d.created || (prev && prev.created) || Date.now(), played: Date.now(), gil: d.gil };
+}
+
+function loadRoster() {
+  let r = null;
+  try { r = JSON.parse(localStorage.getItem(ROSTER_KEY)); } catch (e) {}
+  if (r && Array.isArray(r.chars)) return r;
+  r = { chars: [], current: null };
+  try {
+    const raw = localStorage.getItem(CONFIG.saveKey);
+    if (raw) {
+      const d = normalizeSave(JSON.parse(raw));
+      if (d) {
+        const id = "c" + Date.now().toString(36);
+        localStorage.setItem(charKey(id), JSON.stringify(d));
+        r.chars.push(charSummary(id, d));
+        r.current = id;
+      }
+    }
+  } catch (e) {}
+  saveRoster(r);
+  return r;
+}
+
+function saveRoster(r) { try { localStorage.setItem(ROSTER_KEY, JSON.stringify(r)); } catch (e) {} }
+
+function loadChar(id) {
+  try {
+    const raw = localStorage.getItem(charKey(id));
+    if (raw) { const d = normalizeSave(JSON.parse(raw)); if (d) return d; }
+  } catch (e) {}
+  return null;
+}
+
+function createChar(opts) {
+  const r = loadRoster();
+  const d = newSave();
+  d.name = opts.name;
+  d.mainJob = JOBS[opts.job] ? opts.job : "WAR";
+  d.look = Object.assign(newSave().look, opts.look || {});
+  if (d.mainJob === "WHM") { d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" }; d.inventory = [{ id: "bronze_sword", qty: 1 }, { id: "ash_staff", qty: 1 }, { id: "leather_vest", qty: 1 }, { id: "potion", qty: 3 }]; }
+  else if (d.mainJob === "BLM") { d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" }; d.inventory = [{ id: "bronze_sword", qty: 1 }, { id: "ash_club", qty: 1 }, { id: "leather_vest", qty: 1 }, { id: "potion", qty: 3 }]; }
+  const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  try { localStorage.setItem(charKey(id), JSON.stringify(d)); } catch (e) {}
+  r.chars.push(charSummary(id, d));
+  r.current = id;
+  saveRoster(r);
+  return id;
+}
+
+function deleteChar(id) {
+  const r = loadRoster();
+  r.chars = r.chars.filter(c => c.id !== id);
+  if (r.current === id) r.current = null;
+  try { localStorage.removeItem(charKey(id)); } catch (e) {}
+  saveRoster(r);
+}
+
+function validCharName(name, roster) {
+  const n = String(name || "").trim();
+  if (n.length < 2 || n.length > 12) return "Names are 2 to 12 letters.";
+  if (!/^[A-Za-z][A-Za-z' -]*$/.test(n)) return "Letters only, please.";
+  if ((roster || loadRoster()).chars.some(c => c.name.toLowerCase() === n.toLowerCase())) return "You already have a character called " + n + ".";
+  return null;
+}
+
+function selectChar(id) {
+  const d = loadChar(id);
+  if (!d) return false;
+  const r = loadRoster();
+  r.current = id;
+  saveRoster(r);
+  S.charId = id;
+  save = d;
+  return true;
+}
+
 function saveGame() {
-  try { localStorage.setItem(CONFIG.saveKey, JSON.stringify(save)); } catch (e) {}
+  try {
+    const txt = JSON.stringify(save);
+    if (S.charId) {
+      localStorage.setItem(charKey(S.charId), txt);
+      const r = loadRoster();
+      const i = r.chars.findIndex(c => c.id === S.charId);
+      const sum = charSummary(S.charId, save, i >= 0 ? r.chars[i] : null);
+      if (i >= 0) r.chars[i] = sum; else r.chars.push(sum);
+      saveRoster(r);
+    }
+    localStorage.setItem(CONFIG.saveKey, txt);
+  } catch (e) {}
 }
 
 function loadGame() {
-  try {
-    const raw = localStorage.getItem(CONFIG.saveKey);
-    if (raw) { const d = normalizeSave(JSON.parse(raw)); if (d) return d; }
-  } catch (e) {}
+  const r = loadRoster();
+  if (r.current && selectChar(r.current)) return save;
+  if (r.chars.length && selectChar(r.chars[0].id)) return save;
   return newSave();
 }
 
@@ -6055,14 +6282,18 @@ function onKO(e, src) {
     sfx("defeat", e);
     vfx("defeat", { tgt: e });
     const respawn = e.fam.respawn || CONFIG.respawn;
-    S.spawnAt[e.spawnIdx] = S.time + respawn;
-    if (e.fam.nm) S.nmDeadUntil[S.zoneId + ":" + e.spawnIdx] = S.time + respawn;
+    const placeholderNm = !!NM_FAMILIES[e.famKey];
+    S.spawnAt[e.spawnIdx] = S.time + (placeholderNm ? CONFIG.respawn : respawn);
+    if (e.fam.nm) {
+      save.timers["nm:" + e.famKey] = Date.now() + respawn * 1000;
+      if (!placeholderNm) S.nmDeadUntil[S.zoneId + ":" + e.spawnIdx] = S.time + respawn;
+    }
     for (const p of S.party) if (p.attackTarget === e) { p.attackTarget = null; p.engaged = false; }
     if (S.chase && player.attackTarget == null) S.chase = false;
     const byParty = [...e.enmity.keys()].some(isParty);
     if (byParty || (src && isParty(src))) {
       const xp = xpFor(e.lv, player.lv);
-      if (xp > 0) gainXp(xp); else log("No experience gained (too weak).", "sys");
+      if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
       if (e.famKey === "chieftain" && save.quests.chieftain === "active") {
         save.quests.chieftain = "killed";
@@ -6092,14 +6323,27 @@ function xpFor(mobLv, plLv) {
   return Math.round((25 + 15 * mobLv) * clamp(1 + 0.2 * d, 0.2, 2));
 }
 
+function advanceChain() {
+  const c = S.chain;
+  c.n = S.time < c.until ? Math.min(c.n + 1, CONFIG.chainMax) : 0;
+  c.until = S.time + CONFIG.chainWindow;
+  return c.n;
+}
+
+function chainInfo() {
+  const c = S.chain;
+  if (c.n < 0 || S.time >= c.until) return null;
+  return { n: c.n, left: c.until - S.time, frac: (c.until - S.time) / CONFIG.chainWindow, next: Math.min(c.n + 1, CONFIG.chainMax) };
+}
+
 function xpNeed(lv) { return lv >= CONFIG.levelCap ? 0 : CONFIG.xpTable[lv]; }
 
-function gainXp(n) {
+function gainXp(n, chain, quiet) {
   const j = save.jobs[save.mainJob];
-  if (j.lv >= CONFIG.levelCap) { log("You are at the level cap.", "sys"); return; }
+  if (j.lv >= CONFIG.levelCap) { if (!quiet) log("You are at the level cap.", "sys"); return; }
   j.xp += n;
-  log("You gain " + n + " experience points.", "you");
-  popText(player, "+" + n + " XP", "#9ad06b", 14, 1.2, 16);
+  log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
+  popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
   let leveled = false;
   while (j.lv < CONFIG.levelCap && j.xp >= xpNeed(j.lv)) { j.xp -= xpNeed(j.lv); j.lv++; leveled = true; }
   if (j.lv >= CONFIG.levelCap) j.xp = 0;
@@ -6149,8 +6393,24 @@ function removeItem(id, n) {
   return true;
 }
 
+function hasItem(id) { return invCount(id) > 0 || Object.values(save.gear).includes(id); }
+
+function itemRarity(id) {
+  const it = ITEMS[id];
+  if (!it) return "common";
+  if (it.rarity) return it.rarity;
+  if (it.rare) return "rare";
+  if (it.hq || ["iron_ore", "iron_ingot", "bone_chip", "silk_cloth", "hi_potion"].includes(id)) return "uncommon";
+  return "common";
+}
+
 function dropLoot(m) {
-  for (const [id, chance] of m.fam.loot || []) if (Math.random() < chance) giveItem(id, 1);
+  for (const [id, chance, minLv] of m.fam.loot || []) {
+    if (minLv && m.lv < minLv) continue;
+    if (Math.random() >= chance) continue;
+    if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
+    giveItem(id, 1);
+  }
   if (m.fam.gil) {
     const g = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
     save.gil += g;
@@ -6209,6 +6469,7 @@ function checkAction(a, act, t) {
 }
 
 function perform(a, act, t) {
+  if (a.resting) standUp(a, a !== player);
   touch(a);
   if (act.kind === "ws") doWS(a, act.id, t);
   else if (act.kind === "ja") doAbility(a, act.id, t);
@@ -6451,9 +6712,20 @@ function keepOutOfWater(e) {
   }
 }
 
+function zoneRects(z) {
+  if (z._rects) return z._rects;
+  let rects = (z.houses || []).map(r => ({ x: r.x - r.w / 2, y: r.y - r.h / 2, w: r.w, h: r.h })).concat((z.stalls || []).map(r => ({ x: r.x - 26, y: r.y - 16, w: 52, h: 32 })));
+  rects = rects.concat((z.walls || []).map(r => ({ x: r.x, y: r.y, w: r.w, h: r.h })));
+  if (z.ruins) {
+    for (const [x1, y1, x2, y2] of z.ruins.walls) rects.push({ x: Math.min(x1, x2) - 14, y: Math.min(y1, y2) - 14, w: Math.abs(x2 - x1) + 28, h: Math.abs(y2 - y1) + 28 });
+    for (const [x, y] of z.ruins.pillars) rects.push({ x: x - 16, y: y - 16, w: 32, h: 32 });
+  }
+  z._rects = rects;
+  return rects;
+}
+
 function keepOutOfRects(e) {
-  const z = S.zone;
-  const rects = (z.houses || []).map(r => ({ x: r.x - r.w / 2, y: r.y - r.h / 2, w: r.w, h: r.h })).concat((z.stalls || []).map(r => ({ x: r.x - 26, y: r.y - 16, w: 52, h: 32 })));
+  const rects = zoneRects(S.zone);
   for (const r of rects) {
     const nx = clamp(e.x, r.x, r.x + r.w), ny = clamp(e.y, r.y, r.y + r.h);
     const dx = e.x - nx, dy = e.y - ny;
@@ -6559,7 +6831,10 @@ function updateMob(m, dt) {
     return;
   }
   if (m.state === "return") {
+    if (!m.returnSince) m.returnSince = S.time;
+    if (S.time - m.returnSince > 8) { m.x = m.home.x; m.y = m.home.y; }
     if (moveToward(m, m.home.x, m.home.y, dt, 2, 1.3)) {
+      m.returnSince = 0;
       m.state = "idle";
       m.hp = m.maxHp;
       m.tp = 0;
@@ -6605,9 +6880,11 @@ function partyBattleTarget() {
 }
 
 function follow(a, dt) {
+  if (a.resting) return;
   const o0 = followOffset(S.party.indexOf(a)), mf = a.mounted ? 1.9 : 1, o = { x: o0.x * mf, y: o0.y * mf };
   const cos = Math.cos(player.face), sin = Math.sin(player.face);
   const tx = player.x + o.x * cos - o.y * sin, ty = player.y + o.x * sin + o.y * cos;
+  if (dist(a, player) > 700 && !partyInCombat()) { a.x = player.x - Math.cos(player.face) * 40 + rand(-20, 20); a.y = player.y - Math.sin(player.face) * 40 + rand(-20, 20); a.px = a.x; a.py = a.y; return; }
   if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? CONFIG.mountSpeed : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
 }
 
@@ -6756,12 +7033,47 @@ function updatePlayer(dt) {
   autoAttack(player, dt);
 }
 
+function canRest(p) { return p.alive && !p.engaged && !p.casting && !p.mounted && !inCombatWith(p); }
+
+function startRest(p) {
+  if (p.resting) return;
+  p.resting = true;
+  p.restSince = S.time;
+  p.moveTarget = null;
+}
+
+function standUp(p, quiet) {
+  if (!p.resting) return;
+  p.resting = false;
+  p.stillSince = S.time;
+  if (p === player) {
+    if (!quiet) log("You stand up.", "you");
+    for (const a of S.party) if (a !== player) a.resting = false;
+  }
+}
+
+function toggleRest() {
+  if (!player) return;
+  if (player.resting) { standUp(player); return; }
+  if (!player.alive) return;
+  if (player.mounted) { log("You can't rest while riding.", "sys"); sfx("error"); return; }
+  if (player.engaged || inCombatWith(player)) { log("You can't rest while monsters are attacking you.", "sys"); sfx("error"); return; }
+  if (player.casting) { log("You can't rest while casting.", "sys"); sfx("error"); return; }
+  S.moveTarget = null; S.chase = false; S.pendingTalk = null;
+  startRest(player);
+  log("You sit down and rest.", "you");
+  for (const a of S.party) if (a !== player && canRest(a) && !partyInCombat()) startRest(a);
+}
+
 function regen(p, dt) {
+  if (p.resting && (!canRest(p) || p.moving)) standUp(p, p !== player);
   const can = p.alive && !p.engaged && !p.casting && S.time - p.stillSince >= CONFIG.regenDelay && !inCombatWith(p);
+  const rest = can && p.resting && S.time - p.restSince >= CONFIG.restDelay;
   p.regenerating = can && (p.hp < p.maxHp || p.mp < p.maxMp);
+  p.restHealing = rest && (p.hp < p.maxHp || p.mp < p.maxMp);
   if (!can) return;
-  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * CONFIG.regenHp * dt);
-  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * CONFIG.regenMp * dt);
+  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * (rest ? CONFIG.restHp : CONFIG.regenHp) * dt);
+  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * (rest ? CONFIG.restMp : CONFIG.regenMp) * dt);
 }
 
 function tickCasting(e) {
@@ -6795,6 +7107,8 @@ function enterZone(id, x, y) {
   S.zone.spawns.forEach((sp, i) => {
     const until = S.nmDeadUntil[id + ":" + i];
     if (until && until > S.time) { S.spawnAt[i] = until; return; }
+    const fixed = FAMILIES[sp.fam] && FAMILIES[sp.fam].nm && save.timers["nm:" + sp.fam];
+    if (fixed && fixed > Date.now()) { S.spawnAt[i] = S.time + (fixed - Date.now()) / 1000; return; }
     spawnMob(i);
   });
   S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2 }, NPCS[n.id]));
@@ -6818,10 +7132,27 @@ function spawnMob(i) {
   let fam = sp.fam, lv = randInt(sp.lv[0], sp.lv[1]);
   if (FEATURES.nms && sp.nm && (!sp.nm.time || sp.nm.time === period())) {
     const key = "nm:" + sp.nm.id;
-    if (!(save.timers[key] > Date.now()) && Math.random() < sp.nm.chance) { fam = sp.nm.id; lv = sp.nm.lv; }
+    if (!(save.timers[key] > Date.now()) && !S.mobs.some(m => m.alive && m.famKey === sp.nm.id) && Math.random() < sp.nm.chance) {
+      fam = sp.nm.id; lv = sp.nm.lv;
+      if (S.time > 1 && Math.hypot(sp.x - player.x, sp.y - player.y) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
+    }
   }
   S.mobs.push(buildMob(fam, lv, sp.x, sp.y, i));
   S.spawnAt[i] = null;
+}
+
+function checkLandmarks() {
+  const lms = S.zone.landmarks;
+  if (!lms || !player.alive) return;
+  for (const lm of lms) {
+    const key = S.zoneId + ":" + lm.id;
+    if (save.landmarks[key] || Math.hypot(player.x - lm.x, player.y - lm.y) > lm.r) continue;
+    save.landmarks[key] = Date.now();
+    log("You discover " + lm.name + "!", "loot");
+    uiEvent("landmark", lm);
+    gainXp(lm.xp, 0, true);
+    saveGame();
+  }
 }
 
 function updatePeriod() {
@@ -6865,6 +7196,8 @@ function step(dt) {
   if (S.zoneCooldown <= 0 && player.alive) {
     for (const ex of S.zone.exits) if (circleRect(player, ex, 8)) { enterZone(ex.to, ex.tx, ex.ty); return; }
   }
+  S.lmTimer -= dt;
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); }
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
   S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
@@ -6909,11 +7242,27 @@ function setTarget(e) {
   }
 }
 
+function tabNext(list) {
+  const fresh = S.time - S.lastTab > 2 || !list.includes(player.target);
+  S.lastTab = S.time;
+  return fresh ? list[0] : list[(list.indexOf(player.target) + 1) % list.length];
+}
+
+function cycleNpcTarget() {
+  const people = S.npcs.filter(n => !n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const list = people.concat(crystals);
+  if (!list.length) return false;
+  player.target = tabNext(list);
+  sfx("select");
+  return true;
+}
+
 function cycleTarget() {
-  const list = S.mobs.filter(m => m.alive && dist(m, player) < 450).sort((a, b) => dist(a, player) - dist(b, player));
-  if (!list.length) { log("No enemies nearby.", "sys"); return; }
-  const i = list.indexOf(player.target);
-  setTarget(list[(i + 1) % list.length]);
+  if (S.zone.safe) { if (!cycleNpcTarget()) log("No one nearby.", "sys"); return; }
+  const list = S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 450).sort((a, b) => dist(a, player) - dist(b, player));
+  if (!list.length) { if (!cycleNpcTarget()) log("No enemies nearby.", "sys"); return; }
+  setTarget(tabNext(list));
   sfx("select");
 }
 
@@ -6925,6 +7274,7 @@ function nearestMob() {
 
 function toggleEngage(fromTap) {
   if (!player.alive) return;
+  standUp(player);
   if (player.mounted) dismount("You dismount and draw your weapon.");
   if (player.engaged && (!isMob(player.target) || player.target === player.attackTarget)) {
     player.engaged = false; player.attackTarget = null; S.chase = false;
@@ -6951,6 +7301,7 @@ function toggleMount() {
   if (!save.mountLicense) { log("You don't have a riding license yet. Ysolde, the Outpost stablemaster, can help.", "sys"); sfx("error"); return; }
   if (!canRideHere()) { log("Your Thornstrider won't come into " + (S.zone.theme === "town" ? "town" : "here") + ". Call it in open country.", "sys"); sfx("error"); return; }
   if (!player.alive || player.casting || player.engaged || partyInCombat()) { log("You can't call your mount during a fight.", "sys"); sfx("error"); return; }
+  standUp(player, true);
   for (const p of S.party) if (p.alive) { p.mounted = true; p.engaged = false; p.attackTarget = null; p.casting = null; }
   S.chase = false;
   log("You whistle for your Thornstrider and swing into the saddle.", "you");
@@ -7241,6 +7592,7 @@ function startNewGame() {
 }
 
 function applyLoadedSave(d) {
+  if (S.charId) d.created = (loadRoster().chars.find(c => c.id === S.charId) || {}).created || d.created;
   save = d;
   saveGame();
   S.nmDeadUntil = {};
@@ -7259,6 +7611,108 @@ function initParty() {
   refreshPlayer(true);
   rebuildParty();
   S.macroKey = "";
+}
+
+const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", laugh: "laughs", nod: "nods", clap: "claps", point: "points", salute: "salutes", panic: "panics", cry: "cries", thumbsup: "gives a thumbs up" };
+const COMMANDS = [
+  ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
+  ["/stand", "Stand up."],
+  ["/attack", "Attack your target, or the nearest enemy. Also /a."],
+  ["/target name", "Target the nearest character whose name matches. Also /ta."],
+  ["/assist", "Target what your party is fighting."],
+  ["/check", "Check your target's level and difficulty. Also /c."],
+  ["/cast spell", "Cast a spell by name, e.g. /cast cure. Also /ma."],
+  ["/ja ability", "Use a job ability, e.g. /ja provoke."],
+  ["/ws name", "Use a weapon skill, e.g. /ws fast blade."],
+  ["/item name", "Use an item, e.g. /item potion."],
+  ["/mount, /dismount", "Call or dismiss your Thornstrider."],
+  ["/jump", "Jump."],
+  ["/time", "Show the game time and weekday."],
+  ["/where", "Show your zone and position."],
+  ["/clear", "Clear the chat log."],
+  ["/wave, /bow, /cheer…", "Emotes: " + Object.keys(EMOTES).join(", ") + "."],
+  ["/help", "List commands."]
+];
+
+function findNamed(list, q) {
+  q = q.toLowerCase().trim();
+  if (!q) return null;
+  const hits = list.filter(e => e.name && e.name.toLowerCase().includes(q)).sort((a, b) => dist(a, player) - dist(b, player));
+  return hits[0] || null;
+}
+
+function actByName(kind, q) {
+  q = q.toLowerCase().replace(/["']/g, "").trim();
+  const list = actionList(player).filter(a => a.kind === kind);
+  const nm = a => (kind === "ma" ? SPELLS[a.id].name : kind === "ja" ? ABILITIES[a.id].name : WEAPON_SKILLS[a.id].name).toLowerCase();
+  return list.find(a => nm(a) === q) || list.find(a => nm(a).startsWith(q)) || list.find(a => nm(a).includes(q)) || null;
+}
+
+function runCommand(text) {
+  text = String(text || "").trim();
+  if (!text) return;
+  if (text[0] !== "/") { log(save.name + ": " + text, "say"); return; }
+  const sp = text.indexOf(" ");
+  const cmd = (sp < 0 ? text.slice(1) : text.slice(1, sp)).toLowerCase();
+  const arg = sp < 0 ? "" : text.slice(sp + 1).trim();
+  const castBy = kind => {
+    if (!arg) { log("Usage: /" + cmd + " name", "sys"); return; }
+    const a = actByName(kind, arg);
+    if (!a) { log("You don't know " + (kind === "ma" ? "a spell" : kind === "ja" ? "an ability" : "a weapon skill") + " called \"" + arg + "\".", "sys"); sfx("error"); return; }
+    playerAct({ kind: a.kind, id: a.id, name: a.name });
+  };
+  switch (cmd) {
+    case "rest": case "heal": case "sit": toggleRest(); return;
+    case "stand": if (player.resting) standUp(player); else log("You're already standing.", "sys"); return;
+    case "attack": case "a": toggleEngage(false); return;
+    case "target": case "ta": {
+      if (!arg) { cycleTarget(); return; }
+      const t = findNamed(S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 900).concat(S.npcs, S.party), arg);
+      if (!t) { log("No one called \"" + arg + "\" nearby.", "sys"); sfx("error"); return; }
+      if (isMob(t)) setTarget(t); else player.target = t;
+      sfx("select");
+      return;
+    }
+    case "assist": {
+      const t = partyBattleTarget();
+      if (!t) { log("Your party isn't fighting anything.", "sys"); return; }
+      setTarget(t); sfx("select");
+      return;
+    }
+    case "check": case "c": {
+      const t = player.target;
+      if (!isMob(t)) { log(t ? t.name + " is not an enemy." : "You have no target.", "sys"); return; }
+      const [c] = conOf(t);
+      const f = t.fam;
+      const aggro = f.aggro ? Object.keys(f.aggro).map(k => ({ sight: "sight", sound: "sound", magic: "magic", lowhp: "low HP" }[k])).join(", ") : "passive";
+      log("The " + t.name + " (Lv." + t.lv + ") seems like " + (c === "Too Weak" ? "too weak to be worthwhile" : c === "Easy Prey" ? "easy prey" : c === "Decent Challenge" ? "a decent challenge" : c === "Even Match" ? "an even match" : c === "Tough" ? "a tough opponent" : c === "Very Tough" ? "a very tough opponent" : "an incredibly tough opponent") + ". Detects by: " + aggro + "." + (f.nm ? " It is a notorious monster!" : ""), "sys");
+      return;
+    }
+    case "cast": case "ma": castBy("ma"); return;
+    case "ja": castBy("ja"); return;
+    case "ws": castBy("ws"); return;
+    case "item": case "use": {
+      const q = arg.toLowerCase();
+      const s = save.inventory.find(x => ITEMS[x.id].kind === "use" && ITEMS[x.id].name.toLowerCase() === q) || save.inventory.find(x => ITEMS[x.id].kind === "use" && ITEMS[x.id].name.toLowerCase().includes(q));
+      if (!s || !q) { log("You don't have a usable item called \"" + arg + "\".", "sys"); sfx("error"); return; }
+      useItem(s.id);
+      return;
+    }
+    case "mount": if (!player.mounted) toggleMount(); return;
+    case "dismount": if (player.mounted) dismount("You dismount."); return;
+    case "jump": if (typeof tryJump === "function") tryJump(); return;
+    case "time": case "clock": log(clockText() + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); return;
+    case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
+    case "clear": if (typeof clearLog === "function") clearLog(); return;
+    case "help": case "?": case "commands": for (const [c, d] of COMMANDS) log(c + " — " + d, "sys"); return;
+  }
+  if (EMOTES[cmd]) {
+    const t = player.target && player.target !== player ? (isMob(player.target) ? " at the " : " at ") + player.target.name : "";
+    log(save.name + " " + EMOTES[cmd] + t + ".", "say");
+    return;
+  }
+  log("Unknown command: /" + cmd + ". Type /help for a list.", "sys");
+  sfx("error");
 }
 
 const AUDIO_LOOP = {};
@@ -7563,9 +8017,9 @@ const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
-  shop: ["Shop", "🪙", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""]
+  shop: ["Shop", "🪙", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""]
 };
-const MAIN_TABS = ["character", "inventory", "skills", "actions", "quests", "map", "settings", "system"];
+const MAIN_TABS = ["character", "inventory", "skills", "actions", "quests", "map", "help", "updates", "settings", "system"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -7609,17 +8063,11 @@ function closeDialog() {
 }
 function uiPartyChanged() { UI.partyKey = ""; }
 
-function rarityOf(id) {
-  const it = ITEMS[id];
-  if (it.rare) return "r-rare";
-  if (it.ex) return "r-ex";
-  if (it.hq) return "r-hq";
-  if (it.kind === "equip") return "r-gear";
-  return "r-common";
-}
+function rarityOf(id) { return "r-" + itemRarity(id); }
+function rarityTag(id) { const r = RARITY[itemRarity(id)]; return '<span style="color:' + r[1] + '">' + r[0] + "</span>"; }
 function itemDesc(id) {
   const it = ITEMS[id];
-  const tags = (it.rare ? "Rare · " : "") + (it.ex ? "Ex · " : "") + (it.hq ? "High quality · " : "");
+  const tags = RARITY[itemRarity(id)][0] + " · " + (it.rare ? "Rare (one only) · " : "") + (it.ex ? "Ex (can't be sold) · " : "") + (it.hq ? "High quality · " : "");
   if (it.kind !== "equip") return tags + (it.desc || "");
   const parts = [SLOT_NAMES[it.slot]];
   if (it.wtype) parts.push(SKILL_NAMES[it.wtype] + " DMG " + it.dmg + " Delay " + it.delay);
@@ -7631,6 +8079,7 @@ function itemDesc(id) {
 function actIcon(a) {
   if (!a) return "";
   if (a.kind === "item") return (ITEMS[a.id] && ITEMS[a.id].icon) || "❔";
+  if (a.kind === "cmd") return "💤";
   if (a.kind === "ws") return "⚔";
   if (a.kind === "ja") return ACT_ICON[a.id] || "✦";
   return SPELL_ICON[a.id] || "✧";
@@ -7638,12 +8087,14 @@ function actIcon(a) {
 function actName(a) {
   if (!a) return "";
   if (a.kind === "item") return ITEMS[a.id] ? ITEMS[a.id].name : a.id;
+  if (a.kind === "cmd") return "Rest";
   if (a.kind === "ws") return WEAPON_SKILLS[a.id].name;
   if (a.kind === "ja") return ABILITIES[a.id].name;
   return SPELLS[a.id].name;
 }
 function actDesc(a) {
   if (a.kind === "item") return ITEMS[a.id].desc || "";
+  if (a.kind === "cmd") return "Sit down to recover HP and MP quickly (/rest). Use again or move to stand.";
   if (a.kind === "ws") { const w = WEAPON_SKILLS[a.id]; return "Weapon skill · 1000 TP · " + w.props.join("/"); }
   if (a.kind === "ja") { const b = ABILITIES[a.id]; return "Ability · recast " + b.recast + "s · " + (b.desc || ""); }
   const s = SPELLS[a.id];
@@ -7654,6 +8105,7 @@ function actTint(a) {
   if (a.kind === "ma") { const s = SPELLS[a.id]; const c = s.element ? ELEMENT_COLORS[s.element] : "#8fe0a8"; return "radial-gradient(circle at 50% 35%, " + c + "55, #141722 75%)"; }
   if (a.kind === "ws") return "radial-gradient(circle at 50% 35%, #6b5420, #141722 75%)";
   if (a.kind === "ja") return "radial-gradient(circle at 50% 35%, #2f6a40, #141722 75%)";
+  if (a.kind === "cmd") return "radial-gradient(circle at 50% 35%, #2c4a6a, #141722 75%)";
   return "radial-gradient(circle at 50% 35%, #3b3355, #141722 75%)";
 }
 
@@ -7665,6 +8117,14 @@ function hotbar() {
     hb.pages[1][0] = { kind: "item", id: "potion" };
     hb.pages[1][1] = { kind: "item", id: "ether" };
     hb.pages[1][2] = { kind: "item", id: "hi_potion" };
+  }
+  if (!hb.restAdded) {
+    hb.restAdded = true;
+    if (!hb.pages.some(pg => pg.some(x => x && x.kind === "cmd"))) {
+      const pg = hb.pages[1];
+      const i = pg.findIndex(x => !x);
+      if (i >= 0) pg[i] = { kind: "cmd", id: "rest" };
+    }
   }
   return hb;
 }
@@ -7696,7 +8156,7 @@ function syncHotbar() {
 }
 function knownAct(a) {
   if (!a) return false;
-  if (a.kind === "item") return true;
+  if (a.kind === "item" || a.kind === "cmd") return true;
   return actionList(player).some(x => x.kind === a.kind && x.id === a.id);
 }
 function buildActionBar() {
@@ -7722,6 +8182,7 @@ function activateSlot(page, i) {
   const a = hotbar().pages[page][i];
   if (page === UI.page && UI.slots[i]) { const el = UI.slots[i].el; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
   if (!a) { openMenu("actions"); return; }
+  if (a.kind === "cmd") { runCommand("/" + a.id); return; }
   if (a.kind === "item") {
     if (invCount(a.id) < 1) { log("You don't have any " + ITEMS[a.id].name + "s.", "sys"); sfx("error"); return; }
     useItem(a.id);
@@ -7742,7 +8203,8 @@ function updateActionBar() {
     const a = s.a;
     if (!a) return;
     let cost = "", cdLeft = 0, cdTotal = 1, ready = true, chip = "", burst = false;
-    if (a.kind === "item") {
+    if (a.kind === "cmd") { ready = player.alive; cost = player.resting ? "on" : ""; }
+    else if (a.kind === "item") {
       const n = invCount(a.id);
       cost = "×" + n;
       cdLeft = Math.max(0, S.itemReadyAt - S.time); cdTotal = CONFIG.itemRecast;
@@ -7824,7 +8286,7 @@ function updateParty() {
     setW(u.mp, p.maxMp ? 100 * p.mp / p.maxMp : 0);
     setTxt(u.mpT, p.maxMp ? String(Math.floor(p.mp)) : "");
     setW(u.tp, 100 * p.tp / CONFIG.tpMax);
-    const bf = Object.keys(p.buffs || {}).map(k => "<span title=\"" + (BUFF_NAMES[k] || k) + "\">" + (BUFF_ICONS[k] || "•") + "</span>").join("") + (p.regenerating ? '<span title="Resting">💤</span>' : "") + (p.engaged ? '<span title="Engaged">⚔</span>' : "");
+    const bf = Object.keys(p.buffs || {}).map(k => "<span title=\"" + (BUFF_NAMES[k] || k) + "\">" + (BUFF_ICONS[k] || "•") + "</span>").join("") + (p.resting ? '<span title="Resting: fast recovery">💤</span>' : p.regenerating ? '<span title="Recovering slowly. Type /rest to sit and heal faster.">🌿</span>' : "") + (p.engaged ? '<span title="Engaged">⚔</span>' : "");
     setHtml(u.bufs, bf);
     const cast = p.casting ? (S.time - p.casting.start) / (p.casting.end - p.casting.start) : -1;
     u.cb.style.display = cast >= 0 ? "" : "none";
@@ -7966,6 +8428,17 @@ function zoneMapCanvas(zoneId) {
   for (const s of z.stalls || []) { g.fillStyle = s.color; g.fillRect(s.x - 26, s.y - 14, 52, 28); }
   for (const [x, y] of z.lamps || []) { g.fillStyle = "#ffd77a"; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); }
   for (const [x, y] of z.torches || []) { g.fillStyle = "#ff9a3d"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
+  for (const r of z.walls || []) {
+    g.fillStyle = z.theme === "cave" ? "#151310" : "#4d4a40"; g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 14;
+    g.beginPath(); g.roundRect ? g.roundRect(r.x, r.y, r.w, r.h, 40) : g.rect(r.x, r.y, r.w, r.h); g.fill(); g.stroke();
+  }
+  if (z.ruins) {
+    g.strokeStyle = "#b9b2a0"; g.lineWidth = 26; g.lineCap = "butt";
+    for (const [x1, y1, x2, y2] of z.ruins.walls) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+    g.fillStyle = "#cfc8b4";
+    for (const [x, y] of z.ruins.pillars) { g.beginPath(); g.arc(x, y, 16, 0, 7); g.fill(); }
+    g.lineCap = "round";
+  }
   if (z.theme === "town") { g.strokeStyle = "#3b2a1c"; g.lineWidth = 10; g.strokeRect(20, 20, z.w - 40, z.h - 40); }
   else { g.strokeStyle = "rgba(0,0,0,.6)"; g.lineWidth = 30; g.strokeRect(0, 0, z.w, z.h); }
   for (const e of z.exits || []) { g.fillStyle = "rgba(241,207,115,.85)"; g.fillRect(e.x, e.y, e.w, e.h); }
@@ -8064,8 +8537,10 @@ function uiEvent(type, d) {
   if (type === "item") {
     const it = ITEMS[d.id];
     if (!it) return;
-    toast(it.icon || "📦", it.rare ? "Rare item!" : "Obtained", (d.n > 1 ? d.n + " × " : "") + it.name, it.rare || it.ex ? "rare" : "");
+    const r = itemRarity(d.id);
+    toast(it.icon || "📦", r === "epic" ? "Epic item!" : r === "rare" ? "Rare item!" : r === "uncommon" ? "Uncommon item" : "Obtained", (d.n > 1 ? d.n + " × " : "") + it.name, "r-" + r);
   }
+  if (type === "landmark") { toast("🧭", "Landmark discovered", d.name + (player.lv < CONFIG.levelCap ? " · +" + d.xp + " XP" : ""), "r-rare"); sfx("unlock"); }
 }
 
 function watchProgress() {
@@ -8081,8 +8556,8 @@ function watchProgress() {
     if (dm > 0) chips.push("💧 MP +" + dm);
     const before = UI.actKeys || [];
     for (const a of actionList(player)) if (!before.includes(a.kind + ":" + a.id)) chips.push(actIcon(a) + " " + esc(actName(a)));
-    if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("📜 Quest: A Second Calling");
-    if (lv === 5 && !save.mountLicense) chips.push("📜 Quest: Riding License");
+    if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("💬 Tobin wants a word");
+    if (lv === 5 && !save.mountLicense) chips.push("💬 Ysolde wants a word");
     if (lv >= CONFIG.levelCap) chips.push("⭐ Level cap reached");
     banner("LEVEL " + lv, JOBS[j].name, chips);
   }
@@ -8119,6 +8594,10 @@ function updateBottom() {
   setW($("xpfill"), need ? 100 * j.xp / need : 100);
   setTxt($("xpt"), need ? j.xp + " / " + need + " XP (" + Math.floor(100 * j.xp / need) + "%)" : "Level cap");
   setTxt($("gil"), "🪙 " + save.gil);
+  const ci = chainInfo();
+  const cc = $("chainCt");
+  setTxt(cc, ci ? "⛓ " + (ci.n > 0 ? "Chain " + ci.n + " · " : "") + "next +" + Math.round(ci.next * CONFIG.chainStep * 100) + "% · " + Math.ceil(ci.left) + "s" : "");
+  cc.title = ci ? "Defeat another monster within " + Math.ceil(ci.left) + " s for a " + Math.round(ci.next * CONFIG.chainStep * 100) + "% XP bonus." : "";
   const cb = $("castBar");
   if (player.casting) {
     cb.style.display = "block";
@@ -8171,6 +8650,22 @@ function initHud() {
   $("btnMenu").onclick = () => S.modal ? closeModal() : openMenu("character");
   $("btnQuests").onclick = () => openMenu("quests");
   $("btnSound").onclick = () => { toggleMute(); updateTopRight(); };
+  const ci = $("chatIn");
+  UI.cmdHist = []; UI.cmdIdx = 0;
+  ci.addEventListener("keydown", e => {
+    e.stopPropagation();
+    if (e.key === "Enter") {
+      const v = ci.value.trim();
+      ci.value = "";
+      if (v) { UI.cmdHist.push(v); if (UI.cmdHist.length > 30) UI.cmdHist.shift(); UI.cmdIdx = UI.cmdHist.length; runCommand(v); }
+      ci.blur();
+    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); }
+    else if (e.key === "ArrowUp") { if (UI.cmdIdx > 0) { UI.cmdIdx--; ci.value = UI.cmdHist[UI.cmdIdx]; } e.preventDefault(); }
+    else if (e.key === "ArrowDown") { if (UI.cmdIdx < UI.cmdHist.length) { UI.cmdIdx++; ci.value = UI.cmdHist[UI.cmdIdx] || ""; } e.preventDefault(); }
+  });
+  ci.addEventListener("focus", () => { S.keys = {}; });
+  $("btnHelp").onclick = () => S.modal === "help" ? closeModal() : openMenu("help");
+  $("btnUpdates").onclick = () => S.modal === "updates" ? closeModal() : openMenu("updates");
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const mm = $("minimap");
   mm.width = mm.height = Math.round(150 * dpr * 1.2);
@@ -8216,7 +8711,7 @@ function renderModal() {
   for (const t of ["shop", "job", "mercs"]) if (S.modal === t) tabs.unshift(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">🪙 ' + save.gil + " gil · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -8269,8 +8764,8 @@ function tabCharacter() {
   return h;
 }
 
-function attachPreview() {
-  const wrap = $("pvWrap");
+function attachPreview(wrapId) {
+  const wrap = $(wrapId || "pvWrap");
   if (!wrap || typeof THREE === "undefined") return;
   if (!UI.pv) {
     try {
@@ -8300,8 +8795,16 @@ function attachPreview() {
   UI.pv.sized = 0;
 }
 
-function previewEntity() {
-  return { kind: "pc", job: player.job, sub: player.sub, lv: player.lv, gear: Object.assign({}, save.gear), alive: true, engaged: false, casting: null, moving: false, mounted: false, x: 0, y: 0, face: 0, lastSwing: -9, lastHit: -9, lastWS: -9, buffs: {}, tp: 0, hp: 1, maxHp: 1, mp: 0, maxMp: 0, radius: 14, regenerating: false, stats: player.stats, swingTimer: 2, delay: player.delay };
+function previewEntity(o) {
+  const job = o ? o.job : player.job;
+  const gear = o ? o.gear : save.gear;
+  const wt = gear.main && ITEMS[gear.main] ? ITEMS[gear.main].wtype : "h2h";
+  const stats = o ? { wtype: wt, dmg: 1, acc: 1, eva: 1, att: 1, def: 1, str: 1, dex: 1, vit: 1, agi: 1, int: 1, mnd: 1, maxHp: 1, maxMp: 1 } : player.stats;
+  return { kind: "pc", job, sub: o ? null : player.sub, lv: o ? 1 : player.lv, gear: Object.assign({}, gear), alive: true, engaged: false, casting: null, moving: false, mounted: false, x: 0, y: 0, face: 0, lastSwing: -9, lastHit: -9, lastWS: -9, buffs: {}, tp: 0, hp: 1, maxHp: 1, mp: 0, maxMp: 0, radius: 14, regenerating: false, stats, swingTimer: 2, delay: o ? 3 : player.delay, resting: false };
+}
+function lookBase(look) {
+  const l = look || {};
+  return { build: l.build || 0, skin: SKIN_TONES[l.skin || 0], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
 }
 function renderPreview(now) {
   const pv = UI.pv;
@@ -8311,8 +8814,9 @@ function renderPreview(now) {
   const w = pv.canvas.clientWidth, h = pv.canvas.clientHeight;
   if (!w || !h) return;
   if (pv.sized !== w * 10000 + h) { pv.sized = w * 10000 + h; pv.r.setSize(w, h, false); pv.cam.aspect = w / h; pv.cam.updateProjectionMatrix(); }
-  const L = lookFor(player.job, save.gear, playerBase());
-  const sig = stableKey(L);
+  const o = pv.override;
+  const L = o ? lookFor(o.job, o.gear, lookBase(o.look)) : lookFor(player.job, save.gear, playerBase());
+  const sig = stableKey(L) + (o ? "|cc" : "");
   if (sig !== pv.sig) {
     if (pv.holder) { pv.scene.remove(pv.holder); pv.view && pv.view.mat && pv.view.mat.dispose(); }
     const entry = entryFor("h|" + sig, () => humanEntry(L));
@@ -8321,7 +8825,7 @@ function renderPreview(now) {
     holder.add(inst.mesh);
     const weapon = makeWeapon(L.weapon, L.weaponId);
     pv.view = { group: holder, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, kind: "human", weapon, weaponKind: L.weapon, alwaysDrawn: false, weaponDrawn: null, style: "pc", stride: 1.7, scale: 1, mount: null, sink: 0 };
-    pv.ent = previewEntity();
+    pv.ent = previewEntity(o);
     pv.scene.add(holder);
     pv.holder = holder;
     pv.sig = sig;
@@ -8341,7 +8845,7 @@ function invSorted() {
     if (UI.filter === "use") return it.kind === "use";
     if (UI.filter === "gear") return it.kind === "equip";
     if (UI.filter === "mat") return it.kind === "mat" || it.kind === "crystal" || it.kind === "tool";
-    if (UI.filter === "rare") return it.rare || it.ex || it.kind === "furniture";
+    if (UI.filter === "rare") return it.rare || it.ex || it.kind === "furniture" || ["rare", "epic"].includes(itemRarity(s.id));
     return true;
   });
 }
@@ -8361,7 +8865,7 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [it.rare ? "Rare" : "", it.ex ? "Exclusive" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " gil" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " gil" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
@@ -8422,7 +8926,8 @@ function tabActions() {
 function tabQuests() {
   let h = "";
   const order = ["active", "killed", "none", "done"];
-  const ids = Object.keys(QUESTS).sort((a, b) => order.indexOf(save.quests[a]) - order.indexOf(save.quests[b]));
+  const ids = Object.keys(QUESTS).filter(id => save.quests[id] !== "none").sort((a, b) => order.indexOf(save.quests[a]) - order.indexOf(save.quests[b]));
+  if (!ids.length) return '<div class="sub">You have no quests yet. Talk to the people of the Outpost. A ❗ over someone means they have work for you.</div>';
   for (const id of ids) {
     const st = save.quests[id];
     const q = QUESTS[id];
@@ -8443,6 +8948,11 @@ function tabMap() {
   const f = exploredFor(S.zoneId);
   const pct = Math.round(100 * f.s.split("").filter(c => c === "1").length / f.s.length);
   h += '<div class="sub" style="margin-top:4px">' + esc(S.zone.name) + " · " + pct + "% explored</div>";
+  const lms = S.zone.landmarks || [];
+  if (lms.length) {
+    const found = lms.filter(l => save.landmarks[S.zoneId + ":" + l.id]);
+    h += '<div class="sub" style="margin-top:4px">🧭 Landmarks ' + found.length + "/" + lms.length + (found.length ? ": " + found.map(l => esc(l.name)).join(" · ") : " · explore to find them for bonus XP") + "</div>";
+  }
   h += "<h3>World</h3>" + worldMapSVG();
   return h;
 }
@@ -8480,6 +8990,7 @@ function drawZoneMap() {
     lbl((questMarker(n) ? "❗ " : "") + n.name.split(",")[0], n.x, n.y - 10 / s, cr ? "#7ff3ff" : "#ead9ae");
   }
   for (const p of S.party) if (p !== player) { g.beginPath(); g.arc(p.x, p.y, 5 / s, 0, 7); g.fillStyle = "#62b6ff"; g.fill(); }
+  for (const l of z.landmarks || []) if (save.landmarks[S.zoneId + ":" + l.id]) lbl("🧭 " + l.name, l.x, l.y, "#e9dcb4");
   g.save(); g.translate(player.x, player.y); g.rotate(player.face || 0); g.scale(1 / s, 1 / s);
   g.beginPath(); g.moveTo(12, 0); g.lineTo(-8, -8); g.lineTo(-3, 0); g.lineTo(-8, 8); g.closePath(); g.fillStyle = "#fff"; g.fill(); g.lineWidth = 2; g.strokeStyle = "#000"; g.stroke();
   g.restore();
@@ -8512,11 +9023,14 @@ function tabSettings() {
 function tabSystem() {
   let h = "<h3>Save data</h3>";
   h += '<div class="sub" style="margin-bottom:8px">Your progress saves automatically in this browser. Save to a file for a backup, or load a file to restore one or move to another device.</div>';
-  h += '<div class="opt"><button data-a="savefile">💾 Save to file</button><button data-a="loadfile">📂 Load from file</button><button data-a="newgame">Start a new game</button></div>';
+  h += '<div class="opt"><button data-a="savefile">💾 Save to file</button><button data-a="loadfile">📂 Load from file</button></div>';
+  h += "<h3>Character</h3><div class=\"sub\" style=\"margin-bottom:8px\">" + esc(save.name) + " · " + JOBS[save.mainJob].name + " Lv." + player.lv + " · " + loadRoster().chars.length + " of " + MAX_CHARS + " characters. Appearance was set at creation and can't be changed.</div>";
+  h += '<div class="opt"><button data-a="logout">👥 Change character</button></div>';
   h += '<input type="file" id="loadInput" accept=".json,application/json" style="display:none">';
   h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes.</div>";
-  h += "<h3>Controls</h3><div class=\"sub\" style=\"line-height:1.7\"><b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap to target, tap again to attack or talk.<br><b>Keyboard:</b> WASD move · drag, arrows or Q/E turn · scroll zoom · V first person · Tab target · F attack · Enter talk · 1–0 action bar (Shift for page 2) · [ ] switch page · R mount · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map.<br>Stand still out of combat to regenerate HP and MP.</div>";
-  h += "<h3>About</h3><div class=\"sub\">Untitled Solo RPG · Phase 4 build · all art, music and sound are generated for this game.</div>";
+  h += "<h3>Controls</h3><div class=\"sub\" style=\"line-height:1.7\"><b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap to target, tap again to attack or talk.<br><b>Keyboard:</b> WASD move · drag, arrows or Q/E turn · scroll zoom · V first person · Tab target (nearest first, press again to cycle) · F attack · Enter talk · 1–0 action bar (Shift for page 2) · [ ] switch page · R mount · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map · H help.<br>Stand still out of combat to regenerate HP and MP.</div>";
+  h += '<div class="opt" style="margin-top:8px"><button data-a="checkupd">🔄 Check for updates</button></div>';
+  h += "<h3>About</h3><div class=\"sub\">Untitled Solo RPG · " + BUILD_INFO + " · all art, music and sound are generated for this game.</div>";
   return h;
 }
 function tabShop() {
@@ -8645,14 +9159,9 @@ function onMenuClick(e) {
   else if (a === "hire") hireMerc(v);
   else if (a === "dismiss") dismissMerc(v);
   else if (a === "savefile") { downloadSave(); return; }
+  else if (a === "checkupd") { checkForUpdate(true); return; }
   else if (a === "loadfile") { $("loadInput").click(); return; }
-  else if (a === "newgame") {
-    if (typeof confirm === "function" && !confirm("Erase your progress and start over?")) return;
-    startNewGame();
-    UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
-    closeModal();
-    return;
-  }
+  else if (a === "logout") { closeModal(); logoutToSelect(); return; }
   renderModal();
 }
 function placeOnBar(a) {
@@ -8678,6 +9187,191 @@ function initMenu() {
   });
   m.addEventListener("change", e => { if (e.target.dataset && e.target.dataset.vol) sfx("click"); });
   applyUiSettings();
+}
+
+const BUILD_INFO = "v4.2.0 · built 2026-10-13 10:43 PDT";
+const UPDATES = [
+  { v: "4.2.0", date: "2026-10-13", title: "Phase 5a: a bigger world", items: [
+    "Character creation: choose a name, job and appearance before you start. Appearance is permanent. Keep up to 8 characters and pick one on the character select screen each time you play, like an MMO. System → Change character logs out to that screen.",
+    "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes.",
+    "A Rest action is on page 2 of the action bar.",
+    "Real loading screens: every area change shows a progress bar that moves while the land is shaped, instead of freezing.",
+    "New-version popup: the game checks for updates and offers to reload. After an update, a what's-new card shows the changes.",
+    "Jumping has a real animation: crouch, tuck, arms up, land.",
+    "Quests no longer appear in the journal until you've accepted them from someone.",
+    "Rocky Hollow is now four times larger (3200×2200): Shepherd's Meadow, Mirror Lake, Burrow Flats, Reed Pond, the Old Fort Ruins and a Goblin Camp, with rocky outcrops and a home point crystal by the eastern exit.",
+    "The Goblin Den is now four chambers joined by passages: Den Mouth, Underground Pool, Bone Pit and the Chieftain's Throne.",
+    "Notorious monsters are live. Grimtooth, Duskwing, King Wiggles and the Ossuary Warden pop from placeholder monsters. Their cooldowns run on the real clock, so a defeated NM stays down while you're offline.",
+    "Drop tables reworked to MMO rates: materials 15–40%, uncommon items 5–10%, gear 1–5%, NM and boss uniques 30%.",
+    "Seven new gear drops from regular monsters, from the Hare Charm to the Raider Helm.",
+    "Item rarity colours: common white, uncommon green, rare blue, epic purple. Rare items can only be held once; Ex items can't be sold.",
+    "EXP chains: defeat monsters back to back (within 60 s) for +10% XP per chain, up to +50%. The counter sits next to the XP bar.",
+    "Discovery XP: find the 11 landmarks across Rocky Hollow and the Goblin Den for bonus XP.",
+    "Smoother XP curve: 200 XP for level 2 up to 3,600 XP for level 10.",
+    "Tab now targets the closest person in town, and the closest enemy in the field; press again within 2 s to cycle by distance.",
+    "Companions catch up if they get left behind, and monsters stuck on a wall go home.",
+    "New Help (H) and Updates buttons."
+  ] },
+  { v: "4.1.0", date: "2026-10-13", title: "A new name", items: [
+    "The game is now called Untitled Solo RPG. Ashenreach Outpost keeps its name.",
+    "The title screen shows the version and build time.",
+    "Old saves and save files still load."
+  ] },
+  { v: "4.0", date: "2026-10-13", title: "Phase 4: interface and sound", items: [
+    "Modern MMO HUD: party and target frames, minimap, quest tracker, action bar, chat tabs, toasts and banners.",
+    "System menu with character preview, inventory, skills, action bar editor, quests, map with fog of war, settings and system.",
+    "Music, ambience and sound effects for every zone, time of day and battle.",
+    "Loading screens, Begin/Continue on the title screen, and jumping."
+  ] },
+  { v: "3.0", title: "Phase 3: characters and effects", items: ["Detailed characters, monsters and the Thornstrider mount, with gear that changes your look.", "Procedural animation, spell and skillchain effects, weapon trails.", "Riding License quest."] },
+  { v: "2.0", title: "Phase 2: the 3D world", items: ["3D terrain, trees, water reflections, a physical sky, sun, moon and stars that follow the game clock.", "classic MMO-style camera and touch controls."] },
+  { v: "1.0", title: "Phase 1: the rules", items: ["Combat, TP, weapon skills, skillchains, magic bursts, enmity, con colours and aggro.", "Hired companions, standing regen, home points, skills, support jobs and the real-time clock."] }
+];
+
+function tabUpdates() {
+  let h = '<div class="sub" style="margin-bottom:8px">' + BUILD_INFO + "</div>";
+  for (const u of UPDATES) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>";
+  return h;
+}
+
+function tabHelp() {
+  const sec = (title, body, open) => "<details" + (open ? " open" : "") + "><summary>" + title + "</summary>" + body + "</details>";
+  const ul = arr => "<ul>" + arr.map(x => "<li>" + x + "</li>").join("") + "</ul>";
+  const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
+  let h = '<div class="help">';
+  h += sec("🌅 Getting started", ul([
+    "You start alone in Ashenreach Outpost with 100 gil. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Tobin</b> to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
+    "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
+    "Your first hire is a big boost: Mira (White Mage) heals, Kael (Warrior) tanks. A full party is you plus five.",
+    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or use the Rest action on action bar page 2) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
+  ]), true);
+  h += sec("👥 Characters", ul([
+    "On the title screen you pick a character or create a new one: name (2–12 letters), job and appearance. <b>Appearance is permanent</b>, so take your time.",
+    "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, gil, quests and companions. System → Change character goes back to the select screen.",
+    "Deleting a character on the select screen is permanent."
+  ]));
+  h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
+  h += sec("🎮 Controls", ul([
+    "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a character to target, tap again to attack or talk · Target button picks the nearest.",
+    "<b>Keyboard:</b> WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
+    "1–0 use the action bar (Shift for page 2) · [ ] switch page · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map · H help."
+  ]));
+  h += sec("⚔️ Combat", ul([
+    "Auto-attack swings on your weapon's delay. Each hit builds <b>TP</b>; at 1000 TP you can use a weapon skill (more TP makes it stronger).",
+    "<b>Skillchains:</b> a weapon skill opens a chain; a matching weapon skill within about 6 s closes it for bonus damage. The target frame shows the open chain and its element.",
+    "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
+    "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
+    "<b>Con colours:</b> " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP.",
+    "<b>Aggro:</b> some monsters notice by sight (goblins), sound (bats, undead), magic (worms) or low HP (undead). The coloured ground markings show their range."
+  ]));
+  h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
+    ["Warrior", "Tank or damage", "Provoke, Berserk, great axe A, sword B"],
+    ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Divine Seal"],
+    ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"]
+  ]) + ul([
+    "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
+    "Companions cost a one-time fee, match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
+  ]));
+  h += sec("📈 Experience", ul([
+    "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
+    "Kill XP scales with the monster's con. Tougher monsters give much more.",
+    "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
+    "<b>Discovery:</b> landmarks give bonus XP the first time you reach them (🧭 toast). The Map shows how many you've found in each zone.",
+    "Quests give big XP rewards.",
+    "Defeat costs 10% of your current level's XP requirement, but you never lose a level."
+  ]));
+  const nmRows = Object.keys(NM_FAMILIES).map(k => { const n = NM_FAMILIES[k], u = ITEMS[n.loot[0][0]]; return ["☠ " + n.name, n.hint || "", (FAMILIES[n.base] || {}).name || "", u ? u.name : ""]; });
+  h += sec("☠ Notorious monsters", "<p>Rare, stronger versions of normal monsters with a coloured aura. They sometimes appear in place of a regular monster (its placeholder) when it respawns. After one is defeated it can't appear again for about 5 minutes of real time, even while you're offline. Each has a unique drop with about a 30% chance.</p>" + tbl(["Name", "Where and when", "Pops from", "Unique drop"], nmRows) + "<p>The Goblin Chieftain at the back of the Goblin Den is a fixed boss that returns every 3 minutes.</p>");
+  h += sec("💎 Loot and rarity", tbl(["Rarity", "Typical items", "Drop rate"], [
+    ['<span style="color:' + RARITY.common[1] + '">Common</span>', "Materials, crystals, potions", "15–40%"],
+    ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high quality, monster gear", "5–10% (gear 1–5%)"],
+    ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques", "about 30%"],
+    ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
+  ]) + ul(["<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold.", "Some monster gear only drops from higher-level monsters of that kind."]));
+  h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
+    ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, home point"],
+    ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs, home point by the eastern exit"],
+    ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit, Chieftain's Throne"]
+  ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals restore your party and can be set as your return point."]));
+  h += sec("📜 Quests", ul(Object.keys(QUESTS).map(id => "<b>" + esc(QUESTS[id].name) + "</b> (" + esc(QUESTS[id].giver) + "): " + esc(QUESTS[id].desc))));
+  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 gil and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
+  h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
+  return h + "</div>";
+}
+
+const GAME_VERSION = "4.2.0";
+const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
+const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
+
+function verCmp(a, b) {
+  const pa = String(a).split(".").map(n => parseInt(n, 10) || 0), pb = String(b).split(".").map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d > 0 ? 1 : -1; }
+  return 0;
+}
+
+async function fetchLatest() {
+  const urls = location.protocol.startsWith("http") ? LATEST_URLS : LATEST_URLS.slice(1);
+  for (const u of urls) {
+    try {
+      const r = await fetch(u + "?t=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) continue;
+      const j = await r.json();
+      if (j && j.version) return j;
+    } catch (e) {}
+  }
+  return null;
+}
+
+async function checkForUpdate(manual) {
+  if (/^__/.test(GAME_VERSION)) return;
+  const j = await fetchLatest();
+  if (!j) { if (manual) log("Couldn't check for updates right now.", "sys"); return; }
+  if (verCmp(j.version, GAME_VERSION) > 0) { if (manual || UI.verDismissed !== j.version) showVersionPopup(j); }
+  else if (manual) log("You have the latest version (v" + GAME_VERSION + ").", "sys");
+}
+
+function versionPop(html) {
+  let el = $("verPop");
+  if (!el) { el = document.createElement("div"); el.id = "verPop"; el.className = "glass"; $("ui").appendChild(el); }
+  el.innerHTML = html;
+  el.style.display = "block";
+  return el;
+}
+
+function showVersionPopup(j) {
+  const web = location.protocol.startsWith("http");
+  const el = versionPop('<div class="vpT">✨ New version available</div><div class="vpB">Version <b>v' + esc(j.version) + "</b> is out (you have v" + esc(GAME_VERSION) + ")." + (j.title ? "<br>" + esc(j.title) : "") + '<br><span class="sub">Your progress is saved first, so nothing is lost.</span></div><div class="vpA"><button data-v="reload" class="pri">' + (web ? "Reload now" : "Open latest") + '</button><button data-v="later">Later</button></div>');
+  sfx("notify");
+  el.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.v === "reload") {
+      saveGame();
+      if (web) { const u = new URL(location.href); u.searchParams.set("v", j.version); location.replace(u.toString()); }
+      else window.open(PLAY_URL, "_blank");
+    } else { UI.verDismissed = j.version; el.style.display = "none"; sfx("close"); }
+  };
+}
+
+function showWhatsNew() {
+  let seen = null;
+  try { seen = localStorage.getItem("usr_seen_version"); localStorage.setItem("usr_seen_version", GAME_VERSION); } catch (e) {}
+  if (/^__/.test(GAME_VERSION) || !seen || seen === GAME_VERSION) return;
+  const u = UPDATES[0];
+  const el = versionPop('<div class="vpT">📰 Updated to v' + esc(GAME_VERSION) + '</div><div class="vpB"><b>' + esc(u.title) + "</b><ul>" + u.items.slice(0, 5).map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>" + '<div class="vpA"><button data-v="all" class="pri">All updates</button><button data-v="ok">Play</button></div>');
+  el.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    el.style.display = "none";
+    if (b.dataset.v === "all") openMenu("updates"); else sfx("close");
+  };
+}
+
+function initVersionCheck() {
+  showWhatsNew();
+  setTimeout(() => checkForUpdate(false), 4000);
+  setInterval(() => checkForUpdate(false), 10 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkForUpdate(false); });
 }
 
 const NOISE = (() => {
@@ -8725,7 +9419,7 @@ function makeCanvas(w, h) {
   return c;
 }
 
-function paintPixels(w, h, fn) {
+function* paintPixelsSteps(w, h, fn) {
   const c = makeCanvas(w, h);
   const g = c.getContext("2d");
   const img = g.createImageData(w, h);
@@ -8737,10 +9431,13 @@ function paintPixels(w, h, fn) {
       const i = (y * w + x) * 4;
       d[i] = out[0]; d[i + 1] = out[1]; d[i + 2] = out[2]; d[i + 3] = out[3];
     }
+    if ((y & 15) === 15) yield y / h;
   }
   g.putImageData(img, 0, 0);
   return c;
 }
+function runSteps(gen) { let r; while (!(r = gen.next()).done); return r.value; }
+function paintPixels(w, h, fn) { return runSteps(paintPixelsSteps(w, h, fn)); }
 
 function heightToNormalCanvas(w, h, hf, strength) {
   return paintPixels(w, h, (x, y, o) => {
@@ -8942,12 +9639,12 @@ const TERRAIN_THEMES = {
   house: { grassA: [120, 92, 62], grassB: [128, 98, 66], dirt: [110, 84, 58], rock: [100, 90, 80], sand: [120, 100, 80], cliff: [80, 70, 60] }
 };
 
-function bakeTerrainAlbedo(field, size) {
+function* bakeTerrainAlbedoSteps(field, size) {
   const z = field.zone, th = TERRAIN_THEMES[z.theme] || TERRAIN_THEMES.field;
   const W = size, H = Math.max(64, Math.round(size * field.h / field.w));
   const sx = field.w / W, sy = field.h / H;
   const cob = z.theme === "town";
-  const c = paintPixels(W, H, (ix, iy, o) => {
+  const c = yield* paintPixelsSteps(W, H, (ix, iy, o) => {
     const px = field.x0 + (ix + 0.5) * sx, py = field.y0 + (iy + 0.5) * sy;
     const hgt = field.heightAt(px, py);
     const slope = Math.min(1, Math.hypot(field.heightAt(px + 8, py) - hgt, field.heightAt(px, py + 8) - hgt) / 0.4 * 0.5);
@@ -9006,6 +9703,8 @@ function cobbleHeight(x, y) {
   return COBBLE_HF[(y & 255) * 256 + (x & 255)];
 }
 
+function bakeTerrainAlbedo(field, size) { return runSteps(bakeTerrainAlbedoSteps(field, size)); }
+
 const U = 0.05;
 const W3 = {
   renderer: null, scene: null, camera: null, composer: null, bloom: null, pmrem: null,
@@ -9026,7 +9725,15 @@ function distToSeg(px, py, ax, ay, bx, by) {
   return Math.hypot(px - ax - dx * t, py - ay - dy * t);
 }
 
-function buildField(zone) {
+function buildField(zone) { return runSteps(buildFieldSteps(zone)); }
+
+function* scaleSteps(gen, a, b, text) {
+  let r;
+  while (!(r = gen.next()).done) yield { p: a + (b - a) * (typeof r.value === "number" ? r.value : 0), t: text };
+  return r.value;
+}
+
+function* buildFieldSteps(zone) {
   const theme = themeOf(zone);
   const M = zone.indoor ? 40 : 640;
   const cs = zone.indoor ? 8 : 12;
@@ -9048,11 +9755,22 @@ function buildField(zone) {
     return best;
   };
   const plazaW = (px, py) => zone.plaza ? 1 - sstep(zone.plaza.r - 12, zone.plaza.r + 12, Math.hypot(px - zone.plaza.x, py - zone.plaza.y)) : 0;
-  const outsideE = (px, py) => {
+  const walls = zone.walls || [];
+  const edgeE = (px, py) => {
     const ix = Math.max(24 - px, px - (zone.w - 24), 0), iy = Math.max(24 - py, py - (zone.h - 24), 0);
     if (ix > 0 || iy > 0) return Math.hypot(ix, iy);
     return -Math.min(px - 24, zone.w - 24 - px, py - 24, zone.h - 24 - py);
   };
+  const wallE = (px, py) => {
+    let e = -1e9;
+    for (const r of walls) {
+      const dx = Math.max(r.x - px, px - (r.x + r.w)), dy = Math.max(r.y - py, py - (r.y + r.h));
+      const sd = Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) + Math.min(Math.max(dx, dy), 0);
+      if (-sd > e) e = -sd;
+    }
+    return e;
+  };
+  const outsideE = (px, py) => Math.max(edgeE(px, py), wallE(px, py));
   const exitMask = (px, py) => {
     let m = 0;
     for (const ex of zone.exits) {
@@ -9085,7 +9803,11 @@ function buildField(zone) {
       hgt = mix(hgt, waterLevel + 0.35, flat);
       hgt -= (1 - sstep(wt.r * 0.45, wt.r + 22, d)) * 1.7;
     }
-    const e = outsideE(px, py);
+    const e = edgeE(px, py);
+    if (walls.length && amps[2] > 0) {
+      const we = wallE(px, py);
+      if (we > -10) hgt += sstep(-10, 120, we) * amps[2] * (0.75 + NOISE.ridge(px * 0.01, py * 0.01, 3, 0, 309) * 0.5) * (theme === "field" ? 0.9 : 1.1);
+    }
     if (amps[2] > 0) {
       let t = sstep(-60, 260, e);
       t *= 1 - exitMask(px, py) * 0.97;
@@ -9095,7 +9817,7 @@ function buildField(zone) {
     return hgt;
   };
   const data = new Float32Array(cols * rows);
-  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) data[j * cols + i] = raw(x0 + i * cs, y0 + j * cs);
+  for (let j = 0; j < rows; j++) { for (let i = 0; i < cols; i++) data[j * cols + i] = raw(x0 + i * cs, y0 + j * cs); if ((j & 7) === 7) yield j / rows; }
   const heightAt = (px, py) => {
     const fx = clamp((px - x0) / cs, 0, cols - 1.001), fy = clamp((py - y0) / cs, 0, rows - 1.001);
     const i = Math.floor(fx), j = Math.floor(fy), tx = fx - i, ty = fy - j;
@@ -9113,7 +9835,9 @@ function buildField(zone) {
 
 function std(params) { return new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, params)); }
 
-function buildTerrain(field) {
+function buildTerrain(field) { return runSteps(buildTerrainSteps(field)); }
+
+function* buildTerrainSteps(field) {
   const geo = new THREE.PlaneGeometry(field.w * U, field.h * U, field.cols - 1, field.rows - 1);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
@@ -9125,7 +9849,7 @@ function buildTerrain(field) {
   }
   geo.computeVertexNormals();
   const size = W3.quality === "high" ? 2048 : W3.quality === "medium" ? 1536 : 1024;
-  const map = bakeTerrainAlbedo(field, size);
+  const map = yield* bakeTerrainAlbedoSteps(field, size);
   const detail = texDetailNormal();
   const nm = detail.clone();
   nm.needsUpdate = true;
@@ -9146,6 +9870,11 @@ function placeable(field, px, py, opts) {
   for (const n of z.npcs || []) if (Math.hypot(px - n.x, py - n.y) < (opts.npc || 70)) return false;
   for (const r of z.houses || []) if (Math.abs(px - r.x) < r.w / 2 + 40 && Math.abs(py - r.y) < r.h / 2 + 40) return false;
   for (const ex of z.exits) if (Math.hypot(px - (ex.x + ex.w / 2), py - (ex.y + ex.h / 2)) < (opts.exit || 140)) return false;
+  if (z.ruins) {
+    for (const [x1, y1, x2, y2] of z.ruins.walls) if (px > Math.min(x1, x2) - 60 && px < Math.max(x1, x2) + 60 && py > Math.min(y1, y2) - 60 && py < Math.max(y1, y2) + 60) return false;
+    for (const [x, y] of z.ruins.pillars) if (Math.hypot(px - x, py - y) < 60) return false;
+  }
+  for (const lm of z.landmarks || []) if (lm.clear && Math.hypot(px - lm.x, py - lm.y) < lm.clear) return false;
   return true;
 }
 
@@ -9231,11 +9960,11 @@ function buildVegetation(field, root) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
     if (e > 500) continue;
-    const inside = e < -40;
+    const inside = e < 40;
     if (inside && rnd() < 0.7) continue;
     if (!placeable(field, px, py, { water: 40, npc: 60, path: 0.05, exit: 170 })) continue;
-    const s = inside ? 0.5 + rnd() * 0.8 : 1 + rnd() * 2.5;
-    stal.push(mtx(px * U, field.heightAt(px, py) - 0.2, py * U, s, s * (1.5 + rnd() * 2.5), s, rnd() * 6.28));
+    const s = inside ? 0.35 + rnd() * 0.45 : 1 + rnd() * 2.5;
+    stal.push(mtx(px * U, field.heightAt(px, py) - 0.2, py * U, s, s * (inside ? 1 + rnd() * 1.4 : 1.5 + rnd() * 2.5), s, rnd() * 6.28));
     k++;
   }
   if (tuftCount) for (let k = 0, tries = 0; k < tuftCount && tries < tuftCount * 6; tries++) {
@@ -9455,6 +10184,75 @@ function buildCave(field, root) {
   }
 }
 
+function buildRuins(field, root) {
+  const z = field.zone;
+  const R = z.ruins;
+  if (!R) return;
+  const bricks = texBricks(), rock = texRock();
+  const stoneMat = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0xb8b2a4, roughness: 0.95 });
+  const mossMat = std({ map: rock.map, normalMap: rock.normalMap, color: 0x8a9a78 });
+  const rnd = rngFor(z, "ruins");
+  const g = new THREE.Group();
+  const rubble = [];
+  const groundMin = (pts) => Math.min(...pts.map(([x, y]) => field.heightAt(x, y)));
+  for (const [x1, y1, x2, y2, h] of R.walls) {
+    const len = Math.hypot(x2 - x1, y2 - y1) + 28;
+    const n = Math.max(2, Math.round(len / 45));
+    const horiz = Math.abs(x2 - x1) >= Math.abs(y2 - y1);
+    for (let k = 0; k < n; k++) {
+      const t0 = k / n, t1 = (k + 1) / n;
+      const ax = x1 + (x2 - x1) * t0, ay = y1 + (y2 - y1) * t0, bx = x1 + (x2 - x1) * t1, by = y1 + (y2 - y1) * t1;
+      const cx = (ax + bx) / 2, cy = (ay + by) / 2;
+      const base = groundMin([[ax, ay], [bx, by], [cx, cy]]) - 0.35;
+      const bh = Math.max(0.5, h * (0.55 + rnd() * 0.55)) + 0.35;
+      const seg = len / n * U + 0.02;
+      const geo = horiz ? new THREE.BoxGeometry(seg, bh, 1.3) : new THREE.BoxGeometry(1.3, bh, seg);
+      const m = new THREE.Mesh(geo, stoneMat);
+      m.position.set(cx * U, base + bh / 2, cy * U);
+      m.rotation.y = (rnd() - 0.5) * 0.04;
+      m.castShadow = true; m.receiveShadow = true;
+      g.add(m);
+      if (rnd() < 0.5) {
+        const cap = new THREE.Mesh(horiz ? new THREE.BoxGeometry(seg * 0.6, 0.25, 1.45) : new THREE.BoxGeometry(1.45, 0.25, seg * 0.6), mossMat);
+        cap.position.set(cx * U + (rnd() - 0.5) * 0.3, base + bh + 0.08, cy * U + (rnd() - 0.5) * 0.3);
+        cap.castShadow = true;
+        g.add(cap);
+      }
+    }
+    for (let k = 0; k < 6; k++) {
+      const t = rnd(), side = (rnd() - 0.5) * 90;
+      const px = x1 + (x2 - x1) * t + (horiz ? 0 : side), py = y1 + (y2 - y1) * t + (horiz ? side : 0);
+      const s = 0.25 + rnd() * 0.45;
+      rubble.push(mtx(px * U, field.heightAt(px, py) + s * 0.3, py * U, s * 1.4, s, s, rnd() * 6.28, rnd() * 0.5, rnd() * 0.5));
+    }
+  }
+  for (const [x, y, h] of R.pillars) {
+    const gy = field.heightAt(x, y) - 0.2;
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.5, 1.7), stoneMat);
+    base.position.set(x * U, gy + 0.25, y * U);
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.62, h, 10), stoneMat);
+    col.position.set(x * U, gy + 0.5 + h / 2, y * U);
+    col.rotation.z = (rnd() - 0.5) * 0.06;
+    base.castShadow = col.castShadow = true; base.receiveShadow = col.receiveShadow = true;
+    g.add(base, col);
+    if (h > 2.5) {
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.35, 1.4), stoneMat);
+      cap.position.set(x * U, gy + 0.5 + h + 0.17, y * U);
+      cap.castShadow = true;
+      g.add(cap);
+    } else {
+      const fx = x + 30 + rnd() * 20, fy = y + (rnd() - 0.5) * 40;
+      const fallen = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.55, 1.6 + rnd(), 10), stoneMat);
+      fallen.rotation.set(0, rnd() * 3, Math.PI / 2);
+      fallen.position.set(fx * U, field.heightAt(fx, fy) + 0.35, fy * U);
+      fallen.castShadow = true;
+      g.add(fallen);
+    }
+  }
+  if (rubble.length) root.add(instanced(new THREE.BoxGeometry(1, 1, 1), stoneMat, rubble, true));
+  root.add(g);
+}
+
 function buildExits(field, root) {
   const z = field.zone;
   const planks = texPlanks();
@@ -9635,23 +10433,29 @@ function disposeTree(o) {
   });
 }
 
-function buildZone3D() {
+function buildZone3D() { runSteps(buildZone3DSteps()); }
+
+function* buildZone3DSteps() {
   const z = S.zone;
   if (W3.zoneRoot) { W3.scene.remove(W3.zoneRoot); disposeTree(W3.zoneRoot); }
   W3.grassMats = []; W3.torchLights = []; W3.windowMats = []; W3.lampLights = [];
   const root = new THREE.Group();
   W3.zoneRoot = root;
-  const field = buildField(z);
+  const field = yield* scaleSteps(buildFieldSteps(z), 0, 0.3, "Shaping the land…");
   W3.field = field;
-  const terrain = buildTerrain(field);
+  const terrain = yield* scaleSteps(buildTerrainSteps(field), 0.3, 0.75, "Painting the ground…");
   terrain.material.map.userData.zone = true;
   root.add(terrain);
   W3.terrain = terrain;
+  yield { p: 0.78, t: "Growing trees and grass…" };
   buildVegetation(field, root);
+  yield { p: 0.88, t: "Raising buildings…" };
   if (themeOf(z) === "town") buildTown(field, root);
   if (themeOf(z) === "cave") buildCave(field, root);
+  buildRuins(field, root);
   buildExits(field, root);
   buildWater(field, root);
+  yield { p: 0.94, t: "Filling the water…" };
   W3.scene.add(root);
   W3.lastSunY = -9;
   W3.envTimer = 0;
@@ -10798,6 +11602,32 @@ function poseHuman(v, e, dt) {
     v.rootOff[1] += (-0.18 * crouch + 0.75 * air) * w;
   }
 
+  const jp = typeof jumpPhase === "function" ? jumpPhase(e) : null;
+  if (jp && jp.phase !== "done" && !e.mounted) {
+    sharp = true;
+    const k = jp.k;
+    let crouch = 0, tuck = 0, reach = 0, land = 0, lean = 0, fall = 0;
+    if (jp.phase === "windup") { crouch = ease(k); lean = crouch; }
+    else if (jp.phase === "air") { const up = 1 - ease((k - 0.35) / 0.35), dn = ease((k - 0.55) / 0.45); crouch = (1 - ease(k / 0.12)) * 0.6; tuck = Math.sin(Math.PI * Math.min(1, k / 0.8)); reach = up; fall = dn; lean = 0.5 * (1 - dn) - 0.25 * dn; }
+    else { land = Math.sin(Math.PI * k); crouch = land * 0.9; lean = land * 0.8; }
+    const w = 0.92;
+    setP(P, "thighL", -0.75 * crouch - 1.15 * tuck - 0.25 * fall, 0, 0.12, w);
+    setP(P, "thighR", -0.65 * crouch - 0.75 * tuck - 0.1 * fall, 0, -0.12, w);
+    setP(P, "shinL", 1.25 * crouch + 1.7 * tuck + 0.35 * fall, 0, 0, w);
+    setP(P, "shinR", 1.1 * crouch + 1.3 * tuck + 0.25 * fall, 0, 0, w);
+    setP(P, "footL", -0.35 * tuck - 0.3 * fall + 0.2 * crouch, 0, 0, w);
+    setP(P, "footR", -0.3 * tuck - 0.3 * fall + 0.2 * crouch, 0, 0, w);
+    setP(P, "upArmL", 0.75 * crouch - 1.9 * reach - 0.4 * fall, 0, 0.35 * reach + 0.55 * fall + 0.15, w);
+    setP(P, "upArmR", 0.75 * crouch - 1.9 * reach - 0.4 * fall, 0, -0.35 * reach - 0.55 * fall - 0.15, w);
+    setP(P, "foreArmL", -0.35 * crouch - 0.5 * reach - 0.3 * fall, 0, 0, w);
+    setP(P, "foreArmR", -0.35 * crouch - 0.5 * reach - 0.3 * fall, 0, 0, w);
+    setP(P, "spine", 0.38 * lean - 0.12 * reach, 0, 0, w);
+    setP(P, "chest", 0.1 * lean, 0, 0, w);
+    setP(P, "head", -0.2 * lean + 0.12 * fall, 0, 0, w);
+    setP(P, "hips", 0.05 * tuck, 0, 0, w);
+    v.rootOff[1] += -0.22 * crouch + 0.1 * tuck;
+  }
+
   if (e.casting) {
     const cw = Math.min(1, (S.time - e.casting.start) / 0.25);
     const bob = Math.sin(t * 7) * 0.08;
@@ -10827,6 +11657,23 @@ function poseHuman(v, e, dt) {
     addP(P, "spine", -0.32 * w, 0, 0); addP(P, "head", -0.25 * w, 0, 0);
     addP(P, "upArmL", 0.35 * w, 0, 0.2 * w); addP(P, "upArmR", 0.35 * w, 0, -0.2 * w);
     v.rootOff[2] -= 0.06 * w;
+  }
+
+  const sitT = e.resting && e.alive !== false && !e.mounted ? 1 : 0;
+  an.sit = (an.sit || 0) + (sitT - (an.sit || 0)) * Math.min(1, dt * 5);
+  if (an.sit > 0.01) {
+    const k = an.sit;
+    for (const s of ["L", "R"]) {
+      const sg = s === "L" ? 1 : -1;
+      setP(P, "thigh" + s, -1.25, 0, sg * 0.42, k);
+      setP(P, "shin" + s, 2.05, 0, 0, k);
+      setP(P, "foot" + s, -0.35, 0, 0, k);
+      setP(P, "upArm" + s, -0.42, 0, sg * 0.12, k);
+      setP(P, "foreArm" + s, -0.75, 0, 0, k);
+    }
+    setP(P, "spine", 0.16 + Math.sin(t * 1.3) * 0.02, 0, 0, k);
+    setP(P, "head", 0.08, 0, 0, k);
+    v.rootOff[1] -= ((v.meta && v.meta.hipsY) || 0.9) * 0.78 * k;
   }
 
   if (e.mounted) {
@@ -11718,6 +12565,7 @@ function syncEntity(e, dt) {
   const v = viewFor(e);
   if (!v) return;
   const g = v.group;
+  if (isMob(e) && player && player.target !== e && dist(e, player) > 1700) { g.visible = false; return; }
   const gy = groundY(e.x, e.y) + (e === player && typeof jumpHeight === "function" ? jumpHeight(e) : 0);
   const dead = e.alive === false;
   if (!dead || e.kind === "npc") {
@@ -12016,7 +12864,16 @@ function updateCamera(dt) {
     cam.lookAt(cam.position.x + f.x, cam.position.y - Math.sin(VIEW.pitch - 0.34), cam.position.z + f.y);
   } else {
     const f = camForward();
-    const horiz = Math.cos(VIEW.pitch) * VIEW.dist, vert = Math.sin(VIEW.pitch) * VIEW.dist;
+    let want = VIEW.dist;
+    const h0 = Math.cos(VIEW.pitch), v0 = Math.sin(VIEW.pitch);
+    for (let i = 1; i <= 16; i++) {
+      const d = VIEW.dist * i / 16;
+      const sx = VIEW.camTarget.x - f.x * h0 * d, sz = VIEW.camTarget.z - f.y * h0 * d;
+      if (groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(1.6, d - VIEW.dist / 16); break; }
+    }
+    if (VIEW.camEff == null) VIEW.camEff = want;
+    VIEW.camEff = want < VIEW.camEff ? want : VIEW.camEff + (want - VIEW.camEff) * Math.min(1, dt * 2.5);
+    const horiz = h0 * VIEW.camEff, vert = v0 * VIEW.camEff;
     let cx = VIEW.camTarget.x - f.x * horiz, cz = VIEW.camTarget.z - f.y * horiz, cy = VIEW.camTarget.y + vert;
     const ground = groundY(cx / U, cz / U) + 0.6;
     if (cy < ground) cy = ground;
@@ -12167,6 +13024,24 @@ function buildZoneNow() {
   VIEW.yaw = player.face || 0;
   VIEW.camTarget = null;
 }
+async function buildZoneAsync(job, p0, p1) {
+  clearViews();
+  const gen = buildZone3DSteps();
+  let last = performance.now(), r;
+  while (!(r = gen.next()).done) {
+    if (performance.now() - last < 28) continue;
+    const v = r.value || {};
+    loaderProgress(p0 + (p1 - p0) * (v.p || 0), v.t);
+    await frames(1);
+    if (job !== VIEW.zoneJob) return false;
+    last = performance.now();
+  }
+  if (!RIG.atlas) buildAtlas();
+  VIEW.yaw = player.face || 0;
+  VIEW.camTarget = null;
+  VIEW.camEff = null;
+  return true;
+}
 function onZoneEntered() {
   if (!W3.renderer) return;
   if (!$("loading")) { buildZoneNow(); return; }
@@ -12179,11 +13054,11 @@ async function loadZoneAsync(job) {
   const t0 = performance.now();
   await frames(2);
   if (job !== VIEW.zoneJob) return;
-  loaderProgress(VIEW.booting ? 0.6 : 0.3, "Shaping the land…");
+  loaderProgress(VIEW.booting ? 0.6 : 0.1, "Shaping the land…");
   await frames(1);
   if (job !== VIEW.zoneJob) return;
-  buildZoneNow();
-  loaderProgress(VIEW.booting ? 0.8 : 0.7, "Gathering everyone…");
+  if (!(await buildZoneAsync(job, VIEW.booting ? 0.6 : 0.1, VIEW.booting ? 0.85 : 0.85))) return;
+  loaderProgress(0.9, "Gathering everyone…");
   await frames(1);
   if (job !== VIEW.zoneJob) return;
   draw(1 / 60);
@@ -12200,15 +13075,29 @@ async function loadZoneAsync(job) {
 }
 function zoneReady() { return VIEW.loading ? new Promise(r => (VIEW.zoneWaiters = VIEW.zoneWaiters || []).push(r)) : Promise.resolve(); }
 
+const JUMP = { windup: 0.11, air: 0.64, land: 0.22 };
+function jumpPhase(e) {
+  if (e !== player || VIEW.jumpStart == null) return null;
+  const t = S.time - VIEW.jumpStart;
+  const m = player.mounted;
+  const wu = m ? 0.04 : JUMP.windup, air = m ? 0.7 : JUMP.air, land = m ? 0.12 : JUMP.land;
+  if (t < 0) return null;
+  if (t < wu) return { phase: "windup", k: t / wu, air: 0, wu, airT: air, land };
+  if (t < wu + air) return { phase: "air", k: (t - wu) / air, air: Math.sin(Math.PI * (t - wu) / air), wu, airT: air, land };
+  if (t < wu + air + land) return { phase: "land", k: (t - wu - air) / land, air: 0, wu, airT: air, land };
+  return { phase: "done", k: 1, air: 0 };
+}
 function jumpHeight(e) {
-  if (e !== player || VIEW.jumpStart == null) return 0;
-  const k = (S.time - VIEW.jumpStart) / 0.62;
-  if (k >= 1 || k < 0) { if (k >= 1) { VIEW.jumpStart = null; if (typeof sfx === "function") sfx(player.mounted ? "hoof" : "step"); } return 0; }
-  return Math.sin(Math.PI * k) * (player.mounted ? 1.1 : 0.85);
+  const j = jumpPhase(e);
+  if (!j) return 0;
+  if (j.phase === "done") { VIEW.jumpStart = null; return 0; }
+  if (j.phase === "land" && !VIEW.jumpLanded) { VIEW.jumpLanded = true; if (typeof sfx === "function") sfx(player.mounted ? "hoof" : "step"); if (typeof fxFootstep === "function") { const v = VIEW.views.get(player); if (v) { fxFootstep(player, v); fxFootstep(player, v); } } }
+  return j.air * (player.mounted ? 1.1 : 0.9);
 }
 function tryJump() {
-  if (S.ko || S.modal || S.dialog || !player.alive || player.casting || VIEW.jumpStart != null) return;
+  if (S.ko || S.modal || S.dialog || !player.alive || player.casting || VIEW.jumpStart != null || player.resting) return;
   VIEW.jumpStart = S.time;
+  VIEW.jumpLanded = false;
   if (typeof sfx === "function") sfx("jump");
 }
 
@@ -12222,17 +13111,7 @@ function graphicsSettingsHTML() {
     appearanceHTML();
 }
 
-function appearanceHTML() {
-  const l = save.look;
-  const sw = c => '<span class="sw" style="background:#' + c.toString(16).padStart(6, "0") + '"></span>';
-  const btn = (k, label) => '<button data-a="look" data-v="' + k + '">' + label + "</button>";
-  return "<h3>Appearance</h3><div class=\"opt\">" +
-    btn("build", "Build: " + (l.build ? "B" : "A")) +
-    btn("skin", "Skin " + sw(SKIN_TONES[l.skin])) +
-    btn("hairStyle", "Hair: " + HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) +
-    btn("hairColor", "Hair colour " + sw(HAIR_COLORS[l.hairColor])) +
-    '</div><div class="sub">Changes show on your character right away.</div>';
-}
+function appearanceHTML() { return ""; }
 
 function handleSettingAction(a, v) {
   const s = VIEW.settings;
@@ -12300,7 +13179,7 @@ function onKey(e) {
   if (!UI.started) return;
   const k = e.key.toLowerCase();
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map" };
+  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help" };
   if (S.modal) {
     if (k === "escape") closeModal();
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
@@ -12313,6 +13192,7 @@ function onKey(e) {
     return;
   }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
+  if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
   if (k === "f") { toggleEngage(false); return; }
   if (k === "enter") { talkNearest(); return; }
   if (menuKeys[k]) { openMenu(menuKeys[k]); return; }
@@ -12369,13 +13249,11 @@ async function boot() {
   await frames(1);
   initAudio();
   initViewA();
-  loaderProgress(0.25, "Weaving cloth and leather…");
+  loaderProgress(0.35, "Weaving cloth and leather…");
   await frames(1);
   initViewB();
-  loaderProgress(0.45, "Reading your journal…");
+  loaderProgress(0.7, "Opening the roster…");
   await frames(1);
-  save = loadGame();
-  initParty();
   initHud();
   $("btnEngage").onclick = () => toggleEngage(true);
   $("btnTarget").onclick = () => { cycleTarget(); sfx("select"); };
@@ -12383,30 +13261,9 @@ async function boot() {
   $("btnHome").onclick = returnHome;
   $("btnMount").onclick = toggleMount;
   $("btnJump").onclick = tryJump;
-  log("Welcome to the Outpost. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, Pell to trade.", "npc");
-  loaderProgress(0.55, "Raising the land…");
+  loaderProgress(1, "");
   await frames(1);
-  const h = homePos();
-  enterZone(h.zone, h.x, h.y);
-  await zoneReady();
-  VIEW.booting = false;
   clearInterval(tipTimer);
-  const lv = save.jobs[save.mainJob].lv;
-  const fresh = lv <= 1 && save.jobs[save.mainJob].xp === 0;
-  const ld = $("loading");
-  $("ldStart").innerHTML = fresh ? "Begin your journey" : "Continue<small>" + esc(save.name || "Adventurer") + " · " + JOBS[save.mainJob].name + " Lv." + lv + " · " + esc(S.zone.name) + "</small>";
-  ld.classList.add("ready");
-  const start = () => {
-    if (UI.started) return;
-    UI.started = true;
-    startAudio();
-    sfx("zone");
-    ld.classList.remove("ready");
-    loaderHide();
-    zoneTitle(S.zone.name, "");
-  };
-  $("ldStart").onclick = start;
-  window.addEventListener("keydown", e => { if (!UI.started && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); start(); } });
   let last = performance.now();
   function frame(now) {
     const dt = clamp((now - last) / 1000, 0, 0.05);
@@ -12417,10 +13274,153 @@ async function boot() {
       draw(dt);
       updateHud(dt);
       updateAudio();
-    }
+    } else if (UI.creating && UI.pv) renderPreview(now);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+  showCharSelect();
+}
+
+const CC = { job: "WAR", look: null, name: "" };
+const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" }, WHM: { main: "ash_club", head: "bronze_cap", body: "linen_robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "linen_robe" } };
+const JOB_BLURB = { WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
+
+function fmtAgo(t) {
+  const d = Date.now() - t;
+  if (d < 60000) return "just now";
+  if (d < 3600000) return Math.floor(d / 60000) + " min ago";
+  if (d < 86400000) return Math.floor(d / 3600000) + " h ago";
+  return Math.floor(d / 86400000) + " d ago";
+}
+
+function showCharSelect() {
+  UI.creating = false;
+  const ld = $("loading");
+  ld.classList.add("ready", "roster");
+  ld.classList.remove("zone");
+  $("ldTitle").textContent = "UNTITLED SOLO RPG";
+  $("ldSub").textContent = "Choose your character";
+  $("ldStart").style.display = "none";
+  const r = loadRoster();
+  r.chars.sort((a, b) => (b.played || 0) - (a.played || 0));
+  let h = '<div class="ccList">';
+  for (const c of r.chars) {
+    const j = JOBS[c.job] || JOBS.WAR;
+    h += '<div class="ccCard" data-id="' + c.id + '"><div class="ccPor" style="background:' + j.color + '22;border-color:' + j.color + '">' + j.icon + '</div><div class="ccInfo"><b>' + esc(c.name) + '</b><span>' + esc(j.name) + " Lv." + c.lv + ' · ' + esc(c.zone) + '</span><small>Last played ' + fmtAgo(c.played || c.created) + '</small></div><div class="ccBtns"><button class="pri" data-play="' + c.id + '">Play</button><button class="del" data-del="' + c.id + '" title="Delete">🗑</button></div></div>';
+  }
+  if (!r.chars.length) h += '<div class="ccEmpty">No characters yet. Create one to begin your journey.</div>';
+  h += "</div>";
+  h += '<div class="ccFoot">' + (r.chars.length < MAX_CHARS ? '<button class="pri" data-new="1">＋ New character</button>' : '<span class="sub">Character limit reached (' + MAX_CHARS + ').</span>') + '<span class="sub">' + r.chars.length + " / " + MAX_CHARS + " characters</span></div>";
+  const box = $("charSel");
+  box.innerHTML = h;
+  box.style.display = "block";
+  box.onclick = e => {
+    const b = e.target.closest("button");
+    if (b && b.dataset.play) { enterWorld(b.dataset.play); return; }
+    if (b && b.dataset.del) {
+      const c = r.chars.find(x => x.id === b.dataset.del);
+      if (c && confirm("Delete " + c.name + " for good? This can't be undone.")) { deleteChar(c.id); sfx("close"); showCharSelect(); }
+      return;
+    }
+    if (b && b.dataset.new) { showCharCreate(); return; }
+    const card = e.target.closest(".ccCard");
+    if (card) enterWorld(card.dataset.id);
+  };
+}
+
+function showCharCreate() {
+  const r = loadRoster();
+  CC.job = "WAR";
+  CC.look = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: Math.floor(Math.random() * (HAIR_STYLES.length - 1)), hairColor: Math.floor(Math.random() * HAIR_COLORS.length) };
+  CC.name = "";
+  $("ldSub").textContent = "Create your character";
+  const box = $("charSel");
+  box.innerHTML = '<div class="ccForm"><div id="ccPv"><div class="lbl" id="ccLbl"></div></div><div class="ccOpts">' +
+    '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters"></label>' +
+    '<div class="ccSec">Job</div><div class="ccJobs">' + Object.keys(JOBS).map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '">' + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb"></div>' +
+    '<div class="ccSec">Appearance <small>· drag the model to turn it</small></div><div class="ccLook" id="ccLook"></div>' +
+    '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>' +
+    '<div class="ccErr" id="ccErr"></div>' +
+    '<div class="ccAct"><button data-back="1">◂ Back</button><button class="pri" data-create="1">Begin your journey</button></div></div></div>';
+  UI.creating = true;
+  if (typeof attachPreview === "function") {
+    const wrap = $("ccPv");
+    attachPreview("ccPv");
+    if (UI.pv && !UI.pv.failed) { UI.pv.rot = 0.4; UI.pv.sig = null; }
+  }
+  const paint = () => {
+    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: CC.look }; }
+    box.querySelectorAll("[data-job]").forEach(b => b.classList.toggle("on", b.dataset.job === CC.job));
+    $("ccJobBlurb").textContent = JOB_BLURB[CC.job];
+    const l = CC.look;
+    const sw = c => '<span class="sw" style="background:#' + c.toString(16).padStart(6, "0") + '"></span>';
+    const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
+    $("ccLook").innerHTML = row("build", "Build", 2, l.build ? "B" : "A") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", HAIR_STYLES.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
+    $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + JOBS[CC.job].name + " Lv.1</small>";
+  };
+  paint();
+  const nm = $("ccName");
+  nm.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") create(); });
+  nm.addEventListener("input", () => { CC.name = nm.value.replace(/[^A-Za-z' -]/g, "").slice(0, 12); if (nm.value !== CC.name) nm.value = CC.name; $("ccErr").textContent = ""; paint(); });
+  setTimeout(() => nm.focus(), 50);
+  const create = () => {
+    const name = CC.name.trim().replace(/^./, c => c.toUpperCase());
+    const why = validCharName(name, r);
+    if (why) { $("ccErr").textContent = why; sfx("error"); nm.focus(); return; }
+    const id = createChar({ name, job: CC.job, look: CC.look });
+    enterWorld(id, true);
+  };
+  box.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); paint(); return; }
+    if (b.dataset.look) {
+      const k = b.dataset.look, n = { build: 2, skin: SKIN_TONES.length, hairStyle: HAIR_STYLES.length, hairColor: HAIR_COLORS.length }[k];
+      CC.look[k] = ((CC.look[k] || 0) + parseInt(b.dataset.d, 10) + n) % n;
+      sfx("click"); paint(); return;
+    }
+    if (b.dataset.back) { UI.creating = false; if (UI.pv) UI.pv.override = null; sfx("close"); showCharSelect(); return; }
+    if (b.dataset.create) create();
+  };
+}
+
+async function enterWorld(id, fresh) {
+  if (UI.started || UI.entering) return;
+  if (!selectChar(id)) { showCharSelect(); return; }
+  UI.entering = true;
+  UI.creating = false;
+  if (UI.pv) UI.pv.override = null;
+  startAudio();
+  sfx("select");
+  const ld = $("loading");
+  ld.classList.remove("ready", "roster");
+  $("charSel").style.display = "none";
+  $("ldSub").textContent = fresh ? "A new adventure begins" : "Welcome back, " + (save.name || "Adventurer");
+  loaderProgress(0.05, "Reading your journal…");
+  await frames(2);
+  S.nmDeadUntil = {};
+  initParty();
+  UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
+  clearLog();
+  log(fresh ? "A new adventure begins. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, Pell to trade." : "Welcome back, " + save.name + ".", "npc");
+  const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : homePos();
+  enterZone(h.zone, h.x, h.y);
+  await zoneReady();
+  VIEW.booting = false;
+  UI.started = true;
+  UI.entering = false;
+  sfx("zone");
+  loaderHide();
+  zoneTitle(S.zone.name, fresh ? "Your story begins" : "");
+  initVersionCheck();
+}
+
+function logoutToSelect() {
+  saveGame();
+  const r = loadRoster();
+  r.current = null;
+  saveRoster(r);
+  location.reload();
 }
 
 boot();

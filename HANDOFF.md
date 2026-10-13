@@ -22,7 +22,10 @@ Paste this into the project's custom instructions:
 | P2 3D world, sky, water | Done |
 | P3 Characters, animation, effects, mount | Done |
 | P4 HUD, system menu, map, music and sound, loading screens, jumping | Done |
-| P5 Content: bigger zones, NMs live, Sunken Crypt dungeon, 11 quests, PLD/RDM, drop tables, XP chains and discovery XP | Next |
+| P5a Bigger zones, NMs live, drop tables, XP chains, discovery XP, character roster, chat commands, /rest, loading bars, update popup | Done (v4.2.0) |
+| P5b Paladin and Red Mage with Dorn and Lisette | Next |
+| P5c Quests (to 11) | Not started |
+| P5d Sunken Crypt | Not started |
 | P6 Life systems: residence and Pip, storage, furniture, gardening, crafting, gathering | Not started |
 | P7 Test and tune (night difficulty, phone frame rate) | Not started |
 
@@ -32,10 +35,12 @@ Needs Node 18+, and for audio Python 3 with numpy and scipy plus ffmpeg.
 npm install                      # three, esbuild
 node build.mjs 4                 # the game -> dist/index.html
 node build.mjs 1                 # 2D rules build -> dist/game.js, used by the tests
-node test/p1unit.js; node test/p3unit.js; node test/p1bot.js ../dist/game.js
+cd test && node p1unit.js; node p3unit.js; node p5unit.js; node p1bot.js ../dist/game.js
 python3 audio/gen.py sfx|music|amb   # re-render sounds into audio/out/
 ```
-Browser tests (Playwright + Chromium): `test/p4shots.js`, `test/p4interact.js`, `test/p4stress.js`, `test/p4jump.js`. Build 4 again after build 1, since both write `dist/`.
+Browser tests (Playwright + Chromium): `test/p5shots.js <abs path to dist/index.html> <out prefix> <w> <h> <mobile 0|1> [scene,scene]`, plus the older `test/p4*.js`. Build 4 again after build 1, since both write `dist/`.
+
+Publishing: GitHub Pages serves `index.html` and `version.json` from the repo root; copy both from `dist/` and push. The in-game update popup reads `version.json`.
 
 ## Open notes
 - Bot runs die more at night (skeletons and bats near the paths). Tune in P7.

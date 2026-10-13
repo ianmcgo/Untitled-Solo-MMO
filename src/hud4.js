@@ -9,9 +9,9 @@ const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
-  shop: ["Shop", "🪙", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""]
+  shop: ["Shop", "🪙", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""]
 };
-const MAIN_TABS = ["character", "inventory", "skills", "actions", "quests", "map", "settings", "system"];
+const MAIN_TABS = ["character", "inventory", "skills", "actions", "quests", "map", "help", "updates", "settings", "system"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -55,17 +55,11 @@ function closeDialog() {
 }
 function uiPartyChanged() { UI.partyKey = ""; }
 
-function rarityOf(id) {
-  const it = ITEMS[id];
-  if (it.rare) return "r-rare";
-  if (it.ex) return "r-ex";
-  if (it.hq) return "r-hq";
-  if (it.kind === "equip") return "r-gear";
-  return "r-common";
-}
+function rarityOf(id) { return "r-" + itemRarity(id); }
+function rarityTag(id) { const r = RARITY[itemRarity(id)]; return '<span style="color:' + r[1] + '">' + r[0] + "</span>"; }
 function itemDesc(id) {
   const it = ITEMS[id];
-  const tags = (it.rare ? "Rare · " : "") + (it.ex ? "Ex · " : "") + (it.hq ? "High quality · " : "");
+  const tags = RARITY[itemRarity(id)][0] + " · " + (it.rare ? "Rare (one only) · " : "") + (it.ex ? "Ex (can't be sold) · " : "") + (it.hq ? "High quality · " : "");
   if (it.kind !== "equip") return tags + (it.desc || "");
   const parts = [SLOT_NAMES[it.slot]];
   if (it.wtype) parts.push(SKILL_NAMES[it.wtype] + " DMG " + it.dmg + " Delay " + it.delay);
@@ -77,6 +71,7 @@ function itemDesc(id) {
 function actIcon(a) {
   if (!a) return "";
   if (a.kind === "item") return (ITEMS[a.id] && ITEMS[a.id].icon) || "❔";
+  if (a.kind === "cmd") return "💤";
   if (a.kind === "ws") return "⚔";
   if (a.kind === "ja") return ACT_ICON[a.id] || "✦";
   return SPELL_ICON[a.id] || "✧";
@@ -84,12 +79,14 @@ function actIcon(a) {
 function actName(a) {
   if (!a) return "";
   if (a.kind === "item") return ITEMS[a.id] ? ITEMS[a.id].name : a.id;
+  if (a.kind === "cmd") return "Rest";
   if (a.kind === "ws") return WEAPON_SKILLS[a.id].name;
   if (a.kind === "ja") return ABILITIES[a.id].name;
   return SPELLS[a.id].name;
 }
 function actDesc(a) {
   if (a.kind === "item") return ITEMS[a.id].desc || "";
+  if (a.kind === "cmd") return "Sit down to recover HP and MP quickly (/rest). Use again or move to stand.";
   if (a.kind === "ws") { const w = WEAPON_SKILLS[a.id]; return "Weapon skill · 1000 TP · " + w.props.join("/"); }
   if (a.kind === "ja") { const b = ABILITIES[a.id]; return "Ability · recast " + b.recast + "s · " + (b.desc || ""); }
   const s = SPELLS[a.id];
@@ -100,6 +97,7 @@ function actTint(a) {
   if (a.kind === "ma") { const s = SPELLS[a.id]; const c = s.element ? ELEMENT_COLORS[s.element] : "#8fe0a8"; return "radial-gradient(circle at 50% 35%, " + c + "55, #141722 75%)"; }
   if (a.kind === "ws") return "radial-gradient(circle at 50% 35%, #6b5420, #141722 75%)";
   if (a.kind === "ja") return "radial-gradient(circle at 50% 35%, #2f6a40, #141722 75%)";
+  if (a.kind === "cmd") return "radial-gradient(circle at 50% 35%, #2c4a6a, #141722 75%)";
   return "radial-gradient(circle at 50% 35%, #3b3355, #141722 75%)";
 }
 
@@ -111,6 +109,14 @@ function hotbar() {
     hb.pages[1][0] = { kind: "item", id: "potion" };
     hb.pages[1][1] = { kind: "item", id: "ether" };
     hb.pages[1][2] = { kind: "item", id: "hi_potion" };
+  }
+  if (!hb.restAdded) {
+    hb.restAdded = true;
+    if (!hb.pages.some(pg => pg.some(x => x && x.kind === "cmd"))) {
+      const pg = hb.pages[1];
+      const i = pg.findIndex(x => !x);
+      if (i >= 0) pg[i] = { kind: "cmd", id: "rest" };
+    }
   }
   return hb;
 }
@@ -142,7 +148,7 @@ function syncHotbar() {
 }
 function knownAct(a) {
   if (!a) return false;
-  if (a.kind === "item") return true;
+  if (a.kind === "item" || a.kind === "cmd") return true;
   return actionList(player).some(x => x.kind === a.kind && x.id === a.id);
 }
 function buildActionBar() {
@@ -168,6 +174,7 @@ function activateSlot(page, i) {
   const a = hotbar().pages[page][i];
   if (page === UI.page && UI.slots[i]) { const el = UI.slots[i].el; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
   if (!a) { openMenu("actions"); return; }
+  if (a.kind === "cmd") { runCommand("/" + a.id); return; }
   if (a.kind === "item") {
     if (invCount(a.id) < 1) { log("You don't have any " + ITEMS[a.id].name + "s.", "sys"); sfx("error"); return; }
     useItem(a.id);
@@ -188,7 +195,8 @@ function updateActionBar() {
     const a = s.a;
     if (!a) return;
     let cost = "", cdLeft = 0, cdTotal = 1, ready = true, chip = "", burst = false;
-    if (a.kind === "item") {
+    if (a.kind === "cmd") { ready = player.alive; cost = player.resting ? "on" : ""; }
+    else if (a.kind === "item") {
       const n = invCount(a.id);
       cost = "×" + n;
       cdLeft = Math.max(0, S.itemReadyAt - S.time); cdTotal = CONFIG.itemRecast;
@@ -270,7 +278,7 @@ function updateParty() {
     setW(u.mp, p.maxMp ? 100 * p.mp / p.maxMp : 0);
     setTxt(u.mpT, p.maxMp ? String(Math.floor(p.mp)) : "");
     setW(u.tp, 100 * p.tp / CONFIG.tpMax);
-    const bf = Object.keys(p.buffs || {}).map(k => "<span title=\"" + (BUFF_NAMES[k] || k) + "\">" + (BUFF_ICONS[k] || "•") + "</span>").join("") + (p.regenerating ? '<span title="Resting">💤</span>' : "") + (p.engaged ? '<span title="Engaged">⚔</span>' : "");
+    const bf = Object.keys(p.buffs || {}).map(k => "<span title=\"" + (BUFF_NAMES[k] || k) + "\">" + (BUFF_ICONS[k] || "•") + "</span>").join("") + (p.resting ? '<span title="Resting: fast recovery">💤</span>' : p.regenerating ? '<span title="Recovering slowly. Type /rest to sit and heal faster.">🌿</span>' : "") + (p.engaged ? '<span title="Engaged">⚔</span>' : "");
     setHtml(u.bufs, bf);
     const cast = p.casting ? (S.time - p.casting.start) / (p.casting.end - p.casting.start) : -1;
     u.cb.style.display = cast >= 0 ? "" : "none";
@@ -412,6 +420,17 @@ function zoneMapCanvas(zoneId) {
   for (const s of z.stalls || []) { g.fillStyle = s.color; g.fillRect(s.x - 26, s.y - 14, 52, 28); }
   for (const [x, y] of z.lamps || []) { g.fillStyle = "#ffd77a"; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); }
   for (const [x, y] of z.torches || []) { g.fillStyle = "#ff9a3d"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
+  for (const r of z.walls || []) {
+    g.fillStyle = z.theme === "cave" ? "#151310" : "#4d4a40"; g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 14;
+    g.beginPath(); g.roundRect ? g.roundRect(r.x, r.y, r.w, r.h, 40) : g.rect(r.x, r.y, r.w, r.h); g.fill(); g.stroke();
+  }
+  if (z.ruins) {
+    g.strokeStyle = "#b9b2a0"; g.lineWidth = 26; g.lineCap = "butt";
+    for (const [x1, y1, x2, y2] of z.ruins.walls) { g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); }
+    g.fillStyle = "#cfc8b4";
+    for (const [x, y] of z.ruins.pillars) { g.beginPath(); g.arc(x, y, 16, 0, 7); g.fill(); }
+    g.lineCap = "round";
+  }
   if (z.theme === "town") { g.strokeStyle = "#3b2a1c"; g.lineWidth = 10; g.strokeRect(20, 20, z.w - 40, z.h - 40); }
   else { g.strokeStyle = "rgba(0,0,0,.6)"; g.lineWidth = 30; g.strokeRect(0, 0, z.w, z.h); }
   for (const e of z.exits || []) { g.fillStyle = "rgba(241,207,115,.85)"; g.fillRect(e.x, e.y, e.w, e.h); }
@@ -510,8 +529,10 @@ function uiEvent(type, d) {
   if (type === "item") {
     const it = ITEMS[d.id];
     if (!it) return;
-    toast(it.icon || "📦", it.rare ? "Rare item!" : "Obtained", (d.n > 1 ? d.n + " × " : "") + it.name, it.rare || it.ex ? "rare" : "");
+    const r = itemRarity(d.id);
+    toast(it.icon || "📦", r === "epic" ? "Epic item!" : r === "rare" ? "Rare item!" : r === "uncommon" ? "Uncommon item" : "Obtained", (d.n > 1 ? d.n + " × " : "") + it.name, "r-" + r);
   }
+  if (type === "landmark") { toast("🧭", "Landmark discovered", d.name + (player.lv < CONFIG.levelCap ? " · +" + d.xp + " XP" : ""), "r-rare"); sfx("unlock"); }
 }
 
 function watchProgress() {
@@ -527,8 +548,8 @@ function watchProgress() {
     if (dm > 0) chips.push("💧 MP +" + dm);
     const before = UI.actKeys || [];
     for (const a of actionList(player)) if (!before.includes(a.kind + ":" + a.id)) chips.push(actIcon(a) + " " + esc(actName(a)));
-    if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("📜 Quest: A Second Calling");
-    if (lv === 5 && !save.mountLicense) chips.push("📜 Quest: Riding License");
+    if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("💬 Tobin wants a word");
+    if (lv === 5 && !save.mountLicense) chips.push("💬 Ysolde wants a word");
     if (lv >= CONFIG.levelCap) chips.push("⭐ Level cap reached");
     banner("LEVEL " + lv, JOBS[j].name, chips);
   }
@@ -565,6 +586,10 @@ function updateBottom() {
   setW($("xpfill"), need ? 100 * j.xp / need : 100);
   setTxt($("xpt"), need ? j.xp + " / " + need + " XP (" + Math.floor(100 * j.xp / need) + "%)" : "Level cap");
   setTxt($("gil"), "🪙 " + save.gil);
+  const ci = chainInfo();
+  const cc = $("chainCt");
+  setTxt(cc, ci ? "⛓ " + (ci.n > 0 ? "Chain " + ci.n + " · " : "") + "next +" + Math.round(ci.next * CONFIG.chainStep * 100) + "% · " + Math.ceil(ci.left) + "s" : "");
+  cc.title = ci ? "Defeat another monster within " + Math.ceil(ci.left) + " s for a " + Math.round(ci.next * CONFIG.chainStep * 100) + "% XP bonus." : "";
   const cb = $("castBar");
   if (player.casting) {
     cb.style.display = "block";
@@ -617,6 +642,22 @@ function initHud() {
   $("btnMenu").onclick = () => S.modal ? closeModal() : openMenu("character");
   $("btnQuests").onclick = () => openMenu("quests");
   $("btnSound").onclick = () => { toggleMute(); updateTopRight(); };
+  const ci = $("chatIn");
+  UI.cmdHist = []; UI.cmdIdx = 0;
+  ci.addEventListener("keydown", e => {
+    e.stopPropagation();
+    if (e.key === "Enter") {
+      const v = ci.value.trim();
+      ci.value = "";
+      if (v) { UI.cmdHist.push(v); if (UI.cmdHist.length > 30) UI.cmdHist.shift(); UI.cmdIdx = UI.cmdHist.length; runCommand(v); }
+      ci.blur();
+    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); }
+    else if (e.key === "ArrowUp") { if (UI.cmdIdx > 0) { UI.cmdIdx--; ci.value = UI.cmdHist[UI.cmdIdx]; } e.preventDefault(); }
+    else if (e.key === "ArrowDown") { if (UI.cmdIdx < UI.cmdHist.length) { UI.cmdIdx++; ci.value = UI.cmdHist[UI.cmdIdx] || ""; } e.preventDefault(); }
+  });
+  ci.addEventListener("focus", () => { S.keys = {}; });
+  $("btnHelp").onclick = () => S.modal === "help" ? closeModal() : openMenu("help");
+  $("btnUpdates").onclick = () => S.modal === "updates" ? closeModal() : openMenu("updates");
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const mm = $("minimap");
   mm.width = mm.height = Math.round(150 * dpr * 1.2);
