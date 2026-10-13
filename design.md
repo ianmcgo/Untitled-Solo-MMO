@@ -530,11 +530,23 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - **Performance.** `perfTick()` (called from `draw`) counts frames against `performance.now()` once a second. With `settings.adaptive` (default on) two slow seconds (< 28 fps) drop `W3.pr` by 0.15 (floor 0.6) and six fast ones (> 52 fps) raise it by 0.1 up to `W3.prCap` (the quality's pixel-ratio cap), via `setPixelRatio` + `resizeRenderer`. `settings.fps` (or `/fps`) shows `#fpsBox` (fps, render scale, draw calls). `settings.draw` (`near` / `normal` / `far` → `DRAW_DIST` 1000 / 1700 / 2600 px) is the monster culling distance in `syncEntity`, and name plates use 60% of it (max 900). Devices reporting `navigator.deviceMemory < 4` default to Low quality.
 - **Balance.** `test/p1bot.js` now uses `/rest` when hurt (set `BOT_REST=0` to disable) and accepts `BOT_HOUR` to force the game hour. 30-minute runs: WAR/WHM/BLM reach 4–6 by day (0–1 defeats) and 4–6 by night (0–3 defeats). Night needs no extra tuning now that resting is fast.
 
+## Hotfix 4.8.1: aggro, targeting, residence
+- Aggro: only families with `aggro: null` (hare) are passive; the Hollow passive-spawn rule and PASSIVE_SPAWNS are gone. `detects()` sight: always within 60 px, else a ±81° cone (0.45π). Goblin sight 165; worm `{ magic: 130, sound: 90 }`. Hints stay off (`updateAggroHints` is `if (false)`).
+- Target command box: `setTarget(e, quiet)` fires `uiEvent("target", e)` when the target changes to a live mob. hud4: `tgtCmdOpen/Close`, `renderTgtCmd`, `onTgtCmd(key)` render into `#tCmd` inside `#target` (pages root / ma / ja). Actions go through `playerAct`. `inspectText(t)` = con phrase + hostile/peaceful + NM. Clicking a mob in view3d always targets and opens the box (click again closes); Esc closes it first. `updateTarget` closes it when the target changes or dies.
+- Levels hidden: `tLv` blank for mobs, names use neutral #f0d9a8 (NM #ff8a65), `/check` uses the inspect wording. `updateLabels` hides names on untargeted mobs/NPCs (quest NPCs keep a bare ❗).
+- Quest offers: hud4 `openDialog` detects an Accept / "I'll handle him" / "I'll get them" option, appends "Will you accept this quest?" and labels Close "Decline". `#dlgText` is `white-space: pre-line`.
+- Body: `look.height`, `look.girth` (0–4, default 2). rig.js `bodyProp(l)` turns them into `L.prop` (leg/torso/arm scale with height; girth, waist, shoulder, hip with build); `baseFromLook()` is shared by `playerBase()` and menu4 `lookBase()`. Creation rows Height / Build plus `data-rand` Randomize all (`randomLook()` in showCharCreate).
+- Helmets (cap/helm/horned): dome ends at 0.37π and the brim ring sits at hc + 0.47 hr so the painted eyes (atlas face cell, y≈120) stay visible.
+- Residence: terrain mesh hidden in the house theme (it z-fought the floor at y 0); ceiling beams removed; camera boom shortens when a sample leaves the room (14 px inset, y ≤ 3.1), min 0.9 indoors. Exits may carry `ask`: the step loop shows `gameConfirm` once per approach (`S.exitAsked`); the rules build (no gameConfirm) still walks straight through. Residence exit lands at x 288 so it no longer re-triggers the door.
+- Location: `saveGame()` writes `save.loc {zone,x,y,face}`; autosave every 15 s plus pagehide / hidden tab. Login uses `resumePos()` (valid loc, else home point).
+- Tests: p6unit now checks only hares are passive and a goblin aggroes on sight; p5shots has helm, door-ask, labels, tgtmenu, tgtmagic scenes.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 4.8.1 | Hotfix: aggro restored, target command box, hidden levels, residence fixes, location save, body sliders. |
 | 4.7.0 | Phase 6b: gathering, crafting, gardening; no heal effects at full; preview context released (above). |
 | 4.6.x | Creation preview fix, hair lists by sex. |
 | 4.6.0 | Phase 6a: residence, Pip, storage, NPC schedules, passive monsters, NM-only gear, crystals, menu rework, in-game confirms, loading showcase (above). |
