@@ -66,6 +66,14 @@
   .pf .st { position: absolute; left: 3px; top: 3px; font-size: 9px; }
   #soloTip { font-size: 11px; color: var(--muted); padding: 5px 8px; }
 
+  #tCmd { display: none; flex-wrap: wrap; gap: 5px; margin-top: 7px; pointer-events: auto; }
+  #tCmd.on { display: flex; }
+  #tCmd button { flex: 1 1 auto; min-width: 70px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); background: rgba(30,32,44,0.9); color: #e8e2d0; font: inherit; font-size: 12.5px; cursor: pointer; }
+  #tCmd button:hover { border-color: #e6c36a; }
+  #tCmd button.pri { border-color: #e6c36a; color: #ffe7a8; }
+  #tCmd button.off { opacity: 0.45; }
+  #tCmd button.x { flex: 0 0 auto; min-width: 34px; }
+  #tCmd .tcInfo { flex-basis: 100%; font-size: 12.5px; color: #d8d0bc; line-height: 1.4; }
   #target { position: absolute; left: 50%; top: calc(8px + var(--sat)); transform: translateX(-50%); width: 360px; padding: 7px 10px 8px; display: none; }
   #target .tn { display: flex; align-items: baseline; gap: 6px; }
   #tName { font: 700 15px var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -213,7 +221,7 @@
 
   #dialog { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(118px + var(--sab)); width: calc(100% - 20px); max-width: 600px; padding: 12px 14px; display: none; z-index: 7; background: rgba(14,16,26,.92); }
   #dlgWho { font: 700 15px var(--serif); color: var(--gold); margin-bottom: 4px; }
-  #dlgText { font-size: 14px; line-height: 1.45; }
+  #dlgText { font-size: 14px; line-height: 1.45; white-space: pre-line; }
   #dlgOpts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 
   #menu { position: absolute; inset: 0; display: none; z-index: 8; background: rgba(4,5,9,.72); }
@@ -489,7 +497,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.8.0 · built 2026-10-13 12:33 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.8.1 · built 2026-10-13 12:53 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -505,6 +513,7 @@
       <div id="tWarn"></div>
       <div id="tInfo"></div>
       <div id="tChain"></div>
+      <div id="tCmd"></div>
     </div>
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
@@ -5623,11 +5632,11 @@ const MERC_LINES = {
 const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, water: true, mounts: false };
 
 const FAMILIES = {
-  goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
+  goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
   bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: { sound: 110 }, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05]], model: "bat" },
-  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
+  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
   ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05]], model: "ghoul" },
-  den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05]], gil: [3, 6], model: "goblin" },
+  den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05]], gil: [3, 6], model: "goblin" },
   skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.25], ["ether", 0.06]], model: "skeleton" },
   hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06]], model: "hare" },
   crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["sentinel_greaves", 0.3]], gil: [20, 30], model: "skeleton" },
@@ -5653,7 +5662,7 @@ const ZONES = {
     name: "Ashenreach Outpost", w: 1100, h: 800, safe: true, theme: "town",
     exits: [
       { x: 1076, y: 350, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" },
-      { x: 222, y: 400, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door" }
+      { x: 222, y: 400, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }
     ],
     npcs: [
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
@@ -5678,7 +5687,7 @@ const ZONES = {
   },
   residence: {
     name: "Your Residence", w: 400, h: 320, safe: true, theme: "house", indoor: true,
-    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 262, ty: 420, label: "Outpost", kind: "door" }],
+    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 288, ty: 420, label: "Outpost", kind: "door" }],
     npcs: [{ id: "pip", x: 60, y: 60 }],
     spawns: [],
     start: { x: 200, y: 250 },
@@ -5909,8 +5918,6 @@ function spreadSpawns(zone, minD) {
 }
 for (const id in ZONES) if (ZONES[id].spawns.length) spreadSpawns(ZONES[id], id === "hollow" ? 170 : 120);
 
-const PASSIVE_SPAWNS = { hollow: [[1, 2], [1, 1]], den: [] };
-for (const sp of ZONES.hollow.spawns) if (sp.fam === "worm" || (sp.fam === "goblin" && sp.lv[1] <= 2)) sp.passive = true;
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -6099,6 +6106,7 @@ function selectChar(id) {
 
 function saveGame() {
   try {
+    if (player && player.alive && !S.ko && S.zoneId && ZONES[S.zoneId]) save.loc = { zone: S.zoneId, x: Math.round(player.x), y: Math.round(player.y), face: +(player.face || 0).toFixed(2) };
     const txt = JSON.stringify(save);
     if (S.charId) {
       localStorage.setItem(charKey(S.charId), txt);
@@ -7075,9 +7083,9 @@ function detects(m, p) {
   if (!a) return false;
   const d = dist(m, p);
   if (a.sight && d <= a.sight) {
-    if (d <= 36) return true;
+    if (d <= 60) return true;
     const diff = Math.abs(normAng(Math.atan2(p.y - m.y, p.x - m.x) - m.face));
-    if (diff <= Math.PI / 3) return true;
+    if (diff <= Math.PI * 0.45) return true;
   }
   if (a.sound && d <= a.sound && p.moving) return true;
   if (a.magic && d <= a.magic && p.casting) return true;
@@ -7822,7 +7830,16 @@ function step(dt) {
   for (const p of S.party) regen(p, dt);
   S.zoneCooldown = Math.max(0, S.zoneCooldown - dt);
   if (S.zoneCooldown <= 0 && player.alive) {
-    for (const ex of S.zone.exits) if (circleRect(player, ex, 8)) { enterZone(ex.to, ex.tx, ex.ty); return; }
+    let onAsk = null;
+    for (const ex of S.zone.exits) if (circleRect(player, ex, 8)) {
+      if (ex.ask && typeof gameConfirm === "function") { onAsk = ex; continue; }
+      enterZone(ex.to, ex.tx, ex.ty); return;
+    }
+    if (onAsk && S.exitAsked !== onAsk) {
+      S.exitAsked = onAsk;
+      const ex = onAsk;
+      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: "Enter", no: "Not now" });
+    } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
   if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); }
@@ -7840,7 +7857,7 @@ function step(dt) {
   }
   for (const p of S.party) if (p.target && isMob(p.target) && !S.mobs.includes(p.target)) p.target = null;
   S.saveTimer += dt;
-  if (S.saveTimer > 20) { S.saveTimer = 0; saveGame(); }
+  if (S.saveTimer > 15) { S.saveTimer = 0; saveGame(); }
 }
 
 function age(dt) {
@@ -7863,8 +7880,10 @@ function conOf(m) {
   return ["Incredibly Tough", "#e53935"];
 }
 
-function setTarget(e) {
+function setTarget(e, quiet) {
+  const changed = player.target !== e;
   player.target = e;
+  if (isMob(e) && e.alive && !quiet && changed) uiEvent("target", e);
   if (isMob(e) && player.engaged && e !== player.attackTarget && e.alive) {
     player.attackTarget = e;
     log("You switch targets to the " + e.name + ".", "you");
@@ -8391,6 +8410,12 @@ const TALK = {
   }
 };
 
+function resumePos() {
+  const l = save.loc;
+  if (l && ZONES[l.zone] && isFinite(l.x) && isFinite(l.y) && l.x > 0 && l.y > 0 && l.x < ZONES[l.zone].w && l.y < ZONES[l.zone].h) return l;
+  return homePos();
+}
+
 function homePos() {
   const z = ZONES[save.home.zone];
   const c = z.npcs.find(n => n.id === save.home.npc) || z.npcs.find(n => NPCS[n.id] && NPCS[n.id].crystal);
@@ -8535,7 +8560,7 @@ const COMMANDS = [
   ["/attack", "Attack your target, or the nearest enemy. Also /a."],
   ["/target name", "Target the nearest character whose name matches. Also /ta."],
   ["/assist", "Target what your party is fighting."],
-  ["/check", "Check your target's level and difficulty. Also /c."],
+  ["/check", "Inspect your target: how tough it looks and whether it is hostile. Also /c."],
   ["/cast spell", "Cast a spell by name, e.g. /cast cure. Also /ma."],
   ["/ja ability", "Use a job ability, e.g. /ja provoke."],
   ["/ws name", "Use a weapon skill, e.g. /ws fast blade."],
@@ -8600,8 +8625,8 @@ function runCommand(text) {
       const t = player.target;
       if (!isMob(t)) { log(t ? t.name + " is not an enemy." : "You have no target.", "sys"); return; }
       const [c] = conOf(t);
-      const f = t.fam;
-      log("The " + t.name + " (Lv." + t.lv + ") seems like " + (c === "Too Weak" ? "too weak to be worthwhile" : c === "Easy Prey" ? "easy prey" : c === "Decent Challenge" ? "a decent challenge" : c === "Even Match" ? "an even match" : c === "Tough" ? "a tough opponent" : c === "Very Tough" ? "a very tough opponent" : "an incredibly tough opponent") + "." + (t.passive ? " It looks peaceful unless provoked." : "") + (f.nm ? " It is a notorious monster!" : ""), "sys");
+      const tough = { "Too Weak": "seems too weak to be worthwhile", "Easy Prey": "seems like easy prey", "Decent Challenge": "seems like a decent challenge", "Even Match": "seems like an even match", "Tough": "looks tough", "Very Tough": "looks very tough", "Incredibly Tough": "looks incredibly tough" }[c] || "is hard to judge";
+      log("The " + t.name + " " + tough + ". " + (t.passive || !t.fam.aggro ? "It looks peaceful unless provoked." : "It looks hostile.") + (t.fam.nm ? " It is a notorious monster!" : ""), "sys");
       return;
     }
     case "cast": case "ma": castBy("ma"); return;
@@ -8958,12 +8983,14 @@ function clearLog() { $("log").innerHTML = ""; }
 function showKO(on) { $("ko").style.display = on ? "flex" : "none"; }
 
 function openDialog(who, text, opts) {
+  const offer = (opts || []).some(o => /^(Accept|I'll handle him|I'll get them)$/.test(o.label));
+  if (offer) text += "\n\nWill you accept this quest?";
   S.dialog = { who, text, opts };
   $("dlgWho").textContent = who;
   $("dlgText").textContent = text;
   const box = $("dlgOpts");
   box.innerHTML = "";
-  const all = (opts || []).concat([{ label: "Close", fn: closeDialog }]);
+  const all = (opts || []).concat([{ label: offer ? "Decline" : "Close", fn: () => { if (offer) log("You decline for now.", "sys"); closeDialog(); } }]);
   all.forEach((o, i) => {
     const b = document.createElement("button");
     b.textContent = (UI.phone ? "" : (i + 1) + ". ") + o.label;
@@ -9216,6 +9243,7 @@ function updateParty() {
 }
 
 function updateTarget() {
+  if (UI.cmd && (player.target !== UI.cmd.t || !UI.cmd.t.alive)) tgtCmdClose();
   const t = player.target;
   const box = $("target");
   if (!t || !(isMob(t) || isParty(t) || t.kind === "npc") || (isMob(t) && t.despawned)) { if (box.style.display !== "none") box.style.display = "none"; UI.ghostTarget = null; return; }
@@ -9226,8 +9254,8 @@ function updateTarget() {
   if (isMob(t)) {
     const [c, col] = conOf(t);
     setTxt($("tName"), t.name);
-    $("tName").style.color = col;
-    setTxt($("tLv"), "Lv." + t.lv + " · " + c);
+    $("tName").style.color = t.fam.nm ? "#ff8a65" : "#f0d9a8";
+    setTxt($("tLv"), "");
     $("tTag").style.display = t.fam.nm ? "inline-block" : "none";
     pct = 100 * t.hp / t.maxHp;
     setTxt($("tHpT"), Math.ceil(pct) + "%");
@@ -9237,7 +9265,6 @@ function updateTarget() {
     const w = $("tWarn");
     if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + t.fam.tpMove.name + "!"); } else w.style.display = "none";
     let info = !t.alive ? "Defeated" : t.state === "combat" ? "In combat" : t.state === "return" ? "Returning" : "Idle";
-    if (t.passive && t.alive && t.state !== "combat") info += " · passive";
     if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= CONFIG.meleeRange ? " · in range" : " · too far";
     setTxt($("tInfo"), info);
     let ch = "";
@@ -9481,7 +9508,67 @@ function gameConfirm(title, text, onYes, opts) {
   if (typeof sfx === "function") sfx("open");
 }
 
+function tgtCmdOpen(t) {
+  if (!isMob(t) || !t.alive) { tgtCmdClose(); return; }
+  UI.cmd = { t, page: "root", info: "" };
+  renderTgtCmd();
+}
+
+function tgtCmdClose() {
+  UI.cmd = null;
+  const el = $("tCmd");
+  if (el) { el.classList.remove("on"); el.innerHTML = ""; }
+}
+
+function inspectText(t) {
+  const [c] = conOf(t);
+  const tough = { "Too Weak": "It seems too weak to be worthwhile.", "Easy Prey": "It seems like easy prey.", "Decent Challenge": "It seems like a decent challenge.", "Even Match": "It seems like an even match.", "Tough": "It looks tough.", "Very Tough": "It looks very tough.", "Incredibly Tough": "It looks incredibly tough." }[c] || "It is hard to judge.";
+  const mood = t.passive || !t.fam.aggro ? "It looks peaceful unless provoked." : "It looks hostile.";
+  return tough + " " + mood + (t.fam.nm ? " It is a notorious monster!" : "");
+}
+
+function renderTgtCmd() {
+  const el = $("tCmd"), c = UI.cmd;
+  if (!el || !c) return;
+  const t = c.t;
+  let h = "";
+  const btn = (key, label, cls) => '<button data-tc="' + key + '"' + (cls ? ' class="' + cls + '"' : "") + ">" + label + "</button>";
+  if (c.page === "root") {
+    const eng = player.engaged && player.attackTarget === t;
+    h += btn("attack", eng ? "✋ Disengage" : "⚔ Attack", "pri") + btn("ma", "✦ Magic") + btn("ja", "⚡ Abilities") + btn("inspect", "🔍 Inspect") + btn("close", "✕", "x");
+    if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
+  } else {
+    const acts = actionList(player).filter(a => c.page === "ma" ? a.kind === "ma" && SPELLS[a.id].target === "enemy" : a.kind === "ws" || (a.kind === "ja" && ABILITIES[a.id].target === "enemy"));
+    c.acts = acts;
+    if (!acts.length) h += '<div class="tcInfo">' + (c.page === "ma" ? "You know no spells to use on an enemy." : "You have no abilities to use on an enemy.") + "</div>";
+    acts.forEach((a, i) => { const why = checkAction(player, a, t); h += btn("act" + i, actIcon(a) + " " + esc(actName(a)), why ? "off" : ""); });
+    h += btn("back", "◂ Back");
+  }
+  el.innerHTML = h;
+  el.classList.add("on");
+}
+
+function onTgtCmd(key) {
+  const c = UI.cmd;
+  if (!c) return;
+  const t = c.t;
+  sfx("select");
+  if (key === "close") { tgtCmdClose(); return; }
+  if (key === "back") { c.page = "root"; renderTgtCmd(); return; }
+  if (key === "ma" || key === "ja") { c.page = key; renderTgtCmd(); return; }
+  if (key === "inspect") { c.info = inspectText(t); log("The " + t.name + ": " + c.info, "sys"); renderTgtCmd(); return; }
+  if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
+  if (key.startsWith("act")) {
+    const a = c.acts && c.acts[+key.slice(3)];
+    if (!a) return;
+    player.target = t;
+    playerAct(a);
+    tgtCmdClose();
+  }
+}
+
 function uiEvent(type, d) {
+  if (type === "target") { tgtCmdOpen(d); return; }
   if (type === "item") {
     const it = ITEMS[d.id];
     if (!it) return;
@@ -9588,6 +9675,8 @@ function updateHud(dt) {
 }
 
 function initHud() {
+  $("tCmd").addEventListener("click", e => { const b = e.target.closest("[data-tc]"); if (b) { e.stopPropagation(); onTgtCmd(b.dataset.tc); } });
+  for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("tCmd").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("chatTabs").addEventListener("click", e => {
     const b = e.target.closest("button");
     if (!b) return;
@@ -9771,10 +9860,7 @@ function previewEntity(o) {
   const stats = o ? { wtype: wt, dmg: 1, acc: 1, eva: 1, att: 1, def: 1, str: 1, dex: 1, vit: 1, agi: 1, int: 1, mnd: 1, maxHp: 1, maxMp: 1 } : player.stats;
   return { kind: "pc", job, sub: o ? null : player.sub, lv: o ? 1 : player.lv, gear: Object.assign({}, gear), alive: true, engaged: false, casting: null, moving: false, mounted: false, x: 0, y: 0, face: 0, lastSwing: -9, lastHit: -9, lastWS: -9, buffs: {}, tp: 0, hp: 1, maxHp: 1, mp: 0, maxMp: 0, radius: 14, regenerating: false, stats, swingTimer: 2, delay: o ? 3 : player.delay, resting: false };
 }
-function lookBase(look) {
-  const l = look || {};
-  return { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
-}
+function lookBase(look) { return baseFromLook(look); }
 function renderPreview(now) {
   const pv = UI.pv;
   if (!pv || pv.failed || !pv.canvas.isConnected) return;
@@ -10375,8 +10461,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v4.8.0 · built 2026-10-13 12:33 PDT";
+const BUILD_INFO = "v4.8.1 · built 2026-10-13 12:53 PDT";
 const UPDATES = [
+  { v: "4.8.1", date: "2026-10-13", title: "Hotfix: aggro, targeting, residence", items: [
+    "Monsters are aggressive again. Only critters (hares) are peaceful until attacked. Goblins see a little farther and wider, and worms now also hear you walking nearby. Detection ranges stay hidden.",
+    "Targeting a monster opens a command box under the target frame: Attack, Magic, Abilities and Inspect. Inspect tells you how tough it looks and whether it's hostile. Esc or ✕ closes it.",
+    "Monster levels and toughness colours are no longer shown on names or the target frame (notorious monsters still glow orange). /check gives the same reading as Inspect.",
+    "Names over monsters and townsfolk only show when you target them. A ❗ still marks people with work for you.",
+    "Quest offers end with \"Will you accept this quest?\" and a Decline button.",
+    "Character creation: choose height (short to very tall) and build (slim to heavy), and a Randomize all button.",
+    "Helmets and caps sit higher so you can see your character's eyes.",
+    "Residence: the floor no longer flickers, the ceiling beams are gone, and the camera stays inside the room. The door asks before you go in, and leaving no longer drops you back on the doorstep.",
+    "Your location saves every 15 seconds and when you close or hide the tab. Logging back in puts you where you left off."
+  ] },
   { v: "4.8.0", date: "2026-10-13", title: "Phase 7: test and tune", items: [
     "Performance settings: draw distance (near / normal / far) hides far monsters and name plates; auto resolution lowers the render scale when the frame rate drops below about 28 fps and raises it again when there's headroom; an FPS counter (also /fps).",
     "Phones with little memory now start on Low graphics automatically.",
@@ -10490,24 +10587,27 @@ function tabHelp() {
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or use the Rest action on action bar page 2) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("👥 Characters", ul([
-    "On the title screen you pick a character or create a new one: name (2–12 letters), job, sex and appearance. <b>Appearance is permanent</b>, so take your time.",
+    "On the title screen you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
+    "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
-    "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a character to target, tap again to attack or talk · Target button picks the nearest.",
+    "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command box (Attack, Magic, Abilities, Inspect); tap a person to talk · Target button picks the nearest.",
     "<b>Keyboard:</b> WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
     "1–0 use the action bar (Shift for page 2) · [ ] switch page · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
+    "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
+    "<b>Inspect</b> (or /check) tells you how tough a monster looks and whether it is hostile. Monster levels are never shown, so learn by inspecting.",
     "Auto-attack swings on your weapon's delay. Each hit builds <b>TP</b>; at 1000 TP you can use a weapon skill (more TP makes it stronger).",
     "<b>Skillchains:</b> a weapon skill opens a chain; a matching weapon skill within about 6 s closes it for bonus damage. The target frame shows the open chain and its element.",
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
-    "<b>Con colours:</b> " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP.",
+    "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
-    "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and some are peaceful until attacked (the target frame says <i>passive</i>). Learn each kind by watching it; nothing on screen gives their range away."
+    "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
     ["Warrior", "Tank or damage", "Provoke, Berserk, great axe A, sword B"],
@@ -10552,7 +10652,7 @@ function tabHelp() {
   ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("🏠 Your residence", ul([
-    "The door is on the west cottage of Ashenreach Outpost. <b>Pip the Nubbin</b> lives there.",
+    "The door is on the west cottage of Ashenreach Outpost; walking into it asks if you want to go in. <b>Pip the Nubbin</b> lives there.",
     "<b>Storage:</b> Pip keeps " + CONFIG.storageBase + " slots of items, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. Stored items don't count against your bag.",
     "<b>Furniture:</b> Odette by the west wall sells it. Ask Pip to arrange: pick a piece, tap a tile on the 10×8 grid; tap a placed piece to rotate or pack it away. The door tiles and Pip's corner are blocked; rugs can sit under other pieces.",
     "Odette's quest <i>Make It Home</i> rewards a potted plant for placing two pieces."
@@ -10587,7 +10687,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "4.8.0";
+const GAME_VERSION = "4.8.1";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -11570,7 +11670,6 @@ function buildHouse(field, root) {
   const frame = new THREE.Mesh(new THREE.BoxGeometry(dw + 0.3, 2.5, 0.4), beamMat); frame.position.set(dx, 1.25, H);
   const hole = new THREE.Mesh(new THREE.BoxGeometry(dw - 0.2, 2.3, 0.5), new THREE.MeshBasicMaterial({ color: 0x1a1810 })); hole.position.set(dx, 1.15, H);
   root.add(frame, hole);
-  for (let i = 0; i <= 4; i++) { const beam = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.3, H), beamMat); beam.position.set(i * W / 4, wallH + 0.3, H / 2); root.add(beam); }
   for (const [wx, wz, rot] of [[W * 0.3, 0, 0], [W * 0.7, 0, 0], [0, H * 0.5, Math.PI / 2], [W, H * 0.5, Math.PI / 2]]) {
     const win = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.0), new THREE.MeshStandardMaterial({ color: 0x9fc8e8, emissive: 0xfff2d0, emissiveIntensity: 0.6, side: THREE.DoubleSide }));
     win.position.set(wx + (rot ? (wx === 0 ? 0.17 : -0.17) : 0), 2.1, wz + (rot ? 0 : 0.17));
@@ -11935,6 +12034,7 @@ function* buildZone3DSteps() {
   const terrain = yield* scaleSteps(buildTerrainSteps(field), 0.3, 0.75, "Painting the ground…");
   terrain.material.map.userData.zone = true;
   root.add(terrain);
+  if (themeOf(z) === "house") terrain.visible = false;
   W3.terrain = terrain;
   yield { p: 0.78, t: "Growing trees and grass…" };
   buildVegetation(field, root);
@@ -12595,8 +12695,8 @@ function humanEntry(L) {
   if (H) {
     const hp = V3(0, hc + 0.005, 0);
     if (H.type === "cap" || H.type === "helm" || H.type === "horned") {
-      R.add(gPartSphere(hp, hr * 1.13, 0, Math.PI * 0.52, 1, 1.05, 1.05, 18), "head", H.color, "metal");
-      R.add(gRing(V3(0, hc + hr * 0.02, 0), hr * 1.14, 0.014, "y", 22), "head", H.color, "metal");
+      R.add(gPartSphere(hp, hr * 1.13, 0, Math.PI * 0.37, 1, 1.05, 1.05, 18), "head", H.color, "metal");
+      R.add(gRing(V3(0, hc + hr * 0.47, 0), hr * 1.07, 0.014, "y", 22), "head", H.color, "metal");
       if (H.type !== "cap") {
         R.add(gBox(V3(0, hc - hr * 0.1, hr * 1.08), 0.022, hr * 0.8, 0.02), "head", H.color, "metal");
         for (const s of [-1, 1]) R.add(gBox(V3(s * hr * 0.95, hc - hr * 0.35, 0), 0.02, hr * 0.8, hr * 1.2), "head", H.color, "metal");
@@ -12957,10 +13057,25 @@ function buildEntityRig(e) {
   return inst;
 }
 
-function playerBase() {
-  const l = save.look || {};
-  return { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
+const BODY_HEIGHTS = [0.9, 0.95, 1, 1.05, 1.1], BODY_GIRTHS = [0.86, 0.93, 1, 1.1, 1.22];
+const BODY_HEIGHT_NAMES = ["Short", "Below average", "Average", "Tall", "Very tall"], BODY_GIRTH_NAMES = ["Slim", "Lean", "Average", "Sturdy", "Heavy"];
+
+function bodyProp(l) {
+  const hi = l.height == null ? 2 : l.height, gi = l.girth == null ? 2 : l.girth;
+  if (hi === 2 && gi === 2) return null;
+  const H = BODY_HEIGHTS[hi] || 1, G = BODY_GIRTHS[gi] || 1, fem = l.build === 1;
+  return { leg: 0.86 * H, torso: 0.52 * H, arm: 0.6 * H, girth: (fem ? 0.9 : 1) * G, waist: (fem ? 0.8 : 0.92) * Math.pow(G, 1.4), shoulder: (fem ? 0.165 : 0.195) * (1 + (G - 1) * 0.6) * (0.5 + H * 0.5), hip: (fem ? 0.1 : 0.095) * (1 + (G - 1) * 0.7) };
 }
+
+function baseFromLook(look) {
+  const l = look || {};
+  const b = { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
+  const p = bodyProp(l);
+  if (p) b.prop = p;
+  return b;
+}
+
+function playerBase() { return baseFromLook(save.look); }
 
 function rigSigFor(e) {
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
@@ -14380,8 +14495,11 @@ function updateLabels() {
     const nameEl = el.firstChild, bar = el.children[1], cbar = el.children[2];
     const isT = player.target === e;
     let name = e === player ? save.name : e.name, col = "#cfe6ff";
-    if (isMob(e)) { col = conOf(e)[1]; if (e.fam.nm) name = "☠ " + name; }
+    if (isMob(e)) { col = e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
     if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
+    const other = isMob(e) || e.kind === "npc";
+    if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
+    nameEl.style.display = name ? "" : "none";
     if (nameEl.textContent !== name) nameEl.textContent = name;
     nameEl.style.color = col;
     el.classList.toggle("tgt", isT);
@@ -14537,7 +14655,8 @@ function updateCamera(dt) {
     for (let i = 1; i <= 16; i++) {
       const d = VIEW.dist * i / 16;
       const sx = VIEW.camTarget.x - f.x * h0 * d, sz = VIEW.camTarget.z - f.y * h0 * d;
-      if (groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(1.6, d - VIEW.dist / 16); break; }
+      const inW = S.zone.indoor && (sx / U < 14 || sz / U < 14 || sx / U > S.zone.w - 14 || sz / U > S.zone.h - 14 || VIEW.camTarget.y + v0 * d > 3.1);
+      if (inW || groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(S.zone.indoor ? 0.9 : 1.6, d - VIEW.dist / 16); break; }
     }
     if (VIEW.camEff == null) VIEW.camEff = want;
     VIEW.camEff = want < VIEW.camEff ? want : VIEW.camEff + (want - VIEW.camEff) * Math.min(1, dt * 2.5);
@@ -14652,10 +14771,10 @@ function onWorldTap(p, ent) {
     return;
   }
   if (isMob(e)) {
-    if (player.target === e) {
-      if (player.engaged && player.attackTarget === e) S.chase = true;
-      else toggleEngage(true);
-    } else setTarget(e);
+    if (player.engaged && player.attackTarget === e) S.chase = true;
+    if (player.target === e && UI.cmd && UI.cmd.t === e) { tgtCmdClose(); return; }
+    setTarget(e);
+    if (!UI.cmd) uiEvent("target", e);
     return;
   }
   if (e.kind === "npc") {
@@ -14875,6 +14994,7 @@ function onKey(e) {
   if (k === " " || k === "spacebar") { e.preventDefault(); tryJump(); return; }
   if (k === "[") { setPage(UI.page - 1); return; }
   if (k === "]") { setPage(UI.page + 1); return; }
+  if (k === "escape" && UI.cmd) { tgtCmdClose(); return; }
   if (k === "escape") {
     if (player.casting) { player.casting = null; log("You stop casting.", "sys"); }
     else if (player.target && !player.engaged) player.target = null;
@@ -14916,6 +15036,8 @@ async function boot() {
   window.addEventListener("contextmenu", e => { if (!(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"))) e.preventDefault(); });
   window.addEventListener("dragstart", e => e.preventDefault());
   window.addEventListener("keydown", onKey);
+  window.addEventListener("pagehide", () => { if (UI.started) saveGame(); });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && UI.started) saveGame(); });
   window.addEventListener("keyup", e => { S.keys[e.key.toLowerCase()] = false; });
   window.addEventListener("blur", () => { S.keys = {}; });
   VIEW.booting = true;
@@ -15010,9 +15132,14 @@ function showCharSelect() {
 function showCharCreate() {
   const r = loadRoster();
   CC.job = "WAR";
-  CC.look = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length) };
-  const firstStyles = HAIR_BY_SEX[CC.look.build];
-  CC.look.hairStyle = HAIR_STYLES.indexOf(firstStyles[Math.floor(Math.random() * (firstStyles.length - 1))]);
+  const randomLook = () => {
+    const l = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length), height: Math.floor(Math.random() * 5), girth: Math.floor(Math.random() * 5) };
+    const st = HAIR_BY_SEX[l.build];
+    l.hairStyle = HAIR_STYLES.indexOf(st[Math.floor(Math.random() * st.length)]);
+    return l;
+  };
+  CC.look = randomLook();
+  CC.look.height = 2; CC.look.girth = 2;
   CC.name = "";
   $("ldSub").textContent = "Create your character";
   const box = $("charSel");
@@ -15038,7 +15165,7 @@ function showCharCreate() {
     const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
     const styles = HAIR_BY_SEX[l.build];
     if (!styles.includes(HAIR_STYLES[l.hairStyle])) l.hairStyle = HAIR_STYLES.indexOf(styles[0]);
-    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
+    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor])) + row("height", "Height", 5, BODY_HEIGHT_NAMES[l.height == null ? 2 : l.height]) + row("girth", "Build", 5, BODY_GIRTH_NAMES[l.girth == null ? 2 : l.girth]) + '<div class="ccRow"><button data-rand="1" style="flex:1">🎲 Randomize all</button></div>';
     $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + JOBS[CC.job].name + " Lv.1</small>";
   };
   paint();
@@ -15064,12 +15191,14 @@ function showCharCreate() {
         const i = styles.indexOf(HAIR_STYLES[CC.look.hairStyle]);
         CC.look.hairStyle = HAIR_STYLES.indexOf(styles[(i + d + styles.length) % styles.length]);
       } else {
-        const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length }[k];
-        CC.look[k] = ((CC.look[k] || 0) + d + n) % n;
+        const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length, height: 5, girth: 5 }[k];
+        const cur = CC.look[k] == null ? (k === "height" || k === "girth" ? 2 : 0) : CC.look[k];
+        CC.look[k] = k === "height" || k === "girth" ? clamp(cur + d, 0, n - 1) : (cur + d + n) % n;
         if (k === "build") CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[CC.look.build][0]);
       }
       sfx("click"); paint(); return;
     }
+    if (b.dataset.rand) { CC.look = randomLook(); sfx("click"); paint(); return; }
     if (b.dataset.back) { UI.creating = false; releasePreview(); sfx("close"); showCharSelect(); return; }
     if (b.dataset.create) create();
   };
@@ -15095,8 +15224,9 @@ async function enterWorld(id, fresh) {
   UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
   clearLog();
   log(fresh ? "A new adventure begins. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, Pell to trade." : "Welcome back, " + save.name + ".", "npc");
-  const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : homePos();
+  const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : resumePos();
   enterZone(h.zone, h.x, h.y);
+  if (h.face != null) player.face = h.face;
   await zoneReady();
   VIEW.booting = false;
   UI.started = true;

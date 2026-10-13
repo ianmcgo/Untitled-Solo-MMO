@@ -579,7 +579,6 @@ function buildHouse(field, root) {
   const frame = new THREE.Mesh(new THREE.BoxGeometry(dw + 0.3, 2.5, 0.4), beamMat); frame.position.set(dx, 1.25, H);
   const hole = new THREE.Mesh(new THREE.BoxGeometry(dw - 0.2, 2.3, 0.5), new THREE.MeshBasicMaterial({ color: 0x1a1810 })); hole.position.set(dx, 1.15, H);
   root.add(frame, hole);
-  for (let i = 0; i <= 4; i++) { const beam = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.3, H), beamMat); beam.position.set(i * W / 4, wallH + 0.3, H / 2); root.add(beam); }
   for (const [wx, wz, rot] of [[W * 0.3, 0, 0], [W * 0.7, 0, 0], [0, H * 0.5, Math.PI / 2], [W, H * 0.5, Math.PI / 2]]) {
     const win = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.0), new THREE.MeshStandardMaterial({ color: 0x9fc8e8, emissive: 0xfff2d0, emissiveIntensity: 0.6, side: THREE.DoubleSide }));
     win.position.set(wx + (rot ? (wx === 0 ? 0.17 : -0.17) : 0), 2.1, wz + (rot ? 0 : 0.17));
@@ -944,6 +943,7 @@ function* buildZone3DSteps() {
   const terrain = yield* scaleSteps(buildTerrainSteps(field), 0.3, 0.75, "Painting the ground…");
   terrain.material.map.userData.zone = true;
   root.add(terrain);
+  if (themeOf(z) === "house") terrain.visible = false;
   W3.terrain = terrain;
   yield { p: 0.78, t: "Growing trees and grass…" };
   buildVegetation(field, root);

@@ -66,6 +66,14 @@
   .pf .st { position: absolute; left: 3px; top: 3px; font-size: 9px; }
   #soloTip { font-size: 11px; color: var(--muted); padding: 5px 8px; }
 
+  #tCmd { display: none; flex-wrap: wrap; gap: 5px; margin-top: 7px; pointer-events: auto; }
+  #tCmd.on { display: flex; }
+  #tCmd button { flex: 1 1 auto; min-width: 70px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); background: rgba(30,32,44,0.9); color: #e8e2d0; font: inherit; font-size: 12.5px; cursor: pointer; }
+  #tCmd button:hover { border-color: #e6c36a; }
+  #tCmd button.pri { border-color: #e6c36a; color: #ffe7a8; }
+  #tCmd button.off { opacity: 0.45; }
+  #tCmd button.x { flex: 0 0 auto; min-width: 34px; }
+  #tCmd .tcInfo { flex-basis: 100%; font-size: 12.5px; color: #d8d0bc; line-height: 1.4; }
   #target { position: absolute; left: 50%; top: calc(8px + var(--sat)); transform: translateX(-50%); width: 360px; padding: 7px 10px 8px; display: none; }
   #target .tn { display: flex; align-items: baseline; gap: 6px; }
   #tName { font: 700 15px var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -213,7 +221,7 @@
 
   #dialog { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(118px + var(--sab)); width: calc(100% - 20px); max-width: 600px; padding: 12px 14px; display: none; z-index: 7; background: rgba(14,16,26,.92); }
   #dlgWho { font: 700 15px var(--serif); color: var(--gold); margin-bottom: 4px; }
-  #dlgText { font-size: 14px; line-height: 1.45; }
+  #dlgText { font-size: 14px; line-height: 1.45; white-space: pre-line; }
   #dlgOpts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 
   #menu { position: absolute; inset: 0; display: none; z-index: 8; background: rgba(4,5,9,.72); }
@@ -505,6 +513,7 @@
       <div id="tWarn"></div>
       <div id="tInfo"></div>
       <div id="tChain"></div>
+      <div id="tCmd"></div>
     </div>
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>

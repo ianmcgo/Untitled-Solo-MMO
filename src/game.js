@@ -185,6 +185,7 @@ function selectChar(id) {
 
 function saveGame() {
   try {
+    if (player && player.alive && !S.ko && S.zoneId && ZONES[S.zoneId]) save.loc = { zone: S.zoneId, x: Math.round(player.x), y: Math.round(player.y), face: +(player.face || 0).toFixed(2) };
     const txt = JSON.stringify(save);
     if (S.charId) {
       localStorage.setItem(charKey(S.charId), txt);
@@ -1161,9 +1162,9 @@ function detects(m, p) {
   if (!a) return false;
   const d = dist(m, p);
   if (a.sight && d <= a.sight) {
-    if (d <= 36) return true;
+    if (d <= 60) return true;
     const diff = Math.abs(normAng(Math.atan2(p.y - m.y, p.x - m.x) - m.face));
-    if (diff <= Math.PI / 3) return true;
+    if (diff <= Math.PI * 0.45) return true;
   }
   if (a.sound && d <= a.sound && p.moving) return true;
   if (a.magic && d <= a.magic && p.casting) return true;
@@ -1908,7 +1909,16 @@ function step(dt) {
   for (const p of S.party) regen(p, dt);
   S.zoneCooldown = Math.max(0, S.zoneCooldown - dt);
   if (S.zoneCooldown <= 0 && player.alive) {
-    for (const ex of S.zone.exits) if (circleRect(player, ex, 8)) { enterZone(ex.to, ex.tx, ex.ty); return; }
+    let onAsk = null;
+    for (const ex of S.zone.exits) if (circleRect(player, ex, 8)) {
+      if (ex.ask && typeof gameConfirm === "function") { onAsk = ex; continue; }
+      enterZone(ex.to, ex.tx, ex.ty); return;
+    }
+    if (onAsk && S.exitAsked !== onAsk) {
+      S.exitAsked = onAsk;
+      const ex = onAsk;
+      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: "Enter", no: "Not now" });
+    } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
   if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); }
@@ -1926,7 +1936,7 @@ function step(dt) {
   }
   for (const p of S.party) if (p.target && isMob(p.target) && !S.mobs.includes(p.target)) p.target = null;
   S.saveTimer += dt;
-  if (S.saveTimer > 20) { S.saveTimer = 0; saveGame(); }
+  if (S.saveTimer > 15) { S.saveTimer = 0; saveGame(); }
 }
 
 function age(dt) {
@@ -1949,8 +1959,10 @@ function conOf(m) {
   return ["Incredibly Tough", "#e53935"];
 }
 
-function setTarget(e) {
+function setTarget(e, quiet) {
+  const changed = player.target !== e;
   player.target = e;
+  if (isMob(e) && e.alive && !quiet && changed) uiEvent("target", e);
   if (isMob(e) && player.engaged && e !== player.attackTarget && e.alive) {
     player.attackTarget = e;
     log("You switch targets to the " + e.name + ".", "you");
@@ -2477,6 +2489,12 @@ const TALK = {
   }
 };
 
+function resumePos() {
+  const l = save.loc;
+  if (l && ZONES[l.zone] && isFinite(l.x) && isFinite(l.y) && l.x > 0 && l.y > 0 && l.x < ZONES[l.zone].w && l.y < ZONES[l.zone].h) return l;
+  return homePos();
+}
+
 function homePos() {
   const z = ZONES[save.home.zone];
   const c = z.npcs.find(n => n.id === save.home.npc) || z.npcs.find(n => NPCS[n.id] && NPCS[n.id].crystal);
@@ -2621,7 +2639,7 @@ const COMMANDS = [
   ["/attack", "Attack your target, or the nearest enemy. Also /a."],
   ["/target name", "Target the nearest character whose name matches. Also /ta."],
   ["/assist", "Target what your party is fighting."],
-  ["/check", "Check your target's level and difficulty. Also /c."],
+  ["/check", "Inspect your target: how tough it looks and whether it is hostile. Also /c."],
   ["/cast spell", "Cast a spell by name, e.g. /cast cure. Also /ma."],
   ["/ja ability", "Use a job ability, e.g. /ja provoke."],
   ["/ws name", "Use a weapon skill, e.g. /ws fast blade."],
@@ -2686,8 +2704,8 @@ function runCommand(text) {
       const t = player.target;
       if (!isMob(t)) { log(t ? t.name + " is not an enemy." : "You have no target.", "sys"); return; }
       const [c] = conOf(t);
-      const f = t.fam;
-      log("The " + t.name + " (Lv." + t.lv + ") seems like " + (c === "Too Weak" ? "too weak to be worthwhile" : c === "Easy Prey" ? "easy prey" : c === "Decent Challenge" ? "a decent challenge" : c === "Even Match" ? "an even match" : c === "Tough" ? "a tough opponent" : c === "Very Tough" ? "a very tough opponent" : "an incredibly tough opponent") + "." + (t.passive ? " It looks peaceful unless provoked." : "") + (f.nm ? " It is a notorious monster!" : ""), "sys");
+      const tough = { "Too Weak": "seems too weak to be worthwhile", "Easy Prey": "seems like easy prey", "Decent Challenge": "seems like a decent challenge", "Even Match": "seems like an even match", "Tough": "looks tough", "Very Tough": "looks very tough", "Incredibly Tough": "looks incredibly tough" }[c] || "is hard to judge";
+      log("The " + t.name + " " + tough + ". " + (t.passive || !t.fam.aggro ? "It looks peaceful unless provoked." : "It looks hostile.") + (t.fam.nm ? " It is a notorious monster!" : ""), "sys");
       return;
     }
     case "cast": case "ma": castBy("ma"); return;

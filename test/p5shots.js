@@ -15,7 +15,7 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   await page.click('[data-new]');
   await page.waitForTimeout(2500);
   await page.screenshot({ path: out + '-create.png' });
-  await page.click('[data-job="BLM"]'); await page.click('[data-look="hairStyle"][data-d="1"]'); await page.click('[data-look="skin"][data-d="1"]');
+  await page.click('[data-job="BLM"]'); await page.click('[data-look="hairStyle"][data-d="1"]'); await page.click('[data-look="skin"][data-d="1"]'); await page.click('[data-look="height"][data-d="1"]'); await page.click('[data-look="girth"][data-d="1"]'); await page.click('[data-look="girth"][data-d="1"]');
   await page.fill('#ccName', 'Tessa');
   await page.waitForTimeout(1500);
   await page.screenshot({ path: out + '-create2.png' });
@@ -57,6 +57,11 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     { name: 'synth', js: `closeModal(); startSynth('r_bronze_ingot');`, wait: 1500 },
     { name: 'garden', pre: `enterZone('residence', 200, 250);`, js: `save.furniture = []; save.gardens = {}; ['flowerpot','flowerpot','flowerpot'].forEach(id => giveItem(id, 1, true)); placeFurniture('flowerpot', 5, 4, 0); placeFurniture('flowerpot', 6, 4, 0); placeFurniture('flowerpot', 7, 4, 0); save.gardens[0] = { seed: 'herb_seeds', stage: 1, since: Date.now(), watered: false, crystal: null }; save.gardens[1] = { seed: 'ash_sapling', stage: 2, since: Date.now(), watered: true, crystal: 'wind' }; save.gardens[2] = { seed: 'moonbloom_seeds', stage: 3, since: Date.now(), watered: false, crystal: 'water' }; player.x = 250; player.y = 260; VIEW.yaw = -Math.PI/2; VIEW.dist = 5; VIEW.pitch = 0.6;`, wait: 3000 },
     { name: 'house-feet', js: `player.x = 300; player.y = 200; VIEW.yaw = Math.PI; VIEW.dist = 4; VIEW.pitch = 0.15; player.synth = null;`, wait: 2500 },
+    { name: 'helm', js: `giveItem('raider_helm',1,true); equip('raider_helm'); player.x = 200; player.y = 200; player.face = Math.PI/2; VIEW.yaw = Math.PI/2 + Math.PI; VIEW.dist = 2.6; VIEW.pitch = 0.05;`, wait: 2500 },
+    { name: 'door-ask', pre: `enterZone('outpost', 300, 420);`, js: `closeModal(); player.x = 252; player.y = 420; S.zoneCooldown = 0;`, wait: 1500 },
+    { name: 'labels', pre: `$('confirmBox').querySelector('.no').click(); setH(12); enterZone('hollow', 300, 1100);`, js: `VIEW.yaw = 0; player.face = 0;`, wait: 3000 },
+    { name: 'tgtmenu', js: `const m = buildMob('goblin', 2, player.x + 90, player.y, 0); S.mobs.push(m); m.face = Math.PI; setTarget(m); onTgtCmd('inspect');`, wait: 1500 },
+    { name: 'tgtmagic', js: `onTgtCmd('ma');`, wait: 800 },
     { name: 'garden-ui', js: `openMenu('home'); UI.furnSel = 2; renderModal();`, wait: 1500 },
     { name: 'perf', pre: `setH(11); enterZone('hollow', 1200, 1000);`, js: `VIEW.settings.fps = true; VIEW.settings.adaptive = true;`, wait: 9000 },
     { name: 'perf-settings', js: `openMenu('settings');`, wait: 1500 },

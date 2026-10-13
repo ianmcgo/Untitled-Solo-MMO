@@ -56,12 +56,16 @@ ok(G.save.quests.home === 'done' && G.invCount('flowerpot') === 1 && G.invCount(
 
 G.enterZone('hollow', 200, 1100); run(0.5);
 const passive = S.mobs.filter(m => m.passive && !m.fam.nm), aggr = S.mobs.filter(m => !m.passive);
-ok(passive.length >= 6 && aggr.length >= 10, 'some monsters are passive (' + passive.length + ') and some aggressive (' + aggr.length + ')');
-const pw = passive.find(m => m.famKey === 'worm');
-P().x = pw.x + 20; P().y = pw.y; P().casting = { sp: G.SPELLS.cure, t: P(), start: S.time, end: S.time + 2 }; run(1); P().casting = null;
-ok(pw.state === 'idle', 'a passive worm ignores casting beside it');
-pw.enmity.set(P(), 10); pw.state = 'combat';
-ok(pw.state === 'combat', 'but fights back when attacked');
+ok(passive.length >= 3 && passive.every(m => m.famKey === 'hare') && aggr.length >= 15, 'only critters are passive (' + passive.length + ') and the rest aggressive (' + aggr.length + ')');
+const ph = passive[0];
+P().x = ph.x + 20; P().y = ph.y; P().moving = true; run(1); P().moving = false;
+ok(ph.state === 'idle', 'a hare ignores you walking beside it');
+ph.enmity.set(P(), 10); ph.state = 'combat';
+ok(ph.state === 'combat', 'but fights back when attacked');
+const gw = aggr.find(m => m.famKey === 'goblin');
+for (const m of S.mobs) if (m !== gw) m.alive = false;
+gw.state = 'idle'; gw.face = 0; P().x = gw.x + 120; P().y = gw.y + 40; run(0.3);
+ok(gw.state === 'combat', 'a goblin aggroes on sight');
 let minD = 1e9; for (let i = 0; i < S.mobs.length; i++) for (let j = i + 1; j < S.mobs.length; j++) { const d = Math.hypot(S.mobs[i].home.x - S.mobs[j].home.x, S.mobs[i].home.y - S.mobs[j].home.y); if (d < minD) minD = d; }
 ok(minD >= 150, 'spawn points are at least 150 px apart (' + Math.round(minD) + ')');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

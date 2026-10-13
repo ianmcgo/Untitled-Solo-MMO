@@ -518,8 +518,8 @@ function humanEntry(L) {
   if (H) {
     const hp = V3(0, hc + 0.005, 0);
     if (H.type === "cap" || H.type === "helm" || H.type === "horned") {
-      R.add(gPartSphere(hp, hr * 1.13, 0, Math.PI * 0.52, 1, 1.05, 1.05, 18), "head", H.color, "metal");
-      R.add(gRing(V3(0, hc + hr * 0.02, 0), hr * 1.14, 0.014, "y", 22), "head", H.color, "metal");
+      R.add(gPartSphere(hp, hr * 1.13, 0, Math.PI * 0.37, 1, 1.05, 1.05, 18), "head", H.color, "metal");
+      R.add(gRing(V3(0, hc + hr * 0.47, 0), hr * 1.07, 0.014, "y", 22), "head", H.color, "metal");
       if (H.type !== "cap") {
         R.add(gBox(V3(0, hc - hr * 0.1, hr * 1.08), 0.022, hr * 0.8, 0.02), "head", H.color, "metal");
         for (const s of [-1, 1]) R.add(gBox(V3(s * hr * 0.95, hc - hr * 0.35, 0), 0.02, hr * 0.8, hr * 1.2), "head", H.color, "metal");
@@ -880,10 +880,25 @@ function buildEntityRig(e) {
   return inst;
 }
 
-function playerBase() {
-  const l = save.look || {};
-  return { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
+const BODY_HEIGHTS = [0.9, 0.95, 1, 1.05, 1.1], BODY_GIRTHS = [0.86, 0.93, 1, 1.1, 1.22];
+const BODY_HEIGHT_NAMES = ["Short", "Below average", "Average", "Tall", "Very tall"], BODY_GIRTH_NAMES = ["Slim", "Lean", "Average", "Sturdy", "Heavy"];
+
+function bodyProp(l) {
+  const hi = l.height == null ? 2 : l.height, gi = l.girth == null ? 2 : l.girth;
+  if (hi === 2 && gi === 2) return null;
+  const H = BODY_HEIGHTS[hi] || 1, G = BODY_GIRTHS[gi] || 1, fem = l.build === 1;
+  return { leg: 0.86 * H, torso: 0.52 * H, arm: 0.6 * H, girth: (fem ? 0.9 : 1) * G, waist: (fem ? 0.8 : 0.92) * Math.pow(G, 1.4), shoulder: (fem ? 0.165 : 0.195) * (1 + (G - 1) * 0.6) * (0.5 + H * 0.5), hip: (fem ? 0.1 : 0.095) * (1 + (G - 1) * 0.7) };
 }
+
+function baseFromLook(look) {
+  const l = look || {};
+  const b = { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
+  const p = bodyProp(l);
+  if (p) b.prop = p;
+  return b;
+}
+
+function playerBase() { return baseFromLook(save.look); }
 
 function rigSigFor(e) {
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
