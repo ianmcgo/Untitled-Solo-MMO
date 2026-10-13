@@ -642,6 +642,7 @@ function stat(e, k) {
   let v = e.stats[k];
   const b = e.buffs;
   if (k === "att" && b.berserk) v *= 1.25;
+  if (k === "att" && b.warcry) v *= 1.2;
   if (k === "def" && b.berserk) v *= 0.75;
   if (k === "def" && b.dia) v *= 0.9;
   if (k === "def" && b.sentinel) v *= 1.5;
@@ -1414,6 +1415,13 @@ function doAbility(a, id, t) {
     popText(t, "Stolen!", "#a1887f", 14, 1);
     sfx("coin", a);
     if (a === player) giveItem(it, 1);
+    return;
+  }
+  if (id === "warcry") {
+    for (const p of S.party) if (p.alive && dist(p, a) < 300) { p.buffs.warcry = { until: S.time + ab.dur }; ring(p, "#ff8a65", 24, 0.5); }
+    log(subj(a) + " " + vb(a, "let") + " out a Warcry! The party's attack rises.", cls(a));
+    popText(a, "Warcry!", "#ff8a65", 15, 1.2, 14);
+    sfx("provoke", a);
     return;
   }
   if (id === "chakra") {

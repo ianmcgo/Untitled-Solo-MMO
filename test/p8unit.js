@@ -4,11 +4,11 @@ const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const npc = id => S.npcs.find(n => n.id === id);
 const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
 
-ok(G.CONFIG.levelCap === 15 && G.CONFIG.xpTable.length === 15, 'level cap is 15 with an XP table to match');
+ok(G.CONFIG.levelCap >= 15 && G.CONFIG.xpTable.length === G.CONFIG.levelCap, 'level cap has an XP table to match');
 G.save.jobs.BLM.lv = 10; G.setJob('BLM', null); G.gainXp(4450);
 ok(P().lv === 11 && G.actionList(P()).some(a => a.id === 'stone2'), 'level 11 Black Mages learn Stone II');
 G.gainXp(1e6);
-ok(P().lv === 15 && G.actionList(P()).some(a => a.id === 'blizzard2'), 'XP stops at level 15, where Blizzard II is learned');
+ok(P().lv === G.CONFIG.levelCap && G.actionList(P()).some(a => a.id === 'blizzard2'), 'XP stops at the level cap, with Blizzard II learned');
 const ex = G.ZONES.hollow.exits.find(e => e.to === 'marsh');
 ok(ex && G.ZONES.marsh.exits.some(e => e.to === 'hollow'), 'Rocky Hollow and the Ashen Marsh connect both ways');
 G.enterZone('hollow', ex.x + ex.w / 2, ex.y - 40); S.zoneCooldown = 0; P().y = ex.y + 4; run(0.5);

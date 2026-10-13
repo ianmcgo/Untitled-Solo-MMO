@@ -394,7 +394,7 @@ function zoneMapCanvas(zoneId) {
   c.width = Math.ceil(z.w * k); c.height = Math.ceil(z.h * k);
   const g = c.getContext("2d");
   g.scale(k, k);
-  const pal = { town: ["#5b5440", "#7a6d52"], field: ["#3f5530", "#5a6d3b"], cave: ["#2d2925", "#3c3732"], house: ["#4a3a2a", "#5d4935"], crypt: ["#26252c", "#34333c"] }[z.theme] || ["#333", "#444"];
+  const pal = { town: ["#5b5440", "#7a6d52"], field: ["#3f5530", "#5a6d3b"], cave: ["#2d2925", "#3c3732"], house: ["#4a3a2a", "#5d4935"], crypt: ["#26252c", "#34333c"], snow: ["#b8c4cc", "#dfe7ec"] }[z.palette === "snow" ? "snow" : z.theme] || ["#333", "#444"];
   const grd = g.createRadialGradient(z.w / 2, z.h / 2, 50, z.w / 2, z.h / 2, Math.max(z.w, z.h) * 0.7);
   grd.addColorStop(0, pal[1]); grd.addColorStop(1, pal[0]);
   g.fillStyle = grd; g.fillRect(0, 0, z.w, z.h);
@@ -408,7 +408,7 @@ function zoneMapCanvas(zoneId) {
   }
   for (const w of z.water || []) {
     const wg = g.createRadialGradient(w.x, w.y, 4, w.x, w.y, w.r);
-    wg.addColorStop(0, "#3d7fb8"); wg.addColorStop(1, "#2a5b8c");
+    wg.addColorStop(0, z.palette === "snow" ? "#cfe6f2" : "#3d7fb8"); wg.addColorStop(1, z.palette === "snow" ? "#9cc4da" : "#2a5b8c");
     g.fillStyle = wg; g.beginPath(); g.arc(w.x, w.y, w.r, 0, 7); g.fill();
     g.strokeStyle = "rgba(190,230,255,.5)"; g.lineWidth = 3; g.stroke();
   }

@@ -1,5 +1,5 @@
 const CONFIG = {
-  levelCap: 15,
+  levelCap: 20,
   bowRange: 230,
   foodMinutes: 30,
   poolTime: 45,
@@ -20,7 +20,7 @@ const CONFIG = {
   castRange: 230,
   abilityRange: 230,
   talkRange: 70,
-  xpTable: [0, 200, 400, 650, 950, 1300, 1700, 2200, 2850, 3600, 4450, 5400, 6450, 7600, 8850],
+  xpTable: [0, 200, 400, 650, 950, 1300, 1700, 2200, 2850, 3600, 4450, 5400, 6450, 7600, 8850, 10200, 11650, 13200, 14850, 16600],
   chainWindow: 60,
   chainMax: 5,
   chainStep: 0.1,
@@ -132,6 +132,13 @@ const WEAPON_SKILLS = {
   twin_fist: { name: "Twin Fist", wtype: "h2h", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.6] },
   rising_knee: { name: "Rising Knee", wtype: "h2h", skill: 22, props: ["Detonation", "Impaction"], ftp: [1.9, 2.6, 3.3] },
   iron_palm: { name: "Iron Palm", wtype: "h2h", skill: 40, props: ["Reverberation", "Impaction"], ftp: [2.2, 3.0, 3.8] },
+  vorpal_arc: { name: "Vorpal Arc", wtype: "sword", skill: 75, props: ["Fragmentation", "Scission"], ftp: [2.6, 3.4, 4.4] },
+  shadow_fang: { name: "Shadow Fang", wtype: "dagger", skill: 75, props: ["Gravitation", "Transfixion"], ftp: [2.5, 3.3, 4.2] },
+  moonfall: { name: "Moonfall", wtype: "club", skill: 75, props: ["Fusion", "Impaction"], ftp: [2.4, 3.2, 4.0] },
+  earthshaker: { name: "Earthshaker", wtype: "staff", skill: 75, props: ["Gravitation", "Reverberation"], ftp: [2.5, 3.3, 4.2] },
+  ruinous_cleave: { name: "Ruinous Cleave", wtype: "greataxe", skill: 75, props: ["Distortion", "Scission"], ftp: [2.7, 3.6, 4.6] },
+  thousand_palms: { name: "Thousand Palms", wtype: "h2h", skill: 75, props: ["Fusion", "Detonation"], ftp: [2.5, 3.3, 4.3] },
+  starfall_arrow: { name: "Starfall Arrow", wtype: "archery", skill: 75, props: ["Fragmentation", "Transfixion"], ftp: [2.6, 3.5, 4.5], ranged: true },
   shield_break: { name: "Shield Break", wtype: "greataxe", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
   iron_tempest: { name: "Iron Tempest", wtype: "greataxe", skill: 22, props: ["Scission"], ftp: [1.9, 2.7, 3.5] },
   sturmwind: { name: "Sturmwind", wtype: "greataxe", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.8] }
@@ -153,14 +160,15 @@ const ABILITIES = {
   release: { name: "Release", job: "SMN", lv: 1, recast: 5, target: "self", desc: "Sends your sprite home." },
   blood_pact: { name: "Blood Pact", job: "SMN", lv: 1, recast: 45, target: "enemy", enmity: 150, desc: "Your sprite unleashes its element on the target. Needs a sprite out." },
   siphon: { name: "Elemental Siphon", job: "SMN", lv: 10, recast: 240, target: "self", desc: "Draws MP from your sprite (it must be out)." },
+  warcry: { name: "Warcry", job: "WAR", lv: 15, recast: 180, target: "self", buff: "warcry", dur: 30, desc: "Raises the whole party's attack by 20% for 30 s." },
   boost: { name: "Boost", job: "MNK", lv: 1, recast: 15, target: "self", buff: "boost", dur: 60, desc: "Your next hit deals 50% more damage and builds extra TP." },
   focus: { name: "Focus", job: "MNK", lv: 5, recast: 120, target: "self", buff: "focus", dur: 30, desc: "Accuracy +25 and critical hit rate +10% for 30 s." },
   chakra: { name: "Chakra", job: "MNK", lv: 10, recast: 300, target: "self", desc: "Restores HP based on your VIT and level." },
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -186,6 +194,10 @@ const SPELLS = {
   ember_sprite: { name: "Ember Sprite", jobs: { SMN: 1 }, mp: 12, cast: 3.0, recast: 10, kind: "summon", element: "fire", pet: "ember", target: "self", desc: "Calls a fire sprite to fight beside you. It slowly drains your MP." },
   frost_sprite: { name: "Frost Sprite", jobs: { SMN: 5 }, mp: 14, cast: 3.0, recast: 10, kind: "summon", element: "ice", pet: "frost", target: "self", desc: "Calls an ice sprite to fight beside you. It slowly drains your MP." },
   gale_sprite: { name: "Gale Sprite", jobs: { SMN: 10 }, mp: 16, cast: 3.0, recast: 10, kind: "summon", element: "wind", pet: "gale", target: "self", desc: "Calls a wind sprite to fight beside you. It slowly drains your MP." },
+  cure4: { name: "Cure IV", jobs: { WHM: 19 }, mp: 70, cast: 2.75, recast: 8, kind: "heal", power: 200, mnd: 2.5, target: "ally", desc: "Restores a huge amount of HP." },
+  thunder2: { name: "Thunder II", jobs: { BLM: 17 }, mp: 40, cast: 3.0, recast: 10, kind: "nuke", element: "lightning", power: 82, stat: "int", target: "enemy", desc: "Heavy lightning damage." },
+  fire3: { name: "Fire III", jobs: { BLM: 20 }, mp: 62, cast: 3.5, recast: 14, kind: "nuke", element: "fire", power: 120, stat: "int", target: "enemy", desc: "Massive fire damage." },
+  stone_sprite: { name: "Stone Sprite", jobs: { SMN: 15 }, mp: 18, cast: 3.0, recast: 10, kind: "summon", element: "earth", pet: "stone", target: "self", desc: "Calls a sturdy earth sprite. It slowly drains your MP." },
   protect: { name: "Protect", jobs: { WHM: 7, PLD: 9, RDM: 9 }, mp: 9, cast: 2.0, recast: 10, kind: "buff", buff: "protect", dur: 600, target: "ally", desc: "Defense +15% for 10 minutes." }
 };
 
@@ -305,6 +317,20 @@ const ITEMS = {
   drowned_blade: { name: "Drowned Blade", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 19, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 15, rare: true, nm: true, rarity: "epic", stats: { acc: 5, str: 3 }, desc: "Its edge never dries." },
   priest_mantle: { name: "Priest's Mantle", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { def: 16, hp: 30, mp: 30, eva: 6 }, desc: "Heavy with the weight of the tide." },
   tidebreaker_bow: { name: "Tidebreaker Bow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 17, delay: 3.0, jobs: ["RNG", "WAR", "THF"], lv: 15, rare: true, nm: true, rarity: "epic", stats: { agi: 3, acc: 5 }, desc: "Strung with kelp that never snaps." },
+  frost_shard: { name: "Frost Shard", kind: "mat", icon: "🧊", price: 60, stack: 12, desc: "A shard of ice that never melts." },
+  frost_sword: { name: "Frostforged Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 21, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 17, price: 9800, stats: { acc: 4, str: 2 } },
+  frost_greataxe: { name: "Frostforged Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 36, delay: 4.0, jobs: ["WAR"], lv: 17, price: 10400, stats: { str: 3 } },
+  glacier_staff: { name: "Glacier Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 22, delay: 3.6, jobs: ALL_J, lv: 17, price: 9400, stats: { int: 9, mnd: 9, mp: 40 } },
+  rime_dagger: { name: "Rime Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 15, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 17, price: 9000, stats: { dex: 4, acc: 4 } },
+  frost_claws: { name: "Frost Claws", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 16, delay: 2.6, jobs: ["MNK", "WAR"], lv: 17, price: 9200, stats: { str: 4, att: 6 } },
+  frost_bow: { name: "Frostwood Bow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 20, delay: 3.0, jobs: ["RNG", "WAR", "THF"], lv: 17, price: 9600, stats: { agi: 4, acc: 5 } },
+  frost_mail: { name: "Frostforged Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 17, price: 10200, stats: { def: 24, hp: 55, vit: 3 } },
+  snowfur_coat: { name: "Snowfur Coat", kind: "equip", icon: "🧥", slot: "body", jobs: ["THF", "MNK", "RNG", "RDM"], lv: 17, price: 9600, stats: { def: 17, dex: 4, agi: 4, hp: 30 } },
+  frost_robe: { name: "Frostweave Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM", "SMN"], lv: 17, price: 9400, stats: { def: 13, mp: 60, int: 5, mnd: 5 } },
+  fur_hat: { name: "Fur Hat", kind: "equip", icon: "🎩", slot: "head", jobs: ALL_J, lv: 16, price: 4200, stats: { def: 7, hp: 15, mp: 15 } },
+  rimefang_axe: { name: "Rimefang's Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 39, delay: 4.0, jobs: ["WAR"], lv: 19, rare: true, nm: true, rarity: "epic", stats: { str: 5, att: 10 }, desc: "Frost creeps along the blade." },
+  frost_ring: { name: "Frost Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 18, rare: true, nm: true, stats: { hp: 30, mp: 30, int: 3, str: 3 }, desc: "Cold to the touch, always." },
+  wight_shroud: { name: "Wight's Shroud", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 19, rare: true, nm: true, rarity: "epic", stats: { def: 20, hp: 45, mp: 45, eva: 8, int: 3, mnd: 3 }, desc: "It weighs nothing at all." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
   mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
   iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
@@ -458,10 +484,17 @@ const FAMILIES = {
   drowned: { name: "Drowned One", color: "#6f9a9a", radius: 15, hpMul: 1.2, attMul: 1.1, defMul: 1.05, delay: 3.0, speed: 85, aggro: { sound: 130, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Sodden Grasp", mul: 1.9, drain: true }, weak: { light: 1.5, lightning: 1.2 }, loot: [["chapel_sigil", 0.12], ["bone_chip", 0.35], ["water_crystal", 0.35], ["ether", 0.1], ["hi_potion", 0.06]], model: "ghoul" },
   marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
   tide_priest: { name: "Tidebound Priest", color: "#4dd0e1", radius: 20, hpMul: 3.2, attMul: 1.1, defMul: 1.2, delay: 3.6, speed: 80, int: 6, aggro: { sight: 240, sound: 220 }, link: false, tpMove: { name: "Drowning Tide", mul: 1.6, aoe: 110 }, weak: { lightning: 1.4, light: 1.3 }, nm: true, boss: true, scale: 1.6, aura: "#4dd0e1", respawn: 30, phases: [0.65], adds: "drowned", addsText: "calls the drowned up from the water!", enrage: 0.2, pulse: { at: 0.5, every: 22, dmg: 4, r: 170, name: "Maelstrom", el: "water" }, loot: [], gil: [40, 60], model: "ghoul" },
+  snow_hare: { name: "Snow Hare", color: "#e8eef2", radius: 11, hpMul: 0.75, attMul: 0.85, defMul: 0.85, eva: 10, delay: 2.6, speed: 125, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { fire: 1.2 }, loot: [["healing_herb", 0.4], ["wind_crystal", 0.2], ["potion", 0.1]], model: "hare", tint: 0xeef2f6 },
+  ice_bat: { name: "Ice Bat", color: "#9fd8ff", radius: 11, hpMul: 0.85, attMul: 1.0, defMul: 0.9, eva: 12, delay: 2.4, speed: 130, aggro: { sound: 130 }, link: true, linkGroup: "icebat", tpMove: { name: "Frost Wing", mul: 1.9 }, weak: { fire: 1.3 }, loot: [["bat_wing", 0.4], ["frost_shard", 0.25], ["ether", 0.08]], model: "bat", tint: 0x8ab8d8 },
+  frost_goblin: { name: "Frost Goblin", color: "#9aa8a0", radius: 15, hpMul: 1.15, attMul: 1.1, defMul: 1.1, delay: 3.0, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", tpMove: { name: "Ice Bomb", mul: 1.8, aoe: 80 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.3], ["frost_shard", 0.3], ["hi_potion", 0.08]], gil: [10, 16], model: "goblin" },
+  ice_wight: { name: "Ice Wight", color: "#b8e0f0", radius: 15, hpMul: 1.25, attMul: 1.15, defMul: 1.15, delay: 3.1, speed: 85, aggro: { sound: 140, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Rime Grasp", mul: 2.0, drain: true }, weak: { fire: 1.4, light: 1.4 }, loot: [["bone_chip", 0.35], ["frost_shard", 0.35], ["ether", 0.1]], model: "skeleton" },
+  glacier_worm: { name: "Glacier Worm", color: "#cfe8f2", radius: 15, hpMul: 1.35, attMul: 1.0, defMul: 1.2, delay: 3.4, speed: 60, int: 5, aggro: { magic: 150 }, link: false, tpMove: { name: "Hail Spit", mul: 1.7, aoe: 70 }, weak: { fire: 1.35 }, loot: [["worm_silk", 0.35], ["frost_shard", 0.25], ["water_crystal", 0.3]], model: "worm", tint: 0xc8e4f0 },
   chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.3], ["goblin_totem", 0.3], ["raider_helm", 0.25], ["iron_sword", 0.2], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
 };
 
 const NM_FAMILIES = {
+  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
+  frost_wight: { hint: "Whispering Cairns, Frostspire Pass · night", base: "ice_wight", name: "The Frost Wight", hpMul: 3.6, attMul: 1.25, defMul: 1.25, scale: 1.45, aura: "#b3e5fc", loot: [["wight_shroud", 0.3], ["frost_ring", 0.3], ["bone_chip", 1], ["hi_potion", 0.6]], gil: [50, 70], respawn: 720 },
   old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["croaker_charm", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
   mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
   grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["scavenger_cap", 0.35], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
@@ -651,7 +684,7 @@ ZONES.crypt = {
 ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
 ZONES.harbor = {
   name: "Saltreach Harbor", w: 1400, h: 1000, safe: true, theme: "town",
-  exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }],
+  exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }, { x: 1376, y: 380, w: 24, h: 100, to: "frost", tx: 110, ty: 1200, label: "Frostspire Pass" }],
   npcs: [
     { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
     { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }
@@ -663,7 +696,8 @@ ZONES.harbor = {
     { w: 52, pts: [[500, -500], [500, 0], [560, 260], [700, 460]] },
     { w: 40, pts: [[700, 460], [700, 760]] },
     { w: 34, pts: [[700, 460], [480, 600]] },
-    { w: 34, pts: [[700, 460], [930, 600]] }
+    { w: 34, pts: [[700, 460], [930, 600]] },
+    { w: 40, pts: [[700, 460], [1050, 430], [1400, 430], [1900, 430]] }
   ],
   houses: [{ x: 280, y: 260, w: 150, h: 110, rot: 0 }, { x: 1100, y: 260, w: 150, h: 110, rot: 0 }, { x: 250, y: 560, w: 120, h: 140, rot: 1 }, { x: 1160, y: 580, w: 120, h: 140, rot: 1 }, { x: 860, y: 170, w: 170, h: 90, rot: 0 }],
   stalls: [{ x: 480, y: 650, color: "#0277bd" }, { x: 930, y: 650, color: "#6a1b9a" }],
@@ -671,6 +705,46 @@ ZONES.harbor = {
   boats: [[300, 965, 0.2], [1000, 985, -0.4]],
   lamps: [[600, 360], [800, 360], [600, 560], [800, 560], [700, 760]],
   start: { x: 500, y: 90 }
+};
+
+ZONES.frost = {
+  name: "Frostspire Pass", w: 3000, h: 2400, theme: "field", palette: "snow",
+  exits: [{ x: 0, y: 1150, w: 24, h: 100, to: "harbor", tx: 1330, ty: 430, label: "Saltreach Harbor" }],
+  npcs: [],
+  walls: [{ x: 700, y: 300, w: 300, h: 260 }, { x: 1800, y: 1500, w: 360, h: 220 }, { x: 2300, y: 400, w: 220, h: 400 }, { x: 1100, y: 1900, w: 420, h: 160 }],
+  ruins: {
+    walls: [[2400, 1850, 2600, 1850, 1.4], [2400, 1850, 2400, 2050, 1.0], [2600, 1850, 2600, 2000, 1.8]],
+    pillars: [[2300, 1750, 2.4], [2700, 1750, 1.6], [2500, 2150, 2.0], [2250, 2100, 1.2]]
+  },
+  landmarks: [
+    { id: "gate", name: "Frost Gate", x: 250, y: 1200, r: 200, xp: 250 },
+    { id: "icefall", name: "Icefall Camp", x: 1500, y: 700, r: 260, xp: 350 },
+    { id: "frozenlake", name: "Frozen Lake", x: 1000, y: 1300, r: 260, xp: 300 },
+    { id: "cairns", name: "Whispering Cairns", x: 2500, y: 1950, r: 260, xp: 400 },
+    { id: "summit", name: "Summit Overlook", x: 2700, y: 300, r: 220, xp: 450 }
+  ],
+  spawns: [
+    { fam: "snow_hare", lv: [15, 16], x: 400, y: 900, time: "day" }, { fam: "snow_hare", lv: [15, 16], x: 500, y: 1500, time: "day" }, { fam: "snow_hare", lv: [16, 17], x: 1300, y: 1600, time: "day" },
+    { fam: "glacier_worm", lv: [15, 16], x: 650, y: 1150 }, { fam: "glacier_worm", lv: [16, 17], x: 1250, y: 1150 }, { fam: "glacier_worm", lv: [17, 18], x: 1700, y: 1250 },
+    { fam: "ice_bat", lv: [15, 17], x: 900, y: 800, time: "night" }, { fam: "ice_bat", lv: [16, 17], x: 1100, y: 600, time: "night" }, { fam: "ice_bat", lv: [17, 18], x: 2000, y: 900, time: "night" },
+    { fam: "frost_goblin", lv: [16, 17], x: 1350, y: 600 }, { fam: "frost_goblin", lv: [16, 17], x: 1550, y: 550 }, { fam: "frost_goblin", lv: [17, 18], x: 1650, y: 800 },
+    { fam: "frost_goblin", lv: [17, 18], x: 1450, y: 850 }, { fam: "frost_goblin", lv: [18, 19], x: 1800, y: 650, nm: { id: "rimefang", lv: 21, chance: 0.15 } },
+    { fam: "ice_wight", lv: [17, 18], x: 2300, y: 1950, time: "night" }, { fam: "ice_wight", lv: [18, 19], x: 2550, y: 2100, time: "night" }, { fam: "ice_wight", lv: [18, 20], x: 2650, y: 1800, time: "night", nm: { id: "frost_wight", lv: 21, chance: 0.12 } },
+    { fam: "glacier_worm", lv: [18, 19], x: 2100, y: 1300 }, { fam: "frost_goblin", lv: [19, 20], x: 2600, y: 400 }, { fam: "frost_goblin", lv: [19, 20], x: 2750, y: 600 },
+    { fam: "ice_bat", lv: [19, 20], x: 2500, y: 800, time: "night" }, { fam: "glacier_worm", lv: [19, 20], x: 2700, y: 1200 }, { fam: "snow_hare", lv: [17, 18], x: 2200, y: 1100, time: "day" }
+  ],
+  water: [{ x: 1000, y: 1300, r: 160 }, { x: 2050, y: 2150, r: 90 }],
+  paths: [
+    { w: 42, pts: [[-500, 1200], [0, 1200], [400, 1150], [800, 1000], [1300, 950], [1700, 1000], [2200, 1100], [2600, 900], [2750, 450]] },
+    { w: 32, pts: [[1300, 950], [1500, 700]] },
+    { w: 30, pts: [[2200, 1100], [2400, 1500], [2500, 1900]] }
+  ],
+  gather: {
+    mining: { n: 3, at: [[600, 500], [1900, 300], [2850, 1500], [300, 2000], [1500, 2200]], loot: [["iron_ore", 0.55], ["frost_shard", 0.2], ["fire_crystal", 0.12]] },
+    logging: { n: 2, at: [[300, 600], [2200, 1300], [900, 2100], [2850, 2200]], loot: [["ash_log", 0.7], ["wind_crystal", 0.2]] },
+    harvesting: { n: 2, at: [[800, 1500], [1600, 1500], [2400, 1300], [400, 1800]], loot: [["healing_herb", 0.6], ["frost_shard", 0.15], ["water_crystal", 0.15]] }
+  },
+  start: { x: 110, y: 1200 }
 };
 
 ZONES.marsh = {
@@ -790,6 +864,8 @@ const QUESTS = {
     intro: "New to the harbor? Everyone here fishes, even me. Show me you can hold a rod: bring me 3 Harbor Bream from the docks and I'll give you a proper sea rod.", progress: "3 Harbor Bream. Cast from the docks; they bite best in rain.", turn: "Nice fish. Here, a real rod. Don't lose it over the side." },
   saltsteel: { name: "Salt and Steel", giver: "Ilsa", npc: "ilsa", lv: 12, kill: { fam: "mire_goblin", n: 5, name: "Mire Goblin" }, desc: "Drive back 5 Mire Goblins that raid the road between the Ashen Marsh and Saltreach Harbor.", reward: { xp: 1600, gil: 800, item: "tide_ring", qty: 1 },
     intro: "Goblins from Mire Village keep raiding our carts on the marsh road. I can't spare sailors to guard them. Cut down five of the raiders and the harbor will owe you.", progress: "Five Mire Goblins. They roam north of here in the marsh.", turn: "The carts came through clean today. Take this ring; it was my mother's, and she'd want it on someone useful." },
+  frozencargo: { name: "Frozen Cargo", giver: "Ilsa", npc: "ilsa", lv: 16, kill: { fam: "frost_goblin", n: 6, name: "Frost Goblin" }, desc: "Drive back 6 Frost Goblins raiding the caravans in Frostspire Pass, east of Saltreach.", reward: { xp: 4000, gil: 1500, item: "fur_hat", qty: 1 },
+    intro: "Our ice caravans come down Frostspire Pass, east of the harbor. Goblins in fur coats have started ambushing them. Thin them out (six should do) and I'll see you warmly dressed.", progress: "Six Frost Goblins in Frostspire Pass. They see far in the snow, so pick your fights.", turn: "The caravan made it through. Here, a fur hat. You'll need it up there." },
   mire: { name: "Into the Mire", giver: "Captain Rhea", npc: "rhea", lv: 10, kill: { fam: "bog_toad", n: 6, name: "Bog Toad" }, desc: "Thin out the Bog Toads in the Ashen Marsh, south of Rocky Hollow.", reward: { xp: 1200, gil: 600, item: "marsh_boots", qty: 1 },
     intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
   mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
@@ -875,6 +951,13 @@ const BESTIARY = {
   grimtooth: { type: "Beastman", lore: "A notorious goblin with a red bandana and a worse temper. Rumoured to wear a ring stolen from a raider captain." },
   duskwing: { type: "Vermin", lore: "A giant violet bat that wakes only at night. Its wing leather is prized by cobblers." },
   king_wiggles: { type: "Amorphous", lore: "An enormous worm with an absurd name and a very real bite. Silkworkers pay well for its thread." },
+  snow_hare: { type: "Beast", lore: "White hares that vanish against the snow. Peaceful and very fast." },
+  ice_bat: { type: "Vermin", lore: "Pale bats that roost in the ice caves. They hunt in packs and hear everything." },
+  frost_goblin: { type: "Beastman", lore: "Goblins in thick fur who raid the ice caravans. They see a long way across the snow." },
+  ice_wight: { type: "Undead", lore: "Frozen dead from the old cairns. Fire and light melt them; the cold makes them patient." },
+  glacier_worm: { type: "Amorphous", lore: "Huge white worms that tunnel through packed snow and sense the warmth of magic." },
+  rimefang: { type: "Beastman", lore: "The frost goblins' war leader, an axe-swinging brute who wears a wolf pelt over his armour." },
+  frost_wight: { type: "Undead", lore: "A wight lord who walks the cairns at night, wrapped in a shroud of frozen mist." },
   bog_toad: { type: "Amphibian", lore: "Bloated marsh toads that hunt by sound. Their oil keeps leather supple and smells for days." },
   bog_leech: { type: "Amorphous", lore: "Fat leeches that taste magic and blood in the water. Fire makes them let go." },
   mire_goblin: { type: "Beastman", lore: "Goblins who settled the marsh and grew mean on toad stew. They tax the reed cutters and guard their stilt village jealously." },
@@ -929,6 +1012,8 @@ const ACHIEVEMENTS = [
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
   { id: "priest", icon: "🔱", name: "Tidebreaker", desc: "Defeat the Tidebound Priest in the Chapel Depths.", gil: 500, test: s => (s.stats.bfWins || 0) >= 1 },
+  { id: "lv20", icon: "🏔️", name: "Summit", desc: "Reach level 20 on any job.", gil: 1000, test: s => Object.values(s.jobs).some(j => j.lv >= 20) },
+  { id: "frost", icon: "❄️", name: "Cold Feet", desc: "Set foot in Frostspire Pass.", gil: 100, test: s => (s.discovered || []).includes("frost") },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
@@ -974,18 +1059,21 @@ const WEATHER_INFO = {
   rain: { name: "Rain", icon: "🌧️", el: "water" },
   wind: { name: "Wind", icon: "🌬️", el: "wind" },
   fog: { name: "Fog", icon: "🌫️" },
-  storm: { name: "Thunderstorm", icon: "⛈️", el: "lightning" }
+  storm: { name: "Thunderstorm", icon: "⛈️", el: "lightning" },
+  snow: { name: "Snow", icon: "🌨️", el: "ice" },
+  blizzard: { name: "Blizzard", icon: "❄️", el: "ice" }
 };
 const WEATHER = {
   outpost: [["clear", 6], ["cloudy", 3], ["rain", 2], ["wind", 1.5], ["storm", 0.5]],
   hollow: [["clear", 5], ["cloudy", 3], ["rain", 2], ["wind", 2], ["storm", 0.7], ["fog", 0.8]],
   marsh: [["fog", 4], ["rain", 3], ["cloudy", 2], ["clear", 1.2], ["storm", 1]],
+  frost: [["snow", 5], ["clear", 3], ["blizzard", 1.5], ["cloudy", 2], ["fog", 1]],
   harbor: [["clear", 5], ["wind", 3], ["cloudy", 3], ["rain", 2], ["storm", 1], ["fog", 1.2]]
 };
 
 const SHOPS = {
   marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
-  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil"]
+  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil", "frost_sword", "frost_greataxe", "glacier_staff", "rime_dagger", "frost_claws", "frost_bow", "frost_mail", "snowfur_coat", "frost_robe", "fur_hat"]
 };
 const MOUNT_COATS = {
   teal: { name: "Marsh Teal", main: 0x3f6f6a, dark: 0x2a4a48, glow: 0x6ff0e8, price: 0 },
@@ -1005,6 +1093,7 @@ const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 const PETS = {
   ember: { name: "Ember Sprite", el: "fire", col: 0xff7043, eye: 0xfff176, pact: "Flame Burst", weak: "ice" },
   frost: { name: "Frost Sprite", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Frost Lance", weak: "fire" },
+  stone: { name: "Stone Sprite", el: "earth", col: 0xbca27a, eye: 0xffe082, pact: "Rock Throw", weak: "wind" },
   gale: { name: "Gale Sprite", el: "wind", col: 0xaed581, eye: 0xf1f8e9, pact: "Cyclone", weak: "earth" }
 };
 

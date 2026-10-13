@@ -82,6 +82,8 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     { name: 'board', js: `openMenu('board');`, wait: 1200 },
     { name: 'smith', js: `closeModal(); player.x = 660; player.y = 560; player.face = Math.PI/2; VIEW.yaw = 0.6; VIEW.dist = 7;`, wait: 2500 },
     { name: 'pool', js: `hireMerc('kael'); hireMerc('mira'); addToPool('raiders_ring'); addToPool('steel_sword');`, wait: 2500 },
+    { name: 'frost', pre: `closeModal(); setH(11); enterZone('frost', 900, 1200);`, js: `window.weatherNow = () => 'snow'; VIEW.dist = 9; VIEW.yaw = 0.8;`, wait: 3000 },
+    { name: 'blizzard', pre: `closeModal(); setH(16); enterZone('frost', 1500, 1000);`, js: `window.weatherNow = () => 'blizzard'; VIEW.dist = 8;`, wait: 3000 },
     { name: 'rain', pre: `closeModal(); setH(14); enterZone('hollow', 1250, 860);`, js: `window.weatherNow = () => 'storm'; giveItem('fishing_rod',1,true); giveItem('bait',5,true); S.mobs = []; startFishing(); S.fish.at = S.time + 1; player.face = -Math.PI/2; VIEW.yaw = -Math.PI/2; VIEW.dist = 6;`, wait: 2200 },
     { name: 'fog', js: `stopFishing(); window.weatherNow = () => 'fog'; enterZone('marsh', 1250, 600);`, wait: 4000 },
     { name: 'harbor', pre: `closeModal(); setH(11); enterZone('harbor', 520, 260);`, js: `player.face = Math.PI / 2; VIEW.yaw = Math.PI / 2 - 0.3; VIEW.dist = 10; VIEW.pitch = 0.45;`, wait: 3500 },
