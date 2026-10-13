@@ -494,8 +494,8 @@ function humanEntry(L) {
     R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
     if (L.pauldrons) {
-      R.add(gPartSphere(V3(ax * 1.04, shY + 0.01, 0), 0.085 * gi, 0, Math.PI * 0.55, 1.15, 0.8, 1.05, 14), "upArm" + sd, L.pauldrons, "metal");
-      R.add(gRing(V3(ax * 1.04, shY - 0.015, 0), 0.093 * gi, 0.01, "y", 16), "upArm" + sd, 0xc8a040, "metal");
+      R.add(gPartSphere(V3(ax * 1.01, shY - 0.012, 0), 0.068 * gi, 0, Math.PI * 0.55, 1.12, 0.75, 1.0, 14), "upArm" + sd, L.pauldrons, "metal");
+      R.add(gRing(V3(ax * 1.01, shY - 0.03, 0), 0.072 * gi, 0.008, "y", 16).scale(1, 1, 0.92), "upArm" + sd, 0xc8a040, "metal");
     }
     if (L.shield && s < 0) {
       const sy = (elY + wrY) / 2, sx = ex - 0.075;
@@ -528,16 +528,17 @@ function humanEntry(L) {
     const bottom = t === "robe" ? 0.1 : knee - 0.08;
     const h = hipJ + 0.05 - bottom;
     for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
-      R.add(gCyl(V3(0, bottom + h / 2, 0), 0.17 * gi, 0.25 * gi, h, 12, true, s > 0 ? 0 : Math.PI, Math.PI), "thigh" + sd, topC, topR);
-      if (top.trim) R.add(gCyl(V3(0, bottom + 0.035, 0), 0.248 * gi, 0.252 * gi, 0.07, 12, true, s > 0 ? 0 : Math.PI, Math.PI), "thigh" + sd, top.trim, "trim", !!top.glowTrim);
+      const skTop = 0.158 * gi * (fem ? 1.08 : 1);
+      R.add(gCyl(V3(0, bottom + h / 2, 0), skTop, 0.23 * gi, h, 12, true, s > 0 ? 0 : Math.PI, Math.PI).scale(1, 1, 0.78), "thigh" + sd, topC, topR);
+      if (top.trim) R.add(gCyl(V3(0, bottom + 0.035, 0), 0.228 * gi, 0.232 * gi, 0.07, 12, true, s > 0 ? 0 : Math.PI, Math.PI).scale(1, 1, 0.78), "thigh" + sd, top.trim, "trim", !!top.glowTrim);
     }
     if (top.trim) R.add(gRing(V3(0, neckY - 0.02, 0.01), 0.075 * gi, 0.016, "y", 18), "chest", top.trim, "trim", !!top.glowTrim);
-    R.add(gRing(V3(0, hipsY + 0.03, 0), 0.15 * gi * pr.waist + 0.01, 0.025, "y", 18), "hips", top.trim || 0x4a3020, "cloth");
+    R.add(gRing(V3(0, hipsY + 0.03, 0), (fem ? 0.165 : 0.152) * gi * (fem ? 1.08 : 1) + 0.006, 0.02, "y", 18).scale(1, 1, 0.72), "hips", top.trim || 0x4a3020, "cloth");
     if (t === "robe") R.add(gBox(V3(0.05, hipsY - 0.12, 0.13), 0.05, 0.22, 0.015), "hips", top.trim || 0x4a3020, "cloth");
   }
   if (t === "tunic" || t === "mail" || t === "tabard" || t === "rags") {
     const c = t === "mail" ? 0x9aa0a8 : topC;
-    R.add(gCyl(V3(0, hipsY - 0.09, 0), 0.155 * gi, 0.2 * gi, 0.2, 14, true), "hips", c, t === "mail" ? "metal" : topR);
+    R.add(gCyl(V3(0, hipsY - 0.09, 0), 0.155 * gi * (fem ? 1.08 : 1), 0.19 * gi, 0.2, 14, true).scale(1, 1, 0.76), "hips", c, t === "mail" ? "metal" : topR);
   }
   if (t === "tabard") {
     R.add(gBox(V3(0, chestY - 0.12, 0.125 * gi), 0.2, 0.62, 0.012), "chest", top.color2, "cloth");
@@ -547,8 +548,9 @@ function humanEntry(L) {
   if (t === "fur") R.add(gRing(V3(0, neckY - 0.04, 0), 0.12 * gi, 0.06, "y", 14), "chest", topC, "fur");
   if (t === "rags") for (let k = 0; k < 5; k++) R.add(gBox(V3(Math.cos(k * 1.3) * 0.15, hipsY - 0.3, Math.sin(k * 1.3) * 0.12), 0.06, 0.22, 0.01, 0, k * 1.3, 0), "hips", topC, "cloth");
   if (L.belt && t !== "robe" && t !== "coat" && !L.skull) {
-    R.add(gRing(V3(0, hipsY + 0.03, 0), 0.15 * gi * pr.waist + 0.01, 0.02, "y", 18), "hips", L.belt, "leather");
-    R.add(gBox(V3(0, hipsY + 0.03, 0.15 * gi * pr.waist + 0.02), 0.05, 0.04, 0.015), "hips", 0xc8a040, "metal");
+    const bR = (fem ? 0.165 : 0.152) * gi * (fem ? 1.08 : 1) + 0.006;
+    R.add(gRing(V3(0, hipsY + 0.03, 0), bR, 0.018, "y", 18).scale(1, 1, 0.72), "hips", L.belt, "leather");
+    R.add(gBox(V3(0, hipsY + 0.03, bR * 0.72 + 0.006), 0.05, 0.04, 0.012), "hips", 0xc8a040, "metal");
   }
   if (L.cape) {
     R.add(gBox(V3(0, (shY + knee) / 2 + 0.02, -0.15 * gi), sw * 2.0, shY - knee, 0.02, 0.1, 0, 0), "chest", L.cape, "cloth");
@@ -596,7 +598,7 @@ function humanEntry(L) {
     }
   }
 
-  R.meta = { kind: "human", hipsY, chestY, headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
+  R.meta = { kind: "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
   return R.finish();
 }
 
@@ -699,7 +701,7 @@ function hareEntry(col) {
   return R.finish();
 }
 
-function thornstriderEntry() {
+function thornstriderEntry(coat) {
   const R = new RigBuilder();
   R.bone("root", null, 0, 0, 0);
   R.bone("pelvis", "root", 0, 1.05, -0.15);
@@ -718,7 +720,8 @@ function thornstriderEntry() {
     R.bone("meta" + sd, "shin" + sd, s * 0.22, 0.32, -0.12);
     R.bone("toe" + sd, "meta" + sd, s * 0.22, 0.05, 0.0);
   }
-  const main = 0x3f6f6a, dark = 0x2a4a48, cream = 0xd8cba8, rust = 0xb0552a, gold = 0xd8a040, glow = 0x6ff0e8, horn = 0xcfc0a0;
+  const C = coat || MOUNT_COATS.teal;
+  const main = C.main, dark = C.dark, cream = 0xd8cba8, rust = 0xb0552a, gold = 0xd8a040, glow = C.glow, horn = 0xcfc0a0;
   R.add(gBall(V3(0, 1.08, -0.15), 0.32, 0.85, 0.85, 1.15, 16), "pelvis", main, "scale");
   R.add(gBall(V3(0, 0.98, 0.08), 0.26, 0.75, 0.6, 1.2, 14), "pelvis", cream, "plain");
   R.add(gBall(V3(0, 1.12, 0.32), 0.29, 0.8, 0.85, 1.0, 16), "chest", main, "scale");
@@ -829,6 +832,8 @@ function weaponEntry(kind, id) {
     tip = [0.62, 1.02];
   }
   const e = R.finish();
+  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, club: 0.9 }[kind] || 1;
+  if (k !== 1) { e.geo.scale(k, k, k); e.geo.computeBoundingSphere(); e.geo.boundingSphere.radius *= 1.6; tip = tip.map(x => x * k); }
   e.tip = tip;
   RIG.weaponCache.set(key, e);
   return e;
@@ -987,7 +992,8 @@ function rigSigFor(e) {
   return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);
 }
 
-function buildMount() {
-  const entry = entryFor("thornstrider", thornstriderEntry);
+function buildMount(coatId) {
+  const id = MOUNT_COATS[coatId] ? coatId : "teal";
+  const entry = entryFor("thornstrider|" + id, () => thornstriderEntry(MOUNT_COATS[id]));
   return instantiate(entry);
 }

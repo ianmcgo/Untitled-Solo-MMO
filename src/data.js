@@ -409,7 +409,7 @@ const MERC_LINES = {
   victory: ["Nice work.", "That's that.", "Next!"]
 };
 
-const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, water: true, mounts: false };
+const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, water: true, mounts: true };
 
 const FAMILIES = {
   goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
@@ -873,6 +873,8 @@ const ACHIEVEMENTS = [
   { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", gil: 200, test: s => (s.crafts.cooking || 0) >= 10 },
   { id: "harbor", icon: "⚓", name: "Sea Air", desc: "Reach Saltreach Harbor.", gil: 80, test: s => (s.discovered || []).includes("harbor") },
   { id: "tuna", icon: "🐟", name: "Tidecaller", desc: "Land a Tidecaller Tuna.", gil: 300, test: s => (s.stats.tuna || 0) >= 1 },
+  { id: "racer", icon: "🏁", name: "Thornstrider Racer", desc: "Win gold on the Hollow Run.", gil: 300, test: s => s.race && s.race.medals && s.race.medals.gold },
+  { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", gil: 150, test: s => (s.stats.ride || 0) >= 20000 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
@@ -930,5 +932,18 @@ const WEATHER = {
 const SHOPS = {
   marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
   vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe"]
+};
+const MOUNT_COATS = {
+  teal: { name: "Marsh Teal", main: 0x3f6f6a, dark: 0x2a4a48, glow: 0x6ff0e8, price: 0 },
+  crimson: { name: "Ember Crimson", main: 0x7a2a24, dark: 0x4a1a16, glow: 0xffb040, price: 800 },
+  sable: { name: "Night Sable", main: 0x2a2a34, dark: 0x18181e, glow: 0xb070ff, price: 1200 },
+  gold: { name: "Dune Gold", main: 0xb08a3a, dark: 0x6a5224, glow: 0xfff0a0, price: 1500 },
+  ivory: { name: "Frost Ivory", main: 0xd8d8e0, dark: 0x9a9aa8, glow: 0x80d8ff, price: 2000 }
+};
+const SADDLE_PRICE = 2500, SADDLE_BONUS = 1.15;
+const RACE = {
+  zone: "hollow", start: { x: 120, y: 1100 },
+  checkpoints: [{ x: 800, y: 1010, name: "the old road" }, { x: 1450, y: 1880, name: "Burrow Flats" }, { x: 2515, y: 680, name: "the Old Fort" }, { x: 2650, y: 1440, name: "the Goblin Camp" }, { x: 3000, y: 1080, name: "the Eastern Gate" }],
+  radius: 90, limit: 75, medals: [["gold", 26, 1200], ["silver", 36, 600], ["bronze", 50, 300]]
 };
 const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };

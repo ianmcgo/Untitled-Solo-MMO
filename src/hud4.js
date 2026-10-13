@@ -11,7 +11,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], board: ["Trade Board", "📋", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -469,9 +469,9 @@ function drawMinimap() {
   }
   for (const mb of S.mobs) {
     if (!mb.alive || mb.despawned) continue;
-    const col = conOf(mb)[1];
-    dot(mb.x, mb.y, mb.fam.nm ? 6 : 4, col, mb.fam.nm ? "#ff4d6d" : mb.state === "combat" ? "#ff2a2a" : "#000");
+    dot(mb.x, mb.y, mb.fam.nm ? 6 : 4, mb.passive ? "#c8b48a" : "#e07a5f", mb.fam.nm ? "#ff4d6d" : mb.state === "combat" ? "#ff2a2a" : "#000");
   }
+  if (S.race && RACE.checkpoints[S.race.next]) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 9, "rgba(255,213,79,.85)", "#000"); }
   for (const p of S.party) if (p !== player) dot(p.x, p.y, 4.5, p.alive ? "#62b6ff" : "#555", "#001b33");
   if (S.moveTarget) { g.strokeStyle = "#fff"; g.lineWidth = 2 / sc; const s = 5 / sc; g.beginPath(); g.moveTo(S.moveTarget.x - s, S.moveTarget.y - s); g.lineTo(S.moveTarget.x + s, S.moveTarget.y + s); g.moveTo(S.moveTarget.x + s, S.moveTarget.y - s); g.lineTo(S.moveTarget.x - s, S.moveTarget.y + s); g.stroke(); }
   g.restore();
@@ -615,6 +615,7 @@ function uiEvent(type, d) {
   if (type === "target") { tgtCmdOpen(d); return; }
   if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name + (d.gil ? " · +" + d.gil + " 💠" : ""), "r-epic"); return; }
   if (type === "bond") { toast("💞", "Bond level " + d.lv, MERCS[d.id].name, "r-rare"); return; }
+  if (type === "race") { UI.mmForce = true; return; }
   if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
   if (type === "beast") { toast("📖", "Bestiary", d.name, "r-uncommon"); return; }
   if (type === "item") {
@@ -705,7 +706,7 @@ function updateBottom() {
   talk.classList.toggle("hot", !!nn && questMarker(nn));
   setTxt($("talkLbl"), nn ? (NPCS[nn.id] && NPCS[nn.id].crystal ? "Crystal" : nn.name.split(/[ ,]/)[0].slice(0, 8)) : "Talk");
   const bm = $("btnMount");
-  bm.style.display = save.mountLicense ? "" : "none";
+  bm.classList.toggle("has", !!save.mountLicense);
   setTxt($("mountLbl"), player.mounted ? "Dismount" : "Mount");
 }
 
@@ -733,8 +734,20 @@ function updateFish() {
   el.innerHTML = !f ? "" : key === "bite" ? '<b>🎣 Something\'s biting!</b><button data-fish="reel" class="pri">Reel in! (Space)</button>' : '<span>🎣 Waiting for a bite…</span><button data-fish="stop">Stop</button>';
 }
 
+function updateRace() {
+  const el = $("raceBox");
+  if (!el) return;
+  const r = S.race;
+  el.classList.toggle("on", !!r);
+  if (!r) return;
+  const t = S.time - r.t0, cp = RACE.checkpoints[r.next];
+  const d = cp ? Math.round(Math.hypot(player.x - cp.x, player.y - cp.y) / 20) : 0;
+  setHtml(el, '🏁 <b>' + t.toFixed(1) + 's</b> <span class="sub">/ ' + RACE.limit + "s</span> · " + (cp ? "Checkpoint " + (r.next + 1) + "/" + RACE.checkpoints.length + ": " + esc(cp.name) + " · " + d + " m" : ""));
+}
+
 function updateHud(dt) {
   updatePool();
+  updateRace();
   updateFish();
   UI.phone = window.innerWidth <= 720;
   updateParty();

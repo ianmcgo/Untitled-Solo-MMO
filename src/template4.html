@@ -72,6 +72,8 @@
   #tCmd button:hover { border-color: #e6c36a; }
   #tCmd button.pri { border-color: #e6c36a; color: #ffe7a8; }
   #tCmd button.off { opacity: 0.45; }
+  #raceBox { position: absolute; left: 50%; top: calc(110px + var(--sat)); transform: translateX(-50%); padding: 7px 14px; display: none; z-index: 6; font-size: 14px; white-space: nowrap; }
+  #raceBox.on { display: block; }
   #fishBox { position: absolute; left: 50%; bottom: calc(150px + var(--sab)); transform: translateX(-50%); padding: 8px 14px; display: none; align-items: center; gap: 10px; pointer-events: auto; z-index: 7; font-size: 14px; }
   #fishBox.on { display: flex; }
   #fishBox button { padding: 6px 14px; border-radius: 8px; }
@@ -202,8 +204,8 @@
   #crystals { color: var(--gold); white-space: nowrap; }
 
   #btnTarget, #btnEngage, #btnTalk { display: none !important; }
-  #big .jmp { display: none; }
-  @media (pointer: coarse) { #big .jmp { display: grid; } }
+  #big .jmp, #btnMount { display: none !important; }
+  @media (pointer: coarse) { #big .jmp { display: grid !important; } #btnMount.has { display: grid !important; } }
   #big { position: absolute; right: calc(10px + var(--sar)); bottom: calc(12px + var(--sab)); display: grid; grid-template-columns: auto auto; gap: 8px; align-items: end; justify-items: center; }
   .bb { width: 58px; height: 58px; border-radius: 50%; padding: 0; display: grid; place-items: center; font-size: 11px; line-height: 1.05; border: 2px solid var(--edge2); background: radial-gradient(circle at 50% 35%, #383f5a, #151925); box-shadow: 0 4px 12px rgba(0,0,0,.5); }
   .bb .i { font-size: 20px; display: block; }
@@ -537,6 +539,7 @@
     <div id="tCmd" class="glass"></div>
     <div id="pool" class="glass"></div>
     <div id="fishBox" class="glass"></div>
+    <div id="raceBox" class="glass"></div>
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>

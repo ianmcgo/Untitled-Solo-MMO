@@ -19,7 +19,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -35,11 +35,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "stable"]) if (S.modal === t) tabs.unshift(t);
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -693,6 +693,20 @@ function tabForge() {
   return h;
 }
 
+function tabStable() {
+  let h = '<div class="sub" style="margin-bottom:8px">Ysolde can dye your Thornstrider. Once bought, you can switch between coats for free.</div>';
+  if (UI.stableMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.stableMsg) + "</div>";
+  for (const id in MOUNT_COATS) {
+    const c = MOUNT_COATS[id], own = save.coats.includes(id), cur = save.mountCoat === id;
+    h += '<div class="item"><div style="display:flex;gap:10px;align-items:center"><span style="width:26px;height:26px;border-radius:50%;background:#' + c.main.toString(16).padStart(6, "0") + ";border:3px solid #" + c.glow.toString(16).padStart(6, "0") + '"></span><b>' + esc(c.name) + "</b></div>" + (cur ? '<span class="sub">Current</span>' : '<button data-a="coat" data-v="' + id + '">' + (own ? "Use" : "Buy · " + c.price + " 💠") + "</button>") + "</div>";
+  }
+  h += "<h3>Saddle</h3>";
+  h += '<div class="item"><div><b>Swift Saddle</b><div class="sub">Your Thornstrider runs ' + Math.round((SADDLE_BONUS - 1) * 100) + "% faster. Companions keep up.</div></div>" + (save.saddle ? '<span class="sub">Owned ✓</span>' : '<button data-a="saddle">Buy · ' + SADDLE_PRICE + " 💠</button>") + "</div>";
+  h += "<h3>The Hollow Run</h3>";
+  h += '<div class="sub">Ride through ' + RACE.checkpoints.length + " checkpoints across Rocky Hollow: " + RACE.checkpoints.map(c => c.name).join(" → ") + ". Medals: " + RACE.medals.map(m => m[0] + " under " + m[1] + "s (first time +" + m[2] + " 💠)").join(", ") + ". Best: " + (save.race.best != null ? save.race.best + "s" : "none yet") + ".</div>";
+  return h;
+}
+
 function tabBoard() {
   const list = boardToday();
   let h = '<div class="sub" style="margin-bottom:8px">Townsfolk pin up requests each day. Fill them for crystals and experience. New notes go up at midnight (UTC).</div>';
@@ -809,6 +823,8 @@ function onMenuClick(e) {
   else if (a === "stance") setStance(v);
   else if (a === "augment") { UI.forgeMsg = augmentItem(v, false); renderModal(); return; }
   else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
+  else if (a === "coat") { UI.stableMsg = buyCoat(v); renderModal(); return; }
+  else if (a === "saddle") { UI.stableMsg = buySaddle(); renderModal(); return; }
   else if (a === "trade") { UI.boardMsg = fillTrade(v); renderModal(); return; }
   else if (a === "mgive") { const [id, it] = v.split(":"); giveMercGear(id, it); }
   else if (a === "mtake") { const [id, sl] = v.split(":"); takeMercGear(id, sl); }
@@ -867,6 +883,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.6.0", date: "2026-10-13", title: "Mounts: stable, saddle and the Hollow Run", items: [
+    "Ysolde's stable: five Thornstrider coats to buy and switch between, and a Swift Saddle (+15% riding speed).",
+    "The Hollow Run: a timed ride through five checkpoints across Rocky Hollow, with gold, silver and bronze medals that pay out the first time and a saved best time.",
+    "Better fitting gear: belts and robe sashes now hug the waist, robe and tunic skirts no longer flare out from the body, shoulder pads are smaller and sit on the shoulder, weapons are scaled down to fit the hand, and sheathed weapons rest against the back.",
+    "Monster dots on the minimap no longer reveal how tough they are (orange for hostile, tan for peaceful). The Mount button only shows on phones; use R on a keyboard.",
+    "New achievements: Thornstrider Racer and Saddle Sore."
+  ] },
   { v: "5.5.0", date: "2026-10-13", title: "Saltreach Harbor", items: [
     "New town: Saltreach Harbor, south of the Ashen Marsh, with docks, boats, a home point crystal and its own trade board.",
     "New people: Ilsa the harbor master (two quests), Marn the fishmonger (rods, bait, cooking supplies, meals) and Vela the outfitter (level 13–14 gear for every job).",
@@ -1199,7 +1222,7 @@ function tabHelp() {
     "Feed it one crystal. A matching crystal grows extra: Earth for herbs, Wind for ash, Water for moonbloom. Wildgrass grows crystals of whichever element you feed it.",
     "Seeds: Herb Seeds (3–6 Healing Herbs), Ash Sapling (2–4 Ash Logs), Wildgrass Seeds (2–4 crystals), Moonbloom Seeds (Ethers and a chance at rare materials; a rare drop)."
   ]));
-  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
+  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
     "Settings → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Settings → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
