@@ -60,6 +60,8 @@ function rotateTip() {
 }
 
 async function boot() {
+  window.addEventListener("contextmenu", e => { if (!(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"))) e.preventDefault(); });
+  window.addEventListener("dragstart", e => e.preventDefault());
   window.addEventListener("keydown", onKey);
   window.addEventListener("keyup", e => { S.keys[e.key.toLowerCase()] = false; });
   window.addEventListener("blur", () => { S.keys = {}; });
@@ -178,7 +180,7 @@ function showCharCreate() {
     const l = CC.look;
     const sw = c => '<span class="sw" style="background:#' + c.toString(16).padStart(6, "0") + '"></span>';
     const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
-    $("ccLook").innerHTML = row("build", "Build", 2, l.build ? "B" : "A") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", HAIR_STYLES.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
+    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", HAIR_STYLES.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
     $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + JOBS[CC.job].name + " Lv.1</small>";
   };
   paint();

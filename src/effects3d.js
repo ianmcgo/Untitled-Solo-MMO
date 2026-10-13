@@ -526,7 +526,7 @@ function fxFootstep(e, v) {
   if (!FX.ready || e.mounted || e.kind === "npc" || S.zone.theme === "house") return;
   if (dist(e, player) > 600) return;
   const g = groundAt(e);
-  const col = S.zone.theme === "cave" ? 0x5a5550 : S.zone.theme === "town" ? 0x8a8478 : 0x9a8668;
+  const col = S.zone.theme === "cave" || S.zone.theme === "crypt" ? 0x5a5550 : S.zone.theme === "town" ? 0x8a8478 : 0x9a8668;
   burst(FX.smoke, g, 3, { c0: col, speed: 0.6, life: 0.6, size: 0.25, size2: 0.6, shape: "ring", drag: 3, alpha: 0.35 });
 }
 
@@ -573,10 +573,10 @@ function updateCastCircles(dt) {
 function updateAuras(dt) {
   for (const m of S.mobs) {
     if (!m.alive || dist(m, player) > 700) continue;
-    if (m.fam.nm && m.fam.aura && Math.random() < dt * 14) {
+    if (m.fam.nm && (m.auraOverride || m.fam.aura) && Math.random() < dt * 14) {
       const a = Math.random() * Math.PI * 2, r = rnd(0.4, 1.0) * (m.fam.scale || 1);
       const g = groundAt(m);
-      FX.add.spawn(g.x + Math.cos(a) * r, g.y + rnd(0, 0.4), g.z + Math.sin(a) * r, 0, rnd(0.6, 1.6), 0, rnd(1, 1.6), 0.22, 0.05, C(0xffffff), C(m.fam.aura), -0.2, 0.3, 0.8);
+      FX.add.spawn(g.x + Math.cos(a) * r, g.y + rnd(0, 0.4), g.z + Math.sin(a) * r, 0, rnd(0.6, 1.6), 0, rnd(1, 1.6), 0.22, 0.05, C(0xffffff), C(m.auraOverride || m.fam.aura), -0.2, 0.3, 0.8);
     }
     if (m.readying && Math.random() < dt * 40) {
       const a = Math.random() * Math.PI * 2, r = rnd(0.6, 1.1);

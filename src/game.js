@@ -59,7 +59,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, created: Date.now()
   };
 }
 
@@ -87,6 +87,9 @@ function normalizeSave(d) {
   out.name = String(d.name || "Adventurer").slice(0, 12);
   out.landmarks = d.landmarks && typeof d.landmarks === "object" ? d.landmarks : {};
   out.qprog = d.qprog && typeof d.qprog === "object" ? d.qprog : {};
+  out.keyItems = (Array.isArray(d.keyItems) ? d.keyItems : []).filter(id => ITEMS[id] && ITEMS[id].kind === "key");
+  out.crypt = Object.assign({ solved: false, lit: [] }, d.crypt || {});
+  if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
   return out;
 }
 
@@ -587,7 +590,7 @@ function onKO(e, src) {
     vfx("defeat", { tgt: e });
     const respawn = e.fam.respawn || CONFIG.respawn;
     const placeholderNm = !!NM_FAMILIES[e.famKey];
-    S.spawnAt[e.spawnIdx] = S.time + (placeholderNm ? CONFIG.respawn : respawn);
+    if (e.spawnIdx != null) S.spawnAt[e.spawnIdx] = S.time + (placeholderNm ? CONFIG.respawn : respawn);
     if (e.fam.nm) {
       save.timers["nm:" + e.famKey] = Date.now() + respawn * 1000;
       if (!placeholderNm) S.nmDeadUntil[S.zoneId + ":" + e.spawnIdx] = S.time + respawn;
@@ -716,9 +719,20 @@ function itemRarity(id) {
   return "common";
 }
 
+function giveKeyItem(id) {
+  if (save.keyItems.includes(id)) return false;
+  save.keyItems.push(id);
+  log("You obtain the key item " + ITEMS[id].name + ".", "loot");
+  sfx("unlock");
+  uiEvent("item", { id, n: 1 });
+  saveGame();
+  return true;
+}
+
 function dropLoot(m) {
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
+    if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (Math.random() >= chance) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     giveItem(id, 1);
@@ -1084,8 +1098,17 @@ function zoneRects(z) {
   return rects;
 }
 
+function barrierOpen(b) {
+  if (b.solved === "braziers") return !!save.crypt.solved;
+  if (b.key) return save.keyItems.includes(b.key);
+  return false;
+}
+function closedBarrierRects(z) {
+  return (z.barriers || []).filter(b => !barrierOpen(b)).map(b => ({ x: b.x, y: b.y, w: b.w, h: b.h, barrier: b }));
+}
+
 function keepOutOfRects(e) {
-  const rects = zoneRects(S.zone);
+  const rects = zoneRects(S.zone).concat(closedBarrierRects(S.zone));
   for (const r of rects) {
     const nx = clamp(e.x, r.x, r.x + r.w), ny = clamp(e.y, r.y, r.y + r.h);
     const dx = e.x - nx, dy = e.y - ny;
@@ -1168,6 +1191,7 @@ function updateMob(m, dt) {
       return;
     }
     m.target = t;
+    bossPhases(m, t);
     if (m.readying) {
       m.readying.t -= dt;
       if (m.readying.t <= 0) execTpMove(m);
@@ -1191,6 +1215,7 @@ function updateMob(m, dt) {
     return;
   }
   if (m.state === "return") {
+    if (m.fam.boss && m.phase) bossReset(m);
     if (!m.returnSince) m.returnSince = S.time;
     if (S.time - m.returnSince > 8) { m.x = m.home.x; m.y = m.home.y; }
     if (moveToward(m, m.home.x, m.home.y, dt, 2, 1.3)) {
@@ -1203,6 +1228,50 @@ function updateMob(m, dt) {
       m.buffs = {};
     }
   }
+}
+
+function spawnExtra(famKey, lv, x, y) {
+  const m = buildMob(famKey, lv, x, y, null);
+  S.mobs.push(m);
+  return m;
+}
+
+function bossPhases(m, t) {
+  const f = m.fam;
+  if (!f.boss) return;
+  m.phase = m.phase || 0;
+  const frac = m.hp / m.maxHp;
+  if (f.phases && m.phase < f.phases.length && frac <= f.phases[m.phase]) {
+    m.phase++;
+    log("The " + m.name + " calls for his Royal Guards!", "foe");
+    popText(m, "Rise!", "#ffd54f", 18, 1.4, 30);
+    ring(m, "#ffd54f", 70, 0.9, "burst");
+    sfx("tpready", m);
+    vfx("levelup", { tgt: m });
+    for (const sgn of [-1, 1]) {
+      const g = spawnExtra("royal_guard", Math.max(1, m.lv - 2), m.x + sgn * 60, m.y + 40);
+      g.summonedBy = m;
+      aggro(g, t);
+      addEnmity(g, t, 50);
+    }
+    S.shake = Math.max(S.shake, 0.3);
+  }
+  if (f.enrage && !m.enraged && frac <= f.enrage) {
+    m.enraged = true;
+    m.stats.att = Math.round(m.stats.att * 1.5);
+    m.delay = m.fam.delay * 0.7;
+    m.auraOverride = "#ff5252";
+    log("The " + m.name + " is enraged!", "foe");
+    popText(m, "Enraged!", "#ff5252", 20, 1.6, 30);
+    ring(m, "#ff5252", 60, 0.8, "burst");
+    sfx("aggro", m);
+  }
+}
+
+function bossReset(m) {
+  m.phase = 0;
+  if (m.enraged) { m.enraged = false; m.auraOverride = null; m.delay = m.fam.delay; m.stats.att = Math.round((16 + 5.5 * m.lv) * m.fam.attMul); }
+  for (const g of S.mobs) if (g.summonedBy === m && g.alive) { g.alive = false; g.deadAt = S.time - 2; g.despawned = true; }
 }
 
 function execTpMove(m) {
@@ -1417,6 +1486,9 @@ function updatePlayer(dt) {
     if (player.casting) { log("You move and interrupt your casting.", "you"); player.casting = null; sfx("interrupt", player); }
   }
   keepInZone(player);
+  if (moved && S.time - (S.barrierMsgAt || -9) > 6) for (const r of closedBarrierRects(S.zone)) {
+    if (player.x > r.x - 30 && player.x < r.x + r.w + 30 && player.y > r.y - 30 && player.y < r.y + r.h + 30) { S.barrierMsgAt = S.time; log(r.barrier.closedMsg, "sys"); sfx("error"); break; }
+  }
   if (S.pendingTalk && dist(player, S.pendingTalk) <= CONFIG.talkRange) {
     const n = S.pendingTalk;
     S.pendingTalk = null;
@@ -1508,7 +1580,7 @@ function enterZone(id, x, y) {
   S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2 }, NPCS[n.id]));
   const rnd = seeded(hashStr(id));
   S.decor = [];
-  const nRocks = S.zone.theme === "town" ? 6 : S.zone.theme === "cave" ? 26 : 30;
+  const nRocks = S.zone.theme === "town" ? 6 : S.zone.theme === "cave" ? 26 : S.zone.theme === "crypt" ? 0 : 30;
   for (let i = 0; i < nRocks; i++) S.decor.push({ x: 40 + rnd() * (S.zone.w - 80), y: 40 + rnd() * (S.zone.h - 80), r: 6 + rnd() * 16, a: rnd() * Math.PI });
   S.zoneCooldown = 1;
   S.lastPeriod = period();
@@ -1553,7 +1625,7 @@ function updatePeriod() {
   const per = period();
   if (per === S.lastPeriod) return;
   S.lastPeriod = per;
-  if (!S.zone.indoor && S.zone.theme !== "cave") log(per === "night" ? "Night falls over " + S.zone.name + "." : "The sun rises over " + S.zone.name + ".", "sys");
+  if (!S.zone.indoor && S.zone.theme !== "cave" && S.zone.theme !== "crypt") log(per === "night" ? "Night falls over " + S.zone.name + "." : "The sun rises over " + S.zone.name + ".", "sys");
   for (const m of S.mobs) {
     const sp = S.zone.spawns[m.spawnIdx];
     if (m.alive && sp && sp.time && sp.time !== per && m.state === "idle") {
@@ -1810,6 +1882,37 @@ function questProgressText(id) {
   return "";
 }
 
+function brazierOrder() {
+  const els = ["fire", "wind", "earth", "water"];
+  const rnd = seeded(hashStr(String(save.created || 1) + "braziers"));
+  for (let i = els.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [els[i], els[j]] = [els[j], els[i]]; }
+  return els;
+}
+function brazierLit(el) { return save.crypt.solved || save.crypt.lit.includes(el); }
+function chestOpenUntil(n) { return save.timers["chest:" + n.id] || 0; }
+function chestState(n) {
+  if (n.needsKill && !(save.timers["nm:" + n.needsKill] > Date.now())) return "sealed";
+  return chestOpenUntil(n) > Date.now() ? "empty" : "closed";
+}
+function openChest(n) {
+  const table = CHEST_LOOT[n.chest] || CHEST_LOOT.common;
+  let got = 0;
+  for (const [id, chance] of table) {
+    if (Math.random() >= chance) continue;
+    if (ITEMS[id].rare && hasItem(id)) continue;
+    if (giveItem(id, 1)) got++;
+  }
+  if (!got) giveItem("crypt_dust", 1);
+  const g = randInt(40, 90) * (n.chest === "king" ? 4 : n.chest === "vault" ? 2 : 1);
+  save.gil += g;
+  log("You find " + g + " gil in the " + n.name.toLowerCase() + ".", "loot");
+  sfx("coin");
+  save.timers["chest:" + n.id] = Date.now() + 20 * 60 * 1000;
+  ring(n, "#ffd54f", 40, 0.7, "sparkle");
+  vfx("levelup", { tgt: n });
+  saveGame();
+}
+
 const TALK = {
   talkRhea(n) {
     const q = save.quests;
@@ -1921,6 +2024,50 @@ const TALK = {
     openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee once and they'll follow you anywhere. Up to five at a time.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
     ].concat(questOptions("brann", n)));
+  },
+  talkBrazier(n) {
+    const el = n.element;
+    if (brazierLit(el)) { openDialog(n.name, save.crypt.solved ? "The brazier burns steadily. The gate stands open." : "The brazier is already lit. " + (4 - save.crypt.lit.length) + " more to go.", []); return; }
+    openDialog(n.name, "A cold brazier of " + { fire: "blackened iron", wind: "pale silver", earth: "rough granite", water: "blue-green bronze" }[el] + ". It could be lit.", [
+      { label: "Light it", fn: () => {
+        closeDialog();
+        const order = brazierOrder();
+        if (order[save.crypt.lit.length] === el) {
+          save.crypt.lit.push(el);
+          log("The " + n.name + " flares to life.", "npc");
+          sfx(el === "fire" ? "fire" : el);
+          vfx("nuke", { src: player, tgt: n, el });
+          ring(n, ELEMENT_COLORS[el], 40, 0.8, "burst");
+          if (save.crypt.lit.length >= 4) {
+            save.crypt.solved = true;
+            log("Stone grinds on stone. The sealed gate rises; the way to the crossroads is open.", "npc");
+            sfx("unlock");
+            S.shake = 0.4;
+            uiEvent("landmark", { name: "The sealed gate opens", xp: 0 });
+          }
+        } else {
+          save.crypt.lit = [];
+          log("The flames gutter and die in every brazier. Something stirs in the dark.", "foe");
+          sfx("interrupt", n);
+          vfx("interrupt", { tgt: n });
+          for (const sgn of [-1, 1]) { const sk = spawnExtra("skeleton", 9, 900 + sgn * 70, 700); aggro(sk, player); addEnmity(sk, player, 60); }
+        }
+        saveGame();
+      } }
+    ]);
+  },
+  talkTablet(n) {
+    const order = brazierOrder();
+    openDialog(n.name, "Worn letters, still legible: \"Wake them as the verse runs. First " + BRAZIER_LINES[order[0]] + "; then " + BRAZIER_LINES[order[1]] + "; then " + BRAZIER_LINES[order[2]] + "; and last, " + BRAZIER_LINES[order[3]] + ". Err, and the dead will answer.\"", []);
+  },
+  talkChest(n) {
+    const st = chestState(n);
+    if (st === "sealed") { openDialog(n.name, "The coffer is bound with pale chains. They will not loosen while the King sits his throne.", []); return; }
+    if (st === "empty") { const m = Math.ceil((chestOpenUntil(n) - Date.now()) / 60000); openDialog(n.name, "Empty. The crypt refills its hoards in time; try again in about " + m + " minute" + (m === 1 ? "" : "s") + ".", []); return; }
+    openDialog(n.name, n.chest === "king" ? "A royal coffer, its chains fallen away." : "A heavy chest, lid shut. Something rattles inside.", [{ label: "Open it", fn: () => { closeDialog(); openChest(n); } }]);
+  },
+  talkThrone(n) {
+    openDialog(n.name, save.timers["nm:hollow_king"] > Date.now() ? "The throne stands empty. For now." : "A throne of black stone, cold as the grave. Its king is never far.", []);
   },
   talkCrystal(n) {
     for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; }

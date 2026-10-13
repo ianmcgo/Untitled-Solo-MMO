@@ -125,6 +125,8 @@
   #verPop .vpA { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
   #verPop .vpA button { padding: 7px 14px; }
   #verPop .vpA .pri { border-color: var(--gold); color: var(--gold); }
+  body, #ui, #overlay, #loading, #menu { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea { -webkit-user-select: text; user-select: text; }
   #chatIn { margin-top: 4px; height: 26px; padding: 0 9px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(10,12,20,.7); color: #f2efe6; font: 12px system-ui; outline: none; pointer-events: auto; }
   #chatIn:focus { border-color: var(--gold); background: rgba(10,12,20,.9); }
   #chatIn::placeholder { color: #8c8a84; }
@@ -452,7 +454,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.4.0 · built 2026-10-13 11:05 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.5.0 · built 2026-10-13 11:23 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>
   <div id="flash"></div>
@@ -5494,6 +5496,12 @@ const ITEMS = {
   bonecharm_ring: { name: "Bonecharm Ring", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 4, price: 420, stats: { int: 2, mnd: 2, mp: 6 } },
   gravedigger_boots: { name: "Gravedigger's Boots", kind: "equip", icon: "🥾", rarity: "uncommon", slot: "feet", jobs: ALL_J, lv: 7, price: 700, stats: { def: 4, vit: 2, hp: 8 } },
   raider_helm: { name: "Raider Helm", kind: "equip", icon: "⛑️", rarity: "rare", slot: "head", jobs: ["WAR", "PLD"], lv: 7, price: 900, stats: { def: 6, str: 2, att: 3 } },
+  crypt_key: { name: "Crypt Key", kind: "key", icon: "🗝️", rare: true, ex: true, rarity: "epic", price: 0, desc: "A heavy iron key taken from the Crypt Sentinel. Opens the throne room door of the Sunken Crypt." },
+  sentinel_greaves: { name: "Sentinel's Greaves", kind: "equip", icon: "👖", rare: true, rarity: "rare", slot: "legs", jobs: ["WAR", "PLD"], lv: 9, price: 0, stats: { def: 7, vit: 3, hp: 12 } },
+  hollow_crown: { name: "Hollow Crown", kind: "equip", icon: "👑", rare: true, ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 10, price: 0, stats: { def: 6, hp: 15, mp: 15, str: 2, dex: 2, int: 3, mnd: 3 } },
+  kings_blade: { name: "King's Blade", kind: "equip", icon: "🗡️", rare: true, ex: true, rarity: "epic", slot: "main", wtype: "sword", dmg: 14, delay: 2.5, jobs: ["WAR", "PLD", "RDM"], lv: 10, price: 0, stats: { acc: 5, att: 6, str: 2 } },
+  ashen_medallion: { name: "Ashen Medallion", kind: "equip", icon: "🏅", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 9, price: 0, stats: { hp: 20, mp: 20, acc: 6, att: 6, def: 4 } },
+  crypt_dust: { name: "Crypt Dust", kind: "mat", icon: "⚱️", rarity: "uncommon", price: 140, stack: 12, desc: "Grave dust that glitters faintly. Alchemists pay well for it." },
   wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
   simple_bed: { name: "Simple Bed", kind: "furniture", icon: "🛏️", fp: [2, 3], price: 300, model: "bed", desc: "A sturdy bed with a wool blanket." },
   wooden_table: { name: "Wooden Table", kind: "furniture", icon: "🪑", fp: [2, 2], price: 200, model: "table", desc: "Seats four, if you have four chairs." },
@@ -5577,6 +5585,9 @@ const FAMILIES = {
   den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05], ["raider_helm", 0.02], ["iron_sword", 0.01]], gil: [3, 6], model: "goblin" },
   skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.25], ["ether", 0.06], ["bonecharm_ring", 0.03]], model: "skeleton" },
   hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06], ["hare_charm", 0.03]], model: "hare" },
+  crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["sentinel_greaves", 0.3]], gil: [20, 30], model: "skeleton" },
+  royal_guard: { name: "Royal Guard", color: "#c0c8d8", radius: 15, hpMul: 1.1, attMul: 1.15, defMul: 1.1, delay: 3.0, speed: 95, aggro: null, link: true, linkGroup: "undead", tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.3]], model: "skeleton", summoned: true },
+  hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["hollow_crown", 0.3], ["kings_blade", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
   chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.3], ["goblin_totem", 0.3], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
 };
 
@@ -5713,6 +5724,63 @@ const ZONES = {
   }
 };
 
+ZONES.crypt = {
+  name: "Sunken Crypt", w: 2600, h: 1400, theme: "crypt",
+  exits: [{ x: 0, y: 650, w: 24, h: 100, to: "den", tx: 1200, ty: 1480, label: "Goblin Den" }],
+  npcs: [
+    { id: "brazier_fire", x: 700, y: 400 }, { id: "brazier_wind", x: 1100, y: 400 }, { id: "brazier_earth", x: 700, y: 1000 }, { id: "brazier_water", x: 1100, y: 1000 },
+    { id: "crypt_tablet", x: 900, y: 345 },
+    { id: "chest_sent_a", x: 1340, y: 110 }, { id: "chest_sent_b", x: 1660, y: 110 }, { id: "chest_vault", x: 1500, y: 1290 }, { id: "chest_king", x: 2480, y: 450 },
+    { id: "crypt_throne", x: 2500, y: 700 }
+  ],
+  walls: [
+    { x: 0, y: 0, w: 600, h: 450 }, { x: 0, y: 950, w: 600, h: 450 },
+    { x: 600, y: 0, w: 700, h: 300 }, { x: 600, y: 1100, w: 700, h: 300 },
+    { x: 1200, y: 300, w: 100, h: 260 }, { x: 1200, y: 840, w: 100, h: 260 },
+    { x: 1300, y: 0, w: 400, h: 60 }, { x: 1300, y: 300, w: 100, h: 150 }, { x: 1550, y: 300, w: 150, h: 150 },
+    { x: 1300, y: 950, w: 100, h: 150 }, { x: 1550, y: 950, w: 150, h: 150 }, { x: 1300, y: 1340, w: 400, h: 60 },
+    { x: 1700, y: 0, w: 900, h: 350 }, { x: 1700, y: 1050, w: 900, h: 350 }, { x: 1700, y: 350, w: 40, h: 210 }, { x: 1700, y: 840, w: 40, h: 210 }
+  ],
+  barriers: [
+    { id: "brazier_gate", x: 1200, y: 560, w: 100, h: 280, name: "sealed gate", solved: "braziers", closedMsg: "The gate is sealed. Four braziers stand in this hall; a tablet on the north wall hints at the order." },
+    { id: "throne_door", x: 1700, y: 560, w: 40, h: 280, name: "throne door", key: "crypt_key", closedMsg: "The throne door is locked. The Crypt Sentinel to the north holds the key." }
+  ],
+  pillars: [[650, 500], [650, 900], [1150, 500], [1150, 900], [900, 480], [900, 920], [1350, 500], [1650, 500], [1350, 900], [1650, 900], [1850, 450], [1850, 950], [2150, 450], [2150, 950], [2450, 450], [2450, 950]],
+  landmarks: [
+    { id: "entrance", name: "Entrance Hall", x: 300, y: 700, r: 220, xp: 100 },
+    { id: "brazier", name: "Brazier Hall", x: 900, y: 700, r: 260, xp: 150 },
+    { id: "cross", name: "The Crossroads", x: 1475, y: 700, r: 200, xp: 120 },
+    { id: "sentinel", name: "Sentinel's Rest", x: 1500, y: 180, r: 200, xp: 150 },
+    { id: "vault", name: "The Vault", x: 1500, y: 1220, r: 200, xp: 150 },
+    { id: "throne", name: "Throne Room", x: 2200, y: 700, r: 320, xp: 200 }
+  ],
+  spawns: [
+    { fam: "bat", lv: [9, 9], x: 200, y: 520 }, { fam: "bat", lv: [9, 10], x: 450, y: 880 }, { fam: "skeleton", lv: [9, 9], x: 380, y: 620 }, { fam: "skeleton", lv: [9, 10], x: 500, y: 780 },
+    { fam: "skeleton", lv: [9, 10], x: 800, y: 600 }, { fam: "skeleton", lv: [9, 10], x: 1000, y: 820 }, { fam: "skeleton", lv: [10, 10], x: 900, y: 700 }, { fam: "ghoul", lv: [10, 10], x: 1000, y: 560 },
+    { fam: "ghoul", lv: [10, 10], x: 1380, y: 620 }, { fam: "ghoul", lv: [10, 11], x: 1600, y: 780 }, { fam: "skeleton", lv: [10, 11], x: 1500, y: 520 }, { fam: "skeleton", lv: [10, 11], x: 1420, y: 860 },
+    { fam: "skeleton", lv: [10, 11], x: 1400, y: 200 }, { fam: "skeleton", lv: [10, 11], x: 1600, y: 220 }, { fam: "crypt_sentinel", lv: [11, 11], x: 1500, y: 160 },
+    { fam: "ghoul", lv: [10, 11], x: 1400, y: 1200 }, { fam: "ghoul", lv: [11, 11], x: 1600, y: 1220 }, { fam: "ghoul", lv: [10, 11], x: 1500, y: 1150 },
+    { fam: "skeleton", lv: [11, 11], x: 1950, y: 560 }, { fam: "skeleton", lv: [11, 11], x: 1950, y: 850 }, { fam: "hollow_king", lv: [12, 12], x: 2320, y: 700 }
+  ],
+  water: [],
+  paths: [
+    { w: 44, pts: [[-500, 700], [0, 700], [600, 700], [1200, 700], [1700, 700], [2300, 700]] },
+    { w: 36, pts: [[1475, 700], [1475, 450], [1475, 180]] },
+    { w: 36, pts: [[1475, 700], [1475, 950], [1475, 1220]] }
+  ],
+  torches: [[150, 480], [150, 920], [640, 330], [1160, 330], [640, 1070], [1160, 1070], [1330, 480], [1670, 480], [1330, 920], [1670, 920], [1330, 90], [1670, 90], [1330, 1310], [1670, 1310], [1780, 380], [1780, 1020], [2560, 380], [2560, 1020], [2300, 400], [2300, 1000]],
+  start: { x: 70, y: 700 }
+};
+ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
+ZONES.den.paths.push({ w: 34, pts: [[1250, 1120], [1200, 1400], [1200, 1600], [1200, 2100]] });
+
+const BRAZIER_LINES = { fire: "the flame that wakes the dawn", wind: "the breath that carries the ash", earth: "the stone that keeps the dead", water: "the tide that quiets all" };
+const CHEST_LOOT = {
+  common: [["bone_chip", 0.9], ["crypt_dust", 0.7], ["ether", 0.5], ["hi_potion", 0.5], ["water_crystal", 0.6], ["iron_ore", 0.4], ["raider_helm", 0.04], ["gravedigger_boots", 0.06]],
+  vault: [["crypt_dust", 1], ["hi_potion", 0.8], ["ether", 0.8], ["iron_ingot", 0.5], ["silk_cloth", 0.5], ["bonecharm_ring", 0.15], ["sentinel_greaves", 0.08], ["raider_helm", 0.08]],
+  king: [["crypt_dust", 1], ["hi_potion", 1], ["ether", 1], ["iron_ingot", 0.8], ["hollow_crown", 0.1], ["kings_blade", 0.1]]
+};
+
 const NPCS = {
   rhea: { name: "Captain Rhea", model: "rhea", talk: "talkRhea" },
   tobin: { name: "Tobin, Job Master", model: "tobin", talk: "talkTobin" },
@@ -5722,7 +5790,17 @@ const NPCS = {
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
   crystal_town: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   crystal_hollow: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
-  pip: { name: "Pip the Nubbin", model: "nubbin", talk: "talkPip" }
+  pip: { name: "Pip the Nubbin", model: "nubbin", talk: "talkPip" },
+  brazier_fire: { name: "Brazier of Flame", prop: "brazier", element: "fire", talk: "talkBrazier" },
+  brazier_wind: { name: "Brazier of Wind", prop: "brazier", element: "wind", talk: "talkBrazier" },
+  brazier_earth: { name: "Brazier of Earth", prop: "brazier", element: "earth", talk: "talkBrazier" },
+  brazier_water: { name: "Brazier of Tides", prop: "brazier", element: "water", talk: "talkBrazier" },
+  crypt_tablet: { name: "Worn Inscription", prop: "tablet", talk: "talkTablet" },
+  chest_sent_a: { name: "Treasure Chest", prop: "chest", chest: "common", talk: "talkChest" },
+  chest_sent_b: { name: "Treasure Chest", prop: "chest", chest: "common", talk: "talkChest" },
+  chest_vault: { name: "Vault Chest", prop: "chest", chest: "vault", talk: "talkChest" },
+  chest_king: { name: "Royal Coffer", prop: "chest", chest: "king", needsKill: "hollow_king", talk: "talkChest" },
+  crypt_throne: { name: "Hollow Throne", prop: "throne", talk: "talkThrone" }
 };
 
 const QUESTS = {
@@ -5735,6 +5813,8 @@ const QUESTS = {
     intro: "Something's stirring the dead at the Old Fort Ruins, east along the road. Wandering Bones by night. Put 5 of them back in the ground and report to me.", progress: "The bones still walk. The ruins, at night.", turn: "Five of them laid to rest. You're becoming someone this Outpost can count on." },
   grimtooth: { name: "Grimtooth's Bounty", giver: "Captain Rhea", npc: "rhea", lv: 6, pre: "bones", kill: { fam: "grimtooth", n: 1, name: "Grimtooth" }, desc: "Defeat Grimtooth, the notorious goblin who leads the camp in eastern Rocky Hollow. He appears now and then among the goblins there.", reward: { xp: 500, gil: 400, item: "hi_potion", qty: 2 },
     intro: "There's a goblin called Grimtooth running the camp in the east of the Hollow. Red bandana, black eyes, mean as winter. He shows himself now and then among his gang. Bring him down and the bounty's yours.", progress: "Grimtooth still has his head. Watch the goblin camp; he turns up when a goblin there is replaced.", turn: "Grimtooth, finished. The camp will scatter without him. Take the bounty." },
+  hollowking: { name: "The Hollow King", giver: "Captain Rhea", npc: "rhea", lv: 9, pre: "warden", kill: { fam: "hollow_king", n: 1, name: "The Hollow King" }, desc: "Defeat the Hollow King on his throne at the end of the Sunken Crypt, below the Goblin Den's Bone Pit. Light the braziers to pass the gate; the Crypt Sentinel holds the throne door's key.", reward: { xp: 2000, gil: 3000, item: "ashen_medallion" },
+    intro: "Under the Den's Bone Pit lies the Sunken Crypt, and on its throne sits the thing that stirs the dead: the Hollow King. The old way in is sealed by braziers, and a Sentinel holds the throne key. Bring a full party. End him, and the Outpost will give you its highest honour.", progress: "The King still sits his throne. Braziers first, then the Sentinel's key, then the throne room.", turn: "The Hollow King is dust. Wear this medallion with pride: no one in Ashenreach has earned it before." },
   warden: { name: "The Warden's Vigil", giver: "Captain Rhea", npc: "rhea", lv: 8, pre: "chieftain", kill: { fam: "ossuary_warden", n: 1, name: "Ossuary Warden" }, desc: "Defeat the Ossuary Warden, a notorious ghoul that haunts the Bone Pit of the Goblin Den.", reward: { xp: 800, gil: 800, item: "ether", qty: 3 },
     intro: "With the Chieftain gone, the Den's worst is a ghoul the scouts call the Ossuary Warden. It keeps the Bone Pit. End its vigil and I'll pay well.", progress: "The Warden still haunts the Bone Pit. It appears among the ghouls there.", turn: "The Warden is finished. The dead can rest, and so can you. Here." },
   support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 5, desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
@@ -5805,7 +5885,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, created: Date.now()
   };
 }
 
@@ -5833,6 +5913,9 @@ function normalizeSave(d) {
   out.name = String(d.name || "Adventurer").slice(0, 12);
   out.landmarks = d.landmarks && typeof d.landmarks === "object" ? d.landmarks : {};
   out.qprog = d.qprog && typeof d.qprog === "object" ? d.qprog : {};
+  out.keyItems = (Array.isArray(d.keyItems) ? d.keyItems : []).filter(id => ITEMS[id] && ITEMS[id].kind === "key");
+  out.crypt = Object.assign({ solved: false, lit: [] }, d.crypt || {});
+  if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
   return out;
 }
 
@@ -6333,7 +6416,7 @@ function onKO(e, src) {
     vfx("defeat", { tgt: e });
     const respawn = e.fam.respawn || CONFIG.respawn;
     const placeholderNm = !!NM_FAMILIES[e.famKey];
-    S.spawnAt[e.spawnIdx] = S.time + (placeholderNm ? CONFIG.respawn : respawn);
+    if (e.spawnIdx != null) S.spawnAt[e.spawnIdx] = S.time + (placeholderNm ? CONFIG.respawn : respawn);
     if (e.fam.nm) {
       save.timers["nm:" + e.famKey] = Date.now() + respawn * 1000;
       if (!placeholderNm) S.nmDeadUntil[S.zoneId + ":" + e.spawnIdx] = S.time + respawn;
@@ -6462,9 +6545,20 @@ function itemRarity(id) {
   return "common";
 }
 
+function giveKeyItem(id) {
+  if (save.keyItems.includes(id)) return false;
+  save.keyItems.push(id);
+  log("You obtain the key item " + ITEMS[id].name + ".", "loot");
+  sfx("unlock");
+  uiEvent("item", { id, n: 1 });
+  saveGame();
+  return true;
+}
+
 function dropLoot(m) {
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
+    if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (Math.random() >= chance) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     giveItem(id, 1);
@@ -6830,8 +6924,17 @@ function zoneRects(z) {
   return rects;
 }
 
+function barrierOpen(b) {
+  if (b.solved === "braziers") return !!save.crypt.solved;
+  if (b.key) return save.keyItems.includes(b.key);
+  return false;
+}
+function closedBarrierRects(z) {
+  return (z.barriers || []).filter(b => !barrierOpen(b)).map(b => ({ x: b.x, y: b.y, w: b.w, h: b.h, barrier: b }));
+}
+
 function keepOutOfRects(e) {
-  const rects = zoneRects(S.zone);
+  const rects = zoneRects(S.zone).concat(closedBarrierRects(S.zone));
   for (const r of rects) {
     const nx = clamp(e.x, r.x, r.x + r.w), ny = clamp(e.y, r.y, r.y + r.h);
     const dx = e.x - nx, dy = e.y - ny;
@@ -6914,6 +7017,7 @@ function updateMob(m, dt) {
       return;
     }
     m.target = t;
+    bossPhases(m, t);
     if (m.readying) {
       m.readying.t -= dt;
       if (m.readying.t <= 0) execTpMove(m);
@@ -6937,6 +7041,7 @@ function updateMob(m, dt) {
     return;
   }
   if (m.state === "return") {
+    if (m.fam.boss && m.phase) bossReset(m);
     if (!m.returnSince) m.returnSince = S.time;
     if (S.time - m.returnSince > 8) { m.x = m.home.x; m.y = m.home.y; }
     if (moveToward(m, m.home.x, m.home.y, dt, 2, 1.3)) {
@@ -6949,6 +7054,50 @@ function updateMob(m, dt) {
       m.buffs = {};
     }
   }
+}
+
+function spawnExtra(famKey, lv, x, y) {
+  const m = buildMob(famKey, lv, x, y, null);
+  S.mobs.push(m);
+  return m;
+}
+
+function bossPhases(m, t) {
+  const f = m.fam;
+  if (!f.boss) return;
+  m.phase = m.phase || 0;
+  const frac = m.hp / m.maxHp;
+  if (f.phases && m.phase < f.phases.length && frac <= f.phases[m.phase]) {
+    m.phase++;
+    log("The " + m.name + " calls for his Royal Guards!", "foe");
+    popText(m, "Rise!", "#ffd54f", 18, 1.4, 30);
+    ring(m, "#ffd54f", 70, 0.9, "burst");
+    sfx("tpready", m);
+    vfx("levelup", { tgt: m });
+    for (const sgn of [-1, 1]) {
+      const g = spawnExtra("royal_guard", Math.max(1, m.lv - 2), m.x + sgn * 60, m.y + 40);
+      g.summonedBy = m;
+      aggro(g, t);
+      addEnmity(g, t, 50);
+    }
+    S.shake = Math.max(S.shake, 0.3);
+  }
+  if (f.enrage && !m.enraged && frac <= f.enrage) {
+    m.enraged = true;
+    m.stats.att = Math.round(m.stats.att * 1.5);
+    m.delay = m.fam.delay * 0.7;
+    m.auraOverride = "#ff5252";
+    log("The " + m.name + " is enraged!", "foe");
+    popText(m, "Enraged!", "#ff5252", 20, 1.6, 30);
+    ring(m, "#ff5252", 60, 0.8, "burst");
+    sfx("aggro", m);
+  }
+}
+
+function bossReset(m) {
+  m.phase = 0;
+  if (m.enraged) { m.enraged = false; m.auraOverride = null; m.delay = m.fam.delay; m.stats.att = Math.round((16 + 5.5 * m.lv) * m.fam.attMul); }
+  for (const g of S.mobs) if (g.summonedBy === m && g.alive) { g.alive = false; g.deadAt = S.time - 2; g.despawned = true; }
 }
 
 function execTpMove(m) {
@@ -7163,6 +7312,9 @@ function updatePlayer(dt) {
     if (player.casting) { log("You move and interrupt your casting.", "you"); player.casting = null; sfx("interrupt", player); }
   }
   keepInZone(player);
+  if (moved && S.time - (S.barrierMsgAt || -9) > 6) for (const r of closedBarrierRects(S.zone)) {
+    if (player.x > r.x - 30 && player.x < r.x + r.w + 30 && player.y > r.y - 30 && player.y < r.y + r.h + 30) { S.barrierMsgAt = S.time; log(r.barrier.closedMsg, "sys"); sfx("error"); break; }
+  }
   if (S.pendingTalk && dist(player, S.pendingTalk) <= CONFIG.talkRange) {
     const n = S.pendingTalk;
     S.pendingTalk = null;
@@ -7254,7 +7406,7 @@ function enterZone(id, x, y) {
   S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2 }, NPCS[n.id]));
   const rnd = seeded(hashStr(id));
   S.decor = [];
-  const nRocks = S.zone.theme === "town" ? 6 : S.zone.theme === "cave" ? 26 : 30;
+  const nRocks = S.zone.theme === "town" ? 6 : S.zone.theme === "cave" ? 26 : S.zone.theme === "crypt" ? 0 : 30;
   for (let i = 0; i < nRocks; i++) S.decor.push({ x: 40 + rnd() * (S.zone.w - 80), y: 40 + rnd() * (S.zone.h - 80), r: 6 + rnd() * 16, a: rnd() * Math.PI });
   S.zoneCooldown = 1;
   S.lastPeriod = period();
@@ -7299,7 +7451,7 @@ function updatePeriod() {
   const per = period();
   if (per === S.lastPeriod) return;
   S.lastPeriod = per;
-  if (!S.zone.indoor && S.zone.theme !== "cave") log(per === "night" ? "Night falls over " + S.zone.name + "." : "The sun rises over " + S.zone.name + ".", "sys");
+  if (!S.zone.indoor && S.zone.theme !== "cave" && S.zone.theme !== "crypt") log(per === "night" ? "Night falls over " + S.zone.name + "." : "The sun rises over " + S.zone.name + ".", "sys");
   for (const m of S.mobs) {
     const sp = S.zone.spawns[m.spawnIdx];
     if (m.alive && sp && sp.time && sp.time !== per && m.state === "idle") {
@@ -7556,6 +7708,37 @@ function questProgressText(id) {
   return "";
 }
 
+function brazierOrder() {
+  const els = ["fire", "wind", "earth", "water"];
+  const rnd = seeded(hashStr(String(save.created || 1) + "braziers"));
+  for (let i = els.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [els[i], els[j]] = [els[j], els[i]]; }
+  return els;
+}
+function brazierLit(el) { return save.crypt.solved || save.crypt.lit.includes(el); }
+function chestOpenUntil(n) { return save.timers["chest:" + n.id] || 0; }
+function chestState(n) {
+  if (n.needsKill && !(save.timers["nm:" + n.needsKill] > Date.now())) return "sealed";
+  return chestOpenUntil(n) > Date.now() ? "empty" : "closed";
+}
+function openChest(n) {
+  const table = CHEST_LOOT[n.chest] || CHEST_LOOT.common;
+  let got = 0;
+  for (const [id, chance] of table) {
+    if (Math.random() >= chance) continue;
+    if (ITEMS[id].rare && hasItem(id)) continue;
+    if (giveItem(id, 1)) got++;
+  }
+  if (!got) giveItem("crypt_dust", 1);
+  const g = randInt(40, 90) * (n.chest === "king" ? 4 : n.chest === "vault" ? 2 : 1);
+  save.gil += g;
+  log("You find " + g + " gil in the " + n.name.toLowerCase() + ".", "loot");
+  sfx("coin");
+  save.timers["chest:" + n.id] = Date.now() + 20 * 60 * 1000;
+  ring(n, "#ffd54f", 40, 0.7, "sparkle");
+  vfx("levelup", { tgt: n });
+  saveGame();
+}
+
 const TALK = {
   talkRhea(n) {
     const q = save.quests;
@@ -7667,6 +7850,50 @@ const TALK = {
     openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee once and they'll follow you anywhere. Up to five at a time.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
     ].concat(questOptions("brann", n)));
+  },
+  talkBrazier(n) {
+    const el = n.element;
+    if (brazierLit(el)) { openDialog(n.name, save.crypt.solved ? "The brazier burns steadily. The gate stands open." : "The brazier is already lit. " + (4 - save.crypt.lit.length) + " more to go.", []); return; }
+    openDialog(n.name, "A cold brazier of " + { fire: "blackened iron", wind: "pale silver", earth: "rough granite", water: "blue-green bronze" }[el] + ". It could be lit.", [
+      { label: "Light it", fn: () => {
+        closeDialog();
+        const order = brazierOrder();
+        if (order[save.crypt.lit.length] === el) {
+          save.crypt.lit.push(el);
+          log("The " + n.name + " flares to life.", "npc");
+          sfx(el === "fire" ? "fire" : el);
+          vfx("nuke", { src: player, tgt: n, el });
+          ring(n, ELEMENT_COLORS[el], 40, 0.8, "burst");
+          if (save.crypt.lit.length >= 4) {
+            save.crypt.solved = true;
+            log("Stone grinds on stone. The sealed gate rises; the way to the crossroads is open.", "npc");
+            sfx("unlock");
+            S.shake = 0.4;
+            uiEvent("landmark", { name: "The sealed gate opens", xp: 0 });
+          }
+        } else {
+          save.crypt.lit = [];
+          log("The flames gutter and die in every brazier. Something stirs in the dark.", "foe");
+          sfx("interrupt", n);
+          vfx("interrupt", { tgt: n });
+          for (const sgn of [-1, 1]) { const sk = spawnExtra("skeleton", 9, 900 + sgn * 70, 700); aggro(sk, player); addEnmity(sk, player, 60); }
+        }
+        saveGame();
+      } }
+    ]);
+  },
+  talkTablet(n) {
+    const order = brazierOrder();
+    openDialog(n.name, "Worn letters, still legible: \"Wake them as the verse runs. First " + BRAZIER_LINES[order[0]] + "; then " + BRAZIER_LINES[order[1]] + "; then " + BRAZIER_LINES[order[2]] + "; and last, " + BRAZIER_LINES[order[3]] + ". Err, and the dead will answer.\"", []);
+  },
+  talkChest(n) {
+    const st = chestState(n);
+    if (st === "sealed") { openDialog(n.name, "The coffer is bound with pale chains. They will not loosen while the King sits his throne.", []); return; }
+    if (st === "empty") { const m = Math.ceil((chestOpenUntil(n) - Date.now()) / 60000); openDialog(n.name, "Empty. The crypt refills its hoards in time; try again in about " + m + " minute" + (m === 1 ? "" : "s") + ".", []); return; }
+    openDialog(n.name, n.chest === "king" ? "A royal coffer, its chains fallen away." : "A heavy chest, lid shut. Something rattles inside.", [{ label: "Open it", fn: () => { closeDialog(); openChest(n); } }]);
+  },
+  talkThrone(n) {
+    openDialog(n.name, save.timers["nm:hollow_king"] > Date.now() ? "The throne stands empty. For now." : "A throne of black stone, cold as the grave. Its king is never far.", []);
   },
   talkCrystal(n) {
     for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; }
@@ -8618,7 +8845,7 @@ function zoneMapCanvas(zoneId) {
   if (z.plaza) { g.fillStyle = "#9b8c6c"; g.beginPath(); g.arc(z.plaza.x, z.plaza.y, z.plaza.r, 0, 7); g.fill(); }
   g.lineCap = "round"; g.lineJoin = "round";
   for (const p of z.paths || []) {
-    g.strokeStyle = z.theme === "cave" ? "#55493c" : "#a8946a"; g.lineWidth = p.w;
+    g.strokeStyle = z.theme === "cave" ? "#55493c" : z.theme === "crypt" ? "#4a4852" : "#a8946a"; g.lineWidth = p.w;
     g.beginPath(); p.pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke();
   }
   for (const w of z.water || []) {
@@ -8635,8 +8862,10 @@ function zoneMapCanvas(zoneId) {
   for (const s of z.stalls || []) { g.fillStyle = s.color; g.fillRect(s.x - 26, s.y - 14, 52, 28); }
   for (const [x, y] of z.lamps || []) { g.fillStyle = "#ffd77a"; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); }
   for (const [x, y] of z.torches || []) { g.fillStyle = "#ff9a3d"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
+  for (const b of z.barriers || []) { g.fillStyle = "#8a7a4a"; g.fillRect(b.x, b.y, b.w, b.h); }
+  for (const [x, y] of z.pillars || []) { g.fillStyle = "#6a6872"; g.beginPath(); g.arc(x, y, 14, 0, 7); g.fill(); }
   for (const r of z.walls || []) {
-    g.fillStyle = z.theme === "cave" ? "#151310" : "#4d4a40"; g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 14;
+    g.fillStyle = z.theme === "cave" ? "#151310" : z.theme === "crypt" ? "#121218" : "#4d4a40"; g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 14;
     g.beginPath(); g.roundRect ? g.roundRect(r.x, r.y, r.w, r.h, 40) : g.rect(r.x, r.y, r.w, r.h); g.fill(); g.stroke();
   }
   if (z.ruins) {
@@ -8673,6 +8902,9 @@ function drawMinimap() {
   const dot = (x, y, r, col, ring) => { g.beginPath(); g.arc(x, y, r / sc, 0, 7); g.fillStyle = col; g.fill(); if (ring) { g.lineWidth = 2 / sc; g.strokeStyle = ring; g.stroke(); } };
   for (const n of S.npcs) {
     if (NPCS[n.id] && NPCS[n.id].crystal) { g.save(); g.translate(n.x, n.y); g.rotate(Math.PI / 4); g.fillStyle = "#7ff3ff"; const s = 7 / sc; g.fillRect(-s / 2, -s / 2, s, s); g.restore(); }
+    else if (n.prop === "brazier") dot(n.x, n.y, 4, brazierLit(n.element) ? ELEMENT_COLORS[n.element] : "#555", "#000");
+    else if (n.prop === "chest") dot(n.x, n.y, 4, chestState(n) === "closed" ? "#ffd54f" : "#7a6a3a", "#000");
+    else if (n.prop) dot(n.x, n.y, 3.5, "#bbb", "#000");
     else dot(n.x, n.y, 5, questMarker(n) ? "#ffd54f" : "#ead9ae", "#000");
   }
   for (const mb of S.mobs) {
@@ -9402,8 +9634,20 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v4.4.0 · built 2026-10-13 11:05 PDT";
+const BUILD_INFO = "v4.5.0 · built 2026-10-13 11:23 PDT";
 const UPDATES = [
+  { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [
+    "A new dungeon under the Goblin Den's Bone Pit: entrance hall, Brazier Hall, the crossroads, the Sentinel's room to the north, the vault to the south and the throne room. Levels 9–12.",
+    "Brazier puzzle: light the four braziers in the order the worn inscription gives. A wrong order snuffs them and raises two skeletons; the right order opens the sealed gate.",
+    "The Crypt Sentinel (level 11) guards the north room and drops the Crypt Key, a key item that opens the throne door.",
+    "The Hollow King, level 12. He calls two Royal Guards at 66% and 33% HP and enrages below 20%. Comes back every 10 minutes of real time. Drops the Hollow Crown and the King's Blade.",
+    "Treasure chests: two in the Sentinel's room, a richer one in the vault, and the Royal Coffer that unseals once the King falls. They refill after 20 real minutes.",
+    "New quest: The Hollow King (Captain Rhea, level 9, after The Warden's Vigil). Reward: 2,000 XP, 3,000 gil and the Ashen Medallion.",
+    "Six crypt landmarks for discovery XP, the crypt music, stone pillars, portcullis gates and a throne.",
+    "Character creation now says Sex: Male or Female, and has eight skin tones including dark ones. Some companions and townsfolk have darker skin too.",
+    "Right-click menus and accidental text selection are turned off; only the chat box selects text.",
+    "Feet no longer sink into slopes: characters stand on the highest ground under them."
+  ] },
   { v: "4.4.0", date: "2026-10-13", title: "Phase 5c: eleven quests", items: [
     "Five new quests. Pell: Herbs for the Stall (3 Healing Herbs; pays gil plus a pickaxe and hatchet). Brann: Night Wings (defeat 4 Cave Bats). Captain Rhea's chain: Bones in the Ruins (5 Wandering Bones at the Old Fort Ruins, level 4), Grimtooth's Bounty (level 6), The Goblin Chieftain (now level 7, after the bones) and The Warden's Vigil (defeat the Ossuary Warden, level 8).",
     "Kill quests count in the chat log and the tracker as you go, and the NPC's ❗ returns when you're ready to report.",
@@ -9474,7 +9718,7 @@ function tabHelp() {
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or use the Rest action on action bar page 2) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("👥 Characters", ul([
-    "On the title screen you pick a character or create a new one: name (2–12 letters), job and appearance. <b>Appearance is permanent</b>, so take your time.",
+    "On the title screen you pick a character or create a new one: name (2–12 letters), job, sex and appearance. <b>Appearance is permanent</b>, so take your time.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, gil, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
@@ -9523,15 +9767,24 @@ function tabHelp() {
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, home point"],
     ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs, home point by the eastern exit"],
-    ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit, Chieftain's Throne"]
+    ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
+    ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals restore your party and can be set as your return point."]));
+  h += sec("🏚️ The Sunken Crypt", ul([
+    "Enter from the Bone Pit at the bottom of the Goblin Den. Bring a full party of level 9 or higher.",
+    "<b>Brazier Hall:</b> read the Worn Inscription on the north wall, then light the four braziers in that order (tap one and choose Light it). The wrong order snuffs them and raises two skeletons. The right order opens the sealed gate to the crossroads.",
+    "<b>North:</b> the Crypt Sentinel, a level 11 notorious skeleton. It drops the <b>Crypt Key</b> (a key item; it doesn't take a bag slot) which opens the throne door. Two treasure chests.",
+    "<b>South:</b> the vault, guarded by ghouls, with the best chest.",
+    "<b>Throne room:</b> the Hollow King, level 12. At 66% and 33% HP he calls two Royal Guards: kill them or hold them, and keep healing. Below 20% he enrages (hits harder and faster). He returns every 10 real minutes. The Royal Coffer opens while he's down.",
+    "Chests refill 20 real minutes after you open them. Key items and crypt progress are saved with your character."
+  ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 gil and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
   h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
 
-const GAME_VERSION = "4.4.0";
+const GAME_VERSION = "4.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -9868,6 +10121,7 @@ const TERRAIN_THEMES = {
   town: { grassA: [74, 104, 44], grassB: [98, 122, 52], dirt: [120, 96, 66], rock: [118, 112, 104], sand: [170, 158, 120], cliff: [104, 100, 92] },
   field: { grassA: [92, 108, 50], grassB: [124, 128, 62], dirt: [128, 104, 74], rock: [116, 110, 102], sand: [176, 162, 124], cliff: [110, 104, 96] },
   cave: { grassA: [78, 76, 80], grassB: [96, 90, 92], dirt: [110, 92, 74], rock: [96, 92, 100], sand: [120, 110, 96], cliff: [80, 78, 88], moss: [62, 92, 58] },
+  crypt: { grassA: [70, 68, 76], grassB: [84, 82, 90], dirt: [92, 86, 96], rock: [80, 78, 88], sand: [96, 92, 100], cliff: [60, 58, 68], moss: [52, 70, 56] },
   house: { grassA: [120, 92, 62], grassB: [128, 98, 66], dirt: [110, 84, 58], rock: [100, 90, 80], sand: [120, 100, 80], cliff: [80, 70, 60] }
 };
 
@@ -9971,7 +10225,7 @@ function* buildFieldSteps(zone) {
   const cs = zone.indoor ? 8 : 12;
   const x0 = -M, y0 = -M, w = zone.w + 2 * M, h = zone.h + 2 * M;
   const cols = Math.ceil(w / cs) + 1, rows = Math.ceil(h / cs) + 1;
-  const amps = { town: [0.7, 0.12, 6], field: [2.6, 0.35, 11], cave: [0.8, 0.45, 13], house: [0, 0, 0] }[theme];
+  const amps = { town: [0.7, 0.12, 6], field: [2.6, 0.35, 11], cave: [0.8, 0.45, 13], crypt: [0.25, 0.1, 12], house: [0, 0, 0] }[theme];
   const paths = zone.paths || [];
   const waters = zone.water || [];
   const pathW = (px, py) => {
@@ -10156,9 +10410,9 @@ function buildVegetation(field, root) {
   const bark = texBark();
   const pineTex = texFoliage("pine", [48, 82, 52]);
   const leafTex = texFoliage("leaf", [74, 110, 48]);
-  const rockTex = theme === "cave" ? texCaveRock() : texRock();
+  const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
   const pines = [], leafy = [], rocks = [], smallRocks = [], tufts = [], stal = [];
-  const want = theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
+  const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
   const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts;
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
@@ -10387,7 +10641,7 @@ function buildCave(field, root) {
     flame.position.y = 2.0;
     g.add(post, flame);
     g.position.set(tx * U, field.heightAt(tx, ty), ty * U);
-    if (i < (W3.quality === "low" ? 3 : 7)) {
+    if (i < (W3.quality === "low" ? 6 : 12)) {
       const L = new THREE.PointLight(0xff9a40, 16, 26, 1.4);
       L.position.y = 2.1;
       L.userData.phase = i * 1.7;
@@ -10399,7 +10653,7 @@ function buildCave(field, root) {
   });
   const rnd = rngFor(z, "crystals");
   const crystalColors = [0x4dd0e1, 0xb388ff, 0x80cbc4];
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < (themeOf(z) === "crypt" ? 0 : 18); i++) {
     let px, py, tries = 0;
     do { px = field.x0 + rnd() * field.w; py = field.y0 + rnd() * field.h; tries++; } while (tries < 40 && !(field.outsideE(px, py) > -30 && field.outsideE(px, py) < 120));
     const c = crystalColors[i % 3];
@@ -10485,10 +10739,85 @@ function buildRuins(field, root) {
   root.add(g);
 }
 
+function buildCrypt(field, root) {
+  const z = field.zone;
+  const bricks = texBricks();
+  const stoneMat = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0x8a8894, roughness: 0.95 });
+  const darkMat = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0x3a3842, roughness: 0.9 });
+  const rnd = rngFor(z, "crypt");
+  for (const [x, y] of z.pillars || []) {
+    const gy = field.heightAt(x, y) - 0.2;
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 1.6), stoneMat);
+    base.position.set(x * U, gy + 0.25, y * U);
+    const h = 5.5 + rnd() * 1.5;
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.58, h, 10), stoneMat);
+    col.position.set(x * U, gy + 0.5 + h / 2, y * U);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.4, 1.5), stoneMat);
+    cap.position.set(x * U, gy + 0.5 + h + 0.2, y * U);
+    base.castShadow = col.castShadow = cap.castShadow = true; base.receiveShadow = col.receiveShadow = true;
+    root.add(base, col, cap);
+  }
+  W3.barrierMeshes = {};
+  for (const b of z.barriers || []) {
+    const g = new THREE.Group();
+    const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+    const gy = field.heightAt(cx, cy) - 0.3;
+    const horiz = b.w >= b.h;
+    const span = (horiz ? b.w : b.h) * U, thick = (horiz ? b.h : b.w) * U;
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(thick, 5.2, span + 1.2), darkMat);
+    frame.position.y = 2.6;
+    const hole = new THREE.Mesh(new THREE.BoxGeometry(thick + 0.1, 4.4, span - 0.4), new THREE.MeshBasicMaterial({ color: 0x05050a }));
+    hole.position.y = 2.2;
+    g.add(frame, hole);
+    const barsG = new THREE.Group();
+    const bars = Math.round(span / 0.6);
+    for (let i = 0; i <= bars; i++) {
+      const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 4.4, 6), std({ color: 0x6a6a72, metalness: 0.7, roughness: 0.5 }));
+      bar.position.set(0, 2.2, -span / 2 + 0.2 + i * (span - 0.4) / bars);
+      bar.castShadow = true;
+      barsG.add(bar);
+    }
+    for (const yy of [1.0, 2.2, 3.4]) { const rail = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, span - 0.4), std({ color: 0x5a5a62, metalness: 0.7, roughness: 0.5 })); rail.position.y = yy; barsG.add(rail); }
+    g.add(barsG);
+    g.position.set(cx * U, gy, cy * U);
+    if (horiz) g.rotation.y = Math.PI / 2;
+    root.add(g);
+    W3.barrierMeshes[b.id] = { group: g, bars: barsG, open: null };
+  }
+  for (const n of z.npcs) {
+    if (!NPCS[n.id] || NPCS[n.id].prop !== "throne") continue;
+    const gy = field.heightAt(n.x, n.y) - 0.1;
+    const g = new THREE.Group();
+    for (let i = 0; i < 3; i++) { const step = new THREE.Mesh(new THREE.BoxGeometry(6 - i * 1.4, 0.3, 4 - i * 0.8), stoneMat); step.position.y = 0.15 + i * 0.3; step.receiveShadow = true; g.add(step); }
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.7, 1.2), darkMat); seat.position.set(0, 1.25, 0.2);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(1.5, 3.0, 0.35), darkMat); back.position.set(0, 2.4, -0.45);
+    for (const sgn of [-1, 1]) { const arm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.9, 1.1), darkMat); arm.position.set(sgn * 0.68, 1.5, 0.15); g.add(arm); }
+    for (const sgn of [-1, 1]) { const spike = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.9, 6), std({ color: 0xc8a040, metalness: 0.6, roughness: 0.4 })); spike.position.set(sgn * 0.5, 4.3, -0.45); g.add(spike); }
+    seat.castShadow = back.castShadow = true;
+    g.add(seat, back);
+    g.position.set(n.x * U, gy, n.y * U);
+    g.rotation.y = Math.PI / 2;
+    root.add(g);
+  }
+}
+
+function syncBarriers() {
+  if (!W3.barrierMeshes || !S.zone.barriers) return;
+  for (const b of S.zone.barriers) {
+    const m = W3.barrierMeshes[b.id];
+    if (!m) continue;
+    const open = barrierOpen(b);
+    if (m.open === null) { m.open = open; m.bars.position.y = open ? 4.6 : 0; continue; }
+    if (open !== m.open) { m.open = open; if (open && typeof sfx === "function") sfx("unlock"); }
+    const ty = m.open ? 4.6 : 0;
+    m.bars.position.y += (ty - m.bars.position.y) * 0.04;
+  }
+}
+
 function buildExits(field, root) {
   const z = field.zone;
   const planks = texPlanks();
-  const rock = themeOf(z) === "cave" ? texCaveRock() : texRock();
+  const rock = themeOf(z) === "cave" || themeOf(z) === "crypt" ? texCaveRock() : texRock();
   const woodMat = std({ map: planks.map, normalMap: planks.normalMap });
   const rockMat = std({ map: rock.map, normalMap: rock.normalMap });
   for (const ex of z.exits) {
@@ -10497,7 +10826,7 @@ function buildExits(field, root) {
     const horiz = ex.x <= 0 || ex.x + ex.w >= z.w;
     const g = new THREE.Group();
     const span = 4.6;
-    const mat = themeOf(z) === "cave" ? rockMat : woodMat;
+    const mat = themeOf(z) === "cave" || themeOf(z) === "crypt" ? rockMat : woodMat;
     for (const s of [-1, 1]) {
       const p = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4.2, 0.5), mat);
       p.position.set(0, 2.1, s * span / 2);
@@ -10528,7 +10857,7 @@ function buildWater(field, root) {
   });
   const geo = THREE.mergeGeometries(geos);
   const normals = texWaterNormals();
-  const cave = themeOf(z) === "cave";
+  const cave = themeOf(z) === "cave" || themeOf(z) === "crypt";
   let water;
   if (W3.quality === "low") {
     const nm = normals.clone();
@@ -10683,7 +11012,8 @@ function* buildZone3DSteps() {
   buildVegetation(field, root);
   yield { p: 0.88, t: "Raising buildings…" };
   if (themeOf(z) === "town") buildTown(field, root);
-  if (themeOf(z) === "cave") buildCave(field, root);
+  if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
+  if (themeOf(z) === "crypt") buildCrypt(field, root);
   buildRuins(field, root);
   buildExits(field, root);
   buildWater(field, root);
@@ -10712,7 +11042,7 @@ function updateSky(force) {
   const sunY = dir.y;
   const dayAmt = sstep(-0.18, 0.25, sunY);
   W3.daylight = dayAmt;
-  const cave = theme === "cave";
+  const cave = theme === "cave" || theme === "crypt";
   const indoor = theme === "house";
   const centre = p2w(player.x, player.y);
   W3.sky.visible = !cave && !indoor;
@@ -10733,16 +11063,20 @@ function updateSky(force) {
   W3.clouds.position.z = W3.camera.position.z;
   W3.clouds.material.map.offset.x = S.time * 0.0018;
   W3.clouds.material.map.offset.y = S.time * 0.0009;
-  const fogC = cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
+  const fogC = theme === "crypt" ? new THREE.Color(0x14141c) : cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
   W3.clouds.material.color.copy(new THREE.Color(0xffffff).lerp(fogC, 0.35).multiplyScalar(mix(0.18, 1, dayAmt)));
   W3.fog.color.copy(fogC);
-  if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
+  if (theme === "crypt") { W3.fog.near = 10; W3.fog.far = 95; }
+  else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else { W3.fog.near = mix(30, 70, dayAmt); W3.fog.far = mix(180, 420, dayAmt); }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
   const warm = 1 - sstep(0.05, 0.35, sunY);
-  if (cave) {
+  if (theme === "crypt") {
+    W3.sun.intensity = 0.9; W3.sun.color.set(0x9aa8c8);
+    W3.hemi.intensity = 1.4; W3.hemi.color.set(0x8890b8); W3.hemi.groundColor.set(0x3a3a44);
+  } else if (cave) {
     W3.sun.intensity = 0.55; W3.sun.color.set(0x8a9ad0);
     W3.hemi.intensity = 0.9; W3.hemi.color.set(0x7080b0); W3.hemi.groundColor.set(0x3a2a1c);
   } else if (sunY > -0.02) {
@@ -10800,7 +11134,7 @@ const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "f
 const ATLAS_SIZE = 1024, ATLAS_CELL = 256;
 const RIG = { atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
-const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x9a6440, 0x6b4128];
+const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xd4a07a, 0xc98d64, 0x9a6440, 0x6b4128, 0x4a2c1c, 0x2e1b12];
 const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald"];
 const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
@@ -11083,21 +11417,21 @@ const ITEM_LOOK = {
 
 const MERC_BASE = {
   kael: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[1] } },
-  rook: { build: 0, skin: SKIN_TONES[3], hair: { style: "spiky", color: HAIR_COLORS[5] } },
+  rook: { build: 0, skin: SKIN_TONES[6], hair: { style: "spiky", color: HAIR_COLORS[5] } },
   mira: { build: 1, skin: SKIN_TONES[0], hair: { style: "long", color: HAIR_COLORS[3] } },
-  fen: { build: 0, skin: SKIN_TONES[2], hair: { style: "bob", color: HAIR_COLORS[2] } },
-  sable: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: 0x2a2440 } },
+  fen: { build: 0, skin: SKIN_TONES[4], hair: { style: "bob", color: HAIR_COLORS[2] } },
+  sable: { build: 1, skin: SKIN_TONES[6], hair: { style: "ponytail", color: 0x2a2440 } },
   dorn: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x8a8a8a },
   lisette: { build: 1, skin: SKIN_TONES[0], hair: { style: "bun", color: HAIR_COLORS[4] } },
-  vesper: { build: 1, skin: SKIN_TONES[4], hair: { style: "long", color: HAIR_COLORS[6] } }
+  vesper: { build: 1, skin: SKIN_TONES[7], hair: { style: "long", color: HAIR_COLORS[6] } }
 };
 
 const NPC_LOOK = {
   rhea: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: 0x8a3a20 }, top: { type: "tabard", color: 0x9aa0a8, region: "chain", color2: 0x2f5c9a }, pauldrons: 0xb8bec6, cape: 0x1d3f75, legs: 0x3a3a44, boots: 0x3a2618, gloves: 0x5a3a22, belt: 0x4a2e1a, weapon: "sword" },
   tobin: { build: 0, skin: SKIN_TONES[0], hair: { style: "bald", color: 0xdedede }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x5a3a7a, trim: 0xd8b050, sleeves: "wide" }, legs: 0x3a2a4a, weapon: "staff", alwaysDrawn: true },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },
-  brann: { build: 0, skin: SKIN_TONES[3], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
-  ysolde: { build: 1, skin: SKIN_TONES[0], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
+  brann: { build: 0, skin: SKIN_TONES[5], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
+  ysolde: { build: 1, skin: SKIN_TONES[4], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
 };
 
 function lookFor(job, gear, base) {
@@ -11623,7 +11957,12 @@ function mobLook(m) {
   if (key === "grimtooth") return { kind: "human", look: goblinLook("grimtooth") };
   if (model === "chieftain") return { kind: "human", look: goblinLook("chieftain") };
   if (model === "goblin") return { kind: "human", look: goblinLook(m.famKey === "den_goblin" ? "raider" : "goblin") };
-  if (model === "skeleton") return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
+  if (model === "skeleton") {
+    if (key === "hollow_king") return { kind: "human", look: { skull: true, skin: 0xd8d0b8, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "cloth", color2: 0xd8b040 }, cape: 0x3a1030, legs: 0xd8d0b8, barefoot: true, head: { type: "crown" }, weapon: "sword", weaponId: "iron_sword", prop: { girth: 0.85 } } };
+    if (key === "crypt_sentinel") return { kind: "human", look: { skull: true, skin: 0xc8d0c8, noFace: true, headRegion: "bone", eyesGlow: 0x80cbc4, top: { type: "mail", color: 0x4a5a5a, region: "chain" }, pauldrons: 0x5a6a6a, legs: 0xc8d0c8, barefoot: true, head: { type: "helm", color: 0x4a5a5a }, weapon: "greataxe", weaponId: "bronze_greataxe", prop: { girth: 0.85 } } };
+    if (key === "royal_guard") return { kind: "human", look: { skull: true, skin: 0xe0dccc, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "chain", color2: 0xd8b040 }, legs: 0xe0dccc, barefoot: true, head: { type: "cap", color: 0x5a5a62 }, weapon: "sword", weaponId: "bronze_sword", prop: { girth: 0.75 } } };
+    return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
+  }
   if (model === "ghoul") {
     const warden = key === "ossuary_warden";
     return { kind: "human", look: { skin: warden ? 0x6a8a74 : 0x8fa890, noFace: true, eyesGlow: warden ? 0x69f0ae : 0xff3030, claws: true, barefoot: true, top: { type: "rags", color: warden ? 0x1c2621 : 0x3a3a30, sleeves: "none" }, legs: 0x4a4a3e, hair: { style: "long", color: 0x6a6a60 }, head: warden ? { type: "hood", color: 0x1c2621 } : null, prop: { arm: 0.72, leg: 0.82, headR: 0.118, girth: 0.82 } } };
@@ -12607,7 +12946,7 @@ function fxFootstep(e, v) {
   if (!FX.ready || e.mounted || e.kind === "npc" || S.zone.theme === "house") return;
   if (dist(e, player) > 600) return;
   const g = groundAt(e);
-  const col = S.zone.theme === "cave" ? 0x5a5550 : S.zone.theme === "town" ? 0x8a8478 : 0x9a8668;
+  const col = S.zone.theme === "cave" || S.zone.theme === "crypt" ? 0x5a5550 : S.zone.theme === "town" ? 0x8a8478 : 0x9a8668;
   burst(FX.smoke, g, 3, { c0: col, speed: 0.6, life: 0.6, size: 0.25, size2: 0.6, shape: "ring", drag: 3, alpha: 0.35 });
 }
 
@@ -12654,10 +12993,10 @@ function updateCastCircles(dt) {
 function updateAuras(dt) {
   for (const m of S.mobs) {
     if (!m.alive || dist(m, player) > 700) continue;
-    if (m.fam.nm && m.fam.aura && Math.random() < dt * 14) {
+    if (m.fam.nm && (m.auraOverride || m.fam.aura) && Math.random() < dt * 14) {
       const a = Math.random() * Math.PI * 2, r = rnd(0.4, 1.0) * (m.fam.scale || 1);
       const g = groundAt(m);
-      FX.add.spawn(g.x + Math.cos(a) * r, g.y + rnd(0, 0.4), g.z + Math.sin(a) * r, 0, rnd(0.6, 1.6), 0, rnd(1, 1.6), 0.22, 0.05, C(0xffffff), C(m.fam.aura), -0.2, 0.3, 0.8);
+      FX.add.spawn(g.x + Math.cos(a) * r, g.y + rnd(0, 0.4), g.z + Math.sin(a) * r, 0, rnd(0.6, 1.6), 0, rnd(1, 1.6), 0.22, 0.05, C(0xffffff), C(m.auraOverride || m.fam.aura), -0.2, 0.3, 0.8);
     }
     if (m.readying && Math.random() < dt * 40) {
       const a = Math.random() * Math.PI * 2, r = rnd(0.6, 1.1);
@@ -12817,12 +13156,19 @@ function placeWeapon(v, e) {
   }
 }
 
+function footGround(e) {
+  const r = Math.max(4, (e.radius || 14) * 0.55);
+  let g = groundY(e.x, e.y);
+  for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r]]) { const h = groundY(e.x + dx, e.y + dy); if (h > g) g = h; }
+  return g;
+}
+
 function syncEntity(e, dt) {
   const v = viewFor(e);
   if (!v) return;
   const g = v.group;
   if (isMob(e) && player && player.target !== e && dist(e, player) > 1700) { g.visible = false; return; }
-  const gy = groundY(e.x, e.y) + (e === player && typeof jumpHeight === "function" ? jumpHeight(e) : 0);
+  const gy = footGround(e) + (e === player && typeof jumpHeight === "function" ? jumpHeight(e) : 0);
   const dead = e.alive === false;
   if (!dead || e.kind === "npc") {
     const yawT = Math.PI / 2 - (e.face || 0);
@@ -12868,6 +13214,7 @@ function syncEntity(e, dt) {
 function entityHeight(e) {
   const v = VIEW.views.get(e);
   if (e.kind === "npc" && e.crystal) return 3.4;
+  if (e.kind === "npc" && e.prop) { const v = VIEW.views.get(e); return v ? v.meta.headTop : 2; }
   let h = v ? v.meta.headTop * v.scale : 2.0;
   if (e.mounted && v && v.mount) h += v.group.position.y - groundY(e.x, e.y);
   return h;
@@ -12888,7 +13235,77 @@ function npcCrystalView(e) {
   return { g, spin: c };
 }
 
+function propView(n) {
+  const g = new THREE.Group();
+  const bt = texBricks();
+  const stone = std({ map: bt.map, normalMap: bt.normalMap, color: 0x8a8894 });
+  const v = { group: g, meta: { headTop: 2.0 }, scale: 1, sig: "prop:" + n.prop, prop: true, mat: null };
+  if (n.prop === "brazier") {
+    const col = new THREE.Color(ELEMENT_COLORS[n.element] || "#ffa040");
+    const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.6, 1.1, 8), stone); ped.position.y = 0.55; ped.castShadow = true;
+    const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.45, 0.5, 12, 1, true), std({ color: { fire: 0x3a2a22, wind: 0xa8a8b0, earth: 0x6a6258, water: 0x3a6a62 }[n.element] || 0x444, metalness: 0.5, roughness: 0.5, side: THREE.DoubleSide })); bowl.position.y = 1.3;
+    const coals = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.1, 12), std({ color: 0x2a2420 })); coals.position.y = 1.35;
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.45, 1.3, 10), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.9 })); flame.position.y = 2.1;
+    const flame2 = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.9, 8), new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0.85 })); flame2.position.y = 2.0;
+    const L = new THREE.PointLight(col, 10, 16, 1.5); L.position.y = 2.2;
+    g.add(ped, bowl, coals, flame, flame2, L);
+    v.flame = [flame, flame2]; v.light = L; v.meta.headTop = 2.6;
+  } else if (n.prop === "tablet") {
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 0.3), stone); slab.position.y = 1.1; slab.castShadow = true;
+    const runes = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.6), new THREE.MeshBasicMaterial({ color: 0x80cbc4, transparent: true, opacity: 0.35 })); runes.position.set(0, 1.15, 0.16);
+    const L = new THREE.PointLight(0x80cbc4, 3, 8, 1.6); L.position.set(0, 1.2, 0.6);
+    g.add(slab, runes, L);
+    v.meta.headTop = 2.4;
+  } else if (n.prop === "chest") {
+    const wood = std({ color: n.chest === "king" ? 0x5a3a2a : 0x6a4a2a, roughness: 0.8 });
+    const metal = std({ color: n.chest === "king" ? 0xd8b040 : 0x8a8a90, metalness: 0.7, roughness: 0.4 });
+    const box = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.7, 0.8), wood); box.position.y = 0.35; box.castShadow = true;
+    const lid = new THREE.Group();
+    const lidM = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.3, 10, 1, false, 0, Math.PI), wood); lidM.rotation.z = Math.PI / 2; lidM.position.set(0, 0, 0.4);
+    const band = new THREE.Mesh(new THREE.TorusGeometry(0.41, 0.03, 6, 14, Math.PI), metal); band.rotation.y = Math.PI / 2; band.position.set(0, 0, 0.4);
+    lid.add(lidM, band);
+    lid.position.set(0, 0.7, -0.4);
+    const lock = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.22, 0.08), metal); lock.position.set(0, 0.55, 0.42);
+    for (const sgn of [-1, 1]) { const strap = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.72, 0.84), metal); strap.position.set(sgn * 0.45, 0.35, 0); g.add(strap); }
+    g.add(box, lid, lock);
+    v.lid = lid; v.meta.headTop = 1.4;
+    if (n.chest === "king") { const chain = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 20), std({ color: 0xcfd8dc, emissive: 0x80cbc4, emissiveIntensity: 0.4 })); chain.rotation.x = Math.PI / 2; chain.position.y = 0.8; chain.scale.set(1.1, 1, 0.7); g.add(chain); v.chain = chain; }
+  } else if (n.prop === "throne") {
+    v.meta.headTop = 4.5;
+  }
+  return v;
+}
+
 function syncNpc(n, dt) {
+  if (n.prop) {
+    let v = VIEW.views.get(n);
+    if (!v) {
+      v = propView(n);
+      const pick = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, v.meta.headTop, 8), new THREE.MeshBasicMaterial({ visible: false }));
+      pick.position.y = v.meta.headTop / 2;
+      pick.userData.entity = n;
+      v.group.add(pick);
+      v.pick = pick;
+      v.crystal = true;
+      W3.scene.add(v.group);
+      VIEW.views.set(n, v);
+    }
+    v.group.position.set(n.x * U, groundY(n.x, n.y), n.y * U);
+    if (v.flame) {
+      const lit = brazierLit(n.element);
+      const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.1 + Math.sin(S.time * 23) * 0.05;
+      v.flame[0].visible = v.flame[1].visible = lit;
+      v.flame[0].scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.12, k);
+      v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
+    }
+    if (v.lid) {
+      const st = chestState(n);
+      const t = st === "empty" ? -1.9 : 0;
+      v.lid.rotation.x += (t - v.lid.rotation.x) * 0.08;
+      if (v.chain) v.chain.visible = st === "sealed";
+    }
+    return;
+  }
   if (n.crystal) {
     let v = VIEW.views.get(n);
     if (!v) {
@@ -13419,6 +13836,7 @@ function draw(dt) {
   for (const m of S.mobs) syncEntity(m, dt);
   for (const n of S.npcs) syncNpc(n, dt);
   syncDecor(dt);
+  syncBarriers();
   for (const [e, v] of VIEW.views) {
     const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e);
     if (!alive) { destroyView(v); VIEW.views.delete(e); }
@@ -13493,6 +13911,8 @@ function rotateTip() {
 }
 
 async function boot() {
+  window.addEventListener("contextmenu", e => { if (!(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"))) e.preventDefault(); });
+  window.addEventListener("dragstart", e => e.preventDefault());
   window.addEventListener("keydown", onKey);
   window.addEventListener("keyup", e => { S.keys[e.key.toLowerCase()] = false; });
   window.addEventListener("blur", () => { S.keys = {}; });
@@ -13611,7 +14031,7 @@ function showCharCreate() {
     const l = CC.look;
     const sw = c => '<span class="sw" style="background:#' + c.toString(16).padStart(6, "0") + '"></span>';
     const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
-    $("ccLook").innerHTML = row("build", "Build", 2, l.build ? "B" : "A") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", HAIR_STYLES.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
+    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", HAIR_STYLES.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
     $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + JOBS[CC.job].name + " Lv.1</small>";
   };
   paint();

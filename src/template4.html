@@ -125,6 +125,8 @@
   #verPop .vpA { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
   #verPop .vpA button { padding: 7px 14px; }
   #verPop .vpA .pri { border-color: var(--gold); color: var(--gold); }
+  body, #ui, #overlay, #loading, #menu { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, textarea { -webkit-user-select: text; user-select: text; }
   #chatIn { margin-top: 4px; height: 26px; padding: 0 9px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(10,12,20,.7); color: #f2efe6; font: 12px system-ui; outline: none; pointer-events: auto; }
   #chatIn:focus { border-color: var(--gold); background: rgba(10,12,20,.9); }
   #chatIn::placeholder { color: #8c8a84; }

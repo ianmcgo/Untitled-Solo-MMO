@@ -407,7 +407,7 @@ function zoneMapCanvas(zoneId) {
   if (z.plaza) { g.fillStyle = "#9b8c6c"; g.beginPath(); g.arc(z.plaza.x, z.plaza.y, z.plaza.r, 0, 7); g.fill(); }
   g.lineCap = "round"; g.lineJoin = "round";
   for (const p of z.paths || []) {
-    g.strokeStyle = z.theme === "cave" ? "#55493c" : "#a8946a"; g.lineWidth = p.w;
+    g.strokeStyle = z.theme === "cave" ? "#55493c" : z.theme === "crypt" ? "#4a4852" : "#a8946a"; g.lineWidth = p.w;
     g.beginPath(); p.pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke();
   }
   for (const w of z.water || []) {
@@ -424,8 +424,10 @@ function zoneMapCanvas(zoneId) {
   for (const s of z.stalls || []) { g.fillStyle = s.color; g.fillRect(s.x - 26, s.y - 14, 52, 28); }
   for (const [x, y] of z.lamps || []) { g.fillStyle = "#ffd77a"; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); }
   for (const [x, y] of z.torches || []) { g.fillStyle = "#ff9a3d"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
+  for (const b of z.barriers || []) { g.fillStyle = "#8a7a4a"; g.fillRect(b.x, b.y, b.w, b.h); }
+  for (const [x, y] of z.pillars || []) { g.fillStyle = "#6a6872"; g.beginPath(); g.arc(x, y, 14, 0, 7); g.fill(); }
   for (const r of z.walls || []) {
-    g.fillStyle = z.theme === "cave" ? "#151310" : "#4d4a40"; g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 14;
+    g.fillStyle = z.theme === "cave" ? "#151310" : z.theme === "crypt" ? "#121218" : "#4d4a40"; g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 14;
     g.beginPath(); g.roundRect ? g.roundRect(r.x, r.y, r.w, r.h, 40) : g.rect(r.x, r.y, r.w, r.h); g.fill(); g.stroke();
   }
   if (z.ruins) {
@@ -462,6 +464,9 @@ function drawMinimap() {
   const dot = (x, y, r, col, ring) => { g.beginPath(); g.arc(x, y, r / sc, 0, 7); g.fillStyle = col; g.fill(); if (ring) { g.lineWidth = 2 / sc; g.strokeStyle = ring; g.stroke(); } };
   for (const n of S.npcs) {
     if (NPCS[n.id] && NPCS[n.id].crystal) { g.save(); g.translate(n.x, n.y); g.rotate(Math.PI / 4); g.fillStyle = "#7ff3ff"; const s = 7 / sc; g.fillRect(-s / 2, -s / 2, s, s); g.restore(); }
+    else if (n.prop === "brazier") dot(n.x, n.y, 4, brazierLit(n.element) ? ELEMENT_COLORS[n.element] : "#555", "#000");
+    else if (n.prop === "chest") dot(n.x, n.y, 4, chestState(n) === "closed" ? "#ffd54f" : "#7a6a3a", "#000");
+    else if (n.prop) dot(n.x, n.y, 3.5, "#bbb", "#000");
     else dot(n.x, n.y, 5, questMarker(n) ? "#ffd54f" : "#ead9ae", "#000");
   }
   for (const mb of S.mobs) {
