@@ -72,6 +72,8 @@
   #tCmd button:hover { border-color: #e6c36a; }
   #tCmd button.pri { border-color: #e6c36a; color: #ffe7a8; }
   #tCmd button.off { opacity: 0.45; }
+  #raceBox { position: absolute; left: 50%; top: calc(110px + var(--sat)); transform: translateX(-50%); padding: 7px 14px; display: none; z-index: 6; font-size: 14px; white-space: nowrap; }
+  #raceBox.on { display: block; }
   #fishBox { position: absolute; left: 50%; bottom: calc(150px + var(--sab)); transform: translateX(-50%); padding: 8px 14px; display: none; align-items: center; gap: 10px; pointer-events: auto; z-index: 7; font-size: 14px; }
   #fishBox.on { display: flex; }
   #fishBox button { padding: 6px 14px; border-radius: 8px; }
@@ -202,8 +204,8 @@
   #crystals { color: var(--gold); white-space: nowrap; }
 
   #btnTarget, #btnEngage, #btnTalk { display: none !important; }
-  #big .jmp { display: none; }
-  @media (pointer: coarse) { #big .jmp { display: grid; } }
+  #big .jmp, #btnMount { display: none !important; }
+  @media (pointer: coarse) { #big .jmp { display: grid !important; } #btnMount.has { display: grid !important; } }
   #big { position: absolute; right: calc(10px + var(--sar)); bottom: calc(12px + var(--sab)); display: grid; grid-template-columns: auto auto; gap: 8px; align-items: end; justify-items: center; }
   .bb { width: 58px; height: 58px; border-radius: 50%; padding: 0; display: grid; place-items: center; font-size: 11px; line-height: 1.05; border: 2px solid var(--edge2); background: radial-gradient(circle at 50% 35%, #383f5a, #151925); box-shadow: 0 4px 12px rgba(0,0,0,.5); }
   .bb .i { font-size: 20px; display: block; }
@@ -517,7 +519,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.5.0 · built 2026-10-13 14:46 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.6.0 · built 2026-10-13 15:00 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -537,6 +539,7 @@
     <div id="tCmd" class="glass"></div>
     <div id="pool" class="glass"></div>
     <div id="fishBox" class="glass"></div>
+    <div id="raceBox" class="glass"></div>
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
@@ -5743,7 +5746,7 @@ const MERC_LINES = {
   victory: ["Nice work.", "That's that.", "Next!"]
 };
 
-const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, water: true, mounts: false };
+const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, water: true, mounts: true };
 
 const FAMILIES = {
   goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
@@ -6207,6 +6210,8 @@ const ACHIEVEMENTS = [
   { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", gil: 200, test: s => (s.crafts.cooking || 0) >= 10 },
   { id: "harbor", icon: "⚓", name: "Sea Air", desc: "Reach Saltreach Harbor.", gil: 80, test: s => (s.discovered || []).includes("harbor") },
   { id: "tuna", icon: "🐟", name: "Tidecaller", desc: "Land a Tidecaller Tuna.", gil: 300, test: s => (s.stats.tuna || 0) >= 1 },
+  { id: "racer", icon: "🏁", name: "Thornstrider Racer", desc: "Win gold on the Hollow Run.", gil: 300, test: s => s.race && s.race.medals && s.race.medals.gold },
+  { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", gil: 150, test: s => (s.stats.ride || 0) >= 20000 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
@@ -6264,6 +6269,19 @@ const WEATHER = {
 const SHOPS = {
   marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
   vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe"]
+};
+const MOUNT_COATS = {
+  teal: { name: "Marsh Teal", main: 0x3f6f6a, dark: 0x2a4a48, glow: 0x6ff0e8, price: 0 },
+  crimson: { name: "Ember Crimson", main: 0x7a2a24, dark: 0x4a1a16, glow: 0xffb040, price: 800 },
+  sable: { name: "Night Sable", main: 0x2a2a34, dark: 0x18181e, glow: 0xb070ff, price: 1200 },
+  gold: { name: "Dune Gold", main: 0xb08a3a, dark: 0x6a5224, glow: 0xfff0a0, price: 1500 },
+  ivory: { name: "Frost Ivory", main: 0xd8d8e0, dark: 0x9a9aa8, glow: 0x80d8ff, price: 2000 }
+};
+const SADDLE_PRICE = 2500, SADDLE_BONUS = 1.15;
+const RACE = {
+  zone: "hollow", start: { x: 120, y: 1100 },
+  checkpoints: [{ x: 800, y: 1010, name: "the old road" }, { x: 1450, y: 1880, name: "Burrow Flats" }, { x: 2515, y: 680, name: "the Old Fort" }, { x: 2650, y: 1440, name: "the Goblin Camp" }, { x: 3000, y: 1080, name: "the Eastern Gate" }],
+  radius: 90, limit: 75, medals: [["gold", 26, 1200], ["silver", 36, 600], ["bronze", 50, 300]]
 };
 const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 
@@ -6339,9 +6357,9 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0 }, board: { day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -8006,7 +8024,7 @@ function follow(a, dt) {
   const cos = Math.cos(player.face), sin = Math.sin(player.face);
   const tx = player.x + o.x * cos - o.y * sin, ty = player.y + o.x * sin + o.y * cos;
   if (dist(a, player) > 700 && !partyInCombat()) { a.x = player.x - Math.cos(player.face) * 40 + rand(-20, 20); a.y = player.y - Math.sin(player.face) * 40 + rand(-20, 20); a.px = a.x; a.py = a.y; return; }
-  if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? CONFIG.mountSpeed : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
+  if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? mountMul() : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
 }
 
 function allyTry(a, act, t) {
@@ -8184,14 +8202,14 @@ function updatePlayer(dt) {
   if (mv.x || mv.y) {
     S.moveTarget = null; S.chase = false; S.pendingTalk = null;
     const len = Math.hypot(mv.x, mv.y);
-    const sp = player.speed * Math.min(1, len) * (player.mounted ? CONFIG.mountSpeed : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1);
+    const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1);
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
     player.face = Math.atan2(mv.y, mv.x);
     moved = true;
   } else if (S.moveTarget) {
     moved = true;
-    if (moveToward(player, S.moveTarget.x, S.moveTarget.y, dt, 3, player.mounted ? CONFIG.mountSpeed : 1)) S.moveTarget = null;
+    if (moveToward(player, S.moveTarget.x, S.moveTarget.y, dt, 3, player.mounted ? mountMul() : 1)) S.moveTarget = null;
   } else if (S.chase && player.attackTarget && player.attackTarget.alive) {
     if (dist(player, player.attackTarget) > CONFIG.meleeRange - 4) { moveToward(player, player.attackTarget.x, player.attackTarget.y, dt, CONFIG.meleeRange - 10); moved = true; }
   }
@@ -8267,6 +8285,7 @@ function partyInCombat() {
 function enterZone(id, x, y) {
   const prev = S.zoneId;
   S.fish = null;
+  if (S.race && id !== RACE.zone) S.race = null;
   S.zoneId = id;
   S.zone = ZONES[id];
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
@@ -8662,6 +8681,8 @@ function step(dt) {
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
+  if (S.race) tickRace();
+  if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
   S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
@@ -8758,6 +8779,79 @@ function toggleEngage(fromTap) {
   touch(player);
   if (fromTap) S.chase = true;
   log("You engage the " + t.name + ".", "you");
+}
+
+function mountMul() { return CONFIG.mountSpeed * (save.saddle ? SADDLE_BONUS : 1); }
+
+function buyCoat(id) {
+  const c = MOUNT_COATS[id];
+  if (!c) return "No such coat.";
+  if (!save.coats.includes(id)) {
+    if (save.gil < c.price) return "That costs " + c.price + " crystals.";
+    save.gil -= c.price;
+    save.coats.push(id);
+    log("Ysolde dyes your Thornstrider " + c.name + " for " + c.price + " crystals.", "loot");
+  } else log("Your Thornstrider is now " + c.name + ".", "sys");
+  save.mountCoat = id;
+  sfx("coin");
+  saveGame();
+  return "";
+}
+
+function buySaddle() {
+  if (save.saddle) return "You already own the Swift Saddle.";
+  if (save.gil < SADDLE_PRICE) return "The Swift Saddle costs " + SADDLE_PRICE + " crystals.";
+  save.gil -= SADDLE_PRICE;
+  save.saddle = true;
+  log("You buy the Swift Saddle. Your Thornstrider runs " + Math.round((SADDLE_BONUS - 1) * 100) + "% faster.", "loot");
+  sfx("unlock");
+  saveGame();
+  return "";
+}
+
+function startRace() {
+  if (!save.mountLicense) return "You need a riding license.";
+  if (partyInCombat()) return "Not during a fight.";
+  enterZone(RACE.zone, RACE.start.x, RACE.start.y);
+  for (const p of S.party) if (p.alive) { p.mounted = true; p.engaged = false; p.attackTarget = null; }
+  S.race = { t0: S.time, next: 0 };
+  log("The Hollow Run! Ride through " + RACE.checkpoints.length + " checkpoints, starting at " + RACE.checkpoints[0].name + ". The clock is running.", "loot");
+  sfx("notify");
+  uiEvent("race", {});
+  return "";
+}
+
+function endRace(msg) {
+  if (!S.race) return;
+  S.race = null;
+  if (msg) log(msg, "sys");
+  uiEvent("race", {});
+}
+
+function tickRace() {
+  const r = S.race;
+  if (!r) return;
+  const t = S.time - r.t0;
+  if (S.zoneId !== RACE.zone || !player.mounted || !player.alive) { endRace("You left the course. The Hollow Run is over."); return; }
+  if (t > RACE.limit) { endRace("Time's up! Try the Hollow Run again with Ysolde."); return; }
+  const cp = RACE.checkpoints[r.next];
+  if (Math.hypot(player.x - cp.x, player.y - cp.y) > RACE.radius) return;
+  r.next++;
+  sfx("select");
+  if (r.next < RACE.checkpoints.length) { log("Checkpoint " + r.next + "/" + RACE.checkpoints.length + " at " + cp.name + " (" + t.toFixed(1) + "s). Next: " + RACE.checkpoints[r.next].name + ".", "loot"); uiEvent("race", {}); return; }
+  S.race = null;
+  const best = save.race.best;
+  if (best == null || t < best) save.race.best = Math.round(t * 10) / 10;
+  const medal = RACE.medals.find(m => t <= m[1]);
+  let msg = "Finish! " + t.toFixed(1) + " seconds" + (best == null || t < best ? " (personal best)" : " (best " + best + "s)") + ".";
+  if (medal) {
+    msg += " " + medal[0][0].toUpperCase() + medal[0].slice(1) + " medal!";
+    if (!save.race.medals[medal[0]]) { save.race.medals[medal[0]] = Date.now(); save.gil += medal[2]; msg += " First " + medal[0] + ": +" + medal[2] + " crystals."; }
+  } else msg += " No medal this time.";
+  log(msg, "loot");
+  sfx("levelup");
+  uiEvent("race", {});
+  saveGame();
 }
 
 function canRideHere() { return !!S.zone && S.zone.theme === "field"; }
@@ -9158,7 +9252,13 @@ const TALK = {
   },
   talkYsolde(n) {
     const q = save.quests;
-    if (save.mountLicense) { openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. It won't come into town or caves, and it bolts if anything hits you, so dismount before a fight.", []); return; }
+    if (save.mountLicense) {
+      openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. I can dye her coat, sell you a faster saddle, or time you on the Hollow Run." + (save.race.best != null ? " Your best run: " + save.race.best + "s." : ""), [
+        { label: "Stable (coats and saddle)", fn: () => { closeDialog(); openModal("stable"); } },
+        { label: "Run the Hollow course", fn: () => { closeDialog(); const why = startRace(); if (why) { log(why, "sys"); sfx("error"); } } }
+      ]);
+      return;
+    }
     if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
@@ -9820,7 +9920,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], board: ["Trade Board", "📋", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -10278,9 +10378,9 @@ function drawMinimap() {
   }
   for (const mb of S.mobs) {
     if (!mb.alive || mb.despawned) continue;
-    const col = conOf(mb)[1];
-    dot(mb.x, mb.y, mb.fam.nm ? 6 : 4, col, mb.fam.nm ? "#ff4d6d" : mb.state === "combat" ? "#ff2a2a" : "#000");
+    dot(mb.x, mb.y, mb.fam.nm ? 6 : 4, mb.passive ? "#c8b48a" : "#e07a5f", mb.fam.nm ? "#ff4d6d" : mb.state === "combat" ? "#ff2a2a" : "#000");
   }
+  if (S.race && RACE.checkpoints[S.race.next]) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 9, "rgba(255,213,79,.85)", "#000"); }
   for (const p of S.party) if (p !== player) dot(p.x, p.y, 4.5, p.alive ? "#62b6ff" : "#555", "#001b33");
   if (S.moveTarget) { g.strokeStyle = "#fff"; g.lineWidth = 2 / sc; const s = 5 / sc; g.beginPath(); g.moveTo(S.moveTarget.x - s, S.moveTarget.y - s); g.lineTo(S.moveTarget.x + s, S.moveTarget.y + s); g.moveTo(S.moveTarget.x + s, S.moveTarget.y - s); g.lineTo(S.moveTarget.x - s, S.moveTarget.y + s); g.stroke(); }
   g.restore();
@@ -10424,6 +10524,7 @@ function uiEvent(type, d) {
   if (type === "target") { tgtCmdOpen(d); return; }
   if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name + (d.gil ? " · +" + d.gil + " 💠" : ""), "r-epic"); return; }
   if (type === "bond") { toast("💞", "Bond level " + d.lv, MERCS[d.id].name, "r-rare"); return; }
+  if (type === "race") { UI.mmForce = true; return; }
   if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
   if (type === "beast") { toast("📖", "Bestiary", d.name, "r-uncommon"); return; }
   if (type === "item") {
@@ -10514,7 +10615,7 @@ function updateBottom() {
   talk.classList.toggle("hot", !!nn && questMarker(nn));
   setTxt($("talkLbl"), nn ? (NPCS[nn.id] && NPCS[nn.id].crystal ? "Crystal" : nn.name.split(/[ ,]/)[0].slice(0, 8)) : "Talk");
   const bm = $("btnMount");
-  bm.style.display = save.mountLicense ? "" : "none";
+  bm.classList.toggle("has", !!save.mountLicense);
   setTxt($("mountLbl"), player.mounted ? "Dismount" : "Mount");
 }
 
@@ -10542,8 +10643,20 @@ function updateFish() {
   el.innerHTML = !f ? "" : key === "bite" ? '<b>🎣 Something\'s biting!</b><button data-fish="reel" class="pri">Reel in! (Space)</button>' : '<span>🎣 Waiting for a bite…</span><button data-fish="stop">Stop</button>';
 }
 
+function updateRace() {
+  const el = $("raceBox");
+  if (!el) return;
+  const r = S.race;
+  el.classList.toggle("on", !!r);
+  if (!r) return;
+  const t = S.time - r.t0, cp = RACE.checkpoints[r.next];
+  const d = cp ? Math.round(Math.hypot(player.x - cp.x, player.y - cp.y) / 20) : 0;
+  setHtml(el, '🏁 <b>' + t.toFixed(1) + 's</b> <span class="sub">/ ' + RACE.limit + "s</span> · " + (cp ? "Checkpoint " + (r.next + 1) + "/" + RACE.checkpoints.length + ": " + esc(cp.name) + " · " + d + " m" : ""));
+}
+
 function updateHud(dt) {
   updatePool();
+  updateRace();
   updateFish();
   UI.phone = window.innerWidth <= 720;
   updateParty();
@@ -10622,7 +10735,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -10638,11 +10751,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "stable"]) if (S.modal === t) tabs.unshift(t);
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -11296,6 +11409,20 @@ function tabForge() {
   return h;
 }
 
+function tabStable() {
+  let h = '<div class="sub" style="margin-bottom:8px">Ysolde can dye your Thornstrider. Once bought, you can switch between coats for free.</div>';
+  if (UI.stableMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.stableMsg) + "</div>";
+  for (const id in MOUNT_COATS) {
+    const c = MOUNT_COATS[id], own = save.coats.includes(id), cur = save.mountCoat === id;
+    h += '<div class="item"><div style="display:flex;gap:10px;align-items:center"><span style="width:26px;height:26px;border-radius:50%;background:#' + c.main.toString(16).padStart(6, "0") + ";border:3px solid #" + c.glow.toString(16).padStart(6, "0") + '"></span><b>' + esc(c.name) + "</b></div>" + (cur ? '<span class="sub">Current</span>' : '<button data-a="coat" data-v="' + id + '">' + (own ? "Use" : "Buy · " + c.price + " 💠") + "</button>") + "</div>";
+  }
+  h += "<h3>Saddle</h3>";
+  h += '<div class="item"><div><b>Swift Saddle</b><div class="sub">Your Thornstrider runs ' + Math.round((SADDLE_BONUS - 1) * 100) + "% faster. Companions keep up.</div></div>" + (save.saddle ? '<span class="sub">Owned ✓</span>' : '<button data-a="saddle">Buy · ' + SADDLE_PRICE + " 💠</button>") + "</div>";
+  h += "<h3>The Hollow Run</h3>";
+  h += '<div class="sub">Ride through ' + RACE.checkpoints.length + " checkpoints across Rocky Hollow: " + RACE.checkpoints.map(c => c.name).join(" → ") + ". Medals: " + RACE.medals.map(m => m[0] + " under " + m[1] + "s (first time +" + m[2] + " 💠)").join(", ") + ". Best: " + (save.race.best != null ? save.race.best + "s" : "none yet") + ".</div>";
+  return h;
+}
+
 function tabBoard() {
   const list = boardToday();
   let h = '<div class="sub" style="margin-bottom:8px">Townsfolk pin up requests each day. Fill them for crystals and experience. New notes go up at midnight (UTC).</div>';
@@ -11412,6 +11539,8 @@ function onMenuClick(e) {
   else if (a === "stance") setStance(v);
   else if (a === "augment") { UI.forgeMsg = augmentItem(v, false); renderModal(); return; }
   else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
+  else if (a === "coat") { UI.stableMsg = buyCoat(v); renderModal(); return; }
+  else if (a === "saddle") { UI.stableMsg = buySaddle(); renderModal(); return; }
   else if (a === "trade") { UI.boardMsg = fillTrade(v); renderModal(); return; }
   else if (a === "mgive") { const [id, it] = v.split(":"); giveMercGear(id, it); }
   else if (a === "mtake") { const [id, sl] = v.split(":"); takeMercGear(id, sl); }
@@ -11468,8 +11597,15 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v5.5.0 · built 2026-10-13 14:46 PDT";
+const BUILD_INFO = "v5.6.0 · built 2026-10-13 15:00 PDT";
 const UPDATES = [
+  { v: "5.6.0", date: "2026-10-13", title: "Mounts: stable, saddle and the Hollow Run", items: [
+    "Ysolde's stable: five Thornstrider coats to buy and switch between, and a Swift Saddle (+15% riding speed).",
+    "The Hollow Run: a timed ride through five checkpoints across Rocky Hollow, with gold, silver and bronze medals that pay out the first time and a saved best time.",
+    "Better fitting gear: belts and robe sashes now hug the waist, robe and tunic skirts no longer flare out from the body, shoulder pads are smaller and sit on the shoulder, weapons are scaled down to fit the hand, and sheathed weapons rest against the back.",
+    "Monster dots on the minimap no longer reveal how tough they are (orange for hostile, tan for peaceful). The Mount button only shows on phones; use R on a keyboard.",
+    "New achievements: Thornstrider Racer and Saddle Sore."
+  ] },
   { v: "5.5.0", date: "2026-10-13", title: "Saltreach Harbor", items: [
     "New town: Saltreach Harbor, south of the Ashen Marsh, with docks, boats, a home point crystal and its own trade board.",
     "New people: Ilsa the harbor master (two quests), Marn the fishmonger (rods, bait, cooking supplies, meals) and Vela the outfitter (level 13–14 gear for every job).",
@@ -11802,7 +11938,7 @@ function tabHelp() {
     "Feed it one crystal. A matching crystal grows extra: Earth for herbs, Wind for ash, Water for moonbloom. Wildgrass grows crystals of whichever element you feed it.",
     "Seeds: Herb Seeds (3–6 Healing Herbs), Ash Sapling (2–4 Ash Logs), Wildgrass Seeds (2–4 crystals), Moonbloom Seeds (Ethers and a chance at rare materials; a rare drop)."
   ]));
-  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
+  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
     "Settings → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Settings → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
@@ -11811,7 +11947,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "5.5.0";
+const GAME_VERSION = "5.6.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -13853,8 +13989,8 @@ function humanEntry(L) {
     R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
     if (L.pauldrons) {
-      R.add(gPartSphere(V3(ax * 1.04, shY + 0.01, 0), 0.085 * gi, 0, Math.PI * 0.55, 1.15, 0.8, 1.05, 14), "upArm" + sd, L.pauldrons, "metal");
-      R.add(gRing(V3(ax * 1.04, shY - 0.015, 0), 0.093 * gi, 0.01, "y", 16), "upArm" + sd, 0xc8a040, "metal");
+      R.add(gPartSphere(V3(ax * 1.01, shY - 0.012, 0), 0.068 * gi, 0, Math.PI * 0.55, 1.12, 0.75, 1.0, 14), "upArm" + sd, L.pauldrons, "metal");
+      R.add(gRing(V3(ax * 1.01, shY - 0.03, 0), 0.072 * gi, 0.008, "y", 16).scale(1, 1, 0.92), "upArm" + sd, 0xc8a040, "metal");
     }
     if (L.shield && s < 0) {
       const sy = (elY + wrY) / 2, sx = ex - 0.075;
@@ -13887,16 +14023,17 @@ function humanEntry(L) {
     const bottom = t === "robe" ? 0.1 : knee - 0.08;
     const h = hipJ + 0.05 - bottom;
     for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
-      R.add(gCyl(V3(0, bottom + h / 2, 0), 0.17 * gi, 0.25 * gi, h, 12, true, s > 0 ? 0 : Math.PI, Math.PI), "thigh" + sd, topC, topR);
-      if (top.trim) R.add(gCyl(V3(0, bottom + 0.035, 0), 0.248 * gi, 0.252 * gi, 0.07, 12, true, s > 0 ? 0 : Math.PI, Math.PI), "thigh" + sd, top.trim, "trim", !!top.glowTrim);
+      const skTop = 0.158 * gi * (fem ? 1.08 : 1);
+      R.add(gCyl(V3(0, bottom + h / 2, 0), skTop, 0.23 * gi, h, 12, true, s > 0 ? 0 : Math.PI, Math.PI).scale(1, 1, 0.78), "thigh" + sd, topC, topR);
+      if (top.trim) R.add(gCyl(V3(0, bottom + 0.035, 0), 0.228 * gi, 0.232 * gi, 0.07, 12, true, s > 0 ? 0 : Math.PI, Math.PI).scale(1, 1, 0.78), "thigh" + sd, top.trim, "trim", !!top.glowTrim);
     }
     if (top.trim) R.add(gRing(V3(0, neckY - 0.02, 0.01), 0.075 * gi, 0.016, "y", 18), "chest", top.trim, "trim", !!top.glowTrim);
-    R.add(gRing(V3(0, hipsY + 0.03, 0), 0.15 * gi * pr.waist + 0.01, 0.025, "y", 18), "hips", top.trim || 0x4a3020, "cloth");
+    R.add(gRing(V3(0, hipsY + 0.03, 0), (fem ? 0.165 : 0.152) * gi * (fem ? 1.08 : 1) + 0.006, 0.02, "y", 18).scale(1, 1, 0.72), "hips", top.trim || 0x4a3020, "cloth");
     if (t === "robe") R.add(gBox(V3(0.05, hipsY - 0.12, 0.13), 0.05, 0.22, 0.015), "hips", top.trim || 0x4a3020, "cloth");
   }
   if (t === "tunic" || t === "mail" || t === "tabard" || t === "rags") {
     const c = t === "mail" ? 0x9aa0a8 : topC;
-    R.add(gCyl(V3(0, hipsY - 0.09, 0), 0.155 * gi, 0.2 * gi, 0.2, 14, true), "hips", c, t === "mail" ? "metal" : topR);
+    R.add(gCyl(V3(0, hipsY - 0.09, 0), 0.155 * gi * (fem ? 1.08 : 1), 0.19 * gi, 0.2, 14, true).scale(1, 1, 0.76), "hips", c, t === "mail" ? "metal" : topR);
   }
   if (t === "tabard") {
     R.add(gBox(V3(0, chestY - 0.12, 0.125 * gi), 0.2, 0.62, 0.012), "chest", top.color2, "cloth");
@@ -13906,8 +14043,9 @@ function humanEntry(L) {
   if (t === "fur") R.add(gRing(V3(0, neckY - 0.04, 0), 0.12 * gi, 0.06, "y", 14), "chest", topC, "fur");
   if (t === "rags") for (let k = 0; k < 5; k++) R.add(gBox(V3(Math.cos(k * 1.3) * 0.15, hipsY - 0.3, Math.sin(k * 1.3) * 0.12), 0.06, 0.22, 0.01, 0, k * 1.3, 0), "hips", topC, "cloth");
   if (L.belt && t !== "robe" && t !== "coat" && !L.skull) {
-    R.add(gRing(V3(0, hipsY + 0.03, 0), 0.15 * gi * pr.waist + 0.01, 0.02, "y", 18), "hips", L.belt, "leather");
-    R.add(gBox(V3(0, hipsY + 0.03, 0.15 * gi * pr.waist + 0.02), 0.05, 0.04, 0.015), "hips", 0xc8a040, "metal");
+    const bR = (fem ? 0.165 : 0.152) * gi * (fem ? 1.08 : 1) + 0.006;
+    R.add(gRing(V3(0, hipsY + 0.03, 0), bR, 0.018, "y", 18).scale(1, 1, 0.72), "hips", L.belt, "leather");
+    R.add(gBox(V3(0, hipsY + 0.03, bR * 0.72 + 0.006), 0.05, 0.04, 0.012), "hips", 0xc8a040, "metal");
   }
   if (L.cape) {
     R.add(gBox(V3(0, (shY + knee) / 2 + 0.02, -0.15 * gi), sw * 2.0, shY - knee, 0.02, 0.1, 0, 0), "chest", L.cape, "cloth");
@@ -13955,7 +14093,7 @@ function humanEntry(L) {
     }
   }
 
-  R.meta = { kind: "human", hipsY, chestY, headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
+  R.meta = { kind: "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
   return R.finish();
 }
 
@@ -14058,7 +14196,7 @@ function hareEntry(col) {
   return R.finish();
 }
 
-function thornstriderEntry() {
+function thornstriderEntry(coat) {
   const R = new RigBuilder();
   R.bone("root", null, 0, 0, 0);
   R.bone("pelvis", "root", 0, 1.05, -0.15);
@@ -14077,7 +14215,8 @@ function thornstriderEntry() {
     R.bone("meta" + sd, "shin" + sd, s * 0.22, 0.32, -0.12);
     R.bone("toe" + sd, "meta" + sd, s * 0.22, 0.05, 0.0);
   }
-  const main = 0x3f6f6a, dark = 0x2a4a48, cream = 0xd8cba8, rust = 0xb0552a, gold = 0xd8a040, glow = 0x6ff0e8, horn = 0xcfc0a0;
+  const C = coat || MOUNT_COATS.teal;
+  const main = C.main, dark = C.dark, cream = 0xd8cba8, rust = 0xb0552a, gold = 0xd8a040, glow = C.glow, horn = 0xcfc0a0;
   R.add(gBall(V3(0, 1.08, -0.15), 0.32, 0.85, 0.85, 1.15, 16), "pelvis", main, "scale");
   R.add(gBall(V3(0, 0.98, 0.08), 0.26, 0.75, 0.6, 1.2, 14), "pelvis", cream, "plain");
   R.add(gBall(V3(0, 1.12, 0.32), 0.29, 0.8, 0.85, 1.0, 16), "chest", main, "scale");
@@ -14188,6 +14327,8 @@ function weaponEntry(kind, id) {
     tip = [0.62, 1.02];
   }
   const e = R.finish();
+  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, club: 0.9 }[kind] || 1;
+  if (k !== 1) { e.geo.scale(k, k, k); e.geo.computeBoundingSphere(); e.geo.boundingSphere.radius *= 1.6; tip = tip.map(x => x * k); }
   e.tip = tip;
   RIG.weaponCache.set(key, e);
   return e;
@@ -14346,8 +14487,9 @@ function rigSigFor(e) {
   return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);
 }
 
-function buildMount() {
-  const entry = entryFor("thornstrider", thornstriderEntry);
+function buildMount(coatId) {
+  const id = MOUNT_COATS[coatId] ? coatId : "teal";
+  const entry = entryFor("thornstrider|" + id, () => thornstriderEntry(MOUNT_COATS[id]));
   return instantiate(entry);
 }
 
@@ -15483,8 +15625,9 @@ function placeWeapon(v, e) {
     else w.rotation.set(Math.PI / 2 - 0.25, 0, 0);
   } else {
     v.bones.chest.add(w);
-    if (k === "staff" || k === "greataxe") { w.position.set(0, -0.05, -0.19); w.rotation.set(0, 0, 0.65); }
-    else { w.position.set(0.04, 0.0, -0.18); w.rotation.set(0, 0, Math.PI + 0.55); }
+    const bz = v.meta.backZ || -0.15;
+    if (k === "staff" || k === "greataxe") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
+    else { w.position.set(0.04, 0.0, bz); w.rotation.set(0, 0, Math.PI + 0.55); }
   }
 }
 
@@ -15507,11 +15650,13 @@ function syncEntity(e, dt) {
     g.rotation.y += normAng(yawT - g.rotation.y) * Math.min(1, dt * 12);
   }
   if (e.mounted && !dead) {
+    const coat = save.mountCoat || "teal";
+    if (v.mount && v.mount.coat !== coat) { W3.scene.remove(v.mount.group); v.mount.mat.dispose(); v.mount = null; }
     if (!v.mount) {
-      const mi = buildMount();
+      const mi = buildMount(coat);
       const mg = new THREE.Group();
       mg.add(mi.mesh);
-      v.mount = { group: mg, mesh: mi.mesh, bones: mi.bones, mat: mi.mat, meta: mi.meta };
+      v.mount = { group: mg, mesh: mi.mesh, bones: mi.bones, mat: mi.mat, meta: mi.meta, coat };
       W3.scene.add(mg);
     }
     const M = v.mount;
@@ -15711,7 +15856,26 @@ function syncNpc(n, dt) {
   syncEntity(n, dt);
 }
 
+function syncBeacon() {
+  const cp = S.race && RACE.checkpoints[S.race.next];
+  if (!cp) { if (VIEW.beacon) VIEW.beacon.visible = false; return; }
+  if (!VIEW.beacon || !VIEW.beacon.parent) {
+    const g = new THREE.Group();
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(RACE.radius * U * 0.5, RACE.radius * U * 0.5, 14, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd54f, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }));
+    col.position.y = 7;
+    const ringM = new THREE.Mesh(new THREE.TorusGeometry(RACE.radius * U * 0.5, 0.12, 6, 32), new THREE.MeshBasicMaterial({ color: 0xffe082 }));
+    ringM.rotation.x = Math.PI / 2; ringM.position.y = 0.3;
+    g.add(col, ringM);
+    VIEW.beacon = g;
+    W3.scene.add(g);
+  }
+  VIEW.beacon.visible = true;
+  VIEW.beacon.position.set(cp.x * U, groundY(cp.x, cp.y), cp.y * U);
+  VIEW.beacon.children[1].scale.setScalar(1 + Math.sin(S.time * 4) * 0.05);
+}
+
 function syncDecor(dt) {
+  syncBeacon();
   const st = S.zone.stable;
   if (!st) return;
   if (!VIEW.decor) {

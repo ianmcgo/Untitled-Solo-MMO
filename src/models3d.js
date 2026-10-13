@@ -72,8 +72,9 @@ function placeWeapon(v, e) {
     else w.rotation.set(Math.PI / 2 - 0.25, 0, 0);
   } else {
     v.bones.chest.add(w);
-    if (k === "staff" || k === "greataxe") { w.position.set(0, -0.05, -0.19); w.rotation.set(0, 0, 0.65); }
-    else { w.position.set(0.04, 0.0, -0.18); w.rotation.set(0, 0, Math.PI + 0.55); }
+    const bz = v.meta.backZ || -0.15;
+    if (k === "staff" || k === "greataxe") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
+    else { w.position.set(0.04, 0.0, bz); w.rotation.set(0, 0, Math.PI + 0.55); }
   }
 }
 
@@ -96,11 +97,13 @@ function syncEntity(e, dt) {
     g.rotation.y += normAng(yawT - g.rotation.y) * Math.min(1, dt * 12);
   }
   if (e.mounted && !dead) {
+    const coat = save.mountCoat || "teal";
+    if (v.mount && v.mount.coat !== coat) { W3.scene.remove(v.mount.group); v.mount.mat.dispose(); v.mount = null; }
     if (!v.mount) {
-      const mi = buildMount();
+      const mi = buildMount(coat);
       const mg = new THREE.Group();
       mg.add(mi.mesh);
-      v.mount = { group: mg, mesh: mi.mesh, bones: mi.bones, mat: mi.mat, meta: mi.meta };
+      v.mount = { group: mg, mesh: mi.mesh, bones: mi.bones, mat: mi.mat, meta: mi.meta, coat };
       W3.scene.add(mg);
     }
     const M = v.mount;
@@ -300,7 +303,26 @@ function syncNpc(n, dt) {
   syncEntity(n, dt);
 }
 
+function syncBeacon() {
+  const cp = S.race && RACE.checkpoints[S.race.next];
+  if (!cp) { if (VIEW.beacon) VIEW.beacon.visible = false; return; }
+  if (!VIEW.beacon || !VIEW.beacon.parent) {
+    const g = new THREE.Group();
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(RACE.radius * U * 0.5, RACE.radius * U * 0.5, 14, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd54f, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }));
+    col.position.y = 7;
+    const ringM = new THREE.Mesh(new THREE.TorusGeometry(RACE.radius * U * 0.5, 0.12, 6, 32), new THREE.MeshBasicMaterial({ color: 0xffe082 }));
+    ringM.rotation.x = Math.PI / 2; ringM.position.y = 0.3;
+    g.add(col, ringM);
+    VIEW.beacon = g;
+    W3.scene.add(g);
+  }
+  VIEW.beacon.visible = true;
+  VIEW.beacon.position.set(cp.x * U, groundY(cp.x, cp.y), cp.y * U);
+  VIEW.beacon.children[1].scale.setScalar(1 + Math.sin(S.time * 4) * 0.05);
+}
+
 function syncDecor(dt) {
+  syncBeacon();
   const st = S.zone.stable;
   if (!st) return;
   if (!VIEW.decor) {

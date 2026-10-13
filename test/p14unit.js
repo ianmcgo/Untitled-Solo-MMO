@@ -1,0 +1,20 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+G.enterZone('outpost'); run(0.2);
+ok(/license/.test(G.startRace()), 'the Hollow Run needs a riding license');
+G.save.mountLicense = true; G.save.gil = 10000;
+ok(G.buyCoat('crimson') === '' && G.save.mountCoat === 'crimson' && G.save.gil === 10000 - G.MOUNT_COATS.crimson.price, 'Ysolde dyes your Thornstrider for a fee');
+const g1 = G.save.gil; G.buyCoat('teal'); G.buyCoat('crimson');
+ok(G.save.gil === g1 && G.save.mountCoat === 'crimson', 'switching between owned coats is free');
+const m0 = G.mountMul(); ok(G.buySaddle() === '' && G.mountMul() > m0 * 1.1, 'the Swift Saddle makes your mount faster');
+ok(G.startRace() === '' && S.zoneId === 'hollow' && P().mounted && S.race, 'starting the Hollow Run puts you mounted at the start');
+S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
+const g0 = G.save.gil;
+for (const cp of G.RACE.checkpoints) { P().x = cp.x; P().y = cp.y; run(0.1); }
+ok(!S.race && G.save.race.best != null && G.save.race.medals.gold && G.save.gil === g0 + 1200, 'riding through every checkpoint finishes with a medal and prize');
+G.startRace(); run(0.2); G.dismount('x'); run(0.2);
+ok(!S.race, 'dismounting ends the run');
+G.startRace(); S.race.t0 -= 100; run(0.2);
+ok(!S.race, 'running out of time ends the run');
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

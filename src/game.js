@@ -70,9 +70,9 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0 }, board: { day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -1737,7 +1737,7 @@ function follow(a, dt) {
   const cos = Math.cos(player.face), sin = Math.sin(player.face);
   const tx = player.x + o.x * cos - o.y * sin, ty = player.y + o.x * sin + o.y * cos;
   if (dist(a, player) > 700 && !partyInCombat()) { a.x = player.x - Math.cos(player.face) * 40 + rand(-20, 20); a.y = player.y - Math.sin(player.face) * 40 + rand(-20, 20); a.px = a.x; a.py = a.y; return; }
-  if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? CONFIG.mountSpeed : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
+  if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? mountMul() : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
 }
 
 function allyTry(a, act, t) {
@@ -1915,14 +1915,14 @@ function updatePlayer(dt) {
   if (mv.x || mv.y) {
     S.moveTarget = null; S.chase = false; S.pendingTalk = null;
     const len = Math.hypot(mv.x, mv.y);
-    const sp = player.speed * Math.min(1, len) * (player.mounted ? CONFIG.mountSpeed : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1);
+    const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1);
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
     player.face = Math.atan2(mv.y, mv.x);
     moved = true;
   } else if (S.moveTarget) {
     moved = true;
-    if (moveToward(player, S.moveTarget.x, S.moveTarget.y, dt, 3, player.mounted ? CONFIG.mountSpeed : 1)) S.moveTarget = null;
+    if (moveToward(player, S.moveTarget.x, S.moveTarget.y, dt, 3, player.mounted ? mountMul() : 1)) S.moveTarget = null;
   } else if (S.chase && player.attackTarget && player.attackTarget.alive) {
     if (dist(player, player.attackTarget) > CONFIG.meleeRange - 4) { moveToward(player, player.attackTarget.x, player.attackTarget.y, dt, CONFIG.meleeRange - 10); moved = true; }
   }
@@ -1998,6 +1998,7 @@ function partyInCombat() {
 function enterZone(id, x, y) {
   const prev = S.zoneId;
   S.fish = null;
+  if (S.race && id !== RACE.zone) S.race = null;
   S.zoneId = id;
   S.zone = ZONES[id];
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
@@ -2393,6 +2394,8 @@ function step(dt) {
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
+  if (S.race) tickRace();
+  if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
   S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
@@ -2489,6 +2492,79 @@ function toggleEngage(fromTap) {
   touch(player);
   if (fromTap) S.chase = true;
   log("You engage the " + t.name + ".", "you");
+}
+
+function mountMul() { return CONFIG.mountSpeed * (save.saddle ? SADDLE_BONUS : 1); }
+
+function buyCoat(id) {
+  const c = MOUNT_COATS[id];
+  if (!c) return "No such coat.";
+  if (!save.coats.includes(id)) {
+    if (save.gil < c.price) return "That costs " + c.price + " crystals.";
+    save.gil -= c.price;
+    save.coats.push(id);
+    log("Ysolde dyes your Thornstrider " + c.name + " for " + c.price + " crystals.", "loot");
+  } else log("Your Thornstrider is now " + c.name + ".", "sys");
+  save.mountCoat = id;
+  sfx("coin");
+  saveGame();
+  return "";
+}
+
+function buySaddle() {
+  if (save.saddle) return "You already own the Swift Saddle.";
+  if (save.gil < SADDLE_PRICE) return "The Swift Saddle costs " + SADDLE_PRICE + " crystals.";
+  save.gil -= SADDLE_PRICE;
+  save.saddle = true;
+  log("You buy the Swift Saddle. Your Thornstrider runs " + Math.round((SADDLE_BONUS - 1) * 100) + "% faster.", "loot");
+  sfx("unlock");
+  saveGame();
+  return "";
+}
+
+function startRace() {
+  if (!save.mountLicense) return "You need a riding license.";
+  if (partyInCombat()) return "Not during a fight.";
+  enterZone(RACE.zone, RACE.start.x, RACE.start.y);
+  for (const p of S.party) if (p.alive) { p.mounted = true; p.engaged = false; p.attackTarget = null; }
+  S.race = { t0: S.time, next: 0 };
+  log("The Hollow Run! Ride through " + RACE.checkpoints.length + " checkpoints, starting at " + RACE.checkpoints[0].name + ". The clock is running.", "loot");
+  sfx("notify");
+  uiEvent("race", {});
+  return "";
+}
+
+function endRace(msg) {
+  if (!S.race) return;
+  S.race = null;
+  if (msg) log(msg, "sys");
+  uiEvent("race", {});
+}
+
+function tickRace() {
+  const r = S.race;
+  if (!r) return;
+  const t = S.time - r.t0;
+  if (S.zoneId !== RACE.zone || !player.mounted || !player.alive) { endRace("You left the course. The Hollow Run is over."); return; }
+  if (t > RACE.limit) { endRace("Time's up! Try the Hollow Run again with Ysolde."); return; }
+  const cp = RACE.checkpoints[r.next];
+  if (Math.hypot(player.x - cp.x, player.y - cp.y) > RACE.radius) return;
+  r.next++;
+  sfx("select");
+  if (r.next < RACE.checkpoints.length) { log("Checkpoint " + r.next + "/" + RACE.checkpoints.length + " at " + cp.name + " (" + t.toFixed(1) + "s). Next: " + RACE.checkpoints[r.next].name + ".", "loot"); uiEvent("race", {}); return; }
+  S.race = null;
+  const best = save.race.best;
+  if (best == null || t < best) save.race.best = Math.round(t * 10) / 10;
+  const medal = RACE.medals.find(m => t <= m[1]);
+  let msg = "Finish! " + t.toFixed(1) + " seconds" + (best == null || t < best ? " (personal best)" : " (best " + best + "s)") + ".";
+  if (medal) {
+    msg += " " + medal[0][0].toUpperCase() + medal[0].slice(1) + " medal!";
+    if (!save.race.medals[medal[0]]) { save.race.medals[medal[0]] = Date.now(); save.gil += medal[2]; msg += " First " + medal[0] + ": +" + medal[2] + " crystals."; }
+  } else msg += " No medal this time.";
+  log(msg, "loot");
+  sfx("levelup");
+  uiEvent("race", {});
+  saveGame();
 }
 
 function canRideHere() { return !!S.zone && S.zone.theme === "field"; }
@@ -2889,7 +2965,13 @@ const TALK = {
   },
   talkYsolde(n) {
     const q = save.quests;
-    if (save.mountLicense) { openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. It won't come into town or caves, and it bolts if anything hits you, so dismount before a fight.", []); return; }
+    if (save.mountLicense) {
+      openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. I can dye her coat, sell you a faster saddle, or time you on the Hollow Run." + (save.race.best != null ? " Your best run: " + save.race.best + "s." : ""), [
+        { label: "Stable (coats and saddle)", fn: () => { closeDialog(); openModal("stable"); } },
+        { label: "Run the Hollow course", fn: () => { closeDialog(); const why = startRace(); if (why) { log(why, "sys"); sfx("error"); } } }
+      ]);
+      return;
+    }
     if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [

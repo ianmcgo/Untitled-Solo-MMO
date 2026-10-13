@@ -614,11 +614,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Quests: catchday (Ilsa, lv 6, 3 harbor_bream, sea_rod), saltsteel (Ilsa, lv 12, 5 mire_goblin, tide_ring). FISH.harbor, WEATHER.harbor. Achievements harbor, tuna.
 - Tests: test/p13unit.js. p5shots scenes harbor, harbor2.
 
+## Phase 15: mounts and gear fit (v5.6.0)
+- FEATURES.mounts true (the riding system already worked; the flag is informational). `mountMul()` = CONFIG.mountSpeed x SADDLE_BONUS (1.15) if save.saddle; used for player, click-move and ally follow.
+- Coats: `MOUNT_COATS { teal, crimson, sable, gold, ivory }` (main/dark/glow colors, price). rig `thornstriderEntry(coat)`, `buildMount(coatId)` caches per coat ("thornstrider|id"). models3d rebuilds a rider's mount when `save.mountCoat` changes (all riders use the player's coat; the stable decor stays teal). save.coats (owned), save.mountCoat, save.saddle. `buyCoat`, `buySaddle`; modal "stable" (tabStable) from Ysolde's dialog.
+- Hollow Run: `RACE { zone hollow, start, checkpoints[5], radius 90, limit 75, medals [[gold,26,1200],[silver,36,600],[bronze,50,300]] }`. `startRace()` enters the Hollow at the start and mounts the party; S.race { t0, next }. `tickRace()` (each step) checks zone/mounted/alive/time, advances checkpoints, finishes with best time (save.race.best) and first-medal payouts (save.race.medals). enterZone clears a race when leaving the course zone. HUD #raceBox (timer, next checkpoint, distance), minimap gold dot, models3d `syncBeacon()` gold column + ring at the next checkpoint. stats.ride accumulates mounted movement /20. Achievements racer, rider.
+- Gear fit (rig.js humanEntry): belt and robe sash rings use the hip radius (0.152 / fem 0.165x1.08, x gi) + 6 mm and are squashed to 0.72 depth like the body lathe; buckle sits on the front. Robe skirt halves start at the hip radius and flare to 0.23, depth 0.78; tunic/mail skirts depth 0.76. Pauldrons 0.068 radius, lower on the shoulder. Weapons scaled after build (sword 0.86, staff 0.84, greataxe 0.86, club 0.9; tips scaled too). Sheathed weapons sit at `meta.backZ` (chest depth + 3 cm) instead of a fixed -0.19.
+- HUD: #btnMount shows only on coarse pointers when licensed (class "has"); minimap mob dots no longer use con colors.
+- Tests: test/p14unit.js; p5shots scenes stable, race, race2, lineup, lineup2, fitBLM, fitBLMside, fitWAR, fitWARfight.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.6.0 | Phase 15: Thornstrider coats, Swift Saddle, Hollow Run time trial; gear fit fixes. |
 | 5.5.0 | Phase 14: Saltreach Harbor town, Ilsa/Marn/Vela, sea fishing, level 13-14 gear. |
 | 5.4.0 | Phase 13: cooking craft, meals with timed buffs; action bar hides empty slots; removed solo tip and Quests/Sound buttons. |
 | 5.3.1 | Hotfix: storage-full fallback (phone character start), title screen. |

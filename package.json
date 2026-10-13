@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "5.5.0",
-  "releaseTitle": "Saltreach Harbor",
+  "version": "5.6.0",
+  "releaseTitle": "Mounts: stable, saddle and the Hollow Run",
   "description": "",
   "main": "index.js",
   "scripts": {
