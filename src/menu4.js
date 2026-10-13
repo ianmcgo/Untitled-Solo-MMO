@@ -883,6 +883,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.7.0", date: "2026-10-13", title: "Ranger and Summoner", items: [
+    "New advanced job: Ranger. Bows (Shortbow, Yew Bow, Steel Longbow) fire from range, so you can stay back while the monster comes to you. Sharpshot, Barrage and Shadowbind; weapon skills Piercing Arrow, Flaming Volley and Gale Arrow. Arrows streak across to the target.",
+    "New advanced job: Summoner. Call an Ember, Frost or Gale Sprite to fight beside you (it joins your party frame and drains a little MP every 3 seconds). Blood Pact makes it unleash its element; Elemental Siphon pulls MP back; Release sends it home.",
+    "Unlock both from Tobin at level 6: Steady Aim and The Calling. New gear: bows, Hunter's Coat, Sprite Staff, Evoker's Robe.",
+    "New companion: Corin the Ranger (unlocked with the job). New achievements: First Calling and Sharp Eye.",
+    "The target frame's in-range check now knows about bow range. New icons for every job ability and tier II spell."
+  ] },
   { v: "5.6.0", date: "2026-10-13", title: "Mounts: stable, saddle and the Hollow Run", items: [
     "Ysolde's stable: five Thornstrider coats to buy and switch between, and a Swift Saddle (+15% riding speed).",
     "The Hollow Run: a timed ride through five checkpoints across Rocky Hollow, with gold, silver and bronze medals that pay out the first time and a saved best time.",
@@ -1102,9 +1109,11 @@ function tabHelp() {
     ["Paladin (advanced)", "Tank", "Sword A, Cure, Flash, Protect, Sentinel, Shield Bash, shields"],
     ["Red Mage (advanced)", "Hybrid", "Sword B, Dia, Cure, nukes, Slow, Paralyze, Convert"],
     ["Thief (advanced)", "Damage", "Dagger A, Steal, Sneak Attack (sure critical), Flee; +5% critical hits; Treasure Hunter (+20% drop chance)"],
+    ["Ranger (advanced)", "Ranged damage", "Archery A: shoots from 230 range, Sharpshot (+40 accuracy), Barrage (next shot fires 3 arrows), Shadowbind (pin a monster for 12 s)"],
+    ["Summoner (advanced)", "Pet mage", "Summoning A: Ember, Frost and Gale Sprites fight beside you and drain MP every 3 s; Blood Pact (sprite's elemental attack), Elemental Siphon (MP back), Release"],
     ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"]
   ]) + ul([
-    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing) and <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs). Each job keeps its own level.",
+    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing) <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per game day (about 58 real minutes). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));

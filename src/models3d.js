@@ -68,6 +68,7 @@ function placeWeapon(v, e) {
     v.bones.handR.add(w);
     w.position.set(0, -0.06, 0.01);
     if (k === "staff") w.rotation.set(0.2, 0, 0);
+    else if (k === "archery") w.rotation.set(0, 0, 0.1);
     else if (k === "greataxe") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
     else w.rotation.set(Math.PI / 2 - 0.25, 0, 0);
   } else {

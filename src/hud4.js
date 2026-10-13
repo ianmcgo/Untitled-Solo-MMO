@@ -3,8 +3,8 @@ const UI = {
   watch: null, hpGhost: 0, ghostTarget: null, actKeys: null, actCtx: "", trackerMin: false, slotText: [], phone: false, lastFog: 0,
   prevZone: null, menuSig: "", menuSigAt: 0, sel: null, pick: null, filter: "all", cmp: null, pv: null, frameT: 0
 };
-const ACT_ICON = { provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", sentinel: "🛡️", shield_bash: "💥", convert: "🔄" };
-const SPELL_ICON = { cure: "✚", cure2: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡", flash: "✨", slow: "🐌", paralyze: "🧊", protect: "🔰" };
+const ACT_ICON = { steal: "🫳", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", chakra: "🧘", sharpshot: "🎯", barrage: "🏹", shadowbind: "⛓️", release: "🌀", blood_pact: "🔮", siphon: "💠", provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", sentinel: "🛡️", shield_bash: "💥", convert: "🔄" };
+const SPELL_ICON = { cure3: "✚", banish2: "✴", stone2: "◆", water2: "💧", aero2: "🌀", fire2: "🔥", blizzard2: "❄", ember_sprite: "🔥", frost_sprite: "❄", gale_sprite: "🌪️", cure: "✚", cure2: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡", flash: "✨", slow: "🐌", paralyze: "🧊", protect: "🔰" };
 const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5 };
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
@@ -243,7 +243,7 @@ function updateActionBar() {
   });
 }
 
-function jobTag(p) { return p.job + p.lv + (p.sub ? "/" + p.sub + Math.floor(p.lv / 2) : ""); }
+function jobTag(p) { if (p.pet) return "Sprite"; return p.job + p.lv + (p.sub ? "/" + p.sub + Math.floor(p.lv / 2) : ""); }
 function buildParty() {
   const el = $("party");
   el.innerHTML = "";
@@ -308,7 +308,7 @@ function updateTarget() {
     const w = $("tWarn");
     if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + t.fam.tpMove.name + "!"); } else w.style.display = "none";
     let info = !t.alive ? "Defeated" : t.state === "combat" ? "In combat" : t.state === "return" ? "Returning" : "Idle";
-    if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= CONFIG.meleeRange ? " · in range" : " · too far";
+    if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= reach(player) ? " · in range" : " · too far";
     setTxt($("tInfo"), info);
     let ch = "";
     if (t.chain && S.time <= t.chain.closeAt) {

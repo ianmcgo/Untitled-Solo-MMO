@@ -289,7 +289,9 @@ const JOB_TINT = {
   PLD: { shirt: 0x3a4a7a, pants: 0x3a3a48, robe: 0x3a4a7a, trim: 0xd8c070 },
   RDM: { shirt: 0xa0242c, pants: 0x2a2a2a, robe: 0xa0242c, trim: 0xd8c070 },
   THF: { shirt: 0x4a3f36, pants: 0x2f2a26, robe: 0x4a3f36, trim: 0xa1887f },
-  MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a }
+  MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
+  RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
+  SMN: { shirt: 0x2a6a78, pants: 0x2a2a38, robe: 0x2a6a78, trim: 0xd8c070, deep: 0x1f4f5f }
 };
 
 const ITEM_LOOK = {
@@ -319,6 +321,8 @@ const ITEM_LOOK = {
   iron_helm: { head: { type: "helm", color: 0x8a9098 } },
   wool_hat: { head: { type: "pointy", color: 0x6a5a8a } },
   marsh_boots: { boots: 0x3f4a2a },
+  hunters_coat: { top: { type: "coat", color: 0x3f5a2c, trim: 0xb08a50 } },
+  evoker_robe: { top: { type: "robe", deep: true } },
   brigand_vest: { top: { type: "vest", color: 0x2f2a28, region: "leather", under: 0x5a4a3a } },
   training_gi: { top: { type: "tunic", color: 0xe8e0cc, region: "cloth" }, belt: 0x2a2a2a },
   mire_mantle: { top: { type: "robe", color: 0x2f4030, trim: 0x8aa070 }, head: { type: "hood", color: 0x2f4030 } }
@@ -333,6 +337,7 @@ const MERC_BASE = {
   dorn: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x8a8a8a },
   lisette: { build: 1, skin: SKIN_TONES[0], hair: { style: "bun", color: HAIR_COLORS[4] } },
   vesper: { build: 1, skin: SKIN_TONES[3], hair: { style: "long", color: HAIR_COLORS[6] } },
+  corin: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[2] }, beard: HAIR_COLORS[2] },
   wren: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: HAIR_COLORS[4] } },
   tamsin: { build: 1, skin: SKIN_TONES[2], hair: { style: "bun", color: HAIR_COLORS[0] } }
 };
@@ -809,6 +814,14 @@ function weaponEntry(kind, id) {
       for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; R.add(gTaper(V3(Math.cos(a) * 0.055, 0.4, Math.sin(a) * 0.055), V3(Math.cos(a) * 0.1, 0.42, Math.sin(a) * 0.1), 0.014, 0.002, 4), "w", 0x8a8f96, "metal"); }
     }
     tip = [0.2, 0.45];
+  } else if (kind === "archery") {
+    const steel = id && /steel/.test(id);
+    const limb = steel ? 0x8a9098 : id && /yew/.test(id) ? 0x9a6a3a : wood;
+    const pts = [];
+    for (let i = 0; i <= 8; i++) { const a = (i / 8 - 0.5) * 2.1; pts.push(V3(0, Math.sin(a) * 0.55, -Math.cos(a) * 0.16 + 0.16)); }
+    for (let i = 0; i < 8; i++) R.add(gTaper(pts[i], pts[i + 1], i === 3 || i === 4 ? 0.022 : 0.014, i === 3 || i === 4 ? 0.022 : 0.012, 6), "w", i === 3 || i === 4 ? grip : limb, i === 3 || i === 4 ? "leather" : steel ? "metal" : "wood");
+    R.add(gTaper(pts[0], pts[8], 0.003, 0.003, 4), "w", 0xe8e0c8, "plain");
+    tip = [0.2, 0.55];
   } else if (kind === "staff") {
     const holly = id === "holly_staff";
     R.add(gTaper(V3(0, -0.65, 0), V3(0, 0.82, 0), 0.02, 0.016, 8), "w", holly ? 0x5a3a28 : wood, "wood");
@@ -950,6 +963,10 @@ function buildEntityRig(e) {
     sig = "n|" + e.id;
     make = () => humanEntry(L);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
+  } else if (e.pet) {
+    const P = PETS[e.petKey];
+    sig = "pet|" + e.petKey;
+    make = () => batEntry(P.col, P.eye);
   } else {
     const base = e === player ? playerBase() : (MERC_BASE[e.mercId] || MERC_BASE.kael);
     const L = lookFor(e.job, e.gear, base);
@@ -987,6 +1004,7 @@ function baseFromLook(look) {
 function playerBase() { return baseFromLook(save.look); }
 
 function rigSigFor(e) {
+  if (e.pet) return "pet|" + e.petKey;
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
   if (e.kind === "npc") return "n|" + e.id;
   return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);
