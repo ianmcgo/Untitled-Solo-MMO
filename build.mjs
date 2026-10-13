@@ -49,7 +49,8 @@ if (AUDIO_JSON) scripts += '<script type="application/json" id="audioData">' + A
 scripts += "<script>\n" + game.replace(/<\/script/gi, "<\\/script") + "\n</script>";
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 const stamp = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, timeZoneName: "short" }).format(new Date()).replace(",", "");
-const html = src(b.template).replace("<!--SCRIPTS-->", () => scripts).replace("__VERSION__", "v" + pkg.version + " · built " + stamp);
+const html = src(b.template).replace("<!--SCRIPTS-->", () => scripts).replaceAll("__VERSION__", "v" + pkg.version + " · built " + stamp).replaceAll("__PKGVER__", pkg.version);
+fs.writeFileSync(path.join(root, "dist", "version.json"), JSON.stringify({ version: pkg.version, built: stamp, title: pkg.releaseTitle || "" }) + "\n");
 const dest = path.join(root, "dist", "index.html");
 fs.writeFileSync(dest, html);
 console.log("phase", phase, "->", dest, (html.length / 1024).toFixed(0) + " KB");

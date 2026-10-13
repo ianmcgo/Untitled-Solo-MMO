@@ -3,7 +3,7 @@ const S = {
   shake: 0, keys: {}, moveTarget: null, chase: false, pendingTalk: null, zoneCooldown: 0,
   lastCombat: -999, itemReadyAt: 0, mobSeq: 0, spawnAt: [], nmDeadUntil: {}, ko: false, dialog: null,
   modal: null, saveTimer: 0, macroKey: "", macros: [], lastPeriod: null, periodTimer: 0, timeShift: 0,
-  sayCooldown: {}, partyKey: ""
+  sayCooldown: {}, partyKey: "", chain: { n: -1, until: 0 }, lastTab: -9, lmTimer: 0, charId: null
 };
 let save, player;
 
@@ -59,7 +59,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: { pouches: "none", support: "none", riding: "none", chieftain: "none" },
     mountLicense: false, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, created: Date.now()
   };
 }
 
@@ -81,18 +81,113 @@ function normalizeSave(d) {
   if (!JOBS[out.mainJob]) out.mainJob = "WAR";
   if (out.subJob && (!JOBS[out.subJob] || !out.supportUnlocked)) out.subJob = null;
   out.gil = Math.max(0, Math.floor(out.gil || 0));
+  out.timers = d.timers && typeof d.timers === "object" ? d.timers : {};
+  out.name = String(d.name || "Adventurer").slice(0, 12);
+  out.landmarks = d.landmarks && typeof d.landmarks === "object" ? d.landmarks : {};
   return out;
 }
 
+const ROSTER_KEY = "usr_roster_v1";
+const MAX_CHARS = 8;
+const charKey = id => "usr_char_" + id;
+
+function charSummary(id, d, prev) {
+  return { id, name: d.name || "Adventurer", job: d.mainJob, lv: d.jobs[d.mainJob].lv, zone: d.home && ZONES[d.home.zone] ? ZONES[d.home.zone].name : "Ashenreach Outpost", look: Object.assign({}, d.look), created: d.created || (prev && prev.created) || Date.now(), played: Date.now(), gil: d.gil };
+}
+
+function loadRoster() {
+  let r = null;
+  try { r = JSON.parse(localStorage.getItem(ROSTER_KEY)); } catch (e) {}
+  if (r && Array.isArray(r.chars)) return r;
+  r = { chars: [], current: null };
+  try {
+    const raw = localStorage.getItem(CONFIG.saveKey);
+    if (raw) {
+      const d = normalizeSave(JSON.parse(raw));
+      if (d) {
+        const id = "c" + Date.now().toString(36);
+        localStorage.setItem(charKey(id), JSON.stringify(d));
+        r.chars.push(charSummary(id, d));
+        r.current = id;
+      }
+    }
+  } catch (e) {}
+  saveRoster(r);
+  return r;
+}
+
+function saveRoster(r) { try { localStorage.setItem(ROSTER_KEY, JSON.stringify(r)); } catch (e) {} }
+
+function loadChar(id) {
+  try {
+    const raw = localStorage.getItem(charKey(id));
+    if (raw) { const d = normalizeSave(JSON.parse(raw)); if (d) return d; }
+  } catch (e) {}
+  return null;
+}
+
+function createChar(opts) {
+  const r = loadRoster();
+  const d = newSave();
+  d.name = opts.name;
+  d.mainJob = JOBS[opts.job] ? opts.job : "WAR";
+  d.look = Object.assign(newSave().look, opts.look || {});
+  if (d.mainJob === "WHM") { d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" }; d.inventory = [{ id: "bronze_sword", qty: 1 }, { id: "ash_staff", qty: 1 }, { id: "leather_vest", qty: 1 }, { id: "potion", qty: 3 }]; }
+  else if (d.mainJob === "BLM") { d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" }; d.inventory = [{ id: "bronze_sword", qty: 1 }, { id: "ash_club", qty: 1 }, { id: "leather_vest", qty: 1 }, { id: "potion", qty: 3 }]; }
+  const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  try { localStorage.setItem(charKey(id), JSON.stringify(d)); } catch (e) {}
+  r.chars.push(charSummary(id, d));
+  r.current = id;
+  saveRoster(r);
+  return id;
+}
+
+function deleteChar(id) {
+  const r = loadRoster();
+  r.chars = r.chars.filter(c => c.id !== id);
+  if (r.current === id) r.current = null;
+  try { localStorage.removeItem(charKey(id)); } catch (e) {}
+  saveRoster(r);
+}
+
+function validCharName(name, roster) {
+  const n = String(name || "").trim();
+  if (n.length < 2 || n.length > 12) return "Names are 2 to 12 letters.";
+  if (!/^[A-Za-z][A-Za-z' -]*$/.test(n)) return "Letters only, please.";
+  if ((roster || loadRoster()).chars.some(c => c.name.toLowerCase() === n.toLowerCase())) return "You already have a character called " + n + ".";
+  return null;
+}
+
+function selectChar(id) {
+  const d = loadChar(id);
+  if (!d) return false;
+  const r = loadRoster();
+  r.current = id;
+  saveRoster(r);
+  S.charId = id;
+  save = d;
+  return true;
+}
+
 function saveGame() {
-  try { localStorage.setItem(CONFIG.saveKey, JSON.stringify(save)); } catch (e) {}
+  try {
+    const txt = JSON.stringify(save);
+    if (S.charId) {
+      localStorage.setItem(charKey(S.charId), txt);
+      const r = loadRoster();
+      const i = r.chars.findIndex(c => c.id === S.charId);
+      const sum = charSummary(S.charId, save, i >= 0 ? r.chars[i] : null);
+      if (i >= 0) r.chars[i] = sum; else r.chars.push(sum);
+      saveRoster(r);
+    }
+    localStorage.setItem(CONFIG.saveKey, txt);
+  } catch (e) {}
 }
 
 function loadGame() {
-  try {
-    const raw = localStorage.getItem(CONFIG.saveKey);
-    if (raw) { const d = normalizeSave(JSON.parse(raw)); if (d) return d; }
-  } catch (e) {}
+  const r = loadRoster();
+  if (r.current && selectChar(r.current)) return save;
+  if (r.chars.length && selectChar(r.chars[0].id)) return save;
   return newSave();
 }
 
@@ -469,14 +564,18 @@ function onKO(e, src) {
     sfx("defeat", e);
     vfx("defeat", { tgt: e });
     const respawn = e.fam.respawn || CONFIG.respawn;
-    S.spawnAt[e.spawnIdx] = S.time + respawn;
-    if (e.fam.nm) S.nmDeadUntil[S.zoneId + ":" + e.spawnIdx] = S.time + respawn;
+    const placeholderNm = !!NM_FAMILIES[e.famKey];
+    S.spawnAt[e.spawnIdx] = S.time + (placeholderNm ? CONFIG.respawn : respawn);
+    if (e.fam.nm) {
+      save.timers["nm:" + e.famKey] = Date.now() + respawn * 1000;
+      if (!placeholderNm) S.nmDeadUntil[S.zoneId + ":" + e.spawnIdx] = S.time + respawn;
+    }
     for (const p of S.party) if (p.attackTarget === e) { p.attackTarget = null; p.engaged = false; }
     if (S.chase && player.attackTarget == null) S.chase = false;
     const byParty = [...e.enmity.keys()].some(isParty);
     if (byParty || (src && isParty(src))) {
       const xp = xpFor(e.lv, player.lv);
-      if (xp > 0) gainXp(xp); else log("No experience gained (too weak).", "sys");
+      if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
       if (e.famKey === "chieftain" && save.quests.chieftain === "active") {
         save.quests.chieftain = "killed";
@@ -506,14 +605,27 @@ function xpFor(mobLv, plLv) {
   return Math.round((25 + 15 * mobLv) * clamp(1 + 0.2 * d, 0.2, 2));
 }
 
+function advanceChain() {
+  const c = S.chain;
+  c.n = S.time < c.until ? Math.min(c.n + 1, CONFIG.chainMax) : 0;
+  c.until = S.time + CONFIG.chainWindow;
+  return c.n;
+}
+
+function chainInfo() {
+  const c = S.chain;
+  if (c.n < 0 || S.time >= c.until) return null;
+  return { n: c.n, left: c.until - S.time, frac: (c.until - S.time) / CONFIG.chainWindow, next: Math.min(c.n + 1, CONFIG.chainMax) };
+}
+
 function xpNeed(lv) { return lv >= CONFIG.levelCap ? 0 : CONFIG.xpTable[lv]; }
 
-function gainXp(n) {
+function gainXp(n, chain, quiet) {
   const j = save.jobs[save.mainJob];
-  if (j.lv >= CONFIG.levelCap) { log("You are at the level cap.", "sys"); return; }
+  if (j.lv >= CONFIG.levelCap) { if (!quiet) log("You are at the level cap.", "sys"); return; }
   j.xp += n;
-  log("You gain " + n + " experience points.", "you");
-  popText(player, "+" + n + " XP", "#9ad06b", 14, 1.2, 16);
+  log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
+  popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
   let leveled = false;
   while (j.lv < CONFIG.levelCap && j.xp >= xpNeed(j.lv)) { j.xp -= xpNeed(j.lv); j.lv++; leveled = true; }
   if (j.lv >= CONFIG.levelCap) j.xp = 0;
@@ -563,8 +675,24 @@ function removeItem(id, n) {
   return true;
 }
 
+function hasItem(id) { return invCount(id) > 0 || Object.values(save.gear).includes(id); }
+
+function itemRarity(id) {
+  const it = ITEMS[id];
+  if (!it) return "common";
+  if (it.rarity) return it.rarity;
+  if (it.rare) return "rare";
+  if (it.hq || ["iron_ore", "iron_ingot", "bone_chip", "silk_cloth", "hi_potion"].includes(id)) return "uncommon";
+  return "common";
+}
+
 function dropLoot(m) {
-  for (const [id, chance] of m.fam.loot || []) if (Math.random() < chance) giveItem(id, 1);
+  for (const [id, chance, minLv] of m.fam.loot || []) {
+    if (minLv && m.lv < minLv) continue;
+    if (Math.random() >= chance) continue;
+    if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
+    giveItem(id, 1);
+  }
   if (m.fam.gil) {
     const g = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
     save.gil += g;
@@ -623,6 +751,7 @@ function checkAction(a, act, t) {
 }
 
 function perform(a, act, t) {
+  if (a.resting) standUp(a, a !== player);
   touch(a);
   if (act.kind === "ws") doWS(a, act.id, t);
   else if (act.kind === "ja") doAbility(a, act.id, t);
@@ -865,9 +994,20 @@ function keepOutOfWater(e) {
   }
 }
 
+function zoneRects(z) {
+  if (z._rects) return z._rects;
+  let rects = (z.houses || []).map(r => ({ x: r.x - r.w / 2, y: r.y - r.h / 2, w: r.w, h: r.h })).concat((z.stalls || []).map(r => ({ x: r.x - 26, y: r.y - 16, w: 52, h: 32 })));
+  rects = rects.concat((z.walls || []).map(r => ({ x: r.x, y: r.y, w: r.w, h: r.h })));
+  if (z.ruins) {
+    for (const [x1, y1, x2, y2] of z.ruins.walls) rects.push({ x: Math.min(x1, x2) - 14, y: Math.min(y1, y2) - 14, w: Math.abs(x2 - x1) + 28, h: Math.abs(y2 - y1) + 28 });
+    for (const [x, y] of z.ruins.pillars) rects.push({ x: x - 16, y: y - 16, w: 32, h: 32 });
+  }
+  z._rects = rects;
+  return rects;
+}
+
 function keepOutOfRects(e) {
-  const z = S.zone;
-  const rects = (z.houses || []).map(r => ({ x: r.x - r.w / 2, y: r.y - r.h / 2, w: r.w, h: r.h })).concat((z.stalls || []).map(r => ({ x: r.x - 26, y: r.y - 16, w: 52, h: 32 })));
+  const rects = zoneRects(S.zone);
   for (const r of rects) {
     const nx = clamp(e.x, r.x, r.x + r.w), ny = clamp(e.y, r.y, r.y + r.h);
     const dx = e.x - nx, dy = e.y - ny;
@@ -973,7 +1113,10 @@ function updateMob(m, dt) {
     return;
   }
   if (m.state === "return") {
+    if (!m.returnSince) m.returnSince = S.time;
+    if (S.time - m.returnSince > 8) { m.x = m.home.x; m.y = m.home.y; }
     if (moveToward(m, m.home.x, m.home.y, dt, 2, 1.3)) {
+      m.returnSince = 0;
       m.state = "idle";
       m.hp = m.maxHp;
       m.tp = 0;
@@ -1019,9 +1162,11 @@ function partyBattleTarget() {
 }
 
 function follow(a, dt) {
+  if (a.resting) return;
   const o0 = followOffset(S.party.indexOf(a)), mf = a.mounted ? 1.9 : 1, o = { x: o0.x * mf, y: o0.y * mf };
   const cos = Math.cos(player.face), sin = Math.sin(player.face);
   const tx = player.x + o.x * cos - o.y * sin, ty = player.y + o.x * sin + o.y * cos;
+  if (dist(a, player) > 700 && !partyInCombat()) { a.x = player.x - Math.cos(player.face) * 40 + rand(-20, 20); a.y = player.y - Math.sin(player.face) * 40 + rand(-20, 20); a.px = a.x; a.py = a.y; return; }
   if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? CONFIG.mountSpeed : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
 }
 
@@ -1170,12 +1315,47 @@ function updatePlayer(dt) {
   autoAttack(player, dt);
 }
 
+function canRest(p) { return p.alive && !p.engaged && !p.casting && !p.mounted && !inCombatWith(p); }
+
+function startRest(p) {
+  if (p.resting) return;
+  p.resting = true;
+  p.restSince = S.time;
+  p.moveTarget = null;
+}
+
+function standUp(p, quiet) {
+  if (!p.resting) return;
+  p.resting = false;
+  p.stillSince = S.time;
+  if (p === player) {
+    if (!quiet) log("You stand up.", "you");
+    for (const a of S.party) if (a !== player) a.resting = false;
+  }
+}
+
+function toggleRest() {
+  if (!player) return;
+  if (player.resting) { standUp(player); return; }
+  if (!player.alive) return;
+  if (player.mounted) { log("You can't rest while riding.", "sys"); sfx("error"); return; }
+  if (player.engaged || inCombatWith(player)) { log("You can't rest while monsters are attacking you.", "sys"); sfx("error"); return; }
+  if (player.casting) { log("You can't rest while casting.", "sys"); sfx("error"); return; }
+  S.moveTarget = null; S.chase = false; S.pendingTalk = null;
+  startRest(player);
+  log("You sit down and rest.", "you");
+  for (const a of S.party) if (a !== player && canRest(a) && !partyInCombat()) startRest(a);
+}
+
 function regen(p, dt) {
+  if (p.resting && (!canRest(p) || p.moving)) standUp(p, p !== player);
   const can = p.alive && !p.engaged && !p.casting && S.time - p.stillSince >= CONFIG.regenDelay && !inCombatWith(p);
+  const rest = can && p.resting && S.time - p.restSince >= CONFIG.restDelay;
   p.regenerating = can && (p.hp < p.maxHp || p.mp < p.maxMp);
+  p.restHealing = rest && (p.hp < p.maxHp || p.mp < p.maxMp);
   if (!can) return;
-  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * CONFIG.regenHp * dt);
-  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * CONFIG.regenMp * dt);
+  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * (rest ? CONFIG.restHp : CONFIG.regenHp) * dt);
+  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * (rest ? CONFIG.restMp : CONFIG.regenMp) * dt);
 }
 
 function tickCasting(e) {
@@ -1209,6 +1389,8 @@ function enterZone(id, x, y) {
   S.zone.spawns.forEach((sp, i) => {
     const until = S.nmDeadUntil[id + ":" + i];
     if (until && until > S.time) { S.spawnAt[i] = until; return; }
+    const fixed = FAMILIES[sp.fam] && FAMILIES[sp.fam].nm && save.timers["nm:" + sp.fam];
+    if (fixed && fixed > Date.now()) { S.spawnAt[i] = S.time + (fixed - Date.now()) / 1000; return; }
     spawnMob(i);
   });
   S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2 }, NPCS[n.id]));
@@ -1232,10 +1414,27 @@ function spawnMob(i) {
   let fam = sp.fam, lv = randInt(sp.lv[0], sp.lv[1]);
   if (FEATURES.nms && sp.nm && (!sp.nm.time || sp.nm.time === period())) {
     const key = "nm:" + sp.nm.id;
-    if (!(save.timers[key] > Date.now()) && Math.random() < sp.nm.chance) { fam = sp.nm.id; lv = sp.nm.lv; }
+    if (!(save.timers[key] > Date.now()) && !S.mobs.some(m => m.alive && m.famKey === sp.nm.id) && Math.random() < sp.nm.chance) {
+      fam = sp.nm.id; lv = sp.nm.lv;
+      if (S.time > 1 && Math.hypot(sp.x - player.x, sp.y - player.y) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
+    }
   }
   S.mobs.push(buildMob(fam, lv, sp.x, sp.y, i));
   S.spawnAt[i] = null;
+}
+
+function checkLandmarks() {
+  const lms = S.zone.landmarks;
+  if (!lms || !player.alive) return;
+  for (const lm of lms) {
+    const key = S.zoneId + ":" + lm.id;
+    if (save.landmarks[key] || Math.hypot(player.x - lm.x, player.y - lm.y) > lm.r) continue;
+    save.landmarks[key] = Date.now();
+    log("You discover " + lm.name + "!", "loot");
+    uiEvent("landmark", lm);
+    gainXp(lm.xp, 0, true);
+    saveGame();
+  }
 }
 
 function updatePeriod() {
@@ -1279,6 +1478,8 @@ function step(dt) {
   if (S.zoneCooldown <= 0 && player.alive) {
     for (const ex of S.zone.exits) if (circleRect(player, ex, 8)) { enterZone(ex.to, ex.tx, ex.ty); return; }
   }
+  S.lmTimer -= dt;
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); }
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
   S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
@@ -1323,11 +1524,27 @@ function setTarget(e) {
   }
 }
 
+function tabNext(list) {
+  const fresh = S.time - S.lastTab > 2 || !list.includes(player.target);
+  S.lastTab = S.time;
+  return fresh ? list[0] : list[(list.indexOf(player.target) + 1) % list.length];
+}
+
+function cycleNpcTarget() {
+  const people = S.npcs.filter(n => !n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const list = people.concat(crystals);
+  if (!list.length) return false;
+  player.target = tabNext(list);
+  sfx("select");
+  return true;
+}
+
 function cycleTarget() {
-  const list = S.mobs.filter(m => m.alive && dist(m, player) < 450).sort((a, b) => dist(a, player) - dist(b, player));
-  if (!list.length) { log("No enemies nearby.", "sys"); return; }
-  const i = list.indexOf(player.target);
-  setTarget(list[(i + 1) % list.length]);
+  if (S.zone.safe) { if (!cycleNpcTarget()) log("No one nearby.", "sys"); return; }
+  const list = S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 450).sort((a, b) => dist(a, player) - dist(b, player));
+  if (!list.length) { if (!cycleNpcTarget()) log("No enemies nearby.", "sys"); return; }
+  setTarget(tabNext(list));
   sfx("select");
 }
 
@@ -1339,6 +1556,7 @@ function nearestMob() {
 
 function toggleEngage(fromTap) {
   if (!player.alive) return;
+  standUp(player);
   if (player.mounted) dismount("You dismount and draw your weapon.");
   if (player.engaged && (!isMob(player.target) || player.target === player.attackTarget)) {
     player.engaged = false; player.attackTarget = null; S.chase = false;
@@ -1365,6 +1583,7 @@ function toggleMount() {
   if (!save.mountLicense) { log("You don't have a riding license yet. Ysolde, the Outpost stablemaster, can help.", "sys"); sfx("error"); return; }
   if (!canRideHere()) { log("Your Thornstrider won't come into " + (S.zone.theme === "town" ? "town" : "here") + ". Call it in open country.", "sys"); sfx("error"); return; }
   if (!player.alive || player.casting || player.engaged || partyInCombat()) { log("You can't call your mount during a fight.", "sys"); sfx("error"); return; }
+  standUp(player, true);
   for (const p of S.party) if (p.alive) { p.mounted = true; p.engaged = false; p.attackTarget = null; p.casting = null; }
   S.chase = false;
   log("You whistle for your Thornstrider and swing into the saddle.", "you");
@@ -1655,6 +1874,7 @@ function startNewGame() {
 }
 
 function applyLoadedSave(d) {
+  if (S.charId) d.created = (loadRoster().chars.find(c => c.id === S.charId) || {}).created || d.created;
   save = d;
   saveGame();
   S.nmDeadUntil = {};
@@ -1673,4 +1893,106 @@ function initParty() {
   refreshPlayer(true);
   rebuildParty();
   S.macroKey = "";
+}
+
+const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", laugh: "laughs", nod: "nods", clap: "claps", point: "points", salute: "salutes", panic: "panics", cry: "cries", thumbsup: "gives a thumbs up" };
+const COMMANDS = [
+  ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
+  ["/stand", "Stand up."],
+  ["/attack", "Attack your target, or the nearest enemy. Also /a."],
+  ["/target name", "Target the nearest character whose name matches. Also /ta."],
+  ["/assist", "Target what your party is fighting."],
+  ["/check", "Check your target's level and difficulty. Also /c."],
+  ["/cast spell", "Cast a spell by name, e.g. /cast cure. Also /ma."],
+  ["/ja ability", "Use a job ability, e.g. /ja provoke."],
+  ["/ws name", "Use a weapon skill, e.g. /ws fast blade."],
+  ["/item name", "Use an item, e.g. /item potion."],
+  ["/mount, /dismount", "Call or dismiss your Thornstrider."],
+  ["/jump", "Jump."],
+  ["/time", "Show the game time and weekday."],
+  ["/where", "Show your zone and position."],
+  ["/clear", "Clear the chat log."],
+  ["/wave, /bow, /cheer…", "Emotes: " + Object.keys(EMOTES).join(", ") + "."],
+  ["/help", "List commands."]
+];
+
+function findNamed(list, q) {
+  q = q.toLowerCase().trim();
+  if (!q) return null;
+  const hits = list.filter(e => e.name && e.name.toLowerCase().includes(q)).sort((a, b) => dist(a, player) - dist(b, player));
+  return hits[0] || null;
+}
+
+function actByName(kind, q) {
+  q = q.toLowerCase().replace(/["']/g, "").trim();
+  const list = actionList(player).filter(a => a.kind === kind);
+  const nm = a => (kind === "ma" ? SPELLS[a.id].name : kind === "ja" ? ABILITIES[a.id].name : WEAPON_SKILLS[a.id].name).toLowerCase();
+  return list.find(a => nm(a) === q) || list.find(a => nm(a).startsWith(q)) || list.find(a => nm(a).includes(q)) || null;
+}
+
+function runCommand(text) {
+  text = String(text || "").trim();
+  if (!text) return;
+  if (text[0] !== "/") { log(save.name + ": " + text, "say"); return; }
+  const sp = text.indexOf(" ");
+  const cmd = (sp < 0 ? text.slice(1) : text.slice(1, sp)).toLowerCase();
+  const arg = sp < 0 ? "" : text.slice(sp + 1).trim();
+  const castBy = kind => {
+    if (!arg) { log("Usage: /" + cmd + " name", "sys"); return; }
+    const a = actByName(kind, arg);
+    if (!a) { log("You don't know " + (kind === "ma" ? "a spell" : kind === "ja" ? "an ability" : "a weapon skill") + " called \"" + arg + "\".", "sys"); sfx("error"); return; }
+    playerAct({ kind: a.kind, id: a.id, name: a.name });
+  };
+  switch (cmd) {
+    case "rest": case "heal": case "sit": toggleRest(); return;
+    case "stand": if (player.resting) standUp(player); else log("You're already standing.", "sys"); return;
+    case "attack": case "a": toggleEngage(false); return;
+    case "target": case "ta": {
+      if (!arg) { cycleTarget(); return; }
+      const t = findNamed(S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 900).concat(S.npcs, S.party), arg);
+      if (!t) { log("No one called \"" + arg + "\" nearby.", "sys"); sfx("error"); return; }
+      if (isMob(t)) setTarget(t); else player.target = t;
+      sfx("select");
+      return;
+    }
+    case "assist": {
+      const t = partyBattleTarget();
+      if (!t) { log("Your party isn't fighting anything.", "sys"); return; }
+      setTarget(t); sfx("select");
+      return;
+    }
+    case "check": case "c": {
+      const t = player.target;
+      if (!isMob(t)) { log(t ? t.name + " is not an enemy." : "You have no target.", "sys"); return; }
+      const [c] = conOf(t);
+      const f = t.fam;
+      const aggro = f.aggro ? Object.keys(f.aggro).map(k => ({ sight: "sight", sound: "sound", magic: "magic", lowhp: "low HP" }[k])).join(", ") : "passive";
+      log("The " + t.name + " (Lv." + t.lv + ") seems like " + (c === "Too Weak" ? "too weak to be worthwhile" : c === "Easy Prey" ? "easy prey" : c === "Decent Challenge" ? "a decent challenge" : c === "Even Match" ? "an even match" : c === "Tough" ? "a tough opponent" : c === "Very Tough" ? "a very tough opponent" : "an incredibly tough opponent") + ". Detects by: " + aggro + "." + (f.nm ? " It is a notorious monster!" : ""), "sys");
+      return;
+    }
+    case "cast": case "ma": castBy("ma"); return;
+    case "ja": castBy("ja"); return;
+    case "ws": castBy("ws"); return;
+    case "item": case "use": {
+      const q = arg.toLowerCase();
+      const s = save.inventory.find(x => ITEMS[x.id].kind === "use" && ITEMS[x.id].name.toLowerCase() === q) || save.inventory.find(x => ITEMS[x.id].kind === "use" && ITEMS[x.id].name.toLowerCase().includes(q));
+      if (!s || !q) { log("You don't have a usable item called \"" + arg + "\".", "sys"); sfx("error"); return; }
+      useItem(s.id);
+      return;
+    }
+    case "mount": if (!player.mounted) toggleMount(); return;
+    case "dismount": if (player.mounted) dismount("You dismount."); return;
+    case "jump": if (typeof tryJump === "function") tryJump(); return;
+    case "time": case "clock": log(clockText() + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); return;
+    case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
+    case "clear": if (typeof clearLog === "function") clearLog(); return;
+    case "help": case "?": case "commands": for (const [c, d] of COMMANDS) log(c + " — " + d, "sys"); return;
+  }
+  if (EMOTES[cmd]) {
+    const t = player.target && player.target !== player ? (isMob(player.target) ? " at the " : " at ") + player.target.name : "";
+    log(save.name + " " + EMOTES[cmd] + t + ".", "say");
+    return;
+  }
+  log("Unknown command: /" + cmd + ". Type /help for a list.", "sys");
+  sfx("error");
 }

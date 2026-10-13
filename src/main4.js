@@ -2,7 +2,7 @@ function onKey(e) {
   if (!UI.started) return;
   const k = e.key.toLowerCase();
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map" };
+  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help" };
   if (S.modal) {
     if (k === "escape") closeModal();
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
@@ -15,6 +15,7 @@ function onKey(e) {
     return;
   }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
+  if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
   if (k === "f") { toggleEngage(false); return; }
   if (k === "enter") { talkNearest(); return; }
   if (menuKeys[k]) { openMenu(menuKeys[k]); return; }
@@ -71,13 +72,11 @@ async function boot() {
   await frames(1);
   initAudio();
   initViewA();
-  loaderProgress(0.25, "Weaving cloth and leather…");
+  loaderProgress(0.35, "Weaving cloth and leather…");
   await frames(1);
   initViewB();
-  loaderProgress(0.45, "Reading your journal…");
+  loaderProgress(0.7, "Opening the roster…");
   await frames(1);
-  save = loadGame();
-  initParty();
   initHud();
   $("btnEngage").onclick = () => toggleEngage(true);
   $("btnTarget").onclick = () => { cycleTarget(); sfx("select"); };
@@ -85,30 +84,9 @@ async function boot() {
   $("btnHome").onclick = returnHome;
   $("btnMount").onclick = toggleMount;
   $("btnJump").onclick = tryJump;
-  log("Welcome to the Outpost. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, Pell to trade.", "npc");
-  loaderProgress(0.55, "Raising the land…");
+  loaderProgress(1, "");
   await frames(1);
-  const h = homePos();
-  enterZone(h.zone, h.x, h.y);
-  await zoneReady();
-  VIEW.booting = false;
   clearInterval(tipTimer);
-  const lv = save.jobs[save.mainJob].lv;
-  const fresh = lv <= 1 && save.jobs[save.mainJob].xp === 0;
-  const ld = $("loading");
-  $("ldStart").innerHTML = fresh ? "Begin your journey" : "Continue<small>" + esc(save.name || "Adventurer") + " · " + JOBS[save.mainJob].name + " Lv." + lv + " · " + esc(S.zone.name) + "</small>";
-  ld.classList.add("ready");
-  const start = () => {
-    if (UI.started) return;
-    UI.started = true;
-    startAudio();
-    sfx("zone");
-    ld.classList.remove("ready");
-    loaderHide();
-    zoneTitle(S.zone.name, "");
-  };
-  $("ldStart").onclick = start;
-  window.addEventListener("keydown", e => { if (!UI.started && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); start(); } });
   let last = performance.now();
   function frame(now) {
     const dt = clamp((now - last) / 1000, 0, 0.05);
@@ -119,10 +97,153 @@ async function boot() {
       draw(dt);
       updateHud(dt);
       updateAudio();
-    }
+    } else if (UI.creating && UI.pv) renderPreview(now);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+  showCharSelect();
+}
+
+const CC = { job: "WAR", look: null, name: "" };
+const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" }, WHM: { main: "ash_club", head: "bronze_cap", body: "linen_robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "linen_robe" } };
+const JOB_BLURB = { WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
+
+function fmtAgo(t) {
+  const d = Date.now() - t;
+  if (d < 60000) return "just now";
+  if (d < 3600000) return Math.floor(d / 60000) + " min ago";
+  if (d < 86400000) return Math.floor(d / 3600000) + " h ago";
+  return Math.floor(d / 86400000) + " d ago";
+}
+
+function showCharSelect() {
+  UI.creating = false;
+  const ld = $("loading");
+  ld.classList.add("ready", "roster");
+  ld.classList.remove("zone");
+  $("ldTitle").textContent = "UNTITLED SOLO RPG";
+  $("ldSub").textContent = "Choose your character";
+  $("ldStart").style.display = "none";
+  const r = loadRoster();
+  r.chars.sort((a, b) => (b.played || 0) - (a.played || 0));
+  let h = '<div class="ccList">';
+  for (const c of r.chars) {
+    const j = JOBS[c.job] || JOBS.WAR;
+    h += '<div class="ccCard" data-id="' + c.id + '"><div class="ccPor" style="background:' + j.color + '22;border-color:' + j.color + '">' + j.icon + '</div><div class="ccInfo"><b>' + esc(c.name) + '</b><span>' + esc(j.name) + " Lv." + c.lv + ' · ' + esc(c.zone) + '</span><small>Last played ' + fmtAgo(c.played || c.created) + '</small></div><div class="ccBtns"><button class="pri" data-play="' + c.id + '">Play</button><button class="del" data-del="' + c.id + '" title="Delete">🗑</button></div></div>';
+  }
+  if (!r.chars.length) h += '<div class="ccEmpty">No characters yet. Create one to begin your journey.</div>';
+  h += "</div>";
+  h += '<div class="ccFoot">' + (r.chars.length < MAX_CHARS ? '<button class="pri" data-new="1">＋ New character</button>' : '<span class="sub">Character limit reached (' + MAX_CHARS + ').</span>') + '<span class="sub">' + r.chars.length + " / " + MAX_CHARS + " characters</span></div>";
+  const box = $("charSel");
+  box.innerHTML = h;
+  box.style.display = "block";
+  box.onclick = e => {
+    const b = e.target.closest("button");
+    if (b && b.dataset.play) { enterWorld(b.dataset.play); return; }
+    if (b && b.dataset.del) {
+      const c = r.chars.find(x => x.id === b.dataset.del);
+      if (c && confirm("Delete " + c.name + " for good? This can't be undone.")) { deleteChar(c.id); sfx("close"); showCharSelect(); }
+      return;
+    }
+    if (b && b.dataset.new) { showCharCreate(); return; }
+    const card = e.target.closest(".ccCard");
+    if (card) enterWorld(card.dataset.id);
+  };
+}
+
+function showCharCreate() {
+  const r = loadRoster();
+  CC.job = "WAR";
+  CC.look = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: Math.floor(Math.random() * (HAIR_STYLES.length - 1)), hairColor: Math.floor(Math.random() * HAIR_COLORS.length) };
+  CC.name = "";
+  $("ldSub").textContent = "Create your character";
+  const box = $("charSel");
+  box.innerHTML = '<div class="ccForm"><div id="ccPv"><div class="lbl" id="ccLbl"></div></div><div class="ccOpts">' +
+    '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters"></label>' +
+    '<div class="ccSec">Job</div><div class="ccJobs">' + Object.keys(JOBS).map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '">' + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb"></div>' +
+    '<div class="ccSec">Appearance <small>· drag the model to turn it</small></div><div class="ccLook" id="ccLook"></div>' +
+    '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>' +
+    '<div class="ccErr" id="ccErr"></div>' +
+    '<div class="ccAct"><button data-back="1">◂ Back</button><button class="pri" data-create="1">Begin your journey</button></div></div></div>';
+  UI.creating = true;
+  if (typeof attachPreview === "function") {
+    const wrap = $("ccPv");
+    attachPreview("ccPv");
+    if (UI.pv && !UI.pv.failed) { UI.pv.rot = 0.4; UI.pv.sig = null; }
+  }
+  const paint = () => {
+    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: CC.look }; }
+    box.querySelectorAll("[data-job]").forEach(b => b.classList.toggle("on", b.dataset.job === CC.job));
+    $("ccJobBlurb").textContent = JOB_BLURB[CC.job];
+    const l = CC.look;
+    const sw = c => '<span class="sw" style="background:#' + c.toString(16).padStart(6, "0") + '"></span>';
+    const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
+    $("ccLook").innerHTML = row("build", "Build", 2, l.build ? "B" : "A") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", HAIR_STYLES.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]]) + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
+    $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + JOBS[CC.job].name + " Lv.1</small>";
+  };
+  paint();
+  const nm = $("ccName");
+  nm.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") create(); });
+  nm.addEventListener("input", () => { CC.name = nm.value.replace(/[^A-Za-z' -]/g, "").slice(0, 12); if (nm.value !== CC.name) nm.value = CC.name; $("ccErr").textContent = ""; paint(); });
+  setTimeout(() => nm.focus(), 50);
+  const create = () => {
+    const name = CC.name.trim().replace(/^./, c => c.toUpperCase());
+    const why = validCharName(name, r);
+    if (why) { $("ccErr").textContent = why; sfx("error"); nm.focus(); return; }
+    const id = createChar({ name, job: CC.job, look: CC.look });
+    enterWorld(id, true);
+  };
+  box.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); paint(); return; }
+    if (b.dataset.look) {
+      const k = b.dataset.look, n = { build: 2, skin: SKIN_TONES.length, hairStyle: HAIR_STYLES.length, hairColor: HAIR_COLORS.length }[k];
+      CC.look[k] = ((CC.look[k] || 0) + parseInt(b.dataset.d, 10) + n) % n;
+      sfx("click"); paint(); return;
+    }
+    if (b.dataset.back) { UI.creating = false; if (UI.pv) UI.pv.override = null; sfx("close"); showCharSelect(); return; }
+    if (b.dataset.create) create();
+  };
+}
+
+async function enterWorld(id, fresh) {
+  if (UI.started || UI.entering) return;
+  if (!selectChar(id)) { showCharSelect(); return; }
+  UI.entering = true;
+  UI.creating = false;
+  if (UI.pv) UI.pv.override = null;
+  startAudio();
+  sfx("select");
+  const ld = $("loading");
+  ld.classList.remove("ready", "roster");
+  $("charSel").style.display = "none";
+  $("ldSub").textContent = fresh ? "A new adventure begins" : "Welcome back, " + (save.name || "Adventurer");
+  loaderProgress(0.05, "Reading your journal…");
+  await frames(2);
+  S.nmDeadUntil = {};
+  initParty();
+  UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
+  clearLog();
+  log(fresh ? "A new adventure begins. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, Pell to trade." : "Welcome back, " + save.name + ".", "npc");
+  const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : homePos();
+  enterZone(h.zone, h.x, h.y);
+  await zoneReady();
+  VIEW.booting = false;
+  UI.started = true;
+  UI.entering = false;
+  sfx("zone");
+  loaderHide();
+  zoneTitle(S.zone.name, fresh ? "Your story begins" : "");
+  initVersionCheck();
+}
+
+function logoutToSelect() {
+  saveGame();
+  const r = loadRoster();
+  r.current = null;
+  saveRoster(r);
+  location.reload();
 }
 
 boot();

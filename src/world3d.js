@@ -18,7 +18,15 @@ function distToSeg(px, py, ax, ay, bx, by) {
   return Math.hypot(px - ax - dx * t, py - ay - dy * t);
 }
 
-function buildField(zone) {
+function buildField(zone) { return runSteps(buildFieldSteps(zone)); }
+
+function* scaleSteps(gen, a, b, text) {
+  let r;
+  while (!(r = gen.next()).done) yield { p: a + (b - a) * (typeof r.value === "number" ? r.value : 0), t: text };
+  return r.value;
+}
+
+function* buildFieldSteps(zone) {
   const theme = themeOf(zone);
   const M = zone.indoor ? 40 : 640;
   const cs = zone.indoor ? 8 : 12;
@@ -40,11 +48,22 @@ function buildField(zone) {
     return best;
   };
   const plazaW = (px, py) => zone.plaza ? 1 - sstep(zone.plaza.r - 12, zone.plaza.r + 12, Math.hypot(px - zone.plaza.x, py - zone.plaza.y)) : 0;
-  const outsideE = (px, py) => {
+  const walls = zone.walls || [];
+  const edgeE = (px, py) => {
     const ix = Math.max(24 - px, px - (zone.w - 24), 0), iy = Math.max(24 - py, py - (zone.h - 24), 0);
     if (ix > 0 || iy > 0) return Math.hypot(ix, iy);
     return -Math.min(px - 24, zone.w - 24 - px, py - 24, zone.h - 24 - py);
   };
+  const wallE = (px, py) => {
+    let e = -1e9;
+    for (const r of walls) {
+      const dx = Math.max(r.x - px, px - (r.x + r.w)), dy = Math.max(r.y - py, py - (r.y + r.h));
+      const sd = Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) + Math.min(Math.max(dx, dy), 0);
+      if (-sd > e) e = -sd;
+    }
+    return e;
+  };
+  const outsideE = (px, py) => Math.max(edgeE(px, py), wallE(px, py));
   const exitMask = (px, py) => {
     let m = 0;
     for (const ex of zone.exits) {
@@ -77,7 +96,11 @@ function buildField(zone) {
       hgt = mix(hgt, waterLevel + 0.35, flat);
       hgt -= (1 - sstep(wt.r * 0.45, wt.r + 22, d)) * 1.7;
     }
-    const e = outsideE(px, py);
+    const e = edgeE(px, py);
+    if (walls.length && amps[2] > 0) {
+      const we = wallE(px, py);
+      if (we > -10) hgt += sstep(-10, 120, we) * amps[2] * (0.75 + NOISE.ridge(px * 0.01, py * 0.01, 3, 0, 309) * 0.5) * (theme === "field" ? 0.9 : 1.1);
+    }
     if (amps[2] > 0) {
       let t = sstep(-60, 260, e);
       t *= 1 - exitMask(px, py) * 0.97;
@@ -87,7 +110,7 @@ function buildField(zone) {
     return hgt;
   };
   const data = new Float32Array(cols * rows);
-  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) data[j * cols + i] = raw(x0 + i * cs, y0 + j * cs);
+  for (let j = 0; j < rows; j++) { for (let i = 0; i < cols; i++) data[j * cols + i] = raw(x0 + i * cs, y0 + j * cs); if ((j & 7) === 7) yield j / rows; }
   const heightAt = (px, py) => {
     const fx = clamp((px - x0) / cs, 0, cols - 1.001), fy = clamp((py - y0) / cs, 0, rows - 1.001);
     const i = Math.floor(fx), j = Math.floor(fy), tx = fx - i, ty = fy - j;
@@ -105,7 +128,9 @@ function buildField(zone) {
 
 function std(params) { return new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, params)); }
 
-function buildTerrain(field) {
+function buildTerrain(field) { return runSteps(buildTerrainSteps(field)); }
+
+function* buildTerrainSteps(field) {
   const geo = new THREE.PlaneGeometry(field.w * U, field.h * U, field.cols - 1, field.rows - 1);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
@@ -117,7 +142,7 @@ function buildTerrain(field) {
   }
   geo.computeVertexNormals();
   const size = W3.quality === "high" ? 2048 : W3.quality === "medium" ? 1536 : 1024;
-  const map = bakeTerrainAlbedo(field, size);
+  const map = yield* bakeTerrainAlbedoSteps(field, size);
   const detail = texDetailNormal();
   const nm = detail.clone();
   nm.needsUpdate = true;
@@ -138,6 +163,11 @@ function placeable(field, px, py, opts) {
   for (const n of z.npcs || []) if (Math.hypot(px - n.x, py - n.y) < (opts.npc || 70)) return false;
   for (const r of z.houses || []) if (Math.abs(px - r.x) < r.w / 2 + 40 && Math.abs(py - r.y) < r.h / 2 + 40) return false;
   for (const ex of z.exits) if (Math.hypot(px - (ex.x + ex.w / 2), py - (ex.y + ex.h / 2)) < (opts.exit || 140)) return false;
+  if (z.ruins) {
+    for (const [x1, y1, x2, y2] of z.ruins.walls) if (px > Math.min(x1, x2) - 60 && px < Math.max(x1, x2) + 60 && py > Math.min(y1, y2) - 60 && py < Math.max(y1, y2) + 60) return false;
+    for (const [x, y] of z.ruins.pillars) if (Math.hypot(px - x, py - y) < 60) return false;
+  }
+  for (const lm of z.landmarks || []) if (lm.clear && Math.hypot(px - lm.x, py - lm.y) < lm.clear) return false;
   return true;
 }
 
@@ -223,11 +253,11 @@ function buildVegetation(field, root) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
     if (e > 500) continue;
-    const inside = e < -40;
+    const inside = e < 40;
     if (inside && rnd() < 0.7) continue;
     if (!placeable(field, px, py, { water: 40, npc: 60, path: 0.05, exit: 170 })) continue;
-    const s = inside ? 0.5 + rnd() * 0.8 : 1 + rnd() * 2.5;
-    stal.push(mtx(px * U, field.heightAt(px, py) - 0.2, py * U, s, s * (1.5 + rnd() * 2.5), s, rnd() * 6.28));
+    const s = inside ? 0.35 + rnd() * 0.45 : 1 + rnd() * 2.5;
+    stal.push(mtx(px * U, field.heightAt(px, py) - 0.2, py * U, s, s * (inside ? 1 + rnd() * 1.4 : 1.5 + rnd() * 2.5), s, rnd() * 6.28));
     k++;
   }
   if (tuftCount) for (let k = 0, tries = 0; k < tuftCount && tries < tuftCount * 6; tries++) {
@@ -447,6 +477,75 @@ function buildCave(field, root) {
   }
 }
 
+function buildRuins(field, root) {
+  const z = field.zone;
+  const R = z.ruins;
+  if (!R) return;
+  const bricks = texBricks(), rock = texRock();
+  const stoneMat = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0xb8b2a4, roughness: 0.95 });
+  const mossMat = std({ map: rock.map, normalMap: rock.normalMap, color: 0x8a9a78 });
+  const rnd = rngFor(z, "ruins");
+  const g = new THREE.Group();
+  const rubble = [];
+  const groundMin = (pts) => Math.min(...pts.map(([x, y]) => field.heightAt(x, y)));
+  for (const [x1, y1, x2, y2, h] of R.walls) {
+    const len = Math.hypot(x2 - x1, y2 - y1) + 28;
+    const n = Math.max(2, Math.round(len / 45));
+    const horiz = Math.abs(x2 - x1) >= Math.abs(y2 - y1);
+    for (let k = 0; k < n; k++) {
+      const t0 = k / n, t1 = (k + 1) / n;
+      const ax = x1 + (x2 - x1) * t0, ay = y1 + (y2 - y1) * t0, bx = x1 + (x2 - x1) * t1, by = y1 + (y2 - y1) * t1;
+      const cx = (ax + bx) / 2, cy = (ay + by) / 2;
+      const base = groundMin([[ax, ay], [bx, by], [cx, cy]]) - 0.35;
+      const bh = Math.max(0.5, h * (0.55 + rnd() * 0.55)) + 0.35;
+      const seg = len / n * U + 0.02;
+      const geo = horiz ? new THREE.BoxGeometry(seg, bh, 1.3) : new THREE.BoxGeometry(1.3, bh, seg);
+      const m = new THREE.Mesh(geo, stoneMat);
+      m.position.set(cx * U, base + bh / 2, cy * U);
+      m.rotation.y = (rnd() - 0.5) * 0.04;
+      m.castShadow = true; m.receiveShadow = true;
+      g.add(m);
+      if (rnd() < 0.5) {
+        const cap = new THREE.Mesh(horiz ? new THREE.BoxGeometry(seg * 0.6, 0.25, 1.45) : new THREE.BoxGeometry(1.45, 0.25, seg * 0.6), mossMat);
+        cap.position.set(cx * U + (rnd() - 0.5) * 0.3, base + bh + 0.08, cy * U + (rnd() - 0.5) * 0.3);
+        cap.castShadow = true;
+        g.add(cap);
+      }
+    }
+    for (let k = 0; k < 6; k++) {
+      const t = rnd(), side = (rnd() - 0.5) * 90;
+      const px = x1 + (x2 - x1) * t + (horiz ? 0 : side), py = y1 + (y2 - y1) * t + (horiz ? side : 0);
+      const s = 0.25 + rnd() * 0.45;
+      rubble.push(mtx(px * U, field.heightAt(px, py) + s * 0.3, py * U, s * 1.4, s, s, rnd() * 6.28, rnd() * 0.5, rnd() * 0.5));
+    }
+  }
+  for (const [x, y, h] of R.pillars) {
+    const gy = field.heightAt(x, y) - 0.2;
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.5, 1.7), stoneMat);
+    base.position.set(x * U, gy + 0.25, y * U);
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.62, h, 10), stoneMat);
+    col.position.set(x * U, gy + 0.5 + h / 2, y * U);
+    col.rotation.z = (rnd() - 0.5) * 0.06;
+    base.castShadow = col.castShadow = true; base.receiveShadow = col.receiveShadow = true;
+    g.add(base, col);
+    if (h > 2.5) {
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.35, 1.4), stoneMat);
+      cap.position.set(x * U, gy + 0.5 + h + 0.17, y * U);
+      cap.castShadow = true;
+      g.add(cap);
+    } else {
+      const fx = x + 30 + rnd() * 20, fy = y + (rnd() - 0.5) * 40;
+      const fallen = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.55, 1.6 + rnd(), 10), stoneMat);
+      fallen.rotation.set(0, rnd() * 3, Math.PI / 2);
+      fallen.position.set(fx * U, field.heightAt(fx, fy) + 0.35, fy * U);
+      fallen.castShadow = true;
+      g.add(fallen);
+    }
+  }
+  if (rubble.length) root.add(instanced(new THREE.BoxGeometry(1, 1, 1), stoneMat, rubble, true));
+  root.add(g);
+}
+
 function buildExits(field, root) {
   const z = field.zone;
   const planks = texPlanks();
@@ -627,23 +726,29 @@ function disposeTree(o) {
   });
 }
 
-function buildZone3D() {
+function buildZone3D() { runSteps(buildZone3DSteps()); }
+
+function* buildZone3DSteps() {
   const z = S.zone;
   if (W3.zoneRoot) { W3.scene.remove(W3.zoneRoot); disposeTree(W3.zoneRoot); }
   W3.grassMats = []; W3.torchLights = []; W3.windowMats = []; W3.lampLights = [];
   const root = new THREE.Group();
   W3.zoneRoot = root;
-  const field = buildField(z);
+  const field = yield* scaleSteps(buildFieldSteps(z), 0, 0.3, "Shaping the land…");
   W3.field = field;
-  const terrain = buildTerrain(field);
+  const terrain = yield* scaleSteps(buildTerrainSteps(field), 0.3, 0.75, "Painting the ground…");
   terrain.material.map.userData.zone = true;
   root.add(terrain);
   W3.terrain = terrain;
+  yield { p: 0.78, t: "Growing trees and grass…" };
   buildVegetation(field, root);
+  yield { p: 0.88, t: "Raising buildings…" };
   if (themeOf(z) === "town") buildTown(field, root);
   if (themeOf(z) === "cave") buildCave(field, root);
+  buildRuins(field, root);
   buildExits(field, root);
   buildWater(field, root);
+  yield { p: 0.94, t: "Filling the water…" };
   W3.scene.add(root);
   W3.lastSunY = -9;
   W3.envTimer = 0;

@@ -43,7 +43,7 @@ function makeCanvas(w, h) {
   return c;
 }
 
-function paintPixels(w, h, fn) {
+function* paintPixelsSteps(w, h, fn) {
   const c = makeCanvas(w, h);
   const g = c.getContext("2d");
   const img = g.createImageData(w, h);
@@ -55,10 +55,13 @@ function paintPixels(w, h, fn) {
       const i = (y * w + x) * 4;
       d[i] = out[0]; d[i + 1] = out[1]; d[i + 2] = out[2]; d[i + 3] = out[3];
     }
+    if ((y & 15) === 15) yield y / h;
   }
   g.putImageData(img, 0, 0);
   return c;
 }
+function runSteps(gen) { let r; while (!(r = gen.next()).done); return r.value; }
+function paintPixels(w, h, fn) { return runSteps(paintPixelsSteps(w, h, fn)); }
 
 function heightToNormalCanvas(w, h, hf, strength) {
   return paintPixels(w, h, (x, y, o) => {
@@ -260,12 +263,12 @@ const TERRAIN_THEMES = {
   house: { grassA: [120, 92, 62], grassB: [128, 98, 66], dirt: [110, 84, 58], rock: [100, 90, 80], sand: [120, 100, 80], cliff: [80, 70, 60] }
 };
 
-function bakeTerrainAlbedo(field, size) {
+function* bakeTerrainAlbedoSteps(field, size) {
   const z = field.zone, th = TERRAIN_THEMES[z.theme] || TERRAIN_THEMES.field;
   const W = size, H = Math.max(64, Math.round(size * field.h / field.w));
   const sx = field.w / W, sy = field.h / H;
   const cob = z.theme === "town";
-  const c = paintPixels(W, H, (ix, iy, o) => {
+  const c = yield* paintPixelsSteps(W, H, (ix, iy, o) => {
     const px = field.x0 + (ix + 0.5) * sx, py = field.y0 + (iy + 0.5) * sy;
     const hgt = field.heightAt(px, py);
     const slope = Math.min(1, Math.hypot(field.heightAt(px + 8, py) - hgt, field.heightAt(px, py + 8) - hgt) / 0.4 * 0.5);
@@ -323,3 +326,5 @@ function cobbleHeight(x, y) {
   }
   return COBBLE_HF[(y & 255) * 256 + (x & 255)];
 }
+
+function bakeTerrainAlbedo(field, size) { return runSteps(bakeTerrainAlbedoSteps(field, size)); }

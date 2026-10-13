@@ -172,6 +172,32 @@ function poseHuman(v, e, dt) {
     v.rootOff[1] += (-0.18 * crouch + 0.75 * air) * w;
   }
 
+  const jp = typeof jumpPhase === "function" ? jumpPhase(e) : null;
+  if (jp && jp.phase !== "done" && !e.mounted) {
+    sharp = true;
+    const k = jp.k;
+    let crouch = 0, tuck = 0, reach = 0, land = 0, lean = 0, fall = 0;
+    if (jp.phase === "windup") { crouch = ease(k); lean = crouch; }
+    else if (jp.phase === "air") { const up = 1 - ease((k - 0.35) / 0.35), dn = ease((k - 0.55) / 0.45); crouch = (1 - ease(k / 0.12)) * 0.6; tuck = Math.sin(Math.PI * Math.min(1, k / 0.8)); reach = up; fall = dn; lean = 0.5 * (1 - dn) - 0.25 * dn; }
+    else { land = Math.sin(Math.PI * k); crouch = land * 0.9; lean = land * 0.8; }
+    const w = 0.92;
+    setP(P, "thighL", -0.75 * crouch - 1.15 * tuck - 0.25 * fall, 0, 0.12, w);
+    setP(P, "thighR", -0.65 * crouch - 0.75 * tuck - 0.1 * fall, 0, -0.12, w);
+    setP(P, "shinL", 1.25 * crouch + 1.7 * tuck + 0.35 * fall, 0, 0, w);
+    setP(P, "shinR", 1.1 * crouch + 1.3 * tuck + 0.25 * fall, 0, 0, w);
+    setP(P, "footL", -0.35 * tuck - 0.3 * fall + 0.2 * crouch, 0, 0, w);
+    setP(P, "footR", -0.3 * tuck - 0.3 * fall + 0.2 * crouch, 0, 0, w);
+    setP(P, "upArmL", 0.75 * crouch - 1.9 * reach - 0.4 * fall, 0, 0.35 * reach + 0.55 * fall + 0.15, w);
+    setP(P, "upArmR", 0.75 * crouch - 1.9 * reach - 0.4 * fall, 0, -0.35 * reach - 0.55 * fall - 0.15, w);
+    setP(P, "foreArmL", -0.35 * crouch - 0.5 * reach - 0.3 * fall, 0, 0, w);
+    setP(P, "foreArmR", -0.35 * crouch - 0.5 * reach - 0.3 * fall, 0, 0, w);
+    setP(P, "spine", 0.38 * lean - 0.12 * reach, 0, 0, w);
+    setP(P, "chest", 0.1 * lean, 0, 0, w);
+    setP(P, "head", -0.2 * lean + 0.12 * fall, 0, 0, w);
+    setP(P, "hips", 0.05 * tuck, 0, 0, w);
+    v.rootOff[1] += -0.22 * crouch + 0.1 * tuck;
+  }
+
   if (e.casting) {
     const cw = Math.min(1, (S.time - e.casting.start) / 0.25);
     const bob = Math.sin(t * 7) * 0.08;
@@ -201,6 +227,23 @@ function poseHuman(v, e, dt) {
     addP(P, "spine", -0.32 * w, 0, 0); addP(P, "head", -0.25 * w, 0, 0);
     addP(P, "upArmL", 0.35 * w, 0, 0.2 * w); addP(P, "upArmR", 0.35 * w, 0, -0.2 * w);
     v.rootOff[2] -= 0.06 * w;
+  }
+
+  const sitT = e.resting && e.alive !== false && !e.mounted ? 1 : 0;
+  an.sit = (an.sit || 0) + (sitT - (an.sit || 0)) * Math.min(1, dt * 5);
+  if (an.sit > 0.01) {
+    const k = an.sit;
+    for (const s of ["L", "R"]) {
+      const sg = s === "L" ? 1 : -1;
+      setP(P, "thigh" + s, -1.25, 0, sg * 0.42, k);
+      setP(P, "shin" + s, 2.05, 0, 0, k);
+      setP(P, "foot" + s, -0.35, 0, 0, k);
+      setP(P, "upArm" + s, -0.42, 0, sg * 0.12, k);
+      setP(P, "foreArm" + s, -0.75, 0, 0, k);
+    }
+    setP(P, "spine", 0.16 + Math.sin(t * 1.3) * 0.02, 0, 0, k);
+    setP(P, "head", 0.08, 0, 0, k);
+    v.rootOff[1] -= ((v.meta && v.meta.hipsY) || 0.9) * 0.78 * k;
   }
 
   if (e.mounted) {

@@ -10,7 +10,11 @@
 | P2 3D world | Done |
 | P3 Characters and effects | Done |
 | P4 Interface, audio, loading screens, jumping | Done |
-| P5–P7 | Not started |
+| P5a Bigger zones, NMs live, drop tables, XP chains, discovery XP, characters, chat commands | Done (v4.2.0) |
+| P5b Paladin and Red Mage | Next |
+| P5c Quests | Not started |
+| P5d Sunken Crypt | Not started |
+| P6 Residence, Pip, storage | Not started |
 
 ---
 
@@ -67,7 +71,8 @@ The game is written as separate source files and assembled into one `index.html`
 - Followers fan out behind you in a fixed formation. KO'd companions get back up at 30% HP after 6 calm seconds.
 
 ### Regeneration by standing still
-- Stand still for 3 s while not engaged, not casting and not targeted by any enemy: HP refills 3%/s and MP 4%/s. Companions follow the same rule. The party list shows "regen". There is no Rest button.
+- Stand still for 3 s while not engaged, not casting and not targeted by any enemy: HP refills 0.6%/s and MP 0.8%/s (a trickle). Companions follow the same rule; the party frame shows 🌿.
+- `/rest` (or the Rest action, `kind: "cmd"`, placed on action-bar page 2) sits you down: after 2 s, HP refills 3.5%/s and MP 4.5%/s. Companions sit with you when nothing is fighting the party. Moving, acting, mounting, engaging or being attacked stands everyone up (`regen` checks `canRest`). `S.party[i].resting`; the party frame shows 💤. The sitting pose is in `poseHuman` (`an.sit`).
 
 ### Home points and death
 - Talk to a Home Point Crystal (Outpost, Rocky Hollow) to restore your party and, if you choose, set it as your home point.
@@ -409,9 +414,62 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 
 ---
 
+## Phase 5a: a bigger world, characters and chat commands (v4.2.0)
+
+### Zones
+- Rocky Hollow is 3200×2200 and the Goblin Den 2400×1600 (sizes from the plan). Both get `walls` (rectangles that become steep rocky ridges in `buildField` via `wallE`, and solid in the rules via `zoneRects`), `landmarks` (name, centre, radius, discovery XP) and more spawn points, laid out so levels rise from west to east.
+- Rocky Hollow has `ruins`: wall segments `[x1, y1, x2, y2, height]` and pillars `[x, y, height]`, built by `buildRuins` from crumbled brick boxes, mossy caps, fallen columns and instanced rubble. They are solid (`zoneRects` pads each by 14 px) and the minimap/map draws them.
+- The Den is four chambers (Den Mouth, Underground Pool, Bone Pit, Chieftain's Throne) joined by two passages; the `walls` carve the rock between them. Floor stalagmites were shrunk so they don't block the camera in the passages.
+- The camera now pulls in when terrain sits between it and the player (`VIEW.camEff`, sampled along the camera ray in `updateCamera`).
+- Zone building is incremental: `buildZone3DSteps` is a generator (field, terrain bake, vegetation, buildings, water), driven by `buildZoneAsync`, which yields a frame every ~28 ms and moves the loading bar. `runSteps` runs the same generators synchronously for tests.
+- Monsters more than 1700 px away are hidden (`syncEntity`). Companions more than 700 px behind you teleport to your side when nothing is fighting (`follow`). A monster that can't reach home in 8 s snaps home (`returnSince`).
+- `test/p5unit.js` checks that every spawn, NPC and path is clear of walls and water.
+
+### Notorious monsters
+- `FEATURES.nms` is on. A placeholder spawn with `nm` may pop the NM instead (`spawnMob`) when `save.timers["nm:<id>"]` (real-clock ms) has passed, no copy is alive, and the chance roll succeeds; a nearby pop logs "You sense a powerful presence". Defeating an NM stores its cooldown (`respawn` s, 300–360) on the real clock so it stays down offline; the placeholder respawns normally. Fixed NMs (the Chieftain) use the same timer and `enterZone` delays their spawn by the time left.
+- NM hints (where/when) live in `NM_FAMILIES[id].hint` and feed the Help tab.
+
+### Drops and rarity
+- Loot entries are `[item, chance, minMobLevel?]`. Rates follow the plan: materials 15–40%, uncommon 5–10%, gear 1–5%, NM/boss uniques 30%. Seven new monster gear pieces (`scavenger_cap`, `nightwing_gloves`, `burrower_trousers`, `hare_charm`, `bonecharm_ring`, `gravedigger_boots`, `raider_helm`).
+- `itemRarity(id)` → common / uncommon / rare / epic (explicit `rarity`, else `rare` flag, else HQ and a few named materials are uncommon). `RARITY` holds the names and colours; CSS classes `r-common … r-epic` on inventory cells, slots and toasts.
+- `rare: true` items can't be held twice: `dropLoot` discards a second copy. `ex: true` items can't be sold (quest rewards, boss trophies).
+
+### XP
+- `CONFIG.xpTable` is 200 / 400 / 650 / 950 / 1300 / 1700 / 2200 / 2850 / 3600 (level 2 to 10).
+- EXP chains: each XP-giving kill within `chainWindow` (60 s) of the last raises `S.chain.n` to at most `chainMax` (5); kill XP is multiplied by `1 + chainStep × n`. `chainInfo()` feeds the ⛓ counter on the XP bar (`#chainCt`).
+- Discovery XP: `checkLandmarks` runs twice a second; entering a landmark circle the first time stores `save.landmarks["zone:id"]`, logs it, toasts and gives its XP. The Map tab lists found landmarks and labels them.
+
+### Targeting
+- Tab / the Target button: in a safe zone, the closest person (NPCs first, crystals last); elsewhere the closest enemy within 450 px, falling back to people. Pressing again within 2 s cycles by distance (`tabNext`, `S.lastTab`).
+
+### Characters (roster)
+- Saves are per character: roster in `localStorage["usr_roster_v1"]` (`{ chars: [summary…], current }`), each character in `usr_char_<id>`. `loadRoster` migrates a legacy single save (`ashenreach_save_v2`) into the first character; `saveGame` still mirrors the current character to the legacy key.
+- `createChar({ name, job, look })` builds a fresh save with job-appropriate starting gear; `validCharName` enforces 2–12 letters and unique names; `MAX_CHARS` is 8; `deleteChar`, `selectChar`, `logoutToSelect` (saves, clears `current`, reloads).
+- Boot (`main4.js`) initialises the renderer and atlas, then `showCharSelect` fills `#charSel` on the title screen. `showCharCreate` shows the name, job and appearance form with the live 3D preview (`attachPreview("ccPv")`, `UI.pv.override` makes `renderPreview` draw a prospective character without a helmet). `enterWorld(id)` loads the character, builds the zone with the progress bar, and starts the game; the click doubles as the audio unlock gesture.
+- Appearance can't be changed after creation: the Settings appearance section is gone (`appearanceHTML` returns nothing).
+
+### Chat commands
+- The input under the chat log (`#chatIn`, `/` focuses it) runs `runCommand(text)`. Plain text is said (`say` class). Commands: /rest /heal /sit, /stand, /attack, /target name, /assist, /check, /cast, /ja, /ws, /item, /mount, /dismount, /jump, /time, /where, /clear, /help and the `EMOTES`. `COMMANDS` is the list shown by /help and the Help tab.
+
+### Loading and versions
+- Zone changes show the loading screen with a spinner ring around the crest and a bar driven by the incremental build (above).
+- `build.mjs` writes `dist/version.json` (`{ version, built, title }`) and stamps `GAME_VERSION`. `initVersionCheck` fetches `version.json` next to the page (or from the GitHub raw URL when opened from a file) after 4 s, every 10 min and when the tab becomes visible; a newer version shows `#verPop` with Reload now (saves first) / Later. `showWhatsNew` shows the top `UPDATES` entry once per version (`localStorage["usr_seen_version"]`). System → Check for updates runs it by hand.
+- Publishing: push `index.html` and `version.json` together; the GitHub Pages site at ianmcgo.github.io/Untitled-Solo-MMO serves both.
+
+### Jumping
+- `jumpPhase(e)` splits a jump into windup (0.11 s), air (0.64 s, sine arc, 0.9 m) and landing (0.22 s). `poseHuman` crouches, tucks the legs, raises then spreads the arms and lands in a crouch; landing plays the footstep and dust.
+
+### Help and Updates
+- `tabHelp` (H key, ❓ button) is built from the live data (XP table, NM table, quests, commands), so it stays accurate as data changes. `tabUpdates` (📰) renders `UPDATES`, the version log kept in `menu4.js`; add an entry per release.
+
+### Tests
+- `test/p5unit.js`: zone layout checks, Tab targeting, chains, landmarks, solid walls and pillars, NM cooldowns and pops, Rare duplicates, level-gated drops, rarity tiers, drop-rate bounds, companions catching up, Chieftain cooldown, resting vs standing, companions sitting, standing up on move, command aliases, /target, /check, unknown commands and plain speech.
+- `test/p5shots.js <index.html> <out> <w> <h> <mobile> [scenes]`: drives character creation, logs in, screenshots jump frames, the town, resting, the version popup, the ruins, chains with an NM, the Den, the map, Help, Updates and the inventory, logs out and logs back in.
+
 ## Version log
 
 | Version | Change |
 |---|---|
+| 4.2.0 | Phase 5a (above). |
 | 4.1.0 | Renamed the game to Untitled Solo RPG. Title screen shows version and build date/time (`package.json` version, stamped by `build.mjs`). Save keys unchanged. Source pushed to GitHub. |
 | 4.0 | Phase 4 build: interface, audio, loading screens, jumping. |
