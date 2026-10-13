@@ -1,0 +1,38 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+const npc = id => S.npcs.find(n => n.id === id);
+G.enterZone('outpost', 560, 420); run(0.3);
+ok(!!npc('maera'), 'Maera runs the Adventurers\' Guild in the outpost');
+ok(G.guildRank() === 0, 'everyone starts at Copper rank');
+const today = G.guildToday();
+ok(today.length === 3 && today.every(b => b.tier === 0), 'three Copper bounties are posted: ' + today.map(b => b.id).join(','));
+ok(JSON.stringify(G.guildToday()) === JSON.stringify(today), 'the list is the same all day');
+const b = today[0];
+ok(G.takeBounty(b.id) === '' && G.save.guild.active[b.id] === 0, 'a bounty can be accepted');
+ok(G.takeBounty(b.id) !== '', 'the same bounty cannot be taken twice');
+ok(G.turnInBounty(b.id) !== '', 'it cannot be turned in unfinished');
+for (let i = 0; i < b.n; i++) { const e = { famKey: b.fam, fam: G.FAMILIES[b.fam] || G.NM_FAMILIES[b.fam] }; G.save.guild.active[b.id]++; }
+const g0 = G.save.gil;
+ok(G.turnInBounty(b.id) === '' && G.save.guild.gp === b.gp && G.save.gil >= g0 + b.gp * 8 && G.save.stats.bounties === 1, 'turning in pays guild points and crystals');
+ok(G.takeBounty(b.id) !== '', 'a finished bounty is done for the day');
+ok(G.save.ach.bounty, 'first bounty achievement');
+G.save.guild.total = 99; G.save.guild.gp = 0;
+const b2 = today[1]; G.takeBounty(b2.id); G.save.guild.active[b2.id] = b2.n; G.turnInBounty(b2.id);
+ok(G.guildRank() === 1, 'crossing 100 points reaches Bronze');
+ok(G.guildToday().some(x => x.tier === 1), 'Bronze rank brings Bronze bounties');
+G.save.guild.gp = 1000;
+ok(G.guildBuy('pathfinder_boots') !== '' , 'Iron rewards are locked at Bronze');
+ok(G.guildBuy('guild_ring') === '' && G.invCount('guild_ring') === 1 && G.save.guild.gp === 940, 'the Guild Ring costs 60 points');
+ok(G.guildBuy('guild_ring') !== '', 'only one Guild Ring');
+G.save.guild.total = 3000;
+ok(G.guildRank() === 5 && G.guildToday().some(x => x.tier >= 4), 'Mythril rank sees the hardest hunts');
+G.save.guild.active = {}; const nm = G.GUILD_BOUNTIES.find(x => x.id === 'b_rimefang');
+G.save.guild.active.b_rimefang = 0;
+G.enterZone('frost', 1800, 650); run(0.2);
+const fake = S.mobs.find(x => x.famKey === 'frost_goblin') || S.mobs[0];
+if (fake) { fake.famKey = 'rimefang'; fake.fam = G.NM_FAMILIES.rimefang; fake.enmity.set(P(), 10); fake.hp = 1; G.applyDamage(P(), fake, 9999, {}); run(0.3); }
+ok(G.save.guild.active.b_rimefang === 1, 'killing the target counts toward the hunt');
+const raw = JSON.parse(G.exportSaveText()); delete raw.guild;
+ok(G.importSaveText(JSON.stringify(raw)) !== false && G.save.guild && typeof G.save.guild.active === 'object', 'old saves get a fresh guild record');
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

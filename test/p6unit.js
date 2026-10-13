@@ -8,7 +8,7 @@ const setHour = h => { const v = G.vana(); let d = h - v.hour - v.minute / 60; i
 setHour(10);
 G.enterZone('outpost', 610, 440); run(0.2);
 ok(S.zone.exits.some(e => e.to === 'residence' && e.kind === 'door'), 'the Outpost has a door to your residence');
-ok(npc('odette') && G.ZONES.outpost.npcs.filter(n => n.sleep).length === 7, 'Odette is in town and seven townsfolk have bed times');
+ok(npc('odette') && G.ZONES.outpost.npcs.filter(n => n.sleep).length >= 7, 'Odette is in town and the townsfolk have bed times');
 ok(S.npcs.filter(n => n.sleep).every(n => !n.away), 'everyone is out at 10:00');
 G.TALK.talkOdette(npc('odette')); ok(opt(/Make It Home/), 'Odette offers Make It Home'); opt(/Make It Home/).fn(); opt(/Accept/).fn();
 G.closeModal();

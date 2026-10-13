@@ -648,11 +648,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Items frost_shard; Frostforged gear lv 16-17 + fur_hat in SHOPS.vela; NM drops rimefang_axe, frost_ring, wight_shroud. Quest frozencargo (Ilsa, lv 16, 6 frost_goblin, fur_hat). Achievements lv20, frost.
 - Tests: test/p17unit.js; p5shots scenes frost, blizzard. harness exports WEAPON_SKILLS.
 
+## Phase 19: Adventurers' Guild (v6.0.0)
+- NPC `maera` (outpost 455,255; sleeps 22.5-6.5; rig look in rig.js) -> TALK.talkMaera -> modal "guild" (tabGuild in menu4; TAB_INFO.guild). questMarker shows for her when a bounty is ready or before the first bounty (lv 2+).
+- Data: GUILD_RANKS [name, totalPoints, color] Copper 0 / Bronze 100 / Iron 300 / Silver 700 / Gold 1500 / Mythril 3000. GUILD_BOUNTIES {id, fam, n, where, lv, gp, tier, nm?} tiers 0-4 across all zones; NM hunts n 1. GUILD_SHOP {id, gp, rank}. GUILD_DAILY 3, GUILD_ACTIVE 3.
+- Save `guild { gp, total, active: {id: kills}, day, done: [] }`; normalizeSave fills it for old saves. stats.bounties.
+- game.js: guildRank(total), guildDay() (resets done on a new UTC day, shared boardDay), guildToday() (seeded by created + day + rank; first pick from tiers >= rank-1, rest from all tiers <= rank), bountyReward (gil = gp*8, xp = gp*(lv+2)*2), takeBounty/dropBounty/turnInBounty/guildBuy, bountyKill(e) called in the kill handler after dropLoot (matches famKey, works for NM keys). Rank-up -> uiEvent "guildrank" banner. Guild gear is ex (one owned).
+- Items guild_ring (Bronze), pathfinder_boots (Iron), silver_insignia (Silver), guild_greatcoat (Gold), mythril_crest (Mythril). Achievements bounty, silver, mythril.
+- Tests: test/p18unit.js; p6unit townsfolk bed count now >= 7. p5shots scenes maera, guild.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.0.0 | Phase 19: Adventurers' Guild, daily bounties, ranks, guild point shop. |
 | 5.9.0 | Phase 18: level 20, Frostspire Pass, snow weather, Warcry, tier-4 weapon skills. |
 | 5.8.0 | Phase 17: Chapel Depths battlefield; XP bar in party frame, phone chat bottom-left, minimap range, creation defaults. |
 | 5.7.0 | Phase 16: Ranger and Summoner jobs, sprites, bows, Corin. |

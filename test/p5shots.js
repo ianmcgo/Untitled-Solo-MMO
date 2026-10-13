@@ -82,6 +82,8 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     { name: 'board', js: `openMenu('board');`, wait: 1200 },
     { name: 'smith', js: `closeModal(); player.x = 660; player.y = 560; player.face = Math.PI/2; VIEW.yaw = 0.6; VIEW.dist = 7;`, wait: 2500 },
     { name: 'pool', js: `hireMerc('kael'); hireMerc('mira'); addToPool('raiders_ring'); addToPool('steel_sword');`, wait: 2500 },
+    { name: 'maera', pre: `closeModal(); setH(12); enterZone('outpost', 470, 320);`, js: `player.face = -Math.PI/2; VIEW.yaw = Math.PI; VIEW.dist = 6; talkTo(S.npcs.find(n => n.id === 'maera'));`, wait: 2500 },
+    { name: 'guild', js: `closeDialog(); save.guild.total = 340; save.guild.gp = 150; const t = guildToday(); takeBounty(t[0].id); save.guild.active[t[0].id] = t[0].n; takeBounty(t[1].id); openModal('guild');`, wait: 1500 },
     { name: 'frost', pre: `closeModal(); setH(11); enterZone('frost', 900, 1200);`, js: `window.weatherNow = () => 'snow'; VIEW.dist = 9; VIEW.yaw = 0.8;`, wait: 3000 },
     { name: 'blizzard', pre: `closeModal(); setH(16); enterZone('frost', 1500, 1000);`, js: `window.weatherNow = () => 'blizzard'; VIEW.dist = 8;`, wait: 3000 },
     { name: 'rain', pre: `closeModal(); setH(14); enterZone('hollow', 1250, 860);`, js: `window.weatherNow = () => 'storm'; giveItem('fishing_rod',1,true); giveItem('bait',5,true); S.mobs = []; startFishing(); S.fish.at = S.time + 1; player.face = -Math.PI/2; VIEW.yaw = -Math.PI/2; VIEW.dist = 6;`, wait: 2200 },
