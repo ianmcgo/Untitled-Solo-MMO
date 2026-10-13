@@ -8,7 +8,7 @@ ok(G.FEATURES.crafting && G.FEATURES.gathering, 'crafting and gathering are swit
 G.enterZone('hollow', 200, 1100); run(0.5);
 const points = S.npcs.filter(n => n.prop === 'gather');
 ok(points.length === 9 && ['mining', 'logging', 'harvesting'].every(t => points.filter(p => p.gtype === t).length === 3), 'Rocky Hollow has three points of each gathering type');
-const mine = points.find(p => p.gtype === 'mining');
+const mine = points.find(p => p.gtype === 'mining'); mine.uses = 3;
 P().x = mine.x; P().y = mine.y + 30;
 const n0 = H.alllog.length; G.doGather(mine);
 ok(H.alllog.slice(n0).some(l => /need a Pickaxe/.test(l)), 'mining needs a pickaxe');
