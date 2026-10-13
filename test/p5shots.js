@@ -82,6 +82,8 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     { name: 'board', js: `openMenu('board');`, wait: 1200 },
     { name: 'smith', js: `closeModal(); player.x = 660; player.y = 560; player.face = Math.PI/2; VIEW.yaw = 0.6; VIEW.dist = 7;`, wait: 2500 },
     { name: 'pool', js: `hireMerc('kael'); hireMerc('mira'); addToPool('raiders_ring'); addToPool('steel_sword');`, wait: 2500 },
+    { name: 'drk', pre: `closeModal(); setH(13); save.jobsUnlocked.DRK = true; save.jobs.DRK.lv = 12; setJob('DRK', null); giveItem('steel_scythe',1,true); giveItem('shadow_plate',1,true); equip('steel_scythe'); equip('shadow_plate'); enterZone('hollow', 900, 1100);`, js: `S.mobs = []; player.face = 0; VIEW.yaw = 2.4; VIEW.dist = 5; playerAct({ kind: 'ja', id: 'last_resort' });`, wait: 2500 },
+    { name: 'brd', js: `save.jobsUnlocked.BRD = true; save.jobs.BRD.lv = 12; setJob('BRD', null); giveItem('minstrel_coat',1,true); equip('minstrel_coat'); hireMerc('mordrin'); hireMerc('kael'); player.mp = player.maxMp; playerAct({ kind: 'ma', id: 'battle_minuet' }); VIEW.yaw = 2.8; VIEW.dist = 7;`, wait: 2600 },
     { name: 'maera', pre: `closeModal(); setH(12); enterZone('outpost', 470, 320);`, js: `player.face = -Math.PI/2; VIEW.yaw = Math.PI; VIEW.dist = 6; talkTo(S.npcs.find(n => n.id === 'maera'));`, wait: 2500 },
     { name: 'guild', js: `closeDialog(); save.guild.total = 340; save.guild.gp = 150; const t = guildToday(); takeBounty(t[0].id); save.guild.active[t[0].id] = t[0].n; takeBounty(t[1].id); openModal('guild');`, wait: 1500 },
     { name: 'frost', pre: `closeModal(); setH(11); enterZone('frost', 900, 1200);`, js: `window.weatherNow = () => 'snow'; VIEW.dist = 9; VIEW.yaw = 0.8;`, wait: 3000 },

@@ -656,11 +656,22 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Items guild_ring (Bronze), pathfinder_boots (Iron), silver_insignia (Silver), guild_greatcoat (Gold), mythril_crest (Mythril). Achievements bounty, silver, mythril.
 - Tests: test/p18unit.js; p6unit townsfolk bed count now >= 7. p5shots scenes maera, guild.
 
+## Phase 20: Dark Knight and Bard (v6.1.0)
+- Jobs DRK, BRD (ADVANCED_JOBS lv 10; quests drk "The Shadowed Path" (2 crypt_dust, 3 bone_chip → bronze_scythe) and brd "A Traveler's Song" (3 mire_reed, 2 bat_wing → minstrel_coat), both from Tobin). jobsUnlocked gains DRK/BRD.
+- New weapon type `scythe` (COMBAT_SKILLS, SKILL_NAMES): WS slice 5, nightreap 22, spiral_reap 40, grim_harvest 75. Items bronze/iron/steel_scythe (Pell SHOP), rime_scythe (Vela). Rig weapon kind "scythe" (pole + curved extruded blade), held/stowed like the greataxe and uses the cleave animation.
+- New magic skills `dark` and `singing`. Spells may carry `skill` which spellSkill() returns first.
+- DRK: abilities last_resort (att ×1.25, def ×0.85), soulfire (each swing burns 6% current HP, adds 1.6× that to damage), blood_blade (heals 40% of melee damage). Spells blight (kind dot, buff "blight": ticks like dia with its element; att ×0.9 on the target), drain (kind drain), mind_drain (kind aspir; 60% amount to MP), stun (debuff "stun", 4 s, cancels readying and halves TP). castDia generalized by sp.element / sp.buff. castDrain handles drain/aspir.
+- BRD: songs are spells with kind "song", `song` key (minuet, paeon, ballad, madrigal, march), `pow`, dur 120. castSong → applySong for party within 300 px; each member keeps at most 2 song buffs (oldest by expiry dropped). pow scales ×(1 + singing/400). stat(): minuet att ×(1+pow), madrigal acc +pow; swingDelay ×(1−march.pow); tickBuffs: paeon HP and ballad MP every 3 s (pow×(1+lv/5), MP half). Encore (BRD 15) cuts song cast time to 34%. drowsy_lullaby: debuff "sleep" 30 s, bosses immune; sleeping/stunned mobs skip their combat step; any damage > 0 clears sleep (applyDamage).
+- Gear access: a loop after ITEMS adds DRK to WAR swords/great axes and WAR armor, and BRD to all daggers and RDM armor. New armor shadow_plate, minstrel_coat, troubadour_coat (+ ITEM_LOOK), JOB_TINT for both jobs.
+- Mercs mordrin (DRK dd: meleeAI uses drain under 60% HP, stun on readied moves, blight, and the DRK self-buffs) and lyra (role "bard": bardAI picks the 2 best known songs by priority, refreshes when any nearby ally lacks one or < 12 s left, sings Paeon/Ballad out of combat when people are hurt/low MP, lullabies a second monster; otherwise meleeAI). mercGear entries for both; MERC_BASE looks; MERC_PERSONAL lines.
+- Tests: test/p19unit.js; p1bot supports DRK/BRD (merc orders include lyra/mordrin). harness exports MERCS. p5shots scenes drk, brd.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.1.0 | Phase 20: Dark Knight and Bard, scythes, songs, Mordrin and Lyra. |
 | 6.0.0 | Phase 19: Adventurers' Guild, daily bounties, ranks, guild point shop. |
 | 5.9.0 | Phase 18: level 20, Frostspire Pass, snow weather, Warcry, tier-4 weapon skills. |
 | 5.8.0 | Phase 17: Chapel Depths battlefield; XP bar in party frame, phone chat bottom-left, minimap range, creation defaults. |

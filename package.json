@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "6.0.0",
-  "releaseTitle": "The Adventurers' Guild",
+  "version": "6.1.0",
+  "releaseTitle": "Dark Knight and Bard",
   "description": "",
   "main": "index.js",
   "scripts": {

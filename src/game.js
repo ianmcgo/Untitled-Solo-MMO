@@ -70,7 +70,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
@@ -278,6 +278,7 @@ function skillOf(ch, skill) {
 function reach(e) { return e && e.stats && e.stats.wtype === "archery" ? CONFIG.bowRange : CONFIG.meleeRange; }
 
 function spellSkill(sp) {
+  if (sp.skill) return sp.skill;
   if (sp.kind === "summon") return "summoning";
   if (sp.kind === "heal") return "healing";
   if (sp.kind === "debuff") return "enfeebling";
@@ -378,6 +379,8 @@ function mercGear(m, lv) {
   if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", ring: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
   if (job === "THF") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
   if (job === "RNG") return lv >= 11 ? { main: "steel_longbow", body: "hunters_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "yew_bow", body: "hunters_coat", feet: "leather_boots" } : { main: "shortbow", body: "leather_vest" };
+  if (job === "DRK") return lv >= 11 ? { main: "steel_scythe", body: "shadow_plate", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_scythe", body: "shadow_plate", head: "bronze_cap" } : { main: "bronze_scythe", body: "leather_vest", head: "bronze_cap" };
+  if (job === "BRD") return lv >= 14 ? { main: "steel_dagger", body: "troubadour_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_dagger", body: "minstrel_coat", feet: "leather_boots" } : { main: "bronze_dagger", body: "linen_robe" };
   if (job === "MNK") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
@@ -646,6 +649,11 @@ function stat(e, k) {
   const b = e.buffs;
   if (k === "att" && b.berserk) v *= 1.25;
   if (k === "att" && b.warcry) v *= 1.2;
+  if (k === "att" && b.last_resort) v *= 1.25;
+  if (k === "def" && b.last_resort) v *= 0.85;
+  if (k === "att" && b.minuet) v *= 1 + b.minuet.pow;
+  if (k === "att" && b.blight) v *= 0.9;
+  if (k === "acc" && b.madrigal) v += b.madrigal.pow;
   if (k === "def" && b.berserk) v *= 0.75;
   if (k === "def" && b.dia) v *= 0.9;
   if (k === "def" && b.sentinel) v *= 1.5;
@@ -684,7 +692,7 @@ function addEnmity(m, e, amt) {
   m.enmity.set(e, (m.enmity.get(e) || 0) + amt);
 }
 
-function swingDelay(e) { return e.delay * (e.buffs && e.buffs.slow ? 1.25 : 1); }
+function swingDelay(e) { return e.delay * (e.buffs && e.buffs.slow ? 1.25 : 1) * (e.buffs && e.buffs.march ? 1 - e.buffs.march.pow : 1); }
 
 function topEnmity(m) {
   let best = null, bv = -1;
@@ -741,6 +749,7 @@ function applyDamage(src, tgt, amt, opt) {
     if (tgt.mounted) dismount("You're thrown from the saddle!");
     if (tgt.casting && Math.random() < CONFIG.interruptChance) interruptCast(tgt);
   }
+  if (tgt.buffs && tgt.buffs.sleep && amt > 0) { delete tgt.buffs.sleep; if (isMob(tgt)) log("The " + tgt.name + " wakes up!", "sys"); }
   if (tgt.hp <= 0) onKO(tgt, src);
 }
 
@@ -780,6 +789,7 @@ function swing(a, d) {
   let dmg = Math.floor(baseDmg(a, d) * pDIF(a, d) * (crit ? CONFIG.critMult : 1));
   if (sneak) { dmg += Math.floor(a.stats.dex * 0.8); popText(a, "Sneak Attack", "#a1887f", 12, 1, 14); }
   if (boost) dmg = Math.floor(dmg * 1.5);
+  if (b.soulfire && a.hp > 1) { const burn = Math.min(a.hp - 1, Math.floor(a.hp * 0.06)); a.hp -= burn; dmg += Math.floor(burn * 1.6); }
   a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
@@ -788,6 +798,7 @@ function swing(a, d) {
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
   applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16 });
+  if (b.blood_blade && a.alive) { const heal = Math.min(a.maxHp - a.hp, Math.floor(dmg * 0.4)); if (heal > 0) { a.hp += heal; popText(a, "+" + heal, "#9ad06b", 13, 0.8); } }
   if (a.job === "MNK" && a.stats.wtype === "h2h" && d.alive && !a.kicking && Math.random() < 0.14) {
     a.kicking = true;
     log(subj(a) + " " + vb(a, "follow") + " up with a kick!", cls(a));
@@ -1553,7 +1564,7 @@ function doAbility(a, id, t) {
 
 function startCast(a, id, t) {
   const sp = SPELLS[id];
-  a.casting = { id, sp, t, start: S.time, end: S.time + sp.cast };
+  a.casting = { id, sp, t, start: S.time, end: S.time + sp.cast * (sp.kind === "song" && a.buffs.encore ? 0.34 : 1) };
   if (t !== a) a.face = Math.atan2(t.y - a.y, t.x - a.x);
   if (a === player) { S.moveTarget = null; S.chase = false; }
   log(subj(a) + " " + vb(a, "start") + " casting " + sp.name + (t !== a ? " on " + obj(t) : "") + ".", cls(a));
@@ -1586,6 +1597,8 @@ function finishCast(a) {
   else if (sp.kind === "debuff") castDebuff(a, t, sp);
   else if (sp.kind === "buff") castBuff(a, t, sp);
   else if (sp.kind === "summon") summonPet(a, sp);
+  else if (sp.kind === "song") castSong(a, sp);
+  else if (sp.kind === "drain" || sp.kind === "aspir") castDrain(a, t, sp);
   if (a !== player && a.mp < a.maxMp * 0.15) partySay(a, "lowmp");
 }
 
@@ -1640,16 +1653,63 @@ function castNuke(a, t, sp) {
   applyDamage(a, t, dmg, { color: col, size: burst ? 26 : 20, enmity: 60 + dmg * 1.5 });
 }
 
+const SONG_KEYS = ["minuet", "paeon", "ballad", "madrigal", "march"];
+
+function applySong(p, a, sp) {
+  const have = SONG_KEYS.filter(k => p.buffs[k] && k !== sp.song).sort((x, y) => p.buffs[x].until - p.buffs[y].until);
+  while (have.length >= 2) delete p.buffs[have.shift()];
+  const sk = 1 + skillOf(a, "singing") / 400;
+  p.buffs[sp.song] = { until: S.time + sp.dur, pow: sp.song === "madrigal" ? Math.round(sp.pow * sk) : sp.pow * sk, src: a, next: S.time + 3, id: sp.name };
+}
+
+function castSong(a, sp) {
+  const hit = S.party.filter(p => p.alive && dist(p, a) <= 300);
+  for (const p of hit) { applySong(p, a, sp); ring(p, "#ffd54f", 24, 0.5, "sparkle"); }
+  log(subj(a) + " " + vb(a, "sing") + " " + sp.name + ". " + hit.length + (hit.length === 1 ? " ally is" : " allies are") + " inspired.", cls(a));
+  popText(a, "♪ " + sp.name, "#ffd54f", 13, 1.2, 14);
+  sfx("buff", a);
+  vfx("buff", { tgt: a, id: "song" });
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, 20 + hit.length * 8);
+}
+
+function castDrain(a, t, sp) {
+  const mp = sp.kind === "aspir";
+  let amt = (sp.power + skillOf(a, "dark") * 0.25 + Math.max(0, a.stats.int - t.stats.int)) * (1 + 0.07 * (a.lv - 1));
+  let resist = 1;
+  if (Math.random() * 100 >= magicHit(a, t, sp)) resist = 0.5;
+  amt = Math.max(1, Math.round(amt * resist * rand(0.9, 1.1) * (mp ? 0.6 : 1)));
+  ring(t, ELEMENT_COLORS.dark, 30, 0.5, "element");
+  sfx("cast", t);
+  vfx("nuke", { src: t, tgt: a, el: "dark", dia: true });
+  if (mp) {
+    const real = Math.min(amt, a.maxMp - a.mp);
+    a.mp += real;
+    log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " and " + vb(a, "draw") + " " + real + " MP from the " + t.name + ".", cls(a));
+    popText(a, "+" + real + " MP", "#64b5f6", 14, 1);
+    addEnmity(t, a, 60);
+    aggro(t, a);
+    return;
+  }
+  const dealt = Math.min(amt, t.hp);
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " loses " + dealt + " HP" + (resist < 1 ? " (resisted)" : "") + ".", cls(a));
+  applyDamage(a, t, amt, { color: ELEMENT_COLORS.dark, size: 18, enmity: 80 + amt });
+  const heal = Math.min(dealt, a.maxHp - a.hp);
+  if (heal > 0) { a.hp += heal; popText(a, "+" + heal, "#9ad06b", 16); }
+}
+
 function castDebuff(a, t, sp) {
   const col = ELEMENT_COLORS[sp.element] || "#ddd";
-  const landed = sp.buff === "flash" || Math.random() * 100 < magicHit(a, t, sp) + 10;
+  const immune = sp.buff === "sleep" && t.fam.boss;
+  const landed = !immune && (sp.buff === "flash" || Math.random() * 100 < magicHit(a, t, sp) + 10);
   ring(t, col, 30, 0.5, "element");
   sfx(sp.element === "light" ? "light" : "cast", t);
   vfx("nuke", { src: a, tgt: t, el: sp.element, dia: true });
   if (!landed) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20); aggro(t, a); return; }
   t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed" }[sp.buff] + ".", cls(a));
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned" }[sp.buff] + ".", cls(a));
   popText(t, sp.name, col, 14, 1.1);
+  if (sp.buff === "stun" && t.readying) { t.readying = null; t.tp = Math.floor(t.tp / 2); log("The " + t.name + "'s " + t.fam.tpMove.name + " is cut short!", cls(a)); }
+  if (sp.buff === "sleep") { t.swingTimer = Math.max(t.swingTimer, 1); t.readying = null; }
   addEnmity(t, a, sp.enmity || 60);
   aggro(t, a);
 }
@@ -1665,13 +1725,14 @@ function castBuff(a, t, sp) {
 }
 
 function castDia(a, t, sp) {
+  const el = sp.element || "light", key = sp.buff || "dia";
   const dmg = Math.round(sp.power * (1 + 0.08 * (a.lv - 1)));
-  ring(t, ELEMENT_COLORS.light, 30, 0.5, "element");
-  sfx("light", t);
-  vfx("nuke", { src: a, tgt: t, el: "light", dia: true });
-  log(subj(a) + " " + vb(a, "cast") + " Dia. The " + t.name + " takes " + dmg + " damage and is afflicted with Dia.", cls(a));
-  applyDamage(a, t, dmg, { color: ELEMENT_COLORS.light, size: 16, enmity: 120 });
-  if (t.alive) t.buffs.dia = { until: S.time + 30, next: S.time + 3, tick: Math.max(1, Math.round(1 + a.lv * 0.4)), src: a };
+  ring(t, ELEMENT_COLORS[el], 30, 0.5, "element");
+  sfx(el === "light" ? "light" : "cast", t);
+  vfx("nuke", { src: a, tgt: t, el, dia: true });
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " takes " + dmg + " damage and is afflicted with " + sp.name + ".", cls(a));
+  applyDamage(a, t, dmg, { color: ELEMENT_COLORS[el], size: 16, enmity: 120 });
+  if (t.alive) t.buffs[key] = { until: S.time + 30, next: S.time + 3, tick: Math.max(1, Math.round(1 + a.lv * 0.4)), src: a, el };
 }
 
 function useItem(id) {
@@ -1705,9 +1766,15 @@ function useItem(id) {
 function tickBuffs(e) {
   for (const id in e.buffs) {
     const b = e.buffs[id];
-    if (id === "dia" && S.time >= b.next && e.alive) {
+    if ((id === "dia" || id === "blight") && S.time >= b.next && e.alive) {
       b.next += 3;
-      applyDamage(b.src, e, b.tick, { color: ELEMENT_COLORS.light, size: 13, enmity: b.tick });
+      applyDamage(b.src, e, b.tick, { color: ELEMENT_COLORS[b.el || "light"], size: 13, enmity: b.tick });
+    }
+    if ((id === "paeon" || id === "ballad") && S.time >= b.next && e.alive) {
+      b.next += 3;
+      const amt = Math.round(b.pow * (1 + e.lv / 5));
+      if (id === "paeon") { const r = Math.min(amt, e.maxHp - e.hp); e.hp += r; }
+      else { const r = Math.min(Math.ceil(amt / 2), e.maxMp - e.mp); e.mp += r; }
     }
     if (S.time >= b.until) {
       delete e.buffs[id];
@@ -1866,6 +1933,7 @@ function updateMob(m, dt) {
       return;
     }
     m.target = t;
+    if (m.buffs.sleep || m.buffs.stun) { m.readying = null; return; }
     bossPhases(m, t);
     if (m.readying) {
       m.readying.t -= dt;
@@ -2021,6 +2089,7 @@ function updateAlly(a, dt) {
   if (stance !== "hold") a.holdAt = null;
   if (role === "healer" || role === "support") healerAI(a, tgt, dt);
   else if (role === "nuker" || role === "burster") nukerAI(a, tgt, dt);
+  else if (role === "bard") { if (!bardAI(a, tgt, dt)) meleeAI(a, tgt, dt); }
   else meleeAI(a, tgt, dt);
   if (stance === "hold") { a.x = hx; a.y = hy; }
 }
@@ -2063,11 +2132,43 @@ function meleeAI(a, tgt, dt) {
   if (chak && a.hp < a.maxHp * 0.5 && allyTry(a, chak, a)) return;
   const stl = acts.find(x => x.id === "steal");
   if (stl && !tgt.stolen && tgt.state === "combat" && allyTry(a, stl, tgt)) return;
-  for (const id of ["focus", "boost", "sneak_attack", "sharpshot", "barrage"]) {
+  const drn = acts.find(x => x.id === "drain");
+  if (drn && a.hp < a.maxHp * 0.6 && tgt.state === "combat" && allyTry(a, drn, tgt)) return;
+  const stn = acts.find(x => x.id === "stun");
+  if (stn && tgt.readying && allyTry(a, stn, tgt)) return;
+  const blt = acts.find(x => x.id === "blight");
+  if (blt && !tgt.buffs.blight && tgt.state === "combat" && a.mp > a.maxMp * 0.4 && allyTry(a, blt, tgt)) return;
+  for (const id of ["focus", "boost", "sneak_attack", "sharpshot", "barrage", "last_resort", "soulfire", "blood_blade"]) {
     const x = acts.find(q => q.id === id);
     if (x && !a.buffs[id] && dist(a, tgt) <= reach(a) && allyTry(a, x, a)) return;
   }
   allyWeaponSkill(a, tgt, acts);
+}
+
+function bardAI(a, tgt, dt) {
+  const acts = actionList(a);
+  const songs = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "song");
+  const best = {};
+  for (const x of songs) { const sp = SPELLS[x.id]; if (!best[sp.song] || SPELLS[best[sp.song].id].pow < sp.pow) best[sp.song] = x; }
+  const fighting = !!tgt && tgt.state === "combat";
+  const casterHeavy = S.party.filter(p => p.alive && p.maxMp > 0 && p.role !== "dd" && p.role !== "tank").length >= 2;
+  const order = fighting ? ["minuet", "march", "madrigal", casterHeavy ? "ballad" : "paeon", "paeon", "ballad"] : ["paeon", "ballad"];
+  const want = [];
+  for (const k of order) if (best[k] && !want.includes(k) && want.length < 2) want.push(k);
+  const near = S.party.filter(p => p.alive && dist(p, a) <= 260);
+  if (!fighting && !near.some(p => p.hp < p.maxHp * 0.9 || (p.maxMp && p.mp < p.maxMp * 0.8))) return false;
+  for (const k of want) {
+    if (near.some(p => !p.buffs[k] || p.buffs[k].until - S.time < 12)) {
+      if (dist(a, player) > 220) return false;
+      if (allyTry(a, best[k], a)) return true;
+    }
+  }
+  if (fighting) {
+    const lull = acts.find(x => x.id === "drowsy_lullaby");
+    const extra = S.mobs.find(m => m.alive && m !== tgt && m.state === "combat" && !m.buffs.sleep && !m.fam.boss && [...m.enmity.keys()].some(isParty) && dist(a, m) <= CONFIG.castRange);
+    if (lull && extra && allyTry(a, lull, extra)) return true;
+  }
+  return false;
 }
 
 function hybridMagic(a, tgt, acts) {
