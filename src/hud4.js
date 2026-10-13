@@ -32,12 +32,14 @@ function clearLog() { $("log").innerHTML = ""; }
 function showKO(on) { $("ko").style.display = on ? "flex" : "none"; }
 
 function openDialog(who, text, opts) {
+  const offer = (opts || []).some(o => /^(Accept|I'll handle him|I'll get them)$/.test(o.label));
+  if (offer) text += "\n\nWill you accept this quest?";
   S.dialog = { who, text, opts };
   $("dlgWho").textContent = who;
   $("dlgText").textContent = text;
   const box = $("dlgOpts");
   box.innerHTML = "";
-  const all = (opts || []).concat([{ label: "Close", fn: closeDialog }]);
+  const all = (opts || []).concat([{ label: offer ? "Decline" : "Close", fn: () => { if (offer) log("You decline for now.", "sys"); closeDialog(); } }]);
   all.forEach((o, i) => {
     const b = document.createElement("button");
     b.textContent = (UI.phone ? "" : (i + 1) + ". ") + o.label;
@@ -290,6 +292,7 @@ function updateParty() {
 }
 
 function updateTarget() {
+  if (UI.cmd && (player.target !== UI.cmd.t || !UI.cmd.t.alive)) tgtCmdClose();
   const t = player.target;
   const box = $("target");
   if (!t || !(isMob(t) || isParty(t) || t.kind === "npc") || (isMob(t) && t.despawned)) { if (box.style.display !== "none") box.style.display = "none"; UI.ghostTarget = null; return; }
@@ -300,8 +303,8 @@ function updateTarget() {
   if (isMob(t)) {
     const [c, col] = conOf(t);
     setTxt($("tName"), t.name);
-    $("tName").style.color = col;
-    setTxt($("tLv"), "Lv." + t.lv + " · " + c);
+    $("tName").style.color = t.fam.nm ? "#ff8a65" : "#f0d9a8";
+    setTxt($("tLv"), "");
     $("tTag").style.display = t.fam.nm ? "inline-block" : "none";
     pct = 100 * t.hp / t.maxHp;
     setTxt($("tHpT"), Math.ceil(pct) + "%");
@@ -311,7 +314,6 @@ function updateTarget() {
     const w = $("tWarn");
     if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + t.fam.tpMove.name + "!"); } else w.style.display = "none";
     let info = !t.alive ? "Defeated" : t.state === "combat" ? "In combat" : t.state === "return" ? "Returning" : "Idle";
-    if (t.passive && t.alive && t.state !== "combat") info += " · passive";
     if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= CONFIG.meleeRange ? " · in range" : " · too far";
     setTxt($("tInfo"), info);
     let ch = "";
@@ -555,7 +557,67 @@ function gameConfirm(title, text, onYes, opts) {
   if (typeof sfx === "function") sfx("open");
 }
 
+function tgtCmdOpen(t) {
+  if (!isMob(t) || !t.alive) { tgtCmdClose(); return; }
+  UI.cmd = { t, page: "root", info: "" };
+  renderTgtCmd();
+}
+
+function tgtCmdClose() {
+  UI.cmd = null;
+  const el = $("tCmd");
+  if (el) { el.classList.remove("on"); el.innerHTML = ""; }
+}
+
+function inspectText(t) {
+  const [c] = conOf(t);
+  const tough = { "Too Weak": "It seems too weak to be worthwhile.", "Easy Prey": "It seems like easy prey.", "Decent Challenge": "It seems like a decent challenge.", "Even Match": "It seems like an even match.", "Tough": "It looks tough.", "Very Tough": "It looks very tough.", "Incredibly Tough": "It looks incredibly tough." }[c] || "It is hard to judge.";
+  const mood = t.passive || !t.fam.aggro ? "It looks peaceful unless provoked." : "It looks hostile.";
+  return tough + " " + mood + (t.fam.nm ? " It is a notorious monster!" : "");
+}
+
+function renderTgtCmd() {
+  const el = $("tCmd"), c = UI.cmd;
+  if (!el || !c) return;
+  const t = c.t;
+  let h = "";
+  const btn = (key, label, cls) => '<button data-tc="' + key + '"' + (cls ? ' class="' + cls + '"' : "") + ">" + label + "</button>";
+  if (c.page === "root") {
+    const eng = player.engaged && player.attackTarget === t;
+    h += btn("attack", eng ? "✋ Disengage" : "⚔ Attack", "pri") + btn("ma", "✦ Magic") + btn("ja", "⚡ Abilities") + btn("inspect", "🔍 Inspect") + btn("close", "✕", "x");
+    if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
+  } else {
+    const acts = actionList(player).filter(a => c.page === "ma" ? a.kind === "ma" && SPELLS[a.id].target === "enemy" : a.kind === "ws" || (a.kind === "ja" && ABILITIES[a.id].target === "enemy"));
+    c.acts = acts;
+    if (!acts.length) h += '<div class="tcInfo">' + (c.page === "ma" ? "You know no spells to use on an enemy." : "You have no abilities to use on an enemy.") + "</div>";
+    acts.forEach((a, i) => { const why = checkAction(player, a, t); h += btn("act" + i, actIcon(a) + " " + esc(actName(a)), why ? "off" : ""); });
+    h += btn("back", "◂ Back");
+  }
+  el.innerHTML = h;
+  el.classList.add("on");
+}
+
+function onTgtCmd(key) {
+  const c = UI.cmd;
+  if (!c) return;
+  const t = c.t;
+  sfx("select");
+  if (key === "close") { tgtCmdClose(); return; }
+  if (key === "back") { c.page = "root"; renderTgtCmd(); return; }
+  if (key === "ma" || key === "ja") { c.page = key; renderTgtCmd(); return; }
+  if (key === "inspect") { c.info = inspectText(t); log("The " + t.name + ": " + c.info, "sys"); renderTgtCmd(); return; }
+  if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
+  if (key.startsWith("act")) {
+    const a = c.acts && c.acts[+key.slice(3)];
+    if (!a) return;
+    player.target = t;
+    playerAct(a);
+    tgtCmdClose();
+  }
+}
+
 function uiEvent(type, d) {
+  if (type === "target") { tgtCmdOpen(d); return; }
   if (type === "item") {
     const it = ITEMS[d.id];
     if (!it) return;
@@ -662,6 +724,8 @@ function updateHud(dt) {
 }
 
 function initHud() {
+  $("tCmd").addEventListener("click", e => { const b = e.target.closest("[data-tc]"); if (b) { e.stopPropagation(); onTgtCmd(b.dataset.tc); } });
+  for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("tCmd").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("chatTabs").addEventListener("click", e => {
     const b = e.target.closest("button");
     if (!b) return;

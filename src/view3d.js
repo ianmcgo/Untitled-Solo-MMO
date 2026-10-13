@@ -43,8 +43,11 @@ function updateLabels() {
     const nameEl = el.firstChild, bar = el.children[1], cbar = el.children[2];
     const isT = player.target === e;
     let name = e === player ? save.name : e.name, col = "#cfe6ff";
-    if (isMob(e)) { col = conOf(e)[1]; if (e.fam.nm) name = "☠ " + name; }
+    if (isMob(e)) { col = e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
     if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
+    const other = isMob(e) || e.kind === "npc";
+    if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
+    nameEl.style.display = name ? "" : "none";
     if (nameEl.textContent !== name) nameEl.textContent = name;
     nameEl.style.color = col;
     el.classList.toggle("tgt", isT);
@@ -200,7 +203,8 @@ function updateCamera(dt) {
     for (let i = 1; i <= 16; i++) {
       const d = VIEW.dist * i / 16;
       const sx = VIEW.camTarget.x - f.x * h0 * d, sz = VIEW.camTarget.z - f.y * h0 * d;
-      if (groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(1.6, d - VIEW.dist / 16); break; }
+      const inW = S.zone.indoor && (sx / U < 14 || sz / U < 14 || sx / U > S.zone.w - 14 || sz / U > S.zone.h - 14 || VIEW.camTarget.y + v0 * d > 3.1);
+      if (inW || groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(S.zone.indoor ? 0.9 : 1.6, d - VIEW.dist / 16); break; }
     }
     if (VIEW.camEff == null) VIEW.camEff = want;
     VIEW.camEff = want < VIEW.camEff ? want : VIEW.camEff + (want - VIEW.camEff) * Math.min(1, dt * 2.5);
@@ -315,10 +319,10 @@ function onWorldTap(p, ent) {
     return;
   }
   if (isMob(e)) {
-    if (player.target === e) {
-      if (player.engaged && player.attackTarget === e) S.chase = true;
-      else toggleEngage(true);
-    } else setTarget(e);
+    if (player.engaged && player.attackTarget === e) S.chase = true;
+    if (player.target === e && UI.cmd && UI.cmd.t === e) { tgtCmdClose(); return; }
+    setTarget(e);
+    if (!UI.cmd) uiEvent("target", e);
     return;
   }
   if (e.kind === "npc") {

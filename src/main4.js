@@ -24,6 +24,7 @@ function onKey(e) {
   if (k === " " || k === "spacebar") { e.preventDefault(); tryJump(); return; }
   if (k === "[") { setPage(UI.page - 1); return; }
   if (k === "]") { setPage(UI.page + 1); return; }
+  if (k === "escape" && UI.cmd) { tgtCmdClose(); return; }
   if (k === "escape") {
     if (player.casting) { player.casting = null; log("You stop casting.", "sys"); }
     else if (player.target && !player.engaged) player.target = null;
@@ -65,6 +66,8 @@ async function boot() {
   window.addEventListener("contextmenu", e => { if (!(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"))) e.preventDefault(); });
   window.addEventListener("dragstart", e => e.preventDefault());
   window.addEventListener("keydown", onKey);
+  window.addEventListener("pagehide", () => { if (UI.started) saveGame(); });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && UI.started) saveGame(); });
   window.addEventListener("keyup", e => { S.keys[e.key.toLowerCase()] = false; });
   window.addEventListener("blur", () => { S.keys = {}; });
   VIEW.booting = true;
@@ -159,9 +162,14 @@ function showCharSelect() {
 function showCharCreate() {
   const r = loadRoster();
   CC.job = "WAR";
-  CC.look = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length) };
-  const firstStyles = HAIR_BY_SEX[CC.look.build];
-  CC.look.hairStyle = HAIR_STYLES.indexOf(firstStyles[Math.floor(Math.random() * (firstStyles.length - 1))]);
+  const randomLook = () => {
+    const l = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length), height: Math.floor(Math.random() * 5), girth: Math.floor(Math.random() * 5) };
+    const st = HAIR_BY_SEX[l.build];
+    l.hairStyle = HAIR_STYLES.indexOf(st[Math.floor(Math.random() * st.length)]);
+    return l;
+  };
+  CC.look = randomLook();
+  CC.look.height = 2; CC.look.girth = 2;
   CC.name = "";
   $("ldSub").textContent = "Create your character";
   const box = $("charSel");
@@ -187,7 +195,7 @@ function showCharCreate() {
     const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
     const styles = HAIR_BY_SEX[l.build];
     if (!styles.includes(HAIR_STYLES[l.hairStyle])) l.hairStyle = HAIR_STYLES.indexOf(styles[0]);
-    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor]));
+    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor])) + row("height", "Height", 5, BODY_HEIGHT_NAMES[l.height == null ? 2 : l.height]) + row("girth", "Build", 5, BODY_GIRTH_NAMES[l.girth == null ? 2 : l.girth]) + '<div class="ccRow"><button data-rand="1" style="flex:1">🎲 Randomize all</button></div>';
     $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + JOBS[CC.job].name + " Lv.1</small>";
   };
   paint();
@@ -213,12 +221,14 @@ function showCharCreate() {
         const i = styles.indexOf(HAIR_STYLES[CC.look.hairStyle]);
         CC.look.hairStyle = HAIR_STYLES.indexOf(styles[(i + d + styles.length) % styles.length]);
       } else {
-        const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length }[k];
-        CC.look[k] = ((CC.look[k] || 0) + d + n) % n;
+        const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length, height: 5, girth: 5 }[k];
+        const cur = CC.look[k] == null ? (k === "height" || k === "girth" ? 2 : 0) : CC.look[k];
+        CC.look[k] = k === "height" || k === "girth" ? clamp(cur + d, 0, n - 1) : (cur + d + n) % n;
         if (k === "build") CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[CC.look.build][0]);
       }
       sfx("click"); paint(); return;
     }
+    if (b.dataset.rand) { CC.look = randomLook(); sfx("click"); paint(); return; }
     if (b.dataset.back) { UI.creating = false; releasePreview(); sfx("close"); showCharSelect(); return; }
     if (b.dataset.create) create();
   };
@@ -244,8 +254,9 @@ async function enterWorld(id, fresh) {
   UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
   clearLog();
   log(fresh ? "A new adventure begins. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, Pell to trade." : "Welcome back, " + save.name + ".", "npc");
-  const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : homePos();
+  const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : resumePos();
   enterZone(h.zone, h.x, h.y);
+  if (h.face != null) player.face = h.face;
   await zoneReady();
   VIEW.booting = false;
   UI.started = true;

@@ -142,10 +142,7 @@ function previewEntity(o) {
   const stats = o ? { wtype: wt, dmg: 1, acc: 1, eva: 1, att: 1, def: 1, str: 1, dex: 1, vit: 1, agi: 1, int: 1, mnd: 1, maxHp: 1, maxMp: 1 } : player.stats;
   return { kind: "pc", job, sub: o ? null : player.sub, lv: o ? 1 : player.lv, gear: Object.assign({}, gear), alive: true, engaged: false, casting: null, moving: false, mounted: false, x: 0, y: 0, face: 0, lastSwing: -9, lastHit: -9, lastWS: -9, buffs: {}, tp: 0, hp: 1, maxHp: 1, mp: 0, maxMp: 0, radius: 14, regenerating: false, stats, swingTimer: 2, delay: o ? 3 : player.delay, resting: false };
 }
-function lookBase(look) {
-  const l = look || {};
-  return { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
-}
+function lookBase(look) { return baseFromLook(look); }
 function renderPreview(now) {
   const pv = UI.pv;
   if (!pv || pv.failed || !pv.canvas.isConnected) return;
@@ -748,6 +745,17 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "4.8.1", date: "2026-10-13", title: "Hotfix: aggro, targeting, residence", items: [
+    "Monsters are aggressive again. Only critters (hares) are peaceful until attacked. Goblins see a little farther and wider, and worms now also hear you walking nearby. Detection ranges stay hidden.",
+    "Targeting a monster opens a command box under the target frame: Attack, Magic, Abilities and Inspect. Inspect tells you how tough it looks and whether it's hostile. Esc or ✕ closes it.",
+    "Monster levels and toughness colours are no longer shown on names or the target frame (notorious monsters still glow orange). /check gives the same reading as Inspect.",
+    "Names over monsters and townsfolk only show when you target them. A ❗ still marks people with work for you.",
+    "Quest offers end with \"Will you accept this quest?\" and a Decline button.",
+    "Character creation: choose height (short to very tall) and build (slim to heavy), and a Randomize all button.",
+    "Helmets and caps sit higher so you can see your character's eyes.",
+    "Residence: the floor no longer flickers, the ceiling beams are gone, and the camera stays inside the room. The door asks before you go in, and leaving no longer drops you back on the doorstep.",
+    "Your location saves every 15 seconds and when you close or hide the tab. Logging back in puts you where you left off."
+  ] },
   { v: "4.8.0", date: "2026-10-13", title: "Phase 7: test and tune", items: [
     "Performance settings: draw distance (near / normal / far) hides far monsters and name plates; auto resolution lowers the render scale when the frame rate drops below about 28 fps and raises it again when there's headroom; an FPS counter (also /fps).",
     "Phones with little memory now start on Low graphics automatically.",
@@ -861,24 +869,27 @@ function tabHelp() {
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or use the Rest action on action bar page 2) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("👥 Characters", ul([
-    "On the title screen you pick a character or create a new one: name (2–12 letters), job, sex and appearance. <b>Appearance is permanent</b>, so take your time.",
+    "On the title screen you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
+    "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
-    "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a character to target, tap again to attack or talk · Target button picks the nearest.",
+    "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command box (Attack, Magic, Abilities, Inspect); tap a person to talk · Target button picks the nearest.",
     "<b>Keyboard:</b> WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
     "1–0 use the action bar (Shift for page 2) · [ ] switch page · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
+    "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
+    "<b>Inspect</b> (or /check) tells you how tough a monster looks and whether it is hostile. Monster levels are never shown, so learn by inspecting.",
     "Auto-attack swings on your weapon's delay. Each hit builds <b>TP</b>; at 1000 TP you can use a weapon skill (more TP makes it stronger).",
     "<b>Skillchains:</b> a weapon skill opens a chain; a matching weapon skill within about 6 s closes it for bonus damage. The target frame shows the open chain and its element.",
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
-    "<b>Con colours:</b> " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP.",
+    "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
-    "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and some are peaceful until attacked (the target frame says <i>passive</i>). Learn each kind by watching it; nothing on screen gives their range away."
+    "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
     ["Warrior", "Tank or damage", "Provoke, Berserk, great axe A, sword B"],
@@ -923,7 +934,7 @@ function tabHelp() {
   ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("🏠 Your residence", ul([
-    "The door is on the west cottage of Ashenreach Outpost. <b>Pip the Nubbin</b> lives there.",
+    "The door is on the west cottage of Ashenreach Outpost; walking into it asks if you want to go in. <b>Pip the Nubbin</b> lives there.",
     "<b>Storage:</b> Pip keeps " + CONFIG.storageBase + " slots of items, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. Stored items don't count against your bag.",
     "<b>Furniture:</b> Odette by the west wall sells it. Ask Pip to arrange: pick a piece, tap a tile on the 10×8 grid; tap a placed piece to rotate or pack it away. The door tiles and Pip's corner are blocked; rugs can sit under other pieces.",
     "Odette's quest <i>Make It Home</i> rewards a potted plant for placing two pieces."
