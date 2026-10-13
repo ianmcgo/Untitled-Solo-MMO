@@ -261,6 +261,21 @@ const ITEMS = {
   eel_pie: { name: "Eel Pie", kind: "food", icon: "🥧", price: 80, stack: 12, food: { hp: 40, def: 8 }, desc: "A thick-crusted marsh pie. Sits like armour." },
   perch_chowder: { name: "Perch Chowder", kind: "food", icon: "🥣", price: 95, stack: 12, food: { mp: 30, int: 3, mnd: 3 }, desc: "Creamy chowder that clears the head." },
   pike_feast: { name: "Pike Feast", kind: "food", icon: "🍱", price: 260, stack: 12, rarity: "rare", food: { hp: 60, str: 3, vit: 3, att: 12 }, desc: "A banquet built around a Lakeking Pike." },
+  sea_rod: { name: "Sea Rod", kind: "use", icon: "🎣", price: 900, fishing: true, desc: "A long, springy rod. +10% catch rate and works anywhere a Willow Rod does." },
+  harbor_bream: { name: "Harbor Bream", kind: "mat", icon: "🐟", price: 30, stack: 12, desc: "A silver-pink bream from the harbor." },
+  sea_bass: { name: "Sea Bass", kind: "mat", icon: "🐟", price: 70, stack: 12, desc: "Firm, white and prized by cooks." },
+  tidecaller_tuna: { name: "Tidecaller Tuna", kind: "mat", icon: "🐠", price: 400, stack: 12, rarity: "rare", desc: "A great blue tuna. Fishers tell stories about the one that got away." },
+  grilled_bass: { name: "Grilled Sea Bass", kind: "food", icon: "🐟", price: 110, stack: 12, food: { hp: 35, agi: 3, eva: 6 }, desc: "Charred skin, lemon and salt." },
+  tidesteel_sword: { name: "Tidesteel Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 17, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 14, price: 5200, stats: { acc: 3, str: 1 } },
+  boarding_axe: { name: "Boarding Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 30, delay: 4.0, jobs: ["WAR"], lv: 14, price: 5600, stats: { str: 2 } },
+  coral_staff: { name: "Coral Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 18, delay: 3.6, jobs: ALL_J, lv: 14, price: 5000, stats: { int: 6, mnd: 6, mp: 25 } },
+  tidesteel_dagger: { name: "Tidesteel Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 12, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 14, price: 4800, stats: { dex: 3, acc: 3 } },
+  shark_claws: { name: "Shark Claws", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 13, delay: 2.6, jobs: ["MNK", "WAR"], lv: 14, price: 4900, stats: { str: 3, att: 5 } },
+  harbor_mail: { name: "Harbor Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 13, price: 5400, stats: { def: 19, hp: 40, vit: 2 } },
+  sailcloth_robe: { name: "Sailcloth Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 13, price: 5000, stats: { def: 11, mp: 45, int: 4, mnd: 4 } },
+  corsair_jerkin: { name: "Corsair Jerkin", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "MNK", "RDM"], lv: 13, price: 5000, stats: { def: 13, dex: 3, agi: 3, hp: 20 } },
+  gull_hat: { name: "Gull Feather Hat", kind: "equip", icon: "👒", slot: "head", jobs: ALL_J, lv: 13, price: 2600, stats: { def: 5, agi: 2, mp: 10 } },
+  tide_ring: { name: "Tide Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 12, rare: true, stats: { hp: 20, mp: 20, mnd: 2 }, desc: "A gift from the harbor master." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
   mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
   iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
@@ -364,6 +379,7 @@ const RECIPES = [
   { id: "r_shad_skewer", craft: "cooking", lv: 7, mats: { silver_shad: 2, rock_salt: 1 }, out: "shad_skewer", qty: 2 },
   { id: "r_eel_pie", craft: "cooking", lv: 10, mats: { mud_eel: 1, grain_flour: 2 }, out: "eel_pie", qty: 2 },
   { id: "r_perch_chowder", craft: "cooking", lv: 13, mats: { bog_perch: 1, grain_flour: 1, healing_herb: 1 }, out: "perch_chowder", qty: 2 },
+  { id: "r_grilled_bass", craft: "cooking", lv: 12, mats: { sea_bass: 1, rock_salt: 1 }, out: "grilled_bass", qty: 2 },
   { id: "r_pike_feast", craft: "cooking", lv: 16, mats: { lakeking_pike: 1, grain_flour: 2, healing_herb: 2 }, out: "pike_feast", qty: 3 }
 ];
 
@@ -602,9 +618,33 @@ ZONES.crypt = {
   start: { x: 70, y: 700 }
 };
 ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
+ZONES.harbor = {
+  name: "Saltreach Harbor", w: 1400, h: 1000, safe: true, theme: "town",
+  exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }],
+  npcs: [
+    { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
+    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }
+  ],
+  spawns: [],
+  water: [{ x: 300, y: 1180, r: 360 }, { x: 900, y: 1230, r: 420 }, { x: 1350, y: 1100, r: 260 }],
+  plaza: { x: 700, y: 460, r: 140 },
+  paths: [
+    { w: 52, pts: [[500, -500], [500, 0], [560, 260], [700, 460]] },
+    { w: 40, pts: [[700, 460], [700, 760]] },
+    { w: 34, pts: [[700, 460], [480, 600]] },
+    { w: 34, pts: [[700, 460], [930, 600]] }
+  ],
+  houses: [{ x: 280, y: 260, w: 150, h: 110, rot: 0 }, { x: 1100, y: 260, w: 150, h: 110, rot: 0 }, { x: 250, y: 560, w: 120, h: 140, rot: 1 }, { x: 1160, y: 580, w: 120, h: 140, rot: 1 }, { x: 860, y: 170, w: 170, h: 90, rot: 0 }],
+  stalls: [{ x: 480, y: 650, color: "#0277bd" }, { x: 930, y: 650, color: "#6a1b9a" }],
+  docks: [[470, 770, 60, 210], [880, 780, 60, 200]],
+  boats: [[300, 965, 0.2], [1000, 985, -0.4]],
+  lamps: [[600, 360], [800, 360], [600, 560], [800, 560], [700, 760]],
+  start: { x: 500, y: 90 }
+};
+
 ZONES.marsh = {
   name: "Ashen Marsh", w: 2800, h: 2400, theme: "field", palette: "marsh", mist: true,
-  exits: [{ x: 1350, y: 0, w: 100, h: 24, to: "hollow", tx: 1600, ty: 2110, label: "Rocky Hollow" }],
+  exits: [{ x: 1350, y: 0, w: 100, h: 24, to: "hollow", tx: 1600, ty: 2110, label: "Rocky Hollow" }, { x: 2200, y: 2376, w: 100, h: 24, to: "harbor", tx: 500, ty: 95, label: "Saltreach Harbor" }],
   npcs: [],
   walls: [{ x: 300, y: 300, w: 260, h: 160 }, { x: 2300, y: 1500, w: 200, h: 320 }, { x: 900, y: 2100, w: 380, h: 140 }],
   ruins: {
@@ -635,7 +675,8 @@ ZONES.marsh = {
   paths: [
     { w: 40, pts: [[1400, -500], [1400, 0], [1350, 300], [1250, 650], [1050, 1000], [1150, 1500], [1450, 1750], [1800, 2000], [2300, 2200]] },
     { w: 34, pts: [[1250, 650], [1700, 750], [2150, 800], [2500, 750]] },
-    { w: 30, pts: [[1150, 1500], [800, 1700], [600, 1960]] }
+    { w: 30, pts: [[1150, 1500], [800, 1700], [600, 1960]] },
+    { w: 34, pts: [[2300, 2200], [2250, 2400], [2250, 2900]] }
   ],
   gather: {
     mining: { n: 2, at: [[2600, 300], [300, 1200], [2600, 1900], [1000, 2250]], loot: [["iron_ore", 0.5], ["copper_ore", 0.25], ["fire_crystal", 0.12], ["earth_crystal", 0.12]] },
@@ -664,6 +705,10 @@ const NPCS = {
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
   crystal_town: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
+  ilsa: { name: "Ilsa, Harbor Master", model: "ilsa", talk: "talkIlsa" },
+  marn: { name: "Marn, Fishmonger", model: "marn", talk: "talkMarn" },
+  vela: { name: "Vela, Outfitter", model: "vela", talk: "talkVela" },
+  crystal_harbor: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   crystal_hollow: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   pip: { name: "Pip the Nubbin", prop: "nubbin", talk: "talkPip" },
   brazier_fire: { name: "Brazier of Flame", prop: "brazier", element: "fire", talk: "talkBrazier" },
@@ -696,6 +741,10 @@ const QUESTS = {
     intro: "Under the Den's Bone Pit lies the Sunken Crypt, and on its throne sits the thing that stirs the dead: the Hollow King. The old way in is sealed by braziers, and a Sentinel holds the throne key. Bring a full party. End him, and the Outpost will give you its highest honour.", progress: "The King still sits his throne. Braziers first, then the Sentinel's key, then the throne room.", turn: "The Hollow King is dust. Wear this medallion with pride: no one in Ashenreach has earned it before." },
   warden: { name: "The Warden's Vigil", giver: "Captain Rhea", npc: "rhea", lv: 8, pre: "chieftain", kill: { fam: "ossuary_warden", n: 1, name: "Ossuary Warden" }, desc: "Defeat the Ossuary Warden, a notorious ghoul that haunts the Bone Pit of the Goblin Den.", reward: { xp: 800, gil: 800, item: "ether", qty: 3 },
     intro: "With the Chieftain gone, the Den's worst is a ghoul the scouts call the Ossuary Warden. It keeps the Bone Pit. End its vigil and I'll pay well.", progress: "The Warden still haunts the Bone Pit. It appears among the ghouls there.", turn: "The Warden is finished. The dead can rest, and so can you. Here." },
+  catchday: { name: "Catch of the Day", giver: "Ilsa", npc: "ilsa", lv: 6, items: { harbor_bream: 3 }, desc: "Bring Ilsa 3 Harbor Bream from Saltreach Harbor's waters.", reward: { xp: 500, gil: 300, item: "sea_rod", qty: 1 },
+    intro: "New to the harbor? Everyone here fishes, even me. Show me you can hold a rod: bring me 3 Harbor Bream from the docks and I'll give you a proper sea rod.", progress: "3 Harbor Bream. Cast from the docks; they bite best in rain.", turn: "Nice fish. Here, a real rod. Don't lose it over the side." },
+  saltsteel: { name: "Salt and Steel", giver: "Ilsa", npc: "ilsa", lv: 12, kill: { fam: "mire_goblin", n: 5, name: "Mire Goblin" }, desc: "Drive back 5 Mire Goblins that raid the road between the Ashen Marsh and Saltreach Harbor.", reward: { xp: 1600, gil: 800, item: "tide_ring", qty: 1 },
+    intro: "Goblins from Mire Village keep raiding our carts on the marsh road. I can't spare sailors to guard them. Cut down five of the raiders and the harbor will owe you.", progress: "Five Mire Goblins. They roam north of here in the marsh.", turn: "The carts came through clean today. Take this ring; it was my mother's, and she'd want it on someone useful." },
   mire: { name: "Into the Mire", giver: "Captain Rhea", npc: "rhea", lv: 10, kill: { fam: "bog_toad", n: 6, name: "Bog Toad" }, desc: "Thin out the Bog Toads in the Ashen Marsh, south of Rocky Hollow.", reward: { xp: 1200, gil: 600, item: "marsh_boots", qty: 1 },
     intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
   mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
@@ -822,6 +871,8 @@ const ACHIEVEMENTS = [
   { id: "bigcatch", icon: "🐠", name: "The Big One", desc: "Land a Lakeking Pike or a Ghost Koi.", gil: 200, test: s => (s.stats.bigFish || 0) >= 1 },
   { id: "fed", icon: "🍲", name: "Well Fed", desc: "Eat a meal.", gil: 20, test: s => (s.stats.meals || 0) >= 1 },
   { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", gil: 200, test: s => (s.crafts.cooking || 0) >= 10 },
+  { id: "harbor", icon: "⚓", name: "Sea Air", desc: "Reach Saltreach Harbor.", gil: 80, test: s => (s.discovered || []).includes("harbor") },
+  { id: "tuna", icon: "🐟", name: "Tidecaller", desc: "Land a Tidecaller Tuna.", gil: 300, test: s => (s.stats.tuna || 0) >= 1 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
@@ -856,6 +907,7 @@ const STAT_LABELS = { str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT"
 const FISH = {
   outpost: [["pond_minnow", 0, 10], ["moat_carp", 3, 3]],
   hollow: [["moat_carp", 0, 8], ["silver_shad", 4, 5], ["pond_minnow", 0, 3], ["lakeking_pike", 12, 0.6]],
+  harbor: [["harbor_bream", 2, 8], ["sea_bass", 9, 5], ["pond_minnow", 0, 2], ["tidecaller_tuna", 16, 0.5]],
   marsh: [["mud_eel", 4, 7], ["bog_perch", 7, 5], ["moat_carp", 0, 2], ["ghost_koi", 14, 0.5, "storm"], ["ghost_koi", 14, 0.4, "rain"]]
 };
 const FISH_CFG = { waitMin: 3, waitMax: 9, bite: 2.4, reach: 70, cap: 20 };
@@ -871,5 +923,12 @@ const WEATHER_INFO = {
 const WEATHER = {
   outpost: [["clear", 6], ["cloudy", 3], ["rain", 2], ["wind", 1.5], ["storm", 0.5]],
   hollow: [["clear", 5], ["cloudy", 3], ["rain", 2], ["wind", 2], ["storm", 0.7], ["fog", 0.8]],
-  marsh: [["fog", 4], ["rain", 3], ["cloudy", 2], ["clear", 1.2], ["storm", 1]]
+  marsh: [["fog", 4], ["rain", 3], ["cloudy", 2], ["clear", 1.2], ["storm", 1]],
+  harbor: [["clear", 5], ["wind", 3], ["cloudy", 3], ["rain", 2], ["storm", 1], ["fog", 1.2]]
 };
+
+const SHOPS = {
+  marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
+  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe"]
+};
+const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };

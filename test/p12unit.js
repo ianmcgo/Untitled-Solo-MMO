@@ -2,7 +2,7 @@ const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 G.enterZone('outpost'); run(0.2);
-ok(G.CRAFTS.cooking && G.RECIPES.filter(r => r.craft === 'cooking').length === 7, 'Cooking has 7 recipes');
+ok(G.CRAFTS.cooking && G.RECIPES.filter(r => r.craft === 'cooking').length >= 7, 'Cooking has at least 7 recipes');
 G.giveItem('grain_flour', 4, true); G.giveItem('healing_herb', 2, true); G.giveItem('fire_crystal', 2, true);
 const r = G.RECIPES.find(x => x.id === 'r_herb_bread');
 G.save.crafts.cooking = 5;

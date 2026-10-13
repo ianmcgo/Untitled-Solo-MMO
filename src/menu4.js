@@ -473,8 +473,9 @@ function tabSystem() {
   return h;
 }
 function tabShop() {
-  let h = '<div class="sub" style="margin-bottom:6px">Pell buys and sells. 💠 ' + save.gil + " gil</div><h3>Buy</h3>";
-  shopList().forEach(id => { h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (ITEMS[id].icon || "") + "</span><div><div>" + esc(ITEMS[id].name) + '</div><div class="d">' + esc(itemDesc(id)) + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < ITEMS[id].price ? " disabled" : "") + ">" + ITEMS[id].price + " gil</button></div>"; });
+  const kind = S.shopKind && SHOPS[S.shopKind] ? S.shopKind : "pell";
+  let h = '<div class="sub" style="margin-bottom:6px">' + SHOP_NAMES[kind] + " buys and sells. 💠 " + save.gil + " crystals</div><h3>Buy</h3>";
+  shopList(kind).forEach(id => { h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (ITEMS[id].icon || "") + "</span><div><div>" + esc(ITEMS[id].name) + '</div><div class="d">' + esc(itemDesc(id)) + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < ITEMS[id].price ? " disabled" : "") + ">" + ITEMS[id].price + " gil</button></div>"; });
   h += "<h3>Sell</h3>";
   const sellable = save.inventory.filter(s => sellPrice(s.id) > 0);
   if (!sellable.length) h += '<div class="sub">Nothing to sell.</div>';
@@ -866,6 +867,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.5.0", date: "2026-10-13", title: "Saltreach Harbor", items: [
+    "New town: Saltreach Harbor, south of the Ashen Marsh, with docks, boats, a home point crystal and its own trade board.",
+    "New people: Ilsa the harbor master (two quests), Marn the fishmonger (rods, bait, cooking supplies, meals) and Vela the outfitter (level 13–14 gear for every job).",
+    "New fish: Harbor Bream, Sea Bass and the rare Tidecaller Tuna. New Sea Rod (+10% catch rate) and a Grilled Sea Bass recipe.",
+    "New achievements: Sea Air and Tidecaller."
+  ] },
   { v: "5.4.0", date: "2026-10-13", title: "Food and cooking", items: [
     "New craft: Cooking. Seven recipes from Grilled Minnow to the Pike Feast, made from your catches, herbs, Grain Flour and Rock Salt (new at Pell's).",
     "Meals give 30 real minutes of bonuses such as HP, MP, Attack, Defense and stats. One meal at a time; the Well Fed buff shows on your party frame.",
@@ -1099,8 +1106,15 @@ function tabHelp() {
     ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
+    ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–14 gear), home point, trade board, docks"],
     ["Ashen Marsh", "9–16", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("⚓ Saltreach Harbor", ul([
+    "A second town, through the south exit of the Ashen Marsh. You can set your home point at its crystal.",
+    "<b>Ilsa</b>, the harbor master: <i>Catch of the Day</i> (level 6, 3 Harbor Bream → Sea Rod) and <i>Salt and Steel</i> (level 12, 5 Mire Goblins → Tide Ring).",
+    "<b>Marn</b> sells rods (the Sea Rod adds 10% to your catch rate), bait, flour, salt, ready meals and potions. <b>Vela</b> sells level 13–14 weapons and armor for every job.",
+    "Fish from the docks: Harbor Bream, Sea Bass and the rare Tidecaller Tuna. Sea Bass cooks into Grilled Sea Bass (Cooking 12)."
+  ]));
   h += sec("🐸 The Ashen Marsh", ul([
     "Through the south exit of Rocky Hollow. Thick mist cuts how far you can see, especially at night.",
     "<b>Bog Toads</b> hear footsteps. <b>Bog Leeches</b> taste magic and blood (they come for casters and the wounded). <b>Mire Goblins</b> see far and call each other. At night the <b>Drowned</b> rise around the chapel. <b>Reed Hares</b> are peaceful.",

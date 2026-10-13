@@ -992,7 +992,7 @@ function nearWater(e, reach) {
 function startFishing() {
   if (!player.alive) return "You are KO'd.";
   if (S.fish) return "You're already fishing.";
-  if (invCount("fishing_rod") < 1) return "You need a Willow Rod. Pell sells them.";
+  if (invCount("fishing_rod") < 1 && invCount("sea_rod") < 1) return "You need a fishing rod. Pell and Marn sell them.";
   if (!FISH[S.zoneId]) return "Nothing bites here.";
   const w = nearWater(player);
   if (!w) return "Stand at the water's edge to fish.";
@@ -1030,9 +1030,10 @@ function reelFish() {
   S.fish = null;
   const [id, lv] = pickFish();
   const skill = save.gatherSkill.fishing || 0;
-  const chance = clamp(62 + (skill - lv) * 6, 12, 95);
+  const chance = clamp(62 + (skill - lv) * 6 + (invCount("sea_rod") > 0 ? 10 : 0), 12, 95);
   if (Math.random() * 100 >= chance) { log("You reel in hard, but the line goes slack. It got away.", "sys"); sfx("miss", player); return; }
   save.stats.fish++;
+  if (id === "tidecaller_tuna") save.stats.tuna = (save.stats.tuna || 0) + 1;
   if (ITEMS[id].rarity === "rare") { save.stats.bigFish++; S.shake = Math.max(S.shake, 0.15); }
   giveItem(id, 1);
   log("You catch " + an(ITEMS[id].name) + "!", "loot");
@@ -2867,9 +2868,23 @@ const TALK = {
       { label: "Read the requests", fn: () => { closeDialog(); openModal("board"); } }
     ]);
   },
+  talkIlsa(n) {
+    const g = questOptions("ilsa", n);
+    openDialog(n.name, g.length ? "Welcome to Saltreach. Ships, fish and salt; that's the harbor. I always have work for steady hands." : "Fair winds. Come back when you're stronger and I may have more work.", g);
+  },
+  talkMarn(n) {
+    openDialog(n.name, "Fresh off the boats! Rods, bait, flour and salt, and a hot meal if you're hungry. I'll buy your catch too.", [
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "marn"; openModal("shop"); } }
+    ].concat(questOptions("marn", n)));
+  },
+  talkVela(n) {
+    openDialog(n.name, "Harbor-forged steel and sailcloth. Lighter than what they sell up the road, and tougher. Not cheap, mind.", [
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "vela"; openModal("shop"); } }
+    ]);
+  },
   talkPell(n) {
     openDialog(n.name, "Potions, ethers, arms and armor. Crystals talks, friend.", [
-      { label: "Trade", fn: () => { closeDialog(); openModal("shop"); } }
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "pell"; openModal("shop"); } }
     ].concat(questOptions("pell", n)));
   },
   talkYsolde(n) {
@@ -3050,8 +3065,9 @@ function setJob(main, sub) {
 
 function shopListFor(kind) { return kind === "furniture" ? FURNITURE_SHOP.slice() : shopList(); }
 
-function shopList() {
-  return SHOP.filter(id => {
+function shopList(kind) {
+  const src = kind && SHOPS[kind] ? SHOPS[kind] : SHOP;
+  return src.filter(id => {
     const it = ITEMS[id];
     if (it.kind === "tool" && !FEATURES.gathering) return false;
     if ((it.kind === "crystal" || ["copper_ore", "ash_log", "healing_herb"].includes(id)) && !FEATURES.crafting) return false;

@@ -517,7 +517,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.4.0 · built 2026-10-13 14:38 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.5.0 · built 2026-10-13 14:46 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5595,6 +5595,21 @@ const ITEMS = {
   eel_pie: { name: "Eel Pie", kind: "food", icon: "🥧", price: 80, stack: 12, food: { hp: 40, def: 8 }, desc: "A thick-crusted marsh pie. Sits like armour." },
   perch_chowder: { name: "Perch Chowder", kind: "food", icon: "🥣", price: 95, stack: 12, food: { mp: 30, int: 3, mnd: 3 }, desc: "Creamy chowder that clears the head." },
   pike_feast: { name: "Pike Feast", kind: "food", icon: "🍱", price: 260, stack: 12, rarity: "rare", food: { hp: 60, str: 3, vit: 3, att: 12 }, desc: "A banquet built around a Lakeking Pike." },
+  sea_rod: { name: "Sea Rod", kind: "use", icon: "🎣", price: 900, fishing: true, desc: "A long, springy rod. +10% catch rate and works anywhere a Willow Rod does." },
+  harbor_bream: { name: "Harbor Bream", kind: "mat", icon: "🐟", price: 30, stack: 12, desc: "A silver-pink bream from the harbor." },
+  sea_bass: { name: "Sea Bass", kind: "mat", icon: "🐟", price: 70, stack: 12, desc: "Firm, white and prized by cooks." },
+  tidecaller_tuna: { name: "Tidecaller Tuna", kind: "mat", icon: "🐠", price: 400, stack: 12, rarity: "rare", desc: "A great blue tuna. Fishers tell stories about the one that got away." },
+  grilled_bass: { name: "Grilled Sea Bass", kind: "food", icon: "🐟", price: 110, stack: 12, food: { hp: 35, agi: 3, eva: 6 }, desc: "Charred skin, lemon and salt." },
+  tidesteel_sword: { name: "Tidesteel Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 17, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 14, price: 5200, stats: { acc: 3, str: 1 } },
+  boarding_axe: { name: "Boarding Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 30, delay: 4.0, jobs: ["WAR"], lv: 14, price: 5600, stats: { str: 2 } },
+  coral_staff: { name: "Coral Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 18, delay: 3.6, jobs: ALL_J, lv: 14, price: 5000, stats: { int: 6, mnd: 6, mp: 25 } },
+  tidesteel_dagger: { name: "Tidesteel Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 12, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 14, price: 4800, stats: { dex: 3, acc: 3 } },
+  shark_claws: { name: "Shark Claws", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 13, delay: 2.6, jobs: ["MNK", "WAR"], lv: 14, price: 4900, stats: { str: 3, att: 5 } },
+  harbor_mail: { name: "Harbor Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 13, price: 5400, stats: { def: 19, hp: 40, vit: 2 } },
+  sailcloth_robe: { name: "Sailcloth Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 13, price: 5000, stats: { def: 11, mp: 45, int: 4, mnd: 4 } },
+  corsair_jerkin: { name: "Corsair Jerkin", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "MNK", "RDM"], lv: 13, price: 5000, stats: { def: 13, dex: 3, agi: 3, hp: 20 } },
+  gull_hat: { name: "Gull Feather Hat", kind: "equip", icon: "👒", slot: "head", jobs: ALL_J, lv: 13, price: 2600, stats: { def: 5, agi: 2, mp: 10 } },
+  tide_ring: { name: "Tide Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 12, rare: true, stats: { hp: 20, mp: 20, mnd: 2 }, desc: "A gift from the harbor master." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
   mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
   iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
@@ -5698,6 +5713,7 @@ const RECIPES = [
   { id: "r_shad_skewer", craft: "cooking", lv: 7, mats: { silver_shad: 2, rock_salt: 1 }, out: "shad_skewer", qty: 2 },
   { id: "r_eel_pie", craft: "cooking", lv: 10, mats: { mud_eel: 1, grain_flour: 2 }, out: "eel_pie", qty: 2 },
   { id: "r_perch_chowder", craft: "cooking", lv: 13, mats: { bog_perch: 1, grain_flour: 1, healing_herb: 1 }, out: "perch_chowder", qty: 2 },
+  { id: "r_grilled_bass", craft: "cooking", lv: 12, mats: { sea_bass: 1, rock_salt: 1 }, out: "grilled_bass", qty: 2 },
   { id: "r_pike_feast", craft: "cooking", lv: 16, mats: { lakeking_pike: 1, grain_flour: 2, healing_herb: 2 }, out: "pike_feast", qty: 3 }
 ];
 
@@ -5936,9 +5952,33 @@ ZONES.crypt = {
   start: { x: 70, y: 700 }
 };
 ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
+ZONES.harbor = {
+  name: "Saltreach Harbor", w: 1400, h: 1000, safe: true, theme: "town",
+  exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }],
+  npcs: [
+    { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
+    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }
+  ],
+  spawns: [],
+  water: [{ x: 300, y: 1180, r: 360 }, { x: 900, y: 1230, r: 420 }, { x: 1350, y: 1100, r: 260 }],
+  plaza: { x: 700, y: 460, r: 140 },
+  paths: [
+    { w: 52, pts: [[500, -500], [500, 0], [560, 260], [700, 460]] },
+    { w: 40, pts: [[700, 460], [700, 760]] },
+    { w: 34, pts: [[700, 460], [480, 600]] },
+    { w: 34, pts: [[700, 460], [930, 600]] }
+  ],
+  houses: [{ x: 280, y: 260, w: 150, h: 110, rot: 0 }, { x: 1100, y: 260, w: 150, h: 110, rot: 0 }, { x: 250, y: 560, w: 120, h: 140, rot: 1 }, { x: 1160, y: 580, w: 120, h: 140, rot: 1 }, { x: 860, y: 170, w: 170, h: 90, rot: 0 }],
+  stalls: [{ x: 480, y: 650, color: "#0277bd" }, { x: 930, y: 650, color: "#6a1b9a" }],
+  docks: [[470, 770, 60, 210], [880, 780, 60, 200]],
+  boats: [[300, 965, 0.2], [1000, 985, -0.4]],
+  lamps: [[600, 360], [800, 360], [600, 560], [800, 560], [700, 760]],
+  start: { x: 500, y: 90 }
+};
+
 ZONES.marsh = {
   name: "Ashen Marsh", w: 2800, h: 2400, theme: "field", palette: "marsh", mist: true,
-  exits: [{ x: 1350, y: 0, w: 100, h: 24, to: "hollow", tx: 1600, ty: 2110, label: "Rocky Hollow" }],
+  exits: [{ x: 1350, y: 0, w: 100, h: 24, to: "hollow", tx: 1600, ty: 2110, label: "Rocky Hollow" }, { x: 2200, y: 2376, w: 100, h: 24, to: "harbor", tx: 500, ty: 95, label: "Saltreach Harbor" }],
   npcs: [],
   walls: [{ x: 300, y: 300, w: 260, h: 160 }, { x: 2300, y: 1500, w: 200, h: 320 }, { x: 900, y: 2100, w: 380, h: 140 }],
   ruins: {
@@ -5969,7 +6009,8 @@ ZONES.marsh = {
   paths: [
     { w: 40, pts: [[1400, -500], [1400, 0], [1350, 300], [1250, 650], [1050, 1000], [1150, 1500], [1450, 1750], [1800, 2000], [2300, 2200]] },
     { w: 34, pts: [[1250, 650], [1700, 750], [2150, 800], [2500, 750]] },
-    { w: 30, pts: [[1150, 1500], [800, 1700], [600, 1960]] }
+    { w: 30, pts: [[1150, 1500], [800, 1700], [600, 1960]] },
+    { w: 34, pts: [[2300, 2200], [2250, 2400], [2250, 2900]] }
   ],
   gather: {
     mining: { n: 2, at: [[2600, 300], [300, 1200], [2600, 1900], [1000, 2250]], loot: [["iron_ore", 0.5], ["copper_ore", 0.25], ["fire_crystal", 0.12], ["earth_crystal", 0.12]] },
@@ -5998,6 +6039,10 @@ const NPCS = {
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
   crystal_town: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
+  ilsa: { name: "Ilsa, Harbor Master", model: "ilsa", talk: "talkIlsa" },
+  marn: { name: "Marn, Fishmonger", model: "marn", talk: "talkMarn" },
+  vela: { name: "Vela, Outfitter", model: "vela", talk: "talkVela" },
+  crystal_harbor: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   crystal_hollow: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   pip: { name: "Pip the Nubbin", prop: "nubbin", talk: "talkPip" },
   brazier_fire: { name: "Brazier of Flame", prop: "brazier", element: "fire", talk: "talkBrazier" },
@@ -6030,6 +6075,10 @@ const QUESTS = {
     intro: "Under the Den's Bone Pit lies the Sunken Crypt, and on its throne sits the thing that stirs the dead: the Hollow King. The old way in is sealed by braziers, and a Sentinel holds the throne key. Bring a full party. End him, and the Outpost will give you its highest honour.", progress: "The King still sits his throne. Braziers first, then the Sentinel's key, then the throne room.", turn: "The Hollow King is dust. Wear this medallion with pride: no one in Ashenreach has earned it before." },
   warden: { name: "The Warden's Vigil", giver: "Captain Rhea", npc: "rhea", lv: 8, pre: "chieftain", kill: { fam: "ossuary_warden", n: 1, name: "Ossuary Warden" }, desc: "Defeat the Ossuary Warden, a notorious ghoul that haunts the Bone Pit of the Goblin Den.", reward: { xp: 800, gil: 800, item: "ether", qty: 3 },
     intro: "With the Chieftain gone, the Den's worst is a ghoul the scouts call the Ossuary Warden. It keeps the Bone Pit. End its vigil and I'll pay well.", progress: "The Warden still haunts the Bone Pit. It appears among the ghouls there.", turn: "The Warden is finished. The dead can rest, and so can you. Here." },
+  catchday: { name: "Catch of the Day", giver: "Ilsa", npc: "ilsa", lv: 6, items: { harbor_bream: 3 }, desc: "Bring Ilsa 3 Harbor Bream from Saltreach Harbor's waters.", reward: { xp: 500, gil: 300, item: "sea_rod", qty: 1 },
+    intro: "New to the harbor? Everyone here fishes, even me. Show me you can hold a rod: bring me 3 Harbor Bream from the docks and I'll give you a proper sea rod.", progress: "3 Harbor Bream. Cast from the docks; they bite best in rain.", turn: "Nice fish. Here, a real rod. Don't lose it over the side." },
+  saltsteel: { name: "Salt and Steel", giver: "Ilsa", npc: "ilsa", lv: 12, kill: { fam: "mire_goblin", n: 5, name: "Mire Goblin" }, desc: "Drive back 5 Mire Goblins that raid the road between the Ashen Marsh and Saltreach Harbor.", reward: { xp: 1600, gil: 800, item: "tide_ring", qty: 1 },
+    intro: "Goblins from Mire Village keep raiding our carts on the marsh road. I can't spare sailors to guard them. Cut down five of the raiders and the harbor will owe you.", progress: "Five Mire Goblins. They roam north of here in the marsh.", turn: "The carts came through clean today. Take this ring; it was my mother's, and she'd want it on someone useful." },
   mire: { name: "Into the Mire", giver: "Captain Rhea", npc: "rhea", lv: 10, kill: { fam: "bog_toad", n: 6, name: "Bog Toad" }, desc: "Thin out the Bog Toads in the Ashen Marsh, south of Rocky Hollow.", reward: { xp: 1200, gil: 600, item: "marsh_boots", qty: 1 },
     intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
   mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
@@ -6156,6 +6205,8 @@ const ACHIEVEMENTS = [
   { id: "bigcatch", icon: "🐠", name: "The Big One", desc: "Land a Lakeking Pike or a Ghost Koi.", gil: 200, test: s => (s.stats.bigFish || 0) >= 1 },
   { id: "fed", icon: "🍲", name: "Well Fed", desc: "Eat a meal.", gil: 20, test: s => (s.stats.meals || 0) >= 1 },
   { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", gil: 200, test: s => (s.crafts.cooking || 0) >= 10 },
+  { id: "harbor", icon: "⚓", name: "Sea Air", desc: "Reach Saltreach Harbor.", gil: 80, test: s => (s.discovered || []).includes("harbor") },
+  { id: "tuna", icon: "🐟", name: "Tidecaller", desc: "Land a Tidecaller Tuna.", gil: 300, test: s => (s.stats.tuna || 0) >= 1 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
@@ -6190,6 +6241,7 @@ const STAT_LABELS = { str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT"
 const FISH = {
   outpost: [["pond_minnow", 0, 10], ["moat_carp", 3, 3]],
   hollow: [["moat_carp", 0, 8], ["silver_shad", 4, 5], ["pond_minnow", 0, 3], ["lakeking_pike", 12, 0.6]],
+  harbor: [["harbor_bream", 2, 8], ["sea_bass", 9, 5], ["pond_minnow", 0, 2], ["tidecaller_tuna", 16, 0.5]],
   marsh: [["mud_eel", 4, 7], ["bog_perch", 7, 5], ["moat_carp", 0, 2], ["ghost_koi", 14, 0.5, "storm"], ["ghost_koi", 14, 0.4, "rain"]]
 };
 const FISH_CFG = { waitMin: 3, waitMax: 9, bite: 2.4, reach: 70, cap: 20 };
@@ -6205,8 +6257,15 @@ const WEATHER_INFO = {
 const WEATHER = {
   outpost: [["clear", 6], ["cloudy", 3], ["rain", 2], ["wind", 1.5], ["storm", 0.5]],
   hollow: [["clear", 5], ["cloudy", 3], ["rain", 2], ["wind", 2], ["storm", 0.7], ["fog", 0.8]],
-  marsh: [["fog", 4], ["rain", 3], ["cloudy", 2], ["clear", 1.2], ["storm", 1]]
+  marsh: [["fog", 4], ["rain", 3], ["cloudy", 2], ["clear", 1.2], ["storm", 1]],
+  harbor: [["clear", 5], ["wind", 3], ["cloudy", 3], ["rain", 2], ["storm", 1], ["fog", 1.2]]
 };
+
+const SHOPS = {
+  marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
+  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe"]
+};
+const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -7202,7 +7261,7 @@ function nearWater(e, reach) {
 function startFishing() {
   if (!player.alive) return "You are KO'd.";
   if (S.fish) return "You're already fishing.";
-  if (invCount("fishing_rod") < 1) return "You need a Willow Rod. Pell sells them.";
+  if (invCount("fishing_rod") < 1 && invCount("sea_rod") < 1) return "You need a fishing rod. Pell and Marn sell them.";
   if (!FISH[S.zoneId]) return "Nothing bites here.";
   const w = nearWater(player);
   if (!w) return "Stand at the water's edge to fish.";
@@ -7240,9 +7299,10 @@ function reelFish() {
   S.fish = null;
   const [id, lv] = pickFish();
   const skill = save.gatherSkill.fishing || 0;
-  const chance = clamp(62 + (skill - lv) * 6, 12, 95);
+  const chance = clamp(62 + (skill - lv) * 6 + (invCount("sea_rod") > 0 ? 10 : 0), 12, 95);
   if (Math.random() * 100 >= chance) { log("You reel in hard, but the line goes slack. It got away.", "sys"); sfx("miss", player); return; }
   save.stats.fish++;
+  if (id === "tidecaller_tuna") save.stats.tuna = (save.stats.tuna || 0) + 1;
   if (ITEMS[id].rarity === "rare") { save.stats.bigFish++; S.shake = Math.max(S.shake, 0.15); }
   giveItem(id, 1);
   log("You catch " + an(ITEMS[id].name) + "!", "loot");
@@ -9077,9 +9137,23 @@ const TALK = {
       { label: "Read the requests", fn: () => { closeDialog(); openModal("board"); } }
     ]);
   },
+  talkIlsa(n) {
+    const g = questOptions("ilsa", n);
+    openDialog(n.name, g.length ? "Welcome to Saltreach. Ships, fish and salt; that's the harbor. I always have work for steady hands." : "Fair winds. Come back when you're stronger and I may have more work.", g);
+  },
+  talkMarn(n) {
+    openDialog(n.name, "Fresh off the boats! Rods, bait, flour and salt, and a hot meal if you're hungry. I'll buy your catch too.", [
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "marn"; openModal("shop"); } }
+    ].concat(questOptions("marn", n)));
+  },
+  talkVela(n) {
+    openDialog(n.name, "Harbor-forged steel and sailcloth. Lighter than what they sell up the road, and tougher. Not cheap, mind.", [
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "vela"; openModal("shop"); } }
+    ]);
+  },
   talkPell(n) {
     openDialog(n.name, "Potions, ethers, arms and armor. Crystals talks, friend.", [
-      { label: "Trade", fn: () => { closeDialog(); openModal("shop"); } }
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "pell"; openModal("shop"); } }
     ].concat(questOptions("pell", n)));
   },
   talkYsolde(n) {
@@ -9260,8 +9334,9 @@ function setJob(main, sub) {
 
 function shopListFor(kind) { return kind === "furniture" ? FURNITURE_SHOP.slice() : shopList(); }
 
-function shopList() {
-  return SHOP.filter(id => {
+function shopList(kind) {
+  const src = kind && SHOPS[kind] ? SHOPS[kind] : SHOP;
+  return src.filter(id => {
     const it = ITEMS[id];
     if (it.kind === "tool" && !FEATURES.gathering) return false;
     if ((it.kind === "crystal" || ["copper_ore", "ash_log", "healing_herb"].includes(id)) && !FEATURES.crafting) return false;
@@ -11001,8 +11076,9 @@ function tabSystem() {
   return h;
 }
 function tabShop() {
-  let h = '<div class="sub" style="margin-bottom:6px">Pell buys and sells. 💠 ' + save.gil + " gil</div><h3>Buy</h3>";
-  shopList().forEach(id => { h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (ITEMS[id].icon || "") + "</span><div><div>" + esc(ITEMS[id].name) + '</div><div class="d">' + esc(itemDesc(id)) + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < ITEMS[id].price ? " disabled" : "") + ">" + ITEMS[id].price + " gil</button></div>"; });
+  const kind = S.shopKind && SHOPS[S.shopKind] ? S.shopKind : "pell";
+  let h = '<div class="sub" style="margin-bottom:6px">' + SHOP_NAMES[kind] + " buys and sells. 💠 " + save.gil + " crystals</div><h3>Buy</h3>";
+  shopList(kind).forEach(id => { h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (ITEMS[id].icon || "") + "</span><div><div>" + esc(ITEMS[id].name) + '</div><div class="d">' + esc(itemDesc(id)) + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < ITEMS[id].price ? " disabled" : "") + ">" + ITEMS[id].price + " gil</button></div>"; });
   h += "<h3>Sell</h3>";
   const sellable = save.inventory.filter(s => sellPrice(s.id) > 0);
   if (!sellable.length) h += '<div class="sub">Nothing to sell.</div>';
@@ -11392,8 +11468,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v5.4.0 · built 2026-10-13 14:38 PDT";
+const BUILD_INFO = "v5.5.0 · built 2026-10-13 14:46 PDT";
 const UPDATES = [
+  { v: "5.5.0", date: "2026-10-13", title: "Saltreach Harbor", items: [
+    "New town: Saltreach Harbor, south of the Ashen Marsh, with docks, boats, a home point crystal and its own trade board.",
+    "New people: Ilsa the harbor master (two quests), Marn the fishmonger (rods, bait, cooking supplies, meals) and Vela the outfitter (level 13–14 gear for every job).",
+    "New fish: Harbor Bream, Sea Bass and the rare Tidecaller Tuna. New Sea Rod (+10% catch rate) and a Grilled Sea Bass recipe.",
+    "New achievements: Sea Air and Tidecaller."
+  ] },
   { v: "5.4.0", date: "2026-10-13", title: "Food and cooking", items: [
     "New craft: Cooking. Seven recipes from Grilled Minnow to the Pike Feast, made from your catches, herbs, Grain Flour and Rock Salt (new at Pell's).",
     "Meals give 30 real minutes of bonuses such as HP, MP, Attack, Defense and stats. One meal at a time; the Well Fed buff shows on your party frame.",
@@ -11627,8 +11709,15 @@ function tabHelp() {
     ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
+    ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–14 gear), home point, trade board, docks"],
     ["Ashen Marsh", "9–16", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("⚓ Saltreach Harbor", ul([
+    "A second town, through the south exit of the Ashen Marsh. You can set your home point at its crystal.",
+    "<b>Ilsa</b>, the harbor master: <i>Catch of the Day</i> (level 6, 3 Harbor Bream → Sea Rod) and <i>Salt and Steel</i> (level 12, 5 Mire Goblins → Tide Ring).",
+    "<b>Marn</b> sells rods (the Sea Rod adds 10% to your catch rate), bait, flour, salt, ready meals and potions. <b>Vela</b> sells level 13–14 weapons and armor for every job.",
+    "Fish from the docks: Harbor Bream, Sea Bass and the rare Tidecaller Tuna. Sea Bass cooks into Grilled Sea Bass (Cooking 12)."
+  ]));
   h += sec("🐸 The Ashen Marsh", ul([
     "Through the south exit of Rocky Hollow. Thick mist cuts how far you can see, especially at night.",
     "<b>Bog Toads</b> hear footsteps. <b>Bog Leeches</b> taste magic and blood (they come for casters and the wounded). <b>Mire Goblins</b> see far and call each other. At night the <b>Drowned</b> rise around the chapel. <b>Reed Hares</b> are peaceful.",
@@ -11722,7 +11811,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "5.4.0";
+const GAME_VERSION = "5.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -12461,6 +12550,23 @@ function roofGeo(w, d, hgt) {
 }
 
 function buildTown(field, root) {
+  for (const [dx, dy, dw, dh] of field.zone.docks || []) {
+    const wood = std({ color: 0x7a5a3a, roughness: 0.9 }), dark = std({ color: 0x4a3420, roughness: 0.9 });
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(dw * U, 0.18, dh * U), wood);
+    const y = Math.max(field.waterLevel || 0, field.heightAt(dx + dw / 2, dy)) + 0.35;
+    deck.position.set((dx + dw / 2) * U, y, (dy + dh / 2) * U); deck.castShadow = true; deck.receiveShadow = true; root.add(deck);
+    for (let k = 0; k <= 4; k++) for (const sx of [0, 1]) { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 2.2, 6), dark); post.position.set((dx + sx * dw) * U, y - 0.9, (dy + k * dh / 4) * U); root.add(post); }
+  }
+  for (const [bx, by, rot] of field.zone.boats || []) {
+    const g = new THREE.Group();
+    const hull = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 0.7, 6, 10, 1, false, 0, Math.PI), std({ color: 0x5a3a24, roughness: 0.8, side: THREE.DoubleSide }));
+    hull.rotation.z = Math.PI / 2; hull.rotation.y = Math.PI / 2; hull.position.y = 0.2;
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 5, 6), std({ color: 0x4a3420 })); mast.position.y = 2.6;
+    const sail = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 3), std({ color: 0xe8e0cc, side: THREE.DoubleSide, roughness: 1 })); sail.position.set(0, 3, 0.1);
+    g.add(hull, mast, sail);
+    g.position.set(bx * U, (field.waterLevel || 0) + 0.1, by * U); g.rotation.y = rot || 0;
+    root.add(g);
+  }
   const z = field.zone;
   const planks = texPlanks(), bricks = texBricks(), roof = texRoof();
   const wallMat = std({ map: planks.map, normalMap: planks.normalMap });
@@ -13593,6 +13699,9 @@ const MERC_BASE = {
 const NPC_LOOK = {
   rhea: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: 0x8a3a20 }, top: { type: "tabard", color: 0x9aa0a8, region: "chain", color2: 0x2f5c9a }, pauldrons: 0xb8bec6, cape: 0x1d3f75, legs: 0x3a3a44, boots: 0x3a2618, gloves: 0x5a3a22, belt: 0x4a2e1a, weapon: "sword" },
   tobin: { build: 0, skin: SKIN_TONES[0], hair: { style: "bald", color: 0xdedede }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x5a3a7a, trim: 0xd8b050, sleeves: "wide" }, legs: 0x3a2a4a, weapon: "staff", alwaysDrawn: true },
+  ilsa: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x1f3a5a, trim: 0xd8c070 }, head: { type: "feathered", color: 0x1f2a3a, color2: 0xd8c070 }, legs: 0x2a2a30, boots: 0x1a1410, belt: 0x3a2a1a, weapon: "sword", prop: { leg: 0.9 } },
+  marn: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[2] }, beard: HAIR_COLORS[2], top: { type: "apron", color: 0x5a8aa8, color2: 0xd8d0c0 }, head: { type: "bandana", color: 0x1a5a8a }, legs: 0x3a4048, boots: 0x2a2a2a, belt: 0x3a2a1a, prop: { girth: 1.15 } },
+  vela: { build: 1, skin: SKIN_TONES[0], hair: { style: "bob", color: HAIR_COLORS[4] }, top: { type: "tabard", color: 0x5a2a6a, region: "cloth", color2: 0xd8c070 }, legs: 0x2a2030, boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a },
   garrick: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: HAIR_COLORS[0] }, beard: 0x8a5a2c, longBeard: true, top: { type: "apron", color: 0x3a2a20, color2: 0x6a4a30 }, legs: 0x3a3028, boots: 0x2a1e14, gloves: 0x4a3020, belt: 0x2a1e14, weapon: "club", alwaysDrawn: false, prop: { girth: 1.2, shoulder: 0.215 } },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },
   brann: { build: 0, skin: SKIN_TONES[2], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
