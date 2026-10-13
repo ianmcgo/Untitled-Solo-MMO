@@ -11,6 +11,8 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   page.setDefaultTimeout(240000);
   await page.goto('file://' + html, { timeout: 240000 });
   await page.waitForSelector('#loading.ready', { timeout: 240000 });
+  await page.screenshot({ path: out + '-title.png' });
+  await page.click('#ldStart'); await page.waitForTimeout(400);
   await page.screenshot({ path: out + '-roster-empty.png' });
   await page.click('[data-new]');
   await page.waitForTimeout(2500);
@@ -111,6 +113,8 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   }
   await page.evaluate(() => { closeModal(); logoutToSelect(); });
   await page.waitForSelector('#loading.ready', { timeout: 240000 });
+  await page.screenshot({ path: out + '-title.png' });
+  await page.click('#ldStart'); await page.waitForTimeout(400);
   await page.waitForTimeout(800);
   await page.screenshot({ path: out + '-roster.png' });
   console.log('roster2', JSON.stringify(await page.evaluate(() => loadRoster().chars.map(c => c.name + ':' + c.job + ':' + c.lv))));

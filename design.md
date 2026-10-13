@@ -595,11 +595,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - UI: `#fishBox` (center bottom; pulses gold on a bite) with Reel/Stop; Space, Enter or F reels during a bite (main4 onKey). Skills tab now lists Mining, Logging, Harvesting and Fishing. Trade Board gained fish requests (t_carp, t_eel). Achievements angler, bigcatch.
 - Tests: test/p11unit.js (weather variety, none indoors, stable slot, rod/bait/water checks, catch, skill, escape, walk-away). p10unit clears requested items first so starting potions don't satisfy a request. p5shots scenes rain, fog.
 
+## Hotfix 5.3.1: storage fallback and title screen
+- Cause of "Begin your journey returns to the create screen" on phones: localStorage writes threw (quota full; every page on ianmcgo.github.io shares one origin's storage), so createChar saved nothing, selectChar failed and the empty roster sent the player back to creation. Reproduced in Playwright by making setItem throw for usr_ keys.
+- game.js `STORE { get, set, remove }` wraps localStorage. On a failed set it removes the legacy CONFIG.saveKey copy and retries, then falls back to an in-memory `MEM_STORE` and sets `S.storageFull` (one log line). All roster/char reads and writes go through STORE. `saveGame` no longer writes the legacy CONFIG.saveKey copy once a character id exists (it is still read once for migration). enterWorld logs and toasts a warning when S.storageFull.
+- Title screen: boot ends in `showTitle()` (loading screen in "ready" state with #ldStart "Press Start", tap or any key) which then calls `showCharSelect()`. p5shots clicks #ldStart first and saves a -title shot.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.3.1 | Hotfix: storage-full fallback (phone character start), title screen. |
 | 5.3.0 | Phase 12: fishing, weather (visuals and element bonuses). |
 | 5.2.0 | Phase 11: treasure pool, Trade Board, Garrick augments. |
 | 5.1.0 | Phase 10: Thief and Monk jobs, dagger/h2h weapon skills and gear, Wren and Tamsin. |

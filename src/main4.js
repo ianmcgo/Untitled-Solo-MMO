@@ -110,7 +110,31 @@ async function boot() {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  showCharSelect();
+  showTitle();
+}
+
+function showTitle() {
+  const ld = $("loading");
+  ld.classList.add("ready");
+  ld.classList.remove("roster", "zone");
+  $("ldTitle").textContent = "UNTITLED SOLO RPG";
+  $("ldSub").textContent = "A frontier tale";
+  $("charSel").style.display = "none";
+  const b = $("ldStart");
+  b.innerHTML = "Press Start<small>" + (matchMedia("(pointer: coarse)").matches ? "Tap to begin" : "Click or press any key") + "</small>";
+  b.style.display = "";
+  let done = false;
+  const go = e => {
+    if (done) return;
+    if (e && e.type === "keydown" && (e.target.tagName === "INPUT" || e.key === "Tab")) return;
+    done = true;
+    window.removeEventListener("keydown", go);
+    b.onclick = null;
+    if (typeof sfx === "function") sfx("select");
+    showCharSelect();
+  };
+  b.onclick = go;
+  window.addEventListener("keydown", go);
 }
 
 const CC = { job: "WAR", look: null, name: "" };
@@ -255,6 +279,7 @@ async function enterWorld(id, fresh) {
   UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
   clearLog();
   log(fresh ? "A new adventure begins. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, Pell to trade." : "Welcome back, " + save.name + ".", "npc");
+  if (S.storageFull) { log("Your browser's storage for this site is full or blocked, so this character won't be saved between visits. Use System → Save to file to keep a copy, or clear space (other games or sites on the same address share it).", "foe"); if (typeof toast === "function") toast("⚠️", "Storage full", "Progress won't be kept. Save to file in System.", "r-epic"); }
   const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : resumePos();
   enterZone(h.zone, h.x, h.y);
   if (h.face != null) player.face = h.face;
