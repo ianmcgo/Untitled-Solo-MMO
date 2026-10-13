@@ -839,9 +839,12 @@ function initRenderer() {
   const canvas = $("game");
   const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
   const saved = loadSettings();
-  W3.quality = saved.quality || (coarse || window.innerWidth < 700 ? "medium" : "high");
+  const lowMem = navigator.deviceMemory && navigator.deviceMemory < 4;
+  W3.quality = saved.quality || (lowMem ? "low" : coarse || window.innerWidth < 700 ? "medium" : "high");
   const r = new THREE.WebGLRenderer({ canvas, antialias: W3.quality !== "low", powerPreference: "high-performance" });
-  r.setPixelRatio(Math.min(window.devicePixelRatio || 1, W3.quality === "high" ? 2 : W3.quality === "medium" ? 1.5 : 1));
+  W3.prCap = Math.min(window.devicePixelRatio || 1, W3.quality === "high" ? 2 : W3.quality === "medium" ? 1.5 : 1);
+  W3.pr = W3.prCap;
+  r.setPixelRatio(W3.pr);
   r.toneMapping = THREE.ACESFilmicToneMapping;
   r.toneMappingExposure = 0.85;
   r.outputColorSpace = THREE.SRGBColorSpace;
@@ -1058,7 +1061,24 @@ function updateSky(force) {
   }
 }
 
-const SETTINGS_DEFAULT = { quality: null, aggroHints: true, camSpeed: 1, invertY: false, autoCam: true };
+const SETTINGS_DEFAULT = { quality: null, aggroHints: false, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
+const DRAW_DIST = { near: 1000, normal: 1700, far: 2600 };
+
+function perfTick() {
+  const now = performance.now();
+  const P = W3.perf || (W3.perf = { t0: now, n: 0, fps: 60, low: 0, high: 0 });
+  P.n++;
+  const el0 = (now - P.t0) / 1000;
+  if (el0 < 1) return;
+  P.fps = Math.round(P.n / el0);
+  P.t0 = now; P.n = 0;
+  const el = document.getElementById("fpsBox");
+  if (el) { el.style.display = VIEW.settings.fps ? "block" : "none"; if (VIEW.settings.fps) el.textContent = P.fps + " fps · " + W3.pr.toFixed(2) + "× · " + W3.renderer.info.render.calls + " draws"; }
+  if (!VIEW.settings.adaptive || VIEW.loading) { P.low = P.high = 0; return; }
+  if (P.fps < 28) { P.low++; P.high = 0; } else if (P.fps > 52) { P.high++; P.low = 0; } else { P.low = P.high = 0; }
+  if (P.low >= 2 && W3.pr > 0.6) { W3.pr = Math.max(0.6, Math.round((W3.pr - 0.15) * 100) / 100); W3.renderer.setPixelRatio(W3.pr); resizeRenderer(); P.low = 0; }
+  else if (P.high >= 6 && W3.pr < W3.prCap) { W3.pr = Math.min(W3.prCap, Math.round((W3.pr + 0.1) * 100) / 100); W3.renderer.setPixelRatio(W3.pr); resizeRenderer(); P.high = 0; }
+}
 function loadSettings() {
   try { return Object.assign({}, SETTINGS_DEFAULT, JSON.parse(localStorage.getItem(CONFIG.settingsKey) || "{}")); } catch (e) { return Object.assign({}, SETTINGS_DEFAULT); }
 }

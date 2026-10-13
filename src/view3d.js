@@ -34,7 +34,7 @@ function updateLabels() {
     if (isMob(e) && (!e.alive || e.despawned)) continue;
     if (e.kind === "npc" && e.away) continue;
     const d = dist(e, player);
-    if (d > 900 && player.target !== e) continue;
+    if (d > Math.min(900, DRAW_DIST[VIEW.settings.draw || "normal"] * 0.6) && player.target !== e) continue;
     const sc = screenOf(e.x, e.y, entityHeight(e) + 0.25);
     if (!sc) continue;
     const el = labelFor(e);
@@ -438,6 +438,7 @@ function graphicsSettingsHTML() {
   const q = W3.quality;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="sub">High adds bloom, sharper shadows and full-resolution water reflections. Changing quality reloads the 3D scene.</div>' +
+    "<h3>Performance</h3><div class=\"opt\">" + btn("draw", "near", "Draw near", s.draw === "near") + btn("draw", "normal", "Draw normal", (s.draw || "normal") === "normal") + btn("draw", "far", "Draw far", s.draw === "far") + btn("toggle", "adaptive", "Auto resolution " + (s.adaptive !== false ? "on" : "off"), s.adaptive !== false) + btn("toggle", "fps", "FPS counter " + (s.fps ? "on" : "off"), s.fps) + '</div><div class="sub">Draw distance hides far monsters and name plates. Auto resolution lowers the render scale when the frame rate drops and raises it again when there is headroom. Use Low graphics on older phones.</div>' +
     "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + "</div>" +
 
     appearanceHTML();
@@ -460,6 +461,7 @@ function handleSettingAction(a, v) {
     saveSettings(s);
     return true;
   }
+  if (a === "draw") { s.draw = v; saveSettings(s); return true; }
   if (a === "camspeed") { s.camSpeed = s.camSpeed >= 2 ? 0.5 : Math.round((s.camSpeed + 0.5) * 10) / 10; saveSettings(s); return true; }
   return false;
 }
@@ -489,6 +491,7 @@ function initView() {
 
 function draw(dt) {
   dt = dt || 1 / 60;
+  perfTick(dt);
   updateCamera(dt);
   updateSky(false);
   for (const p of S.party) syncEntity(p, dt);

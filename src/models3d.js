@@ -88,7 +88,7 @@ function syncEntity(e, dt) {
   const v = viewFor(e);
   if (!v) return;
   const g = v.group;
-  if (isMob(e) && player && player.target !== e && dist(e, player) > 1700) { g.visible = false; return; }
+  if (isMob(e) && player && player.target !== e && dist(e, player) > DRAW_DIST[(VIEW.settings && VIEW.settings.draw) || "normal"]) { g.visible = false; return; }
   const gy = footGround(e) + (e === player && typeof jumpHeight === "function" ? jumpHeight(e) : 0);
   const dead = e.alive === false;
   if (!dead || e.kind === "npc") {

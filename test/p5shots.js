@@ -58,6 +58,8 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     { name: 'garden', pre: `enterZone('residence', 200, 250);`, js: `save.furniture = []; save.gardens = {}; ['flowerpot','flowerpot','flowerpot'].forEach(id => giveItem(id, 1, true)); placeFurniture('flowerpot', 5, 4, 0); placeFurniture('flowerpot', 6, 4, 0); placeFurniture('flowerpot', 7, 4, 0); save.gardens[0] = { seed: 'herb_seeds', stage: 1, since: Date.now(), watered: false, crystal: null }; save.gardens[1] = { seed: 'ash_sapling', stage: 2, since: Date.now(), watered: true, crystal: 'wind' }; save.gardens[2] = { seed: 'moonbloom_seeds', stage: 3, since: Date.now(), watered: false, crystal: 'water' }; player.x = 250; player.y = 260; VIEW.yaw = -Math.PI/2; VIEW.dist = 5; VIEW.pitch = 0.6;`, wait: 3000 },
     { name: 'house-feet', js: `player.x = 300; player.y = 200; VIEW.yaw = Math.PI; VIEW.dist = 4; VIEW.pitch = 0.15; player.synth = null;`, wait: 2500 },
     { name: 'garden-ui', js: `openMenu('home'); UI.furnSel = 2; renderModal();`, wait: 1500 },
+    { name: 'perf', pre: `setH(11); enterZone('hollow', 1200, 1000);`, js: `VIEW.settings.fps = true; VIEW.settings.adaptive = true;`, wait: 9000 },
+    { name: 'perf-settings', js: `openMenu('settings');`, wait: 1500 },
     { name: 'credits', js: `openMenu('credits');`, wait: 1500 },
     { name: 'settings', js: `openMenu('settings');`, wait: 1500 },
     { name: 'crypt-hall', pre: `setH(12); save.jobs[save.mainJob].lv = 10; refreshPlayer(true); enterZone('crypt', 620, 700);`, js: `S.mobs.forEach(m=>m.state='idle'); player.face = 0; VIEW.yaw = 0; VIEW.dist = 10;`, wait: 5000 },
@@ -91,7 +93,7 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   await page.waitForFunction(() => UI.started, null, { timeout: 200000 });
   console.log('relogin', await page.evaluate(() => save.name + ' ' + S.zone.name));
   const ray = await page.evaluate(() => { const rc = new THREE.Raycaster(); rc.setFromCamera(new THREE.Vector2(0, 0), W3.camera); return rc.intersectObjects(W3.scene.children, true).slice(0, 4).map(h => (h.object.name || h.object.type) + ':' + h.distance.toFixed(2) + ':' + (h.object.geometry && h.object.geometry.type)); }); console.log('ray', JSON.stringify(ray)); console.log('gs', await page.evaluate(() => [0,20,40,60,80,100,120,160].map(d => groundY(player.x - d, player.y).toFixed(2)).join(' ')));
-  const info = await page.evaluate(() => ({ px: Math.round(player.x), py: Math.round(player.y), gy: groundY(player.x, player.y).toFixed(2), cam: W3.camera.position.toArray().map(v => v.toFixed(1)), eff: VIEW.camEff, dist: VIEW.dist, pitch: VIEW.pitch, target: player.target && player.target.name, chain: document.getElementById('chainCt').textContent, lm: Object.keys(save.landmarks).length }));
+  const info = await page.evaluate(() => ({ pr: W3.pr, prCap: W3.prCap, fps: W3.perf && W3.perf.fps, px: Math.round(player.x), py: Math.round(player.y), gy: groundY(player.x, player.y).toFixed(2), cam: W3.camera.position.toArray().map(v => v.toFixed(1)), eff: VIEW.camEff, dist: VIEW.dist, pitch: VIEW.pitch, target: player.target && player.target.name, chain: document.getElementById('chainCt').textContent, lm: Object.keys(save.landmarks).length }));
   console.log(JSON.stringify(info));
   console.log(errs.length ? 'CONSOLE:\n' + [...new Set(errs)].join('\n') : 'no console errors');
   await browser.close();
