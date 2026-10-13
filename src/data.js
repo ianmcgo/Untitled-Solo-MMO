@@ -342,6 +342,9 @@ const ITEMS = {
   corsair_jerkin: { name: "Corsair Jerkin", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "MNK", "RDM"], lv: 13, price: 5000, stats: { def: 13, dex: 3, agi: 3, hp: 20 } },
   gull_hat: { name: "Gull Feather Hat", kind: "equip", icon: "👒", slot: "head", jobs: ALL_J, lv: 13, price: 2600, stats: { def: 5, agi: 2, mp: 10 } },
   tide_ring: { name: "Tide Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 12, rare: true, stats: { hp: 20, mp: 20, mnd: 2 }, desc: "A gift from the harbor master." },
+  ashen_shard: { name: "Ashen Shard", kind: "key", icon: "🕯️", desc: "A sliver of black stone, warm to the touch. Faint letters crawl across it." },
+  cinder_mantle: { name: "Cinderweave Mantle", kind: "equip", icon: "🧥", rare: true, nm: true, rarity: "epic", slot: "body", jobs: ALL_J, lv: 19, stats: { def: 24, hp: 40, mp: 40, str: 3, int: 3 }, desc: "Woven from ash that never settles. Faintly warm." },
+  ember_ring: { name: "Ember of Ashenreach", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 19, price: 0, stats: { hp: 50, mp: 50, str: 5, int: 5, mnd: 5, att: 8, acc: 8 }, desc: "A ring set with a coal that never cools. Given to the one who kept the embers." },
   guild_ring: { name: "Guild Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 5, price: 0, stats: { hp: 15, mp: 10, acc: 3, att: 3 }, desc: "Bronze-rank token of the Adventurers' Guild." },
   pathfinder_boots: { name: "Pathfinder Boots", kind: "equip", icon: "👢", ex: true, slot: "feet", jobs: ALL_J, lv: 10, price: 0, stats: { def: 7, agi: 3, eva: 4, hp: 10 }, desc: "Iron-rank boots. Made for long roads." },
   silver_insignia: { name: "Silver Insignia", kind: "equip", icon: "💍", ex: true, rarity: "rare", slot: "ring", jobs: ALL_J, lv: 14, price: 0, stats: { hp: 25, mp: 20, str: 2, int: 2, mnd: 2 }, desc: "Silver-rank insignia of the Adventurers' Guild." },
@@ -540,6 +543,7 @@ const FAMILIES = {
 };
 
 const NM_FAMILIES = {
+  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
   rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
   frost_wight: { hint: "Whispering Cairns, Frostspire Pass · night", base: "ice_wight", name: "The Frost Wight", hpMul: 3.6, attMul: 1.25, defMul: 1.25, scale: 1.45, aura: "#b3e5fc", loot: [["wight_shroud", 0.3], ["frost_ring", 0.3], ["bone_chip", 1], ["hi_potion", 0.6]], gil: [50, 70], respawn: 720 },
   old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["croaker_charm", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
@@ -771,6 +775,7 @@ ZONES.frost = {
     { id: "summit", name: "Summit Overlook", x: 2700, y: 300, r: 220, xp: 450 }
   ],
   spawns: [
+    { fam: "ice_wight", lv: [19, 20], x: 2700, y: 330, nm: { id: "ashen_herald", lv: 22, chance: 0 } },
     { fam: "snow_hare", lv: [15, 16], x: 400, y: 900, time: "day" }, { fam: "snow_hare", lv: [15, 16], x: 500, y: 1500, time: "day" }, { fam: "snow_hare", lv: [16, 17], x: 1300, y: 1600, time: "day" },
     { fam: "glacier_worm", lv: [15, 16], x: 650, y: 1150 }, { fam: "glacier_worm", lv: [16, 17], x: 1250, y: 1150 }, { fam: "glacier_worm", lv: [17, 18], x: 1700, y: 1250 },
     { fam: "ice_bat", lv: [15, 17], x: 900, y: 800, time: "night" }, { fam: "ice_bat", lv: [16, 17], x: 1100, y: 600, time: "night" }, { fam: "ice_bat", lv: [17, 18], x: 2000, y: 900, time: "night" },
@@ -1010,6 +1015,7 @@ const BESTIARY = {
   frost_goblin: { type: "Beastman", lore: "Goblins in thick fur who raid the ice caravans. They see a long way across the snow." },
   ice_wight: { type: "Undead", lore: "Frozen dead from the old cairns. Fire and light melt them; the cold makes them patient." },
   glacier_worm: { type: "Amorphous", lore: "Huge white worms that tunnel through packed snow and sense the warmth of magic." },
+  ashen_herald: { type: "Undead", lore: "A herald of the old Ember Throne, wrapped in ash that burns without heat. It speaks of a king who will return." },
   rimefang: { type: "Beastman", lore: "The frost goblins' war leader, an axe-swinging brute who wears a wolf pelt over his armour." },
   frost_wight: { type: "Undead", lore: "A wight lord who walks the cairns at night, wrapped in a shroud of frozen mist." },
   bog_toad: { type: "Amphibian", lore: "Bloated marsh toads that hunt by sound. Their oil keeps leather supple and smells for days." },
@@ -1022,6 +1028,48 @@ const BESTIARY = {
   tide_priest: { type: "Undead", lore: "A priest who drowned holding the chapel against the rising marsh, and never stopped holding it. The sigils were his; he wants them back." },
   ossuary_warden: { type: "Undead", lore: "A ghoul draped in grave silk that keeps watch over the ossuary. It drains warmth from the air around it." }
 };
+
+const STORY = [
+  { name: "Ash on the Wind", lv: 3, reward: { xp: 400, gil: 300 }, steps: [
+    { type: "talk", npc: "rhea", goal: "Talk to Captain Rhea in Ashenreach Outpost.", text: ["Ash has been falling over the Outpost for three nights now. Not from any fire we can find.", "Two of my scouts went to the Old Fort Ruins to look for the source and haven't come back. Go and see what's there. Carefully."] },
+    { type: "visit", zone: "hollow", lm: "fort", goal: "Search the Old Fort Ruins in Rocky Hollow.", text: ["Among the broken walls you find your scouts' camp, cold and empty. Burned into a fallen stone is a mark: a crown wreathed in flame.", "The ash here is thick, and it's still warm."] },
+    { type: "talk", npc: "rhea", goal: "Report to Captain Rhea.", text: ["A burning crown? I've seen that mark once, carved over the gate of the old Den before the goblins took it.", "Whatever this is, it's older than the Outpost. You've done well. Rest, and come back when you're stronger."] }
+  ] },
+  { name: "Beneath the Den", lv: 7, reward: { xp: 900, gil: 600 }, steps: [
+    { type: "talk", npc: "rhea", goal: "Talk to Captain Rhea.", text: ["The goblins in the Den have been hauling black stones up from the deep tunnels. My scouts saw the burning crown painted on the crates.", "Thin out their raiders, then get down to the Bone Pit and find out what they're digging for."] },
+    { type: "kill", fam: "den_goblin", n: 5, goal: "Defeat 5 Goblin Raiders in the Goblin Den." },
+    { type: "visit", zone: "den", lm: "pit", key: "ashen_shard", goal: "Search the Bone Pit at the bottom of the Goblin Den.", text: ["Half-buried among the bones is a sliver of black stone, warm in your hand. Letters crawl across its face, and they aren't any language you know.", "Tobin knows old scripts. He might be able to read it."] },
+    { type: "talk", npc: "tobin", goal: "Show the Ashen Shard to Tobin.", text: ["Let me see that. Hm. This is the old court script, from before the kingdoms.", "'The Ember Throne sleeps beneath the hollow crown. When the crown falls silent, the Herald will walk.' The hollow crown... the Hollow King in the Sunken Crypt. Nobody's disturbed him in centuries."] }
+  ] },
+  { name: "The Hollow Crown", lv: 10, reward: { xp: 1500, gil: 900 }, steps: [
+    { type: "talk", npc: "tobin", goal: "Talk to Tobin.", text: ["If the Hollow King is the seal, someone has to know whether it still holds. Go down into the Sunken Crypt and face him.", "If he's still keeping the throne asleep, he won't let you pass. If he isn't... well. Bring a full party."] },
+    { type: "kill", fam: "hollow_king", n: 1, goal: "Defeat the Hollow King in the Sunken Crypt." },
+    { type: "talk", npc: "tobin", goal: "Tell Tobin what happened.", text: ["He spoke as he fell? 'The bells have drowned, the Herald wakes.' That's no comfort at all.", "The only drowned bells I know of are in the old chapel in the Ashen Marsh. Talk to Rhea. She'll want to hear this."] }
+  ] },
+  { name: "Bells Under Water", lv: 12, reward: { xp: 2500, gil: 1200 }, steps: [
+    { type: "talk", npc: "rhea", goal: "Talk to Captain Rhea.", text: ["Tobin told me. A herald, a throne, drowned bells. I'd laugh if the ash weren't still falling.", "Go to the Drowned Chapel in the marsh. If something's waking down there, it's yours to put back to sleep."] },
+    { type: "visit", zone: "marsh", lm: "chapel", goal: "Go to the Drowned Chapel in the Ashen Marsh.", text: ["Under the black water you hear it: a slow tolling, far below, though no bell hangs in the chapel.", "The sealed door is warm. Whatever waits beyond it is listening to the bells."] },
+    { type: "kill", fam: "tide_priest", n: 1, goal: "Defeat the Tidebound Priest in the Chapel Depths (needs a Chapel Sigil)." },
+    { type: "talk", npc: "rhea", goal: "Report to Captain Rhea.", text: ["The priest was ringing them? For whom?", "There's a harbor south of the marsh. Saltreach. Ships have been sailing out of there loaded with black stone. Ilsa runs the docks; go and ask her where they're taking it."] }
+  ] },
+  { name: "The Harbor Ledger", lv: 14, reward: { xp: 3500, gil: 1500 }, steps: [
+    { type: "talk", npc: "ilsa", goal: "Talk to Ilsa, the harbor master in Saltreach.", text: ["Black stone? Yes, I've logged it. Crates and crates, paid in old coin. Mire goblins bring it to the docks at night.", "Stop the smugglers and I'll show you my ledger."] },
+    { type: "kill", fam: "mire_goblin", n: 6, goal: "Defeat 6 Mire Goblins in the Ashen Marsh." },
+    { type: "talk", npc: "ilsa", goal: "Return to Ilsa.", text: ["That should slow them. Here, the ledger. Every crate went the same way: overland, east through Frostspire Pass, to a goblin camp under the ice.", "Rimefang's camp. If you mean to follow, dress warmly."] }
+  ] },
+  { name: "Into the White", lv: 16, reward: { xp: 5000, gil: 2000 }, steps: [
+    { type: "visit", zone: "frost", lm: "icefall", summon: "rimefang", goal: "Find Icefall Camp in Frostspire Pass.", text: ["The camp is stacked high with black stone. Goblins are chipping it into blocks, building something.", "A roar shakes the snow off the tents. Rimefang has seen you."] },
+    { type: "kill", fam: "rimefang", n: 1, goal: "Defeat Rimefang at Icefall Camp." },
+    { type: "talk", npc: "ilsa", goal: "Tell Ilsa what you found.", text: ["A stair? Built from the black stone, up toward the summit?", "Then that's where the Herald is waiting. You've come this far. Don't stop now."] }
+  ] },
+  { name: "The Ashen Herald", lv: 19, reward: { xp: 7000, gil: 3000 }, steps: [
+    { type: "visit", zone: "frost", lm: "summit", summon: "ashen_herald", goal: "Climb to the Summit Overlook in Frostspire Pass.", text: ["At the top of the black stair stands a figure wrapped in ash that burns without heat.", "'The crown is silent. The bells have drowned. The throne remembers its king.' It raises a hand, and the snow turns to cinders."] },
+    { type: "kill", fam: "ashen_herald", n: 1, goal: "Defeat the Ashen Herald at the Summit Overlook." }
+  ] },
+  { name: "Embers Kept", lv: 19, reward: { xp: 0, gil: 5000, item: "ember_ring" }, steps: [
+    { type: "talk", npc: "rhea", goal: "Return to Captain Rhea in Ashenreach Outpost.", text: ["The ash stopped falling this morning. Every soul in the Outpost walked out to watch the sky clear.", "I don't know what that throne is, or who its king was. But I know who stood between it and us. Take this. It's been kept at the Outpost since before my time, waiting for someone who earned it."] }
+  ] }
+];
 
 const GUILD_RANKS = [["Copper", 0, "#b87333"], ["Bronze", 100, "#cd7f32"], ["Iron", 300, "#a0a8b0"], ["Silver", 700, "#d8dde4"], ["Gold", 1500, "#ffd54f"], ["Mythril", 3000, "#80deea"]];
 const GUILD_DAILY = 3;
@@ -1100,6 +1148,7 @@ const ACHIEVEMENTS = [
   { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", gil: 150, test: s => (s.stats.ride || 0) >= 20000 },
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
+  { id: "story", icon: "🕯️", name: "Keeper of the Embers", desc: "Complete the main story.", gil: 2000, test: s => !!(s.story && s.story.done) },
   { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", gil: 100, test: s => (s.stats.bounties || 0) >= 1 },
   { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", gil: 400, test: s => (s.guild && s.guild.total || 0) >= 700 },
   { id: "mythril", icon: "💎", name: "Mythril Legend", desc: "Reach Mythril rank in the Adventurers' Guild.", gil: 1500, test: s => (s.guild && s.guild.total || 0) >= 3000 },

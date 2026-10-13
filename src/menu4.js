@@ -363,11 +363,21 @@ function tabActions() {
   return h;
 }
 
+function storyBlock() {
+  const done = save.story.done, c = storyChapter(), st = storyStep();
+  let h = '<h3 style="margin-top:0">🕯️ Main story</h3>';
+  if (done) return h + '<div class="item" style="display:block"><b style="font-family:var(--serif)">The story is complete</b><div class="sub">The ash has stopped falling. Thank you for playing through it.</div></div>';
+  const ready = storyReady();
+  const prog = st && st.type === "kill" ? " (" + save.story.prog + "/" + st.n + ")" : "";
+  h += '<div class="item" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-family:var(--serif)">Chapter ' + (save.story.ch + 1) + ": " + esc(c.name) + '</b><span class="sub">' + (save.story.ch + 1) + " / " + STORY.length + '</span></div><div class="sub" style="margin-top:4px">' + (ready ? esc(st.goal + prog) : "Reach level " + c.lv + " to continue the story.") + "</div></div>";
+  return h;
+}
+
 function tabQuests() {
-  let h = "";
+  let h = storyBlock() + "<h3>Quests</h3>";
   const order = ["active", "killed", "none", "done"];
   const ids = Object.keys(QUESTS).filter(id => save.quests[id] !== "none").sort((a, b) => order.indexOf(save.quests[a]) - order.indexOf(save.quests[b]));
-  if (!ids.length) return '<div class="sub">You have no quests yet. Talk to the people of the Outpost. A ❗ over someone means they have work for you.</div>';
+  if (!ids.length) return h + '<div class="sub">You have no quests yet. Talk to the people of the Outpost. A ❗ over someone means they have work for you.</div>';
   for (const id of ids) {
     const st = save.quests[id];
     const q = QUESTS[id];
@@ -919,6 +929,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "6.2.0", date: "2026-10-13", title: "The Main Story: Embers of Ashenreach", items: [
+    "A main story in eight chapters. Ash is falling over the Outpost, and the trail leads from the Old Fort Ruins through the Goblin Den, the Sunken Crypt, the Drowned Chapel and Saltreach Harbor to the top of Frostspire Pass.",
+    "Captain Rhea starts it at level 3. Chapters unlock at levels 3, 7, 10, 12, 14, 16 and 19. Talking to the right person, reaching the right place or defeating the right foe moves the story on, with story scenes along the way.",
+    "The Quests window now shows your current story chapter and goal at the top. People with the next story scene have a ❗ over them.",
+    "Story foes: Rimefang shows himself when the story brings you to Icefall Camp, and a new boss, the Ashen Herald, waits at the Summit Overlook. It drops the Cinderweave Mantle.",
+    "Finishing the story earns the Ember of Ashenreach ring and the Keeper of the Embers achievement."
+  ] },
   { v: "6.1.0", date: "2026-10-13", title: "Dark Knight and Bard", items: [
     "New advanced job: Dark Knight (Tobin's The Shadowed Path, level 10). Scythes, Last Resort, Soulfire and Blood Blade, plus dark magic: Blight, Drain, Mind Drain and Stun.",
     "New advanced job: Bard (Tobin's A Traveler's Song, level 10). Party songs for attack, accuracy, attack speed, HP and MP over time; Drowsy Lullaby puts a monster to sleep; Encore speeds up your singing.",
@@ -1215,6 +1232,13 @@ function tabHelp() {
     "Inside, defeat the <b>Tidebound Priest</b> (level 16 boss) within " + BATTLEFIELD.minutes + " minutes. At 65% HP it raises two Drowned; below half it casts Maelstrom on everyone near it every 22 seconds; below 20% it enrages. It never leashes inside the chapel.",
     "Victory: " + BATTLEFIELD.gil + " crystals, " + BATTLEFIELD.xp + " XP and one treasure you don't own yet: Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle or Tidebreaker Bow. Leaving, wiping or running out of time ends the attempt.",
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
+  ]));
+  h += sec("🕯️ Main story: Embers of Ashenreach", ul([
+    "Eight chapters. Talk to <b>Captain Rhea</b> at level 3 to begin. Your current chapter and goal are always at the top of the Quests window, and a ❗ marks the person with your next story scene.",
+    "Chapters unlock at levels " + STORY.map(c => c.lv).filter((v, i, a) => a.indexOf(v) === i).join(", ") + ". The story takes you through every area in the game, so bring companions for the later chapters.",
+    "Some chapters need a boss: the Hollow King (Sunken Crypt), the Tidebound Priest (Chapel Depths battlefield; you need a Chapel Sigil), Rimefang (appears when the story brings you to Icefall Camp) and the Ashen Herald (level 22, at the Summit Overlook).",
+    "Story steps only count while that step is current: kills before then don't count.",
+    "Each chapter pays experience and crystals. The final chapter gives the Ember of Ashenreach, a level 19 ring for every job."
   ]));
   h += sec("⚔️ The Adventurers' Guild", ul([
     "Talk to <b>Maera</b> in Ashenreach Outpost (west of Captain Rhea) to open the guild window.",

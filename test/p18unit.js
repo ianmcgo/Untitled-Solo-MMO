@@ -33,6 +33,7 @@ G.enterZone('frost', 1800, 650); run(0.2);
 const fake = S.mobs.find(x => x.famKey === 'frost_goblin') || S.mobs[0];
 if (fake) { fake.famKey = 'rimefang'; fake.fam = G.NM_FAMILIES.rimefang; fake.enmity.set(P(), 10); fake.hp = 1; G.applyDamage(P(), fake, 9999, {}); run(0.3); }
 ok(G.save.guild.active.b_rimefang === 1, 'killing the target counts toward the hunt');
-const raw = JSON.parse(G.exportSaveText()); delete raw.guild;
-ok(G.importSaveText(JSON.stringify(raw)) !== false && G.save.guild && typeof G.save.guild.active === 'object', 'old saves get a fresh guild record');
+const raw = JSON.parse(G.exportSaveText()); const body = raw.data || raw; delete body.guild;
+const n = G.importSaveText(JSON.stringify(raw));
+ok(n && n.guild && typeof n.guild.active === 'object' && n.guild.total === 0, 'old saves get a fresh guild record');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');
