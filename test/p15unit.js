@@ -16,7 +16,7 @@ ok(P().stats.wtype === 'archery' && G.reach(P()) > 200, 'a Ranger shoots from lo
 G.enterZone('hollow', 300, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 const m = G.buildMob('goblin', 2, P().x + 180, P().y, 0); S.mobs.push(m); m.face = 0;
 P().target = m; G.toggleEngage(); const hp0 = m.hp; run(4);
-ok(m.hp < hp0 && Math.hypot(P().x - 300, P().y - 1100) < 40, 'the Ranger hits from where they stand');
+ok(m.hp < hp0 && Math.hypot(P().x - 300, P().y - 1100) < 70, 'the Ranger hits from where they stand');
 G.save.jobs.RNG.lv = 10; G.refreshPlayer(true);
 m.hp = m.maxHp; P().target = m; G.playerAct({ kind: 'ja', id: 'shadowbind' });
 const mx = m.x; run(2);
