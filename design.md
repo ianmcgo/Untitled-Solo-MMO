@@ -1,6 +1,6 @@
 # Untitled Solo RPG — Design Notes
 
-(Working title; the game was called Ashenreach until v4.1. Ashenreach Outpost is still the starting town and `ashenreach_*` localStorage keys are kept so old saves load.) A single-player MMO in one HTML file, built to play and feel like classic MMO, with hired NPC companions instead of other players. Names, art and music are original. The full roadmap lives in the plan doc ("Ashenreach: Complete Game Plan"); this file explains how the code works and is updated at the end of every phase.
+(Working title; the game was called Ashenreach until v4.1. Ashenreach Outpost is still the starting town and `ashenreach_*` localStorage keys are kept so old saves load.) A single-player MMO in one HTML file, built as a classic party-based fantasy MMO, with hired NPC companions instead of other players. Names, art and music are original. The full roadmap lives in the plan doc ("Ashenreach: Complete Game Plan"); this file explains how the code works and is updated at the end of every phase.
 
 ## Phase status
 
@@ -56,7 +56,7 @@ The game is written as separate source files and assembled into one `index.html`
 
 ### Starting solo and hiring companions
 - You start alone with 100 gil. Brann at the Mercenary Hall (Outpost) hires companions for a one-time fee; dismissing is free, rehiring costs the fee again.
-- Party size is up to 6 (you plus 5), as in classic MMO. Companions match your level and get gear for their level.
+- Party size is up to 6 (you plus 5). Companions match your level and get gear for their level.
 - Eight companions exist; five are available now:
 
 | Name | Job | Role | Fee | AI |
@@ -157,7 +157,7 @@ Every texture is painted in code at load time, as a colour map plus a normal map
 - The target gets an classic MMO-style spinning arrow above its head and a ground ring: yellow when selected, red when engaged, blue for party members.
 - Idle aggressive monsters near you show their aggro range on the ground: a red cone for sight, a blue ring for sound, purple for magic, red for low HP. Settings can hide these.
 
-### Camera and controls (classic MMO style)
+### Camera and controls (the genre style)
 - Third-person chase camera, 8 m back by default. Drag (mouse or one finger) to orbit and tilt, pinch or mouse wheel to zoom from 2.5 to 16 m.
 - Arrow keys or Q also turn the camera. V toggles first person.
 - With auto-follow on, the camera eases in behind you whenever you move forward and you haven't touched it for 1.2 s. It never dips below the ground.
@@ -241,7 +241,7 @@ Poses are computed every frame from the game state, layered, and eased toward th
   - Casting: hands raised and chanting, then a release flourish.
   - A flinch when hit, an arm-raised wind-up for monster TP moves, falling backward when KO'd, and a seated riding pose.
   - Goblins hop and hunch; ghouls prowl with arms forward.
-- **Weapons are drawn only when needed**, as in classic MMO: in hand while engaged, casting or mid-swing, otherwise sheathed on the back. Monsters always hold theirs.
+- **Weapons are drawn only when needed**: in hand while engaged, casting or mid-swing, otherwise sheathed on the back. Monsters always hold theirs.
 - **Bats** flap (faster when moving), dive to attack, rear back for TP moves and drop when killed. **Worms** undulate, rear and strike. **Hares** hop with ear twitches and kick.
 - **Weapon trails:** sword, club and axe swings leave a fading trail, blue-white for normal hits and gold for weapon skills.
 - Defeated monsters lie still, then sink away after about 1.5 s with a puff of smoke and rising motes.
@@ -310,7 +310,7 @@ Poses are computed every frame from the game state, layered, and eased toward th
 
 ### Known limits after Phase 3
 - Shapes are rigidly skinned, so joints bend like a jointed figure rather than with smooth skin. Faces don't change expression.
-- The camera can pass through large objects (the Home Point Crystal, trees), as in classic MMO.
+- The camera can pass through large objects (the Home Point Crystal, trees).
 - Automated bot runs died more often this time for weaker solo starts. That's likely because the game clock put them at night, when Wandering Bones and bats come out near the paths. Early-night difficulty will be tuned in Phase 7.
 - Sound and the modern HUD arrive in Phase 4.
 
@@ -342,7 +342,7 @@ DOM updates are cached (`setTxt`, `setW`, `setHtml` only write when a value chan
 Fog of war: each zone is split into 50 px cells; every half second the cells within 260 px of you are marked explored in `save.explored[zone]` (a string of 0/1). The Map tab draws the zone map, darkens unexplored cells with soft edges, and labels exits, people and the home point only once you've seen them. Below it, a world map shows how zones connect; places you haven't visited read "???". `save.discovered` lists visited zones; your first visit shows a "Discovered" toast and title.
 
 ### Action bar
-Each main job has its own two pages (`save.hotbars[job]`), like classic MMO macro books. When you learn an action it drops into the first free slot automatically; page 2 starts with Potion, Ether and Hi-Potion. Slots show an icon tinted by type (spell element, weapon skill gold, ability green), the hotkey, MP cost or item count, a cooldown sweep with seconds left, dimming when unusable, a gold glow on weapon skills when you have 1000 TP, a "→ Fusion" style chip when a weapon skill would continue the open skillchain, and a "Burst!" chip on spells that would magic-burst. Actions your current job can't use stay on the bar but dimmed. Keys 1–0 fire the shown page, Shift+1–0 the other page, [ and ] switch pages. The Action Bar menu tab lets you place, swap, clear and reset slots, and items can be added from the inventory.
+Each main job has its own two pages (`save.hotbars[job]`), like macro books. When you learn an action it drops into the first free slot automatically; page 2 starts with Potion, Ether and Hi-Potion. Slots show an icon tinted by type (spell element, weapon skill gold, ability green), the hotkey, MP cost or item count, a cooldown sweep with seconds left, dimming when unusable, a gold glow on weapon skills when you have 1000 TP, a "→ Fusion" style chip when a weapon skill would continue the open skillchain, and a "Burst!" chip on spells that would magic-burst. Actions your current job can't use stay on the bar but dimmed. Keys 1–0 fire the shown page, Shift+1–0 the other page, [ and ] switch pages. The Action Bar menu tab lets you place, swap, clear and reset slots, and items can be added from the inventory.
 
 ### Toasts and banners
 `uiEvent("item")` (called by `giveItem`) makes an item toast; rare and exclusive items get a purple frame. `watchProgress` compares state each frame to spot level-ups, quest changes, the mount license, support jobs and zone changes. A level-up banner lists HP/MP gains, every new ability or spell, and quests that just opened (A Second Calling and Riding License at level 5). Quest completion shows a banner with the rewards and plays the fanfare. New weapon skills from skill-ups (not level-ups) get their own toast.
@@ -475,7 +475,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - New spell kinds: `debuff` (`castDebuff`: Flash always lands and draws `enmity`; Slow/Paralyze roll `magicHit` + 10) and `buff` (`castBuff`, Protect). Skills `enfeebling` and `enhancing` were added to `newSkillSet`, `MAGIC_SKILLS` and `SPELL_SKILL`. Effects: `stat()` applies Sentinel (def ×1.5), Protect (def ×1.15), Flash (acc ×0.6); `swingDelay(e)` applies Slow (×1.25) in `autoAttack` and `updateMob`; `swing` skips 25% of a paralyzed attacker's swings; `addEnmity` doubles under Sentinel.
 - Abilities: Sentinel (buff), Shield Bash (`doAbility`: light damage, clears `readying`, interrupts casting, 350 enmity), Convert (swap HP and MP, clamped to maxima).
 - Companion AI: tanks also use Flash when not on top or when it has worn off, Sentinel under 50% HP or when losing hate, Shield Bash on a readied TP move, and a self-Cure under 40% with no healer in the party. `hybridMagic` (role `hybrid`, Lisette) runs before melee: emergency Cure, Convert at low MP, keeps Dia/Slow/Paralyze on the target, bursts open skillchains, and nukes every 9–13 s above 60% MP. `mercGear` has PLD and RDM sets.
-- Gear: swords, Ash Club, Scale Mail, robes and the NM pieces list PLD/RDM where classic MMO would. New items Kite Shield (accessory slot, `shield: true`) and Scarlet Tabard (RDM). `rig.js` draws a shield on the left forearm (`L.shield`), a cloth tabard with the job colour, a feathered hat (`L.hat` → `head.type "feathered"`), and the 5a drop gear.
+- Gear: swords, Ash Club, Scale Mail, robes and the NM pieces list PLD/RDM where the genre usually would. New items Kite Shield (accessory slot, `shield: true`) and Scarlet Tabard (RDM). `rig.js` draws a shield on the left forearm (`L.shield`), a cloth tabard with the job colour, a feathered hat (`L.hat` → `head.type "feathered"`), and the 5a drop gear.
 - HUD: target chips for Flash/Slow/Paralyze with seconds left; icons for the new actions; level-6 banner hint.
 - Tests: `test/p5bunit.js` (locks, Tobin flow for both quests, action lists, shield slot, Slow/Paralyze/Flash/Sentinel/Shield Bash/Convert effects, companions casting, save-file round trip). `p1bot.js` accepts PLD and RDM (unlocking them and hiring Lisette/Dorn).
 
@@ -541,11 +541,28 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Location: `saveGame()` writes `save.loc {zone,x,y,face}`; autosave every 15 s plus pagehide / hidden tab. Login uses `resumePos()` (valid loc, else home point).
 - Tests: p6unit now checks only hares are passive and a goblin aggroes on sight; p5shots has helm, door-ask, labels, tgtmenu, tgtmagic scenes.
 
+## Phase 8: companions 2.0, bestiary, achievements (v4.9.0)
+- Data (data.js tail): `COMPANION_CFG { dayMs 3456000 (one game day), wageRate 0.15, bondSteps [0,20,60,130,250,420], bondBonus 0.03, maxBond 5 }`, `MERC_PERSONAL[id][0..4]` (line said at each bond level), `MERC_LINES.gift`, `BESTIARY[famKey] { type, lore }` (15 entries: base families + NMs), `ACHIEVEMENTS [{ id, icon, name, desc, gil, test(save) }]` (29).
+- Save: `stance`, `mercGear[id][slot]`, `bond[id]` points, `mercPaid[id]` (ms timestamp), `bestiary[k] { seen, kills, zones }`, `ach[id]` (unlock time), `nmKilled[k]`, `discovered` default [], `stats { kills, nm, sc, mb, crafts, hq, gathers, kos, jumps }` (merged in normalizeSave).
+- Gear: `mercGearFor(id, lv)` = `mercGear()` defaults overlaid by `save.mercGear[id]` (pieces above your level are ignored). `mercCanWear`, `giveMercGear`, `takeMercGear`. Used by `syncAllies` and `rebuildParty`.
+- Bond: `bondLevel`, `addBond` (onKO: +1 per XP kill, +4 NM, for every hired companion present). `buildStats` multiplies maxHp/maxMp/att/def/acc by 1 + 0.03·bond for allies.
+- Wages: `hireMerc` sets `mercPaid = now + dayMs`. `tickWages()` (every 2 s): if expired and no fight, pay `mercWage(id)` = max(10, ceil(fee·0.15)) and set `now + dayMs` (offline time is free), else `dismissMerc(id, true)` with a message.
+- Stance: `setStance(st)`; `updateAlly` passes no battle target on follow; on hold it runs the AI then restores the companion's position (they still swing at anything in reach and still heal/cast).
+- Bestiary: `noteBeast(m, kill)` on target, on party kill, and from `scanBeasts()` (mobs within 320 px, every 0.5 s). Tab: seen → type, habitat (from zone spawns), lore; 1 kill → aggro senses, link, TP move; 5 kills (1 for NMs) → weaknesses, loot list.
+- Achievements: `checkAchievements()` every 2 s; pays `gil`, logs, `uiEvent("ach")` toast. Counters hook skillchain close, magic burst, finishSynth (crafts/hq), doGather, player KO, view3d `tryJump`.
+- UI: tabs party (P), bestiary (Y), achievements (O) in MAIN_TABS; commands /stance, /party, /bestiary, /achievements. Target command box `#tCmd` is its own glass panel at bottom right (header with name + ✕, then Fight/Magic/Abilities/Inspect; sub-pages show a ◂ back button). `#btnTarget`, `#btnEngage`, `#btnTalk` are hidden by CSS; `#btnJump` shows only on coarse pointers.
+- Limbs: `RigBuilder.smoothJoints()` (run in `finish` when a rig has more than 6 bones) gives each non-glow vertex near a joint a second bone weight: own joint → parent, child joint → child, with radius/max per joint (`J` table: elbow 0.085/0.5, knee 0.095/0.5, wrist/ankle ~0.05, shoulder/hip/spine 0.075–0.1 at 0.35). anim.js walk: knee flex 1.0 (+0.35 running) in swing plus slight stance flex, toe-off foot roll, elbows bend 0.14–0.52 with the forward swing.
+- Colliders: world3d `buildVegetation` resets `zone.colliders` and adds trees (r = 4.6·scale px); lamps and torches add r 4. game.js `keepOutOfColliders(e)` (called from `keepOutOfRects`) pushes bodies out using 0.55 × their radius. The rules build has no colliders (no trees).
+- Residence stall fix: no window PointLights (one room light 14/26); `loadZoneAsync` awaits `renderer.compileAsync(scene, camera)` (6 s cap) before showing the zone.
+- Element items renamed to Fire/Wind/Earth/Water Essence (ids still `*_crystal`, kind `crystal`, labelled "Essence"). Currency stays crystals.
+- Tests: test/p7unit.js (wages, leaving, bond stats, give/take gear, stances, kill stats, bestiary, achievements, colliders). harness exports the new functions. p5shots scenes: walk, walk2, walk3, exit-home, party, bestiary, bestiary2, achieve, tcmd.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 4.9.0 | Phase 8: companions 2.0, bestiary, achievements, smoother limbs, colliders, essences. |
 | 4.8.1 | Hotfix: aggro restored, target command box, hidden levels, residence fixes, location save, body sliders. |
 | 4.7.0 | Phase 6b: gathering, crafting, gardening; no heal effects at full; preview context released (above). |
 | 4.6.x | Creation preview fix, hair lists by sex. |

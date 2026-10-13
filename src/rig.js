@@ -173,7 +173,36 @@ class RigBuilder {
     g.clearGroups();
     (glow ? this.glow : this.pieces).push(g);
   }
+  smoothJoints() {
+    const J = { foreArm: [0.085, 0.5], hand: [0.05, 0.5], shin: [0.095, 0.5], foot: [0.05, 0.45], upArm: [0.075, 0.35], thigh: [0.09, 0.35], chest: [0.1, 0.35], spine: [0.09, 0.35], neck: [0.05, 0.3] };
+    const info = this.defs.map(d => {
+      const key = d.name.replace(/[LR]$/, "");
+      const j = J[key];
+      return j && d.parent != null ? { r: j[0], m: j[1], at: d.world, parent: d.parent } : null;
+    });
+    const kids = this.defs.map(() => []);
+    info.forEach((j, i) => { if (j) kids[j.parent].push(i); });
+    const v = new THREE.Vector3();
+    for (const g of this.pieces) {
+      const pos = g.attributes.position, si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
+      for (let i = 0; i < pos.count; i++) {
+        const b = si.getX(i);
+        v.fromBufferAttribute(pos, i);
+        let other = -1, w = 0;
+        const own = info[b];
+        if (own) { const d = v.distanceTo(own.at); if (d < own.r) { other = own.parent; w = own.m * (1 - d / own.r); } }
+        for (const k of kids[b]) {
+          const j = info[k], d = v.distanceTo(j.at);
+          if (d < j.r) { const wk = j.m * (1 - d / j.r); if (wk > w) { other = k; w = wk; } }
+        }
+        if (other < 0 || w <= 0.001) continue;
+        si.setXY(i, b, other);
+        sw.setXY(i, 1 - w, w);
+      }
+    }
+  }
   finish() {
+    if (this.defs.length > 6) this.smoothJoints();
     const main = this.pieces.length ? THREE.mergeGeometries(this.pieces) : null;
     const glow = this.glow.length ? THREE.mergeGeometries(this.glow) : null;
     let geo;

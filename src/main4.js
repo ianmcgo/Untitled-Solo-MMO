@@ -3,7 +3,7 @@ function onKey(e) {
   if (UI.confirmOpen) { if (k === "escape") $("confirmBox").querySelector(".no").click(); if (k === "enter") $("confirmBox").querySelector(".yes").click(); e.preventDefault(); return; }
   if (!UI.started) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft" };
+  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
   if (S.modal) {
     if (k === "escape") closeModal();
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
@@ -49,7 +49,7 @@ const TIPS = [
   "<b>Rest.</b> Stand still out of combat and your HP and MP slowly come back.",
   "<b>Check before you fight.</b> A monster's name colour shows how tough it is compared to you.",
   "<b>Skillchains.</b> Use a weapon skill right after an ally's to chain them, then nuke the matching element for a magic burst.",
-  "<b>Companions.</b> Brann at the Mercenary Hall hires out fighters, healers and mages for a one-time fee.",
+  "<b>Companions.</b> Brann at the Mercenary Hall hires out fighters, healers and mages. A hiring fee, then a small daily wage.",
   "<b>Night falls.</b> Bats and restless bones come out after dark. Some rare monsters only appear at certain hours.",
   "<b>Home point.</b> Touch a crystal to set where you return after being defeated.",
   "<b>Weekdays.</b> Each day of the week favours one element. Spells of that element hit 10% harder.",

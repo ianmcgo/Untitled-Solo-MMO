@@ -394,6 +394,9 @@ async function loadZoneAsync(job) {
   await frames(1);
   if (job !== VIEW.zoneJob) return;
   if (!(await buildZoneAsync(job, VIEW.booting ? 0.6 : 0.1, VIEW.booting ? 0.85 : 0.85))) return;
+  loaderProgress(0.88, "Warming up…");
+  try { if (W3.renderer.compileAsync) await Promise.race([W3.renderer.compileAsync(W3.scene, W3.camera), new Promise(r => setTimeout(r, 6000))]); } catch (e) {}
+  if (job !== VIEW.zoneJob) return;
   loaderProgress(0.9, "Gathering everyone…");
   await frames(1);
   if (job !== VIEW.zoneJob) return;
@@ -434,6 +437,7 @@ function tryJump() {
   if (S.ko || S.modal || S.dialog || !player.alive || player.casting || VIEW.jumpStart != null || player.resting) return;
   VIEW.jumpStart = S.time;
   VIEW.jumpLanded = false;
+  if (save.stats) save.stats.jumps++;
   if (typeof sfx === "function") sfx("jump");
 }
 

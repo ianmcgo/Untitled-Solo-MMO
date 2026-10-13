@@ -59,7 +59,8 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0 }, gardens: {}, harvests: 0, created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0 }
   };
 }
 
@@ -72,6 +73,8 @@ function normalizeSave(d) {
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
   out.look = Object.assign(newSave().look, d.look || {});
+  out.stats = Object.assign(newSave().stats, d.stats || {});
+  if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
   if (typeof SKIN_TONES !== "undefined") out.look.skin = Math.min(Math.max(0, out.look.skin || 0), SKIN_TONES.length - 1);
   out.mountLicense = !!d.mountLicense;
   out.hired = (Array.isArray(d.hired) ? d.hired : []).filter(id => MERCS[id]).slice(0, CONFIG.maxParty - 1);
@@ -304,6 +307,10 @@ function buildStats(ch) {
   s.att = Math.round(10 + s.str + 4 * lv + g.att);
   s.def = Math.round(8 + s.vit * 0.5 + 3 * lv + g.def);
   s.eva = Math.round(50 + s.agi * 0.5 + 3 * lv + g.eva);
+  if (ch.mercId && typeof save !== "undefined" && save.bond) {
+    const k = 1 + bondLevel(ch.mercId) * COMPANION_CFG.bondBonus;
+    s.maxHp = Math.round(s.maxHp * k); s.maxMp = Math.round(s.maxMp * k); s.att = Math.round(s.att * k); s.def = Math.round(s.def * k); s.acc = Math.round(s.acc * k);
+  }
   ch.maxHp = s.maxHp;
   ch.maxMp = s.maxMp;
   ch.delay = delay;
@@ -330,6 +337,91 @@ function mercGear(m, lv) {
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
 }
 
+function mercCanWear(id, itemId) {
+  const it = ITEMS[itemId], m = MERCS[id];
+  if (!it || it.kind !== "equip") return "That isn't equipment.";
+  if (!it.jobs.includes(m.job)) return m.name + " can't use that.";
+  if (it.lv > player.lv) return "Requires Lv." + it.lv + ".";
+  return "";
+}
+
+function mercGearFor(id, lv) {
+  const g = Object.assign({}, mercGear(id, lv));
+  const own = save.mercGear[id] || {};
+  for (const slot in own) if (ITEMS[own[slot]] && ITEMS[own[slot]].lv <= lv) g[slot] = own[slot];
+  return g;
+}
+
+function giveMercGear(id, itemId) {
+  const why = mercCanWear(id, itemId);
+  if (why) { log(why, "sys"); sfx("error"); return why; }
+  const it = ITEMS[itemId];
+  if (!removeItem(itemId, 1)) return "You don't have that.";
+  const own = save.mercGear[id] = save.mercGear[id] || {};
+  if (own[it.slot]) giveItem(own[it.slot], 1, true);
+  own[it.slot] = itemId;
+  log("You give " + an(it.name) + " to " + MERCS[id].name + ".", "you");
+  partySay(S.party.find(p => p.mercId === id), "gift", true);
+  sfx("equip");
+  syncAllies(false);
+  saveGame();
+  return "";
+}
+
+function takeMercGear(id, slot) {
+  const own = save.mercGear[id];
+  if (!own || !own[slot]) return;
+  if (save.inventory.length >= CONFIG.inventorySize && !save.inventory.some(x => x.id === own[slot])) { log("Your bag is full.", "sys"); sfx("error"); return; }
+  giveItem(own[slot], 1, true);
+  log(MERCS[id].name + " hands back the " + ITEMS[own[slot]].name + ".", "you");
+  delete own[slot];
+  syncAllies(false);
+  saveGame();
+}
+
+function bondLevel(id) {
+  const b = save.bond[id] || 0, st = COMPANION_CFG.bondSteps;
+  let lv = 0;
+  for (let i = 1; i < st.length; i++) if (b >= st[i]) lv = i;
+  return lv;
+}
+
+function addBond(id, n) {
+  const before = bondLevel(id);
+  save.bond[id] = (save.bond[id] || 0) + n;
+  const after = bondLevel(id);
+  if (after > before) {
+    const m = S.party.find(p => p.mercId === id);
+    log("Your bond with " + MERCS[id].name + " grows to level " + after + ".", "loot");
+    if (m) { log(MERCS[id].name + ": " + MERC_PERSONAL[id][after - 1], "party"); buildStats(m); }
+    sfx("unlock");
+    uiEvent("bond", { id, lv: after });
+  }
+}
+
+function mercWage(id) { return Math.max(10, Math.ceil(MERCS[id].fee * COMPANION_CFG.wageRate)); }
+
+function tickWages() {
+  const now = Date.now();
+  for (const id of save.hired.slice()) {
+    if (!save.mercPaid[id]) save.mercPaid[id] = now + COMPANION_CFG.dayMs;
+    if (now < save.mercPaid[id]) continue;
+    if (partyInCombat()) return;
+    const w = mercWage(id);
+    if (save.gil >= w) {
+      save.gil -= w;
+      save.mercPaid[id] = now + COMPANION_CFG.dayMs;
+      log("You pay " + MERCS[id].name + " a day's wage (" + w + " crystals).", "sys");
+    } else {
+      log(MERCS[id].name + " hasn't been paid and heads back to the Mercenary Hall.", "foe");
+      delete save.mercPaid[id];
+      dismissMerc(id, true);
+      sfx("error");
+    }
+    saveGame();
+  }
+}
+
 function makeMerc(id) {
   return makeChar({ kind: "ally", mercId: id, name: MERCS[id].name, job: MERCS[id].job, sub: null, role: MERCS[id].role, speed: 150, nextNuke: 0 });
 }
@@ -350,7 +442,7 @@ function syncAllies(full) {
     const hpPct = a.maxHp ? a.hp / a.maxHp : 1;
     const mpPct = a.maxMp ? a.mp / a.maxMp : 1;
     a.lv = player.lv;
-    a.gear = mercGear(a.mercId, a.lv);
+    a.gear = mercGearFor(a.mercId, a.lv);
     a.hp = null; a.mp = null;
     buildStats(a);
     if (!full && a.alive && hpPct > 0) { a.hp = Math.max(1, Math.round(a.maxHp * hpPct)); a.mp = Math.round(a.maxMp * mpPct); }
@@ -366,7 +458,7 @@ function rebuildParty() {
     if (!m) {
       m = makeMerc(id);
       m.lv = player.lv;
-      m.gear = mercGear(id, m.lv);
+      m.gear = mercGearFor(id, m.lv);
       buildStats(m);
       const o = followOffset(i + 1);
       m.x = player.x + o.x; m.y = player.y + o.y; m.px = m.x; m.py = m.y;
@@ -399,6 +491,7 @@ function hireMerc(id) {
   if (save.gil < m.fee) { log("You can't afford " + m.name + "'s fee (" + m.fee + " crystals).", "sys"); sfx("error"); return; }
   save.gil -= m.fee;
   save.hired.push(id);
+  save.mercPaid[id] = Date.now() + COMPANION_CFG.dayMs;
   rebuildParty();
   log("You hire " + m.name + " for " + m.fee + " crystals.", "loot");
   partySay(S.party.find(p => p.mercId === id), "hire", true);
@@ -406,12 +499,13 @@ function hireMerc(id) {
   saveGame();
 }
 
-function dismissMerc(id) {
+function dismissMerc(id, quiet) {
   const i = save.hired.indexOf(id);
   if (i < 0) return;
   save.hired.splice(i, 1);
+  delete save.mercPaid[id];
   rebuildParty();
-  log(MERCS[id].name + " leaves the party.", "sys");
+  if (!quiet) log(MERCS[id].name + " leaves the party.", "sys");
   saveGame();
 }
 
@@ -608,6 +702,10 @@ function onKO(e, src) {
     if (S.chase && player.attackTarget == null) S.chase = false;
     const byParty = [...e.enmity.keys()].some(isParty);
     if (byParty || (src && isParty(src))) {
+      save.stats.kills++;
+      noteBeast(e, true);
+      if (e.fam.nm) { save.stats.nm++; save.nmKilled[e.famKey] = (save.nmKilled[e.famKey] || 0) + 1; }
+      for (const id of save.hired) if (S.party.some(p => p.mercId === id)) addBond(id, e.fam.nm ? 4 : xpFor(e.lv, player.lv) > 0 ? 1 : 0);
       const xp = xpFor(e.lv, player.lv);
       if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
@@ -637,7 +735,7 @@ function onKO(e, src) {
     if (e === player) for (const p of S.party) p.mounted = false;
     for (const m of S.mobs) m.enmity.delete(e);
     if (e !== player) partySay(e, "ko", true);
-    if (e === player) { S.ko = true; S.chase = false; S.moveTarget = null; showKO(true); }
+    if (e === player) { save.stats.kos++; S.ko = true; S.chase = false; S.moveTarget = null; showKO(true); }
   }
 }
 
@@ -852,6 +950,7 @@ function resolveChain(a, t, ws, dmg) {
   const p = SC_PROPS[result];
   const scDmg = Math.max(1, Math.floor(dmg * CONFIG.scMult[p.lv]));
   const col = ELEMENT_COLORS[p.el[0]];
+  if (isParty(a)) save.stats.sc++;
   log("Skillchain: " + result + "! The " + t.name + " takes " + scDmg + " damage.", "sc");
   popText(t, "Skillchain: " + result, col, 18, 1.8, 38);
   p.el.forEach((el, i) => ring(t, ELEMENT_COLORS[el], 55 + i * 20, 0.8, "pillar"));
@@ -984,6 +1083,7 @@ function castNuke(a, t, sp) {
   sfx(sp.element, t);
   vfx("nuke", { src: a, tgt: t, el: sp.element, resisted: resist < 1 });
   if (burst) {
+    if (isParty(a)) save.stats.mb++;
     popText(t, "Magic Burst!", col, 18, 1.6, 38);
     ring(t, col, 70, 0.8, "burst");
     S.shake = Math.max(S.shake, 0.25);
@@ -1120,7 +1220,22 @@ function closedBarrierRects(z) {
   return (z.barriers || []).filter(b => !barrierOpen(b)).map(b => ({ x: b.x, y: b.y, w: b.w, h: b.h, barrier: b }));
 }
 
+function keepOutOfColliders(e) {
+  const cs = S.zone.colliders;
+  if (!cs || !cs.length) return;
+  const er = e.radius * 0.55;
+  for (const c of cs) {
+    const m = c.r + er, dx = e.x - c.x, dy = e.y - c.y;
+    if (dx > m || dx < -m || dy > m || dy < -m) continue;
+    const d = Math.hypot(dx, dy);
+    if (d >= m) continue;
+    if (d < 0.001) { e.x = c.x + m; continue; }
+    e.x = c.x + dx / d * m; e.y = c.y + dy / d * m;
+  }
+}
+
 function keepOutOfRects(e) {
+  keepOutOfColliders(e);
   const rects = zoneRects(S.zone).concat(closedBarrierRects(S.zone), S.zoneId === "residence" ? furnitureRects() : []);
   for (const r of rects) {
     const nx = clamp(e.x, r.x, r.x + r.w), ny = clamp(e.y, r.y, r.y + r.h);
@@ -1339,11 +1454,25 @@ function allyTry(a, act, t) {
 function updateAlly(a, dt) {
   if (!a.alive || a.casting) return;
   if (a.mounted) { a.engaged = false; a.attackTarget = null; follow(a, dt); return; }
-  const tgt = partyBattleTarget();
+  const stance = save.stance || "assist";
+  const tgt = stance === "follow" ? null : partyBattleTarget();
   const role = a.role;
+  const hx = a.x, hy = a.y;
+  if (stance === "hold" && !a.holdAt) a.holdAt = { x: a.x, y: a.y };
+  if (stance !== "hold") a.holdAt = null;
   if (role === "healer" || role === "support") healerAI(a, tgt, dt);
   else if (role === "nuker" || role === "burster") nukerAI(a, tgt, dt);
   else meleeAI(a, tgt, dt);
+  if (stance === "hold") { a.x = hx; a.y = hy; }
+}
+
+function setStance(st) {
+  if (!["assist", "follow", "hold"].includes(st)) { log("Stances: assist, follow, hold.", "sys"); return; }
+  save.stance = st;
+  for (const a of S.party) if (a !== player) { a.holdAt = null; if (st === "follow") { a.engaged = false; a.attackTarget = null; } }
+  log({ assist: "Your companions will fight your target.", follow: "Your companions will stay at your side and won't attack. Healers still heal.", hold: "Your companions will hold their ground. They fight only what comes to them." }[st], "party");
+  sfx("select");
+  saveGame();
 }
 
 function meleeAI(a, tgt, dt) {
@@ -1682,6 +1811,7 @@ function doGather(n) {
   vfx("hit", { src: player, tgt: n, crit: false, slash: type === "logging" });
   let got = null;
   for (const [id, chance] of n.loot) if (Math.random() < chance * (1 + skill * 0.01)) { got = id; break; }
+  save.stats.gathers++;
   if (got) { giveItem(got, 1); log("You " + G.verb + " up " + an(ITEMS[got].name) + ".", "loot"); }
   else { log("You " + G.verb + " but find nothing worth keeping.", "sys"); }
   if (skill < 20 && Math.random() < 0.45) { save.gatherSkill[type] = Math.round((skill + (Math.random() < 0.3 ? 0.3 : 0.1)) * 10) / 10; log(G.name + " skill rises to " + save.gatherSkill[type].toFixed(1) + ".", "sys"); }
@@ -1739,12 +1869,13 @@ function finishSynth() {
     for (const id in r.mats) removeItem(id, r.mats[id]);
     const out = hq ? r.hq : r.out;
     giveItem(out, r.qty || 1);
+    save.stats.crafts++; if (hq) save.stats.hq++;
     log("Synthesis complete: " + (r.qty > 1 ? r.qty + " × " : "") + ITEMS[out].name + (hq ? " (high quality!)" : "") + ".", "loot");
     sfx(hq ? "levelup" : "unlock", player);
     vfx("burst", { tgt: player, el });
   } else {
     for (const id in r.mats) if (Math.random() < 0.5) removeItem(id, Math.max(1, Math.floor(r.mats[id] / 2)));
-    log("The synthesis fails. The crystal shatters and some ingredients are lost.", "foe");
+    log("The synthesis fails. The essence fades and some ingredients are lost.", "foe");
     sfx("interrupt", player);
     vfx("interrupt", { tgt: player });
   }
@@ -1802,7 +1933,7 @@ function waterGarden(i) {
 function feedGarden(i, crystalId) {
   const g = save.gardens[i];
   if (!g) return "Nothing is planted there.";
-  if (g.crystal) return "It has already been fed a crystal.";
+  if (g.crystal) return "It has already been fed an essence.";
   if (!ITEMS[crystalId] || ITEMS[crystalId].kind !== "crystal" || invCount(crystalId) < 1) return "You don't have that crystal.";
   removeItem(crystalId, 1);
   g.crystal = ITEMS[crystalId].element;
@@ -1829,7 +1960,7 @@ function harvestGarden(i) {
   }
   delete save.gardens[i];
   save.harvests = (save.harvests || 0) + 1;
-  log("You harvest the plant." + (matched ? " The crystal made it thrive." : ""), "loot");
+  log("You harvest the plant." + (matched ? " The essence made it thrive." : ""), "loot");
   sfx("levelup");
   S.furnDirty = true;
   saveGame();
@@ -1853,6 +1984,39 @@ function spawnMob(i) {
   if (sp.passive && !mob.fam.nm) { mob.aggro = null; mob.passive = true; }
   S.mobs.push(mob);
   S.spawnAt[i] = null;
+}
+
+function beastKey(m) { return BESTIARY[m.famKey] ? m.famKey : null; }
+
+function noteBeast(m, kill) {
+  const k = beastKey(m);
+  if (!k) return;
+  let b = save.bestiary[k];
+  if (!b) {
+    b = save.bestiary[k] = { seen: Date.now(), kills: 0, zones: [] };
+    log("New bestiary entry: " + (FAMILIES[k] ? FAMILIES[k].name : NM_FAMILIES[k] && NM_FAMILIES[k].name || m.name) + ".", "sys");
+    uiEvent("beast", { k, name: m.name });
+  }
+  if (!b.zones.includes(S.zoneId)) b.zones.push(S.zoneId);
+  if (kill) b.kills++;
+}
+
+function scanBeasts() {
+  for (const m of S.mobs) if (m.alive && !m.despawned && dist(m, player) < 320 && !save.bestiary[m.famKey]) noteBeast(m, false);
+}
+
+function checkAchievements() {
+  for (const a of ACHIEVEMENTS) {
+    if (save.ach[a.id]) continue;
+    let ok = false;
+    try { ok = a.test(save); } catch (e) { ok = false; }
+    if (!ok) continue;
+    save.ach[a.id] = Date.now();
+    if (a.gil) save.gil += a.gil;
+    log("Achievement unlocked: " + a.name + "!" + (a.gil ? " +" + a.gil + " crystals." : ""), "loot");
+    sfx("levelup");
+    uiEvent("ach", a);
+  }
 }
 
 function checkLandmarks() {
@@ -1921,7 +2085,7 @@ function step(dt) {
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); } }
   tickSynth(dt);
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
@@ -1962,6 +2126,7 @@ function conOf(m) {
 function setTarget(e, quiet) {
   const changed = player.target !== e;
   player.target = e;
+  if (isMob(e) && e.alive) noteBeast(e, false);
   if (isMob(e) && e.alive && !quiet && changed) uiEvent("target", e);
   if (isMob(e) && player.engaged && e !== player.attackTarget && e.alive) {
     player.attackTarget = e;
@@ -2352,10 +2517,10 @@ const TALK = {
       };
       if (q.pld === "none") adv.push({ label: "Ask about the Paladin's oath", fn: () => openDialog(n.name, "A Paladin stands between the party and harm: sword and shield, Cures for the wounded, Flash to blind the foe. Bring me 2 Bone Chips from the undead and 1 Iron Ore from the Den's raiders, and I'll hear your oath.", [{ label: "Accept", fn: () => { q.pld = "active"; log("Quest accepted: " + QUESTS.pld.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
       else if (q.pld === "active") turnIn("pld", [["bone_chip", 2], ["iron_ore", 1]], "Take the Paladin's oath");
-      if (q.rdm === "none") adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      if (q.rdm === "none") adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Essence and 1 Water Essence for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
       else if (q.rdm === "active") turnIn("rdm", [["worm_silk", 2], ["fire_crystal", 1], ["water_crystal", 1]], "Present the dye materials");
     }
-    const advNote = (q.pld === "active" ? " The oath needs 2 Bone Chips and 1 Iron Ore." : "") + (q.rdm === "active" ? " The scarlet lessons need 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal." : "");
+    const advNote = (q.pld === "active" ? " The oath needs 2 Bone Chips and 1 Iron Ore." : "") + (q.rdm === "active" ? " The scarlet lessons need 2 Worm Silk, 1 Fire Essence and 1 Water Essence." : "");
     if (!save.supportUnlocked) {
       if (player.lv < CONFIG.supportUnlockLevel) {
         openDialog(n.name, "Every job keeps its own level and its own weapon skills. Come back when you've reached level " + CONFIG.supportUnlockLevel + ", and I'll teach you to call on a second job.", opts);
@@ -2415,7 +2580,7 @@ const TALK = {
   },
   talkBrann(n) {
     const hired = save.hired.length;
-    openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee once and they'll follow you anywhere. Up to five at a time.", [
+    openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee to hire them, then a daily wage to keep them. They'll follow you anywhere. Up to five at a time.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
     ].concat(questOptions("brann", n)));
   },
@@ -2635,6 +2800,10 @@ function initParty() {
 const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", laugh: "laughs", nod: "nods", clap: "claps", point: "points", salute: "salutes", panic: "panics", cry: "cries", thumbsup: "gives a thumbs up" };
 const COMMANDS = [
   ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
+  ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
+  ["/party", "Open the Party tab: companions, stance, gear, bond and wages. Also P."],
+  ["/bestiary", "Open the bestiary. Also Y."],
+  ["/achievements", "Open your achievements."],
   ["/stand", "Stand up."],
   ["/attack", "Attack your target, or the nearest enemy. Also /a."],
   ["/target name", "Target the nearest character whose name matches. Also /ta."],
@@ -2684,6 +2853,10 @@ function runCommand(text) {
   };
   switch (cmd) {
     case "rest": case "heal": case "sit": toggleRest(); return;
+    case "stance": setStance((arg || "").toLowerCase().trim()); return;
+    case "party": if (typeof openMenu === "function") openMenu("party"); return;
+    case "bestiary": case "beasts": if (typeof openMenu === "function") openMenu("bestiary"); return;
+    case "achievements": case "ach": if (typeof openMenu === "function") openMenu("achievements"); return;
     case "stand": if (player.resting) standUp(player); else log("You're already standing.", "sys"); return;
     case "attack": case "a": toggleEngage(false); return;
     case "target": case "ta": {
