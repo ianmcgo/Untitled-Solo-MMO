@@ -821,6 +821,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.1.0", date: "2026-10-13", title: "Thief and Monk", items: [
+    "New advanced job: Thief. Daggers (A), Steal (lift an item off a monster), Sneak Attack (next hit is a sure critical with bonus damage), Flee (run 80% faster). Thieves crit 5% more often, and Treasure Hunter raises drop chances by 20% while you're a Thief.",
+    "New advanced job: Monk. Hand-to-Hand (A) with Martial Arts (faster, harder fists), a 14% chance to follow up with a kick, Boost (next hit +50% and extra TP), Focus (accuracy and crits) and Chakra (heal yourself). Monks raise their fists in a boxing guard.",
+    "Unlock both from Tobin at level 6: Light Fingers (3 Goblin Pouches, 1 Bat Wing) and The Open Hand (2 Bone Chips, 3 Healing Herbs).",
+    "New weapon skills: Quick Sting, Venom Bite, Gale Edge (dagger) and Twin Fist, Rising Knee, Iron Palm (hand-to-hand).",
+    "New gear: Bronze, Iron and Steel Daggers; Leather Cesti, Iron Knuckles and Steel Claws; Brigand Vest and Training Gi. Warriors, Red Mages and Black Mages can use daggers too.",
+    "New companions: Wren the Thief and Tamsin the Monk (unlocked with their jobs)."
+  ] },
   { v: "5.0.0", date: "2026-10-13", title: "Level 15 and the Ashen Marsh", items: [
     "Level cap raised to 15 for every job. XP for levels 11–15: 4,450 · 5,400 · 6,450 · 7,600 · 8,850.",
     "New area: the Ashen Marsh, south of Rocky Hollow (levels 9–16). Misty ponds, a sunken causeway, a goblin stilt village and a drowned chapel.",
@@ -993,9 +1001,11 @@ function tabHelp() {
     ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Protect, Divine Seal"],
     ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"],
     ["Paladin (advanced)", "Tank", "Sword A, Cure, Flash, Protect, Sentinel, Shield Bash, shields"],
-    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia, Cure, nukes, Slow, Paralyze, Convert"]
+    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia, Cure, nukes, Slow, Paralyze, Convert"],
+    ["Thief (advanced)", "Damage", "Dagger A, Steal, Sneak Attack (sure critical), Flee; +5% critical hits; Treasure Hunter (+20% drop chance)"],
+    ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"]
   ]) + ul([
-    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence). Each job keeps its own level.",
+    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing) and <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per game day (about 58 real minutes). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));

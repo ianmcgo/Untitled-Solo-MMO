@@ -569,11 +569,24 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Bestiary +7 entries; achievements lv15 and marsh.
 - Tests: test/p8unit.js (cap, spells at 11/15, exit link, marsh spawns, spacing, gather points, toad aggro, hare peaceful, quest flow). p1bot takes BOT_ZONE and BOT_LV (level 10 WAR in the marsh: lv 11 in 15 min, 2 defeats). p5shots scenes marsh, toad, marsh-night.
 
+## Phase 10: Thief and Monk (v5.1.0)
+- JOBS THF (dex/agi, no MP) and MNK (hp 76+15/lv, vit/str), both `advanced`. ALL_JOBS (and so ALL_J gear) includes them. ADVANCED_JOBS THF {quest thf, lv 6}, MNK {quest mnk, lv 6}. jobsUnlocked default has THF/MNK.
+- Skills: new `dagger` combat skill (SKILL_NAMES, COMBAT_SKILLS). Ratings THF dagger A, MNK h2h A / staff B / club C; WAR and RDM dagger B, BLM dagger D.
+- Weapon skills: quick_sting, venom_bite, gale_edge (dagger 5/22/40); twin_fist, rising_knee, iron_palm (h2h 5/22/40).
+- Abilities: THF steal (lv 1, 90 s; chance 45 + 2·(DEX−AGI) + 3·lv diff, 10–85%; one try per mob via `t.stolen`; non-equip, non-key loot), sneak_attack (5; buff consumed by next swing: auto-hit, crit, +0.8·DEX), flee (10; ×1.8 run speed in updatePlayer). MNK boost (1; next hit ×1.5 and +100 TP), focus (5; +25 acc in `stat()`, +10% crit), chakra (10; heal VIT·3 + lv·8). Buff names/icons added.
+- Passives: THF main +5% crit; Treasure Hunter (`dropLoot` chance ×1.2 when player.job is THF). MNK with h2h: Martial Arts in buildStats (dmg + 2 + 0.5·lv, delay ×0.8, min 1.6) and a 14% follow-up kick (re-entrant `swing` guarded by `a.kicking`).
+- Unlock quests (generic, via Tobin; `adv.push(...questOptions("tobin", n))` at lv 6+): thf "Light Fingers" (3 goblin_pouch, 1 bat_wing → bronze_dagger + unlock), mnk "The Open Hand" (2 bone_chip, 3 healing_herb → leather_cesti + unlock). `giveReward` already handles `unlock`.
+- Gear: bronze/iron/steel_dagger (lv 1/6/11, delay 1.9), leather_cesti/iron_knuckles/steel_claws (h2h, 2.6), brigand_vest (THF/RDM 5), training_gi (MNK 5). All in SHOP. JOB_TINT and ITEM_LOOK entries for the new jobs and bodies.
+- Companions: wren (THF dd, 240) and tamsin (MNK dd, 260), `requires: { job }`. mercGear tiers for THF/MNK; MERC_BASE looks; MERC_PERSONAL lines. meleeAI now uses chakra (<50% HP), steal (once per mob in combat), focus/boost/sneak_attack when in reach.
+- anim.js: fists (h2h or a player/ally with no weapon) take a boxing guard while engaged; attackKind "punch" already existed.
+- Tests: test/p9unit.js. p1bot sets up THF/MNK (15 min: THF lv 5, MNK lv 7 with full party; MA damage trimmed to 2 + 0.5·lv after that run). p5shots scene monk.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.1.0 | Phase 10: Thief and Monk jobs, dagger/h2h weapon skills and gear, Wren and Tamsin. |
 | 5.0.0 | Phase 9: level cap 15, Ashen Marsh, tier II spells, level 11 gear, 2 NMs, 2 quests. |
 | 4.9.0 | Phase 8: companions 2.0, bestiary, achievements, smoother limbs, colliders, essences. |
 | 4.8.1 | Hotfix: aggro restored, target command box, hidden levels, residence fixes, location save, body sliders. |

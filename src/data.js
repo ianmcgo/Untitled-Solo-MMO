@@ -94,16 +94,18 @@ const SC_TABLE = [
 const ATTRS = ["str", "dex", "vit", "agi", "int", "mnd"];
 const SLOTS = ["main", "head", "body", "hands", "legs", "feet", "ring"];
 const SLOT_NAMES = { main: "Main", head: "Head", body: "Body", hands: "Hands", legs: "Legs", feet: "Feet", ring: "Ring" };
-const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM"];
+const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
-const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 } };
+const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 }, THF: { quest: "thf", lv: 6 }, MNK: { quest: "mnk", lv: 6 } };
 
 const JOBS = {
   WAR: { name: "Warrior", color: "#e57373", icon: "⚔️", hp: [70, 14], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [6, 0.5] },
   WHM: { name: "White Mage", color: "#eeeeee", icon: "✚", hp: [52, 10], mp: [22, 7], str: [7, 0.6], dex: [7, 0.6], vit: [7, 0.7], agi: [7, 0.6], int: [7, 0.7], mnd: [10, 1.0] },
   BLM: { name: "Black Mage", color: "#9575cd", icon: "✦", hp: [46, 9], mp: [26, 8], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.5], agi: [7, 0.7], int: [10, 1.0], mnd: [7, 0.6] },
   PLD: { name: "Paladin", color: "#90caf9", icon: "🛡️", hp: [68, 13], mp: [12, 4], str: [8, 0.8], dex: [7, 0.7], vit: [10, 1.0], agi: [6, 0.6], int: [5, 0.4], mnd: [8, 0.8], advanced: true },
-  RDM: { name: "Red Mage", color: "#f48fb1", icon: "🎩", hp: [56, 11], mp: [20, 6], str: [7, 0.7], dex: [8, 0.8], vit: [7, 0.6], agi: [7, 0.7], int: [8, 0.8], mnd: [8, 0.8], advanced: true }
+  RDM: { name: "Red Mage", color: "#f48fb1", icon: "🎩", hp: [56, 11], mp: [20, 6], str: [7, 0.7], dex: [8, 0.8], vit: [7, 0.6], agi: [7, 0.7], int: [8, 0.8], mnd: [8, 0.8], advanced: true },
+  THF: { name: "Thief", color: "#a1887f", icon: "🗝️", hp: [58, 11], mp: [0, 0], str: [7, 0.7], dex: [10, 1.0], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.6], mnd: [6, 0.5], advanced: true },
+  MNK: { name: "Monk", color: "#ffb74d", icon: "👊", hp: [76, 15], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [10, 1.0], agi: [7, 0.7], int: [5, 0.4], mnd: [6, 0.6], advanced: true }
 };
 
 const WEAPON_SKILLS = {
@@ -116,6 +118,12 @@ const WEAPON_SKILLS = {
   heavy_swing: { name: "Heavy Swing", wtype: "staff", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.5] },
   rock_crusher: { name: "Rock Crusher", wtype: "staff", skill: 22, props: ["Impaction"], ftp: [1.8, 2.5, 3.2] },
   earth_crusher: { name: "Earth Crusher", wtype: "staff", skill: 40, props: ["Detonation", "Impaction"], ftp: [2.1, 2.9, 3.7] },
+  quick_sting: { name: "Quick Sting", wtype: "dagger", skill: 5, props: ["Scission"], ftp: [1.4, 1.9, 2.4] },
+  venom_bite: { name: "Venom Bite", wtype: "dagger", skill: 22, props: ["Scission", "Impaction"], ftp: [1.8, 2.5, 3.2] },
+  gale_edge: { name: "Gale Edge", wtype: "dagger", skill: 40, props: ["Detonation"], ftp: [2.1, 2.9, 3.7] },
+  twin_fist: { name: "Twin Fist", wtype: "h2h", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.6] },
+  rising_knee: { name: "Rising Knee", wtype: "h2h", skill: 22, props: ["Detonation", "Impaction"], ftp: [1.9, 2.6, 3.3] },
+  iron_palm: { name: "Iron Palm", wtype: "h2h", skill: 40, props: ["Reverberation", "Impaction"], ftp: [2.2, 3.0, 3.8] },
   shield_break: { name: "Shield Break", wtype: "greataxe", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
   iron_tempest: { name: "Iron Tempest", wtype: "greataxe", skill: 22, props: ["Scission"], ftp: [1.9, 2.7, 3.5] },
   sturmwind: { name: "Sturmwind", wtype: "greataxe", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.8] }
@@ -128,11 +136,17 @@ const ABILITIES = {
   elemental_seal: { name: "Elemental Seal", job: "BLM", lv: 3, recast: 60, target: "self", buff: "elemental_seal", dur: 60, desc: "Your next nuke deals 50% more damage." },
   sentinel: { name: "Sentinel", job: "PLD", lv: 3, recast: 90, target: "self", buff: "sentinel", dur: 30, desc: "Defense +50% and every action draws double enmity for 30 s." },
   shield_bash: { name: "Shield Bash", job: "PLD", lv: 6, recast: 60, target: "enemy", enmity: 350, desc: "Bashes the target for light damage and interrupts its casting or TP move." },
+  steal: { name: "Steal", job: "THF", lv: 1, recast: 90, target: "enemy", enmity: 60, desc: "Try to steal an item the monster is carrying. One theft per monster." },
+  sneak_attack: { name: "Sneak Attack", job: "THF", lv: 5, recast: 60, target: "self", buff: "sneak_attack", dur: 30, desc: "Your next hit lands as a critical hit with extra damage from DEX." },
+  flee: { name: "Flee", job: "THF", lv: 10, recast: 240, target: "self", buff: "flee", dur: 20, desc: "Run 80% faster for 20 s." },
+  boost: { name: "Boost", job: "MNK", lv: 1, recast: 15, target: "self", buff: "boost", dur: 60, desc: "Your next hit deals 50% more damage and builds extra TP." },
+  focus: { name: "Focus", job: "MNK", lv: 5, recast: 120, target: "self", buff: "focus", dur: 30, desc: "Accuracy +25 and critical hit rate +10% for 30 s." },
+  chakra: { name: "Chakra", job: "MNK", lv: 10, recast: 300, target: "self", desc: "Restores HP based on your VIT and level." },
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -158,15 +172,17 @@ const SPELLS = {
   protect: { name: "Protect", jobs: { WHM: 7, PLD: 9, RDM: 9 }, mp: 9, cast: 2.0, recast: 10, kind: "buff", buff: "protect", dur: 600, target: "ally", desc: "Defense +15% for 10 minutes." }
 };
 
-const SKILL_NAMES = { sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
-const COMBAT_SKILLS = ["sword", "club", "staff", "greataxe", "h2h"];
+const SKILL_NAMES = { dagger: "Dagger", sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
+const COMBAT_SKILLS = ["sword", "dagger", "club", "staff", "greataxe", "h2h"];
 const MAGIC_SKILLS = ["healing", "divine", "elemental", "enfeebling", "enhancing"];
 const SKILL_RATINGS = {
-  WAR: { sword: "B", club: "B", staff: "B", greataxe: "A", h2h: "D" },
+  WAR: { sword: "B", dagger: "B", club: "B", staff: "B", greataxe: "A", h2h: "D" },
   WHM: { club: "B", staff: "C", h2h: "E", healing: "B", divine: "C", enhancing: "B" },
-  BLM: { club: "D", staff: "C", h2h: "E", elemental: "B", enfeebling: "C" },
+  BLM: { club: "D", staff: "C", dagger: "D", h2h: "E", elemental: "B", enfeebling: "C" },
   PLD: { sword: "A", club: "B", staff: "C", greataxe: "D", h2h: "D", healing: "C", divine: "B", enhancing: "C" },
-  RDM: { sword: "B", club: "D", staff: "D", h2h: "E", healing: "C", divine: "D", elemental: "C", enfeebling: "B", enhancing: "B" }
+  THF: { dagger: "A", sword: "D", club: "E", h2h: "D" },
+  MNK: { h2h: "A", staff: "B", club: "C" },
+  RDM: { sword: "B", dagger: "B", club: "D", staff: "D", h2h: "E", healing: "C", divine: "D", elemental: "C", enfeebling: "B", enhancing: "B" }
 };
 const RATING_CAP = { A: [3, 5.5], B: [3, 5], C: [2, 4.5], D: [2, 4], E: [1, 3.5] };
 const SPELL_SKILL = { heal: "healing", dot: "divine", nuke: null, debuff: "enfeebling", buff: "enhancing" };
@@ -205,6 +221,14 @@ const ITEMS = {
   bone_chip: { name: "Bone Chip", kind: "mat", icon: "🦴", price: 60, stack: 12, desc: "Used in advanced recipes." },
   bronze_sword: { name: "Bronze Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 6, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 80 },
   bronze_sword_hq: { name: "Bronze Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 7, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 200, stats: { acc: 2 } },
+  bronze_dagger: { name: "Bronze Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 4, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 1, price: 70 },
+  iron_dagger: { name: "Iron Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 7, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 6, price: 820, stats: { dex: 1 } },
+  steel_dagger: { name: "Steel Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 10, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 11, price: 2300, stats: { dex: 2, acc: 2 } },
+  leather_cesti: { name: "Leather Cesti", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 4, delay: 2.6, jobs: ["MNK", "WAR"], lv: 1, price: 80 },
+  iron_knuckles: { name: "Iron Knuckles", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 7, delay: 2.6, jobs: ["MNK", "WAR"], lv: 6, price: 850, stats: { str: 1 } },
+  steel_claws: { name: "Steel Claws", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 11, delay: 2.6, jobs: ["MNK", "WAR"], lv: 11, price: 2400, stats: { str: 2, att: 3 } },
+  brigand_vest: { name: "Brigand Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "RDM"], lv: 5, price: 1000, stats: { def: 6, dex: 2, agi: 2 } },
+  training_gi: { name: "Training Gi", kind: "equip", icon: "🥋", slot: "body", jobs: ["MNK"], lv: 5, price: 1000, stats: { def: 6, str: 2, vit: 2, hp: 10 } },
   steel_sword: { name: "Steel Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 14, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 11, price: 2600, stats: { acc: 2 } },
   steel_greataxe: { name: "Steel Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 25, delay: 4.0, jobs: ["WAR"], lv: 11, price: 2800 },
   oak_staff: { name: "Oak Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 15, delay: 3.6, jobs: ALL_J, lv: 11, price: 2400, stats: { int: 4, mnd: 4, mp: 15 } },
@@ -276,7 +300,7 @@ const ITEMS = {
   goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
-const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat"];
+const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -323,7 +347,9 @@ const MERCS = {
   sable: { name: "Sable", job: "BLM", role: "nuker", fee: 180, color: "#b39ddb", desc: "A sharp Black Mage. Nukes weaknesses and holds MP to magic-burst your skillchains." },
   dorn: { name: "Dorn", job: "PLD", role: "tank", fee: 260, color: "#90caf9", requires: { job: "PLD" }, desc: "A stalwart Paladin. Flash and Sentinel hold attention, Cures keep him standing, Shield Bash stops TP moves." },
   lisette: { name: "Lisette", job: "RDM", role: "hybrid", fee: 260, color: "#f48fb1", requires: { job: "RDM" }, desc: "A quick Red Mage. Fights in melee, keeps Dia, Slow and Paralyze on the target, nukes when MP allows and backs up the healer." },
-  vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Elemental Seal on every one." }
+  vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Elemental Seal on every one." },
+  wren: { name: "Wren", job: "THF", role: "dd", fee: 240, color: "#a1887f", requires: { job: "THF" }, desc: "A quick-fingered Thief. Steals from everything, opens with Sneak Attack and chains dagger skills." },
+  tamsin: { name: "Tamsin", job: "MNK", role: "dd", fee: 260, color: "#ffb74d", requires: { job: "MNK" }, desc: "A cheerful Monk. Boosts, focuses and pummels, and mends herself with Chakra." }
 };
 
 const MERC_LINES = {
@@ -643,6 +669,10 @@ const QUESTS = {
     intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
   mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
     intro: "Two of my people went into the marsh and came back with stories of a goblin who calls himself the Mirelord. Gax. He's taxing the reed cutters. I'd take it personally if you put an end to that.", progress: "Gax keeps to Mire Village, east of the causeway. He shows himself now and then among his goblins.", turn: "The Mirelord's done? My people will drink to you tonight. Here, you've earned this." },
+  thf: { name: "Light Fingers", giver: "Tobin", npc: "tobin", lv: 6, items: { goblin_pouch: 3, bat_wing: 1 }, desc: "Bring Tobin 3 Goblin Pouches and 1 Bat Wing to learn the Thief's trade.", reward: { xp: 300, gil: 0, item: "bronze_dagger", qty: 1, unlock: "THF" },
+    intro: "A Thief lives by quick hands and quicker feet: daggers, Steal, Sneak Attack, and a nose for treasure. Prove your hands are light. Lift 3 Goblin Pouches off their owners and bring me a Bat Wing besides.", progress: "3 Goblin Pouches and a Bat Wing. Goblins carry the pouches; bats come out at night.", turn: "Not bad at all. Here's a dagger to start with. Ask me to change jobs whenever you like." },
+  mnk: { name: "The Open Hand", giver: "Tobin", npc: "tobin", lv: 6, items: { bone_chip: 2, healing_herb: 3 }, desc: "Bring Tobin 2 Bone Chips and 3 Healing Herbs to begin training as a Monk.", reward: { xp: 300, gil: 0, item: "leather_cesti", qty: 1, unlock: "MNK" },
+    intro: "A Monk needs no blade. Fists, Boost and Focus, and Chakra to mend their own wounds. Training starts with a poultice: 3 Healing Herbs, and 2 Bone Chips ground into it. Don't ask why. It works.", progress: "2 Bone Chips from the undead and 3 Healing Herbs.", turn: "Good. Wrap your hands in these and hit things. That's most of it, honestly." },
   support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 5, desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
   riding: { name: "Riding License", giver: "Ysolde", npc: "ysolde", lv: 5, desc: "Reach level 5, then bring Ysolde 300 crystals and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
   pld: { name: "The Oath of Steel", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Paladin's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
@@ -695,6 +725,8 @@ const MERC_PERSONAL = {
   sable: ["Your timing is adequate.", "Your timing is good.", "I studied in the academy's tower for nine years. Nine years, and none of it felt as real as this.", "When you open a chain, I'm already counting. It feels like music.", "I'd follow your chains anywhere."],
   dorn: ["Stand behind me.", "I took my oath at sixteen. I've broken it once. I won't again.", "There's a chapel in the Outpost cellar. I pray there for the ones I couldn't shield.", "You make it easy to keep the oath.", "My shield is yours, until the end."],
   lisette: ["Sword, spell, cure. Pick one? Why would I?", "Red Mages get called jacks of all trades. I prefer 'useful'.", "I left the mage court because they wanted me to choose a school. I chose all of them.", "You never ask me to be less than everything. Thank you.", "Whatever comes next, we'll handle it with style."],
+  wren: ["Nice pickings today.", "I only steal from monsters now. Mostly.", "My mum ran a pawn shop in the capital. I learned to tell real silver by the smell.", "You never check your pockets around me. I like that you trust me.", "Whatever we find, half's yours. I mean it."],
+  tamsin: ["Ha! Good fight!", "Breathe in, punch out. That's the whole secret.", "I trained at a temple up in the cliffs. Three hundred steps every morning, carrying water.", "You hit harder than you did when we met. I noticed.", "Fists together, always."],
   vesper: ["Open a chain. I'll do the rest.", "The burst is the only honest moment in a fight.", "I was thrown out of the academy for setting the library alight. Small fire. Mostly.", "You understand the rhythm. Few do.", "Every burst from now on is for us."]
 };
 

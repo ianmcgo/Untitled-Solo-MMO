@@ -58,7 +58,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0 }
   };
@@ -296,6 +296,7 @@ function buildStats(ch) {
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
   }
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
+  if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
   s.dmg = dmg;
   s.delay = delay;
   s.wtype = wtype;
@@ -333,6 +334,8 @@ function mercGear(m, lv) {
   if (job === "WAR") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", hands: "leather_gloves" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", hands: "leather_gloves" };
   if (job === "WHM") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: lv >= 3 ? "leather_boots" : undefined } : { main: "ash_club", body: "linen_robe" };
   if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", ring: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
+  if (job === "THF") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
+  if (job === "MNK") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
 }
@@ -560,6 +563,7 @@ function stat(e, k) {
   if (k === "def" && b.sentinel) v *= 1.5;
   if (k === "def" && b.protect) v *= 1.15;
   if (k === "acc" && b.flash) v *= 0.6;
+  if (k === "acc" && b.focus) v += 25;
   return v;
 }
 
@@ -660,7 +664,11 @@ function swing(a, d) {
     return;
   }
   if (a === player) trySkillUp(a.stats.wtype, d.lv);
-  if (Math.random() * 100 >= hitChance(a, d)) {
+  const b = a.buffs || {};
+  const sneak = !!b.sneak_attack, boost = !!b.boost;
+  if (sneak) delete b.sneak_attack;
+  if (boost) delete b.boost;
+  if (!sneak && Math.random() * 100 >= hitChance(a, d)) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
     popText(d, "Miss", "#bbbbbb", 14, 0.8);
     sfx("miss", a);
@@ -668,9 +676,12 @@ function swing(a, d) {
     if (isMob(d)) aggro(d, a);
     return;
   }
-  const crit = Math.random() * 100 < CONFIG.critPct;
-  const dmg = Math.floor(baseDmg(a, d) * pDIF(a, d) * (crit ? CONFIG.critMult : 1));
-  a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain);
+  const critPct = CONFIG.critPct + (a.job === "THF" ? 5 : 0) + (b.focus ? 10 : 0);
+  const crit = sneak || Math.random() * 100 < critPct;
+  let dmg = Math.floor(baseDmg(a, d) * pDIF(a, d) * (crit ? CONFIG.critMult : 1));
+  if (sneak) { dmg += Math.floor(a.stats.dex * 0.8); popText(a, "Sneak Attack", "#a1887f", 12, 1, 14); }
+  if (boost) dmg = Math.floor(dmg * 1.5);
+  a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
   const wt = isMob(a) ? "blunt" : (a.stats.wtype === "sword" || a.stats.wtype === "greataxe" ? "slash" : "blunt");
@@ -678,6 +689,12 @@ function swing(a, d) {
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
   applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16 });
+  if (a.job === "MNK" && a.stats.wtype === "h2h" && d.alive && !a.kicking && Math.random() < 0.14) {
+    a.kicking = true;
+    log(subj(a) + " " + vb(a, "follow") + " up with a kick!", cls(a));
+    swing(a, d);
+    a.kicking = false;
+  }
 }
 
 function onKO(e, src) {
@@ -840,7 +857,7 @@ function dropLoot(m) {
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
-    if (Math.random() >= chance) continue;
+    if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1)) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     giveItem(id, 1);
   }
@@ -987,6 +1004,29 @@ function doAbility(a, id, t) {
     if (t.casting) interruptCast(t);
     applyDamage(a, t, dmg, { enmity: ab.enmity });
     if (t.alive) aggro(t, a);
+    return;
+  }
+  if (id === "steal") {
+    a.face = Math.atan2(t.y - a.y, t.x - a.x);
+    const pool = (t.fam.loot || []).filter(([it]) => ITEMS[it] && ITEMS[it].kind !== "equip" && ITEMS[it].kind !== "key");
+    const chance = clamp(45 + (a.stats.dex - t.stats.agi) * 2 + (a.lv - t.lv) * 3, 10, 85);
+    aggro(t, a);
+    addEnmity(t, a, ab.enmity);
+    if (t.stolen || !pool.length || Math.random() * 100 >= chance) { log(subj(a) + " " + vb(a, "fail") + " to steal anything from the " + t.name + ".", cls(a)); popText(t, "Steal failed", "#bbbbbb", 12, 0.9); sfx("miss", a); t.stolen = true; return; }
+    t.stolen = true;
+    const it = pick(pool)[0];
+    log(subj(a) + " " + vb(a, "steal") + " " + an(ITEMS[it].name) + " from the " + t.name + "!", cls(a));
+    popText(t, "Stolen!", "#a1887f", 14, 1);
+    sfx("coin", a);
+    if (a === player) giveItem(it, 1);
+    return;
+  }
+  if (id === "chakra") {
+    const heal = Math.min(a.maxHp - a.hp, Math.round(a.stats.vit * 3 + a.lv * 8));
+    a.hp += heal;
+    log(subj(a) + " " + vb(a, "use") + " Chakra and " + vb(a, "recover", "recovers") + " " + heal + " HP.", cls(a));
+    popText(a, heal > 0 ? "+" + heal : "No effect", heal > 0 ? "#9ad06b" : "#bbbbbb", 16, 1.2, 14);
+    if (heal > 0) { ring(a, "#ffb74d", 30, 0.6); sfx("cure", a); vfx("cure", { tgt: a }); }
     return;
   }
   if (id === "convert") {
@@ -1500,6 +1540,14 @@ function meleeAI(a, tgt, dt) {
   const bers = acts.find(x => x.id === "berserk");
   if (bers && a.role !== "tank" && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, bers, a)) return;
   if (bers && a.role === "tank" && a.hp > a.maxHp * 0.7 && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, bers, a)) return;
+  const chak = acts.find(x => x.id === "chakra");
+  if (chak && a.hp < a.maxHp * 0.5 && allyTry(a, chak, a)) return;
+  const stl = acts.find(x => x.id === "steal");
+  if (stl && !tgt.stolen && tgt.state === "combat" && allyTry(a, stl, tgt)) return;
+  for (const id of ["focus", "boost", "sneak_attack"]) {
+    const x = acts.find(q => q.id === id);
+    if (x && !a.buffs[id] && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, x, a)) return;
+  }
   allyWeaponSkill(a, tgt, acts);
 }
 
@@ -1612,7 +1660,7 @@ function updatePlayer(dt) {
   if (mv.x || mv.y) {
     S.moveTarget = null; S.chase = false; S.pendingTalk = null;
     const len = Math.hypot(mv.x, mv.y);
-    const sp = player.speed * Math.min(1, len) * (player.mounted ? CONFIG.mountSpeed : 1);
+    const sp = player.speed * Math.min(1, len) * (player.mounted ? CONFIG.mountSpeed : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1);
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
     player.face = Math.atan2(mv.y, mv.x);
@@ -2519,6 +2567,7 @@ const TALK = {
       else if (q.pld === "active") turnIn("pld", [["bone_chip", 2], ["iron_ore", 1]], "Take the Paladin's oath");
       if (q.rdm === "none") adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Essence and 1 Water Essence for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
       else if (q.rdm === "active") turnIn("rdm", [["worm_silk", 2], ["fire_crystal", 1], ["water_crystal", 1]], "Present the dye materials");
+      adv.push(...questOptions("tobin", n));
     }
     const advNote = (q.pld === "active" ? " The oath needs 2 Bone Chips and 1 Iron Ore." : "") + (q.rdm === "active" ? " The scarlet lessons need 2 Worm Silk, 1 Fire Essence and 1 Water Essence." : "");
     if (!save.supportUnlocked) {

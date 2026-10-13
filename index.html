@@ -502,7 +502,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.0.0 · built 2026-10-13 13:38 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.1.0 · built 2026-10-13 13:47 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5411,16 +5411,18 @@ const SC_TABLE = [
 const ATTRS = ["str", "dex", "vit", "agi", "int", "mnd"];
 const SLOTS = ["main", "head", "body", "hands", "legs", "feet", "ring"];
 const SLOT_NAMES = { main: "Main", head: "Head", body: "Body", hands: "Hands", legs: "Legs", feet: "Feet", ring: "Ring" };
-const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM"];
+const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
-const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 } };
+const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 }, THF: { quest: "thf", lv: 6 }, MNK: { quest: "mnk", lv: 6 } };
 
 const JOBS = {
   WAR: { name: "Warrior", color: "#e57373", icon: "⚔️", hp: [70, 14], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [6, 0.5] },
   WHM: { name: "White Mage", color: "#eeeeee", icon: "✚", hp: [52, 10], mp: [22, 7], str: [7, 0.6], dex: [7, 0.6], vit: [7, 0.7], agi: [7, 0.6], int: [7, 0.7], mnd: [10, 1.0] },
   BLM: { name: "Black Mage", color: "#9575cd", icon: "✦", hp: [46, 9], mp: [26, 8], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.5], agi: [7, 0.7], int: [10, 1.0], mnd: [7, 0.6] },
   PLD: { name: "Paladin", color: "#90caf9", icon: "🛡️", hp: [68, 13], mp: [12, 4], str: [8, 0.8], dex: [7, 0.7], vit: [10, 1.0], agi: [6, 0.6], int: [5, 0.4], mnd: [8, 0.8], advanced: true },
-  RDM: { name: "Red Mage", color: "#f48fb1", icon: "🎩", hp: [56, 11], mp: [20, 6], str: [7, 0.7], dex: [8, 0.8], vit: [7, 0.6], agi: [7, 0.7], int: [8, 0.8], mnd: [8, 0.8], advanced: true }
+  RDM: { name: "Red Mage", color: "#f48fb1", icon: "🎩", hp: [56, 11], mp: [20, 6], str: [7, 0.7], dex: [8, 0.8], vit: [7, 0.6], agi: [7, 0.7], int: [8, 0.8], mnd: [8, 0.8], advanced: true },
+  THF: { name: "Thief", color: "#a1887f", icon: "🗝️", hp: [58, 11], mp: [0, 0], str: [7, 0.7], dex: [10, 1.0], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.6], mnd: [6, 0.5], advanced: true },
+  MNK: { name: "Monk", color: "#ffb74d", icon: "👊", hp: [76, 15], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [10, 1.0], agi: [7, 0.7], int: [5, 0.4], mnd: [6, 0.6], advanced: true }
 };
 
 const WEAPON_SKILLS = {
@@ -5433,6 +5435,12 @@ const WEAPON_SKILLS = {
   heavy_swing: { name: "Heavy Swing", wtype: "staff", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.5] },
   rock_crusher: { name: "Rock Crusher", wtype: "staff", skill: 22, props: ["Impaction"], ftp: [1.8, 2.5, 3.2] },
   earth_crusher: { name: "Earth Crusher", wtype: "staff", skill: 40, props: ["Detonation", "Impaction"], ftp: [2.1, 2.9, 3.7] },
+  quick_sting: { name: "Quick Sting", wtype: "dagger", skill: 5, props: ["Scission"], ftp: [1.4, 1.9, 2.4] },
+  venom_bite: { name: "Venom Bite", wtype: "dagger", skill: 22, props: ["Scission", "Impaction"], ftp: [1.8, 2.5, 3.2] },
+  gale_edge: { name: "Gale Edge", wtype: "dagger", skill: 40, props: ["Detonation"], ftp: [2.1, 2.9, 3.7] },
+  twin_fist: { name: "Twin Fist", wtype: "h2h", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.6] },
+  rising_knee: { name: "Rising Knee", wtype: "h2h", skill: 22, props: ["Detonation", "Impaction"], ftp: [1.9, 2.6, 3.3] },
+  iron_palm: { name: "Iron Palm", wtype: "h2h", skill: 40, props: ["Reverberation", "Impaction"], ftp: [2.2, 3.0, 3.8] },
   shield_break: { name: "Shield Break", wtype: "greataxe", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
   iron_tempest: { name: "Iron Tempest", wtype: "greataxe", skill: 22, props: ["Scission"], ftp: [1.9, 2.7, 3.5] },
   sturmwind: { name: "Sturmwind", wtype: "greataxe", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.8] }
@@ -5445,11 +5453,17 @@ const ABILITIES = {
   elemental_seal: { name: "Elemental Seal", job: "BLM", lv: 3, recast: 60, target: "self", buff: "elemental_seal", dur: 60, desc: "Your next nuke deals 50% more damage." },
   sentinel: { name: "Sentinel", job: "PLD", lv: 3, recast: 90, target: "self", buff: "sentinel", dur: 30, desc: "Defense +50% and every action draws double enmity for 30 s." },
   shield_bash: { name: "Shield Bash", job: "PLD", lv: 6, recast: 60, target: "enemy", enmity: 350, desc: "Bashes the target for light damage and interrupts its casting or TP move." },
+  steal: { name: "Steal", job: "THF", lv: 1, recast: 90, target: "enemy", enmity: 60, desc: "Try to steal an item the monster is carrying. One theft per monster." },
+  sneak_attack: { name: "Sneak Attack", job: "THF", lv: 5, recast: 60, target: "self", buff: "sneak_attack", dur: 30, desc: "Your next hit lands as a critical hit with extra damage from DEX." },
+  flee: { name: "Flee", job: "THF", lv: 10, recast: 240, target: "self", buff: "flee", dur: 20, desc: "Run 80% faster for 20 s." },
+  boost: { name: "Boost", job: "MNK", lv: 1, recast: 15, target: "self", buff: "boost", dur: 60, desc: "Your next hit deals 50% more damage and builds extra TP." },
+  focus: { name: "Focus", job: "MNK", lv: 5, recast: 120, target: "self", buff: "focus", dur: 30, desc: "Accuracy +25 and critical hit rate +10% for 30 s." },
+  chakra: { name: "Chakra", job: "MNK", lv: 10, recast: 300, target: "self", desc: "Restores HP based on your VIT and level." },
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -5475,15 +5489,17 @@ const SPELLS = {
   protect: { name: "Protect", jobs: { WHM: 7, PLD: 9, RDM: 9 }, mp: 9, cast: 2.0, recast: 10, kind: "buff", buff: "protect", dur: 600, target: "ally", desc: "Defense +15% for 10 minutes." }
 };
 
-const SKILL_NAMES = { sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
-const COMBAT_SKILLS = ["sword", "club", "staff", "greataxe", "h2h"];
+const SKILL_NAMES = { dagger: "Dagger", sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
+const COMBAT_SKILLS = ["sword", "dagger", "club", "staff", "greataxe", "h2h"];
 const MAGIC_SKILLS = ["healing", "divine", "elemental", "enfeebling", "enhancing"];
 const SKILL_RATINGS = {
-  WAR: { sword: "B", club: "B", staff: "B", greataxe: "A", h2h: "D" },
+  WAR: { sword: "B", dagger: "B", club: "B", staff: "B", greataxe: "A", h2h: "D" },
   WHM: { club: "B", staff: "C", h2h: "E", healing: "B", divine: "C", enhancing: "B" },
-  BLM: { club: "D", staff: "C", h2h: "E", elemental: "B", enfeebling: "C" },
+  BLM: { club: "D", staff: "C", dagger: "D", h2h: "E", elemental: "B", enfeebling: "C" },
   PLD: { sword: "A", club: "B", staff: "C", greataxe: "D", h2h: "D", healing: "C", divine: "B", enhancing: "C" },
-  RDM: { sword: "B", club: "D", staff: "D", h2h: "E", healing: "C", divine: "D", elemental: "C", enfeebling: "B", enhancing: "B" }
+  THF: { dagger: "A", sword: "D", club: "E", h2h: "D" },
+  MNK: { h2h: "A", staff: "B", club: "C" },
+  RDM: { sword: "B", dagger: "B", club: "D", staff: "D", h2h: "E", healing: "C", divine: "D", elemental: "C", enfeebling: "B", enhancing: "B" }
 };
 const RATING_CAP = { A: [3, 5.5], B: [3, 5], C: [2, 4.5], D: [2, 4], E: [1, 3.5] };
 const SPELL_SKILL = { heal: "healing", dot: "divine", nuke: null, debuff: "enfeebling", buff: "enhancing" };
@@ -5522,6 +5538,14 @@ const ITEMS = {
   bone_chip: { name: "Bone Chip", kind: "mat", icon: "🦴", price: 60, stack: 12, desc: "Used in advanced recipes." },
   bronze_sword: { name: "Bronze Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 6, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 80 },
   bronze_sword_hq: { name: "Bronze Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 7, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 200, stats: { acc: 2 } },
+  bronze_dagger: { name: "Bronze Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 4, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 1, price: 70 },
+  iron_dagger: { name: "Iron Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 7, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 6, price: 820, stats: { dex: 1 } },
+  steel_dagger: { name: "Steel Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 10, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 11, price: 2300, stats: { dex: 2, acc: 2 } },
+  leather_cesti: { name: "Leather Cesti", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 4, delay: 2.6, jobs: ["MNK", "WAR"], lv: 1, price: 80 },
+  iron_knuckles: { name: "Iron Knuckles", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 7, delay: 2.6, jobs: ["MNK", "WAR"], lv: 6, price: 850, stats: { str: 1 } },
+  steel_claws: { name: "Steel Claws", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 11, delay: 2.6, jobs: ["MNK", "WAR"], lv: 11, price: 2400, stats: { str: 2, att: 3 } },
+  brigand_vest: { name: "Brigand Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "RDM"], lv: 5, price: 1000, stats: { def: 6, dex: 2, agi: 2 } },
+  training_gi: { name: "Training Gi", kind: "equip", icon: "🥋", slot: "body", jobs: ["MNK"], lv: 5, price: 1000, stats: { def: 6, str: 2, vit: 2, hp: 10 } },
   steel_sword: { name: "Steel Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 14, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 11, price: 2600, stats: { acc: 2 } },
   steel_greataxe: { name: "Steel Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 25, delay: 4.0, jobs: ["WAR"], lv: 11, price: 2800 },
   oak_staff: { name: "Oak Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 15, delay: 3.6, jobs: ALL_J, lv: 11, price: 2400, stats: { int: 4, mnd: 4, mp: 15 } },
@@ -5593,7 +5617,7 @@ const ITEMS = {
   goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
-const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat"];
+const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -5640,7 +5664,9 @@ const MERCS = {
   sable: { name: "Sable", job: "BLM", role: "nuker", fee: 180, color: "#b39ddb", desc: "A sharp Black Mage. Nukes weaknesses and holds MP to magic-burst your skillchains." },
   dorn: { name: "Dorn", job: "PLD", role: "tank", fee: 260, color: "#90caf9", requires: { job: "PLD" }, desc: "A stalwart Paladin. Flash and Sentinel hold attention, Cures keep him standing, Shield Bash stops TP moves." },
   lisette: { name: "Lisette", job: "RDM", role: "hybrid", fee: 260, color: "#f48fb1", requires: { job: "RDM" }, desc: "A quick Red Mage. Fights in melee, keeps Dia, Slow and Paralyze on the target, nukes when MP allows and backs up the healer." },
-  vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Elemental Seal on every one." }
+  vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Elemental Seal on every one." },
+  wren: { name: "Wren", job: "THF", role: "dd", fee: 240, color: "#a1887f", requires: { job: "THF" }, desc: "A quick-fingered Thief. Steals from everything, opens with Sneak Attack and chains dagger skills." },
+  tamsin: { name: "Tamsin", job: "MNK", role: "dd", fee: 260, color: "#ffb74d", requires: { job: "MNK" }, desc: "A cheerful Monk. Boosts, focuses and pummels, and mends herself with Chakra." }
 };
 
 const MERC_LINES = {
@@ -5960,6 +5986,10 @@ const QUESTS = {
     intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
   mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
     intro: "Two of my people went into the marsh and came back with stories of a goblin who calls himself the Mirelord. Gax. He's taxing the reed cutters. I'd take it personally if you put an end to that.", progress: "Gax keeps to Mire Village, east of the causeway. He shows himself now and then among his goblins.", turn: "The Mirelord's done? My people will drink to you tonight. Here, you've earned this." },
+  thf: { name: "Light Fingers", giver: "Tobin", npc: "tobin", lv: 6, items: { goblin_pouch: 3, bat_wing: 1 }, desc: "Bring Tobin 3 Goblin Pouches and 1 Bat Wing to learn the Thief's trade.", reward: { xp: 300, gil: 0, item: "bronze_dagger", qty: 1, unlock: "THF" },
+    intro: "A Thief lives by quick hands and quicker feet: daggers, Steal, Sneak Attack, and a nose for treasure. Prove your hands are light. Lift 3 Goblin Pouches off their owners and bring me a Bat Wing besides.", progress: "3 Goblin Pouches and a Bat Wing. Goblins carry the pouches; bats come out at night.", turn: "Not bad at all. Here's a dagger to start with. Ask me to change jobs whenever you like." },
+  mnk: { name: "The Open Hand", giver: "Tobin", npc: "tobin", lv: 6, items: { bone_chip: 2, healing_herb: 3 }, desc: "Bring Tobin 2 Bone Chips and 3 Healing Herbs to begin training as a Monk.", reward: { xp: 300, gil: 0, item: "leather_cesti", qty: 1, unlock: "MNK" },
+    intro: "A Monk needs no blade. Fists, Boost and Focus, and Chakra to mend their own wounds. Training starts with a poultice: 3 Healing Herbs, and 2 Bone Chips ground into it. Don't ask why. It works.", progress: "2 Bone Chips from the undead and 3 Healing Herbs.", turn: "Good. Wrap your hands in these and hit things. That's most of it, honestly." },
   support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 5, desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
   riding: { name: "Riding License", giver: "Ysolde", npc: "ysolde", lv: 5, desc: "Reach level 5, then bring Ysolde 300 crystals and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
   pld: { name: "The Oath of Steel", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Paladin's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
@@ -6012,6 +6042,8 @@ const MERC_PERSONAL = {
   sable: ["Your timing is adequate.", "Your timing is good.", "I studied in the academy's tower for nine years. Nine years, and none of it felt as real as this.", "When you open a chain, I'm already counting. It feels like music.", "I'd follow your chains anywhere."],
   dorn: ["Stand behind me.", "I took my oath at sixteen. I've broken it once. I won't again.", "There's a chapel in the Outpost cellar. I pray there for the ones I couldn't shield.", "You make it easy to keep the oath.", "My shield is yours, until the end."],
   lisette: ["Sword, spell, cure. Pick one? Why would I?", "Red Mages get called jacks of all trades. I prefer 'useful'.", "I left the mage court because they wanted me to choose a school. I chose all of them.", "You never ask me to be less than everything. Thank you.", "Whatever comes next, we'll handle it with style."],
+  wren: ["Nice pickings today.", "I only steal from monsters now. Mostly.", "My mum ran a pawn shop in the capital. I learned to tell real silver by the smell.", "You never check your pockets around me. I like that you trust me.", "Whatever we find, half's yours. I mean it."],
+  tamsin: ["Ha! Good fight!", "Breathe in, punch out. That's the whole secret.", "I trained at a temple up in the cliffs. Three hundred steps every morning, carrying water.", "You hit harder than you did when we met. I noticed.", "Fists together, always."],
   vesper: ["Open a chain. I'll do the rest.", "The burst is the only honest moment in a fight.", "I was thrown out of the academy for setting the library alight. Small fire. Mostly.", "You understand the rhythm. Few do.", "Every burst from now on is for us."]
 };
 
@@ -6134,7 +6166,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0 }
   };
@@ -6372,6 +6404,7 @@ function buildStats(ch) {
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
   }
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
+  if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
   s.dmg = dmg;
   s.delay = delay;
   s.wtype = wtype;
@@ -6409,6 +6442,8 @@ function mercGear(m, lv) {
   if (job === "WAR") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", hands: "leather_gloves" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", hands: "leather_gloves" };
   if (job === "WHM") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: lv >= 3 ? "leather_boots" : undefined } : { main: "ash_club", body: "linen_robe" };
   if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", ring: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
+  if (job === "THF") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
+  if (job === "MNK") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
 }
@@ -6636,6 +6671,7 @@ function stat(e, k) {
   if (k === "def" && b.sentinel) v *= 1.5;
   if (k === "def" && b.protect) v *= 1.15;
   if (k === "acc" && b.flash) v *= 0.6;
+  if (k === "acc" && b.focus) v += 25;
   return v;
 }
 
@@ -6736,7 +6772,11 @@ function swing(a, d) {
     return;
   }
   if (a === player) trySkillUp(a.stats.wtype, d.lv);
-  if (Math.random() * 100 >= hitChance(a, d)) {
+  const b = a.buffs || {};
+  const sneak = !!b.sneak_attack, boost = !!b.boost;
+  if (sneak) delete b.sneak_attack;
+  if (boost) delete b.boost;
+  if (!sneak && Math.random() * 100 >= hitChance(a, d)) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
     popText(d, "Miss", "#bbbbbb", 14, 0.8);
     sfx("miss", a);
@@ -6744,9 +6784,12 @@ function swing(a, d) {
     if (isMob(d)) aggro(d, a);
     return;
   }
-  const crit = Math.random() * 100 < CONFIG.critPct;
-  const dmg = Math.floor(baseDmg(a, d) * pDIF(a, d) * (crit ? CONFIG.critMult : 1));
-  a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain);
+  const critPct = CONFIG.critPct + (a.job === "THF" ? 5 : 0) + (b.focus ? 10 : 0);
+  const crit = sneak || Math.random() * 100 < critPct;
+  let dmg = Math.floor(baseDmg(a, d) * pDIF(a, d) * (crit ? CONFIG.critMult : 1));
+  if (sneak) { dmg += Math.floor(a.stats.dex * 0.8); popText(a, "Sneak Attack", "#a1887f", 12, 1, 14); }
+  if (boost) dmg = Math.floor(dmg * 1.5);
+  a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
   const wt = isMob(a) ? "blunt" : (a.stats.wtype === "sword" || a.stats.wtype === "greataxe" ? "slash" : "blunt");
@@ -6754,6 +6797,12 @@ function swing(a, d) {
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
   applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16 });
+  if (a.job === "MNK" && a.stats.wtype === "h2h" && d.alive && !a.kicking && Math.random() < 0.14) {
+    a.kicking = true;
+    log(subj(a) + " " + vb(a, "follow") + " up with a kick!", cls(a));
+    swing(a, d);
+    a.kicking = false;
+  }
 }
 
 function onKO(e, src) {
@@ -6916,7 +6965,7 @@ function dropLoot(m) {
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
-    if (Math.random() >= chance) continue;
+    if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1)) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     giveItem(id, 1);
   }
@@ -7063,6 +7112,29 @@ function doAbility(a, id, t) {
     if (t.casting) interruptCast(t);
     applyDamage(a, t, dmg, { enmity: ab.enmity });
     if (t.alive) aggro(t, a);
+    return;
+  }
+  if (id === "steal") {
+    a.face = Math.atan2(t.y - a.y, t.x - a.x);
+    const pool = (t.fam.loot || []).filter(([it]) => ITEMS[it] && ITEMS[it].kind !== "equip" && ITEMS[it].kind !== "key");
+    const chance = clamp(45 + (a.stats.dex - t.stats.agi) * 2 + (a.lv - t.lv) * 3, 10, 85);
+    aggro(t, a);
+    addEnmity(t, a, ab.enmity);
+    if (t.stolen || !pool.length || Math.random() * 100 >= chance) { log(subj(a) + " " + vb(a, "fail") + " to steal anything from the " + t.name + ".", cls(a)); popText(t, "Steal failed", "#bbbbbb", 12, 0.9); sfx("miss", a); t.stolen = true; return; }
+    t.stolen = true;
+    const it = pick(pool)[0];
+    log(subj(a) + " " + vb(a, "steal") + " " + an(ITEMS[it].name) + " from the " + t.name + "!", cls(a));
+    popText(t, "Stolen!", "#a1887f", 14, 1);
+    sfx("coin", a);
+    if (a === player) giveItem(it, 1);
+    return;
+  }
+  if (id === "chakra") {
+    const heal = Math.min(a.maxHp - a.hp, Math.round(a.stats.vit * 3 + a.lv * 8));
+    a.hp += heal;
+    log(subj(a) + " " + vb(a, "use") + " Chakra and " + vb(a, "recover", "recovers") + " " + heal + " HP.", cls(a));
+    popText(a, heal > 0 ? "+" + heal : "No effect", heal > 0 ? "#9ad06b" : "#bbbbbb", 16, 1.2, 14);
+    if (heal > 0) { ring(a, "#ffb74d", 30, 0.6); sfx("cure", a); vfx("cure", { tgt: a }); }
     return;
   }
   if (id === "convert") {
@@ -7576,6 +7648,14 @@ function meleeAI(a, tgt, dt) {
   const bers = acts.find(x => x.id === "berserk");
   if (bers && a.role !== "tank" && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, bers, a)) return;
   if (bers && a.role === "tank" && a.hp > a.maxHp * 0.7 && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, bers, a)) return;
+  const chak = acts.find(x => x.id === "chakra");
+  if (chak && a.hp < a.maxHp * 0.5 && allyTry(a, chak, a)) return;
+  const stl = acts.find(x => x.id === "steal");
+  if (stl && !tgt.stolen && tgt.state === "combat" && allyTry(a, stl, tgt)) return;
+  for (const id of ["focus", "boost", "sneak_attack"]) {
+    const x = acts.find(q => q.id === id);
+    if (x && !a.buffs[id] && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, x, a)) return;
+  }
   allyWeaponSkill(a, tgt, acts);
 }
 
@@ -7688,7 +7768,7 @@ function updatePlayer(dt) {
   if (mv.x || mv.y) {
     S.moveTarget = null; S.chase = false; S.pendingTalk = null;
     const len = Math.hypot(mv.x, mv.y);
-    const sp = player.speed * Math.min(1, len) * (player.mounted ? CONFIG.mountSpeed : 1);
+    const sp = player.speed * Math.min(1, len) * (player.mounted ? CONFIG.mountSpeed : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1);
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
     player.face = Math.atan2(mv.y, mv.x);
@@ -8595,6 +8675,7 @@ const TALK = {
       else if (q.pld === "active") turnIn("pld", [["bone_chip", 2], ["iron_ore", 1]], "Take the Paladin's oath");
       if (q.rdm === "none") adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Essence and 1 Water Essence for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
       else if (q.rdm === "active") turnIn("rdm", [["worm_silk", 2], ["fire_crystal", 1], ["water_crystal", 1]], "Present the dye materials");
+      adv.push(...questOptions("tobin", n));
     }
     const advNote = (q.pld === "active" ? " The oath needs 2 Bone Chips and 1 Iron Ore." : "") + (q.rdm === "active" ? " The scarlet lessons need 2 Worm Silk, 1 Fire Essence and 1 Water Essence." : "");
     if (!save.supportUnlocked) {
@@ -10870,8 +10951,16 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v5.0.0 · built 2026-10-13 13:38 PDT";
+const BUILD_INFO = "v5.1.0 · built 2026-10-13 13:47 PDT";
 const UPDATES = [
+  { v: "5.1.0", date: "2026-10-13", title: "Thief and Monk", items: [
+    "New advanced job: Thief. Daggers (A), Steal (lift an item off a monster), Sneak Attack (next hit is a sure critical with bonus damage), Flee (run 80% faster). Thieves crit 5% more often, and Treasure Hunter raises drop chances by 20% while you're a Thief.",
+    "New advanced job: Monk. Hand-to-Hand (A) with Martial Arts (faster, harder fists), a 14% chance to follow up with a kick, Boost (next hit +50% and extra TP), Focus (accuracy and crits) and Chakra (heal yourself). Monks raise their fists in a boxing guard.",
+    "Unlock both from Tobin at level 6: Light Fingers (3 Goblin Pouches, 1 Bat Wing) and The Open Hand (2 Bone Chips, 3 Healing Herbs).",
+    "New weapon skills: Quick Sting, Venom Bite, Gale Edge (dagger) and Twin Fist, Rising Knee, Iron Palm (hand-to-hand).",
+    "New gear: Bronze, Iron and Steel Daggers; Leather Cesti, Iron Knuckles and Steel Claws; Brigand Vest and Training Gi. Warriors, Red Mages and Black Mages can use daggers too.",
+    "New companions: Wren the Thief and Tamsin the Monk (unlocked with their jobs)."
+  ] },
   { v: "5.0.0", date: "2026-10-13", title: "Level 15 and the Ashen Marsh", items: [
     "Level cap raised to 15 for every job. XP for levels 11–15: 4,450 · 5,400 · 6,450 · 7,600 · 8,850.",
     "New area: the Ashen Marsh, south of Rocky Hollow (levels 9–16). Misty ponds, a sunken causeway, a goblin stilt village and a drowned chapel.",
@@ -11044,9 +11133,11 @@ function tabHelp() {
     ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Protect, Divine Seal"],
     ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"],
     ["Paladin (advanced)", "Tank", "Sword A, Cure, Flash, Protect, Sentinel, Shield Bash, shields"],
-    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia, Cure, nukes, Slow, Paralyze, Convert"]
+    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia, Cure, nukes, Slow, Paralyze, Convert"],
+    ["Thief (advanced)", "Damage", "Dagger A, Steal, Sneak Attack (sure critical), Flee; +5% critical hits; Treasure Hunter (+20% drop chance)"],
+    ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"]
   ]) + ul([
-    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence). Each job keeps its own level.",
+    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing) and <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per game day (about 58 real minutes). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));
@@ -11140,7 +11231,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "5.0.0";
+const GAME_VERSION = "5.1.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -12921,7 +13012,9 @@ const JOB_TINT = {
   WHM: { shirt: 0xe6e0d2, pants: 0xcfc6b6, robe: 0xeeeae0, trim: 0xb02a2a, deep: 0xe8dcc6 },
   BLM: { shirt: 0x2b3160, pants: 0x2a2a3a, robe: 0x262c5a, trim: 0xc8a040, deep: 0x3a2460 },
   PLD: { shirt: 0x3a4a7a, pants: 0x3a3a48, robe: 0x3a4a7a, trim: 0xd8c070 },
-  RDM: { shirt: 0xa0242c, pants: 0x2a2a2a, robe: 0xa0242c, trim: 0xd8c070 }
+  RDM: { shirt: 0xa0242c, pants: 0x2a2a2a, robe: 0xa0242c, trim: 0xd8c070 },
+  THF: { shirt: 0x4a3f36, pants: 0x2f2a26, robe: 0x4a3f36, trim: 0xa1887f },
+  MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a }
 };
 
 const ITEM_LOOK = {
@@ -12951,6 +13044,8 @@ const ITEM_LOOK = {
   iron_helm: { head: { type: "helm", color: 0x8a9098 } },
   wool_hat: { head: { type: "pointy", color: 0x6a5a8a } },
   marsh_boots: { boots: 0x3f4a2a },
+  brigand_vest: { top: { type: "vest", color: 0x2f2a28, region: "leather", under: 0x5a4a3a } },
+  training_gi: { top: { type: "tunic", color: 0xe8e0cc, region: "cloth" }, belt: 0x2a2a2a },
   mire_mantle: { top: { type: "robe", color: 0x2f4030, trim: 0x8aa070 }, head: { type: "hood", color: 0x2f4030 } }
 };
 
@@ -12962,7 +13057,9 @@ const MERC_BASE = {
   sable: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: 0x2a2440 } },
   dorn: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x8a8a8a },
   lisette: { build: 1, skin: SKIN_TONES[0], hair: { style: "bun", color: HAIR_COLORS[4] } },
-  vesper: { build: 1, skin: SKIN_TONES[3], hair: { style: "long", color: HAIR_COLORS[6] } }
+  vesper: { build: 1, skin: SKIN_TONES[3], hair: { style: "long", color: HAIR_COLORS[6] } },
+  wren: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: HAIR_COLORS[4] } },
+  tamsin: { build: 1, skin: SKIN_TONES[2], hair: { style: "bun", color: HAIR_COLORS[0] } }
 };
 
 const NPC_LOOK = {
@@ -13713,6 +13810,7 @@ function poseHuman(v, e, dt) {
     v.rootOff[1] -= 0.05 * sw;
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
     if (v.weaponKind === "greataxe") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
+    else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
     else if (v.weaponKind === "staff") { addP(P, "upArmR", -0.4 * sw, 0, 0); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -0.3 * sw, 0, 0); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else { addP(P, "upArmR", -0.55 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.75 * sw, 0, 0); addP(P, "upArmL", -0.45 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
   }
@@ -15619,7 +15717,7 @@ async function boot() {
 
 const CC = { job: "WAR", look: null, name: "" };
 const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" }, WHM: { main: "ash_club", head: "bronze_cap", body: "linen_robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "linen_robe" } };
-const JOB_BLURB = { PLD: "", RDM: "", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
+const JOB_BLURB = { PLD: "", RDM: "", THF: "", MNK: "", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
 
 function fmtAgo(t) {
   const d = Date.now() - t;
