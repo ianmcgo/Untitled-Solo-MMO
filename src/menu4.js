@@ -370,12 +370,15 @@ function tabShop() {
 }
 function tabJob() {
   let h = "<h3>Main job</h3>";
-  for (const jb in JOBS) h += '<div class="item"><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">Lv.' + save.jobs[jb].lv + "</span></div>" + (jb === save.mainJob ? '<span class="d">Current</span>' : '<button data-a="main" data-v="' + jb + '">Set main</button>') + "</div>";
+  for (const jb in JOBS) {
+    const locked = !jobUnlocked(jb);
+    h += '<div class="item"' + (locked ? ' style="opacity:.6"' : "") + '><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">' + (locked ? "Locked · " + (player.lv < ADVANCED_JOBS[jb].lv ? "reach level " + ADVANCED_JOBS[jb].lv : "Tobin's quest " + QUESTS[ADVANCED_JOBS[jb].quest].name) : "Lv." + save.jobs[jb].lv) + "</span></div>" + (jb === save.mainJob ? '<span class="d">Current</span>' : locked ? "" : '<button data-a="main" data-v="' + jb + '">Set main</button>') + "</div>";
+  }
   h += "<h3>Support job</h3>";
   if (!save.supportUnlocked) h += '<div class="sub">Locked. ' + (player.lv < CONFIG.supportUnlockLevel ? "Reach level " + CONFIG.supportUnlockLevel + " and talk to Tobin." : "Complete Tobin's quest, A Second Calling.") + "</div>";
   else {
     h += '<div class="sub" style="margin-bottom:6px">Runs at half your main level (currently Lv.' + Math.floor(player.lv / 2) + ").</div>";
-    for (const jb of ["none"].concat(Object.keys(JOBS))) {
+    for (const jb of ["none"].concat(Object.keys(JOBS).filter(jobUnlocked))) {
       if (jb === save.mainJob) continue;
       const cur = (save.subJob || "none") === jb;
       h += '<div class="item"><div>' + (jb === "none" ? "None" : JOBS[jb].icon + " " + JOBS[jb].name) + "</div>" + (cur ? '<span class="d">Current</span>' : '<button data-a="sub" data-v="' + jb + '">Set support</button>') + "</div>";
@@ -517,6 +520,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "4.3.0", date: "2026-10-13", title: "Phase 5b: Paladin and Red Mage", items: [
+    "Two advanced jobs. At level 6, Tobin offers The Oath of Steel (Paladin: 2 Bone Chips, 1 Iron Ore) and Scarlet Lessons (Red Mage: 2 Worm Silk, 1 Fire Crystal, 1 Water Crystal).",
+    "Paladin: sword A, Cure at 5, Flash at 7 (blinds and draws heavy enmity), Protect at 9; abilities Sentinel (Defense +50%, double enmity) and Shield Bash (damage, interrupts TP moves and spells). Kite Shield in the accessory slot.",
+    "Red Mage: Dia, Cure, Stone, Water, Aero, Fire plus Slow (attacks 25% slower) and Paralyze (lost swings); Convert at 8 swaps HP and MP. Scarlet Tabard with a feathered hat.",
+    "Dorn (Paladin tank) and Lisette (Red Mage hybrid) can be hired from Brann once their job is unlocked. Dorn uses Flash, Sentinel, Shield Bash and self-Cures; Lisette fights in melee, keeps Dia, Slow and Paralyze up, nukes and backs up the healer.",
+    "New skills: Enfeebling and Enhancing Magic. White Mages learn Protect at 7.",
+    "Monster debuffs show as chips on the target frame with their time left.",
+    "Either advanced job can also be set as a support job once unlocked."
+  ] },
   { v: "4.2.0", date: "2026-10-13", title: "Phase 5a: a bigger world", items: [
     "Character creation: choose a name, job and appearance before you start. Appearance is permanent. Keep up to 8 characters and pick one on the character select screen each time you play, like an MMO. System → Change character logs out to that screen.",
     "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes.",
@@ -588,13 +600,17 @@ function tabHelp() {
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Con colours:</b> " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP.",
+    "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Aggro:</b> some monsters notice by sight (goblins), sound (bats, undead), magic (worms) or low HP (undead). The coloured ground markings show their range."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
     ["Warrior", "Tank or damage", "Provoke, Berserk, great axe A, sword B"],
-    ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Divine Seal"],
-    ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"]
+    ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Protect, Divine Seal"],
+    ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"],
+    ["Paladin (advanced)", "Tank", "Sword A, Cure, Flash, Protect, Sentinel, Shield Bash, shields"],
+    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia, Cure, nukes, Slow, Paralyze, Convert"]
   ]) + ul([
+    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Crystal, 1 Water Crystal). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a one-time fee, match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));

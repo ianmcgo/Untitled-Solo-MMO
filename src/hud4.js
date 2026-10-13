@@ -3,8 +3,8 @@ const UI = {
   watch: null, hpGhost: 0, ghostTarget: null, actKeys: null, actCtx: "", trackerMin: false, slotText: [], phone: false, lastFog: 0,
   prevZone: null, menuSig: "", menuSigAt: 0, sel: null, pick: null, filter: "all", cmp: null, pv: null, frameT: 0
 };
-const ACT_ICON = { provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦" };
-const SPELL_ICON = { cure: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡" };
+const ACT_ICON = { provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", sentinel: "🛡️", shield_bash: "💥", convert: "🔄" };
+const SPELL_ICON = { cure: "✚", cure2: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡", flash: "✨", slow: "🐌", paralyze: "🧊", protect: "🔰" };
 const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5 };
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
@@ -322,6 +322,7 @@ function updateTarget() {
     }
     if (t.burst && S.time <= t.burst.until) ch += '<span class="chip" style="color:' + ELEMENT_COLORS[t.burst.el[0]] + ";border-color:" + ELEMENT_COLORS[t.burst.el[0]] + '">✦ Burst ' + t.burst.el.join("/") + " " + fmt(t.burst.until - S.time) + "s</span>";
     if (t.buffs && t.buffs.dia) ch += '<span class="chip" style="color:#fff59d;border-color:#fff59d">☀ Dia</span>';
+    for (const [k, col] of [["flash", "#fff59d"], ["slow", "#d7b46a"], ["paralyze", "#81d4fa"]]) if (t.buffs && t.buffs[k]) ch += '<span class="chip" style="color:' + col + ';border-color:' + col + '">' + BUFF_ICONS[k] + " " + BUFF_NAMES[k] + " " + Math.ceil(t.buffs[k].until - S.time) + "s</span>";
     setHtml($("tChain"), ch);
   } else if (isParty(t)) {
     setTxt($("tName"), t === player ? save.name || "You" : t.name);
@@ -550,6 +551,7 @@ function watchProgress() {
     for (const a of actionList(player)) if (!before.includes(a.kind + ":" + a.id)) chips.push(actIcon(a) + " " + esc(actName(a)));
     if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("💬 Tobin wants a word");
     if (lv === 5 && !save.mountLicense) chips.push("💬 Ysolde wants a word");
+    if (lv === 6 && Object.keys(ADVANCED_JOBS).some(j => !jobUnlocked(j))) chips.push("💬 Tobin can teach advanced jobs");
     if (lv >= CONFIG.levelCap) chips.push("⭐ Level cap reached");
     banner("LEVEL " + lv, JOBS[j].name, chips);
   }

@@ -452,7 +452,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.2.0 · built 2026-10-13 10:43 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.3.0 · built 2026-10-13 10:56 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>
   <div id="flash"></div>
@@ -5358,12 +5358,16 @@ const SC_TABLE = [
 const ATTRS = ["str", "dex", "vit", "agi", "int", "mnd"];
 const SLOTS = ["main", "head", "body", "hands", "legs", "feet", "ring"];
 const SLOT_NAMES = { main: "Main", head: "Head", body: "Body", hands: "Hands", legs: "Legs", feet: "Feet", ring: "Ring" };
-const ALL_JOBS = ["WAR", "WHM", "BLM"];
+const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM"];
+const BASE_JOBS = ["WAR", "WHM", "BLM"];
+const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 } };
 
 const JOBS = {
   WAR: { name: "Warrior", color: "#e57373", icon: "⚔️", hp: [70, 14], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [6, 0.5] },
   WHM: { name: "White Mage", color: "#eeeeee", icon: "✚", hp: [52, 10], mp: [22, 7], str: [7, 0.6], dex: [7, 0.6], vit: [7, 0.7], agi: [7, 0.6], int: [7, 0.7], mnd: [10, 1.0] },
-  BLM: { name: "Black Mage", color: "#9575cd", icon: "✦", hp: [46, 9], mp: [26, 8], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.5], agi: [7, 0.7], int: [10, 1.0], mnd: [7, 0.6] }
+  BLM: { name: "Black Mage", color: "#9575cd", icon: "✦", hp: [46, 9], mp: [26, 8], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.5], agi: [7, 0.7], int: [10, 1.0], mnd: [7, 0.6] },
+  PLD: { name: "Paladin", color: "#90caf9", icon: "🛡️", hp: [68, 13], mp: [12, 4], str: [8, 0.8], dex: [7, 0.7], vit: [10, 1.0], agi: [6, 0.6], int: [5, 0.4], mnd: [8, 0.8], advanced: true },
+  RDM: { name: "Red Mage", color: "#f48fb1", icon: "🎩", hp: [56, 11], mp: [20, 6], str: [7, 0.7], dex: [8, 0.8], vit: [7, 0.6], agi: [7, 0.7], int: [8, 0.8], mnd: [8, 0.8], advanced: true }
 };
 
 const WEAPON_SKILLS = {
@@ -5385,35 +5389,44 @@ const ABILITIES = {
   provoke: { name: "Provoke", job: "WAR", lv: 1, recast: 30, target: "enemy", enmity: 600, desc: "Draws the target's attention to you." },
   berserk: { name: "Berserk", job: "WAR", lv: 3, recast: 60, target: "self", buff: "berserk", dur: 30, desc: "Attack +25%, Defense −25% for 30 s." },
   divine_seal: { name: "Divine Seal", job: "WHM", lv: 3, recast: 60, target: "self", buff: "divine_seal", dur: 60, desc: "Your next Cure heals twice as much." },
-  elemental_seal: { name: "Elemental Seal", job: "BLM", lv: 3, recast: 60, target: "self", buff: "elemental_seal", dur: 60, desc: "Your next nuke deals 50% more damage." }
+  elemental_seal: { name: "Elemental Seal", job: "BLM", lv: 3, recast: 60, target: "self", buff: "elemental_seal", dur: 60, desc: "Your next nuke deals 50% more damage." },
+  sentinel: { name: "Sentinel", job: "PLD", lv: 3, recast: 90, target: "self", buff: "sentinel", dur: 30, desc: "Defense +50% and every action draws double enmity for 30 s." },
+  shield_bash: { name: "Shield Bash", job: "PLD", lv: 6, recast: 60, target: "enemy", enmity: 350, desc: "Bashes the target for light damage and interrupts its casting or TP move." },
+  convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia" };
-const BUFF_ICONS = { berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀" };
+const BUFF_NAMES = { berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
-  cure: { name: "Cure", jobs: { WHM: 1 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
+  cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
   cure2: { name: "Cure II", jobs: { WHM: 6 }, mp: 22, cast: 2.25, recast: 6, kind: "heal", power: 60, mnd: 1.5, target: "ally", desc: "Restores a lot of HP." },
-  dia: { name: "Dia", jobs: { WHM: 1 }, mp: 6, cast: 1.0, recast: 6, kind: "dot", element: "light", power: 5, target: "enemy", desc: "Light damage over time and lowers defense." },
+  dia: { name: "Dia", jobs: { WHM: 1, RDM: 1 }, mp: 6, cast: 1.0, recast: 6, kind: "dot", element: "light", power: 5, target: "enemy", desc: "Light damage over time and lowers defense." },
   banish: { name: "Banish", jobs: { WHM: 4 }, mp: 12, cast: 1.5, recast: 10, kind: "nuke", element: "light", power: 22, stat: "mnd", target: "enemy", desc: "Light damage. Strong against undead." },
-  stone: { name: "Stone", jobs: { BLM: 1 }, mp: 4, cast: 1.0, recast: 5, kind: "nuke", element: "earth", power: 12, stat: "int", target: "enemy", desc: "Earth damage." },
-  water: { name: "Water", jobs: { BLM: 3 }, mp: 5, cast: 1.25, recast: 5, kind: "nuke", element: "water", power: 15, stat: "int", target: "enemy", desc: "Water damage." },
-  aero: { name: "Aero", jobs: { BLM: 5 }, mp: 6, cast: 1.5, recast: 6, kind: "nuke", element: "wind", power: 19, stat: "int", target: "enemy", desc: "Wind damage." },
-  fire: { name: "Fire", jobs: { BLM: 6 }, mp: 8, cast: 1.75, recast: 6, kind: "nuke", element: "fire", power: 24, stat: "int", target: "enemy", desc: "Fire damage." },
+  stone: { name: "Stone", jobs: { BLM: 1, RDM: 4 }, mp: 4, cast: 1.0, recast: 5, kind: "nuke", element: "earth", power: 12, stat: "int", target: "enemy", desc: "Earth damage." },
+  water: { name: "Water", jobs: { BLM: 3, RDM: 6 }, mp: 5, cast: 1.25, recast: 5, kind: "nuke", element: "water", power: 15, stat: "int", target: "enemy", desc: "Water damage." },
+  aero: { name: "Aero", jobs: { BLM: 5, RDM: 8 }, mp: 6, cast: 1.5, recast: 6, kind: "nuke", element: "wind", power: 19, stat: "int", target: "enemy", desc: "Wind damage." },
+  fire: { name: "Fire", jobs: { BLM: 6, RDM: 10 }, mp: 8, cast: 1.75, recast: 6, kind: "nuke", element: "fire", power: 24, stat: "int", target: "enemy", desc: "Fire damage." },
   blizzard: { name: "Blizzard", jobs: { BLM: 8 }, mp: 10, cast: 2.0, recast: 7, kind: "nuke", element: "ice", power: 30, stat: "int", target: "enemy", desc: "Ice damage." },
-  thunder: { name: "Thunder", jobs: { BLM: 10 }, mp: 12, cast: 2.25, recast: 8, kind: "nuke", element: "lightning", power: 37, stat: "int", target: "enemy", desc: "Lightning damage." }
+  thunder: { name: "Thunder", jobs: { BLM: 10 }, mp: 12, cast: 2.25, recast: 8, kind: "nuke", element: "lightning", power: 37, stat: "int", target: "enemy", desc: "Lightning damage." },
+  flash: { name: "Flash", jobs: { PLD: 7 }, mp: 10, cast: 0.5, recast: 30, kind: "debuff", element: "light", buff: "flash", dur: 12, enmity: 300, target: "enemy", desc: "Blinds the target (accuracy −40%) for 12 s and draws a lot of enmity." },
+  slow: { name: "Slow", jobs: { RDM: 5 }, mp: 9, cast: 2.0, recast: 10, kind: "debuff", element: "earth", buff: "slow", dur: 60, enmity: 80, target: "enemy", desc: "The target attacks 25% slower for 60 s." },
+  paralyze: { name: "Paralyze", jobs: { RDM: 7 }, mp: 10, cast: 2.0, recast: 10, kind: "debuff", element: "ice", buff: "paralyze", dur: 45, enmity: 80, target: "enemy", desc: "The target sometimes freezes up and loses its attack for 45 s." },
+  protect: { name: "Protect", jobs: { WHM: 7, PLD: 9, RDM: 9 }, mp: 9, cast: 2.0, recast: 10, kind: "buff", buff: "protect", dur: 600, target: "ally", desc: "Defense +15% for 10 minutes." }
 };
 
-const SKILL_NAMES = { sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic" };
+const SKILL_NAMES = { sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
 const COMBAT_SKILLS = ["sword", "club", "staff", "greataxe", "h2h"];
-const MAGIC_SKILLS = ["healing", "divine", "elemental"];
+const MAGIC_SKILLS = ["healing", "divine", "elemental", "enfeebling", "enhancing"];
 const SKILL_RATINGS = {
   WAR: { sword: "B", club: "B", staff: "B", greataxe: "A", h2h: "D" },
-  WHM: { club: "B", staff: "C", h2h: "E", healing: "B", divine: "C" },
-  BLM: { club: "D", staff: "C", h2h: "E", elemental: "B" }
+  WHM: { club: "B", staff: "C", h2h: "E", healing: "B", divine: "C", enhancing: "B" },
+  BLM: { club: "D", staff: "C", h2h: "E", elemental: "B", enfeebling: "C" },
+  PLD: { sword: "A", club: "B", staff: "C", greataxe: "D", h2h: "D", healing: "C", divine: "B", enhancing: "C" },
+  RDM: { sword: "B", club: "D", staff: "D", h2h: "E", healing: "C", divine: "D", elemental: "C", enfeebling: "B", enhancing: "B" }
 };
 const RATING_CAP = { A: [3, 5.5], B: [3, 5], C: [2, 4.5], D: [2, 4], E: [1, 3.5] };
-const SPELL_SKILL = { heal: "healing", dot: "divine", nuke: null };
+const SPELL_SKILL = { heal: "healing", dot: "divine", nuke: null, debuff: "enfeebling", buff: "enhancing" };
 
 const GATHER = {
   mining: { name: "Mining", tool: "pickaxe", icon: "⛏️", verb: "dig" },
@@ -5447,12 +5460,12 @@ const ITEMS = {
   bat_wing: { name: "Bat Wing", kind: "mat", icon: "🦇", price: 32, stack: 12, desc: "Leathery. Used in Clothcraft and Alchemy." },
   worm_silk: { name: "Worm Silk", kind: "mat", icon: "🪱", price: 48, stack: 12, desc: "Spin into Silk Cloth." },
   bone_chip: { name: "Bone Chip", kind: "mat", icon: "🦴", price: 60, stack: 12, desc: "Used in advanced recipes." },
-  bronze_sword: { name: "Bronze Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 6, delay: 2.4, jobs: ["WAR"], lv: 1, price: 80 },
-  bronze_sword_hq: { name: "Bronze Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 7, delay: 2.4, jobs: ["WAR"], lv: 1, price: 200, stats: { acc: 2 } },
-  iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR"], lv: 6, price: 900 },
-  iron_sword_hq: { name: "Iron Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 11, delay: 2.4, jobs: ["WAR"], lv: 6, price: 1800, stats: { acc: 3, att: 3 } },
-  ash_club: { name: "Ash Club", kind: "equip", icon: "🏏", slot: "main", wtype: "club", dmg: 5, delay: 2.6, jobs: ["WAR", "WHM"], lv: 1, price: 60 },
-  maple_wand: { name: "Maple Wand", kind: "equip", icon: "🪄", slot: "main", wtype: "club", dmg: 8, delay: 2.6, jobs: ["WHM", "BLM"], lv: 5, price: 700, stats: { mnd: 2, int: 1 } },
+  bronze_sword: { name: "Bronze Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 6, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 80 },
+  bronze_sword_hq: { name: "Bronze Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 7, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 200, stats: { acc: 2 } },
+  iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
+  iron_sword_hq: { name: "Iron Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 11, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 1800, stats: { acc: 3, att: 3 } },
+  ash_club: { name: "Ash Club", kind: "equip", icon: "🏏", slot: "main", wtype: "club", dmg: 5, delay: 2.6, jobs: ["WAR", "WHM", "PLD", "RDM"], lv: 1, price: 60 },
+  maple_wand: { name: "Maple Wand", kind: "equip", icon: "🪄", slot: "main", wtype: "club", dmg: 8, delay: 2.6, jobs: ["WHM", "BLM", "RDM"], lv: 5, price: 700, stats: { mnd: 2, int: 1 } },
   ash_staff: { name: "Ash Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 7, delay: 3.4, jobs: ALL_J, lv: 1, price: 70 },
   ash_staff_hq: { name: "Ash Staff +1", kind: "equip", icon: "🦯", hq: true, slot: "main", wtype: "staff", dmg: 8, delay: 3.4, jobs: ALL_J, lv: 1, price: 180, stats: { int: 1, mnd: 1 } },
   holly_staff: { name: "Holly Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 11, delay: 3.6, jobs: ALL_J, lv: 6, price: 950, stats: { int: 2, mnd: 2, mp: 8 } },
@@ -5461,25 +5474,27 @@ const ITEMS = {
   bronze_cap_hq: { name: "Bronze Cap +1", kind: "equip", icon: "⛑️", hq: true, slot: "head", jobs: ALL_J, lv: 1, price: 130, stats: { def: 3, hp: 5 } },
   chieftain_cap: { name: "Chieftain's Cap", kind: "equip", icon: "👑", ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 5, price: 2000, stats: { def: 4, hp: 10, str: 2, dex: 2, int: 2, mnd: 2 } },
   leather_vest: { name: "Leather Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ALL_J, lv: 1, price: 120, stats: { def: 4, hp: 6 } },
-  scale_mail: { name: "Scale Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR"], lv: 5, price: 1100, stats: { def: 9, hp: 15 } },
-  linen_robe: { name: "Linen Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM"], lv: 1, price: 110, stats: { def: 3, mp: 10 } },
-  linen_robe_hq: { name: "Linen Robe +1", kind: "equip", icon: "👘", hq: true, slot: "body", jobs: ["WHM", "BLM"], lv: 1, price: 260, stats: { def: 4, mp: 15 } },
-  cotton_robe: { name: "Cotton Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM"], lv: 5, price: 1000, stats: { def: 6, mp: 18, int: 1, mnd: 1 } },
+  kite_shield: { name: "Kite Shield", kind: "equip", icon: "🛡️", slot: "ring", jobs: ["PLD", "WAR"], lv: 3, price: 450, stats: { def: 5, hp: 6 }, shield: true, desc: "Worn on the off hand. Counts as your accessory slot." },
+  scarlet_tabard: { name: "Scarlet Tabard", kind: "equip", icon: "👘", slot: "body", jobs: ["RDM"], lv: 5, price: 1050, stats: { def: 6, mp: 10, int: 1, mnd: 1, str: 1 } },
+  scale_mail: { name: "Scale Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 5, price: 1100, stats: { def: 9, hp: 15 } },
+  linen_robe: { name: "Linen Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 1, price: 110, stats: { def: 3, mp: 10 } },
+  linen_robe_hq: { name: "Linen Robe +1", kind: "equip", icon: "👘", hq: true, slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 1, price: 260, stats: { def: 4, mp: 15 } },
+  cotton_robe: { name: "Cotton Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 5, price: 1000, stats: { def: 6, mp: 18, int: 1, mnd: 1 } },
   leather_gloves: { name: "Leather Gloves", kind: "equip", icon: "🧤", slot: "hands", jobs: ALL_J, lv: 2, price: 90, stats: { def: 2, dex: 1 } },
   leather_trousers: { name: "Leather Trousers", kind: "equip", icon: "👖", slot: "legs", jobs: ALL_J, lv: 2, price: 110, stats: { def: 3 } },
   leather_boots: { name: "Leather Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 3, price: 100, stats: { def: 2, agi: 1 } },
   captains_ring: { name: "Captain's Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 1, price: 0, stats: { hp: 12, mp: 12, acc: 5, att: 5 } },
   raiders_ring: { name: "Raider's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_J, lv: 4, price: 0, stats: { str: 2, acc: 4, att: 4 } },
   duskwing_boots: { name: "Duskwing Boots", kind: "equip", icon: "🥾", rare: true, slot: "feet", jobs: ALL_J, lv: 4, price: 0, stats: { def: 3, agi: 3, eva: 4 } },
-  silkworm_gloves: { name: "Silkworm Gloves", kind: "equip", icon: "🧤", rare: true, slot: "hands", jobs: ["WHM", "BLM"], lv: 4, price: 0, stats: { def: 2, int: 2, mnd: 2, mp: 10 } },
+  silkworm_gloves: { name: "Silkworm Gloves", kind: "equip", icon: "🧤", rare: true, slot: "hands", jobs: ["WHM", "BLM", "RDM"], lv: 4, price: 0, stats: { def: 2, int: 2, mnd: 2, mp: 10 } },
   scavenger_cap: { name: "Scavenger's Cap", kind: "equip", icon: "⛑️", rarity: "uncommon", slot: "head", jobs: ALL_J, lv: 3, price: 300, stats: { def: 3, agi: 1, hp: 4 } },
   nightwing_gloves: { name: "Nightwing Gloves", kind: "equip", icon: "🧤", rarity: "uncommon", slot: "hands", jobs: ALL_J, lv: 4, price: 340, stats: { def: 2, dex: 2, acc: 2 } },
   burrower_trousers: { name: "Burrower's Trousers", kind: "equip", icon: "👖", rarity: "uncommon", slot: "legs", jobs: ALL_J, lv: 3, price: 320, stats: { def: 4, vit: 2 } },
   hare_charm: { name: "Hare Charm", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 1, price: 260, stats: { agi: 2, eva: 3 } },
   bonecharm_ring: { name: "Bonecharm Ring", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 4, price: 420, stats: { int: 2, mnd: 2, mp: 6 } },
   gravedigger_boots: { name: "Gravedigger's Boots", kind: "equip", icon: "🥾", rarity: "uncommon", slot: "feet", jobs: ALL_J, lv: 7, price: 700, stats: { def: 4, vit: 2, hp: 8 } },
-  raider_helm: { name: "Raider Helm", kind: "equip", icon: "⛑️", rarity: "rare", slot: "head", jobs: ["WAR"], lv: 7, price: 900, stats: { def: 6, str: 2, att: 3 } },
-  wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
+  raider_helm: { name: "Raider Helm", kind: "equip", icon: "⛑️", rarity: "rare", slot: "head", jobs: ["WAR", "PLD"], lv: 7, price: 900, stats: { def: 6, str: 2, att: 3 } },
+  wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
   simple_bed: { name: "Simple Bed", kind: "furniture", icon: "🛏️", fp: [2, 3], price: 300, model: "bed", desc: "A sturdy bed with a wool blanket." },
   wooden_table: { name: "Wooden Table", kind: "furniture", icon: "🪑", fp: [2, 2], price: 200, model: "table", desc: "Seats four, if you have four chairs." },
   wooden_chair: { name: "Wooden Chair", kind: "furniture", icon: "🪑", fp: [1, 1], price: 80, model: "chair", desc: "Simple and solid." },
@@ -5493,7 +5508,7 @@ const ITEMS = {
   goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
-const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "iron_sword", "holly_staff"];
+const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 
 const CRAFTS = {
@@ -5535,8 +5550,8 @@ const MERCS = {
   mira: { name: "Mira", job: "WHM", role: "healer", fee: 150, color: "#f5f5f5", desc: "A calm White Mage. Cures whoever is hurt most and saves Divine Seal for emergencies." },
   fen: { name: "Fen", job: "WHM", role: "support", fee: 150, color: "#e0f2f1", desc: "A cheerful White Mage. Keeps Dia up, Banishes the undead and backs up the healer." },
   sable: { name: "Sable", job: "BLM", role: "nuker", fee: 180, color: "#b39ddb", desc: "A sharp Black Mage. Nukes weaknesses and holds MP to magic-burst your skillchains." },
-  dorn: { name: "Dorn", job: "PLD", role: "tank", fee: 260, color: "#90caf9", requires: { job: "PLD" }, desc: "A stalwart Paladin. Flash, Provoke and self-Cures keep him standing." },
-  lisette: { name: "Lisette", job: "RDM", role: "hybrid", fee: 260, color: "#f48fb1", requires: { job: "RDM" }, desc: "A quick Red Mage. Melee, Dia, nukes and backup Cures." },
+  dorn: { name: "Dorn", job: "PLD", role: "tank", fee: 260, color: "#90caf9", requires: { job: "PLD" }, desc: "A stalwart Paladin. Flash and Sentinel hold attention, Cures keep him standing, Shield Bash stops TP moves." },
+  lisette: { name: "Lisette", job: "RDM", role: "hybrid", fee: 260, color: "#f48fb1", requires: { job: "RDM" }, desc: "A quick Red Mage. Fights in melee, keeps Dia, Slow and Paralyze on the target, nukes when MP allows and backs up the healer." },
   vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Elemental Seal on every one." }
 };
 
@@ -5713,6 +5728,8 @@ const QUESTS = {
   pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "captains_ring" } },
   support: { name: "A Second Calling", giver: "Tobin", desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
   riding: { name: "Riding License", giver: "Ysolde", desc: "Reach level 5, then bring Ysolde 300 gil and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
+  pld: { name: "The Oath of Steel", giver: "Tobin", desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Paladin's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
+  rdm: { name: "Scarlet Lessons", giver: "Tobin", desc: "Reach level 6, then bring Tobin 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal to study the Red Mage's arts.", reward: { xp: 400, gil: 0, unlock: "RDM" } },
   chieftain: { name: "The Goblin Chieftain", giver: "Captain Rhea", desc: "Defeat the Goblin Chieftain at the back of the Goblin Den, then report to Captain Rhea.", reward: { xp: 900, gil: 1500, item: "ether", qty: 3 } }
 };
 
@@ -5764,7 +5781,7 @@ function ring(e, color, grow, life, kind) {
   S.effects.push({ x: e.x, y: e.y, t: 0, life: life || 0.5, color, r0: e.radius || 14, r1: (e.radius || 14) + (grow || 30), kind: kind || "ring" });
 }
 
-function newSkillSet() { return { sword: 0, club: 0, staff: 0, greataxe: 0, h2h: 0, healing: 0, divine: 0, elemental: 0 }; }
+function newSkillSet() { return { sword: 0, club: 0, staff: 0, greataxe: 0, h2h: 0, healing: 0, divine: 0, elemental: 0, enfeebling: 0, enhancing: 0 }; }
 
 function newSave() {
   const jobs = {}, skills = {};
@@ -5775,8 +5792,8 @@ function newSave() {
     gear: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" },
     inventory: [{ id: "ash_club", qty: 1 }, { id: "ash_staff", qty: 1 }, { id: "linen_robe", qty: 1 }, { id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
-    quests: { pouches: "none", support: "none", riding: "none", chieftain: "none" },
-    mountLicense: false, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
+    mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, created: Date.now()
   };
 }
@@ -5796,8 +5813,10 @@ function normalizeSave(d) {
   out.inventory = d.inventory.filter(s => s && ITEMS[s.id] && s.qty > 0);
   out.gear = {};
   for (const slot of SLOTS) if (d.gear[slot] && ITEMS[d.gear[slot]]) out.gear[slot] = d.gear[slot];
-  if (!JOBS[out.mainJob]) out.mainJob = "WAR";
-  if (out.subJob && (!JOBS[out.subJob] || !out.supportUnlocked)) out.subJob = null;
+  out.jobsUnlocked = Object.assign(newSave().jobsUnlocked, d.jobsUnlocked || {});
+  for (const j in ADVANCED_JOBS) if (out.quests[ADVANCED_JOBS[j].quest] === "done") out.jobsUnlocked[j] = true;
+  if (!JOBS[out.mainJob] || !jobUnlockedIn(out, out.mainJob)) out.mainJob = "WAR";
+  if (out.subJob && (!JOBS[out.subJob] || !out.supportUnlocked || !jobUnlockedIn(out, out.subJob))) out.subJob = null;
   out.gil = Math.max(0, Math.floor(out.gil || 0));
   out.timers = d.timers && typeof d.timers === "object" ? d.timers : {};
   out.name = String(d.name || "Adventurer").slice(0, 12);
@@ -5920,6 +5939,9 @@ function importSaveText(text) {
   return normalizeSave(d);
 }
 
+function jobUnlockedIn(sv, j) { return !!JOBS[j] && (!JOBS[j].advanced || !!(sv.jobsUnlocked && sv.jobsUnlocked[j])); }
+function jobUnlocked(j) { return jobUnlockedIn(save, j); }
+
 function capFor(rating, lv) {
   if (!rating || lv < 1) return 0;
   const r = RATING_CAP[rating];
@@ -5939,6 +5961,8 @@ function skillOf(ch, skill) {
 
 function spellSkill(sp) {
   if (sp.kind === "heal") return "healing";
+  if (sp.kind === "debuff") return "enfeebling";
+  if (sp.kind === "buff") return "enhancing";
   if (sp.kind === "dot" || sp.element === "light") return "divine";
   return "elemental";
 }
@@ -6023,6 +6047,8 @@ function mercGear(m, lv) {
   if (job === "WAR" && role === "tank") return lv >= 5 ? { main: "bronze_greataxe", head: "bronze_cap", body: "scale_mail", legs: "leather_trousers" } : { main: "bronze_greataxe", head: "bronze_cap", body: "leather_vest", legs: "leather_trousers" };
   if (job === "WAR") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", hands: "leather_gloves" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", hands: "leather_gloves" };
   if (job === "WHM") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: lv >= 3 ? "leather_boots" : undefined } : { main: "ash_club", body: "linen_robe" };
+  if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", ring: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
+  if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
 }
 
@@ -6077,12 +6103,13 @@ function mercAvailable(id) {
   const r = MERCS[id].requires;
   if (!JOBS[MERCS[id].job]) return false;
   if (r && r.quest && save.quests[r.quest] !== "done") return false;
+  if (r && r.job && !jobUnlocked(r.job)) return false;
   return true;
 }
 
 function mercLockedReason(id) {
   const r = MERCS[id].requires || {};
-  if (r.job) return "Unlocks with the " + r.job + " job";
+  if (r.job) return "Unlocks with the " + JOBS[r.job].name + " job (Tobin, level " + ADVANCED_JOBS[r.job].lv + ")";
   if (r.quest) return "Unlocks after " + QUESTS[r.quest].name;
   return "";
 }
@@ -6158,6 +6185,9 @@ function stat(e, k) {
   if (k === "att" && b.berserk) v *= 1.25;
   if (k === "def" && b.berserk) v *= 0.75;
   if (k === "def" && b.dia) v *= 0.9;
+  if (k === "def" && b.sentinel) v *= 1.5;
+  if (k === "def" && b.protect) v *= 1.15;
+  if (k === "acc" && b.flash) v *= 0.6;
   return v;
 }
 
@@ -6185,8 +6215,11 @@ function recastLeft(e, key) { return Math.max(0, (e.recasts[key] || 0) - S.time)
 
 function addEnmity(m, e, amt) {
   if (!e || !e.alive || !isParty(e) || !m.alive) return;
+  if (e.buffs && e.buffs.sentinel) amt *= 2;
   m.enmity.set(e, (m.enmity.get(e) || 0) + amt);
 }
+
+function swingDelay(e) { return e.delay * (e.buffs && e.buffs.slow ? 1.25 : 1); }
 
 function topEnmity(m) {
   let best = null, bv = -1;
@@ -6249,6 +6282,11 @@ function applyDamage(src, tgt, amt, opt) {
 function swing(a, d) {
   const tpGain = Math.round(CONFIG.tpPerDelay * a.delay);
   a.lastSwing = S.time;
+  if (a.buffs && a.buffs.paralyze && Math.random() < 0.25) {
+    log(subj(a) + " " + vb(a, "are", "is") + " paralyzed.", cls(a));
+    popText(a, "Paralyzed", "#b3e5fc", 13, 0.9, 10);
+    return;
+  }
   if (a === player) trySkillUp(a.stats.wtype, d.lv);
   if (Math.random() * 100 >= hitChance(a, d)) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
@@ -6544,6 +6582,28 @@ function doAbility(a, id, t) {
     if (a !== player) partySay(a, "provoke");
     return;
   }
+  if (id === "shield_bash") {
+    const dmg = Math.max(1, Math.round((8 + a.lv * 3) * rand(0.9, 1.1)));
+    log(subj(a) + " " + vb(a, "use") + " Shield Bash on the " + t.name + " for " + dmg + " damage.", cls(a));
+    sfx("blunt", a);
+    vfx("hit", { src: a, tgt: t, crit: true, slash: false });
+    if (t.readying) { t.readying = null; log("The " + t.name + "'s " + t.fam.tpMove.name + " is interrupted!", cls(a)); popText(t, "Interrupted", "#bbbbbb", 12, 0.9, 14); sfx("interrupt", t); }
+    if (t.casting) interruptCast(t);
+    applyDamage(a, t, dmg, { enmity: ab.enmity });
+    if (t.alive) aggro(t, a);
+    return;
+  }
+  if (id === "convert") {
+    const hp = a.hp, mp = a.mp;
+    a.hp = Math.max(1, Math.min(a.maxHp, mp));
+    a.mp = Math.min(a.maxMp, hp);
+    log(subj(a) + " " + vb(a, "use") + " Convert. HP " + hp + " → " + a.hp + ", MP " + mp + " → " + a.mp + ".", cls(a));
+    popText(a, "Convert", "#f48fb1", 14, 1.2, 14);
+    ring(a, "#f48fb1", 30, 0.6);
+    sfx("buff", a);
+    vfx("buff", { tgt: a, id: "convert" });
+    return;
+  }
   a.buffs[ab.buff] = { until: S.time + ab.dur };
   log(subj(a) + " " + vb(a, "use") + " " + ab.name + ".", cls(a));
   popText(a, ab.name, "#9ad06b", 13, 1.2, 14);
@@ -6584,6 +6644,8 @@ function finishCast(a) {
   if (sp.kind === "heal") castHeal(a, t, sp);
   else if (sp.kind === "nuke") castNuke(a, t, sp);
   else if (sp.kind === "dot") castDia(a, t, sp);
+  else if (sp.kind === "debuff") castDebuff(a, t, sp);
+  else if (sp.kind === "buff") castBuff(a, t, sp);
   if (a !== player && a.mp < a.maxMp * 0.15) partySay(a, "lowmp");
 }
 
@@ -6632,6 +6694,30 @@ function castNuke(a, t, sp) {
   }
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + (burst ? "Magic Burst! " : "") + "The " + t.name + " takes " + dmg + " damage" + (resist < 1 ? " (resisted)" : "") + ".", burst ? "sc" : cls(a));
   applyDamage(a, t, dmg, { color: col, size: burst ? 26 : 20, enmity: 60 + dmg * 1.5 });
+}
+
+function castDebuff(a, t, sp) {
+  const col = ELEMENT_COLORS[sp.element] || "#ddd";
+  const landed = sp.buff === "flash" || Math.random() * 100 < magicHit(a, t, sp) + 10;
+  ring(t, col, 30, 0.5, "element");
+  sfx(sp.element === "light" ? "light" : "cast", t);
+  vfx("nuke", { src: a, tgt: t, el: sp.element, dia: true });
+  if (!landed) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20); aggro(t, a); return; }
+  t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed" }[sp.buff] + ".", cls(a));
+  popText(t, sp.name, col, 14, 1.1);
+  addEnmity(t, a, sp.enmity || 60);
+  aggro(t, a);
+}
+
+function castBuff(a, t, sp) {
+  t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + obj(t) + ".", cls(a));
+  popText(t, sp.name, "#9ad06b", 13, 1.1, 14);
+  ring(t, "#9ad06b", 26, 0.5);
+  sfx("buff", t);
+  vfx("buff", { tgt: t, id: sp.buff });
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && m.enmity.has(t)) addEnmity(m, a, 30);
 }
 
 function castDia(a, t, sp) {
@@ -6755,7 +6841,7 @@ function autoAttack(a, dt) {
   if (a.casting) return;
   a.swingTimer -= dt;
   if (a.swingTimer <= 0) {
-    if (dist(a, t) <= CONFIG.meleeRange) { a.face = Math.atan2(t.y - a.y, t.x - a.x); swing(a, t); a.swingTimer = a.delay; }
+    if (dist(a, t) <= CONFIG.meleeRange) { a.face = Math.atan2(t.y - a.y, t.x - a.x); swing(a, t); a.swingTimer = swingDelay(a); }
     else a.swingTimer = 0;
   }
 }
@@ -6819,7 +6905,7 @@ function updateMob(m, dt) {
     if (m.swingTimer <= 0) {
       if (dist(m, t) <= CONFIG.meleeRange) {
         swing(m, t);
-        m.swingTimer = m.delay;
+        m.swingTimer = swingDelay(m);
         if (m.alive && m.tp >= 1000 && m.fam.tpMove) {
           m.readying = { t: 1.0, target: t, start: S.time };
           log("The " + m.name + " readies " + m.fam.tpMove.name + ".", "foe");
@@ -6916,11 +7002,45 @@ function meleeAI(a, tgt, dt) {
   if (a.role === "tank") {
     const prov = acts.find(x => x.id === "provoke");
     if (prov && tgt.state === "combat" && topEnmity(tgt) !== a && allyTry(a, prov, tgt)) return;
+    const flash = acts.find(x => x.id === "flash");
+    if (flash && tgt.state === "combat" && (topEnmity(tgt) !== a || !tgt.buffs.flash) && allyTry(a, flash, tgt)) return;
+    const sent = acts.find(x => x.id === "sentinel");
+    if (sent && tgt.state === "combat" && (a.hp < a.maxHp * 0.5 || topEnmity(tgt) !== a) && allyTry(a, sent, a)) return;
+    const bash = acts.find(x => x.id === "shield_bash");
+    if (bash && tgt.readying && allyTry(a, bash, tgt)) return;
+    const cure = acts.find(x => x.id === "cure");
+    if (cure && a.hp < a.maxHp * 0.4 && !S.party.some(p => p !== a && p.alive && p.role === "healer") && allyTry(a, cure, a)) return;
   }
+  if (a.role === "hybrid" && hybridMagic(a, tgt, acts)) return;
   const bers = acts.find(x => x.id === "berserk");
   if (bers && a.role !== "tank" && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, bers, a)) return;
   if (bers && a.role === "tank" && a.hp > a.maxHp * 0.7 && dist(a, tgt) <= CONFIG.meleeRange && allyTry(a, bers, a)) return;
   allyWeaponSkill(a, tgt, acts);
+}
+
+function hybridMagic(a, tgt, acts) {
+  const living = S.party.filter(p => p.alive);
+  let low = null;
+  for (const p of living) if (!low || p.hp / p.maxHp < low.hp / low.maxHp) low = p;
+  const healer = S.party.some(p => p !== a && p.alive && p.role === "healer" && !p.casting);
+  const cure = acts.find(x => x.id === "cure");
+  if (cure && low && low.hp / low.maxHp < (healer ? 0.3 : 0.5) && a.mp > a.maxMp * 0.2 && allyTry(a, cure, low)) return true;
+  const conv = acts.find(x => x.id === "convert");
+  if (conv && a.mp < a.maxMp * 0.15 && a.hp > a.maxHp * 0.6 && allyTry(a, conv, a)) return true;
+  if (tgt.state !== "combat" || dist(a, tgt) > CONFIG.castRange) return false;
+  for (const id of ["dia", "slow", "paralyze"]) {
+    const sp = acts.find(x => x.id === id);
+    if (sp && !tgt.buffs[id] && a.mp > a.maxMp * 0.3 && allyTry(a, sp, tgt)) return true;
+  }
+  if (tgt.burst && S.time <= tgt.burst.until) {
+    const nk = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "nuke" && tgt.burst.el.includes(SPELLS[x.id].element)).sort((p, q) => SPELLS[q.id].power - SPELLS[p.id].power)[0];
+    if (nk && allyTry(a, nk, tgt)) return true;
+  }
+  if (S.time >= (a.nextNuke || 0) && a.mp > a.maxMp * 0.6) {
+    const nukes = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "nuke").sort((p, q) => { const wp = (tgt.fam.weak || {})[SPELLS[p.id].element] || 1, wq = (tgt.fam.weak || {})[SPELLS[q.id].element] || 1; return SPELLS[q.id].power * wq - SPELLS[p.id].power * wp; });
+    if (nukes.length && allyTry(a, nukes[0], tgt)) { a.nextNuke = S.time + rand(9, 13); return true; }
+  }
+  return false;
 }
 
 function allyWeaponSkill(a, tgt, acts) {
@@ -7358,7 +7478,7 @@ function questMarker(n) {
   const q = save.quests, lv = player.lv;
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.pouches === "done" && q.chieftain === "none") || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
-  if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1);
+  if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
   return false;
 }
 
@@ -7366,6 +7486,7 @@ function giveReward(r) {
   if (r.xp) gainXp(r.xp);
   if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " gil.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
+  if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Ask Tobin to change jobs.", "npc"); }
   sfx("fanfare");
 }
 
@@ -7405,15 +7526,26 @@ const TALK = {
   talkTobin(n) {
     const q = save.quests;
     const opts = [{ label: "Change jobs", fn: () => { closeDialog(); openModal("job"); } }];
+    const adv = [];
+    if (player.lv >= 6) {
+      const turnIn = (id, mats, label) => {
+        if (mats.every(([it, k]) => invCount(it) >= k)) adv.push({ label, fn: () => { mats.forEach(([it, k]) => removeItem(it, k)); q[id] = "done"; log("Quest complete: " + QUESTS[id].name + ".", "npc"); giveReward(QUESTS[id].reward); refreshPlayer(false); saveGame(); closeDialog(); openModal("job"); } });
+      };
+      if (q.pld === "none") adv.push({ label: "Ask about the Paladin's oath", fn: () => openDialog(n.name, "A Paladin stands between the party and harm: sword and shield, Cures for the wounded, Flash to blind the foe. Bring me 2 Bone Chips from the undead and 1 Iron Ore from the Den's raiders, and I'll hear your oath.", [{ label: "Accept", fn: () => { q.pld = "active"; log("Quest accepted: " + QUESTS.pld.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      else if (q.pld === "active") turnIn("pld", [["bone_chip", 2], ["iron_ore", 1]], "Take the Paladin's oath");
+      if (q.rdm === "none") adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      else if (q.rdm === "active") turnIn("rdm", [["worm_silk", 2], ["fire_crystal", 1], ["water_crystal", 1]], "Present the dye materials");
+    }
+    const advNote = (q.pld === "active" ? " The oath needs 2 Bone Chips and 1 Iron Ore." : "") + (q.rdm === "active" ? " The scarlet lessons need 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal." : "");
     if (!save.supportUnlocked) {
       if (player.lv < CONFIG.supportUnlockLevel) {
         openDialog(n.name, "Every job keeps its own level and its own weapon skills. Come back when you've reached level " + CONFIG.supportUnlockLevel + ", and I'll teach you to call on a second job.", opts);
         return;
       }
       if (q.support === "none") {
-        openDialog(n.name, "Level " + player.lv + " already? Then you're ready to learn a support job. Prove your patience: bring me 2 Bat Wings and 1 Worm Silk. Bats only stir at night, mind you.", opts.concat([
+        openDialog(n.name, "Level " + player.lv + " already? Then you're ready to learn a support job. Prove your patience: bring me 2 Bat Wings and 1 Worm Silk. Bats only stir at night, mind you." + advNote, opts.concat([
           { label: "Accept", fn: () => { q.support = "active"; log("Quest accepted: " + QUESTS.support.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
-        ]));
+        ], adv));
         return;
       }
       if (q.support === "active") {
@@ -7426,12 +7558,13 @@ const TALK = {
               giveReward(QUESTS.support.reward);
               refreshPlayer(false); saveGame(); closeDialog(); openModal("job");
             } }
-          ]);
-        } else openDialog(n.name, "You have " + invCount("bat_wing") + " of 2 Bat Wings and " + invCount("worm_silk") + " of 1 Worm Silk. Bats come out at night in Rocky Hollow; worms tunnel there day and night.", opts);
+          ].concat(adv));
+        } else openDialog(n.name, "You have " + invCount("bat_wing") + " of 2 Bat Wings and " + invCount("worm_silk") + " of 1 Worm Silk. Bats come out at night in Rocky Hollow; worms tunnel there day and night." + advNote, opts.concat(adv));
         return;
       }
     }
-    openDialog(n.name, "Your support job runs at half your main job's level. A Warrior with White Mage support can cure; a White Mage with Black Mage support can nuke.", opts);
+    if (adv.length) { openDialog(n.name, "Level " + player.lv + ". You've outgrown the basic callings. I can teach the advanced jobs to those who prove themselves." + advNote, opts.concat(adv)); return; }
+    openDialog(n.name, "Your support job runs at half your main job's level. A Warrior with White Mage support can cure; a White Mage with Black Mage support can nuke." + (player.lv < 6 ? " Reach level 6 and I'll tell you about the advanced jobs." : ""), opts);
   },
   talkPell(n) {
     openDialog(n.name, "Potions, ethers, arms and armor. Gil talks, friend.", [
@@ -7533,7 +7666,9 @@ function unequip(slot) {
 
 function setJob(main, sub) {
   if (sub === main) sub = null;
+  if (!jobUnlocked(main)) { log(JOBS[main].name + " is locked. Tobin can teach it once you reach level " + ADVANCED_JOBS[main].lv + ".", "sys"); sfx("error"); return; }
   if (sub && !save.supportUnlocked) { log("Support jobs are locked. Talk to Tobin.", "sys"); return; }
+  if (sub && !jobUnlocked(sub)) { log(JOBS[sub].name + " is locked. Tobin can teach it once you reach level " + ADVANCED_JOBS[sub].lv + ".", "sys"); sfx("error"); return; }
   save.mainJob = main;
   save.subJob = sub;
   for (const slot of SLOTS) {
@@ -8011,8 +8146,8 @@ const UI = {
   watch: null, hpGhost: 0, ghostTarget: null, actKeys: null, actCtx: "", trackerMin: false, slotText: [], phone: false, lastFog: 0,
   prevZone: null, menuSig: "", menuSigAt: 0, sel: null, pick: null, filter: "all", cmp: null, pv: null, frameT: 0
 };
-const ACT_ICON = { provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦" };
-const SPELL_ICON = { cure: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡" };
+const ACT_ICON = { provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", sentinel: "🛡️", shield_bash: "💥", convert: "🔄" };
+const SPELL_ICON = { cure: "✚", cure2: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡", flash: "✨", slow: "🐌", paralyze: "🧊", protect: "🔰" };
 const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5 };
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
@@ -8330,6 +8465,7 @@ function updateTarget() {
     }
     if (t.burst && S.time <= t.burst.until) ch += '<span class="chip" style="color:' + ELEMENT_COLORS[t.burst.el[0]] + ";border-color:" + ELEMENT_COLORS[t.burst.el[0]] + '">✦ Burst ' + t.burst.el.join("/") + " " + fmt(t.burst.until - S.time) + "s</span>";
     if (t.buffs && t.buffs.dia) ch += '<span class="chip" style="color:#fff59d;border-color:#fff59d">☀ Dia</span>';
+    for (const [k, col] of [["flash", "#fff59d"], ["slow", "#d7b46a"], ["paralyze", "#81d4fa"]]) if (t.buffs && t.buffs[k]) ch += '<span class="chip" style="color:' + col + ';border-color:' + col + '">' + BUFF_ICONS[k] + " " + BUFF_NAMES[k] + " " + Math.ceil(t.buffs[k].until - S.time) + "s</span>";
     setHtml($("tChain"), ch);
   } else if (isParty(t)) {
     setTxt($("tName"), t === player ? save.name || "You" : t.name);
@@ -8558,6 +8694,7 @@ function watchProgress() {
     for (const a of actionList(player)) if (!before.includes(a.kind + ":" + a.id)) chips.push(actIcon(a) + " " + esc(actName(a)));
     if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("💬 Tobin wants a word");
     if (lv === 5 && !save.mountLicense) chips.push("💬 Ysolde wants a word");
+    if (lv === 6 && Object.keys(ADVANCED_JOBS).some(j => !jobUnlocked(j))) chips.push("💬 Tobin can teach advanced jobs");
     if (lv >= CONFIG.levelCap) chips.push("⭐ Level cap reached");
     banner("LEVEL " + lv, JOBS[j].name, chips);
   }
@@ -9044,12 +9181,15 @@ function tabShop() {
 }
 function tabJob() {
   let h = "<h3>Main job</h3>";
-  for (const jb in JOBS) h += '<div class="item"><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">Lv.' + save.jobs[jb].lv + "</span></div>" + (jb === save.mainJob ? '<span class="d">Current</span>' : '<button data-a="main" data-v="' + jb + '">Set main</button>') + "</div>";
+  for (const jb in JOBS) {
+    const locked = !jobUnlocked(jb);
+    h += '<div class="item"' + (locked ? ' style="opacity:.6"' : "") + '><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">' + (locked ? "Locked · " + (player.lv < ADVANCED_JOBS[jb].lv ? "reach level " + ADVANCED_JOBS[jb].lv : "Tobin's quest " + QUESTS[ADVANCED_JOBS[jb].quest].name) : "Lv." + save.jobs[jb].lv) + "</span></div>" + (jb === save.mainJob ? '<span class="d">Current</span>' : locked ? "" : '<button data-a="main" data-v="' + jb + '">Set main</button>') + "</div>";
+  }
   h += "<h3>Support job</h3>";
   if (!save.supportUnlocked) h += '<div class="sub">Locked. ' + (player.lv < CONFIG.supportUnlockLevel ? "Reach level " + CONFIG.supportUnlockLevel + " and talk to Tobin." : "Complete Tobin's quest, A Second Calling.") + "</div>";
   else {
     h += '<div class="sub" style="margin-bottom:6px">Runs at half your main level (currently Lv.' + Math.floor(player.lv / 2) + ").</div>";
-    for (const jb of ["none"].concat(Object.keys(JOBS))) {
+    for (const jb of ["none"].concat(Object.keys(JOBS).filter(jobUnlocked))) {
       if (jb === save.mainJob) continue;
       const cur = (save.subJob || "none") === jb;
       h += '<div class="item"><div>' + (jb === "none" ? "None" : JOBS[jb].icon + " " + JOBS[jb].name) + "</div>" + (cur ? '<span class="d">Current</span>' : '<button data-a="sub" data-v="' + jb + '">Set support</button>') + "</div>";
@@ -9189,8 +9329,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v4.2.0 · built 2026-10-13 10:43 PDT";
+const BUILD_INFO = "v4.3.0 · built 2026-10-13 10:56 PDT";
 const UPDATES = [
+  { v: "4.3.0", date: "2026-10-13", title: "Phase 5b: Paladin and Red Mage", items: [
+    "Two advanced jobs. At level 6, Tobin offers The Oath of Steel (Paladin: 2 Bone Chips, 1 Iron Ore) and Scarlet Lessons (Red Mage: 2 Worm Silk, 1 Fire Crystal, 1 Water Crystal).",
+    "Paladin: sword A, Cure at 5, Flash at 7 (blinds and draws heavy enmity), Protect at 9; abilities Sentinel (Defense +50%, double enmity) and Shield Bash (damage, interrupts TP moves and spells). Kite Shield in the accessory slot.",
+    "Red Mage: Dia, Cure, Stone, Water, Aero, Fire plus Slow (attacks 25% slower) and Paralyze (lost swings); Convert at 8 swaps HP and MP. Scarlet Tabard with a feathered hat.",
+    "Dorn (Paladin tank) and Lisette (Red Mage hybrid) can be hired from Brann once their job is unlocked. Dorn uses Flash, Sentinel, Shield Bash and self-Cures; Lisette fights in melee, keeps Dia, Slow and Paralyze up, nukes and backs up the healer.",
+    "New skills: Enfeebling and Enhancing Magic. White Mages learn Protect at 7.",
+    "Monster debuffs show as chips on the target frame with their time left.",
+    "Either advanced job can also be set as a support job once unlocked."
+  ] },
   { v: "4.2.0", date: "2026-10-13", title: "Phase 5a: a bigger world", items: [
     "Character creation: choose a name, job and appearance before you start. Appearance is permanent. Keep up to 8 characters and pick one on the character select screen each time you play, like an MMO. System → Change character logs out to that screen.",
     "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes.",
@@ -9262,13 +9411,17 @@ function tabHelp() {
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Con colours:</b> " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP.",
+    "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Aggro:</b> some monsters notice by sight (goblins), sound (bats, undead), magic (worms) or low HP (undead). The coloured ground markings show their range."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
     ["Warrior", "Tank or damage", "Provoke, Berserk, great axe A, sword B"],
-    ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Divine Seal"],
-    ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"]
+    ["White Mage", "Healer", "Cure, Cure II, Dia, Banish, Protect, Divine Seal"],
+    ["Black Mage", "Nuker", "Stone → Thunder, Elemental Seal, magic bursts"],
+    ["Paladin (advanced)", "Tank", "Sword A, Cure, Flash, Protect, Sentinel, Shield Bash, shields"],
+    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia, Cure, nukes, Slow, Paralyze, Convert"]
   ]) + ul([
+    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Crystal, 1 Water Crystal). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a one-time fee, match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));
@@ -9299,7 +9452,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "4.2.0";
+const GAME_VERSION = "4.3.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -10828,6 +10981,13 @@ const JOB_TINT = {
 const ITEM_LOOK = {
   leather_vest: { top: { type: "vest", color: 0x7a5230, region: "leather" } },
   scale_mail: { top: { type: "mail", color: 0x9aa0a8, region: "chain" }, pauldrons: 0xa8aeb6 },
+  kite_shield: { shield: { color: 0x8a90a0, trim: 0xc8a040, emblem: 0x2f5c9a } },
+  scarlet_tabard: { top: { type: "tabard", color: 0xa0242c, region: "cloth", color2: 0xd8c070 }, hat: 0xa0242c },
+  raider_helm: { head: { type: "cap", color: 0x6a6a72 } },
+  scavenger_cap: { head: { type: "cap", color: 0x7a6a4a } },
+  nightwing_gloves: { gloves: 0x3a2850, glovesRegion: "leather" },
+  burrower_trousers: { legs: 0x7a5a3a, legsRegion: "leather" },
+  gravedigger_boots: { boots: 0x2a2a2e },
   linen_robe: { top: { type: "robe" } },
   linen_robe_hq: { top: { type: "robe" } },
   cotton_robe: { top: { type: "robe", deep: true } },
@@ -10879,6 +11039,8 @@ function lookFor(job, gear, base) {
     if (il.legs) { L.legs = il.legs; L.legsRegion = il.legsRegion; }
     if (il.boots) L.boots = il.boots;
     if (il.pauldrons) L.pauldrons = il.pauldrons;
+    if (il.shield) L.shield = il.shield;
+    if (il.hat) L.hat = il.hat;
   }
   if (!L.boots) L.shoes = 0x3a2a1e;
   L.weapon = gear.main ? ITEMS[gear.main].wtype : null;
@@ -10941,10 +11103,11 @@ function humanEntry(L) {
   const topC = top.color, topR = top.region || "cloth";
   const legC = L.legs != null ? L.legs : 0x4a3a2c, legR = L.legsRegion || "cloth";
   const sleeves = top.sleeves || (top.type === "robe" ? "wide" : top.type === "fur" ? "none" : "long");
-  const sleeveC = top.type === "vest" ? (top.under || 0xd8cfb8) : top.type === "tabard" ? 0x9aa0a8 : top.type === "apron" ? topC : top.type === "fur" ? skin : topC;
-  const sleeveR = top.type === "vest" ? "cloth" : top.type === "tabard" ? "chain" : topR;
+  const sleeveC = top.type === "vest" ? (top.under || 0xd8cfb8) : top.type === "tabard" ? (top.region === "cloth" ? topC : 0x9aa0a8) : top.type === "apron" ? topC : top.type === "fur" ? skin : topC;
+  const sleeveR = top.type === "vest" ? "cloth" : top.type === "tabard" ? (top.region === "cloth" ? "cloth" : "chain") : topR;
   const hr = pr.headR, hc = headY + hr * 0.82;
-  const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy"].includes(L.head.type);
+  if (!L.head && L.hat) L.head = { type: "feathered", color: L.hat, color2: 0xd8c070 };
+  const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered"].includes(L.head.type);
 
   R.add(gBall(V3(0, hc, 0.005), hr, 0.94, 1.04, 1.0, 20), "head", skin, L.noFace ? (L.headRegion || "skin") : "face");
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, "skin");
@@ -11002,6 +11165,15 @@ function humanEntry(L) {
     if (L.pauldrons) {
       R.add(gPartSphere(V3(ax * 1.04, shY + 0.01, 0), 0.085 * gi, 0, Math.PI * 0.55, 1.15, 0.8, 1.05, 14), "upArm" + sd, L.pauldrons, "metal");
       R.add(gRing(V3(ax * 1.04, shY - 0.015, 0), 0.093 * gi, 0.01, "y", 16), "upArm" + sd, 0xc8a040, "metal");
+    }
+    if (L.shield && s < 0) {
+      const sy = (elY + wrY) / 2, sx = ex - 0.075;
+      const shG = new THREE.CylinderGeometry(0.155, 0.135, 0.022, 7);
+      shG.rotateZ(Math.PI / 2);
+      shG.translate(sx, sy, 0);
+      R.add(shG, "foreArm" + sd, L.shield.color, "metal");
+      R.add(gRing(V3(sx - 0.012, sy, 0), 0.15, 0.012, "x", 7), "foreArm" + sd, L.shield.trim || 0xc8a040, "metal");
+      R.add(gBall(V3(sx - 0.02, sy, 0), 0.045, 0.5, 1, 1, 8), "foreArm" + sd, L.shield.emblem || 0x2f5c9a, "metal");
     }
 
     const hx = s * pr.hip;
@@ -11082,6 +11254,11 @@ function humanEntry(L) {
       R.add(gPartSphere(hp, hr * 1.08, 0, Math.PI * 0.38, 1, 1.04, 1.04, 16), "head", H.color, "cloth");
       R.add(gBall(V3(0, hc + hr * 0.25, -hr * 1.05), hr * 0.22, 1.3, 1, 1, 8), "head", H.color, "cloth");
       R.add(gBox(V3(0.03, hc - hr * 0.2, -hr * 1.08), 0.04, 0.16, 0.01, 0.2, 0, 0.2), "head", H.color, "cloth");
+    } else if (H.type === "feathered") {
+      R.add(gCyl(V3(0, hc + hr * 0.45, 0), hr * 1.75, hr * 1.75, 0.02, 20), "head", H.color, "cloth");
+      R.add(gPartSphere(V3(0, hc + hr * 0.42, 0), hr * 1.02, 0, Math.PI * 0.5, 1, 1.0, 1.0, 16), "head", H.color, "cloth");
+      R.add(gRing(V3(0, hc + hr * 0.5, 0), hr * 1.02, 0.012, "y", 18), "head", H.color2 || 0xd8c070, "trim");
+      R.add(gTaper(V3(hr * 0.5, hc + hr * 0.75, -hr * 0.6), V3(hr * 1.3, hc + hr * 2.0, -hr * 1.5), 0.028, 0.004, 6, 0.3), "head", 0xf4f1e8, "feather");
     } else if (H.type === "crown") {
       R.add(gRing(V3(0, hc + hr * 0.55, 0), hr * 0.85, 0.02, "y", 18), "head", 0xd8b040, "metal");
       for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; R.add(gTaper(V3(Math.sin(a) * hr * 0.85, hc + hr * 0.55, Math.cos(a) * hr * 0.85), V3(Math.sin(a) * hr * 0.9, hc + hr * 0.95, Math.cos(a) * hr * 0.9), 0.025, 0.003, 5), "head", 0xd8b040, "metal"); }
@@ -13283,7 +13460,7 @@ async function boot() {
 
 const CC = { job: "WAR", look: null, name: "" };
 const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" }, WHM: { main: "ash_club", head: "bronze_cap", body: "linen_robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "linen_robe" } };
-const JOB_BLURB = { WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
+const JOB_BLURB = { PLD: "", RDM: "", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
 
 function fmtAgo(t) {
   const d = Date.now() - t;
@@ -13337,7 +13514,7 @@ function showCharCreate() {
   const box = $("charSel");
   box.innerHTML = '<div class="ccForm"><div id="ccPv"><div class="lbl" id="ccLbl"></div></div><div class="ccOpts">' +
     '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters"></label>' +
-    '<div class="ccSec">Job</div><div class="ccJobs">' + Object.keys(JOBS).map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '">' + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb"></div>' +
+    '<div class="ccSec">Job</div><div class="ccJobs">' + BASE_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '">' + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb"></div>' +
     '<div class="ccSec">Appearance <small>· drag the model to turn it</small></div><div class="ccLook" id="ccLook"></div>' +
     '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>' +
     '<div class="ccErr" id="ccErr"></div>' +
