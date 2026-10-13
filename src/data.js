@@ -1,5 +1,6 @@
 const CONFIG = {
   levelCap: 15,
+  poolTime: 45,
   meleeRange: 42,
   tpMax: 3000,
   tpPerDelay: 40,
@@ -410,7 +411,8 @@ const ZONES = {
     npcs: [
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
       { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
-      { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] }
+      { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
+      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }
     ],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
@@ -629,6 +631,8 @@ const NPCS = {
   rhea: { name: "Captain Rhea", model: "rhea", talk: "talkRhea" },
   tobin: { name: "Tobin, Job Master", model: "tobin", talk: "talkTobin" },
   pell: { name: "Pell, Merchant", model: "pell", talk: "talkPell" },
+  garrick: { name: "Garrick, Smith", model: "garrick", talk: "talkGarrick" },
+  trade_board: { name: "Trade Board", prop: "board", talk: "talkBoard" },
   odette: { name: "Odette, Furnishings", model: "odette", talk: "talkOdette", shop: "furniture" },
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
@@ -784,7 +788,32 @@ const ACHIEVEMENTS = [
   { id: "bond", icon: "💞", name: "Kindred Spirits", desc: "Reach bond level 5 with a companion.", gil: 250, test: s => Object.values(s.bond).some(b => b >= COMPANION_CFG.bondSteps[5]) },
   { id: "bestiary10", icon: "📖", name: "Naturalist", desc: "Record 10 creatures in the bestiary.", gil: 100, test: s => Object.keys(s.bestiary).length >= 10 },
   { id: "bestiary_all", icon: "📕", name: "Complete Bestiary", desc: "Record every creature in the bestiary.", gil: 500, test: s => Object.keys(BESTIARY).every(k => s.bestiary[k]) },
+  { id: "trader", icon: "📋", name: "Odd Jobs", desc: "Fill 10 trade board requests.", gil: 150, test: s => (s.stats.trades || 0) >= 10 },
+  { id: "augment", icon: "🔨", name: "Tinkerer", desc: "Augment a piece of gear.", gil: 80, test: s => Object.keys(s.augments || {}).length >= 1 },
+  { id: "lotwin", icon: "🎲", name: "Lucky Roll", desc: "Win a treasure pool lot.", gil: 40, test: s => (s.stats.lotsWon || 0) >= 1 },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
 ];
+
+const TRADE_REQUESTS = [
+  { id: "t_copper", who: "The forge", items: { copper_ore: 4 }, gil: 160, xp: 60 },
+  { id: "t_iron", who: "The forge", items: { iron_ore: 3 }, gil: 320, xp: 120 },
+  { id: "t_logs", who: "The carpenters", items: { ash_log: 4 }, gil: 150, xp: 60 },
+  { id: "t_herbs", who: "The infirmary", items: { healing_herb: 5 }, gil: 140, xp: 50 },
+  { id: "t_pouch", who: "Captain Rhea's quartermaster", items: { goblin_pouch: 3 }, gil: 180, xp: 80 },
+  { id: "t_wing", who: "A cobbler", items: { bat_wing: 3 }, gil: 200, xp: 80 },
+  { id: "t_silk", who: "A tailor", items: { worm_silk: 3 }, gil: 220, xp: 90 },
+  { id: "t_bone", who: "The chapel", items: { bone_chip: 4 }, gil: 260, xp: 110 },
+  { id: "t_oil", who: "An alchemist", items: { toad_oil: 3 }, gil: 380, xp: 160 },
+  { id: "t_reed", who: "The basket weavers", items: { mire_reed: 4 }, gil: 300, xp: 130 },
+  { id: "t_ingot", who: "The armoury", items: { bronze_ingot: 2 }, gil: 340, xp: 140 },
+  { id: "t_potion", who: "A nervous traveller", items: { potion: 3 }, gil: 150, xp: 40 },
+  { id: "t_fire", who: "The lamplighters", items: { fire_crystal: 2 }, gil: 110, xp: 40 },
+  { id: "t_water", who: "The well keeper", items: { water_crystal: 2 }, gil: 110, xp: 40 }
+];
+const TRADE_DAILY = 3;
+
+const AUGMENT_STATS = [["str", 1, 3], ["dex", 1, 3], ["vit", 1, 3], ["agi", 1, 3], ["int", 1, 3], ["mnd", 1, 3], ["att", 2, 6], ["def", 2, 5], ["acc", 2, 5], ["eva", 2, 5], ["hp", 6, 15], ["mp", 5, 12]];
+const AUGMENT_CFG = { max: 2, gilPerLv: 60, mats: { iron_ore: 1, fire_crystal: 1 }, reforgeGilPerLv: 40 };
+const STAT_LABELS = { str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT", mnd: "MND", att: "Attack", def: "Defense", acc: "Accuracy", eva: "Evasion", hp: "HP", mp: "MP" };

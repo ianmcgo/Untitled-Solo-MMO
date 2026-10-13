@@ -60,7 +60,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0 }
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0 }, board: { day: 0, done: [] }, augments: {}
   };
 }
 
@@ -288,12 +288,14 @@ function buildStats(ch) {
   const g = { hp: 0, mp: 0, acc: 0, att: 0, def: 0, eva: 0 };
   for (const k of ATTRS) g[k] = 0;
   let dmg = 3, delay = 2.4, wtype = "h2h";
+  const augs = ch.kind === "pc" && typeof save !== "undefined" && save.augments ? save.augments : null;
   for (const slot of SLOTS) {
     const id = ch.gear[slot];
     if (!id) continue;
     const it = ITEMS[id];
     if (it.wtype) { dmg = it.dmg; delay = it.delay; wtype = it.wtype; }
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
+    if (augs && augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
   }
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
   if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
@@ -859,6 +861,7 @@ function dropLoot(m) {
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1)) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
+    if (ITEMS[id].kind === "equip" && S.party.length > 1) { addToPool(id); continue; }
     giveItem(id, 1);
   }
   if (m.fam.gil) {
@@ -867,6 +870,127 @@ function dropLoot(m) {
     log("You obtain " + g + " crystals.", "loot");
     sfx("coin");
   }
+}
+
+function addToPool(id) {
+  S.pool = S.pool || [];
+  S.pool.push({ id, until: S.time + CONFIG.poolTime, lots: {}, mine: null, seq: ++S.mobSeq });
+  log("The " + ITEMS[id].name + " goes into the treasure pool.", "loot");
+  sfx("loot");
+  uiEvent("pool", { id });
+}
+
+function poolUpgrade(merc, id) {
+  const it = ITEMS[id], cur = merc.gear[it.slot];
+  if (mercCanWear(merc.mercId, id)) return false;
+  if (!cur) return true;
+  const c = ITEMS[cur];
+  return (it.lv || 0) > (c.lv || 0) || ((it.lv || 0) === (c.lv || 0) && (it.dmg || 0) + Object.values(it.stats || {}).reduce((a, b) => a + b, 0) > (c.dmg || 0) + Object.values(c.stats || {}).reduce((a, b) => a + b, 0));
+}
+
+function lotPool(seq, pass) {
+  const e = (S.pool || []).find(x => x.seq === seq);
+  if (!e || e.mine != null) return;
+  if (pass) { e.mine = 0; log("You pass on the " + ITEMS[e.id].name + ".", "sys"); }
+  else { e.mine = 1 + Math.floor(Math.random() * 999); log("You lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); }
+  sfx("select");
+  tickPool(true);
+}
+
+function tickPool(force) {
+  if (!S.pool || !S.pool.length) return;
+  for (const e of S.pool.slice()) {
+    for (const m of S.party) {
+      if (m === player || !m.mercId || e.lots[m.mercId] != null) continue;
+      if (S.time < e.until - CONFIG.poolTime + 1.5) continue;
+      if (poolUpgrade(m, e.id)) { e.lots[m.mercId] = 1 + Math.floor(Math.random() * 999); log(m.name + " lots " + e.lots[m.mercId] + " on the " + ITEMS[e.id].name + ".", "party"); }
+      else e.lots[m.mercId] = 0;
+    }
+    const allIn = e.mine != null && S.party.every(m => m === player || !m.mercId || e.lots[m.mercId] != null);
+    if (!allIn && S.time < e.until) continue;
+    if (e.mine == null) { e.mine = 1 + Math.floor(Math.random() * 999); log("Time's up: you lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); }
+    S.pool.splice(S.pool.indexOf(e), 1);
+    let best = e.mine, who = e.mine > 0 ? "me" : null;
+    for (const k in e.lots) if (e.lots[k] > best) { best = e.lots[k]; who = k; }
+    if (!who) { log("Nobody wanted the " + ITEMS[e.id].name + ". It is lost.", "sys"); continue; }
+    if (who === "me") { save.stats.lotsWon++; giveItem(e.id, 1); continue; }
+    const it = ITEMS[e.id], own = save.mercGear[who] = save.mercGear[who] || {};
+    if (own[it.slot]) giveItem(own[it.slot], 1, true);
+    own[it.slot] = e.id;
+    log(MERCS[who].name + " obtains the " + it.name + " and puts it on.", "party");
+    partySay(S.party.find(p => p.mercId === who), "gift", true);
+    syncAllies(false);
+  }
+  if (force) saveGame();
+}
+
+function boardDay() { return Math.floor(Date.now() / 86400000); }
+
+function boardToday() {
+  const day = boardDay();
+  if (save.board.day !== day) save.board = { day, done: [] };
+  const rnd = seeded(hashStr(String(save.created || 1) + ":" + day));
+  const pool = TRADE_REQUESTS.slice();
+  const out = [];
+  while (out.length < TRADE_DAILY && pool.length) out.push(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+  return out;
+}
+
+function fillTrade(id) {
+  const r = boardToday().find(x => x.id === id);
+  if (!r) return "That request is gone.";
+  if (save.board.done.includes(id)) return "Already filled today.";
+  for (const it in r.items) if (invCount(it) < r.items[it]) return "You need " + r.items[it] + " " + ITEMS[it].name + ".";
+  for (const it in r.items) removeItem(it, r.items[it]);
+  save.board.done.push(id);
+  save.stats.trades++;
+  save.gil += r.gil;
+  log("Trade filled for " + r.who + ": +" + r.gil + " crystals.", "loot");
+  sfx("coin");
+  gainXp(r.xp);
+  saveGame();
+  return "";
+}
+
+function augmentCost(id, reforge) {
+  const lv = Math.max(1, ITEMS[id].lv || 1);
+  return { gil: lv * (reforge ? AUGMENT_CFG.reforgeGilPerLv : AUGMENT_CFG.gilPerLv), mats: AUGMENT_CFG.mats };
+}
+
+function canAugment(id, reforge) {
+  const it = ITEMS[id];
+  if (!it || it.kind !== "equip") return "Only equipment can be augmented.";
+  if (!hasItem(id)) return "You don't have that.";
+  const cur = save.augments[id] || [];
+  if (!reforge && cur.length >= AUGMENT_CFG.max) return "That piece can't take more augments. Try reforging.";
+  if (reforge && !cur.length) return "Nothing to reforge yet.";
+  const c = augmentCost(id, reforge);
+  if (save.gil < c.gil) return "You need " + c.gil + " crystals.";
+  for (const m in c.mats) if (invCount(m) < c.mats[m]) return "You need " + c.mats[m] + " " + ITEMS[m].name + ".";
+  return "";
+}
+
+function rollAugment(taken) {
+  const opts = AUGMENT_STATS.filter(a => !taken.includes(a[0]));
+  const [k, lo, hi] = pick(opts);
+  return [k, lo + Math.floor(Math.random() * (hi - lo + 1))];
+}
+
+function augmentItem(id, reforge) {
+  const why = canAugment(id, reforge);
+  if (why) { sfx("error"); return why; }
+  const c = augmentCost(id, reforge);
+  save.gil -= c.gil;
+  for (const m in c.mats) removeItem(m, c.mats[m]);
+  let cur = reforge ? [] : (save.augments[id] || []).slice();
+  const n = reforge ? (save.augments[id] || []).length : 1;
+  for (let i = 0; i < n; i++) cur.push(rollAugment(cur.map(a => a[0])));
+  save.augments[id] = cur;
+  log("Garrick " + (reforge ? "reforges" : "augments") + " your " + ITEMS[id].name + ": " + cur.map(([k, v]) => STAT_LABELS[k] + " +" + v).join(", ") + ".", "loot");
+  sfx("unlock");
+  refreshPlayer(false);
+  saveGame();
+  return "";
 }
 
 function knows(ch, sp) {
@@ -2135,6 +2259,7 @@ function step(dt) {
   S.lmTimer -= dt;
   if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); } }
   tickSynth(dt);
+  if (S.pool && S.pool.length) tickPool(false);
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
   S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
@@ -2189,7 +2314,7 @@ function tabNext(list) {
 }
 
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && !n.away && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const people = S.npcs.filter(n => !n.crystal && !n.away && !n.prop && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const list = people.concat(crystals);
   if (!list.length) return false;
@@ -2598,6 +2723,17 @@ const TALK = {
     }
     if (adv.length) { openDialog(n.name, "Level " + player.lv + ". You've outgrown the basic callings. I can teach the advanced jobs to those who prove themselves." + advNote, opts.concat(adv)); return; }
     openDialog(n.name, "Your support job runs at half your main job's level. A Warrior with White Mage support can cure; a White Mage with Black Mage support can nuke." + (player.lv < 6 ? " Reach level 6 and I'll tell you about the advanced jobs." : ""), opts);
+  },
+  talkGarrick(n) {
+    openDialog(n.name, "Gear's only as good as the hands that finish it. Bring me iron ore, a fire essence and some crystals, and I'll work a little extra into any piece you own: up to two augments each. Don't like what you got? I can reforge it.", [
+      { label: "Augment gear", fn: () => { closeDialog(); openModal("forge"); } }
+    ]);
+  },
+  talkBoard(n) {
+    const left = boardToday().filter(r => !save.board.done.includes(r.id)).length;
+    openDialog(n.name, "Notes pinned to the board ask for supplies. " + (left ? left + " request" + (left > 1 ? "s are" : " is") + " still open today." : "Every request is filled for today. New notes go up tomorrow."), [
+      { label: "Read the requests", fn: () => { closeDialog(); openModal("board"); } }
+    ]);
   },
   talkPell(n) {
     openDialog(n.name, "Potions, ethers, arms and armor. Crystals talks, friend.", [

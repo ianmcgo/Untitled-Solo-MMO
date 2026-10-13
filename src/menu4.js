@@ -19,7 +19,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -35,11 +35,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board"]) if (S.modal === t) tabs.unshift(t);
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -300,6 +300,7 @@ function tabInventory() {
     const it = ITEMS[s.id];
     h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Essence", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
+    if (augText(s.id)) h += '<div class="sub" style="margin-top:4px;color:#ce93d8">✨ Augments: ' + esc(augText(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
       const next = statsFor(Object.assign({}, save.gear, { [it.slot]: s.id }));
@@ -663,6 +664,41 @@ function tabBestiary() {
   return h;
 }
 
+function augText(id) {
+  const a = save.augments[id];
+  return a && a.length ? a.map(([k, v]) => STAT_LABELS[k] + " +" + v).join(", ") : "";
+}
+
+function tabForge() {
+  const c0 = AUGMENT_CFG;
+  let h = '<div class="sub" style="margin-bottom:8px">Each augment costs ' + c0.gilPerLv + ' crystals per item level, ' + Object.keys(c0.mats).map(m => c0.mats[m] + " " + ITEMS[m].name).join(" and ") + ". Up to " + c0.max + " augments per piece; reforging rerolls them all for " + c0.reforgeGilPerLv + " crystals per level plus the same materials. Augments apply to every copy of that item you own.</div>";
+  if (UI.forgeMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.forgeMsg) + "</div>";
+  const ids = [...new Set(Object.values(save.gear).concat(save.inventory.filter(x => ITEMS[x.id].kind === "equip").map(x => x.id)))].filter(Boolean);
+  if (!ids.length) return h + '<div class="item"><span class="sub">You have no equipment.</span></div>';
+  for (const id of ids) {
+    const it = ITEMS[id], cur = save.augments[id] || [];
+    const worn = Object.values(save.gear).includes(id);
+    const c = augmentCost(id, false), r = augmentCost(id, true);
+    h += '<div class="item"><div><b>' + (it.icon || "") + " " + esc(it.name) + "</b>" + (worn ? ' <span class="sub">(equipped)</span>' : "") + '<div class="sub">' + (cur.length ? "✨ " + esc(augText(id)) : "No augments") + "</div></div><div style=\"display:flex;gap:5px\">" +
+      (cur.length < c0.max ? '<button data-a="augment" data-v="' + id + '"' + (canAugment(id, false) ? " disabled" : "") + ">Augment · " + c.gil + " 💠</button>" : "") +
+      (cur.length ? '<button data-a="reforge" data-v="' + id + '"' + (canAugment(id, true) ? " disabled" : "") + ">Reforge · " + r.gil + " 💠</button>" : "") + "</div></div>";
+  }
+  return h;
+}
+
+function tabBoard() {
+  const list = boardToday();
+  let h = '<div class="sub" style="margin-bottom:8px">Townsfolk pin up requests each day. Fill them for crystals and experience. New notes go up at midnight (UTC).</div>';
+  if (UI.boardMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.boardMsg) + "</div>";
+  for (const r of list) {
+    const done = save.board.done.includes(r.id);
+    const need = Object.keys(r.items).map(it => ITEMS[it].name + " " + Math.min(invCount(it), r.items[it]) + "/" + r.items[it]).join(", ");
+    const ready = Object.keys(r.items).every(it => invCount(it) >= r.items[it]);
+    h += '<div class="item"' + (done ? ' style="opacity:.5"' : "") + "><div><b>" + esc(r.who) + '</b><div class="sub">Wants: ' + esc(need) + " · Pays " + r.gil + " 💠 + " + r.xp + " XP</div></div>" + (done ? '<span class="sub">Filled ✓</span>' : '<button data-a="trade" data-v="' + r.id + '"' + (ready ? "" : " disabled") + ">Hand over</button>") + "</div>";
+  }
+  return h;
+}
+
 function tabAchievements() {
   const got = ACHIEVEMENTS.filter(a => save.ach[a.id]).length;
   let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked. Most come with a crystal reward.</div>";
@@ -764,6 +800,9 @@ function onMenuClick(e) {
   else if (a === "hire") hireMerc(v);
   else if (a === "dismiss") dismissMerc(v);
   else if (a === "stance") setStance(v);
+  else if (a === "augment") { UI.forgeMsg = augmentItem(v, false); renderModal(); return; }
+  else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
+  else if (a === "trade") { UI.boardMsg = fillTrade(v); renderModal(); return; }
   else if (a === "mgive") { const [id, it] = v.split(":"); giveMercGear(id, it); }
   else if (a === "mtake") { const [id, sl] = v.split(":"); takeMercGear(id, sl); }
   else if (a === "open") { openMenu(v); return; }
@@ -821,6 +860,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "5.2.0", date: "2026-10-13", title: "Treasure pool, Trade Board and the Forge", items: [
+    "Treasure pool: with companions in your party, equipment drops go into a pool above the chat. Lot or Pass; companions lot on upgrades for their job and wear what they win.",
+    "Trade Board in the Outpost: three supply requests a day for crystals and XP.",
+    "Garrick the smith: augment any equipment with up to two random stat bonuses, or reforge to reroll them. Augments show in the item details.",
+    "Three new achievements: Odd Jobs, Tinkerer and Lucky Roll.",
+    "Tab in town skips signs and boards and goes straight to people."
+  ] },
   { v: "5.1.0", date: "2026-10-13", title: "Thief and Monk", items: [
     "New advanced job: Thief. Daggers (A), Steal (lift an item off a monster), Sneak Attack (next hit is a sure critical with bonus damage), Flee (run 80% faster). Thieves crit 5% more often, and Treasure Hunter raises drop chances by 20% while you're a Thief.",
     "New advanced job: Monk. Hand-to-Hand (A) with Martial Arts (faster, harder fists), a 14% chance to follow up with a kick, Boost (next hit +50% and extra TP), Focus (accuracy and crits) and Chakra (heal yourself). Monks raise their fists in a boxing guard.",
@@ -1053,6 +1099,16 @@ function tabHelp() {
     "<b>Gear:</b> give companions equipment from your bag in the Party tab. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
     "<b>Wages:</b> the hiring fee covers the first game day; after that each companion takes about 15% of their fee per game day. Wages wait until a fight ends. Time away from the game is free."
+  ]));
+  h += sec("🎲 Treasure pool", ul([
+    "With companions in the party, equipment drops go into the treasure pool (the panel above the chat) instead of straight into your bag. Other loot still goes to your bag.",
+    "Press <b>Lot</b> to roll 1–999 or <b>Pass</b>. Companions lot only on pieces their job can use that beat what they're wearing. Highest lot wins. If a companion wins, they wear it right away (their old piece comes to your bag).",
+    "If you don't choose within 45 seconds you lot automatically. If everyone passes, the item is lost."
+  ]));
+  h += sec("📋 Trade Board and 🔨 Forge", ul([
+    "The <b>Trade Board</b> by the north path of the Outpost posts three requests a day (new ones at midnight UTC): hand over the materials for crystals and XP.",
+    "<b>Garrick the smith</b>, by the stalls, augments equipment: each augment adds a random bonus (STR, DEX, VIT, AGI, INT, MND, Attack, Defense, Accuracy, Evasion, HP or MP). Up to 2 per piece. Cost: 60 crystals per item level, 1 Iron Ore and 1 Fire Essence. Reforging rerolls all of a piece's augments for 40 crystals per level plus the same materials.",
+    "Augments belong to the item type: every copy of that item you own shares them. They only apply to you, not to companions wearing the same piece."
   ]));
   h += sec("📖 Bestiary (Y)", ul([
     "A creature is recorded the first time you meet it: come within sight or target it. You learn its type, where it lives and a little lore.",

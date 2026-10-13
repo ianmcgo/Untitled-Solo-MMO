@@ -171,6 +171,15 @@ function propView(n) {
     const L = new THREE.PointLight(col, 10, 16, 1.5); L.position.y = 2.2;
     g.add(ped, bowl, coals, flame, flame2, L);
     v.flame = [flame, flame2]; v.light = L; v.meta.headTop = 2.6;
+  } else if (n.prop === "board") {
+    const wood = std({ color: 0x6a4a2a, roughness: 0.85 });
+    for (const sx of [-0.8, 0.8]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.2, 0.14), wood); post.position.set(sx, 1.1, 0); post.castShadow = true; g.add(post); }
+    const plank = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.1, 0.08), std({ color: 0x8a6a42, roughness: 0.9 })); plank.position.set(0, 1.55, 0.04); plank.castShadow = true;
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.08, 0.45), wood); roof.position.set(0, 2.2, 0.08); roof.rotation.x = -0.25;
+    g.add(plank, roof);
+    const cols = [0xf2ead8, 0xe8dcc0, 0xf8f0e0, 0xead8b8, 0xf0e4cc];
+    for (let i = 0; i < 6; i++) { const note = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.42), std({ color: cols[i % cols.length], roughness: 1 })); note.position.set(-0.6 + (i % 3) * 0.6, 1.8 - Math.floor(i / 3) * 0.5, 0.09); note.rotation.z = (i * 0.37 % 0.3) - 0.15; g.add(note); }
+    v.meta.headTop = 2.4;
   } else if (n.prop === "tablet") {
     const slab = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 0.3), stone); slab.position.y = 1.1; slab.castShadow = true;
     const runes = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.6), new THREE.MeshBasicMaterial({ color: 0x80cbc4, transparent: true, opacity: 0.35 })); runes.position.set(0, 1.15, 0.16);
