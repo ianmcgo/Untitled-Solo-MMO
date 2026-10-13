@@ -488,7 +488,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.6.4 · built 2026-10-13 11:59 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.7.0 · built 2026-10-13 12:17 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>
@@ -5538,6 +5538,11 @@ const ITEMS = {
   ashen_medallion: { name: "Ashen Medallion", kind: "equip", icon: "🏅", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 9, price: 0, stats: { hp: 20, mp: 20, acc: 6, att: 6, def: 4 } },
   crypt_dust: { name: "Crypt Dust", kind: "mat", icon: "⚱️", rarity: "uncommon", price: 140, stack: 12, desc: "Grave dust that glitters faintly. Alchemists pay well for it." },
   wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
+  flowerpot: { name: "Flowerpot", kind: "furniture", icon: "🪴", fp: [1, 1], price: 120, model: "pot", garden: true, desc: "Plant a seed, water it and feed it a crystal. Grows in real time." },
+  herb_seeds: { name: "Herb Seeds", kind: "seed", icon: "🌱", price: 30, stack: 12, grows: { item: "healing_herb", n: [3, 6], bonus: "earth" }, desc: "Grows 3–6 Healing Herbs. Earth Crystal adds more." },
+  ash_sapling: { name: "Ash Sapling", kind: "seed", icon: "🌳", price: 45, stack: 12, grows: { item: "ash_log", n: [2, 4], bonus: "wind" }, desc: "Grows 2–4 Ash Logs. Wind Crystal adds more." },
+  wildgrass_seeds: { name: "Wildgrass Seeds", kind: "seed", icon: "🌾", price: 60, stack: 12, grows: { crystal: true, n: [2, 4] }, desc: "Grows 2–4 crystals of whichever element you feed it." },
+  moonbloom_seeds: { name: "Moonbloom Seeds", kind: "seed", icon: "🌙", rarity: "rare", price: 0, stack: 12, grows: { item: "ether", n: [2, 3], rare: ["bone_chip", "silk_cloth", "iron_ingot"], bonus: "water" }, desc: "Grows Ethers and sometimes something rarer. Water Crystal improves the odds." },
   simple_bed: { name: "Simple Bed", kind: "furniture", icon: "🛏️", fp: [2, 3], price: 300, model: "bed", desc: "A sturdy bed with a wool blanket." },
   wooden_table: { name: "Wooden Table", kind: "furniture", icon: "🪑", fp: [2, 2], price: 200, model: "table", desc: "Seats four, if you have four chairs." },
   wooden_chair: { name: "Wooden Chair", kind: "furniture", icon: "🪑", fp: [1, 1], price: 80, model: "chair", desc: "Simple and solid." },
@@ -5552,7 +5557,10 @@ const ITEMS = {
 };
 
 const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff"];
-const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
+const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
+const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
+const GARDEN_STAGE_MS = 10 * 60 * 1000;
+const GATHER_RESPAWN_MS = 45 * 1000;
 
 const CRAFTS = {
   smithing: { name: "Smithing", crystal: "fire_crystal", icon: "⚒️" },
@@ -5610,7 +5618,7 @@ const MERC_LINES = {
   victory: ["Nice work.", "That's that.", "Next!"]
 };
 
-const FEATURES = { crafting: false, gathering: false, residence: false, nms: true, water: true, mounts: false };
+const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, water: true, mounts: false };
 
 const FAMILIES = {
   goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 140 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
@@ -5629,7 +5637,7 @@ const FAMILIES = {
 const NM_FAMILIES = {
   grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["scavenger_cap", 0.35], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
   duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
-  king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["burrower_trousers", 0.35], ["hare_charm", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["moonbloom_seeds", 0.4], ["burrower_trousers", 0.35], ["hare_charm", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
   ossuary_warden: { hint: "Bone Pit, Goblin Den · any time", base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.3], ["gravedigger_boots", 0.35], ["bonecharm_ring", 0.3], ["bone_chip", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 360 }
 };
 
@@ -5814,7 +5822,7 @@ ZONES.den.paths.push({ w: 34, pts: [[1250, 1120], [1200, 1400], [1200, 1600], [1
 const BRAZIER_LINES = { fire: "the flame that wakes the dawn", wind: "the breath that carries the ash", earth: "the stone that keeps the dead", water: "the tide that quiets all" };
 const CHEST_LOOT = {
   common: [["bone_chip", 0.9], ["crypt_dust", 0.7], ["ether", 0.5], ["hi_potion", 0.5], ["water_crystal", 0.6], ["iron_ore", 0.4]],
-  vault: [["crypt_dust", 1], ["hi_potion", 0.8], ["ether", 0.8], ["iron_ingot", 0.5], ["silk_cloth", 0.5], ["bone_chip", 1]],
+  vault: [["crypt_dust", 1], ["hi_potion", 0.8], ["ether", 0.8], ["iron_ingot", 0.5], ["silk_cloth", 0.5], ["bone_chip", 1], ["moonbloom_seeds", 0.3]],
   king: [["crypt_dust", 1], ["hi_potion", 1], ["ether", 1], ["iron_ingot", 0.8], ["silk_cloth", 0.8]]
 };
 
@@ -5842,8 +5850,10 @@ const NPCS = {
 
 const QUESTS = {
   pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", npc: "rhea", lv: 1, desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "captains_ring" } },
-  home: { name: "Make It Home", giver: "Odette", npc: "odette", lv: 1, check: "furniture", desc: "Buy or craft two pieces of furniture and have Pip place them in your residence (the door is on the west house of the Outpost).", reward: { xp: 100, gil: 0, item: "potted_plant" },
-    intro: "Every adventurer needs somewhere to hang their helm. The cottage by the west wall is yours; my cousin Pip keeps it. Put two pieces of furniture in it and I'll throw in something green for the windowsill.", progress: "Two pieces placed, that's all. Chairs are cheap. Talk to Pip at the cottage to arrange them.", turn: "Two pieces placed! It's a home now. Here, a potted fern for the sill." },
+  home: { name: "Make It Home", giver: "Odette", npc: "odette", lv: 1, check: "furniture", desc: "Buy or craft two pieces of furniture and have Pip place them in your residence (the door is on the west house of the Outpost).", reward: { xp: 100, gil: 0, items: [["flowerpot", 1], ["herb_seeds", 2]] },
+    intro: "Every adventurer needs somewhere to hang their helm. The cottage by the west wall is yours; my cousin Pip keeps it. Put two pieces of furniture in it and I'll throw in something green for the windowsill.", progress: "Two pieces placed, that's all. Chairs are cheap. Talk to Pip at the cottage to arrange them.", turn: "Two pieces placed! It's a home now. Here, a flowerpot and some herb seeds; Pip will show you how to garden." },
+  greenthumb: { name: "Green Thumb", giver: "Pip", npc: "pip", lv: 1, check: "harvest", desc: "Plant a seed in a Flowerpot at your residence, water it through its three stages, and harvest it.", reward: { xp: 150, gil: 0, items: [["wildgrass_seeds", 2]] },
+    intro: "You've a flowerpot? Then let's grow something! Plant a seed, water it, and feed it a crystal if you have one. It takes a while in real time, so come back. Harvest once and I'll give you some wildgrass seeds.", progress: "Still growing? Water it at every stage; dry plants don't grow.", turn: "A harvest! You've the knack. Wildgrass grows crystals of whichever element you feed it; try these." },
   herbs: { name: "Herbs for the Stall", giver: "Pell", npc: "pell", lv: 1, items: { healing_herb: 3 }, desc: "Bring Pell 3 Healing Herbs for his stall. Meadow Hares and Tunnel Worms in Rocky Hollow carry them.", reward: { xp: 120, gil: 100, items: [["pickaxe", 1], ["hatchet", 1]] },
     intro: "My herb jars are empty and the hares won't deliver. Bring me 3 Healing Herbs and I'll pay in coin and tools. Hares and worms past the east gate carry them.", progress: "Still short on herbs. Hares graze by day; worms are about day and night.", turn: "Fresh herbs! Here's your coin, and a pickaxe and hatchet besides. Hang on to them; the hills are full of ore and timber." },
   nightwings: { name: "Night Wings", giver: "Brann", npc: "brann", lv: 2, kill: { fam: "bat", n: 4, name: "Cave Bat" }, desc: "Defeat 4 Cave Bats for Brann. Bats only come out in Rocky Hollow at night.", reward: { xp: 200, gil: 150 },
@@ -5863,7 +5873,7 @@ const QUESTS = {
   chieftain: { name: "The Goblin Chieftain", giver: "Captain Rhea", npc: "rhea", lv: 7, pre: "bones", desc: "Defeat the Goblin Chieftain at the back of the Goblin Den, then report to Captain Rhea.", reward: { xp: 900, gil: 1500, item: "ether", qty: 3 } }
 };
 
-const FURNITURE_MODELS = { bed: { w: 2, h: 3 }, table: { w: 2, h: 2 }, chair: { w: 1, h: 1 }, chest: { w: 1, h: 1 }, wardrobe: { w: 2, h: 1 }, bookshelf: { w: 2, h: 1 }, plant: { w: 1, h: 1 }, lamp: { w: 1, h: 1 }, rug: { w: 2, h: 2, flat: true }, hearth: { w: 2, h: 1 }, totem: { w: 1, h: 1 } };
+const FURNITURE_MODELS = { pot: { w: 1, h: 1 }, bed: { w: 2, h: 3 }, table: { w: 2, h: 2 }, chair: { w: 1, h: 1 }, chest: { w: 1, h: 1 }, wardrobe: { w: 2, h: 1 }, bookshelf: { w: 2, h: 1 }, plant: { w: 1, h: 1 }, lamp: { w: 1, h: 1 }, rug: { w: 2, h: 2, flat: true }, hearth: { w: 2, h: 1 }, totem: { w: 1, h: 1 } };
 
 function spreadSpawns(zone, minD) {
   const sp = zone.spawns;
@@ -5961,7 +5971,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0 }, gatherSkill: { mining: 0, logging: 0, harvesting: 0 }, gardens: {}, harvests: 0, created: Date.now()
   };
 }
 
@@ -5994,6 +6004,10 @@ function normalizeSave(d) {
   out.crypt = Object.assign({ solved: false, lit: [] }, d.crypt || {});
   out.storage = (Array.isArray(d.storage) ? d.storage : []).filter(s => s && ITEMS[s.id] && s.qty > 0);
   out.furniture = (Array.isArray(d.furniture) ? d.furniture : []).filter(f => f && ITEMS[f.id] && ITEMS[f.id].kind === "furniture" && Number.isInteger(f.c) && Number.isInteger(f.r));
+  out.crafts = Object.assign(newSave().crafts, d.crafts || {});
+  out.gatherSkill = Object.assign(newSave().gatherSkill, d.gatherSkill || {});
+  out.gardens = d.gardens && typeof d.gardens === "object" ? d.gardens : {};
+  out.harvests = d.harvests || 0;
   if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
   return out;
 }
@@ -6847,12 +6861,14 @@ function castHeal(a, t, sp) {
   let amt = (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
   if (a.buffs.divine_seal) { amt *= 2; delete a.buffs.divine_seal; }
   amt = Math.round(amt * rand(0.95, 1.05));
-  const real = Math.min(amt, t.maxHp - t.hp);
+  const real = Math.max(0, Math.min(amt, t.maxHp - t.hp));
   t.hp += real;
-  popText(t, "+" + real, "#9ad06b", 18);
-  ring(t, "#9ad06b", 30, 0.6, "sparkle");
-  sfx("cure", t);
-  vfx("cure", { src: a, tgt: t, big: sp.power > 40 });
+  if (real > 0) {
+    popText(t, "+" + real, "#9ad06b", 18);
+    ring(t, "#9ad06b", 30, 0.6, "sparkle");
+    sfx("cure", t);
+    vfx("cure", { src: a, tgt: t, big: sp.power > 40 });
+  } else popText(t, "No effect", "#bbbbbb", 13, 0.9);
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + subj(t) + " " + vb(t, "recover") + " " + real + " HP.", cls(a));
   if (a !== player && t !== a) partySay(a, "cure");
   for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, real * 1.5);
@@ -6930,6 +6946,8 @@ function useItem(id) {
   if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
+  if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
+  if (it.mpRestore && player.mp >= player.maxMp) { log("Your MP is already full.", "sys"); sfx("error"); return; }
   if (it.heal) {
     const real = Math.min(it.heal, player.maxHp - player.hp);
     player.hp += real;
@@ -7484,6 +7502,12 @@ function enterZone(id, x, y) {
     spawnMob(i);
   });
   S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: 60 }, NPCS[n.id]));
+  S.gatherAt = [];
+  if (FEATURES.gathering && S.zone.gather) for (const type in S.zone.gather) {
+    const g = S.zone.gather[type];
+    const picks = g.at.slice().sort(() => Math.random() - 0.5).slice(0, g.n);
+    for (const [gx, gy] of picks) spawnGather(type, gx, gy);
+  }
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
   const rnd = seeded(hashStr(id));
   S.decor = [];
@@ -7527,6 +7551,199 @@ function updateNpcs(dt) {
       else { n.moving = false; if (Math.abs(normAng(n.face - Math.PI / 2)) > 0.05 && !(player.target === n && dist(n, player) < CONFIG.talkRange)) n.face += normAng(Math.PI / 2 - n.face) * Math.min(1, dt * 4); }
     }
   }
+}
+
+function spawnGather(type, gx, gy) {
+  const g = S.zone.gather[type];
+  const n = { id: "gather_" + type + "_" + (++S.mobSeq), x: gx, y: gy, radius: 12, kind: "npc", face: 0, prop: "gather", gtype: type, name: GATHER[type].name + " Point", talk: "talkGather", uses: randInt(1, 3), loot: g.loot, away: false };
+  S.npcs.push(n);
+  return n;
+}
+function retireGather(n) {
+  n.away = true;
+  n.gone = true;
+  if (player.target === n) player.target = null;
+  const type = n.gtype, g = S.zone.gather[type];
+  const taken = S.npcs.filter(x => x.prop === "gather" && x.gtype === type && !x.gone).map(x => x.x + "," + x.y);
+  const free = g.at.filter(([x, y]) => !taken.includes(x + "," + y) && !(x === n.x && y === n.y));
+  const next = free.length ? pick(free) : [n.x, n.y];
+  S.gatherAt.push({ type, at: Date.now() + GATHER_RESPAWN_MS, x: next[0], y: next[1] });
+}
+function tickGather() {
+  if (!S.gatherAt || !S.gatherAt.length) return;
+  const now = Date.now();
+  for (let i = S.gatherAt.length - 1; i >= 0; i--) {
+    const r = S.gatherAt[i];
+    if (now < r.at) continue;
+    S.gatherAt.splice(i, 1);
+    spawnGather(r.type, r.x, r.y);
+  }
+  S.npcs = S.npcs.filter(n => !n.gone);
+}
+function gatherTool(type) { return GATHER[type].tool; }
+function doGather(n) {
+  const type = n.gtype, tool = gatherTool(type), G = GATHER[type];
+  if (invCount(tool) < 1) { log("You need " + an(ITEMS[tool].name) + " to " + G.verb + " here. Pell sells them.", "sys"); sfx("error"); return; }
+  if (player.engaged || inCombatWith(player)) { log("You can't " + G.verb + " while fighting.", "sys"); sfx("error"); return; }
+  if (player.resting) standUp(player, true);
+  const skill = save.gatherSkill[type] || 0;
+  player.face = Math.atan2(n.y - player.y, n.x - player.x);
+  sfx(type === "mining" ? "blunt" : type === "logging" ? "slash" : "miss", player);
+  vfx("hit", { src: player, tgt: n, crit: false, slash: type === "logging" });
+  let got = null;
+  for (const [id, chance] of n.loot) if (Math.random() < chance * (1 + skill * 0.01)) { got = id; break; }
+  if (got) { giveItem(got, 1); log("You " + G.verb + " up " + an(ITEMS[got].name) + ".", "loot"); }
+  else { log("You " + G.verb + " but find nothing worth keeping.", "sys"); }
+  if (skill < 20 && Math.random() < 0.45) { save.gatherSkill[type] = Math.round((skill + (Math.random() < 0.3 ? 0.3 : 0.1)) * 10) / 10; log(G.name + " skill rises to " + save.gatherSkill[type].toFixed(1) + ".", "sys"); }
+  const breakPct = Math.max(5, 25 - skill);
+  if (Math.random() * 100 < breakPct) { removeItem(tool, 1); log("Your " + ITEMS[tool].name + " breaks!", "foe"); sfx("interrupt", player); }
+  n.uses--;
+  if (n.uses <= 0) { log("The " + n.name.toLowerCase() + " is exhausted.", "sys"); retireGather(n); }
+  saveGame();
+}
+
+function craftSkill(c) { return save.crafts[c] || 0; }
+function recipeMatsOk(r) { return Object.keys(r.mats).every(id => invCount(id) >= r.mats[id]) && invCount(CRAFTS[r.craft].crystal) >= 1; }
+function synthChance(r) { return clamp(65 + 7 * (craftSkill(r.craft) - r.lv), 5, 95); }
+function synthHqChance(r) { return r.hq ? clamp(5 * (craftSkill(r.craft) - r.lv), 0, 50) : 0; }
+function canSynth(r) {
+  if (!FEATURES.crafting) return "Crafting isn't available yet.";
+  if (!player.alive) return "You are KO'd.";
+  if (player.engaged || inCombatWith(player) || partyInCombat()) return "You can't synthesize during a fight.";
+  if (player.casting) return "You are casting.";
+  if (player.synth) return "You're already synthesizing.";
+  if (player.mounted) return "Dismount first.";
+  if (invCount(CRAFTS[r.craft].crystal) < 1) return "You need " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".";
+  if (!recipeMatsOk(r)) return "You're missing ingredients.";
+  return "";
+}
+function startSynth(id) {
+  const r = RECIPES.find(x => x.id === id);
+  if (!r) return "Unknown recipe.";
+  const why = canSynth(r);
+  if (why) { log(why, "sys"); sfx("error"); return why; }
+  if (player.resting) standUp(player, true);
+  player.synth = { r, start: S.time, end: S.time + CONFIG.synthTime };
+  S.moveTarget = null; S.chase = false;
+  log("You begin synthesizing " + ITEMS[r.out].name + " with " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".", "you");
+  sfx("cast", player);
+  vfx("cast", { src: player, sp: { kind: "nuke", element: ITEMS[CRAFTS[r.craft].crystal].element } });
+  return "";
+}
+function cancelSynth(msg) {
+  if (!player.synth) return;
+  player.synth = null;
+  log(msg || "Your synthesis is interrupted.", "sys");
+  sfx("interrupt", player);
+}
+function finishSynth() {
+  const r = player.synth.r;
+  player.synth = null;
+  const crystal = CRAFTS[r.craft].crystal;
+  removeItem(crystal, 1);
+  const skill = craftSkill(r.craft);
+  const roll = Math.random() * 100;
+  const el = ITEMS[crystal].element;
+  if (roll < synthChance(r)) {
+    const hq = r.hq && Math.random() * 100 < synthHqChance(r);
+    for (const id in r.mats) removeItem(id, r.mats[id]);
+    const out = hq ? r.hq : r.out;
+    giveItem(out, r.qty || 1);
+    log("Synthesis complete: " + (r.qty > 1 ? r.qty + " × " : "") + ITEMS[out].name + (hq ? " (high quality!)" : "") + ".", "loot");
+    sfx(hq ? "levelup" : "unlock", player);
+    vfx("burst", { tgt: player, el });
+  } else {
+    for (const id in r.mats) if (Math.random() < 0.5) removeItem(id, Math.max(1, Math.floor(r.mats[id] / 2)));
+    log("The synthesis fails. The crystal shatters and some ingredients are lost.", "foe");
+    sfx("interrupt", player);
+    vfx("interrupt", { tgt: player });
+  }
+  if (skill < CONFIG.craftCap && r.lv >= skill - 2) {
+    const gain = r.lv >= skill ? (Math.random() < 0.5 ? 0.3 : 0.5) : 0.1;
+    if (Math.random() < 0.7) { save.crafts[r.craft] = Math.min(CONFIG.craftCap, Math.round((skill + gain) * 10) / 10); log(CRAFTS[r.craft].name + " skill rises to " + save.crafts[r.craft].toFixed(1) + ".", "sys"); }
+  }
+  saveGame();
+}
+function tickSynth(dt) {
+  if (!player.synth) return;
+  if (player.engaged || inCombatWith(player) || !player.alive) { cancelSynth(); return; }
+  if (S.time >= player.synth.end) finishSynth();
+}
+
+function gardenOf(i) { return save.gardens[i] || null; }
+function gardenStage(g) {
+  if (!g) return 0;
+  return g.stage;
+}
+function gardenReady(g) { return g && g.stage >= 3; }
+function gardenNeedsWater(g) { return g && g.stage < 3 && !g.watered; }
+function gardenTick() {
+  const now = Date.now();
+  for (const k in save.gardens) {
+    const g = save.gardens[k];
+    if (g.stage >= 3 || !g.watered) continue;
+    if (now - g.since >= GARDEN_STAGE_MS) { g.stage++; g.since = now; g.watered = false; if (S.zoneId === "residence") log("Your " + ITEMS[g.seed].name.replace(/ Seeds?| Sapling/, "") + " plant " + (g.stage >= 3 ? "is ready to harvest!" : "has grown. It needs water."), "npc"); S.furnDirty = true; }
+  }
+}
+function plantSeed(i, seedId) {
+  const f = save.furniture[i];
+  if (!f || !ITEMS[f.id].garden) return "That isn't a flowerpot.";
+  if (save.gardens[i]) return "Something is already planted there.";
+  if (invCount(seedId) < 1 || ITEMS[seedId].kind !== "seed") return "You don't have those seeds.";
+  removeItem(seedId, 1);
+  save.gardens[i] = { seed: seedId, stage: 0, since: Date.now(), watered: false, crystal: null };
+  log("You plant " + ITEMS[seedId].name + " in the flowerpot. Water it to get it growing.", "npc");
+  sfx("select");
+  saveGame();
+  return "";
+}
+function waterGarden(i) {
+  const g = save.gardens[i];
+  if (!g) return "Nothing is planted there.";
+  if (g.stage >= 3) return "It's ready to harvest.";
+  if (g.watered) return "It's already watered. Come back in a while.";
+  g.watered = true;
+  g.since = Date.now();
+  log("You water the plant.", "npc");
+  sfx("water", player);
+  saveGame();
+  return "";
+}
+function feedGarden(i, crystalId) {
+  const g = save.gardens[i];
+  if (!g) return "Nothing is planted there.";
+  if (g.crystal) return "It has already been fed a crystal.";
+  if (!ITEMS[crystalId] || ITEMS[crystalId].kind !== "crystal" || invCount(crystalId) < 1) return "You don't have that crystal.";
+  removeItem(crystalId, 1);
+  g.crystal = ITEMS[crystalId].element;
+  log("You feed the plant " + an(ITEMS[crystalId].name) + ". It glows faintly.", "npc");
+  sfx("buff", player);
+  saveGame();
+  return "";
+}
+function harvestGarden(i) {
+  const g = save.gardens[i];
+  if (!g) return "Nothing is planted there.";
+  if (g.stage < 3) return "It isn't ready yet.";
+  const gr = ITEMS[g.seed].grows;
+  let n = randInt(gr.n[0], gr.n[1]);
+  const matched = gr.bonus && g.crystal === gr.bonus;
+  if (matched) n += 2;
+  if (gr.crystal) {
+    const el = g.crystal || "earth";
+    const id = { fire: "fire_crystal", wind: "wind_crystal", earth: "earth_crystal", water: "water_crystal" }[el] || "earth_crystal";
+    giveItem(id, n);
+  } else {
+    giveItem(gr.item, n);
+    if (gr.rare && Math.random() < (g.crystal === gr.bonus ? 0.6 : 0.3)) giveItem(pick(gr.rare), 1);
+  }
+  delete save.gardens[i];
+  save.harvests = (save.harvests || 0) + 1;
+  log("You harvest the plant." + (matched ? " The crystal made it thrive." : ""), "loot");
+  sfx("levelup");
+  S.furnDirty = true;
+  saveGame();
+  return "";
 }
 
 function spawnAllowed(sp) { return !sp.time || sp.time === period(); }
@@ -7605,7 +7822,8 @@ function step(dt) {
     for (const ex of S.zone.exits) if (circleRect(player, ex, 8)) { enterZone(ex.to, ex.tx, ex.ty); return; }
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); }
+  tickSynth(dt);
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
   S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
@@ -7784,7 +8002,7 @@ function questOfferable(id) {
   const q = QUESTS[id];
   return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done");
 }
-const QUEST_CHECKS = { furniture: () => save.furniture.length >= 2 };
+const QUEST_CHECKS = { furniture: () => save.furniture.length >= 2, harvest: () => save.harvests >= 1 };
 function questComplete(id) {
   const q = QUESTS[id];
   if (save.quests[id] !== "active") return false;
@@ -7822,6 +8040,7 @@ function questOptions(npcId, n) {
 function questProgressText(id) {
   const q = QUESTS[id];
   if (q.check === "furniture") return "Furniture placed " + Math.min(2, save.furniture.length) + "/2";
+  if (q.check === "harvest") return "Harvests " + Math.min(1, save.harvests) + "/1";
   if (q.kill) return q.kill.name + " " + Math.min(q.kill.n, save.qprog[id] || 0) + "/" + q.kill.n;
   if (q.items) return Object.keys(q.items).map(it => ITEMS[it].name + " " + Math.min(q.items[it], invCount(it)) + "/" + q.items[it]).join(", ");
   return "";
@@ -7949,9 +8168,13 @@ function placeFurniture(id, c, r, rot) {
 function removeFurniture(i) {
   const f = save.furniture[i];
   if (!f) return "";
+  if (save.gardens[i]) return "Harvest or clear the plant first.";
   if (ITEMS[f.id].storage && storageUsed() > storageCap() - ITEMS[f.id].storage) return "Your stored items wouldn't fit without it.";
   if (save.inventory.length >= CONFIG.inventorySize && !save.inventory.some(s => s.id === f.id && s.qty < (ITEMS[f.id].stack || 1))) return "Your bag is full.";
   save.furniture.splice(i, 1);
+  const moved = {};
+  for (const k in save.gardens) { const n = +k; if (n > i) moved[n - 1] = save.gardens[k]; else if (n < i) moved[n] = save.gardens[k]; }
+  save.gardens = moved;
   giveItem(f.id, 1, true);
   log("Pip packs away the " + ITEMS[f.id].name + ".", "npc");
   sfx("select");
@@ -8097,16 +8320,18 @@ const TALK = {
   },
   talkPip(n) {
     const placed = save.furniture.length;
+    const g = questOptions("pip", n);
     openDialog(n.name, placed ? "Welcome home! " + placed + " piece" + (placed === 1 ? "" : "s") + " of furniture, " + storageUsed() + "/" + storageCap() + " storage slots used. What do you need?" : "Oh! You must be the new tenant. I'm Pip. I mind the cottage: I'll keep your things and arrange whatever furniture you bring. It's a bit bare in here. Odette by the west wall sells furniture.", [
       { label: "Storage", fn: () => { closeDialog(); openModal("storage"); } },
       { label: "Arrange furniture", fn: () => { closeDialog(); openModal("home"); } }
-    ]);
+    ].concat(g));
   },
   talkOdette(n) {
-    openDialog(n.name, "Chairs, tables, beds, a good hearth. Everything a cottage wants. Pip at your place will set it all up.", [
-      { label: "Browse furniture", fn: () => { closeDialog(); openModal("furnishings"); } }
+    openDialog(n.name, "Chairs, tables, beds, a good hearth, and seeds for the flowerpots. Everything a cottage wants. Pip at your place will set it all up.", [
+      { label: "Browse furniture and seeds", fn: () => { closeDialog(); openModal("furnishings"); } }
     ].concat(questOptions("odette", n)));
   },
+  talkGather(n) { doGather(n); },
   talkBrazier(n) {
     const el = n.element;
     if (brazierLit(el)) { openDialog(n.name, save.crypt.solved ? "The brazier burns steadily. The gate stands open." : "The brazier is already lit. " + (4 - save.crypt.lit.length) + " more to go.", []); return; }
@@ -8152,10 +8377,9 @@ const TALK = {
     openDialog(n.name, save.timers["nm:hollow_king"] > Date.now() ? "The throne stands empty. For now." : "A throne of black stone, cold as the grave. Its king is never far.", []);
   },
   talkCrystal(n) {
+    const hurt = S.party.some(p => !p.alive || p.hp < p.maxHp || p.mp < p.maxMp);
     for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; }
-    ring(n, "#80deea", 60, 0.9, "sparkle");
-    sfx("cure", n);
-    vfx("crystal", { at: n });
+    if (hurt) { ring(n, "#80deea", 60, 0.9, "sparkle"); sfx("cure", n); vfx("crystal", { at: n }); }
     saveGame();
     const isHome = save.home.zone === S.zoneId && save.home.npc === n.id;
     openDialog(n.name, "The crystal's light washes over your party. HP and MP restored." + (isHome ? " This is your home point." : " You can make this your home point: you'll return here if you fall."), isHome ? [] : [
@@ -8315,6 +8539,7 @@ const COMMANDS = [
   ["/item name", "Use an item, e.g. /item potion."],
   ["/mount, /dismount", "Call or dismiss your Thornstrider."],
   ["/jump", "Jump."],
+  ["/craft", "Open the synthesis window (also the Crafting tab)."],
   ["/time", "Show the game time and weekday."],
   ["/where", "Show your zone and position."],
   ["/clear", "Clear the chat log."],
@@ -8388,6 +8613,7 @@ function runCommand(text) {
     case "mount": if (!player.mounted) toggleMount(); return;
     case "dismount": if (player.mounted) dismount("You dismount."); return;
     case "jump": if (typeof tryJump === "function") tryJump(); return;
+    case "craft": case "synth": openModal("craft"); return;
     case "time": case "clock": log(clockText() + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); return;
     case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
     case "clear": if (typeof clearLog === "function") clearLog(); return;
@@ -8705,9 +8931,9 @@ const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
-  storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""]
+  craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""]
 };
-const MAIN_TABS = ["character", "inventory", "skills", "actions", "quests", "map", "settings"];
+const MAIN_TABS = ["character", "inventory", "skills", "actions", "craft", "quests", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -9162,6 +9388,7 @@ function drawMinimap() {
     if (NPCS[n.id] && NPCS[n.id].crystal) { g.save(); g.translate(n.x, n.y); g.rotate(Math.PI / 4); g.fillStyle = "#7ff3ff"; const s = 7 / sc; g.fillRect(-s / 2, -s / 2, s, s); g.restore(); }
     else if (n.prop === "brazier") dot(n.x, n.y, 4, brazierLit(n.element) ? ELEMENT_COLORS[n.element] : "#555", "#000");
     else if (n.prop === "chest") dot(n.x, n.y, 4, chestState(n) === "closed" ? "#ffd54f" : "#7a6a3a", "#000");
+    else if (n.prop === "gather") dot(n.x, n.y, 4, { mining: "#b0bec5", logging: "#a1887f", harvesting: "#aed581" }[n.gtype], "#000");
     else if (n.prop) dot(n.x, n.y, 3.5, "#bbb", "#000");
     else dot(n.x, n.y, 5, questMarker(n) ? "#ffd54f" : "#ead9ae", "#000");
   }
@@ -9323,6 +9550,11 @@ function updateBottom() {
     const c = player.casting;
     setTxt($("castName"), (c.sp ? c.sp.name : "Casting") + (c.t && c.t !== player ? " → " + (c.t.name || "") : "") + "…");
     setW($("castFill"), 100 * (S.time - c.start) / (c.end - c.start));
+  } else if (player.synth) {
+    cb.style.display = "block";
+    const c = player.synth;
+    setTxt($("castName"), "Synthesizing " + ITEMS[c.r.out].name + "…");
+    setW($("castFill"), 100 * (S.time - c.start) / (c.end - c.start));
   } else cb.style.display = "none";
   const eng = $("btnEngage");
   eng.classList.toggle("on", player.engaged);
@@ -9404,13 +9636,14 @@ function openMenu(tab) {
 function openModal(tab) { openMenu(tab); }
 function closeModal() {
   if (!S.modal) return;
+  if (S.modal === "character") releasePreview();
   S.modal = null;
   $("menu").style.display = "none";
   sfx("close");
 }
 
 function menuSig() {
-  return [save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length].join("|");
+  return [save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -9430,7 +9663,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -9491,7 +9724,7 @@ function attachPreview(wrapId) {
       const canvas = document.createElement("canvas");
       canvas.id = "pvCanvas";
       const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      r.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
       r.outputColorSpace = THREE.SRGBColorSpace;
       r.toneMapping = THREE.ACESFilmicToneMapping;
       r.toneMappingExposure = 1.25;
@@ -9512,6 +9745,18 @@ function attachPreview(wrapId) {
   if (UI.pv.failed) return;
   wrap.insertBefore(UI.pv.canvas, wrap.firstChild);
   UI.pv.sized = 0;
+}
+
+function releasePreview() {
+  const pv = UI.pv;
+  if (!pv || pv.failed) return;
+  try {
+    if (pv.holder) { pv.scene.remove(pv.holder); pv.view && pv.view.mat && pv.view.mat.dispose(); }
+    pv.r.dispose();
+    pv.r.forceContextLoss();
+    if (pv.canvas.parentNode) pv.canvas.parentNode.removeChild(pv.canvas);
+  } catch (e) {}
+  UI.pv = null;
 }
 
 function previewEntity(o) {
@@ -9633,6 +9878,7 @@ function renderShowcase(now) {
 function startShowcase() {
   const wrap = $("ldPv");
   if (!wrap || typeof attachPreview !== "function" || !RIG.atlas) return;
+  if (window.innerWidth <= 720 || W3.quality === "low" || (navigator.deviceMemory && navigator.deviceMemory < 4)) return;
   attachPreview("ldPv");
   if (!UI.pv || UI.pv.failed) return;
   const key = LORE_KEYS[Math.floor(Math.random() * LORE_KEYS.length)];
@@ -9646,10 +9892,11 @@ function startShowcase() {
   wrap.style.display = "block";
 }
 function stopShowcase() {
+  const was = !!UI.showcase;
   UI.showcase = null;
   const wrap = $("ldPv");
   if (wrap) wrap.style.display = "none";
-  if (UI.pv && UI.pv.sig && UI.pv.sig.startsWith("show:")) UI.pv.sig = null;
+  if (was) releasePreview();
 }
 
 function invSorted() {
@@ -9678,7 +9925,7 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
@@ -9862,12 +10109,28 @@ function tabCredits() {
   return h;
 }
 
+function tabCraft() {
+  if (!UI.craft) UI.craft = "smithing";
+  const c = UI.craft;
+  let h = '<div class="invTop">' + Object.keys(CRAFTS).map(k => '<button data-a="craftsel" data-v="' + k + '"' + (k === c ? ' class="on"' : "") + ">" + CRAFTS[k].icon + " " + CRAFTS[k].name + ' <span class="sub">' + craftSkill(k).toFixed(1) + "</span></button>").join("") + "</div>";
+  h += '<div class="sub" style="margin-bottom:8px">' + CRAFTS[c].name + " skill " + craftSkill(c).toFixed(1) + " / " + CONFIG.craftCap + " · needs " + an(ITEMS[CRAFTS[c].crystal].name) + " (have " + invCount(CRAFTS[c].crystal) + ") · about " + CONFIG.synthTime + " s per synthesis, anywhere outside combat.</div>";
+  const list = RECIPES.filter(r => r.craft === c).sort((a, b) => a.lv - b.lv);
+  for (const r of list) {
+    const ok = recipeMatsOk(r);
+    const why = canSynth(r);
+    const mats = Object.keys(r.mats).map(id => '<span class="' + (invCount(id) >= r.mats[id] ? "ok" : "bad") + '">' + esc(ITEMS[id].name) + " " + Math.min(invCount(id), r.mats[id]) + "/" + r.mats[id] + "</span>").join(" · ");
+    h += '<div class="item" style="align-items:flex-start"><div><div>' + (ITEMS[r.out].icon || "") + " " + esc(ITEMS[r.out].name) + (r.qty > 1 ? " ×" + r.qty : "") + ' <span class="sub">Lv.' + r.lv + " · " + synthChance(r) + "% success" + (r.hq ? " · HQ " + synthHqChance(r) + "%" : "") + '</span></div><div class="d">' + mats + '</div></div><button data-a="synth" data-v="' + r.id + '"' + (why ? " disabled" : "") + ' title="' + esc(why || "Synthesize") + '">Synthesize</button></div>';
+  }
+  if (UI.craftMsg) h += '<div class="sub" style="color:#ff8a80;margin-top:6px">' + esc(UI.craftMsg) + "</div>";
+  return h;
+}
+
 function tabFurnishings() {
-  let h = '<div class="sub" style="margin-bottom:6px">Odette sells furniture for your residence. 💠 ' + save.gil + " crystals · Pip at the cottage places it.</div><h3>Buy</h3>";
-  FURNITURE_SHOP.forEach(id => { const it = ITEMS[id]; const fp = it.fp || [1, 1]; h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (it.icon || "") + "</span><div><div>" + esc(it.name) + ' <span class="sub">' + fp[0] + "×" + fp[1] + (it.storage ? " · +" + it.storage + " storage" : "") + '</span></div><div class="d">' + esc(it.desc || "") + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < it.price ? " disabled" : "") + ">" + it.price + " gil</button></div>"; });
+  let h = '<div class="sub" style="margin-bottom:6px">Odette sells furniture and seeds for your residence. 💠 ' + save.gil + " crystals · Pip at the cottage places it.</div><h3>Buy</h3>";
+  FURNITURE_SHOP.concat(SEED_SHOP).forEach(id => { const it = ITEMS[id]; const fp = it.fp || [1, 1]; h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (it.icon || "") + "</span><div><div>" + esc(it.name) + ' <span class="sub">' + fp[0] + "×" + fp[1] + (it.storage ? " · +" + it.storage + " storage" : "") + '</span></div><div class="d">' + esc(it.desc || "") + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < it.price ? " disabled" : "") + ">" + it.price + " gil</button></div>"; });
   h += "<h3>Sell</h3>";
-  const sellable = save.inventory.filter(s => ITEMS[s.id].kind === "furniture" && sellPrice(s.id) > 0);
-  if (!sellable.length) h += '<div class="sub">No furniture to sell.</div>';
+  const sellable = save.inventory.filter(s => (ITEMS[s.id].kind === "furniture" || ITEMS[s.id].kind === "seed") && sellPrice(s.id) > 0);
+  if (!sellable.length) h += '<div class="sub">No furniture or seeds to sell.</div>';
   sellable.forEach(s => { h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="sell" data-v="' + s.id + '">' + sellPrice(s.id) + " gil</button></div>"; });
   return h;
 }
@@ -9908,7 +10171,24 @@ function tabHome() {
   h += "</div>";
   if (UI.furnSel != null && save.furniture[UI.furnSel]) {
     const f = save.furniture[UI.furnSel];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (ITEMS[f.id].icon || "📦") + "</span><div><b>" + esc(ITEMS[f.id].name) + '</b><div class="tags">Tile ' + f.c + "," + f.r + " · " + (f.rot || 0) * 90 + "°" + (ITEMS[f.id].storage ? " · +" + ITEMS[f.id].storage + " storage" : "") + '</div></div></div><div class="acts"><button data-a="rotf" data-v="' + UI.furnSel + '">↻ Rotate</button><button data-a="packf" data-v="' + UI.furnSel + '">Pack away</button></div></div>';
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (ITEMS[f.id].icon || "📦") + "</span><div><b>" + esc(ITEMS[f.id].name) + '</b><div class="tags">Tile ' + f.c + "," + f.r + " · " + (f.rot || 0) * 90 + "°" + (ITEMS[f.id].storage ? " · +" + ITEMS[f.id].storage + " storage" : "") + "</div></div></div>";
+    if (ITEMS[f.id].garden) {
+      const g = gardenOf(UI.furnSel);
+      if (!g) {
+        const seeds = save.inventory.filter(s => ITEMS[s.id].kind === "seed");
+        h += '<div class="sub" style="margin-top:6px">Empty flowerpot. ' + (seeds.length ? "Plant:" : "Odette sells seeds.") + '</div><div class="acts">' + seeds.map(s => '<button data-a="plant" data-v="' + UI.furnSel + ":" + s.id + '">' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + " ×" + s.qty + "</button>").join("") + "</div>";
+      } else {
+        const stageName = ["Seeded", "Sprout", "Growing", "Ready to harvest"][g.stage];
+        const left = g.stage < 3 && g.watered ? Math.max(0, Math.ceil((GARDEN_STAGE_MS - (Date.now() - g.since)) / 60000)) : null;
+        h += '<div class="sub" style="margin-top:6px">' + esc(ITEMS[g.seed].name) + " · " + stageName + " (stage " + Math.min(3, g.stage) + "/3)" + (g.stage < 3 ? (g.watered ? " · next stage in about " + left + " min" : " · <b style=\"color:#81d4fa\">needs water</b>") : "") + (g.crystal ? " · fed " + g.crystal : " · not fed") + "</div>";
+        h += '<div class="acts">';
+        if (g.stage < 3 && !g.watered) h += '<button data-a="water" data-v="' + UI.furnSel + '">💧 Water</button>';
+        if (!g.crystal) { const cr = save.inventory.filter(s => ITEMS[s.id].kind === "crystal"); h += cr.map(s => '<button data-a="feed" data-v="' + UI.furnSel + ":" + s.id + '">' + (ITEMS[s.id].icon || "") + " Feed " + esc(ITEMS[s.id].name) + "</button>").join(""); }
+        if (g.stage >= 3) h += '<button data-a="harvest" data-v="' + UI.furnSel + '" class="pri">🌿 Harvest</button>';
+        h += "</div>";
+      }
+    }
+    h += '<div class="acts"><button data-a="rotf" data-v="' + UI.furnSel + '">↻ Rotate</button><button data-a="packf" data-v="' + UI.furnSel + '">Pack away</button></div></div>';
   }
   if (UI.homeMsg) h += '<div class="sub" style="color:#ff8a80;margin-top:6px">' + esc(UI.homeMsg) + "</div>";
   return h;
@@ -10038,6 +10318,12 @@ function onMenuClick(e) {
   else if (a === "hire") hireMerc(v);
   else if (a === "dismiss") dismissMerc(v);
   else if (a === "open") { openMenu(v); return; }
+  else if (a === "craftsel") { UI.craft = v; UI.craftMsg = ""; sfx("tab"); renderModal(); return; }
+  else if (a === "synth") { UI.craftMsg = startSynth(v); closeModal(); return; }
+  else if (a === "plant") { const [i, id] = v.split(":"); UI.homeMsg = plantSeed(+i, id); if (UI.homeMsg) sfx("error"); renderModal(); return; }
+  else if (a === "water") { UI.homeMsg = waterGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
+  else if (a === "feed") { const [i, id] = v.split(":"); UI.homeMsg = feedGarden(+i, id); if (UI.homeMsg) sfx("error"); renderModal(); return; }
+  else if (a === "harvest") { UI.homeMsg = harvestGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
   else if (a === "store") { storeItem(+v); renderModal(); return; }
   else if (a === "retrieve") { retrieveItem(+v); renderModal(); return; }
   else if (a === "pickf") { UI.pick = UI.pick === v ? null : v; UI.furnSel = null; UI.homeMsg = ""; sfx("tab"); renderModal(); return; }
@@ -10084,8 +10370,16 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v4.6.4 · built 2026-10-13 11:59 PDT";
+const BUILD_INFO = "v4.7.0 · built 2026-10-13 12:17 PDT";
 const UPDATES = [
+  { v: "4.7.0", date: "2026-10-13", title: "Phase 6b: gathering, crafting, gardening", items: [
+    "Gathering: Mining, Logging and Harvesting points in Rocky Hollow and the Goblin Den (rocks with ore, log piles, herb patches). Each needs a Pickaxe, Hatchet or Sickle from Pell. Tools break 25% of the time, less as your gathering skill rises. Points run dry after 1–3 uses and reappear elsewhere 45 s later.",
+    "Crafting (N or the Crafting tab, or /craft): Smithing, Woodworking, Clothcraft and Alchemy with 23 recipes. One crystal plus ingredients, 3 seconds, anywhere outside combat. Success starts at 65% and moves 7% per skill level; working above a recipe's level can make high-quality +1 items. Failure breaks the crystal and loses some ingredients. Skills cap at 20.",
+    "Gardening: place a Flowerpot at home, plant seeds, water at each of three 10-minute real-time stages, and feed a crystal for a bigger harvest. Herb Seeds, Ash Saplings and Wildgrass Seeds (grows crystals) from Odette; Moonbloom Seeds are a rare drop.",
+    "New quest: Green Thumb (Pip): harvest a flowerpot. Make It Home now rewards a flowerpot and herb seeds.",
+    "Healing effects no longer play when there's nothing to heal: Cure on a full-HP target shows 'No effect', potions and ethers won't be used at full, and the crystal only sparkles if someone needed it.",
+    "Fix: the loading-screen model now only shows on larger screens, and its 3D view is released after loading, to stop phones running out of graphics memory on zone changes."
+  ] },
   { v: "4.6.4", date: "2026-10-13", title: "Creation fixes", items: ["Hair style and colour now update on the character creation preview (and the character tab preview refreshes properly when gear changes).", "Male and female characters have their own hair style lists (male: short, spiky, long, ponytail, shaved; female: long, ponytail, bob, bun, short)."] },
   { v: "4.6.3", date: "2026-10-13", title: "Skin tone palette", items: ["Character creation offers four skin tones: light, fair, tan and dark brown. Saved characters keep their look."] },
   { v: "4.6.0", date: "2026-10-13", title: "Phase 6a: your residence, Pip and storage", items: [
@@ -10258,12 +10552,29 @@ function tabHelp() {
     "People in the Outpost go home at night and come back out in the morning, each at their own hour: Ysolde 19:30–5:30, Tobin 20:00–7:00, Pell 21:00–6:30, Odette 21:30–6:00, Rhea 22:00–6:00, Brann 23:00–7:30 (game time).",
     "While someone is indoors you can't talk or trade with them. The Home Point Crystal is always there."
   ]));
+  h += sec("⛏️ Gathering", ul([
+    "Look for ore rocks, log piles and herb patches in Rocky Hollow and the Goblin Den (grey, brown and green dots on the minimap). Tap one to gather.",
+    "Each needs a tool from Pell: Pickaxe (mining), Hatchet (logging), Sickle (harvesting). A tool breaks 25% of the time, minus 1% per skill level (never below 5%).",
+    "A point runs dry after 1–3 uses and a new one appears elsewhere 45 seconds later. Gathering raises its own skill, up to 20."
+  ]));
+  h += sec("⚒️ Crafting", ul([
+    "Open the Crafting tab (N, or /craft). Pick a craft, then Synthesize. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
+    "Each synthesis uses one crystal: Fire for Smithing, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
+    "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure breaks the crystal and loses some ingredients.",
+    "Skill rises on recipes near or above your level, up to " + CONFIG.craftCap + "."
+  ]) + tbl(["Craft", "Crystal", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, RECIPES.filter(r => r.craft === k).map(r => ITEMS[r.out].name).join(", ")])));
+  h += sec("🌱 Gardening", ul([
+    "Place a Flowerpot in your residence (Odette sells them), then select it in Arrange to plant, water, feed and harvest.",
+    "A plant grows through three stages of 10 real minutes each, but only while watered: water it at every stage.",
+    "Feed it one crystal. A matching crystal grows extra: Earth for herbs, Wind for ash, Water for moonbloom. Wildgrass grows crystals of whichever element you feed it.",
+    "Seeds: Herb Seeds (3–6 Healing Herbs), Ash Sapling (2–4 Ash Logs), Wildgrass Seeds (2–4 crystals), Moonbloom Seeds (Ethers and a chance at rare materials; a rare drop)."
+  ]));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
   h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
 
-const GAME_VERSION = "4.6.4";
+const GAME_VERSION = "4.7.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -11222,7 +11533,7 @@ function buildHouse(field, root) {
   const beamMat = std({ color: 0x4a3220, roughness: 0.9 });
   const W = z.w * U, H = z.h * U, wallH = 3.4;
   const floor = new THREE.Mesh(new THREE.BoxGeometry(W + 2, 0.3, H + 2), floorMat);
-  floor.position.set(W / 2, 0.0, H / 2);
+  floor.position.set(W / 2, -0.15, H / 2);
   floor.receiveShadow = true;
   root.add(floor);
   const mkWall = (x, zz, len, rot) => {
@@ -11265,11 +11576,11 @@ function buildHouse(field, root) {
   for (const [c, r] of g.blocked) {
     if (c === 0 || c === 1) continue;
     const mat = new THREE.Mesh(new THREE.BoxGeometry(cw, 0.04, ch), std({ color: 0x8a6a48 }));
-    mat.position.set((c + 0.5) * cw, 0.17, (r + 0.5) * ch);
+    mat.position.set((c + 0.5) * cw, 0.02, (r + 0.5) * ch);
     root.add(mat);
   }
   const rug = new THREE.Mesh(new THREE.CircleGeometry(1.2, 24), std({ color: 0x6a3a3a, roughness: 1 }));
-  rug.rotation.x = -Math.PI / 2; rug.position.set(1.0 * cw, 0.17, 1.0 * ch);
+  rug.rotation.x = -Math.PI / 2; rug.position.set(1.0 * cw, 0.02, 1.0 * ch);
   root.add(rug);
   const amb = new THREE.PointLight(0xffe2b8, 8, 18, 1.4);
   amb.position.set(W / 2, 3.0, H / 2);
@@ -11293,6 +11604,13 @@ function furnitureMesh(f) {
     case "chest": box(1.5, 0.8, 1.0, 0, 0.4, 0, wood); box(1.5, 0.3, 1.0, 0, 0.95, 0, dark); box(0.2, 0.25, 0.1, 0, 0.7, 0.52, std({ color: 0xc8a040, metalness: 0.6 })); break;
     case "wardrobe": box(Wm - 0.3, 3.0, 1.2, 0, 1.5, 0, wood); box(0.05, 2.6, 0.05, 0, 1.5, 0.63, dark); for (const sx of [-1, 1]) box(0.08, 0.3, 0.06, sx * 0.25, 1.5, 0.64, std({ color: 0xc8a040, metalness: 0.6 })); break;
     case "bookshelf": box(Wm - 0.3, 2.6, 0.9, 0, 1.3, 0, dark); for (let i = 0; i < 4; i++) { box(Wm - 0.5, 0.06, 0.8, 0, 0.5 + i * 0.6, 0, wood); for (let k = 0; k < 7; k++) box(0.14, 0.4, 0.55, -Wm / 2 + 0.45 + k * 0.42, 0.75 + i * 0.6, 0.05, std({ color: [0x8a3a3a, 0x3a5a8a, 0x5a7a3a, 0xc8a040, 0x6a3a7a][(i + k) % 5] })); } break;
+    case "pot": {
+      const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.32, 0.5, 12), std({ color: 0xb0603a })); pot.position.y = 0.25;
+      const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.06, 12), std({ color: 0x3a2a1c })); soil.position.y = 0.5;
+      g.add(pot, soil);
+      g.userData.pot = true;
+      break;
+    }
     case "plant": { const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.22, 0.45, 10), std({ color: 0xa0603a })); pot.position.y = 0.22; g.add(pot); for (let i = 0; i < 7; i++) { const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.9, 5), std({ color: 0x3a8a3a })); const a = i / 7 * Math.PI * 2; leaf.position.set(Math.cos(a) * 0.15, 0.8, Math.sin(a) * 0.15); leaf.rotation.set(Math.sin(a) * 0.6, 0, -Math.cos(a) * 0.6); g.add(leaf); } break; }
     case "lamp": { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 2.0, 8), dark); post.position.y = 1.0; const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.45, 0.5, 12, 1, true), std({ color: 0xe8d8a8, emissive: 0xffd080, emissiveIntensity: 0.6, side: THREE.DoubleSide })); shade.position.y = 2.1; const L = new THREE.PointLight(0xffd8a0, 8, 9, 1.5); L.position.y = 2.0; g.add(post, shade, L); break; }
     case "rug": { const r = new THREE.Mesh(new THREE.CircleGeometry(Math.min(Wm, Dm) / 2 - 0.1, 28), std({ color: 0x8a4a4a, roughness: 1 })); r.rotation.x = -Math.PI / 2; r.position.y = 0.02; const ring = new THREE.Mesh(new THREE.RingGeometry(Math.min(Wm, Dm) / 2 - 0.4, Math.min(Wm, Dm) / 2 - 0.25, 28), std({ color: 0xd8b060, roughness: 1 })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.025; g.add(r, ring); break; }
@@ -11305,20 +11623,30 @@ function furnitureMesh(f) {
 
 function syncFurniture() {
   if (!W3.furnRoot || S.zoneId !== "residence") return;
-  const sig = JSON.stringify(save.furniture);
+  const sig = JSON.stringify(save.furniture) + JSON.stringify(save.gardens);
   if (sig !== W3.furnSig) {
     W3.furnSig = sig;
     disposeTree(W3.furnRoot);
     while (W3.furnRoot.children.length) W3.furnRoot.remove(W3.furnRoot.children[0]);
     const g = ZONES.residence.grid;
     const cw = ZONES.residence.w / g.cols * U, ch = ZONES.residence.h / g.rows * U;
-    for (const f of save.furniture) {
+    save.furniture.forEach((f, i) => {
       const { w, h } = furnFoot(f.id, f.rot || 0);
       const m = furnitureMesh(f);
-      m.position.set((f.c + w / 2) * cw, 0.15, (f.r + h / 2) * ch);
+      const gd = ITEMS[f.id].garden ? save.gardens[i] : null;
+      if (gd) {
+        const st = gd.stage, gr = ITEMS[gd.seed].grows;
+        const col = gr.crystal ? 0x9ccc65 : gd.seed === "ash_sapling" ? 0x4a7a3a : gd.seed === "moonbloom_seeds" ? 0x9fa8da : 0x5a9a3a;
+        if (st >= 1) for (let k = 0; k < 2 + st * 2; k++) { const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.06 + st * 0.02, 0.3 + st * 0.25, 5), std({ color: col })); const a = k / (2 + st * 2) * Math.PI * 2; leaf.position.set(Math.cos(a) * 0.12 * st, 0.55 + (0.15 + st * 0.12), Math.sin(a) * 0.12 * st); leaf.rotation.set(Math.sin(a) * 0.5, 0, -Math.cos(a) * 0.5); m.add(leaf); }
+        else { const sp = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.18, 4), std({ color: 0x8bc34a })); sp.position.y = 0.6; m.add(sp); }
+        if (st >= 3) for (let k = 0; k < 3; k++) { const fl = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 5), std({ color: gd.seed === "moonbloom_seeds" ? 0xe3f2fd : gr.crystal ? 0xffd54f : 0xff8a65, emissive: 0x442200, emissiveIntensity: 0.4 })); fl.position.set(Math.cos(k * 2.1) * 0.2, 1.25, Math.sin(k * 2.1) * 0.2); m.add(fl); }
+        if (gd.crystal) { const L = new THREE.PointLight(new THREE.Color(ELEMENT_COLORS[gd.crystal] || "#fff"), 2, 3, 2); L.position.y = 0.9; m.add(L); }
+        if (st < 3 && !gd.watered) { const dry = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.4, 16), new THREE.MeshBasicMaterial({ color: 0x81d4fa, transparent: true, opacity: 0.5, side: THREE.DoubleSide })); dry.rotation.x = -Math.PI / 2; dry.position.y = 0.56; m.add(dry); }
+      }
+      m.position.set((f.c + w / 2) * cw, 0, (f.r + h / 2) * ch);
       m.rotation.y = -(f.rot || 0) * Math.PI / 2;
       W3.furnRoot.add(m);
-    }
+    });
   }
   for (const m of W3.furnRoot.children) if (m.userData.flame) { const k = 0.9 + Math.sin(S.time * 11) * 0.12; m.userData.flame.scale.set(k, 1 + Math.sin(S.time * 7) * 0.15, k); }
 }
@@ -13594,7 +13922,7 @@ function updateAuras(dt) {
     }
   }
   for (const p of S.party) {
-    if (!p.alive || !p.regenerating || Math.random() > dt * 3) continue;
+    if (!p.alive || !p.regenerating || (p.hp >= p.maxHp && p.mp >= p.maxMp) || Math.random() > dt * 3) continue;
     const g = groundAt(p);
     FX.add.spawn(g.x + rnd(-0.4, 0.4), g.y + rnd(0.2, 1.4), g.z + rnd(-0.4, 0.4), 0, rnd(0.4, 0.9), 0, 1.2, 0.1, 0.02, C(0xd8ffd8), C(0x7cdc8a), 0, 0, 0.6);
   }
@@ -13861,6 +14189,26 @@ function propView(n) {
     if (n.chest === "king") { const chain = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 20), std({ color: 0xcfd8dc, emissive: 0x80cbc4, emissiveIntensity: 0.4 })); chain.rotation.x = Math.PI / 2; chain.position.y = 0.8; chain.scale.set(1.1, 1, 0.7); g.add(chain); v.chain = chain; }
   } else if (n.prop === "throne") {
     v.meta.headTop = 4.5;
+  } else if (n.prop === "gather") {
+    if (n.gtype === "mining") {
+      const rt = texRock();
+      const rock = new THREE.Mesh(noisyGeo(new THREE.IcosahedronGeometry(0.8, 1), 0.2, 11), std({ map: rt.map, normalMap: rt.normalMap }));
+      rock.position.y = 0.55; rock.castShadow = true;
+      g.add(rock);
+      for (let i = 0; i < 5; i++) { const ore = new THREE.Mesh(new THREE.OctahedronGeometry(0.12, 0), std({ color: 0xd8a040, emissive: 0xd8a040, emissiveIntensity: 0.5, metalness: 0.8, roughness: 0.3 })); const a = i / 5 * Math.PI * 2; ore.position.set(Math.cos(a) * 0.62, 0.5 + Math.sin(i * 2.1) * 0.25, Math.sin(a) * 0.62); g.add(ore); }
+      v.meta.headTop = 1.4;
+    } else if (n.gtype === "logging") {
+      const bark = texBark();
+      const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 0.7, 10), std({ map: bark.map, normalMap: bark.normalMap })); stump.position.y = 0.35; stump.castShadow = true;
+      const top = new THREE.Mesh(new THREE.CircleGeometry(0.42, 10), std({ color: 0xc8a070 })); top.rotation.x = -Math.PI / 2; top.position.y = 0.71;
+      g.add(stump, top);
+      for (let i = 0; i < 3; i++) { const lg = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 1.4, 8), std({ map: bark.map, normalMap: bark.normalMap })); lg.rotation.set(0, i * 0.7, Math.PI / 2); lg.position.set(0.5 + i * 0.1, 0.16 + i * 0.26, 0.3 - i * 0.2); g.add(lg); }
+      v.meta.headTop = 1.2;
+    } else {
+      for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2, r = 0.25 + (i % 3) * 0.14; const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.9 + (i % 2) * 0.3, 5), std({ color: i % 3 === 0 ? 0x7cb342 : 0x558b2f })); leaf.position.set(Math.cos(a) * r, 0.45, Math.sin(a) * r); leaf.rotation.set(Math.sin(a) * 0.4, 0, -Math.cos(a) * 0.4); g.add(leaf); }
+      for (let i = 0; i < 4; i++) { const fl = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 5), std({ color: [0xffeb3b, 0xf48fb1, 0xffffff, 0xce93d8][i], emissive: 0x332200, emissiveIntensity: 0.3 })); const a = i * 1.6; fl.position.set(Math.cos(a) * 0.3, 0.95 + (i % 2) * 0.15, Math.sin(a) * 0.3); g.add(fl); }
+      v.meta.headTop = 1.3;
+    }
   } else if (n.prop === "nubbin") {
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 12), std({ color: 0x5a8a3a, roughness: 1 }));
     body.position.y = 0.55; body.castShadow = true;
@@ -14470,7 +14818,7 @@ function onKey(e) {
   if (UI.confirmOpen) { if (k === "escape") $("confirmBox").querySelector(".no").click(); if (k === "enter") $("confirmBox").querySelector(".yes").click(); e.preventDefault(); return; }
   if (!UI.started) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help" };
+  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft" };
   if (S.modal) {
     if (k === "escape") closeModal();
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
@@ -14686,7 +15034,7 @@ function showCharCreate() {
       }
       sfx("click"); paint(); return;
     }
-    if (b.dataset.back) { UI.creating = false; if (UI.pv) UI.pv.override = null; sfx("close"); showCharSelect(); return; }
+    if (b.dataset.back) { UI.creating = false; releasePreview(); sfx("close"); showCharSelect(); return; }
     if (b.dataset.create) create();
   };
 }
@@ -14697,6 +15045,7 @@ async function enterWorld(id, fresh) {
   UI.entering = true;
   UI.creating = false;
   if (UI.pv) UI.pv.override = null;
+  releasePreview();
   startAudio();
   sfx("select");
   const ld = $("loading");

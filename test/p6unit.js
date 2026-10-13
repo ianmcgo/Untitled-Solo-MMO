@@ -52,7 +52,7 @@ const txt = G.exportSaveText(); const d = G.importSaveText(txt);
 ok(d && d.furniture.length === 2 && Array.isArray(d.storage), 'furniture and storage survive save files');
 G.enterZone('outpost', 262, 420); run(0.3);
 G.TALK.talkOdette(npc('odette')); opt(/Report/).fn(); opt(/Collect/).fn();
-ok(G.save.quests.home === 'done' && G.invCount('potted_plant') === 1, 'Odette rewards the potted plant');
+ok(G.save.quests.home === 'done' && G.invCount('flowerpot') === 1 && G.invCount('herb_seeds') === 2, 'Odette rewards a flowerpot and herb seeds');
 
 G.enterZone('hollow', 200, 1100); run(0.5);
 const passive = S.mobs.filter(m => m.passive && !m.fam.nm), aggr = S.mobs.filter(m => !m.passive);

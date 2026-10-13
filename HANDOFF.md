@@ -27,7 +27,7 @@ Paste this into the project's custom instructions:
 | P5c Quests (11) | Done (v4.4.0) |
 | P5d Sunken Crypt | Done (v4.5.0) |
 | P6a Residence, Pip, storage, furniture, NPC schedules | Done (v4.6.0) |
-| P6b Gardening, crafting, gathering | Next |
+| P6b Gardening, crafting, gathering | Done (v4.7.0) |
 | P7 Test and tune (night difficulty, phone frame rate) | Not started |
 
 ## How to build and test
@@ -36,7 +36,7 @@ Needs Node 18+, and for audio Python 3 with numpy and scipy plus ffmpeg.
 npm install                      # three, esbuild
 node build.mjs 4                 # the game -> dist/index.html
 node build.mjs 1                 # 2D rules build -> dist/game.js, used by the tests
-cd test && node p1unit.js; node p3unit.js; node p5unit.js; node p5bunit.js; node p5cunit.js; node p5dunit.js; node p6unit.js; node p1bot.js ../dist/game.js
+cd test && node p1unit.js; node p3unit.js; node p5unit.js; node p5bunit.js; node p5cunit.js; node p5dunit.js; node p6unit.js; node p6bunit.js; node p1bot.js ../dist/game.js
 python3 audio/gen.py sfx|music|amb   # re-render sounds into audio/out/
 ```
 Browser tests (Playwright + Chromium): `test/p5shots.js <abs path to dist/index.html> <out prefix> <w> <h> <mobile 0|1> [scene,scene]`, plus the older `test/p4*.js`. Build 4 again after build 1, since both write `dist/`.

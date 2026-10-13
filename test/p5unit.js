@@ -23,16 +23,17 @@ for (const zid of ['hollow', 'den']) {
 }
 ok(G.ZONES.hollow.w === 3200 && G.ZONES.hollow.h === 2200 && G.ZONES.den.w === 2400 && G.ZONES.den.h === 1600, 'zone sizes match the plan');
 
+{ const v = G.vana(); let d = 10 - v.hour - v.minute / 60; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; }
 G.enterZone('outpost', 610, 440);
 G.cycleTarget();
-const near = S.npcs.filter(n => !n.crystal).sort((a, b) => G.dist(a, P()) - G.dist(b, P()))[0];
+const near = S.npcs.filter(n => !n.crystal && !n.away && !n.prop).sort((a, b) => G.dist(a, P()) - G.dist(b, P()))[0];
 ok(P().target === near, 'Tab in town targets the closest person (' + near.name + ')');
 G.cycleTarget();
 ok(P().target !== near && P().target && P().target.kind === 'npc', 'Tab again cycles to the next person');
 run(3); G.cycleTarget();
 ok(P().target === near, 'after a pause, Tab goes back to the closest');
 P().x = 900; P().y = 480; run(3); G.cycleTarget();
-const near2 = S.npcs.filter(n => !n.crystal).sort((a, b) => G.dist(a, P()) - G.dist(b, P()))[0];
+const near2 = S.npcs.filter(n => !n.crystal && !n.away && !n.prop).sort((a, b) => G.dist(a, P()) - G.dist(b, P()))[0];
 ok(P().target === near2, 'after moving, Tab picks the new closest (' + near2.name + ')');
 
 G.enterZone('hollow', 120, 1100); run(1);

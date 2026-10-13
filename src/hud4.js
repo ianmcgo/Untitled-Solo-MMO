@@ -10,9 +10,9 @@ const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
-  storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""]
+  craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""]
 };
-const MAIN_TABS = ["character", "inventory", "skills", "actions", "quests", "map", "settings"];
+const MAIN_TABS = ["character", "inventory", "skills", "actions", "craft", "quests", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -467,6 +467,7 @@ function drawMinimap() {
     if (NPCS[n.id] && NPCS[n.id].crystal) { g.save(); g.translate(n.x, n.y); g.rotate(Math.PI / 4); g.fillStyle = "#7ff3ff"; const s = 7 / sc; g.fillRect(-s / 2, -s / 2, s, s); g.restore(); }
     else if (n.prop === "brazier") dot(n.x, n.y, 4, brazierLit(n.element) ? ELEMENT_COLORS[n.element] : "#555", "#000");
     else if (n.prop === "chest") dot(n.x, n.y, 4, chestState(n) === "closed" ? "#ffd54f" : "#7a6a3a", "#000");
+    else if (n.prop === "gather") dot(n.x, n.y, 4, { mining: "#b0bec5", logging: "#a1887f", harvesting: "#aed581" }[n.gtype], "#000");
     else if (n.prop) dot(n.x, n.y, 3.5, "#bbb", "#000");
     else dot(n.x, n.y, 5, questMarker(n) ? "#ffd54f" : "#ead9ae", "#000");
   }
@@ -627,6 +628,11 @@ function updateBottom() {
     cb.style.display = "block";
     const c = player.casting;
     setTxt($("castName"), (c.sp ? c.sp.name : "Casting") + (c.t && c.t !== player ? " → " + (c.t.name || "") : "") + "…");
+    setW($("castFill"), 100 * (S.time - c.start) / (c.end - c.start));
+  } else if (player.synth) {
+    cb.style.display = "block";
+    const c = player.synth;
+    setTxt($("castName"), "Synthesizing " + ITEMS[c.r.out].name + "…");
     setW($("castFill"), 100 * (S.time - c.start) / (c.end - c.start));
   } else cb.style.display = "none";
   const eng = $("btnEngage");

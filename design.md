@@ -15,7 +15,7 @@
 | P5c Quests (11) | Done (v4.4.0) |
 | P5d Sunken Crypt | Done (v4.5.0) |
 | P6a Residence, Pip, storage, furniture | Done (v4.6.0) |
-| P6b Gardening, crafting, gathering | Next |
+| P6b Gardening, crafting, gathering | Done (v4.7.0) |
 | P7 Test and tune | Not started |
 
 ---
@@ -514,10 +514,23 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - **Loading showcase.** Zone loading screens show a random subject from `LORE` (monster family, NM or NPC) rendered with the preview renderer (`startShowcase` / `renderShowcase` / `stopShowcase`, `showcaseEntity` fakes an entity for `buildEntityRig`).
 - Tests: `test/p6unit.js` (door, Odette, bedtimes and returns, no talking indoors, Pip, storage cap, placement rules, Storage Chest capacity, quest completion, store/retrieve, pack-away refusal, rotation, solidity, save round trip, passive monsters, spawn spacing).
 
+## Phase 6b: gathering, crafting, gardening (v4.7.0)
+
+- `FEATURES.crafting/gathering/residence` are on; the shop now lists tools, crystals and raw materials.
+- **Gathering.** On zone entry, `n` points per type are picked from `zone.gather[type].at` and created as prop NPCs (`prop: "gather"`, `gtype`, `uses` 1–3, `loot`) by `spawnGather`; `propView` draws an ore rock, log pile or herb patch, the minimap a coloured dot. `doGather` needs `GATHER[type].tool`, refuses in combat, rolls the loot (skill adds 1% per point), raises `save.gatherSkill[type]` (to 20), breaks the tool at `max(5, 25 − skill)`%, and on the last use `retireGather` hides it and queues a replacement at another free spot in `S.gatherAt` (45 s, `tickGather`).
+- **Crafting.** `RECIPES` (existing data). `synthChance` = clamp(65 + 7 × (skill − lv), 5, 95); `synthHqChance` = clamp(5 × (skill − lv), 0, 50) when the recipe has `hq`. `canSynth` (not in combat, crystal and mats present, not casting/mounted), `startSynth` sets `player.synth` for `CONFIG.synthTime`; `tickSynth` cancels it if anything attacks you; `finishSynth` consumes the crystal, on success the mats and gives the item (HQ variant on the HQ roll), on failure loses about half of each mat at 50% each. Skill rises 0.1–0.5 (70% chance) on recipes within 2 levels below or above, to `CONFIG.craftCap`. The cast bar shows "Synthesizing …". Tab `craft` (key N, `/craft`).
+- **Gardening.** `ITEMS.flowerpot` (`garden: true`, model `pot`) and seeds (`kind: "seed"`, `grows: { item | crystal, n, bonus, rare }`). `save.gardens[furnitureIndex] = { seed, stage, since, watered, crystal }`. `gardenTick` (twice a second) advances a watered plant one stage per `GARDEN_STAGE_MS` (10 min real time) and clears `watered`; dry plants wait. `plantSeed`, `waterGarden`, `feedGarden` (one crystal, sets the element), `harvestGarden` (+2 yield on a matching crystal; wildgrass gives crystals of the fed element; moonbloom rolls a rare material). `removeFurniture` refuses on a planted pot and re-indexes `save.gardens` when another piece is removed. `syncFurniture` draws sprout/leaves/flowers by stage, a glow if fed and a blue ring when it needs water. Controls live in the Arrange tab's detail panel.
+- Quest `greenthumb` (Pip, `check: "harvest"`, `save.harvests`); `home` now rewards a flowerpot and herb seeds. `SEED_SHOP` is sold by Odette.
+- **No pointless healing effects.** `castHeal` skips the cure effect at 0 HP restored ("No effect"); `useItem` refuses HP items at full HP and MP items at full MP; the crystal only sparkles if someone was hurt; regen motes only while something is actually missing.
+- **Zone-change crash fix.** The loading showcase is skipped on phones, Low quality and low-memory devices, and `releasePreview()` disposes the preview WebGL context after loading, after character creation and when the Character tab closes, so only one extra context ever exists.
+- Tests: `test/p6bunit.js`.
+
 ## Version log
 
 | Version | Change |
 |---|---|
+| 4.7.0 | Phase 6b: gathering, crafting, gardening; no heal effects at full; preview context released (above). |
+| 4.6.x | Skin palette, creation preview fix, hair lists by sex. |
 | 4.6.0 | Phase 6a: residence, Pip, storage, NPC schedules, passive monsters, NM-only gear, crystals, menu rework, in-game confirms, loading showcase (above). |
 | 4.5.0 | Phase 5d: the Sunken Crypt (above). Creation labels sex instead of build. |
 | 4.4.0 | Phase 5c: quests (above). |
