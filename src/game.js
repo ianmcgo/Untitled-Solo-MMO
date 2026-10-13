@@ -72,7 +72,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -111,6 +111,11 @@ function normalizeSave(d) {
   out.gatherSkill = Object.assign(newSave().gatherSkill, d.gatherSkill || {});
   out.gardens = d.gardens && typeof d.gardens === "object" ? d.gardens : {};
   out.harvests = d.harvests || 0;
+  out.market = Object.assign(newSave().market, d.market && typeof d.market === "object" ? d.market : {});
+  if (!Array.isArray(out.market.listings)) out.market.listings = [];
+  if (!Array.isArray(out.market.box)) out.market.box = [];
+  out.market.listings = out.market.listings.filter(l => l && ITEMS[l.id]);
+  out.market.box = out.market.box.filter(b => b && ITEMS[b.id] && b.qty > 0);
   out.story = Object.assign(newSave().story, d.story && typeof d.story === "object" ? d.story : {});
   out.guild = Object.assign(newSave().guild, d.guild && typeof d.guild === "object" ? d.guild : {});
   if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
@@ -1175,6 +1180,150 @@ function winBattlefield() {
 }
 
 function boardDay() { return Math.floor(Date.now() / 86400000); }
+
+function ahTradable(id) { const it = ITEMS[id]; return !!it && it.price > 0 && !it.rare && !it.ex && !it.nm && it.kind !== "key" && it.kind !== "furniture"; }
+function ahCategory(id) { const it = ITEMS[id]; if (it.kind === "equip") return it.slot === "main" ? "weapons" : "armor"; if (it.kind === "food" || it.kind === "use") return "consumables"; return "materials"; }
+function marketTick() { return Math.floor(((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000) / AH_CFG.tickMins); }
+function marketDay(tk) { return Math.floor((tk == null ? marketTick() : tk) * AH_CFG.tickMins / 1440); }
+
+function marketNews(day) {
+  const r = seeded(hashStr("news:" + day)), cats = Object.keys(AH_CATS);
+  const up = cats[Math.floor(r() * cats.length)];
+  let down = cats[Math.floor(r() * cats.length)];
+  if (down === up) down = cats[(cats.indexOf(up) + 2) % cats.length];
+  return { up, down, text: [AH_NEWS[up][0], AH_NEWS[down][1]] };
+}
+
+function marketMult(id, tk) {
+  const h = hashStr(id), p1 = (h % 1000) / 159, p2 = (Math.floor(h / 1000) % 1000) / 211;
+  let m = 1 + 0.16 * Math.sin(tk * 0.83 + p1) + 0.09 * Math.sin(tk * 0.31 + p2) + 0.05 * Math.sin(tk * 2.1 + p1 * p2);
+  const n = marketNews(marketDay(tk)), c = ahCategory(id);
+  if (c === n.up) m *= 1.2;
+  if (c === n.down) m *= 0.85;
+  return m;
+}
+
+function pressOf(id) {
+  const p = save.market.press[id];
+  if (!p) return 0;
+  return p.v * Math.pow(0.85, Math.max(0, marketTick() - p.tk));
+}
+
+function addPress(id, d) { save.market.press[id] = { v: clamp(pressOf(id) + d, -0.3, 0.4), tk: marketTick() }; }
+
+function marketPrice(id, tk) {
+  const now = marketTick(), t = tk == null ? now : tk;
+  const v = Math.max(1, Math.round(ITEMS[id].price * marketMult(id, t) * (1 + (t === now ? pressOf(id) : 0))));
+  return inShops(id) ? Math.min(v, Math.floor(ITEMS[id].price * 0.95)) : v;
+}
+
+function inShops(id) {
+  if (!S.shopSet) { S.shopSet = new Set(SHOP); for (const k in SHOPS) for (const x of SHOPS[k]) S.shopSet.add(x); }
+  return S.shopSet.has(id);
+}
+
+function priceHistory(id, n) { const now = marketTick(), out = []; for (let i = n - 1; i >= 0; i--) out.push(marketPrice(id, now - i)); return out; }
+
+function ahStock(id) {
+  const day = marketDay(), it = ITEMS[id];
+  if (save.market.bought.day !== day) save.market.bought = { day, n: {} };
+  const r = seeded(hashStr(id + ":" + day));
+  const base = it.price > 3000 ? 1 : it.price > 800 ? 2 : it.price > 150 ? 4 : 8;
+  const n = Math.floor(r() * (base + 1)) + (ahCategory(id) === "materials" || ahCategory(id) === "consumables" ? Math.ceil(base / 2) : 0);
+  return Math.max(0, n - (save.market.bought.n[id] || 0));
+}
+
+function ahBuy(id, qty) {
+  qty = Math.max(1, qty || 1);
+  if (!ahTradable(id)) return "That isn't sold here.";
+  if (ahStock(id) < qty) return "Not enough on the market today.";
+  const cost = marketPrice(id) * qty;
+  if (save.gil < cost) return "You need " + cost + " crystals.";
+  if (!giveItem(id, qty, true)) return "Your bag is full.";
+  save.gil -= cost;
+  save.market.bought.n[id] = (save.market.bought.n[id] || 0) + qty;
+  save.stats.ahBought = (save.stats.ahBought || 0) + qty;
+  addPress(id, 0.03 * qty);
+  log("You buy " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " at auction for " + cost + " crystals.", "loot");
+  sfx("coin");
+  saveGame();
+  return "";
+}
+
+function ahFee(price) { return Math.max(1, Math.ceil(price * AH_CFG.fee)); }
+
+function ahList(id, qty, price) {
+  qty = Math.max(1, Math.floor(qty || 1)); price = Math.floor(price || 0);
+  if (!ahTradable(id)) return "You can't sell that at auction.";
+  if (invCount(id) < qty) return "You don't have that many.";
+  if (qty > (ITEMS[id].stack || 1)) return "You can list one stack at a time.";
+  if (price < 1) return "Set a price.";
+  if (save.market.listings.length >= AH_CFG.maxListings) return "You can have " + AH_CFG.maxListings + " lots up at once.";
+  const fee = ahFee(price);
+  if (save.gil < fee) return "The listing fee is " + fee + " crystals.";
+  save.gil -= fee;
+  removeItem(id, qty);
+  const now = Date.now();
+  save.market.listings.push({ id, qty, price, t: now, next: now + AH_CFG.checkMs, exp: now + AH_CFG.expireMs });
+  log("You put " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " up for auction at " + price + " crystals (fee " + fee + ").", "sys");
+  sfx("coin");
+  saveGame();
+  return "";
+}
+
+function ahCancel(i) {
+  const l = save.market.listings[i];
+  if (!l) return;
+  save.market.listings.splice(i, 1);
+  save.market.box.push({ id: l.id, qty: l.qty });
+  log("You withdraw your " + ITEMS[l.id].name + ". It's waiting in your delivery box.", "sys");
+  saveGame();
+}
+
+function ahCollect() {
+  const left = [];
+  let got = 0;
+  for (const b of save.market.box) { if (giveItem(b.id, b.qty, true)) got++; else left.push(b); }
+  save.market.box = left;
+  if (got) { log("You collect " + got + " lot" + (got > 1 ? "s" : "") + " from your delivery box.", "loot"); sfx("loot"); }
+  saveGame();
+  return left.length ? "Your bag is full; some items are still in the box." : "";
+}
+
+function saleChance(l) {
+  const unit = l.price / l.qty, ratio = marketPrice(l.id) * 1.1 / unit;
+  return clamp(0.25 * ratio * ratio * ratio, 0.01, 0.85);
+}
+
+function tickAuction() {
+  const now = Date.now();
+  let changed = false;
+  for (let i = save.market.listings.length - 1; i >= 0; i--) {
+    const l = save.market.listings[i];
+    let sold = false, n = 0;
+    while (!sold && now >= l.next && l.next < l.exp && n++ < 300) {
+      l.next += AH_CFG.checkMs;
+      if (Math.random() < saleChance(l)) sold = true;
+    }
+    if (now >= l.next && !sold) l.next = Math.max(l.next, now - AH_CFG.checkMs);
+    if (sold) {
+      save.market.listings.splice(i, 1);
+      save.gil += l.price;
+      save.stats.ahSold = (save.stats.ahSold || 0) + 1;
+      addPress(l.id, -0.02 * l.qty);
+      log("Auction: your " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : ITEMS[l.id].name) + " sold for " + l.price + " crystals!", "loot");
+      sfx("coin");
+      uiEvent("ahsold", { id: l.id, price: l.price });
+      changed = true;
+    } else if (now >= l.exp) {
+      save.market.listings.splice(i, 1);
+      save.market.box.push({ id: l.id, qty: l.qty });
+      log("Auction: your " + ITEMS[l.id].name + " didn't sell and is back in your delivery box.", "sys");
+      changed = true;
+    }
+  }
+  if (changed) { checkAchievements(); saveGame(); }
+}
 
 function guildRank(total) {
   const t = total != null ? total : save.guild.total;
@@ -2766,6 +2915,7 @@ function step(dt) {
   if (S.race) tickRace();
   if (S.pet) tickPet();
   tickStory();
+  if (S.time >= (S.ahNext || 0)) { S.ahNext = S.time + 1; if (save.market.listings.length) tickAuction(); }
   if (S.bf) tickBattlefield();
   if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
@@ -3372,6 +3522,13 @@ const TALK = {
   talkGarrick(n) {
     openDialog(n.name, "Gear's only as good as the hands that finish it. Bring me iron ore, a fire essence and some crystals, and I'll work a little extra into any piece you own: up to two augments each. Don't like what you got? I can reforge it.", [
       { label: "Augment gear", fn: () => { closeDialog(); openModal("forge"); } }
+    ]);
+  },
+  talkAuction(n) {
+    const box = save.market.box.length, lots = save.market.listings.length, news = marketNews(marketDay());
+    openDialog(n.name, "Welcome to the auction house. Buy from other adventurers, or put your own goods up and let the market find a buyer. " + news.text[0] + (lots ? " You have " + lots + " lot" + (lots > 1 ? "s" : "") + " up." : "") + (box ? " There's something waiting in your delivery box." : ""), [
+      { label: "Browse the auction house", fn: () => { closeDialog(); UI.ahView = "buy"; openModal("auction"); } },
+      { label: "Sell at auction", fn: () => { closeDialog(); UI.ahView = "sell"; openModal("auction"); } }
     ]);
   },
   talkMaera(n) {
