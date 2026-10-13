@@ -311,6 +311,11 @@ const ITEMS = {
   corsair_jerkin: { name: "Corsair Jerkin", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "MNK", "RDM"], lv: 13, price: 5000, stats: { def: 13, dex: 3, agi: 3, hp: 20 } },
   gull_hat: { name: "Gull Feather Hat", kind: "equip", icon: "👒", slot: "head", jobs: ALL_J, lv: 13, price: 2600, stats: { def: 5, agi: 2, mp: 10 } },
   tide_ring: { name: "Tide Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 12, rare: true, stats: { hp: 20, mp: 20, mnd: 2 }, desc: "A gift from the harbor master." },
+  guild_ring: { name: "Guild Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 5, price: 0, stats: { hp: 15, mp: 10, acc: 3, att: 3 }, desc: "Bronze-rank token of the Adventurers' Guild." },
+  pathfinder_boots: { name: "Pathfinder Boots", kind: "equip", icon: "👢", ex: true, slot: "feet", jobs: ALL_J, lv: 10, price: 0, stats: { def: 7, agi: 3, eva: 4, hp: 10 }, desc: "Iron-rank boots. Made for long roads." },
+  silver_insignia: { name: "Silver Insignia", kind: "equip", icon: "💍", ex: true, rarity: "rare", slot: "ring", jobs: ALL_J, lv: 14, price: 0, stats: { hp: 25, mp: 20, str: 2, int: 2, mnd: 2 }, desc: "Silver-rank insignia of the Adventurers' Guild." },
+  guild_greatcoat: { name: "Guild Greatcoat", kind: "equip", icon: "🧥", ex: true, rarity: "rare", slot: "body", jobs: ALL_J, lv: 18, price: 0, stats: { def: 22, hp: 45, mp: 30, vit: 2, mnd: 2 }, desc: "Gold-rank coat with the guild's crossed swords on the back." },
+  mythril_crest: { name: "Mythril Crest", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 20, price: 0, stats: { hp: 40, mp: 40, str: 4, int: 4, acc: 6, att: 6 }, desc: "Worn only by Mythril-rank adventurers." },
   chapel_sigil: { name: "Chapel Sigil", kind: "mat", icon: "🔱", price: 400, stack: 3, rarity: "rare", desc: "A tarnished sigil that opens the sealed door of the Drowned Chapel. Used up on entry." },
   tide_crown: { name: "Tide Crown", kind: "equip", icon: "👑", slot: "head", jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { def: 8, hp: 25, mp: 25, int: 3, mnd: 3 }, desc: "Taken from the Tidebound Priest." },
   abyssal_staff: { name: "Abyssal Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 20, delay: 3.6, jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { int: 8, mnd: 6, mp: 30 }, desc: "Still dripping seawater." },
@@ -519,7 +524,7 @@ const ZONES = {
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
       { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
       { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
-      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }
+      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }
     ],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
@@ -819,6 +824,7 @@ const NPCS = {
   pell: { name: "Pell, Merchant", model: "pell", talk: "talkPell" },
   garrick: { name: "Garrick, Smith", model: "garrick", talk: "talkGarrick" },
   trade_board: { name: "Trade Board", prop: "board", talk: "talkBoard" },
+  maera: { name: "Maera, Adventurers' Guild", model: "maera", talk: "talkMaera" },
   odette: { name: "Odette, Furnishings", model: "odette", talk: "talkOdette", shop: "furniture" },
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
@@ -969,6 +975,41 @@ const BESTIARY = {
   ossuary_warden: { type: "Undead", lore: "A ghoul draped in grave silk that keeps watch over the ossuary. It drains warmth from the air around it." }
 };
 
+const GUILD_RANKS = [["Copper", 0, "#b87333"], ["Bronze", 100, "#cd7f32"], ["Iron", 300, "#a0a8b0"], ["Silver", 700, "#d8dde4"], ["Gold", 1500, "#ffd54f"], ["Mythril", 3000, "#80deea"]];
+const GUILD_DAILY = 3;
+const GUILD_ACTIVE = 3;
+const GUILD_BOUNTIES = [
+  { id: "b_hare", fam: "hare", n: 5, where: "Rocky Hollow (day)", lv: 1, gp: 10, tier: 0 },
+  { id: "b_goblin", fam: "goblin", n: 5, where: "Rocky Hollow", lv: 2, gp: 12, tier: 0 },
+  { id: "b_bat", fam: "bat", n: 4, where: "Rocky Hollow (night)", lv: 3, gp: 12, tier: 0 },
+  { id: "b_worm", fam: "worm", n: 4, where: "Rocky Hollow", lv: 3, gp: 12, tier: 0 },
+  { id: "b_den", fam: "den_goblin", n: 6, where: "Goblin Den", lv: 6, gp: 20, tier: 1 },
+  { id: "b_bones", fam: "skeleton", n: 4, where: "Rocky Hollow (night)", lv: 6, gp: 20, tier: 1 },
+  { id: "b_ghoul", fam: "ghoul", n: 4, where: "Goblin Den, Sunken Crypt", lv: 8, gp: 22, tier: 1 },
+  { id: "b_grimtooth", fam: "grimtooth", n: 1, where: "Goblin Camp, Rocky Hollow", lv: 6, gp: 40, tier: 1, nm: true },
+  { id: "b_wiggles", fam: "king_wiggles", n: 1, where: "Burrow Flats, Rocky Hollow (day)", lv: 5, gp: 35, tier: 1, nm: true },
+  { id: "b_toad", fam: "bog_toad", n: 6, where: "Ashen Marsh", lv: 10, gp: 28, tier: 2 },
+  { id: "b_leech", fam: "bog_leech", n: 5, where: "Ashen Marsh", lv: 10, gp: 28, tier: 2 },
+  { id: "b_mire", fam: "mire_goblin", n: 6, where: "Ashen Marsh", lv: 11, gp: 30, tier: 2 },
+  { id: "b_drowned", fam: "drowned", n: 4, where: "Ashen Marsh (night)", lv: 12, gp: 32, tier: 2 },
+  { id: "b_duskwing", fam: "duskwing", n: 1, where: "Old Fort Ruins (night)", lv: 8, gp: 45, tier: 2, nm: true },
+  { id: "b_warden", fam: "ossuary_warden", n: 1, where: "Bone Pit, Goblin Den", lv: 10, gp: 50, tier: 2, nm: true },
+  { id: "b_croaker", fam: "old_croaker", n: 1, where: "Croaker's Pool, Ashen Marsh (day)", lv: 12, gp: 55, tier: 2, nm: true },
+  { id: "b_guard", fam: "royal_guard", n: 4, where: "Sunken Crypt", lv: 12, gp: 40, tier: 3 },
+  { id: "b_gax", fam: "mirelord_gax", n: 1, where: "Mire Village, Ashen Marsh", lv: 14, gp: 70, tier: 3, nm: true },
+  { id: "b_frostgob", fam: "frost_goblin", n: 6, where: "Frostspire Pass", lv: 16, gp: 40, tier: 3 },
+  { id: "b_gworm", fam: "glacier_worm", n: 4, where: "Frostspire Pass", lv: 16, gp: 40, tier: 3 },
+  { id: "b_icebat", fam: "ice_bat", n: 5, where: "Frostspire Pass (night)", lv: 16, gp: 40, tier: 3 },
+  { id: "b_wight", fam: "ice_wight", n: 5, where: "Whispering Cairns (night)", lv: 18, gp: 55, tier: 4 },
+  { id: "b_rimefang", fam: "rimefang", n: 1, where: "Icefall Camp, Frostspire Pass", lv: 19, gp: 100, tier: 4, nm: true },
+  { id: "b_frostwight", fam: "frost_wight", n: 1, where: "Whispering Cairns (night)", lv: 19, gp: 100, tier: 4, nm: true }
+];
+const GUILD_SHOP = [
+  { id: "hi_potion", gp: 6, rank: 0 }, { id: "ether", gp: 8, rank: 0 },
+  { id: "guild_ring", gp: 60, rank: 1 }, { id: "pathfinder_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
+  { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
+];
+
 const ACHIEVEMENTS = [
   { id: "first_blood", icon: "⚔️", name: "First Blood", desc: "Defeat a monster.", gil: 20, test: s => s.stats.kills >= 1 },
   { id: "hunter", icon: "🏹", name: "Hunter", desc: "Defeat 50 monsters.", gil: 100, test: s => s.stats.kills >= 50 },
@@ -1011,6 +1052,9 @@ const ACHIEVEMENTS = [
   { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", gil: 150, test: s => (s.stats.ride || 0) >= 20000 },
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
+  { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", gil: 100, test: s => (s.stats.bounties || 0) >= 1 },
+  { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", gil: 400, test: s => (s.guild && s.guild.total || 0) >= 700 },
+  { id: "mythril", icon: "💎", name: "Mythril Legend", desc: "Reach Mythril rank in the Adventurers' Guild.", gil: 1500, test: s => (s.guild && s.guild.total || 0) >= 3000 },
   { id: "priest", icon: "🔱", name: "Tidebreaker", desc: "Defeat the Tidebound Priest in the Chapel Depths.", gil: 500, test: s => (s.stats.bfWins || 0) >= 1 },
   { id: "lv20", icon: "🏔️", name: "Summit", desc: "Reach level 20 on any job.", gil: 1000, test: s => Object.values(s.jobs).some(j => j.lv >= 20) },
   { id: "frost", icon: "❄️", name: "Cold Feet", desc: "Set foot in Frostspire Pass.", gil: 100, test: s => (s.discovered || []).includes("frost") },

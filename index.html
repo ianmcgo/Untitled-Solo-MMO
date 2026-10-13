@@ -522,7 +522,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v5.9.0 · built 2026-10-13 15:52 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.0.0 · built 2026-10-13 15:58 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5651,6 +5651,11 @@ const ITEMS = {
   corsair_jerkin: { name: "Corsair Jerkin", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "MNK", "RDM"], lv: 13, price: 5000, stats: { def: 13, dex: 3, agi: 3, hp: 20 } },
   gull_hat: { name: "Gull Feather Hat", kind: "equip", icon: "👒", slot: "head", jobs: ALL_J, lv: 13, price: 2600, stats: { def: 5, agi: 2, mp: 10 } },
   tide_ring: { name: "Tide Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 12, rare: true, stats: { hp: 20, mp: 20, mnd: 2 }, desc: "A gift from the harbor master." },
+  guild_ring: { name: "Guild Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 5, price: 0, stats: { hp: 15, mp: 10, acc: 3, att: 3 }, desc: "Bronze-rank token of the Adventurers' Guild." },
+  pathfinder_boots: { name: "Pathfinder Boots", kind: "equip", icon: "👢", ex: true, slot: "feet", jobs: ALL_J, lv: 10, price: 0, stats: { def: 7, agi: 3, eva: 4, hp: 10 }, desc: "Iron-rank boots. Made for long roads." },
+  silver_insignia: { name: "Silver Insignia", kind: "equip", icon: "💍", ex: true, rarity: "rare", slot: "ring", jobs: ALL_J, lv: 14, price: 0, stats: { hp: 25, mp: 20, str: 2, int: 2, mnd: 2 }, desc: "Silver-rank insignia of the Adventurers' Guild." },
+  guild_greatcoat: { name: "Guild Greatcoat", kind: "equip", icon: "🧥", ex: true, rarity: "rare", slot: "body", jobs: ALL_J, lv: 18, price: 0, stats: { def: 22, hp: 45, mp: 30, vit: 2, mnd: 2 }, desc: "Gold-rank coat with the guild's crossed swords on the back." },
+  mythril_crest: { name: "Mythril Crest", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 20, price: 0, stats: { hp: 40, mp: 40, str: 4, int: 4, acc: 6, att: 6 }, desc: "Worn only by Mythril-rank adventurers." },
   chapel_sigil: { name: "Chapel Sigil", kind: "mat", icon: "🔱", price: 400, stack: 3, rarity: "rare", desc: "A tarnished sigil that opens the sealed door of the Drowned Chapel. Used up on entry." },
   tide_crown: { name: "Tide Crown", kind: "equip", icon: "👑", slot: "head", jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { def: 8, hp: 25, mp: 25, int: 3, mnd: 3 }, desc: "Taken from the Tidebound Priest." },
   abyssal_staff: { name: "Abyssal Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 20, delay: 3.6, jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { int: 8, mnd: 6, mp: 30 }, desc: "Still dripping seawater." },
@@ -5859,7 +5864,7 @@ const ZONES = {
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
       { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
       { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
-      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }
+      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }
     ],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
@@ -6159,6 +6164,7 @@ const NPCS = {
   pell: { name: "Pell, Merchant", model: "pell", talk: "talkPell" },
   garrick: { name: "Garrick, Smith", model: "garrick", talk: "talkGarrick" },
   trade_board: { name: "Trade Board", prop: "board", talk: "talkBoard" },
+  maera: { name: "Maera, Adventurers' Guild", model: "maera", talk: "talkMaera" },
   odette: { name: "Odette, Furnishings", model: "odette", talk: "talkOdette", shop: "furniture" },
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
@@ -6309,6 +6315,41 @@ const BESTIARY = {
   ossuary_warden: { type: "Undead", lore: "A ghoul draped in grave silk that keeps watch over the ossuary. It drains warmth from the air around it." }
 };
 
+const GUILD_RANKS = [["Copper", 0, "#b87333"], ["Bronze", 100, "#cd7f32"], ["Iron", 300, "#a0a8b0"], ["Silver", 700, "#d8dde4"], ["Gold", 1500, "#ffd54f"], ["Mythril", 3000, "#80deea"]];
+const GUILD_DAILY = 3;
+const GUILD_ACTIVE = 3;
+const GUILD_BOUNTIES = [
+  { id: "b_hare", fam: "hare", n: 5, where: "Rocky Hollow (day)", lv: 1, gp: 10, tier: 0 },
+  { id: "b_goblin", fam: "goblin", n: 5, where: "Rocky Hollow", lv: 2, gp: 12, tier: 0 },
+  { id: "b_bat", fam: "bat", n: 4, where: "Rocky Hollow (night)", lv: 3, gp: 12, tier: 0 },
+  { id: "b_worm", fam: "worm", n: 4, where: "Rocky Hollow", lv: 3, gp: 12, tier: 0 },
+  { id: "b_den", fam: "den_goblin", n: 6, where: "Goblin Den", lv: 6, gp: 20, tier: 1 },
+  { id: "b_bones", fam: "skeleton", n: 4, where: "Rocky Hollow (night)", lv: 6, gp: 20, tier: 1 },
+  { id: "b_ghoul", fam: "ghoul", n: 4, where: "Goblin Den, Sunken Crypt", lv: 8, gp: 22, tier: 1 },
+  { id: "b_grimtooth", fam: "grimtooth", n: 1, where: "Goblin Camp, Rocky Hollow", lv: 6, gp: 40, tier: 1, nm: true },
+  { id: "b_wiggles", fam: "king_wiggles", n: 1, where: "Burrow Flats, Rocky Hollow (day)", lv: 5, gp: 35, tier: 1, nm: true },
+  { id: "b_toad", fam: "bog_toad", n: 6, where: "Ashen Marsh", lv: 10, gp: 28, tier: 2 },
+  { id: "b_leech", fam: "bog_leech", n: 5, where: "Ashen Marsh", lv: 10, gp: 28, tier: 2 },
+  { id: "b_mire", fam: "mire_goblin", n: 6, where: "Ashen Marsh", lv: 11, gp: 30, tier: 2 },
+  { id: "b_drowned", fam: "drowned", n: 4, where: "Ashen Marsh (night)", lv: 12, gp: 32, tier: 2 },
+  { id: "b_duskwing", fam: "duskwing", n: 1, where: "Old Fort Ruins (night)", lv: 8, gp: 45, tier: 2, nm: true },
+  { id: "b_warden", fam: "ossuary_warden", n: 1, where: "Bone Pit, Goblin Den", lv: 10, gp: 50, tier: 2, nm: true },
+  { id: "b_croaker", fam: "old_croaker", n: 1, where: "Croaker's Pool, Ashen Marsh (day)", lv: 12, gp: 55, tier: 2, nm: true },
+  { id: "b_guard", fam: "royal_guard", n: 4, where: "Sunken Crypt", lv: 12, gp: 40, tier: 3 },
+  { id: "b_gax", fam: "mirelord_gax", n: 1, where: "Mire Village, Ashen Marsh", lv: 14, gp: 70, tier: 3, nm: true },
+  { id: "b_frostgob", fam: "frost_goblin", n: 6, where: "Frostspire Pass", lv: 16, gp: 40, tier: 3 },
+  { id: "b_gworm", fam: "glacier_worm", n: 4, where: "Frostspire Pass", lv: 16, gp: 40, tier: 3 },
+  { id: "b_icebat", fam: "ice_bat", n: 5, where: "Frostspire Pass (night)", lv: 16, gp: 40, tier: 3 },
+  { id: "b_wight", fam: "ice_wight", n: 5, where: "Whispering Cairns (night)", lv: 18, gp: 55, tier: 4 },
+  { id: "b_rimefang", fam: "rimefang", n: 1, where: "Icefall Camp, Frostspire Pass", lv: 19, gp: 100, tier: 4, nm: true },
+  { id: "b_frostwight", fam: "frost_wight", n: 1, where: "Whispering Cairns (night)", lv: 19, gp: 100, tier: 4, nm: true }
+];
+const GUILD_SHOP = [
+  { id: "hi_potion", gp: 6, rank: 0 }, { id: "ether", gp: 8, rank: 0 },
+  { id: "guild_ring", gp: 60, rank: 1 }, { id: "pathfinder_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
+  { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
+];
+
 const ACHIEVEMENTS = [
   { id: "first_blood", icon: "⚔️", name: "First Blood", desc: "Defeat a monster.", gil: 20, test: s => s.stats.kills >= 1 },
   { id: "hunter", icon: "🏹", name: "Hunter", desc: "Defeat 50 monsters.", gil: 100, test: s => s.stats.kills >= 50 },
@@ -6351,6 +6392,9 @@ const ACHIEVEMENTS = [
   { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", gil: 150, test: s => (s.stats.ride || 0) >= 20000 },
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
+  { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", gil: 100, test: s => (s.stats.bounties || 0) >= 1 },
+  { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", gil: 400, test: s => (s.guild && s.guild.total || 0) >= 700 },
+  { id: "mythril", icon: "💎", name: "Mythril Legend", desc: "Reach Mythril rank in the Adventurers' Guild.", gil: 1500, test: s => (s.guild && s.guild.total || 0) >= 3000 },
   { id: "priest", icon: "🔱", name: "Tidebreaker", desc: "Defeat the Tidebound Priest in the Chapel Depths.", gil: 500, test: s => (s.stats.bfWins || 0) >= 1 },
   { id: "lv20", icon: "🏔️", name: "Summit", desc: "Reach level 20 on any job.", gil: 1000, test: s => Object.values(s.jobs).some(j => j.lv >= 20) },
   { id: "frost", icon: "❄️", name: "Cold Feet", desc: "Set foot in Frostspire Pass.", gil: 100, test: s => (s.discovered || []).includes("frost") },
@@ -6513,7 +6557,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -6552,6 +6596,9 @@ function normalizeSave(d) {
   out.gatherSkill = Object.assign(newSave().gatherSkill, d.gatherSkill || {});
   out.gardens = d.gardens && typeof d.gardens === "object" ? d.gardens : {};
   out.harvests = d.harvests || 0;
+  out.guild = Object.assign(newSave().guild, d.guild && typeof d.guild === "object" ? d.guild : {});
+  if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
+  if (!Array.isArray(out.guild.done)) out.guild.done = [];
   if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
   return out;
 }
@@ -7264,6 +7311,7 @@ function onKO(e, src) {
       const xp = xpFor(e.lv, player.lv);
       if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
+      bountyKill(e);
       for (const id in QUESTS) {
         const q = QUESTS[id];
         if (!q.kill || save.quests[id] !== "active") continue;
@@ -7599,6 +7647,102 @@ function winBattlefield() {
 }
 
 function boardDay() { return Math.floor(Date.now() / 86400000); }
+
+function guildRank(total) {
+  const t = total != null ? total : save.guild.total;
+  let r = 0;
+  for (let i = 0; i < GUILD_RANKS.length; i++) if (t >= GUILD_RANKS[i][1]) r = i;
+  return r;
+}
+
+function guildDay() {
+  const day = boardDay();
+  if (save.guild.day !== day) { save.guild.day = day; save.guild.done = []; }
+  return day;
+}
+
+function guildToday() {
+  const day = guildDay(), rank = guildRank();
+  const rnd = seeded(hashStr(String(save.created || 1) + ":g" + day + ":" + rank));
+  const pool = GUILD_BOUNTIES.filter(b => b.tier <= rank);
+  const top = pool.filter(b => b.tier >= rank - 1);
+  const out = [];
+  if (top.length) out.push(top[Math.floor(rnd() * top.length)]);
+  const rest = pool.filter(b => !out.includes(b));
+  while (out.length < GUILD_DAILY && rest.length) out.push(rest.splice(Math.floor(rnd() * rest.length), 1)[0]);
+  return out;
+}
+
+function bountyReward(b) { return { gp: b.gp, gil: b.gp * 8, xp: b.gp * (b.lv + 2) * 2 }; }
+
+function takeBounty(id) {
+  const b = guildToday().find(x => x.id === id);
+  if (!b) return "That bounty isn't posted today.";
+  if (save.guild.active[id] != null) return "You already have that bounty.";
+  if (save.guild.done.includes(id)) return "You've already finished that bounty today.";
+  if (Object.keys(save.guild.active).length >= GUILD_ACTIVE) return "You can carry " + GUILD_ACTIVE + " bounties at once.";
+  save.guild.active[id] = 0;
+  log("Bounty accepted: " + bountyName(b) + ".", "npc");
+  sfx("notify");
+  saveGame();
+  return "";
+}
+
+function bountyName(b) { const f = FAMILIES[b.fam] || NM_FAMILIES[b.fam]; return (b.nm ? "Hunt " : "Cull " + b.n + " ") + (f ? f.name : b.fam); }
+
+function dropBounty(id) {
+  if (save.guild.active[id] == null) return;
+  delete save.guild.active[id];
+  log("Bounty abandoned.", "sys");
+  saveGame();
+}
+
+function bountyKill(e) {
+  for (const id in save.guild.active) {
+    const b = GUILD_BOUNTIES.find(x => x.id === id);
+    if (!b || b.fam !== e.famKey) continue;
+    const n = save.guild.active[id];
+    if (n >= b.n) continue;
+    save.guild.active[id] = n + 1;
+    log("Bounty: " + bountyName(b) + " " + (n + 1) + "/" + b.n + "." + (n + 1 === b.n ? " Report to Maera." : ""), "npc");
+    if (n + 1 === b.n) sfx("notify");
+  }
+}
+
+function turnInBounty(id) {
+  const b = GUILD_BOUNTIES.find(x => x.id === id);
+  if (!b || save.guild.active[id] == null) return "You don't have that bounty.";
+  if (save.guild.active[id] < b.n) return "That bounty isn't finished yet.";
+  delete save.guild.active[id];
+  guildDay();
+  if (!save.guild.done.includes(id)) save.guild.done.push(id);
+  const r = bountyReward(b), before = guildRank();
+  save.guild.gp += r.gp; save.guild.total += r.gp;
+  save.gil += r.gil;
+  save.stats.bounties = (save.stats.bounties || 0) + 1;
+  log("Bounty complete: +" + r.gp + " guild points, +" + r.gil + " crystals.", "loot");
+  sfx("coin");
+  gainXp(r.xp);
+  const after = guildRank();
+  if (after > before) { log("Guild rank up! You are now " + GUILD_RANKS[after][0] + " rank.", "lvl"); sfx("levelup"); uiEvent("guildrank", { rank: after }); }
+  checkAchievements();
+  saveGame();
+  return "";
+}
+
+function guildBuy(id) {
+  const e = GUILD_SHOP.find(x => x.id === id);
+  if (!e) return "Not for sale.";
+  if (guildRank() < e.rank) return "You need " + GUILD_RANKS[e.rank][0] + " rank for that.";
+  if (save.guild.gp < e.gp) return "You need " + e.gp + " guild points.";
+  const it = ITEMS[id];
+  if (it.ex && (invCount(id) || Object.values(save.gear).includes(id))) return "You already own one.";
+  if (!giveItem(id, 1)) return "Your bag is full.";
+  save.guild.gp -= e.gp;
+  sfx("coin");
+  saveGame();
+  return "";
+}
 
 function boardToday() {
   const day = boardDay();
@@ -9245,6 +9389,7 @@ function questMarker(n) {
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
+  if (n.id === "maera") return Object.keys(save.guild.active).some(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && save.guild.active[id] >= b.n; }) || (player.lv >= 2 && !save.guild.total && !Object.keys(save.guild.active).length);
   return false;
 }
 
@@ -9548,6 +9693,11 @@ const TALK = {
     openDialog(n.name, "Gear's only as good as the hands that finish it. Bring me iron ore, a fire essence and some crystals, and I'll work a little extra into any piece you own: up to two augments each. Don't like what you got? I can reforge it.", [
       { label: "Augment gear", fn: () => { closeDialog(); openModal("forge"); } }
     ]);
+  },
+  talkMaera(n) {
+    const g = save.guild, rk = guildRank(), ready = Object.keys(g.active).filter(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && g.active[id] >= b.n; }).length;
+    const line = !g.total && !Object.keys(g.active).length ? "Welcome to the Adventurers' Guild. Every day I post bounties on monsters that are giving folk trouble. Finish them for crystals and guild points; points raise your rank and buy things you won't find in any shop." : ready ? "Back already? Let's see what you've brought in." : "You're " + GUILD_RANKS[rk][0] + " rank with " + g.gp + " guild points to spend. Today's bounties are on the board behind me.";
+    openDialog(n.name, line, [{ label: "Guild bounties and shop", fn: () => { closeDialog(); openModal("guild"); } }]);
   },
   talkBoard(n) {
     const left = boardToday().filter(r => !save.board.done.includes(r.id)).length;
@@ -10251,7 +10401,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -10859,6 +11009,7 @@ function uiEvent(type, d) {
   if (type === "bf") { toast("🔱", "Victory!", d.prize ? ITEMS[d.prize].name : "The chapel is quiet", "r-epic"); return; }
   if (type === "race") { UI.mmForce = true; return; }
   if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
+  if (type === "guildrank") { banner(GUILD_RANKS[d.rank][0].toUpperCase() + " RANK", "Adventurers' Guild", ["🛒 New guild rewards"]); return; }
   if (type === "beast") { toast("📖", "Bestiary", d.name, "r-uncommon"); return; }
   if (type === "item") {
     const it = ITEMS[d.id];
@@ -11070,7 +11221,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -11086,11 +11237,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "stable"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "stable"]) if (S.modal === t) tabs.unshift(t);
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, guild: tabGuild, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -11771,6 +11922,38 @@ function tabBoard() {
   return h;
 }
 
+function tabGuild() {
+  const g = save.guild, rk = guildRank(), R0 = GUILD_RANKS[rk], nx = GUILD_RANKS[rk + 1];
+  let h = '<div class="item"><div><b style="color:' + R0[2] + '">' + R0[0] + ' rank</b><div class="sub">' + g.total + " guild points earned" + (nx ? " · " + (nx[1] - g.total) + " more for " + nx[0] : " · highest rank") + '</div></div><span class="sub">🎖️ ' + g.gp + " to spend</span></div>";
+  if (nx) h += '<div style="height:6px;background:#0004;border-radius:3px;margin:4px 0 10px"><div style="height:6px;border-radius:3px;background:' + nx[2] + ";width:" + Math.round((g.total - R0[1]) / (nx[1] - R0[1]) * 100) + '%"></div></div>';
+  if (UI.guildMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.guildMsg) + "</div>";
+  const row = (b, btn, extra) => {
+    const r = bountyReward(b);
+    return '<div class="item"><div><b>' + (b.nm ? "★ " : "") + esc(bountyName(b)) + '</b><div class="sub">' + esc(b.where) + " · suggested level " + b.lv + "+" + (extra || "") + " · " + r.gp + " 🎖️ · " + r.gil + " 💠 · " + r.xp + " XP</div></div>" + btn + "</div>";
+  };
+  const act = Object.keys(g.active);
+  h += "<h3>Your bounties (" + act.length + "/" + GUILD_ACTIVE + ")</h3>";
+  if (!act.length) h += '<div class="sub">None. Take one from today\'s list.</div>';
+  for (const id of act) {
+    const b = GUILD_BOUNTIES.find(x => x.id === id);
+    if (!b) continue;
+    const n = g.active[id], done = n >= b.n;
+    h += row(b, done ? '<button data-a="bturn" data-v="' + id + '">Turn in</button>' : '<button data-a="bdrop" data-v="' + id + '">Abandon</button>', " · " + Math.min(n, b.n) + "/" + b.n);
+  }
+  h += "<h3>Today's bounties</h3>";
+  for (const b of guildToday()) {
+    const fin = g.done.includes(b.id), have = g.active[b.id] != null;
+    h += row(b, fin ? '<span class="sub">Done ✓</span>' : have ? '<span class="sub">Taken</span>' : '<button data-a="btake" data-v="' + b.id + '">Accept</button>');
+  }
+  h += '<div class="sub" style="margin:4px 0 8px">New bounties go up at midnight (UTC). Higher ranks unlock harder bounties and notorious monster hunts.</div>';
+  h += "<h3>Guild rewards</h3>";
+  for (const e of GUILD_SHOP) {
+    const it = ITEMS[e.id], lock = rk < e.rank;
+    h += '<div class="item ' + rarityOf(e.id) + '"' + (lock ? ' style="opacity:.5"' : "") + '><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + esc(itemDesc(e.id)) + "</div></div>" + (lock ? '<span class="sub">🔒 ' + GUILD_RANKS[e.rank][0] + "</span>" : '<button data-a="gbuy" data-v="' + e.id + '"' + (g.gp < e.gp ? " disabled" : "") + ">" + e.gp + " 🎖️</button>") + "</div>";
+  }
+  return h;
+}
+
 function tabAchievements() {
   const got = ACHIEVEMENTS.filter(a => save.ach[a.id]).length;
   let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked. Most come with a crystal reward.</div>";
@@ -11876,6 +12059,10 @@ function onMenuClick(e) {
   else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
   else if (a === "coat") { UI.stableMsg = buyCoat(v); renderModal(); return; }
   else if (a === "saddle") { UI.stableMsg = buySaddle(); renderModal(); return; }
+  else if (a === "btake") { UI.guildMsg = takeBounty(v); renderModal(); return; }
+  else if (a === "bdrop") { dropBounty(v); UI.guildMsg = ""; renderModal(); return; }
+  else if (a === "bturn") { UI.guildMsg = turnInBounty(v); renderModal(); return; }
+  else if (a === "gbuy") { UI.guildMsg = guildBuy(v); renderModal(); return; }
   else if (a === "trade") { UI.boardMsg = fillTrade(v); renderModal(); return; }
   else if (a === "mgive") { const [id, it] = v.split(":"); giveMercGear(id, it); }
   else if (a === "mtake") { const [id, sl] = v.split(":"); takeMercGear(id, sl); }
@@ -11932,8 +12119,15 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v5.9.0 · built 2026-10-13 15:52 PDT";
+const BUILD_INFO = "v6.0.0 · built 2026-10-13 15:58 PDT";
 const UPDATES = [
+  { v: "6.0.0", date: "2026-10-13", title: "The Adventurers' Guild", items: [
+    "Maera has opened the Adventurers' Guild in Ashenreach Outpost, just west of Captain Rhea.",
+    "Three bounties go up every day (midnight UTC). Accept up to three at a time, defeat the monsters anywhere in the world, and turn them in to Maera for guild points, crystals and experience.",
+    "Six guild ranks: Copper, Bronze, Iron, Silver, Gold and Mythril. Each rank brings harder bounties, including hunts for notorious monsters.",
+    "Spend guild points on guild rewards: Hi-Potions, Ethers, Chapel Sigils, and five pieces of guild gear (Guild Ring, Pathfinder Boots, Silver Insignia, Guild Greatcoat, Mythril Crest).",
+    "Three new achievements: On the Books, Silver Standing and Mythril Legend."
+  ] },
   { v: "5.9.0", date: "2026-10-13", title: "Level 20 and Frostspire Pass", items: [
     "Level cap raised to 20.",
     "New area: Frostspire Pass (levels 15–20), through the east exit of Saltreach Harbor, with five landmarks and falling snow. Blizzards thicken the air.",
@@ -12201,7 +12395,7 @@ function tabHelp() {
     ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
   ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, crystals and consumables; gear comes from NMs, quests and Pell's shop.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
-    ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, home point"],
+    ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, home point"],
     ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
@@ -12214,6 +12408,13 @@ function tabHelp() {
     "Inside, defeat the <b>Tidebound Priest</b> (level 16 boss) within " + BATTLEFIELD.minutes + " minutes. At 65% HP it raises two Drowned; below half it casts Maelstrom on everyone near it every 22 seconds; below 20% it enrages. It never leashes inside the chapel.",
     "Victory: " + BATTLEFIELD.gil + " crystals, " + BATTLEFIELD.xp + " XP and one treasure you don't own yet: Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle or Tidebreaker Bow. Leaving, wiping or running out of time ends the attempt.",
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
+  ]));
+  h += sec("⚔️ The Adventurers' Guild", ul([
+    "Talk to <b>Maera</b> in Ashenreach Outpost (west of Captain Rhea) to open the guild window.",
+    "<b>Bounties:</b> " + GUILD_DAILY + " are posted each day (new ones at midnight UTC). Accept up to " + GUILD_ACTIVE + " at once. Kills count anywhere, with or without companions. Each bounty can be finished once per day; you can abandon one to free a slot.",
+    "Rewards per bounty: guild points 🎖️, eight crystals per point, and experience scaled to the bounty's suggested level. ★ bounties are notorious monster hunts and pay the most.",
+    "<b>Ranks</b> (by total points earned; spending doesn't lower your rank): " + GUILD_RANKS.map(r => r[0] + " " + r[1]).join(" · ") + ". Each rank posts harder bounties.",
+    "<b>Guild rewards</b> (spend points): " + GUILD_SHOP.map(e => ITEMS[e.id].name + " " + e.gp + " (" + GUILD_RANKS[e.rank][0] + ")").join(", ") + ". Guild gear is Ex: one of each, and it can't be sold."
   ]));
   h += sec("❄️ Frostspire Pass", ul([
     "Through the east exit of Saltreach Harbor. The highest area so far (levels 15–20). It snows most of the time; blizzards thicken the air and cut how far you can see.",
@@ -12321,7 +12522,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "5.9.0";
+const GAME_VERSION = "6.0.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -14265,6 +14466,7 @@ const NPC_LOOK = {
   tobin: { build: 0, skin: SKIN_TONES[0], hair: { style: "bald", color: 0xdedede }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x5a3a7a, trim: 0xd8b050, sleeves: "wide" }, legs: 0x3a2a4a, weapon: "staff", alwaysDrawn: true },
   ilsa: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x1f3a5a, trim: 0xd8c070 }, head: { type: "feathered", color: 0x1f2a3a, color2: 0xd8c070 }, legs: 0x2a2a30, boots: 0x1a1410, belt: 0x3a2a1a, weapon: "sword", prop: { leg: 0.9 } },
   marn: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[2] }, beard: HAIR_COLORS[2], top: { type: "apron", color: 0x5a8aa8, color2: 0xd8d0c0 }, head: { type: "bandana", color: 0x1a5a8a }, legs: 0x3a4048, boots: 0x2a2a2a, belt: 0x3a2a1a, prop: { girth: 1.15 } },
+  maera: { build: 1, skin: SKIN_TONES[2], hair: { style: "bob", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x5a3a1e, trim: 0xc9a227 }, legs: 0x2e2a24, boots: 0x2a1a10, gloves: 0x5a3a20, belt: 0x3a2412, weapon: "sword" },
   vela: { build: 1, skin: SKIN_TONES[0], hair: { style: "bob", color: HAIR_COLORS[4] }, top: { type: "tabard", color: 0x5a2a6a, region: "cloth", color2: 0xd8c070 }, legs: 0x2a2030, boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a },
   garrick: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: HAIR_COLORS[0] }, beard: 0x8a5a2c, longBeard: true, top: { type: "apron", color: 0x3a2a20, color2: 0x6a4a30 }, legs: 0x3a3028, boots: 0x2a1e14, gloves: 0x4a3020, belt: 0x2a1e14, weapon: "club", alwaysDrawn: false, prop: { girth: 1.2, shoulder: 0.215 } },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },

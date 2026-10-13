@@ -72,7 +72,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -111,6 +111,9 @@ function normalizeSave(d) {
   out.gatherSkill = Object.assign(newSave().gatherSkill, d.gatherSkill || {});
   out.gardens = d.gardens && typeof d.gardens === "object" ? d.gardens : {};
   out.harvests = d.harvests || 0;
+  out.guild = Object.assign(newSave().guild, d.guild && typeof d.guild === "object" ? d.guild : {});
+  if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
+  if (!Array.isArray(out.guild.done)) out.guild.done = [];
   if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
   return out;
 }
@@ -823,6 +826,7 @@ function onKO(e, src) {
       const xp = xpFor(e.lv, player.lv);
       if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
+      bountyKill(e);
       for (const id in QUESTS) {
         const q = QUESTS[id];
         if (!q.kill || save.quests[id] !== "active") continue;
@@ -1158,6 +1162,102 @@ function winBattlefield() {
 }
 
 function boardDay() { return Math.floor(Date.now() / 86400000); }
+
+function guildRank(total) {
+  const t = total != null ? total : save.guild.total;
+  let r = 0;
+  for (let i = 0; i < GUILD_RANKS.length; i++) if (t >= GUILD_RANKS[i][1]) r = i;
+  return r;
+}
+
+function guildDay() {
+  const day = boardDay();
+  if (save.guild.day !== day) { save.guild.day = day; save.guild.done = []; }
+  return day;
+}
+
+function guildToday() {
+  const day = guildDay(), rank = guildRank();
+  const rnd = seeded(hashStr(String(save.created || 1) + ":g" + day + ":" + rank));
+  const pool = GUILD_BOUNTIES.filter(b => b.tier <= rank);
+  const top = pool.filter(b => b.tier >= rank - 1);
+  const out = [];
+  if (top.length) out.push(top[Math.floor(rnd() * top.length)]);
+  const rest = pool.filter(b => !out.includes(b));
+  while (out.length < GUILD_DAILY && rest.length) out.push(rest.splice(Math.floor(rnd() * rest.length), 1)[0]);
+  return out;
+}
+
+function bountyReward(b) { return { gp: b.gp, gil: b.gp * 8, xp: b.gp * (b.lv + 2) * 2 }; }
+
+function takeBounty(id) {
+  const b = guildToday().find(x => x.id === id);
+  if (!b) return "That bounty isn't posted today.";
+  if (save.guild.active[id] != null) return "You already have that bounty.";
+  if (save.guild.done.includes(id)) return "You've already finished that bounty today.";
+  if (Object.keys(save.guild.active).length >= GUILD_ACTIVE) return "You can carry " + GUILD_ACTIVE + " bounties at once.";
+  save.guild.active[id] = 0;
+  log("Bounty accepted: " + bountyName(b) + ".", "npc");
+  sfx("notify");
+  saveGame();
+  return "";
+}
+
+function bountyName(b) { const f = FAMILIES[b.fam] || NM_FAMILIES[b.fam]; return (b.nm ? "Hunt " : "Cull " + b.n + " ") + (f ? f.name : b.fam); }
+
+function dropBounty(id) {
+  if (save.guild.active[id] == null) return;
+  delete save.guild.active[id];
+  log("Bounty abandoned.", "sys");
+  saveGame();
+}
+
+function bountyKill(e) {
+  for (const id in save.guild.active) {
+    const b = GUILD_BOUNTIES.find(x => x.id === id);
+    if (!b || b.fam !== e.famKey) continue;
+    const n = save.guild.active[id];
+    if (n >= b.n) continue;
+    save.guild.active[id] = n + 1;
+    log("Bounty: " + bountyName(b) + " " + (n + 1) + "/" + b.n + "." + (n + 1 === b.n ? " Report to Maera." : ""), "npc");
+    if (n + 1 === b.n) sfx("notify");
+  }
+}
+
+function turnInBounty(id) {
+  const b = GUILD_BOUNTIES.find(x => x.id === id);
+  if (!b || save.guild.active[id] == null) return "You don't have that bounty.";
+  if (save.guild.active[id] < b.n) return "That bounty isn't finished yet.";
+  delete save.guild.active[id];
+  guildDay();
+  if (!save.guild.done.includes(id)) save.guild.done.push(id);
+  const r = bountyReward(b), before = guildRank();
+  save.guild.gp += r.gp; save.guild.total += r.gp;
+  save.gil += r.gil;
+  save.stats.bounties = (save.stats.bounties || 0) + 1;
+  log("Bounty complete: +" + r.gp + " guild points, +" + r.gil + " crystals.", "loot");
+  sfx("coin");
+  gainXp(r.xp);
+  const after = guildRank();
+  if (after > before) { log("Guild rank up! You are now " + GUILD_RANKS[after][0] + " rank.", "lvl"); sfx("levelup"); uiEvent("guildrank", { rank: after }); }
+  checkAchievements();
+  saveGame();
+  return "";
+}
+
+function guildBuy(id) {
+  const e = GUILD_SHOP.find(x => x.id === id);
+  if (!e) return "Not for sale.";
+  if (guildRank() < e.rank) return "You need " + GUILD_RANKS[e.rank][0] + " rank for that.";
+  if (save.guild.gp < e.gp) return "You need " + e.gp + " guild points.";
+  const it = ITEMS[id];
+  if (it.ex && (invCount(id) || Object.values(save.gear).includes(id))) return "You already own one.";
+  if (!giveItem(id, 1)) return "Your bag is full.";
+  save.guild.gp -= e.gp;
+  sfx("coin");
+  saveGame();
+  return "";
+}
 
 function boardToday() {
   const day = boardDay();
@@ -2804,6 +2904,7 @@ function questMarker(n) {
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
+  if (n.id === "maera") return Object.keys(save.guild.active).some(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && save.guild.active[id] >= b.n; }) || (player.lv >= 2 && !save.guild.total && !Object.keys(save.guild.active).length);
   return false;
 }
 
@@ -3107,6 +3208,11 @@ const TALK = {
     openDialog(n.name, "Gear's only as good as the hands that finish it. Bring me iron ore, a fire essence and some crystals, and I'll work a little extra into any piece you own: up to two augments each. Don't like what you got? I can reforge it.", [
       { label: "Augment gear", fn: () => { closeDialog(); openModal("forge"); } }
     ]);
+  },
+  talkMaera(n) {
+    const g = save.guild, rk = guildRank(), ready = Object.keys(g.active).filter(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && g.active[id] >= b.n; }).length;
+    const line = !g.total && !Object.keys(g.active).length ? "Welcome to the Adventurers' Guild. Every day I post bounties on monsters that are giving folk trouble. Finish them for crystals and guild points; points raise your rank and buy things you won't find in any shop." : ready ? "Back already? Let's see what you've brought in." : "You're " + GUILD_RANKS[rk][0] + " rank with " + g.gp + " guild points to spend. Today's bounties are on the board behind me.";
+    openDialog(n.name, line, [{ label: "Guild bounties and shop", fn: () => { closeDialog(); openModal("guild"); } }]);
   },
   talkBoard(n) {
     const left = boardToday().filter(r => !save.board.done.includes(r.id)).length;
