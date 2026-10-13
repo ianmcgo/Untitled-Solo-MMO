@@ -189,6 +189,8 @@ function createChar(opts) {
   d.name = opts.name;
   d.mainJob = JOBS[opts.job] ? opts.job : "WAR";
   d.look = Object.assign(newSave().look, opts.look || {});
+  if (!RACES[d.look.race]) d.look.race = "human";
+  if (RACES[d.look.race].sex != null) d.look.build = RACES[d.look.race].sex;
   if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" };
   else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" };
   d.inventory = [{ id: "potion", qty: 3 }];
@@ -351,10 +353,13 @@ function buildStats(ch) {
   s.wtype = wtype;
   ch.stats = s;
   const wsk = skillOf(ch, wtype);
-  s.maxHp = Math.round(hp + g.hp);
-  s.maxMp = Math.round(mp + g.mp);
+  const rc = ch.kind === "pc" && typeof save !== "undefined" && save.look ? RACES[save.look.race] || RACES.human : null;
+  if (rc) for (const k in rc.attrs) s[k] = Math.max(1, Math.round(s[k] + rc.attrs[k] * (1 + lv / 20)));
+  s.maxHp = Math.round((hp + g.hp) * (rc ? rc.hp : 1));
+  s.maxMp = Math.round((mp + g.mp) * (rc && mp > 0 ? rc.mp : 1));
   s.acc = Math.round(58 + s.dex * 0.5 + 0.6 * wsk + lv + g.acc);
-  s.att = Math.round(10 + s.str + 4 * lv + g.att);
+  s.att = Math.round((10 + s.str + 4 * lv + g.att) * (rc && rc.attMul ? rc.attMul : 1));
+  if (rc && rc.rangedAcc && wtype === "archery") s.acc += rc.rangedAcc;
   s.def = Math.round(8 + s.vit * 0.5 + 3 * lv + g.def);
   s.eva = Math.round(50 + s.agi * 0.5 + 3 * lv + g.eva);
   if (ch.mercId && typeof save !== "undefined" && save.bond) {
@@ -364,6 +369,7 @@ function buildStats(ch) {
   ch.maxHp = s.maxHp;
   ch.maxMp = s.maxMp;
   ch.delay = delay;
+  if (ch.kind === "pc") ch.speed = 140 * (rc ? rc.speed : 1);
   ch.hp = ch.hp == null ? s.maxHp : Math.min(ch.hp, s.maxHp);
   ch.mp = ch.mp == null ? s.maxMp : Math.min(ch.mp, s.maxMp);
   ch.color = ch.mercId ? MERCS[ch.mercId].color : ch.pet ? (ch.color || "#4dd0e1") : JOBS[ch.job].color;

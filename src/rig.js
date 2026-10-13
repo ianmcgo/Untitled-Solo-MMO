@@ -460,6 +460,9 @@ function humanEntry(L) {
   else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, "skin");
   for (const s of [-1, 1]) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, "skin");
+    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, "skin");
+    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, "skin");
+    else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), "head", L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), "head", 0xd89a9a, "skin"); } }
     else if (!L.skull) R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, "skin");
     if (L.eyesGlow) R.add(gBall(V3(s * hr * 0.36, hc + hr * 0.08, hr * 0.84), hr * 0.15, 1.25, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
   }
@@ -613,6 +616,18 @@ function humanEntry(L) {
     }
   }
 
+  if (L.tail) {
+    const cat = L.tail === "cat", tz = -(0.12 * gi * (sw / 0.195) + 0.02), tc = cat ? L.hair.color : (L.hair && L.hair.color) || skin;
+    R.bone("tail", "hips", 0, hipsY - 0.04, tz);
+    R.bone("tail2", "tail", 0, hipsY - (cat ? 0.32 : 0.26), tz - (cat ? 0.2 : 0.22));
+    if (cat) {
+      R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.32, tz - 0.2), 0.03, 0.026, 8), "tail", tc, "hair");
+      R.add(gTaper(V3(0, hipsY - 0.32, tz - 0.2), V3(0, hipsY - 0.24, tz - 0.48), 0.026, 0.012, 8), "tail2", tc, "hair");
+    } else {
+      R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.26, tz - 0.22), 0.07, 0.055, 8), "tail", tc, "hair");
+      R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - 0.5, tz - 0.3), 0.055, 0.02, 8), "tail2", tc, "hair");
+    }
+  }
   R.meta = { kind: "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
   return R.finish();
 }
@@ -1014,11 +1029,21 @@ function buildEntityRig(e) {
 const BODY_HEIGHTS = [0.9, 0.95, 1, 1.05, 1.1], BODY_GIRTHS = [0.86, 0.93, 1, 1.1, 1.22];
 const BODY_HEIGHT_NAMES = ["Short", "Below average", "Average", "Tall", "Very tall"], BODY_GIRTH_NAMES = ["Slim", "Lean", "Average", "Sturdy", "Heavy"];
 
+const RACE_BODY = {
+  human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.075 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.075 }],
+  elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
+  pipkin: [{ leg: 0.34, torso: 0.3, arm: 0.3, girth: 1.0, waist: 1.0, shoulder: 0.125, hip: 0.072, headR: 0.2, neck: 0.03 }, { leg: 0.34, torso: 0.3, arm: 0.3, girth: 0.96, waist: 0.94, shoulder: 0.118, hip: 0.074, headR: 0.2, neck: 0.03 }],
+  ursan: [{ leg: 0.9, torso: 0.72, arm: 0.76, girth: 1.55, waist: 1.38, shoulder: 0.29, hip: 0.14, headR: 0.16, neck: 0.045 }, { leg: 0.9, torso: 0.72, arm: 0.76, girth: 1.55, waist: 1.38, shoulder: 0.29, hip: 0.14, headR: 0.16, neck: 0.045 }],
+  nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.075 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.075 }]
+};
+
+function raceOfLook(l) { return l && RACE_BODY[l.race] ? l.race : "human"; }
+
 function bodyProp(l) {
-  const hi = l.height == null ? 2 : l.height, gi = l.girth == null ? 2 : l.girth;
-  if (hi === 2 && gi === 2) return null;
-  const H = BODY_HEIGHTS[hi] || 1, G = BODY_GIRTHS[gi] || 1, fem = l.build === 1;
-  return { leg: 0.86 * H, torso: 0.52 * H, arm: 0.6 * H, girth: (fem ? 0.9 : 1) * G, waist: (fem ? 0.8 : 0.92) * Math.pow(G, 1.4), shoulder: (fem ? 0.165 : 0.195) * (1 + (G - 1) * 0.6) * (0.5 + H * 0.5), hip: (fem ? 0.1 : 0.095) * (1 + (G - 1) * 0.7) };
+  const hi = l.height == null ? 2 : l.height, gi = l.girth == null ? 2 : l.girth, race = raceOfLook(l);
+  if (race === "human" && hi === 2 && gi === 2) return null;
+  const H = BODY_HEIGHTS[hi] || 1, G = BODY_GIRTHS[gi] || 1, B = RACE_BODY[race][l.build === 1 ? 1 : 0];
+  return { leg: B.leg * H, torso: B.torso * H, arm: B.arm * H, girth: B.girth * G, waist: B.waist * Math.pow(G, 1.4), shoulder: B.shoulder * (1 + (G - 1) * 0.6) * (0.5 + H * 0.5), hip: B.hip * (1 + (G - 1) * 0.7), headR: B.headR, neck: B.neck };
 }
 
 function baseFromLook(look) {
@@ -1026,6 +1051,11 @@ function baseFromLook(look) {
   const b = { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
   const p = bodyProp(l);
   if (p) b.prop = p;
+  const race = raceOfLook(l);
+  if (race === "elari") b.ears = "elf";
+  if (race === "pipkin") { b.ears = "pip"; b.doll = true; }
+  if (race === "nekari") { b.ears = "cat"; b.tail = "cat"; }
+  if (race === "ursan") { b.tail = "ursan"; b.beard = b.hair.color; b.longBeard = true; b.mane = true; }
   return b;
 }
 

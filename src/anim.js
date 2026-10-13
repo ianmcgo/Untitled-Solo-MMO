@@ -265,6 +265,11 @@ function poseHuman(v, e, dt) {
     v.rootOff[0] = 0; v.rootOff[1] = 0; v.rootOff[2] = 0;
   }
 
+  if (P.tail) {
+    const wag = Math.sin(t * (1.6 + run * 3)) * (0.3 + run * 0.15);
+    addP(P, "tail", 0.2 - run * 0.35, wag * 0.6, 0);
+    addP(P, "tail2", -0.25 - run * 0.2, wag, 0);
+  }
   if (an.dead != null) {
     const k = ease((S.time - an.dead) / 0.6);
     for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; }
