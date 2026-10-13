@@ -452,7 +452,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.3.0 · built 2026-10-13 10:56 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v4.4.0 · built 2026-10-13 11:05 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>
   <div id="flash"></div>
@@ -5650,7 +5650,8 @@ const ZONES = {
     spawns: [
       { fam: "hare", lv: [1, 2], x: 350, y: 1300, time: "day" }, { fam: "hare", lv: [1, 2], x: 620, y: 1450, time: "day" }, { fam: "hare", lv: [1, 2], x: 420, y: 800, time: "day" },
       { fam: "worm", lv: [1, 2], x: 700, y: 1250 }, { fam: "worm", lv: [1, 2], x: 300, y: 1700 }, { fam: "worm", lv: [2, 2], x: 600, y: 420 },
-      { fam: "goblin", lv: [1, 2], x: 750, y: 800 }, { fam: "goblin", lv: [1, 2], x: 500, y: 1800 },
+      { fam: "goblin", lv: [1, 2], x: 750, y: 800 }, { fam: "goblin", lv: [1, 2], x: 500, y: 1800 }, { fam: "goblin", lv: [1, 1], x: 420, y: 950 },
+      { fam: "hare", lv: [1, 1], x: 250, y: 1000, time: "day" }, { fam: "worm", lv: [1, 1], x: 380, y: 1250 }, { fam: "bat", lv: [1, 1], x: 450, y: 1150, time: "night" },
       { fam: "bat", lv: [1, 2], x: 700, y: 650, time: "night" }, { fam: "bat", lv: [1, 2], x: 300, y: 1500, time: "night" },
       { fam: "goblin", lv: [2, 3], x: 1350, y: 1200 }, { fam: "goblin", lv: [2, 3], x: 1400, y: 1250 }, { fam: "goblin", lv: [2, 3], x: 1700, y: 800 },
       { fam: "hare", lv: [2, 3], x: 1100, y: 1150, time: "day" }, { fam: "worm", lv: [2, 3], x: 1000, y: 400 },
@@ -5725,12 +5726,22 @@ const NPCS = {
 };
 
 const QUESTS = {
-  pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "captains_ring" } },
-  support: { name: "A Second Calling", giver: "Tobin", desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
-  riding: { name: "Riding License", giver: "Ysolde", desc: "Reach level 5, then bring Ysolde 300 gil and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
-  pld: { name: "The Oath of Steel", giver: "Tobin", desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Paladin's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
-  rdm: { name: "Scarlet Lessons", giver: "Tobin", desc: "Reach level 6, then bring Tobin 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal to study the Red Mage's arts.", reward: { xp: 400, gil: 0, unlock: "RDM" } },
-  chieftain: { name: "The Goblin Chieftain", giver: "Captain Rhea", desc: "Defeat the Goblin Chieftain at the back of the Goblin Den, then report to Captain Rhea.", reward: { xp: 900, gil: 1500, item: "ether", qty: 3 } }
+  pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", npc: "rhea", lv: 1, desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "captains_ring" } },
+  herbs: { name: "Herbs for the Stall", giver: "Pell", npc: "pell", lv: 1, items: { healing_herb: 3 }, desc: "Bring Pell 3 Healing Herbs for his stall. Meadow Hares and Tunnel Worms in Rocky Hollow carry them.", reward: { xp: 120, gil: 100, items: [["pickaxe", 1], ["hatchet", 1]] },
+    intro: "My herb jars are empty and the hares won't deliver. Bring me 3 Healing Herbs and I'll pay in coin and tools. Hares and worms past the east gate carry them.", progress: "Still short on herbs. Hares graze by day; worms are about day and night.", turn: "Fresh herbs! Here's your coin, and a pickaxe and hatchet besides. Hang on to them; the hills are full of ore and timber." },
+  nightwings: { name: "Night Wings", giver: "Brann", npc: "brann", lv: 2, kill: { fam: "bat", n: 4, name: "Cave Bat" }, desc: "Defeat 4 Cave Bats for Brann. Bats only come out in Rocky Hollow at night.", reward: { xp: 200, gil: 150 },
+    intro: "My recruits keep coming back with bat bites. Cull 4 Cave Bats in the Hollow and I'll pay a bounty. They only fly at night, so bring a light heart.", progress: "Bats still flapping about out there. Night's the time.", turn: "Four bats down. That's a bounty well earned." },
+  bones: { name: "Bones in the Ruins", giver: "Captain Rhea", npc: "rhea", lv: 4, pre: "pouches", kill: { fam: "skeleton", n: 5, name: "Wandering Bones" }, desc: "Defeat 5 Wandering Bones. They walk the Old Fort Ruins in eastern Rocky Hollow at night.", reward: { xp: 350, gil: 300, item: "potion", qty: 3 },
+    intro: "Something's stirring the dead at the Old Fort Ruins, east along the road. Wandering Bones by night. Put 5 of them back in the ground and report to me.", progress: "The bones still walk. The ruins, at night.", turn: "Five of them laid to rest. You're becoming someone this Outpost can count on." },
+  grimtooth: { name: "Grimtooth's Bounty", giver: "Captain Rhea", npc: "rhea", lv: 6, pre: "bones", kill: { fam: "grimtooth", n: 1, name: "Grimtooth" }, desc: "Defeat Grimtooth, the notorious goblin who leads the camp in eastern Rocky Hollow. He appears now and then among the goblins there.", reward: { xp: 500, gil: 400, item: "hi_potion", qty: 2 },
+    intro: "There's a goblin called Grimtooth running the camp in the east of the Hollow. Red bandana, black eyes, mean as winter. He shows himself now and then among his gang. Bring him down and the bounty's yours.", progress: "Grimtooth still has his head. Watch the goblin camp; he turns up when a goblin there is replaced.", turn: "Grimtooth, finished. The camp will scatter without him. Take the bounty." },
+  warden: { name: "The Warden's Vigil", giver: "Captain Rhea", npc: "rhea", lv: 8, pre: "chieftain", kill: { fam: "ossuary_warden", n: 1, name: "Ossuary Warden" }, desc: "Defeat the Ossuary Warden, a notorious ghoul that haunts the Bone Pit of the Goblin Den.", reward: { xp: 800, gil: 800, item: "ether", qty: 3 },
+    intro: "With the Chieftain gone, the Den's worst is a ghoul the scouts call the Ossuary Warden. It keeps the Bone Pit. End its vigil and I'll pay well.", progress: "The Warden still haunts the Bone Pit. It appears among the ghouls there.", turn: "The Warden is finished. The dead can rest, and so can you. Here." },
+  support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 5, desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
+  riding: { name: "Riding License", giver: "Ysolde", npc: "ysolde", lv: 5, desc: "Reach level 5, then bring Ysolde 300 gil and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
+  pld: { name: "The Oath of Steel", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Paladin's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
+  rdm: { name: "Scarlet Lessons", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Worm Silk, 1 Fire Crystal and 1 Water Crystal to study the Red Mage's arts.", reward: { xp: 400, gil: 0, unlock: "RDM" } },
+  chieftain: { name: "The Goblin Chieftain", giver: "Captain Rhea", npc: "rhea", lv: 7, pre: "bones", desc: "Defeat the Goblin Chieftain at the back of the Goblin Den, then report to Captain Rhea.", reward: { xp: 900, gil: 1500, item: "ether", qty: 3 } }
 };
 
 const S = {
@@ -5794,7 +5805,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, created: Date.now()
   };
 }
 
@@ -5821,6 +5832,7 @@ function normalizeSave(d) {
   out.timers = d.timers && typeof d.timers === "object" ? d.timers : {};
   out.name = String(d.name || "Adventurer").slice(0, 12);
   out.landmarks = d.landmarks && typeof d.landmarks === "object" ? d.landmarks : {};
+  out.qprog = d.qprog && typeof d.qprog === "object" ? d.qprog : {};
   return out;
 }
 
@@ -6333,6 +6345,14 @@ function onKO(e, src) {
       const xp = xpFor(e.lv, player.lv);
       if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
+      for (const id in QUESTS) {
+        const q = QUESTS[id];
+        if (!q.kill || save.quests[id] !== "active") continue;
+        if (q.kill.fam !== e.famKey) continue;
+        const n = (save.qprog[id] || 0) + 1;
+        save.qprog[id] = Math.min(q.kill.n, n);
+        if (n <= q.kill.n) { log("Quest progress: " + q.kill.name + " " + Math.min(n, q.kill.n) + "/" + q.kill.n + ".", "npc"); if (n === q.kill.n) { log("Quest updated: report to " + q.giver + ".", "npc"); sfx("notify"); } }
+      }
       if (e.famKey === "chieftain" && save.quests.chieftain === "active") {
         save.quests.chieftain = "killed";
         log("Quest updated: report the Chieftain's defeat to Captain Rhea.", "npc");
@@ -7476,7 +7496,8 @@ function talkTo(n) {
 
 function questMarker(n) {
   const q = save.quests, lv = player.lv;
-  if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.pouches === "done" && q.chieftain === "none") || q.chieftain === "killed";
+  for (const id in QUESTS) if (QUESTS[id].npc === n.id && QUESTS[id].intro && (questOfferable(id) || questComplete(id))) return true;
+  if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
   return false;
@@ -7486,8 +7507,53 @@ function giveReward(r) {
   if (r.xp) gainXp(r.xp);
   if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " gil.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
+  if (r.items) for (const [id, n] of r.items) giveItem(id, n);
   if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Ask Tobin to change jobs.", "npc"); }
   sfx("fanfare");
+}
+
+function questOfferable(id) {
+  const q = QUESTS[id];
+  return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done");
+}
+function questComplete(id) {
+  const q = QUESTS[id];
+  if (save.quests[id] !== "active") return false;
+  if (q.kill) return (save.qprog[id] || 0) >= q.kill.n;
+  if (q.items) return Object.keys(q.items).every(it => invCount(it) >= q.items[it]);
+  return false;
+}
+function acceptQuest(id) {
+  save.quests[id] = "active";
+  if (QUESTS[id].kill) save.qprog[id] = 0;
+  log("Quest accepted: " + QUESTS[id].name + ".", "npc");
+  sfx("notify");
+  saveGame();
+}
+function completeQuest(id) {
+  const q = QUESTS[id];
+  if (q.items) for (const it in q.items) removeItem(it, q.items[it]);
+  save.quests[id] = "done";
+  log("Quest complete: " + q.name + ".", "npc");
+  giveReward(q.reward);
+  saveGame();
+}
+function questOptions(npcId, n) {
+  const out = [];
+  for (const id in QUESTS) {
+    const q = QUESTS[id];
+    if (q.npc !== npcId || !q.intro) continue;
+    if (questOfferable(id)) out.push({ label: "Ask about " + q.name, fn: () => openDialog(n.name, q.intro, [{ label: "Accept", fn: () => { acceptQuest(id); closeDialog(); } }]) });
+    else if (questComplete(id)) out.push({ label: q.turnLabel || "Report: " + q.name, fn: () => { openDialog(n.name, q.turn, [{ label: "Collect the reward", fn: () => { completeQuest(id); closeDialog(); } }]); } });
+    else if (save.quests[id] === "active" && q.progress) out.push({ label: q.name + " (" + questProgressText(id) + ")", fn: () => openDialog(n.name, q.progress, []) });
+  }
+  return out;
+}
+function questProgressText(id) {
+  const q = QUESTS[id];
+  if (q.kill) return q.kill.name + " " + Math.min(q.kill.n, save.qprog[id] || 0) + "/" + q.kill.n;
+  if (q.items) return Object.keys(q.items).map(it => ITEMS[it].name + " " + Math.min(q.items[it], invCount(it)) + "/" + q.items[it]).join(", ");
+  return "";
 }
 
 const TALK = {
@@ -7505,23 +7571,25 @@ const TALK = {
         openDialog(n.name, "Three pouches! That'll keep them quiet for a while. Take this ring. It was mine when I was green like you.", [
           { label: "Hand over the pouches", fn: () => { removeItem("goblin_pouch", 3); q.pouches = "done"; log("Quest complete: " + QUESTS.pouches.name + ".", "npc"); giveReward(QUESTS.pouches.reward); saveGame(); closeDialog(); } }
         ]);
-      } else openDialog(n.name, "You have " + have + " of 3 Goblin Pouches. The goblins east of here in Rocky Hollow carry them. If the work is too much alone, Brann at the Mercenary Hall has swords for hire.", []);
+      } else openDialog(n.name, "You have " + have + " of 3 Goblin Pouches. The goblins east of here in Rocky Hollow carry them. If the work is too much alone, Brann at the Mercenary Hall has swords for hire.", questOptions("rhea", n));
       return;
     }
-    if (q.chieftain === "none") {
+    const g = questOptions("rhea", n);
+    if (q.chieftain === "none" && q.bones === "done" && player.lv >= 7) {
       openDialog(n.name, "Scouts say the raids are led by a Goblin Chieftain holed up at the back of the Goblin Den, past the Hollow. He's dangerous. Bring a full party, and don't fight his guards all at once.", [
         { label: "I'll handle him", fn: () => { q.chieftain = "active"; log("Quest accepted: " + QUESTS.chieftain.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
-      ]);
+      ].concat(g));
       return;
     }
-    if (q.chieftain === "active") { openDialog(n.name, "The Chieftain still lives. He's at the far end of the Goblin Den.", []); return; }
+    if (q.chieftain === "active") { openDialog(n.name, "The Chieftain still lives. He's at the far end of the Goblin Den.", g); return; }
     if (q.chieftain === "killed") {
       openDialog(n.name, "You actually did it. The Outpost owes you. Here's your bounty. And word's spread: a Black Mage named Vesper wants to fight beside you. Ask Brann.", [
         { label: "Collect the bounty", fn: () => { q.chieftain = "done"; log("Quest complete: " + QUESTS.chieftain.name + ".", "npc"); giveReward(QUESTS.chieftain.reward); log("Vesper is now available at the Mercenary Hall.", "npc"); saveGame(); closeDialog(); } }
-      ]);
+      ].concat(g));
       return;
     }
-    openDialog(n.name, "Quiet days, thanks to you. Keep your blade sharp.", []);
+    if (g.length) { openDialog(n.name, q.chieftain === "done" ? "The Den's quieter, but the Hollow never is. There's always work." : player.lv < 7 && q.bones === "done" ? "Get a little stronger before I send you after the Chieftain. Meanwhile, there's work." : "There's work for a steady hand.", g); return; }
+    openDialog(n.name, q.chieftain === "done" ? "Quiet days, thanks to you. Keep your blade sharp." : q.bones === "done" && player.lv < 7 ? "Rest up and get stronger. When you're level 7, I'll tell you about the Chieftain." : "Keep at it. Come back when you've grown.", []);
   },
   talkTobin(n) {
     const q = save.quests;
@@ -7569,7 +7637,7 @@ const TALK = {
   talkPell(n) {
     openDialog(n.name, "Potions, ethers, arms and armor. Gil talks, friend.", [
       { label: "Trade", fn: () => { closeDialog(); openModal("shop"); } }
-    ]);
+    ].concat(questOptions("pell", n)));
   },
   talkYsolde(n) {
     const q = save.quests;
@@ -7598,7 +7666,7 @@ const TALK = {
     const hired = save.hired.length;
     openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee once and they'll follow you anywhere. Up to five at a time.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
-    ]);
+    ].concat(questOptions("brann", n)));
   },
   talkCrystal(n) {
     for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; }
@@ -8509,6 +8577,9 @@ function questProgress(id) {
   if (id === "support") return player.lv < CONFIG.supportUnlockLevel ? ["Reach level " + CONFIG.supportUnlockLevel] : ["Bat Wing " + ok(invCount("bat_wing"), 2), "Worm Silk " + ok(invCount("worm_silk"), 1)];
   if (id === "riding") return ["Healing Herb " + ok(invCount("healing_herb"), 3), "Gil " + ok(save.gil, 300)];
   if (id === "chieftain") return ["Defeat the Goblin Chieftain in the Goblin Den"];
+  const q = QUESTS[id];
+  if (q.kill) return [q.kill.name + " " + ok(save.qprog[id] || 0, q.kill.n)];
+  if (q.items) return Object.keys(q.items).map(it => ITEMS[it].name + " " + ok(invCount(it), q.items[it]));
   return [];
 }
 function updateTracker() {
@@ -8721,6 +8792,8 @@ function rewardChips(r) {
   if (r.xp) out.push("✨ " + r.xp + " XP");
   if (r.gil) out.push("🪙 " + r.gil + " gil");
   if (r.item) out.push((ITEMS[r.item].icon || "📦") + " " + esc(ITEMS[r.item].name) + (r.qty > 1 ? " ×" + r.qty : ""));
+  if (r.items) for (const [id, n] of r.items) out.push((ITEMS[id].icon || "📦") + " " + esc(ITEMS[id].name) + (n > 1 ? " ×" + n : ""));
+  if (r.unlock) out.push(JOBS[r.unlock].icon + " " + JOBS[r.unlock].name + " unlocked");
   return out;
 }
 
@@ -9329,8 +9402,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v4.3.0 · built 2026-10-13 10:56 PDT";
+const BUILD_INFO = "v4.4.0 · built 2026-10-13 11:05 PDT";
 const UPDATES = [
+  { v: "4.4.0", date: "2026-10-13", title: "Phase 5c: eleven quests", items: [
+    "Five new quests. Pell: Herbs for the Stall (3 Healing Herbs; pays gil plus a pickaxe and hatchet). Brann: Night Wings (defeat 4 Cave Bats). Captain Rhea's chain: Bones in the Ruins (5 Wandering Bones at the Old Fort Ruins, level 4), Grimtooth's Bounty (level 6), The Goblin Chieftain (now level 7, after the bones) and The Warden's Vigil (defeat the Ossuary Warden, level 8).",
+    "Kill quests count in the chat log and the tracker as you go, and the NPC's ❗ returns when you're ready to report.",
+    "Quest givers show every job they have for you in one conversation; progress lines tell you what's left.",
+    "A few more low-level monsters near the west gate of Rocky Hollow, so the first levels go quicker."
+  ] },
   { v: "4.3.0", date: "2026-10-13", title: "Phase 5b: Paladin and Red Mage", items: [
     "Two advanced jobs. At level 6, Tobin offers The Oath of Steel (Paladin: 2 Bone Chips, 1 Iron Ore) and Scarlet Lessons (Red Mage: 2 Worm Silk, 1 Fire Crystal, 1 Water Crystal).",
     "Paladin: sword A, Cure at 5, Flash at 7 (blinds and draws heavy enmity), Protect at 9; abilities Sentinel (Defense +50%, double enmity) and Shield Bash (damage, interrupts TP moves and spells). Kite Shield in the accessory slot.",
@@ -9446,13 +9525,13 @@ function tabHelp() {
     ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs, home point by the eastern exit"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit, Chieftain's Throne"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals restore your party and can be set as your return point."]));
-  h += sec("📜 Quests", ul(Object.keys(QUESTS).map(id => "<b>" + esc(QUESTS[id].name) + "</b> (" + esc(QUESTS[id].giver) + "): " + esc(QUESTS[id].desc))));
+  h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 gil and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
   h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
 
-const GAME_VERSION = "4.3.0";
+const GAME_VERSION = "4.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

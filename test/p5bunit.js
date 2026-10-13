@@ -36,14 +36,14 @@ ok(G.skillCap(P(), 'enfeebling') > 0 && G.skillCap(P(), 'sword') > G.skillCap(P(
 G.enterZone('hollow', 200, 1100); run(1); S.mobs = []; S.spawnAt = [];
 const m = G.buildMob('goblin', 6, 240, 1100, 0); S.mobs.push(m);
 const d0 = G.stat(m, 'def');
-P().mp = 200; P().target = m;
-G.playerAct({ kind: 'ma', id: 'slow' }); run(2.5);
+P().mp = 200; P().target = m; const sv1 = Math.random; Math.random = () => 0.2;
+G.playerAct({ kind: 'ma', id: 'slow' }); run(2.5); Math.random = sv1;
 ok(!!m.buffs.slow, 'Slow lands (' + Object.keys(m.buffs) + ')');
 const baseDelay = m.delay; m.state = 'combat'; m.enmity.set(P(), 50); m.swingTimer = 0; m.x = P().x + 20; m.y = P().y;
 run(0.1);
 ok(Math.abs(m.swingTimer - baseDelay * 1.25) < 0.2 || m.swingTimer > baseDelay, 'slowed monsters swing 25% slower (' + m.swingTimer.toFixed(2) + ' vs ' + baseDelay + ')');
-P().recasts = {}; P().mp = 200;
-G.playerAct({ kind: 'ma', id: 'paralyze' }); run(2.5);
+P().recasts = {}; P().mp = 200; const sv2 = Math.random; Math.random = () => 0.2;
+G.playerAct({ kind: 'ma', id: 'paralyze' }); run(2.5); Math.random = sv2;
 ok(!!m.buffs.paralyze, 'Paralyze lands');
 const saved = Math.random; Math.random = () => 0.1; const n0 = H.alllog.length; G.swing(m, P()); Math.random = saved;
 ok(H.alllog.slice(n0).some(l => /paralyzed/.test(l)), 'a paralyzed monster can lose its swing');

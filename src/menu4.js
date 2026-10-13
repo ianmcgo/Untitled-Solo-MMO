@@ -520,6 +520,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "4.4.0", date: "2026-10-13", title: "Phase 5c: eleven quests", items: [
+    "Five new quests. Pell: Herbs for the Stall (3 Healing Herbs; pays gil plus a pickaxe and hatchet). Brann: Night Wings (defeat 4 Cave Bats). Captain Rhea's chain: Bones in the Ruins (5 Wandering Bones at the Old Fort Ruins, level 4), Grimtooth's Bounty (level 6), The Goblin Chieftain (now level 7, after the bones) and The Warden's Vigil (defeat the Ossuary Warden, level 8).",
+    "Kill quests count in the chat log and the tracker as you go, and the NPC's ❗ returns when you're ready to report.",
+    "Quest givers show every job they have for you in one conversation; progress lines tell you what's left.",
+    "A few more low-level monsters near the west gate of Rocky Hollow, so the first levels go quicker."
+  ] },
   { v: "4.3.0", date: "2026-10-13", title: "Phase 5b: Paladin and Red Mage", items: [
     "Two advanced jobs. At level 6, Tobin offers The Oath of Steel (Paladin: 2 Bone Chips, 1 Iron Ore) and Scarlet Lessons (Red Mage: 2 Worm Silk, 1 Fire Crystal, 1 Water Crystal).",
     "Paladin: sword A, Cure at 5, Flash at 7 (blinds and draws heavy enmity), Protect at 9; abilities Sentinel (Defense +50%, double enmity) and Shield Bash (damage, interrupts TP moves and spells). Kite Shield in the accessory slot.",
@@ -635,7 +641,7 @@ function tabHelp() {
     ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs, home point by the eastern exit"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit, Chieftain's Throne"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals restore your party and can be set as your return point."]));
-  h += sec("📜 Quests", ul(Object.keys(QUESTS).map(id => "<b>" + esc(QUESTS[id].name) + "</b> (" + esc(QUESTS[id].giver) + "): " + esc(QUESTS[id].desc))));
+  h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 gil and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
   h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
