@@ -32,6 +32,7 @@ function updateLabels() {
   for (const e of all) {
     if (e === player && VIEW.first) continue;
     if (isMob(e) && (!e.alive || e.despawned)) continue;
+    if (e.kind === "npc" && e.away) continue;
     const d = dist(e, player);
     if (d > 900 && player.target !== e) continue;
     const sc = screenOf(e.x, e.y, entityHeight(e) + 0.25);
@@ -132,7 +133,7 @@ function aggroDecal(i) {
 
 function updateAggroHints() {
   let n = 0;
-  if (VIEW.settings.aggroHints) {
+  if (false) {
     for (const m of S.mobs) {
       if (!m.alive || m.state !== "idle" || !m.fam.aggro) continue;
       if (dist(m, player) > 320 && player.target !== m) continue;
@@ -346,7 +347,7 @@ function loaderProgress(p, text) {
   f.style.width = Math.round(clamp(p, 0, 1) * 100) + "%";
   if (text != null) $("ldText").textContent = text;
 }
-function loaderHide() { const el = $("loading"); if (el) el.classList.remove("on"); }
+function loaderHide() { const el = $("loading"); if (el) el.classList.remove("on"); if (typeof stopShowcase === "function") stopShowcase(); }
 function buildZoneNow() {
   clearViews();
   buildZone3D();
@@ -378,6 +379,7 @@ function onZoneEntered() {
   const job = VIEW.zoneJob = (VIEW.zoneJob || 0) + 1;
   VIEW.loading = true;
   if (!VIEW.booting) loaderShow(S.zone.name, S.zone.theme === "house" ? "Home" : "Entering");
+  if (!VIEW.booting && typeof startShowcase === "function") startShowcase();
   loadZoneAsync(job);
 }
 async function loadZoneAsync(job) {
@@ -437,7 +439,7 @@ function graphicsSettingsHTML() {
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="sub">High adds bloom, sharper shadows and full-resolution water reflections. Changing quality reloads the 3D scene.</div>' +
     "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + "</div>" +
-    "<h3>Display</h3><div class=\"opt\">" + btn("toggle", "aggroHints", "Aggro ranges " + (s.aggroHints ? "shown" : "hidden"), s.aggroHints) + "</div>" +
+
     appearanceHTML();
 }
 
@@ -494,6 +496,7 @@ function draw(dt) {
   for (const n of S.npcs) syncNpc(n, dt);
   syncDecor(dt);
   syncBarriers();
+  syncFurniture();
   for (const [e, v] of VIEW.views) {
     const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e);
     if (!alive) { destroyView(v); VIEW.views.delete(e); }

@@ -50,22 +50,26 @@ ok(G.save.supportUnlocked && G.save.quests.support === 'done', 'support jobs unl
 G.setJob('WAR', 'WHM'); ok(P().sub === 'WHM' && G.actionList(P()).some(a => a.id === 'cure'), 'WAR5/WHM2 can cast Cure');
 G.closeModal();
 
+ok(!G.ZONES.hollow.npcs.some(n => n.id === 'crystal_hollow'), 'home points exist only in town');
+G.enterZone('outpost', 610, 440);
+G.save.home = { zone: 'hollow', npc: 'crystal_town' };
+G.save = G.importSaveText(G.exportSaveText());
+ok(G.save.home.zone === 'outpost', 'a home point outside town is reset to the Outpost');
+G.TALK.talkCrystal(npc('crystal_town'));
+ok(S.dialog.text.includes('This is your home point'), 'the Outpost crystal is your home point');
 G.enterZone('hollow', 1400, 560);
-G.TALK.talkCrystal(npc('crystal_hollow'));
-const setHome = S.dialog.all.find(o => o.label === 'Set as home point'); setHome.fn();
-ok(G.save.home.zone === 'hollow', 'home point set in the Hollow');
 const j = G.save.jobs.WAR; j.xp = 500;
 P().hp = 0; P().alive = false; S.ko = true;
 G.returnHome();
-ok(j.xp === 500 - Math.floor(G.CONFIG.xpTable[j.lv] * 0.1) && S.zoneId === 'hollow' && P().alive && P().hp === P().maxHp, 'death costs 10% of the level requirement and returns to the Hollow crystal (xp ' + j.xp + ')');
+ok(j.xp === 500 - Math.floor(G.CONFIG.xpTable[j.lv] * 0.1) && S.zoneId === 'outpost' && P().alive && P().hp === P().maxHp, 'death costs 10% of the level requirement and returns to the town crystal (xp ' + j.xp + ')');
 j.xp = 20; P().alive = false; S.ko = true; G.returnHome();
 ok(j.xp === 0 && j.lv === 5, 'XP never goes negative and you never de-level');
 
 const text = G.exportSaveText();
 const back = G.importSaveText(text);
-ok(back && back.mainJob === 'WAR' && back.subJob === 'WHM' && back.hired.length === G.save.hired.length && back.home.zone === 'hollow', 'save file round-trips');
+ok(back && back.mainJob === 'WAR' && back.subJob === 'WHM' && back.hired.length === G.save.hired.length && back.home.zone === 'outpost', 'save file round-trips');
 ok(G.importSaveText('{"hello":1}') === null && G.importSaveText('not json') === null, 'bad files are rejected');
-G.applyLoadedSave(back); ok(S.zoneId === 'hollow' && S.party.length === back.hired.length + 1, 'loading a file restores party and home point');
+G.applyLoadedSave(back); ok(S.zoneId === 'outpost' && S.party.length === back.hired.length + 1, 'loading a file restores party and home point');
 
 for (const t of ['items', 'equip', 'status', 'skills', 'quests', 'settings', 'shop', 'job', 'mercs']) { S.modal = t; G.renderModal(); }
 G.closeModal(); ok(true, 'all menu tabs render');

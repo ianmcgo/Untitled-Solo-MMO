@@ -9,9 +9,10 @@ const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
-  shop: ["Shop", "🪙", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""]
+  shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
+  storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""]
 };
-const MAIN_TABS = ["character", "inventory", "skills", "actions", "quests", "map", "help", "updates", "settings", "system"];
+const MAIN_TABS = ["character", "inventory", "skills", "actions", "quests", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -309,9 +310,8 @@ function updateTarget() {
     setTxt($("tToT"), t.target && t.alive && t.state === "combat" ? "→ " + (t.target === player ? "You" : t.target.name || "") : "");
     const w = $("tWarn");
     if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + t.fam.tpMove.name + "!"); } else w.style.display = "none";
-    const ag = t.fam.aggro ? Object.keys(t.fam.aggro).map(k => ({ sight: "👁 sight", sound: "👂 sound", magic: "✧ magic", lowhp: "🩸 low HP" }[k])).join(" ") : "passive";
     let info = !t.alive ? "Defeated" : t.state === "combat" ? "In combat" : t.state === "return" ? "Returning" : "Idle";
-    info += " · " + ag + (t.fam.link ? " · links" : "");
+    if (t.passive && t.alive && t.state !== "combat") info += " · passive";
     if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= CONFIG.meleeRange ? " · in range" : " · too far";
     setTxt($("tInfo"), info);
     let ch = "";
@@ -364,7 +364,7 @@ function questProgress(id) {
   if (st !== "active") return [];
   if (id === "pouches") return ["Goblin Pouch " + ok(invCount("goblin_pouch"), 3)];
   if (id === "support") return player.lv < CONFIG.supportUnlockLevel ? ["Reach level " + CONFIG.supportUnlockLevel] : ["Bat Wing " + ok(invCount("bat_wing"), 2), "Worm Silk " + ok(invCount("worm_silk"), 1)];
-  if (id === "riding") return ["Healing Herb " + ok(invCount("healing_herb"), 3), "Gil " + ok(save.gil, 300)];
+  if (id === "riding") return ["Healing Herb " + ok(invCount("healing_herb"), 3), "Crystals " + ok(save.gil, 300)];
   if (id === "chieftain") return ["Defeat the Goblin Chieftain in the Goblin Den"];
   const q = QUESTS[id];
   if (q.kill) return [q.kill.name + " " + ok(save.qprog[id] || 0, q.kill.n)];
@@ -463,6 +463,7 @@ function drawMinimap() {
   g.drawImage(m.c, 0, 0, m.z.w, m.z.h);
   const dot = (x, y, r, col, ring) => { g.beginPath(); g.arc(x, y, r / sc, 0, 7); g.fillStyle = col; g.fill(); if (ring) { g.lineWidth = 2 / sc; g.strokeStyle = ring; g.stroke(); } };
   for (const n of S.npcs) {
+    if (n.away) continue;
     if (NPCS[n.id] && NPCS[n.id].crystal) { g.save(); g.translate(n.x, n.y); g.rotate(Math.PI / 4); g.fillStyle = "#7ff3ff"; const s = 7 / sc; g.fillRect(-s / 2, -s / 2, s, s); g.restore(); }
     else if (n.prop === "brazier") dot(n.x, n.y, 4, brazierLit(n.element) ? ELEMENT_COLORS[n.element] : "#555", "#000");
     else if (n.prop === "chest") dot(n.x, n.y, 4, chestState(n) === "closed" ? "#ffd54f" : "#7a6a3a", "#000");
@@ -534,6 +535,25 @@ function zoneTitle(name, sub) {
   z.classList.remove("show"); void z.offsetWidth; z.classList.add("show");
 }
 
+function gameConfirm(title, text, onYes, opts) {
+  const box = $("confirmBox");
+  if (!box) { onYes(); return; }
+  opts = opts || {};
+  box.querySelector(".cbT").textContent = title;
+  box.querySelector(".cbB").textContent = text;
+  const yes = box.querySelector(".yes"), no = box.querySelector(".no");
+  yes.textContent = opts.yes || "OK";
+  no.textContent = opts.no || "Cancel";
+  yes.className = "yes " + (opts.danger ? "danger" : "pri");
+  box.classList.add("on");
+  S.keys = {};
+  const close = () => { box.classList.remove("on"); yes.onclick = no.onclick = null; UI.confirmOpen = false; };
+  UI.confirmOpen = true;
+  yes.onclick = () => { close(); if (typeof sfx === "function") sfx("select"); onYes(); };
+  no.onclick = () => { close(); if (typeof sfx === "function") sfx("close"); if (opts.onNo) opts.onNo(); };
+  if (typeof sfx === "function") sfx("open");
+}
+
 function uiEvent(type, d) {
   if (type === "item") {
     const it = ITEMS[d.id];
@@ -584,7 +604,7 @@ function rewardChips(r) {
   const out = [];
   if (!r) return out;
   if (r.xp) out.push("✨ " + r.xp + " XP");
-  if (r.gil) out.push("🪙 " + r.gil + " gil");
+  if (r.gil) out.push("💠 " + r.gil + " crystals");
   if (r.item) out.push((ITEMS[r.item].icon || "📦") + " " + esc(ITEMS[r.item].name) + (r.qty > 1 ? " ×" + r.qty : ""));
   if (r.items) for (const [id, n] of r.items) out.push((ITEMS[id].icon || "📦") + " " + esc(ITEMS[id].name) + (n > 1 ? " ×" + n : ""));
   if (r.unlock) out.push(JOBS[r.unlock].icon + " " + JOBS[r.unlock].name + " unlocked");
@@ -597,7 +617,7 @@ function updateBottom() {
   const need = xpNeed(j.lv);
   setW($("xpfill"), need ? 100 * j.xp / need : 100);
   setTxt($("xpt"), need ? j.xp + " / " + need + " XP (" + Math.floor(100 * j.xp / need) + "%)" : "Level cap");
-  setTxt($("gil"), "🪙 " + save.gil);
+  setTxt($("crystals"), "💠 " + save.gil);
   const ci = chainInfo();
   const cc = $("chainCt");
   setTxt(cc, ci ? "⛓ " + (ci.n > 0 ? "Chain " + ci.n + " · " : "") + "next +" + Math.round(ci.next * CONFIG.chainStep * 100) + "% · " + Math.ceil(ci.left) + "s" : "");
@@ -668,8 +688,7 @@ function initHud() {
     else if (e.key === "ArrowDown") { if (UI.cmdIdx < UI.cmdHist.length) { UI.cmdIdx++; ci.value = UI.cmdHist[UI.cmdIdx] || ""; } e.preventDefault(); }
   });
   ci.addEventListener("focus", () => { S.keys = {}; });
-  $("btnHelp").onclick = () => S.modal === "help" ? closeModal() : openMenu("help");
-  $("btnUpdates").onclick = () => S.modal === "updates" ? closeModal() : openMenu("updates");
+
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const mm = $("minimap");
   mm.width = mm.height = Math.round(150 * dpr * 1.2);

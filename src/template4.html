@@ -117,6 +117,15 @@
   #log.f-system div:not(.sys):not(.npc):not(.party) { display: none; }
   #chat.min #log { height: 54px; overflow: hidden; background: linear-gradient(rgba(10,12,20,0), rgba(10,12,20,.55)); border-color: transparent; box-shadow: none; pointer-events: none; }
   #chat.min #chatTabs button:not(.tog) { display: none; }
+  #confirmBox { position: absolute; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center; background: rgba(4,5,9,.55); pointer-events: auto; }
+  #confirmBox.on { display: flex; }
+  #confirmBox .cb { width: min(380px, 90vw); padding: 16px 18px; border-color: var(--gold); box-shadow: 0 0 28px rgba(0,0,0,.6); animation: tin .2s ease-out; }
+  #confirmBox .cbT { font: 700 16px var(--serif); color: var(--gold); margin-bottom: 6px; }
+  #confirmBox .cbB { font-size: 13px; line-height: 1.55; color: #e2dfd6; }
+  #confirmBox .cbA { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  #confirmBox .cbA button { padding: 8px 16px; }
+  #confirmBox .cbA .pri { border-color: var(--gold); color: var(--gold); }
+  #confirmBox .cbA .danger { border-color: #ff8a80; color: #ff8a80; }
   #verPop { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); z-index: 25; width: min(380px, 90vw); padding: 14px 16px; display: none; pointer-events: auto; border-color: var(--gold); box-shadow: 0 0 28px rgba(241,207,115,.3); animation: tin .3s ease-out; }
   #verPop .vpT { font: 700 16px var(--serif); color: var(--gold); margin-bottom: 6px; }
   #verPop .vpB { font-size: 12.5px; line-height: 1.55; color: #e2dfd6; }
@@ -165,7 +174,7 @@
   #xpbar .ticks { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 9.6%, rgba(0,0,0,.45) 9.6% 10%); }
   #xpt, #chainCt { color: #cfd3dc; white-space: nowrap; }
   #chainCt { color: var(--gold); font-weight: 700; }
-  #gil { color: var(--gold); white-space: nowrap; }
+  #crystals { color: var(--gold); white-space: nowrap; }
 
   #big { position: absolute; right: calc(10px + var(--sar)); bottom: calc(12px + var(--sab)); display: grid; grid-template-columns: auto auto; gap: 8px; align-items: end; justify-items: center; }
   .bb { width: 58px; height: 58px; border-radius: 50%; padding: 0; display: grid; place-items: center; font-size: 11px; line-height: 1.05; border: 2px solid var(--edge2); background: radial-gradient(circle at 50% 35%, #383f5a, #151925); box-shadow: 0 4px 12px rgba(0,0,0,.5); }
@@ -267,6 +276,19 @@
   .toast.r-uncommon { border-color: #6fd36f; }
   .toast.r-rare { border-color: #6aa9ff; box-shadow: 0 0 14px rgba(106,169,255,.4); }
   .toast.r-epic { border-color: #c48cff; box-shadow: 0 0 14px rgba(196,140,255,.45); }
+  .credits { text-align: center; padding: 20px 10px; }
+  .credT { font: 700 26px var(--serif); letter-spacing: .1em; color: var(--gold); }
+  .credBy { margin-top: 8px; font-size: 14px; color: #e2dfd6; }
+  .credLinks { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 18px; }
+  .credLink { display: inline-block; padding: 10px 18px; border-radius: 10px; border: 1px solid var(--gold); color: var(--gold); text-decoration: none; font: 600 14px var(--serif); background: linear-gradient(#2a2416, #15120a); min-width: 240px; }
+  .credLink:hover { background: linear-gradient(#3a321c, #1c180e); }
+  .homeTop { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center; }
+  .homeTop button.on { border-color: var(--gold); color: var(--gold); }
+  .homeGrid { display: grid; gap: 3px; max-width: 520px; }
+  .homeGrid .ht { aspect-ratio: 1; padding: 0; font-size: 18px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 6px; }
+  .homeGrid .ht.blk { background: rgba(0,0,0,.45); border-color: rgba(255,255,255,.04); }
+  .homeGrid .ht.occ { background: rgba(241,207,115,.14); border-color: rgba(241,207,115,.4); }
+  .homeGrid .ht.ok { background: rgba(111,211,111,.14); border-color: rgba(111,211,111,.4); }
   .help details { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 8px 11px; margin-bottom: 7px; }
   .help summary { cursor: pointer; font: 700 14px var(--serif); color: var(--gold); }
   .help p, .help li { font-size: 12.5px; line-height: 1.6; color: #d8d6cf; }
@@ -321,13 +343,25 @@
   #ldBar { width: min(340px, 74vw); height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; border: 1px solid rgba(241,207,115,.25); }
   #ldFill { height: 100%; width: 0; background: linear-gradient(90deg, #a5822e, #f1cf73); box-shadow: 0 0 10px rgba(241,207,115,.6); transition: width .25s ease-out; }
   #ldText { font-size: 12px; color: var(--muted); min-height: 16px; }
-  #ldTip { position: absolute; left: 50%; bottom: calc(26px + var(--sab)); transform: translateX(-50%); width: min(520px, 88vw); font-size: 12px; color: #b8b2a0; line-height: 1.5; }
+  #ldTip { position: absolute; left: 50%; bottom: calc(34px + var(--sab)); transform: translateX(-50%); width: min(520px, 88vw); font-size: 12px; color: #b8b2a0; line-height: 1.5; }
   #ldTip b { color: var(--gold); font-weight: 600; }
   #ldStart { display: none; font: 700 16px var(--serif); letter-spacing: .08em; padding: 12px 28px; border-color: var(--gold); color: var(--gold); background: linear-gradient(#3a321c, #1c180e); box-shadow: 0 0 18px rgba(241,207,115,.3); animation: pulse 1.2s ease-in-out infinite alternate; }
   #ldStart small { display: block; font: 11px system-ui; color: #ddd; letter-spacing: 0; margin-top: 2px; }
   #loading.ready #ldStart { display: block; }
   #loading.ready #ldBar, #loading.ready #ldText { display: none; }
   #loading.roster #ldTip { display: none; }
+  #ldPv { display: none; position: relative; width: min(300px, 70vw); aspect-ratio: 4/3; border-radius: 12px; overflow: hidden; background: radial-gradient(ellipse at 50% 70%, #2a2d3f, #0b0c13 70%); border: 1px solid var(--edge); margin-top: 4px; }
+  #ldPv canvas { width: 100%; height: 100%; display: block; }
+  #ldPv .lbl { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 10px; background: linear-gradient(transparent, rgba(5,6,10,.85)); text-align: left; pointer-events: none; }
+  #ldPv .lbl b { display: block; font: 700 14px var(--serif); color: var(--gold); }
+  #ldPv .lbl span { font-size: 11.5px; color: #ddd8c8; line-height: 1.4; }
+  #loading.ready #ldPv { display: none !important; }
+  #ldCred { position: absolute; left: 50%; bottom: calc(8px + var(--sab)); transform: translateX(-50%); font-size: 11.5px; color: #a8a292; white-space: nowrap; }
+  #ldCred b { color: #e2dcc6; }
+  #ldCred a { color: var(--gold); text-decoration: none; }
+  #ldCred a:hover { text-decoration: underline; }
+  #loading.roster #ldCred { position: static; transform: none; margin-top: 18px; }
+  #loading.zone #ldCred { display: none; }
   #loading.roster { justify-content: flex-start; padding-top: max(26px, 5vh); overflow-y: auto; gap: 8px; }
   #loading.roster .crest { width: 48px; height: 48px; font-size: 22px; }
   #loading.roster #ldTitle { font-size: 26px; }
@@ -412,7 +446,7 @@
     #pager { flex-direction: row; }
     #barWrap { flex-direction: column-reverse; align-items: flex-end; }
     #xpRow { position: fixed; left: 0; right: 0; bottom: 0; padding: 0 6px calc(2px + var(--sab)); font-size: 9px; }
-    #xpt, #gil { display: none; }
+    #xpt, #crystals { display: none; }
     #big { bottom: calc(150px + var(--sab)); right: calc(8px + var(--sar)); grid-template-columns: auto auto auto auto; gap: 6px; align-items: center; }
     .bb { width: 46px; height: 46px; font-size: 9px; }
     .bb .i { font-size: 16px; }
@@ -454,7 +488,8 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">__VERSION__</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">__VERSION__</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>
   <div id="flash"></div>
@@ -472,14 +507,14 @@
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
-      <div id="trBtns"><button id="btnHelp" title="Help (H)">❓</button><button id="btnUpdates" title="Updates">📰</button><button id="btnQuests" title="Quests (J)">📜</button><button id="btnSound" title="Sound">🔊</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
+      <div id="trBtns"><button id="btnQuests" title="Quests (J)">📜</button><button id="btnSound" title="Sound">🔊</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
       <div id="barWrap" class="glass"><div id="pager"><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
-      <div id="xpRow"><span id="lvl"></span><div id="xpbar"><div id="xpfill"></div><div class="ticks"></div></div><span id="xpt"></span><span id="chainCt"></span><span id="gil"></span></div>
+      <div id="xpRow"><span id="lvl"></span><div id="xpbar"><div id="xpfill"></div><div class="ticks"></div></div><span id="xpt"></span><span id="chainCt"></span><span id="crystals"></span></div>
     </div>
     <div id="big">
       <button class="bb" id="btnTarget"><span><span class="i">◎</span>Target</span></button>

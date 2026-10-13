@@ -1,6 +1,7 @@
 function onKey(e) {
-  if (!UI.started) return;
   const k = e.key.toLowerCase();
+  if (UI.confirmOpen) { if (k === "escape") $("confirmBox").querySelector(".no").click(); if (k === "enter") $("confirmBox").querySelector(".yes").click(); e.preventDefault(); return; }
+  if (!UI.started) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
   const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help" };
   if (S.modal) {
@@ -43,6 +44,7 @@ function onKey(e) {
 }
 
 const TIPS = [
+  "<b>Rest.</b> Standing still only trickles HP and MP back. Type /rest to sit and heal properly.",
   "<b>Rest.</b> Stand still out of combat and your HP and MP slowly come back.",
   "<b>Check before you fight.</b> A monster's name colour shows how tough it is compared to you.",
   "<b>Skillchains.</b> Use a weapon skill right after an ally's to chain them, then nuke the matching element for a magic burst.",
@@ -100,6 +102,7 @@ async function boot() {
       updateHud(dt);
       updateAudio();
     } else if (UI.creating && UI.pv) renderPreview(now);
+    else if (UI.showcase && UI.pv) renderShowcase(now);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -144,7 +147,7 @@ function showCharSelect() {
     if (b && b.dataset.play) { enterWorld(b.dataset.play); return; }
     if (b && b.dataset.del) {
       const c = r.chars.find(x => x.id === b.dataset.del);
-      if (c && confirm("Delete " + c.name + " for good? This can't be undone.")) { deleteChar(c.id); sfx("close"); showCharSelect(); }
+      if (c) gameConfirm("Delete " + c.name + "?", "This character and everything they own will be gone for good.", () => { deleteChar(c.id); showCharSelect(); }, { yes: "Delete", danger: true });
       return;
     }
     if (b && b.dataset.new) { showCharCreate(); return; }

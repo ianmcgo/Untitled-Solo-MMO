@@ -546,6 +546,116 @@ function buildRuins(field, root) {
   root.add(g);
 }
 
+function buildHouse(field, root) {
+  const z = field.zone;
+  const planks = texPlanks(), bricks = texBricks();
+  const floorMat = std({ map: planks.map, normalMap: planks.normalMap, color: 0xb08a60, roughness: 0.85 });
+  const wallMat = std({ map: planks.map, normalMap: planks.normalMap, color: 0xd8c8a8, roughness: 0.9 });
+  const stoneMat = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0x9a9088 });
+  const beamMat = std({ color: 0x4a3220, roughness: 0.9 });
+  const W = z.w * U, H = z.h * U, wallH = 3.4;
+  const floor = new THREE.Mesh(new THREE.BoxGeometry(W + 2, 0.3, H + 2), floorMat);
+  floor.position.set(W / 2, 0.0, H / 2);
+  floor.receiveShadow = true;
+  root.add(floor);
+  const mkWall = (x, zz, len, rot) => {
+    const w = new THREE.Mesh(new THREE.BoxGeometry(len, wallH, 0.3), wallMat);
+    w.position.set(x, wallH / 2 + 0.15, zz);
+    w.rotation.y = rot;
+    w.receiveShadow = true;
+    root.add(w);
+    const base = new THREE.Mesh(new THREE.BoxGeometry(len, 0.5, 0.36), stoneMat);
+    base.position.set(x, 0.4, zz); base.rotation.y = rot;
+    root.add(base);
+  };
+  mkWall(W / 2, 0, W, 0);
+  mkWall(0, H / 2, H, Math.PI / 2);
+  mkWall(W, H / 2, H, Math.PI / 2);
+  const door = z.exits.find(e => e.kind === "door");
+  const dx = door ? (door.x + door.w / 2) * U : W / 2, dw = door ? door.w * U + 0.4 : 2.6;
+  mkWall(dx / 2 - dw / 4, H, dx - dw / 2, 0);
+  mkWall(dx + dw / 2 + (W - dx - dw / 2) / 2, H, W - dx - dw / 2, 0);
+  const lintel = new THREE.Mesh(new THREE.BoxGeometry(dw, wallH - 2.3, 0.3), wallMat); lintel.position.set(dx, 2.3 + (wallH - 2.3) / 2 + 0.15, H); root.add(lintel);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(dw + 0.3, 2.5, 0.4), beamMat); frame.position.set(dx, 1.25, H);
+  const hole = new THREE.Mesh(new THREE.BoxGeometry(dw - 0.2, 2.3, 0.5), new THREE.MeshBasicMaterial({ color: 0x1a1810 })); hole.position.set(dx, 1.15, H);
+  root.add(frame, hole);
+  for (let i = 0; i <= 4; i++) { const beam = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.3, H), beamMat); beam.position.set(i * W / 4, wallH + 0.3, H / 2); root.add(beam); }
+  for (const [wx, wz, rot] of [[W * 0.3, 0, 0], [W * 0.7, 0, 0], [0, H * 0.5, Math.PI / 2], [W, H * 0.5, Math.PI / 2]]) {
+    const win = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.0), new THREE.MeshStandardMaterial({ color: 0x9fc8e8, emissive: 0xfff2d0, emissiveIntensity: 0.6, side: THREE.DoubleSide }));
+    win.position.set(wx + (rot ? (wx === 0 ? 0.17 : -0.17) : 0), 2.1, wz + (rot ? 0 : 0.17));
+    win.rotation.y = rot;
+    root.add(win);
+    const sill = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 0.3), beamMat);
+    sill.position.set(win.position.x, 1.58, win.position.z); sill.rotation.y = rot;
+    root.add(sill);
+    const L = new THREE.PointLight(0xffe8c0, 6, 10, 1.6);
+    L.position.set(win.position.x + (rot ? (wx === 0 ? 0.8 : -0.8) : 0), 2.2, win.position.z + (rot ? 0 : 0.8));
+    root.add(L);
+    W3.windowMats.push(win.material);
+  }
+  const g = z.grid;
+  const cw = z.w / g.cols * U, ch = z.h / g.rows * U;
+  for (const [c, r] of g.blocked) {
+    if (c === 0 || c === 1) continue;
+    const mat = new THREE.Mesh(new THREE.BoxGeometry(cw, 0.04, ch), std({ color: 0x8a6a48 }));
+    mat.position.set((c + 0.5) * cw, 0.17, (r + 0.5) * ch);
+    root.add(mat);
+  }
+  const rug = new THREE.Mesh(new THREE.CircleGeometry(1.2, 24), std({ color: 0x6a3a3a, roughness: 1 }));
+  rug.rotation.x = -Math.PI / 2; rug.position.set(1.0 * cw, 0.17, 1.0 * ch);
+  root.add(rug);
+  const amb = new THREE.PointLight(0xffe2b8, 8, 18, 1.4);
+  amb.position.set(W / 2, 3.0, H / 2);
+  root.add(amb);
+  W3.furnRoot = new THREE.Group();
+  root.add(W3.furnRoot);
+  W3.furnSig = null;
+}
+
+function furnitureMesh(f) {
+  const it = ITEMS[f.id];
+  const m = FURNITURE_MODELS[it.model] || { w: 1, h: 1 };
+  const g = new THREE.Group();
+  const wood = std({ color: 0x8a5a34, roughness: 0.85 }), dark = std({ color: 0x4a3220, roughness: 0.9 }), cloth = std({ color: 0xc8b090, roughness: 1 });
+  const box = (w, h, d, x, y, zz, mat) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); b.position.set(x, y, zz); b.castShadow = true; b.receiveShadow = true; g.add(b); return b; };
+  const Wm = m.w * 2, Dm = m.h * 2;
+  switch (it.model) {
+    case "bed": box(Wm - 0.3, 0.5, Dm - 0.3, 0, 0.35, 0, wood); box(Wm - 0.4, 0.25, Dm - 0.5, 0, 0.72, 0.05, std({ color: 0xe8e0d0 })); box(Wm - 0.5, 0.2, 1.0, 0, 0.9, -Dm / 2 + 0.7, std({ color: 0x8a3a3a })); box(Wm - 0.7, 0.3, 0.7, 0, 0.9, Dm / 2 - 0.6, std({ color: 0xf4f0e8 })); box(Wm - 0.3, 1.4, 0.15, 0, 0.7, -Dm / 2 + 0.15, wood); break;
+    case "table": box(Wm - 0.4, 0.12, Dm - 0.4, 0, 1.0, 0, wood); for (const sx of [-1, 1]) for (const sz of [-1, 1]) box(0.14, 1.0, 0.14, sx * (Wm / 2 - 0.4), 0.5, sz * (Dm / 2 - 0.4), dark); break;
+    case "chair": box(0.9, 0.1, 0.9, 0, 0.6, 0, wood); for (const sx of [-1, 1]) for (const sz of [-1, 1]) box(0.1, 0.6, 0.1, sx * 0.38, 0.3, sz * 0.38, dark); box(0.9, 1.0, 0.1, 0, 1.1, -0.4, wood); break;
+    case "chest": box(1.5, 0.8, 1.0, 0, 0.4, 0, wood); box(1.5, 0.3, 1.0, 0, 0.95, 0, dark); box(0.2, 0.25, 0.1, 0, 0.7, 0.52, std({ color: 0xc8a040, metalness: 0.6 })); break;
+    case "wardrobe": box(Wm - 0.3, 3.0, 1.2, 0, 1.5, 0, wood); box(0.05, 2.6, 0.05, 0, 1.5, 0.63, dark); for (const sx of [-1, 1]) box(0.08, 0.3, 0.06, sx * 0.25, 1.5, 0.64, std({ color: 0xc8a040, metalness: 0.6 })); break;
+    case "bookshelf": box(Wm - 0.3, 2.6, 0.9, 0, 1.3, 0, dark); for (let i = 0; i < 4; i++) { box(Wm - 0.5, 0.06, 0.8, 0, 0.5 + i * 0.6, 0, wood); for (let k = 0; k < 7; k++) box(0.14, 0.4, 0.55, -Wm / 2 + 0.45 + k * 0.42, 0.75 + i * 0.6, 0.05, std({ color: [0x8a3a3a, 0x3a5a8a, 0x5a7a3a, 0xc8a040, 0x6a3a7a][(i + k) % 5] })); } break;
+    case "plant": { const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.22, 0.45, 10), std({ color: 0xa0603a })); pot.position.y = 0.22; g.add(pot); for (let i = 0; i < 7; i++) { const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.9, 5), std({ color: 0x3a8a3a })); const a = i / 7 * Math.PI * 2; leaf.position.set(Math.cos(a) * 0.15, 0.8, Math.sin(a) * 0.15); leaf.rotation.set(Math.sin(a) * 0.6, 0, -Math.cos(a) * 0.6); g.add(leaf); } break; }
+    case "lamp": { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 2.0, 8), dark); post.position.y = 1.0; const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.45, 0.5, 12, 1, true), std({ color: 0xe8d8a8, emissive: 0xffd080, emissiveIntensity: 0.6, side: THREE.DoubleSide })); shade.position.y = 2.1; const L = new THREE.PointLight(0xffd8a0, 8, 9, 1.5); L.position.y = 2.0; g.add(post, shade, L); break; }
+    case "rug": { const r = new THREE.Mesh(new THREE.CircleGeometry(Math.min(Wm, Dm) / 2 - 0.1, 28), std({ color: 0x8a4a4a, roughness: 1 })); r.rotation.x = -Math.PI / 2; r.position.y = 0.02; const ring = new THREE.Mesh(new THREE.RingGeometry(Math.min(Wm, Dm) / 2 - 0.4, Math.min(Wm, Dm) / 2 - 0.25, 28), std({ color: 0xd8b060, roughness: 1 })); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.025; g.add(r, ring); break; }
+    case "hearth": { box(Wm - 0.2, 2.2, 1.0, 0, 1.1, -0.1, std({ color: 0x6a6460 })); box(Wm - 0.2, 0.3, 1.3, 0, 2.35, 0, std({ color: 0x4a4440 })); const fire = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.8, 8), new THREE.MeshBasicMaterial({ color: 0xffa040 })); fire.position.set(0, 0.6, 0.25); const L = new THREE.PointLight(0xff9040, 12, 12, 1.4); L.position.set(0, 0.9, 0.6); g.add(fire, L); g.userData.flame = fire; break; }
+    case "totem": { const t = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 1.8, 7), std({ color: 0x6a5a34 })); t.position.y = 0.9; const eyes = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.2), std({ color: 0xff3030, emissive: 0xff3030, emissiveIntensity: 0.6 })); eyes.position.set(0, 1.3, 0.3); g.add(t, eyes); break; }
+    default: box(Wm - 0.3, 0.8, Dm - 0.3, 0, 0.4, 0, wood);
+  }
+  return g;
+}
+
+function syncFurniture() {
+  if (!W3.furnRoot || S.zoneId !== "residence") return;
+  const sig = JSON.stringify(save.furniture);
+  if (sig !== W3.furnSig) {
+    W3.furnSig = sig;
+    disposeTree(W3.furnRoot);
+    while (W3.furnRoot.children.length) W3.furnRoot.remove(W3.furnRoot.children[0]);
+    const g = ZONES.residence.grid;
+    const cw = ZONES.residence.w / g.cols * U, ch = ZONES.residence.h / g.rows * U;
+    for (const f of save.furniture) {
+      const { w, h } = furnFoot(f.id, f.rot || 0);
+      const m = furnitureMesh(f);
+      m.position.set((f.c + w / 2) * cw, 0.15, (f.r + h / 2) * ch);
+      m.rotation.y = -(f.rot || 0) * Math.PI / 2;
+      W3.furnRoot.add(m);
+    }
+  }
+  for (const m of W3.furnRoot.children) if (m.userData.flame) { const k = 0.9 + Math.sin(S.time * 11) * 0.12; m.userData.flame.scale.set(k, 1 + Math.sin(S.time * 7) * 0.15, k); }
+}
+
 function buildCrypt(field, root) {
   const z = field.zone;
   const bricks = texBricks();
@@ -821,6 +931,7 @@ function* buildZone3DSteps() {
   if (themeOf(z) === "town") buildTown(field, root);
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
+  if (themeOf(z) === "house") buildHouse(field, root);
   buildRuins(field, root);
   buildExits(field, root);
   buildWater(field, root);

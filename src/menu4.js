@@ -18,7 +18,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId].join("|");
+  return [save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -34,10 +34,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
-  $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">🪙 ' + save.gil + " gil · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs }[S.modal];
+  $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -83,8 +84,8 @@ function tabCharacter() {
   const need = xpNeed(j.lv);
   h += "<h3>Progress</h3><div class=\"sub\">Experience " + (need ? j.xp + " / " + need + " (" + Math.floor(100 * j.xp / need) + "%)" : "Level cap reached") + " · Home point: " + ZONES[save.home.zone].name + "</div>";
   h += '<div style="margin-top:6px">';
-  for (const jb in JOBS) h += '<div class="item"><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">Lv.' + save.jobs[jb].lv + "</span></div><span class=\"d\">" + (jb === save.mainJob ? "Main job" : jb === save.subJob ? "Support job" : "") + "</span></div>";
-  h += '</div><div class="sub">Change jobs with Tobin, the Job Master in the Outpost. ' + (save.supportUnlocked ? "Support jobs are unlocked." : "Support jobs unlock through Tobin's quest at level " + CONFIG.supportUnlockLevel + ".") + "</div>";
+  for (const jb in JOBS) { if (jb !== save.mainJob && jb !== save.subJob && save.jobs[jb].lv <= 1 && !save.jobs[jb].xp) continue; h += '<div class="item"><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">Lv.' + save.jobs[jb].lv + "</span></div><span class=\"d\">" + (jb === save.mainJob ? "Main job" : jb === save.subJob ? "Support job" : "") + "</span></div>"; }
+  h += "</div>";
   if (typeof appearanceHTML === "function") h += appearanceHTML();
   h += "</div></div>";
   return h;
@@ -165,6 +166,100 @@ function renderPreview(now) {
   pv.r.render(pv.scene, pv.cam);
 }
 
+const LORE = {
+  goblin: ["Goblins raid the Outpost's supply crates and carry what they steal in grimy pouches.", "A goblin's bomb toss hurts everyone near the target. Spread out."],
+  den_goblin: ["Goblin Raiders are the Den's veterans: better armed, and they always come in groups.", "Raiders carry iron ore from the Den's tunnels."],
+  bat: ["Cave Bats stir at nightfall and hunt by sound. Stand still and they pass you by.", "Bat wings go into Clothcraft and Alchemy."],
+  worm: ["Tunnel Worms sense magic. They're slow, tough, and spin silk worth selling.", "Worms are about day and night; the hares aren't."],
+  ghoul: ["Ghouls smell weakness. A party with low HP draws them from across a chamber.", "Light and fire burn the undead. Banish and Fire hit ghouls hard."],
+  skeleton: ["Wandering Bones walk the Old Fort Ruins by night and the Crypt at all hours.", "Bone chips from the dead go into advanced recipes."],
+  hare: ["Meadow Hares graze by day and never start a fight. Good first targets.", "Hares carry healing herbs, which Pell and Ysolde both want."],
+  chieftain: ["The Goblin Chieftain rules the back of the Den. His Goblin Rush is three quick strikes; keep the healer back.", "His cap is a trophy few wear."],
+  grimtooth: ["Grimtooth leads the goblin camp in eastern Rocky Hollow. He appears among his gang now and then.", "Notorious monsters stay down for minutes of real time after they fall."],
+  duskwing: ["Duskwing haunts the Old Fort Ruins on dark nights. Faster and far harder to hit than any bat.", "Its boots make the wearer lighter on their feet."],
+  king_wiggles: ["King Wiggles burrows beneath Burrow Flats by day. Twice the worm, twice the silk.", "Its gloves are prized by mages."],
+  ossuary_warden: ["The Ossuary Warden keeps the Bone Pit of the Goblin Den. Its hood hides eyes that glow green.", "The Warden's Robe is the best mage body in the land."],
+  crypt_sentinel: ["The Crypt Sentinel guards the key to the Hollow King's throne room.", "Its great axe sweeps the whole room: don't bunch up."],
+  hollow_king: ["The Hollow King stirs the dead of Ashenreach from his throne under the Den.", "At two thirds and one third of his health he calls Royal Guards; below a fifth he enrages."],
+  royal_guard: ["Royal Guards rise at the Hollow King's call and fall when he does."],
+  rhea: ["Captain Rhea commands the Outpost's garrison and pays bounties on goblins and worse.", "Rhea turns in at 22:00 and is back on the plaza at dawn."],
+  tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
+  pell: ["Pell buys and sells potions, ethers, arms and armour. Crystals talk.", "Pell keeps late hours for a merchant: he shuts at 21:00."],
+  brann: ["Brann runs the Mercenary Hall. One fee hires a companion for good; dismissing is free.", "Brann drinks till 23:00 and is up by half past seven."],
+  ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 5.", "Ysolde beds down with the beasts at 19:30."],
+  odette: ["Odette sells furnishings for your residence, and her cousin Pip keeps it.", "Odette closes up at 21:30."]
+};
+const LORE_KEYS = Object.keys(LORE);
+
+function showcaseEntity(key) {
+  if (NPC_LOOK[key]) return { kind: "npc", id: key, name: NPCS[key] ? NPCS[key].name : key, alive: true, x: 0, y: 0, face: 0, buffs: {}, lastSwing: -9, lastHit: -9, lastWS: -9, resting: false, moving: false, casting: null };
+  const f = famOf(key);
+  if (!f) return null;
+  return { kind: "mob", famKey: key, fam: f, name: f.name, lv: 1, alive: true, state: "idle", x: 0, y: 0, face: 0, buffs: {}, radius: f.radius, lastSwing: -9, lastHit: -9, lastWS: -9, tp: 0, hp: 1, maxHp: 1, mp: 0, maxMp: 0, moving: false, casting: null, readying: null, enmity: new Map(), stats: { wtype: "sword", dmg: 1, acc: 1, eva: 1, att: 1, def: 1 }, swingTimer: 2, delay: 3 };
+}
+
+function renderShowcase(now) {
+  const pv = UI.pv;
+  if (!pv || pv.failed || !pv.canvas.isConnected || !UI.showcase) return;
+  const dt = Math.min(0.05, (now - (pv.last || now)) / 1000);
+  pv.last = now;
+  const w = pv.canvas.clientWidth, h = pv.canvas.clientHeight;
+  if (!w || !h) return;
+  if (pv.sized !== w * 10000 + h) { pv.sized = w * 10000 + h; pv.r.setSize(w, h, false); pv.cam.aspect = w / h; pv.cam.updateProjectionMatrix(); }
+  const sc = UI.showcase;
+  if (pv.sig !== "show:" + sc.key) {
+    if (pv.holder) { pv.scene.remove(pv.holder); pv.view && pv.view.mat && pv.view.mat.dispose(); }
+    const e = showcaseEntity(sc.key);
+    const inst = buildEntityRig(e);
+    if (!inst) return;
+    const holder = new THREE.Group();
+    holder.add(inst.mesh);
+    const s = e.kind === "mob" ? (e.fam.scale || 1) : 1;
+    holder.scale.setScalar(s);
+    pv.view = { group: holder, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, kind: inst.meta.kind, weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null, style: styleFor(e), stride: 1.7, scale: s, mount: null, sink: 0 };
+    pv.ent = e;
+    pv.scene.add(holder);
+    pv.holder = holder;
+    pv.sig = "show:" + sc.key;
+    const top = (inst.meta.headTop || 1.8) * s;
+    pv.cam.position.set(0, top * 0.6, top * 2.2);
+    pv.cam.lookAt(0, top * 0.48, 0);
+    pv.rot = 0.6;
+  }
+  pv.rot += dt * 0.5;
+  pv.holder.rotation.y = pv.rot;
+  try {
+    const v = pv.view, e = pv.ent;
+    if (v.kind === "human") { poseHuman(v, e, dt); placeWeapon(v, e); }
+    else if (v.kind === "bat") poseBat(v, e, dt);
+    else if (v.kind === "worm") poseWorm(v, e, dt);
+    else if (v.kind === "hare") poseHare(v, e, dt);
+  } catch (err) {}
+  pv.r.render(pv.scene, pv.cam);
+}
+
+function startShowcase() {
+  const wrap = $("ldPv");
+  if (!wrap || typeof attachPreview !== "function" || !RIG.atlas) return;
+  attachPreview("ldPv");
+  if (!UI.pv || UI.pv.failed) return;
+  const key = LORE_KEYS[Math.floor(Math.random() * LORE_KEYS.length)];
+  const lines = LORE[key];
+  UI.showcase = { key, text: lines[Math.floor(Math.random() * lines.length)] };
+  UI.pv.override = null;
+  UI.pv.sig = null;
+  const e = showcaseEntity(key);
+  $("ldPvName").textContent = e ? e.name : "";
+  $("ldPvText").textContent = UI.showcase.text;
+  wrap.style.display = "block";
+}
+function stopShowcase() {
+  UI.showcase = null;
+  const wrap = $("ldPv");
+  if (wrap) wrap.style.display = "none";
+  if (UI.pv && UI.pv.sig && UI.pv.sig.startsWith("show:")) UI.pv.sig = null;
+}
+
 function invSorted() {
   return save.inventory.map((s, i) => ({ s, i })).filter(({ s }) => {
     const it = ITEMS[s.id];
@@ -191,7 +286,7 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " gil" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Crystal", tool: "Tool", furniture: "Furniture" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
@@ -344,23 +439,22 @@ function tabSettings() {
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "names", "Action names " + (s.names !== false ? "on" : "off"), s.names !== false) + "</div>";
+  h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button></div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
 function tabSystem() {
   let h = "<h3>Save data</h3>";
   h += '<div class="sub" style="margin-bottom:8px">Your progress saves automatically in this browser. Save to a file for a backup, or load a file to restore one or move to another device.</div>';
   h += '<div class="opt"><button data-a="savefile">💾 Save to file</button><button data-a="loadfile">📂 Load from file</button></div>';
-  h += "<h3>Character</h3><div class=\"sub\" style=\"margin-bottom:8px\">" + esc(save.name) + " · " + JOBS[save.mainJob].name + " Lv." + player.lv + " · " + loadRoster().chars.length + " of " + MAX_CHARS + " characters. Appearance was set at creation and can't be changed.</div>";
+  h += "<h3>Character</h3><div class=\"sub\" style=\"margin-bottom:8px\">" + esc(save.name) + " · " + JOBS[save.mainJob].name + " Lv." + player.lv + " · " + loadRoster().chars.length + " of " + MAX_CHARS + " characters.</div>";
   h += '<div class="opt"><button data-a="logout">👥 Change character</button></div>';
   h += '<input type="file" id="loadInput" accept=".json,application/json" style="display:none">';
   h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes.</div>";
-  h += "<h3>Controls</h3><div class=\"sub\" style=\"line-height:1.7\"><b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap to target, tap again to attack or talk.<br><b>Keyboard:</b> WASD move · drag, arrows or Q/E turn · scroll zoom · V first person · Tab target (nearest first, press again to cycle) · F attack · Enter talk · 1–0 action bar (Shift for page 2) · [ ] switch page · R mount · Esc menu · C character · I inventory · K skills · B action bar · J quests · M map · H help.<br>Stand still out of combat to regenerate HP and MP.</div>";
-  h += '<div class="opt" style="margin-top:8px"><button data-a="checkupd">🔄 Check for updates</button></div>';
-  h += "<h3>About</h3><div class=\"sub\">Untitled Solo RPG · " + BUILD_INFO + " · all art, music and sound are generated for this game.</div>";
+  h += '<h3>Updates</h3><div class="sub" style="margin-bottom:6px">' + BUILD_INFO + '</div><div class="opt"><button data-a="checkupd">🔄 Check for updates</button><button data-a="open" data-v="updates">📰 What changed</button></div>';
   return h;
 }
 function tabShop() {
-  let h = '<div class="sub" style="margin-bottom:6px">Pell buys and sells. 🪙 ' + save.gil + " gil</div><h3>Buy</h3>";
+  let h = '<div class="sub" style="margin-bottom:6px">Pell buys and sells. 💠 ' + save.gil + " gil</div><h3>Buy</h3>";
   shopList().forEach(id => { h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (ITEMS[id].icon || "") + "</span><div><div>" + esc(ITEMS[id].name) + '</div><div class="d">' + esc(itemDesc(id)) + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < ITEMS[id].price ? " disabled" : "") + ">" + ITEMS[id].price + " gil</button></div>"; });
   h += "<h3>Sell</h3>";
   const sellable = save.inventory.filter(s => sellPrice(s.id) > 0);
@@ -368,6 +462,66 @@ function tabShop() {
   sellable.forEach(s => { h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="sell" data-v="' + s.id + '">' + sellPrice(s.id) + " gil</button></div>"; });
   return h;
 }
+function tabCredits() {
+  const link = (url, label, icon) => '<a class="credLink" href="' + url + '" target="_blank" rel="noopener">' + icon + " " + esc(label) + "</a>";
+  let h = '<div class="credits"><div class="credT">Untitled Solo RPG</div><div class="credBy">A game made by <b>Ian McGonigal</b></div>';
+  h += '<div class="credLinks">' + link("https://ianmcgo.github.io/cabalcoffers/#ebay", "Cabal Coffers store", "🛒") + link("https://www.patreon.com/c/ianmcg", "Support on Patreon", "💛") + link("https://ianmcgo.github.io/website/", "Ian's other works", "🌐") + "</div>";
+  h += '<div class="sub" style="margin-top:14px">All names, art, music and sound in this game are original. Inspired by the classic MMORPGs of the early 2000s. ' + BUILD_INFO + "</div></div>";
+  return h;
+}
+
+function tabFurnishings() {
+  let h = '<div class="sub" style="margin-bottom:6px">Odette sells furniture for your residence. 💠 ' + save.gil + " crystals · Pip at the cottage places it.</div><h3>Buy</h3>";
+  FURNITURE_SHOP.forEach(id => { const it = ITEMS[id]; const fp = it.fp || [1, 1]; h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (it.icon || "") + "</span><div><div>" + esc(it.name) + ' <span class="sub">' + fp[0] + "×" + fp[1] + (it.storage ? " · +" + it.storage + " storage" : "") + '</span></div><div class="d">' + esc(it.desc || "") + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < it.price ? " disabled" : "") + ">" + it.price + " gil</button></div>"; });
+  h += "<h3>Sell</h3>";
+  const sellable = save.inventory.filter(s => ITEMS[s.id].kind === "furniture" && sellPrice(s.id) > 0);
+  if (!sellable.length) h += '<div class="sub">No furniture to sell.</div>';
+  sellable.forEach(s => { h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="sell" data-v="' + s.id + '">' + sellPrice(s.id) + " gil</button></div>"; });
+  return h;
+}
+
+function tabStorage() {
+  const cap = storageCap();
+  let h = '<div class="sub" style="margin-bottom:6px">Pip keeps your things. ' + storageUsed() + " / " + cap + " storage slots (" + CONFIG.storageBase + " base" + (cap > CONFIG.storageBase ? " + " + (cap - CONFIG.storageBase) + " from furniture" : "") + ") · bag " + save.inventory.length + "/" + CONFIG.inventorySize + "</div>";
+  h += '<div class="charGrid"><div><h3>Bag → storage</h3>';
+  const bag = save.inventory.map((s, i) => ({ s, i })).filter(({ s }) => ITEMS[s.id].kind !== "key");
+  if (!bag.length) h += '<div class="sub">Your bag is empty.</div>';
+  for (const { s, i } of bag) h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="store" data-v="' + i + '">Store</button></div>';
+  h += '</div><div><h3>Storage → bag</h3>';
+  if (!save.storage.length) h += '<div class="sub">Nothing stored yet.</div>';
+  save.storage.forEach((s, i) => { h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="retrieve" data-v="' + i + '">Take</button></div>'; });
+  h += "</div></div>";
+  return h;
+}
+
+function tabHome() {
+  const g = ZONES.residence.grid;
+  const own = save.inventory.filter(s => ITEMS[s.id].kind === "furniture");
+  let h = '<div class="sub" style="margin-bottom:6px">Pick a piece, then tap a tile to place it. Tap a placed piece to rotate or pack it away. Dark tiles are blocked (the door and Pip\'s corner). Rugs can sit under other pieces.</div>';
+  h += '<div class="homeTop">' + own.map(s => '<button data-a="pickf" data-v="' + s.id + '"' + (UI.pick === s.id ? ' class="on"' : "") + ">" + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + (ITEMS[s.id].fp ? ' <span class="sub">' + furnFoot(s.id, UI.pickRot || 0).w + "×" + furnFoot(s.id, UI.pickRot || 0).h + "</span>" : "") + "</button>").join("");
+  if (!own.length) h += '<span class="sub">No furniture in your bag. Odette in the Outpost sells it.</span>';
+  if (UI.pick) h += '<button data-a="pickrot">↻ Rotate (' + ((UI.pickRot || 0) * 90) + "°)</button>";
+  h += "</div>";
+  const occ = {};
+  save.furniture.forEach((f, i) => { for (const [c, r] of furnCells(f)) { const k = c + "," + r; if (!occ[k] || FURNITURE_MODELS[ITEMS[occ[k].id].model].flat) occ[k] = Object.assign({ i }, f); } });
+  h += '<div class="homeGrid" style="grid-template-columns:repeat(' + g.cols + ',1fr)">';
+  for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
+    const blocked = g.blocked.some(([bc, br]) => bc === c && br === r);
+    const f = occ[c + "," + r];
+    let cls = "ht" + (blocked ? " blk" : "") + (f ? " occ" : "");
+    let inner = blocked ? (c <= 1 && r <= 1 ? "🌱" : "🚪") : f ? (ITEMS[f.id].icon || "📦") : "";
+    if (UI.pick && !f && !blocked && !furnFits(UI.pick, c, r, UI.pickRot || 0, null)) cls += " ok";
+    h += '<button class="' + cls + '" data-a="' + (f ? "furn" : "cell") + '" data-v="' + (f ? f.i : c + "," + r) + '" title="' + (f ? esc(ITEMS[f.id].name) : blocked ? "Blocked" : "Tile " + c + "," + r) + '">' + inner + "</button>";
+  }
+  h += "</div>";
+  if (UI.furnSel != null && save.furniture[UI.furnSel]) {
+    const f = save.furniture[UI.furnSel];
+    h += '<div class="detail"><div class="hd"><span class="ic">' + (ITEMS[f.id].icon || "📦") + "</span><div><b>" + esc(ITEMS[f.id].name) + '</b><div class="tags">Tile ' + f.c + "," + f.r + " · " + (f.rot || 0) * 90 + "°" + (ITEMS[f.id].storage ? " · +" + ITEMS[f.id].storage + " storage" : "") + '</div></div></div><div class="acts"><button data-a="rotf" data-v="' + UI.furnSel + '">↻ Rotate</button><button data-a="packf" data-v="' + UI.furnSel + '">Pack away</button></div></div>';
+  }
+  if (UI.homeMsg) h += '<div class="sub" style="color:#ff8a80;margin-top:6px">' + esc(UI.homeMsg) + "</div>";
+  return h;
+}
+
 function tabJob() {
   let h = "<h3>Main job</h3>";
   for (const jb in JOBS) {
@@ -387,7 +541,7 @@ function tabJob() {
   return h;
 }
 function tabMercs() {
-  let h = '<div class="sub" style="margin-bottom:6px">Party ' + S.party.length + " / " + CONFIG.maxParty + " · 🪙 " + save.gil + " gil · Fees are paid once per hire.</div>";
+  let h = '<div class="sub" style="margin-bottom:6px">Party ' + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil + " crystals · Fees are paid once per hire.</div>";
   for (const id in MERCS) {
     const m = MERCS[id];
     const hired = save.hired.includes(id);
@@ -421,11 +575,12 @@ function onLoadFile(ev) {
   r.onload = () => {
     const d = importSaveText(String(r.result));
     if (!d) { log("That file isn't an Untitled Solo RPG save.", "sys"); sfx("error"); return; }
-    if (typeof confirm === "function" && !confirm("Load this save? Your current progress in this browser will be replaced.")) return;
-    closeModal();
-    applyLoadedSave(d);
-    UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
-    toast("📂", "Loaded", "Save file restored.");
+    gameConfirm("Load this save?", "Your current progress for this character will be replaced by the file.", () => {
+      closeModal();
+      applyLoadedSave(d);
+      UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
+      toast("📂", "Loaded", "Save file restored.");
+    }, { yes: "Load" });
   };
   r.readAsText(f);
 }
@@ -458,10 +613,13 @@ function onMenuClick(e) {
     const s = save.inventory[+v];
     if (!s) return;
     const it = ITEMS[s.id];
-    if (typeof confirm === "function" && !confirm("Drop " + (s.qty > 1 ? s.qty + " × " : "") + it.name + "?" + (it.rare || it.ex ? " You may not be able to get it again." : ""))) return;
-    save.inventory.splice(+v, 1);
-    log("You drop " + (s.qty > 1 ? s.qty + " " + it.name + "s" : an(it.name)) + ".", "sys");
-    UI.sel = null; saveGame(); sfx("close");
+    gameConfirm("Drop " + (s.qty > 1 ? s.qty + " × " : "") + it.name + "?", it.rare || it.ex ? "You may not be able to get it again." : "It will be gone for good.", () => {
+      const i = save.inventory.indexOf(s);
+      if (i >= 0) save.inventory.splice(i, 1);
+      log("You drop " + (s.qty > 1 ? s.qty + " " + it.name + "s" : an(it.name)) + ".", "sys");
+      UI.sel = null; saveGame(); renderModal();
+    }, { yes: "Drop", danger: true });
+    return;
   }
   else if (a === "tobar") { placeOnBar({ kind: "item", id: v }); }
   else if (a === "actpick") { UI.selAct = UI.selAct === v ? null : v; UI.pick = null; sfx("select"); }
@@ -487,6 +645,22 @@ function onMenuClick(e) {
   else if (a === "sub") setJob(save.mainJob, v === "none" ? null : v);
   else if (a === "hire") hireMerc(v);
   else if (a === "dismiss") dismissMerc(v);
+  else if (a === "open") { openMenu(v); return; }
+  else if (a === "store") { storeItem(+v); renderModal(); return; }
+  else if (a === "retrieve") { retrieveItem(+v); renderModal(); return; }
+  else if (a === "pickf") { UI.pick = UI.pick === v ? null : v; UI.furnSel = null; UI.homeMsg = ""; sfx("tab"); renderModal(); return; }
+  else if (a === "pickrot") { UI.pickRot = ((UI.pickRot || 0) + 1) % 4; sfx("click"); renderModal(); return; }
+  else if (a === "cell") {
+    if (!UI.pick) { UI.homeMsg = "Pick a piece of furniture first."; renderModal(); return; }
+    const [c, r] = v.split(",").map(Number);
+    const why = placeFurniture(UI.pick, c, r, UI.pickRot || 0);
+    UI.homeMsg = why;
+    if (why) sfx("error"); else if (invCount(UI.pick) < 1) UI.pick = null;
+    renderModal(); return;
+  }
+  else if (a === "furn") { UI.furnSel = +v; UI.pick = null; UI.homeMsg = ""; sfx("select"); renderModal(); return; }
+  else if (a === "rotf") { UI.homeMsg = rotateFurniture(+v); if (UI.homeMsg) sfx("error"); else sfx("click"); renderModal(); return; }
+  else if (a === "packf") { UI.homeMsg = removeFurniture(+v); if (UI.homeMsg) sfx("error"); else UI.furnSel = null; renderModal(); return; }
   else if (a === "savefile") { downloadSave(); return; }
   else if (a === "checkupd") { checkForUpdate(true); return; }
   else if (a === "loadfile") { $("loadInput").click(); return; }
@@ -520,20 +694,37 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "4.6.0", date: "2026-10-13", title: "Phase 6a: your residence, Pip and storage", items: [
+    "Your residence: the door is on the west cottage of the Outpost. Pip the Nubbin keeps it. Odette sells furniture by the west wall.",
+    "Storage with Pip: 20 slots, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. You can't pack a piece away if your stored items wouldn't fit.",
+    "Arrange furniture on the 10×8 floor grid: pick a piece, tap a tile; tap a placed piece to rotate or pack it away. Rugs can sit under other pieces. Furniture is solid and shows in 3D.",
+    "New quest: Make It Home (Odette): place two pieces of furniture.",
+    "Townsfolk have bedtimes: Ysolde turns in at 19:30, Tobin at 20:00, Pell at 21:00, Odette at 21:30, Rhea at 22:00, Brann at 23:00, and each walks home, then back out in the morning. You can't trade or talk while they're indoors.",
+    "Some monsters are peaceful until attacked (low-level goblins and worms in the Hollow); the target frame says passive. Monsters now spread out more and wander wider.",
+    "Detection types and aggro rings are no longer shown. Learn each monster by watching it.",
+    "Only notorious monsters drop equipment; regular monsters drop materials and consumables.",
+    "Money is now crystals instead of gil.",
+    "Home points exist only in towns; the Rocky Hollow crystal is gone.",
+    "Menus: Help, Updates, System and Credits are buttons under Settings. Controls and About moved into Help and Credits. Nothing uses browser pop-ups any more: confirmations are in-game.",
+    "Title screen and Credits carry the maker's links.",
+    "Loading screens show a random character or monster from the game, slowly turning, with a line about it.",
+    "The Rest tip and other loading tips mention that standing still only trickles.",
+    "New characters start with only their own job's gear and three potions. Changing jobs never hands out equipment; buy or earn it."
+  ] },
   { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [
     "A new dungeon under the Goblin Den's Bone Pit: entrance hall, Brazier Hall, the crossroads, the Sentinel's room to the north, the vault to the south and the throne room. Levels 9–12.",
     "Brazier puzzle: light the four braziers in the order the worn inscription gives. A wrong order snuffs them and raises two skeletons; the right order opens the sealed gate.",
     "The Crypt Sentinel (level 11) guards the north room and drops the Crypt Key, a key item that opens the throne door.",
     "The Hollow King, level 12. He calls two Royal Guards at 66% and 33% HP and enrages below 20%. Comes back every 10 minutes of real time. Drops the Hollow Crown and the King's Blade.",
     "Treasure chests: two in the Sentinel's room, a richer one in the vault, and the Royal Coffer that unseals once the King falls. They refill after 20 real minutes.",
-    "New quest: The Hollow King (Captain Rhea, level 9, after The Warden's Vigil). Reward: 2,000 XP, 3,000 gil and the Ashen Medallion.",
+    "New quest: The Hollow King (Captain Rhea, level 9, after The Warden's Vigil). Reward: 2,000 XP, 3,000 crystals and the Ashen Medallion.",
     "Six crypt landmarks for discovery XP, the crypt music, stone pillars, portcullis gates and a throne.",
     "Character creation now says Sex: Male or Female, and has eight skin tones including dark ones. Some companions and townsfolk have darker skin too.",
     "Right-click menus and accidental text selection are turned off; only the chat box selects text.",
     "Feet no longer sink into slopes: characters stand on the highest ground under them."
   ] },
   { v: "4.4.0", date: "2026-10-13", title: "Phase 5c: eleven quests", items: [
-    "Five new quests. Pell: Herbs for the Stall (3 Healing Herbs; pays gil plus a pickaxe and hatchet). Brann: Night Wings (defeat 4 Cave Bats). Captain Rhea's chain: Bones in the Ruins (5 Wandering Bones at the Old Fort Ruins, level 4), Grimtooth's Bounty (level 6), The Goblin Chieftain (now level 7, after the bones) and The Warden's Vigil (defeat the Ossuary Warden, level 8).",
+    "Five new quests. Pell: Herbs for the Stall (3 Healing Herbs; pays crystals plus a pickaxe and hatchet). Brann: Night Wings (defeat 4 Cave Bats). Captain Rhea's chain: Bones in the Ruins (5 Wandering Bones at the Old Fort Ruins, level 4), Grimtooth's Bounty (level 6), The Goblin Chieftain (now level 7, after the bones) and The Warden's Vigil (defeat the Ossuary Warden, level 8).",
     "Kill quests count in the chat log and the tracker as you go, and the NPC's ❗ returns when you're ready to report.",
     "Quest givers show every job they have for you in one conversation; progress lines tell you what's left.",
     "A few more low-level monsters near the west gate of Rocky Hollow, so the first levels go quicker."
@@ -555,7 +746,7 @@ const UPDATES = [
     "New-version popup: the game checks for updates and offers to reload. After an update, a what's-new card shows the changes.",
     "Jumping has a real animation: crouch, tuck, arms up, land.",
     "Quests no longer appear in the journal until you've accepted them from someone.",
-    "Rocky Hollow is now four times larger (3200×2200): Shepherd's Meadow, Mirror Lake, Burrow Flats, Reed Pond, the Old Fort Ruins and a Goblin Camp, with rocky outcrops and a home point crystal by the eastern exit.",
+    "Rocky Hollow is now four times larger (3200×2200): Shepherd's Meadow, Mirror Lake, Burrow Flats, Reed Pond, the Old Fort Ruins and a Goblin Camp, with rocky outcrops.",
     "The Goblin Den is now four chambers joined by passages: Den Mouth, Underground Pool, Bone Pit and the Chieftain's Throne.",
     "Notorious monsters are live. Grimtooth, Duskwing, King Wiggles and the Ossuary Warden pop from placeholder monsters. Their cooldowns run on the real clock, so a defeated NM stays down while you're offline.",
     "Drop tables reworked to MMO rates: materials 15–40%, uncommon items 5–10%, gear 1–5%, NM and boss uniques 30%.",
@@ -596,14 +787,14 @@ function tabHelp() {
   const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
   let h = '<div class="help">';
   h += sec("🌅 Getting started", ul([
-    "You start alone in Ashenreach Outpost with 100 gil. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Tobin</b> to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
+    "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Tobin</b> to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
     "Your first hire is a big boost: Mira (White Mage) heals, Kael (Warrior) tanks. A full party is you plus five.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or use the Rest action on action bar page 2) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("👥 Characters", ul([
     "On the title screen you pick a character or create a new one: name (2–12 letters), job, sex and appearance. <b>Appearance is permanent</b>, so take your time.",
-    "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, gil, quests and companions. System → Change character goes back to the select screen.",
+    "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
@@ -619,7 +810,7 @@ function tabHelp() {
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Con colours:</b> " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
-    "<b>Aggro:</b> some monsters notice by sight (goblins), sound (bats, undead), magic (worms) or low HP (undead). The coloured ground markings show their range."
+    "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and some are peaceful until attacked (the target frame says <i>passive</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
     ["Warrior", "Tank or damage", "Provoke, Berserk, great axe A, sword B"],
@@ -644,16 +835,16 @@ function tabHelp() {
   h += sec("☠ Notorious monsters", "<p>Rare, stronger versions of normal monsters with a coloured aura. They sometimes appear in place of a regular monster (its placeholder) when it respawns. After one is defeated it can't appear again for about 5 minutes of real time, even while you're offline. Each has a unique drop with about a 30% chance.</p>" + tbl(["Name", "Where and when", "Pops from", "Unique drop"], nmRows) + "<p>The Goblin Chieftain at the back of the Goblin Den is a fixed boss that returns every 3 minutes.</p>");
   h += sec("💎 Loot and rarity", tbl(["Rarity", "Typical items", "Drop rate"], [
     ['<span style="color:' + RARITY.common[1] + '">Common</span>', "Materials, crystals, potions", "15–40%"],
-    ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high quality, monster gear", "5–10% (gear 1–5%)"],
-    ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques", "about 30%"],
+    ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high-quality items", "5–10%"],
+    ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques and gear", "30–35%"],
     ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
-  ]) + ul(["<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold.", "Some monster gear only drops from higher-level monsters of that kind."]));
+  ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, crystals and consumables; gear comes from NMs, quests and Pell's shop.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, home point"],
-    ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs, home point by the eastern exit"],
+    ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"]
-  ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals restore your party and can be set as your return point."]));
+  ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🏚️ The Sunken Crypt", ul([
     "Enter from the Bone Pit at the bottom of the Goblin Den. Bring a full party of level 9 or higher.",
     "<b>Brazier Hall:</b> read the Worn Inscription on the north wall, then light the four braziers in that order (tap one and choose Light it). The wrong order snuffs them and raises two skeletons. The right order opens the sealed gate to the crossroads.",
@@ -663,7 +854,17 @@ function tabHelp() {
     "Chests refill 20 real minutes after you open them. Key items and crypt progress are saved with your character."
   ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
-  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 gil and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
+  h += sec("🏠 Your residence", ul([
+    "The door is on the west cottage of Ashenreach Outpost. <b>Pip the Nubbin</b> lives there.",
+    "<b>Storage:</b> Pip keeps " + CONFIG.storageBase + " slots of items, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. Stored items don't count against your bag.",
+    "<b>Furniture:</b> Odette by the west wall sells it. Ask Pip to arrange: pick a piece, tap a tile on the 10×8 grid; tap a placed piece to rotate or pack it away. The door tiles and Pip's corner are blocked; rugs can sit under other pieces.",
+    "Odette's quest <i>Make It Home</i> rewards a potted plant for placing two pieces."
+  ]));
+  h += sec("🌙 Townsfolk", ul([
+    "People in the Outpost go home at night and come back out in the morning, each at their own hour: Ysolde 19:30–5:30, Tobin 20:00–7:00, Pell 21:00–6:30, Odette 21:30–6:00, Rhea 22:00–6:00, Brann 23:00–7:30 (game time).",
+    "While someone is indoors you can't talk or trade with them. The Home Point Crystal is always there."
+  ]));
+  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R or the Mount button in open country. You move 2.2× faster and monsters ignore you. Engaging, being hit or entering town or a cave dismounts you."]));
   h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
@@ -727,13 +928,8 @@ function showWhatsNew() {
   try { seen = localStorage.getItem("usr_seen_version"); localStorage.setItem("usr_seen_version", GAME_VERSION); } catch (e) {}
   if (/^__/.test(GAME_VERSION) || !seen || seen === GAME_VERSION) return;
   const u = UPDATES[0];
-  const el = versionPop('<div class="vpT">📰 Updated to v' + esc(GAME_VERSION) + '</div><div class="vpB"><b>' + esc(u.title) + "</b><ul>" + u.items.slice(0, 5).map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>" + '<div class="vpA"><button data-v="all" class="pri">All updates</button><button data-v="ok">Play</button></div>');
-  el.onclick = e => {
-    const b = e.target.closest("button");
-    if (!b) return;
-    el.style.display = "none";
-    if (b.dataset.v === "all") openMenu("updates"); else sfx("close");
-  };
+  toast("📰", "Updated to v" + GAME_VERSION, u.title + " · see the Updates tab");
+  log("Updated to v" + GAME_VERSION + ": " + u.title + ". Open Updates (📰) for details.", "sys");
 }
 
 function initVersionCheck() {

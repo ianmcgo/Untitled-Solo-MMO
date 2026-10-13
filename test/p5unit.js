@@ -80,18 +80,16 @@ G.giveItem('raiders_ring', 1, true);
 const before = G.invCount('raiders_ring');
 G.dropLoot(G.buildMob('grimtooth', 6, 0, 0, GI));
 ok(G.invCount('raiders_ring') === before, 'a Rare item already held is lost instead of duplicated');
-const lowGob = G.buildMob('goblin', 1, 0, 0, 0);
-G.dropLoot(lowGob);
-ok(G.invCount('scavenger_cap') === 0, 'level-gated drops skip low-level monsters');
-const hiGob = G.buildMob('goblin', 4, 0, 0, 0);
-G.dropLoot(hiGob);
-ok(G.invCount('scavenger_cap') === 1, 'level-gated drops can drop from higher-level monsters');
+let regularGear = false;
+for (const k in G.FAMILIES) if (!G.FAMILIES[k].nm) for (const [id] of G.FAMILIES[k].loot) if (G.ITEMS[id].kind === 'equip') regularGear = true;
+ok(!regularGear, 'regular monsters never drop equipment');
+ok(Object.keys(G.NM_FAMILIES).every(k => G.NM_FAMILIES[k].loot.some(([id]) => G.ITEMS[id].kind === 'equip')), 'every notorious monster drops equipment');
 Math.random = saved;
 ok(G.itemRarity('potion') === 'common' && G.itemRarity('hi_potion') === 'uncommon' && G.itemRarity('raiders_ring') === 'rare' && G.itemRarity('chieftain_cap') === 'epic', 'rarity tiers');
 let gearOk = true;
-for (const k in G.FAMILIES) for (const [id, ch] of G.FAMILIES[k].loot) { const it = G.ITEMS[id]; if (!it) gearOk = false; else if (it.kind === 'equip' && !G.FAMILIES[k].nm && ch > 0.05) gearOk = false; }
+for (const k in G.FAMILIES) for (const [id, ch] of G.FAMILIES[k].loot) { const it = G.ITEMS[id]; if (!it) gearOk = false; }
 for (const k in G.NM_FAMILIES) { const u = G.NM_FAMILIES[k].loot[0]; if (u[1] < 0.25 || u[1] > 0.35) gearOk = false; }
-ok(gearOk, 'drop rates: monster gear 5% or less, NM uniques 25–35%');
+ok(gearOk, 'drop rates: NM uniques 25–35%');
 
 G.save.gil = 5000; G.hireMerc('kael'); S.mobs = []; S.spawnAt = []; run(1);
 const ally = S.party.find(p => p !== P());
