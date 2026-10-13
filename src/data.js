@@ -570,7 +570,7 @@ const ZONES = {
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
       { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
       { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
-      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }
+      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }
     ],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
@@ -738,7 +738,7 @@ ZONES.harbor = {
   exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }, { x: 1376, y: 380, w: 24, h: 100, to: "frost", tx: 110, ty: 1200, label: "Frostspire Pass" }],
   npcs: [
     { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
-    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }
+    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1180, r: 360 }, { x: 900, y: 1230, r: 420 }, { x: 1350, y: 1100, r: 260 }],
@@ -872,6 +872,8 @@ const NPCS = {
   garrick: { name: "Garrick, Smith", model: "garrick", talk: "talkGarrick" },
   trade_board: { name: "Trade Board", prop: "board", talk: "talkBoard" },
   maera: { name: "Maera, Adventurers' Guild", model: "maera", talk: "talkMaera" },
+  corvin: { name: "Corvin, Auction House", model: "corvin", talk: "talkAuction" },
+  selene: { name: "Selene, Auction House", model: "selene", talk: "talkAuction" },
   odette: { name: "Odette, Furnishings", model: "odette", talk: "talkOdette", shop: "furniture" },
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
@@ -1071,6 +1073,15 @@ const STORY = [
   ] }
 ];
 
+const AH_CATS = { materials: "Materials", consumables: "Consumables", weapons: "Weapons", armor: "Armor" };
+const AH_CFG = { fee: 0.03, maxListings: 7, checkMs: 60000, expireMs: 3 * 3600000, tickMins: 360 };
+const AH_NEWS = {
+  materials: ["The smiths of the capital are buying up ore and timber.", "A caravan of raw goods just flooded the market."],
+  consumables: ["A fever in the villages has everyone buying medicine and food.", "Healers have overstocked their potions and are selling cheap."],
+  weapons: ["Mercenary companies are re-arming. Blades are in demand.", "A smith's guild sale has dropped weapon prices."],
+  armor: ["Winter is coming and everyone wants armor.", "Surplus armor from the old garrison is up for sale."]
+};
+
 const GUILD_RANKS = [["Copper", 0, "#b87333"], ["Bronze", 100, "#cd7f32"], ["Iron", 300, "#a0a8b0"], ["Silver", 700, "#d8dde4"], ["Gold", 1500, "#ffd54f"], ["Mythril", 3000, "#80deea"]];
 const GUILD_DAILY = 3;
 const GUILD_ACTIVE = 3;
@@ -1149,6 +1160,7 @@ const ACHIEVEMENTS = [
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
   { id: "story", icon: "🕯️", name: "Keeper of the Embers", desc: "Complete the main story.", gil: 2000, test: s => !!(s.story && s.story.done) },
+  { id: "auction", icon: "⚖️", name: "Market Savvy", desc: "Sell 10 lots at the auction house.", gil: 300, test: s => (s.stats.ahSold || 0) >= 10 },
   { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", gil: 100, test: s => (s.stats.bounties || 0) >= 1 },
   { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", gil: 400, test: s => (s.guild && s.guild.total || 0) >= 700 },
   { id: "mythril", icon: "💎", name: "Mythril Legend", desc: "Reach Mythril rank in the Adventurers' Guild.", gil: 1500, test: s => (s.guild && s.guild.total || 0) >= 3000 },

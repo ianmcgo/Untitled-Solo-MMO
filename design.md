@@ -672,13 +672,24 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - talkTo plays the story scene instead of the NPC's normal dialog when that NPC has the current talk step (talk again for the normal menu). questMarker shows for that NPC.
 - spawnMob NM roll: if storyWants(nm id) the NM spawns with chance 1 and ignores its timer.
 - New NM ashen_herald (base ice_wight, lv 22, hpMul 5.5) on a new frost spawn at the summit (2700, 330; nm chance 0, story only). Drops cinder_mantle (epic body). Items ashen_shard (key), ember_ring (final reward). Achievement story.
-- Quests tab shows storyBlock() above quests. Tests: test/p20unit.js (p8unit sets story.done so Rhea's normal dialog shows); p5shots scenes story, storyq.
+- Quests tab shows storyBlock() above quests. Story icon is 🕯️; scene buttons read Next / Continue. Tests: test/p20unit.js (p8unit sets story.done so Rhea's normal dialog shows); p5shots scenes story, storyq.
+
+## Phase 22: auction house (v6.3.0)
+- NPCs corvin (outpost 430,430) and selene (harbor 560,420) → TALK.talkAuction → modal "auction" (tabAuction: views buy / sell / lots; UI.ahView, ahCat, ahSel, ahQty, ahPrice, ahMsg). Rig looks in rig.js.
+- Data: AH_CATS (materials, consumables, weapons, armor), AH_CFG { fee 0.03, maxListings 7, checkMs 60000, expireMs 3 h, tickMins 360 }, AH_NEWS (boom/bust lines per category). Achievement auction (10 sales).
+- Tradable: price > 0, not rare/ex/nm/key/furniture (ahTradable). Category: equip main → weapons, other equip → armor, food/use → consumables, else materials.
+- Price: marketTick() = game minutes / 360 (6 game hours ≈ 14.4 real min); marketDay = tick·360/1440. marketMult = 1 + 0.16 sin(0.83t + p1) + 0.09 sin(0.31t + p2) + 0.05 sin(2.1t + p1p2) (phases from hashStr(id)), ×1.2 for the day's news "up" category, ×0.85 for "down". Player pressure save.market.press[id] {v, tk} (−0.3..0.4) decays ×0.85 per tick; buying +0.03/unit, a lot selling −0.02/unit. Items in SHOP/SHOPS (inShops, cached in S.shopSet) are capped at 95% of shop price (no buy-from-shop/list arbitrage). priceHistory(id, n) for the sparkline.
+- Stock: ahStock seeded by id + market day (1-8 by price band, materials/consumables get extra); bought counts in save.market.bought {day, n}.
+- Listings save.market.listings [{id, qty, price, t, next, exp}]: ahList takes the fee and items; tickAuction (every 1 s of game step while listings exist) rolls each overdue minute: saleChance = clamp(0.25·(1.1·market/unit)^3, 0.01, 0.85); sale pays gil, stats.ahSold, toast uiEvent "ahsold"; expiry or ahCancel moves the lot to save.market.box; ahCollect returns box items. Works offline because checks run on Date.now catch-up (≤300 per lot per pass).
+- normalizeSave fills save.market. menuSig includes listing/box counts and marketTick so the window refreshes.
+- Tests: test/p21unit.js; p5shots scenes ahbuy, ahsell (use onMenuClick).
 
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.3.0 | Phase 22: auction houses with moving prices, stock, listings and delivery box. |
 | 6.2.0 | Phase 21: eight-chapter main story, Ashen Herald, Ember of Ashenreach. |
 | 6.1.0 | Phase 20: Dark Knight and Bard, scythes, songs, Mordrin and Lyra. |
 | 6.0.0 | Phase 19: Adventurers' Guild, daily bounties, ranks, guild point shop. |

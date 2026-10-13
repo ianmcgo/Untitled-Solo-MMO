@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "6.2.0",
-  "releaseTitle": "The Main Story: Embers of Ashenreach",
+  "version": "6.3.0",
+  "releaseTitle": "The Auction House",
   "description": "",
   "main": "index.js",
   "scripts": {
