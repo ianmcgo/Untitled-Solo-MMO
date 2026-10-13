@@ -581,11 +581,18 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - anim.js: fists (h2h or a player/ally with no weapon) take a boxing guard while engaged; attackKind "punch" already existed.
 - Tests: test/p9unit.js. p1bot sets up THF/MNK (15 min: THF lv 5, MNK lv 7 with full party; MA damage trimmed to 2 + 0.5·lv after that run). p5shots scene monk.
 
+## Phase 11: treasure pool, Trade Board, Forge (v5.2.0)
+- Treasure pool: `dropLoot` sends equipment to `addToPool(id)` when the party has companions (S.pool entries `{ id, until, lots{mercId: roll|0}, mine: roll|0|null, seq }`, CONFIG.poolTime 45 s). `tickPool` (every step while non-empty): after 1.5 s each companion lots 1-999 if `poolUpgrade` (wearable and higher level, or same level with more dmg+stats) else 0; resolves once everyone has decided or time runs out (player auto-lots on timeout). Winner: player gets giveItem (+stats.lotsWon); a companion gets save.mercGear[slot] (old piece to your bag). All pass: lost. `lotPool(seq, pass)`. HUD `#pool` panel (above chat; phones higher) built by `updatePool()` with a change signature; uiEvent("pool") toast. The pool lives only in S (not saved).
+- Trade Board: prop NPC `trade_board` (models3d `board` prop: posts, plank, roof, pinned notes) at Outpost (640, 300); TALK.talkBoard opens modal "board". `TRADE_REQUESTS` (14) and `TRADE_DAILY` 3; `boardToday()` picks 3 with a seed of save.created + UTC day; `save.board { day, done[] }` resets on a new day; `fillTrade(id)` pays gil + XP, stats.trades.
+- Forge: NPC `garrick` (NPC_LOOK: bald, long beard, dark apron, club; home 2, sleeps 22-6.5) at (690, 640); TALK.talkGarrick opens modal "forge". `save.augments[itemId] = [[stat, value], ...]` (max 2, `AUGMENT_STATS` ranges, `STAT_LABELS`). `augmentCost` (60/lv, reforge 40/lv, mats iron_ore + fire_crystal), `canAugment`, `augmentItem(id, reforge)` (reforge rerolls the same count without duplicate stats). buildStats adds augments only for `ch.kind === "pc"` (the player and statsFor copies). Inventory detail shows augments.
+- cycleNpcTarget skips props. Achievements trader, augment, lotwin. Tests: test/p10unit.js; p5unit/p6unit adjusted (7 townsfolk with bed times).
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.2.0 | Phase 11: treasure pool, Trade Board, Garrick augments. |
 | 5.1.0 | Phase 10: Thief and Monk jobs, dagger/h2h weapon skills and gear, Wren and Tamsin. |
 | 5.0.0 | Phase 9: level cap 15, Ashen Marsh, tier II spells, level 11 gear, 2 NMs, 2 quests. |
 | 4.9.0 | Phase 8: companions 2.0, bestiary, achievements, smoother limbs, colliders, essences. |
