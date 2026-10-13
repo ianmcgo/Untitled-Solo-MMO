@@ -12,7 +12,7 @@
 | P4 Interface, audio, loading screens, jumping | Done |
 | P5a Bigger zones, NMs live, drop tables, XP chains, discovery XP, characters, chat commands | Done (v4.2.0) |
 | P5b Paladin and Red Mage | Done (v4.3.0) |
-| P5c Quests | Next |
+| P5c Quests (11) | Done (v4.4.0) |
 | P5d Sunken Crypt | Not started |
 | P6 Residence, Pip, storage | Not started |
 
@@ -477,10 +477,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - HUD: target chips for Flash/Slow/Paralyze with seconds left; icons for the new actions; level-6 banner hint.
 - Tests: `test/p5bunit.js` (locks, Tobin flow for both quests, action lists, shield slot, Slow/Paralyze/Flash/Sentinel/Shield Bash/Convert effects, companions casting, save-file round trip). `p1bot.js` accepts PLD and RDM (unlocking them and hiring Lisette/Dorn).
 
+## Phase 5c: quests (v4.4.0)
+
+- `QUESTS` entries now carry `npc`, `lv`, optional `pre` (quest that must be done), and either `kill: { fam, n, name }` or `items: { id: n }`, plus `intro`, `progress` and `turn` text. Quests with those texts are handled generically: `questOptions(npcId, n)` builds the dialogue options (ask → accept, progress line, report → collect), `questOfferable`, `questComplete`, `acceptQuest`, `completeQuest` (removes items, sets done, `giveReward`). `giveReward` also takes `items: [[id, n]]` and `unlock`.
+- Kill progress lives in `save.qprog[id]`; `onKO` increments it for any active kill quest whose `fam` matches the monster's `famKey` (NM keys work too) and logs the count, then "report to" at the target.
+- Hand-written dialogues (Rhea, Pell, Brann) append `questOptions` to their option lists so every quest an NPC has shows in one conversation. Rhea's chain: Pouches → Bones in the Ruins (lv 4) → Grimtooth's Bounty (lv 6) and The Goblin Chieftain (lv 7) → The Warden's Vigil (lv 8, after the Chieftain). `questMarker` is generic for those quests.
+- `questProgress` (tracker/journal) and the Phase 1 HUD handle kill/items quests generically; both hide quests you haven't accepted.
+- Quest list (11): Pouches for the Captain, Herbs for the Stall, Night Wings, Bones in the Ruins, A Second Calling, Riding License, The Oath of Steel, Scarlet Lessons, Grimtooth's Bounty, The Goblin Chieftain, The Warden's Vigil. The Hollow King (P5d), Make It Home and Green Thumb (P6) come with their content.
+- Tests: `test/p5cunit.js`.
+
 ## Version log
 
 | Version | Change |
 |---|---|
+| 4.4.0 | Phase 5c: quests (above). |
 | 4.3.0 | Phase 5b: Paladin and Red Mage (above). |
 | 4.2.0 | Phase 5a (above). |
 | 4.1.0 | Renamed the game to Untitled Solo RPG. Title screen shows version and build date/time (`package.json` version, stamped by `build.mjs`). Save keys unchanged. Source pushed to GitHub. |

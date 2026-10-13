@@ -59,7 +59,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountLicense: false, jobsUnlocked: { PLD: false, RDM: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, created: Date.now()
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, created: Date.now()
   };
 }
 
@@ -86,6 +86,7 @@ function normalizeSave(d) {
   out.timers = d.timers && typeof d.timers === "object" ? d.timers : {};
   out.name = String(d.name || "Adventurer").slice(0, 12);
   out.landmarks = d.landmarks && typeof d.landmarks === "object" ? d.landmarks : {};
+  out.qprog = d.qprog && typeof d.qprog === "object" ? d.qprog : {};
   return out;
 }
 
@@ -598,6 +599,14 @@ function onKO(e, src) {
       const xp = xpFor(e.lv, player.lv);
       if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
       dropLoot(e);
+      for (const id in QUESTS) {
+        const q = QUESTS[id];
+        if (!q.kill || save.quests[id] !== "active") continue;
+        if (q.kill.fam !== e.famKey) continue;
+        const n = (save.qprog[id] || 0) + 1;
+        save.qprog[id] = Math.min(q.kill.n, n);
+        if (n <= q.kill.n) { log("Quest progress: " + q.kill.name + " " + Math.min(n, q.kill.n) + "/" + q.kill.n + ".", "npc"); if (n === q.kill.n) { log("Quest updated: report to " + q.giver + ".", "npc"); sfx("notify"); } }
+      }
       if (e.famKey === "chieftain" && save.quests.chieftain === "active") {
         save.quests.chieftain = "killed";
         log("Quest updated: report the Chieftain's defeat to Captain Rhea.", "npc");
@@ -1741,7 +1750,8 @@ function talkTo(n) {
 
 function questMarker(n) {
   const q = save.quests, lv = player.lv;
-  if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.pouches === "done" && q.chieftain === "none") || q.chieftain === "killed";
+  for (const id in QUESTS) if (QUESTS[id].npc === n.id && QUESTS[id].intro && (questOfferable(id) || questComplete(id))) return true;
+  if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
   return false;
@@ -1751,8 +1761,53 @@ function giveReward(r) {
   if (r.xp) gainXp(r.xp);
   if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " gil.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
+  if (r.items) for (const [id, n] of r.items) giveItem(id, n);
   if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Ask Tobin to change jobs.", "npc"); }
   sfx("fanfare");
+}
+
+function questOfferable(id) {
+  const q = QUESTS[id];
+  return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done");
+}
+function questComplete(id) {
+  const q = QUESTS[id];
+  if (save.quests[id] !== "active") return false;
+  if (q.kill) return (save.qprog[id] || 0) >= q.kill.n;
+  if (q.items) return Object.keys(q.items).every(it => invCount(it) >= q.items[it]);
+  return false;
+}
+function acceptQuest(id) {
+  save.quests[id] = "active";
+  if (QUESTS[id].kill) save.qprog[id] = 0;
+  log("Quest accepted: " + QUESTS[id].name + ".", "npc");
+  sfx("notify");
+  saveGame();
+}
+function completeQuest(id) {
+  const q = QUESTS[id];
+  if (q.items) for (const it in q.items) removeItem(it, q.items[it]);
+  save.quests[id] = "done";
+  log("Quest complete: " + q.name + ".", "npc");
+  giveReward(q.reward);
+  saveGame();
+}
+function questOptions(npcId, n) {
+  const out = [];
+  for (const id in QUESTS) {
+    const q = QUESTS[id];
+    if (q.npc !== npcId || !q.intro) continue;
+    if (questOfferable(id)) out.push({ label: "Ask about " + q.name, fn: () => openDialog(n.name, q.intro, [{ label: "Accept", fn: () => { acceptQuest(id); closeDialog(); } }]) });
+    else if (questComplete(id)) out.push({ label: q.turnLabel || "Report: " + q.name, fn: () => { openDialog(n.name, q.turn, [{ label: "Collect the reward", fn: () => { completeQuest(id); closeDialog(); } }]); } });
+    else if (save.quests[id] === "active" && q.progress) out.push({ label: q.name + " (" + questProgressText(id) + ")", fn: () => openDialog(n.name, q.progress, []) });
+  }
+  return out;
+}
+function questProgressText(id) {
+  const q = QUESTS[id];
+  if (q.kill) return q.kill.name + " " + Math.min(q.kill.n, save.qprog[id] || 0) + "/" + q.kill.n;
+  if (q.items) return Object.keys(q.items).map(it => ITEMS[it].name + " " + Math.min(q.items[it], invCount(it)) + "/" + q.items[it]).join(", ");
+  return "";
 }
 
 const TALK = {
@@ -1770,23 +1825,25 @@ const TALK = {
         openDialog(n.name, "Three pouches! That'll keep them quiet for a while. Take this ring. It was mine when I was green like you.", [
           { label: "Hand over the pouches", fn: () => { removeItem("goblin_pouch", 3); q.pouches = "done"; log("Quest complete: " + QUESTS.pouches.name + ".", "npc"); giveReward(QUESTS.pouches.reward); saveGame(); closeDialog(); } }
         ]);
-      } else openDialog(n.name, "You have " + have + " of 3 Goblin Pouches. The goblins east of here in Rocky Hollow carry them. If the work is too much alone, Brann at the Mercenary Hall has swords for hire.", []);
+      } else openDialog(n.name, "You have " + have + " of 3 Goblin Pouches. The goblins east of here in Rocky Hollow carry them. If the work is too much alone, Brann at the Mercenary Hall has swords for hire.", questOptions("rhea", n));
       return;
     }
-    if (q.chieftain === "none") {
+    const g = questOptions("rhea", n);
+    if (q.chieftain === "none" && q.bones === "done" && player.lv >= 7) {
       openDialog(n.name, "Scouts say the raids are led by a Goblin Chieftain holed up at the back of the Goblin Den, past the Hollow. He's dangerous. Bring a full party, and don't fight his guards all at once.", [
         { label: "I'll handle him", fn: () => { q.chieftain = "active"; log("Quest accepted: " + QUESTS.chieftain.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
-      ]);
+      ].concat(g));
       return;
     }
-    if (q.chieftain === "active") { openDialog(n.name, "The Chieftain still lives. He's at the far end of the Goblin Den.", []); return; }
+    if (q.chieftain === "active") { openDialog(n.name, "The Chieftain still lives. He's at the far end of the Goblin Den.", g); return; }
     if (q.chieftain === "killed") {
       openDialog(n.name, "You actually did it. The Outpost owes you. Here's your bounty. And word's spread: a Black Mage named Vesper wants to fight beside you. Ask Brann.", [
         { label: "Collect the bounty", fn: () => { q.chieftain = "done"; log("Quest complete: " + QUESTS.chieftain.name + ".", "npc"); giveReward(QUESTS.chieftain.reward); log("Vesper is now available at the Mercenary Hall.", "npc"); saveGame(); closeDialog(); } }
-      ]);
+      ].concat(g));
       return;
     }
-    openDialog(n.name, "Quiet days, thanks to you. Keep your blade sharp.", []);
+    if (g.length) { openDialog(n.name, q.chieftain === "done" ? "The Den's quieter, but the Hollow never is. There's always work." : player.lv < 7 && q.bones === "done" ? "Get a little stronger before I send you after the Chieftain. Meanwhile, there's work." : "There's work for a steady hand.", g); return; }
+    openDialog(n.name, q.chieftain === "done" ? "Quiet days, thanks to you. Keep your blade sharp." : q.bones === "done" && player.lv < 7 ? "Rest up and get stronger. When you're level 7, I'll tell you about the Chieftain." : "Keep at it. Come back when you've grown.", []);
   },
   talkTobin(n) {
     const q = save.quests;
@@ -1834,7 +1891,7 @@ const TALK = {
   talkPell(n) {
     openDialog(n.name, "Potions, ethers, arms and armor. Gil talks, friend.", [
       { label: "Trade", fn: () => { closeDialog(); openModal("shop"); } }
-    ]);
+    ].concat(questOptions("pell", n)));
   },
   talkYsolde(n) {
     const q = save.quests;
@@ -1863,7 +1920,7 @@ const TALK = {
     const hired = save.hired.length;
     openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee once and they'll follow you anywhere. Up to five at a time.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
-    ]);
+    ].concat(questOptions("brann", n)));
   },
   talkCrystal(n) {
     for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; }

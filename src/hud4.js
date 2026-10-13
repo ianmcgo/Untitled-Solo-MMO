@@ -366,6 +366,9 @@ function questProgress(id) {
   if (id === "support") return player.lv < CONFIG.supportUnlockLevel ? ["Reach level " + CONFIG.supportUnlockLevel] : ["Bat Wing " + ok(invCount("bat_wing"), 2), "Worm Silk " + ok(invCount("worm_silk"), 1)];
   if (id === "riding") return ["Healing Herb " + ok(invCount("healing_herb"), 3), "Gil " + ok(save.gil, 300)];
   if (id === "chieftain") return ["Defeat the Goblin Chieftain in the Goblin Den"];
+  const q = QUESTS[id];
+  if (q.kill) return [q.kill.name + " " + ok(save.qprog[id] || 0, q.kill.n)];
+  if (q.items) return Object.keys(q.items).map(it => ITEMS[it].name + " " + ok(invCount(it), q.items[it]));
   return [];
 }
 function updateTracker() {
@@ -578,6 +581,8 @@ function rewardChips(r) {
   if (r.xp) out.push("✨ " + r.xp + " XP");
   if (r.gil) out.push("🪙 " + r.gil + " gil");
   if (r.item) out.push((ITEMS[r.item].icon || "📦") + " " + esc(ITEMS[r.item].name) + (r.qty > 1 ? " ×" + r.qty : ""));
+  if (r.items) for (const [id, n] of r.items) out.push((ITEMS[id].icon || "📦") + " " + esc(ITEMS[id].name) + (n > 1 ? " ×" + n : ""));
+  if (r.unlock) out.push(JOBS[r.unlock].icon + " " + JOBS[r.unlock].name + " unlocked");
   return out;
 }
 

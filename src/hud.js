@@ -113,6 +113,7 @@ function renderModal() {
   } else if (S.modal === "quests") {
     for (const id in QUESTS) {
       const st = save.quests[id];
+      if (st === "none") continue;
       const label = { none: "Not started", active: "In progress", killed: "Report to Captain Rhea", done: "Complete" }[st];
       let prog = "";
       if (id === "pouches" && st === "active") prog = " (" + Math.min(3, invCount("goblin_pouch")) + "/3)";
