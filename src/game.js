@@ -72,6 +72,7 @@ function normalizeSave(d) {
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
   out.look = Object.assign(newSave().look, d.look || {});
+  out.look.skin = Math.min(Math.max(0, out.look.skin || 0), SKIN_TONES.length - 1);
   out.mountLicense = !!d.mountLicense;
   out.hired = (Array.isArray(d.hired) ? d.hired : []).filter(id => MERCS[id]).slice(0, CONFIG.maxParty - 1);
   out.home = d.home && ZONES[d.home.zone] && ZONES[d.home.zone].safe && NPCS[d.home.npc] && ZONES[d.home.zone].npcs.some(n => n.id === d.home.npc) ? d.home : newSave().home;

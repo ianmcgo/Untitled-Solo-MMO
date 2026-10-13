@@ -131,7 +131,7 @@ function previewEntity(o) {
 }
 function lookBase(look) {
   const l = look || {};
-  return { build: l.build || 0, skin: SKIN_TONES[l.skin || 0], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
+  return { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
 }
 function renderPreview(now) {
   const pv = UI.pv;
@@ -694,6 +694,7 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "4.6.1", date: "2026-10-13", title: "Skin tone palette", items: ["Character creation offers five skin tones: light, fair, tan, brown and dark. Saved characters keep their look."] },
   { v: "4.6.0", date: "2026-10-13", title: "Phase 6a: your residence, Pip and storage", items: [
     "Your residence: the door is on the west cottage of the Outpost. Pip the Nubbin keeps it. Odette sells furniture by the west wall.",
     "Storage with Pip: 20 slots, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. You can't pack a piece away if your stored items wouldn't fit.",
@@ -719,7 +720,7 @@ const UPDATES = [
     "Treasure chests: two in the Sentinel's room, a richer one in the vault, and the Royal Coffer that unseals once the King falls. They refill after 20 real minutes.",
     "New quest: The Hollow King (Captain Rhea, level 9, after The Warden's Vigil). Reward: 2,000 XP, 3,000 crystals and the Ashen Medallion.",
     "Six crypt landmarks for discovery XP, the crypt music, stone pillars, portcullis gates and a throne.",
-    "Character creation now says Sex: Male or Female, and has eight skin tones including dark ones. Some companions and townsfolk have darker skin too.",
+    "Character creation now says Sex: Male or Female, with five skin tones from light to dark.",
     "Right-click menus and accidental text selection are turned off; only the chat box selects text.",
     "Feet no longer sink into slopes: characters stand on the highest ground under them."
   ] },
