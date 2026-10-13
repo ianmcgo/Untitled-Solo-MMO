@@ -1670,6 +1670,7 @@ function tickGather() {
 }
 function gatherTool(type) { return GATHER[type].tool; }
 function doGather(n) {
+  if (n.gone || n.uses <= 0) return;
   const type = n.gtype, tool = gatherTool(type), G = GATHER[type];
   if (invCount(tool) < 1) { log("You need " + an(ITEMS[tool].name) + " to " + G.verb + " here. Pell sells them.", "sys"); sfx("error"); return; }
   if (player.engaged || inCombatWith(player)) { log("You can't " + G.verb + " while fighting.", "sys"); sfx("error"); return; }

@@ -229,7 +229,7 @@ The setting saves in the browser and reloads the scene. Camera auto-follow, inve
   - Tunnel Worms: eight segments with a toothed mouth.
   - Meadow Hares.
   - Notorious monsters are scaled up and trail coloured motes.
-- **Appearance editor:** Settings → Appearance cycles your build, skin tone (5), hair style (7) and hair colour (8). The model updates immediately and the choice is saved, including in save files.
+- **Appearance:** chosen once on the character creation screen (sex, skin, hair style by sex, hair colour) and saved with the character; it can't be changed afterwards.
 
 ### Animation (`anim.js`)
 Poses are computed every frame from the game state, layered, and eased toward the target, so states blend smoothly.
@@ -536,7 +536,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
 | 4.7.0 | Phase 6b: gathering, crafting, gardening; no heal effects at full; preview context released (above). |
-| 4.6.x | Skin palette, creation preview fix, hair lists by sex. |
+| 4.6.x | Creation preview fix, hair lists by sex. |
 | 4.6.0 | Phase 6a: residence, Pip, storage, NPC schedules, passive monsters, NM-only gear, crystals, menu rework, in-game confirms, loading showcase (above). |
 | 4.5.0 | Phase 5d: the Sunken Crypt (above). Creation labels sex instead of build. |
 | 4.4.0 | Phase 5c: quests (above). |
