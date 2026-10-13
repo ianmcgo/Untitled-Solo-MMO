@@ -1,5 +1,5 @@
 const CONFIG = {
-  levelCap: 10,
+  levelCap: 15,
   meleeRange: 42,
   tpMax: 3000,
   tpPerDelay: 40,
@@ -17,7 +17,7 @@ const CONFIG = {
   castRange: 230,
   abilityRange: 230,
   talkRange: 70,
-  xpTable: [0, 200, 400, 650, 950, 1300, 1700, 2200, 2850, 3600],
+  xpTable: [0, 200, 400, 650, 950, 1300, 1700, 2200, 2850, 3600, 4450, 5400, 6450, 7600, 8850],
   chainWindow: 60,
   chainMax: 5,
   chainStep: 0.1,
@@ -136,7 +136,7 @@ const BUFF_ICONS = { berserk: "💢", divine_seal: "✚", elemental_seal: "✦",
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
-  cure2: { name: "Cure II", jobs: { WHM: 6 }, mp: 22, cast: 2.25, recast: 6, kind: "heal", power: 60, mnd: 1.5, target: "ally", desc: "Restores a lot of HP." },
+  cure2: { name: "Cure II", jobs: { WHM: 6, PLD: 11, RDM: 14 }, mp: 22, cast: 2.25, recast: 6, kind: "heal", power: 60, mnd: 1.5, target: "ally", desc: "Restores a lot of HP." },
   dia: { name: "Dia", jobs: { WHM: 1, RDM: 1 }, mp: 6, cast: 1.0, recast: 6, kind: "dot", element: "light", power: 5, target: "enemy", desc: "Light damage over time and lowers defense." },
   banish: { name: "Banish", jobs: { WHM: 4 }, mp: 12, cast: 1.5, recast: 10, kind: "nuke", element: "light", power: 22, stat: "mnd", target: "enemy", desc: "Light damage. Strong against undead." },
   stone: { name: "Stone", jobs: { BLM: 1, RDM: 4 }, mp: 4, cast: 1.0, recast: 5, kind: "nuke", element: "earth", power: 12, stat: "int", target: "enemy", desc: "Earth damage." },
@@ -148,6 +148,13 @@ const SPELLS = {
   flash: { name: "Flash", jobs: { PLD: 7 }, mp: 10, cast: 0.5, recast: 30, kind: "debuff", element: "light", buff: "flash", dur: 12, enmity: 300, target: "enemy", desc: "Blinds the target (accuracy −40%) for 12 s and draws a lot of enmity." },
   slow: { name: "Slow", jobs: { RDM: 5 }, mp: 9, cast: 2.0, recast: 10, kind: "debuff", element: "earth", buff: "slow", dur: 60, enmity: 80, target: "enemy", desc: "The target attacks 25% slower for 60 s." },
   paralyze: { name: "Paralyze", jobs: { RDM: 7 }, mp: 10, cast: 2.0, recast: 10, kind: "debuff", element: "ice", buff: "paralyze", dur: 45, enmity: 80, target: "enemy", desc: "The target sometimes freezes up and loses its attack for 45 s." },
+  cure3: { name: "Cure III", jobs: { WHM: 13 }, mp: 42, cast: 2.5, recast: 7, kind: "heal", power: 120, mnd: 2.0, target: "ally", desc: "Restores a great deal of HP." },
+  banish2: { name: "Banish II", jobs: { WHM: 15 }, mp: 36, cast: 2.0, recast: 14, kind: "nuke", element: "light", power: 62, stat: "mnd", target: "enemy", desc: "Heavy light damage. Strong against undead." },
+  stone2: { name: "Stone II", jobs: { BLM: 11, RDM: 15 }, mp: 22, cast: 2.0, recast: 7, kind: "nuke", element: "earth", power: 46, stat: "int", target: "enemy", desc: "Heavy earth damage." },
+  water2: { name: "Water II", jobs: { BLM: 12 }, mp: 25, cast: 2.25, recast: 7, kind: "nuke", element: "water", power: 52, stat: "int", target: "enemy", desc: "Heavy water damage." },
+  aero2: { name: "Aero II", jobs: { BLM: 13 }, mp: 28, cast: 2.25, recast: 8, kind: "nuke", element: "wind", power: 58, stat: "int", target: "enemy", desc: "Heavy wind damage." },
+  fire2: { name: "Fire II", jobs: { BLM: 14 }, mp: 32, cast: 2.5, recast: 8, kind: "nuke", element: "fire", power: 65, stat: "int", target: "enemy", desc: "Heavy fire damage." },
+  blizzard2: { name: "Blizzard II", jobs: { BLM: 15 }, mp: 36, cast: 2.75, recast: 9, kind: "nuke", element: "ice", power: 73, stat: "int", target: "enemy", desc: "Heavy ice damage." },
   protect: { name: "Protect", jobs: { WHM: 7, PLD: 9, RDM: 9 }, mp: 9, cast: 2.0, recast: 10, kind: "buff", buff: "protect", dur: 600, target: "ally", desc: "Defense +15% for 10 minutes." }
 };
 
@@ -198,6 +205,20 @@ const ITEMS = {
   bone_chip: { name: "Bone Chip", kind: "mat", icon: "🦴", price: 60, stack: 12, desc: "Used in advanced recipes." },
   bronze_sword: { name: "Bronze Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 6, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 80 },
   bronze_sword_hq: { name: "Bronze Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 7, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 200, stats: { acc: 2 } },
+  steel_sword: { name: "Steel Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 14, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 11, price: 2600, stats: { acc: 2 } },
+  steel_greataxe: { name: "Steel Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 25, delay: 4.0, jobs: ["WAR"], lv: 11, price: 2800 },
+  oak_staff: { name: "Oak Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 15, delay: 3.6, jobs: ALL_J, lv: 11, price: 2400, stats: { int: 4, mnd: 4, mp: 15 } },
+  oak_club: { name: "Oak Club", kind: "equip", icon: "🏏", slot: "main", wtype: "club", dmg: 12, delay: 2.9, jobs: ["WAR", "WHM", "PLD", "BLM", "RDM"], lv: 11, price: 2200, stats: { mnd: 2 } },
+  chain_mail: { name: "Chain Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 11, price: 3000, stats: { def: 15, hp: 30 } },
+  wizards_robe: { name: "Wizard's Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 11, price: 2800, stats: { def: 9, mp: 35, int: 3, mnd: 3 } },
+  iron_helm: { name: "Iron Helm", kind: "equip", icon: "⛑️", slot: "head", jobs: ["WAR", "PLD"], lv: 12, price: 1800, stats: { def: 6, hp: 12 } },
+  wool_hat: { name: "Wool Hat", kind: "equip", icon: "🎩", slot: "head", jobs: ALL_J, lv: 10, price: 900, stats: { def: 3, mp: 10 } },
+  marsh_boots: { name: "Marsh Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 10, rare: true, stats: { def: 4, agi: 3, eva: 4 }, desc: "Waterproofed with toad oil. A reward from Captain Rhea." },
+  croaker_charm: { name: "Croaker Charm", kind: "equip", icon: "🐸", slot: "ring", jobs: ALL_J, lv: 12, rare: true, nm: true, stats: { hp: 30, vit: 3, def: 3 }, desc: "Carved from the Old Croaker's throat stone." },
+  gax_cleaver: { name: "Gax's Cleaver", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 29, delay: 4.0, jobs: ["WAR"], lv: 14, rare: true, nm: true, stats: { str: 4, att: 8 }, desc: "The Mirelord's notched axe." },
+  mire_mantle: { name: "Mire Mantle", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 14, rare: true, nm: true, stats: { def: 12, hp: 20, mp: 20, eva: 5 }, desc: "A hooded mantle that drips no matter how long it hangs to dry." },
+  toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
+  mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
   iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
   iron_sword_hq: { name: "Iron Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 11, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 1800, stats: { acc: 3, att: 3 } },
   ash_club: { name: "Ash Club", kind: "equip", icon: "🏏", slot: "main", wtype: "club", dmg: 5, delay: 2.6, jobs: ["WAR", "WHM", "PLD", "RDM"], lv: 1, price: 60 },
@@ -255,7 +276,7 @@ const ITEMS = {
   goblin_totem: { name: "Goblin Totem", kind: "furniture", icon: "🗿", ex: true, rarity: "epic", fp: [1, 1], price: 0, model: "totem", desc: "Trophy from the Goblin Chieftain." }
 };
 
-const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff"];
+const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -331,10 +352,17 @@ const FAMILIES = {
   crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["sentinel_greaves", 0.3]], gil: [20, 30], model: "skeleton" },
   royal_guard: { name: "Royal Guard", color: "#c0c8d8", radius: 15, hpMul: 1.1, attMul: 1.15, defMul: 1.1, delay: 3.0, speed: 95, aggro: null, link: true, linkGroup: "undead", tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.3]], model: "skeleton", summoned: true },
   hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["hollow_crown", 0.3], ["kings_blade", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
+  bog_toad: { name: "Bog Toad", color: "#5f7a3a", radius: 14, hpMul: 1.15, attMul: 1.0, defMul: 1.0, delay: 3.0, speed: 90, aggro: { sound: 120 }, link: false, tpMove: { name: "Tongue Lash", mul: 1.8 }, weak: { ice: 1.25 }, loot: [["toad_oil", 0.45], ["water_crystal", 0.3], ["healing_herb", 0.2], ["hi_potion", 0.05]], gil: [6, 10], model: "toad" },
+  bog_leech: { name: "Bog Leech", color: "#5a2a2a", radius: 13, hpMul: 1.1, attMul: 0.95, defMul: 1.1, delay: 3.2, speed: 60, int: 4, aggro: { magic: 140, lowhp: 170 }, link: false, tpMove: { name: "Blood Drain", mul: 1.6, drain: true }, weak: { fire: 1.3 }, loot: [["worm_silk", 0.3], ["water_crystal", 0.3], ["ether", 0.08]], model: "worm", tint: 0x4a2226 },
+  mire_goblin: { name: "Mire Goblin", color: "#58663a", radius: 15, hpMul: 1.05, attMul: 1.05, defMul: 1.05, delay: 3.0, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", tpMove: { name: "Bog Bomb", mul: 1.7, aoe: 75 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.25], ["mire_reed", 0.3], ["fire_crystal", 0.2], ["hi_potion", 0.06]], gil: [8, 14], model: "goblin" },
+  drowned: { name: "Drowned One", color: "#6f9a9a", radius: 15, hpMul: 1.2, attMul: 1.1, defMul: 1.05, delay: 3.0, speed: 85, aggro: { sound: 130, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Sodden Grasp", mul: 1.9, drain: true }, weak: { light: 1.5, lightning: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.35], ["ether", 0.1], ["hi_potion", 0.06]], model: "ghoul" },
+  marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
   chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.3], ["goblin_totem", 0.3], ["raider_helm", 0.25], ["iron_sword", 0.2], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
 };
 
 const NM_FAMILIES = {
+  old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["croaker_charm", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
+  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
   grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["scavenger_cap", 0.35], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
   duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
   king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["moonbloom_seeds", 0.4], ["burrower_trousers", 0.35], ["hare_charm", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
@@ -386,7 +414,8 @@ const ZONES = {
     name: "Rocky Hollow", w: 3200, h: 2200, theme: "field",
     exits: [
       { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 990, ty: 400, label: "Outpost" },
-      { x: 3176, y: 1030, w: 24, h: 100, to: "den", tx: 120, ty: 800, label: "Goblin Den" }
+      { x: 3176, y: 1030, w: 24, h: 100, to: "den", tx: 120, ty: 800, label: "Goblin Den" },
+      { x: 1550, y: 2176, w: 100, h: 24, to: "marsh", tx: 1400, ty: 95, label: "Ashen Marsh" }
     ],
     npcs: [],
     walls: [{ x: 850, y: 1380, w: 170, h: 440 }, { x: 1980, y: 180, w: 400, h: 170 }, { x: 2330, y: 1820, w: 440, h: 150 }],
@@ -425,7 +454,8 @@ const ZONES = {
       { w: 46, pts: [[-500, 1100], [0, 1100], [400, 1120], [800, 1010], [1200, 980], [1650, 1050], [2100, 1150], [2500, 1160], [2900, 1150], [3200, 1080], [3700, 1080]] },
       { w: 34, pts: [[2100, 1150], [2300, 950], [2515, 860], [2515, 650]] },
       { w: 34, pts: [[1650, 1050], [1550, 1450], [1420, 1850]] },
-      { w: 30, pts: [[2500, 1160], [2650, 1450]] }
+      { w: 30, pts: [[2500, 1160], [2650, 1450]] },
+      { w: 32, pts: [[1420, 1850], [1600, 2200], [1600, 2700]] }
     ],
     gather: {
       mining: { n: 3, at: [[300, 300], [1000, 250], [2900, 1900], [200, 2000], [1250, 2100], [2850, 300]], loot: [["copper_ore", 0.6], ["iron_ore", 0.08], ["fire_crystal", 0.1], ["earth_crystal", 0.1]] },
@@ -517,6 +547,49 @@ ZONES.crypt = {
   start: { x: 70, y: 700 }
 };
 ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
+ZONES.marsh = {
+  name: "Ashen Marsh", w: 2800, h: 2400, theme: "field", palette: "marsh", mist: true,
+  exits: [{ x: 1350, y: 0, w: 100, h: 24, to: "hollow", tx: 1600, ty: 2110, label: "Rocky Hollow" }],
+  npcs: [],
+  walls: [{ x: 300, y: 300, w: 260, h: 160 }, { x: 2300, y: 1500, w: 200, h: 320 }, { x: 900, y: 2100, w: 380, h: 140 }],
+  ruins: {
+    walls: [[450, 1860, 600, 1860, 2.2], [450, 1860, 450, 1990, 1.6], [700, 1860, 760, 1860, 1.2], [760, 1860, 760, 2000, 2.4], [450, 2060, 560, 2060, 1.0]],
+    pillars: [[520, 1930, 2.8], [690, 1950, 1.4], [600, 2120, 2.0]]
+  },
+  landmarks: [
+    { id: "foggate", name: "Fog Gate", x: 1400, y: 200, r: 200, xp: 120 },
+    { id: "causeway", name: "Sunken Causeway", x: 1250, y: 650, r: 230, xp: 150 },
+    { id: "croaker", name: "Croaker's Pool", x: 850, y: 1350, r: 240, xp: 170 },
+    { id: "mirevillage", name: "Mire Village", x: 2150, y: 800, r: 260, xp: 200 },
+    { id: "willow", name: "Weeping Willows", x: 1800, y: 1650, r: 230, xp: 160 },
+    { id: "chapel", name: "Drowned Chapel", x: 600, y: 1960, r: 230, xp: 200 }
+  ],
+  spawns: [
+    { fam: "marsh_hare", lv: [9, 10], x: 1250, y: 330, time: "day" }, { fam: "marsh_hare", lv: [9, 10], x: 1650, y: 420, time: "day" }, { fam: "marsh_hare", lv: [10, 11], x: 1000, y: 900, time: "day" },
+    { fam: "bog_toad", lv: [9, 10], x: 1100, y: 450 }, { fam: "bog_toad", lv: [9, 10], x: 1600, y: 600 }, { fam: "bog_toad", lv: [10, 11], x: 800, y: 700 },
+    { fam: "bog_toad", lv: [10, 11], x: 700, y: 1200 }, { fam: "bog_toad", lv: [11, 12], x: 1000, y: 1500 }, { fam: "bog_toad", lv: [11, 12], x: 650, y: 1550, nm: { id: "old_croaker", lv: 15, chance: 0.15, time: "day" } },
+    { fam: "bog_leech", lv: [10, 11], x: 1500, y: 900 }, { fam: "bog_leech", lv: [10, 12], x: 1300, y: 1200 }, { fam: "bog_leech", lv: [11, 12], x: 1700, y: 1300 }, { fam: "bog_leech", lv: [12, 13], x: 2000, y: 1900 },
+    { fam: "bat", lv: [10, 11], x: 1200, y: 800, time: "night" }, { fam: "bat", lv: [10, 12], x: 900, y: 1100, time: "night" }, { fam: "bat", lv: [11, 12], x: 1900, y: 1400, time: "night" },
+    { fam: "mire_goblin", lv: [11, 12], x: 1850, y: 650 }, { fam: "mire_goblin", lv: [11, 12], x: 1950, y: 950 }, { fam: "mire_goblin", lv: [12, 13], x: 2250, y: 650 },
+    { fam: "mire_goblin", lv: [12, 13], x: 2400, y: 900 }, { fam: "mire_goblin", lv: [13, 14], x: 2200, y: 1100 }, { fam: "mire_goblin", lv: [13, 14], x: 2500, y: 600, nm: { id: "mirelord_gax", lv: 16, chance: 0.15 } },
+    { fam: "drowned", lv: [12, 13], x: 500, y: 1800, time: "night" }, { fam: "drowned", lv: [12, 14], x: 800, y: 2000, time: "night" }, { fam: "drowned", lv: [13, 14], x: 400, y: 2150, time: "night" },
+    { fam: "drowned", lv: [13, 14], x: 1300, y: 1900, time: "night" }, { fam: "bog_toad", lv: [12, 13], x: 1600, y: 2000 }, { fam: "mire_goblin", lv: [13, 14], x: 2050, y: 2150 },
+    { fam: "bog_leech", lv: [13, 14], x: 2500, y: 2100 }, { fam: "bog_toad", lv: [13, 14], x: 1500, y: 1650 }
+  ],
+  water: [{ x: 850, y: 1350, r: 150 }, { x: 1500, y: 1100, r: 110 }, { x: 1900, y: 1700, r: 120 }, { x: 600, y: 900, r: 90 }, { x: 1150, y: 1850, r: 100 }, { x: 2400, y: 1300, r: 90 }, { x: 1700, y: 300, r: 70 }],
+  paths: [
+    { w: 40, pts: [[1400, -500], [1400, 0], [1350, 300], [1250, 650], [1050, 1000], [1150, 1500], [1450, 1750], [1800, 2000], [2300, 2200]] },
+    { w: 34, pts: [[1250, 650], [1700, 750], [2150, 800], [2500, 750]] },
+    { w: 30, pts: [[1150, 1500], [800, 1700], [600, 1960]] }
+  ],
+  gather: {
+    mining: { n: 2, at: [[2600, 300], [300, 1200], [2600, 1900], [1000, 2250]], loot: [["iron_ore", 0.5], ["copper_ore", 0.25], ["fire_crystal", 0.12], ["earth_crystal", 0.12]] },
+    logging: { n: 3, at: [[1900, 1500], [250, 700], [2700, 1100], [1150, 250], [400, 2300]], loot: [["ash_log", 0.7], ["wind_crystal", 0.2]] },
+    harvesting: { n: 4, at: [[1000, 1300], [700, 1100], [1700, 1150], [2100, 1800], [1300, 2000], [1650, 500]], loot: [["mire_reed", 0.55], ["healing_herb", 0.4], ["water_crystal", 0.15]] }
+  },
+  start: { x: 1400, y: 95 }
+};
+
 ZONES.den.paths.push({ w: 34, pts: [[1250, 1120], [1200, 1400], [1200, 1600], [1200, 2100]] });
 
 const BRAZIER_LINES = { fire: "the flame that wakes the dawn", wind: "the breath that carries the ash", earth: "the stone that keeps the dead", water: "the tide that quiets all" };
@@ -566,6 +639,10 @@ const QUESTS = {
     intro: "Under the Den's Bone Pit lies the Sunken Crypt, and on its throne sits the thing that stirs the dead: the Hollow King. The old way in is sealed by braziers, and a Sentinel holds the throne key. Bring a full party. End him, and the Outpost will give you its highest honour.", progress: "The King still sits his throne. Braziers first, then the Sentinel's key, then the throne room.", turn: "The Hollow King is dust. Wear this medallion with pride: no one in Ashenreach has earned it before." },
   warden: { name: "The Warden's Vigil", giver: "Captain Rhea", npc: "rhea", lv: 8, pre: "chieftain", kill: { fam: "ossuary_warden", n: 1, name: "Ossuary Warden" }, desc: "Defeat the Ossuary Warden, a notorious ghoul that haunts the Bone Pit of the Goblin Den.", reward: { xp: 800, gil: 800, item: "ether", qty: 3 },
     intro: "With the Chieftain gone, the Den's worst is a ghoul the scouts call the Ossuary Warden. It keeps the Bone Pit. End its vigil and I'll pay well.", progress: "The Warden still haunts the Bone Pit. It appears among the ghouls there.", turn: "The Warden is finished. The dead can rest, and so can you. Here." },
+  mire: { name: "Into the Mire", giver: "Captain Rhea", npc: "rhea", lv: 10, kill: { fam: "bog_toad", n: 6, name: "Bog Toad" }, desc: "Thin out the Bog Toads in the Ashen Marsh, south of Rocky Hollow.", reward: { xp: 1200, gil: 600, item: "marsh_boots", qty: 1 },
+    intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
+  mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
+    intro: "Two of my people went into the marsh and came back with stories of a goblin who calls himself the Mirelord. Gax. He's taxing the reed cutters. I'd take it personally if you put an end to that.", progress: "Gax keeps to Mire Village, east of the causeway. He shows himself now and then among his goblins.", turn: "The Mirelord's done? My people will drink to you tonight. Here, you've earned this." },
   support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 5, desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
   riding: { name: "Riding License", giver: "Ysolde", npc: "ysolde", lv: 5, desc: "Reach level 5, then bring Ysolde 300 crystals and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
   pld: { name: "The Oath of Steel", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Paladin's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
@@ -636,6 +713,13 @@ const BESTIARY = {
   grimtooth: { type: "Beastman", lore: "A notorious goblin with a red bandana and a worse temper. Rumoured to wear a ring stolen from a raider captain." },
   duskwing: { type: "Vermin", lore: "A giant violet bat that wakes only at night. Its wing leather is prized by cobblers." },
   king_wiggles: { type: "Amorphous", lore: "An enormous worm with an absurd name and a very real bite. Silkworkers pay well for its thread." },
+  bog_toad: { type: "Amphibian", lore: "Bloated marsh toads that hunt by sound. Their oil keeps leather supple and smells for days." },
+  bog_leech: { type: "Amorphous", lore: "Fat leeches that taste magic and blood in the water. Fire makes them let go." },
+  mire_goblin: { type: "Beastman", lore: "Goblins who settled the marsh and grew mean on toad stew. They tax the reed cutters and guard their stilt village jealously." },
+  drowned: { type: "Undead", lore: "The bog keeps what it takes. At night the drowned rise from the chapel waters, cold and grasping." },
+  marsh_hare: { type: "Beast", lore: "Long-legged hares that live among the reeds. Peaceful, quick and very hard to catch." },
+  old_croaker: { type: "Amphibian", lore: "A toad the size of a cart, older than the Outpost. The reed cutters leave it offerings and keep their distance." },
+  mirelord_gax: { type: "Beastman", lore: "A self-crowned goblin lord who rules Mire Village with a notched cleaver and a booming laugh." },
   ossuary_warden: { type: "Undead", lore: "A ghoul draped in grave silk that keeps watch over the ossuary. It drains warmth from the air around it." }
 };
 
@@ -650,6 +734,8 @@ const ACHIEVEMENTS = [
   { id: "burst", icon: "✨", name: "Burst!", desc: "Land a magic burst.", gil: 50, test: s => s.stats.mb >= 1 },
   { id: "lv5", icon: "⭐", name: "Finding Your Feet", desc: "Reach level 5 on any job.", gil: 60, test: s => Object.values(s.jobs).some(j => j.lv >= 5) },
   { id: "lv10", icon: "🌟", name: "Seasoned", desc: "Reach level 10 on any job.", gil: 200, test: s => Object.values(s.jobs).some(j => j.lv >= 10) },
+  { id: "lv15", icon: "💫", name: "Veteran", desc: "Reach level 15 on any job.", gil: 500, test: s => Object.values(s.jobs).some(j => j.lv >= 15) },
+  { id: "marsh", icon: "🐸", name: "Into the Mire", desc: "Set foot in the Ashen Marsh.", gil: 60, test: s => (s.discovered || []).includes("marsh") },
   { id: "two_jobs", icon: "🎓", name: "Jack of Trades", desc: "Reach level 5 on two jobs.", gil: 120, test: s => Object.values(s.jobs).filter(j => j.lv >= 5).length >= 2 },
   { id: "adv_job", icon: "🛡️", name: "Advanced Studies", desc: "Unlock an advanced job.", gil: 150, test: s => Object.values(s.jobsUnlocked || {}).some(Boolean) },
   { id: "quests5", icon: "📜", name: "Helping Hand", desc: "Complete 5 quests.", gil: 100, test: s => Object.values(s.quests).filter(q => q === "done").length >= 5 },

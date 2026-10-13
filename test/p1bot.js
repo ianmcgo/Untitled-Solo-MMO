@@ -7,14 +7,16 @@ if (job === 'PLD' || job === 'RDM') { G.save.jobsUnlocked[job] = true; G.setJob(
 else if (job !== 'WAR') { G.setJob(job, null); G.giveItem(job === 'BLM' ? 'ash_staff' : 'ash_club', 1, true); G.giveItem('linen_robe', 1, true); G.equip(job === 'BLM' ? 'ash_staff' : 'ash_club'); G.equip('linen_robe'); }
 const mercOrder = { PLD: ['mira', 'sable', 'lisette', 'rook', 'fen'], RDM: ['kael', 'mira', 'dorn', 'sable', 'fen'] }[job];
 if (mercOrder) { order.length = 0; order.push(...mercOrder); G.save.jobsUnlocked.PLD = G.save.jobsUnlocked.RDM = true; }
-G.enterZone('hollow', 70, 1100);
+const BZ = process.env.BOT_ZONE || 'hollow', BS = G.ZONES[BZ].start;
+if (process.env.BOT_LV) { G.save.jobs[job].lv = +process.env.BOT_LV; G.refreshPlayer(true); G.save.gil = 20000; }
+G.enterZone(BZ, BS.x, BS.y);
 const pickTarget = () => { const p = P(); let best = null, bd = 1e9; for (const m of S.mobs) { if (!m.alive || m.lv > p.lv + (S.party.length > 2 ? 1 : 0) || m.famKey === 'chieftain') continue; if (S.party.length < 3 && S.mobs.some(o => o !== m && o.alive && o.fam.link && m.fam.link && G.dist(o, m) < 160)) continue; const d = G.dist(m, p); if (d < bd) { bd = d; best = m; } } return best; };
 const steps = minutes * 3600;
 const skillLog = [];
 for (let i = 0; i < steps; i++) {
   try { tick(1000 / 60); } catch (e) { errors++; if (errors < 4) console.log('ERR', e.stack.split('\n').slice(0, 4).join('\n')); }
-  if (S.ko) { deaths++; G.returnHome(); G.enterZone('hollow', 70, 1100); continue; }
-  if (S.zoneId !== 'hollow') G.enterZone('hollow', 70, 500);
+  if (S.ko) { deaths++; G.returnHome(); G.enterZone(BZ, BS.x, BS.y); continue; }
+  if (S.zoneId !== BZ) G.enterZone(BZ, BS.x, BS.y + 20);
   if (i % 6) continue;
   const p = P();
   if (i % (3600 * 5) === 0) skillLog.push('t' + Math.round(i / 3600) + 'm lv' + p.lv + ' sword ' + G.save.skills[job][p.stats.wtype] + '/' + G.skillCap(p, p.stats.wtype));

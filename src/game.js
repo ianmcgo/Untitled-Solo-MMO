@@ -2478,7 +2478,7 @@ const TALK = {
     if (q.pouches === "none") {
       openDialog(n.name, "Goblins out in Rocky Hollow keep raiding our supply crates. Bring me 3 Goblin Pouches as proof you've thinned them out, and I'll make it worth your while.", [
         { label: "Accept", fn: () => { q.pouches = "active"; log("Quest accepted: " + QUESTS.pouches.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
-      ]);
+      ].concat(questOptions("rhea", n)));
       return;
     }
     if (q.pouches === "active") {

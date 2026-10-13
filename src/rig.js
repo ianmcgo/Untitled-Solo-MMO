@@ -311,7 +311,13 @@ const ITEM_LOOK = {
   silkworm_gloves: { gloves: 0xb9a6d8, glovesRegion: "cloth" },
   leather_trousers: { legs: 0x5a3c24, legsRegion: "leather" },
   leather_boots: { boots: 0x4a2e1a },
-  duskwing_boots: { boots: 0x3a2850 }
+  duskwing_boots: { boots: 0x3a2850 },
+  chain_mail: { top: { type: "mail", color: 0x7a8088, region: "chain" }, pauldrons: 0x8a9098 },
+  wizards_robe: { top: { type: "robe", deep: true } },
+  iron_helm: { head: { type: "helm", color: 0x8a9098 } },
+  wool_hat: { head: { type: "pointy", color: 0x6a5a8a } },
+  marsh_boots: { boots: 0x3f4a2a },
+  mire_mantle: { top: { type: "robe", color: 0x2f4030, trim: 0x8aa070 }, head: { type: "hood", color: 0x2f4030 } }
 };
 
 const MERC_BASE = {
@@ -589,6 +595,8 @@ function goblinLook(variant) {
   if (variant === "chieftain") return Object.assign(base, { skin: 0x6a7a34, top: { type: "mail", color: 0x55585e, region: "chain" }, head: { type: "horned", color: 0x4a4a44, color2: 0xe8dcc0 }, cape: 0x8a1f1f, pauldrons: 0x6a6a64, weapon: "greataxe", sack: false, prop: { leg: 0.62, torso: 0.56, headR: 0.18, arm: 0.62, shoulder: 0.22, hip: 0.11, neck: 0.04, girth: 1.25 } });
   const p = { leg: 0.5, torso: 0.42, headR: 0.16, arm: 0.5, shoulder: 0.165, hip: 0.09, neck: 0.04, girth: 1.05 };
   if (variant === "raider") return Object.assign(base, { skin: 0x6a7a40, top: { type: "tunic", color: 0x4a3a2a, region: "leather" }, head: { type: "cap", color: 0x55585e }, weapon: "dagger", prop: p });
+  if (variant === "mire") return Object.assign(base, { skin: 0x5f7040, top: { type: "tunic", color: 0x3a4a30, region: "leather" }, head: { type: "hood", color: 0x4a5a3a }, legs: 0x3a3428, weapon: "dagger", prop: p });
+  if (variant === "gax") return Object.assign(base, { skin: 0x56683a, top: { type: "mail", color: 0x4a5048, region: "chain" }, head: { type: "horned", color: 0x3a3f36, color2: 0xd8cca8 }, cape: 0x2f4a2a, eyesGlow: 0xffab40, weapon: "greataxe", sack: false, prop: Object.assign({}, p, { girth: 1.2, headR: 0.17, torso: 0.47 }) });
   if (variant === "grimtooth") return Object.assign(base, { skin: 0x8a8a3a, top: { type: "vest", color: 0x5a2a20, region: "leather", under: 0x3a2a1a }, head: { type: "bandana", color: 0x2a2a2a }, eyesGlow: 0xff3a2a, weapon: "dagger", prop: p });
   return Object.assign(base, { skin: 0x7f9150, top: { type: "vest", color: 0x6a4a30, region: "leather", under: 0x8a7a5a }, head: { type: "bandana", color: 0x9a2a22 }, weapon: "dagger", prop: p });
 }
@@ -853,12 +861,45 @@ function instantiate(entry) {
   return { mesh, bones: byName, list: bones, mat, meta: entry.meta };
 }
 
+function toadEntry(col) {
+  const R = new RigBuilder();
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, 0.26, 0);
+  R.bone("head", "body", 0, 0.34, 0.2);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
+    R.bone("ear" + sd, "head", s * 0.09, 0.44, 0.2);
+    R.bone("legF" + sd, "body", s * 0.13, 0.2, 0.16);
+    R.bone("legB" + sd, "body", s * 0.17, 0.2, -0.12);
+  }
+  const belly = new THREE.Color(col).lerp(new THREE.Color(0xe8dcb0), 0.55).getHex();
+  const dark = new THREE.Color(col).multiplyScalar(0.6).getHex();
+  R.add(gBall(V3(0, 0.26, -0.02), 0.27, 1.05, 0.72, 1.15, 16), "body", col, "skin");
+  R.add(gBall(V3(0, 0.2, 0.06), 0.22, 0.95, 0.55, 1.0, 14), "body", belly, "skin");
+  R.add(gBall(V3(0, 0.33, 0.22), 0.17, 1.25, 0.65, 1.0, 14), "head", col, "skin");
+  R.add(gBall(V3(0, 0.29, 0.32), 0.12, 1.4, 0.32, 0.6, 10), "head", belly, "skin");
+  for (let k = 0; k < 7; k++) { const a = k * 1.7; R.add(gBall(V3(Math.sin(a) * 0.16, 0.36 + (k % 3) * 0.03, -0.05 + Math.cos(a) * 0.15), 0.03, 1, 0.7, 1, 6), "body", dark, "skin"); }
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gBall(V3(s * 0.09, 0.44, 0.22), 0.06, 1, 1, 1, 10), "ear" + sd, col, "skin");
+    R.add(gBall(V3(s * 0.1, 0.46, 0.26), 0.038, 1, 1, 0.8, 8), "ear" + sd, 0xe8c040, "plain");
+    R.add(gBall(V3(s * 0.105, 0.462, 0.29), 0.018, 1, 1.4, 0.6, 6), "ear" + sd, 0x111111, "plain");
+    R.add(gTaper(V3(s * 0.13, 0.2, 0.16), V3(s * 0.15, 0.03, 0.24), 0.04, 0.03, 8), "legF" + sd, col, "skin");
+    R.add(gBall(V3(s * 0.16, 0.02, 0.27), 0.05, 1.2, 0.35, 1.2, 8), "legF" + sd, dark, "skin");
+    R.add(gBall(V3(s * 0.2, 0.18, -0.1), 0.12, 0.75, 0.9, 1.25, 10), "legB" + sd, col, "skin");
+    R.add(gBox(V3(s * 0.22, 0.025, 0.0), 0.09, 0.04, 0.24), "legB" + sd, dark, "skin");
+  }
+  R.meta = { kind: "hare", headTop: 0.6 };
+  return R.finish();
+}
+
 function mobLook(m) {
   const f = m.fam, key = f.key || m.famKey;
   const model = f.model;
   if (key === "grimtooth") return { kind: "human", look: goblinLook("grimtooth") };
   if (model === "chieftain") return { kind: "human", look: goblinLook("chieftain") };
-  if (model === "goblin") return { kind: "human", look: goblinLook(m.famKey === "den_goblin" ? "raider" : "goblin") };
+  if (key === "mirelord_gax") return { kind: "human", look: goblinLook("gax") };
+  if (model === "goblin") return { kind: "human", look: goblinLook(m.famKey === "den_goblin" ? "raider" : m.famKey === "mire_goblin" ? "mire" : "goblin") };
+  if (model === "toad") return { kind: "toad", col: key === "old_croaker" ? 0x6a8a30 : 0x5f7a3a };
   if (model === "skeleton") {
     if (key === "hollow_king") return { kind: "human", look: { skull: true, skin: 0xd8d0b8, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "cloth", color2: 0xd8b040 }, cape: 0x3a1030, legs: 0xd8d0b8, barefoot: true, head: { type: "crown" }, weapon: "sword", weaponId: "iron_sword", prop: { girth: 0.85 } } };
     if (key === "crypt_sentinel") return { kind: "human", look: { skull: true, skin: 0xc8d0c8, noFace: true, headRegion: "bone", eyesGlow: 0x80cbc4, top: { type: "mail", color: 0x4a5a5a, region: "chain" }, pauldrons: 0x5a6a6a, legs: 0xc8d0c8, barefoot: true, head: { type: "helm", color: 0x4a5a5a }, weapon: "greataxe", weaponId: "bronze_greataxe", prop: { girth: 0.85 } } };
@@ -870,8 +911,8 @@ function mobLook(m) {
     return { kind: "human", look: { skin: warden ? 0x6a8a74 : 0x8fa890, noFace: true, eyesGlow: warden ? 0x69f0ae : 0xff3030, claws: true, barefoot: true, top: { type: "rags", color: warden ? 0x1c2621 : 0x3a3a30, sleeves: "none" }, legs: 0x4a4a3e, hair: { style: "long", color: 0x6a6a60 }, head: warden ? { type: "hood", color: 0x1c2621 } : null, prop: { arm: 0.72, leg: 0.82, headR: 0.118, girth: 0.82 } } };
   }
   if (model === "bat") return { kind: "bat", col: key === "duskwing" ? 0x3a2a5a : 0x5a4a6a, eye: key === "duskwing" ? 0xd080ff : 0xff3030 };
-  if (model === "worm") return { kind: "worm", col: key === "king_wiggles" ? 0xc8a050 : 0xb8866a };
-  if (model === "hare") return { kind: "hare", col: 0xc8a27a };
+  if (model === "worm") return { kind: "worm", col: key === "king_wiggles" ? 0xc8a050 : f.tint || 0xb8866a };
+  if (model === "hare") return { kind: "hare", col: f.tint || 0xc8a27a };
   return { kind: "human", look: goblinLook("goblin") };
 }
 
@@ -886,6 +927,7 @@ function buildEntityRig(e) {
       alwaysDrawn = true;
     } else if (ml.kind === "bat") { sig = "bat|" + ml.col; make = () => batEntry(ml.col, ml.eye); }
     else if (ml.kind === "worm") { sig = "worm|" + ml.col; make = () => wormEntry(ml.col); }
+    else if (ml.kind === "toad") { sig = "toad|" + ml.col; make = () => toadEntry(ml.col); }
     else { sig = "hare|" + ml.col; make = () => hareEntry(ml.col); }
   } else if (e.kind === "npc") {
     const L = NPC_LOOK[e.id];

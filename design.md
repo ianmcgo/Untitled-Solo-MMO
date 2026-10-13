@@ -557,11 +557,24 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Element items renamed to Fire/Wind/Earth/Water Essence (ids still `*_crystal`, kind `crystal`, labelled "Essence"). Currency stays crystals.
 - Tests: test/p7unit.js (wages, leaving, bond stats, give/take gear, stances, kill stats, bestiary, achievements, colliders). harness exports the new functions. p5shots scenes: walk, walk2, walk3, exit-home, party, bestiary, bestiary2, achieve, tcmd.
 
+## Phase 9: level 15 and the Ashen Marsh (v5.0.0)
+- CONFIG.levelCap 15; xpTable extended (4450, 5400, 6450, 7600, 8850). Stats grow linearly, so nothing else needed changing.
+- Spells: cure3 (WHM 13), banish2 (WHM 15), stone2/water2/aero2/fire2/blizzard2 (BLM 11–15, stone2 RDM 15); cure2 now also PLD 11, RDM 14.
+- Items: steel_sword, steel_greataxe, oak_staff, oak_club, chain_mail, wizards_robe, iron_helm, wool_hat (in SHOP); marsh_boots (quest), NM drops croaker_charm, gax_cleaver, mire_mantle; mats toad_oil, mire_reed. ITEM_LOOK entries added in rig.js.
+- Families: bog_toad (sound), bog_leech (magic + lowhp, worm model with `tint`), mire_goblin (sight 175, linkGroup "mire"), drowned (ghoul model, sound + lowhp, night spawns), marsh_hare (critter, hare model with `tint`). NMs old_croaker (base bog_toad, day, lv 15) and mirelord_gax (base mire_goblin, lv 16). mobLook reads `f.tint` for worm/hare; goblinLook variants "mire" (hooded) and "gax" (horned, mail, cape, greataxe).
+- Toad model: rig.js `toadEntry(col)` uses the hare's bone names (body/head/ear*/legF*/legB*) and meta.kind "hare", so it reuses the hare hop animation. Eyes sit on the ear bones.
+- Zone `ZONES.marsh` (2800×2400, theme field, `palette: "marsh"`, `mist: true`), defined after the den exit push. Linked from Rocky Hollow's south edge (exit at x 1550) to the marsh's north edge (x 1350); Hollow got a path down to the exit. 6 landmarks, 30 spawns, 7 ponds, ruins (Drowned Chapel), 3 walls, gather points (mining 2, logging 3, harvesting 4).
+- Visuals: textures.js TERRAIN_THEMES.marsh, chosen by `z.palette || z.theme`. world3d fog: zones with `mist` lerp the fog colour toward #8a9a8c and use near 16–30 / far 110–210 (night–day). `W3.mistColor` is cached.
+- Quests: `mire` (Rhea, lv 10, 6 bog_toad, reward marsh_boots), `mirelord` (Brann, lv 13, pre mire, kill mirelord_gax). Rhea's first-offer dialog (pouches) now also lists questOptions.
+- Bestiary +7 entries; achievements lv15 and marsh.
+- Tests: test/p8unit.js (cap, spells at 11/15, exit link, marsh spawns, spacing, gather points, toad aggro, hare peaceful, quest flow). p1bot takes BOT_ZONE and BOT_LV (level 10 WAR in the marsh: lv 11 in 15 min, 2 defeats). p5shots scenes marsh, toad, marsh-night.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 5.0.0 | Phase 9: level cap 15, Ashen Marsh, tier II spells, level 11 gear, 2 NMs, 2 quests. |
 | 4.9.0 | Phase 8: companions 2.0, bestiary, achievements, smoother limbs, colliders, essences. |
 | 4.8.1 | Hotfix: aggro restored, target command box, hidden levels, residence fixes, location save, body sliders. |
 | 4.7.0 | Phase 6b: gathering, crafting, gardening; no heal effects at full; preview context released (above). |

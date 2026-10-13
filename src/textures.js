@@ -261,11 +261,12 @@ const TERRAIN_THEMES = {
   field: { grassA: [92, 108, 50], grassB: [124, 128, 62], dirt: [128, 104, 74], rock: [116, 110, 102], sand: [176, 162, 124], cliff: [110, 104, 96] },
   cave: { grassA: [78, 76, 80], grassB: [96, 90, 92], dirt: [110, 92, 74], rock: [96, 92, 100], sand: [120, 110, 96], cliff: [80, 78, 88], moss: [62, 92, 58] },
   crypt: { grassA: [70, 68, 76], grassB: [84, 82, 90], dirt: [92, 86, 96], rock: [80, 78, 88], sand: [96, 92, 100], cliff: [60, 58, 68], moss: [52, 70, 56] },
+  marsh: { grassA: [70, 84, 50], grassB: [96, 100, 60], dirt: [92, 80, 58], rock: [96, 98, 90], sand: [104, 96, 70], cliff: [84, 88, 80], moss: [58, 82, 48] },
   house: { grassA: [120, 92, 62], grassB: [128, 98, 66], dirt: [110, 84, 58], rock: [100, 90, 80], sand: [120, 100, 80], cliff: [80, 70, 60] }
 };
 
 function* bakeTerrainAlbedoSteps(field, size) {
-  const z = field.zone, th = TERRAIN_THEMES[z.theme] || TERRAIN_THEMES.field;
+  const z = field.zone, th = TERRAIN_THEMES[z.palette || z.theme] || TERRAIN_THEMES.field;
   const W = size, H = Math.max(64, Math.round(size * field.h / field.w));
   const sx = field.w / W, sy = field.h / H;
   const cob = z.theme === "town";
