@@ -1,4 +1,6 @@
 const CONFIG = {
+  hallField: 380,
+  hallTown: 180,
   spawnGapCells: 3,
   spawnExitCells: 2,
   mobRegen: 0.04,
@@ -1099,7 +1101,7 @@ function spreadSpawns(zone, minD) {
 for (const id in ZONES) if (ZONES[id].spawns.length) spreadSpawns(ZONES[id], id === "hollow" ? 170 : 120);
 
 
-const COMPANION_CFG = { dayMs: 3456000, wageRate: 0.15, bondSteps: [0, 20, 60, 130, 250, 420], bondBonus: 0.03, maxBond: 5 };
+const COMPANION_CFG = { dayMs: 86400000, wageRate: 1, bondSteps: [0, 20, 60, 130, 250, 420], bondBonus: 0.03, maxBond: 5 };
 
 const MERC_PERSONAL = {
   kael: ["You fight like someone who means it. I like that.", "My old captain used to say a shield is a promise. I'm starting to remember why.", "I grew up two valleys past the Hollow. Goblins burned the mill. That's why I took up the axe.", "If I go down, don't stop to grieve. Finish the fight first.", "Wherever you go next, I'm coming. No fee needed for that, but I'll still take it."],
@@ -1452,6 +1454,54 @@ for (const id in SPELLS) {
   const sid = "scroll_" + id;
   ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
   if (lv <= 10) SHOP.push(sid); else if (lv <= 17) SHOPS.vela.push(sid);
+}
+function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
+function exitInner(z, e) {
+  const L = e.hall || 0, cx = e.x + e.w / 2, cy = e.y + e.h / 2, sd = exitSide(z, e);
+  if (sd === "w") return { x: L + 60, y: cy };
+  if (sd === "e") return { x: z.w - L - 60, y: cy };
+  if (sd === "n") return { x: cx, y: L + 60 };
+  if (sd === "s") return { x: cx, y: z.h - L - 60 };
+  return null;
+}
+for (const zid in ZONES) {
+  const z = ZONES[zid];
+  if (!z.w || z.indoor || z.theme === "house") continue;
+  z.walls = z.walls || [];
+  for (const e of z.exits || []) {
+    if (e.kind === "door") continue;
+    const sd = exitSide(z, e);
+    if (!sd) continue;
+    const L = e.hall = z.safe ? CONFIG.hallTown : CONFIG.hallField, T = 70, cx = e.x + e.w / 2, cy = e.y + e.h / 2, half = (sd === "w" || sd === "e" ? e.h : e.w) / 2 + 60;
+    e.lane = half;
+    if (sd === "w") z.walls.push({ x: 0, y: cy - half - T, w: L, h: T }, { x: 0, y: cy + half, w: L, h: T });
+    if (sd === "e") z.walls.push({ x: z.w - L, y: cy - half - T, w: L, h: T }, { x: z.w - L, y: cy + half, w: L, h: T });
+    if (sd === "n") z.walls.push({ x: cx - half - T, y: 0, w: T, h: L }, { x: cx + half, y: 0, w: T, h: L });
+    if (sd === "s") z.walls.push({ x: cx - half - T, y: z.h - L, w: T, h: L }, { x: cx + half, y: z.h - L, w: T, h: L });
+  }
+}
+for (const zid in ZONES) {
+  const z = ZONES[zid];
+  for (const p of z.paths || []) for (const e of z.exits || []) {
+    if (!e.hall) continue;
+    const ec = { x: e.x + e.w / 2, y: e.y + e.h / 2 }, inner = exitInner(z, e);
+    for (const end of [0, 1]) {
+      const i = end ? p.pts.length - 1 : 0, pt = p.pts[i];
+      if (Math.hypot(pt[0] - ec.x, pt[1] - ec.y) > e.hall + 260) continue;
+      const near = (q, r) => Math.hypot(q[0] - r.x, q[1] - r.y);
+      const pts = end ? p.pts.slice() : p.pts.slice().reverse();
+      while (pts.length > 1 && near(pts[pts.length - 1], ec) < e.hall + 120) pts.pop();
+      pts.push([Math.round(inner.x), Math.round(inner.y)], [Math.round(ec.x), Math.round(ec.y)]);
+      p.pts = end ? pts : pts.reverse();
+    }
+  }
+}
+for (const zid in ZONES) for (const e of ZONES[zid].exits || []) {
+  const B = ZONES[e.to];
+  if (!B || e.kind === "door") continue;
+  const back = (B.exits || []).find(x => x.to === zid && x.kind !== "door");
+  const p = back && back.hall ? exitInner(B, back) : null;
+  if (p) { e.tx = Math.round(p.x); e.ty = Math.round(p.y); }
 }
 for (const zid in ZONES) {
   const z = ZONES[zid];

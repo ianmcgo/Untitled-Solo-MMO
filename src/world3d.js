@@ -72,7 +72,8 @@ function* buildFieldSteps(zone) {
       const horiz = ex.x <= 0 || ex.x + ex.w >= zone.w;
       const lateral = horiz ? Math.abs(py - cy) : Math.abs(px - cx);
       const along = horiz ? (ex.x <= 0 ? -px : px - zone.w) : (ex.y <= 0 ? -py : py - zone.h);
-      if (along > -260) m = Math.max(m, 1 - sstep(70, 130, lateral));
+      const lane = ex.lane || 70, depth = (ex.hall || 220) + 60;
+      if (along > -depth) m = Math.max(m, 1 - sstep(lane - 10, lane + 40, lateral));
     }
     return m;
   };

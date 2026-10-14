@@ -6,6 +6,7 @@ function openMenu(tab) {
   UI.hov = null; UI.modalHelp = null; if (tab !== S.modal) { UI.kbRow = null; UI.kbBtn = null; } if (tab === "quests" && !was) { UI.qCat = null; UI.qSel = null; } if (tab === "shop" && S.modal !== "shop") UI.shopMode = "buy";
   S.modal = tab;
   $("menu").style.display = "block";
+  $("ui").classList.add("modalOn");
   S.keys = {};
   if (typeof VIEW !== "undefined" && VIEW.joy) { VIEW.joy.active = false; VIEW.joy.x = 0; VIEW.joy.y = 0; $("joy").style.display = "none"; }
   UI.sel = null; UI.pick = null; UI.cmp = null;
@@ -19,6 +20,7 @@ function closeModal() {
   if (S.modal === "character") releasePreview();
   S.modal = null;
   $("menu").style.display = "none";
+  $("ui").classList.remove("modalOn");
   sfx("close");
 }
 
@@ -865,7 +867,7 @@ function tabSocial() {
 function socAct(p, ok) { p.then(() => { UI.socMsg = ok || ""; renderModal(); }, e => { UI.socMsg = netAhErr(e); renderModal(); }); }
 
 function tabParty() {
-  let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once per game day (about ' + Math.round(COMPANION_CFG.dayMs / 60000) + ' real minutes). If you can\'t pay, they go back to the Mercenary Hall.</div>';
+  let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once a real day (tap a companion in the Party box to see the countdown or pay early). If you can\'t pay, they go back to the Mercenary Hall.</div>';
   h += '<div style="display:flex;gap:6px;margin-bottom:10px">' + [["assist", "⚔ Assist", "Fight your target"], ["follow", "🚶 Follow", "Stay close, don't attack"], ["hold", "✋ Hold", "Stand ground"]].map(([k, l, d]) => '<button data-a="stance" data-v="' + k + '" title="' + d + '"' + (save.stance === k ? ' class="pri"' : "") + ">" + l + "</button>").join("") + "</div>";
   if (!save.hired.length) return h + '<div class="item"><span class="sub">No companions yet. Brann at the Mercenary Hall in the Outpost hires them out.</span></div>';
   const bagEq = save.inventory.filter(x => ITEMS[x.id].kind === "equip");
@@ -1443,6 +1445,16 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.8.2", date: "2026-10-14", title: "Gate halls and phone layout", items: [
+    "Every area exit now sits at the end of a narrow hall with rock walls on both sides, and you arrive at the inner end of the matching hall, well inside the area, so you can't back out by accident right after arriving.",
+    "Companions of every job now fight in melee while they wait for spells and abilities, as long as it seems safe. They only step back to cast from range when they're hurt or the monster is beating on them.",
+    "Phones: the Status screen fits properly. Rows no longer squash together, text is smaller, Play Time reads like 0:07:12, and Guild Rank and Guild Points are separate rows. The main menu is narrower and hides while a window is open.",
+    "Back button (◀) on the Status list returns to the main menu. On phones, the Menu button also steps back (window → main menu → closed), and list windows show a ✕ to close.",
+    "Companions you hire now stay with you when you log out and back in (a bug was dropping them on load).",
+    "Wages are now paid once per real day (24 hours) instead of once per game day, at the same amount as the hiring fee. Tap a companion in the Party box to see the countdown to their next wage and how much it is, pay early, or dismiss them.",
+    "Clicking or tapping anywhere outside the target command box closes it.",
+    "Fixed the test harness login for the new Play Online / Play Offline screen."
+  ] },
   { v: "9.8.1", date: "2026-10-14", title: "Smarter companions", items: [
     "Companions now use any of their job's abilities and spells sensibly: self-boosts when a fight starts, debuffs like Dia, Slow, Paralyze and Blight on the target while they have MP, nukes picked for the target's weakness, and emergency cures when someone is in trouble and no healer is free.",
     "Support companions (such as a support White Mage) now join the fight in melee when nobody needs healing. Healers stay back and keep casting.",
@@ -1716,6 +1728,7 @@ const UPDATES = [
     "Win one of five new level 15 treasures (Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle, Tidebreaker Bow) plus crystals and XP. New achievement: Tidebreaker.",
     "Chapel Sigils drop from the Drowned and are sold by Vela.",
     "Screen changes: your XP bar now sits under your health in your party frame; on phones the chat log sits in the bottom-left corner and the action bar stacks three wide on the right.",
+    "Area exits are at the end of walled halls; you arrive at the inner end of the hall.",
     "Monster spawn points are at least 3 map squares apart and never within 2 squares of an entrance or exit. Each point takes turns between the creatures that live in that part of the area.",
     "Monsters only show on the minimap when they're near you (or fighting your party, or targeted).",
     "Character creation now starts as male with the second-lightest skin tone."
@@ -1980,7 +1993,7 @@ function tabHelp() {
   ]) + ul([
     "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
-    "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per game day (about 58 real minutes). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
+    "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per real day (24 hours). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));
   h += sec("📈 Experience", ul([
     "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
@@ -2073,7 +2086,7 @@ function tabHelp() {
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
     "<b>Gear:</b> give companions equipment from your bag in the Party window. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
-    "<b>Wages:</b> the hiring fee covers the first game day; after that each companion takes about 15% of their fee per game day. Wages wait until a fight ends. Time away from the game is free."
+    "<b>Wages:</b> the hiring fee covers the first real day (24 hours); after that each companion takes the same amount each day. Wages wait until a fight ends. Tap a companion in the Party box to see how long until their next wage and how much, pay early, or dismiss them."
   ]));
   h += sec("🎣 Fishing", ul([
     "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait.",
@@ -2298,7 +2311,7 @@ function playerTitle() {
 function fmtPlay(sec) {
   sec = Math.floor(sec || 0);
   const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
-  return (d ? d + " day" + (d > 1 ? "s " : " ") : "") + h + " hr " + m + " min " + s + " sec";
+  return (d ? d + "d " : "") + h + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
 }
 function statusLeftHTML(noLv) {
   const p = player, j = save.jobs[save.mainJob], need = xpNeed(j.lv), g = gearBonus();
@@ -2331,8 +2344,8 @@ function statusPanelHTML(k) {
     const rc = RACES[save.look.race] || RACES.human, gr = guildRank(), nx = GUILD_RANKS[gr + 1], tot = save.guild.total || 0;
     const pct = nx ? Math.round((tot - GUILD_RANKS[gr][1]) / (nx[1] - GUILD_RANKS[gr][1]) * 100) : 100;
     const ch = storyChapter();
-    let h = sec("Profile", kv("Race:", esc(rc.name || save.look.race)) + kv("Home Point:", esc(ZONES[save.home.zone] ? ZONES[save.home.zone].name : "—")) + kv("Guild Rank:", esc(GUILD_RANKS[gr][0]) + '<span class="stSp">Guild Points</span>' + (save.guild.gp || 0)) + '<div class="stBar wide"><span style="width:' + pct + '%"></span></div>');
-    h += sec("Adventure", kv("Story:", ch ? esc(ch.title || ch.name || "Chapter " + (save.story.ch + 1)) : "Complete") + kv("Achievements:", Object.keys(save.ach || {}).length + " / " + ACHIEVEMENTS.length) + kv("Monsters defeated:", (save.stats.kills || 0).toLocaleString()));
+    let h = sec("Profile", kv("Race:", esc(rc.name || save.look.race)) + kv("Home Point:", esc(ZONES[save.home.zone] ? ZONES[save.home.zone].name : "—")) + kv("Guild Rank:", esc(GUILD_RANKS[gr][0])) + kv("Guild Points:", (save.guild.gp || 0).toLocaleString()) + '<div class="stBar wide"><span style="width:' + pct + '%"></span></div>');
+    h += sec("Adventure", kv("Story:", ch ? esc(ch.title || ch.name || "Chapter " + (save.story.ch + 1)) : "Complete") + kv("Achievements:", Object.keys(save.ach || {}).length + " / " + ACHIEVEMENTS.length) + kv("Defeated:", (save.stats.kills || 0).toLocaleString()));
     return h;
   }
   if (k === "jobs") {
@@ -2348,8 +2361,8 @@ function statusPanelHTML(k) {
     for (const [g, l] of [["mining", "Mining"], ["logging", "Logging"], ["harvesting", "Harvesting"]]) rows.push(row(l, save.gatherSkill[g] || 0));
     return sec("Craft Skills", rows.join(""));
   }
-  if (k === "cur") return sec("Currencies", kv("Crystals:", (save.gil || 0).toLocaleString()) + kv("Guild Points:", (save.guild.gp || 0).toLocaleString()) + kv("Guild Points earned:", (save.guild.total || 0).toLocaleString()) + kv("Bounties finished:", save.stats.bounties || 0));
-  if (k === "time") return sec("Play Time", kv("Total:", fmtPlay(save.playSec)) + kv("Character made:", new Date(save.created || Date.now()).toLocaleDateString()));
+  if (k === "cur") return sec("Currencies", kv("Crystals:", (save.gil || 0).toLocaleString()) + kv("Guild Points:", (save.guild.gp || 0).toLocaleString()) + kv("Points earned:", (save.guild.total || 0).toLocaleString()) + kv("Bounties:", save.stats.bounties || 0));
+  if (k === "time") return sec("Play Time", kv("Total:", fmtPlay(save.playSec)) + kv("Started:", new Date(save.created || Date.now()).toLocaleDateString()));
   return "";
 }
 function renderStatusOv() {

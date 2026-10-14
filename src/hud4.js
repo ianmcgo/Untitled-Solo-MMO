@@ -294,6 +294,16 @@ function partyRows() {
   if (typeof NET_PT === "undefined" || !NET_PT.id) return S.party;
   return S.party.concat(netPartyList().map(m => { m.kind = "netmember"; return m; }));
 }
+function companionInfo(p) {
+  const id = p.mercId, m = MERCS[id];
+  const due = save.mercPaid[id] || Date.now() + COMPANION_CFG.dayMs, left = Math.max(0, due - Date.now());
+  const h = Math.floor(left / 3600000), mn = Math.floor(left % 3600000 / 60000);
+  const q = m.name + " · " + JOBS[m.job].name + " Lv" + p.lv + ". Next wage " + mercWage(id) + " crystals in " + h + "h " + String(mn).padStart(2, "0") + "m (you have " + save.gil.toLocaleString() + ").";
+  promptChoice(q, [
+    { label: "Pay now (" + mercWage(id) + " crystals)", fn: () => { closeDialog(); const w = mercWage(id); if (save.gil < w) { log("You don't have enough crystals.", "sys"); sfx("error"); return; } save.gil -= w; save.mercPaid[id] = Math.max(Date.now(), save.mercPaid[id] || 0) + COMPANION_CFG.dayMs; log("You pay " + m.name + " another day's wage (" + w + " crystals).", "sys"); sfx("coin"); saveGame(); } },
+    { label: "Dismiss " + m.name, fn: () => { closeDialog(); gameConfirm("Dismiss " + m.name + "?", "They'll go back to the Mercenary Hall.", () => dismissMerc(id), { yes: "Dismiss" }); } }
+  ]);
+}
 function buildParty() {
   const el = $("party");
   el.innerHTML = "";
@@ -306,6 +316,7 @@ function buildParty() {
     if (p.kind === "netmember") row.classList.add("net");
     row.onclick = () => {
       sfx("select");
+      if (p.mercId && MERCS[p.mercId]) { setTarget(p); companionInfo(p); return; }
       if (p.kind !== "netmember") { setTarget(p); return; }
       const o = S.others && S.others.get(p.id);
       if (o) { setTarget(o); tgtCmdOpen(o); } else log(p.name + " is in " + (ZONES[p.zone] ? ZONES[p.zone].name : "another area") + ".", "sys");
@@ -960,11 +971,12 @@ function initHud() {
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
+  document.addEventListener("pointerdown", e => { if (UI.cmd && !e.target.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose(); }, true);
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
-  $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) closeModal(); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
+  $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
   $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
-  $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
+  $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if (v === "back") { mainCmdKey("escape"); return; } if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
   $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });
   $("mCmd").addEventListener("mouseover", e => { const b = e.target.closest("[data-mc]"); if (!b || !UI.mm || isNaN(+b.dataset.mc)) return; const i = +b.dataset.mc; if (UI.mm.sel !== i) { UI.mm.sel = i; $("mCmd").querySelectorAll(".ffb").forEach((x, k) => x.classList.toggle("sel", k === i)); UI.ffHelp = mainCmdHelp(mainCmdItems()[i]); if (UI.mm.sub) renderStatusOv(); } });
   $("btnChat").onclick = () => chatToggle();
@@ -1130,7 +1142,7 @@ function renderMainCmd() {
   if (!el || !m) return;
   const items = mainCmdItems();
   m.sel = clamp(m.sel, 0, items.length - 1);
-  let h = m.sub === "status" ? '<div class="ffMHead sub"><span>Status</span></div>' : '<div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>Menu ' + (m.page + 1) + "/2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
+  let h = m.sub === "status" ? '<div class="ffMHead sub"><button class="pg" data-mc="back">◀</button><span>Status</span><span style="width:26px"></span></div>' : '<div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>Menu ' + (m.page + 1) + "/2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
   items.forEach((it, i) => { h += '<button data-mc="' + i + '" class="ffb' + (i === m.sel ? " sel" : "") + (it[1] === "home" ? " gold" : "") + '"><span class="cur">➤</span><span class="lb">' + esc(it[0]) + "</span></button>"; });
   el.innerHTML = h;
   el.classList.add("on");
