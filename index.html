@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.10.0 · built 2026-10-14 01:21 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.11.0 · built 2026-10-14 01:31 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14609,13 +14609,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.10.0 · built 2026-10-14 01:21 PDT";
+const BUILD_INFO = "v9.11.0 · built 2026-10-14 01:31 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.11.0", date: "2026-10-14", title: "Water", items: [
+    "Lakes and ponds have a bluer, deeper tint instead of looking grey, and calmer reflections.",
+    "A soft band of foam laps around every shoreline and slowly drifts.",
+    "Little ripples spread across the water now and then.",
+    "Lakes close to a cliff get a waterfall pouring down into them, with spray at the bottom."
   ] },
   { v: "9.10.0", date: "2026-10-14", title: "Plants and props", items: [
     "A second kind of broadleaf tree with a taller trunk, branching limbs and a fuller, layered canopy.",
@@ -15426,7 +15432,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.10.0";
+const GAME_VERSION = "9.11.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -16940,7 +16946,7 @@ function buildExits(field, root) {
 
 function buildWater(field, root) {
   const z = field.zone;
-  if (!z.water || !z.water.length) { W3.water = null; return; }
+  if (!z.water || !z.water.length) { W3.water = null; W3.waterFx = []; return; }
   const geos = z.water.map(w => {
     const g = new THREE.CircleGeometry((w.r + 26) * U, 64);
     g.translate(w.x * U, -w.y * U, 0);
@@ -16965,7 +16971,7 @@ function buildWater(field, root) {
     const res = W3.quality === "high" ? 512 : 256;
     water = new THREE.Water(geo, {
       textureWidth: res, textureHeight: res, waterNormals: normals, sunDirection: new THREE.Vector3(0.7, 0.7, 0), sunColor: 0xffffff,
-      waterColor: cave ? 0x061418 : 0x0f3a45, distortionScale: 2.2, fog: true, alpha: 0.94
+      waterColor: cave ? 0x0a2228 : 0x1e5a68, distortionScale: 1.6, fog: true, alpha: 0.92
     });
     water.material.uniforms.size.value = 3.5;
   }
@@ -16975,6 +16981,97 @@ function buildWater(field, root) {
   water.renderOrder = 1;
   root.add(water);
   W3.water = water;
+  W3.waterFx = [];
+  if (z.palette === "snow") return;
+  const foamT = foamTex();
+  for (const wt of z.water) {
+    const r0 = (wt.r + 26) * U;
+    const rg = new THREE.RingGeometry(r0 - 1.6, r0 + 0.4, 72, 1);
+    const fm = new THREE.MeshBasicMaterial({ map: foamT.clone(), transparent: true, depthWrite: false, opacity: cave ? 0.3 : 0.7, fog: true, side: THREE.DoubleSide });
+    fm.map.needsUpdate = true; fm.map.repeat.set(10, 1);
+    const ring = new THREE.Mesh(rg, fm);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(wt.x * U, field.waterLevel + 0.03, wt.y * U);
+    ring.renderOrder = 2;
+    root.add(ring);
+    W3.waterFx.push({ kind: "foam", m: ring, ph: Math.random() * 6 });
+    const rip = [];
+    for (let i = 0; i < (W3.quality === "low" ? 2 : 4); i++) {
+      const pm = new THREE.Mesh(new THREE.RingGeometry(0.8, 1, 32), new THREE.MeshBasicMaterial({ color: 0xe8f4ff, transparent: true, opacity: 0, depthWrite: false, fog: true, side: THREE.DoubleSide }));
+      pm.rotation.x = -Math.PI / 2;
+      pm.renderOrder = 2;
+      root.add(pm);
+      rip.push({ m: pm, t: Math.random() * 3, cx: wt.x, cy: wt.y, r: wt.r * 0.8 });
+    }
+    W3.waterFx.push({ kind: "ripples", list: rip, lvl: field.waterLevel });
+    const edge = Math.min(wt.x, wt.y, z.w - wt.x, z.h - wt.y);
+    if (!cave && edge < wt.r + 420 && themeOf(z) === "field") {
+      const sides = [[wt.x, 0, 0, -1], [wt.y, 1, 0, -1], [z.w - wt.x, 0, 1, 1], [z.h - wt.y, 1, 1, 1]].sort((a, b) => a[0] - b[0])[0];
+      const dirX = sides[1] === 0 ? sides[3] : 0, dirY = sides[1] === 1 ? sides[3] : 0;
+      const fx = wt.x + dirX * (wt.r + 10), fy = wt.y + dirY * (wt.r + 10);
+      const top = field.heightAt(fx + dirX * 140, fy + dirY * 140), base = field.waterLevel;
+      if (top - base > 2.5) {
+        const hgt = top - base + 0.5, wid = 5;
+        const ft = fallTex();
+        const fg = new THREE.PlaneGeometry(wid, hgt, 1, 6);
+        const pa = fg.attributes.position;
+        for (let i = 0; i < pa.count; i++) { const yy = pa.getY(i) / hgt + 0.5; pa.setZ(i, -Math.pow(1 - yy, 2) * 1.8); }
+        const fmat = new THREE.MeshBasicMaterial({ map: ft, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide, fog: true });
+        const fall = new THREE.Mesh(fg, fmat);
+        fall.position.set((fx + dirX * 18) * U, base + hgt / 2 - 0.2, (fy + dirY * 18) * U);
+        fall.rotation.y = Math.atan2(dirX, dirY);
+        fall.renderOrder = 3;
+        root.add(fall);
+        const mist = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0.35, depthWrite: false }));
+        mist.scale.set(9, 4, 1);
+        mist.position.set(fx * U, base + 1.2, fy * U);
+        root.add(mist);
+        W3.waterFx.push({ kind: "fall", tex: ft, mist });
+      }
+    }
+  }
+}
+
+function foamTex() {
+  if (TEXLIB.cache.foam) return TEXLIB.cache.foam;
+  const c = document.createElement("canvas"); c.width = 256; c.height = 32;
+  const g = c.getContext("2d");
+  for (let x = 0; x < 256; x++) for (let y = 0; y < 32; y++) {
+    const n = NOISE.fbm(x / 256 * 16, y / 32 * 2, 3, 16, 77);
+    const a = Math.max(0, (y / 32) * 1.2 - 0.15) * sstep(0.35, 0.7, n + y / 64);
+    g.fillStyle = "rgba(255,255,255," + a.toFixed(3) + ")"; g.fillRect(x, y, 1, 1);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = THREE.RepeatWrapping;
+  TEXLIB.cache.foam = t;
+  return t;
+}
+function fallTex() {
+  const c = document.createElement("canvas"); c.width = 64; c.height = 256;
+  const g = c.getContext("2d");
+  for (let x = 0; x < 64; x++) for (let y = 0; y < 256; y++) {
+    const n = NOISE.fbm(x / 64 * 6, y / 256 * 2, 3, 6, 91);
+    const edge = sstep(0, 10, x) * sstep(64, 54, x);
+    const a = (0.35 + n * 0.6) * edge;
+    const v = 200 + n * 55;
+    g.fillStyle = "rgba(" + (v * 0.85 | 0) + "," + (v * 0.95 | 0) + "," + (v | 0) + "," + a.toFixed(3) + ")"; g.fillRect(x, y, 1, 1);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+function updateWaterFx(dt) {
+  for (const f of W3.waterFx || []) {
+    if (f.kind === "foam") { f.m.material.map.offset.x += dt * 0.01; f.m.material.opacity = (f.m.material.userData.base || (f.m.material.userData.base = f.m.material.opacity)) * (0.75 + 0.25 * Math.sin(S.time * 0.8 + f.ph)); }
+    else if (f.kind === "fall") { f.tex.offset.y += dt * 0.9; f.mist.material.opacity = 0.28 + Math.sin(S.time * 2) * 0.06; }
+    else if (f.kind === "ripples") for (const r of f.list) {
+      r.t += dt;
+      if (r.t > 3.2) { r.t = 0; const a = Math.random() * 6.28, d = Math.sqrt(Math.random()) * r.r; r.m.position.set((r.cx + Math.cos(a) * d) * U, f.lvl + 0.04, (r.cy + Math.sin(a) * d) * U); }
+      const k = r.t / 3.2, sc = 0.3 + k * 2.4;
+      r.m.scale.set(sc, sc, sc);
+      r.m.material.opacity = (1 - k) * 0.45;
+    }
+  }
 }
 
 function makeStars() {
@@ -17353,6 +17450,7 @@ function updateSky(force) {
     W3.water.userData.lowNormal.offset.set(S.time * 0.01, S.time * 0.007);
   }
   for (const m of W3.grassMats) if (m.userData.shader) m.userData.shader.uniforms.uTime.value = S.time;
+  updateWaterFx(1 / 60);
   W3.envTimer -= 1 / 60;
   if (force || W3.envTimer <= 0 || Math.abs(sunY - W3.lastSunY) > 0.03) {
     W3.envTimer = 10;
