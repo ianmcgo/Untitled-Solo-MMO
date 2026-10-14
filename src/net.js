@@ -159,7 +159,7 @@ function netTick() {
   const now = Date.now();
   if (now - NET.lastSave > NET_CFG.saveEvery && Object.keys(NET.dirty).length) netFlush();
   netTrack();
-  if (now - NET.beatAt > NET_CFG.beat) { NET.beatAt = now; NET.sb.rpc("touch_player").then(() => {}, () => {}); }
+  if (now - NET.beatAt > NET_CFG.beat) { NET.beatAt = now; const t0 = performance.now(); NET.sb.rpc("touch_player").then(() => { NET.ping = Math.round(performance.now() - t0); }, () => {}); }
   if (S.charId && now - (NET.ahAt || 0) > 60000) { NET.ahAt = now; netAhWatch(); }
 }
 
@@ -276,7 +276,7 @@ function netRtTick() {
   const sig = JSON.stringify(p);
   const gap = sig === NET_RT.lastPos ? 2000 : 120;
   if (now - NET_RT.lastSend < gap) return;
-  NET_RT.lastSend = now; NET_RT.lastPos = sig;
+  NET_RT.lastSend = now; NET_RT.lastPos = sig; NET_RT.sent = (NET_RT.sent || 0) + 1;
   Promise.resolve(NET_RT.zch.send({ type: "broadcast", event: "mv", payload: p })).catch(() => {});
 }
 
@@ -302,6 +302,7 @@ function netOnPresence(state) {
 }
 
 function netOnMove(p) {
+  NET_RT.recv = (NET_RT.recv || 0) + 1;
   if (!p || !p.id || p.id === S.charId || !S.others) return;
   const o = S.others.get(p.id);
   if (!o || !o.job) return;
@@ -387,6 +388,7 @@ const NET_PT = { id: null, ch: null, me: 0, members: new Map(), names: new Map()
 
 function netWorldSend(event, payload) {
   if (!NET_RT.wch) return false;
+  NET_RT.sent = (NET_RT.sent || 0) + 1;
   Promise.resolve(NET_RT.wch.send({ type: "broadcast", event, payload })).catch(() => {});
   return true;
 }
@@ -903,6 +905,7 @@ function netWanted(id) { const t = NET_SH.wants.get(id); return !!t && t > Date.
 function netShareable() { return !!S.zone && !S.zone.battlefield && !S.bf; }
 function netZoneSend(event, payload) {
   if (!NET_RT.zch) return;
+  NET_RT.sent = (NET_RT.sent || 0) + 1;
   Promise.resolve(NET_RT.zch.send({ type: "broadcast", event, payload })).catch(() => {});
 }
 function netHostName() {
@@ -1021,6 +1024,7 @@ function netSnap(now) {
 }
 
 function netOnMs(p) {
+  NET_RT.recv = (NET_RT.recv || 0) + 1;
   if (!p || !NET_SH.on || NET_SH.host || p.id !== NET_SH.hostId || !Array.isArray(p.m)) return;
   const seen = new Set();
   for (const r of p.m) {

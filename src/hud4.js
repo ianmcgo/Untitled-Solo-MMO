@@ -7,7 +7,7 @@ const ACT_ICON = { last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️"
 const SPELL_ICON = { blight: "☠️", drain: "🩸", mind_drain: "🌀", stun: "💫", battle_minuet: "🎵", mending_paeon: "💚", drowsy_lullaby: "💤", wellspring_ballad: "💧", keen_madrigal: "🎯", swift_march: "🥁", mending_paeon2: "💚", battle_minuet2: "🎵", cure3: "✚", banish2: "✴", stone2: "◆", water2: "💧", aero2: "🌀", fire2: "🔥", blizzard2: "❄", ember_sprite: "🔥", frost_sprite: "❄", gale_sprite: "🌪️", cure: "✚", cure2: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡", flash: "✨", slow: "🐌", paralyze: "🧊", protect: "🔰" };
 const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5 };
 const TAB_INFO = {
-  character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Action Bar", "✨", "B"],
+  character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Hotkeys", "✨", "B"],
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
@@ -263,7 +263,7 @@ function buildParty() {
     row.className = "pf glass";
     const job = JOBS[p.job] || { icon: "?", color: "#ccc" };
     row.innerHTML = '<div class="por" style="border-color:' + (p.color || job.color) + '">' + job.icon + "<em></em></div><div><div class=\"top\"><span class=\"nm\"></span><span class=\"jb\"></span></div><div class=\"bars\">" +
-      '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div>' + (p === player ? '<div class="bar xp" title="Experience"><i id="pfXp"></i></div>' : "") + '</div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
+      '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div>' + '</div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
     if (p.kind === "netmember") row.classList.add("net");
     row.onclick = () => {
       sfx("select");
@@ -588,13 +588,14 @@ function gameConfirm(title, text, onYes, opts) {
 }
 
 function tgtCmdOpen(t) {
-  if (!t || (!isMob(t) && t.kind !== "remote") || (isMob(t) && !t.alive)) { tgtCmdClose(); return; }
-  UI.cmd = { t, page: "root", info: "" };
+  if (!t || (!isMob(t) && t.kind !== "remote" && t !== player) || (isMob(t) && !t.alive)) { tgtCmdClose(); return; }
+  UI.cmd = { t, page: "root", info: "", sel: 0 };
   renderTgtCmd();
 }
 
 function tgtCmdClose() {
   UI.cmd = null;
+  UI.ffHelp = "";
   const el = $("tCmd");
   if (el) { el.classList.remove("on"); el.innerHTML = ""; }
 }
@@ -606,65 +607,98 @@ function inspectText(t) {
   return tough + " " + mood + (t.fam.nm ? " It is a notorious monster!" : "");
 }
 
+function cmdHelpOf(a) {
+  if (a.kind === "ma") return SPELLS[a.id].desc || SPELLS[a.id].name;
+  if (a.kind === "ja") return ABILITIES[a.id].desc || ABILITIES[a.id].name;
+  if (a.kind === "ws") return (WEAPON_SKILLS[a.id] && WEAPON_SKILLS[a.id].desc) || "Weapon skill. Needs 1000 TP.";
+  return "";
+}
+
+function cmdItems(c) {
+  const t = c.t, mob = isMob(t), self = t === player, mate = t.kind === "remote" && isMate(t);
+  const it = (key, label, help, o) => Object.assign({ key, label, help }, o || {});
+  if (c.page === "root") {
+    if (mob) {
+      const eng = player.engaged && player.attackTarget === t;
+      return [eng ? it("disengage", "Disengage", "Stop auto-attack and let go of the target.") : it("attack", "Attack", "Start auto-attack."), it("switch", "Switch Target", "Target the next enemy nearby."), it("ma", "Magic", "Cast a spell on the target.", { arrow: true }), it("ja", "Abilities", "Use a job ability or weapon skill.", { arrow: true }), it("items", "Items", "Use an item from your bag.", { arrow: true }), it("check", "Check", "Size up how strong the target is.")];
+    }
+    if (self) return [it("ma", "Magic", "Cast a spell on yourself or your party.", { arrow: true }), it("ja", "Abilities", "Use a job ability.", { arrow: true }), it("items", "Items", "Use an item from your bag.", { arrow: true }), it("rest", player.resting ? "Stand" : "Heal", player.resting ? "Stand up." : "Sit and recover HP and MP quickly."), it("close", "Cancel", "Close this menu.")];
+    return [mate ? it("ma", "Magic", "Cast a spell on your party member.", { arrow: true }) : it("invite", "Invite", "Invite this player to your party."), it("trade", "Trade", "Ask this player to trade."), it("tell", "Tell", "Send this player a private message."), it("check", "Check", "See this player's job and level."), it("close", "Cancel", "Close this menu.")];
+  }
+  let acts = [];
+  if (c.page === "ma") acts = actionList(player).filter(a => a.kind === "ma" && (mob ? SPELLS[a.id].target === "enemy" : self ? SPELLS[a.id].target !== "enemy" : SPELLS[a.id].target === "ally" && (SPELLS[a.id].kind === "heal" || SPELLS[a.id].kind === "buff")));
+  else if (c.page === "ja") acts = actionList(player).filter(a => mob ? a.kind === "ws" || (a.kind === "ja" && ABILITIES[a.id].target === "enemy") : a.kind === "ja" && ABILITIES[a.id].target !== "enemy");
+  else if (c.page === "items") {
+    const seen = new Set();
+    for (const sl of save.inventory) { const I = ITEMS[sl.id]; if (!I || seen.has(sl.id) || !(I.kind === "use" || I.kind === "food")) continue; seen.add(sl.id); acts.push({ kind: "item", id: sl.id, name: I.name + " ×" + invCount(sl.id) }); }
+  }
+  c.acts = acts;
+  const out = acts.map((a, i) => it("act" + i, (a.kind === "item" ? (ITEMS[a.id].icon || "") + " " + a.name : actName(a)), a.kind === "item" ? itemDesc(a.id) : cmdHelpOf(a), { off: a.kind !== "item" && !!checkAction(player, a, t) }));
+  if (!out.length) out.push(it("none", c.page === "items" ? "No usable items" : "Nothing to use", c.page === "ma" ? "You know no spells for this target." : c.page === "ja" ? "You have nothing to use on this target." : "You have no items you can use here.", { off: true }));
+  out.push(it("back", "Back", "Return to the previous menu."));
+  return out;
+}
+
 function renderTgtCmd() {
   const el = $("tCmd"), c = UI.cmd;
   if (!el || !c) return;
+  const items = cmdItems(c);
+  c.items = items;
+  c.sel = clamp(c.sel || 0, 0, items.length - 1);
   const t = c.t;
-  let h = "";
-  const btn = (key, label, cls) => '<button data-tc="' + key + '"' + (cls ? ' class="' + cls + '"' : "") + ">" + label + "</button>";
-  if (t.kind === "remote") {
-    const mate = isMate(t);
-    if (c.page === "root") {
-      h += '<div class="tcHead"><span>' + esc(t.name) + "</span>" + btn("close", "✕") + "</div>";
-      if (mate) h += btn("ma", "✦ Magic", "pri");
-      else h += btn("invite", "👥 Invite", "pri");
-      h += btn("trade", "🤝 Trade") + btn("tell", "💬 Tell") + btn("check", "🔍 Check");
-      if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
-    } else {
-      const acts = actionList(player).filter(a => a.kind === "ma" && SPELLS[a.id].target === "ally" && (SPELLS[a.id].kind === "heal" || SPELLS[a.id].kind === "buff"));
-      c.acts = acts;
-      h += '<div class="tcHead"><span>Magic · ' + esc(t.name) + "</span>" + btn("back", "◂") + "</div>";
-      if (!acts.length) h += '<div class="tcInfo">You know no spells to cast on a party member.</div>';
-      acts.forEach((a, i) => { const why = checkAction(player, a, t); h += btn("act" + i, actIcon(a) + " " + esc(actName(a)), why ? "off" : ""); });
-    }
-    el.innerHTML = h;
-    el.classList.add("on");
-    return;
-  }
-  if (c.page === "root") {
-    const eng = player.engaged && player.attackTarget === t;
-    h += '<div class="tcHead"><span>' + esc(t.name) + "</span>" + btn("close", "✕") + "</div>";
-    h += btn("attack", eng ? "✋ Disengage" : "⚔ Fight", "pri") + btn("ma", "✦ Magic") + btn("ja", "⚡ Abilities") + btn("inspect", "🔍 Inspect");
-    if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
-  } else {
-    const acts = actionList(player).filter(a => c.page === "ma" ? a.kind === "ma" && SPELLS[a.id].target === "enemy" : a.kind === "ws" || (a.kind === "ja" && ABILITIES[a.id].target === "enemy"));
-    c.acts = acts;
-    h += '<div class="tcHead"><span>' + (c.page === "ma" ? "Magic" : "Abilities") + " · " + esc(t.name) + "</span>" + btn("back", "◂") + "</div>";
-    if (!acts.length) h += '<div class="tcInfo">' + (c.page === "ma" ? "You know no spells to use on an enemy." : "You have no abilities to use on an enemy.") + "</div>";
-    acts.forEach((a, i) => { const why = checkAction(player, a, t); h += btn("act" + i, actIcon(a) + " " + esc(actName(a)), why ? "off" : ""); });
-  }
+  const title = c.page === "root" ? (t === player ? save.name : t.name) : c.page === "ma" ? "Magic" : c.page === "ja" ? "Abilities" : "Items";
+  let h = '<div class="ffMHead">' + esc(title) + "</div>";
+  items.forEach((it, i) => { h += '<button data-tc="' + i + '" class="ffb' + (i === c.sel ? " sel" : "") + (it.off ? " off" : "") + '"><span class="cur">➤</span><span class="lb">' + esc(it.label) + "</span>" + (it.arrow ? '<span class="ar">▶</span>' : "") + "</button>"; });
+  if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
   el.innerHTML = h;
   el.classList.add("on");
+  UI.ffHelp = items[c.sel] ? items[c.sel].help : "";
 }
 
-function onTgtCmd(key) {
+function tgtCmdHover(i) {
+  const c = UI.cmd;
+  if (!c || !c.items || c.sel === i) return;
+  c.sel = i;
+  const el = $("tCmd");
+  el.querySelectorAll(".ffb").forEach((b, k) => b.classList.toggle("sel", k === i));
+  UI.ffHelp = c.items[i] ? c.items[i].help : "";
+}
+
+function tgtCmdKey(k) {
   const c = UI.cmd;
   if (!c) return;
-  const t = c.t;
+  const n = (c.items || []).length;
+  if (k === "arrowup") { c.sel = (c.sel - 1 + n) % n; sfx("tab"); renderTgtCmd(); }
+  else if (k === "arrowdown") { c.sel = (c.sel + 1) % n; sfx("tab"); renderTgtCmd(); }
+  else if (k === "enter" || k === "arrowright") onTgtCmd(String(c.sel));
+  else if (k === "arrowleft" || k === "backspace") { if (c.page !== "root") { c.page = "root"; c.sel = 0; sfx("close"); renderTgtCmd(); } else tgtCmdClose(); }
+  else if (k === "escape") tgtCmdClose();
+}
+
+function onTgtCmd(idx) {
+  const c = UI.cmd;
+  if (!c) return;
+  const it = c.items && c.items[+idx];
+  if (!it) return;
+  const t = c.t, key = it.key;
+  if (it.off && key !== "back") { sfx("error"); return; }
   sfx("select");
-  if (key === "close") { tgtCmdClose(); return; }
-  if (key === "back") { c.page = "root"; renderTgtCmd(); return; }
-  if (key === "ma" || key === "ja") { c.page = key; renderTgtCmd(); return; }
+  if (key === "close" || key === "none") { tgtCmdClose(); return; }
+  if (key === "back") { c.page = "root"; c.sel = 0; renderTgtCmd(); return; }
+  if (key === "ma" || key === "ja" || key === "items") { c.page = key; c.sel = 0; renderTgtCmd(); return; }
+  if (key === "check") { c.info = t.kind === "remote" ? t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub && JOBS[t.sub] ? " / " + JOBS[t.sub].name : "") + "." : inspectText(t); if (t.kind !== "remote") log("The " + t.name + ": " + c.info, "sys"); renderTgtCmd(); return; }
+  if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
+  if (key === "disengage") { if (player.engaged) toggleEngage(false); player.engaged = false; player.attackTarget = null; S.chase = false; player.target = null; tgtCmdClose(); return; }
+  if (key === "switch") { tgtCmdClose(); cycleTarget(); return; }
+  if (key === "rest") { tgtCmdClose(); toggleRest(); return; }
   if (key === "invite") { netPartyInvite(t.name); tgtCmdClose(); return; }
   if (key === "trade") { netTradeAsk(t.name); tgtCmdClose(); return; }
-  if (key === "tell") { tgtCmdClose(); const inp = $("chatIn") || document.querySelector("#chat input"); if (inp) { inp.value = "/t " + t.name + " "; inp.focus(); } return; }
-  if (key === "check") { c.info = t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub ? " / " + JOBS[t.sub].name : "") + "."; renderTgtCmd(); return; }
-  if (key === "inspect") { c.info = inspectText(t); log("The " + t.name + ": " + c.info, "sys"); renderTgtCmd(); return; }
-  if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
+  if (key === "tell") { tgtCmdClose(); const inp = $("chatIn"); if (inp) { inp.value = "/t " + t.name + " "; inp.focus(); } return; }
   if (key.startsWith("act")) {
     const a = c.acts && c.acts[+key.slice(3)];
     if (!a) return;
-    player.target = t;
+    if (a.kind === "item") { useItem(a.id); renderTgtCmd(); return; }
+    if (t !== player) player.target = t;
     playerAct(a);
     tgtCmdClose();
   }
@@ -759,7 +793,7 @@ function updateBottom() {
   } else if (player.synth) {
     cb.style.display = "block";
     const c = player.synth;
-    setTxt($("castName"), "Synthesizing " + ITEMS[c.r.out].name + "…");
+    setTxt($("castName"), "Crafting " + ITEMS[c.r.out].name + "…");
     setW($("castFill"), 100 * (S.time - c.start) / (c.end - c.start));
   } else cb.style.display = "none";
   const eng = $("btnEngage");
@@ -818,6 +852,7 @@ function updateHud(dt) {
   UI.phone = window.innerWidth <= 720;
   updateParty();
   updateTarget();
+  updateFF();
   updateBottom();
   watchProgress();
   updateActionBar();
@@ -833,6 +868,7 @@ function initHud() {
   $("pool").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; e.stopPropagation(); if (b.dataset.lot) lotPool(+b.dataset.lot, false); else if (b.dataset.pass) lotPool(+b.dataset.pass, true); UI.poolSig = ""; });
   for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("pool").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("tCmd").addEventListener("click", e => { const b = e.target.closest("[data-tc]"); if (b) { e.stopPropagation(); onTgtCmd(b.dataset.tc); } });
+  $("tCmd").addEventListener("mouseover", e => { const b = e.target.closest("[data-tc]"); if (b) tgtCmdHover(+b.dataset.tc); });
   for (const ev of ["pointerdown", "touchstart", "mousedown"]) $("tCmd").addEventListener(ev, e => e.stopPropagation(), { passive: true });
   $("chatTabs").addEventListener("click", e => {
     const b = e.target.closest("button");
@@ -869,4 +905,65 @@ function initHud() {
   const mm = $("minimap");
   mm.width = mm.height = Math.round(150 * dpr * 1.2);
   initMenu();
+}
+
+function ffDefaultHelp(t) {
+  if (!t) return "";
+  if (t === player) return "Choose a command for yourself.";
+  if (isMob(t)) return player.engaged && player.attackTarget === t ? "Auto-attack is on. Press F or choose Disengage to stop." : claimOk(t) ? "Start auto-attack." : "This monster is claimed by " + claimName(t) + ".";
+  if (t.kind === "npc") return t.crystal ? "Touch the crystal." : "Talk.";
+  if (t.kind === "remote") return "Player commands.";
+  if (isParty(t)) return "Party member.";
+  return "";
+}
+
+function ffMobAttacking(m) { return m && m.alive && m.state === "combat" && m.target && (m.target === player || isParty(m.target) || (m.target.kind === "remote" && isMate(m.target))); }
+
+function updateFF() {
+  const ui = $("ui"), t = player.target;
+  const tOk = !!t && (t === player || t.kind === "npc" || t.kind === "remote" || isParty(t) || (isMob(t) && t.alive && !t.despawned));
+  ui.classList.toggle("hasTop", tOk || !!UI.cmd);
+  if (tOk || UI.cmd) {
+    setTxt($("ffHelp"), UI.cmd ? UI.ffHelp || "" : ffDefaultHelp(t));
+    const now = Date.now();
+    if (now - (UI.netAt || 0) > 1000) {
+      UI.netAt = now;
+      const on = typeof NET !== "undefined" && NET.member;
+      let pct = "—";
+      if (on) {
+        const live = NET_RT.zch && (NET_RT.zch.state === "joined" || NET_RT.zch.state === "joining");
+        const lag = NET.ping || 120;
+        pct = live ? clamp(Math.round(100 - Math.max(0, lag - 150) / 12), 5, 100) + "%" : NET.lastErr ? "0%" : "50%";
+      }
+      setTxt($("ffNetPct"), pct);
+      setTxt($("ffNetS"), "S " + (typeof NET_RT !== "undefined" ? (NET_RT.sent || 0) % 1000 : 0));
+      setTxt($("ffNetR"), "R " + (typeof NET_RT !== "undefined" ? (NET_RT.recv || 0) % 1000 : 0));
+    }
+  }
+  const combat = player.engaged || inCombatWith(player);
+  $("ffStat").classList.toggle("combat", !!combat && player.alive);
+  if (combat) {
+    const rows = $("ffBars").children;
+    const set = (r, v, max) => { setW(r.querySelector("i"), max ? 100 * v / max : 0); setTxt(r.querySelector("b"), String(Math.floor(v))); };
+    set(rows[0], Math.ceil(player.hp), player.maxHp); set(rows[1], player.mp, player.maxMp); set(rows[2], player.tp, CONFIG.tpMax);
+  }
+  const icons = [];
+  if (blessed()) icons.push(['<div class="ffIc crys" title="City Blessing · ' + fmtDur(save.blessing - Date.now()) + '"></div>', "bless"]);
+  if (save.food && save.food.until > Date.now() && ITEMS[save.food.id]) icons.push(['<div class="ffIc" title="' + esc(ITEMS[save.food.id].name) + " · " + fmtDur(save.food.until - Date.now()) + '">' + (ITEMS[save.food.id].icon || "🍖") + "</div>", "food" + save.food.id]);
+  const BAD = { slow: 1, paralyze: 1, poison: 1, sleep: 1, bind: 1, blind: 1, silence: 1, weight: 1, dia: 1, bio: 1, stun: 1, blight: 1, flash: 1 };
+  for (const k of Object.keys(player.buffs || {})) { if (k === "blessing") continue; const b = player.buffs[k]; icons.push(['<div class="ffIc' + (BAD[k] ? " bad" : "") + '" title="' + esc(BUFF_NAMES[k] || k) + (b && b.until ? " · " + Math.ceil(b.until - S.time) + "s" : "") + '">' + (BUFF_ICONS[k] || "•") + "</div>", k]); }
+  if (player.resting) icons.push(['<div class="ffIc" title="Healing">💤</div>', "rest"]);
+  const sig = icons.map(i => i[1]).join(",");
+  if (sig !== UI.ffIconSig) { UI.ffIconSig = sig; $("ffIcons").innerHTML = icons.map(i => i[0]).join(""); }
+  const side = $("ffSide");
+  const showT = tOk && t !== player;
+  side.classList.toggle("hasT", showT);
+  $("target").style.display = showT ? "block" : "none";
+  if (showT && isMob(t)) {
+    const atk = ffMobAttacking(t), cs = claimState(t);
+    $("tName").style.color = atk ? "#ff5a4a" : cs === "other" ? "#c77dff" : "#7dff8a";
+  }
+  $("target").classList.toggle("locked", showT && isMob(t) && player.engaged && player.attackTarget === t);
+  const solo = S.party.length <= 1 && !(typeof NET_PT !== "undefined" && NET_PT.id);
+  setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
 }

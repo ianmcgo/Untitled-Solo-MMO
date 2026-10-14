@@ -66,6 +66,33 @@ function statDeltaHTML(base, next, compact) {
   return out.length ? out.join(compact ? " " : "") : '<span class="sub">No stat change</span>';
 }
 
+function ffStatusBlock() {
+  const p = player, j = save.jobs[save.mainJob], need = xpNeed(j.lv);
+  const gear = SLOTS.map(sl => save.gear[sl]).filter(id => id && ITEMS[id] && ITEMS[id].kind === "equip");
+  const ilv = gear.length ? Math.round(gear.reduce((n, id) => n + (ITEMS[id].lv || 1), 0) / gear.length) : 0;
+  const row = (l, v, cls) => '<div class="ffr' + (cls ? " " + cls : "") + '"><em>' + l + "</em><b>" + v + "</b></div>";
+  let h = '<div class="ffStatus">';
+  h += '<div class="ffr nm"><b>' + esc(save.name || "Adventurer") + "</b></div>";
+  h += row("Lv" + p.lv, esc(JOBS[p.job].name));
+  if (p.sub && JOBS[p.sub]) h += row("Lv" + Math.floor(p.lv / 2), esc(JOBS[p.sub].name));
+  h += row("Ilv", ilv + ' <span class="su">Su —</span>');
+  h += '<div class="ffsep"></div>' + row("HP", Math.ceil(p.hp) + " / " + p.maxHp, "hp") + row("MP", Math.floor(p.mp) + " / " + p.maxMp, "mp") + row("TP", Math.floor(p.tp), "tp");
+  h += '<div class="ffsep"></div>';
+  for (const [k, l] of [["str", "STR"], ["dex", "DEX"], ["vit", "VIT"], ["agi", "AGI"], ["int", "INT"], ["mnd", "MND"], ["chr", "CHR"]]) h += row(l, p.stats[k] != null ? p.stats[k] : "—", "at");
+  h += '<div class="ffsep"></div>' + row("Level", j.lv) + row("EXP", need ? j.xp : "—") + row("NEXT LEVEL", need ? need - j.xp : "MAX", "nx");
+  return h + "</div>";
+}
+
+function ffJobLevels() {
+  const known = Object.keys(JOBS).filter(j => !JOBS[j].advanced || (save.jobsUnlocked && save.jobsUnlocked[j]));
+  let h = '<div class="ffStatus ffJobs"><div class="ffHead"><span>Job Levels</span></div><div class="ffJG">';
+  for (const j of known) {
+    const lv = save.jobs[j] ? save.jobs[j].lv : 1;
+    h += '<div class="ffr' + (j === save.mainJob ? " main" : j === save.subJob ? " sub" : "") + '"><em>' + esc(JOBS[j].name) + "</em><b>" + lv + "</b></div>";
+  }
+  return h + "</div></div>";
+}
+
 function tabCharacter() {
   const s = player.stats;
   const cmp = UI.cmp && ITEMS[UI.cmp] ? statsFor(Object.assign({}, save.gear, { [ITEMS[UI.cmp].slot]: UI.cmp })) : null;
@@ -76,6 +103,7 @@ function tabCharacter() {
     h += '<div class="gslot ' + (id ? rarityOf(id) : "") + '" data-a="slotinv" data-v="' + slot + '" title="' + (id ? esc(ITEMS[id].name + " — " + itemDesc(id)) : "Empty") + '"><div class="sl">' + SLOT_NAMES[slot] + '</div><div class="ic">' + (id ? ITEMS[id].icon || "◻" : "·") + '</div><div class="nm">' + (id ? esc(ITEMS[id].name) : "—") + "</div></div>";
   }
   h += '<div class="gslot" data-tab="inventory"><div class="sl">Bag</div><div class="ic">🎒</div><div class="nm">' + save.inventory.length + "/" + CONFIG.inventorySize + "</div></div></div></div><div>";
+  h += ffStatusBlock() + ffJobLevels();
   h += "<h3>Attributes" + (cmp ? ' <span class="sub">· comparing ' + esc(ITEMS[UI.cmp].name) + "</span>" : "") + '</h3><table class="statT">';
   for (const [k, l] of STAT_ROWS) {
     let extra = "";
@@ -293,9 +321,8 @@ function tabInventory() {
   if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].slot === UI.slotFilter);
   for (const { s, i } of list) {
     const it = ITEMS[s.id];
-    h += '<button class="cell ' + rarityOf(s.id) + (UI.sel === i ? " sel" : "") + '" data-a="sel" data-v="' + i + '" title="' + esc(it.name) + '"><span class="ic">' + (it.icon || "📦") + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
+    h += '<button class="cell ' + rarityOf(s.id) + (UI.sel === i ? " sel" : "") + '" data-a="sel" data-v="' + i + '" title="' + esc(it.name) + '"><span class="ic">' + (it.icon || "📦") + '</span><span class="inm">' + esc(it.name) + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
   }
-  if (UI.filter === "all" && !UI.slotFilter) for (let k = save.inventory.length; k < CONFIG.inventorySize; k++) h += '<div class="cell empty"></div>';
   h += "</div>";
   const s = save.inventory[UI.sel];
   if (s) {
@@ -318,24 +345,29 @@ function tabInventory() {
   return h;
 }
 
+const CRAFT_RANKS = [[0, "Amateur"], [10, "Recruit"], [20, "Initiate"], [30, "Novice"], [40, "Apprentice"], [50, "Journeyman"], [60, "Craftsman"], [70, "Artisan"], [80, "Adept"], [90, "Veteran"]];
+function craftRank(v) { let r = CRAFT_RANKS[0][1]; for (const [lv, n] of CRAFT_RANKS) if (v >= lv) r = n; return r; }
+function ffSkillPanels() {
+  const cur = sk => Math.floor(Math.min((save.skills[player.job] || {})[sk] || 0, skillCap(player, sk)));
+  const panel = (title, rows, two) => '<div class="ffStatus ffSk' + (two ? " two" : "") + '"><div class="ffHead"><span>' + title + '</span></div><div class="ffJG">' + rows.join("") + "</div></div>";
+  const r = (n, v, extra) => '<div class="ffr"><em>' + esc(n) + '</em><b class="bl">' + v + (extra ? ' <span class="cap">' + extra + "</span>" : "") + "</b></div>";
+  const comb = COMBAT_SKILLS.filter(sk => skillCap(player, sk) > 0).map(sk => r(SKILL_NAMES[sk], cur(sk)));
+  const known = MAGIC_SKILLS.filter(sk => skillCap(player, sk) > 0 && actionList(player).some(a => a.kind === "ma" && spellSkill(SPELLS[a.id]) === sk));
+  const magic = known.map(sk => r(SKILL_NAMES[sk].replace(" Magic", ""), cur(sk)));
+  let h = '<div class="ffPanels">';
+  if (comb.length) h += panel("Combat Skills", comb, true);
+  if (magic.length) h += panel("Magic Skills", magic, true);
+  const crafts = Object.keys(CRAFTS).map(c => { const v = Math.floor(craftSkill(c)); return '<div class="ffr cr"><em>' + esc(CRAFTS[c].name) + '</em><b class="bl">' + craftRank(v) + '</b><b class="lv">(' + v + ")</b></div>"; });
+  crafts.unshift('<div class="ffr cr"><em>Fishing</em><b class="bl">' + craftRank(save.gatherSkill.fishing || 0) + '</b><b class="lv">(' + (save.gatherSkill.fishing || 0) + ")</b></div>");
+  h += '<div class="ffStatus ffSk craft"><div class="ffHead"><span>Craft Skills</span></div>' + crafts.join("") + "</div>";
+  return h + "</div>";
+}
+
 function tabSkills() {
   let h = '<div class="sub" style="margin-bottom:10px">Skills rise as you use them, up to a cap set by your job and level. Each job keeps its own skills. Weapon skills unlock at weapon skill 5, 22, 40 and 75.</div>';
-  h += "<h3>Combat</h3>";
-  const row = sk => {
-    const cap = skillCap(player, sk);
-    if (cap <= 0) return "";
-    const cur = Math.min((save.skills[player.job] || {})[sk] || 0, cap);
-    const next = Object.values(WEAPON_SKILLS).filter(w => w.wtype === sk && w.skill > Math.floor(cur)).sort((a, b) => a.skill - b.skill)[0];
-    return '<div class="item"><div style="flex:1"><div>' + SKILL_NAMES[sk] + (sk === player.stats.wtype ? ' <span class="sub">· equipped</span>' : "") + '</div><div class="bar tp" style="margin:4px 0 2px;height:6px"><i style="width:' + (100 * cur / cap).toFixed(1) + '%"></i></div><div class="d">' + (next ? "Next: " + next.name + " at " + next.skill : cur >= cap ? "Capped for this level" : "") + '</div></div><span style="min-width:70px;text-align:right">' + cur.toFixed(1) + " / " + cap + "</span></div>";
-  };
-  for (const sk of COMBAT_SKILLS) h += row(sk);
-  const mg = MAGIC_SKILLS.map(row).join("");
-  if (mg) h += "<h3>Magic</h3>" + mg;
-  h += "<h3>Gathering and fishing</h3>";
-  for (const [k, label, cap] of [["mining", "Mining", 20], ["logging", "Logging", 20], ["harvesting", "Harvesting", 20], ["fishing", "Fishing", FISH_CFG.cap]]) {
-    const v = save.gatherSkill[k] || 0;
-    h += '<div class="item"><div style="flex:1"><div>' + label + '</div><div class="bar tp" style="margin:4px 0"><i style="width:' + (100 * v / cap) + '%"></i></div></div><span class="sub">' + v.toFixed(1) + " / " + cap + "</span></div>";
-  }
+  h += ffSkillPanels();
+  const g = [["mining", "Mining"], ["logging", "Logging"], ["harvesting", "Harvesting"]].map(([k, l]) => '<div class="ffr cr"><em>' + l + '</em><b class="bl">' + craftRank(save.gatherSkill[k] || 0) + '</b><b class="lv">(' + (save.gatherSkill[k] || 0) + ")</b></div>");
+  h += '<div class="ffPanels"><div class="ffStatus ffSk craft"><div class="ffHead"><span>Gathering Skills</span></div>' + g.join("") + "</div></div>";
   return h;
 }
 
@@ -469,7 +501,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "names", "Action names " + (s.names !== false ? "on" : "off"), s.names !== false) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + "</div>";
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -503,7 +535,46 @@ function tabCredits() {
   return h;
 }
 
-function tabCraft() {
+const CRYSTAL_WORD = { fire_crystal: "Heat", wind_crystal: "Wind", earth_crystal: "Earth", water_crystal: "Water", ice_crystal: "Ice", lightning_crystal: "Lightning", light_crystal: "Light", dark_crystal: "Dark" };
+function craftCrystals() { return [...new Set(Object.values(CRAFTS).map(c => c.crystal))]; }
+function csCounts() { const n = {}; for (const id of UI.cs.mats) n[id] = (n[id] || 0) + 1; return n; }
+function csMatches() {
+  const cs = UI.cs, n = csCounts();
+  if (!cs.crystal) return [];
+  return RECIPES.filter(r => CRAFTS[r.craft].crystal === cs.crystal && Object.keys(n).every(id => (r.mats[id] || 0) >= n[id])).map(r => ({ r, exact: Object.keys(r.mats).every(id => n[id] === r.mats[id]) && Object.keys(n).every(id => r.mats[id]) }));
+}
+function tabCrafting() {
+  UI.cs = UI.cs || { crystal: null, mats: [], hover: null };
+  const cs = UI.cs;
+  const slot = (id, a, v, big) => '<button class="csS' + (big ? " big" : "") + (id ? " on" : "") + '" data-a="' + a + '" data-v="' + v + '" title="' + (id ? esc(ITEMS[id].name) : "") + '">' + (id ? '<span>' + (ITEMS[id].icon || "📦") + "</span>" : "") + "</button>";
+  let h = '<div class="csWrap"><div class="csPane"><div class="csHead">Crafting</div><div class="csGrid">';
+  h += '<div class="csCry">' + (cs.crystal ? '<div class="csEl">' + (CRYSTAL_WORD[cs.crystal] || "") + "</div>" : '<div class="csEl dim">Crystal</div>') + slot(cs.crystal, "csclr", "crystal", true) + "</div>";
+  h += '<div class="csMats">';
+  for (let i = 0; i < 8; i++) h += slot(cs.mats[i], "csrem", i);
+  h += '</div><div class="csBtns"><button class="ffb2" data-a="csok">OK</button><button class="ffb2" data-a="cscancel">Cancel</button></div></div></div>';
+  const m = csMatches();
+  h += '<div class="csPane csRes"><div class="csHead">Craft this combination of</div><div class="csList">';
+  if (!cs.crystal) h += '<div class="csHint">Choose a crystal and ingredients from your bag below.</div>';
+  else if (!m.length) h += '<div class="csHint">Nothing you know uses these.</div>';
+  for (const { r, exact } of m.slice(0, 14)) h += '<button class="csRow' + (exact ? " exact" : "") + '" data-a="csfill" data-v="' + r.id + '"><span>' + (ITEMS[r.out].icon || "") + " " + esc(ITEMS[r.out].name) + (r.qty > 1 ? " ×" + r.qty : "") + "</span>" + (exact ? '<span class="st">★</span>' : '<span class="lvl">' + esc(CRAFTS[r.craft].name) + " " + r.lv + "</span>") + "</button>";
+  h += "</div></div></div>";
+  const hv = cs.hover && ITEMS[cs.hover] ? cs.hover : null;
+  h += '<div class="csDesc">' + (hv ? '<span class="ic">' + (ITEMS[hv].icon || "📦") + "</span><div><b>" + esc(ITEMS[hv].name) + "</b><div>" + esc(itemDesc(hv)) + "</div></div>" : '<div class="dim">Tap an item to see what it is.</div>') + "</div>";
+  if (UI.craftMsg) h += '<div class="sub" style="color:#ffd070;margin:6px 0">' + esc(UI.craftMsg) + "</div>";
+  const n = csCounts();
+  const usable = [...new Set(save.inventory.map(x => x.id))].filter(id => craftCrystals().includes(id) || RECIPES.some(r => r.mats[id]));
+  h += '<h3>Your bag</h3><div class="inv csBag">';
+  if (!usable.length) h += '<div class="sub" style="padding:6px">No crystals or crafting materials in your bag.</div>';
+  for (const id of usable) { const left = invCount(id) - (n[id] || 0) - (cs.crystal === id ? 1 : 0); h += '<button class="cell' + (left <= 0 ? " off" : "") + '" data-a="csadd" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="inm">' + esc(ITEMS[id].name) + '</span><span class="q">' + left + "</span></button>"; }
+  h += "</div>";
+  h += '<div class="csSk">' + Object.keys(CRAFTS).map(c => '<span>' + CRAFTS[c].icon + " " + CRAFTS[c].name + ' <b>' + craftRank(Math.floor(craftSkill(c))) + "</b> (" + Math.floor(craftSkill(c)) + ")</span>").join("") + '</div><div style="margin-top:8px"><button data-a="craftbook">' + (UI.craftBook ? "Hide recipe notes" : "📜 Recipe notes") + "</button></div>";
+  if (UI.craftBook) h += tabCraftBook();
+  return h;
+}
+
+function tabCraft() { return tabCrafting(); }
+
+function tabCraftBook() {
   if (!UI.craft) UI.craft = "smithing";
   const c = UI.craft;
   let h = '<div class="invTop">' + Object.keys(CRAFTS).map(k => '<button data-a="craftsel" data-v="' + k + '"' + (k === c ? ' class="on"' : "") + ">" + CRAFTS[k].icon + " " + CRAFTS[k].name + ' <span class="sub">' + craftSkill(k).toFixed(1) + "</span></button>").join("") + "</div>";
@@ -513,7 +584,7 @@ function tabCraft() {
     const ok = recipeMatsOk(r);
     const why = canSynth(r);
     const mats = Object.keys(r.mats).map(id => '<span class="' + (invCount(id) >= r.mats[id] ? "ok" : "bad") + '">' + esc(ITEMS[id].name) + " " + Math.min(invCount(id), r.mats[id]) + "/" + r.mats[id] + "</span>").join(" · ");
-    h += '<div class="item" style="align-items:flex-start"><div><div>' + (ITEMS[r.out].icon || "") + " " + esc(ITEMS[r.out].name) + (r.qty > 1 ? " ×" + r.qty : "") + ' <span class="sub">Lv.' + r.lv + " · " + synthChance(r) + "% success" + (r.hq ? " · HQ " + synthHqChance(r) + "%" : "") + '</span></div><div class="d">' + mats + '</div></div><button data-a="synth" data-v="' + r.id + '"' + (why ? " disabled" : "") + ' title="' + esc(why || "Synthesize") + '">Synthesize</button></div>';
+    h += '<div class="item" style="align-items:flex-start"><div><div>' + (ITEMS[r.out].icon || "") + " " + esc(ITEMS[r.out].name) + (r.qty > 1 ? " ×" + r.qty : "") + ' <span class="sub">Lv.' + r.lv + " · " + synthChance(r) + "% success" + (r.hq ? " · HQ " + synthHqChance(r) + "%" : "") + '</span></div><div class="d">' + mats + '</div></div><button data-a="synth" data-v="' + r.id + '"' + (why ? " disabled" : "") + ' title="' + esc(why || "Craft") + '">Craft</button></div>';
   }
   if (UI.craftMsg) h += '<div class="sub" style="color:#ff8a80;margin-top:6px">' + esc(UI.craftMsg) + "</div>";
   return h;
@@ -532,7 +603,7 @@ function tabFurnishings() {
 function tabStorage() {
   const cap = storageCap();
   let h = '<div class="sub" style="margin-bottom:6px">Pip keeps your things. ' + storageUsed() + " / " + cap + " storage slots (" + CONFIG.storageBase + " base" + (cap > CONFIG.storageBase ? " + " + (cap - CONFIG.storageBase) + " from furniture" : "") + ") · bag " + save.inventory.length + "/" + CONFIG.inventorySize + "</div>";
-  h += '<div class="charGrid"><div><h3>Bag → storage</h3>';
+  h += '<div class="charGrid ffList"><div><h3>Bag → storage</h3>';
   const bag = save.inventory.map((s, i) => ({ s, i })).filter(({ s }) => ITEMS[s.id].kind !== "key");
   if (!bag.length) h += '<div class="sub">Your bag is empty.</div>';
   for (const { s, i } of bag) h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="store" data-v="' + i + '">Store</button></div>';
@@ -1069,7 +1140,7 @@ function onMenuClick(e) {
   e.preventDefault();
   const a = t.dataset.a, v = t.dataset.v;
   if (a === "mute") { toggleMute(); renderModal(); return; }
-  if (a === "toggle" && (v === "tracker" || v === "names")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
+  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
   if (typeof handleSettingAction === "function" && handleSettingAction(a, v)) { renderModal(); sfx("click"); return; }
   const hb = hotbar();
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
@@ -1177,6 +1248,31 @@ function onMenuClick(e) {
   else if (a === "mgive") { const [id, it] = v.split(":"); giveMercGear(id, it); }
   else if (a === "mtake") { const [id, sl] = v.split(":"); takeMercGear(id, sl); }
   else if (a === "open") { openMenu(v); return; }
+  else if (a === "craftbook") { UI.craftBook = !UI.craftBook; renderModal(); return; }
+  else if (a === "csadd") {
+    const cs = UI.cs; UI.craftMsg = ""; cs.hover = v;
+    if (craftCrystals().includes(v) && !cs.crystal) { cs.crystal = v; sfx("select"); }
+    else { const used = cs.mats.filter(x => x === v).length + (cs.crystal === v ? 1 : 0); if (cs.mats.length < 8 && used < invCount(v) && !craftCrystals().includes(v)) { cs.mats.push(v); sfx("select"); } else sfx("error"); }
+    renderModal(); return;
+  }
+  else if (a === "csrem") { const cs = UI.cs, i = +v; if (cs.mats[i]) { cs.hover = cs.mats[i]; cs.mats.splice(i, 1); sfx("close"); } renderModal(); return; }
+  else if (a === "csclr") { const cs = UI.cs; if (cs.crystal) { cs.hover = cs.crystal; cs.crystal = null; sfx("close"); } renderModal(); return; }
+  else if (a === "cscancel") { UI.cs = { crystal: null, mats: [], hover: null }; UI.craftMsg = ""; sfx("close"); renderModal(); return; }
+  else if (a === "csfill") {
+    const r = RECIPES.find(x => x.id === v); if (!r) return;
+    const cs = UI.cs; cs.hover = r.out;
+    if (!recipeMatsOk(r)) { UI.craftMsg = "You're missing ingredients for " + ITEMS[r.out].name + "."; renderModal(); return; }
+    cs.crystal = CRAFTS[r.craft].crystal; cs.mats = [];
+    for (const id in r.mats) for (let k = 0; k < r.mats[id]; k++) cs.mats.push(id);
+    sfx("select"); renderModal(); return;
+  }
+  else if (a === "csok") {
+    const hit = csMatches().find(x => x.exact);
+    if (!hit) { UI.craftMsg = UI.cs.crystal ? "That combination doesn't make anything you know." : "Choose a crystal first."; sfx("error"); renderModal(); return; }
+    const why = startSynth(hit.r.id);
+    if (why) { UI.craftMsg = why; sfx("error"); renderModal(); return; }
+    UI.cs = { crystal: null, mats: [], hover: null }; UI.craftMsg = ""; closeModal(); return;
+  }
   else if (a === "craftsel") { UI.craft = v; UI.craftMsg = ""; sfx("tab"); renderModal(); return; }
   else if (a === "synth") { UI.craftMsg = startSynth(v); closeModal(); return; }
   else if (a === "plant") { const [i, id] = v.split(":"); UI.homeMsg = plantSeed(+i, id); if (UI.homeMsg) sfx("error"); renderModal(); return; }
@@ -1242,6 +1338,21 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.9.0", date: "2026-10-13", title: "Classic interface", items: [
+    "A new interface in the classic style: striped blue panels, white outlined lettering and glossy command buttons throughout, including every menu window and dialog.",
+    "Command bar across the top when something is targeted: it explains the highlighted command, with your connection strength and traffic on the right.",
+    "HP, MP and TP appear top left while you're fighting. Your status icons sit beside them all the time; the City Blessing shows as a blue crystal.",
+    "Bottom right: the Target panel (green name while it's calm, red once it's attacking you, Locked while you're fighting it) and the Party (or Solo) panel.",
+    "The event log runs along the whole bottom in bold white lettering; spell casting shows in yellow.",
+    "The command menu (left, above the log) has Attack/Disengage, Switch Target, Magic, Abilities, Items and Check, with a cursor and keyboard control. Disengage also lets go of the target. Tap yourself or press Enter with nothing targeted for your own commands.",
+    "The action bar, XP bar and bottom crystal/job line are gone. Hotkeys 1–0 still work.",
+    "Name plates for players (white with blue edges), people (glowing green) and monsters (red when they're attacking you); turn them off in Settings.",
+    "The target cursor is a small crystal arrow: blue when the target is in range, yellow near the edge, red out of range.",
+    "Character shows a status sheet (job, sub job, item level, HP/MP/TP, STR to CHR, level, EXP, next level) and Job Levels for unlocked jobs. New CHR stat strengthens songs.",
+    "Skills shows Combat, Magic (only magic you know), Craft and Gathering skill sheets with ranks.",
+    "Crafting is a new window: an essence slot and 8 ingredient slots, OK and Cancel, a list of what the combination can make, and item descriptions. Recipe notes keep the full list.",
+    "The bag is a compact list with names and counts."
   ] },
   { v: "8.8.0", date: "2026-10-13", title: "Leid'anav Reborn: attached bodies", items: [
     "The game is now called Leid'anav Reborn, with a new crystal-and-shield icon in the browser tab.",
@@ -1593,7 +1704,7 @@ function tabHelp() {
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Tobin</b> to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
     "Your first hire is a big boost: Mira (White Mage) heals, Kael (Warrior) tanks. A full party is you plus five.",
-    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or use the Rest action on action bar page 2) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
+    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or press Enter with nothing targeted and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
@@ -1603,9 +1714,9 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
-    "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command box in the bottom-right corner (Fight, Magic, Abilities, Inspect); tap a person to talk · the Jump button is the only round button left.",
-    "<b>Keyboard:</b> Tab or clicking a monster opens its command box in the bottom right · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
-    "1–0 use the action bar (Shift for page 2) · [ ] switch page · Esc closes the command box, then the menu · C character · I inventory · K skills · B action bar · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
+    "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with nothing targeted opens your own menu · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
+    "1–0 still use your saved hotkeys (Shift for page 2; set them in the Hotkeys tab) · Esc closes the command menu, then the main menu · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -1623,7 +1734,7 @@ function tabHelp() {
   ]));
   h += sec("🐾 Pets", ul([
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
-    "Open the <b>Pets</b> window (the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
+    "Open the <b>Pets</b> window (the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet. A summoned pet comes back when you log in.",
     "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
@@ -1746,7 +1857,7 @@ function tabHelp() {
     "<b>Wages:</b> the hiring fee covers the first game day; after that each companion takes about 15% of their fee per game day. Wages wait until a fight ends. Time away from the game is free."
   ]));
   h += sec("🎣 Fishing", ul([
-    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or action bar) or type <b>/fish</b>. Each cast uses one bait.",
+    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait.",
     "Wait for a bite, then press <b>Reel in!</b> (or Space, Enter or F) within about 2 seconds. Walking away, fighting or changing area pulls your line in.",
     "Catches: Outpost pond: Pond Minnow, Moat Carp. Rocky Hollow lakes: Moat Carp, Silver Shad, and the rare Lakeking Pike. Ashen Marsh ponds: Mud Eel, Bog Perch, and the rare Ghost Koi, which only bites in rain or storms.",
     "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to Pell, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
@@ -1791,14 +1902,14 @@ function tabHelp() {
     "A point runs dry after 1–3 uses and a new one appears elsewhere 45 seconds later. Gathering raises its own skill, up to 20."
   ]));
   h += sec("⚒️ Crafting", ul([
-    "Open the Crafting tab (N, or /craft). Pick a craft, then Synthesize. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
-    "Each synthesis uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
+    "Open the Crafting window (N, or /craft). Put an essence in the big slot on the left and up to 8 ingredients in the small slots by tapping them in your bag. The right side lists what that combination can make; ★ means the combination is exact. Press OK to craft, Cancel to clear. Tapping a result fills in the slots for you when you have the ingredients. Recipe notes lists every recipe you can learn. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
+    "Each craft uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
     "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure uses up the essence and loses some ingredients.",
     "Skill rises on recipes near or above your level, up to " + CONFIG.craftCap + "."
   ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, RECIPES.filter(r => r.craft === k).map(r => ITEMS[r.out].name).join(", ")])));
   h += sec("🍳 Cooking and food", ul([
     "Cooking is a craft (Crafting tab) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
-    "Eat a meal from your bag or action bar for " + CONFIG.foodMinutes + " real minutes of bonuses (it keeps counting while you're away). One meal at a time: eating another replaces it. You can't eat mid-fight.",
+    "Eat a meal from your bag or the Items command for " + CONFIG.foodMinutes + " real minutes of bonuses (it keeps counting while you're away). One meal at a time: eating another replaces it. You can't eat mid-fight.",
     "Meals: " + Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food").map(k => ITEMS[k].name + " (" + foodText(ITEMS[k].food) + ")").join(" · ") + "."
   ]));
   h += sec("🌱 Gardening", ul([
@@ -1826,12 +1937,21 @@ function tabHelp() {
   ]));
   h += sec("🤝 Parties with other players", ul([
     "Invite up to " + CONFIG.partyMax + " players: tap them and choose <b>Invite</b>, use the Party tab, or type <b>/invite Name</b>. The invited player gets a popup, or can type <b>/join</b> or <b>/decline</b>. Only the leader (👑, the player who has been in the party longest) can invite or remove members.",
-    "Party members appear in your party frame under your companions, with HP, MP and TP. A faded row means they're in another area; tap a row to target them.",
+    "Party members are listed in the Party panel at the bottom right under your companions, with HP and MP. A faded row means they're in another area; tap a row to target them.",
     "<b>Experience:</b> when anyone in the party defeats a monster, everyone in the same area within about " + Math.round(CONFIG.partyRange / 100) + " strides gets a share. The share is based on the highest level member nearby, so a big gap in levels means less experience for the lower levels. Bigger parties earn more in total (2 players: 60% each, 3: 45%, 4: 37%, 5: 32%, 6: 28%). EXP chains carry over from the player who made the kill.",
     "<b>Loot:</b> gear from a party kill goes into a shared treasure pool. Everyone nearby can Lot or Pass; the highest lot wins once all have chosen or time runs out. Other drops go to the player who made the kill. Crystals are split evenly.",
     "Kills by a party member nearby count for your quest and guild bounty tallies too.",
     "<b>Magic on party members:</b> tap a party member and choose Magic, or target them and cast. Cure spells and Protect work on players in your party.",
     "Your companions stay with you and fight only your monsters. Party chat: <b>/p text</b>. Leave with <b>/leave</b>, remove a member with <b>/kick Name</b>."
+  ]));
+  h += sec("🖥️ The screen", ul([
+    "<b>Top:</b> the Commands bar appears while something is targeted. It explains the highlighted command; Network on the right shows connection strength and messages sent (S) and received (R).",
+    "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
+    "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
+    "<b>Bottom:</b> the event log. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
+    "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
+    "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
+    "<b>Name plates</b> (Settings → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you)."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
     "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",
