@@ -1,4 +1,5 @@
 const CONFIG = {
+  terrainDetailLow: true,
   hallField: 380,
   hallTown: 180,
   spawnGapCells: 3,

@@ -113,6 +113,37 @@ function texDetailNormal() {
   return t;
 }
 
+function texGray(key, S2, fn) {
+  if (TEXLIB.cache[key]) return TEXLIB.cache[key];
+  const vals = new Float32Array(S2 * S2);
+  let sum = 0;
+  for (let y = 0; y < S2; y++) for (let x = 0; x < S2; x++) { const v = fn(x, y); vals[y * S2 + x] = v; sum += v; }
+  const mean = sum / vals.length;
+  const c = paintPixels(S2, S2, (x, y, o) => { const v = clamp(128 + (vals[y * S2 + x] - mean) * 255, 0, 255); o[0] = o[1] = o[2] = v; o[3] = 255; });
+  const t = toTexture(c, false);
+  TEXLIB.cache[key] = t;
+  return t;
+}
+function texGrassDetail() {
+  return texGray("dgrass", 256, (x, y) => {
+    const P = 256;
+    let v = NOISE.fbm(x / P * 8, y / P * 8, 3, 8, 41) * 0.35;
+    v += NOISE.value(x / P * 64, y / P * 18, 64, 43) * 0.35 + NOISE.value(x / P * 96, y / P * 28, 96, 44) * 0.25;
+    return v * 0.9;
+  });
+}
+function texDirtDetail() {
+  return texGray("ddirt", 256, (x, y) => {
+    const P = 256;
+    const n = NOISE.fbm(x / P * 6, y / P * 6, 4, 6, 51) * 0.45;
+    const peb = sstep(0.68, 0.74, NOISE.value(x / P * 40, y / P * 40, 40, 52)) * 0.35 - sstep(0.7, 0.76, NOISE.value(x / P * 40 + 0.07, y / P * 40 + 0.07, 40, 52)) * 0.15;
+    return n + peb + NOISE.value(x / P * 128, y / P * 128, 128, 53) * 0.12;
+  });
+}
+function texRockDetail() {
+  return texGray("drock", 256, (x, y) => NOISE.ridge(x / 256 * 5, y / 256 * 5, 5, 5, 61) * 0.6 + NOISE.fbm(x / 256 * 20, y / 256 * 20, 2, 20, 62) * 0.3);
+}
+
 function texRock() {
   return texPair("rock", 256, 256,
     (x, y) => NOISE.ridge(x / 256 * 6, y / 256 * 6, 5, 6, 11) * 0.8 + NOISE.fbm(x / 256 * 24, y / 256 * 24, 2, 24, 5) * 0.2,

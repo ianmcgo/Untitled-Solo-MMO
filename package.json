@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.8.6",
-  "releaseTitle": "Tap to type",
+  "version": "9.9.0",
+  "releaseTitle": "Terrain detail",
   "description": "",
   "main": "index.js",
   "scripts": {

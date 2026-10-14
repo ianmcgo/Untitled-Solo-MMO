@@ -946,13 +946,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 ## v9.8.5
 - #mobBar width matches #ffSide per breakpoint (210/168px), buttons flex. #logTap: invisible bottom-left zone on touch shown only while #chat.gone; tap → openChatInput. Phone #chat.min made #log pointer-events none, so taps never arrived; now forced auto on coarse pointers, touchend + click handlers, and openChatInput focuses synchronously (inside the gesture) so the phone keyboard opens.
 
+## Phase 49: G2 terrain detail (v9.9.0)
+- textures.js texGray(key,S,fn) → mean-centred grayscale tiling detail; texGrassDetail, texDirtDetail, texRockDetail.
+- world3d terrainDetail(mat, field): onBeforeCompile adds vWP/vWN varyings; after map_fragment multiplies the baked macro albedo by a detail value: grass vs dirt chosen by macro greenness, triplanar rock by slope (0.22–0.45) or cave/crypt, faded with camera distance (30–90 m); rock areas desaturate toward warm grey. customProgramCacheKey "terrainDetail". Enabled on all qualities (CONFIG.terrainDetailLow).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
 - 46 (9.6.0) Remaining classic windows + Help rewrite: DONE.
 - 47 (9.7.0) Offline play: DONE.
 - 48 (9.8.0) G1 Sky and light: DONE.
-- 49 (9.9.0) G2 Terrain: painted texture splatting (grass/dirt/path/rock/sand/snow) by height/slope/zone, detail textures up close, cliff and rock-face meshes, smoother height variety, path decals.
+- 49 (9.9.0) G2 Terrain: DONE (detail splat; cliff meshes left to G3/G12).
 - 50 (9.10.0) G3 Plants and props: layered-canopy trees, conifers, bushes, flowers, instanced grass tufts with wind sway, scattered rocks, logs, fences; distance fade/LOD.
 - 51 (9.11.0) G4 Water: animated reflective water with depth tint, shoreline foam, ripples, waterfalls and streams.
 - 52 (9.12.0) G5 Towns and buildings: textured stone/plaster/timber walls, tiled roofs, windows/doors with frames, lanterns, banners, market stalls, crates; residence interior detail; light pools at night.
@@ -1002,6 +1006,8 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.9.0 | Phase 49: tiled terrain detail, slope rock. |
+| 9.8.6 | Tap-to-type fix on phones, phone Status shows all boxes. |
 | 9.8.5 | Phone buttons fit the side column; tap bottom-left to type. |
 | 9.8.4 | 5 characters per account (client + server), upload offer removed. |
 | 9.8.3 | Phone window/menu overlap, read-only View House, blue log on phones. |
