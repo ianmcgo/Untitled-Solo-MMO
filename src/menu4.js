@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.16.0", date: "2026-10-14", title: "Shadows and depth", items: [
+    "Every character, companion and monster now has a soft shadow on the ground beneath it, so they look planted. On the Low setting (where sun shadows are off) this is their only shadow and is a bit darker.",
+    "Characters and monsters get a gentle rim of light around their edges that picks up the sun's colour by day and a cool blue at night, so they stand out from the background.",
+    "Sun shadows are softer-edged on the High setting."
+  ] },
   { v: "9.15.0", date: "2026-10-14", title: "Grounding", items: [
     "Long-bodied monsters (crawlers, worms, sheep and other four-legged beasts, crabs, fish-like monsters and hares) now tilt to follow hills and slopes, so their noses and tails no longer sink into the ground or float in the air.",
     "Checked on the steepest slopes in Rocky Hollow: crawlers, worms, sheep and lizards all stay on top of the ground."
