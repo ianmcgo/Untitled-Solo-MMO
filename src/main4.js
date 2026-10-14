@@ -16,10 +16,11 @@ function onKey(e) {
     return;
   }
   if (S.fish && S.fish.state === "bite" && (k === " " || k === "spacebar" || k === "enter" || k === "f")) { e.preventDefault(); reelFish(); return; }
+  if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
   if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
   if (k === "f") { toggleEngage(false); return; }
-  if (k === "enter") { talkNearest(); return; }
+  if (k === "enter") { const t = player.target; if (t && (isMob(t) && t.alive || t.kind === "remote")) tgtCmdOpen(t); else if (nearNpc() && dist(nearNpc(), player) <= CONFIG.talkRange) talkNearest(); else tgtCmdOpen(player); return; }
   if (menuKeys[k]) { openMenu(menuKeys[k]); return; }
   if (k === "r") { toggleMount(); return; }
   if (k === " " || k === "spacebar") { e.preventDefault(); tryJump(); return; }

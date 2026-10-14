@@ -43,16 +43,21 @@ function updateLabels() {
     el.style.transform = "translate(" + sc.x.toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-100%)";
     const nameEl = el.firstChild, bar = el.children[1], cbar = el.children[2];
     const isT = player.target === e;
-    let name = e === player ? save.name : e.name, col = "#cfe6ff";
-    if (isMob(e)) { const cs = claimState(e); col = cs === "mine" ? "#ff6b6b" : cs === "other" ? "#c77dff" : e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
-    if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
-    if (e.buddy) col = "#ffd54f";
-    if (e.remote) { col = isMate(e) ? "#9fd0ff" : "#a5d6a7"; name = e.name + (e.lv ? " · " + e.job + e.lv : ""); }
+    const plates = VIEW.settings.plates !== false;
+    let name = e === player ? save.name : e.name, col = "#ffffff", kind = "pc";
+    if (isMob(e)) { kind = "mob"; const cs = claimState(e); col = ffMobAttacking(e) ? "#ff4a3a" : cs === "other" ? "#c77dff" : e.fam.nm ? "#ffb070" : "#f2ead2"; }
+    if (e.kind === "npc") { kind = "npc"; if (questMarker(e)) name = "❗ " + name; }
+    if (e.buddy) { kind = "mob"; col = "#ffd54f"; }
+    if (e.remote) { kind = "pc"; name = e.name; }
+    if (isParty(e) && e !== player) kind = "pc";
     const other = isMob(e) || e.kind === "npc";
-    if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
+    if (!plates && other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
+    if (!plates && !other && e !== player && !isT && !isParty(e)) name = "";
+    if (e === player && !plates) name = "";
     nameEl.style.display = name ? "" : "none";
     if (nameEl.textContent !== name) nameEl.textContent = name;
     nameEl.style.color = col;
+    if (el.dataset.k !== kind) { el.dataset.k = kind; el.classList.remove("k-pc", "k-npc", "k-mob"); el.classList.add("k-" + kind); }
     el.classList.toggle("tgt", isT);
     const showHp = e.kind !== "npc" && !e.buddy && (isParty(e) || isT || e.state === "combat");
     bar.style.display = showHp ? "block" : "none";
@@ -88,9 +93,16 @@ function updateFloaters() {
 }
 
 function makeCursor() {
-  const c = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.36, 4), new THREE.MeshBasicMaterial({ color: 0xffd54f, depthTest: false, transparent: true }));
-  c.rotation.x = Math.PI;
-  c.renderOrder = 10;
+  const c = new THREE.Group();
+  const mat = new THREE.MeshBasicMaterial({ color: 0xd8a070, depthTest: false, transparent: true });
+  const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), mat);
+  gem.scale.set(0.75, 1.25, 0.75); gem.position.y = 0.2; gem.renderOrder = 10;
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.34, 4), mat);
+  tip.rotation.x = Math.PI; tip.scale.set(1, 1, 0.45); tip.position.y = -0.08; tip.renderOrder = 10;
+  const notch = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.18, 4), new THREE.MeshBasicMaterial({ color: 0x2a1a10, depthTest: false, transparent: true }));
+  notch.rotation.x = Math.PI; notch.scale.set(1, 1, 0.5); notch.position.set(0, 0.03, 0.02); notch.renderOrder = 11;
+  c.add(gem, tip, notch);
+  c.material = mat;
   W3.scene.add(c);
   VIEW.cursor = c;
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.75, 0.86, 40), new THREE.MeshBasicMaterial({ color: 0xffd54f, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.DoubleSide }));
@@ -109,9 +121,14 @@ function updateCursor() {
   VIEW.cursor.visible = !!ok;
   VIEW.groundRing.visible = !!ok && t.kind !== "npc";
   if (ok) {
-    const col = isMob(t) ? (player.engaged && player.attackTarget === t ? 0xff4d4d : 0xffd54f) : t.kind === "npc" ? 0xffd54f : 0x8ec5ff;
+    let col = 0xd8a070;
+    if (isMob(t) || (t.kind === "remote" && UI.cmd && UI.cmd.page === "ma")) {
+      const range = UI.cmd && UI.cmd.page === "ma" ? CONFIG.castRange : isMob(t) ? reach(player) + (UI.cmd && UI.cmd.page !== "root" ? 0 : 0) : CONFIG.castRange;
+      const d = dist(player, t);
+      col = d <= range * 0.85 ? 0x7a8cff : d <= range * 1.08 ? 0xffe050 : 0xff4a3a;
+    }
     VIEW.cursor.material.color.setHex(col);
-    VIEW.groundRing.material.color.setHex(col);
+    VIEW.groundRing.material.color.setHex(isMob(t) ? (ffMobAttacking(t) ? 0xff4a3a : 0x7dff8a) : col);
     const base = groundY(t.x, t.y);
     VIEW.cursor.position.set(t.x * U, base + entityHeight(t) + 0.55 + Math.sin(S.time * 4) * 0.08, t.y * U);
     VIEW.cursor.rotation.y += 0.04;
@@ -329,6 +346,7 @@ function onWorldTap(p, ent) {
     if (!UI.cmd) uiEvent("target", e);
     return;
   }
+  if (e === player) { setTarget(player); tgtCmdOpen(player); return; }
   if (e.kind === "remote") {
     if (player.target === e && UI.cmd && UI.cmd.t === e) { tgtCmdClose(); return; }
     setTarget(e);

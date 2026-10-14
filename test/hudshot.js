@@ -1,0 +1,38 @@
+const { chromium } = require('/opt/npm-tools/node_modules/playwright');
+const mockLogin = require('./mocklogin');
+(async () => {
+  const [html, out, w, h] = process.argv.slice(2);
+  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const page = await (await browser.newContext({ viewport: { width: +(w || 1280), height: +(h || 720) } })).newPage();
+  const errs = [];
+  page.on('pageerror', e => errs.push('pageerror: ' + e.message + ' ' + (e.stack || '').split('\n')[1]));
+  await page.addInitScript(() => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: 'low' })); } catch (e) {} });
+  await mockLogin(page, html);
+  await page.evaluate(() => {
+    const hh = vana(); let d = 11 - hh.hour; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25;
+    save.gil = 5000; hireMerc('kael'); save.blessing = Date.now() + 1800000; player.buffs.protect = { until: S.time + 300, src: player };
+    const m = buildMob('goblin', 1, player.x + 40, player.y - 60, null); m.passive = true; m.aggro = null; S.mobs.push(m);
+    const m2 = buildMob('hare', 1, player.x - 60, player.y - 80, null); S.mobs.push(m2);
+    player.face = Math.atan2(m.y - player.y, m.x - player.x); VIEW.yaw = player.face; VIEW.pitch = 0.3;
+    setTarget(m); tgtCmdOpen(m); UI.cmd.sel = 2; renderTgtCmd();
+    for (const t of ['The Goblin misses Tessa.', 'Tessa hits the Goblin for 12 points of damage.', 'Kael hits the Goblin for 8 points of damage.']) log(t, 'you');
+    startCast(player, Object.keys(SPELLS).find(k => SPELLS[k].kind === 'nuke') || 'cure', m); player.casting = null;
+    player.engaged = true; player.attackTarget = m; m.state = 'combat'; m.target = player; m.enmity.set(player, 10); player.tp = 655;
+  });
+  await page.waitForTimeout(2500);
+  await page.screenshot({ path: out + '-hud.png' });
+  await page.evaluate(() => { tgtCmdClose(); openMenu('character'); });
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: out + '-char.png' });
+  await page.evaluate(() => { save.inventory.push({ id: 'fire_crystal', qty: 5 }, { id: 'copper_ore', qty: 4 }); UI.cs = { crystal: 'fire_crystal', mats: ['copper_ore', 'copper_ore'], hover: 'copper_ore' }; openMenu('craft'); });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: out + '-craft.png' });
+  await page.evaluate(() => { openMenu('inventory'); });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: out + '-inv.png' });
+  await page.evaluate(() => { openMenu('skills'); });
+  await page.waitForTimeout(800);
+  await page.screenshot({ path: out + '-skills.png' });
+  console.log(errs.length ? 'ERRORS ' + errs.slice(0, 5).join(' || ') : 'ok');
+  await browser.close();
+})();

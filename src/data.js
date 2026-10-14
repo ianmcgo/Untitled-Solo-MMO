@@ -255,10 +255,10 @@ const ITEMS = {
   hi_potion: { name: "Hi-Potion", kind: "use", icon: "⚗️", heal: 150, price: 160, stack: 12, desc: "Restores 150 HP." },
   ether: { name: "Ether", kind: "use", icon: "💧", mpRestore: 40, price: 100, stack: 12, desc: "Restores 40 MP." },
   ether_hq: { name: "Ether +1", kind: "use", icon: "💧", hq: true, mpRestore: 55, price: 140, stack: 12, desc: "Restores 55 MP." },
-  fire_crystal: { name: "Fire Essence", kind: "crystal", icon: "🔥", element: "fire", price: 30, stack: 12, desc: "Used in Smithing synthesis." },
-  wind_crystal: { name: "Wind Essence", kind: "crystal", icon: "🌪️", element: "wind", price: 30, stack: 12, desc: "Used in Woodworking synthesis." },
-  earth_crystal: { name: "Earth Essence", kind: "crystal", icon: "🪨", element: "earth", price: 30, stack: 12, desc: "Used in Clothcraft synthesis." },
-  water_crystal: { name: "Water Essence", kind: "crystal", icon: "🌊", element: "water", price: 30, stack: 12, desc: "Used in Alchemy synthesis." },
+  fire_crystal: { name: "Fire Essence", kind: "crystal", icon: "🔥", element: "fire", price: 30, stack: 12, desc: "Used in Smithing crafting." },
+  wind_crystal: { name: "Wind Essence", kind: "crystal", icon: "🌪️", element: "wind", price: 30, stack: 12, desc: "Used in Woodworking crafting." },
+  earth_crystal: { name: "Earth Essence", kind: "crystal", icon: "🪨", element: "earth", price: 30, stack: 12, desc: "Used in Clothcraft crafting." },
+  water_crystal: { name: "Water Essence", kind: "crystal", icon: "🌊", element: "water", price: 30, stack: 12, desc: "Used in Alchemy crafting." },
   copper_ore: { name: "Copper Ore", kind: "mat", icon: "🟫", price: 20, stack: 12, desc: "Smelt into Bronze Ingots." },
   iron_ore: { name: "Iron Ore", kind: "mat", icon: "⬛", price: 80, stack: 12, desc: "Smelt into Iron Ingots." },
   bronze_ingot: { name: "Bronze Ingot", kind: "mat", icon: "🟧", price: 60, stack: 12, desc: "Smithing material." },
@@ -1214,7 +1214,7 @@ const BUDDIES = {
   shade_kit: { name: "Shade Kit", icon: "🐈", model: "hare", col: 0x3a3a44, eye: 0xffd54f, scale: 0.6, lore: "A sleek black hare with lamp-yellow eyes. Things turn up in its wake." },
   ash_sprite: { name: "Ash Sprite", icon: "🕯️", model: "wisp", col: 0x9e9e9e, eye: 0xff7043, scale: 0.6, lore: "A cinder from the Ember Throne that chose to follow you. It remembers everything you learn." }
 };
-const BUDDY_PERK_TEXT_OLD = { xp: v => "+" + Math.round(v * 100) + "% experience", rest: v => "Resting heals " + Math.round(v * 100) + "% faster", eva: v => "+" + v + " evasion", gather: v => "+" + Math.round(v * 100) + "% gathering chance", craft: v => "+" + Math.round(v * 100) + "% synthesis chance", mp: v => "+" + Math.round(v * 100) + "% MP", fish: v => "+" + Math.round(v * 100) + "% catch rate", sell: v => "Shops pay " + Math.round(v * 100) + "% more", drop: v => "+" + Math.round(v * 100) + "% drop chance" };
+const BUDDY_PERK_TEXT_OLD = { xp: v => "+" + Math.round(v * 100) + "% experience", rest: v => "Resting heals " + Math.round(v * 100) + "% faster", eva: v => "+" + v + " evasion", gather: v => "+" + Math.round(v * 100) + "% gathering chance", craft: v => "+" + Math.round(v * 100) + "% crafting chance", mp: v => "+" + Math.round(v * 100) + "% MP", fish: v => "+" + Math.round(v * 100) + "% catch rate", sell: v => "Shops pay " + Math.round(v * 100) + "% more", drop: v => "+" + Math.round(v * 100) + "% drop chance" };
 const BUDDY_SHOP = [];
 
 const BLESSING = { baseMin: 60, perRankMin: 30, maxMin: 210 };
@@ -1302,7 +1302,7 @@ const ACHIEVEMENTS = [
   { id: "quests_all", icon: "📚", name: "Pillar of the Outpost", desc: "Complete every quest.", test: s => Object.keys(QUESTS).every(k => s.quests[k] === "done") },
   { id: "landmarks", icon: "🧭", name: "Wanderer", desc: "Discover 5 landmarks.", test: s => Object.keys(s.landmarks).length >= 5 },
   { id: "zones", icon: "🗺️", name: "Cartographer", desc: "Visit every area.", test: s => Object.keys(ZONES).every(z => (s.discovered || []).includes(z)) },
-  { id: "crafter", icon: "⚒️", name: "Artisan", desc: "Complete 10 syntheses.", test: s => s.stats.crafts >= 10 },
+  { id: "crafter", icon: "⚒️", name: "Artisan", desc: "Complete 10 crafts.", test: s => s.stats.crafts >= 10 },
   { id: "hq", icon: "💎", name: "Masterwork", desc: "Make a high-quality item.", test: s => s.stats.hq >= 1 },
   { id: "gatherer", icon: "⛏️", name: "Forager", desc: "Gather 25 times.", test: s => s.stats.gathers >= 25 },
   { id: "gardener", icon: "🌱", name: "Green Thumb", desc: "Harvest a plant.", test: s => s.harvests >= 1 },

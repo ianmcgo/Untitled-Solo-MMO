@@ -372,6 +372,7 @@ function buildStats(ch) {
   const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
   if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
+  s.chr = Math.round(6 + 0.65 * (lv - 1) + (ch.job === "BRD" ? 3 + 0.35 * (lv - 1) : 0) + (ch.sub === "BRD" ? 1 + 0.1 * subLv : 0) + (g.chr || 0));
   if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
   s.dmg = dmg;
   s.delay = delay;
@@ -2024,7 +2025,7 @@ const SONG_KEYS = ["minuet", "paeon", "ballad", "madrigal", "march"];
 function applySong(p, a, sp) {
   const have = SONG_KEYS.filter(k => p.buffs[k] && k !== sp.song).sort((x, y) => p.buffs[x].until - p.buffs[y].until);
   while (have.length >= 2) delete p.buffs[have.shift()];
-  const sk = 1 + skillOf(a, "singing") / 400;
+  const sk = (1 + skillOf(a, "singing") / 400) * (1 + ((a.stats && a.stats.chr) || 0) / 500);
   p.buffs[sp.song] = { until: S.time + sp.dur, pow: sp.song === "madrigal" ? Math.round(sp.pow * sk) : sp.pow * sk, src: a, next: S.time + 3, id: sp.name };
 }
 
@@ -2884,9 +2885,9 @@ function synthHqChance(r) { return r.hq ? clamp(5 * (craftSkill(r.craft) - r.lv)
 function canSynth(r) {
   if (!FEATURES.crafting) return "Crafting isn't available yet.";
   if (!player.alive) return "You are KO'd.";
-  if (player.engaged || inCombatWith(player) || partyInCombat()) return "You can't synthesize during a fight.";
+  if (player.engaged || inCombatWith(player) || partyInCombat()) return "You can't craft during a fight.";
   if (player.casting) return "You are casting.";
-  if (player.synth) return "You're already synthesizing.";
+  if (player.synth) return "You're already crafting.";
   if (player.mounted) return "Dismount first.";
   if (invCount(CRAFTS[r.craft].crystal) < 1) return "You need " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".";
   if (!recipeMatsOk(r)) return "You're missing ingredients.";
@@ -2900,7 +2901,7 @@ function startSynth(id) {
   if (player.resting) standUp(player, true);
   player.synth = { r, start: S.time, end: S.time + CONFIG.synthTime };
   S.moveTarget = null; S.chase = false;
-  log("You begin synthesizing " + ITEMS[r.out].name + " with " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".", "you");
+  log("You begin crafting " + ITEMS[r.out].name + " with " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".", "you");
   sfx("cast", player);
   vfx("cast", { src: player, sp: { kind: "nuke", element: ITEMS[CRAFTS[r.craft].crystal].element } });
   return "";
@@ -2908,7 +2909,7 @@ function startSynth(id) {
 function cancelSynth(msg) {
   if (!player.synth) return;
   player.synth = null;
-  log(msg || "Your synthesis is interrupted.", "sys");
+  log(msg || "Your crafting is interrupted.", "sys");
   sfx("interrupt", player);
 }
 function finishSynth() {
@@ -2925,12 +2926,12 @@ function finishSynth() {
     const out = hq ? r.hq : r.out;
     giveItem(out, r.qty || 1);
     save.stats.crafts++; if (hq) save.stats.hq++;
-    log("Synthesis complete: " + (r.qty > 1 ? r.qty + " × " : "") + ITEMS[out].name + (hq ? " (high quality!)" : "") + ".", "loot");
+    log("Crafting complete: " + (r.qty > 1 ? r.qty + " × " : "") + ITEMS[out].name + (hq ? " (high quality!)" : "") + ".", "loot");
     sfx(hq ? "levelup" : "unlock", player);
     vfx("burst", { tgt: player, el });
   } else {
     for (const id in r.mats) if (Math.random() < 0.5) removeItem(id, Math.max(1, Math.floor(r.mats[id] / 2)));
-    log("The synthesis fails. The essence fades and some ingredients are lost.", "foe");
+    log("The craft fails. The essence fades and some ingredients are lost.", "foe");
     sfx("interrupt", player);
     vfx("interrupt", { tgt: player });
   }
@@ -4097,7 +4098,7 @@ const COMMANDS = [
   ["/item name", "Use an item, e.g. /item potion."],
   ["/mount, /dismount", "Call or dismiss your Thornstrider."],
   ["/jump", "Jump."],
-  ["/craft", "Open the synthesis window (also the Crafting tab)."],
+  ["/craft", "Open the Crafting window."],
   ["/time", "Show the game time and weekday."],
   ["/where", "Show your zone and position."],
   ["/clear", "Clear the chat log."],
