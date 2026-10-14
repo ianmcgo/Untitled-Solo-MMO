@@ -7,7 +7,7 @@ create table if not exists game_private.config (k text primary key, v text not n
 revoke all on game_private.config from public, anon, authenticated;
 insert into game_private.config (k, v) values ('level_cap', '20') on conflict (k) do nothing;
 insert into game_private.config (k, v) values ('bag_size', '30') on conflict (k) do nothing;
-insert into game_private.config (k, v) values ('schema', '2') on conflict (k) do update set v = greatest(game_private.config.v::int, 2)::text;
+insert into game_private.config (k, v) values ('schema', '3') on conflict (k) do update set v = greatest(game_private.config.v::int, 3)::text;
 
 create table if not exists game_private.audit (id bigserial primary key, at timestamptz not null default now(), char_id uuid, char_name text, owner uuid, kind text not null, detail text);
 create table if not exists game_private.trade_offers (me uuid primary key, peer uuid not null, mine jsonb not null, theirs jsonb not null, created_at timestamptz not null default now(), status text not null default 'open', result jsonb);
@@ -104,6 +104,8 @@ begin
     'code_set', exists (select 1 from game_private.config where k = 'signup_code'),
     'schema', (select v from game_private.config where k = 'schema'),
     'trades_7d', (select count(*) from game_private.trade_log where at > now() - interval '7 days'),
+    'ah_open', (select count(*) from public.ah_listings where status = 'open'),
+    'ah_sold_7d', (select count(*) from public.ah_listings where status = 'sold' and sold_at > now() - interval '7 days'),
     'audit', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select a.at, a.char_name, a.kind, a.detail, p.email from game_private.audit a left join public.players p on p.id = a.owner order by a.at desc limit 50) x),
     'banned_list', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select email from public.players where banned order by email limit 100) x),
     'online_list', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select email, last_seen from public.players where last_seen > now() - interval '5 minutes' order by last_seen desc limit 50) x),
@@ -161,7 +163,7 @@ language plpgsql as $$
 declare arr jsonb := '[]'::jsonb; e jsonb; have int; rest int := n; i int; q int;
 begin
   select coalesce(sum((x ->> 'qty')::int), 0) into have from jsonb_array_elements(inv) x where x ->> 'id' = item;
-  if n is null or n <= 0 or have < n then raise exception 'Missing items for the trade (%)', item; end if;
+  if n is null or n <= 0 or have < n then raise exception 'Not enough % in the bag', item; end if;
   for i in reverse jsonb_array_length(inv) - 1 .. 0 loop
     e := inv -> i;
     if rest > 0 and e ->> 'id' = item then
@@ -278,3 +280,151 @@ end $$;
 
 revoke all on function public.trade_offer(uuid, uuid, jsonb, jsonb), public.trade_status(uuid), public.trade_cancel(uuid), public.admin_set_ban(text, boolean) from public, anon;
 grant execute on function public.trade_offer(uuid, uuid, jsonb, jsonb), public.trade_status(uuid), public.trade_cancel(uuid), public.admin_set_ban(text, boolean) to authenticated;
+
+create table if not exists public.ah_listings (
+  id bigserial primary key,
+  seller uuid not null references public.characters(id) on delete cascade,
+  seller_owner uuid not null,
+  seller_name text not null,
+  item text not null,
+  qty int not null check (qty > 0),
+  st int not null default 1,
+  price bigint not null check (price > 0),
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null default now() + interval '48 hours',
+  status text not null default 'open',
+  buyer uuid,
+  buyer_name text,
+  sold_at timestamptz
+);
+create index if not exists ah_listings_open on public.ah_listings (item, price) where status = 'open';
+create index if not exists ah_listings_seller on public.ah_listings (seller, status);
+alter table public.ah_listings enable row level security;
+drop policy if exists ah_select on public.ah_listings;
+create policy ah_select on public.ah_listings for select using (public.is_member() and (status = 'open' or seller_owner = auth.uid()));
+revoke all on public.ah_listings from anon;
+grant select on public.ah_listings to authenticated;
+
+create table if not exists game_private.ah_box (id bigserial primary key, char_id uuid not null, kind text not null, item text, qty int not null default 0, st int not null default 1, gil bigint not null default 0, note text, created_at timestamptz not null default now());
+create index if not exists ah_box_char on game_private.ah_box (char_id);
+revoke all on game_private.ah_box from public, anon, authenticated;
+
+create or replace function game_private.char_save(cid uuid, inv jsonb, g bigint) returns void
+language plpgsql as $$
+begin
+  perform set_config('game.server', '1', true);
+  update public.characters set data = jsonb_set(jsonb_set(data, '{inventory}', inv), '{gil}', to_jsonb(g)) where id = cid;
+  perform set_config('game.server', '0', true);
+end $$;
+
+create or replace function game_private.my_char(cid uuid) returns public.characters
+language plpgsql as $$
+declare c public.characters;
+begin
+  if not public.is_member() then raise exception 'Not allowed'; end if;
+  select * into c from public.characters where id = cid and owner = auth.uid() for update;
+  if not found then raise exception 'Not your character'; end if;
+  return c;
+end $$;
+
+create or replace function game_private.ah_expire(cid uuid) returns void
+language plpgsql as $$
+declare l public.ah_listings;
+begin
+  for l in select * from public.ah_listings where seller = cid and status = 'open' and expires_at < now() for update loop
+    update public.ah_listings set status = 'expired' where id = l.id;
+    insert into game_private.ah_box (char_id, kind, item, qty, st, note) values (cid, 'returned', l.item, l.qty, l.st, 'Unsold');
+  end loop;
+end $$;
+
+create or replace function public.ah_post(my_char uuid, item text, qty int, price bigint, st int) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare c public.characters; inv jsonb; g bigint; fee bigint; n int; lid bigint;
+begin
+  c := game_private.my_char(my_char);
+  if item is null or item !~ '^[a-z0-9_]{1,40}$' then raise exception 'Bad item'; end if;
+  if qty is null or qty < 1 or qty > greatest(1, least(coalesce(st, 1), 999)) then raise exception 'You can list one stack at a time'; end if;
+  if price is null or price < 1 or price > 99999999 then raise exception 'Set a price between 1 and 99,999,999'; end if;
+  perform game_private.ah_expire(my_char);
+  select count(*) into n from public.ah_listings where seller = my_char and status = 'open';
+  if n >= 10 then raise exception 'You can have 10 lots up with other players at once'; end if;
+  fee := greatest(1, ceil(price * 0.03));
+  inv := case when jsonb_typeof(c.data -> 'inventory') = 'array' then c.data -> 'inventory' else '[]'::jsonb end;
+  g := coalesce((c.data ->> 'gil')::bigint, 0);
+  if g < fee then raise exception 'The listing fee is % crystals', fee; end if;
+  inv := game_private.inv_take(inv, item, qty);
+  g := g - fee;
+  perform game_private.char_save(my_char, inv, g);
+  insert into public.ah_listings (seller, seller_owner, seller_name, item, qty, st, price) values (my_char, auth.uid(), c.name, item, qty, greatest(1, least(coalesce(st, 1), 999)), price) returning id into lid;
+  return jsonb_build_object('id', lid, 'inventory', inv, 'gil', g, 'fee', fee);
+end $$;
+
+create or replace function public.ah_buy(my_char uuid, lot bigint) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare c public.characters; l public.ah_listings; g bigint;
+begin
+  c := game_private.my_char(my_char);
+  select * into l from public.ah_listings where id = lot for update;
+  if not found or l.status <> 'open' or l.expires_at < now() then raise exception 'That lot is no longer for sale'; end if;
+  if l.seller = my_char then raise exception 'That is your own lot'; end if;
+  g := coalesce((c.data ->> 'gil')::bigint, 0);
+  if g < l.price then raise exception 'You need % crystals', l.price; end if;
+  g := g - l.price;
+  perform game_private.char_save(my_char, case when jsonb_typeof(c.data -> 'inventory') = 'array' then c.data -> 'inventory' else '[]'::jsonb end, g);
+  update public.ah_listings set status = 'sold', buyer = my_char, buyer_name = c.name, sold_at = now() where id = lot;
+  insert into game_private.ah_box (char_id, kind, item, qty, st, note) values (my_char, 'bought', l.item, l.qty, l.st, l.seller_name);
+  insert into game_private.ah_box (char_id, kind, item, qty, gil, note) values (l.seller, 'sold', l.item, l.qty, l.price, c.name);
+  return jsonb_build_object('gil', g, 'item', l.item, 'qty', l.qty, 'price', l.price);
+end $$;
+
+create or replace function public.ah_cancel(my_char uuid, lot bigint) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare c public.characters; l public.ah_listings;
+begin
+  c := game_private.my_char(my_char);
+  select * into l from public.ah_listings where id = lot and seller = my_char for update;
+  if not found or l.status <> 'open' then raise exception 'That lot is no longer up'; end if;
+  update public.ah_listings set status = 'cancelled' where id = lot;
+  insert into game_private.ah_box (char_id, kind, item, qty, st, note) values (my_char, 'returned', l.item, l.qty, l.st, 'Withdrawn');
+  return jsonb_build_object('ok', true);
+end $$;
+
+create or replace function public.ah_box_list(my_char uuid) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare c public.characters;
+begin
+  c := game_private.my_char(my_char);
+  perform game_private.ah_expire(my_char);
+  return (select coalesce(jsonb_agg(jsonb_build_object('id', b.id, 'kind', b.kind, 'item', b.item, 'qty', b.qty, 'gil', b.gil, 'note', b.note, 'at', b.created_at) order by b.id), '[]'::jsonb) from game_private.ah_box b where b.char_id = my_char);
+end $$;
+
+create or replace function public.ah_collect(my_char uuid) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare c public.characters; inv jsonb; nxt jsonb; g bigint; b game_private.ah_box; bag int; got int := 0; left_ int := 0;
+begin
+  c := game_private.my_char(my_char);
+  perform game_private.ah_expire(my_char);
+  select coalesce((select v::int from game_private.config where k = 'bag_size'), 30) into bag;
+  inv := case when jsonb_typeof(c.data -> 'inventory') = 'array' then c.data -> 'inventory' else '[]'::jsonb end;
+  g := coalesce((c.data ->> 'gil')::bigint, 0);
+  for b in select * from game_private.ah_box where char_id = my_char order by id for update loop
+    if b.kind = 'sold' then
+      g := least(999999999, g + b.gil); got := got + 1;
+      delete from game_private.ah_box where id = b.id;
+    else
+      nxt := game_private.inv_give(inv, b.item, b.qty, b.st);
+      if jsonb_array_length(nxt) > bag then left_ := left_ + 1;
+      else inv := nxt; got := got + 1; delete from game_private.ah_box where id = b.id; end if;
+    end if;
+  end loop;
+  if got > 0 then perform game_private.char_save(my_char, inv, g); end if;
+  return jsonb_build_object('inventory', inv, 'gil', g, 'got', got, 'left', left_);
+end $$;
+
+create or replace function public.ah_history(item text) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(x), '[]'::jsonb) from (select l.price, l.qty, l.sold_at, l.seller_name, l.buyer_name from public.ah_listings l where l.item = ah_history.item and l.status = 'sold' order by l.sold_at desc limit 10) x
+$$;
+
+revoke all on function public.ah_post(uuid, text, int, bigint, int), public.ah_buy(uuid, bigint), public.ah_cancel(uuid, bigint), public.ah_box_list(uuid), public.ah_collect(uuid), public.ah_history(text) from public, anon;
+grant execute on function public.ah_post(uuid, text, int, bigint, int), public.ah_buy(uuid, bigint), public.ah_cancel(uuid, bigint), public.ah_box_list(uuid), public.ah_collect(uuid), public.ah_history(text) to authenticated;

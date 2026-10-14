@@ -35,6 +35,15 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
       db.trade = null; db.tradesDone = (db.tradesDone || 0) + 1;
       return json({ status: 'done', inventory: inv, gil: c.data.gil - t.mine.gil + t.theirs.gil });
     }
+    if (p === '/rest/v1/ah_listings') {
+      const mine = url.searchParams.get('seller');
+      db.ah = db.ah || [{ id: 11, seller: 'abc', seller_name: 'Mira', item: 'healing_herb', qty: 6, price: 120, expires_at: new Date(Date.now() + 40 * 3600000).toISOString() }, { id: 12, seller: 'def', seller_name: 'Brum', item: 'healing_herb', qty: 1, price: 30, expires_at: new Date(Date.now() + 3 * 3600000).toISOString() }, { id: 13, seller: 'def', seller_name: 'Brum', item: 'bronze_sword', qty: 1, price: 900, expires_at: new Date(Date.now() + 20 * 3600000).toISOString() }];
+      return json(mine ? db.ah.filter(l => 'eq.' + l.seller === mine) : db.ah);
+    }
+    if (p === '/rest/v1/rpc/ah_box_list') return json(db.box || [{ id: 1, kind: 'sold', item: 'potion', qty: 1, gil: 80, note: 'Brum' }]);
+    if (p === '/rest/v1/rpc/ah_history') return json([{ price: 100, qty: 6 }, { price: 25, qty: 1 }]);
+    if (p === '/rest/v1/rpc/ah_buy') { const b = JSON.parse(req.postData()); const l = db.ah.find(x => x.id === b.lot); db.ah = db.ah.filter(x => x !== l); const c = db.chars[b.my_char]; c.data.gil -= l.price; db.box = [{ id: 2, kind: 'bought', item: l.item, qty: l.qty, gil: 0 }]; return json({ gil: c.data.gil, item: l.item, qty: l.qty, price: l.price }); }
+    if (p === '/rest/v1/rpc/ah_collect') { const b = JSON.parse(req.postData()); const c = db.chars[b.my_char]; const inv = c.data.inventory.slice(); let g = c.data.gil; for (const x of db.box || []) { if (x.kind === 'sold') g += x.gil; else inv.push({ id: x.item, qty: x.qty }); } const got = (db.box || []).length; db.box = []; return json({ inventory: inv, gil: g, got, left: 0 }); }
     if (p === '/rest/v1/characters') {
       const sel = url.searchParams.get('select') || '';
       if (m === 'GET') {
@@ -208,6 +217,13 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     return r;
   });
   console.log('claims', JSON.stringify(claims));
+  await page.evaluate(() => { if (S.modal) closeModal(); UI.ahView = 'players'; openMenu('auction'); });
+  await page.waitForTimeout(2500);
+  await page.evaluate(() => { UI.pmSel = 'healing_herb'; renderModal(); });
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: out + '-players-ah.png' });
+  const ah = await page.evaluate(async () => { const h0 = invCount('healing_herb'), g0 = save.gil; await netAhBuy(12); return { herbs: invCount('healing_herb') - h0, gil: save.gil - g0, lock: !!NET.saveLock }; });
+  console.log('ah', JSON.stringify(ah));
   await page.evaluate(() => openMenu('settings')); await page.waitForTimeout(800);
   await page.screenshot({ path: out + '-settings.png' });
   await page.evaluate(() => openMenu('admin')); await page.waitForTimeout(2000);

@@ -795,11 +795,19 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Tested against a local Postgres 16 with a Supabase auth shim (roles anon/authenticated, auth.uid/jwt from request settings): setup runs twice cleanly; level cap, rename, crystal audit, completed trade with stacking, missing-item dupe refused (whole call rolled back), mismatch, foreign character refused, ban + join refused, admin can't ban self. Shim lives in the session scratchpad only.
 - Limits: saves are still written by the client, so the server can only refuse impossible values and flag odd ones; items gained in the few seconds between a trade's start and finish on the waiting side are replaced by the server's bag.
 
+## Phase 36: player auction house (v8.6.0) — schema 3
+- SQL: public.ah_listings (seller char fk cascade, seller_owner, seller_name, item, qty, st, price total, expires 48 h, status open/sold/cancelled/expired, buyer, sold_at); RLS select = member and (open or own). game_private.ah_box (char_id, kind bought/sold/returned, item, qty, st, gil, note). Helpers: game_private.my_char (member + owner + row lock), char_save (writes inventory + gil with the game.server flag), ah_expire (open + past expiry → expired + returned box row). RPCs (definer, authenticated only): ah_post(my_char, item, qty, price, st) (≤ one stack, ≤ 10 open lots, fee max(1, ceil(3%)), takes items from the server copy), ah_buy(my_char, lot) (not own lot, pays, item → buyer box, crystals → seller box), ah_cancel, ah_box_list, ah_collect (crystals always; items while the bag has room), ah_history(item) (last 10 sales). admin_stats adds ah_open, ah_sold_7d. inv_take error now "Not enough <item> in the bag".
+- Client (net.js): netServerOp(fn, args) = saveGame → netFlushNow → saveLock → rpc → netApplyServerBag (inventory/gil from server) → unlock + save. netAhList/Mine/Box/History reads, netAhPost/Buy (then auto-collect)/Cancel (then collect)/Collect. netAhWatch every 60 s from netTick: new "sold" box rows → log + toast (first run only seeds). netAhErr turns missing-function errors into "admin needs to run setup SQL". NET_SCHEMA = 3.
+- UI (menu4): Auction tab gains 🌐 Players view (pmView: categories incl. All, grouped by item with cheapest unit price, detail with every lot sorted by unit price, Buy, recent sales); Sell detail has "Sell to the market" and "🌐 Offer to players"; My lots shows player box + player lots (Withdraw) above market lots. pmLoad caches 20 s; pmAct runs an async op with UI.pmBusy.
+- Tested: local Postgres (post, stack limit, missing item, insufficient crystals, buy, double buy refused, box list, collect both sides, cancel by non-owner refused, withdraw + collect, history, expiry return, RLS hides sold rows from others); netshots mocks listing/box/history/buy/collect and screenshots the Players view.
+- release.sh now runs node --check on dist/game.js (a missing parenthesis in menu4 slipped past the rules tests once).
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.6.0 | Phase 36: player auction house (server listings, delivery box, sale alerts). |
 | 8.5.0 | Phase 35: save checks + audit, atomic server trades, bans, setup versioning. |
 | 8.4.0 | Phase 34: claim rules, cross-player skillchains/bursts, /assist Name. |
 | 8.3.0 | Phase 33: shared monsters with zone host authority, claims. |
