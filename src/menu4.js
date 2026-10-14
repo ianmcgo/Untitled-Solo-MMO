@@ -891,7 +891,7 @@ function tabParty() {
 
 function beastHabitat(k) {
   const out = [];
-  for (const z in ZONES) if (ZONES[z].spawns.some(sp => sp.fam === k || (sp.nm && sp.nm.id === k))) out.push(ZONES[z].name);
+  for (const z in ZONES) if (ZONES[z].spawns.some(sp => [sp].concat(sp.alts || []).some(o => o.fam === k || (o.nm && o.nm.id === k)))) out.push(ZONES[z].name);
   return out;
 }
 
@@ -1443,6 +1443,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.5.1", date: "2026-10-14", title: "Room to breathe", items: [
+    "Monster spawn points in every area are now at least 3 map squares apart (the squares shown under the compass, like G-8), and none sit within 2 squares of an area's entrances or exits.",
+    "No monster types were lost: each spawn point now takes turns between the monsters that used to live around it, so every creature and notorious monster still appears in its area, just far fewer at once.",
+    "Fixed notorious monsters and bosses keep their own spots."
+  ] },
   { v: "9.5.0", date: "2026-10-13", title: "Mercenary guild", items: [
     "Brann's Mercenary Hall now has 5 randomly generated fighters for hire each day, with their own names, looks, jobs, roles and personalities. Any job can turn up, with no level requirement, and the list changes at midnight.",
     "Companions always fight at your level and grow with you.",
@@ -1682,6 +1687,7 @@ const UPDATES = [
     "Win one of five new level 15 treasures (Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle, Tidebreaker Bow) plus crystals and XP. New achievement: Tidebreaker.",
     "Chapel Sigils drop from the Drowned and are sold by Vela.",
     "Screen changes: your XP bar now sits under your health in your party frame; on phones the chat log sits in the bottom-left corner and the action bar stacks three wide on the right.",
+    "Monster spawn points are at least 3 map squares apart and never within 2 squares of an entrance or exit. Each point takes turns between the creatures that live in that part of the area.",
     "Monsters only show on the minimap when they're near you (or fighting your party, or targeted).",
     "Character creation now starts as male with the second-lightest skin tone."
   ] },
@@ -1878,8 +1884,8 @@ function tabHelp() {
   h += sec("🌅 Getting started", ul([
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
-    "Your first hire is a big boost: Mira (White Mage) heals, Kael (Warrior) tanks. A full party is you plus five.",
-    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or press Enter with nothing targeted and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
+    "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
+    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
@@ -1909,7 +1915,7 @@ function tabHelp() {
   ]));
   h += sec("🐾 Pets", ul([
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
-    "Open the <b>Pets</b> window (the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet. A summoned pet comes back when you log in.",
+    "Open the <b>Pets</b> window (the main menu) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet. A summoned pet comes back when you log in.",
     "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
@@ -1936,7 +1942,7 @@ function tabHelp() {
     ["Bard (advanced)", "Support", "Songs reach every ally within range and last 2 minutes; each person holds two songs and a third replaces the oldest. Battle Minuet (attack), Mending Paeon (HP over time), Wellspring Ballad (MP over time), Keen Madrigal (accuracy), Swift March (attack speed), Drowsy Lullaby (5: puts a monster to sleep until it's hit; bosses are immune), tier II Paeon (13) and Minuet (17), Encore (15: songs sing three times faster). Dagger B"],
     ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"]
   ]) + ul([
-    "<b>Advanced jobs</b> unlock at level 6 through Tobin: <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
+    "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per game day (about 58 real minutes). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));
@@ -1944,7 +1950,7 @@ function tabHelp() {
     "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
     "Kill XP scales with the monster's con. Tougher monsters give much more.",
     "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
-    "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 toast); they give no experience. The Map shows how many you've found in each zone.",
+    "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 in the event log); they give no experience. The Map shows how many you've found in each zone.",
     "Quests give big XP rewards.",
     "Defeat costs 10% of your current level's XP requirement, but you never lose a level."
   ]));
@@ -2028,8 +2034,8 @@ function tabHelp() {
   h += sec("👥 Party and companions (P)", ul([
     "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement, and always fight at your level as you grow.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
-    "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party tab or with /stance.",
-    "<b>Gear:</b> give companions equipment from your bag in the Party tab. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
+    "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
+    "<b>Gear:</b> give companions equipment from your bag in the Party window. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
     "<b>Wages:</b> the hiring fee covers the first game day; after that each companion takes about 15% of their fee per game day. Wages wait until a fight ends. Time away from the game is free."
   ]));
@@ -2074,7 +2080,7 @@ function tabHelp() {
     "While someone is indoors you can't talk or trade with them. The Home Point Crystal is always there."
   ]));
   h += sec("⛏️ Gathering", ul([
-    "Look for ore rocks, log piles and herb patches in Rocky Hollow and the Goblin Den (grey, brown and green dots on the minimap). Tap one to gather.",
+    "Look for ore rocks, log piles and herb patches in Rocky Hollow and the Goblin Den (grey, brown and green dots on the compass map). Tap one to gather.",
     "Each needs a tool from Pell: Pickaxe (mining), Hatchet (logging), Sickle (harvesting). A tool breaks 25% of the time, minus 1% per skill level (never below 5%).",
     "A point runs dry after 1–3 uses and a new one appears elsewhere 45 seconds later. Gathering raises its own skill, up to 20."
   ]));
@@ -2085,7 +2091,7 @@ function tabHelp() {
     "Skill rises on recipes near or above your level, up to " + CONFIG.craftCap + "."
   ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, RECIPES.filter(r => r.craft === k).map(r => ITEMS[r.out].name).join(", ")])));
   h += sec("🍳 Cooking and food", ul([
-    "Cooking is a craft (Crafting tab) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
+    "Cooking is a craft (Crafting in the main menu) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
     "Eat a meal from your bag or the Items command for " + CONFIG.foodMinutes + " real minutes of bonuses (it keeps counting while you're away). One meal at a time: eating another replaces it. You can't eat mid-fight.",
     "Meals: " + Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food").map(k => ITEMS[k].name + " (" + foodText(ITEMS[k].food) + ")").join(" · ") + "."
   ]));
@@ -2097,13 +2103,13 @@ function tabHelp() {
   ]));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
-    "Settings → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
-    "Settings → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
+    "Config → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
+    "Config → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
   ]));
   h += sec("👥 Other players and chat", ul([
     "Other adventurers in the same area appear in the world with their own race, gear and name (in green), moving, fighting and casting in real time.",
     "Type in the chat box to <b>say</b> something to players near you (a speech bubble appears over your head). <b>/shout</b> reaches everyone in the area, <b>/tell Name message</b> reaches one player anywhere (<b>/r</b> replies), and <b>/who</b> lists who's online and where.",
-    "The <b>Chat</b> tab in the log shows only player messages.",
+    "While typing (/), the <b>Chat</b> tab in the log shows only player messages.",
     "Tap or click another player to see their job and level and to Invite, Trade, send a Tell or Check them.",
     "<b>Shared monsters:</b> when other adventurers are in your area, everyone sees and fights the same monsters. One player's game (the first to arrive) runs the area's monsters for everyone; if they leave or put the game in the background, another player takes over without the monsters resetting. /who shows who is running the area.",
     "<b>Claims:</b> the first player to hit a monster, or the player it attacks first, claims it. Only the claimer and their party can attack it, and only the claimer (sharing with their party) gets experience and loot. Name colors: <span style=\"color:#ff6b6b\">red</span> = claimed by you or your party, <span style=\"color:#c77dff\">purple</span> = claimed by someone else. The target window says who. A claim ends when the monster gives up and walks home.",
@@ -2113,7 +2119,7 @@ function tabHelp() {
     "Battlefields such as the Chapel Depths stay private to you."
   ]));
   h += sec("🤝 Parties with other players", ul([
-    "Invite up to " + CONFIG.partyMax + " players: tap them and choose <b>Invite</b>, use the Party tab, or type <b>/invite Name</b>. The invited player gets a popup, or can type <b>/join</b> or <b>/decline</b>. Only the leader (👑, the player who has been in the party longest) can invite or remove members.",
+    "Invite up to " + CONFIG.partyMax + " players: tap them and choose <b>Invite</b>, use the Party window, or type <b>/invite Name</b>. The invited player gets a popup, or can type <b>/join</b> or <b>/decline</b>. Only the leader (👑, the player who has been in the party longest) can invite or remove members.",
     "Party members are listed in the Party panel at the bottom right under your companions, with HP and MP. A faded row means they're in another area; tap a row to target them.",
     "<b>Experience:</b> when anyone in the party defeats a monster, everyone in the same area within about " + Math.round(CONFIG.partyRange / 100) + " strides gets a share. The share is based on the highest level member nearby, so a big gap in levels means less experience for the lower levels. Bigger parties earn more in total (2 players: 60% each, 3: 45%, 4: 37%, 5: 32%, 6: 28%). EXP chains carry over from the player who made the kill.",
     "<b>Loot:</b> gear from a party kill goes into a shared treasure pool. Everyone nearby can Lot or Pass; the highest lot wins once all have chosen or time runs out. Other drops go to the player who made the kill. Crystals are split evenly.",
@@ -2129,7 +2135,7 @@ function tabHelp() {
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells starter neck, ear, back, waist, shield, sling and ammo pieces; Vela in Saltreach sells better ones."
   ]));
   h += sec("🖥️ The screen", ul([
-    "<b>Main menu:</b> Esc with nothing targeted, - (or Insert) or ☰ opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
+    "<b>Main menu:</b> Esc with nothing targeted, - (or Insert), or tapping yourself and choosing Main Menu opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
     "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
     "<b>Spells</b> are learned by reading scrolls (from shops and monster drops) once one of your jobs is high enough level.",
     "<b>Keyboard in windows:</b> arrows move, Enter chooses, Esc goes back or closes.",
@@ -2143,7 +2149,7 @@ function tabHelp() {
     "<b>Bottom:</b> the event log. New messages open it fully; after a few quiet seconds it shrinks to three lines. Each Esc hides one more line until it's gone. Press / to type (the tabs and typing box appear), or L to keep it open; on phones tap yourself and choose Chat. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
-    "<b>Name plates</b> (Settings → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you)."
+    "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you)."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
     "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",

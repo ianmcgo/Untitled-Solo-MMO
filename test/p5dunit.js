@@ -16,7 +16,7 @@ G.save.jobs.WAR.lv = 10; G.refreshPlayer(true);
 G.enterZone('den', 1200, 1500); run(1);
 ok(S.zone.exits.some(e => e.to === 'crypt'), 'the Den has an exit to the Crypt');
 G.enterZone('crypt', 120, 700); run(1);
-ok(S.zoneId === 'crypt' && S.mobs.length >= 18, 'crypt loads with its monsters (' + S.mobs.length + ')');
+ok(S.zoneId === 'crypt' && S.mobs.length >= 5, 'crypt loads with its monsters (' + S.mobs.length + ')');
 ok(S.npcs.filter(n => n.prop === 'brazier').length === 4 && S.npcs.some(n => n.prop === 'tablet'), 'four braziers and the inscription are present');
 const gate = z.barriers.find(b => b.id === 'brazier_gate'), door = z.barriers.find(b => b.id === 'throne_door');
 ok(!G.barrierOpen(gate) && !G.barrierOpen(door), 'gate and throne door start closed');

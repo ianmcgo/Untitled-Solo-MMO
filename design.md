@@ -902,6 +902,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Robustness: frame loop wraps work in try/catch (rAF requested first); loadZoneAsync wraps loadZoneInner and clears VIEW.loading on error; reportError(e, where) logs once per message to the event log.
 - Test: p29unit (pool, same-day stability, daily change, level, permadeath, no rehire). harness exports mercPool.
 
+## Phase 45b: spawn spacing (v9.5.1)
+- data.js tail (after spreadSpawns): per zone, cell = max(w,h)/15 (same grid as gridRef). Keep fixed NM/boss spawns, then greedily keep points (placeholder-NM and bf first, then farthest from exits) that are ≥ CONFIG.spawnExitCells (2) cells from exit centres and not within CONFIG.spawnGapCells (3) cells on both axes of a kept point. Every dropped spawn becomes an option in the nearest non-fixed kept point's alts [{fam, lv, time, nm, passive}].
+- game.js: spawnOpts(sp) = [sp, ...alts] valid for the period; spawnAllowed true if any; spawnMob(i, wantNm) picks a story/wanted NM option first, else random; mob.spawnOpt kept for period despawns; summonStoryFoe and NM lookups (spawnHas, bestiary zones, netWanted ids) search alts.
+- Tests updated for sparse spawns (p1, p5, p5d, p6, p17, p24, p25).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -958,6 +963,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.5.1 | Spawn points 3 grid squares apart, clear of exits, alternate monsters per point. |
 | 9.5.0 | Phase 45: generated daily mercenaries, permadeath, freeze-proof loop. |
 | 9.4.0 | Phase 44: spell scrolls, keyboard windows, Pip jobs, easier start, Ctrl/Shift hotkeys, UI polish. |
 | 9.3.1 | mainCmdDo keeps UI.mm open (only Log Out closes it); mainCmdOpen keeps sel; Status closes any window. |

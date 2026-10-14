@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.5.0",
-  "releaseTitle": "Mercenary guild",
+  "version": "9.5.1",
+  "releaseTitle": "Room to breathe",
   "description": "",
   "main": "index.js",
   "scripts": {
