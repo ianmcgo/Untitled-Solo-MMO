@@ -265,10 +265,11 @@ function buildVegetation(field, root) {
   const pineTex = texFoliage("pine", [48, 82, 52]);
   const leafTex = texFoliage("leaf", [74, 110, 48]);
   const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
-  const pines = [], leafy = [], leafy2 = [], rocks = [], smallRocks = [], tufts = [], stal = [], bushes = [], flowers = [], logs = [];
+  const pines = [], leafy = [], leafy2 = [], rocks = [], smallRocks = [], tufts = [], stal = [], bushes = [], flowers = [], logs = [], cacti = [];
+  const desert = z.palette === "desert";
   const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
   if (z.vegK) for (const kk of ["trees", "rocks", "small"]) want[kk] = Math.round(want[kk] * z.vegK);
-  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1);
+  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1) * (desert ? 0.25 : 1);
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
@@ -278,7 +279,7 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 50, exit: 180 })) continue;
     const y = field.heightAt(px, py), s = 0.8 + rnd() * 0.7;
     const m = mtx(px * U, y - 0.2, py * U, s, s * (0.9 + rnd() * 0.4), s, rnd() * 6.28);
-    (rnd() < (theme === "town" ? 0.4 : z.palette === "snow" ? 0.85 : 0.6) ? pines : rnd() < 0.45 ? leafy2 : leafy).push(m);
+    (desert ? (rnd() < 0.85 ? cacti : leafy2) : rnd() < (theme === "town" ? 0.4 : z.palette === "snow" ? 0.85 : 0.6) ? pines : rnd() < 0.45 ? leafy2 : leafy).push(m);
     z.colliders.push({ x: px, y: py, r: 4.6 * s });
     k++;
   }
@@ -312,7 +313,7 @@ function buildVegetation(field, root) {
     k++;
   }
   const outdoors = theme === "field" || theme === "town";
-  const bushN = outdoors ? { low: 60, medium: 160, high: 260 }[q] : 0, flowerN = outdoors && z.palette !== "snow" ? { low: 80, medium: 260, high: 500 }[q] : 0, logN = theme === "field" ? 18 : 0;
+  const bushN = outdoors ? { low: 60, medium: 160, high: 260 }[q] : 0, flowerN = outdoors && z.palette !== "snow" && !desert ? { low: 80, medium: 260, high: 500 }[q] : 0, logN = theme === "field" ? 18 : 0;
   for (let k = 0, tries = 0; k < bushN && tries < bushN * 20; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
@@ -376,6 +377,12 @@ function buildVegetation(field, root) {
   addWind(pineMat, 0.02);
   addWind(leafMat, 0.03);
   if (pines.length) { root.add(instanced(trunkGeo, barkMat, pines, true)); root.add(instanced(pineGeo, pineMat, pines, true)); }
+  if (cacti.length) {
+    const parts = [new THREE.CylinderGeometry(0.32, 0.38, 3.2, 10).translate(0, 1.6, 0), new THREE.SphereGeometry(0.32, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 3.2, 0)];
+    for (const [sx, h0, len] of [[1, 1.3, 1.1], [-1, 1.9, 0.9]]) { parts.push(new THREE.CylinderGeometry(0.17, 0.17, 0.6, 8).rotateZ(Math.PI / 2).translate(sx * 0.55, h0, 0)); parts.push(new THREE.CylinderGeometry(0.18, 0.2, len, 8).translate(sx * 0.82, h0 + len / 2, 0)); }
+    const cg = THREE.mergeGeometries(parts.map(g => g.index ? g.toNonIndexed() : g));
+    root.add(tintInst(instanced(cg, std({ color: 0x5a8a3e, roughness: 0.8 }), cacti, true), rnd, 0.12));
+  }
   if (leafy.length) { root.add(instanced(trunkGeo, barkMat, leafy, true)); root.add(tintInst(instanced(leafGeo, leafMat, leafy, true), rnd, 0.14)); }
   if (leafy2.length) {
     const trunk2 = THREE.mergeGeometries([new THREE.CylinderGeometry(0.1, 0.2, 3.4, 7).translate(0, 1.7, 0), new THREE.CylinderGeometry(0.05, 0.08, 1.4, 5).rotateZ(0.8).translate(0.55, 2.6, 0), new THREE.CylinderGeometry(0.05, 0.08, 1.2, 5).rotateZ(-0.9).translate(-0.5, 2.9, 0.1)]);
@@ -1318,6 +1325,7 @@ const BACKDROP = {
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
   marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
   harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
+  sunscar: { h: [40, 85, 150], col: [0x9a6a48, 0xb48a68, 0xd8b896], mark: "peak" },
   ironvale: { h: [60, 120, 210], col: [0x7a8a96, 0xa8b8c4, 0xe0eaf2], snow: true, mark: "peak" }
 };
 function buildBackdrop(field, root) {
@@ -1391,6 +1399,7 @@ const ATMOS = {
   marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
   frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
   harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  sunscar: { tint: 0xffe2b8, haze: 0.22, far: 1.25, clouds: 0.3 },
   ironvale: { tint: 0xd8e4f0, haze: 0.22, far: 1.1, clouds: 0.6 },
   depths: { tint: 0x8aa8b8, haze: 0.4, far: 0.7, clouds: 1 }
 };
