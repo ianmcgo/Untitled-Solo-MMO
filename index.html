@@ -774,6 +774,16 @@
   #mBody h3:first-child { margin-top: 0; }
   #mBody .item { border: none !important; border-bottom: 1px solid rgba(255,255,255,.1) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; padding: 6px 6px; margin-bottom: 0; }
   #mBody .item:hover { background: rgba(255,255,255,.05) !important; }
+  #mBody input[type=range] { accent-color: #9aa6ff; }
+  #mBody details { border: none !important; background: transparent !important; border-bottom: 1px solid rgba(255,255,255,.12) !important; border-radius: 0 !important; margin: 0; }
+  #mBody summary { font: italic 900 14px var(--ffFont) !important; color: #fff !important; letter-spacing: .06em; text-shadow: 1px 1px 0 #000; padding: 6px 4px !important; }
+  #mBody details[open] summary { background: linear-gradient(90deg, rgba(235,238,255,.3), transparent); }
+  #mBody details li, #mBody details p, #mBody details td { font-family: var(--ffFont); font-size: 12.5px; line-height: 1.5; }
+  #mBody .sub, #mBody .d { font-family: var(--ffFont); }
+  #mBody h3 { margin: 10px -4px 4px; padding: 2px 10px; border: none !important; font: italic 900 14px var(--ffFont); letter-spacing: .08em; color: #fff; -webkit-text-stroke: .4px #3a3a80; text-shadow: 1px 1px 0 #2a2a70; background: linear-gradient(90deg, rgba(235,238,255,.85), rgba(190,196,240,.5) 70%, rgba(190,196,240,.1)); }
+  #mBody h3:first-child { margin-top: 0; }
+  #mBody .item { border: none !important; border-bottom: 1px solid rgba(255,255,255,.1) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; padding: 6px 6px; margin-bottom: 0; }
+  #mBody .item:hover { background: rgba(255,255,255,.05) !important; }
   #mBody .item b, #mBody .item > div > div:first-child { font-family: var(--ffFont); font-style: italic; }
   #mBody input[type=range] { accent-color: #9aa6ff; }
   #mBody details { border: none !important; background: transparent !important; border-bottom: 1px solid rgba(255,255,255,.12) !important; border-radius: 0 !important; margin: 0; }
@@ -874,7 +884,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.5.1 · built 2026-10-14 00:09 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.6.0 · built 2026-10-14 00:11 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -13748,7 +13758,7 @@ function tabMercs() {
   const pool = mercPool(), full = save.hired.length >= CONFIG.maxParty - 1;
   const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
   UI.modalHelp = "Hire a companion. They fight at your level; if they fall, they're gone for good.";
-  const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc(m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
+  const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc({ dd: "Damage", tank: "Tank", healer: "Healer", support: "Support", nuker: "Nuker", burster: "Burster", hybrid: "Hybrid", bard: "Bard" }[m.role] || m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
   let h = '<div class="sub" style="margin-bottom:6px">Brann has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first day; after that each takes a daily wage.</div><h3>For hire today</h3>";
   const offers = pool.filter(id => !save.hired.includes(id));
   if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
@@ -14413,13 +14423,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.5.1 · built 2026-10-14 00:09 PDT";
+const BUILD_INFO = "v9.6.0 · built 2026-10-14 00:11 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.6.0", date: "2026-10-14", title: "Classic windows everywhere", items: [
+    "Every remaining window (Party, Mercenaries, Bestiary, Achievements, Social, Config, Map, Help, Updates, Job, Guild, Auction and more) now uses the classic style: section headings as pale title bars, flat striped rows instead of rounded cards, blue sliders and the same font throughout.",
+    "Help sections open as classic headings, and the Help text was rewritten for the current screen: windows in the world, the compass map, talking in the log, Pip for job changes, the daily Mercenary Hall and permadeath, Config instead of Settings, and no more mentions of the old side menu, action bar pages or top-right buttons.",
+    "Mercenary roles now read Damage, Tank, Healer and so on.",
+    "The welcome message points you to Pip for job changes."
   ] },
   { v: "9.5.1", date: "2026-10-14", title: "Room to breathe", items: [
     "Monster spawn points in every area are now at least 3 map squares apart (the squares shown under the compass, like G-8), and none sit within 2 squares of an area's entrances or exits.",
@@ -14861,7 +14877,7 @@ function tabHelp() {
   let h = '<div class="help">';
   h += sec("🌅 Getting started", ul([
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
-    "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
+    "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
     "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
@@ -15150,7 +15166,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.5.1";
+const GAME_VERSION = "9.6.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

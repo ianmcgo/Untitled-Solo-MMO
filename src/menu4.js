@@ -770,7 +770,7 @@ function tabMercs() {
   const pool = mercPool(), full = save.hired.length >= CONFIG.maxParty - 1;
   const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
   UI.modalHelp = "Hire a companion. They fight at your level; if they fall, they're gone for good.";
-  const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc(m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
+  const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc({ dd: "Damage", tank: "Tank", healer: "Healer", support: "Support", nuker: "Nuker", burster: "Burster", hybrid: "Hybrid", bard: "Bard" }[m.role] || m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
   let h = '<div class="sub" style="margin-bottom:6px">Brann has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first day; after that each takes a daily wage.</div><h3>For hire today</h3>";
   const offers = pool.filter(id => !save.hired.includes(id));
   if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
@@ -1443,6 +1443,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.6.0", date: "2026-10-14", title: "Classic windows everywhere", items: [
+    "Every remaining window (Party, Mercenaries, Bestiary, Achievements, Social, Config, Map, Help, Updates, Job, Guild, Auction and more) now uses the classic style: section headings as pale title bars, flat striped rows instead of rounded cards, blue sliders and the same font throughout.",
+    "Help sections open as classic headings, and the Help text was rewritten for the current screen: windows in the world, the compass map, talking in the log, Pip for job changes, the daily Mercenary Hall and permadeath, Config instead of Settings, and no more mentions of the old side menu, action bar pages or top-right buttons.",
+    "Mercenary roles now read Damage, Tank, Healer and so on.",
+    "The welcome message points you to Pip for job changes."
+  ] },
   { v: "9.5.1", date: "2026-10-14", title: "Room to breathe", items: [
     "Monster spawn points in every area are now at least 3 map squares apart (the squares shown under the compass, like G-8), and none sit within 2 squares of an area's entrances or exits.",
     "No monster types were lost: each spawn point now takes turns between the monsters that used to live around it, so every creature and notorious monster still appears in its area, just far fewer at once.",
@@ -1883,7 +1889,7 @@ function tabHelp() {
   let h = '<div class="help">';
   h += sec("🌅 Getting started", ul([
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
-    "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
+    "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
     "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
