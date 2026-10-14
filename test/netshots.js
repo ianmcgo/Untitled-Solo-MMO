@@ -44,6 +44,7 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     if (p === '/rest/v1/rpc/ah_history') return json([{ price: 100, qty: 6 }, { price: 25, qty: 1 }]);
     if (p === '/rest/v1/rpc/ah_buy') { const b = JSON.parse(req.postData()); const l = db.ah.find(x => x.id === b.lot); db.ah = db.ah.filter(x => x !== l); const c = db.chars[b.my_char]; c.data.gil -= l.price; db.box = [{ id: 2, kind: 'bought', item: l.item, qty: l.qty, gil: 0 }]; return json({ gil: c.data.gil, item: l.item, qty: l.qty, price: l.price }); }
     if (p === '/rest/v1/rpc/ah_collect') { const b = JSON.parse(req.postData()); const c = db.chars[b.my_char]; const inv = c.data.inventory.slice(); let g = c.data.gil; for (const x of db.box || []) { if (x.kind === 'sold') g += x.gil; else inv.push({ id: x.item, qty: x.qty }); } const got = (db.box || []).length; db.box = []; return json({ inventory: inv, gil: g, got, left: 0 }); }
+    if (p === '/rest/v1/rpc/ls_mine') return json([{ id: '7e734105-1bcd-421b-8a3b-10386912409b', name: 'Ember Guard', color: '#ff8844', rank: 'leader', members: [{ name: 'Tessa', rank: 'leader' }, { name: 'Mira', rank: 'sack' }, { name: 'Brum', rank: 'pearl' }] }]);
     if (p === '/rest/v1/characters') {
       const sel = url.searchParams.get('select') || '';
       if (m === 'GET') {
@@ -224,6 +225,33 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   await page.screenshot({ path: out + '-players-ah.png' });
   const ah = await page.evaluate(async () => { const h0 = invCount('healing_herb'), g0 = save.gil; await netAhBuy(12); return { herbs: invCount('healing_herb') - h0, gil: save.gil - g0, lock: !!NET.saveLock }; });
   console.log('ah', JSON.stringify(ah));
+  const social = await page.evaluate(async () => {
+    const r = {};
+    if (S.modal) closeModal();
+    await netLsRefresh();
+    r.ls = NET_LS.list.length; r.active = save.lsActive === NET_LS.list[0].id;
+    NET_RT.online = [{ name: 'Tessa', zone: S.zoneId, lv: player.lv, job: player.job }, { name: 'Brum', zone: 'outpost', lv: 7, job: 'WAR', lfg: 1, cmt: 'need a healer', ls: 'Ember Guard' }];
+    NET_RT.friendSeen = null; netFriendWatch();
+    runCommand('/friend add Mira');
+    NET_RT.online.push({ name: 'Mira', zone: S.zoneId, lv: 5, job: 'WHM', sub: 'BLM', lfg: 1, cmt: 'cures for hire' });
+    netFriendWatch();
+    r.friendOnline = [...document.querySelectorAll('#log div')].some(d => /Mira has come online/.test(d.textContent));
+    r.search = netSearch('whm').map(o => o.name).join(); r.lfg = netSearch('lfg').length; r.range = netSearch('6-8').map(o => o.name).join();
+    runCommand('/l Hello shell');
+    netOnLsChat(NET_LS.list[0].id, { name: 'Mira', text: 'hi from the shell' });
+    netOnLsChat(NET_LS.list[0].id, { name: 'Stranger', text: 'spoof' });
+    r.lsLines = [...document.querySelectorAll('#log div.ls')].map(d => d.textContent).join(' / ');
+    runCommand('/blacklist add Brum');
+    netOnTell({ to: save.name.toLowerCase(), from: 'Brum', text: 'buy gil' });
+    r.blocked = ![...document.querySelectorAll('#log div')].some(d => /buy gil/.test(d.textContent));
+    runCommand('/seek need a tank');
+    r.meta = netWorldMeta();
+    openMenu('social');
+    return r;
+  });
+  console.log('social', JSON.stringify(social));
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: out + '-social.png' });
   await page.evaluate(() => openMenu('settings')); await page.waitForTimeout(800);
   await page.screenshot({ path: out + '-settings.png' });
   await page.evaluate(() => openMenu('admin')); await page.waitForTimeout(2000);

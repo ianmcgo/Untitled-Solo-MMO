@@ -85,7 +85,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
@@ -128,6 +128,11 @@ function normalizeSave(d) {
   out.harvests = d.harvests || 0;
   out.buddies = (Array.isArray(d.buddies) ? d.buddies : []).filter(id => BUDDIES[id]);
   out.buddyNames = d.buddyNames && typeof d.buddyNames === "object" ? d.buddyNames : {};
+  out.friends = Array.isArray(d.friends) ? d.friends.filter(x => typeof x === "string").slice(0, 50) : [];
+  out.blocked = Array.isArray(d.blocked) ? d.blocked.filter(x => typeof x === "string").slice(0, 50) : [];
+  out.lsActive = typeof d.lsActive === "string" ? d.lsActive : null;
+  out.lfg = !!d.lfg;
+  out.seekMsg = typeof d.seekMsg === "string" ? d.seekMsg.slice(0, 40) : "";
   if (!out.buddies.includes(out.buddy)) out.buddy = null;
   out.buddyOut = !!out.buddyOut && !!out.buddy;
   out.market = Object.assign(newSave().market, d.market && typeof d.market === "object" ? d.market : {});
@@ -4071,6 +4076,12 @@ const COMMANDS = [
   ["/leave", "Leave your party."],
   ["/kick Name", "Party leader only: remove a player from the party."],
   ["/trade Name", "Ask a nearby player to trade items and crystals."],
+  ["/l text", "Talk to your active linkshell. /l1, /l2, /l3 pick a linkshell by its place in the Social window. /lsjoin accepts an invitation."],
+  ["/friend add|remove Name", "Manage your friend list. /friend on its own lists who's online. You're told when friends come online."],
+  ["/search [words]", "Find adventurers online. Words can be a job (WHM), a level (12) or range (10-15), an area, a name, 'lfg' or 'here'. Also /sea."],
+  ["/seek [message]", "Toggle looking for a party, with an optional short message others see in /search. Also /lfg."],
+  ["/blacklist add|remove Name", "Hide messages, invitations and trade requests from a player. Also /bl."],
+  ["/social", "Open the Social window: search, friends, linkshells and blacklist."],
   ["/fish", "Cast a line at the water's edge (needs a Willow Rod and Fishing Bait). Type it again when something bites to reel in."],
   ["/weather", "Show the current weather and its element bonus."],
   ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
@@ -4143,6 +4154,14 @@ function runCommand(text) {
     case "decline": if (typeof netPartyDecline === "function") netPartyDecline(); return;
     case "leave": if (typeof netPartyLeave === "function") netPartyLeave(); return;
     case "kick": if (typeof netPartyKick === "function") netPartyKick(arg); return;
+    case "l": case "linkshell": if (typeof netLsChat === "function") netLsChat(arg); else log("Linkshells need the game server.", "sys"); return;
+    case "l1": case "l2": case "l3": if (typeof netLsChat === "function") netLsChat(arg, +cmd[1] - 1); return;
+    case "lsjoin": if (typeof netLsJoin === "function") netLsJoin().catch(e => log(netAhErr(e), "sys")); return;
+    case "friend": case "friends": case "fl": { const [sub, ...rest] = arg.split(/\s+/); if (typeof netFriend === "function") netFriend((sub || "list").toLowerCase(), rest.join(" ")); return; }
+    case "blacklist": case "bl": { const [sub, ...rest] = arg.split(/\s+/); if (typeof netBlock === "function") netBlock((sub || "list").toLowerCase(), rest.join(" ")); return; }
+    case "search": case "sea": if (typeof netSearchLog === "function") netSearchLog(arg); else log("Search needs the game server.", "sys"); return;
+    case "seek": case "lfg": if (typeof netSeek === "function") netSeek(arg ? true : !save.lfg, arg || null); return;
+    case "social": if (typeof openMenu === "function") openMenu("social"); return;
     case "trade": if (typeof netTradeAsk === "function") netTradeAsk(arg || (player.target && player.target.kind === "remote" ? player.target.name : "")); else log("Trading needs the game server.", "sys"); return;
     case "bestiary": case "beasts": if (typeof openMenu === "function") openMenu("bestiary"); return;
     case "achievements": case "ach": if (typeof openMenu === "function") openMenu("achievements"); return;
