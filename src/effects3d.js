@@ -243,6 +243,10 @@ function updateWeatherFx(dt) {
   if (wx === "fog" || S.zone.mist) {
     if (Math.random() < dt * (low ? 2 : 5)) { const q = near(); q.y += rnd(0.2, 1); FX.smoke.spawn(q.x, q.y, q.z, rnd(0.2, 0.6), rnd(0, 0.1), rnd(-0.2, 0.2), rnd(4, 6), 2.5, 4.5, C(0xdfe6e8), C(0xc8d0d4), 0, 0, 0.18); }
   }
+  if (S.zone.palette === "volcanic") {
+    for (let i = 0, m = Math.floor((low ? 6 : 16) * dt + Math.random()); i < m; i++) { const q = near(); FX.add.spawn(q.x, q.y + rnd(0, 0.5), q.z, rnd(-0.3, 0.3), rnd(0.8, 2), rnd(-0.3, 0.3), rnd(1.5, 3), 0.08, 0.02, C(0xffd080), C(0xff4010), -0.2, 0.2, 1); }
+    for (let i = 0, m = Math.floor((low ? 4 : 10) * dt + Math.random()); i < m; i++) { const q = near(); q.y += rnd(4, 9); FX.smoke.spawn(q.x, q.y, q.z, rnd(-0.4, 0.4), rnd(-0.8, -0.4), rnd(-0.4, 0.4), rnd(4, 7), 0.12, 0.1, C(0x8a8480), C(0x5a5450), 0.05, 0, 0.6); }
+  }
   const dry = !/rain|storm|snow|blizzard/.test(wx || "");
   WFX.bf = WFX.bf || [];
   if (th === "field" && dry && W3.daylight > 0.6 && S.zone.palette !== "snow") {

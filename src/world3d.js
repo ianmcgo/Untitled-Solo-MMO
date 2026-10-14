@@ -266,10 +266,11 @@ function buildVegetation(field, root) {
   const leafTex = texFoliage("leaf", [74, 110, 48]);
   const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
   const pines = [], leafy = [], leafy2 = [], rocks = [], smallRocks = [], tufts = [], stal = [], bushes = [], flowers = [], logs = [], cacti = [];
-  const desert = z.palette === "desert", jungle = z.palette === "jungle";
+  const desert = z.palette === "desert", jungle = z.palette === "jungle", volcanic = z.palette === "volcanic";
   const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
   if (z.vegK) for (const kk of ["trees", "rocks", "small"]) want[kk] = Math.round(want[kk] * z.vegK);
-  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1) * (desert ? 0.25 : 1);
+  if (volcanic) { want.trees = Math.round(want.trees * 0.08); want.rocks = Math.round(want.rocks * 1.8); want.small = Math.round(want.small * 1.5); }
+  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1) * (desert ? 0.25 : volcanic ? 0.06 : 1);
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
@@ -313,7 +314,7 @@ function buildVegetation(field, root) {
     k++;
   }
   const outdoors = theme === "field" || theme === "town";
-  const bushN = outdoors ? { low: 60, medium: 160, high: 260 }[q] : 0, flowerN = outdoors && z.palette !== "snow" && !desert ? { low: 80, medium: 260, high: 500 }[q] : 0, logN = theme === "field" ? 18 : 0;
+  const bushN = outdoors && !volcanic ? { low: 60, medium: 160, high: 260 }[q] : 0, flowerN = outdoors && z.palette !== "snow" && !desert && !volcanic ? { low: 80, medium: 260, high: 500 }[q] : 0, logN = theme === "field" ? 18 : 0;
   for (let k = 0, tries = 0; k < bushN && tries < bushN * 20; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
@@ -417,7 +418,7 @@ function buildVegetation(field, root) {
     root.add(instanced(lg, barkMat, logs, true));
   }
   const rockGeo = noisyGeo(new THREE.IcosahedronGeometry(1, 2), 0.22, 3);
-  const rockMat = std({ map: rockTex.map, normalMap: rockTex.normalMap, normalScale: new THREE.Vector2(1.2, 1.2) });
+  const rockMat = std({ map: rockTex.map, normalMap: rockTex.normalMap, normalScale: new THREE.Vector2(1.2, 1.2), color: volcanic ? 0x4a4244 : desert ? 0xd8a888 : 0xffffff });
   if (rocks.length) root.add(instanced(rockGeo, rockMat, rocks, true));
   if (smallRocks.length) root.add(instanced(rockGeo, rockMat, smallRocks, false));
   if (stal.length) {
@@ -1009,7 +1010,13 @@ function buildWater(field, root) {
   const normals = texWaterNormals();
   const cave = themeOf(z) === "cave" || themeOf(z) === "crypt";
   let water;
-  if (z.palette === "snow") {
+  if (z.palette === "volcanic") {
+    const nm = normals.clone();
+    nm.needsUpdate = true;
+    nm.repeat.set(3, 3);
+    water = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff3a08, emissiveIntensity: 1.5, roughness: 0.75, metalness: 0, normalMap: nm, normalScale: new THREE.Vector2(0.6, 0.6) }));
+    water.userData.lowNormal = nm;
+  } else if (z.palette === "snow") {
     const nm = normals.clone();
     nm.needsUpdate = true;
     nm.repeat.set(2, 2);
@@ -1325,6 +1332,7 @@ const BACKDROP = {
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
   marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
   harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
+  cinder: { h: [60, 130, 230], col: [0x3a2a26, 0x5a443e, 0x8a7a74], mark: "peak" },
   verdant: { h: [40, 80, 140], col: [0x2e5a2a, 0x4a7050, 0x7a9488], mark: "tree" },
   sunscar: { h: [40, 85, 150], col: [0x9a6a48, 0xb48a68, 0xd8b896], mark: "peak" },
   ironvale: { h: [60, 120, 210], col: [0x7a8a96, 0xa8b8c4, 0xe0eaf2], snow: true, mark: "peak" }
@@ -1400,6 +1408,7 @@ const ATMOS = {
   marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
   frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
   harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  cinder: { tint: 0xffb488, haze: 0.3, far: 0.9, clouds: 0.85 },
   verdant: { tint: 0xb8d8a0, haze: 0.32, far: 0.85, clouds: 0.9 },
   sunscar: { tint: 0xffe2b8, haze: 0.22, far: 1.25, clouds: 0.3 },
   ironvale: { tint: 0xd8e4f0, haze: 0.22, far: 1.1, clouds: 0.6 },

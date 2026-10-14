@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v12.2.0 · built 2026-10-14 04:33 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v12.3.0 · built 2026-10-14 04:40 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -7153,7 +7153,7 @@ NM_FAMILIES.sandmaw = { hint: "Singing Dunes, Sunscar Desert · any time", base:
 ITEMS.dunestrider_boots = { name: "Dunestrider Boots", kind: "equip", icon: "👢", rare: true, nm: true, rarity: "epic", slot: "feet", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 7, agi: 4, eva: 5, hp: 20 }, desc: "Sandmaw's hide, stitched into boots that never sink." };
 ZONES.sunscar = {
   name: "Sunscar Desert", w: 3000, h: 2200, theme: "field", palette: "desert",
-  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }],
+  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }],
   npcs: [],
   walls: [{ x: 600, y: 480, w: 300, h: 220 }, { x: 2000, y: 380, w: 260, h: 300 }, { x: 1250, y: 1500, w: 380, h: 200 }, { x: 2400, y: 1600, w: 240, h: 260 }],
   ruins: { walls: [[2520, 420, 2680, 420, 2.4], [2520, 420, 2520, 560, 1.6]], pillars: [[860, 1050, 3.6], [910, 1000, 4.4], [960, 1050, 4.0], [1010, 1100, 3.0], [820, 1120, 2.2]] },
@@ -7177,7 +7177,8 @@ ZONES.sunscar = {
   paths: [
     { w: 44, pts: [[1500, -500], [1500, 0], [1500, 400], [1300, 800], [920, 1080], [700, 1600], [600, 1800]] },
     { w: 34, pts: [[1300, 800], [1800, 1000], [2060, 1050]] },
-    { w: 30, pts: [[1800, 1000], [2300, 700], [2600, 560]] }
+    { w: 30, pts: [[1800, 1000], [2300, 700], [2600, 560]] },
+    { w: 30, pts: [[2600, 560], [2850, 850], [3000, 1000], [3500, 1000]] }
   ],
   gather: {
     mining: { n: 3, at: [[700, 800], [2300, 400], [1700, 1900], [2800, 1500], [400, 1500]], loot: [["iron_ore", 0.4], ["copper_ore", 0.3], ["fire_crystal", 0.15], ["earth_crystal", 0.15]] },
@@ -7227,6 +7228,46 @@ ZONES.verdant = {
     harvesting: { n: 3, at: [[700, 1300], [1300, 1100], [1800, 1600], [2500, 900]], loot: [["healing_herb", 0.6], ["mandrake_leaf", 0.2], ["water_crystal", 0.12]] }
   },
   start: { x: 100, y: 1150 }
+};
+
+Object.assign(FAMILIES, {
+  magma_lizard: tierFam("hill_lizard", { name: "Magma Lizard", color: "#c0402a", tint: 0x8a2a1a, tint2: 0xff8a40, hpMul: 1.25, attMul: 1.1, weak: { water: 1.4, ice: 1.3 }, loot: [["lizard_skin", 0.4], ["fire_crystal", 0.35], ["hi_potion", 0.07]] }),
+  obsidian_crab: tierFam("pond_crab", { name: "Obsidian Crab", color: "#3a3440", tint: 0x2a2630, hpMul: 1.3, defMul: 1.4, weak: { water: 1.3, lightning: 1.25 }, loot: [["crab_shell", 0.4], ["earth_crystal", 0.25], ["hi_potion", 0.07]] }),
+  magma_worm: tierFam("worm", { name: "Magma Worm", color: "#a03a20", tint: 0xa03a20, hpMul: 1.45, attMul: 1.1, weak: { water: 1.4 }, loot: [["worm_silk", 0.3], ["fire_crystal", 0.35], ["hi_potion", 0.07]] }),
+  ash_orc: tierFam("orc_grunt", { name: "Ashen Orc", color: "#6a6a6a", hpMul: 1.3, attMul: 1.15, loot: [["orc_tooth", 0.4], ["fire_crystal", 0.25], ["hi_potion", 0.08]] }),
+  cinder_bones: tierFam("skeleton", { name: "Cinder Bones", color: "#5a4a44", hpMul: 1.25, attMul: 1.1, weak: { light: 1.5, water: 1.2 }, loot: [["bone_chip", 0.45], ["fire_crystal", 0.25], ["hi_potion", 0.07]] })
+});
+NM_FAMILIES.pyreclaw = { hint: "Crater Rim, Cinder Peak · night", base: "hill_lizard", name: "Pyreclaw", hpMul: 3.2, attMul: 1.2, scale: 2.0, aura: "#ff5722", loot: [["pyre_ring", 0.35], ["lizard_skin", 1], ["fire_crystal", 1], ["hi_potion", 0.5]], respawn: 540 };
+ITEMS.pyre_ring = { name: "Pyre Ring", kind: "equip", icon: "💍", rare: true, nm: true, rarity: "epic", slot: "ring", jobs: ALL_JOBS, lv: 20, price: 0, stats: { str: 4, att: 8, acc: 4, res_fire: 10 }, desc: "Cut from Pyreclaw's heartstone. Warm to the touch, always." };
+ZONES.cinder = {
+  name: "Cinder Peak", w: 2800, h: 2400, theme: "field", palette: "volcanic",
+  exits: [{ x: 0, y: 1150, w: 24, h: 100, to: "sunscar", tx: 2900, ty: 1000, label: "Sunscar Desert" }],
+  npcs: [],
+  walls: [{ x: 700, y: 400, w: 280, h: 260 }, { x: 1800, y: 1500, w: 300, h: 260 }, { x: 600, y: 1800, w: 360, h: 180 }, { x: 2300, y: 1100, w: 220, h: 300 }],
+  ruins: { walls: [[1700, 450, 1900, 450, 2.0], [1900, 450, 1900, 600, 1.4]], pillars: [[1650, 520, 3.0], [1950, 380, 2.4]] },
+  landmarks: [
+    { id: "ashfall", name: "Ashfall Road", x: 400, y: 1200, r: 220, xp: 60 },
+    { id: "steps", name: "Obsidian Steps", x: 1100, y: 800, r: 240, xp: 80 },
+    { id: "lake", name: "Molten Lake", x: 1400, y: 1300, r: 280, xp: 90 },
+    { id: "rim", name: "Crater Rim", x: 2300, y: 600, r: 260, xp: 100 },
+    { id: "vent", name: "Smoking Vent", x: 1200, y: 2000, r: 220, xp: 80 }
+  ],
+  spawns: [
+    { fam: "magma_lizard", lv: [18, 19], x: 700, y: 1000 }, { fam: "magma_lizard", lv: [19, 20], x: 1700, y: 900 }, { fam: "magma_lizard", lv: [19, 20], x: 2400, y: 500, nm: { id: "pyreclaw", lv: 22, chance: 0.12, time: "night" } },
+    { fam: "obsidian_crab", lv: [18, 19], x: 1100, y: 1500 }, { fam: "obsidian_crab", lv: [19, 20], x: 1700, y: 1250 },
+    { fam: "magma_worm", lv: [18, 20], x: 1000, y: 2050 }, { fam: "magma_worm", lv: [19, 20], x: 1500, y: 1900 },
+    { fam: "ash_orc", lv: [19, 20], x: 2100, y: 1900 }, { fam: "ash_orc", lv: [19, 20], x: 2250, y: 1950 },
+    { fam: "cinder_bomb", lv: [18, 20], x: 1300, y: 600, time: "night" }, { fam: "cinder_bones", lv: [19, 20], x: 1800, y: 500, time: "night" }
+  ],
+  water: [{ x: 1400, y: 1300, r: 190 }, { x: 2150, y: 750, r: 110 }],
+  paths: [
+    { w: 40, pts: [[-500, 1200], [0, 1200], [500, 1200], [900, 950], [1100, 800], [1500, 700], [1900, 700], [2200, 600]] },
+    { w: 30, pts: [[500, 1200], [900, 1600], [1200, 2000]] }
+  ],
+  gather: {
+    mining: { n: 4, at: [[500, 700], [1300, 950], [2000, 1200], [900, 2200], [2500, 1800], [1600, 1700]], loot: [["iron_ore", 0.45], ["copper_ore", 0.2], ["fire_crystal", 0.25], ["earth_crystal", 0.1]] }
+  },
+  start: { x: 100, y: 1200 }
 };
 
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
@@ -7791,6 +7832,8 @@ Object.assign(NPCS, {
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
+WEATHER.cinder = [["cloudy", 4], ["clear", 3], ["fog", 2], ["wind", 2], ["storm", 0.5]];
+ACHIEVEMENTS.push({ id: "cinder", icon: "🌋", name: "Trial by Fire", desc: "Set foot on Cinder Peak.", test: s => (s.discovered || []).includes("cinder") });
 WEATHER.verdant = [["rain", 5], ["cloudy", 3], ["fog", 2], ["clear", 2], ["storm", 1.2]];
 ACHIEVEMENTS.push({ id: "verdant", icon: "🌴", name: "Into the Green", desc: "Set foot in the Verdant Jungle.", test: s => (s.discovered || []).includes("verdant") });
 WEATHER.sunscar = [["clear", 7], ["wind", 3], ["cloudy", 1], ["storm", 0.3]];
@@ -7836,6 +7879,14 @@ Object.assign(BESTIARY, {
   bloom_mandrake: { type: "Plantoid", lore: "Mandrakes crowned with heavy pink blooms. Their dust smells sweet and puts you to sleep." },
   jade_toad: { type: "Amphibian", lore: "Bright green toads that sit in the jungle pools and listen." },
   old_mossback: { type: "Plantoid", lore: "The oldest tree in the jungle, and it still walks. The canopy bends wherever it goes." }
+});
+Object.assign(BESTIARY, {
+  magma_lizard: { type: "Lizard", lore: "Lizards with glowing cracks in their scales who bask on cooling lava." },
+  obsidian_crab: { type: "Aquan", lore: "Crabs whose shells are black volcanic glass. Hard to crack, harder to see at night." },
+  magma_worm: { type: "Amorphous", lore: "Worms that burrow through warm ash and leave smoking trails." },
+  ash_orc: { type: "Beastman", lore: "Orcs who forge their axes in the mountain's heat and cover themselves in ash for war." },
+  cinder_bones: { type: "Undead", lore: "The scorched remains of climbers who never came back down." },
+  pyreclaw: { type: "Lizard", lore: "A lizard as big as a cart, with fire in its throat. It suns itself on the Crater Rim at night." }
 });
 
 const S = {
@@ -15584,13 +15635,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v12.2.0 · built 2026-10-14 04:33 PDT";
+const BUILD_INFO = "v12.3.0 · built 2026-10-14 04:40 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "12.3.0", date: "2026-10-14", title: "Cinder Peak", items: [
+    "A new area east of the Sunscar Desert: Cinder Peak, a volcano for levels 18–20. Black rock, drifting ash, rising embers and pools of glowing lava.",
+    "New monsters: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs and Cinder Bones, with Cinder Bombs after dark. Pyreclaw, a giant fire lizard, may drop the Pyre Ring.",
+    "Five landmarks, plenty of mining spots, and a new achievement: Trial by Fire.",
+    "Rocks in the desert are now sand-coloured to match the dunes."
   ] },
   { v: "12.2.0", date: "2026-10-14", title: "Verdant Jungle", items: [
     "A new area east of the Ashen Marsh: the Verdant Jungle, for levels 17–20. Giant trees, warm rain most days and a green mist between the trunks.",
@@ -16356,6 +16413,7 @@ function tabHelp() {
     ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the mythrilsmith (level 18–19 mythril weapons for every weapon type, Mythril Mail and Helm, Ironvale Robe), Orla's auction house, home point, trade board"],
     ["Sunscar Desert", "17–20", "South of Ironvale. Sand, cacti and red mesas: Dune Lizards, Sand Crabs, Sun Wasps (day), Dune Worms, Needlekin, Cinder Bombs (night). Sunscar Gate, Titan's Ribs, the Glass Oasis, the Singing Dunes (NM Sandmaw) and the Red Spire"],
     ["Verdant Jungle", "17–20", "East of the Ashen Marsh. Huge trees, warm rain and green mist: Vine Crawlers, Jade Hornets (day), Strangler Saplings, Bloom Mandrakes (day), Jade Toads and a Crag Talon war band by the Overgrown Temple. Old Mossback, an ancient treant, walks the Heart of the Canopy"],
+    ["Cinder Peak", "18–20", "East of the Sunscar Desert. A volcano of black rock, ash and glowing lava pools: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs, Cinder Bombs and Cinder Bones (night). The NM Pyreclaw suns itself on the Crater Rim at night. Rich mining; no fishing in lava"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🧭 Exploring the wilds", ul([
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
@@ -16571,7 +16629,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "12.2.0";
+const GAME_VERSION = "12.3.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -17087,6 +17145,7 @@ const TERRAIN_THEMES = {
   cave: { grassA: [78, 76, 80], grassB: [96, 90, 92], dirt: [110, 92, 74], rock: [96, 92, 100], sand: [120, 110, 96], cliff: [80, 78, 88], moss: [62, 92, 58] },
   crypt: { grassA: [70, 68, 76], grassB: [84, 82, 90], dirt: [92, 86, 96], rock: [80, 78, 88], sand: [96, 92, 100], cliff: [60, 58, 68], moss: [52, 70, 56] },
   snow: { grassA: [214, 222, 230], grassB: [236, 240, 246], dirt: [168, 160, 150], rock: [130, 136, 146], sand: [200, 205, 212], cliff: [120, 128, 140] },
+  volcanic: { grassA: [62, 56, 54], grassB: [80, 70, 64], dirt: [100, 62, 44], rock: [66, 62, 64], sand: [92, 80, 74], cliff: [52, 48, 50] },
   jungle: { grassA: [52, 92, 36], grassB: [74, 118, 44], dirt: [92, 70, 46], rock: [92, 96, 84], sand: [130, 116, 84], cliff: [76, 84, 66], moss: [44, 86, 40] },
   desert: { grassA: [204, 176, 126], grassB: [222, 196, 146], dirt: [184, 140, 96], rock: [170, 124, 92], sand: [230, 206, 160], cliff: [160, 108, 78] },
   marsh: { grassA: [70, 84, 50], grassB: [96, 100, 60], dirt: [92, 80, 58], rock: [96, 98, 90], sand: [104, 96, 70], cliff: [84, 88, 80], moss: [58, 82, 48] },
@@ -17427,10 +17486,11 @@ function buildVegetation(field, root) {
   const leafTex = texFoliage("leaf", [74, 110, 48]);
   const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
   const pines = [], leafy = [], leafy2 = [], rocks = [], smallRocks = [], tufts = [], stal = [], bushes = [], flowers = [], logs = [], cacti = [];
-  const desert = z.palette === "desert", jungle = z.palette === "jungle";
+  const desert = z.palette === "desert", jungle = z.palette === "jungle", volcanic = z.palette === "volcanic";
   const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
   if (z.vegK) for (const kk of ["trees", "rocks", "small"]) want[kk] = Math.round(want[kk] * z.vegK);
-  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1) * (desert ? 0.25 : 1);
+  if (volcanic) { want.trees = Math.round(want.trees * 0.08); want.rocks = Math.round(want.rocks * 1.8); want.small = Math.round(want.small * 1.5); }
+  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1) * (desert ? 0.25 : volcanic ? 0.06 : 1);
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
@@ -17474,7 +17534,7 @@ function buildVegetation(field, root) {
     k++;
   }
   const outdoors = theme === "field" || theme === "town";
-  const bushN = outdoors ? { low: 60, medium: 160, high: 260 }[q] : 0, flowerN = outdoors && z.palette !== "snow" && !desert ? { low: 80, medium: 260, high: 500 }[q] : 0, logN = theme === "field" ? 18 : 0;
+  const bushN = outdoors && !volcanic ? { low: 60, medium: 160, high: 260 }[q] : 0, flowerN = outdoors && z.palette !== "snow" && !desert && !volcanic ? { low: 80, medium: 260, high: 500 }[q] : 0, logN = theme === "field" ? 18 : 0;
   for (let k = 0, tries = 0; k < bushN && tries < bushN * 20; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
@@ -17578,7 +17638,7 @@ function buildVegetation(field, root) {
     root.add(instanced(lg, barkMat, logs, true));
   }
   const rockGeo = noisyGeo(new THREE.IcosahedronGeometry(1, 2), 0.22, 3);
-  const rockMat = std({ map: rockTex.map, normalMap: rockTex.normalMap, normalScale: new THREE.Vector2(1.2, 1.2) });
+  const rockMat = std({ map: rockTex.map, normalMap: rockTex.normalMap, normalScale: new THREE.Vector2(1.2, 1.2), color: volcanic ? 0x4a4244 : desert ? 0xd8a888 : 0xffffff });
   if (rocks.length) root.add(instanced(rockGeo, rockMat, rocks, true));
   if (smallRocks.length) root.add(instanced(rockGeo, rockMat, smallRocks, false));
   if (stal.length) {
@@ -18170,7 +18230,13 @@ function buildWater(field, root) {
   const normals = texWaterNormals();
   const cave = themeOf(z) === "cave" || themeOf(z) === "crypt";
   let water;
-  if (z.palette === "snow") {
+  if (z.palette === "volcanic") {
+    const nm = normals.clone();
+    nm.needsUpdate = true;
+    nm.repeat.set(3, 3);
+    water = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff3a08, emissiveIntensity: 1.5, roughness: 0.75, metalness: 0, normalMap: nm, normalScale: new THREE.Vector2(0.6, 0.6) }));
+    water.userData.lowNormal = nm;
+  } else if (z.palette === "snow") {
     const nm = normals.clone();
     nm.needsUpdate = true;
     nm.repeat.set(2, 2);
@@ -18486,6 +18552,7 @@ const BACKDROP = {
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
   marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
   harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
+  cinder: { h: [60, 130, 230], col: [0x3a2a26, 0x5a443e, 0x8a7a74], mark: "peak" },
   verdant: { h: [40, 80, 140], col: [0x2e5a2a, 0x4a7050, 0x7a9488], mark: "tree" },
   sunscar: { h: [40, 85, 150], col: [0x9a6a48, 0xb48a68, 0xd8b896], mark: "peak" },
   ironvale: { h: [60, 120, 210], col: [0x7a8a96, 0xa8b8c4, 0xe0eaf2], snow: true, mark: "peak" }
@@ -18561,6 +18628,7 @@ const ATMOS = {
   marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
   frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
   harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  cinder: { tint: 0xffb488, haze: 0.3, far: 0.9, clouds: 0.85 },
   verdant: { tint: 0xb8d8a0, haze: 0.32, far: 0.85, clouds: 0.9 },
   sunscar: { tint: 0xffe2b8, haze: 0.22, far: 1.25, clouds: 0.3 },
   ironvale: { tint: 0xd8e4f0, haze: 0.22, far: 1.1, clouds: 0.6 },
@@ -21683,6 +21751,10 @@ function updateWeatherFx(dt) {
   }
   if (wx === "fog" || S.zone.mist) {
     if (Math.random() < dt * (low ? 2 : 5)) { const q = near(); q.y += rnd(0.2, 1); FX.smoke.spawn(q.x, q.y, q.z, rnd(0.2, 0.6), rnd(0, 0.1), rnd(-0.2, 0.2), rnd(4, 6), 2.5, 4.5, C(0xdfe6e8), C(0xc8d0d4), 0, 0, 0.18); }
+  }
+  if (S.zone.palette === "volcanic") {
+    for (let i = 0, m = Math.floor((low ? 6 : 16) * dt + Math.random()); i < m; i++) { const q = near(); FX.add.spawn(q.x, q.y + rnd(0, 0.5), q.z, rnd(-0.3, 0.3), rnd(0.8, 2), rnd(-0.3, 0.3), rnd(1.5, 3), 0.08, 0.02, C(0xffd080), C(0xff4010), -0.2, 0.2, 1); }
+    for (let i = 0, m = Math.floor((low ? 4 : 10) * dt + Math.random()); i < m; i++) { const q = near(); q.y += rnd(4, 9); FX.smoke.spawn(q.x, q.y, q.z, rnd(-0.4, 0.4), rnd(-0.8, -0.4), rnd(-0.4, 0.4), rnd(4, 7), 0.12, 0.1, C(0x8a8480), C(0x5a5450), 0.05, 0, 0.6); }
   }
   const dry = !/rain|storm|snow|blizzard/.test(wx || "");
   WFX.bf = WFX.bf || [];
