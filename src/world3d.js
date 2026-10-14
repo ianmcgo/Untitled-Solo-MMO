@@ -106,7 +106,7 @@ function* buildFieldSteps(zone) {
       const we = wallE(px, py);
       if (we > -10) hgt += sstep(-10, 120, we) * amps[2] * (0.75 + NOISE.ridge(px * 0.01, py * 0.01, 3, 0, 309) * 0.5) * (theme === "field" ? 0.9 : 1.1);
     }
-    if (amps[2] > 0) {
+    if (amps[2] > 0 && !zone.island) {
       let t = sstep(-60, 260, e);
       t *= 1 - exitMask(px, py) * 0.97;
       const rough = NOISE.ridge(px * 0.006, py * 0.006, 4, 0, 307);
@@ -1332,6 +1332,7 @@ const BACKDROP = {
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
   marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
   harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
+  gullisle: { h: [8, 20, 50], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
   cinder: { h: [60, 130, 230], col: [0x3a2a26, 0x5a443e, 0x8a7a74], mark: "peak" },
   verdant: { h: [40, 80, 140], col: [0x2e5a2a, 0x4a7050, 0x7a9488], mark: "tree" },
   sunscar: { h: [40, 85, 150], col: [0x9a6a48, 0xb48a68, 0xd8b896], mark: "peak" },
@@ -1340,7 +1341,7 @@ const BACKDROP = {
 function buildBackdrop(field, root) {
   const th = themeOf(S.zone), B = BACKDROP[S.zoneId] || (th === "field" ? BACKDROP.hollow : null);
   W3.backdrop = []; W3.beacon = null;
-  if (!B || th === "cave" || th === "crypt" || th === "house") return;
+  if (!B || th === "cave" || th === "crypt" || th === "house" || S.zone.island) return;
   const cx = (field.x0 + field.w / 2) * U, cz = (field.y0 + field.h / 2) * U, half = Math.hypot(field.w, field.h) * U / 2;
   const radii = [half + 70, half + 190, half + 380], seed = hashStr(S.zoneId + "bd");
   let es = 0, en = 0;
@@ -1408,6 +1409,7 @@ const ATMOS = {
   marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
   frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
   harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  gullisle: { tint: 0xc4e2ee, haze: 0.28, far: 1.1, clouds: 0.6 },
   cinder: { tint: 0xffb488, haze: 0.3, far: 0.9, clouds: 0.85 },
   verdant: { tint: 0xb8d8a0, haze: 0.32, far: 0.85, clouds: 0.9 },
   sunscar: { tint: 0xffe2b8, haze: 0.22, far: 1.25, clouds: 0.3 },

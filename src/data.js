@@ -1083,7 +1083,7 @@ ZONES.harbor = {
   ambient: [{ type: "gull", x: 700, y: 700, n: 5, r: 160 }, { type: "cat", x: 500, y: 560, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 700, y: 500, n: 1, path: [[500, 300], [900, 300], [900, 620], [500, 620]] }, { type: "walker", x: 700, y: 500, n: 1, path: [[700, 200], [700, 640], [1000, 500]] }],
   npcs: [
     { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
-    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }, { id: "guard_north", x: 530, y: 80 }, { id: "guard_pass", x: 1330, y: 340 }
+    { id: "crystal_harbor", x: 700, y: 460 }, { id: "ferry_harbor", x: 560, y: 760 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }, { id: "guard_north", x: 530, y: 80 }, { id: "guard_pass", x: 1330, y: 340 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1180, r: 360 }, { x: 900, y: 1230, r: 420 }, { x: 1350, y: 1100, r: 260 }],
@@ -1485,6 +1485,46 @@ ZONES.cinder = {
     mining: { n: 4, at: [[500, 700], [1300, 950], [2000, 1200], [900, 2200], [2500, 1800], [1600, 1700]], loot: [["iron_ore", 0.45], ["copper_ore", 0.2], ["fire_crystal", 0.25], ["earth_crystal", 0.1]] }
   },
   start: { x: 100, y: 1200 }
+};
+
+Object.assign(FAMILIES, {
+  reef_crab: tierFam("pond_crab", { name: "Reef Crab", color: "#e07a5a", tint: 0xe07a5a, hpMul: 1.1, weak: { lightning: 1.3 }, loot: [["crab_shell", 0.45], ["water_crystal", 0.25], ["potion", 0.08]] }),
+  shore_lizard: tierFam("hill_lizard", { name: "Shore Lizard", color: "#7a9a6a", tint: 0x7a9a6a, tint2: 0xe8dcb0, loot: [["lizard_skin", 0.4], ["wind_crystal", 0.2], ["potion", 0.08]] }),
+  gale_talon: tierFam("birdfolk", { name: "Gale Talon", color: "#e8e0d0", loot: [["crag_feather", 0.4], ["wind_crystal", 0.25], ["hi_potion", 0.05]] }),
+  isle_snapper: tierFam("lake_snapper", { name: "Isle Snapper", color: "#4a8aa0", tint: 0x4a8aa0, loot: [["harbor_bream", 0.3], ["water_crystal", 0.3], ["potion", 0.08]] })
+});
+NM_FAMILIES.old_saltjaw = { hint: "Wreck Cove, Gull Isle · any time", base: "lake_snapper", name: "Old Saltjaw", hpMul: 2.8, attMul: 1.1, scale: 1.9, aura: "#4fc3f7", loot: [["saltjaw_earring", 0.35], ["harbor_bream", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 420 };
+ITEMS.saltjaw_earring = { name: "Saltjaw Earring", kind: "equip", icon: "🦷", rare: true, nm: true, rarity: "epic", slot: "ear", jobs: ALL_JOBS, lv: 15, price: 0, stats: { acc: 5, att: 5, res_water: 10 }, desc: "A tooth from Old Saltjaw, bound in silver." };
+ITEMS.gull_charm = { name: "Gull Charm", kind: "equip", icon: "🪶", rare: true, slot: "ear", jobs: ALL_JOBS, lv: 12, price: 0, stats: { agi: 2, eva: 3, mp: 10 }, desc: "Old Wend's lucky charm. Gulls follow whoever wears it." };
+ZONES.gullisle = {
+  name: "Gull Isle", w: 2200, h: 1800, theme: "field", palette: "beach", island: true,
+  exits: [],
+  npcs: [{ id: "ferry_isle", x: 380, y: 900 }, { id: "wend", x: 600, y: 760 }],
+  ambient: [{ type: "gull", x: 1100, y: 900, n: 6, r: 500 }, { type: "gull", x: 400, y: 900, n: 3, r: 160 }],
+  walls: [{ x: 1300, y: 500, w: 240, h: 200 }, { x: 900, y: 1200, w: 200, h: 160 }],
+  ruins: { walls: [[1600, 1250, 1760, 1300, 1.2], [1760, 1300, 1820, 1420, 0.8]], pillars: [[1700, 1200, 2.2]] },
+  landmarks: [
+    { id: "dock", name: "Gull Isle Landing", x: 420, y: 900, r: 200, xp: 50 },
+    { id: "lookout", name: "Gullsrest Cliffs", x: 1400, y: 380, r: 220, xp: 70 },
+    { id: "cove", name: "Wreck Cove", x: 1700, y: 1350, r: 240, xp: 80 },
+    { id: "grove", name: "Palm Grove", x: 1000, y: 900, r: 240, xp: 60 }
+  ],
+  spawns: [
+    { fam: "reef_crab", lv: [12, 13], x: 700, y: 1250 }, { fam: "reef_crab", lv: [13, 14], x: 1500, y: 1500 },
+    { fam: "shore_lizard", lv: [12, 14], x: 1000, y: 600 }, { fam: "shore_lizard", lv: [13, 14], x: 1200, y: 1100 },
+    { fam: "gale_talon", lv: [14, 15], x: 1550, y: 450 }, { fam: "gale_talon", lv: [14, 16], x: 1700, y: 650 },
+    { fam: "fishfolk", lv: [14, 15], x: 1650, y: 1150 }, { fam: "isle_snapper", lv: [14, 16], x: 1800, y: 1300, nm: { id: "old_saltjaw", lv: 17, chance: 0.12 } }
+  ],
+  water: [{ x: -380, y: 900, r: 620 }, { x: 2600, y: 900, r: 640 }, { x: 1100, y: -460, r: 760 }, { x: 1100, y: 2260, r: 760 }, { x: -200, y: -200, r: 600 }, { x: 2400, y: -200, r: 600 }, { x: -200, y: 2000, r: 600 }, { x: 2400, y: 2000, r: 600 }],
+  paths: [
+    { w: 36, pts: [[380, 900], [700, 880], [1000, 900], [1300, 1000], [1650, 1250]] },
+    { w: 28, pts: [[1000, 900], [1200, 700], [1400, 450]] }
+  ],
+  gather: {
+    logging: { n: 2, at: [[900, 700], [1100, 1050], [800, 1000]], loot: [["ash_log", 0.6], ["wind_crystal", 0.15]] },
+    harvesting: { n: 2, at: [[1200, 850], [700, 700], [1500, 1000]], loot: [["healing_herb", 0.6], ["water_crystal", 0.15]] }
+  },
+  start: { x: 420, y: 900 }
 };
 
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
@@ -2049,6 +2089,10 @@ Object.assign(NPCS, {
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
+WEATHER.gullisle = [["clear", 6], ["wind", 3], ["cloudy", 2], ["rain", 2], ["storm", 0.7]];
+FISH.gullisle = [["sea_bass", 6, 7], ["harbor_bream", 0, 4], ["tidecaller_tuna", 14, 1.2]];
+ACHIEVEMENTS.push({ id: "gullisle", icon: "🏝️", name: "Island Hopper", desc: "Take the ferry to Gull Isle.", test: s => (s.discovered || []).includes("gullisle") });
+CONFIG.ferryCost = 100;
 WEATHER.cinder = [["cloudy", 4], ["clear", 3], ["fog", 2], ["wind", 2], ["storm", 0.5]];
 ACHIEVEMENTS.push({ id: "cinder", icon: "🌋", name: "Trial by Fire", desc: "Set foot on Cinder Peak.", test: s => (s.discovered || []).includes("cinder") });
 WEATHER.verdant = [["rain", 5], ["cloudy", 3], ["fog", 2], ["clear", 2], ["storm", 1.2]];
@@ -2104,4 +2148,20 @@ Object.assign(BESTIARY, {
   ash_orc: { type: "Beastman", lore: "Orcs who forge their axes in the mountain's heat and cover themselves in ash for war." },
   cinder_bones: { type: "Undead", lore: "The scorched remains of climbers who never came back down." },
   pyreclaw: { type: "Lizard", lore: "A lizard as big as a cart, with fire in its throat. It suns itself on the Crater Rim at night." }
+});
+Object.assign(NPCS, {
+  ferry_harbor: { name: "Ferryman Coll", model: "ferryman", talk: "talkFerry", ferryTo: "gullisle" },
+  ferry_isle: { name: "Ferryman Coll's Mate", model: "ferryman", talk: "talkFerry", ferryTo: "harbor" },
+  wend: { name: "Old Wend", model: "wend", talk: "talkWend" }
+});
+Object.assign(QUESTS, {
+  isle_supper: { name: "Supper for Wend", giver: "Old Wend", npc: "wend", lv: 10, items: { sea_bass: 3 }, desc: "Bring Old Wend 3 Sea Bass. His knees won't take him to the water any more.", reward: { xp: 1800, gil: 400, item: "gull_charm", qty: 1 },
+    intro: "Oh, a visitor! I've lived on this rock forty years and the gulls are still my only neighbours. Mind doing an old man a kindness? I've a fierce hunger for sea bass, and my knees won't take me down to the shore.", progress: "3 Sea Bass. They bite off the island's shores and the harbour.", turn: "Oh, that smells like the old days. Here, take my charm. The gulls will know you're a friend." }
+});
+Object.assign(BESTIARY, {
+  reef_crab: { type: "Aquan", lore: "Red-shelled crabs that scuttle over Gull Isle's rocks at low tide." },
+  shore_lizard: { type: "Lizard", lore: "Green lizards that sun on the island's warm stones." },
+  gale_talon: { type: "Beastman", lore: "Crag Talons who nest on the island's cliffs and ride the sea wind." },
+  isle_snapper: { type: "Aquan", lore: "Snappers that lurk in the shallows around the island's coves." },
+  old_saltjaw: { type: "Aquan", lore: "A snapper older than the wreck in the cove it calls home." }
 });
