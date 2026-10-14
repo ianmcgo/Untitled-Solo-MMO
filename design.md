@@ -1264,6 +1264,13 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - src/icons.js (build 4, after hud4): `buildItemIcons()` runs once at boot (main4, after uiHoverSounds) and paints every ITEMS entry into a 48 px cell of a 24-column canvas atlas; ICONS.map[id] = [col, row, painted]. A <style> rule `.iico` uses the atlas as a data URL with background-size cols×1.45em, so icons scale with the surrounding font. Each ITEMS[id].icon becomes `<i class="iico" style="background-position:…em">` (original emoji kept in it.emoji); every icon consumer already writes innerHTML.
 - Painters: icoWeapon (by wtype, rotated 45°, metal palette from icoMetal: name keywords then level tiers bronze < 8 < iron < 15 < steel < 25 < gold; lv ≥ 8 gold guard, lv ≥ 15 or rare gem), icoArmour (by slot; cloth/leather/metal fabric from name keywords and colour words), icoConsumable (scrolls with element ribbon, crystals/essences by element, potion/ether/tonic flasks, keys), icoMaterial (ore, ingot, log, herb, cloth, fish/eel, bone/tooth/dust, feather, shell/scale, hide/pouch). Anything else draws its emoji on the tile. icoFrame adds rarity corners (itemRarity).
 
+## Phase 102: terrain and cliffs (v14.9.0) — plan E1
+Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour). References used from memory: early-2000s MMO valleys with banded cliff faces and cart tracks.
+- Strata (terrainDetail shader): yb = y·0.62 + rockDetail(xz·0.035)·1.1 + sin(0.045x + 0.03z)·0.35; per-layer hash tint between warm (1.1, 1.02, 0.9) and cool (0.88, 0.92, 1.0) ×0.9–1.1; ledge darkening 0.78→1 over the bottom 18% of each band, 7% highlight at the top; weight smoothstep(0.35, 0.65, slope), damped in caves.
+- `buildCliffs(field, root)`: jittered grid (36 px, caves 30) over the whole field incl. margin; keeps cells with height gradient > 0.55 or outside weight > 0.35, off paths/exits; 55%/80% acceptance; oriented halfway between the slope normal and up, random yaw, sunk 0.2·s; scale 0.9–2.3 (×1.6 outside the play area). Geometry `cliffChunkGeo(seed)`: 3–5 stacked noisy boxes (strata slabs) with per-slab vertex shade, lighter lips and darker undersides. Three variants, instanced, tinted ±11%, cast shadows. Caps: low 180, medium 320, high 520 per variant.
+- Ruts: field.rutWeight(px, py) → [rut, centre]; ruts at ±0.17·path width (band 0.035–0.075 w, wobbled by noise), centre strip within 0.05–0.1 w. Albedo bake darkens ruts 32% and blends the centre 40% back to grass (field theme only).
+- `buildPathEdges`: small noisy stones every 22–52 px at 0.42–0.54·w from the centre line (field theme), no shadows.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1316,6 +1323,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.9.0 | Phase 102: strata on cliffs, instanced rock outcrops, wheel-rutted roads with edging stones. |
 | 14.8.0 | Phase 101: painted item icon atlas (weapons by type and metal, armour by slot, consumables, materials, rarity frames). |
 | 14.7.0 | Phase 100: surface footsteps, weapon swings, monster voices, chests, crafting, fishing, town crowd and cave drips. |
 | 14.6.0 | Phase 99: synthesized classic MMO-style interface sounds (cursor, confirm, cancel, open/close, error, target, equip, coins, chat chimes). |

@@ -47,6 +47,18 @@ function* buildFieldSteps(zone) {
     if (zone.plaza) best = Math.max(best, 1 - sstep(zone.plaza.r - 12, zone.plaza.r + 12, Math.hypot(px - zone.plaza.x, py - zone.plaza.y)));
     return best;
   };
+  const rutW = (px, py) => {
+    let best = 0, mid = 0;
+    if (theme !== "field") return [0, 0];
+    for (const p of paths) for (let i = 0; i < p.pts.length - 1; i++) {
+      const d = distToSeg(px, py, p.pts[i][0], p.pts[i][1], p.pts[i + 1][0], p.pts[i + 1][1]);
+      if (d > p.w * 0.4) continue;
+      const wob = (NOISE.value(px * 0.02, py * 0.02, 0, 431) - 0.5) * p.w * 0.06;
+      best = Math.max(best, 1 - sstep(p.w * 0.035, p.w * 0.075, Math.abs(Math.abs(d + wob) - p.w * 0.17)));
+      mid = Math.max(mid, 1 - sstep(p.w * 0.05, p.w * 0.1, Math.abs(d + wob)));
+    }
+    return [best, mid];
+  };
   const plazaW = (px, py) => zone.plaza ? 1 - sstep(zone.plaza.r - 12, zone.plaza.r + 12, Math.hypot(px - zone.plaza.x, py - zone.plaza.y)) : 0;
   const walls = zone.walls || [];
   const edgeE = (px, py) => {
@@ -124,7 +136,7 @@ function* buildFieldSteps(zone) {
   };
   return {
     zone, x0, y0, w, h, cs, cols, rows, data, heightAt, waterLevel,
-    pathWeight: pathW, plazaWeight: plazaW, cobbleHeight,
+    pathWeight: pathW, plazaWeight: plazaW, cobbleHeight, rutWeight: rutW,
     shoreWeight: (px, py) => { let s = 0; for (const wt of waters) { const d = Math.hypot(px - wt.x, py - wt.y); s = Math.max(s, sstep(wt.r + 45, wt.r + 4, d)); } return s; },
     outside: (px, py) => sstep(0, 120, outsideE(px, py)) * (1 - exitMask(px, py)),
     outsideE, exitMask
@@ -188,9 +200,102 @@ function terrainDetail(mat, field) {
   diffuseColor.rgb *= 1.0 + (det - 0.5) * 1.1 * k;
   float lum = dot(diffuseColor.rgb, vec3(0.3, 0.55, 0.15));
   diffuseColor.rgb = mix(diffuseColor.rgb, vec3(lum) * vec3(1.02, 0.98, 0.92), rockW * 0.45 * (1.0 - uCave * 0.5));
+  float sw = texture2D(tRockD, vWP.xz * 0.035).r;
+  float yb = vWP.y * 0.62 + sw * 1.1 + sin(vWP.x * 0.045 + vWP.z * 0.03) * 0.35;
+  float band = fract(yb);
+  float layer = fract(sin(floor(yb) * 12.9898) * 43758.5453);
+  float lip = mix(0.78, 1.0, smoothstep(0.0, 0.18, band)) * mix(1.0, 1.07, smoothstep(0.88, 1.0, band));
+  vec3 sc = mix(vec3(1.1, 1.02, 0.9), vec3(0.88, 0.92, 1.0), layer) * (0.9 + 0.2 * fract(layer * 7.13));
+  diffuseColor.rgb *= mix(vec3(1.0), sc * lip, smoothstep(0.35, 0.65, slope) * (1.0 - uCave * 0.4));
 }`);
   };
   mat.customProgramCacheKey = () => "terrainDetail";
+}
+
+function cliffChunkGeo(seed) {
+  const rnd = seeded(seed), parts = [];
+  const layers = 3 + Math.floor(rnd() * 3);
+  let y = 0;
+  for (let i = 0; i < layers; i++) {
+    const h = 0.18 + rnd() * 0.22, w = 1.1 - i * 0.08 + (rnd() - 0.5) * 0.25, d = 0.9 - i * 0.05 + (rnd() - 0.5) * 0.25;
+    const g = new THREE.BoxGeometry(w * 2, h, d * 2, 4, 1, 4).toNonIndexed();
+    g.translate((rnd() - 0.5) * 0.25, y + h / 2, (rnd() - 0.5) * 0.25);
+    g.rotateY((rnd() - 0.5) * 0.3);
+    const p = g.attributes.position, col = new Float32Array(p.count * 3), shade = 0.78 + rnd() * 0.3, warm = (rnd() - 0.5) * 0.08;
+    for (let k = 0; k < p.count; k++) {
+      const vx = p.getX(k), vy = p.getY(k), vz = p.getZ(k);
+      const n = NOISE.value(vx * 2.3 + seed, vy * 2.3 + i, vz * 2.3, 517) - 0.5;
+      p.setXYZ(k, vx * (1 + n * 0.32), vy + n * 0.05, vz * (1 + n * 0.32));
+      const lip = vy > y + h * 0.8 ? 1.12 : vy < y + h * 0.2 ? 0.82 : 1;
+      col[k * 3] = shade * lip * (1 + warm); col[k * 3 + 1] = shade * lip; col[k * 3 + 2] = shade * lip * (1 - warm);
+    }
+    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    parts.push(g);
+    y += h * 0.92;
+  }
+  const geo = THREE.mergeGeometries(parts);
+  geo.translate(0, -y * 0.35, 0);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function buildCliffs(field, root) {
+  const z = field.zone, th = themeOf(z);
+  if (th === "house" || z.indoor) return;
+  const rnd = rngFor(z, "cliffs"), lists = [[], [], []];
+  const cap = { low: 180, medium: 320, high: 520 }[W3.quality] || 320;
+  const step = th === "cave" || th === "crypt" ? 30 : 36;
+  const n = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0), q = new THREE.Quaternion(), qy = new THREE.Quaternion();
+  let count = 0;
+  for (let py = field.y0 + step / 2; py < field.y0 + field.h && count < cap * 3; py += step) {
+    for (let px = field.x0 + step / 2; px < field.x0 + field.w && count < cap * 3; px += step) {
+      const jx = px + (rnd() - 0.5) * step * 0.9, jy = py + (rnd() - 0.5) * step * 0.9;
+      const h0 = field.heightAt(jx, jy), hx = field.heightAt(jx + 6, jy) - field.heightAt(jx - 6, jy), hy = field.heightAt(jx, jy + 6) - field.heightAt(jx, jy - 6);
+      const grad = Math.hypot(hx, hy) / (12 * U);
+      const out = field.outside(jx, jy);
+      if (grad < 0.55 && out < 0.35) continue;
+      if (field.pathWeight(jx, jy) > 0.05 || field.exitMask(jx, jy) > 0.2) continue;
+      if (out < 0.35 && !placeable(field, jx, jy, { path: 0.05, water: 20, npc: 50, exit: 120 })) continue;
+      if (rnd() > (out > 0.35 ? 0.55 : 0.8)) continue;
+      n.set(-hx / (12 * U), 1, -hy / (12 * U)).normalize();
+      q.setFromUnitVectors(up, n.clone().lerp(up, 0.45).normalize());
+      qy.setFromAxisAngle(up, rnd() * 6.28);
+      q.multiply(qy);
+      const s = (0.9 + rnd() * 1.4) * (out > 0.35 ? 1.6 : 1) * (th === "cave" ? 0.8 : 1);
+      const m = new THREE.Matrix4().compose(new THREE.Vector3(jx * U, h0 - 0.2 * s, jy * U), q, new THREE.Vector3(s * (0.8 + rnd() * 0.5), s * (0.9 + rnd() * 0.9), s * (0.8 + rnd() * 0.5)));
+      lists[count % 3].push(m);
+      count++;
+    }
+  }
+  if (!count) return;
+  const tex = th === "cave" || th === "crypt" ? texCaveRock() : texRock();
+  const pal = (TERRAIN_THEMES[z.palette || z.theme] || TERRAIN_THEMES.field).cliff;
+  const base = new THREE.Color(pal[0] / 255, pal[1] / 255, pal[2] / 255).multiplyScalar(1.9);
+  const mat = std({ map: tex.map, normalMap: tex.normalMap, normalScale: new THREE.Vector2(1.3, 1.3), vertexColors: true, color: base, roughness: 0.93 });
+  lists.forEach((L, i) => { if (L.length) { const im = instanced(cliffChunkGeo(hashStr(z.name) % 997 + i * 31), mat, L, true); tintInst(im, rnd, 0.22); im.name = "cliffs"; root.add(im); } });
+}
+
+function buildPathEdges(field, root) {
+  const z = field.zone, th = themeOf(z);
+  if (th !== "field" || !(z.paths || []).length) return;
+  const rnd = rngFor(z, "edges"), list = [];
+  for (const p of z.paths) for (let i = 0; i < p.pts.length - 1; i++) {
+    const [ax, ay] = p.pts[i], [bx, by] = p.pts[i + 1], L = Math.hypot(bx - ax, by - ay), dx = (bx - ax) / L, dy = (by - ay) / L;
+    for (let t = 0; t < L; t += 22 + rnd() * 30) {
+      if (rnd() < 0.35) continue;
+      const side = rnd() < 0.5 ? -1 : 1, off = p.w * (0.42 + rnd() * 0.12);
+      const px = ax + dx * t - dy * off * side, py = ay + dy * t + dx * off * side;
+      if (!placeable(field, px, py, { path: 1.1, water: 10, npc: 30, exit: 60 })) continue;
+      const s = 0.12 + rnd() * 0.16;
+      list.push(mtx(px * U, field.heightAt(px, py) - s * 0.3, py * U, s * (1.2 + rnd() * 0.6), s * (0.6 + rnd() * 0.4), s * (1 + rnd() * 0.5), rnd() * 6.28, (rnd() - 0.5) * 0.3));
+    }
+  }
+  if (!list.length) return;
+  const tex = texRock();
+  const mat = std({ map: tex.map, normalMap: tex.normalMap, color: 0xc8c0b0 });
+  const im = instanced(noisyGeo(new THREE.IcosahedronGeometry(1, 1), 0.25, 9), mat, list, false);
+  tintInst(im, rnd, 0.25);
+  root.add(im);
 }
 
 function tintInst(im, rnd, amt) {
@@ -1327,6 +1432,8 @@ function* buildZone3DSteps() {
   W3.terrain = terrain;
   yield { p: 0.78, t: "Growing trees and grass…" };
   buildVegetation(field, root);
+  buildCliffs(field, root);
+  buildPathEdges(field, root);
   yield { p: 0.88, t: "Raising buildings…" };
   if (themeOf(z) === "town") buildTown(field, root);
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);

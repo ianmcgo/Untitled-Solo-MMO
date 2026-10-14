@@ -1477,6 +1477,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.9.0", date: "2026-10-14", title: "Terrain and cliffs", items: [
+    "Cliffs and steep slopes show layered rock strata: wavy bands of warmer and cooler stone with darker ledges at the base of each layer, instead of one flat grey.",
+    "Rocky outcrops: stacked, broken stone slabs now sit along steep slopes and the edges of every outdoor area, leaning with the hillside and partly buried, in three different shapes and tints so no two look the same.",
+    "Dirt roads have two worn wheel ruts with a strip of grass down the middle, and loose edging stones scattered along their sides."
+  ] },
   { v: "14.8.0", date: "2026-10-14", title: "Painted item icons", items: [
     "Items now have painted icons instead of emoji, drawn when the game starts:",
     "Weapons lie on the diagonal like classic item art, one shape per type: swords with fullers and quillons, daggers, katanas with wrapped grips and round guards, great swords, axes and double-bladed great axes, flanged clubs, staves with glowing orbs, spears, scythes and bows. The metal changes with the item (bronze, iron, steel, mythril, gold, bone, frost, ember, shadow) and higher-level weapons get gold guards and gems.",
