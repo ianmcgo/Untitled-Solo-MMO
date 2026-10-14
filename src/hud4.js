@@ -974,13 +974,14 @@ function initHud() {
   document.addEventListener("pointerdown", e => {
     const t = e.target;
     if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose();
-    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox")) return;
+    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox, #logTap")) return;
     if (S.modal && !t.closest("#menu .win, #mCard, #mCmd")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
     if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv")) mainCmdClose();
   }, true);
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
   $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
   $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
+  $("logTap").addEventListener("click", e => { e.stopPropagation(); if (!S.modal) openChatInput(""); });
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
   $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if (v === "back") { mainCmdKey("escape"); return; } if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
   $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });

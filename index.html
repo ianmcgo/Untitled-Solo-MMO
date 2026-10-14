@@ -807,6 +807,10 @@
   #mobBar button { height: 34px; padding: 0 14px; border-radius: 17px; border: 2px solid var(--ffEdge); background: linear-gradient(180deg, #b8c2f4 0%, #6a76d0 18%, #3e48a6 55%, #283080 100%); color: #fff; font: italic 900 14px var(--ffFont); letter-spacing: .04em; text-shadow: 1px 1px 0 #1a1a50; box-shadow: 0 3px 10px rgba(0,0,0,.5); }
   #mobBar button:active { filter: brightness(1.25); }
   @media (pointer: coarse) { #mobBar { display: flex; } #big .jmp, #btnJump { display: none !important; } }
+  #logTap { position: absolute; left: 0; bottom: 0; height: calc(110px + var(--sab)); right: calc(190px + var(--sar)); display: none; z-index: 2; }
+  @media (pointer: coarse) { #ui:has(#chat.gone) #logTap { display: block; } }
+  @media (max-width: 900px) { #mobBar { width: 210px; } #mobBar button { flex: 1; padding: 0 6px; font-size: 13px; } }
+  @media (max-width: 720px) { #mobBar { width: 168px; gap: 4px; } #mobBar button { height: 30px; font-size: 12px; padding: 0 4px; } }
   #mBody h3 { margin: 10px -4px 4px; padding: 2px 10px; border: none !important; font: italic 900 14px var(--ffFont); letter-spacing: .08em; color: #fff; -webkit-text-stroke: .4px #3a3a80; text-shadow: 1px 1px 0 #2a2a70; background: linear-gradient(90deg, rgba(235,238,255,.85), rgba(190,196,240,.5) 70%, rgba(190,196,240,.1)); }
   #mBody h3:first-child { margin-top: 0; }
   #mBody .item { border: none !important; border-bottom: 1px solid rgba(255,255,255,.1) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; padding: 6px 6px; margin-bottom: 0; }
@@ -921,7 +925,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.4 · built 2026-10-14 00:46 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.5 · built 2026-10-14 00:48 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -929,7 +933,7 @@
   <div id="flash"></div>
   <div id="joy"><div id="knob"></div></div>
   <div id="ui">
-    <div id="stOv"></div><div id="mobBar"><button id="mobTarget">◎ Target</button><button id="mobMenu">☰ Menu</button></div><div id="mpBox"></div>
+    <div id="stOv"></div><div id="logTap"></div><div id="mobBar"><button id="mobTarget">◎ Target</button><button id="mobMenu">☰ Menu</button></div><div id="mpBox"></div>
     <div id="ffTop"><div class="ffCmd">Commands</div><div class="ffBar"><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div></div>
     <div id="ffNetBox"><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div>
     <div id="ffStat"><div id="ffBars"><div class="r hp"><em>HP</em><div class="b"><i></i></div><b></b></div><div class="r mp"><em>MP</em><div class="b"><i></i></div><b></b></div><div class="r tp"><em>TP</em><div class="b"><i></i></div><b></b></div></div><div id="ffIcons"></div></div>
@@ -12940,13 +12944,14 @@ function initHud() {
   document.addEventListener("pointerdown", e => {
     const t = e.target;
     if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose();
-    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox")) return;
+    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox, #logTap")) return;
     if (S.modal && !t.closest("#menu .win, #mCard, #mCmd")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
     if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv")) mainCmdClose();
   }, true);
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
   $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
   $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
+  $("logTap").addEventListener("click", e => { e.stopPropagation(); if (!S.modal) openChatInput(""); });
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
   $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if (v === "back") { mainCmdKey("escape"); return; } if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
   $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });
@@ -14597,13 +14602,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.8.4 · built 2026-10-14 00:46 PDT";
+const BUILD_INFO = "v9.8.5 · built 2026-10-14 00:48 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.8.5", date: "2026-10-14", title: "Phone buttons", items: [
+    "Phones: the Target and Menu buttons are now exactly as wide as the boxes below them, so they no longer overlap the event log.",
+    "Phones: tapping the bottom-left of the screen where the event log sits opens the typing box, even when the log is hidden."
   ] },
   { v: "9.8.4", date: "2026-10-14", title: "Five characters", items: [
     "Each account can now have up to 5 characters (was 8). The server enforces it too once the latest setup SQL is run (server version 6). Accounts that already have more keep them but can't make new ones until they're under 5.",
@@ -15392,7 +15401,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.8.4";
+const GAME_VERSION = "9.8.5";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

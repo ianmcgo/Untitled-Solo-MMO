@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.8.4",
-  "releaseTitle": "Five characters",
+  "version": "9.8.5",
+  "releaseTitle": "Phone buttons",
   "description": "",
   "main": "index.js",
   "scripts": {
