@@ -35,11 +35,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "pets", "stable"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "pets", "stable", "admin"]) if (S.modal === t) tabs.unshift(t);
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, guild: tabGuild, auction: tabAuction, pets: tabPets, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -468,13 +468,14 @@ function tabSettings() {
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "names", "Action names " + (s.names !== false ? "on" : "off"), s.names !== false) + "</div>";
-  h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button></div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
+  h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
 function tabSystem() {
   let h = "<h3>Save data</h3>";
-  h += '<div class="sub" style="margin-bottom:8px">Your progress saves automatically in this browser. Save to a file for a backup, or load a file to restore one or move to another device.</div>';
-  h += '<div class="opt"><button data-a="savefile">💾 Save to file</button><button data-a="loadfile">📂 Load from file</button></div>';
+  const acct = typeof NET !== "undefined" && NET.user;
+  h += '<div class="sub" style="margin-bottom:8px">' + (acct ? "Signed in as " + esc(NET.user.email) + ". Your progress saves to the game server automatically" + (NET.lastErr ? ' <span style="color:#ff8a80">(offline: ' + esc(NET.lastErr) + ")</span>" : NET.lastSave ? " (last saved " + fmtAgo(NET.lastSave) + ")" : "") + "." : "Your progress saves automatically.") + " You can also download a copy of this character for safekeeping.</div>";
+  h += '<div class="opt"><button data-a="savefile">💾 Download a copy</button>' + (acct ? '<button data-a="syncnow">☁️ Save to server now</button><button data-a="signout">🚪 Sign out</button>' : "") + "</div>";
   h += "<h3>Character</h3><div class=\"sub\" style=\"margin-bottom:8px\">" + esc(save.name) + " · " + JOBS[save.mainJob].name + " Lv." + player.lv + " · " + loadRoster().chars.length + " of " + MAX_CHARS + " characters.</div>";
   h += '<div class="opt"><button data-a="logout">👥 Change character</button></div>';
   h += '<input type="file" id="loadInput" accept=".json,application/json" style="display:none">';
@@ -800,6 +801,43 @@ function tabAuction() {
   return h;
 }
 
+const ADMIN_DIAG_SQL = [
+  "select table_schema, table_name from information_schema.tables where table_schema in ('public', 'game_private') order by 1, 2;",
+  "select tablename, policyname, cmd, qual, with_check from pg_policies where schemaname = 'public' order by 1, 2;",
+  "select p.proname, pg_get_function_identity_arguments(p.oid) as args from pg_proc p where p.pronamespace = 'public'::regnamespace order by 1;",
+  "select (select count(*) from public.players) as players, (select count(*) from public.characters) as characters, (select count(*) from auth.users) as auth_users, (select count(*) from auth.users where email_confirmed_at is null) as unconfirmed;",
+  "select c.name, c.summary ->> 'job' as job, c.summary ->> 'lv' as lv, p.email, c.updated_at, pg_column_size(c.data) as bytes from public.characters c left join public.players p on p.id = c.owner order by c.updated_at desc limit 50;",
+  "select email, joined_at, last_seen, banned from public.players order by last_seen desc limit 50;"
+].join("\n\n");
+
+function copyText(t) {
+  try { navigator.clipboard.writeText(t); return; } catch (e) {}
+  const ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove();
+}
+
+function adminReport() {
+  return JSON.stringify({ game: "Untitled Solo RPG", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
+}
+
+function tabAdmin() {
+  if (typeof netIsAdmin !== "function" || !netIsAdmin()) return '<div class="sub">Admins only.</div>';
+  if (!UI.adminStats && !UI.adminErr && !UI.adminLoading) { UI.adminLoading = true; netAdminStats().then(s => { UI.adminStats = s; UI.adminLoading = false; if (S.modal === "admin") renderModal(); }, e => { UI.adminErr = netErr(e); UI.adminLoading = false; if (S.modal === "admin") renderModal(); }); }
+  const st = UI.adminStats;
+  let h = '<div class="sub" style="margin-bottom:8px">Server: ' + esc(NET_CFG.url) + " · signed in as " + esc(NET.user.email) + " · " + esc(typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "") + "</div>";
+  if (UI.adminMsg) h += '<div class="sub" style="color:#ffd54f;margin-bottom:6px">' + esc(UI.adminMsg) + "</div>";
+  if (UI.adminErr) h += '<div class="item" style="display:block;border-color:#ff8a80"><b>Couldn\'t read server stats</b><div class="sub">' + esc(UI.adminErr) + '. If the database hasn\'t been set up yet, copy the setup SQL below and run it in the Supabase SQL editor.</div></div>';
+  else if (!st) h += '<div class="sub">Loading server stats…</div>';
+  else {
+    const tile = (k, v) => '<div class="item" style="display:block;text-align:center;min-width:110px"><div class="sub">' + k + '</div><b style="font-size:20px">' + esc(String(v)) + "</b></div>";
+    h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + tile("Accounts", st.players) + tile("Online now", st.online) + tile("Characters", st.characters) + tile("New (7 days)", st.signups_7d) + tile("Banned", st.banned) + tile("Database", st.db_size) + tile("Saves", st.chars_size) + tile("Sign-up password", st.code_set ? "set" : "NOT SET") + "</div>";
+    h += "<h3>Online now</h3>" + (st.online_list && st.online_list.length ? st.online_list.map(o => '<div class="sub">' + esc(o.email) + " · " + fmtAgo(Date.parse(o.last_seen)) + "</div>").join("") : '<div class="sub">Nobody else right now.</div>');
+    h += "<h3>Recently saved characters</h3>" + (st.recent || []).map(c => '<div class="sub">' + esc(c.name) + " · " + esc(c.job || "") + " Lv." + esc(c.lv || "") + " · " + esc(c.zone || "") + " · " + esc(c.email || "") + " · " + fmtAgo(Date.parse(c.updated_at)) + "</div>").join("");
+  }
+  h += '<h3>Sign-up password</h3><div class="sub" style="margin-bottom:6px">New players need this to create an account. It\'s stored on the server, never in the game\'s code.</div><div class="opt"><input id="adCode" type="text" placeholder="New sign-up password" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid var(--edge2);background:rgba(10,12,20,.8);color:#f2efe6"><button data-a="admincode">Change</button></div>';
+  h += '<h3>For Claude</h3><div class="sub" style="margin-bottom:6px">Copy these and paste them to Claude (or into the Supabase SQL editor) when something needs fixing.</div><div class="opt"><button data-a="admincopy" data-v="setup">📋 Copy setup SQL</button><button data-a="admincopy" data-v="diag">📋 Copy diagnostics SQL</button><button data-a="admincopy" data-v="report">📋 Copy server report</button><button data-a="adminrefresh">🔄 Refresh</button></div>';
+  return h;
+}
+
 function tabGuild() {
   const g = save.guild, rk = guildRank(), R0 = GUILD_RANKS[rk], nx = GUILD_RANKS[rk + 1];
   let h = '<div class="item"><div><b style="color:' + R0[2] + '">' + R0[0] + ' rank</b><div class="sub">' + g.total + " guild points earned" + (nx ? " · " + (nx[1] - g.total) + " more for " + nx[0] : " · highest rank") + '</div></div><span class="sub">🎖️ ' + g.gp + " to spend</span></div>";
@@ -981,7 +1019,12 @@ function onMenuClick(e) {
   else if (a === "packf") { UI.homeMsg = removeFurniture(+v); if (UI.homeMsg) sfx("error"); else UI.furnSel = null; renderModal(); return; }
   else if (a === "savefile") { downloadSave(); return; }
   else if (a === "checkupd") { checkForUpdate(true); return; }
-  else if (a === "loadfile") { $("loadInput").click(); return; }
+  else if (a === "loadfile") { return; }
+  else if (a === "syncnow") { saveGame(); netFlush().then(() => renderModal()); return; }
+  else if (a === "signout") { closeModal(); saveGame(); netFlush().then(() => netSignOut()).then(() => location.reload()); return; }
+  else if (a === "adminrefresh") { UI.adminStats = null; UI.adminErr = ""; renderModal(); return; }
+  else if (a === "admincopy") { copyText(v === "setup" ? SETUP_SQL : v === "diag" ? ADMIN_DIAG_SQL : adminReport()); UI.adminMsg = "Copied to the clipboard."; renderModal(); return; }
+  else if (a === "admincode") { const c = ($("adCode") || {}).value || ""; netAdminSetCode(c).then(() => { UI.adminMsg = "Sign-up password changed."; renderModal(); }, e => { UI.adminMsg = netErr(e); renderModal(); }); return; }
   else if (a === "logout") { closeModal(); logoutToSelect(); return; }
   renderModal();
 }
@@ -1017,6 +1060,14 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.0.0", date: "2026-10-13", title: "Accounts and the game server", items: [
+    "The game now runs on a shared server. Sign in with your email and password on the title screen; creating an account needs the sign-up password from the server owner.",
+    "Your characters are saved on the server, so they follow you to any device. An internet connection is required; offline play has ended.",
+    "Characters made in this browser before the server can be uploaded to your account once from the character screen.",
+    "Character names are unique across the whole server.",
+    "System now shows when you last saved to the server, with Save to server now and Sign out. Load from file is gone (saves live on the server now); Download a copy still works as a backup.",
+    "Walking looks less stiff: the back sways and twists with each step and the head bobs gently."
   ] },
   { v: "7.0.0", date: "2026-10-13", title: "Living towns and character polish", items: [
     "Characters blink, close their eyes when knocked out and half-close them while resting. Long hair and ponytails sway as you move, and capes stream out behind you when you run.",
@@ -1515,7 +1566,8 @@ function tabHelp() {
     "Settings → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Settings → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
   ]));
-  h += sec("💾 Saving and updates", ul(["Each character saves automatically in this browser every 20 s and after important events.", "System → Save to file makes a backup of the current character you can load on another device.", "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
+  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen."]));
+  h += sec("💾 Updates", ul([ "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
 

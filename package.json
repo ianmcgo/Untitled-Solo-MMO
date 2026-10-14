@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "7.0.0",
-  "releaseTitle": "Living towns and character polish",
+  "version": "8.0.0",
+  "releaseTitle": "Accounts and the game server",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
     "esbuild": "^0.28.2",
     "three": "^0.186.1"
   }
