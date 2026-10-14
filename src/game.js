@@ -769,6 +769,8 @@ function applyDamage(src, tgt, amt, opt) {
   if (tgt.hp <= 0) onKO(tgt, src);
 }
 
+function mobReach(m) { return isMob(m) && m.fam.range ? m.fam.range : CONFIG.meleeRange; }
+
 function swing(a, d) {
   const tpGain = Math.round(CONFIG.tpPerDelay * a.delay);
   a.lastSwing = S.time;
@@ -782,7 +784,7 @@ function swing(a, d) {
   const sneak = !!b.sneak_attack, boost = !!b.boost;
   if (sneak) delete b.sneak_attack;
   if (boost) delete b.boost;
-  const bow = a.stats && a.stats.wtype === "archery";
+  const bow = (a.stats && a.stats.wtype === "archery") || (isMob(a) && a.fam.range);
   if (bow) vfx("arrow", { src: a, tgt: d });
   if (bow && b.barrage && !a.volley) {
     delete b.barrage;
@@ -2216,11 +2218,11 @@ function updateMob(m, dt) {
       if (m.readying.t <= 0) execTpMove(m);
       return;
     }
-    if (!m.buffs.bind) moveToward(m, t.x, t.y, dt, CONFIG.meleeRange - 8);
+    if (!m.buffs.bind) moveToward(m, t.x, t.y, dt, mobReach(m) - 8);
     m.face = Math.atan2(t.y - m.y, t.x - m.x);
     m.swingTimer -= dt;
     if (m.swingTimer <= 0) {
-      if (dist(m, t) <= CONFIG.meleeRange) {
+      if (dist(m, t) <= mobReach(m)) {
         swing(m, t);
         m.swingTimer = swingDelay(m);
         if (m.alive && m.tp >= 1000 && m.fam.tpMove) {
@@ -2322,6 +2324,7 @@ function execTpMove(m) {
     ring(tg, "#ff7043", mv.aoe || 30, 0.6, "burst");
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
     applyDamage(m, tg, total, { color: "#ff8a80", size: 22 });
+    if (mv.explode && m.alive) { m.hp = 0; onKO(m, m); }
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
     if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
     if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }

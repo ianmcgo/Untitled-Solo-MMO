@@ -446,7 +446,7 @@ function humanEntry(L) {
     R.bone("shin" + sd, "thigh" + sd, s * pr.hip, knee, 0.01);
     R.bone("foot" + sd, "shin" + sd, s * pr.hip, ank, 0);
   }
-  const skin = L.skin;
+  const skin = L.skin, SKR = L.skinRegion || "skin";
   const top = L.top || { type: "shirt", color: 0x8a7a60 };
   const topC = top.color, topR = top.region || "cloth";
   const legC = L.legs != null ? L.legs : 0x4a3a2c, legR = L.legsRegion || "cloth";
@@ -458,17 +458,23 @@ function humanEntry(L) {
   const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered"].includes(L.head.type);
 
   R.add(gBall(V3(0, hc, 0.005), hr, 0.94, 1.04, 1.0, 20), "head", skin, L.noFace ? (L.headRegion || "skin") : "face");
-  if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, "skin");
-  else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, "skin");
+  if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, SKR);
+  else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, SKR);
   for (const s of [-1, 1]) {
-    if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, "skin");
-    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, "skin");
+    if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, SKR);
+    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, SKR);
     else if (L.ears === "ursan") R.add(gBall(V3(s * hr * 0.78, hc + hr * 0.62, -hr * 0.1), hr * 0.26, 1, 0.9, 0.6, 8), "head", L.hair.color, "hair");
-    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, "skin");
+    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, SKR);
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), "head", L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), "head", 0xd89a9a, "skin"); } }
-    else if (!L.skull) R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, "skin");
+    else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
+    else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, SKR);
+    if (L.tusks) R.add(gTaper(V3(s * hr * 0.35, hc - hr * 0.55, hr * 0.75), V3(s * hr * 0.45, hc - hr * 0.1, hr * 0.95), hr * 0.1, 0.004, 6), "head", 0xf0e8d0, "bone");
+    if (L.needles) for (let k = 0; k < 4; k++) R.add(gTaper(V3(s * hr * (0.3 + k * 0.2), hc + hr * (0.9 - k * 0.35), hr * 0.3 - k * 0.1), V3(s * hr * (0.5 + k * 0.3), hc + hr * (1.4 - k * 0.5), hr * 0.3 - k * 0.1), 0.012, 0.002, 4), "head", 0xf0f0d8, "bone");
     if (L.eyesGlow) R.add(gBall(V3(s * hr * 0.36, hc + hr * 0.08, hr * 0.84), hr * 0.15, 1.25, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
   }
+  if (L.beak) { R.add(gTaper(V3(0, hc - hr * 0.1, hr * 0.8), V3(0, hc - hr * 0.3, hr * 1.9), hr * 0.3, 0.01, 8, 0.8), "head", L.beak, "bone"); R.add(gTaper(V3(0, hc - hr * 0.35, hr * 0.8), V3(0, hc - hr * 0.35, hr * 1.5), hr * 0.18, 0.01, 6, 0.8), "head", new THREE.Color(L.beak).multiplyScalar(0.7).getHex(), "bone"); }
+  if (L.crest) for (let k = 0; k < 5; k++) R.add(gBall(V3((k - 2) * hr * 0.25, hc + hr * (0.9 + 0.15 * (2 - Math.abs(k - 2))), -hr * 0.3 - k * 0.02), hr * 0.22, 0.5, 1.6 + 0.4 * (2 - Math.abs(k - 2)), 0.5, 6), "head", L.crest, "feather");
+  if (L.leafHead) { for (let k = 0; k < 7; k++) { const a = k * 0.9, rr = hr * 0.75; R.add(gBall(V3(Math.cos(a) * rr, hc + hr * 0.9 + (k % 2) * hr * 0.25, Math.sin(a) * rr), hr * 0.55, 1, 0.8, 1, 8), "head", L.leafHead, "plain"); } R.add(gBall(V3(0, hc + hr * 1.3, 0), hr * 0.6, 1, 0.8, 1, 8), "head", L.leafHead, "plain"); }
   if (L.skull) R.add(gBox(V3(0, hc - hr * 0.75, hr * 0.35), hr * 1.1, hr * 0.45, hr * 0.9), "head", skin, "bone");
   if (L.beard) {
     R.add(gFront(V3(0, hc, 0.005), hr * 1.04, 2.3, Math.PI * 0.55, Math.PI * 0.92, 0.96, 1.04, 1.02, 14), "head", L.beard, "hair");
@@ -477,7 +483,7 @@ function humanEntry(L) {
   hairPieces(R, L.hair, hc, hr, headCovers);
 
   if (!L.skull) {
-    R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.04, 0.0), 0.05 * gi, 0.043 * gi, 10), "neck", skin, "skin");
+    R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.04, 0.0), 0.05 * gi, 0.043 * gi, 10), "neck", skin, SKR);
     const W = sw / 0.195;
     const robe = top.type === "robe" || top.type === "coat";
     const hipR = fem ? 0.165 : 0.152, waistR = 0.15 * pr.waist, beltY = hipsY + 0.03;
@@ -502,7 +508,7 @@ function humanEntry(L) {
     R.add(gTaper(V3(ax, shY - 0.02, 0), V3(ex, elY, 0), armR * 1.04, armR * 0.82, 10), "upArm" + sd, upC, upR);
     R.add(gBall(V3(ex, elY, 0), L.skull ? 0.03 : 0.041 * gi, 1, 1, 1, 8), "foreArm" + sd, upC, upR);
     const longS = !bare && (sleeves === "long" || sleeves === "wide");
-    const fa1C = longS ? sleeveC : (L.skull ? skin : skin), fa1R = longS ? sleeveR : (L.skull ? "bone" : "skin");
+    const fa1C = longS ? sleeveC : (L.skull ? skin : skin), fa1R = longS ? sleeveR : (L.skull ? "bone" : SKR);
     R.add(gTaper(V3(ex, elY, 0), V3(ex, mid, 0), L.skull ? 0.02 : 0.042 * gi, L.skull ? 0.02 : 0.038 * gi, 10), "foreArm" + sd, fa1C, fa1R);
     const fa2C = L.gloves != null ? L.gloves : fa1C, fa2R = L.gloves != null ? (L.glovesRegion || "leather") : fa1R;
     R.add(gTaper(V3(ex, mid, 0), V3(wx, wrY + 0.01, 0), L.skull ? 0.02 : 0.038 * gi, L.skull ? 0.018 : 0.033 * gi, 10), "foreArm" + sd, fa2C, fa2R);
@@ -510,7 +516,7 @@ function humanEntry(L) {
       R.add(gCyl(V3(ex, wrY + 0.07, 0), 0.05 * gi, 0.085 * gi, 0.16, 14, true), "foreArm" + sd, sleeveC, sleeveR);
       if (top.trim) R.add(gRing(V3(ex, wrY - 0.01, 0), 0.085 * gi, 0.012, "y", 18), "foreArm" + sd, top.trim, "trim", !!top.glowTrim);
     } else if (top.trim && longS) R.add(gRing(V3(wx, wrY + 0.02, 0), 0.04 * gi, 0.009, "y", 14), "foreArm" + sd, top.trim, "trim");
-    const handC = L.gloves != null ? L.gloves : skin, handR = L.gloves != null ? (L.glovesRegion || "leather") : (L.skull ? "bone" : "skin");
+    const handC = L.gloves != null ? L.gloves : skin, handR = L.gloves != null ? (L.glovesRegion || "leather") : (L.skull ? "bone" : SKR);
     R.add(gBall(V3(s * (sw + 0.025), wrY - 0.055, 0.005), L.skull ? 0.03 : 0.045, 0.75, 1.15, 0.55, 10), "hand" + sd, handC, handR);
     R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
@@ -539,7 +545,7 @@ function humanEntry(L) {
       R.add(gRing(V3(hx, bootTop, 0.012), 0.062 * gi, 0.012, "y", 14), "shin" + sd, L.boots, "leather");
     }
     const footC = L.boots != null ? L.boots : L.barefoot ? skin : L.skull ? skin : (L.shoes || 0x3a2a1e);
-    const footR = L.boots != null ? "leather" : L.barefoot ? "skin" : L.skull ? "bone" : "leather";
+    const footR = L.boots != null ? "leather" : L.barefoot ? SKR : L.skull ? "bone" : "leather";
     R.add(gBox(V3(hx, 0.042, 0.035), L.skull ? 0.06 : 0.092, 0.075, 0.2), "foot" + sd, footC, footR);
     R.add(gBall(V3(hx, 0.045, 0.13), L.skull ? 0.035 : 0.048, 1, 0.8, 1.0, 10), "foot" + sd, footC, footR);
   }
@@ -676,6 +682,24 @@ function batEntry(col, eye) {
     R.add(gTaper(V3(s * 0.05, Y - 0.1, -0.05), V3(s * 0.06, Y - 0.22, -0.08), 0.012, 0.006, 5), "body", dark, "skin");
   }
   R.meta = { kind: "bat", headTop: Y + 0.3 };
+  return R.finish();
+}
+
+function bombEntry(col, eye) {
+  const R = new RigBuilder();
+  const Y = 1.0;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y, 0);
+  const dark = new THREE.Color(col).multiplyScalar(0.55).getHex(), light = new THREE.Color(col).lerp(new THREE.Color(0xffffff), 0.45).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.32, 1, 1, 1, 16), "body", col, "glow", true);
+  R.add(gBall(V3(0, Y + 0.1, -0.1), 0.2, 1, 0.9, 1, 10), "body", light, "glow", true);
+  for (const s of [-1, 1]) { R.add(gBall(V3(s * 0.12, Y + 0.08, 0.27), 0.07, 1, 1.3, 0.5, 8), "head", dark, "plain"); R.add(gBall(V3(s * 0.12, Y + 0.09, 0.31), 0.03, 1, 1, 0.5, 6), "head", eye, "glow", true); }
+  R.add(gBall(V3(0, Y - 0.1, 0.28), 0.12, 1.6, 0.4, 0.5, 8), "head", dark, "plain");
+  for (let k = 0; k < 4; k++) R.add(gBall(V3(0, Y - 0.12 - k * 0.08, 0.3 + (k % 2) * 0.02 - 0.03 * k), 0.03, 1, 1.2, 0.6, 5), "head", 0xf0f0e0, "bone");
+  R.add(gTaper(V3(0, Y + 0.3, -0.05), V3(0.05, Y + 0.5, -0.12), 0.04, 0.025, 6), "body", 0x3a2a22, "wood");
+  R.add(gBall(V3(0.06, Y + 0.54, -0.14), 0.07, 1, 1.3, 1, 8), "body", 0xffe082, "glow", true);
+  R.meta = { kind: "bat", headTop: Y + 0.65 };
   return R.finish();
 }
 
@@ -1196,6 +1220,30 @@ function mobLook(m) {
     return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
   }
   if (key === "tide_priest") return { kind: "human", look: { skull: true, skin: 0x7aa6a6, noFace: true, headRegion: "bone", eyesGlow: 0x4dd0e1, top: { type: "robe", color: 0x14303a, trim: 0x4dd0e1, glowTrim: true }, head: { type: "hood", color: 0x0f2530 }, legs: 0x14303a, barefoot: true, weapon: "staff", weaponId: "holly_staff" } };
+  if (model === "orc") {
+    const archer = key === "orc_stonechucker" || key === "frost_stonechucker", lord = key === "orc_warlord", frost = key.startsWith("frost_");
+    const skin = lord ? 0x5a6a4a : frost ? 0x7a8a8a : 0x6f7f4f;
+    return { kind: "human", look: { skin, noFace: true, eyesGlow: lord ? 0xff5030 : 0xffb040, tusks: true, barefoot: false, boots: 0x2a1e14, top: archer ? { type: "vest", color: 0x4a3a2a, region: "leather", under: skin } : { type: "mail", color: lord ? 0x3a3038 : 0x5a5048, region: "chain" }, pauldrons: lord ? 0x6a4a3a : archer ? null : 0x4a4038, head: lord ? { type: "horned", color: 0x3a3030, color2: 0xe8dcc0 } : archer ? { type: "bandana", color: 0x6a2a2a } : { type: "cap", color: 0x4a4038 }, cape: lord ? 0x6a1a1a : null, legs: 0x3a3028, belt: 0x2a1e14, hair: { style: "bald", color: 0x222 }, weapon: archer ? "archery" : lord ? "greataxe" : "club", weaponId: archer ? "shortbow" : lord ? "steel_greataxe" : null, prop: { leg: 0.86, torso: 0.6, headR: 0.15, arm: 0.66, shoulder: lord ? 0.26 : 0.23, hip: 0.12, neck: 0.04, girth: lord ? 1.4 : 1.25, waist: 1.2 } } };
+  }
+  if (model === "fishfolk") {
+    const chief = key === "fishfolk_chief";
+    return { kind: "human", look: { skin: chief ? 0x3a7a8a : 0x4a8a7a, skinRegion: "scale", noFace: true, eyesGlow: 0xffe082, ears: "fin", finColor: chief ? 0x8ad0e0 : 0x7ac0b0, barefoot: true, top: { type: "vest", color: 0x2a4a5a, region: "leather", under: 0x4a8a7a }, legs: 0x2a4a4a, belt: 0x6a5a3a, hair: { style: "bald", color: 0x222 }, head: chief ? { type: "horned", color: 0x2a5a6a, color2: 0xd8e8f0 } : null, cape: chief ? 0x1a4a5a : null, weapon: chief ? "staff" : "dagger", weaponId: chief ? "coral_staff" : "bronze_dagger", prop: { leg: 0.8, torso: 0.5, headR: 0.15, arm: 0.6, shoulder: 0.19, hip: 0.1, neck: 0.06, girth: 1.0 } } };
+  }
+  if (model === "birdfolk") {
+    const priest = key === "birdfolk_priest" || key === "crag_oracle", oracle = key === "crag_oracle";
+    const plum = oracle ? 0xd8d0e8 : priest ? 0xf0e4c8 : 0xc8a870;
+    return { kind: "human", look: { skin: plum, skinRegion: "feather", noFace: true, eyesGlow: oracle ? 0xb388ff : 0xffd54f, ears: "none", beak: 0xe8c060, crest: oracle ? 0x7e57c2 : priest ? 0xd84a4a : 0x4a3a2a, barefoot: true, top: priest ? { type: "robe", color: oracle ? 0x3a2a5a : 0x8a2a2a, trim: 0xd8c070, glowTrim: oracle } : { type: "vest", color: 0x5a4a3a, region: "leather", under: plum }, legs: plum, legsRegion: "feather", belt: 0x6a4a2a, hair: { style: "bald", color: 0x222 }, weapon: priest ? "staff" : "sword", weaponId: priest ? "holly_staff" : "bronze_sword", prop: { leg: 0.9, torso: 0.5, headR: 0.14, arm: 0.62, shoulder: 0.18, hip: 0.09, neck: 0.09, girth: 0.92 } } };
+  }
+  if (model === "treant") {
+    const elder = key === "treant_elder" || key === "old_rootfather", frost = key === "rime_treant";
+    const bark = frost ? 0x6a7a80 : elder ? 0x4a3a28 : 0x6a4a30, leaf = frost ? 0xcfe8f0 : elder ? 0x3a6a2a : 0x6aa84a;
+    return { kind: "human", look: { skin: bark, skinRegion: "wood", noFace: true, eyesGlow: elder ? 0xffb300 : 0x9ccc65, ears: "none", leafHead: leaf, barefoot: true, top: { type: "rags", color: bark, sleeves: "none" }, legs: bark, legsRegion: "wood", hair: { style: "bald", color: 0x222 }, claws: true, prop: elder ? { leg: 1.0, torso: 0.72, headR: 0.17, arm: 0.86, shoulder: 0.26, hip: 0.13, neck: 0.03, girth: 1.35 } : { leg: 0.6, torso: 0.4, headR: 0.14, arm: 0.5, shoulder: 0.16, hip: 0.08, neck: 0.03, girth: 0.9 } } };
+  }
+  if (model === "cactus") {
+    const king = key === "cactus_king";
+    return { kind: "human", look: { skin: king ? 0x4a8a3a : 0x5aa04a, noFace: true, eyesGlow: 0x111111, ears: "none", needles: true, barefoot: true, top: { type: "rags", color: king ? 0x4a8a3a : 0x5aa04a, sleeves: "none" }, legs: king ? 0x4a8a3a : 0x5aa04a, hair: { style: "bald", color: 0x222 }, head: king ? { type: "crown" } : null, prop: { leg: 0.7, torso: 0.5, headR: 0.13, arm: 0.45, shoulder: 0.15, hip: 0.07, neck: 0.02, girth: 0.95 } } };
+  }
+  if (model === "bomb") return { kind: "bomb", col: key === "frost_bomb" ? 0x81d4fa : key === "ashen_bomb" ? 0x9e9e9e : 0xff7043, eye: key === "frost_bomb" ? 0xffffff : 0xfff3c0 };
   if (model === "ghoul") {
     const warden = key === "ossuary_warden";
     return { kind: "human", look: { skin: warden ? 0x6a8a74 : 0x8fa890, noFace: true, eyesGlow: warden ? 0x69f0ae : 0xff3030, claws: true, barefoot: true, top: { type: "rags", color: warden ? 0x1c2621 : 0x3a3a30, sleeves: "none" }, legs: 0x4a4a3e, hair: { style: "long", color: 0x6a6a60 }, head: warden ? { type: "hood", color: 0x1c2621 } : null, prop: { arm: 0.72, leg: 0.82, headR: 0.118, girth: 0.82 } } };
@@ -1219,6 +1267,7 @@ function buildEntityRig(e) {
     } else if (ml.kind === "bat") { sig = "bat|" + ml.col; make = () => batEntry(ml.col, ml.eye); }
     else if (ml.kind === "worm") { sig = "worm|" + ml.col; make = () => wormEntry(ml.col); }
     else if (ml.kind === "toad") { sig = "toad|" + ml.col; make = () => toadEntry(ml.col); }
+    else if (ml.kind === "bomb") { sig = "bomb|" + ml.col; make = () => bombEntry(ml.col, ml.eye); }
     else if (ml.kind === "bee") { sig = "bee|" + ml.col + ml.col2; make = () => beeEntry(ml.col, ml.col2); }
     else if (ml.kind === "crawler") { sig = "crawler|" + ml.col + ml.col2; make = () => crawlerEntry(ml.col, ml.col2); }
     else if (ml.kind === "sheep") { sig = "sheep|" + ml.col; make = () => sheepEntry(ml.col); }
