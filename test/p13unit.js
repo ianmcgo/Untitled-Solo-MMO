@@ -18,6 +18,6 @@ G.giveItem('harbor_bream', 3, true); G.talkTo(npc('ilsa')); opt(/Catch of the Da
 ok(G.save.quests.catchday === 'done' && G.invCount('sea_rod') === 1, 'bringing 3 Harbor Bream earns a Sea Rod');
 ok(G.FISH.harbor && G.WEATHER.harbor, 'the harbor has fish and weather');
 G.giveItem('bait', 3, true); S.npcs.forEach(n => n.away = true);
-P().x = 500; P().y = 860;
+P().x = 900; P().y = 1090;
 ok(G.startFishing() === '', 'you can fish from the harbor docks with the Sea Rod');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

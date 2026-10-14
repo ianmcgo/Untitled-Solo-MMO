@@ -1031,17 +1031,26 @@ const CITY_TYPES = {
   auction: { ground: "stone", upper: "plaster", portico: true, sign: true },
   forge: { ground: "stone", upper: "stone", forge: true, sign: true },
   mill: { ground: "stone", upper: "planks", sails: true },
-  warehouse: { ground: "planks", upper: "planks", bigdoor: true, crane: true }
+  warehouse: { ground: "planks", upper: "planks", bigdoor: true, crane: true },
+  markethall: { open: true },
+  keep: { ground: "stone", upper: "stone", flat: true, flag: true },
+  smelter: { ground: "stone", upper: "stone", smelter: true, bigdoor: true }
+};
+const CITY_STYLES = {
+  default: { plaster: [0xf4ead4, 0xe8d0a0, 0xd8e0e4, 0xf0d8c8], roof: [0xb05a44, 0x6a7a90, 0x8a6040, 0x5a4a44], shutter: [0x3a5a3a, 0x5a2a2a, 0x2a3a5a, 0x6a5a2a], pitch: 0.36 },
+  harbor: { plaster: [0xf8f6f0, 0xe6eef4, 0xf2e6cc, 0xdcebe4], roof: [0x2f7f8f, 0x3a5a8a, 0xc0603a, 0x4a8a9a], shutter: [0x2a6a9a, 0x2a8a8a, 0x1a4a7a, 0xc8a040], pitch: 0.3 },
+  mountain: { plaster: [0xd8d0c4, 0xc8c0b4, 0xe0d8c8, 0xb8b4ac], roof: [0x3a4048, 0x4a4a52, 0x5a4a40, 0x2e343c], shutter: [0x5a3a24, 0x3a2a1a, 0x6a4a2a, 0x4a3a2a], pitch: 0.55, stoneUpper: true }
 };
 function buildCityBuildings(field, root) {
   const z = field.zone;
   if (!(z.houses || []).some(h => h.type)) return;
   const bricks = texBricks(), plaster = texPlaster(), shingle = texShingle(), planks = texPlanks();
+  const ST = CITY_STYLES[z.cityStyle] || CITY_STYLES.default;
   const M = {
     stone: std({ map: bricks.map, normalMap: bricks.normalMap, color: 0xd8d0c4 }),
     planks: std({ map: planks.map, normalMap: planks.normalMap, color: 0xc8a888 }),
-    plaster: [0xf4ead4, 0xe8d0a0, 0xd8e0e4, 0xf0d8c8].map(c => std({ map: plaster.map, normalMap: plaster.normalMap, color: c, roughness: 0.95 })),
-    roof: [0xb05a44, 0x6a7a90, 0x8a6040, 0x5a4a44].map(c => std({ map: shingle.map, normalMap: shingle.normalMap, color: c, roughness: 0.85 })),
+    plaster: ST.plaster.map(c => std({ map: plaster.map, normalMap: plaster.normalMap, color: c, roughness: 0.95 })),
+    roof: ST.roof.map(c => std({ map: shingle.map, normalMap: shingle.normalMap, color: c, roughness: 0.85 })),
     beam: std({ color: 0x3e2a1a, roughness: 0.9 }),
     frame: std({ color: 0x5a3e26, roughness: 0.85 }),
     trim: std({ color: 0xb8b0a0, roughness: 0.85 }),
@@ -1051,7 +1060,12 @@ function buildCityBuildings(field, root) {
     leaf: std({ color: 0x4a8a3a, roughness: 0.9 }),
     soil: std({ color: 0x4a3626, roughness: 1 }),
     water: std({ color: 0x3a7ab0, roughness: 0.15, metalness: 0.2, emissive: 0x0a2030 }),
-    shutter: [0x3a5a3a, 0x5a2a2a, 0x2a3a5a, 0x6a5a2a].map(c => std({ color: c, roughness: 0.8 }))
+    shutter: ST.shutter.map(c => std({ color: c, roughness: 0.8 })),
+    rock: std({ color: z.palette === "snow" ? 0x8a8e96 : 0x7a7068, roughness: 0.95 }),
+    ore: std({ color: 0x3a3634, roughness: 0.8, metalness: 0.3 }),
+    fish: std({ color: 0xb8c4cc, roughness: 0.35, metalness: 0.5 }),
+    white: std({ color: 0xf2efe8, roughness: 0.8 }),
+    red: std({ color: 0xb03a30, roughness: 0.8 })
   };
   const win = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
   const lampMat = std({ color: 0x3a2a14, emissive: 0xffc070, emissiveIntensity: 0 });
@@ -1068,6 +1082,22 @@ function buildCityBuildings(field, root) {
     const B = new THREE.Matrix4().makeRotationY(hs.rot ? Math.PI / 2 : 0).setPosition(hs.x * U, gy, hs.y * U);
     const tint = hs.tint != null ? hs.tint : Math.floor(rnd() * 4);
     const matOf = k => k === "stone" ? M.stone : k === "planks" ? M.planks : M.plaster[tint % 4];
+    if (T.open) {
+      bt.add(M.stone, box(bw + 0.4, 0.3, bd + 0.4), B, 0, 0.1, 0);
+      const np = Math.max(2, Math.round(bw / 3));
+      for (let i = 0; i <= np; i++) for (const sz of [-1, 1]) bt.add(M.beam, cyl(0.16, 0.18, 3.4, 8), B, -bw / 2 + i * bw / np, 1.85, sz * (bd / 2 - 0.2));
+      bt.add(M.beam, box(bw + 0.2, 0.22, bd), B, 0, 3.55, 0);
+      bt.add(M.roof[hs.roof != null ? hs.roof : 0], roofGeo(bw + 0.6, bd + 0.4, Math.min(2.6, bd * 0.4)), B, 0, 3.6, 0, Math.PI / 2, 0, 0, bd / (bw + 0.6) * 0 + 1);
+      for (let i = 0; i < np; i++) {
+        const tx = -bw / 2 + (i + 0.5) * bw / np;
+        bt.add(M.planks, box(2.0, 0.1, 1.0), B, tx, 0.95, 0);
+        for (const sx of [-0.8, 0.8]) for (const sz of [-0.4, 0.4]) bt.add(M.frame, box(0.08, 0.85, 0.08), B, tx + sx, 0.5, sz);
+        for (let k = 0; k < 5; k++) bt.add(M.fish, new THREE.SphereGeometry(0.11, 6, 4).scale(2.6, 0.7, 1), B, tx - 0.7 + k * 0.35, 1.05, -0.2 + (k % 2) * 0.35, rnd() * 0.6);
+        bt.add(M.planks, box(0.6, 0.4, 0.5), B, tx + 0.6, 0.2, 0.9, rnd());
+      }
+      if (hs.sign) { const sg = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.8), new THREE.MeshStandardMaterial({ map: texSign(hs.sign, hs.signCol || "#d4a840"), side: THREE.DoubleSide })); sg.position.set(0, 3.25, bd / 2 + 0.05); sg.applyMatrix4(B); root.add(sg); }
+      return;
+    }
     const roofM = M.roof[hs.roof != null ? hs.roof : T.ground === "stone" ? 1 : Math.floor(rnd() * 4) % 4];
     bt.add(M.stone, box(bw + 0.3, PL + 0.4, bd + 0.3), B, 0, (PL - 0.4) / 2, 0);
     let depth = bd, topY = PL;
@@ -1100,13 +1130,40 @@ function buildCityBuildings(field, root) {
       }
       depth = d; topY = y0 + FH;
     }
-    const rh = Math.min(3.4, bw * 0.36);
-    bt.add(roofM, roofGeo(bw, depth, rh), B, 0, topY, 0);
-    const gable = new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(-bw / 2, 0), new THREE.Vector2(bw / 2, 0), new THREE.Vector2(0, rh * 0.94)]));
-    for (const face of [1, -1]) bt.add(matOf(T.upper), gable, B, 0, topY, face * (depth / 2 + 0.01), face > 0 ? 0 : Math.PI);
-    if (n >= 2 && bw > 5) bt.add(win, box(0.6, 0.6, 0.1), B, 0, topY + rh * 0.4, depth / 2 + 0.04);
-    if (!T.clock) bt.add(M.stone, box(0.7, 2.2, 0.7), B, bw * 0.26 * (rnd() < 0.5 ? -1 : 1), topY + 1.2, -bd * 0.18);
+    const rh = T.flat ? 0 : Math.min(ST.pitch > 0.4 ? 4.6 : 3.4, bw * ST.pitch);
+    if (T.flat) {
+      bt.add(M.trim, box(bw + 0.5, 0.3, depth + 0.5), B, 0, topY + 0.15, 0);
+      const per = 2 * (bw + depth), nm = Math.floor(per / 1.4);
+      for (let k = 0; k < nm; k++) {
+        const t = k / nm * per, sd = t < bw ? 0 : t < bw + depth ? 1 : t < 2 * bw + depth ? 2 : 3;
+        const mx = sd === 0 ? -bw / 2 + t : sd === 1 ? bw / 2 : sd === 2 ? bw / 2 - (t - bw - depth) : -bw / 2, mz = sd === 0 ? -depth / 2 : sd === 1 ? -depth / 2 + (t - bw) : sd === 2 ? depth / 2 : depth / 2 - (t - 2 * bw - depth);
+        bt.add(M.stone, box(0.7, 0.8, 0.7), B, mx, topY + 0.7, mz);
+      }
+      for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+        const th2 = topY + 3.2;
+        bt.add(M.stone, cyl(1.4, 1.5, th2, 12), B, sx * bw / 2, th2 / 2, sz * depth / 2);
+        bt.add(M.roof[1], new THREE.ConeGeometry(1.75, 3.2, 12), B, sx * bw / 2, th2 + 1.6, sz * depth / 2);
+        bt.add(win, box(0.3, 0.9, 0.1), B, sx * bw / 2, th2 - 1.2, sz * depth / 2 + sz * 1.42);
+      }
+    } else {
+      bt.add(roofM, roofGeo(bw, depth, rh), B, 0, topY, 0);
+      const gable = new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(-bw / 2, 0), new THREE.Vector2(bw / 2, 0), new THREE.Vector2(0, rh * 0.94)]));
+      for (const face of [1, -1]) bt.add(ST.stoneUpper && !T.timber ? M.stone : matOf(T.upper), gable, B, 0, topY, face * (depth / 2 + 0.01), face > 0 ? 0 : Math.PI);
+      if (n >= 2 && bw > 5) bt.add(win, box(0.6, 0.6, 0.1), B, 0, topY + rh * 0.4, depth / 2 + 0.04);
+    }
+    if (T.smelter) {
+      for (const sx of [-1, 1]) {
+        bt.add(M.stone, cyl(0.8, 1.0, 8, 10), B, sx * bw * 0.28, topY + 2.6, -bd * 0.12);
+        const em = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.1, 10), new THREE.MeshBasicMaterial({ color: 0xff7030 })); em.position.set(sx * bw * 0.28, topY + 6.65, -bd * 0.12); em.applyMatrix4(B); root.add(em);
+        glowAt(B, sx * bw * 0.28, topY + 7.0, -bd * 0.12, 4);
+      }
+      for (let k = 0; k < 3; k++) bt.add(M.ore, new THREE.ConeGeometry(1.0 + rnd() * 0.5, 1.0 + rnd() * 0.5, 7), B, -bw / 2 - 1.4, 0.5, -bd * 0.3 + k * 1.6, rnd() * 3);
+      const L = new THREE.PointLight(0xff8a3a, 10, 14, 1.6); L.position.set(0, PL + 1.4, bd / 2 + 1.0).applyMatrix4(B); L.userData.phase = idx * 2.1; root.add(L); W3.torchLights.push(L);
+      const hearth = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.6, 0.1), new THREE.MeshBasicMaterial({ color: 0xff7a30 })); hearth.position.set(0, PL + 1.5, bd / 2 + 0.03); hearth.applyMatrix4(B); root.add(hearth);
+    }
+    if (!T.clock && !T.flat) bt.add(M.stone, box(0.7, 2.2, 0.7), B, bw * 0.26 * (rnd() < 0.5 ? -1 : 1), topY + 1.2, -bd * 0.18);
     const fz = bd / 2;
+    if (T.smelter) return;
     const dw = T.bigdoor ? 3.2 : T.portico ? 1.6 : 1.3, dh = T.bigdoor ? 3.2 : 2.3;
     bt.add(M.frame, box(dw + 0.3, dh + 0.2, 0.12), B, 0, PL + dh / 2, fz + 0.04);
     bt.add(M.door, box(dw, dh, 0.1), B, 0, PL + dh / 2, fz + 0.08);
@@ -1188,6 +1245,42 @@ function buildCityBuildings(field, root) {
     }
   });
   const col = (x, y, r) => { if (z.colliders) z.colliders.push({ x, y, r }); };
+  for (const [x, y] of z.lighthouses || []) {
+    col(x, y, 60);
+    const B = new THREE.Matrix4().makeTranslation(x * U, field.heightAt(x, y), y * U);
+    bt.add(M.stone, cyl(3.0, 3.4, 1.2, 16), B, 0, 0.4, 0);
+    for (let k = 0; k < 5; k++) bt.add(k % 2 ? M.red : M.white, cyl(2.3 - k * 0.22, 2.5 - k * 0.22, 2.6, 16), B, 0, 1.0 + 1.3 + k * 2.6, 0);
+    bt.add(M.iron, cyl(1.7, 1.7, 0.2, 16), B, 0, 14.1, 0);
+    const lamp = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 1.8, 12), new THREE.MeshStandardMaterial({ color: 0xfff0c0, emissive: 0xffd080, emissiveIntensity: 0.4, transparent: true, opacity: 0.85 }));
+    lamp.position.set(0, 15.1, 0); lamp.applyMatrix4(B); root.add(lamp); W3.windowMats.push(lamp.material);
+    bt.add(M.red, new THREE.ConeGeometry(1.4, 1.6, 12), B, 0, 16.8, 0);
+    glowAt(B, 0, 15.1, 0, 9);
+    const L = new THREE.PointLight(0xffd080, 0, 60, 1.2); L.position.set(0, 15.1, 0).applyMatrix4(B); root.add(L); W3.lampLights.push(L);
+  }
+  for (const [x, y, rot] of z.slipways || []) {
+    col(x, y, 70);
+    const B = new THREE.Matrix4().makeRotationY(rot || 0).setPosition(x * U, field.heightAt(x, y), y * U);
+    for (let k = -3; k <= 3; k++) { bt.add(M.beam, box(3.2, 0.25, 0.3), B, 0, 0.12, k * 1.2); for (const sx of [-1, 1]) bt.add(M.beam, box(0.2, 1.2, 0.2), B, sx * 1.2, 0.7, k * 1.2, 0, 0, sx * 0.3); }
+    const hull = new THREE.CylinderGeometry(1.5, 1.0, 8.4, 12, 1, true, 0, Math.PI);
+    bt.add(M.planks, hull, B, 0, 1.7, 0, 0, Math.PI / 2, Math.PI);
+    for (let k = -3; k <= 3; k++) bt.add(M.frame, new THREE.TorusGeometry(1.35, 0.08, 4, 10, Math.PI), B, 0, 1.75, k * 1.15, 0, 0, Math.PI);
+    bt.add(M.beam, box(0.18, 0.18, 9.0), B, 0, 0.35, 0);
+  }
+  for (const [x, y, rot] of z.mines || []) {
+    col(x, y, 70);
+    const B = new THREE.Matrix4().makeRotationY(rot || 0).setPosition(x * U, field.heightAt(x, y), y * U);
+    const rock = new THREE.DodecahedronGeometry(5.5, 1); noisyGeo(rock, 0.9, 77);
+    bt.add(M.rock, rock, B, 0, 1.6, -3.8, 0, 0, 0, 1.3, 1.0, 1.0);
+    for (const sx of [-1, 1]) bt.add(M.beam, box(0.45, 3.6, 0.45), B, sx * 1.6, 1.8, 0.2);
+    bt.add(M.beam, box(4.2, 0.5, 0.55), B, 0, 3.7, 0.2);
+    bt.add(M.ore, box(2.8, 3.2, 0.2), B, 0, 1.6, -0.1);
+    for (let k = 0; k < 9; k++) { bt.add(M.beam, box(1.8, 0.1, 0.22), B, 0, 0.05, 0.6 + k * 0.9); }
+    for (const sx of [-1, 1]) bt.add(M.iron, box(0.07, 0.08, 8.2), B, sx * 0.55, 0.14, 4.4);
+    bt.add(M.planks, box(1.3, 0.8, 1.7), B, 0, 0.75, 3.0);
+    bt.add(M.ore, new THREE.ConeGeometry(0.6, 0.5, 6), B, 0, 1.35, 3.0);
+    for (const sx of [-1, 1]) for (const sz of [2.4, 3.6]) bt.add(M.iron, cyl(0.25, 0.25, 0.1, 10), B, sx * 0.62, 0.3, sz, 0, 0, Math.PI / 2);
+    bt.add(lampMat, box(0.25, 0.35, 0.25), B, 1.6, 2.8, 0.6); glowAt(B, 1.6, 2.8, 0.6, 2.2);
+  }
   for (const f of z.fountains || []) {
     col(f.x, f.y, 48);
     const B = new THREE.Matrix4().makeTranslation(f.x * U, field.heightAt(f.x, f.y), f.y * U);
@@ -1242,7 +1335,9 @@ function buildCityBuildings(field, root) {
     const segs = [[L0, L0, z.w - L0, L0], [z.w - L0, L0, z.w - L0, z.h - L0], [L0, z.h - L0, z.w - L0, z.h - L0], [L0, L0, L0, z.h - L0]];
     const gaps = (z.exits || []).filter(e => e.kind !== "door").map(e => ({ e, side: exitSide(z, e), c: e.x <= 1 || e.x + e.w >= z.w - 1 ? e.y + e.h / 2 : e.x + e.w / 2, half: (e.lane || 110) }));
     const sideOf = i => ["n", "e", "s", "w"][i];
+    const sideOn = i => typeof z.outerWall !== "string" || z.outerWall.includes(sideOf(i));
     segs.forEach(([x1, y1, x2, y2], i) => {
+      if (!sideOn(i)) return;
       const horiz = y1 === y2, a = horiz ? x1 : y1, b = horiz ? x2 : y2;
       const cuts = gaps.filter(g => g.side === sideOf(i)).sort((p, q) => p.c - q.c);
       let st = a;
@@ -1262,7 +1357,7 @@ function buildCityBuildings(field, root) {
       if (b - st > 10) piece(st, b);
     });
     const tower = (x, y, h) => { const gy = field.heightAt(x, y); bt.add(stone, uvBox(3.2, h + 1, 3.2, 2.4), new THREE.Matrix4(), x * U, gy - 0.5 + h / 2, y * U); bt.add(M.trim, box(3.7, 0.35, 3.7), new THREE.Matrix4(), x * U, gy + h, y * U); bt.add(M.roof[0], new THREE.ConeGeometry(3.0, 3.2, 4).rotateY(Math.PI / 4), new THREE.Matrix4(), x * U, gy + h + 1.75, y * U); };
-    for (const [x, y] of [[L0, L0], [z.w - L0, L0], [L0, z.h - L0], [z.w - L0, z.h - L0]]) tower(x, y, 9);
+    [[L0, L0, 0, 3], [z.w - L0, L0, 0, 1], [L0, z.h - L0, 2, 3], [z.w - L0, z.h - L0, 1, 2]].forEach(([x, y, a1, a2]) => { if (sideOn(a1) || sideOn(a2)) tower(x, y, 9); });
     for (const g of gaps) {
       const vert = g.side === "e" || g.side === "w", ex = g.side === "e" ? z.w - L0 : g.side === "w" ? L0 : 0, ey = g.side === "s" ? z.h - L0 : g.side === "n" ? L0 : 0;
       for (const sd of [-1, 1]) tower(vert ? ex : g.c + sd * (g.half + 30), vert ? g.c + sd * (g.half + 30) : ey, 11);

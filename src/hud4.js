@@ -663,11 +663,17 @@ function gameConfirm(title, text, onYes, opts) {
   box.querySelector(".cbB").textContent = text || title;
   box.classList.add("on");
   S.keys = {};
-  const close = () => { box.classList.remove("on"); yes.onclick = no.onclick = null; UI.confirmOpen = false; };
-  UI.confirmOpen = true;
+  const close = () => { box.classList.remove("on"); yes.onclick = no.onclick = null; UI.confirmOpen = false; UI.confirmTag = null; UI.confirmClose = null; };
+  UI.confirmOpen = true; UI.confirmTag = opts.tag || null; UI.confirmClose = close;
   yes.onclick = () => { close(); if (typeof sfx === "function") sfx("select"); onYes(); };
   no.onclick = () => { close(); if (typeof sfx === "function") sfx("close"); if (opts.onNo) opts.onNo(); };
   if (typeof sfx === "function") sfx("open");
+}
+
+function gameConfirmClose(tag) {
+  if (!UI.confirmOpen || (tag && UI.confirmTag !== tag) || !UI.confirmClose) return;
+  UI.confirmClose();
+  if (typeof sfx === "function") sfx("close");
 }
 
 function tgtCmdOpen(t) {
@@ -1072,7 +1078,7 @@ function updateFF() {
   const cmdL = S.ko && !S.modal && !UI.cmd && !UI.mm ? "K.O." : cmdLbl;
   if (UI.cmdLbl !== cmdL) { UI.cmdLbl = cmdL; setTxt(document.querySelector("#ffTop .ffCmd"), cmdL); }
   if (tOk || UI.cmd || UI.mm || S.modal || S.ko) {
-    setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : S.ko ? "You've been knocked out. Wait to be raised, or go back to your home point (you'll lose experience)." : ffDefaultHelp(t));
+    setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : S.ko ? "You've been knocked out. Wait to be raised, use a Phoenix Down or Ember Plume from your items, or go back to your home point (you'll lose experience)." : ffDefaultHelp(t));
     if (UI.mm && UI.mm.sub && Date.now() - (UI.stAt || 0) > 500) { UI.stAt = Date.now(); renderStatusOv(); }
     const now = Date.now();
     if (now - (UI.netAt || 0) > 1000) {
@@ -1106,7 +1112,7 @@ function updateFF() {
   const tc = $("tCmd"); if (tc) tc.style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 14) + "px + var(--sab))";
   if (UI.cmd && Date.now() - (UI.mpAt || 0) > 400) { UI.mpAt = Date.now(); renderMpBox(); } else if (!UI.cmd) { const mb = $("mpBox"); if (mb) mb.classList.remove("on"); }
   const dg = $("dialog"), mw2 = S.modal && document.querySelector("#menu .win");
-  if (S.dialog && mw2) { const r = mw2.getBoundingClientRect(); dg.style.top = Math.round(r.top) + "px"; dg.style.left = Math.round(Math.min(r.right + 6, innerWidth - dg.offsetWidth - 6)) + "px"; dg.style.bottom = "auto"; }
+  if (S.dialog && mw2) { const r = mw2.getBoundingClientRect(), fits = r.right + 6 + dg.offsetWidth <= innerWidth - 6; dg.style.top = Math.round(fits ? r.top : Math.min(r.bottom + 6, innerHeight - dg.offsetHeight - 6)) + "px"; dg.style.left = Math.round(fits ? r.right + 6 : Math.max(6, r.left)) + "px"; dg.style.bottom = "auto"; }
   else if (S.dialog) { dg.style.top = "auto"; dg.style.left = ""; }
   if (S.dialog && !mw2) $("dialog").style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 16) + "px + var(--sab))";
   $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);

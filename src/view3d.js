@@ -26,6 +26,40 @@ function labelFor(e) {
   return el;
 }
 
+function occluders() {
+  const z = S.zone;
+  if (VIEW.occZone === z) return VIEW.occ;
+  const out = [];
+  for (const h of z.houses || []) out.push({ x: h.x - h.w / 2, y: h.y - h.h / 2, w: h.w, h: h.h, top: 0.6 + (h.type ? (h.floors || 2) * 3 : 3.2) + 1.2 });
+  if (z.cityWalls) for (const r of cityWallRects(z)) out.push({ x: r.x, y: r.y, w: r.w, h: r.h, top: r.tower ? 8.2 : 4.6 });
+  VIEW.occZone = z; VIEW.occ = out;
+  return out;
+}
+function segRectT(x1, y1, x2, y2, r) {
+  const dx = x2 - x1, dy = y2 - y1;
+  let t0 = 0, t1 = 1;
+  const p = [-dx, dx, -dy, dy], q = [x1 - r.x, r.x + r.w - x1, y1 - r.y, r.y + r.h - y1];
+  for (let i = 0; i < 4; i++) {
+    if (p[i] === 0) { if (q[i] < 0) return -1; continue; }
+    const t = q[i] / p[i];
+    if (p[i] < 0) { if (t > t1) return -1; if (t > t0) t0 = t; } else { if (t < t0) return -1; if (t < t1) t1 = t; }
+  }
+  return t0;
+}
+function labelHidden(e) {
+  if (e === player || player.target === e) return false;
+  const occ = occluders();
+  if (!occ.length) return false;
+  const c = W3.camera.position, cx = c.x / U, cy = c.z / U, ex = e.x, ey = e.y, ty = groundY(ex, ey) + entityHeight(e);
+  for (const r of occ) {
+    if (ex > r.x && ex < r.x + r.w && ey > r.y && ey < r.y + r.h) continue;
+    const t = segRectT(cx, cy, ex, ey, r);
+    if (t <= 0 || t >= 1) continue;
+    const hx = cx + (ex - cx) * t, hy = cy + (ey - cy) * t;
+    if (c.y + (ty - c.y) * t < groundY(hx, hy) + r.top) return true;
+  }
+  return false;
+}
 function updateLabels() {
   const seen = new Set();
   const all = S.party.concat(S.mobs, S.npcs, S.buddy ? [S.buddy] : [], S.others ? [...S.others.values()].filter(o => o.placed) : []);
@@ -38,6 +72,8 @@ function updateLabels() {
     if (d > Math.min(900, DRAW_DIST[VIEW.settings.draw || "normal"] * 0.6) && player.target !== e) continue;
     const sc = screenOf(e.x, e.y, entityHeight(e) + 0.25);
     if (!sc) continue;
+    if ((e._occT || 0) < S.time) { e._occT = S.time + 0.15; e._occ = labelHidden(e); }
+    if (e._occ) continue;
     const el = labelFor(e);
     seen.add(e);
     el.style.transform = "translate(" + sc.x.toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-100%)";
@@ -426,7 +462,7 @@ function onZoneEntered() {
   const job = VIEW.zoneJob = (VIEW.zoneJob || 0) + 1;
   VIEW.loading = true;
   if (!VIEW.booting) loaderShow(S.zone.name, S.zone.theme === "house" ? "Home" : "Entering");
-  if (!VIEW.booting && typeof startShowcase === "function") startShowcase();
+  if (typeof startShowcase === "function") try { startShowcase(); } catch (e) {}
   loadZoneAsync(job);
 }
 async function loadZoneAsync(job) {

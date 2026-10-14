@@ -26,7 +26,7 @@ ok(G.dist(P(), { x: 780, y: 1240 }) < 10, 'routes from Residential to Industrial
 S.moveTarget = { x: 1700, y: 300 }; run(40);
 ok(G.dist(P(), { x: 1700, y: 300 }) < 10, 'routes from Industrial to Eastgate');
 const sv = G.normalizeSave(Object.assign({}, G.save, { zv: 1, loc: { zone: 'outpost', x: 610, y: 440 } }));
-ok(sv.loc.x === Z.start.x && sv.loc.y === Z.start.y && sv.zv === 2, 'old saves standing in the old Outpost are moved to the Market plaza');
+ok(sv.loc.x === Z.start.x && sv.loc.y === Z.start.y && sv.zv === 3, 'old saves standing in the old Outpost are moved to the Market plaza');
 { const hx = G.ZONES.hollow.exits.find(e => e.to === 'outpost'); ok(G.districtAt(Z, hx.tx, hx.ty).id === 'gate', 'Rocky Hollow leads into Eastgate'); }
 ok(G.districtName('outpost', 1000, 760) === 'Market District', 'districtName names the district');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

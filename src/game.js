@@ -94,7 +94,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 2, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
@@ -109,7 +109,8 @@ function normalizeSave(d) {
   out.quests = Object.assign(newSave().quests, d.quests || {});
   if (!d.zv && out.loc && ZONE_SCALE[out.loc.zone]) { out.loc = Object.assign({}, out.loc, { x: Math.round(out.loc.x * ZONE_SCALE[out.loc.zone]), y: Math.round(out.loc.y * ZONE_SCALE[out.loc.zone]) }); }
   if ((d.zv || 0) < 2 && out.loc && out.loc.zone === "outpost") out.loc = { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y };
-  out.zv = 2;
+  if ((d.zv || 0) < 3 && out.loc && (out.loc.zone === "harbor" || out.loc.zone === "ironvale")) out.loc = { zone: out.loc.zone, x: ZONES[out.loc.zone].start.x, y: ZONES[out.loc.zone].start.y };
+  out.zv = 3;
   if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
@@ -765,6 +766,8 @@ function rebuildParty() {
   S.party = [player];
   if (S.pet) S.party.push(S.pet);
   save.hired.forEach((id, i) => {
+    const body = save.mercBodies && save.mercBodies[id];
+    if (body && body.zone !== S.zoneId) return;
     let m = old.find(p => p.mercId === id);
     if (!m) {
       m = makeMerc(id);
@@ -774,6 +777,7 @@ function rebuildParty() {
       const o = followOffset(i + 1);
       m.x = player.x + o.x; m.y = player.y + o.y; m.px = m.x; m.py = m.y;
       m.mounted = !!player.mounted;
+      if (body) { m.x = body.x; m.y = body.y; m.px = m.x; m.py = m.y; m.alive = false; m.hp = 0; m.koUntil = body.until; m.mounted = false; }
     }
     S.party.push(m);
   });
@@ -817,6 +821,8 @@ function dismissMerc(id, quiet) {
   if (i < 0) return;
   save.hired.splice(i, 1);
   delete save.mercPaid[id];
+  if (save.mercBodies) delete save.mercBodies[id];
+  if (save.mercDown) delete save.mercDown[id];
   rebuildParty();
   if (!quiet) log(MERCS[id].name + " leaves the party.", "sys");
   if (MERCS[id].gen && !(save.mercDay && save.mercDay.ids.includes(id))) delete save.mercDefs[id];
@@ -1117,7 +1123,7 @@ function onKO(e, src) {
     for (const m of S.mobs) m.enmity.delete(e);
     if (e !== player) partySay(e, "ko", true);
     e.koUntil = Date.now() + CONFIG.koMinutes * 60000; e.koAt = S.time; e.casting = null; e.engaged = false; e.attackTarget = null; e.buffs = {};
-    if (e.mercId) { save.mercDown = save.mercDown || {}; save.mercDown[e.mercId] = e.koUntil; log(e.name + " is down. Raise them or use an Ember Plume before an hour passes.", "foe"); }
+    if (e.mercId) { save.mercDown = save.mercDown || {}; save.mercDown[e.mercId] = e.koUntil; save.mercBodies = save.mercBodies || {}; save.mercBodies[e.mercId] = { zone: S.zoneId, x: e.x, y: e.y, until: e.koUntil }; log(e.name + " is down. Raise them or use an Ember Plume before an hour passes.", "foe"); }
     if (e === player) { save.stats.kos++; S.ko = true; S.chase = false; S.moveTarget = null; player.engaged = false; player.attackTarget = null; save.ko = { until: e.koUntil }; player.target = null; if (typeof tgtCmdClose === "function") tgtCmdClose(); if (typeof mainCmdClose === "function" && UI.mm) mainCmdClose(); showKO(true); saveGame(); }
   }
 }
@@ -2528,7 +2534,7 @@ function learnSpell(itemId) {
 }
 function useItem(id) {
   const it = ITEMS[id];
-  if (!player.alive || !it) return;
+  if (!it || (!player.alive && !it.revive)) return;
   if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
@@ -2537,11 +2543,11 @@ function useItem(id) {
   if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.revive) {
-    const t = (isParty(player.target) || isMate(player.target)) && !player.target.alive ? player.target : S.party.find(p => p !== player && !p.alive);
+    const t = !player.alive ? player : (isParty(player.target) || isMate(player.target)) && !player.target.alive ? player.target : S.party.find(p => p !== player && !p.alive);
     if (!t) { log("Target a KO'd party member to use the " + it.name + ".", "sys"); sfx("error"); return; }
-    if (dist(t, player) > CONFIG.castRange) { log(t.name + " is too far away.", "sys"); sfx("error"); return; }
+    if (t !== player && dist(t, player) > CONFIG.castRange) { log(t.name + " is too far away.", "sys"); sfx("error"); return; }
     removeItem(id, 1); S.itemReadyAt = S.time + 3;
-    log("You use " + an(it.name) + " on " + t.name + ".", "you");
+    log(t === player ? "You use " + an(it.name) + "." : "You use " + an(it.name) + " on " + t.name + ".", "you");
     if (t.kind === "remote") { if (typeof netCastOn === "function") netCastOn(player, t, SPELLS.raise, "raise", it.revive); } else revive(t, it.revive, null);
     return;
   }
@@ -3316,6 +3322,7 @@ function enterZone(id, x, y) {
   if (S.bf && id !== BATTLEFIELD.zone) { if (!S.bf.won) log("You leave the Chapel Depths. The battle is lost.", "sys"); S.bf = null; }
   S.zoneId = id;
   S.zone = ZONES[id];
+  if (S.party.some(p => p.mercId) || (save.mercBodies && Object.keys(save.mercBodies).length)) rebuildParty();
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
   S.mobs = [];
   S.effects = [];
@@ -3328,7 +3335,7 @@ function enterZone(id, x, y) {
   player.face = home ? Math.atan2(home.y - y, home.x - x) : Math.atan2(ZONES[id].h / 2 - y, ZONES[id].w / 2 - x);
   S.party.forEach((p, i) => {
     p.engaged = false; p.target = null; p.attackTarget = null; p.casting = null;
-    if (i > 0) { const o = followOffset(i); p.x = x + o.x; p.y = y + o.y; }
+    if (i > 0 && !(p.mercId && !p.alive)) { const o = followOffset(i); p.x = x + o.x; p.y = y + o.y; }
     p.px = p.x; p.py = p.y;
     p.stillSince = S.time;
   });
@@ -3744,8 +3751,8 @@ function step(dt) {
     if (onAsk && S.exitAsked !== onAsk) {
       S.exitAsked = onAsk;
       const ex = onAsk;
-      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: ex.yes || "Enter", no: "Not now" });
-    } else if (!onAsk) S.exitAsked = null;
+      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: ex.yes || "Enter", no: "Not now", tag: "exit" });
+    } else if (!onAsk && S.exitAsked && !circleRect(player, S.exitAsked, 40)) { S.exitAsked = null; if (typeof gameConfirmClose === "function") gameConfirmClose("exit"); }
   }
   S.lmTimer -= dt;
   if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); checkDistrict(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
@@ -4649,7 +4656,8 @@ function startFerry(to, x, y, cost, msg, secs) {
   if (save.gil < fare) { log("The ferry costs " + fare + " crystals.", "sys"); return; }
   if (player.engaged || S.party.some(p => p.engaged)) { log("Finish your fight before boarding.", "sys"); return; }
   save.gil -= fare;
-  const dest = x != null ? { x, y } : to === "gullisle" ? { x: 440, y: 900 } : { x: 560, y: 720 };
+  const fn = to !== "gullisle" && ZONES[to] && ZONES[to].npcs.find(q => NPCS[q.id] && NPCS[q.id].ferryTo);
+  const dest = x != null ? { x, y } : to === "gullisle" ? { x: 440, y: 900 } : fn ? { x: fn.x - 70, y: fn.y } : { x: 560, y: 720 };
   S.ferry = { to, x: dest.x, y: dest.y, at: S.time + (secs || 6), boat: to === S.zoneId };
   log(msg || "You board the ferry. The sails fill, and the coast slips away... (6 seconds)", "npc");
   sfx("zone");
@@ -4733,10 +4741,20 @@ function homePos() {
 function koTick() {
   const now = Date.now();
   if (S.ko && player.koUntil && now >= player.koUntil) { log("An hour has passed. You are carried back to your home point.", "warn"); returnHome(); return; }
+  if (save.mercBodies) for (const id of Object.keys(save.mercBodies)) {
+    const b = save.mercBodies[id];
+    if (now < b.until || S.party.some(p => p.mercId === id)) continue;
+    delete save.mercBodies[id];
+    if (save.mercDown) delete save.mercDown[id];
+    if (CONFIG.mercPermadeath) { save.mercFallen[id] = now; const i = save.hired.indexOf(id); if (i >= 0) save.hired.splice(i, 1); delete save.mercPaid[id]; log((MERCS[id] ? MERCS[id].name : "A companion") + " has fallen and will not be coming back.", "foe"); }
+    else dismissMerc(id, true);
+    return;
+  }
   for (const a of S.party) {
     if (a === player || a.alive || !a.mercId || !a.koUntil || now < a.koUntil) continue;
     a.koUntil = 0;
     if (save.mercDown) delete save.mercDown[a.mercId];
+    if (save.mercBodies) delete save.mercBodies[a.mercId];
     if (CONFIG.mercPermadeath) { a.fallAt = S.time; mercFallTick(); return; }
     log(a.name + " limps back to the Mercenary Hall.", "foe");
     dismissMerc(a.mercId, true);
@@ -4749,6 +4767,7 @@ function revive(t, pct, by) {
   t.alive = true; t.hp = Math.max(1, Math.round(t.maxHp * pct)); t.mp = Math.round(t.maxMp * pct); t.tp = 0;
   t.koUntil = 0; t.buffs = { weakened: { until: S.time + CONFIG.weakenedSecs } }; t.stillSince = S.time;
   if (t.mercId && save.mercDown) delete save.mercDown[t.mercId];
+  if (t.mercId && save.mercBodies) delete save.mercBodies[t.mercId];
   if (t === player) { S.ko = false; save.ko = null; showKO(false); log((by ? by + " revives you" : "You are revived") + ". You keep your experience.", "heal"); }
   else log(t.name + " is revived" + (by ? " by " + by : "") + ".", "heal");
   popText(t, "Revived", "#8cff98", 18, 1.4);
@@ -4775,13 +4794,12 @@ function giveUpKO() {
 
 function returnHome() {
   save.ko = null;
-  if (save.mercDown) for (const id of Object.keys(save.mercDown)) delete save.mercDown[id];
   const j = save.jobs[save.mainJob];
   const loss = Math.min(j.xp, Math.floor(xpNeed(j.lv) * CONFIG.deathXpLossPct));
   if (loss > 0 && j.lv < CONFIG.levelCap) { j.xp -= loss; log("You lose " + loss + " experience points.", "foe"); }
   S.ko = false;
   showKO(false);
-  for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; p.tp = 0; p.buffs = {}; p.mounted = false; p.koUntil = 0; }
+  for (const p of S.party) { if (p.mercId && !p.alive) continue; p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; p.tp = 0; p.buffs = {}; p.mounted = false; p.koUntil = 0; }
   player.buffs.weakened = { until: S.time + CONFIG.weakenedSecs };
   const h = homePos();
   enterZone(h.zone, h.x, h.y);
