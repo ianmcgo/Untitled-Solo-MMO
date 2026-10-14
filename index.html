@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.17.0 · built 2026-10-14 02:05 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.18.0 · built 2026-10-14 02:12 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14613,13 +14613,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.17.0 · built 2026-10-14 02:05 PDT";
+const BUILD_INFO = "v9.18.0 · built 2026-10-14 02:12 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.18.0", date: "2026-10-14", title: "Effects", items: [
+    "Spells leave something behind: fire smoulders with rising embers, ice leaves a cold mist, water drips down, earth throws up dust, wind scatters leaves, lightning crackles for a moment, light leaves glowing motes and dark magic leaves shadowy wisps.",
+    "Weapon skills now trail the colour of their element, shed sparks from the blade, and finish with a burst and ground ring in that colour.",
+    "Melee hits throw sparks (cool white for blades, orange for blunt weapons), and heavy blows kick up dust.",
+    "Weather particles: rain splashes, distant lightning with delayed thunder, blowing leaves and dust in wind, sideways snow in blizzards, drifting fog, fireflies on clear field nights, and snowy footsteps."
   ] },
   { v: "9.17.0", date: "2026-10-14", title: "Motion", items: [
     "Emotes are now fully animated: wave, bow, cheer, dance, laugh, nod, clap, point, salute, panic, cry and thumbs up each have their own movement. Using one stands you up if you were resting and turns you to face your target.",
@@ -15342,7 +15348,8 @@ function tabHelp() {
   h += sec("🌦️ Weather", ul([
     "Each outdoor area has its own weather, changing every 3 game hours (about 7 real minutes): clear, cloudy, rain, wind, fog or thunderstorms. The icon next to the clock shows it; /weather tells you more.",
     "Rain boosts water spells by 10%, wind boosts wind spells and thunderstorms boost lightning spells. This stacks with the day's element.",
-    "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not."
+    "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not.",
+    "You can see the weather around you: raindrops splash on the ground, distant lightning lights up the sky before the thunder arrives, wind carries leaves and dust, blizzards blow snow sideways and fog drifts past at ground level. On clear nights in the fields, fireflies come out. Snow kicks up under your feet in snowy weather."
   ]));
   h += sec("🎲 Treasure pool", ul([
     "With companions in the party, equipment drops go into the treasure pool (the panel above the log) instead of straight into your bag. Other loot still goes to your bag.",
@@ -15467,7 +15474,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.17.0";
+const GAME_VERSION = "9.18.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -20169,6 +20176,57 @@ function burst(layer, p, n, o) {
   }
 }
 
+function residue(el, g, s) {
+  const n = Math.round((W3.quality === "low" ? 10 : 22) * s);
+  const tick = (life, fn) => addItem(new THREE.Object3D(), life, (k, dt) => fn(k, dt));
+  if (el === "fire") tick(1.6, (k, dt) => { if (Math.random() < dt * n * 1.5) FX.add.spawn(g.x + rnd(-0.7, 0.7), g.y + 0.1, g.z + rnd(-0.7, 0.7), rnd(-0.2, 0.2), rnd(1, 2.2), rnd(-0.2, 0.2), rnd(0.6, 1.1), 0.09, 0.02, C(0xffe0a0), C(0xff5020), -0.5, 0.4, 1); if (Math.random() < dt * 6) burst(FX.smoke, g, 1, { c0: 0x4a4038, speed: 0.4, life: 1.6, size: 0.5, size2: 1.4, shape: "up", vy: 0.8, alpha: 0.3 }); });
+  else if (el === "ice") burst(FX.smoke, g, n, { c0: 0xdff6ff, speed: 1.2, life: 1.6, size: 0.4, size2: 1.1, shape: "ring", radius: 0.6, drag: 2, alpha: 0.35 });
+  else if (el === "water") for (let i = 0; i < n; i++) FX.add.spawn(g.x + rnd(-0.5, 0.5), g.y + rnd(2, 3), g.z + rnd(-0.5, 0.5), 0, rnd(-1, 0), 0, rnd(0.5, 0.8), 0.08, 0.05, C(0xe0f8ff), C(0x4fc3f7), 9, 0, 0.8);
+  else if (el === "earth") burst(FX.smoke, g, n, { c0: 0xb8a080, speed: 2, life: 1.2, size: 0.5, size2: 1.3, shape: "ring", radius: 0.5, drag: 2.5, alpha: 0.4 });
+  else if (el === "wind") for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, r = rnd(0.4, 1.4); FX.smoke.spawn(g.x + Math.cos(a) * r, g.y + rnd(0.2, 2), g.z + Math.sin(a) * r, -Math.sin(a) * 2.5, rnd(0.2, 1), Math.cos(a) * 2.5, rnd(0.8, 1.3), 0.12, 0.1, C(0x8fb050), C(0x6a8030), -0.3, 0.5, 0.8); }
+  else if (el === "lightning") tick(0.7, (k, dt) => { if (Math.random() < dt * 30) { const q = new THREE.Vector3(g.x + rnd(-0.6, 0.6), g.y + rnd(0.2, 1.6), g.z + rnd(-0.6, 0.6)); burst(FX.add, q, 3, { c0: 0xffffff, c1: 0xb080ff, speed: 3, life: 0.15, size: 0.08 }); } });
+  else if (el === "light") for (let i = 0; i < n; i++) FX.add.spawn(g.x + rnd(-1, 1), g.y + rnd(0.2, 2), g.z + rnd(-1, 1), 0, rnd(0.2, 0.6), 0, rnd(1.2, 2), 0.1, 0.02, C(0xffffff), C(0xffe080), 0, 0.2, 0.9);
+  else if (el === "dark") for (let i = 0; i < n; i++) FX.smoke.spawn(g.x + rnd(-0.6, 0.6), g.y + rnd(0, 1.5), g.z + rnd(-0.6, 0.6), rnd(-0.3, 0.3), rnd(0.3, 0.9), rnd(-0.3, 0.3), rnd(1, 1.6), 0.4, 0.9, C(0x2a1a40), C(0x120a20), 0, 0.5, 0.45);
+}
+
+const WFX = { next: 0 };
+function updateWeatherFx(dt) {
+  const th = S.zone && themeOf(S.zone);
+  if (!player || th === "cave" || th === "crypt" || th === "house" || typeof weatherNow !== "function") return;
+  const wx = weatherNow(), low = W3.quality === "low", g = groundAt(player);
+  const near = () => { const a = Math.random() * Math.PI * 2, r = rnd(1, low ? 9 : 14); const x = player.x + Math.cos(a) * r / U, y = player.y + Math.sin(a) * r / U; return new THREE.Vector3(x * U, groundY(x, y) + 0.05, y * U); };
+  if (wx === "rain" || wx === "storm") {
+    const rate = (wx === "storm" ? 70 : 45) * (low ? 0.4 : 1);
+    for (let i = 0, m = Math.floor(rate * dt + Math.random()); i < m; i++) { const q = near(); burst(FX.add, q, 3, { c0: 0xe8f4ff, c1: 0x90a8c0, speed: 1.2, life: 0.25, size: 0.05, shape: "dome", grav: 8, alpha: 0.7 }); }
+  }
+  if (wx === "storm") {
+    if (!WFX.next) WFX.next = S.time + rnd(4, 10);
+    if (S.time > WFX.next) {
+      WFX.next = S.time + rnd(7, 16);
+      const a = Math.random() * Math.PI * 2, far = rnd(40, 80);
+      const q = new THREE.Vector3(g.x + Math.cos(a) * far, g.y + 6, g.z + Math.sin(a) * far);
+      lightningBolt(q.clone().setY(g.y + 30), 0xe8e0ff);
+      fxLight(q, 0xd8d0ff, 40, 0.3, 120);
+      screenFlash("#e8e8ff", 0.22);
+      setTimeout(() => typeof sfx === "function" && sfx("lightning"), 400 + far * 12);
+    }
+  } else WFX.next = 0;
+  if (wx === "wind" || wx === "storm" || wx === "blizzard") {
+    const rate = (wx === "blizzard" ? 30 : 10) * (low ? 0.5 : 1);
+    for (let i = 0, m = Math.floor(rate * dt + Math.random()); i < m; i++) {
+      const q = near(); q.y += rnd(0.3, 2.5);
+      if (wx === "blizzard") FX.smoke.spawn(q.x, q.y, q.z, rnd(4, 7), rnd(-0.5, 0.3), rnd(1, 3), rnd(0.8, 1.4), 0.6, 1.4, C(0xf4f8ff), C(0xe0e8f0), 0, 0.3, 0.3);
+      else { const leaf = Math.random() < 0.6; FX.smoke.spawn(q.x, q.y, q.z, rnd(3, 5.5), rnd(-0.3, 0.6), rnd(0.5, 2), rnd(1.4, 2.4), leaf ? 0.12 : 0.4, leaf ? 0.1 : 0.9, C(leaf ? 0x7a9a40 : 0xb8a888), C(leaf ? 0x8a6a30 : 0xa89878), 0.3, 0.2, leaf ? 0.9 : 0.25); }
+    }
+  }
+  if (wx === "fog" || S.zone.mist) {
+    if (Math.random() < dt * (low ? 2 : 5)) { const q = near(); q.y += rnd(0.2, 1); FX.smoke.spawn(q.x, q.y, q.z, rnd(0.2, 0.6), rnd(0, 0.1), rnd(-0.2, 0.2), rnd(4, 6), 2.5, 4.5, C(0xdfe6e8), C(0xc8d0d4), 0, 0, 0.18); }
+  }
+  if (W3.daylight < 0.35 && th === "field" && !/rain|storm|snow|blizzard/.test(wx || "")) {
+    if (Math.random() < dt * (low ? 1 : 3)) { const q = near(); q.y += rnd(0.4, 1.8); FX.add.spawn(q.x, q.y, q.z, rnd(-0.3, 0.3), rnd(-0.1, 0.2), rnd(-0.3, 0.3), rnd(2.5, 4), 0.1, 0.1, C(0xf0ff90), C(0x90d040), 0, 0.3, 0.9); }
+  }
+}
+
 function shockwave(p, color, radius, life, height) {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), basicMat(color, 0.9, FX.ringTex));
   m.rotation.x = -Math.PI / 2;
@@ -20335,6 +20393,9 @@ const VFX = {
     if (d.slash) slashArc(d.src, d.tgt, d.crit ? 0xfff0b0 : 0xe8f0ff, d.crit);
     else sprite(p, 0xffe8c0, d.crit ? 1.4 : 0.8, 0.18, 0.8);
     if (d.crit) { fxLight(p, 0xffd080, 14, 0.25, 8); sprite(p, 0xffd060, 2.2, 0.25, 1); }
+    const sparkC = d.slash ? 0xd8ecff : 0xffb050;
+    for (let i = 0; i < (d.crit ? 16 : 7); i++) FX.add.spawn(p.x, p.y, p.z, dir.x * rnd(2, 5) + rnd(-2.5, 2.5), rnd(1, 4), dir.z * rnd(2, 5) + rnd(-2.5, 2.5), rnd(0.25, 0.5), 0.06, 0.02, C(0xffffff), C(sparkC), 9, 0.5, 1);
+    if (!d.slash || d.crit) burst(FX.smoke, groundAt(d.tgt), d.crit ? 8 : 4, { c0: 0xa89878, speed: 1.4, life: 0.6, size: 0.3, size2: 0.7, shape: "ring", drag: 3, alpha: 0.3 });
   },
   miss(d) {
     const p = anchor(d.tgt, 0.6);
@@ -20342,6 +20403,8 @@ const VFX = {
   },
   ws(d) {
     const p = anchor(d.src, 0.6);
+    const v = VIEW.views.get(d.src), pr = d.ws && d.ws.props && SC_PROPS[d.ws.props[0]];
+    if (v) v.wsEl = pr && pr.el ? pr.el[0] : null;
     for (let i = 0; i < 40; i++) {
       const a = Math.random() * Math.PI * 2, r = rnd(1.2, 1.8), y = rnd(-0.5, 1.2);
       FX.add.spawn(p.x + Math.cos(a) * r, p.y + y, p.z + Math.sin(a) * r, -Math.cos(a) * r * 2.6, -y * 2.6, -Math.sin(a) * r * 2.6, 0.38, 0.16, 0.04, C(0xfff2b0), C(0xffb020), 0, 0, 1);
@@ -20397,6 +20460,7 @@ const VFX = {
       fxLight(p, 0xfff0c0, d.dia ? 10 : 20, 0.6, 12);
     }
     else burst(FX.add, p, 40, { c0: col, speed: 4, life: 0.6, size: 0.2 });
+    residue(d.el, g, s);
   },
   cast(d) {
     const p = groundAt(d.src);
@@ -20471,6 +20535,8 @@ const VFX = {
     burst(FX.add, g, 120, { c0: 0xffffff, c1: 0xffc030, speed: 5, life: 1.4, size: 0.18, shape: "up", vy: 4, grav: 4, radius: 0.8 });
     fxLight(p, 0xffd060, 25, 1.4, 16);
     screenFlash("#ffe08a", 0.25);
+    const pr = d.ws && d.ws.props && SC_PROPS[d.ws.props[0]], el = pr && pr.el ? pr.el[0] : null;
+    if (el) { burst(FX.add, p, 30, { c0: 0xffffff, c1: elColor(el), speed: 5, life: 0.5, size: 0.14, grav: 3 }); shockwave(groundAt(d.tgt), elColor(el), 2.4, 0.5); }
   },
   potion(d) {
     const g = groundAt(d.tgt);
@@ -20502,7 +20568,8 @@ function fxFootstep(e, v) {
   if (!FX.ready || e.mounted || e.kind === "npc" || S.zone.theme === "house") return;
   if (dist(e, player) > 600) return;
   const g = groundAt(e);
-  const col = S.zone.theme === "cave" || S.zone.theme === "crypt" ? 0x5a5550 : S.zone.theme === "town" ? 0x8a8478 : 0x9a8668;
+  const wxs = typeof weatherNow === "function" ? weatherNow() : null;
+  const col = S.zone.theme === "cave" || S.zone.theme === "crypt" ? 0x5a5550 : wxs === "snow" || wxs === "blizzard" || S.zone.theme === "snow" ? 0xe8eef4 : S.zone.theme === "town" ? 0x8a8478 : 0x9a8668;
   burst(FX.smoke, g, 3, { c0: col, speed: 0.6, life: 0.6, size: 0.25, size2: 0.6, shape: "ring", drag: 3, alpha: 0.35 });
 }
 
@@ -20588,6 +20655,7 @@ function updateFX(dt) {
   }
   updateCastCircles(dt);
   updateAuras(dt);
+  try { updateWeatherFx(dt); } catch (err) {}
   FX.add.update(dt);
   FX.smoke.update(dt);
 }
@@ -20619,7 +20687,8 @@ function updateTrail(v, e, dt) {
   }
   const pos = T.mesh.geometry.attributes.position, col = T.mesh.geometry.attributes.color;
   const gold = an && (S.time - an.wsStart) < 0.75;
-  const c = gold ? C(0xffd060) : C(0xcfe4ff);
+  const c = gold ? (v.wsEl ? C(ELEMENT_COLORS[v.wsEl]).lerp(C(0xffffff), 0.25) : C(0xffd060)) : C(0xcfe4ff);
+  if (gold && active && L && Math.random() < dt * 40) { const tp = T.pts[L - 1][1]; FX.add.spawn(tp.x, tp.y, tp.z, rnd(-0.5, 0.5), rnd(-0.2, 0.6), rnd(-0.5, 0.5), 0.4, 0.1, 0.02, C(0xffffff), c, 2, 0.5, 1); }
   const L = T.pts.length;
   T.mesh.visible = L > 1;
   for (let i = 0; i < T.n; i++) {
