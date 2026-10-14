@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.19.0", date: "2026-10-14", title: "Finishing touches", items: [
+    "High graphics now has smoother edges and a colour grade that follows the day: warm at sunrise and sunset, cooler and softer at night, duller in bad weather, with a light vignette around the screen edges.",
+    "If the game keeps running slowly even at its lowest render scale, it now turns off glow effects, then sun shadows, and tells you.",
+    "Phones and tablets with fewer processor cores start on Low graphics automatically."
+  ] },
   { v: "9.18.0", date: "2026-10-14", title: "Effects", items: [
     "Spells leave something behind: fire smoulders with rising embers, ice leaves a cold mist, water drips down, earth throws up dust, wind scatters leaves, lightning crackles for a moment, light leaves glowing motes and dark magic leaves shadowy wisps.",
     "Weapon skills now trail the colour of their element, shed sparks from the blade, and finish with a burst and ground ring in that colour.",
