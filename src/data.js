@@ -1370,7 +1370,7 @@ NM_FAMILIES.sandmaw = { hint: "Singing Dunes, Sunscar Desert · any time", base:
 ITEMS.dunestrider_boots = { name: "Dunestrider Boots", kind: "equip", icon: "👢", rare: true, nm: true, rarity: "epic", slot: "feet", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 7, agi: 4, eva: 5, hp: 20 }, desc: "Sandmaw's hide, stitched into boots that never sink." };
 ZONES.sunscar = {
   name: "Sunscar Desert", w: 3000, h: 2200, theme: "field", palette: "desert",
-  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }],
+  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }, { x: 2600, y: 600, w: 40, h: 30, to: "spire1", tx: 110, ty: 400, label: "Red Spire", kind: "door", ask: "Climb into the Red Spire?" }],
   npcs: [],
   walls: [{ x: 600, y: 480, w: 300, h: 220 }, { x: 2000, y: 380, w: 260, h: 300 }, { x: 1250, y: 1500, w: 380, h: 200 }, { x: 2400, y: 1600, w: 240, h: 260 }],
   ruins: { walls: [[2520, 420, 2680, 420, 2.4], [2520, 420, 2520, 560, 1.6]], pillars: [[860, 1050, 3.6], [910, 1000, 4.4], [960, 1050, 4.0], [1010, 1100, 3.0], [820, 1120, 2.2]] },
@@ -1525,6 +1525,42 @@ ZONES.gullisle = {
     harvesting: { n: 2, at: [[1200, 850], [700, 700], [1500, 1000]], loot: [["healing_herb", 0.6], ["water_crystal", 0.15]] }
   },
   start: { x: 420, y: 900 }
+};
+
+FAMILIES.spire_warden = Object.assign({}, FAMILIES.hollow_king, { name: "Spire Warden", color: "#ff7043", hpMul: 4.6, attMul: 1.4, defMul: 1.35, scale: 1.9, aura: "#ff7043", tpMove: { name: "Spire Collapse", mul: 2.3, aoe: 110 }, weak: { water: 1.35, light: 1.2 }, respawn: 900, loot: [["warden_blade", 0.3], ["spire_mantle", 0.3], ["hi_potion", 1], ["ether", 1], ["fire_crystal", 1]], gil: [80, 110] });
+Object.assign(ITEMS, {
+  warden_blade: { name: "Warden's Greatsword", kind: "equip", icon: "⚔️", rare: true, nm: true, rarity: "epic", slot: "main", wtype: "gsword", dmg: 46, delay: 4.0, jobs: ["RUN"], lv: 20, price: 0, stats: { vit: 4, str: 3, acc: 5, def: 6 } },
+  spire_mantle: { name: "Spire Mantle", kind: "equip", icon: "🧣", rare: true, nm: true, rarity: "epic", slot: "back", jobs: ALL_JOBS, lv: 20, price: 0, stats: { hp: 30, mp: 30, str: 3, int: 3, mnd: 3, def: 5 }, desc: "Torn from the Spire Warden's shoulders. It smells of old smoke." }
+});
+const SPIRE_FLOORS = [
+  { lv: [17, 18], fams: ["cinder_bones", "magma_lizard", "obsidian_crab"] },
+  { lv: [18, 19], fams: ["cinder_bones", "ash_orc", "cinder_bomb"] },
+  { lv: [19, 20], fams: ["ash_orc", "magma_lizard", "cinder_bomb"] },
+  { lv: [20, 21], fams: ["cinder_bones", "ash_orc", "obsidian_crab"] }
+];
+SPIRE_FLOORS.forEach((F, i) => {
+  const id = "spire" + (i + 1), up = i < SPIRE_FLOORS.length - 1 ? "spire" + (i + 2) : "spire_top";
+  const down = i ? "spire" + i : "sunscar";
+  ZONES[id] = {
+    name: "Red Spire, Floor " + (i + 1), w: 1000, h: 800, theme: "crypt",
+    exits: [{ x: 0, y: 350, w: 24, h: 100, to: down, tx: i ? 880 : 2620, ty: i ? 400 : 660, label: i ? "Floor " + i : "Sunscar Desert" }, { x: 976, y: 350, w: 24, h: 100, to: up, tx: 110, ty: 400, label: up === "spire_top" ? "Summit" : "Floor " + (i + 2) }],
+    npcs: [],
+    walls: [{ x: 0, y: 0, w: 1000, h: 70 }, { x: 0, y: 730, w: 1000, h: 70 }, { x: 420, y: 180, w: 160, h: 120 }, { x: 420, y: 500, w: 160, h: 120 }],
+    pillars: [[300, 250], [300, 550], [700, 250], [700, 550]],
+    spawns: F.fams.map((f, k) => ({ fam: f, lv: F.lv, x: 260 + k * 240, y: k % 2 ? 560 : 240 })).concat([{ fam: F.fams[0], lv: F.lv, x: 760, y: 400 }]),
+    landmarks: [],
+    start: { x: 110, y: 400 }
+  };
+});
+ZONES.spire_top = {
+  name: "Red Spire Summit", w: 1000, h: 900, theme: "crypt",
+  exits: [{ x: 0, y: 400, w: 24, h: 100, to: "spire4", tx: 880, ty: 400, label: "Floor 4" }],
+  npcs: [],
+  walls: [{ x: 0, y: 0, w: 260, h: 200 }, { x: 0, y: 700, w: 260, h: 200 }, { x: 740, y: 0, w: 260, h: 200 }, { x: 740, y: 700, w: 260, h: 200 }],
+  pillars: [[380, 300], [380, 600], [620, 300], [620, 600]],
+  spawns: [{ fam: "spire_warden", lv: [23, 23], x: 650, y: 450 }],
+  landmarks: [{ id: "summit", name: "Red Spire Summit", x: 500, y: 450, r: 260, xp: 150 }],
+  start: { x: 110, y: 450 }
 };
 
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
@@ -2089,6 +2125,7 @@ Object.assign(NPCS, {
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
+ACHIEVEMENTS.push({ id: "spire", icon: "🗼", name: "Top of the Spire", desc: "Defeat the Spire Warden at the summit of the Red Spire.", test: s => !!(s.nmKilled && s.nmKilled.spire_warden) });
 WEATHER.gullisle = [["clear", 6], ["wind", 3], ["cloudy", 2], ["rain", 2], ["storm", 0.7]];
 FISH.gullisle = [["sea_bass", 6, 7], ["harbor_bream", 0, 4], ["tidecaller_tuna", 14, 1.2]];
 ACHIEVEMENTS.push({ id: "gullisle", icon: "🏝️", name: "Island Hopper", desc: "Take the ferry to Gull Isle.", test: s => (s.discovered || []).includes("gullisle") });
@@ -2165,3 +2202,4 @@ Object.assign(BESTIARY, {
   isle_snapper: { type: "Aquan", lore: "Snappers that lurk in the shallows around the island's coves." },
   old_saltjaw: { type: "Aquan", lore: "A snapper older than the wreck in the cove it calls home." }
 });
+BESTIARY.spire_warden = { type: "Undead", lore: "The last keeper of the Red Spire. It has guarded the summit so long it has forgotten what it guards." };
