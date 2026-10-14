@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v11.1.0 · built 2026-10-14 03:58 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v11.2.0 · built 2026-10-14 04:04 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6415,6 +6415,53 @@ for (const id in ITEMS) {
   if (it.jobs.includes("RDM") && !it.jobs.includes("BLU")) it.jobs.push("BLU");
   if (it.jobs.includes("THF") && !it.jobs.includes("COR")) it.jobs.push("COR");
 }
+ALL_JOBS.push("PUP", "DNC", "SCH");
+Object.assign(ADVANCED_JOBS, { PUP: { quest: "pup", lv: 16 }, DNC: { quest: "dnc", lv: 16 }, SCH: { quest: "sch", lv: 16 } });
+Object.assign(JOBS, {
+  PUP: { name: "Puppetmaster", color: "#ab47bc", icon: "🎭", hp: [60, 12], mp: [0, 0], str: [8, 0.8], dex: [9, 0.9], vit: [8, 0.8], agi: [8, 0.8], int: [7, 0.7], mnd: [6, 0.6], advanced: true },
+  DNC: { name: "Dancer", color: "#f06292", icon: "💃", hp: [58, 11], mp: [0, 0], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [10, 1.0], int: [6, 0.5], mnd: [8, 0.7], advanced: true },
+  SCH: { name: "Scholar", color: "#bcaaa4", icon: "📖", hp: [48, 9], mp: [24, 7], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.6], agi: [7, 0.6], int: [9, 0.9], mnd: [9, 0.9], advanced: true }
+});
+Object.assign(SKILL_RATINGS, {
+  PUP: { h2h: "A", club: "C", dagger: "D" },
+  DNC: { dagger: "A", sword: "D", h2h: "D" },
+  SCH: { staff: "C", club: "C", dagger: "D", healing: "C", enhancing: "C", elemental: "B", enfeebling: "D", dark: "D", divine: "D" }
+});
+Object.assign(ABILITIES, {
+  activate: { name: "Activate", job: "PUP", lv: 1, recast: 60, target: "self", desc: "Wind up your automaton and set it fighting. It stays out until it breaks or you change job." },
+  repair: { name: "Repair", job: "PUP", lv: 5, recast: 90, target: "self", desc: "Patch up your automaton, restoring half its HP." },
+  tune_up: { name: "Tune Up", job: "PUP", lv: 15, recast: 120, target: "self", desc: "Tighten every spring: your automaton's attack rises 20% for 60 s." },
+  healing_waltz: { name: "Healing Waltz", job: "DNC", lv: 1, recast: 12, tp: 200, target: "self", desc: "Spend 200 TP to dance a waltz that heals the most hurt party member nearby." },
+  quick_step: { name: "Quick Step", job: "DNC", lv: 5, recast: 10, tp: 100, target: "enemy", enmity: 40, desc: "Spend 100 TP on a step that throws the target off balance: everyone's accuracy against it rises 5 per step (up to 5)." },
+  rising_flourish: { name: "Rising Flourish", job: "DNC", lv: 10, recast: 20, target: "enemy", enmity: 80, desc: "Spend all the steps on the target in one rising strike that deals more damage per step." },
+  group_waltz: { name: "Group Waltz", job: "DNC", lv: 15, recast: 60, tp: 400, target: "self", desc: "Spend 400 TP to heal everyone in the party nearby." },
+  light_arts: { name: "Light Arts", job: "SCH", lv: 1, recast: 30, target: "self", desc: "Study white magic: healing, divine and enhancing spells cast 20% faster and cost 10% less MP. Replaces Dark Arts." },
+  dark_arts: { name: "Dark Arts", job: "SCH", lv: 1, recast: 30, target: "self", desc: "Study black magic: elemental, enfeebling and dark spells cast 20% faster and cost 10% less MP. Replaces Light Arts." },
+  penury: { name: "Penury", job: "SCH", lv: 10, recast: 60, target: "self", buff: "penury", dur: 60, desc: "Your next white magic spell costs no MP." },
+  ebullience: { name: "Ebullience", job: "SCH", lv: 15, recast: 90, target: "self", buff: "ebullience", dur: 60, desc: "Your next elemental spell deals 30% more damage." }
+});
+for (const id in SPELLS) {
+  const sp = SPELLS[id];
+  if (sp.blue || sp.kind === "song" || sp.kind === "summon" || sp.jobs.SCH) continue;
+  const base = Math.min(sp.jobs.WHM || 99, sp.jobs.BLM || 99);
+  if (base < 99 && base <= 18) sp.jobs.SCH = Math.min(20, base + 2);
+}
+const AUTOMATON_LOOK = { skin: 0xc8a070, skinRegion: "wood", noFace: true, eyesGlow: 0x80deea, ears: "none", top: { type: "tunic", color: 0x7a4a8a, region: "cloth" }, legs: 0x5a3a6a, boots: 0x4a3020, gloves: 0x8a6a3a, glovesRegion: "wood", head: { type: "cap", color: 0x6a4a7a }, prop: { girth: 0.9 } };
+Object.assign(BUFF_NAMES, { light_arts: "Light Arts", dark_arts: "Dark Arts", penury: "Penury", ebullience: "Ebullience", stepped: "Off Balance" });
+Object.assign(BUFF_ICONS, { light_arts: "📖", dark_arts: "📕", penury: "🪶", ebullience: "✒️", stepped: "💃" });
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!it.jobs) continue;
+  if (it.slot === "main") {
+    if (it.wtype === "h2h" && !it.jobs.includes("PUP")) it.jobs.push("PUP");
+    if (it.wtype === "dagger" && !it.jobs.includes("DNC")) it.jobs.push("DNC");
+    if ((it.wtype === "staff" || it.wtype === "club") && !it.jobs.includes("SCH")) it.jobs.push("SCH");
+    continue;
+  }
+  if (it.jobs.includes("MNK") && !it.jobs.includes("PUP")) it.jobs.push("PUP");
+  if (it.jobs.includes("THF") && !it.jobs.includes("DNC")) it.jobs.push("DNC");
+  if ((it.jobs.includes("BLM") || it.jobs.includes("WHM")) && !it.jobs.includes("SCH")) it.jobs.push("SCH");
+}
 const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
@@ -7557,6 +7604,14 @@ Object.assign(QUESTS, {
 });
 SHOP.push("bronze_axe", "iron_axe", "steel_axe");
 if (SHOPS.vela) SHOPS.vela.push("frost_axe");
+Object.assign(QUESTS, {
+  pup: { name: "Strings and Springs", giver: "Tobin", npc: "tobin", lv: 16, items: { ash_lumber: 3, bronze_ingot: 2 }, desc: "Bring Tobin 3 Ash Lumber and 2 Bronze Ingots to build your first automaton.", reward: { xp: 900, gil: 0, item: "leather_cesti", qty: 1, unlock: "PUP" },
+    intro: "A Puppetmaster fights with fists and a friend made of wood and wire. The automaton takes blows and hits back while you weave in and out. I'll need good lumber for its frame and bronze for its springs.", progress: "3 Ash Lumber and 2 Bronze Ingots.", turn: "There. Wind the key, and it'll follow you anywhere. Mind you keep it in repair." },
+  dnc: { name: "The First Step", giver: "Tobin", npc: "tobin", lv: 16, items: { silk_cloth: 2, honeycomb: 2 }, desc: "Bring Tobin 2 Silk Cloth and 2 Honeycombs to learn the Dancer's steps.", reward: { xp: 900, gil: 0, item: "iron_dagger", qty: 1, unlock: "DNC" },
+    intro: "A Dancer turns the rhythm of battle into healing and openings. Steps throw a foe off balance, flourishes spend those openings, and waltzes mend your friends. Bring me silk for a costume and honey for the throat.", progress: "2 Silk Cloth and 2 Honeycombs.", turn: "Lovely. Feel the beat: every swing builds the energy you spend on a waltz." },
+  sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Scholar's studies.", reward: { xp: 900, gil: 0, item: "holly_staff", qty: 1, unlock: "SCH" },
+    intro: "A Scholar studies both white and black magic, and leans into one at a time. Light Arts for healing, Dark Arts for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
+});
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -7998,6 +8053,9 @@ function mercGear(m, lv) {
   if (job === "SAM") return lv >= 11 ? { main: "steel_tachi", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_tachi", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_tachi", body: "leather_vest", head: "bronze_cap" };
   if (job === "NIN") return lv >= 11 ? { main: "steel_katana", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_katana", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_katana", body: "leather_vest" };
   if (job === "DRG") return lv >= 11 ? { main: "steel_halberd", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_lance", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_spear", body: "leather_vest", head: "bronze_cap" };
+  if (job === "PUP") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
+  if (job === "DNC") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
+  if (job === "SCH") return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
   if (job === "BST") return lv >= 11 ? { main: "steel_axe", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_axe", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_axe", body: "leather_vest", head: "bronze_cap" };
   if (job === "BLU") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   if (job === "COR") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
@@ -8113,6 +8171,27 @@ function summonPet(a, sp) {
   sfx("burst", pet);
 }
 
+function activateAutomaton(a) {
+  if (a !== player) return;
+  if (S.pet) releasePet(null);
+  const pet = makeChar({ kind: "ally", pet: true, automaton: true, petKey: "automaton", name: "Automaton", job: "WAR", sub: null, role: "pet", speed: 160, lv: player.lv });
+  pet.gear = {};
+  pet.x = player.x + Math.cos(player.face) * 30; pet.y = player.y + Math.sin(player.face) * 30;
+  pet.px = pet.x; pet.py = pet.y;
+  buildStats(pet);
+  pet.color = "#ab47bc";
+  S.pet = pet;
+  S.party.push(pet);
+  log("You wind the key, and your automaton clicks to life!", "you");
+  popText(pet, "Automaton", pet.color, 13, 1.2, 14);
+  vfx("buff", { tgt: pet, id: "activate" });
+  sfx("equip", pet);
+}
+function artsMatch(a, sp) {
+  const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
+  const black = sp.kind === "nuke" || sp.kind === "debuff" || sp.kind === "drain" || sp.kind === "aspir";
+  return (a.buffs.light_arts && white) || (a.buffs.dark_arts && black);
+}
 function callBeast(a) {
   if (a !== player) return;
   if (S.pet) releasePet(null);
@@ -8183,6 +8262,7 @@ function releasePet(msg) {
 function tickPet() {
   const pet = S.pet;
   if (!pet) return;
+  if (pet.automaton) { if (!pet.alive || player.job !== "PUP" || !player.alive) releasePet(pet.alive ? "Your automaton winds down." : "Your automaton breaks down."); return; }
   if (pet.beast) { if (!pet.alive || player.job !== "BST" || !player.alive) releasePet(pet.alive ? "Your " + pet.name + " wanders back into the wild." : "Your " + pet.name + " is too hurt to go on."); return; }
   if (!pet.alive || player.job !== "SMN" || !player.alive) { releasePet("Your " + pet.name + " fades away."); return; }
   if (S.time >= S.petTick) {
@@ -8222,7 +8302,7 @@ function syncAllies(full) {
   }
 }
 
-const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"] };
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"], PUP: ["dd"], DNC: ["dd"], SCH: ["hybrid"] };
 const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
 const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
 const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
@@ -8536,7 +8616,7 @@ function swing(a, d) {
     a.volley = false;
     return;
   }
-  if (!sneak && Math.random() * 100 >= hitChance(a, d, (b.hasso ? 10 : 0) + (b.hawk_roll ? b.hawk_roll.pow : 0))) {
+  if (!sneak && Math.random() * 100 >= hitChance(a, d, (b.hasso ? 10 : 0) + (b.hawk_roll ? b.hawk_roll.pow : 0) + (d.buffs && d.buffs.stepped ? d.buffs.stepped.n * 5 : 0))) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
     popText(d, "Miss", "#bbbbbb", 14, 0.8);
     sfx("miss", a);
@@ -9654,6 +9734,51 @@ function doAbility(a, id, t) {
     if (heal > 0) { ring(a, "#ffb74d", 30, 0.6); sfx("cure", a); vfx("cure", { tgt: a }); }
     return;
   }
+  if (ab.tp) {
+    if (a.tp < ab.tp) { log("Not enough TP for " + ab.name + " (" + ab.tp + " needed).", "sys"); a.recasts["ja:" + id] = 0; sfx("error"); return; }
+    a.tp -= ab.tp;
+  }
+  if (id === "activate") { activateAutomaton(a); return; }
+  if (id === "repair" || id === "tune_up") {
+    const pet = S.pet;
+    if (!pet || !pet.automaton || !pet.alive) { log("You have no automaton out.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    if (id === "repair") { const heal = Math.min(pet.maxHp - pet.hp, Math.round(pet.maxHp * 0.5)); pet.hp += heal; log("You repair your automaton. It recovers " + heal + " HP.", "you"); popText(pet, "+" + heal, "#9ad06b", 15, 1.1); sfx("equip", pet); }
+    else { pet.buffs.warcry = { until: S.time + 60 }; log("You tune up your automaton. Its attack rises!", "you"); popText(pet, "Tune Up", "#ab47bc", 14, 1.1); ring(pet, "#ab47bc", 26, 0.5); sfx("buff", pet); }
+    return;
+  }
+  if (id === "healing_waltz" || id === "group_waltz") {
+    const near = S.party.filter(p => p.alive && dist(p, a) < 300);
+    const tgts = id === "group_waltz" ? near : [near.slice().sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0] || a];
+    const amt = Math.round(a.lv * 9 + a.stats.mnd * 2 + a.stats.agi);
+    for (const p of tgts) { const h = Math.min(p.maxHp - p.hp, id === "group_waltz" ? Math.round(amt * 0.7) : amt); p.hp += h; popText(p, "+" + h, "#9ad06b", 15, 1.1); vfx("cure", { tgt: p }); }
+    log(subj(a) + " " + vb(a, "dance", "dances") + " " + ab.name + (tgts.length === 1 && tgts[0] !== a ? " for " + tgts[0].name : "") + ".", cls(a));
+    sfx("cure", a);
+    return;
+  }
+  if (id === "quick_step") {
+    const st = t.buffs.stepped;
+    t.buffs.stepped = { until: S.time + 60, n: Math.min(5, (st ? st.n : 0) + 1), src: a };
+    log(subj(a) + " " + vb(a, "use") + " Quick Step. The " + t.name + " is off balance (" + t.buffs.stepped.n + ").", cls(a));
+    popText(t, "Step " + t.buffs.stepped.n, "#f06292", 13, 0.9); addEnmity(t, a, ab.enmity); aggro(t, a); sfx("miss", a);
+    return;
+  }
+  if (id === "rising_flourish") {
+    const n = t.buffs.stepped ? t.buffs.stepped.n : 0;
+    if (!n) { log("The " + t.name + " isn't off balance. Use Quick Step first.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    delete t.buffs.stepped;
+    const dmg = Math.max(1, Math.floor(baseDmg(a, t) * pDIF(a, t) * (1 + 0.5 * n)));
+    log(subj(a) + " " + vb(a, "use") + " Rising Flourish! The " + t.name + " takes " + dmg + " damage.", cls(a));
+    popText(a, "Rising Flourish", "#f06292", 14, 1.1, 14); sfx("crit", t); vfx("hit", { src: a, tgt: t, crit: true, slash: true });
+    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg, size: 20 });
+    return;
+  }
+  if (id === "light_arts" || id === "dark_arts") {
+    delete a.buffs.light_arts; delete a.buffs.dark_arts;
+    a.buffs[id] = { until: S.time + 7200 };
+    log(subj(a) + " " + vb(a, "turn") + " to " + ab.name + ".", cls(a));
+    popText(a, ab.name, id === "light_arts" ? "#fff59d" : "#9575cd", 14, 1.2, 14); sfx("buff", a); vfx("buff", { tgt: a, id });
+    return;
+  }
   if (id === "call_beast") { callBeast(a); return; }
   if (id === "reward") {
     const pet = S.pet;
@@ -9736,7 +9861,7 @@ function doAbility(a, id, t) {
 
 function startCast(a, id, t) {
   const sp = SPELLS[id];
-  a.casting = { id, sp, t, start: S.time, end: S.time + sp.cast * (sp.kind === "song" && a.buffs.encore ? 0.34 : 1) };
+  a.casting = { id, sp, t, start: S.time, end: S.time + sp.cast * (sp.kind === "song" && a.buffs.encore ? 0.34 : 1) * (artsMatch(a, sp) ? 0.8 : 1) };
   if (t !== a) a.face = Math.atan2(t.y - a.y, t.x - a.x);
   if (a === player) { S.moveTarget = null; S.chase = false; }
   log(subj(a) + " " + vb(a, "start") + " casting " + sp.name + (t !== a ? " on " + obj(t) : "") + ".", cls(a));
@@ -9757,9 +9882,13 @@ function finishCast(a) {
   const { sp, t, id } = a.casting;
   a.casting = null;
   if (!t.alive) { log(sp.name + " fizzles: the target is gone.", cls(a)); return; }
-  if (a.mp < sp.mp) { log("Not enough MP for " + sp.name + ".", cls(a)); return; }
+  const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
+  const free = white && a.buffs.penury;
+  const cost = free ? 0 : Math.ceil(sp.mp * (artsMatch(a, sp) ? 0.9 : 1));
+  if (a.mp < cost) { log("Not enough MP for " + sp.name + ".", cls(a)); return; }
   if (dist(a, t) > CONFIG.castRange + 40) { log(sp.name + " fizzles: the target moved out of range.", cls(a)); return; }
-  a.mp -= sp.mp;
+  if (free) delete a.buffs.penury;
+  a.mp -= cost;
   a.recasts["ma:" + id] = S.time + sp.recast;
   touch(a);
   if (a === player) trySkillUp(spellSkill(sp), isMob(t) ? t.lv : null);
@@ -9808,6 +9937,7 @@ function castNuke(a, t, sp) {
   if (sp.element === dayElement()) dmg *= 1.1;
   if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
   if (sp.blue && a.buffs.burst_affinity) { dmg *= 1.5; delete a.buffs.burst_affinity; }
+  if (!sp.blue && a.buffs.ebullience) { dmg *= 1.3; delete a.buffs.ebullience; }
   let resist = 1;
   if (Math.random() * 100 >= magicHit(a, t, sp)) resist = Math.random() < 0.75 ? 0.5 : 0.25;
   dmg *= resist;
@@ -15155,13 +15285,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v11.1.0 · built 2026-10-14 03:58 PDT";
+const BUILD_INFO = "v11.2.0 · built 2026-10-14 04:04 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "11.2.0", date: "2026-10-14", title: "Puppetmaster, Dancer and Scholar", items: [
+    "Puppetmaster: fight with your fists alongside a wind-up automaton. Repair it when it's battered and Tune Up its punches.",
+    "Dancer: build TP with your daggers and spend it on waltzes that heal the party, steps that leave a monster off balance, and a Rising Flourish that cashes the steps in.",
+    "Scholar: a student of both white and black magic. Switch between Light Arts and Dark Arts for faster, cheaper spells of that school, with Penury and Ebullience for a free cure or a harder nuke.",
+    "All three are taught by Tobin from level 16. Mercenaries can be any of them."
   ] },
   { v: "11.1.0", date: "2026-10-14", title: "Beastmaster, Blue Mage and Corsair", items: [
     "Beastmaster: whistle up a lizard, crab or great ram to fight beside you, reward it with treats and cow your foes with a Feral Howl. Wields the new axe weapon type.",
@@ -15857,8 +15993,12 @@ function tabHelp() {
     ["Dragoon (advanced)", "Damage", "Polearm A (new weapon type), staff B. Jump (leap attack, +100 TP), High Jump (10: harder leap, halves the target's enmity toward you), Dragon Spirit (15: +15% damage for 60 s). Weapon skills: Piercing Thrust, Wind Lance (22), Drake Dive (40), Sky Rend (75)"],
     ["Beastmaster (advanced)", "Damage / pet", "Axe A (new weapon type), scythe B. Call Beast (a Scaleback lizard; a Pincher crab from 8; a Great Ram from 14) that fights beside you and stays until you change job or it falls. Reward (5: heals the beast 40%), Feral Howl (15: target's attack −15% for 30 s). Weapon skills: Cleaving Chop, Wild Hack (22), Feral Rend (40), Primal Fury (75)"],
     ["Blue Mage (advanced)", "Damage / magic", "Sword A, club B, Blue Magic A. Learns spells by standing within reach when a monster uses its special move (about half the time, if your level is high enough): Hind Kick (hares), Sticky Thread (crawlers, slows), Dream Dust (mandrakes, sleep), Snapjaw (snappers), Big Pinch (crabs), Tail Whip (lizards), Blood Drain (leeches), Water Lance (Reefkin), Battle Roar (orc grunts), Boulder Toss (orc stonechuckers). Burst Affinity (5: next blue spell +50%). Blue magic can't be bought as scrolls"],
-    ["Corsair (advanced)", "Damage / support", "Dagger A, sword B. Valor Roll (party attack +4–16% for 3 min; 5 is lucky), Hawk Roll (8: party accuracy +3–12; 4 is lucky), Double Down (10: roll again and add it; over 7 busts and the roll is lost), Quick Shot (5: pistol shot)"]
+    ["Corsair (advanced)", "Damage / support", "Dagger A, sword B. Valor Roll (party attack +4–16% for 3 min; 5 is lucky), Hawk Roll (8: party accuracy +3–12; 4 is lucky), Double Down (10: roll again and add it; over 7 busts and the roll is lost), Quick Shot (5: pistol shot)"],
+    ["Puppetmaster (advanced)", "Damage / pet", "Hand-to-Hand A. Activate (an automaton that fights beside you until it breaks or you change job), Repair (5: heals it 50%), Tune Up (15: its attack +20% for 60 s)"],
+    ["Dancer (advanced)", "Damage / healing", "Dagger A. Abilities spend TP: Healing Waltz (200 TP: heals the most hurt party member nearby), Quick Step (5, 100 TP: target off balance, +5 accuracy against it per step, up to 5), Rising Flourish (10: spends all steps on one bigger hit), Group Waltz (15, 400 TP: heals the party)"],
+    ["Scholar (advanced)", "Magic", "Learns most white and black magic two levels after the mages (up to level 20 spells). Light Arts (healing, divine and enhancing spells 20% faster, 10% cheaper) or Dark Arts (elemental, enfeebling and dark); Penury (10: next white spell free), Ebullience (15: next elemental spell +30%)"]
   ]) + ul([
+    "<b>Puppetmaster, Dancer and Scholar</b> unlock at level 16 through Tobin: <i>Strings and Springs</i> (3 Ash Lumber, 2 Bronze Ingots), <i>The First Step</i> (2 Silk Cloth, 2 Honeycombs) and <i>Ink and Insight</i> (1 Heartwood, 2 Crypt Dust). Puppetmasters use monk gear and fist weapons, Dancers thief gear and daggers, Scholars mage robes, staves and clubs.",
     "<b>Beastmaster, Blue Mage and Corsair</b> unlock at level 14 through Tobin: <i>Call of the Wild</i> (2 Lizard Skins, 3 Wool Tufts), <i>The Borrowed Art</i> (2 Crab Shells, 2 Mandrake Leaves) and <i>Lady Luck</i> (2 Harbor Bream, 1 Orc Tooth). Axes are sold by Pell and Vela; Blue Mages use swords and clubs and wear red mage clothing; Corsairs use daggers and swords and wear thief gear; Beastmasters wear warrior armour.",
     "<b>Samurai, Ninja and Dragoon</b> unlock at level 12 through Tobin: <i>The Patient Blade</i> (Samurai: 1 Iron Ingot, 2 Ash Lumber), <i>Steps Without Sound</i> (Ninja: 3 Bat Wings, 2 Worm Silk) and <i>Wings of the Wyrm</i> (Dragoon: 3 Lizard Skins, 1 Crag Feather). Their weapons are sold by Pell (bronze to steel) and Vela (frostforged). Samurai and Dragoons can wear warrior armour; Ninjas can wear thief gear.",
     "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
@@ -16104,7 +16244,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "11.1.0";
+const GAME_VERSION = "11.2.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18823,6 +18963,9 @@ const JOB_TINT = {
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
   DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  PUP: { shirt: 0x5a2a6a, pants: 0x2a2030, robe: 0x5a2a6a, trim: 0xab47bc },
+  DNC: { shirt: 0x8a2a4a, pants: 0x3a2030, robe: 0x8a2a4a, trim: 0xf06292 },
+  SCH: { shirt: 0x5a4a40, pants: 0x2a2420, robe: 0x4a3a34, trim: 0xbcaaa4, deep: 0x3a2e2a },
   BST: { shirt: 0x5a4a32, pants: 0x3a3024, robe: 0x5a4a32, trim: 0x8d6e63 },
   BLU: { shirt: 0x1f4a7a, pants: 0x2a2a3a, robe: 0x1f4a7a, trim: 0x42a5f5 },
   COR: { shirt: 0x7a1e1e, pants: 0x2a2020, robe: 0x7a1e1e, trim: 0xd8b040 },
@@ -20069,6 +20212,9 @@ function buildEntityRig(e) {
     else if (B.model === "wisp") make = () => wispEntry(B.col, B.eye);
     else if (B.model === "worm") make = () => wormEntry(B.col);
     else { const L = goblinLook("goblin"); L.weapon = null; L.sack = false; make = () => humanEntry(L); }
+  } else if (e.pet && e.automaton) {
+    sig = "automaton";
+    make = () => humanEntry(Object.assign({ build: 0, hair: { style: "bald", color: 0 } }, AUTOMATON_LOOK));
   } else if (e.pet && e.beast) {
     const fk = e.beast, ml = mobLook({ fam: FAMILIES[fk], famKey: fk, id: 0 });
     sig = "beast|" + fk;

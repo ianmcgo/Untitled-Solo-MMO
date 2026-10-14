@@ -438,6 +438,9 @@ function mercGear(m, lv) {
   if (job === "SAM") return lv >= 11 ? { main: "steel_tachi", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_tachi", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_tachi", body: "leather_vest", head: "bronze_cap" };
   if (job === "NIN") return lv >= 11 ? { main: "steel_katana", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_katana", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_katana", body: "leather_vest" };
   if (job === "DRG") return lv >= 11 ? { main: "steel_halberd", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_lance", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_spear", body: "leather_vest", head: "bronze_cap" };
+  if (job === "PUP") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
+  if (job === "DNC") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
+  if (job === "SCH") return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
   if (job === "BST") return lv >= 11 ? { main: "steel_axe", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_axe", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_axe", body: "leather_vest", head: "bronze_cap" };
   if (job === "BLU") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   if (job === "COR") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
@@ -553,6 +556,27 @@ function summonPet(a, sp) {
   sfx("burst", pet);
 }
 
+function activateAutomaton(a) {
+  if (a !== player) return;
+  if (S.pet) releasePet(null);
+  const pet = makeChar({ kind: "ally", pet: true, automaton: true, petKey: "automaton", name: "Automaton", job: "WAR", sub: null, role: "pet", speed: 160, lv: player.lv });
+  pet.gear = {};
+  pet.x = player.x + Math.cos(player.face) * 30; pet.y = player.y + Math.sin(player.face) * 30;
+  pet.px = pet.x; pet.py = pet.y;
+  buildStats(pet);
+  pet.color = "#ab47bc";
+  S.pet = pet;
+  S.party.push(pet);
+  log("You wind the key, and your automaton clicks to life!", "you");
+  popText(pet, "Automaton", pet.color, 13, 1.2, 14);
+  vfx("buff", { tgt: pet, id: "activate" });
+  sfx("equip", pet);
+}
+function artsMatch(a, sp) {
+  const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
+  const black = sp.kind === "nuke" || sp.kind === "debuff" || sp.kind === "drain" || sp.kind === "aspir";
+  return (a.buffs.light_arts && white) || (a.buffs.dark_arts && black);
+}
 function callBeast(a) {
   if (a !== player) return;
   if (S.pet) releasePet(null);
@@ -623,6 +647,7 @@ function releasePet(msg) {
 function tickPet() {
   const pet = S.pet;
   if (!pet) return;
+  if (pet.automaton) { if (!pet.alive || player.job !== "PUP" || !player.alive) releasePet(pet.alive ? "Your automaton winds down." : "Your automaton breaks down."); return; }
   if (pet.beast) { if (!pet.alive || player.job !== "BST" || !player.alive) releasePet(pet.alive ? "Your " + pet.name + " wanders back into the wild." : "Your " + pet.name + " is too hurt to go on."); return; }
   if (!pet.alive || player.job !== "SMN" || !player.alive) { releasePet("Your " + pet.name + " fades away."); return; }
   if (S.time >= S.petTick) {
@@ -662,7 +687,7 @@ function syncAllies(full) {
   }
 }
 
-const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"] };
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"], PUP: ["dd"], DNC: ["dd"], SCH: ["hybrid"] };
 const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
 const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
 const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
@@ -976,7 +1001,7 @@ function swing(a, d) {
     a.volley = false;
     return;
   }
-  if (!sneak && Math.random() * 100 >= hitChance(a, d, (b.hasso ? 10 : 0) + (b.hawk_roll ? b.hawk_roll.pow : 0))) {
+  if (!sneak && Math.random() * 100 >= hitChance(a, d, (b.hasso ? 10 : 0) + (b.hawk_roll ? b.hawk_roll.pow : 0) + (d.buffs && d.buffs.stepped ? d.buffs.stepped.n * 5 : 0))) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
     popText(d, "Miss", "#bbbbbb", 14, 0.8);
     sfx("miss", a);
@@ -2094,6 +2119,51 @@ function doAbility(a, id, t) {
     if (heal > 0) { ring(a, "#ffb74d", 30, 0.6); sfx("cure", a); vfx("cure", { tgt: a }); }
     return;
   }
+  if (ab.tp) {
+    if (a.tp < ab.tp) { log("Not enough TP for " + ab.name + " (" + ab.tp + " needed).", "sys"); a.recasts["ja:" + id] = 0; sfx("error"); return; }
+    a.tp -= ab.tp;
+  }
+  if (id === "activate") { activateAutomaton(a); return; }
+  if (id === "repair" || id === "tune_up") {
+    const pet = S.pet;
+    if (!pet || !pet.automaton || !pet.alive) { log("You have no automaton out.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    if (id === "repair") { const heal = Math.min(pet.maxHp - pet.hp, Math.round(pet.maxHp * 0.5)); pet.hp += heal; log("You repair your automaton. It recovers " + heal + " HP.", "you"); popText(pet, "+" + heal, "#9ad06b", 15, 1.1); sfx("equip", pet); }
+    else { pet.buffs.warcry = { until: S.time + 60 }; log("You tune up your automaton. Its attack rises!", "you"); popText(pet, "Tune Up", "#ab47bc", 14, 1.1); ring(pet, "#ab47bc", 26, 0.5); sfx("buff", pet); }
+    return;
+  }
+  if (id === "healing_waltz" || id === "group_waltz") {
+    const near = S.party.filter(p => p.alive && dist(p, a) < 300);
+    const tgts = id === "group_waltz" ? near : [near.slice().sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0] || a];
+    const amt = Math.round(a.lv * 9 + a.stats.mnd * 2 + a.stats.agi);
+    for (const p of tgts) { const h = Math.min(p.maxHp - p.hp, id === "group_waltz" ? Math.round(amt * 0.7) : amt); p.hp += h; popText(p, "+" + h, "#9ad06b", 15, 1.1); vfx("cure", { tgt: p }); }
+    log(subj(a) + " " + vb(a, "dance", "dances") + " " + ab.name + (tgts.length === 1 && tgts[0] !== a ? " for " + tgts[0].name : "") + ".", cls(a));
+    sfx("cure", a);
+    return;
+  }
+  if (id === "quick_step") {
+    const st = t.buffs.stepped;
+    t.buffs.stepped = { until: S.time + 60, n: Math.min(5, (st ? st.n : 0) + 1), src: a };
+    log(subj(a) + " " + vb(a, "use") + " Quick Step. The " + t.name + " is off balance (" + t.buffs.stepped.n + ").", cls(a));
+    popText(t, "Step " + t.buffs.stepped.n, "#f06292", 13, 0.9); addEnmity(t, a, ab.enmity); aggro(t, a); sfx("miss", a);
+    return;
+  }
+  if (id === "rising_flourish") {
+    const n = t.buffs.stepped ? t.buffs.stepped.n : 0;
+    if (!n) { log("The " + t.name + " isn't off balance. Use Quick Step first.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    delete t.buffs.stepped;
+    const dmg = Math.max(1, Math.floor(baseDmg(a, t) * pDIF(a, t) * (1 + 0.5 * n)));
+    log(subj(a) + " " + vb(a, "use") + " Rising Flourish! The " + t.name + " takes " + dmg + " damage.", cls(a));
+    popText(a, "Rising Flourish", "#f06292", 14, 1.1, 14); sfx("crit", t); vfx("hit", { src: a, tgt: t, crit: true, slash: true });
+    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg, size: 20 });
+    return;
+  }
+  if (id === "light_arts" || id === "dark_arts") {
+    delete a.buffs.light_arts; delete a.buffs.dark_arts;
+    a.buffs[id] = { until: S.time + 7200 };
+    log(subj(a) + " " + vb(a, "turn") + " to " + ab.name + ".", cls(a));
+    popText(a, ab.name, id === "light_arts" ? "#fff59d" : "#9575cd", 14, 1.2, 14); sfx("buff", a); vfx("buff", { tgt: a, id });
+    return;
+  }
   if (id === "call_beast") { callBeast(a); return; }
   if (id === "reward") {
     const pet = S.pet;
@@ -2176,7 +2246,7 @@ function doAbility(a, id, t) {
 
 function startCast(a, id, t) {
   const sp = SPELLS[id];
-  a.casting = { id, sp, t, start: S.time, end: S.time + sp.cast * (sp.kind === "song" && a.buffs.encore ? 0.34 : 1) };
+  a.casting = { id, sp, t, start: S.time, end: S.time + sp.cast * (sp.kind === "song" && a.buffs.encore ? 0.34 : 1) * (artsMatch(a, sp) ? 0.8 : 1) };
   if (t !== a) a.face = Math.atan2(t.y - a.y, t.x - a.x);
   if (a === player) { S.moveTarget = null; S.chase = false; }
   log(subj(a) + " " + vb(a, "start") + " casting " + sp.name + (t !== a ? " on " + obj(t) : "") + ".", cls(a));
@@ -2197,9 +2267,13 @@ function finishCast(a) {
   const { sp, t, id } = a.casting;
   a.casting = null;
   if (!t.alive) { log(sp.name + " fizzles: the target is gone.", cls(a)); return; }
-  if (a.mp < sp.mp) { log("Not enough MP for " + sp.name + ".", cls(a)); return; }
+  const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
+  const free = white && a.buffs.penury;
+  const cost = free ? 0 : Math.ceil(sp.mp * (artsMatch(a, sp) ? 0.9 : 1));
+  if (a.mp < cost) { log("Not enough MP for " + sp.name + ".", cls(a)); return; }
   if (dist(a, t) > CONFIG.castRange + 40) { log(sp.name + " fizzles: the target moved out of range.", cls(a)); return; }
-  a.mp -= sp.mp;
+  if (free) delete a.buffs.penury;
+  a.mp -= cost;
   a.recasts["ma:" + id] = S.time + sp.recast;
   touch(a);
   if (a === player) trySkillUp(spellSkill(sp), isMob(t) ? t.lv : null);
@@ -2248,6 +2322,7 @@ function castNuke(a, t, sp) {
   if (sp.element === dayElement()) dmg *= 1.1;
   if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
   if (sp.blue && a.buffs.burst_affinity) { dmg *= 1.5; delete a.buffs.burst_affinity; }
+  if (!sp.blue && a.buffs.ebullience) { dmg *= 1.3; delete a.buffs.ebullience; }
   let resist = 1;
   if (Math.random() * 100 >= magicHit(a, t, sp)) resist = Math.random() < 0.75 ? 0.5 : 0.25;
   dmg *= resist;

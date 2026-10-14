@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "11.1.0",
-  "releaseTitle": "Beastmaster, Blue Mage and Corsair",
+  "version": "11.2.0",
+  "releaseTitle": "Puppetmaster, Dancer and Scholar",
   "description": "",
   "main": "index.js",
   "scripts": {

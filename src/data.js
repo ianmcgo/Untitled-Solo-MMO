@@ -632,6 +632,53 @@ for (const id in ITEMS) {
   if (it.jobs.includes("RDM") && !it.jobs.includes("BLU")) it.jobs.push("BLU");
   if (it.jobs.includes("THF") && !it.jobs.includes("COR")) it.jobs.push("COR");
 }
+ALL_JOBS.push("PUP", "DNC", "SCH");
+Object.assign(ADVANCED_JOBS, { PUP: { quest: "pup", lv: 16 }, DNC: { quest: "dnc", lv: 16 }, SCH: { quest: "sch", lv: 16 } });
+Object.assign(JOBS, {
+  PUP: { name: "Puppetmaster", color: "#ab47bc", icon: "🎭", hp: [60, 12], mp: [0, 0], str: [8, 0.8], dex: [9, 0.9], vit: [8, 0.8], agi: [8, 0.8], int: [7, 0.7], mnd: [6, 0.6], advanced: true },
+  DNC: { name: "Dancer", color: "#f06292", icon: "💃", hp: [58, 11], mp: [0, 0], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [10, 1.0], int: [6, 0.5], mnd: [8, 0.7], advanced: true },
+  SCH: { name: "Scholar", color: "#bcaaa4", icon: "📖", hp: [48, 9], mp: [24, 7], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.6], agi: [7, 0.6], int: [9, 0.9], mnd: [9, 0.9], advanced: true }
+});
+Object.assign(SKILL_RATINGS, {
+  PUP: { h2h: "A", club: "C", dagger: "D" },
+  DNC: { dagger: "A", sword: "D", h2h: "D" },
+  SCH: { staff: "C", club: "C", dagger: "D", healing: "C", enhancing: "C", elemental: "B", enfeebling: "D", dark: "D", divine: "D" }
+});
+Object.assign(ABILITIES, {
+  activate: { name: "Activate", job: "PUP", lv: 1, recast: 60, target: "self", desc: "Wind up your automaton and set it fighting. It stays out until it breaks or you change job." },
+  repair: { name: "Repair", job: "PUP", lv: 5, recast: 90, target: "self", desc: "Patch up your automaton, restoring half its HP." },
+  tune_up: { name: "Tune Up", job: "PUP", lv: 15, recast: 120, target: "self", desc: "Tighten every spring: your automaton's attack rises 20% for 60 s." },
+  healing_waltz: { name: "Healing Waltz", job: "DNC", lv: 1, recast: 12, tp: 200, target: "self", desc: "Spend 200 TP to dance a waltz that heals the most hurt party member nearby." },
+  quick_step: { name: "Quick Step", job: "DNC", lv: 5, recast: 10, tp: 100, target: "enemy", enmity: 40, desc: "Spend 100 TP on a step that throws the target off balance: everyone's accuracy against it rises 5 per step (up to 5)." },
+  rising_flourish: { name: "Rising Flourish", job: "DNC", lv: 10, recast: 20, target: "enemy", enmity: 80, desc: "Spend all the steps on the target in one rising strike that deals more damage per step." },
+  group_waltz: { name: "Group Waltz", job: "DNC", lv: 15, recast: 60, tp: 400, target: "self", desc: "Spend 400 TP to heal everyone in the party nearby." },
+  light_arts: { name: "Light Arts", job: "SCH", lv: 1, recast: 30, target: "self", desc: "Study white magic: healing, divine and enhancing spells cast 20% faster and cost 10% less MP. Replaces Dark Arts." },
+  dark_arts: { name: "Dark Arts", job: "SCH", lv: 1, recast: 30, target: "self", desc: "Study black magic: elemental, enfeebling and dark spells cast 20% faster and cost 10% less MP. Replaces Light Arts." },
+  penury: { name: "Penury", job: "SCH", lv: 10, recast: 60, target: "self", buff: "penury", dur: 60, desc: "Your next white magic spell costs no MP." },
+  ebullience: { name: "Ebullience", job: "SCH", lv: 15, recast: 90, target: "self", buff: "ebullience", dur: 60, desc: "Your next elemental spell deals 30% more damage." }
+});
+for (const id in SPELLS) {
+  const sp = SPELLS[id];
+  if (sp.blue || sp.kind === "song" || sp.kind === "summon" || sp.jobs.SCH) continue;
+  const base = Math.min(sp.jobs.WHM || 99, sp.jobs.BLM || 99);
+  if (base < 99 && base <= 18) sp.jobs.SCH = Math.min(20, base + 2);
+}
+const AUTOMATON_LOOK = { skin: 0xc8a070, skinRegion: "wood", noFace: true, eyesGlow: 0x80deea, ears: "none", top: { type: "tunic", color: 0x7a4a8a, region: "cloth" }, legs: 0x5a3a6a, boots: 0x4a3020, gloves: 0x8a6a3a, glovesRegion: "wood", head: { type: "cap", color: 0x6a4a7a }, prop: { girth: 0.9 } };
+Object.assign(BUFF_NAMES, { light_arts: "Light Arts", dark_arts: "Dark Arts", penury: "Penury", ebullience: "Ebullience", stepped: "Off Balance" });
+Object.assign(BUFF_ICONS, { light_arts: "📖", dark_arts: "📕", penury: "🪶", ebullience: "✒️", stepped: "💃" });
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!it.jobs) continue;
+  if (it.slot === "main") {
+    if (it.wtype === "h2h" && !it.jobs.includes("PUP")) it.jobs.push("PUP");
+    if (it.wtype === "dagger" && !it.jobs.includes("DNC")) it.jobs.push("DNC");
+    if ((it.wtype === "staff" || it.wtype === "club") && !it.jobs.includes("SCH")) it.jobs.push("SCH");
+    continue;
+  }
+  if (it.jobs.includes("MNK") && !it.jobs.includes("PUP")) it.jobs.push("PUP");
+  if (it.jobs.includes("THF") && !it.jobs.includes("DNC")) it.jobs.push("DNC");
+  if ((it.jobs.includes("BLM") || it.jobs.includes("WHM")) && !it.jobs.includes("SCH")) it.jobs.push("SCH");
+}
 const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
@@ -1774,3 +1821,11 @@ Object.assign(QUESTS, {
 });
 SHOP.push("bronze_axe", "iron_axe", "steel_axe");
 if (SHOPS.vela) SHOPS.vela.push("frost_axe");
+Object.assign(QUESTS, {
+  pup: { name: "Strings and Springs", giver: "Tobin", npc: "tobin", lv: 16, items: { ash_lumber: 3, bronze_ingot: 2 }, desc: "Bring Tobin 3 Ash Lumber and 2 Bronze Ingots to build your first automaton.", reward: { xp: 900, gil: 0, item: "leather_cesti", qty: 1, unlock: "PUP" },
+    intro: "A Puppetmaster fights with fists and a friend made of wood and wire. The automaton takes blows and hits back while you weave in and out. I'll need good lumber for its frame and bronze for its springs.", progress: "3 Ash Lumber and 2 Bronze Ingots.", turn: "There. Wind the key, and it'll follow you anywhere. Mind you keep it in repair." },
+  dnc: { name: "The First Step", giver: "Tobin", npc: "tobin", lv: 16, items: { silk_cloth: 2, honeycomb: 2 }, desc: "Bring Tobin 2 Silk Cloth and 2 Honeycombs to learn the Dancer's steps.", reward: { xp: 900, gil: 0, item: "iron_dagger", qty: 1, unlock: "DNC" },
+    intro: "A Dancer turns the rhythm of battle into healing and openings. Steps throw a foe off balance, flourishes spend those openings, and waltzes mend your friends. Bring me silk for a costume and honey for the throat.", progress: "2 Silk Cloth and 2 Honeycombs.", turn: "Lovely. Feel the beat: every swing builds the energy you spend on a waltz." },
+  sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Scholar's studies.", reward: { xp: 900, gil: 0, item: "holly_staff", qty: 1, unlock: "SCH" },
+    intro: "A Scholar studies both white and black magic, and leans into one at a time. Light Arts for healing, Dark Arts for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
+});

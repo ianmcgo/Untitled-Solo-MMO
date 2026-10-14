@@ -487,6 +487,9 @@ const JOB_TINT = {
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
   DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  PUP: { shirt: 0x5a2a6a, pants: 0x2a2030, robe: 0x5a2a6a, trim: 0xab47bc },
+  DNC: { shirt: 0x8a2a4a, pants: 0x3a2030, robe: 0x8a2a4a, trim: 0xf06292 },
+  SCH: { shirt: 0x5a4a40, pants: 0x2a2420, robe: 0x4a3a34, trim: 0xbcaaa4, deep: 0x3a2e2a },
   BST: { shirt: 0x5a4a32, pants: 0x3a3024, robe: 0x5a4a32, trim: 0x8d6e63 },
   BLU: { shirt: 0x1f4a7a, pants: 0x2a2a3a, robe: 0x1f4a7a, trim: 0x42a5f5 },
   COR: { shirt: 0x7a1e1e, pants: 0x2a2020, robe: 0x7a1e1e, trim: 0xd8b040 },
@@ -1733,6 +1736,9 @@ function buildEntityRig(e) {
     else if (B.model === "wisp") make = () => wispEntry(B.col, B.eye);
     else if (B.model === "worm") make = () => wormEntry(B.col);
     else { const L = goblinLook("goblin"); L.weapon = null; L.sack = false; make = () => humanEntry(L); }
+  } else if (e.pet && e.automaton) {
+    sig = "automaton";
+    make = () => humanEntry(Object.assign({ build: 0, hair: { style: "bald", color: 0 } }, AUTOMATON_LOOK));
   } else if (e.pet && e.beast) {
     const fk = e.beast, ml = mobLook({ fam: FAMILIES[fk], famKey: fk, id: 0 });
     sig = "beast|" + fk;
