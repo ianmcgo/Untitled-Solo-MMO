@@ -1477,6 +1477,14 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.8.0", date: "2026-10-14", title: "Painted item icons", items: [
+    "Items now have painted icons instead of emoji, drawn when the game starts:",
+    "Weapons lie on the diagonal like classic item art, one shape per type: swords with fullers and quillons, daggers, katanas with wrapped grips and round guards, great swords, axes and double-bladed great axes, flanged clubs, staves with glowing orbs, spears, scythes and bows. The metal changes with the item (bronze, iron, steel, mythril, gold, bone, frost, ember, shadow) and higher-level weapons get gold guards and gems.",
+    "Armour by slot: helmets (horned ones too), hats, hoods and circlets; mail, plate, tunics and robes in their own colours; gauntlets and gloves; greaves and trousers; boots; capes; belts; shields; arrows; and gold rings, earrings and necklaces set with coloured gems.",
+    "Potions and ethers in glass flasks, spell scrolls tied with a ribbon in the spell's element colour, crystals and essences as faceted gems, keys, and materials (ore, ingots, logs, herbs, cloth, fish, bones, teeth, feathers, shells and hides).",
+    "Uncommon, rare and epic items get green, blue and purple corner frames.",
+    "Food, furniture, seeds and pets keep their pictures, now on the same tiles."
+  ] },
   { v: "14.7.0", date: "2026-10-14", title: "More sound effects", items: [
     "Footsteps change with the ground: soft grass, hard stone in towns and caves, hollow wood indoors, crunching snow and hissing sand. Nearby companions and monsters make footsteps too, heavier for big monsters.",
     "Every swing has a whoosh: a quick swish for swords and daggers, a deep heavy whoosh for great weapons, clubs, staves and polearms, and a sharp swipe for claws and fangs.",
@@ -2626,6 +2634,7 @@ function tabHelp() {
     "<b>Talking:</b> what people say goes into the event log. If there's a choice to make, a small box appears above the log: ↑ ↓ choose, Enter confirm, Esc back out. Yes/no questions use the same box.",
     "<b>Top:</b> the Commands box and the Help bar appear while something is targeted or a menu is open; the Help bar explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
+    "<b>Item icons:</b> every item has a painted icon. A green, blue or purple frame marks uncommon, rare and epic items. Weapon metal hints at quality: bronze, iron, steel, then gold-trimmed and gem-set pieces.",
     "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
     "<b>Bottom:</b> the event log. New messages open it fully; after a few quiet seconds it shrinks to three lines. Each Esc hides one more line until it's gone. Press / to type (the tabs and typing box appear), or L to keep it open; on phones tap yourself and choose Chat. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",

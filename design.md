@@ -1260,6 +1260,10 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - chest (openChest), craft (synth start), cast_line (startFishing), splash (bite). AMBX crowd layer (bandpass 480–600 Hz, 0.07 day / 0.025 night in towns), cave/crypt drips every 1.2–4.7 s.
 - 2D rules build stubs: mobVoice, surfaceAt in hud.js.
 
+## Phase 101: painted item icons (v14.8.0) — plan T3
+- src/icons.js (build 4, after hud4): `buildItemIcons()` runs once at boot (main4, after uiHoverSounds) and paints every ITEMS entry into a 48 px cell of a 24-column canvas atlas; ICONS.map[id] = [col, row, painted]. A <style> rule `.iico` uses the atlas as a data URL with background-size cols×1.45em, so icons scale with the surrounding font. Each ITEMS[id].icon becomes `<i class="iico" style="background-position:…em">` (original emoji kept in it.emoji); every icon consumer already writes innerHTML.
+- Painters: icoWeapon (by wtype, rotated 45°, metal palette from icoMetal: name keywords then level tiers bronze < 8 < iron < 15 < steel < 25 < gold; lv ≥ 8 gold guard, lv ≥ 15 or rare gem), icoArmour (by slot; cloth/leather/metal fabric from name keywords and colour words), icoConsumable (scrolls with element ribbon, crystals/essences by element, potion/ether/tonic flasks, keys), icoMaterial (ore, ingot, log, herb, cloth, fish/eel, bone/tooth/dust, feather, shell/scale, hide/pouch). Anything else draws its emoji on the tile. icoFrame adds rarity corners (itemRarity).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1312,6 +1316,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.8.0 | Phase 101: painted item icon atlas (weapons by type and metal, armour by slot, consumables, materials, rarity frames). |
 | 14.7.0 | Phase 100: surface footsteps, weapon swings, monster voices, chests, crafting, fishing, town crowd and cave drips. |
 | 14.6.0 | Phase 99: synthesized FFXI-style interface sounds (cursor, confirm, cancel, open/close, error, target, equip, coins, chat chimes). |
 | 14.5.0 | Phase 98: turn-in-place foot planting, quadruped walk/trot/gallop IK, spell learning by main/support job. |
