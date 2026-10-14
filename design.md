@@ -1138,6 +1138,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - game.js: `conquestState()` (lazy `save.conquest {day, pts, held, nation}`; on a new real day tallies pts + beast daily + rival daily (if not your nation) + holder bonus → `held`, resets pts). `conquestKill(m)` from killRewards (+max(1, lv/2) for your nation in the current region). `conquestPriceMul()` (0.9 if your nation holds ≥3, 1.1 if beasts ≥3) via `buyPrice(id)` (buy(), shop list and buy prompt). `conquestXpMul()` +5% in held regions (gainXp). `pledge(side)` from Rhea (when she has nothing else) and Brisa options. `/conquest` command; region line on zone entry.
 - Tests: p43unit; harness exports conquestState, killRewards, heldCount, buyPrice.
 
+## Phase 84: Weather that matters (v13.1.0)
+- data.js: WEATHER_INFO.sandstorm (el earth); sunscar/cinder tables include it. Spawn entries may carry `weather` (string or array); alts keep it. Tail adds weather-only spawns: sunscar dune_worm (sandstorm), frost ice_wight (blizzard, coords × zsc), marsh drowned (fog) — pushed after spacing so they are separate points.
+- game.js: `weatherMatch(w)`, `spawnOpts` filters by weather; `updateWeatherSpawns()` (from updatePeriod each tick) despawns idle mismatched weather spawns, schedules newly valid ones, logs the change. `visMul()` (fog 0.6, sandstorm 0.5, blizzard 0.6, rain 0.85, storm 0.8, snow 0.9 outdoors) scales `detects` sight. `weatherSlow()` 0.85 on foot/mounted in blizzard/sandstorm in field zones.
+- world3d updateSky: sandstorm = gloom 0.5, tan fog lerp, fog ×0.2, fast clouds. effects3d: sandstorm blows tan dust (blizzard branch).
+- Tests: p44unit; harness exports visMul, weatherSlow.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1180,7 +1186,7 @@ New zones (one per release; each gets its own monsters, NM, gathering, quests, l
 - 82 DONE (12.7.0) Highland plateau: open grassland, large mount area, nomad camps.
 World systems:
 - 83 DONE (13.0.0) Regions with control status: each region shows which side holds it; affects shop stock and prices.
-- 84 (13.1.0) Weather that matters: sandstorms, blizzards, fog change spawns and view distance.
+- 84 DONE (13.1.0) Weather that matters: sandstorms, blizzards, fog change spawns and view distance.
 - 85 (13.2.0) Expeditions: multi-zone quests far from home.
 - 86 (13.3.0) World map atlas: fills in as you explore, every zone joined up.
 - 87 (13.4.0) Night-only and weather-only content: monsters, areas and NPCs that appear only at certain times or weather.
@@ -1222,6 +1228,7 @@ World systems:
 | 12.6.0 | Phase 81: Underdeep River. |
 | 12.7.0 | Phase 82: Windreach Highlands. |
 | 13.0.0 | Phase 83: Regions and nations (conquest). |
+| 13.1.0 | Phase 84: Weather that matters. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

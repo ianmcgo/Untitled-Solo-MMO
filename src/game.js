@@ -2668,7 +2668,7 @@ function detects(m, p) {
   const a = m.aggro;
   if (!a) return false;
   const d = dist(m, p);
-  if (a.sight && d <= a.sight) {
+  if (a.sight && d <= a.sight * visMul()) {
     if (d <= 60) return true;
     const diff = Math.abs(normAng(Math.atan2(p.y - m.y, p.x - m.x) - m.face));
     if (diff <= Math.PI * 0.45) return true;
@@ -3114,7 +3114,7 @@ function updatePlayer(dt) {
   if (mv.x || mv.y) {
     S.moveTarget = null; S.chase = false; S.pendingTalk = null;
     const len = Math.hypot(mv.x, mv.y);
-    const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1);
+    const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1) * weatherSlow();
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
     player.face = Math.atan2(mv.y, mv.x);
@@ -3482,7 +3482,24 @@ function harvestGarden(i) {
   return "";
 }
 
-function spawnOpts(sp) { return [sp].concat(sp.alts || []).filter(o => !o.time || o.time === period()); }
+function weatherMatch(w) { if (!w) return true; const now = weatherNow(); return Array.isArray(w) ? w.includes(now) : w === now; }
+function spawnOpts(sp) { return [sp].concat(sp.alts || []).filter(o => (!o.time || o.time === period()) && weatherMatch(o.weather)); }
+function visMul() { const th = S.zone && S.zone.theme; if (!S.zone || th === "cave" || th === "crypt" || th === "house" || th === "town") return 1; return { fog: 0.6, sandstorm: 0.5, blizzard: 0.6, rain: 0.85, storm: 0.8, snow: 0.9 }[weatherNow()] || 1; }
+function weatherSlow() { const th = S.zone && S.zone.theme; if (!S.zone || th !== "field") return 1; const w = weatherNow(); return w === "blizzard" || w === "sandstorm" ? 0.85 : 1; }
+function updateWeatherSpawns() {
+  const w = weatherNow();
+  if (w === S.lastWx) return;
+  const first = S.lastWx === undefined;
+  S.lastWx = w;
+  if (first || !S.zone.spawns) return;
+  for (const m of S.mobs) {
+    const sp = S.zone.spawns[m.spawnIdx];
+    const ow = m.spawnOpt ? m.spawnOpt.weather : sp && sp.weather;
+    if (m.alive && sp && ow && !weatherMatch(ow) && m.state === "idle") { m.alive = false; m.deadAt = S.time - 2; m.despawned = true; S.spawnAt[m.spawnIdx] = S.time + 5; }
+  }
+  for (let i = 0; i < (S.zone.spawns || []).length; i++) { const sp = S.zone.spawns[i]; if (spawnHas(sp, o => o.weather && weatherMatch(o.weather)) && !S.mobs.some(m => m.alive && m.spawnIdx === i)) S.spawnAt[i] = Math.min(S.spawnAt[i] || 1e9, S.time + 3); }
+  if (w && WEATHER_INFO[w]) log("The weather turns: " + WEATHER_INFO[w].name.toLowerCase() + (w === "sandstorm" || w === "blizzard" ? ". Movement is slower and you can't see far." : w === "fog" ? ". Monsters won't spot you from as far away." : "."), "sys");
+}
 function spawnAllowed(sp) { if (sp.bf && !(S.bf && !S.bf.won)) return false; return spawnOpts(sp).length > 0; }
 function spawnHas(sp, pred) { return [sp].concat(sp.alts || []).some(pred); }
 
@@ -3553,6 +3570,7 @@ function checkLandmarks() {
 }
 
 function updatePeriod() {
+  try { updateWeatherSpawns(); } catch (err) {}
   const per = period();
   if (per === S.lastPeriod) return;
   S.lastPeriod = per;

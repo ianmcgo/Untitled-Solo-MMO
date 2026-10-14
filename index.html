@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.0.0 · built 2026-10-14 05:10 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.1.0 · built 2026-10-14 05:17 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -7770,7 +7770,8 @@ const WEATHER_INFO = {
   fog: { name: "Fog", icon: "🌫️" },
   storm: { name: "Thunderstorm", icon: "⛈️", el: "lightning" },
   snow: { name: "Snow", icon: "🌨️", el: "ice" },
-  blizzard: { name: "Blizzard", icon: "❄️", el: "ice" }
+  blizzard: { name: "Blizzard", icon: "❄️", el: "ice" },
+  sandstorm: { name: "Sandstorm", icon: "🌪️", el: "earth" }
 };
 const WEATHER = {
   outpost: [["clear", 6], ["cloudy", 3], ["rain", 2], ["wind", 1.5], ["storm", 0.5]],
@@ -7897,7 +7898,7 @@ for (const zid in ZONES) {
     let best = null, bd = 1e12;
     for (const k of kept) { if (!!k.bf !== !!sp.bf || fixed(k)) continue; const d = Math.hypot(k.x - sp.x, k.y - sp.y); if (d < bd) { bd = d; best = k; } }
     if (!best) best = kept[0];
-    (best.alts = best.alts || []).push({ fam: sp.fam, lv: sp.lv, time: sp.time, nm: sp.nm, passive: sp.passive });
+    (best.alts = best.alts || []).push({ fam: sp.fam, lv: sp.lv, time: sp.time, weather: sp.weather, nm: sp.nm, passive: sp.passive });
   }
   z.spawns = z.spawns.filter(sp => kept.includes(sp));
 }
@@ -8006,7 +8007,11 @@ WEATHER.cinder = [["cloudy", 4], ["clear", 3], ["fog", 2], ["wind", 2], ["storm"
 ACHIEVEMENTS.push({ id: "cinder", icon: "🌋", name: "Trial by Fire", desc: "Set foot on Cinder Peak.", test: s => (s.discovered || []).includes("cinder") });
 WEATHER.verdant = [["rain", 5], ["cloudy", 3], ["fog", 2], ["clear", 2], ["storm", 1.2]];
 ACHIEVEMENTS.push({ id: "verdant", icon: "🌴", name: "Into the Green", desc: "Set foot in the Verdant Jungle.", test: s => (s.discovered || []).includes("verdant") });
-WEATHER.sunscar = [["clear", 7], ["wind", 3], ["cloudy", 1], ["storm", 0.3]];
+WEATHER.sunscar = [["clear", 6], ["wind", 2.5], ["sandstorm", 2], ["cloudy", 1], ["storm", 0.3]];
+WEATHER.cinder.push(["sandstorm", 1]);
+ZONES.sunscar.spawns.push({ fam: "dune_worm", lv: [20, 20], x: 1500, y: 1900, weather: "sandstorm" });
+ZONES.frost.spawns.push({ fam: "ice_wight", lv: [19, 20], x: Math.round(2200 * zsc("frost")), y: Math.round(1400 * zsc("frost")), weather: "blizzard" });
+ZONES.marsh.spawns.push({ fam: "drowned", lv: [15, 16], x: Math.round(1700 * zsc("marsh")), y: Math.round(1400 * zsc("marsh")), weather: "fog" });
 ACHIEVEMENTS.push({ id: "sunscar", icon: "🏜️", name: "Sunburnt", desc: "Set foot in the Sunscar Desert.", test: s => (s.discovered || []).includes("sunscar") });
 WEATHER.ironvale = [["clear", 4], ["snow", 3], ["cloudy", 3], ["wind", 1.5], ["fog", 0.8]];
 const MYTHRIL_GEAR = [];
@@ -10787,7 +10792,7 @@ function detects(m, p) {
   const a = m.aggro;
   if (!a) return false;
   const d = dist(m, p);
-  if (a.sight && d <= a.sight) {
+  if (a.sight && d <= a.sight * visMul()) {
     if (d <= 60) return true;
     const diff = Math.abs(normAng(Math.atan2(p.y - m.y, p.x - m.x) - m.face));
     if (diff <= Math.PI * 0.45) return true;
@@ -11233,7 +11238,7 @@ function updatePlayer(dt) {
   if (mv.x || mv.y) {
     S.moveTarget = null; S.chase = false; S.pendingTalk = null;
     const len = Math.hypot(mv.x, mv.y);
-    const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1);
+    const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1) * weatherSlow();
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
     player.face = Math.atan2(mv.y, mv.x);
@@ -11601,7 +11606,24 @@ function harvestGarden(i) {
   return "";
 }
 
-function spawnOpts(sp) { return [sp].concat(sp.alts || []).filter(o => !o.time || o.time === period()); }
+function weatherMatch(w) { if (!w) return true; const now = weatherNow(); return Array.isArray(w) ? w.includes(now) : w === now; }
+function spawnOpts(sp) { return [sp].concat(sp.alts || []).filter(o => (!o.time || o.time === period()) && weatherMatch(o.weather)); }
+function visMul() { const th = S.zone && S.zone.theme; if (!S.zone || th === "cave" || th === "crypt" || th === "house" || th === "town") return 1; return { fog: 0.6, sandstorm: 0.5, blizzard: 0.6, rain: 0.85, storm: 0.8, snow: 0.9 }[weatherNow()] || 1; }
+function weatherSlow() { const th = S.zone && S.zone.theme; if (!S.zone || th !== "field") return 1; const w = weatherNow(); return w === "blizzard" || w === "sandstorm" ? 0.85 : 1; }
+function updateWeatherSpawns() {
+  const w = weatherNow();
+  if (w === S.lastWx) return;
+  const first = S.lastWx === undefined;
+  S.lastWx = w;
+  if (first || !S.zone.spawns) return;
+  for (const m of S.mobs) {
+    const sp = S.zone.spawns[m.spawnIdx];
+    const ow = m.spawnOpt ? m.spawnOpt.weather : sp && sp.weather;
+    if (m.alive && sp && ow && !weatherMatch(ow) && m.state === "idle") { m.alive = false; m.deadAt = S.time - 2; m.despawned = true; S.spawnAt[m.spawnIdx] = S.time + 5; }
+  }
+  for (let i = 0; i < (S.zone.spawns || []).length; i++) { const sp = S.zone.spawns[i]; if (spawnHas(sp, o => o.weather && weatherMatch(o.weather)) && !S.mobs.some(m => m.alive && m.spawnIdx === i)) S.spawnAt[i] = Math.min(S.spawnAt[i] || 1e9, S.time + 3); }
+  if (w && WEATHER_INFO[w]) log("The weather turns: " + WEATHER_INFO[w].name.toLowerCase() + (w === "sandstorm" || w === "blizzard" ? ". Movement is slower and you can't see far." : w === "fog" ? ". Monsters won't spot you from as far away." : "."), "sys");
+}
 function spawnAllowed(sp) { if (sp.bf && !(S.bf && !S.bf.won)) return false; return spawnOpts(sp).length > 0; }
 function spawnHas(sp, pred) { return [sp].concat(sp.alts || []).some(pred); }
 
@@ -11672,6 +11694,7 @@ function checkLandmarks() {
 }
 
 function updatePeriod() {
+  try { updateWeatherSpawns(); } catch (err) {}
   const per = period();
   if (per === S.lastPeriod) return;
   S.lastPeriod = per;
@@ -15967,13 +15990,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v13.0.0 · built 2026-10-14 05:10 PDT";
+const BUILD_INFO = "v13.1.0 · built 2026-10-14 05:17 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "13.1.0", date: "2026-10-14", title: "Weather that matters", items: [
+    "New weather: sandstorms sweep the Sunscar Desert (and sometimes Cinder Peak), turning the air tan and blowing dust across the dunes.",
+    "Weather now affects play: fog, blizzards and sandstorms (and to a lesser extent rain and storms) cut how far monsters can see you, and blizzards and sandstorms slow you down on foot.",
+    "Some monsters only come out in certain weather and leave when it turns: a storm-only Dune Worm in sandstorms, Ice Wights in Frostspire blizzards, and Drowned Ones in the marsh fog. A message tells you when the weather changes."
   ] },
   { v: "13.0.0", date: "2026-10-14", title: "Regions and nations", items: [
     "The wilds are now five regions (the Vale, the Mire, the Coast, the Peaks and the Sands), each held by the Ashenreach League, the Ironvale Compact or the Beastmen.",
@@ -16875,6 +16903,7 @@ function tabHelp() {
     "Each outdoor area has its own weather, changing every 3 game hours (about 7 real minutes): clear, cloudy, rain, wind, fog or thunderstorms. The icon next to the clock shows it; /weather tells you more.",
     "Rain boosts water spells by 10%, wind boosts wind spells and thunderstorms boost lightning spells. This stacks with the day's element.",
     "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not.",
+    "Weather changes the fight: in fog, blizzards and sandstorms (and a little in rain and storms) monsters can't spot you from as far away, and blizzards and sandstorms slow you down on foot. Some monsters only appear in certain weather: a storm-only Dune Worm in Sunscar sandstorms, Ice Wights in Frostspire blizzards and Drowned Ones in the marsh fog. They leave when the weather turns.",
     "You can see the weather around you: raindrops splash on the ground, distant lightning lights up the sky before the thunder arrives, wind carries leaves and dust, blizzards blow snow sideways and fog drifts past at ground level. On clear nights in the fields, fireflies come out. Snow kicks up under your feet in snowy weather."
   ]));
   h += sec("🎲 Treasure pool", ul([
@@ -17000,7 +17029,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "13.0.0";
+const GAME_VERSION = "13.1.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19163,8 +19192,9 @@ function updateSky(force) {
   W3.stars.rotation.y = v.frac * Math.PI * 2;
   const wx = !cave && !indoor && typeof weatherNow === "function" ? weatherNow() : null;
   const snowy = wx === "snow" || wx === "blizzard";
-  const wet = wx === "rain" || wx === "storm", gloom = wet ? 0.55 : wx === "blizzard" ? 0.5 : wx === "cloudy" || wx === "snow" ? 0.35 : wx === "fog" ? 0.3 : 0;
-  W3.cloudOff = (W3.cloudOff || 0) + (1 / 60) * (wx === "wind" || wx === "storm" ? 4 : 1);
+  const sand = wx === "sandstorm";
+  const wet = wx === "rain" || wx === "storm", gloom = wet ? 0.55 : wx === "blizzard" || sand ? 0.5 : wx === "cloudy" || wx === "snow" ? 0.35 : wx === "fog" ? 0.3 : 0;
+  W3.cloudOff = (W3.cloudOff || 0) + (1 / 60) * (wx === "wind" || wx === "storm" || sand ? 4 : 1);
   W3.clouds.material.map.offset.x = W3.cloudOff * 0.0018;
   W3.clouds.material.map.offset.y = W3.cloudOff * 0.0009;
   if (W3.clouds2) { W3.clouds2.material.map.offset.x = W3.cloudOff * 0.0007; W3.clouds2.material.map.offset.y = -W3.cloudOff * 0.0004; }
@@ -19185,14 +19215,15 @@ function updateSky(force) {
   W3.fog.color.copy(fogC);
   updateBackdrop(fogC, dayAmt);
   if (W3.haze) W3.haze.material.color.copy(fogC);
-  if (gloom) W3.fog.color.lerp(snowy ? (W3.snowFog || (W3.snowFog = new THREE.Color(0xc4ccd4))) : W3.gloomColor || (W3.gloomColor = new THREE.Color(0x6a7078)), (snowy ? 1.4 : 1) * gloom * (0.3 + 0.7 * dayAmt));
+  if (sand) W3.fog.color.lerp(W3.sandFog || (W3.sandFog = new THREE.Color(0xc8a070)), 0.75);
+  else if (gloom) W3.fog.color.lerp(snowy ? (W3.snowFog || (W3.snowFog = new THREE.Color(0xc4ccd4))) : W3.gloomColor || (W3.gloomColor = new THREE.Color(0x6a7078)), (snowy ? 1.4 : 1) * gloom * (0.3 + 0.7 * dayAmt));
   if (S.zone.mist) W3.fog.color.lerp(W3.mistColor || (W3.mistColor = new THREE.Color(0x8a9a8c)), 0.45 * (0.4 + 0.6 * dayAmt));
   if (theme === "crypt") { W3.fog.near = 10; W3.fog.far = 95; }
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
   else { W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1); W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1); }
-  if (!cave && !indoor && (wx === "fog" || wet || wx === "blizzard")) { const k = wx === "fog" ? 0.45 : wx === "blizzard" ? 0.22 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
+  if (!cave && !indoor && (wx === "fog" || wet || wx === "blizzard" || sand)) { const k = wx === "fog" ? 0.45 : wx === "blizzard" ? 0.22 : sand ? 0.2 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
   const warm = 1 - sstep(0.05, 0.35, sunY);
@@ -22141,11 +22172,12 @@ function updateWeatherFx(dt) {
       setTimeout(() => typeof sfx === "function" && sfx("lightning"), 400 + far * 12);
     }
   } else WFX.next = 0;
-  if (wx === "wind" || wx === "storm" || wx === "blizzard") {
-    const rate = (wx === "blizzard" ? 30 : 10) * (low ? 0.5 : 1);
+  if (wx === "wind" || wx === "storm" || wx === "blizzard" || wx === "sandstorm") {
+    const rate = (wx === "blizzard" || wx === "sandstorm" ? 30 : 10) * (low ? 0.5 : 1);
     for (let i = 0, m = Math.floor(rate * dt + Math.random()); i < m; i++) {
       const q = near(); q.y += rnd(0.3, 2.5);
       if (wx === "blizzard") FX.smoke.spawn(q.x, q.y, q.z, rnd(4, 7), rnd(-0.5, 0.3), rnd(1, 3), rnd(0.8, 1.4), 0.6, 1.4, C(0xf4f8ff), C(0xe0e8f0), 0, 0.3, 0.3);
+      else if (wx === "sandstorm") FX.smoke.spawn(q.x, q.y, q.z, rnd(5, 8), rnd(-0.3, 0.3), rnd(1, 3), rnd(0.8, 1.4), 0.8, 1.8, C(0xd8b078), C(0xc09060), 0, 0.3, 0.35);
       else { const leaf = Math.random() < 0.6; FX.smoke.spawn(q.x, q.y, q.z, rnd(3, 5.5), rnd(-0.3, 0.6), rnd(0.5, 2), rnd(1.4, 2.4), leaf ? 0.12 : 0.4, leaf ? 0.1 : 0.9, C(leaf ? 0x7a9a40 : 0xb8a888), C(leaf ? 0x8a6a30 : 0xa89878), 0.3, 0.2, leaf ? 0.9 : 0.25); }
     }
   }
