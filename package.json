@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.2.0",
-  "releaseTitle": "Windows in the world",
+  "version": "9.3.0",
+  "releaseTitle": "Classic lists",
   "description": "",
   "main": "index.js",
   "scripts": {

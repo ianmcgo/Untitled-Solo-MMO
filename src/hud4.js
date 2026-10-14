@@ -52,6 +52,14 @@ function openDialog(who, text, opts) {
   $("dialog").style.display = "block";
   sfx("open");
 }
+function promptChoice(q, opts) {
+  S.dialog = { who: "", text: "", opts, sel: 0, all: opts.concat([{ label: "Never mind", fn: closeDialog }]) };
+  $("dlgWho").textContent = "";
+  $("dlgText").textContent = q || "";
+  renderDlgOpts();
+  $("dialog").style.display = "block";
+  sfx("open");
+}
 function renderDlgOpts() {
   const d = S.dialog, box = $("dlgOpts");
   if (!d || !box) return;
@@ -682,12 +690,33 @@ function renderTgtCmd() {
   c.sel = clamp(c.sel || 0, 0, items.length - 1);
   const t = c.t;
   const title = c.page === "root" ? (t === player ? save.name : t.name) : c.page === "ma" ? "Magic" : c.page === "ja" ? "Abilities" : "Items";
-  let h = '<div class="ffMHead">' + esc(title) + "</div>";
-  items.forEach((it, i) => { h += '<button data-tc="' + i + '" class="ffb' + (i === c.sel ? " sel" : "") + (it.off ? " off" : "") + '"><span class="cur">➤</span><span class="lb">' + esc(it.label) + "</span>" + (it.arrow ? '<span class="ar">▶</span>' : "") + "</button>"; });
+  const list = c.page !== "root";
+  el.classList.toggle("list", list);
+  let h = list ? "" : '<div class="ffMHead">' + esc(title) + "</div>";
+  items.forEach((it, i) => {
+    const a = list && c.acts && it.key && it.key.startsWith("act") ? c.acts[+it.key.slice(3)] : null;
+    const orb = a ? (a.kind === "ma" ? '<span class="orb" style="--oc:' + (ELEMENT_COLORS[SPELLS[a.id].element] || "#9fe8ff") + '"></span>' : a.kind === "item" ? '<span class="ico">' + (ITEMS[a.id].icon || "📦") + "</span>" : '<span class="orb" style="--oc:' + (a.kind === "ws" ? "#ffb070" : "#b0ffb0") + '"></span>') : "";
+    const lbl = a && a.kind === "item" ? a.name : it.label;
+    h += '<button data-tc="' + i + '" class="ffb' + (i === c.sel ? " sel" : "") + (it.off ? " off" : "") + '"><span class="cur">➤</span>' + orb + '<span class="lb">' + esc(lbl) + "</span>" + (it.arrow ? '<span class="ar">▶</span>' : "") + "</button>";
+  });
   if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
   el.innerHTML = h;
   el.classList.add("on");
   UI.ffHelp = items[c.sel] ? items[c.sel].help : "";
+  renderMpBox();
+}
+function renderMpBox() {
+  const box = $("mpBox"), c = UI.cmd;
+  if (!box) return;
+  const it = c && c.items && c.items[c.sel], a = it && it.key && it.key.startsWith("act") && c.acts ? c.acts[+it.key.slice(3)] : null;
+  if (!a || (a.kind !== "ma" && a.kind !== "ja" && a.kind !== "ws")) { box.classList.remove("on"); return; }
+  const rk = a.kind === "ma" ? "ma:" + a.id : "ja:" + a.id, rc = a.kind === "ws" ? 0 : recastLeft(player, rk);
+  const cost = a.kind === "ma" ? SPELLS[a.id].mp + "" : a.kind === "ws" ? "1000 TP" : "—";
+  const nx = rc > 0 ? Math.floor(rc / 60) + ":" + String(Math.ceil(rc % 60)).padStart(2, "0") : "0:00";
+  box.innerHTML = '<div class="r"><em>' + (a.kind === "ma" ? "MP Cost" : "Cost") + "</em><b>" + cost + '</b></div><div class="r"><em>Next</em><b>' + nx + "</b></div>";
+  box.classList.add("on");
+  const side = $("ffSide");
+  box.style.bottom = "calc(" + ((side ? side.offsetHeight : 0) + 12) + "px + var(--sab))";
 }
 
 function tgtCmdHover(i) {
@@ -924,6 +953,7 @@ function initHud() {
   $("mmWrap").onclick = () => openMenu("map");
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
   $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
+  $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });
   $("mCmd").addEventListener("mouseover", e => { const b = e.target.closest("[data-mc]"); if (!b || !UI.mm || isNaN(+b.dataset.mc)) return; const i = +b.dataset.mc; if (UI.mm.sel !== i) { UI.mm.sel = i; $("mCmd").querySelectorAll(".ffb").forEach((x, k) => x.classList.toggle("sel", k === i)); UI.ffHelp = mainCmdHelp(mainCmdItems()[i]); if (UI.mm.sub) renderStatusOv(); } });
   $("btnChat").onclick = () => chatToggle();
   const ci = $("chatIn");
@@ -963,7 +993,7 @@ function updateFF() {
   const ui = $("ui"), t = player.target;
   const tOk = !!t && (t === player || t.kind === "npc" || t.kind === "remote" || isParty(t) || (isMob(t) && t.alive && !t.despawned));
   ui.classList.toggle("hasTop", tOk || !!UI.cmd || !!UI.mm || !!S.modal);
-  const cmdLbl = S.modal && TAB_INFO[S.modal] ? TAB_INFO[S.modal][0] : UI.mm && UI.mm.sub === "status" ? "Status" : "Commands";
+  const cmdLbl = S.modal && TAB_INFO[S.modal] ? (S.modal === "inventory" ? "Items " + save.inventory.length + "/" + CONFIG.inventorySize : TAB_INFO[S.modal][0]) : UI.mm && UI.mm.sub === "status" ? "Status" : UI.cmd && UI.cmd.page === "ma" ? "Magic List" : UI.cmd && UI.cmd.page === "ja" ? "Ability List" : UI.cmd && UI.cmd.page === "items" ? "Item List" : "Commands";
   if (UI.cmdLbl !== cmdLbl) { UI.cmdLbl = cmdLbl; setTxt(document.querySelector("#ffTop .ffCmd"), cmdLbl); }
   if (tOk || UI.cmd || UI.mm || S.modal) {
     setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : ffDefaultHelp(t));
@@ -994,8 +1024,13 @@ function updateFF() {
   if (rows > 0 && UI.logShown !== rows) { UI.logShown = rows; const lh = parseFloat(getComputedStyle(lg).lineHeight) || 16.5; lg.style.height = Math.round(rows * lh + 10) + "px"; lg.scrollTop = lg.scrollHeight; }
   if (rows <= 0) UI.logShown = 0;
   const mw = $("mmWrap");
-  if (mw) { mw.style.bottom = rows > 0 ? "calc(" + (chat.offsetHeight + 16) + "px + var(--sab))" : ""; mw.style.visibility = S.dialog || S.modal ? "hidden" : ""; }
-  if (S.dialog) $("dialog").style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 16) + "px + var(--sab))";
+  if (mw) { mw.style.bottom = rows > 0 ? "calc(" + (chat.offsetHeight + 16) + "px + var(--sab))" : ""; mw.style.visibility = S.dialog || S.modal || UI.cmd || UI.confirmOpen ? "hidden" : ""; }
+  const tc = $("tCmd"); if (tc) tc.style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 14) + "px + var(--sab))";
+  if (UI.cmd && Date.now() - (UI.mpAt || 0) > 400) { UI.mpAt = Date.now(); renderMpBox(); } else if (!UI.cmd) { const mb = $("mpBox"); if (mb) mb.classList.remove("on"); }
+  const dg = $("dialog"), mw2 = S.modal && document.querySelector("#menu .win");
+  if (S.dialog && mw2) { const r = mw2.getBoundingClientRect(); dg.style.top = Math.round(r.top) + "px"; dg.style.left = Math.round(Math.min(r.right + 6, innerWidth - dg.offsetWidth - 6)) + "px"; dg.style.bottom = "auto"; }
+  else if (S.dialog) { dg.style.top = "auto"; dg.style.left = ""; }
+  if (S.dialog && !mw2) $("dialog").style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 16) + "px + var(--sab))";
   $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);
   const combat = player.engaged || inCombatWith(player);
   $("ffStat").classList.toggle("combat", !!combat && player.alive);

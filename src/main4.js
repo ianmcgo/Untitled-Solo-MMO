@@ -4,16 +4,17 @@ function onKey(e) {
   if (!UI.started) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
   const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
-  if (S.modal) {
-    if (k === "escape") { closeModal(); mainCmdOpen(); }
-    else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
-    return;
-  }
   if (S.dialog) {
     if (k === "escape") closeDialog();
     if (["arrowup", "arrowdown", "enter", " "].includes(k)) { e.preventDefault(); dlgKey(k); return; }
     const n = parseInt(k, 10);
     if (n >= 1 && n <= S.dialog.all.length) S.dialog.all[n - 1].fn();
+    return;
+  }
+  if (S.modal) {
+    if (k === "escape" && S.modal === "quests" && UI.qCat) { UI.qCat = null; UI.qSel = null; renderModal(); sfx("close"); }
+    else if (k === "escape") { closeModal(); mainCmdOpen(); }
+    else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
     return;
   }
   if (S.fish && S.fish.state === "bite" && (k === " " || k === "spacebar" || k === "enter" || k === "f")) { e.preventDefault(); reelFish(); return; }
@@ -23,7 +24,7 @@ function onKey(e) {
   if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
   if (k === "l" && !S.modal) { chatToggle(); return; }
   if (k === "f") { toggleEngage(false); return; }
-  if (k === "enter") { const t = player.target; if (t && (isMob(t) && t.alive || t.kind === "remote")) tgtCmdOpen(t); else if (nearNpc() && dist(nearNpc(), player) <= CONFIG.talkRange) talkNearest(); else tgtCmdOpen(player); return; }
+  if (k === "enter") { const t = player.target; if (t && (isMob(t) && t.alive || t.kind === "remote")) tgtCmdOpen(t); else if (t && t.kind === "npc") talkNearest(); else if (t === player) tgtCmdOpen(player); else { e.preventDefault(); UI.logRows = logFull(); const ci = $("chatIn"); ci.value = ""; ci.focus(); } return; }
   if (menuKeys[k]) { openMenu(menuKeys[k]); return; }
   if (k === "r") { toggleMount(); return; }
   if (k === " " || k === "spacebar") { e.preventDefault(); tryJump(); return; }

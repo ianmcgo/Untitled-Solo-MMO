@@ -1,4 +1,5 @@
 const CONFIG = {
+  mobRegen: 0.04,
   levelCap: 20,
   bowRange: 230,
   foodMinutes: 30,
