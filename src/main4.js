@@ -89,6 +89,7 @@ async function boot() {
   await frames(1);
   initAudio();
   if (typeof uiHoverSounds === "function") uiHoverSounds();
+  try { buildItemIcons(); } catch (e) { reportError(e, "icons"); }
   initViewA();
   loaderProgress(0.35, "Weaving cloth and leather…");
   await frames(1);
