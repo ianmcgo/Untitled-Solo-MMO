@@ -938,7 +938,8 @@ const ZONES = {
     exits: [
       { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 990, ty: 400, label: "Outpost" },
       { x: 3176, y: 1030, w: 24, h: 100, to: "den", tx: 120, ty: 800, label: "Goblin Den" },
-      { x: 1550, y: 2176, w: 100, h: 24, to: "marsh", tx: 1400, ty: 95, label: "Ashen Marsh" }
+      { x: 1550, y: 2176, w: 100, h: 24, to: "marsh", tx: 1400, ty: 95, label: "Ashen Marsh" },
+      { x: 1250, y: 0, w: 100, h: 24, to: "highlands", tx: 2000, ty: 2880, label: "Windreach Highlands" }
     ],
     npcs: [],
     walls: [{ x: 850, y: 1380, w: 170, h: 440 }, { x: 1980, y: 180, w: 400, h: 170 }, { x: 2330, y: 1820, w: 440, h: 150 }],
@@ -984,7 +985,8 @@ const ZONES = {
       { w: 34, pts: [[2100, 1150], [2300, 950], [2515, 860], [2515, 650]] },
       { w: 34, pts: [[1650, 1050], [1550, 1450], [1420, 1850]] },
       { w: 30, pts: [[2500, 1160], [2650, 1450]] },
-      { w: 32, pts: [[1420, 1850], [1600, 2200], [1600, 2700]] }
+      { w: 32, pts: [[1420, 1850], [1600, 2200], [1600, 2700]] },
+      { w: 32, pts: [[1650, 1050], [1620, 500], [1300, 120], [1300, 0], [1300, -500]] }
     ],
     gather: {
       mining: { n: 3, at: [[300, 300], [1000, 250], [2900, 1900], [200, 2000], [1250, 2100], [2850, 300]], loot: [["copper_ore", 0.6], ["iron_ore", 0.08], ["fire_crystal", 0.1], ["earth_crystal", 0.1]] },
@@ -1597,6 +1599,54 @@ ZONES.underdeep = {
   start: { x: 110, y: 450 }
 };
 
+Object.assign(FAMILIES, {
+  plains_hare: tierFam("hare", { name: "Plains Hare", color: "#d8b888", tint: 0xd8b888, hpMul: 0.9, loot: [["hare_meat_dummy", 0], ["wind_crystal", 0.2], ["potion", 0.08]] }),
+  plains_lizard: tierFam("hill_lizard", { name: "Plains Lizard", color: "#9a9a5a", tint: 0x9a9a5a, tint2: 0xe0d8a0, loot: [["lizard_skin", 0.45], ["earth_crystal", 0.2], ["potion", 0.08]] }),
+  wind_wasp: tierFam("honey_bee", { name: "Wind Wasp", color: "#c8e0a0", tint: 0xc8e0a0, tint2: 0x3a5a2a, loot: [["honeycomb", 0.35], ["wind_crystal", 0.25], ["potion", 0.08]] }),
+  highland_longneck: tierFam("longneck", { name: "Highland Longneck", color: "#c8a878", hpMul: 1.9, loot: [["wool_tuft", 0.3], ["earth_crystal", 0.25], ["hi_potion", 0.05]] }),
+  highland_orc: tierFam("orc_grunt", { name: "Highland Orc", color: "#7a8a5a", loot: [["orc_tooth", 0.4], ["wind_crystal", 0.2], ["potion", 0.1]] })
+});
+for (const f of ["plains_hare"]) FAMILIES[f].loot = FAMILIES[f].loot.filter(l => l[1] > 0);
+NM_FAMILIES.thunderhoof = { hint: "Stormgrass Flats, Windreach Highlands · day", base: "longneck", name: "Thunderhoof", hpMul: 2.8, attMul: 1.15, scale: 1.6, aura: "#ffee58", loot: [["windrunner_boots", 0.35], ["wool_tuft", 1], ["wind_crystal", 1], ["hi_potion", 0.4]], respawn: 420 };
+Object.assign(ITEMS, {
+  windrunner_boots: { name: "Windrunner Boots", kind: "equip", icon: "👢", rare: true, nm: true, rarity: "epic", slot: "feet", jobs: ALL_JOBS, lv: 13, price: 0, stats: { def: 5, agi: 3, eva: 4, hp: 15 }, desc: "Soled with Thunderhoof's hide. The grass barely bends under them." },
+  nomad_sash: { name: "Nomad Sash", kind: "equip", icon: "🪢", rare: true, slot: "waist", jobs: ALL_JOBS, lv: 12, price: 0, stats: { hp: 20, str: 2, agi: 2 }, desc: "Woven by the Windreach nomads for those they trust." },
+  nomad_cloak: { name: "Nomad Cloak", kind: "equip", icon: "🧣", rare: true, slot: "back", jobs: ALL_JOBS, lv: 11, price: 0, stats: { def: 4, hp: 15, mp: 15, eva: 2 }, desc: "A felted wool cloak that keeps out the highland wind." }
+});
+ZONES.highlands = {
+  name: "Windreach Highlands", w: 4000, h: 3000, theme: "field", palette: "highland", openRange: true,
+  exits: [{ x: 1950, y: 2976, w: 100, h: 24, to: "hollow", tx: 1300, ty: 60, label: "Rocky Hollow" }],
+  npcs: [{ id: "tarqa", x: 1900, y: 1500 }, { id: "essa", x: 2100, y: 1560 }, { id: "camp_nomad_a", x: 2000, y: 1420 }, { id: "camp_nomad_b", x: 3200, y: 700 }, { id: "nomad_rider", x: 3260, y: 760 }],
+  walls: [{ x: 700, y: 600, w: 300, h: 200 }, { x: 3000, y: 2100, w: 260, h: 220 }],
+  ruins: { walls: [[600, 2300, 760, 2300, 1.6]], pillars: [[700, 2220, 3.0], [820, 2380, 2.0]] },
+  landmarks: [
+    { id: "camp", name: "Nomad Camp", x: 2000, y: 1500, r: 260, xp: 60 },
+    { id: "stones", name: "Standing Stones", x: 700, y: 2300, r: 240, xp: 80 },
+    { id: "flats", name: "Stormgrass Flats", x: 3000, y: 1300, r: 320, xp: 80 },
+    { id: "ridge", name: "Eagle Ridge", x: 850, y: 700, r: 260, xp: 80 },
+    { id: "horsecamp", name: "Rider's Rest", x: 3200, y: 700, r: 240, xp: 70 }
+  ],
+  spawns: [
+    { fam: "plains_hare", lv: [10, 11], x: 1500, y: 2400, time: "day" }, { fam: "plains_hare", lv: [10, 12], x: 2600, y: 2500, time: "day" },
+    { fam: "plains_lizard", lv: [11, 12], x: 1200, y: 1700 }, { fam: "plains_lizard", lv: [11, 13], x: 2800, y: 1900 },
+    { fam: "wind_wasp", lv: [11, 12], x: 1500, y: 900, time: "day" }, { fam: "wind_wasp", lv: [12, 13], x: 2400, y: 600, time: "day" },
+    { fam: "highland_longneck", lv: [12, 14], x: 3000, y: 1300, nm: { id: "thunderhoof", lv: 15, chance: 0.12, time: "day" } }, { fam: "highland_longneck", lv: [12, 13], x: 3500, y: 1700 },
+    { fam: "highland_orc", lv: [13, 14], x: 600, y: 1300 }, { fam: "highland_orc", lv: [13, 14], x: 700, y: 1400 },
+    { fam: "skeleton", lv: [12, 13], x: 750, y: 2150, time: "night" }
+  ],
+  water: [{ x: 2600, y: 1000, r: 140 }, { x: 1300, y: 2600, r: 110 }],
+  paths: [
+    { w: 40, pts: [[2000, 3500], [2000, 3000], [2000, 2400], [2000, 1500], [2500, 1100], [3200, 750]] },
+    { w: 30, pts: [[2000, 1500], [1300, 1700], [700, 2250]] },
+    { w: 30, pts: [[2000, 2400], [3000, 1300]] }
+  ],
+  gather: {
+    harvesting: { n: 3, at: [[1600, 1300], [2400, 1900], [3300, 2300], [900, 1800]], loot: [["healing_herb", 0.6], ["wool_tuft", 0.15], ["wind_crystal", 0.15]] },
+    mining: { n: 2, at: [[900, 500], [3600, 2500], [500, 2600]], loot: [["copper_ore", 0.5], ["iron_ore", 0.25], ["earth_crystal", 0.15]] }
+  },
+  start: { x: 2000, y: 2900 }
+};
+
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
 const ZONE_FEATURES = {
   hollow: [{ t: "plateau", x: 2150, y: 420, r: 200, h: 4.5 }, { t: "plateau", x: 300, y: 2000, r: 160, h: 3 }, { t: "ravine", pts: [[650, 560], [900, 470], [1080, 330]], w: 70, d: 3.5 }, { t: "ravine", pts: [[2200, 1950], [2500, 2050], [2800, 1980]], w: 60, d: 3 }],
@@ -2160,6 +2210,9 @@ Object.assign(NPCS, {
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
 ACHIEVEMENTS.push({ id: "spire", icon: "🗼", name: "Top of the Spire", desc: "Defeat the Spire Warden at the summit of the Red Spire.", test: s => !!(s.nmKilled && s.nmKilled.spire_warden) });
+WEATHER.highlands = [["clear", 5], ["wind", 4], ["cloudy", 3], ["rain", 1.5], ["storm", 1]];
+SHOPS.essa = ["potion", "hi_potion", "ether", "herb_bread", "carp_stew", "bait", "fishing_rod"].filter(id => ITEMS[id]);
+ACHIEVEMENTS.push({ id: "highlands", icon: "🐎", name: "Wide Open Sky", desc: "Set foot in the Windreach Highlands.", test: s => (s.discovered || []).includes("highlands") });
 FISH.underdeep = [["glowfin", 8, 7], ["blind_eel", 14, 2], ["mud_eel", 0, 3]];
 ACHIEVEMENTS.push({ id: "underdeep", icon: "🛶", name: "Down the River", desc: "Ride the boat across the Underdeep River.", test: s => !!(s.stats && s.stats.boatRides) });
 WEATHER.gullisle = [["clear", 6], ["wind", 3], ["cloudy", 2], ["rain", 2], ["storm", 0.7]];
@@ -2250,3 +2303,22 @@ Object.assign(BESTIARY, {
   deep_worm: { type: "Amorphous", lore: "Grey worms that have never seen the sun, and never will." },
   lumicap_matron: { type: "Plantoid", lore: "A towering Lumicap that lights the whole Glimmer Grotto. The smaller caps gather around her." }
 });
+Object.assign(NPCS, {
+  tarqa: { name: "Tarqa, Nomad Chief", model: "tarqa", talk: "talkTarqa" },
+  essa: { name: "Essa, Nomad Trader", model: "essa", talk: "talkEssa" },
+  nomad_rider: { name: "Nomad Rider Kael", model: "nomad", talk: "talkRider" },
+  camp_nomad_a: { name: "Nomad Camp", prop: "camp", talk: "talkCamp", poi: "camp" },
+  camp_nomad_b: { name: "Rider's Rest", prop: "camp", talk: "talkCamp", poi: "camp" }
+});
+Object.assign(QUESTS, {
+  orcraid: { name: "Raiders on the Wind", giver: "Tarqa", npc: "tarqa", lv: 12, kill: { fam: "highland_orc", n: 6, name: "Highland Orc" }, desc: "Drive off 6 Highland Orcs who raid the nomads' herds from Eagle Ridge.", reward: { xp: 2400, gil: 900, item: "nomad_sash", qty: 1 },
+    intro: "My people follow the herds across the whole of Windreach. The orcs up on Eagle Ridge have started taking our animals. Show them the plateau has teeth.", progress: "6 Highland Orcs, camped west of the Ridge.", turn: "The herds sleep easier. Wear this sash; any nomad will share a fire with you." },
+  feltwork: { name: "Felt for Winter", giver: "Tarqa", npc: "tarqa", lv: 10, items: { wool_tuft: 4, lizard_skin: 2 }, desc: "Bring Tarqa 4 Wool Tufts and 2 Lizard Skins for the camp's winter cloaks.", reward: { xp: 1600, gil: 500, item: "nomad_cloak", qty: 1 },
+    intro: "Winter on the plateau is long. We felt our cloaks from wool and line them with lizard hide against the wind. Bring us some and you'll have one too.", progress: "4 Wool Tufts and 2 Lizard Skins.", turn: "Good wool. Here, this one was made for a traveller." }
+});
+BESTIARY.plains_hare = { type: "Beast", lore: "Long-legged hares of the open plateau, built for running." };
+BESTIARY.plains_lizard = { type: "Lizard", lore: "Olive lizards that sun in the long grass." };
+BESTIARY.wind_wasp = { type: "Vermin", lore: "Pale green wasps that ride the highland gusts." };
+BESTIARY.highland_longneck = { type: "Beast", lore: "Tall grazers that cross the plateau in slow herds." };
+BESTIARY.highland_orc = { type: "Beastman", lore: "Orcs who hunt the plateau's herds from Eagle Ridge." };
+BESTIARY.thunderhoof = { type: "Beast", lore: "A huge longneck whose stamping can be heard before it is seen. The nomads call it the storm's own mount." };

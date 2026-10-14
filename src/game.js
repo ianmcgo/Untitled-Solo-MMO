@@ -3718,7 +3718,7 @@ function toggleEngage(fromTap) {
   log("You engage the " + t.name + ".", "you");
 }
 
-function mountMul() { return CONFIG.mountSpeed * (save.saddle ? SADDLE_BONUS : 1) * (player && player.mounted && S.zone && !S.zone.safe && onRoad(player) ? CONFIG.roadBonus : 1); }
+function mountMul() { return CONFIG.mountSpeed * (save.saddle ? SADDLE_BONUS : 1) * (player && player.mounted && S.zone && !S.zone.safe && (S.zone.openRange || onRoad(player)) ? CONFIG.roadBonus : 1); }
 
 function buyCoat(id) {
   const c = MOUNT_COATS[id];
@@ -4263,6 +4263,18 @@ const TALK = {
     openDialog(n.name, n.ferryTo === "gullisle" ? "The ferry runs out to Gull Isle and back. Fair seas today. " + CONFIG.ferryCost + " crystals a head." : "Ready to head back to Saltreach? " + CONFIG.ferryCost + " crystals.", [
       { label: "Sail to " + to.name + " (" + CONFIG.ferryCost + " crystals)", fn: () => { closeDialog(); startFerry(n.ferryTo); } }
     ]);
+  },
+  talkTarqa(n) {
+    const g = questOptions("tarqa", n);
+    openDialog(n.name, g.length ? "Welcome to the camp, traveller. Sit by the fire. The wind always has news, and so do I." : "The wind is quiet today. Ride well.", g);
+  },
+  talkEssa(n) {
+    openDialog(n.name, "Bread, stew, potions. Everything a long ride needs. The plateau doesn't have many shops.", [
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "essa"; openModal("shop"); } }
+    ]);
+  },
+  talkRider(n) {
+    openDialog(n.name, "Out here there are no roads to slow you down. On the open plateau your mount runs as fast as it does on any road. Give it its head!", []);
   },
   talkBoat(n) {
     openDialog(n.name, "The river runs under the rock wall to the far landing. I'll row you across, no charge. Mind your hands; things live in the water.", [

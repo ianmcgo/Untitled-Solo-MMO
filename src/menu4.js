@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "12.7.0", date: "2026-10-14", title: "Windreach Highlands", items: [
+    "A new road leads north out of Rocky Hollow to the Windreach Highlands: a huge open plateau of golden grass for levels 10–15. Mounts run at full road speed anywhere on it.",
+    "Nomads camp in the middle of the plateau. Tarqa the chief has two quests (rewarding the Nomad Sash and Nomad Cloak), Essa sells supplies, and Rider's Rest offers a second camp.",
+    "Plains Hares, Plains Lizards, Wind Wasps, Highland Longnecks and Highland Orcs roam the grass; Thunderhoof may drop the Windrunner Boots. New achievement: Wide Open Sky."
+  ] },
   { v: "12.6.0", date: "2026-10-14", title: "Underdeep River", items: [
     "A cave door near the south-east of the Verdant Jungle leads down into the Underdeep: a long cavern lit by glowing mushrooms and crystals, with a dark river running through it.",
     "A rock wall splits the cavern; Boatman Ferro rows you across the river to the far landing for free. New achievement: Down the River.",
@@ -2244,6 +2249,7 @@ function tabHelp() {
     ["Gull Isle", "12–16", "Reached by ferry from the Saltreach docks (Ferryman Coll, " + CONFIG.ferryCost + " crystals each way, about 6 seconds at sea). Beaches, a palm grove and the Gullsrest Cliffs: Reef Crabs, Shore Lizards, Gale Talons, Reefkin and Isle Snappers. Old Wend has a favour to ask; the NM Old Saltjaw lurks in Wreck Cove. Good sea fishing"],
     ["Red Spire", "17–23", "A tower dungeon entered by a door at the Red Spire in the Sunscar Desert. Four floors, each harder than the last (17–18 up to 20–21), climbed by the stairs on the east side; the Spire Warden (level 23 boss) holds the summit and may drop the Warden's Greatsword or the Spire Mantle. Bring a full party"],
     ["Underdeep River", "16–20", "A glowing cavern under the Verdant Jungle (door near the jungle's south-east). A rock wall splits it in two: Boatman Ferro rows you across the river for free. Glow Bats, Pale Crabs, Lumicaps and Deep Worms; the Lumicap Matron (NM) lights the Glimmer Grotto. Fish for Glowfin and the rare Blind Eel"],
+    ["Windreach Highlands", "10–15", "North of Rocky Hollow. A wide golden plateau: ride anywhere at road speed. The nomad camp (Tarqa the chief with two quests, Essa the trader) and Rider's Rest are camps. Plains Hares, Plains Lizards, Wind Wasps, Highland Longnecks and Highland Orcs; Thunderhoof (NM) roams the Stormgrass Flats by day"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🧭 Exploring the wilds", ul([
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
@@ -2253,7 +2259,7 @@ function tabHelp() {
     "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It refills about 20 minutes after you open it.",
     "<b>Camps</b>: Rocky Hollow, Frostspire Pass and the Ashen Marsh each have a camp with a tent, a fire and a camp crystal. Touching any crystal (camp or town) restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
     "<b>Signposts</b> stand at every way in and out of an outdoor area; read one for the direction and rough distance to each neighbouring area.",
-    "<b>Roads</b>: riding along a road outside town is " + Math.round((CONFIG.roadBonus - 1) * 100) + "% faster than riding cross-country.",
+    "<b>Roads</b>: riding along a road outside town is " + Math.round((CONFIG.roadBonus - 1) * 100) + "% faster than riding cross-country. On the open plateau of the Windreach Highlands you get that speed everywhere.",
     "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."
   ]));
   h += sec("🔱 Battlefield: the Chapel Depths", ul([
