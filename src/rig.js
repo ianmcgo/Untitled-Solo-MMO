@@ -623,6 +623,20 @@ function hairPieces(R, H, hc, hr, covered, tailBone) {
         R.add(gTaper(a, a.clone().addScaledVector(d, hr * 0.75), hr * 0.32, 0.004, 6), "head", c, "hair");
       }
     }
+    const fr = st === "spiky" ? 0 : st === "bob" || st === "long" ? 7 : 5;
+    for (let k = 0; k < fr; k++) {
+      const f = fr > 1 ? k / (fr - 1) - 0.5 : 0, a = f * 1.5, ln = hr * (0.42 + 0.12 * Math.cos(k * 2.3) + (st === "bob" ? 0.08 : 0));
+      const p0 = V3(Math.sin(a) * hr * 0.98, hc + hr * 0.62, Math.cos(a) * hr * 0.86);
+      const p1 = V3(Math.sin(a) * hr * 1.1, hc + hr * 0.62 - ln, Math.cos(a) * hr * 1.0);
+      R.add(gTaper(p0, p1, hr * 0.17, hr * 0.03, 5, 0.3).rotateY(0), "head", c, "hair");
+    }
+    if (st !== "spiky") for (const s of [-1, 1]) {
+      const side = st === "bob" || st === "long" ? 1.15 : 0.7;
+      for (let k = 0; k < 2; k++) {
+        const z = hr * (0.35 - k * 0.45);
+        R.add(gTaper(V3(s * hr * 1.0, hc + hr * 0.35, z), V3(s * hr * (1.06 + k * 0.04), hc + hr * (0.35 - side), z - hr * 0.08), hr * 0.2, hr * 0.04, 5, 0.32), "head", c, "hair");
+      }
+    }
     if (st === "bun") R.add(gBall(V3(0, hc + hr * 0.7, -hr * 0.75), hr * 0.42, 1, 1, 1, 10), "head", c, "hair");
     if (st === "topknot") { R.add(gBall(V3(0, hc + hr * 1.12, -hr * 0.1), hr * 0.3, 1, 1.25, 1, 10), "head", c, "hair"); R.add(gRing(V3(0, hc + hr * 0.92, -hr * 0.06), hr * 0.16, hr * 0.05, "y", 10), "head", 0x6a4a2a, "leather"); }
   }
@@ -635,7 +649,13 @@ function hairPieces(R, H, hc, hr, covered, tailBone) {
     R.add(gBall(V3(s * hr * 0.85, hc + hr * 0.25, -hr * 0.45), hr * 0.24, 1, 1, 1, 8), "head", c, "hair");
     R.add(gTaper(V3(s * hr * 0.95, hc + hr * 0.15, -hr * 0.55), V3(s * hr * 1.35, hc - hr * 1.5, -hr * 0.75), hr * 0.26, hr * 0.06, 8), TB, c, "hair");
   }
-  if (st === "long") R.add(gBall(V3(0, hc - hr * 1.05, -hr * 0.62), hr * 0.95, 1.0, 1.9, 0.45, 12), TB, c, "hair");
+  if (st === "long") {
+    R.add(gBall(V3(0, hc - hr * 0.95, -hr * 0.66), hr * 0.85, 1.0, 1.75, 0.38, 12), TB, c, "hair");
+    for (let k = 0; k < 7; k++) {
+      const f = k / 6 - 0.5, ln = hr * (1.9 + 0.25 * Math.cos(k * 1.7));
+      R.add(gTaper(V3(f * hr * 1.5, hc + hr * 0.1, -hr * 0.95), V3(f * hr * 1.9, hc + hr * 0.1 - ln, -hr * (0.95 + 0.12 * Math.abs(f))), hr * 0.26, hr * 0.05, 5, 0.3), TB, c, "hair");
+    }
+  }
   if (st === "ponytail") {
     R.add(gBall(V3(0, hc + hr * 0.2, -hr * 0.98), hr * 0.3, 1, 1, 1, 8), "head", c, "hair");
     R.add(gTaper(V3(0, hc + hr * 0.15, -hr * 1.08), V3(0, hc - hr * 1.6, -hr * 1.35), hr * 0.3, hr * 0.08, 8), TB, c, "hair");

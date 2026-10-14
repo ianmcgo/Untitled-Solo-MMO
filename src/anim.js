@@ -183,9 +183,11 @@ function poseHuman(v, e, dt) {
     addP(P, "thighR", -Math.max(0, -sp) * 0.35, 0, 0); addP(P, "shinR", Math.max(0, -sp) * 0.6, 0, 0);
   }
   if (P.lids) {
-    if (!an.blinkAt || S.time > an.blinkAt + 0.2) { if (!an.blinkAt || S.time > an.blinkAt + 0.2) an.blinkAt = S.time + 2.5 + Math.random() * 3.5; }
-    const bl = S.time >= an.blinkAt && S.time < an.blinkAt + 0.16 ? 1 : 0;
-    const shut = e.alive === false ? 1 : e.resting && an.sit > 0.9 ? 0.55 : bl;
+    if (!an.blinkAt || S.time > an.blinkAt + 0.2) an.blinkAt = S.time + (an.blinkAt && Math.random() < 0.2 ? 0.25 : 2.5 + Math.random() * 3.5);
+    const bt = (S.time - an.blinkAt) / 0.16, bl = bt >= 0 && bt <= 1 ? Math.sin(bt * Math.PI) : 0;
+    const em = e.emote && S.time - e.emote.at < 2.4 ? e.emote.id : null;
+    const mood = em === "laugh" || em === "cry" ? 0.5 : em === "panic" ? -0.2 : e.casting ? 0.3 : 0;
+    const shut = e.alive === false ? 1 : e.resting && an.sit > 0.9 ? 0.55 : em === "panic" ? 0 : Math.max(mood, bl);
     addP(P, "lids", -0.55 * (1 - shut), 0, 0);
   }
   if (e.kind === "npc" && player && e.alive !== false) {

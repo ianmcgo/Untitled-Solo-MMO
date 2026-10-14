@@ -1007,6 +1007,10 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - `RigBuilder.bakeShade()` (in `finish` after smoothJoints, skipped if `noBake`): multiplies vertex colours by k = (0.87 + 0.18·(0.5+0.5·normal.y)) × ground fade (0.86→1 over bottom 18% of height) × joint darkening (up to −12% where second skin weight > 0).
 - REGION_PAINT: cloth folds (tiling sin + fbm), hem + stitch lines near v edges; leather pores, ridge creases, lighter worn edges; metal dents, edge highlights, rust patches (rougher, less metal); skin fine fbm. All fbm calls use matching periods so u wraps without seams.
 
+## Phase 62: M3 faces/hair (v10.2.0)
+- anim.js lids: eased blink (sin over 0.16s), 20% double-blink; expression: laugh/cry 0.5 squint, panic wide (no blink), casting 0.3, resting 0.55, dead 1.
+- rig.js `hairPieces` (uncovered, non-mohawk): fringe cards (5, or 7 for bob/long, none for spiky) = flattened tapers (flat 0.3) on head; 2 side locks per side (longer for bob/long). Long: smaller back ellipsoid + 7 strand cards on the hair tail bone.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1027,7 +1031,7 @@ Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big ski
 Model detail track (era-style detail comes mostly from painted textures on ~2–3k-triangle models, so textures carry most of the work):
 - 60 (10.0.0) DONE (segment scaling + distance LOD + hands; no full re-skin). M1 Mesh pipeline: replace primitive-part bodies with continuous lofted/lathed meshes per race (smooth shoulders, hips, necks, hands with fingers grouped), triangle budgets per tier, LOD levels.
 - 61 (10.1.0) DONE. M2 Painted texture system: canvas-painted texture atlases per model (cloth weave, leather grain, metal engraving, trim, shading baked in), per-region UVs, seeded variation.
-- 62 (10.2.0) M3 Faces and hair: painted face atlases (eyes, lashes, brows, lips, cheek shading) with 8 faces per race, blink/mouth flaps, carded hair meshes with alpha strands and 12 styles.
+- 62 (10.2.0) DONE. M3 Faces and hair: painted face atlases (eyes, lashes, brows, lips, cheek shading) with 8 faces per race, blink/mouth flaps, carded hair meshes with alpha strands and 12 styles.
 - 63 (10.3.0) M4 Gear sets: unique meshes per armour piece (pauldrons, gauntlets, greaves, hoods, robes) and tiered visual sets; weapons with detailed silhouettes (guards, wraps, engraved blades) and glow on high tiers.
 - 64 (10.4.0) M5 Races in motion: per-race proportions, skeleton tweaks and animation sets (small folk bounce, big folk heavy steps, tails/ears that react).
 - 65 (10.5.0) M6 Monsters and NPCs: per-family sculpted meshes + painted textures + tier variants (colour, size, armour, accessories); every named NPC gets a unique outfit.
@@ -1069,6 +1073,7 @@ World systems:
 | 9.19.0 | Phase 59: MSAA composer, colour grade, auto quality fallback. |
 | 10.0.0 | Phase 60: hands, segment scaling, distance LOD models. |
 | 10.1.0 | Phase 61: baked painted shading, richer cloth/leather/metal/skin. |
+| 10.2.0 | Phase 62: hair locks/strands, eased blinks, eye expressions. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |
