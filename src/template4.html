@@ -168,6 +168,8 @@
   #chatIn:focus { border-color: var(--gold); background: rgba(10,12,20,.9); }
   #chatIn::placeholder { color: #8c8a84; }
   #log .say { color: #f4f1e8; }
+  #log .shout { color: #ffab91; font-weight: 600; } #log .tell { color: #f48fb1; }
+  #log.f-chat div:not(.say):not(.shout):not(.tell):not(.party) { display: none; }
 
   #bottom { position: absolute; left: 50%; bottom: calc(8px + var(--sab)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; }
   #castBar { width: 260px; display: none; padding: 4px 7px; text-align: center; font-size: 11px; }
@@ -549,7 +551,7 @@
       <div id="trBtns"><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
-    <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
+    <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
       <div id="barWrap" class="glass"><div id="pager"><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>

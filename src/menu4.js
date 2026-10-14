@@ -1061,6 +1061,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "8.1.0", date: "2026-10-13", title: "Other players and chat", items: [
+    "You can now see other players in your area: their race, gear and name, walking, riding, fighting, casting and resting in real time.",
+    "Chat: type to say something to players nearby (with a speech bubble), /shout for the whole area, /tell Name message for a private message anywhere (/r to reply), and /who to see who's online.",
+    "New Chat tab in the log for player messages only.",
+    "Monsters aren't shared yet: each player still fights their own copy. Parties, trading and shared monsters come in the next updates."
+  ] },
   { v: "8.0.0", date: "2026-10-13", title: "Accounts and the game server", items: [
     "The game now runs on a shared server. Sign in with your email and password on the title screen; creating an account needs the sign-up password from the server owner.",
     "Your characters are saved on the server, so they follow you to any device. An internet connection is required; offline play has ended.",
@@ -1565,6 +1571,12 @@ function tabHelp() {
   h += sec("📱 Performance", ul([
     "Settings → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Settings → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
+  ]));
+  h += sec("👥 Other players and chat", ul([
+    "Other adventurers in the same area appear in the world with their own race, gear and name (in green), moving, fighting and casting in real time.",
+    "Type in the chat box to <b>say</b> something to players near you (a speech bubble appears over your head). <b>/shout</b> reaches everyone in the area, <b>/tell Name message</b> reaches one player anywhere (<b>/r</b> replies), and <b>/who</b> lists who's online and where.",
+    "The <b>Chat</b> tab in the log shows only player messages.",
+    "Coming next: inviting other players to your party, trading, and monsters shared by everyone in an area. For now each player fights their own copy of the monsters."
   ]));
   h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));

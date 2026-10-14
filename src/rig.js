@@ -1345,7 +1345,7 @@ function buildEntityRig(e) {
     sig = "pet|" + e.petKey;
     make = () => batEntry(P.col, P.eye);
   } else {
-    const base = e === player ? playerBase() : (MERC_BASE[e.mercId] || MERC_BASE.kael);
+    const base = e === player ? playerBase() : e.remote ? baseFromLook(e.look || {}) : (MERC_BASE[e.mercId] || MERC_BASE.kael);
     const L = lookFor(e.job, e.gear, base);
     sig = "h|" + stableKey(L);
     make = () => humanEntry(L);
@@ -1399,6 +1399,7 @@ function rigSigFor(e) {
   if (e.pet) return "pet|" + e.petKey;
   if (e.buddy) return "buddy|" + e.petId;
   if (e.ambient) return "amb|" + e.type + "|" + (e.seed || 0);
+  if (e.remote) return "r|" + e.job + "|" + SLOTS.map(s => (e.gear || {})[s] || "").join(",") + "|" + JSON.stringify(e.look || {});
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
   if (e.kind === "npc") return "n|" + e.id;
   return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);

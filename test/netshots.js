@@ -53,6 +53,17 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   await page.evaluate(() => { save.gil = 4242; saveGame(); return netFlush(); });
   await page.waitForTimeout(800);
   console.log('gil on server', Object.values(db.chars)[0].data.gil);
+  await page.evaluate(() => {
+    netOnPresence({ abc: [{ id: 'abc', name: 'Mira', job: 'WHM', lv: 5, look: { race: 'nekari', build: 1, skin: 2, hairStyle: HAIR_STYLES.indexOf(HAIR_BY_SEX[1][0]), hairColor: 6 }, gear: { main: 'ash_club', body: 'linen_robe' } }], def: [{ id: 'def', name: 'Brum', job: 'WAR', lv: 7, look: { race: 'ursan', build: 0, skin: 1, hairColor: 2 }, gear: { main: 'bronze_greataxe', body: 'scale_mail' } }] });
+    netOnMove({ id: 'abc', x: player.x + 70, y: player.y - 20, f: Math.PI, st: 0, sw: 0, ws: 0, ht: 0, c: null, hp: 100 });
+    netOnMove({ id: 'def', x: player.x + 40, y: player.y - 90, f: Math.PI / 2, st: 4, sw: 0, ws: 0, ht: 0, c: null, hp: 80 });
+    VIEW.yaw = Math.PI * 0.5; VIEW.dist = 7; player.face = 0;
+  });
+  await page.waitForTimeout(1500);
+  await page.evaluate(() => { netOnChat({ id: 'abc', name: 'Mira', kind: 'say', text: 'Hi! Want to party?', x: player.x + 70, y: player.y - 20 }); netOnMove({ id: 'def', x: player.x + 40, y: player.y - 90, f: Math.PI / 2, st: 4, sw: 1, ws: 0, ht: 0, c: null, hp: 80 }); netOnMove({ id: 'abc', x: player.x + 70, y: player.y - 20, f: Math.PI, st: 0, sw: 0, ws: 0, ht: 0, c: 'cure', hp: 100 }); NET_RT.online = [{ name: 'Mira', zone: 'outpost', lv: 5, job: 'WHM' }]; runCommand('/t mira Sure, coming!'); netOnTell({ to: save.name.toLowerCase(), from: 'Mira', text: 'Great, meet at the gate' }); runCommand('/who'); runCommand('hello everyone'); });
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: out + '-others.png' });
+  console.log('others', await page.evaluate(() => [...S.others.values()].map(o => o.name + ':' + o.job + ':' + !!VIEW.views.get(o)).join(',')));
   await page.evaluate(() => openMenu('settings')); await page.waitForTimeout(800);
   await page.screenshot({ path: out + '-settings.png' });
   await page.evaluate(() => openMenu('admin')); await page.waitForTimeout(2000);

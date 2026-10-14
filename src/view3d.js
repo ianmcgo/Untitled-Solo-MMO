@@ -28,7 +28,7 @@ function labelFor(e) {
 
 function updateLabels() {
   const seen = new Set();
-  const all = S.party.concat(S.mobs, S.npcs, S.buddy ? [S.buddy] : []);
+  const all = S.party.concat(S.mobs, S.npcs, S.buddy ? [S.buddy] : [], S.others ? [...S.others.values()].filter(o => o.placed) : []);
   for (const e of all) {
     if (e.buddy) continue;
     if (e === player && VIEW.first) continue;
@@ -47,6 +47,7 @@ function updateLabels() {
     if (isMob(e)) { col = e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
     if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
     if (e.buddy) col = "#ffd54f";
+    if (e.remote) { col = "#a5d6a7"; name = e.name + (e.lv ? " · " + e.job + e.lv : ""); }
     const other = isMob(e) || e.kind === "npc";
     if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
     nameEl.style.display = name ? "" : "none";
@@ -510,11 +511,12 @@ function draw(dt) {
   for (const n of S.npcs) syncNpc(n, dt);
   if (S.buddy) syncEntity(S.buddy, dt);
   for (const a of S.ambient || []) syncEntity(a, dt);
+  if (S.others) for (const o of S.others.values()) if (o.placed) syncEntity(o, dt);
   syncDecor(dt);
   syncBarriers();
   syncFurniture();
   for (const [e, v] of VIEW.views) {
-    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e) || e === S.buddy || (S.ambient && S.ambient.includes(e));
+    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e) || e === S.buddy || (S.ambient && S.ambient.includes(e)) || (S.others && S.others.get(e.id) === e);
     if (!alive) { destroyView(v); VIEW.views.delete(e); }
   }
   updateCursor();

@@ -2714,6 +2714,7 @@ function enterZone(id, x, y) {
   if (prev !== id) sfx("zone");
   onZoneEntered();
   saveGame();
+  if (typeof netJoinZone === "function") netJoinZone(id);
 }
 
 function npcDoor(n) {
@@ -3986,6 +3987,10 @@ const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", l
 const COMMANDS = [
   ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
   ["/pet", "Summon or dismiss your equipped pet."],
+  ["/say text", "Talk to players near you (or just type without a slash). Also /s."],
+  ["/shout text", "Talk to everyone in this area. Also /sh."],
+  ["/tell Name text", "Private message to a player anywhere. Also /t. /r replies to the last tell."],
+  ["/who", "List players online and where they are."],
   ["/fish", "Cast a line at the water's edge (needs a Willow Rod and Fishing Bait). Type it again when something bites to reel in."],
   ["/weather", "Show the current weather and its element bonus."],
   ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
@@ -4029,7 +4034,7 @@ function actByName(kind, q) {
 function runCommand(text) {
   text = String(text || "").trim();
   if (!text) return;
-  if (text[0] !== "/") { log(save.name + ": " + text, "say"); return; }
+  if (text[0] !== "/") { if (typeof netChat === "function") netChat("say", text); else log(save.name + ": " + text, "say"); return; }
   const sp = text.indexOf(" ");
   const cmd = (sp < 0 ? text.slice(1) : text.slice(1, sp)).toLowerCase();
   const arg = sp < 0 ? "" : text.slice(sp + 1).trim();
@@ -4041,6 +4046,11 @@ function runCommand(text) {
   };
   switch (cmd) {
     case "rest": case "heal": case "sit": toggleRest(); return;
+    case "s": case "say": if (typeof netChat === "function") netChat("say", arg); else log(save.name + ": " + arg, "say"); return;
+    case "sh": case "shout": if (typeof netChat === "function") netChat("shout", arg); else log(save.name + " shouts: " + arg, "shout"); return;
+    case "t": case "tell": { const s2 = arg.indexOf(" "); if (typeof netTell === "function") netTell(s2 < 0 ? arg : arg.slice(0, s2), s2 < 0 ? "" : arg.slice(s2 + 1)); else log("Tells need the game server.", "sys"); return; }
+    case "r": case "reply": if (typeof NET_RT !== "undefined" && NET_RT.lastTell) netTell(NET_RT.lastTell, arg); else log("Nobody has sent you a tell yet.", "sys"); return;
+    case "who": if (typeof netWho === "function") netWho(); else log("You're playing alone.", "sys"); return;
     case "pet": { const why = toggleBuddy(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
     case "fish": { if (S.fish && S.fish.state === "bite") { reelFish(); return; } const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
