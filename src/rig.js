@@ -598,6 +598,7 @@ const NPC_LOOK = {
   garrick: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: HAIR_COLORS[0] }, beard: 0x8a5a2c, longBeard: true, top: { type: "apron", color: 0x3a2a20, color2: 0x6a4a30 }, legs: 0x3a3028, boots: 0x2a1e14, gloves: 0x4a3020, belt: 0x2a1e14, weapon: "club", alwaysDrawn: false, prop: { girth: 1.2, shoulder: 0.215 } },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },
   brann: { build: 0, skin: SKIN_TONES[2], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
+  odette: { build: 1, skin: SKIN_TONES[1], hair: { style: "bun", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x7a3a5a, trim: 0xe8d0a0 }, collar: 0xf0e8e0, legs: 0x3a2a34, boots: 0x2a1a14, gloves: 0xe8e0d0, glovesRegion: "cloth", belt: 0x4a2a1a },
   ysolde: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
 };
 
@@ -1622,10 +1623,26 @@ function mobLook(m) {
   return { kind: "human", look: goblinLook("goblin") };
 }
 
+function mobVariant(m) { return m.fam && m.fam.nm ? 0 : hashStr((m.famKey || "") + ":" + m.id) % 3; }
+function shadeHex(c, k) { const q = new THREE.Color(c); q.multiplyScalar(k); return q.getHex(); }
+function varyMobLook(ml, vr) {
+  if (!vr) return ml;
+  if (ml.kind !== "human") {
+    const out = Object.assign({}, ml);
+    if (out.col != null) out.col = vr === 1 ? shadeHex(out.col, 0.84) : new THREE.Color(out.col).lerp(new THREE.Color(0xd8b080), 0.14).getHex();
+    return out;
+  }
+  const L = Object.assign({}, ml.look);
+  if (L.top) L.top = Object.assign({}, L.top, { color: shadeHex(L.top.color || 0x6a5a4a, vr === 1 ? 0.8 : 1.15) });
+  if (vr === 1 && !L.head && !L.leafHead && !L.crest) L.head = { type: L.skull ? "helm" : "cap", color: L.skull ? 0x6a6a64 : 0x5a4a3a };
+  if (vr === 2 && !L.pauldrons && L.top && L.top.sleeves !== "none") L.pauldrons = L.skull ? 0x6a6a64 : 0x5a5048;
+  if (vr === 2 && L.belt == null) L.belt = 0x3a2a1a;
+  return { kind: "human", look: L };
+}
 function buildEntityRig(e) {
   let sig, make, weaponKind = null, weaponId = null, alwaysDrawn = false;
   if (isMob(e)) {
-    const ml = mobLook(e);
+    const ml = varyMobLook(mobLook(e), mobVariant(e));
     if (ml.kind === "human") {
       sig = "m|" + stableKey(ml.look);
       make = () => humanEntry(ml.look);

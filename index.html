@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.4.0 · built 2026-10-14 02:45 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.5.0 · built 2026-10-14 02:49 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14613,13 +14613,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v10.4.0 · built 2026-10-14 02:45 PDT";
+const BUILD_INFO = "v10.5.0 · built 2026-10-14 02:49 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "10.5.0", date: "2026-10-14", title: "Monster variety", items: [
+    "Monsters of the same kind no longer look like clones: each one is a little bigger or smaller, and they come in three looks with darker or warmer colouring. Humanoid monsters may wear a cap or helmet, shoulder guards or a belt. Notorious monsters keep their signature look.",
+    "Odette the furnisher has her own outfit, so every named townsperson now dresses as themselves."
   ] },
   { v: "10.4.0", date: "2026-10-14", title: "Races in motion", items: [
     "Each race moves its own way. Pipkins take quick bouncy steps with a little head bob and a swaying idle. Ursans walk with long, heavy strides, a forward lean and rolling shoulders. Nekari sway their hips and crouch lower in a fight. Elari stand tall with a measured, graceful stride.",
@@ -15501,7 +15505,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "10.4.0";
+const GAME_VERSION = "10.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18252,6 +18256,7 @@ const NPC_LOOK = {
   garrick: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: HAIR_COLORS[0] }, beard: 0x8a5a2c, longBeard: true, top: { type: "apron", color: 0x3a2a20, color2: 0x6a4a30 }, legs: 0x3a3028, boots: 0x2a1e14, gloves: 0x4a3020, belt: 0x2a1e14, weapon: "club", alwaysDrawn: false, prop: { girth: 1.2, shoulder: 0.215 } },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },
   brann: { build: 0, skin: SKIN_TONES[2], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
+  odette: { build: 1, skin: SKIN_TONES[1], hair: { style: "bun", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x7a3a5a, trim: 0xe8d0a0 }, collar: 0xf0e8e0, legs: 0x3a2a34, boots: 0x2a1a14, gloves: 0xe8e0d0, glovesRegion: "cloth", belt: 0x4a2a1a },
   ysolde: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
 };
 
@@ -19276,10 +19281,26 @@ function mobLook(m) {
   return { kind: "human", look: goblinLook("goblin") };
 }
 
+function mobVariant(m) { return m.fam && m.fam.nm ? 0 : hashStr((m.famKey || "") + ":" + m.id) % 3; }
+function shadeHex(c, k) { const q = new THREE.Color(c); q.multiplyScalar(k); return q.getHex(); }
+function varyMobLook(ml, vr) {
+  if (!vr) return ml;
+  if (ml.kind !== "human") {
+    const out = Object.assign({}, ml);
+    if (out.col != null) out.col = vr === 1 ? shadeHex(out.col, 0.84) : new THREE.Color(out.col).lerp(new THREE.Color(0xd8b080), 0.14).getHex();
+    return out;
+  }
+  const L = Object.assign({}, ml.look);
+  if (L.top) L.top = Object.assign({}, L.top, { color: shadeHex(L.top.color || 0x6a5a4a, vr === 1 ? 0.8 : 1.15) });
+  if (vr === 1 && !L.head && !L.leafHead && !L.crest) L.head = { type: L.skull ? "helm" : "cap", color: L.skull ? 0x6a6a64 : 0x5a4a3a };
+  if (vr === 2 && !L.pauldrons && L.top && L.top.sleeves !== "none") L.pauldrons = L.skull ? 0x6a6a64 : 0x5a5048;
+  if (vr === 2 && L.belt == null) L.belt = 0x3a2a1a;
+  return { kind: "human", look: L };
+}
 function buildEntityRig(e) {
   let sig, make, weaponKind = null, weaponId = null, alwaysDrawn = false;
   if (isMob(e)) {
-    const ml = mobLook(e);
+    const ml = varyMobLook(mobLook(e), mobVariant(e));
     if (ml.kind === "human") {
       sig = "m|" + stableKey(ml.look);
       make = () => humanEntry(ml.look);
@@ -20950,7 +20971,7 @@ function viewFor(e) {
   if (!inst) return null;
   const group = new THREE.Group();
   group.add(inst.mesh);
-  const s = isMob(e) ? (e.fam.scale || 1) : e.buddy ? (BUDDIES[e.petId].scale || 0.6) : e.ambient ? (e.scale || 1) : 1;
+  const s = isMob(e) ? (e.fam.scale || 1) * (e.fam.nm ? 1 : 1 + ((hashStr("sz" + e.id) % 13) - 6) / 100) : e.buddy ? (BUDDIES[e.petId].scale || 0.6) : e.ambient ? (e.scale || 1) : 1;
   group.scale.setScalar(s);
   const hitR = Math.max(0.55, (e.radius || 14) * U * 1.1 / s);
   const top = inst.meta.headTop || 2;
