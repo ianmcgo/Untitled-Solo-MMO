@@ -316,7 +316,8 @@ function updateTarget() {
   if (isMob(t)) {
     const [c, col] = conOf(t);
     setTxt($("tName"), t.name);
-    $("tName").style.color = t.fam.nm ? "#ff8a65" : "#f0d9a8";
+    const cs = claimState(t);
+    $("tName").style.color = cs === "mine" ? "#ff6b6b" : cs === "other" ? "#c77dff" : t.fam.nm ? "#ff8a65" : "#f0d9a8";
     setTxt($("tLv"), "");
     $("tTag").style.display = t.fam.nm ? "inline-block" : "none";
     pct = 100 * t.hp / t.maxHp;
@@ -328,6 +329,7 @@ function updateTarget() {
     if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + t.fam.tpMove.name + "!"); } else w.style.display = "none";
     let info = !t.alive ? "Defeated" : t.state === "combat" ? "In combat" : t.state === "return" ? "Returning" : "Idle";
     if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= reach(player) ? " · in range" : " · too far";
+    if (t.claim && t.alive && claimName(t) !== "you") info += " · claimed by " + claimName(t);
     setTxt($("tInfo"), info);
     let ch = "";
     if (t.chain && S.time <= t.chain.closeAt) {

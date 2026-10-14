@@ -180,7 +180,7 @@ if (typeof window !== "undefined") {
 
 const NET_RT = { zone: null, zch: null, wch: null, lastSend: 0, lastSig: "", lastPos: "", sw: 0, ws: 0, ht: 0, swT: -9, wsT: -9, htT: -9, lastTell: null, lastChat: 0, online: [] };
 
-function netMeta() { return { id: S.charId, name: save.name, job: player.job, sub: player.sub, lv: player.lv, look: save.look, gear: Object.assign({}, save.gear), coat: save.mountCoat, zone: S.zoneId, t: NET_SH.joinT, v: GAME_VERSION, h: NET_SH.on && NET_SH.host ? 1 : 0, away: document.hidden ? 1 : 0 }; }
+function netMeta() { return { id: S.charId, name: save.name, job: player.job, sub: player.sub, lv: player.lv, look: save.look, gear: Object.assign({}, save.gear), coat: save.mountCoat, zone: S.zoneId, t: NET_SH.joinT, v: GAME_VERSION, h: NET_SH.on && NET_SH.host ? 1 : 0, away: document.hidden ? 1 : 0, p: typeof NET_PT !== "undefined" ? NET_PT.id : null }; }
 
 function netJoinZone(zoneId) {
   if (!NET.member || !NET.sb || !S.charId) return;
@@ -192,7 +192,7 @@ function netJoinZone(zoneId) {
     const ch = NET.sb.channel("zone:" + zoneId, { config: { broadcast: { self: false }, presence: { key: S.charId } } });
     ch.on("broadcast", { event: "mv" }, m => netOnMove(m.payload));
     ch.on("broadcast", { event: "chat" }, m => netOnChat(m.payload));
-    for (const [ev, fn] of [["ms", netOnMs], ["hit", netOnHit], ["deb", netOnDeb], ["mat", netOnMat], ["die", netOnDie], ["req", netOnReq], ["want", netOnWant]]) ch.on("broadcast", { event: ev }, m => fn(m.payload));
+    for (const [ev, fn] of [["ms", netOnMs], ["hit", netOnHit], ["deb", netOnDeb], ["mat", netOnMat], ["die", netOnDie], ["req", netOnReq], ["want", netOnWant], ["sc", (p) => netOnSc(p)]]) ch.on("broadcast", { event: ev }, m => fn(m.payload));
     ch.on("presence", { event: "sync" }, () => { const st = ch.presenceState(); netOnPresence(st); netElect(st); });
     ch.subscribe(st => { if (st === "SUBSCRIBED") { NET_RT.lastSig = ""; NET_RT.lastPos = ""; netTrack(); } });
     NET_RT.zch = ch;
@@ -254,7 +254,7 @@ function netRtTick() {
   if (player.lastHit !== NET_RT.htT) { NET_RT.htT = player.lastHit; NET_RT.ht++; }
   const now = Date.now();
   const st = (player.mounted ? 1 : 0) | (player.resting ? 2 : 0) | (player.engaged ? 4 : 0) | (player.alive ? 0 : 8);
-  const p = { id: S.charId, x: Math.round(player.x), y: Math.round(player.y), f: +(player.face || 0).toFixed(2), st, sw: NET_RT.sw, ws: NET_RT.ws, wid: player.lastWSId || null, ht: NET_RT.ht, c: player.casting ? player.casting.id : null, hp: Math.round(100 * player.hp / Math.max(1, player.maxHp)) };
+  const p = { id: S.charId, x: Math.round(player.x), y: Math.round(player.y), f: +(player.face || 0).toFixed(2), st, sw: NET_RT.sw, ws: NET_RT.ws, wid: player.lastWSId || null, ht: NET_RT.ht, c: player.casting ? player.casting.id : null, hp: Math.round(100 * player.hp / Math.max(1, player.maxHp)), tg: isMob(player.target) && player.target.alive ? netNid(player.target) : null };
   const sig = JSON.stringify(p);
   const gap = sig === NET_RT.lastPos ? 2000 : 120;
   if (now - NET_RT.lastSend < gap) return;
@@ -271,6 +271,7 @@ function netRemote(meta) {
     S.others.set(meta.id, o);
   }
   o.name = meta.name || o.name || "Adventurer";
+  o.pid = meta.p || null;
   if (meta.job) { o.job = meta.job; o.sub = meta.sub; o.lv = meta.lv; o.look = meta.look || {}; o.gear = meta.gear || {}; o.coat = meta.coat; }
   o.seen = S.time;
   return o;
@@ -297,6 +298,7 @@ function netOnMove(p) {
   if (p.c && (!o.casting || o.casting.id !== p.c) && SPELLS[p.c]) o.casting = { id: p.c, sp: SPELLS[p.c], t: o, start: S.time, end: S.time + SPELLS[p.c].cast };
   if (!p.c) o.casting = null;
   o.hp = p.hp;
+  o.tgNid = p.tg || null;
 }
 
 function tickRemotes(dt) {
@@ -916,7 +918,7 @@ function netSnap(now) {
     const t = m.target, tgt = !t ? "" : t === player ? S.charId : t.kind === "remote" ? t.id : "";
     const fl = (m.alive ? 0 : 1) | (m.readying ? 2 : 0) | (m.passive ? 4 : 0);
     const bf = Object.keys(m.buffs).map(k => k + ":" + Math.max(1, Math.ceil(m.buffs[k].until - S.time))).join(",");
-    const row = [nid, m.famKey, m.lv, Math.round(m.x), Math.round(m.y), +m.face.toFixed(2), Math.ceil(m.hp), m.maxHp, m.state === "combat" ? 1 : m.state === "return" ? 2 : 0, tgt, fl, m.spawnIdx != null ? m.spawnIdx : -1, m._swc || 0, m._wsc || 0, Math.floor(m.tp), bf];
+    const row = [nid, m.famKey, m.lv, Math.round(m.x), Math.round(m.y), +m.face.toFixed(2), Math.ceil(m.hp), m.maxHp, m.state === "combat" ? 1 : m.state === "return" ? 2 : 0, tgt, fl, m.spawnIdx != null ? m.spawnIdx : -1, m._swc || 0, m._wsc || 0, Math.floor(m.tp), bf, m.claim === "me" ? S.charId : m.claim || "", netEncChain(m.chain), netEncBurst(m.burst)];
     const sig = row.slice(3).join("|");
     if (!full && NET_SH.sigs.get(nid) === sig) continue;
     NET_SH.sigs.set(nid, sig);
@@ -931,7 +933,7 @@ function netOnMs(p) {
   const seen = new Set();
   for (const r of p.m) {
     if (!Array.isArray(r) || r.length < 16) continue;
-    const [nid, fk, lv, x, y, f, hp, maxHp, st, tgt, fl, si, swc, wsc, tp, bf] = r;
+    const [nid, fk, lv, x, y, f, hp, maxHp, st, tgt, fl, si, swc, wsc, tp, bf, claim, ch, bu] = r;
     if (!famOf(fk)) continue;
     seen.add(nid);
     let m = NET_SH.map.get(nid);
@@ -942,7 +944,13 @@ function netOnMs(p) {
       m.proxy = true; m.nid = nid; m.aggro = null; m.sentBuff = {};
       m.face = +f || 0; m._swc = swc; m._wsc = wsc;
       S.mobs.push(m); NET_SH.map.set(nid, m);
+      m.hostHp = +hp;
+      if (m.fam.nm && dist(m, player) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
     }
+    if (+hp < m.hostHp && S.time >= (m.predUntil || 0) && m.alive) popText(m, m.hostHp - +hp, "#b3d9ff", 14);
+    m.hostHp = +hp;
+    m.claim = claim || null;
+    if (S.time >= (m.scLocalUntil || 0)) { m.chain = netDecChain(ch); m.burst = netDecBurst(bu); }
     m.tx = +x; m.ty = +y; m.tf = +f || 0;
     m.maxHp = Math.max(1, +maxHp || 1);
     m.hp = S.time < (m.predUntil || 0) ? Math.min(+hp, m.predHp) : clamp(+hp, 0, m.maxHp);
@@ -990,6 +998,7 @@ function netOnHit(p) {
   if (!p || !NET_SH.on || !NET_SH.host) return;
   const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
   if (!m || !src || !src.alive) return;
+  if (!claimOk(m, src)) return;
   const d = clamp(Math.round(+p.d || 0), 0, 99999), en = clamp(+p.en || 0, 0, 100000);
   if (d > 0) applyDamage(src, m, d, { enmity: en, color: "#b3d9ff", size: 15 });
   else { addEnmity(m, src, en); aggro(m, src); }
@@ -998,7 +1007,7 @@ function netOnHit(p) {
 function netOnDeb(p) {
   if (!p || !NET_SH.on || !NET_SH.host || !/^[a-z_]{2,16}$/.test(String(p.k))) return;
   const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
-  if (!m || !src || !src.alive) return;
+  if (!m || !src || !src.alive || !claimOk(m, src)) return;
   m.buffs[p.k] = { until: S.time + clamp(+p.dur || 1, 1, 600), src, next: S.time + 3, tick: clamp(+p.tick || 0, 0, 500), el: ELEMENT_COLORS[p.el] ? p.el : undefined, pow: clamp(+p.pow || 0, 0, 5) };
   addEnmity(m, src, 30);
   aggro(m, src);
@@ -1048,4 +1057,45 @@ function netOnReq(p) {
 function netOnWant(p) {
   if (!p || !NET_SH.on || !NET_SH.host || !Array.isArray(p.ids)) return;
   for (const id of p.ids.slice(0, 8)) if (NM_FAMILIES[id] || FAMILIES[id]) NET_SH.wants.set(id, Date.now() + 60000);
+}
+
+function netEncChain(c) { return c && S.time <= c.closeAt ? [c.props.join("/"), c.lv, c.name, +(c.openAt - S.time).toFixed(1), +(c.closeAt - S.time).toFixed(1)] : 0; }
+function netEncBurst(b) { return b && S.time <= b.until ? [b.el.join("/"), b.lv, b.name, +(b.until - S.time).toFixed(1)] : 0; }
+function netDecChain(a) {
+  if (!Array.isArray(a) || a.length < 5) return null;
+  const props = String(a[0]).split("/").filter(x => SC_PROPS[x] || SC_TABLE.some(r => r[0] === x || r[1] === x));
+  if (!props.length) return null;
+  return { props, lv: clamp(+a[1] || 0, 0, 4), name: String(a[2]).slice(0, 24), openAt: S.time + clamp(+a[3] || 0, -10, 10), closeAt: S.time + clamp(+a[4] || 0, 0, 15), by: null };
+}
+function netDecBurst(a) {
+  if (!Array.isArray(a) || a.length < 4) return null;
+  const el = String(a[0]).split("/").filter(x => ELEMENT_COLORS[x]);
+  if (!el.length) return null;
+  return { el, lv: clamp(+a[1] || 1, 1, 4), name: String(a[2]).slice(0, 24), until: S.time + clamp(+a[3] || 0, 0, 15) };
+}
+
+function netChainOut(m) {
+  if (!m.proxy || !NET_SH.on) return;
+  m.scLocalUntil = S.time + 1.5;
+  netZoneSend("sc", { id: S.charId, nid: m.nid, c: netEncChain(m.chain), b: netEncBurst(m.burst) });
+}
+
+function netOnSc(p) {
+  if (!p || !NET_SH.on || !NET_SH.host) return;
+  const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
+  if (!m || !src || !claimOk(m, src)) return;
+  const c = netDecChain(p.c), b = netDecBurst(p.b);
+  if (c) m.chain = c;
+  if (b) m.burst = b;
+  if (b && c && c.lv > 0) { popText(m, "Skillchain: " + c.name, ELEMENT_COLORS[b.el[0]], 18, 1.8, 38); sfx("skillchain", m); vfx("skillchain", { tgt: m, name: c.name, el: b.el, lv: c.lv }); }
+}
+
+function netAssist(name) {
+  const o = [...(S.others || new Map()).values()].find(x => netLc(x.name) === netLc(cleanChat(name)));
+  if (!o) { log(cleanChat(name) + " isn't in this area.", "sys"); return; }
+  const m = o.tgNid && S.mobs.find(x => x.nid === o.tgNid && x.alive);
+  if (!m) { log(o.name + " has no target.", "sys"); return; }
+  setTarget(m);
+  if (typeof sfx === "function") sfx("select");
+  log("You assist " + o.name + ": " + m.name + ".", "sys");
 }

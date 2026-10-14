@@ -528,7 +528,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.3.0 · built 2026-10-13 19:07 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.4.0 · built 2026-10-13 19:14 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6817,6 +6817,18 @@ const isMob = e => !!e && e.kind === "mob";
 const isParty = e => !!e && (e.kind === "pc" || e.kind === "ally");
 const isSide = e => isParty(e) || (!!e && e.kind === "remote");
 const claimId = e => (e && e.kind === "remote" ? e.id : S.charId || "me");
+function claimOk(m, who) {
+  if (!m || !m.claim) return true;
+  const remote = !!who && who.kind === "remote";
+  const id = remote ? who.id : S.charId || "me";
+  if (m.claim === id || m.claim === "me") return true;
+  if (!remote) return typeof netIsMate === "function" && netIsMate(m.claim);
+  const c = S.others && S.others.get(m.claim);
+  const cp = m.claim === S.charId ? (typeof NET_PT !== "undefined" ? NET_PT.id : null) : c && c.pid;
+  return !!cp && cp === who.pid;
+}
+function claimState(m) { return !m || !m.claim || !m.alive ? "" : claimOk(m) ? "mine" : "other"; }
+function claimName(m) { if (!m.claim) return ""; if (m.claim === S.charId || m.claim === "me") return "you"; const o = S.others && S.others.get(m.claim); return o ? o.name : "another adventurer"; }
 const isMate = e => !!e && e.kind === "remote" && typeof netIsMate === "function" && netIsMate(e.id);
 const subj = e => e === player ? "You" : isMob(e) ? "The " + e.name : e.name;
 const obj = e => e === player ? "you" : isMob(e) ? "the " + e.name : e.name;
@@ -7555,6 +7567,7 @@ function applyDamage(src, tgt, amt, opt) {
   opt = opt || {};
   if (!tgt.alive) return;
   amt = Math.max(0, Math.round(amt));
+  if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
   if (tgt.proxy) {
     netMobHit(tgt, amt, opt.enmity != null ? opt.enmity : 40 + amt * 2);
     tgt.flash = 0.15;
@@ -8568,6 +8581,7 @@ function resolveChain(a, t, ws, dmg) {
   if (!result) {
     t.chain = { props: ws.props.slice(), lv: 0, name: ws.name, openAt: now + CONFIG.chainDelay, closeAt: now + CONFIG.chainDelay + CONFIG.chainWindow, by: a };
     if (a !== player) partySay(a, "ws");
+    if (t.proxy) netChainOut(t);
     return;
   }
   const p = SC_PROPS[result];
@@ -8585,6 +8599,7 @@ function resolveChain(a, t, ws, dmg) {
   if (!t.alive) return;
   t.burst = { el: p.el, lv: p.lv, name: result, until: now + CONFIG.burstWindow };
   t.chain = { props: [result], lv: p.lv, name: result, openAt: now + CONFIG.chainDelay, closeAt: now + CONFIG.chainDelay + CONFIG.chainWindow, by: a };
+  if (t.proxy) netChainOut(t);
 }
 
 function doAbility(a, id, t) {
@@ -9021,6 +9036,7 @@ function autoAttack(a, dt) {
   const t = a.attackTarget;
   if (!a.engaged || !t) return;
   if (!t.alive) { a.engaged = false; a.attackTarget = null; return; }
+  if (isMob(t) && !claimOk(t)) { a.engaged = false; a.attackTarget = null; if (a === player) log("The " + t.name + " is claimed by " + claimName(t) + ".", "sys"); return; }
   if (a.casting) return;
   a.swingTimer -= dt;
   if (a.swingTimer <= 0) {
@@ -10001,7 +10017,7 @@ function cycleTarget() {
 
 function nearestMob() {
   let best = null, bd = 450;
-  for (const m of S.mobs) if (m.alive && dist(m, player) < bd) { bd = dist(m, player); best = m; }
+  for (const m of S.mobs) if (m.alive && claimOk(m) && dist(m, player) < bd) { bd = dist(m, player); best = m; }
   return best;
 }
 
@@ -10016,6 +10032,7 @@ function toggleEngage(fromTap) {
   }
   const t = isMob(player.target) && player.target.alive ? player.target : nearestMob();
   if (!t) { log("No enemy to engage.", "sys"); return; }
+  if (!claimOk(t)) { log("The " + t.name + " is claimed by " + claimName(t) + ".", "sys"); sfx("error"); return; }
   player.target = t;
   if (player.engaged) { setTarget(t); return; }
   player.engaged = true;
@@ -10138,7 +10155,7 @@ function playerAct(act) {
   if (player.mounted) dismount("You dismount.");
   let t = resolveTarget(act);
   if (!t && act.kind !== "ws") { const n = nearestMob(); if (n) { player.target = n; t = resolveTarget(act); } }
-  const why = checkAction(player, act, t);
+  const why = checkAction(player, act, t) || (isMob(t) && !claimOk(t) ? "The " + t.name + " is claimed by " + claimName(t) + "." : "");
   if (why) { log(why, "sys"); sfx("error"); return; }
   perform(player, act, t);
 }
@@ -10860,7 +10877,7 @@ const COMMANDS = [
   ["/stand", "Stand up."],
   ["/attack", "Attack your target, or the nearest enemy. Also /a."],
   ["/target name", "Target the nearest character whose name matches. Also /ta."],
-  ["/assist", "Target what your party is fighting."],
+  ["/assist [Name]", "Target what your party is fighting, or what a named player nearby has targeted."],
   ["/check", "Inspect your target: how tough it looks and whether it is hostile. Also /c."],
   ["/cast spell", "Cast a spell by name, e.g. /cast cure. Also /ma."],
   ["/ja ability", "Use a job ability, e.g. /ja provoke."],
@@ -10937,6 +10954,7 @@ function runCommand(text) {
       return;
     }
     case "assist": {
+      if (arg && typeof netAssist === "function") { netAssist(arg); return; }
       const t = partyBattleTarget();
       if (!t) { log("Your party isn't fighting anything.", "sys"); return; }
       setTarget(t); sfx("select");
@@ -11589,7 +11607,8 @@ function updateTarget() {
   if (isMob(t)) {
     const [c, col] = conOf(t);
     setTxt($("tName"), t.name);
-    $("tName").style.color = t.fam.nm ? "#ff8a65" : "#f0d9a8";
+    const cs = claimState(t);
+    $("tName").style.color = cs === "mine" ? "#ff6b6b" : cs === "other" ? "#c77dff" : t.fam.nm ? "#ff8a65" : "#f0d9a8";
     setTxt($("tLv"), "");
     $("tTag").style.display = t.fam.nm ? "inline-block" : "none";
     pct = 100 * t.hp / t.maxHp;
@@ -11601,6 +11620,7 @@ function updateTarget() {
     if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + t.fam.tpMove.name + "!"); } else w.style.display = "none";
     let info = !t.alive ? "Defeated" : t.state === "combat" ? "In combat" : t.state === "return" ? "Returning" : "Idle";
     if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= reach(player) ? " · in range" : " · too far";
+    if (t.claim && t.alive && claimName(t) !== "you") info += " · claimed by " + claimName(t);
     setTxt($("tInfo"), info);
     let ch = "";
     if (t.chain && S.time <= t.chain.closeAt) {
@@ -13249,13 +13269,21 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v8.3.0 · built 2026-10-13 19:07 PDT";
+const BUILD_INFO = "v8.4.0 · built 2026-10-13 19:14 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.4.0", date: "2026-10-13", title: "Claims and party combat", items: [
+    "Monster claims: once a player claims a monster, only they and their party can attack it. Red names are yours or your party's, purple names belong to someone else, and the target window says who.",
+    "Skillchains and magic bursts now work between players in a party fighting a shared monster.",
+    "Damage from other players shows over the monster in blue.",
+    "/assist Name targets what another player has targeted.",
+    "Party members' names show in blue in the world.",
+    "A notorious monster appearing nearby is announced to everyone in the area."
   ] },
   { v: "8.3.0", date: "2026-10-13", title: "Shared monsters", items: [
     "Monsters are now shared: everyone in an area sees the same monsters, in the same places, with the same HP. Parties can finally fight the same goblin together.",
@@ -13792,7 +13820,9 @@ function tabHelp() {
     "The <b>Chat</b> tab in the log shows only player messages.",
     "Tap or click another player to see their job and level and to Invite, Trade, send a Tell or Check them.",
     "<b>Shared monsters:</b> when other adventurers are in your area, everyone sees and fights the same monsters. One player's game (the first to arrive) runs the area's monsters for everyone; if they leave or put the game in the background, another player takes over without the monsters resetting. /who shows who is running the area.",
-    "Monsters can notice, chase and attack any player. The first player to hit or be attacked by a monster claims it; only the claimer (and their party, through party sharing) gets experience and loot when it falls.",
+    "<b>Claims:</b> the first player to hit a monster, or the player it attacks first, claims it. Only the claimer and their party can attack it, and only the claimer (sharing with their party) gets experience and loot. Name colors: <span style=\"color:#ff6b6b\">red</span> = claimed by you or your party, <span style=\"color:#c77dff\">purple</span> = claimed by someone else. The target window says who. A claim ends when the monster gives up and walks home.",
+    "<b>Fighting together:</b> skillchains and magic bursts work across players in the same party: one player opens with a weapon skill, another closes it, and a mage can burst the result. Damage from other players shows in blue over the monster.",
+    "<b>/assist Name</b> targets whatever that player nearby is targeting. Party members show with blue names; other players with green.",
     "Your companions still fight beside you, but other players don't see them, and monsters you share treat their attacks as yours.",
     "Battlefields such as the Chapel Depths stay private to you."
   ]));
@@ -13816,7 +13846,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "8.3.0";
+const GAME_VERSION = "8.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18648,10 +18678,10 @@ function updateLabels() {
     const nameEl = el.firstChild, bar = el.children[1], cbar = el.children[2];
     const isT = player.target === e;
     let name = e === player ? save.name : e.name, col = "#cfe6ff";
-    if (isMob(e)) { col = e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
+    if (isMob(e)) { const cs = claimState(e); col = cs === "mine" ? "#ff6b6b" : cs === "other" ? "#c77dff" : e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
     if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
     if (e.buddy) col = "#ffd54f";
-    if (e.remote) { col = "#a5d6a7"; name = e.name + (e.lv ? " · " + e.job + e.lv : ""); }
+    if (e.remote) { col = isMate(e) ? "#9fd0ff" : "#a5d6a7"; name = e.name + (e.lv ? " · " + e.job + e.lv : ""); }
     const other = isMob(e) || e.kind === "npc";
     if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
     nameEl.style.display = name ? "" : "none";
@@ -19319,7 +19349,7 @@ if (typeof window !== "undefined") {
 
 const NET_RT = { zone: null, zch: null, wch: null, lastSend: 0, lastSig: "", lastPos: "", sw: 0, ws: 0, ht: 0, swT: -9, wsT: -9, htT: -9, lastTell: null, lastChat: 0, online: [] };
 
-function netMeta() { return { id: S.charId, name: save.name, job: player.job, sub: player.sub, lv: player.lv, look: save.look, gear: Object.assign({}, save.gear), coat: save.mountCoat, zone: S.zoneId, t: NET_SH.joinT, v: GAME_VERSION, h: NET_SH.on && NET_SH.host ? 1 : 0, away: document.hidden ? 1 : 0 }; }
+function netMeta() { return { id: S.charId, name: save.name, job: player.job, sub: player.sub, lv: player.lv, look: save.look, gear: Object.assign({}, save.gear), coat: save.mountCoat, zone: S.zoneId, t: NET_SH.joinT, v: GAME_VERSION, h: NET_SH.on && NET_SH.host ? 1 : 0, away: document.hidden ? 1 : 0, p: typeof NET_PT !== "undefined" ? NET_PT.id : null }; }
 
 function netJoinZone(zoneId) {
   if (!NET.member || !NET.sb || !S.charId) return;
@@ -19331,7 +19361,7 @@ function netJoinZone(zoneId) {
     const ch = NET.sb.channel("zone:" + zoneId, { config: { broadcast: { self: false }, presence: { key: S.charId } } });
     ch.on("broadcast", { event: "mv" }, m => netOnMove(m.payload));
     ch.on("broadcast", { event: "chat" }, m => netOnChat(m.payload));
-    for (const [ev, fn] of [["ms", netOnMs], ["hit", netOnHit], ["deb", netOnDeb], ["mat", netOnMat], ["die", netOnDie], ["req", netOnReq], ["want", netOnWant]]) ch.on("broadcast", { event: ev }, m => fn(m.payload));
+    for (const [ev, fn] of [["ms", netOnMs], ["hit", netOnHit], ["deb", netOnDeb], ["mat", netOnMat], ["die", netOnDie], ["req", netOnReq], ["want", netOnWant], ["sc", (p) => netOnSc(p)]]) ch.on("broadcast", { event: ev }, m => fn(m.payload));
     ch.on("presence", { event: "sync" }, () => { const st = ch.presenceState(); netOnPresence(st); netElect(st); });
     ch.subscribe(st => { if (st === "SUBSCRIBED") { NET_RT.lastSig = ""; NET_RT.lastPos = ""; netTrack(); } });
     NET_RT.zch = ch;
@@ -19393,7 +19423,7 @@ function netRtTick() {
   if (player.lastHit !== NET_RT.htT) { NET_RT.htT = player.lastHit; NET_RT.ht++; }
   const now = Date.now();
   const st = (player.mounted ? 1 : 0) | (player.resting ? 2 : 0) | (player.engaged ? 4 : 0) | (player.alive ? 0 : 8);
-  const p = { id: S.charId, x: Math.round(player.x), y: Math.round(player.y), f: +(player.face || 0).toFixed(2), st, sw: NET_RT.sw, ws: NET_RT.ws, wid: player.lastWSId || null, ht: NET_RT.ht, c: player.casting ? player.casting.id : null, hp: Math.round(100 * player.hp / Math.max(1, player.maxHp)) };
+  const p = { id: S.charId, x: Math.round(player.x), y: Math.round(player.y), f: +(player.face || 0).toFixed(2), st, sw: NET_RT.sw, ws: NET_RT.ws, wid: player.lastWSId || null, ht: NET_RT.ht, c: player.casting ? player.casting.id : null, hp: Math.round(100 * player.hp / Math.max(1, player.maxHp)), tg: isMob(player.target) && player.target.alive ? netNid(player.target) : null };
   const sig = JSON.stringify(p);
   const gap = sig === NET_RT.lastPos ? 2000 : 120;
   if (now - NET_RT.lastSend < gap) return;
@@ -19410,6 +19440,7 @@ function netRemote(meta) {
     S.others.set(meta.id, o);
   }
   o.name = meta.name || o.name || "Adventurer";
+  o.pid = meta.p || null;
   if (meta.job) { o.job = meta.job; o.sub = meta.sub; o.lv = meta.lv; o.look = meta.look || {}; o.gear = meta.gear || {}; o.coat = meta.coat; }
   o.seen = S.time;
   return o;
@@ -19436,6 +19467,7 @@ function netOnMove(p) {
   if (p.c && (!o.casting || o.casting.id !== p.c) && SPELLS[p.c]) o.casting = { id: p.c, sp: SPELLS[p.c], t: o, start: S.time, end: S.time + SPELLS[p.c].cast };
   if (!p.c) o.casting = null;
   o.hp = p.hp;
+  o.tgNid = p.tg || null;
 }
 
 function tickRemotes(dt) {
@@ -20055,7 +20087,7 @@ function netSnap(now) {
     const t = m.target, tgt = !t ? "" : t === player ? S.charId : t.kind === "remote" ? t.id : "";
     const fl = (m.alive ? 0 : 1) | (m.readying ? 2 : 0) | (m.passive ? 4 : 0);
     const bf = Object.keys(m.buffs).map(k => k + ":" + Math.max(1, Math.ceil(m.buffs[k].until - S.time))).join(",");
-    const row = [nid, m.famKey, m.lv, Math.round(m.x), Math.round(m.y), +m.face.toFixed(2), Math.ceil(m.hp), m.maxHp, m.state === "combat" ? 1 : m.state === "return" ? 2 : 0, tgt, fl, m.spawnIdx != null ? m.spawnIdx : -1, m._swc || 0, m._wsc || 0, Math.floor(m.tp), bf];
+    const row = [nid, m.famKey, m.lv, Math.round(m.x), Math.round(m.y), +m.face.toFixed(2), Math.ceil(m.hp), m.maxHp, m.state === "combat" ? 1 : m.state === "return" ? 2 : 0, tgt, fl, m.spawnIdx != null ? m.spawnIdx : -1, m._swc || 0, m._wsc || 0, Math.floor(m.tp), bf, m.claim === "me" ? S.charId : m.claim || "", netEncChain(m.chain), netEncBurst(m.burst)];
     const sig = row.slice(3).join("|");
     if (!full && NET_SH.sigs.get(nid) === sig) continue;
     NET_SH.sigs.set(nid, sig);
@@ -20070,7 +20102,7 @@ function netOnMs(p) {
   const seen = new Set();
   for (const r of p.m) {
     if (!Array.isArray(r) || r.length < 16) continue;
-    const [nid, fk, lv, x, y, f, hp, maxHp, st, tgt, fl, si, swc, wsc, tp, bf] = r;
+    const [nid, fk, lv, x, y, f, hp, maxHp, st, tgt, fl, si, swc, wsc, tp, bf, claim, ch, bu] = r;
     if (!famOf(fk)) continue;
     seen.add(nid);
     let m = NET_SH.map.get(nid);
@@ -20081,7 +20113,13 @@ function netOnMs(p) {
       m.proxy = true; m.nid = nid; m.aggro = null; m.sentBuff = {};
       m.face = +f || 0; m._swc = swc; m._wsc = wsc;
       S.mobs.push(m); NET_SH.map.set(nid, m);
+      m.hostHp = +hp;
+      if (m.fam.nm && dist(m, player) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
     }
+    if (+hp < m.hostHp && S.time >= (m.predUntil || 0) && m.alive) popText(m, m.hostHp - +hp, "#b3d9ff", 14);
+    m.hostHp = +hp;
+    m.claim = claim || null;
+    if (S.time >= (m.scLocalUntil || 0)) { m.chain = netDecChain(ch); m.burst = netDecBurst(bu); }
     m.tx = +x; m.ty = +y; m.tf = +f || 0;
     m.maxHp = Math.max(1, +maxHp || 1);
     m.hp = S.time < (m.predUntil || 0) ? Math.min(+hp, m.predHp) : clamp(+hp, 0, m.maxHp);
@@ -20129,6 +20167,7 @@ function netOnHit(p) {
   if (!p || !NET_SH.on || !NET_SH.host) return;
   const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
   if (!m || !src || !src.alive) return;
+  if (!claimOk(m, src)) return;
   const d = clamp(Math.round(+p.d || 0), 0, 99999), en = clamp(+p.en || 0, 0, 100000);
   if (d > 0) applyDamage(src, m, d, { enmity: en, color: "#b3d9ff", size: 15 });
   else { addEnmity(m, src, en); aggro(m, src); }
@@ -20137,7 +20176,7 @@ function netOnHit(p) {
 function netOnDeb(p) {
   if (!p || !NET_SH.on || !NET_SH.host || !/^[a-z_]{2,16}$/.test(String(p.k))) return;
   const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
-  if (!m || !src || !src.alive) return;
+  if (!m || !src || !src.alive || !claimOk(m, src)) return;
   m.buffs[p.k] = { until: S.time + clamp(+p.dur || 1, 1, 600), src, next: S.time + 3, tick: clamp(+p.tick || 0, 0, 500), el: ELEMENT_COLORS[p.el] ? p.el : undefined, pow: clamp(+p.pow || 0, 0, 5) };
   addEnmity(m, src, 30);
   aggro(m, src);
@@ -20187,6 +20226,47 @@ function netOnReq(p) {
 function netOnWant(p) {
   if (!p || !NET_SH.on || !NET_SH.host || !Array.isArray(p.ids)) return;
   for (const id of p.ids.slice(0, 8)) if (NM_FAMILIES[id] || FAMILIES[id]) NET_SH.wants.set(id, Date.now() + 60000);
+}
+
+function netEncChain(c) { return c && S.time <= c.closeAt ? [c.props.join("/"), c.lv, c.name, +(c.openAt - S.time).toFixed(1), +(c.closeAt - S.time).toFixed(1)] : 0; }
+function netEncBurst(b) { return b && S.time <= b.until ? [b.el.join("/"), b.lv, b.name, +(b.until - S.time).toFixed(1)] : 0; }
+function netDecChain(a) {
+  if (!Array.isArray(a) || a.length < 5) return null;
+  const props = String(a[0]).split("/").filter(x => SC_PROPS[x] || SC_TABLE.some(r => r[0] === x || r[1] === x));
+  if (!props.length) return null;
+  return { props, lv: clamp(+a[1] || 0, 0, 4), name: String(a[2]).slice(0, 24), openAt: S.time + clamp(+a[3] || 0, -10, 10), closeAt: S.time + clamp(+a[4] || 0, 0, 15), by: null };
+}
+function netDecBurst(a) {
+  if (!Array.isArray(a) || a.length < 4) return null;
+  const el = String(a[0]).split("/").filter(x => ELEMENT_COLORS[x]);
+  if (!el.length) return null;
+  return { el, lv: clamp(+a[1] || 1, 1, 4), name: String(a[2]).slice(0, 24), until: S.time + clamp(+a[3] || 0, 0, 15) };
+}
+
+function netChainOut(m) {
+  if (!m.proxy || !NET_SH.on) return;
+  m.scLocalUntil = S.time + 1.5;
+  netZoneSend("sc", { id: S.charId, nid: m.nid, c: netEncChain(m.chain), b: netEncBurst(m.burst) });
+}
+
+function netOnSc(p) {
+  if (!p || !NET_SH.on || !NET_SH.host) return;
+  const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
+  if (!m || !src || !claimOk(m, src)) return;
+  const c = netDecChain(p.c), b = netDecBurst(p.b);
+  if (c) m.chain = c;
+  if (b) m.burst = b;
+  if (b && c && c.lv > 0) { popText(m, "Skillchain: " + c.name, ELEMENT_COLORS[b.el[0]], 18, 1.8, 38); sfx("skillchain", m); vfx("skillchain", { tgt: m, name: c.name, el: b.el, lv: c.lv }); }
+}
+
+function netAssist(name) {
+  const o = [...(S.others || new Map()).values()].find(x => netLc(x.name) === netLc(cleanChat(name)));
+  if (!o) { log(cleanChat(name) + " isn't in this area.", "sys"); return; }
+  const m = o.tgNid && S.mobs.find(x => x.nid === o.tgNid && x.alive);
+  if (!m) { log(o.name + " has no target.", "sys"); return; }
+  setTarget(m);
+  if (typeof sfx === "function") sfx("select");
+  log("You assist " + o.name + ": " + m.name + ".", "sys");
 }
 
 function onKey(e) {
