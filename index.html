@@ -771,6 +771,8 @@
   #mmTime { margin: 2px 0 0 18px; font: italic 900 14px var(--ffFont); color: #fff; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
   #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
   #clockBox, #trBtns { display: none !important; }
+  @media (max-width: 1020px) { #ui.modalOn #mCmd { display: none !important; } }
+  #log, #chat.min #log, #chat.lite #log { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 4px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; }
   @media (max-width: 600px) {
     #mCmd { width: 138px; padding: 3px 4px 4px 16px; gap: 2px; }
     #mCmd .ffb { height: 22px; font-size: 12px; padding: 0 8px; }
@@ -786,7 +788,7 @@
     #stM .stGrid { padding: 0 8px; }
     #ffTop .ffCmd { width: 84px; font-size: 12px; }
     #ffHelp { font-size: 12px; }
-    #ui.modalOn #mCmd { display: none !important; }
+    #mCmd .ffMHead.sub .pg { padding: 0 6px; }
     #mCmd .ffMHead.sub .pg { padding: 0 6px; }
     #menu .win, #menu .win.slim, #menu .win.wide { width: calc(100vw - 8px - var(--sal) - var(--sar)) !important; left: calc(4px + var(--sal)); }
     #mBody { font-size: 12.5px; }
@@ -919,7 +921,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.2 · built 2026-10-14 00:39 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.3 · built 2026-10-14 00:41 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -13835,6 +13837,13 @@ function tabFurnishings() {
 
 function tabStorage() {
   const cap = storageCap();
+  if (!(S.zone && S.zone.residence)) {
+    UI.modalHelp = "What Pip is keeping for you at your residence.";
+    let h = '<div class="lList">';
+    if (!save.storage.length) h += '<div class="lr empty"><span class="nm">Nothing in storage. Visit Pip at your residence to store things.</span></div>';
+    for (const s of save.storage) h += listRow("noop", s.id, s.id, s.qty, ITEMS[s.id].name, null, false, rarityOf(s.id));
+    return h + '</div><div class="sub" style="margin-top:6px">' + storageUsed() + " / " + cap + " slots used. You can only move items in or out at your residence.</div>";
+  }
   const rowI = (s, a, v) => '<button class="mcR" data-a="' + a + '" data-v="' + v + '"><span class="ic">' + (ITEMS[s.id].icon || "📦") + '</span><span class="nm' + (ITEMS[s.id].kind === "equip" ? " eq" : "") + '">' + esc(ITEMS[s.id].name) + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
   let h = '<div class="mcBox"><div class="mcTop"><div class="mcT">Storage <sup>' + storageUsed() + "/" + cap + '</sup></div><div class="mcMsg">Select item to move.</div></div><div class="mcCols">';
   h += '<div class="mcCol"><div class="mcLbl">Storage</div>';
@@ -14529,6 +14538,7 @@ function onMenuClick(e) {
   else if (a === "water") { UI.homeMsg = waterGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
   else if (a === "feed") { const [i, id] = v.split(":"); UI.homeMsg = feedGarden(+i, id); if (UI.homeMsg) sfx("error"); renderModal(); return; }
   else if (a === "harvest") { UI.homeMsg = harvestGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
+  else if ((a === "store" || a === "retrieve") && !(S.zone && S.zone.residence)) { log("You can only move items in or out of storage at your residence.", "sys"); sfx("error"); return; }
   else if (a === "store") { storeItem(+v); renderModal(); return; }
   else if (a === "retrieve") { retrieveItem(+v); renderModal(); return; }
   else if (a === "pickf") { UI.pick = UI.pick === v ? null : v; UI.furnSel = null; UI.homeMsg = ""; sfx("tab"); renderModal(); return; }
@@ -14581,13 +14591,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.8.2 · built 2026-10-14 00:39 PDT";
+const BUILD_INFO = "v9.8.3 · built 2026-10-14 00:41 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.8.3", date: "2026-10-14", title: "Phone windows and storage", items: [
+    "On phones and narrow screens the main menu now hides while a window (Achievements, Quests, Key Items and so on) is open, so the two no longer overlap. Use Menu or ✕ to go back.",
+    "View House only shows what's in storage. Moving items in and out of storage now only works at your residence with Pip.",
+    "The event log uses the blue striped style on phones too."
   ] },
   { v: "9.8.2", date: "2026-10-14", title: "Gate halls and phone layout", items: [
     "Every area exit now sits at the end of a narrow hall with rock walls on both sides, and you arrive at the inner end of the matching hall, well inside the area, so you can't back out by accident right after arriving.",
@@ -15366,7 +15381,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.8.2";
+const GAME_VERSION = "9.8.3";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

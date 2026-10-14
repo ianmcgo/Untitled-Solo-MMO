@@ -691,6 +691,13 @@ function tabFurnishings() {
 
 function tabStorage() {
   const cap = storageCap();
+  if (!(S.zone && S.zone.residence)) {
+    UI.modalHelp = "What Pip is keeping for you at your residence.";
+    let h = '<div class="lList">';
+    if (!save.storage.length) h += '<div class="lr empty"><span class="nm">Nothing in storage. Visit Pip at your residence to store things.</span></div>';
+    for (const s of save.storage) h += listRow("noop", s.id, s.id, s.qty, ITEMS[s.id].name, null, false, rarityOf(s.id));
+    return h + '</div><div class="sub" style="margin-top:6px">' + storageUsed() + " / " + cap + " slots used. You can only move items in or out at your residence.</div>";
+  }
   const rowI = (s, a, v) => '<button class="mcR" data-a="' + a + '" data-v="' + v + '"><span class="ic">' + (ITEMS[s.id].icon || "📦") + '</span><span class="nm' + (ITEMS[s.id].kind === "equip" ? " eq" : "") + '">' + esc(ITEMS[s.id].name) + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
   let h = '<div class="mcBox"><div class="mcTop"><div class="mcT">Storage <sup>' + storageUsed() + "/" + cap + '</sup></div><div class="mcMsg">Select item to move.</div></div><div class="mcCols">';
   h += '<div class="mcCol"><div class="mcLbl">Storage</div>';
@@ -1385,6 +1392,7 @@ function onMenuClick(e) {
   else if (a === "water") { UI.homeMsg = waterGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
   else if (a === "feed") { const [i, id] = v.split(":"); UI.homeMsg = feedGarden(+i, id); if (UI.homeMsg) sfx("error"); renderModal(); return; }
   else if (a === "harvest") { UI.homeMsg = harvestGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
+  else if ((a === "store" || a === "retrieve") && !(S.zone && S.zone.residence)) { log("You can only move items in or out of storage at your residence.", "sys"); sfx("error"); return; }
   else if (a === "store") { storeItem(+v); renderModal(); return; }
   else if (a === "retrieve") { retrieveItem(+v); renderModal(); return; }
   else if (a === "pickf") { UI.pick = UI.pick === v ? null : v; UI.furnSel = null; UI.homeMsg = ""; sfx("tab"); renderModal(); return; }
@@ -1444,6 +1452,11 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.8.3", date: "2026-10-14", title: "Phone windows and storage", items: [
+    "On phones and narrow screens the main menu now hides while a window (Achievements, Quests, Key Items and so on) is open, so the two no longer overlap. Use Menu or ✕ to go back.",
+    "View House only shows what's in storage. Moving items in and out of storage now only works at your residence with Pip.",
+    "The event log uses the blue striped style on phones too."
   ] },
   { v: "9.8.2", date: "2026-10-14", title: "Gate halls and phone layout", items: [
     "Every area exit now sits at the end of a narrow hall with rock walls on both sides, and you arrive at the inner end of the matching hall, well inside the area, so you can't back out by accident right after arriving.",
