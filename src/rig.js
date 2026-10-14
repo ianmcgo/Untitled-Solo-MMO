@@ -487,6 +487,9 @@ const JOB_TINT = {
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
   DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  SAM: { shirt: 0x6a3a2a, pants: 0x2a2420, robe: 0x6a3a2a, trim: 0xe0a060 },
+  NIN: { shirt: 0x2a3038, pants: 0x1e2228, robe: 0x2a3038, trim: 0x78909c },
+  DRG: { shirt: 0x2a3a6a, pants: 0x2a2a34, robe: 0x2a3a6a, trim: 0x5c8adb },
   BRD: { shirt: 0x8a5a20, pants: 0x3a2e24, robe: 0x8a5a20, trim: 0xffd54f },
   SMN: { shirt: 0x2a6a78, pants: 0x2a2a38, robe: 0x2a6a78, trim: 0xd8c070, deep: 0x1f4f5f }
 };
@@ -1464,6 +1467,32 @@ function weaponEntry(kind, id) {
     if (wlv >= 11) for (let k = 0; k < 2; k++) R.add(gRing(V3(0, 0.2 - k * 0.5, 0), 0.022, 0.006, "y", 10), "w", gold, "metal");
     R.add(gRing(V3(0, 0.78, 0), 0.025, 0.008, "y", 10), "w", gold, "metal");
     tip = [0.6, 1.0];
+  } else if (kind === "gkatana" || kind === "katana") {
+    const big = kind === "gkatana", L = big ? 0.92 : 0.6, W = big ? 0.04 : 0.032, curve = big ? 0.06 : 0.04;
+    R.add(gTaper(V3(0, big ? -0.24 : -0.12, 0), V3(0, 0.08, 0), 0.017, 0.016, 8), "w", 0x1a1418, "leather");
+    for (let k = 0; k < (big ? 6 : 4); k++) R.add(gRing(V3(0, (big ? -0.22 : -0.1) + k * 0.05, 0), 0.0185, 0.004, "y", 8), "w", 0xd8d0c0, "cloth");
+    R.add(gCyl(V3(0, 0.09, 0), 0.05, 0.05, 0.012, 12), "w", gold, "metal");
+    const sh = new THREE.Shape();
+    sh.moveTo(-W / 2, 0); sh.quadraticCurveTo(-W / 2 + curve * 0.4, L * 0.5, -W * 0.1 + curve, L * 0.97); sh.lineTo(W * 0.4 + curve, L); sh.quadraticCurveTo(W / 2 + curve * 0.5, L * 0.5, W / 2, 0); sh.closePath();
+    const bg = new THREE.ExtrudeGeometry(sh, { depth: 0.006, bevelEnabled: true, bevelThickness: 0.003, bevelSize: 0.003, bevelSegments: 1 });
+    bg.translate(0, 0.1, -0.003);
+    const uv = bg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + W) / (2 * W + curve), uv.getY(i) / L);
+    R.add(bg, "w", blade, "metal");
+    R.add(gBox(V3(curve * 0.35, 0.1 + L * 0.45, 0), W * 0.12, L * 0.8, 0.0135), "w", glowC || 0xf4f6f8, glowC ? "glow" : "metal", !!glowC);
+    tip = [0.3, 0.1 + L];
+  } else if (kind === "polearm") {
+    R.add(gTaper(V3(0, -0.7, 0), V3(0, 1.0, 0), 0.02, 0.018, 8), "w", wood, "wood");
+    for (let k = 0; k < 2; k++) R.add(gTaper(V3(0, 0.1 - k * 0.55, 0), V3(0, 0.25 - k * 0.55, 0), 0.024, 0.024, 8), "w", grip, "leather");
+    R.add(gRing(V3(0, 1.0, 0), 0.026, 0.008, "y", 10), "w", gold, "metal");
+    const sh = new THREE.Shape();
+    sh.moveTo(0, 0); sh.lineTo(0.05, 0.08); sh.lineTo(0.02, 0.32); sh.lineTo(0, 0.36); sh.lineTo(-0.02, 0.32); sh.lineTo(-0.05, 0.08); sh.closePath();
+    const hg = new THREE.ExtrudeGeometry(sh, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 1 });
+    hg.translate(0, 1.0, -0.006);
+    const uv = hg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + 0.05) / 0.1, uv.getY(i) / 0.36);
+    R.add(hg, "w", blade, "metal");
+    for (const s of [-1, 1]) R.add(gTaper(V3(0, 1.02, 0), V3(s * 0.09, 1.1, 0), 0.012, 0.003, 5), "w", blade, "metal");
+    if (glowC) R.add(gBall(V3(0, 1.0, 0), 0.03, 1, 1, 1, 8), "w", glowC, "glow", true);
+    tip = [0.9, 1.36];
   } else if (kind === "scythe") {
     R.add(gTaper(V3(0, -0.5, 0), V3(0, 1.0, 0), 0.022, 0.02, 8), "w", 0x3a2a22, "wood");
     R.add(gTaper(V3(0, 0.1, 0), V3(0, 0.22, 0), 0.026, 0.026, 8), "w", grip, "leather");
@@ -1495,7 +1524,7 @@ function weaponEntry(kind, id) {
     tip = [0.62, 1.02];
   }
   const e = R.finish();
-  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9 }[kind] || 1;
+  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9, gkatana: 0.86, katana: 0.9, polearm: 0.84 }[kind] || 1;
   if (k !== 1) { e.geo.scale(k, k, k); e.geo.computeBoundingSphere(); e.geo.boundingSphere.radius *= 1.6; tip = tip.map(x => x * k); }
   e.tip = tip;
   RIG.weaponCache.set(key, e);

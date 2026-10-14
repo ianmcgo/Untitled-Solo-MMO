@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.10.0 · built 2026-10-14 03:41 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v11.0.0 · built 2026-10-14 03:49 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6279,6 +6279,74 @@ for (const id in ITEMS) {
   if (it.slot !== "main" && it.slot !== "ring" && it.jobs.includes("RDM") && !it.jobs.includes("BRD")) it.jobs.push("BRD");
 }
 
+ALL_JOBS.push("SAM", "NIN", "DRG");
+Object.assign(ADVANCED_JOBS, { SAM: { quest: "sam", lv: 12 }, NIN: { quest: "nin", lv: 12 }, DRG: { quest: "drg", lv: 12 } });
+Object.assign(JOBS, {
+  SAM: { name: "Samurai", color: "#e0a060", icon: "🎌", hp: [66, 13], mp: [0, 0], str: [9, 0.95], dex: [9, 0.85], vit: [8, 0.75], agi: [7, 0.7], int: [6, 0.5], mnd: [7, 0.6], advanced: true },
+  NIN: { name: "Ninja", color: "#78909c", icon: "🌀", hp: [60, 12], mp: [8, 3], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [10, 1.0], int: [7, 0.7], mnd: [5, 0.4], advanced: true },
+  DRG: { name: "Dragoon", color: "#5c8adb", icon: "🐉", hp: [66, 13], mp: [0, 0], str: [10, 0.95], dex: [8, 0.8], vit: [8, 0.8], agi: [8, 0.75], int: [5, 0.4], mnd: [6, 0.5], advanced: true }
+});
+COMBAT_SKILLS.push("gkatana", "katana", "polearm");
+MAGIC_SKILLS.push("ninjutsu");
+Object.assign(SKILL_NAMES, { gkatana: "Great Katana", katana: "Katana", polearm: "Polearm", ninjutsu: "Ninjutsu" });
+Object.assign(SKILL_RATINGS, {
+  SAM: { gkatana: "A", polearm: "B", sword: "C", archery: "C", dagger: "D", club: "E" },
+  NIN: { katana: "A", dagger: "B", sword: "C", archery: "C", h2h: "D", club: "E", ninjutsu: "A" },
+  DRG: { polearm: "A", staff: "B", sword: "C", dagger: "D", club: "D" }
+});
+Object.assign(WEAPON_SKILLS, {
+  rising_edge: { name: "Rising Edge", wtype: "gkatana", skill: 5, props: ["Transfixion", "Scission"], ftp: [1.6, 2.2, 2.8] },
+  crescent_cut: { name: "Crescent Cut", wtype: "gkatana", skill: 22, props: ["Scission", "Detonation"], ftp: [1.9, 2.7, 3.5] },
+  ember_arc: { name: "Ember Arc", wtype: "gkatana", skill: 40, props: ["Liquefaction", "Impaction"], ftp: [2.2, 3.0, 3.9] },
+  heavens_divide: { name: "Heaven's Divide", wtype: "gkatana", skill: 75, props: ["Fragmentation", "Scission"], ftp: [2.7, 3.6, 4.6] },
+  silent_cut: { name: "Silent Cut", wtype: "katana", skill: 5, props: ["Scission"], ftp: [1.5, 2.0, 2.6] },
+  veil_strike: { name: "Veil Strike", wtype: "katana", skill: 22, props: ["Induration", "Detonation"], ftp: [1.8, 2.5, 3.2] },
+  mist_fang: { name: "Mist Fang", wtype: "katana", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.1, 2.9, 3.7] },
+  night_lotus: { name: "Night Lotus", wtype: "katana", skill: 75, props: ["Gravitation", "Fragmentation"], ftp: [2.5, 3.3, 4.3] },
+  piercing_thrust: { name: "Piercing Thrust", wtype: "polearm", skill: 5, props: ["Transfixion"], ftp: [1.6, 2.2, 2.8] },
+  wind_lance: { name: "Wind Lance", wtype: "polearm", skill: 22, props: ["Detonation"], ftp: [1.9, 2.6, 3.4] },
+  drake_dive: { name: "Drake Dive", wtype: "polearm", skill: 40, props: ["Impaction", "Transfixion"], ftp: [2.2, 3.0, 3.9] },
+  sky_rend: { name: "Sky Rend", wtype: "polearm", skill: 75, props: ["Fusion", "Transfixion"], ftp: [2.6, 3.5, 4.5] }
+});
+Object.assign(ABILITIES, {
+  meditate: { name: "Meditate", job: "SAM", lv: 1, recast: 150, target: "self", desc: "Clear your mind and gain 400 TP." },
+  hasso: { name: "Hasso", job: "SAM", lv: 5, recast: 60, target: "self", buff: "hasso", dur: 120, desc: "A high two-handed stance: damage +12% and accuracy +10 for 2 minutes." },
+  third_eye: { name: "Third Eye", job: "SAM", lv: 15, recast: 45, target: "self", buff: "third_eye", dur: 30, desc: "Read your foe: the next melee attack against you within 30 s misses." },
+  smoke_step: { name: "Smoke Step", job: "NIN", lv: 5, recast: 120, target: "self", desc: "Vanish in a puff of smoke, halving the enmity every monster has toward you." },
+  twin_strike: { name: "Twin Strike", job: "NIN", lv: 15, recast: 90, target: "self", buff: "twin_strike", dur: 30, desc: "Your next three attacks each strike twice." },
+  jump: { name: "Jump", job: "DRG", lv: 1, recast: 60, target: "enemy", enmity: 80, desc: "Leap into the air and drive your weapon down for heavy damage and extra TP." },
+  high_jump: { name: "High Jump", job: "DRG", lv: 10, recast: 120, target: "enemy", enmity: 0, desc: "A higher leap: even more damage, and the target forgets half its anger toward you." },
+  dragon_spirit: { name: "Dragon Spirit", job: "DRG", lv: 15, recast: 300, target: "self", buff: "dragon_spirit", dur: 60, desc: "Call on the spirit of the wyrm: damage +15% for 60 s." }
+});
+Object.assign(SPELLS, {
+  shadow_veil: { name: "Shadow Veil", jobs: { NIN: 3 }, mp: 8, cast: 1.0, recast: 20, kind: "buff", buff: "shadows", n: 2, dur: 300, skill: "ninjutsu", target: "self", desc: "Creates two shadow images (three from level 12) that each soak up one melee hit." },
+  flame_shuriken: { name: "Flame Shuriken", jobs: { NIN: 2 }, mp: 6, cast: 1.0, recast: 12, kind: "nuke", element: "fire", power: 18, stat: "int", skill: "ninjutsu", target: "enemy", desc: "Hurls a burning star. Fire damage." },
+  frost_shuriken: { name: "Frost Shuriken", jobs: { NIN: 6 }, mp: 7, cast: 1.0, recast: 12, kind: "nuke", element: "ice", power: 22, stat: "int", skill: "ninjutsu", target: "enemy", desc: "Hurls a star of ice. Ice damage." },
+  binding_thread: { name: "Binding Thread", jobs: { NIN: 8 }, mp: 8, cast: 1.2, recast: 30, kind: "debuff", element: "ice", buff: "bind", dur: 10, enmity: 60, skill: "ninjutsu", target: "enemy", desc: "Snares the target so it can't move for 10 s." },
+  gale_shuriken: { name: "Gale Shuriken", jobs: { NIN: 10 }, mp: 9, cast: 1.0, recast: 12, kind: "nuke", element: "wind", power: 28, stat: "int", skill: "ninjutsu", target: "enemy", desc: "Hurls a whirling star of wind. Wind damage." }
+});
+Object.assign(BUFF_NAMES, { hasso: "Hasso", third_eye: "Third Eye", twin_strike: "Twin Strike", dragon_spirit: "Dragon Spirit", shadows: "Shadow Veil", bind: "Bound" });
+Object.assign(BUFF_ICONS, { hasso: "🎌", third_eye: "👁️", twin_strike: "⚔️", dragon_spirit: "🐉", shadows: "👥" });
+Object.assign(ITEMS, {
+  bronze_tachi: { name: "Bronze Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 13, delay: 3.8, jobs: ["SAM"], lv: 1, price: 150 },
+  iron_tachi: { name: "Iron Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 18, delay: 3.8, jobs: ["SAM"], lv: 6, price: 1150, stats: { str: 1 } },
+  steel_tachi: { name: "Steel Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 24, delay: 3.8, jobs: ["SAM"], lv: 11, price: 3000, stats: { str: 1, acc: 2 } },
+  frost_tachi: { name: "Frostforged Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 34, delay: 3.8, jobs: ["SAM"], lv: 17, price: 10200, stats: { str: 3, acc: 3 } },
+  bronze_katana: { name: "Bronze Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 6, delay: 2.2, jobs: ["NIN"], lv: 1, price: 90 },
+  iron_katana: { name: "Iron Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 10, delay: 2.2, jobs: ["NIN"], lv: 6, price: 950, stats: { agi: 1 } },
+  steel_katana: { name: "Steel Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 14, delay: 2.2, jobs: ["NIN"], lv: 11, price: 2700, stats: { agi: 1, acc: 2 } },
+  rime_katana: { name: "Rimefrost Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 20, delay: 2.2, jobs: ["NIN"], lv: 17, price: 9800, stats: { agi: 3, acc: 4 } },
+  bronze_spear: { name: "Bronze Spear", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 13, delay: 3.9, jobs: ["DRG"], lv: 1, price: 140 },
+  iron_lance: { name: "Iron Lance", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 18, delay: 3.9, jobs: ["DRG"], lv: 6, price: 1150, stats: { str: 1 } },
+  steel_halberd: { name: "Steel Halberd", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 25, delay: 4.0, jobs: ["DRG"], lv: 11, price: 3100, stats: { str: 2 } },
+  frost_lance: { name: "Frostforged Lance", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 35, delay: 4.0, jobs: ["DRG"], lv: 17, price: 10300, stats: { str: 3, acc: 3 } }
+});
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!it.jobs || it.slot === "main") continue;
+  if (it.jobs.includes("WAR")) { if (!it.jobs.includes("SAM")) it.jobs.push("SAM"); if (!it.jobs.includes("DRG")) it.jobs.push("DRG"); }
+  if (it.jobs.includes("THF") && !it.jobs.includes("NIN")) it.jobs.push("NIN");
+}
 const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
@@ -7400,6 +7468,16 @@ for (const zid in ZONES) {
     z.npcs.push({ id, x: Math.round(inner.x + (horiz ? 0 : off)), y: Math.round(inner.y + (horiz ? off : 0)) });
   });
 }
+Object.assign(QUESTS, {
+  sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "bronze_tachi", qty: 1, unlock: "SAM" },
+    intro: "A Samurai fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },
+  nin: { name: "Steps Without Sound", giver: "Tobin", npc: "tobin", lv: 12, items: { bat_wing: 3, worm_silk: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Worm Silk to learn the Ninja's arts.", reward: { xp: 700, gil: 0, item: "bronze_katana", qty: 1, unlock: "NIN" },
+    intro: "A Ninja hides behind shadow images, throws stars of fire and frost, and slips away when the fight turns. Quick hands, quick feet. Bring me bat wings for the shadows and worm silk for the threads.", progress: "3 Bat Wings and 2 Worm Silk. Bats fly at night; worms dig through the Hollow.", turn: "Light, quiet and sharp. Take this katana, and remember: the shadows only take a few hits each." },
+  drg: { name: "Wings of the Wyrm", giver: "Tobin", npc: "tobin", lv: 12, items: { lizard_skin: 3, crag_feather: 1 }, desc: "Bring Tobin 3 Lizard Skins and 1 Crag Feather to take up the Dragoon's lance.", reward: { xp: 700, gil: 0, item: "bronze_spear", qty: 1, unlock: "DRG" },
+    intro: "Dragoons fight with the lance and the leap. They spring high into the air and come down point first, and the spirit of the old wyrms lends them strength. Bring me lizard skins for a grip and a feather from the Crag Talons for luck.", progress: "3 Lizard Skins from the Hollow's hill lizards and 1 Crag Feather from the marsh roost.", turn: "Scale and feather. Here is your spear. Jump high, land hard." }
+});
+SHOP.push("bronze_tachi", "iron_tachi", "steel_tachi", "bronze_katana", "iron_katana", "steel_katana", "bronze_spear", "iron_lance", "steel_halberd");
+if (SHOPS.vela) SHOPS.vela.push("frost_tachi", "rime_katana", "frost_lance");
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -7838,6 +7916,9 @@ function mercGear(m, lv) {
   if (job === "RNG") return lv >= 11 ? { main: "steel_longbow", body: "hunters_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "yew_bow", body: "hunters_coat", feet: "leather_boots" } : { main: "shortbow", body: "leather_vest" };
   if (job === "DRK") return lv >= 11 ? { main: "steel_scythe", body: "shadow_plate", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_scythe", body: "shadow_plate", head: "bronze_cap" } : { main: "bronze_scythe", body: "leather_vest", head: "bronze_cap" };
   if (job === "BRD") return lv >= 14 ? { main: "steel_dagger", body: "troubadour_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_dagger", body: "minstrel_coat", feet: "leather_boots" } : { main: "bronze_dagger", body: "linen_robe" };
+  if (job === "SAM") return lv >= 11 ? { main: "steel_tachi", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_tachi", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_tachi", body: "leather_vest", head: "bronze_cap" };
+  if (job === "NIN") return lv >= 11 ? { main: "steel_katana", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_katana", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_katana", body: "leather_vest" };
+  if (job === "DRG") return lv >= 11 ? { main: "steel_halberd", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_lance", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_spear", body: "leather_vest", head: "bronze_cap" };
   if (job === "MNK") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
@@ -8001,7 +8082,7 @@ function syncAllies(full) {
   }
 }
 
-const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"] };
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"] };
 const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
 const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
 const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
@@ -8286,6 +8367,20 @@ function swing(a, d) {
     popText(a, "Paralyzed", "#b3e5fc", 13, 0.9, 10);
     return;
   }
+  if (d.buffs && (d.buffs.third_eye || d.buffs.shadows) && !isMob(d) && !(isMob(a) && a.fam.range)) {
+    if (d.buffs.third_eye) { delete d.buffs.third_eye; log(subj(d) + " " + vb(d, "anticipate", "anticipates") + " the attack and " + vb(d, "step", "steps") + " aside.", cls(d)); popText(d, "Third Eye", "#e0a060", 13, 0.9); }
+    else { const sh = d.buffs.shadows; sh.n--; if (sh.n <= 0) delete d.buffs.shadows; log("A shadow image takes the blow for " + obj(d) + (sh.n > 0 ? " (" + sh.n + " left)." : ". The last image is gone."), cls(d)); popText(d, "Shadow", "#b0bec5", 13, 0.9); }
+    sfx("miss", a); vfx("miss", { src: a, tgt: d });
+    if (isMob(a)) a.tp = Math.min(CONFIG.tpMax, a.tp + Math.round(CONFIG.tpPerDelay * a.delay));
+    return;
+  }
+  if (a.buffs && a.buffs.twin_strike && !a.twinning) {
+    const tw = a.buffs.twin_strike;
+    tw.left = (tw.left == null ? 3 : tw.left) - 1;
+    if (tw.left <= 0) delete a.buffs.twin_strike;
+    a.twinning = true; swing(a, d); a.twinning = false;
+    if (!d.alive) return;
+  }
   if (a === player) trySkillUp(a.stats.wtype, d.lv);
   const b = a.buffs || {};
   const sneak = !!b.sneak_attack, boost = !!b.boost;
@@ -8301,7 +8396,7 @@ function swing(a, d) {
     a.volley = false;
     return;
   }
-  if (!sneak && Math.random() * 100 >= hitChance(a, d)) {
+  if (!sneak && Math.random() * 100 >= hitChance(a, d, b.hasso ? 10 : 0)) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
     popText(d, "Miss", "#bbbbbb", 14, 0.8);
     sfx("miss", a);
@@ -8314,11 +8409,13 @@ function swing(a, d) {
   let dmg = Math.floor(baseDmg(a, d) * pDIF(a, d) * (crit ? CONFIG.critMult : 1));
   if (sneak) { dmg += Math.floor(a.stats.dex * 0.8); popText(a, "Sneak Attack", "#a1887f", 12, 1, 14); }
   if (boost) dmg = Math.floor(dmg * 1.5);
+  if (b.hasso) dmg = Math.floor(dmg * 1.12);
+  if (b.dragon_spirit) dmg = Math.floor(dmg * 1.15);
   if (b.soulfire && a.hp > 1) { const burn = Math.min(a.hp - 1, Math.floor(a.hp * 0.06)); a.hp -= burn; dmg += Math.floor(burn * 1.6); }
   a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
-  const wt = isMob(a) ? "blunt" : (a.stats.wtype === "sword" || a.stats.wtype === "greataxe" || a.stats.wtype === "archery" ? "slash" : "blunt");
+  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm"].includes(a.stats.wtype) ? "slash" : "blunt");
   sfx(crit ? "crit" : wt === "slash" ? "slash" : "blunt", a);
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
@@ -9415,6 +9512,35 @@ function doAbility(a, id, t) {
     if (heal > 0) { ring(a, "#ffb74d", 30, 0.6); sfx("cure", a); vfx("cure", { tgt: a }); }
     return;
   }
+  if (id === "meditate") {
+    a.tp = Math.min(CONFIG.tpMax, a.tp + 400);
+    log(subj(a) + " " + vb(a, "meditate", "meditates") + " and " + vb(a, "gain", "gains") + " 400 TP.", cls(a));
+    popText(a, "Meditate", "#e0a060", 14, 1.2, 14);
+    ring(a, "#e0a060", 30, 0.6); sfx("buff", a); vfx("buff", { tgt: a, id: "meditate" });
+    return;
+  }
+  if (id === "smoke_step") {
+    for (const m of S.mobs) if (m.alive && m.enmity && m.enmity.has(a)) m.enmity.set(a, Math.floor(m.enmity.get(a) / 2));
+    log(subj(a) + " " + vb(a, "vanish", "vanishes") + " in a puff of smoke. Enemies lose track of " + (a === player ? "you" : "them") + ".", cls(a));
+    popText(a, "Smoke Step", "#78909c", 14, 1.2, 14);
+    vfx("interrupt", { tgt: a }); sfx("buff", a);
+    return;
+  }
+  if (id === "jump" || id === "high_jump") {
+    const high = id === "high_jump";
+    a.face = Math.atan2(t.y - a.y, t.x - a.x);
+    a.jumpAt = S.time; a.jumpHigh = high;
+    let dmg = Math.max(1, Math.floor(baseDmg(a, t) * pDIF(a, t) * (high ? 1.9 : 1.45)));
+    if (a.buffs.dragon_spirit) dmg = Math.floor(dmg * 1.15);
+    a.tp = Math.min(CONFIG.tpMax, a.tp + (high ? 150 : 100));
+    log(subj(a) + " " + vb(a, "use") + " " + ab.name + "! The " + t.name + " takes " + dmg + " damage.", cls(a));
+    popText(a, ab.name, "#5c8adb", 14, 1.1, 18);
+    sfx("crit", t); vfx("hit", { src: a, tgt: t, crit: true, slash: false });
+    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg, size: 20 });
+    if (high && t.alive && t.enmity && t.enmity.has(a)) t.enmity.set(a, Math.floor(t.enmity.get(a) / 2));
+    if (t.alive) aggro(t, a);
+    return;
+  }
   if (id === "convert") {
     const hp = a.hp, mp = a.mp;
     a.hp = Math.max(1, Math.min(a.maxHp, mp));
@@ -9583,7 +9709,7 @@ function castDebuff(a, t, sp) {
   vfx("nuke", { src: a, tgt: t, el: sp.element, dia: true });
   if (!landed) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20); aggro(t, a); return; }
   t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned" }[sp.buff] + ".", cls(a));
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place" }[sp.buff] + ".", cls(a));
   popText(t, sp.name, col, 14, 1.1);
   if (sp.buff === "stun" && t.readying) { t.readying = null; t.tp = Math.floor(t.tp / 2); log("The " + t.name + "'s " + t.fam.tpMove.name + " is cut short!", cls(a)); }
   if (sp.buff === "sleep") { t.swingTimer = Math.max(t.swingTimer, 1); t.readying = null; }
@@ -9593,6 +9719,7 @@ function castDebuff(a, t, sp) {
 
 function castBuff(a, t, sp) {
   t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
+  if (sp.buff === "shadows") t.buffs.shadows.n = sp.n + (a.lv >= 12 ? 1 : 0);
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + obj(t) + ".", cls(a));
   popText(t, sp.name, "#9ad06b", 13, 1.1, 14);
   ring(t, "#9ad06b", 26, 0.5);
@@ -14851,13 +14978,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v10.10.0 · built 2026-10-14 03:41 PDT";
+const BUILD_INFO = "v11.0.0 · built 2026-10-14 03:49 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "11.0.0", date: "2026-10-14", title: "Samurai, Ninja and Dragoon", items: [
+    "Three new advanced jobs, taught by Tobin from level 12. Samurai: a two-handed tachi, Meditate for a burst of TP, the Hasso stance and Third Eye to slip the next blow. Ninja: a quick katana, Shadow Veil images that soak up hits, fire, frost and wind shuriken, Binding Thread, Smoke Step and Twin Strike. Dragoon: the lance, Jump and High Jump leap attacks and Dragon Spirit.",
+    "Three new weapon types (great katana, katana and polearm) with four weapon skills each, new weapon models, and bronze to frostforged weapons from Pell and Vela. Ninjutsu scrolls can be bought or found like other spells.",
+    "Mercenaries can now be Samurai, Ninja or Dragoons too."
   ] },
   { v: "10.10.0", date: "2026-10-14", title: "Travel", items: [
     "Camps in Rocky Hollow, Frostspire Pass and the Ashen Marsh, each with a tent, campfire and camp crystal that restores your party.",
@@ -15536,8 +15668,12 @@ function tabHelp() {
     ["Summoner (advanced)", "Pet mage", "Summoning A: Ember, Frost, Gale and (level 15) Stone Sprites fight beside you and drain MP every 3 s; Blood Pact (sprite's elemental attack), Elemental Siphon (MP back), Release"],
     ["Dark Knight (advanced)", "Damage", "Scythe A (new weapon type), great axe and sword B. Last Resort (+25% attack, −15% defense), Soulfire (10: hits burn your own HP for extra damage), Blood Blade (15: hits drain HP). Dark Magic A: Blight (damage over time, lowers attack), Drain (5), Mind Drain (12: steals MP), Stun (17: stops a readied move)"],
     ["Bard (advanced)", "Support", "Songs reach every ally within range and last 2 minutes; each person holds two songs and a third replaces the oldest. Battle Minuet (attack), Mending Paeon (HP over time), Wellspring Ballad (MP over time), Keen Madrigal (accuracy), Swift March (attack speed), Drowsy Lullaby (5: puts a monster to sleep until it's hit; bosses are immune), tier II Paeon (13) and Minuet (17), Encore (15: songs sing three times faster). Dagger B"],
-    ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"]
+    ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"],
+    ["Samurai (advanced)", "Damage", "Great Katana A (new weapon type), polearm B. Meditate (gain 400 TP), Hasso (5: +12% damage, +10 accuracy for 2 min), Third Eye (15: the next melee attack on you misses). Weapon skills: Rising Edge, Crescent Cut (22), Ember Arc (40), Heaven's Divide (75)"],
+    ["Ninja (advanced)", "Tank / damage", "Katana A (new weapon type), dagger B, Ninjutsu A. Shadow Veil (3: 2 shadow images, 3 from level 12; each soaks one melee hit), Flame (2), Frost (6) and Gale (10) Shuriken, Binding Thread (8: roots the target for 10 s). Smoke Step (5: halves enmity on every monster), Twin Strike (15: next three attacks hit twice)"],
+    ["Dragoon (advanced)", "Damage", "Polearm A (new weapon type), staff B. Jump (leap attack, +100 TP), High Jump (10: harder leap, halves the target's enmity toward you), Dragon Spirit (15: +15% damage for 60 s). Weapon skills: Piercing Thrust, Wind Lance (22), Drake Dive (40), Sky Rend (75)"]
   ]) + ul([
+    "<b>Samurai, Ninja and Dragoon</b> unlock at level 12 through Tobin: <i>The Patient Blade</i> (Samurai: 1 Iron Ingot, 2 Ash Lumber), <i>Steps Without Sound</i> (Ninja: 3 Bat Wings, 2 Worm Silk) and <i>Wings of the Wyrm</i> (Dragoon: 3 Lizard Skins, 1 Crag Feather). Their weapons are sold by Pell (bronze to steel) and Vela (frostforged). Samurai and Dragoons can wear warrior armour; Ninjas can wear thief gear.",
     "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per real day (24 hours). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
@@ -15781,7 +15917,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "10.10.0";
+const GAME_VERSION = "11.0.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18500,6 +18636,9 @@ const JOB_TINT = {
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
   DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  SAM: { shirt: 0x6a3a2a, pants: 0x2a2420, robe: 0x6a3a2a, trim: 0xe0a060 },
+  NIN: { shirt: 0x2a3038, pants: 0x1e2228, robe: 0x2a3038, trim: 0x78909c },
+  DRG: { shirt: 0x2a3a6a, pants: 0x2a2a34, robe: 0x2a3a6a, trim: 0x5c8adb },
   BRD: { shirt: 0x8a5a20, pants: 0x3a2e24, robe: 0x8a5a20, trim: 0xffd54f },
   SMN: { shirt: 0x2a6a78, pants: 0x2a2a38, robe: 0x2a6a78, trim: 0xd8c070, deep: 0x1f4f5f }
 };
@@ -19477,6 +19616,32 @@ function weaponEntry(kind, id) {
     if (wlv >= 11) for (let k = 0; k < 2; k++) R.add(gRing(V3(0, 0.2 - k * 0.5, 0), 0.022, 0.006, "y", 10), "w", gold, "metal");
     R.add(gRing(V3(0, 0.78, 0), 0.025, 0.008, "y", 10), "w", gold, "metal");
     tip = [0.6, 1.0];
+  } else if (kind === "gkatana" || kind === "katana") {
+    const big = kind === "gkatana", L = big ? 0.92 : 0.6, W = big ? 0.04 : 0.032, curve = big ? 0.06 : 0.04;
+    R.add(gTaper(V3(0, big ? -0.24 : -0.12, 0), V3(0, 0.08, 0), 0.017, 0.016, 8), "w", 0x1a1418, "leather");
+    for (let k = 0; k < (big ? 6 : 4); k++) R.add(gRing(V3(0, (big ? -0.22 : -0.1) + k * 0.05, 0), 0.0185, 0.004, "y", 8), "w", 0xd8d0c0, "cloth");
+    R.add(gCyl(V3(0, 0.09, 0), 0.05, 0.05, 0.012, 12), "w", gold, "metal");
+    const sh = new THREE.Shape();
+    sh.moveTo(-W / 2, 0); sh.quadraticCurveTo(-W / 2 + curve * 0.4, L * 0.5, -W * 0.1 + curve, L * 0.97); sh.lineTo(W * 0.4 + curve, L); sh.quadraticCurveTo(W / 2 + curve * 0.5, L * 0.5, W / 2, 0); sh.closePath();
+    const bg = new THREE.ExtrudeGeometry(sh, { depth: 0.006, bevelEnabled: true, bevelThickness: 0.003, bevelSize: 0.003, bevelSegments: 1 });
+    bg.translate(0, 0.1, -0.003);
+    const uv = bg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + W) / (2 * W + curve), uv.getY(i) / L);
+    R.add(bg, "w", blade, "metal");
+    R.add(gBox(V3(curve * 0.35, 0.1 + L * 0.45, 0), W * 0.12, L * 0.8, 0.0135), "w", glowC || 0xf4f6f8, glowC ? "glow" : "metal", !!glowC);
+    tip = [0.3, 0.1 + L];
+  } else if (kind === "polearm") {
+    R.add(gTaper(V3(0, -0.7, 0), V3(0, 1.0, 0), 0.02, 0.018, 8), "w", wood, "wood");
+    for (let k = 0; k < 2; k++) R.add(gTaper(V3(0, 0.1 - k * 0.55, 0), V3(0, 0.25 - k * 0.55, 0), 0.024, 0.024, 8), "w", grip, "leather");
+    R.add(gRing(V3(0, 1.0, 0), 0.026, 0.008, "y", 10), "w", gold, "metal");
+    const sh = new THREE.Shape();
+    sh.moveTo(0, 0); sh.lineTo(0.05, 0.08); sh.lineTo(0.02, 0.32); sh.lineTo(0, 0.36); sh.lineTo(-0.02, 0.32); sh.lineTo(-0.05, 0.08); sh.closePath();
+    const hg = new THREE.ExtrudeGeometry(sh, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 1 });
+    hg.translate(0, 1.0, -0.006);
+    const uv = hg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + 0.05) / 0.1, uv.getY(i) / 0.36);
+    R.add(hg, "w", blade, "metal");
+    for (const s of [-1, 1]) R.add(gTaper(V3(0, 1.02, 0), V3(s * 0.09, 1.1, 0), 0.012, 0.003, 5), "w", blade, "metal");
+    if (glowC) R.add(gBall(V3(0, 1.0, 0), 0.03, 1, 1, 1, 8), "w", glowC, "glow", true);
+    tip = [0.9, 1.36];
   } else if (kind === "scythe") {
     R.add(gTaper(V3(0, -0.5, 0), V3(0, 1.0, 0), 0.022, 0.02, 8), "w", 0x3a2a22, "wood");
     R.add(gTaper(V3(0, 0.1, 0), V3(0, 0.22, 0), 0.026, 0.026, 8), "w", grip, "leather");
@@ -19508,7 +19673,7 @@ function weaponEntry(kind, id) {
     tip = [0.62, 1.02];
   }
   const e = R.finish();
-  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9 }[kind] || 1;
+  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9, gkatana: 0.86, katana: 0.9, polearm: 0.84 }[kind] || 1;
   if (k !== 1) { e.geo.scale(k, k, k); e.geo.computeBoundingSphere(); e.geo.boundingSphere.radius *= 1.6; tip = tip.map(x => x * k); }
   e.tip = tip;
   RIG.weaponCache.set(key, e);
@@ -19890,7 +20055,8 @@ function applyPose(v, dt, sharp) {
 function attackKind(v, e) {
   const w = v.weaponKind;
   if (v.style && v.style.claws) return "claw";
-  if (w === "greataxe" || w === "scythe") return "cleave";
+  if (w === "greataxe" || w === "scythe" || w === "gkatana") return "cleave";
+  if (w === "polearm") return "thrust";
   if (w === "club") return "smash";
   if (w === "staff") return "thrust";
   if (!w || w === "h2h") return "punch";
@@ -19949,6 +20115,13 @@ function poseHuman(v, e, dt) {
       else if (em.id === "thumbsup") { setP(P, "upArmR", -1.1, 0, -0.2, w); setP(P, "foreArmR", -1.4, 0, 0, w); addP(P, "head", -0.05 * w, 0, 0.1 * w); }
     }
   }
+  if (e.jumpAt != null && S.time - e.jumpAt < 0.9) {
+    const jk = (S.time - e.jumpAt) / 0.9, up = Math.sin(jk * Math.PI) * (e.jumpHigh ? 3.2 : 2.2), w = env(jk, 0.1, 0.15);
+    v.rootOff[1] += up;
+    setP(P, "thighL", -1.2, 0, 0.1, w); setP(P, "thighR", -0.6, 0, -0.1, w); setP(P, "shinL", 1.6, 0, 0, w); setP(P, "shinR", 1.2, 0, 0, w);
+    setP(P, "upArmR", jk < 0.5 ? -2.6 : -0.6, 0, -0.2, w); setP(P, "foreArmR", -0.3, 0, 0, w); setP(P, "upArmL", jk < 0.5 ? -2.4 : -0.5, 0, 0.2, w);
+    addP(P, "spine", (jk < 0.5 ? -0.2 : 0.35) * w, 0, 0);
+  }
   if (!an.lastYaw) an.lastYaw = e.face || 0;
   const dyaw = Math.abs(normAngA((e.face || 0) - an.lastYaw));
   an.lastYaw = e.face || 0;
@@ -19997,9 +20170,9 @@ function poseHuman(v, e, dt) {
     addP(P, "footL", -0.17 * sw, 0, 0); addP(P, "footR", -0.35 * sw, 0, 0);
     v.rootOff[1] -= 0.05 * sw;
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
-    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
+    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
-    else if (v.weaponKind === "staff") { addP(P, "upArmR", -0.4 * sw, 0, 0); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -0.3 * sw, 0, 0); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
+    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.4 * sw, 0, 0); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -0.3 * sw, 0, 0); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else { addP(P, "upArmR", -0.55 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.75 * sw, 0, 0); addP(P, "upArmL", -0.45 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
   }
 
@@ -21411,14 +21584,14 @@ function placeWeapon(v, e) {
   if (drawn) {
     v.bones.handR.add(w);
     w.position.set(0, -0.06, 0.01);
-    if (k === "staff") w.rotation.set(0.2, 0, 0);
+    if (k === "staff" || k === "polearm") w.rotation.set(0.2, 0, 0);
     else if (k === "archery") w.rotation.set(0, 0, 0.1);
-    else if (k === "greataxe" || k === "scythe") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
+    else if (k === "greataxe" || k === "scythe" || k === "gkatana") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
     else w.rotation.set(Math.PI / 2 - 0.25, 0, 0);
   } else {
     v.bones.chest.add(w);
     const bz = v.meta.backZ || -0.15;
-    if (k === "staff" || k === "greataxe" || k === "scythe") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
+    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
     else { w.position.set(0.04, 0.0, bz); w.rotation.set(0, 0, Math.PI + 0.55); }
   }
 }
