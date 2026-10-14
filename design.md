@@ -1247,6 +1247,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Metrics (side probe, flat ground): stance slide median — sheep 0.047/0.053 m/s (walk/trot), dog 0.030/0.036, longneck 0.075/0.095, lizard sprawl 0.09; measured duty within 0.03 of target. Gallop still slides ~0.3 m/s (body pitch) — acceptable at that speed.
 - Spells: `spellLearnable(sp, ch)` = main job at level or support job at floor(lv/2), same rule as `knows`. Scroll items hide "Add to action bar". Test p48unit.
 
+## Phase 99: interface sounds (v14.6.0) — plan T1
+- `UI_SYNTH` (audio.js): per sound a list of partials [type, f0, f1, startAt, dur, gain, lowpass?]; types sine/square/triangle (exponential pitch glide f0→f1), noise (shared 0.3 s white buffer through a Q 1.2 bandpass at f0), bell (sine carrier + 3.5× modulator, index decays from 0.9·f0 → 1 over dur). Envelope: 6 ms attack, exponential decay to 0.0008. `uiSynth(name, vol)` builds the graph into AUDIO.bus.ui and disconnects after it ends.
+- `sfx()` prefers UI_SYNTH over clips for the same name (replaces clips for select, tab, click, close, open, error, notify, coin, equip, quest, unlock, toast, xp); new names cursor, tell, pchat, target, page, buy. Cursor throttle 35 ms. UI_SOUNDS includes the new names (ui bus).
+- Hooks: arrow keys in dialogs, target command menu, main command menu and modal lists → cursor; `uiHoverSounds()` (hud4, started after initAudio) plays cursor on mouse pointerover of buttons/items/data-a/data-mc/data-tc/data-o (mouse only, once per element); setTarget (changed, not quiet) → target; netOnTell → tell; netOnPChat → pchat; buy() → buy.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1299,6 +1304,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.6.0 | Phase 99: synthesized FFXI-style interface sounds (cursor, confirm, cancel, open/close, error, target, equip, coins, chat chimes). |
 | 14.5.0 | Phase 98: turn-in-place foot planting, quadruped walk/trot/gallop IK, spell learning by main/support job. |
 | 14.4.0 | Phase 97: fur/feather shells on High, critter details (bat fingers, shroom gills, worm bristles, whiskers, toes). |
 | 14.3.0 | Phase 96: beastman family silhouettes and gear, hunched postures, boss banners. |

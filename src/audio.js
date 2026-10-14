@@ -19,7 +19,7 @@ const SFX_FILES = {
   tab: "ui_tab", open: "ui_open", close: "ui_close", toast: "ui_toast"
 };
 const SFX_GAIN = { step: 0.35, hoof: 0.5, miss: 0.6, slash: 0.8, blunt: 0.8, xp: 0.5, click: 0.7, select: 0.7, tab: 0.6, toast: 0.6, aggro: 0.7, cast: 0.7, fanfare: 0.9, levelup: 0.9 };
-const UI_SOUNDS = new Set(["xp", "unlock", "error", "notify", "coin", "click", "select", "tab", "open", "close", "toast", "equip", "loot", "quest"]);
+const UI_SOUNDS = new Set(["xp", "unlock", "error", "notify", "coin", "click", "select", "tab", "open", "close", "toast", "equip", "loot", "quest", "cursor", "tell", "pchat", "target", "page", "buy"]);
 const MUSIC_FOR = { town: "music_outpost", house: "music_residence", field: "music_hollow", cave: "music_den", crypt: "music_crypt" };
 
 function loadAudioSettings() {
@@ -123,15 +123,81 @@ function sfxGainFor(name, e) {
   return { v, pan };
 }
 
+const UI_SYNTH = {
+  cursor: [["sine", 2350, 2250, 0, 0.032, 0.32], ["square", 1175, 1175, 0, 0.018, 0.05]],
+  tab: [["sine", 1975, 1865, 0, 0.04, 0.28], ["noise", 4200, 0, 0, 0.012, 0.1]],
+  select: [["sine", 1568, 1568, 0, 0.16, 0.34], ["sine", 2349, 2349, 0.018, 0.2, 0.26], ["sine", 3136, 3136, 0.03, 0.12, 0.08]],
+  click: [["sine", 1760, 1700, 0, 0.06, 0.3], ["triangle", 880, 880, 0, 0.05, 0.12]],
+  close: [["triangle", 1175, 784, 0, 0.09, 0.32], ["sine", 1568, 1046, 0.01, 0.07, 0.12]],
+  open: [["sine", 1046, 1046, 0, 0.06, 0.22], ["sine", 1318, 1318, 0.035, 0.06, 0.22], ["sine", 1760, 1760, 0.07, 0.12, 0.24], ["noise", 6000, 0, 0, 0.09, 0.03]],
+  error: [["square", 196, 180, 0, 0.09, 0.16, 900], ["square", 185, 170, 0.11, 0.12, 0.16, 900]],
+  notify: [["bell", 1318, 1318, 0, 0.5, 0.26], ["bell", 1760, 1760, 0.12, 0.6, 0.24]],
+  tell: [["bell", 1568, 1568, 0, 0.45, 0.24], ["bell", 2093, 2093, 0.1, 0.5, 0.22], ["bell", 1568, 1568, 0.2, 0.6, 0.16]],
+  pchat: [["bell", 1174, 1174, 0, 0.35, 0.18], ["bell", 1568, 1568, 0.08, 0.45, 0.16]],
+  coin: [["bell", 2637, 2637, 0, 0.18, 0.2], ["bell", 3520, 3520, 0.06, 0.3, 0.2]],
+  equip: [["noise", 3200, 0, 0, 0.06, 0.22], ["square", 660, 520, 0, 0.05, 0.08, 2400], ["bell", 1975, 1975, 0.02, 0.2, 0.12]],
+  target: [["sine", 1760, 2200, 0, 0.05, 0.3], ["sine", 3520, 3520, 0.01, 0.05, 0.08]],
+  page: [["noise", 2500, 0, 0, 0.09, 0.14], ["sine", 1318, 1480, 0.01, 0.05, 0.12]],
+  buy: [["bell", 2093, 2093, 0, 0.16, 0.2], ["bell", 2637, 2637, 0.06, 0.16, 0.2], ["bell", 3136, 3136, 0.12, 0.35, 0.2]],
+  quest: [["bell", 1046, 1046, 0, 0.3, 0.2], ["bell", 1318, 1318, 0.09, 0.3, 0.2], ["bell", 1568, 1568, 0.18, 0.3, 0.2], ["bell", 2093, 2093, 0.27, 0.7, 0.22]],
+  unlock: [["bell", 1568, 1568, 0, 0.3, 0.2], ["bell", 2093, 2093, 0.08, 0.3, 0.2], ["bell", 2637, 2637, 0.16, 0.6, 0.22]],
+  toast: [["bell", 1760, 1760, 0, 0.3, 0.16]],
+  xp: [["sine", 1318, 1760, 0, 0.12, 0.18]]
+};
+let UI_NOISE = null;
+function uiNoise(ctx) {
+  if (UI_NOISE) return UI_NOISE;
+  const b = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return (UI_NOISE = b);
+}
+function uiSynth(name, vol) {
+  const def = UI_SYNTH[name], ctx = AUDIO.ctx;
+  if (!def || !ctx) return false;
+  const t0 = ctx.currentTime + 0.005, out = ctx.createGain();
+  out.gain.value = vol;
+  out.connect(AUDIO.bus.ui);
+  let end = 0;
+  for (const [type, f0, f1, at, dur, g, lp] of def) {
+    const t = t0 + at, env = ctx.createGain();
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(g, t + Math.min(0.006, dur * 0.2));
+    env.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    let src;
+    if (type === "noise") {
+      src = ctx.createBufferSource(); src.buffer = uiNoise(ctx);
+      const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = f0; bp.Q.value = 1.2;
+      src.connect(bp); bp.connect(env);
+    } else if (type === "bell") {
+      src = ctx.createOscillator(); src.type = "sine"; src.frequency.value = f0;
+      const mod = ctx.createOscillator(), mg = ctx.createGain();
+      mod.frequency.value = f0 * 3.5; mg.gain.setValueAtTime(f0 * 0.9, t); mg.gain.exponentialRampToValueAtTime(1, t + dur);
+      mod.connect(mg); mg.connect(src.frequency); mod.start(t); mod.stop(t + dur + 0.02);
+      src.connect(env);
+    } else {
+      src = ctx.createOscillator(); src.type = type;
+      src.frequency.setValueAtTime(f0, t);
+      if (f1 !== f0) src.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+      if (lp) { const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = lp; src.connect(f); f.connect(env); } else src.connect(env);
+    }
+    env.connect(out);
+    src.start(t); src.stop(t + dur + 0.02);
+    end = Math.max(end, at + dur);
+  }
+  setTimeout(() => { try { out.disconnect(); } catch (e) {} }, (end + 0.2) * 1000);
+  return true;
+}
+
 function sfx(name, e) {
   if (!AUDIO.ready || !AUDIO.settings || AUDIO.settings.muted) return;
-  const file = SFX_FILES[name];
+  const file = SFX_FILES[name] || (UI_SYNTH[name] ? "syn_" + name : null);
   if (!file) return;
   const now = performance.now();
-  if (now - (AUDIO.lastAt[file] || 0) < (name === "step" || name === "hoof" ? 90 : 45)) return;
+  if (now - (AUDIO.lastAt[file] || 0) < (name === "step" || name === "hoof" ? 90 : name === "cursor" ? 35 : 45)) return;
   AUDIO.lastAt[file] = now;
   const { v, pan } = sfxGainFor(name, e);
   if (v <= 0.01) return;
+  if (UI_SYNTH[name] && !AUDIO.fallback && AUDIO.ctx && uiSynth(name, v)) return;
   if (name === "levelup" || name === "fanfare") duckMusic(name === "fanfare" ? 4.2 : 2.4);
   if (AUDIO.fallback) { playHtml(file, v); return; }
   const buf = AUDIO.buffers[file];
