@@ -1438,6 +1438,9 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.3.1", date: "2026-10-13", title: "Menu stays open", items: [
+    "Choosing something from the main menu (Items, Equipment, Quests and so on) keeps the menu open on the right while the window shows on the left. Pick another entry to switch windows; Esc closes the window and puts you back on the same menu entry."
+  ] },
   { v: "9.3.0", date: "2026-10-13", title: "Classic lists", items: [
     "Items is a slim list in the top left (the Commands box shows how full your bag is, like Items 11/30). Point at an item to see its card under the list; choose it to get Use, Eat, Equip, Add to action bar or Drop in a small box.",
     "Shops are a slim Buy/Sell list with prices, your crystals and the item's card underneath. Choose an item to buy or sell one, a few or all of them.",

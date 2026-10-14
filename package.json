@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.3.0",
-  "releaseTitle": "Classic lists",
+  "version": "9.3.1",
+  "releaseTitle": "Menu stays open",
   "description": "",
   "main": "index.js",
   "scripts": {
