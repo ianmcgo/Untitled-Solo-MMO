@@ -1443,6 +1443,13 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.7.0", date: "2026-10-14", title: "Offline play", items: [
+    "After Press Start you now choose Play Online or Play Offline. Offline needs no account or internet connection.",
+    "Offline characters have their own list, are saved only on this device, and play solo with companions and every non-player system (quests, crafting, gathering, the NPC market, guild bounties and more). Parties with other players, trades, tells, linkshells, search and the players' auction house are hidden.",
+    "Offline characters can never be brought online. They are stored apart from online characters, carry an offline mark that the game refuses to upload or load into an online character, and the server itself rejects any save carrying that mark.",
+    "The Network box shows Offline while you play offline.",
+    "Server owners: run the latest setup SQL (Admin → Copy setup SQL). It adds the server-side offline check (server version 5)."
+  ] },
   { v: "9.6.0", date: "2026-10-14", title: "Classic windows everywhere", items: [
     "Every remaining window (Party, Mercenaries, Bestiary, Achievements, Social, Config, Map, Help, Updates, Job, Guild, Auction and more) now uses the classic style: section headings as pale title bars, flat striped rows instead of rounded cards, blue sliders and the same font throughout.",
     "Help sections open as classic headings, and the Help text was rewritten for the current screen: windows in the world, the compass map, talking in the log, Pip for job changes, the daily Mercenary Hall and permadeath, Config instead of Settings, and no more mentions of the old side menu, action bar pages or top-right buttons.",
@@ -1893,6 +1900,11 @@ function tabHelp() {
     "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
+  h += sec("📴 Offline play", ul([
+    "Choose <b>Play Offline</b> after Press Start to play without an account. Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",
+    "Everything that doesn't need other players works offline: quests, story, companions, crafting, gathering, fishing, the NPC market and guild bounties.",
+    "Offline characters can never be moved online, uploaded or loaded into an online character. Use System → Save to file to back one up on the same or another device's offline list."
+  ]));
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",

@@ -7,7 +7,7 @@ create table if not exists game_private.config (k text primary key, v text not n
 revoke all on game_private.config from public, anon, authenticated;
 insert into game_private.config (k, v) values ('level_cap', '20') on conflict (k) do nothing;
 insert into game_private.config (k, v) values ('bag_size', '30') on conflict (k) do nothing;
-insert into game_private.config (k, v) values ('schema', '4') on conflict (k) do update set v = greatest(game_private.config.v::int, 4)::text;
+insert into game_private.config (k, v) values ('schema', '5') on conflict (k) do update set v = greatest(game_private.config.v::int, 5)::text;
 
 create table if not exists game_private.audit (id bigserial primary key, at timestamptz not null default now(), char_id uuid, char_name text, owner uuid, kind text not null, detail text);
 create table if not exists game_private.trade_offers (me uuid primary key, peer uuid not null, mine jsonb not null, theirs jsonb not null, created_at timestamptz not null default now(), status text not null default 'open', result jsonb);
@@ -153,6 +153,17 @@ end $$;
 revoke all on function public.check_character_save() from public, anon, authenticated;
 drop trigger if exists characters_check on public.characters;
 create trigger characters_check before update on public.characters for each row execute function public.check_character_save();
+create or replace function public.reject_offline_character() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if jsonb_typeof(new.data) = 'object' and (new.data ? 'offline') and coalesce(new.data ->> 'offline', 'false') <> 'false' then
+    raise exception 'Offline characters can never be brought online';
+  end if;
+  return new;
+end $$;
+revoke all on function public.reject_offline_character() from public, anon, authenticated;
+drop trigger if exists characters_no_offline on public.characters;
+create trigger characters_no_offline before insert or update on public.characters for each row execute function public.reject_offline_character();
 
 create or replace function game_private.offer_key(o jsonb) returns text
 language sql immutable as $$

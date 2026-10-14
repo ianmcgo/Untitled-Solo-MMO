@@ -1018,6 +1018,7 @@ function updateFF() {
         const lag = NET.ping || 120;
         pct = live ? clamp(Math.round(100 - Math.max(0, lag - 150) / 12), 5, 100) + "%" : NET.lastErr ? "0%" : "50%";
       }
+      if (PLAY.offline) pct = "Offline";
       setTxt($("ffNetPct"), pct);
       setTxt($("ffNetS"), "S " + (typeof NET_RT !== "undefined" ? (NET_RT.sent || 0) % 1000 : 0));
       setTxt($("ffNetR"), "R " + (typeof NET_RT !== "undefined" ? (NET_RT.recv || 0) % 1000 : 0));
@@ -1105,8 +1106,10 @@ function tabHelpLine(tab) {
 }
 function mainCmdItems() {
   if (UI.mm.sub === "status") return STATUS_CMDS;
-  const pg = MAIN_CMDS[UI.mm.page].slice();
-  if (UI.mm.page === 0 && S.zone && S.zone.residence) pg[11] = ["Residence", "home", "Arrange furniture and use your residence."];
+  let pg = MAIN_CMDS[UI.mm.page].slice();
+  if (PLAY.offline) pg = pg.filter(it => !["@trade", "@search", "@ls", "@friends", "social"].includes(it[1]));
+  const mi = pg.findIndex(it => it[1] === "map");
+  if (mi >= 0 && S.zone && S.zone.residence) pg[mi] = ["Residence", "home", "Arrange furniture and use your residence."];
   return pg;
 }
 

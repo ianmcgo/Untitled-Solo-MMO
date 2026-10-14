@@ -1,4 +1,4 @@
-const NET_SCHEMA = 4;
+const NET_SCHEMA = 5;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -66,7 +66,7 @@ async function netSignOut() {
   try { netLeaveAll(); } catch (e) {}
   try { await NET.sb.auth.signOut(); } catch (e) {}
   NET.user = null; NET.session = null; NET.member = false;
-  try { localStorage.removeItem(ROSTER_KEY); } catch (e) {}
+  try { localStorage.removeItem(ROSTER_ON); } catch (e) {}
 }
 
 function netSummary(id, d) { const s = charSummary(id, d); return { job: s.job, lv: s.lv, zone: s.zone, look: s.look, gil: s.gil, created: s.created, played: Date.now() }; }
@@ -98,6 +98,7 @@ async function netFetchChar(id) {
 }
 
 async function netCreateChar(id, d) {
+  if (PLAY.offline || (d && d.offline)) throw new Error("Offline characters can never be brought online.");
   const { error } = await NET.sb.from("characters").insert({ id, name: d.name, data: d, summary: netSummary(id, d) });
   if (error) { if (error.code === "23505") throw new Error("The name " + d.name + " is already taken on this server."); throw error; }
 }
@@ -122,7 +123,7 @@ async function netUploadLocal() {
   return out;
 }
 
-function netMarkDirty(id) { if (NET.member && isUuid(id)) NET.dirty[id] = true; }
+function netMarkDirty(id) { if (NET.member && !PLAY.offline && isUuid(id) && !(save && save.offline)) NET.dirty[id] = true; }
 
 async function netFlush(keepalive) {
   if (!NET.member || NET.saving || NET.saveLock) return;
@@ -133,6 +134,7 @@ async function netFlush(keepalive) {
     const raw = STORE.get(charKey(id));
     if (!raw) { delete NET.dirty[id]; continue; }
     let d; try { d = JSON.parse(raw); } catch (e) { delete NET.dirty[id]; continue; }
+    if (d && d.offline) { delete NET.dirty[id]; continue; }
     const body = { data: d, summary: netSummary(id, d), name: d.name, updated_at: new Date().toISOString() };
     try {
       if (keepalive && NET.session) {
