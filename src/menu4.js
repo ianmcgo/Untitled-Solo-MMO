@@ -1443,6 +1443,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.8.1", date: "2026-10-14", title: "Smarter companions", items: [
+    "Companions now use any of their job's abilities and spells sensibly: self-boosts when a fight starts, debuffs like Dia, Slow, Paralyze and Blight on the target while they have MP, nukes picked for the target's weakness, and emergency cures when someone is in trouble and no healer is free.",
+    "Support companions (such as a support White Mage) now join the fight in melee when nobody needs healing. Healers stay back and keep casting.",
+    "Black Mages nuke more often instead of holding most of their MP, while burst specialists still save MP when a skillchain is coming.",
+    "If something goes wrong with one companion, the others keep fighting instead of all stopping."
+  ] },
   { v: "9.8.0", date: "2026-10-14", title: "Sky and light", items: [
     "A second, higher cloud layer drifts more slowly than the first for depth, and clouds glow orange and pink around sunrise and sunset.",
     "The sun has a soft glow that grows and warms near the horizon. The moon now shows its phase, which changes from one game day to the next.",
