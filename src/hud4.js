@@ -960,6 +960,9 @@ function initHud() {
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
+  $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
+  $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) closeModal(); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
+  $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
   $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
   $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });
@@ -1036,6 +1039,7 @@ function updateFF() {
   if (rows <= 0) UI.logShown = 0;
   const mw = $("mmWrap");
   if (mw) { mw.style.bottom = rows > 0 ? "calc(" + (chat.offsetHeight + 16) + "px + var(--sab))" : ""; mw.style.visibility = S.dialog || S.modal || UI.cmd || UI.confirmOpen ? "hidden" : ""; }
+  const mb = $("mobBar"), sd = $("ffSide"); if (mb && sd) { const mp = $("mpBox"); mb.style.bottom = "calc(" + (sd.offsetHeight + 12 + (mp && mp.classList.contains("on") ? mp.offsetHeight + 6 : 0)) + "px + var(--sab))"; }
   const tc = $("tCmd"); if (tc) tc.style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 14) + "px + var(--sab))";
   if (UI.cmd && Date.now() - (UI.mpAt || 0) > 400) { UI.mpAt = Date.now(); renderMpBox(); } else if (!UI.cmd) { const mb = $("mpBox"); if (mb) mb.classList.remove("on"); }
   const dg = $("dialog"), mw2 = S.modal && document.querySelector("#menu .win");

@@ -933,6 +933,22 @@ function initRenderer() {
   W3.clouds = new THREE.Mesh(cloudGeo, new THREE.MeshBasicMaterial({ map: ct, transparent: true, opacity: 0.8, depthWrite: false, fog: false, side: THREE.DoubleSide }));
   W3.clouds.position.y = 260;
   W3.scene.add(W3.clouds);
+  const ct2 = texClouds();
+  ct2.repeat.set(1.6, 1.6);
+  W3.clouds2 = new THREE.Mesh(cloudGeo.clone(), new THREE.MeshBasicMaterial({ map: ct2, transparent: true, opacity: 0.45, depthWrite: false, fog: false, side: THREE.DoubleSide }));
+  W3.clouds2.position.y = 360;
+  W3.clouds2.scale.setScalar(1.3);
+  W3.scene.add(W3.clouds2);
+  W3.sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xfff0d0, transparent: true, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
+  W3.sunGlow.scale.setScalar(220);
+  W3.scene.add(W3.sunGlow);
+  W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(0.5), transparent: true, depthWrite: false, fog: false }));
+  W3.moonDisc.scale.setScalar(34);
+  W3.scene.add(W3.moonDisc);
+  const hz = new THREE.CylinderGeometry(1150, 1150, 320, 48, 1, true);
+  W3.haze = new THREE.Mesh(hz, new THREE.MeshBasicMaterial({ map: hazeTex(), transparent: true, depthWrite: false, fog: false, side: THREE.BackSide }));
+  W3.haze.renderOrder = -1;
+  W3.scene.add(W3.haze);
   W3.sun = new THREE.DirectionalLight(0xffffff, 3);
   W3.sun.castShadow = W3.quality !== "low";
   const ss = W3.quality === "high" ? 2048 : 1024;
@@ -1017,6 +1033,38 @@ function* buildZone3DSteps() {
   updateSky(true);
 }
 
+const ATMOS = {
+  outpost: { tint: 0xffe8c8, haze: 0.12, far: 1, clouds: 0.85 },
+  hollow: { tint: 0xfff0d2, haze: 0.1, far: 1.1, clouds: 0.8 },
+  marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
+  frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
+  harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  depths: { tint: 0x8aa8b8, haze: 0.4, far: 0.7, clouds: 1 }
+};
+function moonTex(phase) {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d");
+  g.fillStyle = "#e8eeff"; g.beginPath(); g.arc(32, 32, 28, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "rgba(170,180,210,.35)";
+  for (const [x, y, r] of [[22, 24, 6], [38, 40, 8], [40, 20, 4], [26, 42, 3]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+  const k = Math.cos(phase * Math.PI * 2);
+  g.globalCompositeOperation = "destination-out";
+  g.fillStyle = "rgba(0,0,0,.92)";
+  g.beginPath();
+  if (phase < 0.5) { g.arc(32, 32, 29, Math.PI / 2, -Math.PI / 2, false); g.ellipse(32, 32, Math.abs(k) * 29, 29, 0, -Math.PI / 2, Math.PI / 2, k < 0); }
+  else { g.arc(32, 32, 29, -Math.PI / 2, Math.PI / 2, false); g.ellipse(32, 32, Math.abs(k) * 29, 29, 0, Math.PI / 2, -Math.PI / 2, k < 0); }
+  g.fill();
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+function hazeTex() {
+  const c = document.createElement("canvas"); c.width = 4; c.height = 128;
+  const g = c.getContext("2d"), gr = g.createLinearGradient(0, 0, 0, 128);
+  gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.45, "rgba(255,255,255,.25)"); gr.addColorStop(0.75, "rgba(255,255,255,.75)"); gr.addColorStop(1, "rgba(255,255,255,.95)");
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 128);
+  return new THREE.CanvasTexture(c);
+}
 function skyColors(sunY) {
   const night = new THREE.Color(0x101830), dusk = new THREE.Color(0xd8865a), day = new THREE.Color(0xa9c4dc);
   const c = new THREE.Color();
@@ -1117,26 +1165,44 @@ function updateSky(force) {
   const moonDir = dir.clone().multiplyScalar(-1);
   if (moonDir.y < 0.05) moonDir.y = 0.05;
   W3.moon.position.copy(W3.camera.position).addScaledVector(moonDir.normalize(), 800);
-  W3.moon.material.opacity = 1 - dayAmt;
+  if (W3.moonDisc) { W3.moonDisc.position.copy(W3.moon.position); W3.moonDisc.material.opacity = 1 - dayAmt * 0.85; }
+  W3.moon.material.opacity = (1 - dayAmt) * 0.6;
   W3.clouds.position.x = W3.camera.position.x;
   W3.clouds.position.z = W3.camera.position.z;
+  const atm = ATMOS[S.zoneId] || null;
+  for (const o of [W3.clouds2, W3.sunGlow, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
+  if (W3.clouds2) { W3.clouds2.position.x = W3.camera.position.x; W3.clouds2.position.z = W3.camera.position.z; }
+  if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.camera.position.y - 20, W3.camera.position.z); }
+  W3.stars.rotation.y = v.frac * Math.PI * 2;
   const wx = !cave && !indoor && typeof weatherNow === "function" ? weatherNow() : null;
   const snowy = wx === "snow" || wx === "blizzard";
   const wet = wx === "rain" || wx === "storm", gloom = wet ? 0.55 : wx === "blizzard" ? 0.5 : wx === "cloudy" || wx === "snow" ? 0.35 : wx === "fog" ? 0.3 : 0;
   W3.cloudOff = (W3.cloudOff || 0) + (1 / 60) * (wx === "wind" || wx === "storm" ? 4 : 1);
   W3.clouds.material.map.offset.x = W3.cloudOff * 0.0018;
   W3.clouds.material.map.offset.y = W3.cloudOff * 0.0009;
+  if (W3.clouds2) { W3.clouds2.material.map.offset.x = W3.cloudOff * 0.0007; W3.clouds2.material.map.offset.y = -W3.cloudOff * 0.0004; }
   updateRain(wet ? (wx === "storm" ? 1 : 0.7) : snowy ? (wx === "blizzard" ? 1 : 0.6) : 0, wx === "wind" || wx === "storm" || wx === "blizzard", snowy);
   const fogC = theme === "crypt" ? new THREE.Color(0x14141c) : cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
-  W3.clouds.material.color.copy(new THREE.Color(0xffffff).lerp(fogC, 0.35).multiplyScalar(mix(0.18, 1, dayAmt)));
+  if (atm && !cave && !indoor) fogC.lerp(new THREE.Color(atm.tint).multiplyScalar(mix(0.25, 1, dayAmt)), atm.haze);
+  const golden = sstep(-0.05, 0.08, sunY) * (1 - sstep(0.1, 0.32, sunY));
+  const cloudC = new THREE.Color(0xffffff).lerp(fogC, 0.35).lerp(new THREE.Color(0xffa070), golden * 0.55).multiplyScalar(mix(0.18, 1, dayAmt));
+  W3.clouds.material.color.copy(cloudC);
+  W3.clouds.material.opacity = 0.8 * (atm ? atm.clouds : 1) * (1 + gloom * 0.25);
+  if (W3.clouds2) { W3.clouds2.material.color.copy(cloudC).lerp(new THREE.Color(0xffc8a0), golden * 0.3); W3.clouds2.material.opacity = 0.42 * (atm ? atm.clouds : 1) + gloom * 0.3; }
+  if (W3.sunGlow) { W3.sunGlow.position.copy(W3.camera.position).addScaledVector(dir, 900); W3.sunGlow.material.opacity = sstep(-0.08, 0.05, sunY) * (1 - gloom * 0.85) * 0.9; W3.sunGlow.material.color.setRGB(1, mix(0.94, 0.62, golden), mix(0.82, 0.4, golden)); W3.sunGlow.scale.setScalar(mix(200, 320, golden)); }
+  if (W3.moonDisc) {
+    const day = Math.floor((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000 / 1440), ph = ((day % 24) + 24) % 24 / 24;
+    if (W3.moonPhase !== day) { W3.moonPhase = day; W3.moonDisc.material.map.dispose(); W3.moonDisc.material.map = moonTex(ph); W3.moonDisc.material.needsUpdate = true; }
+  }
   W3.fog.color.copy(fogC);
+  if (W3.haze) W3.haze.material.color.copy(fogC);
   if (gloom) W3.fog.color.lerp(snowy ? (W3.snowFog || (W3.snowFog = new THREE.Color(0xc4ccd4))) : W3.gloomColor || (W3.gloomColor = new THREE.Color(0x6a7078)), (snowy ? 1.4 : 1) * gloom * (0.3 + 0.7 * dayAmt));
   if (S.zone.mist) W3.fog.color.lerp(W3.mistColor || (W3.mistColor = new THREE.Color(0x8a9a8c)), 0.45 * (0.4 + 0.6 * dayAmt));
   if (theme === "crypt") { W3.fog.near = 10; W3.fog.far = 95; }
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
-  else { W3.fog.near = mix(30, 70, dayAmt); W3.fog.far = mix(180, 420, dayAmt); }
+  else { W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1); W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1); }
   if (!cave && !indoor && (wx === "fog" || wet || wx === "blizzard")) { const k = wx === "fog" ? 0.45 : wx === "blizzard" ? 0.22 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;

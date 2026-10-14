@@ -770,6 +770,17 @@
   #mmTime { margin: 2px 0 0 18px; font: italic 900 14px var(--ffFont); color: #fff; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
   #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
   #clockBox, #trBtns { display: none !important; }
+  #toasts { top: calc(48px + var(--sat)) !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; align-items: center !important; }
+  .toast { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; backdrop-filter: none !important; font-family: var(--ffFont); color: #fff; min-width: 240px; max-width: min(420px, 90vw) !important; }
+  .toast b { font: italic 900 13.5px var(--ffFont) !important; color: #fff !important; letter-spacing: .04em; text-shadow: 1px 1px 0 #000; }
+  #verPop { top: calc(48px + var(--sat)) !important; background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; backdrop-filter: none !important; font-family: var(--ffFont); }
+  #verPop .vpT { font: italic 900 15px var(--ffFont) !important; color: #fff !important; text-shadow: 1px 1px 0 #000; }
+  #verPop .vpB { color: #e8e8ff !important; font-family: var(--ffFont); }
+  .toast.r-rare, .toast.rare { border-color: #9ad0ff !important; } .toast.r-epic { border-color: #ffd070 !important; }
+  #mobBar { position: absolute; right: calc(6px + var(--sar)); bottom: calc(110px + var(--sab)); display: none; gap: 6px; z-index: 6; }
+  #mobBar button { height: 34px; padding: 0 14px; border-radius: 17px; border: 2px solid var(--ffEdge); background: linear-gradient(180deg, #b8c2f4 0%, #6a76d0 18%, #3e48a6 55%, #283080 100%); color: #fff; font: italic 900 14px var(--ffFont); letter-spacing: .04em; text-shadow: 1px 1px 0 #1a1a50; box-shadow: 0 3px 10px rgba(0,0,0,.5); }
+  #mobBar button:active { filter: brightness(1.25); }
+  @media (pointer: coarse) { #mobBar { display: flex; } #big .jmp, #btnJump { display: none !important; } }
   #mBody h3 { margin: 10px -4px 4px; padding: 2px 10px; border: none !important; font: italic 900 14px var(--ffFont); letter-spacing: .08em; color: #fff; -webkit-text-stroke: .4px #3a3a80; text-shadow: 1px 1px 0 #2a2a70; background: linear-gradient(90deg, rgba(235,238,255,.85), rgba(190,196,240,.5) 70%, rgba(190,196,240,.1)); }
   #mBody h3:first-child { margin-top: 0; }
   #mBody .item { border: none !important; border-bottom: 1px solid rgba(255,255,255,.1) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; padding: 6px 6px; margin-bottom: 0; }
@@ -884,7 +895,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.7.0 · built 2026-10-14 00:15 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.0 · built 2026-10-14 00:22 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -892,7 +903,7 @@
   <div id="flash"></div>
   <div id="joy"><div id="knob"></div></div>
   <div id="ui">
-    <div id="stOv"></div><div id="mpBox"></div>
+    <div id="stOv"></div><div id="mobBar"><button id="mobTarget">◎ Target</button><button id="mobMenu">☰ Menu</button></div><div id="mpBox"></div>
     <div id="ffTop"><div class="ffCmd">Commands</div><div class="ffBar"><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div></div>
     <div id="ffNetBox"><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div>
     <div id="ffStat"><div id="ffBars"><div class="r hp"><em>HP</em><div class="b"><i></i></div><b></b></div><div class="r mp"><em>MP</em><div class="b"><i></i></div><b></b></div><div class="r tp"><em>TP</em><div class="b"><i></i></div><b></b></div></div><div id="ffIcons"></div></div>
@@ -12793,6 +12804,9 @@ function initHud() {
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
+  $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
+  $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) closeModal(); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
+  $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
   $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
   $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });
@@ -12869,6 +12883,7 @@ function updateFF() {
   if (rows <= 0) UI.logShown = 0;
   const mw = $("mmWrap");
   if (mw) { mw.style.bottom = rows > 0 ? "calc(" + (chat.offsetHeight + 16) + "px + var(--sab))" : ""; mw.style.visibility = S.dialog || S.modal || UI.cmd || UI.confirmOpen ? "hidden" : ""; }
+  const mb = $("mobBar"), sd = $("ffSide"); if (mb && sd) { const mp = $("mpBox"); mb.style.bottom = "calc(" + (sd.offsetHeight + 12 + (mp && mp.classList.contains("on") ? mp.offsetHeight + 6 : 0)) + "px + var(--sab))"; }
   const tc = $("tCmd"); if (tc) tc.style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 14) + "px + var(--sab))";
   if (UI.cmd && Date.now() - (UI.mpAt || 0) > 400) { UI.mpAt = Date.now(); renderMpBox(); } else if (!UI.cmd) { const mb = $("mpBox"); if (mb) mb.classList.remove("on"); }
   const dg = $("dialog"), mw2 = S.modal && document.querySelector("#menu .win");
@@ -14432,13 +14447,23 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.7.0 · built 2026-10-14 00:15 PDT";
+const BUILD_INFO = "v9.8.0 · built 2026-10-14 00:22 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.8.0", date: "2026-10-14", title: "Sky and light", items: [
+    "A second, higher cloud layer drifts more slowly than the first for depth, and clouds glow orange and pink around sunrise and sunset.",
+    "The sun has a soft glow that grows and warms near the horizon. The moon now shows its phase, which changes from one game day to the next.",
+    "A horizon haze blends the land into the sky so distant areas fade softly.",
+    "Each area has its own air: the Outpost warm, Rocky Hollow golden, the Ashen Marsh hazy green with a shorter view, Frostspire Pass crisp and blue with a longer view, and Saltreach Harbor a salty sea haze.",
+    "The stars turn slowly across the night sky.",
+    "Phones: the Jump button is gone (Shift+Space still jumps on a keyboard). New Target and Menu buttons sit above the boxes in the bottom right, and tapping anywhere in the event log opens the typing box.",
+    "Achievement, item and update notices now use the blue striped style and pop up at the top of the screen.",
+    "Fixed the update notice always naming the old Pets update; it now names the current version's update. The Updates list is in newest-first order."
   ] },
   { v: "9.7.0", date: "2026-10-14", title: "Offline play", items: [
     "After Press Start you now choose Play Online or Play Offline. Offline needs no account or internet connection.",
@@ -14880,9 +14905,11 @@ const UPDATES = [
   { v: "1.0", title: "Phase 1: the rules", items: ["Combat, TP, weapon skills, skillchains, magic bursts, enmity, con colours and aggro.", "Hired companions, standing regen, home points, skills, support jobs and the real-time clock."] }
 ];
 
+function verNum(v) { return String(v).split(".").reduce((n, x) => n * 1000 + (parseInt(x, 10) || 0), 0); }
+function updatesSorted() { return UPDATES.slice().sort((a, b) => verNum(b.v) - verNum(a.v)); }
 function tabUpdates() {
   let h = '<div class="sub" style="margin-bottom:8px">' + BUILD_INFO + "</div>";
-  for (const u of UPDATES) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>";
+  for (const u of updatesSorted()) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>";
   return h;
 }
 
@@ -15154,6 +15181,7 @@ function tabHelp() {
     "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
     "<b>Spells</b> are learned by reading scrolls (from shops and monster drops) once one of your jobs is high enough level.",
     "<b>Keyboard in windows:</b> arrows move, Enter chooses, Esc goes back or closes.",
+    "<b>Phones:</b> Target and Menu buttons sit above the bottom-right boxes; tap the event log to type.",
     "<b>Lists:</b> Items, Shop, Quests, Magic and Abilities are slim lists in the top left. Point at an entry for its card (under the list) and description (Help bar); choose it for a small box of actions. In a command menu, Magic shows MP Cost and Next (recast) above the target frame.",
     "<b>Bottom right:</b> separate Target and Party boxes.",
     "<b>Windows:</b> menus open in the top left of the screen while the world keeps going. The Commands box shows the window's name and the Help bar explains it. Esc closes it.",
@@ -15187,7 +15215,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.7.0";
+const GAME_VERSION = "9.8.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -15245,7 +15273,7 @@ function showWhatsNew() {
   let seen = null;
   try { seen = localStorage.getItem("usr_seen_version"); localStorage.setItem("usr_seen_version", GAME_VERSION); } catch (e) {}
   if (/^__/.test(GAME_VERSION) || !seen || seen === GAME_VERSION) return;
-  const u = UPDATES[0];
+  const u = UPDATES.find(x => x.v === GAME_VERSION) || updatesSorted()[0];
   toast("📰", "Updated to v" + GAME_VERSION, u.title + " · see the Updates tab");
   log("Updated to v" + GAME_VERSION + ": " + u.title + ". Open Updates (📰) for details.", "sys");
 }
@@ -16666,6 +16694,22 @@ function initRenderer() {
   W3.clouds = new THREE.Mesh(cloudGeo, new THREE.MeshBasicMaterial({ map: ct, transparent: true, opacity: 0.8, depthWrite: false, fog: false, side: THREE.DoubleSide }));
   W3.clouds.position.y = 260;
   W3.scene.add(W3.clouds);
+  const ct2 = texClouds();
+  ct2.repeat.set(1.6, 1.6);
+  W3.clouds2 = new THREE.Mesh(cloudGeo.clone(), new THREE.MeshBasicMaterial({ map: ct2, transparent: true, opacity: 0.45, depthWrite: false, fog: false, side: THREE.DoubleSide }));
+  W3.clouds2.position.y = 360;
+  W3.clouds2.scale.setScalar(1.3);
+  W3.scene.add(W3.clouds2);
+  W3.sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xfff0d0, transparent: true, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
+  W3.sunGlow.scale.setScalar(220);
+  W3.scene.add(W3.sunGlow);
+  W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(0.5), transparent: true, depthWrite: false, fog: false }));
+  W3.moonDisc.scale.setScalar(34);
+  W3.scene.add(W3.moonDisc);
+  const hz = new THREE.CylinderGeometry(1150, 1150, 320, 48, 1, true);
+  W3.haze = new THREE.Mesh(hz, new THREE.MeshBasicMaterial({ map: hazeTex(), transparent: true, depthWrite: false, fog: false, side: THREE.BackSide }));
+  W3.haze.renderOrder = -1;
+  W3.scene.add(W3.haze);
   W3.sun = new THREE.DirectionalLight(0xffffff, 3);
   W3.sun.castShadow = W3.quality !== "low";
   const ss = W3.quality === "high" ? 2048 : 1024;
@@ -16750,6 +16794,38 @@ function* buildZone3DSteps() {
   updateSky(true);
 }
 
+const ATMOS = {
+  outpost: { tint: 0xffe8c8, haze: 0.12, far: 1, clouds: 0.85 },
+  hollow: { tint: 0xfff0d2, haze: 0.1, far: 1.1, clouds: 0.8 },
+  marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
+  frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
+  harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  depths: { tint: 0x8aa8b8, haze: 0.4, far: 0.7, clouds: 1 }
+};
+function moonTex(phase) {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d");
+  g.fillStyle = "#e8eeff"; g.beginPath(); g.arc(32, 32, 28, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "rgba(170,180,210,.35)";
+  for (const [x, y, r] of [[22, 24, 6], [38, 40, 8], [40, 20, 4], [26, 42, 3]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+  const k = Math.cos(phase * Math.PI * 2);
+  g.globalCompositeOperation = "destination-out";
+  g.fillStyle = "rgba(0,0,0,.92)";
+  g.beginPath();
+  if (phase < 0.5) { g.arc(32, 32, 29, Math.PI / 2, -Math.PI / 2, false); g.ellipse(32, 32, Math.abs(k) * 29, 29, 0, -Math.PI / 2, Math.PI / 2, k < 0); }
+  else { g.arc(32, 32, 29, -Math.PI / 2, Math.PI / 2, false); g.ellipse(32, 32, Math.abs(k) * 29, 29, 0, Math.PI / 2, -Math.PI / 2, k < 0); }
+  g.fill();
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+function hazeTex() {
+  const c = document.createElement("canvas"); c.width = 4; c.height = 128;
+  const g = c.getContext("2d"), gr = g.createLinearGradient(0, 0, 0, 128);
+  gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.45, "rgba(255,255,255,.25)"); gr.addColorStop(0.75, "rgba(255,255,255,.75)"); gr.addColorStop(1, "rgba(255,255,255,.95)");
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 128);
+  return new THREE.CanvasTexture(c);
+}
 function skyColors(sunY) {
   const night = new THREE.Color(0x101830), dusk = new THREE.Color(0xd8865a), day = new THREE.Color(0xa9c4dc);
   const c = new THREE.Color();
@@ -16850,26 +16926,44 @@ function updateSky(force) {
   const moonDir = dir.clone().multiplyScalar(-1);
   if (moonDir.y < 0.05) moonDir.y = 0.05;
   W3.moon.position.copy(W3.camera.position).addScaledVector(moonDir.normalize(), 800);
-  W3.moon.material.opacity = 1 - dayAmt;
+  if (W3.moonDisc) { W3.moonDisc.position.copy(W3.moon.position); W3.moonDisc.material.opacity = 1 - dayAmt * 0.85; }
+  W3.moon.material.opacity = (1 - dayAmt) * 0.6;
   W3.clouds.position.x = W3.camera.position.x;
   W3.clouds.position.z = W3.camera.position.z;
+  const atm = ATMOS[S.zoneId] || null;
+  for (const o of [W3.clouds2, W3.sunGlow, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
+  if (W3.clouds2) { W3.clouds2.position.x = W3.camera.position.x; W3.clouds2.position.z = W3.camera.position.z; }
+  if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.camera.position.y - 20, W3.camera.position.z); }
+  W3.stars.rotation.y = v.frac * Math.PI * 2;
   const wx = !cave && !indoor && typeof weatherNow === "function" ? weatherNow() : null;
   const snowy = wx === "snow" || wx === "blizzard";
   const wet = wx === "rain" || wx === "storm", gloom = wet ? 0.55 : wx === "blizzard" ? 0.5 : wx === "cloudy" || wx === "snow" ? 0.35 : wx === "fog" ? 0.3 : 0;
   W3.cloudOff = (W3.cloudOff || 0) + (1 / 60) * (wx === "wind" || wx === "storm" ? 4 : 1);
   W3.clouds.material.map.offset.x = W3.cloudOff * 0.0018;
   W3.clouds.material.map.offset.y = W3.cloudOff * 0.0009;
+  if (W3.clouds2) { W3.clouds2.material.map.offset.x = W3.cloudOff * 0.0007; W3.clouds2.material.map.offset.y = -W3.cloudOff * 0.0004; }
   updateRain(wet ? (wx === "storm" ? 1 : 0.7) : snowy ? (wx === "blizzard" ? 1 : 0.6) : 0, wx === "wind" || wx === "storm" || wx === "blizzard", snowy);
   const fogC = theme === "crypt" ? new THREE.Color(0x14141c) : cave ? new THREE.Color(0x0c0c14) : indoor ? new THREE.Color(0x1b130c) : skyColors(sunY);
-  W3.clouds.material.color.copy(new THREE.Color(0xffffff).lerp(fogC, 0.35).multiplyScalar(mix(0.18, 1, dayAmt)));
+  if (atm && !cave && !indoor) fogC.lerp(new THREE.Color(atm.tint).multiplyScalar(mix(0.25, 1, dayAmt)), atm.haze);
+  const golden = sstep(-0.05, 0.08, sunY) * (1 - sstep(0.1, 0.32, sunY));
+  const cloudC = new THREE.Color(0xffffff).lerp(fogC, 0.35).lerp(new THREE.Color(0xffa070), golden * 0.55).multiplyScalar(mix(0.18, 1, dayAmt));
+  W3.clouds.material.color.copy(cloudC);
+  W3.clouds.material.opacity = 0.8 * (atm ? atm.clouds : 1) * (1 + gloom * 0.25);
+  if (W3.clouds2) { W3.clouds2.material.color.copy(cloudC).lerp(new THREE.Color(0xffc8a0), golden * 0.3); W3.clouds2.material.opacity = 0.42 * (atm ? atm.clouds : 1) + gloom * 0.3; }
+  if (W3.sunGlow) { W3.sunGlow.position.copy(W3.camera.position).addScaledVector(dir, 900); W3.sunGlow.material.opacity = sstep(-0.08, 0.05, sunY) * (1 - gloom * 0.85) * 0.9; W3.sunGlow.material.color.setRGB(1, mix(0.94, 0.62, golden), mix(0.82, 0.4, golden)); W3.sunGlow.scale.setScalar(mix(200, 320, golden)); }
+  if (W3.moonDisc) {
+    const day = Math.floor((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000 / 1440), ph = ((day % 24) + 24) % 24 / 24;
+    if (W3.moonPhase !== day) { W3.moonPhase = day; W3.moonDisc.material.map.dispose(); W3.moonDisc.material.map = moonTex(ph); W3.moonDisc.material.needsUpdate = true; }
+  }
   W3.fog.color.copy(fogC);
+  if (W3.haze) W3.haze.material.color.copy(fogC);
   if (gloom) W3.fog.color.lerp(snowy ? (W3.snowFog || (W3.snowFog = new THREE.Color(0xc4ccd4))) : W3.gloomColor || (W3.gloomColor = new THREE.Color(0x6a7078)), (snowy ? 1.4 : 1) * gloom * (0.3 + 0.7 * dayAmt));
   if (S.zone.mist) W3.fog.color.lerp(W3.mistColor || (W3.mistColor = new THREE.Color(0x8a9a8c)), 0.45 * (0.4 + 0.6 * dayAmt));
   if (theme === "crypt") { W3.fog.near = 10; W3.fog.far = 95; }
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
-  else { W3.fog.near = mix(30, 70, dayAmt); W3.fog.far = mix(180, 420, dayAmt); }
+  else { W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1); W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1); }
   if (!cave && !indoor && (wx === "fog" || wet || wx === "blizzard")) { const k = wx === "fog" ? 0.45 : wx === "blizzard" ? 0.22 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
