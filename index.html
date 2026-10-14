@@ -1005,7 +1005,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.12.0 · built 2026-10-14 12:40 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.0.0 · built 2026-10-14 14:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6767,38 +6767,59 @@ const DAY_ELEMENTS = ["fire", "earth", "water", "wind", "ice", "lightning", "lig
 
 const ZONES = {
   outpost: {
-    name: "Ashenreach Outpost", w: 1100, h: 800, safe: true, theme: "town",
+    name: "Ashenreach Outpost", w: 2000, h: 1500, safe: true, theme: "town", city: "Ashenreach",
+    districts: [
+      { id: "res", name: "Residential District", x: 24, y: 24, w: 536, h: 1452, color: "#6fae5a", icon: "🏡" },
+      { id: "gov", name: "Government District", x: 560, y: 24, w: 880, h: 446, color: "#5a86c8", icon: "🏛️" },
+      { id: "market", name: "Market District", x: 560, y: 470, w: 880, h: 590, color: "#d8a838", icon: "⚖️" },
+      { id: "ind", name: "Industrial District", x: 560, y: 1060, w: 880, h: 416, color: "#c4703a", icon: "⚒️" },
+      { id: "gate", name: "Eastgate", x: 1440, y: 24, w: 536, h: 1452, color: "#a8a8a0", icon: "🛡️" }
+    ],
+    cityWalls: [[560, 24, 560, 1476], [1440, 24, 1440, 1476], [560, 470, 1440, 470], [560, 1060, 1440, 1060]],
+    gates: [
+      { x: 560, y: 760, a: "res", b: "market" }, { x: 560, y: 250, a: "res", b: "gov" }, { x: 560, y: 1270, a: "res", b: "ind" },
+      { x: 1440, y: 760, a: "market", b: "gate" }, { x: 1440, y: 250, a: "gov", b: "gate" }, { x: 1440, y: 1270, a: "ind", b: "gate" },
+      { x: 1000, y: 470, a: "gov", b: "market", horiz: true }, { x: 1000, y: 1060, a: "market", b: "ind", horiz: true }
+    ],
     exits: [
-      { x: 1076, y: 350, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" },
-      { x: 222, y: 400, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }
+      { x: 1976, y: 710, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" },
+      { x: 262, y: 740, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }
     ],
     npcs: [
-      { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
-      { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
-      { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
-      { id: "luna", x: 660, y: 470 }, { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
+      { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 1, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
+      { id: "crystal_town", x: 1000, y: 760 }, { id: "pell", x: 800, y: 650, home: 4, sleep: [21, 6.5] }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
+      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "corvin", x: 840, y: 900 },
+      { id: "garrick", x: 780, y: 1210, home: 7, sleep: [22, 6.5] },
+      { id: "ysolde", x: 1700, y: 960, home: 16, sleep: [19.5, 5.5] }, { id: "guard_east", x: 1790, y: 690 }
     ],
-    props: [{ type: "anvil", x: 690, y: 690, rot: 0.2, r: 26 }, { type: "desk", x: 455, y: 290, r: 22 }, { type: "desk", x: 430, y: 465, r: 22 }, { type: "barrels", x: 900, y: 560, rot: 1.2, r: 26 }],
-    ambient: [{ type: "chicken", x: 400, y: 600, n: 4, r: 70 }, { type: "dog", x: 640, y: 470, n: 1, r: 120, col: 0x8a6a4a }, { type: "cat", x: 300, y: 330, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 560, y: 420, n: 1, path: [[560, 300], [820, 410], [700, 520], [480, 500]] }],
+    props: [{ type: "anvil", x: 780, y: 1262, rot: 0.2, r: 26 }, { type: "desk", x: 930, y: 336, r: 22 }, { type: "desk", x: 840, y: 936, r: 22 }, { type: "barrels", x: 1250, y: 1200, rot: 1.2, r: 26 }, { type: "crates", x: 1340, y: 1220, rot: 0.4, r: 26 }, { type: "barrels", x: 1820, y: 1120, rot: 0.3, r: 26 }],
+    ambient: [{ type: "chicken", x: 160, y: 1300, n: 4, r: 70 }, { type: "dog", x: 1000, y: 760, n: 1, r: 140, col: 0x8a6a4a }, { type: "cat", x: 420, y: 300, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 1000, y: 760, n: 1, path: [[860, 640], [1140, 640], [1140, 880], [860, 880]] }],
     spawns: [],
-    water: [{ x: 250, y: 640, r: 75 }],
-    plaza: { x: 560, y: 420, r: 150 },
+    water: [{ x: 440, y: 1180, r: 70 }],
+    plaza: { x: 1000, y: 760, r: 170 },
     paths: [
-      { w: 56, pts: [[560, 420], [820, 410], [1100, 400], [1500, 400]] },
-      { w: 40, pts: [[560, 420], [560, 200]] },
-      { w: 36, pts: [[560, 420], [700, 330], [840, 250]] },
-      { w: 36, pts: [[560, 420], [470, 480], [380, 520]] },
-      { w: 36, pts: [[560, 420], [680, 500], [780, 560]] }
+      { w: 56, pts: [[100, 760], [1000, 760], [2000, 760], [2400, 760]] },
+      { w: 44, pts: [[1000, 60], [1000, 1440]] },
+      { w: 36, pts: [[300, 80], [300, 1440]] },
+      { w: 36, pts: [[1700, 120], [1700, 1400]] },
+      { w: 36, pts: [[300, 250], [1700, 250]] },
+      { w: 36, pts: [[300, 1270], [1700, 1270]] }
     ],
-    houses: [{ x: 230, y: 230, w: 150, h: 110, rot: 0 }, { x: 860, y: 120, w: 140, h: 100, rot: 0 }, { x: 980, y: 640, w: 120, h: 120, rot: 1 }, { x: 160, y: 420, w: 110, h: 130, rot: 1 }, { x: 560, y: 90, w: 180, h: 90, rot: 0 }],
-    stalls: [{ x: 380, y: 560, color: "#b5651d" }, { x: 780, y: 600, color: "#7b1fa2" }, { x: 330, y: 365, color: "#2e7d32" }],
-    lamps: [[470, 330], [650, 330], [470, 510], [650, 510]],
-    stable: { x: 970, y: 500, rot: -Math.PI / 2 },
-    start: { x: 610, y: 440 }
+    houses: [
+      { x: 760, y: 150, w: 220, h: 110, rot: 0 }, { x: 1000, y: 130, w: 180, h: 100, rot: 0 }, { x: 1240, y: 150, w: 200, h: 110, rot: 0 }, { x: 1260, y: 370, w: 150, h: 70, rot: 0 },
+      { x: 690, y: 560, w: 140, h: 100, rot: 0 }, { x: 1310, y: 560, w: 140, h: 100, rot: 0 }, { x: 690, y: 975, w: 140, h: 90, rot: 0 },
+      { x: 700, y: 1370, w: 180, h: 100, rot: 0 }, { x: 1000, y: 1380, w: 160, h: 100, rot: 0 }, { x: 1290, y: 1380, w: 200, h: 100, rot: 0 },
+      { x: 200, y: 760, w: 110, h: 130, rot: 1 }, { x: 180, y: 300, w: 150, h: 110, rot: 0 }, { x: 430, y: 140, w: 130, h: 100, rot: 0 }, { x: 180, y: 1100, w: 150, h: 110, rot: 0 }, { x: 430, y: 1380, w: 140, h: 100, rot: 0 }, { x: 440, y: 520, w: 110, h: 120, rot: 0 },
+      { x: 1700, y: 1300, w: 140, h: 110, rot: 0 }, { x: 1720, y: 160, w: 160, h: 110, rot: 0 }
+    ],
+    stalls: [{ x: 800, y: 690, color: "#b5651d" }, { x: 1200, y: 690, color: "#7b1fa2" }, { x: 1180, y: 960, color: "#2e7d32" }],
+    lamps: [[880, 640], [1120, 640], [880, 880], [1120, 880], [1600, 700], [1600, 820], [400, 700], [1000, 1180]],
+    stable: { x: 1820, y: 1000, rot: -Math.PI / 2 },
+    start: { x: 1000, y: 860 }
   },
   residence: {
     name: "Your Residence", w: 400, h: 320, safe: true, theme: "house", indoor: true,
-    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 288, ty: 420, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
+    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 320, ty: 760, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
     npcs: [{ id: "pip", x: 60, y: 60 }],
     spawns: [],
     start: { x: 200, y: 250 },
@@ -6807,7 +6828,7 @@ const ZONES = {
   hollow: {
     name: "Rocky Hollow", w: 3200, h: 2200, theme: "field",
     exits: [
-      { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 990, ty: 400, label: "Outpost" },
+      { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 1890, ty: 760, label: "Outpost" },
       { x: 3176, y: 1030, w: 24, h: 100, to: "den", tx: 120, ty: 800, label: "Goblin Den" },
       { x: 1550, y: 2176, w: 100, h: 24, to: "marsh", tx: 1400, ty: 95, label: "Ashen Marsh" },
       { x: 1250, y: 0, w: 100, h: 24, to: "highlands", tx: 2000, ty: 2880, label: "Windreach Highlands" }
@@ -8374,7 +8395,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 2, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
@@ -8388,7 +8409,9 @@ function normalizeSave(d) {
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
   if (!d.zv && out.loc && ZONE_SCALE[out.loc.zone]) { out.loc = Object.assign({}, out.loc, { x: Math.round(out.loc.x * ZONE_SCALE[out.loc.zone]), y: Math.round(out.loc.y * ZONE_SCALE[out.loc.zone]) }); }
-  out.zv = 1;
+  if ((d.zv || 0) < 2 && out.loc && out.loc.zone === "outpost") out.loc = { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y };
+  out.zv = 2;
+  if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
@@ -10864,6 +10887,11 @@ function tickBuffs(e) {
 }
 
 function moveToward(e, tx, ty, dt, stop, speedMul) {
+  const hop = S.zone && S.zone.gates ? gateHop(e, tx, ty) : null;
+  if (hop) { stepToward(e, hop.x, hop.y, dt, 0, speedMul); return false; }
+  return stepToward(e, tx, ty, dt, stop, speedMul);
+}
+function stepToward(e, tx, ty, dt, stop, speedMul) {
   const dx = tx - e.x, dy = ty - e.y;
   const d = Math.hypot(dx, dy);
   if (d <= stop + 0.05) return true;
@@ -10896,13 +10924,83 @@ function keepOutOfWater(e) {
 function zoneRects(z) {
   if (z._rects) return z._rects;
   let rects = (z.houses || []).map(r => ({ x: r.x - r.w / 2, y: r.y - r.h / 2, w: r.w, h: r.h })).concat((z.stalls || []).map(r => ({ x: r.x - 26, y: r.y - 16, w: 52, h: 32 })));
-  rects = rects.concat((z.walls || []).map(r => ({ x: r.x, y: r.y, w: r.w, h: r.h })));
+  rects = rects.concat((z.walls || []).map(r => ({ x: r.x, y: r.y, w: r.w, h: r.h })), cityWallRects(z));
   if (z.ruins) {
     for (const [x1, y1, x2, y2] of z.ruins.walls) rects.push({ x: Math.min(x1, x2) - 14, y: Math.min(y1, y2) - 14, w: Math.abs(x2 - x1) + 28, h: Math.abs(y2 - y1) + 28 });
     for (const [x, y] of z.ruins.pillars) rects.push({ x: x - 16, y: y - 16, w: 32, h: 32 });
   }
   z._rects = rects;
   return rects;
+}
+
+const GATE_HALF = 55;
+function cityWallRects(z) {
+  if (z._cwr) return z._cwr;
+  const out = [], T = 15;
+  for (const [x1, y1, x2, y2] of z.cityWalls || []) {
+    const horiz = y1 === y2, a = horiz ? Math.min(x1, x2) : Math.min(y1, y2), b = horiz ? Math.max(x1, x2) : Math.max(y1, y2);
+    const cuts = (z.gates || []).filter(g => !!g.horiz === horiz && (horiz ? Math.abs(g.y - y1) < 2 && g.x > a && g.x < b : Math.abs(g.x - x1) < 2 && g.y > a && g.y < b)).map(g => horiz ? g.x : g.y).sort((p, q) => p - q);
+    let st = a;
+    for (const c of cuts.concat([b + GATE_HALF])) {
+      const en = Math.min(b, c - GATE_HALF);
+      if (en - st > 4) out.push(horiz ? { x: st, y: y1 - T, w: en - st, h: T * 2 } : { x: x1 - T, y: st, w: T * 2, h: en - st });
+      st = c + GATE_HALF;
+    }
+  }
+  for (const g of z.gates || []) for (const sd of [-1, 1]) {
+    const cx = g.horiz ? g.x + sd * (GATE_HALF + 18) : g.x, cy = g.horiz ? g.y : g.y + sd * (GATE_HALF + 18);
+    out.push({ x: cx - 22, y: cy - 22, w: 44, h: 44, tower: true });
+  }
+  return z._cwr = out;
+}
+function segRect(x1, y1, x2, y2, r, pad) {
+  const dx = x2 - x1, dy = y2 - y1;
+  let t0 = 0, t1 = 1;
+  const p = [-dx, dx, -dy, dy], q = [x1 - (r.x - pad), r.x + r.w + pad - x1, y1 - (r.y - pad), r.y + r.h + pad - y1];
+  for (let i = 0; i < 4; i++) {
+    if (p[i] === 0) { if (q[i] < 0) return false; continue; }
+    const t = q[i] / p[i];
+    if (p[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
+  }
+  return true;
+}
+function gateHop(e, tx, ty) {
+  const z = S.zone;
+  if (!z || !z.gates || !z.cityWalls) return null;
+  if (!cityWallRects(z).some(r => segRect(e.x, e.y, tx, ty, r, 6))) return null;
+  let best = null, bd = 1e9;
+  for (const g of z.gates) {
+    const n = g.horiz ? e.y - g.y : e.x - g.x, m = g.horiz ? ty - g.y : tx - g.x;
+    if (!m || (n * m > 0 && Math.abs(n) > 40)) continue;
+    const d = Math.hypot(g.x - e.x, g.y - e.y) + Math.hypot(tx - g.x, ty - g.y);
+    if (d < bd) { bd = d; best = g; }
+  }
+  if (!best) return null;
+  const g = best, n = g.horiz ? e.y - g.y : e.x - g.x, m = g.horiz ? ty - g.y : tx - g.x, lat = g.horiz ? e.x - g.x : e.y - g.y;
+  const k = Math.abs(n) < 50 && Math.abs(lat) < 45 ? Math.sign(m) * 75 : (Math.sign(n) || -Math.sign(m)) * 45;
+  return g.horiz ? { x: g.x, y: g.y + k } : { x: g.x + k, y: g.y };
+}
+function districtAt(z, x, y) {
+  for (const d of (z && z.districts) || []) if (x >= d.x && x < d.x + d.w && y >= d.y && y < d.y + d.h) return d;
+  return null;
+}
+function districtName(zid, x, y) { const d = districtAt(ZONES[zid], x, y); return d ? d.name : ""; }
+function markDistrict(d) {
+  if (!d) return false;
+  if (!save.districts) save.districts = {};
+  const key = S.zoneId + ":" + d.id, fresh = !save.districts[key];
+  if (fresh) save.districts[key] = Date.now();
+  return fresh;
+}
+function checkDistrict() {
+  if (!S.zone.districts || !player.alive) return;
+  const d = districtAt(S.zone, player.x, player.y), id = d ? d.id : null;
+  if (id === S.district) return;
+  S.district = id;
+  if (!d) return;
+  const fresh = markDistrict(d);
+  log("You enter the " + d.name + " of " + (S.zone.city || S.zone.name) + ".", "sys");
+  uiEvent("district", { d, fresh });
 }
 
 function barrierOpen(b) {
@@ -10950,6 +11048,7 @@ function separate(a, b, aOnly) {
   const nx = (a.x - b.x) / d, ny = (a.y - b.y) / d;
   const push = aOnly ? min - d : (min - d) / 2;
   a.x += nx * push; a.y += ny * push;
+  if (aOnly && (a === player ? S.moveTarget || S.chase : a.moving !== false)) { a.x -= ny * push * 0.7; a.y += nx * push * 0.7; }
   if (!aOnly) { b.x -= nx * push; b.y -= ny * push; }
 }
 
@@ -11562,6 +11661,7 @@ function enterZone(id, x, y) {
   const nRocks = S.zone.theme === "town" ? 6 : S.zone.theme === "cave" ? 26 : S.zone.theme === "crypt" ? 0 : 30;
   for (let i = 0; i < nRocks; i++) S.decor.push({ x: 40 + rnd() * (S.zone.w - 80), y: 40 + rnd() * (S.zone.h - 80), r: 6 + rnd() * 16, a: rnd() * Math.PI });
   S.zoneCooldown = 1;
+  { const dd = districtAt(S.zone, x, y); S.district = dd ? dd.id : null; markDistrict(dd); }
   S.lastPeriod = period();
   log("Entering " + S.zone.name + ".", "sys");
   { const rg = regionOf(id); if (rg) { const c = conquestState(); log(CONQUEST.regions[rg].name + " is held by " + CONQUEST.nations[c.held[rg]].name + "." + (c.nation && c.held[rg] === c.nation ? " Your nation's banner flies here: +5% experience." : ""), "sys"); } }
@@ -11949,7 +12049,7 @@ function step(dt) {
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); checkDistrict(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
@@ -14288,6 +14388,7 @@ function zoneMapCanvas(zoneId) {
   g.fillStyle = grd; g.fillRect(0, 0, z.w, z.h);
   const rnd = seeded(hashStr(zoneId + "map"));
   for (let i = 0; i < 260; i++) { g.fillStyle = "rgba(0,0,0," + (rnd() * 0.12).toFixed(3) + ")"; g.beginPath(); g.arc(rnd() * z.w, rnd() * z.h, 6 + rnd() * 30, 0, 7); g.fill(); }
+  for (const d of z.districts || []) { g.fillStyle = d.color + "26"; g.fillRect(d.x, d.y, d.w, d.h); }
   if (z.plaza) { g.fillStyle = "#9b8c6c"; g.beginPath(); g.arc(z.plaza.x, z.plaza.y, z.plaza.r, 0, 7); g.fill(); }
   g.lineCap = "round"; g.lineJoin = "round";
   for (const p of z.paths || []) {
@@ -14310,6 +14411,7 @@ function zoneMapCanvas(zoneId) {
   for (const [x, y] of z.torches || []) { g.fillStyle = "#ff9a3d"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
   for (const b of z.barriers || []) { g.fillStyle = "#8a7a4a"; g.fillRect(b.x, b.y, b.w, b.h); }
   for (const [x, y] of z.pillars || []) { g.fillStyle = "#6a6872"; g.beginPath(); g.arc(x, y, 14, 0, 7); g.fill(); }
+  if (z.cityWalls) for (const r of cityWallRects(z)) { g.fillStyle = r.tower ? "#8a8578" : "#6d685c"; g.fillRect(r.x, r.y, r.w, r.h); g.strokeStyle = "rgba(0,0,0,.6)"; g.lineWidth = 4; g.strokeRect(r.x, r.y, r.w, r.h); }
   for (const r of z.walls || []) {
     g.fillStyle = z.theme === "cave" ? "#151310" : z.theme === "crypt" ? "#121218" : "#4d4a40"; g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 14;
     g.beginPath(); g.roundRect ? g.roundRect(r.x, r.y, r.w, r.h, 40) : g.rect(r.x, r.y, r.w, r.h); g.fill(); g.stroke();
@@ -14626,6 +14728,7 @@ function uiEvent(type, d) {
     const r = itemRarity(d.id);
     toast(it.icon || "📦", r === "epic" ? "Epic item!" : r === "rare" ? "Rare item!" : r === "uncommon" ? "Uncommon item" : "Obtained", (d.n > 1 ? d.n + " × " : "") + it.name, "r-" + r);
   }
+  if (type === "district") { zoneTitle(d.d.name, S.zone.city || S.zone.name); if (d.fresh) toast(d.d.icon || "🏙️", "District discovered", d.d.name); sfx("page"); return; }
   if (type === "landmark") { toast("🧭", "Landmark discovered", d.name, "r-rare"); sfx("unlock"); }
 }
 
@@ -14661,7 +14764,7 @@ function watchProgress() {
     const first = !(save.discovered || []).includes(S.zoneId);
     if (!save.discovered) save.discovered = [];
     if (first) { save.discovered.push(S.zoneId); toast("🧭", "Discovered", S.zone.name); }
-    zoneTitle(S.zone.name, first ? "Discovered" : "");
+    zoneTitle(S.zone.name, first ? "Discovered" : districtName(S.zoneId, player.x, player.y));
   }
   Object.assign(w, { job: j, lv, quests: Object.assign({}, save.quests), maxHp: player.maxHp, maxMp: player.maxMp, zone: S.zoneId, mount: save.mountLicense, sup: save.supportUnlocked });
 }
@@ -15903,6 +16006,7 @@ function drawZoneMap() {
   g.drawImage(fc, -50, -50, fc.width * 50, fc.height * 50);
   const lbl = (t, x, y, col) => { g.font = "bold " + (12 / s).toFixed(1) + "px system-ui"; g.textAlign = "center"; g.lineWidth = 3 / s; g.strokeStyle = "#000"; g.strokeText(t, x, y); g.fillStyle = col; g.fillText(t, x, y); };
   const seen = (x, y) => { const cx = Math.floor(x / 50), cy = Math.floor(y / 50); return f.s[cy * f.cols + cx] === "1"; };
+  for (const d of z.districts || []) if (seen(d.x + d.w / 2, d.y + d.h / 2) || (save.districts || {})[S.zoneId + ":" + d.id]) { g.globalAlpha = 0.85; lbl(d.name.toUpperCase(), d.x + d.w / 2, d.y + 30 / s, d.color); g.globalAlpha = 1; }
   for (const e of z.exits || []) if (seen(e.x + e.w / 2, e.y + e.h / 2)) lbl("→ " + e.label, clamp(e.x + e.w / 2, 70 / s, z.w - 70 / s), e.y + e.h / 2, "#f1cf73");
   for (const n of S.npcs) {
     if (!seen(n.x, n.y)) continue;
@@ -16819,13 +16923,22 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v14.12.0 · built 2026-10-14 12:40 PDT";
+const BUILD_INFO = "v15.0.0 · built 2026-10-14 14:30 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "15.0.0", date: "2026-10-14", title: "City districts", items: [
+    "Ashenreach Outpost has grown into a walled city of five districts: the Market District around the home point crystal, the Government District to the north, the Residential District to the west, the Industrial District to the south and Eastgate, which leads out to Rocky Hollow.",
+    "Districts are divided by stone walls with crenellations and joined by gate halls: twin towers with tiled roofs, an arched passage and banners in each district's colour on either side.",
+    "Walking into a district shows its name on screen and logs it; the first visit to each one pops a District discovered notice.",
+    "The map tints each district, draws the walls and gate halls, and labels the districts you've visited.",
+    "Clicking to walk, chasing a target and your companions following you now route through the nearest gate hall instead of walking into a wall. You also slide around people in the way instead of stopping dead.",
+    "Townsfolk have moved to their districts: Rhea, Maera, Brann and Tobin in Government; Pell, Odette, Corvin, Luna and the Trade Board in the Market; Garrick in Industrial; Ysolde and the stables in Eastgate; your residence in Residential.",
+    "Logging out saves which district you're in, and you resume there. If you last saved in the old Outpost, you start in the Market plaza by the crystal."
   ] },
   { v: "14.12.0", date: "2026-10-14", title: "Dungeons", items: [
     "Crypts are now built halls: every wall is a real brick wall with stone pilasters, iron wall sconces with burning torches that light the corridors, and flagstone floors with mortar lines.",
@@ -17671,10 +17784,16 @@ function tabHelp() {
   let h = '<div class="help">';
   h += sec("🌅 Getting started", ul([
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
-    "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
+    "Leave through Eastgate, the east district of the city, into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
     "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
+  h += sec("🏙️ Cities and districts", ul([
+    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, Pell, Odette, Corvin's auction desk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
+    "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
+    "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
+    "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically."
+  ]));
   h += sec("📴 Offline play", ul([
     "Choose <b>Play Offline</b> after Press Start to play without an account. Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",
     "Everything that doesn't need other players works offline: quests, story, companions, crafting, gathering, fishing, the NPC market and guild bounties.",
@@ -18039,7 +18158,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "14.12.0";
+const GAME_VERSION = "15.0.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19167,6 +19286,8 @@ function placeable(field, px, py, opts) {
     for (const [x1, y1, x2, y2] of z.ruins.walls) if (px > Math.min(x1, x2) - 60 && px < Math.max(x1, x2) + 60 && py > Math.min(y1, y2) - 60 && py < Math.max(y1, y2) + 60) return false;
     for (const [x, y] of z.ruins.pillars) if (Math.hypot(px - x, py - y) < 60) return false;
   }
+  if (z.cityWalls) for (const r of cityWallRects(z)) if (px > r.x - 40 && px < r.x + r.w + 40 && py > r.y - 40 && py < r.y + r.h + 40) return false;
+  for (const g of z.gates || []) if (Math.hypot(px - g.x, py - g.y) < 120) return false;
   for (const lm of z.landmarks || []) if (lm.clear && Math.hypot(px - lm.x, py - lm.y) < lm.clear) return false;
   return true;
 }
@@ -19609,6 +19730,72 @@ function buildTown(field, root) {
     pole.castShadow = true;
     root.add(g);
   });
+}
+
+function uvBox(w, h, d, k) {
+  const g = new THREE.BoxGeometry(w, h, d).toNonIndexed(), uv = g.attributes.uv, nr = g.attributes.normal;
+  for (let i = 0; i < uv.count; i++) { const ax = Math.abs(nr.getX(i)), ay = Math.abs(nr.getY(i)); const su = ax > 0.5 ? d : w, sv = ay > 0.5 ? d : h; uv.setXY(i, uv.getX(i) * su / k, uv.getY(i) * sv / k); }
+  return g;
+}
+function buildCityWalls(field, root) {
+  const z = field.zone;
+  if (!z.cityWalls) return;
+  const bricks = texBricks(), roofT = texShingle();
+  const stone = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0xd8d0c0, roughness: 0.92 });
+  const capMat = std({ color: 0x8a8478, roughness: 0.9 });
+  const roofMat = std({ map: roofT.map, normalMap: roofT.normalMap, color: 0x9a5a48, roughness: 0.85 });
+  const H = 4.4, parts = [], caps = [], merl = [];
+  for (const r of cityWallRects(z)) {
+    if (r.tower) continue;
+    const horiz = r.w > r.h, len = horiz ? r.w : r.h, th = (horiz ? r.h : r.w) * U, n = Math.max(1, Math.round(len / 140));
+    for (let i = 0; i < n; i++) {
+      const a = len * i / n, b = len * (i + 1) / n, c = (a + b) / 2, L = (b - a) * U + 0.02;
+      const px = horiz ? r.x + c : r.x + r.w / 2, py = horiz ? r.y + r.h / 2 : r.y + c;
+      const y0 = Math.min(field.heightAt(horiz ? r.x + a : px, horiz ? py : r.y + a), field.heightAt(horiz ? r.x + b : px, horiz ? py : r.y + b)) - 0.8;
+      const g = uvBox(horiz ? L : th, H + 0.8, horiz ? th : L, 2.4);
+      g.translate(px * U, y0 + (H + 0.8) / 2, py * U); parts.push(g);
+      const cg = new THREE.BoxGeometry(horiz ? L : th + 0.3, 0.22, horiz ? th + 0.3 : L);
+      cg.translate(px * U, y0 + H + 0.9, py * U); caps.push(cg);
+      const m = Math.max(1, Math.floor(L / 1.5));
+      for (let k = 0; k < m; k++) for (const sd of [-1, 1]) {
+        const t = (k + 0.5) / m - 0.5, ox = horiz ? t * L : sd * (th / 2 - 0.15), oz = horiz ? sd * (th / 2 - 0.15) : t * L;
+        merl.push(mtx(px * U + ox, y0 + H + 1.36, py * U + oz, 1, 1, 1, 0));
+      }
+    }
+  }
+  const gates = z.gates || [];
+  const bannerGeo = new THREE.PlaneGeometry(1.1, 2.6);
+  for (const gt of gates) {
+    const gy = field.heightAt(gt.x, gt.y);
+    for (const sd of [-1, 1]) {
+      const cx = gt.horiz ? gt.x + sd * (GATE_HALF + 18) : gt.x, cy = gt.horiz ? gt.y : gt.y + sd * (GATE_HALF + 18);
+      const tg = uvBox(2.4, 8.2, 2.4, 2.4); tg.translate(cx * U, gy - 0.8 + 4.1, cy * U); parts.push(tg);
+      const tc = new THREE.BoxGeometry(2.9, 0.3, 2.9); tc.translate(cx * U, gy + 7.45, cy * U); caps.push(tc);
+      const rf = new THREE.ConeGeometry(2.3, 2.6, 4, 1); rf.rotateY(Math.PI / 4); rf.translate(cx * U, gy + 8.9, cy * U);
+      const rm = new THREE.Mesh(rf, roofMat); rm.castShadow = true; root.add(rm);
+      for (const face of [-1, 1]) {
+        const dz = districtAt(z, gt.horiz ? gt.x : gt.x + face * 60, gt.horiz ? gt.y + face * 60 : gt.y);
+        if (!dz) continue;
+        const col = new THREE.Color(dz.color);
+        const bm = new THREE.Mesh(bannerGeo, std({ color: col, roughness: 0.95, side: THREE.DoubleSide }));
+        const trim = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.18), std({ color: 0xe8c860, metalness: 0.4, roughness: 0.5, side: THREE.DoubleSide }));
+        const off = 1.24;
+        if (gt.horiz) { bm.position.set(cx * U, gy + 4.4, cy * U + face * off); trim.position.set(cx * U, gy + 5.6, cy * U + face * (off + 0.01)); if (face < 0) { bm.rotation.y = Math.PI; trim.rotation.y = Math.PI; } }
+        else { bm.position.set(cx * U + face * off, gy + 4.4, cy * U); trim.position.set(cx * U + face * (off + 0.01), gy + 5.6, cy * U); bm.rotation.y = trim.rotation.y = face * Math.PI / 2; }
+        bm.userData.banner = true;
+        root.add(bm, trim);
+      }
+    }
+    const span = (GATE_HALF * 2 + 36) * U;
+    const lt = uvBox(gt.horiz ? span : 1.9, 1.3, gt.horiz ? 1.9 : span, 2.4); lt.translate(gt.x * U, gy + 5.2, gt.y * U); parts.push(lt);
+    const lc = new THREE.BoxGeometry(gt.horiz ? span + 0.3 : 2.2, 0.22, gt.horiz ? 2.2 : span + 0.3); lc.translate(gt.x * U, gy + 5.95, gt.y * U); caps.push(lc);
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(GATE_HALF * U, 0.32, 6, 18, Math.PI), stone);
+    arch.scale.set(1, 0.5, 2.6); arch.position.set(gt.x * U, gy + 3.2, gt.y * U); if (!gt.horiz) arch.rotation.y = Math.PI / 2;
+    arch.castShadow = true; root.add(arch);
+  }
+  if (parts.length) { const m = new THREE.Mesh(THREE.mergeGeometries(parts), stone); m.castShadow = true; m.receiveShadow = true; root.add(m); }
+  if (caps.length) { const m = new THREE.Mesh(THREE.mergeGeometries(caps.map(c => c.toNonIndexed())), capMat); m.castShadow = true; m.receiveShadow = true; root.add(m); }
+  if (merl.length) root.add(instanced(new THREE.BoxGeometry(0.62, 0.72, 0.36), stone, merl, true));
 }
 
 function buildGlow(field, root) {
@@ -20286,7 +20473,7 @@ function* buildZone3DSteps() {
   buildPathEdges(field, root);
   buildProps(field, root);
   yield { p: 0.88, t: "Raising buildings…" };
-  if (themeOf(z) === "town") buildTown(field, root);
+  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); }
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
   buildDungeon(field, root);

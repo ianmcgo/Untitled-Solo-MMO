@@ -553,6 +553,7 @@ function drawZoneMap() {
   g.drawImage(fc, -50, -50, fc.width * 50, fc.height * 50);
   const lbl = (t, x, y, col) => { g.font = "bold " + (12 / s).toFixed(1) + "px system-ui"; g.textAlign = "center"; g.lineWidth = 3 / s; g.strokeStyle = "#000"; g.strokeText(t, x, y); g.fillStyle = col; g.fillText(t, x, y); };
   const seen = (x, y) => { const cx = Math.floor(x / 50), cy = Math.floor(y / 50); return f.s[cy * f.cols + cx] === "1"; };
+  for (const d of z.districts || []) if (seen(d.x + d.w / 2, d.y + d.h / 2) || (save.districts || {})[S.zoneId + ":" + d.id]) { g.globalAlpha = 0.85; lbl(d.name.toUpperCase(), d.x + d.w / 2, d.y + 30 / s, d.color); g.globalAlpha = 1; }
   for (const e of z.exits || []) if (seen(e.x + e.w / 2, e.y + e.h / 2)) lbl("→ " + e.label, clamp(e.x + e.w / 2, 70 / s, z.w - 70 / s), e.y + e.h / 2, "#f1cf73");
   for (const n of S.npcs) {
     if (!seen(n.x, n.y)) continue;
@@ -1477,6 +1478,15 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.0.0", date: "2026-10-14", title: "City districts", items: [
+    "Ashenreach Outpost has grown into a walled city of five districts: the Market District around the home point crystal, the Government District to the north, the Residential District to the west, the Industrial District to the south and Eastgate, which leads out to Rocky Hollow.",
+    "Districts are divided by stone walls with crenellations and joined by gate halls: twin towers with tiled roofs, an arched passage and banners in each district's colour on either side.",
+    "Walking into a district shows its name on screen and logs it; the first visit to each one pops a District discovered notice.",
+    "The map tints each district, draws the walls and gate halls, and labels the districts you've visited.",
+    "Clicking to walk, chasing a target and your companions following you now route through the nearest gate hall instead of walking into a wall. You also slide around people in the way instead of stopping dead.",
+    "Townsfolk have moved to their districts: Rhea, Maera, Brann and Tobin in Government; Pell, Odette, Corvin, Luna and the Trade Board in the Market; Garrick in Industrial; Ysolde and the stables in Eastgate; your residence in Residential.",
+    "Logging out saves which district you're in, and you resume there. If you last saved in the old Outpost, you start in the Market plaza by the crystal."
+  ] },
   { v: "14.12.0", date: "2026-10-14", title: "Dungeons", items: [
     "Crypts are now built halls: every wall is a real brick wall with stone pilasters, iron wall sconces with burning torches that light the corridors, and flagstone floors with mortar lines.",
     "Crypt halls are dressed with stone sarcophagi in the vault, throne room and sentinel's rest, scattered skulls and bones, clay urns along the walls and cobwebs in the upper corners.",
@@ -2321,10 +2331,16 @@ function tabHelp() {
   let h = '<div class="help">';
   h += sec("🌅 Getting started", ul([
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
-    "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
+    "Leave through Eastgate, the east district of the city, into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
     "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
   ]), true);
+  h += sec("🏙️ Cities and districts", ul([
+    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, Pell, Odette, Corvin's auction desk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
+    "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
+    "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
+    "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically."
+  ]));
   h += sec("📴 Offline play", ul([
     "Choose <b>Play Offline</b> after Press Start to play without an account. Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",
     "Everything that doesn't need other players works offline: quests, story, companions, crafting, gathering, fishing, the NPC market and guild bounties.",

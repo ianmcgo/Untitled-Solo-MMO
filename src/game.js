@@ -94,7 +94,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 2, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
@@ -108,7 +108,9 @@ function normalizeSave(d) {
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
   if (!d.zv && out.loc && ZONE_SCALE[out.loc.zone]) { out.loc = Object.assign({}, out.loc, { x: Math.round(out.loc.x * ZONE_SCALE[out.loc.zone]), y: Math.round(out.loc.y * ZONE_SCALE[out.loc.zone]) }); }
-  out.zv = 1;
+  if ((d.zv || 0) < 2 && out.loc && out.loc.zone === "outpost") out.loc = { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y };
+  out.zv = 2;
+  if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
@@ -2584,6 +2586,11 @@ function tickBuffs(e) {
 }
 
 function moveToward(e, tx, ty, dt, stop, speedMul) {
+  const hop = S.zone && S.zone.gates ? gateHop(e, tx, ty) : null;
+  if (hop) { stepToward(e, hop.x, hop.y, dt, 0, speedMul); return false; }
+  return stepToward(e, tx, ty, dt, stop, speedMul);
+}
+function stepToward(e, tx, ty, dt, stop, speedMul) {
   const dx = tx - e.x, dy = ty - e.y;
   const d = Math.hypot(dx, dy);
   if (d <= stop + 0.05) return true;
@@ -2616,13 +2623,83 @@ function keepOutOfWater(e) {
 function zoneRects(z) {
   if (z._rects) return z._rects;
   let rects = (z.houses || []).map(r => ({ x: r.x - r.w / 2, y: r.y - r.h / 2, w: r.w, h: r.h })).concat((z.stalls || []).map(r => ({ x: r.x - 26, y: r.y - 16, w: 52, h: 32 })));
-  rects = rects.concat((z.walls || []).map(r => ({ x: r.x, y: r.y, w: r.w, h: r.h })));
+  rects = rects.concat((z.walls || []).map(r => ({ x: r.x, y: r.y, w: r.w, h: r.h })), cityWallRects(z));
   if (z.ruins) {
     for (const [x1, y1, x2, y2] of z.ruins.walls) rects.push({ x: Math.min(x1, x2) - 14, y: Math.min(y1, y2) - 14, w: Math.abs(x2 - x1) + 28, h: Math.abs(y2 - y1) + 28 });
     for (const [x, y] of z.ruins.pillars) rects.push({ x: x - 16, y: y - 16, w: 32, h: 32 });
   }
   z._rects = rects;
   return rects;
+}
+
+const GATE_HALF = 55;
+function cityWallRects(z) {
+  if (z._cwr) return z._cwr;
+  const out = [], T = 15;
+  for (const [x1, y1, x2, y2] of z.cityWalls || []) {
+    const horiz = y1 === y2, a = horiz ? Math.min(x1, x2) : Math.min(y1, y2), b = horiz ? Math.max(x1, x2) : Math.max(y1, y2);
+    const cuts = (z.gates || []).filter(g => !!g.horiz === horiz && (horiz ? Math.abs(g.y - y1) < 2 && g.x > a && g.x < b : Math.abs(g.x - x1) < 2 && g.y > a && g.y < b)).map(g => horiz ? g.x : g.y).sort((p, q) => p - q);
+    let st = a;
+    for (const c of cuts.concat([b + GATE_HALF])) {
+      const en = Math.min(b, c - GATE_HALF);
+      if (en - st > 4) out.push(horiz ? { x: st, y: y1 - T, w: en - st, h: T * 2 } : { x: x1 - T, y: st, w: T * 2, h: en - st });
+      st = c + GATE_HALF;
+    }
+  }
+  for (const g of z.gates || []) for (const sd of [-1, 1]) {
+    const cx = g.horiz ? g.x + sd * (GATE_HALF + 18) : g.x, cy = g.horiz ? g.y : g.y + sd * (GATE_HALF + 18);
+    out.push({ x: cx - 22, y: cy - 22, w: 44, h: 44, tower: true });
+  }
+  return z._cwr = out;
+}
+function segRect(x1, y1, x2, y2, r, pad) {
+  const dx = x2 - x1, dy = y2 - y1;
+  let t0 = 0, t1 = 1;
+  const p = [-dx, dx, -dy, dy], q = [x1 - (r.x - pad), r.x + r.w + pad - x1, y1 - (r.y - pad), r.y + r.h + pad - y1];
+  for (let i = 0; i < 4; i++) {
+    if (p[i] === 0) { if (q[i] < 0) return false; continue; }
+    const t = q[i] / p[i];
+    if (p[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
+  }
+  return true;
+}
+function gateHop(e, tx, ty) {
+  const z = S.zone;
+  if (!z || !z.gates || !z.cityWalls) return null;
+  if (!cityWallRects(z).some(r => segRect(e.x, e.y, tx, ty, r, 6))) return null;
+  let best = null, bd = 1e9;
+  for (const g of z.gates) {
+    const n = g.horiz ? e.y - g.y : e.x - g.x, m = g.horiz ? ty - g.y : tx - g.x;
+    if (!m || (n * m > 0 && Math.abs(n) > 40)) continue;
+    const d = Math.hypot(g.x - e.x, g.y - e.y) + Math.hypot(tx - g.x, ty - g.y);
+    if (d < bd) { bd = d; best = g; }
+  }
+  if (!best) return null;
+  const g = best, n = g.horiz ? e.y - g.y : e.x - g.x, m = g.horiz ? ty - g.y : tx - g.x, lat = g.horiz ? e.x - g.x : e.y - g.y;
+  const k = Math.abs(n) < 50 && Math.abs(lat) < 45 ? Math.sign(m) * 75 : (Math.sign(n) || -Math.sign(m)) * 45;
+  return g.horiz ? { x: g.x, y: g.y + k } : { x: g.x + k, y: g.y };
+}
+function districtAt(z, x, y) {
+  for (const d of (z && z.districts) || []) if (x >= d.x && x < d.x + d.w && y >= d.y && y < d.y + d.h) return d;
+  return null;
+}
+function districtName(zid, x, y) { const d = districtAt(ZONES[zid], x, y); return d ? d.name : ""; }
+function markDistrict(d) {
+  if (!d) return false;
+  if (!save.districts) save.districts = {};
+  const key = S.zoneId + ":" + d.id, fresh = !save.districts[key];
+  if (fresh) save.districts[key] = Date.now();
+  return fresh;
+}
+function checkDistrict() {
+  if (!S.zone.districts || !player.alive) return;
+  const d = districtAt(S.zone, player.x, player.y), id = d ? d.id : null;
+  if (id === S.district) return;
+  S.district = id;
+  if (!d) return;
+  const fresh = markDistrict(d);
+  log("You enter the " + d.name + " of " + (S.zone.city || S.zone.name) + ".", "sys");
+  uiEvent("district", { d, fresh });
 }
 
 function barrierOpen(b) {
@@ -2670,6 +2747,7 @@ function separate(a, b, aOnly) {
   const nx = (a.x - b.x) / d, ny = (a.y - b.y) / d;
   const push = aOnly ? min - d : (min - d) / 2;
   a.x += nx * push; a.y += ny * push;
+  if (aOnly && (a === player ? S.moveTarget || S.chase : a.moving !== false)) { a.x -= ny * push * 0.7; a.y += nx * push * 0.7; }
   if (!aOnly) { b.x -= nx * push; b.y -= ny * push; }
 }
 
@@ -3282,6 +3360,7 @@ function enterZone(id, x, y) {
   const nRocks = S.zone.theme === "town" ? 6 : S.zone.theme === "cave" ? 26 : S.zone.theme === "crypt" ? 0 : 30;
   for (let i = 0; i < nRocks; i++) S.decor.push({ x: 40 + rnd() * (S.zone.w - 80), y: 40 + rnd() * (S.zone.h - 80), r: 6 + rnd() * 16, a: rnd() * Math.PI });
   S.zoneCooldown = 1;
+  { const dd = districtAt(S.zone, x, y); S.district = dd ? dd.id : null; markDistrict(dd); }
   S.lastPeriod = period();
   log("Entering " + S.zone.name + ".", "sys");
   { const rg = regionOf(id); if (rg) { const c = conquestState(); log(CONQUEST.regions[rg].name + " is held by " + CONQUEST.nations[c.held[rg]].name + "." + (c.nation && c.held[rg] === c.nation ? " Your nation's banner flies here: +5% experience." : ""), "sys"); } }
@@ -3669,7 +3748,7 @@ function step(dt) {
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); checkDistrict(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
