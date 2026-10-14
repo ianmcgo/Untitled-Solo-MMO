@@ -1029,7 +1029,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.3.0 · built 2026-10-14 15:09 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.4.0 · built 2026-10-14 15:17 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -7200,6 +7200,12 @@ const NPCS = {
 };
 
 const QUESTS = {
+  tour_outpost: { name: "Know Your City", giver: "Pell", npc: "pell", lv: 1, check: "tour_outpost", desc: "Walk through all five districts of Ashenreach Outpost: Market, Government, Residential, Industrial and Eastgate.", reward: { xp: 150, gil: 200 },
+    intro: "Customers keep asking me where the smithy is, and I've no time to point. Do us both a favour and walk every district of the Outpost once: Market, Government, Residential, Industrial and Eastgate. Then come back and I'll pay you for your time.", progress: "Still some districts you haven't walked. Use the map (M); each district is tinted and named.", turn: "Every street walked. You'll never be lost here now. Take this for your trouble." },
+  tour_harbor: { name: "Harbor Rounds", giver: "Marn", npc: "marn", lv: 2, check: "tour_harbor", desc: "Visit all four districts of Saltreach Harbor: the Fish Market, Harbor Square, Shipwrights' Row and the Docks.", reward: { xp: 200, gil: 250 },
+    intro: "New to Saltreach? Then you don't know where the best catch lands. Visit the Fish Market, Harbor Square, Shipwrights' Row and the Docks, and tell me what you saw. I'll make it worth your while.", progress: "You've not seen it all yet. The Docks run along the south shore, past the gate halls.", turn: "So you've seen the whole harbor. Good. Now you know where to buy fish." },
+  tour_ironvale: { name: "The Ironvale Circuit", giver: "Brisa", npc: "brisa", lv: 3, check: "tour_ironvale", desc: "Visit all five districts of Ironvale: Gate Ward, the Keep, Market Square, South Ward and Smelters' Row.", reward: { xp: 250, gil: 300 },
+    intro: "Quartermasters hate being asked for directions. Save us both the trouble: walk the Gate Ward, the Keep, Market Square, the South Ward and Smelters' Row, then report back.", progress: "Not all five yet. Smelters' Row is east, past the gate hall; the Keep is north.", turn: "The whole circuit. Now you know your way around Ironvale." },
   pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", npc: "rhea", lv: 1, desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "captains_ring" } },
   home: { name: "Make It Home", giver: "Odette", npc: "odette", lv: 1, check: "furniture", desc: "Buy or craft two pieces of furniture and have Pip place them in your residence (the door is on the west house of the Outpost).", reward: { xp: 100, gil: 0, items: [["flowerpot", 1], ["herb_seeds", 2]] },
     intro: "Every adventurer needs somewhere to hang their helm. The cottage by the west wall is yours; my cousin Pip keeps it. Put two pieces of furniture in it and I'll throw in something green for the windowsill.", progress: "Two pieces placed, that's all. Chairs are cheap. Talk to Pip at the cottage to arrange them.", turn: "Two pieces placed! It's a home now. Here, a flowerpot and some herb seeds; Pip will show you how to garden." },
@@ -8167,7 +8173,13 @@ for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
   const id = "warpstone_" + zid + "_" + did, d = ZONES[zid].districts.find(q => q.id === did);
   NPCS[id] = { name: "Warp Stone: " + d.name, model: "crystal", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
   ZONES[zid].npcs.push({ id, x: WARP_STONES[zid][did][0], y: WARP_STONES[zid][did][1] });
+  const sid = "dsign_" + zid + "_" + did;
+  NPCS[sid] = { name: "District Signpost", prop: "sign", talk: "talkDistrictSign" };
+  ZONES[zid].npcs.push({ id: sid, x: WARP_STONES[zid][did][0] + 60, y: WARP_STONES[zid][did][1] + 6 });
 }
+const CITY_LIFE = {
+  market: [6, 1], square: [6, 1], fish: [4, 1], docks: [4, 1], gov: [2, 2], keep: [1, 2], res: [3, 1], south: [3, 1], ind: [3, 1], yard: [3, 1], gate: [2, 2], forge: [3, 1]
+};
 Object.assign(QUESTS, {
   sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "bronze_tachi", qty: 1, unlock: "SAM" },
     intro: "A Samurai fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },
@@ -9869,6 +9881,27 @@ function addWildlife(id) {
       mk("walker", path[0][0], path[0][1], { seed: hashStr(id + "trav" + t) % 997, path: loop, speed: 50, time: "day", traveller: true });
       if (t === 0) mk("dog", path[0][0] + 20, path[0][1], { col: 0x6a5a48, path: loop, speed: 50, time: "day" });
     }
+  }
+}
+function cityLife(z, id) {
+  const rs = zoneRects(z);
+  const free = (d, x, y) => x > d.x + 70 && x < d.x + d.w - 70 && y > d.y + 70 && y < d.y + d.h - 70 && !rs.some(r => x > r.x - 36 && x < r.x + r.w + 36 && y > r.y - 36 && y < r.y + r.h + 36);
+  const stoneOf = did => { const n = z.npcs.find(q => q.id === "warpstone_" + id + "_" + did); return n ? { x: n.x, y: n.y + 90 } : null; };
+  for (const d of z.districts) {
+    const cfg = CITY_LIFE[d.id] || [2, 1], c = stoneOf(d.id) || { x: d.x + d.w / 2, y: d.y + d.h / 2 };
+    const make = (tag, i, rad, extra) => {
+      const r = seeded(hashStr(id + d.id + tag + i)), pts = [];
+      for (let t = 0; t < 60 && pts.length < 4; t++) {
+        const ang = r() * 6.283, rr = 70 + r() * rad, x = Math.round(c.x + Math.cos(ang) * rr), y = Math.round(c.y + Math.sin(ang) * rr);
+        if (free(d, x, y)) pts.push([x, y]);
+      }
+      if (pts.length < 2) return;
+      pts.sort((a, b) => Math.atan2(a[1] - c.y, a[0] - c.x) - Math.atan2(b[1] - c.y, b[0] - c.x));
+      S.ambient.push(Object.assign({ kind: "ambient", ambient: true, type: "walker", seed: hashStr(id + d.id + tag + i) % 997, x: pts[0][0], y: pts[0][1], px: pts[0][0], py: pts[0][1], home: { x: c.x, y: c.y }, roam: 60, path: pts, pi: 0, face: 0, speed: 50, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4, district: d.id }, extra));
+    };
+    for (let i = 0; i < cfg[0]; i++) make("day", i, 230, { time: "day" });
+    for (let i = 0; i < Math.ceil(cfg[0] / 3); i++) make("night", i, 200, { time: "night", speed: 44 });
+    for (let i = 0; i < cfg[1]; i++) make("guard", i, 320, { look: i % 2 ? "guard_f" : "guard", speed: 40, guard: true });
   }
 }
 function ambientAwake(a) {
@@ -11743,8 +11776,9 @@ function enterZone(id, x, y) {
   for (const a of S.zone.ambient || []) for (let i = 0; i < (a.n || 1); i++) {
     const r = seeded(hashStr(id + a.type + i));
     const x = a.x + (r() - 0.5) * (a.r || 60), y = a.y + (r() - 0.5) * (a.r || 60);
-    S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
+    S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, time: a.time, look: a.look, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
   }
+  if (S.zone.districts) cityLife(S.zone, id);
   if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
   for (const n of S.npcs) if (n.only) n.away = !npcOn(n);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
@@ -12475,7 +12509,8 @@ function questOfferable(id) {
   const q = QUESTS[id];
   return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done");
 }
-const QUEST_CHECKS = { furniture: () => save.furniture.length >= 2, harvest: () => save.harvests >= 1 };
+const tourDone = zid => ZONES[zid].districts.every(d => save.districts && save.districts[zid + ":" + d.id]);
+const QUEST_CHECKS = { tour_outpost: () => tourDone("outpost"), tour_harbor: () => tourDone("harbor"), tour_ironvale: () => tourDone("ironvale"), furniture: () => save.furniture.length >= 2, harvest: () => save.harvests >= 1 };
 function questComplete(id) {
   const q = QUESTS[id];
   if (save.quests[id] !== "active") return false;
@@ -12997,6 +13032,15 @@ const TALK = {
   },
   talkCamp(n) {
     openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Touch the camp crystal beside it to restore your party and to be able to warp here from any other crystal.", []);
+  },
+  talkDistrictSign(n) {
+    const z = S.zone, here = districtAt(z, n.x, n.y);
+    const lines = z.districts.filter(d => !here || d.id !== here.id).map(d => {
+      const cx = d.x + d.w / 2, cy = d.y + d.h / 2, dx = cx - n.x, dy = cy - n.y;
+      const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "east" : "west") : (dy > 0 ? "south" : "north");
+      return d.icon + " " + d.name + ": " + dir + ", about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms";
+    });
+    openDialog("District Signpost", (here ? "You are in the " + here.name + ". " : "") + lines.join(". ") + ".", []);
   },
   talkWarpStone(n) { openWarpStone(n); },
   talkCrystal(n) {
@@ -13984,9 +14028,12 @@ function ambxTick() {
   const windy = wx === "wind" || wx === "storm" || wx === "blizzard";
   set("wind", out ? (windy ? 0.3 : S.zoneId === "frost" ? 0.12 : 0.04) * (0.7 + 0.3 * Math.sin(now * 0.4)) : 0);
   AMBX.layers.wind.f.frequency.setTargetAtTime(windy ? 650 : 380, now, 2);
-  set("surf", S.zoneId === "harbor" ? 0.16 * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
+  const dm = S.district || "";
+  const surfMul = dm === "docks" ? 1.4 : dm === "fish" ? 1 : dm === "square" ? 0.6 : 0.35;
+  set("surf", S.zoneId === "harbor" ? 0.16 * surfMul * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
   const night0 = typeof isNight === "function" && isNight();
-  set("crowd", th === "town" ? (night0 ? 0.025 : 0.07) * (0.7 + 0.3 * Math.sin(now * 0.23) * Math.sin(now * 0.61)) : 0);
+  const crowdMul = { market: 1.7, square: 1.7, fish: 1.5, docks: 1.1, res: 0.55, south: 0.55, gov: 0.7, keep: 0.5, ind: 0.8, yard: 0.8, gate: 0.9, forge: 0.8, gov_: 1 }[dm] || 1;
+  set("crowd", th === "town" ? crowdMul * (night0 ? 0.025 : 0.07) * (0.7 + 0.3 * Math.sin(now * 0.23) * Math.sin(now * 0.61)) : 0);
   AMBX.layers.crowd.f.frequency.setTargetAtTime(480 + 120 * Math.sin(now * 0.37), now, 0.8);
   if ((th === "cave" || th === "crypt") && now > (AMBX.nextDrip || 0)) { AMBX.nextDrip = now + 1.2 + Math.random() * 3.5; uiSynth("drip", 0.35 + Math.random() * 0.3, { mul: 0.8 + Math.random() * 0.5, pan: Math.random() * 1.2 - 0.6 }); }
   if (out && now > AMBX.nextCritter && !/rain|storm|blizzard/.test(wx || "")) {
@@ -17078,13 +17125,20 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v15.3.0 · built 2026-10-14 15:09 PDT";
+const BUILD_INFO = "v15.4.0 · built 2026-10-14 15:17 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
+    "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
+    "The markets and fish market are crowded; the residential wards are quieter.",
+    "A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
+    "Ambience follows the district: crowd noise swells in the markets and fades in the wards, and the surf is loudest on the Docks.",
+    "Three new quests for touring each city: Know Your City (Pell), Harbor Rounds (Marn) and The Ironvale Circuit (Brisa). Walk through every district, then report back."
   ] },
   { v: "15.3.0", date: "2026-10-14", title: "Warp stones", items: [
     "Every district of Ashenreach Outpost, Saltreach Harbor and Ironvale now has a warp stone, shown as a pink dot on the map.",
@@ -17974,6 +18028,10 @@ function tabHelp() {
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
   ]));
+  h += sec("🚶 City life", ul([
+    "Townsfolk walk set routes inside their district: crowds by day (thickest in the markets), a few night-walkers after dark, and guards who patrol all day and night. Signposts beside the warp stones list the other districts with directions and distances. Crowd and surf sounds change with the district you are in.",
+    "Tour quests: Pell (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
+  ]));
   h += sec("🌀 Warp stones", ul([
     "Each district of the three cities has a warp stone (pink dot on the map). Touch one to attune it. Warps inside the same city are free; warps to a stone in another city cost " + CONFIG.warpCost + " crystals. You can't warp while fighting. Type /warp beside a stone to open the menu. Crystals still handle home points and camp warps."
   ]));
@@ -18345,7 +18403,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "15.3.0";
+const GAME_VERSION = "15.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -24000,8 +24058,8 @@ function buildEntityRig(e) {
     make = () => humanEntry(LF);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {
-    sig = "amb|" + e.type + "|" + (e.seed || 0);
-    if (e.type === "walker") { const L = walkerLook(e.seed || 0); make = () => humanEntry(L); }
+    sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "");
+    if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0); make = () => humanEntry(L); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
     else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);

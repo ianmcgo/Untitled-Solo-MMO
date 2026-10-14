@@ -2500,8 +2500,8 @@ function buildEntityRig(e) {
     make = () => humanEntry(LF);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {
-    sig = "amb|" + e.type + "|" + (e.seed || 0);
-    if (e.type === "walker") { const L = walkerLook(e.seed || 0); make = () => humanEntry(L); }
+    sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "");
+    if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0); make = () => humanEntry(L); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
     else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);

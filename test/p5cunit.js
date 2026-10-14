@@ -10,7 +10,7 @@ ok(Object.values(G.save.quests).every(v => v === 'none'), 'no quests at the star
 G.TALK.talkPell(npc('pell'));
 ok(opt(/Herbs for the Stall/) && !opt(/Collect/), 'Pell offers Herbs for the Stall');
 opt(/Herbs/).fn(); opt(/Accept/).fn();
-ok(G.save.quests.herbs === 'active', 'herb quest accepted');
+ok(G.save.quests.herbs === 'active', 'herb quest accepted'); G.save.quests.tour_outpost = 'done';
 ok(G.questMarker(npc('pell')) === false, 'no marker on Pell until the herbs are gathered');
 G.TALK.talkPell(npc('pell')); ok(opt(/Healing Herb 0\/3/), 'Pell shows progress');
 G.giveItem('healing_herb', 3, true);

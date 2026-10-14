@@ -411,9 +411,12 @@ function ambxTick() {
   const windy = wx === "wind" || wx === "storm" || wx === "blizzard";
   set("wind", out ? (windy ? 0.3 : S.zoneId === "frost" ? 0.12 : 0.04) * (0.7 + 0.3 * Math.sin(now * 0.4)) : 0);
   AMBX.layers.wind.f.frequency.setTargetAtTime(windy ? 650 : 380, now, 2);
-  set("surf", S.zoneId === "harbor" ? 0.16 * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
+  const dm = S.district || "";
+  const surfMul = dm === "docks" ? 1.4 : dm === "fish" ? 1 : dm === "square" ? 0.6 : 0.35;
+  set("surf", S.zoneId === "harbor" ? 0.16 * surfMul * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
   const night0 = typeof isNight === "function" && isNight();
-  set("crowd", th === "town" ? (night0 ? 0.025 : 0.07) * (0.7 + 0.3 * Math.sin(now * 0.23) * Math.sin(now * 0.61)) : 0);
+  const crowdMul = { market: 1.7, square: 1.7, fish: 1.5, docks: 1.1, res: 0.55, south: 0.55, gov: 0.7, keep: 0.5, ind: 0.8, yard: 0.8, gate: 0.9, forge: 0.8, gov_: 1 }[dm] || 1;
+  set("crowd", th === "town" ? crowdMul * (night0 ? 0.025 : 0.07) * (0.7 + 0.3 * Math.sin(now * 0.23) * Math.sin(now * 0.61)) : 0);
   AMBX.layers.crowd.f.frequency.setTargetAtTime(480 + 120 * Math.sin(now * 0.37), now, 0.8);
   if ((th === "cave" || th === "crypt") && now > (AMBX.nextDrip || 0)) { AMBX.nextDrip = now + 1.2 + Math.random() * 3.5; uiSynth("drip", 0.35 + Math.random() * 0.3, { mul: 0.8 + Math.random() * 0.5, pan: Math.random() * 1.2 - 0.6 }); }
   if (out && now > AMBX.nextCritter && !/rain|storm|blizzard/.test(wx || "")) {
