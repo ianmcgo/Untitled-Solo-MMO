@@ -1477,6 +1477,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.11.0", date: "2026-10-14", title: "Light and atmosphere", items: [
+    "Sunbeams: soft shafts of light slant down through the open country in daytime, angled along the sun and glowing warmer and stronger at dawn and dusk. They fade in rain, fog and overcast weather.",
+    "Caves get pale blue light shafts falling from cracks above, and their glowing crystal clusters now light the ground around them in teal and violet pools, gently pulsing.",
+    "Drifting motes of dust and pollen float in the air around you: golden in the sun, blue-white underground, faint indoors.",
+    "Shorelines have a darker band of wet sand right at the water's edge."
+  ] },
   { v: "14.10.0", date: "2026-10-14", title: "Foliage and props", items: [
     "Wild areas are dressed with more plant life: fern patches in the meadows (big fronds in the jungle), reed beds around every pond and through the marsh, and clusters of red, pale and brown mushrooms.",
     "Props tell a story along the roads: an abandoned cart or two beside the track (some tipped over and half sunk), old fence lines wandering near the entrance of each area, and tree stumps.",

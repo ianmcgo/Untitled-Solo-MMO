@@ -1005,7 +1005,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.10.0 · built 2026-10-14 12:23 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.11.0 · built 2026-10-14 12:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -16819,13 +16819,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v14.10.0 · built 2026-10-14 12:23 PDT";
+const BUILD_INFO = "v14.11.0 · built 2026-10-14 12:30 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "14.11.0", date: "2026-10-14", title: "Light and atmosphere", items: [
+    "Sunbeams: soft shafts of light slant down through the open country in daytime, angled along the sun and glowing warmer and stronger at dawn and dusk. They fade in rain, fog and overcast weather.",
+    "Caves get pale blue light shafts falling from cracks above, and their glowing crystal clusters now light the ground around them in teal and violet pools, gently pulsing.",
+    "Drifting motes of dust and pollen float in the air around you: golden in the sun, blue-white underground, faint indoors.",
+    "Shorelines have a darker band of wet sand right at the water's edge."
   ] },
   { v: "14.10.0", date: "2026-10-14", title: "Foliage and props", items: [
     "Wild areas are dressed with more plant life: fern patches in the meadows (big fronds in the jungle), reed beds around every pond and through the marsh, and clusters of red, pale and brown mushrooms.",
@@ -18028,7 +18034,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "14.10.0";
+const GAME_VERSION = "14.11.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18585,7 +18591,7 @@ function* bakeTerrainAlbedoSteps(field, size) {
       }
     }
     const shore = field.shoreWeight(px, py);
-    if (shore > 0) { r = mix(r, th.sand[0], shore); g = mix(g, th.sand[1], shore); b = mix(b, th.sand[2], shore); }
+    if (shore > 0) { r = mix(r, th.sand[0], shore); g = mix(g, th.sand[1], shore); b = mix(b, th.sand[2], shore); const wet = sstep(0.55, 0.95, shore) * 0.32; r *= 1 - wet; g *= 1 - wet * 0.92; b *= 1 - wet * 0.8; }
     const rock = clamp(sstep(0.25, 0.6, slope) + field.outside(px, py) * 0.8, 0, 1);
     if (rock > 0) {
       const rv = 0.75 + NOISE.ridge(px * 0.03, py * 0.03, 3, 0, 209) * 0.5;
@@ -19540,6 +19546,7 @@ function buildCave(field, root) {
       cluster.add(m);
     }
     cluster.position.set(px * U, field.heightAt(px, py), py * U);
+    if (i < (W3.quality === "low" ? 2 : W3.quality === "high" ? 6 : 4)) { const L = new THREE.PointLight(c, 7, 16, 1.6); L.position.y = 1.6; L.userData.phase = i * 2.3; cluster.add(L); W3.torchLights.push(L); L.userData.crystal = true; }
     root.add(cluster);
   }
 }
@@ -20369,6 +20376,79 @@ function updateRain(amt, windy, snow) {
   r.geometry.attributes.position.needsUpdate = true;
 }
 
+function shaftTex() {
+  const c = document.createElement("canvas"); c.width = 64; c.height = 256;
+  const g = c.getContext("2d");
+  for (let x = 0; x < 64; x++) {
+    const t = Math.abs(x - 32) / 32, a = Math.pow(1 - t, 2.2);
+    const gr = g.createLinearGradient(0, 0, 0, 256);
+    gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.25, "rgba(255,255,255," + (a * 0.9).toFixed(3) + ")"); gr.addColorStop(0.8, "rgba(255,255,255," + (a * 0.5).toFixed(3) + ")"); gr.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = gr; g.fillRect(x, 0, 1, 256);
+  }
+  return new THREE.CanvasTexture(c);
+}
+function initAtmosFx() {
+  const tex = shaftTex();
+  W3.shafts = [];
+  const grp = new THREE.Group();
+  for (let i = 0; i < 9; i++) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false, color: 0xfff0c8, opacity: 0 }));
+    m.userData = { ph: Math.random() * 6.28, off: new THREE.Vector3((Math.random() - 0.5) * 44, 0, (Math.random() - 0.5) * 44), w: 1.4 + Math.random() * 2.6, h: 14 + Math.random() * 10 };
+    m.renderOrder = 5;
+    grp.add(m); W3.shafts.push(m);
+  }
+  W3.scene.add(grp); W3.shaftGroup = grp;
+  const N = 260, pos = new Float32Array(N * 3), seeds = new Float32Array(N);
+  for (let i = 0; i < N; i++) { pos[i * 3] = (Math.random() - 0.5) * 30; pos[i * 3 + 1] = Math.random() * 6; pos[i * 3 + 2] = (Math.random() - 0.5) * 30; seeds[i] = Math.random() * 100; }
+  const pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  W3.motes = new THREE.Points(pg, new THREE.PointsMaterial({ map: texGlow(), size: 0.07, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: 0xfff4d8, opacity: 0, sizeAttenuation: true }));
+  W3.motes.userData.seeds = seeds; W3.motes.frustumCulled = false;
+  W3.scene.add(W3.motes);
+}
+function updateAtmosFx(dir, dayAmt, gloom, cave, indoor, golden, fogC) {
+  if (!W3.shafts) initAtmosFx();
+  const cam = W3.camera.position, t = S.time, field = W3.field;
+  const zone = S.zone || {}, forest = themeOf(zone) === "field" && zone.palette !== "desert" && zone.palette !== "volcanic";
+  let strength = cave ? 0.55 : indoor ? 0 : forest ? dayAmt * (0.7 + golden * 0.9) * (1 - gloom) * (dir.y > 0.05 ? 1 : 0) : 0;
+  if (W3.quality === "low") strength *= 0.6;
+  W3.shaftGroup.visible = strength > 0.01;
+  const ldir = cave ? W3.shaftDirCave || (W3.shaftDirCave = new THREE.Vector3(0.25, 1, 0.15).normalize()) : dir;
+  for (const m of W3.shafts) {
+    if (!W3.shaftGroup.visible) break;
+    const u = m.userData;
+    let px = cam.x + u.off.x, pz = cam.z + u.off.z;
+    const cell = 44;
+    px = Math.round((px - u.off.x) / cell) * cell + u.off.x; pz = Math.round((pz - u.off.z) / cell) * cell + u.off.z;
+    const gy = field ? field.heightAt(px / U, pz / U) : 0;
+    m.scale.set(u.w, u.h, 1);
+    m.position.set(px + ldir.x * u.h * 0.45, gy + ldir.y * u.h * 0.45, pz + ldir.z * u.h * 0.45);
+    m.quaternion.setFromUnitVectors(V3Y, ldir);
+    m.rotateY(Math.atan2(cam.x - m.position.x, cam.z - m.position.z));
+    const d = Math.hypot(cam.x - px, cam.z - pz);
+    const fade = sstep(4, 10, d) * (1 - sstep(22, 34, d));
+    m.material.opacity = strength * fade * (0.15 + 0.05 * Math.sin(t * 0.4 + u.ph));
+    m.material.color.copy(cave ? (W3.caveBeam || (W3.caveBeam = new THREE.Color(0x9ab8ff))) : W3.sun.color);
+  }
+  const mo = W3.motes;
+  const moteAmt = indoor ? 0.35 : cave ? 0.7 : (forest ? 0.25 + golden * 0.5 : 0.12) * (1 - gloom) * Math.max(dayAmt, 0.4);
+  mo.material.opacity = moteAmt * (W3.quality === "low" ? 0.5 : 1);
+  mo.visible = moteAmt > 0.02;
+  if (mo.visible) {
+    const p = mo.geometry.attributes.position, sd = mo.userData.seeds, gy = field ? field.heightAt(cam.x / U, cam.z / U) : 0;
+    for (let i = 0; i < p.count; i++) {
+      let x = p.getX(i) + Math.sin(t * 0.3 + sd[i]) * 0.004, y = p.getY(i) + 0.002 * Math.sin(t * 0.5 + sd[i] * 2), z = p.getZ(i) + Math.cos(t * 0.27 + sd[i]) * 0.004;
+      const rx = x - cam.x, rz = z - cam.z;
+      if (Math.abs(rx) > 15) x = cam.x - Math.sign(rx) * 14.9;
+      if (Math.abs(rz) > 15) z = cam.z - Math.sign(rz) * 14.9;
+      if (y < gy || y > gy + 6) y = gy + ((sd[i] * 7.31) % 6);
+      p.setXYZ(i, x, y, z);
+    }
+    p.needsUpdate = true;
+    mo.material.color.copy(cave ? (W3.caveMote || (W3.caveMote = new THREE.Color(0xb8d0ff))) : W3.sun.color).lerp(fogC, 0.2);
+  }
+}
+const V3Y = new THREE.Vector3(0, 1, 0);
+
 function updateSky(force) {
   const z = S.zone, theme = themeOf(z);
   const v = vana();
@@ -20469,7 +20549,7 @@ function updateSky(force) {
   for (const g of W3.lampGlows || []) g.material.opacity = nightGlow * 0.9;
   if (typeof RIM !== "undefined") { RIM.str.value = cave ? 0.18 : mix(0.4, 0.28, dayAmt); RIM.color.value.copy(sunY > 0 ? W3.sun.color : new THREE.Color(0x8aa0ff)).lerp(new THREE.Color(0xffffff), 0.3); }
   for (const L of W3.lampLights) L.intensity = nightGlow * 10;
-  for (const L of W3.torchLights) L.intensity = 16 + Math.sin(S.time * 9 + L.userData.phase) * 1.5 + Math.sin(S.time * 23 + L.userData.phase) * 0.8;
+  for (const L of W3.torchLights) L.intensity = L.userData.crystal ? 6 + Math.sin(S.time * 1.3 + L.userData.phase) * 1.5 : 16 + Math.sin(S.time * 9 + L.userData.phase) * 1.5 + Math.sin(S.time * 23 + L.userData.phase) * 0.8;
   W3.renderer.toneMappingExposure = cave ? 1.45 : mix(1.5, 0.85, dayAmt);
   if (W3.water && W3.water.material.uniforms) {
     W3.water.material.uniforms.sunDirection.value.copy(lightDir);
@@ -20479,6 +20559,7 @@ function updateSky(force) {
     W3.water.userData.lowNormal.offset.set(S.time * 0.01, S.time * 0.007);
   }
   for (const m of W3.grassMats) if (m.userData.shader) m.userData.shader.uniforms.uTime.value = S.time;
+  updateAtmosFx(dir, dayAmt, gloom, cave, indoor, golden, fogC);
   updateWaterFx(1 / 60);
   W3.envTimer -= 1 / 60;
   if (force || W3.envTimer <= 0 || Math.abs(sunY - W3.lastSunY) > 0.03) {

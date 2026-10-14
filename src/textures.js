@@ -345,7 +345,7 @@ function* bakeTerrainAlbedoSteps(field, size) {
       }
     }
     const shore = field.shoreWeight(px, py);
-    if (shore > 0) { r = mix(r, th.sand[0], shore); g = mix(g, th.sand[1], shore); b = mix(b, th.sand[2], shore); }
+    if (shore > 0) { r = mix(r, th.sand[0], shore); g = mix(g, th.sand[1], shore); b = mix(b, th.sand[2], shore); const wet = sstep(0.55, 0.95, shore) * 0.32; r *= 1 - wet; g *= 1 - wet * 0.92; b *= 1 - wet * 0.8; }
     const rock = clamp(sstep(0.25, 0.6, slope) + field.outside(px, py) * 0.8, 0, 1);
     if (rock > 0) {
       const rv = 0.75 + NOISE.ridge(px * 0.03, py * 0.03, 3, 0, 209) * 0.5;

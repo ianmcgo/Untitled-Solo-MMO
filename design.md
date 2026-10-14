@@ -1275,6 +1275,12 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - `buildProps(field, root)` (world3d.js, field/town themes) after buildPathEdges. Quality multiplier K = low 0.4, medium 1, high 1.6. Rules: ferns (not desert/volcanic/snow) where noise(0.004) > 0.45, 220·K (jungle 420, ×1.7 size); reeds on every water ring (min(160, r·0.9)·K, ×1.6 marsh) plus marsh patches where noise(0.006) > 0.55; mushroom clusters 70·K (instance colours red/cream/brown/ochre); stumps 14·K (30 in desert/volcanic/snow, tinted per palette); desert skulls+bones 18·K; up to 2 carts beside a random path (50% tipped and sunk) with a 24 px collider; 2–3 fence runs of 5–10 49 px segments wandering near z.start.
 - Geometry builders: fernGeo (7 tapered curled fronds, normals up), reedGeo (9 stems + cattail heads), shroomClusterGeo (4 caps), fenceGeo (2 posts + 2 rails), cartGeo (bed, sides, shafts, 2 spoked wheels), stumpGeo (stump + 2 roots), skullGeo. Plants share the leaf atlas and addWind (fern 0.06, reed 0.09).
 
+## Phase 104: light and atmosphere (v14.11.0) — plan E3
+- `initAtmosFx()` (world3d.js, lazily from updateAtmosFx): 9 additive DoubleSide planes with a soft vertical beam texture (shaftTex, 64×256), each with random offset in a 44 m cell grid around the camera, width 1.4–4 m, length 14–24 m; plus 260 additive Points motes (texGlow, size 0.07) recycled in a 30×30×6 m box around the camera.
+- `updateAtmosFx(dir, dayAmt, gloom, cave, indoor, golden, fogC)` called from updateSky. Shaft strength: forest-type field zones dayAmt·(0.7 + 0.9·golden)·(1 − gloom) when the sun is up; caves 0.55 with a fixed sky-crack direction (0.25, 1, 0.15); none indoors; ×0.6 on Low. Each beam is snapped to its cell, aligned to the light direction, yawed to face the camera, faded 4–10 m in and 22–34 m out, opacity (0.15 ± 0.05)·strength. Mote opacity: indoor 0.35, cave 0.7, forest 0.25 + 0.5·golden, open 0.12, × (1 − gloom) × max(dayAmt, 0.4); colour = sun colour (cave blue-white) blended 20% to fog.
+- Cave crystals: first 2/4/6 clusters (low/medium/high) get a PointLight (cluster colour, 7, range 16, decay 1.6) flagged crystal; pulse 6 ± 1.5 at 1.3 rad/s in the torch loop.
+- Terrain bake: wet band where shoreWeight 0.55–0.95 darkens up to 32% (blue kept more).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1327,6 +1333,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.11.0 | Phase 104: sunbeams, cave light shafts, dust motes, crystal light pools, wet shorelines. |
 | 14.10.0 | Phase 103: ferns, reeds, mushrooms, carts, fences, stumps and per-region prop sets. |
 | 14.9.0 | Phase 102: strata on cliffs, instanced rock outcrops, wheel-rutted roads with edging stones. |
 | 14.8.0 | Phase 101: painted item icon atlas (weapons by type and metal, armour by slot, consumables, materials, rarity frames). |
