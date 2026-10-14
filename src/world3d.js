@@ -1317,7 +1317,8 @@ const BACKDROP = {
   hollow: { h: [30, 60, 110], col: [0x4a5a3a, 0x60705a, 0x8a96a4], mark: "tree" },
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
   marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
-  harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" }
+  harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
+  ironvale: { h: [60, 120, 210], col: [0x7a8a96, 0xa8b8c4, 0xe0eaf2], snow: true, mark: "peak" }
 };
 function buildBackdrop(field, root) {
   const th = themeOf(S.zone), B = BACKDROP[S.zoneId] || (th === "field" ? BACKDROP.hollow : null);
@@ -1390,6 +1391,7 @@ const ATMOS = {
   marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
   frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
   harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  ironvale: { tint: 0xd8e4f0, haze: 0.22, far: 1.1, clouds: 0.6 },
   depths: { tint: 0x8aa8b8, haze: 0.4, far: 0.7, clouds: 1 }
 };
 function moonTex(phase) {

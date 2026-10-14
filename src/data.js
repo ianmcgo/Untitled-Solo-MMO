@@ -1105,7 +1105,7 @@ ZONES.harbor = {
 
 ZONES.frost = {
   name: "Frostspire Pass", w: 3000, h: 2400, theme: "field", palette: "snow",
-  exits: [{ x: 0, y: 1150, w: 24, h: 100, to: "harbor", tx: 1330, ty: 430, label: "Saltreach Harbor" }],
+  exits: [{ x: 0, y: 1150, w: 24, h: 100, to: "harbor", tx: 1330, ty: 430, label: "Saltreach Harbor" }, { x: 2976, y: 1080, w: 24, h: 100, to: "ironvale", tx: 120, ty: 550, label: "Ironvale" }],
   npcs: [],
   walls: [{ x: 700, y: 300, w: 300, h: 260 }, { x: 1800, y: 1500, w: 360, h: 220 }, { x: 2300, y: 400, w: 220, h: 400 }, { x: 1100, y: 1900, w: 420, h: 160 }],
   ruins: {
@@ -1335,6 +1335,30 @@ function spreadSpawns(zone, minD) {
     if (!moved) break;
   }
 }
+ZONES.ironvale = {
+  name: "Ironvale", w: 1400, h: 1100, safe: true, theme: "town", palette: "snow",
+  exits: [{ x: 0, y: 500, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }],
+  props: [{ type: "crates", x: 1000, y: 760, r: 30 }, { type: "barrels", x: 520, y: 760, r: 26 }, { type: "desk", x: 900, y: 440, r: 22 }],
+  ambient: [{ type: "walker", x: 750, y: 550, n: 1, path: [[500, 400], [1000, 400], [1000, 700], [500, 700]] }, { type: "walker", x: 750, y: 550, n: 1, path: [[750, 250], [750, 900], [1100, 560]] }, { type: "dog", x: 820, y: 620, n: 1, r: 120, col: 0x5a4a3a }],
+  npcs: [
+    { id: "brisa", x: 600, y: 430, home: 1, sleep: [22, 6] }, { id: "haldor", x: 900, y: 690, home: 2, sleep: [21, 5] }, { id: "orla", x: 900, y: 410 },
+    { id: "crystal_ironvale", x: 750, y: 550 }, { id: "trade_board", x: 600, y: 690 }, { id: "guard_ironvale", x: 420, y: 470 }
+  ],
+  spawns: [],
+  water: [],
+  plaza: { x: 750, y: 550, r: 150 },
+  paths: [
+    { w: 50, pts: [[-500, 550], [0, 550], [420, 550], [750, 550]] },
+    { w: 40, pts: [[750, 550], [750, 950]] },
+    { w: 40, pts: [[750, 550], [750, 160]] },
+    { w: 36, pts: [[750, 550], [1150, 550]] }
+  ],
+  houses: [{ x: 240, y: 180, w: 160, h: 110, rot: 0 }, { x: 1050, y: 170, w: 170, h: 110, rot: 0 }, { x: 240, y: 840, w: 150, h: 120, rot: 1 }, { x: 1100, y: 840, w: 160, h: 120, rot: 1 }, { x: 1180, y: 430, w: 120, h: 150, rot: 1 }],
+  stalls: [{ x: 900, y: 740, color: "#5d4037" }, { x: 600, y: 740, color: "#37474f" }],
+  lamps: [[640, 440], [860, 440], [640, 660], [860, 660], [750, 900]],
+  start: { x: 120, y: 550 }
+};
+
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
 const ZONE_FEATURES = {
   hollow: [{ t: "plateau", x: 2150, y: 420, r: 200, h: 4.5 }, { t: "plateau", x: 300, y: 2000, r: 160, h: 3 }, { t: "ravine", pts: [[650, 560], [900, 470], [1080, 330]], w: 70, d: 3.5 }, { t: "ravine", pts: [[2200, 1950], [2500, 2050], [2800, 1980]], w: 60, d: 3 }],
@@ -1890,3 +1914,36 @@ Object.assign(QUESTS, {
 });
 SHOP.push("bronze_greatsword", "iron_greatsword", "steel_greatsword");
 if (SHOPS.vela) SHOPS.vela.push("frost_greatsword");
+Object.assign(NPCS, {
+  brisa: { name: "Brisa, Quartermaster", model: "brisa", talk: "talkBrisa" },
+  haldor: { name: "Haldor, Mythrilsmith", model: "haldor", talk: "talkHaldor" },
+  orla: { name: "Orla, Auction House", model: "orla", talk: "talkAuction" },
+  crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
+  guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
+});
+WEATHER.ironvale = [["clear", 4], ["snow", 3], ["cloudy", 3], ["wind", 1.5], ["fog", 0.8]];
+const MYTHRIL_GEAR = [];
+for (const id of Object.keys(ITEMS)) {
+  const it = ITEMS[id];
+  if (!id.startsWith("steel_") || it.slot !== "main") continue;
+  const nid = "mythril_" + id.slice(6);
+  if (ITEMS[nid]) continue;
+  ITEMS[nid] = Object.assign({}, it, { name: "Mythril " + it.name.replace(/^Steel /, ""), dmg: Math.round(it.dmg * 1.45), lv: 19, price: Math.round(it.price * 4.5), stats: Object.assign({}, it.stats || {}, { acc: ((it.stats || {}).acc || 0) + 3, str: ((it.stats || {}).str || 0) + 2 }), jobs: it.jobs.slice() });
+  MYTHRIL_GEAR.push(nid);
+}
+const scaleStats = (st, k) => { const o = {}; for (const key in st) o[key] = Math.round(st[key] * k); return o; };
+Object.assign(ITEMS, {
+  mythril_mail: Object.assign({}, ITEMS.chain_mail, { name: "Mythril Mail", lv: 18, price: 13500, stats: scaleStats(ITEMS.chain_mail.stats, 1.5), jobs: ITEMS.chain_mail.jobs.slice() }),
+  mythril_helm: Object.assign({}, ITEMS.iron_helm, { name: "Mythril Helm", lv: 18, price: 8200, stats: scaleStats(ITEMS.iron_helm.stats, 1.6), jobs: ITEMS.iron_helm.jobs.slice() }),
+  ironvale_robe: Object.assign({}, ITEMS.wizards_robe, { name: "Ironvale Robe", lv: 18, price: 12800, stats: scaleStats(ITEMS.wizards_robe.stats, 1.5), jobs: ITEMS.wizards_robe.jobs.slice() }),
+  ironvale_ring: { name: "Ironvale Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_JOBS, lv: 18, price: 0, rare: true, stats: { hp: 30, vit: 3, def: 4 }, desc: "Brisa's thanks for clearing the pass." }
+});
+MYTHRIL_GEAR.push("mythril_mail", "mythril_helm", "ironvale_robe");
+SHOPS.haldor = MYTHRIL_GEAR.concat(["iron_ingot", "potion", "hi_potion", "ether"].filter(id => ITEMS[id]));
+Object.assign(QUESTS, {
+  smokeline: { name: "Smoke on the Pass", giver: "Brisa", npc: "brisa", lv: 18, kill: { fam: "frost_stonechucker", n: 6, name: "Frost Stonechucker" }, desc: "Drive off 6 Frost Stonechuckers hurling rocks at Ironvale's ore carts in Frostspire Pass.", reward: { xp: 5000, gil: 2000, item: "ironvale_ring", qty: 1 },
+    intro: "Ironvale lives on the ore that comes down the pass, and the orcs up there have taken to smashing our carts with boulders. Thin them out and you'll have Ironvale's thanks.", progress: "6 Frost Stonechuckers, up in Frostspire Pass.", turn: "The carts are rolling again. Wear this ring; every guard in Ironvale will know you for a friend." },
+  orerun: { name: "The Ore Run", giver: "Brisa", npc: "brisa", lv: 17, items: { iron_ore: 4, frost_shard: 3 }, desc: "Bring Brisa 4 Iron Ore and 3 Frost Shards for Ironvale's forges.", reward: { xp: 3000, gil: 1600 },
+    intro: "Haldor's forges eat ore faster than the carts can bring it. If you're heading out, dig some iron and pick up frost shards; the mythril won't temper without them.", progress: "4 Iron Ore and 3 Frost Shards.", turn: "That'll keep the fires lit for a week. Here's your pay." }
+});
+ACHIEVEMENTS.push({ id: "ironvale", icon: "⛰️", name: "Mountain Welcome", desc: "Reach the city of Ironvale.", test: s => (s.discovered || []).includes("ironvale") });

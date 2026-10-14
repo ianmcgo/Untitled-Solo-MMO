@@ -560,7 +560,7 @@ const ITEM_LOOK = {
   sentinel_greaves: { legs: 0x4a4a54, legsRegion: "cloth", greaves: 0x9aa0a8 }
 };
 
-const MAT_TINT = [[/frost|rime|glacier|snow/, 0xbfe0ee], [/tide|coral|harbor|sea|gull/, 0x4a7a8a], [/cinder|ember|flame/, 0x8a3a20], [/shadow|dusk|night|wight/, 0x3a3442], [/bronze/, 0xb0804a], [/iron/, 0x7a8088], [/steel/, 0xa8b0b8], [/silk/, 0xd8d0e8], [/linen|cotton/, 0xd8d0b8], [/wool|fur/, 0x8a6a4a], [/leather|hide/, 0x6a4428]];
+const MAT_TINT = [[/mythril/, 0xb8d8e8], [/ironvale/, 0x4a5a6a], [/frost|rime|glacier|snow/, 0xbfe0ee], [/tide|coral|harbor|sea|gull/, 0x4a7a8a], [/cinder|ember|flame/, 0x8a3a20], [/shadow|dusk|night|wight/, 0x3a3442], [/bronze/, 0xb0804a], [/iron/, 0x7a8088], [/steel/, 0xa8b0b8], [/silk/, 0xd8d0e8], [/linen|cotton/, 0xd8d0b8], [/wool|fur/, 0x8a6a4a], [/leather|hide/, 0x6a4428]];
 function autoLook(id) {
   const it = ITEMS[id];
   if (!it || !it.slot) return null;
@@ -609,6 +609,9 @@ const NPC_LOOK = {
   garrick: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: HAIR_COLORS[0] }, beard: 0x8a5a2c, longBeard: true, top: { type: "apron", color: 0x3a2a20, color2: 0x6a4a30 }, legs: 0x3a3028, boots: 0x2a1e14, gloves: 0x4a3020, belt: 0x2a1e14, weapon: "club", alwaysDrawn: false, prop: { girth: 1.2, shoulder: 0.215 } },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },
   brann: { build: 0, skin: SKIN_TONES[2], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
+  brisa: { build: 1, skin: SKIN_TONES[2], hair: { style: "braid", color: HAIR_COLORS[4] }, top: { type: "coat", color: 0x4a3a2a, trim: 0xb0b8c0 }, collar: 0xe8e0d0, legs: 0x3a3028, boots: 0x2a1a10, gloves: 0x5a4030, belt: 0x2a1a10 },
+  haldor: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x9a9a9a, longBeard: true, top: { type: "apron", color: 0x3a3430, color2: 0x5a4030 }, legs: 0x2e2a26, boots: 0x1e1610, gloves: 0x3a2a1e, belt: 0x2a1a10, prop: { girth: 1.2 } },
+  orla: { build: 1, skin: SKIN_TONES[0], hair: { style: "bob", color: HAIR_COLORS[1] }, top: { type: "coat", color: 0x2a3a4a, trim: 0xd8c070 }, legs: 0x2a2a30, boots: 0x1a1410, belt: 0x3a2412 },
   odette: { build: 1, skin: SKIN_TONES[1], hair: { style: "bun", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x7a3a5a, trim: 0xe8d0a0 }, collar: 0xf0e8e0, legs: 0x3a2a34, boots: 0x2a1a14, gloves: 0xe8e0d0, glovesRegion: "cloth", belt: 0x4a2a1a },
   ysolde: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
 };
