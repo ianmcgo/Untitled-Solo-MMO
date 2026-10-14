@@ -993,6 +993,11 @@
   #charSel button.pri, #charSel .pri { color: #ffb54a !important; background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; border-color: #3a1a06 !important; -webkit-text-stroke: .6px #3a1a06; }
   #charSel button.danger { background: linear-gradient(180deg, #f0b0b0 0%, #c86060 40%, #8a2a2a 100%) !important; }
   #charSel input, #charSel select { font: 700 13px var(--ffFont) !important; background: rgba(8,10,40,.85) !important; color: #fff !important; border: 1px solid var(--ffEdge) !important; border-radius: 4px !important; }
+
+  #loading.ready #ldTip { display: none !important; }
+  #loading.ready #ldCred { bottom: calc(26px + var(--sab)) !important; }
+  #loading.ready #ldVer, #loading.roster #ldVer { position: absolute; left: 50%; bottom: calc(8px + var(--sab)); transform: translateX(-50%); margin: 0 !important; white-space: nowrap; }
+  #loading.roster #ldCred { display: none !important; }
 </style>
 </head>
 <body>

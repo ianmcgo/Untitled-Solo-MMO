@@ -1477,6 +1477,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.1.0", date: "2026-10-14", title: "Fitted armour and finer weapons", items: [
+    "Armour is now shaped to the body underneath it: breastplates wrap the chest and waist with a centre ridge and riveted bands, pauldrons cap the shoulder in layers, vambraces follow the forearm, greaves follow the shin with a knee cop, and boots hug the calf with a turned top. Everything bends with the body instead of floating.",
+    "Swords and daggers show their tier: plain bars on starter blades, swept crossguards from level 8, and jewelled guards and pommels from level 15. Other high-level weapons gain metal bands and a set gem.",
+    "Title screen: the tip line is gone, the version now sits under the credit line, and the credit is hidden on character select."
+  ] },
   { v: "14.0.0", date: "2026-10-14", title: "Flowing capes and hair, five new hairstyles", items: [
     "Capes are now cloth in three hinged sections driven by spring physics: they hang still when you stand, stream back when you run, swing out on turns and settle with a little bounce when you stop.",
     "Ponytails, braids and long hair swing with your stride and lag behind turns; tabard flaps are pushed by your legs and flutter when running.",

@@ -17,7 +17,7 @@ const mockLogin = require('./mocklogin');
     const g2 = sheet.getContext('2d');
     g2.fillStyle = '#20242c'; g2.fillRect(0, 0, sheet.width, sheet.height);
     const studio = new THREE.Scene();
-    studio.background = new THREE.Color(0x8a96a8);
+    studio.background = new THREE.Color(0x8a96a8); studio.environment = W3.scene.environment || null;
     studio.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6));
     const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 6, 4); studio.add(sun);
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: 0x6a7a5a }));

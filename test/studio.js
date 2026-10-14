@@ -17,7 +17,7 @@ const mockLogin = require('./mocklogin');
     const g2 = sheet.getContext('2d');
     g2.fillStyle = '#20242c'; g2.fillRect(0, 0, sheet.width, sheet.height);
     const studio = new THREE.Scene();
-    studio.background = new THREE.Color(0x8a96a8);
+    studio.background = new THREE.Color(0x8a96a8); studio.environment = W3.scene.environment || null;
     studio.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6));
     const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 6, 4); studio.add(sun);
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: 0x6a7a5a }));
@@ -32,7 +32,7 @@ const mockLogin = require('./mocklogin');
       const [type, id] = spec.split(':');
       if (type === 'mob') { const m = buildMob(id, 5, 0, 0, null); return m; }
       if (type === 'npc') { const n = Object.assign({}, NPCS[id] || {}, { kind: 'npc', id, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0 }); return n; }
-      if (type === 'race') { const [race, job, build] = id.split('/'); const e = { kind: 'remote', remote: true, id: 'lab' + id, name: 'Lab', job, lv: 10, look: Object.assign({}, save.look, { race, build: +build || 0 }), gear: {}, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0, recasts: {} }; return e; }
+      if (type === 'race') { const [race, job, build, gl] = id.split('/'); const gear = {}; for (const g of (gl || '').split(',').filter(Boolean)) gear[ITEMS[g].slot === 'ring' ? 'ring1' : ITEMS[g].slot] = g; const e = { kind: 'remote', remote: true, id: 'lab' + id, name: 'Lab', job, lv: 10, look: Object.assign({}, save.look, { race, build: +build || 0 }), gear, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0, recasts: {} }; return e; }
       if (type === 'amb') return { kind: 'ambient', ambient: true, type: id, seed: 3, x: 0, y: 0, face: 0, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9 };
     };
     let k = 0;
