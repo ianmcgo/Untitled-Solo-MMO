@@ -201,6 +201,17 @@ function texRoof() {
     (x, y, hv, o) => { const row = Math.floor(y / 24), off = row % 2 ? 16 : 0; const id = Math.floor((x + off) / 32) + row * 9; const t = 0.8 + NOISE.hash2(id, 5) * 0.35; const v = (70 + hv * 60) * t; setRGB(o, v * 1.25, v * 0.62, v * 0.48); }, 5);
 }
 
+function texPlaster() {
+  return texPair("plaster", 256, 256,
+    (x, y) => NOISE.fbm(x / 256 * 10, y / 256 * 10, 4, 10, 91) * 0.6 + NOISE.value(x / 256 * 80, y / 256 * 80, 80, 92) * 0.15,
+    (x, y, hv, o) => { const stain = sstep(0.55, 0.8, NOISE.fbm(x / 256 * 3, y / 256 * 3, 3, 3, 93)) * 0.18; const v = 205 + hv * 30; setRGB(o, v * (1 - stain * 0.6), v * (0.95 - stain * 0.7), v * (0.84 - stain * 0.8)); }, 3);
+}
+function texShingle() {
+  return texPair("shingle", 256, 256,
+    (x, y) => { const row = Math.floor(y / 16), off = row % 2 ? 16 : 0, col = Math.floor((x + off) / 32); const u = ((x + off) % 32) / 32, v = (y % 16) / 16; return 0.3 + v * 0.5 - (u < 0.06 ? 0.4 : 0) + NOISE.hash2(col, row) * 0.15; },
+    (x, y, hv, o) => { const row = Math.floor(y / 16), col = Math.floor((x + (row % 2 ? 16 : 0)) / 32); const t = 0.85 + NOISE.hash2(col * 7, row * 3) * 0.3; setRGB(o, (120 + hv * 60) * t, (58 + hv * 30) * t, (42 + hv * 20) * t); }, 6);
+}
+
 function texCloth(key, c1, c2) {
   return texPair(key, 128, 128,
     (x, y) => ((x % 4 < 2) !== (y % 4 < 2) ? 0.6 : 0.4) + NOISE.fbm(x / 128 * 8, y / 128 * 8, 2, 8, 81) * 0.2,
