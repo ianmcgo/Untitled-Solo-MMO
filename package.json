@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.1.0",
-  "releaseTitle": "Main menu window and Status screen",
+  "version": "9.2.0",
+  "releaseTitle": "Windows in the world",
   "description": "",
   "main": "index.js",
   "scripts": {

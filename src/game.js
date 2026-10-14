@@ -63,6 +63,11 @@ function weatherNow(zoneId) {
   return tbl[0][0];
 }
 function weatherElement() { const w = weatherNow(); return w && WEATHER_INFO[w].el || null; }
+function gameDate() {
+  const day = Math.floor((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000 / 1440);
+  const y = 880 + Math.floor(day / 360), d = ((day % 360) + 360) % 360;
+  return y + "/" + String(Math.floor(d / 30) + 1).padStart(2, "0") + "/" + String(d % 30 + 1).padStart(2, "0");
+}
 function clockText() { const v = vana(); return DAY_NAMES[v.dayIndex] + " " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0"); }
 
 function popText(e, text, color, size, life, yOff) {
@@ -4209,7 +4214,7 @@ function runCommand(text) {
     case "dismount": if (player.mounted) dismount("You dismount."); return;
     case "jump": if (typeof tryJump === "function") tryJump(); return;
     case "craft": case "synth": openModal("craft"); return;
-    case "time": case "clock": log(clockText() + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); return;
+    case "time": case "clock": { const v = vana(); log("Leid'anav: " + gameDate() + " (" + DAY_NAMES[v.dayIndex] + ") " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); log("Earth: " + new Date().toLocaleString([], { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }), "sys"); return; }
     case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
     case "clear": if (typeof clearLog === "function") clearLog(); return;
     case "fps": if (typeof VIEW !== "undefined" && VIEW.settings) { VIEW.settings.fps = !VIEW.settings.fps; saveSettings(VIEW.settings); log("FPS counter " + (VIEW.settings.fps ? "on" : "off") + ".", "sys"); } return;
