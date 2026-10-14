@@ -813,11 +813,26 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Limits: linkshell channels are realtime broadcast channels; someone who learned a shell's id and spoofed a member name could post into it. Friend alerts depend on world presence (no offline mail).
 - Tested on local Postgres (create, name check, invite needs rank, join needs invite, kick rules, rank change, leader leave hand-off, last leave deletes, direct table reads refused) and in netshots (ls refresh, friend alerts, search filters, /l and spoof rejection, blacklist, seek meta, Social screenshot).
 
+## Phase 38: attached bodies (v8.8.0) — model realism 1/5, rename
+- Game renamed Leid'anav Reborn (title, loading, menu header, credits, report, save-file messages). Favicon: assets/icon.svg (shield + crystal) embedded as an SVG data URI link in template4.html.
+- RigBuilder (rig.js) finish(): attachIslands → bridgeGaps → smoothJoints → meta.minY.
+  - add() records userData.rig {bone, color, region, glow} per piece.
+  - findIslands(): union-find over all pieces on a voxel grid (cell 2×tol, tol = 1.5% of model height); anything outside the largest cluster is an island. With window.RIG_CHECK, meta.islands lists them (lab only).
+  - attachIslands(): up to 4 passes; island clusters within 25% H move onto the nearest main point (slight overlap). Islands touching the ground (min y < 3% H, e.g. paws) get a thin connector tube instead.
+  - bridgeGaps(): bones whose pieces don't touch the nearest ancestor-with-pieces (tol 1.2% H) get a ball at the joint (child), a strut from the child's nearest point to the joint (child) and one from the parent's nearest point (parent), so rotation keeps them connected. Skips lids, saddle, hairTail, noBridgeBones.
+  - smoothJoints(): all non-rigid bones (every rig) blend with the parent near the joint by axial distance along the bone axis within a lateral radius. Table J for human bone names [axial r, max weight, lateral]; other bones r = clamp(0.35 × segment, 0.025, 0.1), lateral 2.2r, weight 0.5. Options jointScale, rigidBones.
+- Rig fixes: mandrake leaf stem reaches the leaves; hare and toad hind legs have shins; ursan RACE_BODY shoulder 0.30, girth 1.45, waist 1.32, headR 0.155, arm 0.84 (reference sculpt).
+- Bestiary portraits (models3d.js THUMBS): renderThumb(famKey) renders the rig off-scene in a small lit studio to a 128 px render target (exposure 1.25), returns a PNG data URL; beastThumb queues one per 16 ms and re-renders the bestiary every 3.
+- Ysolde no longer offers or mentions pets.
+- Test tools: mocklogin.js (shared mock + sign-in + create), modellab.js (race×job, NPCs, all mob families, ambient, pets × idle/walk/run/swing/WS/hit/cast: posed surface gap vs rest, built gaps, ground penetration and idle hover via groundY under every vertex, islands), studio.js (contact sheets), lineup.js, bestshot.js, thumbtime.js. Run on a copy of dist/index.html (build 1 overwrites dist). Reference renders: scratchpad stlview.py (automatic landmarks unreliable on posed sculpts).
+- Results: worst posed separation 8.5% → under 1.2% of height for humanoids and quadrupeds; remaining flags are overlapping-sphere chains (crawler/worm). Open: feet dipping into ground in some poses (humans ~4%, small folk ~13%), crawlers/worms sinking when rearing, slopes.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.8.0 | Phase 38: rename to Leid'anav Reborn, favicon, joint blending/bridges/islands for all rigs, bestiary portraits. |
 | 8.7.0 | Phase 37: Social window, friends, linkshells, LFG, /search, blacklist. |
 | 8.6.0 | Phase 36: player auction house (server listings, delivery box, sale alerts). |
 | 8.5.0 | Phase 35: save checks + audit, atomic server trades, bans, setup versioning. |
