@@ -1453,6 +1453,10 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.2.0", date: "2026-10-14", title: "Faces and hair II", items: [
+    "Hair has real locks now: a fringe of strands over the forehead, side locks framing the face (longer for bob and long styles), and long hair falls in separate strands down the back.",
+    "Blinks are smooth and sometimes come in pairs. Eyes squint when laughing or crying, go wide in a panic, narrow in focus while casting, and droop when resting."
+  ] },
   { v: "10.1.0", date: "2026-10-14", title: "Painted look", items: [
     "Characters, companions and monsters now have soft painted shading built in: tops catch the light, undersides and joints are a little darker, and the lower legs fade slightly toward the ground.",
     "Cloth has folds and stitched hems, leather has pores, creases and worn edges, metal has hammered dents, bright worn edges and the odd patch of rust, and skin has finer texture."
