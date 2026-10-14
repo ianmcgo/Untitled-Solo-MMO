@@ -1304,8 +1304,36 @@ function tickBuddy(dt) {
   keepOutOfColliders(b);
 }
 
+function addWildlife(id) {
+  const z = S.zone, r = seeded(hashStr(id + "wild")), rects = zoneRects(z);
+  const free = (x, y) => x > 200 && y > 200 && x < z.w - 200 && y < z.h - 200 && !rects.some(q => x > q.x - 40 && x < q.x + q.w + 40 && y > q.y - 40 && y < q.y + q.h + 40) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 40);
+  const spot = () => { for (let k = 0; k < 40; k++) { const x = r() * z.w, y = r() * z.h; if (free(x, y)) return [x, y]; } return null; };
+  const mk = (type, x, y, o) => S.ambient.push(Object.assign({ kind: "ambient", ambient: true, wild: true, type, seed: 0, x, y, px: x, py: y, home: { x, y }, roam: 120, pi: 0, face: r() * 6.28, speed: 60, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 }, o));
+  const snowy = z.palette === "snow", wet = z.mist;
+  for (let h = 0; h < (snowy ? 1 : 2); h++) { const p = spot(); if (p) for (let i = 0; i < 3; i++) mk("deer", p[0] + (r() - 0.5) * 120, p[1] + (r() - 0.5) * 120, { col: snowy ? 0xb8b0a4 : 0x8a6a48, roam: 180, speed: 70, time: "day", shy: true }); }
+  for (let f = 0; f < 2; f++) { const p = spot(); if (p) for (let i = 0; i < 4; i++) mk("bird", p[0] + (r() - 0.5) * 80, p[1] + (r() - 0.5) * 80, { col: wet ? 0x3a3a34 : snowy ? 0xe8ecf0 : 0x6a5a4a, roam: 500, speed: 150, fly: 7 + r() * 5, time: "day", dry: true, wait: 0 }); }
+  const road = (z.paths || [])[0];
+  if (road) {
+    const pts = road.pts.filter(q => q[0] > 150 && q[1] > 150 && q[0] < z.w - 150 && q[1] < z.h - 150);
+    if (pts.length >= 2) for (let t = 0; t < 2; t++) {
+      const path = t ? pts.slice().reverse() : pts.slice();
+      const loop = path.concat(path.slice(1, -1).reverse());
+      mk("walker", path[0][0], path[0][1], { seed: hashStr(id + "trav" + t) % 997, path: loop, speed: 50, time: "day", traveller: true });
+      if (t === 0) mk("dog", path[0][0] + 20, path[0][1], { col: 0x6a5a48, path: loop, speed: 50, time: "day" });
+    }
+  }
+}
+function ambientAwake(a) {
+  if (a.time === "day" && isNight()) return false;
+  if (a.time === "night" && !isNight()) return false;
+  if (a.dry && /rain|storm|snow|blizzard/.test(weatherNow() || "")) return false;
+  return true;
+}
 function tickAmbient(dt) {
   for (const a of S.ambient || []) {
+    a.away = !ambientAwake(a);
+    if (a.away) continue;
+    if (a.shy && player && dist(a, player) < 140 && !a.flee) { const ang = Math.atan2(a.y - player.y, a.x - player.x); a.tx = a.x + Math.cos(ang) * 260; a.ty = a.y + Math.sin(ang) * 260; a.flee = true; a.wait = 0; a.speedBase = a.speedBase || a.speed; a.speed = a.speedBase * 2.6; }
     if (a.path) {
       const p = a.path[a.pi % a.path.length];
       if (a.wait > 0) { a.wait -= dt; continue; }
@@ -1314,7 +1342,7 @@ function tickAmbient(dt) {
     }
     if (a.wait > 0) { a.wait -= dt; continue; }
     if (a.tx == null) { a.tx = a.home.x + (Math.random() - 0.5) * a.roam * 2; a.ty = a.home.y + (Math.random() - 0.5) * a.roam * 2; }
-    if (moveToward(a, a.tx, a.ty, dt, 4)) { a.tx = null; a.wait = 1.5 + Math.random() * 5; }
+    if (moveToward(a, a.tx, a.ty, dt, 4)) { a.tx = null; a.wait = a.fly ? 0 : 1.5 + Math.random() * 5; if (a.flee) { a.flee = false; a.speed = a.speedBase; a.home = { x: a.x, y: a.y }; } }
     keepOutOfColliders(a);
   }
 }
@@ -2921,6 +2949,7 @@ function enterZone(id, x, y) {
     const x = a.x + (r() - 0.5) * (a.r || 60), y = a.y + (r() - 0.5) * (a.r || 60);
     S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
   }
+  if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
   const rnd = seeded(hashStr(id));
   S.decor = [];

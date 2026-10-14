@@ -1676,6 +1676,8 @@ function buildEntityRig(e) {
     if (e.type === "walker") { const L = walkerLook(e.seed || 0); make = () => humanEntry(L); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
+    else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);
+    else if (e.type === "deer") make = () => quadEntry({ col: e.col || 0x8a6a48, belly: 0xe8dcc8, bodyY: 0.75, bodyR: 0.22, bodyLen: 0.8, leg: 0.68, hip: 0.12, legR: 0.035, neckUp: 0.32, neckFwd: 0.22, neckR: 0.07, headR: 0.11, ears: 1.5, hoof: true, tailLen: 0.12, tailDrop: 0.04, tailR: 0.04, stride: 1.6 });
     else if (e.type === "dog") make = () => quadEntry({ col: e.col || 0x8a6a4a, bodyY: 0.32, bodyR: 0.15, bodyLen: 0.5, leg: 0.28, hip: 0.08, legR: 0.035, neckUp: 0.12, neckFwd: 0.12, neckR: 0.06, headR: 0.09, ears: 1.6, tailLen: 0.22, tailDrop: -0.1, tailR: 0.025, stride: 0.9 });
     else make = () => quadEntry({ col: e.col || 0x5a5a5a, bodyY: 0.2, bodyR: 0.1, bodyLen: 0.36, leg: 0.17, hip: 0.05, legR: 0.022, neckUp: 0.08, neckFwd: 0.08, neckR: 0.045, headR: 0.07, ears: 1.3, eye: 0x9ccc65, tailLen: 0.3, tailDrop: -0.2, tailR: 0.018, stride: 0.6 });
   } else if (e.buddy) {

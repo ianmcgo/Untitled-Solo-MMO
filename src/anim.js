@@ -41,9 +41,10 @@ function poseBird(v, e, dt) {
   addP(P, "head", Math.sin(t * 9) * 0.25 * mv, 0, 0);
   const peck = (1 - mv) * (Math.sin(t * 0.9) > 0.4 ? Math.max(0, Math.sin(t * 9)) : 0);
   addP(P, "body", 0.5 * peck, 0, 0); addP(P, "head", 0.6 * peck, Math.sin(t * 0.7) * 0.5 * (1 - mv), 0);
-  const fl = Math.sin(t * 0.5) > 0.95 ? Math.sin(t * 30) * 0.6 : 0;
+  const fl = e.fly ? Math.sin(t * 16) * 0.9 : Math.sin(t * 0.5) > 0.95 ? Math.sin(t * 30) * 0.6 : 0;
   addP(P, "wingL", 0, 0, 0.1 + fl); addP(P, "wingR", 0, 0, -0.1 - fl);
-  v.rootOff[1] = Math.abs(s1) * 0.02 * mv;
+  if (e.fly) { addP(P, "legL", 0.9, 0, 0); addP(P, "legR", 0.9, 0, 0); }
+  v.rootOff[1] = e.fly ? 0 : Math.abs(s1) * 0.02 * mv;
   applyPose(v, dt, false);
 }
 

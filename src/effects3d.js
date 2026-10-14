@@ -243,6 +243,35 @@ function updateWeatherFx(dt) {
   if (wx === "fog" || S.zone.mist) {
     if (Math.random() < dt * (low ? 2 : 5)) { const q = near(); q.y += rnd(0.2, 1); FX.smoke.spawn(q.x, q.y, q.z, rnd(0.2, 0.6), rnd(0, 0.1), rnd(-0.2, 0.2), rnd(4, 6), 2.5, 4.5, C(0xdfe6e8), C(0xc8d0d4), 0, 0, 0.18); }
   }
+  const dry = !/rain|storm|snow|blizzard/.test(wx || "");
+  WFX.bf = WFX.bf || [];
+  if (th === "field" && dry && W3.daylight > 0.6 && S.zone.palette !== "snow") {
+    while (WFX.bf.length < (low ? 3 : 7)) { const q = near(); q.y += rnd(0.3, 1.2); WFX.bf.push({ p: q, v: new THREE.Vector3(rnd(-1, 1), 0, rnd(-1, 1)), c: C([0xffd54f, 0xffffff, 0x90caf9, 0xff8a65, 0xce93d8][Math.floor(Math.random() * 5)]), life: rnd(8, 16) }); }
+  }
+  for (let i = WFX.bf.length - 1; i >= 0; i--) {
+    const b = WFX.bf[i];
+    b.life -= dt;
+    if (b.life <= 0 || !dry || W3.daylight < 0.5 || b.p.distanceTo(g) > 30) { WFX.bf.splice(i, 1); continue; }
+    b.v.x += rnd(-6, 6) * dt; b.v.z += rnd(-6, 6) * dt; b.v.clampLength(0.3, 1.4);
+    b.p.addScaledVector(b.v, dt);
+    const gy = groundY(b.p.x / U, b.p.z / U);
+    b.p.y = Math.max(gy + 0.25, Math.min(gy + 1.8, b.p.y + rnd(-1.5, 1.5) * dt + Math.sin(S.time * 14 + i) * 0.02));
+    FX.add.spawn(b.p.x, b.p.y, b.p.z, 0, 0, 0, 0.12, 0.09 * (0.6 + 0.4 * Math.abs(Math.sin(S.time * 22 + i))), 0.05, b.c, b.c, 0, 0, 0.9);
+  }
+  if ((S.zone.water || []).length && th !== "town") {
+    WFX.fish = WFX.fish || S.time + rnd(3, 7);
+    if (S.time > WFX.fish) {
+      WFX.fish = S.time + rnd(4, 9);
+      const w = S.zone.water.find(w => Math.hypot(w.x - player.x, w.y - player.y) < w.r + 1600);
+      if (w) {
+        const a = Math.random() * Math.PI * 2, rr = Math.random() * w.r * 0.6, fx = w.x + Math.cos(a) * rr, fy = w.y + Math.sin(a) * rr;
+        const wy = (W3.field && W3.field.waterLevel != null ? W3.field.waterLevel : groundY(fx, fy)) + 0.3, p0 = new THREE.Vector3(fx * U, wy, fy * U), dir = rnd(0, Math.PI * 2);
+        splash(p0, 0x9fd8f0, 0.35);
+        for (let k = 0; k < 10; k++) { const t = k / 9; FX.add.spawn(p0.x + Math.cos(dir) * t * 1.2, wy + Math.sin(t * Math.PI) * 0.9, p0.z + Math.sin(dir) * t * 1.2, 0, 0, 0, 0.12 + t * 0.35, 0.12, 0.06, C(0xd8e8f0), C(0x80a0b0), 0, 0, 0.9); }
+        setTimeout(() => FX.ready && splash(new THREE.Vector3(p0.x + Math.cos(dir) * 1.2, wy, p0.z + Math.sin(dir) * 1.2), 0x9fd8f0, 0.3), 450);
+      }
+    }
+  }
   if (W3.daylight < 0.35 && th === "field" && !/rain|storm|snow|blizzard/.test(wx || "")) {
     if (Math.random() < dt * (low ? 1 : 3)) { const q = near(); q.y += rnd(0.4, 1.8); FX.add.spawn(q.x, q.y, q.z, rnd(-0.3, 0.3), rnd(-0.1, 0.2), rnd(-0.3, 0.3), rnd(2.5, 4), 0.1, 0.1, C(0xf0ff90), C(0x90d040), 0, 0.3, 0.9); }
   }
