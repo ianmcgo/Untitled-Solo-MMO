@@ -1453,6 +1453,10 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.1.0", date: "2026-10-14", title: "Painted look", items: [
+    "Characters, companions and monsters now have soft painted shading built in: tops catch the light, undersides and joints are a little darker, and the lower legs fade slightly toward the ground.",
+    "Cloth has folds and stitched hems, leather has pores, creases and worn edges, metal has hammered dents, bright worn edges and the odd patch of rust, and skin has finer texture."
+  ] },
   { v: "10.0.0", date: "2026-10-14", title: "Model detail I", items: [
     "Characters have proper hands now: a palm, a group of fingers that curls forward, and a separate thumb, sized to each race.",
     "Characters and monsters further from the camera switch to a lighter version of their model, so crowded towns and big pulls run smoother. You won't notice the switch at normal distances; it happens sooner on Low graphics."
