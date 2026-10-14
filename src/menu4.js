@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.9.0", date: "2026-10-14", title: "Points of interest", items: [
+    "Rocky Hollow, Frostspire Pass and the Ashen Marsh each have four new places to find: a Lookout Tower that marks every landmark in the area on your map, a Wayside Shrine that grants Shrine's Favour (+10% experience for 30 minutes) for a 10-crystal offering, a Weathered Tablet with a piece of local history, and a Hidden Cache vault chest.",
+    "First visits to lookouts, shrines and tablets give bonus experience. They appear as purple dots on the compass map (caches in gold).",
+    "New achievement: Wayfarer, for visiting every lookout, shrine and tablet."
+  ] },
   { v: "10.8.0", date: "2026-10-14", title: "Living world", items: [
     "The wilds are alive: small herds of deer graze in the fields by day and bolt when you get close, flocks of birds circle overhead (and shelter when it rains or snows), butterflies flit over the grass on fine days, and fish leap from lakes and ponds.",
     "Travellers walk the main roads by day, one with a dog at their heels.",
@@ -2150,6 +2155,14 @@ function tabHelp() {
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
     ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("🧭 Exploring the wilds", ul([
+    "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
+    "<b>Lookout Tower</b>: climb it to see the whole area. Every landmark there is marked as discovered, and your first climb gives 60 EXP.",
+    "<b>Wayside Shrine</b>: leave 10 crystals to pray and receive Shrine's Favour (🕯️), +10% experience for 30 minutes. Each shrine can be used once an hour. Your first prayer at each gives 40 EXP.",
+    "<b>Weathered Tablet</b>: a piece of the area's history. Reading one for the first time gives 50 EXP.",
+    "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It refills about 20 minutes after you open it.",
+    "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."
+  ]));
   h += sec("🔱 Battlefield: the Chapel Depths", ul([
     "A sealed door stands in the Drowned Chapel ruins of the Ashen Marsh. A <b>Chapel Sigil</b> opens it (the Drowned sometimes carry one; Vela in Saltreach sells them). The sigil is used up when you enter.",
     "Inside, defeat the <b>Tidebound Priest</b> (level 16 boss) within " + BATTLEFIELD.minutes + " minutes. At 65% HP it raises two Drowned; below half it casts Maelstrom on everyone near it every 22 seconds; below 20% it enrages. It never leashes inside the chapel.",

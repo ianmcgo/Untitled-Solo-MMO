@@ -557,8 +557,9 @@ function drawMinimap() {
   g.translate(-player.x, -player.y);
   const dot = (x, y, r, col) => { g.beginPath(); g.arc(x, y, r / sc, 0, 7); g.fillStyle = col; g.fill(); g.lineWidth = 1.5 / sc; g.strokeStyle = "rgba(0,0,0,.6)"; g.stroke(); };
   for (const n of S.npcs) {
-    if (n.away || (n.prop && n.prop !== "gather" && n.prop !== "chest")) continue;
+    if (n.away || (n.prop && n.prop !== "gather" && n.prop !== "chest" && !n.poi)) continue;
     if (NPCS[n.id] && NPCS[n.id].crystal) dot(n.x, n.y, 6, "#7ff3ff");
+    else if (n.poi) dot(n.x, n.y, 5, n.poi === "cache" ? "#ffd54f" : "#b39ddb");
     else if (n.prop) dot(n.x, n.y, 5, n.prop === "chest" ? "#ffd54f" : "#c8e6a0");
     else dot(n.x, n.y, 6, questMarker(n) ? "#ffd54f" : "#7dff9a");
   }

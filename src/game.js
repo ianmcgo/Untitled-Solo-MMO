@@ -1032,6 +1032,7 @@ function gainXp(n, chain, quiet) {
   const j = save.jobs[save.mainJob];
   if (j.lv >= CONFIG.levelCap) { if (!quiet) log("You are at the level cap.", "sys"); return; }
   if (buddyPerk("xp")) n = Math.round(n * (1 + buddyPerk("xp")));
+  if (player && player.buffs && player.buffs.boon) n = Math.round(n * 1.1);
   j.xp += n;
   log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
   popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
@@ -4072,6 +4073,38 @@ const TALK = {
   talkTablet(n) {
     const order = brazierOrder();
     openDialog(n.name, "Worn letters, still legible: \"Wake them as the verse runs. First " + BRAZIER_LINES[order[0]] + "; then " + BRAZIER_LINES[order[1]] + "; then " + BRAZIER_LINES[order[2]] + "; and last, " + BRAZIER_LINES[order[3]] + ". Err, and the dead will answer.\"", []);
+  },
+  talkLookout(n) {
+    const first = !(save.poi || {})[n.id];
+    save.poi = save.poi || {};
+    let found = 0;
+    for (const lm of S.zone.landmarks || []) { const key = S.zoneId + ":" + lm.id; if (!save.landmarks[key]) { save.landmarks[key] = Date.now(); found++; } }
+    const names = (S.zone.landmarks || []).map(l => l.name).join(", ");
+    if (first) { save.poi[n.id] = Date.now(); gainXp(60, 0, true); log("From the top of the lookout you can see the whole of " + S.zone.name + ". (+60 EXP)", "loot"); }
+    openDialog(n.name, "You climb the ladder and look out over " + S.zone.name + ". You can make out " + names + "." + (found ? " " + found + " new place" + (found === 1 ? "" : "s") + " marked on your map." : ""), []);
+    saveGame();
+  },
+  talkShrine(n) {
+    save.poi = save.poi || {};
+    const cd = save.timers["shrine:" + n.id] || 0;
+    if (cd > Date.now()) { const m = Math.ceil((cd - Date.now()) / 60000); openDialog(n.name, "The candles have burned low. Come back in about " + m + " minute" + (m === 1 ? "" : "s") + ".", []); return; }
+    openDialog(n.name, "A small stone shrine with a ring of candles. Travellers leave a crystal here for luck.", [{ label: "Pray (10 crystals)", fn: () => {
+      closeDialog();
+      if (save.gil < 10) { log("You don't have 10 crystals to leave.", "sys"); return; }
+      save.gil -= 10;
+      if (!save.poi[n.id]) { save.poi[n.id] = Date.now(); gainXp(40, 0, true); }
+      save.timers["shrine:" + n.id] = Date.now() + 60 * 60000;
+      player.buffs.boon = { until: S.time + 30 * 60 };
+      log("A warm light settles over you. Shrine's Favour: +10% experience for 30 minutes.", "loot");
+      ring(player, "#ffe8a0", 30, 0.8, "sparkle"); vfx("buff", { tgt: player, id: "boon" }); sfx("buff", player);
+      saveGame();
+    } }]);
+  },
+  talkLore(n) {
+    save.poi = save.poi || {};
+    const first = !save.poi[n.id];
+    if (first) { save.poi[n.id] = Date.now(); gainXp(50, 0, true); log("You read the " + n.name.toLowerCase() + ". (+50 EXP)", "loot"); saveGame(); }
+    openDialog(n.name, POI_LORE[S.zoneId] || "The words are too worn to read.", []);
   },
   talkChest(n) {
     const st = chestState(n);

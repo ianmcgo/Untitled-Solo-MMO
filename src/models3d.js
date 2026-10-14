@@ -270,6 +270,26 @@ function propView(n) {
     g.add(box, lid, lock);
     v.lid = lid; v.meta.headTop = 1.4;
     if (n.chest === "king") { const chain = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 20), std({ color: 0xcfd8dc, emissive: 0x80cbc4, emissiveIntensity: 0.4 })); chain.rotation.x = Math.PI / 2; chain.position.y = 0.8; chain.scale.set(1.1, 1, 0.7); g.add(chain); v.chain = chain; }
+  } else if (n.prop === "lookout") {
+    const wood = std({ color: 0x6a4a2a, roughness: 0.9 });
+    for (const [px, pz] of [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]]) { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.13, 4.6, 6), wood); post.position.set(px, 2.3, pz); post.castShadow = true; g.add(post); }
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.14, 2.3), wood); deck.position.y = 3.6; deck.castShadow = true;
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.8, 1.1, 4), std({ color: 0x5a3a2a })); roof.position.y = 5.1; roof.rotation.y = Math.PI / 4; roof.castShadow = true;
+    for (let i = 0; i < 9; i++) { const rung = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.06, 0.06), wood); rung.position.set(0, 0.35 + i * 0.38, 1.0); g.add(rung); }
+    for (const sx of [-0.3, 0.3]) { const rail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 3.6, 0.06), wood); rail.position.set(sx, 1.8, 1.0); g.add(rail); }
+    const flag = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.4), std({ color: 0xa0302a, side: THREE.DoubleSide })); flag.position.set(0.35, 5.9, 0);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.2, 5), wood); pole.position.y = 5.6;
+    g.add(deck, roof, flag, pole);
+    v.meta.headTop = 6.2; v.flag = flag;
+  } else if (n.prop === "shrine") {
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.5, 1.0), stone); base.position.y = 0.25; base.castShadow = true;
+    const back = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 0.3), stone); back.position.set(0, 1.2, -0.35); back.castShadow = true;
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.15, 0.7), stone); cap.position.set(0, 1.95, -0.25);
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffe8a0 })); orb.position.set(0, 0.85, -0.05);
+    const L = new THREE.PointLight(0xffd080, 4, 8, 1.6); L.position.set(0, 1.0, 0.4);
+    g.add(base, back, cap, orb, L);
+    for (let i = 0; i < 5; i++) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.18, 6), std({ color: 0xf0e8d0 })); c.position.set(-0.5 + i * 0.25, 0.59, 0.3); g.add(c); const fl = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 4), new THREE.MeshBasicMaterial({ color: 0xffc060 })); fl.position.set(-0.5 + i * 0.25, 0.71, 0.3); g.add(fl); }
+    v.meta.headTop = 2.4; v.light = L;
   } else if (n.prop === "throne") {
     v.meta.headTop = 4.5;
   } else if (n.prop === "gather") {

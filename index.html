@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.8.0 · built 2026-10-14 03:24 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.9.0 · built 2026-10-14 03:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5973,8 +5973,8 @@ const ABILITIES = {
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { boon: "Shrine's Favour", blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { boon: "🕯️", blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -7352,6 +7352,32 @@ for (const zid in ZONES) {
   }
   z.spawns = z.spawns.filter(sp => kept.includes(sp));
 }
+const POI_LORE = {
+  hollow: "Before the Outpost there was the Fort, and before the Fort there was only the Hollow and the people who herded in it. They cut these words so their children would know the safe paths: keep to the old road, drink from the mirror lake, and never sleep where the goblins dig.",
+  frost: "Here the first climbers turned back. Above this stone the air grows thin and the black rock bleeds cold. Whoever reads this: the summit is not empty. Something stands there and waits for the ash to fall.",
+  marsh: "The chapel bell rang for a hundred years before the water took it. They say it still rings for those who drown in the mire. Count the tolls; if you hear thirteen, turn back."
+};
+const POI_IDS = [];
+function poiSpot(z, cx, cy, rad) {
+  const segD = (px, py, a) => { const dx = a[2] - a[0], dy = a[3] - a[1], l = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / l)); return Math.hypot(px - a[0] - dx * t, py - a[1] - dy * t); };
+  const ok = (x, y) => x > 160 && y > 160 && x < z.w - 160 && y < z.h - 160 && !(z.walls || []).some(q => x > q.x - 70 && x < q.x + q.w + 70 && y > q.y - 70 && y < q.y + q.h + 70) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 70) && !((z.ruins && z.ruins.walls) || []).some(a => segD(x, y, a) < 90) && !(z.spawns || []).some(sp => Math.hypot(sp.x - x, sp.y - y) < 110) && !(z.npcs || []).some(n => Math.hypot(n.x - x, n.y - y) < 140);
+  for (let k = 0; k < 64; k++) { const a = k * 2.4, r = rad * (0.5 + (k % 8) / 8); const x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r); if (ok(x, y)) return { x, y }; }
+  return null;
+}
+for (const zid of ["hollow", "frost", "marsh"]) {
+  const z = ZONES[zid], L = z.landmarks || [];
+  if (!L.length) continue;
+  const pick = i => L[Math.min(L.length - 1, i)];
+  const defs = [["lookout", "Lookout Tower", "lookout", "talkLookout", pick(0)], ["shrine", "Wayside Shrine", "shrine", "talkShrine", pick(2)], ["tablet", "Weathered Tablet", "tablet", "talkLore", pick(4)], ["cache", "Hidden Cache", "chest", "talkChest", pick(L.length - 1)]];
+  for (const [k, name, prop, talk, lm] of defs) {
+    const id = k + "_" + zid, at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 140);
+    if (!at) continue;
+    NPCS[id] = Object.assign({ name, prop, talk, poi: k }, prop === "chest" ? { chest: "vault" } : {});
+    z.npcs.push({ id, x: at.x, y: at.y });
+    if (k !== "cache") POI_IDS.push(id);
+  }
+}
+ACHIEVEMENTS.push({ id: "wayfarer", icon: "🧭", name: "Wayfarer", desc: "Visit every lookout tower, wayside shrine and weathered tablet in the wilds.", test: s => POI_IDS.every(id => (s.poi || {})[id]) });
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -8387,6 +8413,7 @@ function gainXp(n, chain, quiet) {
   const j = save.jobs[save.mainJob];
   if (j.lv >= CONFIG.levelCap) { if (!quiet) log("You are at the level cap.", "sys"); return; }
   if (buddyPerk("xp")) n = Math.round(n * (1 + buddyPerk("xp")));
+  if (player && player.buffs && player.buffs.boon) n = Math.round(n * 1.1);
   j.xp += n;
   log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
   popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
@@ -11428,6 +11455,38 @@ const TALK = {
     const order = brazierOrder();
     openDialog(n.name, "Worn letters, still legible: \"Wake them as the verse runs. First " + BRAZIER_LINES[order[0]] + "; then " + BRAZIER_LINES[order[1]] + "; then " + BRAZIER_LINES[order[2]] + "; and last, " + BRAZIER_LINES[order[3]] + ". Err, and the dead will answer.\"", []);
   },
+  talkLookout(n) {
+    const first = !(save.poi || {})[n.id];
+    save.poi = save.poi || {};
+    let found = 0;
+    for (const lm of S.zone.landmarks || []) { const key = S.zoneId + ":" + lm.id; if (!save.landmarks[key]) { save.landmarks[key] = Date.now(); found++; } }
+    const names = (S.zone.landmarks || []).map(l => l.name).join(", ");
+    if (first) { save.poi[n.id] = Date.now(); gainXp(60, 0, true); log("From the top of the lookout you can see the whole of " + S.zone.name + ". (+60 EXP)", "loot"); }
+    openDialog(n.name, "You climb the ladder and look out over " + S.zone.name + ". You can make out " + names + "." + (found ? " " + found + " new place" + (found === 1 ? "" : "s") + " marked on your map." : ""), []);
+    saveGame();
+  },
+  talkShrine(n) {
+    save.poi = save.poi || {};
+    const cd = save.timers["shrine:" + n.id] || 0;
+    if (cd > Date.now()) { const m = Math.ceil((cd - Date.now()) / 60000); openDialog(n.name, "The candles have burned low. Come back in about " + m + " minute" + (m === 1 ? "" : "s") + ".", []); return; }
+    openDialog(n.name, "A small stone shrine with a ring of candles. Travellers leave a crystal here for luck.", [{ label: "Pray (10 crystals)", fn: () => {
+      closeDialog();
+      if (save.gil < 10) { log("You don't have 10 crystals to leave.", "sys"); return; }
+      save.gil -= 10;
+      if (!save.poi[n.id]) { save.poi[n.id] = Date.now(); gainXp(40, 0, true); }
+      save.timers["shrine:" + n.id] = Date.now() + 60 * 60000;
+      player.buffs.boon = { until: S.time + 30 * 60 };
+      log("A warm light settles over you. Shrine's Favour: +10% experience for 30 minutes.", "loot");
+      ring(player, "#ffe8a0", 30, 0.8, "sparkle"); vfx("buff", { tgt: player, id: "boon" }); sfx("buff", player);
+      saveGame();
+    } }]);
+  },
+  talkLore(n) {
+    save.poi = save.poi || {};
+    const first = !save.poi[n.id];
+    if (first) { save.poi[n.id] = Date.now(); gainXp(50, 0, true); log("You read the " + n.name.toLowerCase() + ". (+50 EXP)", "loot"); saveGame(); }
+    openDialog(n.name, POI_LORE[S.zoneId] || "The words are too worn to read.", []);
+  },
   talkChest(n) {
     const st = chestState(n);
     if (st === "sealed") { openDialog(n.name, "The coffer is bound with pale chains. They will not loosen while the King sits his throne.", []); return; }
@@ -12652,8 +12711,9 @@ function drawMinimap() {
   g.translate(-player.x, -player.y);
   const dot = (x, y, r, col) => { g.beginPath(); g.arc(x, y, r / sc, 0, 7); g.fillStyle = col; g.fill(); g.lineWidth = 1.5 / sc; g.strokeStyle = "rgba(0,0,0,.6)"; g.stroke(); };
   for (const n of S.npcs) {
-    if (n.away || (n.prop && n.prop !== "gather" && n.prop !== "chest")) continue;
+    if (n.away || (n.prop && n.prop !== "gather" && n.prop !== "chest" && !n.poi)) continue;
     if (NPCS[n.id] && NPCS[n.id].crystal) dot(n.x, n.y, 6, "#7ff3ff");
+    else if (n.poi) dot(n.x, n.y, 5, n.poi === "cache" ? "#ffd54f" : "#b39ddb");
     else if (n.prop) dot(n.x, n.y, 5, n.prop === "chest" ? "#ffd54f" : "#c8e6a0");
     else dot(n.x, n.y, 6, questMarker(n) ? "#ffd54f" : "#7dff9a");
   }
@@ -14732,13 +14792,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v10.8.0 · built 2026-10-14 03:24 PDT";
+const BUILD_INFO = "v10.9.0 · built 2026-10-14 03:30 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "10.9.0", date: "2026-10-14", title: "Points of interest", items: [
+    "Rocky Hollow, Frostspire Pass and the Ashen Marsh each have four new places to find: a Lookout Tower that marks every landmark in the area on your map, a Wayside Shrine that grants Shrine's Favour (+10% experience for 30 minutes) for a 10-crystal offering, a Weathered Tablet with a piece of local history, and a Hidden Cache vault chest.",
+    "First visits to lookouts, shrines and tablets give bonus experience. They appear as purple dots on the compass map (caches in gold).",
+    "New achievement: Wayfarer, for visiting every lookout, shrine and tablet."
   ] },
   { v: "10.8.0", date: "2026-10-14", title: "Living world", items: [
     "The wilds are alive: small herds of deer graze in the fields by day and bolt when you get close, flocks of birds circle overhead (and shelter when it rains or snows), butterflies flit over the grass on fine days, and fish leap from lakes and ponds.",
@@ -15437,6 +15502,14 @@ function tabHelp() {
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
     ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("🧭 Exploring the wilds", ul([
+    "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
+    "<b>Lookout Tower</b>: climb it to see the whole area. Every landmark there is marked as discovered, and your first climb gives 60 EXP.",
+    "<b>Wayside Shrine</b>: leave 10 crystals to pray and receive Shrine's Favour (🕯️), +10% experience for 30 minutes. Each shrine can be used once an hour. Your first prayer at each gives 40 EXP.",
+    "<b>Weathered Tablet</b>: a piece of the area's history. Reading one for the first time gives 50 EXP.",
+    "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It refills about 20 minutes after you open it.",
+    "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."
+  ]));
   h += sec("🔱 Battlefield: the Chapel Depths", ul([
     "A sealed door stands in the Drowned Chapel ruins of the Ashen Marsh. A <b>Chapel Sigil</b> opens it (the Drowned sometimes carry one; Vela in Saltreach sells them). The sigil is used up when you enter.",
     "Inside, defeat the <b>Tidebound Priest</b> (level 16 boss) within " + BATTLEFIELD.minutes + " minutes. At 65% HP it raises two Drowned; below half it casts Maelstrom on everyone near it every 22 seconds; below 20% it enrages. It never leashes inside the chapel.",
@@ -15640,7 +15713,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "10.8.0";
+const GAME_VERSION = "10.9.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -21447,6 +21520,26 @@ function propView(n) {
     g.add(box, lid, lock);
     v.lid = lid; v.meta.headTop = 1.4;
     if (n.chest === "king") { const chain = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 20), std({ color: 0xcfd8dc, emissive: 0x80cbc4, emissiveIntensity: 0.4 })); chain.rotation.x = Math.PI / 2; chain.position.y = 0.8; chain.scale.set(1.1, 1, 0.7); g.add(chain); v.chain = chain; }
+  } else if (n.prop === "lookout") {
+    const wood = std({ color: 0x6a4a2a, roughness: 0.9 });
+    for (const [px, pz] of [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]]) { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.13, 4.6, 6), wood); post.position.set(px, 2.3, pz); post.castShadow = true; g.add(post); }
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.14, 2.3), wood); deck.position.y = 3.6; deck.castShadow = true;
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.8, 1.1, 4), std({ color: 0x5a3a2a })); roof.position.y = 5.1; roof.rotation.y = Math.PI / 4; roof.castShadow = true;
+    for (let i = 0; i < 9; i++) { const rung = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.06, 0.06), wood); rung.position.set(0, 0.35 + i * 0.38, 1.0); g.add(rung); }
+    for (const sx of [-0.3, 0.3]) { const rail = new THREE.Mesh(new THREE.BoxGeometry(0.06, 3.6, 0.06), wood); rail.position.set(sx, 1.8, 1.0); g.add(rail); }
+    const flag = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.4), std({ color: 0xa0302a, side: THREE.DoubleSide })); flag.position.set(0.35, 5.9, 0);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.2, 5), wood); pole.position.y = 5.6;
+    g.add(deck, roof, flag, pole);
+    v.meta.headTop = 6.2; v.flag = flag;
+  } else if (n.prop === "shrine") {
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.5, 1.0), stone); base.position.y = 0.25; base.castShadow = true;
+    const back = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 0.3), stone); back.position.set(0, 1.2, -0.35); back.castShadow = true;
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.15, 0.7), stone); cap.position.set(0, 1.95, -0.25);
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffe8a0 })); orb.position.set(0, 0.85, -0.05);
+    const L = new THREE.PointLight(0xffd080, 4, 8, 1.6); L.position.set(0, 1.0, 0.4);
+    g.add(base, back, cap, orb, L);
+    for (let i = 0; i < 5; i++) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.18, 6), std({ color: 0xf0e8d0 })); c.position.set(-0.5 + i * 0.25, 0.59, 0.3); g.add(c); const fl = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 4), new THREE.MeshBasicMaterial({ color: 0xffc060 })); fl.position.set(-0.5 + i * 0.25, 0.71, 0.3); g.add(fl); }
+    v.meta.headTop = 2.4; v.light = L;
   } else if (n.prop === "throne") {
     v.meta.headTop = 4.5;
   } else if (n.prop === "gather") {
