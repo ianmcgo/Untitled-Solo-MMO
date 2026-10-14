@@ -185,7 +185,7 @@ function onLoadFile(ev) {
   const r = new FileReader();
   r.onload = () => {
     const d = importSaveText(String(r.result));
-    if (!d) { log("That file isn't an Untitled Solo RPG save.", "sys"); sfx("error"); return; }
+    if (!d) { log("That file isn't a Leid'anav Reborn save.", "sys"); sfx("error"); return; }
     if (typeof confirm === "function" && !confirm("Load this save? Your current progress in this browser will be replaced.")) return;
     closeModal();
     applyLoadedSave(d);

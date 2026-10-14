@@ -349,3 +349,71 @@ function syncDecor(dt) {
   }
   poseRaptor(VIEW.decor, 0, dt);
 }
+
+const THUMBS = { cache: new Map(), queue: [], busy: false, studio: null };
+
+function thumbStudio() {
+  if (THUMBS.studio) return THUMBS.studio;
+  const sc = new THREE.Scene();
+  sc.add(new THREE.HemisphereLight(0xfff4e0, 0x3a4058, 1.7));
+  const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(3, 5, 4); sc.add(key);
+  const rim = new THREE.DirectionalLight(0x9fd0ff, 1.2); rim.position.set(-4, 3, -3); sc.add(rim);
+  const cam = new THREE.PerspectiveCamera(28, 1, 0.05, 100);
+  const T = 128;
+  const rt = new THREE.WebGLRenderTarget(T, T, { samples: 4 });
+  THUMBS.studio = { sc, cam, rt, T, buf: new Uint8Array(T * T * 4) };
+  return THUMBS.studio;
+}
+
+function renderThumb(famKey) {
+  const st = thumbStudio(), R = W3.renderer;
+  const m = buildMob(famKey, 5, 0, 0, null);
+  const inst = buildEntityRig(m);
+  if (!inst) return null;
+  const g = new THREE.Group();
+  g.add(inst.mesh);
+  if (inst.weapon) inst.mesh.add(inst.weapon);
+  g.rotation.y = 0.55;
+  st.sc.add(g);
+  g.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(inst.mesh, true);
+  const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
+  const r = Math.max(sz.x * 0.85, sz.y, sz.z * 0.85) * 0.52 + 0.02;
+  const d = r / Math.tan(14 * Math.PI / 180);
+  st.cam.position.set(c.x + d * 0.35, c.y + d * 0.2, c.z + d * 0.92);
+  st.cam.lookAt(c);
+  const prev = R.getRenderTarget(), pc = R.getClearColor(new THREE.Color()), pa = R.getClearAlpha(), pe = R.toneMappingExposure;
+  R.toneMappingExposure = 1.25;
+  R.setRenderTarget(st.rt); R.setClearColor(0x000000, 0); R.clear(); R.render(st.sc, st.cam);
+  R.readRenderTargetPixels(st.rt, 0, 0, st.T, st.T, st.buf);
+  R.setRenderTarget(prev); R.setClearColor(pc, pa); R.toneMappingExposure = pe;
+  st.sc.remove(g);
+  inst.mat.dispose();
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = st.T;
+  const g2 = cv.getContext("2d"), img = g2.createImageData(st.T, st.T), T = st.T;
+  for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) { const si = ((T - 1 - y) * T + x) * 4, di = (y * T + x) * 4; img.data[di] = st.buf[si]; img.data[di + 1] = st.buf[si + 1]; img.data[di + 2] = st.buf[si + 2]; img.data[di + 3] = st.buf[si + 3]; }
+  g2.putImageData(img, 0, 0);
+  return cv.toDataURL("image/png");
+}
+
+function beastThumb(famKey, onReady) {
+  if (THUMBS.cache.has(famKey)) return THUMBS.cache.get(famKey);
+  if (!THUMBS.queue.includes(famKey)) THUMBS.queue.push(famKey);
+  if (!THUMBS.busy) {
+    THUMBS.busy = true;
+    const next = () => {
+      const k = THUMBS.queue.shift();
+      if (!k) { THUMBS.busy = false; if (onReady) onReady(); return; }
+      let url = null;
+      try { url = renderThumb(k); } catch (e) { url = null; THUMBS.err = String(e && e.message || e); }
+      THUMBS.cache.set(k, url);
+      THUMBS.done = (THUMBS.done || 0) + 1;
+      if (onReady && (THUMBS.done % 3 === 0 || !THUMBS.queue.length)) onReady();
+      if (!THUMBS.queue.length) { THUMBS.busy = false; return; }
+      setTimeout(next, 16);
+    };
+    setTimeout(next, 30);
+  }
+  return null;
+}

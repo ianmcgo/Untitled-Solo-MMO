@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#07080c">
-<title>Untitled Solo RPG</title>
+<title>Leid'anav Reborn</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cdefs%3E%3ClinearGradient id=%22b%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%232b3a7a%22/%3E%3Cstop offset=%221%22 stop-color=%22%230e1430%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23fff1b0%22/%3E%3Cstop offset=%22.5%22 stop-color=%22%23d8a83a%22/%3E%3Cstop offset=%221%22 stop-color=%22%238a5a12%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22c%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23e8fdff%22/%3E%3Cstop offset=%22.45%22 stop-color=%22%236fe0ff%22/%3E%3Cstop offset=%221%22 stop-color=%22%231a6fd0%22/%3E%3C/linearGradient%3E%3CradialGradient id=%22h%22 cx=%22.5%22 cy=%22.45%22 r=%22.5%22%3E%3Cstop offset=%220%22 stop-color=%22%238ff0ff%22 stop-opacity=%22.75%22/%3E%3Cstop offset=%221%22 stop-color=%22%238ff0ff%22 stop-opacity=%220%22/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d=%22M32 3 L57 11 V30 C57 46 46 56 32 61 C18 56 7 46 7 30 V11 Z%22 fill=%22url%28%23b%29%22 stroke=%22url%28%23g%29%22 stroke-width=%224%22 stroke-linejoin=%22round%22/%3E%3Ccircle cx=%2232%22 cy=%2230%22 r=%2220%22 fill=%22url%28%23h%29%22/%3E%3Cpath d=%22M32 9 L43 30 L32 53 L21 30 Z%22 fill=%22url%28%23c%29%22 stroke=%22%23e8fbff%22 stroke-width=%221.5%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M32 9 L36 30 L32 53 L28 30 Z%22 fill=%22%23ffffff%22 opacity=%22.35%22/%3E%3Cpath d=%22M21 30 H43%22 stroke=%22%23e8fbff%22 stroke-width=%221.2%22 opacity=%22.8%22/%3E%3Cpath d=%22M14 44 L50 44%22 stroke=%22url%28%23g%29%22 stroke-width=%223%22 stroke-linecap=%22round%22 opacity=%22.9%22/%3E%3C/svg%3E">
 <style>
   :root {
     --glass: rgba(10, 12, 20, .64); --glass2: rgba(22, 26, 40, .82); --edge: rgba(214, 186, 112, .28); --edge2: rgba(214, 186, 112, .55);
@@ -170,7 +171,9 @@
   #log .say { color: #f4f1e8; }
   #log .shout { color: #ffab91; font-weight: 600; } #log .tell { color: #f48fb1; }
   #log.f-chat div:not(.say):not(.shout):not(.tell):not(.party):not(.pchat):not(.ls) { display: none; }
-  #log .pchat { color: #80deea; } #log .ls { color: #a5d6a7; }
+  #log .pchat { color: #80deea; }
+  .beast .bpic { width: 84px; height: 84px; flex: none; border-radius: 10px; border: 1px solid var(--edge2); background: radial-gradient(circle at 50% 40%, rgba(120,150,210,.35), rgba(10,14,28,.85)); display: grid; place-items: center; overflow: hidden; }
+  .beast .bpic img { width: 100%; height: 100%; object-fit: contain; } .beast .bpic span { font-size: 28px; color: #6a7490; } #log .ls { color: #a5d6a7; }
   .pf.net .nm { color: #9fd0ff; } .pf.far { opacity: .62; }
   .trd { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .trd .side { border: 1px solid var(--edge2); border-radius: 10px; padding: 8px; min-height: 120px; } .trd .side.ok { border-color: #8fd66a; box-shadow: 0 0 0 1px rgba(143,214,106,.35); } .trd .ln { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 3px 0; font-size: 13px; }
   @media (max-width: 720px) { .trd { grid-template-columns: 1fr; } }
@@ -528,7 +531,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.7.0 · built 2026-10-13 19:47 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.8.0 · built 2026-10-13 21:43 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -10611,14 +10614,12 @@ const TALK = {
     const q = save.quests;
     if (save.mountLicense) {
       openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. I can dye her coat, sell you a faster saddle, or time you on the Hollow Run." + (save.race.best != null ? " Your best run: " + save.race.best + "s." : ""), [
-        { label: "Pets", fn: () => { closeDialog(); openModal("pets"); } },
         { label: "Stable (coats and saddle)", fn: () => { closeDialog(); openModal("stable"); } },
         { label: "Run the Hollow course", fn: () => { closeDialog(); const why = startRace(); if (why) { log(why, "sys"); sfx("error"); } } }
       ]);
       return;
     }
-    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license. Until then, if you've found a small creature on the road, I can help you look after it.", [{ label: "Pets", fn: () => { closeDialog(); openModal("pets"); } }]); return; }
-    if (false) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
+    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
         { label: "I'll get them", fn: () => { q.riding = "active"; log("Quest accepted: " + QUESTS.riding.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
@@ -12222,7 +12223,7 @@ function renderModal() {
   for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "pets", "stable", "admin"]) if (S.modal === t) tabs.unshift(t);
   if (S.modal === "trade" || (typeof NET_PT !== "undefined" && NET_PT.trade)) tabs.unshift("trade");
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
-  $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
+  $("mNav").innerHTML = '<div class="ttl">LEID\'ANAV REBORN</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
   const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
@@ -12680,7 +12681,7 @@ function tabShop() {
 }
 function tabCredits() {
   const link = (url, label, icon) => '<a class="credLink" href="' + url + '" target="_blank" rel="noopener">' + icon + " " + esc(label) + "</a>";
-  let h = '<div class="credits"><div class="credT">Untitled Solo RPG</div><div class="credBy">A game made by <b>Ian McGonigal</b></div>';
+  let h = '<div class="credits"><div class="credT">Leid\'anav Reborn</div><div class="credBy">A game made by <b>Ian McGonigal</b></div>';
   h += '<div class="credLinks">' + link("https://ianmcgo.github.io/cabalcoffers/#ebay", "Cabal Coffers store", "🛒") + link("https://www.patreon.com/c/ianmcg", "Support on Patreon", "💛") + link("https://ianmcgo.github.io/website/", "Ian's other works", "🌐") + "</div>";
   h += '<div class="sub" style="margin-top:14px">All names, art, music and sound in this game are original. Inspired by the classic MMORPGs of the early 2000s. ' + BUILD_INFO + "</div></div>";
   return h;
@@ -12923,7 +12924,7 @@ function tabBestiary() {
   for (const k of keys) {
     const b = save.bestiary[k];
     const f = FAMILIES[k] || (NM_FAMILIES[k] && Object.assign({}, FAMILIES[NM_FAMILIES[k].base], NM_FAMILIES[k], { nm: true }));
-    if (!b || !f) { h += '<div class="item"><span class="sub">??? · not yet encountered</span></div>'; continue; }
+    if (!b || !f) { h += '<div class="item beast" style="display:flex;gap:10px;align-items:center"><div class="bpic"><span>?</span></div><span class="sub">??? · not yet encountered</span></div>'; continue; }
     const info = BESTIARY[k];
     let body = '<div class="sub">' + info.type + (f.nm ? " · Notorious" : "") + " · Seen in " + esc(beastHabitat(k).join(", ") || "unknown parts") + " · Defeated " + b.kills + "</div>";
     body += '<div style="margin:5px 0;font-size:13px">' + esc(info.lore) + "</div>";
@@ -12938,7 +12939,8 @@ function tabBestiary() {
       body += '<div class="sub">Weak to: ' + (weak.length ? weak.join(", ") : "nothing in particular") + "</div>";
       body += '<div class="sub">Known to carry: ' + esc(loot.join(", ")) + "</div>";
     } else if (b.kills >= 1) body += '<div class="sub">Defeat ' + (need - b.kills) + " more to learn its weaknesses and spoils.</div>";
-    h += '<div class="item" style="display:block"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div>";
+    const pic = typeof beastThumb === "function" ? beastThumb(k, () => { if (S.modal === "bestiary") renderModal(); }) : null;
+    h += '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start"><div class="bpic">' + (pic ? '<img src="' + pic + '" alt="">' : '<span>' + (typeof THUMBS !== "undefined" && THUMBS.cache.has(k) ? "?" : "…") + "</span>") + '</div><div style="flex:1;min-width:0"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div></div>";
   }
   return h;
 }
@@ -13140,7 +13142,7 @@ function copyText(t) {
 }
 
 function adminReport() {
-  return JSON.stringify({ game: "Untitled Solo RPG", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
+  return JSON.stringify({ game: "Leid'anav Reborn", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
 }
 
 function tabAdmin() {
@@ -13228,7 +13230,7 @@ function onLoadFile(ev) {
   const r = new FileReader();
   r.onload = () => {
     const d = importSaveText(String(r.result));
-    if (!d) { log("That file isn't an Untitled Solo RPG save.", "sys"); sfx("error"); return; }
+    if (!d) { log("That file isn't a Leid'anav Reborn save.", "sys"); sfx("error"); return; }
     gameConfirm("Load this save?", "Your current progress for this character will be replaced by the file.", () => {
       closeModal();
       applyLoadedSave(d);
@@ -13417,7 +13419,7 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v8.7.0 · built 2026-10-13 19:47 PDT";
+const BUILD_INFO = "v8.8.0 · built 2026-10-13 21:43 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
@@ -13797,7 +13799,7 @@ function tabHelp() {
   ]));
   h += sec("🐾 Pets", ul([
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
-    "Open the <b>Pets</b> window (Ysolde offers it, or the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
+    "Open the <b>Pets</b> window (the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
     "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
@@ -14028,7 +14030,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "8.7.0";
+const GAME_VERSION = "8.8.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -15826,18 +15828,160 @@ class RigBuilder {
     g.setAttribute("skinIndex", new THREE.BufferAttribute(si, 4));
     g.setAttribute("skinWeight", new THREE.BufferAttribute(sw, 4));
     g.clearGroups();
+    g.userData.rig = { bone: bi, color, region: glow ? "glow" : (region || "plain"), glow: !!glow };
     (glow ? this.glow : this.pieces).push(g);
   }
+  partPoints() {
+    const by = this.defs.map(() => []);
+    for (const g of this.pieces) {
+      const info = g.userData.rig;
+      if (!info) continue;
+      const pos = g.attributes.position;
+      for (let i = 0; i < pos.count; i++) by[info.bone].push([pos.getX(i), pos.getY(i), pos.getZ(i), g]);
+    }
+    return by;
+  }
+  bridgeGaps() {
+    if (this.noBridge) return;
+    const by = this.partPoints();
+    let lo = Infinity, hi = -Infinity;
+    for (const L of by) for (const p of L) { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; }
+    const H = Math.max(0.15, hi - lo), tol = 0.012 * H;
+    const skip = new Set(["lids", "saddle", "hairTail"].concat(this.noBridgeBones || []));
+    for (const d of this.defs) {
+      if (d.parent == null || skip.has(d.name)) continue;
+      let pi = d.parent;
+      while (pi != null && !by[pi].length) pi = this.defs[pi].parent;
+      const A = by[d.index];
+      if (pi == null || !A.length) continue;
+      const B = by[pi];
+      const cell = tol * 4, grid = new Map(), key = (x, y, z) => x + "," + y + "," + z;
+      for (const q of B) { const k = key(Math.floor(q[0] / cell), Math.floor(q[1] / cell), Math.floor(q[2] / cell)); let L = grid.get(k); if (!L) grid.set(k, L = []); L.push(q); }
+      let near = false;
+      for (const p of A) {
+        const cx = Math.floor(p[0] / cell), cy = Math.floor(p[1] / cell), cz = Math.floor(p[2] / cell);
+        for (let dx = -1; dx <= 1 && !near; dx++) for (let dy = -1; dy <= 1 && !near; dy++) for (let dz = -1; dz <= 1 && !near; dz++) {
+          const L = grid.get(key(cx + dx, cy + dy, cz + dz));
+          if (L) for (const q of L) if ((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2 < tol * tol) { near = true; break; }
+        }
+        if (near) break;
+      }
+      if (near) continue;
+      const J = d.world;
+      let pa = null, pb = null, da = Infinity, db = Infinity;
+      for (const p of A) { const dd = (p[0] - J.x) ** 2 + (p[1] - J.y) ** 2 + (p[2] - J.z) ** 2; if (dd < da) { da = dd; pa = p; } }
+      for (const q of B) { const dd = (q[0] - J.x) ** 2 + (q[1] - J.y) ** 2 + (q[2] - J.z) ** 2; if (dd < db) { db = dd; pb = q; } }
+      if (Math.sqrt(da) + Math.sqrt(db) > 0.45 * H) continue;
+      const ext = new THREE.Box3();
+      for (const p of A) ext.expandByPoint(new THREE.Vector3(p[0], p[1], p[2]));
+      const sz = ext.getSize(new THREE.Vector3());
+      const thick = Math.min(sz.x, sz.y, sz.z) || 0.02;
+      const r = clamp(thick * 0.32, 0.006 * H, 0.04 * H);
+      const va = V3(pa[0], pa[1], pa[2]), vb = V3(pb[0], pb[1], pb[2]);
+      const ia = pa[3].userData.rig, ib = pb[3].userData.rig;
+      const regA = ia.region === "glow" ? "plain" : ia.region, regB = ib.region === "glow" ? "plain" : ib.region;
+      this.add(gBall(J.clone(), r * 1.25, 1, 1, 1, 10), d.name, ia.color, regA);
+      if (va.distanceTo(J) > r) this.add(gTaper(J.clone(), va.clone().add(va.clone().sub(J).setLength(r)), r, r * 0.9, 8), d.name, ia.color, regA);
+      if (vb.distanceTo(J) > r) this.add(gTaper(vb.clone().add(vb.clone().sub(J).setLength(r)), J.clone(), r * 0.95, r, 8), this.defs[pi].name, ib.color, regB);
+      this.bridges = (this.bridges || 0) + 1;
+    }
+  }
+  findIslands() {
+    let lo = Infinity, hi = -Infinity;
+    for (const g of this.pieces) { const pos = g.attributes.position; for (let i = 0; i < pos.count; i++) { const y = pos.getY(i); if (y < lo) lo = y; if (y > hi) hi = y; } }
+    const H = Math.max(0.15, hi - lo), tol = 0.015 * H, cell = tol * 2;
+    const key = (x, y, z) => x + "," + y + "," + z;
+    const grid = new Map();
+    this.pieces.forEach((g, gi) => {
+      const pos = g.attributes.position;
+      for (let i = 0; i < pos.count; i++) { const k = key(Math.floor(pos.getX(i) / cell), Math.floor(pos.getY(i) / cell), Math.floor(pos.getZ(i) / cell)); let L = grid.get(k); if (!L) grid.set(k, L = new Set()); L.add(gi); }
+    });
+    const parent = this.pieces.map((_, i) => i);
+    const find = i => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+    for (const [k, L] of grid) {
+      const [x, y, z] = k.split(",").map(Number);
+      const here = [...L];
+      for (let dx = 0; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) {
+        const M = grid.get(key(x + dx, y + dy, z + dz));
+        if (M) for (const b of M) for (const a of here) { const ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; }
+      }
+    }
+    const sizes = new Map();
+    this.pieces.forEach((g, i) => { const r = find(i); sizes.set(r, (sizes.get(r) || 0) + g.attributes.position.count); });
+    let main = -1, best = -1;
+    for (const [r, n] of sizes) if (n > best) { best = n; main = r; }
+    const out = [];
+    this.pieces.forEach((g, i) => { if (find(i) !== main) out.push(this.defs[g.userData.rig.bone].name + "#" + i); });
+    this._comp = { find, main, H, tol };
+    return out;
+  }
+  attachIslands() {
+    for (let pass = 0; pass < 4; pass++) {
+      const isl = this.findIslands();
+      if (!isl.length) return;
+      const { find, main, H, tol } = this._comp;
+      const comps = new Map();
+      this.pieces.forEach((g, i) => { const r = find(i); if (r === main) return; if (!comps.has(r)) comps.set(r, []); comps.get(r).push(g); });
+      const M = [];
+      this.pieces.forEach((g, i) => { if (find(i) !== main) return; const pos = g.attributes.position, st = Math.max(1, Math.floor(pos.count / 1500)); for (let k = 0; k < pos.count; k += st) M.push(pos.getX(k), pos.getY(k), pos.getZ(k)); });
+      let moved = 0;
+      for (const gs of comps.values()) {
+        let best = Infinity, bp = null, bq = null;
+        for (const g of gs) {
+          const pos = g.attributes.position;
+          for (let i = 0; i < pos.count; i++) {
+            const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+            for (let j = 0; j < M.length; j += 3) { const d = (x - M[j]) ** 2 + (y - M[j + 1]) ** 2 + (z - M[j + 2]) ** 2; if (d < best) { best = d; bp = [x, y, z]; bq = [M[j], M[j + 1], M[j + 2]]; } }
+          }
+        }
+        const dist = Math.sqrt(best);
+        if (!bp || dist > 0.25 * H) continue;
+        let gy = Infinity;
+        for (const g of gs) { g.computeBoundingBox(); gy = Math.min(gy, g.boundingBox.min.y); }
+        if (gy < 0.03 * H) {
+          const info = gs[0].userData.rig, r = clamp(tol * 1.6, 0.004 * H, 0.03 * H);
+          const a = V3(...bp), b = V3(...bq);
+          this.add(gTaper(a.clone().add(a.clone().sub(b).setLength(r)), b.clone().add(b.clone().sub(a).setLength(r)), r, r, 6), this.defs[info.bone].name, info.color, info.region === "glow" ? "plain" : info.region);
+          moved++;
+          continue;
+        }
+        const k = (dist + tol * 0.6) / Math.max(dist, 1e-6);
+        const dx = (bq[0] - bp[0]) * k, dy = (bq[1] - bp[1]) * k, dz = (bq[2] - bp[2]) * k;
+        for (const g of gs) g.translate(dx, dy, dz);
+        moved++;
+      }
+      if (!moved) return;
+    }
+  }
   smoothJoints() {
-    const J = { foreArm: [0.085, 0.5], hand: [0.05, 0.5], shin: [0.095, 0.5], foot: [0.05, 0.45], upArm: [0.075, 0.35], thigh: [0.09, 0.35], chest: [0.1, 0.35], spine: [0.09, 0.35], neck: [0.05, 0.3] };
+    const J = { foreArm: [0.06, 0.5, 0.1], hand: [0.04, 0.5, 0.08], shin: [0.07, 0.5, 0.12], foot: [0.04, 0.45, 0.1], upArm: [0.07, 0.4, 0.11], thigh: [0.07, 0.4, 0.16], chest: [0.08, 0.45, 0.32], spine: [0.08, 0.5, 0.32], neck: [0.04, 0.4, 0.12], head: [0.045, 0.4, 0.14], tail: [0.06, 0.5, 0.1], cape: [0.06, 0.5, 0.3] };
+    const rigid = new Set(["lids", "saddle"].concat(this.rigidBones || []));
+    const kidsAll = this.defs.map(() => []);
+    this.defs.forEach(d => { if (d.parent != null) kidsAll[d.parent].push(d.index); });
     const info = this.defs.map(d => {
+      if (d.parent == null || rigid.has(d.name)) return null;
+      const P = this.defs[d.parent].world;
+      const k0 = kidsAll[d.index][0];
+      const axis = (k0 != null ? this.defs[k0].world.clone().sub(d.world) : d.world.clone().sub(P));
+      if (axis.lengthSq() < 1e-8) axis.set(0, 1, 0);
+      axis.normalize();
       const key = d.name.replace(/[LR]$/, "");
-      const j = J[key];
-      return j && d.parent != null ? { r: j[0], m: j[1], at: d.world, parent: d.parent } : null;
+      const j = J[key], sc = this.jointScale || 1;
+      if (j) return { r: j[0] * sc, m: j[1], lat: j[2] * sc, at: d.world, axis, parent: d.parent };
+      const seg = d.world.distanceTo(P);
+      const r = clamp(seg * 0.35, 0.025, 0.1) * sc;
+      return { r, m: 0.5, lat: r * 2.2, at: d.world, axis, parent: d.parent };
     });
     const kids = this.defs.map(() => []);
     info.forEach((j, i) => { if (j) kids[j.parent].push(i); });
-    const v = new THREE.Vector3();
+    const v = new THREE.Vector3(), t = new THREE.Vector3();
+    const wOf = j => {
+      t.copy(v).sub(j.at);
+      const ax = t.dot(j.axis);
+      const lat = Math.sqrt(Math.max(0, t.lengthSq() - ax * ax));
+      if (lat > j.lat || Math.abs(ax) > j.r) return 0;
+      return j.m * (1 - Math.abs(ax) / j.r) * (lat > j.lat * 0.7 ? (j.lat - lat) / (j.lat * 0.3) : 1);
+    };
     for (const g of this.pieces) {
       const pos = g.attributes.position, si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
       for (let i = 0; i < pos.count; i++) {
@@ -15845,11 +15989,8 @@ class RigBuilder {
         v.fromBufferAttribute(pos, i);
         let other = -1, w = 0;
         const own = info[b];
-        if (own) { const d = v.distanceTo(own.at); if (d < own.r) { other = own.parent; w = own.m * (1 - d / own.r); } }
-        for (const k of kids[b]) {
-          const j = info[k], d = v.distanceTo(j.at);
-          if (d < j.r) { const wk = j.m * (1 - d / j.r); if (wk > w) { other = k; w = wk; } }
-        }
+        if (own) { const wo = wOf(own); if (wo > 0) { other = own.parent; w = wo; } }
+        for (const k of kids[b]) { const wk = wOf(info[k]); if (wk > w) { other = k; w = wk; } }
         if (other < 0 || w <= 0.001) continue;
         si.setXY(i, b, other);
         sw.setXY(i, 1 - w, w);
@@ -15857,7 +15998,9 @@ class RigBuilder {
     }
   }
   finish() {
-    if (this.defs.length > 6) this.smoothJoints();
+    this.attachIslands();
+    if (this.defs.length > 1) { this.bridgeGaps(); this.smoothJoints(); }
+    if (typeof window !== "undefined" && window.RIG_CHECK) this.meta.islands = this.findIslands();
     const main = this.pieces.length ? THREE.mergeGeometries(this.pieces) : null;
     const glow = this.glow.length ? THREE.mergeGeometries(this.glow) : null;
     let geo;
@@ -15865,6 +16008,10 @@ class RigBuilder {
     else { geo = main || glow; geo.clearGroups(); geo.addGroup(0, geo.attributes.position.count, main ? 0 : 1); }
     geo.computeBoundingSphere();
     geo.boundingSphere.radius *= 1.6;
+    let minY = Infinity;
+    const pa = (main || geo).attributes.position;
+    for (let i = 0; i < pa.count; i++) if (pa.getY(i) < minY) minY = pa.getY(i);
+    this.meta.minY = minY;
     for (const g of this.pieces.concat(this.glow)) g.dispose();
     return { geo, defs: this.defs.map(d => ({ name: d.name, parent: d.parent, local: d.local })), meta: this.meta };
   }
@@ -16566,7 +16713,7 @@ function mandrakeEntry(col, leaf) {
     R.add(gBall(V3(s * 0.1, 0.02, 0.06), 0.06, 1.1, 0.5, 1.4, 7), "leg" + sd, dark, "skin");
   }
   R.add(gBall(V3(0, Y + 0.22, 0.17), 0.05, 1.3, 0.35, 0.5, 8), "head", 0x4a2a2a, "plain");
-  R.add(gTaper(V3(0, Y + 0.46, -0.02), V3(0, Y + 0.62, -0.04), 0.03, 0.02, 6), "leaf", lfd, "wood");
+  R.add(gTaper(V3(0, Y + 0.44, -0.02), V3(0, Y + 0.72, -0.04), 0.03, 0.02, 6), "leaf", lfd, "wood");
   for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + 0.4; R.add(gBall(V3(Math.cos(a) * 0.16, Y + 0.7, -0.04 + Math.sin(a) * 0.16), 0.14, 1.3, 0.18, 0.6, 8), "leaf", lf, "plain"); }
   R.meta = { kind: "mandrake", headTop: Y + 0.8 };
   return R.finish();
@@ -16665,6 +16812,7 @@ function hareEntry(col) {
     R.add(gTaper(V3(s * 0.06, 0.22, 0.15), V3(s * 0.06, 0.03, 0.19), 0.03, 0.022, 8), "legF" + sd, col, "fur");
     R.add(gBall(V3(s * 0.06, 0.025, 0.21), 0.03, 1, 0.7, 1.3, 8), "legF" + sd, light, "fur");
     R.add(gBall(V3(s * 0.1, 0.24, -0.1), 0.1, 0.7, 1, 1.15, 10), "legB" + sd, col, "fur");
+    R.add(gTaper(V3(s * 0.1, 0.2, -0.12), V3(s * 0.1, 0.04, -0.1), 0.045, 0.028, 8), "legB" + sd, col, "fur");
     R.add(gBox(V3(s * 0.1, 0.025, -0.03), 0.05, 0.04, 0.2), "legB" + sd, light, "fur");
   }
   R.add(gBall(V3(0, 0.33, -0.28), 0.06, 1, 1, 1, 8), "body", 0xf6f2ea, "fur");
@@ -16893,6 +17041,7 @@ function toadEntry(col) {
     R.add(gTaper(V3(s * 0.13, 0.2, 0.16), V3(s * 0.15, 0.03, 0.24), 0.04, 0.03, 8), "legF" + sd, col, "skin");
     R.add(gBall(V3(s * 0.16, 0.02, 0.27), 0.05, 1.2, 0.35, 1.2, 8), "legF" + sd, dark, "skin");
     R.add(gBall(V3(s * 0.2, 0.18, -0.1), 0.12, 0.75, 0.9, 1.25, 10), "legB" + sd, col, "skin");
+    R.add(gTaper(V3(s * 0.2, 0.14, -0.08), V3(s * 0.22, 0.04, -0.06), 0.05, 0.035, 8), "legB" + sd, col, "skin");
     R.add(gBox(V3(s * 0.22, 0.025, 0.0), 0.09, 0.04, 0.24), "legB" + sd, dark, "skin");
   }
   R.meta = { kind: "hare", headTop: 0.6 };
@@ -17022,7 +17171,7 @@ const RACE_BODY = {
   human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.075 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.075 }],
   elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
   pipkin: [{ leg: 0.34, torso: 0.3, arm: 0.3, girth: 1.0, waist: 1.0, shoulder: 0.125, hip: 0.072, headR: 0.2, neck: 0.03 }, { leg: 0.34, torso: 0.3, arm: 0.3, girth: 0.96, waist: 0.94, shoulder: 0.118, hip: 0.074, headR: 0.2, neck: 0.03 }],
-  ursan: [{ leg: 0.96, torso: 0.76, arm: 0.8, girth: 1.35, waist: 1.25, shoulder: 0.27, hip: 0.135, headR: 0.165, neck: 0.05 }, { leg: 0.96, torso: 0.76, arm: 0.8, girth: 1.35, waist: 1.25, shoulder: 0.27, hip: 0.135, headR: 0.165, neck: 0.05 }],
+  ursan: [{ leg: 0.94, torso: 0.78, arm: 0.84, girth: 1.45, waist: 1.32, shoulder: 0.3, hip: 0.14, headR: 0.155, neck: 0.045 }, { leg: 0.94, torso: 0.78, arm: 0.84, girth: 1.45, waist: 1.32, shoulder: 0.3, hip: 0.14, headR: 0.155, neck: 0.045 }],
   nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.075 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.075 }]
 };
 
@@ -18812,6 +18961,74 @@ function syncDecor(dt) {
     VIEW.decor = { group: g, mesh: mi.mesh, bones: mi.bones, mat: mi.mat, meta: mi.meta };
   }
   poseRaptor(VIEW.decor, 0, dt);
+}
+
+const THUMBS = { cache: new Map(), queue: [], busy: false, studio: null };
+
+function thumbStudio() {
+  if (THUMBS.studio) return THUMBS.studio;
+  const sc = new THREE.Scene();
+  sc.add(new THREE.HemisphereLight(0xfff4e0, 0x3a4058, 1.7));
+  const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(3, 5, 4); sc.add(key);
+  const rim = new THREE.DirectionalLight(0x9fd0ff, 1.2); rim.position.set(-4, 3, -3); sc.add(rim);
+  const cam = new THREE.PerspectiveCamera(28, 1, 0.05, 100);
+  const T = 128;
+  const rt = new THREE.WebGLRenderTarget(T, T, { samples: 4 });
+  THUMBS.studio = { sc, cam, rt, T, buf: new Uint8Array(T * T * 4) };
+  return THUMBS.studio;
+}
+
+function renderThumb(famKey) {
+  const st = thumbStudio(), R = W3.renderer;
+  const m = buildMob(famKey, 5, 0, 0, null);
+  const inst = buildEntityRig(m);
+  if (!inst) return null;
+  const g = new THREE.Group();
+  g.add(inst.mesh);
+  if (inst.weapon) inst.mesh.add(inst.weapon);
+  g.rotation.y = 0.55;
+  st.sc.add(g);
+  g.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(inst.mesh, true);
+  const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
+  const r = Math.max(sz.x * 0.85, sz.y, sz.z * 0.85) * 0.52 + 0.02;
+  const d = r / Math.tan(14 * Math.PI / 180);
+  st.cam.position.set(c.x + d * 0.35, c.y + d * 0.2, c.z + d * 0.92);
+  st.cam.lookAt(c);
+  const prev = R.getRenderTarget(), pc = R.getClearColor(new THREE.Color()), pa = R.getClearAlpha(), pe = R.toneMappingExposure;
+  R.toneMappingExposure = 1.25;
+  R.setRenderTarget(st.rt); R.setClearColor(0x000000, 0); R.clear(); R.render(st.sc, st.cam);
+  R.readRenderTargetPixels(st.rt, 0, 0, st.T, st.T, st.buf);
+  R.setRenderTarget(prev); R.setClearColor(pc, pa); R.toneMappingExposure = pe;
+  st.sc.remove(g);
+  inst.mat.dispose();
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = st.T;
+  const g2 = cv.getContext("2d"), img = g2.createImageData(st.T, st.T), T = st.T;
+  for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) { const si = ((T - 1 - y) * T + x) * 4, di = (y * T + x) * 4; img.data[di] = st.buf[si]; img.data[di + 1] = st.buf[si + 1]; img.data[di + 2] = st.buf[si + 2]; img.data[di + 3] = st.buf[si + 3]; }
+  g2.putImageData(img, 0, 0);
+  return cv.toDataURL("image/png");
+}
+
+function beastThumb(famKey, onReady) {
+  if (THUMBS.cache.has(famKey)) return THUMBS.cache.get(famKey);
+  if (!THUMBS.queue.includes(famKey)) THUMBS.queue.push(famKey);
+  if (!THUMBS.busy) {
+    THUMBS.busy = true;
+    const next = () => {
+      const k = THUMBS.queue.shift();
+      if (!k) { THUMBS.busy = false; if (onReady) onReady(); return; }
+      let url = null;
+      try { url = renderThumb(k); } catch (e) { url = null; THUMBS.err = String(e && e.message || e); }
+      THUMBS.cache.set(k, url);
+      THUMBS.done = (THUMBS.done || 0) + 1;
+      if (onReady && (THUMBS.done % 3 === 0 || !THUMBS.queue.length)) onReady();
+      if (!THUMBS.queue.length) { THUMBS.busy = false; return; }
+      setTimeout(next, 16);
+    };
+    setTimeout(next, 30);
+  }
+  return null;
 }
 
 const VIEW = {
@@ -20940,7 +21157,7 @@ async function boot() {
   VIEW.booting = true;
   rotateTip();
   const tipTimer = setInterval(rotateTip, 5000);
-  loaderShow("UNTITLED SOLO RPG", "A frontier tale");
+  loaderShow("LEID'ANAV REBORN", "A frontier tale");
   await frames(2);
   loaderProgress(0.1, "Waking the world…");
   await frames(1);
@@ -20984,7 +21201,7 @@ function showTitle() {
   const ld = $("loading");
   ld.classList.add("ready");
   ld.classList.remove("roster", "zone");
-  $("ldTitle").textContent = "UNTITLED SOLO RPG";
+  $("ldTitle").textContent = "LEID'ANAV REBORN";
   $("ldSub").textContent = "A frontier tale";
   $("charSel").style.display = "none";
   const b = $("ldStart");
@@ -21103,7 +21320,7 @@ function showCharSelect() {
   const ld = $("loading");
   ld.classList.add("ready", "roster");
   ld.classList.remove("zone");
-  $("ldTitle").textContent = "UNTITLED SOLO RPG";
+  $("ldTitle").textContent = "LEID'ANAV REBORN";
   $("ldSub").textContent = "Choose your character";
   $("ldStart").style.display = "none";
   const r = loadRoster();

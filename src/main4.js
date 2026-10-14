@@ -74,7 +74,7 @@ async function boot() {
   VIEW.booting = true;
   rotateTip();
   const tipTimer = setInterval(rotateTip, 5000);
-  loaderShow("UNTITLED SOLO RPG", "A frontier tale");
+  loaderShow("LEID'ANAV REBORN", "A frontier tale");
   await frames(2);
   loaderProgress(0.1, "Waking the world…");
   await frames(1);
@@ -118,7 +118,7 @@ function showTitle() {
   const ld = $("loading");
   ld.classList.add("ready");
   ld.classList.remove("roster", "zone");
-  $("ldTitle").textContent = "UNTITLED SOLO RPG";
+  $("ldTitle").textContent = "LEID'ANAV REBORN";
   $("ldSub").textContent = "A frontier tale";
   $("charSel").style.display = "none";
   const b = $("ldStart");
@@ -237,7 +237,7 @@ function showCharSelect() {
   const ld = $("loading");
   ld.classList.add("ready", "roster");
   ld.classList.remove("zone");
-  $("ldTitle").textContent = "UNTITLED SOLO RPG";
+  $("ldTitle").textContent = "LEID'ANAV REBORN";
   $("ldSub").textContent = "Choose your character";
   $("ldStart").style.display = "none";
   const r = loadRoster();
