@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.3.0 · built 2026-10-14 02:42 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.4.0 · built 2026-10-14 02:45 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14613,13 +14613,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v10.3.0 · built 2026-10-14 02:42 PDT";
+const BUILD_INFO = "v10.4.0 · built 2026-10-14 02:45 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "10.4.0", date: "2026-10-14", title: "Races in motion", items: [
+    "Each race moves its own way. Pipkins take quick bouncy steps with a little head bob and a swaying idle. Ursans walk with long, heavy strides, a forward lean and rolling shoulders. Nekari sway their hips and crouch lower in a fight. Elari stand tall with a measured, graceful stride.",
+    "Ears are alive: Nekari, Elari and Pipkin ears twitch now and then, flatten back in combat or when you're hit, and lie back when running.",
+    "Tails lash and rise when a fight starts and wag faster while in combat."
   ] },
   { v: "10.3.0", date: "2026-10-14", title: "Gear you can see", items: [
     "Every piece of armour now shows on your character. Pieces that used to be invisible (Harbor Mail, Frostforged Mail, Sailcloth and Frostweave robes, the Cinderweave and Priest's mantles, Guild Greatcoat, Snowfur Coat, Wight's Shroud, Gull Feather Hat, Fur Hat, the Tide and Hollow crowns, Pathfinder Boots, Silk Gloves, Sentinel's Greaves and more) each have their own look.",
@@ -15496,7 +15501,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "10.3.0";
+const GAME_VERSION = "10.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18387,12 +18392,13 @@ function humanEntry(L) {
   R.add(gBall(V3(0, hc, 0.005), hr, 0.94, 1.04, 1.0, 20), "head", skin, L.noFace ? (L.headRegion || "skin") : (L.face ? "face" + (L.face % FACE_COUNT + 1) : "face"));
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, SKR);
   else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, SKR);
+  const earBone = s => { const n = "ear" + (s > 0 ? "L" : "R"); if (!R.byName[n]) R.bone(n, "head", s * hr * (L.ears === "cat" ? 0.55 : 0.88), hc + hr * (L.ears === "cat" ? 0.72 : 0.0), -hr * 0.05); return n; };
   for (const s of [-1, 1]) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, SKR);
-    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, SKR);
+    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), earBone(s), skin, SKR);
     else if (L.ears === "ursan") R.add(gBall(V3(s * hr * 0.78, hc + hr * 0.62, -hr * 0.1), hr * 0.26, 1, 0.9, 0.6, 8), "head", L.hair.color, "hair");
-    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, SKR);
-    else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), "head", L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), "head", 0xd89a9a, "skin"); } }
+    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), earBone(s), skin, SKR);
+    else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
     else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, SKR);
     if (L.tusks) R.add(gTaper(V3(s * hr * 0.35, hc - hr * 0.55, hr * 0.75), V3(s * hr * 0.45, hc - hr * 0.1, hr * 0.95), hr * 0.1, 0.004, 6), "head", 0xf0e8d0, "bone");
@@ -18612,7 +18618,7 @@ function humanEntry(L) {
       R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - 0.5, tz - 0.3), 0.055, 0.02, 8), "tail2", tc, "hair");
     }
   }
-  R.meta = { kind: "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
+  R.meta = { kind: "human", race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
   return R.finish();
 }
 
@@ -19860,10 +19866,25 @@ function poseHuman(v, e, dt) {
     v.rootOff[0] = 0; v.rootOff[1] = 0; v.rootOff[2] = 0;
   }
 
+  const race = v.meta && v.meta.race;
+  if (race && race !== "human" && !e.mounted && e.alive !== false && !e.resting) {
+    if (race === "pipkin") { v.rootOff[1] += Math.abs(s1) * 0.045 * amp; addP(P, "head", 0, 0, s1 * 0.08 * amp); addP(P, "upArmL", -s1 * 0.25 * amp, 0, 0.12 * amp); addP(P, "upArmR", s1 * 0.25 * amp, 0, -0.12 * amp); if (amp < 0.05) addP(P, "hips", 0, 0, Math.sin(t * 1.4) * 0.03); }
+    else if (race === "ursan") { addP(P, "spine", 0.08 * amp + 0.04, 0, 0); addP(P, "chest", 0, s1 * 0.12 * amp, -s1 * 0.05 * amp); addP(P, "head", -0.06 * amp, 0, 0); v.rootOff[1] -= Math.abs(c1) * 0.03 * amp; addP(P, "upArmL", 0, 0, 0.08); addP(P, "upArmR", 0, 0, -0.08); }
+    else if (race === "nekari") { addP(P, "hips", 0, s1 * 0.1 * amp, 0); addP(P, "spine", 0.05 * amp, -s1 * 0.06 * amp, 0); if (an.fight > 0.3) addP(P, "spine", 0.08 * an.fight, 0, 0); }
+    else if (race === "elari") { addP(P, "spine", -0.04, 0, 0); addP(P, "head", -0.05, 0, 0); addP(P, "upArmL", s1 * 0.08 * amp, 0, -0.03); addP(P, "upArmR", -s1 * 0.08 * amp, 0, 0.03); }
+  }
+  if (P.earL) {
+    if (!an.earAt || S.time > an.earAt + 0.3) an.earAt = S.time + 2 + Math.random() * 5;
+    const tw = S.time > an.earAt ? Math.sin((S.time - an.earAt) / 0.3 * Math.PI) : 0, side = an.earAt % 2 < 1;
+    const back = an.fight * 0.5 + (S.time - an.hitStart < 0.6 ? 0.6 : 0) + run * 0.3;
+    addP(P, "earL", -back * 0.6 + (side ? tw * 0.4 : 0), 0, back * 0.3);
+    addP(P, "earR", -back * 0.6 + (side ? 0 : tw * 0.4), 0, -back * 0.3);
+  }
   if (P.tail) {
-    const wag = Math.sin(t * (1.6 + run * 3)) * (0.3 + run * 0.15);
-    addP(P, "tail", 0.2 - run * 0.35, wag * 0.6, 0);
-    addP(P, "tail2", -0.25 - run * 0.2, wag, 0);
+    const lash = an.fight * (0.4 + 0.3 * Math.sin(t * 7));
+    const wag = Math.sin(t * (1.6 + run * 3 + an.fight * 2)) * (0.3 + run * 0.15 + an.fight * 0.2);
+    addP(P, "tail", 0.2 - run * 0.35 - lash * 0.6, wag * 0.6, 0);
+    addP(P, "tail2", -0.25 - run * 0.2 - lash * 0.5, wag, 0);
   }
   if (an.dead != null) {
     const k = ease((S.time - an.dead) / 0.9), kn = ease((S.time - an.dead) / 0.35), sd = an.deadVar || 1;
@@ -20951,7 +20972,7 @@ function viewFor(e) {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
     lodEntry: inst.lodEntry, lo: null,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
-    style: styleFor(e), stride: kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
+    style: styleFor(e), stride: inst.meta.race === "pipkin" ? 1.05 : inst.meta.race === "ursan" ? 2.05 : inst.meta.race === "elari" ? 1.85 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
   if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }

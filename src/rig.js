@@ -738,12 +738,13 @@ function humanEntry(L) {
   R.add(gBall(V3(0, hc, 0.005), hr, 0.94, 1.04, 1.0, 20), "head", skin, L.noFace ? (L.headRegion || "skin") : (L.face ? "face" + (L.face % FACE_COUNT + 1) : "face"));
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, SKR);
   else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, SKR);
+  const earBone = s => { const n = "ear" + (s > 0 ? "L" : "R"); if (!R.byName[n]) R.bone(n, "head", s * hr * (L.ears === "cat" ? 0.55 : 0.88), hc + hr * (L.ears === "cat" ? 0.72 : 0.0), -hr * 0.05); return n; };
   for (const s of [-1, 1]) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, SKR);
-    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, SKR);
+    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), earBone(s), skin, SKR);
     else if (L.ears === "ursan") R.add(gBall(V3(s * hr * 0.78, hc + hr * 0.62, -hr * 0.1), hr * 0.26, 1, 0.9, 0.6, 8), "head", L.hair.color, "hair");
-    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, SKR);
-    else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), "head", L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), "head", 0xd89a9a, "skin"); } }
+    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), earBone(s), skin, SKR);
+    else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
     else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, SKR);
     if (L.tusks) R.add(gTaper(V3(s * hr * 0.35, hc - hr * 0.55, hr * 0.75), V3(s * hr * 0.45, hc - hr * 0.1, hr * 0.95), hr * 0.1, 0.004, 6), "head", 0xf0e8d0, "bone");
@@ -963,7 +964,7 @@ function humanEntry(L) {
       R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - 0.5, tz - 0.3), 0.055, 0.02, 8), "tail2", tc, "hair");
     }
   }
-  R.meta = { kind: "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
+  R.meta = { kind: "human", race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
   return R.finish();
 }
 

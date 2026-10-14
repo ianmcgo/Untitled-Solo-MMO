@@ -469,10 +469,25 @@ function poseHuman(v, e, dt) {
     v.rootOff[0] = 0; v.rootOff[1] = 0; v.rootOff[2] = 0;
   }
 
+  const race = v.meta && v.meta.race;
+  if (race && race !== "human" && !e.mounted && e.alive !== false && !e.resting) {
+    if (race === "pipkin") { v.rootOff[1] += Math.abs(s1) * 0.045 * amp; addP(P, "head", 0, 0, s1 * 0.08 * amp); addP(P, "upArmL", -s1 * 0.25 * amp, 0, 0.12 * amp); addP(P, "upArmR", s1 * 0.25 * amp, 0, -0.12 * amp); if (amp < 0.05) addP(P, "hips", 0, 0, Math.sin(t * 1.4) * 0.03); }
+    else if (race === "ursan") { addP(P, "spine", 0.08 * amp + 0.04, 0, 0); addP(P, "chest", 0, s1 * 0.12 * amp, -s1 * 0.05 * amp); addP(P, "head", -0.06 * amp, 0, 0); v.rootOff[1] -= Math.abs(c1) * 0.03 * amp; addP(P, "upArmL", 0, 0, 0.08); addP(P, "upArmR", 0, 0, -0.08); }
+    else if (race === "nekari") { addP(P, "hips", 0, s1 * 0.1 * amp, 0); addP(P, "spine", 0.05 * amp, -s1 * 0.06 * amp, 0); if (an.fight > 0.3) addP(P, "spine", 0.08 * an.fight, 0, 0); }
+    else if (race === "elari") { addP(P, "spine", -0.04, 0, 0); addP(P, "head", -0.05, 0, 0); addP(P, "upArmL", s1 * 0.08 * amp, 0, -0.03); addP(P, "upArmR", -s1 * 0.08 * amp, 0, 0.03); }
+  }
+  if (P.earL) {
+    if (!an.earAt || S.time > an.earAt + 0.3) an.earAt = S.time + 2 + Math.random() * 5;
+    const tw = S.time > an.earAt ? Math.sin((S.time - an.earAt) / 0.3 * Math.PI) : 0, side = an.earAt % 2 < 1;
+    const back = an.fight * 0.5 + (S.time - an.hitStart < 0.6 ? 0.6 : 0) + run * 0.3;
+    addP(P, "earL", -back * 0.6 + (side ? tw * 0.4 : 0), 0, back * 0.3);
+    addP(P, "earR", -back * 0.6 + (side ? 0 : tw * 0.4), 0, -back * 0.3);
+  }
   if (P.tail) {
-    const wag = Math.sin(t * (1.6 + run * 3)) * (0.3 + run * 0.15);
-    addP(P, "tail", 0.2 - run * 0.35, wag * 0.6, 0);
-    addP(P, "tail2", -0.25 - run * 0.2, wag, 0);
+    const lash = an.fight * (0.4 + 0.3 * Math.sin(t * 7));
+    const wag = Math.sin(t * (1.6 + run * 3 + an.fight * 2)) * (0.3 + run * 0.15 + an.fight * 0.2);
+    addP(P, "tail", 0.2 - run * 0.35 - lash * 0.6, wag * 0.6, 0);
+    addP(P, "tail2", -0.25 - run * 0.2 - lash * 0.5, wag, 0);
   }
   if (an.dead != null) {
     const k = ease((S.time - an.dead) / 0.9), kn = ease((S.time - an.dead) / 0.35), sd = an.deadVar || 1;
