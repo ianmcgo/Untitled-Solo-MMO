@@ -1485,6 +1485,27 @@ function addWildlife(id) {
     }
   }
 }
+function cityLife(z, id) {
+  const rs = zoneRects(z);
+  const free = (d, x, y) => x > d.x + 70 && x < d.x + d.w - 70 && y > d.y + 70 && y < d.y + d.h - 70 && !rs.some(r => x > r.x - 36 && x < r.x + r.w + 36 && y > r.y - 36 && y < r.y + r.h + 36);
+  const stoneOf = did => { const n = z.npcs.find(q => q.id === "warpstone_" + id + "_" + did); return n ? { x: n.x, y: n.y + 90 } : null; };
+  for (const d of z.districts) {
+    const cfg = CITY_LIFE[d.id] || [2, 1], c = stoneOf(d.id) || { x: d.x + d.w / 2, y: d.y + d.h / 2 };
+    const make = (tag, i, rad, extra) => {
+      const r = seeded(hashStr(id + d.id + tag + i)), pts = [];
+      for (let t = 0; t < 60 && pts.length < 4; t++) {
+        const ang = r() * 6.283, rr = 70 + r() * rad, x = Math.round(c.x + Math.cos(ang) * rr), y = Math.round(c.y + Math.sin(ang) * rr);
+        if (free(d, x, y)) pts.push([x, y]);
+      }
+      if (pts.length < 2) return;
+      pts.sort((a, b) => Math.atan2(a[1] - c.y, a[0] - c.x) - Math.atan2(b[1] - c.y, b[0] - c.x));
+      S.ambient.push(Object.assign({ kind: "ambient", ambient: true, type: "walker", seed: hashStr(id + d.id + tag + i) % 997, x: pts[0][0], y: pts[0][1], px: pts[0][0], py: pts[0][1], home: { x: c.x, y: c.y }, roam: 60, path: pts, pi: 0, face: 0, speed: 50, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4, district: d.id }, extra));
+    };
+    for (let i = 0; i < cfg[0]; i++) make("day", i, 230, { time: "day" });
+    for (let i = 0; i < Math.ceil(cfg[0] / 3); i++) make("night", i, 200, { time: "night", speed: 44 });
+    for (let i = 0; i < cfg[1]; i++) make("guard", i, 320, { look: i % 2 ? "guard_f" : "guard", speed: 40, guard: true });
+  }
+}
 function ambientAwake(a) {
   if (a.time === "day" && isNight()) return false;
   if (a.time === "night" && !isNight()) return false;
@@ -3357,8 +3378,9 @@ function enterZone(id, x, y) {
   for (const a of S.zone.ambient || []) for (let i = 0; i < (a.n || 1); i++) {
     const r = seeded(hashStr(id + a.type + i));
     const x = a.x + (r() - 0.5) * (a.r || 60), y = a.y + (r() - 0.5) * (a.r || 60);
-    S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
+    S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, time: a.time, look: a.look, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
   }
+  if (S.zone.districts) cityLife(S.zone, id);
   if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
   for (const n of S.npcs) if (n.only) n.away = !npcOn(n);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
@@ -4089,7 +4111,8 @@ function questOfferable(id) {
   const q = QUESTS[id];
   return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done");
 }
-const QUEST_CHECKS = { furniture: () => save.furniture.length >= 2, harvest: () => save.harvests >= 1 };
+const tourDone = zid => ZONES[zid].districts.every(d => save.districts && save.districts[zid + ":" + d.id]);
+const QUEST_CHECKS = { tour_outpost: () => tourDone("outpost"), tour_harbor: () => tourDone("harbor"), tour_ironvale: () => tourDone("ironvale"), furniture: () => save.furniture.length >= 2, harvest: () => save.harvests >= 1 };
 function questComplete(id) {
   const q = QUESTS[id];
   if (save.quests[id] !== "active") return false;
@@ -4611,6 +4634,15 @@ const TALK = {
   },
   talkCamp(n) {
     openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Touch the camp crystal beside it to restore your party and to be able to warp here from any other crystal.", []);
+  },
+  talkDistrictSign(n) {
+    const z = S.zone, here = districtAt(z, n.x, n.y);
+    const lines = z.districts.filter(d => !here || d.id !== here.id).map(d => {
+      const cx = d.x + d.w / 2, cy = d.y + d.h / 2, dx = cx - n.x, dy = cy - n.y;
+      const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "east" : "west") : (dy > 0 ? "south" : "north");
+      return d.icon + " " + d.name + ": " + dir + ", about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms";
+    });
+    openDialog("District Signpost", (here ? "You are in the " + here.name + ". " : "") + lines.join(". ") + ".", []);
   },
   talkWarpStone(n) { openWarpStone(n); },
   talkCrystal(n) {

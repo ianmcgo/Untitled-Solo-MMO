@@ -1314,6 +1314,12 @@ const NPCS = {
 };
 
 const QUESTS = {
+  tour_outpost: { name: "Know Your City", giver: "Pell", npc: "pell", lv: 1, check: "tour_outpost", desc: "Walk through all five districts of Ashenreach Outpost: Market, Government, Residential, Industrial and Eastgate.", reward: { xp: 150, gil: 200 },
+    intro: "Customers keep asking me where the smithy is, and I've no time to point. Do us both a favour and walk every district of the Outpost once: Market, Government, Residential, Industrial and Eastgate. Then come back and I'll pay you for your time.", progress: "Still some districts you haven't walked. Use the map (M); each district is tinted and named.", turn: "Every street walked. You'll never be lost here now. Take this for your trouble." },
+  tour_harbor: { name: "Harbor Rounds", giver: "Marn", npc: "marn", lv: 2, check: "tour_harbor", desc: "Visit all four districts of Saltreach Harbor: the Fish Market, Harbor Square, Shipwrights' Row and the Docks.", reward: { xp: 200, gil: 250 },
+    intro: "New to Saltreach? Then you don't know where the best catch lands. Visit the Fish Market, Harbor Square, Shipwrights' Row and the Docks, and tell me what you saw. I'll make it worth your while.", progress: "You've not seen it all yet. The Docks run along the south shore, past the gate halls.", turn: "So you've seen the whole harbor. Good. Now you know where to buy fish." },
+  tour_ironvale: { name: "The Ironvale Circuit", giver: "Brisa", npc: "brisa", lv: 3, check: "tour_ironvale", desc: "Visit all five districts of Ironvale: Gate Ward, the Keep, Market Square, South Ward and Smelters' Row.", reward: { xp: 250, gil: 300 },
+    intro: "Quartermasters hate being asked for directions. Save us both the trouble: walk the Gate Ward, the Keep, Market Square, the South Ward and Smelters' Row, then report back.", progress: "Not all five yet. Smelters' Row is east, past the gate hall; the Keep is north.", turn: "The whole circuit. Now you know your way around Ironvale." },
   pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", npc: "rhea", lv: 1, desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "captains_ring" } },
   home: { name: "Make It Home", giver: "Odette", npc: "odette", lv: 1, check: "furniture", desc: "Buy or craft two pieces of furniture and have Pip place them in your residence (the door is on the west house of the Outpost).", reward: { xp: 100, gil: 0, items: [["flowerpot", 1], ["herb_seeds", 2]] },
     intro: "Every adventurer needs somewhere to hang their helm. The cottage by the west wall is yours; my cousin Pip keeps it. Put two pieces of furniture in it and I'll throw in something green for the windowsill.", progress: "Two pieces placed, that's all. Chairs are cheap. Talk to Pip at the cottage to arrange them.", turn: "Two pieces placed! It's a home now. Here, a flowerpot and some herb seeds; Pip will show you how to garden." },
@@ -2281,7 +2287,13 @@ for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
   const id = "warpstone_" + zid + "_" + did, d = ZONES[zid].districts.find(q => q.id === did);
   NPCS[id] = { name: "Warp Stone: " + d.name, model: "crystal", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
   ZONES[zid].npcs.push({ id, x: WARP_STONES[zid][did][0], y: WARP_STONES[zid][did][1] });
+  const sid = "dsign_" + zid + "_" + did;
+  NPCS[sid] = { name: "District Signpost", prop: "sign", talk: "talkDistrictSign" };
+  ZONES[zid].npcs.push({ id: sid, x: WARP_STONES[zid][did][0] + 60, y: WARP_STONES[zid][did][1] + 6 });
 }
+const CITY_LIFE = {
+  market: [6, 1], square: [6, 1], fish: [4, 1], docks: [4, 1], gov: [2, 2], keep: [1, 2], res: [3, 1], south: [3, 1], ind: [3, 1], yard: [3, 1], gate: [2, 2], forge: [3, 1]
+};
 Object.assign(QUESTS, {
   sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "bronze_tachi", qty: 1, unlock: "SAM" },
     intro: "A Samurai fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },

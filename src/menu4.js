@@ -1478,6 +1478,13 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
+    "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
+    "The markets and fish market are crowded; the residential wards are quieter.",
+    "A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
+    "Ambience follows the district: crowd noise swells in the markets and fades in the wards, and the surf is loudest on the Docks.",
+    "Three new quests for touring each city: Know Your City (Pell), Harbor Rounds (Marn) and The Ironvale Circuit (Brisa). Walk through every district, then report back."
+  ] },
   { v: "15.3.0", date: "2026-10-14", title: "Warp stones", items: [
     "Every district of Ashenreach Outpost, Saltreach Harbor and Ironvale now has a warp stone, shown as a pink dot on the map.",
     "Touch a stone to attune to it. From any stone you can warp for free to any attuned stone in the same city, or to an attuned stone in another city for " + CONFIG.warpCost + " crystals. Not during a fight.",
@@ -2365,6 +2372,10 @@ function tabHelp() {
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
+  ]));
+  h += sec("🚶 City life", ul([
+    "Townsfolk walk set routes inside their district: crowds by day (thickest in the markets), a few night-walkers after dark, and guards who patrol all day and night. Signposts beside the warp stones list the other districts with directions and distances. Crowd and surf sounds change with the district you are in.",
+    "Tour quests: Pell (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([
     "Each district of the three cities has a warp stone (pink dot on the map). Touch one to attune it. Warps inside the same city are free; warps to a stone in another city cost " + CONFIG.warpCost + " crystals. You can't warp while fighting. Type /warp beside a stone to open the menu. Crystals still handle home points and camp warps."

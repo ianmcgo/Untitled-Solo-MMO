@@ -1317,6 +1317,13 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - `save.warps[id] = true` on first touch. `openWarpStone` lists attuned stones: same zone free, other zone `CONFIG.warpCost`. `warpToStone` teleports locally inside the zone (party repositioned, `checkDistrict`) or calls `enterZone` for another city. Blocked while engaged. `/warp` finds a stone within 160 px. Map dot colour #ff9ff3.
 - Test: test/p51unit.js.
 
+## Phase 110: City life (v15.4.0) — plan C5
+- `cityLife(z, id)` runs in `enterZone` for zones with districts. `CITY_LIFE[districtId] = [crowd, guards]` in data.js. For each district it samples waypoints around the district's warp stone (+90 px) that are inside the district inset by 70 and 36 px clear of `zoneRects`, sorted by angle into a loop, and spawns ambient walkers: `crowd` day walkers, `ceil(crowd/3)` night walkers (`time` night, slower) and `guards` patrols (`look` guard / guard_f from `NPC_LOOK`, `guard: true`). Ambient entries now carry `time` and `look`; rig.js picks the NPC look when `look` is set.
+- District signposts: `dsign_<zone>_<district>` NPCs beside each warp stone (+60, +6), `talkDistrictSign` lists other districts with compass direction and distance.
+- Audio: in `ambxTick` the crowd layer is multiplied by a per-district factor and the surf layer by 1.4 on the Docks, 1 Fish Market, 0.6 Harbor Square, 0.35 elsewhere.
+- Quests: `tour_outpost`, `tour_harbor`, `tour_ironvale` use `check` with `QUEST_CHECKS` and `tourDone(zid)` against `save.districts`.
+- Test: test/p52unit.js.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1369,6 +1376,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.4.0 | Phase 110: city life: crowds, guard patrols, district signposts, district ambience, tour quests. |
 | 15.3.0 | Phase 109: warp stones in every district, free in-city warps, paid inter-city warps, /warp. |
 | 15.2.0 | Phase 108: Harbor and Ironvale districts, hireling bodies persist an hour, Phoenix Down, mobile and label fixes. |
 | 15.1.0 | Phase 107: city buildings (multi-storey, signs, awnings, clock tower, windmill, forge, warehouse), fountain square, gardens, outer wall and gatehouse, cobbled streets. |
