@@ -1022,6 +1022,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - poseHuman race block (not mounted/resting/dead): pipkin bounce + head bob + wider arms + idle hip sway; ursan forward lean, chest roll, heavier dip, arms out; nekari hip/spine sway, crouch in fight; elari upright, small arm swing.
 - Ears: random twitch every 2–7s; flatten by fight, recent hit (`an.hitStart` < 0.6s) and run. Tail: lash/raise with `an.fight`, faster wag.
 
+## Phase 65: M6 monsters/NPCs (v10.5.0)
+- rig.js `mobVariant(m)` = hash(famKey:id) % 3 (NM always 0). `varyMobLook(ml, vr)`: non-human → `col` darker (vr1) or warmer (vr2); human → top colour ×0.8/×1.15, vr1 adds cap/helm if no head/leafHead/crest, vr2 adds pauldrons (if sleeved) and belt.
+- models3d `viewFor`: non-NM mob scale × (1 ± up to 6%) from hash("sz"+id).
+- NPC_LOOK `odette` added; every NPCS entry now has a bespoke look (others fall back to walkerLook).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1045,7 +1050,7 @@ Model detail track (era-style detail comes mostly from painted textures on ~2–
 - 62 (10.2.0) DONE. M3 Faces and hair: painted face atlases (eyes, lashes, brows, lips, cheek shading) with 8 faces per race, blink/mouth flaps, carded hair meshes with alpha strands and 12 styles.
 - 63 (10.3.0) DONE. M4 Gear sets: unique meshes per armour piece (pauldrons, gauntlets, greaves, hoods, robes) and tiered visual sets; weapons with detailed silhouettes (guards, wraps, engraved blades) and glow on high tiers.
 - 64 (10.4.0) DONE. M5 Races in motion: per-race proportions, skeleton tweaks and animation sets (small folk bounce, big folk heavy steps, tails/ears that react).
-- 65 (10.5.0) M6 Monsters and NPCs: per-family sculpted meshes + painted textures + tier variants (colour, size, armour, accessories); every named NPC gets a unique outfit.
+- 65 (10.5.0) DONE (variants + size jitter; no new sculpts). M6 Monsters and NPCs: per-family sculpted meshes + painted textures + tier variants (colour, size, armour, accessories); every named NPC gets a unique outfit.
 World scale track:
 - 66 (10.6.0) Z1 Distance: far-terrain impostors, mountain/skyline backdrops per zone, longer draw distance with aerial perspective fog, landmarks visible from far away.
 - 67 (10.7.0) Z2 Bigger zones: existing fields 2–3x larger with sub-regions (plateaus, canyons, ravines, ridges), multiple entrances, hidden pockets and caves.
@@ -1087,6 +1092,7 @@ World systems:
 | 10.2.0 | Phase 62: hair locks/strands, eased blinks, eye expressions. |
 | 10.3.0 | Phase 63: looks for all armour, plate/gauntlets/greaves/hats, weapon detail and glow. |
 | 10.4.0 | Phase 64: race gaits, ear bones and reactions, tail lashing. |
+| 10.5.0 | Phase 65: monster variants and size jitter, Odette outfit. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

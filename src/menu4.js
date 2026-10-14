@@ -1453,6 +1453,10 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.5.0", date: "2026-10-14", title: "Monster variety", items: [
+    "Monsters of the same kind no longer look like clones: each one is a little bigger or smaller, and they come in three looks with darker or warmer colouring. Humanoid monsters may wear a cap or helmet, shoulder guards or a belt. Notorious monsters keep their signature look.",
+    "Odette the furnisher has her own outfit, so every named townsperson now dresses as themselves."
+  ] },
   { v: "10.4.0", date: "2026-10-14", title: "Races in motion", items: [
     "Each race moves its own way. Pipkins take quick bouncy steps with a little head bob and a swaying idle. Ursans walk with long, heavy strides, a forward lean and rolling shoulders. Nekari sway their hips and crouch lower in a fight. Elari stand tall with a measured, graceful stride.",
     "Ears are alive: Nekari, Elari and Pipkin ears twitch now and then, flatten back in combat or when you're hit, and lie back when running.",

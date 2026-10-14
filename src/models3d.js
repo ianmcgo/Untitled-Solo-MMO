@@ -40,7 +40,7 @@ function viewFor(e) {
   if (!inst) return null;
   const group = new THREE.Group();
   group.add(inst.mesh);
-  const s = isMob(e) ? (e.fam.scale || 1) : e.buddy ? (BUDDIES[e.petId].scale || 0.6) : e.ambient ? (e.scale || 1) : 1;
+  const s = isMob(e) ? (e.fam.scale || 1) * (e.fam.nm ? 1 : 1 + ((hashStr("sz" + e.id) % 13) - 6) / 100) : e.buddy ? (BUDDIES[e.petId].scale || 0.6) : e.ambient ? (e.scale || 1) : 1;
   group.scale.setScalar(s);
   const hitR = Math.max(0.55, (e.radius || 14) * U * 1.1 / s);
   const top = inst.meta.headTop || 2;
