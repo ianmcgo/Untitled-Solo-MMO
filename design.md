@@ -989,6 +989,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - `updateWeatherFx(dt)` (called from `updateFX` in try/catch): rain/storm splashes near the player, storm lightning every 7–16s (`WFX.next`) with delayed `sfx("lightning")`, wind leaves/dust, blizzard snow, fog wisps (also in `S.zone.mist`), field fireflies when `W3.daylight < 0.35` and dry. Counts drop on low quality. Skipped in cave/crypt/house.
 - `fxFootstep` dust is white in snow/blizzard.
 
+## Phase 59: G12 finish (v9.19.0)
+- High: EffectComposer uses a HalfFloat MSAA (4 samples) target; passes Render → Bloom → Output → `W3.grade` (ShaderPass `GRADE_SHADER`: tint, saturation, contrast, vignette, applied after OutputPass in sRGB).
+- `gradeTick(dayAmt, golden, gloom, cave)` called from `updateSky` sets uniforms.
+- `autoQuality(P)` in the perf tick: 12 straight seconds below 24 fps at min pixel ratio drops the composer, then sun shadows, with a toast each time.
+- Default quality: touch devices with ≤4 cores count as low-memory → Low.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1005,7 +1011,7 @@ Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big ski
 - 56 (9.16.0) G9 Shadows and depth: DONE (SSAO skipped for phone budget).
 - 57 (9.17.0) G10 Motion: DONE (animated, networked emotes). Was: smoother turns/starts/stops, idle variety, better attack, cast and hit reactions, emotes.
 - 58 (9.18.0) DONE. G11 Effects: particle spell effects per element, weapon-skill trails, hit sparks, level-up and crystal effects, rain/snow/mist weather particles.
-- 59 (9.19.0) G12 Camera and finish: anti-aliasing, subtle bloom and colour grade, depth fog tuning, auto quality for phones, final performance pass.
+- 59 (9.19.0) DONE. G12 Camera and finish: anti-aliasing, subtle bloom and colour grade, depth fog tuning, auto quality for phones, final performance pass.
 Model detail track (era-style detail comes mostly from painted textures on ~2–3k-triangle models, so textures carry most of the work):
 - 60 (10.0.0) M1 Mesh pipeline: replace primitive-part bodies with continuous lofted/lathed meshes per race (smooth shoulders, hips, necks, hands with fingers grouped), triangle budgets per tier, LOD levels.
 - 61 (10.1.0) M2 Painted texture system: canvas-painted texture atlases per model (cloth weave, leather grain, metal engraving, trim, shading baked in), per-region UVs, seeded variation.
@@ -1048,6 +1054,7 @@ World systems:
 | 9.16.0 | Phase 56: blob shadows, rim light, soft shadows on high. |
 | 9.17.0 | Phase 57: animated emotes, shared with other players. |
 | 9.18.0 | Phase 58: spell residue, element WS trails, hit sparks, weather particles. |
+| 9.19.0 | Phase 59: MSAA composer, colour grade, auto quality fallback. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

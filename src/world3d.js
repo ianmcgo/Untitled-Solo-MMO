@@ -1139,7 +1139,7 @@ function initRenderer() {
   const canvas = $("game");
   const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
   const saved = loadSettings();
-  const lowMem = navigator.deviceMemory && navigator.deviceMemory < 4;
+  const lowMem = (navigator.deviceMemory && navigator.deviceMemory < 4) || (coarse && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
   W3.quality = saved.quality || (lowMem ? "low" : coarse || window.innerWidth < 700 ? "medium" : "high");
   const r = new THREE.WebGLRenderer({ canvas, antialias: W3.quality !== "low", powerPreference: "high-performance" });
   W3.prCap = Math.min(window.devicePixelRatio || 1, W3.quality === "high" ? 2 : W3.quality === "medium" ? 1.5 : 1);
@@ -1214,15 +1214,42 @@ function initRenderer() {
   W3.fxRoot = new THREE.Group();
   W3.scene.add(W3.fxRoot);
   if (W3.quality === "high") {
-    const comp = new THREE.EffectComposer(r);
+    const rt = new THREE.WebGLRenderTarget(256, 256, { type: THREE.HalfFloatType, samples: r.capabilities.isWebGL2 === false ? 0 : 4 });
+    const comp = new THREE.EffectComposer(r, rt);
     comp.addPass(new THREE.RenderPass(W3.scene, W3.camera));
     W3.bloom = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), 0.22, 0.5, 0.95);
     comp.addPass(W3.bloom);
     comp.addPass(new THREE.OutputPass());
+    W3.grade = new THREE.ShaderPass(GRADE_SHADER);
+    comp.addPass(W3.grade);
     W3.composer = comp;
   }
   resizeRenderer();
   window.addEventListener("resize", resizeRenderer);
+}
+
+const GRADE_SHADER = {
+  uniforms: { tDiffuse: { value: null }, sat: { value: 1.08 }, con: { value: 1.05 }, tint: { value: new THREE.Vector3(1, 1, 1) }, vig: { value: 0.22 } },
+  vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+  fragmentShader: "uniform sampler2D tDiffuse; uniform float sat; uniform float con; uniform vec3 tint; uniform float vig; varying vec2 vUv; void main(){ vec4 c = texture2D(tDiffuse, vUv); vec3 col = c.rgb * tint; float l = dot(col, vec3(0.299, 0.587, 0.114)); col = mix(vec3(l), col, sat); col = (col - 0.5) * con + 0.5; vec2 d = vUv - 0.5; col *= 1.0 - vig * smoothstep(0.25, 0.75, length(d) * 1.2); gl_FragColor = vec4(clamp(col, 0.0, 1.0), c.a); }"
+};
+
+function gradeTick(dayAmt, golden, gloom, cave) {
+  if (!W3.grade) return;
+  const u = W3.grade.uniforms;
+  u.tint.value.set(1 + golden * 0.06 - (1 - dayAmt) * 0.04, 1 + golden * 0.01 - (1 - dayAmt) * 0.01, 1 - golden * 0.06 + (1 - dayAmt) * 0.06);
+  u.sat.value = cave ? 0.95 : 1.1 - gloom * 0.25 - (1 - dayAmt) * 0.12;
+  u.con.value = 1.05 + golden * 0.03;
+  u.vig.value = cave ? 0.35 : 0.2 + (1 - dayAmt) * 0.1;
+}
+
+function autoQuality(P) {
+  if (P.fps >= 24 || W3.pr > 0.61) { P.slow = 0; return; }
+  P.slow = (P.slow || 0) + 1;
+  if (P.slow < 12) return;
+  P.slow = 0;
+  if (W3.composer) { W3.composer = null; W3.grade = null; if (typeof toast === "function") toast("⚙️", "Graphics", "Glow effects turned off to keep the game smooth. Pick Low in Settings for older devices."); return; }
+  if (W3.sun.castShadow) { W3.sun.castShadow = false; if (typeof toast === "function") toast("⚙️", "Graphics", "Sun shadows turned off to keep the game smooth."); }
 }
 
 function resizeRenderer() {
@@ -1433,6 +1460,7 @@ function updateSky(force) {
   const golden = sstep(-0.05, 0.08, sunY) * (1 - sstep(0.1, 0.32, sunY));
   const cloudC = new THREE.Color(0xffffff).lerp(fogC, 0.35).lerp(new THREE.Color(0xffa070), golden * 0.55).multiplyScalar(mix(0.18, 1, dayAmt));
   W3.clouds.material.color.copy(cloudC);
+  gradeTick(dayAmt, golden, gloom, cave || indoor);
   W3.clouds.material.opacity = 0.8 * (atm ? atm.clouds : 1) * (1 + gloom * 0.25);
   if (W3.clouds2) { W3.clouds2.material.color.copy(cloudC).lerp(new THREE.Color(0xffc8a0), golden * 0.3); W3.clouds2.material.opacity = 0.42 * (atm ? atm.clouds : 1) + gloom * 0.3; }
   if (W3.sunGlow) { W3.sunGlow.position.copy(W3.camera.position).addScaledVector(dir, 900); W3.sunGlow.material.opacity = sstep(-0.08, 0.05, sunY) * (1 - gloom * 0.85) * 0.9; W3.sunGlow.material.color.setRGB(1, mix(0.94, 0.62, golden), mix(0.82, 0.4, golden)); W3.sunGlow.scale.setScalar(mix(200, 320, golden)); }
@@ -1526,6 +1554,7 @@ function perfTick() {
   if (el) { el.style.display = VIEW.settings.fps ? "block" : "none"; if (VIEW.settings.fps) el.textContent = P.fps + " fps · " + W3.pr.toFixed(2) + "× · " + W3.renderer.info.render.calls + " draws"; }
   if (!VIEW.settings.adaptive || VIEW.loading) { P.low = P.high = 0; return; }
   if (P.fps < 28) { P.low++; P.high = 0; } else if (P.fps > 52) { P.high++; P.low = 0; } else { P.low = P.high = 0; }
+  autoQuality(P);
   if (P.low >= 2 && W3.pr > 0.6) { W3.pr = Math.max(0.6, Math.round((W3.pr - 0.15) * 100) / 100); W3.renderer.setPixelRatio(W3.pr); resizeRenderer(); P.low = 0; }
   else if (P.high >= 6 && W3.pr < W3.prCap) { W3.pr = Math.min(W3.prCap, Math.round((W3.pr + 0.1) * 100) / 100); W3.renderer.setPixelRatio(W3.pr); resizeRenderer(); P.high = 0; }
 }
