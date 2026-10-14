@@ -1208,6 +1208,15 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - anim.js (after the leg IK): mouth target = KO 0.35 / talking (e.talkUntil) syllable flaps / weapon skill shout 0.9 / laugh, cheer flaps / panic 0.8 / cry tremble / hit 0.5 / casting chant / attack grunt; eased (rate 18/s); `mouth.scale.y` = 0.04 + m, `jaw.rotation.x` = 0.16·m.
 - talkUntil: hud4 openDialog sets it on the matching NPC (length-based, max 6 s); runCommand (say/shout/party/linkshell/tell) on the player; net chat on remote players.
 
+## Phase 93: hair and cloth (v14.0.0) — plan Q6, plus requests
+- Spring secondary motion (anim.js `sprAx(state, key, target, dt, k, c)`: spring–damper, semi-implicit, 12 ms substeps; `clothSprings(v, e, an, dt, t)` after the leg IK). Inputs: run/walk blend, forward acceleration (d spd/dt), signed yaw rate, gait bob, KO. Cape: 3 bones (`cape` on chest, `cape2`, `cape3`), plane 6×12 curved around the back with addW weights by height; lift 0.04 + 0.38·run + 0.14·walk + accel, lower sections add bob and flutter. hairTail: lift with run/accel/bob, sway with turn and stride. Tabards: front/back panels split at the waist onto `tabF`/`tabB` (children of hips); the front flap is pushed by forward thighs, the back by trailing thighs; trims ride the flaps. Old addP cape/hair lines removed.
+- Hairstyles appended (indices stable): wavy (long + zigzag strands), pixie (short choppy locks), sidepart (swept fringe), dreads (16 locs, back ones on hairTail), curly (shell vol 0.2 + 60 curl balls). HAIR_BY_SEX extended; hairEdgeFn keys added.
+- Hair under headgear: `gHairShell(..., thMin)` builds only the band below θ = 0.4π (vol 0.05) plus the edge locks when the head is covered; spiky/curly fall back to a short band. cap/helm/horned domes and rims are built with HEAD_SCALE and `warpToHead`, so they follow the narrower head; helms add a slim nasal and two cheek guards (front patches rotated ±1.25 rad).
+- world3d `buildExits` returns immediately (no exit arches).
+- Title/loading/character-select CSS (template4 tail): navy radial background, striped crest, outlined italic title, striped bars/tips/panels, orange Press Start, lavender buttons, orange primary buttons.
+- Spawns: CONFIG.spawnGapCells 1.4 (was 3), spawnExitCells 1.2 (was 2); the spacing pass skips points inside walls or water; after spacing, critter options (no aggro, not NM) lose `time: "day"` so they appear day and night. Hollow 22 points (was 8). `conOf` softens starter levels: lv ≤ 3 counts one level lower and passive lv ≤ 4 one more (non-NM).
+- Tests: p1unit (critters keep spawning at night), p24unit (spacing uses CONFIG).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1260,6 +1269,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.0.0 | Phase 93: spring capes/hair/tabards, 5 hairstyles, hair under helmets, fitted helmets, no exit arches, blue title screens, denser starter spawns, critters at night. |
 | 13.9.0 | Phase 92: 16 faces, talking mouths and jaw, expressions. |
 | 13.8.0 | Phase 91: woven cloth, stitched leather, engraved metal, embroidered trim, faster atlas. |
 | 13.7.0 | Phase 90: fingers, feet, animal heads, hour-long KO with Raise/Ember Plume, classic text colours, simpler target box. |

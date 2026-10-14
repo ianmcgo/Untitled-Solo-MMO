@@ -25,7 +25,7 @@ const hasHare = () => S.mobs.some(m => m.alive && m.famKey === 'hare');
 G.enterZone('hollow', 70, 500); run(1);
 ok(!hasBat(), 'daytime: no bats');
 setHour(20); run(8);
-ok(!S.mobs.some(m => m.alive && m.famKey === 'hare' && m.state === 'idle'), 'night: idle hares fade');
+ok(!G.ZONES.hollow.spawns.some(sp => [sp].concat(sp.alts || []).some(o => o.fam === 'hare' && o.time)), 'night: hares and other critters keep spawning at night');
 
 const p = P();
 p.hp = 10; p.engaged = false; S.moveTarget = null; for (const m of S.mobs) { m.alive = false; m.deadAt = -99; }

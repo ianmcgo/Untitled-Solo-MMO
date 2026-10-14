@@ -3695,7 +3695,8 @@ function age(dt) {
 }
 
 function conOf(m) {
-  const d = m.lv - player.lv;
+  const f = m.fam || {}, soft = !f.nm && !f.boss && m.lv <= 6 ? (m.lv <= 3 ? 1 : 0) + (!f.aggro && m.lv <= 4 ? 1 : 0) : 0;
+  const d = m.lv - soft - player.lv;
   if (d <= -4) return ["Too Weak", "#9e9e9e"];
   if (d <= -2) return ["Easy Prey", "#64b5f6"];
   if (d === -1) return ["Decent Challenge", "#81c784"];

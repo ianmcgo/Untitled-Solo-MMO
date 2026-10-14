@@ -967,11 +967,37 @@
   #ko .koBox b { font: italic 900 14px var(--ffFont); letter-spacing: .08em; }
   #ko #btnHome { height: 24px !important; padding: 0 16px !important; font: italic 900 13px var(--ffFont) !important; letter-spacing: .08em; color: #ffb54a !important; border-radius: 12px !important; border: 1px solid #3a1a06 !important; background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; -webkit-text-stroke: .8px #3a1a06; paint-order: stroke fill; text-shadow: 1px 1px 0 #3a1a06; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 2px 6px rgba(0,0,0,.6) !important; cursor: pointer; }
   #ui.isKO #ffTop { display: flex; }
+
+  #loading, #loading.zone { background: radial-gradient(ellipse at 50% 40%, #1c2458 0%, #0c1236 50%, #04060f 100%) !important; font-family: var(--ffFont); }
+  #loading .crest { border: 2px solid var(--ffEdge) !important; color: #fff !important; background: var(--ffStripe); box-shadow: 0 0 22px rgba(120,140,255,.35), inset 0 0 14px rgba(255,255,255,.12) !important; animation: none !important; }
+  #loading .crest::after { border-top-color: #b8c0ff !important; border-right-color: rgba(184,192,255,.35) !important; }
+  #ldTitle { font: italic 900 34px var(--ffFont) !important; letter-spacing: .12em !important; color: #fff !important; -webkit-text-stroke: 1px #10103a; paint-order: stroke fill; text-shadow: 2px 2px 0 #10103a, 0 0 18px rgba(120,140,255,.5) !important; }
+  #ldSub, #ldVer { font-family: var(--ffFont) !important; font-style: italic; color: #c8ccf0 !important; }
+  #ldBar { height: 12px !important; border-radius: 6px !important; background: rgba(8,10,40,.85) !important; border: 2px solid var(--ffEdge) !important; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+  #ldFill { background: linear-gradient(180deg, #e4e2fa 0%, #a4a6ea 40%, #6a68a6 100%) !important; box-shadow: none !important; }
+  #ldText { font: italic 800 12px var(--ffFont) !important; color: #e4e4ff !important; text-shadow: 1px 1px 0 #000; }
+  #ldTip { padding: 6px 12px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; font: 700 12px var(--ffFont) !important; color: #fff !important; text-shadow: 1px 1px 0 #000; box-shadow: 0 3px 12px rgba(0,0,0,.5); }
+  #ldTip b { color: #ffd84a !important; }
+  #ldStart { font: italic 900 16px var(--ffFont) !important; letter-spacing: .1em !important; padding: 8px 30px !important; border-radius: 18px !important; border: 1px solid #3a1a06 !important; color: #ffb54a !important; background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; -webkit-text-stroke: .8px #3a1a06; paint-order: stroke fill; text-shadow: 1px 1px 0 #3a1a06; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 3px 10px rgba(0,0,0,.6) !important; animation: none !important; }
+  #ldPv { border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; background: var(--ffStripe) !important; }
+  #ldPv .lbl b { font-family: var(--ffFont) !important; font-style: italic; color: #fff !important; }
+  #ldCred { font-family: var(--ffFont) !important; color: #c8ccf0 !important; }
+  #ldCred a { color: #ffd84a !important; }
+  #charSel { padding: 10px 12px 12px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.6); font-family: var(--ffFont); color: #fff; }
+  #charSel h2, #charSel h3 { font: italic 900 15px var(--ffFont) !important; color: #fff !important; letter-spacing: .08em; text-shadow: 1px 1px 0 #000; }
+  #charSel .ccCard { border-radius: 6px !important; background: rgba(10,12,50,.55) !important; border: 1px solid rgba(220,224,255,.7) !important; }
+  #charSel .ccCard:hover, #charSel .ccCard.sel { background: rgba(200,120,60,.35) !important; border-color: #ffb54a !important; }
+  #charSel .ccInfo b { font: italic 900 16px var(--ffFont) !important; color: #fff !important; text-shadow: 1px 1px 0 #000; }
+  #charSel .ccInfo span, #charSel .ccInfo small, #charSel .sub, #charSel label { font-family: var(--ffFont) !important; color: #dcdcff !important; }
+  #charSel button { font: italic 800 13px var(--ffFont) !important; letter-spacing: .06em; border-radius: 12px !important; border: 1px solid #14143c !important; color: #fff !important; background: linear-gradient(180deg, #e4e2fa 0%, #b4b2e6 22%, #8e8cc8 58%, #6a68a6 100%) !important; -webkit-text-stroke: .6px #14143c; paint-order: stroke fill; text-shadow: 1px 1px 0 #14143c; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(0,0,0,.5) !important; }
+  #charSel button.pri, #charSel .pri { color: #ffb54a !important; background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; border-color: #3a1a06 !important; -webkit-text-stroke: .6px #3a1a06; }
+  #charSel button.danger { background: linear-gradient(180deg, #f0b0b0 0%, #c86060 40%, #8a2a2a 100%) !important; }
+  #charSel input, #charSel select { font: 700 13px var(--ffFont) !important; background: rgba(8,10,40,.85) !important; color: #fff !important; border: 1px solid var(--ffEdge) !important; border-radius: 4px !important; }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.9.0 · built 2026-10-14 10:06 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.0.0 · built 2026-10-14 10:16 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5830,8 +5856,8 @@ const CONFIG = {
   terrainDetailLow: true,
   hallField: 380,
   hallTown: 180,
-  spawnGapCells: 3,
-  spawnExitCells: 2,
+  spawnGapCells: 1.4,
+  spawnExitCells: 1.2,
   mobRegen: 0.04,
   mercDaily: 5,
   mercPermadeath: true,
@@ -7966,7 +7992,8 @@ for (const zid in ZONES) {
   const order = z.spawns.slice().sort((a, b) => (b.nm ? 1 : 0) - (a.nm ? 1 : 0) || (b.bf ? 1 : 0) - (a.bf ? 1 : 0) || exitDist(b) - exitDist(a));
   const fixed = sp => FAMILIES[sp.fam] && (FAMILIES[sp.fam].nm || FAMILIES[sp.fam].boss);
   const kept = z.spawns.filter(fixed);
-  for (const sp of order) if (!kept.includes(sp) && (sp.bf || exitDist(sp) >= exitR) && !kept.some(k => near(k, sp))) kept.push(sp);
+  const inWall = sp => (z.walls || []).some(q => sp.x > q.x - 24 && sp.x < q.x + q.w + 24 && sp.y > q.y - 24 && sp.y < q.y + q.h + 24) || (z.water || []).some(w => Math.hypot(sp.x - w.x, sp.y - w.y) < w.r + 20);
+  for (const sp of order) if (!kept.includes(sp) && !inWall(sp) && (sp.bf || exitDist(sp) >= exitR) && !kept.some(k => near(k, sp))) kept.push(sp);
   if (!kept.length) kept.push(order[0]);
   for (const sp of z.spawns) {
     if (kept.includes(sp)) continue;
@@ -7976,6 +8003,8 @@ for (const zid in ZONES) {
     (best.alts = best.alts || []).push({ fam: sp.fam, lv: sp.lv, time: sp.time, weather: sp.weather, nm: sp.nm, passive: sp.passive });
   }
   z.spawns = z.spawns.filter(sp => kept.includes(sp));
+  const critter = o => FAMILIES[o.fam] && !FAMILIES[o.fam].aggro && !FAMILIES[o.fam].nm;
+  for (const sp of z.spawns) { if (critter(sp) && sp.time === "day") delete sp.time; for (const a of sp.alts || []) if (critter(a) && a.time === "day") delete a.time; }
 }
 const POI_LORE = {
   hollow: "Before the Outpost there was the Fort, and before the Fort there was only the Hollow and the people who herded in it. They cut these words so their children would know the safe paths: keep to the old road, drink from the mirror lake, and never sleep where the goblins dig.",
@@ -11938,7 +11967,8 @@ function age(dt) {
 }
 
 function conOf(m) {
-  const d = m.lv - player.lv;
+  const f = m.fam || {}, soft = !f.nm && !f.boss && m.lv <= 6 ? (m.lv <= 3 ? 1 : 0) + (!f.aggro && m.lv <= 4 ? 1 : 0) : 0;
+  const d = m.lv - soft - player.lv;
   if (d <= -4) return ["Too Weak", "#9e9e9e"];
   if (d <= -2) return ["Easy Prey", "#64b5f6"];
   if (d === -1) return ["Decent Challenge", "#81c784"];
@@ -16293,13 +16323,23 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v13.9.0 · built 2026-10-14 10:06 PDT";
+const BUILD_INFO = "v14.0.0 · built 2026-10-14 10:16 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "14.0.0", date: "2026-10-14", title: "Flowing capes and hair, five new hairstyles", items: [
+    "Capes are now cloth in three hinged sections driven by spring physics: they hang still when you stand, stream back when you run, swing out on turns and settle with a little bounce when you stop.",
+    "Ponytails, braids and long hair swing with your stride and lag behind turns; tabard flaps are pushed by your legs and flutter when running.",
+    "Five new hairstyles: Wavy, Pixie, Side part, Locs and Curly (16 in all).",
+    "Helmets, caps and hats no longer make you look bald: your fringe, sides and back hair show beneath the rim. Helmets now fit the shape of the head, with a nose guard and cheek guards that follow the face.",
+    "The wooden arches at zone exits are gone.",
+    "The title, loading and character select screens use the same blue striped boxes, white-bordered panels and pill buttons as the in-game menus.",
+    "More to fight close to town: the bigger fields now have about two to three times as many spawn points, and the first ones are only a short walk from the gate. Level 1–2 critters near town show as easy prey or a decent challenge for new characters.",
+    "Critters (hares, bees, sheep, mandrakes and the like) stay out at night. Night adds its own harder monsters rather than emptying the fields."
   ] },
   { v: "13.9.0", date: "2026-10-14", title: "Faces that talk", items: [
     "16 faces to choose from (was 8): the new eight pair the painted features with a different bone structure (stronger nose and chin, wider jaw, higher cheekbones, fuller lips).",
@@ -17409,7 +17449,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "13.9.0";
+const GAME_VERSION = "14.0.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18984,6 +19024,7 @@ function syncBarriers() {
 }
 
 function buildExits(field, root) {
+  return;
   const z = field.zone;
   const planks = texPlanks();
   const rock = themeOf(z) === "cave" || themeOf(z) === "crypt" ? texCaveRock() : texRock();
@@ -19699,9 +19740,9 @@ let ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
 const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
-const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot"];
-const HAIR_BY_SEX = [["short", "spiky", "long", "ponytail", "bald", "mohawk", "topknot", "braid"], ["long", "ponytail", "bob", "bun", "short", "braid", "twintails", "topknot"]];
-const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" , braid: "Braid", mohawk: "Crest", twintails: "Twin tails", topknot: "Topknot" };
+const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot", "wavy", "pixie", "sidepart", "dreads", "curly"];
+const HAIR_BY_SEX = [["short", "sidepart", "spiky", "curly", "long", "ponytail", "dreads", "bald", "mohawk", "topknot", "braid", "pixie"], ["long", "wavy", "ponytail", "bob", "bun", "pixie", "curly", "short", "sidepart", "braid", "twintails", "dreads", "topknot"]];
+const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" , braid: "Braid", mohawk: "Crest", twintails: "Twin tails", topknot: "Topknot", wavy: "Wavy", pixie: "Pixie", sidepart: "Side part", dreads: "Locs", curly: "Curly" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 
 const REGION_PAINT = {
@@ -19977,7 +20018,7 @@ class RigBuilder {
     let lo = Infinity, hi = -Infinity;
     for (const L of by) for (const p of L) { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; }
     const H = Math.max(0.15, hi - lo), tol = 0.012 * H;
-    const skip = new Set(["lids", "saddle", "hairTail", "mouth", "jaw"].concat(this.noBridgeBones || []));
+    const skip = new Set(["lids", "saddle", "hairTail", "hairTail2", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB"].concat(this.noBridgeBones || []));
     for (const d of this.defs) {
       if (d.parent == null || skip.has(d.name)) continue;
       let pi = d.parent;
@@ -20085,7 +20126,7 @@ class RigBuilder {
   }
   smoothJoints() {
     const J = { foreArm: [0.06, 0.5, 0.1], hand: [0.04, 0.5, 0.08], shin: [0.07, 0.5, 0.12], foot: [0.04, 0.45, 0.1], upArm: [0.07, 0.4, 0.11], thigh: [0.07, 0.4, 0.16], chest: [0.08, 0.45, 0.32], spine: [0.08, 0.5, 0.32], neck: [0.04, 0.4, 0.12], head: [0.045, 0.4, 0.14], tail: [0.06, 0.5, 0.1], cape: [0.06, 0.5, 0.3] };
-    const rigid = new Set(["lids", "saddle", "mouth", "jaw"].concat(this.rigidBones || []));
+    const rigid = new Set(["lids", "saddle", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB", "hairTail2"].concat(this.rigidBones || []));
     const kidsAll = this.defs.map(() => []);
     this.defs.forEach(d => { if (d.parent != null) kidsAll[d.parent].push(d.index); });
     const info = this.defs.map(d => {
@@ -20615,9 +20656,9 @@ function stableKey(o) {
 }
 
 function hairEdgeFn(st) {
-  const K = { short: [-0.52, -0.34, 0.0, 0.3, 0.42], spiky: [-0.44, -0.4, -0.05, 0.25, 0.36], bob: [-0.26, -0.2, 0.42, 0.52, 0.56], long: [-0.3, -0.24, 0.3, 0.42, 0.45], ponytail: [-0.56, -0.4, -0.02, 0.2, 0.3], bun: [-0.56, -0.4, -0.02, 0.2, 0.3], braid: [-0.42, -0.38, 0.0, 0.25, 0.32], twintails: [-0.28, -0.24, 0.05, 0.25, 0.32], topknot: [-0.46, -0.42, -0.02, 0.22, 0.32] }[st] || [-0.4, -0.36, 0.0, 0.3, 0.42];
+  const K = { short: [-0.52, -0.34, 0.0, 0.3, 0.42], spiky: [-0.44, -0.4, -0.05, 0.25, 0.36], bob: [-0.26, -0.2, 0.42, 0.52, 0.56], long: [-0.3, -0.24, 0.3, 0.42, 0.45], ponytail: [-0.56, -0.4, -0.02, 0.2, 0.3], bun: [-0.56, -0.4, -0.02, 0.2, 0.3], braid: [-0.42, -0.38, 0.0, 0.25, 0.32], twintails: [-0.28, -0.24, 0.05, 0.25, 0.32], topknot: [-0.46, -0.42, -0.02, 0.22, 0.32], wavy: [-0.28, -0.22, 0.32, 0.45, 0.5], pixie: [-0.4, -0.36, -0.06, 0.16, 0.28], sidepart: [-0.5, -0.32, 0.0, 0.28, 0.4], dreads: [-0.56, -0.42, -0.04, 0.15, 0.25], curly: [-0.46, -0.34, 0.06, 0.3, 0.4] }[st] || [-0.4, -0.36, 0.0, 0.3, 0.42];
   const angs = [0, 0.75, 1.45, 2.2, Math.PI];
-  const fringe = st === "bob" || st === "long" || st === "twintails";
+  const fringe = st === "bob" || st === "long" || st === "twintails" || st === "wavy";
   const edge = a => {
     const aa = Math.abs(a);
     let k = 0; while (k < angs.length - 2 && aa > angs[k + 1]) k++;
@@ -20627,15 +20668,15 @@ function hairEdgeFn(st) {
   };
   return edge;
 }
-function gHairShell(P, hc, hr, st) {
-  const edge = hairEdgeFn(st);
+function gHairShell(P, hc, hr, st, thMin) {
+  const edge = hairEdgeFn(st), t0 = thMin || 0;
   const nu = Math.max(16, sgK(40)), nv = Math.max(6, sgK(12));
   const pos = [], uv = [], idx = [];
   for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
     const phi = i / nu * Math.PI * 2, a = Math.atan2(Math.sin(phi - Math.PI / 2), Math.cos(phi - Math.PI / 2));
-    const f = j / nv, th = edge(a) * f;
+    const f = j / nv, th = t0 + (edge(a) - t0) * f;
     const x = -Math.cos(phi) * Math.sin(th), y = Math.cos(th), z = Math.sin(phi) * Math.sin(th);
-    const vol = st === "spiky" ? 0.07 : st === "bob" ? 0.1 : 0.075;
+    const vol = t0 ? 0.05 : st === "spiky" ? 0.07 : st === "curly" ? 0.2 : st === "bob" || st === "wavy" ? 0.1 : 0.075;
     const off = (vol + 0.03 * Math.cos(f * Math.PI / 2)) * (1 - 0.55 * f * f) + 0.012 * Math.sin(phi * 23) * f;
     const r = headRadial(P, x, y, z, false) * (1 + off);
     pos.push(x * r * hr * HEAD_SCALE[0], hc + y * r * hr * HEAD_SCALE[1], 0.005 + z * r * hr * HEAD_SCALE[2]);
@@ -20643,7 +20684,7 @@ function gHairShell(P, hc, hr, st) {
   }
   for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
     const a = j * (nu + 1) + i, b = a + nu + 1;
-    if (j > 0) idx.push(a, b, a + 1);
+    if (j > 0 || t0) idx.push(a, b, a + 1);
     idx.push(a + 1, b, b + 1);
   }
   const g = new THREE.BufferGeometry();
@@ -20660,14 +20701,14 @@ function hairPoint(P, hc, hr, phi, th, off) {
   return V3(x * r * hr * HEAD_SCALE[0], hc + y * r * hr * HEAD_SCALE[1], 0.005 + z * r * hr * HEAD_SCALE[2]);
 }
 function gHairLocks(P, hc, hr, st) {
-  if (st === "spiky" || st === "mohawk") return [];
-  const edge = hairEdgeFn(st), out = [], fringe = st === "bob" || st === "long" || st === "twintails";
+  if (st === "spiky" || st === "mohawk" || st === "curly" || st === "dreads") return [];
+  const edge = hairEdgeFn(st), out = [], fringe = st === "bob" || st === "long" || st === "twintails" || st === "wavy";
   const n = Math.max(10, sgK(24));
   for (let k = 0; k < n; k++) {
     const a = -Math.PI + (k + 0.5) / n * Math.PI * 2, phi0 = a + Math.PI / 2;
     const front = Math.abs(a) < 0.9;
-    const e = edge(a), len = (front ? (fringe ? 0.16 : 0.09) : 0.12) * (0.75 + 0.5 * Math.abs(Math.sin(k * 2.7)));
-    const sweep = front && !fringe ? (a >= 0 ? 0.1 : -0.1) : 0.04 * Math.sin(k * 1.9);
+    const e = edge(a), len = (front ? (fringe ? 0.16 : st === "sidepart" ? 0.13 : 0.09) : 0.12) * (st === "pixie" ? 0.6 : 1) * (0.75 + 0.5 * Math.abs(Math.sin(k * 2.7)));
+    const sweep = st === "sidepart" && front ? 0.28 : st === "pixie" ? 0.12 * Math.sin(k * 2.3) : front && !fringe ? (a >= 0 ? 0.1 : -0.1) : 0.04 * Math.sin(k * 1.9);
     const w0 = Math.PI * 2 / n * 0.75, rows = 5;
     const pos = [], uv = [], idx = [];
     for (let j = 0; j <= rows; j++) {
@@ -20700,6 +20741,10 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
     }
     return;
   }
+  if (covered && st !== "mohawk" && st !== "spiky" && st !== "curly") {
+    R.add(gHairShell(HP, hc, hr, st, Math.PI * 0.4), "head", c, "hair");
+    for (const lk of gHairLocks(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
+  } else if (covered && (st === "spiky" || st === "curly")) R.add(gHairShell(HP, hc, hr, "short", Math.PI * 0.4), "head", c, "hair");
   if (!covered) {
     R.add(gHairShell(HP, hc, hr, st), "head", c, "hair");
     for (const lk of gHairLocks(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
@@ -20724,12 +20769,15 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
     R.add(gBall(V3(s * hr * 0.85, hc + hr * 0.25, -hr * 0.45), hr * 0.24, 1, 1, 1, 8), "head", c, "hair");
     R.add(gTaper(V3(s * hr * 0.95, hc + hr * 0.15, -hr * 0.55), V3(s * hr * 1.35, hc - hr * 1.5, -hr * 0.75), hr * 0.26, hr * 0.06, 8), TB, c, "hair");
   }
-  if (st === "long") {
+  if (st === "curly" && !covered) for (let k = 0; k < 60; k++) { const ph = k * 2.399, th = Math.acos(1 - (k + 0.5) / 60 * 1.15); if (Math.abs(Math.atan2(Math.sin(ph - Math.PI / 2), Math.cos(ph - Math.PI / 2))) < 0.7 && th > 0.9) continue; const p = hairPoint(HP, hc, hr, ph, th, 0.13); R.add(gBall(p, hr * 0.2, 1, 1, 1, 7), "head", c, "hair"); }
+  if (st === "dreads") for (let k = 0; k < 16; k++) { const a = Math.PI / 2 + Math.PI * (0.35 + 1.3 * k / 15), p0 = hairPoint(HP, hc, hr, a, Math.PI / 2 + 0.1, 0.06), ln = hr * (1.4 + 0.3 * Math.sin(k * 1.7)); const out = V3(Math.sign(p0.x) * 0.15, 0, -0.3).normalize(); R.add(gTaper(p0, p0.clone().add(V3(out.x * hr * 0.3, -ln, out.z * hr * 0.4)), hr * 0.07, hr * 0.05, 6), Math.abs(a - Math.PI * 1.5) < 1.0 ? TB : "head", c, "hair"); }
+  if (st === "long" || st === "wavy") {
     R.add(gBall(V3(0, hc - hr * 0.95, -hr * 0.66), hr * 0.85, 1.0, 1.75, 0.38, 12), TB, c, "hair");
     for (let k = 0; k < 7; k++) {
       const f = k / 6 - 0.5, ln = hr * (1.9 + 0.25 * Math.cos(k * 1.7));
       R.add(gTaper(V3(f * hr * 1.5, hc + hr * 0.1, -hr * 0.95), V3(f * hr * 1.9, hc + hr * 0.1 - ln, -hr * (0.95 + 0.12 * Math.abs(f))), hr * 0.26, hr * 0.05, 5, 0.3), TB, c, "hair");
     }
+    if (st === "wavy") for (let k = 0; k < 8; k++) { const f = k / 7 - 0.5; let p = V3(f * hr * 1.7, hc - hr * 0.2, -hr * (0.95 + 0.1 * Math.abs(f))); for (let j = 0; j < 4; j++) { const q = p.clone().add(V3((j % 2 ? 1 : -1) * hr * 0.12, -hr * 0.45, -hr * 0.03)); R.add(gTaper(p, q, hr * (0.16 - j * 0.025), hr * (0.13 - j * 0.025), 5, 0.45), TB, c, "hair"); p = q; } }
   }
   if (st === "ponytail") {
     R.add(gBall(V3(0, hc + hr * 0.2, -hr * 0.98), hr * 0.3, 1, 1, 1, 8), "head", c, "hair");
@@ -20826,7 +20874,7 @@ function humanEntry(L) {
     { const ml = []; for (const s of [-1, 1]) { const a = s * 0.09, b0 = 0.385; const p0 = hairPoint(HP, hc, hr, Math.PI / 2 + a * 0.4, Math.PI / 2 + b0 - 0.02, 0.05), p1 = hairPoint(HP, hc, hr, Math.PI / 2 + s * 0.24, Math.PI / 2 + b0 + 0.07, 0.04); R.add(gTaper(p0, p1, hr * 0.07, hr * 0.02, 6), "head", L.beard, "hair"); } }
     if (L.longBeard) R.add(gBall(V3(0, hc - hr * 1.2, hr * 0.6), hr * 0.5, 0.9, 1.6, 0.55, 10), "head", L.beard, "hair");
   }
-  const tailed = L.hair && ["long", "ponytail", "braid", "twintails"].includes(L.hair.style);
+  const tailed = L.hair && ["long", "ponytail", "braid", "twintails", "wavy", "dreads"].includes(L.hair.style);
   if (tailed) R.bone("hairTail", "head", 0, hc + hr * 0.15, -hr * 0.95);
   hairPieces(R, L.hair, hc, hr, headCovers, tailed ? "hairTail" : null, HP);
   if (!L.noFace) {
@@ -20999,8 +21047,18 @@ function humanEntry(L) {
   }
   if (L.collar && !L.skull) R.add(gRing(V3(0, neckY - 0.035, 0), 0.1 * gi, 0.045, "y", 16), "chest", L.collar, "fur");
   if (t === "tabard") {
-    R.add(gBox(V3(0, chestY - 0.12, 0.125 * gi), 0.2, 0.62, 0.012), "chest", top.color2, "cloth");
-    R.add(gBox(V3(0, chestY - 0.12, -0.125 * gi), 0.2, 0.62, 0.012), "chest", top.color2, "cloth");
+    const ty0 = chestY + 0.19, ty1 = chestY - 0.43;
+    for (const [fz, bn] of [[1, "tabF"], [-1, "tabB"]]) {
+      R.bone(bn, "hips", 0, hipsY - 0.02, fz * 0.13 * gi);
+      const tg = new THREE.PlaneGeometry(0.2, ty0 - ty1, 2, 10);
+      tg.translate(0, (ty0 + ty1) / 2, fz * (0.125 * gi + 0.006));
+      if (fz < 0) tg.rotateY(Math.PI).translate(0, 0, 0);
+      const tp = tg.attributes.position;
+      for (let i = 0; i < tp.count; i++) { const y = tp.getY(i); if (y > hipsY) tp.setZ(i, tp.getZ(i) + fz * 0.02 * clamp((y - hipsY) / (ty0 - hipsY), 0, 1) * gi); }
+      tg.computeVertexNormals();
+      R.addW(tg, "chest", top.color2, "cloth", (x, y) => y > hipsY + 0.06 ? [["chest", 1]] : y > hipsY - 0.02 ? [["chest", (y - hipsY + 0.02) / 0.08], [bn, 1 - (y - hipsY + 0.02) / 0.08]] : [[bn, 1]]);
+      R.add(gBox(V3(0, ty1 + 0.015, fz * (0.125 * gi + 0.01)), 0.2, 0.025, 0.006), bn, top.trim || 0xd8c070, "trim");
+    }
   }
   if (t === "apron") R.add(gBox(V3(0, hipsY - 0.05, 0.13 * gi), 0.26, 0.55, 0.012), "hips", top.color2, "leather");
   if (t === "fur") R.add(gRing(V3(0, neckY - 0.04, 0), 0.12 * gi, 0.06, "y", 14), "chest", topC, "fur");
@@ -21011,8 +21069,15 @@ function humanEntry(L) {
     R.add(gBox(V3(0, hipsY + 0.03, bR * 0.72 + 0.006), 0.05, 0.04, 0.012), "hips", 0xc8a040, "metal");
   }
   if (L.cape) {
-    R.bone("cape", "chest", 0, shY, -0.15 * gi);
-    R.add(gBox(V3(0, (shY + knee) / 2 + 0.02, -0.15 * gi), sw * 2.0, shY - knee, 0.02, 0.1, 0, 0), "cape", L.cape, "cloth");
+    const cz = -0.15 * gi, ch = shY - knee, c1 = shY - ch / 3, c2 = shY - ch * 2 / 3;
+    R.bone("cape", "chest", 0, shY, cz);
+    R.bone("cape2", "cape", 0, c1, cz - 0.03);
+    R.bone("cape3", "cape2", 0, c2, cz - 0.06);
+    const cg = new THREE.PlaneGeometry(sw * 2.0, ch, 6, 12);
+    const cp = cg.attributes.position;
+    for (let i = 0; i < cp.count; i++) { const x = cp.getX(i), y = cp.getY(i), f = (ch / 2 - y) / ch; cp.setXYZ(i, x * (1 + 0.15 * f), y + (shY + knee) / 2 + 0.02, cz - 0.05 * f - (x * x) * 1.4 * (0.3 + f)); }
+    cg.computeVertexNormals();
+    R.addW(cg, "cape", L.cape, "cloth", (x, y) => blendW(y, [[0, "cape3", 0], [c2, "cape2", 0.06], [c1, "cape", 0.06]]));
     R.add(gRing(V3(0, neckY - 0.03, 0), 0.085 * gi, 0.025, "y", 16), "chest", L.cape, "cloth");
   }
   if (L.sack) {
@@ -21024,11 +21089,11 @@ function humanEntry(L) {
   if (H) {
     const hp = V3(0, hc + 0.005, 0);
     if (H.type === "cap" || H.type === "helm" || H.type === "horned") {
-      R.add(gPartSphere(hp, hr * 1.13, 0, Math.PI * 0.37, 1, 1.05, 1.05, 18), "head", H.color, "metal");
-      R.add(gRing(V3(0, hc + hr * 0.47, 0), hr * 1.07, 0.014, "y", 22), "head", H.color, "metal");
+      R.add(warpToHead(gPartSphere(V3(0, hc, 0.005), hr * 1.12, 0, Math.PI * 0.4, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 22), HP, hc, hr), "head", H.color, "metal");
+      R.add(warpToHead(gRing(V3(0, hc + hr * 0.32 * HEAD_SCALE[1], 0.005), hr * 1.1, hr * 0.06, "y", 24).scale(1, 1, 1), HP, hc, hr).scale(HEAD_SCALE[0] * 1.01, 1, 1).translate(0, 0, 0), "head", H.color, "metal");
       if (H.type !== "cap") {
-        R.add(gBox(V3(0, hc - hr * 0.02, hr * 1.12), 0.018, hr * 0.62, 0.016), "head", H.color, "metal");
-        for (const s of [-1, 1]) R.add(gBox(V3(s * hr * 0.92, hc - hr * 0.3, hr * 0.12), 0.016, hr * 0.62, hr * 0.62, 0, -s * 0.25, s * 0.12), "head", H.color, "metal");
+        R.add(gBox(V3(0, hc + hr * 0.02, hr * 1.06), 0.016, hr * 0.5, 0.014), "head", H.color, "metal");
+        for (const s of [-1, 1]) { R.add(gFront(V3(0, hc, 0.005), hr * 1.09, 0.9, Math.PI * 0.42, Math.PI * 0.68, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 6).rotateY(s * 1.25), "head", H.color, "metal"); }
       }
       if (H.type === "horned") for (const s of [-1, 1]) {
         const a = V3(s * hr * 0.9, hc + hr * 0.45, 0), b = V3(s * hr * 1.6, hc + hr * 1.0, -hr * 0.1), c = V3(s * hr * 1.7, hc + hr * 1.75, hr * 0.2);
@@ -22256,8 +22321,6 @@ function poseHuman(v, e, dt) {
       else if (work === "look") { const sp = Math.sin(t * 0.2) > 0.3 ? 1 : 0; setP(P, "upArmR", -1.5 * sp, 0, 0.3 * sp, ww); setP(P, "foreArmR", -1.6 * sp, 0, 0, ww); setP(P, "head", -0.1, 0.6 * Math.sin(t * 0.15), 0, ww); }
     }
   }
-  if (P.hairTail) addP(P, "hairTail", 0.25 * run + 0.08 * walk + Math.sin(t * 2.1) * 0.04, Math.sin(an.ph) * 0.12 * amp, Math.sin(t * 1.3) * 0.05);
-  if (P.cape) addP(P, "cape", 0.65 * run + 0.18 * walk + Math.sin(t * 2.5) * 0.03 * (1 + run * 3), 0, Math.sin(an.ph) * 0.06 * amp);
   if (st.hunch) { addP(P, "spine", 0.22, 0, 0); addP(P, "chest", 0.12, 0, 0); addP(P, "head", -0.3, 0, 0); addP(P, "upArmL", -0.25, 0, 0.1); addP(P, "upArmR", -0.25, 0, -0.1); }
   if (st.prowl) { addP(P, "upArmL", -0.6, 0, 0.15); addP(P, "upArmR", -0.6, 0, -0.15); addP(P, "foreArmL", -0.3, 0, 0); addP(P, "foreArmR", -0.3, 0, 0); }
 
@@ -22568,6 +22631,7 @@ function poseHuman(v, e, dt) {
   let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;
   an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
+  clothSprings(v, e, an, dt, t);
   if (v.bones.mouth) {
     const em = e.emote && S.time - e.emote.at < (e.emote.id === "dance" ? 5 : 2.4) ? e.emote.id : null;
     let m = 0;
@@ -22588,6 +22652,37 @@ function poseHuman(v, e, dt) {
 }
 
 const IKQ = { h: null, inv: null, q: null, x: null, v: null };
+function sprAx(st, k, target, dt, kS, kD) {
+  const o = st[k] || (st[k] = { x: target, v: 0 });
+  const n = Math.max(1, Math.ceil(dt / 0.012)), h = dt / n;
+  for (let i = 0; i < n; i++) { const acc = kS * (target - o.x) - kD * o.v; o.v += acc * h; o.x += o.v * h; }
+  if (!isFinite(o.x)) { o.x = target; o.v = 0; }
+  return o.x;
+}
+function clothSprings(v, e, an, dt, t) {
+  const B = v.bones;
+  if (!B.cape && !B.hairTail && !B.tabF) return;
+  const st = an.spr || (an.spr = {}), run = clamp((an.spd - 1.2) / 4, 0, 1), walk = clamp(an.spd / 1.2, 0, 1);
+  const acc = clamp(((an.spd - (an.prevSpd || 0)) / Math.max(dt, 0.001)) * 0.06, -0.6, 0.6); an.prevSpd = an.spd;
+  const yaw = e.face || 0, dy = Math.atan2(Math.sin(yaw - (an.sprYaw == null ? yaw : an.sprYaw)), Math.cos(yaw - (an.sprYaw == null ? yaw : an.sprYaw))); an.sprYaw = yaw;
+  const turn = clamp(dy / Math.max(dt, 0.001) * 0.12, -0.5, 0.5);
+  const bob = Math.abs(Math.cos(an.ph)) * (walk + run) * 0.06, dead = e.alive === false;
+  if (B.cape) {
+    const lift = dead ? 0 : 0.04 + 0.38 * run + 0.14 * walk + acc * 0.7 + Math.sin(t * 9 + an.ph) * 0.05 * run;
+    const c1 = sprAx(st, "c1", lift, dt, 55, 7), z1 = sprAx(st, "cz", -turn * 0.6, dt, 40, 6);
+    B.cape.rotation.set(c1, 0, z1);
+    if (B.cape2) B.cape2.rotation.set(sprAx(st, "c2", c1 * 0.2 + bob + Math.sin(t * 11 + 1) * 0.06 * run, dt, 45, 5), 0, sprAx(st, "cz2", -turn * 0.3, dt, 35, 5));
+    if (B.cape3) B.cape3.rotation.set(sprAx(st, "c3", c1 * 0.15 + bob * 1.4 + Math.sin(t * 13 + 2) * 0.08 * run, dt, 38, 4), 0, sprAx(st, "cz3", -turn * 0.3, dt, 30, 4));
+  }
+  if (B.hairTail) {
+    const hx = sprAx(st, "h1", 0.08 + 0.45 * run + 0.12 * walk + acc * 0.8 + bob, dt, 50, 6), hz = sprAx(st, "hz", -turn * 0.8 + Math.sin(an.ph) * 0.08 * (walk + run), dt, 40, 5);
+    B.hairTail.rotation.set(hx, sprAx(st, "hy", -turn * 0.4, dt, 40, 6), hz);
+  }
+  const thF = Math.max(0, -(B.thighL ? B.thighL.rotation.x : 0), -(B.thighR ? B.thighR.rotation.x : 0)), thB = Math.max(0, B.thighL ? B.thighL.rotation.x : 0, B.thighR ? B.thighR.rotation.x : 0);
+  if (B.tabF) B.tabF.rotation.set(sprAx(st, "tf", -thF * 0.9 - 0.15 * run - acc * 0.4, dt, 70, 8), 0, sprAx(st, "tfz", -turn * 0.3, dt, 50, 6));
+  if (B.tabB) B.tabB.rotation.set(sprAx(st, "tb", thB * 0.9 + 0.3 * run + bob, dt, 60, 7), 0, sprAx(st, "tbz", -turn * 0.3, dt, 50, 6));
+}
+
 function humanLegIK(v, an, w, run) {
   const B = v.bones;
   if (!B.thighL || !B.shinL || !B.footL || !B.root || !B.hips) return;

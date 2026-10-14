@@ -982,6 +982,7 @@ function syncBarriers() {
 }
 
 function buildExits(field, root) {
+  return;
   const z = field.zone;
   const planks = texPlanks();
   const rock = themeOf(z) === "cave" || themeOf(z) === "crypt" ? texCaveRock() : texRock();

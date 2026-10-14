@@ -224,8 +224,6 @@ function poseHuman(v, e, dt) {
       else if (work === "look") { const sp = Math.sin(t * 0.2) > 0.3 ? 1 : 0; setP(P, "upArmR", -1.5 * sp, 0, 0.3 * sp, ww); setP(P, "foreArmR", -1.6 * sp, 0, 0, ww); setP(P, "head", -0.1, 0.6 * Math.sin(t * 0.15), 0, ww); }
     }
   }
-  if (P.hairTail) addP(P, "hairTail", 0.25 * run + 0.08 * walk + Math.sin(t * 2.1) * 0.04, Math.sin(an.ph) * 0.12 * amp, Math.sin(t * 1.3) * 0.05);
-  if (P.cape) addP(P, "cape", 0.65 * run + 0.18 * walk + Math.sin(t * 2.5) * 0.03 * (1 + run * 3), 0, Math.sin(an.ph) * 0.06 * amp);
   if (st.hunch) { addP(P, "spine", 0.22, 0, 0); addP(P, "chest", 0.12, 0, 0); addP(P, "head", -0.3, 0, 0); addP(P, "upArmL", -0.25, 0, 0.1); addP(P, "upArmR", -0.25, 0, -0.1); }
   if (st.prowl) { addP(P, "upArmL", -0.6, 0, 0.15); addP(P, "upArmR", -0.6, 0, -0.15); addP(P, "foreArmL", -0.3, 0, 0); addP(P, "foreArmR", -0.3, 0, 0); }
 
@@ -536,6 +534,7 @@ function poseHuman(v, e, dt) {
   let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;
   an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
+  clothSprings(v, e, an, dt, t);
   if (v.bones.mouth) {
     const em = e.emote && S.time - e.emote.at < (e.emote.id === "dance" ? 5 : 2.4) ? e.emote.id : null;
     let m = 0;
@@ -556,6 +555,37 @@ function poseHuman(v, e, dt) {
 }
 
 const IKQ = { h: null, inv: null, q: null, x: null, v: null };
+function sprAx(st, k, target, dt, kS, kD) {
+  const o = st[k] || (st[k] = { x: target, v: 0 });
+  const n = Math.max(1, Math.ceil(dt / 0.012)), h = dt / n;
+  for (let i = 0; i < n; i++) { const acc = kS * (target - o.x) - kD * o.v; o.v += acc * h; o.x += o.v * h; }
+  if (!isFinite(o.x)) { o.x = target; o.v = 0; }
+  return o.x;
+}
+function clothSprings(v, e, an, dt, t) {
+  const B = v.bones;
+  if (!B.cape && !B.hairTail && !B.tabF) return;
+  const st = an.spr || (an.spr = {}), run = clamp((an.spd - 1.2) / 4, 0, 1), walk = clamp(an.spd / 1.2, 0, 1);
+  const acc = clamp(((an.spd - (an.prevSpd || 0)) / Math.max(dt, 0.001)) * 0.06, -0.6, 0.6); an.prevSpd = an.spd;
+  const yaw = e.face || 0, dy = Math.atan2(Math.sin(yaw - (an.sprYaw == null ? yaw : an.sprYaw)), Math.cos(yaw - (an.sprYaw == null ? yaw : an.sprYaw))); an.sprYaw = yaw;
+  const turn = clamp(dy / Math.max(dt, 0.001) * 0.12, -0.5, 0.5);
+  const bob = Math.abs(Math.cos(an.ph)) * (walk + run) * 0.06, dead = e.alive === false;
+  if (B.cape) {
+    const lift = dead ? 0 : 0.04 + 0.38 * run + 0.14 * walk + acc * 0.7 + Math.sin(t * 9 + an.ph) * 0.05 * run;
+    const c1 = sprAx(st, "c1", lift, dt, 55, 7), z1 = sprAx(st, "cz", -turn * 0.6, dt, 40, 6);
+    B.cape.rotation.set(c1, 0, z1);
+    if (B.cape2) B.cape2.rotation.set(sprAx(st, "c2", c1 * 0.2 + bob + Math.sin(t * 11 + 1) * 0.06 * run, dt, 45, 5), 0, sprAx(st, "cz2", -turn * 0.3, dt, 35, 5));
+    if (B.cape3) B.cape3.rotation.set(sprAx(st, "c3", c1 * 0.15 + bob * 1.4 + Math.sin(t * 13 + 2) * 0.08 * run, dt, 38, 4), 0, sprAx(st, "cz3", -turn * 0.3, dt, 30, 4));
+  }
+  if (B.hairTail) {
+    const hx = sprAx(st, "h1", 0.08 + 0.45 * run + 0.12 * walk + acc * 0.8 + bob, dt, 50, 6), hz = sprAx(st, "hz", -turn * 0.8 + Math.sin(an.ph) * 0.08 * (walk + run), dt, 40, 5);
+    B.hairTail.rotation.set(hx, sprAx(st, "hy", -turn * 0.4, dt, 40, 6), hz);
+  }
+  const thF = Math.max(0, -(B.thighL ? B.thighL.rotation.x : 0), -(B.thighR ? B.thighR.rotation.x : 0)), thB = Math.max(0, B.thighL ? B.thighL.rotation.x : 0, B.thighR ? B.thighR.rotation.x : 0);
+  if (B.tabF) B.tabF.rotation.set(sprAx(st, "tf", -thF * 0.9 - 0.15 * run - acc * 0.4, dt, 70, 8), 0, sprAx(st, "tfz", -turn * 0.3, dt, 50, 6));
+  if (B.tabB) B.tabB.rotation.set(sprAx(st, "tb", thB * 0.9 + 0.3 * run + bob, dt, 60, 7), 0, sprAx(st, "tbz", -turn * 0.3, dt, 50, 6));
+}
+
 function humanLegIK(v, an, w, run) {
   const B = v.bones;
   if (!B.thighL || !B.shinL || !B.footL || !B.root || !B.hips) return;
