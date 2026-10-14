@@ -1477,6 +1477,14 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "13.8.0", date: "2026-10-14", title: "Detailed textures", items: [
+    "Clothing is woven: over-and-under threads, uneven slubs, folds, double-stitched hems and frayed, lighter edges.",
+    "Leather has a pebbled grain, saddle stitching with holes along the edges, creases, scratches and burnished borders.",
+    "Metal shows fine brushing and scratches, engraved scrollwork bands near the edges and a row of rivets, with dents and rust in the hollows.",
+    "Embroidered trim has diamond and scroll motifs with visible thread stitching; quilting has stitched seams; chain mail links are staggered and catch the light.",
+    "Hair strands, fur clumps, scales with rims, split feathers, knotted wood grain, porous bone and skin with fine pores.",
+    "Character textures now paint faster at start-up on every quality setting."
+  ] },
   { v: "13.7.0", date: "2026-10-14", title: "Hands, feet, animal heads and raising the fallen", items: [
     "Hands now have five fingers and a thumb. They relax at your sides, close around a drawn weapon and make fists when you fight barehanded.",
     "Feet are shaped with a heel, arch and toes; boots get a darker sole and toe cap, and bare feet show toes.",
