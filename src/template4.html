@@ -530,10 +530,11 @@
 
   :root { --ffFont: "Verdana", "Tahoma", "Segoe UI", sans-serif; --ffStripe: repeating-linear-gradient(180deg, rgba(52,52,128,.80) 0 2px, rgba(34,32,96,.80) 2px 4px); --ffEdge: rgba(236,236,255,.88); }
   .ffPanel, #ffTop, #ffSide, #log, #ffBars, #tCmd { font-family: var(--ffFont); }
-  #ffTop { position: absolute; left: 0; right: 0; top: var(--sat); height: 32px; display: none; align-items: center; gap: 0; background: var(--ffStripe); border-top: 2px solid var(--ffEdge); border-bottom: 2px solid var(--ffEdge); box-shadow: 0 2px 8px rgba(0,0,0,.45); z-index: 6; color: #fff; }
+  #ffTop { position: absolute; left: calc(6px + var(--sal)); right: 0; top: calc(4px + var(--sat)); height: 34px; display: none; align-items: center; gap: 6px; z-index: 6; color: #fff; }
   #ui.hasTop #ffTop { display: flex; }
-  #ffTop .ffCmd { width: 150px; padding-left: 10px; font-weight: 800; font-size: 14px; letter-spacing: .06em; text-shadow: 1px 1px 0 #000, -1px -1px 0 #1a1a40; }
+  #ffTop .ffCmd { flex: 0 0 auto; width: 130px; height: 100%; display: flex; align-items: center; justify-content: center; box-sizing: border-box; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.45); font-weight: 800; font-size: 14px; letter-spacing: .06em; text-shadow: 1px 1px 0 #000, -1px -1px 0 #1a1a40; }
   #ffHelp { flex: 1; font-weight: 700; font-size: 14px; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ffTop .ffBar { flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; box-sizing: border-box; padding-left: 12px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.45); }
   #ffTop .ffRight { display: flex; align-items: center; gap: 16px; padding-right: 12px; height: 100%; }
   .ffLbl { font-size: 10px; font-style: italic; font-weight: 800; letter-spacing: .08em; color: #fff; text-shadow: 1px 1px 0 #000; }
   .ffHelpLbl { align-self: flex-start; margin-top: -1px; }
@@ -620,7 +621,7 @@
   #fishBox { bottom: calc(200px + var(--sab)); }
   #dialog { bottom: calc(196px + var(--sab)); }
   @media (max-width: 900px) { #ffSide { width: 210px; } #chat { right: calc(222px + var(--sar)); } #log { height: 110px; font-size: 11.5px; } #bottom { bottom: calc(160px + var(--sab)); } #tCmd { bottom: calc(160px + var(--sab)); } }
-  @media (max-width: 720px) { #ffSide { width: 168px; padding: 1px 5px 4px; } #chat { right: calc(178px + var(--sar)); } #tCmd { left: calc(22px + var(--sal)); bottom: calc(150px + var(--sab)); width: 180px; } #ffSide #tName { font-size: 13px; } #ffSide .pf .nm { font-size: 12px; } #ffBars { width: 180px; } #ffTop .ffCmd { width: 90px; font-size: 12px; } #ffHelp { font-size: 12px; } }
+  @media (max-width: 720px) { #ffSide { width: 168px; padding: 1px 5px 4px; } #chat { right: calc(178px + var(--sar)); } #tCmd { left: calc(22px + var(--sal)); bottom: calc(150px + var(--sab)); width: 180px; } #ffSide #tName { font-size: 13px; } #ffSide .pf .nm { font-size: 12px; } #ffBars { width: 180px; } #ffTop .ffCmd { width: 84px; font-size: 12px; } #ffHelp { font-size: 12px; } }
   @media (pointer: coarse) { #big { bottom: calc(150px + var(--sab)); } }
 
   .ffStatus { max-width: 300px; margin: 0 0 10px; padding: 6px 10px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; font-family: var(--ffFont); }
@@ -729,6 +730,39 @@
   #chat { transition: opacity .25s, transform .25s; }
   #chat.gone { opacity: 0; transform: translateY(16px); pointer-events: none; }
   #trBtns { display: flex; gap: 6px; } #btnChat.on { border-color: #ffd070; box-shadow: 0 0 8px rgba(255,200,100,.6); }
+  #mCmd { position: absolute; right: calc(4px + var(--sar)); top: calc(40px + var(--sat)); width: 190px; display: none; flex-direction: column; gap: 3px; padding: 4px 6px 6px 22px; background: linear-gradient(180deg, rgba(60,64,150,.88), rgba(26,28,84,.9)); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,.55); z-index: 8; max-height: calc(100% - 60px); overflow-y: auto; font-family: var(--ffFont); }
+  #mCmd.on { display: flex; }
+  #stOv { display: none; position: absolute; left: calc(6px + var(--sal)); top: calc(44px + var(--sat)); right: calc(206px + var(--sar)); z-index: 5; gap: 6px; align-items: flex-start; pointer-events: none; font-family: var(--ffFont); color: #fff; }
+  #stOv.on { display: flex; }
+  #ui.stOn #ffStat, #ui.stOn #ffBars, #ui.stOn #ffIcons { display: none !important; }
+  #stOv .stBox { background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.45); padding: 2px 10px 6px; }
+  #stOv em, #stOv b, #stOv i, #stOv .stNm, #stOv .stJob, #stOv .stK, #stOv .stV { font-style: italic; font-weight: 900; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
+  #stL { width: 196px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; }
+  #stL .stNm { font-size: 15px; }
+  #stL .stJob { font-size: 14px; } #stL .stJob.main { color: #7fd8ff; }
+  #stL .stRow { display: flex; gap: 10px; font-size: 14px; } #stL .stRow em { width: 34px; } #stL .stRow b { flex: 1; text-align: right; } #stL .stRow small { font-size: 11px; color: #c8c8ff; } #stL .stRow.gap { margin-top: 4px; }
+  #stL .stAt { display: grid; grid-template-columns: 40px 1fr 44px; column-gap: 6px; font-size: 14px; margin-top: 4px; line-height: 1.35; } #stL .stAt b { text-align: right; } #stL .stAt i { color: #7dff9a; }
+  #stL .stLv { padding: 4px 12px 8px; } #stL .stK { font-size: 13px; color: #d8d8f0; padding-left: 8px; } #stL .stV { font-size: 14px; text-align: right; }
+  #stOv .stBar { height: 8px; margin: 6px 6px 0; border-radius: 4px; background: rgba(10,10,40,.6); border: 1px solid rgba(255,255,255,.7); overflow: hidden; } #stOv .stBar span { display: block; height: 100%; background: linear-gradient(180deg, #fff, #c8d0ff); } #stOv .stBar.wide { margin: 4px 40px 6px; }
+  #stM { flex: 0 1 520px; min-width: 0; padding: 0 0 6px; }
+  #stM .stTitle { margin: 0 0 4px; padding: 2px 12px; font: italic 900 14px var(--ffFont); letter-spacing: .08em; color: #fff; -webkit-text-stroke: .5px #3a3a80; text-shadow: 1px 1px 0 #2a2a70; background: linear-gradient(90deg, rgba(235,238,255,.9), rgba(190,196,240,.55) 70%, rgba(190,196,240,.15)); }
+  #stM .stTitle:not(:first-child) { margin-top: 8px; }
+  #stM .stKV { display: flex; gap: 12px; padding: 0 14px; font-size: 14px; line-height: 1.6; } #stM .stKV em { min-width: 120px; } #stM .stKV .stSp { margin: 0 10px 0 22px; font-style: italic; }
+  #stM .stGrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 22px; padding: 0 14px; }
+  #stM .stSk { display: flex; justify-content: space-between; font-size: 14px; line-height: 1.55; } #stM .stSk b { color: #8fd0ff; } #stM .stSk.off { opacity: .45; } #stM .stSk.main em, #stM .stSk.main b { color: #fff07a; } #stM .stSk.sub em { color: #c8e0ff; }
+  #stM .stCr { display: grid; grid-template-columns: 1.3fr 1fr 50px; padding: 0 14px; font-size: 14px; line-height: 1.55; } #stM .stCr i { text-align: right; }
+  #mCmd .ffMHead.sub { justify-content: center; }
+  @media (max-width: 760px) { #stL { display: none; } #stOv { right: calc(200px + var(--sar)); } #stM .stGrid { grid-template-columns: 1fr; } #stM .stKV em { min-width: 90px; } }
+  #mCmd .ffMHead { display: flex; align-items: center; justify-content: space-between; margin: 0 0 2px -18px; font: italic 800 11px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
+  #mCmd .pg { padding: 0 8px; height: 18px; font-size: 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,.6); background: rgba(40,44,120,.8); color: #fff; }
+  #mCmd .ffb { position: relative; display: flex; align-items: center; height: 24px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.75); background: linear-gradient(180deg, #e8ecff 0%, #a8b4ff 18%, #6a76d8 55%, #4a54b0 100%); color: #fff; font: italic 900 13px var(--ffFont); letter-spacing: .04em; text-align: left; -webkit-text-stroke: .5px #1a1a60; text-shadow: 1px 1px 0 #1a1a50; box-shadow: inset 0 -2px 3px rgba(0,0,40,.4); cursor: pointer; }
+  #mCmd .ffb.sel { background: linear-gradient(180deg, #fff2c8 0%, #ffc860 20%, #e88a1a 60%, #a85a08 100%); -webkit-text-stroke: .5px #4a2000; text-shadow: 1px 1px 0 #4a2200; color: #fff6c0; }
+  #mCmd .ffb.gold:not(.sel) { background: linear-gradient(180deg, #fff6d0, #e8c050 40%, #a88010); }
+  #mCmd .ffb .cur { position: absolute; left: -22px; font-size: 15px; color: #e8c8a8; opacity: 0; } #mCmd .ffb.sel .cur { opacity: 1; }
+  #ui.hasTop #topRight, #ui:has(#mCmd.on) #topRight { top: calc(40px + var(--sat)); }
+  #ui:has(#mCmd.on) #topRight { right: calc(200px + var(--sar)); }
+  #ui > #mmWrap { position: absolute; left: calc(8px + var(--sal)); bottom: calc(8px + var(--sab)); right: auto; top: auto; z-index: 3; transition: opacity .25s; }
+  #ui:has(#chat:not(.gone)) > #mmWrap { opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -741,7 +775,8 @@
   <div id="flash"></div>
   <div id="joy"><div id="knob"></div></div>
   <div id="ui">
-    <div id="ffTop"><div class="ffCmd">Commands</div><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div>
+    <div id="stOv"></div>
+    <div id="ffTop"><div class="ffCmd">Commands</div><div class="ffBar"><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div></div>
     <div id="ffNetBox"><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div>
     <div id="ffStat"><div id="ffBars"><div class="r hp"><em>HP</em><div class="b"><i></i></div><b></b></div><div class="r mp"><em>MP</em><div class="b"><i></i></div><b></b></div><div class="r tp"><em>TP</em><div class="b"><i></i></div><b></b></div></div><div id="ffIcons"></div></div>
     <div id="ffSide"><div class="ffHead" id="ffTHead"><span>Target</span></div>
@@ -758,11 +793,12 @@
     <div id="party"></div>
     </div>
     <div id="tCmd" class="glass"></div>
+    <div id="mCmd"></div>
+    <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
     <div id="pool" class="glass"></div>
     <div id="fishBox" class="glass"></div>
     <div id="raceBox" class="glass"></div>
     <div id="topRight">
-      <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
       <div id="trBtns"><button id="btnChat" title="Show the log (/)">💬</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>

@@ -3115,6 +3115,7 @@ function circleRect(c, r, m) {
 
 function step(dt) {
   S.time += dt;
+  if (typeof save !== "undefined" && save) save.playSec = (save.playSec || 0) + dt;
   for (const e of S.party.concat(S.mobs)) { e.px = e.x; e.py = e.y; }
   updatePlayer(dt);
   for (const a of S.party) if (a !== player) updateAlly(a, dt);

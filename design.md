@@ -853,12 +853,22 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - #chat gets class gone (fade/slide, no pointer events) unless: a valid target, command menu open, chat input focused, UI.chatPin (💬 #btnChat in #trBtns, key L, chatToggle()), a dialog, or S.time < UI.chatFlashUntil (log() sets +6 s for tell/pchat/ls/say/shout/loot/npc lines). Esc (game or chat input) unpins/blur when nothing is targeted.
 - Network moved out of #ffTop into its own #ffNetBox (top right, 140 px); #ffTop ends 150 px from the right. Both show with #ui.hasTop.
 
+## Phase 41: main menu window and Status screen (v9.1.0)
+- hud4 MAIN_CMDS (2 pages) → #mCmd. UI.mm = {page, sel, sub, back}. mainCmdOpen/Close/render/Do/Key; main4 routes arrows/enter/esc/backspace when UI.mm. Esc with nothing targeted, "-"/Insert and ☰ open it.
+- Status (key "character") sets UI.mm.sub="status": list = STATUS_CMDS (profile/jobs/combat/magic/craft/cur/time). Esc/backspace returns to menu at UI.mm.back. ←/→ ignored in sub.
+- renderStatusOv (menu4) fills #stOv (#stL left sheet + level box, #stM centre page via statusPanelHTML(key)); #ui.stOn hides #ffStat. updateFF refreshes it every 500 ms. mainCmdHelp: profile help = "Title: " + playerTitle() (latest achievement).
+- gearBonus() sums gear+augment stats for green "+n"; base shown = stats - bonus. save.playSec accumulates in step(dt). fmtPlay formats.
+- #ffTop: .ffCmd and .ffBar are separate boxes (transparent container).
+- #mmWrap lives in #ui bottom-left; hidden by CSS while #chat is visible.
+- menu4 tabMagic/tabAbilities/tabKeyItems with mcast/mact.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
+| 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.0.0 | Phase 40: 16 equipment slots, Equipment window, item cards, resistances, slim Character, storage transfer screen. |
 | 8.9.0 | Phase 39: classic interface (command bar, combat status, target/party panel, log, command menu, plates, cursor, status/skills/crafting/bag windows). |
 | 8.8.0 | Phase 38: rename to Leid'anav Reborn, favicon, joint blending/bridges/islands for all rigs, bestiary portraits. |

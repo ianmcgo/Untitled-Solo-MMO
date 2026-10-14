@@ -39,6 +39,20 @@ const mockLogin = require('./mocklogin');
   await page.evaluate(() => { openMenu('skills'); });
   await page.waitForTimeout(800);
   await page.screenshot({ path: out + '-skills.png' });
+  await page.evaluate(() => { closeModal(); setTarget(null); chatToggle(false); mainCmdOpen(); });
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: out + '-main1.png' });
+  await page.evaluate(() => { mainCmdKey('arrowright'); });
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: out + '-main2.png' });
+  for (const [i, nm] of [[0, 'st-profile'], [2, 'st-combat'], [3, 'st-magic'], [4, 'st-craft'], [6, 'st-time']]) {
+    await page.evaluate(i => { if (!UI.mm || !UI.mm.sub) { mainCmdOpen(); UI.mm.page = 0; mainCmdDo(0); } UI.mm.sel = i; renderMainCmd(); }, i);
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: out + '-' + nm + '.png' });
+  }
+  await page.evaluate(() => mainCmdKey('escape'));
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: out + '-st-back.png' });
   console.log(errs.length ? 'ERRORS ' + errs.slice(0, 5).join(' || ') : 'ok');
   await browser.close();
 })();
