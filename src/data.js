@@ -1337,7 +1337,7 @@ function spreadSpawns(zone, minD) {
 }
 ZONES.ironvale = {
   name: "Ironvale", w: 1400, h: 1100, safe: true, theme: "town", palette: "snow",
-  exits: [{ x: 0, y: 500, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }],
+  exits: [{ x: 0, y: 500, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }, { x: 700, y: 1076, w: 100, h: 24, to: "sunscar", tx: 1500, ty: 120, label: "Sunscar Desert" }],
   props: [{ type: "crates", x: 1000, y: 760, r: 30 }, { type: "barrels", x: 520, y: 760, r: 26 }, { type: "desk", x: 900, y: 440, r: 22 }],
   ambient: [{ type: "walker", x: 750, y: 550, n: 1, path: [[500, 400], [1000, 400], [1000, 700], [500, 700]] }, { type: "walker", x: 750, y: 550, n: 1, path: [[750, 250], [750, 900], [1100, 560]] }, { type: "dog", x: 820, y: 620, n: 1, r: 120, col: 0x5a4a3a }],
   npcs: [
@@ -1349,7 +1349,7 @@ ZONES.ironvale = {
   plaza: { x: 750, y: 550, r: 150 },
   paths: [
     { w: 50, pts: [[-500, 550], [0, 550], [420, 550], [750, 550]] },
-    { w: 40, pts: [[750, 550], [750, 950]] },
+    { w: 40, pts: [[750, 550], [750, 950], [750, 1100], [750, 1600]] },
     { w: 40, pts: [[750, 550], [750, 160]] },
     { w: 36, pts: [[750, 550], [1150, 550]] }
   ],
@@ -1357,6 +1357,50 @@ ZONES.ironvale = {
   stalls: [{ x: 900, y: 740, color: "#5d4037" }, { x: 600, y: 740, color: "#37474f" }],
   lamps: [[640, 440], [860, 440], [640, 660], [860, 660], [750, 900]],
   start: { x: 120, y: 550 }
+};
+
+Object.assign(FAMILIES, {
+  dune_lizard: tierFam("hill_lizard", { name: "Dune Lizard", color: "#c8a070", tint: 0xc8a070, tint2: 0xf0dcb0, hpMul: 1.15, attMul: 1.05, weak: { ice: 1.35, water: 1.2 }, loot: [["lizard_skin", 0.4], ["fire_crystal", 0.25], ["hi_potion", 0.06]] }),
+  sand_crab: tierFam("pond_crab", { name: "Sand Crab", color: "#d8b880", tint: 0xd8b880, hpMul: 1.2, weak: { water: 1.3, lightning: 1.2 }, loot: [["crab_shell", 0.4], ["earth_crystal", 0.25], ["hi_potion", 0.06]] }),
+  sun_wasp: tierFam("honey_bee", { name: "Sun Wasp", color: "#ffc040", tint: 0xffc040, tint2: 0x6a3a10, attMul: 1.1, weak: { ice: 1.4 }, loot: [["honeycomb", 0.3], ["fire_crystal", 0.25], ["hi_potion", 0.06]] }),
+  dune_worm: tierFam("worm", { name: "Dune Worm", color: "#c8a878", tint: 0xc8a878, hpMul: 1.4, attMul: 1.05, weak: { water: 1.35 }, loot: [["worm_silk", 0.35], ["earth_crystal", 0.3], ["hi_potion", 0.06]] }),
+  cinder_bomb: tierFam("bomb", { name: "Cinder Bomb", color: "#ff7043", hpMul: 1.15, weak: { water: 1.4, ice: 1.3 }, loot: [["bomb_ash", 0.4], ["fire_crystal", 0.35], ["hi_potion", 0.06]] })
+});
+NM_FAMILIES.sandmaw = { hint: "Singing Dunes, Sunscar Desert · any time", base: "worm", name: "Sandmaw", hpMul: 3.0, attMul: 1.15, scale: 1.8, aura: "#ffb74d", loot: [["dunestrider_boots", 0.35], ["worm_silk", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 480 };
+ITEMS.dunestrider_boots = { name: "Dunestrider Boots", kind: "equip", icon: "👢", rare: true, nm: true, rarity: "epic", slot: "feet", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 7, agi: 4, eva: 5, hp: 20 }, desc: "Sandmaw's hide, stitched into boots that never sink." };
+ZONES.sunscar = {
+  name: "Sunscar Desert", w: 3000, h: 2200, theme: "field", palette: "desert",
+  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }],
+  npcs: [],
+  walls: [{ x: 600, y: 480, w: 300, h: 220 }, { x: 2000, y: 380, w: 260, h: 300 }, { x: 1250, y: 1500, w: 380, h: 200 }, { x: 2400, y: 1600, w: 240, h: 260 }],
+  ruins: { walls: [[2520, 420, 2680, 420, 2.4], [2520, 420, 2520, 560, 1.6]], pillars: [[860, 1050, 3.6], [910, 1000, 4.4], [960, 1050, 4.0], [1010, 1100, 3.0], [820, 1120, 2.2]] },
+  landmarks: [
+    { id: "gate", name: "Sunscar Gate", x: 1500, y: 300, r: 200, xp: 60 },
+    { id: "ribs", name: "Titan's Ribs", x: 920, y: 1080, r: 250, xp: 80 },
+    { id: "oasis", name: "Glass Oasis", x: 2200, y: 1100, r: 260, xp: 80 },
+    { id: "dunes", name: "Singing Dunes", x: 600, y: 1800, r: 280, xp: 90 },
+    { id: "spire", name: "Red Spire", x: 2600, y: 520, r: 220, xp: 90 }
+  ],
+  spawns: [
+    { fam: "dune_lizard", lv: [17, 18], x: 1100, y: 600 }, { fam: "dune_lizard", lv: [17, 19], x: 1800, y: 700 }, { fam: "dune_lizard", lv: [18, 19], x: 400, y: 1100 }, { fam: "dune_lizard", lv: [18, 20], x: 2700, y: 1100 },
+    { fam: "sand_crab", lv: [17, 18], x: 2000, y: 1300 }, { fam: "sand_crab", lv: [18, 19], x: 2450, y: 1250 }, { fam: "sand_crab", lv: [18, 19], x: 1950, y: 900 },
+    { fam: "sun_wasp", lv: [17, 18], x: 1400, y: 900, time: "day" }, { fam: "sun_wasp", lv: [18, 19], x: 2300, y: 800, time: "day" }, { fam: "sun_wasp", lv: [18, 19], x: 700, y: 1400, time: "day" },
+    { fam: "dune_worm", lv: [18, 19], x: 1300, y: 1250 }, { fam: "dune_worm", lv: [18, 20], x: 900, y: 1700 }, { fam: "dune_worm", lv: [19, 20], x: 500, y: 1950, nm: { id: "sandmaw", lv: 21, chance: 0.12 } },
+    { fam: "cactus", lv: [17, 18], x: 1700, y: 1700 }, { fam: "cactus", lv: [18, 19], x: 2100, y: 1900 }, { fam: "cactus", lv: [18, 20], x: 2700, y: 1900 }, { fam: "cactus", lv: [19, 20], x: 300, y: 600 },
+    { fam: "cinder_bomb", lv: [18, 19], x: 1600, y: 1100, time: "night" }, { fam: "cinder_bomb", lv: [19, 20], x: 2600, y: 800, time: "night" }, { fam: "cinder_bomb", lv: [19, 20], x: 1000, y: 400, time: "night" },
+    { fam: "skeleton", lv: [18, 19], x: 930, y: 1250, time: "night" }
+  ],
+  water: [{ x: 2200, y: 1100, r: 150 }],
+  paths: [
+    { w: 44, pts: [[1500, -500], [1500, 0], [1500, 400], [1300, 800], [920, 1080], [700, 1600], [600, 1800]] },
+    { w: 34, pts: [[1300, 800], [1800, 1000], [2060, 1050]] },
+    { w: 30, pts: [[1800, 1000], [2300, 700], [2600, 560]] }
+  ],
+  gather: {
+    mining: { n: 3, at: [[700, 800], [2300, 400], [1700, 1900], [2800, 1500], [400, 1500]], loot: [["iron_ore", 0.4], ["copper_ore", 0.3], ["fire_crystal", 0.15], ["earth_crystal", 0.15]] },
+    harvesting: { n: 3, at: [[2100, 1300], [2350, 950], [1200, 1100], [800, 1950]], loot: [["cactus_needle", 0.5], ["healing_herb", 0.3], ["fire_crystal", 0.12]] }
+  },
+  start: { x: 1500, y: 100 }
 };
 
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
@@ -1921,6 +1965,8 @@ Object.assign(NPCS, {
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
+WEATHER.sunscar = [["clear", 7], ["wind", 3], ["cloudy", 1], ["storm", 0.3]];
+ACHIEVEMENTS.push({ id: "sunscar", icon: "🏜️", name: "Sunburnt", desc: "Set foot in the Sunscar Desert.", test: s => (s.discovered || []).includes("sunscar") });
 WEATHER.ironvale = [["clear", 4], ["snow", 3], ["cloudy", 3], ["wind", 1.5], ["fog", 0.8]];
 const MYTHRIL_GEAR = [];
 for (const id of Object.keys(ITEMS)) {
@@ -1947,3 +1993,11 @@ Object.assign(QUESTS, {
     intro: "Haldor's forges eat ore faster than the carts can bring it. If you're heading out, dig some iron and pick up frost shards; the mythril won't temper without them.", progress: "4 Iron Ore and 3 Frost Shards.", turn: "That'll keep the fires lit for a week. Here's your pay." }
 });
 ACHIEVEMENTS.push({ id: "ironvale", icon: "⛰️", name: "Mountain Welcome", desc: "Reach the city of Ironvale.", test: s => (s.discovered || []).includes("ironvale") });
+Object.assign(BESTIARY, {
+  dune_lizard: { type: "Lizard", lore: "Sand-coloured lizards that lie half-buried in the dunes and burst out at passing feet." },
+  sand_crab: { type: "Aquan", lore: "Crabs that live around the Glass Oasis and carry the desert on their backs." },
+  sun_wasp: { type: "Vermin", lore: "Fat golden wasps that only fly in the full heat of the day." },
+  dune_worm: { type: "Amorphous", lore: "Long worms that swim through sand as easily as soil." },
+  cinder_bomb: { type: "Elemental", lore: "Bombs born of the desert's night fires. They drift between the mesas after dark." },
+  sandmaw: { type: "Amorphous", lore: "A worm so large the dunes hum when it moves beneath them. Travellers call the place it hunts the Singing Dunes." }
+});
