@@ -717,11 +717,19 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Families: orc_grunt, orc_stonechucker (range 200), fishfolk ("Reefkin"), birdfolk ("Crag Talon"), birdfolk_priest ("Crag Chanter", magic aggro), sapling (passive), treant_elder (scale 1.3), cactus ("Needlekin", range 170), bomb ("Ember Bomb"). Mats orc_tooth, reef_scale, crag_feather, heartwood, cactus_needle, bomb_ash. Spawns: Hollow east/south (saplings 3–5, orcs 5–6, night bombs 5–6); marsh (Reefkin SE shore 11–13, orc camp NW 12–14, Crag roost W 12–14, Elder Treant 13–14, Needlekin NE 10–12). Variant keys reserved in mobLook for later tiers (orc_warlord, frost_stonechucker, fishfolk_chief, crag_oracle, old_rootfather, rime_treant, cactus_king, frost_bomb, ashen_bomb).
 - Tests: test/p24unit.js (passive/aggressive split, ranged stonechucker, bomb self-destruct, crawler slow); p6bunit clears mobs before synthesis. p5shots scene zoo3.
 
+## Phase 27: world repopulation (v6.8.0)
+- Placement rule: near town entrances only passive critters (aggro null); aggressive families (beastmen, undead, big monsters) further in. Hollow early goblin/worm spawns near the gate were swapped for bees, crawlers, mandrakes and sheep. Bats, ice bats and bog leeches are now passive (critters).
+- Tier variants: data.js `tierFam(base, overrides)` clones a FAMILIES entry; `Object.assign(FAMILIES, {...})` adds bog/rime_crawler, marsh_hornet/frost_wasp, bog/frost_lizard, mud/ice_crab, mountain_ram, marsh_mandrake, bog_shroom, marsh/ice_snapper, frost_stonechucker, frost_bomb, rime_treant (name + tint/tint2 + stats/loot tweaks; model shared, so mobLook colours them). Bestiary entries for each. Spawns: marsh (10–13) and frost (15–19).
+- NMs: silkmother (base grass_crawler, Burrow Flats placeholder at 1550,1950, chance 0.15; silkweave_mantle, silk_gloves), orc_warlord "Gorruk the Warlord" (marsh orc camp 720,640, chance 0.12; warlord_cleaver, warlord_band).
+- Quest silk (Pell, lv 2, 6 grass_crawler → silk_gloves_q). GUILD_BOUNTIES add b_crawler, b_beehive, b_lizard, b_orc, b_silkmother, b_bogcrawler, b_reefkin, b_crag, b_warlord, b_rimecrawler, b_frostbomb.
+- Tests: test/p25unit.js (tiers differ in name/colour and progress by zone; nothing aggressive near the Hollow gate; NMs; quest; bounties).
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.8.0 | Phase 27: difficulty-based placement, tiered names/colours, Silkmother, Gorruk, Silk for Sale. |
 | 6.7.0 | Phase 26: orcs, Reefkin, Crag Talons, treants, Needlekin, bombs; ranged mobs. |
 | 6.6.0 | Phase 25: nine critter families with models and animations; rock colliders; camera stays out of houses. |
 | 6.5.1 | Phase 24b: pets give no bonuses and are rare drops; no XP for landmarks; no crystals for achievements. |
