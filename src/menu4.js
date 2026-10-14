@@ -1477,6 +1477,13 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.7.0", date: "2026-10-14", title: "More sound effects", items: [
+    "Footsteps change with the ground: soft grass, hard stone in towns and caves, hollow wood indoors, crunching snow and hissing sand. Nearby companions and monsters make footsteps too, heavier for big monsters.",
+    "Every swing has a whoosh: a quick swish for swords and daggers, a deep heavy whoosh for great weapons, clubs, staves and polearms, and a sharp swipe for claws and fangs.",
+    "Monsters have voices by family: goblins jabber, orcs roar, Reefkin gurgle, Crag Talons chirp, treants and cacti creak, skeletons clatter, ghouls moan, bombs crackle, bats screech, worms rumble, bees buzz, lizards and crawlers hiss, sheep bleat, toads croak and hares squeak. They call out when they notice you, cry out sometimes when hit and give a lower, longer cry when they fall. Bigger monsters sound deeper.",
+    "Treasure chests creak open with a chime; crafting rings with hammer strikes; fishing has a line-cast whoosh and a splash when something bites.",
+    "Towns have a low crowd murmur (quieter at night), and caves and crypts drip."
+  ] },
   { v: "14.6.0", date: "2026-10-14", title: "Interface sounds", items: [
     "New classic-style menu sounds throughout the interface, made in the game rather than played from recordings so they stay crisp and quiet:",
     "A soft high tick when the cursor moves (arrow keys in any menu or list, or pointing at a button with the mouse); a bright two-note chime when you confirm; a falling blip when you back out or close a window; a quick rising shimmer when a window opens; a dull double buzz for anything you can't do.",
@@ -2627,7 +2634,8 @@ function tabHelp() {
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
-    "<b>Interface sounds:</b> the Interface slider in Config controls menu sounds (cursor tick, confirm, cancel, window open and close, errors, target, equip, coins, tell and party chimes). Turn it down to keep music and combat but silence the menus."
+    "<b>Interface sounds:</b> the Interface slider in Config controls menu sounds (cursor tick, confirm, cancel, window open and close, errors, target, equip, coins, tell and party chimes). Turn it down to keep music and combat but silence the menus.",
+    "<b>Listening:</b> monsters call out when they notice you, so a jabber or a growl behind you is worth turning around for. Footsteps tell you what you're walking on."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
     "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",

@@ -375,4 +375,6 @@ function updateHud() {
 }
 
 function sfx() {}
+function mobVoice() {}
+function surfaceAt() { return "grass"; }
 function uiEvent() {}

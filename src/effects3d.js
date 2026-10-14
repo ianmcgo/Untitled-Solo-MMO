@@ -618,7 +618,8 @@ function vfx(type, d) {
 }
 
 function fxFootstep(e, v) {
-  if (e === player && !player.mounted && S.zone.theme !== "house") sfx("step");
+  if (e === player && !player.mounted) sfx("step_" + surfaceAt(e));
+  else if (!e.mounted && e.kind !== "mount" && typeof player !== "undefined" && dist(e, player) < 260) sfx("step_" + surfaceAt(e), e, { vol: isMob(e) ? 0.7 * Math.min(1.6, (e.fam && e.fam.scale) || 1) : 0.45 });
   else if (e.kind === "mount" && player.mounted && dist(e, player) < 40) sfx("hoof");
   if (!FX.ready || e.mounted || e.kind === "npc" || S.zone.theme === "house") return;
   if (dist(e, player) > 600) return;

@@ -1252,6 +1252,14 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - `sfx()` prefers UI_SYNTH over clips for the same name (replaces clips for select, tab, click, close, open, error, notify, coin, equip, quest, unlock, toast, xp); new names cursor, tell, pchat, target, page, buy. Cursor throttle 35 ms. UI_SOUNDS includes the new names (ui bus).
 - Hooks: arrow keys in dialogs, target command menu, main command menu and modal lists → cursor; `uiHoverSounds()` (hud4, started after initAudio) plays cursor on mouse pointerover of buttons/items/data-a/data-mc/data-tc/data-o (mouse only, once per element); setTarget (changed, not quiet) → target; netOnTell → tell; netOnPChat → pchat; buy() → buy.
 
+## Phase 100: more sound effects (v14.7.0) — plan T2
+- `WORLD_SYNTH` (audio.js) uses the UI synth engine on the sfx bus with pan; new partial type `sweep` (looped noise through a Q 2.2 bandpass gliding f0→f1). `uiSynth(name, vol, {mul, len, pan})` scales pitch by mul and timing by len. `sfx(name, e, o)`: o.vol/mul/len; steps and swings get ±8% random pitch.
+- Footsteps: `surfaceAt(e)` → wood (house), stone (town/cave/crypt), snow (snow palette, frost zone, snow/blizzard weather), sand (desert palette, desert/cinder zones), grass. fxFootstep plays step_<surface> for the player and for others within 260 (mobs 0.7 × scale up to 1.6, others 0.45).
+- `swingSound(a)` in swing(): humanoid mob families → swing_light (orc/treant/scale ≥ 1.3 → heavy), other mobs → swing_claw; players by weapon (greataxe, scythe, gkatana, gsword, club, staff, polearm, axe → heavy).
+- `MOB_VOICE` by fam.model → v_* sound; `mobVoice(m, mode)` aggro (1×), hurt (22% of hits, pitch 1.12, len 0.6, vol 0.6), die (pitch 0.72, len 1.6); pitch / sqrt(scale × 1.1 for NMs).
+- chest (openChest), craft (synth start), cast_line (startFishing), splash (bite). AMBX crowd layer (bandpass 480–600 Hz, 0.07 day / 0.025 night in towns), cave/crypt drips every 1.2–4.7 s.
+- 2D rules build stubs: mobVoice, surfaceAt in hud.js.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1304,6 +1312,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.7.0 | Phase 100: surface footsteps, weapon swings, monster voices, chests, crafting, fishing, town crowd and cave drips. |
 | 14.6.0 | Phase 99: synthesized classic MMO-style interface sounds (cursor, confirm, cancel, open/close, error, target, equip, coins, chat chimes). |
 | 14.5.0 | Phase 98: turn-in-place foot planting, quadruped walk/trot/gallop IK, spell learning by main/support job. |
 | 14.4.0 | Phase 97: fur/feather shells on High, critter details (bat fingers, shroom gills, worm bristles, whiskers, toes). |
