@@ -2501,12 +2501,12 @@ function castDia(a, t, sp) {
   if (t.alive) t.buffs[key] = { until: S.time + 30, next: S.time + 3, tick: Math.max(1, Math.round(1 + a.lv * 0.4)), src: a, el };
 }
 
-function spellLearnable(sp) { return Object.entries(sp.jobs).some(([j, l]) => save.jobs[j] && save.jobs[j].lv >= l); }
+function spellLearnable(sp, ch) { ch = ch || player; const subLv = ch.sub ? Math.floor(ch.lv / 2) : 0; return Object.entries(sp.jobs).some(([j, l]) => (j === ch.job && ch.lv >= l) || (j === ch.sub && subLv >= l)); }
 function learnSpell(itemId) {
   const it = ITEMS[itemId], sp = SPELLS[it.spell];
   if (!sp) return;
   if (save.spells.includes(sp.id)) { log("You already know " + sp.name + ".", "sys"); sfx("error"); return; }
-  if (!spellLearnable(sp)) { log("You can't learn " + sp.name + " yet. It needs " + Object.entries(sp.jobs).map(([j, l]) => JOBS[j].name + " Lv." + l).join(" or ") + ".", "sys"); sfx("error"); return; }
+  if (!spellLearnable(sp)) { log("You can't learn " + sp.name + " right now. Your main or support job must be " + Object.entries(sp.jobs).map(([j, l]) => JOBS[j].name + " at Lv." + l).join(" or ") + " (a support job counts at half your level).", "sys"); sfx("error"); return; }
   if (!removeItem(itemId, 1)) return;
   save.spells.push(sp.id);
   log("You learn " + sp.name + "!", "loot");

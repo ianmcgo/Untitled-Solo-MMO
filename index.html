@@ -1005,7 +1005,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.4.0 · built 2026-10-14 11:19 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.5.0 · built 2026-10-14 11:35 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -10781,12 +10781,12 @@ function castDia(a, t, sp) {
   if (t.alive) t.buffs[key] = { until: S.time + 30, next: S.time + 3, tick: Math.max(1, Math.round(1 + a.lv * 0.4)), src: a, el };
 }
 
-function spellLearnable(sp) { return Object.entries(sp.jobs).some(([j, l]) => save.jobs[j] && save.jobs[j].lv >= l); }
+function spellLearnable(sp, ch) { ch = ch || player; const subLv = ch.sub ? Math.floor(ch.lv / 2) : 0; return Object.entries(sp.jobs).some(([j, l]) => (j === ch.job && ch.lv >= l) || (j === ch.sub && subLv >= l)); }
 function learnSpell(itemId) {
   const it = ITEMS[itemId], sp = SPELLS[it.spell];
   if (!sp) return;
   if (save.spells.includes(sp.id)) { log("You already know " + sp.name + ".", "sys"); sfx("error"); return; }
-  if (!spellLearnable(sp)) { log("You can't learn " + sp.name + " yet. It needs " + Object.entries(sp.jobs).map(([j, l]) => JOBS[j].name + " Lv." + l).join(" or ") + ".", "sys"); sfx("error"); return; }
+  if (!spellLearnable(sp)) { log("You can't learn " + sp.name + " right now. Your main or support job must be " + Object.entries(sp.jobs).map(([j, l]) => JOBS[j].name + " at Lv." + l).join(" or ") + " (a support job counts at half your level).", "sys"); sfx("error"); return; }
   if (!removeItem(itemId, 1)) return;
   save.spells.push(sp.id);
   log("You learn " + sp.name + "!", "loot");
@@ -15265,7 +15265,7 @@ function invActions(i) {
   const s = save.inventory[i];
   if (!s) return;
   const it = ITEMS[s.id], o = [];
-  if (it.kind === "use" || it.kind === "food") { o.push({ label: it.kind === "food" ? "Eat" : "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } }); o.push({ label: "Add to action bar", fn: () => { closeDialog(); placeOnBar({ kind: "item", id: s.id }); } }); }
+  if (it.kind === "use" || it.kind === "food") { o.push({ label: it.kind === "food" ? "Eat" : "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } }); if (!it.spell) o.push({ label: "Add to action bar", fn: () => { closeDialog(); placeOnBar({ kind: "item", id: s.id }); } }); }
   if (it.kind === "equip") o.push({ label: "Equip", fn: () => { closeDialog(); const why = canEquip(s.id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(s.id); UI.sel = null; } renderModal(); } });
   o.push({ label: "Drop", fn: () => { closeDialog(); onMenuClick({ target: { closest: () => ({ dataset: { a: "drop", v: String(i) } }) }, preventDefault() {} }); } });
   promptChoice(it.name, o);
@@ -16337,13 +16337,20 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v14.4.0 · built 2026-10-14 11:19 PDT";
+const BUILD_INFO = "v14.5.0 · built 2026-10-14 11:35 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "14.5.0", date: "2026-10-14", title: "Planted feet and four-legged gaits", items: [
+    "Feet stay planted when people and monsters turn on the spot: the hips hold still while the upper body turns, then they take a quick shuffle step to catch up, instead of their feet sliding left and right.",
+    "Four-legged creatures (sheep, longnecks, lizards, dogs, deer, cats and the rest) now walk with real gaits chosen by their size and speed: a four-beat walk, a diagonal trot, and a gallop when they run flat out. Lizards use a low sprawling walk.",
+    "Each leg plants its foot and holds it on the ground while the body passes over, then lifts and swings forward in an arc, so the feet no longer slide. Legs stand slightly bent and the body bobs with the gait.",
+    "Spells can only be learned while your main job, or your support job at half your level, is high enough for that spell. A Warrior with a level 20 White Mage on the shelf can't read a Cure II scroll until White Mage is set as main or support.",
+    "Spell scrolls no longer offer \"Add to action bar\"."
   ] },
   { v: "14.4.0", date: "2026-10-14", title: "Critters", items: [
     "Fur and feathers: on High quality, furry and feathered creatures (bees, bats, hares, sheep, dogs, cats, Crag Talons and others) grow layered fur shells, so their coats look soft and fuzzy instead of painted on.",
@@ -17168,6 +17175,7 @@ function tabHelp() {
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
+    "<b>Learning spells:</b> read a scroll from your Items. It works only if your main job is at the spell's level, or your support job is (support jobs count at half your main level). The log tells you which job and level the scroll needs.",
     "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",
     "<b>Reading a beastman:</b> each family has its own silhouette. Goblins stoop with pouches and packs, orcs are broad with spiked shoulders, Reefkin have fins, Crag Talons have feathered arms and tails, treants have branches and roots. A war banner on the back marks a boss.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
@@ -17501,7 +17509,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "14.4.0";
+const GAME_VERSION = "14.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -21693,7 +21701,7 @@ function quadEntry(o) {
     R.add(gTaper(V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), V3(0, B - o.tailDrop, -bl * 0.5 - o.tailLen), o.tailR * 0.7, o.tailR * 0.2, 7), "tail2", col, reg);
   }
   if (o.spines) for (let k = 0; k < o.spines; k++) R.add(gTaper(V3(0, B + o.bodyR * 0.85, bl * 0.35 - k * (bl * 0.7 / o.spines)), V3(0, B + o.bodyR * 0.85 + 0.12, bl * 0.35 - k * (bl * 0.7 / o.spines) - 0.04), 0.03, 0.004, 5), "body", dark, "bone");
-  R.meta = { kind: "quad", headTop: hy + o.headR * 1.4, quad: { stride: o.stride || 1.2, hop: !!o.hop } };
+  R.meta = { kind: "quad", headTop: hy + o.headR * 1.4, quad: { stride: o.stride || 1.2, hop: !!o.hop, leg: L, bodyY: B, sprawl: o.region === "scale" } };
   return R.finish();
 }
 
@@ -22392,6 +22400,7 @@ function animState(v) {
 
 function strideEff(v, spd) {
   const run = clamp((spd - 1.2) / 4, 0, 1), S = (v.stride || 1.7) * (1 + 0.9 * run), B = v.bones;
+  if (v.kind === "quad" && v.meta && v.meta.quad && v.meta.quad.leg) { const g = v.an && v.an.gait; return Math.min(S * 1.6, v.meta.quad.leg * 0.7 * (v.scale || 1) / (g ? g.duty : 0.66)); }
   if (v.kind !== "human" || !B || !B.shinL || !B.footL) return S;
   const L = (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1);
   return Math.min(S, 1.25 * L / (0.62 - 0.28 * run));
@@ -22514,6 +22523,8 @@ function headLook(v, dt) {
 function applyPose(v, dt, sharp) {
   headLook(v, dt);
   const k = 1 - Math.exp(-dt * (sharp ? 26 : 15));
+  const ty = v.tipYaw || 0, ty0 = v.tipApplied || 0, BH = v.bones.hips, BS = v.bones.spine;
+  if (ty0 && BH && BS) { BH.rotation.y += ty0; BS.rotation.y -= ty0; }
   for (const n in v.pose) {
     const b = v.bones[n], p = v.pose[n];
     if (!b || n === "root") continue;
@@ -22531,6 +22542,7 @@ function applyPose(v, dt, sharp) {
     r.rotation.y += (v.rootRot[1] - r.rotation.y) * k;
     r.rotation.z += (v.rootRot[2] - r.rotation.z) * k;
   }
+  if (BH && BS) { BH.rotation.y -= ty; BS.rotation.y += ty; v.tipApplied = ty; }
 }
 
 function attackKind(v, e) {
@@ -22544,6 +22556,28 @@ function attackKind(v, e) {
   return "slash";
 }
 
+function turnInPlace(v, e, an, P, amp, dt) {
+  const gy = v.group.rotation.y;
+  if (an.tYaw == null) { an.tYaw = gy; an.tD = 0; an.tStep = -1; an.tQuiet = 0; }
+  const dy = normAngA(gy - an.tYaw); an.tYaw = gy;
+  if (amp > 0.08 || e.alive === false || e.mounted || e.resting || Math.abs(dy) > 1.2) { an.tD = 0; an.tStep = -1; v.tipYaw = 0; return; }
+  an.tQuiet = Math.abs(dy) > 0.002 ? 0 : an.tQuiet + dt;
+  if (an.tStep < 0) an.tD = clamp(an.tD + dy, -1.1, 1.1); else an.tX = clamp(an.tX + dy, -0.6, 0.6);
+  if (an.tStep < 0 && (Math.abs(an.tD) > 0.5 || (Math.abs(an.tD) > 0.12 && an.tQuiet > 0.3))) { an.tStep = 0; an.tFrom = an.tD; an.tX = 0; an.tLead = an.tD > 0 ? "L" : "R"; }
+  if (an.tStep >= 0) {
+    an.tStep = Math.min(1, an.tStep + dt / (0.22 + Math.abs(an.tFrom) * 0.18));
+    const k = an.tStep, sm = k * k * (3 - 2 * k);
+    an.tD = an.tFrom * (1 - sm) + an.tX;
+    const lead = an.tLead, trail = lead === "L" ? "R" : "L";
+    const l1 = Math.sin(Math.PI * clamp(k / 0.6, 0, 1)), l2 = Math.sin(Math.PI * clamp((k - 0.4) / 0.6, 0, 1));
+    addP(P, "thigh" + lead, -0.32 * l1, 0, 0); addP(P, "shin" + lead, 0.6 * l1, 0, 0); addP(P, "foot" + lead, -0.25 * l1, 0, 0);
+    addP(P, "thigh" + trail, -0.32 * l2, 0, 0); addP(P, "shin" + trail, 0.6 * l2, 0, 0); addP(P, "foot" + trail, -0.25 * l2, 0, 0);
+    v.rootOff[1] += 0.012 * Math.sin(Math.PI * k);
+    if (k >= 1) { an.tStep = -1; an.tD = an.tX; an.tX = 0; }
+  }
+  v.tipYaw = an.tD;
+}
+
 function poseHuman(v, e, dt) {
   const an = trackEvents(v, e, dt);
   const P = newPose(v);
@@ -22553,6 +22587,7 @@ function poseHuman(v, e, dt) {
   const amp = run + walk * 0.45;
   const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
   const fightT = (e.engaged || (isMob(e) && e.state === "combat")) && e.alive !== false ? 1 : 0;
+  turnInPlace(v, e, an, P, amp, dt);
   const hu = (v.meta && v.meta.hunch) || 0;
   if (hu && e.alive !== false) { addP(P, "spine", hu * 0.55, 0, 0); addP(P, "chest", hu * 0.45, 0, 0); addP(P, "neck", -hu * 0.45, 0, 0); addP(P, "head", -hu * 0.4, 0, 0); addP(P, "upArmL", hu * 0.3, 0, 0); addP(P, "upArmR", hu * 0.3, 0, 0); v.rootOff[1] -= hu * 0.08; }
   an.fight += (fightT - an.fight) * Math.min(1, dt * 6);
@@ -23128,12 +23163,9 @@ function poseQuad(v, e, dt) {
   const t = S.time + an.t0;
   const mv = clamp(an.spd / 1.3, 0, 1);
   const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
-  addP(P, "legFL", c1 * 0.7 * mv, 0, 0); addP(P, "legBR", c1 * 0.7 * mv, 0, 0);
-  addP(P, "legFR", -c1 * 0.7 * mv, 0, 0); addP(P, "legBL", -c1 * 0.7 * mv, 0, 0);
-  addP(P, "shinFL", Math.max(0, -s1) * 0.9 * mv, 0, 0); addP(P, "shinBR", Math.max(0, -s1) * 0.9 * mv, 0, 0);
-  addP(P, "shinFR", Math.max(0, s1) * 0.9 * mv, 0, 0); addP(P, "shinBL", Math.max(0, s1) * 0.9 * mv, 0, 0);
-  addP(P, "body", Math.sin(t * 1.6) * 0.02 + c1 * 0.04 * mv, 0, 0);
-  v.rootOff[1] = Math.abs(s1) * 0.04 * mv;
+  const G = quadGait(v, an, dt);
+  addP(P, "body", Math.sin(t * 1.6) * 0.02 + G.pitch, G.roll * 0.5, G.roll);
+  v.rootOff[1] = G.bob - ((v.meta.quad && v.meta.quad.leg) || 0.5) * 0.098 * (an.qikW == null ? 1 : an.qikW);
   const graze = (1 - mv) * (Math.sin(t * 0.35) > 0.6 ? 1 : 0);
   addP(P, "neck", graze * 0.9 + Math.sin(t * 1.1) * 0.04, Math.sin(t * 0.5) * 0.25 * (1 - mv), 0);
   addP(P, "head", graze * 0.5 + Math.sin(t * 2.3) * 0.03, Math.sin(t * 0.7) * 0.2 * (1 - mv), 0);
@@ -23147,6 +23179,57 @@ function poseQuad(v, e, dt) {
   if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.15 * w, 0, 0.2 * w); addP(P, "head", -0.3 * w, 0, 0); }
   if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = 0.12 * k; for (const n of ["legFL", "legFR", "legBL", "legBR"]) addP(P, n, 0, 0, 0.6 * k); }
   applyPose(v, dt, sharp);
+  an.qikW = (an.qikW == null ? 1 : an.qikW) + ((an.dead != null ? 0 : 1) - (an.qikW == null ? 1 : an.qikW)) * Math.min(1, dt * 8);
+  an.qikF = (an.qikF == null ? 1 : an.qikF) + ((e.readying ? 0 : 1) - (an.qikF == null ? 1 : an.qikF)) * Math.min(1, dt * 8);
+  if (an.qikW > 0.01) quadLegIK(v, an, G, an.qikW, an.qikF);
+}
+
+const QUAD_GAITS = {
+  walk: { duty: 0.66, off: { BL: 0, FL: 0.25, FR: 0.75, BR: 0.5 } },
+  sprawl: { duty: 0.8, off: { BL: 0, FL: 0.45, FR: 0.95, BR: 0.5 } },
+  trot: { duty: 0.45, off: { BL: 0, FL: 0.5, FR: 0, BR: 0.5 } },
+  gallop: { duty: 0.35, off: { BL: 0.13, FL: 0.37, FR: 0.63, BR: 0.87 } }
+};
+function quadGait(v, an, dt) {
+  const q = v.meta.quad || {}, sc = v.scale || 1, L = (q.leg || 0.5) * sc;
+  const Fr = an.spd * an.spd / (9.81 * Math.max(0.05, L));
+  const want = q.sprawl ? (Fr < 2.2 ? "sprawl" : "trot") : Fr < 0.45 ? "walk" : Fr < 2.4 ? "trot" : "gallop";
+  if (!an.gait) an.gait = { duty: QUAD_GAITS[want].duty, off: Object.assign({}, QUAD_GAITS[want].off) };
+  const T = QUAD_GAITS[want], k = Math.min(1, dt / 0.3);
+  an.gait.duty += (T.duty - an.gait.duty) * k;
+  for (const n in T.off) { let d = T.off[n] - an.gait.off[n]; d -= Math.round(d); an.gait.off[n] = (an.gait.off[n] + d * k + 1) % 1; }
+  an.gaitName = want;
+  const mv = clamp(an.spd / 0.6, 0, 1), ph = an.ph / (Math.PI * 2);
+  const gal = want === "gallop" ? 1 : 0, tr = want === "trot" ? 1 : 0;
+  return { mv, ph, duty: an.gait.duty, off: an.gait.off, L,
+    bob: mv * (0.01 + 0.015 * tr + 0.03 * gal) * Math.abs(Math.sin(an.ph * 2)) / sc,
+    pitch: mv * gal * 0.03 * Math.sin(an.ph * 2),
+    roll: q.sprawl ? mv * 0.035 * Math.sin(an.ph * 2) : mv * 0.012 * Math.sin(an.ph * 2) };
+}
+function quadLegIK(v, an, G, w, wF) {
+  const B = v.bones, q = v.meta.quad || {}, sc = v.scale || 1;
+  const strideLocal = strideEff(v, an.spd) / sc;
+  for (const [n, fore] of [["FL", 1], ["FR", 1], ["BL", 0], ["BR", 0]]) {
+    const th = B["leg" + n], sh = B["shin" + n];
+    if (!th || !sh) continue;
+    const ww = w * (fore ? wF : 1);
+    if (ww < 0.01) continue;
+    const Lt = sh.position.length(), Ls = (q.leg || 0.5) * 0.5;
+    const reach = (Lt + Ls) * 0.99, dRest = (Lt + Ls) * 0.9;
+    let p = (G.ph + G.off[n]) % 1; if (p < 0) p += 1;
+    const duty = G.duty, D = Math.min(strideLocal * duty, (Lt + Ls) * 0.76) * G.mv;
+    let z, y = 0;
+    if (p < duty) z = D / 2 - D * (p / duty);
+    else { const u = (p - duty) / (1 - duty), e = u * u * (3 - 2 * u); z = -D / 2 + D * e; y = Math.sin(Math.PI * u) * Math.min(0.35 * (Lt + Ls), 0.04 + D * 0.3) * G.mv; }
+    const depth = dRest - y;
+    const r = clamp(Math.hypot(z, depth), Math.abs(Lt - Ls) + 1e-3, reach);
+    const a = Math.atan2(z, depth);
+    const b = Math.acos(clamp((Lt * Lt + r * r - Ls * Ls) / (2 * Lt * r), -1, 1));
+    const c = Math.acos(clamp((Lt * Lt + Ls * Ls - r * r) / (2 * Lt * Ls), -1, 1));
+    const thA = fore ? a + b : a - b, shR = fore ? Math.PI - c : -(Math.PI - c);
+    th.rotation.x += (-thA - th.rotation.x) * ww;
+    sh.rotation.x += (shR - sh.rotation.x) * ww;
+  }
 }
 
 function poseCrab(v, e, dt) {

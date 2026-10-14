@@ -1240,6 +1240,13 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Fur shells: `RIG.shellLayers` = 5 on High (set in buildAtlas, 0 otherwise; 0 while building LOD entries). RigBuilder.buildShells(minY) clones pieces whose region is in `SHELL_REGIONS` (fur 1, feather 0.6, hair 0.45), pushes vertices out along normals by len·f (len = 2.2% of model height clamped 0.006–0.03, droop 0.35·d down) and adds a `shell` attribute (layer fraction). instantiate adds a second SkinnedMesh bound to the same skeleton with `shellMaterial()` (shared, DoubleSide, onBeforeCompile hashes floor(vMapUv·1800) and discards below 0.08 + 0.86·shell; tips brighten). Hidden with the main mesh when LOD swaps (child of mesh).
 - batEntry: 2 finger bones on the inner membrane, 3 on the outer, thumb claw, 3-toe feet, chest ruff. shroomEntry: 28 radial gills under the cap, stalk skirt. wormEntry: extra ring per segment and 6 bristles per segment. hareEntry: 3 whiskers a side. toadEntry: 4 padded toes per front foot.
 
+## Phase 98: planted feet, quadruped gaits, spell learning (v14.5.0) — plan Q11, plus requests
+- Beat sheet (turn in place): yaw change while idle is absorbed by the pelvis; at |debt| > 0.5 rad, or > 0.12 rad after 0.3 s quiet, a shuffle step runs for 0.22 + 0.18·|debt| s: lead leg (turn side) lifts in the first 60%, trail leg in the last 60% (thigh −0.32, shin +0.6, foot −0.25 at peak), root rises 1.2 cm, debt eases to 0 (smoothstep). New yaw during a step goes to tX and carries over.
+- `turnInPlace(v, e, an, P, amp, dt)` (anim.js) tracks group yaw (an.tYaw/tD/tStep/tX/tQuiet), resets while moving (amp > 0.08), dead, mounted, resting or on a > 1.2 rad snap. It sets `v.tipYaw`; `applyPose` removes last frame's offset before smoothing and adds hips.y −= tip, spine.y += tip after it (unsmoothed, so planted feet don't lag). Metric (sway ±0.25 rad): feet world drift ≈ 1 cm.
+- Quadrupeds: `QUAD_GAITS` walk (duty 0.66, BL 0 FL 0.25 FR 0.75 BR 0.5), sprawl (0.8; 0/0.45/0.95/0.5), trot (0.45, diagonal pairs), gallop (0.35; 0.13/0.37/0.63/0.87). `quadGait` picks by Froude v²/(gL) (walk < 0.45 < trot < 2.4 < gallop; sprawlers = scale-region quads: sprawl < 2.2 < trot), blends duty/offsets over 0.3 s, returns bob/pitch/roll. `quadLegIK` (after applyPose, weight qikW fades out on death, qikF drops for front legs while readying) places each foot at z = D/2 → −D/2 in stance and a smoothstep arc in swing, depth = 0.9·(Lt + Ls), two-bone sagittal IK; front joint protrudes forward (carpus), hind backward (hock). Body lowered 9.8% of leg length. `strideEff` for quads = leg·0.7·scale/duty so stance reach fits. quadEntry meta.quad gained leg, bodyY, sprawl.
+- Metrics (side probe, flat ground): stance slide median — sheep 0.047/0.053 m/s (walk/trot), dog 0.030/0.036, longneck 0.075/0.095, lizard sprawl 0.09; measured duty within 0.03 of target. Gallop still slides ~0.3 m/s (body pitch) — acceptable at that speed.
+- Spells: `spellLearnable(sp, ch)` = main job at level or support job at floor(lv/2), same rule as `knows`. Scroll items hide "Add to action bar". Test p48unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1292,6 +1299,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.5.0 | Phase 98: turn-in-place foot planting, quadruped walk/trot/gallop IK, spell learning by main/support job. |
 | 14.4.0 | Phase 97: fur/feather shells on High, critter details (bat fingers, shroom gills, worm bristles, whiskers, toes). |
 | 14.3.0 | Phase 96: beastman family silhouettes and gear, hunched postures, boss banners. |
 | 14.2.0 | Phase 95: NPC props and wardrobe, wrist-led swings, head look-at, red damage numbers + toggle, V torsos and necks, smaller Pipkin feet, status icon spacing, audio unlock. |
