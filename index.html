@@ -925,7 +925,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.5 · built 2026-10-14 00:48 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.5 · built 2026-10-14 00:49 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -12740,7 +12740,7 @@ function onTgtCmd(idx) {
   if (key === "close" || key === "none") { tgtCmdClose(); return; }
   if (key === "back") { c.page = "root"; c.sel = 0; renderTgtCmd(); return; }
   if (key === "ma" || key === "ja" || key === "items") { c.page = key; c.sel = 0; renderTgtCmd(); return; }
-  if (key === "check") { c.info = t.kind === "remote" ? t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub && JOBS[t.sub] ? " / " + JOBS[t.sub].name : "") + "." : inspectText(t); if (t.kind !== "remote") log("The " + t.name + ": " + c.info, "sys"); renderTgtCmd(); return; }
+  if (key === "check") { const info = t.kind === "remote" ? t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub && JOBS[t.sub] ? " / " + JOBS[t.sub].name : "") + "." : inspectText(t); log((t.kind === "remote" ? "" : "The " + t.name + ": ") + info, "sys"); c.info = null; renderTgtCmd(); return; }
   if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
   if (key === "disengage") { if (player.engaged) toggleEngage(false); player.engaged = false; player.attackTarget = null; S.chase = false; player.target = null; tgtCmdClose(); return; }
   if (key === "switch") { tgtCmdClose(); cycleTarget(); return; }
@@ -14602,7 +14602,7 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.8.5 · built 2026-10-14 00:48 PDT";
+const BUILD_INFO = "v9.8.5 · built 2026-10-14 00:49 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
@@ -14612,7 +14612,8 @@ const UPDATES = [
   ] },
   { v: "9.8.5", date: "2026-10-14", title: "Phone buttons", items: [
     "Phones: the Target and Menu buttons are now exactly as wide as the boxes below them, so they no longer overlap the event log.",
-    "Phones: tapping the bottom-left of the screen where the event log sits opens the typing box, even when the log is hidden."
+    "Phones: tapping the bottom-left of the screen where the event log sits opens the typing box, even when the log is hidden.",
+    "Check now only writes its result in the event log instead of also showing it under the command box."
   ] },
   { v: "9.8.4", date: "2026-10-14", title: "Five characters", items: [
     "Each account can now have up to 5 characters (was 8). The server enforces it too once the latest setup SQL is run (server version 6). Accounts that already have more keep them but can't make new ones until they're under 5.",
