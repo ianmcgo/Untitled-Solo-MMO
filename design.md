@@ -1271,6 +1271,10 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Ruts: field.rutWeight(px, py) → [rut, centre]; ruts at ±0.17·path width (band 0.035–0.075 w, wobbled by noise), centre strip within 0.05–0.1 w. Albedo bake darkens ruts 32% and blends the centre 40% back to grass (field theme only).
 - `buildPathEdges`: small noisy stones every 22–52 px at 0.42–0.54·w from the centre line (field theme), no shadows.
 
+## Phase 103: foliage and props (v14.10.0) — plan E2
+- `buildProps(field, root)` (world3d.js, field/town themes) after buildPathEdges. Quality multiplier K = low 0.4, medium 1, high 1.6. Rules: ferns (not desert/volcanic/snow) where noise(0.004) > 0.45, 220·K (jungle 420, ×1.7 size); reeds on every water ring (min(160, r·0.9)·K, ×1.6 marsh) plus marsh patches where noise(0.006) > 0.55; mushroom clusters 70·K (instance colours red/cream/brown/ochre); stumps 14·K (30 in desert/volcanic/snow, tinted per palette); desert skulls+bones 18·K; up to 2 carts beside a random path (50% tipped and sunk) with a 24 px collider; 2–3 fence runs of 5–10 49 px segments wandering near z.start.
+- Geometry builders: fernGeo (7 tapered curled fronds, normals up), reedGeo (9 stems + cattail heads), shroomClusterGeo (4 caps), fenceGeo (2 posts + 2 rails), cartGeo (bed, sides, shafts, 2 spoked wheels), stumpGeo (stump + 2 roots), skullGeo. Plants share the leaf atlas and addWind (fern 0.06, reed 0.09).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1323,6 +1327,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.10.0 | Phase 103: ferns, reeds, mushrooms, carts, fences, stumps and per-region prop sets. |
 | 14.9.0 | Phase 102: strata on cliffs, instanced rock outcrops, wheel-rutted roads with edging stones. |
 | 14.8.0 | Phase 101: painted item icon atlas (weapons by type and metal, armour by slot, consumables, materials, rarity frames). |
 | 14.7.0 | Phase 100: surface footsteps, weapon swings, monster voices, chests, crafting, fishing, town crowd and cave drips. |

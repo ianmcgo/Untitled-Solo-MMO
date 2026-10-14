@@ -1477,6 +1477,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.10.0", date: "2026-10-14", title: "Foliage and props", items: [
+    "Wild areas are dressed with more plant life: fern patches in the meadows (big fronds in the jungle), reed beds around every pond and through the marsh, and clusters of red, pale and brown mushrooms.",
+    "Props tell a story along the roads: an abandoned cart or two beside the track (some tipped over and half sunk), old fence lines wandering near the entrance of each area, and tree stumps.",
+    "Each region gets its own set: bleached skulls and bones in the desert, charred stumps on the volcanic slopes, frosted stumps in the snow, extra reeds in the marsh.",
+    "Reeds, ferns and plants sway with the same wind as the trees and grass."
+  ] },
   { v: "14.9.0", date: "2026-10-14", title: "Terrain and cliffs", items: [
     "Cliffs and steep slopes show layered rock strata: wavy bands of warmer and cooler stone with darker ledges at the base of each layer, instead of one flat grey.",
     "Rocky outcrops: stacked, broken stone slabs now sit along steep slopes and the edges of every outdoor area, leaning with the hillside and partly buried, in three different shapes and tints so no two look the same.",
