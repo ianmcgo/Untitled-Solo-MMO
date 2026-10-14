@@ -1060,6 +1060,13 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - models3d propView: `sign` (post + two arms), `camp` (tent cone, stone ring, fire, logs, light); syncNpc flickers `v.campFire`.
 - Ferry deferred to phase 79 (Gull Isle) since it needs the island zone.
 
+## Phase 71: Samurai, Ninja, Dragoon (v11.0.0)
+- data.js block before `const SHOP`: ALL_JOBS += SAM/NIN/DRG; ADVANCED_JOBS lv 12 (quests sam/nin/drg); JOBS stats; COMBAT_SKILLS += gkatana/katana/polearm; MAGIC_SKILLS += ninjutsu; SKILL_NAMES; SKILL_RATINGS; 12 WEAPON_SKILLS; ABILITIES meditate/hasso/third_eye (SAM), smoke_step/twin_strike (NIN), jump/high_jump/dragon_spirit (DRG); SPELLS shadow_veil (buff "shadows", n 2 +1 at lv12), flame/frost/gale_shuriken (nukes, skill ninjutsu), binding_thread (debuff bind); 12 weapons (bronze/iron/steel in SHOP, frost tier at vela); WAR armour also fits SAM/DRG, THF armour fits NIN. Quests appended at file end.
+- game.js: doAbility meditate (+400 TP), smoke_step (halve enmity on all mobs), jump/high_jump (×1.45/×1.9 base dmg, +100/150 TP, high halves enmity; sets `a.jumpAt/jumpHigh`). swing(): defender `third_eye` or `shadows` (count n) negate non-ranged hits first; hasso +10 acc ×1.12 dmg; dragon_spirit ×1.15; new wtypes count as slash. castBuff sets shadows.n. castDebuff text for bind. Merc gear and MERC_ROLES for new jobs.
+- twin_strike: swing() recurses once per attack while the buff has `left` (3) charges; `a.twinning` guards recursion.
+- rig: JOB_TINT for new jobs; weaponEntry `gkatana`/`katana` (curved extruded blade, wrapped grip, round guard, edge strip/glow) and `polearm` (long shaft, two grips, spearhead + side prongs). anim: gkatana = cleave/two-hand stance; polearm = thrust/staff stance; jump arc pose (rootOff up to 2.2/3.2). models3d attach/sheathe rules include new kinds.
+- Tests: p31unit (quests, abilities, shadows, Third Eye, Jump). harness exports `aggro`.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1090,7 +1097,7 @@ World scale track:
 - 68 (10.8.0) DONE. Z3 Life: ambient wildlife (birds, butterflies, fish, deer), wandering travellers and caravans, per-area ambient sound, ecology that changes by time and weather.
 - 69 (10.9.0) DONE (lookouts, shrines, tablets, caches; wrecks/NM lairs not yet). Z4 Points of interest: lookouts, shrines, wrecks, ruins, hidden chests, rare gathering spots, NM lairs, lore tablets; map regions and discovery rewards.
 - 70 (10.10.0) DONE (camps are warp points, not home points; ferry moved to phase 79). Z5 Travel: roads with signposts, mount routes, a ferry between harbor and an island, crystal warps with costs, outpost camps that act as home points.
-- 71–74 (11.0.0–11.3.0) New jobs in groups: SAM/NIN/DRG, BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
+- 71 DONE (11.0.0) SAM/NIN/DRG. 72–74 (11.1.0–11.3.0) New jobs in groups: BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
 New zones (one per release; each gets its own monsters, NM, gathering, quests, landmarks and music mood):
 - 75 (12.0.0) Second city: a rival/allied nation with its own shops, guilds, missions, residence option and a distinct building style; road link to the Outpost region.
 - 76 (12.1.0) Sunscar Desert: dunes, buried temple, sandworm NM, daytime heat that drains MP (shade/water items counter it).
@@ -1131,6 +1138,7 @@ World systems:
 | 10.8.0 | Phase 68: wildlife, travellers, butterflies, fish, procedural ambience. |
 | 10.9.0 | Phase 69: lookouts, shrines, lore tablets, hidden caches, Wayfarer. |
 | 10.10.0 | Phase 70: camps, crystal warps, signposts, road riding bonus. |
+| 11.0.0 | Phase 71: Samurai, Ninja, Dragoon jobs, three weapon types. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

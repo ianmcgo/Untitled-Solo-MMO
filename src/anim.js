@@ -115,7 +115,8 @@ function applyPose(v, dt, sharp) {
 function attackKind(v, e) {
   const w = v.weaponKind;
   if (v.style && v.style.claws) return "claw";
-  if (w === "greataxe" || w === "scythe") return "cleave";
+  if (w === "greataxe" || w === "scythe" || w === "gkatana") return "cleave";
+  if (w === "polearm") return "thrust";
   if (w === "club") return "smash";
   if (w === "staff") return "thrust";
   if (!w || w === "h2h") return "punch";
@@ -174,6 +175,13 @@ function poseHuman(v, e, dt) {
       else if (em.id === "thumbsup") { setP(P, "upArmR", -1.1, 0, -0.2, w); setP(P, "foreArmR", -1.4, 0, 0, w); addP(P, "head", -0.05 * w, 0, 0.1 * w); }
     }
   }
+  if (e.jumpAt != null && S.time - e.jumpAt < 0.9) {
+    const jk = (S.time - e.jumpAt) / 0.9, up = Math.sin(jk * Math.PI) * (e.jumpHigh ? 3.2 : 2.2), w = env(jk, 0.1, 0.15);
+    v.rootOff[1] += up;
+    setP(P, "thighL", -1.2, 0, 0.1, w); setP(P, "thighR", -0.6, 0, -0.1, w); setP(P, "shinL", 1.6, 0, 0, w); setP(P, "shinR", 1.2, 0, 0, w);
+    setP(P, "upArmR", jk < 0.5 ? -2.6 : -0.6, 0, -0.2, w); setP(P, "foreArmR", -0.3, 0, 0, w); setP(P, "upArmL", jk < 0.5 ? -2.4 : -0.5, 0, 0.2, w);
+    addP(P, "spine", (jk < 0.5 ? -0.2 : 0.35) * w, 0, 0);
+  }
   if (!an.lastYaw) an.lastYaw = e.face || 0;
   const dyaw = Math.abs(normAngA((e.face || 0) - an.lastYaw));
   an.lastYaw = e.face || 0;
@@ -222,9 +230,9 @@ function poseHuman(v, e, dt) {
     addP(P, "footL", -0.17 * sw, 0, 0); addP(P, "footR", -0.35 * sw, 0, 0);
     v.rootOff[1] -= 0.05 * sw;
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
-    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
+    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
-    else if (v.weaponKind === "staff") { addP(P, "upArmR", -0.4 * sw, 0, 0); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -0.3 * sw, 0, 0); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
+    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.4 * sw, 0, 0); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -0.3 * sw, 0, 0); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else { addP(P, "upArmR", -0.55 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.75 * sw, 0, 0); addP(P, "upArmL", -0.45 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
   }
 

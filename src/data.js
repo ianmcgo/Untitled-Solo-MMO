@@ -496,6 +496,74 @@ for (const id in ITEMS) {
   if (it.slot !== "main" && it.slot !== "ring" && it.jobs.includes("RDM") && !it.jobs.includes("BRD")) it.jobs.push("BRD");
 }
 
+ALL_JOBS.push("SAM", "NIN", "DRG");
+Object.assign(ADVANCED_JOBS, { SAM: { quest: "sam", lv: 12 }, NIN: { quest: "nin", lv: 12 }, DRG: { quest: "drg", lv: 12 } });
+Object.assign(JOBS, {
+  SAM: { name: "Samurai", color: "#e0a060", icon: "🎌", hp: [66, 13], mp: [0, 0], str: [9, 0.95], dex: [9, 0.85], vit: [8, 0.75], agi: [7, 0.7], int: [6, 0.5], mnd: [7, 0.6], advanced: true },
+  NIN: { name: "Ninja", color: "#78909c", icon: "🌀", hp: [60, 12], mp: [8, 3], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [10, 1.0], int: [7, 0.7], mnd: [5, 0.4], advanced: true },
+  DRG: { name: "Dragoon", color: "#5c8adb", icon: "🐉", hp: [66, 13], mp: [0, 0], str: [10, 0.95], dex: [8, 0.8], vit: [8, 0.8], agi: [8, 0.75], int: [5, 0.4], mnd: [6, 0.5], advanced: true }
+});
+COMBAT_SKILLS.push("gkatana", "katana", "polearm");
+MAGIC_SKILLS.push("ninjutsu");
+Object.assign(SKILL_NAMES, { gkatana: "Great Katana", katana: "Katana", polearm: "Polearm", ninjutsu: "Ninjutsu" });
+Object.assign(SKILL_RATINGS, {
+  SAM: { gkatana: "A", polearm: "B", sword: "C", archery: "C", dagger: "D", club: "E" },
+  NIN: { katana: "A", dagger: "B", sword: "C", archery: "C", h2h: "D", club: "E", ninjutsu: "A" },
+  DRG: { polearm: "A", staff: "B", sword: "C", dagger: "D", club: "D" }
+});
+Object.assign(WEAPON_SKILLS, {
+  rising_edge: { name: "Rising Edge", wtype: "gkatana", skill: 5, props: ["Transfixion", "Scission"], ftp: [1.6, 2.2, 2.8] },
+  crescent_cut: { name: "Crescent Cut", wtype: "gkatana", skill: 22, props: ["Scission", "Detonation"], ftp: [1.9, 2.7, 3.5] },
+  ember_arc: { name: "Ember Arc", wtype: "gkatana", skill: 40, props: ["Liquefaction", "Impaction"], ftp: [2.2, 3.0, 3.9] },
+  heavens_divide: { name: "Heaven's Divide", wtype: "gkatana", skill: 75, props: ["Fragmentation", "Scission"], ftp: [2.7, 3.6, 4.6] },
+  silent_cut: { name: "Silent Cut", wtype: "katana", skill: 5, props: ["Scission"], ftp: [1.5, 2.0, 2.6] },
+  veil_strike: { name: "Veil Strike", wtype: "katana", skill: 22, props: ["Induration", "Detonation"], ftp: [1.8, 2.5, 3.2] },
+  mist_fang: { name: "Mist Fang", wtype: "katana", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.1, 2.9, 3.7] },
+  night_lotus: { name: "Night Lotus", wtype: "katana", skill: 75, props: ["Gravitation", "Fragmentation"], ftp: [2.5, 3.3, 4.3] },
+  piercing_thrust: { name: "Piercing Thrust", wtype: "polearm", skill: 5, props: ["Transfixion"], ftp: [1.6, 2.2, 2.8] },
+  wind_lance: { name: "Wind Lance", wtype: "polearm", skill: 22, props: ["Detonation"], ftp: [1.9, 2.6, 3.4] },
+  drake_dive: { name: "Drake Dive", wtype: "polearm", skill: 40, props: ["Impaction", "Transfixion"], ftp: [2.2, 3.0, 3.9] },
+  sky_rend: { name: "Sky Rend", wtype: "polearm", skill: 75, props: ["Fusion", "Transfixion"], ftp: [2.6, 3.5, 4.5] }
+});
+Object.assign(ABILITIES, {
+  meditate: { name: "Meditate", job: "SAM", lv: 1, recast: 150, target: "self", desc: "Clear your mind and gain 400 TP." },
+  hasso: { name: "Hasso", job: "SAM", lv: 5, recast: 60, target: "self", buff: "hasso", dur: 120, desc: "A high two-handed stance: damage +12% and accuracy +10 for 2 minutes." },
+  third_eye: { name: "Third Eye", job: "SAM", lv: 15, recast: 45, target: "self", buff: "third_eye", dur: 30, desc: "Read your foe: the next melee attack against you within 30 s misses." },
+  smoke_step: { name: "Smoke Step", job: "NIN", lv: 5, recast: 120, target: "self", desc: "Vanish in a puff of smoke, halving the enmity every monster has toward you." },
+  twin_strike: { name: "Twin Strike", job: "NIN", lv: 15, recast: 90, target: "self", buff: "twin_strike", dur: 30, desc: "Your next three attacks each strike twice." },
+  jump: { name: "Jump", job: "DRG", lv: 1, recast: 60, target: "enemy", enmity: 80, desc: "Leap into the air and drive your weapon down for heavy damage and extra TP." },
+  high_jump: { name: "High Jump", job: "DRG", lv: 10, recast: 120, target: "enemy", enmity: 0, desc: "A higher leap: even more damage, and the target forgets half its anger toward you." },
+  dragon_spirit: { name: "Dragon Spirit", job: "DRG", lv: 15, recast: 300, target: "self", buff: "dragon_spirit", dur: 60, desc: "Call on the spirit of the wyrm: damage +15% for 60 s." }
+});
+Object.assign(SPELLS, {
+  shadow_veil: { name: "Shadow Veil", jobs: { NIN: 3 }, mp: 8, cast: 1.0, recast: 20, kind: "buff", buff: "shadows", n: 2, dur: 300, skill: "ninjutsu", target: "self", desc: "Creates two shadow images (three from level 12) that each soak up one melee hit." },
+  flame_shuriken: { name: "Flame Shuriken", jobs: { NIN: 2 }, mp: 6, cast: 1.0, recast: 12, kind: "nuke", element: "fire", power: 18, stat: "int", skill: "ninjutsu", target: "enemy", desc: "Hurls a burning star. Fire damage." },
+  frost_shuriken: { name: "Frost Shuriken", jobs: { NIN: 6 }, mp: 7, cast: 1.0, recast: 12, kind: "nuke", element: "ice", power: 22, stat: "int", skill: "ninjutsu", target: "enemy", desc: "Hurls a star of ice. Ice damage." },
+  binding_thread: { name: "Binding Thread", jobs: { NIN: 8 }, mp: 8, cast: 1.2, recast: 30, kind: "debuff", element: "ice", buff: "bind", dur: 10, enmity: 60, skill: "ninjutsu", target: "enemy", desc: "Snares the target so it can't move for 10 s." },
+  gale_shuriken: { name: "Gale Shuriken", jobs: { NIN: 10 }, mp: 9, cast: 1.0, recast: 12, kind: "nuke", element: "wind", power: 28, stat: "int", skill: "ninjutsu", target: "enemy", desc: "Hurls a whirling star of wind. Wind damage." }
+});
+Object.assign(BUFF_NAMES, { hasso: "Hasso", third_eye: "Third Eye", twin_strike: "Twin Strike", dragon_spirit: "Dragon Spirit", shadows: "Shadow Veil", bind: "Bound" });
+Object.assign(BUFF_ICONS, { hasso: "🎌", third_eye: "👁️", twin_strike: "⚔️", dragon_spirit: "🐉", shadows: "👥" });
+Object.assign(ITEMS, {
+  bronze_tachi: { name: "Bronze Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 13, delay: 3.8, jobs: ["SAM"], lv: 1, price: 150 },
+  iron_tachi: { name: "Iron Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 18, delay: 3.8, jobs: ["SAM"], lv: 6, price: 1150, stats: { str: 1 } },
+  steel_tachi: { name: "Steel Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 24, delay: 3.8, jobs: ["SAM"], lv: 11, price: 3000, stats: { str: 1, acc: 2 } },
+  frost_tachi: { name: "Frostforged Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 34, delay: 3.8, jobs: ["SAM"], lv: 17, price: 10200, stats: { str: 3, acc: 3 } },
+  bronze_katana: { name: "Bronze Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 6, delay: 2.2, jobs: ["NIN"], lv: 1, price: 90 },
+  iron_katana: { name: "Iron Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 10, delay: 2.2, jobs: ["NIN"], lv: 6, price: 950, stats: { agi: 1 } },
+  steel_katana: { name: "Steel Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 14, delay: 2.2, jobs: ["NIN"], lv: 11, price: 2700, stats: { agi: 1, acc: 2 } },
+  rime_katana: { name: "Rimefrost Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 20, delay: 2.2, jobs: ["NIN"], lv: 17, price: 9800, stats: { agi: 3, acc: 4 } },
+  bronze_spear: { name: "Bronze Spear", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 13, delay: 3.9, jobs: ["DRG"], lv: 1, price: 140 },
+  iron_lance: { name: "Iron Lance", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 18, delay: 3.9, jobs: ["DRG"], lv: 6, price: 1150, stats: { str: 1 } },
+  steel_halberd: { name: "Steel Halberd", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 25, delay: 4.0, jobs: ["DRG"], lv: 11, price: 3100, stats: { str: 2 } },
+  frost_lance: { name: "Frostforged Lance", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 35, delay: 4.0, jobs: ["DRG"], lv: 17, price: 10300, stats: { str: 3, acc: 3 } }
+});
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!it.jobs || it.slot === "main") continue;
+  if (it.jobs.includes("WAR")) { if (!it.jobs.includes("SAM")) it.jobs.push("SAM"); if (!it.jobs.includes("DRG")) it.jobs.push("DRG"); }
+  if (it.jobs.includes("THF") && !it.jobs.includes("NIN")) it.jobs.push("NIN");
+}
 const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
@@ -1617,3 +1685,13 @@ for (const zid in ZONES) {
     z.npcs.push({ id, x: Math.round(inner.x + (horiz ? 0 : off)), y: Math.round(inner.y + (horiz ? off : 0)) });
   });
 }
+Object.assign(QUESTS, {
+  sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "bronze_tachi", qty: 1, unlock: "SAM" },
+    intro: "A Samurai fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },
+  nin: { name: "Steps Without Sound", giver: "Tobin", npc: "tobin", lv: 12, items: { bat_wing: 3, worm_silk: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Worm Silk to learn the Ninja's arts.", reward: { xp: 700, gil: 0, item: "bronze_katana", qty: 1, unlock: "NIN" },
+    intro: "A Ninja hides behind shadow images, throws stars of fire and frost, and slips away when the fight turns. Quick hands, quick feet. Bring me bat wings for the shadows and worm silk for the threads.", progress: "3 Bat Wings and 2 Worm Silk. Bats fly at night; worms dig through the Hollow.", turn: "Light, quiet and sharp. Take this katana, and remember: the shadows only take a few hits each." },
+  drg: { name: "Wings of the Wyrm", giver: "Tobin", npc: "tobin", lv: 12, items: { lizard_skin: 3, crag_feather: 1 }, desc: "Bring Tobin 3 Lizard Skins and 1 Crag Feather to take up the Dragoon's lance.", reward: { xp: 700, gil: 0, item: "bronze_spear", qty: 1, unlock: "DRG" },
+    intro: "Dragoons fight with the lance and the leap. They spring high into the air and come down point first, and the spirit of the old wyrms lends them strength. Bring me lizard skins for a grip and a feather from the Crag Talons for luck.", progress: "3 Lizard Skins from the Hollow's hill lizards and 1 Crag Feather from the marsh roost.", turn: "Scale and feather. Here is your spear. Jump high, land hard." }
+});
+SHOP.push("bronze_tachi", "iron_tachi", "steel_tachi", "bronze_katana", "iron_katana", "steel_katana", "bronze_spear", "iron_lance", "steel_halberd");
+if (SHOPS.vela) SHOPS.vela.push("frost_tachi", "rime_katana", "frost_lance");
