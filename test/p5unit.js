@@ -21,7 +21,7 @@ for (const zid of ['hollow', 'den']) {
   }
   ok(!bad.length, zid + ' layout: spawns, NPCs and paths clear of walls and water ' + bad.slice(0, 6).join('; '));
 }
-ok(G.ZONES.hollow.w === 3200 && G.ZONES.hollow.h === 2200 && G.ZONES.den.w === 2400 && G.ZONES.den.h === 1600, 'zone sizes match the plan');
+ok(G.ZONES.hollow.w === 4800 && G.ZONES.hollow.h === 3300 && G.ZONES.den.w === 2400 && G.ZONES.den.h === 1600, 'zone sizes match the plan');
 
 { const v = G.vana(); let d = 10 - v.hour - v.minute / 60; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; }
 G.enterZone('outpost', 610, 440);

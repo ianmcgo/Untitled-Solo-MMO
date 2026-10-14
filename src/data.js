@@ -1099,6 +1099,34 @@ function spreadSpawns(zone, minD) {
     if (!moved) break;
   }
 }
+const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
+const ZONE_FEATURES = {
+  hollow: [{ t: "plateau", x: 2150, y: 420, r: 200, h: 4.5 }, { t: "plateau", x: 300, y: 2000, r: 160, h: 3 }, { t: "ravine", pts: [[650, 560], [900, 470], [1080, 330]], w: 70, d: 3.5 }, { t: "ravine", pts: [[2200, 1950], [2500, 2050], [2800, 1980]], w: 60, d: 3 }],
+  frost: [{ t: "plateau", x: 2400, y: 600, r: 240, h: 6 }, { t: "ravine", pts: [[700, 1700], [1100, 1900], [1500, 1850]], w: 80, d: 5 }],
+  marsh: [{ t: "plateau", x: 2300, y: 600, r: 220, h: 3 }, { t: "ravine", pts: [[500, 900], [800, 1100], [1000, 1400]], w: 70, d: 2.5 }]
+};
+function scaleZone(z, k) {
+  const sc = o => { if (!o) return; if (o.x != null) o.x = Math.round(o.x * k); if (o.y != null) o.y = Math.round(o.y * k); };
+  z.w = Math.round(z.w * k); z.h = Math.round(z.h * k); z.cs = 15; z.vegK = k;
+  for (const e of z.exits || []) {
+    const side = e.x <= 0 ? "w" : e.y <= 0 ? "n" : e.x + e.w >= z.w / k - 1 ? "e" : "s";
+    const cx = (e.x + e.w / 2) * k, cy = (e.y + e.h / 2) * k;
+    if (side === "w" || side === "e") { e.h = Math.round(e.h * k); e.y = Math.round(cy - e.h / 2); e.x = side === "w" ? 0 : z.w - e.w; }
+    else { e.w = Math.round(e.w * k); e.x = Math.round(cx - e.w / 2); e.y = side === "n" ? 0 : z.h - e.h; }
+  }
+  for (const w of z.walls || []) { sc(w); w.w = Math.round(w.w * k); w.h = Math.round(w.h * k); }
+  for (const l of z.landmarks || []) { sc(l); if (l.r) l.r = Math.round(l.r * k); }
+  for (const sp of z.spawns || []) sc(sp);
+  for (const n of z.npcs || []) sc(n);
+  for (const w of z.water || []) { sc(w); w.r = Math.round(w.r * k); }
+  for (const p of z.paths || []) p.pts = p.pts.map(q => [Math.round(q[0] * k), Math.round(q[1] * k)]);
+  if (z.ruins) { z.ruins.walls = (z.ruins.walls || []).map(r => [r[0] * k, r[1] * k, r[2] * k, r[3] * k, r[4]]); z.ruins.pillars = (z.ruins.pillars || []).map(r => [r[0] * k, r[1] * k, r[2]]); }
+  for (const g in z.gather || {}) z.gather[g].at = z.gather[g].at.map(q => [Math.round(q[0] * k), Math.round(q[1] * k)]);
+  sc(z.start);
+  z.features = (ZONE_FEATURES[z.id || ""] || z.features || []).map(f => f.t === "ravine" ? Object.assign({}, f, { pts: f.pts.map(q => [q[0] * k, q[1] * k]), w: f.w * k }) : Object.assign({}, f, { x: f.x * k, y: f.y * k, r: f.r * k }));
+}
+for (const id in ZONE_SCALE) if (ZONES[id]) { ZONES[id].id = id; scaleZone(ZONES[id], ZONE_SCALE[id]); }
+function zsc(id) { return ZONE_SCALE[id] || 1; }
 for (const id in ZONES) if (ZONES[id].spawns.length) spreadSpawns(ZONES[id], id === "hollow" ? 170 : 120);
 
 
@@ -1433,11 +1461,12 @@ const MOUNT_COATS = {
   ivory: { name: "Frost Ivory", main: 0xd8d8e0, dark: 0x9a9aa8, glow: 0x80d8ff, price: 2000 }
 };
 const SADDLE_PRICE = 2500, SADDLE_BONUS = 1.15;
-const RACE = {
+const RACE_BASE = {
   zone: "hollow", start: { x: 120, y: 1100 },
   checkpoints: [{ x: 800, y: 1010, name: "the old road" }, { x: 1450, y: 1880, name: "Burrow Flats" }, { x: 2515, y: 680, name: "the Old Fort" }, { x: 2650, y: 1440, name: "the Goblin Camp" }, { x: 3000, y: 1080, name: "the Eastern Gate" }],
   radius: 90, limit: 75, medals: [["gold", 26, 1200], ["silver", 36, 600], ["bronze", 50, 300]]
-};
+};const RACE = (() => { const k = zsc(RACE_BASE.zone), r = Object.assign({}, RACE_BASE); r.start = { x: RACE_BASE.start.x * k, y: RACE_BASE.start.y * k }; r.checkpoints = RACE_BASE.checkpoints.map(c => Object.assign({}, c, { x: c.x * k, y: c.y * k })); r.limit = Math.round(RACE_BASE.limit * k); r.medals = RACE_BASE.medals.map(m => [m[0], Math.round(m[1] * k), m[2]]); return r; })();
+
 const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 
 const PETS = {
@@ -1483,15 +1512,31 @@ for (const zid in ZONES) {
 }
 for (const zid in ZONES) {
   const z = ZONES[zid];
+  const outside = q => q[0] < 0 || q[1] < 0 || q[0] > z.w || q[1] > z.h;
   for (const p of z.paths || []) for (const e of z.exits || []) {
     if (!e.hall) continue;
     const ec = { x: e.x + e.w / 2, y: e.y + e.h / 2 }, inner = exitInner(z, e);
+    const dEc = q => Math.hypot(q[0] - ec.x, q[1] - ec.y);
+    const dl = Math.hypot(inner.x - ec.x, inner.y - ec.y) || 1, ox = inner.x + (inner.x - ec.x) / dl * 150, oy = inner.y + (inner.y - ec.y) / dl * 150;
     for (const end of [0, 1]) {
-      const i = end ? p.pts.length - 1 : 0, pt = p.pts[i];
-      if (Math.hypot(pt[0] - ec.x, pt[1] - ec.y) > e.hall + 260) continue;
-      const near = (q, r) => Math.hypot(q[0] - r.x, q[1] - r.y);
+      const i = end ? p.pts.length - 1 : 0, pt = p.pts[i], other = p.pts[end ? 0 : p.pts.length - 1];
+      if (outside(pt)) {
+        if (dEc(pt) > e.hall + 900 || p.done) continue;
+        const pts = end ? p.pts.slice() : p.pts.slice().reverse(), tail = [];
+        while (pts.length && outside(pts[pts.length - 1])) tail.unshift(pts.pop());
+        if (!tail.length || !pts.length) continue;
+        const crossX = tail[0];
+        if (dEc(crossX) > e.hall + 900) continue;
+        while (pts.length > 1 && dEc(pts[pts.length - 1]) < e.hall + 150) pts.pop();
+        pts.push([Math.round(ox), Math.round(oy)], [Math.round(inner.x), Math.round(inner.y)], [Math.round(ec.x), Math.round(ec.y)], ...tail);
+        p.pts = end ? pts : pts.reverse();
+        p.done = true;
+        continue;
+      }
+      if (outside(other)) continue;
+      if (dEc(pt) > e.hall + 260) continue;
       const pts = end ? p.pts.slice() : p.pts.slice().reverse();
-      while (pts.length > 1 && near(pts[pts.length - 1], ec) < e.hall + 120) pts.pop();
+      while (pts.length > 1 && dEc(pts[pts.length - 1]) < e.hall + 120) pts.pop();
       pts.push([Math.round(inner.x), Math.round(inner.y)], [Math.round(ec.x), Math.round(ec.y)]);
       p.pts = end ? pts : pts.reverse();
     }

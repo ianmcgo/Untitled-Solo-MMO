@@ -29,7 +29,7 @@ function* scaleSteps(gen, a, b, text) {
 function* buildFieldSteps(zone) {
   const theme = themeOf(zone);
   const M = zone.indoor ? 40 : 640;
-  const cs = zone.indoor ? 8 : 12;
+  const cs = zone.indoor ? 8 : (zone.cs || 12);
   const x0 = -M, y0 = -M, w = zone.w + 2 * M, h = zone.h + 2 * M;
   const cols = Math.ceil(w / cs) + 1, rows = Math.ceil(h / cs) + 1;
   const amps = { town: [0.7, 0.12, 6], field: [2.6, 0.35, 11], cave: [0.8, 0.45, 13], crypt: [0.25, 0.1, 12], house: [0, 0, 0] }[theme];
@@ -96,6 +96,10 @@ function* buildFieldSteps(zone) {
       const flat = sstep(wt.r + 110, wt.r + 10, d);
       hgt = mix(hgt, waterLevel + 0.35, flat);
       hgt -= (1 - sstep(wt.r * 0.45, wt.r + 22, d)) * 1.7;
+    }
+    for (const f of zone.features || []) {
+      if (f.t === "plateau") { const d = Math.hypot(px - f.x, py - f.y) + (NOISE.value(px * 0.02, py * 0.02, 0, 411) - 0.5) * f.r * 0.25; hgt += sstep(f.r, f.r * 0.62, d) * f.h * (1 - pw * 0.8); }
+      else if (f.t === "ravine") { let d = 1e9; for (let i = 0; i < f.pts.length - 1; i++) d = Math.min(d, distToSeg(px, py, f.pts[i][0], f.pts[i][1], f.pts[i + 1][0], f.pts[i + 1][1])); hgt -= sstep(f.w, f.w * 0.25, d) * f.d * (1 - pw); }
     }
     const e = edgeE(px, py);
     if (walls.length && amps[2] > 0) {
@@ -263,7 +267,8 @@ function buildVegetation(field, root) {
   const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
   const pines = [], leafy = [], leafy2 = [], rocks = [], smallRocks = [], tufts = [], stal = [], bushes = [], flowers = [], logs = [];
   const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
-  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts;
+  if (z.vegK) for (const kk of ["trees", "rocks", "small"]) want[kk] = Math.round(want[kk] * z.vegK);
+  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1);
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);

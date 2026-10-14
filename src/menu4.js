@@ -1453,6 +1453,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.7.0", date: "2026-10-14", title: "Wider lands", items: [
+    "Rocky Hollow is half again as large in each direction, and Frostspire Pass and the Ashen Marsh are 40% larger. Monster camps, landmarks, gathering spots, lakes and roads have all spread out, so there's more open country between fights.",
+    "New terrain to explore: raised plateaus with rocky slopes and shallow ravines cut across each of these areas.",
+    "More trees, rocks and grass fill the extra space. The Hollow Run course is longer, with more time allowed and adjusted medal times.",
+    "If you logged out in one of these areas, you'll be placed at the matching spot in the bigger version."
+  ] },
   { v: "10.6.0", date: "2026-10-14", title: "Distant horizons", items: [
     "Outdoor areas now sit in a wider world: three layers of distant hills and mountains ring every field and town, fading into the haze the further away they are, and darkening at night.",
     "Each area has its own skyline: rolling hills around the Outpost and Rocky Hollow, snow-capped peaks above Frostspire Pass, low misty ridges around the Ashen Marsh, and open sea gaps around Saltreach Harbor.",

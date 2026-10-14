@@ -21,7 +21,7 @@ const moved = P().x - x0; ok(moved > 140 * 1.9 && moved < 140 * 2.4, 'mounted sp
 const m = S.mobs.find(mm => mm.alive && mm.fam.aggro);
 ok(m && !G.detects(m, P()), 'monsters ignore riders');
 G.toggleMount(); ok(!P().mounted && !S.party.some(p => p.mounted), 'dismount');
-G.toggleMount(); const t = G.nearestMob(); P().target = t; G.toggleEngage(false); ok(!P().mounted && P().engaged, 'engaging dismounts');
+G.toggleMount(); const t = S.mobs.filter(mm => mm.alive).sort((a, b) => Math.hypot(a.x - P().x, a.y - P().y) - Math.hypot(b.x - P().x, b.y - P().y))[0]; P().x = t.x - 60; P().y = t.y; P().target = t; G.toggleEngage(false); ok(!P().mounted && P().engaged, 'engaging dismounts');
 P().engaged = false; P().attackTarget = null; for (const mm of S.mobs) { mm.state = 'idle'; mm.enmity.clear(); }
 G.toggleMount(); G.enterZone('outpost', 990, 400); ok(!P().mounted, 'entering town dismounts');
 const back = G.importSaveText(G.exportSaveText()); ok(back.mountLicense === true && back.look && back.look.hairStyle != null, 'license and appearance survive save files');

@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.6.0 · built 2026-10-14 03:08 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.7.0 · built 2026-10-14 03:18 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6882,6 +6882,34 @@ function spreadSpawns(zone, minD) {
     if (!moved) break;
   }
 }
+const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
+const ZONE_FEATURES = {
+  hollow: [{ t: "plateau", x: 2150, y: 420, r: 200, h: 4.5 }, { t: "plateau", x: 300, y: 2000, r: 160, h: 3 }, { t: "ravine", pts: [[650, 560], [900, 470], [1080, 330]], w: 70, d: 3.5 }, { t: "ravine", pts: [[2200, 1950], [2500, 2050], [2800, 1980]], w: 60, d: 3 }],
+  frost: [{ t: "plateau", x: 2400, y: 600, r: 240, h: 6 }, { t: "ravine", pts: [[700, 1700], [1100, 1900], [1500, 1850]], w: 80, d: 5 }],
+  marsh: [{ t: "plateau", x: 2300, y: 600, r: 220, h: 3 }, { t: "ravine", pts: [[500, 900], [800, 1100], [1000, 1400]], w: 70, d: 2.5 }]
+};
+function scaleZone(z, k) {
+  const sc = o => { if (!o) return; if (o.x != null) o.x = Math.round(o.x * k); if (o.y != null) o.y = Math.round(o.y * k); };
+  z.w = Math.round(z.w * k); z.h = Math.round(z.h * k); z.cs = 15; z.vegK = k;
+  for (const e of z.exits || []) {
+    const side = e.x <= 0 ? "w" : e.y <= 0 ? "n" : e.x + e.w >= z.w / k - 1 ? "e" : "s";
+    const cx = (e.x + e.w / 2) * k, cy = (e.y + e.h / 2) * k;
+    if (side === "w" || side === "e") { e.h = Math.round(e.h * k); e.y = Math.round(cy - e.h / 2); e.x = side === "w" ? 0 : z.w - e.w; }
+    else { e.w = Math.round(e.w * k); e.x = Math.round(cx - e.w / 2); e.y = side === "n" ? 0 : z.h - e.h; }
+  }
+  for (const w of z.walls || []) { sc(w); w.w = Math.round(w.w * k); w.h = Math.round(w.h * k); }
+  for (const l of z.landmarks || []) { sc(l); if (l.r) l.r = Math.round(l.r * k); }
+  for (const sp of z.spawns || []) sc(sp);
+  for (const n of z.npcs || []) sc(n);
+  for (const w of z.water || []) { sc(w); w.r = Math.round(w.r * k); }
+  for (const p of z.paths || []) p.pts = p.pts.map(q => [Math.round(q[0] * k), Math.round(q[1] * k)]);
+  if (z.ruins) { z.ruins.walls = (z.ruins.walls || []).map(r => [r[0] * k, r[1] * k, r[2] * k, r[3] * k, r[4]]); z.ruins.pillars = (z.ruins.pillars || []).map(r => [r[0] * k, r[1] * k, r[2]]); }
+  for (const g in z.gather || {}) z.gather[g].at = z.gather[g].at.map(q => [Math.round(q[0] * k), Math.round(q[1] * k)]);
+  sc(z.start);
+  z.features = (ZONE_FEATURES[z.id || ""] || z.features || []).map(f => f.t === "ravine" ? Object.assign({}, f, { pts: f.pts.map(q => [q[0] * k, q[1] * k]), w: f.w * k }) : Object.assign({}, f, { x: f.x * k, y: f.y * k, r: f.r * k }));
+}
+for (const id in ZONE_SCALE) if (ZONES[id]) { ZONES[id].id = id; scaleZone(ZONES[id], ZONE_SCALE[id]); }
+function zsc(id) { return ZONE_SCALE[id] || 1; }
 for (const id in ZONES) if (ZONES[id].spawns.length) spreadSpawns(ZONES[id], id === "hollow" ? 170 : 120);
 
 
@@ -7216,11 +7244,12 @@ const MOUNT_COATS = {
   ivory: { name: "Frost Ivory", main: 0xd8d8e0, dark: 0x9a9aa8, glow: 0x80d8ff, price: 2000 }
 };
 const SADDLE_PRICE = 2500, SADDLE_BONUS = 1.15;
-const RACE = {
+const RACE_BASE = {
   zone: "hollow", start: { x: 120, y: 1100 },
   checkpoints: [{ x: 800, y: 1010, name: "the old road" }, { x: 1450, y: 1880, name: "Burrow Flats" }, { x: 2515, y: 680, name: "the Old Fort" }, { x: 2650, y: 1440, name: "the Goblin Camp" }, { x: 3000, y: 1080, name: "the Eastern Gate" }],
   radius: 90, limit: 75, medals: [["gold", 26, 1200], ["silver", 36, 600], ["bronze", 50, 300]]
-};
+};const RACE = (() => { const k = zsc(RACE_BASE.zone), r = Object.assign({}, RACE_BASE); r.start = { x: RACE_BASE.start.x * k, y: RACE_BASE.start.y * k }; r.checkpoints = RACE_BASE.checkpoints.map(c => Object.assign({}, c, { x: c.x * k, y: c.y * k })); r.limit = Math.round(RACE_BASE.limit * k); r.medals = RACE_BASE.medals.map(m => [m[0], Math.round(m[1] * k), m[2]]); return r; })();
+
 const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 
 const PETS = {
@@ -7266,15 +7295,31 @@ for (const zid in ZONES) {
 }
 for (const zid in ZONES) {
   const z = ZONES[zid];
+  const outside = q => q[0] < 0 || q[1] < 0 || q[0] > z.w || q[1] > z.h;
   for (const p of z.paths || []) for (const e of z.exits || []) {
     if (!e.hall) continue;
     const ec = { x: e.x + e.w / 2, y: e.y + e.h / 2 }, inner = exitInner(z, e);
+    const dEc = q => Math.hypot(q[0] - ec.x, q[1] - ec.y);
+    const dl = Math.hypot(inner.x - ec.x, inner.y - ec.y) || 1, ox = inner.x + (inner.x - ec.x) / dl * 150, oy = inner.y + (inner.y - ec.y) / dl * 150;
     for (const end of [0, 1]) {
-      const i = end ? p.pts.length - 1 : 0, pt = p.pts[i];
-      if (Math.hypot(pt[0] - ec.x, pt[1] - ec.y) > e.hall + 260) continue;
-      const near = (q, r) => Math.hypot(q[0] - r.x, q[1] - r.y);
+      const i = end ? p.pts.length - 1 : 0, pt = p.pts[i], other = p.pts[end ? 0 : p.pts.length - 1];
+      if (outside(pt)) {
+        if (dEc(pt) > e.hall + 900 || p.done) continue;
+        const pts = end ? p.pts.slice() : p.pts.slice().reverse(), tail = [];
+        while (pts.length && outside(pts[pts.length - 1])) tail.unshift(pts.pop());
+        if (!tail.length || !pts.length) continue;
+        const crossX = tail[0];
+        if (dEc(crossX) > e.hall + 900) continue;
+        while (pts.length > 1 && dEc(pts[pts.length - 1]) < e.hall + 150) pts.pop();
+        pts.push([Math.round(ox), Math.round(oy)], [Math.round(inner.x), Math.round(inner.y)], [Math.round(ec.x), Math.round(ec.y)], ...tail);
+        p.pts = end ? pts : pts.reverse();
+        p.done = true;
+        continue;
+      }
+      if (outside(other)) continue;
+      if (dEc(pt) > e.hall + 260) continue;
       const pts = end ? p.pts.slice() : p.pts.slice().reverse();
-      while (pts.length > 1 && near(pts[pts.length - 1], ec) < e.hall + 120) pts.pop();
+      while (pts.length > 1 && dEc(pts[pts.length - 1]) < e.hall + 120) pts.pop();
       pts.push([Math.round(inner.x), Math.round(inner.y)], [Math.round(ec.x), Math.round(ec.y)]);
       p.pts = end ? pts : pts.reverse();
     }
@@ -7416,6 +7461,8 @@ function normalizeSave(d) {
   out.skills = newSave().skills;
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
+  if (!d.zv && out.loc && ZONE_SCALE[out.loc.zone]) { out.loc = Object.assign({}, out.loc, { x: Math.round(out.loc.x * ZONE_SCALE[out.loc.zone]), y: Math.round(out.loc.y * ZONE_SCALE[out.loc.zone]) }); }
+  out.zv = 1;
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
@@ -8748,7 +8795,7 @@ function tickBattlefield() {
   if (S.time >= b.until) {
     S.bf = null;
     log("The water rises and sweeps you out of the chapel. Time's up.", "foe");
-    enterZone("marsh", 640, 2050);
+    enterZone("marsh", 640 * zsc("marsh"), 2050 * zsc("marsh"));
     return;
   }
   const boss = S.mobs.find(m => m.famKey === "tide_priest");
@@ -14613,13 +14660,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v10.6.0 · built 2026-10-14 03:08 PDT";
+const BUILD_INFO = "v10.7.0 · built 2026-10-14 03:18 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "10.7.0", date: "2026-10-14", title: "Wider lands", items: [
+    "Rocky Hollow is half again as large in each direction, and Frostspire Pass and the Ashen Marsh are 40% larger. Monster camps, landmarks, gathering spots, lakes and roads have all spread out, so there's more open country between fights.",
+    "New terrain to explore: raised plateaus with rocky slopes and shallow ravines cut across each of these areas.",
+    "More trees, rocks and grass fill the extra space. The Hollow Run course is longer, with more time allowed and adjusted medal times.",
+    "If you logged out in one of these areas, you'll be placed at the matching spot in the bigger version."
   ] },
   { v: "10.6.0", date: "2026-10-14", title: "Distant horizons", items: [
     "Outdoor areas now sit in a wider world: three layers of distant hills and mountains ring every field and town, fading into the haze the further away they are, and darkening at night.",
@@ -15510,7 +15563,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "10.6.0";
+const GAME_VERSION = "10.7.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -16127,7 +16180,7 @@ function* scaleSteps(gen, a, b, text) {
 function* buildFieldSteps(zone) {
   const theme = themeOf(zone);
   const M = zone.indoor ? 40 : 640;
-  const cs = zone.indoor ? 8 : 12;
+  const cs = zone.indoor ? 8 : (zone.cs || 12);
   const x0 = -M, y0 = -M, w = zone.w + 2 * M, h = zone.h + 2 * M;
   const cols = Math.ceil(w / cs) + 1, rows = Math.ceil(h / cs) + 1;
   const amps = { town: [0.7, 0.12, 6], field: [2.6, 0.35, 11], cave: [0.8, 0.45, 13], crypt: [0.25, 0.1, 12], house: [0, 0, 0] }[theme];
@@ -16194,6 +16247,10 @@ function* buildFieldSteps(zone) {
       const flat = sstep(wt.r + 110, wt.r + 10, d);
       hgt = mix(hgt, waterLevel + 0.35, flat);
       hgt -= (1 - sstep(wt.r * 0.45, wt.r + 22, d)) * 1.7;
+    }
+    for (const f of zone.features || []) {
+      if (f.t === "plateau") { const d = Math.hypot(px - f.x, py - f.y) + (NOISE.value(px * 0.02, py * 0.02, 0, 411) - 0.5) * f.r * 0.25; hgt += sstep(f.r, f.r * 0.62, d) * f.h * (1 - pw * 0.8); }
+      else if (f.t === "ravine") { let d = 1e9; for (let i = 0; i < f.pts.length - 1; i++) d = Math.min(d, distToSeg(px, py, f.pts[i][0], f.pts[i][1], f.pts[i + 1][0], f.pts[i + 1][1])); hgt -= sstep(f.w, f.w * 0.25, d) * f.d * (1 - pw); }
     }
     const e = edgeE(px, py);
     if (walls.length && amps[2] > 0) {
@@ -16361,7 +16418,8 @@ function buildVegetation(field, root) {
   const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
   const pines = [], leafy = [], leafy2 = [], rocks = [], smallRocks = [], tufts = [], stal = [], bushes = [], flowers = [], logs = [];
   const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
-  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts;
+  if (z.vegK) for (const kk of ["trees", "rocks", "small"]) want[kk] = Math.round(want[kk] * z.vegK);
+  const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1);
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
