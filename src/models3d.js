@@ -62,7 +62,7 @@ function viewFor(e) {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
     lodEntry: inst.lodEntry, lo: null,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
-    style: styleFor(e), stride: kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
+    style: styleFor(e), stride: inst.meta.race === "pipkin" ? 1.05 : inst.meta.race === "ursan" ? 2.05 : inst.meta.race === "elari" ? 1.85 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
   if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }
