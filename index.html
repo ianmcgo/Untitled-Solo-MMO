@@ -522,7 +522,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.3.0 · built 2026-10-13 16:23 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.4.0 · built 2026-10-13 17:10 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5517,8 +5517,8 @@ const ABILITIES = {
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -5910,7 +5910,7 @@ const ZONES = {
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
       { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
       { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
-      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }
+      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
     ],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
@@ -6078,7 +6078,7 @@ ZONES.harbor = {
   exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }, { x: 1376, y: 380, w: 24, h: 100, to: "frost", tx: 110, ty: 1200, label: "Frostspire Pass" }],
   npcs: [
     { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
-    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }
+    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }, { id: "guard_north", x: 530, y: 80 }, { id: "guard_pass", x: 1330, y: 340 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1180, r: 360 }, { x: 900, y: 1230, r: 420 }, { x: 1350, y: 1100, r: 260 }],
@@ -6212,6 +6212,9 @@ const NPCS = {
   garrick: { name: "Garrick, Smith", model: "garrick", talk: "talkGarrick" },
   trade_board: { name: "Trade Board", prop: "board", talk: "talkBoard" },
   maera: { name: "Maera, Adventurers' Guild", model: "maera", talk: "talkMaera" },
+  guard_east: { name: "Gate Guard Aldo", model: "guard", talk: "talkGuard" },
+  guard_north: { name: "Harbor Guard Senna", model: "guard_f", talk: "talkGuard" },
+  guard_pass: { name: "Harbor Guard Tomas", model: "guard", talk: "talkGuard" },
   corvin: { name: "Corvin, Auction House", model: "corvin", talk: "talkAuction" },
   selene: { name: "Selene, Auction House", model: "selene", talk: "talkAuction" },
   odette: { name: "Odette, Furnishings", model: "odette", talk: "talkOdette", shop: "furniture" },
@@ -6412,6 +6415,17 @@ const STORY = [
     { type: "talk", npc: "rhea", goal: "Return to Captain Rhea in Ashenreach Outpost.", text: ["The ash stopped falling this morning. Every soul in the Outpost walked out to watch the sky clear.", "I don't know what that throne is, or who its king was. But I know who stood between it and us. Take this. It's been kept at the Outpost since before my time, waiting for someone who earned it."] }
   ] }
 ];
+
+const BLESSING = { baseMin: 60, perRankMin: 30, maxMin: 210 };
+
+const RACES = {
+  human: { name: "Human", icon: "🧑", sex: null, hp: 1, mp: 1, speed: 1, attrs: {}, blurb: "Balanced at everything. No strengths, no weaknesses." },
+  elari: { name: "Elari", icon: "🧝", sex: null, hp: 0.88, mp: 1.15, speed: 1, attrs: { dex: 2, agi: 1, int: 2, mnd: 2, vit: -2 }, rangedAcc: 8, blurb: "Tall, long-eared and graceful. Strong magic and a sharp eye with a bow (+ranged accuracy), but frail: less HP and VIT." },
+  pipkin: { name: "Pipkin", icon: "🧸", sex: null, hp: 0.8, mp: 1.3, speed: 1.08, attrs: { int: 4, mnd: 3, agi: 2, str: -3, vit: -2 }, attMul: 0.92, blurb: "Small, round and doll-like. The best spellcasters of all and quick on their feet, but weak: low HP, STR and attack." },
+  ursan: { name: "Ursan", icon: "🐻", sex: 0, hp: 1.25, mp: 0.75, speed: 0.94, attrs: { str: 3, vit: 4, int: -3, mnd: -2, agi: -2 }, blurb: "Huge, shaggy and tough as stone. The most HP, STR and VIT, but poor at magic and a little slow. Always male." },
+  nekari: { name: "Nekari", icon: "🐱", sex: 1, hp: 0.9, mp: 1.1, speed: 1.06, attrs: { agi: 3, dex: 2, int: 2, mnd: 1, str: -1, vit: -1 }, blurb: "Cat-eared and lithe. Fast, nimble and good with magic, but slight: a little less HP. Always female." }
+};
+const RACE_ORDER = ["human", "elari", "pipkin", "ursan", "nekari"];
 
 const AH_CATS = { materials: "Materials", consumables: "Consumables", weapons: "Weapons", armor: "Armor" };
 const AH_CFG = { fee: 0.03, maxListings: 7, checkMs: 60000, expireMs: 3 * 3600000, tickMins: 360 };
@@ -6664,7 +6678,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
@@ -6783,6 +6797,8 @@ function createChar(opts) {
   d.name = opts.name;
   d.mainJob = JOBS[opts.job] ? opts.job : "WAR";
   d.look = Object.assign(newSave().look, opts.look || {});
+  if (!RACES[d.look.race]) d.look.race = "human";
+  if (RACES[d.look.race].sex != null) d.look.build = RACES[d.look.race].sex;
   if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" };
   else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" };
   d.inventory = [{ id: "potion", qty: 3 }];
@@ -6945,10 +6961,13 @@ function buildStats(ch) {
   s.wtype = wtype;
   ch.stats = s;
   const wsk = skillOf(ch, wtype);
-  s.maxHp = Math.round(hp + g.hp);
-  s.maxMp = Math.round(mp + g.mp);
+  const rc = ch.kind === "pc" && typeof save !== "undefined" && save.look ? RACES[save.look.race] || RACES.human : null;
+  if (rc) for (const k in rc.attrs) s[k] = Math.max(1, Math.round(s[k] + rc.attrs[k] * (1 + lv / 20)));
+  s.maxHp = Math.round((hp + g.hp) * (rc ? rc.hp : 1));
+  s.maxMp = Math.round((mp + g.mp) * (rc && mp > 0 ? rc.mp : 1));
   s.acc = Math.round(58 + s.dex * 0.5 + 0.6 * wsk + lv + g.acc);
-  s.att = Math.round(10 + s.str + 4 * lv + g.att);
+  s.att = Math.round((10 + s.str + 4 * lv + g.att) * (rc && rc.attMul ? rc.attMul : 1));
+  if (rc && rc.rangedAcc && wtype === "archery") s.acc += rc.rangedAcc;
   s.def = Math.round(8 + s.vit * 0.5 + 3 * lv + g.def);
   s.eva = Math.round(50 + s.agi * 0.5 + 3 * lv + g.eva);
   if (ch.mercId && typeof save !== "undefined" && save.bond) {
@@ -6958,6 +6977,7 @@ function buildStats(ch) {
   ch.maxHp = s.maxHp;
   ch.maxMp = s.maxMp;
   ch.delay = delay;
+  if (ch.kind === "pc") ch.speed = 140 * (rc ? rc.speed : 1);
   ch.hp = ch.hp == null ? s.maxHp : Math.min(ch.hp, s.maxHp);
   ch.mp = ch.mp == null ? s.maxMp : Math.min(ch.mp, s.maxMp);
   ch.color = ch.mercId ? MERCS[ch.mercId].color : ch.pet ? (ch.color || "#4dd0e1") : JOBS[ch.job].color;
@@ -7570,6 +7590,7 @@ function dropLoot(m) {
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
+    if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
     if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1)) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     if (ITEMS[id].kind === "equip" && S.party.length > 1) { addToPool(id); continue; }
@@ -7651,6 +7672,30 @@ function eatFood(id) {
 }
 
 function foodText(fd) { return Object.keys(fd).map(k => STAT_LABELS[k] + " +" + fd[k]).join(", "); }
+
+function blessingMinutes() { return Math.min(BLESSING.maxMin, BLESSING.baseMin + BLESSING.perRankMin * guildRank()); }
+function blessed() { return !!(save.blessing && save.blessing > Date.now()); }
+
+function giveBlessing() {
+  const mins = blessingMinutes();
+  save.blessing = Date.now() + mins * 60000;
+  save.stats.blessings = (save.stats.blessings || 0) + 1;
+  log("You receive the City Blessing. Monsters will yield essences for " + mins + " minutes.", "loot");
+  popText(player, "City Blessing", "#ffd54f", 14, 1.2, 14);
+  ring(player, "#ffd54f", 30, 0.8, "sparkle");
+  sfx("buff", player);
+  vfx("buff", { tgt: player, id: "blessing" });
+  tickBlessing();
+  saveGame();
+}
+
+function tickBlessing() {
+  if (!save.blessing) { if (player.buffs.blessing) delete player.buffs.blessing; return; }
+  const left = (save.blessing - Date.now()) / 1000;
+  if (left <= 0) { save.blessing = 0; delete player.buffs.blessing; log("The City Blessing fades. Visit a gate guard for another.", "sys"); return; }
+  if (!player.buffs.blessing) player.buffs.blessing = { until: S.time + left + 1 };
+  else player.buffs.blessing.until = S.time + left + 1;
+}
 
 function tickFood() {
   const f = save.food;
@@ -9502,7 +9547,7 @@ function step(dt) {
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); } }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
@@ -9812,6 +9857,7 @@ function questMarker(n) {
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
+  if (n.talk === "talkGuard") return !blessed();
   { const st = storyStep(); if (st && st.type === "talk" && st.npc === n.id && storyReady()) return true; }
   if (n.id === "maera") return Object.keys(save.guild.active).some(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && save.guild.active[id] >= b.n; }) || (player.lv >= 2 && !save.guild.total && !Object.keys(save.guild.active).length);
   return false;
@@ -10116,6 +10162,13 @@ const TALK = {
   talkGarrick(n) {
     openDialog(n.name, "Gear's only as good as the hands that finish it. Bring me iron ore, a fire essence and some crystals, and I'll work a little extra into any piece you own: up to two augments each. Don't like what you got? I can reforge it.", [
       { label: "Augment gear", fn: () => { closeDialog(); openModal("forge"); } }
+    ]);
+  },
+  talkGuard(n) {
+    const mins = blessingMinutes(), left = blessed() ? Math.ceil((save.blessing - Date.now()) / 60000) : 0;
+    const rank = GUILD_RANKS[guildRank()][0];
+    openDialog(n.name, (left ? "Your City Blessing holds for another " + left + " minute" + (left > 1 ? "s" : "") + ". " : "Heading out? Monsters only yield essences to those who carry the City Blessing, and it fades after a while. ") + "At " + rank + " rank the blessing lasts " + mins + " minutes. Shall I renew it?", [
+      { label: left ? "Renew the City Blessing (" + mins + " min)" : "Receive the City Blessing (" + mins + " min)", fn: () => { closeDialog(); giveBlessing(); } }
     ]);
   },
   talkAuction(n) {
@@ -11702,7 +11755,7 @@ function statDeltaHTML(base, next, compact) {
 function tabCharacter() {
   const s = player.stats;
   const cmp = UI.cmp && ITEMS[UI.cmp] ? statsFor(Object.assign({}, save.gear, { [ITEMS[UI.cmp].slot]: UI.cmp })) : null;
-  let h = '<div class="charGrid"><div><div id="pvWrap"><div class="lbl">' + esc(save.name || "Adventurer") + "<small>" + JOBS[player.job].name + " Lv." + player.lv + (player.sub ? " / " + JOBS[player.sub].name + " Lv." + Math.floor(player.lv / 2) : "") + "</small></div></div>";
+  let h = '<div class="charGrid"><div><div id="pvWrap"><div class="lbl">' + esc(save.name || "Adventurer") + "<small>" + (RACES[save.look.race] || RACES.human).name + " · " + JOBS[player.job].name + " Lv." + player.lv + (player.sub ? " / " + JOBS[player.sub].name + " Lv." + Math.floor(player.lv / 2) : "") + "</small></div></div>";
   h += '<div class="paper">';
   for (const slot of SLOTS) {
     const id = save.gear[slot];
@@ -12622,8 +12675,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v6.3.0 · built 2026-10-13 16:23 PDT";
+const BUILD_INFO = "v6.4.0 · built 2026-10-13 17:10 PDT";
 const UPDATES = [
+  { v: "6.4.0", date: "2026-10-13", title: "Five Races and the City Blessing", items: [
+    "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like; the best casters, fast, but weak and frail), Ursan (huge; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
+    "Race changes your body shape, ears and tail, and gives modest stat bonuses and penalties. Existing characters are Human.",
+    "City Blessing: gate guards now stand at every town exit. Monsters only yield elemental essences while you carry the blessing, which lasts 60 minutes at Copper rank and 30 minutes more per guild rank (up to 3½ hours). Talk to a guard before you head out.",
+    "The character sheet and roster now show your race."
+  ] },
   { v: "6.3.0", date: "2026-10-13", title: "The Auction House", items: [
     "Auction houses open in Ashenreach Outpost (Corvin, west of the crystal) and Saltreach Harbor (Selene, by the crystal).",
     "Prices move all the time. Each item drifts up and down over the game day, daily market news pushes one category up and another down, and your own buying and selling nudges prices too.",
@@ -12887,6 +12946,16 @@ function tabHelp() {
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
+  h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
+    "Pick a race at character creation. It's permanent, like the rest of your appearance. Race shapes your body and gives small stat bonuses and penalties that grow a little with level; your job still matters far more.",
+    "Elari get extra accuracy with bows. Pipkin and Nekari move faster; Ursan a little slower. HP and MP are multiplied: Ursan +25% HP but −25% MP, Pipkin −20% HP but +30% MP."
+  ]));
+  h += sec("🏰 The City Blessing", ul([
+    "Gate guards stand at every town exit: Aldo at the Outpost's east gate, Senna and Tomas at Saltreach's two gates. Talk to one before you leave and they'll bless you.",
+    "<b>Elemental essences only drop while you're blessed</b>, and only from monsters that still give you experience. Everything else (materials, consumables, notorious monster gear) drops as usual.",
+    "The blessing lasts " + BLESSING.baseMin + " minutes at Copper guild rank, " + BLESSING.perRankMin + " minutes more per Adventurers' Guild rank, up to " + BLESSING.maxMin + " minutes at Mythril. It counts down in real time, even while you're logged out. The 🏰 icon on your party frame shows it's active, and a guard with a ❗ means you've no blessing.",
+    "You can renew it any time; renewing restarts the timer."
+  ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
     ["Warrior", "Tank or damage", "Provoke, Berserk, Warcry (level 15: +20% attack for nearby allies), great axe A, sword B"],
     ["White Mage", "Healer", "Cure through Cure IV (level 19), Dia, Banish, Protect, Divine Seal"],
@@ -12919,7 +12988,7 @@ function tabHelp() {
     ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high-quality items", "5–10%"],
     ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques and gear", "30–35%"],
     ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
-  ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, crystals and consumables; gear comes from NMs, quests and Pell's shop.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
+  ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, consumables and (only while you carry the <b>City Blessing</b>) elemental essences; gear comes from NMs, quests and Pell's shop.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, auction house, home point"],
     ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs"],
@@ -13063,7 +13132,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "6.3.0";
+const GAME_VERSION = "6.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -15014,6 +15083,8 @@ const NPC_LOOK = {
   tobin: { build: 0, skin: SKIN_TONES[0], hair: { style: "bald", color: 0xdedede }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x5a3a7a, trim: 0xd8b050, sleeves: "wide" }, legs: 0x3a2a4a, weapon: "staff", alwaysDrawn: true },
   ilsa: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x1f3a5a, trim: 0xd8c070 }, head: { type: "feathered", color: 0x1f2a3a, color2: 0xd8c070 }, legs: 0x2a2a30, boots: 0x1a1410, belt: 0x3a2a1a, weapon: "sword", prop: { leg: 0.9 } },
   marn: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[2] }, beard: HAIR_COLORS[2], top: { type: "apron", color: 0x5a8aa8, color2: 0xd8d0c0 }, head: { type: "bandana", color: 0x1a5a8a }, legs: 0x3a4048, boots: 0x2a2a2a, belt: 0x3a2a1a, prop: { girth: 1.15 } },
+  guard: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[0] }, top: { type: "tabard", color: 0x2f4a7a, region: "chain", color2: 0xd8c070 }, head: { type: "helm", color: 0x8a90a0 }, pauldrons: 0x8a90a0, legs: 0x2a2a30, boots: 0x2a1a10, gloves: 0x4a3a28, belt: 0x3a2412, weapon: "sword", alwaysDrawn: false, prop: { girth: 1.08, shoulder: 0.21 } },
+  guard_f: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[1] }, top: { type: "tabard", color: 0x2f4a7a, region: "chain", color2: 0xd8c070 }, head: { type: "cap", color: 0x8a90a0 }, pauldrons: 0x8a90a0, legs: 0x2a2a30, boots: 0x2a1a10, gloves: 0x4a3a28, belt: 0x3a2412, weapon: "sword", alwaysDrawn: false },
   corvin: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[5] }, beard: HAIR_COLORS[5], top: { type: "coat", color: 0x2a4a3a, trim: 0xd8c070 }, legs: 0x2a2620, boots: 0x2a1a10, belt: 0x3a2412 },
   selene: { build: 1, skin: SKIN_TONES[3], hair: { style: "long", color: 0x1d1d22 }, top: { type: "coat", color: 0x4a2a5a, trim: 0xd8c070 }, legs: 0x2a2030, boots: 0x2a1a10, belt: 0x3a2412 },
   maera: { build: 1, skin: SKIN_TONES[2], hair: { style: "bob", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x5a3a1e, trim: 0xc9a227 }, legs: 0x2e2a24, boots: 0x2a1a10, gloves: 0x5a3a20, belt: 0x3a2412, weapon: "sword" },
@@ -15120,6 +15191,10 @@ function humanEntry(L) {
   else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, "skin");
   for (const s of [-1, 1]) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, "skin");
+    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, "skin");
+    else if (L.ears === "ursan") R.add(gBall(V3(s * hr * 0.78, hc + hr * 0.62, -hr * 0.1), hr * 0.26, 1, 0.9, 0.6, 8), "head", L.hair.color, "hair");
+    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, "skin");
+    else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), "head", L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), "head", 0xd89a9a, "skin"); } }
     else if (!L.skull) R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, "skin");
     if (L.eyesGlow) R.add(gBall(V3(s * hr * 0.36, hc + hr * 0.08, hr * 0.84), hr * 0.15, 1.25, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
   }
@@ -15273,6 +15348,18 @@ function humanEntry(L) {
     }
   }
 
+  if (L.tail) {
+    const cat = L.tail === "cat", tz = -(0.12 * gi * (sw / 0.195) + 0.02), tc = cat ? L.hair.color : (L.hair && L.hair.color) || skin;
+    R.bone("tail", "hips", 0, hipsY - 0.04, tz);
+    R.bone("tail2", "tail", 0, hipsY - (cat ? 0.32 : 0.26), tz - (cat ? 0.2 : 0.22));
+    if (cat) {
+      R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.32, tz - 0.2), 0.03, 0.026, 8), "tail", tc, "hair");
+      R.add(gTaper(V3(0, hipsY - 0.32, tz - 0.2), V3(0, hipsY - 0.24, tz - 0.48), 0.026, 0.012, 8), "tail2", tc, "hair");
+    } else {
+      R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.26, tz - 0.22), 0.07, 0.055, 8), "tail", tc, "hair");
+      R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - 0.5, tz - 0.3), 0.055, 0.02, 8), "tail2", tc, "hair");
+    }
+  }
   R.meta = { kind: "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
   return R.finish();
 }
@@ -15674,11 +15761,21 @@ function buildEntityRig(e) {
 const BODY_HEIGHTS = [0.9, 0.95, 1, 1.05, 1.1], BODY_GIRTHS = [0.86, 0.93, 1, 1.1, 1.22];
 const BODY_HEIGHT_NAMES = ["Short", "Below average", "Average", "Tall", "Very tall"], BODY_GIRTH_NAMES = ["Slim", "Lean", "Average", "Sturdy", "Heavy"];
 
+const RACE_BODY = {
+  human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.075 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.075 }],
+  elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
+  pipkin: [{ leg: 0.34, torso: 0.3, arm: 0.3, girth: 1.0, waist: 1.0, shoulder: 0.125, hip: 0.072, headR: 0.2, neck: 0.03 }, { leg: 0.34, torso: 0.3, arm: 0.3, girth: 0.96, waist: 0.94, shoulder: 0.118, hip: 0.074, headR: 0.2, neck: 0.03 }],
+  ursan: [{ leg: 0.96, torso: 0.76, arm: 0.8, girth: 1.35, waist: 1.25, shoulder: 0.27, hip: 0.135, headR: 0.165, neck: 0.05 }, { leg: 0.96, torso: 0.76, arm: 0.8, girth: 1.35, waist: 1.25, shoulder: 0.27, hip: 0.135, headR: 0.165, neck: 0.05 }],
+  nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.075 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.075 }]
+};
+
+function raceOfLook(l) { return l && RACE_BODY[l.race] ? l.race : "human"; }
+
 function bodyProp(l) {
-  const hi = l.height == null ? 2 : l.height, gi = l.girth == null ? 2 : l.girth;
-  if (hi === 2 && gi === 2) return null;
-  const H = BODY_HEIGHTS[hi] || 1, G = BODY_GIRTHS[gi] || 1, fem = l.build === 1;
-  return { leg: 0.86 * H, torso: 0.52 * H, arm: 0.6 * H, girth: (fem ? 0.9 : 1) * G, waist: (fem ? 0.8 : 0.92) * Math.pow(G, 1.4), shoulder: (fem ? 0.165 : 0.195) * (1 + (G - 1) * 0.6) * (0.5 + H * 0.5), hip: (fem ? 0.1 : 0.095) * (1 + (G - 1) * 0.7) };
+  const hi = l.height == null ? 2 : l.height, gi = l.girth == null ? 2 : l.girth, race = raceOfLook(l);
+  if (race === "human" && hi === 2 && gi === 2) return null;
+  const H = BODY_HEIGHTS[hi] || 1, G = BODY_GIRTHS[gi] || 1, B = RACE_BODY[race][l.build === 1 ? 1 : 0];
+  return { leg: B.leg * H, torso: B.torso * H, arm: B.arm * H, girth: B.girth * G, waist: B.waist * Math.pow(G, 1.4), shoulder: B.shoulder * (1 + (G - 1) * 0.6) * (0.5 + H * 0.5), hip: B.hip * (1 + (G - 1) * 0.7), headR: B.headR, neck: B.neck };
 }
 
 function baseFromLook(look) {
@@ -15686,6 +15783,11 @@ function baseFromLook(look) {
   const b = { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0], color: HAIR_COLORS[l.hairColor || 0] } };
   const p = bodyProp(l);
   if (p) b.prop = p;
+  const race = raceOfLook(l);
+  if (race === "elari") b.ears = "elf";
+  if (race === "pipkin") { b.ears = "pip"; b.doll = true; }
+  if (race === "nekari") { b.ears = "cat"; b.tail = "cat"; }
+  if (race === "ursan") { b.tail = "ursan"; b.beard = b.hair.color; b.ears = "ursan"; }
   return b;
 }
 
@@ -15971,6 +16073,11 @@ function poseHuman(v, e, dt) {
     v.rootOff[0] = 0; v.rootOff[1] = 0; v.rootOff[2] = 0;
   }
 
+  if (P.tail) {
+    const wag = Math.sin(t * (1.6 + run * 3)) * (0.3 + run * 0.15);
+    addP(P, "tail", 0.2 - run * 0.35, wag * 0.6, 0);
+    addP(P, "tail2", -0.25 - run * 0.2, wag, 0);
+  }
   if (an.dead != null) {
     const k = ease((S.time - an.dead) / 0.6);
     for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; }
@@ -17792,7 +17899,7 @@ function showCharSelect() {
   let h = '<div class="ccList">';
   for (const c of r.chars) {
     const j = JOBS[c.job] || JOBS.WAR;
-    h += '<div class="ccCard" data-id="' + c.id + '"><div class="ccPor" style="background:' + j.color + '22;border-color:' + j.color + '">' + j.icon + '</div><div class="ccInfo"><b>' + esc(c.name) + '</b><span>' + esc(j.name) + " Lv." + c.lv + ' · ' + esc(c.zone) + '</span><small>Last played ' + fmtAgo(c.played || c.created) + '</small></div><div class="ccBtns"><button class="pri" data-play="' + c.id + '">Play</button><button class="del" data-del="' + c.id + '" title="Delete">🗑</button></div></div>';
+    h += '<div class="ccCard" data-id="' + c.id + '"><div class="ccPor" style="background:' + j.color + '22;border-color:' + j.color + '">' + j.icon + '</div><div class="ccInfo"><b>' + esc(c.name) + '</b><span>' + esc(((RACES[(c.look || {}).race] || RACES.human).name) + " " + j.name) + " Lv." + c.lv + ' · ' + esc(c.zone) + '</span><small>Last played ' + fmtAgo(c.played || c.created) + '</small></div><div class="ccBtns"><button class="pri" data-play="' + c.id + '">Play</button><button class="del" data-del="' + c.id + '" title="Delete">🗑</button></div></div>';
   }
   if (!r.chars.length) h += '<div class="ccEmpty">No characters yet. Create one to begin your journey.</div>';
   h += "</div>";
@@ -17818,13 +17925,14 @@ function showCharCreate() {
   const r = loadRoster();
   CC.job = "WAR";
   const randomLook = () => {
-    const l = { build: Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length), height: Math.floor(Math.random() * 5), girth: Math.floor(Math.random() * 5) };
+    const race = RACE_ORDER[Math.floor(Math.random() * RACE_ORDER.length)];
+    const l = { race, build: RACES[race].sex != null ? RACES[race].sex : Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length), height: Math.floor(Math.random() * 5), girth: Math.floor(Math.random() * 5) };
     const st = HAIR_BY_SEX[l.build];
     l.hairStyle = HAIR_STYLES.indexOf(st[Math.floor(Math.random() * st.length)]);
     return l;
   };
   CC.look = randomLook();
-  CC.look.build = 0; CC.look.skin = 1; CC.look.height = 2; CC.look.girth = 2;
+  CC.look.race = "human"; CC.look.build = 0; CC.look.skin = 1; CC.look.height = 2; CC.look.girth = 2;
   CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[0][0]);
   CC.name = "";
   $("ldSub").textContent = "Create your character";
@@ -17851,8 +17959,10 @@ function showCharCreate() {
     const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
     const styles = HAIR_BY_SEX[l.build];
     if (!styles.includes(HAIR_STYLES[l.hairStyle])) l.hairStyle = HAIR_STYLES.indexOf(styles[0]);
-    $("ccLook").innerHTML = row("build", "Sex", 2, l.build ? "Female" : "Male") + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor])) + row("height", "Height", 5, BODY_HEIGHT_NAMES[l.height == null ? 2 : l.height]) + row("girth", "Build", 5, BODY_GIRTH_NAMES[l.girth == null ? 2 : l.girth]) + '<div class="ccRow"><button data-rand="1" style="flex:1">🎲 Randomize all</button></div>';
-    $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + JOBS[CC.job].name + " Lv.1</small>";
+    const rc = RACES[l.race] || RACES.human;
+    const sexRow = rc.sex != null ? '<div class="ccRow"><span>Sex</span><b style="flex:1;text-align:center">' + (rc.sex ? "Female" : "Male") + ' <small style="color:var(--muted)">(' + rc.name + " only)</small></b></div>" : row("build", "Sex", 2, l.build ? "Female" : "Male");
+    $("ccLook").innerHTML = row("race", "Race", RACE_ORDER.length, rc.icon + " " + rc.name) + '<div class="sub" style="margin:-2px 0 6px">' + esc(rc.blurb) + "</div>" + sexRow + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor])) + row("height", "Height", 5, BODY_HEIGHT_NAMES[l.height == null ? 2 : l.height]) + row("girth", "Build", 5, BODY_GIRTH_NAMES[l.girth == null ? 2 : l.girth]) + '<div class="ccRow"><button data-rand="1" style="flex:1">🎲 Randomize all</button></div>';
+    $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + (RACES[CC.look.race] || RACES.human).name + " " + JOBS[CC.job].name + " Lv.1</small>";
   };
   paint();
   const nm = $("ccName");
@@ -17876,6 +17986,11 @@ function showCharCreate() {
         const styles = HAIR_BY_SEX[CC.look.build];
         const i = styles.indexOf(HAIR_STYLES[CC.look.hairStyle]);
         CC.look.hairStyle = HAIR_STYLES.indexOf(styles[(i + d + styles.length) % styles.length]);
+      } else if (k === "race") {
+        const i = RACE_ORDER.indexOf(CC.look.race || "human");
+        CC.look.race = RACE_ORDER[(i + d + RACE_ORDER.length) % RACE_ORDER.length];
+        const sx = RACES[CC.look.race].sex;
+        if (sx != null && CC.look.build !== sx) { CC.look.build = sx; CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[sx][0]); }
       } else {
         const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length, height: 5, girth: 5 }[k];
         const cur = CC.look[k] == null ? (k === "height" || k === "girth" ? 2 : 0) : CC.look[k];

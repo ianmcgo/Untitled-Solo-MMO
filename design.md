@@ -684,11 +684,19 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - normalizeSave fills save.market. menuSig includes listing/box counts and marketTick so the window refreshes.
 - Tests: test/p21unit.js; p5shots scenes ahbuy, ahsell (use onMenuClick).
 
+## Phase 23: races and the City Blessing (v6.4.0)
+- `RACES` (data.js): human, elari, pipkin, ursan, nekari {name, icon, sex (null | 0 | 1 forced), hp, mp multipliers, speed, attrs {stat: delta}, attMul?, rangedAcc?, blurb}; RACE_ORDER. save.look.race (default human; createChar forces build for single-sex races). buildStats: attrs scale ×(1 + lv/20), HP/MP multipliers (MP only if the job has MP), attMul, rangedAcc when wtype archery, player.speed = 140 × race speed.
+- Body: rig.js RACE_BODY[race][build] base proportions (leg, torso, arm, girth, waist, shoulder, hip, headR, neck); bodyProp applies the height/girth sliders on top. Proportions were sanity-checked against reference meshes (ursan ≈ 1.25× human height/1.5× girth, elari ≈ 1.1×, pipkin ≈ 0.5× with a big head). baseFromLook adds race features: elari pointed ears, pipkin stubby ears, nekari cat ears (hidden under helm/hood/horned) + "cat" tail, ursan round bear ears, short beard and thick "ursan" tail. Tail bones tail/tail2 on hips; anim.js wags them (faster when running).
+- Creation: Race row (cycles RACE_ORDER, shows blurb; Sex row locked for single-sex races); random look picks a race. Roster cards and the character sheet show the race.
+- City Blessing: NPCs guard_east (outpost 985,345), guard_north (harbor 530,80), guard_pass (harbor 1330,340); rig looks guard/guard_f (tabard, helm/cap). TALK.talkGuard → giveBlessing(): save.blessing = now + blessingMinutes() (BLESSING.baseMin 60 + perRankMin 30 × guild rank, max 210), buff "blessing" mirrored from Date.now by tickBlessing (runs with tickFood). dropLoot skips kind "crystal" unless blessed() and xpFor(m.lv, player.lv) > 0. questMarker shows ❗ on guards while unblessed. stats.blessings.
+- Tests: test/p22unit.js; p5shots scenes race_*, guard.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.4.0 | Phase 23: five playable races, gate guards and the City Blessing (essences need it). |
 | 6.3.0 | Phase 22: auction houses with moving prices, stock, listings and delivery box. |
 | 6.2.0 | Phase 21: eight-chapter main story, Ashen Herald, Ember of Ashenreach. |
 | 6.1.0 | Phase 20: Dark Knight and Bard, scythes, songs, Mordrin and Lyra. |
