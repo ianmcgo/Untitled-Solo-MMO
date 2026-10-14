@@ -306,6 +306,7 @@ function showCharCreate() {
     const l = { race, build: RACES[race].sex != null ? RACES[race].sex : Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length), height: Math.floor(Math.random() * 5), girth: Math.floor(Math.random() * 5) };
     const st = HAIR_BY_SEX[l.build];
     l.hairStyle = HAIR_STYLES.indexOf(st[Math.floor(Math.random() * st.length)]);
+    l.face = Math.floor(Math.random() * FACE_COUNT);
     return l;
   };
   CC.look = randomLook();
@@ -338,7 +339,7 @@ function showCharCreate() {
     if (!styles.includes(HAIR_STYLES[l.hairStyle])) l.hairStyle = HAIR_STYLES.indexOf(styles[0]);
     const rc = RACES[l.race] || RACES.human;
     const sexRow = rc.sex != null ? '<div class="ccRow"><span>Sex</span><b style="flex:1;text-align:center">' + (rc.sex ? "Female" : "Male") + ' <small style="color:var(--muted)">(' + rc.name + " only)</small></b></div>" : row("build", "Sex", 2, l.build ? "Female" : "Male");
-    $("ccLook").innerHTML = row("race", "Race", RACE_ORDER.length, rc.icon + " " + rc.name) + '<div class="sub" style="margin:-2px 0 6px">' + esc(rc.blurb) + "</div>" + sexRow + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor])) + row("height", "Height", 5, BODY_HEIGHT_NAMES[l.height == null ? 2 : l.height]) + row("girth", "Build", 5, BODY_GIRTH_NAMES[l.girth == null ? 2 : l.girth]) + '<div class="ccRow"><button data-rand="1" style="flex:1">🎲 Randomize all</button></div>';
+    $("ccLook").innerHTML = row("race", "Race", RACE_ORDER.length, rc.icon + " " + rc.name) + '<div class="sub" style="margin:-2px 0 6px">' + esc(rc.blurb) + "</div>" + sexRow + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("face", "Face", FACE_COUNT, FACE_NAMES[l.face || 0] + ' <small style="color:var(--muted)">' + ((l.face || 0) + 1) + "/" + FACE_COUNT + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor])) + row("height", "Height", 5, BODY_HEIGHT_NAMES[l.height == null ? 2 : l.height]) + row("girth", "Build", 5, BODY_GIRTH_NAMES[l.girth == null ? 2 : l.girth]) + '<div class="ccRow"><button data-rand="1" style="flex:1">🎲 Randomize all</button></div>';
     $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + (RACES[CC.look.race] || RACES.human).name + " " + JOBS[CC.job].name + " Lv.1</small>";
   };
   paint();
@@ -374,7 +375,7 @@ function showCharCreate() {
         const sx = RACES[CC.look.race].sex;
         if (sx != null && CC.look.build !== sx) { CC.look.build = sx; CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[sx][0]); }
       } else {
-        const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length, height: 5, girth: 5 }[k];
+        const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length, height: 5, girth: 5, face: FACE_COUNT }[k];
         const cur = CC.look[k] == null ? (k === "height" || k === "girth" ? 2 : 0) : CC.look[k];
         CC.look[k] = k === "height" || k === "girth" ? clamp(cur + d, 0, n - 1) : (cur + d + n) % n;
         if (k === "build") CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[CC.look.build][0]);

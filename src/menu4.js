@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.13.0", date: "2026-10-14", title: "Faces and hair", items: [
+    "Eight faces to choose from when you create a character (Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy, Proud), each with its own eye colour and shape, brows, lashes and mouth. Existing characters keep the original face; townsfolk, travellers and hired companions now have varied faces.",
+    "Four new hairstyles: a long braid tied with a ribbon, a crest (mohawk), twin tails and a topknot. Companions from the Mercenary Hall can have them too.",
+    "Character textures are sharper because the texture sheet has room for the new faces."
+  ] },
   { v: "9.12.0", date: "2026-10-14", title: "Town buildings", items: [
     "Houses come in three styles: plain plank, and two timber-framed styles with a plastered upper storey, dark corner posts, a mid beam and cross braces.",
     "Every house has framed windows with sills and coloured shutters, a framed door, a stone chimney and a wooden lantern by the door that glows warmly at night. Some have flower boxes under the windows.",
@@ -1991,6 +1996,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
+    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
