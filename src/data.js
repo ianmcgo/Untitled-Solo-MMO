@@ -905,7 +905,7 @@ const ZONES = {
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
       { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
       { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
-      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
+      { id: "luna", x: 660, y: 470 }, { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
     ],
     props: [{ type: "anvil", x: 690, y: 690, rot: 0.2, r: 26 }, { type: "desk", x: 455, y: 290, r: 22 }, { type: "desk", x: 430, y: 465, r: 22 }, { type: "barrels", x: 900, y: 560, rot: 1.2, r: 26 }],
     ambient: [{ type: "chicken", x: 400, y: 600, n: 4, r: 70 }, { type: "dog", x: 640, y: 470, n: 1, r: 120, col: 0x8a6a4a }, { type: "cat", x: 300, y: 330, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 560, y: 420, n: 1, path: [[560, 300], [820, 410], [700, 520], [480, 500]] }, { type: "walker", x: 600, y: 450, n: 1, path: [[380, 470], [560, 560], [760, 470], [620, 330]] }],
@@ -1372,7 +1372,7 @@ NM_FAMILIES.sandmaw = { hint: "Singing Dunes, Sunscar Desert · any time", base:
 ITEMS.dunestrider_boots = { name: "Dunestrider Boots", kind: "equip", icon: "👢", rare: true, nm: true, rarity: "epic", slot: "feet", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 7, agi: 4, eva: 5, hp: 20 }, desc: "Sandmaw's hide, stitched into boots that never sink." };
 ZONES.sunscar = {
   name: "Sunscar Desert", w: 3000, h: 2200, theme: "field", palette: "desert",
-  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }, { x: 2600, y: 600, w: 40, h: 30, to: "spire1", tx: 110, ty: 400, label: "Red Spire", kind: "door", ask: "Climb into the Red Spire?" }],
+  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }, { x: 2600, y: 600, w: 40, h: 30, to: "spire1", tx: 110, ty: 400, label: "Red Spire", kind: "door", ask: "Climb into the Red Spire?" }, { x: 380, y: 1480, w: 40, h: 40, to: "mirage", tx: 110, ty: 500, label: "Mirage", kind: "door", weather: "sandstorm", ask: "Step into the shimmering mirage?" }],
   npcs: [],
   walls: [{ x: 600, y: 480, w: 300, h: 220 }, { x: 2000, y: 380, w: 260, h: 300 }, { x: 1250, y: 1500, w: 380, h: 200 }, { x: 2400, y: 1600, w: 240, h: 260 }],
   ruins: { walls: [[2520, 420, 2680, 420, 2.4], [2520, 420, 2520, 560, 1.6]], pillars: [[860, 1050, 3.6], [910, 1000, 4.4], [960, 1050, 4.0], [1010, 1100, 3.0], [820, 1120, 2.2]] },
@@ -1630,7 +1630,7 @@ ZONES.highlands = {
     { fam: "plains_hare", lv: [10, 11], x: 1500, y: 2400, time: "day" }, { fam: "plains_hare", lv: [10, 12], x: 2600, y: 2500, time: "day" },
     { fam: "plains_lizard", lv: [11, 12], x: 1200, y: 1700 }, { fam: "plains_lizard", lv: [11, 13], x: 2800, y: 1900 },
     { fam: "wind_wasp", lv: [11, 12], x: 1500, y: 900, time: "day" }, { fam: "wind_wasp", lv: [12, 13], x: 2400, y: 600, time: "day" },
-    { fam: "highland_longneck", lv: [12, 14], x: 3000, y: 1300, nm: { id: "thunderhoof", lv: 15, chance: 0.12, time: "day" } }, { fam: "highland_longneck", lv: [12, 13], x: 3500, y: 1700 },
+    { fam: "highland_longneck", lv: [12, 14], x: 3000, y: 1300, nm: { id: "thunderhoof", lv: 15, chance: 0.12, time: "day" } }, { fam: "highland_longneck", lv: [12, 13], x: 3500, y: 1700, nm: { id: "gloamhorn", lv: 16, chance: 0.15, time: "night" } },
     { fam: "highland_orc", lv: [13, 14], x: 600, y: 1300 }, { fam: "highland_orc", lv: [13, 14], x: 700, y: 1400 },
     { fam: "skeleton", lv: [12, 13], x: 750, y: 2150, time: "night" }
   ],
@@ -1645,6 +1645,27 @@ ZONES.highlands = {
     mining: { n: 2, at: [[900, 500], [3600, 2500], [500, 2600]], loot: [["copper_ore", 0.5], ["iron_ore", 0.25], ["earth_crystal", 0.15]] }
   },
   start: { x: 2000, y: 2900 }
+};
+
+NM_FAMILIES.gloamhorn = { hint: "Eastern Windreach Highlands · night", base: "longneck", name: "Gloamhorn", hpMul: 2.9, attMul: 1.15, scale: 1.7, aura: "#7e57c2", loot: [["gloam_ring", 0.35], ["wool_tuft", 1], ["dark_crystal_dummy", 0], ["hi_potion", 0.4]], respawn: 420 };
+NM_FAMILIES.gloamhorn.loot = NM_FAMILIES.gloamhorn.loot.filter(l => l[1] > 0);
+NM_FAMILIES.sandglass_wisp = { hint: "The Mirage (sandstorms only) · any time", base: "bomb", name: "Sandglass Wisp", hpMul: 2.8, attMul: 1.2, scale: 1.6, aura: "#ffd54f", loot: [["mirage_veil", 0.35], ["fire_crystal", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 300 };
+Object.assign(ITEMS, {
+  gloam_ring: { name: "Gloam Ring", kind: "equip", icon: "💍", rare: true, nm: true, rarity: "epic", slot: "ring", jobs: ALL_JOBS, lv: 15, price: 0, stats: { mp: 20, int: 3, eva: 4 }, desc: "Darker than the night it was found in." },
+  mirage_veil: { name: "Mirage Veil", kind: "equip", icon: "🧣", rare: true, nm: true, rarity: "epic", slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { eva: 8, agi: 4, hp: 20 }, desc: "It shimmers at the edges, as if it isn't quite there." },
+  nightglass_earring: { name: "Nightglass Earring", kind: "equip", icon: "🔮", rarity: "rare", slot: "ear", jobs: ALL_JOBS, lv: 14, price: 12000, stats: { eva: 4, agi: 2, mp: 10 }, desc: "Sold only under the moon." },
+  moon_tonic: { name: "Moon Tonic", kind: "use", icon: "🧪", price: 900, stack: 12, heal: 250, desc: "Restores 250 HP. Brewed by moonlight." }
+});
+ZONES.mirage = {
+  name: "The Mirage", w: 1400, h: 1000, theme: "field", palette: "desert", mist: true,
+  exits: [{ x: 0, y: 450, w: 24, h: 100, to: "sunscar", tx: 440, ty: 1520, label: "Sunscar Desert" }],
+  npcs: [{ id: "cache_mirage", x: 1100, y: 300 }],
+  walls: [{ x: 600, y: 200, w: 200, h: 160 }],
+  spawns: [{ fam: "dune_lizard", lv: [20, 20], x: 500, y: 700 }, { fam: "sun_wasp", lv: [20, 20], x: 900, y: 750 }, { fam: "cinder_bomb", lv: [20, 21], x: 1000, y: 500, nm: { id: "sandglass_wisp", lv: 22, chance: 0.4 } }],
+  water: [{ x: 1150, y: 700, r: 120 }],
+  landmarks: [{ id: "glass", name: "Glass Garden", x: 900, y: 500, r: 260, xp: 120 }],
+  paths: [{ w: 34, pts: [[-500, 500], [0, 500], [700, 520], [1100, 400]] }],
+  start: { x: 110, y: 500 }
 };
 
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
@@ -2372,3 +2393,13 @@ Object.assign(ITEMS, {
 });
 ACHIEVEMENTS.push({ id: "expeditions", icon: "🗺️", name: "Far Traveller", desc: "Complete every Guild expedition.", test: s => s.expDone && Object.keys(EXPEDITIONS).every(k => s.expDone[k]) });
 ACHIEVEMENTS.push({ id: "atlas", icon: "🧭", name: "Cartographer", desc: "Set foot in every area on the world atlas.", test: s => ["highlands", "outpost", "hollow", "den", "crypt", "depths", "marsh", "verdant", "underdeep", "harbor", "gullisle", "frost", "ironvale", "sunscar", "cinder", "spire1"].every(z => (s.discovered || []).includes(z)) });
+Object.assign(NPCS, {
+  luna: { name: "Luna, Moonlit Peddler", model: "luna", talk: "talkLuna", only: "night" },
+  mirage_shimmer: { name: "Shimmering Air", prop: "mirage", talk: "talkMirage", only: "sandstorm", poi: "mirage" },
+  cache_mirage: { name: "Mirage Cache", prop: "chest", chest: "vault", talk: "talkChest" }
+});
+ZONES.sunscar.npcs.push({ id: "mirage_shimmer", x: 400, y: 1460 });
+SHOPS.luna = ["moon_tonic", "nightglass_earring", "ether", "hi_potion"];
+BESTIARY.gloamhorn = { type: "Beast", lore: "A longneck with a coat like dusk. It only grazes after the sun goes down." };
+BESTIARY.sandglass_wisp = { type: "Elemental", lore: "A spark of sand and heat that lives inside the mirage. When the storm passes, so does it." };
+ACHIEVEMENTS.push({ id: "mirage", icon: "🏜️", name: "Seen Through", desc: "Step into the Mirage during a sandstorm.", test: s => (s.discovered || []).includes("mirage") });

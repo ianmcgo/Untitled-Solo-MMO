@@ -290,6 +290,14 @@ function propView(n) {
     g.add(base, back, cap, orb, L);
     for (let i = 0; i < 5; i++) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.18, 6), std({ color: 0xf0e8d0 })); c.position.set(-0.5 + i * 0.25, 0.59, 0.3); g.add(c); const fl = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 4), new THREE.MeshBasicMaterial({ color: 0xffc060 })); fl.position.set(-0.5 + i * 0.25, 0.71, 0.3); g.add(fl); }
     v.meta.headTop = 2.4; v.light = L;
+  } else if (n.prop === "mirage") {
+    const sh = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.6, 4.5, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xffe0a0, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false }));
+    sh.position.y = 2.25;
+    const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.4, 0), new THREE.MeshBasicMaterial({ color: 0xfff3c0 }));
+    core.position.y = 2.2;
+    const L = new THREE.PointLight(0xffd580, 5, 14, 1.6); L.position.y = 2.4;
+    g.add(sh, core, L);
+    v.light = L; v.bob = true; v.meta.headTop = 4.8;
   } else if (n.prop === "sign") {
     const wood = std({ color: 0x7a5432, roughness: 0.9 });
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), wood); post.position.y = 1.1; post.castShadow = true;

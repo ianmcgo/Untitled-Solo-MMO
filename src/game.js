@@ -3239,6 +3239,7 @@ function enterZone(id, x, y) {
     S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
   }
   if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
+  for (const n of S.npcs) if (n.only) n.away = !npcOn(n);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
   const rnd = seeded(hashStr(id));
   S.decor = [];
@@ -3266,8 +3267,14 @@ function npcAsleep(n) {
   const [bed, wake] = n.sleep;
   return bed > wake ? (h >= bed || h < wake) : (h >= bed && h < wake);
 }
+function npcOn(n) { return n.only === "night" ? isNight() : n.only === "day" ? !isNight() : weatherMatch(n.only); }
 function updateNpcs(dt) {
   for (const n of S.npcs) {
+    if (n.only) {
+      const on = npcOn(n);
+      if (n.away === on) { n.away = !on; if (on && n.only === "night" && dist(n, player) < 900) log(n.name.split(",")[0] + " sets up shop by lantern light.", "sys"); if (on && n.only === "sandstorm" && dist(n, player) < 1500) log("Something shimmers in the sandstorm to the south-west...", "sys"); if (!on && player.target === n) player.target = null; }
+      continue;
+    }
     if (!n.sleep) continue;
     const door = npcDoor(n);
     if (!door) continue;
@@ -3615,7 +3622,7 @@ function step(dt) {
   S.zoneCooldown = Math.max(0, S.zoneCooldown - dt);
   if (S.zoneCooldown <= 0 && player.alive) {
     let onAsk = null;
-    for (const ex of S.zone.exits) if (circleRect(player, ex, 8)) {
+    for (const ex of S.zone.exits) if (circleRect(player, ex, 8) && (!ex.weather || weatherMatch(ex.weather))) {
       if (ex.ask && typeof gameConfirm === "function") { onAsk = ex; continue; }
       enterZone(ex.to, ex.tx, ex.ty); return;
     }
@@ -4300,6 +4307,14 @@ const TALK = {
   },
   talkRider(n) {
     openDialog(n.name, "Out here there are no roads to slow you down. On the open plateau your mount runs as fast as it does on any road. Give it its head!", []);
+  },
+  talkLuna(n) {
+    openDialog(n.name, "Shh, keep your voice down; the stars are listening. Tonics brewed under the moon, and a few trinkets you won't find by daylight. I'm gone at dawn.", [
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "luna"; openModal("shop"); } }
+    ]);
+  },
+  talkMirage(n) {
+    openDialog(n.name, "The air ripples like water. Through it you glimpse a garden of glass that isn't there when the wind drops. Step into it before the storm ends.", []);
   },
   talkBoat(n) {
     openDialog(n.name, "The river runs under the rock wall to the far landing. I'll row you across, no charge. Mind your hands; things live in the water.", [

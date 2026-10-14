@@ -1153,6 +1153,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - menu4 `worldMapSVG()` rewritten: `ATLAS_POS` fixed layout for every zone (spire floors collapse to spire1 = "Red Spire"); `atlasLinks()` from all exits (doors dashed) + the Gull Isle ferry (blue dashed). Known = save.discovered + outpost + residence + current; neighbours of known show as ???; others hidden. Known field zones coloured by their region holder (CONQUEST), towns gold; "% mapped" from save.explored. Footer: discovered count and nation legend. Shown under "Atlas" in the Map window.
 - Achievement `atlas` (Cartographer): all 16 atlas areas discovered.
 
+## Phase 87: Night- and weather-only content (v13.4.0)
+- NPC `only` field ("night" | "day" | weather name): `npcOn(n)`; set at zone load and kept in updateNpcs (away when off; messages on appear). Luna (outpost plaza 660,470, only night, SHOPS.luna: moon_tonic, nightglass_earring, ether, hi_potion). `mirage_shimmer` prop (only sandstorm; models3d prop "mirage" = translucent shimmering column + light, bob).
+- Exits may carry `weather` (and the exit loop skips them when it doesn't match): Sunscar door (380,1480) → `ZONES.mirage` (1400×1000 desert, mist, lv 20 spawns, NM sandglass_wisp (bomb base) → mirage_veil, cache_mirage vault chest, landmark Glass Garden). Highlands second longneck spawn has NM gloamhorn (night) → gloam_ring. Achievement `mirage`.
+- Tests: p46unit (harness exports vana); p5 NM unique rate rule (25–35%) respected.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1198,7 +1203,7 @@ World systems:
 - 84 DONE (13.1.0) Weather that matters: sandstorms, blizzards, fog change spawns and view distance.
 - 85 DONE (13.2.0) Expeditions: multi-zone quests far from home.
 - 86 DONE (13.3.0) World map atlas: fills in as you explore, every zone joined up.
-- 87 (13.4.0) Night-only and weather-only content: monsters, areas and NPCs that appear only at certain times or weather.
+- 87 DONE (13.4.0) Night-only and weather-only content: monsters, areas and NPCs that appear only at certain times or weather.
 - Pending on the user's side: run the latest setup.sql (schema 6) in Supabase.
 
 ## Version log
@@ -1240,6 +1245,7 @@ World systems:
 | 13.1.0 | Phase 84: Weather that matters. |
 | 13.2.0 | Phase 85: Expeditions. |
 | 13.3.0 | Phase 86: World atlas. |
+| 13.4.0 | Phase 87: Night and weather secrets. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |
