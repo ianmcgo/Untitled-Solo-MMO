@@ -1299,11 +1299,84 @@ function* buildZone3DSteps() {
   buildRuins(field, root);
   buildExits(field, root);
   buildWater(field, root);
+  buildBackdrop(field, root);
   yield { p: 0.94, t: "Filling the water…" };
   W3.scene.add(root);
   W3.lastSunY = -9;
   W3.envTimer = 0;
   updateSky(true);
+}
+
+const BACKDROP = {
+  outpost: { h: [22, 48, 85], col: [0x5a6a48, 0x6a7a68, 0x8090a0], mark: "tower" },
+  hollow: { h: [30, 60, 110], col: [0x4a5a3a, 0x60705a, 0x8a96a4], mark: "tree" },
+  frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
+  marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
+  harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" }
+};
+function buildBackdrop(field, root) {
+  const th = themeOf(S.zone), B = BACKDROP[S.zoneId] || (th === "field" ? BACKDROP.hollow : null);
+  W3.backdrop = []; W3.beacon = null;
+  if (!B || th === "cave" || th === "crypt" || th === "house") return;
+  const cx = (field.x0 + field.w / 2) * U, cz = (field.y0 + field.h / 2) * U, half = Math.hypot(field.w, field.h) * U / 2;
+  const radii = [half + 70, half + 190, half + 380], seed = hashStr(S.zoneId + "bd");
+  let es = 0, en = 0;
+  for (let i = 0; i < field.cols; i++) { es += field.data[i] + field.data[(field.rows - 1) * field.cols + i]; en += 2; }
+  for (let j = 0; j < field.rows; j++) { es += field.data[j * field.cols] + field.data[j * field.cols + field.cols - 1]; en += 2; }
+  const lowY = es / en - 6;
+  let topY = -1e9; for (const v of field.data) if (v > topY) topY = v;
+  for (let L = 0; L < 3; L++) {
+    const N = 128, R = radii[L], pos = [], idx = [], col = [];
+
+    for (let i = 0; i <= N; i++) {
+      const a = i / N * Math.PI * 2;
+      let h = B.h[L] * (0.45 + 0.55 * NOISE.fbm(Math.cos(a) * 3 + L * 7, Math.sin(a) * 3 + seed % 97, 4, 0, seed + L));
+      h += Math.max(0, topY - lowY) * (R / half) * 0.9;
+      if (B.sea && Math.sin(a + seed) > 0.55) h *= 0.18;
+      const x = cx + Math.cos(a) * R, z = cz + Math.sin(a) * R;
+      pos.push(x, lowY, z, x, lowY + h, z);
+      const tk = B.snow && h > B.h[L] * 0.62 ? 1 : 0.88;
+      col.push(0.74, 0.74, 0.74, tk, tk, tk);
+      if (i < N) { const k = i * 2; idx.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    g.setIndex(idx);
+    const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: B.col[L], vertexColors: true, fog: false, side: THREE.DoubleSide }));
+    m.renderOrder = -2 + L;
+    m.frustumCulled = false;
+    m.userData.layer = L;
+    root.add(m);
+    W3.backdrop.push(m);
+  }
+  if (B.mark) {
+    const a = (seed % 360) / 180 * Math.PI, R = radii[1] - 6, x = cx + Math.cos(a) * R, z = cz + Math.sin(a) * R, y = lowY + B.h[1] * 0.6 + Math.max(0, topY - lowY) * (R / half) * 0.9;
+    const grp = new THREE.Group(), mat = new THREE.MeshBasicMaterial({ color: B.col[1], fog: false });
+    const add = (geo, px, py, pz) => { const o = new THREE.Mesh(geo, mat); o.position.set(px, py, pz); grp.add(o); };
+    if (B.mark === "tower") { add(new THREE.CylinderGeometry(4, 6, 60, 10), 0, 30, 0); add(new THREE.ConeGeometry(7, 18, 10), 0, 69, 0); }
+    else if (B.mark === "tree") { add(new THREE.CylinderGeometry(4, 8, 70, 10), 0, 35, 0); add(new THREE.SphereGeometry(34, 12, 8), 0, 85, 0); add(new THREE.SphereGeometry(24, 10, 7), 22, 70, 8); add(new THREE.SphereGeometry(22, 10, 7), -20, 74, -6); }
+    else if (B.mark === "peak") { add(new THREE.ConeGeometry(45, 170, 7), 0, 85, 0); }
+    else if (B.mark === "light") { add(new THREE.CylinderGeometry(3, 5, 40, 10), 0, 20, 0); const lamp = new THREE.Mesh(new THREE.SphereGeometry(3.5, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffe8a0, fog: false })); lamp.position.set(0, 43, 0); grp.add(lamp); W3.beacon = lamp; }
+    grp.position.set(x, y, z);
+    grp.userData.layer = 1;
+    grp.userData.mark = true;
+    root.add(grp);
+    W3.backdrop.push(grp);
+  }
+}
+function updateBackdrop(fogC, dayAmt) {
+  if (!W3.backdrop || !W3.backdrop.length) return;
+  const mixK = [0.42, 0.62, 0.8];
+  for (const m of W3.backdrop) {
+    const k = mixK[m.userData.layer];
+    const apply = mat => {
+      if (!mat.userData.base) mat.userData.base = mat.color.clone();
+      mat.color.copy(mat.userData.base).multiplyScalar(0.35 + 0.65 * dayAmt).lerp(fogC, k);
+    };
+    if (m.isMesh) apply(m.material); else m.traverse(o => { if (o.isMesh && o !== W3.beacon) apply(o.material); });
+  }
+  if (W3.beacon) W3.beacon.material.color.setRGB(1, 0.9, 0.6).multiplyScalar(0.6 + 0.8 * (1 - dayAmt));
 }
 
 const ATMOS = {
@@ -1469,6 +1542,7 @@ function updateSky(force) {
     if (W3.moonPhase !== day) { W3.moonPhase = day; W3.moonDisc.material.map.dispose(); W3.moonDisc.material.map = moonTex(ph); W3.moonDisc.material.needsUpdate = true; }
   }
   W3.fog.color.copy(fogC);
+  updateBackdrop(fogC, dayAmt);
   if (W3.haze) W3.haze.material.color.copy(fogC);
   if (gloom) W3.fog.color.lerp(snowy ? (W3.snowFog || (W3.snowFog = new THREE.Color(0xc4ccd4))) : W3.gloomColor || (W3.gloomColor = new THREE.Color(0x6a7078)), (snowy ? 1.4 : 1) * gloom * (0.3 + 0.7 * dayAmt));
   if (S.zone.mist) W3.fog.color.lerp(W3.mistColor || (W3.mistColor = new THREE.Color(0x8a9a8c)), 0.45 * (0.4 + 0.6 * dayAmt));

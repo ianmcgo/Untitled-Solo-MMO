@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.6.0", date: "2026-10-14", title: "Distant horizons", items: [
+    "Outdoor areas now sit in a wider world: three layers of distant hills and mountains ring every field and town, fading into the haze the further away they are, and darkening at night.",
+    "Each area has its own skyline: rolling hills around the Outpost and Rocky Hollow, snow-capped peaks above Frostspire Pass, low misty ridges around the Ashen Marsh, and open sea gaps around Saltreach Harbor.",
+    "Far landmarks: a watchtower on the hills, a giant tree on the ridge, a great ice peak and a lighthouse whose lamp glows brighter at night."
+  ] },
   { v: "10.5.0", date: "2026-10-14", title: "Monster variety", items: [
     "Monsters of the same kind no longer look like clones: each one is a little bigger or smaller, and they come in three looks with darker or warmer colouring. Humanoid monsters may wear a cap or helmet, shoulder guards or a belt. Notorious monsters keep their signature look.",
     "Odette the furnisher has her own outfit, so every named townsperson now dresses as themselves."
