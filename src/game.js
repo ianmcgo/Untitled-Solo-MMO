@@ -106,6 +106,8 @@ function normalizeSave(d) {
   out.skills = newSave().skills;
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
+  if (!d.zv && out.loc && ZONE_SCALE[out.loc.zone]) { out.loc = Object.assign({}, out.loc, { x: Math.round(out.loc.x * ZONE_SCALE[out.loc.zone]), y: Math.round(out.loc.y * ZONE_SCALE[out.loc.zone]) }); }
+  out.zv = 1;
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
@@ -1438,7 +1440,7 @@ function tickBattlefield() {
   if (S.time >= b.until) {
     S.bf = null;
     log("The water rises and sweeps you out of the chapel. Time's up.", "foe");
-    enterZone("marsh", 640, 2050);
+    enterZone("marsh", 640 * zsc("marsh"), 2050 * zsc("marsh"));
     return;
   }
   const boss = S.mobs.find(m => m.famKey === "tide_priest");

@@ -15,6 +15,6 @@ for (const cp of G.RACE.checkpoints) { P().x = cp.x; P().y = cp.y; run(0.1); }
 ok(!S.race && G.save.race.best != null && G.save.race.medals.gold && G.save.gil === g0 + 1200, 'riding through every checkpoint finishes with a medal and prize');
 G.startRace(); run(0.2); G.dismount('x'); run(0.2);
 ok(!S.race, 'dismounting ends the run');
-G.startRace(); S.race.t0 -= 100; run(0.2);
+G.startRace(); S.race.t0 -= G.RACE.limit + 25; run(0.2);
 ok(!S.race, 'running out of time ends the run');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');
