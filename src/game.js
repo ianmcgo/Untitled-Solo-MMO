@@ -93,7 +93,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
@@ -116,7 +116,7 @@ function normalizeSave(d) {
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
-  if (typeof SKIN_TONES !== "undefined") out.look.skin = Math.min(Math.max(0, out.look.skin || 0), SKIN_TONES.length - 1);
+  delete out.look.skin;
   out.mountLicense = !!d.mountLicense;
   out.hired = (Array.isArray(d.hired) ? d.hired : []).filter(id => MERCS[id] || (d.mercDefs && d.mercDefs[id])).slice(0, CONFIG.maxParty - 1);
   out.home = d.home && ZONES[d.home.zone] && ZONES[d.home.zone].safe && NPCS[d.home.npc] && ZONES[d.home.zone].npcs.some(n => n.id === d.home.npc) ? d.home : newSave().home;
@@ -732,7 +732,7 @@ function genMercDef(rnd, id) {
   const s = MERC_SYL, nm = s[0][Math.floor(rnd() * s[0].length)] + s[1][Math.floor(rnd() * s[1].length)] + s[2][Math.floor(rnd() * s[2].length)];
   const lv = player.lv, mul = { tank: 1.1, healer: 1.15, burster: 1.2, bard: 1.15, hybrid: 1.1 }[role] || 1;
   const hue = Math.floor(rnd() * 360);
-  return { gen: true, name: nm, job, role, fee: Math.round((40 + 18 * lv) * mul / 5) * 5, color: "hsl(" + hue + ",60%,72%)", look: { build: rnd() < 0.5 ? 0 : 1, skin: Math.floor(rnd() * 4), hairStyle: [0, 1, 2, 3, 4, 5, 7, 8, 9, 10][Math.floor(rnd() * 10)], hairColor: Math.floor(rnd() * 8), face: Math.floor(rnd() * 8) }, desc: "A " + JOBS[job].name + ". " + MERC_ROLE_TEXT[role] + " " + MERC_TRAITS[Math.floor(rnd() * MERC_TRAITS.length)] };
+  return { gen: true, name: nm, job, role, fee: Math.round((40 + 18 * lv) * mul / 5) * 5, color: "hsl(" + hue + ",60%,72%)", look: { build: rnd() < 0.5 ? 0 : 1, hairStyle: [0, 1, 2, 3, 4, 5, 7, 8, 9, 10][Math.floor(rnd() * 10)], hairColor: Math.floor(rnd() * 8), face: Math.floor(rnd() * 8) }, desc: "A " + JOBS[job].name + ". " + MERC_ROLE_TEXT[role] + " " + MERC_TRAITS[Math.floor(rnd() * MERC_TRAITS.length)] };
 }
 function mercPool(dayOverride) {
   mercDefsSync();

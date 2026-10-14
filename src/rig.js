@@ -2560,9 +2560,10 @@ function bodyProp(l) {
   return { leg: B.leg * H, torso: B.torso * H, arm: B.arm * H, girth: B.girth * G, waist: B.waist * Math.pow(G, 1.4), shoulder: B.shoulder * (1 + (G - 1) * 0.6) * (0.5 + H * 0.5), hip: B.hip * (1 + (G - 1) * 0.7), headR: B.headR, neck: B.neck };
 }
 
+const RACE_SKIN = { human: 1, elari: 0, pipkin: 0, ursan: 2, nekari: 1 };
 function baseFromLook(look) {
   const l = look || {};
-  const b = { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
+  const b = { build: l.build || 0, skin: SKIN_TONES[RACE_SKIN[raceOfLook(l)]], hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
   const p = bodyProp(l);
   if (p) b.prop = p;
   const race = raceOfLook(l);
