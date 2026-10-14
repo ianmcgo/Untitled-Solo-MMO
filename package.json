@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "13.6.0",
-  "releaseTitle": "Smooth bodies and natural movement",
+  "version": "13.6.1",
+  "releaseTitle": "Classic command menu",
   "description": "",
   "main": "index.js",
   "scripts": {

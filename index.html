@@ -922,11 +922,31 @@
   @media (max-width: 760px) { #menu .win { width: calc(100vw - 12px - var(--sal) - var(--sar)); max-height: calc(100vh - 200px - var(--sat) - var(--sab)); } }
   #chat.lite #chatTabs, #chat.lite #chatIn { display: none; }
   #chat.lite #log { overflow: hidden; scrollbar-width: none; }
+
+  #ffTop { top: calc(13px + var(--sat)) !important; }
+  #ffNetBox { top: calc(13px + var(--sat)) !important; }
+  #ui.hasTop #topRight, #ui:has(#mCmd.on) #topRight { top: calc(52px + var(--sat)); }
+  #ffTop .ffBar .ffRight { top: -9px; }
+  #ffNet .ffLbl { top: -9px; }
+  .ffLbl, #ffTop .ffHelpLbl, #ffNet .ffLbl { font: italic 900 12px var(--ffFont) !important; letter-spacing: .1em; color: #fff; -webkit-text-stroke: .6px #10103a; text-shadow: 1px 1px 0 #000, 0 0 3px #000; }
+  #mCmd { top: calc(62px + var(--sat)) !important; width: 200px; padding: 14px 8px 8px 10px !important; gap: 4px; overflow: visible !important; max-height: none; background: linear-gradient(180deg, rgba(16,26,70,.93), rgba(10,18,52,.95)), repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px) !important; background-blend-mode: normal; border: 2px solid #b8c0e8 !important; border-radius: 3px !important; box-shadow: inset 0 0 0 1px #1a2050, inset 0 0 0 3px rgba(150,160,220,.35), 0 3px 12px rgba(0,0,0,.6) !important; }
+  #mCmd .ffMLeg { position: absolute; left: 50%; top: -10px; transform: translateX(-50%); padding: 0 6px; font: italic 900 12px var(--ffFont); letter-spacing: .1em; color: #fff; -webkit-text-stroke: .6px #10103a; text-shadow: 1px 1px 0 #000, 0 0 3px #000; white-space: nowrap; }
+  #mCmd .ffMHead { margin: -6px 0 2px 0 !important; justify-content: center !important; gap: 10px; font: italic 800 10px var(--ffFont) !important; color: #c8ccf0; }
+  #mCmd .ffMHead .pg { height: 16px; padding: 0 6px; font-size: 9px; background: linear-gradient(180deg, #a8acf0, #5a5ea8); border: 1px solid #1a1a50; }
+  #mCmd .ffb { height: 23px; padding: 0 14px !important; border-radius: 12px !important; border: 1px solid #14143c !important; background: linear-gradient(180deg, #e4e2fa 0%, #b4b2e6 22%, #8e8cc8 58%, #6a68a6 100%) !important; color: #fff; font: italic 900 14px var(--ffFont) !important; letter-spacing: .1em; -webkit-text-stroke: 1px #14143c; paint-order: stroke fill; text-shadow: 1px 1px 0 #14143c; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 -2px 3px rgba(10,10,50,.45), 0 1px 1px rgba(0,0,0,.5) !important; }
+  #mCmd .ffb.sel { background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; color: #ffb54a !important; -webkit-text-stroke: 1px #3a1a06; text-shadow: 1px 1px 0 #3a1a06 !important; }
+  #mCmd .ffb.gold:not(.sel) { background: linear-gradient(180deg, #f4f0c8 0%, #d8d090 25%, #a8a058 60%, #7a7430 100%) !important; }
+  #mCmd .ffb .cur { left: -58px !important; top: 50%; transform: translateY(-50%); width: 40px; height: 22px; font-size: 0 !important; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 22'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.5' stop-color='%23d8dce8'/%3E%3Cstop offset='1' stop-color='%23808898'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M2 6 L22 6 Q26 2 30 4 L38 11 L30 18 Q26 20 22 16 L2 16 Q0 11 2 6Z' fill='url(%23g)' stroke='%23303848' stroke-width='1.4'/%3E%3Cpath d='M8 9 L24 9 M8 13 L24 13' stroke='%2390a0b8' stroke-width='1'/%3E%3C/svg%3E"); filter: drop-shadow(1px 2px 1px rgba(0,0,0,.6)); }
+  #ffSide #tName.obj { color: #b8f0c0 !important; }
+  #ffPBox .pf .bar.hp > i, #ffSide .pf .bar.hp > i { background: linear-gradient(180deg, #ffe0d8, #f0a090 45%, #c86858) !important; }
+  @media (max-width: 720px) { #mCmd { width: 146px; padding: 12px 5px 6px 6px !important; } #mCmd .ffb { font-size: 12px !important; height: 21px; padding: 0 9px !important; } #mCmd .ffb .cur { left: -42px !important; width: 30px; height: 17px; } }
+  #tInfo:empty, #tToT:empty, #tChain:empty { display: none !important; }
+  #ffTBox.npc .bar, #ffTBox.npc #tHpT { display: none !important; }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.6.0 · built 2026-10-14 09:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.6.1 · built 2026-10-14 09:34 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -13910,8 +13930,8 @@ function updateTarget() {
     setHtml($("tChain"), "");
   } else {
     setTxt($("tName"), t.name);
-    $("tName").style.color = "#ead9ae";
-    setTxt($("tLv"), "NPC");
+    $("tName").style.color = t.prop || t.crystal ? "#b8f0c0" : "#e8f0c0";
+    setTxt($("tLv"), "");
     box.classList.add("npc");
     $("tTag").style.display = "none";
     pct = 0;
@@ -13919,7 +13939,7 @@ function updateTarget() {
     setW($("tTp"), 0); setW($("tSwing"), 0);
     setTxt($("tToT"), "");
     $("tWarn").style.display = "none";
-    setTxt($("tInfo"), (questMarker(t) ? "❗ Has something for you · " : "") + (UI.phone ? "Tap again to talk" : "Tap again or press E to talk"));
+    setTxt($("tInfo"), questMarker(t) ? "❗ Has something for you" : "");
     setHtml($("tChain"), "");
   }
   setW($("tHp"), pct);
@@ -14644,7 +14664,7 @@ function renderMainCmd() {
   if (!el || !m) return;
   const items = mainCmdItems();
   m.sel = clamp(m.sel, 0, items.length - 1);
-  let h = m.sub === "status" ? '<div class="ffMHead sub"><button class="pg" data-mc="back">◀</button><span>Status</span><span style="width:26px"></span></div>' : '<div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>Menu ' + (m.page + 1) + "/2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
+  let h = m.sub === "status" ? '<div class="ffMLeg">Status</div><div class="ffMHead sub"><button class="pg" data-mc="back">◀</button><span>Status</span><span style="width:26px"></span></div>' : '<div class="ffMLeg">Commands</div><div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>' + (m.page + 1) + " / 2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
   items.forEach((it, i) => { h += '<button data-mc="' + i + '" class="ffb' + (i === m.sel ? " sel" : "") + (it[1] === "home" ? " gold" : "") + '"><span class="cur">➤</span><span class="lb">' + esc(it[0]) + "</span></button>"; });
   el.innerHTML = h;
   el.classList.add("on");
@@ -16151,13 +16171,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v13.6.0 · built 2026-10-14 09:30 PDT";
+const BUILD_INFO = "v13.6.1 · built 2026-10-14 09:34 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "13.6.1", date: "2026-10-14", title: "Classic command menu", items: [
+    "The main menu is restyled: a dark navy panel with a fine border, a Commands label sitting on the top edge, lavender pill buttons with bold italic outlined text, an orange pill for the selection, and a silver pointer that sticks out past the left edge of the box.",
+    "The Help, Network and Commands labels are no longer cut off at the top of the screen.",
+    "Targeting a person or object shows a compact box with just the name (green for objects); people with something for you still show the ❗ line. Party HP bars are a warm salmon colour."
   ] },
   { v: "13.6.0", date: "2026-10-14", title: "Smooth bodies and natural movement", items: [
     "Bodies are now one smooth skin: chest, waist, hips, shoulders, arms and legs flow into each other instead of being built from balls and tubes. Shoulders, biceps, forearms, thighs, knees and calves have real shape, and joints bend without gaps.",
@@ -17240,7 +17265,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "13.6.0";
+const GAME_VERSION = "13.6.1";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

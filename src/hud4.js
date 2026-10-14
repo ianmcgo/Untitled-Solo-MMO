@@ -421,8 +421,8 @@ function updateTarget() {
     setHtml($("tChain"), "");
   } else {
     setTxt($("tName"), t.name);
-    $("tName").style.color = "#ead9ae";
-    setTxt($("tLv"), "NPC");
+    $("tName").style.color = t.prop || t.crystal ? "#b8f0c0" : "#e8f0c0";
+    setTxt($("tLv"), "");
     box.classList.add("npc");
     $("tTag").style.display = "none";
     pct = 0;
@@ -430,7 +430,7 @@ function updateTarget() {
     setW($("tTp"), 0); setW($("tSwing"), 0);
     setTxt($("tToT"), "");
     $("tWarn").style.display = "none";
-    setTxt($("tInfo"), (questMarker(t) ? "❗ Has something for you · " : "") + (UI.phone ? "Tap again to talk" : "Tap again or press E to talk"));
+    setTxt($("tInfo"), questMarker(t) ? "❗ Has something for you" : "");
     setHtml($("tChain"), "");
   }
   setW($("tHp"), pct);
@@ -1155,7 +1155,7 @@ function renderMainCmd() {
   if (!el || !m) return;
   const items = mainCmdItems();
   m.sel = clamp(m.sel, 0, items.length - 1);
-  let h = m.sub === "status" ? '<div class="ffMHead sub"><button class="pg" data-mc="back">◀</button><span>Status</span><span style="width:26px"></span></div>' : '<div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>Menu ' + (m.page + 1) + "/2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
+  let h = m.sub === "status" ? '<div class="ffMLeg">Status</div><div class="ffMHead sub"><button class="pg" data-mc="back">◀</button><span>Status</span><span style="width:26px"></span></div>' : '<div class="ffMLeg">Commands</div><div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>' + (m.page + 1) + " / 2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
   items.forEach((it, i) => { h += '<button data-mc="' + i + '" class="ffb' + (i === m.sel ? " sel" : "") + (it[1] === "home" ? " gold" : "") + '"><span class="cur">➤</span><span class="lb">' + esc(it[0]) + "</span></button>"; });
   el.innerHTML = h;
   el.classList.add("on");

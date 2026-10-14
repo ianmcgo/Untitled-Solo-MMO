@@ -922,6 +922,26 @@
   @media (max-width: 760px) { #menu .win { width: calc(100vw - 12px - var(--sal) - var(--sar)); max-height: calc(100vh - 200px - var(--sat) - var(--sab)); } }
   #chat.lite #chatTabs, #chat.lite #chatIn { display: none; }
   #chat.lite #log { overflow: hidden; scrollbar-width: none; }
+
+  #ffTop { top: calc(13px + var(--sat)) !important; }
+  #ffNetBox { top: calc(13px + var(--sat)) !important; }
+  #ui.hasTop #topRight, #ui:has(#mCmd.on) #topRight { top: calc(52px + var(--sat)); }
+  #ffTop .ffBar .ffRight { top: -9px; }
+  #ffNet .ffLbl { top: -9px; }
+  .ffLbl, #ffTop .ffHelpLbl, #ffNet .ffLbl { font: italic 900 12px var(--ffFont) !important; letter-spacing: .1em; color: #fff; -webkit-text-stroke: .6px #10103a; text-shadow: 1px 1px 0 #000, 0 0 3px #000; }
+  #mCmd { top: calc(62px + var(--sat)) !important; width: 200px; padding: 14px 8px 8px 10px !important; gap: 4px; overflow: visible !important; max-height: none; background: linear-gradient(180deg, rgba(16,26,70,.93), rgba(10,18,52,.95)), repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px) !important; background-blend-mode: normal; border: 2px solid #b8c0e8 !important; border-radius: 3px !important; box-shadow: inset 0 0 0 1px #1a2050, inset 0 0 0 3px rgba(150,160,220,.35), 0 3px 12px rgba(0,0,0,.6) !important; }
+  #mCmd .ffMLeg { position: absolute; left: 50%; top: -10px; transform: translateX(-50%); padding: 0 6px; font: italic 900 12px var(--ffFont); letter-spacing: .1em; color: #fff; -webkit-text-stroke: .6px #10103a; text-shadow: 1px 1px 0 #000, 0 0 3px #000; white-space: nowrap; }
+  #mCmd .ffMHead { margin: -6px 0 2px 0 !important; justify-content: center !important; gap: 10px; font: italic 800 10px var(--ffFont) !important; color: #c8ccf0; }
+  #mCmd .ffMHead .pg { height: 16px; padding: 0 6px; font-size: 9px; background: linear-gradient(180deg, #a8acf0, #5a5ea8); border: 1px solid #1a1a50; }
+  #mCmd .ffb { height: 23px; padding: 0 14px !important; border-radius: 12px !important; border: 1px solid #14143c !important; background: linear-gradient(180deg, #e4e2fa 0%, #b4b2e6 22%, #8e8cc8 58%, #6a68a6 100%) !important; color: #fff; font: italic 900 14px var(--ffFont) !important; letter-spacing: .1em; -webkit-text-stroke: 1px #14143c; paint-order: stroke fill; text-shadow: 1px 1px 0 #14143c; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 -2px 3px rgba(10,10,50,.45), 0 1px 1px rgba(0,0,0,.5) !important; }
+  #mCmd .ffb.sel { background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; color: #ffb54a !important; -webkit-text-stroke: 1px #3a1a06; text-shadow: 1px 1px 0 #3a1a06 !important; }
+  #mCmd .ffb.gold:not(.sel) { background: linear-gradient(180deg, #f4f0c8 0%, #d8d090 25%, #a8a058 60%, #7a7430 100%) !important; }
+  #mCmd .ffb .cur { left: -58px !important; top: 50%; transform: translateY(-50%); width: 40px; height: 22px; font-size: 0 !important; background: no-repeat center / contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 22'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.5' stop-color='%23d8dce8'/%3E%3Cstop offset='1' stop-color='%23808898'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M2 6 L22 6 Q26 2 30 4 L38 11 L30 18 Q26 20 22 16 L2 16 Q0 11 2 6Z' fill='url(%23g)' stroke='%23303848' stroke-width='1.4'/%3E%3Cpath d='M8 9 L24 9 M8 13 L24 13' stroke='%2390a0b8' stroke-width='1'/%3E%3C/svg%3E"); filter: drop-shadow(1px 2px 1px rgba(0,0,0,.6)); }
+  #ffSide #tName.obj { color: #b8f0c0 !important; }
+  #ffPBox .pf .bar.hp > i, #ffSide .pf .bar.hp > i { background: linear-gradient(180deg, #ffe0d8, #f0a090 45%, #c86858) !important; }
+  @media (max-width: 720px) { #mCmd { width: 146px; padding: 12px 5px 6px 6px !important; } #mCmd .ffb { font-size: 12px !important; height: 21px; padding: 0 9px !important; } #mCmd .ffb .cur { left: -42px !important; width: 30px; height: 17px; } }
+  #tInfo:empty, #tToT:empty, #tChain:empty { display: none !important; }
+  #ffTBox.npc .bar, #ffTBox.npc #tHpT { display: none !important; }
 </style>
 </head>
 <body>
