@@ -842,7 +842,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.3.0 · built 2026-10-13 23:00 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.3.1 · built 2026-10-13 23:03 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -12762,7 +12762,7 @@ function mainCmdItems() {
 function mainCmdOpen() {
   if (S.modal) closeModal();
   tgtCmdClose();
-  UI.mm = { page: UI.mm ? UI.mm.page : 0, sel: 0 };
+  UI.mm = { page: UI.mm ? UI.mm.page : 0, sel: UI.mm ? UI.mm.sel : 0 };
   renderMainCmd();
   sfx("open");
 }
@@ -12785,8 +12785,9 @@ function mainCmdDo(i) {
   const k = it[1];
   sfx("select");
   if (UI.mm.sub === "status") { UI.mm.sel = i; renderMainCmd(); return; }
-  if (k === "character") { UI.mm.back = i; UI.mm.sub = "status"; UI.mm.sel = 0; renderMainCmd(); return; }
-  mainCmdClose();
+  if (k === "character") { if (S.modal) closeModal(); UI.mm.back = i; UI.mm.sub = "status"; UI.mm.sel = 0; renderMainCmd(); return; }
+  UI.mm.sel = i; renderMainCmd();
+  if (k === "@logout") mainCmdClose();
   if (k === "@trade") { const t = player.target; if (t && t.kind === "remote") netTradeAsk(t.name); else log("Target another player first, then choose Trade.", "sys"); return; }
   if (k === "@search") { UI.socQ = ""; openMenu("social"); return; }
   if (k === "@ls" || k === "@friends") { openMenu("social"); return; }
@@ -14239,13 +14240,16 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.3.0 · built 2026-10-13 23:00 PDT";
+const BUILD_INFO = "v9.3.1 · built 2026-10-13 23:03 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.3.1", date: "2026-10-13", title: "Menu stays open", items: [
+    "Choosing something from the main menu (Items, Equipment, Quests and so on) keeps the menu open on the right while the window shows on the left. Pick another entry to switch windows; Esc closes the window and puts you back on the same menu entry."
   ] },
   { v: "9.3.0", date: "2026-10-13", title: "Classic lists", items: [
     "Items is a slim list in the top left (the Commands box shows how full your bag is, like Items 11/30). Point at an item to see its card under the list; choose it to get Use, Eat, Equip, Add to action bar or Drop in a small box.",
@@ -14942,7 +14946,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.3.0";
+const GAME_VERSION = "9.3.1";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

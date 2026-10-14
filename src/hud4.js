@@ -1096,7 +1096,7 @@ function mainCmdItems() {
 function mainCmdOpen() {
   if (S.modal) closeModal();
   tgtCmdClose();
-  UI.mm = { page: UI.mm ? UI.mm.page : 0, sel: 0 };
+  UI.mm = { page: UI.mm ? UI.mm.page : 0, sel: UI.mm ? UI.mm.sel : 0 };
   renderMainCmd();
   sfx("open");
 }
@@ -1119,8 +1119,9 @@ function mainCmdDo(i) {
   const k = it[1];
   sfx("select");
   if (UI.mm.sub === "status") { UI.mm.sel = i; renderMainCmd(); return; }
-  if (k === "character") { UI.mm.back = i; UI.mm.sub = "status"; UI.mm.sel = 0; renderMainCmd(); return; }
-  mainCmdClose();
+  if (k === "character") { if (S.modal) closeModal(); UI.mm.back = i; UI.mm.sub = "status"; UI.mm.sel = 0; renderMainCmd(); return; }
+  UI.mm.sel = i; renderMainCmd();
+  if (k === "@logout") mainCmdClose();
   if (k === "@trade") { const t = player.target; if (t && t.kind === "remote") netTradeAsk(t.name); else log("Target another player first, then choose Trade.", "sys"); return; }
   if (k === "@search") { UI.socQ = ""; openMenu("social"); return; }
   if (k === "@ls" || k === "@friends") { openMenu("social"); return; }

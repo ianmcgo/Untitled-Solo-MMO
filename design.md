@@ -892,6 +892,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.3.1 | mainCmdDo keeps UI.mm open (only Log Out closes it); mainCmdOpen keeps sel; Status closes any window. |
 | 9.3.0 | Phase 43: slim Items/Shop/Quests/Magic lists, equipment layout, Magic List + MP box, split side boxes, mob regen. |
 | 9.0.0 | Phase 40: 16 equipment slots, Equipment window, item cards, resistances, slim Character, storage transfer screen. |
 | 8.9.0 | Phase 39: classic interface (command bar, combat status, target/party panel, log, command menu, plates, cursor, status/skills/crafting/bag windows). |
