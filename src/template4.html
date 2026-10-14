@@ -770,6 +770,24 @@
   #mmTime { margin: 2px 0 0 18px; font: italic 900 14px var(--ffFont); color: #fff; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
   #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
   #clockBox, #trBtns { display: none !important; }
+  #mCmd .ffb:not(.sel):not(.gold), #tCmd:not(.list) .ffb:not(.sel), #mBody button:not(.lr):not(.on):not(.pri):not(.danger):not(.mcR):not(.eqS):not(.csS):not(.csRow) { background: linear-gradient(180deg, #b8c2f4 0%, #6a76d0 18%, #3e48a6 55%, #283080 100%) !important; }
+  #mCmd .ffb { height: 21px; font-size: 12.5px; } #mCmd { gap: 2px; }
+  #tCmd:not(.list) .ffb { height: 22px; font-size: 13px; } #tCmd:not(.list) { gap: 2px; }
+  #mBody button:not(.lr):not(.mcR):not(.eqS):not(.csS):not(.csRow):not(.cell) { padding-top: 3px; padding-bottom: 3px; min-height: 0; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: rgba(20,20,70,.65); border-left: 1px solid rgba(220,224,255,.35); }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(90deg, #c8d0ff, #7884e0 40%, #3e48a6); border: 1px solid rgba(255,255,255,.75); border-radius: 5px; }
+  ::-webkit-scrollbar-corner { background: transparent; }
+  @supports not selector(::-webkit-scrollbar) { * { scrollbar-color: #7884e0 rgba(20,20,70,.65); } }
+  #ffTop .ffBar { position: relative; border-top: 0 !important; padding-top: 2px; background: linear-gradient(var(--ffEdge), var(--ffEdge)) 0 0 / calc(100% - 74px) 2px no-repeat, linear-gradient(var(--ffEdge), var(--ffEdge)) 100% 0 / 20px 2px no-repeat, var(--ffStripe); }
+  #ffTop .ffBar .ffRight { position: absolute; right: 22px; top: -8px; height: auto; padding: 0 4px; }
+  #ffTop .ffHelpLbl { margin: 0; font-size: 11px; }
+  #ffNetBox { border-top: 0 !important; padding-top: 2px; background: linear-gradient(var(--ffEdge), var(--ffEdge)) 0 0 / calc(50% - 34px) 2px no-repeat, linear-gradient(var(--ffEdge), var(--ffEdge)) 100% 0 / calc(50% - 34px) 2px no-repeat, var(--ffStripe) !important; }
+  #ffNet .ffLbl { position: absolute; left: 50%; top: -8px; transform: translateX(-50%); margin: 0; font-size: 11px; }
+  #ffNet { grid-template-rows: auto; }
+  #mBody button.kb:not(.lr), #mBody a.kb { outline: 2px solid #ffb060 !important; outline-offset: 1px; box-shadow: 0 0 10px rgba(255,170,80,.7) !important; }
+  #mBody .eqPop.kbl { outline: 2px solid #ffb060; outline-offset: 2px; }
+  #mHead .meta { display: none; }
   #ffSide { background: none; border: none; box-shadow: none; padding: 0; gap: 6px; }
   #dialog, #confirmBox .cb, #mCard > div, #tCmd, #mCmd, #menu .win, #tracker, #mpBox { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; backdrop-filter: none !important; }
   #tracker, #tracker * { font-family: var(--ffFont); color: #fff; }
@@ -787,8 +805,8 @@
   #mBody .lHead button { padding: 1px 12px; font-size: 12px; height: 22px; }
   #mBody .lList { display: flex; flex-direction: column; }
   #mBody .lr { position: relative; display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 4px; border: none; border-radius: 2px; background: transparent !important; box-shadow: none; font: italic 900 14.5px var(--ffFont); letter-spacing: .04em; color: #fff; text-shadow: 1px 1px 0 #000; text-align: left; cursor: pointer; -webkit-text-stroke: 0; }
-  #mBody .lr:hover, #mBody .lr.sel { background: linear-gradient(90deg, rgba(255,140,200,.35), rgba(255,140,200,.08)) !important; }
-  #mBody .lr .cur { position: absolute; left: -18px; color: #e8c8a8; opacity: 0; font-style: normal; } #mBody .lr:hover .cur, #mBody .lr.sel .cur { opacity: 1; }
+  #mBody .lr:hover, #mBody .lr.sel, #mBody .lr.kb { background: linear-gradient(90deg, rgba(255,140,200,.35), rgba(255,140,200,.08)) !important; }
+  #mBody .lr .cur { position: absolute; left: -18px; color: #e8c8a8; opacity: 0; font-style: normal; } #mBody .lr:hover .cur, #mBody .lr.sel .cur, #mBody .lr.kb .cur { opacity: 1; }
   #mBody .lr .orb { flex: 0 0 auto; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--oc) 45%, rgba(0,0,0,.6) 100%); box-shadow: 0 0 4px var(--oc); }
   #mBody .lr .lq { width: 18px; font-size: 11px; text-align: right; color: #fff; }
   #mBody .lr .ic { width: 18px; font-style: normal; font-size: 14px; text-align: center; }

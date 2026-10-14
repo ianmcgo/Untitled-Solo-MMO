@@ -1,5 +1,6 @@
 const CONFIG = {
   mobRegen: 0.04,
+  scrollDrop: 0.05,
   levelCap: 20,
   bowRange: 230,
   foodMinutes: 30,
@@ -683,7 +684,7 @@ const ZONES = {
   },
   residence: {
     name: "Your Residence", w: 400, h: 320, safe: true, theme: "house", indoor: true,
-    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 288, ty: 420, label: "Outpost", kind: "door" }],
+    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 288, ty: 420, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
     npcs: [{ id: "pip", x: 60, y: 60 }],
     spawns: [],
     start: { x: 200, y: 250 },
@@ -1440,3 +1441,19 @@ const PETS = {
 };
 
 const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["tide_crown", "abyssal_staff", "drowned_blade", "priest_mantle", "tidebreaker_bow"], gil: 1500, xp: 3000 };
+
+for (const id in SPELLS) {
+  const sp = SPELLS[id], lv = Math.min(...Object.values(sp.jobs));
+  sp.id = id; sp.minLv = lv;
+  const sid = "scroll_" + id;
+  ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
+  if (lv <= 10) SHOP.push(sid); else if (lv <= 17) SHOPS.vela.push(sid);
+}
+{
+  const kept = [], overlap = (a, b) => !a.time || !b.time || a.time === b.time;
+  for (const sp of ZONES.hollow.spawns) {
+    if (!sp.nm && sp.x < 1300 && kept.some(k => overlap(k, sp) && Math.hypot(k.x - sp.x, k.y - sp.y) < 170)) continue;
+    kept.push(sp);
+  }
+  ZONES.hollow.spawns = kept;
+}

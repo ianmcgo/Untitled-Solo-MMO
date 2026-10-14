@@ -770,6 +770,24 @@
   #mmTime { margin: 2px 0 0 18px; font: italic 900 14px var(--ffFont); color: #fff; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
   #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
   #clockBox, #trBtns { display: none !important; }
+  #mCmd .ffb:not(.sel):not(.gold), #tCmd:not(.list) .ffb:not(.sel), #mBody button:not(.lr):not(.on):not(.pri):not(.danger):not(.mcR):not(.eqS):not(.csS):not(.csRow) { background: linear-gradient(180deg, #b8c2f4 0%, #6a76d0 18%, #3e48a6 55%, #283080 100%) !important; }
+  #mCmd .ffb { height: 21px; font-size: 12.5px; } #mCmd { gap: 2px; }
+  #tCmd:not(.list) .ffb { height: 22px; font-size: 13px; } #tCmd:not(.list) { gap: 2px; }
+  #mBody button:not(.lr):not(.mcR):not(.eqS):not(.csS):not(.csRow):not(.cell) { padding-top: 3px; padding-bottom: 3px; min-height: 0; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: rgba(20,20,70,.65); border-left: 1px solid rgba(220,224,255,.35); }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(90deg, #c8d0ff, #7884e0 40%, #3e48a6); border: 1px solid rgba(255,255,255,.75); border-radius: 5px; }
+  ::-webkit-scrollbar-corner { background: transparent; }
+  @supports not selector(::-webkit-scrollbar) { * { scrollbar-color: #7884e0 rgba(20,20,70,.65); } }
+  #ffTop .ffBar { position: relative; border-top: 0 !important; padding-top: 2px; background: linear-gradient(var(--ffEdge), var(--ffEdge)) 0 0 / calc(100% - 74px) 2px no-repeat, linear-gradient(var(--ffEdge), var(--ffEdge)) 100% 0 / 20px 2px no-repeat, var(--ffStripe); }
+  #ffTop .ffBar .ffRight { position: absolute; right: 22px; top: -8px; height: auto; padding: 0 4px; }
+  #ffTop .ffHelpLbl { margin: 0; font-size: 11px; }
+  #ffNetBox { border-top: 0 !important; padding-top: 2px; background: linear-gradient(var(--ffEdge), var(--ffEdge)) 0 0 / calc(50% - 34px) 2px no-repeat, linear-gradient(var(--ffEdge), var(--ffEdge)) 100% 0 / calc(50% - 34px) 2px no-repeat, var(--ffStripe) !important; }
+  #ffNet .ffLbl { position: absolute; left: 50%; top: -8px; transform: translateX(-50%); margin: 0; font-size: 11px; }
+  #ffNet { grid-template-rows: auto; }
+  #mBody button.kb:not(.lr), #mBody a.kb { outline: 2px solid #ffb060 !important; outline-offset: 1px; box-shadow: 0 0 10px rgba(255,170,80,.7) !important; }
+  #mBody .eqPop.kbl { outline: 2px solid #ffb060; outline-offset: 2px; }
+  #mHead .meta { display: none; }
   #ffSide { background: none; border: none; box-shadow: none; padding: 0; gap: 6px; }
   #dialog, #confirmBox .cb, #mCard > div, #tCmd, #mCmd, #menu .win, #tracker, #mpBox { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; backdrop-filter: none !important; }
   #tracker, #tracker * { font-family: var(--ffFont); color: #fff; }
@@ -787,8 +805,8 @@
   #mBody .lHead button { padding: 1px 12px; font-size: 12px; height: 22px; }
   #mBody .lList { display: flex; flex-direction: column; }
   #mBody .lr { position: relative; display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 4px; border: none; border-radius: 2px; background: transparent !important; box-shadow: none; font: italic 900 14.5px var(--ffFont); letter-spacing: .04em; color: #fff; text-shadow: 1px 1px 0 #000; text-align: left; cursor: pointer; -webkit-text-stroke: 0; }
-  #mBody .lr:hover, #mBody .lr.sel { background: linear-gradient(90deg, rgba(255,140,200,.35), rgba(255,140,200,.08)) !important; }
-  #mBody .lr .cur { position: absolute; left: -18px; color: #e8c8a8; opacity: 0; font-style: normal; } #mBody .lr:hover .cur, #mBody .lr.sel .cur { opacity: 1; }
+  #mBody .lr:hover, #mBody .lr.sel, #mBody .lr.kb { background: linear-gradient(90deg, rgba(255,140,200,.35), rgba(255,140,200,.08)) !important; }
+  #mBody .lr .cur { position: absolute; left: -18px; color: #e8c8a8; opacity: 0; font-style: normal; } #mBody .lr:hover .cur, #mBody .lr.sel .cur, #mBody .lr.kb .cur { opacity: 1; }
   #mBody .lr .orb { flex: 0 0 auto; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0 12%, var(--oc) 45%, rgba(0,0,0,.6) 100%); box-shadow: 0 0 4px var(--oc); }
   #mBody .lr .lq { width: 18px; font-size: 11px; text-align: right; color: #fff; }
   #mBody .lr .ic { width: 18px; font-style: normal; font-size: 14px; text-align: center; }
@@ -842,7 +860,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.3.1 · built 2026-10-13 23:03 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.4.0 · built 2026-10-13 23:31 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5699,6 +5717,7 @@ ${_}`}var A=class extends Error{constructor({message:e,code:t,cause:s,name:n}){v
 <script>
 const CONFIG = {
   mobRegen: 0.04,
+  scrollDrop: 0.05,
   levelCap: 20,
   bowRange: 230,
   foodMinutes: 30,
@@ -6382,7 +6401,7 @@ const ZONES = {
   },
   residence: {
     name: "Your Residence", w: 400, h: 320, safe: true, theme: "house", indoor: true,
-    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 288, ty: 420, label: "Outpost", kind: "door" }],
+    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 288, ty: 420, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
     npcs: [{ id: "pip", x: 60, y: 60 }],
     spawns: [],
     start: { x: 200, y: 250 },
@@ -7140,6 +7159,22 @@ const PETS = {
 
 const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["tide_crown", "abyssal_staff", "drowned_blade", "priest_mantle", "tidebreaker_bow"], gil: 1500, xp: 3000 };
 
+for (const id in SPELLS) {
+  const sp = SPELLS[id], lv = Math.min(...Object.values(sp.jobs));
+  sp.id = id; sp.minLv = lv;
+  const sid = "scroll_" + id;
+  ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
+  if (lv <= 10) SHOP.push(sid); else if (lv <= 17) SHOPS.vela.push(sid);
+}
+{
+  const kept = [], overlap = (a, b) => !a.time || !b.time || a.time === b.time;
+  for (const sp of ZONES.hollow.spawns) {
+    if (!sp.nm && sp.x < 1300 && kept.some(k => overlap(k, sp) && Math.hypot(k.x - sp.x, k.y - sp.y) < 170)) continue;
+    kept.push(sp);
+  }
+  ZONES.hollow.spawns = kept;
+}
+
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
   shake: 0, keys: {}, moveTarget: null, chase: false, pendingTalk: null, zoneCooldown: 0,
@@ -7226,6 +7261,7 @@ function newSave() {
   const jobs = {}, skills = {};
   for (const j in JOBS) { jobs[j] = { lv: 1, xp: 0 }; skills[j] = newSkillSet(); }
   return {
+    spells: Object.keys(SPELLS).filter(id => Object.values(SPELLS[id].jobs).includes(1)),
     v: 2, name: "Adventurer", mainJob: "WAR", subJob: null, supportUnlocked: false,
     jobs, skills,
     gear: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" },
@@ -7292,6 +7328,8 @@ function normalizeSave(d) {
   if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
   if (!Array.isArray(out.guild.done)) out.guild.done = [];
   if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
+  if (!Array.isArray(d.spells)) out.spells = Object.keys(SPELLS).filter(id => Object.entries(SPELLS[id].jobs).some(([j, l]) => out.jobs[j] && out.jobs[j].lv >= l));
+  out.spells = out.spells.filter(id => SPELLS[id]);
   return out;
 }
 
@@ -7815,12 +7853,13 @@ function buildMob(famKey, L, x, y, spawnIdx) {
   const f = famOf(famKey);
   const st = { str: 6 + 0.9 * L, dex: 6 + 0.8 * L, vit: 6 + 0.8 * L, agi: 6 + 0.8 * L, int: (f.int || 6) + 0.7 * L, mnd: 6 + 0.7 * L };
   for (const k of ATTRS) st[k] = Math.round(st[k]);
-  st.maxHp = Math.round((70 + 40 * L) * f.hpMul);
-  st.att = Math.round((16 + 5.5 * L) * f.attMul);
+  const easy = f.nm || f.boss || L > 6 ? 1 : 0.55 + 0.075 * (L - 1), easyA = f.nm || f.boss || L > 6 ? 1 : 0.75 + 0.05 * (L - 1);
+  st.maxHp = Math.round((70 + 40 * L) * f.hpMul * easy);
+  st.att = Math.round((16 + 5.5 * L) * f.attMul * easyA);
   st.def = Math.round((10 + 4.5 * L) * f.defMul);
   st.acc = Math.round(62 + 4 * L);
-  st.eva = Math.round(48 + 3.5 * L + (f.eva || 0));
-  st.dmg = 6 + 1.25 * L;
+  st.eva = Math.round((48 + 3.5 * L + (f.eva || 0)) * (easy < 1 ? 0.8 : 1));
+  st.dmg = (6 + 1.25 * L) * easyA;
   st.delay = f.delay;
   return {
     id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
@@ -8117,11 +8156,14 @@ function gainXp(n, chain, quiet) {
   log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
   popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
   let leveled = false;
+  const lv0 = j.lv;
   while (j.lv < CONFIG.levelCap && j.xp >= xpNeed(j.lv)) { j.xp -= xpNeed(j.lv); j.lv++; leveled = true; }
   if (j.lv >= CONFIG.levelCap) j.xp = 0;
   if (leveled) {
     refreshPlayer(true);
     log("You reach level " + j.lv + "!", "loot");
+    const nw = Object.values(SPELLS).filter(sp => sp.jobs[save.mainJob] && sp.jobs[save.mainJob] <= j.lv && sp.jobs[save.mainJob] > lv0 && !save.spells.includes(sp.id));
+    if (nw.length) log("You can now learn " + nw.map(sp => sp.name).join(", ") + ". Look for " + (nw.length > 1 ? "their scrolls" : "its scroll") + " in shops or from monsters.", "sys");
     popText(player, "Level Up!", "#ffd54f", 24, 2, 30);
     ring(player, "#ffd54f", 50, 0.9, "burst");
     S.shake = 0.2;
@@ -8196,6 +8238,10 @@ function dropLoot(m, mates) {
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     if (ITEMS[id].kind === "equip" && (S.party.length > 1 || mates.length)) { const pe = addToPool(id); if (mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); continue; }
     giveItem(id, 1);
+  }
+  if (Math.random() < CONFIG.scrollDrop) {
+    const pool = Object.values(SPELLS).filter(sp => sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
+    if (pool.length) giveItem("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, 1);
   }
   if (m.fam.gil) {
     const total = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
@@ -8848,6 +8894,7 @@ function augmentItem(id, reforge) {
 }
 
 function knows(ch, sp) {
+  if (typeof player !== "undefined" && ch === player && typeof save !== "undefined" && Array.isArray(save.spells) && !save.spells.includes(sp.id)) return false;
   const subLv = ch.sub ? Math.floor(ch.lv / 2) : 0;
   for (const j in sp.jobs) {
     if (j === ch.job && sp.jobs[j] <= ch.lv) return true;
@@ -9253,6 +9300,20 @@ function castDia(a, t, sp) {
   if (t.alive) t.buffs[key] = { until: S.time + 30, next: S.time + 3, tick: Math.max(1, Math.round(1 + a.lv * 0.4)), src: a, el };
 }
 
+function spellLearnable(sp) { return Object.entries(sp.jobs).some(([j, l]) => save.jobs[j] && save.jobs[j].lv >= l); }
+function learnSpell(itemId) {
+  const it = ITEMS[itemId], sp = SPELLS[it.spell];
+  if (!sp) return;
+  if (save.spells.includes(sp.id)) { log("You already know " + sp.name + ".", "sys"); sfx("error"); return; }
+  if (!spellLearnable(sp)) { log("You can't learn " + sp.name + " yet. It needs " + Object.entries(sp.jobs).map(([j, l]) => JOBS[j].name + " Lv." + l).join(" or ") + ".", "sys"); sfx("error"); return; }
+  if (!removeItem(itemId, 1)) return;
+  save.spells.push(sp.id);
+  log("You learn " + sp.name + "!", "loot");
+  popText(player, "Learned " + sp.name, "#9fe8ff", 15, 2, 30);
+  sfx("unlock");
+  if (typeof syncHotbar === "function") syncHotbar();
+  saveGame();
+}
 function useItem(id) {
   const it = ITEMS[id];
   if (!player.alive || !it) return;
@@ -9260,6 +9321,7 @@ function useItem(id) {
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
   if (it.kind === "food") { eatFood(id); return; }
+  if (it.spell) { learnSpell(id); return; }
   if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
@@ -10290,7 +10352,7 @@ function step(dt) {
     if (onAsk && S.exitAsked !== onAsk) {
       S.exitAsked = onAsk;
       const ex = onAsk;
-      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: "Enter", no: "Not now" });
+      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: ex.yes || "Enter", no: "Not now" });
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
@@ -10360,7 +10422,7 @@ function tabNext(list) {
 }
 
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && !n.away && !n.prop && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const list = people.concat(crystals);
   if (!list.length) return false;
@@ -10618,7 +10680,7 @@ function giveReward(r) {
   if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " crystals.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
   if (r.items) for (const [id, n] of r.items) giveItem(id, n);
-  if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Ask Tobin to change jobs.", "npc"); }
+  if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Change to it with Pip at your residence.", "npc"); }
   sfx("fanfare");
 }
 
@@ -10867,7 +10929,7 @@ const TALK = {
   },
   talkTobin(n) {
     const q = save.quests;
-    const opts = [{ label: "Change jobs", fn: () => { closeDialog(); openModal("job"); } }];
+    const opts = [];
     const adv = [];
     if (player.lv >= 6) {
       const turnIn = (id, mats, label) => {
@@ -10899,7 +10961,7 @@ const TALK = {
               q.support = "done"; save.supportUnlocked = true;
               log("Quest complete: " + QUESTS.support.name + ". Support jobs unlocked!", "npc");
               giveReward(QUESTS.support.reward);
-              refreshPlayer(false); saveGame(); closeDialog(); openModal("job");
+              refreshPlayer(false); saveGame(); closeDialog(); log("Set your support job with Pip at your residence.", "npc");
             } }
           ].concat(adv));
         } else openDialog(n.name, "You have " + invCount("bat_wing") + " of 2 Bat Wings and " + invCount("worm_silk") + " of 1 Worm Silk. Bats come out at night in Rocky Hollow; worms tunnel there day and night." + advNote, opts.concat(adv));
@@ -11003,6 +11065,7 @@ const TALK = {
     const placed = save.furniture.length;
     const g = questOptions("pip", n);
     openDialog(n.name, placed ? "Welcome home! " + placed + " piece" + (placed === 1 ? "" : "s") + " of furniture, " + storageUsed() + "/" + storageCap() + " storage slots used. What do you need?" : "Oh! You must be the new tenant. I'm Pip. I mind the cottage: I'll keep your things and arrange whatever furniture you bring. It's a bit bare in here. Odette by the west wall sells furniture.", [
+      { label: "Change jobs", fn: () => { closeDialog(); openModal("job"); } },
       { label: "Storage", fn: () => { closeDialog(); openModal("storage"); } },
       { label: "Arrange furniture", fn: () => { closeDialog(); openModal("home"); } }
     ].concat(g));
@@ -12422,7 +12485,7 @@ function onTgtCmd(idx) {
   if (key === "switch") { tgtCmdClose(); cycleTarget(); return; }
   if (key === "rest") { tgtCmdClose(); toggleRest(); return; }
   if (key === "menu") { tgtCmdClose(); mainCmdOpen(); return; }
-  if (key === "chat") { tgtCmdClose(); chatToggle(true); const ci = $("chatIn"); if (ci) setTimeout(() => ci.focus(), 30); return; }
+  if (key === "chat") { tgtCmdClose(); openChatInput(""); return; }
   if (key === "invite") { netPartyInvite(t.name); tgtCmdClose(); return; }
   if (key === "trade") { netTradeAsk(t.name); tgtCmdClose(); return; }
   if (key === "tell") { tgtCmdClose(); const inp = $("chatIn"); if (inp) { inp.value = "/t " + t.name + " "; inp.focus(); } return; }
@@ -12631,7 +12694,8 @@ function initHud() {
       ci.value = "";
       if (v) { UI.cmdHist.push(v); if (UI.cmdHist.length > 30) UI.cmdHist.shift(); UI.cmdIdx = UI.cmdHist.length; runCommand(v); }
       ci.blur();
-    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); chatToggle(false); }
+      if (UI.chatTyping) { UI.chatTyping = false; UI.chatPin = false; }
+    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); UI.chatTyping = false; chatToggle(false); }
     else if (e.key === "ArrowUp") { if (UI.cmdIdx > 0) { UI.cmdIdx--; ci.value = UI.cmdHist[UI.cmdIdx]; } e.preventDefault(); }
     else if (e.key === "ArrowDown") { if (UI.cmdIdx < UI.cmdHist.length) { UI.cmdIdx++; ci.value = UI.cmdHist[UI.cmdIdx] || ""; } e.preventDefault(); }
   });
@@ -12726,6 +12790,13 @@ function updateFF() {
   setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
 }
 
+function openChatInput(pre) {
+  UI.chatPin = true; UI.chatTyping = true;
+  UI.logRows = logFull(); UI.logAt = S.time;
+  const ch = $("chat"); ch.classList.remove("lite", "gone");
+  const ci = $("chatIn"); ci.value = pre || "";
+  setTimeout(() => { ci.focus(); ci.setSelectionRange(ci.value.length, ci.value.length); }, 0);
+}
 function logFull() { return innerWidth < 900 ? 6 : 8; }
 function logEsc() {
   if (!UI.logRows || UI.logRows <= 0) return false;
@@ -12811,8 +12882,9 @@ function mainCmdKey(k) {
 function openMenu(tab) {
   tab = TAB_ALIAS[tab] || tab || "character";
   const was = !!S.modal;
+  if (!was) UI.menuFromMain = !!UI.mm;
   if (S.dialog) closeDialog();
-  UI.hov = null; UI.modalHelp = null; if (tab === "quests" && !was) { UI.qCat = null; UI.qSel = null; } if (tab === "shop" && S.modal !== "shop") UI.shopMode = "buy";
+  UI.hov = null; UI.modalHelp = null; if (tab !== S.modal) { UI.kbRow = null; UI.kbBtn = null; } if (tab === "quests" && !was) { UI.qCat = null; UI.qSel = null; } if (tab === "shop" && S.modal !== "shop") UI.shopMode = "buy";
   S.modal = tab;
   $("menu").style.display = "block";
   S.keys = {};
@@ -12855,6 +12927,8 @@ function renderModal() {
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
   const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
+  if (UI.kbBtn != null && !SLIM_TABS[S.modal] && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
+  if (UI.kbRow != null && SLIM_TABS[S.modal]) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
   const win = document.querySelector("#menu .win");
   if (win) win.className = "win" + (SLIM_TABS[S.modal] ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "");
   renderMCard();
@@ -12984,7 +13058,7 @@ function tabEquipment() {
   else {
     const cur = save.gear[q.slot];
     const fits = [...new Set(save.inventory.map(x => x.id))].filter(id => ITEMS[id].kind === "equip" && slotKeys(ITEMS[id].slot).includes(q.slot));
-    h += '<div class="eqPop"><div class="eqPH">' + SLOT_NAMES[q.slot] + "</div>";
+    h += '<div class="eqPop' + (q.list ? " kbl" : "") + '"><div class="eqPH">' + SLOT_NAMES[q.slot] + "</div>";
     if (cur) h += '<button class="mcR" data-a="equnq" data-v="' + q.slot + '"><span class="ic">✕</span><span class="nm">Remove ' + esc(ITEMS[cur].name) + "</span></button>";
     for (const id of fits) { const why = canEquip(id); h += '<button class="mcR' + (q.hover === id ? " hv" : "") + '" data-a="eqpick" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="nm' + (why ? " dim" : "") + '">' + esc(ITEMS[id].name) + "</span>" + (why ? '<span class="q bad">' + esc(why.replace("Requires ", "")) + "</span>" : "") + "</button>"; }
     if (!fits.length && !cur) h += '<div class="mcR empty"><span class="nm dim">Nothing in your bag fits here.</span></div>';
@@ -13096,7 +13170,7 @@ const LORE = {
   hollow_king: ["The Hollow King stirs the dead of Ashenreach from his throne under the Den.", "At two thirds and one third of his health he calls Royal Guards; below a fifth he enrages."],
   royal_guard: ["Royal Guards rise at the Hollow King's call and fall when he does."],
   rhea: ["Captain Rhea commands the Outpost's garrison and pays bounties on goblins and worse.", "Rhea turns in at 22:00 and is back on the plaza at dawn."],
-  tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
+  tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
   pell: ["Pell buys and sells potions, ethers, arms and armour. Crystals talk.", "Pell keeps late hours for a merchant: he shuts at 21:00."],
   brann: ["Brann runs the Mercenary Hall. One fee hires a companion for good; dismissing is free.", "Brann drinks till 23:00 and is up by half past seven."],
   ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 5.", "Ysolde beds down with the beasts at 19:30."],
@@ -13260,9 +13334,9 @@ function tabSkills() {
 
 function tabActions() {
   const hb = hotbar();
-  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Keys 1–0 use page ' + (UI.page + 1) + '; hold Shift for the other page.</div>';
+  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Hold <b>Ctrl</b> and press 1–9 or 0 for the Ctrl line, or hold <b>Shift</b> for the Shift line. Plain 1–0 also use the Ctrl line, since some browsers keep Ctrl+number for switching tabs.</div>';
   hb.pages.forEach((pg, p) => {
-    h += "<h3>Page " + (p + 1) + (p === UI.page ? ' <span class="sub">· showing</span>' : "") + '</h3><div class="barEdit">';
+    h += "<h3>" + (p ? "Shift" : "Ctrl") + " line</h3><div class=\"barEdit\">";
     pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
     h += "</div>";
   });
@@ -14052,7 +14126,7 @@ function onMenuClick(e) {
   else if (a === "shopsell") { const it = ITEMS[v], n = invCount(v), p = sellPrice(v); UI.hov = v; renderMCard(); const o = [{ label: "Sell 1 (" + p + " crystals)", fn: () => { closeDialog(); sell(v); renderModal(); } }]; if (n > 1) o.push({ label: "Sell all " + n + " (" + (p * n).toLocaleString() + " crystals)", fn: () => { closeDialog(); for (let k = 0; k < n; k++) sell(v); renderModal(); } }); promptChoice(it.name, o); return; }
   else if (a === "mcast") { closeModal(); playerAct({ kind: "ma", id: v, name: SPELLS[v].name }); return; }
   else if (a === "mact") { const [kd, id] = v.split(":"); closeModal(); playerAct({ kind: kd, id, name: kd === "ws" ? WEAPON_SKILLS[id].name : ABILITIES[id].name }); return; }
-  else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; sfx("select"); renderModal(); return; }
+  else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; UI.eq.list = false; sfx("select"); renderModal(); return; }
   else if (a === "eqpick") { const q = UI.eq; if (q.hover === v) { const why = canEquip(v); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(v, q.slot); q.hover = null; } } else { q.hover = v; sfx("tab"); } renderModal(); return; }
   else if (a === "equnq") { unequip(v); UI.eq.hover = null; renderModal(); return; }
   else if (a === "slotinv") { const id = save.gear[v]; UI.slotFilter = v; S.modal = "inventory"; UI.filter = "all"; UI.sel = null; if (id) UI.cmp = null; sfx("tab"); }
@@ -14240,13 +14314,27 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.3.1 · built 2026-10-13 23:03 PDT";
+const BUILD_INFO = "v9.4.0 · built 2026-10-13 23:31 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.4.0", date: "2026-10-13", title: "Spell scrolls", items: [
+    "Spells are now learned from scrolls. Read a Scroll of (spell) from your items to learn it, if any of your jobs is high enough level for it. Spells you already had from your levels are kept.",
+    "Pell sells scrolls for spells up to level 10, Vela in Saltreach sells levels 11–17, and any monster may drop a scroll for spells near its level. When you level up, the log tells you which new spells you can now learn.",
+    "Walking looks calmer: smaller arm swing and less twisting through the chest.",
+    "Space (or Enter with nothing targeted) opens the typing box in the event log. Jump moved to Shift+Space.",
+    "Hotkeys have two lines: hold Ctrl and press 1–9 or 0 for the Ctrl line, or Shift for the Shift line. Plain 1–0 also use the Ctrl line, because many browsers keep Ctrl+number for switching tabs.",
+    "Every window can be used with the arrow keys: ↑ ↓ move through lists (Items, Shop, Quests, Magic, Abilities), Enter chooses. In Equipment the arrows move between the 16 boxes, Enter opens that box's choices, ↑ ↓ pick and Enter equips, ← or Esc goes back. Other windows (Crafting, Config and so on) step through their buttons.",
+    "Pip now changes your job (and support job); Tobin still teaches support and advanced jobs. Tab can target Pip.",
+    "Closing a window you opened through Pip (or anyone else) no longer opens the main menu; only windows opened from the main menu return to it.",
+    "Leaving your residence asks first, just like going in.",
+    "The east gate guard and Odette now appear properly instead of being invisible.",
+    "Rocky Hollow near the Outpost has fewer monsters spread further apart, and level 1–6 monsters are easier: less HP, weaker hits and easier to land blows on.",
+    "Help and Network labels sit in the top border of their boxes. Menu buttons are a darker blue and a little shorter. Scroll bars are blue to match. Crystal and bag info no longer shows at the top of windows."
   ] },
   { v: "9.3.1", date: "2026-10-13", title: "Menu stays open", items: [
     "Choosing something from the main menu (Items, Equipment, Quests and so on) keeps the menu open on the right while the window shows on the left. Pick another entry to switch windows; Esc closes the window and puts you back on the same menu entry."
@@ -14660,7 +14748,7 @@ function tabHelp() {
   const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
   let h = '<div class="help">';
   h += sec("🌅 Getting started", ul([
-    "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Tobin</b> to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
+    "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
     "Your first hire is a big boost: Mira (White Mage) heals, Kael (Warrior) tanks. A full party is you plus five.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or press Enter with nothing targeted and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
@@ -14674,8 +14762,8 @@ function tabHelp() {
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
-    "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
-    "1–0 still use your saved hotkeys (Shift for page 2; set them in the Hotkeys tab) · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
+    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line (plain 1–0 also use the Ctrl line); set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -14913,6 +15001,8 @@ function tabHelp() {
   h += sec("🖥️ The screen", ul([
     "<b>Main menu:</b> Esc with nothing targeted, - (or Insert) or ☰ opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
     "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
+    "<b>Spells</b> are learned by reading scrolls (from shops and monster drops) once one of your jobs is high enough level.",
+    "<b>Keyboard in windows:</b> arrows move, Enter chooses, Esc goes back or closes.",
     "<b>Lists:</b> Items, Shop, Quests, Magic and Abilities are slim lists in the top left. Point at an entry for its card (under the list) and description (Help bar); choose it for a small box of actions. In a command menu, Magic shows MP Cost and Next (recast) above the target frame.",
     "<b>Bottom right:</b> separate Target and Party boxes.",
     "<b>Windows:</b> menus open in the top left of the screen while the world keeps going. The Commands box shows the window's name and the Help bar explains it. Esc closes it.",
@@ -14946,7 +15036,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.3.1";
+const GAME_VERSION = "9.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -15098,6 +15188,62 @@ function renderStatusOv() {
   el.innerHTML = '<div id="stL">' + statusLeftHTML() + '</div><div id="stM" class="stBox">' + statusPanelHTML(it[1]) + "</div>";
   el.classList.add("on");
   $("ui").classList.add("stOn");
+}
+
+function eqFits(sl) { return [...new Set(save.inventory.map(x => x.id))].filter(id => ITEMS[id].kind === "equip" && slotKeys(ITEMS[id].slot).includes(sl)); }
+function modalKey(k) {
+  if (S.modal === "equipment") {
+    UI.eq = UI.eq || { slot: null, hover: null };
+    const q = UI.eq;
+    if (q.list) {
+      const L = eqFits(q.slot), n = L.length;
+      if (k === "escape" || k === "backspace" || k === "arrowleft") { q.list = false; q.hover = null; sfx("close"); renderModal(); return true; }
+      if (!n) return k.startsWith("arrow") || k === "enter";
+      const i = Math.max(0, L.indexOf(q.hover));
+      if (k === "arrowup") { q.hover = L[(i - 1 + n) % n]; sfx("tab"); renderModal(); return true; }
+      if (k === "arrowdown") { q.hover = L[(L.indexOf(q.hover) + 1) % n]; sfx("tab"); renderModal(); return true; }
+      if (k === "enter") { const id = q.hover || L[0], why = canEquip(id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(id, q.slot); q.hover = null; q.list = false; } renderModal(); return true; }
+      return false;
+    }
+    let i = Math.max(0, SLOTS.indexOf(q.slot));
+    const mv = { arrowleft: -1, arrowright: 1, arrowup: -4, arrowdown: 4 }[k];
+    if (mv) { if (q.slot) i = (i + mv + 16) % 16; q.slot = SLOTS[i]; q.hover = null; sfx("tab"); renderModal(); return true; }
+    if (k === "enter" && q.slot) { const L = eqFits(q.slot); q.list = true; q.hover = L[0] || null; sfx("select"); renderModal(); return true; }
+    return false;
+  }
+  if (SLIM_TABS[S.modal]) {
+    const rows = [...document.querySelectorAll("#mBody .lr:not(.empty)")];
+    if (!rows.length) return false;
+    let i = rows.findIndex(r => r.classList.contains("kb"));
+    if (k === "arrowup" || k === "arrowdown") {
+      i = i < 0 ? 0 : (i + (k === "arrowup" ? -1 : 1) + rows.length) % rows.length;
+      rows.forEach((r, j) => r.classList.toggle("kb", j === i));
+      UI.kbRow = i;
+      const r = rows[i];
+      r.scrollIntoView({ block: "nearest" });
+      if (r.dataset.hs) UI.modalHelp = r.dataset.hs;
+      if (r.dataset.hv) { UI.hov = r.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); }
+      sfx("tab");
+      return true;
+    }
+    if (k === "enter" && i >= 0) { rows[i].click(); return true; }
+    return false;
+  }
+  const btns = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(b => b.offsetParent);
+  if (!btns.length) return false;
+  let i = btns.findIndex(b => b.classList.contains("kb"));
+  const d = { arrowup: -1, arrowleft: -1, arrowdown: 1, arrowright: 1 }[k];
+  if (d) {
+    i = i < 0 ? 0 : (i + d + btns.length) % btns.length;
+    btns.forEach((b, j) => b.classList.toggle("kb", j === i));
+    UI.kbBtn = i;
+    btns[i].scrollIntoView({ block: "nearest" });
+    if (btns[i].title) UI.modalHelp = btns[i].title;
+    sfx("tab");
+    return true;
+  }
+  if (k === "enter" && i >= 0) { btns[i].click(); return true; }
+  return false;
 }
 
 const NOISE = (() => {
@@ -18129,7 +18275,9 @@ function buildEntityRig(e) {
     else if (ml.kind === "fish") { sig = "fish|" + ml.col + ml.col2; make = () => fishEntry(ml.col, ml.col2); }
     else { sig = "hare|" + ml.col; make = () => hareEntry(ml.col); }
   } else if (e.kind === "npc") {
-    const L = NPC_LOOK[e.id];
+    const nd = typeof NPCS !== "undefined" ? NPCS[e.id] : null;
+    if (nd && (nd.prop || nd.crystal || nd.hidden)) return null;
+    const L = NPC_LOOK[e.id] || (nd && NPC_LOOK[nd.model]) || (nd ? walkerLook(hashStr(e.id) % 997) : null);
     if (!L) return null;
     sig = "n|" + e.id;
     make = () => humanEntry(L);
@@ -18433,13 +18581,13 @@ function poseHuman(v, e, dt) {
     const kn = 1.0 + 0.35 * run;
     addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp, 0, 0);
     addP(P, "footL", (-s1 * 0.22 + 0.3 * Math.max(0, -c1) * Math.max(0, s1)) * amp, 0, 0); addP(P, "footR", (s1 * 0.22 + 0.3 * Math.max(0, c1) * Math.max(0, -s1)) * amp, 0, 0);
-    const armSwing = an.fight > 0.5 ? 0.25 : 0.6;
-    addP(P, "upArmL", -s1 * armSwing * amp, 0, 0); addP(P, "upArmR", s1 * armSwing * amp, 0, 0);
-    const el = amp * (1 - an.fight * 0.6);
-    addP(P, "foreArmL", -0.55 * run - (0.14 + 0.38 * Math.max(0, s1)) * el, 0, 0); addP(P, "foreArmR", -0.55 * run - (0.14 + 0.38 * Math.max(0, -s1)) * el, 0, 0);
+    const aa = Math.min(1, amp), armSwing = (an.fight > 0.5 ? 0.16 : 0.3 + 0.12 * run) * aa;
+    addP(P, "upArmL", -s1 * armSwing, 0, 0); addP(P, "upArmR", s1 * armSwing, 0, 0);
+    const el = aa * (1 - an.fight * 0.6);
+    addP(P, "foreArmL", -0.4 * run - (0.12 + 0.2 * Math.max(0, s1)) * el, 0, 0); addP(P, "foreArmR", -0.4 * run - (0.12 + 0.2 * Math.max(0, -s1)) * el, 0, 0);
     addP(P, "upArmL", 0, 0, 0.05 * amp); addP(P, "upArmR", 0, 0, -0.05 * amp);
     addP(P, "spine", lean * run + 0.05 * Math.abs(c1) * amp, s1 * 0.05 * amp, -s1 * 0.06 * amp);
-    addP(P, "chest", -0.03 * Math.abs(c1) * amp, s1 * 0.16 * amp, s1 * 0.05 * amp);
+    addP(P, "chest", -0.03 * Math.abs(c1) * amp, s1 * 0.08 * amp, s1 * 0.03 * amp);
     addP(P, "hips", 0, -s1 * 0.1 * amp, s1 * 0.07 * amp);
     addP(P, "neck", 0.04 * Math.abs(s1) * amp, -s1 * 0.06 * amp, 0);
     addP(P, "head", (0.07 * Math.abs(c1) - 0.04) * amp, -s1 * 0.09 * amp, -s1 * 0.04 * amp);
@@ -22140,8 +22288,9 @@ function onKey(e) {
     return;
   }
   if (S.modal) {
+    if (["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k) && modalKey(k)) { e.preventDefault(); return; }
     if (k === "escape" && S.modal === "quests" && UI.qCat) { UI.qCat = null; UI.qSel = null; renderModal(); sfx("close"); }
-    else if (k === "escape") { closeModal(); mainCmdOpen(); }
+    else if (k === "escape") { closeModal(); if (UI.menuFromMain) mainCmdOpen(); }
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
     return;
   }
@@ -22149,13 +22298,13 @@ function onKey(e) {
   if (UI.mm && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); mainCmdKey(k); return; }
   if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
-  if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
+  if (k === "/") { e.preventDefault(); openChatInput("/"); return; }
   if (k === "l" && !S.modal) { chatToggle(); return; }
   if (k === "f") { toggleEngage(false); return; }
-  if (k === "enter") { const t = player.target; if (t && (isMob(t) && t.alive || t.kind === "remote")) tgtCmdOpen(t); else if (t && t.kind === "npc") talkNearest(); else if (t === player) tgtCmdOpen(player); else { e.preventDefault(); UI.logRows = logFull(); const ci = $("chatIn"); ci.value = ""; ci.focus(); } return; }
+  if (k === "enter") { const t = player.target; if (t && (isMob(t) && t.alive || t.kind === "remote")) tgtCmdOpen(t); else if (t && t.kind === "npc") talkNearest(); else if (t === player) tgtCmdOpen(player); else { e.preventDefault(); openChatInput(""); } return; }
   if (menuKeys[k]) { openMenu(menuKeys[k]); return; }
   if (k === "r") { toggleMount(); return; }
-  if (k === " " || k === "spacebar") { e.preventDefault(); tryJump(); return; }
+  if (k === " " || k === "spacebar") { e.preventDefault(); if (e.shiftKey) tryJump(); else openChatInput(""); return; }
   if (k === "[") { setPage(UI.page - 1); return; }
   if (k === "]") { setPage(UI.page + 1); return; }
   if (k === "escape" && UI.cmd) { tgtCmdClose(); return; }
@@ -22172,7 +22321,8 @@ function onKey(e) {
   const digit = dm ? dm[1] : /^[0-9]$/.test(k) ? k : null;
   if (digit !== null) {
     const idx = digit === "0" ? 9 : parseInt(digit, 10) - 1;
-    activateSlot(e.shiftKey ? 1 - UI.page : UI.page, idx);
+    e.preventDefault();
+    activateSlot(e.shiftKey ? 1 : 0, idx);
     return;
   }
   if (k === "e" && !S.keys.e && nearNpc() && dist(nearNpc(), player) <= CONFIG.talkRange) { talkNearest(); return; }

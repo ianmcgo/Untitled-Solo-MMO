@@ -1,8 +1,9 @@
 function openMenu(tab) {
   tab = TAB_ALIAS[tab] || tab || "character";
   const was = !!S.modal;
+  if (!was) UI.menuFromMain = !!UI.mm;
   if (S.dialog) closeDialog();
-  UI.hov = null; UI.modalHelp = null; if (tab === "quests" && !was) { UI.qCat = null; UI.qSel = null; } if (tab === "shop" && S.modal !== "shop") UI.shopMode = "buy";
+  UI.hov = null; UI.modalHelp = null; if (tab !== S.modal) { UI.kbRow = null; UI.kbBtn = null; } if (tab === "quests" && !was) { UI.qCat = null; UI.qSel = null; } if (tab === "shop" && S.modal !== "shop") UI.shopMode = "buy";
   S.modal = tab;
   $("menu").style.display = "block";
   S.keys = {};
@@ -45,6 +46,8 @@ function renderModal() {
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
   const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
+  if (UI.kbBtn != null && !SLIM_TABS[S.modal] && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
+  if (UI.kbRow != null && SLIM_TABS[S.modal]) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
   const win = document.querySelector("#menu .win");
   if (win) win.className = "win" + (SLIM_TABS[S.modal] ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "");
   renderMCard();
@@ -174,7 +177,7 @@ function tabEquipment() {
   else {
     const cur = save.gear[q.slot];
     const fits = [...new Set(save.inventory.map(x => x.id))].filter(id => ITEMS[id].kind === "equip" && slotKeys(ITEMS[id].slot).includes(q.slot));
-    h += '<div class="eqPop"><div class="eqPH">' + SLOT_NAMES[q.slot] + "</div>";
+    h += '<div class="eqPop' + (q.list ? " kbl" : "") + '"><div class="eqPH">' + SLOT_NAMES[q.slot] + "</div>";
     if (cur) h += '<button class="mcR" data-a="equnq" data-v="' + q.slot + '"><span class="ic">✕</span><span class="nm">Remove ' + esc(ITEMS[cur].name) + "</span></button>";
     for (const id of fits) { const why = canEquip(id); h += '<button class="mcR' + (q.hover === id ? " hv" : "") + '" data-a="eqpick" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="nm' + (why ? " dim" : "") + '">' + esc(ITEMS[id].name) + "</span>" + (why ? '<span class="q bad">' + esc(why.replace("Requires ", "")) + "</span>" : "") + "</button>"; }
     if (!fits.length && !cur) h += '<div class="mcR empty"><span class="nm dim">Nothing in your bag fits here.</span></div>';
@@ -286,7 +289,7 @@ const LORE = {
   hollow_king: ["The Hollow King stirs the dead of Ashenreach from his throne under the Den.", "At two thirds and one third of his health he calls Royal Guards; below a fifth he enrages."],
   royal_guard: ["Royal Guards rise at the Hollow King's call and fall when he does."],
   rhea: ["Captain Rhea commands the Outpost's garrison and pays bounties on goblins and worse.", "Rhea turns in at 22:00 and is back on the plaza at dawn."],
-  tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
+  tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
   pell: ["Pell buys and sells potions, ethers, arms and armour. Crystals talk.", "Pell keeps late hours for a merchant: he shuts at 21:00."],
   brann: ["Brann runs the Mercenary Hall. One fee hires a companion for good; dismissing is free.", "Brann drinks till 23:00 and is up by half past seven."],
   ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 5.", "Ysolde beds down with the beasts at 19:30."],
@@ -450,9 +453,9 @@ function tabSkills() {
 
 function tabActions() {
   const hb = hotbar();
-  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Keys 1–0 use page ' + (UI.page + 1) + '; hold Shift for the other page.</div>';
+  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Hold <b>Ctrl</b> and press 1–9 or 0 for the Ctrl line, or hold <b>Shift</b> for the Shift line. Plain 1–0 also use the Ctrl line, since some browsers keep Ctrl+number for switching tabs.</div>';
   hb.pages.forEach((pg, p) => {
-    h += "<h3>Page " + (p + 1) + (p === UI.page ? ' <span class="sub">· showing</span>' : "") + '</h3><div class="barEdit">';
+    h += "<h3>" + (p ? "Shift" : "Ctrl") + " line</h3><div class=\"barEdit\">";
     pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
     h += "</div>";
   });
@@ -1242,7 +1245,7 @@ function onMenuClick(e) {
   else if (a === "shopsell") { const it = ITEMS[v], n = invCount(v), p = sellPrice(v); UI.hov = v; renderMCard(); const o = [{ label: "Sell 1 (" + p + " crystals)", fn: () => { closeDialog(); sell(v); renderModal(); } }]; if (n > 1) o.push({ label: "Sell all " + n + " (" + (p * n).toLocaleString() + " crystals)", fn: () => { closeDialog(); for (let k = 0; k < n; k++) sell(v); renderModal(); } }); promptChoice(it.name, o); return; }
   else if (a === "mcast") { closeModal(); playerAct({ kind: "ma", id: v, name: SPELLS[v].name }); return; }
   else if (a === "mact") { const [kd, id] = v.split(":"); closeModal(); playerAct({ kind: kd, id, name: kd === "ws" ? WEAPON_SKILLS[id].name : ABILITIES[id].name }); return; }
-  else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; sfx("select"); renderModal(); return; }
+  else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; UI.eq.list = false; sfx("select"); renderModal(); return; }
   else if (a === "eqpick") { const q = UI.eq; if (q.hover === v) { const why = canEquip(v); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(v, q.slot); q.hover = null; } } else { q.hover = v; sfx("tab"); } renderModal(); return; }
   else if (a === "equnq") { unequip(v); UI.eq.hover = null; renderModal(); return; }
   else if (a === "slotinv") { const id = save.gear[v]; UI.slotFilter = v; S.modal = "inventory"; UI.filter = "all"; UI.sel = null; if (id) UI.cmp = null; sfx("tab"); }
@@ -1437,6 +1440,20 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.4.0", date: "2026-10-13", title: "Spell scrolls", items: [
+    "Spells are now learned from scrolls. Read a Scroll of (spell) from your items to learn it, if any of your jobs is high enough level for it. Spells you already had from your levels are kept.",
+    "Pell sells scrolls for spells up to level 10, Vela in Saltreach sells levels 11–17, and any monster may drop a scroll for spells near its level. When you level up, the log tells you which new spells you can now learn.",
+    "Walking looks calmer: smaller arm swing and less twisting through the chest.",
+    "Space (or Enter with nothing targeted) opens the typing box in the event log. Jump moved to Shift+Space.",
+    "Hotkeys have two lines: hold Ctrl and press 1–9 or 0 for the Ctrl line, or Shift for the Shift line. Plain 1–0 also use the Ctrl line, because many browsers keep Ctrl+number for switching tabs.",
+    "Every window can be used with the arrow keys: ↑ ↓ move through lists (Items, Shop, Quests, Magic, Abilities), Enter chooses. In Equipment the arrows move between the 16 boxes, Enter opens that box's choices, ↑ ↓ pick and Enter equips, ← or Esc goes back. Other windows (Crafting, Config and so on) step through their buttons.",
+    "Pip now changes your job (and support job); Tobin still teaches support and advanced jobs. Tab can target Pip.",
+    "Closing a window you opened through Pip (or anyone else) no longer opens the main menu; only windows opened from the main menu return to it.",
+    "Leaving your residence asks first, just like going in.",
+    "The east gate guard and Odette now appear properly instead of being invisible.",
+    "Rocky Hollow near the Outpost has fewer monsters spread further apart, and level 1–6 monsters are easier: less HP, weaker hits and easier to land blows on.",
+    "Help and Network labels sit in the top border of their boxes. Menu buttons are a darker blue and a little shorter. Scroll bars are blue to match. Crystal and bag info no longer shows at the top of windows."
   ] },
   { v: "9.3.1", date: "2026-10-13", title: "Menu stays open", items: [
     "Choosing something from the main menu (Items, Equipment, Quests and so on) keeps the menu open on the right while the window shows on the left. Pick another entry to switch windows; Esc closes the window and puts you back on the same menu entry."
@@ -1850,7 +1867,7 @@ function tabHelp() {
   const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
   let h = '<div class="help">';
   h += sec("🌅 Getting started", ul([
-    "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Tobin</b> to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
+    "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave by the east gate into Rocky Hollow. Hares, worms and small goblins near the gate are good first targets.",
     "Your first hire is a big boost: Mira (White Mage) heals, Kael (Warrior) tanks. A full party is you plus five.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or press Enter with nothing targeted and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
@@ -1864,8 +1881,8 @@ function tabHelp() {
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
-    "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
-    "1–0 still use your saved hotkeys (Shift for page 2; set them in the Hotkeys tab) · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
+    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line (plain 1–0 also use the Ctrl line); set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -2103,6 +2120,8 @@ function tabHelp() {
   h += sec("🖥️ The screen", ul([
     "<b>Main menu:</b> Esc with nothing targeted, - (or Insert) or ☰ opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
     "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
+    "<b>Spells</b> are learned by reading scrolls (from shops and monster drops) once one of your jobs is high enough level.",
+    "<b>Keyboard in windows:</b> arrows move, Enter chooses, Esc goes back or closes.",
     "<b>Lists:</b> Items, Shop, Quests, Magic and Abilities are slim lists in the top left. Point at an entry for its card (under the list) and description (Help bar); choose it for a small box of actions. In a command menu, Magic shows MP Cost and Next (recast) above the target frame.",
     "<b>Bottom right:</b> separate Target and Party boxes.",
     "<b>Windows:</b> menus open in the top left of the screen while the world keeps going. The Commands box shows the window's name and the Help bar explains it. Esc closes it.",
@@ -2288,4 +2307,60 @@ function renderStatusOv() {
   el.innerHTML = '<div id="stL">' + statusLeftHTML() + '</div><div id="stM" class="stBox">' + statusPanelHTML(it[1]) + "</div>";
   el.classList.add("on");
   $("ui").classList.add("stOn");
+}
+
+function eqFits(sl) { return [...new Set(save.inventory.map(x => x.id))].filter(id => ITEMS[id].kind === "equip" && slotKeys(ITEMS[id].slot).includes(sl)); }
+function modalKey(k) {
+  if (S.modal === "equipment") {
+    UI.eq = UI.eq || { slot: null, hover: null };
+    const q = UI.eq;
+    if (q.list) {
+      const L = eqFits(q.slot), n = L.length;
+      if (k === "escape" || k === "backspace" || k === "arrowleft") { q.list = false; q.hover = null; sfx("close"); renderModal(); return true; }
+      if (!n) return k.startsWith("arrow") || k === "enter";
+      const i = Math.max(0, L.indexOf(q.hover));
+      if (k === "arrowup") { q.hover = L[(i - 1 + n) % n]; sfx("tab"); renderModal(); return true; }
+      if (k === "arrowdown") { q.hover = L[(L.indexOf(q.hover) + 1) % n]; sfx("tab"); renderModal(); return true; }
+      if (k === "enter") { const id = q.hover || L[0], why = canEquip(id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(id, q.slot); q.hover = null; q.list = false; } renderModal(); return true; }
+      return false;
+    }
+    let i = Math.max(0, SLOTS.indexOf(q.slot));
+    const mv = { arrowleft: -1, arrowright: 1, arrowup: -4, arrowdown: 4 }[k];
+    if (mv) { if (q.slot) i = (i + mv + 16) % 16; q.slot = SLOTS[i]; q.hover = null; sfx("tab"); renderModal(); return true; }
+    if (k === "enter" && q.slot) { const L = eqFits(q.slot); q.list = true; q.hover = L[0] || null; sfx("select"); renderModal(); return true; }
+    return false;
+  }
+  if (SLIM_TABS[S.modal]) {
+    const rows = [...document.querySelectorAll("#mBody .lr:not(.empty)")];
+    if (!rows.length) return false;
+    let i = rows.findIndex(r => r.classList.contains("kb"));
+    if (k === "arrowup" || k === "arrowdown") {
+      i = i < 0 ? 0 : (i + (k === "arrowup" ? -1 : 1) + rows.length) % rows.length;
+      rows.forEach((r, j) => r.classList.toggle("kb", j === i));
+      UI.kbRow = i;
+      const r = rows[i];
+      r.scrollIntoView({ block: "nearest" });
+      if (r.dataset.hs) UI.modalHelp = r.dataset.hs;
+      if (r.dataset.hv) { UI.hov = r.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); }
+      sfx("tab");
+      return true;
+    }
+    if (k === "enter" && i >= 0) { rows[i].click(); return true; }
+    return false;
+  }
+  const btns = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(b => b.offsetParent);
+  if (!btns.length) return false;
+  let i = btns.findIndex(b => b.classList.contains("kb"));
+  const d = { arrowup: -1, arrowleft: -1, arrowdown: 1, arrowright: 1 }[k];
+  if (d) {
+    i = i < 0 ? 0 : (i + d + btns.length) % btns.length;
+    btns.forEach((b, j) => b.classList.toggle("kb", j === i));
+    UI.kbBtn = i;
+    btns[i].scrollIntoView({ block: "nearest" });
+    if (btns[i].title) UI.modalHelp = btns[i].title;
+    sfx("tab");
+    return true;
+  }
+  if (k === "enter" && i >= 0) { btns[i].click(); return true; }
+  return false;
 }

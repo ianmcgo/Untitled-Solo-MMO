@@ -1,4 +1,5 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player; G.save.story.done = true;
+G.save.spells = Object.keys(G.SPELLS);
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const npc = id => S.npcs.find(n => n.id === id);
@@ -37,4 +38,10 @@ G.enterZone('outpost'); run(0.3); G.talkTo(npc('rhea'));
 const rep = opt(/Into the Mire|Report/); rep.fn(); opt(/Collect/).fn();
 ok(G.save.quests.mire === 'done' && G.invCount('marsh_boots') === 1, 'reporting back pays out Marsh Boots');
 ok(G.ITEMS.steel_sword && G.ITEMS.oak_staff && G.ITEMS.chain_mail, 'level 11 gear exists');
+G.save.spells = G.save.spells.filter(i => i !== 'cure2'); G.save.jobs.WHM.lv = 6; G.setJob('WHM', null);
+ok(!G.actionList(P()).some(a => a.id === 'cure2'), 'a spell is not known until its scroll is read');
+G.giveItem('scroll_cure2', 1, true); G.S.itemReadyAt = 0; G.useItem('scroll_cure2');
+ok(G.save.spells.includes('cure2') && G.actionList(P()).some(a => a.id === 'cure2') && G.invCount('scroll_cure2') === 0, 'reading a scroll teaches the spell');
+G.save.spells = G.save.spells.filter(i => i !== 'fire3'); G.giveItem('scroll_fire3', 1, true); G.save.jobs.BLM.lv = 5; G.useItem('scroll_fire3');
+ok(!G.save.spells.includes('fire3') && G.invCount('scroll_fire3') === 1, 'scrolls for spells above your level cannot be read yet');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');
