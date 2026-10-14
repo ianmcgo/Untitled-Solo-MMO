@@ -899,19 +899,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: 5 random daily hires, any job, scale with player level, permadeath.
 - 46 (9.6.0) Remaining classic windows (Crafting, Storage, Party, Bestiary, Achievements, Social, Config, Map, Help, Updates) + Help rewrite.
-- 47 (9.7.0) G1 Sky and light: sky dome gradient + layered moving clouds, sun/moon/stars, time-of-day colour grading, per-zone fog colour/distance, hemisphere + sun light balance, weather tints.
-- 48 (9.8.0) G2 Terrain: painted texture splatting (grass/dirt/path/rock/sand/snow) by height/slope/zone, detail textures up close, cliff and rock-face meshes, smoother height variety, path decals.
-- 49 (9.9.0) G3 Plants and props: layered-canopy trees, conifers, bushes, flowers, instanced grass tufts with wind sway, scattered rocks, logs, fences; distance fade/LOD.
-- 50 (9.10.0) G4 Water: animated reflective water with depth tint, shoreline foam, ripples, waterfalls and streams.
-- 51 (9.11.0) G5 Towns and buildings: textured stone/plaster/timber walls, tiled roofs, windows/doors with frames, lanterns, banners, market stalls, crates; residence interior detail; light pools at night.
-- 52 (9.12.0) G6 Characters: higher-detail heads and faces (eyes, brows, mouths), hair meshes with strands/ponytails, smoother limb joints, gear with trims, layered cloth (skirts/tabards/capes) that moves, per-race silhouettes.
-- 53 (9.13.0) G7 Monsters: per-family detail pass with painted textures, using the uploaded reference files for proportions only (original designs).
-- 54 (9.14.0) G8 Grounding and collision (was model phase 2/3): feet on slopes, no sinking crawlers/worms, no clipping through walls/props/other characters.
-- 55 (9.15.0) G9 Shadows and depth: soft sun shadow maps (quality tiers), blob shadows on low, light ambient occlusion, rim light on characters.
-- 56 (9.16.0) G10 Motion (was model phase 4): smoother turns/starts/stops, idle variety, better attack, cast and hit reactions, emotes.
-- 57 (9.17.0) G11 Effects: particle spell effects per element, weapon-skill trails, hit sparks, level-up and crystal effects, rain/snow/mist weather particles.
-- 58 (9.18.0) G12 Camera and finish: anti-aliasing, subtle bloom and colour grade, depth fog tuning, auto quality for phones, final performance pass.
-- 59–62 (10.0.0–10.3.0) New jobs in groups: SAM/NIN/DRG, BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
+- 47 (9.7.0) Offline play: a separate offline character list stored only on the device (flag offline: true, own storage key). Plays solo with mercenaries and NPC systems; online-only features (other players, party/trade/tells, linkshells, player auction house, search, server bounties) hidden. Offline characters can never be uploaded, imported or converted to online: the client refuses, the export format is marked offline and rejected by the online import, and the server save trigger/RPCs reject any save carrying the offline flag or an offline-only id. Title screen gets Play Online / Play Offline; offline needs no login.
+- 48 (9.8.0) G1 Sky and light: sky dome gradient + layered moving clouds, sun/moon/stars, time-of-day colour grading, per-zone fog colour/distance, hemisphere + sun light balance, weather tints.
+- 49 (9.9.0) G2 Terrain: painted texture splatting (grass/dirt/path/rock/sand/snow) by height/slope/zone, detail textures up close, cliff and rock-face meshes, smoother height variety, path decals.
+- 50 (9.10.0) G3 Plants and props: layered-canopy trees, conifers, bushes, flowers, instanced grass tufts with wind sway, scattered rocks, logs, fences; distance fade/LOD.
+- 51 (9.11.0) G4 Water: animated reflective water with depth tint, shoreline foam, ripples, waterfalls and streams.
+- 52 (9.12.0) G5 Towns and buildings: textured stone/plaster/timber walls, tiled roofs, windows/doors with frames, lanterns, banners, market stalls, crates; residence interior detail; light pools at night.
+- 53 (9.13.0) G6 Characters: higher-detail heads and faces (eyes, brows, mouths), hair meshes with strands/ponytails, smoother limb joints, gear with trims, layered cloth (skirts/tabards/capes) that moves, per-race silhouettes.
+- 54 (9.14.0) G7 Monsters: per-family detail pass with painted textures, using the uploaded reference files for proportions only (original designs).
+- 55 (9.15.0) G8 Grounding and collision (was model phase 2/3): feet on slopes, no sinking crawlers/worms, no clipping through walls/props/other characters.
+- 56 (9.16.0) G9 Shadows and depth: soft sun shadow maps (quality tiers), blob shadows on low, light ambient occlusion, rim light on characters.
+- 57 (9.17.0) G10 Motion (was model phase 4): smoother turns/starts/stops, idle variety, better attack, cast and hit reactions, emotes.
+- 58 (9.18.0) G11 Effects: particle spell effects per element, weapon-skill trails, hit sparks, level-up and crystal effects, rain/snow/mist weather particles.
+- 59 (9.19.0) G12 Camera and finish: anti-aliasing, subtle bloom and colour grade, depth fog tuning, auto quality for phones, final performance pass.
+- 60–63 (10.0.0–10.3.0) New jobs in groups: SAM/NIN/DRG, BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
 - Pending on the user's side: run the latest setup.sql in Supabase.
 
 ## Version log
