@@ -169,6 +169,8 @@ function poseHuman(v, e, dt) {
   const amp = run + walk * 0.45;
   const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
   const fightT = (e.engaged || (isMob(e) && e.state === "combat")) && e.alive !== false ? 1 : 0;
+  const hu = (v.meta && v.meta.hunch) || 0;
+  if (hu && e.alive !== false) { addP(P, "spine", hu * 0.55, 0, 0); addP(P, "chest", hu * 0.45, 0, 0); addP(P, "neck", -hu * 0.45, 0, 0); addP(P, "head", -hu * 0.4, 0, 0); addP(P, "upArmL", hu * 0.3, 0, 0); addP(P, "upArmR", hu * 0.3, 0, 0); v.rootOff[1] -= hu * 0.08; }
   an.fight += (fightT - an.fight) * Math.min(1, dt * 6);
   let sharp = false;
 

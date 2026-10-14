@@ -1477,6 +1477,15 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.3.0", date: "2026-10-14", title: "Beastmen and bosses", items: [
+    "Every beastman family now has its own build and gear on top of the sculpted heads:",
+    "Goblins stoop forward and carry belt pouches, a bone charm and knee pads. Orcs wear spiked pauldrons, tooth necklaces and leather bracers.",
+    "Reefkin have a webbed dorsal fin down the back, fins along the forearms and gill slits, and lean forward like swimmers on land.",
+    "Crag Talons have flight feathers trailing from the forearms, a fanned tail and clawed feet.",
+    "Treants are thick-trunked with branches growing from the shoulders and forearms, leafy tufts, moss and spreading roots for feet.",
+    "Ghouls are hunched with a bony spine ridge and hanging rags; skeletons wear tattered loincloths.",
+    "Bosses and notorious monsters are marked out: the Goblin Chieftain, Gorruk the Warlord, Mirelord Gax and Rimefang carry war banners on their backs."
+  ] },
   { v: "14.2.0", date: "2026-10-14", title: "Townsfolk, swordplay and damage numbers", items: [
     "Named NPCs now hold their trade: Garrick and Haldor carry forge hammers, the clerks keep ledgers, Tobin a tome, guards their spears, the ferryman an oar, Wend a fishing rod, Luna a lantern and more.",
     "Background townsfolk get a fuller wardrobe (shirts, vests, aprons, tunics, robes and coats; bandanas, wide-brim and fur hats; capes, collars and gloves) and sometimes carry a basket, broom, tankard, book, walking staff or scroll.",
@@ -2284,6 +2293,7 @@ function tabHelp() {
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
+    "<b>Reading a beastman:</b> each family has its own silhouette. Goblins stoop with pouches and packs, orcs are broad with spiked shoulders, Reefkin have fins, Crag Talons have feathered arms and tails, treants have branches and roots. A war banner on the back marks a boss.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
     "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares, bats, leeches and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Sticky Thread slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",

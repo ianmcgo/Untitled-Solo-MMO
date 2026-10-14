@@ -1005,7 +1005,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.2.0 · built 2026-10-14 11:04 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.3.0 · built 2026-10-14 11:15 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -16337,13 +16337,22 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v14.2.0 · built 2026-10-14 11:04 PDT";
+const BUILD_INFO = "v14.3.0 · built 2026-10-14 11:15 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "14.3.0", date: "2026-10-14", title: "Beastmen and bosses", items: [
+    "Every beastman family now has its own build and gear on top of the sculpted heads:",
+    "Goblins stoop forward and carry belt pouches, a bone charm and knee pads. Orcs wear spiked pauldrons, tooth necklaces and leather bracers.",
+    "Reefkin have a webbed dorsal fin down the back, fins along the forearms and gill slits, and lean forward like swimmers on land.",
+    "Crag Talons have flight feathers trailing from the forearms, a fanned tail and clawed feet.",
+    "Treants are thick-trunked with branches growing from the shoulders and forearms, leafy tufts, moss and spreading roots for feet.",
+    "Ghouls are hunched with a bony spine ridge and hanging rags; skeletons wear tattered loincloths.",
+    "Bosses and notorious monsters are marked out: the Goblin Chieftain, Gorruk the Warlord, Mirelord Gax and Rimefang carry war banners on their backs."
   ] },
   { v: "14.2.0", date: "2026-10-14", title: "Townsfolk, swordplay and damage numbers", items: [
     "Named NPCs now hold their trade: Garrick and Haldor carry forge hammers, the clerks keep ledgers, Tobin a tome, guards their spears, the ferryman an oar, Wend a fishing rod, Luna a lantern and more.",
@@ -17152,6 +17161,7 @@ function tabHelp() {
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
+    "<b>Reading a beastman:</b> each family has its own silhouette. Goblins stoop with pouches and packs, orcs are broad with spiked shoulders, Reefkin have fins, Crag Talons have feathered arms and tails, treants have branches and roots. A war banner on the back marks a boss.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
     "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares, bats, leeches and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Sticky Thread slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",
@@ -17483,7 +17493,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "14.2.0";
+const GAME_VERSION = "14.3.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -20820,6 +20830,95 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
   }
 }
 
+function finPlane(pts, x) {
+  const g = gMembrane(pts, 0);
+  g.rotateZ(Math.PI / 2);
+  g.translate(x || 0, 0, 0);
+  return g;
+}
+
+function familyExtras(R, L, D) {
+  const { hx, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid } = D;
+  const F = L.family, bz = -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04);
+  const dark = shadeHex(skin, 0.55), sides = [[1, "L"], [-1, "R"]];
+  if (F === "orc") {
+    if (L.pauldrons != null) for (const [s, sd] of sides) for (let k = 0; k < 3; k++) {
+      const a = V3(s * (sw + 0.03 - k * 0.025), shY + 0.05 - k * 0.012, 0.03 - k * 0.04);
+      R.add(gTaper(a, a.clone().add(V3(s * 0.05, 0.09 - k * 0.015, -0.01)), 0.018 * gi, 0.002, 6), "upArm" + sd, 0xe8dcc0, "bone");
+    }
+    for (let k = 0; k < 9; k++) {
+      const t = (k - 4) / 4, a = V3(t * 0.1 * gi, neckY - 0.045 - (1 - t * t) * 0.05, (0.1 - Math.abs(t) * 0.035) * gi + 0.035);
+      R.add(gTaper(a, a.clone().add(V3(0, -0.04 - (1 - Math.abs(t)) * 0.015, 0.008)), 0.009, 0.002, 5), "chest", 0xf0e6cc, "bone");
+    }
+    R.add(gRing(V3(0, neckY - 0.06, 0.012), 0.11 * gi, 0.005, "y", 18, Math.PI, [0, -Math.PI / 2, 0]), "chest", 0x4a3020, "leather");
+    for (const [s, sd] of sides) R.add(gBox(V3(s * (sw + 0.03), elY - 0.08, 0), 0.07 * gi, 0.12, 0.07 * gi), "foreArm" + sd, 0x4a3020, "leather");
+  }
+  if (F === "goblin") {
+    R.add(gBox(V3(0.1 * gi, hipsY - 0.01, 0.1 * gi), 0.07, 0.08, 0.04, 0, 0.5, 0), "hips", 0x6a4a2a, "leather");
+    R.add(gBox(V3(-0.11 * gi, hipsY - 0.02, 0.05 * gi), 0.05, 0.07, 0.035, 0, -0.9, 0), "hips", 0x5a3a20, "leather");
+    R.add(gBall(V3(-0.11 * gi, hipsY - 0.08, 0.06 * gi), 0.022, 1, 1.2, 1, 6), "hips", 0xe8dcc0, "bone");
+    for (const [s, sd] of sides) R.add(gBall(V3(s * hx, knee + 0.01, 0.05 * gi), 0.05 * gi, 1, 0.8, 0.6, 8), "shin" + sd, 0x5a3a20, "leather");
+  }
+  if (F === "reef") {
+    const fc = L.finColor || 0x7ac0b0;
+    R.add(finPlane([[neckY + 0.02, bz * 0.6], [neckY + 0.08, bz - 0.06], [chestY + 0.02, bz - 0.12], [spineY, bz - 0.08], [spineY - 0.04, bz + 0.02], [chestY, bz + 0.02], [neckY - 0.02, bz * 0.6 + 0.02]]), "chest", fc, "scale");
+    for (const [s, sd] of sides) {
+      R.add(finPlane([[elY - 0.01, 0], [elY + 0.04, -0.08], [mid, -0.1], [wrY + 0.03, -0.02], [wrY + 0.03, 0]], s * (sw + 0.05)), "foreArm" + sd, fc, "scale");
+      for (let k = 0; k < 3; k++) R.add(gBox(V3(s * 0.052 * gi, neckY + 0.005 - k * 0.018, 0.0), 0.004, 0.006, 0.05), "neck", dark, "plain");
+    }
+  }
+  if (F === "talon") {
+    const fc = L.crest || 0x4a3a2a, lt = shadeHex(skin, 1.1);
+    for (const [s, sd] of sides) for (let k = 0; k < 6; k++) {
+      const y = elY + 0.02 - k * (elY - wrY + 0.03) / 6, a = V3(s * (sw + 0.03), y, -0.02);
+      R.add(gTaper(a, a.clone().add(V3(s * 0.02, -0.16 - k * 0.02, -0.08 - k * 0.012)), 0.03, 0.006, 5, 0.25), "foreArm" + sd, k % 2 ? fc : lt, "feather");
+    }
+    for (let k = 0; k < 5; k++) {
+      const t = (k - 2) / 2, a = V3(t * 0.04, hipsY - 0.02, bz * 0.9);
+      R.add(gTaper(a, a.clone().add(V3(t * 0.14, -0.22 + Math.abs(t) * 0.06, -0.24)), 0.04, 0.008, 5, 0.25), "hips", k % 2 ? fc : lt, "feather");
+    }
+    for (const [s, sd] of sides) for (let k = 0; k < 3; k++) {
+      const a = V3(s * hx + (k - 1) * 0.022, 0.02, 0.15);
+      R.add(gTaper(a, a.clone().add(V3(s * (k - 1) * 0.02, -0.04, 0.07)), 0.012, 0.002, 5), "foot" + sd, 0x3a3020, "bone");
+    }
+  }
+  if (F === "treant") {
+    const bark = skin, leaf = L.leafHead || 0x6aa84a;
+    for (const [s, sd] of sides) {
+      const a = V3(s * sw * 0.9, shY + 0.02, -0.02), b = a.clone().add(V3(s * 0.12, 0.22, -0.05)), c = b.clone().add(V3(s * 0.08, 0.1, 0.04));
+      R.add(gTaper(a, b, 0.03 * gi, 0.016, 6), "upArm" + sd, bark, "wood");
+      R.add(gTaper(b, c, 0.016, 0.004, 5), "upArm" + sd, bark, "wood");
+      R.add(gBall(c, 0.07, 1.2, 0.8, 1, 8), "upArm" + sd, leaf, "plain");
+      const f0 = V3(s * (sw + 0.02), mid, 0), f1 = f0.clone().add(V3(s * 0.1, 0.06, 0.02));
+      R.add(gTaper(f0, f1, 0.015, 0.003, 5), "foreArm" + sd, bark, "wood");
+      R.add(gBall(f1, 0.04, 1, 0.8, 1, 6), "foreArm" + sd, leaf, "plain");
+      for (let k = 0; k < 4; k++) {
+        const ang = (k / 3 - 0.5) * 2.2 + (s > 0 ? 0.3 : -0.3), r0 = V3(s * hx, 0.04, 0.02);
+        R.add(gTaper(r0, r0.clone().add(V3(Math.sin(ang) * 0.16, -0.07, Math.cos(ang) * 0.16)), 0.028, 0.004, 5), "foot" + sd, bark, "wood");
+      }
+      R.add(gBall(V3(s * sw * 0.6, shY + 0.01, 0.04), 0.06 * gi, 1.3, 0.35, 1, 8), "chest", 0x5a7a2a, "fur");
+    }
+    R.add(gBall(V3(0.04, chestY - 0.05, 0.13 * gi), 0.04, 1, 1.3, 0.4, 8), "chest", 0x1a120a, "plain");
+  }
+  if (F === "ghoul" || F === "undead") {
+    const rag = L.top && L.top.color != null ? L.top.color : 0x3a3028;
+    for (let k = 0; k < 7; k++) {
+      const a = (k / 7) * Math.PI * 2, r = 0.15 * gi;
+      R.add(gBox(V3(Math.sin(a) * r, hipsY - 0.1 - (k % 3) * 0.03, Math.cos(a) * r), 0.05, 0.2 + (k % 3) * 0.06, 0.008, 0, a, 0.05 * (k % 2 ? 1 : -1)), "hips", shadeHex(rag, 0.8 + (k % 3) * 0.1), "cloth");
+    }
+    if (F === "ghoul") for (let k = 0; k < 5; k++) R.add(gBall(V3(0, chestY + 0.06 - k * 0.07, bz - 0.005), 0.022, 1, 0.8, 0.8, 6), k < 3 ? "chest" : "spine", skin, SKR);
+  }
+  if (L.boss && L.banner) {
+    const px = -0.06, pz = bz - 0.05, top = shY + 0.75;
+    R.add(gTaper(V3(px, hipsY - 0.1, pz), V3(px, top, pz), 0.014, 0.012, 6), "chest", 0x4a3020, "wood");
+    R.add(gBall(V3(px, top + 0.02, pz), 0.03, 1, 1, 1, 6), "chest", 0xd8b040, "metal");
+    const fl = new THREE.PlaneGeometry(0.3, 0.42, 4, 6), fp = fl.attributes.position;
+    for (let i = 0; i < fp.count; i++) { const x = fp.getX(i), y = fp.getY(i); fp.setXYZ(i, px + 0.16 + x, top - 0.25 + y, pz - 0.03 * Math.sin((x + 0.15) * 9) - (y < -0.15 ? 0.02 : 0)); }
+    fl.computeVertexNormals();
+    R.add(fl, "chest", L.banner, "cloth");
+  }
+}
+
 function humanEntry(L) {
   const fem = L.build === 1;
   const pr = Object.assign({ leg: 0.86, torso: 0.52, headR: 0.138, shoulder: fem ? 0.165 : 0.195, hip: fem ? 0.1 : 0.095, arm: 0.6, girth: fem ? 0.9 : 1, neck: 0.075, waist: fem ? 0.8 : 0.92 }, L.prop || {});
@@ -21207,7 +21306,8 @@ function humanEntry(L) {
       R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - 0.5, tz - 0.3), 0.055, 0.02, 8), "tail2", tc, "hair");
     }
   }
-  R.meta = { kind: "human", race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
+  if (L.family || L.boss) familyExtras(R, L, { hx: pr.hip, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid: (elY + wrY) / 2 });
+  R.meta = { kind: "human", race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY, hunch: L.hunch || 0 };
   return R.finish();
 }
 
@@ -21995,6 +22095,29 @@ function toadEntry(col) {
   return R.finish();
 }
 
+const FAMILY_SHAPE = {
+  goblin: { family: "goblin", hunch: 0.2 },
+  chieftain: { family: "goblin", hunch: 0.14 },
+  orc: { family: "orc", hunch: 0.1 },
+  fishfolk: { family: "reef", hunch: 0.24, prop: { arm: 0.7, neck: 0.035 } },
+  birdfolk: { family: "talon", hunch: 0.12 },
+  treant: { family: "treant", hunch: 0.07, prop: { girth: 1.4, waist: 1.3, shoulder: 0.24, arm: 0.72, leg: 0.78, hip: 0.13, neck: 0.03, torso: 0.6 } },
+  ghoul: { family: "ghoul", hunch: 0.32 },
+  skeleton: { family: "undead", hunch: 0.04 }
+};
+const BOSS_BANNER = { chieftain: 0x8a1f1f, orc_warlord: 0x6a1a1a, mirelord_gax: 0x2f4a2a, rimefang: 0x3a5a7a };
+
+function familyLook(L, m) {
+  const f = m.fam || {}, sh = FAMILY_SHAPE[f.model];
+  if (!sh) return L;
+  const out = Object.assign({}, L, { family: sh.family, hunch: sh.hunch });
+  if (sh.prop) out.prop = Object.assign({}, L.prop || {}, sh.prop);
+  const key = f.key || m.famKey;
+  if (f.boss || f.nm || (f.scale || 1) >= 1.3) { out.boss = true; if (BOSS_BANNER[key]) out.banner = BOSS_BANNER[key]; }
+  if (key === "tide_priest" || key === "drowned") out.family = "ghoul";
+  return out;
+}
+
 function mobLook(m) {
   const f = m.fam, key = f.key || m.famKey;
   const model = f.model;
@@ -22068,6 +22191,7 @@ function buildEntityRig(e) {
   let sig, make, weaponKind = null, weaponId = null, alwaysDrawn = false;
   if (isMob(e)) {
     const ml = varyMobLook(mobLook(e), mobVariant(e));
+    if (ml.kind === "human") ml.look = familyLook(ml.look, e);
     if (ml.kind === "human") {
       sig = "m|" + stableKey(ml.look);
       make = () => humanEntry(ml.look);
@@ -22367,6 +22491,8 @@ function poseHuman(v, e, dt) {
   const amp = run + walk * 0.45;
   const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
   const fightT = (e.engaged || (isMob(e) && e.state === "combat")) && e.alive !== false ? 1 : 0;
+  const hu = (v.meta && v.meta.hunch) || 0;
+  if (hu && e.alive !== false) { addP(P, "spine", hu * 0.55, 0, 0); addP(P, "chest", hu * 0.45, 0, 0); addP(P, "neck", -hu * 0.45, 0, 0); addP(P, "head", -hu * 0.4, 0, 0); addP(P, "upArmL", hu * 0.3, 0, 0); addP(P, "upArmR", hu * 0.3, 0, 0); v.rootOff[1] -= hu * 0.08; }
   an.fight += (fightT - an.fight) * Math.min(1, dt * 6);
   let sharp = false;
 
