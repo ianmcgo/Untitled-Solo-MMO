@@ -18,7 +18,7 @@ const SFX_FILES = {
   xp: "ui_xp", unlock: "ui_unlock", error: "ui_error", notify: "ui_notify", coin: "ui_coin", click: "ui_click", select: "ui_select",
   tab: "ui_tab", open: "ui_open", close: "ui_close", toast: "ui_toast"
 };
-const SFX_GAIN = { step: 0.35, hoof: 0.5, miss: 0.6, slash: 0.8, blunt: 0.8, xp: 0.5, click: 0.7, select: 0.7, tab: 0.6, toast: 0.6, aggro: 0.7, cast: 0.7, fanfare: 0.9, levelup: 0.9 };
+const SFX_GAIN = { step_grass: 0.45, step_stone: 0.4, step_wood: 0.45, step_snow: 0.45, step_sand: 0.4, swing_light: 0.7, swing_heavy: 0.75, swing_claw: 0.6, drip: 0.5, step: 0.35, hoof: 0.5, miss: 0.6, slash: 0.8, blunt: 0.8, xp: 0.5, click: 0.7, select: 0.7, tab: 0.6, toast: 0.6, aggro: 0.7, cast: 0.7, fanfare: 0.9, levelup: 0.9 };
 const UI_SOUNDS = new Set(["xp", "unlock", "error", "notify", "coin", "click", "select", "tab", "open", "close", "toast", "equip", "loot", "quest", "cursor", "tell", "pchat", "target", "page", "buy"]);
 const MUSIC_FOR = { town: "music_outpost", house: "music_residence", field: "music_hollow", cave: "music_den", crypt: "music_crypt" };
 
@@ -144,6 +144,54 @@ const UI_SYNTH = {
   toast: [["bell", 1760, 1760, 0, 0.3, 0.16]],
   xp: [["sine", 1318, 1760, 0, 0.12, 0.18]]
 };
+const WORLD_SYNTH = {
+  step_grass: [["noise", 900, 0, 0, 0.08, 0.32], ["noise", 2600, 0, 0.012, 0.05, 0.1]],
+  step_stone: [["noise", 2800, 0, 0, 0.035, 0.32], ["sine", 300, 170, 0, 0.045, 0.14]],
+  step_wood: [["triangle", 220, 140, 0, 0.07, 0.32], ["noise", 1500, 0, 0, 0.04, 0.14]],
+  step_snow: [["noise", 3400, 0, 0, 0.12, 0.26], ["noise", 1100, 0, 0.025, 0.09, 0.16]],
+  step_sand: [["noise", 5200, 0, 0, 0.1, 0.2], ["noise", 1700, 0, 0, 0.07, 0.1]],
+  swing_light: [["sweep", 1300, 3800, 0, 0.15, 0.32]],
+  swing_heavy: [["sweep", 450, 1500, 0, 0.26, 0.42], ["sine", 120, 80, 0.02, 0.2, 0.08]],
+  swing_claw: [["sweep", 2200, 5200, 0, 0.1, 0.26]],
+  v_growl: [["sawtooth", 115, 82, 0, 0.5, 0.26, 650], ["noise", 380, 0, 0, 0.45, 0.12]],
+  v_squeak: [["sine", 1700, 2700, 0, 0.08, 0.2], ["sine", 2600, 1500, 0.09, 0.1, 0.16]],
+  v_buzz: [["sawtooth", 205, 235, 0, 0.55, 0.16, 1600], ["sawtooth", 209, 238, 0, 0.55, 0.1, 1600]],
+  v_hiss: [["noise", 5400, 0, 0, 0.45, 0.28]],
+  v_croak: [["square", 96, 78, 0, 0.15, 0.24, 700], ["square", 96, 78, 0.19, 0.15, 0.24, 700]],
+  v_bleat: [["sawtooth", 430, 370, 0, 0.42, 0.16, 1900], ["sawtooth", 436, 366, 0, 0.42, 0.1, 1900]],
+  v_clatter: [["noise", 3200, 0, 0, 0.04, 0.3], ["noise", 2700, 0, 0.07, 0.04, 0.26], ["noise", 3500, 0, 0.13, 0.04, 0.24], ["noise", 2900, 0, 0.2, 0.05, 0.2]],
+  v_goblin: [["square", 520, 720, 0, 0.08, 0.13, 2100], ["square", 660, 470, 0.1, 0.1, 0.13, 2100], ["square", 560, 780, 0.22, 0.09, 0.11, 2100]],
+  v_orc: [["sawtooth", 150, 92, 0, 0.62, 0.3, 850], ["sawtooth", 154, 95, 0, 0.62, 0.16, 850]],
+  v_screech: [["sine", 3300, 2300, 0, 0.18, 0.16], ["sawtooth", 1650, 1250, 0, 0.18, 0.05, 4200]],
+  v_moan: [["sine", 185, 138, 0, 0.9, 0.24], ["sine", 190, 141, 0, 0.9, 0.18], ["noise", 600, 0, 0.1, 0.7, 0.05]],
+  v_gurgle: [["noise", 650, 0, 0, 0.35, 0.22], ["sine", 300, 220, 0, 0.32, 0.12]],
+  v_creak: [["sawtooth", 72, 54, 0, 0.85, 0.24, 320], ["noise", 900, 0, 0.1, 0.55, 0.08]],
+  v_chirp: [["sine", 2600, 3400, 0, 0.07, 0.18], ["sine", 3000, 2200, 0.08, 0.09, 0.16]],
+  v_rumble: [["noise", 260, 0, 0, 0.6, 0.3], ["sine", 70, 50, 0, 0.6, 0.16]],
+  v_crackle: [["noise", 4200, 0, 0, 0.05, 0.3], ["noise", 2500, 0, 0.06, 0.05, 0.25], ["noise", 3800, 0, 0.12, 0.08, 0.22], ["sine", 90, 60, 0, 0.3, 0.12]],
+  chest: [["sawtooth", 150, 260, 0, 0.38, 0.1, 900], ["bell", 2093, 2093, 0.35, 0.3, 0.14], ["bell", 2637, 2637, 0.42, 0.4, 0.12]],
+  craft: [["bell", 2200, 2200, 0, 0.12, 0.2], ["noise", 3000, 0, 0, 0.03, 0.15], ["bell", 2350, 2350, 0.28, 0.12, 0.18], ["noise", 3000, 0, 0.28, 0.03, 0.13], ["bell", 2100, 2100, 0.56, 0.18, 0.18], ["noise", 3000, 0, 0.56, 0.03, 0.12]],
+  cast_line: [["sweep", 900, 3000, 0, 0.3, 0.2], ["noise", 1500, 0, 0.35, 0.18, 0.18]],
+  splash: [["sweep", 1800, 400, 0, 0.45, 0.32], ["sine", 520, 240, 0, 0.2, 0.08]],
+  drip: [["sine", 1900, 1150, 0, 0.05, 0.12], ["sine", 1900, 1150, 0.22, 0.05, 0.04]]
+};
+const MOB_VOICE = { goblin: "v_goblin", chieftain: "v_goblin", orc: "v_orc", fishfolk: "v_gurgle", birdfolk: "v_chirp", treant: "v_creak", skeleton: "v_clatter", ghoul: "v_moan", cactus: "v_creak", bomb: "v_crackle", bat: "v_screech", worm: "v_rumble", hare: "v_squeak", mandrake: "v_squeak", shroom: "v_squeak", bee: "v_buzz", crawler: "v_hiss", lizard: "v_hiss", sheep: "v_bleat", longneck: "v_bleat", crab: "v_gurgle", toad: "v_croak", fish: "v_gurgle" };
+function mobVoice(m, mode) {
+  if (!m || !m.fam) return;
+  const key = MOB_VOICE[m.fam.model];
+  if (!key) return;
+  const sz = (m.fam.scale || 1) * (m.fam.nm ? 1.1 : 1);
+  sfx(key, m, { mul: (mode === "die" ? 0.72 : mode === "hurt" ? 1.12 : 1) / Math.sqrt(sz), len: mode === "die" ? 1.6 : mode === "hurt" ? 0.6 : 1, vol: mode === "hurt" ? 0.6 : 1 });
+}
+function surfaceAt(e) {
+  const z = S.zone || {}, th = z.theme;
+  if (th === "house") return "wood";
+  if (th === "cave" || th === "crypt" || th === "town") return "stone";
+  const wx = typeof weatherNow === "function" ? weatherNow() : null;
+  if (th === "snow" || z.palette === "snow" || S.zoneId === "frost" || wx === "snow" || wx === "blizzard") return "snow";
+  if (z.palette === "desert" || S.zoneId === "desert" || S.zoneId === "cinder") return "sand";
+  return "grass";
+}
 let UI_NOISE = null;
 function uiNoise(ctx) {
   if (UI_NOISE) return UI_NOISE;
@@ -151,22 +199,27 @@ function uiNoise(ctx) {
   for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   return (UI_NOISE = b);
 }
-function uiSynth(name, vol) {
-  const def = UI_SYNTH[name], ctx = AUDIO.ctx;
+function uiSynth(name, vol, o) {
+  const def = UI_SYNTH[name] || WORLD_SYNTH[name], ctx = AUDIO.ctx;
   if (!def || !ctx) return false;
-  const t0 = ctx.currentTime + 0.005, out = ctx.createGain();
+  o = o || {};
+  const t0 = ctx.currentTime + 0.005, out = ctx.createGain(), mul = o.mul || 1, len = o.len || 1;
   out.gain.value = vol;
-  out.connect(AUDIO.bus.ui);
+  let node = out;
+  if (o.pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = o.pan; out.connect(p); node = p; }
+  node.connect(UI_SYNTH[name] ? AUDIO.bus.ui : AUDIO.bus.sfx);
   let end = 0;
-  for (const [type, f0, f1, at, dur, g, lp] of def) {
+  for (let [type, f0, f1, at, dur, g, lp] of def) {
+    f0 *= mul; f1 *= mul; at *= len; dur *= len;
     const t = t0 + at, env = ctx.createGain();
     env.gain.setValueAtTime(0, t);
     env.gain.linearRampToValueAtTime(g, t + Math.min(0.006, dur * 0.2));
     env.gain.exponentialRampToValueAtTime(0.0008, t + dur);
     let src;
-    if (type === "noise") {
-      src = ctx.createBufferSource(); src.buffer = uiNoise(ctx);
-      const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = f0; bp.Q.value = 1.2;
+    if (type === "noise" || type === "sweep") {
+      src = ctx.createBufferSource(); src.buffer = uiNoise(ctx); src.loop = true;
+      const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.setValueAtTime(f0, t); bp.Q.value = type === "sweep" ? 2.2 : 1.2;
+      if (type === "sweep") bp.frequency.exponentialRampToValueAtTime(Math.max(40, f1), t + dur);
       src.connect(bp); bp.connect(env);
     } else if (type === "bell") {
       src = ctx.createOscillator(); src.type = "sine"; src.frequency.value = f0;
@@ -184,20 +237,20 @@ function uiSynth(name, vol) {
     src.start(t); src.stop(t + dur + 0.02);
     end = Math.max(end, at + dur);
   }
-  setTimeout(() => { try { out.disconnect(); } catch (e) {} }, (end + 0.2) * 1000);
+  setTimeout(() => { try { out.disconnect(); if (node !== out) node.disconnect(); } catch (e) {} }, (end + 0.2) * 1000);
   return true;
 }
 
-function sfx(name, e) {
+function sfx(name, e, o) {
   if (!AUDIO.ready || !AUDIO.settings || AUDIO.settings.muted) return;
-  const file = SFX_FILES[name] || (UI_SYNTH[name] ? "syn_" + name : null);
+  const file = SFX_FILES[name] || (UI_SYNTH[name] || WORLD_SYNTH[name] ? "syn_" + name : null);
   if (!file) return;
   const now = performance.now();
   if (now - (AUDIO.lastAt[file] || 0) < (name === "step" || name === "hoof" ? 90 : name === "cursor" ? 35 : 45)) return;
   AUDIO.lastAt[file] = now;
   const { v, pan } = sfxGainFor(name, e);
   if (v <= 0.01) return;
-  if (UI_SYNTH[name] && !AUDIO.fallback && AUDIO.ctx && uiSynth(name, v)) return;
+  if ((UI_SYNTH[name] || WORLD_SYNTH[name]) && !AUDIO.fallback && AUDIO.ctx && uiSynth(name, v * ((o && o.vol) || 1), Object.assign({ pan }, o || {}, o && o.mul ? { mul: o.mul * (0.96 + Math.random() * 0.08) } : name.startsWith("step_") || name.startsWith("swing_") ? { mul: 0.92 + Math.random() * 0.16 } : {}))) return;
   if (name === "levelup" || name === "fanfare") duckMusic(name === "fanfare" ? 4.2 : 2.4);
   if (AUDIO.fallback) { playHtml(file, v); return; }
   const buf = AUDIO.buffers[file];
@@ -336,7 +389,7 @@ function ambxInit() {
     src.connect(f); f.connect(g); g.connect(AUDIO.bus.amb); src.start();
     return { g, f };
   };
-  AMBX.layers = { rain: mk("bandpass", 2600, 0.6), wind: mk("lowpass", 420, 0.8), surf: mk("lowpass", 700, 0.7) };
+  AMBX.layers = { rain: mk("bandpass", 2600, 0.6), wind: mk("lowpass", 420, 0.8), surf: mk("lowpass", 700, 0.7), crowd: mk("bandpass", 520, 1.4) };
   AMBX.on = true;
 }
 function ambxCritter(kind) {
@@ -359,6 +412,10 @@ function ambxTick() {
   set("wind", out ? (windy ? 0.3 : S.zoneId === "frost" ? 0.12 : 0.04) * (0.7 + 0.3 * Math.sin(now * 0.4)) : 0);
   AMBX.layers.wind.f.frequency.setTargetAtTime(windy ? 650 : 380, now, 2);
   set("surf", S.zoneId === "harbor" ? 0.16 * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
+  const night0 = typeof isNight === "function" && isNight();
+  set("crowd", th === "town" ? (night0 ? 0.025 : 0.07) * (0.7 + 0.3 * Math.sin(now * 0.23) * Math.sin(now * 0.61)) : 0);
+  AMBX.layers.crowd.f.frequency.setTargetAtTime(480 + 120 * Math.sin(now * 0.37), now, 0.8);
+  if ((th === "cave" || th === "crypt") && now > (AMBX.nextDrip || 0)) { AMBX.nextDrip = now + 1.2 + Math.random() * 3.5; uiSynth("drip", 0.35 + Math.random() * 0.3, { mul: 0.8 + Math.random() * 0.5, pan: Math.random() * 1.2 - 0.6 }); }
   if (out && now > AMBX.nextCritter && !/rain|storm|blizzard/.test(wx || "")) {
     AMBX.nextCritter = now + 1.5 + Math.random() * 4;
     const night = typeof isNight === "function" && isNight();

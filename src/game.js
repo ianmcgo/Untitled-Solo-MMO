@@ -940,6 +940,7 @@ function aggro(m, t) {
   log("The " + m.name + " notices " + obj(t) + "!", "foe");
   popText(m, "!", "#ff5252", 22, 0.8);
   sfx("aggro", m);
+  mobVoice(m, "aggro");
   if (!m.fam.link) return;
   const grp = m.fam.linkGroup || m.famKey;
   for (const o of S.mobs) {
@@ -975,6 +976,7 @@ function applyDamage(src, tgt, amt, opt) {
     return;
   }
   tgt.hp = Math.max(0, tgt.hp - amt);
+  if (isMob(tgt) && amt > 0 && tgt.hp > 0 && Math.random() < 0.22) mobVoice(tgt, "hurt");
   tgt.flash = 0.15;
   tgt.lastHit = S.time;
   if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
@@ -996,9 +998,15 @@ function applyDamage(src, tgt, amt, opt) {
 
 function mobReach(m) { return isMob(m) && m.fam.range ? m.fam.range : CONFIG.meleeRange; }
 
+function swingSound(a) {
+  if (isMob(a)) { const h = ["goblin", "chieftain", "orc", "skeleton", "ghoul", "fishfolk", "birdfolk", "treant"].includes(a.fam.model); return h ? (a.fam.model === "orc" || a.fam.model === "treant" || (a.fam.scale || 1) >= 1.3 ? "swing_heavy" : "swing_light") : "swing_claw"; }
+  const w = a.gear && a.gear.main && ITEMS[a.gear.main] ? ITEMS[a.gear.main].wtype : null;
+  return ["greataxe", "scythe", "gkatana", "gsword", "club", "staff", "polearm", "axe"].includes(w) ? "swing_heavy" : "swing_light";
+}
 function swing(a, d) {
   const tpGain = Math.round(CONFIG.tpPerDelay * a.delay);
   a.lastSwing = S.time;
+  sfx(swingSound(a), a);
   if (a.buffs && a.buffs.paralyze && Math.random() < 0.25) {
     log(subj(a) + " " + vb(a, "are", "is") + " paralyzed.", cls(a));
     popText(a, "Paralyzed", "#b3e5fc", 13, 0.9, 10);
@@ -1081,6 +1089,7 @@ function onKO(e, src) {
     e.deadAt = S.time;
     log("The " + e.name + " is defeated.", "you");
     sfx("defeat", e);
+    mobVoice(e, "die");
     vfx("defeat", { tgt: e });
     const respawn = e.fam.respawn || CONFIG.respawn;
     const placeholderNm = !!NM_FAMILIES[e.famKey];
@@ -1546,7 +1555,7 @@ function startFishing() {
   const rainy = ["rain", "storm"].includes(weatherNow());
   S.fish = { state: "wait", at: S.time + rand(FISH_CFG.waitMin, FISH_CFG.waitMax) * (rainy ? 0.75 : 1), x: player.x, y: player.y };
   log("You cast your line.", "you");
-  sfx("click", player);
+  sfx("cast_line", player);
   return "";
 }
 
@@ -1589,7 +1598,7 @@ function tickFish() {
   const f = S.fish;
   if (!f) return;
   if (!player.alive || Math.hypot(player.x - f.x, player.y - f.y) > 6 || player.engaged || inCombatWith(player)) { stopFishing("You reel in your line."); return; }
-  if (f.state === "wait" && S.time >= f.at) { f.state = "bite"; f.until = S.time + FISH_CFG.bite; log("Something's biting! Reel it in!", "loot"); sfx("notify", player); uiEvent("bite", {}); }
+  if (f.state === "wait" && S.time >= f.at) { f.state = "bite"; f.until = S.time + FISH_CFG.bite; log("Something's biting! Reel it in!", "loot"); sfx("splash", player); sfx("notify", player); uiEvent("bite", {}); }
   else if (f.state === "bite" && S.time > f.until) { S.fish = null; log("The fish slips the hook.", "sys"); }
 }
 
@@ -3395,7 +3404,7 @@ function startSynth(id) {
   player.synth = { r, start: S.time, end: S.time + CONFIG.synthTime };
   S.moveTarget = null; S.chase = false;
   log("You begin crafting " + ITEMS[r.out].name + " with " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".", "you");
-  sfx("cast", player);
+  sfx("cast", player); sfx("craft", player);
   vfx("cast", { src: player, sp: { kind: "nuke", element: ITEMS[CRAFTS[r.craft].crystal].element } });
   return "";
 }
@@ -4051,6 +4060,7 @@ function chestState(n) {
   return chestOpenUntil(n) > Date.now() ? "empty" : "closed";
 }
 function openChest(n) {
+  if (typeof sfx === "function") sfx("chest", n);
   const table = CHEST_LOOT[n.chest] || CHEST_LOOT.common;
   let got = 0;
   for (const [id, chance] of table) {
