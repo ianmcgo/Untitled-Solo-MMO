@@ -1005,7 +1005,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.3.0 · built 2026-10-14 11:15 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.4.0 · built 2026-10-14 11:19 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -16337,13 +16337,20 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v14.3.0 · built 2026-10-14 11:15 PDT";
+const BUILD_INFO = "v14.4.0 · built 2026-10-14 11:19 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "14.4.0", date: "2026-10-14", title: "Critters", items: [
+    "Fur and feathers: on High quality, furry and feathered creatures (bees, bats, hares, sheep, dogs, cats, Crag Talons and others) grow layered fur shells, so their coats look soft and fuzzy instead of painted on.",
+    "Bats have finger bones running through their wing membranes, a thumb claw and clawed feet.",
+    "Shroomlings have gills under the cap and a skirt ring on the stalk.",
+    "Worms have finer ring bands and bristles along their bellies.",
+    "Hares have whiskers; toads have splayed, padded toes."
   ] },
   { v: "14.3.0", date: "2026-10-14", title: "Beastmen and bosses", items: [
     "Every beastman family now has its own build and gear on top of the sculpted heads:",
@@ -17161,6 +17168,7 @@ function tabHelp() {
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
+    "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",
     "<b>Reading a beastman:</b> each family has its own silhouette. Goblins stoop with pouches and packs, orcs are broad with spiked shoulders, Reefkin have fins, Crag Talons have feathered arms and tails, treants have branches and roots. A war banner on the back marks a boss.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
@@ -17493,7 +17501,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "14.3.0";
+const GAME_VERSION = "14.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19938,6 +19946,7 @@ function paintFace(g, ox, oy, v) {
 
 function buildAtlas() {
   ATLAS_CELL = typeof W3 !== "undefined" && W3.quality === "high" ? 512 : 256;
+  RIG.shellLayers = typeof W3 !== "undefined" && W3.quality === "high" ? 5 : 0; RIG.shellMat = null;
   ATLAS_W = ATLAS_CELL * ATLAS_COLS; ATLAS_H = ATLAS_CELL * ATLAS_ROWS;
   const N = ATLAS_W, NH = ATLAS_H, PK = ATLAS_CELL / 256;
   const alb = new Float32Array(N * NH), hgt = new Float32Array(N * NH), rgh = new Float32Array(N * NH), mtl = new Float32Array(N * NH);
@@ -19981,6 +19990,19 @@ function buildAtlas() {
   RIG.atlas = { map: mk(ca, true), normal: mk(cn, false), mr: mk(cm, false) };
   RIG.glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: THREE.DoubleSide });
   RIG.weaponMat = charMaterial();
+}
+
+const SHELL_REGIONS = { fur: 1, feather: 0.6, hair: 0.45 };
+function shellMaterial() {
+  if (RIG.shellMat) return RIG.shellMat;
+  const m = new THREE.MeshStandardMaterial({ map: RIG.atlas.map, vertexColors: true, roughness: 0.95, metalness: 0, side: THREE.DoubleSide });
+  m.onBeforeCompile = sh => {
+    sh.vertexShader = "attribute float shell;\nvarying float vShell;\n" + sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvShell = shell;");
+    sh.fragmentShader = "varying float vShell;\n" + sh.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n{ vec2 q = floor(vMapUv * 1800.0); float h = fract(sin(dot(q, vec2(12.9898, 78.233))) * 43758.5453); if (h < 0.08 + vShell * 0.86) discard; diffuseColor.rgb *= 0.72 + 0.4 * vShell; }");
+  };
+  m.customProgramCacheKey = () => "furShell";
+  RIG.shellMat = m;
+  return m;
 }
 
 const RIM = { color: { value: new THREE.Color(0xb8c8ff) }, str: { value: 0.35 } };
@@ -20231,6 +20253,26 @@ class RigBuilder {
       }
     }
   }
+  buildShells(minY) {
+    const layers = RIG.shellLayers || 0;
+    if (!layers || this.noShell) return null;
+    const src = this.pieces.filter(g => SHELL_REGIONS[g.userData.rig.region]);
+    if (!src.length) return null;
+    let hi = -Infinity;
+    for (const g of this.pieces) { const pos = g.attributes.position; for (let i = 0; i < pos.count; i++) hi = Math.max(hi, pos.getY(i)); }
+    const len = clamp((hi - minY) * 0.022, 0.006, 0.03) * (this.shellK || 1);
+    const out = [];
+    for (let k = 1; k <= layers; k++) for (const g of src) {
+      const c = g.clone(), pos = c.attributes.position, nor = c.attributes.normal, f = k / layers, d = len * f * SHELL_REGIONS[g.userData.rig.region];
+      for (let i = 0; i < pos.count; i++) pos.setXYZ(i, pos.getX(i) + nor.getX(i) * d, pos.getY(i) + nor.getY(i) * d - d * 0.35 * f, pos.getZ(i) + nor.getZ(i) * d);
+      c.setAttribute("shell", new THREE.BufferAttribute(new Float32Array(pos.count).fill(f), 1));
+      out.push(c);
+    }
+    const geo = THREE.mergeGeometries(out);
+    for (const c of out) c.dispose();
+    geo.computeBoundingSphere(); geo.boundingSphere.radius *= 1.6;
+    return geo;
+  }
   finish() {
     this.attachIslands();
     if (this.defs.length > 1) { this.bridgeGaps(); this.smoothJoints(); }
@@ -20247,8 +20289,9 @@ class RigBuilder {
     const pa = (main || geo).attributes.position;
     for (let i = 0; i < pa.count; i++) if (pa.getY(i) < minY) minY = pa.getY(i);
     this.meta.minY = minY;
+    const shell = this.buildShells(minY);
     for (const g of this.pieces.concat(this.glow)) g.dispose();
-    return { geo, defs: this.defs.map(d => ({ name: d.name, parent: d.parent, local: d.local })), meta: this.meta };
+    return { geo, shell, defs: this.defs.map(d => ({ name: d.name, parent: d.parent, local: d.local })), meta: this.meta };
   }
 }
 
@@ -21433,7 +21476,13 @@ function batEntry(col, eye) {
     R.add(gTaper(V3(s * 0.08, Y + 0.02, 0.07), V3(s * 0.45, Y + 0.03, 0.08), 0.014, 0.01, 6), "wing" + (s > 0 ? "L" : "R"), fur, "fur");
     R.add(gTaper(V3(s * 0.45, Y + 0.03, 0.08), V3(s * 0.92, Y + 0.035, 0.03), 0.01, 0.004, 6), "wing2" + (s > 0 ? "L" : "R"), fur, "fur");
     R.add(gTaper(V3(s * 0.05, Y - 0.1, -0.05), V3(s * 0.06, Y - 0.22, -0.08), 0.012, 0.006, 5), "body", dark, "skin");
+    const wd = "wing" + (s > 0 ? "L" : "R"), wd2 = "wing2" + (s > 0 ? "L" : "R"), bc = new THREE.Color(dark).multiplyScalar(0.75).getHex();
+    for (const [x, z] of [[0.32, -0.17], [0.2, -0.25]]) R.add(gTaper(V3(s * 0.42, Y + 0.035, 0.07), V3(s * x, Y + 0.025, z), 0.006, 0.003, 4), wd, bc, "skin");
+    for (const [x, z] of [[0.92, 0.03], [0.8, -0.12], [0.58, -0.21]]) R.add(gTaper(V3(s * 0.46, Y + 0.035, 0.07), V3(s * x, Y + 0.035, z), 0.007, 0.003, 4), wd2, bc, "skin");
+    R.add(gTaper(V3(s * 0.45, Y + 0.035, 0.09), V3(s * 0.47, Y + 0.07, 0.15), 0.01, 0.002, 4), wd, 0xe8e0d0, "bone");
+    for (let k = 0; k < 3; k++) R.add(gTaper(V3(s * (0.05 + k * 0.006), Y - 0.22, -0.08), V3(s * (0.04 + k * 0.012), Y - 0.25, -0.04), 0.004, 0.001, 4), "body", 0xe8e0d0, "bone");
   }
+  R.add(gBall(V3(0, Y + 0.04, 0.02), 0.13, 1.1, 0.7, 1.0, 10), "body", light, "fur");
   R.meta = { kind: "bat", headTop: Y + 0.3 };
   return R.finish();
 }
@@ -21724,6 +21773,9 @@ function shroomEntry(col, cap) {
   R.add(gBall(V3(0, Y - 0.02, 0.15), 0.04, 1.4, 0.3, 0.5, 8), "body", 0x3a2222, "plain");
   R.add(gPartSphere(V3(0, Y + 0.28, 0), 0.42, 0, Math.PI * 0.55, 1, 0.8, 1, 16), "head", capC, "skin");
   R.add(gBall(V3(0, Y + 0.3, 0), 0.4, 1, 0.12, 1, 14), "head", spots, "skin");
+  const gill = new THREE.Color(col).lerp(new THREE.Color(0x8a6a5a), 0.35).getHex();
+  for (let k = 0; k < 28; k++) { const a = k / 28 * Math.PI * 2; R.add(gBox(V3(Math.cos(a) * 0.25, Y + 0.27, Math.sin(a) * 0.25), 0.006, 0.035, 0.27, 0, Math.PI / 2 - a, 0), "head", gill, "plain"); }
+  R.add(gCyl(V3(0, Y + 0.16, 0), 0.155, 0.2, 0.06, 18, true), "body", new THREE.Color(col).lerp(new THREE.Color(0xffffff), 0.3).getHex(), "skin");
   for (let k = 0; k < 6; k++) { const a = k * 1.05, r = 0.12 + (k % 3) * 0.09; R.add(gBall(V3(Math.cos(a) * r, Y + 0.3 + Math.sqrt(Math.max(0, 0.42 * 0.42 - r * r)) * 0.78, Math.sin(a) * r), 0.045, 1, 0.5, 1, 7), "head", spots, "plain"); }
   R.meta = { kind: "shroom", headTop: Y + 0.65 };
   return R.finish();
@@ -21765,6 +21817,8 @@ function wormEntry(col) {
     R.add(gBall(V3(0, Y + (r - 0.28) * 0.5, zs[i]), r, 1, 0.92, 1.15, 14), "t" + i, col, "scale");
     R.add(gBall(V3(0, Y + (r - 0.28) * 0.5 - r * 0.35, zs[i]), r * 0.85, 0.95, 0.6, 1.1, 10), "t" + i, belly, "skin");
     if (i < n - 1) R.add(gRing(V3(0, Y + (r - 0.28) * 0.5, zs[i] + 0.13), r * 0.92, 0.022, "z", 18), "t" + i, dark, "scale");
+    if (i < n - 1) R.add(gRing(V3(0, Y + (r - 0.28) * 0.5, zs[i] + 0.04), r * 0.99, 0.012, "z", 18), "t" + i, dark, "scale");
+    for (let k = 0; k < 6; k++) { const a = Math.PI * (0.15 + k * 0.14), yc = Y + (r - 0.28) * 0.5, p0 = V3(Math.cos(a) * r * 0.95, yc - Math.sin(a) * r * 0.55, zs[i] + 0.06); R.add(gTaper(p0, p0.clone().add(V3(Math.cos(a) * 0.04, -0.03, -0.03)), 0.005, 0.001, 3), "t" + i, 0x3a2a20, "bone"); }
   }
   const hz = zs[n - 1] + 0.2;
   R.add(gRing(V3(0, Y, hz), 0.15, 0.045, "z", 18), "t" + (n - 1), 0x6a2a2a, "skin");
@@ -21798,6 +21852,7 @@ function hareEntry(col) {
   for (const s of [-1, 1]) {
     const sd = s > 0 ? "L" : "R";
     R.add(gBall(V3(s * 0.065, 0.48, 0.32), 0.022, 1, 1, 0.7, 8), "head", 0x111111, "plain");
+    for (let k = 0; k < 3; k++) R.add(gTaper(V3(s * 0.025, 0.425 + k * 0.008, 0.37), V3(s * 0.13, 0.43 + (k - 1) * 0.025, 0.35 - k * 0.01), 0.002, 0.0008, 3), "head", 0xf0ece4, "plain");
     R.add(gBall(V3(s * 0.05, 0.67, 0.18), 0.04, 0.7, 3.0, 0.4, 10), "ear" + sd, col, "fur");
     R.add(gBall(V3(s * 0.05, 0.67, 0.193), 0.03, 0.55, 2.6, 0.2, 8), "ear" + sd, 0xe0a8a8, "skin");
     R.add(gTaper(V3(s * 0.06, 0.22, 0.15), V3(s * 0.06, 0.03, 0.19), 0.03, 0.022, 8), "legF" + sd, col, "fur");
@@ -22060,6 +22115,12 @@ function instantiate(entry) {
   mesh.bind(new THREE.Skeleton(bones));
   mesh.castShadow = true;
   mesh.receiveShadow = true;
+  if (entry.shell) {
+    const sm = new THREE.SkinnedMesh(entry.shell, shellMaterial());
+    sm.bind(mesh.skeleton, mesh.bindMatrix);
+    sm.frustumCulled = false;
+    mesh.add(sm);
+  }
   return { mesh, bones: byName, list: bones, mat, meta: entry.meta };
 }
 
@@ -22087,6 +22148,7 @@ function toadEntry(col) {
     R.add(gBall(V3(s * 0.105, 0.462, 0.29), 0.018, 1, 1.4, 0.6, 6), "ear" + sd, 0x111111, "plain");
     R.add(gTaper(V3(s * 0.13, 0.2, 0.16), V3(s * 0.15, 0.03, 0.24), 0.04, 0.03, 8), "legF" + sd, col, "skin");
     R.add(gBall(V3(s * 0.16, 0.02, 0.27), 0.05, 1.2, 0.35, 1.2, 8), "legF" + sd, dark, "skin");
+    for (let k = 0; k < 4; k++) { const a = (k - 1.5) * 0.45; R.add(gTaper(V3(s * 0.16, 0.02, 0.27), V3(s * 0.16 + Math.sin(a) * 0.07, 0.012, 0.27 + Math.cos(a) * 0.07), 0.012, 0.007, 4), "legF" + sd, col, "skin"); R.add(gBall(V3(s * 0.16 + Math.sin(a) * 0.072, 0.012, 0.27 + Math.cos(a) * 0.072), 0.011, 1, 0.7, 1, 5), "legF" + sd, belly, "skin"); }
     R.add(gBall(V3(s * 0.2, 0.18, -0.1), 0.12, 0.75, 0.9, 1.25, 10), "legB" + sd, col, "skin");
     R.add(gTaper(V3(s * 0.2, 0.14, -0.08), V3(s * 0.22, 0.04, -0.06), 0.05, 0.035, 8), "legB" + sd, col, "skin");
     R.add(gBox(V3(s * 0.22, 0.025, 0.0), 0.09, 0.04, 0.24), "legB" + sd, dark, "skin");
@@ -22262,7 +22324,7 @@ function buildEntityRig(e) {
   const entry = entryFor(sig, make);
   const inst = instantiate(entry);
   inst.sig = sig;
-  inst.lodEntry = () => entryFor("lo|" + sig, () => { const k = RIG.segK; RIG.segK = 0.5; try { return make(); } finally { RIG.segK = k; } });
+  inst.lodEntry = () => entryFor("lo|" + sig, () => { const k = RIG.segK, sl = RIG.shellLayers; RIG.segK = 0.5; RIG.shellLayers = 0; try { return make(); } finally { RIG.segK = k; RIG.shellLayers = sl; } });
   inst.weaponKind = weaponKind;
   inst.weapon = makeWeapon(weaponKind, weaponId);
   inst.alwaysDrawn = alwaysDrawn;

@@ -1236,6 +1236,10 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - `familyExtras(R, L, D)` (called from humanEntry before R.meta): orc spikes on pauldrons (upArm bones), 9-tooth necklace + cord, bracers; goblin hip pouches, bone charm, knee pads (shin bones); reef dorsal fin and forearm fins via `finPlane` (gMembrane rotated into the YZ plane), gill slits on neck; talon 6 arm feathers per side, 5-feather tail fan, 3 toe claws; treant shoulder branches with leaf balls, forearm twigs, 4 roots per foot, moss pads, knot hole; ghoul/undead 7 rag strips at the hips, ghoul spine bumps; boss banner pole + waving flag on chest.
 - Posture: R.meta.hunch → poseHuman adds spine 0.55h, chest 0.45h, neck −0.45h, head −0.4h, upper arms 0.3h, root −0.08h. Hunch: goblin 0.2, chieftain 0.14, orc 0.1, reef 0.24, talon 0.12, treant 0.07, ghoul 0.32, skeleton 0.04.
 
+## Phase 97: critters (v14.4.0) — plan Q10
+- Fur shells: `RIG.shellLayers` = 5 on High (set in buildAtlas, 0 otherwise; 0 while building LOD entries). RigBuilder.buildShells(minY) clones pieces whose region is in `SHELL_REGIONS` (fur 1, feather 0.6, hair 0.45), pushes vertices out along normals by len·f (len = 2.2% of model height clamped 0.006–0.03, droop 0.35·d down) and adds a `shell` attribute (layer fraction). instantiate adds a second SkinnedMesh bound to the same skeleton with `shellMaterial()` (shared, DoubleSide, onBeforeCompile hashes floor(vMapUv·1800) and discards below 0.08 + 0.86·shell; tips brighten). Hidden with the main mesh when LOD swaps (child of mesh).
+- batEntry: 2 finger bones on the inner membrane, 3 on the outer, thumb claw, 3-toe feet, chest ruff. shroomEntry: 28 radial gills under the cap, stalk skirt. wormEntry: extra ring per segment and 6 bristles per segment. hareEntry: 3 whiskers a side. toadEntry: 4 padded toes per front foot.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1288,6 +1292,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.4.0 | Phase 97: fur/feather shells on High, critter details (bat fingers, shroom gills, worm bristles, whiskers, toes). |
 | 14.3.0 | Phase 96: beastman family silhouettes and gear, hunched postures, boss banners. |
 | 14.2.0 | Phase 95: NPC props and wardrobe, wrist-led swings, head look-at, red damage numbers + toggle, V torsos and necks, smaller Pipkin feet, status icon spacing, audio unlock. |
 | 14.1.0 | Phase 94: body-fitted armour shells, weapon tiers, title tidy-up. |
