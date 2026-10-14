@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v11.0.0 · built 2026-10-14 03:49 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v11.1.0 · built 2026-10-14 03:58 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6347,6 +6347,74 @@ for (const id in ITEMS) {
   if (it.jobs.includes("WAR")) { if (!it.jobs.includes("SAM")) it.jobs.push("SAM"); if (!it.jobs.includes("DRG")) it.jobs.push("DRG"); }
   if (it.jobs.includes("THF") && !it.jobs.includes("NIN")) it.jobs.push("NIN");
 }
+ALL_JOBS.push("BST", "BLU", "COR");
+Object.assign(ADVANCED_JOBS, { BST: { quest: "bst", lv: 14 }, BLU: { quest: "blu", lv: 14 }, COR: { quest: "cor", lv: 14 } });
+Object.assign(JOBS, {
+  BST: { name: "Beastmaster", color: "#8d6e63", icon: "🐾", hp: [62, 12], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [8, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [7, 0.7], advanced: true },
+  BLU: { name: "Blue Mage", color: "#42a5f5", icon: "🔷", hp: [58, 11], mp: [18, 5], str: [8, 0.8], dex: [8, 0.8], vit: [7, 0.7], agi: [7, 0.7], int: [8, 0.8], mnd: [7, 0.6], advanced: true },
+  COR: { name: "Corsair", color: "#c62828", icon: "🎲", hp: [58, 11], mp: [6, 2], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [9, 0.9], int: [7, 0.7], mnd: [6, 0.5], advanced: true }
+});
+COMBAT_SKILLS.push("axe");
+MAGIC_SKILLS.push("blue");
+Object.assign(SKILL_NAMES, { axe: "Axe", blue: "Blue Magic" });
+Object.assign(SKILL_RATINGS, {
+  BST: { axe: "A", scythe: "B", sword: "C", dagger: "C", club: "D" },
+  BLU: { sword: "A", club: "B", dagger: "D", blue: "A" },
+  COR: { dagger: "A", sword: "B", archery: "C", h2h: "E" }
+});
+Object.assign(WEAPON_SKILLS, {
+  cleaving_chop: { name: "Cleaving Chop", wtype: "axe", skill: 5, props: ["Detonation", "Impaction"], ftp: [1.5, 2.1, 2.7] },
+  wild_hack: { name: "Wild Hack", wtype: "axe", skill: 22, props: ["Scission"], ftp: [1.8, 2.5, 3.3] },
+  feral_rend: { name: "Feral Rend", wtype: "axe", skill: 40, props: ["Induration", "Scission"], ftp: [2.1, 2.9, 3.7] },
+  primal_fury: { name: "Primal Fury", wtype: "axe", skill: 75, props: ["Fusion", "Fragmentation"], ftp: [2.5, 3.3, 4.3] }
+});
+Object.assign(ABILITIES, {
+  call_beast: { name: "Call Beast", job: "BST", lv: 1, recast: 60, target: "self", desc: "Whistle up a loyal beast to fight at your side: a scaleback lizard, a pincher crab from level 8, or a great ram from level 14." },
+  reward: { name: "Reward", job: "BST", lv: 5, recast: 60, target: "self", desc: "Feed your beast a treat, restoring 40% of its HP." },
+  feral_howl: { name: "Feral Howl", job: "BST", lv: 15, recast: 90, target: "enemy", enmity: 100, desc: "A savage howl that cows the target: its attack drops 15% for 30 s." },
+  burst_affinity: { name: "Burst Affinity", job: "BLU", lv: 5, recast: 90, target: "self", buff: "burst_affinity", dur: 30, desc: "Your next blue magic spell hits 50% harder." },
+  phantom_roll: { name: "Valor Roll", job: "COR", lv: 1, recast: 60, target: "self", desc: "Roll a die for the whole party: attack rises by an amount set by the roll (5 is lucky) for 3 minutes." },
+  quick_shot: { name: "Quick Shot", job: "COR", lv: 5, recast: 45, target: "enemy", enmity: 60, desc: "A fast pistol shot for moderate damage." },
+  hawk_roll: { name: "Hawk Roll", job: "COR", lv: 8, recast: 60, target: "self", desc: "Roll a die for the party: accuracy rises by an amount set by the roll (4 is lucky) for 3 minutes." },
+  double_down: { name: "Double Down", job: "COR", lv: 10, recast: 30, target: "self", desc: "Roll again and add it to your last roll. Go over 7 and you bust: the roll's effect is lost." }
+});
+const BLUE_LEARN = {};
+for (const [id, name, lv, def] of [
+  ["blu_hind_kick", "Hind Kick", 1, { kind: "bluephys", mul: 1.6, mp: 6 }],
+  ["blu_sticky_thread", "Sticky Thread", 2, { kind: "debuff", element: "earth", buff: "slow", dur: 45, enmity: 60, mp: 8 }],
+  ["blu_dream_dust", "Dream Dust", 4, { kind: "debuff", element: "light", buff: "sleep", dur: 30, enmity: 40, mp: 10 }],
+  ["blu_snapjaw", "Snapjaw", 5, { kind: "bluephys", mul: 1.9, mp: 9 }],
+  ["blu_big_pinch", "Big Pinch", 6, { kind: "bluephys", mul: 1.8, mp: 10 }],
+  ["blu_tail_whip", "Tail Whip", 8, { kind: "bluephys", mul: 1.7, mp: 11 }],
+  ["blu_blood_drain", "Blood Drain", 10, { kind: "drain", element: "dark", power: 18, mp: 12 }],
+  ["blu_water_lance", "Water Lance", 13, { kind: "nuke", element: "water", power: 40, stat: "int", mp: 14 }],
+  ["blu_battle_roar", "Battle Roar", 14, { kind: "bluephys", mul: 2.0, mp: 16 }],
+  ["blu_boulder_toss", "Boulder Toss", 16, { kind: "bluephys", mul: 2.1, mp: 18 }]
+]) {
+  SPELLS[id] = Object.assign({ name, jobs: { BLU: lv }, cast: 1.5, recast: 12, target: def.kind === "debuff" || def.kind === "nuke" || def.kind === "drain" || def.kind === "bluephys" ? "enemy" : "self", skill: "blue", blue: true, desc: "Blue magic learned from monsters that use " + name + "." + (def.kind === "bluephys" ? " A physical blow." : "") }, def);
+  BLUE_LEARN[name] = id;
+}
+const BEASTS = [{ lv: 1, fam: "hill_lizard", name: "Scaleback" }, { lv: 8, fam: "pond_crab", name: "Pincher" }, { lv: 14, fam: "mountain_ram", name: "Great Ram" }];
+Object.assign(BUFF_NAMES, { weaken: "Cowed", burst_affinity: "Burst Affinity", valor_roll: "Valor Roll", hawk_roll: "Hawk Roll" });
+Object.assign(BUFF_ICONS, { weaken: "😨", burst_affinity: "🔷", valor_roll: "🎲", hawk_roll: "🦅" });
+Object.assign(ITEMS, {
+  bronze_axe: { name: "Bronze Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 8, delay: 2.8, jobs: ["BST"], lv: 1, price: 110 },
+  iron_axe: { name: "Iron Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 12, delay: 2.8, jobs: ["BST"], lv: 6, price: 980, stats: { str: 1 } },
+  steel_axe: { name: "Steel Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 17, delay: 2.8, jobs: ["BST"], lv: 11, price: 2800, stats: { str: 1, acc: 2 } },
+  frost_axe: { name: "Frostforged Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 24, delay: 2.8, jobs: ["BST"], lv: 17, price: 9900, stats: { str: 3, acc: 3 } }
+});
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!it.jobs) continue;
+  if (it.slot === "main") {
+    if ((it.wtype === "dagger" || it.wtype === "sword") && !it.jobs.includes("COR")) it.jobs.push("COR");
+    if ((it.wtype === "sword" || it.wtype === "club") && !it.jobs.includes("BLU")) it.jobs.push("BLU");
+    continue;
+  }
+  if (it.jobs.includes("WAR") && !it.jobs.includes("BST")) it.jobs.push("BST");
+  if (it.jobs.includes("RDM") && !it.jobs.includes("BLU")) it.jobs.push("BLU");
+  if (it.jobs.includes("THF") && !it.jobs.includes("COR")) it.jobs.push("COR");
+}
 const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
@@ -7332,6 +7400,7 @@ const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["tide_crown", "abys
 for (const id in SPELLS) {
   const sp = SPELLS[id], lv = Math.min(...Object.values(sp.jobs));
   sp.id = id; sp.minLv = lv;
+  if (sp.blue) continue;
   const sid = "scroll_" + id;
   ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
   if (lv <= 10) SHOP.push(sid); else if (lv <= 17) SHOPS.vela.push(sid);
@@ -7478,6 +7547,16 @@ Object.assign(QUESTS, {
 });
 SHOP.push("bronze_tachi", "iron_tachi", "steel_tachi", "bronze_katana", "iron_katana", "steel_katana", "bronze_spear", "iron_lance", "steel_halberd");
 if (SHOPS.vela) SHOPS.vela.push("frost_tachi", "rime_katana", "frost_lance");
+Object.assign(QUESTS, {
+  bst: { name: "Call of the Wild", giver: "Tobin", npc: "tobin", lv: 14, items: { lizard_skin: 2, wool_tuft: 3 }, desc: "Bring Tobin 2 Lizard Skins and 3 Wool Tufts to learn the Beastmaster's ways.", reward: { xp: 800, gil: 0, item: "bronze_axe", qty: 1, unlock: "BST" },
+    intro: "A Beastmaster never fights alone. They whistle up a beast of the wilds, feed it, and set it on their foes, then wade in after it with an axe. Bring me a lizard's skin and some sheep's wool for a beast's harness, and I'll teach you the call.", progress: "2 Lizard Skins and 3 Wool Tufts. The Hollow has both.", turn: "A good harness. Take this axe, and whistle; something will answer." },
+  blu: { name: "The Borrowed Art", giver: "Tobin", npc: "tobin", lv: 14, items: { crab_shell: 2, mandrake_leaf: 2 }, desc: "Bring Tobin 2 Crab Shells and 2 Mandrake Leaves to begin the Blue Mage's study.", reward: { xp: 800, gil: 0, item: "iron_sword", qty: 1, unlock: "BLU" },
+    intro: "A Blue Mage learns magic from monsters. Watch a beast use its special move up close and survive it, and you can learn to do the same. A dangerous way to study. Bring me crab shells and mandrake leaves and I'll open your eyes to it.", progress: "2 Crab Shells and 2 Mandrake Leaves. Crabs live by the water; mandrakes come out by day.", turn: "Now stand close when the monsters strike. As a Blue Mage, every move you see might become your own." },
+  cor: { name: "Lady Luck", giver: "Tobin", npc: "tobin", lv: 14, items: { harbor_bream: 2, orc_tooth: 1 }, desc: "Bring Tobin 2 Harbor Bream and 1 Orc Tooth to roll with the Corsairs.", reward: { xp: 800, gil: 0, item: "iron_dagger", qty: 1, unlock: "COR" },
+    intro: "Corsairs trust the dice. A good roll lifts the whole crew's blade or aim; a greedy one can bust. They carry daggers and a pistol for a quick shot. Bring me fresh bream from Saltreach and an orc's tooth for a lucky die, and I'll show you the game.", progress: "2 Harbor Bream from the Saltreach docks and 1 Orc Tooth from the marsh orcs.", turn: "Here's a dagger and a pair of dice. Roll well." }
+});
+SHOP.push("bronze_axe", "iron_axe", "steel_axe");
+if (SHOPS.vela) SHOPS.vela.push("frost_axe");
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -7919,6 +7998,9 @@ function mercGear(m, lv) {
   if (job === "SAM") return lv >= 11 ? { main: "steel_tachi", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_tachi", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_tachi", body: "leather_vest", head: "bronze_cap" };
   if (job === "NIN") return lv >= 11 ? { main: "steel_katana", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_katana", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_katana", body: "leather_vest" };
   if (job === "DRG") return lv >= 11 ? { main: "steel_halberd", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_lance", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_spear", body: "leather_vest", head: "bronze_cap" };
+  if (job === "BST") return lv >= 11 ? { main: "steel_axe", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_axe", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_axe", body: "leather_vest", head: "bronze_cap" };
+  if (job === "BLU") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
+  if (job === "COR") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
   if (job === "MNK") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
@@ -8031,6 +8113,63 @@ function summonPet(a, sp) {
   sfx("burst", pet);
 }
 
+function callBeast(a) {
+  if (a !== player) return;
+  if (S.pet) releasePet(null);
+  const B = BEASTS.filter(b => player.lv >= b.lv).pop() || BEASTS[0];
+  const pet = makeChar({ kind: "ally", pet: true, beast: B.fam, petKey: "beast_" + B.fam, name: B.name, job: "WAR", sub: null, role: "pet", speed: 160, lv: player.lv });
+  pet.gear = {};
+  pet.fam = FAMILIES[B.fam];
+  pet.x = player.x + Math.cos(player.face) * 30; pet.y = player.y + Math.sin(player.face) * 30;
+  pet.px = pet.x; pet.py = pet.y;
+  buildStats(pet);
+  pet.color = "#8d6e63";
+  S.pet = pet;
+  S.party.push(pet);
+  S.petTick = S.time + 3;
+  log("You whistle, and a " + B.name + " bounds to your side!", "you");
+  popText(pet, B.name, pet.color, 13, 1.2, 14);
+  vfx("mount", { tgt: pet });
+  sfx("mount", pet);
+}
+function rollDice(a, kind, add) {
+  const prev = a.lastRoll && a.lastRoll.kind === kind && S.time - a.lastRoll.at < 180 ? a.lastRoll.total : 0;
+  const die = randInt(1, 6), total = add ? prev + die : die;
+  const name = kind === "valor_roll" ? "Valor Roll" : "Hawk Roll";
+  if (total > 7) {
+    for (const p of S.party) if (p.buffs[kind]) delete p.buffs[kind];
+    a.lastRoll = null;
+    log(subj(a) + " " + vb(a, "roll") + " a " + die + " for " + total + ". Bust! " + name + " is lost.", cls(a));
+    popText(a, "Bust!", "#c62828", 15, 1.2, 14);
+    sfx("error", a);
+    return;
+  }
+  const lucky = kind === "valor_roll" ? 5 : 4;
+  const pow = (kind === "valor_roll" ? [0, 4, 5, 6, 7, 14, 9, 16] : [0, 3, 4, 5, 10, 6, 7, 12])[total];
+  for (const p of S.party) if (p.alive && dist(p, a) < 300) { p.buffs[kind] = { until: S.time + 180, pow }; ring(p, "#ffd54f", 24, 0.5); }
+  a.lastRoll = { kind, total, at: S.time };
+  log(subj(a) + " " + vb(a, "roll") + (add ? " again: a " + die + ", total " + total : " a " + total) + (total === lucky ? ". Lucky!" : ".") + " " + name + ": " + (kind === "valor_roll" ? "attack +" + pow + "%" : "accuracy +" + pow) + " for the party.", cls(a));
+  popText(a, "🎲 " + total + (total === lucky ? " Lucky!" : ""), "#ffd54f", 16, 1.3, 14);
+  sfx("coin", a);
+}
+function blueLearnFrom(m, mv) {
+  if (player.job !== "BLU" || !player.alive || dist(m, player) > 400) return;
+  const id = BLUE_LEARN[mv.name];
+  if (!id || save.spells.includes(id) || SPELLS[id].jobs.BLU > player.lv) return;
+  if (Math.random() > 0.5) return;
+  save.spells.push(id);
+  log("You watch the " + m.name + "'s " + mv.name + " closely... and learn it! New blue magic: " + SPELLS[id].name + ".", "loot");
+  popText(player, "Learned " + SPELLS[id].name, "#42a5f5", 14, 1.4, 14);
+  sfx("unlock");
+  saveGame();
+}
+function castBluePhys(a, t, sp) {
+  let dmg = Math.max(1, Math.floor(baseDmg(a, t) * pDIF(a, t) * sp.mul * (1 + skillOf(a, "blue") * 0.004)));
+  if (a.buffs.burst_affinity) { dmg = Math.floor(dmg * 1.5); delete a.buffs.burst_affinity; }
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " takes " + dmg + " damage.", cls(a));
+  sfx("crit", t); vfx("hit", { src: a, tgt: t, crit: true, slash: false });
+  applyDamage(a, t, dmg, { color: "#42a5f5", size: 20, enmity: 60 + dmg });
+}
 function releasePet(msg) {
   const pet = S.pet;
   if (!pet) return;
@@ -8044,6 +8183,7 @@ function releasePet(msg) {
 function tickPet() {
   const pet = S.pet;
   if (!pet) return;
+  if (pet.beast) { if (!pet.alive || player.job !== "BST" || !player.alive) releasePet(pet.alive ? "Your " + pet.name + " wanders back into the wild." : "Your " + pet.name + " is too hurt to go on."); return; }
   if (!pet.alive || player.job !== "SMN" || !player.alive) { releasePet("Your " + pet.name + " fades away."); return; }
   if (S.time >= S.petTick) {
     S.petTick = S.time + 3;
@@ -8082,7 +8222,7 @@ function syncAllies(full) {
   }
 }
 
-const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"] };
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"] };
 const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
 const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
 const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
@@ -8396,7 +8536,7 @@ function swing(a, d) {
     a.volley = false;
     return;
   }
-  if (!sneak && Math.random() * 100 >= hitChance(a, d, b.hasso ? 10 : 0)) {
+  if (!sneak && Math.random() * 100 >= hitChance(a, d, (b.hasso ? 10 : 0) + (b.hawk_roll ? b.hawk_roll.pow : 0))) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
     popText(d, "Miss", "#bbbbbb", 14, 0.8);
     sfx("miss", a);
@@ -8411,11 +8551,13 @@ function swing(a, d) {
   if (boost) dmg = Math.floor(dmg * 1.5);
   if (b.hasso) dmg = Math.floor(dmg * 1.12);
   if (b.dragon_spirit) dmg = Math.floor(dmg * 1.15);
+  if (b.valor_roll) dmg = Math.floor(dmg * (1 + b.valor_roll.pow / 100));
+  if (b.weaken) dmg = Math.floor(dmg * 0.85);
   if (b.soulfire && a.hp > 1) { const burn = Math.min(a.hp - 1, Math.floor(a.hp * 0.06)); a.hp -= burn; dmg += Math.floor(burn * 1.6); }
   a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
-  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm"].includes(a.stats.wtype) ? "slash" : "blunt");
+  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm", "axe"].includes(a.stats.wtype) ? "slash" : "blunt");
   sfx(crit ? "crit" : wt === "slash" ? "slash" : "blunt", a);
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
@@ -9512,6 +9654,38 @@ function doAbility(a, id, t) {
     if (heal > 0) { ring(a, "#ffb74d", 30, 0.6); sfx("cure", a); vfx("cure", { tgt: a }); }
     return;
   }
+  if (id === "call_beast") { callBeast(a); return; }
+  if (id === "reward") {
+    const pet = S.pet;
+    if (!pet || !pet.beast || !pet.alive) { log("You have no beast to reward.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    const heal = Math.min(pet.maxHp - pet.hp, Math.round(pet.maxHp * 0.4));
+    pet.hp += heal;
+    log("You give your " + pet.name + " a treat. It recovers " + heal + " HP.", "you");
+    popText(pet, "+" + heal, "#9ad06b", 15, 1.1); vfx("cure", { tgt: pet }); sfx("cure", pet);
+    return;
+  }
+  if (id === "feral_howl") {
+    t.buffs.weaken = { until: S.time + 30 };
+    log(subj(a) + " " + vb(a, "let") + " out a Feral Howl. The " + t.name + " cowers!", cls(a));
+    popText(t, "Cowed", "#8d6e63", 13, 1); ring(a, "#8d6e63", 40, 0.6); sfx("provoke", a);
+    addEnmity(t, a, ab.enmity); aggro(t, a);
+    return;
+  }
+  if (id === "phantom_roll") { rollDice(a, "valor_roll", false); return; }
+  if (id === "hawk_roll") { rollDice(a, "hawk_roll", false); return; }
+  if (id === "double_down") {
+    if (!a.lastRoll) { log("You have no roll to double down on.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    rollDice(a, a.lastRoll.kind, true); return;
+  }
+  if (id === "quick_shot") {
+    const dmg = Math.max(1, Math.round((10 + a.lv * 4 + a.stats.agi * 0.8) * rand(0.9, 1.15)));
+    a.face = Math.atan2(t.y - a.y, t.x - a.x);
+    log(subj(a) + " " + vb(a, "fire") + " a Quick Shot! The " + t.name + " takes " + dmg + " damage.", cls(a));
+    vfx("arrow", { src: a, tgt: t }); sfx("blunt", t);
+    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg });
+    if (t.alive) aggro(t, a);
+    return;
+  }
   if (id === "meditate") {
     a.tp = Math.min(CONFIG.tpMax, a.tp + 400);
     log(subj(a) + " " + vb(a, "meditate", "meditates") + " and " + vb(a, "gain", "gains") + " 400 TP.", cls(a));
@@ -9592,6 +9766,7 @@ function finishCast(a) {
   if (isMate(t)) { netCastOn(a, t, sp, id); return; }
   if (sp.kind === "heal") castHeal(a, t, sp);
   else if (sp.kind === "nuke") castNuke(a, t, sp);
+  else if (sp.kind === "bluephys") castBluePhys(a, t, sp);
   else if (sp.kind === "dot") castDia(a, t, sp);
   else if (sp.kind === "debuff") castDebuff(a, t, sp);
   else if (sp.kind === "buff") castBuff(a, t, sp);
@@ -9632,6 +9807,7 @@ function castNuke(a, t, sp) {
   dmg *= (t.fam.weak && t.fam.weak[sp.element]) || 1;
   if (sp.element === dayElement()) dmg *= 1.1;
   if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
+  if (sp.blue && a.buffs.burst_affinity) { dmg *= 1.5; delete a.buffs.burst_affinity; }
   let resist = 1;
   if (Math.random() * 100 >= magicHit(a, t, sp)) resist = Math.random() < 0.75 ? 0.5 : 0.25;
   dmg *= resist;
@@ -10064,6 +10240,7 @@ function execTpMove(m) {
   if (!t.alive) return;
   log("The " + m.name + " uses " + mv.name + ".", "foe");
   sfx("tpmove", m);
+  blueLearnFrom(m, mv);
   vfx("tpmove", { src: m, tgt: t, mv });
   if (S.others && S.others.size && !m.proxy) for (const o of S.others.values()) if (o.alive && (o === t || (mv.aoe && dist(o, t) <= mv.aoe))) netMobAttack(m, o, "tp");
   const targets = (mv.aoe ? S.party.filter(p => p.alive && dist(p, t) <= mv.aoe) : [t]).filter(x => x.kind !== "remote");
@@ -14978,13 +15155,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v11.0.0 · built 2026-10-14 03:49 PDT";
+const BUILD_INFO = "v11.1.0 · built 2026-10-14 03:58 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "11.1.0", date: "2026-10-14", title: "Beastmaster, Blue Mage and Corsair", items: [
+    "Beastmaster: whistle up a lizard, crab or great ram to fight beside you, reward it with treats and cow your foes with a Feral Howl. Wields the new axe weapon type.",
+    "Blue Mage: learn magic by watching monsters. Stand close when a hare kicks, a crab pinches or an orc roars, and you may learn to do it yourself. Ten blue spells to collect, plus Burst Affinity.",
+    "Corsair: roll the dice for the party. Valor Roll raises attack, Hawk Roll raises accuracy, and Double Down risks a bust for a bigger bonus. Quick Shot fires a pistol.",
+    "All three are taught by Tobin from level 14. Mercenaries can now be any of them too."
   ] },
   { v: "11.0.0", date: "2026-10-14", title: "Samurai, Ninja and Dragoon", items: [
     "Three new advanced jobs, taught by Tobin from level 12. Samurai: a two-handed tachi, Meditate for a burst of TP, the Hasso stance and Third Eye to slip the next blow. Ninja: a quick katana, Shadow Veil images that soak up hits, fire, frost and wind shuriken, Binding Thread, Smoke Step and Twin Strike. Dragoon: the lance, Jump and High Jump leap attacks and Dragon Spirit.",
@@ -15671,8 +15854,12 @@ function tabHelp() {
     ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"],
     ["Samurai (advanced)", "Damage", "Great Katana A (new weapon type), polearm B. Meditate (gain 400 TP), Hasso (5: +12% damage, +10 accuracy for 2 min), Third Eye (15: the next melee attack on you misses). Weapon skills: Rising Edge, Crescent Cut (22), Ember Arc (40), Heaven's Divide (75)"],
     ["Ninja (advanced)", "Tank / damage", "Katana A (new weapon type), dagger B, Ninjutsu A. Shadow Veil (3: 2 shadow images, 3 from level 12; each soaks one melee hit), Flame (2), Frost (6) and Gale (10) Shuriken, Binding Thread (8: roots the target for 10 s). Smoke Step (5: halves enmity on every monster), Twin Strike (15: next three attacks hit twice)"],
-    ["Dragoon (advanced)", "Damage", "Polearm A (new weapon type), staff B. Jump (leap attack, +100 TP), High Jump (10: harder leap, halves the target's enmity toward you), Dragon Spirit (15: +15% damage for 60 s). Weapon skills: Piercing Thrust, Wind Lance (22), Drake Dive (40), Sky Rend (75)"]
+    ["Dragoon (advanced)", "Damage", "Polearm A (new weapon type), staff B. Jump (leap attack, +100 TP), High Jump (10: harder leap, halves the target's enmity toward you), Dragon Spirit (15: +15% damage for 60 s). Weapon skills: Piercing Thrust, Wind Lance (22), Drake Dive (40), Sky Rend (75)"],
+    ["Beastmaster (advanced)", "Damage / pet", "Axe A (new weapon type), scythe B. Call Beast (a Scaleback lizard; a Pincher crab from 8; a Great Ram from 14) that fights beside you and stays until you change job or it falls. Reward (5: heals the beast 40%), Feral Howl (15: target's attack −15% for 30 s). Weapon skills: Cleaving Chop, Wild Hack (22), Feral Rend (40), Primal Fury (75)"],
+    ["Blue Mage (advanced)", "Damage / magic", "Sword A, club B, Blue Magic A. Learns spells by standing within reach when a monster uses its special move (about half the time, if your level is high enough): Hind Kick (hares), Sticky Thread (crawlers, slows), Dream Dust (mandrakes, sleep), Snapjaw (snappers), Big Pinch (crabs), Tail Whip (lizards), Blood Drain (leeches), Water Lance (Reefkin), Battle Roar (orc grunts), Boulder Toss (orc stonechuckers). Burst Affinity (5: next blue spell +50%). Blue magic can't be bought as scrolls"],
+    ["Corsair (advanced)", "Damage / support", "Dagger A, sword B. Valor Roll (party attack +4–16% for 3 min; 5 is lucky), Hawk Roll (8: party accuracy +3–12; 4 is lucky), Double Down (10: roll again and add it; over 7 busts and the roll is lost), Quick Shot (5: pistol shot)"]
   ]) + ul([
+    "<b>Beastmaster, Blue Mage and Corsair</b> unlock at level 14 through Tobin: <i>Call of the Wild</i> (2 Lizard Skins, 3 Wool Tufts), <i>The Borrowed Art</i> (2 Crab Shells, 2 Mandrake Leaves) and <i>Lady Luck</i> (2 Harbor Bream, 1 Orc Tooth). Axes are sold by Pell and Vela; Blue Mages use swords and clubs and wear red mage clothing; Corsairs use daggers and swords and wear thief gear; Beastmasters wear warrior armour.",
     "<b>Samurai, Ninja and Dragoon</b> unlock at level 12 through Tobin: <i>The Patient Blade</i> (Samurai: 1 Iron Ingot, 2 Ash Lumber), <i>Steps Without Sound</i> (Ninja: 3 Bat Wings, 2 Worm Silk) and <i>Wings of the Wyrm</i> (Dragoon: 3 Lizard Skins, 1 Crag Feather). Their weapons are sold by Pell (bronze to steel) and Vela (frostforged). Samurai and Dragoons can wear warrior armour; Ninjas can wear thief gear.",
     "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
     "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
@@ -15917,7 +16104,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "11.0.0";
+const GAME_VERSION = "11.1.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18636,6 +18823,9 @@ const JOB_TINT = {
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
   DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  BST: { shirt: 0x5a4a32, pants: 0x3a3024, robe: 0x5a4a32, trim: 0x8d6e63 },
+  BLU: { shirt: 0x1f4a7a, pants: 0x2a2a3a, robe: 0x1f4a7a, trim: 0x42a5f5 },
+  COR: { shirt: 0x7a1e1e, pants: 0x2a2020, robe: 0x7a1e1e, trim: 0xd8b040 },
   SAM: { shirt: 0x6a3a2a, pants: 0x2a2420, robe: 0x6a3a2a, trim: 0xe0a060 },
   NIN: { shirt: 0x2a3038, pants: 0x1e2228, robe: 0x2a3038, trim: 0x78909c },
   DRG: { shirt: 0x2a3a6a, pants: 0x2a2a34, robe: 0x2a3a6a, trim: 0x5c8adb },
@@ -19629,6 +19819,19 @@ function weaponEntry(kind, id) {
     R.add(bg, "w", blade, "metal");
     R.add(gBox(V3(curve * 0.35, 0.1 + L * 0.45, 0), W * 0.12, L * 0.8, 0.0135), "w", glowC || 0xf4f6f8, glowC ? "glow" : "metal", !!glowC);
     tip = [0.3, 0.1 + L];
+  } else if (kind === "axe") {
+    R.add(gTaper(V3(0, -0.2, 0), V3(0, 0.42, 0), 0.018, 0.02, 8), "w", wood, "wood");
+    R.add(gTaper(V3(0, -0.12, 0), V3(0, 0.02, 0), 0.022, 0.022, 8), "w", grip, "leather");
+    const sh = new THREE.Shape();
+    sh.moveTo(0, 0.05); sh.quadraticCurveTo(0.1, 0.07, 0.17, 0.14); sh.quadraticCurveTo(0.13, 0, 0.17, -0.12); sh.quadraticCurveTo(0.1, -0.06, 0, -0.05); sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 1 });
+    g.translate(0, 0, -0.006);
+    const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 0.18, (uv.getY(i) + 0.12) / 0.26);
+    g.rotateY(Math.PI / 2); g.translate(0, 0.36, 0);
+    R.add(g, "w", blade, "metal");
+    R.add(gBox(V3(0, 0.36, 0), 0.035, 0.08, 0.05), "w", blade, "metal");
+    if (glowC) R.add(gRing(V3(0, 0.3, 0), 0.026, 0.007, "y", 10), "w", glowC, "glow", true);
+    tip = [0.3, 0.5];
   } else if (kind === "polearm") {
     R.add(gTaper(V3(0, -0.7, 0), V3(0, 1.0, 0), 0.02, 0.018, 8), "w", wood, "wood");
     for (let k = 0; k < 2; k++) R.add(gTaper(V3(0, 0.1 - k * 0.55, 0), V3(0, 0.25 - k * 0.55, 0), 0.024, 0.024, 8), "w", grip, "leather");
@@ -19866,6 +20069,13 @@ function buildEntityRig(e) {
     else if (B.model === "wisp") make = () => wispEntry(B.col, B.eye);
     else if (B.model === "worm") make = () => wormEntry(B.col);
     else { const L = goblinLook("goblin"); L.weapon = null; L.sack = false; make = () => humanEntry(L); }
+  } else if (e.pet && e.beast) {
+    const fk = e.beast, ml = mobLook({ fam: FAMILIES[fk], famKey: fk, id: 0 });
+    sig = "beast|" + fk;
+    if (ml.kind === "lizard") make = () => lizardEntry(ml.col, ml.col2);
+    else if (ml.kind === "crab") make = () => crabEntry(ml.col, ml.col2);
+    else if (ml.kind === "sheep") make = () => sheepEntry(ml.col);
+    else make = () => hareEntry(ml.col);
   } else if (e.pet) {
     const P = PETS[e.petKey];
     sig = "pet|" + e.petKey;

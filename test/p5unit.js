@@ -114,7 +114,7 @@ ok(!P().resting && S.party.every(p => !p.resting), 'moving stands everyone up');
 G.runCommand('/heal'); ok(P().resting, '/heal is an alias for /rest'); G.runCommand('/rest'); ok(!P().resting, '/rest again stands up');
 G.enterZone('hollow', 300, 1300); run(1);
 const mob = S.mobs.filter(m => m.alive).sort((a, b) => G.dist(a, P()) - G.dist(b, P()))[0];
-G.runCommand('/target ' + mob.name.split(' ')[0].toLowerCase());
+mob.x = P().x + 60; mob.y = P().y; G.runCommand('/target ' + mob.name.split(' ')[0].toLowerCase());
 ok(P().target && P().target.name === mob.name, '/target by name');
 const n0 = H.alllog.length; G.runCommand('/check');
 ok(!P().target || P().target.kind !== 'mob' || H.alllog.slice(n0).some(l => /seems like/.test(l)), '/check describes the target');

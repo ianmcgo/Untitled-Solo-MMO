@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "11.0.0",
-  "releaseTitle": "Samurai, Ninja and Dragoon",
+  "version": "11.1.0",
+  "releaseTitle": "Beastmaster, Blue Mage and Corsair",
   "description": "",
   "main": "index.js",
   "scripts": {
