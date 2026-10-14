@@ -1260,7 +1260,7 @@ function dropLoot(m, mates) {
     giveItem(id, 1);
   }
   if (Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
-    const pool = Object.values(SPELLS).filter(sp => sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
+    const pool = Object.values(SPELLS).filter(sp => ITEMS["scroll_" + sp.id] && sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
     if (pool.length) giveItem("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, 1);
   }
   if (m.fam.gil) {
