@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.8.1",
-  "releaseTitle": "Smarter companions",
+  "version": "9.8.2",
+  "releaseTitle": "Gate halls and phone layout",
   "description": "",
   "main": "index.js",
   "scripts": {

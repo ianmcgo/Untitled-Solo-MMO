@@ -21,7 +21,8 @@ module.exports = async function mockLogin(page, html, name) {
   page.setDefaultTimeout(300000);
   await page.goto('file://' + html);
   await page.waitForSelector('#loading.ready');
-  await page.click('#ldStart'); await page.waitForTimeout(1200);
+  await page.click('#ldStart'); await page.waitForTimeout(800);
+  if (await page.$('[data-play="on"]')) { await page.click('[data-play="on"]'); await page.waitForTimeout(1200); }
   await page.fill('#acEmail', 'ianmcgon@gmail.com'); await page.fill('#acPw', 'secret1'); await page.click('[data-go]'); await page.waitForTimeout(2500);
   await page.click('[data-new]'); await page.waitForTimeout(2000);
   await page.fill('#ccName', name || 'Tessa'); await page.click('[data-create]');

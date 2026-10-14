@@ -929,6 +929,14 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - healerAI: support role melees when ≥60% HP and nobody needs healing. nukerAI: reserve 0.3 (nuker), 0.5 burster (0.8 while a chain is open), shorter gaps, casts debuffs too.
 - step(): each updateAlly wrapped in try/catch → reportError("companion").
 
+## Halls, caster melee, phone Status (v9.8.2)
+- data.js: edge exits (not doors, not indoor zones) get e.hall = CONFIG.hallField (380) or hallTown (180) and e.lane; two wall rects form a corridor; exitInner(z,e) gives the inner end (+60). Every exit's tx/ty is set to the inner point of the paired exit in the destination. world3d exitMask carves border cliffs along the full hall depth and lane width.
+- game.js meleeIfSafe(a,tgt,dt,acts): casters/healers melee when HP > 60% and not being hit (or HP > 80%); else keepCasterRange.
+- Phone CSS (≤600px): narrower #mCmd, compact #stM rows (KV grid max-content/1fr, craft grid 1fr auto 30px), windows full width, #ui.modalOn hides #mCmd. Status list header has ◀ back (data-mc="back"). mobMenu steps back. Slim windows show #mHead ✕ on touch. fmtPlay → h:mm:ss.
+- test/mocklogin clicks Play Online when the mode choice appears.
+- normalizeSave keeps hired ids found in d.mercDefs (generated companions were dropped on load). COMPANION_CFG.dayMs = 24 h real, wageRate 1. companionInfo(p) (party row tap): countdown, wage, Pay now, Dismiss. Paths ending near a hall exit are rerouted via exitInner then the exit centre.
+- Capture-phase pointerdown outside #tCmd (and its companions: mobBar, dialog, confirm, ffSide, mpBox) closes the target command box.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -985,6 +993,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.8.2 | Exit halls with inward arrivals, caster melee when safe, phone Status layout, back buttons. |
 | 9.8.1 | Smarter generic companion AI, per-companion error isolation. |
 | 9.8.0 | Phase 48: layered clouds, sun glow, moon phases, horizon haze, zone atmosphere; mobile buttons; blue top toasts. |
 | 9.7.0 | Phase 47: offline play with separate storage and server-side rejection. |

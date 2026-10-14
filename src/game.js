@@ -111,7 +111,7 @@ function normalizeSave(d) {
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
   if (typeof SKIN_TONES !== "undefined") out.look.skin = Math.min(Math.max(0, out.look.skin || 0), SKIN_TONES.length - 1);
   out.mountLicense = !!d.mountLicense;
-  out.hired = (Array.isArray(d.hired) ? d.hired : []).filter(id => MERCS[id]).slice(0, CONFIG.maxParty - 1);
+  out.hired = (Array.isArray(d.hired) ? d.hired : []).filter(id => MERCS[id] || (d.mercDefs && d.mercDefs[id])).slice(0, CONFIG.maxParty - 1);
   out.home = d.home && ZONES[d.home.zone] && ZONES[d.home.zone].safe && NPCS[d.home.npc] && ZONES[d.home.zone].npcs.some(n => n.id === d.home.npc) ? d.home : newSave().home;
   out.inventory = d.inventory.filter(s => s && ITEMS[s.id] && s.qty > 0);
   out.gear = {};
@@ -2714,6 +2714,16 @@ function allyWeaponSkill(a, tgt, acts) {
   if (a.tp >= patience) allyTry(a, wss[wss.length - 1], tgt);
 }
 
+function meleeIfSafe(a, tgt, dt, acts) {
+  const safe = a.hp > a.maxHp * 0.6 && (tgt.target !== a || a.hp > a.maxHp * 0.8);
+  if (!safe || tgt.state !== "combat") { a.engaged = false; a.attackTarget = null; return false; }
+  a.attackTarget = tgt; a.target = tgt; a.engaged = true;
+  moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8);
+  autoAttack(a, dt);
+  allyWeaponSkill(a, tgt, acts || actionList(a));
+  return true;
+}
+
 function keepCasterRange(a, tgt, dt) {
   const d = dist(a, tgt);
   if (d > 170) moveToward(a, tgt.x, tgt.y, dt, 140);
@@ -2743,7 +2753,7 @@ function healerAI(a, tgt, dt) {
     if (dia && !tgt.buffs.dia && a.mp > a.maxMp * diaMp && dist(a, tgt) <= CONFIG.castRange && allyTry(a, dia, tgt)) return;
     const banish = acts.find(x => x.id === "banish");
     if (a.role === "support" && banish && tgt.fam.weak && tgt.fam.weak.light >= 1.5 && a.mp > a.maxMp * 0.4 && allyTry(a, banish, tgt)) return;
-    if (a.role === "support" && a.hp > a.maxHp * 0.6) { a.attackTarget = tgt; a.target = tgt; a.engaged = true; moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8); autoAttack(a, dt); allyWeaponSkill(a, tgt, acts); return; }
+    if (meleeIfSafe(a, tgt, dt, acts)) return;
     keepCasterRange(a, tgt, dt);
     return;
   }
@@ -2774,6 +2784,7 @@ function nukerAI(a, tgt, dt) {
   }
   const dbf = acts.find(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && a.mp > a.maxMp * 0.4);
   if (dbf && tgt.state === "combat" && allyTry(a, dbf, tgt)) return;
+  if (meleeIfSafe(a, tgt, dt, acts)) return;
   keepCasterRange(a, tgt, dt);
 }
 
