@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.3.0", date: "2026-10-14", title: "Gear you can see", items: [
+    "Every piece of armour now shows on your character. Pieces that used to be invisible (Harbor Mail, Frostforged Mail, Sailcloth and Frostweave robes, the Cinderweave and Priest's mantles, Guild Greatcoat, Snowfur Coat, Wight's Shroud, Gull Feather Hat, Fur Hat, the Tide and Hollow crowns, Pathfinder Boots, Silk Gloves, Sentinel's Greaves and more) each have their own look.",
+    "New armour shapes: breastplates over mail, metal gauntlets with flared cuffs and knuckle plates, greaves with knee guards, fur collars, fur hats, wide-brimmed feathered hats and jewelled crowns.",
+    "Weapons have more detail: wrapped grips, a fuller down the blade and capped crossguards. Higher-level frost, sea, royal and warlord weapons glow along the blade, head or tip."
+  ] },
   { v: "10.2.0", date: "2026-10-14", title: "Faces and hair II", items: [
     "Hair has real locks now: a fringe of strands over the forehead, side locks framing the face (longer for bob and long styles), and long hair falls in separate strands down the back.",
     "Blinks are smooth and sometimes come in pairs. Eyes squint when laughing or crying, go wide in a panic, narrow in focus while casting, and droop when resting."

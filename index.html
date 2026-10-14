@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.2.0 · built 2026-10-14 02:37 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.3.0 · built 2026-10-14 02:42 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14613,13 +14613,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v10.2.0 · built 2026-10-14 02:37 PDT";
+const BUILD_INFO = "v10.3.0 · built 2026-10-14 02:42 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "10.3.0", date: "2026-10-14", title: "Gear you can see", items: [
+    "Every piece of armour now shows on your character. Pieces that used to be invisible (Harbor Mail, Frostforged Mail, Sailcloth and Frostweave robes, the Cinderweave and Priest's mantles, Guild Greatcoat, Snowfur Coat, Wight's Shroud, Gull Feather Hat, Fur Hat, the Tide and Hollow crowns, Pathfinder Boots, Silk Gloves, Sentinel's Greaves and more) each have their own look.",
+    "New armour shapes: breastplates over mail, metal gauntlets with flared cuffs and knuckle plates, greaves with knee guards, fur collars, fur hats, wide-brimmed feathered hats and jewelled crowns.",
+    "Weapons have more detail: wrapped grips, a fuller down the blade and capped crossguards. Higher-level frost, sea, royal and warlord weapons glow along the blade, head or tip."
   ] },
   { v: "10.2.0", date: "2026-10-14", title: "Faces and hair II", items: [
     "Hair has real locks now: a fringe of strands over the forehead, side locks framing the face (longer for bob and long styles), and long hair falls in separate strands down the back.",
@@ -15491,7 +15496,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "10.2.0";
+const GAME_VERSION = "10.3.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18172,8 +18177,45 @@ const ITEM_LOOK = {
   troubadour_coat: { top: { type: "coat", color: 0x6a2a4a, trim: 0xffd54f } },
   brigand_vest: { top: { type: "vest", color: 0x2f2a28, region: "leather", under: 0x5a4a3a } },
   training_gi: { top: { type: "tunic", color: 0xe8e0cc, region: "cloth" }, belt: 0x2a2a2a },
-  mire_mantle: { top: { type: "robe", color: 0x2f4030, trim: 0x8aa070 }, head: { type: "hood", color: 0x2f4030 } }
+  mire_mantle: { top: { type: "robe", color: 0x2f4030, trim: 0x8aa070 }, head: { type: "hood", color: 0x2f4030 } },
+  harbor_mail: { top: { type: "plate", color: 0x6a7a88, region: "chain", plate: 0x8a9aa8, trim: 0x2a5a7a }, pauldrons: 0x8a9aa8, gauntlets: true },
+  sailcloth_robe: { top: { type: "robe", color: 0xd8d0b8, trim: 0x2a5a7a } },
+  corsair_jerkin: { top: { type: "vest", color: 0x3a2a24, region: "leather", under: 0xa8382c }, belt: 0x1a1210 },
+  cinder_mantle: { top: { type: "robe", color: 0x5a2418, trim: 0xff8a50, glowTrim: true }, cape: 0x3a1a12 },
+  guild_greatcoat: { top: { type: "coat", color: 0x2a3a5a, trim: 0xd8c070 }, cape: 0x1f2a44 },
+  priest_mantle: { top: { type: "robe", color: 0xece4d0, trim: 0xc8a040 } },
+  frost_mail: { top: { type: "plate", color: 0x8aa8b8, region: "chain", plate: 0xbfe0ee, trim: 0x9fe8ff, glowTrim: true }, pauldrons: 0xbfe0ee, gauntlets: true },
+  snowfur_coat: { top: { type: "coat", color: 0xe0e4e8, trim: 0x9aa8b8 }, collar: 0xf4f6f8 },
+  frost_robe: { top: { type: "robe", color: 0x3a5a7a, trim: 0x9fe8ff, glowTrim: true } },
+  wight_shroud: { top: { type: "robe", color: 0x3a3a44, trim: 0x8a9a8a }, head: { type: "hood", color: 0x2a2a32 } },
+  silkweave_mantle: { cape: 0xb8a8d8 },
+  gull_hat: { head: { type: "widebrim", color: 0x3a4a5a, color2: 0xf4f1e8 } },
+  tide_crown: { head: { type: "crown", color: 0x7ad0e8, gem: 0x4fc3f7 } },
+  fur_hat: { head: { type: "furhat", color: 0x8a6a4a } },
+  hollow_crown: { head: { type: "crown", color: 0x8a8070, gem: 0x69f0ae } },
+  pathfinder_boots: { boots: 0x5a4028 },
+  silk_gloves: { gloves: 0xd8d0e8, glovesRegion: "cloth" }, silk_gloves_q: { gloves: 0xd8d0e8, glovesRegion: "cloth" },
+  sentinel_greaves: { legs: 0x4a4a54, legsRegion: "cloth", greaves: 0x9aa0a8 }
 };
+
+const MAT_TINT = [[/frost|rime|glacier|snow/, 0xbfe0ee], [/tide|coral|harbor|sea|gull/, 0x4a7a8a], [/cinder|ember|flame/, 0x8a3a20], [/shadow|dusk|night|wight/, 0x3a3442], [/bronze/, 0xb0804a], [/iron/, 0x7a8088], [/steel/, 0xa8b0b8], [/silk/, 0xd8d0e8], [/linen|cotton/, 0xd8d0b8], [/wool|fur/, 0x8a6a4a], [/leather|hide/, 0x6a4428]];
+function autoLook(id) {
+  const it = ITEMS[id];
+  if (!it || !it.slot) return null;
+  const n = id + " " + (it.name || "").toLowerCase();
+  let col = 0x7a6a5a;
+  for (const [re, c] of MAT_TINT) if (re.test(n)) { col = c; break; }
+  const metal = /iron|steel|bronze|mail|plate|helm|greave|gauntlet/.test(n);
+  const trim = (it.lv || 0) >= 14 ? 0xd8c070 : null;
+  if (it.slot === "head") return { head: { type: /crown|circlet/.test(n) ? "crown" : /hood|cowl/.test(n) ? "hood" : /helm/.test(n) ? "helm" : /hat/.test(n) ? "widebrim" : "cap", color: col, color2: 0xf4f1e8 } };
+  if (it.slot === "body") return { top: /robe|mantle|shroud|cloak/.test(n) ? { type: "robe", color: col, trim } : /coat/.test(n) ? { type: "coat", color: col, trim } : metal ? { type: /plate/.test(n) ? "plate" : "mail", color: col, region: "chain", plate: col, trim } : { type: "vest", color: col, region: "leather" } };
+  if (it.slot === "hands") return metal ? { gloves: col, glovesRegion: "metal", gauntlets: true } : { gloves: col, glovesRegion: /silk|cloth|cotton|wool/.test(n) ? "cloth" : "leather" };
+  if (it.slot === "legs") return metal ? { legs: 0x4a4a54, greaves: col } : { legs: col, legsRegion: /leather|hide/.test(n) ? "leather" : "cloth" };
+  if (it.slot === "feet") return metal ? { boots: col, greaves: col } : { boots: col };
+  if (it.slot === "back") return { cape: col };
+  if (it.slot === "waist") return { belt: col };
+  return null;
+}
 
 const MERC_BASE = {
   kael: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[1] } },
@@ -18213,7 +18255,7 @@ function lookFor(job, gear, base) {
   const L = Object.assign({ legs: tint.pants, top: { type: "shirt", color: tint.shirt }, belt: 0x4a3020 }, base);
   for (const slot of SLOTS) {
     const id = gear[slot];
-    const il = id && ITEM_LOOK[id];
+    const il = id && (ITEM_LOOK[id] || (ITEMS[id] && ITEMS[id].look) || autoLook(id));
     if (!il) continue;
     if (il.top) {
       const t = Object.assign({}, il.top);
@@ -18230,6 +18272,9 @@ function lookFor(job, gear, base) {
     if (il.hat) L.hat = il.hat;
     if (il.cape) L.cape = il.cape;
     if (il.belt) L.belt = il.belt;
+    if (il.gauntlets) L.gauntlets = true;
+    if (il.greaves) L.greaves = il.greaves;
+    if (il.collar) L.collar = il.collar;
   }
   if (!L.boots) L.shoes = 0x3a2a1e;
   L.weapon = gear.main ? ITEMS[gear.main].wtype : null;
@@ -18337,7 +18382,7 @@ function humanEntry(L) {
   const sleeveR = top.type === "vest" ? "cloth" : top.type === "tabard" ? (top.region === "cloth" ? "cloth" : "chain") : topR;
   const hr = pr.headR, hc = headY + hr * 0.82;
   if (!L.head && L.hat) L.head = { type: "feathered", color: L.hat, color2: 0xd8c070 };
-  const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered"].includes(L.head.type);
+  const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered", "furhat", "widebrim"].includes(L.head.type);
 
   R.add(gBall(V3(0, hc, 0.005), hr, 0.94, 1.04, 1.0, 20), "head", skin, L.noFace ? (L.headRegion || "skin") : (L.face ? "face" + (L.face % FACE_COUNT + 1) : "face"));
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, SKR);
@@ -18425,6 +18470,12 @@ function humanEntry(L) {
       R.add(gPartSphere(V3(ax * 1.01, shY - 0.012, 0), 0.068 * gi, 0, Math.PI * 0.55, 1.12, 0.75, 1.0, 14), "upArm" + sd, L.pauldrons, "metal");
       R.add(gRing(V3(ax * 1.01, shY - 0.03, 0), 0.072 * gi, 0.008, "y", 16).scale(1, 1, 0.92), "upArm" + sd, 0xc8a040, "metal");
     }
+    if (L.gauntlets && !L.skull) {
+      const gc = L.gloves != null ? L.gloves : 0x8a9098;
+      R.add(gCyl(V3(ex, wrY + 0.05, 0), 0.046 * gi, 0.058 * gi, 0.08, 12, true), "foreArm" + sd, gc, "metal");
+      R.add(gRing(V3(ex, wrY + 0.09, 0), 0.047 * gi, 0.007, "y", 12), "foreArm" + sd, gc, "metal");
+      R.add(gBox(V3(s * (sw + 0.024), wrY - 0.075, 0.034), 0.05, 0.022, 0.016), "hand" + sd, gc, "metal");
+    }
     if (L.shield && s < 0) {
       const sy = (elY + wrY) / 2, sx = ex - 0.075;
       const shG = new THREE.CylinderGeometry(0.155, 0.135, 0.022, 7);
@@ -18445,6 +18496,10 @@ function humanEntry(L) {
       R.add(gTaper(V3(hx, bootTop, 0.012), V3(hx, ank + 0.01, 0.0), 0.062 * gi, 0.048 * gi, 12), "shin" + sd, L.boots, "leather");
       R.add(gRing(V3(hx, bootTop, 0.012), 0.062 * gi, 0.012, "y", 14), "shin" + sd, L.boots, "leather");
     }
+    if (L.greaves != null && !L.skull) {
+      R.add(gPartSphere(V3(hx, knee + 0.005, 0.03), 0.06 * gi, 0, Math.PI * 0.62, 1, 1.05, 0.9, 12), "shin" + sd, L.greaves, "metal");
+      R.add(gCyl(V3(hx, (knee + ank) / 2 + 0.01, 0.022), 0.05 * gi, 0.043 * gi, (knee - ank) * 0.66, 12, true, -Math.PI * 0.42, Math.PI * 0.84).scale(1, 1, 1.1), "shin" + sd, L.greaves, "metal");
+    }
     const footC = L.boots != null ? L.boots : L.barefoot ? skin : L.skull ? skin : (L.shoes || 0x3a2a1e);
     const footR = L.boots != null ? "leather" : L.barefoot ? SKR : L.skull ? "bone" : "leather";
     R.add(gBox(V3(hx, 0.042, 0.035), L.skull ? 0.06 : 0.092, 0.075, 0.2), "foot" + sd, footC, footR);
@@ -18464,10 +18519,17 @@ function humanEntry(L) {
     R.add(gRing(V3(0, hipsY + 0.03, 0), (fem ? 0.165 : 0.152) * gi * (fem ? 1.08 : 1) + 0.006, 0.02, "y", 18).scale(1, 1, 0.72), "hips", top.trim || 0x4a3020, "cloth");
     if (t === "robe") R.add(gBox(V3(0.05, hipsY - 0.12, 0.13), 0.05, 0.22, 0.015), "hips", top.trim || 0x4a3020, "cloth");
   }
-  if (t === "tunic" || t === "mail" || t === "tabard" || t === "rags") {
-    const c = t === "mail" ? 0x9aa0a8 : topC;
-    R.add(gCyl(V3(0, hipsY - 0.09, 0), 0.155 * gi * (fem ? 1.08 : 1), 0.19 * gi, 0.2, 14, true).scale(1, 1, 0.76), "hips", c, t === "mail" ? "metal" : topR);
+  if (t === "tunic" || t === "mail" || t === "plate" || t === "tabard" || t === "rags") {
+    const c = t === "mail" || t === "plate" ? (top.plate || 0x9aa0a8) : topC;
+    R.add(gCyl(V3(0, hipsY - 0.09, 0), 0.155 * gi * (fem ? 1.08 : 1), 0.19 * gi, 0.2, 14, true).scale(1, 1, 0.76), "hips", c, t === "mail" || t === "plate" ? "metal" : topR);
   }
+  if (t === "plate" && !L.skull) {
+    const W2 = sw / 0.195, pc = top.plate || 0x9aa0a8;
+    R.add(gFront(V3(0, chestY + 0.02, 0.0), 0.18 * gi * W2, 1.9, Math.PI * 0.18, Math.PI * 0.62, 1.0, 1.25, 0.72 * gi, 14), "chest", pc, "metal");
+    R.add(gFront(V3(0, (spineY + chestY) / 2 - 0.02, 0.0), 0.165 * gi * W2, 1.7, Math.PI * 0.32, Math.PI * 0.68, 1.0, 1.0, 0.7 * gi, 12), "spine", pc, "metal");
+    if (top.trim) R.add(gRing(V3(0, neckY - 0.03, 0.01), 0.08 * gi, 0.014, "y", 18), "chest", top.trim, "trim", !!top.glowTrim);
+  }
+  if (L.collar && !L.skull) R.add(gRing(V3(0, neckY - 0.035, 0), 0.1 * gi, 0.045, "y", 16), "chest", L.collar, "fur");
   if (t === "tabard") {
     R.add(gBox(V3(0, chestY - 0.12, 0.125 * gi), 0.2, 0.62, 0.012), "chest", top.color2, "cloth");
     R.add(gBox(V3(0, chestY - 0.12, -0.125 * gi), 0.2, 0.62, 0.012), "chest", top.color2, "cloth");
@@ -18522,8 +18584,19 @@ function humanEntry(L) {
       R.add(gRing(V3(0, hc + hr * 0.5, 0), hr * 1.02, 0.012, "y", 18), "head", H.color2 || 0xd8c070, "trim");
       R.add(gTaper(V3(hr * 0.5, hc + hr * 0.75, -hr * 0.6), V3(hr * 1.3, hc + hr * 2.0, -hr * 1.5), 0.028, 0.004, 6, 0.3), "head", 0xf4f1e8, "feather");
     } else if (H.type === "crown") {
-      R.add(gRing(V3(0, hc + hr * 0.55, 0), hr * 0.85, 0.02, "y", 18), "head", 0xd8b040, "metal");
-      for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; R.add(gTaper(V3(Math.sin(a) * hr * 0.85, hc + hr * 0.55, Math.cos(a) * hr * 0.85), V3(Math.sin(a) * hr * 0.9, hc + hr * 0.95, Math.cos(a) * hr * 0.9), 0.025, 0.003, 5), "head", 0xd8b040, "metal"); }
+      const cc = H.color || 0xd8b040, cr = hr * (L.hair && L.hair.style !== "bald" ? 1.04 : 0.95);
+      R.add(gRing(V3(0, hc + hr * 0.55, 0), cr, 0.02, "y", 18), "head", cc, "metal");
+      for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; R.add(gTaper(V3(Math.sin(a) * cr, hc + hr * 0.55, Math.cos(a) * cr), V3(Math.sin(a) * cr * 1.05, hc + hr * 0.95, Math.cos(a) * cr * 1.05), 0.025, 0.003, 5), "head", cc, "metal"); }
+      if (H.gem) R.add(gBall(V3(0, hc + hr * 0.6, cr + 0.012), 0.022, 1, 1.3, 0.6, 8), "head", H.gem, "glow", true);
+    } else if (H.type === "furhat") {
+      R.add(gPartSphere(hp, hr * 1.14, 0, Math.PI * 0.42, 1, 1.12, 1.05, 16), "head", H.color, "fur");
+      R.add(gRing(V3(0, hc + hr * 0.4, 0), hr * 1.1, hr * 0.2, "y", 18), "head", new THREE.Color(H.color).multiplyScalar(1.25).getHex(), "fur");
+      for (const s of [-1, 1]) R.add(gBall(V3(s * hr * 1.0, hc - hr * 0.2, -hr * 0.05), hr * 0.3, 0.5, 1.2, 0.9, 8), "head", H.color, "fur");
+    } else if (H.type === "widebrim") {
+      R.add(gCyl(V3(0, hc + hr * 0.42, 0), hr * 2.0, hr * 2.05, 0.018, 22), "head", H.color, "leather");
+      R.add(gPartSphere(V3(0, hc + hr * 0.4, 0), hr * 1.04, 0, Math.PI * 0.5, 1, 0.9, 1.0, 16), "head", H.color, "leather");
+      R.add(gRing(V3(0, hc + hr * 0.47, 0), hr * 1.03, 0.012, "y", 18), "head", 0x5a3a20, "leather");
+      for (let k = 0; k < 2; k++) R.add(gTaper(V3(hr * (0.6 + k * 0.15), hc + hr * 0.65, -hr * 0.55), V3(hr * (1.3 + k * 0.3), hc + hr * (1.7 - k * 0.3), -hr * 1.4), 0.03, 0.004, 6, 0.3), "head", H.color2 || 0xf4f1e8, "feather");
     }
   }
 
@@ -18990,8 +19063,9 @@ function weaponEntry(kind, id) {
   if (RIG.weaponCache.has(key)) return RIG.weaponCache.get(key);
   const R = new RigBuilder();
   R.bone("w", null, 0, 0, 0);
-  const iron = id && /iron/.test(id), bronze = id && /bronze/.test(id);
-  const blade = iron ? 0xd0d4da : bronze ? 0xc89458 : 0xb8bcc2;
+  const iron = id && /iron/.test(id), bronze = id && /bronze/.test(id), wlv = (id && ITEMS[id] && ITEMS[id].lv) || 1;
+  const blade = !id ? 0xb8bcc2 : /frost|rime|glacier/.test(id) ? 0xc8ecf8 : /tidesteel|coral/.test(id) ? 0x9ec8d0 : /drowned|abyssal/.test(id) ? 0x5a7a88 : /kings/.test(id) ? 0xe8e0c0 : /steel/.test(id) ? 0xdfe4ea : iron ? 0xd0d4da : bronze ? 0xc89458 : 0xb8bcc2;
+  const glowC = wlv >= 14 && id ? (/frost|rime|glacier/.test(id) ? 0x9fe8ff : /tide|coral|drowned|abyssal/.test(id) ? 0x4fc3f7 : /kings/.test(id) ? 0xffe080 : /warlord|gax|cleaver/.test(id) ? 0xff7043 : null) : null;
   const wood = 0x7a5432, grip = 0x3a2618, gold = 0xc8a040;
   let tip = [0.1, 0.7];
   if (kind === "sword" || kind === "dagger") {
@@ -19005,6 +19079,9 @@ function weaponEntry(kind, id) {
     bg.translate(0, 0.1, -0.004);
     const uv = bg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + W) / (2 * W), uv.getY(i) / L);
     R.add(bg, "w", blade, "metal");
+    R.add(gBox(V3(0, 0.1 + L * 0.4, 0), W * 0.18, L * 0.62, 0.0175), "w", glowC || new THREE.Color(blade).multiplyScalar(0.6).getHex(), glowC ? "glow" : "metal", !!glowC);
+    for (let k = 0; k < 3; k++) R.add(gRing(V3(0, -0.06 + k * 0.05, 0), 0.019, 0.005, "y", 8), "w", 0x1e140c, "leather");
+    if (kind === "sword") for (const s of [-1, 1]) R.add(gBall(V3(s * 0.095, 0.09, 0), 0.016, 1, 1, 1, 6), "w", gold, "metal");
     tip = [0.3, 0.1 + L];
   } else if (kind === "club") {
     const wand = id === "maple_wand";
@@ -19030,7 +19107,8 @@ function weaponEntry(kind, id) {
     const holly = id === "holly_staff";
     R.add(gTaper(V3(0, -0.65, 0), V3(0, 0.82, 0), 0.02, 0.016, 8), "w", holly ? 0x5a3a28 : wood, "wood");
     for (let k = 0; k < 3; k++) { const a = k / 3 * Math.PI * 2; R.add(gTaper(V3(0, 0.8, 0), V3(Math.cos(a) * 0.06, 0.98, Math.sin(a) * 0.06), 0.014, 0.008, 5), "w", holly ? 0x5a3a28 : wood, "wood"); }
-    R.add(gBall(V3(0, 0.96, 0), 0.05, 1, 1, 1, 10), "w", holly ? 0xb070ff : 0x7ad7ff, "glow", true);
+    R.add(gBall(V3(0, 0.96, 0), wlv >= 14 ? 0.065 : 0.05, 1, 1, 1, 10), "w", glowC || (holly ? 0xb070ff : 0x7ad7ff), "glow", true);
+    if (wlv >= 11) for (let k = 0; k < 2; k++) R.add(gRing(V3(0, 0.2 - k * 0.5, 0), 0.022, 0.006, "y", 10), "w", gold, "metal");
     R.add(gRing(V3(0, 0.78, 0), 0.025, 0.008, "y", 10), "w", gold, "metal");
     tip = [0.6, 1.0];
   } else if (kind === "scythe") {
@@ -19044,7 +19122,7 @@ function weaponEntry(kind, id) {
     g.rotateY(Math.PI / 2);
     g.translate(0, 0.96, 0);
     R.add(g, "w", id && /rime/.test(id) ? 0xbfe6f5 : blade, "metal");
-    R.add(gBall(V3(0, 1.0, 0), 0.03, 1, 1, 1, 8), "w", gold, "metal");
+    R.add(gBall(V3(0, 1.0, 0), 0.03, 1, 1, 1, 8), "w", glowC || gold, glowC ? "glow" : "metal", !!glowC);
     tip = [0.7, 0.95];
   } else if (kind === "greataxe") {
     R.add(gTaper(V3(0, -0.4, 0), V3(0, 0.95, 0), 0.024, 0.022, 8), "w", wood, "wood");
@@ -19059,6 +19137,8 @@ function weaponEntry(kind, id) {
       R.add(g, "w", blade, "metal");
     }
     R.add(gTaper(V3(0, 0.92, 0), V3(0, 1.08, 0), 0.025, 0.002, 6), "w", blade, "metal");
+    R.add(gTaper(V3(0, -0.2, 0), V3(0, 0.1, 0), 0.027, 0.027, 8), "w", grip, "leather");
+    if (glowC) R.add(gRing(V3(0, 0.78, 0), 0.03, 0.008, "y", 10), "w", glowC, "glow", true);
     tip = [0.62, 1.02];
   }
   const e = R.finish();
