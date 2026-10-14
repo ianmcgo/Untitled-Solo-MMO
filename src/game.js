@@ -3612,6 +3612,7 @@ function step(dt) {
   if (S.race) tickRace();
   if (S.pet) tickPet();
   tickGeo(dt);
+  tickFerry();
   tickBuddy(dt);
   tickAmbient(dt);
   tickStory();
@@ -4257,6 +4258,16 @@ const TALK = {
       { label: "Use a Chapel Sigil and enter (" + BATTLEFIELD.minutes + "-minute battle)", fn: () => { closeDialog(); const why = enterBattlefield(); if (why) { log(why, "sys"); sfx("error"); } } }
     ] : []);
   },
+  talkFerry(n) {
+    const to = ZONES[n.ferryTo];
+    openDialog(n.name, n.ferryTo === "gullisle" ? "The ferry runs out to Gull Isle and back. Fair seas today. " + CONFIG.ferryCost + " crystals a head." : "Ready to head back to Saltreach? " + CONFIG.ferryCost + " crystals.", [
+      { label: "Sail to " + to.name + " (" + CONFIG.ferryCost + " crystals)", fn: () => { closeDialog(); startFerry(n.ferryTo); } }
+    ]);
+  },
+  talkWend(n) {
+    const g = questOptions("wend", n);
+    openDialog(n.name, g.length ? "Ah, company! Sit, sit. Mind the gulls; they bite." : "The gulls and I thank you. Come back any time.", g);
+  },
   talkBrisa(n) {
     const g = questOptions("brisa", n);
     openDialog(n.name, g.length ? "Welcome to Ironvale, traveller. Stone walls, hot forges, and more work than hands. Pull up a crate." : "The pass is quiet for now. Come back when you've grown a little.", g);
@@ -4459,6 +4470,23 @@ function onRoad(e) {
     if (Math.hypot(e.x - a[0] - dx * t, e.y - a[1] - dy * t) < p.w * 0.6) return true;
   }
   return false;
+}
+function startFerry(to) {
+  if (S.ferry) return;
+  if (save.gil < CONFIG.ferryCost) { log("The ferry costs " + CONFIG.ferryCost + " crystals.", "sys"); return; }
+  if (player.engaged || S.party.some(p => p.engaged)) { log("Finish your fight before boarding.", "sys"); return; }
+  save.gil -= CONFIG.ferryCost;
+  const dest = to === "gullisle" ? { x: 440, y: 900 } : { x: 560, y: 720 };
+  S.ferry = { to, x: dest.x, y: dest.y, at: S.time + 6 };
+  log("You board the ferry. The sails fill, and the coast slips away... (6 seconds)", "npc");
+  sfx("zone");
+}
+function tickFerry() {
+  if (!S.ferry || S.time < S.ferry.at) return;
+  const f = S.ferry;
+  S.ferry = null;
+  enterZone(f.to, f.x, f.y);
+  log("The ferry bumps against the dock at " + ZONES[f.to].name + ".", "npc");
 }
 function resumePos() {
   const l = save.loc;

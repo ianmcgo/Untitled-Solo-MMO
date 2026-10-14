@@ -1453,6 +1453,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "12.4.0", date: "2026-10-14", title: "Gull Isle", items: [
+    "A ferry now sails from the Saltreach Harbor docks to Gull Isle and back. Talk to Ferryman Coll; the crossing costs " + CONFIG.ferryCost + " crystals and takes a few seconds at sea.",
+    "Gull Isle is a level 12–16 island with beaches, a palm grove, cliffs and a shipwreck cove, surrounded by open sea. Reef Crabs, Shore Lizards, Gale Talons, Reefkin and Isle Snappers live there, and Old Saltjaw may drop the Saltjaw Earring.",
+    "Old Wend, the island's only resident, has a quest that rewards the Gull Charm. Sea fishing is good off the island's shores.",
+    "New achievement: Island Hopper."
+  ] },
   { v: "12.3.0", date: "2026-10-14", title: "Cinder Peak", items: [
     "A new area east of the Sunscar Desert: Cinder Peak, a volcano for levels 18–20. Black rock, drifting ash, rising embers and pools of glowing lava.",
     "New monsters: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs and Cinder Bones, with Cinder Bombs after dark. Pyreclaw, a giant fire lizard, may drop the Pyre Ring.",
@@ -2224,6 +2230,7 @@ function tabHelp() {
     ["Sunscar Desert", "17–20", "South of Ironvale. Sand, cacti and red mesas: Dune Lizards, Sand Crabs, Sun Wasps (day), Dune Worms, Needlekin, Cinder Bombs (night). Sunscar Gate, Titan's Ribs, the Glass Oasis, the Singing Dunes (NM Sandmaw) and the Red Spire"],
     ["Verdant Jungle", "17–20", "East of the Ashen Marsh. Huge trees, warm rain and green mist: Vine Crawlers, Jade Hornets (day), Strangler Saplings, Bloom Mandrakes (day), Jade Toads and a Crag Talon war band by the Overgrown Temple. Old Mossback, an ancient treant, walks the Heart of the Canopy"],
     ["Cinder Peak", "18–20", "East of the Sunscar Desert. A volcano of black rock, ash and glowing lava pools: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs, Cinder Bombs and Cinder Bones (night). The NM Pyreclaw suns itself on the Crater Rim at night. Rich mining; no fishing in lava"],
+    ["Gull Isle", "12–16", "Reached by ferry from the Saltreach docks (Ferryman Coll, " + CONFIG.ferryCost + " crystals each way, about 6 seconds at sea). Beaches, a palm grove and the Gullsrest Cliffs: Reef Crabs, Shore Lizards, Gale Talons, Reefkin and Isle Snappers. Old Wend has a favour to ask; the NM Old Saltjaw lurks in Wreck Cove. Good sea fishing"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🧭 Exploring the wilds", ul([
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",

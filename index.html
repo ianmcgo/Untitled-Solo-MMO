@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v12.3.0 · built 2026-10-14 04:40 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v12.4.0 · built 2026-10-14 04:52 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6866,7 +6866,7 @@ ZONES.harbor = {
   ambient: [{ type: "gull", x: 700, y: 700, n: 5, r: 160 }, { type: "cat", x: 500, y: 560, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 700, y: 500, n: 1, path: [[500, 300], [900, 300], [900, 620], [500, 620]] }, { type: "walker", x: 700, y: 500, n: 1, path: [[700, 200], [700, 640], [1000, 500]] }],
   npcs: [
     { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
-    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }, { id: "guard_north", x: 530, y: 80 }, { id: "guard_pass", x: 1330, y: 340 }
+    { id: "crystal_harbor", x: 700, y: 460 }, { id: "ferry_harbor", x: 560, y: 760 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }, { id: "guard_north", x: 530, y: 80 }, { id: "guard_pass", x: 1330, y: 340 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1180, r: 360 }, { x: 900, y: 1230, r: 420 }, { x: 1350, y: 1100, r: 260 }],
@@ -7268,6 +7268,46 @@ ZONES.cinder = {
     mining: { n: 4, at: [[500, 700], [1300, 950], [2000, 1200], [900, 2200], [2500, 1800], [1600, 1700]], loot: [["iron_ore", 0.45], ["copper_ore", 0.2], ["fire_crystal", 0.25], ["earth_crystal", 0.1]] }
   },
   start: { x: 100, y: 1200 }
+};
+
+Object.assign(FAMILIES, {
+  reef_crab: tierFam("pond_crab", { name: "Reef Crab", color: "#e07a5a", tint: 0xe07a5a, hpMul: 1.1, weak: { lightning: 1.3 }, loot: [["crab_shell", 0.45], ["water_crystal", 0.25], ["potion", 0.08]] }),
+  shore_lizard: tierFam("hill_lizard", { name: "Shore Lizard", color: "#7a9a6a", tint: 0x7a9a6a, tint2: 0xe8dcb0, loot: [["lizard_skin", 0.4], ["wind_crystal", 0.2], ["potion", 0.08]] }),
+  gale_talon: tierFam("birdfolk", { name: "Gale Talon", color: "#e8e0d0", loot: [["crag_feather", 0.4], ["wind_crystal", 0.25], ["hi_potion", 0.05]] }),
+  isle_snapper: tierFam("lake_snapper", { name: "Isle Snapper", color: "#4a8aa0", tint: 0x4a8aa0, loot: [["harbor_bream", 0.3], ["water_crystal", 0.3], ["potion", 0.08]] })
+});
+NM_FAMILIES.old_saltjaw = { hint: "Wreck Cove, Gull Isle · any time", base: "lake_snapper", name: "Old Saltjaw", hpMul: 2.8, attMul: 1.1, scale: 1.9, aura: "#4fc3f7", loot: [["saltjaw_earring", 0.35], ["harbor_bream", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 420 };
+ITEMS.saltjaw_earring = { name: "Saltjaw Earring", kind: "equip", icon: "🦷", rare: true, nm: true, rarity: "epic", slot: "ear", jobs: ALL_JOBS, lv: 15, price: 0, stats: { acc: 5, att: 5, res_water: 10 }, desc: "A tooth from Old Saltjaw, bound in silver." };
+ITEMS.gull_charm = { name: "Gull Charm", kind: "equip", icon: "🪶", rare: true, slot: "ear", jobs: ALL_JOBS, lv: 12, price: 0, stats: { agi: 2, eva: 3, mp: 10 }, desc: "Old Wend's lucky charm. Gulls follow whoever wears it." };
+ZONES.gullisle = {
+  name: "Gull Isle", w: 2200, h: 1800, theme: "field", palette: "beach", island: true,
+  exits: [],
+  npcs: [{ id: "ferry_isle", x: 380, y: 900 }, { id: "wend", x: 600, y: 760 }],
+  ambient: [{ type: "gull", x: 1100, y: 900, n: 6, r: 500 }, { type: "gull", x: 400, y: 900, n: 3, r: 160 }],
+  walls: [{ x: 1300, y: 500, w: 240, h: 200 }, { x: 900, y: 1200, w: 200, h: 160 }],
+  ruins: { walls: [[1600, 1250, 1760, 1300, 1.2], [1760, 1300, 1820, 1420, 0.8]], pillars: [[1700, 1200, 2.2]] },
+  landmarks: [
+    { id: "dock", name: "Gull Isle Landing", x: 420, y: 900, r: 200, xp: 50 },
+    { id: "lookout", name: "Gullsrest Cliffs", x: 1400, y: 380, r: 220, xp: 70 },
+    { id: "cove", name: "Wreck Cove", x: 1700, y: 1350, r: 240, xp: 80 },
+    { id: "grove", name: "Palm Grove", x: 1000, y: 900, r: 240, xp: 60 }
+  ],
+  spawns: [
+    { fam: "reef_crab", lv: [12, 13], x: 700, y: 1250 }, { fam: "reef_crab", lv: [13, 14], x: 1500, y: 1500 },
+    { fam: "shore_lizard", lv: [12, 14], x: 1000, y: 600 }, { fam: "shore_lizard", lv: [13, 14], x: 1200, y: 1100 },
+    { fam: "gale_talon", lv: [14, 15], x: 1550, y: 450 }, { fam: "gale_talon", lv: [14, 16], x: 1700, y: 650 },
+    { fam: "fishfolk", lv: [14, 15], x: 1650, y: 1150 }, { fam: "isle_snapper", lv: [14, 16], x: 1800, y: 1300, nm: { id: "old_saltjaw", lv: 17, chance: 0.12 } }
+  ],
+  water: [{ x: -380, y: 900, r: 620 }, { x: 2600, y: 900, r: 640 }, { x: 1100, y: -460, r: 760 }, { x: 1100, y: 2260, r: 760 }, { x: -200, y: -200, r: 600 }, { x: 2400, y: -200, r: 600 }, { x: -200, y: 2000, r: 600 }, { x: 2400, y: 2000, r: 600 }],
+  paths: [
+    { w: 36, pts: [[380, 900], [700, 880], [1000, 900], [1300, 1000], [1650, 1250]] },
+    { w: 28, pts: [[1000, 900], [1200, 700], [1400, 450]] }
+  ],
+  gather: {
+    logging: { n: 2, at: [[900, 700], [1100, 1050], [800, 1000]], loot: [["ash_log", 0.6], ["wind_crystal", 0.15]] },
+    harvesting: { n: 2, at: [[1200, 850], [700, 700], [1500, 1000]], loot: [["healing_herb", 0.6], ["water_crystal", 0.15]] }
+  },
+  start: { x: 420, y: 900 }
 };
 
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
@@ -7832,6 +7872,10 @@ Object.assign(NPCS, {
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
+WEATHER.gullisle = [["clear", 6], ["wind", 3], ["cloudy", 2], ["rain", 2], ["storm", 0.7]];
+FISH.gullisle = [["sea_bass", 6, 7], ["harbor_bream", 0, 4], ["tidecaller_tuna", 14, 1.2]];
+ACHIEVEMENTS.push({ id: "gullisle", icon: "🏝️", name: "Island Hopper", desc: "Take the ferry to Gull Isle.", test: s => (s.discovered || []).includes("gullisle") });
+CONFIG.ferryCost = 100;
 WEATHER.cinder = [["cloudy", 4], ["clear", 3], ["fog", 2], ["wind", 2], ["storm", 0.5]];
 ACHIEVEMENTS.push({ id: "cinder", icon: "🌋", name: "Trial by Fire", desc: "Set foot on Cinder Peak.", test: s => (s.discovered || []).includes("cinder") });
 WEATHER.verdant = [["rain", 5], ["cloudy", 3], ["fog", 2], ["clear", 2], ["storm", 1.2]];
@@ -7887,6 +7931,22 @@ Object.assign(BESTIARY, {
   ash_orc: { type: "Beastman", lore: "Orcs who forge their axes in the mountain's heat and cover themselves in ash for war." },
   cinder_bones: { type: "Undead", lore: "The scorched remains of climbers who never came back down." },
   pyreclaw: { type: "Lizard", lore: "A lizard as big as a cart, with fire in its throat. It suns itself on the Crater Rim at night." }
+});
+Object.assign(NPCS, {
+  ferry_harbor: { name: "Ferryman Coll", model: "ferryman", talk: "talkFerry", ferryTo: "gullisle" },
+  ferry_isle: { name: "Ferryman Coll's Mate", model: "ferryman", talk: "talkFerry", ferryTo: "harbor" },
+  wend: { name: "Old Wend", model: "wend", talk: "talkWend" }
+});
+Object.assign(QUESTS, {
+  isle_supper: { name: "Supper for Wend", giver: "Old Wend", npc: "wend", lv: 10, items: { sea_bass: 3 }, desc: "Bring Old Wend 3 Sea Bass. His knees won't take him to the water any more.", reward: { xp: 1800, gil: 400, item: "gull_charm", qty: 1 },
+    intro: "Oh, a visitor! I've lived on this rock forty years and the gulls are still my only neighbours. Mind doing an old man a kindness? I've a fierce hunger for sea bass, and my knees won't take me down to the shore.", progress: "3 Sea Bass. They bite off the island's shores and the harbour.", turn: "Oh, that smells like the old days. Here, take my charm. The gulls will know you're a friend." }
+});
+Object.assign(BESTIARY, {
+  reef_crab: { type: "Aquan", lore: "Red-shelled crabs that scuttle over Gull Isle's rocks at low tide." },
+  shore_lizard: { type: "Lizard", lore: "Green lizards that sun on the island's warm stones." },
+  gale_talon: { type: "Beastman", lore: "Crag Talons who nest on the island's cliffs and ride the sea wind." },
+  isle_snapper: { type: "Aquan", lore: "Snappers that lurk in the shallows around the island's coves." },
+  old_saltjaw: { type: "Aquan", lore: "A snapper older than the wreck in the cove it calls home." }
 });
 
 const S = {
@@ -11503,6 +11563,7 @@ function step(dt) {
   if (S.race) tickRace();
   if (S.pet) tickPet();
   tickGeo(dt);
+  tickFerry();
   tickBuddy(dt);
   tickAmbient(dt);
   tickStory();
@@ -12148,6 +12209,16 @@ const TALK = {
       { label: "Use a Chapel Sigil and enter (" + BATTLEFIELD.minutes + "-minute battle)", fn: () => { closeDialog(); const why = enterBattlefield(); if (why) { log(why, "sys"); sfx("error"); } } }
     ] : []);
   },
+  talkFerry(n) {
+    const to = ZONES[n.ferryTo];
+    openDialog(n.name, n.ferryTo === "gullisle" ? "The ferry runs out to Gull Isle and back. Fair seas today. " + CONFIG.ferryCost + " crystals a head." : "Ready to head back to Saltreach? " + CONFIG.ferryCost + " crystals.", [
+      { label: "Sail to " + to.name + " (" + CONFIG.ferryCost + " crystals)", fn: () => { closeDialog(); startFerry(n.ferryTo); } }
+    ]);
+  },
+  talkWend(n) {
+    const g = questOptions("wend", n);
+    openDialog(n.name, g.length ? "Ah, company! Sit, sit. Mind the gulls; they bite." : "The gulls and I thank you. Come back any time.", g);
+  },
   talkBrisa(n) {
     const g = questOptions("brisa", n);
     openDialog(n.name, g.length ? "Welcome to Ironvale, traveller. Stone walls, hot forges, and more work than hands. Pull up a crate." : "The pass is quiet for now. Come back when you've grown a little.", g);
@@ -12350,6 +12421,23 @@ function onRoad(e) {
     if (Math.hypot(e.x - a[0] - dx * t, e.y - a[1] - dy * t) < p.w * 0.6) return true;
   }
   return false;
+}
+function startFerry(to) {
+  if (S.ferry) return;
+  if (save.gil < CONFIG.ferryCost) { log("The ferry costs " + CONFIG.ferryCost + " crystals.", "sys"); return; }
+  if (player.engaged || S.party.some(p => p.engaged)) { log("Finish your fight before boarding.", "sys"); return; }
+  save.gil -= CONFIG.ferryCost;
+  const dest = to === "gullisle" ? { x: 440, y: 900 } : { x: 560, y: 720 };
+  S.ferry = { to, x: dest.x, y: dest.y, at: S.time + 6 };
+  log("You board the ferry. The sails fill, and the coast slips away... (6 seconds)", "npc");
+  sfx("zone");
+}
+function tickFerry() {
+  if (!S.ferry || S.time < S.ferry.at) return;
+  const f = S.ferry;
+  S.ferry = null;
+  enterZone(f.to, f.x, f.y);
+  log("The ferry bumps against the dock at " + ZONES[f.to].name + ".", "npc");
 }
 function resumePos() {
   const l = save.loc;
@@ -15635,13 +15723,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v12.3.0 · built 2026-10-14 04:40 PDT";
+const BUILD_INFO = "v12.4.0 · built 2026-10-14 04:52 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "12.4.0", date: "2026-10-14", title: "Gull Isle", items: [
+    "A ferry now sails from the Saltreach Harbor docks to Gull Isle and back. Talk to Ferryman Coll; the crossing costs " + CONFIG.ferryCost + " crystals and takes a few seconds at sea.",
+    "Gull Isle is a level 12–16 island with beaches, a palm grove, cliffs and a shipwreck cove, surrounded by open sea. Reef Crabs, Shore Lizards, Gale Talons, Reefkin and Isle Snappers live there, and Old Saltjaw may drop the Saltjaw Earring.",
+    "Old Wend, the island's only resident, has a quest that rewards the Gull Charm. Sea fishing is good off the island's shores.",
+    "New achievement: Island Hopper."
   ] },
   { v: "12.3.0", date: "2026-10-14", title: "Cinder Peak", items: [
     "A new area east of the Sunscar Desert: Cinder Peak, a volcano for levels 18–20. Black rock, drifting ash, rising embers and pools of glowing lava.",
@@ -16414,6 +16508,7 @@ function tabHelp() {
     ["Sunscar Desert", "17–20", "South of Ironvale. Sand, cacti and red mesas: Dune Lizards, Sand Crabs, Sun Wasps (day), Dune Worms, Needlekin, Cinder Bombs (night). Sunscar Gate, Titan's Ribs, the Glass Oasis, the Singing Dunes (NM Sandmaw) and the Red Spire"],
     ["Verdant Jungle", "17–20", "East of the Ashen Marsh. Huge trees, warm rain and green mist: Vine Crawlers, Jade Hornets (day), Strangler Saplings, Bloom Mandrakes (day), Jade Toads and a Crag Talon war band by the Overgrown Temple. Old Mossback, an ancient treant, walks the Heart of the Canopy"],
     ["Cinder Peak", "18–20", "East of the Sunscar Desert. A volcano of black rock, ash and glowing lava pools: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs, Cinder Bombs and Cinder Bones (night). The NM Pyreclaw suns itself on the Crater Rim at night. Rich mining; no fishing in lava"],
+    ["Gull Isle", "12–16", "Reached by ferry from the Saltreach docks (Ferryman Coll, " + CONFIG.ferryCost + " crystals each way, about 6 seconds at sea). Beaches, a palm grove and the Gullsrest Cliffs: Reef Crabs, Shore Lizards, Gale Talons, Reefkin and Isle Snappers. Old Wend has a favour to ask; the NM Old Saltjaw lurks in Wreck Cove. Good sea fishing"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🧭 Exploring the wilds", ul([
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
@@ -16629,7 +16724,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "12.3.0";
+const GAME_VERSION = "12.4.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -17145,6 +17240,7 @@ const TERRAIN_THEMES = {
   cave: { grassA: [78, 76, 80], grassB: [96, 90, 92], dirt: [110, 92, 74], rock: [96, 92, 100], sand: [120, 110, 96], cliff: [80, 78, 88], moss: [62, 92, 58] },
   crypt: { grassA: [70, 68, 76], grassB: [84, 82, 90], dirt: [92, 86, 96], rock: [80, 78, 88], sand: [96, 92, 100], cliff: [60, 58, 68], moss: [52, 70, 56] },
   snow: { grassA: [214, 222, 230], grassB: [236, 240, 246], dirt: [168, 160, 150], rock: [130, 136, 146], sand: [200, 205, 212], cliff: [120, 128, 140] },
+  beach: { grassA: [104, 132, 64], grassB: [128, 146, 72], dirt: [170, 150, 110], rock: [140, 132, 120], sand: [232, 214, 170], cliff: [130, 122, 110] },
   volcanic: { grassA: [62, 56, 54], grassB: [80, 70, 64], dirt: [100, 62, 44], rock: [66, 62, 64], sand: [92, 80, 74], cliff: [52, 48, 50] },
   jungle: { grassA: [52, 92, 36], grassB: [74, 118, 44], dirt: [92, 70, 46], rock: [92, 96, 84], sand: [130, 116, 84], cliff: [76, 84, 66], moss: [44, 86, 40] },
   desert: { grassA: [204, 176, 126], grassB: [222, 196, 146], dirt: [184, 140, 96], rock: [170, 124, 92], sand: [230, 206, 160], cliff: [160, 108, 78] },
@@ -17326,7 +17422,7 @@ function* buildFieldSteps(zone) {
       const we = wallE(px, py);
       if (we > -10) hgt += sstep(-10, 120, we) * amps[2] * (0.75 + NOISE.ridge(px * 0.01, py * 0.01, 3, 0, 309) * 0.5) * (theme === "field" ? 0.9 : 1.1);
     }
-    if (amps[2] > 0) {
+    if (amps[2] > 0 && !zone.island) {
       let t = sstep(-60, 260, e);
       t *= 1 - exitMask(px, py) * 0.97;
       const rough = NOISE.ridge(px * 0.006, py * 0.006, 4, 0, 307);
@@ -18552,6 +18648,7 @@ const BACKDROP = {
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
   marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
   harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
+  gullisle: { h: [8, 20, 50], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
   cinder: { h: [60, 130, 230], col: [0x3a2a26, 0x5a443e, 0x8a7a74], mark: "peak" },
   verdant: { h: [40, 80, 140], col: [0x2e5a2a, 0x4a7050, 0x7a9488], mark: "tree" },
   sunscar: { h: [40, 85, 150], col: [0x9a6a48, 0xb48a68, 0xd8b896], mark: "peak" },
@@ -18560,7 +18657,7 @@ const BACKDROP = {
 function buildBackdrop(field, root) {
   const th = themeOf(S.zone), B = BACKDROP[S.zoneId] || (th === "field" ? BACKDROP.hollow : null);
   W3.backdrop = []; W3.beacon = null;
-  if (!B || th === "cave" || th === "crypt" || th === "house") return;
+  if (!B || th === "cave" || th === "crypt" || th === "house" || S.zone.island) return;
   const cx = (field.x0 + field.w / 2) * U, cz = (field.y0 + field.h / 2) * U, half = Math.hypot(field.w, field.h) * U / 2;
   const radii = [half + 70, half + 190, half + 380], seed = hashStr(S.zoneId + "bd");
   let es = 0, en = 0;
@@ -18628,6 +18725,7 @@ const ATMOS = {
   marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
   frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
   harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  gullisle: { tint: 0xc4e2ee, haze: 0.28, far: 1.1, clouds: 0.6 },
   cinder: { tint: 0xffb488, haze: 0.3, far: 0.9, clouds: 0.85 },
   verdant: { tint: 0xb8d8a0, haze: 0.32, far: 0.85, clouds: 0.9 },
   sunscar: { tint: 0xffe2b8, haze: 0.22, far: 1.25, clouds: 0.3 },
@@ -19495,6 +19593,8 @@ const NPC_LOOK = {
   garrick: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: HAIR_COLORS[0] }, beard: 0x8a5a2c, longBeard: true, top: { type: "apron", color: 0x3a2a20, color2: 0x6a4a30 }, legs: 0x3a3028, boots: 0x2a1e14, gloves: 0x4a3020, belt: 0x2a1e14, weapon: "club", alwaysDrawn: false, prop: { girth: 1.2, shoulder: 0.215 } },
   pell: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[1] }, beard: HAIR_COLORS[1], top: { type: "apron", color: 0xd6c6a0, color2: 0x7a5230 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x4a4038, boots: 0x3a2a1e, belt: 0x5a3a20, prop: { girth: 1.12 } },
   brann: { build: 0, skin: SKIN_TONES[2], hair: { style: "spiky", color: 0x1d1d22 }, beard: 0x1d1d22, top: { type: "fur", color: 0x6a4a2a, region: "fur", sleeves: "none" }, pauldrons: 0x55585e, legs: 0x3a3028, legsRegion: "leather", boots: 0x2a1e14, gloves: 0x3a2a1e, belt: 0x2a1e14, weapon: "greataxe", prop: { girth: 1.15, shoulder: 0.22 } },
+  ferryman: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[0] }, beard: HAIR_COLORS[0], top: { type: "vest", color: 0x2a4a6a, region: "cloth", under: 0xe8e0d0 }, head: { type: "bandana", color: 0xa0302a }, legs: 0x3a3a44, boots: 0x2a1e14, belt: 0x3a2412 },
+  wend: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: 0xe0e0e0 }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x8a7a5a, trim: 0x4a6a8a }, legs: 0x4a4a40, barefoot: true },
   brisa: { build: 1, skin: SKIN_TONES[2], hair: { style: "braid", color: HAIR_COLORS[4] }, top: { type: "coat", color: 0x4a3a2a, trim: 0xb0b8c0 }, collar: 0xe8e0d0, legs: 0x3a3028, boots: 0x2a1a10, gloves: 0x5a4030, belt: 0x2a1a10 },
   haldor: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x9a9a9a, longBeard: true, top: { type: "apron", color: 0x3a3430, color2: 0x5a4030 }, legs: 0x2e2a26, boots: 0x1e1610, gloves: 0x3a2a1e, belt: 0x2a1a10, prop: { girth: 1.2 } },
   orla: { build: 1, skin: SKIN_TONES[0], hair: { style: "bob", color: HAIR_COLORS[1] }, top: { type: "coat", color: 0x2a3a4a, trim: 0xd8c070 }, legs: 0x2a2a30, boots: 0x1a1410, belt: 0x3a2412 },

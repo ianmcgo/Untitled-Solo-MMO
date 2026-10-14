@@ -1110,6 +1110,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - textures `TERRAIN_THEMES.volcanic`. world3d: volcanic vegetation (trees ×0.08, rocks ×1.8, small ×1.5, tufts ×0.06, no bushes/flowers); rock material tinted dark (volcanic) or sandy (desert); lava water = emissive orange MeshStandardMaterial with scrolling normal map. effects3d: rising embers and falling ash near the player in volcanic zones.
 - Tests: p38unit.
 
+## Phase 79: Gull Isle and the ferry (v12.4.0)
+- data.js: families reef_crab, shore_lizard, gale_talon (birdfolk), isle_snapper; NM `old_saltjaw` → saltjaw_earring; gull_charm (quest `isle_supper` from Old Wend). `ZONES.gullisle` (2200×1800, palette "beach", `island: true`, no exits, 8 large water circles around the edges as the sea, gulls ambient). NPCs ferry_harbor (Saltreach docks), ferry_isle, wend (file tail). FISH.gullisle, WEATHER, achievement `gullisle`, CONFIG.ferryCost 100.
+- game.js: talkFerry → `startFerry(to)` (fare, not in a fight; `S.ferry {to,x,y,at: +6 s}`), `tickFerry()` from step enters the destination. talkWend → questOptions("wend").
+- world3d: `zone.island` skips the edge cliff raise in buildFieldSteps and skips backdrop ridges (open sea horizon). textures `TERRAIN_THEMES.beach`. rig NPC_LOOK ferryman, wend.
+- Tests: p39unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1146,7 +1152,7 @@ New zones (one per release; each gets its own monsters, NM, gathering, quests, l
 - 76 DONE (12.1.0; buried temple not yet) Sunscar Desert: dunes, buried temple, sandworm NM, daytime heat that drains MP (shade/water items counter it).
 - 77 DONE (12.2.0) Verdant Jungle: dense canopy, rope bridges, vine-covered ruins.
 - 78 DONE (12.3.0) Cinder Peak: volcano, lava flows, fire elementals, top-tier smithing ore.
-- 79 (12.4.0) Gull Isle: coastal island reached by ferry; sea cliffs, pirate caves, lighthouse.
+- 79 DONE (12.4.0) Gull Isle: coastal island reached by ferry; sea cliffs, pirate caves, lighthouse.
 - 80 (12.5.0) The Spire: multi-floor tower dungeon, harder per floor, boss at the top.
 - 81 (12.6.0) Underdeep River: underground river by boat, glowing caves, fishing.
 - 82 (12.7.0) Highland plateau: open grassland, large mount area, nomad camps.
@@ -1189,6 +1195,7 @@ World systems:
 | 12.1.0 | Phase 76: Sunscar Desert. |
 | 12.2.0 | Phase 77: Verdant Jungle; scroll drop fix. |
 | 12.3.0 | Phase 78: Cinder Peak volcano. |
+| 12.4.0 | Phase 79: Gull Isle and the ferry. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |
