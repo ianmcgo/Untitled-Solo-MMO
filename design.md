@@ -907,10 +907,14 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - game.js: spawnOpts(sp) = [sp, ...alts] valid for the period; spawnAllowed true if any; spawnMob(i, wantNm) picks a story/wanted NM option first, else random; mob.spawnOpt kept for period despawns; summonStoryFoe and NM lookups (spawnHas, bestiary zones, netWanted ids) search alts.
 - Tests updated for sparse spawns (p1, p5, p5d, p6, p17, p24, p25).
 
+## Phase 46: classic windows everywhere (v9.6.0)
+- template4 CSS: #mBody h3 → pale gradient title bar; #mBody .item → flat rows with separators; details/summary → classic headings; range sliders accent blue; .sub/.d use --ffFont.
+- Help text updated (first hire via daily hall, Heal via self menu, Config names, compass map, Party window, Pip job changes); intro log line points to Pip; mercenary role labels.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
-- 46 (9.6.0) Remaining classic windows (Crafting, Storage, Party, Bestiary, Achievements, Social, Config, Map, Help, Updates) + Help rewrite.
+- 46 (9.6.0) Remaining classic windows + Help rewrite: DONE.
 - 47 (9.7.0) Offline play: a separate offline character list stored only on the device (flag offline: true, own storage key). Plays solo with mercenaries and NPC systems; online-only features (other players, party/trade/tells, linkshells, player auction house, search, server bounties) hidden. Offline characters can never be uploaded, imported or converted to online: the client refuses, the export format is marked offline and rejected by the online import, and the server save trigger/RPCs reject any save carrying the offline flag or an offline-only id. Title screen gets Play Online / Play Offline; offline needs no login.
 - 48 (9.8.0) G1 Sky and light: sky dome gradient + layered moving clouds, sun/moon/stars, time-of-day colour grading, per-zone fog colour/distance, hemisphere + sun light balance, weather tints.
 - 49 (9.9.0) G2 Terrain: painted texture splatting (grass/dirt/path/rock/sand/snow) by height/slope/zone, detail textures up close, cliff and rock-face meshes, smoother height variety, path decals.
@@ -963,6 +967,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.6.0 | Phase 46: classic styling for all remaining windows, Help rewrite. |
 | 9.5.1 | Spawn points 3 grid squares apart, clear of exits, alternate monsters per point. |
 | 9.5.0 | Phase 45: generated daily mercenaries, permadeath, freeze-proof loop. |
 | 9.4.0 | Phase 44: spell scrolls, keyboard windows, Pip jobs, easier start, Ctrl/Shift hotkeys, UI polish. |
