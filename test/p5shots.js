@@ -18,6 +18,7 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   await page.waitForTimeout(2500);
   await page.screenshot({ path: out + '-create.png' });
   await page.click('[data-job="BLM"]'); await page.click('[data-look="hairStyle"][data-d="1"]'); await page.click('[data-look="skin"][data-d="1"]'); await page.click('[data-look="height"][data-d="1"]'); await page.click('[data-look="girth"][data-d="1"]'); await page.click('[data-look="girth"][data-d="1"]');
+  for (let i = 0; i < 8 && !(await page.$('#ccName')); i++) { await page.click('[data-next]'); await page.waitForTimeout(150); }
   await page.fill('#ccName', 'Tessa');
   await page.waitForTimeout(1500);
   await page.screenshot({ path: out + '-create2.png' });

@@ -264,11 +264,11 @@ function renderPreview(now) {
     pv.scene.add(holder);
     pv.holder = holder;
     pv.sig = sig;
-    const top = inst.meta.headTop || 1.8;
-    pv.cam.position.set(0, top * 0.62, top * 2.15);
-    pv.cam.lookAt(0, top * 0.5, 0);
+    pv.top = inst.meta.headTop || 1.8;
   }
-  if (!pv.spinPause || now - pv.spinPause > 2500) pv.rot += dt * 0.35;
+  { const top = pv.top || 1.8, ft = pv.focus || 0; pv.fz = (pv.fz == null ? ft : pv.fz) + (ft - (pv.fz == null ? ft : pv.fz)) * Math.min(1, (dt || 0.016) * 5); const f = pv.fz; pv.cam.position.set(0, top * (0.62 + 0.33 * f), top * (2.15 - 1.62 * f)); pv.cam.lookAt(0, top * (0.5 + 0.42 * f), 0); }
+  if (pv.focus && (!pv.spinPause || now - pv.spinPause > 2500)) { const tgt = Math.round(pv.rot / (Math.PI * 2)) * Math.PI * 2; pv.rot += (tgt - pv.rot) * Math.min(1, dt * 3); }
+  else if (!pv.spinPause || now - pv.spinPause > 2500) pv.rot += dt * 0.35;
   pv.holder.rotation.y = pv.rot;
   try { poseHuman(pv.view, pv.ent, dt || 0.016); placeWeapon(pv.view, pv.ent); } catch (e) {}
   pv.r.render(pv.scene, pv.cam);
@@ -1478,6 +1478,16 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.6.0", date: "2026-10-14", title: "New character creation", items: [
+    "Character creation is now a step-by-step flow like the classic online RPGs: Race → Gender → Face → Hair colour → Size → Name and job.",
+    "Race: pick from five cards, with each race's description and its HP, MP and attribute bonuses. Ursan (always male) and Nekari (always female) skip the Gender step.",
+    "Face: choose from eight painted face portraits. Each face comes with its own hairstyle and skin tone, as in the classics, so there are no separate hairstyle or skin pickers any more.",
+    "Hair colour: a palette of eight colours.",
+    "Size: Small, Medium or Large. It is only for looks and doesn't change your stats.",
+    "The 3D preview zooms in on the face for the Face and Hair colour steps and turns to face you.",
+    "Numbered tabs along the top let you jump back to any step; 🎲 rolls a random look; Back returns to the previous step.",
+    "Everything fits on a phone screen without scrolling. Existing characters keep their looks."
+  ] },
   { v: "15.5.0", date: "2026-10-14", title: "Anime faces", items: [
     "Every player race and townsperson now has a cartoon/anime face in the spirit of classic online RPGs: large glossy eyes with two highlights, a tall shaded iris, a thick upper lash line, a tiny nose and a small mouth.",
     "Eight face types: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud. Each has its own eye shape (round, narrow, upturned, droopy, half-lidded), eye colour, brows and mouth.",
@@ -2401,7 +2411,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Faces are drawn in a cartoon/anime style: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud, each with its own eye shape, eye colour, brows and mouth. Women's faces have heavier lashes, a lip tint and a blush. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked). Set Graphics to High for the sharpest faces and clothing.",
+    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each face comes with its own hairstyle and skin tone) → <b>Hair colour</b> → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b>. Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));

@@ -1333,6 +1333,15 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Hair: fringe styles (bob, long, twintails, wavy) front edge −0.5 / −0.42 and front locks 0.13 long so they stop at the brows.
 - Test tool: test/faceshot.js (own WebGL renderer with ACES so render targets are tone mapped like the game; poses front, q, lid0, lidh).
 
+## Phase 110.2: Creation flow (v15.6.0) — Track 0
+- `showCharCreate` (main4.js) is a stepper: `CC_STEPS` race, gender, face, hair, size, name; `ccSteps(look)` drops gender when `RACES[race].sex` is set. `CC.step` indexes the filtered list. `paint()` rebuilds `#ccSteps`, `#ccStepT`, `#ccBody`; the name input is wired only when the name step renders. The Next button carries `data-create` on the last step (tests click `[data-next]` until `#ccName` exists, then `[data-create]`).
+- Face drives hairstyle and skin like classic MMO face types: `CC_FACE_HAIR[sex][face]`, `CC_FACE_SKIN[sex][face]`, applied by `ccApplyFace` whenever race, gender or face changes. Saved looks still store hairStyle and skin, so old characters and the renderer are unchanged.
+- Size: `CC_SIZES` Small (height 0, girth 1), Medium (2, 2), Large (4, 3). Cosmetic only, as in classic MMO (the plan line about a stat effect was wrong: classic MMO sizes don't change stats).
+- Face thumbnails: `ccFaceThumb` paints the face into a skin-filled canvas with `paintFace` and crops x 26–102, y 66–174 (cell units) to 72 × 60, which also undoes the 1.7 vertical paint stretch. Cached per face/sex/cell size in `CC.thumbs`.
+- Preview (`renderPreview`): `pv.focus` 1 on face and hair steps; `pv.fz` eases the camera from full body to head (y 0.62→0.95 of head-top, z 2.15→0.53, look-at 0.5→0.92) and eases `pv.rot` to the nearest front-facing turn instead of spinning.
+- CSS: `.ccSteps`, `.ccStepT`, `.ccGrid` (`.ccRaces`, `.ccTwo`, `.ccSizes`, `.ccFaces` 4 columns, `.ccHair` 8 or 4 on phones), `.ccCard2`, `.ccFaceB`, `.ccSw`, `.ccInfo2`; selected state forced with `#charSel … .on` because the FF theme overrides button colours with !important.
+- Screenshot tool: /tmp ccshot.js (offline play, walks every step at 1100 × 720 and 412 × 780; no page scroll on either).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1385,6 +1394,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.6.0 | Phase 110.2: step-by-step character creation (race, gender, face, hair colour, size, name and job). |
 | 15.5.0 | Phase 110.1: anime faces (8 face types, male/female paints, smoother heads, fringes at the brows). |
 | 15.4.0 | Phase 110: city life: crowds, guard patrols, district signposts, district ambience, tour quests. |
 | 15.3.0 | Phase 109: warp stones in every district, free in-city warps, paid inter-city warps, /warp. |
