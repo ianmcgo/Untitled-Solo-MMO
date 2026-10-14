@@ -2371,3 +2371,4 @@ Object.assign(ITEMS, {
   pathfinder_mantle: { name: "Pathfinder's Mantle", kind: "equip", icon: "🧣", rare: true, slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 6, hp: 30, str: 2, int: 2, agi: 2 }, desc: "Given only to those who have stood at the edges of every map." }
 });
 ACHIEVEMENTS.push({ id: "expeditions", icon: "🗺️", name: "Far Traveller", desc: "Complete every Guild expedition.", test: s => s.expDone && Object.keys(EXPEDITIONS).every(k => s.expDone[k]) });
+ACHIEVEMENTS.push({ id: "atlas", icon: "🧭", name: "Cartographer", desc: "Set foot in every area on the world atlas.", test: s => ["highlands", "outpost", "hollow", "den", "crypt", "depths", "marsh", "verdant", "underdeep", "harbor", "gullisle", "frost", "ironvale", "sunscar", "cinder", "spire1"].every(z => (s.discovered || []).includes(z)) });

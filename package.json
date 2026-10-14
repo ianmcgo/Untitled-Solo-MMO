@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "13.2.0",
-  "releaseTitle": "Expeditions",
+  "version": "13.3.0",
+  "releaseTitle": "World atlas",
   "description": "",
   "main": "index.js",
   "scripts": {

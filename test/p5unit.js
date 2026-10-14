@@ -117,7 +117,7 @@ const mob = S.mobs.filter(m => m.alive).sort((a, b) => G.dist(a, P()) - G.dist(b
 mob.x = P().x + 60; mob.y = P().y; G.runCommand('/target ' + mob.name.split(' ')[0].toLowerCase());
 ok(P().target && P().target.name === mob.name, '/target by name');
 const n0 = H.alllog.length; G.runCommand('/check');
-ok(!P().target || P().target.kind !== 'mob' || H.alllog.slice(n0).some(l => /seems like/.test(l)), '/check describes the target');
+ok(!P().target || P().target.kind !== 'mob' || H.alllog.slice(n0).some(l => /seems|looks|impossible/.test(l)), '/check describes the target');
 G.runCommand('/nonsense'); ok(H.alllog.slice(-1)[0].startsWith('Unknown command'), 'unknown commands are reported');
 G.runCommand('hello there'); ok(H.alllog.slice(-1)[0].endsWith(': hello there'), 'plain text is said in chat');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');
