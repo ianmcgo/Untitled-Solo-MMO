@@ -755,11 +755,25 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Known limits: names in broadcasts are client-claimed (spoofable); monsters, loot and NPC state remain per-client; no party/trade yet (phase 10).
 - Tests: netshots.js mocks presence/mv/chat/tell and screenshots the outpost with two remote players.
 
+## Phase 32: parties and trading (v8.2.0) — multiplayer phase 10
+- All in src/net.js (NET_PT), no new tables. Config in data.js CONFIG: partyMax 6, partyRange 900, partyShare [1,1,.6,.45,.37,.32,.28] (index = players nearby), tradeRange 250, tradeSlots 8.
+- World channel events (addressed by lowercase name in `to`): pinv/pdecl (party invite), trq/tok/tno (trade request), toff (offer), tcf (accept with hash), tcx (cancel).
+- Party channel `party:<pid>` (pid = charId prefix + time, made by the inviter): presence meta {id,name,t(join ms)}; leader = smallest t (inviter). Broadcasts: pst (stats every 0.5 s on change, 4 s keepalive: job/sub/lv/zone/x/y/hp/mp/tp/alive/buff keys), pchat, kill, pool, lot, win, kick, fx. Members map NET_PT.members (id → stats, at = last pst). netPartyNear = members in same zone, alive, within partyRange, fresh < 12 s.
+- XP (game.js kill code): pn = 1 + near mates; top = highest level among them; each gets round(xpFor(mobLv, top) * partyShare(pn) * ownLv / top), chain multiplier from the killer's chain. Killer sends kill {ids, n, top, ch, gil, fam}; recipients re-check zone + distance, gainXp, add gil share, kills++, questKillCredit(fam) (factored out of kill code), bountyKill({famKey}).
+- Loot: dropLoot(m, mates) — equip goes to pool when companions or mates; addToPool returns the entry; netPoolOut tags e.net {key, owner, ids, lots}. Non-owner clients mirror the entry (e.net.owner false), auto-lot at timeout, drop 20 s after. Owner resolves when all ids lotted (or left) or until+3 s, highest of own/merc/net lots, broadcasts win {win: charId | "merc" | null}. Gil split floor(total / pn). Other drops stay with the killer.
+- Cross-player magic: isMate(e) = remote entity whose id is a party member. checkAction/resolveTarget accept mates for ally spells; finishCast → netCastOn (heal sends healAmount(), buff sends spell id); receiver netOnFx validates spell kind, range, clamps amount, applies.
+- Remote players are now pickable: tap → target box (remote branch in updateTarget) + command box (Invite/Magic, Trade, Tell, Check). Party frame rows from partyRows() = S.party + net members (class net, far = other zone; tap targets if in zone).
+- Trade: NET_PT.trade {name,id,mine,theirs,myOk,theirOk(hash),msg}. Any offer change sends toff and clears both accepts. Accept → netTradeCheck (own items/gil still there, bag room via tradeRoom (conservative: existing slots + new stacks), rare duplicates, distance) → tcf with tradeHash(both offers sorted by name). Both sides execute independently when hashes match, then saveGame + netFlush. tradeable = not key, not ex. Closing the Trade tab cancels (closeModal guard). Menu re-renders via netPartySig in menuSig.
+- Commands: /invite (/pinvite, /pcmd add|leave|kick), /join, /decline, /leave, /kick, /p and /party text, /trade [Name]. Log class pchat (cyan), included in the Chat filter.
+- Known limits: everything is client-trusted (a modified client could fake kills, lots or trades); trade execution is two independent commits, so a crash between them can lose or duplicate; monsters still per-client, so mates fight separate copies. Server-side validation and shared monsters are phase 11.
+- Tests: netshots.js simulates invite, presence, pst, kill share, pool lot/win, heal/buff fx, party chat, target command box, and a full trade.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.2.0 | Phase 32: player parties (shared XP, pool, crystals, cures), trading. |
 | 8.1.0 | Phase 31: see other players in your zone, say/shout/tell/who chat. |
 | 8.0.0 | Phase 30: Supabase accounts, cloud saves, sign-up password, admin panel; offline play removed. |
 | 7.0.0 | Phase 29: blinking, hair and cape sway, NPC work poses and look-at, ambient animals and walkers, town props. |

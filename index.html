@@ -169,7 +169,11 @@
   #chatIn::placeholder { color: #8c8a84; }
   #log .say { color: #f4f1e8; }
   #log .shout { color: #ffab91; font-weight: 600; } #log .tell { color: #f48fb1; }
-  #log.f-chat div:not(.say):not(.shout):not(.tell):not(.party) { display: none; }
+  #log.f-chat div:not(.say):not(.shout):not(.tell):not(.party):not(.pchat) { display: none; }
+  #log .pchat { color: #80deea; }
+  .pf.net .nm { color: #9fd0ff; } .pf.far { opacity: .62; }
+  .trd { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .trd .side { border: 1px solid var(--edge2); border-radius: 10px; padding: 8px; min-height: 120px; } .trd .side.ok { border-color: #8fd66a; box-shadow: 0 0 0 1px rgba(143,214,106,.35); } .trd .ln { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 3px 0; font-size: 13px; }
+  @media (max-width: 720px) { .trd { grid-template-columns: 1fr; } }
 
   #bottom { position: absolute; left: 50%; bottom: calc(8px + var(--sab)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; }
   #castBar { width: 260px; display: none; padding: 4px 7px; text-align: center; font-size: 11px; }
@@ -524,7 +528,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.1.0 · built 2026-10-13 18:41 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.2.0 · built 2026-10-13 18:53 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5374,7 +5378,7 @@ const CONFIG = {
   levelCap: 20,
   bowRange: 230,
   foodMinutes: 30,
-  poolTime: 45,
+  poolTime: 45, partyMax: 6, partyRange: 900, partyShare: [1, 1, 0.6, 0.45, 0.37, 0.32, 0.28], tradeRange: 250, tradeSlots: 8,
   meleeRange: 42,
   tpMax: 3000,
   tpPerDelay: 40,
@@ -6811,6 +6815,7 @@ const an = n => (/^[aeiou]/i.test(n) ? "an " : "a ") + n;
 const fmt = s => s < 10 ? s.toFixed(1) : String(Math.ceil(s));
 const isMob = e => !!e && e.kind === "mob";
 const isParty = e => !!e && (e.kind === "pc" || e.kind === "ally");
+const isMate = e => !!e && e.kind === "remote" && typeof netIsMate === "function" && netIsMate(e.id);
 const subj = e => e === player ? "You" : isMob(e) ? "The " + e.name : e.name;
 const obj = e => e === player ? "you" : isMob(e) ? "the " + e.name : e.name;
 const vb = (e, v, s) => e === player ? v : (s || v + "s");
@@ -7647,19 +7652,16 @@ function onKO(e, src) {
       noteBeast(e, true);
       if (e.fam.nm) { save.stats.nm++; save.nmKilled[e.famKey] = (save.nmKilled[e.famKey] || 0) + 1; }
       for (const id of save.hired) if (S.party.some(p => p.mercId === id)) addBond(id, e.fam.nm ? 4 : xpFor(e.lv, player.lv) > 0 ? 1 : 0);
-      const xp = xpFor(e.lv, player.lv);
-      if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
-      dropLoot(e);
+      const mates = typeof netPartyNear === "function" ? netPartyNear(e.x, e.y) : [];
+      const pn = 1 + mates.length, top = Math.max(player.lv, ...mates.map(m => m.lv || 1));
+      const xp = pn > 1 ? Math.round(xpFor(e.lv, top) * partyShare(pn) * player.lv / top) : xpFor(e.lv, player.lv);
+      let ch = 0;
+      if (xp > 0) { ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
+      const gilShare = dropLoot(e, mates);
+      if (pn > 1) netPartyKill(e, mates, top, pn, ch, gilShare);
       bountyKill(e);
       storyKill(e);
-      for (const id in QUESTS) {
-        const q = QUESTS[id];
-        if (!q.kill || save.quests[id] !== "active") continue;
-        if (q.kill.fam !== e.famKey) continue;
-        const n = (save.qprog[id] || 0) + 1;
-        save.qprog[id] = Math.min(q.kill.n, n);
-        if (n <= q.kill.n) { log("Quest progress: " + q.kill.name + " " + Math.min(n, q.kill.n) + "/" + q.kill.n + ".", "npc"); if (n === q.kill.n) { log("Quest updated: report to " + q.giver + ".", "npc"); sfx("notify"); } }
-      }
+      questKillCredit(e.famKey);
       if (e.famKey === "chieftain" && save.quests.chieftain === "active") {
         save.quests.chieftain = "killed";
         log("Quest updated: report the Chieftain's defeat to Captain Rhea.", "npc");
@@ -7699,6 +7701,19 @@ function chainInfo() {
   const c = S.chain;
   if (c.n < 0 || S.time >= c.until) return null;
   return { n: c.n, left: c.until - S.time, frac: (c.until - S.time) / CONFIG.chainWindow, next: Math.min(c.n + 1, CONFIG.chainMax) };
+}
+
+function partyShare(n) { return CONFIG.partyShare[Math.min(n, CONFIG.partyShare.length - 1)]; }
+
+function questKillCredit(fam) {
+  for (const id in QUESTS) {
+    const q = QUESTS[id];
+    if (!q.kill || save.quests[id] !== "active") continue;
+    if (q.kill.fam !== fam) continue;
+    const n = (save.qprog[id] || 0) + 1;
+    save.qprog[id] = Math.min(q.kill.n, n);
+    if (n <= q.kill.n) { log("Quest progress: " + q.kill.name + " " + Math.min(n, q.kill.n) + "/" + q.kill.n + ".", "npc"); if (n === q.kill.n) { log("Quest updated: report to " + q.giver + ".", "npc"); sfx("notify"); } }
+  }
 }
 
 function xpNeed(lv) { return lv >= CONFIG.levelCap ? 0 : CONFIG.xpTable[lv]; }
@@ -7780,30 +7795,36 @@ function giveKeyItem(id) {
   return true;
 }
 
-function dropLoot(m) {
+function dropLoot(m, mates) {
+  mates = mates || [];
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
     if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
-    if (ITEMS[id].kind === "equip" && S.party.length > 1) { addToPool(id); continue; }
+    if (ITEMS[id].kind === "equip" && (S.party.length > 1 || mates.length)) { const pe = addToPool(id); if (mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); continue; }
     giveItem(id, 1);
   }
   if (m.fam.gil) {
-    const g = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
+    const total = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
+    const g = mates.length ? Math.floor(total / (1 + mates.length)) : total;
     save.gil += g;
-    log("You obtain " + g + " crystals.", "loot");
+    log("You obtain " + g + " crystals" + (mates.length ? " (party share)" : "") + ".", "loot");
     sfx("coin");
+    return mates.length ? g : 0;
   }
+  return 0;
 }
 
 function addToPool(id) {
   S.pool = S.pool || [];
-  S.pool.push({ id, until: S.time + CONFIG.poolTime, lots: {}, mine: null, seq: ++S.mobSeq });
+  const e = { id, until: S.time + CONFIG.poolTime, lots: {}, mine: null, seq: ++S.mobSeq };
+  S.pool.push(e);
   log("The " + ITEMS[id].name + " goes into the treasure pool.", "loot");
   sfx("loot");
   uiEvent("pool", { id });
+  return e;
 }
 
 function poolUpgrade(merc, id) {
@@ -7819,6 +7840,7 @@ function lotPool(seq, pass) {
   if (!e || e.mine != null) return;
   if (pass) { e.mine = 0; log("You pass on the " + ITEMS[e.id].name + ".", "sys"); }
   else { e.mine = 1 + Math.floor(Math.random() * 999); log("You lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); }
+  if (e.net && typeof netLotOut === "function") netLotOut(e);
   sfx("select");
   tickPool(true);
 }
@@ -7826,19 +7848,28 @@ function lotPool(seq, pass) {
 function tickPool(force) {
   if (!S.pool || !S.pool.length) return;
   for (const e of S.pool.slice()) {
+    if (e.net && !e.net.owner) {
+      if (e.mine == null && S.time >= e.until) { e.mine = 1 + Math.floor(Math.random() * 999); log("Time's up: you lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); if (typeof netLotOut === "function") netLotOut(e); }
+      if (S.time > e.until + 20) S.pool.splice(S.pool.indexOf(e), 1);
+      continue;
+    }
     for (const m of S.party) {
       if (m === player || !m.mercId || e.lots[m.mercId] != null) continue;
       if (S.time < e.until - CONFIG.poolTime + 1.5) continue;
       if (poolUpgrade(m, e.id)) { e.lots[m.mercId] = 1 + Math.floor(Math.random() * 999); log(m.name + " lots " + e.lots[m.mercId] + " on the " + ITEMS[e.id].name + ".", "party"); }
       else e.lots[m.mercId] = 0;
     }
-    const allIn = e.mine != null && S.party.every(m => m === player || !m.mercId || e.lots[m.mercId] != null);
-    if (!allIn && S.time < e.until) continue;
+    const netIn = !e.net || e.net.ids.every(id => e.net.lots[id] != null || !netIsMate(id));
+    const allIn = e.mine != null && netIn && S.party.every(m => m === player || !m.mercId || e.lots[m.mercId] != null);
+    if (!allIn && S.time < e.until + (e.net ? 3 : 0)) continue;
     if (e.mine == null) { e.mine = 1 + Math.floor(Math.random() * 999); log("Time's up: you lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); }
     S.pool.splice(S.pool.indexOf(e), 1);
     let best = e.mine, who = e.mine > 0 ? "me" : null;
     for (const k in e.lots) if (e.lots[k] > best) { best = e.lots[k]; who = k; }
+    if (e.net) for (const k in e.net.lots) if (e.net.lots[k] > best && netIsMate(k)) { best = e.net.lots[k]; who = "net:" + k; }
+    if (e.net) netWinOut(e, who === "me" ? S.charId : !who ? null : who.startsWith("net:") ? who.slice(4) : "merc", who === "me" ? save.name : !who ? "" : who.startsWith("net:") ? NET_PT.members.get(who.slice(4)).name : MERCS[who].name);
     if (!who) { log("Nobody wanted the " + ITEMS[e.id].name + ". It is lost.", "sys"); continue; }
+    if (who.startsWith("net:")) { log(NET_PT.members.get(who.slice(4)).name + " obtains the " + ITEMS[e.id].name + ".", "loot"); continue; }
     if (who === "me") { save.stats.lotsWon++; giveItem(e.id, 1); continue; }
     const it = ITEMS[e.id], own = save.mercGear[who] = save.mercGear[who] || {};
     if (own[it.slot]) giveItem(own[it.slot], 1, true);
@@ -8466,7 +8497,7 @@ function checkAction(a, act, t) {
     if (recastLeft(a, "ma:" + act.id) > 0) return sp.name + " is not ready.";
     if (a.mp < sp.mp) return "Not enough MP.";
     if (sp.target === "enemy" && (!t || !isMob(t) || !t.alive)) return "No valid target.";
-    if (sp.target === "ally" && (!t || !isParty(t) || !t.alive)) return "Invalid target.";
+    if (sp.target === "ally" && (!t || !(isParty(t) || (a === player && isMate(t))) || !t.alive)) return "Invalid target.";
     if (dist(a, t) > CONFIG.castRange) return "Target is out of range.";
     return "";
   }
@@ -8679,6 +8710,7 @@ function finishCast(a) {
   a.recasts["ma:" + id] = S.time + sp.recast;
   touch(a);
   if (a === player) trySkillUp(spellSkill(sp), isMob(t) ? t.lv : null);
+  if (isMate(t)) { netCastOn(a, t, sp, id); return; }
   if (sp.kind === "heal") castHeal(a, t, sp);
   else if (sp.kind === "nuke") castNuke(a, t, sp);
   else if (sp.kind === "dot") castDia(a, t, sp);
@@ -8690,10 +8722,14 @@ function finishCast(a) {
   if (a !== player && a.mp < a.maxMp * 0.15) partySay(a, "lowmp");
 }
 
-function castHeal(a, t, sp) {
+function healAmount(a, sp) {
   let amt = (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
   if (a.buffs.divine_seal) { amt *= 2; delete a.buffs.divine_seal; }
-  amt = Math.round(amt * rand(0.95, 1.05));
+  return Math.round(amt * rand(0.95, 1.05));
+}
+
+function castHeal(a, t, sp) {
+  const amt = healAmount(a, sp);
   const real = Math.max(0, Math.min(amt, t.maxHp - t.hp));
   t.hp += real;
   if (real > 0) {
@@ -10068,7 +10104,7 @@ function resolveTarget(act) {
   if (act.kind === "ja") return ABILITIES[act.id].target === "self" ? player : (isMob(player.target) ? player.target : player.attackTarget);
   const sp = SPELLS[act.id];
   if (sp.target === "self") return player;
-  if (sp.target === "ally") return isParty(player.target) && player.target.alive ? player.target : player;
+  if (sp.target === "ally") return (isParty(player.target) || isMate(player.target)) && player.target.alive ? player.target : player;
   return isMob(player.target) ? player.target : player.attackTarget;
 }
 
@@ -10784,10 +10820,16 @@ const COMMANDS = [
   ["/shout text", "Talk to everyone in this area. Also /sh."],
   ["/tell Name text", "Private message to a player anywhere. Also /t. /r replies to the last tell."],
   ["/who", "List players online and where they are."],
+  ["/invite Name", "Invite a player to your party (up to 6 players). Also /pcmd add Name."],
+  ["/join · /decline", "Accept or turn down a party invitation."],
+  ["/p text", "Talk to your party, wherever they are. Also /party text."],
+  ["/leave", "Leave your party."],
+  ["/kick Name", "Party leader only: remove a player from the party."],
+  ["/trade Name", "Ask a nearby player to trade items and crystals."],
   ["/fish", "Cast a line at the water's edge (needs a Willow Rod and Fishing Bait). Type it again when something bites to reel in."],
   ["/weather", "Show the current weather and its element bonus."],
   ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
-  ["/party", "Open the Party tab: companions, stance, gear, bond and wages. Also P."],
+  ["/party", "Open the Party tab: players, companions, stance, gear, bond and wages. Also P."],
   ["/bestiary", "Open the bestiary. Also Y."],
   ["/achievements", "Open your achievements."],
   ["/stand", "Stand up."],
@@ -10848,7 +10890,15 @@ function runCommand(text) {
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
     case "fish": { if (S.fish && S.fish.state === "bite") { reelFish(); return; } const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "weather": { const w = weatherNow(); log(w ? "Weather: " + WEATHER_INFO[w].name + (WEATHER_INFO[w].el ? " (" + WEATHER_INFO[w].el + " spells +10%)" : "") + "." : "No weather here.", "sys"); return; }
-    case "party": if (typeof openMenu === "function") openMenu("party"); return;
+    case "party": if (arg && typeof netPartyChat === "function") { netPartyChat(arg); return; } if (typeof openMenu === "function") openMenu("party"); return;
+    case "p": if (typeof netPartyChat === "function") netPartyChat(arg); else log("Party chat needs the game server.", "sys"); return;
+    case "invite": case "pinvite": if (typeof netPartyInvite === "function") netPartyInvite(arg); else log("Parties need the game server.", "sys"); return;
+    case "pcmd": { const [sub, ...rest] = arg.split(/\s+/); const who = rest.join(" "); if (typeof netPartyInvite !== "function") { log("Parties need the game server.", "sys"); return; } if (sub === "add") netPartyInvite(who); else if (sub === "leave") netPartyLeave(); else if (sub === "kick" || sub === "remove") netPartyKick(who); else log("Usage: /pcmd add|leave|kick Name", "sys"); return; }
+    case "join": if (typeof netPartyJoin === "function") netPartyJoin(); return;
+    case "decline": if (typeof netPartyDecline === "function") netPartyDecline(); return;
+    case "leave": if (typeof netPartyLeave === "function") netPartyLeave(); return;
+    case "kick": if (typeof netPartyKick === "function") netPartyKick(arg); return;
+    case "trade": if (typeof netTradeAsk === "function") netTradeAsk(arg || (player.target && player.target.kind === "remote" ? player.target.name : "")); else log("Trading needs the game server.", "sys"); return;
     case "bestiary": case "beasts": if (typeof openMenu === "function") openMenu("bestiary"); return;
     case "achievements": case "ach": if (typeof openMenu === "function") openMenu("achievements"); return;
     case "stand": if (player.resting) standUp(player); else log("You're already standing.", "sys"); return;
@@ -11209,7 +11259,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -11449,16 +11499,26 @@ function updateActionBar() {
 }
 
 function jobTag(p) { if (p.pet) return "Sprite"; return p.job + p.lv + (p.sub ? "/" + p.sub + Math.floor(p.lv / 2) : ""); }
+function partyRows() {
+  if (typeof NET_PT === "undefined" || !NET_PT.id) return S.party;
+  return S.party.concat(netPartyList().map(m => { m.kind = "netmember"; return m; }));
+}
 function buildParty() {
   const el = $("party");
   el.innerHTML = "";
-  S.party.forEach((p, i) => {
+  partyRows().forEach((p, i) => {
     const row = document.createElement("div");
     row.className = "pf glass";
     const job = JOBS[p.job] || { icon: "?", color: "#ccc" };
     row.innerHTML = '<div class="por" style="border-color:' + (p.color || job.color) + '">' + job.icon + "<em></em></div><div><div class=\"top\"><span class=\"nm\"></span><span class=\"jb\"></span></div><div class=\"bars\">" +
       '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div>' + (p === player ? '<div class="bar xp" title="Experience"><i id="pfXp"></i></div>' : "") + '</div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
-    row.onclick = () => { setTarget(p); sfx("select"); };
+    if (p.kind === "netmember") row.classList.add("net");
+    row.onclick = () => {
+      sfx("select");
+      if (p.kind !== "netmember") { setTarget(p); return; }
+      const o = S.others && S.others.get(p.id);
+      if (o) { setTarget(o); tgtCmdOpen(o); } else log(p.name + " is in " + (ZONES[p.zone] ? ZONES[p.zone].name : "another area") + ".", "sys");
+    };
     const q = s => row.querySelector(s);
     const bars = row.querySelectorAll(".bars .bar");
     p.ui = { row, nm: q(".nm"), jb: q(".jb"), lv: q(".por em"), hp: bars[0].firstChild, hpT: bars[0].lastChild, mp: bars[1].firstChild, mpT: bars[1].lastChild, mpBar: bars[1], tp: bars[2].firstChild, bufs: q(".bufs"), cb: q(".cb"), cbI: q(".cb i") };
@@ -11466,13 +11526,14 @@ function buildParty() {
   });
 }
 function updateParty() {
-  const key = S.party.map(p => (p.mercId || "me") + p.job).join(",");
+  const rows = partyRows();
+  const key = rows.map(p => (p.kind === "netmember" ? p.id : p.mercId || "me") + p.job).join(",");
   if (key !== UI.partyKey) { UI.partyKey = key; buildParty(); }
-  for (const p of S.party) {
+  for (const p of rows) {
     const u = p.ui;
     if (!u) continue;
     setTxt(u.nm, p === player ? save.name || "You" : p.name);
-    setTxt(u.jb, (UI.phone ? jobTag(p) : (JOBS[p.job] ? JOBS[p.job].name : p.job) + (p.sub ? "/" + p.sub : "")) + (p.mounted ? " 🦖" : ""));
+    setTxt(u.jb, (UI.phone ? jobTag(p) : (JOBS[p.job] ? JOBS[p.job].name : p.job) + (p.sub ? "/" + p.sub : "")) + (p.mounted ? " 🦖" : "") + (p.kind === "netmember" && p.zone && p.zone !== S.zoneId ? " · " + (ZONES[p.zone] ? ZONES[p.zone].name : "away") : ""));
     setTxt(u.lv, String(p.lv));
     setW(u.hp, 100 * p.hp / p.maxHp);
     setTxt(u.hpT, String(Math.ceil(p.hp)));
@@ -11485,7 +11546,8 @@ function updateParty() {
     const cast = p.casting ? (S.time - p.casting.start) / (p.casting.end - p.casting.start) : -1;
     u.cb.style.display = cast >= 0 ? "" : "none";
     if (cast >= 0) setW(u.cbI, cast * 100);
-    u.row.classList.toggle("sel", player.target === p);
+    u.row.classList.toggle("sel", player.target === p || (p.kind === "netmember" && player.target && player.target.id === p.id));
+    if (p.kind === "netmember") u.row.classList.toggle("far", p.zone !== S.zoneId);
     u.row.classList.toggle("ko", !p.alive);
   }
 }
@@ -11494,11 +11556,11 @@ function updateTarget() {
   if (UI.cmd && (player.target !== UI.cmd.t || !UI.cmd.t.alive)) tgtCmdClose();
   const t = player.target;
   const box = $("target");
-  if (!t || !(isMob(t) || isParty(t) || t.kind === "npc") || (isMob(t) && t.despawned)) { if (box.style.display !== "none") box.style.display = "none"; UI.ghostTarget = null; return; }
+  if (!t || !(isMob(t) || isParty(t) || t.kind === "npc" || t.kind === "remote") || (isMob(t) && t.despawned)) { if (box.style.display !== "none") box.style.display = "none"; UI.ghostTarget = null; return; }
   if (box.style.display !== "block") box.style.display = "block";
   box.classList.remove("npc");
   let pct = 0;
-  if (t !== UI.ghostTarget) { UI.ghostTarget = t; UI.hpGhost = isMob(t) || isParty(t) ? t.hp / t.maxHp : 0; }
+  if (t !== UI.ghostTarget) { UI.ghostTarget = t; UI.hpGhost = isMob(t) || isParty(t) || t.kind === "remote" ? t.hp / t.maxHp : 0; }
   if (isMob(t)) {
     const [c, col] = conOf(t);
     setTxt($("tName"), t.name);
@@ -11538,6 +11600,20 @@ function updateTarget() {
     $("tWarn").style.display = "none";
     const bf = Object.keys(t.buffs).map(k => BUFF_NAMES[k]).join(", ");
     setTxt($("tInfo"), (t.alive ? (t.maxMp ? "MP " + Math.floor(t.mp) + "/" + t.maxMp : "Ready") : "KO") + (bf ? " · " + bf : ""));
+    setHtml($("tChain"), "");
+  } else if (t.kind === "remote") {
+    const mate = isMate(t);
+    setTxt($("tName"), t.name);
+    $("tName").style.color = mate ? "#9fd0ff" : "#a5d6a7";
+    setTxt($("tLv"), (t.job ? t.job + t.lv + (t.sub ? "/" + t.sub : "") : "") + (mate ? " · Party" : " · Player"));
+    $("tTag").style.display = "none";
+    pct = 100 * t.hp / Math.max(1, t.maxHp);
+    setTxt($("tHpT"), mate ? Math.ceil(t.hp) + " / " + t.maxHp : Math.ceil(pct) + "%");
+    setW($("tTp"), mate ? 100 * (t.tp || 0) / CONFIG.tpMax : 0);
+    setW($("tSwing"), t.casting ? 100 * clamp((S.time - t.casting.start) / (t.casting.end - t.casting.start), 0, 1) : 0);
+    setTxt($("tToT"), "");
+    $("tWarn").style.display = "none";
+    setTxt($("tInfo"), !t.alive ? "KO" : mate ? (t.maxMp ? "MP " + Math.floor(t.mp) + "/" + t.maxMp + " · " : "") + "Your party" : (UI.phone ? "Tap again for options" : "Click again for options"));
     setHtml($("tChain"), "");
   } else {
     setTxt($("tName"), t.name);
@@ -11758,7 +11834,7 @@ function gameConfirm(title, text, onYes, opts) {
 }
 
 function tgtCmdOpen(t) {
-  if (!isMob(t) || !t.alive) { tgtCmdClose(); return; }
+  if (!t || (!isMob(t) && t.kind !== "remote") || (isMob(t) && !t.alive)) { tgtCmdClose(); return; }
   UI.cmd = { t, page: "root", info: "" };
   renderTgtCmd();
 }
@@ -11782,6 +11858,25 @@ function renderTgtCmd() {
   const t = c.t;
   let h = "";
   const btn = (key, label, cls) => '<button data-tc="' + key + '"' + (cls ? ' class="' + cls + '"' : "") + ">" + label + "</button>";
+  if (t.kind === "remote") {
+    const mate = isMate(t);
+    if (c.page === "root") {
+      h += '<div class="tcHead"><span>' + esc(t.name) + "</span>" + btn("close", "✕") + "</div>";
+      if (mate) h += btn("ma", "✦ Magic", "pri");
+      else h += btn("invite", "👥 Invite", "pri");
+      h += btn("trade", "🤝 Trade") + btn("tell", "💬 Tell") + btn("check", "🔍 Check");
+      if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
+    } else {
+      const acts = actionList(player).filter(a => a.kind === "ma" && SPELLS[a.id].target === "ally" && (SPELLS[a.id].kind === "heal" || SPELLS[a.id].kind === "buff"));
+      c.acts = acts;
+      h += '<div class="tcHead"><span>Magic · ' + esc(t.name) + "</span>" + btn("back", "◂") + "</div>";
+      if (!acts.length) h += '<div class="tcInfo">You know no spells to cast on a party member.</div>';
+      acts.forEach((a, i) => { const why = checkAction(player, a, t); h += btn("act" + i, actIcon(a) + " " + esc(actName(a)), why ? "off" : ""); });
+    }
+    el.innerHTML = h;
+    el.classList.add("on");
+    return;
+  }
   if (c.page === "root") {
     const eng = player.engaged && player.attackTarget === t;
     h += '<div class="tcHead"><span>' + esc(t.name) + "</span>" + btn("close", "✕") + "</div>";
@@ -11806,6 +11901,10 @@ function onTgtCmd(key) {
   if (key === "close") { tgtCmdClose(); return; }
   if (key === "back") { c.page = "root"; renderTgtCmd(); return; }
   if (key === "ma" || key === "ja") { c.page = key; renderTgtCmd(); return; }
+  if (key === "invite") { netPartyInvite(t.name); tgtCmdClose(); return; }
+  if (key === "trade") { netTradeAsk(t.name); tgtCmdClose(); return; }
+  if (key === "tell") { tgtCmdClose(); const inp = $("chatIn") || document.querySelector("#chat input"); if (inp) { inp.value = "/t " + t.name + " "; inp.focus(); } return; }
+  if (key === "check") { c.info = t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub ? " / " + JOBS[t.sub].name : "") + "."; renderTgtCmd(); return; }
   if (key === "inspect") { c.info = inspectText(t); log("The " + t.name + ": " + c.info, "sys"); renderTgtCmd(); return; }
   if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
   if (key.startsWith("act")) {
@@ -12032,6 +12131,7 @@ function openMenu(tab) {
 function openModal(tab) { openMenu(tab); }
 function closeModal() {
   if (!S.modal) return;
+  if (S.modal === "trade" && typeof NET_PT !== "undefined" && NET_PT.trade) { S.modal = null; netTradeCancel(); S.modal = "trade"; }
   if (S.modal === "character") releasePreview();
   S.modal = null;
   $("menu").style.display = "none";
@@ -12039,7 +12139,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [typeof netPartySig === "function" ? netPartySig() : "", save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -12056,10 +12156,11 @@ function renderModal() {
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
   for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "pets", "stable", "admin"]) if (S.modal === t) tabs.unshift(t);
+  if (S.modal === "trade" || (typeof NET_PT !== "undefined" && NET_PT.trade)) tabs.unshift("trade");
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -12644,8 +12745,48 @@ function fmtDur(ms) {
   return m >= 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m + "m";
 }
 
+function partyPlayersHtml() {
+  if (typeof NET_PT === "undefined") return "";
+  let h = "<h3>👥 Players</h3>";
+  if (NET_PT.invite) h += '<div class="item" style="border-color:#c9a227"><span><b>' + esc(NET_PT.invite.from) + '</b> invites you to their party.</span><div style="display:flex;gap:6px"><button class="pri" data-a="pjoin">Join</button><button data-a="pdecl">Decline</button></div></div>';
+  if (!NET_PT.id) {
+    h += '<div class="item"><span class="sub">You\'re not in a party. Invite a player here, with /invite Name, or tap them and choose Invite. Up to ' + CONFIG.partyMax + ' players.</span><button class="pri" data-a="pinv">Invite</button></div>';
+    return h + "<h3>🛡️ Companions</h3>";
+  }
+  const lead = netLeaderName(), me = netIsLeader();
+  const row = (name, job, lv, zone, hp, maxHp, extra) => '<div class="item"><div><b>' + (name === lead ? "👑 " : "") + esc(name) + '</b> <span class="sub">' + esc(job) + lv + " · " + esc(ZONES[zone] ? ZONES[zone].name : "?") + " · HP " + Math.ceil(hp) + "/" + maxHp + "</span></div>" + (extra || "") + "</div>";
+  h += row(save.name, player.job, player.lv, S.zoneId, player.hp, player.maxHp, '<button data-a="pleave">Leave</button>');
+  for (const m of netPartyList()) h += row(m.name, m.job, m.lv, m.zone, m.hp, m.maxHp, me ? '<button data-a="pkick" data-v="' + esc(m.name) + '">Remove</button>' : "");
+  if (me && netPartySize() < CONFIG.partyMax) h += '<div style="margin:6px 0"><button class="pri" data-a="pinv">Invite a player</button></div>';
+  h += '<div class="sub" style="margin:4px 0 8px">Kills share experience with party members in the same area and within about ' + Math.round(CONFIG.partyRange / 100) + ' strides. Gear drops go into a shared treasure pool for everyone nearby to lot on, and crystals are split. Party chat: /p text.</div>';
+  return h + "<h3>🛡️ Companions</h3>";
+}
+
+function tabTrade() {
+  const t = typeof NET_PT !== "undefined" ? NET_PT.trade : null;
+  if (!t) return '<div class="sub">No trade open. Tap a player and choose Trade, or type /trade Name.</div>';
+  const myH = netTradeMyHash(), theyOk = t.theirOk && t.theirOk === myH;
+  const list = (side, mine) => (side.items.length ? side.items.map(s => '<div class="ln"><span>' + (ITEMS[s.id].icon || "📦") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + "</span>" + (mine ? '<button data-a="trem" data-v="' + s.id + '" style="padding:0 7px">✕</button>' : "") + "</div>").join("") : '<div class="sub">Nothing yet.</div>') + '<div class="ln"><span>💠 ' + side.gil + " crystals</span>" + (mine ? '<button data-a="tgil" style="padding:0 7px">Set</button>' : "") + "</div>";
+  let h = '<div class="sub" style="margin-bottom:8px">Trading with <b>' + esc(t.name) + '</b>. Changing either offer clears both acceptances. The trade goes through when you both accept the same offers.</div>';
+  if (t.msg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(t.msg) + "</div>";
+  h += '<div class="trd"><div class="side' + (t.myOk ? " ok" : "") + '"><b>Your offer</b>' + (t.myOk ? ' <span class="sub">✓ accepted</span>' : "") + list(t.mine, true) + '</div><div class="side' + (theyOk ? " ok" : "") + '"><b>' + esc(t.name) + "'s offer</b>" + (theyOk ? ' <span class="sub">✓ accepted</span>' : "") + list(t.theirs, false) + "</div></div>";
+  h += '<div style="display:flex;gap:8px;margin:10px 0"><button class="pri" data-a="tacc"' + (t.myOk ? " disabled" : "") + ">" + (t.myOk ? "Waiting…" : "Accept trade") + '</button><button data-a="tcan">Cancel</button></div>';
+  const bag = save.inventory.filter(s => tradeable(s.id));
+  const seen = new Set();
+  h += "<h3>Your bag</h3>";
+  if (!bag.length) h += '<div class="sub">Nothing you can trade. Key items and items marked Exclusive stay with you.</div>';
+  for (const s of bag) {
+    if (seen.has(s.id)) continue;
+    seen.add(s.id);
+    const free = invCount(s.id) - netTradeOffered(s.id);
+    if (free <= 0) continue;
+    h += '<div class="item"><span>' + (ITEMS[s.id].icon || "📦") + " " + esc(ITEMS[s.id].name) + ' <span class="sub">×' + free + '</span></span><div style="display:flex;gap:6px"><button data-a="tadd" data-v="' + s.id + '">Add 1</button>' + (free > 1 ? '<button data-a="taddall" data-v="' + s.id + '">Add all</button>' : "") + "</div></div>";
+  }
+  return h;
+}
+
 function tabParty() {
-  let h = '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once per game day (about ' + Math.round(COMPANION_CFG.dayMs / 60000) + ' real minutes). If you can\'t pay, they go back to the Mercenary Hall.</div>';
+  let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once per game day (about ' + Math.round(COMPANION_CFG.dayMs / 60000) + ' real minutes). If you can\'t pay, they go back to the Mercenary Hall.</div>';
   h += '<div style="display:flex;gap:6px;margin-bottom:10px">' + [["assist", "⚔ Assist", "Fight your target"], ["follow", "🚶 Follow", "Stay close, don't attack"], ["hold", "✋ Hold", "Stand ground"]].map(([k, l, d]) => '<button data-a="stance" data-v="' + k + '" title="' + d + '"' + (save.stance === k ? ' class="pri"' : "") + ">" + l + "</button>").join("") + "</div>";
   if (!save.hired.length) return h + '<div class="item"><span class="sub">No companions yet. Brann at the Mercenary Hall in the Outpost hires them out.</span></div>';
   const bagEq = save.inventory.filter(x => ITEMS[x.id].kind === "equip");
@@ -12995,6 +13136,16 @@ function onMenuClick(e) {
   else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
   else if (a === "coat") { UI.stableMsg = buyCoat(v); renderModal(); return; }
   else if (a === "saddle") { UI.stableMsg = buySaddle(); renderModal(); return; }
+  else if (a === "pinv") { const nm = prompt("Invite which player?", ""); if (nm) netPartyInvite(nm); renderModal(); return; }
+  else if (a === "pjoin") { netPartyJoin(); renderModal(); return; }
+  else if (a === "pdecl") { netPartyDecline(); renderModal(); return; }
+  else if (a === "pleave") { gameConfirm("Leave party", "Leave your party?", () => { netPartyLeave(); renderModal(); }, { yes: "Leave", danger: true }); return; }
+  else if (a === "pkick") { netPartyKick(v); renderModal(); return; }
+  else if (a === "tadd" || a === "taddall") { const t = NET_PT.trade; if (t) t.msg = netTradeAdd(v, a === "taddall" ? invCount(v) - netTradeOffered(v) : 1); sfx("select"); renderModal(); return; }
+  else if (a === "trem") { netTradeRemove(v); sfx("close"); renderModal(); return; }
+  else if (a === "tgil") { const t = NET_PT.trade; if (!t) return; const g = prompt("How many crystals will you offer? (You have " + save.gil + ")", String(t.mine.gil)); if (g !== null) t.msg = netTradeGil(g); renderModal(); return; }
+  else if (a === "tacc") { netTradeAccept(); renderModal(); return; }
+  else if (a === "tcan") { netTradeCancel(); return; }
   else if (a === "petsel") { UI.petMsg = equipBuddy(v); renderModal(); return; }
   else if (a === "petsummon") { UI.petMsg = toggleBuddy(); renderModal(); return; }
   else if (a === "petbuy") { const e = BUDDY_SHOP.find(x => x[0] === v); if (!e) return; if (save.gil < e[1]) { UI.petMsg = "You need " + e[1] + " crystals."; sfx("error"); } else { save.gil -= e[1]; learnBuddy(v); UI.petMsg = ""; } renderModal(); return; }
@@ -13073,13 +13224,23 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v8.1.0 · built 2026-10-13 18:41 PDT";
+const BUILD_INFO = "v8.2.0 · built 2026-10-13 18:53 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.2.0", date: "2026-10-13", title: "Parties and trading", items: [
+    "Party up with other players: invite up to 6 with /invite, the Party tab, or by tapping a player. Accept with the popup or /join.",
+    "Party members show in your party frame with HP, MP and TP, and in the Party tab with their area.",
+    "Shared experience: kills share XP with party members nearby, based on the highest level member. Bigger parties earn more in total.",
+    "Shared loot: gear drops go into a treasure pool everyone nearby can lot on, and crystals are split.",
+    "Party kills count toward quests and guild bounties for everyone nearby.",
+    "Cure and Protect now work on other players in your party.",
+    "Trading: trade items and crystals with a nearby player. Both players see both offers and must accept the same deal.",
+    "Tap another player to Invite, Trade, Tell or Check them. Party chat with /p."
   ] },
   { v: "8.1.0", date: "2026-10-13", title: "Other players and chat", items: [
     "You can now see other players in your area: their race, gear and name, walking, riding, fighting, casting and resting in real time.",
@@ -13596,14 +13757,30 @@ function tabHelp() {
     "Other adventurers in the same area appear in the world with their own race, gear and name (in green), moving, fighting and casting in real time.",
     "Type in the chat box to <b>say</b> something to players near you (a speech bubble appears over your head). <b>/shout</b> reaches everyone in the area, <b>/tell Name message</b> reaches one player anywhere (<b>/r</b> replies), and <b>/who</b> lists who's online and where.",
     "The <b>Chat</b> tab in the log shows only player messages.",
-    "Coming next: inviting other players to your party, trading, and monsters shared by everyone in an area. For now each player fights their own copy of the monsters."
+    "Tap or click another player to see their job and level and to Invite, Trade, send a Tell or Check them.",
+    "Monsters aren't shared yet: each player still fights their own copy. Shared monsters are coming."
+  ]));
+  h += sec("🤝 Parties with other players", ul([
+    "Invite up to " + CONFIG.partyMax + " players: tap them and choose <b>Invite</b>, use the Party tab, or type <b>/invite Name</b>. The invited player gets a popup, or can type <b>/join</b> or <b>/decline</b>. Only the leader (👑, the player who has been in the party longest) can invite or remove members.",
+    "Party members appear in your party frame under your companions, with HP, MP and TP. A faded row means they're in another area; tap a row to target them.",
+    "<b>Experience:</b> when anyone in the party defeats a monster, everyone in the same area within about " + Math.round(CONFIG.partyRange / 100) + " strides gets a share. The share is based on the highest level member nearby, so a big gap in levels means less experience for the lower levels. Bigger parties earn more in total (2 players: 60% each, 3: 45%, 4: 37%, 5: 32%, 6: 28%). EXP chains carry over from the player who made the kill.",
+    "<b>Loot:</b> gear from a party kill goes into a shared treasure pool. Everyone nearby can Lot or Pass; the highest lot wins once all have chosen or time runs out. Other drops go to the player who made the kill. Crystals are split evenly.",
+    "Kills by a party member nearby count for your quest and guild bounty tallies too.",
+    "<b>Magic on party members:</b> tap a party member and choose Magic, or target them and cast. Cure spells and Protect work on players in your party.",
+    "Your companions stay with you and fight only your monsters. Party chat: <b>/p text</b>. Leave with <b>/leave</b>, remove a member with <b>/kick Name</b>."
+  ]));
+  h += sec("🔄 Trading", ul([
+    "Stand near another player and tap them, then choose <b>Trade</b>, or type <b>/trade Name</b>. They get a popup to accept.",
+    "Add up to " + CONFIG.tradeSlots + " kinds of item and any number of crystals. Both offers show side by side. Changing an offer clears both acceptances, so you always see the final deal before it happens.",
+    "The trade goes through when you both press Accept on the same offers. You need room in your bag for what you receive, and you can't receive a Rare item you already have.",
+    "Key items and Exclusive items can't be traded. Closing the trade window or walking away cancels it."
   ]));
   h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
 
-const GAME_VERSION = "8.1.0";
+const GAME_VERSION = "8.2.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18082,7 +18259,7 @@ function viewFor(e) {
     style: styleFor(e), stride: kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
-  if (e.buddy || e.ambient || e.remote) { v.pick.visible = false; v.pick.userData.entity = null; }
+  if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }
   W3.scene.add(group);
   VIEW.views.set(e, v);
   return v;
@@ -18720,6 +18897,12 @@ function onWorldTap(p, ent) {
     if (!UI.cmd) uiEvent("target", e);
     return;
   }
+  if (e.kind === "remote") {
+    if (player.target === e && UI.cmd && UI.cmd.t === e) { tgtCmdClose(); return; }
+    setTarget(e);
+    tgtCmdOpen(e);
+    return;
+  }
   if (e.kind === "npc") {
     if (dist(player, e) <= CONFIG.talkRange) { talkTo(e); return; }
     player.target = e;
@@ -19125,6 +19308,8 @@ function netLeaveZone() {
 }
 
 function netLeaveAll() {
+  if (typeof netTradeCancel === "function") netTradeCancel(true);
+  if (typeof netPartyLeave === "function") netPartyLeave(true);
   netLeaveZone();
   if (NET_RT.wch) { try { NET.sb.removeChannel(NET_RT.wch); } catch (e) {} }
   NET_RT.wch = null;
@@ -19144,6 +19329,14 @@ function netWorld() {
   try {
     const ch = NET.sb.channel("world", { config: { broadcast: { self: false }, presence: { key: S.charId || NET.user.id } } });
     ch.on("broadcast", { event: "tell" }, m => netOnTell(m.payload));
+    ch.on("broadcast", { event: "pinv" }, m => netOnPInv(m.payload));
+    ch.on("broadcast", { event: "pdecl" }, m => netOnPDecl(m.payload));
+    ch.on("broadcast", { event: "trq" }, m => netOnTrq(m.payload));
+    ch.on("broadcast", { event: "tok" }, m => netOnTok(m.payload));
+    ch.on("broadcast", { event: "tno" }, m => netOnTno(m.payload));
+    ch.on("broadcast", { event: "toff" }, m => netOnToff(m.payload));
+    ch.on("broadcast", { event: "tcf" }, m => netOnTcf(m.payload));
+    ch.on("broadcast", { event: "tcx" }, m => netOnTcx(m.payload));
     ch.on("presence", { event: "sync" }, () => { NET_RT.online = Object.values(ch.presenceState()).map(a => a[0]).filter(Boolean); });
     ch.subscribe(st => { if (st === "SUBSCRIBED") Promise.resolve(ch.track({ name: save.name, zone: S.zoneId, lv: player.lv, job: player.job })).catch(() => {}); });
     NET_RT.wch = ch;
@@ -19151,6 +19344,7 @@ function netWorld() {
 }
 
 function netRtTick() {
+  if (typeof netPartyTick === "function") netPartyTick();
   if (!NET_RT.zch || !player || !S.charId) return;
   if (player.lastSwing !== NET_RT.swT) { NET_RT.swT = player.lastSwing; NET_RT.sw++; }
   if (player.lastWS !== NET_RT.wsT) { NET_RT.wsT = player.lastWS; NET_RT.ws++; }
@@ -19262,6 +19456,444 @@ function netWho() {
   const list = NET_RT.online.filter(o => o && o.name);
   if (!list.length) { log("Nobody else is online (or the server isn't connected).", "sys"); return; }
   log(list.length + " online: " + list.map(o => o.name + " (" + (JOBS[o.job] ? o.job : "?") + o.lv + ", " + (ZONES[o.zone] ? ZONES[o.zone].name : "?") + ")").join(", "), "sys");
+}
+
+const NET_PT = { id: null, ch: null, me: 0, members: new Map(), names: new Map(), invite: null, lastSt: 0, stSig: "", trade: null, ask: null };
+
+function netWorldSend(event, payload) {
+  if (!NET_RT.wch) return false;
+  Promise.resolve(NET_RT.wch.send({ type: "broadcast", event, payload })).catch(() => {});
+  return true;
+}
+function netPartySend(event, payload) {
+  if (!NET_PT.ch) return false;
+  Promise.resolve(NET_PT.ch.send({ type: "broadcast", event, payload })).catch(() => {});
+  return true;
+}
+const netLc = s => String(s || "").toLowerCase();
+function netOnline(name) { return NET_RT.online.find(o => o && netLc(o.name) === netLc(name)); }
+function netInParty() { return !!NET_PT.id; }
+function netIsMate(id) { return !!id && NET_PT.members.has(id); }
+function netPartyList() { return [...NET_PT.members.values()]; }
+function netPartySize() { return NET_PT.id ? 1 + NET_PT.members.size : 1; }
+function netIsLeader() {
+  if (!NET_PT.id) return true;
+  for (const m of NET_PT.members.values()) if ((m.t || 0) < NET_PT.me) return false;
+  return true;
+}
+function netLeaderName() {
+  let best = { name: save.name, t: NET_PT.me };
+  for (const m of NET_PT.members.values()) if ((m.t || 0) < best.t) best = m;
+  return best.name;
+}
+function netPartyNear(x, y) {
+  if (!NET_PT.id) return [];
+  const r = CONFIG.partyRange;
+  return netPartyList().filter(m => m.zone === S.zoneId && m.alive !== false && m.x != null && Math.hypot(m.x - x, m.y - y) <= r && Date.now() - (m.at || 0) < 12000);
+}
+
+function netPartyInvite(name) {
+  name = cleanChat(name).slice(0, 12);
+  if (!NET.member || !NET_RT.wch) { log("Parties need the game server.", "sys"); return; }
+  if (!name) { log("Usage: /invite Name (or target a player and press Invite).", "sys"); return; }
+  if (netLc(name) === netLc(save.name)) { log("You can't invite yourself.", "sys"); return; }
+  if (!netOnline(name)) { log(name + " isn't online right now.", "sys"); return; }
+  if (netPartyList().some(m => netLc(m.name) === netLc(name))) { log(name + " is already in your party.", "sys"); return; }
+  if (NET_PT.id && !netIsLeader()) { log("Only the party leader (" + netLeaderName() + ") can invite.", "sys"); return; }
+  if (netPartySize() >= CONFIG.partyMax) { log("Your party is full (" + CONFIG.partyMax + " players).", "sys"); return; }
+  if (!NET_PT.id) netPartySub((S.charId || "p").slice(0, 8) + Date.now().toString(36));
+  netWorldSend("pinv", { to: netLc(name), from: save.name, pid: NET_PT.id });
+  log("You invite " + netOnline(name).name + " to your party.", "party");
+}
+
+function netOnPInv(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  const from = cleanChat(p.from).slice(0, 12);
+  if (NET_PT.id || NET_PT.trade) { netWorldSend("pdecl", { to: netLc(from), from: save.name, busy: true }); return; }
+  NET_PT.invite = { from, pid: String(p.pid).slice(0, 40), until: Date.now() + 60000 };
+  log(from + " invites you to join their party. Type /join to accept or /decline.", "party");
+  if (typeof sfx === "function") sfx("notify");
+  if (typeof gameConfirm === "function" && !(typeof UI !== "undefined" && UI.confirmOpen)) gameConfirm("Party invitation", from + " invites you to join their party.", () => netPartyJoin(), { yes: "Join", no: "Decline", onNo: () => netPartyDecline() });
+}
+
+function netPartyJoin() {
+  const inv = NET_PT.invite;
+  if (!inv || Date.now() > inv.until) { NET_PT.invite = null; log("You have no party invitation.", "sys"); return; }
+  if (NET_PT.id) { log("Leave your current party first.", "sys"); return; }
+  NET_PT.invite = null;
+  netPartySub(inv.pid);
+  log("You join " + inv.from + "'s party.", "party");
+}
+
+function netPartyDecline() {
+  const inv = NET_PT.invite;
+  if (!inv) { log("You have no party invitation.", "sys"); return; }
+  NET_PT.invite = null;
+  netWorldSend("pdecl", { to: netLc(inv.from), from: save.name });
+  log("You decline " + inv.from + "'s invitation.", "sys");
+}
+
+function netOnPDecl(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  const from = cleanChat(p.from).slice(0, 12);
+  log(from + (p.busy ? " is busy (already in a party or trading)." : " declines your invitation."), "party");
+  if (NET_PT.id && !NET_PT.members.size) setTimeout(() => { if (NET_PT.id && !NET_PT.members.size) netPartyLeave(true); }, 4000);
+}
+
+function netPartySub(pid) {
+  if (!NET.sb) return;
+  netPartyLeave(true);
+  NET_PT.id = pid; NET_PT.me = Date.now(); NET_PT.members = new Map(); NET_PT.stSig = ""; NET_PT.lastSt = 0;
+  try {
+    const ch = NET.sb.channel("party:" + pid, { config: { broadcast: { self: false }, presence: { key: S.charId } } });
+    ch.on("presence", { event: "sync" }, () => netOnPartyPresence(ch.presenceState()));
+    ch.on("broadcast", { event: "pst" }, m => netOnPSt(m.payload));
+    ch.on("broadcast", { event: "pchat" }, m => netOnPChat(m.payload));
+    ch.on("broadcast", { event: "kill" }, m => netOnKill(m.payload));
+    ch.on("broadcast", { event: "pool" }, m => netOnPool(m.payload));
+    ch.on("broadcast", { event: "lot" }, m => netOnLot(m.payload));
+    ch.on("broadcast", { event: "win" }, m => netOnWin(m.payload));
+    ch.on("broadcast", { event: "kick" }, m => netOnKick(m.payload));
+    ch.on("broadcast", { event: "fx" }, m => netOnFx(m.payload));
+    ch.subscribe(st => { if (st === "SUBSCRIBED") Promise.resolve(ch.track({ id: S.charId, name: save.name, t: NET_PT.me })).catch(() => {}); });
+    NET_PT.ch = ch;
+  } catch (e) { NET_PT.ch = null; NET_PT.id = null; }
+  if (typeof uiPartyChanged === "function") uiPartyChanged();
+}
+
+function netPartyLeave(quiet) {
+  if (!NET_PT.id) { if (!quiet) log("You aren't in a party.", "sys"); return; }
+  if (NET_PT.ch) { try { NET_PT.ch.untrack(); } catch (e) {} try { NET.sb.removeChannel(NET_PT.ch); } catch (e) {} }
+  NET_PT.ch = null; NET_PT.id = null; NET_PT.members = new Map();
+  if (S.pool) S.pool = S.pool.filter(e => !e.net || e.net.owner);
+  if (!quiet) log("You leave the party.", "party");
+  if (typeof uiPartyChanged === "function") uiPartyChanged();
+}
+
+function netOnPartyPresence(state) {
+  const live = new Map();
+  for (const key in state) { const m = state[key] && state[key][0]; if (!m || !m.id || m.id === S.charId) continue; live.set(m.id, m); }
+  for (const [id, m] of live) if (!NET_PT.members.has(id)) {
+    if (NET_PT.members.size + 1 >= CONFIG.partyMax + 1) continue;
+    NET_PT.members.set(id, { id, name: cleanChat(m.name).slice(0, 12), t: +m.t || 0, at: Date.now(), hp: 1, maxHp: 1, mp: 0, maxMp: 0, tp: 0, lv: 1, job: "WAR", alive: true });
+    log(cleanChat(m.name).slice(0, 12) + " joins the party.", "party");
+    if (typeof sfx === "function") sfx("notify");
+    NET_PT.stSig = "";
+  }
+  for (const [id, m] of [...NET_PT.members]) if (!live.has(id)) { NET_PT.members.delete(id); log(m.name + " leaves the party.", "party"); }
+  if (typeof uiPartyChanged === "function") uiPartyChanged();
+}
+
+function netPartyKick(name) {
+  if (!NET_PT.id) { log("You aren't in a party.", "sys"); return; }
+  if (!netIsLeader()) { log("Only the party leader can remove members.", "sys"); return; }
+  const m = netPartyList().find(x => netLc(x.name) === netLc(cleanChat(name)));
+  if (!m) { log("Nobody called " + cleanChat(name) + " is in your party.", "sys"); return; }
+  netPartySend("kick", { id: m.id, name: m.name });
+  log("You remove " + m.name + " from the party.", "party");
+}
+
+function netOnKick(p) {
+  if (!p) return;
+  if (p.id === S.charId) { netPartyLeave(true); log("You have been removed from the party.", "party"); return; }
+}
+
+function netPartyChat(text) {
+  text = cleanChat(text);
+  if (!text) return;
+  if (!NET_PT.id) { log("You aren't in a party.", "sys"); return; }
+  if (Date.now() - NET_RT.lastChat < 700) { log("You're talking too fast.", "sys"); return; }
+  NET_RT.lastChat = Date.now();
+  log("(" + save.name + ") " + text, "pchat");
+  netPartySend("pchat", { id: S.charId, name: save.name, text });
+}
+
+function netOnPChat(p) {
+  if (!p || !netIsMate(p.id)) return;
+  const text = cleanChat(p.text);
+  if (!text) return;
+  log("(" + NET_PT.members.get(p.id).name + ") " + text, "pchat");
+  if (typeof sfx === "function") sfx("tab");
+}
+
+function netPartyTick() {
+  if (!NET_PT.ch || !player) return;
+  const now = Date.now();
+  if (NET_PT.invite && now > NET_PT.invite.until) NET_PT.invite = null;
+  const st = { id: S.charId, name: save.name, job: player.job, sub: player.sub || null, lv: player.lv, zone: S.zoneId, x: Math.round(player.x), y: Math.round(player.y), hp: Math.ceil(player.hp), maxHp: player.maxHp, mp: Math.floor(player.mp), maxMp: player.maxMp, tp: Math.floor(player.tp), alive: !!player.alive, b: Object.keys(player.buffs || {}).slice(0, 8) };
+  const sig = JSON.stringify(st);
+  const gap = sig === NET_PT.stSig ? 4000 : 500;
+  if (now - NET_PT.lastSt < gap) return;
+  NET_PT.lastSt = now; NET_PT.stSig = sig;
+  netPartySend("pst", st);
+}
+
+function netOnPSt(p) {
+  if (!p || !netIsMate(p.id)) return;
+  const m = NET_PT.members.get(p.id);
+  m.at = Date.now();
+  m.job = JOBS[p.job] ? p.job : m.job; m.sub = JOBS[p.sub] ? p.sub : null;
+  m.lv = clamp(+p.lv || 1, 1, CONFIG.levelCap); m.zone = String(p.zone || ""); m.x = +p.x || 0; m.y = +p.y || 0;
+  m.maxHp = Math.max(1, +p.maxHp || 1); m.hp = clamp(+p.hp || 0, 0, m.maxHp); m.maxMp = Math.max(0, +p.maxMp || 0); m.mp = clamp(+p.mp || 0, 0, m.maxMp); m.tp = clamp(+p.tp || 0, 0, CONFIG.tpMax);
+  m.alive = !!p.alive; m.buffs = {}; for (const k of (Array.isArray(p.b) ? p.b : []).slice(0, 8)) if (typeof k === "string") m.buffs[k] = 1;
+  const o = S.others && S.others.get(p.id);
+  if (o) { o.mate = true; o.hp = m.hp; o.maxHp = m.maxHp; o.mp = m.mp; o.maxMp = m.maxMp; o.tp = m.tp; }
+}
+
+function netPartyKill(e, mates, top, n, ch, gil) {
+  netPartySend("kill", { id: S.charId, name: save.name, zone: S.zoneId, x: Math.round(e.x), y: Math.round(e.y), mlv: e.lv, fam: e.famKey, top, n, ch, gil, ids: mates.map(m => m.id) });
+}
+
+function netOnKill(p) {
+  if (!p || !netIsMate(p.id) || !player) return;
+  if (!Array.isArray(p.ids) || !p.ids.includes(S.charId)) return;
+  if (p.zone !== S.zoneId || !player.alive || Math.hypot(player.x - p.x, player.y - p.y) > CONFIG.partyRange + 150) return;
+  const n = clamp(+p.n || 2, 2, CONFIG.partyMax), top = clamp(+p.top || player.lv, player.lv, CONFIG.levelCap), ch = clamp(+p.ch || 0, 0, CONFIG.chainMax);
+  const base = xpFor(clamp(+p.mlv || 1, 1, 99), top);
+  const xp = Math.round(base * partyShare(n) * player.lv / top * (1 + CONFIG.chainStep * ch));
+  if (xp > 0) gainXp(xp, ch); else log("No experience gained (too weak).", "sys");
+  const g = clamp(+p.gil || 0, 0, 5000);
+  if (g > 0) { save.gil += g; log("You obtain " + g + " crystals (party share).", "loot"); }
+  if (FAMILIES[p.fam] || NM_FAMILIES[p.fam]) { const fe = { famKey: p.fam }; save.stats.kills++; questKillCredit(p.fam); bountyKill(fe); }
+  saveGame();
+}
+
+function netPoolOut(e, mates) {
+  e.net = { key: S.charId + ":" + e.seq, owner: true, ids: mates.map(m => m.id), lots: {} };
+  netPartySend("pool", { id: S.charId, name: save.name, key: e.net.key, item: e.id, dur: CONFIG.poolTime, ids: e.net.ids });
+}
+
+function netOnPool(p) {
+  if (!p || !netIsMate(p.id) || !Array.isArray(p.ids) || !p.ids.includes(S.charId) || !ITEMS[p.item]) return;
+  S.pool = S.pool || [];
+  const dur = clamp(+p.dur || CONFIG.poolTime, 5, 120);
+  S.pool.push({ id: p.item, until: S.time + dur, lots: {}, mine: null, seq: ++S.mobSeq, net: { key: String(p.key), owner: false, from: NET_PT.members.get(p.id).name } });
+  log("The " + ITEMS[p.item].name + " goes into the treasure pool.", "loot");
+  if (typeof uiEvent === "function") uiEvent("pool", { id: p.item });
+}
+
+function netLotOut(e) {
+  if (!e.net) return;
+  netPartySend("lot", { id: S.charId, name: save.name, key: e.net.key, roll: e.mine });
+}
+
+function netOnLot(p) {
+  if (!p || !netIsMate(p.id)) return;
+  const e = (S.pool || []).find(x => x.net && x.net.key === p.key);
+  if (!e) return;
+  const roll = clamp(Math.floor(+p.roll || 0), 0, 999);
+  if (e.net.owner) e.net.lots[p.id] = roll;
+  const nm = NET_PT.members.get(p.id).name;
+  log(roll ? nm + " lots " + roll + " on the " + ITEMS[e.id].name + "." : nm + " passes on the " + ITEMS[e.id].name + ".", "party");
+}
+
+function netWinOut(e, winId, winName) {
+  netPartySend("win", { id: S.charId, key: e.net.key, win: winId, name: winName, item: e.id });
+}
+
+function netOnWin(p) {
+  if (!p || !netIsMate(p.id)) return;
+  const e = (S.pool || []).find(x => x.net && x.net.key === p.key);
+  if (!e) return;
+  S.pool.splice(S.pool.indexOf(e), 1);
+  const it = ITEMS[e.id];
+  if (!p.win) { log("Nobody wanted the " + it.name + ". It is lost.", "sys"); return; }
+  if (p.win === S.charId) { save.stats.lotsWon++; giveItem(e.id, 1); saveGame(); return; }
+  log(cleanChat(p.name).slice(0, 24) + " obtains the " + it.name + ".", "loot");
+}
+
+function netCastOn(a, t, sp, id) {
+  if (sp.kind === "heal") {
+    const amt = healAmount(a, sp);
+    netPartySend("fx", { id: S.charId, to: t.id, kind: "heal", sp: id, amt });
+    ring(t, "#9ad06b", 30, 0.6, "sparkle"); sfx("cure", t); vfx("cure", { src: a, tgt: t, big: sp.power > 40 });
+    log("You cast " + sp.name + " on " + t.name + ".", "you");
+  } else if (sp.kind === "buff") {
+    netPartySend("fx", { id: S.charId, to: t.id, kind: "buff", sp: id });
+    ring(t, "#9ad06b", 26, 0.5); sfx("buff", t); vfx("buff", { tgt: t, id: sp.buff });
+    log("You cast " + sp.name + " on " + t.name + ".", "you");
+  }
+}
+
+function netOnFx(p) {
+  if (!p || p.to !== S.charId || !netIsMate(p.id) || !player || !player.alive) return;
+  const sp = SPELLS[p.sp], from = NET_PT.members.get(p.id).name;
+  if (!sp) return;
+  const o = S.others && S.others.get(p.id);
+  if (o && Math.hypot(o.x - player.x, o.y - player.y) > CONFIG.castRange + 200) return;
+  if (p.kind === "heal" && sp.kind === "heal") {
+    const amt = clamp(Math.round(+p.amt || 0), 0, 2000);
+    const real = Math.max(0, Math.min(amt, player.maxHp - player.hp));
+    player.hp += real;
+    if (real > 0) { popText(player, "+" + real, "#9ad06b", 18); ring(player, "#9ad06b", 30, 0.6, "sparkle"); sfx("cure", player); vfx("cure", { tgt: player }); }
+    log(from + " casts " + sp.name + ". You recover " + real + " HP.", "party");
+  } else if (p.kind === "buff" && sp.kind === "buff") {
+    player.buffs[sp.buff] = { until: S.time + sp.dur, src: player };
+    popText(player, sp.name, "#9ad06b", 13, 1.1, 14); ring(player, "#9ad06b", 26, 0.5); sfx("buff", player); vfx("buff", { tgt: player, id: sp.buff });
+    log(from + " casts " + sp.name + " on you.", "party");
+    if (typeof refreshPlayer === "function") refreshPlayer(false);
+  }
+}
+
+function netTradeAsk(name) {
+  name = cleanChat(name).slice(0, 12);
+  if (!NET.member || !NET_RT.wch) { log("Trading needs the game server.", "sys"); return; }
+  if (NET_PT.trade) { log("You're already trading.", "sys"); return; }
+  const o = [...(S.others || new Map()).values()].find(x => netLc(x.name) === netLc(name));
+  if (!o) { log((name || "That player") + " isn't in this area.", "sys"); return; }
+  if (Math.hypot(o.x - player.x, o.y - player.y) > CONFIG.tradeRange) { log(o.name + " is too far away to trade.", "sys"); return; }
+  if (!player.alive || player.engaged) { log("You can't trade right now.", "sys"); return; }
+  NET_PT.ask = { name: o.name, id: o.id, until: Date.now() + 30000 };
+  netWorldSend("trq", { to: netLc(o.name), from: save.name, fid: S.charId });
+  log("You ask " + o.name + " to trade.", "sys");
+}
+
+function netOnTrq(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  const from = cleanChat(p.from).slice(0, 12);
+  if (NET_PT.trade || !player || !player.alive || player.engaged) { netWorldSend("tno", { to: netLc(from), from: save.name, busy: true }); return; }
+  if (typeof sfx === "function") sfx("notify");
+  log(from + " wants to trade with you.", "sys");
+  const yes = () => { netTradeOpen(from, String(p.fid || "")); netWorldSend("tok", { to: netLc(from), from: save.name, fid: S.charId }); };
+  const no = () => netWorldSend("tno", { to: netLc(from), from: save.name });
+  if (typeof gameConfirm === "function") gameConfirm("Trade request", from + " wants to trade with you.", yes, { yes: "Trade", no: "Decline", onNo: no }); else no();
+}
+
+function netOnTok(p) {
+  if (!p || p.to !== netLc(save.name) || !NET_PT.ask || netLc(p.from) !== netLc(NET_PT.ask.name) || Date.now() > NET_PT.ask.until) return;
+  NET_PT.ask = null;
+  netTradeOpen(cleanChat(p.from).slice(0, 12), String(p.fid || ""));
+}
+
+function netOnTno(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  if (NET_PT.ask && netLc(p.from) === netLc(NET_PT.ask.name)) NET_PT.ask = null;
+  log(cleanChat(p.from).slice(0, 12) + (p.busy ? " is busy right now." : " declines to trade."), "sys");
+}
+
+function netTradeOpen(name, id) {
+  NET_PT.trade = { name, id, mine: { items: [], gil: 0 }, theirs: { items: [], gil: 0 }, myOk: false, theirOk: "", msg: "" };
+  log("Trading with " + name + ".", "sys");
+  if (typeof openMenu === "function") openMenu("trade");
+}
+
+const tradeHash = (a, b) => { const x = [[netLc(a[0]), a[1]], [netLc(b[0]), b[1]]].sort((p, q) => (p[0] < q[0] ? -1 : 1)); return JSON.stringify(x); };
+function netTradeMyHash() { const t = NET_PT.trade; return tradeHash([save.name, t.mine], [t.name, t.theirs]); }
+
+function netTradeOffered(id) { const t = NET_PT.trade; return t ? t.mine.items.filter(s => s.id === id).reduce((n, s) => n + s.qty, 0) : 0; }
+function tradeable(id) { const it = ITEMS[id]; return !!it && it.kind !== "key" && !it.ex; }
+
+function netTradeAdd(id, n) {
+  const t = NET_PT.trade;
+  if (!t) return "";
+  if (!tradeable(id)) return "That item can't be traded.";
+  n = Math.max(1, Math.floor(n || 1));
+  const free = invCount(id) - netTradeOffered(id);
+  if (free < n) return "You don't have that many.";
+  if (t.mine.items.length >= CONFIG.tradeSlots && !t.mine.items.some(s => s.id === id)) return "Trades hold up to " + CONFIG.tradeSlots + " kinds of item.";
+  const s = t.mine.items.find(x => x.id === id);
+  if (s) s.qty += n; else t.mine.items.push({ id, qty: n });
+  netTradeChanged();
+  return "";
+}
+function netTradeRemove(id) { const t = NET_PT.trade; if (!t) return; t.mine.items = t.mine.items.filter(s => s.id !== id); netTradeChanged(); }
+function netTradeGil(g) { const t = NET_PT.trade; if (!t) return ""; g = Math.max(0, Math.floor(+g || 0)); if (g > save.gil) return "You don't have that many crystals."; t.mine.gil = g; netTradeChanged(); return ""; }
+
+function netTradeChanged() {
+  const t = NET_PT.trade;
+  t.myOk = false; t.theirOk = "";
+  netWorldSend("toff", { to: netLc(t.name), from: save.name, items: t.mine.items, gil: t.mine.gil });
+}
+
+function netOnToff(p) {
+  const t = NET_PT.trade;
+  if (!p || !t || p.to !== netLc(save.name) || netLc(p.from) !== netLc(t.name)) return;
+  const items = (Array.isArray(p.items) ? p.items : []).slice(0, CONFIG.tradeSlots).filter(s => s && tradeable(s.id)).map(s => ({ id: s.id, qty: clamp(Math.floor(+s.qty || 0), 1, 999) }));
+  t.theirs = { items, gil: Math.max(0, Math.floor(+p.gil || 0)) };
+  t.myOk = false; t.theirOk = ""; t.msg = "";
+  if (typeof sfx === "function") sfx("tab");
+}
+
+function tradeRoom(give, get) {
+  let need = 0;
+  for (const g of get) {
+    const st = ITEMS[g.id].stack || 1;
+    const space = save.inventory.filter(x => x.id === g.id).reduce((n, x) => n + Math.max(0, st - x.qty), 0);
+    need += Math.ceil(Math.max(0, g.qty - space) / st);
+  }
+  return save.inventory.length + need <= CONFIG.inventorySize;
+}
+
+function netTradeCheck() {
+  const t = NET_PT.trade;
+  if (!t) return "No trade open.";
+  for (const s of t.mine.items) if (invCount(s.id) < s.qty) return "You no longer have " + ITEMS[s.id].name + ".";
+  if (save.gil < t.mine.gil) return "You don't have that many crystals.";
+  for (const s of t.theirs.items) if (ITEMS[s.id].rare && (hasItem(s.id) || t.theirs.items.filter(x => x.id === s.id).reduce((n, x) => n + x.qty, 0) > 1)) return "You can only carry one " + ITEMS[s.id].name + ".";
+  if (!tradeRoom(t.mine.items, t.theirs.items)) return "Not enough room in your bag.";
+  const o = S.others && S.others.get(t.id);
+  if (!o || Math.hypot(o.x - player.x, o.y - player.y) > CONFIG.tradeRange + 60) return t.name + " is too far away.";
+  return "";
+}
+
+function netTradeAccept() {
+  const t = NET_PT.trade;
+  if (!t) return;
+  const why = netTradeCheck();
+  if (why) { t.msg = why; return; }
+  if (!t.mine.items.length && !t.mine.gil && !t.theirs.items.length && !t.theirs.gil) { t.msg = "Nothing to trade yet."; return; }
+  t.myOk = true; t.msg = "";
+  const h = netTradeMyHash();
+  netWorldSend("tcf", { to: netLc(t.name), from: save.name, h });
+  if (t.theirOk === h) netTradeFinish();
+}
+
+function netOnTcf(p) {
+  const t = NET_PT.trade;
+  if (!p || !t || p.to !== netLc(save.name) || netLc(p.from) !== netLc(t.name)) return;
+  t.theirOk = String(p.h || "");
+  if (t.myOk && t.theirOk === netTradeMyHash()) netTradeFinish();
+}
+
+function netTradeFinish() {
+  const t = NET_PT.trade;
+  if (!t || t.done) return;
+  const why = netTradeCheck();
+  if (why) { t.msg = why; t.myOk = false; netWorldSend("tcx", { to: netLc(t.name), from: save.name, why }); NET_PT.trade = null; log("Trade cancelled: " + why, "sys"); if (S.modal === "trade" && typeof closeModal === "function") closeModal(); return; }
+  t.done = true;
+  for (const s of t.mine.items) removeItem(s.id, s.qty);
+  save.gil -= t.mine.gil;
+  for (const s of t.theirs.items) giveItem(s.id, s.qty, true);
+  save.gil += t.theirs.gil;
+  const got = t.theirs.items.map(s => (s.qty > 1 ? s.qty + " " : "") + ITEMS[s.id].name).concat(t.theirs.gil ? [t.theirs.gil + " crystals"] : []);
+  log("Trade with " + t.name + " complete." + (got.length ? " You receive " + got.join(", ") + "." : ""), "loot");
+  save.stats.trades = (save.stats.trades || 0) + 1;
+  if (typeof sfx === "function") sfx("loot");
+  NET_PT.trade = null;
+  saveGame();
+  if (typeof netFlush === "function") netFlush();
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+function netTradeCancel(quiet) {
+  const t = NET_PT.trade;
+  if (!t) return;
+  NET_PT.trade = null;
+  netWorldSend("tcx", { to: netLc(t.name), from: save.name });
+  if (!quiet) log("You cancel the trade.", "sys");
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+function netOnTcx(p) {
+  const t = NET_PT.trade;
+  if (!p || !t || p.to !== netLc(save.name) || netLc(p.from) !== netLc(t.name)) return;
+  NET_PT.trade = null;
+  log(t.name + " cancels the trade." + (p.why ? " (" + cleanChat(p.why) + ")" : ""), "sys");
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+function netPartySig() {
+  return [NET_PT.id, netPartyList().map(m => m.id + m.job + m.lv + m.zone + Math.round(10 * m.hp / m.maxHp)).join(), NET_PT.trade ? JSON.stringify([NET_PT.trade.mine, NET_PT.trade.theirs, NET_PT.trade.myOk, NET_PT.trade.theirOk, NET_PT.trade.msg]) : ""].join("|");
 }
 
 function onKey(e) {

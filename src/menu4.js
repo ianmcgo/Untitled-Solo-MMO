@@ -12,6 +12,7 @@ function openMenu(tab) {
 function openModal(tab) { openMenu(tab); }
 function closeModal() {
   if (!S.modal) return;
+  if (S.modal === "trade" && typeof NET_PT !== "undefined" && NET_PT.trade) { S.modal = null; netTradeCancel(); S.modal = "trade"; }
   if (S.modal === "character") releasePreview();
   S.modal = null;
   $("menu").style.display = "none";
@@ -19,7 +20,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [typeof netPartySig === "function" ? netPartySig() : "", save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -36,10 +37,11 @@ function renderModal() {
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
   for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "pets", "stable", "admin"]) if (S.modal === t) tabs.unshift(t);
+  if (S.modal === "trade" || (typeof NET_PT !== "undefined" && NET_PT.trade)) tabs.unshift("trade");
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -624,8 +626,48 @@ function fmtDur(ms) {
   return m >= 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m + "m";
 }
 
+function partyPlayersHtml() {
+  if (typeof NET_PT === "undefined") return "";
+  let h = "<h3>👥 Players</h3>";
+  if (NET_PT.invite) h += '<div class="item" style="border-color:#c9a227"><span><b>' + esc(NET_PT.invite.from) + '</b> invites you to their party.</span><div style="display:flex;gap:6px"><button class="pri" data-a="pjoin">Join</button><button data-a="pdecl">Decline</button></div></div>';
+  if (!NET_PT.id) {
+    h += '<div class="item"><span class="sub">You\'re not in a party. Invite a player here, with /invite Name, or tap them and choose Invite. Up to ' + CONFIG.partyMax + ' players.</span><button class="pri" data-a="pinv">Invite</button></div>';
+    return h + "<h3>🛡️ Companions</h3>";
+  }
+  const lead = netLeaderName(), me = netIsLeader();
+  const row = (name, job, lv, zone, hp, maxHp, extra) => '<div class="item"><div><b>' + (name === lead ? "👑 " : "") + esc(name) + '</b> <span class="sub">' + esc(job) + lv + " · " + esc(ZONES[zone] ? ZONES[zone].name : "?") + " · HP " + Math.ceil(hp) + "/" + maxHp + "</span></div>" + (extra || "") + "</div>";
+  h += row(save.name, player.job, player.lv, S.zoneId, player.hp, player.maxHp, '<button data-a="pleave">Leave</button>');
+  for (const m of netPartyList()) h += row(m.name, m.job, m.lv, m.zone, m.hp, m.maxHp, me ? '<button data-a="pkick" data-v="' + esc(m.name) + '">Remove</button>' : "");
+  if (me && netPartySize() < CONFIG.partyMax) h += '<div style="margin:6px 0"><button class="pri" data-a="pinv">Invite a player</button></div>';
+  h += '<div class="sub" style="margin:4px 0 8px">Kills share experience with party members in the same area and within about ' + Math.round(CONFIG.partyRange / 100) + ' strides. Gear drops go into a shared treasure pool for everyone nearby to lot on, and crystals are split. Party chat: /p text.</div>';
+  return h + "<h3>🛡️ Companions</h3>";
+}
+
+function tabTrade() {
+  const t = typeof NET_PT !== "undefined" ? NET_PT.trade : null;
+  if (!t) return '<div class="sub">No trade open. Tap a player and choose Trade, or type /trade Name.</div>';
+  const myH = netTradeMyHash(), theyOk = t.theirOk && t.theirOk === myH;
+  const list = (side, mine) => (side.items.length ? side.items.map(s => '<div class="ln"><span>' + (ITEMS[s.id].icon || "📦") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + "</span>" + (mine ? '<button data-a="trem" data-v="' + s.id + '" style="padding:0 7px">✕</button>' : "") + "</div>").join("") : '<div class="sub">Nothing yet.</div>') + '<div class="ln"><span>💠 ' + side.gil + " crystals</span>" + (mine ? '<button data-a="tgil" style="padding:0 7px">Set</button>' : "") + "</div>";
+  let h = '<div class="sub" style="margin-bottom:8px">Trading with <b>' + esc(t.name) + '</b>. Changing either offer clears both acceptances. The trade goes through when you both accept the same offers.</div>';
+  if (t.msg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(t.msg) + "</div>";
+  h += '<div class="trd"><div class="side' + (t.myOk ? " ok" : "") + '"><b>Your offer</b>' + (t.myOk ? ' <span class="sub">✓ accepted</span>' : "") + list(t.mine, true) + '</div><div class="side' + (theyOk ? " ok" : "") + '"><b>' + esc(t.name) + "'s offer</b>" + (theyOk ? ' <span class="sub">✓ accepted</span>' : "") + list(t.theirs, false) + "</div></div>";
+  h += '<div style="display:flex;gap:8px;margin:10px 0"><button class="pri" data-a="tacc"' + (t.myOk ? " disabled" : "") + ">" + (t.myOk ? "Waiting…" : "Accept trade") + '</button><button data-a="tcan">Cancel</button></div>';
+  const bag = save.inventory.filter(s => tradeable(s.id));
+  const seen = new Set();
+  h += "<h3>Your bag</h3>";
+  if (!bag.length) h += '<div class="sub">Nothing you can trade. Key items and items marked Exclusive stay with you.</div>';
+  for (const s of bag) {
+    if (seen.has(s.id)) continue;
+    seen.add(s.id);
+    const free = invCount(s.id) - netTradeOffered(s.id);
+    if (free <= 0) continue;
+    h += '<div class="item"><span>' + (ITEMS[s.id].icon || "📦") + " " + esc(ITEMS[s.id].name) + ' <span class="sub">×' + free + '</span></span><div style="display:flex;gap:6px"><button data-a="tadd" data-v="' + s.id + '">Add 1</button>' + (free > 1 ? '<button data-a="taddall" data-v="' + s.id + '">Add all</button>' : "") + "</div></div>";
+  }
+  return h;
+}
+
 function tabParty() {
-  let h = '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once per game day (about ' + Math.round(COMPANION_CFG.dayMs / 60000) + ' real minutes). If you can\'t pay, they go back to the Mercenary Hall.</div>';
+  let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once per game day (about ' + Math.round(COMPANION_CFG.dayMs / 60000) + ' real minutes). If you can\'t pay, they go back to the Mercenary Hall.</div>';
   h += '<div style="display:flex;gap:6px;margin-bottom:10px">' + [["assist", "⚔ Assist", "Fight your target"], ["follow", "🚶 Follow", "Stay close, don't attack"], ["hold", "✋ Hold", "Stand ground"]].map(([k, l, d]) => '<button data-a="stance" data-v="' + k + '" title="' + d + '"' + (save.stance === k ? ' class="pri"' : "") + ">" + l + "</button>").join("") + "</div>";
   if (!save.hired.length) return h + '<div class="item"><span class="sub">No companions yet. Brann at the Mercenary Hall in the Outpost hires them out.</span></div>';
   const bagEq = save.inventory.filter(x => ITEMS[x.id].kind === "equip");
@@ -975,6 +1017,16 @@ function onMenuClick(e) {
   else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
   else if (a === "coat") { UI.stableMsg = buyCoat(v); renderModal(); return; }
   else if (a === "saddle") { UI.stableMsg = buySaddle(); renderModal(); return; }
+  else if (a === "pinv") { const nm = prompt("Invite which player?", ""); if (nm) netPartyInvite(nm); renderModal(); return; }
+  else if (a === "pjoin") { netPartyJoin(); renderModal(); return; }
+  else if (a === "pdecl") { netPartyDecline(); renderModal(); return; }
+  else if (a === "pleave") { gameConfirm("Leave party", "Leave your party?", () => { netPartyLeave(); renderModal(); }, { yes: "Leave", danger: true }); return; }
+  else if (a === "pkick") { netPartyKick(v); renderModal(); return; }
+  else if (a === "tadd" || a === "taddall") { const t = NET_PT.trade; if (t) t.msg = netTradeAdd(v, a === "taddall" ? invCount(v) - netTradeOffered(v) : 1); sfx("select"); renderModal(); return; }
+  else if (a === "trem") { netTradeRemove(v); sfx("close"); renderModal(); return; }
+  else if (a === "tgil") { const t = NET_PT.trade; if (!t) return; const g = prompt("How many crystals will you offer? (You have " + save.gil + ")", String(t.mine.gil)); if (g !== null) t.msg = netTradeGil(g); renderModal(); return; }
+  else if (a === "tacc") { netTradeAccept(); renderModal(); return; }
+  else if (a === "tcan") { netTradeCancel(); return; }
   else if (a === "petsel") { UI.petMsg = equipBuddy(v); renderModal(); return; }
   else if (a === "petsummon") { UI.petMsg = toggleBuddy(); renderModal(); return; }
   else if (a === "petbuy") { const e = BUDDY_SHOP.find(x => x[0] === v); if (!e) return; if (save.gil < e[1]) { UI.petMsg = "You need " + e[1] + " crystals."; sfx("error"); } else { save.gil -= e[1]; learnBuddy(v); UI.petMsg = ""; } renderModal(); return; }
@@ -1060,6 +1112,16 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.2.0", date: "2026-10-13", title: "Parties and trading", items: [
+    "Party up with other players: invite up to 6 with /invite, the Party tab, or by tapping a player. Accept with the popup or /join.",
+    "Party members show in your party frame with HP, MP and TP, and in the Party tab with their area.",
+    "Shared experience: kills share XP with party members nearby, based on the highest level member. Bigger parties earn more in total.",
+    "Shared loot: gear drops go into a treasure pool everyone nearby can lot on, and crystals are split.",
+    "Party kills count toward quests and guild bounties for everyone nearby.",
+    "Cure and Protect now work on other players in your party.",
+    "Trading: trade items and crystals with a nearby player. Both players see both offers and must accept the same deal.",
+    "Tap another player to Invite, Trade, Tell or Check them. Party chat with /p."
   ] },
   { v: "8.1.0", date: "2026-10-13", title: "Other players and chat", items: [
     "You can now see other players in your area: their race, gear and name, walking, riding, fighting, casting and resting in real time.",
@@ -1576,7 +1638,23 @@ function tabHelp() {
     "Other adventurers in the same area appear in the world with their own race, gear and name (in green), moving, fighting and casting in real time.",
     "Type in the chat box to <b>say</b> something to players near you (a speech bubble appears over your head). <b>/shout</b> reaches everyone in the area, <b>/tell Name message</b> reaches one player anywhere (<b>/r</b> replies), and <b>/who</b> lists who's online and where.",
     "The <b>Chat</b> tab in the log shows only player messages.",
-    "Coming next: inviting other players to your party, trading, and monsters shared by everyone in an area. For now each player fights their own copy of the monsters."
+    "Tap or click another player to see their job and level and to Invite, Trade, send a Tell or Check them.",
+    "Monsters aren't shared yet: each player still fights their own copy. Shared monsters are coming."
+  ]));
+  h += sec("🤝 Parties with other players", ul([
+    "Invite up to " + CONFIG.partyMax + " players: tap them and choose <b>Invite</b>, use the Party tab, or type <b>/invite Name</b>. The invited player gets a popup, or can type <b>/join</b> or <b>/decline</b>. Only the leader (👑, the player who has been in the party longest) can invite or remove members.",
+    "Party members appear in your party frame under your companions, with HP, MP and TP. A faded row means they're in another area; tap a row to target them.",
+    "<b>Experience:</b> when anyone in the party defeats a monster, everyone in the same area within about " + Math.round(CONFIG.partyRange / 100) + " strides gets a share. The share is based on the highest level member nearby, so a big gap in levels means less experience for the lower levels. Bigger parties earn more in total (2 players: 60% each, 3: 45%, 4: 37%, 5: 32%, 6: 28%). EXP chains carry over from the player who made the kill.",
+    "<b>Loot:</b> gear from a party kill goes into a shared treasure pool. Everyone nearby can Lot or Pass; the highest lot wins once all have chosen or time runs out. Other drops go to the player who made the kill. Crystals are split evenly.",
+    "Kills by a party member nearby count for your quest and guild bounty tallies too.",
+    "<b>Magic on party members:</b> tap a party member and choose Magic, or target them and cast. Cure spells and Protect work on players in your party.",
+    "Your companions stay with you and fight only your monsters. Party chat: <b>/p text</b>. Leave with <b>/leave</b>, remove a member with <b>/kick Name</b>."
+  ]));
+  h += sec("🔄 Trading", ul([
+    "Stand near another player and tap them, then choose <b>Trade</b>, or type <b>/trade Name</b>. They get a popup to accept.",
+    "Add up to " + CONFIG.tradeSlots + " kinds of item and any number of crystals. Both offers show side by side. Changing an offer clears both acceptances, so you always see the final deal before it happens.",
+    "The trade goes through when you both press Accept on the same offers. You need room in your bag for what you receive, and you can't receive a Rare item you already have.",
+    "Key items and Exclusive items can't be traded. Closing the trade window or walking away cancels it."
   ]));
   h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));

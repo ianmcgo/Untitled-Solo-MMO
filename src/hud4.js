@@ -11,7 +11,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -251,16 +251,26 @@ function updateActionBar() {
 }
 
 function jobTag(p) { if (p.pet) return "Sprite"; return p.job + p.lv + (p.sub ? "/" + p.sub + Math.floor(p.lv / 2) : ""); }
+function partyRows() {
+  if (typeof NET_PT === "undefined" || !NET_PT.id) return S.party;
+  return S.party.concat(netPartyList().map(m => { m.kind = "netmember"; return m; }));
+}
 function buildParty() {
   const el = $("party");
   el.innerHTML = "";
-  S.party.forEach((p, i) => {
+  partyRows().forEach((p, i) => {
     const row = document.createElement("div");
     row.className = "pf glass";
     const job = JOBS[p.job] || { icon: "?", color: "#ccc" };
     row.innerHTML = '<div class="por" style="border-color:' + (p.color || job.color) + '">' + job.icon + "<em></em></div><div><div class=\"top\"><span class=\"nm\"></span><span class=\"jb\"></span></div><div class=\"bars\">" +
       '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div>' + (p === player ? '<div class="bar xp" title="Experience"><i id="pfXp"></i></div>' : "") + '</div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
-    row.onclick = () => { setTarget(p); sfx("select"); };
+    if (p.kind === "netmember") row.classList.add("net");
+    row.onclick = () => {
+      sfx("select");
+      if (p.kind !== "netmember") { setTarget(p); return; }
+      const o = S.others && S.others.get(p.id);
+      if (o) { setTarget(o); tgtCmdOpen(o); } else log(p.name + " is in " + (ZONES[p.zone] ? ZONES[p.zone].name : "another area") + ".", "sys");
+    };
     const q = s => row.querySelector(s);
     const bars = row.querySelectorAll(".bars .bar");
     p.ui = { row, nm: q(".nm"), jb: q(".jb"), lv: q(".por em"), hp: bars[0].firstChild, hpT: bars[0].lastChild, mp: bars[1].firstChild, mpT: bars[1].lastChild, mpBar: bars[1], tp: bars[2].firstChild, bufs: q(".bufs"), cb: q(".cb"), cbI: q(".cb i") };
@@ -268,13 +278,14 @@ function buildParty() {
   });
 }
 function updateParty() {
-  const key = S.party.map(p => (p.mercId || "me") + p.job).join(",");
+  const rows = partyRows();
+  const key = rows.map(p => (p.kind === "netmember" ? p.id : p.mercId || "me") + p.job).join(",");
   if (key !== UI.partyKey) { UI.partyKey = key; buildParty(); }
-  for (const p of S.party) {
+  for (const p of rows) {
     const u = p.ui;
     if (!u) continue;
     setTxt(u.nm, p === player ? save.name || "You" : p.name);
-    setTxt(u.jb, (UI.phone ? jobTag(p) : (JOBS[p.job] ? JOBS[p.job].name : p.job) + (p.sub ? "/" + p.sub : "")) + (p.mounted ? " 🦖" : ""));
+    setTxt(u.jb, (UI.phone ? jobTag(p) : (JOBS[p.job] ? JOBS[p.job].name : p.job) + (p.sub ? "/" + p.sub : "")) + (p.mounted ? " 🦖" : "") + (p.kind === "netmember" && p.zone && p.zone !== S.zoneId ? " · " + (ZONES[p.zone] ? ZONES[p.zone].name : "away") : ""));
     setTxt(u.lv, String(p.lv));
     setW(u.hp, 100 * p.hp / p.maxHp);
     setTxt(u.hpT, String(Math.ceil(p.hp)));
@@ -287,7 +298,8 @@ function updateParty() {
     const cast = p.casting ? (S.time - p.casting.start) / (p.casting.end - p.casting.start) : -1;
     u.cb.style.display = cast >= 0 ? "" : "none";
     if (cast >= 0) setW(u.cbI, cast * 100);
-    u.row.classList.toggle("sel", player.target === p);
+    u.row.classList.toggle("sel", player.target === p || (p.kind === "netmember" && player.target && player.target.id === p.id));
+    if (p.kind === "netmember") u.row.classList.toggle("far", p.zone !== S.zoneId);
     u.row.classList.toggle("ko", !p.alive);
   }
 }
@@ -296,11 +308,11 @@ function updateTarget() {
   if (UI.cmd && (player.target !== UI.cmd.t || !UI.cmd.t.alive)) tgtCmdClose();
   const t = player.target;
   const box = $("target");
-  if (!t || !(isMob(t) || isParty(t) || t.kind === "npc") || (isMob(t) && t.despawned)) { if (box.style.display !== "none") box.style.display = "none"; UI.ghostTarget = null; return; }
+  if (!t || !(isMob(t) || isParty(t) || t.kind === "npc" || t.kind === "remote") || (isMob(t) && t.despawned)) { if (box.style.display !== "none") box.style.display = "none"; UI.ghostTarget = null; return; }
   if (box.style.display !== "block") box.style.display = "block";
   box.classList.remove("npc");
   let pct = 0;
-  if (t !== UI.ghostTarget) { UI.ghostTarget = t; UI.hpGhost = isMob(t) || isParty(t) ? t.hp / t.maxHp : 0; }
+  if (t !== UI.ghostTarget) { UI.ghostTarget = t; UI.hpGhost = isMob(t) || isParty(t) || t.kind === "remote" ? t.hp / t.maxHp : 0; }
   if (isMob(t)) {
     const [c, col] = conOf(t);
     setTxt($("tName"), t.name);
@@ -340,6 +352,20 @@ function updateTarget() {
     $("tWarn").style.display = "none";
     const bf = Object.keys(t.buffs).map(k => BUFF_NAMES[k]).join(", ");
     setTxt($("tInfo"), (t.alive ? (t.maxMp ? "MP " + Math.floor(t.mp) + "/" + t.maxMp : "Ready") : "KO") + (bf ? " · " + bf : ""));
+    setHtml($("tChain"), "");
+  } else if (t.kind === "remote") {
+    const mate = isMate(t);
+    setTxt($("tName"), t.name);
+    $("tName").style.color = mate ? "#9fd0ff" : "#a5d6a7";
+    setTxt($("tLv"), (t.job ? t.job + t.lv + (t.sub ? "/" + t.sub : "") : "") + (mate ? " · Party" : " · Player"));
+    $("tTag").style.display = "none";
+    pct = 100 * t.hp / Math.max(1, t.maxHp);
+    setTxt($("tHpT"), mate ? Math.ceil(t.hp) + " / " + t.maxHp : Math.ceil(pct) + "%");
+    setW($("tTp"), mate ? 100 * (t.tp || 0) / CONFIG.tpMax : 0);
+    setW($("tSwing"), t.casting ? 100 * clamp((S.time - t.casting.start) / (t.casting.end - t.casting.start), 0, 1) : 0);
+    setTxt($("tToT"), "");
+    $("tWarn").style.display = "none";
+    setTxt($("tInfo"), !t.alive ? "KO" : mate ? (t.maxMp ? "MP " + Math.floor(t.mp) + "/" + t.maxMp + " · " : "") + "Your party" : (UI.phone ? "Tap again for options" : "Click again for options"));
     setHtml($("tChain"), "");
   } else {
     setTxt($("tName"), t.name);
@@ -560,7 +586,7 @@ function gameConfirm(title, text, onYes, opts) {
 }
 
 function tgtCmdOpen(t) {
-  if (!isMob(t) || !t.alive) { tgtCmdClose(); return; }
+  if (!t || (!isMob(t) && t.kind !== "remote") || (isMob(t) && !t.alive)) { tgtCmdClose(); return; }
   UI.cmd = { t, page: "root", info: "" };
   renderTgtCmd();
 }
@@ -584,6 +610,25 @@ function renderTgtCmd() {
   const t = c.t;
   let h = "";
   const btn = (key, label, cls) => '<button data-tc="' + key + '"' + (cls ? ' class="' + cls + '"' : "") + ">" + label + "</button>";
+  if (t.kind === "remote") {
+    const mate = isMate(t);
+    if (c.page === "root") {
+      h += '<div class="tcHead"><span>' + esc(t.name) + "</span>" + btn("close", "✕") + "</div>";
+      if (mate) h += btn("ma", "✦ Magic", "pri");
+      else h += btn("invite", "👥 Invite", "pri");
+      h += btn("trade", "🤝 Trade") + btn("tell", "💬 Tell") + btn("check", "🔍 Check");
+      if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
+    } else {
+      const acts = actionList(player).filter(a => a.kind === "ma" && SPELLS[a.id].target === "ally" && (SPELLS[a.id].kind === "heal" || SPELLS[a.id].kind === "buff"));
+      c.acts = acts;
+      h += '<div class="tcHead"><span>Magic · ' + esc(t.name) + "</span>" + btn("back", "◂") + "</div>";
+      if (!acts.length) h += '<div class="tcInfo">You know no spells to cast on a party member.</div>';
+      acts.forEach((a, i) => { const why = checkAction(player, a, t); h += btn("act" + i, actIcon(a) + " " + esc(actName(a)), why ? "off" : ""); });
+    }
+    el.innerHTML = h;
+    el.classList.add("on");
+    return;
+  }
   if (c.page === "root") {
     const eng = player.engaged && player.attackTarget === t;
     h += '<div class="tcHead"><span>' + esc(t.name) + "</span>" + btn("close", "✕") + "</div>";
@@ -608,6 +653,10 @@ function onTgtCmd(key) {
   if (key === "close") { tgtCmdClose(); return; }
   if (key === "back") { c.page = "root"; renderTgtCmd(); return; }
   if (key === "ma" || key === "ja") { c.page = key; renderTgtCmd(); return; }
+  if (key === "invite") { netPartyInvite(t.name); tgtCmdClose(); return; }
+  if (key === "trade") { netTradeAsk(t.name); tgtCmdClose(); return; }
+  if (key === "tell") { tgtCmdClose(); const inp = $("chatIn") || document.querySelector("#chat input"); if (inp) { inp.value = "/t " + t.name + " "; inp.focus(); } return; }
+  if (key === "check") { c.info = t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub ? " / " + JOBS[t.sub].name : "") + "."; renderTgtCmd(); return; }
   if (key === "inspect") { c.info = inspectText(t); log("The " + t.name + ": " + c.info, "sys"); renderTgtCmd(); return; }
   if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
   if (key.startsWith("act")) {

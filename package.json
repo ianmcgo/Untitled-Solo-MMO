@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "8.1.0",
-  "releaseTitle": "Other players and chat",
+  "version": "8.2.0",
+  "releaseTitle": "Parties and trading",
   "description": "",
   "main": "index.js",
   "scripts": {
