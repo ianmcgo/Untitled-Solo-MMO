@@ -84,6 +84,7 @@ function newSave() {
   const jobs = {}, skills = {};
   for (const j in JOBS) { jobs[j] = { lv: 1, xp: 0 }; skills[j] = newSkillSet(); }
   return {
+    mercDefs: {}, mercDay: { day: -1, ids: [] }, mercFallen: {},
     spells: Object.keys(SPELLS).filter(id => Object.values(SPELLS[id].jobs).includes(1)),
     v: 2, name: "Adventurer", mainJob: "WAR", subJob: null, supportUnlocked: false,
     jobs, skills,
@@ -499,6 +500,7 @@ function addBond(id, n) {
 function mercWage(id) { return Math.max(10, Math.ceil(MERCS[id].fee * COMPANION_CFG.wageRate)); }
 
 function tickWages() {
+  mercDefsSync();
   const now = Date.now();
   for (const id of save.hired.slice()) {
     if (!save.mercPaid[id]) save.mercPaid[id] = now + COMPANION_CFG.dayMs;
@@ -590,7 +592,52 @@ function syncAllies(full) {
   }
 }
 
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"] };
+const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
+const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
+const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
+function mercDayNum() { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000); }
+function mercDefsSync() {
+  if (!save.mercDefs) save.mercDefs = {};
+  for (const id in save.mercDefs) MERCS[id] = save.mercDefs[id];
+}
+function genMercDef(rnd, id) {
+  const jobs = Object.keys(MERC_ROLES).filter(j => JOBS[j]);
+  const job = jobs[Math.floor(rnd() * jobs.length)], roles = MERC_ROLES[job], role = roles[Math.floor(rnd() * roles.length)];
+  const s = MERC_SYL, nm = s[0][Math.floor(rnd() * s[0].length)] + s[1][Math.floor(rnd() * s[1].length)] + s[2][Math.floor(rnd() * s[2].length)];
+  const lv = player.lv, mul = { tank: 1.1, healer: 1.15, burster: 1.2, bard: 1.15, hybrid: 1.1 }[role] || 1;
+  const hue = Math.floor(rnd() * 360);
+  return { gen: true, name: nm, job, role, fee: Math.round((40 + 18 * lv) * mul / 5) * 5, color: "hsl(" + hue + ",60%,72%)", look: { build: rnd() < 0.5 ? 0 : 1, skin: Math.floor(rnd() * 4), hairStyle: Math.floor(rnd() * 6), hairColor: Math.floor(rnd() * 8) }, desc: "A " + JOBS[job].name + ". " + MERC_ROLE_TEXT[role] + " " + MERC_TRAITS[Math.floor(rnd() * MERC_TRAITS.length)] };
+}
+function mercPool(dayOverride) {
+  mercDefsSync();
+  const day = dayOverride != null ? dayOverride : mercDayNum();
+  if (!save.mercDay || save.mercDay.day !== day) {
+    for (const id of (save.mercDay && save.mercDay.ids) || []) if (!save.hired.includes(id)) { delete save.mercDefs[id]; delete MERCS[id]; }
+    const rnd = seeded(hashStr(String(save.created || 1) + ":merc:" + day));
+    const ids = [];
+    for (let i = 0; i < CONFIG.mercDaily; i++) { let id = "m" + day + "_" + i; while (save.mercDefs[id]) id += "x"; save.mercDefs[id] = genMercDef(rnd, id); MERCS[id] = save.mercDefs[id]; ids.push(id); }
+    save.mercDay = { day, ids };
+  }
+  return save.mercDay.ids.filter(id => MERCS[id] && !save.mercFallen[id]);
+}
+function mercFallTick() {
+  for (const p of S.party) if (p.mercId && p.fallAt && S.time >= p.fallAt) {
+    const id = p.mercId, nm = MERCS[id] ? MERCS[id].name : p.name;
+    p.fallAt = 0;
+    save.mercFallen[id] = Date.now();
+    const i = save.hired.indexOf(id);
+    if (i >= 0) save.hired.splice(i, 1);
+    delete save.mercPaid[id];
+    if (save.mercDefs[id] && !(save.mercDay && save.mercDay.ids.includes(id))) delete save.mercDefs[id];
+    log(nm + " has fallen and will not be coming back.", "foe");
+    rebuildParty();
+    saveGame();
+    return;
+  }
+}
 function rebuildParty() {
+  mercDefsSync();
   const old = S.party;
   S.party = [player];
   if (S.pet) S.party.push(S.pet);
@@ -611,6 +658,8 @@ function rebuildParty() {
 }
 
 function mercAvailable(id) {
+  if (!MERCS[id] || (save.mercFallen && save.mercFallen[id])) return false;
+  if (MERCS[id].gen) return true;
   const r = MERCS[id].requires;
   if (!JOBS[MERCS[id].job]) return false;
   if (r && r.quest && save.quests[r.quest] !== "done") return false;
@@ -647,6 +696,7 @@ function dismissMerc(id, quiet) {
   delete save.mercPaid[id];
   rebuildParty();
   if (!quiet) log(MERCS[id].name + " leaves the party.", "sys");
+  if (MERCS[id].gen && !(save.mercDay && save.mercDay.ids.includes(id))) delete save.mercDefs[id];
   saveGame();
 }
 
@@ -908,6 +958,7 @@ function onKO(e, src) {
     if (e === player) for (const p of S.party) p.mounted = false;
     for (const m of S.mobs) m.enmity.delete(e);
     if (e !== player) partySay(e, "ko", true);
+    if (e.mercId && CONFIG.mercPermadeath) { e.fallAt = S.time + 4; log(e.name + " is badly wounded…", "foe"); }
     if (e === player) { save.stats.kos++; S.ko = true; S.chase = false; S.moveTarget = null; showKO(true); }
   }
 }
@@ -1062,7 +1113,7 @@ function dropLoot(m, mates) {
     if (ITEMS[id].kind === "equip" && (S.party.length > 1 || mates.length)) { const pe = addToPool(id); if (mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); continue; }
     giveItem(id, 1);
   }
-  if (Math.random() < CONFIG.scrollDrop) {
+  if (Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
     const pool = Object.values(SPELLS).filter(sp => sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
     if (pool.length) giveItem("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, 1);
   }
@@ -3152,6 +3203,7 @@ function step(dt) {
   for (const e of S.party.concat(S.mobs)) { e.px = e.x; e.py = e.y; }
   updatePlayer(dt);
   for (const a of S.party) if (a !== player) updateAlly(a, dt);
+  mercFallTick();
   for (const m of S.mobs) updateMob(m, dt);
   updateNpcs(dt);
   for (const p of S.party) { if (p.alive) { tickBuffs(p); tickCasting(p); } }
@@ -3880,7 +3932,7 @@ const TALK = {
   },
   talkBrann(n) {
     const hired = save.hired.length;
-    openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee to hire them, then a daily wage to keep them. They'll follow you anywhere. Up to five at a time.", [
+    openDialog(n.name, hired ? "Your company's holding up, I hope. I get new faces every day, any trade you like, and they'll fight at your side as long as they draw breath. Lose one and they're gone for good, so look after them." : "Nobody walks the Hollow alone for long. Every day five new fighters come through my hall, all kinds. They match your strength and grow with you. Pay their fee, then a daily wage. And mind them: the fallen don't come back.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
     ].concat(questOptions("brann", n)));
   },

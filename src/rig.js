@@ -1499,7 +1499,7 @@ function buildEntityRig(e) {
     sig = "pet|" + e.petKey;
     make = () => batEntry(P.col, P.eye);
   } else {
-    const base = e === player ? playerBase() : e.remote ? baseFromLook(e.look || {}) : (MERC_BASE[e.mercId] || MERC_BASE.kael);
+    const base = e === player ? playerBase() : e.remote ? baseFromLook(e.look || {}) : (MERC_BASE[e.mercId] || (MERCS[e.mercId] && MERCS[e.mercId].look ? baseFromLook(MERCS[e.mercId].look) : MERC_BASE.kael));
     const L = lookFor(e.job, e.gear, base);
     sig = "h|" + stableKey(L);
     make = () => humanEntry(L);

@@ -18,6 +18,15 @@ const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" 
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+function reportError(e, where) {
+  console.error(where, e);
+  const key = where + ":" + (e && e.message);
+  UI.errSeen = UI.errSeen || {};
+  if (UI.errSeen[key]) return;
+  UI.errSeen[key] = 1;
+  const at = String((e && e.stack) || "").split("\n")[1] || "";
+  try { log("⚠ Game error (" + where + "): " + (e && e.message) + " " + at.trim().slice(0, 120) + ". The game kept running; please tell the developer.", "foe"); } catch (e2) {}
+}
 function log(msg, c) {
   const el = $("log");
   if (!el) return;

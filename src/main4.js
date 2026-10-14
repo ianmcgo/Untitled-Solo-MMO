@@ -108,16 +108,18 @@ async function boot() {
   function frame(now) {
     const dt = clamp((now - last) / 1000, 0, 0.05);
     last = now;
-    if (UI.started && !VIEW.loading) {
-      if (!S.ko) step(dt); else S.time += dt;
-      if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
-      age(dt);
-      draw(dt);
-      updateHud(dt);
-      updateAudio();
-    } else if (UI.creating && UI.pv) renderPreview(now);
-    else if (UI.showcase && UI.pv) renderShowcase(now);
     requestAnimationFrame(frame);
+    try {
+      if (UI.started && !VIEW.loading) {
+        if (!S.ko) step(dt); else S.time += dt;
+        if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
+        age(dt);
+        draw(dt);
+        updateHud(dt);
+        updateAudio();
+      } else if (UI.creating && UI.pv) renderPreview(now);
+      else if (UI.showcase && UI.pv) renderShowcase(now);
+    } catch (e) { reportError(e, "frame"); }
   }
   requestAnimationFrame(frame);
   showTitle();

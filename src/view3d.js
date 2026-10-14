@@ -415,6 +415,12 @@ function onZoneEntered() {
   loadZoneAsync(job);
 }
 async function loadZoneAsync(job) {
+  try { await loadZoneInner(job); } catch (e) {
+    reportError(e, "zone");
+    if (job === VIEW.zoneJob) { VIEW.loading = false; try { loaderHide(); } catch (e2) {} }
+  }
+}
+async function loadZoneInner(job) {
   const t0 = performance.now();
   await frames(2);
   if (job !== VIEW.zoneJob) return;
