@@ -690,11 +690,43 @@
   #mBody .csBag { margin-top: 4px; } #mBody .inv .cell.off { opacity: .45; }
   .csSk { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font: 700 11px var(--ffFont); color: #dcdcff; } .csSk b { color: #8fb8ff; font-style: italic; }
   @media (max-width: 720px) { .csWrap { grid-template-columns: 1fr; } .csRes { border-left: none; border-top: 2px solid rgba(220,224,255,.55); } }
+  .mcBox { border: 2px solid var(--ffEdge); border-radius: 6px; overflow: hidden; background: var(--ffStripe); font-family: var(--ffFont); }
+  .mcTop { display: grid; grid-template-columns: 160px 1fr; border-bottom: 2px solid rgba(220,224,255,.6); }
+  .mcT, .mcMsg { padding: 5px 10px; font: 700 13.5px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; letter-spacing: .03em; } .mcT { border-right: 2px solid rgba(220,224,255,.6); } .mcT sup { font-size: 10px; font-style: italic; }
+  .mcCols { display: grid; grid-template-columns: 1fr 1fr; } .mcCol { padding: 4px 6px 6px; max-height: 52vh; overflow-y: auto; background: linear-gradient(180deg, rgba(14,14,34,.55), rgba(8,8,22,.7)); } .mcCol + .mcCol { border-left: 2px solid rgba(220,224,255,.6); }
+  .mcLbl { font: italic 800 10px var(--ffFont); color: #d8d8ff; margin: 0 0 3px 2px; }
+  #mBody .mcR { display: flex; align-items: center; gap: 8px; width: 100%; height: 24px; padding: 0 6px; border: none; border-radius: 2px; background: transparent; box-shadow: none; font: italic 800 13px var(--ffFont); color: #fff; text-align: left; text-shadow: 1px 1px 0 #000; }
+  #mBody .mcR:hover { background: linear-gradient(90deg, rgba(150,160,255,.45), rgba(80,90,200,.15)); }
+  .mcR .ic { width: 20px; height: 20px; display: grid; place-items: center; font-style: normal; font-size: 14px; background: linear-gradient(180deg, rgba(110,116,190,.6), rgba(50,54,120,.7)); border: 1px solid rgba(255,255,255,.35); border-radius: 2px; }
+  .mcR .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .mcR .nm.eq { color: #e8e8f0; } .mcR .nm.dim { color: #b8b8d8; font-style: normal; font-weight: 700; font-size: 12px; } .mcR .q { font-size: 12px; }
+  div.mcR.empty { display: flex; align-items: center; height: 24px; padding: 0 6px; }
+  @media (max-width: 720px) { .mcTop { grid-template-columns: 110px 1fr; } }
+  .eqWrap { display: grid; grid-template-columns: 300px 1fr; gap: 12px; align-items: start; }
+  .eqBox { padding: 8px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; }
+  .eqGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  #mBody .eqS { aspect-ratio: 1; padding: 0; border-radius: 3px; border: 1px solid rgba(170,180,255,.55); background: linear-gradient(180deg, rgba(90,96,190,.5), rgba(34,38,100,.75)); box-shadow: inset 0 0 8px rgba(0,0,40,.6); display: grid; place-items: center; text-shadow: none; }
+  #mBody .eqS .ic { font-size: 30px; font-style: normal; } #mBody .eqS .lbl { font: italic 800 11px var(--ffFont); color: rgba(220,224,255,.45); }
+  #mBody .eqS.on { background: linear-gradient(180deg, rgba(130,140,230,.55), rgba(50,56,140,.8)); }
+  #mBody .eqS.sel { outline: 2px solid #ffb060; box-shadow: 0 0 10px rgba(255,170,80,.7), inset 0 0 8px rgba(0,0,40,.6); }
+  .eqStats { display: flex; justify-content: space-between; margin-top: 8px; font: italic 900 14px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; } .eqStats b { margin-left: 6px; }
+  .eqRes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px 6px; margin-top: 6px; font: italic 800 12px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
+  .eqRes span { display: flex; align-items: center; gap: 5px; } .eqRes i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(255,255,255,.7); box-shadow: inset -2px -2px 3px rgba(0,0,0,.35); }
+  .eqSide { display: flex; flex-direction: column; gap: 6px; }
+  .eqPop { background: linear-gradient(180deg, rgba(14,14,34,.7), rgba(8,8,22,.85)); border: 2px solid var(--ffEdge); border-radius: 6px; padding: 4px 6px; max-height: 34vh; overflow-y: auto; }
+  .eqPH { font: italic 900 12px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; border-bottom: 2px solid rgba(220,224,255,.5); margin-bottom: 3px; padding-bottom: 2px; }
+  #mBody .mcR.hv { background: linear-gradient(90deg, rgba(255,190,100,.45), rgba(200,120,40,.15)); } #mBody .mcR .q.bad, .iCard .bad { color: #ff8a80; }
+  .iCard { padding: 7px 10px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; font: 700 12.5px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; letter-spacing: .02em; }
+  .iCh { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; } .iCh .ic { font-size: 24px; width: 32px; height: 32px; display: grid; place-items: center; background: linear-gradient(180deg, rgba(110,116,190,.6), rgba(50,54,120,.7)); border: 1px solid rgba(255,255,255,.4); border-radius: 3px; }
+  .iCh b { font: italic 900 14px var(--ffFont); color: #fff; flex: 1; } .iCh .tg { font: 800 9px var(--ffFont); padding: 1px 5px; border-radius: 8px; background: linear-gradient(180deg, #fff, #9ab0ff); color: #1a1a50; text-shadow: none; }
+  .iCl { line-height: 1.45; } .iCl.q { color: #e4e4ff; font-weight: 600; } .iLv { text-align: right; font-size: 11.5px; color: #e8e8ff; }
+  .eqArrow { text-align: center; color: #ffb060; font-size: 16px; line-height: 1; }
+  #mBody .detail .iCard { margin-bottom: 6px; }
+  @media (max-width: 760px) { .eqWrap { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.9.0 · built 2026-10-13 21:56 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.0.0 · built 2026-10-13 22:05 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5643,8 +5675,12 @@ const SC_TABLE = [
 ];
 
 const ATTRS = ["str", "dex", "vit", "agi", "int", "mnd"];
-const SLOTS = ["main", "head", "body", "hands", "legs", "feet", "ring"];
-const SLOT_NAMES = { main: "Main", head: "Head", body: "Body", hands: "Hands", legs: "Legs", feet: "Feet", ring: "Ring" };
+const SLOTS = ["main", "sub", "ranged", "ammo", "head", "neck", "ear1", "ear2", "body", "hands", "ring1", "ring2", "back", "waist", "legs", "feet"];
+const SLOT_NAMES = { main: "Main", sub: "Sub", ranged: "Range", ammo: "Ammo", head: "Head", neck: "Neck", ear1: "Ear", ear2: "Ear", body: "Body", hands: "Hands", ring1: "Ring", ring2: "Ring", back: "Back", waist: "Waist", legs: "Legs", feet: "Feet", ring: "Ring", ear: "Ear" };
+const SLOT_PAIRS = { ring: ["ring1", "ring2"], ear: ["ear1", "ear2"] };
+function slotKeys(type) { return SLOT_PAIRS[type] || [type]; }
+function slotFor(id, gear, want) { const ks = slotKeys(ITEMS[id].slot); if (want && ks.includes(want)) return want; return ks.find(k => !gear[k]) || ks[0]; }
+const RES_ELEMENTS = ["fire", "ice", "wind", "earth", "lightning", "water", "light", "dark"];
 const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN", "DRK", "BRD"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
 const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 }, THF: { quest: "thf", lv: 6 }, MNK: { quest: "mnk", lv: 6 }, RNG: { quest: "rng", lv: 6 }, SMN: { quest: "smn", lv: 6 }, DRK: { quest: "drk", lv: 10 }, BRD: { quest: "brd", lv: 10 } };
@@ -5854,7 +5890,7 @@ const ITEMS = {
   iron_helm: { name: "Iron Helm", kind: "equip", icon: "⛑️", slot: "head", jobs: ["WAR", "PLD"], lv: 12, price: 1800, stats: { def: 6, hp: 12 } },
   wool_hat: { name: "Wool Hat", kind: "equip", icon: "🎩", slot: "head", jobs: ALL_J, lv: 10, price: 900, stats: { def: 3, mp: 10 } },
   marsh_boots: { name: "Marsh Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 10, rare: true, stats: { def: 4, agi: 3, eva: 4 }, desc: "Waterproofed with toad oil. A reward from Captain Rhea." },
-  croaker_charm: { name: "Croaker Charm", kind: "equip", icon: "🐸", slot: "ring", jobs: ALL_J, lv: 12, rare: true, nm: true, stats: { hp: 30, vit: 3, def: 3 }, desc: "Carved from the Old Croaker's throat stone." },
+  croaker_charm: { name: "Croaker Charm", kind: "equip", icon: "🐸", slot: "neck", jobs: ALL_J, lv: 12, rare: true, nm: true, stats: { hp: 30, vit: 3, def: 3 }, desc: "Carved from the Old Croaker's throat stone." },
   gax_cleaver: { name: "Gax's Cleaver", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 29, delay: 4.0, jobs: ["WAR"], lv: 14, rare: true, nm: true, stats: { str: 4, att: 8 }, desc: "The Mirelord's notched axe." },
   mire_mantle: { name: "Mire Mantle", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 14, rare: true, nm: true, stats: { def: 12, hp: 20, mp: 20, eva: 5 }, desc: "A hooded mantle that drips no matter how long it hangs to dry." },
   fishing_rod: { name: "Willow Rod", kind: "use", icon: "🎣", price: 150, fishing: true, desc: "Use it beside water (or type /fish) to cast a line. Needs Fishing Bait." },
@@ -5960,7 +5996,7 @@ const ITEMS = {
   bronze_cap_hq: { name: "Bronze Cap +1", kind: "equip", icon: "⛑️", hq: true, slot: "head", jobs: ALL_J, lv: 1, price: 130, stats: { def: 3, hp: 5 } },
   chieftain_cap: { name: "Chieftain's Cap", kind: "equip", icon: "👑", ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 5, price: 2000, stats: { def: 4, hp: 10, str: 2, dex: 2, int: 2, mnd: 2 } },
   leather_vest: { name: "Leather Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ALL_J, lv: 1, price: 120, stats: { def: 4, hp: 6 } },
-  kite_shield: { name: "Kite Shield", kind: "equip", icon: "🛡️", slot: "ring", jobs: ["PLD", "WAR"], lv: 3, price: 450, stats: { def: 5, hp: 6 }, shield: true, desc: "Worn on the off hand. Counts as your accessory slot." },
+  kite_shield: { name: "Kite Shield", kind: "equip", icon: "🛡️", slot: "sub", jobs: ["PLD", "WAR"], lv: 3, price: 450, stats: { def: 5, hp: 6 }, shield: true, desc: "Worn on the off hand. Counts as your accessory slot." },
   scarlet_tabard: { name: "Scarlet Tabard", kind: "equip", icon: "👘", slot: "body", jobs: ["RDM"], lv: 5, price: 1050, stats: { def: 6, mp: 10, int: 1, mnd: 1, str: 1 } },
   scale_mail: { name: "Scale Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 5, price: 1100, stats: { def: 9, hp: 15 } },
   linen_robe: { name: "Linen Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 1, price: 110, stats: { def: 3, mp: 10 } },
@@ -5968,6 +6004,23 @@ const ITEMS = {
   cotton_robe: { name: "Cotton Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 5, price: 1000, stats: { def: 6, mp: 18, int: 1, mnd: 1 } },
   leather_gloves: { name: "Leather Gloves", kind: "equip", icon: "🧤", slot: "hands", jobs: ALL_J, lv: 2, price: 90, stats: { def: 2, dex: 1 } },
   leather_trousers: { name: "Leather Trousers", kind: "equip", icon: "👖", slot: "legs", jobs: ALL_J, lv: 2, price: 110, stats: { def: 3 } },
+  leather_gorget: { name: "Leather Gorget", kind: "equip", icon: "📿", slot: "neck", jobs: ALL_J, lv: 3, price: 220, stats: { def: 2, hp: 6 } },
+  mage_pendant: { name: "Mage's Pendant", kind: "equip", icon: "📿", slot: "neck", jobs: ["WHM", "BLM", "RDM", "SMN", "BRD"], lv: 6, price: 640, stats: { int: 2, mp: 8 } },
+  spirit_torque: { name: "Spirit Torque", kind: "equip", icon: "📿", slot: "neck", jobs: ALL_J, lv: 11, price: 1500, stats: { mnd: 2, hp: 10, res_dark: 6 } },
+  copper_earring: { name: "Copper Earring", kind: "equip", icon: "🔸", slot: "ear", jobs: ALL_J, lv: 2, price: 150, stats: { str: 1 } },
+  beetle_earring: { name: "Beetle Earring", kind: "equip", icon: "🔸", slot: "ear", jobs: ALL_J, lv: 5, price: 380, stats: { def: 2, vit: 1 } },
+  silver_earring: { name: "Silver Earring", kind: "equip", icon: "🔹", slot: "ear", jobs: ALL_J, lv: 9, price: 900, stats: { mp: 6, int: 1 } },
+  ember_earring: { name: "Ember Earring", kind: "equip", icon: "🔥", slot: "ear", jobs: ALL_J, lv: 13, price: 1400, stats: { att: 3, res_fire: 10 } },
+  travelers_cape: { name: "Traveler's Cape", kind: "equip", icon: "🧣", slot: "back", jobs: ALL_J, lv: 1, price: 120, stats: { def: 2, eva: 1 } },
+  wolf_mantle: { name: "Wolf Mantle", kind: "equip", icon: "🧣", slot: "back", jobs: ["WAR", "PLD", "THF", "MNK", "RNG", "DRK", "BRD", "RDM"], lv: 9, price: 1100, stats: { att: 4, def: 2, res_ice: 5 } },
+  mage_cape: { name: "Mage's Cape", kind: "equip", icon: "🧣", slot: "back", jobs: ["WHM", "BLM", "RDM", "SMN", "BRD"], lv: 7, price: 820, stats: { int: 2, mnd: 2, res_wind: 5 } },
+  leather_belt: { name: "Leather Belt", kind: "equip", icon: "🪢", slot: "waist", jobs: ALL_J, lv: 2, price: 140, stats: { hp: 8 } },
+  warriors_belt: { name: "Warrior's Belt", kind: "equip", icon: "🪢", slot: "waist", jobs: ["WAR", "PLD", "THF", "MNK", "RNG", "DRK", "BRD", "RDM"], lv: 8, price: 900, stats: { str: 2, att: 2 } },
+  silk_sash: { name: "Silk Sash", kind: "equip", icon: "🪢", slot: "waist", jobs: ALL_J, lv: 8, price: 880, stats: { mp: 10, res_water: 5 } },
+  buckler: { name: "Buckler", kind: "equip", icon: "🛡️", slot: "sub", jobs: ["WAR", "PLD", "RDM", "THF", "DRK", "BRD"], lv: 2, price: 260, stats: { def: 4 } },
+  sling: { name: "Sling", kind: "equip", icon: "🪃", slot: "ranged", jobs: ["WAR", "WHM", "MNK", "THF", "RDM", "BRD", "PLD", "DRK"], lv: 1, price: 90, stats: { acc: 3 } },
+  pebble_pouch: { name: "Pebble Pouch", kind: "equip", icon: "🪨", slot: "ammo", jobs: ALL_J, lv: 1, price: 40, stats: { att: 1 } },
+  wooden_arrows: { name: "Wooden Arrows", kind: "equip", icon: "➶", slot: "ammo", jobs: ["RNG", "WAR", "THF"], lv: 3, price: 120, stats: { att: 3 } },
   leather_boots: { name: "Leather Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 3, price: 100, stats: { def: 2, agi: 1 } },
   captains_ring: { name: "Captain's Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 1, price: 0, stats: { hp: 12, mp: 12, acc: 5, att: 5 } },
   raiders_ring: { name: "Raider's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_J, lv: 4, price: 0, stats: { str: 2, acc: 4, att: 4 } },
@@ -5984,7 +6037,7 @@ const ITEMS = {
   sentinel_greaves: { name: "Sentinel's Greaves", kind: "equip", icon: "👖", rare: true, rarity: "rare", slot: "legs", jobs: ["WAR", "PLD"], lv: 9, price: 0, stats: { def: 7, vit: 3, hp: 12 } },
   hollow_crown: { name: "Hollow Crown", kind: "equip", icon: "👑", rare: true, ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 10, price: 0, stats: { def: 6, hp: 15, mp: 15, str: 2, dex: 2, int: 3, mnd: 3 } },
   kings_blade: { name: "King's Blade", kind: "equip", icon: "🗡️", rare: true, ex: true, rarity: "epic", slot: "main", wtype: "sword", dmg: 14, delay: 2.5, jobs: ["WAR", "PLD", "RDM"], lv: 10, price: 0, stats: { acc: 5, att: 6, str: 2 } },
-  ashen_medallion: { name: "Ashen Medallion", kind: "equip", icon: "🏅", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 9, price: 0, stats: { hp: 20, mp: 20, acc: 6, att: 6, def: 4 } },
+  ashen_medallion: { name: "Ashen Medallion", kind: "equip", icon: "🏅", ex: true, rarity: "epic", slot: "neck", jobs: ALL_J, lv: 9, price: 0, stats: { hp: 20, mp: 20, acc: 6, att: 6, def: 4 } },
   crypt_dust: { name: "Crypt Dust", kind: "mat", icon: "⚱️", rarity: "uncommon", price: 140, stack: 12, desc: "Grave dust that glitters faintly. Alchemists pay well for it." },
   wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
   flowerpot: { name: "Flowerpot", kind: "furniture", icon: "🪴", fp: [1, 1], price: 120, model: "pot", garden: true, desc: "Plant a seed, water it and feed it an essence. Grows in real time." },
@@ -6014,7 +6067,7 @@ for (const id in ITEMS) {
   if (it.slot !== "main" && it.slot !== "ring" && it.jobs.includes("RDM") && !it.jobs.includes("BRD")) it.jobs.push("BRD");
 }
 
-const SHOP = ["bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
+const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -6941,7 +6994,7 @@ const WEATHER = {
 
 const SHOPS = {
   marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
-  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil", "frost_sword", "frost_greataxe", "glacier_staff", "rime_dagger", "frost_claws", "frost_bow", "frost_mail", "snowfur_coat", "frost_robe", "fur_hat", "rime_scythe", "troubadour_coat"]
+  vela: ["spirit_torque", "silver_earring", "ember_earring", "wolf_mantle", "warriors_belt", "silk_sash", "tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil", "frost_sword", "frost_greataxe", "glacier_staff", "rime_dagger", "frost_claws", "frost_bow", "frost_mail", "snowfur_coat", "frost_robe", "fur_hat", "rime_scythe", "troubadour_coat"]
 };
 const MOUNT_COATS = {
   teal: { name: "Marsh Teal", main: 0x3f6f6a, dark: 0x2a4a48, glow: 0x6ff0e8, price: 0 },
@@ -7077,7 +7130,7 @@ function normalizeSave(d) {
   out.home = d.home && ZONES[d.home.zone] && ZONES[d.home.zone].safe && NPCS[d.home.npc] && ZONES[d.home.zone].npcs.some(n => n.id === d.home.npc) ? d.home : newSave().home;
   out.inventory = d.inventory.filter(s => s && ITEMS[s.id] && s.qty > 0);
   out.gear = {};
-  for (const slot of SLOTS) if (d.gear[slot] && ITEMS[d.gear[slot]]) out.gear[slot] = d.gear[slot];
+  for (const key in d.gear || {}) { const id = d.gear[key]; if (!id || !ITEMS[id] || ITEMS[id].kind !== "equip") continue; const k = slotFor(id, out.gear, key === "ring" ? "ring1" : key); if (!out.gear[k]) out.gear[k] = id; }
   out.jobsUnlocked = Object.assign(newSave().jobsUnlocked, d.jobsUnlocked || {});
   for (const j in ADVANCED_JOBS) if (out.quests[ADVANCED_JOBS[j].quest] === "done") out.jobsUnlocked[j] = true;
   if (!JOBS[out.mainJob] || !jobUnlockedIn(out, out.mainJob)) out.mainJob = "WAR";
@@ -7334,13 +7387,14 @@ function buildStats(ch) {
     const id = ch.gear[slot];
     if (!id) continue;
     const it = ITEMS[id];
-    if (it.wtype) { dmg = it.dmg; delay = it.delay; wtype = it.wtype; }
+    if (it.wtype && slot === "main") { dmg = it.dmg; delay = it.delay; wtype = it.wtype; }
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
     if (augs && augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
   }
   const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
   if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
+  for (const el of RES_ELEMENTS) s["res_" + el] = g["res_" + el] || 0;
   s.chr = Math.round(6 + 0.65 * (lv - 1) + (ch.job === "BRD" ? 3 + 0.35 * (lv - 1) : 0) + (ch.sub === "BRD" ? 1 + 0.1 * subLv : 0) + (g.chr || 0));
   if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
   s.dmg = dmg;
@@ -7383,7 +7437,7 @@ function mercGear(m, lv) {
   if (job === "WAR" && role === "tank") return lv >= 5 ? { main: "bronze_greataxe", head: "bronze_cap", body: "scale_mail", legs: "leather_trousers" } : { main: "bronze_greataxe", head: "bronze_cap", body: "leather_vest", legs: "leather_trousers" };
   if (job === "WAR") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", hands: "leather_gloves" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", hands: "leather_gloves" };
   if (job === "WHM") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: lv >= 3 ? "leather_boots" : undefined } : { main: "ash_club", body: "linen_robe" };
-  if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", ring: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
+  if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", sub: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
   if (job === "THF") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
   if (job === "RNG") return lv >= 11 ? { main: "steel_longbow", body: "hunters_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "yew_bow", body: "hunters_coat", feet: "leather_boots" } : { main: "shortbow", body: "leather_vest" };
   if (job === "DRK") return lv >= 11 ? { main: "steel_scythe", body: "shadow_plate", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_scythe", body: "shadow_plate", head: "bronze_cap" } : { main: "bronze_scythe", body: "leather_vest", head: "bronze_cap" };
@@ -7404,7 +7458,7 @@ function mercCanWear(id, itemId) {
 function mercGearFor(id, lv) {
   const g = Object.assign({}, mercGear(id, lv));
   const own = save.mercGear[id] || {};
-  for (const slot in own) if (ITEMS[own[slot]] && ITEMS[own[slot]].lv <= lv) g[slot] = own[slot];
+  for (const slot in own) if (ITEMS[own[slot]] && ITEMS[own[slot]].lv <= lv) g[slotKeys(ITEMS[own[slot]].slot)[0]] = own[slot];
   return g;
 }
 
@@ -7414,8 +7468,9 @@ function giveMercGear(id, itemId) {
   const it = ITEMS[itemId];
   if (!removeItem(itemId, 1)) return "You don't have that.";
   const own = save.mercGear[id] = save.mercGear[id] || {};
-  if (own[it.slot]) giveItem(own[it.slot], 1, true);
-  own[it.slot] = itemId;
+  const sk = slotKeys(it.slot)[0];
+  if (own[sk]) giveItem(own[sk], 1, true);
+  own[sk] = itemId;
   log("You give " + an(it.name) + " to " + MERCS[id].name + ".", "you");
   partySay(S.party.find(p => p.mercId === id), "gift", true);
   sfx("equip");
@@ -7746,6 +7801,7 @@ function applyDamage(src, tgt, amt, opt) {
   if (!tgt.alive) return;
   amt = Math.max(0, Math.round(amt));
   if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
+  if (opt.el && !isMob(tgt) && tgt.stats && tgt.stats["res_" + opt.el]) amt = Math.max(0, Math.round(amt * (1 - Math.min(0.5, tgt.stats["res_" + opt.el] / 100))));
   if (tgt.proxy) {
     netMobHit(tgt, amt, opt.enmity != null ? opt.enmity : 40 + amt * 2);
     tgt.flash = 0.15;
@@ -8038,7 +8094,7 @@ function addToPool(id) {
 }
 
 function poolUpgrade(merc, id) {
-  const it = ITEMS[id], cur = merc.gear[it.slot];
+  const it = ITEMS[id], cur = merc.gear[slotKeys(it.slot)[0]];
   if (mercCanWear(merc.mercId, id)) return false;
   if (!cur) return true;
   const c = ITEMS[cur];
@@ -8082,8 +8138,9 @@ function tickPool(force) {
     if (who.startsWith("net:")) { log(NET_PT.members.get(who.slice(4)).name + " obtains the " + ITEMS[e.id].name + ".", "loot"); continue; }
     if (who === "me") { save.stats.lotsWon++; giveItem(e.id, 1); continue; }
     const it = ITEMS[e.id], own = save.mercGear[who] = save.mercGear[who] || {};
-    if (own[it.slot]) giveItem(own[it.slot], 1, true);
-    own[it.slot] = e.id;
+    const sk = slotKeys(it.slot)[0];
+    if (own[sk]) giveItem(own[sk], 1, true);
+    own[sk] = e.id;
     log(MERCS[who].name + " obtains the " + it.name + " and puts it on.", "party");
     partySay(S.party.find(p => p.mercId === who), "gift", true);
     syncAllies(false);
@@ -9350,7 +9407,7 @@ function bossPhases(m, t) {
       ring(m, "#4fc3f7", f.pulse.r * 0.6, 1.0, "burst");
       S.shake = Math.max(S.shake, 0.35);
       sfx(f.pulse.el, m);
-      for (const p of S.party) if (p.alive && dist(p, m) <= f.pulse.r) { vfx("nuke", { src: m, tgt: p, el: f.pulse.el }); applyDamage(m, p, Math.round(f.pulse.dmg * m.lv * rand(0.9, 1.1)), { color: "#4fc3f7", size: 18 }); }
+      for (const p of S.party) if (p.alive && dist(p, m) <= f.pulse.r) { vfx("nuke", { src: m, tgt: p, el: f.pulse.el }); applyDamage(m, p, Math.round(f.pulse.dmg * m.lv * rand(0.9, 1.1)), { color: "#4fc3f7", size: 18, el: f.pulse.el }); }
     }
   }
   if (f.enrage && !m.enraged && frac <= f.enrage) {
@@ -9388,7 +9445,7 @@ function execTpMove(m) {
     for (let h = 0; h < (mv.hits || 1); h++) total += Math.floor(baseDmg(m, tg) * mv.mul * pDIF(m, tg));
     ring(tg, "#ff7043", mv.aoe || 30, 0.6, "burst");
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
-    applyDamage(m, tg, total, { color: "#ff8a80", size: 22 });
+    applyDamage(m, tg, total, { color: "#ff8a80", size: 22, el: mv.el });
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
     if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
     if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
@@ -10915,14 +10972,15 @@ function canEquip(id) {
   return "";
 }
 
-function equip(id) {
+function equip(id, want) {
   const why = canEquip(id);
   if (why) { log(why + ".", "sys"); sfx("error"); return; }
   const it = ITEMS[id];
   if (!removeItem(id, 1)) return;
-  const old = save.gear[it.slot];
+  const key = slotFor(id, save.gear, want);
+  const old = save.gear[key];
   if (old) giveItem(old, 1, true);
-  save.gear[it.slot] = id;
+  save.gear[key] = id;
   if (it.slot === "main") { player.tp = 0; player.swingTimer = it.delay; }
   log("You equip the " + it.name + ".", "you");
   sfx("equip");
@@ -11492,9 +11550,9 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], social: ["Social", "💬", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], social: ["Social", "💬", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
-const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "social", "craft", "quests", "bestiary", "achievements", "map", "settings"];
+const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "party", "social", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -12492,7 +12550,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">LEID\'ANAV REBORN</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -12545,32 +12603,61 @@ function ffJobLevels() {
 }
 
 function tabCharacter() {
-  const s = player.stats;
-  const cmp = UI.cmp && ITEMS[UI.cmp] ? statsFor(Object.assign({}, save.gear, { [ITEMS[UI.cmp].slot]: UI.cmp })) : null;
-  let h = '<div class="charGrid"><div><div id="pvWrap"><div class="lbl">' + esc(save.name || "Adventurer") + "<small>" + (RACES[save.look.race] || RACES.human).name + " · " + JOBS[player.job].name + " Lv." + player.lv + (player.sub ? " / " + JOBS[player.sub].name + " Lv." + Math.floor(player.lv / 2) : "") + "</small></div></div>";
-  h += '<div class="paper">';
-  for (const slot of SLOTS) {
-    const id = save.gear[slot];
-    h += '<div class="gslot ' + (id ? rarityOf(id) : "") + '" data-a="slotinv" data-v="' + slot + '" title="' + (id ? esc(ITEMS[id].name + " — " + itemDesc(id)) : "Empty") + '"><div class="sl">' + SLOT_NAMES[slot] + '</div><div class="ic">' + (id ? ITEMS[id].icon || "◻" : "·") + '</div><div class="nm">' + (id ? esc(ITEMS[id].name) : "—") + "</div></div>";
-  }
-  h += '<div class="gslot" data-tab="inventory"><div class="sl">Bag</div><div class="ic">🎒</div><div class="nm">' + save.inventory.length + "/" + CONFIG.inventorySize + "</div></div></div></div><div>";
-  h += ffStatusBlock() + ffJobLevels();
-  h += "<h3>Attributes" + (cmp ? ' <span class="sub">· comparing ' + esc(ITEMS[UI.cmp].name) + "</span>" : "") + '</h3><table class="statT">';
-  for (const [k, l] of STAT_ROWS) {
-    let extra = "";
-    if (cmp) { const d = Math.round((cmp[k] - s[k]) * 100) / 100; if (d) extra = ' <span class="' + ((k === "delay" ? d < 0 : d > 0) ? "up" : "dn") + '">' + (d > 0 ? "+" : "") + d + "</span>"; }
-    h += "<tr><td>" + l + '</td><td class="v">' + (k === "maxHp" ? Math.ceil(player.hp) + " / " + s[k] : k === "maxMp" ? Math.floor(player.mp) + " / " + s[k] : s[k]) + extra + "</td></tr>";
-  }
-  h += "<tr><td>Weapon type</td><td class=\"v\">" + SKILL_NAMES[s.wtype] + "</td></tr></table>";
-  const j = save.jobs[save.mainJob];
-  const need = xpNeed(j.lv);
-  h += "<h3>Progress</h3><div class=\"sub\">Experience " + (need ? j.xp + " / " + need + " (" + Math.floor(100 * j.xp / need) + "%)" : "Level cap reached") + " · Home point: " + ZONES[save.home.zone].name + "</div>";
-  h += '<div style="margin-top:6px">';
-  for (const jb in JOBS) { if (jb !== save.mainJob && jb !== save.subJob && save.jobs[jb].lv <= 1 && !save.jobs[jb].xp) continue; h += '<div class="item"><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">Lv.' + save.jobs[jb].lv + "</span></div><span class=\"d\">" + (jb === save.mainJob ? "Main job" : jb === save.subJob ? "Support job" : "") + "</span></div>"; }
-  h += "</div>";
+  let h = '<div class="ffPanels">' + ffStatusBlock() + ffJobLevels() + "</div>";
   if (typeof appearanceHTML === "function") h += appearanceHTML();
-  h += "</div></div>";
   return h;
+}
+
+const STAT_LABEL_CARD = { def: "DEF", hp: "HP", mp: "MP", str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT", mnd: "MND", chr: "CHR", att: "Attack", acc: "Accuracy", eva: "Evasion" };
+function itemCard(id) {
+  const it = ITEMS[id];
+  if (!it) return "";
+  const tags = [];
+  if (it.rare) tags.push("Rare");
+  if (it.ex) tags.push("Ex");
+  let h = '<div class="iCard"><div class="iCh"><span class="ic">' + (it.icon || "📦") + '</span><b>' + esc(it.name) + "</b>" + tags.map(t => '<span class="tg">' + t + "</span>").join("") + "</div>";
+  if (it.kind === "equip") {
+    h += '<div class="iCl">[' + (SLOT_NAMES[it.slot] || it.slot) + "] All Races</div>";
+    const parts = [];
+    if (it.wtype) parts.push("DMG:" + it.dmg, "Delay:" + Math.round(it.delay * 100));
+    const st = it.stats || {};
+    if (st.def) parts.push("DEF:" + st.def);
+    for (const k of ["hp", "mp", "str", "dex", "vit", "agi", "int", "mnd", "chr", "att", "acc", "eva"]) if (st[k]) parts.push(STAT_LABEL_CARD[k] + (st[k] > 0 ? "+" : "") + st[k]);
+    for (const el of RES_ELEMENTS) if (st["res_" + el]) parts.push(el.charAt(0).toUpperCase() + el.slice(1) + " Res+" + st["res_" + el]);
+    if (augText(id)) parts.push(augText(id));
+    if (parts.length) h += '<div class="iCl">' + esc(parts.join(" ")) + "</div>";
+    if (it.desc) h += '<div class="iCl q">"' + esc(it.desc) + '"</div>';
+    const jobs = it.jobs.length >= ALL_JOBS.length ? "All Jobs" : it.jobs.join("/");
+    h += '<div class="iCl"><span class="' + (it.lv > player.lv ? "bad" : "") + '">Lv.' + (it.lv || 1) + "</span> " + esc(jobs) + '</div><div class="iLv">&lt;Item Level:' + (it.lv || 1) + "&gt;</div>";
+  } else h += '<div class="iCl">' + esc(itemDesc(id)) + "</div>";
+  return h + "</div>";
+}
+
+function tabEquipment() {
+  UI.eq = UI.eq || { slot: null, hover: null };
+  const q = UI.eq, st = player.stats;
+  let h = '<div class="eqWrap"><div class="eqBox"><div class="eqGrid">';
+  for (const sl of SLOTS) {
+    const id = save.gear[sl];
+    h += '<button class="eqS' + (q.slot === sl ? " sel" : "") + (id ? " on" : "") + '" data-a="eqslot" data-v="' + sl + '" title="' + (id ? esc(ITEMS[id].name) : SLOT_NAMES[sl]) + '">' + (id ? '<span class="ic">' + (ITEMS[id].icon || "📦") + "</span>" : '<span class="lbl">' + SLOT_NAMES[sl] + "</span>") + "</button>";
+  }
+  h += '</div><div class="eqStats"><span>Attack <b>' + st.att + "</b></span><span>Defense <b>" + st.def + '</b></span></div><div class="eqRes">';
+  for (const el of RES_ELEMENTS) h += '<span title="' + el + ' resistance"><i style="background:' + ELEMENT_COLORS[el] + '"></i>' + (st["res_" + el] || 0) + "</span>";
+  h += "</div></div>";
+  h += '<div class="eqSide">';
+  if (!q.slot) h += '<div class="iCard"><div class="iCl">Choose an equipment box to change what goes there.</div></div>';
+  else {
+    const cur = save.gear[q.slot];
+    const fits = [...new Set(save.inventory.map(x => x.id))].filter(id => ITEMS[id].kind === "equip" && slotKeys(ITEMS[id].slot).includes(q.slot));
+    h += '<div class="eqPop"><div class="eqPH">' + SLOT_NAMES[q.slot] + "</div>";
+    if (cur) h += '<button class="mcR" data-a="equnq" data-v="' + q.slot + '"><span class="ic">✕</span><span class="nm">Remove ' + esc(ITEMS[cur].name) + "</span></button>";
+    for (const id of fits) { const why = canEquip(id); h += '<button class="mcR' + (q.hover === id ? " hv" : "") + '" data-a="eqpick" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="nm' + (why ? " dim" : "") + '">' + esc(ITEMS[id].name) + "</span>" + (why ? '<span class="q bad">' + esc(why.replace("Requires ", "")) + "</span>" : "") + "</button>"; }
+    if (!fits.length && !cur) h += '<div class="mcR empty"><span class="nm dim">Nothing in your bag fits here.</span></div>';
+    h += "</div>";
+    if (q.hover && ITEMS[q.hover]) { h += itemCard(q.hover); if (cur) h += '<div class="eqArrow">▼</div>' + itemCard(cur); if (!canEquip(q.hover)) h += '<button class="pri" data-a="eqpick" data-v="' + q.hover + '" style="margin-top:6px">Equip</button>'; }
+    else if (cur) h += itemCard(cur);
+  }
+  return h + "</div></div>";
 }
 
 function attachPreview(wrapId) {
@@ -12769,7 +12856,7 @@ function tabInventory() {
   if (UI.slotFilter) h += '<div class="sub" style="margin-bottom:6px">Showing items for: ' + SLOT_NAMES[UI.slotFilter] + ' · <a href="#" data-a="clearslot" style="color:var(--gold)">show all</a></div>';
   h += '<div class="inv">';
   let list = invSorted();
-  if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].slot === UI.slotFilter);
+  if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].kind === "equip" && slotKeys(ITEMS[s.id].slot).includes(UI.slotFilter));
   for (const { s, i } of list) {
     const it = ITEMS[s.id];
     h += '<button class="cell ' + rarityOf(s.id) + (UI.sel === i ? " sel" : "") + '" data-a="sel" data-v="' + i + '" title="' + esc(it.name) + '"><span class="ic">' + (it.icon || "📦") + '</span><span class="inm">' + esc(it.name) + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
@@ -12778,13 +12865,13 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Essence", food: "Food", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail">' + itemCard(s.id) + (s.qty > 1 ? '<div class="sub">Quantity ' + s.qty + "</div>" : "");
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (augText(s.id)) h += '<div class="sub" style="margin-top:4px;color:#ce93d8">✨ Augments: ' + esc(augText(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
-      const next = statsFor(Object.assign({}, save.gear, { [it.slot]: s.id }));
-      const cur = save.gear[it.slot];
+      const next = statsFor(Object.assign({}, save.gear, { [slotFor(s.id, save.gear)]: s.id }));
+      const cur = save.gear[slotFor(s.id, save.gear)];
       h += '<div class="cmp"><span class="sub">vs ' + (cur ? esc(ITEMS[cur].name) : "nothing") + ":</span> " + statDeltaHTML(base, next, true) + "</div>";
     }
     h += '<div class="acts">';
@@ -13053,15 +13140,17 @@ function tabFurnishings() {
 
 function tabStorage() {
   const cap = storageCap();
-  let h = '<div class="sub" style="margin-bottom:6px">Pip keeps your things. ' + storageUsed() + " / " + cap + " storage slots (" + CONFIG.storageBase + " base" + (cap > CONFIG.storageBase ? " + " + (cap - CONFIG.storageBase) + " from furniture" : "") + ") · bag " + save.inventory.length + "/" + CONFIG.inventorySize + "</div>";
-  h += '<div class="charGrid ffList"><div><h3>Bag → storage</h3>';
+  const rowI = (s, a, v) => '<button class="mcR" data-a="' + a + '" data-v="' + v + '"><span class="ic">' + (ITEMS[s.id].icon || "📦") + '</span><span class="nm' + (ITEMS[s.id].kind === "equip" ? " eq" : "") + '">' + esc(ITEMS[s.id].name) + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
+  let h = '<div class="mcBox"><div class="mcTop"><div class="mcT">Storage <sup>' + storageUsed() + "/" + cap + '</sup></div><div class="mcMsg">Select item to move.</div></div><div class="mcCols">';
+  h += '<div class="mcCol"><div class="mcLbl">Storage</div>';
+  save.storage.forEach((s, i) => { h += rowI(s, "retrieve", i); });
+  for (let k = save.storage.length; k < Math.min(cap, save.storage.length + 8); k++) h += '<div class="mcR empty"><span class="ic"></span></div>';
+  h += '</div><div class="mcCol"><div class="mcLbl">Bag ' + save.inventory.length + "/" + CONFIG.inventorySize + "</div>";
   const bag = save.inventory.map((s, i) => ({ s, i })).filter(({ s }) => ITEMS[s.id].kind !== "key");
-  if (!bag.length) h += '<div class="sub">Your bag is empty.</div>';
-  for (const { s, i } of bag) h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="store" data-v="' + i + '">Store</button></div>';
-  h += '</div><div><h3>Storage → bag</h3>';
-  if (!save.storage.length) h += '<div class="sub">Nothing stored yet.</div>';
-  save.storage.forEach((s, i) => { h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="retrieve" data-v="' + i + '">Take</button></div>'; });
-  h += "</div></div>";
+  for (const { s, i } of bag) h += rowI(s, "store", i);
+  if (!bag.length) h += '<div class="mcR empty"><span class="ic"></span><span class="nm dim">Your bag is empty.</span></div>';
+  h += "</div></div></div>";
+  h += '<div class="sub" style="margin-top:6px">Pip keeps your things. ' + CONFIG.storageBase + " base slots" + (cap > CONFIG.storageBase ? " + " + (cap - CONFIG.storageBase) + " from furniture" : "") + ". Tap an item on either side to move it across.</div>";
   return h;
 }
 
@@ -13262,7 +13351,7 @@ function tabBestiary() {
   for (const k of keys) {
     const b = save.bestiary[k];
     const f = FAMILIES[k] || (NM_FAMILIES[k] && Object.assign({}, FAMILIES[NM_FAMILIES[k].base], NM_FAMILIES[k], { nm: true }));
-    if (!b || !f) { h += '<div class="item beast" style="display:flex;gap:10px;align-items:center"><div class="bpic"><span>?</span></div><span class="sub">??? · not yet encountered</span></div>'; continue; }
+    if (!b || !f) continue;
     const info = BESTIARY[k];
     let body = '<div class="sub">' + info.type + (f.nm ? " · Notorious" : "") + " · Seen in " + esc(beastHabitat(k).join(", ") || "unknown parts") + " · Defeated " + b.kills + "</div>";
     body += '<div style="margin:5px 0;font-size:13px">' + esc(info.lore) + "</div>";
@@ -13597,6 +13686,9 @@ function onMenuClick(e) {
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
   else if (a === "sort") { save.inventory.sort((x, y) => (KIND_ORDER[ITEMS[x.id].kind] - KIND_ORDER[ITEMS[y.id].kind]) || ITEMS[x.id].name.localeCompare(ITEMS[y.id].name)); UI.sel = null; saveGame(); sfx("select"); }
   else if (a === "sel") { UI.sel = UI.sel === +v ? null : +v; sfx("select"); }
+  else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; sfx("select"); renderModal(); return; }
+  else if (a === "eqpick") { const q = UI.eq; if (q.hover === v) { const why = canEquip(v); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(v, q.slot); q.hover = null; } } else { q.hover = v; sfx("tab"); } renderModal(); return; }
+  else if (a === "equnq") { unequip(v); UI.eq.hover = null; renderModal(); return; }
   else if (a === "slotinv") { const id = save.gear[v]; UI.slotFilter = v; S.modal = "inventory"; UI.filter = "all"; UI.sel = null; if (id) UI.cmp = null; sfx("tab"); }
   else if (a === "clearslot") { UI.slotFilter = null; }
   else if (a === "use") { useItem(v); }
@@ -13782,13 +13874,23 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v8.9.0 · built 2026-10-13 21:56 PDT";
+const BUILD_INFO = "v9.0.0 · built 2026-10-13 22:05 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.0.0", date: "2026-10-13", title: "Equipment and classic windows", items: [
+    "New Equipment window (G) with 16 slots: Main, Sub, Range, Ammo, Head, Neck, two Ears, Body, Hands, two Rings, Back, Waist, Legs and Feet. Tap a box for a pop-up list of what fits, with item cards comparing your choice to what you're wearing.",
+    "Attack, Defense and resistance to all eight elements show under the slots. Resistance now reduces elemental damage from monsters.",
+    "New gear for the new slots: gorgets and pendants, earrings, capes and mantles, belts and sashes, a buckler, a sling and ammo (Pell and Vela). Capes, belts and shields show on your character.",
+    "Shields now go in the Sub slot instead of a ring slot; existing saves move them automatically.",
+    "Item cards everywhere in the classic style: slot, stats, jobs, level and item level.",
+    "The Character window is now just your status sheet and Job Levels (no picture, attributes list or progress list).",
+    "Residence storage is a two-column transfer screen: tap an item on either side to move it.",
+    "The bestiary only lists creatures you've met."
   ] },
   { v: "8.9.0", date: "2026-10-13", title: "Classic interface", items: [
     "A new interface in the classic style: striped blue panels, white outlined lettering and glossy command buttons throughout, including every menu window and dialog.",
@@ -14319,7 +14421,7 @@ function tabHelp() {
     "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not."
   ]));
   h += sec("🎲 Treasure pool", ul([
-    "With companions in the party, equipment drops go into the treasure pool (the panel above the chat) instead of straight into your bag. Other loot still goes to your bag.",
+    "With companions in the party, equipment drops go into the treasure pool (the panel above the log) instead of straight into your bag. Other loot still goes to your bag.",
     "Press <b>Lot</b> to roll 1–999 or <b>Pass</b>. Companions lot only on pieces their job can use that beat what they're wearing. Highest lot wins. If a companion wins, they wear it right away (their old piece comes to your bag).",
     "If you don't choose within 45 seconds you lot automatically. If everyone passes, the item is lost."
   ]));
@@ -14395,6 +14497,13 @@ function tabHelp() {
     "<b>Magic on party members:</b> tap a party member and choose Magic, or target them and cast. Cure spells and Protect work on players in your party.",
     "Your companions stay with you and fight only your monsters. Party chat: <b>/p text</b>. Leave with <b>/leave</b>, remove a member with <b>/kick Name</b>."
   ]));
+  h += sec("🛡️ Equipment", ul([
+    "Open <b>Equipment</b> (G). Sixteen boxes: Main, Sub, Range, Ammo / Head, Neck, Ear, Ear / Body, Hands, Ring, Ring / Back, Waist, Legs, Feet.",
+    "<b>Main:</b> one- and two-handed weapons. <b>Sub:</b> shields. <b>Range</b> and <b>Ammo:</b> slings, arrows and other throwing gear (they add accuracy and attack for now). <b>Neck:</b> gorgets and pendants. <b>Ear</b> and <b>Ring:</b> two of each. <b>Back:</b> capes and mantles. <b>Waist:</b> belts and sashes.",
+    "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
+    "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
+    "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells starter neck, ear, back, waist, shield, sling and ammo pieces; Vela in Saltreach sells better ones."
+  ]));
   h += sec("🖥️ The screen", ul([
     "<b>Top:</b> the Commands bar appears while something is targeted. It explains the highlighted command; Network on the right shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
@@ -14425,7 +14534,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "8.9.0";
+const GAME_VERSION = "9.0.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -16495,6 +16604,9 @@ const JOB_TINT = {
 
 const ITEM_LOOK = {
   leather_vest: { top: { type: "vest", color: 0x7a5230, region: "leather" } },
+  travelers_cape: { cape: 0x6a5a3a }, wolf_mantle: { cape: 0x5a5a62 }, mage_cape: { cape: 0x3a2a6a },
+  leather_belt: { belt: 0x5a3a20 }, warriors_belt: { belt: 0x7a2a1a }, silk_sash: { belt: 0xc8b8e8 },
+  buckler: { shield: { color: 0x8a6a4a, trim: 0xb08a50, emblem: 0x5a3a20 } },
   scale_mail: { top: { type: "mail", color: 0x9aa0a8, region: "chain" }, pauldrons: 0xa8aeb6 },
   kite_shield: { shield: { color: 0x8a90a0, trim: 0xc8a040, emblem: 0x2f5c9a } },
   scarlet_tabard: { top: { type: "tabard", color: 0xa0242c, region: "cloth", color2: 0xd8c070 }, hat: 0xa0242c },
@@ -16583,6 +16695,8 @@ function lookFor(job, gear, base) {
     if (il.pauldrons) L.pauldrons = il.pauldrons;
     if (il.shield) L.shield = il.shield;
     if (il.hat) L.hat = il.hat;
+    if (il.cape) L.cape = il.cape;
+    if (il.belt) L.belt = il.belt;
   }
   if (!L.boots) L.shoes = 0x3a2a1e;
   L.weapon = gear.main ? ITEMS[gear.main].wtype : null;
@@ -21503,7 +21617,7 @@ function onKey(e) {
   if (UI.confirmOpen) { if (k === "escape") $("confirmBox").querySelector(".no").click(); if (k === "enter") $("confirmBox").querySelector(".yes").click(); e.preventDefault(); return; }
   if (!UI.started) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
+  const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
   if (S.modal) {
     if (k === "escape") closeModal();
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }

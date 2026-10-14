@@ -41,7 +41,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">LEID\'ANAV REBORN</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -94,32 +94,61 @@ function ffJobLevels() {
 }
 
 function tabCharacter() {
-  const s = player.stats;
-  const cmp = UI.cmp && ITEMS[UI.cmp] ? statsFor(Object.assign({}, save.gear, { [ITEMS[UI.cmp].slot]: UI.cmp })) : null;
-  let h = '<div class="charGrid"><div><div id="pvWrap"><div class="lbl">' + esc(save.name || "Adventurer") + "<small>" + (RACES[save.look.race] || RACES.human).name + " · " + JOBS[player.job].name + " Lv." + player.lv + (player.sub ? " / " + JOBS[player.sub].name + " Lv." + Math.floor(player.lv / 2) : "") + "</small></div></div>";
-  h += '<div class="paper">';
-  for (const slot of SLOTS) {
-    const id = save.gear[slot];
-    h += '<div class="gslot ' + (id ? rarityOf(id) : "") + '" data-a="slotinv" data-v="' + slot + '" title="' + (id ? esc(ITEMS[id].name + " — " + itemDesc(id)) : "Empty") + '"><div class="sl">' + SLOT_NAMES[slot] + '</div><div class="ic">' + (id ? ITEMS[id].icon || "◻" : "·") + '</div><div class="nm">' + (id ? esc(ITEMS[id].name) : "—") + "</div></div>";
-  }
-  h += '<div class="gslot" data-tab="inventory"><div class="sl">Bag</div><div class="ic">🎒</div><div class="nm">' + save.inventory.length + "/" + CONFIG.inventorySize + "</div></div></div></div><div>";
-  h += ffStatusBlock() + ffJobLevels();
-  h += "<h3>Attributes" + (cmp ? ' <span class="sub">· comparing ' + esc(ITEMS[UI.cmp].name) + "</span>" : "") + '</h3><table class="statT">';
-  for (const [k, l] of STAT_ROWS) {
-    let extra = "";
-    if (cmp) { const d = Math.round((cmp[k] - s[k]) * 100) / 100; if (d) extra = ' <span class="' + ((k === "delay" ? d < 0 : d > 0) ? "up" : "dn") + '">' + (d > 0 ? "+" : "") + d + "</span>"; }
-    h += "<tr><td>" + l + '</td><td class="v">' + (k === "maxHp" ? Math.ceil(player.hp) + " / " + s[k] : k === "maxMp" ? Math.floor(player.mp) + " / " + s[k] : s[k]) + extra + "</td></tr>";
-  }
-  h += "<tr><td>Weapon type</td><td class=\"v\">" + SKILL_NAMES[s.wtype] + "</td></tr></table>";
-  const j = save.jobs[save.mainJob];
-  const need = xpNeed(j.lv);
-  h += "<h3>Progress</h3><div class=\"sub\">Experience " + (need ? j.xp + " / " + need + " (" + Math.floor(100 * j.xp / need) + "%)" : "Level cap reached") + " · Home point: " + ZONES[save.home.zone].name + "</div>";
-  h += '<div style="margin-top:6px">';
-  for (const jb in JOBS) { if (jb !== save.mainJob && jb !== save.subJob && save.jobs[jb].lv <= 1 && !save.jobs[jb].xp) continue; h += '<div class="item"><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">Lv.' + save.jobs[jb].lv + "</span></div><span class=\"d\">" + (jb === save.mainJob ? "Main job" : jb === save.subJob ? "Support job" : "") + "</span></div>"; }
-  h += "</div>";
+  let h = '<div class="ffPanels">' + ffStatusBlock() + ffJobLevels() + "</div>";
   if (typeof appearanceHTML === "function") h += appearanceHTML();
-  h += "</div></div>";
   return h;
+}
+
+const STAT_LABEL_CARD = { def: "DEF", hp: "HP", mp: "MP", str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT", mnd: "MND", chr: "CHR", att: "Attack", acc: "Accuracy", eva: "Evasion" };
+function itemCard(id) {
+  const it = ITEMS[id];
+  if (!it) return "";
+  const tags = [];
+  if (it.rare) tags.push("Rare");
+  if (it.ex) tags.push("Ex");
+  let h = '<div class="iCard"><div class="iCh"><span class="ic">' + (it.icon || "📦") + '</span><b>' + esc(it.name) + "</b>" + tags.map(t => '<span class="tg">' + t + "</span>").join("") + "</div>";
+  if (it.kind === "equip") {
+    h += '<div class="iCl">[' + (SLOT_NAMES[it.slot] || it.slot) + "] All Races</div>";
+    const parts = [];
+    if (it.wtype) parts.push("DMG:" + it.dmg, "Delay:" + Math.round(it.delay * 100));
+    const st = it.stats || {};
+    if (st.def) parts.push("DEF:" + st.def);
+    for (const k of ["hp", "mp", "str", "dex", "vit", "agi", "int", "mnd", "chr", "att", "acc", "eva"]) if (st[k]) parts.push(STAT_LABEL_CARD[k] + (st[k] > 0 ? "+" : "") + st[k]);
+    for (const el of RES_ELEMENTS) if (st["res_" + el]) parts.push(el.charAt(0).toUpperCase() + el.slice(1) + " Res+" + st["res_" + el]);
+    if (augText(id)) parts.push(augText(id));
+    if (parts.length) h += '<div class="iCl">' + esc(parts.join(" ")) + "</div>";
+    if (it.desc) h += '<div class="iCl q">"' + esc(it.desc) + '"</div>';
+    const jobs = it.jobs.length >= ALL_JOBS.length ? "All Jobs" : it.jobs.join("/");
+    h += '<div class="iCl"><span class="' + (it.lv > player.lv ? "bad" : "") + '">Lv.' + (it.lv || 1) + "</span> " + esc(jobs) + '</div><div class="iLv">&lt;Item Level:' + (it.lv || 1) + "&gt;</div>";
+  } else h += '<div class="iCl">' + esc(itemDesc(id)) + "</div>";
+  return h + "</div>";
+}
+
+function tabEquipment() {
+  UI.eq = UI.eq || { slot: null, hover: null };
+  const q = UI.eq, st = player.stats;
+  let h = '<div class="eqWrap"><div class="eqBox"><div class="eqGrid">';
+  for (const sl of SLOTS) {
+    const id = save.gear[sl];
+    h += '<button class="eqS' + (q.slot === sl ? " sel" : "") + (id ? " on" : "") + '" data-a="eqslot" data-v="' + sl + '" title="' + (id ? esc(ITEMS[id].name) : SLOT_NAMES[sl]) + '">' + (id ? '<span class="ic">' + (ITEMS[id].icon || "📦") + "</span>" : '<span class="lbl">' + SLOT_NAMES[sl] + "</span>") + "</button>";
+  }
+  h += '</div><div class="eqStats"><span>Attack <b>' + st.att + "</b></span><span>Defense <b>" + st.def + '</b></span></div><div class="eqRes">';
+  for (const el of RES_ELEMENTS) h += '<span title="' + el + ' resistance"><i style="background:' + ELEMENT_COLORS[el] + '"></i>' + (st["res_" + el] || 0) + "</span>";
+  h += "</div></div>";
+  h += '<div class="eqSide">';
+  if (!q.slot) h += '<div class="iCard"><div class="iCl">Choose an equipment box to change what goes there.</div></div>';
+  else {
+    const cur = save.gear[q.slot];
+    const fits = [...new Set(save.inventory.map(x => x.id))].filter(id => ITEMS[id].kind === "equip" && slotKeys(ITEMS[id].slot).includes(q.slot));
+    h += '<div class="eqPop"><div class="eqPH">' + SLOT_NAMES[q.slot] + "</div>";
+    if (cur) h += '<button class="mcR" data-a="equnq" data-v="' + q.slot + '"><span class="ic">✕</span><span class="nm">Remove ' + esc(ITEMS[cur].name) + "</span></button>";
+    for (const id of fits) { const why = canEquip(id); h += '<button class="mcR' + (q.hover === id ? " hv" : "") + '" data-a="eqpick" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="nm' + (why ? " dim" : "") + '">' + esc(ITEMS[id].name) + "</span>" + (why ? '<span class="q bad">' + esc(why.replace("Requires ", "")) + "</span>" : "") + "</button>"; }
+    if (!fits.length && !cur) h += '<div class="mcR empty"><span class="nm dim">Nothing in your bag fits here.</span></div>';
+    h += "</div>";
+    if (q.hover && ITEMS[q.hover]) { h += itemCard(q.hover); if (cur) h += '<div class="eqArrow">▼</div>' + itemCard(cur); if (!canEquip(q.hover)) h += '<button class="pri" data-a="eqpick" data-v="' + q.hover + '" style="margin-top:6px">Equip</button>'; }
+    else if (cur) h += itemCard(cur);
+  }
+  return h + "</div></div>";
 }
 
 function attachPreview(wrapId) {
@@ -318,7 +347,7 @@ function tabInventory() {
   if (UI.slotFilter) h += '<div class="sub" style="margin-bottom:6px">Showing items for: ' + SLOT_NAMES[UI.slotFilter] + ' · <a href="#" data-a="clearslot" style="color:var(--gold)">show all</a></div>';
   h += '<div class="inv">';
   let list = invSorted();
-  if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].slot === UI.slotFilter);
+  if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].kind === "equip" && slotKeys(ITEMS[s.id].slot).includes(UI.slotFilter));
   for (const { s, i } of list) {
     const it = ITEMS[s.id];
     h += '<button class="cell ' + rarityOf(s.id) + (UI.sel === i ? " sel" : "") + '" data-a="sel" data-v="' + i + '" title="' + esc(it.name) + '"><span class="ic">' + (it.icon || "📦") + '</span><span class="inm">' + esc(it.name) + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
@@ -327,13 +356,13 @@ function tabInventory() {
   const s = save.inventory[UI.sel];
   if (s) {
     const it = ITEMS[s.id];
-    h += '<div class="detail"><div class="hd"><span class="ic">' + (it.icon || "📦") + "</span><div><b>" + esc(it.name) + (s.qty > 1 ? " ×" + s.qty : "") + '</b><div class="tags">' + [rarityTag(s.id), it.rare ? "Rare (one only)" : "", it.ex ? "Ex" : "", it.hq ? "High quality" : "", { use: "Usable", equip: "Equipment", mat: "Material", crystal: "Essence", food: "Food", tool: "Tool", furniture: "Furniture", seed: "Seed", key: "Key item" }[it.kind] || "", sellPrice(s.id) ? "Sells for " + sellPrice(s.id) + " crystals" : "Can't be sold"].filter(Boolean).join(" · ") + "</div></div></div>";
+    h += '<div class="detail">' + itemCard(s.id) + (s.qty > 1 ? '<div class="sub">Quantity ' + s.qty + "</div>" : "");
     h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
     if (augText(s.id)) h += '<div class="sub" style="margin-top:4px;color:#ce93d8">✨ Augments: ' + esc(augText(s.id)) + "</div>";
     if (it.kind === "equip") {
       const base = player.stats;
-      const next = statsFor(Object.assign({}, save.gear, { [it.slot]: s.id }));
-      const cur = save.gear[it.slot];
+      const next = statsFor(Object.assign({}, save.gear, { [slotFor(s.id, save.gear)]: s.id }));
+      const cur = save.gear[slotFor(s.id, save.gear)];
       h += '<div class="cmp"><span class="sub">vs ' + (cur ? esc(ITEMS[cur].name) : "nothing") + ":</span> " + statDeltaHTML(base, next, true) + "</div>";
     }
     h += '<div class="acts">';
@@ -602,15 +631,17 @@ function tabFurnishings() {
 
 function tabStorage() {
   const cap = storageCap();
-  let h = '<div class="sub" style="margin-bottom:6px">Pip keeps your things. ' + storageUsed() + " / " + cap + " storage slots (" + CONFIG.storageBase + " base" + (cap > CONFIG.storageBase ? " + " + (cap - CONFIG.storageBase) + " from furniture" : "") + ") · bag " + save.inventory.length + "/" + CONFIG.inventorySize + "</div>";
-  h += '<div class="charGrid ffList"><div><h3>Bag → storage</h3>';
+  const rowI = (s, a, v) => '<button class="mcR" data-a="' + a + '" data-v="' + v + '"><span class="ic">' + (ITEMS[s.id].icon || "📦") + '</span><span class="nm' + (ITEMS[s.id].kind === "equip" ? " eq" : "") + '">' + esc(ITEMS[s.id].name) + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
+  let h = '<div class="mcBox"><div class="mcTop"><div class="mcT">Storage <sup>' + storageUsed() + "/" + cap + '</sup></div><div class="mcMsg">Select item to move.</div></div><div class="mcCols">';
+  h += '<div class="mcCol"><div class="mcLbl">Storage</div>';
+  save.storage.forEach((s, i) => { h += rowI(s, "retrieve", i); });
+  for (let k = save.storage.length; k < Math.min(cap, save.storage.length + 8); k++) h += '<div class="mcR empty"><span class="ic"></span></div>';
+  h += '</div><div class="mcCol"><div class="mcLbl">Bag ' + save.inventory.length + "/" + CONFIG.inventorySize + "</div>";
   const bag = save.inventory.map((s, i) => ({ s, i })).filter(({ s }) => ITEMS[s.id].kind !== "key");
-  if (!bag.length) h += '<div class="sub">Your bag is empty.</div>';
-  for (const { s, i } of bag) h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="store" data-v="' + i + '">Store</button></div>';
-  h += '</div><div><h3>Storage → bag</h3>';
-  if (!save.storage.length) h += '<div class="sub">Nothing stored yet.</div>';
-  save.storage.forEach((s, i) => { h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="retrieve" data-v="' + i + '">Take</button></div>'; });
-  h += "</div></div>";
+  for (const { s, i } of bag) h += rowI(s, "store", i);
+  if (!bag.length) h += '<div class="mcR empty"><span class="ic"></span><span class="nm dim">Your bag is empty.</span></div>';
+  h += "</div></div></div>";
+  h += '<div class="sub" style="margin-top:6px">Pip keeps your things. ' + CONFIG.storageBase + " base slots" + (cap > CONFIG.storageBase ? " + " + (cap - CONFIG.storageBase) + " from furniture" : "") + ". Tap an item on either side to move it across.</div>";
   return h;
 }
 
@@ -811,7 +842,7 @@ function tabBestiary() {
   for (const k of keys) {
     const b = save.bestiary[k];
     const f = FAMILIES[k] || (NM_FAMILIES[k] && Object.assign({}, FAMILIES[NM_FAMILIES[k].base], NM_FAMILIES[k], { nm: true }));
-    if (!b || !f) { h += '<div class="item beast" style="display:flex;gap:10px;align-items:center"><div class="bpic"><span>?</span></div><span class="sub">??? · not yet encountered</span></div>'; continue; }
+    if (!b || !f) continue;
     const info = BESTIARY[k];
     let body = '<div class="sub">' + info.type + (f.nm ? " · Notorious" : "") + " · Seen in " + esc(beastHabitat(k).join(", ") || "unknown parts") + " · Defeated " + b.kills + "</div>";
     body += '<div style="margin:5px 0;font-size:13px">' + esc(info.lore) + "</div>";
@@ -1146,6 +1177,9 @@ function onMenuClick(e) {
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
   else if (a === "sort") { save.inventory.sort((x, y) => (KIND_ORDER[ITEMS[x.id].kind] - KIND_ORDER[ITEMS[y.id].kind]) || ITEMS[x.id].name.localeCompare(ITEMS[y.id].name)); UI.sel = null; saveGame(); sfx("select"); }
   else if (a === "sel") { UI.sel = UI.sel === +v ? null : +v; sfx("select"); }
+  else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; sfx("select"); renderModal(); return; }
+  else if (a === "eqpick") { const q = UI.eq; if (q.hover === v) { const why = canEquip(v); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(v, q.slot); q.hover = null; } } else { q.hover = v; sfx("tab"); } renderModal(); return; }
+  else if (a === "equnq") { unequip(v); UI.eq.hover = null; renderModal(); return; }
   else if (a === "slotinv") { const id = save.gear[v]; UI.slotFilter = v; S.modal = "inventory"; UI.filter = "all"; UI.sel = null; if (id) UI.cmp = null; sfx("tab"); }
   else if (a === "clearslot") { UI.slotFilter = null; }
   else if (a === "use") { useItem(v); }
@@ -1338,6 +1372,16 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.0.0", date: "2026-10-13", title: "Equipment and classic windows", items: [
+    "New Equipment window (G) with 16 slots: Main, Sub, Range, Ammo, Head, Neck, two Ears, Body, Hands, two Rings, Back, Waist, Legs and Feet. Tap a box for a pop-up list of what fits, with item cards comparing your choice to what you're wearing.",
+    "Attack, Defense and resistance to all eight elements show under the slots. Resistance now reduces elemental damage from monsters.",
+    "New gear for the new slots: gorgets and pendants, earrings, capes and mantles, belts and sashes, a buckler, a sling and ammo (Pell and Vela). Capes, belts and shields show on your character.",
+    "Shields now go in the Sub slot instead of a ring slot; existing saves move them automatically.",
+    "Item cards everywhere in the classic style: slot, stats, jobs, level and item level.",
+    "The Character window is now just your status sheet and Job Levels (no picture, attributes list or progress list).",
+    "Residence storage is a two-column transfer screen: tap an item on either side to move it.",
+    "The bestiary only lists creatures you've met."
   ] },
   { v: "8.9.0", date: "2026-10-13", title: "Classic interface", items: [
     "A new interface in the classic style: striped blue panels, white outlined lettering and glossy command buttons throughout, including every menu window and dialog.",
@@ -1868,7 +1912,7 @@ function tabHelp() {
     "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not."
   ]));
   h += sec("🎲 Treasure pool", ul([
-    "With companions in the party, equipment drops go into the treasure pool (the panel above the chat) instead of straight into your bag. Other loot still goes to your bag.",
+    "With companions in the party, equipment drops go into the treasure pool (the panel above the log) instead of straight into your bag. Other loot still goes to your bag.",
     "Press <b>Lot</b> to roll 1–999 or <b>Pass</b>. Companions lot only on pieces their job can use that beat what they're wearing. Highest lot wins. If a companion wins, they wear it right away (their old piece comes to your bag).",
     "If you don't choose within 45 seconds you lot automatically. If everyone passes, the item is lost."
   ]));
@@ -1943,6 +1987,13 @@ function tabHelp() {
     "Kills by a party member nearby count for your quest and guild bounty tallies too.",
     "<b>Magic on party members:</b> tap a party member and choose Magic, or target them and cast. Cure spells and Protect work on players in your party.",
     "Your companions stay with you and fight only your monsters. Party chat: <b>/p text</b>. Leave with <b>/leave</b>, remove a member with <b>/kick Name</b>."
+  ]));
+  h += sec("🛡️ Equipment", ul([
+    "Open <b>Equipment</b> (G). Sixteen boxes: Main, Sub, Range, Ammo / Head, Neck, Ear, Ear / Body, Hands, Ring, Ring / Back, Waist, Legs, Feet.",
+    "<b>Main:</b> one- and two-handed weapons. <b>Sub:</b> shields. <b>Range</b> and <b>Ammo:</b> slings, arrows and other throwing gear (they add accuracy and attack for now). <b>Neck:</b> gorgets and pendants. <b>Ear</b> and <b>Ring:</b> two of each. <b>Back:</b> capes and mantles. <b>Waist:</b> belts and sashes.",
+    "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
+    "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
+    "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells starter neck, ear, back, waist, shield, sling and ammo pieces; Vela in Saltreach sells better ones."
   ]));
   h += sec("🖥️ The screen", ul([
     "<b>Top:</b> the Commands bar appears while something is targeted. It explains the highlighted command; Network on the right shows connection strength and messages sent (S) and received (R).",

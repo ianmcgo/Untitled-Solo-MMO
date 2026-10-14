@@ -841,11 +841,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Inventory: compact list cells (icon, name, count; rarity colours); storage lists use .ffList rows.
 - Tests: test/hudshot.js (HUD in combat with menu, Character, Crafting, Inventory, Skills screenshots).
 
+## Phase 40: equipment and classic windows (v9.0.0)
+- SLOTS (data.js) = main, sub, ranged, ammo, head, neck, ear1, ear2, body, hands, ring1, ring2, back, waist, legs, feet. Item slot types stay single words (ring/ear map to pairs via SLOT_PAIRS); slotKeys(type), slotFor(id, gear, want) pick the box (first empty of a pair unless asked). SLOT_NAMES covers keys and types.
+- normalizeSave re-homes old gear (ring → ring1, shields → sub, medallion/charm → neck). equip(id, want) uses slotFor. Mercenary gear and pool upgrades use slotKeys(type)[0]; PLD kit uses sub. buildStats only takes weapon dmg/delay from main; copies res_<element> (RES_ELEMENTS) into stats; applyDamage reduces damage taken by res% (cap 50%) when opt.el is given (boss pulse, TP moves with mv.el).
+- Item changes: kite_shield → sub; ashen_medallion, croaker_charm → neck. New items: leather_gorget, mage_pendant, spirit_torque (neck); copper/beetle/silver/ember earrings (ear); travelers_cape, wolf_mantle, mage_cape (back); leather_belt, warriors_belt, silk_sash (waist); buckler (sub); sling (ranged); pebble_pouch, wooden_arrows (ammo). Pell's SHOP gets the starter pieces, Vela the better ones. ITEM_LOOK: capes → L.cape, belts → L.belt, buckler → shield.
+- UI (menu4): tabEquipment (4×4 eqGrid of boxes, Attack/Defense, 8 resist dots; selecting a box opens eqPop with Remove + fitting items, greyed with canEquip reason; first tap previews (itemCard + ▼ + equipped card), second tap equips into that box). itemCard(id): icon, name, Rare/Ex tags, [Slot] All Races, DMG/Delay/DEF/stats/resists/augments, desc, Lv + jobs (All Jobs when every job), <Item Level>. Inventory detail uses itemCard. Equipment tab key G.
+- Character tab = ffStatusBlock + ffJobLevels (+ appearance options); removed preview, attributes table and progress list. Storage tab = mcBox two-column transfer list (Storage n/cap | Bag). Bestiary hides unmet creatures.
+- Tests: p5bunit shield assertions now check gear.sub. hudshot adds storage and equipment screenshots.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 9.0.0 | Phase 40: 16 equipment slots, Equipment window, item cards, resistances, slim Character, storage transfer screen. |
 | 8.9.0 | Phase 39: classic interface (command bar, combat status, target/party panel, log, command menu, plates, cursor, status/skills/crafting/bag windows). |
 | 8.8.0 | Phase 38: rename to Leid'anav Reborn, favicon, joint blending/bridges/islands for all rigs, bestiary portraits. |
 | 8.7.0 | Phase 37: Social window, friends, linkshells, LFG, /search, blacklist. |

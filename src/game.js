@@ -108,7 +108,7 @@ function normalizeSave(d) {
   out.home = d.home && ZONES[d.home.zone] && ZONES[d.home.zone].safe && NPCS[d.home.npc] && ZONES[d.home.zone].npcs.some(n => n.id === d.home.npc) ? d.home : newSave().home;
   out.inventory = d.inventory.filter(s => s && ITEMS[s.id] && s.qty > 0);
   out.gear = {};
-  for (const slot of SLOTS) if (d.gear[slot] && ITEMS[d.gear[slot]]) out.gear[slot] = d.gear[slot];
+  for (const key in d.gear || {}) { const id = d.gear[key]; if (!id || !ITEMS[id] || ITEMS[id].kind !== "equip") continue; const k = slotFor(id, out.gear, key === "ring" ? "ring1" : key); if (!out.gear[k]) out.gear[k] = id; }
   out.jobsUnlocked = Object.assign(newSave().jobsUnlocked, d.jobsUnlocked || {});
   for (const j in ADVANCED_JOBS) if (out.quests[ADVANCED_JOBS[j].quest] === "done") out.jobsUnlocked[j] = true;
   if (!JOBS[out.mainJob] || !jobUnlockedIn(out, out.mainJob)) out.mainJob = "WAR";
@@ -365,13 +365,14 @@ function buildStats(ch) {
     const id = ch.gear[slot];
     if (!id) continue;
     const it = ITEMS[id];
-    if (it.wtype) { dmg = it.dmg; delay = it.delay; wtype = it.wtype; }
+    if (it.wtype && slot === "main") { dmg = it.dmg; delay = it.delay; wtype = it.wtype; }
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
     if (augs && augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
   }
   const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
   if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
+  for (const el of RES_ELEMENTS) s["res_" + el] = g["res_" + el] || 0;
   s.chr = Math.round(6 + 0.65 * (lv - 1) + (ch.job === "BRD" ? 3 + 0.35 * (lv - 1) : 0) + (ch.sub === "BRD" ? 1 + 0.1 * subLv : 0) + (g.chr || 0));
   if (ch.job === "MNK" && wtype === "h2h") { dmg += 2 + Math.floor(lv * 0.5); delay = Math.max(1.6, delay * 0.8); }
   s.dmg = dmg;
@@ -414,7 +415,7 @@ function mercGear(m, lv) {
   if (job === "WAR" && role === "tank") return lv >= 5 ? { main: "bronze_greataxe", head: "bronze_cap", body: "scale_mail", legs: "leather_trousers" } : { main: "bronze_greataxe", head: "bronze_cap", body: "leather_vest", legs: "leather_trousers" };
   if (job === "WAR") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", hands: "leather_gloves" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", hands: "leather_gloves" };
   if (job === "WHM") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: lv >= 3 ? "leather_boots" : undefined } : { main: "ash_club", body: "linen_robe" };
-  if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", ring: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
+  if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", sub: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
   if (job === "THF") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
   if (job === "RNG") return lv >= 11 ? { main: "steel_longbow", body: "hunters_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "yew_bow", body: "hunters_coat", feet: "leather_boots" } : { main: "shortbow", body: "leather_vest" };
   if (job === "DRK") return lv >= 11 ? { main: "steel_scythe", body: "shadow_plate", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_scythe", body: "shadow_plate", head: "bronze_cap" } : { main: "bronze_scythe", body: "leather_vest", head: "bronze_cap" };
@@ -435,7 +436,7 @@ function mercCanWear(id, itemId) {
 function mercGearFor(id, lv) {
   const g = Object.assign({}, mercGear(id, lv));
   const own = save.mercGear[id] || {};
-  for (const slot in own) if (ITEMS[own[slot]] && ITEMS[own[slot]].lv <= lv) g[slot] = own[slot];
+  for (const slot in own) if (ITEMS[own[slot]] && ITEMS[own[slot]].lv <= lv) g[slotKeys(ITEMS[own[slot]].slot)[0]] = own[slot];
   return g;
 }
 
@@ -445,8 +446,9 @@ function giveMercGear(id, itemId) {
   const it = ITEMS[itemId];
   if (!removeItem(itemId, 1)) return "You don't have that.";
   const own = save.mercGear[id] = save.mercGear[id] || {};
-  if (own[it.slot]) giveItem(own[it.slot], 1, true);
-  own[it.slot] = itemId;
+  const sk = slotKeys(it.slot)[0];
+  if (own[sk]) giveItem(own[sk], 1, true);
+  own[sk] = itemId;
   log("You give " + an(it.name) + " to " + MERCS[id].name + ".", "you");
   partySay(S.party.find(p => p.mercId === id), "gift", true);
   sfx("equip");
@@ -777,6 +779,7 @@ function applyDamage(src, tgt, amt, opt) {
   if (!tgt.alive) return;
   amt = Math.max(0, Math.round(amt));
   if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
+  if (opt.el && !isMob(tgt) && tgt.stats && tgt.stats["res_" + opt.el]) amt = Math.max(0, Math.round(amt * (1 - Math.min(0.5, tgt.stats["res_" + opt.el] / 100))));
   if (tgt.proxy) {
     netMobHit(tgt, amt, opt.enmity != null ? opt.enmity : 40 + amt * 2);
     tgt.flash = 0.15;
@@ -1069,7 +1072,7 @@ function addToPool(id) {
 }
 
 function poolUpgrade(merc, id) {
-  const it = ITEMS[id], cur = merc.gear[it.slot];
+  const it = ITEMS[id], cur = merc.gear[slotKeys(it.slot)[0]];
   if (mercCanWear(merc.mercId, id)) return false;
   if (!cur) return true;
   const c = ITEMS[cur];
@@ -1113,8 +1116,9 @@ function tickPool(force) {
     if (who.startsWith("net:")) { log(NET_PT.members.get(who.slice(4)).name + " obtains the " + ITEMS[e.id].name + ".", "loot"); continue; }
     if (who === "me") { save.stats.lotsWon++; giveItem(e.id, 1); continue; }
     const it = ITEMS[e.id], own = save.mercGear[who] = save.mercGear[who] || {};
-    if (own[it.slot]) giveItem(own[it.slot], 1, true);
-    own[it.slot] = e.id;
+    const sk = slotKeys(it.slot)[0];
+    if (own[sk]) giveItem(own[sk], 1, true);
+    own[sk] = e.id;
     log(MERCS[who].name + " obtains the " + it.name + " and puts it on.", "party");
     partySay(S.party.find(p => p.mercId === who), "gift", true);
     syncAllies(false);
@@ -2381,7 +2385,7 @@ function bossPhases(m, t) {
       ring(m, "#4fc3f7", f.pulse.r * 0.6, 1.0, "burst");
       S.shake = Math.max(S.shake, 0.35);
       sfx(f.pulse.el, m);
-      for (const p of S.party) if (p.alive && dist(p, m) <= f.pulse.r) { vfx("nuke", { src: m, tgt: p, el: f.pulse.el }); applyDamage(m, p, Math.round(f.pulse.dmg * m.lv * rand(0.9, 1.1)), { color: "#4fc3f7", size: 18 }); }
+      for (const p of S.party) if (p.alive && dist(p, m) <= f.pulse.r) { vfx("nuke", { src: m, tgt: p, el: f.pulse.el }); applyDamage(m, p, Math.round(f.pulse.dmg * m.lv * rand(0.9, 1.1)), { color: "#4fc3f7", size: 18, el: f.pulse.el }); }
     }
   }
   if (f.enrage && !m.enraged && frac <= f.enrage) {
@@ -2419,7 +2423,7 @@ function execTpMove(m) {
     for (let h = 0; h < (mv.hits || 1); h++) total += Math.floor(baseDmg(m, tg) * mv.mul * pDIF(m, tg));
     ring(tg, "#ff7043", mv.aoe || 30, 0.6, "burst");
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
-    applyDamage(m, tg, total, { color: "#ff8a80", size: 22 });
+    applyDamage(m, tg, total, { color: "#ff8a80", size: 22, el: mv.el });
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
     if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
     if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
@@ -3946,14 +3950,15 @@ function canEquip(id) {
   return "";
 }
 
-function equip(id) {
+function equip(id, want) {
   const why = canEquip(id);
   if (why) { log(why + ".", "sys"); sfx("error"); return; }
   const it = ITEMS[id];
   if (!removeItem(id, 1)) return;
-  const old = save.gear[it.slot];
+  const key = slotFor(id, save.gear, want);
+  const old = save.gear[key];
   if (old) giveItem(old, 1, true);
-  save.gear[it.slot] = id;
+  save.gear[key] = id;
   if (it.slot === "main") { player.tp = 0; player.swingTimer = it.delay; }
   log("You equip the " + it.name + ".", "you");
   sfx("equip");

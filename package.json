@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "8.9.0",
-  "releaseTitle": "Classic interface",
+  "version": "9.0.0",
+  "releaseTitle": "Equipment and classic windows",
   "description": "",
   "main": "index.js",
   "scripts": {
