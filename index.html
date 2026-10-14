@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.19.0 · built 2026-10-14 02:17 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.0.0 · built 2026-10-14 02:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14613,13 +14613,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.19.0 · built 2026-10-14 02:17 PDT";
+const BUILD_INFO = "v10.0.0 · built 2026-10-14 02:30 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "10.0.0", date: "2026-10-14", title: "Model detail I", items: [
+    "Characters have proper hands now: a palm, a group of fingers that curls forward, and a separate thumb, sized to each race.",
+    "Characters and monsters further from the camera switch to a lighter version of their model, so crowded towns and big pulls run smoother. You won't notice the switch at normal distances; it happens sooner on Low graphics."
   ] },
   { v: "9.19.0", date: "2026-10-14", title: "Finishing touches", items: [
     "High graphics now has smoother edges and a colour grade that follows the day: warm at sunrise and sunset, cooler and softer at night, duller in bad weather, with a light vignette around the screen edges.",
@@ -15479,7 +15483,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.19.0";
+const GAME_VERSION = "10.0.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -17636,7 +17640,7 @@ const ATLAS_COLS = 6, ATLAS_ROWS = 4;
 const FACE_COUNT = 8;
 const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud"];
 const ATLAS_SIZE = 1024, ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
-const RIG = { atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
+const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
 const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot"];
@@ -18014,6 +18018,7 @@ class RigBuilder {
   }
 }
 
+function sgK(n, d) { return Math.max(3, Math.round((n || d) * RIG.segK)); }
 function orientBetween(g, a, b) {
   const d = new THREE.Vector3().subVectors(b, a);
   const q = new THREE.Quaternion().setFromUnitVectors(V3(0, 1, 0), d.clone().normalize());
@@ -18022,31 +18027,31 @@ function orientBetween(g, a, b) {
   return g;
 }
 function gTaper(a, b, ra, rb, seg, flat) {
-  const g = new THREE.CylinderGeometry(rb, ra, Math.max(0.001, a.distanceTo(b)), seg || 10, 1);
+  const g = new THREE.CylinderGeometry(rb, ra, Math.max(0.001, a.distanceTo(b)), sgK(seg, 10), 1);
   if (flat) g.scale(flat, 1, 1);
   return orientBetween(g, a, b);
 }
 function gBall(p, r, sx, sy, sz, seg) {
-  const s = seg || 12;
-  const g = new THREE.SphereGeometry(r, s, Math.max(6, Math.round(s * 0.7)));
+  const s = sgK(seg, 12);
+  const g = new THREE.SphereGeometry(r, s, Math.max(4, Math.round(s * 0.7)));
   g.scale(sx || 1, sy || 1, sz || 1);
   g.translate(p.x, p.y, p.z);
   return g;
 }
 function gPartSphere(p, r, gap, thetaLen, sx, sy, sz, seg, thetaStart) {
-  const g = new THREE.SphereGeometry(r, seg || 16, 10, Math.PI / 2 + gap / 2, Math.PI * 2 - gap, thetaStart || 0, thetaLen);
+  const g = new THREE.SphereGeometry(r, sgK(seg, 16), sgK(10, 10), Math.PI / 2 + gap / 2, Math.PI * 2 - gap, thetaStart || 0, thetaLen);
   g.scale(sx || 1, sy || 1, sz || 1);
   g.translate(p.x, p.y, p.z);
   return g;
 }
 function gFront(p, r, width, t0, t1, sx, sy, sz, seg) {
-  const g = new THREE.SphereGeometry(r, seg || 12, 8, Math.PI / 2 - width / 2, width, t0, t1 - t0);
+  const g = new THREE.SphereGeometry(r, sgK(seg, 12), sgK(8, 8), Math.PI / 2 - width / 2, width, t0, t1 - t0);
   g.scale(sx || 1, sy || 1, sz || 1);
   g.translate(p.x, p.y, p.z);
   return g;
 }
 function gLathe(prof, sx, sz, seg) {
-  const g = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(Math.max(0.002, r), y)), seg || 18);
+  const g = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(Math.max(0.002, r), y)), sgK(seg, 18));
   g.scale(sx, 1, sz);
   return g;
 }
@@ -18057,12 +18062,12 @@ function gBox(p, w, h, d, rx, ry, rz) {
   return g;
 }
 function gCyl(p, rt, rb, h, seg, open, t0, tl) {
-  const g = new THREE.CylinderGeometry(rt, rb, h, seg || 14, 1, !!open, t0 || 0, tl || Math.PI * 2);
+  const g = new THREE.CylinderGeometry(rt, rb, h, sgK(seg, 14), 1, !!open, t0 || 0, tl || Math.PI * 2);
   g.translate(p.x, p.y, p.z);
   return g;
 }
 function gRing(p, R, r, axis, seg, arc, rot) {
-  const g = new THREE.TorusGeometry(R, r, 6, seg || 20, arc || Math.PI * 2);
+  const g = new THREE.TorusGeometry(R, r, sgK(6, 6), sgK(seg, 20), arc || Math.PI * 2);
   if (axis === "y") g.rotateX(Math.PI / 2);
   if (axis === "x") g.rotateY(Math.PI / 2);
   if (rot) g.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(rot[0], rot[1], rot[2])));
@@ -18350,8 +18355,16 @@ function humanEntry(L) {
       if (top.trim) R.add(gRing(V3(ex, wrY - 0.01, 0), 0.085 * gi, 0.012, "y", 18), "foreArm" + sd, top.trim, "trim", !!top.glowTrim);
     } else if (top.trim && longS) R.add(gRing(V3(wx, wrY + 0.02, 0), 0.04 * gi, 0.009, "y", 14), "foreArm" + sd, top.trim, "trim");
     const handC = L.gloves != null ? L.gloves : skin, handR = L.gloves != null ? (L.glovesRegion || "leather") : (L.skull ? "bone" : SKR);
-    R.add(gBall(V3(s * (sw + 0.025), wrY - 0.055, 0.005), L.skull ? 0.03 : 0.045, 0.75, 1.15, 0.55, 10), "hand" + sd, handC, handR);
-    R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
+    if (L.skull) {
+      R.add(gBall(V3(s * (sw + 0.025), wrY - 0.055, 0.005), 0.03, 0.75, 1.15, 0.55, 10), "hand" + sd, handC, handR);
+      R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
+    } else {
+      const hk = gi * (L.doll ? 1.25 : 1), hx = s * (sw + 0.024);
+      R.add(gBall(V3(hx, wrY - 0.04, 0.004), 0.038 * hk, 0.62, 1.0, 0.95, 10), "hand" + sd, handC, handR);
+      R.add(gTaper(V3(hx, wrY - 0.06, 0.012), V3(hx + s * 0.004, wrY - 0.105 * hk, 0.03), 0.026 * hk, 0.017 * hk, 8, 0.55), "hand" + sd, handC, handR);
+      R.add(gBall(V3(hx + s * 0.004, wrY - 0.105 * hk, 0.03), 0.0175 * hk, 0.6, 0.75, 1.0, 8), "hand" + sd, handC, handR);
+      R.add(gTaper(V3(s * (sw + 0.01), wrY - 0.035, 0.03), V3(s * (sw + 0.006), wrY - 0.075 * hk, 0.06), 0.013 * hk, 0.0095 * hk, 6), "hand" + sd, handC, handR);
+    }
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
     if (L.pauldrons) {
       R.add(gPartSphere(V3(ax * 1.01, shY - 0.012, 0), 0.068 * gi, 0, Math.PI * 0.55, 1.12, 0.75, 1.0, 14), "upArm" + sd, L.pauldrons, "metal");
@@ -19183,6 +19196,7 @@ function buildEntityRig(e) {
   const entry = entryFor(sig, make);
   const inst = instantiate(entry);
   inst.sig = sig;
+  inst.lodEntry = () => entryFor("lo|" + sig, () => { const k = RIG.segK; RIG.segK = 0.5; try { return make(); } finally { RIG.segK = k; } });
   inst.weaponKind = weaponKind;
   inst.weapon = makeWeapon(weaponKind, weaponId);
   inst.alwaysDrawn = alwaysDrawn;
@@ -20798,6 +20812,7 @@ function viewFor(e) {
   const kind = inst.meta.kind;
   v = {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
+    lodEntry: inst.lodEntry, lo: null,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
     style: styleFor(e), stride: kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
@@ -20850,11 +20865,31 @@ function footGround(e) {
   return g;
 }
 
+const LOD_DIST = { low: 16, medium: 24, high: 32 };
+function updateLod(v, e) {
+  if (!v.lodEntry || e === player || !W3.camera) return;
+  const dx = v.group.position.x - W3.camera.position.x, dz = v.group.position.z - W3.camera.position.z;
+  const lim = (LOD_DIST[W3.quality] || 24) * (v.scale || 1), d2 = dx * dx + dz * dz;
+  const far = v.lo && v.lo.visible ? d2 > (lim * 0.9) * (lim * 0.9) : d2 > lim * lim;
+  if (far && !v.lo) {
+    try {
+      const entry = v.lodEntry();
+      if (entry.defs.length !== v.mesh.skeleton.bones.length) { v.lodEntry = null; return; }
+      const m = new THREE.SkinnedMesh(entry.geo, v.mesh.material);
+      m.bind(v.mesh.skeleton, v.mesh.bindMatrix);
+      m.castShadow = true; m.receiveShadow = true; m.frustumCulled = v.mesh.frustumCulled;
+      v.mesh.parent.add(m);
+      v.lo = m;
+    } catch (err) { v.lodEntry = null; return; }
+  }
+  if (v.lo) { v.lo.visible = far; v.mesh.visible = !far; }
+}
 function syncEntity(e, dt) {
   const v = viewFor(e);
   if (!v) return;
   const g = v.group;
   if (isMob(e) && player && player.target !== e && dist(e, player) > DRAW_DIST[(VIEW.settings && VIEW.settings.draw) || "normal"]) { g.visible = false; return; }
+  updateLod(v, e);
   const gy = footGround(e) + (e === player && typeof jumpHeight === "function" ? jumpHeight(e) : 0);
   const dead = e.alive === false;
   if (!dead || e.kind === "npc") {
@@ -21669,7 +21704,7 @@ function graphicsSettingsHTML() {
   const s = VIEW.settings;
   const q = W3.quality;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="sub">High adds glow, colour grading that follows the time of day, smoother edges, sharper shadows and full-resolution water reflections. If the game stays slow, it turns off glow and then sun shadows by itself. Changing quality reloads the 3D scene.</div>' +
+  return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="sub">High adds glow, colour grading that follows the time of day, smoother edges, sharper shadows and full-resolution water reflections. If the game stays slow, it turns off glow and then sun shadows by itself. Characters far from the camera always use simpler models (sooner on Low). Changing quality reloads the 3D scene.</div>' +
     "<h3>Performance</h3><div class=\"opt\">" + btn("draw", "near", "Draw near", s.draw === "near") + btn("draw", "normal", "Draw normal", (s.draw || "normal") === "normal") + btn("draw", "far", "Draw far", s.draw === "far") + btn("toggle", "adaptive", "Auto resolution " + (s.adaptive !== false ? "on" : "off"), s.adaptive !== false) + btn("toggle", "fps", "FPS counter " + (s.fps ? "on" : "off"), s.fps) + '</div><div class="sub">Draw distance hides far monsters and name plates. Auto resolution lowers the render scale when the frame rate drops and raises it again when there is headroom. Use Low graphics on older phones.</div>' +
     "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + "</div>" +
 

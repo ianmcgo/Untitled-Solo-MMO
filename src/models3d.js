@@ -60,6 +60,7 @@ function viewFor(e) {
   const kind = inst.meta.kind;
   v = {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
+    lodEntry: inst.lodEntry, lo: null,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
     style: styleFor(e), stride: kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
@@ -112,11 +113,31 @@ function footGround(e) {
   return g;
 }
 
+const LOD_DIST = { low: 16, medium: 24, high: 32 };
+function updateLod(v, e) {
+  if (!v.lodEntry || e === player || !W3.camera) return;
+  const dx = v.group.position.x - W3.camera.position.x, dz = v.group.position.z - W3.camera.position.z;
+  const lim = (LOD_DIST[W3.quality] || 24) * (v.scale || 1), d2 = dx * dx + dz * dz;
+  const far = v.lo && v.lo.visible ? d2 > (lim * 0.9) * (lim * 0.9) : d2 > lim * lim;
+  if (far && !v.lo) {
+    try {
+      const entry = v.lodEntry();
+      if (entry.defs.length !== v.mesh.skeleton.bones.length) { v.lodEntry = null; return; }
+      const m = new THREE.SkinnedMesh(entry.geo, v.mesh.material);
+      m.bind(v.mesh.skeleton, v.mesh.bindMatrix);
+      m.castShadow = true; m.receiveShadow = true; m.frustumCulled = v.mesh.frustumCulled;
+      v.mesh.parent.add(m);
+      v.lo = m;
+    } catch (err) { v.lodEntry = null; return; }
+  }
+  if (v.lo) { v.lo.visible = far; v.mesh.visible = !far; }
+}
 function syncEntity(e, dt) {
   const v = viewFor(e);
   if (!v) return;
   const g = v.group;
   if (isMob(e) && player && player.target !== e && dist(e, player) > DRAW_DIST[(VIEW.settings && VIEW.settings.draw) || "normal"]) { g.visible = false; return; }
+  updateLod(v, e);
   const gy = footGround(e) + (e === player && typeof jumpHeight === "function" ? jumpHeight(e) : 0);
   const dead = e.alive === false;
   if (!dead || e.kind === "npc") {
