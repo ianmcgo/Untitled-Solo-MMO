@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "13.1.0", date: "2026-10-14", title: "Weather that matters", items: [
+    "New weather: sandstorms sweep the Sunscar Desert (and sometimes Cinder Peak), turning the air tan and blowing dust across the dunes.",
+    "Weather now affects play: fog, blizzards and sandstorms (and to a lesser extent rain and storms) cut how far monsters can see you, and blizzards and sandstorms slow you down on foot.",
+    "Some monsters only come out in certain weather and leave when it turns: a storm-only Dune Worm in sandstorms, Ice Wights in Frostspire blizzards, and Drowned Ones in the marsh fog. A message tells you when the weather changes."
+  ] },
   { v: "13.0.0", date: "2026-10-14", title: "Regions and nations", items: [
     "The wilds are now five regions (the Vale, the Mire, the Coast, the Peaks and the Sands), each held by the Ashenreach League, the Ironvale Compact or the Beastmen.",
     "Pledge to a nation with Captain Rhea or Brisa. Every monster you defeat in a region adds points for your nation, and once a day the region goes to whoever earned the most.",
@@ -2353,6 +2358,7 @@ function tabHelp() {
     "Each outdoor area has its own weather, changing every 3 game hours (about 7 real minutes): clear, cloudy, rain, wind, fog or thunderstorms. The icon next to the clock shows it; /weather tells you more.",
     "Rain boosts water spells by 10%, wind boosts wind spells and thunderstorms boost lightning spells. This stacks with the day's element.",
     "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not.",
+    "Weather changes the fight: in fog, blizzards and sandstorms (and a little in rain and storms) monsters can't spot you from as far away, and blizzards and sandstorms slow you down on foot. Some monsters only appear in certain weather: a storm-only Dune Worm in Sunscar sandstorms, Ice Wights in Frostspire blizzards and Drowned Ones in the marsh fog. They leave when the weather turns.",
     "You can see the weather around you: raindrops splash on the ground, distant lightning lights up the sky before the thunder arrives, wind carries leaves and dust, blizzards blow snow sideways and fog drifts past at ground level. On clear nights in the fields, fireflies come out. Snow kicks up under your feet in snowy weather."
   ]));
   h += sec("🎲 Treasure pool", ul([

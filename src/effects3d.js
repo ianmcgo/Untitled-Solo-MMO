@@ -232,11 +232,12 @@ function updateWeatherFx(dt) {
       setTimeout(() => typeof sfx === "function" && sfx("lightning"), 400 + far * 12);
     }
   } else WFX.next = 0;
-  if (wx === "wind" || wx === "storm" || wx === "blizzard") {
-    const rate = (wx === "blizzard" ? 30 : 10) * (low ? 0.5 : 1);
+  if (wx === "wind" || wx === "storm" || wx === "blizzard" || wx === "sandstorm") {
+    const rate = (wx === "blizzard" || wx === "sandstorm" ? 30 : 10) * (low ? 0.5 : 1);
     for (let i = 0, m = Math.floor(rate * dt + Math.random()); i < m; i++) {
       const q = near(); q.y += rnd(0.3, 2.5);
       if (wx === "blizzard") FX.smoke.spawn(q.x, q.y, q.z, rnd(4, 7), rnd(-0.5, 0.3), rnd(1, 3), rnd(0.8, 1.4), 0.6, 1.4, C(0xf4f8ff), C(0xe0e8f0), 0, 0.3, 0.3);
+      else if (wx === "sandstorm") FX.smoke.spawn(q.x, q.y, q.z, rnd(5, 8), rnd(-0.3, 0.3), rnd(1, 3), rnd(0.8, 1.4), 0.8, 1.8, C(0xd8b078), C(0xc09060), 0, 0.3, 0.35);
       else { const leaf = Math.random() < 0.6; FX.smoke.spawn(q.x, q.y, q.z, rnd(3, 5.5), rnd(-0.3, 0.6), rnd(0.5, 2), rnd(1.4, 2.4), leaf ? 0.12 : 0.4, leaf ? 0.1 : 0.9, C(leaf ? 0x7a9a40 : 0xb8a888), C(leaf ? 0x8a6a30 : 0xa89878), 0.3, 0.2, leaf ? 0.9 : 0.25); }
     }
   }

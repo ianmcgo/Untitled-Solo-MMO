@@ -1987,7 +1987,8 @@ const WEATHER_INFO = {
   fog: { name: "Fog", icon: "🌫️" },
   storm: { name: "Thunderstorm", icon: "⛈️", el: "lightning" },
   snow: { name: "Snow", icon: "🌨️", el: "ice" },
-  blizzard: { name: "Blizzard", icon: "❄️", el: "ice" }
+  blizzard: { name: "Blizzard", icon: "❄️", el: "ice" },
+  sandstorm: { name: "Sandstorm", icon: "🌪️", el: "earth" }
 };
 const WEATHER = {
   outpost: [["clear", 6], ["cloudy", 3], ["rain", 2], ["wind", 1.5], ["storm", 0.5]],
@@ -2114,7 +2115,7 @@ for (const zid in ZONES) {
     let best = null, bd = 1e12;
     for (const k of kept) { if (!!k.bf !== !!sp.bf || fixed(k)) continue; const d = Math.hypot(k.x - sp.x, k.y - sp.y); if (d < bd) { bd = d; best = k; } }
     if (!best) best = kept[0];
-    (best.alts = best.alts || []).push({ fam: sp.fam, lv: sp.lv, time: sp.time, nm: sp.nm, passive: sp.passive });
+    (best.alts = best.alts || []).push({ fam: sp.fam, lv: sp.lv, time: sp.time, weather: sp.weather, nm: sp.nm, passive: sp.passive });
   }
   z.spawns = z.spawns.filter(sp => kept.includes(sp));
 }
@@ -2223,7 +2224,11 @@ WEATHER.cinder = [["cloudy", 4], ["clear", 3], ["fog", 2], ["wind", 2], ["storm"
 ACHIEVEMENTS.push({ id: "cinder", icon: "🌋", name: "Trial by Fire", desc: "Set foot on Cinder Peak.", test: s => (s.discovered || []).includes("cinder") });
 WEATHER.verdant = [["rain", 5], ["cloudy", 3], ["fog", 2], ["clear", 2], ["storm", 1.2]];
 ACHIEVEMENTS.push({ id: "verdant", icon: "🌴", name: "Into the Green", desc: "Set foot in the Verdant Jungle.", test: s => (s.discovered || []).includes("verdant") });
-WEATHER.sunscar = [["clear", 7], ["wind", 3], ["cloudy", 1], ["storm", 0.3]];
+WEATHER.sunscar = [["clear", 6], ["wind", 2.5], ["sandstorm", 2], ["cloudy", 1], ["storm", 0.3]];
+WEATHER.cinder.push(["sandstorm", 1]);
+ZONES.sunscar.spawns.push({ fam: "dune_worm", lv: [20, 20], x: 1500, y: 1900, weather: "sandstorm" });
+ZONES.frost.spawns.push({ fam: "ice_wight", lv: [19, 20], x: Math.round(2200 * zsc("frost")), y: Math.round(1400 * zsc("frost")), weather: "blizzard" });
+ZONES.marsh.spawns.push({ fam: "drowned", lv: [15, 16], x: Math.round(1700 * zsc("marsh")), y: Math.round(1400 * zsc("marsh")), weather: "fog" });
 ACHIEVEMENTS.push({ id: "sunscar", icon: "🏜️", name: "Sunburnt", desc: "Set foot in the Sunscar Desert.", test: s => (s.discovered || []).includes("sunscar") });
 WEATHER.ironvale = [["clear", 4], ["snow", 3], ["cloudy", 3], ["wind", 1.5], ["fog", 0.8]];
 const MYTHRIL_GEAR = [];
