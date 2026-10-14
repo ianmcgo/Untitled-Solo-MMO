@@ -1453,6 +1453,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.18.0", date: "2026-10-14", title: "Effects", items: [
+    "Spells leave something behind: fire smoulders with rising embers, ice leaves a cold mist, water drips down, earth throws up dust, wind scatters leaves, lightning crackles for a moment, light leaves glowing motes and dark magic leaves shadowy wisps.",
+    "Weapon skills now trail the colour of their element, shed sparks from the blade, and finish with a burst and ground ring in that colour.",
+    "Melee hits throw sparks (cool white for blades, orange for blunt weapons), and heavy blows kick up dust.",
+    "Weather particles: rain splashes, distant lightning with delayed thunder, blowing leaves and dust in wind, sideways snow in blizzards, drifting fog, fireflies on clear field nights, and snowy footsteps."
+  ] },
   { v: "9.17.0", date: "2026-10-14", title: "Motion", items: [
     "Emotes are now fully animated: wave, bow, cheer, dance, laugh, nod, clap, point, salute, panic, cry and thumbs up each have their own movement. Using one stands you up if you were resting and turns you to face your target.",
     "Other players in your zone see your emotes play out too."
@@ -2174,7 +2180,8 @@ function tabHelp() {
   h += sec("🌦️ Weather", ul([
     "Each outdoor area has its own weather, changing every 3 game hours (about 7 real minutes): clear, cloudy, rain, wind, fog or thunderstorms. The icon next to the clock shows it; /weather tells you more.",
     "Rain boosts water spells by 10%, wind boosts wind spells and thunderstorms boost lightning spells. This stacks with the day's element.",
-    "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not."
+    "Rain and storms make fish bite sooner. Fog and rain shorten how far you can see. The Ashen Marsh is foggy and wet more often than not.",
+    "You can see the weather around you: raindrops splash on the ground, distant lightning lights up the sky before the thunder arrives, wind carries leaves and dust, blizzards blow snow sideways and fog drifts past at ground level. On clear nights in the fields, fireflies come out. Snow kicks up under your feet in snowy weather."
   ]));
   h += sec("🎲 Treasure pool", ul([
     "With companions in the party, equipment drops go into the treasure pool (the panel above the log) instead of straight into your bag. Other loot still goes to your bag.",
