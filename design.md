@@ -925,8 +925,22 @@ World scale track:
 - 68 (10.8.0) Z3 Life: ambient wildlife (birds, butterflies, fish, deer), wandering travellers and caravans, per-area ambient sound, ecology that changes by time and weather.
 - 69 (10.9.0) Z4 Points of interest: lookouts, shrines, wrecks, ruins, hidden chests, rare gathering spots, NM lairs, lore tablets; map regions and discovery rewards.
 - 70 (10.10.0) Z5 Travel: roads with signposts, mount routes, a ferry between harbor and an island, crystal warps with costs, outpost camps that act as home points.
-- 71 (10.11.0) Z6 New zones (to be picked by the user from suggestions: second city, desert, jungle, volcano, coastal cliffs/island, multi-floor tower, underground river, highland plateau).
-- 72–75 (11.0.0–11.3.0) New jobs in groups: SAM/NIN/DRG, BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
+- 71–74 (11.0.0–11.3.0) New jobs in groups: SAM/NIN/DRG, BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
+New zones (one per release; each gets its own monsters, NM, gathering, quests, landmarks and music mood):
+- 75 (12.0.0) Second city: a rival/allied nation with its own shops, guilds, missions, residence option and a distinct building style; road link to the Outpost region.
+- 76 (12.1.0) Sunscar Desert: dunes, buried temple, sandworm NM, daytime heat that drains MP (shade/water items counter it).
+- 77 (12.2.0) Verdant Jungle: dense canopy, rope bridges, vine-covered ruins.
+- 78 (12.3.0) Cinder Peak: volcano, lava flows, fire elementals, top-tier smithing ore.
+- 79 (12.4.0) Gull Isle: coastal island reached by ferry; sea cliffs, pirate caves, lighthouse.
+- 80 (12.5.0) The Spire: multi-floor tower dungeon, harder per floor, boss at the top.
+- 81 (12.6.0) Underdeep River: underground river by boat, glowing caves, fishing.
+- 82 (12.7.0) Highland plateau: open grassland, large mount area, nomad camps.
+World systems:
+- 83 (13.0.0) Regions with control status: each region shows which side holds it; affects shop stock and prices.
+- 84 (13.1.0) Weather that matters: sandstorms, blizzards, fog change spawns and view distance.
+- 85 (13.2.0) Expeditions: multi-zone quests far from home.
+- 86 (13.3.0) World map atlas: fills in as you explore, every zone joined up.
+- 87 (13.4.0) Night-only and weather-only content: monsters, areas and NPCs that appear only at certain times or weather.
 - Pending on the user's side: run the latest setup.sql in Supabase.
 
 ## Version log
