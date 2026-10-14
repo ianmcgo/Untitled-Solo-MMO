@@ -101,6 +101,7 @@ async function boot() {
     last = now;
     if (UI.started && !VIEW.loading) {
       if (!S.ko) step(dt); else S.time += dt;
+      if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
       age(dt);
       draw(dt);
       updateHud(dt);
@@ -399,7 +400,7 @@ async function enterWorld(id, fresh) {
 
 async function logoutToSelect() {
   saveGame();
-  try { await netFlush(); } catch (e) {}
+  try { await netFlush(); netLeaveAll(); } catch (e) {}
   const r = loadRoster();
   r.current = null;
   saveRoster(r);

@@ -168,6 +168,8 @@
   #chatIn:focus { border-color: var(--gold); background: rgba(10,12,20,.9); }
   #chatIn::placeholder { color: #8c8a84; }
   #log .say { color: #f4f1e8; }
+  #log .shout { color: #ffab91; font-weight: 600; } #log .tell { color: #f48fb1; }
+  #log.f-chat div:not(.say):not(.shout):not(.tell):not(.party) { display: none; }
 
   #bottom { position: absolute; left: 50%; bottom: calc(8px + var(--sab)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; }
   #castBar { width: 260px; display: none; padding: 4px 7px; text-align: center; font-size: 11px; }
@@ -522,7 +524,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.0.0 · built 2026-10-13 18:33 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.1.0 · built 2026-10-13 18:41 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -549,7 +551,7 @@
       <div id="trBtns"><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
-    <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
+    <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
       <div id="barWrap" class="glass"><div id="pager"><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
@@ -9505,6 +9507,7 @@ function enterZone(id, x, y) {
   if (prev !== id) sfx("zone");
   onZoneEntered();
   saveGame();
+  if (typeof netJoinZone === "function") netJoinZone(id);
 }
 
 function npcDoor(n) {
@@ -10777,6 +10780,10 @@ const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", l
 const COMMANDS = [
   ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
   ["/pet", "Summon or dismiss your equipped pet."],
+  ["/say text", "Talk to players near you (or just type without a slash). Also /s."],
+  ["/shout text", "Talk to everyone in this area. Also /sh."],
+  ["/tell Name text", "Private message to a player anywhere. Also /t. /r replies to the last tell."],
+  ["/who", "List players online and where they are."],
   ["/fish", "Cast a line at the water's edge (needs a Willow Rod and Fishing Bait). Type it again when something bites to reel in."],
   ["/weather", "Show the current weather and its element bonus."],
   ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
@@ -10820,7 +10827,7 @@ function actByName(kind, q) {
 function runCommand(text) {
   text = String(text || "").trim();
   if (!text) return;
-  if (text[0] !== "/") { log(save.name + ": " + text, "say"); return; }
+  if (text[0] !== "/") { if (typeof netChat === "function") netChat("say", text); else log(save.name + ": " + text, "say"); return; }
   const sp = text.indexOf(" ");
   const cmd = (sp < 0 ? text.slice(1) : text.slice(1, sp)).toLowerCase();
   const arg = sp < 0 ? "" : text.slice(sp + 1).trim();
@@ -10832,6 +10839,11 @@ function runCommand(text) {
   };
   switch (cmd) {
     case "rest": case "heal": case "sit": toggleRest(); return;
+    case "s": case "say": if (typeof netChat === "function") netChat("say", arg); else log(save.name + ": " + arg, "say"); return;
+    case "sh": case "shout": if (typeof netChat === "function") netChat("shout", arg); else log(save.name + " shouts: " + arg, "shout"); return;
+    case "t": case "tell": { const s2 = arg.indexOf(" "); if (typeof netTell === "function") netTell(s2 < 0 ? arg : arg.slice(0, s2), s2 < 0 ? "" : arg.slice(s2 + 1)); else log("Tells need the game server.", "sys"); return; }
+    case "r": case "reply": if (typeof NET_RT !== "undefined" && NET_RT.lastTell) netTell(NET_RT.lastTell, arg); else log("Nobody has sent you a tell yet.", "sys"); return;
+    case "who": if (typeof netWho === "function") netWho(); else log("You're playing alone.", "sys"); return;
     case "pet": { const why = toggleBuddy(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
     case "fish": { if (S.fish && S.fish.state === "bite") { reelFish(); return; } const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
@@ -13061,13 +13073,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v8.0.0 · built 2026-10-13 18:33 PDT";
+const BUILD_INFO = "v8.1.0 · built 2026-10-13 18:41 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.1.0", date: "2026-10-13", title: "Other players and chat", items: [
+    "You can now see other players in your area: their race, gear and name, walking, riding, fighting, casting and resting in real time.",
+    "Chat: type to say something to players nearby (with a speech bubble), /shout for the whole area, /tell Name message for a private message anywhere (/r to reply), and /who to see who's online.",
+    "New Chat tab in the log for player messages only.",
+    "Monsters aren't shared yet: each player still fights their own copy. Parties, trading and shared monsters come in the next updates."
   ] },
   { v: "8.0.0", date: "2026-10-13", title: "Accounts and the game server", items: [
     "The game now runs on a shared server. Sign in with your email and password on the title screen; creating an account needs the sign-up password from the server owner.",
@@ -13574,12 +13592,18 @@ function tabHelp() {
     "Settings → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Settings → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
   ]));
+  h += sec("👥 Other players and chat", ul([
+    "Other adventurers in the same area appear in the world with their own race, gear and name (in green), moving, fighting and casting in real time.",
+    "Type in the chat box to <b>say</b> something to players near you (a speech bubble appears over your head). <b>/shout</b> reaches everyone in the area, <b>/tell Name message</b> reaches one player anywhere (<b>/r</b> replies), and <b>/who</b> lists who's online and where.",
+    "The <b>Chat</b> tab in the log shows only player messages.",
+    "Coming next: inviting other players to your party, trading, and monsters shared by everyone in an area. For now each player fights their own copy of the monsters."
+  ]));
   h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
 
-const GAME_VERSION = "8.0.0";
+const GAME_VERSION = "8.1.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -16551,7 +16575,7 @@ function buildEntityRig(e) {
     sig = "pet|" + e.petKey;
     make = () => batEntry(P.col, P.eye);
   } else {
-    const base = e === player ? playerBase() : (MERC_BASE[e.mercId] || MERC_BASE.kael);
+    const base = e === player ? playerBase() : e.remote ? baseFromLook(e.look || {}) : (MERC_BASE[e.mercId] || MERC_BASE.kael);
     const L = lookFor(e.job, e.gear, base);
     sig = "h|" + stableKey(L);
     make = () => humanEntry(L);
@@ -16605,6 +16629,7 @@ function rigSigFor(e) {
   if (e.pet) return "pet|" + e.petKey;
   if (e.buddy) return "buddy|" + e.petId;
   if (e.ambient) return "amb|" + e.type + "|" + (e.seed || 0);
+  if (e.remote) return "r|" + e.job + "|" + SLOTS.map(s => (e.gear || {})[s] || "").join(",") + "|" + JSON.stringify(e.look || {});
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
   if (e.kind === "npc") return "n|" + e.id;
   return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);
@@ -18057,7 +18082,7 @@ function viewFor(e) {
     style: styleFor(e), stride: kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
-  if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }
+  if (e.buddy || e.ambient || e.remote) { v.pick.visible = false; v.pick.userData.entity = null; }
   W3.scene.add(group);
   VIEW.views.set(e, v);
   return v;
@@ -18116,7 +18141,7 @@ function syncEntity(e, dt) {
     g.rotation.y += normAng(yawT - g.rotation.y) * Math.min(1, dt * 12);
   }
   if (e.mounted && !dead) {
-    const coat = save.mountCoat || "teal";
+    const coat = e.coat || save.mountCoat || "teal";
     if (v.mount && v.mount.coat !== coat) { W3.scene.remove(v.mount.group); v.mount.mat.dispose(); v.mount = null; }
     if (!v.mount) {
       const mi = buildMount(coat);
@@ -18394,7 +18419,7 @@ function labelFor(e) {
 
 function updateLabels() {
   const seen = new Set();
-  const all = S.party.concat(S.mobs, S.npcs, S.buddy ? [S.buddy] : []);
+  const all = S.party.concat(S.mobs, S.npcs, S.buddy ? [S.buddy] : [], S.others ? [...S.others.values()].filter(o => o.placed) : []);
   for (const e of all) {
     if (e.buddy) continue;
     if (e === player && VIEW.first) continue;
@@ -18413,6 +18438,7 @@ function updateLabels() {
     if (isMob(e)) { col = e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
     if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
     if (e.buddy) col = "#ffd54f";
+    if (e.remote) { col = "#a5d6a7"; name = e.name + (e.lv ? " · " + e.job + e.lv : ""); }
     const other = isMob(e) || e.kind === "npc";
     if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
     nameEl.style.display = name ? "" : "none";
@@ -18876,11 +18902,12 @@ function draw(dt) {
   for (const n of S.npcs) syncNpc(n, dt);
   if (S.buddy) syncEntity(S.buddy, dt);
   for (const a of S.ambient || []) syncEntity(a, dt);
+  if (S.others) for (const o of S.others.values()) if (o.placed) syncEntity(o, dt);
   syncDecor(dt);
   syncBarriers();
   syncFurniture();
   for (const [e, v] of VIEW.views) {
-    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e) || e === S.buddy || (S.ambient && S.ambient.includes(e));
+    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e) || e === S.buddy || (S.ambient && S.ambient.includes(e)) || (S.others && S.others.get(e.id) === e);
     if (!alive) { destroyView(v); VIEW.views.delete(e); }
   }
   updateCursor();
@@ -18955,6 +18982,7 @@ async function netSignUp(email, password, code) {
 
 async function netSignOut() {
   await netFlush();
+  try { netLeaveAll(); } catch (e) {}
   try { await NET.sb.auth.signOut(); } catch (e) {}
   NET.user = null; NET.session = null; NET.member = false;
   try { localStorage.removeItem(ROSTER_KEY); } catch (e) {}
@@ -19049,6 +19077,7 @@ function netTick() {
   if (!NET.member) return;
   const now = Date.now();
   if (now - NET.lastSave > NET_CFG.saveEvery && Object.keys(NET.dirty).length) netFlush();
+  netTrack();
   if (now - NET.beatAt > NET_CFG.beat) { NET.beatAt = now; NET.sb.rpc("touch_player").then(() => {}, () => {}); }
 }
 
@@ -19067,6 +19096,172 @@ if (typeof window !== "undefined") {
   setInterval(() => { try { netTick(); } catch (e) {} }, 3000);
   window.addEventListener("pagehide", () => { netFlush(true); });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") netFlush(true); });
+}
+
+const NET_RT = { zone: null, zch: null, wch: null, lastSend: 0, lastSig: "", lastPos: "", sw: 0, ws: 0, ht: 0, swT: -9, wsT: -9, htT: -9, lastTell: null, lastChat: 0, online: [] };
+
+function netMeta() { return { id: S.charId, name: save.name, job: player.job, sub: player.sub, lv: player.lv, look: save.look, gear: Object.assign({}, save.gear), coat: save.mountCoat, zone: S.zoneId }; }
+
+function netJoinZone(zoneId) {
+  if (!NET.member || !NET.sb || !S.charId) return;
+  if (NET_RT.zone === zoneId && NET_RT.zch) return;
+  netLeaveZone();
+  NET_RT.zone = zoneId;
+  try {
+    const ch = NET.sb.channel("zone:" + zoneId, { config: { broadcast: { self: false }, presence: { key: S.charId } } });
+    ch.on("broadcast", { event: "mv" }, m => netOnMove(m.payload));
+    ch.on("broadcast", { event: "chat" }, m => netOnChat(m.payload));
+    ch.on("presence", { event: "sync" }, () => netOnPresence(ch.presenceState()));
+    ch.subscribe(st => { if (st === "SUBSCRIBED") { NET_RT.lastSig = ""; NET_RT.lastPos = ""; netTrack(); } });
+    NET_RT.zch = ch;
+  } catch (e) { NET_RT.zch = null; }
+  netWorld();
+}
+
+function netLeaveZone() {
+  if (NET_RT.zch) { try { NET.sb.removeChannel(NET_RT.zch); } catch (e) {} }
+  NET_RT.zch = null; NET_RT.zone = null;
+  S.others = new Map();
+}
+
+function netLeaveAll() {
+  netLeaveZone();
+  if (NET_RT.wch) { try { NET.sb.removeChannel(NET_RT.wch); } catch (e) {} }
+  NET_RT.wch = null;
+}
+
+function netTrack() {
+  if (!NET_RT.zch || !player) return;
+  const m = netMeta(), sig = JSON.stringify(m);
+  if (sig === NET_RT.lastSig) return;
+  NET_RT.lastSig = sig;
+  Promise.resolve(NET_RT.zch.track(m)).catch(() => {});
+  if (NET_RT.wch) Promise.resolve(NET_RT.wch.track({ name: save.name, zone: S.zoneId, lv: player.lv, job: player.job })).catch(() => {});
+}
+
+function netWorld() {
+  if (NET_RT.wch || !NET.member) return;
+  try {
+    const ch = NET.sb.channel("world", { config: { broadcast: { self: false }, presence: { key: S.charId || NET.user.id } } });
+    ch.on("broadcast", { event: "tell" }, m => netOnTell(m.payload));
+    ch.on("presence", { event: "sync" }, () => { NET_RT.online = Object.values(ch.presenceState()).map(a => a[0]).filter(Boolean); });
+    ch.subscribe(st => { if (st === "SUBSCRIBED") Promise.resolve(ch.track({ name: save.name, zone: S.zoneId, lv: player.lv, job: player.job })).catch(() => {}); });
+    NET_RT.wch = ch;
+  } catch (e) { NET_RT.wch = null; }
+}
+
+function netRtTick() {
+  if (!NET_RT.zch || !player || !S.charId) return;
+  if (player.lastSwing !== NET_RT.swT) { NET_RT.swT = player.lastSwing; NET_RT.sw++; }
+  if (player.lastWS !== NET_RT.wsT) { NET_RT.wsT = player.lastWS; NET_RT.ws++; }
+  if (player.lastHit !== NET_RT.htT) { NET_RT.htT = player.lastHit; NET_RT.ht++; }
+  const now = Date.now();
+  const st = (player.mounted ? 1 : 0) | (player.resting ? 2 : 0) | (player.engaged ? 4 : 0) | (player.alive ? 0 : 8);
+  const p = { id: S.charId, x: Math.round(player.x), y: Math.round(player.y), f: +(player.face || 0).toFixed(2), st, sw: NET_RT.sw, ws: NET_RT.ws, wid: player.lastWSId || null, ht: NET_RT.ht, c: player.casting ? player.casting.id : null, hp: Math.round(100 * player.hp / Math.max(1, player.maxHp)) };
+  const sig = JSON.stringify(p);
+  const gap = sig === NET_RT.lastPos ? 2000 : 120;
+  if (now - NET_RT.lastSend < gap) return;
+  NET_RT.lastSend = now; NET_RT.lastPos = sig;
+  Promise.resolve(NET_RT.zch.send({ type: "broadcast", event: "mv", payload: p })).catch(() => {});
+}
+
+function netRemote(meta) {
+  if (!meta || !meta.id || meta.id === S.charId) return null;
+  if (!S.others) S.others = new Map();
+  let o = S.others.get(meta.id);
+  if (!o) {
+    o = { kind: "remote", remote: true, id: meta.id, x: player ? player.x : 0, y: player ? player.y : 0, tx: null, ty: null, face: 0, tf: 0, alive: true, radius: 14, speed: 140, buffs: {}, hp: 100, maxHp: 100, tp: 0, mp: 0, maxMp: 0, recasts: {}, lastSwing: -9, lastWS: -9, lastHit: -9, casting: null, seen: S.time, placed: false };
+    S.others.set(meta.id, o);
+  }
+  o.name = meta.name || o.name || "Adventurer";
+  if (meta.job) { o.job = meta.job; o.sub = meta.sub; o.lv = meta.lv; o.look = meta.look || {}; o.gear = meta.gear || {}; o.coat = meta.coat; }
+  o.seen = S.time;
+  return o;
+}
+
+function netOnPresence(state) {
+  const live = new Set();
+  for (const key in state) { const m = state[key] && state[key][0]; if (!m || m.id === S.charId) continue; live.add(m.id); netRemote(m); }
+  for (const id of [...(S.others || new Map()).keys()]) if (!live.has(id)) S.others.delete(id);
+}
+
+function netOnMove(p) {
+  if (!p || !p.id || p.id === S.charId || !S.others) return;
+  const o = S.others.get(p.id);
+  if (!o || !o.job) return;
+  o.seen = S.time;
+  o.tx = p.x; o.ty = p.y; o.tf = p.f;
+  if (!o.placed) { o.x = p.x; o.y = p.y; o.face = p.f; o.px = o.x; o.py = o.y; o.placed = true; }
+  o.mounted = !!(p.st & 1); o.resting = !!(p.st & 2); o.engaged = !!(p.st & 4); o.alive = !(p.st & 8);
+  if (o.swc != null && p.sw !== o.swc) o.lastSwing = S.time;
+  if (o.wsc != null && p.ws !== o.wsc) { o.lastWS = S.time; o.lastWSId = p.wid; }
+  if (o.htc != null && p.ht !== o.htc) { o.lastHit = S.time; o.flash = 0.15; }
+  o.swc = p.sw; o.wsc = p.ws; o.htc = p.ht;
+  if (p.c && (!o.casting || o.casting.id !== p.c) && SPELLS[p.c]) o.casting = { id: p.c, sp: SPELLS[p.c], t: o, start: S.time, end: S.time + SPELLS[p.c].cast };
+  if (!p.c) o.casting = null;
+  o.hp = p.hp;
+}
+
+function tickRemotes(dt) {
+  if (!S.others || !S.others.size) return;
+  for (const [id, o] of S.others) {
+    if (S.time - o.seen > 25) { S.others.delete(id); continue; }
+    if (o.tx == null) continue;
+    const d = Math.hypot(o.tx - o.x, o.ty - o.y);
+    if (d > 500) { o.x = o.tx; o.y = o.ty; }
+    else if (d > 0.5) { const k = Math.min(1, dt * 7); o.x += (o.tx - o.x) * k; o.y += (o.ty - o.y) * k; }
+    o.face += normAng(o.tf - o.face) * Math.min(1, dt * 10);
+  }
+}
+
+const cleanChat = t => String(t || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 120);
+
+function netChat(kind, text) {
+  text = cleanChat(text);
+  if (!text) return;
+  if (Date.now() - NET_RT.lastChat < 700) { log("You're talking too fast.", "sys"); return; }
+  NET_RT.lastChat = Date.now();
+  log((kind === "shout" ? save.name + " shouts: " : save.name + ": ") + text, kind);
+  if (kind === "say") popText(player, "💬 " + text.slice(0, 40), "#f4f1e8", 12, 3.5, 30);
+  if (!NET_RT.zch) return;
+  Promise.resolve(NET_RT.zch.send({ type: "broadcast", event: "chat", payload: { id: S.charId, name: save.name, kind, text, x: Math.round(player.x), y: Math.round(player.y) } })).catch(() => {});
+}
+
+function netOnChat(p) {
+  if (!p || p.id === S.charId) return;
+  const text = cleanChat(p.text), name = cleanChat(p.name).slice(0, 12);
+  if (!text) return;
+  if (p.kind === "say" && player && Math.hypot(p.x - player.x, p.y - player.y) > 900) return;
+  log((p.kind === "shout" ? name + " shouts: " : name + ": ") + text, p.kind === "shout" ? "shout" : "say");
+  const o = S.others && S.others.get(p.id);
+  if (o && p.kind === "say") popText(o, "💬 " + text.slice(0, 40), "#f4f1e8", 12, 3.5, 30);
+  if (typeof sfx === "function") sfx("tab");
+}
+
+function netTell(to, text) {
+  text = cleanChat(text); to = cleanChat(to);
+  if (!to || !text) { log("Usage: /t Name message", "sys"); return; }
+  if (to.toLowerCase() === String(save.name).toLowerCase()) { log("You can't send a tell to yourself.", "sys"); return; }
+  if (!NET_RT.online.some(o => String(o.name).toLowerCase() === to.toLowerCase())) { log(to + " isn't online right now.", "sys"); return; }
+  if (Date.now() - NET_RT.lastChat < 700) { log("You're talking too fast.", "sys"); return; }
+  NET_RT.lastChat = Date.now();
+  log(">> " + to + ": " + text, "tell");
+  if (NET_RT.wch) Promise.resolve(NET_RT.wch.send({ type: "broadcast", event: "tell", payload: { to: to.toLowerCase(), from: save.name, text } })).catch(() => {});
+}
+
+function netOnTell(p) {
+  if (!p || String(p.to) !== String(save.name || "").toLowerCase()) return;
+  const from = cleanChat(p.from).slice(0, 12), text = cleanChat(p.text);
+  if (!text) return;
+  NET_RT.lastTell = from;
+  log(from + " >> " + text, "tell");
+  if (typeof sfx === "function") sfx("notify");
+}
+
+function netWho() {
+  const list = NET_RT.online.filter(o => o && o.name);
+  if (!list.length) { log("Nobody else is online (or the server isn't connected).", "sys"); return; }
+  log(list.length + " online: " + list.map(o => o.name + " (" + (JOBS[o.job] ? o.job : "?") + o.lv + ", " + (ZONES[o.zone] ? ZONES[o.zone].name : "?") + ")").join(", "), "sys");
 }
 
 function onKey(e) {
@@ -19172,6 +19367,7 @@ async function boot() {
     last = now;
     if (UI.started && !VIEW.loading) {
       if (!S.ko) step(dt); else S.time += dt;
+      if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
       age(dt);
       draw(dt);
       updateHud(dt);
@@ -19470,7 +19666,7 @@ async function enterWorld(id, fresh) {
 
 async function logoutToSelect() {
   saveGame();
-  try { await netFlush(); } catch (e) {}
+  try { await netFlush(); netLeaveAll(); } catch (e) {}
   const r = loadRoster();
   r.current = null;
   saveRoster(r);

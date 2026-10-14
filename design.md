@@ -747,11 +747,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Tests: rules tests unchanged (build 1 has no net.js); test/netshots.js drives the real page against a mocked Supabase (page.route) for login, wrong password, create, save PATCH, admin and system screens.
 - Known limits: saves are client-authoritative (a determined player can edit their own data); server-side validation comes with the shared-world phase.
 
+## Phase 31: other players and chat (v8.1.0) — multiplayer phase 9
+- Supabase Realtime, no new tables. Channel `zone:<zoneId>`: presence key = character id, meta {id,name,job,sub,lv,look,gear,coat,zone}; broadcast "mv" {id,x,y,f,st(sit/ko/mount),anim} and "chat" {id,name,mode say|shout,text}. Channel "world": presence (online list for /who) and broadcast "tell" {from,to,text}.
+- net.js: NET_RT holds channels; netJoinZone(id) called at end of enterZone (leaves the old zone channel); netLeaveAll on logout; netRtTick sends mv every 120 ms when moved, 2 s keepalive otherwise; netTrack refreshes presence meta on gear/job/level change (from netTick).
+- Remote players live in S.others as kind "remote" entities; netOnMove sets a target, tickRemotes lerps position/facing and drops entities that leave presence. Rendered via rig signature "r|…" (baseFromLook), green name labels with job and level, not targetable, no collisions.
+- Chat: plain text = say (zone); /say /s, /shout /sh (zone, bold orange), /tell /t name msg, /reply /r, /who. cleanChat trims to 120 chars and strips control chars and <>; one line per 700 ms ("You're talking too fast."). Chat log tab "Chat"; say bubbles (first 40 chars) via popText.
+- Known limits: names in broadcasts are client-claimed (spoofable); monsters, loot and NPC state remain per-client; no party/trade yet (phase 10).
+- Tests: netshots.js mocks presence/mv/chat/tell and screenshots the outpost with two remote players.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.1.0 | Phase 31: see other players in your zone, say/shout/tell/who chat. |
 | 8.0.0 | Phase 30: Supabase accounts, cloud saves, sign-up password, admin panel; offline play removed. |
 | 7.0.0 | Phase 29: blinking, hair and cape sway, NPC work poses and look-at, ambient animals and walkers, town props. |
 | 6.9.0 | Phase 28: swing/WS/cast variety, idle fidgets, turn shuffle, directional flinch, KO and rise. |
