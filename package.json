@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "8.4.0",
-  "releaseTitle": "Claims and party combat",
+  "version": "8.5.0",
+  "releaseTitle": "Server checks",
   "description": "",
   "main": "index.js",
   "scripts": {

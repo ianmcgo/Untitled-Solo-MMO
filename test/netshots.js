@@ -22,7 +22,19 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     if (p === '/rest/v1/rpc/is_member') return json(db.member);
     if (p === '/rest/v1/rpc/join_game') { db.member = true; return json(true); }
     if (p === '/rest/v1/rpc/touch_player') return route.fulfill({ status: 204 });
-    if (p === '/rest/v1/rpc/admin_stats') return json({ players: 1, online: 1, characters: Object.keys(db.chars).length, signups_7d: 1, banned: 0, db_size: '9 MB', chars_size: '64 kB', code_set: true, online_list: [{ email: user.email, last_seen: new Date().toISOString() }], recent: Object.values(db.chars).map(c => ({ name: c.name, job: c.summary.job, lv: c.summary.lv, zone: c.summary.zone, email: user.email, updated_at: c.updated_at })) });
+    if (p === '/rest/v1/rpc/admin_stats') return json({ players: 1, online: 1, characters: Object.keys(db.chars).length, signups_7d: 1, banned: 0, db_size: '9 MB', chars_size: '64 kB', code_set: true, schema: '2', trades_7d: 3, audit: [{ at: new Date().toISOString(), char_name: 'Zed', email: 'zed@x.com', kind: 'crystals', detail: 'gained 899900 crystals in 1 s' }], banned_list: [{ email: 'zed@x.com' }], online_list: [{ email: user.email, last_seen: new Date().toISOString() }], recent: Object.values(db.chars).map(c => ({ name: c.name, job: c.summary.job, lv: c.summary.lv, zone: c.summary.zone, email: user.email, updated_at: c.updated_at })) });
+    if (p === '/rest/v1/rpc/trade_offer') {
+      const b = JSON.parse(req.postData()); db.trade = b;
+      return json({ status: 'pending' });
+    }
+    if (p === '/rest/v1/rpc/trade_status' || p === '/rest/v1/rpc/trade_cancel') {
+      const t = db.trade; if (!t) return json({ status: 'none' });
+      const c = db.chars[t.my_char]; let inv = JSON.parse(JSON.stringify(c.data.inventory));
+      for (const it of t.mine.items) { let n = it.qty; for (let i = inv.length - 1; i >= 0 && n > 0; i--) if (inv[i].id === it.id) { const k = Math.min(n, inv[i].qty); inv[i].qty -= k; n -= k; if (!inv[i].qty) inv.splice(i, 1); } }
+      for (const it of t.theirs.items) inv.push({ id: it.id, qty: it.qty });
+      db.trade = null; db.tradesDone = (db.tradesDone || 0) + 1;
+      return json({ status: 'done', inventory: inv, gil: c.data.gil - t.mine.gil + t.theirs.gil });
+    }
     if (p === '/rest/v1/characters') {
       const sel = url.searchParams.get('select') || '';
       if (m === 'GET') {
@@ -111,8 +123,12 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
     netTradeAccept();
     const waiting = !!NET_PT.trade && NET_PT.trade.myOk;
     netOnTcf({ to: save.name.toLowerCase(), from: 'Mira', h: netTradeMyHash() });
-    return { waiting, herbs: invCount('healing_herb') - h0, gave: gv0 - invCount(g), gil: save.gil - gil0, open: !!NET_PT.trade, modal: S.modal };
+    window.TR0 = { h0, gv0, gil0, waiting };
+    return 1;
   }, trade.give)));
+  await page.waitForTimeout(5000);
+  console.log('trade2', JSON.stringify(await page.evaluate(g => ({ waiting: TR0.waiting, herbs: invCount('healing_herb') - TR0.h0, gave: TR0.gv0 - invCount(g), gil: save.gil - TR0.gil0, open: !!NET_PT.trade, lock: !!NET.saveLock, modal: S.modal }), trade.give)));
+  console.log('server trades', db.tradesDone || 0);
   const shared = await page.evaluate(() => {
     const r = {};
     if (S.modal) closeModal();

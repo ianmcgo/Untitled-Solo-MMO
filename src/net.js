@@ -1,3 +1,4 @@
+const NET_SCHEMA = 2;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -124,7 +125,7 @@ async function netUploadLocal() {
 function netMarkDirty(id) { if (NET.member && isUuid(id)) NET.dirty[id] = true; }
 
 async function netFlush(keepalive) {
-  if (!NET.member || NET.saving) return;
+  if (!NET.member || NET.saving || NET.saveLock) return;
   const ids = Object.keys(NET.dirty);
   if (!ids.length) return;
   NET.saving = true;
@@ -163,6 +164,18 @@ function netTick() {
 
 async function netAdminStats() {
   const { data, error } = await NET.sb.rpc("admin_stats");
+  if (error) throw error;
+  return data;
+}
+
+async function netFlushNow() {
+  for (let i = 0; i < 60 && NET.saving; i++) await new Promise(r => setTimeout(r, 100));
+  await netFlush();
+  return !NET.lastErr && !Object.keys(NET.dirty).length;
+}
+
+async function netAdminBan(target, ban) {
+  const { data, error } = await NET.sb.rpc("admin_set_ban", { target, ban });
   if (error) throw error;
   return data;
 }
@@ -762,7 +775,77 @@ function netOnTcf(p) {
   if (t.myOk && t.theirOk === netTradeMyHash()) netTradeFinish();
 }
 
-function netTradeFinish() {
+function netTradeFail(why) {
+  const t = NET_PT.trade;
+  NET.saveLock = false;
+  if (t) netWorldSend("tcx", { to: netLc(t.name), from: save.name, why });
+  NET_PT.trade = null;
+  log("Trade cancelled: " + why, "sys");
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+function netTradeApply(t, d) {
+  const inv = (Array.isArray(d.inventory) ? d.inventory : []).filter(x => x && ITEMS[x.id] && +x.qty > 0).map(x => Object.assign({}, x, { qty: Math.floor(+x.qty) }));
+  save.inventory = inv;
+  save.gil = Math.max(0, Math.floor(+d.gil || 0));
+  NET.saveLock = false;
+  t.done = true;
+  const got = t.theirs.items.map(s => (s.qty > 1 ? s.qty + " " : "") + ITEMS[s.id].name).concat(t.theirs.gil ? [t.theirs.gil + " crystals"] : []);
+  log("Trade with " + t.name + " complete." + (got.length ? " You receive " + got.join(", ") + "." : ""), "loot");
+  save.stats.trades = (save.stats.trades || 0) + 1;
+  if (typeof sfx === "function") sfx("loot");
+  if (NET_PT.trade === t) NET_PT.trade = null;
+  saveGame();
+  netFlush();
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+async function netTradeFinish() {
+  const t = NET_PT.trade;
+  if (!t || t.done || t.busy) return;
+  const why = netTradeCheck();
+  if (why) { netTradeFail(why); return; }
+  t.busy = true; t.msg = "Sending the trade to the server…";
+  saveGame();
+  const ok = await netFlushNow();
+  if (NET_PT.trade !== t) return;
+  if (!ok) { t.busy = false; netTradeFail("can't reach the game server"); return; }
+  NET.saveLock = true;
+  const mine = { items: t.mine.items.map(s => ({ id: s.id, qty: s.qty, st: ITEMS[s.id].stack || 1 })), gil: t.mine.gil };
+  const theirs = { items: t.theirs.items.map(s => ({ id: s.id, qty: s.qty })), gil: t.theirs.gil };
+  let res;
+  try {
+    const { data, error } = await NET.sb.rpc("trade_offer", { my_char: S.charId, peer_char: t.id, mine, theirs });
+    if (error) throw error;
+    res = data;
+  } catch (e) {
+    NET.saveLock = false;
+    const m = String((e && (e.message || e.code)) || e);
+    if (/PGRST202|trade_offer|schema cache|does not exist/i.test(m + (e && e.code))) { t.busy = false; NET_PT.legacyTrade = true; netTradeLocal(); return; }
+    netTradeFail(netErr(e));
+    return;
+  }
+  if (res && res.status === "done") { netTradeApply(t, res); return; }
+  if (res && res.status === "mismatch") { netTradeFail("the offers didn't match"); try { await NET.sb.rpc("trade_cancel", { my_char: S.charId }); } catch (e) {} return; }
+  t.msg = "Waiting for " + t.name + "…";
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 1200));
+    if (t.done || NET_PT.trade !== t) return;
+    try {
+      const { data } = await NET.sb.rpc("trade_status", { my_char: S.charId });
+      if (data && data.status === "done") { netTradeApply(t, data); return; }
+      if (data && data.status === "none") break;
+    } catch (e) {}
+  }
+  if (NET_PT.trade !== t) return;
+  try {
+    const { data } = await NET.sb.rpc("trade_cancel", { my_char: S.charId });
+    if (data && data.status === "done") { netTradeApply(t, data); return; }
+  } catch (e) {}
+  netTradeFail("the other player didn't finish the trade");
+}
+
+function netTradeLocal() {
   const t = NET_PT.trade;
   if (!t || t.done) return;
   const why = netTradeCheck();
@@ -785,6 +868,7 @@ function netTradeFinish() {
 function netTradeCancel(quiet) {
   const t = NET_PT.trade;
   if (!t) return;
+  if (t.busy) { if (!quiet) log("The trade is being finished on the server. One moment…", "sys"); return; }
   NET_PT.trade = null;
   netWorldSend("tcx", { to: netLc(t.name), from: save.name });
   if (!quiet) log("You cancel the trade.", "sys");
@@ -794,6 +878,7 @@ function netTradeCancel(quiet) {
 function netOnTcx(p) {
   const t = NET_PT.trade;
   if (!p || !t || p.to !== netLc(save.name) || netLc(p.from) !== netLc(t.name)) return;
+  if (t.busy) { NET.sb.rpc("trade_cancel", { my_char: S.charId }).then(({ data }) => { if (data && data.status === "done") netTradeApply(t, data); else { NET.saveLock = false; } }, () => { NET.saveLock = false; }); if (!t.done) { NET_PT.trade = null; log(t.name + " cancels the trade." + (p.why ? " (" + cleanChat(p.why) + ")" : ""), "sys"); if (S.modal === "trade" && typeof closeModal === "function") closeModal(); } return; }
   NET_PT.trade = null;
   log(t.name + " cancels the trade." + (p.why ? " (" + cleanChat(p.why) + ")" : ""), "sys");
   if (S.modal === "trade" && typeof closeModal === "function") closeModal();

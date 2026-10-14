@@ -849,7 +849,11 @@ const ADMIN_DIAG_SQL = [
   "select p.proname, pg_get_function_identity_arguments(p.oid) as args from pg_proc p where p.pronamespace = 'public'::regnamespace order by 1;",
   "select (select count(*) from public.players) as players, (select count(*) from public.characters) as characters, (select count(*) from auth.users) as auth_users, (select count(*) from auth.users where email_confirmed_at is null) as unconfirmed;",
   "select c.name, c.summary ->> 'job' as job, c.summary ->> 'lv' as lv, p.email, c.updated_at, pg_column_size(c.data) as bytes from public.characters c left join public.players p on p.id = c.owner order by c.updated_at desc limit 50;",
-  "select email, joined_at, last_seen, banned from public.players order by last_seen desc limit 50;"
+  "select email, joined_at, last_seen, banned from public.players order by last_seen desc limit 50;",
+  "select k, case when k = 'signup_code' then '(hidden)' else v end as v from game_private.config order by k;",
+  "select at, char_name, kind, detail from game_private.audit order by at desc limit 50;",
+  "select at, a, b, a_gave, b_gave from game_private.trade_log order by at desc limit 20;",
+  "select me, peer, status, created_at from game_private.trade_offers order by created_at desc;"
 ].join("\n\n");
 
 function copyText(t) {
@@ -871,11 +875,16 @@ function tabAdmin() {
   else if (!st) h += '<div class="sub">Loading server stats…</div>';
   else {
     const tile = (k, v) => '<div class="item" style="display:block;text-align:center;min-width:110px"><div class="sub">' + k + '</div><b style="font-size:20px">' + esc(String(v)) + "</b></div>";
-    h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + tile("Accounts", st.players) + tile("Online now", st.online) + tile("Characters", st.characters) + tile("New (7 days)", st.signups_7d) + tile("Banned", st.banned) + tile("Database", st.db_size) + tile("Saves", st.chars_size) + tile("Sign-up password", st.code_set ? "set" : "NOT SET") + "</div>";
+    const sv = +(st.schema || 1);
+    if (sv < NET_SCHEMA) h += '<div class="item" style="display:block;border-color:#ffd54f"><b>Server update needed</b><div class="sub">This version of the game needs server setup version ' + NET_SCHEMA + ' (the server has ' + sv + '). Press Copy setup SQL below, paste it into the Supabase SQL editor and press Run. It is safe to run again; nothing is deleted.</div></div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + tile("Trades (7 days)", st.trades_7d != null ? st.trades_7d : "–") + tile("Server setup", "v" + sv) + tile("Accounts", st.players) + tile("Online now", st.online) + tile("Characters", st.characters) + tile("New (7 days)", st.signups_7d) + tile("Banned", st.banned) + tile("Database", st.db_size) + tile("Saves", st.chars_size) + tile("Sign-up password", st.code_set ? "set" : "NOT SET") + "</div>";
     h += "<h3>Online now</h3>" + (st.online_list && st.online_list.length ? st.online_list.map(o => '<div class="sub">' + esc(o.email) + " · " + fmtAgo(Date.parse(o.last_seen)) + "</div>").join("") : '<div class="sub">Nobody else right now.</div>');
+    h += "<h3>Suspicious saves</h3>" + (st.audit && st.audit.length ? st.audit.map(a => '<div class="sub">⚠ ' + esc(a.char_name || "?") + " (" + esc(a.email || "?") + ") · " + esc(a.kind) + ": " + esc(a.detail || "") + " · " + fmtAgo(Date.parse(a.at)) + "</div>").join("") : '<div class="sub">Nothing flagged.</div>');
+    h += "<h3>Banned accounts</h3>" + (st.banned_list && st.banned_list.length ? st.banned_list.map(b => '<div class="sub">' + esc(b.email) + "</div>").join("") : '<div class="sub">None.</div>');
     h += "<h3>Recently saved characters</h3>" + (st.recent || []).map(c => '<div class="sub">' + esc(c.name) + " · " + esc(c.job || "") + " Lv." + esc(c.lv || "") + " · " + esc(c.zone || "") + " · " + esc(c.email || "") + " · " + fmtAgo(Date.parse(c.updated_at)) + "</div>").join("");
   }
   h += '<h3>Sign-up password</h3><div class="sub" style="margin-bottom:6px">New players need this to create an account. It\'s stored on the server, never in the game\'s code.</div><div class="opt"><input id="adCode" type="text" placeholder="New sign-up password" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid var(--edge2);background:rgba(10,12,20,.8);color:#f2efe6"><button data-a="admincode">Change</button></div>';
+  h += '<h3>Ban or unban</h3><div class="sub" style="margin-bottom:6px">Enter an email address or a character name. A banned account can\'t sign in to play or save. Your own account can\'t be banned.</div><div class="opt"><input id="adBan" type="text" placeholder="Email or character name" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid var(--edge2);background:rgba(10,12,20,.8);color:#f2efe6"><button data-a="adminban" data-v="1" class="danger">Ban</button><button data-a="adminban" data-v="0">Unban</button></div>';
   h += '<h3>For Claude</h3><div class="sub" style="margin-bottom:6px">Copy these and paste them to Claude (or into the Supabase SQL editor) when something needs fixing.</div><div class="opt"><button data-a="admincopy" data-v="setup">📋 Copy setup SQL</button><button data-a="admincopy" data-v="diag">📋 Copy diagnostics SQL</button><button data-a="admincopy" data-v="report">📋 Copy server report</button><button data-a="adminrefresh">🔄 Refresh</button></div>';
   return h;
 }
@@ -1076,6 +1085,7 @@ function onMenuClick(e) {
   else if (a === "signout") { closeModal(); saveGame(); netFlush().then(() => netSignOut()).then(() => location.reload()); return; }
   else if (a === "adminrefresh") { UI.adminStats = null; UI.adminErr = ""; renderModal(); return; }
   else if (a === "admincopy") { copyText(v === "setup" ? SETUP_SQL : v === "diag" ? ADMIN_DIAG_SQL : adminReport()); UI.adminMsg = "Copied to the clipboard."; renderModal(); return; }
+  else if (a === "adminban") { const tg = (($("adBan") || {}).value || "").trim(); if (!tg) return; netAdminBan(tg, v === "1").then(n => { UI.adminMsg = n ? (v === "1" ? "Banned " : "Unbanned ") + tg + "." : "No account matched " + tg + "."; UI.adminStats = null; renderModal(); }, e => { UI.adminMsg = netErr(e); renderModal(); }); return; }
   else if (a === "admincode") { const c = ($("adCode") || {}).value || ""; netAdminSetCode(c).then(() => { UI.adminMsg = "Sign-up password changed."; renderModal(); }, e => { UI.adminMsg = netErr(e); renderModal(); }); return; }
   else if (a === "logout") { closeModal(); logoutToSelect(); return; }
   renderModal();
@@ -1112,6 +1122,12 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.5.0", date: "2026-10-13", title: "Server checks", items: [
+    "Trades now happen on the game server in one step, so items can't be duplicated or lost if someone disconnects halfway.",
+    "The server checks every save: levels above the cap, impossible crystal counts and name changes are refused, and unusual jumps are flagged for the admin.",
+    "Admin panel: suspicious saves, banned accounts, a ban/unban box, trade count and a notice when the server setup needs updating.",
+    "Banned accounts can no longer sign in to play."
   ] },
   { v: "8.4.0", date: "2026-10-13", title: "Claims and party combat", items: [
     "Monster claims: once a player claims a monster, only they and their party can attack it. Red names are yours or your party's, purple names belong to someone else, and the target window says who.",
@@ -1675,9 +1691,10 @@ function tabHelp() {
     "Stand near another player and tap them, then choose <b>Trade</b>, or type <b>/trade Name</b>. They get a popup to accept.",
     "Add up to " + CONFIG.tradeSlots + " kinds of item and any number of crystals. Both offers show side by side. Changing an offer clears both acceptances, so you always see the final deal before it happens.",
     "The trade goes through when you both press Accept on the same offers. You need room in your bag for what you receive, and you can't receive a Rare item you already have.",
-    "Key items and Exclusive items can't be traded. Closing the trade window or walking away cancels it."
+    "Key items and Exclusive items can't be traded. Closing the trade window or walking away cancels it.",
+    "Trades are finished on the game server in a single step: the server checks that both players really have the items and crystals and room in their bags, then moves everything at once. If anything is off, nothing changes for either player."
   ]));
-  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen."]));
+  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }

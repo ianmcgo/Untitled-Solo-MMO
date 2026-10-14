@@ -528,7 +528,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.4.0 · built 2026-10-13 19:14 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v8.5.0 · built 2026-10-13 19:24 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -10998,7 +10998,7 @@ function runCommand(text) {
 }
 
 const AUDIO_LOOP = {};
-const SETUP_SQL = "create extension if not exists pgcrypto;\n\ncreate schema if not exists game_private;\nrevoke all on schema game_private from public, anon, authenticated;\n\ncreate table if not exists game_private.config (k text primary key, v text not null);\nrevoke all on game_private.config from public, anon, authenticated;\n\ncreate table if not exists public.players (\n  id uuid primary key references auth.users(id) on delete cascade,\n  email text,\n  joined_at timestamptz not null default now(),\n  last_seen timestamptz not null default now(),\n  banned boolean not null default false\n);\nalter table public.players enable row level security;\n\ncreate table if not exists public.characters (\n  id uuid primary key default gen_random_uuid(),\n  owner uuid not null default auth.uid() references auth.users(id) on delete cascade,\n  name text not null check (char_length(name) between 2 and 12),\n  data jsonb not null,\n  summary jsonb not null default '{}'::jsonb,\n  created_at timestamptz not null default now(),\n  updated_at timestamptz not null default now()\n);\ncreate unique index if not exists characters_name_lower on public.characters (lower(name));\ncreate index if not exists characters_owner on public.characters (owner);\nalter table public.characters enable row level security;\n\ncreate or replace function public.is_admin() returns boolean\nlanguage sql stable security definer set search_path = public as $$\n  select coalesce(lower(auth.jwt() ->> 'email') = 'ianmcgon@gmail.com', false)\n$$;\n\ncreate or replace function public.is_member() returns boolean\nlanguage sql stable security definer set search_path = public as $$\n  select exists (select 1 from public.players p where p.id = auth.uid() and not p.banned)\n$$;\n\ndrop policy if exists players_select on public.players;\ncreate policy players_select on public.players for select using (id = auth.uid() or public.is_admin());\n\ndrop policy if exists chars_select on public.characters;\ndrop policy if exists chars_insert on public.characters;\ndrop policy if exists chars_update on public.characters;\ndrop policy if exists chars_delete on public.characters;\ncreate policy chars_select on public.characters for select using (owner = auth.uid() or public.is_admin());\ncreate policy chars_insert on public.characters for insert with check (owner = auth.uid() and public.is_member() and (select count(*) from public.characters c where c.owner = auth.uid()) < 8);\ncreate policy chars_update on public.characters for update using (owner = auth.uid() and public.is_member()) with check (owner = auth.uid());\ncreate policy chars_delete on public.characters for delete using (owner = auth.uid());\n\ncreate or replace function public.join_game(code text) returns boolean\nlanguage plpgsql security definer set search_path = public as $$\ndeclare want text;\nbegin\n  if auth.uid() is null then raise exception 'Not signed in'; end if;\n  if public.is_member() then return true; end if;\n  if public.is_admin() then\n    insert into public.players (id, email) values (auth.uid(), auth.jwt() ->> 'email') on conflict (id) do nothing;\n    return true;\n  end if;\n  select v into want from game_private.config where k = 'signup_code';\n  if want is null or code is distinct from want then raise exception 'Wrong sign-up password'; end if;\n  insert into public.players (id, email) values (auth.uid(), auth.jwt() ->> 'email') on conflict (id) do nothing;\n  return true;\nend $$;\n\ncreate or replace function public.touch_player() returns void\nlanguage sql security definer set search_path = public as $$\n  update public.players set last_seen = now() where id = auth.uid()\n$$;\n\ncreate or replace function public.admin_set_signup_code(code text) returns void\nlanguage plpgsql security definer set search_path = public as $$\nbegin\n  if not public.is_admin() then raise exception 'Admins only'; end if;\n  if char_length(coalesce(code, '')) < 4 then raise exception 'Use at least 4 characters'; end if;\n  insert into game_private.config (k, v) values ('signup_code', code) on conflict (k) do update set v = excluded.v;\nend $$;\n\ncreate or replace function public.admin_stats() returns jsonb\nlanguage plpgsql security definer set search_path = public as $$\ndeclare r jsonb;\nbegin\n  if not public.is_admin() then raise exception 'Admins only'; end if;\n  select jsonb_build_object(\n    'players', (select count(*) from public.players),\n    'banned', (select count(*) from public.players where banned),\n    'online', (select count(*) from public.players where last_seen > now() - interval '5 minutes'),\n    'characters', (select count(*) from public.characters),\n    'signups_7d', (select count(*) from public.players where joined_at > now() - interval '7 days'),\n    'db_size', pg_size_pretty(pg_database_size(current_database())),\n    'chars_size', pg_size_pretty(pg_total_relation_size('public.characters')),\n    'code_set', exists (select 1 from game_private.config where k = 'signup_code'),\n    'online_list', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select email, last_seen from public.players where last_seen > now() - interval '5 minutes' order by last_seen desc limit 50) x),\n    'recent', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select c.name, c.summary ->> 'job' as job, c.summary ->> 'lv' as lv, c.summary ->> 'zone' as zone, p.email, c.updated_at from public.characters c left join public.players p on p.id = c.owner order by c.updated_at desc limit 50) x)\n  ) into r;\n  return r;\nend $$;\n\nrevoke all on function public.join_game(text), public.touch_player(), public.admin_set_signup_code(text), public.admin_stats() from public, anon;\ngrant execute on function public.join_game(text), public.touch_player(), public.admin_set_signup_code(text), public.admin_stats(), public.is_admin(), public.is_member() to authenticated;\ngrant select, insert, update, delete on public.characters to authenticated;\ngrant select on public.players to authenticated;\n";
+const SETUP_SQL = "create extension if not exists pgcrypto;\n\ncreate schema if not exists game_private;\nrevoke all on schema game_private from public, anon, authenticated;\n\ncreate table if not exists game_private.config (k text primary key, v text not null);\nrevoke all on game_private.config from public, anon, authenticated;\ninsert into game_private.config (k, v) values ('level_cap', '20') on conflict (k) do nothing;\ninsert into game_private.config (k, v) values ('bag_size', '30') on conflict (k) do nothing;\ninsert into game_private.config (k, v) values ('schema', '2') on conflict (k) do update set v = greatest(game_private.config.v::int, 2)::text;\n\ncreate table if not exists game_private.audit (id bigserial primary key, at timestamptz not null default now(), char_id uuid, char_name text, owner uuid, kind text not null, detail text);\ncreate table if not exists game_private.trade_offers (me uuid primary key, peer uuid not null, mine jsonb not null, theirs jsonb not null, created_at timestamptz not null default now(), status text not null default 'open', result jsonb);\ncreate table if not exists game_private.trade_log (id bigserial primary key, at timestamptz not null default now(), a uuid, b uuid, a_gave jsonb, b_gave jsonb);\nrevoke all on game_private.audit, game_private.trade_offers, game_private.trade_log from public, anon, authenticated;\n\ncreate table if not exists public.players (\n  id uuid primary key references auth.users(id) on delete cascade,\n  email text,\n  joined_at timestamptz not null default now(),\n  last_seen timestamptz not null default now(),\n  banned boolean not null default false\n);\nalter table public.players enable row level security;\n\ncreate table if not exists public.characters (\n  id uuid primary key default gen_random_uuid(),\n  owner uuid not null default auth.uid() references auth.users(id) on delete cascade,\n  name text not null check (char_length(name) between 2 and 12),\n  data jsonb not null,\n  summary jsonb not null default '{}'::jsonb,\n  created_at timestamptz not null default now(),\n  updated_at timestamptz not null default now()\n);\ncreate unique index if not exists characters_name_lower on public.characters (lower(name));\ncreate index if not exists characters_owner on public.characters (owner);\nalter table public.characters enable row level security;\n\ncreate or replace function public.is_admin() returns boolean\nlanguage sql stable security definer set search_path = public as $$\n  select coalesce(lower(auth.jwt() ->> 'email') = 'ianmcgon@gmail.com', false)\n$$;\n\ncreate or replace function public.is_member() returns boolean\nlanguage sql stable security definer set search_path = public as $$\n  select exists (select 1 from public.players p where p.id = auth.uid() and not p.banned)\n$$;\n\ndrop policy if exists players_select on public.players;\ncreate policy players_select on public.players for select using (id = auth.uid() or public.is_admin());\n\ndrop policy if exists chars_select on public.characters;\ndrop policy if exists chars_insert on public.characters;\ndrop policy if exists chars_update on public.characters;\ndrop policy if exists chars_delete on public.characters;\ncreate policy chars_select on public.characters for select using (owner = auth.uid() or public.is_admin());\ncreate policy chars_insert on public.characters for insert with check (owner = auth.uid() and public.is_member() and (select count(*) from public.characters c where c.owner = auth.uid()) < 8);\ncreate policy chars_update on public.characters for update using (owner = auth.uid() and public.is_member()) with check (owner = auth.uid());\ncreate policy chars_delete on public.characters for delete using (owner = auth.uid());\n\ncreate or replace function public.join_game(code text) returns boolean\nlanguage plpgsql security definer set search_path = public as $$\ndeclare want text;\nbegin\n  if auth.uid() is null then raise exception 'Not signed in'; end if;\n  if exists (select 1 from public.players p where p.id = auth.uid() and p.banned) then raise exception 'This account has been banned.'; end if;\n  if public.is_member() then return true; end if;\n  if public.is_admin() then\n    insert into public.players (id, email) values (auth.uid(), auth.jwt() ->> 'email') on conflict (id) do nothing;\n    return true;\n  end if;\n  select v into want from game_private.config where k = 'signup_code';\n  if want is null or code is distinct from want then raise exception 'Wrong sign-up password'; end if;\n  insert into public.players (id, email) values (auth.uid(), auth.jwt() ->> 'email') on conflict (id) do nothing;\n  return true;\nend $$;\n\ncreate or replace function public.touch_player() returns void\nlanguage sql security definer set search_path = public as $$\n  update public.players set last_seen = now() where id = auth.uid()\n$$;\n\ncreate or replace function public.admin_set_signup_code(code text) returns void\nlanguage plpgsql security definer set search_path = public as $$\nbegin\n  if not public.is_admin() then raise exception 'Admins only'; end if;\n  if char_length(coalesce(code, '')) < 4 then raise exception 'Use at least 4 characters'; end if;\n  insert into game_private.config (k, v) values ('signup_code', code) on conflict (k) do update set v = excluded.v;\nend $$;\n\ncreate or replace function public.admin_stats() returns jsonb\nlanguage plpgsql security definer set search_path = public as $$\ndeclare r jsonb;\nbegin\n  if not public.is_admin() then raise exception 'Admins only'; end if;\n  select jsonb_build_object(\n    'players', (select count(*) from public.players),\n    'banned', (select count(*) from public.players where banned),\n    'online', (select count(*) from public.players where last_seen > now() - interval '5 minutes'),\n    'characters', (select count(*) from public.characters),\n    'signups_7d', (select count(*) from public.players where joined_at > now() - interval '7 days'),\n    'db_size', pg_size_pretty(pg_database_size(current_database())),\n    'chars_size', pg_size_pretty(pg_total_relation_size('public.characters')),\n    'code_set', exists (select 1 from game_private.config where k = 'signup_code'),\n    'schema', (select v from game_private.config where k = 'schema'),\n    'trades_7d', (select count(*) from game_private.trade_log where at > now() - interval '7 days'),\n    'audit', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select a.at, a.char_name, a.kind, a.detail, p.email from game_private.audit a left join public.players p on p.id = a.owner order by a.at desc limit 50) x),\n    'banned_list', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select email from public.players where banned order by email limit 100) x),\n    'online_list', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select email, last_seen from public.players where last_seen > now() - interval '5 minutes' order by last_seen desc limit 50) x),\n    'recent', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select c.name, c.summary ->> 'job' as job, c.summary ->> 'lv' as lv, c.summary ->> 'zone' as zone, p.email, c.updated_at from public.characters c left join public.players p on p.id = c.owner order by c.updated_at desc limit 50) x)\n  ) into r;\n  return r;\nend $$;\n\nrevoke all on function public.join_game(text), public.touch_player(), public.admin_set_signup_code(text), public.admin_stats() from public, anon;\ngrant execute on function public.join_game(text), public.touch_player(), public.admin_set_signup_code(text), public.admin_stats(), public.is_admin(), public.is_member() to authenticated;\ngrant select, insert, update, delete on public.characters to authenticated;\ngrant select on public.players to authenticated;\n\ncreate or replace function public.check_character_save() returns trigger\nlanguage plpgsql security definer set search_path = public, game_private as $$\ndeclare cap int; bag int; og numeric; ng numeric; secs numeric; maxlv int; oldmax int; n int;\nbegin\n  new.updated_at := now();\n  if current_setting('game.server', true) = '1' then return new; end if;\n  if new.owner <> old.owner then raise exception 'A character cannot change owner'; end if;\n  if lower(new.name) <> lower(old.name) then raise exception 'A character cannot change name'; end if;\n  select coalesce((select v::int from game_private.config where k = 'level_cap'), 20) into cap;\n  select coalesce((select v::int from game_private.config where k = 'bag_size'), 30) into bag;\n  select coalesce(max((x.value ->> 'lv')::int), 1) into maxlv from jsonb_each(case when jsonb_typeof(new.data -> 'jobs') = 'object' then new.data -> 'jobs' else '{}'::jsonb end) x;\n  select coalesce(max((x.value ->> 'lv')::int), 1) into oldmax from jsonb_each(case when jsonb_typeof(old.data -> 'jobs') = 'object' then old.data -> 'jobs' else '{}'::jsonb end) x;\n  if maxlv > cap then raise exception 'Level above the level cap'; end if;\n  n := case when jsonb_typeof(new.data -> 'inventory') = 'array' then jsonb_array_length(new.data -> 'inventory') else 0 end;\n  if n > 200 then raise exception 'Bag holds too many items'; end if;\n  ng := coalesce((new.data ->> 'gil')::numeric, 0);\n  og := coalesce((old.data ->> 'gil')::numeric, 0);\n  if ng < 0 or ng > 999999999 then raise exception 'Crystal count out of range'; end if;\n  secs := greatest(1, extract(epoch from now() - old.updated_at));\n  if ng - og > 5000 + 200 * secs then\n    insert into game_private.audit (char_id, char_name, owner, kind, detail) values (new.id, new.name, new.owner, 'crystals', 'gained ' || (ng - og) || ' crystals in ' || round(secs) || ' s');\n  end if;\n  if maxlv - oldmax > 3 then\n    insert into game_private.audit (char_id, char_name, owner, kind, detail) values (new.id, new.name, new.owner, 'level', 'jumped from level ' || oldmax || ' to ' || maxlv);\n  end if;\n  if n > bag then\n    insert into game_private.audit (char_id, char_name, owner, kind, detail) values (new.id, new.name, new.owner, 'bag', n || ' items in a ' || bag || '-slot bag');\n  end if;\n  return new;\nend $$;\nrevoke all on function public.check_character_save() from public, anon, authenticated;\ndrop trigger if exists characters_check on public.characters;\ncreate trigger characters_check before update on public.characters for each row execute function public.check_character_save();\n\ncreate or replace function game_private.offer_key(o jsonb) returns text\nlanguage sql immutable as $$\n  select coalesce((select string_agg((e ->> 'id') || ':' || ((e ->> 'qty')::int)::text, ',' order by e ->> 'id', (e ->> 'qty')::int) from jsonb_array_elements(case when jsonb_typeof(o -> 'items') = 'array' then o -> 'items' else '[]'::jsonb end) e), '') || '|' || coalesce((o ->> 'gil')::bigint, 0)::text\n$$;\n\ncreate or replace function game_private.inv_take(inv jsonb, item text, n int) returns jsonb\nlanguage plpgsql as $$\ndeclare arr jsonb := '[]'::jsonb; e jsonb; have int; rest int := n; i int; q int;\nbegin\n  select coalesce(sum((x ->> 'qty')::int), 0) into have from jsonb_array_elements(inv) x where x ->> 'id' = item;\n  if n is null or n <= 0 or have < n then raise exception 'Missing items for the trade (%)', item; end if;\n  for i in reverse jsonb_array_length(inv) - 1 .. 0 loop\n    e := inv -> i;\n    if rest > 0 and e ->> 'id' = item then\n      q := (e ->> 'qty')::int;\n      if q <= rest then rest := rest - q; e := null;\n      else e := jsonb_set(e, '{qty}', to_jsonb(q - rest)); rest := 0; end if;\n    end if;\n    if e is not null then arr := jsonb_build_array(e) || arr; end if;\n  end loop;\n  return arr;\nend $$;\n\ncreate or replace function game_private.inv_give(inv jsonb, item text, n int, st int) returns jsonb\nlanguage plpgsql as $$\ndeclare res jsonb := '[]'::jsonb; e jsonb; q int; add int; rest int := n; i int; cap int := greatest(1, least(coalesce(st, 1), 999));\nbegin\n  if n is null or n <= 0 then raise exception 'Bad item count'; end if;\n  for i in 0 .. jsonb_array_length(inv) - 1 loop\n    e := inv -> i;\n    if rest > 0 and e ->> 'id' = item and (e ->> 'qty')::int < cap then\n      q := (e ->> 'qty')::int; add := least(cap - q, rest);\n      e := jsonb_set(e, '{qty}', to_jsonb(q + add)); rest := rest - add;\n    end if;\n    res := res || jsonb_build_array(e);\n  end loop;\n  while rest > 0 loop\n    add := least(cap, rest);\n    res := res || jsonb_build_array(jsonb_build_object('id', item, 'qty', add));\n    rest := rest - add;\n  end loop;\n  return res;\nend $$;\n\ncreate or replace function public.trade_offer(my_char uuid, peer_char uuid, mine jsonb, theirs jsonb) returns jsonb\nlanguage plpgsql security definer set search_path = public, game_private as $$\ndeclare a public.characters; b public.characters; po game_private.trade_offers; bag int; ainv jsonb; binv jsonb; e jsonb; ag bigint; bg bigint; agive bigint; bgive bigint;\nbegin\n  if not public.is_member() then raise exception 'Not allowed'; end if;\n  if my_char = peer_char then raise exception 'Not allowed'; end if;\n  if not exists (select 1 from public.characters where id = my_char and owner = auth.uid()) then raise exception 'Not your character'; end if;\n  if jsonb_typeof(mine -> 'items') <> 'array' or jsonb_typeof(theirs -> 'items') <> 'array' then raise exception 'Bad offer'; end if;\n  if jsonb_array_length(mine -> 'items') > 8 or jsonb_array_length(theirs -> 'items') > 8 then raise exception 'Too many items in the trade'; end if;\n  if coalesce((mine ->> 'gil')::bigint, 0) < 0 or coalesce((theirs ->> 'gil')::bigint, 0) < 0 then raise exception 'Bad offer'; end if;\n  perform pg_advisory_xact_lock(hashtext(least(my_char::text, peer_char::text) || greatest(my_char::text, peer_char::text)));\n  delete from game_private.trade_offers where created_at < now() - interval '10 minutes';\n  insert into game_private.trade_offers (me, peer, mine, theirs, created_at, status, result) values (my_char, peer_char, mine, theirs, now(), 'open', null)\n    on conflict (me) do update set peer = excluded.peer, mine = excluded.mine, theirs = excluded.theirs, created_at = now(), status = 'open', result = null;\n  select * into po from game_private.trade_offers where me = peer_char and peer = my_char and status = 'open' and created_at > now() - interval '60 seconds';\n  if not found then return jsonb_build_object('status', 'pending'); end if;\n  if game_private.offer_key(po.mine) <> game_private.offer_key(theirs) or game_private.offer_key(po.theirs) <> game_private.offer_key(mine) then return jsonb_build_object('status', 'mismatch'); end if;\n  select * into a from public.characters where id = my_char for update;\n  select * into b from public.characters where id = peer_char for update;\n  if b.id is null then raise exception 'The other character no longer exists'; end if;\n  select coalesce((select v::int from game_private.config where k = 'bag_size'), 30) into bag;\n  ainv := case when jsonb_typeof(a.data -> 'inventory') = 'array' then a.data -> 'inventory' else '[]'::jsonb end;\n  binv := case when jsonb_typeof(b.data -> 'inventory') = 'array' then b.data -> 'inventory' else '[]'::jsonb end;\n  for e in select * from jsonb_array_elements(mine -> 'items') loop\n    ainv := game_private.inv_take(ainv, e ->> 'id', (e ->> 'qty')::int);\n    binv := game_private.inv_give(binv, e ->> 'id', (e ->> 'qty')::int, (e ->> 'st')::int);\n  end loop;\n  for e in select * from jsonb_array_elements(po.mine -> 'items') loop\n    binv := game_private.inv_take(binv, e ->> 'id', (e ->> 'qty')::int);\n    ainv := game_private.inv_give(ainv, e ->> 'id', (e ->> 'qty')::int, (e ->> 'st')::int);\n  end loop;\n  ag := coalesce((a.data ->> 'gil')::bigint, 0); bg := coalesce((b.data ->> 'gil')::bigint, 0);\n  agive := coalesce((mine ->> 'gil')::bigint, 0); bgive := coalesce((po.mine ->> 'gil')::bigint, 0);\n  if ag < agive or bg < bgive then raise exception 'Not enough crystals for the trade'; end if;\n  ag := ag - agive + bgive; bg := bg - bgive + agive;\n  if jsonb_array_length(ainv) > bag or jsonb_array_length(binv) > bag then raise exception 'Not enough room in a bag for the trade'; end if;\n  perform set_config('game.server', '1', true);\n  update public.characters set data = jsonb_set(jsonb_set(data, '{inventory}', ainv), '{gil}', to_jsonb(ag)) where id = a.id;\n  update public.characters set data = jsonb_set(jsonb_set(data, '{inventory}', binv), '{gil}', to_jsonb(bg)) where id = b.id;\n  perform set_config('game.server', '0', true);\n  update game_private.trade_offers set status = 'done', result = jsonb_build_object('inventory', binv, 'gil', bg) where me = peer_char;\n  delete from game_private.trade_offers where me = my_char;\n  insert into game_private.trade_log (a, b, a_gave, b_gave) values (a.id, b.id, mine, po.mine);\n  return jsonb_build_object('status', 'done', 'inventory', ainv, 'gil', ag);\nend $$;\n\ncreate or replace function public.trade_status(my_char uuid) returns jsonb\nlanguage plpgsql security definer set search_path = public, game_private as $$\ndeclare o game_private.trade_offers;\nbegin\n  if not exists (select 1 from public.characters where id = my_char and owner = auth.uid()) then raise exception 'Not your character'; end if;\n  select * into o from game_private.trade_offers where me = my_char;\n  if not found then return jsonb_build_object('status', 'none'); end if;\n  if o.status = 'done' then delete from game_private.trade_offers where me = my_char; return jsonb_build_object('status', 'done') || o.result; end if;\n  return jsonb_build_object('status', 'pending');\nend $$;\n\ncreate or replace function public.trade_cancel(my_char uuid) returns jsonb\nlanguage plpgsql security definer set search_path = public, game_private as $$\ndeclare o game_private.trade_offers;\nbegin\n  if not exists (select 1 from public.characters where id = my_char and owner = auth.uid()) then raise exception 'Not your character'; end if;\n  select * into o from game_private.trade_offers where me = my_char for update;\n  if not found then return jsonb_build_object('status', 'none'); end if;\n  delete from game_private.trade_offers where me = my_char;\n  if o.status = 'done' then return jsonb_build_object('status', 'done') || o.result; end if;\n  return jsonb_build_object('status', 'cancelled');\nend $$;\n\ncreate or replace function public.admin_set_ban(target text, ban boolean) returns int\nlanguage plpgsql security definer set search_path = public as $$\ndeclare n int;\nbegin\n  if not public.is_admin() then raise exception 'Admins only'; end if;\n  update public.players set banned = ban\n    where (lower(email) = lower(target) or id in (select owner from public.characters where lower(name) = lower(target)))\n      and lower(coalesce(email, '')) <> 'ianmcgon@gmail.com';\n  get diagnostics n = row_count;\n  return n;\nend $$;\n\nrevoke all on function public.trade_offer(uuid, uuid, jsonb, jsonb), public.trade_status(uuid), public.trade_cancel(uuid), public.admin_set_ban(text, boolean) from public, anon;\ngrant execute on function public.trade_offer(uuid, uuid, jsonb, jsonb), public.trade_status(uuid), public.trade_cancel(uuid), public.admin_set_ban(text, boolean) to authenticated;\n";
 let AUDIO_DATA = null;
 function audioData() {
   if (!AUDIO_DATA) { const el = document.getElementById("audioData"); try { AUDIO_DATA = el ? JSON.parse(el.textContent) : {}; } catch (e) { AUDIO_DATA = {}; } }
@@ -13013,7 +13013,11 @@ const ADMIN_DIAG_SQL = [
   "select p.proname, pg_get_function_identity_arguments(p.oid) as args from pg_proc p where p.pronamespace = 'public'::regnamespace order by 1;",
   "select (select count(*) from public.players) as players, (select count(*) from public.characters) as characters, (select count(*) from auth.users) as auth_users, (select count(*) from auth.users where email_confirmed_at is null) as unconfirmed;",
   "select c.name, c.summary ->> 'job' as job, c.summary ->> 'lv' as lv, p.email, c.updated_at, pg_column_size(c.data) as bytes from public.characters c left join public.players p on p.id = c.owner order by c.updated_at desc limit 50;",
-  "select email, joined_at, last_seen, banned from public.players order by last_seen desc limit 50;"
+  "select email, joined_at, last_seen, banned from public.players order by last_seen desc limit 50;",
+  "select k, case when k = 'signup_code' then '(hidden)' else v end as v from game_private.config order by k;",
+  "select at, char_name, kind, detail from game_private.audit order by at desc limit 50;",
+  "select at, a, b, a_gave, b_gave from game_private.trade_log order by at desc limit 20;",
+  "select me, peer, status, created_at from game_private.trade_offers order by created_at desc;"
 ].join("\n\n");
 
 function copyText(t) {
@@ -13035,11 +13039,16 @@ function tabAdmin() {
   else if (!st) h += '<div class="sub">Loading server stats…</div>';
   else {
     const tile = (k, v) => '<div class="item" style="display:block;text-align:center;min-width:110px"><div class="sub">' + k + '</div><b style="font-size:20px">' + esc(String(v)) + "</b></div>";
-    h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + tile("Accounts", st.players) + tile("Online now", st.online) + tile("Characters", st.characters) + tile("New (7 days)", st.signups_7d) + tile("Banned", st.banned) + tile("Database", st.db_size) + tile("Saves", st.chars_size) + tile("Sign-up password", st.code_set ? "set" : "NOT SET") + "</div>";
+    const sv = +(st.schema || 1);
+    if (sv < NET_SCHEMA) h += '<div class="item" style="display:block;border-color:#ffd54f"><b>Server update needed</b><div class="sub">This version of the game needs server setup version ' + NET_SCHEMA + ' (the server has ' + sv + '). Press Copy setup SQL below, paste it into the Supabase SQL editor and press Run. It is safe to run again; nothing is deleted.</div></div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + tile("Trades (7 days)", st.trades_7d != null ? st.trades_7d : "–") + tile("Server setup", "v" + sv) + tile("Accounts", st.players) + tile("Online now", st.online) + tile("Characters", st.characters) + tile("New (7 days)", st.signups_7d) + tile("Banned", st.banned) + tile("Database", st.db_size) + tile("Saves", st.chars_size) + tile("Sign-up password", st.code_set ? "set" : "NOT SET") + "</div>";
     h += "<h3>Online now</h3>" + (st.online_list && st.online_list.length ? st.online_list.map(o => '<div class="sub">' + esc(o.email) + " · " + fmtAgo(Date.parse(o.last_seen)) + "</div>").join("") : '<div class="sub">Nobody else right now.</div>');
+    h += "<h3>Suspicious saves</h3>" + (st.audit && st.audit.length ? st.audit.map(a => '<div class="sub">⚠ ' + esc(a.char_name || "?") + " (" + esc(a.email || "?") + ") · " + esc(a.kind) + ": " + esc(a.detail || "") + " · " + fmtAgo(Date.parse(a.at)) + "</div>").join("") : '<div class="sub">Nothing flagged.</div>');
+    h += "<h3>Banned accounts</h3>" + (st.banned_list && st.banned_list.length ? st.banned_list.map(b => '<div class="sub">' + esc(b.email) + "</div>").join("") : '<div class="sub">None.</div>');
     h += "<h3>Recently saved characters</h3>" + (st.recent || []).map(c => '<div class="sub">' + esc(c.name) + " · " + esc(c.job || "") + " Lv." + esc(c.lv || "") + " · " + esc(c.zone || "") + " · " + esc(c.email || "") + " · " + fmtAgo(Date.parse(c.updated_at)) + "</div>").join("");
   }
   h += '<h3>Sign-up password</h3><div class="sub" style="margin-bottom:6px">New players need this to create an account. It\'s stored on the server, never in the game\'s code.</div><div class="opt"><input id="adCode" type="text" placeholder="New sign-up password" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid var(--edge2);background:rgba(10,12,20,.8);color:#f2efe6"><button data-a="admincode">Change</button></div>';
+  h += '<h3>Ban or unban</h3><div class="sub" style="margin-bottom:6px">Enter an email address or a character name. A banned account can\'t sign in to play or save. Your own account can\'t be banned.</div><div class="opt"><input id="adBan" type="text" placeholder="Email or character name" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid var(--edge2);background:rgba(10,12,20,.8);color:#f2efe6"><button data-a="adminban" data-v="1" class="danger">Ban</button><button data-a="adminban" data-v="0">Unban</button></div>';
   h += '<h3>For Claude</h3><div class="sub" style="margin-bottom:6px">Copy these and paste them to Claude (or into the Supabase SQL editor) when something needs fixing.</div><div class="opt"><button data-a="admincopy" data-v="setup">📋 Copy setup SQL</button><button data-a="admincopy" data-v="diag">📋 Copy diagnostics SQL</button><button data-a="admincopy" data-v="report">📋 Copy server report</button><button data-a="adminrefresh">🔄 Refresh</button></div>';
   return h;
 }
@@ -13240,6 +13249,7 @@ function onMenuClick(e) {
   else if (a === "signout") { closeModal(); saveGame(); netFlush().then(() => netSignOut()).then(() => location.reload()); return; }
   else if (a === "adminrefresh") { UI.adminStats = null; UI.adminErr = ""; renderModal(); return; }
   else if (a === "admincopy") { copyText(v === "setup" ? SETUP_SQL : v === "diag" ? ADMIN_DIAG_SQL : adminReport()); UI.adminMsg = "Copied to the clipboard."; renderModal(); return; }
+  else if (a === "adminban") { const tg = (($("adBan") || {}).value || "").trim(); if (!tg) return; netAdminBan(tg, v === "1").then(n => { UI.adminMsg = n ? (v === "1" ? "Banned " : "Unbanned ") + tg + "." : "No account matched " + tg + "."; UI.adminStats = null; renderModal(); }, e => { UI.adminMsg = netErr(e); renderModal(); }); return; }
   else if (a === "admincode") { const c = ($("adCode") || {}).value || ""; netAdminSetCode(c).then(() => { UI.adminMsg = "Sign-up password changed."; renderModal(); }, e => { UI.adminMsg = netErr(e); renderModal(); }); return; }
   else if (a === "logout") { closeModal(); logoutToSelect(); return; }
   renderModal();
@@ -13269,13 +13279,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v8.4.0 · built 2026-10-13 19:14 PDT";
+const BUILD_INFO = "v8.5.0 · built 2026-10-13 19:24 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.5.0", date: "2026-10-13", title: "Server checks", items: [
+    "Trades now happen on the game server in one step, so items can't be duplicated or lost if someone disconnects halfway.",
+    "The server checks every save: levels above the cap, impossible crystal counts and name changes are refused, and unusual jumps are flagged for the admin.",
+    "Admin panel: suspicious saves, banned accounts, a ban/unban box, trade count and a notice when the server setup needs updating.",
+    "Banned accounts can no longer sign in to play."
   ] },
   { v: "8.4.0", date: "2026-10-13", title: "Claims and party combat", items: [
     "Monster claims: once a player claims a monster, only they and their party can attack it. Red names are yours or your party's, purple names belong to someone else, and the target window says who.",
@@ -13839,14 +13855,15 @@ function tabHelp() {
     "Stand near another player and tap them, then choose <b>Trade</b>, or type <b>/trade Name</b>. They get a popup to accept.",
     "Add up to " + CONFIG.tradeSlots + " kinds of item and any number of crystals. Both offers show side by side. Changing an offer clears both acceptances, so you always see the final deal before it happens.",
     "The trade goes through when you both press Accept on the same offers. You need room in your bag for what you receive, and you can't receive a Rare item you already have.",
-    "Key items and Exclusive items can't be traded. Closing the trade window or walking away cancels it."
+    "Key items and Exclusive items can't be traded. Closing the trade window or walking away cancels it.",
+    "Trades are finished on the game server in a single step: the server checks that both players really have the items and crystals and room in their bags, then moves everything at once. If anything is off, nothing changes for either player."
   ]));
-  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen."]));
+  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
   return h + "</div>";
 }
 
-const GAME_VERSION = "8.4.0";
+const GAME_VERSION = "8.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19167,6 +19184,7 @@ function draw(dt) {
   updateFloaters();
 }
 
+const NET_SCHEMA = 2;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -19293,7 +19311,7 @@ async function netUploadLocal() {
 function netMarkDirty(id) { if (NET.member && isUuid(id)) NET.dirty[id] = true; }
 
 async function netFlush(keepalive) {
-  if (!NET.member || NET.saving) return;
+  if (!NET.member || NET.saving || NET.saveLock) return;
   const ids = Object.keys(NET.dirty);
   if (!ids.length) return;
   NET.saving = true;
@@ -19332,6 +19350,18 @@ function netTick() {
 
 async function netAdminStats() {
   const { data, error } = await NET.sb.rpc("admin_stats");
+  if (error) throw error;
+  return data;
+}
+
+async function netFlushNow() {
+  for (let i = 0; i < 60 && NET.saving; i++) await new Promise(r => setTimeout(r, 100));
+  await netFlush();
+  return !NET.lastErr && !Object.keys(NET.dirty).length;
+}
+
+async function netAdminBan(target, ban) {
+  const { data, error } = await NET.sb.rpc("admin_set_ban", { target, ban });
   if (error) throw error;
   return data;
 }
@@ -19931,7 +19961,77 @@ function netOnTcf(p) {
   if (t.myOk && t.theirOk === netTradeMyHash()) netTradeFinish();
 }
 
-function netTradeFinish() {
+function netTradeFail(why) {
+  const t = NET_PT.trade;
+  NET.saveLock = false;
+  if (t) netWorldSend("tcx", { to: netLc(t.name), from: save.name, why });
+  NET_PT.trade = null;
+  log("Trade cancelled: " + why, "sys");
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+function netTradeApply(t, d) {
+  const inv = (Array.isArray(d.inventory) ? d.inventory : []).filter(x => x && ITEMS[x.id] && +x.qty > 0).map(x => Object.assign({}, x, { qty: Math.floor(+x.qty) }));
+  save.inventory = inv;
+  save.gil = Math.max(0, Math.floor(+d.gil || 0));
+  NET.saveLock = false;
+  t.done = true;
+  const got = t.theirs.items.map(s => (s.qty > 1 ? s.qty + " " : "") + ITEMS[s.id].name).concat(t.theirs.gil ? [t.theirs.gil + " crystals"] : []);
+  log("Trade with " + t.name + " complete." + (got.length ? " You receive " + got.join(", ") + "." : ""), "loot");
+  save.stats.trades = (save.stats.trades || 0) + 1;
+  if (typeof sfx === "function") sfx("loot");
+  if (NET_PT.trade === t) NET_PT.trade = null;
+  saveGame();
+  netFlush();
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+async function netTradeFinish() {
+  const t = NET_PT.trade;
+  if (!t || t.done || t.busy) return;
+  const why = netTradeCheck();
+  if (why) { netTradeFail(why); return; }
+  t.busy = true; t.msg = "Sending the trade to the server…";
+  saveGame();
+  const ok = await netFlushNow();
+  if (NET_PT.trade !== t) return;
+  if (!ok) { t.busy = false; netTradeFail("can't reach the game server"); return; }
+  NET.saveLock = true;
+  const mine = { items: t.mine.items.map(s => ({ id: s.id, qty: s.qty, st: ITEMS[s.id].stack || 1 })), gil: t.mine.gil };
+  const theirs = { items: t.theirs.items.map(s => ({ id: s.id, qty: s.qty })), gil: t.theirs.gil };
+  let res;
+  try {
+    const { data, error } = await NET.sb.rpc("trade_offer", { my_char: S.charId, peer_char: t.id, mine, theirs });
+    if (error) throw error;
+    res = data;
+  } catch (e) {
+    NET.saveLock = false;
+    const m = String((e && (e.message || e.code)) || e);
+    if (/PGRST202|trade_offer|schema cache|does not exist/i.test(m + (e && e.code))) { t.busy = false; NET_PT.legacyTrade = true; netTradeLocal(); return; }
+    netTradeFail(netErr(e));
+    return;
+  }
+  if (res && res.status === "done") { netTradeApply(t, res); return; }
+  if (res && res.status === "mismatch") { netTradeFail("the offers didn't match"); try { await NET.sb.rpc("trade_cancel", { my_char: S.charId }); } catch (e) {} return; }
+  t.msg = "Waiting for " + t.name + "…";
+  for (let i = 0; i < 20; i++) {
+    await new Promise(r => setTimeout(r, 1200));
+    if (t.done || NET_PT.trade !== t) return;
+    try {
+      const { data } = await NET.sb.rpc("trade_status", { my_char: S.charId });
+      if (data && data.status === "done") { netTradeApply(t, data); return; }
+      if (data && data.status === "none") break;
+    } catch (e) {}
+  }
+  if (NET_PT.trade !== t) return;
+  try {
+    const { data } = await NET.sb.rpc("trade_cancel", { my_char: S.charId });
+    if (data && data.status === "done") { netTradeApply(t, data); return; }
+  } catch (e) {}
+  netTradeFail("the other player didn't finish the trade");
+}
+
+function netTradeLocal() {
   const t = NET_PT.trade;
   if (!t || t.done) return;
   const why = netTradeCheck();
@@ -19954,6 +20054,7 @@ function netTradeFinish() {
 function netTradeCancel(quiet) {
   const t = NET_PT.trade;
   if (!t) return;
+  if (t.busy) { if (!quiet) log("The trade is being finished on the server. One moment…", "sys"); return; }
   NET_PT.trade = null;
   netWorldSend("tcx", { to: netLc(t.name), from: save.name });
   if (!quiet) log("You cancel the trade.", "sys");
@@ -19963,6 +20064,7 @@ function netTradeCancel(quiet) {
 function netOnTcx(p) {
   const t = NET_PT.trade;
   if (!p || !t || p.to !== netLc(save.name) || netLc(p.from) !== netLc(t.name)) return;
+  if (t.busy) { NET.sb.rpc("trade_cancel", { my_char: S.charId }).then(({ data }) => { if (data && data.status === "done") netTradeApply(t, data); else { NET.saveLock = false; } }, () => { NET.saveLock = false; }); if (!t.done) { NET_PT.trade = null; log(t.name + " cancels the trade." + (p.why ? " (" + cleanChat(p.why) + ")" : ""), "sys"); if (S.modal === "trade" && typeof closeModal === "function") closeModal(); } return; }
   NET_PT.trade = null;
   log(t.name + " cancels the trade." + (p.why ? " (" + cleanChat(p.why) + ")" : ""), "sys");
   if (S.modal === "trade" && typeof closeModal === "function") closeModal();
