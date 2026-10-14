@@ -70,7 +70,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
@@ -111,6 +111,10 @@ function normalizeSave(d) {
   out.gatherSkill = Object.assign(newSave().gatherSkill, d.gatherSkill || {});
   out.gardens = d.gardens && typeof d.gardens === "object" ? d.gardens : {};
   out.harvests = d.harvests || 0;
+  out.buddies = (Array.isArray(d.buddies) ? d.buddies : []).filter(id => BUDDIES[id]);
+  out.buddyNames = d.buddyNames && typeof d.buddyNames === "object" ? d.buddyNames : {};
+  if (!out.buddies.includes(out.buddy)) out.buddy = null;
+  out.buddyOut = !!out.buddyOut && !!out.buddy;
   out.market = Object.assign(newSave().market, d.market && typeof d.market === "object" ? d.market : {});
   if (!Array.isArray(out.market.listings)) out.market.listings = [];
   if (!Array.isArray(out.market.box)) out.market.box = [];
@@ -356,12 +360,12 @@ function buildStats(ch) {
   const rc = ch.kind === "pc" && typeof save !== "undefined" && save.look ? RACES[save.look.race] || RACES.human : null;
   if (rc) for (const k in rc.attrs) s[k] = Math.max(1, Math.round(s[k] + rc.attrs[k] * (1 + lv / 20)));
   s.maxHp = Math.round((hp + g.hp) * (rc ? rc.hp : 1));
-  s.maxMp = Math.round((mp + g.mp) * (rc && mp > 0 ? rc.mp : 1));
+  s.maxMp = Math.round((mp + g.mp) * (rc && mp > 0 ? rc.mp : 1) * (ch.kind === "pc" && mp > 0 ? 1 + buddyPerk("mp") : 1));
   s.acc = Math.round(58 + s.dex * 0.5 + 0.6 * wsk + lv + g.acc);
   s.att = Math.round((10 + s.str + 4 * lv + g.att) * (rc && rc.attMul ? rc.attMul : 1));
   if (rc && rc.rangedAcc && wtype === "archery") s.acc += rc.rangedAcc;
   s.def = Math.round(8 + s.vit * 0.5 + 3 * lv + g.def);
-  s.eva = Math.round(50 + s.agi * 0.5 + 3 * lv + g.eva);
+  s.eva = Math.round(50 + s.agi * 0.5 + 3 * lv + g.eva + (ch.kind === "pc" ? buddyPerk("eva") : 0));
   if (ch.mercId && typeof save !== "undefined" && save.bond) {
     const k = 1 + bondLevel(ch.mercId) * COMPANION_CFG.bondBonus;
     s.maxHp = Math.round(s.maxHp * k); s.maxMp = Math.round(s.maxMp * k); s.att = Math.round(s.att * k); s.def = Math.round(s.def * k); s.acc = Math.round(s.acc * k);
@@ -905,6 +909,7 @@ function xpNeed(lv) { return lv >= CONFIG.levelCap ? 0 : CONFIG.xpTable[lv]; }
 function gainXp(n, chain, quiet) {
   const j = save.jobs[save.mainJob];
   if (j.lv >= CONFIG.levelCap) { if (!quiet) log("You are at the level cap.", "sys"); return; }
+  if (buddyPerk("xp")) n = Math.round(n * (1 + buddyPerk("xp")));
   j.xp += n;
   log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
   popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
@@ -983,7 +988,7 @@ function dropLoot(m) {
     if (minLv && m.lv < minLv) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
-    if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1)) continue;
+    if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     if (ITEMS[id].kind === "equip" && S.party.length > 1) { addToPool(id); continue; }
     giveItem(id, 1);
@@ -1065,6 +1070,94 @@ function eatFood(id) {
 
 function foodText(fd) { return Object.keys(fd).map(k => STAT_LABELS[k] + " +" + fd[k]).join(", "); }
 
+function buddyPerk(k) { if (!save.buddy || !save.buddyOut || !BUDDIES[save.buddy]) return 0; return BUDDIES[save.buddy].perk[k] || 0; }
+function buddyName(id) { return save.buddyNames[id] || BUDDIES[id].name; }
+
+function learnBuddy(id) {
+  if (!BUDDIES[id]) return false;
+  if (save.buddies.includes(id)) { log("You already have " + an(BUDDIES[id].name) + ".", "sys"); return false; }
+  save.buddies.push(id);
+  if (!save.buddy) save.buddy = id;
+  log(BUDDIES[id].name + " joins you as a pet! Open the Pets window to summon it.", "loot");
+  sfx("unlock");
+  uiEvent("buddy", { id });
+  checkAchievements();
+  saveGame();
+  return true;
+}
+
+function equipBuddy(id) {
+  if (!save.buddies.includes(id)) return "You don't have that pet.";
+  const out = save.buddyOut;
+  if (out) dismissBuddy(true);
+  save.buddy = id;
+  if (out) summonBuddy();
+  saveGame();
+  return "";
+}
+
+function nameBuddy(id, name) {
+  name = String(name || "").replace(/[^A-Za-z' -]/g, "").trim().slice(0, 12);
+  if (!save.buddies.includes(id)) return "You don't have that pet.";
+  if (name.length < 2) delete save.buddyNames[id]; else save.buddyNames[id] = name.replace(/^./, c => c.toUpperCase());
+  if (S.buddy && S.buddy.petId === id) S.buddy.name = buddyName(id);
+  saveGame();
+  return "";
+}
+
+function summonBuddy() {
+  if (!save.buddy || !BUDDIES[save.buddy]) return "Choose a pet first.";
+  if (S.zone && S.zone.battlefield) return "Pets stay out of the battlefield.";
+  if (S.buddy) dismissBuddy(true);
+  const B = BUDDIES[save.buddy];
+  const b = { kind: "buddy", buddy: true, petId: save.buddy, name: buddyName(save.buddy), alive: true, x: player.x - Math.cos(player.face) * 36, y: player.y - Math.sin(player.face) * 36, px: 0, py: 0, face: player.face, speed: 170, radius: 8, buffs: {}, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wander: 0, idleT: 0 };
+  b.px = b.x; b.py = b.y;
+  S.buddy = b;
+  save.buddyOut = true;
+  log(b.name + " comes to your side.", "sys");
+  ring(b, "#ffd54f", 18, 0.5, "sparkle");
+  sfx("buff", b);
+  refreshPlayer(false);
+  saveGame();
+  return "";
+}
+
+function dismissBuddy(quiet) {
+  if (!S.buddy) return;
+  const b = S.buddy;
+  S.buddy = null;
+  save.buddyOut = false;
+  if (!quiet) { log(b.name + " curls up and vanishes into your pack.", "sys"); sfx("close"); }
+  refreshPlayer(false);
+  saveGame();
+}
+
+function toggleBuddy() {
+  if (S.buddy) { dismissBuddy(false); return ""; }
+  return summonBuddy();
+}
+
+function tickBuddy(dt) {
+  const b = S.buddy;
+  if (!b) return;
+  if (!player.alive || S.ko || (S.zone && S.zone.battlefield)) { dismissBuddy(true); return; }
+  const mounted = player.mounted;
+  const behind = { x: player.x - Math.cos(player.face) * 26 + Math.sin(player.face) * 34, y: player.y - Math.sin(player.face) * 26 - Math.cos(player.face) * 34 };
+  const d = Math.hypot(behind.x - b.x, behind.y - b.y);
+  if (d > 650) { b.x = behind.x; b.y = behind.y; b.px = b.x; b.py = b.y; return; }
+  if (d > 14) {
+    b.wander = 0;
+    moveToward(b, behind.x, behind.y, dt, 6, (mounted ? mountMul() : 1) * (d > 120 ? 1.5 : 1));
+  } else {
+    b.idleT += dt;
+    if (b.idleT > 4 + (b.wander || 0)) { b.idleT = 0; b.wander = 2 + Math.random() * 4; b.wx = player.x + rand(-50, 50); b.wy = player.y + rand(-50, 50); }
+    if (b.wander > 0 && b.wx != null) { if (moveToward(b, b.wx, b.wy, dt, 4, 0.5)) b.wx = null; }
+    else b.face += normAng(Math.atan2(player.y - b.y, player.x - b.x) - b.face) * Math.min(1, dt * 3);
+  }
+  b.resting = !!player.resting;
+  keepOutOfColliders(b);
+}
+
 function blessingMinutes() { return Math.min(BLESSING.maxMin, BLESSING.baseMin + BLESSING.perRankMin * guildRank()); }
 function blessed() { return !!(save.blessing && save.blessing > Date.now()); }
 
@@ -1144,7 +1237,7 @@ function reelFish() {
   S.fish = null;
   const [id, lv] = pickFish();
   const skill = save.gatherSkill.fishing || 0;
-  const chance = clamp(62 + (skill - lv) * 6 + (invCount("sea_rod") > 0 ? 10 : 0), 12, 95);
+  const chance = clamp(62 + (skill - lv) * 6 + (invCount("sea_rod") > 0 ? 10 : 0) + buddyPerk("fish") * 100, 12, 95);
   if (Math.random() * 100 >= chance) { log("You reel in hard, but the line goes slack. It got away.", "sys"); sfx("miss", player); return; }
   save.stats.fish++;
   if (id === "tidecaller_tuna") save.stats.tuna = (save.stats.tuna || 0) + 1;
@@ -1924,6 +2017,7 @@ function useItem(id) {
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
   if (it.kind === "food") { eatFood(id); return; }
+  if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
   if (it.mpRestore && player.mp >= player.maxMp) { log("Your MP is already full.", "sys"); sfx("error"); return; }
@@ -2530,8 +2624,9 @@ function regen(p, dt) {
   p.regenerating = can && (p.hp < p.maxHp || p.mp < p.maxMp);
   p.restHealing = rest && (p.hp < p.maxHp || p.mp < p.maxMp);
   if (!can) return;
-  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * (rest ? CONFIG.restHp : CONFIG.regenHp) * dt);
-  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * (rest ? CONFIG.restMp : CONFIG.regenMp) * dt);
+  const rb = rest && p === player ? 1 + buddyPerk("rest") : 1;
+  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * (rest ? CONFIG.restHp : CONFIG.regenHp) * dt * rb);
+  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * (rest ? CONFIG.restMp : CONFIG.regenMp) * dt * rb);
 }
 
 function tickCasting(e) {
@@ -2663,7 +2758,7 @@ function doGather(n) {
   sfx(type === "mining" ? "blunt" : type === "logging" ? "slash" : "miss", player);
   vfx("hit", { src: player, tgt: n, crit: false, slash: type === "logging" });
   let got = null;
-  for (const [id, chance] of n.loot) if (Math.random() < chance * (1 + skill * 0.01)) { got = id; break; }
+  for (const [id, chance] of n.loot) if (Math.random() < chance * (1 + skill * 0.01 + buddyPerk("gather"))) { got = id; break; }
   save.stats.gathers++;
   if (got) { giveItem(got, 1); log("You " + G.verb + " up " + an(ITEMS[got].name) + ".", "loot"); }
   else { log("You " + G.verb + " but find nothing worth keeping.", "sys"); }
@@ -2677,7 +2772,7 @@ function doGather(n) {
 
 function craftSkill(c) { return save.crafts[c] || 0; }
 function recipeMatsOk(r) { return Object.keys(r.mats).every(id => invCount(id) >= r.mats[id]) && invCount(CRAFTS[r.craft].crystal) >= 1; }
-function synthChance(r) { return clamp(65 + 7 * (craftSkill(r.craft) - r.lv), 5, 95); }
+function synthChance(r) { return clamp(65 + 7 * (craftSkill(r.craft) - r.lv) + buddyPerk("craft") * 100, 5, 95); }
 function synthHqChance(r) { return r.hq ? clamp(5 * (craftSkill(r.craft) - r.lv), 0, 50) : 0; }
 function canSynth(r) {
   if (!FEATURES.crafting) return "Crafting isn't available yet.";
@@ -2945,6 +3040,7 @@ function step(dt) {
   if (S.fish) tickFish();
   if (S.race) tickRace();
   if (S.pet) tickPet();
+  tickBuddy(dt);
   tickStory();
   if (S.time >= (S.ahNext || 0)) { S.ahNext = S.time + 1; if (save.market.listings.length) tickAuction(); }
   if (S.bf) tickBattlefield();
@@ -3205,7 +3301,7 @@ function advanceStory() {
   if (save.story.step >= c.steps.length) {
     save.story.ch++;
     save.story.step = 0;
-    if (save.story.ch >= STORY.length) save.story.done = true;
+    if (save.story.ch >= STORY.length) { save.story.done = true; learnBuddy("ash_sprite"); }
     log("Story chapter complete: " + c.name + ".", "lvl");
     uiEvent("story", { name: c.name, reward: c.reward });
     giveReward(c.reward);
@@ -3610,12 +3706,14 @@ const TALK = {
     const q = save.quests;
     if (save.mountLicense) {
       openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. I can dye her coat, sell you a faster saddle, or time you on the Hollow Run." + (save.race.best != null ? " Your best run: " + save.race.best + "s." : ""), [
+        { label: "Pets (buy and summon)", fn: () => { closeDialog(); openModal("pets"); } },
         { label: "Stable (coats and saddle)", fn: () => { closeDialog(); openModal("stable"); } },
         { label: "Run the Hollow course", fn: () => { closeDialog(); const why = startRace(); if (why) { log(why, "sys"); sfx("error"); } } }
       ]);
       return;
     }
-    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
+    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license. Until then I've a few small creatures looking for a home, if you've a soft heart.", [{ label: "Pets (buy and summon)", fn: () => { closeDialog(); openModal("pets"); } }]); return; }
+    if (false) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
         { label: "I'll get them", fn: () => { q.riding = "active"; log("Quest accepted: " + QUESTS.riding.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
@@ -3801,7 +3899,7 @@ function shopList(kind) {
   });
 }
 
-function sellPrice(id) { const it = ITEMS[id]; return it.rare || it.ex ? 0 : Math.floor(it.price / 4); }
+function sellPrice(id) { const it = ITEMS[id]; return it.rare || it.ex ? 0 : Math.floor(it.price / 4 * (1 + buddyPerk("sell"))); }
 
 function buy(id) {
   const it = ITEMS[id];
@@ -3859,6 +3957,7 @@ function initParty() {
 const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", laugh: "laughs", nod: "nods", clap: "claps", point: "points", salute: "salutes", panic: "panics", cry: "cries", thumbsup: "gives a thumbs up" };
 const COMMANDS = [
   ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
+  ["/pet", "Summon or dismiss your equipped pet."],
   ["/fish", "Cast a line at the water's edge (needs a Willow Rod and Fishing Bait). Type it again when something bites to reel in."],
   ["/weather", "Show the current weather and its element bonus."],
   ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
@@ -3914,6 +4013,7 @@ function runCommand(text) {
   };
   switch (cmd) {
     case "rest": case "heal": case "sit": toggleRest(); return;
+    case "pet": { const why = toggleBuddy(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
     case "fish": { if (S.fish && S.fish.state === "bite") { reelFish(); return; } const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "weather": { const w = weatherNow(); log(w ? "Weather: " + WEATHER_INFO[w].name + (WEATHER_INFO[w].el ? " (" + WEATHER_INFO[w].el + " spells +10%)" : "") + "." : "No weather here.", "sys"); return; }

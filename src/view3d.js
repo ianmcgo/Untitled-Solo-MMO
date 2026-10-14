@@ -28,8 +28,9 @@ function labelFor(e) {
 
 function updateLabels() {
   const seen = new Set();
-  const all = S.party.concat(S.mobs, S.npcs);
+  const all = S.party.concat(S.mobs, S.npcs, S.buddy ? [S.buddy] : []);
   for (const e of all) {
+    if (e.buddy) continue;
     if (e === player && VIEW.first) continue;
     if (isMob(e) && (!e.alive || e.despawned)) continue;
     if (e.kind === "npc" && e.away) continue;
@@ -45,13 +46,14 @@ function updateLabels() {
     let name = e === player ? save.name : e.name, col = "#cfe6ff";
     if (isMob(e)) { col = e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
     if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
+    if (e.buddy) col = "#ffd54f";
     const other = isMob(e) || e.kind === "npc";
     if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
     nameEl.style.display = name ? "" : "none";
     if (nameEl.textContent !== name) nameEl.textContent = name;
     nameEl.style.color = col;
     el.classList.toggle("tgt", isT);
-    const showHp = e.kind !== "npc" && (isParty(e) || isT || e.state === "combat");
+    const showHp = e.kind !== "npc" && !e.buddy && (isParty(e) || isT || e.state === "combat");
     bar.style.display = showHp ? "block" : "none";
     if (showHp) { bar.firstChild.style.width = clamp(100 * e.hp / e.maxHp, 0, 100) + "%"; bar.firstChild.style.background = isMob(e) ? "#e05050" : "#7fd06b"; }
     const cast = e.casting ? (S.time - e.casting.start) / (e.casting.end - e.casting.start) : e.readying ? 1 - e.readying.t : -1;
@@ -505,11 +507,12 @@ function draw(dt) {
   for (const p of S.party) syncEntity(p, dt);
   for (const m of S.mobs) syncEntity(m, dt);
   for (const n of S.npcs) syncNpc(n, dt);
+  if (S.buddy) syncEntity(S.buddy, dt);
   syncDecor(dt);
   syncBarriers();
   syncFurniture();
   for (const [e, v] of VIEW.views) {
-    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e);
+    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e) || e === S.buddy;
     if (!alive) { destroyView(v); VIEW.views.delete(e); }
   }
   updateCursor();

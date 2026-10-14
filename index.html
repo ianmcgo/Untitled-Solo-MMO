@@ -522,7 +522,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.4.0 · built 2026-10-13 17:10 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.5.0 · built 2026-10-13 17:29 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5685,6 +5685,12 @@ const ITEMS = {
   ashen_shard: { name: "Ashen Shard", kind: "key", icon: "🕯️", desc: "A sliver of black stone, warm to the touch. Faint letters crawl across it." },
   cinder_mantle: { name: "Cinderweave Mantle", kind: "equip", icon: "🧥", rare: true, nm: true, rarity: "epic", slot: "body", jobs: ALL_J, lv: 19, stats: { def: 24, hp: 40, mp: 40, str: 3, int: 3 }, desc: "Woven from ash that never settles. Faintly warm." },
   ember_ring: { name: "Ember of Ashenreach", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 19, price: 0, stats: { hp: 50, mp: 50, str: 5, int: 5, mnd: 5, att: 8, acc: 8 }, desc: "A ring set with a coal that never cools. Given to the one who kept the embers." },
+  egg_snow_kit: { name: "Snow Kit (pet)", kind: "pet", pet: "snow_kit", icon: "🐇", rare: true, price: 0, desc: "A shivering white kit. Use it to make it your pet." },
+  egg_tide_wisp: { name: "Tide Wisp (pet)", kind: "pet", pet: "tide_wisp", icon: "💧", rare: true, price: 0, desc: "A bubble of seafoam in a jar. Use it to make it your pet." },
+  egg_shade_kit: { name: "Shade Kit (pet)", kind: "pet", pet: "shade_kit", icon: "🐈", rare: true, price: 0, desc: "A black kit curled in a basket. Use it to make it your pet." },
+  egg_mini_gob: { name: "Pocket Goblin (pet)", kind: "pet", pet: "mini_gob", icon: "👺", rare: true, price: 0, desc: "A goblin runt in a sack, surprisingly cheerful. Use it to make it your pet." },
+  egg_ember_wisp: { name: "Ember Wisp (pet)", kind: "pet", pet: "ember_wisp", icon: "🔥", rare: true, price: 0, desc: "A mote of flame in a lantern. Use it to make it your pet." },
+  egg_frost_wisp: { name: "Frost Wisp (pet)", kind: "pet", pet: "frost_wisp", icon: "❄️", rare: true, price: 0, desc: "A shard of cold light in a jar. Use it to make it your pet." },
   guild_ring: { name: "Guild Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 5, price: 0, stats: { hp: 15, mp: 10, acc: 3, att: 3 }, desc: "Bronze-rank token of the Adventurers' Guild." },
   pathfinder_boots: { name: "Pathfinder Boots", kind: "equip", icon: "👢", ex: true, slot: "feet", jobs: ALL_J, lv: 10, price: 0, stats: { def: 7, agi: 3, eva: 4, hp: 10 }, desc: "Iron-rank boots. Made for long roads." },
   silver_insignia: { name: "Silver Insignia", kind: "equip", icon: "💍", ex: true, rarity: "rare", slot: "ring", jobs: ALL_J, lv: 14, price: 0, stats: { hp: 25, mp: 20, str: 2, int: 2, mnd: 2 }, desc: "Silver-rank insignia of the Adventurers' Guild." },
@@ -5883,13 +5889,13 @@ const FAMILIES = {
 };
 
 const NM_FAMILIES = {
-  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
-  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
+  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["egg_ember_wisp", 0.5], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
+  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["egg_snow_kit", 0.25], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
   frost_wight: { hint: "Whispering Cairns, Frostspire Pass · night", base: "ice_wight", name: "The Frost Wight", hpMul: 3.6, attMul: 1.25, defMul: 1.25, scale: 1.45, aura: "#b3e5fc", loot: [["wight_shroud", 0.3], ["frost_ring", 0.3], ["bone_chip", 1], ["hi_potion", 0.6]], gil: [50, 70], respawn: 720 },
   old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["croaker_charm", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
-  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
+  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["egg_mini_gob", 0.25], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
   grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["scavenger_cap", 0.35], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
-  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["egg_shade_kit", 0.2], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
   king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["moonbloom_seeds", 0.4], ["burrower_trousers", 0.35], ["hare_charm", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
   ossuary_warden: { hint: "Bone Pit, Goblin Den · any time", base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.3], ["gravedigger_boots", 0.35], ["bonecharm_ring", 0.3], ["bone_chip", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 360 }
 };
@@ -6416,6 +6422,21 @@ const STORY = [
   ] }
 ];
 
+const BUDDIES = {
+  meadow_kit: { name: "Meadow Kit", icon: "🐇", model: "hare", col: 0xd8b890, scale: 0.6, perk: { xp: 0.02 }, lore: "A tame young hare from Shepherd's Meadow. Hops along at your heels." },
+  snow_kit: { name: "Snow Kit", icon: "🐇", model: "hare", col: 0xf2f6fa, scale: 0.6, perk: { rest: 0.25 }, lore: "A white hare from the pass, calm as fresh snow. You rest easier with it beside you." },
+  batling: { name: "Batling", icon: "🦇", model: "bat", col: 0x6a5a7a, eye: 0xff8a80, scale: 0.5, perk: { eva: 3 }, lore: "A tiny cave bat that flutters around your head and squeaks at anything sneaking up." },
+  wormlet: { name: "Wormlet", icon: "🪱", model: "worm", col: 0xd8a080, scale: 0.4, perk: { gather: 0.08 }, lore: "A stubby tunnel worm with a nose for ore and roots. Gathering goes better with it digging alongside." },
+  ember_wisp: { name: "Ember Wisp", icon: "🔥", model: "wisp", col: 0xff7043, eye: 0xfff3c0, scale: 0.55, perk: { craft: 0.05 }, lore: "A mote of living flame. It warms your hands at the forge and the cookfire." },
+  frost_wisp: { name: "Frost Wisp", icon: "❄️", model: "wisp", col: 0x81d4fa, eye: 0xffffff, scale: 0.55, perk: { mp: 0.04 }, lore: "A drifting shard of cold light. Its chill keeps your thoughts sharp." },
+  tide_wisp: { name: "Tide Wisp", icon: "💧", model: "wisp", col: 0x4fc3f7, eye: 0xe0f7fa, scale: 0.55, perk: { fish: 0.08 }, lore: "A bubble of seafoam that never pops. Fish come to it." },
+  mini_gob: { name: "Pocket Goblin", icon: "👺", model: "goblin", scale: 0.5, perk: { sell: 0.05 }, lore: "A goblin runt who decided you were its chief. Haggles on your behalf, badly but loudly." },
+  shade_kit: { name: "Shade Kit", icon: "🐈", model: "hare", col: 0x3a3a44, eye: 0xffd54f, scale: 0.6, perk: { drop: 0.03 }, lore: "A sleek black hare with lamp-yellow eyes. Things turn up in its wake." },
+  ash_sprite: { name: "Ash Sprite", icon: "🕯️", model: "wisp", col: 0x9e9e9e, eye: 0xff7043, scale: 0.6, perk: { xp: 0.04 }, lore: "A cinder from the Ember Throne that chose to follow you. It remembers everything you learn." }
+};
+const BUDDY_PERK_TEXT = { xp: v => "+" + Math.round(v * 100) + "% experience", rest: v => "Resting heals " + Math.round(v * 100) + "% faster", eva: v => "+" + v + " evasion", gather: v => "+" + Math.round(v * 100) + "% gathering chance", craft: v => "+" + Math.round(v * 100) + "% synthesis chance", mp: v => "+" + Math.round(v * 100) + "% MP", fish: v => "+" + Math.round(v * 100) + "% catch rate", sell: v => "Shops pay " + Math.round(v * 100) + "% more", drop: v => "+" + Math.round(v * 100) + "% drop chance" };
+const BUDDY_SHOP = [["meadow_kit", 600], ["batling", 900], ["wormlet", 1200]];
+
 const BLESSING = { baseMin: 60, perRankMin: 30, maxMin: 210 };
 
 const RACES = {
@@ -6468,7 +6489,7 @@ const GUILD_BOUNTIES = [
 const GUILD_SHOP = [
   { id: "hi_potion", gp: 6, rank: 0 }, { id: "ether", gp: 8, rank: 0 },
   { id: "guild_ring", gp: 60, rank: 1 }, { id: "pathfinder_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
-  { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
+  { id: "egg_frost_wisp", gp: 150, rank: 2 }, { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
 ];
 
 const ACHIEVEMENTS = [
@@ -6514,6 +6535,7 @@ const ACHIEVEMENTS = [
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
   { id: "story", icon: "🕯️", name: "Keeper of the Embers", desc: "Complete the main story.", gil: 2000, test: s => !!(s.story && s.story.done) },
+  { id: "petkeeper", icon: "🐾", name: "Pet Keeper", desc: "Own five pets.", gil: 300, test: s => (s.buddies || []).length >= 5 },
   { id: "auction", icon: "⚖️", name: "Market Savvy", desc: "Sell 10 lots at the auction house.", gil: 300, test: s => (s.stats.ahSold || 0) >= 10 },
   { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", gil: 100, test: s => (s.stats.bounties || 0) >= 1 },
   { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", gil: 400, test: s => (s.guild && s.guild.total || 0) >= 700 },
@@ -6555,7 +6577,7 @@ const STAT_LABELS = { str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT"
 const FISH = {
   outpost: [["pond_minnow", 0, 10], ["moat_carp", 3, 3]],
   hollow: [["moat_carp", 0, 8], ["silver_shad", 4, 5], ["pond_minnow", 0, 3], ["lakeking_pike", 12, 0.6]],
-  harbor: [["harbor_bream", 2, 8], ["sea_bass", 9, 5], ["pond_minnow", 0, 2], ["tidecaller_tuna", 16, 0.5]],
+  harbor: [["harbor_bream", 2, 8], ["sea_bass", 9, 5], ["pond_minnow", 0, 2], ["tidecaller_tuna", 16, 0.5], ["egg_tide_wisp", 10, 0.25]],
   marsh: [["mud_eel", 4, 7], ["bog_perch", 7, 5], ["moat_carp", 0, 2], ["ghost_koi", 14, 0.5, "storm"], ["ghost_koi", 14, 0.4, "rain"]]
 };
 const FISH_CFG = { waitMin: 3, waitMax: 9, bite: 2.4, reach: 70, cap: 20 };
@@ -6678,7 +6700,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
@@ -6719,6 +6741,10 @@ function normalizeSave(d) {
   out.gatherSkill = Object.assign(newSave().gatherSkill, d.gatherSkill || {});
   out.gardens = d.gardens && typeof d.gardens === "object" ? d.gardens : {};
   out.harvests = d.harvests || 0;
+  out.buddies = (Array.isArray(d.buddies) ? d.buddies : []).filter(id => BUDDIES[id]);
+  out.buddyNames = d.buddyNames && typeof d.buddyNames === "object" ? d.buddyNames : {};
+  if (!out.buddies.includes(out.buddy)) out.buddy = null;
+  out.buddyOut = !!out.buddyOut && !!out.buddy;
   out.market = Object.assign(newSave().market, d.market && typeof d.market === "object" ? d.market : {});
   if (!Array.isArray(out.market.listings)) out.market.listings = [];
   if (!Array.isArray(out.market.box)) out.market.box = [];
@@ -6964,12 +6990,12 @@ function buildStats(ch) {
   const rc = ch.kind === "pc" && typeof save !== "undefined" && save.look ? RACES[save.look.race] || RACES.human : null;
   if (rc) for (const k in rc.attrs) s[k] = Math.max(1, Math.round(s[k] + rc.attrs[k] * (1 + lv / 20)));
   s.maxHp = Math.round((hp + g.hp) * (rc ? rc.hp : 1));
-  s.maxMp = Math.round((mp + g.mp) * (rc && mp > 0 ? rc.mp : 1));
+  s.maxMp = Math.round((mp + g.mp) * (rc && mp > 0 ? rc.mp : 1) * (ch.kind === "pc" && mp > 0 ? 1 + buddyPerk("mp") : 1));
   s.acc = Math.round(58 + s.dex * 0.5 + 0.6 * wsk + lv + g.acc);
   s.att = Math.round((10 + s.str + 4 * lv + g.att) * (rc && rc.attMul ? rc.attMul : 1));
   if (rc && rc.rangedAcc && wtype === "archery") s.acc += rc.rangedAcc;
   s.def = Math.round(8 + s.vit * 0.5 + 3 * lv + g.def);
-  s.eva = Math.round(50 + s.agi * 0.5 + 3 * lv + g.eva);
+  s.eva = Math.round(50 + s.agi * 0.5 + 3 * lv + g.eva + (ch.kind === "pc" ? buddyPerk("eva") : 0));
   if (ch.mercId && typeof save !== "undefined" && save.bond) {
     const k = 1 + bondLevel(ch.mercId) * COMPANION_CFG.bondBonus;
     s.maxHp = Math.round(s.maxHp * k); s.maxMp = Math.round(s.maxMp * k); s.att = Math.round(s.att * k); s.def = Math.round(s.def * k); s.acc = Math.round(s.acc * k);
@@ -7513,6 +7539,7 @@ function xpNeed(lv) { return lv >= CONFIG.levelCap ? 0 : CONFIG.xpTable[lv]; }
 function gainXp(n, chain, quiet) {
   const j = save.jobs[save.mainJob];
   if (j.lv >= CONFIG.levelCap) { if (!quiet) log("You are at the level cap.", "sys"); return; }
+  if (buddyPerk("xp")) n = Math.round(n * (1 + buddyPerk("xp")));
   j.xp += n;
   log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
   popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
@@ -7591,7 +7618,7 @@ function dropLoot(m) {
     if (minLv && m.lv < minLv) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
-    if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1)) continue;
+    if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     if (ITEMS[id].kind === "equip" && S.party.length > 1) { addToPool(id); continue; }
     giveItem(id, 1);
@@ -7673,6 +7700,94 @@ function eatFood(id) {
 
 function foodText(fd) { return Object.keys(fd).map(k => STAT_LABELS[k] + " +" + fd[k]).join(", "); }
 
+function buddyPerk(k) { if (!save.buddy || !save.buddyOut || !BUDDIES[save.buddy]) return 0; return BUDDIES[save.buddy].perk[k] || 0; }
+function buddyName(id) { return save.buddyNames[id] || BUDDIES[id].name; }
+
+function learnBuddy(id) {
+  if (!BUDDIES[id]) return false;
+  if (save.buddies.includes(id)) { log("You already have " + an(BUDDIES[id].name) + ".", "sys"); return false; }
+  save.buddies.push(id);
+  if (!save.buddy) save.buddy = id;
+  log(BUDDIES[id].name + " joins you as a pet! Open the Pets window to summon it.", "loot");
+  sfx("unlock");
+  uiEvent("buddy", { id });
+  checkAchievements();
+  saveGame();
+  return true;
+}
+
+function equipBuddy(id) {
+  if (!save.buddies.includes(id)) return "You don't have that pet.";
+  const out = save.buddyOut;
+  if (out) dismissBuddy(true);
+  save.buddy = id;
+  if (out) summonBuddy();
+  saveGame();
+  return "";
+}
+
+function nameBuddy(id, name) {
+  name = String(name || "").replace(/[^A-Za-z' -]/g, "").trim().slice(0, 12);
+  if (!save.buddies.includes(id)) return "You don't have that pet.";
+  if (name.length < 2) delete save.buddyNames[id]; else save.buddyNames[id] = name.replace(/^./, c => c.toUpperCase());
+  if (S.buddy && S.buddy.petId === id) S.buddy.name = buddyName(id);
+  saveGame();
+  return "";
+}
+
+function summonBuddy() {
+  if (!save.buddy || !BUDDIES[save.buddy]) return "Choose a pet first.";
+  if (S.zone && S.zone.battlefield) return "Pets stay out of the battlefield.";
+  if (S.buddy) dismissBuddy(true);
+  const B = BUDDIES[save.buddy];
+  const b = { kind: "buddy", buddy: true, petId: save.buddy, name: buddyName(save.buddy), alive: true, x: player.x - Math.cos(player.face) * 36, y: player.y - Math.sin(player.face) * 36, px: 0, py: 0, face: player.face, speed: 170, radius: 8, buffs: {}, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wander: 0, idleT: 0 };
+  b.px = b.x; b.py = b.y;
+  S.buddy = b;
+  save.buddyOut = true;
+  log(b.name + " comes to your side.", "sys");
+  ring(b, "#ffd54f", 18, 0.5, "sparkle");
+  sfx("buff", b);
+  refreshPlayer(false);
+  saveGame();
+  return "";
+}
+
+function dismissBuddy(quiet) {
+  if (!S.buddy) return;
+  const b = S.buddy;
+  S.buddy = null;
+  save.buddyOut = false;
+  if (!quiet) { log(b.name + " curls up and vanishes into your pack.", "sys"); sfx("close"); }
+  refreshPlayer(false);
+  saveGame();
+}
+
+function toggleBuddy() {
+  if (S.buddy) { dismissBuddy(false); return ""; }
+  return summonBuddy();
+}
+
+function tickBuddy(dt) {
+  const b = S.buddy;
+  if (!b) return;
+  if (!player.alive || S.ko || (S.zone && S.zone.battlefield)) { dismissBuddy(true); return; }
+  const mounted = player.mounted;
+  const behind = { x: player.x - Math.cos(player.face) * 26 + Math.sin(player.face) * 34, y: player.y - Math.sin(player.face) * 26 - Math.cos(player.face) * 34 };
+  const d = Math.hypot(behind.x - b.x, behind.y - b.y);
+  if (d > 650) { b.x = behind.x; b.y = behind.y; b.px = b.x; b.py = b.y; return; }
+  if (d > 14) {
+    b.wander = 0;
+    moveToward(b, behind.x, behind.y, dt, 6, (mounted ? mountMul() : 1) * (d > 120 ? 1.5 : 1));
+  } else {
+    b.idleT += dt;
+    if (b.idleT > 4 + (b.wander || 0)) { b.idleT = 0; b.wander = 2 + Math.random() * 4; b.wx = player.x + rand(-50, 50); b.wy = player.y + rand(-50, 50); }
+    if (b.wander > 0 && b.wx != null) { if (moveToward(b, b.wx, b.wy, dt, 4, 0.5)) b.wx = null; }
+    else b.face += normAng(Math.atan2(player.y - b.y, player.x - b.x) - b.face) * Math.min(1, dt * 3);
+  }
+  b.resting = !!player.resting;
+  keepOutOfColliders(b);
+}
+
 function blessingMinutes() { return Math.min(BLESSING.maxMin, BLESSING.baseMin + BLESSING.perRankMin * guildRank()); }
 function blessed() { return !!(save.blessing && save.blessing > Date.now()); }
 
@@ -7752,7 +7867,7 @@ function reelFish() {
   S.fish = null;
   const [id, lv] = pickFish();
   const skill = save.gatherSkill.fishing || 0;
-  const chance = clamp(62 + (skill - lv) * 6 + (invCount("sea_rod") > 0 ? 10 : 0), 12, 95);
+  const chance = clamp(62 + (skill - lv) * 6 + (invCount("sea_rod") > 0 ? 10 : 0) + buddyPerk("fish") * 100, 12, 95);
   if (Math.random() * 100 >= chance) { log("You reel in hard, but the line goes slack. It got away.", "sys"); sfx("miss", player); return; }
   save.stats.fish++;
   if (id === "tidecaller_tuna") save.stats.tuna = (save.stats.tuna || 0) + 1;
@@ -8532,6 +8647,7 @@ function useItem(id) {
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
   if (it.kind === "food") { eatFood(id); return; }
+  if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
   if (it.mpRestore && player.mp >= player.maxMp) { log("Your MP is already full.", "sys"); sfx("error"); return; }
@@ -9138,8 +9254,9 @@ function regen(p, dt) {
   p.regenerating = can && (p.hp < p.maxHp || p.mp < p.maxMp);
   p.restHealing = rest && (p.hp < p.maxHp || p.mp < p.maxMp);
   if (!can) return;
-  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * (rest ? CONFIG.restHp : CONFIG.regenHp) * dt);
-  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * (rest ? CONFIG.restMp : CONFIG.regenMp) * dt);
+  const rb = rest && p === player ? 1 + buddyPerk("rest") : 1;
+  p.hp = Math.min(p.maxHp, p.hp + p.maxHp * (rest ? CONFIG.restHp : CONFIG.regenHp) * dt * rb);
+  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * (rest ? CONFIG.restMp : CONFIG.regenMp) * dt * rb);
 }
 
 function tickCasting(e) {
@@ -9271,7 +9388,7 @@ function doGather(n) {
   sfx(type === "mining" ? "blunt" : type === "logging" ? "slash" : "miss", player);
   vfx("hit", { src: player, tgt: n, crit: false, slash: type === "logging" });
   let got = null;
-  for (const [id, chance] of n.loot) if (Math.random() < chance * (1 + skill * 0.01)) { got = id; break; }
+  for (const [id, chance] of n.loot) if (Math.random() < chance * (1 + skill * 0.01 + buddyPerk("gather"))) { got = id; break; }
   save.stats.gathers++;
   if (got) { giveItem(got, 1); log("You " + G.verb + " up " + an(ITEMS[got].name) + ".", "loot"); }
   else { log("You " + G.verb + " but find nothing worth keeping.", "sys"); }
@@ -9285,7 +9402,7 @@ function doGather(n) {
 
 function craftSkill(c) { return save.crafts[c] || 0; }
 function recipeMatsOk(r) { return Object.keys(r.mats).every(id => invCount(id) >= r.mats[id]) && invCount(CRAFTS[r.craft].crystal) >= 1; }
-function synthChance(r) { return clamp(65 + 7 * (craftSkill(r.craft) - r.lv), 5, 95); }
+function synthChance(r) { return clamp(65 + 7 * (craftSkill(r.craft) - r.lv) + buddyPerk("craft") * 100, 5, 95); }
 function synthHqChance(r) { return r.hq ? clamp(5 * (craftSkill(r.craft) - r.lv), 0, 50) : 0; }
 function canSynth(r) {
   if (!FEATURES.crafting) return "Crafting isn't available yet.";
@@ -9553,6 +9670,7 @@ function step(dt) {
   if (S.fish) tickFish();
   if (S.race) tickRace();
   if (S.pet) tickPet();
+  tickBuddy(dt);
   tickStory();
   if (S.time >= (S.ahNext || 0)) { S.ahNext = S.time + 1; if (save.market.listings.length) tickAuction(); }
   if (S.bf) tickBattlefield();
@@ -9813,7 +9931,7 @@ function advanceStory() {
   if (save.story.step >= c.steps.length) {
     save.story.ch++;
     save.story.step = 0;
-    if (save.story.ch >= STORY.length) save.story.done = true;
+    if (save.story.ch >= STORY.length) { save.story.done = true; learnBuddy("ash_sprite"); }
     log("Story chapter complete: " + c.name + ".", "lvl");
     uiEvent("story", { name: c.name, reward: c.reward });
     giveReward(c.reward);
@@ -10218,12 +10336,14 @@ const TALK = {
     const q = save.quests;
     if (save.mountLicense) {
       openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. I can dye her coat, sell you a faster saddle, or time you on the Hollow Run." + (save.race.best != null ? " Your best run: " + save.race.best + "s." : ""), [
+        { label: "Pets (buy and summon)", fn: () => { closeDialog(); openModal("pets"); } },
         { label: "Stable (coats and saddle)", fn: () => { closeDialog(); openModal("stable"); } },
         { label: "Run the Hollow course", fn: () => { closeDialog(); const why = startRace(); if (why) { log(why, "sys"); sfx("error"); } } }
       ]);
       return;
     }
-    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
+    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license. Until then I've a few small creatures looking for a home, if you've a soft heart.", [{ label: "Pets (buy and summon)", fn: () => { closeDialog(); openModal("pets"); } }]); return; }
+    if (false) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
         { label: "I'll get them", fn: () => { q.riding = "active"; log("Quest accepted: " + QUESTS.riding.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
@@ -10409,7 +10529,7 @@ function shopList(kind) {
   });
 }
 
-function sellPrice(id) { const it = ITEMS[id]; return it.rare || it.ex ? 0 : Math.floor(it.price / 4); }
+function sellPrice(id) { const it = ITEMS[id]; return it.rare || it.ex ? 0 : Math.floor(it.price / 4 * (1 + buddyPerk("sell"))); }
 
 function buy(id) {
   const it = ITEMS[id];
@@ -10467,6 +10587,7 @@ function initParty() {
 const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", laugh: "laughs", nod: "nods", clap: "claps", point: "points", salute: "salutes", panic: "panics", cry: "cries", thumbsup: "gives a thumbs up" };
 const COMMANDS = [
   ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
+  ["/pet", "Summon or dismiss your equipped pet."],
   ["/fish", "Cast a line at the water's edge (needs a Willow Rod and Fishing Bait). Type it again when something bites to reel in."],
   ["/weather", "Show the current weather and its element bonus."],
   ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
@@ -10522,6 +10643,7 @@ function runCommand(text) {
   };
   switch (cmd) {
     case "rest": case "heal": case "sit": toggleRest(); return;
+    case "pet": { const why = toggleBuddy(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
     case "fish": { if (S.fish && S.fish.state === "bite") { reelFish(); return; } const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "weather": { const w = weatherNow(); log(w ? "Weather: " + WEATHER_INFO[w].name + (WEATHER_INFO[w].el ? " (" + WEATHER_INFO[w].el + " spells +10%)" : "") + "." : "No weather here.", "sys"); return; }
@@ -10885,7 +11007,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -10949,7 +11071,7 @@ function itemDesc(id) {
 function actIcon(a) {
   if (!a) return "";
   if (a.kind === "item") return (ITEMS[a.id] && ITEMS[a.id].icon) || "❔";
-  if (a.kind === "cmd") return "💤";
+  if (a.kind === "cmd") return a.id === "pet" ? (save.buddy && BUDDIES[save.buddy] ? BUDDIES[save.buddy].icon : "🐾") : "💤";
   if (a.kind === "ws") return "⚔";
   if (a.kind === "ja") return ACT_ICON[a.id] || "✦";
   return SPELL_ICON[a.id] || "✧";
@@ -10957,13 +11079,14 @@ function actIcon(a) {
 function actName(a) {
   if (!a) return "";
   if (a.kind === "item") return ITEMS[a.id] ? ITEMS[a.id].name : a.id;
-  if (a.kind === "cmd") return "Rest";
+  if (a.kind === "cmd") return a.id === "pet" ? "Pet" : "Rest";
   if (a.kind === "ws") return WEAPON_SKILLS[a.id].name;
   if (a.kind === "ja") return ABILITIES[a.id].name;
   return SPELLS[a.id].name;
 }
 function actDesc(a) {
   if (a.kind === "item") return ITEMS[a.id].desc || "";
+  if (a.kind === "cmd" && a.id === "pet") return "Summon or dismiss your equipped pet (/pet). Choose pets in the Pets window.";
   if (a.kind === "cmd") return "Sit down to recover HP and MP quickly (/rest). Use again or move to stand.";
   if (a.kind === "ws") { const w = WEAPON_SKILLS[a.id]; return "Weapon skill · 1000 TP · " + w.props.join("/"); }
   if (a.kind === "ja") { const b = ABILITIES[a.id]; return "Ability · recast " + b.recast + "s · " + (b.desc || ""); }
@@ -10987,6 +11110,12 @@ function hotbar() {
     hb.pages[1][0] = { kind: "item", id: "potion" };
     hb.pages[1][1] = { kind: "item", id: "ether" };
     hb.pages[1][2] = { kind: "item", id: "hi_potion" };
+  }
+  if (!hb.petAdded && save.buddies && save.buddies.length) {
+    hb.petAdded = true;
+    if (!hb.pages.some(pg => pg.some(x => x && x.kind === "cmd" && x.id === "pet"))) {
+      for (const pg of hb.pages) { const i = pg.findIndex(x => !x); if (i >= 0) { pg[i] = { kind: "cmd", id: "pet" }; break; } }
+    }
   }
   if (!hb.restAdded) {
     hb.restAdded = true;
@@ -11073,7 +11202,7 @@ function updateActionBar() {
     const a = s.a;
     if (!a) return;
     let cost = "", cdLeft = 0, cdTotal = 1, ready = true, chip = "", burst = false;
-    if (a.kind === "cmd") { ready = player.alive; cost = player.resting ? "on" : ""; }
+    if (a.kind === "cmd") { ready = player.alive && (a.id !== "pet" || !!save.buddy); cost = a.id === "pet" ? (S.buddy ? "on" : "") : (player.resting ? "on" : ""); }
     else if (a.kind === "item") {
       const n = invCount(a.id);
       cost = "×" + n;
@@ -11493,6 +11622,7 @@ function uiEvent(type, d) {
   if (type === "bf") { toast("🔱", "Victory!", d.prize ? ITEMS[d.prize].name : "The chapel is quiet", "r-epic"); return; }
   if (type === "race") { UI.mmForce = true; return; }
   if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
+  if (type === "buddy") { toast(BUDDIES[d.id].icon, "New pet", BUDDIES[d.id].name, "r-rare"); return; }
   if (type === "ahsold") { toast("⚖️", "Sold at auction", ITEMS[d.id].name + " · +" + d.price + " 💠", "r-rare"); return; }
   if (type === "story") { banner("CHAPTER COMPLETE", d.name, rewardChips(d.reward)); return; }
   if (type === "guildrank") { banner(GUILD_RANKS[d.rank][0].toUpperCase() + " RANK", "Adventurers' Guild", ["🛒 New guild rewards"]); return; }
@@ -11707,7 +11837,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -11723,11 +11853,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "stable"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "pets", "stable"]) if (S.modal === t) tabs.unshift(t);
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, guild: tabGuild, auction: tabAuction, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, guild: tabGuild, auction: tabAuction, pets: tabPets, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -12418,6 +12548,32 @@ function tabBoard() {
   return h;
 }
 
+function tabPets() {
+  const have = save.buddies, cur = save.buddy;
+  let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around and give one small perk while they\'re out. They never fight and can\'t be attacked. Equip one, then summon it here, with the Pet button on your action bar, or with /pet.</div>';
+  if (UI.petMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.petMsg) + "</div>";
+  if (cur && BUDDIES[cur]) {
+    const B = BUDDIES[cur];
+    h += '<div class="item" style="border-color:#c9a227"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:28px">' + B.icon + "</span><div><b>" + esc(buddyName(cur)) + '</b> <span class="sub">· ' + esc(B.name) + '</span><div class="sub">' + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div><div style=\"display:flex;gap:6px\"><button data-a=\"petname\" data-v=\"" + cur + '">Rename</button><button class="pri" data-a="petsummon">' + (S.buddy ? "Dismiss" : "Summon") + "</button></div></div>";
+  } else h += '<div class="sub" style="margin-bottom:8px">No pet equipped.</div>';
+  h += "<h3>Your pets (" + have.length + ")</h3>";
+  if (!have.length) h += '<div class="sub">None yet. Ysolde sells a few, others come from notorious monsters, fishing, the Adventurers\' Guild and the story.</div>';
+  for (const id of have) {
+    const B = BUDDIES[id];
+    h += '<div class="item"' + (id === cur ? ' style="border-color:#c9a227"' : "") + '><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(buddyName(id)) + (save.buddyNames[id] ? ' <span class="sub">(' + esc(B.name) + ")</span>" : "") + '</b><div class="sub">' + esc(B.lore) + " · " + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div>" + (id === cur ? '<span class="sub">Equipped ✓</span>' : '<button data-a="petsel" data-v="' + id + '">Equip</button>') + "</div>";
+  }
+  if (S.modal === "pets" && S.npcs.some(n => n.id === "ysolde" && dist(n, player) < 200)) {
+    h += "<h3>Ysolde's pens</h3>";
+    for (const [id, price] of BUDDY_SHOP) {
+      const B = BUDDIES[id], own = have.includes(id);
+      h += '<div class="item"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(B.name) + '</b><div class="sub">' + esc(B.lore) + " · " + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div>" + (own ? '<span class="sub">Owned ✓</span>' : '<button data-a="petbuy" data-v="' + id + '"' + (save.gil < price ? " disabled" : "") + ">" + price + " 💠</button>") + "</div>";
+    }
+  }
+  const others = Object.keys(BUDDIES).filter(id => !have.includes(id) && !BUDDY_SHOP.some(s => s[0] === id));
+  if (others.length) h += '<h3>Still to find</h3><div class="sub">' + others.map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(" · ") + "</div>";
+  return h;
+}
+
 function sparkline(vals, w, h) {
   const lo = Math.min(...vals), hi = Math.max(...vals), rg = Math.max(1, hi - lo);
   const pts = vals.map((v, i) => (i / (vals.length - 1) * w).toFixed(1) + "," + (h - 3 - (v - lo) / rg * (h - 6)).toFixed(1)).join(" ");
@@ -12606,6 +12762,10 @@ function onMenuClick(e) {
   else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
   else if (a === "coat") { UI.stableMsg = buyCoat(v); renderModal(); return; }
   else if (a === "saddle") { UI.stableMsg = buySaddle(); renderModal(); return; }
+  else if (a === "petsel") { UI.petMsg = equipBuddy(v); renderModal(); return; }
+  else if (a === "petsummon") { UI.petMsg = toggleBuddy(); renderModal(); return; }
+  else if (a === "petbuy") { const e = BUDDY_SHOP.find(x => x[0] === v); if (!e) return; if (save.gil < e[1]) { UI.petMsg = "You need " + e[1] + " crystals."; sfx("error"); } else { save.gil -= e[1]; learnBuddy(v); UI.petMsg = ""; } renderModal(); return; }
+  else if (a === "petname") { const cur = save.buddyNames[v] || ""; const nm = prompt("Name your " + BUDDIES[v].name + " (2–12 letters, blank to reset):", cur); if (nm !== null) { UI.petMsg = nameBuddy(v, nm); renderModal(); } return; }
   else if (a === "ahview") { UI.ahView = v; UI.ahSel = null; UI.ahMsg = ""; renderModal(); return; }
   else if (a === "ahcat") { UI.ahCat = v; UI.ahSel = null; renderModal(); return; }
   else if (a === "ahsel") { UI.ahSel = v; UI.ahMsg = ""; const it = ITEMS[v]; UI.ahQty = UI.ahView === "sell" ? Math.min(invCount(v), it.stack || 1) : 1; UI.ahPrice = marketPrice(v) * UI.ahQty; renderModal(); return; }
@@ -12675,8 +12835,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v6.4.0 · built 2026-10-13 17:10 PDT";
+const BUILD_INFO = "v6.5.0 · built 2026-10-13 17:29 PDT";
 const UPDATES = [
+  { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
+    "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
+    "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
+    "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
+    "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
   { v: "6.4.0", date: "2026-10-13", title: "Five Races and the City Blessing", items: [
     "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like; the best casters, fast, but weak and frail), Ursan (huge; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
     "Race changes your body shape, ears and tail, and gives modest stat bonuses and penalties. Existing characters are Human.",
@@ -12946,6 +13112,12 @@ function tabHelp() {
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
+  h += sec("🐾 Pets", ul([
+    "Pets are small companions that follow you around. They never fight and can't be attacked, and each gives one small perk while it's out: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name + " (" + Object.keys(BUDDIES[id].perk).map(k => BUDDY_PERK_TEXT[k](BUDDIES[id].perk[k])).join(", ") + ")").join(", ") + ".",
+    "Open the <b>Pets</b> window (Ysolde offers it, or the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
+    "Where to find them: Ysolde sells the Meadow Kit, Batling and Wormlet. The Frost Wisp is a guild reward (Iron rank). Rimefang, Duskwing, Mirelord Gax and the Ashen Herald can drop pet items; the Tide Wisp is fished up in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
+    "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
+  ]));
   h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
     "Pick a race at character creation. It's permanent, like the rest of your appearance. Race shapes your body and gives small stat bonuses and penalties that grow a little with level; your job still matters far more.",
     "Elari get extra accuracy with bows. Pipkin and Nekari move faster; Ursan a little slower. HP and MP are multiplied: Ursan +25% HP but −25% MP, Pipkin −20% HP but +30% MP."
@@ -13132,7 +13304,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "6.4.0";
+const GAME_VERSION = "6.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -15408,6 +15580,21 @@ function batEntry(col, eye) {
   return R.finish();
 }
 
+function wispEntry(col, eye) {
+  const R = new RigBuilder();
+  const Y = 1.3;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y, 0);
+  const light = new THREE.Color(col).lerp(new THREE.Color(0xffffff), 0.5).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.17, 1, 1.1, 1, 14), "body", col, "glow", true);
+  R.add(gBall(V3(0, Y + 0.02, 0.04), 0.1, 1, 1, 1, 10), "body", light, "glow", true);
+  for (const s of [-1, 1]) R.add(gBall(V3(s * 0.06, Y + 0.03, 0.14), 0.025, 1, 1.3, 0.6, 6), "head", eye || 0xffffff, "glow", true);
+  for (let i = 0; i < 3; i++) R.add(gTaper(V3(0, Y - 0.08 - i * 0.02, -0.1 - i * 0.1), V3((i - 1) * 0.06, Y - 0.3 - i * 0.08, -0.3 - i * 0.12), 0.05 - i * 0.012, 0.004, 6), "body", col, "glow", true);
+  R.meta = { kind: "bat", headTop: Y + 0.25 };
+  return R.finish();
+}
+
 function wormEntry(col) {
   const R = new RigBuilder();
   const Y = 0.32, n = 8;
@@ -15738,6 +15925,14 @@ function buildEntityRig(e) {
     sig = "n|" + e.id;
     make = () => humanEntry(L);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
+  } else if (e.buddy) {
+    const B = BUDDIES[e.petId];
+    sig = "buddy|" + e.petId;
+    if (B.model === "hare") make = () => hareEntry(B.col);
+    else if (B.model === "bat") make = () => batEntry(B.col, B.eye || 0xff3030);
+    else if (B.model === "wisp") make = () => wispEntry(B.col, B.eye);
+    else if (B.model === "worm") make = () => wormEntry(B.col);
+    else { const L = goblinLook("goblin"); L.weapon = null; L.sack = false; make = () => humanEntry(L); }
   } else if (e.pet) {
     const P = PETS[e.petKey];
     sig = "pet|" + e.petKey;
@@ -15795,6 +15990,7 @@ function playerBase() { return baseFromLook(save.look); }
 
 function rigSigFor(e) {
   if (e.pet) return "pet|" + e.petKey;
+  if (e.buddy) return "buddy|" + e.petId;
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
   if (e.kind === "npc") return "n|" + e.id;
   return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);
@@ -16900,7 +17096,7 @@ function viewFor(e) {
   if (!inst) return null;
   const group = new THREE.Group();
   group.add(inst.mesh);
-  const s = isMob(e) ? (e.fam.scale || 1) : 1;
+  const s = isMob(e) ? (e.fam.scale || 1) : e.buddy ? (BUDDIES[e.petId].scale || 0.6) : 1;
   group.scale.setScalar(s);
   const hitR = Math.max(0.55, (e.radius || 14) * U * 1.1 / s);
   const top = inst.meta.headTop || 2;
@@ -16914,7 +17110,8 @@ function viewFor(e) {
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
     style: styleFor(e), stride: kind === "hare" ? 1.2 : 1.7, scale: s, mount: null, sink: 0
   };
-  if (isMob(e)) v.an = null;
+  if (isMob(e) || e.buddy) v.an = null;
+  if (e.buddy) v.pick.visible = false;
   W3.scene.add(group);
   VIEW.views.set(e, v);
   return v;
@@ -17243,8 +17440,9 @@ function labelFor(e) {
 
 function updateLabels() {
   const seen = new Set();
-  const all = S.party.concat(S.mobs, S.npcs);
+  const all = S.party.concat(S.mobs, S.npcs, S.buddy ? [S.buddy] : []);
   for (const e of all) {
+    if (e.buddy) continue;
     if (e === player && VIEW.first) continue;
     if (isMob(e) && (!e.alive || e.despawned)) continue;
     if (e.kind === "npc" && e.away) continue;
@@ -17260,13 +17458,14 @@ function updateLabels() {
     let name = e === player ? save.name : e.name, col = "#cfe6ff";
     if (isMob(e)) { col = e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
     if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
+    if (e.buddy) col = "#ffd54f";
     const other = isMob(e) || e.kind === "npc";
     if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
     nameEl.style.display = name ? "" : "none";
     if (nameEl.textContent !== name) nameEl.textContent = name;
     nameEl.style.color = col;
     el.classList.toggle("tgt", isT);
-    const showHp = e.kind !== "npc" && (isParty(e) || isT || e.state === "combat");
+    const showHp = e.kind !== "npc" && !e.buddy && (isParty(e) || isT || e.state === "combat");
     bar.style.display = showHp ? "block" : "none";
     if (showHp) { bar.firstChild.style.width = clamp(100 * e.hp / e.maxHp, 0, 100) + "%"; bar.firstChild.style.background = isMob(e) ? "#e05050" : "#7fd06b"; }
     const cast = e.casting ? (S.time - e.casting.start) / (e.casting.end - e.casting.start) : e.readying ? 1 - e.readying.t : -1;
@@ -17720,11 +17919,12 @@ function draw(dt) {
   for (const p of S.party) syncEntity(p, dt);
   for (const m of S.mobs) syncEntity(m, dt);
   for (const n of S.npcs) syncNpc(n, dt);
+  if (S.buddy) syncEntity(S.buddy, dt);
   syncDecor(dt);
   syncBarriers();
   syncFurniture();
   for (const [e, v] of VIEW.views) {
-    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e);
+    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e) || e === S.buddy;
     if (!alive) { destroyView(v); VIEW.views.delete(e); }
   }
   updateCursor();
@@ -18029,6 +18229,7 @@ async function enterWorld(id, fresh) {
   const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : resumePos();
   enterZone(h.zone, h.x, h.y);
   if (h.face != null) player.face = h.face;
+  if (save.buddyOut && save.buddy && typeof summonBuddy === "function") summonBuddy();
   await zoneReady();
   VIEW.booting = false;
   UI.started = true;

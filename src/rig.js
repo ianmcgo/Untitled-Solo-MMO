@@ -679,6 +679,21 @@ function batEntry(col, eye) {
   return R.finish();
 }
 
+function wispEntry(col, eye) {
+  const R = new RigBuilder();
+  const Y = 1.3;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y, 0);
+  const light = new THREE.Color(col).lerp(new THREE.Color(0xffffff), 0.5).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.17, 1, 1.1, 1, 14), "body", col, "glow", true);
+  R.add(gBall(V3(0, Y + 0.02, 0.04), 0.1, 1, 1, 1, 10), "body", light, "glow", true);
+  for (const s of [-1, 1]) R.add(gBall(V3(s * 0.06, Y + 0.03, 0.14), 0.025, 1, 1.3, 0.6, 6), "head", eye || 0xffffff, "glow", true);
+  for (let i = 0; i < 3; i++) R.add(gTaper(V3(0, Y - 0.08 - i * 0.02, -0.1 - i * 0.1), V3((i - 1) * 0.06, Y - 0.3 - i * 0.08, -0.3 - i * 0.12), 0.05 - i * 0.012, 0.004, 6), "body", col, "glow", true);
+  R.meta = { kind: "bat", headTop: Y + 0.25 };
+  return R.finish();
+}
+
 function wormEntry(col) {
   const R = new RigBuilder();
   const Y = 0.32, n = 8;
@@ -1009,6 +1024,14 @@ function buildEntityRig(e) {
     sig = "n|" + e.id;
     make = () => humanEntry(L);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
+  } else if (e.buddy) {
+    const B = BUDDIES[e.petId];
+    sig = "buddy|" + e.petId;
+    if (B.model === "hare") make = () => hareEntry(B.col);
+    else if (B.model === "bat") make = () => batEntry(B.col, B.eye || 0xff3030);
+    else if (B.model === "wisp") make = () => wispEntry(B.col, B.eye);
+    else if (B.model === "worm") make = () => wormEntry(B.col);
+    else { const L = goblinLook("goblin"); L.weapon = null; L.sack = false; make = () => humanEntry(L); }
   } else if (e.pet) {
     const P = PETS[e.petKey];
     sig = "pet|" + e.petKey;
@@ -1066,6 +1089,7 @@ function playerBase() { return baseFromLook(save.look); }
 
 function rigSigFor(e) {
   if (e.pet) return "pet|" + e.petKey;
+  if (e.buddy) return "buddy|" + e.petId;
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
   if (e.kind === "npc") return "n|" + e.id;
   return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);

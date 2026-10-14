@@ -11,7 +11,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "inventory", "skills", "actions", "party", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -75,7 +75,7 @@ function itemDesc(id) {
 function actIcon(a) {
   if (!a) return "";
   if (a.kind === "item") return (ITEMS[a.id] && ITEMS[a.id].icon) || "❔";
-  if (a.kind === "cmd") return "💤";
+  if (a.kind === "cmd") return a.id === "pet" ? (save.buddy && BUDDIES[save.buddy] ? BUDDIES[save.buddy].icon : "🐾") : "💤";
   if (a.kind === "ws") return "⚔";
   if (a.kind === "ja") return ACT_ICON[a.id] || "✦";
   return SPELL_ICON[a.id] || "✧";
@@ -83,13 +83,14 @@ function actIcon(a) {
 function actName(a) {
   if (!a) return "";
   if (a.kind === "item") return ITEMS[a.id] ? ITEMS[a.id].name : a.id;
-  if (a.kind === "cmd") return "Rest";
+  if (a.kind === "cmd") return a.id === "pet" ? "Pet" : "Rest";
   if (a.kind === "ws") return WEAPON_SKILLS[a.id].name;
   if (a.kind === "ja") return ABILITIES[a.id].name;
   return SPELLS[a.id].name;
 }
 function actDesc(a) {
   if (a.kind === "item") return ITEMS[a.id].desc || "";
+  if (a.kind === "cmd" && a.id === "pet") return "Summon or dismiss your equipped pet (/pet). Choose pets in the Pets window.";
   if (a.kind === "cmd") return "Sit down to recover HP and MP quickly (/rest). Use again or move to stand.";
   if (a.kind === "ws") { const w = WEAPON_SKILLS[a.id]; return "Weapon skill · 1000 TP · " + w.props.join("/"); }
   if (a.kind === "ja") { const b = ABILITIES[a.id]; return "Ability · recast " + b.recast + "s · " + (b.desc || ""); }
@@ -113,6 +114,12 @@ function hotbar() {
     hb.pages[1][0] = { kind: "item", id: "potion" };
     hb.pages[1][1] = { kind: "item", id: "ether" };
     hb.pages[1][2] = { kind: "item", id: "hi_potion" };
+  }
+  if (!hb.petAdded && save.buddies && save.buddies.length) {
+    hb.petAdded = true;
+    if (!hb.pages.some(pg => pg.some(x => x && x.kind === "cmd" && x.id === "pet"))) {
+      for (const pg of hb.pages) { const i = pg.findIndex(x => !x); if (i >= 0) { pg[i] = { kind: "cmd", id: "pet" }; break; } }
+    }
   }
   if (!hb.restAdded) {
     hb.restAdded = true;
@@ -199,7 +206,7 @@ function updateActionBar() {
     const a = s.a;
     if (!a) return;
     let cost = "", cdLeft = 0, cdTotal = 1, ready = true, chip = "", burst = false;
-    if (a.kind === "cmd") { ready = player.alive; cost = player.resting ? "on" : ""; }
+    if (a.kind === "cmd") { ready = player.alive && (a.id !== "pet" || !!save.buddy); cost = a.id === "pet" ? (S.buddy ? "on" : "") : (player.resting ? "on" : ""); }
     else if (a.kind === "item") {
       const n = invCount(a.id);
       cost = "×" + n;
@@ -619,6 +626,7 @@ function uiEvent(type, d) {
   if (type === "bf") { toast("🔱", "Victory!", d.prize ? ITEMS[d.prize].name : "The chapel is quiet", "r-epic"); return; }
   if (type === "race") { UI.mmForce = true; return; }
   if (type === "pool") { toast("🎲", "Treasure pool", ITEMS[d.id].name, "r-rare"); return; }
+  if (type === "buddy") { toast(BUDDIES[d.id].icon, "New pet", BUDDIES[d.id].name, "r-rare"); return; }
   if (type === "ahsold") { toast("⚖️", "Sold at auction", ITEMS[d.id].name + " · +" + d.price + " 💠", "r-rare"); return; }
   if (type === "story") { banner("CHAPTER COMPLETE", d.name, rewardChips(d.reward)); return; }
   if (type === "guildrank") { banner(GUILD_RANKS[d.rank][0].toUpperCase() + " RANK", "Adventurers' Guild", ["🛒 New guild rewards"]); return; }

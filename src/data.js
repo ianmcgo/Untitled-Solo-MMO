@@ -345,6 +345,12 @@ const ITEMS = {
   ashen_shard: { name: "Ashen Shard", kind: "key", icon: "🕯️", desc: "A sliver of black stone, warm to the touch. Faint letters crawl across it." },
   cinder_mantle: { name: "Cinderweave Mantle", kind: "equip", icon: "🧥", rare: true, nm: true, rarity: "epic", slot: "body", jobs: ALL_J, lv: 19, stats: { def: 24, hp: 40, mp: 40, str: 3, int: 3 }, desc: "Woven from ash that never settles. Faintly warm." },
   ember_ring: { name: "Ember of Ashenreach", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 19, price: 0, stats: { hp: 50, mp: 50, str: 5, int: 5, mnd: 5, att: 8, acc: 8 }, desc: "A ring set with a coal that never cools. Given to the one who kept the embers." },
+  egg_snow_kit: { name: "Snow Kit (pet)", kind: "pet", pet: "snow_kit", icon: "🐇", rare: true, price: 0, desc: "A shivering white kit. Use it to make it your pet." },
+  egg_tide_wisp: { name: "Tide Wisp (pet)", kind: "pet", pet: "tide_wisp", icon: "💧", rare: true, price: 0, desc: "A bubble of seafoam in a jar. Use it to make it your pet." },
+  egg_shade_kit: { name: "Shade Kit (pet)", kind: "pet", pet: "shade_kit", icon: "🐈", rare: true, price: 0, desc: "A black kit curled in a basket. Use it to make it your pet." },
+  egg_mini_gob: { name: "Pocket Goblin (pet)", kind: "pet", pet: "mini_gob", icon: "👺", rare: true, price: 0, desc: "A goblin runt in a sack, surprisingly cheerful. Use it to make it your pet." },
+  egg_ember_wisp: { name: "Ember Wisp (pet)", kind: "pet", pet: "ember_wisp", icon: "🔥", rare: true, price: 0, desc: "A mote of flame in a lantern. Use it to make it your pet." },
+  egg_frost_wisp: { name: "Frost Wisp (pet)", kind: "pet", pet: "frost_wisp", icon: "❄️", rare: true, price: 0, desc: "A shard of cold light in a jar. Use it to make it your pet." },
   guild_ring: { name: "Guild Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 5, price: 0, stats: { hp: 15, mp: 10, acc: 3, att: 3 }, desc: "Bronze-rank token of the Adventurers' Guild." },
   pathfinder_boots: { name: "Pathfinder Boots", kind: "equip", icon: "👢", ex: true, slot: "feet", jobs: ALL_J, lv: 10, price: 0, stats: { def: 7, agi: 3, eva: 4, hp: 10 }, desc: "Iron-rank boots. Made for long roads." },
   silver_insignia: { name: "Silver Insignia", kind: "equip", icon: "💍", ex: true, rarity: "rare", slot: "ring", jobs: ALL_J, lv: 14, price: 0, stats: { hp: 25, mp: 20, str: 2, int: 2, mnd: 2 }, desc: "Silver-rank insignia of the Adventurers' Guild." },
@@ -543,13 +549,13 @@ const FAMILIES = {
 };
 
 const NM_FAMILIES = {
-  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
-  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
+  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["egg_ember_wisp", 0.5], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
+  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["egg_snow_kit", 0.25], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
   frost_wight: { hint: "Whispering Cairns, Frostspire Pass · night", base: "ice_wight", name: "The Frost Wight", hpMul: 3.6, attMul: 1.25, defMul: 1.25, scale: 1.45, aura: "#b3e5fc", loot: [["wight_shroud", 0.3], ["frost_ring", 0.3], ["bone_chip", 1], ["hi_potion", 0.6]], gil: [50, 70], respawn: 720 },
   old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["croaker_charm", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
-  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
+  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["egg_mini_gob", 0.25], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
   grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["scavenger_cap", 0.35], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
-  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["egg_shade_kit", 0.2], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
   king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["moonbloom_seeds", 0.4], ["burrower_trousers", 0.35], ["hare_charm", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
   ossuary_warden: { hint: "Bone Pit, Goblin Den · any time", base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.3], ["gravedigger_boots", 0.35], ["bonecharm_ring", 0.3], ["bone_chip", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 360 }
 };
@@ -1076,6 +1082,21 @@ const STORY = [
   ] }
 ];
 
+const BUDDIES = {
+  meadow_kit: { name: "Meadow Kit", icon: "🐇", model: "hare", col: 0xd8b890, scale: 0.6, perk: { xp: 0.02 }, lore: "A tame young hare from Shepherd's Meadow. Hops along at your heels." },
+  snow_kit: { name: "Snow Kit", icon: "🐇", model: "hare", col: 0xf2f6fa, scale: 0.6, perk: { rest: 0.25 }, lore: "A white hare from the pass, calm as fresh snow. You rest easier with it beside you." },
+  batling: { name: "Batling", icon: "🦇", model: "bat", col: 0x6a5a7a, eye: 0xff8a80, scale: 0.5, perk: { eva: 3 }, lore: "A tiny cave bat that flutters around your head and squeaks at anything sneaking up." },
+  wormlet: { name: "Wormlet", icon: "🪱", model: "worm", col: 0xd8a080, scale: 0.4, perk: { gather: 0.08 }, lore: "A stubby tunnel worm with a nose for ore and roots. Gathering goes better with it digging alongside." },
+  ember_wisp: { name: "Ember Wisp", icon: "🔥", model: "wisp", col: 0xff7043, eye: 0xfff3c0, scale: 0.55, perk: { craft: 0.05 }, lore: "A mote of living flame. It warms your hands at the forge and the cookfire." },
+  frost_wisp: { name: "Frost Wisp", icon: "❄️", model: "wisp", col: 0x81d4fa, eye: 0xffffff, scale: 0.55, perk: { mp: 0.04 }, lore: "A drifting shard of cold light. Its chill keeps your thoughts sharp." },
+  tide_wisp: { name: "Tide Wisp", icon: "💧", model: "wisp", col: 0x4fc3f7, eye: 0xe0f7fa, scale: 0.55, perk: { fish: 0.08 }, lore: "A bubble of seafoam that never pops. Fish come to it." },
+  mini_gob: { name: "Pocket Goblin", icon: "👺", model: "goblin", scale: 0.5, perk: { sell: 0.05 }, lore: "A goblin runt who decided you were its chief. Haggles on your behalf, badly but loudly." },
+  shade_kit: { name: "Shade Kit", icon: "🐈", model: "hare", col: 0x3a3a44, eye: 0xffd54f, scale: 0.6, perk: { drop: 0.03 }, lore: "A sleek black hare with lamp-yellow eyes. Things turn up in its wake." },
+  ash_sprite: { name: "Ash Sprite", icon: "🕯️", model: "wisp", col: 0x9e9e9e, eye: 0xff7043, scale: 0.6, perk: { xp: 0.04 }, lore: "A cinder from the Ember Throne that chose to follow you. It remembers everything you learn." }
+};
+const BUDDY_PERK_TEXT = { xp: v => "+" + Math.round(v * 100) + "% experience", rest: v => "Resting heals " + Math.round(v * 100) + "% faster", eva: v => "+" + v + " evasion", gather: v => "+" + Math.round(v * 100) + "% gathering chance", craft: v => "+" + Math.round(v * 100) + "% synthesis chance", mp: v => "+" + Math.round(v * 100) + "% MP", fish: v => "+" + Math.round(v * 100) + "% catch rate", sell: v => "Shops pay " + Math.round(v * 100) + "% more", drop: v => "+" + Math.round(v * 100) + "% drop chance" };
+const BUDDY_SHOP = [["meadow_kit", 600], ["batling", 900], ["wormlet", 1200]];
+
 const BLESSING = { baseMin: 60, perRankMin: 30, maxMin: 210 };
 
 const RACES = {
@@ -1128,7 +1149,7 @@ const GUILD_BOUNTIES = [
 const GUILD_SHOP = [
   { id: "hi_potion", gp: 6, rank: 0 }, { id: "ether", gp: 8, rank: 0 },
   { id: "guild_ring", gp: 60, rank: 1 }, { id: "pathfinder_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
-  { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
+  { id: "egg_frost_wisp", gp: 150, rank: 2 }, { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
 ];
 
 const ACHIEVEMENTS = [
@@ -1174,6 +1195,7 @@ const ACHIEVEMENTS = [
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
   { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
   { id: "story", icon: "🕯️", name: "Keeper of the Embers", desc: "Complete the main story.", gil: 2000, test: s => !!(s.story && s.story.done) },
+  { id: "petkeeper", icon: "🐾", name: "Pet Keeper", desc: "Own five pets.", gil: 300, test: s => (s.buddies || []).length >= 5 },
   { id: "auction", icon: "⚖️", name: "Market Savvy", desc: "Sell 10 lots at the auction house.", gil: 300, test: s => (s.stats.ahSold || 0) >= 10 },
   { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", gil: 100, test: s => (s.stats.bounties || 0) >= 1 },
   { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", gil: 400, test: s => (s.guild && s.guild.total || 0) >= 700 },
@@ -1215,7 +1237,7 @@ const STAT_LABELS = { str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT"
 const FISH = {
   outpost: [["pond_minnow", 0, 10], ["moat_carp", 3, 3]],
   hollow: [["moat_carp", 0, 8], ["silver_shad", 4, 5], ["pond_minnow", 0, 3], ["lakeking_pike", 12, 0.6]],
-  harbor: [["harbor_bream", 2, 8], ["sea_bass", 9, 5], ["pond_minnow", 0, 2], ["tidecaller_tuna", 16, 0.5]],
+  harbor: [["harbor_bream", 2, 8], ["sea_bass", 9, 5], ["pond_minnow", 0, 2], ["tidecaller_tuna", 16, 0.5], ["egg_tide_wisp", 10, 0.25]],
   marsh: [["mud_eel", 4, 7], ["bog_perch", 7, 5], ["moat_carp", 0, 2], ["ghost_koi", 14, 0.5, "storm"], ["ghost_koi", 14, 0.4, "rain"]]
 };
 const FISH_CFG = { waitMin: 3, waitMax: 9, bite: 2.4, reach: 70, cap: 20 };

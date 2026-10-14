@@ -691,11 +691,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - City Blessing: NPCs guard_east (outpost 985,345), guard_north (harbor 530,80), guard_pass (harbor 1330,340); rig looks guard/guard_f (tabard, helm/cap). TALK.talkGuard → giveBlessing(): save.blessing = now + blessingMinutes() (BLESSING.baseMin 60 + perRankMin 30 × guild rank, max 210), buff "blessing" mirrored from Date.now by tickBlessing (runs with tickFood). dropLoot skips kind "crystal" unless blessed() and xpFor(m.lv, player.lv) > 0. questMarker shows ❗ on guards while unblessed. stats.blessings.
 - Tests: test/p22unit.js; p5shots scenes race_*, guard.
 
+## Phase 24: pets (v6.5.0)
+- `BUDDIES` (data.js): id → {name, icon, model (hare | bat | wisp | worm | goblin), col, eye, scale, perk {k: v}, lore}. BUDDY_PERK_TEXT renders perks. BUDDY_SHOP [[id, price]] sold by Ysolde (Pets window shows her pens when she is within 200 px). Pet items are ITEMS kind "pet" with `pet: id` (egg_*), used from the bag → learnBuddy. Sources: NM loot (rimefang snow kit, duskwing shade kit, gax pocket goblin, herald ember wisp), FISH.harbor egg_tide_wisp, GUILD_SHOP egg_frost_wisp (Iron), story completion learns ash_sprite. Achievement petkeeper (5).
+- Save: buddies [], buddyNames {}, buddy (equipped id), buddyOut. normalizeSave filters. S.buddy is the live entity {kind "buddy", buddy: true, petId, name}: not in S.party or S.mobs (no enmity, untargetable; view pick hidden; labels skipped). view3d draw/alive checks and updateLabels include S.buddy.
+- game.js: learnBuddy, equipBuddy (re-summons if out), nameBuddy (2–12 letters), summonBuddy/dismissBuddy/toggleBuddy, buddyPerk(k) (0 unless out), tickBuddy (follows a point 26 px behind and 34 px beside the player, 1.5× speed when > 120 px, teleports > 650 px, wanders a little when idle, dismissed in battlefields/KO), /pet command, hotbar cmd "pet" auto-added once a pet is owned (hud4 hotbar(), petAdded flag). enterWorld re-summons when buddyOut.
+- Perks wired: xp (gainXp), rest (restTick multiplier for the player), eva/mp (buildStats), gather (doGather), fish (reelFish chance), sell (sellPrice), drop (dropLoot), craft (synthChance).
+- Rig: rigSigFor "buddy|id"; buildEntityRig picks hareEntry/batEntry/wispEntry (new: glow orb with trailing tails, bat pose)/wormEntry/goblin humanEntry without weapon or sack; viewFor scales by BUDDIES.scale.
+- Tests: test/p23unit.js; p5shots scenes pet, pet2, pet3, petmenu.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.5.0 | Phase 24: ten pets that follow you, Pets window, /pet, perks. |
 | 6.4.0 | Phase 23: five playable races, gate guards and the City Blessing (essences need it). |
 | 6.3.0 | Phase 22: auction houses with moving prices, stock, listings and delivery box. |
 | 6.2.0 | Phase 21: eight-chapter main story, Ashen Herald, Ember of Ashenreach. |
