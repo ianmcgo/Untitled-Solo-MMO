@@ -25,6 +25,7 @@ function log(msg, c) {
   const d = document.createElement("div");
   d.className = c || "sys";
   d.textContent = msg;
+  if (["tell", "pchat", "ls", "say", "shout", "loot", "npc"].includes(c) && typeof S !== "undefined") UI.chatFlashUntil = (S.time || 0) + 6;
   el.appendChild(d);
   while (el.children.length > 250) el.removeChild(el.firstChild);
   if (near || $("chat").classList.contains("min")) el.scrollTop = el.scrollHeight;
@@ -886,6 +887,7 @@ function initHud() {
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
   $("btnMenu").onclick = () => S.modal ? closeModal() : openMenu("character");
+  $("btnChat").onclick = () => chatToggle();
   const ci = $("chatIn");
   UI.cmdHist = []; UI.cmdIdx = 0;
   ci.addEventListener("keydown", e => {
@@ -895,7 +897,7 @@ function initHud() {
       ci.value = "";
       if (v) { UI.cmdHist.push(v); if (UI.cmdHist.length > 30) UI.cmdHist.shift(); UI.cmdIdx = UI.cmdHist.length; runCommand(v); }
       ci.blur();
-    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); }
+    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); chatToggle(false); }
     else if (e.key === "ArrowUp") { if (UI.cmdIdx > 0) { UI.cmdIdx--; ci.value = UI.cmdHist[UI.cmdIdx]; } e.preventDefault(); }
     else if (e.key === "ArrowDown") { if (UI.cmdIdx < UI.cmdHist.length) { UI.cmdIdx++; ci.value = UI.cmdHist[UI.cmdIdx] || ""; } e.preventDefault(); }
   });
@@ -940,6 +942,10 @@ function updateFF() {
       setTxt($("ffNetR"), "R " + (typeof NET_RT !== "undefined" ? (NET_RT.recv || 0) % 1000 : 0));
     }
   }
+  const ci = $("chatIn"), typing = document.activeElement === ci;
+  const showChat = tOk || !!UI.cmd || typing || UI.chatPin || S.time < (UI.chatFlashUntil || 0) || !!S.dialog;
+  $("chat").classList.toggle("gone", !showChat);
+  $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);
   const combat = player.engaged || inCombatWith(player);
   $("ffStat").classList.toggle("combat", !!combat && player.alive);
   if (combat) {
@@ -966,4 +972,10 @@ function updateFF() {
   $("target").classList.toggle("locked", showT && isMob(t) && player.engaged && player.attackTarget === t);
   const solo = S.party.length <= 1 && !(typeof NET_PT !== "undefined" && NET_PT.id);
   setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
+}
+
+function chatToggle(force) {
+  UI.chatPin = force == null ? !UI.chatPin : force;
+  if (!UI.chatPin) { const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur(); UI.chatFlashUntil = 0; }
+  if (typeof sfx === "function") sfx("click");
 }

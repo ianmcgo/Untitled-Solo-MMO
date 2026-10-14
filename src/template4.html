@@ -722,6 +722,13 @@
   .eqArrow { text-align: center; color: #ffb060; font-size: 16px; line-height: 1; }
   #mBody .detail .iCard { margin-bottom: 6px; }
   @media (max-width: 760px) { .eqWrap { grid-template-columns: 1fr; } }
+  #ffTop { right: calc(150px + var(--sar)); }
+  #ffNetBox { position: absolute; right: calc(4px + var(--sar)); top: var(--sat); width: 140px; height: 32px; display: none; align-items: center; justify-content: center; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.45); z-index: 6; color: #fff; }
+  #ui.hasTop #ffNetBox { display: flex; }
+  @media (max-width: 720px) { #ffTop { right: calc(104px + var(--sar)); } #ffNetBox { width: 96px; } #ffNet b { font-size: 11px; } }
+  #chat { transition: opacity .25s, transform .25s; }
+  #chat.gone { opacity: 0; transform: translateY(16px); pointer-events: none; }
+  #trBtns { display: flex; gap: 6px; } #btnChat.on { border-color: #ffd070; box-shadow: 0 0 8px rgba(255,200,100,.6); }
 </style>
 </head>
 <body>
@@ -734,7 +741,8 @@
   <div id="flash"></div>
   <div id="joy"><div id="knob"></div></div>
   <div id="ui">
-    <div id="ffTop"><div class="ffCmd">Commands</div><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div></div>
+    <div id="ffTop"><div class="ffCmd">Commands</div><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div>
+    <div id="ffNetBox"><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div>
     <div id="ffStat"><div id="ffBars"><div class="r hp"><em>HP</em><div class="b"><i></i></div><b></b></div><div class="r mp"><em>MP</em><div class="b"><i></i></div><b></b></div><div class="r tp"><em>TP</em><div class="b"><i></i></div><b></b></div></div><div id="ffIcons"></div></div>
     <div id="ffSide"><div class="ffHead" id="ffTHead"><span>Target</span></div>
     <div id="target" class="glass">
@@ -756,7 +764,7 @@
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
-      <div id="trBtns"><button id="btnMenu" title="Menu (Esc)">☰</button></div>
+      <div id="trBtns"><button id="btnChat" title="Show the log (/)">💬</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.0.0",
-  "releaseTitle": "Equipment and classic windows",
+  "version": "9.0.1",
+  "releaseTitle": "Tidier screen",
   "description": "",
   "main": "index.js",
   "scripts": {

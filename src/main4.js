@@ -19,6 +19,7 @@ function onKey(e) {
   if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
   if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
+  if (k === "l" && !S.modal) { chatToggle(); return; }
   if (k === "f") { toggleEngage(false); return; }
   if (k === "enter") { const t = player.target; if (t && (isMob(t) && t.alive || t.kind === "remote")) tgtCmdOpen(t); else if (nearNpc() && dist(nearNpc(), player) <= CONFIG.talkRange) talkNearest(); else tgtCmdOpen(player); return; }
   if (menuKeys[k]) { openMenu(menuKeys[k]); return; }
@@ -27,6 +28,7 @@ function onKey(e) {
   if (k === "[") { setPage(UI.page - 1); return; }
   if (k === "]") { setPage(UI.page + 1); return; }
   if (k === "escape" && UI.cmd) { tgtCmdClose(); return; }
+  if (k === "escape" && (UI.chatPin || S.time < (UI.chatFlashUntil || 0)) && !player.target) { chatToggle(false); return; }
   if (k === "escape") {
     if (player.casting) { player.casting = null; log("You stop casting.", "sys"); }
     else if (player.target && !player.engaged) player.target = null;
