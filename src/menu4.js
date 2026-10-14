@@ -349,7 +349,7 @@ function renderShowcase(now) {
 function startShowcase() {
   const wrap = $("ldPv");
   if (!wrap || typeof attachPreview !== "function" || !RIG.atlas) return;
-  if (window.innerWidth <= 720 || W3.quality === "low" || (navigator.deviceMemory && navigator.deviceMemory < 4)) return;
+  if (UI.showcase) return;
   attachPreview("ldPv");
   if (!UI.pv || UI.pv.failed) return;
   const key = LORE_KEYS[Math.floor(Math.random() * LORE_KEYS.length)];
@@ -1478,6 +1478,16 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.2.0", date: "2026-10-14", title: "Harbor, Ironvale and fixes", items: [
+    "Saltreach Harbor and Ironvale are now districted cities with their own look. Saltreach has timber and whitewashed harbor buildings, a lighthouse, slipways and a sea wall on the south side; Ironvale has dark stone halls, smelters, a keep and mine heads, with snow on the roofs.",
+    "Fallen hirelings now stay where they died for an hour instead of following you to town. Walk back and raise them before the hour is up, or they leave the party.",
+    "New item: Phoenix Down (3500 crystals at Pell's) revives a KO'd hireling, party member or friend with half their HP. If you are KO'd yourself, open your items and use it to get back up. Ember Plume now works the same way for a fifth of your HP.",
+    "Names and labels no longer show through walls and buildings.",
+    "Prompts such as the exit confirmation close when you walk away, and the box is only as wide as its text.",
+    "The loading screen no longer shows the version, fun fact or credits; the 3D model showcase appears again on phones.",
+    "The character select screen fits on a phone without a scroll bar, and the character creator fits too.",
+    "The item menu can be closed on a phone and items have a Use button."
+  ] },
   { v: "15.1.0", date: "2026-10-14", title: "Outpost city", items: [
     "Every building in Ashenreach Outpost has been rebuilt as a proper city building: stone plinths, two- and three-storey houses with timber framing and overhanging upper floors, gable walls, windows with frames, sills, shutters and flower boxes, doors with steps and a lantern that lights at night, and chimneys.",
     "Government District: Rhea's stone barracks with training dummies, a weapon rack and the Ashenreach flag; the new City Hall, three storeys with a clock tower whose hands follow the in-game time; Maera's Adventurers' Guild; Brann's Mercenary Hall; Tobin's Job Master hall; and a square with a fountain and benches.",
@@ -2350,6 +2360,10 @@ function tabHelp() {
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
+  ]));
+  h += sec("💀 Falling and reviving", ul([
+    "A hireling who falls stays where they died for an hour. They do not follow you through gates or zone changes, and returning to your home point does not heal them. Walk back and use Raise, a Phoenix Down or an Ember Plume on them, or they leave the party when the hour ends.",
+    "<b>Phoenix Down</b> (Pell's shop) revives with half HP, <b>Ember Plume</b> with a fifth. Use them on a KO'd hireling, party member or friend. When you are KO'd yourself, open your items and use one on yourself."
   ]));
   h += sec("📴 Offline play", ul([
     "Choose <b>Play Offline</b> after Press Start to play without an account. Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",

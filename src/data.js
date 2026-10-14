@@ -274,7 +274,8 @@ const ITEMS = {
   potion_hq: { name: "Potion +1", kind: "use", icon: "🧪", hq: true, heal: 85, price: 60, stack: 12, desc: "Restores 85 HP." },
   hi_potion: { name: "Hi-Potion", kind: "use", icon: "⚗️", heal: 150, price: 160, stack: 12, desc: "Restores 150 HP." },
   ether: { name: "Ether", kind: "use", icon: "💧", mpRestore: 40, price: 100, stack: 12, desc: "Restores 40 MP." },
-  ember_plume: { name: "Ember Plume", kind: "use", icon: "🪶", revive: 0.2, price: 1200, stack: 12, desc: "A warm red feather that rekindles the fallen. Target a KO'd party member and use it to revive them with a fifth of their HP." },
+  phoenix_down: { name: "Phoenix Down", kind: "use", icon: "🔥", revive: 0.5, price: 3500, stack: 12, desc: "A glowing feather that pulls someone back from the brink. Use it on a KO'd party member or hireling to revive them with half their HP. If you are KO'd yourself, use it from the item menu to get back up." },
+  ember_plume: { name: "Ember Plume", kind: "use", icon: "🪶", revive: 0.2, price: 1200, stack: 12, desc: "A warm red feather that rekindles the fallen. Use it on a KO'd party member or hireling, or on yourself when KO'd, to revive with a fifth of their HP." },
   ether_hq: { name: "Ether +1", kind: "use", icon: "💧", hq: true, mpRestore: 55, price: 140, stack: 12, desc: "Restores 55 MP." },
   fire_crystal: { name: "Fire Essence", kind: "crystal", icon: "🔥", element: "fire", price: 30, stack: 12, desc: "Used in Smithing crafting." },
   wind_crystal: { name: "Wind Essence", kind: "crystal", icon: "🌪️", element: "wind", price: 30, stack: 12, desc: "Used in Woodworking crafting." },
@@ -740,7 +741,7 @@ for (const id in ITEMS) {
   if ((it.jobs.includes("WHM") || it.jobs.includes("BLM")) && !it.jobs.includes("GEO")) it.jobs.push("GEO");
   if ((it.jobs.includes("PLD") || it.jobs.includes("WAR")) && !it.jobs.includes("RUN")) it.jobs.push("RUN");
 }
-const SHOP = ["ember_plume", "leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
+const SHOP = ["ember_plume", "phoenix_down", "leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -1116,30 +1117,49 @@ ZONES.crypt = {
 };
 ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
 ZONES.harbor = {
-  name: "Saltreach Harbor", w: 1400, h: 1000, safe: true, theme: "town",
-  exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }, { x: 1376, y: 380, w: 24, h: 100, to: "frost", tx: 110, ty: 1200, label: "Frostspire Pass" }],
-  props: [{ type: "crates", x: 440, y: 640, r: 30 }, { type: "desk", x: 560, y: 455, r: 22 }, { type: "barrels", x: 960, y: 640, r: 26 }],
-  ambient: [{ type: "gull", x: 700, y: 700, n: 5, r: 160 }, { type: "cat", x: 500, y: 560, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 700, y: 500, n: 1, path: [[500, 300], [900, 300], [900, 620], [500, 620]] }, { type: "walker", x: 700, y: 500, n: 1, path: [[700, 200], [700, 640], [1000, 500]] }],
+  name: "Saltreach Harbor", w: 1800, h: 1300, safe: true, theme: "town", city: "Saltreach", cityStyle: "harbor", paved: true, outerWall: "new",
+  districts: [
+    { id: "fish", name: "Fish Market", x: 24, y: 24, w: 596, h: 956, color: "#4fa0c8", icon: "🐟" },
+    { id: "square", name: "Harbor Square", x: 620, y: 24, w: 560, h: 956, color: "#e0c060", icon: "⚓" },
+    { id: "yard", name: "Shipwrights' Row", x: 1180, y: 24, w: 596, h: 956, color: "#a87850", icon: "🛠️" },
+    { id: "docks", name: "The Docks", x: 24, y: 980, w: 1752, h: 296, color: "#3a7ab0", icon: "⛵" }
+  ],
+  cityWalls: [[620, 24, 620, 980], [1180, 24, 1180, 980], [24, 980, 1776, 980]],
+  gates: [{ x: 620, y: 500, a: "fish", b: "square" }, { x: 1180, y: 500, a: "square", b: "yard" }, { x: 320, y: 980, a: "fish", b: "docks", horiz: true }, { x: 900, y: 980, a: "square", b: "docks", horiz: true }, { x: 1480, y: 980, a: "yard", b: "docks", horiz: true }],
+  exits: [{ x: 850, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }, { x: 1776, y: 450, w: 24, h: 100, to: "frost", tx: 110, ty: 1200, label: "Frostspire Pass" }],
+  props: [{ type: "crates", x: 420, y: 1030, r: 30 }, { type: "desk", x: 1000, y: 445, r: 22 }, { type: "barrels", x: 1120, y: 1030, r: 26 }, { type: "crates", x: 1560, y: 1035, r: 30 }],
+  ambient: [{ type: "gull", x: 900, y: 1080, n: 6, r: 300 }, { type: "cat", x: 300, y: 600, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 900, y: 560, n: 1, path: [[800, 460], [1000, 460], [1000, 660], [800, 660]] }, { type: "walker", x: 900, y: 1035, n: 1, path: [[200, 1035], [1600, 1035]] }],
   npcs: [
-    { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
-    { id: "crystal_harbor", x: 700, y: 460 }, { id: "ferry_harbor", x: 560, y: 760 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }, { id: "guard_north", x: 530, y: 80 }, { id: "guard_pass", x: 1330, y: 340 }
+    { id: "ilsa", x: 820, y: 400, home: 0, sleep: [22, 6] }, { id: "marn", x: 300, y: 430, home: 7, sleep: [20.5, 4.5] }, { id: "vela", x: 1400, y: 420, home: 10, sleep: [21, 7] },
+    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "selene", x: 1000, y: 410 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
   ],
   spawns: [],
-  water: [{ x: 300, y: 1180, r: 360 }, { x: 900, y: 1230, r: 420 }, { x: 1350, y: 1100, r: 260 }],
-  plaza: { x: 700, y: 460, r: 140 },
+  water: [{ x: 300, y: 1520, r: 430 }, { x: 900, y: 1540, r: 440 }, { x: 1500, y: 1520, r: 430 }],
+  plaza: { x: 900, y: 560, r: 140 },
   paths: [
-    { w: 52, pts: [[500, -500], [500, 0], [560, 260], [700, 460]] },
-    { w: 40, pts: [[700, 460], [700, 760]] },
-    { w: 34, pts: [[700, 460], [480, 600]] },
-    { w: 34, pts: [[700, 460], [930, 600]] },
-    { w: 40, pts: [[700, 460], [1050, 430], [1400, 430], [1900, 430]] }
+    { w: 52, pts: [[900, -500], [900, 0], [900, 1060]] },
+    { w: 40, pts: [[100, 500], [1800, 500], [2300, 500]] },
+    { w: 34, pts: [[300, 420], [300, 960], [320, 1040]] },
+    { w: 34, pts: [[1480, 560], [1480, 1040]] },
+    { w: 40, pts: [[100, 1040], [1700, 1040]] }
   ],
-  houses: [{ x: 280, y: 260, w: 150, h: 110, rot: 0 }, { x: 1100, y: 260, w: 150, h: 110, rot: 0 }, { x: 250, y: 560, w: 120, h: 140, rot: 1 }, { x: 1160, y: 580, w: 120, h: 140, rot: 1 }, { x: 860, y: 170, w: 170, h: 90, rot: 0 }],
-  stalls: [{ x: 480, y: 650, color: "#0277bd" }, { x: 930, y: 650, color: "#6a1b9a" }],
-  docks: [[470, 770, 60, 210], [880, 780, 60, 200]],
-  boats: [[300, 965, 0.2], [1000, 985, -0.4]],
-  lamps: [[600, 360], [800, 360], [600, 560], [800, 560], [700, 760]],
-  start: { x: 500, y: 90 }
+  houses: [
+    { x: 760, y: 300, w: 160, h: 100, type: "hall", sign: "Harbor Master", signCol: "#2f7f8f" }, { x: 1050, y: 300, w: 160, h: 100, type: "auction", sign: "Auction House" },
+    { x: 760, y: 850, w: 160, h: 90, type: "warehouse", sign: "Customs" }, { x: 1050, y: 850, w: 160, h: 90, type: "hall", floors: 3, sign: "Sailors' Rest" },
+    { x: 300, y: 320, w: 220, h: 110, type: "markethall", sign: "Fish Market", signCol: "#4fa0c8" },
+    { x: 110, y: 110, w: 120, h: 90, type: "home" }, { x: 470, y: 130, w: 130, h: 100, type: "home", floors: 3 }, { x: 130, y: 700, w: 140, h: 100, type: "home" }, { x: 470, y: 720, w: 140, h: 100, type: "home" }, { x: 130, y: 890, w: 140, h: 90, type: "home" },
+    { x: 1400, y: 300, w: 150, h: 100, type: "shop", sign: "Vela Outfitters", awning: "#2a6a9a" }, { x: 1300, y: 760, w: 160, h: 100, type: "hall", sign: "Shipwright" },
+    { x: 1650, y: 200, w: 140, h: 100, type: "home", floors: 3 }, { x: 1690, y: 850, w: 120, h: 90, type: "home" }
+  ],
+  stalls: [{ x: 360, y: 460, color: "#0277bd" }, { x: 1470, y: 440, color: "#6a1b9a" }],
+  docks: [[560, 1070, 60, 230], [870, 1090, 60, 210], [1240, 1070, 60, 230]],
+  boats: [[680, 1240, 0.2], [1080, 1250, -0.3], [1420, 1230, 0.1]],
+  lighthouses: [[1700, 1060]],
+  slipways: [[1560, 800, 0]],
+  racks: [[230, 1030, 0], [1360, 1030, 0]],
+  benches: [[780, 560, 1.57], [1020, 560, -1.57]],
+  lamps: [[780, 440], [1020, 440], [780, 680], [1020, 680], [600, 1040], [1200, 1040], [300, 600], [1480, 640]],
+  start: { x: 900, y: 640 }
 };
 
 ZONES.frost = {
@@ -1375,27 +1395,51 @@ function spreadSpawns(zone, minD) {
   }
 }
 ZONES.ironvale = {
-  name: "Ironvale", w: 1400, h: 1100, safe: true, theme: "town", palette: "snow",
-  exits: [{ x: 0, y: 500, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }, { x: 700, y: 1076, w: 100, h: 24, to: "sunscar", tx: 1500, ty: 120, label: "Sunscar Desert" }],
-  props: [{ type: "crates", x: 1000, y: 760, r: 30 }, { type: "barrels", x: 520, y: 760, r: 26 }, { type: "desk", x: 900, y: 440, r: 22 }],
-  ambient: [{ type: "walker", x: 750, y: 550, n: 1, path: [[500, 400], [1000, 400], [1000, 700], [500, 700]] }, { type: "walker", x: 750, y: 550, n: 1, path: [[750, 250], [750, 900], [1100, 560]] }, { type: "dog", x: 820, y: 620, n: 1, r: 120, col: 0x5a4a3a }],
+  name: "Ironvale", w: 1800, h: 1400, safe: true, theme: "town", palette: "snow", city: "Ironvale", cityStyle: "mountain", paved: true, outerWall: true,
+  districts: [
+    { id: "gate", name: "Gate Ward", x: 24, y: 24, w: 536, h: 1352, color: "#9aa4ac", icon: "🛡️" },
+    { id: "keep", name: "The Keep", x: 560, y: 24, w: 680, h: 336, color: "#5a7090", icon: "🏰" },
+    { id: "market", name: "Market Square", x: 560, y: 360, w: 680, h: 640, color: "#d8a838", icon: "⚖️" },
+    { id: "south", name: "South Ward", x: 560, y: 1000, w: 680, h: 376, color: "#6fae5a", icon: "🏡" },
+    { id: "forge", name: "Smelters' Row", x: 1240, y: 24, w: 536, h: 1352, color: "#c4703a", icon: "⚒️" }
+  ],
+  cityWalls: [[560, 24, 560, 1376], [1240, 24, 1240, 1376], [560, 360, 1240, 360], [560, 1000, 1240, 1000]],
+  gates: [
+    { x: 560, y: 200, a: "gate", b: "keep" }, { x: 560, y: 700, a: "gate", b: "market" }, { x: 560, y: 1200, a: "gate", b: "south" },
+    { x: 1240, y: 200, a: "keep", b: "forge" }, { x: 1240, y: 700, a: "market", b: "forge" }, { x: 1240, y: 1200, a: "south", b: "forge" },
+    { x: 900, y: 360, a: "keep", b: "market", horiz: true }, { x: 900, y: 1000, a: "market", b: "south", horiz: true }
+  ],
+  exits: [{ x: 0, y: 650, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }, { x: 850, y: 1376, w: 100, h: 24, to: "sunscar", tx: 1500, ty: 120, label: "Sunscar Desert" }],
+  props: [{ type: "crates", x: 1460, y: 860, r: 30 }, { type: "barrels", x: 1460, y: 300, r: 26 }, { type: "desk", x: 760, y: 655, r: 22 }, { type: "anvil", x: 1520, y: 590, rot: 0.3, r: 26 }],
+  ambient: [{ type: "walker", x: 900, y: 680, n: 1, path: [[780, 560], [1020, 560], [1020, 800], [780, 800]] }, { type: "walker", x: 1380, y: 700, n: 1, path: [[1380, 150], [1380, 1250]] }, { type: "dog", x: 900, y: 680, n: 1, r: 120, col: 0x5a4a3a }],
   npcs: [
-    { id: "brisa", x: 600, y: 430, home: 1, sleep: [22, 6] }, { id: "haldor", x: 900, y: 690, home: 2, sleep: [21, 5] }, { id: "orla", x: 900, y: 410 },
-    { id: "crystal_ironvale", x: 750, y: 550 }, { id: "trade_board", x: 600, y: 690 }, { id: "guard_ironvale", x: 420, y: 470 }
+    { id: "brisa", x: 1000, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "orla", x: 760, y: 620 },
+    { id: "crystal_ironvale", x: 900, y: 680 }, { id: "trade_board", x: 1040, y: 560 }, { id: "guard_ironvale", x: 150, y: 650 }
   ],
   spawns: [],
   water: [],
-  plaza: { x: 750, y: 550, r: 150 },
+  plaza: { x: 900, y: 680, r: 150 },
   paths: [
-    { w: 50, pts: [[-500, 550], [0, 550], [420, 550], [750, 550]] },
-    { w: 40, pts: [[750, 550], [750, 950], [750, 1100], [750, 1600]] },
-    { w: 40, pts: [[750, 550], [750, 160]] },
-    { w: 36, pts: [[750, 550], [1150, 550]] }
+    { w: 50, pts: [[-500, 700], [0, 700], [1700, 700]] },
+    { w: 40, pts: [[900, 270], [900, 1400], [900, 1900]] },
+    { w: 36, pts: [[450, 100], [450, 1300]] },
+    { w: 36, pts: [[450, 200], [560, 200]] },
+    { w: 36, pts: [[450, 1200], [1380, 1200]] },
+    { w: 36, pts: [[1240, 200], [1380, 200]] },
+    { w: 36, pts: [[1380, 100], [1380, 1300]] }
   ],
-  houses: [{ x: 240, y: 180, w: 160, h: 110, rot: 0 }, { x: 1050, y: 170, w: 170, h: 110, rot: 0 }, { x: 240, y: 840, w: 150, h: 120, rot: 1 }, { x: 1100, y: 840, w: 160, h: 120, rot: 1 }, { x: 1180, y: 430, w: 120, h: 150, rot: 1 }],
-  stalls: [{ x: 900, y: 740, color: "#5d4037" }, { x: 600, y: 740, color: "#37474f" }],
-  lamps: [[640, 440], [860, 440], [640, 660], [860, 660], [750, 900]],
-  start: { x: 120, y: 550 }
+  houses: [
+    { x: 900, y: 160, w: 320, h: 150, type: "keep", floors: 3, flag: "#90a4ae" }, { x: 1600, y: 540, w: 200, h: 110, type: "forge", floors: 1, sign: "Mythrilsmith", signCol: "#7ad0ff" },
+    { x: 1600, y: 260, w: 220, h: 120, type: "smelter" }, { x: 1600, y: 1000, w: 220, h: 120, type: "smelter" },
+    { x: 690, y: 470, w: 150, h: 90, type: "auction", sign: "Auction House" }, { x: 1110, y: 470, w: 150, h: 90, type: "shop", sign: "General Store", awning: "#37474f" }, { x: 1110, y: 900, w: 150, h: 90, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" },
+    { x: 250, y: 200, w: 150, h: 110, type: "home" }, { x: 250, y: 400, w: 140, h: 100, type: "home", floors: 3 }, { x: 250, y: 560, w: 140, h: 90, type: "guard", flag: "#90a4ae" }, { x: 250, y: 880, w: 140, h: 100, type: "home" }, { x: 250, y: 1100, w: 150, h: 110, type: "home" }, { x: 250, y: 1290, w: 150, h: 90, type: "home" },
+    { x: 720, y: 1300, w: 160, h: 100, type: "home", floors: 3 }, { x: 1090, y: 1300, w: 160, h: 100, type: "warehouse", floors: 2 }, { x: 1600, y: 820, w: 180, h: 90, type: "warehouse", floors: 1 }
+  ],
+  stalls: [{ x: 1000, y: 820, color: "#5d4037" }, { x: 800, y: 820, color: "#37474f" }],
+  mines: [[1690, 1250, -Math.PI / 2]],
+  benches: [[760, 760, 1.57], [1040, 760, -1.57]],
+  lamps: [[780, 560], [1020, 560], [780, 800], [1020, 800], [450, 700], [1380, 700], [900, 1100], [900, 300]],
+  start: { x: 900, y: 800 }
 };
 
 Object.assign(FAMILIES, {

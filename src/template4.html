@@ -405,6 +405,7 @@
   #ldCred a:hover { text-decoration: underline; }
   #loading.roster #ldCred { position: static; transform: none; margin-top: 18px; }
   #loading.zone #ldCred { display: none; }
+  #loading:not(.ready) #ldVer, #loading:not(.ready) #ldTip, #loading:not(.ready) #ldCred { display: none !important; }
   #loading.roster { justify-content: flex-start; padding-top: max(26px, 5vh); overflow-y: auto; gap: 8px; }
   #loading.roster .crest { width: 48px; height: 48px; font-size: 22px; }
   #loading.roster #ldTitle { font-size: 26px; }
@@ -898,14 +899,14 @@
   #mpBox.on { display: flex; }
   #mpBox .r { display: flex; justify-content: space-between; font: italic 900 15px var(--ffFont); color: #fff; letter-spacing: .05em; text-shadow: 1px 1px 0 #000; line-height: 1.5; }
   #confirmBox { inset: auto; left: calc(8px + var(--sal)); bottom: calc(170px + var(--sab)); background: none; pointer-events: none; z-index: 60; }
-  #confirmBox .cb { pointer-events: auto; width: 340px; max-width: calc(100vw - 20px); padding: 4px 10px 6px 26px; animation: none; background: linear-gradient(180deg, rgba(40,44,70,.94), rgba(18,20,36,.96)); border: 2px solid rgba(220,224,255,.6); border-radius: 4px; }
+  #confirmBox .cb { pointer-events: auto; width: max-content !important; min-width: 150px; max-width: calc(100vw - 20px); padding: 4px 10px 6px 26px; animation: none; background: linear-gradient(180deg, rgba(40,44,70,.94), rgba(18,20,36,.96)); border: 2px solid rgba(220,224,255,.6); border-radius: 4px; }
   #confirmBox .cbT { display: none; }
   #confirmBox .cbB { margin-left: -16px; font: italic 800 14px var(--ffFont); color: #fff; letter-spacing: .04em; text-shadow: 1px 1px 0 #000; line-height: 1.4; }
   #confirmBox .cbA { flex-direction: column-reverse; gap: 0; margin-top: 2px; }
   #confirmBox .cbA button { position: relative; text-align: left; padding: 1px 6px; border: none; border-radius: 2px; background: transparent !important; box-shadow: none; font: italic 800 14px var(--ffFont); color: #fff !important; text-shadow: 1px 1px 0 #000; }
   #confirmBox .cbA button::before { content: "➤"; position: absolute; left: -20px; color: #e8c8a8; opacity: 0; }
   #confirmBox .cbA button.sel::before { opacity: 1; } #confirmBox .cbA button.sel { background: rgba(255,255,255,.08) !important; }
-  #dialog { left: calc(8px + var(--sal)); transform: none; width: 340px; max-width: calc(100vw - 20px); padding: 4px 10px 6px 26px; bottom: calc(170px + var(--sab)); background: linear-gradient(180deg, rgba(40,44,70,.92), rgba(18,20,36,.94)); border: 2px solid rgba(220,224,255,.6); border-radius: 4px; }
+  #dialog { z-index: 9; left: calc(8px + var(--sal)); transform: none; width: max-content !important; min-width: 150px; max-width: calc(100vw - 20px); padding: 4px 10px 6px 26px; bottom: calc(170px + var(--sab)); background: linear-gradient(180deg, rgba(40,44,70,.92), rgba(18,20,36,.94)); border: 2px solid rgba(220,224,255,.6); border-radius: 4px; }
   #dlgWho:empty { display: none; }
   #dlgText:empty { display: none; } #dlgText { margin: 0 0 2px -16px; font: italic 800 14px var(--ffFont); color: #fff; letter-spacing: .04em; text-shadow: 1px 1px 0 #000; white-space: normal; }
   #dlgOpts { display: flex; flex-direction: column; gap: 0; }
@@ -1001,6 +1002,29 @@
   #loading.ready #ldCred { bottom: calc(26px + var(--sab)) !important; }
   #loading.ready #ldVer, #loading.roster #ldVer { position: absolute; left: 50%; bottom: calc(8px + var(--sab)); transform: translateX(-50%); margin: 0 !important; white-space: nowrap; }
   #loading.roster #ldCred { display: none !important; }
+  #loading.roster { scrollbar-width: none; }
+  #loading.roster::-webkit-scrollbar { display: none; }
+  #loading.roster #ldVer { display: none; }
+  @media (max-width: 720px) {
+    #loading.roster { gap: 4px; padding-top: max(8px, 1.5vh); }
+    #loading.roster .crest { display: none; }
+    #loading.roster #ldTitle { font-size: 21px !important; white-space: nowrap; }
+    #loading.roster #ldSub { font-size: 11px; }
+    #charSel { padding: 8px !important; width: 96vw; }
+    .ccForm { grid-template-columns: 38% 1fr; gap: 8px; }
+    #ccPv { height: auto !important; min-height: 240px; aspect-ratio: auto !important; align-self: stretch; }
+    .ccOpts { gap: 4px; }
+    .ccOpts input { height: 30px; width: 100%; box-sizing: border-box; min-width: 0; }
+    .ccOpts label, .ccOpts { min-width: 0; }
+    .ccJobs { flex-direction: column; gap: 3px; }
+    .ccJobs button { min-width: 0; padding: 4px; font-size: 12px; }
+    #ccJobBlurb, .ccLook .sub { display: none; }
+    .ccRow { grid-template-columns: 1fr 24px 56px 24px; gap: 2px; }
+    .ccRow span, .ccRow b { font-size: 11px; }
+    .ccRow button { padding: 1px 0; height: 22px; }
+    .ccAct .pri, .ccAct button { padding: 7px 10px; font-size: 13px; }
+    .ccForm + .sub, .ccOpts .sub { font-size: 11px; }
+  }
 </style>
 </head>
 <body>

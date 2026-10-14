@@ -1305,6 +1305,13 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Zone extras: `plazas` (extra paved circles, used by terrain and map), `fountains` (basin, column, bowl, gilded finial, water disc, spray cone, collider r 48), `gardens` (soil bed, rows of plants, picket fence with a front gap), `dummies`, `racks`, `benches` (all colliders), `paved` (town paths drawn as cobbles), `outerWall` (perimeter wall 5.2 m with merlons, corner towers, a gatehouse at every non-door exit with the city name sign; replaces the palisade).
 - Outpost data: City Hall at the north end of the Government square; Maera's Guild is house 18 (her home index moved). Industrial gained Woodworkers (19) and Alchemists (20) halls; Garrick and the anvil sit north of the street.
 
+## Phase 108: Harbor and Ironvale (v15.2.0) — plan C3
+- Saltreach (`cityStyle: "harbor"`, `outerWall: "new"` walls the north, east and west only; the south is the sea) and Ironvale (`"mountain"`) reuse the district, gate, wall and building systems from phases 106-107 with CITY_STYLES palettes, lighthouses, slipways and mines. `zv` 3 resets saved positions in old Harbor/Ironvale layouts.
+- Hireling bodies: when a hireling is KO'd `save.mercBodies[id] = {zone,x,y,until}` is written next to `mercDown`. `rebuildParty` skips hired ids whose body is in another zone and places the body (alive false, koUntil) when its zone is entered; `enterZone` calls `rebuildParty` after changing `S.zoneId` and never teleports a fallen hireling to the player. `returnHome` no longer heals fallen hirelings. `koTick` expires bodies in other zones (dismiss, or permanent fall when `CONFIG.mercPermadeath`). `revive` and `dismissMerc` clear the body.
+- Revive items: `ITEMS.phoenix_down` (revive 0.5) beside `ember_plume`. `useItem` allows `it.revive` items while KO'd and then targets the player with no range check.
+- UI fixes: label occlusion test (`occluders`, `labelHidden`), tagged auto-closing exit prompt, `#dialog` width max-content, loading screen hides version/tip/credit until ready, showcase on mobile, hidden roster scrollbar and compact mobile creator CSS.
+- Test: test/p50unit.js (bodies stay put, Phoenix Down on hireling and self).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1357,6 +1364,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.2.0 | Phase 108: Harbor and Ironvale districts, hireling bodies persist an hour, Phoenix Down, mobile and label fixes. |
 | 15.1.0 | Phase 107: city buildings (multi-storey, signs, awnings, clock tower, windmill, forge, warehouse), fountain square, gardens, outer wall and gatehouse, cobbled streets. |
 | 15.0.0 | Phase 106: Outpost split into five walled districts with gate halls, banners, district titles and map labels, gate routing for movement. |
 | 14.12.0 | Phase 105: brick crypt walls, pilasters, torch sconces, flagstones, sarcophagi, bones, urns, cobwebs; cave timber supports and crates. |
