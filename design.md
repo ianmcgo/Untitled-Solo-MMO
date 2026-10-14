@@ -699,11 +699,16 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Rig: rigSigFor "buddy|id"; buildEntityRig picks hareEntry/batEntry/wispEntry (new: glow orb with trailing tails, bat pose)/wormEntry/goblin humanEntry without weapon or sack; viewFor scales by BUDDIES.scale.
 - Tests: test/p23unit.js; p5shots scenes pet, pet2, pet3, petmenu.
 
+## Phase 24b: pet and reward changes (v6.5.1)
+- Pets give no bonuses: buddyPerk() always returns 0 (call sites kept for future use), BUDDIES entries have no perk, BUDDY_SHOP is empty (Ysolde's pens and the guild egg removed). Pet items are very rare drops: hare/bat/worm/ice_bat loot 0.4–0.5% (egg_meadow_kit, egg_batling, egg_wormlet, egg_frost_wisp), NM eggs 3–8%, egg_tide_wisp fish weight 0.03. Ash Sprite still from the story.
+- No XP for landmark discovery (checkLandmarks no longer calls gainXp; toast has no XP line) and no crystals for achievements (ACHIEVEMENTS entries have no gil; checkAchievements/toast/tab show none).
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.5.1 | Phase 24b: pets give no bonuses and are rare drops; no XP for landmarks; no crystals for achievements. |
 | 6.5.0 | Phase 24: ten pets that follow you, Pets window, /pet, perks. |
 | 6.4.0 | Phase 23: five playable races, gate guards and the City Blessing (essences need it). |
 | 6.3.0 | Phase 22: auction houses with moving prices, stock, listings and delivery box. |

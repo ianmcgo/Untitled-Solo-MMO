@@ -621,7 +621,7 @@ function onTgtCmd(key) {
 
 function uiEvent(type, d) {
   if (type === "target") { tgtCmdOpen(d); return; }
-  if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name + (d.gil ? " · +" + d.gil + " 💠" : ""), "r-epic"); return; }
+  if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name, "r-epic"); return; }
   if (type === "bond") { toast("💞", "Bond level " + d.lv, MERCS[d.id].name, "r-rare"); return; }
   if (type === "bf") { toast("🔱", "Victory!", d.prize ? ITEMS[d.prize].name : "The chapel is quiet", "r-epic"); return; }
   if (type === "race") { UI.mmForce = true; return; }
@@ -637,7 +637,7 @@ function uiEvent(type, d) {
     const r = itemRarity(d.id);
     toast(it.icon || "📦", r === "epic" ? "Epic item!" : r === "rare" ? "Rare item!" : r === "uncommon" ? "Uncommon item" : "Obtained", (d.n > 1 ? d.n + " × " : "") + it.name, "r-" + r);
   }
-  if (type === "landmark") { toast("🧭", "Landmark discovered", d.name + (player.lv < CONFIG.levelCap ? " · +" + d.xp + " XP" : ""), "r-rare"); sfx("unlock"); }
+  if (type === "landmark") { toast("🧭", "Landmark discovered", d.name, "r-rare"); sfx("unlock"); }
 }
 
 function watchProgress() {

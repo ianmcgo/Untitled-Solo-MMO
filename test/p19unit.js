@@ -30,7 +30,7 @@ for (let i = 0; i < 4 && !m.buffs.stun; i++) { P().recasts['ma:stun'] = 0; P().m
 ok(!m.readying || m.buffs.stun, 'Stun stops a readied move');
 G.save.jobsUnlocked.BRD = true; G.save.jobs.BRD.lv = 17; G.setJob('BRD', null); P().mp = P().maxMp;
 G.enterZone('hollow', 300, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
-G.hireMerc('kael'); run(0.5);
+G.save.gil = 9999; G.hireMerc('kael'); run(0.5);
 const k = S.party.find(p => p.mercId === 'kael'); k.x = P().x + 20; k.y = P().y;
 const a0 = G.stat(k, 'att');
 G.playerAct({ kind: 'ma', id: 'battle_minuet2' }); run(2.3);
