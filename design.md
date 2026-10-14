@@ -1286,6 +1286,17 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - `buildDungeon(field, root)` after buildCrypt for crypt and cave themes. Crypt: each run becomes a 6.2 m brick box (0.7 m thick, set 6 px into the wall) merged into one mesh with world-scaled UVs (`boxUV`, 2.2 m per texture repeat) and per-wall vertex shade; pilasters every 110 px (instanced, UV v ×3, caps top and bottom); sconces at odd pilasters with a PointLight on ~70% (cap low 4, medium 8, high 12, joining W3.torchLights flicker); cobweb quads (webTex) on half the runs; 3 sarcophagi in vault/throne/sentinel landmarks (1 elsewhere, 26 px colliders); 40 bones/urns 12–60 px from walls. Cave: timber frames on 55% of runs every 160–280 px; crates/barrels in 1–3s around 55% of torches.
 - Terrain bake (crypt, inside the walls): running-bond flagstones 46 px with noise-jittered rows, mortar lines < 3.5% of a stone darkened 40%, per-stone value 0.6–0.85.
 
+## Phase 106: city districts (v15.0.0) — plan C1
+- Data: a town zone may carry `city`, `districts` [{id,name,x,y,w,h,color,icon}], `cityWalls` (axis-aligned segments) and `gates` [{x,y,a,b,horiz}]. Districts stay inside one zone so NPC ids, quests, tests, weather, fishing and conquest keyed by zone id keep working; no extra loading screens.
+- Outpost is 2000×1500: Residential x<560, Eastgate x>1440, Government y<470, Market 470–1060 (plaza + crystal at 1000,760), Industrial y>1060. Eight gate halls (gap ±GATE_HALF=55 px). Hollow ↔ Outpost exit is at the Eastgate edge; residence door is on the Residential house at (200,760).
+- Collision: `cityWallRects(z)` cuts each wall at its gates (30 px thick) and adds 44 px tower squares beside every gap; appended to `zoneRects` (cached `_cwr`).
+- Routing: `moveToward` calls `gateHop` first. If the straight line hits a wall rect, pick the gate whose line separates the mover and target (min path length), go to an approach point 45 px before the gap, then through to 75 px past it. Gates already crossed (same side, >40 px away) are skipped, so chains of gates work. The old body is `stepToward`. Followers, NPCs, click-to-move and chasing all use it.
+- `separate(aOnly)` also slides the mover sideways (0.7 × push) while it's walking, so a straight route through the crystal doesn't stall.
+- District tracking: `checkDistrict` (0.5 s tick) sets `S.district`; changes log, call `uiEvent("district")` (title card with the city as subtitle, first-visit toast, page sound) and record `save.districts["zone:id"]`. The zone-entry title shows the current district as its subtitle.
+- Save: `zv` 2. Older saves standing in the outpost are moved to `start` (the old coordinates now land in walls or houses).
+- 3D `buildCityWalls`: wall pieces ≈140 px long (each sits on its own lowest ground point), 4.4 m tall with brick world-UVs (`uvBox`), a cap and instanced merlons on both edges; per gate two 8.2 m towers with pyramid shingle roofs, a lintel, a stone half-torus arch and district-coloured banners with a gold trim on each face. `placeable` keeps scatter off walls and gates.
+- Map: districts get a 15% tint, walls and towers are drawn, and visited districts are labelled in their colour.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1338,6 +1349,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.0.0 | Phase 106: Outpost split into five walled districts with gate halls, banners, district titles and map labels, gate routing for movement. |
 | 14.12.0 | Phase 105: brick crypt walls, pilasters, torch sconces, flagstones, sarcophagi, bones, urns, cobwebs; cave timber supports and crates. |
 | 14.11.0 | Phase 104: sunbeams, cave light shafts, dust motes, crystal light pools, wet shorelines. |
 | 14.10.0 | Phase 103: ferns, reeds, mushrooms, carts, fences, stumps and per-region prop sets. |

@@ -525,6 +525,8 @@ function placeable(field, px, py, opts) {
     for (const [x1, y1, x2, y2] of z.ruins.walls) if (px > Math.min(x1, x2) - 60 && px < Math.max(x1, x2) + 60 && py > Math.min(y1, y2) - 60 && py < Math.max(y1, y2) + 60) return false;
     for (const [x, y] of z.ruins.pillars) if (Math.hypot(px - x, py - y) < 60) return false;
   }
+  if (z.cityWalls) for (const r of cityWallRects(z)) if (px > r.x - 40 && px < r.x + r.w + 40 && py > r.y - 40 && py < r.y + r.h + 40) return false;
+  for (const g of z.gates || []) if (Math.hypot(px - g.x, py - g.y) < 120) return false;
   for (const lm of z.landmarks || []) if (lm.clear && Math.hypot(px - lm.x, py - lm.y) < lm.clear) return false;
   return true;
 }
@@ -967,6 +969,72 @@ function buildTown(field, root) {
     pole.castShadow = true;
     root.add(g);
   });
+}
+
+function uvBox(w, h, d, k) {
+  const g = new THREE.BoxGeometry(w, h, d).toNonIndexed(), uv = g.attributes.uv, nr = g.attributes.normal;
+  for (let i = 0; i < uv.count; i++) { const ax = Math.abs(nr.getX(i)), ay = Math.abs(nr.getY(i)); const su = ax > 0.5 ? d : w, sv = ay > 0.5 ? d : h; uv.setXY(i, uv.getX(i) * su / k, uv.getY(i) * sv / k); }
+  return g;
+}
+function buildCityWalls(field, root) {
+  const z = field.zone;
+  if (!z.cityWalls) return;
+  const bricks = texBricks(), roofT = texShingle();
+  const stone = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0xd8d0c0, roughness: 0.92 });
+  const capMat = std({ color: 0x8a8478, roughness: 0.9 });
+  const roofMat = std({ map: roofT.map, normalMap: roofT.normalMap, color: 0x9a5a48, roughness: 0.85 });
+  const H = 4.4, parts = [], caps = [], merl = [];
+  for (const r of cityWallRects(z)) {
+    if (r.tower) continue;
+    const horiz = r.w > r.h, len = horiz ? r.w : r.h, th = (horiz ? r.h : r.w) * U, n = Math.max(1, Math.round(len / 140));
+    for (let i = 0; i < n; i++) {
+      const a = len * i / n, b = len * (i + 1) / n, c = (a + b) / 2, L = (b - a) * U + 0.02;
+      const px = horiz ? r.x + c : r.x + r.w / 2, py = horiz ? r.y + r.h / 2 : r.y + c;
+      const y0 = Math.min(field.heightAt(horiz ? r.x + a : px, horiz ? py : r.y + a), field.heightAt(horiz ? r.x + b : px, horiz ? py : r.y + b)) - 0.8;
+      const g = uvBox(horiz ? L : th, H + 0.8, horiz ? th : L, 2.4);
+      g.translate(px * U, y0 + (H + 0.8) / 2, py * U); parts.push(g);
+      const cg = new THREE.BoxGeometry(horiz ? L : th + 0.3, 0.22, horiz ? th + 0.3 : L);
+      cg.translate(px * U, y0 + H + 0.9, py * U); caps.push(cg);
+      const m = Math.max(1, Math.floor(L / 1.5));
+      for (let k = 0; k < m; k++) for (const sd of [-1, 1]) {
+        const t = (k + 0.5) / m - 0.5, ox = horiz ? t * L : sd * (th / 2 - 0.15), oz = horiz ? sd * (th / 2 - 0.15) : t * L;
+        merl.push(mtx(px * U + ox, y0 + H + 1.36, py * U + oz, 1, 1, 1, 0));
+      }
+    }
+  }
+  const gates = z.gates || [];
+  const bannerGeo = new THREE.PlaneGeometry(1.1, 2.6);
+  for (const gt of gates) {
+    const gy = field.heightAt(gt.x, gt.y);
+    for (const sd of [-1, 1]) {
+      const cx = gt.horiz ? gt.x + sd * (GATE_HALF + 18) : gt.x, cy = gt.horiz ? gt.y : gt.y + sd * (GATE_HALF + 18);
+      const tg = uvBox(2.4, 8.2, 2.4, 2.4); tg.translate(cx * U, gy - 0.8 + 4.1, cy * U); parts.push(tg);
+      const tc = new THREE.BoxGeometry(2.9, 0.3, 2.9); tc.translate(cx * U, gy + 7.45, cy * U); caps.push(tc);
+      const rf = new THREE.ConeGeometry(2.3, 2.6, 4, 1); rf.rotateY(Math.PI / 4); rf.translate(cx * U, gy + 8.9, cy * U);
+      const rm = new THREE.Mesh(rf, roofMat); rm.castShadow = true; root.add(rm);
+      for (const face of [-1, 1]) {
+        const dz = districtAt(z, gt.horiz ? gt.x : gt.x + face * 60, gt.horiz ? gt.y + face * 60 : gt.y);
+        if (!dz) continue;
+        const col = new THREE.Color(dz.color);
+        const bm = new THREE.Mesh(bannerGeo, std({ color: col, roughness: 0.95, side: THREE.DoubleSide }));
+        const trim = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.18), std({ color: 0xe8c860, metalness: 0.4, roughness: 0.5, side: THREE.DoubleSide }));
+        const off = 1.24;
+        if (gt.horiz) { bm.position.set(cx * U, gy + 4.4, cy * U + face * off); trim.position.set(cx * U, gy + 5.6, cy * U + face * (off + 0.01)); if (face < 0) { bm.rotation.y = Math.PI; trim.rotation.y = Math.PI; } }
+        else { bm.position.set(cx * U + face * off, gy + 4.4, cy * U); trim.position.set(cx * U + face * (off + 0.01), gy + 5.6, cy * U); bm.rotation.y = trim.rotation.y = face * Math.PI / 2; }
+        bm.userData.banner = true;
+        root.add(bm, trim);
+      }
+    }
+    const span = (GATE_HALF * 2 + 36) * U;
+    const lt = uvBox(gt.horiz ? span : 1.9, 1.3, gt.horiz ? 1.9 : span, 2.4); lt.translate(gt.x * U, gy + 5.2, gt.y * U); parts.push(lt);
+    const lc = new THREE.BoxGeometry(gt.horiz ? span + 0.3 : 2.2, 0.22, gt.horiz ? 2.2 : span + 0.3); lc.translate(gt.x * U, gy + 5.95, gt.y * U); caps.push(lc);
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(GATE_HALF * U, 0.32, 6, 18, Math.PI), stone);
+    arch.scale.set(1, 0.5, 2.6); arch.position.set(gt.x * U, gy + 3.2, gt.y * U); if (!gt.horiz) arch.rotation.y = Math.PI / 2;
+    arch.castShadow = true; root.add(arch);
+  }
+  if (parts.length) { const m = new THREE.Mesh(THREE.mergeGeometries(parts), stone); m.castShadow = true; m.receiveShadow = true; root.add(m); }
+  if (caps.length) { const m = new THREE.Mesh(THREE.mergeGeometries(caps.map(c => c.toNonIndexed())), capMat); m.castShadow = true; m.receiveShadow = true; root.add(m); }
+  if (merl.length) root.add(instanced(new THREE.BoxGeometry(0.62, 0.72, 0.36), stone, merl, true));
 }
 
 function buildGlow(field, root) {
@@ -1644,7 +1712,7 @@ function* buildZone3DSteps() {
   buildPathEdges(field, root);
   buildProps(field, root);
   yield { p: 0.88, t: "Raising buildings…" };
-  if (themeOf(z) === "town") buildTown(field, root);
+  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); }
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
   buildDungeon(field, root);

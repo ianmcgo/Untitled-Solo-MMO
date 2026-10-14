@@ -905,38 +905,59 @@ const DAY_ELEMENTS = ["fire", "earth", "water", "wind", "ice", "lightning", "lig
 
 const ZONES = {
   outpost: {
-    name: "Ashenreach Outpost", w: 1100, h: 800, safe: true, theme: "town",
+    name: "Ashenreach Outpost", w: 2000, h: 1500, safe: true, theme: "town", city: "Ashenreach",
+    districts: [
+      { id: "res", name: "Residential District", x: 24, y: 24, w: 536, h: 1452, color: "#6fae5a", icon: "🏡" },
+      { id: "gov", name: "Government District", x: 560, y: 24, w: 880, h: 446, color: "#5a86c8", icon: "🏛️" },
+      { id: "market", name: "Market District", x: 560, y: 470, w: 880, h: 590, color: "#d8a838", icon: "⚖️" },
+      { id: "ind", name: "Industrial District", x: 560, y: 1060, w: 880, h: 416, color: "#c4703a", icon: "⚒️" },
+      { id: "gate", name: "Eastgate", x: 1440, y: 24, w: 536, h: 1452, color: "#a8a8a0", icon: "🛡️" }
+    ],
+    cityWalls: [[560, 24, 560, 1476], [1440, 24, 1440, 1476], [560, 470, 1440, 470], [560, 1060, 1440, 1060]],
+    gates: [
+      { x: 560, y: 760, a: "res", b: "market" }, { x: 560, y: 250, a: "res", b: "gov" }, { x: 560, y: 1270, a: "res", b: "ind" },
+      { x: 1440, y: 760, a: "market", b: "gate" }, { x: 1440, y: 250, a: "gov", b: "gate" }, { x: 1440, y: 1270, a: "ind", b: "gate" },
+      { x: 1000, y: 470, a: "gov", b: "market", horiz: true }, { x: 1000, y: 1060, a: "market", b: "ind", horiz: true }
+    ],
     exits: [
-      { x: 1076, y: 350, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" },
-      { x: 222, y: 400, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }
+      { x: 1976, y: 710, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" },
+      { x: 262, y: 740, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }
     ],
     npcs: [
-      { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
-      { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
-      { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
-      { id: "luna", x: 660, y: 470 }, { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
+      { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 1, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
+      { id: "crystal_town", x: 1000, y: 760 }, { id: "pell", x: 800, y: 650, home: 4, sleep: [21, 6.5] }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
+      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "corvin", x: 840, y: 900 },
+      { id: "garrick", x: 780, y: 1210, home: 7, sleep: [22, 6.5] },
+      { id: "ysolde", x: 1700, y: 960, home: 16, sleep: [19.5, 5.5] }, { id: "guard_east", x: 1790, y: 690 }
     ],
-    props: [{ type: "anvil", x: 690, y: 690, rot: 0.2, r: 26 }, { type: "desk", x: 455, y: 290, r: 22 }, { type: "desk", x: 430, y: 465, r: 22 }, { type: "barrels", x: 900, y: 560, rot: 1.2, r: 26 }],
-    ambient: [{ type: "chicken", x: 400, y: 600, n: 4, r: 70 }, { type: "dog", x: 640, y: 470, n: 1, r: 120, col: 0x8a6a4a }, { type: "cat", x: 300, y: 330, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 560, y: 420, n: 1, path: [[560, 300], [820, 410], [700, 520], [480, 500]] }],
+    props: [{ type: "anvil", x: 780, y: 1262, rot: 0.2, r: 26 }, { type: "desk", x: 930, y: 336, r: 22 }, { type: "desk", x: 840, y: 936, r: 22 }, { type: "barrels", x: 1250, y: 1200, rot: 1.2, r: 26 }, { type: "crates", x: 1340, y: 1220, rot: 0.4, r: 26 }, { type: "barrels", x: 1820, y: 1120, rot: 0.3, r: 26 }],
+    ambient: [{ type: "chicken", x: 160, y: 1300, n: 4, r: 70 }, { type: "dog", x: 1000, y: 760, n: 1, r: 140, col: 0x8a6a4a }, { type: "cat", x: 420, y: 300, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 1000, y: 760, n: 1, path: [[860, 640], [1140, 640], [1140, 880], [860, 880]] }],
     spawns: [],
-    water: [{ x: 250, y: 640, r: 75 }],
-    plaza: { x: 560, y: 420, r: 150 },
+    water: [{ x: 440, y: 1180, r: 70 }],
+    plaza: { x: 1000, y: 760, r: 170 },
     paths: [
-      { w: 56, pts: [[560, 420], [820, 410], [1100, 400], [1500, 400]] },
-      { w: 40, pts: [[560, 420], [560, 200]] },
-      { w: 36, pts: [[560, 420], [700, 330], [840, 250]] },
-      { w: 36, pts: [[560, 420], [470, 480], [380, 520]] },
-      { w: 36, pts: [[560, 420], [680, 500], [780, 560]] }
+      { w: 56, pts: [[100, 760], [1000, 760], [2000, 760], [2400, 760]] },
+      { w: 44, pts: [[1000, 60], [1000, 1440]] },
+      { w: 36, pts: [[300, 80], [300, 1440]] },
+      { w: 36, pts: [[1700, 120], [1700, 1400]] },
+      { w: 36, pts: [[300, 250], [1700, 250]] },
+      { w: 36, pts: [[300, 1270], [1700, 1270]] }
     ],
-    houses: [{ x: 230, y: 230, w: 150, h: 110, rot: 0 }, { x: 860, y: 120, w: 140, h: 100, rot: 0 }, { x: 980, y: 640, w: 120, h: 120, rot: 1 }, { x: 160, y: 420, w: 110, h: 130, rot: 1 }, { x: 560, y: 90, w: 180, h: 90, rot: 0 }],
-    stalls: [{ x: 380, y: 560, color: "#b5651d" }, { x: 780, y: 600, color: "#7b1fa2" }, { x: 330, y: 365, color: "#2e7d32" }],
-    lamps: [[470, 330], [650, 330], [470, 510], [650, 510]],
-    stable: { x: 970, y: 500, rot: -Math.PI / 2 },
-    start: { x: 610, y: 440 }
+    houses: [
+      { x: 760, y: 150, w: 220, h: 110, rot: 0 }, { x: 1000, y: 130, w: 180, h: 100, rot: 0 }, { x: 1240, y: 150, w: 200, h: 110, rot: 0 }, { x: 1260, y: 370, w: 150, h: 70, rot: 0 },
+      { x: 690, y: 560, w: 140, h: 100, rot: 0 }, { x: 1310, y: 560, w: 140, h: 100, rot: 0 }, { x: 690, y: 975, w: 140, h: 90, rot: 0 },
+      { x: 700, y: 1370, w: 180, h: 100, rot: 0 }, { x: 1000, y: 1380, w: 160, h: 100, rot: 0 }, { x: 1290, y: 1380, w: 200, h: 100, rot: 0 },
+      { x: 200, y: 760, w: 110, h: 130, rot: 1 }, { x: 180, y: 300, w: 150, h: 110, rot: 0 }, { x: 430, y: 140, w: 130, h: 100, rot: 0 }, { x: 180, y: 1100, w: 150, h: 110, rot: 0 }, { x: 430, y: 1380, w: 140, h: 100, rot: 0 }, { x: 440, y: 520, w: 110, h: 120, rot: 0 },
+      { x: 1700, y: 1300, w: 140, h: 110, rot: 0 }, { x: 1720, y: 160, w: 160, h: 110, rot: 0 }
+    ],
+    stalls: [{ x: 800, y: 690, color: "#b5651d" }, { x: 1200, y: 690, color: "#7b1fa2" }, { x: 1180, y: 960, color: "#2e7d32" }],
+    lamps: [[880, 640], [1120, 640], [880, 880], [1120, 880], [1600, 700], [1600, 820], [400, 700], [1000, 1180]],
+    stable: { x: 1820, y: 1000, rot: -Math.PI / 2 },
+    start: { x: 1000, y: 860 }
   },
   residence: {
     name: "Your Residence", w: 400, h: 320, safe: true, theme: "house", indoor: true,
-    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 288, ty: 420, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
+    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 320, ty: 760, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
     npcs: [{ id: "pip", x: 60, y: 60 }],
     spawns: [],
     start: { x: 200, y: 250 },
@@ -945,7 +966,7 @@ const ZONES = {
   hollow: {
     name: "Rocky Hollow", w: 3200, h: 2200, theme: "field",
     exits: [
-      { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 990, ty: 400, label: "Outpost" },
+      { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 1890, ty: 760, label: "Outpost" },
       { x: 3176, y: 1030, w: 24, h: 100, to: "den", tx: 120, ty: 800, label: "Goblin Den" },
       { x: 1550, y: 2176, w: 100, h: 24, to: "marsh", tx: 1400, ty: 95, label: "Ashen Marsh" },
       { x: 1250, y: 0, w: 100, h: 24, to: "highlands", tx: 2000, ty: 2880, label: "Windreach Highlands" }

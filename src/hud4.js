@@ -500,6 +500,7 @@ function zoneMapCanvas(zoneId) {
   g.fillStyle = grd; g.fillRect(0, 0, z.w, z.h);
   const rnd = seeded(hashStr(zoneId + "map"));
   for (let i = 0; i < 260; i++) { g.fillStyle = "rgba(0,0,0," + (rnd() * 0.12).toFixed(3) + ")"; g.beginPath(); g.arc(rnd() * z.w, rnd() * z.h, 6 + rnd() * 30, 0, 7); g.fill(); }
+  for (const d of z.districts || []) { g.fillStyle = d.color + "26"; g.fillRect(d.x, d.y, d.w, d.h); }
   if (z.plaza) { g.fillStyle = "#9b8c6c"; g.beginPath(); g.arc(z.plaza.x, z.plaza.y, z.plaza.r, 0, 7); g.fill(); }
   g.lineCap = "round"; g.lineJoin = "round";
   for (const p of z.paths || []) {
@@ -522,6 +523,7 @@ function zoneMapCanvas(zoneId) {
   for (const [x, y] of z.torches || []) { g.fillStyle = "#ff9a3d"; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
   for (const b of z.barriers || []) { g.fillStyle = "#8a7a4a"; g.fillRect(b.x, b.y, b.w, b.h); }
   for (const [x, y] of z.pillars || []) { g.fillStyle = "#6a6872"; g.beginPath(); g.arc(x, y, 14, 0, 7); g.fill(); }
+  if (z.cityWalls) for (const r of cityWallRects(z)) { g.fillStyle = r.tower ? "#8a8578" : "#6d685c"; g.fillRect(r.x, r.y, r.w, r.h); g.strokeStyle = "rgba(0,0,0,.6)"; g.lineWidth = 4; g.strokeRect(r.x, r.y, r.w, r.h); }
   for (const r of z.walls || []) {
     g.fillStyle = z.theme === "cave" ? "#151310" : z.theme === "crypt" ? "#121218" : "#4d4a40"; g.strokeStyle = "rgba(0,0,0,.55)"; g.lineWidth = 14;
     g.beginPath(); g.roundRect ? g.roundRect(r.x, r.y, r.w, r.h, 40) : g.rect(r.x, r.y, r.w, r.h); g.fill(); g.stroke();
@@ -838,6 +840,7 @@ function uiEvent(type, d) {
     const r = itemRarity(d.id);
     toast(it.icon || "📦", r === "epic" ? "Epic item!" : r === "rare" ? "Rare item!" : r === "uncommon" ? "Uncommon item" : "Obtained", (d.n > 1 ? d.n + " × " : "") + it.name, "r-" + r);
   }
+  if (type === "district") { zoneTitle(d.d.name, S.zone.city || S.zone.name); if (d.fresh) toast(d.d.icon || "🏙️", "District discovered", d.d.name); sfx("page"); return; }
   if (type === "landmark") { toast("🧭", "Landmark discovered", d.name, "r-rare"); sfx("unlock"); }
 }
 
@@ -873,7 +876,7 @@ function watchProgress() {
     const first = !(save.discovered || []).includes(S.zoneId);
     if (!save.discovered) save.discovered = [];
     if (first) { save.discovered.push(S.zoneId); toast("🧭", "Discovered", S.zone.name); }
-    zoneTitle(S.zone.name, first ? "Discovered" : "");
+    zoneTitle(S.zone.name, first ? "Discovered" : districtName(S.zoneId, player.x, player.y));
   }
   Object.assign(w, { job: j, lv, quests: Object.assign({}, save.quests), maxHp: player.maxHp, maxMp: player.maxMp, zone: S.zoneId, mount: save.mountLicense, sup: save.supportUnlocked });
 }
