@@ -13,18 +13,26 @@ const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytai
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 
 const REGION_PAINT = {
-  skin(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11); o[0] = 0.93 + 0.07 * n; o[1] = n * 0.12; o[2] = 0.62; o[3] = 0; },
+  skin(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11), f = NOISE.fbm(u * 40, v * 40, 2, 40, 12); o[0] = 0.92 + 0.06 * n + 0.02 * f; o[1] = n * 0.12 + f * 0.05; o[2] = 0.58 + 0.08 * f; o[3] = 0; },
   face(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 13); o[0] = 0.94 + 0.06 * n; o[1] = n * 0.08; o[2] = 0.58; o[3] = 0; },
-  cloth(u, v, o, x, y) { const w = ((x >> 1) & 1) ^ ((y >> 1) & 1); const n = NOISE.fbm(u * 10, v * 10, 3, 10, 21); o[0] = 0.8 + 0.07 * w + 0.13 * n; o[1] = 0.25 + 0.45 * w + 0.2 * n; o[2] = 0.95; o[3] = 0; },
+  cloth(u, v, o, x, y) {
+    const w = ((x >> 1) & 1) ^ ((y >> 1) & 1), n = NOISE.fbm(u * 10, v * 10, 3, 10, 21);
+    const fold = NOISE.fbm(u * 5, v * 0.8, 3, 5, 23), fk = Math.sin((u * 7 + fold * 1.6) * Math.PI * 2) * 0.5 + 0.5;
+    const hem = (v < 0.035 || v > 0.965) ? 1 : 0, st = ((v > 0.05 && v < 0.06) || (v > 0.94 && v < 0.95)) && x % 8 < 5 ? 1 : 0;
+    o[0] = 0.72 + 0.06 * w + 0.1 * n + 0.14 * fk - hem * 0.1 - st * 0.12; o[1] = 0.25 + 0.4 * w + 0.15 * n + fk * 0.5 + hem * 0.3 - st * 0.3; o[2] = 0.95; o[3] = 0;
+  },
   leather(u, v, o, x, y) {
     const n = NOISE.fbm(u * 12, v * 12, 4, 12, 31);
     const st = (x % 22 < 12 && ((y > 8 && y < 12) || (y > 244 && y < 248))) ? 1 : 0;
-    o[0] = 0.68 + 0.32 * n - st * 0.3; o[1] = n * 0.6 - st * 0.4; o[2] = 0.5 + 0.25 * (1 - n); o[3] = 0;
+    const pore = NOISE.value(u * 90, v * 90, 0, 33) > 0.82 ? 0.06 : 0, edge = Math.max(0, 1 - Math.min(v, 1 - v) * 14);
+    const crease = NOISE.ridge(u * 4, v * 6, 3, 4, 35) > 0.88 ? 0.1 : 0;
+    o[0] = 0.66 + 0.3 * n - st * 0.3 - pore - crease + edge * 0.12; o[1] = n * 0.6 - st * 0.4 - pore * 2 - crease * 2; o[2] = 0.5 + 0.25 * (1 - n) - edge * 0.12; o[3] = 0;
   },
   metal(u, v, o) {
     const br = NOISE.value(u * 3, v * 140, 0, 41);
     const sc = NOISE.value(u * 30, v * 30, 0, 43) > 0.9 ? -0.12 : 0;
-    o[0] = 0.8 + 0.14 * br + sc; o[1] = br * 0.2 + sc; o[2] = 0.26 + 0.18 * br; o[3] = 0.95;
+    const dent = NOISE.fbm(u * 9, v * 9, 2, 9, 45), edge = Math.max(0, 1 - Math.min(v, 1 - v) * 16), rust = NOISE.fbm(u * 6, v * 6, 3, 6, 47) > 0.7 ? 1 : 0;
+    o[0] = 0.76 + 0.14 * br + sc + 0.08 * dent + edge * 0.12 - rust * 0.12; o[1] = br * 0.2 + sc + dent * 0.35 + edge * 0.2; o[2] = 0.24 + 0.18 * br - edge * 0.1 + rust * 0.35; o[3] = 0.95 - rust * 0.4;
   },
   hair(u, v, o) { const s = NOISE.fbm(u * 56, v * 2.2, 3, 0, 51); const sheen = Math.exp(-Math.pow((v - 0.35) * 7, 2)) * 0.15; o[0] = 0.55 + 0.4 * s + sheen; o[1] = s; o[2] = 0.42; o[3] = 0; },
   trim(u, v, o) {
@@ -362,9 +370,28 @@ class RigBuilder {
       }
     }
   }
+  bakeShade() {
+    if (this.noBake) return;
+    let lo = Infinity, hi = -Infinity;
+    for (const g of this.pieces) { const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i); if (y < lo) lo = y; if (y > hi) hi = y; } }
+    const H = Math.max(0.1, hi - lo);
+    for (const g of this.pieces) {
+      const p = g.attributes.position, n = g.attributes.normal, c = g.attributes.color, w = g.attributes.skinWeight;
+      if (!n) continue;
+      for (let i = 0; i < p.count; i++) {
+        const ny = n.getY(i), h = (p.getY(i) - lo) / H;
+        let k = 0.87 + 0.18 * (0.5 + 0.5 * ny);
+        k *= 0.86 + 0.14 * Math.min(1, h / 0.18);
+        const bw = w.getY(i);
+        if (bw > 0.05) k *= 1 - 0.12 * Math.min(1, bw * 2);
+        c.setXYZ(i, c.getX(i) * k, c.getY(i) * k, c.getZ(i) * k);
+      }
+    }
+  }
   finish() {
     this.attachIslands();
     if (this.defs.length > 1) { this.bridgeGaps(); this.smoothJoints(); }
+    this.bakeShade();
     if (typeof window !== "undefined" && window.RIG_CHECK) this.meta.islands = this.findIslands();
     const main = this.pieces.length ? THREE.mergeGeometries(this.pieces) : null;
     const glow = this.glow.length ? THREE.mergeGeometries(this.glow) : null;
