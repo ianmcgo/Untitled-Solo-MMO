@@ -83,6 +83,7 @@ function placeWeapon(v, e) {
   }
 }
 
+const SLOPE_KINDS = { crawler: 1, worm: 1, quad: 1, crab: 1, fish: 1, hare: 1 };
 function footGround(e) {
   const r = Math.max(4, (e.radius || 14) * 0.55);
   let g = groundY(e.x, e.y);
@@ -122,7 +123,17 @@ function syncEntity(e, dt) {
     if (v.an && v.an.spd > 3 && Math.random() < dt * 6) fxFootstep({ x: e.x, y: e.y, kind: "mount", mounted: false }, M);
   } else {
     if (v.mount) { W3.scene.remove(v.mount.group); v.mount.mat.dispose(); v.mount = null; }
-    g.position.set(e.x * U, gy, e.y * U);
+    let y = gy;
+    if (SLOPE_KINDS[v.kind] && !dead) {
+      if (v.halfLen == null) { const geo = v.mesh && v.mesh.geometry; if (geo) { if (!geo.boundingBox) geo.computeBoundingBox(); v.halfLen = Math.max(0.2, (geo.boundingBox.max.z - geo.boundingBox.min.z) * 0.42 * (v.scale || 1)); } else v.halfLen = 0.4; }
+      const hl = v.halfLen / U, cf = Math.cos(e.face || 0), sf = Math.sin(e.face || 0);
+      const gf = groundY(e.x + cf * hl, e.y + sf * hl), gb = groundY(e.x - cf * hl, e.y - sf * hl);
+      const pitch = clamp(-Math.atan2(gf - gb, 2 * v.halfLen), -0.6, 0.6);
+      g.rotation.order = "YXZ";
+      g.rotation.x += (pitch - g.rotation.x) * Math.min(1, dt * 8);
+      y = Math.max(gy - 0.02, Math.max(gf, gb) - Math.abs(Math.sin(g.rotation.x)) * v.halfLen * 0.9);
+    } else if (g.rotation.x) g.rotation.x *= 0.8;
+    g.position.set(e.x * U, y, e.y * U);
   }
   if (isMob(e) && dead) {
     const k = (S.time - e.deadAt - 1.4) / 1.0;

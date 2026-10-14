@@ -1453,6 +1453,10 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.15.0", date: "2026-10-14", title: "Grounding", items: [
+    "Long-bodied monsters (crawlers, worms, sheep and other four-legged beasts, crabs, fish-like monsters and hares) now tilt to follow hills and slopes, so their noses and tails no longer sink into the ground or float in the air.",
+    "Checked on the steepest slopes in Rocky Hollow: crawlers, worms, sheep and lizards all stay on top of the ground."
+  ] },
   { v: "9.14.0", date: "2026-10-14", title: "Monster proportions", items: [
     "Crawlers are chunkier, stand taller and carry their front segments raised, with longer legs, instead of lying flat.",
     "Bees and hornets have a longer striped abdomen and stinger and smaller, tidier wings.",

@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.14.0 · built 2026-10-14 01:47 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.15.0 · built 2026-10-14 01:50 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14609,13 +14609,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.14.0 · built 2026-10-14 01:47 PDT";
+const BUILD_INFO = "v9.15.0 · built 2026-10-14 01:50 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.15.0", date: "2026-10-14", title: "Grounding", items: [
+    "Long-bodied monsters (crawlers, worms, sheep and other four-legged beasts, crabs, fish-like monsters and hares) now tilt to follow hills and slopes, so their noses and tails no longer sink into the ground or float in the air.",
+    "Checked on the steepest slopes in Rocky Hollow: crawlers, worms, sheep and lizards all stay on top of the ground."
   ] },
   { v: "9.14.0", date: "2026-10-14", title: "Monster proportions", items: [
     "Crawlers are chunkier, stand taller and carry their front segments raised, with longer legs, instead of lying flat.",
@@ -15450,7 +15454,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.14.0";
+const GAME_VERSION = "9.15.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -20673,6 +20677,7 @@ function placeWeapon(v, e) {
   }
 }
 
+const SLOPE_KINDS = { crawler: 1, worm: 1, quad: 1, crab: 1, fish: 1, hare: 1 };
 function footGround(e) {
   const r = Math.max(4, (e.radius || 14) * 0.55);
   let g = groundY(e.x, e.y);
@@ -20712,7 +20717,17 @@ function syncEntity(e, dt) {
     if (v.an && v.an.spd > 3 && Math.random() < dt * 6) fxFootstep({ x: e.x, y: e.y, kind: "mount", mounted: false }, M);
   } else {
     if (v.mount) { W3.scene.remove(v.mount.group); v.mount.mat.dispose(); v.mount = null; }
-    g.position.set(e.x * U, gy, e.y * U);
+    let y = gy;
+    if (SLOPE_KINDS[v.kind] && !dead) {
+      if (v.halfLen == null) { const geo = v.mesh && v.mesh.geometry; if (geo) { if (!geo.boundingBox) geo.computeBoundingBox(); v.halfLen = Math.max(0.2, (geo.boundingBox.max.z - geo.boundingBox.min.z) * 0.42 * (v.scale || 1)); } else v.halfLen = 0.4; }
+      const hl = v.halfLen / U, cf = Math.cos(e.face || 0), sf = Math.sin(e.face || 0);
+      const gf = groundY(e.x + cf * hl, e.y + sf * hl), gb = groundY(e.x - cf * hl, e.y - sf * hl);
+      const pitch = clamp(-Math.atan2(gf - gb, 2 * v.halfLen), -0.6, 0.6);
+      g.rotation.order = "YXZ";
+      g.rotation.x += (pitch - g.rotation.x) * Math.min(1, dt * 8);
+      y = Math.max(gy - 0.02, Math.max(gf, gb) - Math.abs(Math.sin(g.rotation.x)) * v.halfLen * 0.9);
+    } else if (g.rotation.x) g.rotation.x *= 0.8;
+    g.position.set(e.x * U, y, e.y * U);
   }
   if (isMob(e) && dead) {
     const k = (S.time - e.deadAt - 1.4) / 1.0;

@@ -968,6 +968,10 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Measured the user's reference meshes for proportions only (bounding ratios and slice profiles, extents / height): bee length ≈ 2.0, wing span ≈ 1.3; crawler (reared) length ≈ height, body width ≈ 0.8; fish-type length ≈ 2.0, fin span ≈ 1.05; sheep length ≈ 1.4, width ≈ 0.7. Tool: scratch stlprof.py (binary STL → extents + 10 slices). Designs stay original; only ratios used.
 - rig.js: crawler segments r 0.205–0.23, Y0 0.27, last two segments and head lifted (lift()), longer legs, headTop 0.72 (now len/h 2.4). Bee abdomen sz 1.7 + 4 rings, longer stinger, wings span 0.42. Fish body sy 1.15, pectoral fins r 0.16. Sheep leg 0.47, bodyLen 0.74, bodyY 0.55.
 
+## Phase 55: G8 grounding (v9.15.0)
+- models3d syncEntity: SLOPE_KINDS (crawler, worm, quad, crab, fish, hare) sample ground ± halfLen (0.42 × mesh bbox z × scale) along facing; pitch = −atan2(front−back, 2·halfLen) clamped ±0.6, eased, Euler order YXZ; y = max(footGround − 0.02, max(front, back) − |sin pitch|·halfLen·0.9). Measured min vertex height above ground on a 1.1 m/40-unit slope: crawler −0.002, worm 0.10, sheep 0.03, lizard 0.05 (scratch slope.js).
+- Existing: footGround (max of 4 samples), keepOutOfColliders/Rects (trees, rocks, logs, props, houses, walls), separate() between bodies.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -980,7 +984,7 @@ Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big ski
 - 52 (9.12.0) G5 Towns and buildings: DONE (banners and residence interior detail deferred).
 - 53 (9.13.0) G6 Characters: faces + hair DONE; smoother joints/cloth physics continue in M1–M5.
 - 54 (9.14.0) G7 Monsters: proportion pass DONE; per-family sculpt + textures continue in M6.
-- 55 (9.15.0) G8 Grounding and collision (was model phase 2/3): feet on slopes, no sinking crawlers/worms, no clipping through walls/props/other characters.
+- 55 (9.15.0) G8 Grounding and collision: DONE.
 - 56 (9.16.0) G9 Shadows and depth: soft sun shadow maps (quality tiers), blob shadows on low, light ambient occlusion, rim light on characters.
 - 57 (9.17.0) G10 Motion (was model phase 4): smoother turns/starts/stops, idle variety, better attack, cast and hit reactions, emotes.
 - 58 (9.18.0) G11 Effects: particle spell effects per element, weapon-skill trails, hit sparks, level-up and crystal effects, rain/snow/mist weather particles.
@@ -1024,6 +1028,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |
 | 9.12.0 | Phase 52: timber framing, plaster, shutters, lanterns, chimneys, shingles, barrels/crates. |
