@@ -522,7 +522,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.6.0 · built 2026-10-13 17:42 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.7.0 · built 2026-10-13 17:53 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5720,6 +5720,12 @@ const ITEMS = {
   frost_ring: { name: "Frost Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 18, rare: true, nm: true, stats: { hp: 30, mp: 30, int: 3, str: 3 }, desc: "Cold to the touch, always." },
   wight_shroud: { name: "Wight's Shroud", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 19, rare: true, nm: true, rarity: "epic", stats: { def: 20, hp: 45, mp: 45, eva: 8, int: 3, mnd: 3 }, desc: "It weighs nothing at all." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
+  orc_tooth: { name: "Orc Tooth", kind: "mat", icon: "🦷", price: 40, stack: 12, desc: "A chipped orc tusk. Carvers pay for them." },
+  reef_scale: { name: "Reefkin Scale", kind: "mat", icon: "🐚", price: 48, stack: 12, desc: "An iridescent scale from a Reefkin. Makes fine lacquer." },
+  crag_feather: { name: "Crag Feather", kind: "mat", icon: "🪶", price: 44, stack: 12, desc: "A stiff tawny feather. Fletchers love them." },
+  heartwood: { name: "Heartwood", kind: "mat", icon: "🪵", price: 160, stack: 6, desc: "Dense wood from an elder treant. Nearly as hard as iron." },
+  cactus_needle: { name: "Cactus Needle", kind: "mat", icon: "📍", price: 30, stack: 12, desc: "A long green needle, sharp as a pin." },
+  bomb_ash: { name: "Bomb Ash", kind: "mat", icon: "🌋", price: 55, stack: 12, desc: "Still-warm ash from a burst bomb. Volatile." },
   honeycomb: { name: "Honeycomb", kind: "mat", icon: "🍯", price: 28, stack: 12, desc: "Sweet comb cut from a hive. Cooks and alchemists want it." },
   wool_tuft: { name: "Wool Tuft", kind: "mat", icon: "🧶", price: 22, stack: 12, desc: "Soft sheep's wool. Spins into cloth." },
   lizard_skin: { name: "Lizard Skin", kind: "mat", icon: "🦎", price: 45, stack: 12, desc: "Tough scaled hide. Good for boots and gloves." },
@@ -5889,6 +5895,15 @@ const FAMILIES = {
   worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["egg_wormlet", 0.004], ["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
   ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05]], model: "ghoul" },
   den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05]], gil: [3, 6], model: "goblin" },
+  orc_grunt: { name: "Orc Grunt", color: "#6f7f4f", radius: 16, hpMul: 1.3, attMul: 1.2, defMul: 1.1, delay: 3.2, speed: 95, aggro: { sight: 190 }, link: true, linkGroup: "orc", tpMove: { name: "Battle Roar", mul: 1.9, aoe: 70 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["iron_ore", 0.3], ["fire_crystal", 0.25], ["hi_potion", 0.06]], gil: [10, 16], model: "orc" },
+  orc_stonechucker: { name: "Orc Stonechucker", color: "#7f8f5f", radius: 15, hpMul: 1.05, attMul: 1.15, defMul: 0.95, delay: 3.6, speed: 100, aggro: { sight: 220 }, link: true, linkGroup: "orc", range: 200, tpMove: { name: "Boulder Toss", mul: 2.1 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["ash_log", 0.25], ["wind_crystal", 0.25], ["ether", 0.06]], gil: [10, 16], model: "orc" },
+  fishfolk: { name: "Reefkin", color: "#4a8a7a", radius: 15, hpMul: 1.1, attMul: 1.05, defMul: 1.05, eva: 6, delay: 2.9, speed: 105, aggro: { sight: 170, sound: 120 }, link: true, linkGroup: "reefkin", tpMove: { name: "Water Lance", mul: 1.8 }, weak: { lightning: 1.4 }, loot: [["reef_scale", 0.3], ["water_crystal", 0.3], ["harbor_bream", 0.2], ["potion", 0.08]], gil: [8, 14], model: "fishfolk" },
+  birdfolk: { name: "Crag Talon", color: "#c8a870", radius: 14, hpMul: 1.0, attMul: 1.1, defMul: 0.95, eva: 10, delay: 2.6, speed: 120, aggro: { sight: 200 }, link: true, linkGroup: "crag", tpMove: { name: "Talon Dive", mul: 1.9 }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["wind_crystal", 0.3], ["potion", 0.08]], gil: [9, 15], model: "birdfolk" },
+  birdfolk_priest: { name: "Crag Chanter", color: "#f0e4c8", radius: 14, hpMul: 0.95, attMul: 0.95, defMul: 0.9, eva: 8, delay: 3.0, speed: 110, int: 9, aggro: { sight: 200, magic: 150 }, link: true, linkGroup: "crag", tpMove: { name: "Shrieking Chant", mul: 1.5, aoe: 80 }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["ether", 0.15], ["fire_crystal", 0.25]], gil: [10, 16], model: "birdfolk" },
+  sapling: { name: "Wandering Sapling", color: "#6aa84a", radius: 13, hpMul: 0.9, attMul: 0.8, defMul: 1.1, delay: 3.2, speed: 85, aggro: null, link: false, tpMove: { name: "Leaf Lash", mul: 1.5 }, weak: { fire: 1.6 }, loot: [["ash_log", 0.35], ["healing_herb", 0.25], ["earth_crystal", 0.2]], model: "treant", tint: 0x6aa84a },
+  treant_elder: { name: "Elder Treant", color: "#4a3a28", radius: 20, hpMul: 2.0, attMul: 1.2, defMul: 1.4, delay: 3.8, speed: 70, aggro: { sight: 160 }, link: false, tpMove: { name: "Root Quake", mul: 2.0, aoe: 90 }, weak: { fire: 1.6 }, loot: [["heartwood", 0.3], ["ash_log", 0.5], ["earth_crystal", 0.4], ["hi_potion", 0.08]], gil: [12, 20], model: "treant", scale: 1.3 },
+  cactus: { name: "Needlekin", color: "#5aa04a", radius: 12, hpMul: 0.9, attMul: 1.0, defMul: 1.2, eva: 4, delay: 3.0, speed: 90, aggro: { sight: 150 }, link: false, range: 170, tpMove: { name: "Thousand Needles", mul: 2.4 }, weak: { fire: 1.3 }, loot: [["cactus_needle", 0.35], ["earth_crystal", 0.25], ["potion", 0.08]], gil: [8, 14], model: "cactus" },
+  bomb: { name: "Ember Bomb", color: "#ff7043", radius: 14, hpMul: 0.85, attMul: 1.3, defMul: 0.8, eva: 6, delay: 3.0, speed: 100, aggro: { sight: 160 }, link: false, tpMove: { name: "Self-Destruct", mul: 3.2, aoe: 90, explode: true }, weak: { water: 1.5, ice: 1.4 }, loot: [["bomb_ash", 0.4], ["fire_crystal", 0.4], ["ether", 0.06]], gil: [8, 14], model: "bomb" },
   skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.25], ["ether", 0.06]], model: "skeleton" },
   hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["egg_meadow_kit", 0.004], ["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06]], model: "hare" },
   crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["sentinel_greaves", 0.3]], gil: [20, 30], model: "skeleton" },
@@ -5989,6 +6004,7 @@ const ZONES = {
       { fam: "meadow_sheep", lv: [1, 2], x: 250, y: 1400, time: "day" }, { fam: "meadow_sheep", lv: [1, 3], x: 300, y: 1450, time: "day" }, { fam: "mandrake", lv: [2, 3], x: 650, y: 1000, time: "day" }, { fam: "mandrake", lv: [2, 4], x: 700, y: 1040, time: "day" },
       { fam: "hill_lizard", lv: [4, 5], x: 1500, y: 1500 }, { fam: "hill_lizard", lv: [4, 6], x: 1850, y: 1100 }, { fam: "pond_crab", lv: [3, 5], x: 1150, y: 850 }, { fam: "pond_crab", lv: [4, 5], x: 1950, y: 1620 },
       { fam: "shroomling", lv: [4, 6], x: 2050, y: 1900 }, { fam: "shroomling", lv: [5, 6], x: 2150, y: 1950, time: "night" }, { fam: "lake_snapper", lv: [3, 5], x: 1120, y: 500 }, { fam: "honey_bee", lv: [3, 4], x: 1050, y: 1250, time: "day" }, { fam: "grass_crawler", lv: [4, 5], x: 1600, y: 1750 },
+      { fam: "sapling", lv: [3, 5], x: 1300, y: 950 }, { fam: "sapling", lv: [4, 5], x: 1900, y: 950 }, { fam: "orc_grunt", lv: [5, 6], x: 2300, y: 1800 }, { fam: "orc_stonechucker", lv: [5, 6], x: 2360, y: 1850 }, { fam: "bomb", lv: [5, 6], x: 2700, y: 300, time: "night" },
       { fam: "hare", lv: [1, 2], x: 350, y: 1300, time: "day" }, { fam: "hare", lv: [1, 2], x: 620, y: 1450, time: "day" }, { fam: "hare", lv: [1, 2], x: 420, y: 800, time: "day" },
       { fam: "worm", lv: [1, 2], x: 700, y: 1250 }, { fam: "worm", lv: [1, 2], x: 300, y: 1700 }, { fam: "worm", lv: [2, 2], x: 600, y: 420 },
       { fam: "goblin", lv: [1, 2], x: 750, y: 800 }, { fam: "goblin", lv: [1, 2], x: 500, y: 1800 }, { fam: "goblin", lv: [1, 1], x: 420, y: 950 },
@@ -6189,6 +6205,8 @@ ZONES.marsh = {
   spawns: [
     { fam: "longneck", lv: [11, 13], x: 1500, y: 1500, time: "day" }, { fam: "longneck", lv: [12, 13], x: 1700, y: 1600, time: "day" },
     { fam: "marsh_hare", lv: [9, 10], x: 1250, y: 330, time: "day" }, { fam: "marsh_hare", lv: [9, 10], x: 1650, y: 420, time: "day" }, { fam: "marsh_hare", lv: [10, 11], x: 1000, y: 900, time: "day" },
+    { fam: "fishfolk", lv: [11, 12], x: 2500, y: 1900 }, { fam: "fishfolk", lv: [11, 13], x: 2600, y: 2000 }, { fam: "orc_grunt", lv: [12, 13], x: 700, y: 700 }, { fam: "orc_grunt", lv: [12, 14], x: 760, y: 760 }, { fam: "orc_stonechucker", lv: [12, 14], x: 650, y: 760 },
+    { fam: "treant_elder", lv: [13, 14], x: 1900, y: 1900 }, { fam: "birdfolk", lv: [12, 13], x: 300, y: 1500 }, { fam: "birdfolk", lv: [12, 14], x: 360, y: 1560 }, { fam: "birdfolk_priest", lv: [13, 14], x: 330, y: 1620 }, { fam: "cactus", lv: [10, 12], x: 2200, y: 300 },
     { fam: "bog_toad", lv: [9, 10], x: 1100, y: 450 }, { fam: "bog_toad", lv: [9, 10], x: 1600, y: 600 }, { fam: "bog_toad", lv: [10, 11], x: 800, y: 700 },
     { fam: "bog_toad", lv: [10, 11], x: 700, y: 1200 }, { fam: "bog_toad", lv: [11, 12], x: 1000, y: 1500 }, { fam: "bog_toad", lv: [11, 12], x: 650, y: 1550, nm: { id: "old_croaker", lv: 15, chance: 0.15, time: "day" } },
     { fam: "bog_leech", lv: [10, 11], x: 1500, y: 900 }, { fam: "bog_leech", lv: [10, 12], x: 1300, y: 1200 }, { fam: "bog_leech", lv: [11, 12], x: 1700, y: 1300 }, { fam: "bog_leech", lv: [12, 13], x: 2000, y: 1900 },
@@ -6377,6 +6395,15 @@ const BESTIARY = {
   chieftain: { type: "Beastman", lore: "The warlord of the Goblin Den. He rules by out-shouting, out-eating and out-fighting everyone around him." },
   bat: { type: "Vermin", lore: "Leathery wings and keen ears. They hunt by sound, so slow footsteps are your friend in the dark." },
   worm: { type: "Amorphous", lore: "Burrowers that feel the hum of magic through the soil. They spit grit that stings the eyes." },
+  orc_grunt: { type: "Beastman", lore: "Broad, tusked raiders in scavenged mail. They roar before they charge and fight to the last." },
+  orc_stonechucker: { type: "Beastman", lore: "Orcs who hang back and hurl stones the size of your head. Close the distance fast." },
+  fishfolk: { type: "Beastman", lore: "Finned fish-folk of the coast and marsh who fight with coral blades. Lightning makes them shudder." },
+  birdfolk: { type: "Beastman", lore: "Beaked, feathered raiders from the crags, quick on their feet and quicker with a blade." },
+  birdfolk_priest: { type: "Beastman", lore: "Crag Talons who chant for the flock. Their shriek rattles everyone nearby." },
+  sapling: { type: "Plantoid", lore: "Young treants that wander the woods on root-feet. Harmless until bothered, and terribly afraid of fire." },
+  treant_elder: { type: "Plantoid", lore: "An ancient walking tree. It guards its grove and shakes the earth when roused." },
+  cactus: { type: "Plantoid", lore: "Needle-covered cactus folk that shuffle along and fire volleys of spines at anything that comes near." },
+  bomb: { type: "Elemental", lore: "A living ball of fire with a mean little face. When cornered it swells up and explodes." },
   honey_bee: { type: "Vermin", lore: "Fat yellow bees that drone over the meadow flowers. Harmless until one is swatted; then the hive comes." },
   grass_crawler: { type: "Vermin", lore: "Plump green caterpillars as long as a man is tall. They spit sticky thread that slows you down, and never start a fight." },
   meadow_sheep: { type: "Beast", lore: "Woolly and placid. The flock will charge if you bother one of them." },
@@ -7433,6 +7460,8 @@ function applyDamage(src, tgt, amt, opt) {
   if (tgt.hp <= 0) onKO(tgt, src);
 }
 
+function mobReach(m) { return isMob(m) && m.fam.range ? m.fam.range : CONFIG.meleeRange; }
+
 function swing(a, d) {
   const tpGain = Math.round(CONFIG.tpPerDelay * a.delay);
   a.lastSwing = S.time;
@@ -7446,7 +7475,7 @@ function swing(a, d) {
   const sneak = !!b.sneak_attack, boost = !!b.boost;
   if (sneak) delete b.sneak_attack;
   if (boost) delete b.boost;
-  const bow = a.stats && a.stats.wtype === "archery";
+  const bow = (a.stats && a.stats.wtype === "archery") || (isMob(a) && a.fam.range);
   if (bow) vfx("arrow", { src: a, tgt: d });
   if (bow && b.barrage && !a.volley) {
     delete b.barrage;
@@ -8880,11 +8909,11 @@ function updateMob(m, dt) {
       if (m.readying.t <= 0) execTpMove(m);
       return;
     }
-    if (!m.buffs.bind) moveToward(m, t.x, t.y, dt, CONFIG.meleeRange - 8);
+    if (!m.buffs.bind) moveToward(m, t.x, t.y, dt, mobReach(m) - 8);
     m.face = Math.atan2(t.y - m.y, t.x - m.x);
     m.swingTimer -= dt;
     if (m.swingTimer <= 0) {
-      if (dist(m, t) <= CONFIG.meleeRange) {
+      if (dist(m, t) <= mobReach(m)) {
         swing(m, t);
         m.swingTimer = swingDelay(m);
         if (m.alive && m.tp >= 1000 && m.fam.tpMove) {
@@ -8986,6 +9015,7 @@ function execTpMove(m) {
     ring(tg, "#ff7043", mv.aoe || 30, 0.6, "burst");
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
     applyDamage(m, tg, total, { color: "#ff8a80", size: 22 });
+    if (mv.explode && m.alive) { m.hp = 0; onKO(m, m); }
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
     if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
     if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
@@ -12862,13 +12892,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v6.6.0 · built 2026-10-13 17:42 PDT";
+const BUILD_INFO = "v6.7.0 · built 2026-10-13 17:53 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "6.7.0", date: "2026-10-13", title: "Orcs, Reefkin, Crag Talons and more", items: [
+    "New aggressive families with their own looks: Orc Grunts and Orc Stonechuckers (who throw from range), Reefkin fish-folk, Crag Talons and Crag Chanters (beaked bird-folk), Elder Treants, Needlekin (cactus folk who fire needles from range) and Ember Bombs (which explode when cornered).",
+    "Wandering Saplings, young treants, are peaceful until bothered.",
+    "Where to find them: saplings, orcs and night-time bombs deeper in Rocky Hollow; Reefkin, orc war bands, Crag Talons, an Elder Treant and Needlekin in the Ashen Marsh.",
+    "New materials: Orc Tooth, Reefkin Scale, Crag Feather, Heartwood, Cactus Needle and Bomb Ash. New bestiary entries."
   ] },
   { v: "6.6.0", date: "2026-10-13", title: "New critters", items: [
     "Nine new monster families with their own models and animations: Honey Bees, Grass Crawlers, Meadow Sheep, Mandrakes, Hill Lizards, Pond Crabs, Shroomlings and Lake Snappers in Rocky Hollow, and Marsh Longnecks in the Ashen Marsh.",
@@ -13149,6 +13185,7 @@ function tabHelp() {
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Sticky Thread slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",
+    "<b>Ranged and dangerous:</b> Orc Stonechuckers and Needlekin attack from a distance, so close in or pull them around a corner. Ember Bombs swell up and Self-Destruct, a big area blast that also destroys the bomb; kill them fast or step away when they ready it. Elder Treants shake the ground around them.",
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
   h += sec("🐾 Pets", ul([
@@ -13207,7 +13244,7 @@ function tabHelp() {
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
     ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), Selene (auction house), home point, trade board, docks"],
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
-    ["Ashen Marsh", "9–16", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
+    ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🔱 Battlefield: the Chapel Depths", ul([
     "A sealed door stands in the Drowned Chapel ruins of the Ashen Marsh. A <b>Chapel Sigil</b> opens it (the Drowned sometimes carry one; Vela in Saltreach sells them). The sigil is used up when you enter.",
@@ -13343,7 +13380,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "6.6.0";
+const GAME_VERSION = "6.7.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -15388,7 +15425,7 @@ function humanEntry(L) {
     R.bone("shin" + sd, "thigh" + sd, s * pr.hip, knee, 0.01);
     R.bone("foot" + sd, "shin" + sd, s * pr.hip, ank, 0);
   }
-  const skin = L.skin;
+  const skin = L.skin, SKR = L.skinRegion || "skin";
   const top = L.top || { type: "shirt", color: 0x8a7a60 };
   const topC = top.color, topR = top.region || "cloth";
   const legC = L.legs != null ? L.legs : 0x4a3a2c, legR = L.legsRegion || "cloth";
@@ -15400,17 +15437,23 @@ function humanEntry(L) {
   const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered"].includes(L.head.type);
 
   R.add(gBall(V3(0, hc, 0.005), hr, 0.94, 1.04, 1.0, 20), "head", skin, L.noFace ? (L.headRegion || "skin") : "face");
-  if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, "skin");
-  else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, "skin");
+  if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, SKR);
+  else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, SKR);
   for (const s of [-1, 1]) {
-    if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, "skin");
-    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, "skin");
+    if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, SKR);
+    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, SKR);
     else if (L.ears === "ursan") R.add(gBall(V3(s * hr * 0.78, hc + hr * 0.62, -hr * 0.1), hr * 0.26, 1, 0.9, 0.6, 8), "head", L.hair.color, "hair");
-    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, "skin");
+    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, SKR);
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), "head", L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), "head", 0xd89a9a, "skin"); } }
-    else if (!L.skull) R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, "skin");
+    else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
+    else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, SKR);
+    if (L.tusks) R.add(gTaper(V3(s * hr * 0.35, hc - hr * 0.55, hr * 0.75), V3(s * hr * 0.45, hc - hr * 0.1, hr * 0.95), hr * 0.1, 0.004, 6), "head", 0xf0e8d0, "bone");
+    if (L.needles) for (let k = 0; k < 4; k++) R.add(gTaper(V3(s * hr * (0.3 + k * 0.2), hc + hr * (0.9 - k * 0.35), hr * 0.3 - k * 0.1), V3(s * hr * (0.5 + k * 0.3), hc + hr * (1.4 - k * 0.5), hr * 0.3 - k * 0.1), 0.012, 0.002, 4), "head", 0xf0f0d8, "bone");
     if (L.eyesGlow) R.add(gBall(V3(s * hr * 0.36, hc + hr * 0.08, hr * 0.84), hr * 0.15, 1.25, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
   }
+  if (L.beak) { R.add(gTaper(V3(0, hc - hr * 0.1, hr * 0.8), V3(0, hc - hr * 0.3, hr * 1.9), hr * 0.3, 0.01, 8, 0.8), "head", L.beak, "bone"); R.add(gTaper(V3(0, hc - hr * 0.35, hr * 0.8), V3(0, hc - hr * 0.35, hr * 1.5), hr * 0.18, 0.01, 6, 0.8), "head", new THREE.Color(L.beak).multiplyScalar(0.7).getHex(), "bone"); }
+  if (L.crest) for (let k = 0; k < 5; k++) R.add(gBall(V3((k - 2) * hr * 0.25, hc + hr * (0.9 + 0.15 * (2 - Math.abs(k - 2))), -hr * 0.3 - k * 0.02), hr * 0.22, 0.5, 1.6 + 0.4 * (2 - Math.abs(k - 2)), 0.5, 6), "head", L.crest, "feather");
+  if (L.leafHead) { for (let k = 0; k < 7; k++) { const a = k * 0.9, rr = hr * 0.75; R.add(gBall(V3(Math.cos(a) * rr, hc + hr * 0.9 + (k % 2) * hr * 0.25, Math.sin(a) * rr), hr * 0.55, 1, 0.8, 1, 8), "head", L.leafHead, "plain"); } R.add(gBall(V3(0, hc + hr * 1.3, 0), hr * 0.6, 1, 0.8, 1, 8), "head", L.leafHead, "plain"); }
   if (L.skull) R.add(gBox(V3(0, hc - hr * 0.75, hr * 0.35), hr * 1.1, hr * 0.45, hr * 0.9), "head", skin, "bone");
   if (L.beard) {
     R.add(gFront(V3(0, hc, 0.005), hr * 1.04, 2.3, Math.PI * 0.55, Math.PI * 0.92, 0.96, 1.04, 1.02, 14), "head", L.beard, "hair");
@@ -15419,7 +15462,7 @@ function humanEntry(L) {
   hairPieces(R, L.hair, hc, hr, headCovers);
 
   if (!L.skull) {
-    R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.04, 0.0), 0.05 * gi, 0.043 * gi, 10), "neck", skin, "skin");
+    R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.04, 0.0), 0.05 * gi, 0.043 * gi, 10), "neck", skin, SKR);
     const W = sw / 0.195;
     const robe = top.type === "robe" || top.type === "coat";
     const hipR = fem ? 0.165 : 0.152, waistR = 0.15 * pr.waist, beltY = hipsY + 0.03;
@@ -15444,7 +15487,7 @@ function humanEntry(L) {
     R.add(gTaper(V3(ax, shY - 0.02, 0), V3(ex, elY, 0), armR * 1.04, armR * 0.82, 10), "upArm" + sd, upC, upR);
     R.add(gBall(V3(ex, elY, 0), L.skull ? 0.03 : 0.041 * gi, 1, 1, 1, 8), "foreArm" + sd, upC, upR);
     const longS = !bare && (sleeves === "long" || sleeves === "wide");
-    const fa1C = longS ? sleeveC : (L.skull ? skin : skin), fa1R = longS ? sleeveR : (L.skull ? "bone" : "skin");
+    const fa1C = longS ? sleeveC : (L.skull ? skin : skin), fa1R = longS ? sleeveR : (L.skull ? "bone" : SKR);
     R.add(gTaper(V3(ex, elY, 0), V3(ex, mid, 0), L.skull ? 0.02 : 0.042 * gi, L.skull ? 0.02 : 0.038 * gi, 10), "foreArm" + sd, fa1C, fa1R);
     const fa2C = L.gloves != null ? L.gloves : fa1C, fa2R = L.gloves != null ? (L.glovesRegion || "leather") : fa1R;
     R.add(gTaper(V3(ex, mid, 0), V3(wx, wrY + 0.01, 0), L.skull ? 0.02 : 0.038 * gi, L.skull ? 0.018 : 0.033 * gi, 10), "foreArm" + sd, fa2C, fa2R);
@@ -15452,7 +15495,7 @@ function humanEntry(L) {
       R.add(gCyl(V3(ex, wrY + 0.07, 0), 0.05 * gi, 0.085 * gi, 0.16, 14, true), "foreArm" + sd, sleeveC, sleeveR);
       if (top.trim) R.add(gRing(V3(ex, wrY - 0.01, 0), 0.085 * gi, 0.012, "y", 18), "foreArm" + sd, top.trim, "trim", !!top.glowTrim);
     } else if (top.trim && longS) R.add(gRing(V3(wx, wrY + 0.02, 0), 0.04 * gi, 0.009, "y", 14), "foreArm" + sd, top.trim, "trim");
-    const handC = L.gloves != null ? L.gloves : skin, handR = L.gloves != null ? (L.glovesRegion || "leather") : (L.skull ? "bone" : "skin");
+    const handC = L.gloves != null ? L.gloves : skin, handR = L.gloves != null ? (L.glovesRegion || "leather") : (L.skull ? "bone" : SKR);
     R.add(gBall(V3(s * (sw + 0.025), wrY - 0.055, 0.005), L.skull ? 0.03 : 0.045, 0.75, 1.15, 0.55, 10), "hand" + sd, handC, handR);
     R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
@@ -15481,7 +15524,7 @@ function humanEntry(L) {
       R.add(gRing(V3(hx, bootTop, 0.012), 0.062 * gi, 0.012, "y", 14), "shin" + sd, L.boots, "leather");
     }
     const footC = L.boots != null ? L.boots : L.barefoot ? skin : L.skull ? skin : (L.shoes || 0x3a2a1e);
-    const footR = L.boots != null ? "leather" : L.barefoot ? "skin" : L.skull ? "bone" : "leather";
+    const footR = L.boots != null ? "leather" : L.barefoot ? SKR : L.skull ? "bone" : "leather";
     R.add(gBox(V3(hx, 0.042, 0.035), L.skull ? 0.06 : 0.092, 0.075, 0.2), "foot" + sd, footC, footR);
     R.add(gBall(V3(hx, 0.045, 0.13), L.skull ? 0.035 : 0.048, 1, 0.8, 1.0, 10), "foot" + sd, footC, footR);
   }
@@ -15618,6 +15661,24 @@ function batEntry(col, eye) {
     R.add(gTaper(V3(s * 0.05, Y - 0.1, -0.05), V3(s * 0.06, Y - 0.22, -0.08), 0.012, 0.006, 5), "body", dark, "skin");
   }
   R.meta = { kind: "bat", headTop: Y + 0.3 };
+  return R.finish();
+}
+
+function bombEntry(col, eye) {
+  const R = new RigBuilder();
+  const Y = 1.0;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y, 0);
+  const dark = new THREE.Color(col).multiplyScalar(0.55).getHex(), light = new THREE.Color(col).lerp(new THREE.Color(0xffffff), 0.45).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.32, 1, 1, 1, 16), "body", col, "glow", true);
+  R.add(gBall(V3(0, Y + 0.1, -0.1), 0.2, 1, 0.9, 1, 10), "body", light, "glow", true);
+  for (const s of [-1, 1]) { R.add(gBall(V3(s * 0.12, Y + 0.08, 0.27), 0.07, 1, 1.3, 0.5, 8), "head", dark, "plain"); R.add(gBall(V3(s * 0.12, Y + 0.09, 0.31), 0.03, 1, 1, 0.5, 6), "head", eye, "glow", true); }
+  R.add(gBall(V3(0, Y - 0.1, 0.28), 0.12, 1.6, 0.4, 0.5, 8), "head", dark, "plain");
+  for (let k = 0; k < 4; k++) R.add(gBall(V3(0, Y - 0.12 - k * 0.08, 0.3 + (k % 2) * 0.02 - 0.03 * k), 0.03, 1, 1.2, 0.6, 5), "head", 0xf0f0e0, "bone");
+  R.add(gTaper(V3(0, Y + 0.3, -0.05), V3(0.05, Y + 0.5, -0.12), 0.04, 0.025, 6), "body", 0x3a2a22, "wood");
+  R.add(gBall(V3(0.06, Y + 0.54, -0.14), 0.07, 1, 1.3, 1, 8), "body", 0xffe082, "glow", true);
+  R.meta = { kind: "bat", headTop: Y + 0.65 };
   return R.finish();
 }
 
@@ -16138,6 +16199,30 @@ function mobLook(m) {
     return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
   }
   if (key === "tide_priest") return { kind: "human", look: { skull: true, skin: 0x7aa6a6, noFace: true, headRegion: "bone", eyesGlow: 0x4dd0e1, top: { type: "robe", color: 0x14303a, trim: 0x4dd0e1, glowTrim: true }, head: { type: "hood", color: 0x0f2530 }, legs: 0x14303a, barefoot: true, weapon: "staff", weaponId: "holly_staff" } };
+  if (model === "orc") {
+    const archer = key === "orc_stonechucker" || key === "frost_stonechucker", lord = key === "orc_warlord", frost = key.startsWith("frost_");
+    const skin = lord ? 0x5a6a4a : frost ? 0x7a8a8a : 0x6f7f4f;
+    return { kind: "human", look: { skin, noFace: true, eyesGlow: lord ? 0xff5030 : 0xffb040, tusks: true, barefoot: false, boots: 0x2a1e14, top: archer ? { type: "vest", color: 0x4a3a2a, region: "leather", under: skin } : { type: "mail", color: lord ? 0x3a3038 : 0x5a5048, region: "chain" }, pauldrons: lord ? 0x6a4a3a : archer ? null : 0x4a4038, head: lord ? { type: "horned", color: 0x3a3030, color2: 0xe8dcc0 } : archer ? { type: "bandana", color: 0x6a2a2a } : { type: "cap", color: 0x4a4038 }, cape: lord ? 0x6a1a1a : null, legs: 0x3a3028, belt: 0x2a1e14, hair: { style: "bald", color: 0x222 }, weapon: archer ? "archery" : lord ? "greataxe" : "club", weaponId: archer ? "shortbow" : lord ? "steel_greataxe" : null, prop: { leg: 0.86, torso: 0.6, headR: 0.15, arm: 0.66, shoulder: lord ? 0.26 : 0.23, hip: 0.12, neck: 0.04, girth: lord ? 1.4 : 1.25, waist: 1.2 } } };
+  }
+  if (model === "fishfolk") {
+    const chief = key === "fishfolk_chief";
+    return { kind: "human", look: { skin: chief ? 0x3a7a8a : 0x4a8a7a, skinRegion: "scale", noFace: true, eyesGlow: 0xffe082, ears: "fin", finColor: chief ? 0x8ad0e0 : 0x7ac0b0, barefoot: true, top: { type: "vest", color: 0x2a4a5a, region: "leather", under: 0x4a8a7a }, legs: 0x2a4a4a, belt: 0x6a5a3a, hair: { style: "bald", color: 0x222 }, head: chief ? { type: "horned", color: 0x2a5a6a, color2: 0xd8e8f0 } : null, cape: chief ? 0x1a4a5a : null, weapon: chief ? "staff" : "dagger", weaponId: chief ? "coral_staff" : "bronze_dagger", prop: { leg: 0.8, torso: 0.5, headR: 0.15, arm: 0.6, shoulder: 0.19, hip: 0.1, neck: 0.06, girth: 1.0 } } };
+  }
+  if (model === "birdfolk") {
+    const priest = key === "birdfolk_priest" || key === "crag_oracle", oracle = key === "crag_oracle";
+    const plum = oracle ? 0xd8d0e8 : priest ? 0xf0e4c8 : 0xc8a870;
+    return { kind: "human", look: { skin: plum, skinRegion: "feather", noFace: true, eyesGlow: oracle ? 0xb388ff : 0xffd54f, ears: "none", beak: 0xe8c060, crest: oracle ? 0x7e57c2 : priest ? 0xd84a4a : 0x4a3a2a, barefoot: true, top: priest ? { type: "robe", color: oracle ? 0x3a2a5a : 0x8a2a2a, trim: 0xd8c070, glowTrim: oracle } : { type: "vest", color: 0x5a4a3a, region: "leather", under: plum }, legs: plum, legsRegion: "feather", belt: 0x6a4a2a, hair: { style: "bald", color: 0x222 }, weapon: priest ? "staff" : "sword", weaponId: priest ? "holly_staff" : "bronze_sword", prop: { leg: 0.9, torso: 0.5, headR: 0.14, arm: 0.62, shoulder: 0.18, hip: 0.09, neck: 0.09, girth: 0.92 } } };
+  }
+  if (model === "treant") {
+    const elder = key === "treant_elder" || key === "old_rootfather", frost = key === "rime_treant";
+    const bark = frost ? 0x6a7a80 : elder ? 0x4a3a28 : 0x6a4a30, leaf = frost ? 0xcfe8f0 : elder ? 0x3a6a2a : 0x6aa84a;
+    return { kind: "human", look: { skin: bark, skinRegion: "wood", noFace: true, eyesGlow: elder ? 0xffb300 : 0x9ccc65, ears: "none", leafHead: leaf, barefoot: true, top: { type: "rags", color: bark, sleeves: "none" }, legs: bark, legsRegion: "wood", hair: { style: "bald", color: 0x222 }, claws: true, prop: elder ? { leg: 1.0, torso: 0.72, headR: 0.17, arm: 0.86, shoulder: 0.26, hip: 0.13, neck: 0.03, girth: 1.35 } : { leg: 0.6, torso: 0.4, headR: 0.14, arm: 0.5, shoulder: 0.16, hip: 0.08, neck: 0.03, girth: 0.9 } } };
+  }
+  if (model === "cactus") {
+    const king = key === "cactus_king";
+    return { kind: "human", look: { skin: king ? 0x4a8a3a : 0x5aa04a, noFace: true, eyesGlow: 0x111111, ears: "none", needles: true, barefoot: true, top: { type: "rags", color: king ? 0x4a8a3a : 0x5aa04a, sleeves: "none" }, legs: king ? 0x4a8a3a : 0x5aa04a, hair: { style: "bald", color: 0x222 }, head: king ? { type: "crown" } : null, prop: { leg: 0.7, torso: 0.5, headR: 0.13, arm: 0.45, shoulder: 0.15, hip: 0.07, neck: 0.02, girth: 0.95 } } };
+  }
+  if (model === "bomb") return { kind: "bomb", col: key === "frost_bomb" ? 0x81d4fa : key === "ashen_bomb" ? 0x9e9e9e : 0xff7043, eye: key === "frost_bomb" ? 0xffffff : 0xfff3c0 };
   if (model === "ghoul") {
     const warden = key === "ossuary_warden";
     return { kind: "human", look: { skin: warden ? 0x6a8a74 : 0x8fa890, noFace: true, eyesGlow: warden ? 0x69f0ae : 0xff3030, claws: true, barefoot: true, top: { type: "rags", color: warden ? 0x1c2621 : 0x3a3a30, sleeves: "none" }, legs: 0x4a4a3e, hair: { style: "long", color: 0x6a6a60 }, head: warden ? { type: "hood", color: 0x1c2621 } : null, prop: { arm: 0.72, leg: 0.82, headR: 0.118, girth: 0.82 } } };
@@ -16161,6 +16246,7 @@ function buildEntityRig(e) {
     } else if (ml.kind === "bat") { sig = "bat|" + ml.col; make = () => batEntry(ml.col, ml.eye); }
     else if (ml.kind === "worm") { sig = "worm|" + ml.col; make = () => wormEntry(ml.col); }
     else if (ml.kind === "toad") { sig = "toad|" + ml.col; make = () => toadEntry(ml.col); }
+    else if (ml.kind === "bomb") { sig = "bomb|" + ml.col; make = () => bombEntry(ml.col, ml.eye); }
     else if (ml.kind === "bee") { sig = "bee|" + ml.col + ml.col2; make = () => beeEntry(ml.col, ml.col2); }
     else if (ml.kind === "crawler") { sig = "crawler|" + ml.col + ml.col2; make = () => crawlerEntry(ml.col, ml.col2); }
     else if (ml.kind === "sheep") { sig = "sheep|" + ml.col; make = () => sheepEntry(ml.col); }
@@ -17481,6 +17567,9 @@ function styleFor(e) {
     const m = e.fam.model;
     if (m === "goblin" || m === "chieftain") return { hunch: true, hop: true };
     if (m === "ghoul") return { hunch: true, prowl: true, claws: true };
+    if (m === "treant") return { hunch: true, prowl: true, claws: true };
+    if (m === "fishfolk") return { hunch: true };
+    if (m === "orc") return { hunch: true, hop: false };
   }
   return {};
 }

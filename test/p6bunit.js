@@ -5,7 +5,7 @@ const npc = id => S.npcs.find(n => n.id === id);
 const opt = re => S.dialog.all.find(o => re.test(o.label));
 
 ok(G.FEATURES.crafting && G.FEATURES.gathering, 'crafting and gathering are switched on');
-G.enterZone('hollow', 200, 1100); run(0.5);
+G.enterZone('hollow', 200, 1100); run(0.5); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 const points = S.npcs.filter(n => n.prop === 'gather');
 ok(points.length === 9 && ['mining', 'logging', 'harvesting'].every(t => points.filter(p => p.gtype === t).length === 3), 'Rocky Hollow has three points of each gathering type');
 const mine = points.find(p => p.gtype === 'mining'); mine.uses = 3;

@@ -710,11 +710,19 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - World: boulders with s > 1.3 push a collider (r ≈ max(sx, sz)·0.8/U) in buildVegetation; updateCamera pulls the camera in when a sample point lies inside a house footprint (rot-aware, +10 px margin) below roof height (ground + 6).
 - Tests: p6unit passive check now "no fam.aggro". p5shots scenes zoo, zoo2.
 
+## Phase 26: humanoid and big families (v6.7.0)
+- humanEntry extensions (rig.js): L.skinRegion (body paint region; SKR replaces "skin" for head, neck, arms, hands, bare feet), ears "fin" (finColor, scale region) and "none", L.tusks, L.needles (spines on the head), L.beak (two-part beak), L.crest (feather crest), L.leafHead (leaf canopy for treants).
+- mobLook: model "orc" (grunt club / stonechucker bow / warlord great axe; tusks, broad build), "fishfolk" (scale skin, fins, dagger; chief has horned helm and staff), "birdfolk" (feather skin, beak, crest; priests/oracle in robes with staff), "treant" (wood skin, leaf head, claws; elder big), "cactus" (needles, crown for king), "bomb" → bombEntry (glowing sphere with face and lit fuse, bat pose). styleFor: treant prowl/claws, fishfolk and orc hunch.
+- Mob ranged attacks: fam.range (px) → mobReach(m) replaces meleeRange for approach and swing; ranged mobs show the arrow vfx. TP move `explode: true` kills the user after the blast (bomb Self-Destruct).
+- Families: orc_grunt, orc_stonechucker (range 200), fishfolk ("Reefkin"), birdfolk ("Crag Talon"), birdfolk_priest ("Crag Chanter", magic aggro), sapling (passive), treant_elder (scale 1.3), cactus ("Needlekin", range 170), bomb ("Ember Bomb"). Mats orc_tooth, reef_scale, crag_feather, heartwood, cactus_needle, bomb_ash. Spawns: Hollow east/south (saplings 3–5, orcs 5–6, night bombs 5–6); marsh (Reefkin SE shore 11–13, orc camp NW 12–14, Crag roost W 12–14, Elder Treant 13–14, Needlekin NE 10–12). Variant keys reserved in mobLook for later tiers (orc_warlord, frost_stonechucker, fishfolk_chief, crag_oracle, old_rootfather, rime_treant, cactus_king, frost_bomb, ashen_bomb).
+- Tests: test/p24unit.js (passive/aggressive split, ranged stonechucker, bomb self-destruct, crawler slow); p6bunit clears mobs before synthesis. p5shots scene zoo3.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.7.0 | Phase 26: orcs, Reefkin, Crag Talons, treants, Needlekin, bombs; ranged mobs. |
 | 6.6.0 | Phase 25: nine critter families with models and animations; rock colliders; camera stays out of houses. |
 | 6.5.1 | Phase 24b: pets give no bonuses and are rare drops; no XP for landmarks; no crystals for achievements. |
 | 6.5.0 | Phase 24: ten pets that follow you, Pets window, /pet, perks. |
