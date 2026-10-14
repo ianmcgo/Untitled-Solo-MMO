@@ -339,7 +339,9 @@ function* bakeTerrainAlbedoSteps(field, size) {
         r = mix(r, v, t2); g = mix(g, v * 0.97, t2); b = mix(b, v * 0.92, t2);
       } else {
         const t2 = pw * (0.85 + 0.15 * n2);
+        const gr0 = r, gg0 = g, gb0 = b;
         r = mix(r, th.dirt[0] * (0.9 + n3 * 0.2), t2); g = mix(g, th.dirt[1] * (0.9 + n3 * 0.2), t2); b = mix(b, th.dirt[2] * (0.9 + n3 * 0.2), t2);
+        if (field.rutWeight) { const [rw, mw] = field.rutWeight(px, py); const md = mw * 0.4 * pw; r = mix(r, gr0, md); g = mix(g, gg0, md); b = mix(b, gb0, md); const k = 1 - rw * 0.32 * pw; r *= k; g *= k * 0.98; b *= k * 0.95; }
       }
     }
     const shore = field.shoreWeight(px, py);
