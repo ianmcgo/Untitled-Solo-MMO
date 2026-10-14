@@ -1121,6 +1121,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - rig mobLook `spire_warden` (skull, red plate with glowing trim, horned helm, greatsword). Achievement `spire` uses `save.nmKilled.spire_warden`.
 - Tests: p40unit.
 
+## Phase 81: Underdeep River (v12.6.0)
+- data.js (before ZONE_SCALE): families glow_bat, pale_crab, lumicap (shroomling), deep_worm; NM `lumicap_matron` → lumen_earring; items glowcap, glowfin, blind_eel. `ZONES.underdeep` (3200×1000 cave, `glow: true`, divider wall x 1550–1670, river = 12 water circles along y≈800, boatmen boat_west/boat_east). Verdant gets a door exit (2700,2100). FISH.underdeep, achievement `underdeep` (save.stats.boatRides).
+- game.js: `startFerry(to, x, y, cost, msg, secs)` generalised; same-zone trips (`boat`) move the alive party to the far landing and count boatRides. talkBoat.
+- world3d `buildGlow(field, root)` for `z.glow`: ~160 instanced emissive mushrooms and crystals + 4 coloured point lights.
+- Tests: p41unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1159,7 +1165,7 @@ New zones (one per release; each gets its own monsters, NM, gathering, quests, l
 - 78 DONE (12.3.0) Cinder Peak: volcano, lava flows, fire elementals, top-tier smithing ore.
 - 79 DONE (12.4.0) Gull Isle: coastal island reached by ferry; sea cliffs, pirate caves, lighthouse.
 - 80 DONE (12.5.0) The Spire: multi-floor tower dungeon, harder per floor, boss at the top.
-- 81 (12.6.0) Underdeep River: underground river by boat, glowing caves, fishing.
+- 81 DONE (12.6.0) Underdeep River: underground river by boat, glowing caves, fishing.
 - 82 (12.7.0) Highland plateau: open grassland, large mount area, nomad camps.
 World systems:
 - 83 (13.0.0) Regions with control status: each region shows which side holds it; affects shop stock and prices.
@@ -1202,6 +1208,7 @@ World systems:
 | 12.3.0 | Phase 78: Cinder Peak volcano. |
 | 12.4.0 | Phase 79: Gull Isle and the ferry. |
 | 12.5.0 | Phase 80: The Red Spire tower dungeon. |
+| 12.6.0 | Phase 81: Underdeep River. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

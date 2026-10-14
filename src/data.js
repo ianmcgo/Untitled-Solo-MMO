@@ -1415,7 +1415,7 @@ NM_FAMILIES.old_mossback = { hint: "Heart of the Canopy, Verdant Jungle · any t
 ITEMS.canopy_cloak = { name: "Canopy Cloak", kind: "equip", icon: "🧣", rare: true, nm: true, rarity: "epic", slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 4, hp: 25, mp: 25, mnd: 3, eva: 3 }, desc: "Woven from Old Mossback's living bark. It still smells of rain." };
 ZONES.verdant = {
   name: "Verdant Jungle", w: 3000, h: 2400, theme: "field", palette: "jungle", mist: true, vegK: 1.6,
-  exits: [{ x: 0, y: 1100, w: 24, h: 100, to: "marsh", tx: 2700, ty: 750, label: "Ashen Marsh" }],
+  exits: [{ x: 0, y: 1100, w: 24, h: 100, to: "marsh", tx: 2700, ty: 750, label: "Ashen Marsh" }, { x: 2700, y: 2100, w: 40, h: 30, to: "underdeep", tx: 110, ty: 450, label: "Underdeep", kind: "door", ask: "Climb down into the Underdeep?" }],
   npcs: [],
   walls: [{ x: 800, y: 400, w: 260, h: 220 }, { x: 1900, y: 300, w: 300, h: 240 }, { x: 1400, y: 1700, w: 360, h: 200 }, { x: 2500, y: 1500, w: 220, h: 300 }],
   ruins: { walls: [[2200, 1000, 2420, 1000, 3.0], [2200, 1000, 2200, 1200, 2.4], [2420, 1000, 2420, 1150, 1.8], [2260, 1250, 2420, 1250, 1.2]], pillars: [[2310, 1100, 4.0], [2150, 900, 3.0], [2480, 1300, 2.6]] },
@@ -1560,6 +1560,40 @@ ZONES.spire_top = {
   pillars: [[380, 300], [380, 600], [620, 300], [620, 600]],
   spawns: [{ fam: "spire_warden", lv: [23, 23], x: 650, y: 450 }],
   landmarks: [{ id: "summit", name: "Red Spire Summit", x: 500, y: 450, r: 260, xp: 150 }],
+  start: { x: 110, y: 450 }
+};
+
+Object.assign(FAMILIES, {
+  glow_bat: tierFam("bat", { name: "Glow Bat", color: "#4dd0e1", tint: 0x2a6a7a, hpMul: 1.15, attMul: 1.05, loot: [["bat_wing", 0.45], ["water_crystal", 0.25], ["hi_potion", 0.06]] }),
+  pale_crab: tierFam("pond_crab", { name: "Pale Crab", color: "#d8e0e8", tint: 0xd8e0e8, hpMul: 1.2, weak: { lightning: 1.3 }, loot: [["crab_shell", 0.45], ["water_crystal", 0.25], ["hi_potion", 0.06]] }),
+  lumicap: tierFam("shroomling", { name: "Lumicap", color: "#80deea", hpMul: 1.25, attMul: 1.05, weak: { fire: 1.4 }, loot: [["glowcap", 0.45], ["light_crystal", 0.2], ["hi_potion", 0.06]] }),
+  deep_worm: tierFam("worm", { name: "Deep Worm", color: "#8a8098", tint: 0x8a8098, hpMul: 1.45, attMul: 1.08, loot: [["worm_silk", 0.35], ["dark_crystal", 0.2], ["hi_potion", 0.06]] })
+});
+NM_FAMILIES.lumicap_matron = { hint: "Glimmer Grotto, Underdeep · any time", base: "shroomling", name: "Lumicap Matron", hpMul: 3.0, attMul: 1.12, scale: 2.2, aura: "#80deea", loot: [["lumen_earring", 0.35], ["glowcap", 1], ["hi_potion", 0.5], ["ether", 0.5]], respawn: 420 };
+Object.assign(ITEMS, {
+  glowcap: { name: "Glowcap", kind: "mat", icon: "🍄", price: 60, stack: 12, desc: "A mushroom that glows a soft blue. Alchemists prize it." },
+  glowfin: { name: "Glowfin", kind: "mat", icon: "🐟", price: 85, stack: 12, desc: "A pale fish from the Underdeep River. Its fins shine in the dark." },
+  blind_eel: { name: "Blind Eel", kind: "mat", icon: "🐍", price: 120, stack: 12, desc: "A long white eel with no eyes. Strong-tasting and valuable." },
+  lumen_earring: { name: "Lumen Earring", kind: "equip", icon: "💠", rare: true, nm: true, rarity: "epic", slot: "ear", jobs: ALL_JOBS, lv: 18, price: 0, stats: { mp: 20, int: 3, mnd: 3, res_dark: 10 }, desc: "A glowing cap-stone from the Lumicap Matron." }
+});
+for (const id of ["light_crystal", "dark_crystal"]) if (!ITEMS[id]) for (const f of ["lumicap", "deep_worm"]) FAMILIES[f].loot = FAMILIES[f].loot.filter(l => l[0] !== id);
+ZONES.underdeep = {
+  name: "Underdeep River", w: 3200, h: 1000, theme: "cave", glow: true,
+  exits: [{ x: 0, y: 400, w: 24, h: 100, to: "verdant", tx: 2720, ty: 2180, label: "Verdant Jungle" }],
+  npcs: [{ id: "boat_west", x: 1360, y: 560 }, { id: "boat_east", x: 1860, y: 560 }],
+  walls: [{ x: 1550, y: 0, w: 120, h: 1000 }, { x: 600, y: 120, w: 220, h: 140 }, { x: 2400, y: 150, w: 220, h: 160 }],
+  spawns: [
+    { fam: "glow_bat", lv: [16, 17], x: 500, y: 350 }, { fam: "pale_crab", lv: [16, 17], x: 900, y: 620 }, { fam: "lumicap", lv: [16, 18], x: 1150, y: 300 },
+    { fam: "glow_bat", lv: [18, 19], x: 2100, y: 350 }, { fam: "deep_worm", lv: [18, 20], x: 2500, y: 600 }, { fam: "lumicap", lv: [18, 19], x: 2900, y: 300, nm: { id: "lumicap_matron", lv: 21, chance: 0.12 } }
+  ],
+  water: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => ({ x: 150 + i * 260, y: 800 + (i % 2) * 30, r: 150 })),
+  paths: [{ w: 36, pts: [[-500, 450], [0, 450], [700, 480], [1360, 520]] }, { w: 36, pts: [[1860, 520], [2500, 450], [3000, 400]] }],
+  landmarks: [
+    { id: "landing", name: "West Landing", x: 1300, y: 520, r: 200, xp: 60 },
+    { id: "grotto", name: "Glimmer Grotto", x: 2800, y: 350, r: 260, xp: 100 },
+    { id: "falls", name: "Underfalls", x: 600, y: 700, r: 220, xp: 70 }
+  ],
+  gather: { mining: { n: 3, at: [[400, 250], [1200, 200], [2000, 200], [2700, 650], [3000, 700]], loot: [["iron_ore", 0.45], ["copper_ore", 0.25], ["water_crystal", 0.15], ["earth_crystal", 0.15]] } },
   start: { x: 110, y: 450 }
 };
 
@@ -2126,6 +2160,8 @@ Object.assign(NPCS, {
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
 ACHIEVEMENTS.push({ id: "spire", icon: "🗼", name: "Top of the Spire", desc: "Defeat the Spire Warden at the summit of the Red Spire.", test: s => !!(s.nmKilled && s.nmKilled.spire_warden) });
+FISH.underdeep = [["glowfin", 8, 7], ["blind_eel", 14, 2], ["mud_eel", 0, 3]];
+ACHIEVEMENTS.push({ id: "underdeep", icon: "🛶", name: "Down the River", desc: "Ride the boat across the Underdeep River.", test: s => !!(s.stats && s.stats.boatRides) });
 WEATHER.gullisle = [["clear", 6], ["wind", 3], ["cloudy", 2], ["rain", 2], ["storm", 0.7]];
 FISH.gullisle = [["sea_bass", 6, 7], ["harbor_bream", 0, 4], ["tidecaller_tuna", 14, 1.2]];
 ACHIEVEMENTS.push({ id: "gullisle", icon: "🏝️", name: "Island Hopper", desc: "Take the ferry to Gull Isle.", test: s => (s.discovered || []).includes("gullisle") });
@@ -2203,3 +2239,14 @@ Object.assign(BESTIARY, {
   old_saltjaw: { type: "Aquan", lore: "A snapper older than the wreck in the cove it calls home." }
 });
 BESTIARY.spire_warden = { type: "Undead", lore: "The last keeper of the Red Spire. It has guarded the summit so long it has forgotten what it guards." };
+Object.assign(NPCS, {
+  boat_west: { name: "Boatman Ferro", model: "ferryman", talk: "talkBoat", boatTo: { x: 1880, y: 520 } },
+  boat_east: { name: "Boatman Ferro's Twin", model: "ferryman", talk: "talkBoat", boatTo: { x: 1340, y: 520 } }
+});
+Object.assign(BESTIARY, {
+  glow_bat: { type: "Vermin", lore: "Bats whose wings glow faintly from the mushrooms they roost among." },
+  pale_crab: { type: "Aquan", lore: "Eyeless white crabs that feel their way along the river's banks." },
+  lumicap: { type: "Plantoid", lore: "Glowing mushroom folk of the Underdeep. Their spores shine as they drift." },
+  deep_worm: { type: "Amorphous", lore: "Grey worms that have never seen the sun, and never will." },
+  lumicap_matron: { type: "Plantoid", lore: "A towering Lumicap that lights the whole Glimmer Grotto. The smaller caps gather around her." }
+});
