@@ -770,7 +770,7 @@ function onTgtCmd(idx) {
   if (key === "close" || key === "none") { tgtCmdClose(); return; }
   if (key === "back") { c.page = "root"; c.sel = 0; renderTgtCmd(); return; }
   if (key === "ma" || key === "ja" || key === "items") { c.page = key; c.sel = 0; renderTgtCmd(); return; }
-  if (key === "check") { c.info = t.kind === "remote" ? t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub && JOBS[t.sub] ? " / " + JOBS[t.sub].name : "") + "." : inspectText(t); if (t.kind !== "remote") log("The " + t.name + ": " + c.info, "sys"); renderTgtCmd(); return; }
+  if (key === "check") { const info = t.kind === "remote" ? t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub && JOBS[t.sub] ? " / " + JOBS[t.sub].name : "") + "." : inspectText(t); log((t.kind === "remote" ? "" : "The " + t.name + ": ") + info, "sys"); c.info = null; renderTgtCmd(); return; }
   if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
   if (key === "disengage") { if (player.engaged) toggleEngage(false); player.engaged = false; player.attackTarget = null; S.chase = false; player.target = null; tgtCmdClose(); return; }
   if (key === "switch") { tgtCmdClose(); cycleTarget(); return; }
