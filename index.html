@@ -1029,7 +1029,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.4.0 · built 2026-10-14 15:17 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.5.0 · built 2026-10-14 15:54 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -8502,6 +8502,7 @@ function normalizeSave(d) {
   const b = newSave();
   const out = Object.assign(b, d);
   out.jobs = Object.assign(newSave().jobs, d.jobs);
+  if (out.look && out.look.face >= 8) out.look = Object.assign({}, out.look, { face: out.look.face % 8 });
   out.skills = newSave().skills;
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
@@ -17125,13 +17126,22 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v15.4.0 · built 2026-10-14 15:17 PDT";
+const BUILD_INFO = "v15.5.0 · built 2026-10-14 15:54 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "15.5.0", date: "2026-10-14", title: "Anime faces", items: [
+    "Every player race and townsperson now has a cartoon/anime face in the spirit of classic online RPGs: large glossy eyes with two highlights, a tall shaded iris, a thick upper lash line, a tiny nose and a small mouth.",
+    "Eight face types: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud. Each has its own eye shape (round, narrow, upturned, droopy, half-lidded), eye colour, brows and mouth.",
+    "Men and women have separate face paints: women get heavier lashes with a flick at the corner, a lip tint and a blush.",
+    "Faces are smoother: smaller nose, shallower eye sockets and softer cheeks.",
+    "Fringes (bob, long, twin tails, wavy) now stop at the brows so the eyes show.",
+    "Blinking and closing the eyes when knocked out still work with the larger eyes.",
+    "Characters that used faces 9 to 16 now use the matching face from the first eight."
   ] },
   { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
     "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
@@ -17269,7 +17279,7 @@ const UPDATES = [
     "Critters (hares, bees, sheep, mandrakes and the like) stay out at night. Night adds its own harder monsters rather than emptying the fields."
   ] },
   { v: "13.9.0", date: "2026-10-14", title: "Faces that talk", items: [
-    "16 faces to choose from (was 8): the new eight pair the painted features with a different bone structure (stronger nose and chin, wider jaw, higher cheekbones, fuller lips).",
+    "16 faces to choose from (was 8). Since 15.5.0 there are 8 anime-style faces instead.",
     "Mouths move. Townsfolk talk while their lines appear in the log, you and other players talk when you chat, and the jaw drops with each syllable.",
     "Expressions: a shout on weapon skills, a grimace when hit, chanting while casting, open-mouthed laughs, cheers and panics, a trembling mouth when crying, and a slack jaw when knocked out. Eyes still blink and squint as before."
   ] },
@@ -18047,7 +18057,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character: pick race, sex, skin, one of 16 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked) and every face has its own eye colour, brows and mouth. Set Graphics to High for the sharpest faces and clothing.",
+    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Faces are drawn in a cartoon/anime style: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud, each with its own eye shape, eye colour, brows and mouth. Women's faces have heavier lashes, a lip tint and a blush. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked). Set Graphics to High for the sharpest faces and clothing.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
@@ -18403,7 +18413,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "15.4.0";
+const GAME_VERSION = "15.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -21557,12 +21567,12 @@ function loadSettings() {
 function saveSettings(s) { try { localStorage.setItem(CONFIG.settingsKey, JSON.stringify(s)); } catch (e) {} }
 
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
-const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "fur", "bone", "scale", "feather", "wood", "glow", "plain", "chain", "quilt", "face2", "face3", "face4", "face5", "face6", "face7", "face8"];
-const ATLAS_COLS = 6, ATLAS_ROWS = 4;
-const FACE_PAINTS = 8, FACE_COUNT = 16;
-const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud", "Bold", "Soft", "Sharp", "Sunny", "Kind", "Stern", "Dreamy", "Noble"];
+const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "fur", "bone", "scale", "feather", "wood", "glow", "plain", "chain", "quilt", "face2", "face3", "face4", "face5", "face6", "face7", "face8", "face9", "face10", "face11", "face12", "face13", "face14", "face15", "face16"];
+const ATLAS_COLS = 8, ATLAS_ROWS = 4;
+const FACE_PAINTS = 8, FACE_COUNT = 8;
+const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud"];
 const ATLAS_SIZE = 1024;
-let ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
+let ATLAS_CELL = 256, ATLAS_W = 2048, ATLAS_H = 1024;
 const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
@@ -21644,77 +21654,70 @@ const REGION_PAINT = {
   }
 };
 
-function paintFace(g, ox, oy, v) {
+function paintFace(g, ox, oy, v, fem) {
   v = v || 0;
   g.save();
   g.translate(ox, oy);
   g.scale(ATLAS_CELL / 256, ATLAS_CELL / 256);
-  const IRIS = [[96, 64, 40], [70, 112, 168], [70, 128, 84], [140, 104, 52], [118, 128, 140], [176, 120, 44], [112, 80, 150], [56, 40, 30]][v];
-  const SH = [[1, 1], [1.06, 0.9], [1.08, 0.82], [1, 1.06], [0.98, 1.1], [1.1, 0.78], [1.04, 0.72], [1.04, 0.9]][v];
-  const BROW = [[1, 0], [0.8, -1.2], [1.15, 1.6], [0.9, 0], [0.75, -1.8], [1.3, 2.4], [0.85, -0.6], [1.1, 1]][v];
-  const ex = 64, ey = 120, sp = 12;
+  const IRIS = [[70, 120, 190], [110, 80, 52], [64, 140, 96], [150, 100, 50], [120, 90, 170], [168, 60, 48], [90, 110, 130], [176, 132, 40]][v];
+  const EYE = [[9.8, 11.4, 6.6, 0, 0, 1], [10, 9.2, 6, -0.5, 0.12, 0.92], [10.4, 7.8, 5.4, -2.6, 0.08, 0.86], [9.6, 11.2, 6.8, 0, 0, 1], [10, 10, 6.6, 1.9, 0.06, 0.98], [10.4, 7.2, 5, -3, 0.18, 0.8], [10.2, 8.2, 6, 0.7, 0.42, 0.9], [10.2, 9.6, 6, -1.7, 0.1, 0.92]][v];
+  const BROW = [[0, 0.2], [0.3, 0], [-0.9, 0.5], [0, 0.2], [1.1, -0.3], [-2.4, 1.2], [0.6, -0.2], [-0.6, 1.4]][v];
+  g.translate(64, 120); g.scale(1, 1.7);
+  const ex = 0, ey = 0, sp = 15.5;
   const rgba = (c, a) => "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
   const soft = (x, y, rx, ry, col, a) => { g.save(); g.translate(x, y); g.scale(rx, ry); const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill(); g.restore(); };
+  g.lineCap = "round"; g.lineJoin = "round";
   for (const s of [-1, 1]) {
-    const x = ex + s * sp, rx = 6.6 * SH[0], up = 6.2 * SH[1], dn = 4.4 * SH[1];
-    soft(x, ey - 2, 9.5, 8, [80, 44, 36], 0.22);
-    soft(x + s * 1, ey + 7, 7, 4, [90, 50, 60], 0.12);
-    const inner = x - s * rx, outer = x + s * rx;
-    const almond = () => { g.beginPath(); g.moveTo(inner, ey + 0.4); g.bezierCurveTo(x - s * rx * 0.45, ey - up * 1.35, x + s * rx * 0.55, ey - up * 1.25, outer, ey - 0.6); g.bezierCurveTo(x + s * rx * 0.45, ey + dn * 1.3, x - s * rx * 0.5, ey + dn * 1.3, inner, ey + 0.4); };
+    const x = ex + s * sp, rx = EYE[0] * (fem ? 1.05 : 1), up = EYE[1] * (fem ? 1.08 : 1), dn = EYE[2], tilt = EYE[3], drop = EYE[4], isz = EYE[5];
+    const inner = x - s * rx, outer = x + s * rx, oy2 = ey + tilt * 0.5, iy2 = ey + 1.2;
+    const top = t => ey - up + drop * up * 1.4;
+    const shape = () => {
+      g.beginPath();
+      g.moveTo(inner, iy2);
+      g.bezierCurveTo(inner + s * rx * 0.15, top() - 1.5, outer - s * rx * 0.55, top() - 1.2 + tilt * 0.6, outer, oy2 - 1);
+      g.bezierCurveTo(outer - s * rx * 0.1, ey + dn * 0.9, inner + s * rx * 0.35, ey + dn * 1.15, inner, iy2);
+    };
+    soft(x, ey - 1, rx + 4, up + 3, [120, 70, 70], 0.1);
     g.save();
-    almond(); g.fillStyle = "rgb(236,228,220)"; g.fill(); g.clip();
-    const ix = x + s * 0.3, iy = ey - 0.4, irx = 3.4, iry = 7.2;
+    shape(); g.fillStyle = "rgb(250,248,246)"; g.fill(); g.clip();
+    const ix = x + s * 0.4, iy = ey + 0.4 + drop * up * 0.5, irx = 6.4 * isz * (fem ? 1.04 : 1), iry = 10.2 * isz * (fem ? 1.06 : 1);
     g.save(); g.translate(ix, iy); g.scale(irx, iry);
-    const ig = g.createRadialGradient(0, -0.15, 0.1, 0, 0, 1);
-    ig.addColorStop(0, rgba(IRIS.map(c => Math.min(255, c + 60)), 1)); ig.addColorStop(0.55, rgba(IRIS, 1)); ig.addColorStop(0.85, rgba(IRIS.map(c => c * 0.6 | 0), 1)); ig.addColorStop(1, "rgba(20,14,12,1)");
+    const ig = g.createLinearGradient(0, -1, 0, 1);
+    ig.addColorStop(0, rgba(IRIS.map(c => c * 0.32 | 0), 1)); ig.addColorStop(0.42, rgba(IRIS.map(c => c * 0.75 | 0), 1)); ig.addColorStop(0.78, rgba(IRIS, 1)); ig.addColorStop(1, rgba(IRIS.map(c => Math.min(255, c + 70)), 1));
     g.fillStyle = ig; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "rgb(12,8,8)"; g.beginPath(); g.arc(0, 0.05, 0.42, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = rgba(IRIS.map(c => c * 0.25 | 0), 1); g.lineWidth = 0.14; g.stroke();
+    g.fillStyle = "rgb(14,10,14)"; g.beginPath(); g.ellipse(0, -0.05, 0.42, 0.5, 0, 0, Math.PI * 2); g.fill();
     g.restore();
-    g.fillStyle = "rgba(255,255,255,0.95)"; g.beginPath(); g.ellipse(ix - 1, iy - 1.8, 0.8, 1.35, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = "rgba(255,255,255,0.5)"; g.beginPath(); g.ellipse(ix + 1, iy + 1.6, 0.45, 0.7, 0, 0, Math.PI * 2); g.fill();
-    soft(x, ey - up, rx * 1.1, 2.6, [60, 40, 36], 0.45);
+    g.fillStyle = "rgba(60,40,60,0.28)"; g.beginPath(); g.ellipse(x, top() + 1.5, rx * 1.1, 3.6, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.97)"; g.beginPath(); g.ellipse(ix - s * 1.6, iy - iry * 0.42, 1.9, 2.5, -0.3 * s, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.8)"; g.beginPath(); g.arc(ix + s * 1.8, iy + iry * 0.38, 0.95, 0, Math.PI * 2); g.fill();
     g.restore();
-    g.lineCap = "round"; g.lineJoin = "round";
-    g.strokeStyle = "rgb(24,16,14)"; g.lineWidth = v % 2 === 0 ? 1.8 : 1.4;
-    g.beginPath(); g.moveTo(inner, ey + 0.4); g.bezierCurveTo(x - s * rx * 0.45, ey - up * 1.35, x + s * rx * 0.55, ey - up * 1.25, outer + s * 0.8, ey - 1); g.stroke();
-    if (v % 2 === 0) { g.lineWidth = 0.8; for (let k = 0; k < 3; k++) { g.beginPath(); g.moveTo(outer - s * k * 1.4, ey - 1.2 - k * 0.6); g.lineTo(outer + s * (1.6 - k * 0.6), ey - 3 - k * 0.7); g.stroke(); } }
-    g.strokeStyle = "rgba(110,62,54,0.45)"; g.lineWidth = 0.7;
-    g.beginPath(); g.moveTo(inner + s * 1, ey + 1.2); g.bezierCurveTo(x - s * rx * 0.4, ey + dn * 1.45, x + s * rx * 0.5, ey + dn * 1.4, outer - s * 0.5, ey); g.stroke();
-    g.strokeStyle = "rgba(120,68,56,0.4)"; g.lineWidth = 0.8;
-    g.beginPath(); g.moveTo(inner + s * 0.5, ey - up - 1.2); g.quadraticCurveTo(x, ey - up * 1.9 - 1.4, outer - s * 0.3, ey - up - 0.8); g.stroke();
-    if (v === 6) soft(x, ey - up, rx + 1, 2, [190, 140, 125], 0.5);
-    const bw = BROW[0], by = ey - 13.5 + BROW[1] * 0.25;
-    g.fillStyle = "rgba(42,28,22,0.92)";
+    g.strokeStyle = "rgb(22,14,16)";
+    g.lineWidth = fem ? 2.6 : 2.0;
+    g.beginPath(); g.moveTo(inner + s * 0.4, iy2 - 0.4); g.bezierCurveTo(inner + s * rx * 0.15, top() - 1.5, outer - s * rx * 0.55, top() - 1.2 + tilt * 0.6, outer + s * (fem ? 1.6 : 0.8), oy2 - 1.6 - (fem ? 0.8 : 0)); g.stroke();
+    if (fem) { g.lineWidth = 1.1; for (let k = 0; k < 3; k++) { const bx = outer - s * k * 2.2, by = oy2 - 1.8 - k * 1.2 + (k ? -1 : 0); g.beginPath(); g.moveTo(bx, by); g.quadraticCurveTo(bx + s * 1.8, by - 1.2, bx + s * 2.6, by - 2.6); g.stroke(); } }
+    g.strokeStyle = "rgba(60,30,34,0.7)"; g.lineWidth = 0.8;
+    g.beginPath(); g.moveTo(outer - s * 0.6, oy2 + 0.5); g.quadraticCurveTo(x + s * rx * 0.3, ey + dn * 1.1, x - s * rx * 0.1, ey + dn * 1.05); g.stroke();
+    g.strokeStyle = "rgba(110,60,60,0.35)"; g.lineWidth = 0.7;
+    g.beginPath(); g.moveTo(inner + s * 1.2, top() - 3.2); g.quadraticCurveTo(x, top() - 4.8 + tilt * 0.3, outer - s * 1.4, top() - 3 + tilt * 0.5); g.stroke();
+    const by = ey - up - 5.5 + BROW[1], bw = fem ? 1.1 : 1.7;
+    g.fillStyle = "rgba(48,30,24,0.9)";
     g.beginPath();
-    g.moveTo(x - s * 6.5, by + 1.6 * bw);
-    g.quadraticCurveTo(x - s * 1, by - 2.2 * bw - 0.5, x + s * 3, by - 2 - BROW[1] * 0.3);
-    g.quadraticCurveTo(x + s * 7, by - 1.6 - BROW[1] * 0.5, x + s * 9, by + 0.3 - BROW[1] * 0.6);
-    g.quadraticCurveTo(x + s * 6, by - 0.4 - BROW[1] * 0.4, x + s * 2.5, by - 0.2 - BROW[1] * 0.2);
-    g.quadraticCurveTo(x - s * 2, by + 0.6, x - s * 6.5, by + 1.6 * bw);
+    g.moveTo(x - s * 6.5, by + 1 - BROW[0] * 0.6);
+    g.quadraticCurveTo(x, by - 2.2 - BROW[0] * 0.2, x + s * 8.5, by + 1.2 + BROW[0] * 0.4);
+    g.quadraticCurveTo(x, by - 2.2 + bw - BROW[0] * 0.2, x - s * 6.5, by + 1 + bw * 0.6 - BROW[0] * 0.6);
     g.fill();
-    g.strokeStyle = "rgba(42,28,22,0.5)"; g.lineWidth = 0.4;
-    for (let k = 0; k < 7; k++) { const t = k / 6, bx = x - s * 6 + s * 14 * t; g.beginPath(); g.moveTo(bx, by + 1.2 - t * 1.4); g.lineTo(bx + s * 1.6, by - 1.4 - t * 1.2); g.stroke(); }
-    soft(ex + s * 19, ey + 17, 7, 9, [220, 110, 100], v === 4 ? 0.2 : 0.11);
-    soft(ex + s * 4.5, ey + 14, 2.2, 7, [90, 50, 40], 0.16);
-    soft(ex + s * 8, ey + 32, 3, 6, [90, 50, 40], 0.1);
+    soft(x + s * 3, ey + dn + 5, 6.5, 3, [240, 110, 120], fem ? 0.32 : 0.12);
   }
-  soft(ex, ey + 17, 1.6, 6, [255, 236, 220], 0.18);
-  soft(ex, ey + 21, 4.5, 3.5, [255, 236, 220], 0.14);
-  g.fillStyle = "rgba(80,40,34,0.45)";
-  for (const s of [-1, 1]) { g.beginPath(); g.ellipse(ex + s * 2.5, ey + 25, 1.2, 0.9, s * 0.3, 0, Math.PI * 2); g.fill(); }
-  soft(ex, ey + 26.5, 5, 2, [90, 50, 40], 0.18);
-  soft(ex, ey + 33, 1.6, 4, [90, 50, 40], 0.12);
-  const mw = [7.5, 7, 6.5, 7.5, 8, 6.5, 7, 7.2][v], my = ey + 44;
-  const smile = v === 4 ? 1.6 : v === 2 || v === 5 ? 0 : v === 7 ? 0.8 : 0.9;
-  g.fillStyle = "rgba(168,86,80,0.62)";
-  g.beginPath(); g.moveTo(ex - mw, my); g.quadraticCurveTo(ex - mw * 0.5, my - 3.2, ex - 1, my - 2.4); g.lineTo(ex, my - 1.8); g.lineTo(ex + 1, my - 2.4); g.quadraticCurveTo(ex + mw * 0.5, my - 3.2, ex + mw, my); g.quadraticCurveTo(ex, my + 0.6, ex - mw, my); g.fill();
-  g.fillStyle = "rgba(186,100,92,0.55)";
-  g.beginPath(); g.moveTo(ex - mw * 0.9, my + 0.3); g.quadraticCurveTo(ex, my + 6.2, ex + mw * 0.9, my + 0.3); g.quadraticCurveTo(ex, my + 1, ex - mw * 0.9, my + 0.3); g.fill();
-  soft(ex - 1.5, my + 2.6, 3, 1.2, [255, 220, 210], 0.25);
-  g.strokeStyle = "rgb(100,48,44)"; g.lineWidth = 0.9; g.lineCap = "round";
-  g.beginPath(); g.moveTo(ex - mw - 0.4, my - smile * 0.6); g.quadraticCurveTo(ex, my + smile, ex + mw + 0.4, my - smile * 0.6); g.stroke();
-  soft(ex, my + 9, 6, 2.4, [90, 50, 40], 0.14);
-  soft(ex, ey + 63, 9, 6, [255, 236, 220], 0.08);
-  if (v === 3) { g.fillStyle = "rgba(150,90,60,0.45)"; const rr = seeded(33); for (let k = 0; k < 26; k++) { g.beginPath(); g.arc(ex + (rr() - 0.5) * 46, ey + 8 + rr() * 16, 0.5 + rr() * 0.5, 0, Math.PI * 2); g.fill(); } }
+  soft(ex, ey + 11, 1.2, 3, [255, 240, 230], 0.25);
+  g.fillStyle = "rgba(150,80,72,0.55)";
+  g.beginPath(); g.moveTo(ex + 0.6, ey + 13); g.quadraticCurveTo(ex + 1.7, ey + 15.2, ex - 0.7, ey + 15.6); g.quadraticCurveTo(ex + 0.6, ey + 14.8, ex + 0.6, ey + 13); g.fill();
+  const mw = [4.4, 3.8, 3.6, 4.6, 5, 3.6, 3.6, 4.2][v] * (fem ? 0.9 : 1), my = ey + 26, smile = [1.4, 0.4, 0.2, 1.6, 2.2, -0.6, 0.3, 1][v];
+  if (fem) soft(ex, my + 0.6, mw + 1, 1.8, [230, 110, 110], 0.42);
+  g.strokeStyle = "rgb(110,46,46)"; g.lineWidth = 1.05;
+  g.beginPath(); g.moveTo(ex - mw, my - smile * 0.5); g.quadraticCurveTo(ex, my + smile, ex + mw, my - smile * 0.5); g.stroke();
+  soft(ex, my + 4, 3, 1.4, [120, 60, 50], 0.12);
+  if (v === 3) { g.fillStyle = "rgba(170,100,70,0.5)"; const rr = seeded(33); for (let k = 0; k < 18; k++) { const sx = rr() < 0.5 ? -1 : 1; g.beginPath(); g.arc(ex + sx * (8 + rr() * 14), ey + 8 + rr() * 5, 0.5 + rr() * 0.4, 0, Math.PI * 2); g.fill(); } }
   g.restore();
 }
 
@@ -21757,7 +21760,7 @@ function buildAtlas() {
     im.data[p] = 255; im.data[p + 1] = clamp(rgh[k], 0.05, 1) * 255; im.data[p + 2] = clamp(mtl[k], 0, 1) * 255; im.data[p + 3] = 255;
   }
   ga.putImageData(ia, 0, 0);
-  for (let f = 0; f < FACE_PAINTS; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f); }
+  for (let f = 0; f < FACE_PAINTS * 2; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % FACE_PAINTS, f >= FACE_PAINTS); }
   gn.putImageData(inn, 0, 0);
   gm.putImageData(im, 0, 0);
   const mk = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = TEXLIB.anisotropy; t.needsUpdate = true; return t; };
@@ -22152,7 +22155,7 @@ const HEAD_PROFILES = {
   beast: { jaw: 0.2, chin: 0.06, brow: 0.1, sock: 0.08, cheek: 0.05, nose: 0.13, lips: 0.7, long: 0.04 },
   plain: { jaw: 0.18, chin: 0.04, brow: 0.04, sock: 0, cheek: 0.03, nose: 0, lips: 0, long: 0.02 }
 };
-const FACE_PX = { eyeA: 12 / 256 * Math.PI * 2, eyeB: 120 / 256 * Math.PI - Math.PI / 2 };
+const FACE_PX = { eyeA: 15.5 / 256 * Math.PI * 2, eyeB: 120 / 256 * Math.PI - Math.PI / 2 };
 
 function headProfile(L) {
   let k = L.headShape;
@@ -22172,7 +22175,7 @@ function headProfile(L) {
   }
   const P = Object.assign({}, HEAD_PROFILES[k] || HEAD_PROFILES.human0);
   if (L.build === 1 && !/human|skull|plain/.test(k)) { P.brow *= 0.5; P.jaw += 0.04; P.nose *= 0.85; P.lips *= 1.2; }
-  if (!L.noFace && (L.face || 0) >= FACE_PAINTS) { P.nose *= 1.18; P.jaw = Math.max(0, P.jaw - 0.06); P.cheek += 0.025; P.lips *= 1.15; P.chin += 0.03; P.brow += 0.015; }
+  if (!L.noFace && /human|elari|pipkin|ursan|nekari/.test(k)) { P.nose *= 0.3; P.sock *= 0.2; P.brow *= 0.3; P.lips *= 0.25; P.cheek *= 0.4; P.anime = true; }
   P.key = k;
   return P;
 }
@@ -22274,8 +22277,8 @@ function gHead(P, hc, hr, seg) {
 function gLid(P, hc, hr, s) {
   const ea = FACE_PX.eyeA, eb = FACE_PX.eyeB;
   const phis = [], ths = [];
-  for (let i = 0; i <= 5; i++) phis.push(Math.PI / 2 + s * ea - 0.2 + 0.4 * i / 5);
-  for (let j = 0; j <= 3; j++) ths.push(Math.PI / 2 + eb - 0.11 + 0.22 * j / 3);
+  for (let i = 0; i <= 6; i++) phis.push(Math.PI / 2 + s * ea - 0.31 + 0.62 * i / 6);
+  for (let j = 0; j <= 4; j++) ths.push(Math.PI / 2 + eb - 0.26 + 0.43 * j / 4);
   return gHeadPatch(P, hc, hr, phis, ths, 0.016, true);
 }
 function warpToHead(g, P, hc, hr) {
@@ -22518,7 +22521,7 @@ function stableKey(o) {
 }
 
 function hairEdgeFn(st) {
-  const K = { short: [-0.52, -0.34, 0.0, 0.3, 0.42], spiky: [-0.44, -0.4, -0.05, 0.25, 0.36], bob: [-0.26, -0.2, 0.42, 0.52, 0.56], long: [-0.3, -0.24, 0.3, 0.42, 0.45], ponytail: [-0.56, -0.4, -0.02, 0.2, 0.3], bun: [-0.56, -0.4, -0.02, 0.2, 0.3], braid: [-0.42, -0.38, 0.0, 0.25, 0.32], twintails: [-0.28, -0.24, 0.05, 0.25, 0.32], topknot: [-0.46, -0.42, -0.02, 0.22, 0.32], wavy: [-0.28, -0.22, 0.32, 0.45, 0.5], pixie: [-0.4, -0.36, -0.06, 0.16, 0.28], sidepart: [-0.5, -0.32, 0.0, 0.28, 0.4], dreads: [-0.56, -0.42, -0.04, 0.15, 0.25], curly: [-0.46, -0.34, 0.06, 0.3, 0.4] }[st] || [-0.4, -0.36, 0.0, 0.3, 0.42];
+  const K = { short: [-0.52, -0.34, 0.0, 0.3, 0.42], spiky: [-0.44, -0.4, -0.05, 0.25, 0.36], bob: [-0.5, -0.42, 0.42, 0.52, 0.56], long: [-0.5, -0.42, 0.3, 0.42, 0.45], ponytail: [-0.56, -0.4, -0.02, 0.2, 0.3], bun: [-0.56, -0.4, -0.02, 0.2, 0.3], braid: [-0.42, -0.38, 0.0, 0.25, 0.32], twintails: [-0.5, -0.42, 0.05, 0.25, 0.32], topknot: [-0.46, -0.42, -0.02, 0.22, 0.32], wavy: [-0.5, -0.42, 0.32, 0.45, 0.5], pixie: [-0.4, -0.36, -0.06, 0.16, 0.28], sidepart: [-0.5, -0.32, 0.0, 0.28, 0.4], dreads: [-0.56, -0.42, -0.04, 0.15, 0.25], curly: [-0.46, -0.34, 0.06, 0.3, 0.4] }[st] || [-0.4, -0.36, 0.0, 0.3, 0.42];
   const angs = [0, 0.75, 1.45, 2.2, Math.PI];
   const fringe = st === "bob" || st === "long" || st === "twintails" || st === "wavy";
   const edge = a => {
@@ -22569,7 +22572,7 @@ function gHairLocks(P, hc, hr, st) {
   for (let k = 0; k < n; k++) {
     const a = -Math.PI + (k + 0.5) / n * Math.PI * 2, phi0 = a + Math.PI / 2;
     const front = Math.abs(a) < 0.9;
-    const e = edge(a), len = (front ? (fringe ? 0.16 : st === "sidepart" ? 0.13 : 0.09) : 0.12) * (st === "pixie" ? 0.6 : 1) * (0.75 + 0.5 * Math.abs(Math.sin(k * 2.7)));
+    const e = edge(a), len = (front ? (fringe ? 0.13 : st === "sidepart" ? 0.13 : 0.09) : 0.12) * (st === "pixie" ? 0.6 : 1) * (0.75 + 0.5 * Math.abs(Math.sin(k * 2.7)));
     const sweep = st === "sidepart" && front ? 0.28 : st === "pixie" ? 0.12 * Math.sin(k * 2.3) : front && !fringe ? (a >= 0 ? 0.1 : -0.1) : 0.04 * Math.sin(k * 1.9);
     const w0 = Math.PI * 2 / n * 0.75, rows = 5;
     const pos = [], uv = [], idx = [];
@@ -22772,7 +22775,7 @@ function humanEntry(L) {
   const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered", "furhat", "widebrim"].includes(L.head.type);
 
   const HP = headProfile(L);
-  const faceReg = L.noFace ? (L.headRegion || SKR) : (L.face % FACE_PAINTS ? "face" + (L.face % FACE_PAINTS + 1) : "face");
+  const faceIx = ((L.face || 0) % FACE_PAINTS) + (L.build === 1 ? FACE_PAINTS : 0), faceReg = L.noFace ? (L.headRegion || SKR) : (faceIx ? "face" + (faceIx + 1) : "face");
   if (!L.noFace && !L.skull) {
     const jy = hc - hr * 0.25;
     R.bone("jaw", "head", 0, jy, -hr * 0.1);
@@ -24421,7 +24424,7 @@ function poseHuman(v, e, dt) {
     const em = e.emote && S.time - e.emote.at < 2.4 ? e.emote.id : null;
     const mood = em === "laugh" || em === "cry" ? 0.5 : em === "panic" ? -0.2 : e.casting ? 0.3 : 0;
     const shut = e.alive === false ? 1 : e.resting && an.sit > 0.9 ? 0.55 : em === "panic" ? 0 : Math.max(mood, bl);
-    addP(P, "lids", -0.55 * (1 - shut), 0, 0);
+    addP(P, "lids", -0.7 * (1 - shut), 0, 0);
   }
   if (e.kind === "npc" && player && e.alive !== false) {
     const d = dist(e, player), work = NPC_WORK[e.id];

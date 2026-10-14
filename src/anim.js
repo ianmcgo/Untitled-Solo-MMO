@@ -263,7 +263,7 @@ function poseHuman(v, e, dt) {
     const em = e.emote && S.time - e.emote.at < 2.4 ? e.emote.id : null;
     const mood = em === "laugh" || em === "cry" ? 0.5 : em === "panic" ? -0.2 : e.casting ? 0.3 : 0;
     const shut = e.alive === false ? 1 : e.resting && an.sit > 0.9 ? 0.55 : em === "panic" ? 0 : Math.max(mood, bl);
-    addP(P, "lids", -0.55 * (1 - shut), 0, 0);
+    addP(P, "lids", -0.7 * (1 - shut), 0, 0);
   }
   if (e.kind === "npc" && player && e.alive !== false) {
     const d = dist(e, player), work = NPC_WORK[e.id];

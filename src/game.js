@@ -104,6 +104,7 @@ function normalizeSave(d) {
   const b = newSave();
   const out = Object.assign(b, d);
   out.jobs = Object.assign(newSave().jobs, d.jobs);
+  if (out.look && out.look.face >= 8) out.look = Object.assign({}, out.look, { face: out.look.face % 8 });
   out.skills = newSave().skills;
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
