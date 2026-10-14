@@ -1453,6 +1453,15 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.9.0", date: "2026-10-14", title: "Terrain detail", items: [
+    "The ground now has close-up texture: grass has fine blade streaks, dirt paths and bare earth show grit and pebbles, and the textures fade out smoothly into the distance so far fields don't shimmer.",
+    "Steep slopes and cliff faces automatically turn to grey rock with texture that wraps around the cliff instead of stretching.",
+    "Caves and crypts get rockier floors.",
+    "Works on every graphics setting."
+  ] },
+  { v: "9.8.6", date: "2026-10-14", title: "Tap to type", items: [
+    "Phones: tapping the event log now opens the typing box and keyboard (the phone log used to ignore taps)."
+  ] },
   { v: "9.8.5", date: "2026-10-14", title: "Phone buttons", items: [
     "Phones: the Target and Menu buttons are now exactly as wide as the boxes below them, so they no longer overlap the event log.",
     "Phones: tapping the event log (or the bottom-left of the screen when the log is hidden) opens the typing box and the keyboard. Before, the small phone log ignored taps.",

@@ -149,10 +149,44 @@ function* buildTerrainSteps(field) {
   nm.needsUpdate = true;
   nm.repeat.set(field.w * U / 3, field.h * U / 3);
   const mat = std({ map, normalMap: nm, normalScale: new THREE.Vector2(0.8, 0.8), roughness: 0.95 });
+  if (W3.quality !== "low" || CONFIG.terrainDetailLow) terrainDetail(mat, field);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = true;
   mesh.name = "terrain";
   return mesh;
+}
+
+function terrainDetail(mat, field) {
+  const theme = themeOf(field.zone);
+  const tG = texGrassDetail(), tD = texDirtDetail(), tR = texRockDetail();
+  const snow = field.zone.theme === "field" && /frost/.test(S.zoneId || "") ? 1 : 0;
+  mat.onBeforeCompile = sh => {
+    sh.uniforms.tGrass = { value: tG }; sh.uniforms.tDirt = { value: tD }; sh.uniforms.tRockD = { value: tR };
+    sh.uniforms.uCave = { value: theme === "cave" || theme === "crypt" ? 1 : 0 };
+    sh.uniforms.uSnow = { value: snow };
+    sh.vertexShader = "varying vec3 vWP;\nvarying vec3 vWN;\n" + sh.vertexShader.replace("#include <worldpos_vertex>", "#include <worldpos_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvWN = normalize(mat3(modelMatrix) * objectNormal);");
+    sh.fragmentShader = "uniform sampler2D tGrass;\nuniform sampler2D tDirt;\nuniform sampler2D tRockD;\nuniform float uCave;\nuniform float uSnow;\nvarying vec3 vWP;\nvarying vec3 vWN;\n" + sh.fragmentShader.replace("#include <map_fragment>", `#include <map_fragment>
+{
+  vec3 n = normalize(vWN);
+  float slope = 1.0 - clamp(n.y, 0.0, 1.0);
+  float rockW = max(smoothstep(0.22, 0.45, slope), uCave * 0.6);
+  vec2 uv = vWP.xz;
+  float g = texture2D(tGrass, uv * 0.42).r;
+  float d = texture2D(tDirt, uv * 0.3).r;
+  vec3 c = diffuseColor.rgb;
+  float green = clamp((c.g - max(c.r, c.b)) * 10.0 + 0.4, 0.0, 1.0) * (1.0 - uSnow * 0.6);
+  float det = mix(d, g, green);
+  vec3 an = abs(n); an /= (an.x + an.y + an.z);
+  float r = texture2D(tRockD, vWP.zy * 0.16).r * an.x + texture2D(tRockD, vWP.xz * 0.16).r * an.y + texture2D(tRockD, vWP.xy * 0.16).r * an.z;
+  det = mix(det, r, rockW);
+  float far = smoothstep(30.0, 90.0, distance(vWP, cameraPosition));
+  float k = mix(1.0, 0.35, far);
+  diffuseColor.rgb *= 1.0 + (det - 0.5) * 1.1 * k;
+  float lum = dot(diffuseColor.rgb, vec3(0.3, 0.55, 0.15));
+  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(lum) * vec3(1.02, 0.98, 0.92), rockW * 0.45 * (1.0 - uCave * 0.5));
+}`);
+  };
+  mat.customProgramCacheKey = () => "terrainDetail";
 }
 
 function rngFor(z, salt) { return seeded(hashStr(z.name + salt)); }
