@@ -738,11 +738,21 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Town props: ZONES[*].props [{type: anvil|crates|desk|barrels, x, y, rot, r}] built in world3d after stalls; each adds a collider. Outpost: anvil+forge by Garrick, desks for Maera and Corvin, barrels; Saltreach: crates by Marn, desk for Selene, barrels.
 - p5shots scenes town7, face7, harbor7.
 
+## Phase 30: accounts and the game server (v8.0.0) — multiplayer phase 8
+- Backend: Supabase project mztqrqgtlvviwwftrqhs (publishable key in src/net.js; it is meant to be public). The connected Supabase MCP account does NOT own this project, so schema changes are run by the owner in the SQL editor. Schema in sql/setup.sql (idempotent): schema game_private (config table, no API access) holds `signup_code`; public.players (id = auth user, email, joined_at, last_seen, banned); public.characters (uuid id, owner, unique lower(name), data jsonb, summary jsonb, timestamps). RLS: owners read/write their own characters (admin can read all); inserts need membership and < 8 characters. Functions (security definer): is_admin() (JWT email = ianmcgon@gmail.com), is_member(), join_game(code) (checks game_private signup_code; admin joins without it), touch_player(), admin_set_signup_code(code), admin_stats() (counts, sizes, online list, recent characters).
+- The sign-up password is NOT in the client bundle: setup.sql only creates the table; the owner inserts the code once (sent in chat) or sets it from the Admin panel.
+- Client: build 4 bundles @supabase/supabase-js as global SUPA (src/supa-entry.js) and injects sql/setup.sql as SETUP_SQL. src/net.js: NET state, netInit/netRestore/netSignIn/netSignUp (stores the sign-up password as usr_pending_code until the first confirmed login)/netEnsureMember/netSignOut, roster pull (server is the source of truth; summaries written to the local roster cache; pre-server local characters stashed in usr_local_chars and offered for one-time upload), netFetchChar (fresh copy before entering), netCreateChar (unique-name error), netDeleteChar, dirty tracking from saveGame → netFlush every 15 s, on pagehide/visibility hidden (fetch keepalive PATCH), heartbeat touch_player every 60 s, admin RPCs.
+- UI: title Start → showAccount (restore session → roster, else login). showLogin modes signin / signup (email, password, confirm, sign-up password) / member (signed in but not joined). Character select shows email, Sign out, and the local upload offer. Character creation inserts on the server before entering. System tab: server save status, Save to server now, Sign out (Load from file removed to stop save editing). Settings → 🛡️ Admin (only for the admin email; server enforces): stats tiles, online list, recent characters, change sign-up password, copy setup SQL / diagnostics SQL / server report.
+- Walk polish: spine, chest and hips roll with each step; neck and head bob and counter-rotate.
+- Tests: rules tests unchanged (build 1 has no net.js); test/netshots.js drives the real page against a mocked Supabase (page.route) for login, wrong password, create, save PATCH, admin and system screens.
+- Known limits: saves are client-authoritative (a determined player can edit their own data); server-side validation comes with the shared-world phase.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.0.0 | Phase 30: Supabase accounts, cloud saves, sign-up password, admin panel; offline play removed. |
 | 7.0.0 | Phase 29: blinking, hair and cape sway, NPC work poses and look-at, ambient animals and walkers, town props. |
 | 6.9.0 | Phase 28: swing/WS/cast variety, idle fidgets, turn shuffle, directional flinch, KO and rise. |
 | 6.8.0 | Phase 27: difficulty-based placement, tiered names/colours, Silkmother, Gorruk, Silk for Sale. |

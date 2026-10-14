@@ -10,7 +10,7 @@ const builds = {
   "1": { template: "template2d.html", files: ["data.js", "game.js", "hud.js", "view2d.js", "main.js"], three: false },
   "2": { template: "template3d.html", files: ["data.js", "game.js", "hud.js", "textures.js", "world3d.js", "view3d.js", "main.js"], three: true },
   "3": { template: "template3d.html", files: ["data.js", "game.js", "hud.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "main.js"], three: true },
-  "4": { template: "template4.html", files: ["data.js", "game.js", "@audio", "audio.js", "hud4.js", "menu4.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "main4.js"], three: true }
+  "4": { template: "template4.html", files: ["data.js", "game.js", "@audio", "@sql", "audio.js", "hud4.js", "menu4.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "net.js", "main4.js"], three: true, supa: true }
 };
 
 let AUDIO_JSON = null;
@@ -35,7 +35,8 @@ function audioData() {
 }
 
 const b = builds[phase];
-const game = b.files.map(f => f === "@audio" ? audioData() : src(f)).join("\n");
+const sqlData = () => "const SETUP_SQL = " + JSON.stringify(fs.readFileSync(path.join(root, "sql", "setup.sql"), "utf8")) + ";";
+const game = b.files.map(f => f === "@audio" ? audioData() : f === "@sql" ? sqlData() : src(f)).join("\n");
 fs.mkdirSync(path.join(root, "dist"), { recursive: true });
 fs.writeFileSync(path.join(root, "dist", "game.js"), game);
 
@@ -43,6 +44,11 @@ let scripts = "";
 if (b.three) {
   const out = path.join(root, "dist", "three.iife.js");
   execFileSync(path.join(root, "node_modules", ".bin", "esbuild"), [path.join(root, "src", "three-entry.js"), "--bundle", "--minify", "--format=iife", "--global-name=THREE", "--legal-comments=none", "--outfile=" + out], { stdio: "inherit" });
+  scripts += "<script>" + fs.readFileSync(out, "utf8").replace(/<\/script/gi, "<\\/script") + "</script>\n";
+}
+if (b.supa) {
+  const out = path.join(root, "dist", "supa.iife.js");
+  execFileSync(path.join(root, "node_modules", ".bin", "esbuild"), [path.join(root, "src", "supa-entry.js"), "--bundle", "--minify", "--format=iife", "--global-name=SUPA", "--legal-comments=none", "--outfile=" + out], { stdio: "inherit" });
   scripts += "<script>" + fs.readFileSync(out, "utf8").replace(/<\/script/gi, "<\\/script") + "</script>\n";
 }
 if (AUDIO_JSON) scripts += '<script type="application/json" id="audioData">' + AUDIO_JSON + "</script>\n";

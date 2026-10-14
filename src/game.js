@@ -198,7 +198,7 @@ function createChar(opts) {
   if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" };
   else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" };
   d.inventory = [{ id: "potion", qty: 3 }];
-  const id = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  const id = typeof NET !== "undefined" && NET.member && typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   STORE.set(charKey(id), JSON.stringify(d));
   r.chars.push(charSummary(id, d));
   r.current = id;
@@ -239,6 +239,7 @@ function saveGame() {
     const txt = JSON.stringify(save);
     if (S.charId) {
       STORE.set(charKey(S.charId), txt);
+      if (typeof netMarkDirty === "function") netMarkDirty(S.charId);
       const r = loadRoster();
       const i = r.chars.findIndex(c => c.id === S.charId);
       const sum = charSummary(S.charId, save, i >= 0 ? r.chars[i] : null);

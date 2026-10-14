@@ -131,7 +131,7 @@ function showTitle() {
     window.removeEventListener("keydown", go);
     b.onclick = null;
     if (typeof sfx === "function") sfx("select");
-    showCharSelect();
+    showAccount();
   };
   b.onclick = go;
   window.addEventListener("keydown", go);
@@ -147,6 +147,88 @@ function fmtAgo(t) {
   if (d < 3600000) return Math.floor(d / 60000) + " min ago";
   if (d < 86400000) return Math.floor(d / 3600000) + " h ago";
   return Math.floor(d / 86400000) + " d ago";
+}
+
+function acctBusy(msg) {
+  const ld = $("loading");
+  ld.classList.add("ready", "roster");
+  $("ldStart").style.display = "none";
+  $("ldSub").textContent = msg;
+  const box = $("charSel");
+  box.innerHTML = '<div class="ccEmpty">' + esc(msg) + "</div>";
+  box.style.display = "block";
+}
+
+async function showAccount() {
+  acctBusy("Connecting to the server…");
+  let ok = false;
+  try { ok = await netRestore(); } catch (e) {}
+  if (ok) { await openRoster(); return; }
+  showLogin(NET.user ? "member" : "signin", NET.lastErr);
+}
+
+async function openRoster() {
+  acctBusy("Loading your characters…");
+  try { await netPullRoster(); } catch (e) { showLogin("signin", netErr(e)); return; }
+  showCharSelect();
+}
+
+function showLogin(mode, err) {
+  const ld = $("loading");
+  ld.classList.add("ready", "roster");
+  $("ldStart").style.display = "none";
+  $("ldSub").textContent = mode === "signup" ? "Create an account" : mode === "member" ? "Finish joining" : "Sign in";
+  const f = (id, label, type, ac) => '<label>' + label + '<input id="' + id + '" type="' + type + '" autocomplete="' + ac + '" spellcheck="false"></label>';
+  let h = '<div class="ccOpts" style="max-width:360px;margin:0 auto">';
+  if (mode === "member") h += '<div class="sub" style="margin-bottom:6px">Signed in as ' + esc(NET.user.email) + ". Enter the sign-up password to join this server.</div>" + f("acCode", "Sign-up password", "password", "off");
+  else {
+    h += f("acEmail", "Email", "email", "email") + f("acPw", "Password", "password", mode === "signup" ? "new-password" : "current-password");
+    if (mode === "signup") h += f("acPw2", "Confirm password", "password", "new-password") + f("acCode", "Sign-up password (ask the server owner)", "password", "off");
+  }
+  h += '<div class="ccErr" id="acErr">' + esc(err || "") + '</div><div class="ccAct"><button class="pri" data-go="1">' + (mode === "signup" ? "Create account" : mode === "member" ? "Join" : "Sign in") + "</button></div>";
+  h += '<div class="sub" style="text-align:center;margin-top:8px">' + (mode === "signin" ? '<button data-mode="signup">Create an account</button>' : mode === "signup" ? '<button data-mode="signin">I already have an account</button>' : '<button data-out="1">Sign out</button>') + "</div>";
+  h += '<div class="sub" style="text-align:center;margin-top:10px;opacity:.7">An account and an internet connection are needed to play. Your characters are saved on the server.</div></div>';
+  const box = $("charSel");
+  box.innerHTML = h;
+  box.style.display = "block";
+  box.querySelectorAll("input").forEach(i => i.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") submit(); }));
+  const first = box.querySelector("input"); if (first) setTimeout(() => first.focus(), 50);
+  const val = id => { const el = $(id); return el ? el.value : ""; };
+  const fail = m => { $("acErr").textContent = m; if (typeof sfx === "function") sfx("error"); };
+  async function submit() {
+    const btn = box.querySelector("[data-go]");
+    if (btn.disabled) return;
+    try {
+      if (mode === "member") {
+        if (!val("acCode")) return fail("Enter the sign-up password.");
+        btn.disabled = true; btn.textContent = "Joining…";
+        await netEnsureMember(val("acCode"));
+        await openRoster(); return;
+      }
+      const email = val("acEmail").trim(), pw = val("acPw");
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail("Enter a valid email address.");
+      if (pw.length < 6) return fail("Passwords are at least 6 characters.");
+      if (mode === "signup") {
+        if (pw !== val("acPw2")) return fail("The passwords don't match.");
+        if (!val("acCode")) return fail("Enter the sign-up password.");
+        btn.disabled = true; btn.textContent = "Creating…";
+        const r = await netSignUp(email, pw, val("acCode"));
+        if (r === "confirm") { showLogin("signin", "Account created. Check your email and click the confirmation link, then sign in here."); return; }
+        await openRoster(); return;
+      }
+      btn.disabled = true; btn.textContent = "Signing in…";
+      const member = await netSignIn(email, pw);
+      if (!member) { showLogin("member"); return; }
+      await openRoster();
+    } catch (e) { btn.disabled = false; btn.textContent = mode === "signup" ? "Create account" : mode === "member" ? "Join" : "Sign in"; fail(netErr(e)); }
+  }
+  box.onclick = async e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.go) { submit(); return; }
+    if (b.dataset.mode) { if (typeof sfx === "function") sfx("tab"); showLogin(b.dataset.mode); return; }
+    if (b.dataset.out) { await netSignOut(); showLogin("signin"); }
+  };
 }
 
 function showCharSelect() {
@@ -166,7 +248,8 @@ function showCharSelect() {
   }
   if (!r.chars.length) h += '<div class="ccEmpty">No characters yet. Create one to begin your journey.</div>';
   h += "</div>";
-  h += '<div class="ccFoot">' + (r.chars.length < MAX_CHARS ? '<button class="pri" data-new="1">＋ New character</button>' : '<span class="sub">Character limit reached (' + MAX_CHARS + ').</span>') + '<span class="sub">' + r.chars.length + " / " + MAX_CHARS + " characters</span></div>";
+  if (NET.localOnly && NET.localOnly.length) h += '<div class="ccEmpty" style="margin-top:6px">' + NET.localOnly.length + " character" + (NET.localOnly.length > 1 ? "s" : "") + " from this browser (" + NET.localOnly.map(c => esc(c.name)).join(", ") + ') can be moved to your account. <button data-upload="1">Upload to my account</button></div>';
+  h += '<div class="ccFoot">' + (r.chars.length < MAX_CHARS ? '<button class="pri" data-new="1">＋ New character</button>' : '<span class="sub">Character limit reached (' + MAX_CHARS + ').</span>') + '<span class="sub">' + r.chars.length + " / " + MAX_CHARS + " characters · " + esc(NET.user ? NET.user.email : "") + ' <button data-signout="1">Sign out</button></span></div>';
   const box = $("charSel");
   box.innerHTML = h;
   box.style.display = "block";
@@ -175,9 +258,11 @@ function showCharSelect() {
     if (b && b.dataset.play) { enterWorld(b.dataset.play); return; }
     if (b && b.dataset.del) {
       const c = r.chars.find(x => x.id === b.dataset.del);
-      if (c) gameConfirm("Delete " + c.name + "?", "This character and everything they own will be gone for good.", () => { deleteChar(c.id); showCharSelect(); }, { yes: "Delete", danger: true });
+      if (c) gameConfirm("Delete " + c.name + "?", "This character and everything they own will be gone for good.", async () => { try { await netDeleteChar(c.id); deleteChar(c.id); showCharSelect(); } catch (err) { acctBusy("Couldn't delete: " + netErr(err)); setTimeout(showCharSelect, 2500); } }, { yes: "Delete", danger: true });
       return;
     }
+    if (b && b.dataset.signout) { netSignOut().then(() => showLogin("signin")); return; }
+    if (b && b.dataset.upload) { acctBusy("Uploading characters…"); netUploadLocal().then(res => { acctBusy(res.join(" · ")); setTimeout(openRoster, 2200); }); return; }
     if (b && b.dataset.new) { showCharCreate(); return; }
     const card = e.target.closest(".ccCard");
     if (card) enterWorld(card.dataset.id);
@@ -232,11 +317,16 @@ function showCharCreate() {
   nm.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") create(); });
   nm.addEventListener("input", () => { CC.name = nm.value.replace(/[^A-Za-z' -]/g, "").slice(0, 12); if (nm.value !== CC.name) nm.value = CC.name; $("ccErr").textContent = ""; paint(); });
   setTimeout(() => nm.focus(), 50);
-  const create = () => {
+  const create = async () => {
     const name = CC.name.trim().replace(/^./, c => c.toUpperCase());
     const why = validCharName(name, r);
     if (why) { $("ccErr").textContent = why; sfx("error"); nm.focus(); return; }
+    const btn = box.querySelector("[data-create]");
+    if (btn.disabled) return;
+    btn.disabled = true; btn.textContent = "Creating…";
     const id = createChar({ name, job: CC.job, look: CC.look });
+    try { await netCreateChar(id, loadChar(id)); }
+    catch (e) { deleteChar(id); btn.disabled = false; btn.textContent = "Begin your journey"; $("ccErr").textContent = netErr(e); sfx("error"); return; }
     enterWorld(id, true);
   };
   box.onclick = e => {
@@ -270,6 +360,10 @@ function showCharCreate() {
 
 async function enterWorld(id, fresh) {
   if (UI.started || UI.entering) return;
+  if (!fresh && isUuid(id)) {
+    acctBusy("Loading character…");
+    try { await netFetchChar(id); } catch (e) { acctBusy("Couldn't load that character: " + netErr(e)); setTimeout(showCharSelect, 2500); return; }
+  }
   if (!selectChar(id)) { showCharSelect(); return; }
   UI.entering = true;
   UI.creating = false;
@@ -303,8 +397,9 @@ async function enterWorld(id, fresh) {
   initVersionCheck();
 }
 
-function logoutToSelect() {
+async function logoutToSelect() {
   saveGame();
+  try { await netFlush(); } catch (e) {}
   const r = loadRoster();
   r.current = null;
   saveRoster(r);

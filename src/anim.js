@@ -202,9 +202,11 @@ function poseHuman(v, e, dt) {
     const el = amp * (1 - an.fight * 0.6);
     addP(P, "foreArmL", -0.55 * run - (0.14 + 0.38 * Math.max(0, s1)) * el, 0, 0); addP(P, "foreArmR", -0.55 * run - (0.14 + 0.38 * Math.max(0, -s1)) * el, 0, 0);
     addP(P, "upArmL", 0, 0, 0.05 * amp); addP(P, "upArmR", 0, 0, -0.05 * amp);
-    addP(P, "spine", lean * run, 0, 0);
-    addP(P, "chest", 0, s1 * 0.16 * amp, 0);
-    addP(P, "hips", 0, -s1 * 0.1 * amp, 0);
+    addP(P, "spine", lean * run + 0.05 * Math.abs(c1) * amp, s1 * 0.05 * amp, -s1 * 0.06 * amp);
+    addP(P, "chest", -0.03 * Math.abs(c1) * amp, s1 * 0.16 * amp, s1 * 0.05 * amp);
+    addP(P, "hips", 0, -s1 * 0.1 * amp, s1 * 0.07 * amp);
+    addP(P, "neck", 0.04 * Math.abs(s1) * amp, -s1 * 0.06 * amp, 0);
+    addP(P, "head", (0.07 * Math.abs(c1) - 0.04) * amp, -s1 * 0.09 * amp, -s1 * 0.04 * amp);
     v.rootOff[1] += Math.abs(c1) * (st.hop ? 0.09 : 0.055) * amp - 0.02 * run;
     const step = Math.floor(an.ph / Math.PI);
     if (step !== an.lastStep) { an.lastStep = step; if (run > 0.4 && e.alive !== false) fxFootstep(e, v); }
