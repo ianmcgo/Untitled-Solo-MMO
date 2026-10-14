@@ -1152,6 +1152,8 @@ function humanEntry(L) {
     }
   }
 
+  const BODY = {};
+  const shellOf = (rs, off) => rs.map(r => Object.assign({}, r, { rx: r.rx + off, rz: r.rz + off }));
   if (!L.skull) {
     R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.04, 0.0), 0.05 * gi, 0.043 * gi, 10), "neck", skin, SKR);
     const W = sw / 0.195;
@@ -1165,6 +1167,7 @@ function humanEntry(L) {
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     R.addW(gLoft(lowR, 24, true, false, 0, 0.3), "hips", robe ? topC : legC, robe ? topR : legR, tw);
     R.addW(gLoft(upR, 24, false, false, 0.3, 1), "chest", topC, topR, tw);
+    BODY.up = upR; BODY.tw = tw;
   } else {
     R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.03, 0), 0.025, 0.025, 6), "neck", skin, "bone");
     for (let i = 0; i < 6; i++) R.add(gBall(V3(0, hipsY + i * (neckY - hipsY) / 6, -0.04), 0.03, 1.2, 0.7, 1, 6), i < 2 ? "spine" : "chest", skin, "bone");
@@ -1198,6 +1201,7 @@ function humanEntry(L) {
       R.addW(gLoft(flip(upRings), 16, true, false, 0, 0.5), "upArm" + sd, upC, upR, armW);
       R.addW(gLoft(flip(fa1), 16, false, false, 0.5, 0.75), "foreArm" + sd, fa1C, fa1R, armW);
       R.addW(gLoft(flip(fa2), 16, false, false, 0.75, 1), "foreArm" + sd, fa2C, fa2R, (x, y, z) => y < wrY + 0.004 ? [["foreArm" + sd, 0.6], ["hand" + sd, 0.4]] : [["foreArm" + sd, 1]]);
+      BODY["arm" + sd] = { up: upRings, fa1, fa2, w: armW };
     }
     if (sleeves === "wide" && !bare) {
       R.add(gCyl(V3(ex, wrY + 0.07, 0), 0.05 * gi, 0.085 * gi, 0.16, 14, true), "foreArm" + sd, sleeveC, sleeveR);
@@ -1230,13 +1234,17 @@ function humanEntry(L) {
     }
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
     if (L.pauldrons) {
-      R.add(gPartSphere(V3(ax * 1.01, shY - 0.012, 0), 0.068 * gi, 0, Math.PI * 0.55, 1.12, 0.75, 1.0, 14), "upArm" + sd, L.pauldrons, "metal");
-      R.add(gRing(V3(ax * 1.01, shY - 0.03, 0), 0.072 * gi, 0.008, "y", 16).scale(1, 1, 0.92), "upArm" + sd, 0xc8a040, "metal");
+      const A = BODY["arm" + sd];
+      if (A) {
+        const cap = shellOf(A.up.slice(0, 4), 0.02 * gi).map((r, i) => Object.assign(r, { rx: r.rx * (i ? 1.12 : 1), rz: r.rz * 1.05 }));
+        R.addW(gLoft(cap.slice().reverse(), 16, false, true, 0, 0.4), "upArm" + sd, L.pauldrons, "metal", A.w);
+        for (let k = 0; k < 2; k++) { const rr = A.up[3 + k]; R.addW(gRing(V3(rr.x, rr.y - 0.004, 0), rr.rx + 0.022 * gi - k * 0.004, 0.009, "y", 16), "upArm" + sd, k ? L.pauldrons : 0xc8a040, "metal", A.w); }
+      } else R.add(gPartSphere(V3(ax * 1.01, shY - 0.012, 0), 0.068 * gi, 0, Math.PI * 0.55, 1.12, 0.75, 1.0, 14), "upArm" + sd, L.pauldrons, "metal");
     }
     if (L.gauntlets && !L.skull) {
-      const gc = L.gloves != null ? L.gloves : 0x8a9098;
-      R.add(gCyl(V3(ex, wrY + 0.05, 0), 0.046 * gi, 0.058 * gi, 0.08, 12, true), "foreArm" + sd, gc, "metal");
-      R.add(gRing(V3(ex, wrY + 0.09, 0), 0.047 * gi, 0.007, "y", 12), "foreArm" + sd, gc, "metal");
+      const gc = L.gloves != null ? L.gloves : 0x8a9098, A = BODY["arm" + sd];
+      if (A) { const vb = shellOf(A.fa1.slice(1).concat(A.fa2.slice(1)), 0.011 * gi); R.addW(gLoft(vb.slice().reverse(), 14, false, false, 0, 1), "foreArm" + sd, gc, "metal", A.w); R.addW(gRing(V3(vb[0].x, vb[0].y, 0), vb[0].rx + 0.004, 0.007, "y", 14), "foreArm" + sd, 0xc8a040, "metal", A.w); }
+      else R.add(gCyl(V3(ex, wrY + 0.05, 0), 0.046 * gi, 0.058 * gi, 0.08, 12, true), "foreArm" + sd, gc, "metal");
       R.add(gBox(V3(s * (sw + 0.024), wrY - 0.075, 0.034), 0.05, 0.022, 0.016), "hand" + sd, gc, "metal");
     }
     if (L.shield && s < 0) {
@@ -1264,14 +1272,24 @@ function humanEntry(L) {
       const legRings = [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.05, 0.081 * fk, 1.02, 1.04), lr((hipJ + knee) / 2, 0.071 * fk, 1.04, 1), lr(knee + 0.06, 0.06), lr(knee + 0.015, 0.055, 1.08, 0.95), lr(knee - 0.03, 0.055, 1.02, 1.12), lr(knee - 0.1, 0.055, 1, 1.22), lr(knee - 0.19, 0.047, 1, 1.12), lr(ank + 0.08, 0.038), lr(ank + 0.02, 0.037)];
       const legW = (x, y) => y > hipJ ? [["thigh" + sd, 1 - 0.35 * smoothRange(hipJ, hipJ + 0.06, y)], ["hips", 0.35 * smoothRange(hipJ, hipJ + 0.06, y)]] : y < ank + 0.03 ? [["shin" + sd, 0.7], ["foot" + sd, 0.3]] : blendW(y, [[0, "shin" + sd, 0], [knee, "thigh" + sd, 0.04]]);
       R.addW(gLoft(legRings.slice().reverse(), 18, true, false, 0, 1), "thigh" + sd, legC, legR, legW);
+      BODY["leg" + sd] = { rings: legRings, w: legW };
     }
+    const LG = BODY["leg" + sd];
     if (L.boots != null) {
-      R.add(gTaper(V3(hx, bootTop, 0.012), V3(hx, ank + 0.01, 0.0), 0.062 * gi, 0.048 * gi, 12), "shin" + sd, L.boots, "leather");
-      R.add(gRing(V3(hx, bootTop, 0.012), 0.062 * gi, 0.012, "y", 14), "shin" + sd, L.boots, "leather");
+      if (LG) { const bs = shellOf(LG.rings.filter(r => r.y <= bootTop + 0.001), 0.008 * gi); bs.unshift(Object.assign({}, bs[0], { y: bootTop + 0.004, rx: bs[0].rx + 0.006, rz: bs[0].rz + 0.006 })); R.addW(gLoft(bs.slice().reverse(), 16, false, false, 0, 1), "shin" + sd, L.boots, "leather", LG.w); R.addW(gRing(V3(bs[0].x, bootTop + 0.004, bs[0].z), bs[0].rx, 0.011, "y", 16).scale(1, 1, bs[0].rz / bs[0].rx), "shin" + sd, L.boots, "leather", LG.w); }
+      else { R.add(gTaper(V3(hx, bootTop, 0.012), V3(hx, ank + 0.01, 0.0), 0.062 * gi, 0.048 * gi, 12), "shin" + sd, L.boots, "leather"); R.add(gRing(V3(hx, bootTop, 0.012), 0.062 * gi, 0.012, "y", 14), "shin" + sd, L.boots, "leather"); }
     }
     if (L.greaves != null && !L.skull) {
-      R.add(gPartSphere(V3(hx, knee + 0.005, 0.03), 0.06 * gi, 0, Math.PI * 0.62, 1, 1.05, 0.9, 12), "shin" + sd, L.greaves, "metal");
-      R.add(gCyl(V3(hx, (knee + ank) / 2 + 0.01, 0.022), 0.05 * gi, 0.043 * gi, (knee - ank) * 0.66, 12, true, -Math.PI * 0.42, Math.PI * 0.84).scale(1, 1, 1.1), "shin" + sd, L.greaves, "metal");
+      if (LG) {
+        const gr = shellOf(LG.rings.filter(r => r.y <= knee + 0.065 && r.y >= ank + 0.06), 0.014 * gi);
+        R.addW(gLoft(gr.slice().reverse(), 16, false, false, 0, 1), "shin" + sd, L.greaves, "metal", LG.w);
+        const kr = LG.rings.find(r => Math.abs(r.y - (knee + 0.015)) < 0.03) || LG.rings[5];
+        R.add(gPartSphere(V3(kr.x, knee + 0.01, (kr.z || 0) + kr.rz * 0.75), 0.045 * gi, 0, Math.PI * 0.55, 1.1, 1.0, 0.7, 12).rotateX(0), "shin" + sd, L.greaves, "metal");
+        R.add(gRing(V3(kr.x, knee + 0.06, kr.z || 0), kr.rx + 0.018 * gi, 0.007, "y", 14), "thigh" + sd, 0xc8a040, "metal");
+      } else {
+        R.add(gPartSphere(V3(hx, knee + 0.005, 0.03), 0.06 * gi, 0, Math.PI * 0.62, 1, 1.05, 0.9, 12), "shin" + sd, L.greaves, "metal");
+        R.add(gCyl(V3(hx, (knee + ank) / 2 + 0.01, 0.022), 0.05 * gi, 0.043 * gi, (knee - ank) * 0.66, 12, true, -Math.PI * 0.42, Math.PI * 0.84).scale(1, 1, 1.1), "shin" + sd, L.greaves, "metal");
+      }
     }
     const footC = L.boots != null ? L.boots : L.barefoot ? skin : L.skull ? skin : (L.shoes || 0x3a2a1e);
     const footR = L.boots != null ? "leather" : L.barefoot ? SKR : L.skull ? "bone" : "leather";
@@ -1309,8 +1327,16 @@ function humanEntry(L) {
   }
   if (t === "plate" && !L.skull) {
     const W2 = sw / 0.195, pc = top.plate || 0x9aa0a8;
-    R.add(gFront(V3(0, chestY + 0.02, 0.0), 0.18 * gi * W2, 1.9, Math.PI * 0.18, Math.PI * 0.62, 1.0, 1.25, 0.72 * gi, 14), "chest", pc, "metal");
-    R.add(gFront(V3(0, (spineY + chestY) / 2 - 0.02, 0.0), 0.165 * gi * W2, 1.7, Math.PI * 0.32, Math.PI * 0.68, 1.0, 1.0, 0.7 * gi, 12), "spine", pc, "metal");
+    if (BODY.up) {
+      const pl = shellOf(BODY.up.slice(1, 7), 0.016 * gi);
+      R.addW(gLoft(pl, 24, false, false, 0, 1), "chest", pc, "metal", BODY.tw);
+      const mid = BODY.up[4];
+      R.addW(gBox(V3(0, (BODY.up[2].y + BODY.up[6].y) / 2, mid.rz * (mid.f || 1) + 0.02 * gi), 0.012, BODY.up[6].y - BODY.up[2].y, 0.01), "chest", top.trim || 0xc8a040, "metal", BODY.tw);
+      for (let k = 0; k < 2; k++) { const r = BODY.up[1 + k]; R.addW(gRing(V3(0, r.y + 0.01, 0), r.rx + 0.02 * gi, 0.008, "y", 22).scale(1, 1, (r.rz * ((r.f || 1) + (r.b || 1)) / 2) / r.rx), "spine", pc, "metal", BODY.tw); }
+    } else {
+      R.add(gFront(V3(0, chestY + 0.02, 0.0), 0.18 * gi * W2, 1.9, Math.PI * 0.18, Math.PI * 0.62, 1.0, 1.25, 0.72 * gi, 14), "chest", pc, "metal");
+      R.add(gFront(V3(0, (spineY + chestY) / 2 - 0.02, 0.0), 0.165 * gi * W2, 1.7, Math.PI * 0.32, Math.PI * 0.68, 1.0, 1.0, 0.7 * gi, 12), "spine", pc, "metal");
+    }
     if (top.trim) R.add(gRing(V3(0, neckY - 0.03, 0.01), 0.08 * gi, 0.014, "y", 18), "chest", top.trim, "trim", !!top.glowTrim);
   }
   if (L.collar && !L.skull) R.add(gRing(V3(0, neckY - 0.035, 0), 0.1 * gi, 0.045, "y", 16), "chest", L.collar, "fur");
@@ -1977,7 +2003,14 @@ function weaponEntry(kind, id) {
     const L = kind === "gsword" ? 1.05 : kind === "sword" ? 0.72 : 0.26, W = kind === "gsword" ? 0.1 : kind === "sword" ? 0.05 : 0.035;
     R.add(gTaper(V3(0, -0.08, 0), V3(0, 0.08, 0), 0.018, 0.016, 8), "w", grip, "leather");
     R.add(gBall(V3(0, -0.1, 0), 0.026, 1, 1, 1, 8), "w", gold, "metal");
-    R.add(gBox(V3(0, 0.09, 0), kind === "gsword" ? 0.3 : kind === "sword" ? 0.18 : 0.09, 0.025, 0.035), "w", gold, "metal");
+    const tier = wlv >= 15 ? 3 : wlv >= 8 ? 2 : 1, gw = kind === "gsword" ? 0.3 : kind === "sword" ? 0.18 : 0.09;
+    if (tier === 1) R.add(gBox(V3(0, 0.09, 0), gw, 0.025, 0.035), "w", gold, "metal");
+    else {
+      R.add(gBox(V3(0, 0.09, 0), gw * 0.4, 0.03, 0.04), "w", gold, "metal");
+      for (const s of [-1, 1]) R.add(gTaper(V3(s * gw * 0.18, 0.09, 0), V3(s * gw * 0.5, 0.09 + (tier === 3 ? 0.04 : 0.02), 0), 0.014, 0.007, 6), "w", gold, "metal");
+      R.add(gTaper(V3(0, 0.1, 0), V3(0, 0.14, 0), 0.016, 0.004, 4, 0.5), "w", gold, "metal");
+    }
+    if (tier === 3) { R.add(gBall(V3(0, 0.09, 0.022), 0.012, 1, 1.3, 0.6, 8), "w", glowC || 0x7fd8ff, "glow", true); R.add(gBall(V3(0, 0.09, -0.022), 0.012, 1, 1.3, 0.6, 8), "w", glowC || 0x7fd8ff, "glow", true); R.add(gBall(V3(0, -0.12, 0), 0.013, 1, 1, 1, 8), "w", glowC || 0xff6a6a, "glow", true); }
     if (kind === "gsword") R.add(gTaper(V3(0, -0.3, 0), V3(0, -0.08, 0), 0.02, 0.019, 8), "w", grip, "leather");
     const sh = new THREE.Shape();
     sh.moveTo(-W / 2, 0); sh.lineTo(W / 2, 0); sh.lineTo(W / 2 * 0.9, L * 0.82); sh.lineTo(0, L); sh.lineTo(-W / 2 * 0.9, L * 0.82); sh.closePath();
@@ -2086,6 +2119,8 @@ function weaponEntry(kind, id) {
     if (glowC) R.add(gRing(V3(0, 0.78, 0), 0.03, 0.008, "y", 10), "w", glowC, "glow", true);
     tip = [0.62, 1.02];
   }
+  if (wlv >= 15 && kind !== "staff" && kind !== "sword" && kind !== "dagger" && kind !== "gsword" && kind !== "archery") { R.add(gBall(V3(0, 0.1, 0.02), 0.012, 1, 1.3, 0.6, 8), "w", glowC || 0x7fd8ff, "glow", true); R.add(gRing(V3(0, 0.06, 0), 0.024, 0.006, "y", 10), "w", gold, "metal"); }
+  else if (wlv >= 8 && kind !== "staff" && kind !== "sword" && kind !== "dagger" && kind !== "gsword" && kind !== "archery") R.add(gRing(V3(0, 0.06, 0), 0.023, 0.005, "y", 10), "w", 0x8a8a92, "metal");
   const e = R.finish();
   const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9, gkatana: 0.86, katana: 0.9, polearm: 0.84, gsword: 0.86 }[kind] || 1;
   if (k !== 1) { e.geo.scale(k, k, k); e.geo.computeBoundingSphere(); e.geo.boundingSphere.radius *= 1.6; tip = tip.map(x => x * k); }

@@ -1217,6 +1217,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Spawns: CONFIG.spawnGapCells 1.4 (was 3), spawnExitCells 1.2 (was 2); the spacing pass skips points inside walls or water; after spacing, critter options (no aggro, not NM) lose `time: "day"` so they appear day and night. Hollow 22 points (was 8). `conOf` softens starter levels: lv ≤ 3 counts one level lower and passive lv ≤ 4 one more (non-NM).
 - Tests: p1unit (critters keep spawning at night), p24unit (spacing uses CONFIG).
 
+## Phase 94: armour and weapons (v14.1.0) — plan Q7
+- humanEntry keeps the body loft rings in `BODY` (up/tw torso, arm{L,R} {up, fa1, fa2, w}, leg{L,R} {rings, w}); `shellOf(rings, off)` grows each ring by off. Armour pieces are lofts over those rings with the same skin weights, so they follow the body: plate = torso rings 1–6 +0.016 with a centre ridge and two waist bands; pauldrons = arm cap rings 0–3 +0.02 (wider) + two lames; gauntlets = forearm rings +0.011 + gold cuff; greaves = leg rings between knee+0.065 and ankle+0.06 +0.014, knee cop and a gold band; boots = leg rings below bootTop +0.008 with a turned top ring. Fallbacks to the old pieces when rings are absent.
+- weaponEntry: sword/dagger/gsword tiers by item level (1: bar guard; 2 (lv ≥ 8): short block + swept quillons + langet; 3 (lv ≥ 15): taller quillons, gems on both faces of the guard and the pommel). Other kinds: band at lv ≥ 8, gold band + gem at lv ≥ 15.
+- Title: #ldTip hidden in the ready state, #ldVer pinned under #ldCred; #ldCred hidden on the roster screen. Test tools: studio race spec takes a 4th field of comma-separated item ids; studio/headshot use the scene environment map.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1269,6 +1274,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.1.0 | Phase 94: body-fitted armour shells, weapon tiers, title tidy-up. |
 | 14.0.0 | Phase 93: spring capes/hair/tabards, 5 hairstyles, hair under helmets, fitted helmets, no exit arches, blue title screens, denser starter spawns, critters at night. |
 | 13.9.0 | Phase 92: 16 faces, talking mouths and jaw, expressions. |
 | 13.8.0 | Phase 91: woven cloth, stitched leather, engraved metal, embroidered trim, faster atlas. |
