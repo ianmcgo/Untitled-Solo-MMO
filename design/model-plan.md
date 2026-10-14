@@ -33,7 +33,7 @@ Rules: no code comments; keep low/medium/high quality tiers; check Low on phones
 | 106 ✅ | 15.0.0 | District framework | Towns split into districts (residential, market, industrial, government, plus harbor/gate) joined by gate halls; district banners, map names, saved location per district |
 | 107 ✅ | 15.1.0 | Outpost city | Residential (houses, residence, Pip, gardens), Market (Pell, Odette, Luna, auction, Trade Board, stalls), Industrial (Garrick's forge, crafting halls, mill, warehouses), Government (Rhea's barracks, Guild/Maera, Mercenary Hall/Brann, Tobin, city hall); laid-out streets, plazas, walls, gates, multi-storey buildings with detailed facades |
 | 108 ✅ | 15.2.0 | Harbor and Ironvale | Same for Saltreach (docks, fish market, ferry) and Ironvale (mines, smelters, keep); a distinct building style per city |
-| 109 | 15.3.0 | Warp stones | A warp stone in every district: free warps within the city, paid warps to attuned stones in other cities; /warp; minimap icon |
+| 109 ✅ | 15.3.0 | Warp stones | A warp stone in every district: free warps within the city, paid warps to attuned stones in other cities; /warp; minimap icon |
 | 110 | 15.4.0 | City life | Townsfolk with district schedules, guard patrols, market crowds, side quests per district, district music and ambience, signposts |
 
 ## Track 5: wilderness (111–115)

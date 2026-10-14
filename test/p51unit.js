@@ -1,0 +1,26 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+const stones = Object.keys(G.NPCS).filter(k => G.NPCS[k].warpstone);
+ok(stones.length === 14, 'fourteen warp stones across the three cities (' + stones.length + ')');
+for (const zid of ['outpost', 'harbor', 'ironvale']) { const Z = G.ZONES[zid]; ok(Z.districts.every(d => stones.some(k => G.NPCS[k].warpZone === zid && G.NPCS[k].warpDistrict === d.id && Z.npcs.some(n => n.id === k && G.districtAt(Z, n.x, n.y).id === d.id))), zid + ': every district has a stone inside it'); }
+G.enterZone('outpost', 1000, 800); run(0.3);
+G.save.gil = 500;
+const a = S.npcs.find(n => n.id === 'warpstone_outpost_market');
+G.talkTo(a); run(0.2);
+ok(G.save.warps && G.save.warps.warpstone_outpost_market, 'touching a stone attunes it');
+const b = S.npcs.find(n => n.id === 'warpstone_outpost_gov');
+P().x = b.x; P().y = b.y + 60; G.talkTo(b); run(0.2);
+const g0 = G.save.gil;
+P().x = a.x; P().y = a.y + 60;
+G.talkTo(a); run(0.2);
+H.els.dialog && 0;
+ok(G.save.warps.warpstone_outpost_gov, 'second stone attuned');
+console.log(G.save.gil === g0 ? 'PASS touching costs nothing' : 'FAIL touching costs');
+ok(typeof G.warpToStone === 'function', 'warpToStone exposed');
+G.warpToStone('warpstone_outpost_gov'); run(0.3);
+ok(G.save.gil === g0 && Math.abs(P().x - b.x) < 2 && Math.abs(P().y - (b.y + 70)) < 2 && S.district === 'gov', 'a warp inside the city is free and lands in that district (' + S.district + ')');
+G.save.warps.warpstone_harbor_square = true;
+G.warpToStone('warpstone_harbor_square'); run(0.5);
+ok(S.zoneId === 'harbor' && G.save.gil === g0 - G.CONFIG.warpCost, 'a warp to another city costs ' + G.CONFIG.warpCost);
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

@@ -1312,6 +1312,11 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - UI fixes: label occlusion test (`occluders`, `labelHidden`), tagged auto-closing exit prompt, `#dialog` width max-content, loading screen hides version/tip/credit until ready, showcase on mobile, hidden roster scrollbar and compact mobile creator CSS.
 - Test: test/p50unit.js (bodies stay put, Phoenix Down on hireling and self).
 
+## Phase 109: Warp stones (v15.3.0) — plan C4
+- `WARP_STONES` in data.js maps zone → district → [x, y]; positions were picked by a scan for the free point nearest each district centre (clear of `zoneRects` by 70 and of NPCs by 90). Each becomes `NPCS["warpstone_<zone>_<district>"]` (model crystal, `warpstone: true`, `talk: "talkWarpStone"`, `warpZone`, `warpDistrict`) and is pushed to the zone npcs.
+- `save.warps[id] = true` on first touch. `openWarpStone` lists attuned stones: same zone free, other zone `CONFIG.warpCost`. `warpToStone` teleports locally inside the zone (party repositioned, `checkDistrict`) or calls `enterZone` for another city. Blocked while engaged. `/warp` finds a stone within 160 px. Map dot colour #ff9ff3.
+- Test: test/p51unit.js.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1364,6 +1369,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.3.0 | Phase 109: warp stones in every district, free in-city warps, paid inter-city warps, /warp. |
 | 15.2.0 | Phase 108: Harbor and Ironvale districts, hireling bodies persist an hour, Phoenix Down, mobile and label fixes. |
 | 15.1.0 | Phase 107: city buildings (multi-storey, signs, awnings, clock tower, windmill, forge, warehouse), fountain square, gardens, outer wall and gatehouse, cobbled streets. |
 | 15.0.0 | Phase 106: Outpost split into five walled districts with gate halls, banners, district titles and map labels, gate routing for movement. |

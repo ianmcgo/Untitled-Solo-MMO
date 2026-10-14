@@ -578,6 +578,7 @@ function drawMinimap() {
   for (const n of S.npcs) {
     if (n.away || (n.prop && n.prop !== "gather" && n.prop !== "chest" && !n.poi)) continue;
     if (NPCS[n.id] && NPCS[n.id].crystal) dot(n.x, n.y, 6, "#7ff3ff");
+    else if (NPCS[n.id] && NPCS[n.id].warpstone) dot(n.x, n.y, 6, "#ff9ff3");
     else if (n.poi) dot(n.x, n.y, 5, n.poi === "cache" ? "#ffd54f" : "#b39ddb");
     else if (n.prop) dot(n.x, n.y, 5, n.prop === "chest" ? "#ffd54f" : "#c8e6a0");
     else dot(n.x, n.y, 6, questMarker(n) ? "#ffd54f" : "#7dff9a");
@@ -930,7 +931,7 @@ function updateBottom() {
   const talk = $("btnTalk");
   talk.disabled = !nn;
   talk.classList.toggle("hot", !!nn && questMarker(nn));
-  setTxt($("talkLbl"), nn ? (NPCS[nn.id] && NPCS[nn.id].crystal ? "Crystal" : nn.name.split(/[ ,]/)[0].slice(0, 8)) : "Talk");
+  setTxt($("talkLbl"), nn ? (NPCS[nn.id] && NPCS[nn.id].crystal ? "Crystal" : NPCS[nn.id] && NPCS[nn.id].warpstone ? "Warp" : nn.name.split(/[ ,]/)[0].slice(0, 8)) : "Talk");
   const bm = $("btnMount");
   bm.classList.toggle("has", !!save.mountLicense);
   setTxt($("mountLbl"), player.mounted ? "Dismount" : "Mount");
@@ -1057,7 +1058,7 @@ function ffDefaultHelp(t) {
   if (!t) return "";
   if (t === player) return "Choose a command for yourself.";
   if (isMob(t)) return player.engaged && player.attackTarget === t ? "Auto-attack is on. Press F or choose Disengage to stop." : claimOk(t) ? "Start auto-attack." : "This monster is claimed by " + claimName(t) + ".";
-  if (t.kind === "npc") return t.crystal ? "Touch the crystal." : "Talk.";
+  if (t.kind === "npc") return t.crystal ? "Touch the crystal." : t.warpstone ? "Touch the warp stone." : "Talk.";
   if (t.kind === "remote") return "Player commands.";
   if (isParty(t)) return "Party member.";
   return "";

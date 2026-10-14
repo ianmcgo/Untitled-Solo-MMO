@@ -1029,7 +1029,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.2.0 · built 2026-10-14 15:04 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.3.0 · built 2026-10-14 15:09 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -8158,6 +8158,16 @@ for (const zid in ZONES) {
     z.npcs.push({ id, x: Math.round(inner.x + (horiz ? 0 : off)), y: Math.round(inner.y + (horiz ? off : 0)) });
   });
 }
+const WARP_STONES = {
+  outpost: { res: [344, 744], gov: [1020, 264], market: [1000, 850], ind: [980, 1260], gate: [1700, 744] },
+  harbor: { fish: [324, 564], square: [900, 464], yard: [1480, 544], docks: [904, 1120] },
+  ironvale: { gate: [284, 704], keep: [660, 184], market: [900, 580], south: [900, 1180], forge: [1520, 704] }
+};
+for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
+  const id = "warpstone_" + zid + "_" + did, d = ZONES[zid].districts.find(q => q.id === did);
+  NPCS[id] = { name: "Warp Stone: " + d.name, model: "crystal", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
+  ZONES[zid].npcs.push({ id, x: WARP_STONES[zid][did][0], y: WARP_STONES[zid][did][1] });
+}
 Object.assign(QUESTS, {
   sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "bronze_tachi", qty: 1, unlock: "SAM" },
     intro: "A Samurai fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },
@@ -12988,6 +12998,7 @@ const TALK = {
   talkCamp(n) {
     openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Touch the camp crystal beside it to restore your party and to be able to warp here from any other crystal.", []);
   },
+  talkWarpStone(n) { openWarpStone(n); },
   talkCrystal(n) {
     save.attuned = save.attuned || {};
     if (!save.attuned[n.id]) { save.attuned[n.id] = S.zoneId; log("You attune to the " + n.name + ". You can now warp here from other crystals.", "loot"); }
@@ -13007,6 +13018,46 @@ const TALK = {
     openDialog(n.name, "The crystal's light washes over your party. HP and MP restored." + (isHome ? " This is your home point." : S.zone.safe ? " You can make this your home point: you'll return here if you fall." : " Camp crystals can't be home points, but you can warp here from any crystal you've touched."), opts);
   }
 };
+
+function warpStoneList() {
+  const out = [];
+  for (const id in NPCS) if (NPCS[id].warpstone && save.warps && save.warps[id]) out.push(id);
+  return out;
+}
+function warpStoneCost(id) { return NPCS[id].warpZone === S.zoneId ? 0 : CONFIG.warpCost; }
+function warpToStone(id) {
+  const def = NPCS[id], z = def && ZONES[def.warpZone], c = z && z.npcs.find(q => q.id === id);
+  if (!c) return;
+  const cost = warpStoneCost(id);
+  if (save.gil < cost) { log("Warping there costs " + cost + " crystals.", "sys"); return; }
+  if (player.engaged || S.party.some(p => p.engaged)) { log("You can't warp in the middle of a fight.", "sys"); return; }
+  save.gil -= cost;
+  log(cost ? "The stone flares, and the world folds around you." : "The stone hums and you step through to " + def.name.replace("Warp Stone: ", "") + ".", "loot");
+  vfx("crystal", { at: player });
+  closeDialog();
+  if (def.warpZone !== S.zoneId) { enterZone(def.warpZone, c.x, c.y + 70); return; }
+  player.x = c.x; player.y = c.y + 70; S.moveTarget = null; S.chase = false;
+  S.party.forEach((p, i) => { if (i > 0 && !(p.mercId && !p.alive)) { const o = followOffset(i); p.x = player.x + o.x; p.y = player.y + o.y; p.px = p.x; p.py = p.y; } });
+  player.px = player.x; player.py = player.y;
+  sfx("unlock");
+  if (typeof checkDistrict === "function") checkDistrict();
+}
+function openWarpStone(n) {
+  save.warps = save.warps || {};
+  if (!save.warps[n.id]) { save.warps[n.id] = true; log("You attune to the " + NPCS[n.id].name + ".", "loot"); saveGame(); }
+  const dests = warpStoneList().filter(id => id !== n.id);
+  if (!dests.length) { openDialog(NPCS[n.id].name, "A waist-high stone humming with pale light. Touch other warp stones to travel between them. Stones in the same city are free; stones in other cities cost " + CONFIG.warpCost + " crystals.", []); return; }
+  const near = dests.filter(id => NPCS[id].warpZone === S.zoneId), far = dests.filter(id => NPCS[id].warpZone !== S.zoneId);
+  const opts = [];
+  if (near.length) opts.push({ label: "Warp within " + (S.zone.city || S.zone.name) + " (free)", fn: () => { closeDialog(); promptChoice("Warp to which district?", near.map(id => ({ label: NPCS[id].name.replace("Warp Stone: ", ""), fn: () => warpToStone(id) }))); } });
+  if (far.length) opts.push({ label: "Warp to another city (" + CONFIG.warpCost + " crystals)", fn: () => { closeDialog(); promptChoice("Warp to which stone?", far.map(id => ({ label: NPCS[id].name.replace("Warp Stone: ", "") + " (" + ZONES[NPCS[id].warpZone].name + ")", fn: () => warpToStone(id) }))); } });
+  openDialog(NPCS[n.id].name, "The stone hums as you touch it. Pick a stone you have already touched.", opts);
+}
+function warpCommand() {
+  const n = S.npcs.find(q => NPCS[q.id] && NPCS[q.id].warpstone && dist(q, player) < 160);
+  if (!n) { log("You must be next to a warp stone to use /warp.", "sys"); return; }
+  openWarpStone(n);
+}
 
 function warpTo(id) {
   const zid = save.attuned && save.attuned[id], z = ZONES[zid];
@@ -13360,6 +13411,7 @@ const COMMANDS = [
   ["/shout text", "Talk to everyone in this area. Also /sh."],
   ["/tell Name text", "Private message to a player anywhere. Also /t. /r replies to the last tell."],
   ["/who", "List players online and where they are."],
+  ["/warp", "Open the warp menu when you are standing next to a warp stone."],
   ["/invite Name", "Invite a player to your party (up to 6 players). Also /pcmd add Name."],
   ["/join · /decline", "Accept or turn down a party invitation."],
   ["/p text", "Talk to your party, wherever they are. Also /party text."],
@@ -13432,6 +13484,7 @@ function runCommand(text) {
     case "sh": case "shout": if (typeof netChat === "function") netChat("shout", arg); else log(save.name + " shouts: " + arg, "shout"); return;
     case "t": case "tell": { const s2 = arg.indexOf(" "); if (typeof netTell === "function") netTell(s2 < 0 ? arg : arg.slice(0, s2), s2 < 0 ? "" : arg.slice(s2 + 1)); else log("Tells need the game server.", "sys"); return; }
     case "r": case "reply": if (typeof NET_RT !== "undefined" && NET_RT.lastTell) netTell(NET_RT.lastTell, arg); else log("Nobody has sent you a tell yet.", "sys"); return;
+    case "warp": warpCommand(); return;
     case "who": if (typeof netWho === "function") netWho(); else log("You're playing alone.", "sys"); return;
     case "pet": { const why = toggleBuddy(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
@@ -14559,6 +14612,7 @@ function drawMinimap() {
   for (const n of S.npcs) {
     if (n.away || (n.prop && n.prop !== "gather" && n.prop !== "chest" && !n.poi)) continue;
     if (NPCS[n.id] && NPCS[n.id].crystal) dot(n.x, n.y, 6, "#7ff3ff");
+    else if (NPCS[n.id] && NPCS[n.id].warpstone) dot(n.x, n.y, 6, "#ff9ff3");
     else if (n.poi) dot(n.x, n.y, 5, n.poi === "cache" ? "#ffd54f" : "#b39ddb");
     else if (n.prop) dot(n.x, n.y, 5, n.prop === "chest" ? "#ffd54f" : "#c8e6a0");
     else dot(n.x, n.y, 6, questMarker(n) ? "#ffd54f" : "#7dff9a");
@@ -14911,7 +14965,7 @@ function updateBottom() {
   const talk = $("btnTalk");
   talk.disabled = !nn;
   talk.classList.toggle("hot", !!nn && questMarker(nn));
-  setTxt($("talkLbl"), nn ? (NPCS[nn.id] && NPCS[nn.id].crystal ? "Crystal" : nn.name.split(/[ ,]/)[0].slice(0, 8)) : "Talk");
+  setTxt($("talkLbl"), nn ? (NPCS[nn.id] && NPCS[nn.id].crystal ? "Crystal" : NPCS[nn.id] && NPCS[nn.id].warpstone ? "Warp" : nn.name.split(/[ ,]/)[0].slice(0, 8)) : "Talk");
   const bm = $("btnMount");
   bm.classList.toggle("has", !!save.mountLicense);
   setTxt($("mountLbl"), player.mounted ? "Dismount" : "Mount");
@@ -15038,7 +15092,7 @@ function ffDefaultHelp(t) {
   if (!t) return "";
   if (t === player) return "Choose a command for yourself.";
   if (isMob(t)) return player.engaged && player.attackTarget === t ? "Auto-attack is on. Press F or choose Disengage to stop." : claimOk(t) ? "Start auto-attack." : "This monster is claimed by " + claimName(t) + ".";
-  if (t.kind === "npc") return t.crystal ? "Touch the crystal." : "Talk.";
+  if (t.kind === "npc") return t.crystal ? "Touch the crystal." : t.warpstone ? "Touch the warp stone." : "Talk.";
   if (t.kind === "remote") return "Player commands.";
   if (isParty(t)) return "Party member.";
   return "";
@@ -17024,13 +17078,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v15.2.0 · built 2026-10-14 15:04 PDT";
+const BUILD_INFO = "v15.3.0 · built 2026-10-14 15:09 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "15.3.0", date: "2026-10-14", title: "Warp stones", items: [
+    "Every district of Ashenreach Outpost, Saltreach Harbor and Ironvale now has a warp stone, shown as a pink dot on the map.",
+    "Touch a stone to attune to it. From any stone you can warp for free to any attuned stone in the same city, or to an attuned stone in another city for " + CONFIG.warpCost + " crystals. Not during a fight.",
+    "New command: /warp opens the warp menu when you stand next to a stone."
   ] },
   { v: "15.2.0", date: "2026-10-14", title: "Harbor, Ironvale and fixes", items: [
     "Saltreach Harbor and Ironvale are now districted cities with their own look. Saltreach has timber and whitewashed harbor buildings, a lighthouse, slipways and a sea wall on the south side; Ironvale has dark stone halls, smelters, a keep and mine heads, with snow on the roofs.",
@@ -17915,6 +17974,9 @@ function tabHelp() {
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
   ]));
+  h += sec("🌀 Warp stones", ul([
+    "Each district of the three cities has a warp stone (pink dot on the map). Touch one to attune it. Warps inside the same city are free; warps to a stone in another city cost " + CONFIG.warpCost + " crystals. You can't warp while fighting. Type /warp beside a stone to open the menu. Crystals still handle home points and camp warps."
+  ]));
   h += sec("💀 Falling and reviving", ul([
     "A hireling who falls stays where they died for an hour. They do not follow you through gates or zone changes, and returning to your home point does not heal them. Walk back and use Raise, a Phoenix Down or an Ember Plume on them, or they leave the party when the hour ends.",
     "<b>Phoenix Down</b> (Pell's shop) revives with half HP, <b>Ember Plume</b> with a fifth. Use them on a KO'd hireling, party member or friend. When you are KO'd yourself, open your items and use one on yourself."
@@ -18283,7 +18345,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "15.2.0";
+const GAME_VERSION = "15.3.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

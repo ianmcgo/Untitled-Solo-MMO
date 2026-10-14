@@ -4612,6 +4612,7 @@ const TALK = {
   talkCamp(n) {
     openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Touch the camp crystal beside it to restore your party and to be able to warp here from any other crystal.", []);
   },
+  talkWarpStone(n) { openWarpStone(n); },
   talkCrystal(n) {
     save.attuned = save.attuned || {};
     if (!save.attuned[n.id]) { save.attuned[n.id] = S.zoneId; log("You attune to the " + n.name + ". You can now warp here from other crystals.", "loot"); }
@@ -4631,6 +4632,46 @@ const TALK = {
     openDialog(n.name, "The crystal's light washes over your party. HP and MP restored." + (isHome ? " This is your home point." : S.zone.safe ? " You can make this your home point: you'll return here if you fall." : " Camp crystals can't be home points, but you can warp here from any crystal you've touched."), opts);
   }
 };
+
+function warpStoneList() {
+  const out = [];
+  for (const id in NPCS) if (NPCS[id].warpstone && save.warps && save.warps[id]) out.push(id);
+  return out;
+}
+function warpStoneCost(id) { return NPCS[id].warpZone === S.zoneId ? 0 : CONFIG.warpCost; }
+function warpToStone(id) {
+  const def = NPCS[id], z = def && ZONES[def.warpZone], c = z && z.npcs.find(q => q.id === id);
+  if (!c) return;
+  const cost = warpStoneCost(id);
+  if (save.gil < cost) { log("Warping there costs " + cost + " crystals.", "sys"); return; }
+  if (player.engaged || S.party.some(p => p.engaged)) { log("You can't warp in the middle of a fight.", "sys"); return; }
+  save.gil -= cost;
+  log(cost ? "The stone flares, and the world folds around you." : "The stone hums and you step through to " + def.name.replace("Warp Stone: ", "") + ".", "loot");
+  vfx("crystal", { at: player });
+  closeDialog();
+  if (def.warpZone !== S.zoneId) { enterZone(def.warpZone, c.x, c.y + 70); return; }
+  player.x = c.x; player.y = c.y + 70; S.moveTarget = null; S.chase = false;
+  S.party.forEach((p, i) => { if (i > 0 && !(p.mercId && !p.alive)) { const o = followOffset(i); p.x = player.x + o.x; p.y = player.y + o.y; p.px = p.x; p.py = p.y; } });
+  player.px = player.x; player.py = player.y;
+  sfx("unlock");
+  if (typeof checkDistrict === "function") checkDistrict();
+}
+function openWarpStone(n) {
+  save.warps = save.warps || {};
+  if (!save.warps[n.id]) { save.warps[n.id] = true; log("You attune to the " + NPCS[n.id].name + ".", "loot"); saveGame(); }
+  const dests = warpStoneList().filter(id => id !== n.id);
+  if (!dests.length) { openDialog(NPCS[n.id].name, "A waist-high stone humming with pale light. Touch other warp stones to travel between them. Stones in the same city are free; stones in other cities cost " + CONFIG.warpCost + " crystals.", []); return; }
+  const near = dests.filter(id => NPCS[id].warpZone === S.zoneId), far = dests.filter(id => NPCS[id].warpZone !== S.zoneId);
+  const opts = [];
+  if (near.length) opts.push({ label: "Warp within " + (S.zone.city || S.zone.name) + " (free)", fn: () => { closeDialog(); promptChoice("Warp to which district?", near.map(id => ({ label: NPCS[id].name.replace("Warp Stone: ", ""), fn: () => warpToStone(id) }))); } });
+  if (far.length) opts.push({ label: "Warp to another city (" + CONFIG.warpCost + " crystals)", fn: () => { closeDialog(); promptChoice("Warp to which stone?", far.map(id => ({ label: NPCS[id].name.replace("Warp Stone: ", "") + " (" + ZONES[NPCS[id].warpZone].name + ")", fn: () => warpToStone(id) }))); } });
+  openDialog(NPCS[n.id].name, "The stone hums as you touch it. Pick a stone you have already touched.", opts);
+}
+function warpCommand() {
+  const n = S.npcs.find(q => NPCS[q.id] && NPCS[q.id].warpstone && dist(q, player) < 160);
+  if (!n) { log("You must be next to a warp stone to use /warp.", "sys"); return; }
+  openWarpStone(n);
+}
 
 function warpTo(id) {
   const zid = save.attuned && save.attuned[id], z = ZONES[zid];
@@ -4984,6 +5025,7 @@ const COMMANDS = [
   ["/shout text", "Talk to everyone in this area. Also /sh."],
   ["/tell Name text", "Private message to a player anywhere. Also /t. /r replies to the last tell."],
   ["/who", "List players online and where they are."],
+  ["/warp", "Open the warp menu when you are standing next to a warp stone."],
   ["/invite Name", "Invite a player to your party (up to 6 players). Also /pcmd add Name."],
   ["/join · /decline", "Accept or turn down a party invitation."],
   ["/p text", "Talk to your party, wherever they are. Also /party text."],
@@ -5056,6 +5098,7 @@ function runCommand(text) {
     case "sh": case "shout": if (typeof netChat === "function") netChat("shout", arg); else log(save.name + " shouts: " + arg, "shout"); return;
     case "t": case "tell": { const s2 = arg.indexOf(" "); if (typeof netTell === "function") netTell(s2 < 0 ? arg : arg.slice(0, s2), s2 < 0 ? "" : arg.slice(s2 + 1)); else log("Tells need the game server.", "sys"); return; }
     case "r": case "reply": if (typeof NET_RT !== "undefined" && NET_RT.lastTell) netTell(NET_RT.lastTell, arg); else log("Nobody has sent you a tell yet.", "sys"); return;
+    case "warp": warpCommand(); return;
     case "who": if (typeof netWho === "function") netWho(); else log("You're playing alone.", "sys"); return;
     case "pet": { const why = toggleBuddy(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
