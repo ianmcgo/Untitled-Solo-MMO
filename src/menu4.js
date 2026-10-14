@@ -1018,6 +1018,13 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "6.9.0", date: "2026-10-13", title: "Animation upgrade", items: [
+    "Three swing variations for every weapon type (overhead, sweep and backhand for blades; overhead and wide arc for axes and clubs), so auto-attacks no longer look identical.",
+    "Weapon skills now animate by tier: quick flurries for the first tier, a stepping lunge for the second, a full spin for the third, and the leaping slam for the strongest.",
+    "Casting poses depend on the magic: hands raised together for healing and buffs, an outstretched hand for enfeebles, hands low and hunched for dark magic, arms thrown wide for summons, and a swaying performer's stance for songs.",
+    "Characters fidget when idle (looking around, stretching, shifting weight, scratching their head), shuffle their feet when turning on the spot, flinch away from the side they were hit on, buckle at the knees before falling when knocked out, and get up from a kneel when raised.",
+    "Animations keep playing while the defeat window is open."
+  ] },
   { v: "6.8.0", date: "2026-10-13", title: "The world, repopulated", items: [
     "Monsters are now placed by difficulty. Near the Outpost gate you'll only meet peaceful critters (bees, crawlers, sheep, mandrakes); goblins, worms, orcs and the undead are further in.",
     "The same kinds of monster get new names and colours the deeper you go: Grass, Bog and Rime Crawlers; Honey Bees, Marsh Hornets and Frost Wasps; Hill, Bog and Frost Lizards; Pond, Mud and Ice Crabs; Lake, Marsh and Ice Snappers; Meadow Sheep and Mountain Rams; Mandrakes and Marsh Mandrakes; Shroomlings and Bog Shrooms; Stonechuckers, Bombs and Treants of the frost.",

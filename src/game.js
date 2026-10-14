@@ -754,6 +754,7 @@ function applyDamage(src, tgt, amt, opt) {
   tgt.hp = Math.max(0, tgt.hp - amt);
   tgt.flash = 0.15;
   tgt.lastHit = S.time;
+  if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
   if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (isMob(tgt) ? (src === player ? "#ffffff" : "#b3d9ff") : "#ff8a80"), opt.size || 16, opt.life, opt.yOff);
   if (isMob(tgt)) {
     if (src && isParty(src)) {
@@ -1676,6 +1677,7 @@ function doWS(a, id, t) {
   const tpUsed = a.tp;
   a.tp = 0;
   a.lastWS = S.time;
+  a.lastWSId = id;
   a.face = Math.atan2(t.y - a.y, t.x - a.x);
   const fTP = ftpAt(tpUsed, ws.ftp);
   log(subj(a) + " " + vb(a, "use") + " " + ws.name + " (" + tpUsed + " TP).", cls(a));
