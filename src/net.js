@@ -208,6 +208,7 @@ function netJoinZone(zoneId) {
     const ch = NET.sb.channel("zone:" + zoneId, { config: { broadcast: { self: false }, presence: { key: S.charId } } });
     ch.on("broadcast", { event: "mv" }, m => netOnMove(m.payload));
     ch.on("broadcast", { event: "chat" }, m => netOnChat(m.payload));
+    ch.on("broadcast", { event: "emo" }, m => { const q = m.payload || {}; const o = S.others && S.others.get(q.id); if (o && typeof EMOTES !== "undefined" && EMOTES[q.e]) o.emote = { id: q.e, at: S.time }; });
     for (const [ev, fn] of [["ms", netOnMs], ["hit", netOnHit], ["deb", netOnDeb], ["mat", netOnMat], ["die", netOnDie], ["req", netOnReq], ["want", netOnWant], ["sc", (p) => netOnSc(p)]]) ch.on("broadcast", { event: ev }, m => fn(m.payload));
     ch.on("presence", { event: "sync" }, () => { const st = ch.presenceState(); netOnPresence(st); netElect(st); });
     ch.subscribe(st => { if (st === "SUBSCRIBED") { NET_RT.lastSig = ""; NET_RT.lastPos = ""; netTrack(); } });
@@ -348,6 +349,7 @@ function netChat(kind, text) {
   Promise.resolve(NET_RT.zch.send({ type: "broadcast", event: "chat", payload: { id: S.charId, name: save.name, kind, text, x: Math.round(player.x), y: Math.round(player.y) } })).catch(() => {});
 }
 
+function netEmote(id) { if (NET_RT.zch) Promise.resolve(NET_RT.zch.send({ type: "broadcast", event: "emo", payload: { id: S.charId, e: id } })).catch(() => {}); }
 function netOnChat(p) {
   if (!p || p.id === S.charId) return;
   const text = cleanChat(p.text), name = cleanChat(p.name).slice(0, 12);

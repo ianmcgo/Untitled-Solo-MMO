@@ -1453,6 +1453,10 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.17.0", date: "2026-10-14", title: "Motion", items: [
+    "Emotes are now fully animated: wave, bow, cheer, dance, laugh, nod, clap, point, salute, panic, cry and thumbs up each have their own movement. Using one stands you up if you were resting and turns you to face your target.",
+    "Other players in your zone see your emotes play out too."
+  ] },
   { v: "9.16.0", date: "2026-10-14", title: "Shadows and depth", items: [
     "Every character, companion and monster now has a soft shadow on the ground beneath it, so they look planted. On the Low setting (where sun shadows are off) this is their only shadow and is a bit darker.",
     "Characters and monsters get a gentle rim of light around their edges that picks up the sun's colour by day and a cool blue at night, so they stand out from the background.",
@@ -1949,7 +1953,7 @@ const UPDATES = [
   ] },
   { v: "4.2.0", date: "2026-10-13", title: "Phase 5a: a bigger world", items: [
     "Character creation: choose a name, job and appearance before you start. Appearance is permanent. Keep up to 8 characters and pick one on the character select screen each time you play, like an MMO. System → Change character logs out to that screen.",
-    "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes.",
+    "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes (/wave, /bow, /cheer, /dance, /laugh, /nod, /clap, /point, /salute, /panic, /cry, /thumbsup), which play a short animation that others nearby can see.",
     "A Rest action is on page 2 of the action bar.",
     "Real loading screens: every area change shows a progress bar that moves while the land is shaped, instead of freezing.",
     "New-version popup: the game checks for updates and offers to reload. After an update, a what's-new card shows the changes.",
