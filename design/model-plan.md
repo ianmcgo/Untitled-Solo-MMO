@@ -19,15 +19,15 @@ Rules: no code comments; keep low/medium/high quality tiers; check Low on phones
 | 98 ✅ | 14.5.0 | Monster limbs and motion | Every monster gets real jointed arms/legs; gaits per body plan (biped, quadruped walk/trot/gallop, six-legged, crab, bird, wings, serpent); feet planted on terrain; weight shift and follow-through; attack, hit, idle and death poses |
 
 ## Track 2: sound and icons (99–101)
-| 99 | 14.6.0 | Interface sounds | Classic menu sounds everywhere: cursor move, confirm, cancel, error, window open/close, page turn, tab, target, equip, buy/sell, chat tell/party chime, level-up, quest |
-| 100 | 14.7.0 | More sound effects | Footsteps per surface (grass, stone, wood, snow, sand, water), per-weapon swings and hits, per-element spells, monster voices per family (idle, aggro, hurt, death), doors, chests, crafting, fishing, mount, weather, town crowds |
-| 101 | 14.8.0 | Item icons | Painted icons for every item instead of emoji: weapons by type and tier (sword, dagger, axe, great axe, scythe, staff, club, bow, katana, polearm...), armour by slot, materials, food, scrolls, key items; rarity frames |
+| 99 ✅ | 14.6.0 | Interface sounds | Classic menu sounds everywhere: cursor move, confirm, cancel, error, window open/close, page turn, tab, target, equip, buy/sell, chat tell/party chime, level-up, quest |
+| 100 ✅ | 14.7.0 | More sound effects | Footsteps per surface (grass, stone, wood, snow, sand, water), per-weapon swings and hits, per-element spells, monster voices per family (idle, aggro, hurt, death), doors, chests, crafting, fishing, mount, weather, town crowds |
+| 101 ✅ | 14.8.0 | Item icons | Painted icons for every item instead of emoji: weapons by type and tier (sword, dagger, axe, great axe, scythe, staff, club, bow, katana, polearm...), armour by slot, materials, food, scrolls, key items; rarity frames |
 
 ## Track 3: environments (102–105)
-| 102 | 14.9.0 | Terrain and cliffs | Rock cliff meshes with strata instead of smooth ridges; higher-detail ground textures (grass, dirt, sand, snow, moss); paths with edging stones and wheel ruts |
-| 103 | 14.10.0 | Foliage and props | Denser, layered trees and bushes, ferns, reeds, mushrooms, fences, carts, signs, bridges, ruins with arches, campfires; per-zone prop sets |
-| 104 | 14.11.0 | Light and atmosphere | Light shafts, better water shores, distant scenery, colour per zone and hour, cave lighting |
-| 105 | 14.12.0 | Dungeons | Cave and crypt walls with real rock/brick meshes, stairs, pillars, doors, torches and set dressing |
+| 102 ✅ | 14.9.0 | Terrain and cliffs | Rock cliff meshes with strata instead of smooth ridges; higher-detail ground textures (grass, dirt, sand, snow, moss); paths with edging stones and wheel ruts |
+| 103 ✅ | 14.10.0 | Foliage and props | Denser, layered trees and bushes, ferns, reeds, mushrooms, fences, carts, signs, bridges, ruins with arches, campfires; per-zone prop sets |
+| 104 ✅ | 14.11.0 | Light and atmosphere | Light shafts, better water shores, distant scenery, colour per zone and hour, cave lighting |
+| 105 ✅ | 14.12.0 | Dungeons | Cave and crypt walls with real rock/brick meshes, stairs, pillars, doors, torches and set dressing |
 
 ## Track 4: cities (106–110)
 | 106 | 15.0.0 | District framework | Towns split into districts (residential, market, industrial, government, plus harbor/gate) joined by gate halls; district banners, map names, saved location per district |
