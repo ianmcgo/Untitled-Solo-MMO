@@ -269,6 +269,7 @@ function buildVegetation(field, root) {
   const desert = z.palette === "desert", jungle = z.palette === "jungle", volcanic = z.palette === "volcanic";
   const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
   if (z.vegK) for (const kk of ["trees", "rocks", "small"]) want[kk] = Math.round(want[kk] * z.vegK);
+  if (z.palette === "highland") { want.trees = Math.round(want.trees * 0.35); want.rocks = Math.round(want.rocks * 0.8); }
   if (volcanic) { want.trees = Math.round(want.trees * 0.08); want.rocks = Math.round(want.rocks * 1.8); want.small = Math.round(want.small * 1.5); }
   const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1) * (desert ? 0.25 : volcanic ? 0.06 : 1);
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
@@ -1348,6 +1349,7 @@ const BACKDROP = {
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
   marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
   harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
+  highlands: { h: [30, 70, 140], col: [0x6a7a50, 0x7a8a70, 0x9aa8b0], mark: "tower" },
   gullisle: { h: [8, 20, 50], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
   cinder: { h: [60, 130, 230], col: [0x3a2a26, 0x5a443e, 0x8a7a74], mark: "peak" },
   verdant: { h: [40, 80, 140], col: [0x2e5a2a, 0x4a7050, 0x7a9488], mark: "tree" },
@@ -1425,6 +1427,7 @@ const ATMOS = {
   marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
   frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
   harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  highlands: { tint: 0xfff0d0, haze: 0.12, far: 1.35, clouds: 0.75 },
   gullisle: { tint: 0xc4e2ee, haze: 0.28, far: 1.1, clouds: 0.6 },
   cinder: { tint: 0xffb488, haze: 0.3, far: 0.9, clouds: 0.85 },
   verdant: { tint: 0xb8d8a0, haze: 0.32, far: 0.85, clouds: 0.9 },

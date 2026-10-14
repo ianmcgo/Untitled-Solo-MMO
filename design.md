@@ -1127,6 +1127,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - world3d `buildGlow(field, root)` for `z.glow`: ~160 instanced emissive mushrooms and crystals + 4 coloured point lights.
 - Tests: p41unit.
 
+## Phase 82: Windreach Highlands (v12.7.0)
+- data.js (before ZONE_SCALE): families plains_hare, plains_lizard, wind_wasp, highland_longneck, highland_orc; NM `thunderhoof` (longneck, day) → windrunner_boots; nomad_sash/nomad_cloak quest rewards. `ZONES.highlands` (4000×3000, palette "highland", `openRange: true`, lv 10–15). Hollow gets a north exit (orig x 1250) and a road from the junction (1650,1050) around Mirror Lake. NPCs tarqa (quests orcraid, feltwork), essa (SHOPS.essa), nomad_rider, camps camp_nomad_a/b. WEATHER, achievement `highlands`.
+- game.js: mountMul road bonus applies anywhere in `openRange` zones. talkTarqa/talkEssa/talkRider.
+- textures `TERRAIN_THEMES.highland`; world3d highland trees ×0.35, rocks ×0.8; BACKDROP/ATMOS highlands. rig NPC_LOOK tarqa/essa/nomad.
+- Tests: p42unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1166,7 +1172,7 @@ New zones (one per release; each gets its own monsters, NM, gathering, quests, l
 - 79 DONE (12.4.0) Gull Isle: coastal island reached by ferry; sea cliffs, pirate caves, lighthouse.
 - 80 DONE (12.5.0) The Spire: multi-floor tower dungeon, harder per floor, boss at the top.
 - 81 DONE (12.6.0) Underdeep River: underground river by boat, glowing caves, fishing.
-- 82 (12.7.0) Highland plateau: open grassland, large mount area, nomad camps.
+- 82 DONE (12.7.0) Highland plateau: open grassland, large mount area, nomad camps.
 World systems:
 - 83 (13.0.0) Regions with control status: each region shows which side holds it; affects shop stock and prices.
 - 84 (13.1.0) Weather that matters: sandstorms, blizzards, fog change spawns and view distance.
@@ -1209,6 +1215,7 @@ World systems:
 | 12.4.0 | Phase 79: Gull Isle and the ferry. |
 | 12.5.0 | Phase 80: The Red Spire tower dungeon. |
 | 12.6.0 | Phase 81: Underdeep River. |
+| 12.7.0 | Phase 82: Windreach Highlands. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |
