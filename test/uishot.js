@@ -1,0 +1,23 @@
+const { chromium } = require('/opt/npm-tools/node_modules/playwright');
+const mockLogin = require('./mocklogin');
+(async () => {
+  const [html, out, w, h] = process.argv.slice(2);
+  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const page = await (await browser.newContext({ viewport: { width: +(w || 1280), height: +(h || 720) } })).newPage();
+  const errs = [];
+  page.on('pageerror', e => errs.push('pageerror: ' + e.message + ' ' + (e.stack || '').split('\n')[1]));
+  await page.addInitScript(() => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: 'low' })); } catch (e) {} });
+  await mockLogin(page, html);
+  const shot = async (n, fn, wait) => { if (fn) await page.evaluate(fn); await page.waitForTimeout(wait || 900); await page.screenshot({ path: out + '-' + n + '.png' }); };
+  await page.evaluate(() => { const hh = vana(); let d = 11 - hh.hour; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; document.querySelectorAll('.toast').forEach(x => x.remove()); });
+  await shot('idle', () => { for (let i = 0; i < 6; i++) log('Test line ' + i, 'sys'); UI.logAt = -999; }, 9000);
+  await shot('esc', () => { logEsc(); logEsc(); }, 600);
+  await shot('empty', () => { logEsc(); logEsc(); logEsc(); }, 600);
+  await shot('npc', () => { const n = S.npcs.find(n => n.talk === 'talkRhea') || S.npcs.find(n => n.talk && !n.prop); talkTo(n); }, 900);
+  await shot('shop', () => { closeDialog(); const n = S.npcs.find(n => n.talk === 'talkPell') || S.npcs.find(n => /shop|Pell/i.test(n.name || '')); if (n) talkTo(n); else openMenu('shop'); }, 900);
+  await shot('inv', () => { closeModal(); openMenu('inventory'); }, 900);
+  await shot('confirm', () => { closeModal(); gameConfirm('Log out', 'Return to the character selection screen?', () => {}, { yes: 'Log out' }); }, 600);
+  await shot('time', () => { $('confirmBox').querySelector('.no').click(); runCommand('/clock'); }, 600);
+  console.log(errs.length ? 'ERRORS ' + errs.slice(0, 5).join(' || ') : 'ok');
+  await browser.close();
+})();

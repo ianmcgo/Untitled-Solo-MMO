@@ -1,6 +1,7 @@
 function openMenu(tab) {
   tab = TAB_ALIAS[tab] || tab || "character";
   const was = !!S.modal;
+  if (S.dialog) closeDialog();
   S.modal = tab;
   $("menu").style.display = "block";
   S.keys = {};
@@ -566,7 +567,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + "</div>";
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -1207,7 +1208,7 @@ function onMenuClick(e) {
   e.preventDefault();
   const a = t.dataset.a, v = t.dataset.v;
   if (a === "mute") { toggleMute(); renderModal(); return; }
-  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
+  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates" || v === "compass")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
   if (typeof handleSettingAction === "function" && handleSettingAction(a, v)) { renderModal(); sfx("click"); return; }
   const hb = hotbar();
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
@@ -1410,6 +1411,17 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.2.0", date: "2026-10-13", title: "Windows in the world", items: [
+    "Menus no longer cover the screen. Each one opens as a window in the top left with its name in the Commands box and a short description in the Help bar; the old side list of menus is gone. Esc closes the window and returns to the main menu.",
+    "Talking to people no longer opens a box in the middle of the screen. What they say appears in the event log, and any choices appear in a small box above the log (↑ ↓ to choose, Enter to confirm, Esc to back out). Merchants with nothing else to say open their shop straight away.",
+    "Yes/no questions (log out, selling, invitations and so on) use the same small box above the log.",
+    "The event log shrinks to three lines when nothing is happening. Each Esc hides one more line until it's gone; new messages bring it back. The tabs and typing box only show while you're typing (/) or have chat open.",
+    "New compass map above the event log: a tilted dish with N, E, S and W, dots for people, monsters and your party, plus the time and your map square (like G-8). Turn it off in Config → Interface. It drops to the bottom when the log is hidden.",
+    "The zone name, clock and the 💬 and ☰ buttons are gone from the top right. Open the main menu with Esc, - or by tapping yourself (Main Menu), and open chat with / , L or tapping yourself (Chat).",
+    "Current Time writes the Leid'anav date and time and your own date and time to the event log.",
+    "Resting now sits you down on the ground with your knees up instead of squatting, and no part of you sinks into the ground.",
+    "The Network box lines up with the Commands and Help bars."
   ] },
   { v: "9.1.0", date: "2026-10-13", title: "Main menu window", items: [
     "Esc (with nothing targeted), - or the ☰ button opens the main menu as a command window in the top right under the Network box. It has two pages; ← → or the arrows at the top switch pages.",
@@ -2049,11 +2061,13 @@ function tabHelp() {
   ]));
   h += sec("🖥️ The screen", ul([
     "<b>Main menu:</b> Esc with nothing targeted, - (or Insert) or ☰ opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
-    "<b>Bottom left:</b> the map, shown only while the event log is hidden. Tap it for the full map.",
+    "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
+    "<b>Windows:</b> menus open in the top left of the screen while the world keeps going. The Commands box shows the window's name and the Help bar explains it. Esc closes it.",
+    "<b>Talking:</b> what people say goes into the event log. If there's a choice to make, a small box appears above the log: ↑ ↓ choose, Enter confirm, Esc back out. Yes/no questions use the same box.",
     "<b>Top:</b> the Commands box and the Help bar appear while something is targeted or a menu is open; the Help bar explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
     "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
-    "<b>Bottom:</b> the event log. It slides away when nothing is targeted, and comes back when you target something, start typing (press / ), when someone talks to you or you find loot, or while you pin it open with 💬 (top right) or L. Esc hides it again. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
+    "<b>Bottom:</b> the event log. New messages open it fully; after a few quiet seconds it shrinks to three lines. Each Esc hides one more line until it's gone. Press / to type (the tabs and typing box appear), or L to keep it open; on phones tap yourself and choose Chat. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Settings → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you)."

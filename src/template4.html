@@ -726,6 +726,7 @@
   #ffTop { right: calc(150px + var(--sar)); }
   #ffNetBox { position: absolute; right: calc(4px + var(--sar)); top: var(--sat); width: 140px; height: 32px; display: none; align-items: center; justify-content: center; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.45); z-index: 6; color: #fff; }
   #ui.hasTop #ffNetBox { display: flex; }
+  #ffNetBox { top: calc(4px + var(--sat)); height: 34px; box-sizing: border-box; border-radius: 6px; }
   @media (max-width: 720px) { #ffTop { right: calc(104px + var(--sar)); } #ffNetBox { width: 96px; } #ffNet b { font-size: 11px; } }
   #chat { transition: opacity .25s, transform .25s; }
   #chat.gone { opacity: 0; transform: translateY(16px); pointer-events: none; }
@@ -761,8 +762,40 @@
   #mCmd .ffb .cur { position: absolute; left: -22px; font-size: 15px; color: #e8c8a8; opacity: 0; } #mCmd .ffb.sel .cur { opacity: 1; }
   #ui.hasTop #topRight, #ui:has(#mCmd.on) #topRight { top: calc(40px + var(--sat)); }
   #ui:has(#mCmd.on) #topRight { right: calc(200px + var(--sar)); }
-  #ui > #mmWrap { position: absolute; left: calc(8px + var(--sal)); bottom: calc(8px + var(--sab)); right: auto; top: auto; z-index: 3; transition: opacity .25s; }
-  #ui:has(#chat:not(.gone)) > #mmWrap { opacity: 0; pointer-events: none; }
+  #ui > #mmWrap { position: absolute; left: calc(14px + var(--sal)); bottom: calc(10px + var(--sab)); right: auto; top: auto; z-index: 3; width: 170px; height: auto; border: none; border-radius: 0; box-shadow: none; background: none; overflow: visible; transition: bottom .2s; }
+  #mmDisc { position: relative; width: 170px; height: 76px; }
+  #mmDisc #minimap { position: absolute; left: 0; top: -47px; width: 170px; height: 170px; transform: scaleY(.42); }
+  #mmWrap .mmL { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; font: italic 900 15px var(--ffFont); color: #fff; text-align: center; line-height: 18px; -webkit-text-stroke: .4px #303060; text-shadow: 1px 1px 0 #000; pointer-events: none; }
+  #mmWrap .mmL.n { color: #ffb0c0; }
+  #mmTime { margin: 2px 0 0 18px; font: italic 900 14px var(--ffFont); color: #fff; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
+  #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
+  #clockBox, #trBtns { display: none !important; }
+  #confirmBox { inset: auto; left: calc(8px + var(--sal)); bottom: calc(170px + var(--sab)); background: none; pointer-events: none; z-index: 60; }
+  #confirmBox .cb { pointer-events: auto; width: 340px; max-width: calc(100vw - 20px); padding: 4px 10px 6px 26px; animation: none; background: linear-gradient(180deg, rgba(40,44,70,.94), rgba(18,20,36,.96)); border: 2px solid rgba(220,224,255,.6); border-radius: 4px; }
+  #confirmBox .cbT { display: none; }
+  #confirmBox .cbB { margin-left: -16px; font: italic 800 14px var(--ffFont); color: #fff; letter-spacing: .04em; text-shadow: 1px 1px 0 #000; line-height: 1.4; }
+  #confirmBox .cbA { flex-direction: column-reverse; gap: 0; margin-top: 2px; }
+  #confirmBox .cbA button { position: relative; text-align: left; padding: 1px 6px; border: none; border-radius: 2px; background: transparent !important; box-shadow: none; font: italic 800 14px var(--ffFont); color: #fff !important; text-shadow: 1px 1px 0 #000; }
+  #confirmBox .cbA button::before { content: "➤"; position: absolute; left: -20px; color: #e8c8a8; opacity: 0; }
+  #confirmBox .cbA button.sel::before { opacity: 1; } #confirmBox .cbA button.sel { background: rgba(255,255,255,.08) !important; }
+  #dialog { left: calc(8px + var(--sal)); transform: none; width: 340px; max-width: calc(100vw - 20px); padding: 4px 10px 6px 26px; bottom: calc(170px + var(--sab)); background: linear-gradient(180deg, rgba(40,44,70,.92), rgba(18,20,36,.94)); border: 2px solid rgba(220,224,255,.6); border-radius: 4px; }
+  #dlgWho:empty { display: none; }
+  #dlgText:empty { display: none; } #dlgText { margin: 0 0 2px -16px; font: italic 800 14px var(--ffFont); color: #fff; letter-spacing: .04em; text-shadow: 1px 1px 0 #000; white-space: normal; }
+  #dlgOpts { display: flex; flex-direction: column; gap: 0; }
+  #dialog .dOpt { position: relative; display: block; text-align: left; padding: 1px 6px; height: auto; border: none; border-radius: 2px; background: transparent; box-shadow: none; font: italic 800 14px var(--ffFont); color: #fff; letter-spacing: .04em; text-shadow: 1px 1px 0 #000; cursor: pointer; }
+  #dialog .dOpt .cur { position: absolute; left: -20px; color: #e8c8a8; opacity: 0; } #dialog .dOpt.sel .cur { opacity: 1; } #dialog .dOpt.sel { background: rgba(255,255,255,.08); }
+  #menu { background: none; pointer-events: none; }
+  #menu .win { pointer-events: auto; inset: auto; left: calc(6px + var(--sal)); top: calc(46px + var(--sat)); width: min(780px, calc(100vw - 232px - var(--sal) - var(--sar))); max-height: calc(100vh - 250px - var(--sat) - var(--sab)); min-height: 180px; margin: 0; display: flex; flex-direction: column; border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.55); }
+  #mNav { display: none !important; }
+  #mMain { flex: 1; }
+  #mHead { padding: 2px 8px 2px 12px; border-bottom: 2px solid rgba(220,224,255,.4); }
+  #mHead h2 { display: none; }
+  #mHead .meta { margin-left: 0; font-size: 12px; font-style: italic; }
+  #mHead .close { margin-left: auto; padding: 0 9px; height: 22px; font-size: 12px; }
+  #mBody { padding: 8px 12px 12px; }
+  @media (max-width: 760px) { #menu .win { width: calc(100vw - 12px - var(--sal) - var(--sar)); max-height: calc(100vh - 200px - var(--sat) - var(--sab)); } }
+  #chat.lite #chatTabs, #chat.lite #chatIn { display: none; }
+  #chat.lite #log { overflow: hidden; scrollbar-width: none; }
 </style>
 </head>
 <body>
@@ -794,7 +827,7 @@
     </div>
     <div id="tCmd" class="glass"></div>
     <div id="mCmd"></div>
-    <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
+    <div id="mmWrap" title="Map (M)"><div id="mmDisc"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN" class="mmL n">N</div><div id="mmE" class="mmL">E</div><div id="mmS" class="mmL">S</div><div id="mmW" class="mmL">W</div></div><div id="mmTime"></div></div>
     <div id="pool" class="glass"></div>
     <div id="fishBox" class="glass"></div>
     <div id="raceBox" class="glass"></div>

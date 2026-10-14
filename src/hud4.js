@@ -25,7 +25,7 @@ function log(msg, c) {
   const d = document.createElement("div");
   d.className = c || "sys";
   d.textContent = msg;
-  if (["tell", "pchat", "ls", "say", "shout", "loot", "npc"].includes(c) && typeof S !== "undefined") UI.chatFlashUntil = (S.time || 0) + 6;
+  if (typeof S !== "undefined") { UI.logRows = logFull(); UI.logAt = S.time || 0; }
   el.appendChild(d);
   while (el.children.length > 250) el.removeChild(el.firstChild);
   if (near || $("chat").classList.contains("min")) el.scrollTop = el.scrollHeight;
@@ -34,23 +34,44 @@ function clearLog() { $("log").innerHTML = ""; }
 function showKO(on) { $("ko").style.display = on ? "flex" : "none"; }
 
 function openDialog(who, text, opts) {
-  const offer = (opts || []).some(o => /^(Accept|I'll handle him|I'll get them)$/.test(o.label));
-  if (offer) text += "\n\nWill you accept this quest?";
-  S.dialog = { who, text, opts };
-  $("dlgWho").textContent = who;
-  $("dlgText").textContent = text;
-  const box = $("dlgOpts");
+  opts = opts || [];
+  const offer = opts.some(o => /^(Accept|I'll handle him|I'll get them)$/.test(o.label));
+  const paras = String(text || "").split(/\n+/).filter(Boolean);
+  if (!S.dialog || S.dialog.text !== text) paras.forEach((p, i) => log((i ? "  " : who + " : ") + p, "npc"));
+  UI.logRows = logFull(); UI.logAt = S.time;
+  if (opts.length === 1 && /^(Trade|Shop|Buy)\b/.test(opts[0].label)) { S.dialog = null; $("dialog").style.display = "none"; opts[0].fn(); return; }
+  if (!opts.length) { closeDialog(); return; }
+  const story = opts.length === 1 && /^(Next|Continue)$/.test(opts[0].label);
+  const q = story ? "" : offer ? "Will you accept this quest?" : (paras.length && /\?$/.test(paras[paras.length - 1]) ? paras[paras.length - 1].split(/(?<=[.!])\s+/).pop() : "What will you do?");
+  S.dialog = { who, text, opts, sel: 0 };
+  $("dlgWho").textContent = "";
+  $("dlgText").textContent = q;
+  const all = story ? opts.slice() : opts.concat([{ label: offer ? "Decline" : "Never mind", fn: () => { if (offer) log("You decline for now.", "sys"); closeDialog(); } }]);
+  S.dialog.all = all;
+  renderDlgOpts();
+  $("dialog").style.display = "block";
+  sfx("open");
+}
+function renderDlgOpts() {
+  const d = S.dialog, box = $("dlgOpts");
+  if (!d || !box) return;
   box.innerHTML = "";
-  const all = (opts || []).concat([{ label: offer ? "Decline" : "Close", fn: () => { if (offer) log("You decline for now.", "sys"); closeDialog(); } }]);
-  all.forEach((o, i) => {
+  d.all.forEach((o, i) => {
     const b = document.createElement("button");
-    b.textContent = (UI.phone ? "" : (i + 1) + ". ") + o.label;
+    b.className = "dOpt" + (i === d.sel ? " sel" : "");
+    b.innerHTML = '<span class="cur">➤</span>' + esc(o.label);
+    b.onmouseenter = () => { if (S.dialog && S.dialog.sel !== i) { S.dialog.sel = i; renderDlgOpts(); } };
     b.onclick = () => { sfx("select"); o.fn(); };
     box.appendChild(b);
   });
-  S.dialog.all = all;
-  $("dialog").style.display = "block";
-  sfx("open");
+}
+function dlgKey(k) {
+  const d = S.dialog;
+  if (!d) return;
+  const n = d.all.length;
+  if (k === "arrowup") { d.sel = (d.sel - 1 + n) % n; sfx("tab"); renderDlgOpts(); }
+  else if (k === "arrowdown") { d.sel = (d.sel + 1) % n; sfx("tab"); renderDlgOpts(); }
+  else if (k === "enter" || k === " ") { sfx("select"); d.all[d.sel].fn(); }
 }
 function closeDialog() {
   if (S.dialog) sfx("close");
@@ -476,54 +497,61 @@ function zoneMapCanvas(zoneId) {
   return UI.mapCache;
 }
 
+function gridRef(x, y) {
+  const z = S.zone, c = Math.max(z.w, z.h) / 15;
+  return String.fromCharCode(65 + clamp(Math.floor(x / c), 0, 15)) + "-" + (1 + clamp(Math.floor(y / c), 0, 14));
+}
 function drawMinimap() {
+  const wrap = $("mmWrap");
+  if (!wrap) return;
+  if (VIEW.settings && VIEW.settings.compass === false) { wrap.style.display = "none"; return; }
+  wrap.style.display = "";
   const cv = $("minimap");
   const W = cv.width, R = W / 2;
   const g = cv.getContext("2d");
-  const m = zoneMapCanvas(S.zoneId);
-  const view = S.zone.indoor ? 240 : 430;
-  const sc = R / view;
+  const view = S.zone.indoor ? 240 : 420;
+  const sc = (R - 6) / view;
   const yaw = VIEW.yaw;
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.clearRect(0, 0, W, W);
-  g.fillStyle = "#0b0d14"; g.fillRect(0, 0, W, W);
+  const bg = g.createRadialGradient(R, R, 4, R, R, R - 2);
+  bg.addColorStop(0, "rgba(235,240,255,.55)"); bg.addColorStop(0.7, "rgba(170,180,210,.38)"); bg.addColorStop(1, "rgba(120,130,170,.5)");
+  g.beginPath(); g.arc(R, R, R - 3, 0, 7); g.fillStyle = bg; g.fill();
+  g.lineWidth = 3; g.strokeStyle = "rgba(240,244,255,.75)"; g.stroke();
   g.save();
+  g.beginPath(); g.arc(R, R, R - 4, 0, 7); g.clip();
   g.translate(R, R);
   g.rotate(-Math.PI / 2 - yaw);
+  g.strokeStyle = "rgba(255,255,255,.35)"; g.lineWidth = 1.5;
+  for (const r of [0.33, 0.66]) { g.beginPath(); g.arc(0, 0, (R - 4) * r, 0, 7); g.stroke(); }
+  g.beginPath(); g.moveTo(-R, 0); g.lineTo(R, 0); g.moveTo(0, -R); g.lineTo(0, R); g.stroke();
   g.scale(sc, sc);
   g.translate(-player.x, -player.y);
-  g.drawImage(m.c, 0, 0, m.z.w, m.z.h);
-  const dot = (x, y, r, col, ring) => { g.beginPath(); g.arc(x, y, r / sc, 0, 7); g.fillStyle = col; g.fill(); if (ring) { g.lineWidth = 2 / sc; g.strokeStyle = ring; g.stroke(); } };
+  const dot = (x, y, r, col) => { g.beginPath(); g.arc(x, y, r / sc, 0, 7); g.fillStyle = col; g.fill(); g.lineWidth = 1.5 / sc; g.strokeStyle = "rgba(0,0,0,.6)"; g.stroke(); };
   for (const n of S.npcs) {
-    if (n.away) continue;
-    if (NPCS[n.id] && NPCS[n.id].crystal) { g.save(); g.translate(n.x, n.y); g.rotate(Math.PI / 4); g.fillStyle = "#7ff3ff"; const s = 7 / sc; g.fillRect(-s / 2, -s / 2, s, s); g.restore(); }
-    else if (n.prop === "brazier") dot(n.x, n.y, 4, brazierLit(n.element) ? ELEMENT_COLORS[n.element] : "#555", "#000");
-    else if (n.prop === "chest") dot(n.x, n.y, 4, chestState(n) === "closed" ? "#ffd54f" : "#7a6a3a", "#000");
-    else if (n.prop === "gather") dot(n.x, n.y, 4, { mining: "#b0bec5", logging: "#a1887f", harvesting: "#aed581" }[n.gtype], "#000");
-    else if (n.prop) dot(n.x, n.y, 3.5, "#bbb", "#000");
-    else dot(n.x, n.y, 5, questMarker(n) ? "#ffd54f" : "#ead9ae", "#000");
+    if (n.away || (n.prop && n.prop !== "gather" && n.prop !== "chest")) continue;
+    if (NPCS[n.id] && NPCS[n.id].crystal) dot(n.x, n.y, 6, "#7ff3ff");
+    else if (n.prop) dot(n.x, n.y, 5, n.prop === "chest" ? "#ffd54f" : "#c8e6a0");
+    else dot(n.x, n.y, 6, questMarker(n) ? "#ffd54f" : "#7dff9a");
   }
   for (const mb of S.mobs) {
     if (!mb.alive || mb.despawned) continue;
     if (dist(mb, player) > 360 && player.target !== mb && !(mb.state === "combat" && mb.enmity && [...mb.enmity.keys()].some(isParty))) continue;
-    dot(mb.x, mb.y, mb.fam.nm ? 6 : 4, mb.passive ? "#c8b48a" : "#e07a5f", mb.fam.nm ? "#ff4d6d" : mb.state === "combat" ? "#ff2a2a" : "#000");
+    dot(mb.x, mb.y, mb.fam.nm ? 8 : 6, mb.state === "combat" ? "#ff4a4a" : "#ffb070");
   }
-  if (S.race && RACE.checkpoints[S.race.next]) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 9, "rgba(255,213,79,.85)", "#000"); }
-  for (const p of S.party) if (p !== player) dot(p.x, p.y, 4.5, p.alive ? "#62b6ff" : "#555", "#001b33");
-  if (S.moveTarget) { g.strokeStyle = "#fff"; g.lineWidth = 2 / sc; const s = 5 / sc; g.beginPath(); g.moveTo(S.moveTarget.x - s, S.moveTarget.y - s); g.lineTo(S.moveTarget.x + s, S.moveTarget.y + s); g.moveTo(S.moveTarget.x + s, S.moveTarget.y - s); g.lineTo(S.moveTarget.x - s, S.moveTarget.y + s); g.stroke(); }
+  if (S.race && RACE.checkpoints[S.race.next]) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 10, "rgba(255,213,79,.9)"); }
+  for (const p of S.party) if (p !== player) dot(p.x, p.y, 6, p.alive ? "#62b6ff" : "#555");
   g.restore();
-  g.save();
-  g.translate(R, R);
-  g.rotate((player.face || 0) - yaw);
-  g.beginPath(); g.moveTo(11, 0); g.lineTo(-7, -7); g.lineTo(-3, 0); g.lineTo(-7, 7); g.closePath();
-  g.fillStyle = "#fff"; g.fill(); g.lineWidth = 1.5; g.strokeStyle = "#000"; g.stroke();
-  g.restore();
-  const vg = g.createRadialGradient(R, R, R * 0.7, R, R, R);
-  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.55)");
-  g.fillStyle = vg; g.fillRect(0, 0, W, W);
-  const na = -Math.PI / 2 - yaw - Math.PI / 2;
-  const nEl = $("mmN"), rr = $("mmWrap").clientWidth / 2 - 10;
-  nEl.style.transform = "translate(" + (Math.cos(na) * rr).toFixed(1) + "px," + (Math.sin(na) * rr).toFixed(1) + "px)";
+  g.beginPath(); g.arc(R, R, 8, 0, 7); g.fillStyle = "#ff6ad5"; g.fill(); g.lineWidth = 2; g.strokeStyle = "#fff"; g.stroke();
+  const rx = wrap.clientWidth / 2 - 6, ry = rx * 0.42;
+  const base = -Math.PI / 2 - yaw - Math.PI / 2;
+  [["mmN", 0], ["mmE", Math.PI / 2], ["mmS", Math.PI], ["mmW", -Math.PI / 2]].forEach(([id, off]) => {
+    const el = $(id); if (!el) return;
+    const a = base + off;
+    el.style.transform = "translate(" + (Math.cos(a) * rx).toFixed(1) + "px," + (Math.sin(a) * ry).toFixed(1) + "px)";
+  });
+  const v = vana();
+  setTxt($("mmTime"), String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + " (" + gridRef(player.x, player.y) + ")");
 }
 
 function exploredFor(id) {
@@ -578,7 +606,13 @@ function gameConfirm(title, text, onYes, opts) {
   const yes = box.querySelector(".yes"), no = box.querySelector(".no");
   yes.textContent = opts.yes || "OK";
   no.textContent = opts.no || "Cancel";
-  yes.className = "yes " + (opts.danger ? "danger" : "pri");
+  yes.className = "yes sel " + (opts.danger ? "danger" : "pri");
+  no.className = "no";
+  yes.onmouseenter = () => { yes.classList.add("sel"); no.classList.remove("sel"); };
+  no.onmouseenter = () => { no.classList.add("sel"); yes.classList.remove("sel"); };
+  const ch = $("chat");
+  box.style.bottom = "calc(" + ((ch && !ch.classList.contains("gone") ? ch.offsetHeight : 0) + 16) + "px + var(--sab))";
+  box.querySelector(".cbB").textContent = text || title;
   box.classList.add("on");
   S.keys = {};
   const close = () => { box.classList.remove("on"); yes.onclick = no.onclick = null; UI.confirmOpen = false; };
@@ -623,7 +657,7 @@ function cmdItems(c) {
       const eng = player.engaged && player.attackTarget === t;
       return [eng ? it("disengage", "Disengage", "Stop auto-attack and let go of the target.") : it("attack", "Attack", "Start auto-attack."), it("switch", "Switch Target", "Target the next enemy nearby."), it("ma", "Magic", "Cast a spell on the target.", { arrow: true }), it("ja", "Abilities", "Use a job ability or weapon skill.", { arrow: true }), it("items", "Items", "Use an item from your bag.", { arrow: true }), it("check", "Check", "Size up how strong the target is.")];
     }
-    if (self) return [it("ma", "Magic", "Cast a spell on yourself or your party.", { arrow: true }), it("ja", "Abilities", "Use a job ability.", { arrow: true }), it("items", "Items", "Use an item from your bag.", { arrow: true }), it("rest", player.resting ? "Stand" : "Heal", player.resting ? "Stand up." : "Sit and recover HP and MP quickly."), it("close", "Cancel", "Close this menu.")];
+    if (self) return [it("ma", "Magic", "Cast a spell on yourself or your party.", { arrow: true }), it("ja", "Abilities", "Use a job ability.", { arrow: true }), it("items", "Items", "Use an item from your bag.", { arrow: true }), it("rest", player.resting ? "Stand" : "Heal", player.resting ? "Stand up." : "Sit and recover HP and MP quickly."), it("menu", "Main Menu", "Open the main menu."), it("chat", "Chat", "Show the event log and type a message."), it("close", "Cancel", "Close this menu.")];
     return [mate ? it("ma", "Magic", "Cast a spell on your party member.", { arrow: true }) : it("invite", "Invite", "Invite this player to your party."), it("trade", "Trade", "Ask this player to trade."), it("tell", "Tell", "Send this player a private message."), it("check", "Check", "See this player's job and level."), it("close", "Cancel", "Close this menu.")];
   }
   let acts = [];
@@ -692,6 +726,8 @@ function onTgtCmd(idx) {
   if (key === "disengage") { if (player.engaged) toggleEngage(false); player.engaged = false; player.attackTarget = null; S.chase = false; player.target = null; tgtCmdClose(); return; }
   if (key === "switch") { tgtCmdClose(); cycleTarget(); return; }
   if (key === "rest") { tgtCmdClose(); toggleRest(); return; }
+  if (key === "menu") { tgtCmdClose(); mainCmdOpen(); return; }
+  if (key === "chat") { tgtCmdClose(); chatToggle(true); const ci = $("chatIn"); if (ci) setTimeout(() => ci.focus(), 30); return; }
   if (key === "invite") { netPartyInvite(t.name); tgtCmdClose(); return; }
   if (key === "trade") { netTradeAsk(t.name); tgtCmdClose(); return; }
   if (key === "tell") { tgtCmdClose(); const inp = $("chatIn"); if (inp) { inp.value = "/t " + t.name + " "; inp.focus(); } return; }
@@ -926,9 +962,11 @@ function ffMobAttacking(m) { return m && m.alive && m.state === "combat" && m.ta
 function updateFF() {
   const ui = $("ui"), t = player.target;
   const tOk = !!t && (t === player || t.kind === "npc" || t.kind === "remote" || isParty(t) || (isMob(t) && t.alive && !t.despawned));
-  ui.classList.toggle("hasTop", tOk || !!UI.cmd || !!UI.mm);
-  if (tOk || UI.cmd || UI.mm) {
-    setTxt($("ffHelp"), UI.cmd || UI.mm ? UI.ffHelp || "" : ffDefaultHelp(t));
+  ui.classList.toggle("hasTop", tOk || !!UI.cmd || !!UI.mm || !!S.modal);
+  const cmdLbl = S.modal && TAB_INFO[S.modal] ? TAB_INFO[S.modal][0] : UI.mm && UI.mm.sub === "status" ? "Status" : "Commands";
+  if (UI.cmdLbl !== cmdLbl) { UI.cmdLbl = cmdLbl; setTxt(document.querySelector("#ffTop .ffCmd"), cmdLbl); }
+  if (tOk || UI.cmd || UI.mm || S.modal) {
+    setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : ffDefaultHelp(t));
     if (UI.mm && UI.mm.sub && Date.now() - (UI.stAt || 0) > 500) { UI.stAt = Date.now(); renderStatusOv(); }
     const now = Date.now();
     if (now - (UI.netAt || 0) > 1000) {
@@ -946,8 +984,18 @@ function updateFF() {
     }
   }
   const ci = $("chatIn"), typing = document.activeElement === ci;
-  const showChat = tOk || !!UI.cmd || !!UI.mm || typing || UI.chatPin || S.time < (UI.chatFlashUntil || 0) || !!S.dialog;
-  $("chat").classList.toggle("gone", !showChat);
+  const full = logFull(), force = typing || UI.chatPin || !!S.dialog;
+  if (UI.logRows == null) { UI.logRows = 3; UI.logAt = S.time; }
+  if (force) { UI.logRows = full; UI.logAt = S.time; }
+  else if (UI.logRows > 3 && S.time - (UI.logAt || 0) > 8 && S.time - (UI.logShrinkAt || 0) > 1.2) { UI.logRows--; UI.logShrinkAt = S.time; }
+  const rows = Math.min(full, UI.logRows), chat = $("chat"), lg = $("log");
+  chat.classList.toggle("gone", rows <= 0);
+  chat.classList.toggle("lite", !(typing || UI.chatPin));
+  if (rows > 0 && UI.logShown !== rows) { UI.logShown = rows; const lh = parseFloat(getComputedStyle(lg).lineHeight) || 16.5; lg.style.height = Math.round(rows * lh + 10) + "px"; lg.scrollTop = lg.scrollHeight; }
+  if (rows <= 0) UI.logShown = 0;
+  const mw = $("mmWrap");
+  if (mw) { mw.style.bottom = rows > 0 ? "calc(" + (chat.offsetHeight + 16) + "px + var(--sab))" : ""; mw.style.visibility = S.dialog || S.modal ? "hidden" : ""; }
+  if (S.dialog) $("dialog").style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 16) + "px + var(--sab))";
   $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);
   const combat = player.engaged || inCombatWith(player);
   $("ffStat").classList.toggle("combat", !!combat && player.alive);
@@ -977,9 +1025,17 @@ function updateFF() {
   setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
 }
 
+function logFull() { return innerWidth < 900 ? 6 : 8; }
+function logEsc() {
+  if (!UI.logRows || UI.logRows <= 0) return false;
+  UI.chatPin = false;
+  const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur();
+  UI.logRows = Math.min(UI.logRows, logFull()) - 1; UI.logAt = -999;
+  return true;
+}
 function chatToggle(force) {
   UI.chatPin = force == null ? !UI.chatPin : force;
-  if (!UI.chatPin) { const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur(); UI.chatFlashUntil = 0; }
+  if (!UI.chatPin) { const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur(); UI.logRows = 3; UI.logAt = -999; }
   if (typeof sfx === "function") sfx("click");
 }
 
@@ -990,6 +1046,11 @@ const MAIN_CMDS = [
 
 const STATUS_CMDS = [["Profile", "profile", ""], ["Job Levels", "jobs", "View the levels of the jobs you know."], ["Combat Skl.", "combat", "View current combat skills."], ["Magic Skl.", "magic", "View current magic skills."], ["Craft Skl.", "craft", "View current craft and gathering skills."], ["Currencies", "cur", "View your crystals and guild points."], ["Play Time", "time", "View your total time spent adventuring."]];
 function mainCmdHelp(it) { return UI.mm && UI.mm.sub === "status" && it[1] === "profile" ? "Title: " + playerTitle() : it[2]; }
+function tabHelpLine(tab) {
+  for (const pg of MAIN_CMDS) for (const it of pg) if (it[1] === tab) return it[2];
+  const x = { shop: "Buy and sell merchandise.", storage: "Move items between your bag and your residence.", job: "Change your job.", mercs: "Hire companions.", board: "Take on work from the board.", guild: "Adventurers' Guild bounties and shop.", auction: "Buy and sell with other adventurers.", home: "Arrange your residence.", furnishings: "Buy furniture.", forge: "Improve your gear.", pets: "Your pets.", stable: "Your mount.", trade: "Trade with another player.", system: "Save, characters and account.", admin: "Server tools." };
+  return x[tab] || "";
+}
 function mainCmdItems() {
   if (UI.mm.sub === "status") return STATUS_CMDS;
   const pg = MAIN_CMDS[UI.mm.page].slice();

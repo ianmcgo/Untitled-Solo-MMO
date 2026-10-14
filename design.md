@@ -862,6 +862,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - #mmWrap lives in #ui bottom-left; hidden by CSS while #chat is visible.
 - menu4 tabMagic/tabAbilities/tabKeyItems with mcast/mact.
 
+## Phase 42: windows in the world (v9.2.0)
+- #menu is transparent, pointer-events none; .win is a top-left panel (no #mNav, no h2). updateFF sets #ffTop .ffCmd to TAB_INFO[S.modal][0] and help via tabHelpLine(tab) (MAIN_CMDS help or a small map). openMenu closes any dialog.
+- openDialog (hud4): logs "Who : text" (class npc) per paragraph; no opts → nothing shown; single Trade/Shop/Buy option → runs it at once; otherwise S.dialog {sel} and #dialog becomes a small prompt above the log (renderDlgOpts, dlgKey ↑↓ Enter). Story pages (single Next/Continue) show no question and no back-out option.
+- gameConfirm keeps #confirmBox but CSS makes it the same small prompt above the log; .yes/.no rows with .sel, main4 arrows toggle, Enter clicks .sel.
+- Event log rows: UI.logRows (logFull() = 8, 6 under 900px). log() resets to full + UI.logAt. updateFF shrinks one row per 1.2 s after 8 s idle down to 3; logEsc() removes one row (Esc order: casting → unengaged target → log row → main menu). rows 0 → #chat.gone. #chat.lite hides tabs/input unless typing or pinned (L / self menu Chat).
+- Compass map: drawMinimap draws a dish (no zone image) into #minimap, CSS scaleY(.42) inside #mmDisc; letters #mmN/E/S/W placed on an ellipse; #mmTime = vana time + gridRef (15x15 lettered grid). #mmWrap bottom follows #chat height; hidden while S.dialog/S.modal. Setting VIEW.settings.compass.
+- #clockBox/#trBtns hidden. Self command menu gained Main Menu and Chat (phones).
+- Rest pose: anim.js sitPlan(v) from bone lengths (thighL.y, |shinL|, |footL|): thigh -1.85, shin solved so the seat sits ~0.1H above ankle height; root drop = hipJ - seat; tail lifted. Probe: test/sitlab.js.
+- /clock: gameDate() (360-day years from 880) + Earth time.
+- #ffNetBox matches #ffTop (top +4px, 34px).
+
 ## Version log
 
 | Version | Change |
@@ -869,6 +880,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
+| 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
 | 9.0.0 | Phase 40: 16 equipment slots, Equipment window, item cards, resistances, slim Character, storage transfer screen. |
 | 8.9.0 | Phase 39: classic interface (command bar, combat status, target/party panel, log, command menu, plates, cursor, status/skills/crafting/bag windows). |
 | 8.8.0 | Phase 38: rename to Leid'anav Reborn, favicon, joint blending/bridges/islands for all rigs, bestiary portraits. |

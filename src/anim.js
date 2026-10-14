@@ -76,6 +76,20 @@ function newPose(v) {
 function addP(P, b, x, y, z) { const p = P[b]; if (!p) return; p[0] += x; p[1] += y; p[2] += z; }
 function setP(P, b, x, y, z, w) { const p = P[b]; if (!p || w <= 0) return; p[0] += (x - p[0]) * w; p[1] += (y - p[1]) * w; p[2] += (z - p[2]) * w; }
 
+function sitPlan(v) {
+  if (v._sit) return v._sit;
+  const B = v.bones, H = (v.meta && v.meta.hipsY) || 0.9;
+  const len = n => B[n] ? B[n].position.length() : 0;
+  const Lt = len("shinL") || H * 0.46, Ls = len("footL") || H * 0.44;
+  const hipJ = H + (B.thighL ? B.thighL.position.y : -0.03), ank = Math.max(0.02, hipJ - Lt - Ls), seat = ank + H * 0.1, a = -1.85;
+  const rise = hipJ - seat - Lt * (1 - Math.cos(a)) + ank * 1.1 + H * 0.03;
+  let c = 1 - rise / Ls;
+  c = Math.max(-1, Math.min(1, c));
+  const ab = -Math.acos(Math.max(Math.cos(1.45), c));
+  const drop = hipJ - seat;
+  return (v._sit = { a, b: ab - a, f: 0.15 - ab, drop, back: -0.02 * H });
+}
+
 function applyPose(v, dt, sharp) {
   const k = 1 - Math.exp(-dt * (sharp ? 26 : 15));
   for (const n in v.pose) {
@@ -400,18 +414,22 @@ function poseHuman(v, e, dt) {
   const sitT = e.resting && e.alive !== false && !e.mounted ? 1 : 0;
   an.sit = (an.sit || 0) + (sitT - (an.sit || 0)) * Math.min(1, dt * 5);
   if (an.sit > 0.01) {
-    const k = an.sit;
+    const k = an.sit, sp = sitPlan(v);
     for (const s of ["L", "R"]) {
       const sg = s === "L" ? 1 : -1;
-      setP(P, "thigh" + s, -1.25, 0, sg * 0.42, k);
-      setP(P, "shin" + s, 2.05, 0, 0, k);
-      setP(P, "foot" + s, -0.35, 0, 0, k);
-      setP(P, "upArm" + s, -0.42, 0, sg * 0.12, k);
-      setP(P, "foreArm" + s, -0.75, 0, 0, k);
+      setP(P, "thigh" + s, sp.a, 0, sg * 0.12, k);
+      setP(P, "shin" + s, sp.b, 0, 0, k);
+      setP(P, "foot" + s, sp.f, 0, 0, k);
+      setP(P, "upArm" + s, -0.62, 0, sg * 0.2, k);
+      setP(P, "foreArm" + s, -0.95, 0, 0, k);
     }
-    setP(P, "spine", 0.16 + Math.sin(t * 1.3) * 0.02, 0, 0, k);
-    setP(P, "head", 0.08, 0, 0, k);
-    v.rootOff[1] -= ((v.meta && v.meta.hipsY) || 0.9) * 0.78 * k;
+    setP(P, "hips", 0, 0, 0, k);
+    setP(P, "spine", 0.2 + Math.sin(t * 1.3) * 0.02, 0, 0, k);
+    setP(P, "chest", 0.06, 0, 0, k);
+    setP(P, "head", -0.05, 0, 0, k);
+    v.rootOff[1] -= sp.drop * k;
+    v.rootOff[2] += sp.back * k;
+    if (P.tail) { addP(P, "tail", 0.8 * k, 0, 0); addP(P, "tail2", 0.4 * k, 0, 0); }
   }
 
   if (e.mounted) {

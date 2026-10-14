@@ -1,6 +1,6 @@
 function onKey(e) {
   const k = e.key.toLowerCase();
-  if (UI.confirmOpen) { if (k === "escape") $("confirmBox").querySelector(".no").click(); if (k === "enter") $("confirmBox").querySelector(".yes").click(); e.preventDefault(); return; }
+  if (UI.confirmOpen) { const cb = $("confirmBox"); if (k === "escape") cb.querySelector(".no").click(); else if (k === "arrowup" || k === "arrowdown") { cb.querySelectorAll(".cbA button").forEach(b => b.classList.toggle("sel")); } else if (k === "enter" || k === " ") (cb.querySelector(".cbA button.sel") || cb.querySelector(".yes")).click(); e.preventDefault(); return; }
   if (!UI.started) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
   const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
@@ -11,6 +11,7 @@ function onKey(e) {
   }
   if (S.dialog) {
     if (k === "escape") closeDialog();
+    if (["arrowup", "arrowdown", "enter", " "].includes(k)) { e.preventDefault(); dlgKey(k); return; }
     const n = parseInt(k, 10);
     if (n >= 1 && n <= S.dialog.all.length) S.dialog.all[n - 1].fn();
     return;
@@ -29,10 +30,10 @@ function onKey(e) {
   if (k === "[") { setPage(UI.page - 1); return; }
   if (k === "]") { setPage(UI.page + 1); return; }
   if (k === "escape" && UI.cmd) { tgtCmdClose(); return; }
-  if (k === "escape" && (UI.chatPin || S.time < (UI.chatFlashUntil || 0)) && !player.target) { chatToggle(false); return; }
   if (k === "escape") {
     if (player.casting) { player.casting = null; log("You stop casting.", "sys"); }
     else if (player.target && !player.engaged) player.target = null;
+    else if (logEsc()) {}
     else mainCmdOpen();
     return;
   }
