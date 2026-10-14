@@ -1,0 +1,17 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+const npc = id => S.npcs.find(n => n.id === id);
+const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
+const door = G.ZONES.verdant.exits.find(e => e.to === 'underdeep');
+ok(door && door.kind === 'door', 'a cave door in the Verdant Jungle leads down to the Underdeep');
+G.enterZone('underdeep', 1360, 600); run(0.3);
+ok(S.zoneId === 'underdeep' && !!npc('boat_west') && !!npc('boat_east'), 'boatmen wait on both landings');
+const g0 = G.save.gil;
+G.talkTo(npc('boat_west')); opt(/Ride across/).fn(); run(2);
+ok(P().x < 1550, 'the boat takes a moment to cross');
+run(3);
+ok(P().x > 1670 && G.save.gil === g0 && G.save.stats.boatRides === 1, 'the boat lands you past the rock wall for free');
+ok(G.FISH.underdeep && G.ITEMS.glowfin && G.ITEMS.blind_eel, 'the river has its own fish');
+ok(G.NM_FAMILIES.lumicap_matron && G.ITEMS.lumen_earring, 'the Lumicap Matron glows in the grotto');
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

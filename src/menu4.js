@@ -1453,6 +1453,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "12.6.0", date: "2026-10-14", title: "Underdeep River", items: [
+    "A cave door near the south-east of the Verdant Jungle leads down into the Underdeep: a long cavern lit by glowing mushrooms and crystals, with a dark river running through it.",
+    "A rock wall splits the cavern; Boatman Ferro rows you across the river to the far landing for free. New achievement: Down the River.",
+    "Level 16–20 monsters: Glow Bats, Pale Crabs, Lumicaps and Deep Worms. The Lumicap Matron may drop the Lumen Earring. New materials: Glowcap.",
+    "The river has its own fish: Glowfin and the rare Blind Eel."
+  ] },
   { v: "12.5.0", date: "2026-10-14", title: "The Red Spire", items: [
     "A tower dungeon has opened in the Sunscar Desert: walk up to the door at the Red Spire landmark to climb inside.",
     "Four floors of scorched undead, Ashen Orcs, Magma Lizards, Obsidian Crabs and Cinder Bombs, each floor tougher than the last. Take the stairs on the east side to climb, the west side to go back down.",
@@ -2237,6 +2243,7 @@ function tabHelp() {
     ["Cinder Peak", "18–20", "East of the Sunscar Desert. A volcano of black rock, ash and glowing lava pools: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs, Cinder Bombs and Cinder Bones (night). The NM Pyreclaw suns itself on the Crater Rim at night. Rich mining; no fishing in lava"],
     ["Gull Isle", "12–16", "Reached by ferry from the Saltreach docks (Ferryman Coll, " + CONFIG.ferryCost + " crystals each way, about 6 seconds at sea). Beaches, a palm grove and the Gullsrest Cliffs: Reef Crabs, Shore Lizards, Gale Talons, Reefkin and Isle Snappers. Old Wend has a favour to ask; the NM Old Saltjaw lurks in Wreck Cove. Good sea fishing"],
     ["Red Spire", "17–23", "A tower dungeon entered by a door at the Red Spire in the Sunscar Desert. Four floors, each harder than the last (17–18 up to 20–21), climbed by the stairs on the east side; the Spire Warden (level 23 boss) holds the summit and may drop the Warden's Greatsword or the Spire Mantle. Bring a full party"],
+    ["Underdeep River", "16–20", "A glowing cavern under the Verdant Jungle (door near the jungle's south-east). A rock wall splits it in two: Boatman Ferro rows you across the river for free. Glow Bats, Pale Crabs, Lumicaps and Deep Worms; the Lumicap Matron (NM) lights the Glimmer Grotto. Fish for Glowfin and the rare Blind Eel"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🧭 Exploring the wilds", ul([
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",

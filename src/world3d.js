@@ -656,6 +656,21 @@ function buildTown(field, root) {
   });
 }
 
+function buildGlow(field, root) {
+  const z = field.zone, rnd = rngFor(z, "glow"), caps = [], gems = [];
+  for (let k = 0, tries = 0; k < 160 && tries < 3000; tries++) {
+    const px = rnd() * z.w, py = rnd() * z.h;
+    if (!placeable(field, px, py, { water: 20, path: 0.5 })) continue;
+    const y = field.heightAt(px, py), s = 0.4 + rnd() * 0.9;
+    (rnd() < 0.65 ? caps : gems).push(mtx(px * U, y, py * U, s, s * (0.8 + rnd() * 0.6), s, rnd() * 6.28));
+    k++;
+  }
+  const stem = new THREE.CylinderGeometry(0.06, 0.09, 0.5, 6).translate(0, 0.25, 0), cap = new THREE.SphereGeometry(0.28, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 0.6, 1).translate(0, 0.5, 0);
+  const capGeo = THREE.mergeGeometries([stem.toNonIndexed(), cap.toNonIndexed()]);
+  root.add(tintInst(instanced(capGeo, new THREE.MeshStandardMaterial({ color: 0x80deea, emissive: 0x2ab0c8, emissiveIntensity: 1.3, roughness: 0.6 }), caps, false), rnd, 0.2));
+  root.add(instanced(new THREE.OctahedronGeometry(0.25, 0).scale(0.6, 1.6, 0.6).translate(0, 0.35, 0), new THREE.MeshStandardMaterial({ color: 0xb388ff, emissive: 0x7c4dff, emissiveIntensity: 1.2, roughness: 0.3 }), gems, false));
+  for (let i = 0; i < 4; i++) { const L = new THREE.PointLight(i % 2 ? 0x80deea : 0xb388ff, 6, 28, 1.6); const px = (i + 0.5) / 4 * z.w, py = z.h * 0.4; L.position.set(px * U, field.heightAt(px, py) + 3, py * U); root.add(L); }
+}
 function buildCave(field, root) {
   const z = field.zone;
   const torchMat = std({ color: 0x3b2a1a });
@@ -1314,6 +1329,7 @@ function* buildZone3DSteps() {
   if (themeOf(z) === "town") buildTown(field, root);
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
+  if (z.glow) buildGlow(field, root);
   if (themeOf(z) === "house") buildHouse(field, root);
   buildRuins(field, root);
   buildExits(field, root);

@@ -4264,6 +4264,11 @@ const TALK = {
       { label: "Sail to " + to.name + " (" + CONFIG.ferryCost + " crystals)", fn: () => { closeDialog(); startFerry(n.ferryTo); } }
     ]);
   },
+  talkBoat(n) {
+    openDialog(n.name, "The river runs under the rock wall to the far landing. I'll row you across, no charge. Mind your hands; things live in the water.", [
+      { label: "Ride across the river", fn: () => { closeDialog(); startFerry(S.zoneId, n.boatTo.x, n.boatTo.y, 0, "You climb into the boat and push off into the dark water... (4 seconds)", 4); } }
+    ]);
+  },
   talkWend(n) {
     const g = questOptions("wend", n);
     openDialog(n.name, g.length ? "Ah, company! Sit, sit. Mind the gulls; they bite." : "The gulls and I thank you. Come back any time.", g);
@@ -4471,20 +4476,27 @@ function onRoad(e) {
   }
   return false;
 }
-function startFerry(to) {
+function startFerry(to, x, y, cost, msg, secs) {
   if (S.ferry) return;
-  if (save.gil < CONFIG.ferryCost) { log("The ferry costs " + CONFIG.ferryCost + " crystals.", "sys"); return; }
+  const fare = cost == null ? CONFIG.ferryCost : cost;
+  if (save.gil < fare) { log("The ferry costs " + fare + " crystals.", "sys"); return; }
   if (player.engaged || S.party.some(p => p.engaged)) { log("Finish your fight before boarding.", "sys"); return; }
-  save.gil -= CONFIG.ferryCost;
-  const dest = to === "gullisle" ? { x: 440, y: 900 } : { x: 560, y: 720 };
-  S.ferry = { to, x: dest.x, y: dest.y, at: S.time + 6 };
-  log("You board the ferry. The sails fill, and the coast slips away... (6 seconds)", "npc");
+  save.gil -= fare;
+  const dest = x != null ? { x, y } : to === "gullisle" ? { x: 440, y: 900 } : { x: 560, y: 720 };
+  S.ferry = { to, x: dest.x, y: dest.y, at: S.time + (secs || 6), boat: to === S.zoneId };
+  log(msg || "You board the ferry. The sails fill, and the coast slips away... (6 seconds)", "npc");
   sfx("zone");
 }
 function tickFerry() {
   if (!S.ferry || S.time < S.ferry.at) return;
   const f = S.ferry;
   S.ferry = null;
+  if (f.boat && f.to === S.zoneId) {
+    for (const p of S.party) if (p.alive) { p.x = f.x + (p === player ? 0 : (Math.random() - 0.5) * 40); p.y = f.y + (p === player ? 0 : 30); p.px = p.x; p.py = p.y; }
+    save.stats.boatRides = (save.stats.boatRides || 0) + 1;
+    log("The boat scrapes onto the far landing.", "npc");
+    return;
+  }
   enterZone(f.to, f.x, f.y);
   log("The ferry bumps against the dock at " + ZONES[f.to].name + ".", "npc");
 }

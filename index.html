@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v12.5.0 · built 2026-10-14 04:56 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v12.6.0 · built 2026-10-14 05:02 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -7198,7 +7198,7 @@ NM_FAMILIES.old_mossback = { hint: "Heart of the Canopy, Verdant Jungle · any t
 ITEMS.canopy_cloak = { name: "Canopy Cloak", kind: "equip", icon: "🧣", rare: true, nm: true, rarity: "epic", slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 4, hp: 25, mp: 25, mnd: 3, eva: 3 }, desc: "Woven from Old Mossback's living bark. It still smells of rain." };
 ZONES.verdant = {
   name: "Verdant Jungle", w: 3000, h: 2400, theme: "field", palette: "jungle", mist: true, vegK: 1.6,
-  exits: [{ x: 0, y: 1100, w: 24, h: 100, to: "marsh", tx: 2700, ty: 750, label: "Ashen Marsh" }],
+  exits: [{ x: 0, y: 1100, w: 24, h: 100, to: "marsh", tx: 2700, ty: 750, label: "Ashen Marsh" }, { x: 2700, y: 2100, w: 40, h: 30, to: "underdeep", tx: 110, ty: 450, label: "Underdeep", kind: "door", ask: "Climb down into the Underdeep?" }],
   npcs: [],
   walls: [{ x: 800, y: 400, w: 260, h: 220 }, { x: 1900, y: 300, w: 300, h: 240 }, { x: 1400, y: 1700, w: 360, h: 200 }, { x: 2500, y: 1500, w: 220, h: 300 }],
   ruins: { walls: [[2200, 1000, 2420, 1000, 3.0], [2200, 1000, 2200, 1200, 2.4], [2420, 1000, 2420, 1150, 1.8], [2260, 1250, 2420, 1250, 1.2]], pillars: [[2310, 1100, 4.0], [2150, 900, 3.0], [2480, 1300, 2.6]] },
@@ -7343,6 +7343,40 @@ ZONES.spire_top = {
   pillars: [[380, 300], [380, 600], [620, 300], [620, 600]],
   spawns: [{ fam: "spire_warden", lv: [23, 23], x: 650, y: 450 }],
   landmarks: [{ id: "summit", name: "Red Spire Summit", x: 500, y: 450, r: 260, xp: 150 }],
+  start: { x: 110, y: 450 }
+};
+
+Object.assign(FAMILIES, {
+  glow_bat: tierFam("bat", { name: "Glow Bat", color: "#4dd0e1", tint: 0x2a6a7a, hpMul: 1.15, attMul: 1.05, loot: [["bat_wing", 0.45], ["water_crystal", 0.25], ["hi_potion", 0.06]] }),
+  pale_crab: tierFam("pond_crab", { name: "Pale Crab", color: "#d8e0e8", tint: 0xd8e0e8, hpMul: 1.2, weak: { lightning: 1.3 }, loot: [["crab_shell", 0.45], ["water_crystal", 0.25], ["hi_potion", 0.06]] }),
+  lumicap: tierFam("shroomling", { name: "Lumicap", color: "#80deea", hpMul: 1.25, attMul: 1.05, weak: { fire: 1.4 }, loot: [["glowcap", 0.45], ["light_crystal", 0.2], ["hi_potion", 0.06]] }),
+  deep_worm: tierFam("worm", { name: "Deep Worm", color: "#8a8098", tint: 0x8a8098, hpMul: 1.45, attMul: 1.08, loot: [["worm_silk", 0.35], ["dark_crystal", 0.2], ["hi_potion", 0.06]] })
+});
+NM_FAMILIES.lumicap_matron = { hint: "Glimmer Grotto, Underdeep · any time", base: "shroomling", name: "Lumicap Matron", hpMul: 3.0, attMul: 1.12, scale: 2.2, aura: "#80deea", loot: [["lumen_earring", 0.35], ["glowcap", 1], ["hi_potion", 0.5], ["ether", 0.5]], respawn: 420 };
+Object.assign(ITEMS, {
+  glowcap: { name: "Glowcap", kind: "mat", icon: "🍄", price: 60, stack: 12, desc: "A mushroom that glows a soft blue. Alchemists prize it." },
+  glowfin: { name: "Glowfin", kind: "mat", icon: "🐟", price: 85, stack: 12, desc: "A pale fish from the Underdeep River. Its fins shine in the dark." },
+  blind_eel: { name: "Blind Eel", kind: "mat", icon: "🐍", price: 120, stack: 12, desc: "A long white eel with no eyes. Strong-tasting and valuable." },
+  lumen_earring: { name: "Lumen Earring", kind: "equip", icon: "💠", rare: true, nm: true, rarity: "epic", slot: "ear", jobs: ALL_JOBS, lv: 18, price: 0, stats: { mp: 20, int: 3, mnd: 3, res_dark: 10 }, desc: "A glowing cap-stone from the Lumicap Matron." }
+});
+for (const id of ["light_crystal", "dark_crystal"]) if (!ITEMS[id]) for (const f of ["lumicap", "deep_worm"]) FAMILIES[f].loot = FAMILIES[f].loot.filter(l => l[0] !== id);
+ZONES.underdeep = {
+  name: "Underdeep River", w: 3200, h: 1000, theme: "cave", glow: true,
+  exits: [{ x: 0, y: 400, w: 24, h: 100, to: "verdant", tx: 2720, ty: 2180, label: "Verdant Jungle" }],
+  npcs: [{ id: "boat_west", x: 1360, y: 560 }, { id: "boat_east", x: 1860, y: 560 }],
+  walls: [{ x: 1550, y: 0, w: 120, h: 1000 }, { x: 600, y: 120, w: 220, h: 140 }, { x: 2400, y: 150, w: 220, h: 160 }],
+  spawns: [
+    { fam: "glow_bat", lv: [16, 17], x: 500, y: 350 }, { fam: "pale_crab", lv: [16, 17], x: 900, y: 620 }, { fam: "lumicap", lv: [16, 18], x: 1150, y: 300 },
+    { fam: "glow_bat", lv: [18, 19], x: 2100, y: 350 }, { fam: "deep_worm", lv: [18, 20], x: 2500, y: 600 }, { fam: "lumicap", lv: [18, 19], x: 2900, y: 300, nm: { id: "lumicap_matron", lv: 21, chance: 0.12 } }
+  ],
+  water: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => ({ x: 150 + i * 260, y: 800 + (i % 2) * 30, r: 150 })),
+  paths: [{ w: 36, pts: [[-500, 450], [0, 450], [700, 480], [1360, 520]] }, { w: 36, pts: [[1860, 520], [2500, 450], [3000, 400]] }],
+  landmarks: [
+    { id: "landing", name: "West Landing", x: 1300, y: 520, r: 200, xp: 60 },
+    { id: "grotto", name: "Glimmer Grotto", x: 2800, y: 350, r: 260, xp: 100 },
+    { id: "falls", name: "Underfalls", x: 600, y: 700, r: 220, xp: 70 }
+  ],
+  gather: { mining: { n: 3, at: [[400, 250], [1200, 200], [2000, 200], [2700, 650], [3000, 700]], loot: [["iron_ore", 0.45], ["copper_ore", 0.25], ["water_crystal", 0.15], ["earth_crystal", 0.15]] } },
   start: { x: 110, y: 450 }
 };
 
@@ -7909,6 +7943,8 @@ Object.assign(NPCS, {
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
 ACHIEVEMENTS.push({ id: "spire", icon: "🗼", name: "Top of the Spire", desc: "Defeat the Spire Warden at the summit of the Red Spire.", test: s => !!(s.nmKilled && s.nmKilled.spire_warden) });
+FISH.underdeep = [["glowfin", 8, 7], ["blind_eel", 14, 2], ["mud_eel", 0, 3]];
+ACHIEVEMENTS.push({ id: "underdeep", icon: "🛶", name: "Down the River", desc: "Ride the boat across the Underdeep River.", test: s => !!(s.stats && s.stats.boatRides) });
 WEATHER.gullisle = [["clear", 6], ["wind", 3], ["cloudy", 2], ["rain", 2], ["storm", 0.7]];
 FISH.gullisle = [["sea_bass", 6, 7], ["harbor_bream", 0, 4], ["tidecaller_tuna", 14, 1.2]];
 ACHIEVEMENTS.push({ id: "gullisle", icon: "🏝️", name: "Island Hopper", desc: "Take the ferry to Gull Isle.", test: s => (s.discovered || []).includes("gullisle") });
@@ -7986,6 +8022,17 @@ Object.assign(BESTIARY, {
   old_saltjaw: { type: "Aquan", lore: "A snapper older than the wreck in the cove it calls home." }
 });
 BESTIARY.spire_warden = { type: "Undead", lore: "The last keeper of the Red Spire. It has guarded the summit so long it has forgotten what it guards." };
+Object.assign(NPCS, {
+  boat_west: { name: "Boatman Ferro", model: "ferryman", talk: "talkBoat", boatTo: { x: 1880, y: 520 } },
+  boat_east: { name: "Boatman Ferro's Twin", model: "ferryman", talk: "talkBoat", boatTo: { x: 1340, y: 520 } }
+});
+Object.assign(BESTIARY, {
+  glow_bat: { type: "Vermin", lore: "Bats whose wings glow faintly from the mushrooms they roost among." },
+  pale_crab: { type: "Aquan", lore: "Eyeless white crabs that feel their way along the river's banks." },
+  lumicap: { type: "Plantoid", lore: "Glowing mushroom folk of the Underdeep. Their spores shine as they drift." },
+  deep_worm: { type: "Amorphous", lore: "Grey worms that have never seen the sun, and never will." },
+  lumicap_matron: { type: "Plantoid", lore: "A towering Lumicap that lights the whole Glimmer Grotto. The smaller caps gather around her." }
+});
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -12253,6 +12300,11 @@ const TALK = {
       { label: "Sail to " + to.name + " (" + CONFIG.ferryCost + " crystals)", fn: () => { closeDialog(); startFerry(n.ferryTo); } }
     ]);
   },
+  talkBoat(n) {
+    openDialog(n.name, "The river runs under the rock wall to the far landing. I'll row you across, no charge. Mind your hands; things live in the water.", [
+      { label: "Ride across the river", fn: () => { closeDialog(); startFerry(S.zoneId, n.boatTo.x, n.boatTo.y, 0, "You climb into the boat and push off into the dark water... (4 seconds)", 4); } }
+    ]);
+  },
   talkWend(n) {
     const g = questOptions("wend", n);
     openDialog(n.name, g.length ? "Ah, company! Sit, sit. Mind the gulls; they bite." : "The gulls and I thank you. Come back any time.", g);
@@ -12460,20 +12512,27 @@ function onRoad(e) {
   }
   return false;
 }
-function startFerry(to) {
+function startFerry(to, x, y, cost, msg, secs) {
   if (S.ferry) return;
-  if (save.gil < CONFIG.ferryCost) { log("The ferry costs " + CONFIG.ferryCost + " crystals.", "sys"); return; }
+  const fare = cost == null ? CONFIG.ferryCost : cost;
+  if (save.gil < fare) { log("The ferry costs " + fare + " crystals.", "sys"); return; }
   if (player.engaged || S.party.some(p => p.engaged)) { log("Finish your fight before boarding.", "sys"); return; }
-  save.gil -= CONFIG.ferryCost;
-  const dest = to === "gullisle" ? { x: 440, y: 900 } : { x: 560, y: 720 };
-  S.ferry = { to, x: dest.x, y: dest.y, at: S.time + 6 };
-  log("You board the ferry. The sails fill, and the coast slips away... (6 seconds)", "npc");
+  save.gil -= fare;
+  const dest = x != null ? { x, y } : to === "gullisle" ? { x: 440, y: 900 } : { x: 560, y: 720 };
+  S.ferry = { to, x: dest.x, y: dest.y, at: S.time + (secs || 6), boat: to === S.zoneId };
+  log(msg || "You board the ferry. The sails fill, and the coast slips away... (6 seconds)", "npc");
   sfx("zone");
 }
 function tickFerry() {
   if (!S.ferry || S.time < S.ferry.at) return;
   const f = S.ferry;
   S.ferry = null;
+  if (f.boat && f.to === S.zoneId) {
+    for (const p of S.party) if (p.alive) { p.x = f.x + (p === player ? 0 : (Math.random() - 0.5) * 40); p.y = f.y + (p === player ? 0 : 30); p.px = p.x; p.py = p.y; }
+    save.stats.boatRides = (save.stats.boatRides || 0) + 1;
+    log("The boat scrapes onto the far landing.", "npc");
+    return;
+  }
   enterZone(f.to, f.x, f.y);
   log("The ferry bumps against the dock at " + ZONES[f.to].name + ".", "npc");
 }
@@ -15761,13 +15820,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v12.5.0 · built 2026-10-14 04:56 PDT";
+const BUILD_INFO = "v12.6.0 · built 2026-10-14 05:02 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "12.6.0", date: "2026-10-14", title: "Underdeep River", items: [
+    "A cave door near the south-east of the Verdant Jungle leads down into the Underdeep: a long cavern lit by glowing mushrooms and crystals, with a dark river running through it.",
+    "A rock wall splits the cavern; Boatman Ferro rows you across the river to the far landing for free. New achievement: Down the River.",
+    "Level 16–20 monsters: Glow Bats, Pale Crabs, Lumicaps and Deep Worms. The Lumicap Matron may drop the Lumen Earring. New materials: Glowcap.",
+    "The river has its own fish: Glowfin and the rare Blind Eel."
   ] },
   { v: "12.5.0", date: "2026-10-14", title: "The Red Spire", items: [
     "A tower dungeon has opened in the Sunscar Desert: walk up to the door at the Red Spire landmark to climb inside.",
@@ -16553,6 +16618,7 @@ function tabHelp() {
     ["Cinder Peak", "18–20", "East of the Sunscar Desert. A volcano of black rock, ash and glowing lava pools: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs, Cinder Bombs and Cinder Bones (night). The NM Pyreclaw suns itself on the Crater Rim at night. Rich mining; no fishing in lava"],
     ["Gull Isle", "12–16", "Reached by ferry from the Saltreach docks (Ferryman Coll, " + CONFIG.ferryCost + " crystals each way, about 6 seconds at sea). Beaches, a palm grove and the Gullsrest Cliffs: Reef Crabs, Shore Lizards, Gale Talons, Reefkin and Isle Snappers. Old Wend has a favour to ask; the NM Old Saltjaw lurks in Wreck Cove. Good sea fishing"],
     ["Red Spire", "17–23", "A tower dungeon entered by a door at the Red Spire in the Sunscar Desert. Four floors, each harder than the last (17–18 up to 20–21), climbed by the stairs on the east side; the Spire Warden (level 23 boss) holds the summit and may drop the Warden's Greatsword or the Spire Mantle. Bring a full party"],
+    ["Underdeep River", "16–20", "A glowing cavern under the Verdant Jungle (door near the jungle's south-east). A rock wall splits it in two: Boatman Ferro rows you across the river for free. Glow Bats, Pale Crabs, Lumicaps and Deep Worms; the Lumicap Matron (NM) lights the Glimmer Grotto. Fish for Glowfin and the rare Blind Eel"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🧭 Exploring the wilds", ul([
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
@@ -16768,7 +16834,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "12.5.0";
+const GAME_VERSION = "12.6.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18016,6 +18082,21 @@ function buildTown(field, root) {
   });
 }
 
+function buildGlow(field, root) {
+  const z = field.zone, rnd = rngFor(z, "glow"), caps = [], gems = [];
+  for (let k = 0, tries = 0; k < 160 && tries < 3000; tries++) {
+    const px = rnd() * z.w, py = rnd() * z.h;
+    if (!placeable(field, px, py, { water: 20, path: 0.5 })) continue;
+    const y = field.heightAt(px, py), s = 0.4 + rnd() * 0.9;
+    (rnd() < 0.65 ? caps : gems).push(mtx(px * U, y, py * U, s, s * (0.8 + rnd() * 0.6), s, rnd() * 6.28));
+    k++;
+  }
+  const stem = new THREE.CylinderGeometry(0.06, 0.09, 0.5, 6).translate(0, 0.25, 0), cap = new THREE.SphereGeometry(0.28, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 0.6, 1).translate(0, 0.5, 0);
+  const capGeo = THREE.mergeGeometries([stem.toNonIndexed(), cap.toNonIndexed()]);
+  root.add(tintInst(instanced(capGeo, new THREE.MeshStandardMaterial({ color: 0x80deea, emissive: 0x2ab0c8, emissiveIntensity: 1.3, roughness: 0.6 }), caps, false), rnd, 0.2));
+  root.add(instanced(new THREE.OctahedronGeometry(0.25, 0).scale(0.6, 1.6, 0.6).translate(0, 0.35, 0), new THREE.MeshStandardMaterial({ color: 0xb388ff, emissive: 0x7c4dff, emissiveIntensity: 1.2, roughness: 0.3 }), gems, false));
+  for (let i = 0; i < 4; i++) { const L = new THREE.PointLight(i % 2 ? 0x80deea : 0xb388ff, 6, 28, 1.6); const px = (i + 0.5) / 4 * z.w, py = z.h * 0.4; L.position.set(px * U, field.heightAt(px, py) + 3, py * U); root.add(L); }
+}
 function buildCave(field, root) {
   const z = field.zone;
   const torchMat = std({ color: 0x3b2a1a });
@@ -18674,6 +18755,7 @@ function* buildZone3DSteps() {
   if (themeOf(z) === "town") buildTown(field, root);
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
+  if (z.glow) buildGlow(field, root);
   if (themeOf(z) === "house") buildHouse(field, root);
   buildRuins(field, root);
   buildExits(field, root);
