@@ -1478,6 +1478,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.3.0", date: "2026-10-14", title: "Warp stones", items: [
+    "Every district of Ashenreach Outpost, Saltreach Harbor and Ironvale now has a warp stone, shown as a pink dot on the map.",
+    "Touch a stone to attune to it. From any stone you can warp for free to any attuned stone in the same city, or to an attuned stone in another city for " + CONFIG.warpCost + " crystals. Not during a fight.",
+    "New command: /warp opens the warp menu when you stand next to a stone."
+  ] },
   { v: "15.2.0", date: "2026-10-14", title: "Harbor, Ironvale and fixes", items: [
     "Saltreach Harbor and Ironvale are now districted cities with their own look. Saltreach has timber and whitewashed harbor buildings, a lighthouse, slipways and a sea wall on the south side; Ironvale has dark stone halls, smelters, a keep and mine heads, with snow on the roofs.",
     "Fallen hirelings now stay where they died for an hour instead of following you to town. Walk back and raise them before the hour is up, or they leave the party.",
@@ -2360,6 +2365,9 @@ function tabHelp() {
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
+  ]));
+  h += sec("🌀 Warp stones", ul([
+    "Each district of the three cities has a warp stone (pink dot on the map). Touch one to attune it. Warps inside the same city are free; warps to a stone in another city cost " + CONFIG.warpCost + " crystals. You can't warp while fighting. Type /warp beside a stone to open the menu. Crystals still handle home points and camp warps."
   ]));
   h += sec("💀 Falling and reviving", ul([
     "A hireling who falls stays where they died for an hour. They do not follow you through gates or zone changes, and returning to your home point does not heal them. Walk back and use Raise, a Phoenix Down or an Ember Plume on them, or they leave the party when the hour ends.",

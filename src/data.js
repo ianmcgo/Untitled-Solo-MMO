@@ -2272,6 +2272,16 @@ for (const zid in ZONES) {
     z.npcs.push({ id, x: Math.round(inner.x + (horiz ? 0 : off)), y: Math.round(inner.y + (horiz ? off : 0)) });
   });
 }
+const WARP_STONES = {
+  outpost: { res: [344, 744], gov: [1020, 264], market: [1000, 850], ind: [980, 1260], gate: [1700, 744] },
+  harbor: { fish: [324, 564], square: [900, 464], yard: [1480, 544], docks: [904, 1120] },
+  ironvale: { gate: [284, 704], keep: [660, 184], market: [900, 580], south: [900, 1180], forge: [1520, 704] }
+};
+for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
+  const id = "warpstone_" + zid + "_" + did, d = ZONES[zid].districts.find(q => q.id === did);
+  NPCS[id] = { name: "Warp Stone: " + d.name, model: "crystal", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
+  ZONES[zid].npcs.push({ id, x: WARP_STONES[zid][did][0], y: WARP_STONES[zid][did][1] });
+}
 Object.assign(QUESTS, {
   sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "bronze_tachi", qty: 1, unlock: "SAM" },
     intro: "A Samurai fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },
