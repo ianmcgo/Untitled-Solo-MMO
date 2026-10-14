@@ -398,7 +398,8 @@ function stableKey(o) {
   return JSON.stringify(norm(o));
 }
 
-function hairPieces(R, H, hc, hr, covered) {
+function hairPieces(R, H, hc, hr, covered, tailBone) {
+  const TB = tailBone || "head";
   if (!H || H.style === "bald") return;
   const c = H.color, st = H.style;
   const top = V3(0, hc + 0.004, -0.004);
@@ -417,10 +418,10 @@ function hairPieces(R, H, hc, hr, covered) {
     }
     if (st === "bun") R.add(gBall(V3(0, hc + hr * 0.7, -hr * 0.75), hr * 0.42, 1, 1, 1, 10), "head", c, "hair");
   }
-  if (st === "long") R.add(gBall(V3(0, hc - hr * 1.05, -hr * 0.62), hr * 0.95, 1.0, 1.9, 0.45, 12), "head", c, "hair");
+  if (st === "long") R.add(gBall(V3(0, hc - hr * 1.05, -hr * 0.62), hr * 0.95, 1.0, 1.9, 0.45, 12), TB, c, "hair");
   if (st === "ponytail") {
     R.add(gBall(V3(0, hc + hr * 0.2, -hr * 0.98), hr * 0.3, 1, 1, 1, 8), "head", c, "hair");
-    R.add(gTaper(V3(0, hc + hr * 0.15, -hr * 1.08), V3(0, hc - hr * 1.6, -hr * 1.35), hr * 0.3, hr * 0.08, 8), "head", c, "hair");
+    R.add(gTaper(V3(0, hc + hr * 0.15, -hr * 1.08), V3(0, hc - hr * 1.6, -hr * 1.35), hr * 0.3, hr * 0.08, 8), TB, c, "hair");
   }
 }
 
@@ -480,7 +481,17 @@ function humanEntry(L) {
     R.add(gFront(V3(0, hc, 0.005), hr * 1.04, 2.3, Math.PI * 0.55, Math.PI * 0.92, 0.96, 1.04, 1.02, 14), "head", L.beard, "hair");
     if (L.longBeard) R.add(gBall(V3(0, hc - hr * 1.2, hr * 0.6), hr * 0.5, 0.9, 1.6, 0.55, 10), "head", L.beard, "hair");
   }
-  hairPieces(R, L.hair, hc, hr, headCovers);
+  if (L.hair && (L.hair.style === "long" || L.hair.style === "ponytail")) R.bone("hairTail", "head", 0, hc + hr * 0.15, -hr * 0.95);
+  hairPieces(R, L.hair, hc, hr, headCovers, L.hair && (L.hair.style === "long" || L.hair.style === "ponytail") ? "hairTail" : null);
+  if (!L.noFace) {
+    R.bone("lids", "head", 0, hc, 0.005);
+    for (const s of [-1, 1]) {
+      const g = new THREE.SphereGeometry(hr * 1.016, 6, 4, Math.PI / 2 + s * 0.4 - 0.2, 0.4, 1.467 - 0.14, 0.26);
+      g.scale(0.94, 1.04, 1.0);
+      g.translate(0, hc, 0.005);
+      R.add(g, "lids", skin, SKR);
+    }
+  }
 
   if (!L.skull) {
     R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.04, 0.0), 0.05 * gi, 0.043 * gi, 10), "neck", skin, SKR);
@@ -580,7 +591,8 @@ function humanEntry(L) {
     R.add(gBox(V3(0, hipsY + 0.03, bR * 0.72 + 0.006), 0.05, 0.04, 0.012), "hips", 0xc8a040, "metal");
   }
   if (L.cape) {
-    R.add(gBox(V3(0, (shY + knee) / 2 + 0.02, -0.15 * gi), sw * 2.0, shY - knee, 0.02, 0.1, 0, 0), "chest", L.cape, "cloth");
+    R.bone("cape", "chest", 0, shY, -0.15 * gi);
+    R.add(gBox(V3(0, (shY + knee) / 2 + 0.02, -0.15 * gi), sw * 2.0, shY - knee, 0.02, 0.1, 0, 0), "cape", L.cape, "cloth");
     R.add(gRing(V3(0, neckY - 0.03, 0), 0.085 * gi, 0.025, "y", 16), "chest", L.cape, "cloth");
   }
   if (L.sack) {
@@ -701,6 +713,35 @@ function bombEntry(col, eye) {
   R.add(gBall(V3(0.06, Y + 0.54, -0.14), 0.07, 1, 1.3, 1, 8), "body", 0xffe082, "glow", true);
   R.meta = { kind: "bat", headTop: Y + 0.65 };
   return R.finish();
+}
+
+function birdEntry(col, comb, beak) {
+  const R = new RigBuilder();
+  const Y = 0.22;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y + 0.12, 0.09);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("leg" + sd, "body", s * 0.04, Y - 0.05, 0); R.bone("wing" + sd, "body", s * 0.08, Y + 0.03, 0); }
+  const dark = new THREE.Color(col).multiplyScalar(0.75).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.1, 0.85, 0.85, 1.2, 10), "body", col, "feather");
+  R.add(gTaper(V3(0, Y + 0.02, -0.1), V3(0, Y + 0.1, -0.18), 0.05, 0.01, 6, 0.4), "body", dark, "feather");
+  R.add(gBall(V3(0, Y + 0.14, 0.1), 0.055, 1, 1, 1, 8), "head", col, "feather");
+  R.add(gTaper(V3(0, Y + 0.13, 0.15), V3(0, Y + 0.12, 0.2), 0.016, 0.002, 5), "head", beak || 0xe8a030, "bone");
+  if (comb) R.add(gBall(V3(0, Y + 0.2, 0.1), 0.03, 0.4, 1, 1.2, 6), "head", comb, "plain");
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gBall(V3(s * 0.035, Y + 0.155, 0.135), 0.009, 1, 1, 0.6, 5), "head", 0x111111, "plain");
+    R.add(gTaper(V3(s * 0.04, Y - 0.05, 0), V3(s * 0.04, 0.01, 0.01), 0.008, 0.007, 5), "leg" + sd, 0xe8a030, "bone");
+    R.add(gBall(V3(s * 0.08, Y + 0.02, -0.01), 0.07, 0.25, 0.7, 1.1, 8), "wing" + sd, dark, "feather");
+  }
+  R.meta = { kind: "bird", headTop: 0.45 };
+  return R.finish();
+}
+
+function walkerLook(seed) {
+  const r = seeded(hashStr("walker" + seed));
+  const fem = r() < 0.5, pick = a => a[Math.floor(r() * a.length)];
+  return { build: fem ? 1 : 0, skin: SKIN_TONES[Math.floor(r() * SKIN_TONES.length)], hair: { style: pick(HAIR_BY_SEX[fem ? 1 : 0]), color: pick(HAIR_COLORS) }, top: { type: pick(["shirt", "vest", "apron", "tunic"]), color: pick([0x8a5a3a, 0x3a5a7a, 0x6a7a3a, 0x7a3a3a, 0xc8b890, 0x5a4a6a]), color2: 0xd8d0c0, under: 0xd8cfb8 }, legs: pick([0x3a3028, 0x2a2a30, 0x4a3a2c]), boots: 0x2a1a10, belt: 0x3a2412 };
 }
 
 function wispEntry(col, eye) {
@@ -1284,6 +1325,13 @@ function buildEntityRig(e) {
     sig = "n|" + e.id;
     make = () => humanEntry(L);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
+  } else if (e.ambient) {
+    sig = "amb|" + e.type + "|" + (e.seed || 0);
+    if (e.type === "walker") { const L = walkerLook(e.seed || 0); make = () => humanEntry(L); }
+    else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
+    else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
+    else if (e.type === "dog") make = () => quadEntry({ col: e.col || 0x8a6a4a, bodyY: 0.32, bodyR: 0.15, bodyLen: 0.5, leg: 0.28, hip: 0.08, legR: 0.035, neckUp: 0.12, neckFwd: 0.12, neckR: 0.06, headR: 0.09, ears: 1.6, tailLen: 0.22, tailDrop: -0.1, tailR: 0.025, stride: 0.9 });
+    else make = () => quadEntry({ col: e.col || 0x5a5a5a, bodyY: 0.2, bodyR: 0.1, bodyLen: 0.36, leg: 0.17, hip: 0.05, legR: 0.022, neckUp: 0.08, neckFwd: 0.08, neckR: 0.045, headR: 0.07, ears: 1.3, eye: 0x9ccc65, tailLen: 0.3, tailDrop: -0.2, tailR: 0.018, stride: 0.6 });
   } else if (e.buddy) {
     const B = BUDDIES[e.petId];
     sig = "buddy|" + e.petId;
@@ -1350,6 +1398,7 @@ function playerBase() { return baseFromLook(save.look); }
 function rigSigFor(e) {
   if (e.pet) return "pet|" + e.petKey;
   if (e.buddy) return "buddy|" + e.petId;
+  if (e.ambient) return "amb|" + e.type + "|" + (e.seed || 0);
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
   if (e.kind === "npc") return "n|" + e.id;
   return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);

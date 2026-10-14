@@ -509,11 +509,12 @@ function draw(dt) {
   for (const m of S.mobs) syncEntity(m, dt);
   for (const n of S.npcs) syncNpc(n, dt);
   if (S.buddy) syncEntity(S.buddy, dt);
+  for (const a of S.ambient || []) syncEntity(a, dt);
   syncDecor(dt);
   syncBarriers();
   syncFurniture();
   for (const [e, v] of VIEW.views) {
-    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e) || e === S.buddy;
+    const alive = S.party.includes(e) || S.mobs.includes(e) || S.npcs.includes(e) || e === S.buddy || (S.ambient && S.ambient.includes(e));
     if (!alive) { destroyView(v); VIEW.views.delete(e); }
   }
   updateCursor();

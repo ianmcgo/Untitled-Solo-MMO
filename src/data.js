@@ -641,6 +641,8 @@ const ZONES = {
       { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
       { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
     ],
+    props: [{ type: "anvil", x: 690, y: 690, rot: 0.2, r: 26 }, { type: "desk", x: 455, y: 290, r: 22 }, { type: "desk", x: 430, y: 465, r: 22 }, { type: "barrels", x: 900, y: 560, rot: 1.2, r: 26 }],
+    ambient: [{ type: "chicken", x: 400, y: 600, n: 4, r: 70 }, { type: "dog", x: 640, y: 470, n: 1, r: 120, col: 0x8a6a4a }, { type: "cat", x: 300, y: 330, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 560, y: 420, n: 1, path: [[560, 300], [820, 410], [700, 520], [480, 500]] }, { type: "walker", x: 600, y: 450, n: 1, path: [[380, 470], [560, 560], [760, 470], [620, 330]] }],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
     plaza: { x: 560, y: 420, r: 150 },
@@ -811,6 +813,8 @@ ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty
 ZONES.harbor = {
   name: "Saltreach Harbor", w: 1400, h: 1000, safe: true, theme: "town",
   exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }, { x: 1376, y: 380, w: 24, h: 100, to: "frost", tx: 110, ty: 1200, label: "Frostspire Pass" }],
+  props: [{ type: "crates", x: 440, y: 640, r: 30 }, { type: "desk", x: 560, y: 455, r: 22 }, { type: "barrels", x: 960, y: 640, r: 26 }],
+  ambient: [{ type: "gull", x: 700, y: 700, n: 5, r: 160 }, { type: "cat", x: 500, y: 560, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 700, y: 500, n: 1, path: [[500, 300], [900, 300], [900, 620], [500, 620]] }, { type: "walker", x: 700, y: 500, n: 1, path: [[700, 200], [700, 640], [1000, 500]] }],
   npcs: [
     { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
     { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }, { id: "guard_north", x: 530, y: 80 }, { id: "guard_pass", x: 1330, y: 340 }

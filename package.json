@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "6.9.0",
-  "releaseTitle": "Animation upgrade",
+  "version": "7.0.0",
+  "releaseTitle": "Living towns and character polish",
   "description": "",
   "main": "index.js",
   "scripts": {

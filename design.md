@@ -730,11 +730,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - main4 frame loop: while S.ko, S.time still advances (no step) so the KO animation plays under the defeat dialog.
 - p5shots scenes an_heal, an_song, an_summon, an_ws, an_idle, an_ko. (Headless software rendering is very slow under the defeat overlay, so an_ko screenshots catch the fall early.)
 
+## Phase 29: living towns and character polish (v7.0.0)
+- Faces: humanEntry adds bone "lids" (child of head at head centre) with two skin-coloured spherical patches over the painted eyes (φ = π/2 ± 0.4, θ ≈ 1.467 rad, r = 1.016·hr). poseHuman keeps lids rotated up −0.55 rad onto the forehead (invisible, skin on skin) and swings them to 0 to blink (every 2.5–6 s for 0.16 s), when KO'd, and half-closed while sitting. Only faces (not noFace mobs).
+- Hair: long/ponytail back pieces moved to bone "hairTail" (hairPieces(…, tailBone)); sways with run/walk. Cape on bone "cape" (child of chest at the shoulders), lifts with speed and flutters.
+- NPCs: anim.js NPC_WORK id → work pose (hammer, count, read, work, arms, guard, look) when the player is not near; within ~130 px (or targeted) the head and chest turn toward the player (an.look blend).
+- Ambient life: ZONES[*].ambient [{type: chicken|dog|cat|gull|walker, x, y, n, r, col, path}] → S.ambient entities (kind "ambient", not targetable, no labels) built in enterZone, moved by tickAmbient (wander within r, or walk a path loop with pauses). Rigs: birdEntry (chicken/gull, kind "bird", poseBird pecks and flaps), quadEntry dog/cat, walkerLook(seed) random townsfolk for humanEntry. view3d syncs them and keeps their views alive.
+- Town props: ZONES[*].props [{type: anvil|crates|desk|barrels, x, y, rot, r}] built in world3d after stalls; each adds a collider. Outpost: anvil+forge by Garrick, desks for Maera and Corvin, barrels; Saltreach: crates by Marn, desk for Selene, barrels.
+- p5shots scenes town7, face7, harbor7.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 7.0.0 | Phase 29: blinking, hair and cape sway, NPC work poses and look-at, ambient animals and walkers, town props. |
 | 6.9.0 | Phase 28: swing/WS/cast variety, idle fidgets, turn shuffle, directional flinch, KO and rise. |
 | 6.8.0 | Phase 27: difficulty-based placement, tiered names/colours, Silkmother, Gorruk, Silk for Sale. |
 | 6.7.0 | Phase 26: orcs, Reefkin, Crag Talons, treants, Needlekin, bombs; ranged mobs. |
