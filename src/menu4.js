@@ -1453,6 +1453,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "12.0.0", date: "2026-10-14", title: "Ironvale", items: [
+    "A second city: Ironvale, a stone town high in the mountains at the east end of Frostspire Pass. It has its own home point crystal, trade board and auction house.",
+    "Haldor the mythrilsmith sells level 19 mythril weapons for every weapon type, plus Mythril Mail, a Mythril Helm and the Ironvale Robe.",
+    "Brisa the quartermaster has two new quests: Smoke on the Pass (rewarding the Ironvale Ring) and The Ore Run.",
+    "New achievement: Mountain Welcome."
+  ] },
   { v: "11.3.0", date: "2026-10-14", title: "Geomancer and Rune Fencer", items: [
     "Geomancer: wrap the party in auras of Vigor, Fury or Focus, and plant a glowing luopan by your foes that slows them, makes them frail or saps their strength. Full Circle and Mending Halation turn the luopan back into MP or healing.",
     "Rune Fencer: a great-sword tank who carves fire, ice, wind and earth runes to blunt incoming blows, then hurls them all at once with Lunge. Vallation braces for the worst.",
@@ -2197,6 +2203,7 @@ function tabHelp() {
     ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), Selene (auction house), home point, trade board, docks"],
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
     ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
+    ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the mythrilsmith (level 18–19 mythril weapons for every weapon type, Mythril Mail and Helm, Ironvale Robe), Orla's auction house, home point, trade board"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🧭 Exploring the wilds", ul([
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",

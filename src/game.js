@@ -4257,6 +4257,15 @@ const TALK = {
       { label: "Use a Chapel Sigil and enter (" + BATTLEFIELD.minutes + "-minute battle)", fn: () => { closeDialog(); const why = enterBattlefield(); if (why) { log(why, "sys"); sfx("error"); } } }
     ] : []);
   },
+  talkBrisa(n) {
+    const g = questOptions("brisa", n);
+    openDialog(n.name, g.length ? "Welcome to Ironvale, traveller. Stone walls, hot forges, and more work than hands. Pull up a crate." : "The pass is quiet for now. Come back when you've grown a little.", g);
+  },
+  talkHaldor(n) {
+    openDialog(n.name, "Mythril. Light as steel's ghost and twice as hard. You won't find finer this side of the mountains, and you won't find it cheaper either.", [
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "haldor"; openModal("shop"); } }
+    ]);
+  },
   talkIlsa(n) {
     const g = questOptions("ilsa", n);
     openDialog(n.name, g.length ? "Welcome to Saltreach. Ships, fish and salt; that's the harbor. I always have work for steady hands." : "Fair winds. Come back when you're stronger and I may have more work.", g);
