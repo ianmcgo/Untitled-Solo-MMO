@@ -1477,6 +1477,13 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.4.0", date: "2026-10-14", title: "Critters", items: [
+    "Fur and feathers: on High quality, furry and feathered creatures (bees, bats, hares, sheep, dogs, cats, Crag Talons and others) grow layered fur shells, so their coats look soft and fuzzy instead of painted on.",
+    "Bats have finger bones running through their wing membranes, a thumb claw and clawed feet.",
+    "Shroomlings have gills under the cap and a skirt ring on the stalk.",
+    "Worms have finer ring bands and bristles along their bellies.",
+    "Hares have whiskers; toads have splayed, padded toes."
+  ] },
   { v: "14.3.0", date: "2026-10-14", title: "Beastmen and bosses", items: [
     "Every beastman family now has its own build and gear on top of the sculpted heads:",
     "Goblins stoop forward and carry belt pouches, a bone charm and knee pads. Orcs wear spiked pauldrons, tooth necklaces and leather bracers.",
@@ -2293,6 +2300,7 @@ function tabHelp() {
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
+    "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",
     "<b>Reading a beastman:</b> each family has its own silhouette. Goblins stoop with pouches and packs, orcs are broad with spiked shoulders, Reefkin have fins, Crag Talons have feathered arms and tails, treants have branches and roots. A war banner on the back marks a boss.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
