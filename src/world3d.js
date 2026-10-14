@@ -426,6 +426,34 @@ function buildTown(field, root) {
     g.position.set(st.x * U, field.heightAt(st.x, st.y), st.y * U);
     root.add(g);
   }
+  for (const pr of z.props || []) {
+    const g = new THREE.Group();
+    const metal = std({ color: 0x4a4e56, roughness: 0.4, metalness: 0.8 }), wood = std({ color: 0x7a5432 }), dark = std({ color: 0x3a2818 }), paper = std({ color: 0xe8e0c8 });
+    if (pr.type === "anvil") {
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.36, 0.55, 8), wood); base.position.y = 0.27;
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.22, 0.32), metal); body.position.y = 0.66;
+      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.4, 8), metal); horn.rotation.z = Math.PI / 2; horn.position.set(0.55, 0.68, 0);
+      const fire = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.7, 10), std({ color: 0x5a5048, roughness: 0.95 })); fire.position.set(-1.3, 0.35, 0.3);
+      const coals = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.05, 10), new THREE.MeshBasicMaterial({ color: 0xff6a20 })); coals.position.set(-1.3, 0.72, 0.3);
+      g.add(base, body, horn, fire, coals);
+    } else if (pr.type === "crates") {
+      for (let k = 0; k < 4; k++) { const c = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.6), k % 2 ? wood : dark); c.position.set((k % 2) * 0.65 - 0.3, 0.25 + (k > 2 ? 0.5 : 0), Math.floor(k / 2) * 0.65 - 0.3); c.rotation.y = k * 0.3; g.add(c); }
+      const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.7, 10), wood); bar.position.set(1.0, 0.35, 0.2); g.add(bar);
+    } else if (pr.type === "desk") {
+      const top = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.08, 0.6), wood); top.position.y = 0.82;
+      for (const [dx, dz] of [[-0.58, -0.25], [0.58, -0.25], [-0.58, 0.25], [0.58, 0.25]]) { const l = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.8, 0.08), dark); l.position.set(dx, 0.4, dz); g.add(l); }
+      const book = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.06, 0.3), paper); book.position.set(-0.2, 0.89, 0); book.rotation.y = 0.3;
+      const ink = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.1, 8), dark); ink.position.set(0.35, 0.91, 0.1);
+      g.add(top, book, ink);
+    } else if (pr.type === "barrels") {
+      for (let k = 0; k < 3; k++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.75, 10), wood); b.position.set(k * 0.65 - 0.65, 0.37, (k % 2) * 0.3); g.add(b); }
+    }
+    g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    g.position.set(pr.x * U, field.heightAt(pr.x, pr.y), pr.y * U);
+    g.rotation.y = pr.rot || 0;
+    root.add(g);
+    z.colliders.push({ x: pr.x, y: pr.y, r: pr.r || 24 });
+  }
   const crates = [];
   const rnd = rngFor(z, "crates");
   for (let i = 0; i < 26; i++) {

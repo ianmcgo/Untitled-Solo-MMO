@@ -29,6 +29,24 @@ function trackEvents(v, e, dt) {
 
 function normAngA(a) { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
 
+const NPC_WORK = { garrick: "hammer", pell: "count", marn: "work", odette: "work", tobin: "read", brann: "arms", ysolde: "work", vela: "work", maera: "read", corvin: "count", selene: "count", guard_east: "guard", guard_north: "guard", guard_pass: "guard", rhea: "arms", ilsa: "look" };
+
+function poseBird(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 0.8, 0, 1);
+  const s1 = Math.sin(an.ph * 2.2);
+  addP(P, "legL", s1 * 0.7 * mv, 0, 0); addP(P, "legR", -s1 * 0.7 * mv, 0, 0);
+  addP(P, "head", Math.sin(t * 9) * 0.25 * mv, 0, 0);
+  const peck = (1 - mv) * (Math.sin(t * 0.9) > 0.4 ? Math.max(0, Math.sin(t * 9)) : 0);
+  addP(P, "body", 0.5 * peck, 0, 0); addP(P, "head", 0.6 * peck, Math.sin(t * 0.7) * 0.5 * (1 - mv), 0);
+  const fl = Math.sin(t * 0.5) > 0.95 ? Math.sin(t * 30) * 0.6 : 0;
+  addP(P, "wingL", 0, 0, 0.1 + fl); addP(P, "wingR", 0, 0, -0.1 - fl);
+  v.rootOff[1] = Math.abs(s1) * 0.02 * mv;
+  applyPose(v, dt, false);
+}
+
 function wsStyle(id) {
   if (!id || typeof WEAPON_SKILLS === "undefined" || !WEAPON_SKILLS[id]) return 0;
   const w = WEAPON_SKILLS[id];
@@ -130,6 +148,33 @@ function poseHuman(v, e, dt) {
     addP(P, "thighL", -Math.max(0, sp) * 0.35, 0, 0); addP(P, "shinL", Math.max(0, sp) * 0.6, 0, 0);
     addP(P, "thighR", -Math.max(0, -sp) * 0.35, 0, 0); addP(P, "shinR", Math.max(0, -sp) * 0.6, 0, 0);
   }
+  if (P.lids) {
+    if (!an.blinkAt || S.time > an.blinkAt + 0.2) { if (!an.blinkAt || S.time > an.blinkAt + 0.2) an.blinkAt = S.time + 2.5 + Math.random() * 3.5; }
+    const bl = S.time >= an.blinkAt && S.time < an.blinkAt + 0.16 ? 1 : 0;
+    const shut = e.alive === false ? 1 : e.resting && an.sit > 0.9 ? 0.55 : bl;
+    addP(P, "lids", -0.55 * (1 - shut), 0, 0);
+  }
+  if (e.kind === "npc" && player && e.alive !== false) {
+    const d = dist(e, player), work = NPC_WORK[e.id];
+    const near = d < 160 && player.target === e ? 1 : d < 130 ? 1 : 0;
+    an.look = (an.look || 0) + (near - (an.look || 0)) * Math.min(1, dt * 3);
+    if (an.look > 0.01) {
+      const ang = normAngA(Math.atan2(player.y - e.y, player.x - e.x) - (e.face || 0));
+      addP(P, "head", -0.08 * an.look, -clamp(ang, -1.1, 1.1) * an.look, 0);
+      addP(P, "chest", 0, -clamp(ang, -1.1, 1.1) * 0.25 * an.look, 0);
+    }
+    const ww = (1 - an.look) * (amp < 0.1 ? 1 : 0);
+    if (work && ww > 0.01) {
+      if (work === "hammer") { const c = (t * 1.3) % 1, up = c < 0.6 ? ease(c / 0.6) : 1 - ease((c - 0.6) / 0.12); setP(P, "upArmR", -0.6 - 1.6 * up, 0, -0.15, ww); setP(P, "foreArmR", -1.2 + 0.6 * up, 0, 0, ww); setP(P, "upArmL", -0.8, 0, 0.15, ww); setP(P, "foreArmL", -0.9, 0, 0, ww); setP(P, "spine", 0.25, 0, 0, ww); setP(P, "head", 0.35, 0, 0, ww); }
+      else if (work === "read" || work === "count") { setP(P, "upArmL", -0.7, 0, -0.2, ww); setP(P, "upArmR", -0.7, 0, 0.2, ww); setP(P, "foreArmL", -1.3 + (work === "count" ? Math.max(0, Math.sin(t * 5)) * 0.2 : 0), 0, 0, ww); setP(P, "foreArmR", -1.3 + (work === "count" ? Math.max(0, Math.sin(t * 5 + 1.5)) * 0.25 : Math.sin(t * 0.4) * 0.1), 0, 0, ww); setP(P, "head", 0.45, Math.sin(t * 0.6) * 0.15, 0, ww); }
+      else if (work === "work") { setP(P, "upArmL", -0.8 + Math.sin(t * 3) * 0.25, 0, -0.1, ww); setP(P, "upArmR", -0.8 - Math.sin(t * 3) * 0.25, 0, 0.1, ww); setP(P, "foreArmL", -1.0, 0, 0, ww); setP(P, "foreArmR", -1.0, 0, 0, ww); setP(P, "spine", 0.3, 0, 0, ww); setP(P, "head", 0.4, 0, 0, ww); }
+      else if (work === "arms") { setP(P, "upArmL", -0.5, 0, -0.45, ww); setP(P, "upArmR", -0.5, 0, 0.45, ww); setP(P, "foreArmL", -1.9, 0.4, 0, ww); setP(P, "foreArmR", -1.9, -0.4, 0, ww); setP(P, "head", 0, Math.sin(t * 0.3) * 0.4, 0, ww); }
+      else if (work === "guard") { setP(P, "upArmR", -0.3, 0, -0.05, ww); setP(P, "foreArmR", -0.9, 0, 0, ww); setP(P, "spine", -0.05, 0, 0, ww); setP(P, "head", 0, Math.sin(t * 0.25) * 0.7, 0, ww); }
+      else if (work === "look") { const sp = Math.sin(t * 0.2) > 0.3 ? 1 : 0; setP(P, "upArmR", -1.5 * sp, 0, 0.3 * sp, ww); setP(P, "foreArmR", -1.6 * sp, 0, 0, ww); setP(P, "head", -0.1, 0.6 * Math.sin(t * 0.15), 0, ww); }
+    }
+  }
+  if (P.hairTail) addP(P, "hairTail", 0.25 * run + 0.08 * walk + Math.sin(t * 2.1) * 0.04, Math.sin(an.ph) * 0.12 * amp, Math.sin(t * 1.3) * 0.05);
+  if (P.cape) addP(P, "cape", 0.65 * run + 0.18 * walk + Math.sin(t * 2.5) * 0.03 * (1 + run * 3), 0, Math.sin(an.ph) * 0.06 * amp);
   if (st.hunch) { addP(P, "spine", 0.22, 0, 0); addP(P, "chest", 0.12, 0, 0); addP(P, "head", -0.3, 0, 0); addP(P, "upArmL", -0.25, 0, 0.1); addP(P, "upArmR", -0.25, 0, -0.1); }
   if (st.prowl) { addP(P, "upArmL", -0.6, 0, 0.15); addP(P, "upArmR", -0.6, 0, -0.15); addP(P, "foreArmL", -0.3, 0, 0); addP(P, "foreArmR", -0.3, 0, 0); }
 

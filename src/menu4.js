@@ -1018,6 +1018,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "7.0.0", date: "2026-10-13", title: "Living towns and character polish", items: [
+    "Characters blink, close their eyes when knocked out and half-close them while resting. Long hair and ponytails sway as you move, and capes stream out behind you when you run.",
+    "Townsfolk now work at their posts: Garrick hammers at a new anvil and forge, Pell and the auctioneers count coin at their desks, Maera and Tobin read, the guards keep watch, Rhea and Brann stand with arms folded, and Ilsa scans the sea with a hand over her eyes. They turn to look at you when you come close.",
+    "The Outpost and Saltreach are busier: chickens, a dog and a cat in the Outpost, gulls and a harbor cat in Saltreach, and townsfolk walking their rounds.",
+    "New town props: Garrick's anvil and forge, desks for the guild and auction house, barrels and crates. They block movement like other furniture."
+  ] },
   { v: "6.9.0", date: "2026-10-13", title: "Animation upgrade", items: [
     "Three swing variations for every weapon type (overhead, sweep and backhand for blades; overhead and wide arc for axes and clubs), so auto-attacks no longer look identical.",
     "Weapon skills now animate by tier: quick flurries for the first tier, a stepping lunge for the second, a full spin for the third, and the leaping slam for the strongest.",

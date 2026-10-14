@@ -28,7 +28,7 @@ function viewFor(e) {
   if (!inst) return null;
   const group = new THREE.Group();
   group.add(inst.mesh);
-  const s = isMob(e) ? (e.fam.scale || 1) : e.buddy ? (BUDDIES[e.petId].scale || 0.6) : 1;
+  const s = isMob(e) ? (e.fam.scale || 1) : e.buddy ? (BUDDIES[e.petId].scale || 0.6) : e.ambient ? (e.scale || 1) : 1;
   group.scale.setScalar(s);
   const hitR = Math.max(0.55, (e.radius || 14) * U * 1.1 / s);
   const top = inst.meta.headTop || 2;
@@ -40,10 +40,10 @@ function viewFor(e) {
   v = {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
-    style: styleFor(e), stride: kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
+    style: styleFor(e), stride: kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
-  if (e.buddy) v.pick.visible = false;
+  if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }
   W3.scene.add(group);
   VIEW.views.set(e, v);
   return v;
@@ -134,6 +134,7 @@ function syncEntity(e, dt) {
   else if (v.kind === "worm") poseWorm(v, e, dt);
   else if (v.kind === "hare") poseHare(v, e, dt);
   else if (v.kind === "bee") poseBee(v, e, dt);
+  else if (v.kind === "bird") poseBird(v, e, dt);
   else if (v.kind === "crawler") poseCrawler(v, e, dt);
   else if (v.kind === "quad") poseQuad(v, e, dt);
   else if (v.kind === "crab") poseCrab(v, e, dt);

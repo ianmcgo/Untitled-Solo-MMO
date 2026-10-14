@@ -1161,6 +1161,21 @@ function tickBuddy(dt) {
   keepOutOfColliders(b);
 }
 
+function tickAmbient(dt) {
+  for (const a of S.ambient || []) {
+    if (a.path) {
+      const p = a.path[a.pi % a.path.length];
+      if (a.wait > 0) { a.wait -= dt; continue; }
+      if (moveToward(a, p[0], p[1], dt, 6)) { a.pi++; a.wait = 1 + Math.random() * 4; }
+      continue;
+    }
+    if (a.wait > 0) { a.wait -= dt; continue; }
+    if (a.tx == null) { a.tx = a.home.x + (Math.random() - 0.5) * a.roam * 2; a.ty = a.home.y + (Math.random() - 0.5) * a.roam * 2; }
+    if (moveToward(a, a.tx, a.ty, dt, 4)) { a.tx = null; a.wait = 1.5 + Math.random() * 5; }
+    keepOutOfColliders(a);
+  }
+}
+
 function blessingMinutes() { return Math.min(BLESSING.maxMin, BLESSING.baseMin + BLESSING.perRankMin * guildRank()); }
 function blessed() { return !!(save.blessing && save.blessing > Date.now()); }
 
@@ -2681,6 +2696,12 @@ function enterZone(id, x, y) {
     const picks = g.at.slice().sort(() => Math.random() - 0.5).slice(0, g.n);
     for (const [gx, gy] of picks) spawnGather(type, gx, gy);
   }
+  S.ambient = [];
+  for (const a of S.zone.ambient || []) for (let i = 0; i < (a.n || 1); i++) {
+    const r = seeded(hashStr(id + a.type + i));
+    const x = a.x + (r() - 0.5) * (a.r || 60), y = a.y + (r() - 0.5) * (a.r || 60);
+    S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
+  }
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
   const rnd = seeded(hashStr(id));
   S.decor = [];
@@ -3046,6 +3067,7 @@ function step(dt) {
   if (S.race) tickRace();
   if (S.pet) tickPet();
   tickBuddy(dt);
+  tickAmbient(dt);
   tickStory();
   if (S.time >= (S.ahNext || 0)) { S.ahNext = S.time + 1; if (save.market.listings.length) tickAuction(); }
   if (S.bf) tickBattlefield();
