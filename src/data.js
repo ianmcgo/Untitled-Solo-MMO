@@ -679,6 +679,59 @@ for (const id in ITEMS) {
   if (it.jobs.includes("THF") && !it.jobs.includes("DNC")) it.jobs.push("DNC");
   if ((it.jobs.includes("BLM") || it.jobs.includes("WHM")) && !it.jobs.includes("SCH")) it.jobs.push("SCH");
 }
+ALL_JOBS.push("GEO", "RUN");
+Object.assign(ADVANCED_JOBS, { GEO: { quest: "geo", lv: 18 }, RUN: { quest: "run", lv: 18 } });
+Object.assign(JOBS, {
+  GEO: { name: "Geomancer", color: "#66bb6a", icon: "🔔", hp: [50, 10], mp: [24, 7], str: [6, 0.5], dex: [7, 0.6], vit: [7, 0.6], agi: [7, 0.6], int: [9, 0.9], mnd: [9, 0.9], advanced: true },
+  RUN: { name: "Rune Fencer", color: "#ef5350", icon: "🔺", hp: [70, 14], mp: [10, 3], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.9], agi: [8, 0.8], int: [7, 0.6], mnd: [7, 0.6], advanced: true }
+});
+COMBAT_SKILLS.push("gsword");
+MAGIC_SKILLS.push("geomancy");
+Object.assign(SKILL_NAMES, { gsword: "Great Sword", geomancy: "Geomancy" });
+Object.assign(SKILL_RATINGS, {
+  GEO: { club: "B", staff: "C", dagger: "D", geomancy: "A", elemental: "C", healing: "D" },
+  RUN: { gsword: "A", sword: "B", greataxe: "B", club: "D", enhancing: "C", divine: "D" }
+});
+Object.assign(WEAPON_SKILLS, {
+  rune_cleave: { name: "Rune Cleave", wtype: "gsword", skill: 5, props: ["Scission"], ftp: [1.6, 2.2, 2.9] },
+  glyph_rend: { name: "Glyph Rend", wtype: "gsword", skill: 22, props: ["Liquefaction", "Impaction"], ftp: [1.9, 2.7, 3.5] },
+  ward_breaker: { name: "Ward Breaker", wtype: "gsword", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.9] },
+  final_verse: { name: "Final Verse", wtype: "gsword", skill: 75, props: ["Fragmentation", "Distortion"], ftp: [2.7, 3.6, 4.6] }
+});
+const GEO_AURAS = {
+  indi_vigor: { name: "Aura of Vigor", lv: 1, mp: 14, self: true, buff: "geo_vigor", col: 0x9ccc65, desc: "An aura around you: party members within reach recover HP every 3 s." },
+  geo_torpor: { name: "Ward of Torpor", lv: 3, mp: 16, self: false, buff: "slow", col: 0x8d6e63, desc: "Plants a luopan by the target: monsters near it are slowed." },
+  indi_fury: { name: "Aura of Fury", lv: 5, mp: 18, self: true, buff: "geo_fury", col: 0xef5350, desc: "An aura around you: party attack +10% within reach." },
+  geo_frailty: { name: "Ward of Frailty", lv: 8, mp: 20, self: false, buff: "geo_frail", col: 0x7e57c2, desc: "Plants a luopan by the target: monsters near it take 12% more damage." },
+  indi_focus: { name: "Aura of Focus", lv: 11, mp: 22, self: true, buff: "geo_focus", col: 0x42a5f5, desc: "An aura around you: party spells deal 12% more damage within reach." },
+  geo_languor: { name: "Ward of Languor", lv: 15, mp: 26, self: false, buff: "weaken", col: 0xbdbdbd, desc: "Plants a luopan by the target: monsters near it deal 15% less damage." }
+};
+for (const id in GEO_AURAS) { const g = GEO_AURAS[id]; SPELLS[id] = { name: g.name, jobs: { GEO: g.lv }, mp: g.mp, cast: 2.0, recast: 20, kind: "geo", skill: "geomancy", target: g.self ? "self" : "enemy", desc: g.desc + " Lasts 3 minutes. One aura and one luopan at a time." }; }
+Object.assign(ABILITIES, {
+  full_circle: { name: "Full Circle", job: "GEO", lv: 5, recast: 30, target: "self", desc: "Dismiss your luopan and recover half the MP it cost." },
+  mending_halation: { name: "Mending Halation", job: "GEO", lv: 15, recast: 180, target: "self", desc: "Shatter your luopan to heal everyone near you for 20% of their HP." },
+  kindle_rune: { name: "Kindle Rune", job: "RUN", lv: 1, recast: 5, target: "self", desc: "Carve a fire rune (up to 3 runes). Each rune cuts damage you take by 5%." },
+  rime_rune: { name: "Rime Rune", job: "RUN", lv: 3, recast: 5, target: "self", desc: "Carve an ice rune (up to 3 runes). Each rune cuts damage you take by 5%." },
+  gale_rune: { name: "Gale Rune", job: "RUN", lv: 5, recast: 5, target: "self", desc: "Carve a wind rune (up to 3 runes). Each rune cuts damage you take by 5%." },
+  stone_rune: { name: "Stone Rune", job: "RUN", lv: 7, recast: 5, target: "self", desc: "Carve an earth rune (up to 3 runes). Each rune cuts damage you take by 5%." },
+  lunge: { name: "Lunge", job: "RUN", lv: 10, recast: 45, target: "enemy", enmity: 200, desc: "Release every rune you hold as a burst of elemental damage." },
+  vallation: { name: "Vallation", job: "RUN", lv: 15, recast: 120, target: "self", buff: "vallation", dur: 30, desc: "Brace behind your runes: damage taken −20% for 30 s, and every blow you land draws more attention." }
+});
+Object.assign(BUFF_NAMES, { geo_vigor: "Aura of Vigor", geo_fury: "Aura of Fury", geo_focus: "Aura of Focus", geo_frail: "Frailty", vallation: "Vallation", runes: "Runes" });
+Object.assign(BUFF_ICONS, { geo_vigor: "🌿", geo_fury: "🔥", geo_focus: "🔷", geo_frail: "💔", vallation: "🛡️", runes: "🔺" });
+Object.assign(ITEMS, {
+  bronze_greatsword: { name: "Bronze Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 13, delay: 4.0, jobs: ["RUN"], lv: 1, price: 150 },
+  iron_greatsword: { name: "Iron Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 18, delay: 4.0, jobs: ["RUN"], lv: 6, price: 1150, stats: { vit: 1 } },
+  steel_greatsword: { name: "Steel Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 24, delay: 4.0, jobs: ["RUN"], lv: 11, price: 3000, stats: { vit: 1, acc: 2 } },
+  frost_greatsword: { name: "Frostforged Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 34, delay: 4.0, jobs: ["RUN"], lv: 17, price: 10200, stats: { vit: 3, acc: 3 } }
+});
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!it.jobs) continue;
+  if (it.slot === "main") { if (it.wtype === "club" && !it.jobs.includes("GEO")) it.jobs.push("GEO"); continue; }
+  if ((it.jobs.includes("WHM") || it.jobs.includes("BLM")) && !it.jobs.includes("GEO")) it.jobs.push("GEO");
+  if ((it.jobs.includes("PLD") || it.jobs.includes("WAR")) && !it.jobs.includes("RUN")) it.jobs.push("RUN");
+}
 const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
@@ -1829,3 +1882,11 @@ Object.assign(QUESTS, {
   sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Scholar's studies.", reward: { xp: 900, gil: 0, item: "holly_staff", qty: 1, unlock: "SCH" },
     intro: "A Scholar studies both white and black magic, and leans into one at a time. Light Arts for healing, Dark Arts for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
 });
+Object.assign(QUESTS, {
+  geo: { name: "The Shape of the Land", giver: "Tobin", npc: "tobin", lv: 18, items: { crag_feather: 2, frost_shard: 2 }, desc: "Bring Tobin 2 Crag Feathers and 2 Frost Shards to learn geomancy.", reward: { xp: 1000, gil: 0, item: "maple_wand", qty: 1, unlock: "GEO" },
+    intro: "A Geomancer bends the land's own currents into auras that follow them, and plants a luopan to curse the ground under their foes. Bring me feathers from the high roost and shards of the pass's ice; they hold the currents well.", progress: "2 Crag Feathers and 2 Frost Shards.", turn: "Ring the bell and listen. The land will answer." },
+  run: { name: "Carved in Steel", giver: "Tobin", npc: "tobin", lv: 18, items: { orc_tooth: 2, iron_ingot: 2 }, desc: "Bring Tobin 2 Orc Teeth and 2 Iron Ingots to become a Rune Fencer.", reward: { xp: 1000, gil: 0, item: "bronze_greatsword", qty: 1, unlock: "RUN" },
+    intro: "A Rune Fencer carves runes into the air to turn blows aside, then hurls them at the enemy all at once. They wield the great sword and hold the line. Bring me iron for a blade and orc teeth to carve the first runes.", progress: "2 Orc Teeth and 2 Iron Ingots.", turn: "Hold the sword like a wall, and the runes like a promise." }
+});
+SHOP.push("bronze_greatsword", "iron_greatsword", "steel_greatsword");
+if (SHOPS.vela) SHOPS.vela.push("frost_greatsword");

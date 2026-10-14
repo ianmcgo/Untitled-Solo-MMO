@@ -487,6 +487,8 @@ const JOB_TINT = {
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
   DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  GEO: { shirt: 0x2f5a3a, pants: 0x2a3028, robe: 0x2f5a3a, trim: 0x66bb6a, deep: 0x23452c },
+  RUN: { shirt: 0x7a2a2a, pants: 0x2a2424, robe: 0x7a2a2a, trim: 0xef5350 },
   PUP: { shirt: 0x5a2a6a, pants: 0x2a2030, robe: 0x5a2a6a, trim: 0xab47bc },
   DNC: { shirt: 0x8a2a4a, pants: 0x3a2030, robe: 0x8a2a4a, trim: 0xf06292 },
   SCH: { shirt: 0x5a4a40, pants: 0x2a2420, robe: 0x4a3a34, trim: 0xbcaaa4, deep: 0x3a2e2a },
@@ -1430,11 +1432,12 @@ function weaponEntry(kind, id) {
   const glowC = wlv >= 14 && id ? (/frost|rime|glacier/.test(id) ? 0x9fe8ff : /tide|coral|drowned|abyssal/.test(id) ? 0x4fc3f7 : /kings/.test(id) ? 0xffe080 : /warlord|gax|cleaver/.test(id) ? 0xff7043 : null) : null;
   const wood = 0x7a5432, grip = 0x3a2618, gold = 0xc8a040;
   let tip = [0.1, 0.7];
-  if (kind === "sword" || kind === "dagger") {
-    const L = kind === "sword" ? 0.72 : 0.26, W = kind === "sword" ? 0.05 : 0.035;
+  if (kind === "sword" || kind === "dagger" || kind === "gsword") {
+    const L = kind === "gsword" ? 1.05 : kind === "sword" ? 0.72 : 0.26, W = kind === "gsword" ? 0.1 : kind === "sword" ? 0.05 : 0.035;
     R.add(gTaper(V3(0, -0.08, 0), V3(0, 0.08, 0), 0.018, 0.016, 8), "w", grip, "leather");
     R.add(gBall(V3(0, -0.1, 0), 0.026, 1, 1, 1, 8), "w", gold, "metal");
-    R.add(gBox(V3(0, 0.09, 0), kind === "sword" ? 0.18 : 0.09, 0.025, 0.035), "w", gold, "metal");
+    R.add(gBox(V3(0, 0.09, 0), kind === "gsword" ? 0.3 : kind === "sword" ? 0.18 : 0.09, 0.025, 0.035), "w", gold, "metal");
+    if (kind === "gsword") R.add(gTaper(V3(0, -0.3, 0), V3(0, -0.08, 0), 0.02, 0.019, 8), "w", grip, "leather");
     const sh = new THREE.Shape();
     sh.moveTo(-W / 2, 0); sh.lineTo(W / 2, 0); sh.lineTo(W / 2 * 0.9, L * 0.82); sh.lineTo(0, L); sh.lineTo(-W / 2 * 0.9, L * 0.82); sh.closePath();
     const bg = new THREE.ExtrudeGeometry(sh, { depth: 0.008, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.003, bevelSegments: 1 });
@@ -1443,7 +1446,7 @@ function weaponEntry(kind, id) {
     R.add(bg, "w", blade, "metal");
     R.add(gBox(V3(0, 0.1 + L * 0.4, 0), W * 0.18, L * 0.62, 0.0175), "w", glowC || new THREE.Color(blade).multiplyScalar(0.6).getHex(), glowC ? "glow" : "metal", !!glowC);
     for (let k = 0; k < 3; k++) R.add(gRing(V3(0, -0.06 + k * 0.05, 0), 0.019, 0.005, "y", 8), "w", 0x1e140c, "leather");
-    if (kind === "sword") for (const s of [-1, 1]) R.add(gBall(V3(s * 0.095, 0.09, 0), 0.016, 1, 1, 1, 6), "w", gold, "metal");
+    if (kind === "sword" || kind === "gsword") for (const s of [-1, 1]) R.add(gBall(V3(s * (kind === "gsword" ? 0.155 : 0.095), 0.09, 0), 0.016, 1, 1, 1, 6), "w", gold, "metal");
     tip = [0.3, 0.1 + L];
   } else if (kind === "club") {
     const wand = id === "maple_wand";
@@ -1543,7 +1546,7 @@ function weaponEntry(kind, id) {
     tip = [0.62, 1.02];
   }
   const e = R.finish();
-  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9, gkatana: 0.86, katana: 0.9, polearm: 0.84 }[kind] || 1;
+  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9, gkatana: 0.86, katana: 0.9, polearm: 0.84, gsword: 0.86 }[kind] || 1;
   if (k !== 1) { e.geo.scale(k, k, k); e.geo.computeBoundingSphere(); e.geo.boundingSphere.radius *= 1.6; tip = tip.map(x => x * k); }
   e.tip = tip;
   RIG.weaponCache.set(key, e);

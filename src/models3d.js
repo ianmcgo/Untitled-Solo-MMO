@@ -95,12 +95,12 @@ function placeWeapon(v, e) {
     w.position.set(0, -0.06, 0.01);
     if (k === "staff" || k === "polearm") w.rotation.set(0.2, 0, 0);
     else if (k === "archery") w.rotation.set(0, 0, 0.1);
-    else if (k === "greataxe" || k === "scythe" || k === "gkatana") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
+    else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "gsword") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
     else w.rotation.set(Math.PI / 2 - 0.25, 0, 0);
   } else {
     v.bones.chest.add(w);
     const bz = v.meta.backZ || -0.15;
-    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
+    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
     else { w.position.set(0.04, 0.0, bz); w.rotation.set(0, 0, Math.PI + 0.55); }
   }
 }
