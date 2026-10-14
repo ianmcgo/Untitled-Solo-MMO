@@ -290,6 +290,22 @@ function propView(n) {
     g.add(base, back, cap, orb, L);
     for (let i = 0; i < 5; i++) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.18, 6), std({ color: 0xf0e8d0 })); c.position.set(-0.5 + i * 0.25, 0.59, 0.3); g.add(c); const fl = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 4), new THREE.MeshBasicMaterial({ color: 0xffc060 })); fl.position.set(-0.5 + i * 0.25, 0.71, 0.3); g.add(fl); }
     v.meta.headTop = 2.4; v.light = L;
+  } else if (n.prop === "sign") {
+    const wood = std({ color: 0x7a5432, roughness: 0.9 });
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), wood); post.position.y = 1.1; post.castShadow = true;
+    g.add(post);
+    for (let i = 0; i < 2; i++) { const arm = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.24, 0.05), std({ color: 0x9a7448, roughness: 0.9 })); arm.position.set(i ? -0.35 : 0.35, 1.75 - i * 0.35, 0.06); arm.rotation.y = i ? 0.4 : -0.3; arm.castShadow = true; g.add(arm); }
+    v.meta.headTop = 2.3;
+  } else if (n.prop === "camp") {
+    const canvas = std({ color: 0xc8b890, roughness: 1, side: THREE.DoubleSide });
+    const tent = new THREE.Mesh(new THREE.ConeGeometry(1.3, 1.6, 4, 1, true), canvas); tent.position.set(0, 0.8, -0.6); tent.rotation.y = Math.PI / 4; tent.castShadow = true;
+    const stones = std({ color: 0x6a6660 });
+    for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; const st = new THREE.Mesh(new THREE.DodecahedronGeometry(0.13, 0), stones); st.position.set(1.2 + Math.cos(a) * 0.38, 0.08, 0.6 + Math.sin(a) * 0.38); g.add(st); }
+    const fire = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.55, 7), new THREE.MeshBasicMaterial({ color: 0xff9a40, transparent: true, opacity: 0.9 })); fire.position.set(1.2, 0.3, 0.6);
+    const L = new THREE.PointLight(0xff9a50, 6, 10, 1.6); L.position.set(1.2, 0.8, 0.6);
+    for (let i = 0; i < 2; i++) { const log = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1.1, 7), std({ color: 0x5a3a22 })); log.rotation.z = Math.PI / 2; log.position.set(1.2 + (i ? 0 : 0), 0.12, 1.35 - i * 1.5); g.add(log); }
+    g.add(tent, fire, L);
+    v.campFire = fire; v.light = L; v.meta.headTop = 2.0;
   } else if (n.prop === "throne") {
     v.meta.headTop = 4.5;
   } else if (n.prop === "gather") {
@@ -355,6 +371,7 @@ function syncNpc(n, dt) {
       v.flame[0].scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.12, k);
       v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
     }
+    if (v.campFire) { const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.12; v.campFire.scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.15, k); v.light.intensity = 5 + Math.sin(S.time * 11) * 1.5; }
     if (v.bob) {
       const b = Math.sin(S.time * 3 + n.x) * 0.05;
       v.group.position.y += Math.max(0, b * 2);

@@ -17,7 +17,7 @@ G.save.gil = 1000; G.hireMerc('kael');
 G.enterZone('hollow', 120, 500); run(1);
 G.toggleMount(); ok(P().mounted && S.party.every(p => p.mounted), 'mount in the field, companions ride too');
 const x0 = P().x; S.keys.d = true; run(1); S.keys.d = false;
-const moved = P().x - x0; ok(moved > 140 * 1.9 && moved < 140 * 2.4, 'mounted speed about 2.2x (' + Math.round(moved) + ' px/s)');
+const moved = P().x - x0; ok(moved > 140 * 1.9 && moved < 140 * 2.4 * 1.15, 'mounted speed about 2.2x (' + Math.round(moved) + ' px/s)');
 const m = S.mobs.find(mm => mm.alive && mm.fam.aggro);
 ok(m && !G.detects(m, P()), 'monsters ignore riders');
 G.toggleMount(); ok(!P().mounted && !S.party.some(p => p.mounted), 'dismount');

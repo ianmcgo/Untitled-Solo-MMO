@@ -3430,7 +3430,7 @@ function toggleEngage(fromTap) {
   log("You engage the " + t.name + ".", "you");
 }
 
-function mountMul() { return CONFIG.mountSpeed * (save.saddle ? SADDLE_BONUS : 1); }
+function mountMul() { return CONFIG.mountSpeed * (save.saddle ? SADDLE_BONUS : 1) * (player && player.mounted && S.zone && !S.zone.safe && onRoad(player) ? CONFIG.roadBonus : 1); }
 
 function buyCoat(id) {
   const c = MOUNT_COATS[id];
@@ -4115,18 +4115,55 @@ const TALK = {
   talkThrone(n) {
     openDialog(n.name, save.timers["nm:hollow_king"] > Date.now() ? "The throne stands empty. For now." : "A throne of black stone, cold as the grave. Its king is never far.", []);
   },
+  talkSign(n) {
+    const lines = (S.zone.exits || []).filter(e => ZONES[e.to] && e.kind !== "door").map(e => {
+      const cx = e.x + e.w / 2, cy = e.y + e.h / 2, dx = cx - player.x, dy = cy - player.y;
+      const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "east" : "west") : (dy > 0 ? "south" : "north");
+      return ZONES[e.to].name + ": " + dir + ", about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms";
+    });
+    openDialog("Signpost", "Carved arrows point the way. " + lines.join(". ") + ".", []);
+  },
+  talkCamp(n) {
+    openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Touch the camp crystal beside it to restore your party and to be able to warp here from any other crystal.", []);
+  },
   talkCrystal(n) {
+    save.attuned = save.attuned || {};
+    if (!save.attuned[n.id]) { save.attuned[n.id] = S.zoneId; log("You attune to the " + n.name + ". You can now warp here from other crystals.", "loot"); }
     const hurt = S.party.some(p => !p.alive || p.hp < p.maxHp || p.mp < p.maxMp);
     for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; }
     if (hurt) { ring(n, "#80deea", 60, 0.9, "sparkle"); sfx("cure", n); vfx("crystal", { at: n }); }
     saveGame();
     const isHome = save.home.zone === S.zoneId && save.home.npc === n.id;
-    openDialog(n.name, "The crystal's light washes over your party. HP and MP restored." + (isHome ? " This is your home point." : " You can make this your home point: you'll return here if you fall."), isHome ? [] : [
+    const opts = isHome || !S.zone.safe ? [] : [
       { label: "Set as home point", fn: () => { save.home = { zone: S.zoneId, npc: n.id }; log("Home point set: " + S.zone.name + ".", "npc"); sfx("unlock"); saveGame(); closeDialog(); } }
-    ]);
+    ];
+    const dests = Object.keys(save.attuned).filter(id => id !== n.id && NPCS[id] && ZONES[save.attuned[id]]);
+    if (dests.length) opts.push({ label: "Warp (" + CONFIG.warpCost + " crystals)", fn: () => {
+      closeDialog();
+      if (typeof promptChoice === "function") promptChoice("Warp to which crystal?", dests.map(id => ({ label: NPCS[id].name + " (" + ZONES[save.attuned[id]].name + ")", fn: () => warpTo(id) })));
+    } });
+    openDialog(n.name, "The crystal's light washes over your party. HP and MP restored." + (isHome ? " This is your home point." : S.zone.safe ? " You can make this your home point: you'll return here if you fall." : " Camp crystals can't be home points, but you can warp here from any crystal you've touched."), opts);
   }
 };
 
+function warpTo(id) {
+  const zid = save.attuned && save.attuned[id], z = ZONES[zid];
+  const c = z && z.npcs.find(q => q.id === id);
+  if (!c) return;
+  if (save.gil < CONFIG.warpCost) { log("Warping costs " + CONFIG.warpCost + " crystals.", "sys"); return; }
+  if (player.engaged || S.party.some(p => p.engaged)) { log("You can't warp in the middle of a fight.", "sys"); return; }
+  save.gil -= CONFIG.warpCost;
+  log("The crystal flares, and the world folds around you.", "loot");
+  vfx("crystal", { at: player });
+  enterZone(zid, c.x, c.y + 80);
+}
+function onRoad(e) {
+  for (const p of S.zone.paths || []) for (let i = 0; i < p.pts.length - 1; i++) {
+    const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((e.x - a[0]) * dx + (e.y - a[1]) * dy) / l));
+    if (Math.hypot(e.x - a[0] - dx * t, e.y - a[1] - dy * t) < p.w * 0.6) return true;
+  }
+  return false;
+}
 function resumePos() {
   const l = save.loc;
   if (l && ZONES[l.zone] && isFinite(l.x) && isFinite(l.y) && l.x > 0 && l.y > 0 && l.x < ZONES[l.zone].w && l.y < ZONES[l.zone].h) return l;
