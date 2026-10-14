@@ -684,6 +684,28 @@ function updateAuras(dt) {
   }
 }
 
+function updateGeoFx(dt) {
+  FX.geo = FX.geo || new Map();
+  const want = new Map();
+  for (const c of S.party) {
+    if (c.indi && GEO_AURAS[c.indi.id]) want.set(c, { x: c.x, y: c.y, col: GEO_AURAS[c.indi.id].col, r: 300, kind: "indi" });
+    if (c.luopan && GEO_AURAS[c.luopan.id]) want.set("l" + (c.id || c.name), { x: c.luopan.x, y: c.luopan.y, col: GEO_AURAS[c.luopan.id].col, r: 140, kind: "geo" });
+  }
+  for (const [k, o] of FX.geo) if (!want.has(k)) { W3.fxRoot.remove(o); disposeTree(o); FX.geo.delete(k); }
+  for (const [k, w] of want) {
+    let o = FX.geo.get(k);
+    if (!o) {
+      o = new THREE.Group();
+      const ring = new THREE.Mesh(new THREE.RingGeometry(w.r * U * 0.96, w.r * U, 48), basicMat(w.col, 0.35, null));
+      ring.rotation.x = -Math.PI / 2; ring.renderOrder = 4; o.add(ring);
+      if (w.kind === "geo") { const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.35, 0), new THREE.MeshBasicMaterial({ color: w.col, transparent: true, opacity: 0.85 })); gem.position.y = 1.4; o.add(gem); o.userData.gem = gem; }
+      W3.fxRoot.add(o); FX.geo.set(k, o);
+    }
+    o.position.set(w.x * U, groundY(w.x, w.y) + 0.08, w.y * U);
+    if (o.userData.gem) { o.userData.gem.rotation.y += dt * 1.5; o.userData.gem.position.y = 1.4 + Math.sin(S.time * 2) * 0.15; }
+    o.children[0].material.opacity = 0.25 + 0.12 * Math.sin(S.time * 3);
+  }
+}
 function updateFX(dt) {
   if (!FX.ready) return;
   const h = W3.renderer.domElement.height;
@@ -706,6 +728,7 @@ function updateFX(dt) {
   updateCastCircles(dt);
   updateAuras(dt);
   try { updateWeatherFx(dt); } catch (err) {}
+  try { updateGeoFx(dt); } catch (err) {}
   FX.add.update(dt);
   FX.smoke.update(dt);
 }

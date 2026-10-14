@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "11.2.0",
-  "releaseTitle": "Puppetmaster, Dancer and Scholar",
+  "version": "11.3.0",
+  "releaseTitle": "Geomancer and Rune Fencer",
   "description": "",
   "main": "index.js",
   "scripts": {

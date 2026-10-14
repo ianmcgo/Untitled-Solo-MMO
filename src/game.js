@@ -438,6 +438,8 @@ function mercGear(m, lv) {
   if (job === "SAM") return lv >= 11 ? { main: "steel_tachi", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_tachi", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_tachi", body: "leather_vest", head: "bronze_cap" };
   if (job === "NIN") return lv >= 11 ? { main: "steel_katana", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_katana", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_katana", body: "leather_vest" };
   if (job === "DRG") return lv >= 11 ? { main: "steel_halberd", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_lance", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_spear", body: "leather_vest", head: "bronze_cap" };
+  if (job === "GEO") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: "leather_boots" } : { main: "ash_club", body: "linen_robe" };
+  if (job === "RUN") return lv >= 11 ? { main: "steel_greatsword", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_greatsword", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_greatsword", body: "leather_vest", head: "bronze_cap" };
   if (job === "PUP") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "DNC") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
   if (job === "SCH") return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
@@ -572,6 +574,29 @@ function activateAutomaton(a) {
   vfx("buff", { tgt: pet, id: "activate" });
   sfx("equip", pet);
 }
+function castGeo(a, t, sp, id) {
+  const g = GEO_AURAS[id];
+  if (g.self) { a.indi = { id, until: S.time + 180 }; log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + (a === player ? "An aura settles around you." : "An aura settles around them."), cls(a)); }
+  else { a.luopan = { id, x: t.x, y: t.y, until: S.time + 180, mp: sp.mp }; log(subj(a) + " " + vb(a, "plant") + " a luopan: " + sp.name + ".", cls(a)); if (isMob(t)) aggro(t, a); }
+  popText(a, sp.name, "#" + g.col.toString(16).padStart(6, "0"), 13, 1.2, 14);
+  sfx("buff", a); vfx("buff", { tgt: a, id });
+}
+function tickGeo(dt) {
+  S.geoT = (S.geoT || 0) + dt;
+  if (S.geoT < 1) return;
+  S.geoT = 0;
+  S.geoBeat = ((S.geoBeat || 0) + 1) % 3;
+  for (const c of S.party) {
+    if (c.indi) {
+      if (S.time > c.indi.until || !c.alive) c.indi = null;
+      else { const g = GEO_AURAS[c.indi.id]; for (const p of S.party) if (p.alive && dist(p, c) < 300) { p.buffs[g.buff] = { until: S.time + 2.5 }; if (g.buff === "geo_vigor" && S.geoBeat === 0 && p.hp < p.maxHp) { const h = Math.min(p.maxHp - p.hp, Math.max(2, Math.round(p.maxHp * 0.03))); p.hp += h; } } }
+    }
+    if (c.luopan) {
+      if (S.time > c.luopan.until || !c.alive) c.luopan = null;
+      else { const g = GEO_AURAS[c.luopan.id]; for (const m of S.mobs) if (m.alive && Math.hypot(m.x - c.luopan.x, m.y - c.luopan.y) < 140) m.buffs[g.buff] = { until: S.time + 2.5 }; }
+    }
+  }
+}
 function artsMatch(a, sp) {
   const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
   const black = sp.kind === "nuke" || sp.kind === "debuff" || sp.kind === "drain" || sp.kind === "aspir";
@@ -687,7 +712,7 @@ function syncAllies(full) {
   }
 }
 
-const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"], PUP: ["dd"], DNC: ["dd"], SCH: ["hybrid"] };
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"], PUP: ["dd"], DNC: ["dd"], SCH: ["hybrid"], GEO: ["hybrid"], RUN: ["tank"] };
 const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
 const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
 const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
@@ -934,6 +959,11 @@ function applyDamage(src, tgt, amt, opt) {
   amt = Math.max(0, Math.round(amt));
   if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
   if (opt.el && !isMob(tgt) && tgt.stats && tgt.stats["res_" + opt.el]) amt = Math.max(0, Math.round(amt * (1 - Math.min(0.5, tgt.stats["res_" + opt.el] / 100))));
+  if (tgt.buffs && !isMob(tgt) && src && isMob(src)) {
+    if (tgt.buffs.runes && tgt.buffs.runes.list) amt = Math.round(amt * (1 - 0.05 * tgt.buffs.runes.list.length));
+    if (tgt.buffs.vallation) amt = Math.round(amt * 0.8);
+  }
+  if (isMob(tgt) && tgt.buffs && tgt.buffs.geo_frail) amt = Math.round(amt * 1.12);
   if (tgt.proxy) {
     netMobHit(tgt, amt, opt.enmity != null ? opt.enmity : 40 + amt * 2);
     tgt.flash = 0.15;
@@ -1017,12 +1047,14 @@ function swing(a, d) {
   if (b.hasso) dmg = Math.floor(dmg * 1.12);
   if (b.dragon_spirit) dmg = Math.floor(dmg * 1.15);
   if (b.valor_roll) dmg = Math.floor(dmg * (1 + b.valor_roll.pow / 100));
+  if (b.geo_fury) dmg = Math.floor(dmg * 1.1);
+  if (b.vallation && isMob(d)) addEnmity(d, a, 30);
   if (b.weaken) dmg = Math.floor(dmg * 0.85);
   if (b.soulfire && a.hp > 1) { const burn = Math.min(a.hp - 1, Math.floor(a.hp * 0.06)); a.hp -= burn; dmg += Math.floor(burn * 1.6); }
   a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
-  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm", "axe"].includes(a.stats.wtype) ? "slash" : "blunt");
+  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm", "axe", "gsword"].includes(a.stats.wtype) ? "slash" : "blunt");
   sfx(crit ? "crit" : wt === "slash" ? "slash" : "blunt", a);
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
@@ -2124,6 +2156,36 @@ function doAbility(a, id, t) {
     a.tp -= ab.tp;
   }
   if (id === "activate") { activateAutomaton(a); return; }
+  if (id === "full_circle" || id === "mending_halation") {
+    if (!a.luopan) { log("You have no luopan out.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    if (id === "full_circle") { const back = Math.floor(a.luopan.mp / 2); a.mp = Math.min(a.maxMp, a.mp + back); log(subj(a) + " " + vb(a, "dismiss", "dismisses") + " the luopan and " + vb(a, "recover", "recovers") + " " + back + " MP.", cls(a)); }
+    else { for (const p of S.party) if (p.alive && dist(p, a) < 300) { const h = Math.min(p.maxHp - p.hp, Math.round(p.maxHp * 0.2)); p.hp += h; popText(p, "+" + h, "#9ad06b", 14, 1); vfx("cure", { tgt: p }); } log(subj(a) + " " + vb(a, "shatter") + " the luopan in a wave of healing light.", cls(a)); sfx("cure", a); }
+    a.luopan = null;
+    return;
+  }
+  if (id === "kindle_rune" || id === "rime_rune" || id === "gale_rune" || id === "stone_rune") {
+    const el = { kindle_rune: "fire", rime_rune: "ice", gale_rune: "wind", stone_rune: "earth" }[id];
+    const r = a.buffs.runes && S.time < a.buffs.runes.until ? a.buffs.runes : { list: [] };
+    r.list.push(el); if (r.list.length > 3) r.list.shift();
+    r.until = S.time + 300;
+    a.buffs.runes = r;
+    log(subj(a) + " " + vb(a, "carve") + " " + an(ab.name) + " (" + r.list.length + "/3).", cls(a));
+    popText(a, ab.name, ELEMENT_COLORS[el], 13, 1, 14); ring(a, ELEMENT_COLORS[el], 22, 0.4); sfx("buff", a);
+    return;
+  }
+  if (id === "lunge") {
+    const r = a.buffs.runes;
+    if (!r || !r.list.length) { log("You have no runes to release.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    let dmg = 0;
+    for (const el of r.list) dmg += (a.lv * 6 + a.stats.int * 1.2) * ((t.fam.weak && t.fam.weak[el]) || 1);
+    dmg = Math.round(dmg * rand(0.9, 1.1));
+    const el0 = r.list[r.list.length - 1];
+    delete a.buffs.runes;
+    log(subj(a) + " " + vb(a, "lunge") + " and " + vb(a, "release") + " " + (a === player ? "your" : "their") + " runes! The " + t.name + " takes " + dmg + " damage.", cls(a));
+    vfx("nuke", { src: a, tgt: t, el: el0 }); sfx(el0, t);
+    applyDamage(a, t, dmg, { color: ELEMENT_COLORS[el0], size: 22, enmity: ab.enmity + dmg });
+    return;
+  }
   if (id === "repair" || id === "tune_up") {
     const pet = S.pet;
     if (!pet || !pet.automaton || !pet.alive) { log("You have no automaton out.", "sys"); a.recasts["ja:" + id] = 0; return; }
@@ -2281,6 +2343,7 @@ function finishCast(a) {
   if (sp.kind === "heal") castHeal(a, t, sp);
   else if (sp.kind === "nuke") castNuke(a, t, sp);
   else if (sp.kind === "bluephys") castBluePhys(a, t, sp);
+  else if (sp.kind === "geo") castGeo(a, t, sp, id);
   else if (sp.kind === "dot") castDia(a, t, sp);
   else if (sp.kind === "debuff") castDebuff(a, t, sp);
   else if (sp.kind === "buff") castBuff(a, t, sp);
@@ -2323,6 +2386,7 @@ function castNuke(a, t, sp) {
   if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
   if (sp.blue && a.buffs.burst_affinity) { dmg *= 1.5; delete a.buffs.burst_affinity; }
   if (!sp.blue && a.buffs.ebullience) { dmg *= 1.3; delete a.buffs.ebullience; }
+  if (a.buffs.geo_focus) dmg *= 1.12;
   let resist = 1;
   if (Math.random() * 100 >= magicHit(a, t, sp)) resist = Math.random() < 0.75 ? 0.5 : 0.25;
   dmg *= resist;
@@ -3547,6 +3611,7 @@ function step(dt) {
   if (S.fish) tickFish();
   if (S.race) tickRace();
   if (S.pet) tickPet();
+  tickGeo(dt);
   tickBuddy(dt);
   tickAmbient(dt);
   tickStory();

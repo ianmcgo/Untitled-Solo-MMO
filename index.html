@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v11.2.0 · built 2026-10-14 04:04 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v11.3.0 · built 2026-10-14 04:13 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6462,6 +6462,59 @@ for (const id in ITEMS) {
   if (it.jobs.includes("THF") && !it.jobs.includes("DNC")) it.jobs.push("DNC");
   if ((it.jobs.includes("BLM") || it.jobs.includes("WHM")) && !it.jobs.includes("SCH")) it.jobs.push("SCH");
 }
+ALL_JOBS.push("GEO", "RUN");
+Object.assign(ADVANCED_JOBS, { GEO: { quest: "geo", lv: 18 }, RUN: { quest: "run", lv: 18 } });
+Object.assign(JOBS, {
+  GEO: { name: "Geomancer", color: "#66bb6a", icon: "🔔", hp: [50, 10], mp: [24, 7], str: [6, 0.5], dex: [7, 0.6], vit: [7, 0.6], agi: [7, 0.6], int: [9, 0.9], mnd: [9, 0.9], advanced: true },
+  RUN: { name: "Rune Fencer", color: "#ef5350", icon: "🔺", hp: [70, 14], mp: [10, 3], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.9], agi: [8, 0.8], int: [7, 0.6], mnd: [7, 0.6], advanced: true }
+});
+COMBAT_SKILLS.push("gsword");
+MAGIC_SKILLS.push("geomancy");
+Object.assign(SKILL_NAMES, { gsword: "Great Sword", geomancy: "Geomancy" });
+Object.assign(SKILL_RATINGS, {
+  GEO: { club: "B", staff: "C", dagger: "D", geomancy: "A", elemental: "C", healing: "D" },
+  RUN: { gsword: "A", sword: "B", greataxe: "B", club: "D", enhancing: "C", divine: "D" }
+});
+Object.assign(WEAPON_SKILLS, {
+  rune_cleave: { name: "Rune Cleave", wtype: "gsword", skill: 5, props: ["Scission"], ftp: [1.6, 2.2, 2.9] },
+  glyph_rend: { name: "Glyph Rend", wtype: "gsword", skill: 22, props: ["Liquefaction", "Impaction"], ftp: [1.9, 2.7, 3.5] },
+  ward_breaker: { name: "Ward Breaker", wtype: "gsword", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.9] },
+  final_verse: { name: "Final Verse", wtype: "gsword", skill: 75, props: ["Fragmentation", "Distortion"], ftp: [2.7, 3.6, 4.6] }
+});
+const GEO_AURAS = {
+  indi_vigor: { name: "Aura of Vigor", lv: 1, mp: 14, self: true, buff: "geo_vigor", col: 0x9ccc65, desc: "An aura around you: party members within reach recover HP every 3 s." },
+  geo_torpor: { name: "Ward of Torpor", lv: 3, mp: 16, self: false, buff: "slow", col: 0x8d6e63, desc: "Plants a luopan by the target: monsters near it are slowed." },
+  indi_fury: { name: "Aura of Fury", lv: 5, mp: 18, self: true, buff: "geo_fury", col: 0xef5350, desc: "An aura around you: party attack +10% within reach." },
+  geo_frailty: { name: "Ward of Frailty", lv: 8, mp: 20, self: false, buff: "geo_frail", col: 0x7e57c2, desc: "Plants a luopan by the target: monsters near it take 12% more damage." },
+  indi_focus: { name: "Aura of Focus", lv: 11, mp: 22, self: true, buff: "geo_focus", col: 0x42a5f5, desc: "An aura around you: party spells deal 12% more damage within reach." },
+  geo_languor: { name: "Ward of Languor", lv: 15, mp: 26, self: false, buff: "weaken", col: 0xbdbdbd, desc: "Plants a luopan by the target: monsters near it deal 15% less damage." }
+};
+for (const id in GEO_AURAS) { const g = GEO_AURAS[id]; SPELLS[id] = { name: g.name, jobs: { GEO: g.lv }, mp: g.mp, cast: 2.0, recast: 20, kind: "geo", skill: "geomancy", target: g.self ? "self" : "enemy", desc: g.desc + " Lasts 3 minutes. One aura and one luopan at a time." }; }
+Object.assign(ABILITIES, {
+  full_circle: { name: "Full Circle", job: "GEO", lv: 5, recast: 30, target: "self", desc: "Dismiss your luopan and recover half the MP it cost." },
+  mending_halation: { name: "Mending Halation", job: "GEO", lv: 15, recast: 180, target: "self", desc: "Shatter your luopan to heal everyone near you for 20% of their HP." },
+  kindle_rune: { name: "Kindle Rune", job: "RUN", lv: 1, recast: 5, target: "self", desc: "Carve a fire rune (up to 3 runes). Each rune cuts damage you take by 5%." },
+  rime_rune: { name: "Rime Rune", job: "RUN", lv: 3, recast: 5, target: "self", desc: "Carve an ice rune (up to 3 runes). Each rune cuts damage you take by 5%." },
+  gale_rune: { name: "Gale Rune", job: "RUN", lv: 5, recast: 5, target: "self", desc: "Carve a wind rune (up to 3 runes). Each rune cuts damage you take by 5%." },
+  stone_rune: { name: "Stone Rune", job: "RUN", lv: 7, recast: 5, target: "self", desc: "Carve an earth rune (up to 3 runes). Each rune cuts damage you take by 5%." },
+  lunge: { name: "Lunge", job: "RUN", lv: 10, recast: 45, target: "enemy", enmity: 200, desc: "Release every rune you hold as a burst of elemental damage." },
+  vallation: { name: "Vallation", job: "RUN", lv: 15, recast: 120, target: "self", buff: "vallation", dur: 30, desc: "Brace behind your runes: damage taken −20% for 30 s, and every blow you land draws more attention." }
+});
+Object.assign(BUFF_NAMES, { geo_vigor: "Aura of Vigor", geo_fury: "Aura of Fury", geo_focus: "Aura of Focus", geo_frail: "Frailty", vallation: "Vallation", runes: "Runes" });
+Object.assign(BUFF_ICONS, { geo_vigor: "🌿", geo_fury: "🔥", geo_focus: "🔷", geo_frail: "💔", vallation: "🛡️", runes: "🔺" });
+Object.assign(ITEMS, {
+  bronze_greatsword: { name: "Bronze Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 13, delay: 4.0, jobs: ["RUN"], lv: 1, price: 150 },
+  iron_greatsword: { name: "Iron Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 18, delay: 4.0, jobs: ["RUN"], lv: 6, price: 1150, stats: { vit: 1 } },
+  steel_greatsword: { name: "Steel Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 24, delay: 4.0, jobs: ["RUN"], lv: 11, price: 3000, stats: { vit: 1, acc: 2 } },
+  frost_greatsword: { name: "Frostforged Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 34, delay: 4.0, jobs: ["RUN"], lv: 17, price: 10200, stats: { vit: 3, acc: 3 } }
+});
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!it.jobs) continue;
+  if (it.slot === "main") { if (it.wtype === "club" && !it.jobs.includes("GEO")) it.jobs.push("GEO"); continue; }
+  if ((it.jobs.includes("WHM") || it.jobs.includes("BLM")) && !it.jobs.includes("GEO")) it.jobs.push("GEO");
+  if ((it.jobs.includes("PLD") || it.jobs.includes("WAR")) && !it.jobs.includes("RUN")) it.jobs.push("RUN");
+}
 const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
@@ -7612,6 +7665,14 @@ Object.assign(QUESTS, {
   sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Scholar's studies.", reward: { xp: 900, gil: 0, item: "holly_staff", qty: 1, unlock: "SCH" },
     intro: "A Scholar studies both white and black magic, and leans into one at a time. Light Arts for healing, Dark Arts for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
 });
+Object.assign(QUESTS, {
+  geo: { name: "The Shape of the Land", giver: "Tobin", npc: "tobin", lv: 18, items: { crag_feather: 2, frost_shard: 2 }, desc: "Bring Tobin 2 Crag Feathers and 2 Frost Shards to learn geomancy.", reward: { xp: 1000, gil: 0, item: "maple_wand", qty: 1, unlock: "GEO" },
+    intro: "A Geomancer bends the land's own currents into auras that follow them, and plants a luopan to curse the ground under their foes. Bring me feathers from the high roost and shards of the pass's ice; they hold the currents well.", progress: "2 Crag Feathers and 2 Frost Shards.", turn: "Ring the bell and listen. The land will answer." },
+  run: { name: "Carved in Steel", giver: "Tobin", npc: "tobin", lv: 18, items: { orc_tooth: 2, iron_ingot: 2 }, desc: "Bring Tobin 2 Orc Teeth and 2 Iron Ingots to become a Rune Fencer.", reward: { xp: 1000, gil: 0, item: "bronze_greatsword", qty: 1, unlock: "RUN" },
+    intro: "A Rune Fencer carves runes into the air to turn blows aside, then hurls them at the enemy all at once. They wield the great sword and hold the line. Bring me iron for a blade and orc teeth to carve the first runes.", progress: "2 Orc Teeth and 2 Iron Ingots.", turn: "Hold the sword like a wall, and the runes like a promise." }
+});
+SHOP.push("bronze_greatsword", "iron_greatsword", "steel_greatsword");
+if (SHOPS.vela) SHOPS.vela.push("frost_greatsword");
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -8053,6 +8114,8 @@ function mercGear(m, lv) {
   if (job === "SAM") return lv >= 11 ? { main: "steel_tachi", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_tachi", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_tachi", body: "leather_vest", head: "bronze_cap" };
   if (job === "NIN") return lv >= 11 ? { main: "steel_katana", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_katana", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_katana", body: "leather_vest" };
   if (job === "DRG") return lv >= 11 ? { main: "steel_halberd", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_lance", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_spear", body: "leather_vest", head: "bronze_cap" };
+  if (job === "GEO") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: "leather_boots" } : { main: "ash_club", body: "linen_robe" };
+  if (job === "RUN") return lv >= 11 ? { main: "steel_greatsword", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_greatsword", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_greatsword", body: "leather_vest", head: "bronze_cap" };
   if (job === "PUP") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "DNC") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
   if (job === "SCH") return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
@@ -8187,6 +8250,29 @@ function activateAutomaton(a) {
   vfx("buff", { tgt: pet, id: "activate" });
   sfx("equip", pet);
 }
+function castGeo(a, t, sp, id) {
+  const g = GEO_AURAS[id];
+  if (g.self) { a.indi = { id, until: S.time + 180 }; log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + (a === player ? "An aura settles around you." : "An aura settles around them."), cls(a)); }
+  else { a.luopan = { id, x: t.x, y: t.y, until: S.time + 180, mp: sp.mp }; log(subj(a) + " " + vb(a, "plant") + " a luopan: " + sp.name + ".", cls(a)); if (isMob(t)) aggro(t, a); }
+  popText(a, sp.name, "#" + g.col.toString(16).padStart(6, "0"), 13, 1.2, 14);
+  sfx("buff", a); vfx("buff", { tgt: a, id });
+}
+function tickGeo(dt) {
+  S.geoT = (S.geoT || 0) + dt;
+  if (S.geoT < 1) return;
+  S.geoT = 0;
+  S.geoBeat = ((S.geoBeat || 0) + 1) % 3;
+  for (const c of S.party) {
+    if (c.indi) {
+      if (S.time > c.indi.until || !c.alive) c.indi = null;
+      else { const g = GEO_AURAS[c.indi.id]; for (const p of S.party) if (p.alive && dist(p, c) < 300) { p.buffs[g.buff] = { until: S.time + 2.5 }; if (g.buff === "geo_vigor" && S.geoBeat === 0 && p.hp < p.maxHp) { const h = Math.min(p.maxHp - p.hp, Math.max(2, Math.round(p.maxHp * 0.03))); p.hp += h; } } }
+    }
+    if (c.luopan) {
+      if (S.time > c.luopan.until || !c.alive) c.luopan = null;
+      else { const g = GEO_AURAS[c.luopan.id]; for (const m of S.mobs) if (m.alive && Math.hypot(m.x - c.luopan.x, m.y - c.luopan.y) < 140) m.buffs[g.buff] = { until: S.time + 2.5 }; }
+    }
+  }
+}
 function artsMatch(a, sp) {
   const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
   const black = sp.kind === "nuke" || sp.kind === "debuff" || sp.kind === "drain" || sp.kind === "aspir";
@@ -8302,7 +8388,7 @@ function syncAllies(full) {
   }
 }
 
-const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"], PUP: ["dd"], DNC: ["dd"], SCH: ["hybrid"] };
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"], PUP: ["dd"], DNC: ["dd"], SCH: ["hybrid"], GEO: ["hybrid"], RUN: ["tank"] };
 const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
 const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
 const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
@@ -8549,6 +8635,11 @@ function applyDamage(src, tgt, amt, opt) {
   amt = Math.max(0, Math.round(amt));
   if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
   if (opt.el && !isMob(tgt) && tgt.stats && tgt.stats["res_" + opt.el]) amt = Math.max(0, Math.round(amt * (1 - Math.min(0.5, tgt.stats["res_" + opt.el] / 100))));
+  if (tgt.buffs && !isMob(tgt) && src && isMob(src)) {
+    if (tgt.buffs.runes && tgt.buffs.runes.list) amt = Math.round(amt * (1 - 0.05 * tgt.buffs.runes.list.length));
+    if (tgt.buffs.vallation) amt = Math.round(amt * 0.8);
+  }
+  if (isMob(tgt) && tgt.buffs && tgt.buffs.geo_frail) amt = Math.round(amt * 1.12);
   if (tgt.proxy) {
     netMobHit(tgt, amt, opt.enmity != null ? opt.enmity : 40 + amt * 2);
     tgt.flash = 0.15;
@@ -8632,12 +8723,14 @@ function swing(a, d) {
   if (b.hasso) dmg = Math.floor(dmg * 1.12);
   if (b.dragon_spirit) dmg = Math.floor(dmg * 1.15);
   if (b.valor_roll) dmg = Math.floor(dmg * (1 + b.valor_roll.pow / 100));
+  if (b.geo_fury) dmg = Math.floor(dmg * 1.1);
+  if (b.vallation && isMob(d)) addEnmity(d, a, 30);
   if (b.weaken) dmg = Math.floor(dmg * 0.85);
   if (b.soulfire && a.hp > 1) { const burn = Math.min(a.hp - 1, Math.floor(a.hp * 0.06)); a.hp -= burn; dmg += Math.floor(burn * 1.6); }
   a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
-  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm", "axe"].includes(a.stats.wtype) ? "slash" : "blunt");
+  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm", "axe", "gsword"].includes(a.stats.wtype) ? "slash" : "blunt");
   sfx(crit ? "crit" : wt === "slash" ? "slash" : "blunt", a);
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
@@ -9739,6 +9832,36 @@ function doAbility(a, id, t) {
     a.tp -= ab.tp;
   }
   if (id === "activate") { activateAutomaton(a); return; }
+  if (id === "full_circle" || id === "mending_halation") {
+    if (!a.luopan) { log("You have no luopan out.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    if (id === "full_circle") { const back = Math.floor(a.luopan.mp / 2); a.mp = Math.min(a.maxMp, a.mp + back); log(subj(a) + " " + vb(a, "dismiss", "dismisses") + " the luopan and " + vb(a, "recover", "recovers") + " " + back + " MP.", cls(a)); }
+    else { for (const p of S.party) if (p.alive && dist(p, a) < 300) { const h = Math.min(p.maxHp - p.hp, Math.round(p.maxHp * 0.2)); p.hp += h; popText(p, "+" + h, "#9ad06b", 14, 1); vfx("cure", { tgt: p }); } log(subj(a) + " " + vb(a, "shatter") + " the luopan in a wave of healing light.", cls(a)); sfx("cure", a); }
+    a.luopan = null;
+    return;
+  }
+  if (id === "kindle_rune" || id === "rime_rune" || id === "gale_rune" || id === "stone_rune") {
+    const el = { kindle_rune: "fire", rime_rune: "ice", gale_rune: "wind", stone_rune: "earth" }[id];
+    const r = a.buffs.runes && S.time < a.buffs.runes.until ? a.buffs.runes : { list: [] };
+    r.list.push(el); if (r.list.length > 3) r.list.shift();
+    r.until = S.time + 300;
+    a.buffs.runes = r;
+    log(subj(a) + " " + vb(a, "carve") + " " + an(ab.name) + " (" + r.list.length + "/3).", cls(a));
+    popText(a, ab.name, ELEMENT_COLORS[el], 13, 1, 14); ring(a, ELEMENT_COLORS[el], 22, 0.4); sfx("buff", a);
+    return;
+  }
+  if (id === "lunge") {
+    const r = a.buffs.runes;
+    if (!r || !r.list.length) { log("You have no runes to release.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    let dmg = 0;
+    for (const el of r.list) dmg += (a.lv * 6 + a.stats.int * 1.2) * ((t.fam.weak && t.fam.weak[el]) || 1);
+    dmg = Math.round(dmg * rand(0.9, 1.1));
+    const el0 = r.list[r.list.length - 1];
+    delete a.buffs.runes;
+    log(subj(a) + " " + vb(a, "lunge") + " and " + vb(a, "release") + " " + (a === player ? "your" : "their") + " runes! The " + t.name + " takes " + dmg + " damage.", cls(a));
+    vfx("nuke", { src: a, tgt: t, el: el0 }); sfx(el0, t);
+    applyDamage(a, t, dmg, { color: ELEMENT_COLORS[el0], size: 22, enmity: ab.enmity + dmg });
+    return;
+  }
   if (id === "repair" || id === "tune_up") {
     const pet = S.pet;
     if (!pet || !pet.automaton || !pet.alive) { log("You have no automaton out.", "sys"); a.recasts["ja:" + id] = 0; return; }
@@ -9896,6 +10019,7 @@ function finishCast(a) {
   if (sp.kind === "heal") castHeal(a, t, sp);
   else if (sp.kind === "nuke") castNuke(a, t, sp);
   else if (sp.kind === "bluephys") castBluePhys(a, t, sp);
+  else if (sp.kind === "geo") castGeo(a, t, sp, id);
   else if (sp.kind === "dot") castDia(a, t, sp);
   else if (sp.kind === "debuff") castDebuff(a, t, sp);
   else if (sp.kind === "buff") castBuff(a, t, sp);
@@ -9938,6 +10062,7 @@ function castNuke(a, t, sp) {
   if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
   if (sp.blue && a.buffs.burst_affinity) { dmg *= 1.5; delete a.buffs.burst_affinity; }
   if (!sp.blue && a.buffs.ebullience) { dmg *= 1.3; delete a.buffs.ebullience; }
+  if (a.buffs.geo_focus) dmg *= 1.12;
   let resist = 1;
   if (Math.random() * 100 >= magicHit(a, t, sp)) resist = Math.random() < 0.75 ? 0.5 : 0.25;
   dmg *= resist;
@@ -11162,6 +11287,7 @@ function step(dt) {
   if (S.fish) tickFish();
   if (S.race) tickRace();
   if (S.pet) tickPet();
+  tickGeo(dt);
   tickBuddy(dt);
   tickAmbient(dt);
   tickStory();
@@ -15285,13 +15411,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v11.2.0 · built 2026-10-14 04:04 PDT";
+const BUILD_INFO = "v11.3.0 · built 2026-10-14 04:13 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "11.3.0", date: "2026-10-14", title: "Geomancer and Rune Fencer", items: [
+    "Geomancer: wrap the party in auras of Vigor, Fury or Focus, and plant a glowing luopan by your foes that slows them, makes them frail or saps their strength. Full Circle and Mending Halation turn the luopan back into MP or healing.",
+    "Rune Fencer: a great-sword tank who carves fire, ice, wind and earth runes to blunt incoming blows, then hurls them all at once with Lunge. Vallation braces for the worst.",
+    "Both are taught by Tobin from level 18. With these, all twenty-two jobs are in the game, and mercenaries can be any of them."
   ] },
   { v: "11.2.0", date: "2026-10-14", title: "Puppetmaster, Dancer and Scholar", items: [
     "Puppetmaster: fight with your fists alongside a wind-up automaton. Repair it when it's battered and Tune Up its punches.",
@@ -15996,8 +16127,11 @@ function tabHelp() {
     ["Corsair (advanced)", "Damage / support", "Dagger A, sword B. Valor Roll (party attack +4–16% for 3 min; 5 is lucky), Hawk Roll (8: party accuracy +3–12; 4 is lucky), Double Down (10: roll again and add it; over 7 busts and the roll is lost), Quick Shot (5: pistol shot)"],
     ["Puppetmaster (advanced)", "Damage / pet", "Hand-to-Hand A. Activate (an automaton that fights beside you until it breaks or you change job), Repair (5: heals it 50%), Tune Up (15: its attack +20% for 60 s)"],
     ["Dancer (advanced)", "Damage / healing", "Dagger A. Abilities spend TP: Healing Waltz (200 TP: heals the most hurt party member nearby), Quick Step (5, 100 TP: target off balance, +5 accuracy against it per step, up to 5), Rising Flourish (10: spends all steps on one bigger hit), Group Waltz (15, 400 TP: heals the party)"],
-    ["Scholar (advanced)", "Magic", "Learns most white and black magic two levels after the mages (up to level 20 spells). Light Arts (healing, divine and enhancing spells 20% faster, 10% cheaper) or Dark Arts (elemental, enfeebling and dark); Penury (10: next white spell free), Ebullience (15: next elemental spell +30%)"]
+    ["Scholar (advanced)", "Magic", "Learns most white and black magic two levels after the mages (up to level 20 spells). Light Arts (healing, divine and enhancing spells 20% faster, 10% cheaper) or Dark Arts (elemental, enfeebling and dark); Penury (10: next white spell free), Ebullience (15: next elemental spell +30%)"],
+    ["Geomancer (advanced)", "Support", "Club B, Geomancy A. Auras follow you and affect the party nearby: Vigor (HP over time), Fury (5: attack +10%), Focus (11: spell damage +12%). Wards plant a luopan by the target that affects monsters near it: Torpor (3: slow), Frailty (8: they take 12% more damage), Languor (15: they deal 15% less). One aura and one luopan at a time, 3 minutes each. Full Circle (5: dismiss the luopan for half its MP back), Mending Halation (15: shatter it to heal the party 20%)"],
+    ["Rune Fencer (advanced)", "Tank", "Great Sword A (new weapon type), sword and great axe B. Kindle, Rime (3), Gale (5) and Stone (7) Runes: hold up to three; each cuts damage you take by 5%. Lunge (10: release every rune as elemental damage), Vallation (15: damage taken −20% for 30 s, and your hits draw extra enmity). Weapon skills: Rune Cleave, Glyph Rend (22), Ward Breaker (40), Final Verse (75)"]
   ]) + ul([
+    "<b>Geomancer and Rune Fencer</b> unlock at level 18 through Tobin: <i>The Shape of the Land</i> (2 Crag Feathers, 2 Frost Shards) and <i>Carved in Steel</i> (2 Orc Teeth, 2 Iron Ingots). Geomancers wear mage robes and use clubs; Rune Fencers wear warrior and paladin armour; great swords are sold by Pell and Vela.",
     "<b>Puppetmaster, Dancer and Scholar</b> unlock at level 16 through Tobin: <i>Strings and Springs</i> (3 Ash Lumber, 2 Bronze Ingots), <i>The First Step</i> (2 Silk Cloth, 2 Honeycombs) and <i>Ink and Insight</i> (1 Heartwood, 2 Crypt Dust). Puppetmasters use monk gear and fist weapons, Dancers thief gear and daggers, Scholars mage robes, staves and clubs.",
     "<b>Beastmaster, Blue Mage and Corsair</b> unlock at level 14 through Tobin: <i>Call of the Wild</i> (2 Lizard Skins, 3 Wool Tufts), <i>The Borrowed Art</i> (2 Crab Shells, 2 Mandrake Leaves) and <i>Lady Luck</i> (2 Harbor Bream, 1 Orc Tooth). Axes are sold by Pell and Vela; Blue Mages use swords and clubs and wear red mage clothing; Corsairs use daggers and swords and wear thief gear; Beastmasters wear warrior armour.",
     "<b>Samurai, Ninja and Dragoon</b> unlock at level 12 through Tobin: <i>The Patient Blade</i> (Samurai: 1 Iron Ingot, 2 Ash Lumber), <i>Steps Without Sound</i> (Ninja: 3 Bat Wings, 2 Worm Silk) and <i>Wings of the Wyrm</i> (Dragoon: 3 Lizard Skins, 1 Crag Feather). Their weapons are sold by Pell (bronze to steel) and Vela (frostforged). Samurai and Dragoons can wear warrior armour; Ninjas can wear thief gear.",
@@ -16244,7 +16378,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "11.2.0";
+const GAME_VERSION = "11.3.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18963,6 +19097,8 @@ const JOB_TINT = {
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
   DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  GEO: { shirt: 0x2f5a3a, pants: 0x2a3028, robe: 0x2f5a3a, trim: 0x66bb6a, deep: 0x23452c },
+  RUN: { shirt: 0x7a2a2a, pants: 0x2a2424, robe: 0x7a2a2a, trim: 0xef5350 },
   PUP: { shirt: 0x5a2a6a, pants: 0x2a2030, robe: 0x5a2a6a, trim: 0xab47bc },
   DNC: { shirt: 0x8a2a4a, pants: 0x3a2030, robe: 0x8a2a4a, trim: 0xf06292 },
   SCH: { shirt: 0x5a4a40, pants: 0x2a2420, robe: 0x4a3a34, trim: 0xbcaaa4, deep: 0x3a2e2a },
@@ -19906,11 +20042,12 @@ function weaponEntry(kind, id) {
   const glowC = wlv >= 14 && id ? (/frost|rime|glacier/.test(id) ? 0x9fe8ff : /tide|coral|drowned|abyssal/.test(id) ? 0x4fc3f7 : /kings/.test(id) ? 0xffe080 : /warlord|gax|cleaver/.test(id) ? 0xff7043 : null) : null;
   const wood = 0x7a5432, grip = 0x3a2618, gold = 0xc8a040;
   let tip = [0.1, 0.7];
-  if (kind === "sword" || kind === "dagger") {
-    const L = kind === "sword" ? 0.72 : 0.26, W = kind === "sword" ? 0.05 : 0.035;
+  if (kind === "sword" || kind === "dagger" || kind === "gsword") {
+    const L = kind === "gsword" ? 1.05 : kind === "sword" ? 0.72 : 0.26, W = kind === "gsword" ? 0.1 : kind === "sword" ? 0.05 : 0.035;
     R.add(gTaper(V3(0, -0.08, 0), V3(0, 0.08, 0), 0.018, 0.016, 8), "w", grip, "leather");
     R.add(gBall(V3(0, -0.1, 0), 0.026, 1, 1, 1, 8), "w", gold, "metal");
-    R.add(gBox(V3(0, 0.09, 0), kind === "sword" ? 0.18 : 0.09, 0.025, 0.035), "w", gold, "metal");
+    R.add(gBox(V3(0, 0.09, 0), kind === "gsword" ? 0.3 : kind === "sword" ? 0.18 : 0.09, 0.025, 0.035), "w", gold, "metal");
+    if (kind === "gsword") R.add(gTaper(V3(0, -0.3, 0), V3(0, -0.08, 0), 0.02, 0.019, 8), "w", grip, "leather");
     const sh = new THREE.Shape();
     sh.moveTo(-W / 2, 0); sh.lineTo(W / 2, 0); sh.lineTo(W / 2 * 0.9, L * 0.82); sh.lineTo(0, L); sh.lineTo(-W / 2 * 0.9, L * 0.82); sh.closePath();
     const bg = new THREE.ExtrudeGeometry(sh, { depth: 0.008, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.003, bevelSegments: 1 });
@@ -19919,7 +20056,7 @@ function weaponEntry(kind, id) {
     R.add(bg, "w", blade, "metal");
     R.add(gBox(V3(0, 0.1 + L * 0.4, 0), W * 0.18, L * 0.62, 0.0175), "w", glowC || new THREE.Color(blade).multiplyScalar(0.6).getHex(), glowC ? "glow" : "metal", !!glowC);
     for (let k = 0; k < 3; k++) R.add(gRing(V3(0, -0.06 + k * 0.05, 0), 0.019, 0.005, "y", 8), "w", 0x1e140c, "leather");
-    if (kind === "sword") for (const s of [-1, 1]) R.add(gBall(V3(s * 0.095, 0.09, 0), 0.016, 1, 1, 1, 6), "w", gold, "metal");
+    if (kind === "sword" || kind === "gsword") for (const s of [-1, 1]) R.add(gBall(V3(s * (kind === "gsword" ? 0.155 : 0.095), 0.09, 0), 0.016, 1, 1, 1, 6), "w", gold, "metal");
     tip = [0.3, 0.1 + L];
   } else if (kind === "club") {
     const wand = id === "maple_wand";
@@ -20019,7 +20156,7 @@ function weaponEntry(kind, id) {
     tip = [0.62, 1.02];
   }
   const e = R.finish();
-  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9, gkatana: 0.86, katana: 0.9, polearm: 0.84 }[kind] || 1;
+  const k = { sword: 0.86, staff: 0.84, greataxe: 0.86, scythe: 0.9, club: 0.9, gkatana: 0.86, katana: 0.9, polearm: 0.84, gsword: 0.86 }[kind] || 1;
   if (k !== 1) { e.geo.scale(k, k, k); e.geo.computeBoundingSphere(); e.geo.boundingSphere.radius *= 1.6; tip = tip.map(x => x * k); }
   e.tip = tip;
   RIG.weaponCache.set(key, e);
@@ -20411,7 +20548,7 @@ function applyPose(v, dt, sharp) {
 function attackKind(v, e) {
   const w = v.weaponKind;
   if (v.style && v.style.claws) return "claw";
-  if (w === "greataxe" || w === "scythe" || w === "gkatana") return "cleave";
+  if (w === "greataxe" || w === "scythe" || w === "gkatana" || w === "gsword") return "cleave";
   if (w === "polearm") return "thrust";
   if (w === "club") return "smash";
   if (w === "staff") return "thrust";
@@ -20526,7 +20663,7 @@ function poseHuman(v, e, dt) {
     addP(P, "footL", -0.17 * sw, 0, 0); addP(P, "footR", -0.35 * sw, 0, 0);
     v.rootOff[1] -= 0.05 * sw;
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
-    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
+    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana" || v.weaponKind === "gsword") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
     else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.4 * sw, 0, 0); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -0.3 * sw, 0, 0); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else { addP(P, "upArmR", -0.55 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.75 * sw, 0, 0); addP(P, "upArmL", -0.45 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
@@ -21777,6 +21914,28 @@ function updateAuras(dt) {
   }
 }
 
+function updateGeoFx(dt) {
+  FX.geo = FX.geo || new Map();
+  const want = new Map();
+  for (const c of S.party) {
+    if (c.indi && GEO_AURAS[c.indi.id]) want.set(c, { x: c.x, y: c.y, col: GEO_AURAS[c.indi.id].col, r: 300, kind: "indi" });
+    if (c.luopan && GEO_AURAS[c.luopan.id]) want.set("l" + (c.id || c.name), { x: c.luopan.x, y: c.luopan.y, col: GEO_AURAS[c.luopan.id].col, r: 140, kind: "geo" });
+  }
+  for (const [k, o] of FX.geo) if (!want.has(k)) { W3.fxRoot.remove(o); disposeTree(o); FX.geo.delete(k); }
+  for (const [k, w] of want) {
+    let o = FX.geo.get(k);
+    if (!o) {
+      o = new THREE.Group();
+      const ring = new THREE.Mesh(new THREE.RingGeometry(w.r * U * 0.96, w.r * U, 48), basicMat(w.col, 0.35, null));
+      ring.rotation.x = -Math.PI / 2; ring.renderOrder = 4; o.add(ring);
+      if (w.kind === "geo") { const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.35, 0), new THREE.MeshBasicMaterial({ color: w.col, transparent: true, opacity: 0.85 })); gem.position.y = 1.4; o.add(gem); o.userData.gem = gem; }
+      W3.fxRoot.add(o); FX.geo.set(k, o);
+    }
+    o.position.set(w.x * U, groundY(w.x, w.y) + 0.08, w.y * U);
+    if (o.userData.gem) { o.userData.gem.rotation.y += dt * 1.5; o.userData.gem.position.y = 1.4 + Math.sin(S.time * 2) * 0.15; }
+    o.children[0].material.opacity = 0.25 + 0.12 * Math.sin(S.time * 3);
+  }
+}
 function updateFX(dt) {
   if (!FX.ready) return;
   const h = W3.renderer.domElement.height;
@@ -21799,6 +21958,7 @@ function updateFX(dt) {
   updateCastCircles(dt);
   updateAuras(dt);
   try { updateWeatherFx(dt); } catch (err) {}
+  try { updateGeoFx(dt); } catch (err) {}
   FX.add.update(dt);
   FX.smoke.update(dt);
 }
@@ -21942,12 +22102,12 @@ function placeWeapon(v, e) {
     w.position.set(0, -0.06, 0.01);
     if (k === "staff" || k === "polearm") w.rotation.set(0.2, 0, 0);
     else if (k === "archery") w.rotation.set(0, 0, 0.1);
-    else if (k === "greataxe" || k === "scythe" || k === "gkatana") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
+    else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "gsword") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
     else w.rotation.set(Math.PI / 2 - 0.25, 0, 0);
   } else {
     v.bones.chest.add(w);
     const bz = v.meta.backZ || -0.15;
-    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
+    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
     else { w.position.set(0.04, 0.0, bz); w.rotation.set(0, 0, Math.PI + 0.55); }
   }
 }
