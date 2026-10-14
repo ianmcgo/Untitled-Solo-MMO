@@ -921,7 +921,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.3 · built 2026-10-14 00:41 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.3 · built 2026-10-14 00:43 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -12937,7 +12937,13 @@ function initHud() {
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
-  document.addEventListener("pointerdown", e => { if (UI.cmd && !e.target.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose(); }, true);
+  document.addEventListener("pointerdown", e => {
+    const t = e.target;
+    if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose();
+    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox")) return;
+    if (S.modal && !t.closest("#menu .win, #mCard, #mCmd")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
+    if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv")) mainCmdClose();
+  }, true);
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
   $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
   $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
@@ -14591,7 +14597,7 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.8.3 · built 2026-10-14 00:41 PDT";
+const BUILD_INFO = "v9.8.3 · built 2026-10-14 00:43 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
@@ -14602,7 +14608,8 @@ const UPDATES = [
   { v: "9.8.3", date: "2026-10-14", title: "Phone windows and storage", items: [
     "On phones and narrow screens the main menu now hides while a window (Achievements, Quests, Key Items and so on) is open, so the two no longer overlap. Use Menu or ✕ to go back.",
     "View House only shows what's in storage. Moving items in and out of storage now only works at your residence with Pip.",
-    "The event log uses the blue striped style on phones too."
+    "The event log uses the blue striped style on phones too.",
+    "Tapping or clicking outside a window closes it, and tapping outside the main menu closes the menu."
   ] },
   { v: "9.8.2", date: "2026-10-14", title: "Gate halls and phone layout", items: [
     "Every area exit now sits at the end of a narrow hall with rock walls on both sides, and you arrive at the inner end of the matching hall, well inside the area, so you can't back out by accident right after arriving.",

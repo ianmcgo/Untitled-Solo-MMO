@@ -938,7 +938,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Capture-phase pointerdown outside #tCmd (and its companions: mobBar, dialog, confirm, ffSide, mpBox) closes the target command box.
 
 ## v9.8.3
-- #ui.modalOn hides #mCmd at ≤1020px. tabStorage outside S.zone.residence is a read-only slim list; store/retrieve actions refuse outside the residence. #log always uses --ffStripe (overrides .min/.lite phone styles).
+- #ui.modalOn hides #mCmd at ≤1020px. tabStorage outside S.zone.residence is a read-only slim list; store/retrieve actions refuse outside the residence. #log always uses --ffStripe (overrides .min/.lite phone styles). Capture pointerdown outside #menu .win/#mCard/#mCmd closes the window (desktop returns to main menu; narrow closes both); outside #mCmd/#stOv closes the main menu; ignored while a dialog/confirm is open or when tapping the log/top bars/mobile buttons.
 
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.

@@ -1456,7 +1456,8 @@ const UPDATES = [
   { v: "9.8.3", date: "2026-10-14", title: "Phone windows and storage", items: [
     "On phones and narrow screens the main menu now hides while a window (Achievements, Quests, Key Items and so on) is open, so the two no longer overlap. Use Menu or ✕ to go back.",
     "View House only shows what's in storage. Moving items in and out of storage now only works at your residence with Pip.",
-    "The event log uses the blue striped style on phones too."
+    "The event log uses the blue striped style on phones too.",
+    "Tapping or clicking outside a window closes it, and tapping outside the main menu closes the menu."
   ] },
   { v: "9.8.2", date: "2026-10-14", title: "Gate halls and phone layout", items: [
     "Every area exit now sits at the end of a narrow hall with rock walls on both sides, and you arrive at the inner end of the matching hall, well inside the area, so you can't back out by accident right after arriving.",

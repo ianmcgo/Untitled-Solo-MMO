@@ -971,7 +971,13 @@ function initHud() {
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
-  document.addEventListener("pointerdown", e => { if (UI.cmd && !e.target.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose(); }, true);
+  document.addEventListener("pointerdown", e => {
+    const t = e.target;
+    if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose();
+    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox")) return;
+    if (S.modal && !t.closest("#menu .win, #mCard, #mCmd")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
+    if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv")) mainCmdClose();
+  }, true);
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
   $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
   $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
