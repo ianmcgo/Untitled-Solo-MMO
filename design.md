@@ -940,6 +940,9 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 ## v9.8.3
 - #ui.modalOn hides #mCmd at ≤1020px. tabStorage outside S.zone.residence is a read-only slim list; store/retrieve actions refuse outside the residence. #log always uses --ffStripe (overrides .min/.lite phone styles). Capture pointerdown outside #menu .win/#mCard/#mCmd closes the window (desktop returns to main menu; narrow closes both); outside #mCmd/#stOv closes the main menu; ignored while a dialog/confirm is open or when tapping the log/top bars/mobile buttons.
 
+## v9.8.4
+- MAX_CHARS 5 (client); setup.sql chars_insert policy count < 5, schema 6 (NET_SCHEMA 6). Local-upload offer removed from the character list.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -986,7 +989,7 @@ World systems:
 - 85 (13.2.0) Expeditions: multi-zone quests far from home.
 - 86 (13.3.0) World map atlas: fills in as you explore, every zone joined up.
 - 87 (13.4.0) Night-only and weather-only content: monsters, areas and NPCs that appear only at certain times or weather.
-- Pending on the user's side: run the latest setup.sql (schema 5) in Supabase.
+- Pending on the user's side: run the latest setup.sql (schema 6) in Supabase.
 
 ## Version log
 
@@ -996,6 +999,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.8.4 | 5 characters per account (client + server), upload offer removed. |
 | 9.8.3 | Phone window/menu overlap, read-only View House, blue log on phones. |
 | 9.8.2 | Exit halls with inward arrivals, caster melee when safe, phone Status layout, back buttons. |
 | 9.8.1 | Smarter generic companion AI, per-companion error isolation. |
