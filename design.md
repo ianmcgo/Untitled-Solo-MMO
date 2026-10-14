@@ -1158,6 +1158,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Exits may carry `weather` (and the exit loop skips them when it doesn't match): Sunscar door (380,1480) → `ZONES.mirage` (1400×1000 desert, mist, lv 20 spawns, NM sandglass_wisp (bomb base) → mirage_veil, cache_mirage vault chest, landmark Glass Garden). Highlands second longneck spawn has NM gloamhorn (night) → gloam_ring. Achievement `mirage`.
 - Tests: p46unit (harness exports vana); p5 NM unique rate rule (25–35%) respected.
 
+## Phase 88: sculpted heads (v13.5.0) — plan Q1
+- Master plan for phases 88–115 lives in design/model-plan.md (models, sound and icons, environments, cities, wilderness).
+- rig.js `HEAD_PROFILES` (human0/human1/elari/pipkin/ursan/nekari/goblin/orc/skull/ghoul/fish/beast/plain): jaw, chin, brow, sock, cheek, nose, noseW, lips, long, muzzle, neckR. `headProfile(L)` picks by L.headShape, else skull/goblin nose/tusks/fin ears/beak-leaf-needles/claws+noFace/noFace/race/sex; female non-human races soften brow/jaw/nose.
+- `headRadial(P, x, y, z, feat)`: radius factor for a unit direction (front +z). Macro terms: jaw taper (x² on the lower half), lower-face lengthening, chin, nape, occiput, temples, front flattening, muzzle, and the under-jaw cut-in (jawline jl from -0.58 at the sides to -0.88 at the chin; below it the horizontal radius is pulled to neckR 0.42 so the head meets the neck with no bubble). Feature terms (feat=true) are Gaussians in face angles a = atan2(x, z), b = -asin(y): brow, eye sockets at `FACE_PX` (eyeA 12 px, eyeB = the painted eye row), cheekbones, nose ridge + alae, lips with mouth crease, chin knob.
+- `gHead(P, hc, hr)`: own grid (not SphereGeometry) with density warped toward the face (`densityMap`), 44×30 at segK 1; uv = phi/2π, 1-θ/π mapped through the regionUV margin (`headUV`) so the face cell's pixel 64 is exactly front (the old sphere was 0.1 rad off). Seam and pole normals averaged. `HEAD_SCALE` [0.87, 1.04, 1.0].
+- `gLid` builds blink lids from the same surface (+0.016) over each painted eye; anim.js lid rotation unchanged. `warpToHead(g, P, hc, hr)` warps any shell built around the head centre with the macro shape (used by beards).
+- Hair: `hairEdgeFn(st)` = hairline angle per style (keys at 0, 0.75, 1.45, 2.2, π rad from the front, with a wave); `gHairShell` is a head-following shell from crown to that edge (thicker on top); `gHairLocks` lays 24 tapered strips over the edge (swept fringe on short styles, longer bangs on bob/long/twintails). Spiky keeps its spikes; mohawk unchanged. `hairPoint` samples the shell. Beards are a warped front shell from below the lips plus a two-piece moustache.
+- `paintFace` rewritten (drawn in 256-unit space, scaled to ATLAS_CELL): socket and under-eye shading, almond sclera, radial iris with dark limbal ring, pupil, two highlights, top lid shadow, lash line (+ outer lashes on even faces), lower lid line, lid crease, filled tapered brows with hair strokes, cheek blush, nose side shadows, bridge/tip highlights, nostrils, cupid's-bow upper lip, fuller lower lip with highlight, mouth line (smile per face), chin shadow, freckles (face 4).
+- Skull mobs: mandible ring, chin block, rami to the ears, 2×10 teeth, dark sockets behind glowing eyes, nasal cavity. Glow eyes for all noFace mobs sit in the sculpted sockets. Helm cheek guards follow the narrower jaw.
+- Cactus (`look.cactus`, `cactusBody` with `gRibbed` lathe ribs and `cactusSpines`): ribbed column over hips/chest/head bones, carved eyes and mouth, flower (gold for cactus_king, crown ring), saguaro arms (horizontal upper arm on upArm, upright forearm on foreArm), ribbed stub legs and root feet. Uses the human skeleton so all human animation works.
+- Atlas: `ATLAS_CELL` is 512 on High (3072×2048), 256 otherwise; painters get 256-space pixel coords, normal-map slope scaled by PK.
+- Test tool: test/headshot.js `<html> <out> '[specs]' front,q,side,back <cols>` (env SHOT_T tile px, QUALITY low|medium|high; race spec race/job/build/hairStyle/face).
+- Known limits: hair locks are single-sided strips (double-sided material); beards are one shell; face paint is still one texture cell per face (Q4/Q5 bring more).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1210,6 +1224,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 13.5.0 | Phase 88: sculpted heads, realistic faces and hair, skull jaws, cactus Needlekin, 512 px atlas on High. |
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |

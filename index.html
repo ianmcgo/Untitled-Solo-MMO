@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.4.0 · built 2026-10-14 05:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.5.0 · built 2026-10-14 08:56 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -16148,13 +16148,21 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v13.4.0 · built 2026-10-14 05:30 PDT";
+const BUILD_INFO = "v13.5.0 · built 2026-10-14 08:56 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "13.5.0", date: "2026-10-14", title: "Sculpted heads", items: [
+    "Heads are no longer balls. Every race now has a sculpted head with a jawline, chin, brow, eye sockets, cheekbones, a real nose and lips, and a slim neck that meets the jaw cleanly.",
+    "New realistic face painting: almond eyes with a coloured iris, pupil and highlights, lash lines, eyelid creases, natural brows, nostrils, shaped lips and soft shading. The eyes blink with lids that follow the new face shape.",
+    "Hair is now shaped to the head with a proper hairline, fringe and layered locks instead of flat cards. Beards wrap the jaw and come with a moustache.",
+    "Monsters get sculpted heads too: goblins and orcs have heavy brows and jaws, Reefkin have wide fish mouths, ghouls are gaunt, and skeletons have hollow eye sockets, a nose cavity, teeth and a jaw.",
+    "Needlekin now look like real cacti: a ribbed green column with upturned arms, rows of spines, root feet and a flower on top (gold for the king).",
+    "On High quality, character textures are painted at twice the resolution, so faces, cloth and armour look sharper up close."
   ] },
   { v: "13.4.0", date: "2026-10-14", title: "Night and weather secrets", items: [
     "Luna, the Moonlit Peddler, now sets up in the Ashenreach plaza after dark with Moon Tonics and the Nightglass Earring. She's gone by dawn.",
@@ -16876,7 +16884,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build.",
+    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked) and every face has its own eye colour, brows and mouth. Set Graphics to High for the sharpest faces and clothing.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
@@ -17222,7 +17230,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "13.4.0";
+const GAME_VERSION = "13.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19507,7 +19515,8 @@ const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "f
 const ATLAS_COLS = 6, ATLAS_ROWS = 4;
 const FACE_COUNT = 8;
 const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud"];
-const ATLAS_SIZE = 1024, ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
+const ATLAS_SIZE = 1024;
+let ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
 const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
@@ -19583,51 +19592,87 @@ function paintFace(g, ox, oy, v) {
   v = v || 0;
   g.save();
   g.translate(ox, oy);
-  const IRIS = ["rgb(70,46,32)", "rgb(58,96,150)", "rgb(58,112,70)", "rgb(118,88,40)", "rgb(104,114,126)", "rgb(160,104,32)", "rgb(96,66,130)", "rgb(42,30,24)"][v];
-  const SH = [[1, 1], [1.05, 0.85], [1.1, 0.78], [1, 1.05], [0.98, 1.1], [1.12, 0.72], [1.05, 0.62], [1.06, 0.88]][v];
-  const BROW = [[3.2, 0], [2.6, -2], [3.4, 3], [2.8, 0], [2.4, -3], [4.2, 5], [2.6, -1], [3.6, 2]][v];
-  const ex = 64, ey = 120;
+  g.scale(ATLAS_CELL / 256, ATLAS_CELL / 256);
+  const IRIS = [[96, 64, 40], [70, 112, 168], [70, 128, 84], [140, 104, 52], [118, 128, 140], [176, 120, 44], [112, 80, 150], [56, 40, 30]][v];
+  const SH = [[1, 1], [1.06, 0.9], [1.08, 0.82], [1, 1.06], [0.98, 1.1], [1.1, 0.78], [1.04, 0.72], [1.04, 0.9]][v];
+  const BROW = [[1, 0], [0.8, -1.2], [1.15, 1.6], [0.9, 0], [0.75, -1.8], [1.3, 2.4], [0.85, -0.6], [1.1, 1]][v];
+  const ex = 64, ey = 120, sp = 12;
+  const rgba = (c, a) => "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
+  const soft = (x, y, rx, ry, col, a) => { g.save(); g.translate(x, y); g.scale(rx, ry); const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill(); g.restore(); };
   for (const s of [-1, 1]) {
-    const x = ex + s * 15, rx = 7.5 * SH[0], ry = 8.5 * SH[1];
-    g.fillStyle = "rgb(250,246,240)";
-    g.beginPath(); g.ellipse(x, ey + 1, rx, ry, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = IRIS;
-    g.beginPath(); g.ellipse(x + s * 0.5, ey + 2, 5.2 * SH[0], Math.min(7.2, ry - 1), 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "rgb(18,12,10)";
-    g.beginPath(); g.ellipse(x + s * 0.5, ey + 2.5, 2.6, 3.6 * Math.min(1, SH[1] + 0.1), 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "#ffffff";
-    g.beginPath(); g.ellipse(x - 1.8, ey - 1.8, 1.5, 2, 0, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = "rgb(30,20,16)"; g.lineWidth = v % 2 === 0 ? 3 : 2.4; g.lineCap = "round";
-    g.beginPath(); g.ellipse(x, ey + 1.5, rx + 1, ry + 1, 0, Math.PI * 1.08, Math.PI * 1.92); g.stroke();
-    if (v % 2 === 0) { g.lineWidth = 1.6; for (const k of [0, 1]) { g.beginPath(); g.moveTo(x + s * (rx - 1 + k * 2), ey - ry * 0.5 + k * 2); g.lineTo(x + s * (rx + 3 + k), ey - ry * 0.8 + k * 2); g.stroke(); } }
-    if (v === 6) { g.fillStyle = "rgba(200,150,130,0.55)"; g.beginPath(); g.ellipse(x, ey - ry * 0.55, rx + 1.5, ry * 0.55, 0, Math.PI, Math.PI * 2); g.fill(); }
-    g.lineWidth = BROW[0];
-    g.beginPath(); g.moveTo(x - s * 8, ey - 15 + BROW[1] * 0.4); g.quadraticCurveTo(x, ey - 20, x + s * 9, ey - 16 - BROW[1]); g.stroke();
-    g.fillStyle = "rgba(225,120,110," + (v === 4 ? 0.26 : 0.16) + ")";
-    g.beginPath(); g.ellipse(ex + s * 23, ey + 27, 7, 4.5, 0, 0, Math.PI * 2); g.fill();
+    const x = ex + s * sp, rx = 6.6 * SH[0], up = 6.2 * SH[1], dn = 4.4 * SH[1];
+    soft(x, ey - 2, 9.5, 8, [80, 44, 36], 0.22);
+    soft(x + s * 1, ey + 7, 7, 4, [90, 50, 60], 0.12);
+    const inner = x - s * rx, outer = x + s * rx;
+    const almond = () => { g.beginPath(); g.moveTo(inner, ey + 0.4); g.bezierCurveTo(x - s * rx * 0.45, ey - up * 1.35, x + s * rx * 0.55, ey - up * 1.25, outer, ey - 0.6); g.bezierCurveTo(x + s * rx * 0.45, ey + dn * 1.3, x - s * rx * 0.5, ey + dn * 1.3, inner, ey + 0.4); };
+    g.save();
+    almond(); g.fillStyle = "rgb(236,228,220)"; g.fill(); g.clip();
+    const ix = x + s * 0.3, iy = ey - 0.4, irx = 3.4, iry = 7.2;
+    g.save(); g.translate(ix, iy); g.scale(irx, iry);
+    const ig = g.createRadialGradient(0, -0.15, 0.1, 0, 0, 1);
+    ig.addColorStop(0, rgba(IRIS.map(c => Math.min(255, c + 60)), 1)); ig.addColorStop(0.55, rgba(IRIS, 1)); ig.addColorStop(0.85, rgba(IRIS.map(c => c * 0.6 | 0), 1)); ig.addColorStop(1, "rgba(20,14,12,1)");
+    g.fillStyle = ig; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgb(12,8,8)"; g.beginPath(); g.arc(0, 0.05, 0.42, 0, Math.PI * 2); g.fill();
+    g.restore();
+    g.fillStyle = "rgba(255,255,255,0.95)"; g.beginPath(); g.ellipse(ix - 1, iy - 1.8, 0.8, 1.35, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = "rgba(255,255,255,0.5)"; g.beginPath(); g.ellipse(ix + 1, iy + 1.6, 0.45, 0.7, 0, 0, Math.PI * 2); g.fill();
+    soft(x, ey - up, rx * 1.1, 2.6, [60, 40, 36], 0.45);
+    g.restore();
+    g.lineCap = "round"; g.lineJoin = "round";
+    g.strokeStyle = "rgb(24,16,14)"; g.lineWidth = v % 2 === 0 ? 1.8 : 1.4;
+    g.beginPath(); g.moveTo(inner, ey + 0.4); g.bezierCurveTo(x - s * rx * 0.45, ey - up * 1.35, x + s * rx * 0.55, ey - up * 1.25, outer + s * 0.8, ey - 1); g.stroke();
+    if (v % 2 === 0) { g.lineWidth = 0.8; for (let k = 0; k < 3; k++) { g.beginPath(); g.moveTo(outer - s * k * 1.4, ey - 1.2 - k * 0.6); g.lineTo(outer + s * (1.6 - k * 0.6), ey - 3 - k * 0.7); g.stroke(); } }
+    g.strokeStyle = "rgba(110,62,54,0.45)"; g.lineWidth = 0.7;
+    g.beginPath(); g.moveTo(inner + s * 1, ey + 1.2); g.bezierCurveTo(x - s * rx * 0.4, ey + dn * 1.45, x + s * rx * 0.5, ey + dn * 1.4, outer - s * 0.5, ey); g.stroke();
+    g.strokeStyle = "rgba(120,68,56,0.4)"; g.lineWidth = 0.8;
+    g.beginPath(); g.moveTo(inner + s * 0.5, ey - up - 1.2); g.quadraticCurveTo(x, ey - up * 1.9 - 1.4, outer - s * 0.3, ey - up - 0.8); g.stroke();
+    if (v === 6) soft(x, ey - up, rx + 1, 2, [190, 140, 125], 0.5);
+    const bw = BROW[0], by = ey - 13.5 + BROW[1] * 0.25;
+    g.fillStyle = "rgba(42,28,22,0.92)";
+    g.beginPath();
+    g.moveTo(x - s * 6.5, by + 1.6 * bw);
+    g.quadraticCurveTo(x - s * 1, by - 2.2 * bw - 0.5, x + s * 3, by - 2 - BROW[1] * 0.3);
+    g.quadraticCurveTo(x + s * 7, by - 1.6 - BROW[1] * 0.5, x + s * 9, by + 0.3 - BROW[1] * 0.6);
+    g.quadraticCurveTo(x + s * 6, by - 0.4 - BROW[1] * 0.4, x + s * 2.5, by - 0.2 - BROW[1] * 0.2);
+    g.quadraticCurveTo(x - s * 2, by + 0.6, x - s * 6.5, by + 1.6 * bw);
+    g.fill();
+    g.strokeStyle = "rgba(42,28,22,0.5)"; g.lineWidth = 0.4;
+    for (let k = 0; k < 7; k++) { const t = k / 6, bx = x - s * 6 + s * 14 * t; g.beginPath(); g.moveTo(bx, by + 1.2 - t * 1.4); g.lineTo(bx + s * 1.6, by - 1.4 - t * 1.2); g.stroke(); }
+    soft(ex + s * 19, ey + 17, 7, 9, [220, 110, 100], v === 4 ? 0.2 : 0.11);
+    soft(ex + s * 4.5, ey + 14, 2.2, 7, [90, 50, 40], 0.16);
+    soft(ex + s * 8, ey + 32, 3, 6, [90, 50, 40], 0.1);
   }
-  if (v === 3) { g.fillStyle = "rgba(150,90,60,0.45)"; const rr = seeded(33); for (let k = 0; k < 22; k++) { g.beginPath(); g.arc(ex + (rr() - 0.5) * 50, ey + 20 + rr() * 14, 0.9 + rr() * 0.8, 0, Math.PI * 2); g.fill(); } }
-  g.fillStyle = "rgba(110,70,50,0.18)";
-  g.beginPath(); g.ellipse(ex, ey + 25, 3, 6, 0, 0, Math.PI * 2); g.fill();
-  g.strokeStyle = "rgb(140,72,64)"; g.lineWidth = 2.2;
-  g.beginPath();
-  if (v === 2 || v === 5) { g.moveTo(ex - 6, ey + 43); g.lineTo(ex + 6, ey + 43); }
-  else if (v === 7) { g.moveTo(ex - 6, ey + 43); g.quadraticCurveTo(ex + 2, ey + 46, ex + 7, ey + 40); }
-  else if (v === 4) { g.moveTo(ex - 7, ey + 41); g.quadraticCurveTo(ex, ey + 48, ex + 7, ey + 41); }
-  else { g.moveTo(ex - 6, ey + 42); g.quadraticCurveTo(ex, ey + 46, ex + 6, ey + 42); }
-  g.stroke();
+  soft(ex, ey + 17, 1.6, 6, [255, 236, 220], 0.18);
+  soft(ex, ey + 21, 4.5, 3.5, [255, 236, 220], 0.14);
+  g.fillStyle = "rgba(80,40,34,0.45)";
+  for (const s of [-1, 1]) { g.beginPath(); g.ellipse(ex + s * 2.5, ey + 25, 1.2, 0.9, s * 0.3, 0, Math.PI * 2); g.fill(); }
+  soft(ex, ey + 26.5, 5, 2, [90, 50, 40], 0.18);
+  soft(ex, ey + 33, 1.6, 4, [90, 50, 40], 0.12);
+  const mw = [7.5, 7, 6.5, 7.5, 8, 6.5, 7, 7.2][v], my = ey + 44;
+  const smile = v === 4 ? 1.6 : v === 2 || v === 5 ? 0 : v === 7 ? 0.8 : 0.9;
+  g.fillStyle = "rgba(168,86,80,0.62)";
+  g.beginPath(); g.moveTo(ex - mw, my); g.quadraticCurveTo(ex - mw * 0.5, my - 3.2, ex - 1, my - 2.4); g.lineTo(ex, my - 1.8); g.lineTo(ex + 1, my - 2.4); g.quadraticCurveTo(ex + mw * 0.5, my - 3.2, ex + mw, my); g.quadraticCurveTo(ex, my + 0.6, ex - mw, my); g.fill();
+  g.fillStyle = "rgba(186,100,92,0.55)";
+  g.beginPath(); g.moveTo(ex - mw * 0.9, my + 0.3); g.quadraticCurveTo(ex, my + 6.2, ex + mw * 0.9, my + 0.3); g.quadraticCurveTo(ex, my + 1, ex - mw * 0.9, my + 0.3); g.fill();
+  soft(ex - 1.5, my + 2.6, 3, 1.2, [255, 220, 210], 0.25);
+  g.strokeStyle = "rgb(100,48,44)"; g.lineWidth = 0.9; g.lineCap = "round";
+  g.beginPath(); g.moveTo(ex - mw - 0.4, my - smile * 0.6); g.quadraticCurveTo(ex, my + smile, ex + mw + 0.4, my - smile * 0.6); g.stroke();
+  soft(ex, my + 9, 6, 2.4, [90, 50, 40], 0.14);
+  soft(ex, ey + 63, 9, 6, [255, 236, 220], 0.08);
+  if (v === 3) { g.fillStyle = "rgba(150,90,60,0.45)"; const rr = seeded(33); for (let k = 0; k < 26; k++) { g.beginPath(); g.arc(ex + (rr() - 0.5) * 46, ey + 8 + rr() * 16, 0.5 + rr() * 0.5, 0, Math.PI * 2); g.fill(); } }
   g.restore();
 }
 
 function buildAtlas() {
-  const N = ATLAS_W, NH = ATLAS_H;
+  ATLAS_CELL = typeof W3 !== "undefined" && W3.quality === "high" ? 512 : 256;
+  ATLAS_W = ATLAS_CELL * ATLAS_COLS; ATLAS_H = ATLAS_CELL * ATLAS_ROWS;
+  const N = ATLAS_W, NH = ATLAS_H, PK = ATLAS_CELL / 256;
   const alb = new Float32Array(N * NH), hgt = new Float32Array(N * NH), rgh = new Float32Array(N * NH), mtl = new Float32Array(N * NH);
   const o = [0, 0, 0, 0];
   REGIONS.forEach((name, i) => {
     const ox = (i % ATLAS_COLS) * ATLAS_CELL, oy = Math.floor(i / ATLAS_COLS) * ATLAS_CELL;
     const fn = REGION_PAINT[name] || REGION_PAINT[name.replace(/\d+$/, "")];
     for (let y = 0; y < ATLAS_CELL; y++) for (let x = 0; x < ATLAS_CELL; x++) {
-      fn(x / ATLAS_CELL, y / ATLAS_CELL, o, x, y);
+      fn(x / ATLAS_CELL, y / ATLAS_CELL, o, (x / PK) | 0, (y / PK) | 0);
       const k = (oy + y) * N + ox + x;
       alb[k] = o[0]; hgt[k] = o[1]; rgh[k] = o[2]; mtl[k] = o[3];
     }
@@ -19642,7 +19687,7 @@ function buildAtlas() {
     const rx = Math.floor(x / ATLAS_CELL) * ATLAS_CELL, ry = Math.floor(y / ATLAS_CELL) * ATLAS_CELL;
     const lx = x - rx, ly = y - ry;
     const at = (xx, yy) => hgt[(ry + ((yy + ATLAS_CELL) % ATLAS_CELL)) * N + rx + ((xx + ATLAS_CELL) % ATLAS_CELL)];
-    let nx = (at(lx - 1, ly) - at(lx + 1, ly)) * 3, ny = (at(lx, ly - 1) - at(lx, ly + 1)) * 3;
+    let nx = (at(lx - 1, ly) - at(lx + 1, ly)) * 3 * PK, ny = (at(lx, ly - 1) - at(lx, ly + 1)) * 3 * PK;
     const len = Math.hypot(nx, ny, 1);
     inn.data[p] = (nx / len * 0.5 + 0.5) * 255; inn.data[p + 1] = (ny / len * 0.5 + 0.5) * 255; inn.data[p + 2] = (1 / len * 0.5 + 0.5) * 255; inn.data[p + 3] = 255;
     im.data[p] = 255; im.data[p + 1] = clamp(rgh[k], 0.05, 1) * 255; im.data[p + 2] = clamp(mtl[k], 0, 1) * 255; im.data[p + 3] = 255;
@@ -19981,6 +20026,158 @@ function gMembrane(ptsXZ, y) {
   return g;
 }
 
+const HEAD_PROFILES = {
+  human0: { jaw: 0.26, chin: 0.09, brow: 0.05, sock: 0.05, cheek: 0.04, nose: 0.2, lips: 1, long: 0.06 },
+  human1: { jaw: 0.32, chin: 0.05, brow: 0.02, sock: 0.045, cheek: 0.05, nose: 0.15, lips: 1.3, long: 0.03 },
+  elari: { jaw: 0.36, chin: 0.1, brow: 0.03, sock: 0.05, cheek: 0.06, nose: 0.17, lips: 1, long: 0.12 },
+  pipkin: { jaw: 0.14, chin: 0.02, brow: 0.01, sock: 0.03, cheek: 0.08, nose: 0.1, lips: 0.8, long: -0.04 },
+  ursan: { jaw: 0.08, chin: 0.04, brow: 0.07, sock: 0.05, cheek: 0.05, nose: 0.12, noseW: 1.5, lips: 0.8, long: 0.02, muzzle: 0.16 },
+  nekari: { jaw: 0.32, chin: 0.05, brow: 0.02, sock: 0.045, cheek: 0.08, nose: 0.1, lips: 0.9, long: 0.02, muzzle: 0.05 },
+  goblin: { jaw: 0.16, chin: 0.09, brow: 0.13, sock: 0.1, cheek: 0.08, nose: 0, lips: 0.7, long: 0, muzzle: 0.06 },
+  orc: { jaw: -0.06, chin: 0.15, brow: 0.15, sock: 0.08, cheek: 0.05, nose: 0.12, noseW: 1.9, lips: 1.6, long: 0.05, muzzle: 0.1 },
+  skull: { jaw: 0.3, chin: 0.07, brow: 0.08, sock: 0.2, cheek: 0.08, nose: -0.11, lips: 0, long: 0.05 },
+  ghoul: { jaw: 0.34, chin: 0.08, brow: 0.1, sock: 0.13, cheek: 0.09, nose: 0.08, lips: 0.4, long: 0.1 },
+  fish: { jaw: 0.02, chin: 0.02, brow: 0.03, sock: 0.03, cheek: 0, nose: 0.03, noseW: 1.6, lips: 1.8, long: 0.12, muzzle: 0.12 },
+  beast: { jaw: 0.2, chin: 0.06, brow: 0.1, sock: 0.08, cheek: 0.05, nose: 0.13, lips: 0.7, long: 0.04 },
+  plain: { jaw: 0.18, chin: 0.04, brow: 0.04, sock: 0, cheek: 0.03, nose: 0, lips: 0, long: 0.02 }
+};
+const FACE_PX = { eyeA: 12 / 256 * Math.PI * 2, eyeB: 120 / 256 * Math.PI - Math.PI / 2 };
+
+function headProfile(L) {
+  let k = L.headShape;
+  if (!k) {
+    if (L.skull) k = "skull";
+    else if (L.nose === "goblin") k = "goblin";
+    else if (L.tusks) k = "orc";
+    else if (L.ears === "fin") k = "fish";
+    else if (L.beak || L.leafHead || L.needles) k = "plain";
+    else if (L.claws && L.noFace) k = "ghoul";
+    else if (L.noFace) k = "beast";
+    else if (L.doll) k = "pipkin";
+    else if (L.ears === "ursan") k = "ursan";
+    else if (L.ears === "cat") k = "nekari";
+    else if (L.ears === "elf") k = "elari";
+    else k = L.build === 1 ? "human1" : "human0";
+  }
+  const P = Object.assign({}, HEAD_PROFILES[k] || HEAD_PROFILES.human0);
+  if (L.build === 1 && !/human|skull|plain/.test(k)) { P.brow *= 0.5; P.jaw += 0.04; P.nose *= 0.85; P.lips *= 1.2; }
+  P.key = k;
+  return P;
+}
+
+function smoothRange(a, b, t) { const k = clamp((t - a) / (b - a), 0, 1); return k * k * (3 - 2 * k); }
+function headRadial(P, x, y, z, feat) {
+  const lower = smoothRange(0.05, -0.8, y);
+  const a = Math.atan2(x, z), b = -Math.asin(clamp(y, -1, 1));
+  const G = (a0, b0, sa, sb) => Math.exp(-(((a - a0) / sa) ** 2) - (((b - b0) / sb) ** 2));
+  let m = 1;
+  m *= 1 - P.jaw * lower * x * x * 0.9;
+  m *= 1 + (0.05 + P.long) * lower * Math.max(0, -y);
+  m *= 1 + P.chin * Math.exp(-(((y + 0.82) / 0.28) ** 2)) * Math.max(0, z) ** 2;
+  m *= 1 - 0.18 * smoothRange(-0.3, -0.95, y) * Math.max(0, -z);
+  m *= 1 + 0.035 * Math.max(0, -z) * smoothRange(-0.3, 0.3, y);
+  m *= 1 - 0.05 * Math.exp(-(((y - 0.3) / 0.3) ** 2)) * x * x;
+  m *= 1 - 0.05 * Math.max(0, z) ** 4 * smoothRange(-0.7, -0.2, y) * (1 - smoothRange(0.2, 0.5, y));
+  if (P.muzzle) m *= 1 + P.muzzle * G(0, 0.3, 0.42, 0.26);
+  const jl = -0.58 - 0.3 * Math.max(0, z) + 0.06 * Math.max(0, -z);
+  const under = smoothRange(jl + 0.05, jl - 0.3 - 0.12 * Math.max(0, -z), y);
+  if (under > 0) {
+    const nr = P.neckR || 0.42, hz = Math.hypot(x, z) * m;
+    if (hz > nr) m += (m * nr / hz - m) * under;
+  }
+  if (!feat || Math.abs(a) > 1.5) return m;
+  const aa = Math.abs(a), ea = FACE_PX.eyeA, eb = FACE_PX.eyeB;
+  let f = 0;
+  f += P.brow * (Math.exp(-(((aa - ea) / 0.22) ** 2) - (((b - eb + 0.14) / 0.06) ** 2)) + 0.6 * G(0, eb - 0.12, 0.11, 0.07));
+  f -= P.sock * Math.exp(-(((aa - ea) / 0.15) ** 2) - (((b - eb) / 0.1) ** 2));
+  f += P.cheek * Math.exp(-(((aa - 0.52) / 0.2) ** 2) - (((b - 0.1) / 0.12) ** 2));
+  if (P.nose) {
+    const nw = P.noseW || 1;
+    const nb = smoothRange(eb - 0.06, 0.17, b) * (1 - smoothRange(0.17, 0.25, b));
+    const w = (0.05 + 0.05 * smoothRange(-0.1, 0.18, b)) * nw;
+    f += P.nose * nb * Math.exp(-((a / w) ** 2));
+    if (P.nose > 0) f += P.nose * 0.32 * Math.exp(-(((aa - 0.085 * nw) / 0.05) ** 2) - (((b - 0.2) / 0.045) ** 2));
+  }
+  if (P.lips) {
+    f += 0.026 * P.lips * G(0, 0.405, 0.17 * Math.min(1.5, P.lips), 0.035);
+    f += 0.032 * P.lips * G(0, 0.47, 0.14 * Math.min(1.5, P.lips), 0.04);
+    f -= 0.014 * P.lips * G(0, 0.437, 0.16 * Math.min(1.5, P.lips), 0.016);
+    f -= 0.015 * G(0, 0.56, 0.12, 0.04);
+  }
+  if (P.chin > 0) f += 0.03 * G(0, 0.7, 0.15, 0.09);
+  return m * (1 + f);
+}
+
+function densityMap(n, d0, d1, dens) {
+  const N = 600, cum = [0];
+  for (let i = 1; i <= N; i++) { const t = d0 + (d1 - d0) * (i - 0.5) / N; cum.push(cum[i - 1] + dens(t)); }
+  const out = [];
+  for (let k = 0; k <= n; k++) {
+    const target = cum[N] * k / n;
+    let i = 1; while (i < N && cum[i] < target) i++;
+    const f = (target - cum[i - 1]) / Math.max(1e-9, cum[i] - cum[i - 1]);
+    out.push(d0 + (d1 - d0) * (i - 1 + f) / N);
+  }
+  return out;
+}
+
+const HEAD_SCALE = [0.87, 1.04, 1.0];
+function headUV(phi, th) { return [(phi / (Math.PI * 2) - 0.03) / 0.94, (1 - th / Math.PI - 0.03) / 0.94]; }
+function gHeadPatch(P, hc, hr, phis, ths, off, feat) {
+  const nu = phis.length - 1, nv = ths.length - 1;
+  const pos = [], uv = [], idx = [];
+  for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
+    const phi = phis[i], th = ths[j];
+    const x = -Math.cos(phi) * Math.sin(th), y = Math.cos(th), z = Math.sin(phi) * Math.sin(th);
+    const r = headRadial(P, x, y, z, feat) + (off || 0);
+    pos.push(x * r * hr * HEAD_SCALE[0], hc + y * r * hr * HEAD_SCALE[1], 0.005 + z * r * hr * HEAD_SCALE[2]);
+    const t = headUV(phi, th); uv.push(t[0], t[1]);
+  }
+  for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
+    const a = j * (nu + 1) + i, b = a + nu + 1;
+    if (ths[j] > 1e-4) idx.push(a, b, a + 1);
+    if (ths[j + 1] < Math.PI - 1e-4) idx.push(a + 1, b, b + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+function gHead(P, hc, hr, seg) {
+  const nu = Math.max(14, sgK(seg || 44)), nv = Math.max(10, sgK(Math.round((seg || 44) * 0.68)));
+  const phis = densityMap(nu, 0, Math.PI * 2, p => { let d = p - Math.PI / 2; d = Math.atan2(Math.sin(d), Math.cos(d)); return 1 + 2.4 * Math.exp(-((d / 0.75) ** 2)); });
+  const ths = densityMap(nv, 0, Math.PI, t => 1 + 2 * Math.exp(-(((t - 1.75) / 0.55) ** 2)));
+  const g = gHeadPatch(P, hc, hr, phis, ths, 0, true);
+  const nrm = g.attributes.normal, nu1 = nu + 1;
+  for (let j = 0; j <= nv; j++) {
+    const a = j * nu1, b = a + nu;
+    const v = V3(nrm.getX(a) + nrm.getX(b), nrm.getY(a) + nrm.getY(b), nrm.getZ(a) + nrm.getZ(b)).normalize();
+    nrm.setXYZ(a, v.x, v.y, v.z); nrm.setXYZ(b, v.x, v.y, v.z);
+  }
+  for (const j of [0, nv]) for (let i = 0; i <= nu; i++) nrm.setXYZ(j * nu1 + i, 0, j ? -1 : 1, 0);
+  return g;
+}
+function gLid(P, hc, hr, s) {
+  const ea = FACE_PX.eyeA, eb = FACE_PX.eyeB;
+  const phis = [], ths = [];
+  for (let i = 0; i <= 5; i++) phis.push(Math.PI / 2 + s * ea - 0.2 + 0.4 * i / 5);
+  for (let j = 0; j <= 3; j++) ths.push(Math.PI / 2 + eb - 0.11 + 0.22 * j / 3);
+  return gHeadPatch(P, hc, hr, phis, ths, 0.016, true);
+}
+function warpToHead(g, P, hc, hr) {
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const qx = p.getX(i) / (hr * HEAD_SCALE[0]), qy = (p.getY(i) - hc) / (hr * HEAD_SCALE[1]), qz = (p.getZ(i) - 0.005) / (hr * HEAD_SCALE[2]);
+    const l = Math.hypot(qx, qy, qz) || 1;
+    const m = headRadial(P, qx / l, qy / l, qz / l, false);
+    p.setXYZ(i, qx * m * hr * HEAD_SCALE[0], hc + qy * m * hr * HEAD_SCALE[1], 0.005 + qz * m * hr * HEAD_SCALE[2]);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
 const JOB_TINT = {
   WAR: { shirt: 0x8a3a2c, pants: 0x4a3a2c, robe: 0x7a4a30, trim: 0xd0a040 },
   WHM: { shirt: 0xe6e0d2, pants: 0xcfc6b6, robe: 0xeeeae0, trim: 0xb02a2a, deep: 0xe8dcc6 },
@@ -20163,7 +20360,81 @@ function stableKey(o) {
   return JSON.stringify(norm(o));
 }
 
-function hairPieces(R, H, hc, hr, covered, tailBone) {
+function hairEdgeFn(st) {
+  const K = { short: [-0.52, -0.34, 0.0, 0.3, 0.42], spiky: [-0.44, -0.4, -0.05, 0.25, 0.36], bob: [-0.26, -0.2, 0.42, 0.52, 0.56], long: [-0.3, -0.24, 0.3, 0.42, 0.45], ponytail: [-0.56, -0.4, -0.02, 0.2, 0.3], bun: [-0.56, -0.4, -0.02, 0.2, 0.3], braid: [-0.42, -0.38, 0.0, 0.25, 0.32], twintails: [-0.28, -0.24, 0.05, 0.25, 0.32], topknot: [-0.46, -0.42, -0.02, 0.22, 0.32] }[st] || [-0.4, -0.36, 0.0, 0.3, 0.42];
+  const angs = [0, 0.75, 1.45, 2.2, Math.PI];
+  const fringe = st === "bob" || st === "long" || st === "twintails";
+  const edge = a => {
+    const aa = Math.abs(a);
+    let k = 0; while (k < angs.length - 2 && aa > angs[k + 1]) k++;
+    const t = (aa - angs[k]) / (angs[k + 1] - angs[k]), e = K[k] + (K[k + 1] - K[k]) * (t * t * (3 - 2 * t));
+    const wave = aa < 1.2 ? (fringe ? 0.045 : 0.025) * Math.sin(aa * 11 + (a > 0 ? 0.6 : 0)) * (1 - aa / 1.2) : 0.02 * Math.sin(aa * 9);
+    return Math.PI / 2 + e + wave;
+  };
+  return edge;
+}
+function gHairShell(P, hc, hr, st) {
+  const edge = hairEdgeFn(st);
+  const nu = Math.max(16, sgK(40)), nv = Math.max(6, sgK(12));
+  const pos = [], uv = [], idx = [];
+  for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
+    const phi = i / nu * Math.PI * 2, a = Math.atan2(Math.sin(phi - Math.PI / 2), Math.cos(phi - Math.PI / 2));
+    const f = j / nv, th = edge(a) * f;
+    const x = -Math.cos(phi) * Math.sin(th), y = Math.cos(th), z = Math.sin(phi) * Math.sin(th);
+    const vol = st === "spiky" ? 0.07 : st === "bob" ? 0.1 : 0.075;
+    const off = (vol + 0.03 * Math.cos(f * Math.PI / 2)) * (1 - 0.55 * f * f) + 0.012 * Math.sin(phi * 23) * f;
+    const r = headRadial(P, x, y, z, false) * (1 + off);
+    pos.push(x * r * hr * HEAD_SCALE[0], hc + y * r * hr * HEAD_SCALE[1], 0.005 + z * r * hr * HEAD_SCALE[2]);
+    uv.push(i / nu, f);
+  }
+  for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
+    const a = j * (nu + 1) + i, b = a + nu + 1;
+    if (j > 0) idx.push(a, b, a + 1);
+    idx.push(a + 1, b, b + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
+function hairPoint(P, hc, hr, phi, th, off) {
+  const x = -Math.cos(phi) * Math.sin(th), y = Math.cos(th), z = Math.sin(phi) * Math.sin(th);
+  const r = headRadial(P, x, y, z, false) * (1 + off);
+  return V3(x * r * hr * HEAD_SCALE[0], hc + y * r * hr * HEAD_SCALE[1], 0.005 + z * r * hr * HEAD_SCALE[2]);
+}
+function gHairLocks(P, hc, hr, st) {
+  if (st === "spiky" || st === "mohawk") return [];
+  const edge = hairEdgeFn(st), out = [], fringe = st === "bob" || st === "long" || st === "twintails";
+  const n = Math.max(10, sgK(24));
+  for (let k = 0; k < n; k++) {
+    const a = -Math.PI + (k + 0.5) / n * Math.PI * 2, phi0 = a + Math.PI / 2;
+    const front = Math.abs(a) < 0.9;
+    const e = edge(a), len = (front ? (fringe ? 0.16 : 0.09) : 0.12) * (0.75 + 0.5 * Math.abs(Math.sin(k * 2.7)));
+    const sweep = front && !fringe ? (a >= 0 ? 0.1 : -0.1) : 0.04 * Math.sin(k * 1.9);
+    const w0 = Math.PI * 2 / n * 0.75, rows = 5;
+    const pos = [], uv = [], idx = [];
+    for (let j = 0; j <= rows; j++) {
+      const t = j / rows, th = e - 0.34 + (0.34 + len) * t, w = w0 * (1 - t * 0.85), off = 0.09 - 0.06 * t;
+      for (const sd of [-1, 0, 1]) {
+        const p = hairPoint(P, hc, hr, phi0 + sweep * t * t + sd * w * 0.5, th, off + (sd ? -0.012 : 0.006));
+        pos.push(p.x, p.y, p.z); uv.push(0.5 + sd * 0.25, t);
+      }
+    }
+    for (let j = 0; j < rows; j++) for (let c = 0; c < 2; c++) { const a0 = j * 3 + c, b0 = a0 + 3; idx.push(a0, b0, a0 + 1, a0 + 1, b0, b0 + 1); }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+    g.setIndex(idx); g.computeVertexNormals();
+    out.push(g);
+  }
+  return out;
+}
+
+function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
+  HP = HP || HEAD_PROFILES.human0;
   const TB = tailBone || "head";
   if (!H || H.style === "bald") return;
   const c = H.color, st = H.style;
@@ -20176,30 +20447,15 @@ function hairPieces(R, H, hc, hr, covered, tailBone) {
     return;
   }
   if (!covered) {
-    const theta = st === "bob" ? Math.PI * 0.68 : st === "long" ? Math.PI * 0.62 : Math.PI * 0.55;
-    R.add(gPartSphere(top, hr * 1.09, st === "bob" ? 1.9 : 1.6, theta, 1.0, 1.04, 1.04, 18), "head", c, "hair");
-    R.add(gPartSphere(top, hr * 1.1, 0, Math.PI * 0.3, 1.0, 1.04, 1.04, 18), "head", c, "hair");
-    R.add(gFront(V3(0, hc + 0.01, 0.004), hr * 1.1, 1.7, 0.18, 0.62, 1.0, 1.04, 1.04, 12), "head", c, "hair");
+    R.add(gHairShell(HP, hc, hr, st), "head", c, "hair");
+    for (const lk of gHairLocks(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
     if (st === "spiky") {
-      const spikes = [[0, 1, 0.1], [0.5, 0.85, -0.25], [-0.5, 0.85, -0.25], [0.25, 0.6, -0.8], [-0.25, 0.6, -0.8], [0, 0.75, -0.6], [0.6, 0.5, 0.3], [-0.6, 0.5, 0.3]];
+      const spikes = [[0, 1, 0.1], [0.5, 0.85, -0.25], [-0.5, 0.85, -0.25], [0.25, 0.6, -0.8], [-0.25, 0.6, -0.8], [0, 0.75, -0.6], [0.6, 0.5, 0.3], [-0.6, 0.5, 0.3], [0.2, 0.7, 0.55], [-0.2, 0.7, 0.55]];
       for (const [x, y, z] of spikes) {
         const d = V3(x, y, z).normalize();
-        const a = V3(0, hc, 0).addScaledVector(d, hr * 0.9);
-        R.add(gTaper(a, a.clone().addScaledVector(d, hr * 0.75), hr * 0.32, 0.004, 6), "head", c, "hair");
-      }
-    }
-    const fr = st === "spiky" ? 0 : st === "bob" || st === "long" ? 7 : 5;
-    for (let k = 0; k < fr; k++) {
-      const f = fr > 1 ? k / (fr - 1) - 0.5 : 0, a = f * 1.5, ln = hr * (0.42 + 0.12 * Math.cos(k * 2.3) + (st === "bob" ? 0.08 : 0));
-      const p0 = V3(Math.sin(a) * hr * 0.98, hc + hr * 0.62, Math.cos(a) * hr * 0.86);
-      const p1 = V3(Math.sin(a) * hr * 1.1, hc + hr * 0.62 - ln, Math.cos(a) * hr * 1.0);
-      R.add(gTaper(p0, p1, hr * 0.17, hr * 0.03, 5, 0.3).rotateY(0), "head", c, "hair");
-    }
-    if (st !== "spiky") for (const s of [-1, 1]) {
-      const side = st === "bob" || st === "long" ? 1.15 : 0.7;
-      for (let k = 0; k < 2; k++) {
-        const z = hr * (0.35 - k * 0.45);
-        R.add(gTaper(V3(s * hr * 1.0, hc + hr * 0.35, z), V3(s * hr * (1.06 + k * 0.04), hc + hr * (0.35 - side), z - hr * 0.08), hr * 0.2, hr * 0.04, 5, 0.32), "head", c, "hair");
+        const a = V3(0, hc, 0).addScaledVector(d, hr * 0.98);
+        const b = a.clone().addScaledVector(d, hr * 0.5).add(V3(0, -hr * 0.1, -hr * 0.12));
+        R.add(gTaper(a, b, hr * 0.26, 0.006, 6, 0.6), "head", c, "hair");
       }
     }
     if (st === "bun") R.add(gBall(V3(0, hc + hr * 0.7, -hr * 0.75), hr * 0.42, 1, 1, 1, 10), "head", c, "hair");
@@ -20250,6 +20506,7 @@ function humanEntry(L) {
     R.bone("foot" + sd, "shin" + sd, s * pr.hip, ank, 0);
   }
   const skin = L.skin, SKR = L.skinRegion || "skin";
+  if (L.cactus) return cactusBody(R, L, { hipsY, spineY, chestY, neckY, headY, shY, elY, wrY, sw, hipJ, knee, ank, pr });
   const top = L.top || { type: "shirt", color: 0x8a7a60 };
   const topC = top.color, topR = top.region || "cloth";
   const legC = L.legs != null ? L.legs : 0x4a3a2c, legR = L.legsRegion || "cloth";
@@ -20260,40 +20517,51 @@ function humanEntry(L) {
   if (!L.head && L.hat) L.head = { type: "feathered", color: L.hat, color2: 0xd8c070 };
   const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered", "furhat", "widebrim"].includes(L.head.type);
 
-  R.add(gBall(V3(0, hc, 0.005), hr, 0.94, 1.04, 1.0, 20), "head", skin, L.noFace ? (L.headRegion || "skin") : (L.face ? "face" + (L.face % FACE_COUNT + 1) : "face"));
-  if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.85), V3(0, hc - hr * 0.35, hr * 1.85), hr * 0.22, hr * 0.06, 8), "head", skin, SKR);
-  else if (!L.skull) R.add(gBall(V3(0, hc - hr * 0.13, hr * 0.93), hr * 0.13, 0.75, 1.0, 0.8, 8), "head", skin, SKR);
+  const HP = headProfile(L);
+  R.add(gHead(HP, hc, hr), "head", skin, L.noFace ? (L.headRegion || SKR) : (L.face ? "face" + (L.face % FACE_COUNT + 1) : "face"));
+  if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.8), V3(0, hc - hr * 0.42, hr * 1.75), hr * 0.2, hr * 0.05, 8), "head", skin, SKR);
   const earBone = s => { const n = "ear" + (s > 0 ? "L" : "R"); if (!R.byName[n]) R.bone(n, "head", s * hr * (L.ears === "cat" ? 0.55 : 0.88), hc + hr * (L.ears === "cat" ? 0.72 : 0.0), -hr * 0.05); return n; };
   for (const s of [-1, 1]) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, SKR);
-    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), earBone(s), skin, SKR);
+    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.8, hc - hr * 0.06, -hr * 0.06), V3(s * (hr + 0.1), hc + hr * 0.45, -hr * 0.42), hr * 0.2, 0.004, 8, 0.4), earBone(s), skin, SKR);
     else if (L.ears === "ursan") R.add(gBall(V3(s * hr * 0.78, hc + hr * 0.62, -hr * 0.1), hr * 0.26, 1, 0.9, 0.6, 8), "head", L.hair.color, "hair");
     else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), earBone(s), skin, SKR);
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
-    else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, SKR);
+    else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.88, hc - hr * 0.08, -hr * 0.08), hr * 0.2, 0.4, 1.05, 0.7, 10), "head", skin, SKR);
     if (L.tusks) R.add(gTaper(V3(s * hr * 0.35, hc - hr * 0.55, hr * 0.75), V3(s * hr * 0.45, hc - hr * 0.1, hr * 0.95), hr * 0.1, 0.004, 6), "head", 0xf0e8d0, "bone");
     if (L.needles) for (let k = 0; k < 4; k++) R.add(gTaper(V3(s * hr * (0.3 + k * 0.2), hc + hr * (0.9 - k * 0.35), hr * 0.3 - k * 0.1), V3(s * hr * (0.5 + k * 0.3), hc + hr * (1.4 - k * 0.5), hr * 0.3 - k * 0.1), 0.012, 0.002, 4), "head", 0xf0f0d8, "bone");
-    if (L.eyesGlow) R.add(gBall(V3(s * hr * 0.36, hc + hr * 0.08, hr * 0.84), hr * 0.15, 1.25, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
+    if (L.eyesGlow && !L.cactus) {
+      const ea = FACE_PX.eyeA * 1.15, eb = FACE_PX.eyeB + 0.02, dx = Math.sin(ea) * Math.cos(eb), dy = -Math.sin(eb), dz = Math.cos(ea) * Math.cos(eb), rr = headRadial(HP, dx, dy, dz, true) * hr;
+      const ep = V3(dx * rr * HEAD_SCALE[0], hc + dy * rr * HEAD_SCALE[1], 0.005 + dz * rr * HEAD_SCALE[2]);
+      if (L.skull) R.add(gBall(ep.clone().multiplyScalar(1).add(V3(0, 0, -hr * 0.06)), hr * 0.17, 1.1, 1, 0.6, 10), "head", 0x0c0806, "plain");
+      R.add(gBall(ep.clone().add(V3(0, 0, -hr * (L.skull ? 0.05 : 0.02))), hr * (L.skull ? 0.07 : 0.1), 1.3, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
+    }
   }
   if (L.beak) { R.add(gTaper(V3(0, hc - hr * 0.1, hr * 0.8), V3(0, hc - hr * 0.3, hr * 1.9), hr * 0.3, 0.01, 8, 0.8), "head", L.beak, "bone"); R.add(gTaper(V3(0, hc - hr * 0.35, hr * 0.8), V3(0, hc - hr * 0.35, hr * 1.5), hr * 0.18, 0.01, 6, 0.8), "head", new THREE.Color(L.beak).multiplyScalar(0.7).getHex(), "bone"); }
   if (L.crest) for (let k = 0; k < 5; k++) R.add(gBall(V3((k - 2) * hr * 0.25, hc + hr * (0.9 + 0.15 * (2 - Math.abs(k - 2))), -hr * 0.3 - k * 0.02), hr * 0.22, 0.5, 1.6 + 0.4 * (2 - Math.abs(k - 2)), 0.5, 6), "head", L.crest, "feather");
   if (L.leafHead) { for (let k = 0; k < 7; k++) { const a = k * 0.9, rr = hr * 0.75; R.add(gBall(V3(Math.cos(a) * rr, hc + hr * 0.9 + (k % 2) * hr * 0.25, Math.sin(a) * rr), hr * 0.55, 1, 0.8, 1, 8), "head", L.leafHead, "plain"); } R.add(gBall(V3(0, hc + hr * 1.3, 0), hr * 0.6, 1, 0.8, 1, 8), "head", L.leafHead, "plain"); }
-  if (L.skull) R.add(gBox(V3(0, hc - hr * 0.75, hr * 0.35), hr * 1.1, hr * 0.45, hr * 0.9), "head", skin, "bone");
+  if (L.skull) {
+    const jy = hc - hr * 0.86, jz = hr * 0.12;
+    R.add(gRing(V3(0, jy, jz), hr * 0.5, hr * 0.09, "y", 16, Math.PI, null), "head", skin, "bone");
+    R.add(gBox(V3(0, jy - hr * 0.02, jz + hr * 0.52), hr * 0.32, hr * 0.2, hr * 0.12), "head", skin, "bone");
+    for (const s of [-1, 1]) R.add(gTaper(V3(s * hr * 0.5, jy, jz), V3(s * hr * 0.6, hc - hr * 0.25, -hr * 0.08), hr * 0.1, hr * 0.07, 6, 0.55), "head", skin, "bone");
+    R.add(gTaper(V3(0, hc - hr * 0.08, hr * 0.86), V3(0, hc - hr * 0.3, hr * 0.92), hr * 0.02, hr * 0.12, 3, 0.5), "head", 0x0c0806, "plain");
+    for (let k = 0; k < 10; k++) { const t = (k + 0.5) / 10 * Math.PI, rr = hr * 0.47; R.add(gBox(V3(Math.cos(t) * rr * 0.95, jy + hr * 0.13, jz + Math.sin(t) * rr), hr * 0.08, hr * 0.12, hr * 0.06, 0, Math.PI / 2 - t, 0), "head", 0xf4efe0, "bone"); }
+    for (let k = 0; k < 10; k++) { const t = (k + 0.5) / 10 * Math.PI, rr = hr * 0.49; R.add(gBox(V3(Math.cos(t) * rr * 0.95, hc - hr * 0.6, jz + Math.sin(t) * rr + hr * 0.02), hr * 0.08, hr * 0.12, hr * 0.06, 0, Math.PI / 2 - t, 0), "head", 0xf4efe0, "bone"); }
+  }
   if (L.beard) {
-    R.add(gFront(V3(0, hc, 0.005), hr * 1.04, 2.3, Math.PI * 0.55, Math.PI * 0.92, 0.96, 1.04, 1.02, 14), "head", L.beard, "hair");
+    R.add(warpToHead(gFront(V3(0, hc, 0.005), hr * 1.06, 3.1, Math.PI * 0.62, Math.PI * 0.95, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 16), HP, hc, hr), "head", L.beard, "hair");
+    { const ml = []; for (const s of [-1, 1]) { const a = s * 0.09, b0 = 0.385; const p0 = hairPoint(HP, hc, hr, Math.PI / 2 + a * 0.4, Math.PI / 2 + b0 - 0.02, 0.05), p1 = hairPoint(HP, hc, hr, Math.PI / 2 + s * 0.24, Math.PI / 2 + b0 + 0.07, 0.04); R.add(gTaper(p0, p1, hr * 0.07, hr * 0.02, 6), "head", L.beard, "hair"); } }
     if (L.longBeard) R.add(gBall(V3(0, hc - hr * 1.2, hr * 0.6), hr * 0.5, 0.9, 1.6, 0.55, 10), "head", L.beard, "hair");
   }
   const tailed = L.hair && ["long", "ponytail", "braid", "twintails"].includes(L.hair.style);
   if (tailed) R.bone("hairTail", "head", 0, hc + hr * 0.15, -hr * 0.95);
-  hairPieces(R, L.hair, hc, hr, headCovers, tailed ? "hairTail" : null);
+  hairPieces(R, L.hair, hc, hr, headCovers, tailed ? "hairTail" : null, HP);
   if (!L.noFace) {
     R.bone("lids", "head", 0, hc, 0.005);
     for (const s of [-1, 1]) {
-      const g = new THREE.SphereGeometry(hr * 1.016, 6, 4, Math.PI / 2 + s * 0.4 - 0.2, 0.4, 1.467 - 0.14, 0.26);
-      g.scale(0.94, 1.04, 1.0);
-      g.translate(0, hc, 0.005);
-      R.add(g, "lids", skin, SKR);
+      R.add(gLid(HP, hc, hr, s), "lids", skin, SKR);
     }
   }
 
@@ -20436,8 +20704,8 @@ function humanEntry(L) {
       R.add(gPartSphere(hp, hr * 1.13, 0, Math.PI * 0.37, 1, 1.05, 1.05, 18), "head", H.color, "metal");
       R.add(gRing(V3(0, hc + hr * 0.47, 0), hr * 1.07, 0.014, "y", 22), "head", H.color, "metal");
       if (H.type !== "cap") {
-        R.add(gBox(V3(0, hc - hr * 0.1, hr * 1.08), 0.022, hr * 0.8, 0.02), "head", H.color, "metal");
-        for (const s of [-1, 1]) R.add(gBox(V3(s * hr * 0.95, hc - hr * 0.35, 0), 0.02, hr * 0.8, hr * 1.2), "head", H.color, "metal");
+        R.add(gBox(V3(0, hc - hr * 0.02, hr * 1.12), 0.018, hr * 0.62, 0.016), "head", H.color, "metal");
+        for (const s of [-1, 1]) R.add(gBox(V3(s * hr * 0.92, hc - hr * 0.3, hr * 0.12), 0.016, hr * 0.62, hr * 0.62, 0, -s * 0.25, s * 0.12), "head", H.color, "metal");
       }
       if (H.type === "horned") for (const s of [-1, 1]) {
         const a = V3(s * hr * 0.9, hc + hr * 0.45, 0), b = V3(s * hr * 1.6, hc + hr * 1.0, -hr * 0.1), c = V3(s * hr * 1.7, hc + hr * 1.75, hr * 0.2);
@@ -20490,6 +20758,70 @@ function humanEntry(L) {
     }
   }
   R.meta = { kind: "human", race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
+  return R.finish();
+}
+
+function gRibbed(y0, y1, r0, r1, ribs, amp, seg, domeTop, domeBot) {
+  const prof = [];
+  if (domeBot) for (let k = 0; k < 4; k++) { const a = -Math.PI / 2 + k / 4 * Math.PI / 2; prof.push([r0 * Math.cos(a), y0 + r0 * 0.8 * Math.sin(a)]); }
+  for (let k = 0; k <= 6; k++) { const t = k / 6; prof.push([r0 + (r1 - r0) * t, y0 + (y1 - y0) * t]); }
+  if (domeTop) for (let k = 1; k <= 6; k++) { const a = k / 6 * Math.PI / 2; prof.push([r1 * Math.cos(a), y1 + r1 * 0.95 * Math.sin(a)]); }
+  const g = gLathe(prof, 1, 1, seg || 28);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), k = 1 + amp * Math.cos(ribs * Math.atan2(z, x)); p.setX(i, x * k); p.setZ(i, z * k); }
+  g.computeVertexNormals();
+  return g;
+}
+function cactusSpines(R, bone, y0, y1, r0, r1, ribs, amp, step, cx, cz, off) {
+  for (let y = y0 + step * 0.5; y < y1; y += step) {
+    const t = (y - y0) / (y1 - y0), r = (r0 + (r1 - r0) * t) * (1 + amp);
+    for (let k = 0; k < ribs; k++) {
+      const a = k / ribs * Math.PI * 2 + (off || 0);
+      const p = V3(cx + Math.cos(a) * r, y, cz + Math.sin(a) * r), d = V3(Math.cos(a), 0.25, Math.sin(a)).normalize();
+      R.add(gTaper(p, p.clone().addScaledVector(d, 0.028), 0.004, 0.0008, 3), bone, 0xf2eed8, "bone");
+      R.add(gBall(p, 0.008, 1, 1, 1, 4), bone, 0xe8e0c8, "plain");
+    }
+  }
+}
+function cactusBody(R, L, J) {
+  const g = (J.pr.girth || 1), c = L.skin, dark = new THREE.Color(c).multiplyScalar(0.55).getHex();
+  const r0 = 0.13 * g, r1 = 0.15 * g, ribs = 8, amp = 0.11;
+  const top = J.headY + 0.2;
+  R.add(gRibbed(J.hipsY - 0.08, J.spineY, r0, r0 * 1.04, ribs, amp, 28, false, true), "hips", c, "plain");
+  R.add(gRibbed(J.spineY, J.neckY, r0 * 1.04, r1, ribs, amp, 28), "chest", c, "plain");
+  R.add(gRibbed(J.neckY, top, r1, r1 * 0.96, ribs, amp, 28, true), "head", c, "plain");
+  cactusSpines(R, "hips", J.hipsY - 0.05, J.spineY, r0, r0 * 1.04, ribs, amp, 0.075, 0, 0);
+  cactusSpines(R, "chest", J.spineY, J.neckY, r0 * 1.04, r1, ribs, amp, 0.075, 0, 0);
+  cactusSpines(R, "head", J.neckY, top, r1, r1 * 0.96, ribs, amp, 0.075, 0, 0);
+  const fy = J.headY + 0.04, fz = r1 * 1.02;
+  for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * 0.05, fy, fz - 0.012), 0.026, 1.25, 0.8, 0.5, 10), "head", 0x10180a, "plain");
+    R.add(gBall(V3(s * 0.05 - s * 0.006, fy + 0.006, fz + 0.002), 0.006, 1, 1, 1, 6), "head", L.eyesGlow && L.eyesGlow !== 0x111111 ? L.eyesGlow : 0xfff3c0, "glow", true);
+  }
+  R.add(gBall(V3(0, fy - 0.075, fz - 0.01), 0.03, 1.4, 0.45, 0.5, 10), "head", 0x10180a, "plain");
+  const ftop = top + r1 * 0.95;
+  const petal = L.flower || 0xf06292;
+  for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2; R.add(gBall(V3(Math.cos(a) * 0.035, ftop + 0.012, Math.sin(a) * 0.035 - 0.02), 0.026, 1.0, 0.35, 0.55, 8).rotateY(0), "head", petal, "plain"); }
+  R.add(gBall(V3(0, ftop + 0.022, -0.02), 0.018, 1, 0.8, 1, 8), "head", 0xffd54f, "plain");
+  if (L.head && L.head.type === "crown") { R.add(gRing(V3(0, top + 0.02, 0), r1 * 1.05, 0.014, "y", 18), "head", 0xd8b040, "metal"); for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; R.add(gTaper(V3(Math.cos(a) * r1 * 1.05, top + 0.02, Math.sin(a) * r1 * 1.05), V3(Math.cos(a) * r1 * 1.08, top + 0.09, Math.sin(a) * r1 * 1.08), 0.018, 0.003, 4), "head", 0xd8b040, "metal"); } }
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
+    const ar = 0.07 * g, sx = s * (J.sw * 0.55), ex = s * (J.sw + 0.13), ay = J.shY - 0.06;
+    const elbow = V3(ex, ay - 0.02, 0), up = V3(ex + s * 0.01, ay + 0.24, 0);
+    const a1 = gRibbed(0, Math.abs(ex - sx), ar, ar * 0.95, 6, 0.12, 18);
+    a1.rotateZ(-s * Math.PI / 2); a1.translate(sx, ay, 0);
+    R.add(a1, "upArm" + sd, c, "plain");
+    R.add(gBall(elbow, ar * 1.02, 1, 1, 1, 12), "upArm" + sd, c, "plain");
+    const a2 = gRibbed(0, up.y - elbow.y, ar * 0.95, ar * 0.85, 6, 0.12, 18, true);
+    a2.translate(elbow.x, elbow.y, 0);
+    R.add(a2, "foreArm" + sd, c, "plain");
+    for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; for (let y = 0.04; y < up.y - elbow.y; y += 0.07) { const p = V3(elbow.x + Math.cos(a) * ar * 1.1, elbow.y + y, Math.sin(a) * ar * 1.1); R.add(gTaper(p, p.clone().add(V3(Math.cos(a) * 0.024, 0.006, Math.sin(a) * 0.024)), 0.0035, 0.0008, 3), "foreArm" + sd, 0xf2eed8, "bone"); } }
+    for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; for (let t = 0.05; t < Math.abs(ex - sx); t += 0.07) { const p = V3(sx + s * t, ay + Math.cos(a) * ar * 1.1, Math.sin(a) * ar * 1.1); R.add(gTaper(p, p.clone().add(V3(0, Math.cos(a) * 0.024, Math.sin(a) * 0.024)), 0.0035, 0.0008, 3), "upArm" + sd, 0xf2eed8, "bone"); } }
+    const hx = s * J.pr.hip * 0.9, lr = 0.06 * g;
+    R.add(gRibbed(J.knee - 0.02, J.hipsY - 0.04, lr * 0.95, lr * 1.05, 6, 0.1, 16).translate(hx, 0, 0), "thigh" + sd, c, "plain");
+    R.add(gRibbed(J.ank + 0.01, J.knee, lr * 0.85, lr * 0.95, 6, 0.1, 16).translate(hx, 0, 0), "shin" + sd, c, "plain");
+    for (let k = 0; k < 4; k++) { const a = -0.9 + k * 0.6 + Math.PI / 2; R.add(gTaper(V3(hx, J.ank + 0.02, 0.01), V3(hx + Math.cos(a) * 0.1 * (k % 3 ? 0.8 : 1), 0.012, Math.sin(a) * 0.11), 0.03, 0.008, 6), "foot" + sd, dark, "wood"); }
+  }
+  R.meta = { kind: "human", race: "human", hipsY: J.hipsY, chestY: J.chestY, backZ: -(r1 + 0.03), headTop: top + 0.2, hand: "handR", wrY: J.wrY };
   return R.finish();
 }
 
@@ -21174,7 +21506,7 @@ function mobLook(m) {
   }
   if (model === "cactus") {
     const king = key === "cactus_king";
-    return { kind: "human", look: { skin: king ? 0x4a8a3a : 0x5aa04a, noFace: true, eyesGlow: 0x111111, ears: "none", needles: true, barefoot: true, top: { type: "rags", color: king ? 0x4a8a3a : 0x5aa04a, sleeves: "none" }, legs: king ? 0x4a8a3a : 0x5aa04a, hair: { style: "bald", color: 0x222 }, head: king ? { type: "crown" } : null, prop: { leg: 0.7, torso: 0.5, headR: 0.13, arm: 0.45, shoulder: 0.15, hip: 0.07, neck: 0.02, girth: 0.95 } } };
+    return { kind: "human", look: { cactus: true, flower: king ? 0xffd54f : 0xf06292, skin: king ? 0x3f7a34 : 0x4f9a42, noFace: true, eyesGlow: 0x111111, ears: "none", needles: true, barefoot: true, top: { type: "rags", color: king ? 0x4a8a3a : 0x5aa04a, sleeves: "none" }, legs: king ? 0x4a8a3a : 0x5aa04a, hair: { style: "bald", color: 0x222 }, head: king ? { type: "crown" } : null, prop: { leg: 0.7, torso: 0.5, headR: 0.13, arm: 0.45, shoulder: 0.15, hip: 0.07, neck: 0.02, girth: 0.95 } } };
   }
   if (model === "bomb") return { kind: "bomb", col: key === "frost_bomb" ? 0x81d4fa : key === "ashen_bomb" ? 0x9e9e9e : 0xff7043, eye: key === "frost_bomb" ? 0xffffff : 0xfff3c0 };
   if (model === "ghoul") {

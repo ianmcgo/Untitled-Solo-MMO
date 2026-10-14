@@ -1477,6 +1477,14 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "13.5.0", date: "2026-10-14", title: "Sculpted heads", items: [
+    "Heads are no longer balls. Every race now has a sculpted head with a jawline, chin, brow, eye sockets, cheekbones, a real nose and lips, and a slim neck that meets the jaw cleanly.",
+    "New realistic face painting: almond eyes with a coloured iris, pupil and highlights, lash lines, eyelid creases, natural brows, nostrils, shaped lips and soft shading. The eyes blink with lids that follow the new face shape.",
+    "Hair is now shaped to the head with a proper hairline, fringe and layered locks instead of flat cards. Beards wrap the jaw and come with a moustache.",
+    "Monsters get sculpted heads too: goblins and orcs have heavy brows and jaws, Reefkin have wide fish mouths, ghouls are gaunt, and skeletons have hollow eye sockets, a nose cavity, teeth and a jaw.",
+    "Needlekin now look like real cacti: a ribbed green column with upturned arms, rows of spines, root feet and a flower on top (gold for the king).",
+    "On High quality, character textures are painted at twice the resolution, so faces, cloth and armour look sharper up close."
+  ] },
   { v: "13.4.0", date: "2026-10-14", title: "Night and weather secrets", items: [
     "Luna, the Moonlit Peddler, now sets up in the Ashenreach plaza after dark with Moon Tonics and the Nightglass Earring. She's gone by dawn.",
     "During sandstorms a shimmering mirage appears in the south-west of the Sunscar Desert. Step into it to find the Mirage: a hidden glass garden with level 20 monsters, a treasure cache and the Sandglass Wisp, which may drop the Mirage Veil. The way in vanishes when the storm passes.",
@@ -2197,7 +2205,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build.",
+    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked) and every face has its own eye colour, brows and mouth. Set Graphics to High for the sharpest faces and clothing.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
