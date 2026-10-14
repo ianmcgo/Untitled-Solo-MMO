@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.15.0 · built 2026-10-14 01:50 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.16.0 · built 2026-10-14 01:53 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14609,13 +14609,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.15.0 · built 2026-10-14 01:50 PDT";
+const BUILD_INFO = "v9.16.0 · built 2026-10-14 01:53 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.16.0", date: "2026-10-14", title: "Shadows and depth", items: [
+    "Every character, companion and monster now has a soft shadow on the ground beneath it, so they look planted. On the Low setting (where sun shadows are off) this is their only shadow and is a bit darker.",
+    "Characters and monsters get a gentle rim of light around their edges that picks up the sun's colour by day and a cool blue at night, so they stand out from the background.",
+    "Sun shadows are softer-edged on the High setting."
   ] },
   { v: "9.15.0", date: "2026-10-14", title: "Grounding", items: [
     "Long-bodied monsters (crawlers, worms, sheep and other four-legged beasts, crabs, fish-like monsters and hares) now tilt to follow hills and slopes, so their noses and tails no longer sink into the ground or float in the air.",
@@ -15454,7 +15459,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.15.0";
+const GAME_VERSION = "9.16.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -17191,7 +17196,7 @@ function initRenderer() {
   r.toneMappingExposure = 0.85;
   r.outputColorSpace = THREE.SRGBColorSpace;
   r.shadowMap.enabled = W3.quality !== "low";
-  r.shadowMap.type = THREE.PCFShadowMap;
+  r.shadowMap.type = W3.quality === "high" ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
   W3.renderer = r;
   TEXLIB.anisotropy = Math.min(8, r.capabilities.getMaxAnisotropy());
   W3.scene = new THREE.Scene();
@@ -17523,6 +17528,7 @@ function updateSky(force) {
   const nightGlow = 1 - dayAmt;
   for (const m of W3.windowMats) m.emissiveIntensity = nightGlow * 1.6;
   for (const g of W3.lampGlows || []) g.material.opacity = nightGlow * 0.9;
+  if (typeof RIM !== "undefined") { RIM.str.value = cave ? 0.18 : mix(0.4, 0.28, dayAmt); RIM.color.value.copy(sunY > 0 ? W3.sun.color : new THREE.Color(0x8aa0ff)).lerp(new THREE.Color(0xffffff), 0.3); }
   for (const L of W3.lampLights) L.intensity = nightGlow * 10;
   for (const L of W3.torchLights) L.intensity = 16 + Math.sin(S.time * 9 + L.userData.phase) * 1.5 + Math.sin(S.time * 23 + L.userData.phase) * 0.8;
   W3.renderer.toneMappingExposure = cave ? 1.45 : mix(1.5, 0.85, dayAmt);
@@ -17722,12 +17728,19 @@ function buildAtlas() {
   RIG.weaponMat = charMaterial();
 }
 
+const RIM = { color: { value: new THREE.Color(0xb8c8ff) }, str: { value: 0.35 } };
 function charMaterial() {
-  return new THREE.MeshStandardMaterial({
+  const m = new THREE.MeshStandardMaterial({
     map: RIG.atlas.map, normalMap: RIG.atlas.normal, normalScale: new THREE.Vector2(0.7, 0.7),
     roughnessMap: RIG.atlas.mr, metalnessMap: RIG.atlas.mr, roughness: 1, metalness: 1,
     vertexColors: true, side: THREE.DoubleSide, envMapIntensity: 1.6
   });
+  m.onBeforeCompile = sh => {
+    sh.uniforms.rimColor = RIM.color; sh.uniforms.rimStr = RIM.str;
+    sh.fragmentShader = "uniform vec3 rimColor;\nuniform float rimStr;\n" + sh.fragmentShader.replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\n{ float fr = pow(1.0 - clamp(abs(dot(normalize(vNormal), normalize(vViewPosition))), 0.0, 1.0), 3.0); totalEmissiveRadiance += rimColor * fr * rimStr; }");
+  };
+  m.customProgramCacheKey = () => "charRim";
+  return m;
 }
 
 function regionUV(geo, region) {
@@ -20613,6 +20626,18 @@ function destroyView(v) {
   if (v.mount) { W3.scene.remove(v.mount.group); v.mount.mat.dispose(); }
 }
 
+function blobGeo() { return VIEW.blobGeo || (VIEW.blobGeo = new THREE.PlaneGeometry(2, 2)); }
+function blobMat() {
+  if (VIEW.blobMat) return VIEW.blobMat;
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d"), gr = g.createRadialGradient(32, 32, 2, 32, 32, 31);
+  gr.addColorStop(0, "rgba(0,0,0,0.75)"); gr.addColorStop(0.55, "rgba(0,0,0,0.4)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  const t = new THREE.CanvasTexture(c);
+  VIEW.blobMat = new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, opacity: W3.quality === "low" ? 0.7 : 0.35, polygonOffset: true, polygonOffsetFactor: -2 });
+  return VIEW.blobMat;
+}
+
 function viewFor(e) {
   let v = VIEW.views.get(e);
   const sig = rigSigFor(e);
@@ -20630,6 +20655,15 @@ function viewFor(e) {
   pick.position.y = top / 2;
   pick.userData.entity = e;
   group.add(pick);
+  if (!(e.kind === "npc" && (e.prop || e.crystal)) && inst.meta.kind !== "bat" && inst.meta.kind !== "bee") {
+    const br = Math.max(0.35, (e.radius || 14) * U * 1.25 / s);
+    const blob = new THREE.Mesh(blobGeo(), blobMat());
+    blob.rotation.x = -Math.PI / 2;
+    blob.position.y = 0.03;
+    blob.scale.set(br, br * (inst.meta.kind === "crawler" || inst.meta.kind === "worm" || inst.meta.kind === "quad" ? 1.8 : 1), 1);
+    blob.renderOrder = 1;
+    group.add(blob);
+  }
   const kind = inst.meta.kind;
   v = {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,

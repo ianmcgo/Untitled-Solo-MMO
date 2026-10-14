@@ -1149,7 +1149,7 @@ function initRenderer() {
   r.toneMappingExposure = 0.85;
   r.outputColorSpace = THREE.SRGBColorSpace;
   r.shadowMap.enabled = W3.quality !== "low";
-  r.shadowMap.type = THREE.PCFShadowMap;
+  r.shadowMap.type = W3.quality === "high" ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
   W3.renderer = r;
   TEXLIB.anisotropy = Math.min(8, r.capabilities.getMaxAnisotropy());
   W3.scene = new THREE.Scene();
@@ -1481,6 +1481,7 @@ function updateSky(force) {
   const nightGlow = 1 - dayAmt;
   for (const m of W3.windowMats) m.emissiveIntensity = nightGlow * 1.6;
   for (const g of W3.lampGlows || []) g.material.opacity = nightGlow * 0.9;
+  if (typeof RIM !== "undefined") { RIM.str.value = cave ? 0.18 : mix(0.4, 0.28, dayAmt); RIM.color.value.copy(sunY > 0 ? W3.sun.color : new THREE.Color(0x8aa0ff)).lerp(new THREE.Color(0xffffff), 0.3); }
   for (const L of W3.lampLights) L.intensity = nightGlow * 10;
   for (const L of W3.torchLights) L.intensity = 16 + Math.sin(S.time * 9 + L.userData.phase) * 1.5 + Math.sin(S.time * 23 + L.userData.phase) * 0.8;
   W3.renderer.toneMappingExposure = cave ? 1.45 : mix(1.5, 0.85, dayAmt);

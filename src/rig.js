@@ -145,12 +145,19 @@ function buildAtlas() {
   RIG.weaponMat = charMaterial();
 }
 
+const RIM = { color: { value: new THREE.Color(0xb8c8ff) }, str: { value: 0.35 } };
 function charMaterial() {
-  return new THREE.MeshStandardMaterial({
+  const m = new THREE.MeshStandardMaterial({
     map: RIG.atlas.map, normalMap: RIG.atlas.normal, normalScale: new THREE.Vector2(0.7, 0.7),
     roughnessMap: RIG.atlas.mr, metalnessMap: RIG.atlas.mr, roughness: 1, metalness: 1,
     vertexColors: true, side: THREE.DoubleSide, envMapIntensity: 1.6
   });
+  m.onBeforeCompile = sh => {
+    sh.uniforms.rimColor = RIM.color; sh.uniforms.rimStr = RIM.str;
+    sh.fragmentShader = "uniform vec3 rimColor;\nuniform float rimStr;\n" + sh.fragmentShader.replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\n{ float fr = pow(1.0 - clamp(abs(dot(normalize(vNormal), normalize(vViewPosition))), 0.0, 1.0), 3.0); totalEmissiveRadiance += rimColor * fr * rimStr; }");
+  };
+  m.customProgramCacheKey = () => "charRim";
+  return m;
 }
 
 function regionUV(geo, region) {

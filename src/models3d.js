@@ -19,6 +19,18 @@ function destroyView(v) {
   if (v.mount) { W3.scene.remove(v.mount.group); v.mount.mat.dispose(); }
 }
 
+function blobGeo() { return VIEW.blobGeo || (VIEW.blobGeo = new THREE.PlaneGeometry(2, 2)); }
+function blobMat() {
+  if (VIEW.blobMat) return VIEW.blobMat;
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d"), gr = g.createRadialGradient(32, 32, 2, 32, 32, 31);
+  gr.addColorStop(0, "rgba(0,0,0,0.75)"); gr.addColorStop(0.55, "rgba(0,0,0,0.4)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  const t = new THREE.CanvasTexture(c);
+  VIEW.blobMat = new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, opacity: W3.quality === "low" ? 0.7 : 0.35, polygonOffset: true, polygonOffsetFactor: -2 });
+  return VIEW.blobMat;
+}
+
 function viewFor(e) {
   let v = VIEW.views.get(e);
   const sig = rigSigFor(e);
@@ -36,6 +48,15 @@ function viewFor(e) {
   pick.position.y = top / 2;
   pick.userData.entity = e;
   group.add(pick);
+  if (!(e.kind === "npc" && (e.prop || e.crystal)) && inst.meta.kind !== "bat" && inst.meta.kind !== "bee") {
+    const br = Math.max(0.35, (e.radius || 14) * U * 1.25 / s);
+    const blob = new THREE.Mesh(blobGeo(), blobMat());
+    blob.rotation.x = -Math.PI / 2;
+    blob.position.y = 0.03;
+    blob.scale.set(br, br * (inst.meta.kind === "crawler" || inst.meta.kind === "worm" || inst.meta.kind === "quad" ? 1.8 : 1), 1);
+    blob.renderOrder = 1;
+    group.add(blob);
+  }
   const kind = inst.meta.kind;
   v = {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,

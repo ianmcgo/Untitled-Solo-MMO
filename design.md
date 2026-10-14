@@ -972,6 +972,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - models3d syncEntity: SLOPE_KINDS (crawler, worm, quad, crab, fish, hare) sample ground ± halfLen (0.42 × mesh bbox z × scale) along facing; pitch = −atan2(front−back, 2·halfLen) clamped ±0.6, eased, Euler order YXZ; y = max(footGround − 0.02, max(front, back) − |sin pitch|·halfLen·0.9). Measured min vertex height above ground on a 1.1 m/40-unit slope: crawler −0.002, worm 0.10, sheep 0.03, lizard 0.05 (scratch slope.js).
 - Existing: footGround (max of 4 samples), keepOutOfColliders/Rects (trees, rocks, logs, props, houses, walls), separate() between bodies.
 
+## Phase 56: G9 shadows and depth (v9.16.0)
+- models3d viewFor adds a shared blob shadow plane (radial canvas, opacity 0.7 low / 0.35 otherwise, polygonOffset) under every non-flying, non-prop entity; long bodies stretch 1.8×.
+- rig.js charMaterial onBeforeCompile adds fresnel rim (RIM uniforms shared, cache key charRim); updateSky sets RIM colour from sun (cool at night) and strength (0.4 night → 0.28 day, 0.18 caves).
+- High quality uses PCFSoftShadowMap.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -985,7 +990,7 @@ Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big ski
 - 53 (9.13.0) G6 Characters: faces + hair DONE; smoother joints/cloth physics continue in M1–M5.
 - 54 (9.14.0) G7 Monsters: proportion pass DONE; per-family sculpt + textures continue in M6.
 - 55 (9.15.0) G8 Grounding and collision: DONE.
-- 56 (9.16.0) G9 Shadows and depth: soft sun shadow maps (quality tiers), blob shadows on low, light ambient occlusion, rim light on characters.
+- 56 (9.16.0) G9 Shadows and depth: DONE (SSAO skipped for phone budget).
 - 57 (9.17.0) G10 Motion (was model phase 4): smoother turns/starts/stops, idle variety, better attack, cast and hit reactions, emotes.
 - 58 (9.18.0) G11 Effects: particle spell effects per element, weapon-skill trails, hit sparks, level-up and crystal effects, rain/snow/mist weather particles.
 - 59 (9.19.0) G12 Camera and finish: anti-aliasing, subtle bloom and colour grade, depth fog tuning, auto quality for phones, final performance pass.
@@ -1028,6 +1033,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.16.0 | Phase 56: blob shadows, rim light, soft shadows on high. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |
