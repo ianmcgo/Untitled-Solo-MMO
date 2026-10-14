@@ -1472,7 +1472,9 @@ function buildEntityRig(e) {
     else if (ml.kind === "fish") { sig = "fish|" + ml.col + ml.col2; make = () => fishEntry(ml.col, ml.col2); }
     else { sig = "hare|" + ml.col; make = () => hareEntry(ml.col); }
   } else if (e.kind === "npc") {
-    const L = NPC_LOOK[e.id];
+    const nd = typeof NPCS !== "undefined" ? NPCS[e.id] : null;
+    if (nd && (nd.prop || nd.crystal || nd.hidden)) return null;
+    const L = NPC_LOOK[e.id] || (nd && NPC_LOOK[nd.model]) || (nd ? walkerLook(hashStr(e.id) % 997) : null);
     if (!L) return null;
     sig = "n|" + e.id;
     make = () => humanEntry(L);

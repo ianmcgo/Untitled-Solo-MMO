@@ -884,6 +884,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Compass hidden while UI.cmd/S.dialog/S.modal/confirm. Enter with no target focuses #chatIn.
 - Mob regen: idle/return mobs gain CONFIG.mobRegen (4%) max HP per second after 5 s without a hit.
 
+## Phase 44: spell scrolls and keyboard windows (v9.4.0)
+- data.js tail generates ITEMS.scroll_<spell> (kind use, spell, lv = min job level, price 30+lv²·14) and sets SPELLS[id].id/minLv; lv≤10 → SHOP, 11–17 → SHOPS.vela. Hollow spawns thinned (x<1300, 170 spacing, time-aware, NMs kept).
+- save.spells: newSave = all level-1 spells; normalizeSave migrates old saves to all spells reachable by current job levels. knows() requires save.spells for the player only (mercs unchanged). useItem → learnSpell (spellLearnable = any job level ≥ requirement). gainXp logs newly learnable spells. dropLoot: CONFIG.scrollDrop (5%) scroll for spells with minLv in [lv-4, lv+3].
+- buildMob: lv≤6 non-NM mobs get easy (HP 0.55→0.925), easyA (att/dmg 0.75→1.0), eva ×0.8.
+- modalKey(k) (menu4): equipment grid nav (UI.eq.slot, UI.eq.list, eqFits), SLIM_TABS row nav (.kb, UI.kbRow), fallback button nav (UI.kbBtn). main4 calls it first in the S.modal block.
+- UI.menuFromMain set in openMenu when UI.mm is open; Esc reopens main menu only then. Job change moved to Pip; Tobin keeps unlock quests. cycleNpcTarget includes prop "nubbin". Exits take ask + yes labels (residence exit asks).
+- rig.js NPC look fallback: NPC_LOOK[id] || NPC_LOOK[NPCS[id].model] || walkerLook(hash) (props/crystals excluded).
+- Chat: openChatInput(pre) pins+unhides #chat and focuses #chatIn (Enter with no target, Space, /, self menu Chat); Shift+Space = jump. Walk: arm swing 0.3(+0.12 run)·min(amp,1), forearm and chest twist reduced.
+- Hotkeys: Ctrl+digit → line 0, Shift+digit → line 1, plain digit → line 0.
+- CSS: Help/Network labels on top border (gradient top lines with gap), darker shorter pill buttons, blue scrollbars, #mHead .meta hidden.
+
 ## Version log
 
 | Version | Change |
@@ -892,6 +903,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.4.0 | Phase 44: spell scrolls, keyboard windows, Pip jobs, easier start, Ctrl/Shift hotkeys, UI polish. |
 | 9.3.1 | mainCmdDo keeps UI.mm open (only Log Out closes it); mainCmdOpen keeps sel; Status closes any window. |
 | 9.3.0 | Phase 43: slim Items/Shop/Quests/Magic lists, equipment layout, Magic List + MP box, split side boxes, mob regen. |
 | 9.0.0 | Phase 40: 16 equipment slots, Equipment window, item cards, resistances, slim Character, storage transfer screen. |

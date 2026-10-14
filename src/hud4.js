@@ -756,7 +756,7 @@ function onTgtCmd(idx) {
   if (key === "switch") { tgtCmdClose(); cycleTarget(); return; }
   if (key === "rest") { tgtCmdClose(); toggleRest(); return; }
   if (key === "menu") { tgtCmdClose(); mainCmdOpen(); return; }
-  if (key === "chat") { tgtCmdClose(); chatToggle(true); const ci = $("chatIn"); if (ci) setTimeout(() => ci.focus(), 30); return; }
+  if (key === "chat") { tgtCmdClose(); openChatInput(""); return; }
   if (key === "invite") { netPartyInvite(t.name); tgtCmdClose(); return; }
   if (key === "trade") { netTradeAsk(t.name); tgtCmdClose(); return; }
   if (key === "tell") { tgtCmdClose(); const inp = $("chatIn"); if (inp) { inp.value = "/t " + t.name + " "; inp.focus(); } return; }
@@ -965,7 +965,8 @@ function initHud() {
       ci.value = "";
       if (v) { UI.cmdHist.push(v); if (UI.cmdHist.length > 30) UI.cmdHist.shift(); UI.cmdIdx = UI.cmdHist.length; runCommand(v); }
       ci.blur();
-    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); chatToggle(false); }
+      if (UI.chatTyping) { UI.chatTyping = false; UI.chatPin = false; }
+    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); UI.chatTyping = false; chatToggle(false); }
     else if (e.key === "ArrowUp") { if (UI.cmdIdx > 0) { UI.cmdIdx--; ci.value = UI.cmdHist[UI.cmdIdx]; } e.preventDefault(); }
     else if (e.key === "ArrowDown") { if (UI.cmdIdx < UI.cmdHist.length) { UI.cmdIdx++; ci.value = UI.cmdHist[UI.cmdIdx] || ""; } e.preventDefault(); }
   });
@@ -1060,6 +1061,13 @@ function updateFF() {
   setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
 }
 
+function openChatInput(pre) {
+  UI.chatPin = true; UI.chatTyping = true;
+  UI.logRows = logFull(); UI.logAt = S.time;
+  const ch = $("chat"); ch.classList.remove("lite", "gone");
+  const ci = $("chatIn"); ci.value = pre || "";
+  setTimeout(() => { ci.focus(); ci.setSelectionRange(ci.value.length, ci.value.length); }, 0);
+}
 function logFull() { return innerWidth < 900 ? 6 : 8; }
 function logEsc() {
   if (!UI.logRows || UI.logRows <= 0) return false;

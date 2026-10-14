@@ -1,4 +1,5 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
+G.save.spells = Object.keys(G.SPELLS);
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 ok(G.CONFIG.levelCap === 20 && G.CONFIG.xpTable.length === 20, 'level cap is 20');

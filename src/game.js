@@ -84,6 +84,7 @@ function newSave() {
   const jobs = {}, skills = {};
   for (const j in JOBS) { jobs[j] = { lv: 1, xp: 0 }; skills[j] = newSkillSet(); }
   return {
+    spells: Object.keys(SPELLS).filter(id => Object.values(SPELLS[id].jobs).includes(1)),
     v: 2, name: "Adventurer", mainJob: "WAR", subJob: null, supportUnlocked: false,
     jobs, skills,
     gear: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" },
@@ -150,6 +151,8 @@ function normalizeSave(d) {
   if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
   if (!Array.isArray(out.guild.done)) out.guild.done = [];
   if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
+  if (!Array.isArray(d.spells)) out.spells = Object.keys(SPELLS).filter(id => Object.entries(SPELLS[id].jobs).some(([j, l]) => out.jobs[j] && out.jobs[j].lv >= l));
+  out.spells = out.spells.filter(id => SPELLS[id]);
   return out;
 }
 
@@ -673,12 +676,13 @@ function buildMob(famKey, L, x, y, spawnIdx) {
   const f = famOf(famKey);
   const st = { str: 6 + 0.9 * L, dex: 6 + 0.8 * L, vit: 6 + 0.8 * L, agi: 6 + 0.8 * L, int: (f.int || 6) + 0.7 * L, mnd: 6 + 0.7 * L };
   for (const k of ATTRS) st[k] = Math.round(st[k]);
-  st.maxHp = Math.round((70 + 40 * L) * f.hpMul);
-  st.att = Math.round((16 + 5.5 * L) * f.attMul);
+  const easy = f.nm || f.boss || L > 6 ? 1 : 0.55 + 0.075 * (L - 1), easyA = f.nm || f.boss || L > 6 ? 1 : 0.75 + 0.05 * (L - 1);
+  st.maxHp = Math.round((70 + 40 * L) * f.hpMul * easy);
+  st.att = Math.round((16 + 5.5 * L) * f.attMul * easyA);
   st.def = Math.round((10 + 4.5 * L) * f.defMul);
   st.acc = Math.round(62 + 4 * L);
-  st.eva = Math.round(48 + 3.5 * L + (f.eva || 0));
-  st.dmg = 6 + 1.25 * L;
+  st.eva = Math.round((48 + 3.5 * L + (f.eva || 0)) * (easy < 1 ? 0.8 : 1));
+  st.dmg = (6 + 1.25 * L) * easyA;
   st.delay = f.delay;
   return {
     id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
@@ -975,11 +979,14 @@ function gainXp(n, chain, quiet) {
   log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
   popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
   let leveled = false;
+  const lv0 = j.lv;
   while (j.lv < CONFIG.levelCap && j.xp >= xpNeed(j.lv)) { j.xp -= xpNeed(j.lv); j.lv++; leveled = true; }
   if (j.lv >= CONFIG.levelCap) j.xp = 0;
   if (leveled) {
     refreshPlayer(true);
     log("You reach level " + j.lv + "!", "loot");
+    const nw = Object.values(SPELLS).filter(sp => sp.jobs[save.mainJob] && sp.jobs[save.mainJob] <= j.lv && sp.jobs[save.mainJob] > lv0 && !save.spells.includes(sp.id));
+    if (nw.length) log("You can now learn " + nw.map(sp => sp.name).join(", ") + ". Look for " + (nw.length > 1 ? "their scrolls" : "its scroll") + " in shops or from monsters.", "sys");
     popText(player, "Level Up!", "#ffd54f", 24, 2, 30);
     ring(player, "#ffd54f", 50, 0.9, "burst");
     S.shake = 0.2;
@@ -1054,6 +1061,10 @@ function dropLoot(m, mates) {
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     if (ITEMS[id].kind === "equip" && (S.party.length > 1 || mates.length)) { const pe = addToPool(id); if (mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); continue; }
     giveItem(id, 1);
+  }
+  if (Math.random() < CONFIG.scrollDrop) {
+    const pool = Object.values(SPELLS).filter(sp => sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
+    if (pool.length) giveItem("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, 1);
   }
   if (m.fam.gil) {
     const total = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
@@ -1706,6 +1717,7 @@ function augmentItem(id, reforge) {
 }
 
 function knows(ch, sp) {
+  if (typeof player !== "undefined" && ch === player && typeof save !== "undefined" && Array.isArray(save.spells) && !save.spells.includes(sp.id)) return false;
   const subLv = ch.sub ? Math.floor(ch.lv / 2) : 0;
   for (const j in sp.jobs) {
     if (j === ch.job && sp.jobs[j] <= ch.lv) return true;
@@ -2111,6 +2123,20 @@ function castDia(a, t, sp) {
   if (t.alive) t.buffs[key] = { until: S.time + 30, next: S.time + 3, tick: Math.max(1, Math.round(1 + a.lv * 0.4)), src: a, el };
 }
 
+function spellLearnable(sp) { return Object.entries(sp.jobs).some(([j, l]) => save.jobs[j] && save.jobs[j].lv >= l); }
+function learnSpell(itemId) {
+  const it = ITEMS[itemId], sp = SPELLS[it.spell];
+  if (!sp) return;
+  if (save.spells.includes(sp.id)) { log("You already know " + sp.name + ".", "sys"); sfx("error"); return; }
+  if (!spellLearnable(sp)) { log("You can't learn " + sp.name + " yet. It needs " + Object.entries(sp.jobs).map(([j, l]) => JOBS[j].name + " Lv." + l).join(" or ") + ".", "sys"); sfx("error"); return; }
+  if (!removeItem(itemId, 1)) return;
+  save.spells.push(sp.id);
+  log("You learn " + sp.name + "!", "loot");
+  popText(player, "Learned " + sp.name, "#9fe8ff", 15, 2, 30);
+  sfx("unlock");
+  if (typeof syncHotbar === "function") syncHotbar();
+  saveGame();
+}
 function useItem(id) {
   const it = ITEMS[id];
   if (!player.alive || !it) return;
@@ -2118,6 +2144,7 @@ function useItem(id) {
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
   if (it.kind === "food") { eatFood(id); return; }
+  if (it.spell) { learnSpell(id); return; }
   if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
@@ -3148,7 +3175,7 @@ function step(dt) {
     if (onAsk && S.exitAsked !== onAsk) {
       S.exitAsked = onAsk;
       const ex = onAsk;
-      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: "Enter", no: "Not now" });
+      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: ex.yes || "Enter", no: "Not now" });
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
@@ -3218,7 +3245,7 @@ function tabNext(list) {
 }
 
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && !n.away && !n.prop && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const list = people.concat(crystals);
   if (!list.length) return false;
@@ -3476,7 +3503,7 @@ function giveReward(r) {
   if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " crystals.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
   if (r.items) for (const [id, n] of r.items) giveItem(id, n);
-  if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Ask Tobin to change jobs.", "npc"); }
+  if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Change to it with Pip at your residence.", "npc"); }
   sfx("fanfare");
 }
 
@@ -3725,7 +3752,7 @@ const TALK = {
   },
   talkTobin(n) {
     const q = save.quests;
-    const opts = [{ label: "Change jobs", fn: () => { closeDialog(); openModal("job"); } }];
+    const opts = [];
     const adv = [];
     if (player.lv >= 6) {
       const turnIn = (id, mats, label) => {
@@ -3757,7 +3784,7 @@ const TALK = {
               q.support = "done"; save.supportUnlocked = true;
               log("Quest complete: " + QUESTS.support.name + ". Support jobs unlocked!", "npc");
               giveReward(QUESTS.support.reward);
-              refreshPlayer(false); saveGame(); closeDialog(); openModal("job");
+              refreshPlayer(false); saveGame(); closeDialog(); log("Set your support job with Pip at your residence.", "npc");
             } }
           ].concat(adv));
         } else openDialog(n.name, "You have " + invCount("bat_wing") + " of 2 Bat Wings and " + invCount("worm_silk") + " of 1 Worm Silk. Bats come out at night in Rocky Hollow; worms tunnel there day and night." + advNote, opts.concat(adv));
@@ -3861,6 +3888,7 @@ const TALK = {
     const placed = save.furniture.length;
     const g = questOptions("pip", n);
     openDialog(n.name, placed ? "Welcome home! " + placed + " piece" + (placed === 1 ? "" : "s") + " of furniture, " + storageUsed() + "/" + storageCap() + " storage slots used. What do you need?" : "Oh! You must be the new tenant. I'm Pip. I mind the cottage: I'll keep your things and arrange whatever furniture you bring. It's a bit bare in here. Odette by the west wall sells furniture.", [
+      { label: "Change jobs", fn: () => { closeDialog(); openModal("job"); } },
       { label: "Storage", fn: () => { closeDialog(); openModal("storage"); } },
       { label: "Arrange furniture", fn: () => { closeDialog(); openModal("home"); } }
     ].concat(g));
