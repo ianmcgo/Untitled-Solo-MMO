@@ -88,6 +88,7 @@ async function boot() {
   loaderProgress(0.1, "Waking the world…");
   await frames(1);
   initAudio();
+  if (typeof uiHoverSounds === "function") uiHoverSounds();
   initViewA();
   loaderProgress(0.35, "Weaving cloth and leather…");
   await frames(1);

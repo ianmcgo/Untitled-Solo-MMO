@@ -101,8 +101,8 @@ function dlgKey(k) {
   const d = S.dialog;
   if (!d) return;
   const n = d.all.length;
-  if (k === "arrowup") { d.sel = (d.sel - 1 + n) % n; sfx("tab"); renderDlgOpts(); }
-  else if (k === "arrowdown") { d.sel = (d.sel + 1) % n; sfx("tab"); renderDlgOpts(); }
+  if (k === "arrowup") { d.sel = (d.sel - 1 + n) % n; sfx("cursor"); renderDlgOpts(); }
+  else if (k === "arrowdown") { d.sel = (d.sel + 1) % n; sfx("cursor"); renderDlgOpts(); }
   else if (k === "enter" || k === " ") { sfx("select"); d.all[d.sel].fn(); }
 }
 function closeDialog() {
@@ -768,8 +768,8 @@ function tgtCmdKey(k) {
   const c = UI.cmd;
   if (!c) return;
   const n = (c.items || []).length;
-  if (k === "arrowup") { c.sel = (c.sel - 1 + n) % n; sfx("tab"); renderTgtCmd(); }
-  else if (k === "arrowdown") { c.sel = (c.sel + 1) % n; sfx("tab"); renderTgtCmd(); }
+  if (k === "arrowup") { c.sel = (c.sel - 1 + n) % n; sfx("cursor"); renderTgtCmd(); }
+  else if (k === "arrowdown") { c.sel = (c.sel + 1) % n; sfx("cursor"); renderTgtCmd(); }
   else if (k === "enter" || k === "arrowright") onTgtCmd(String(c.sel));
   else if (k === "arrowleft" || k === "backspace") { if (c.page !== "root") { c.page = "root"; c.sel = 0; sfx("close"); renderTgtCmd(); } else tgtCmdClose(); }
   else if (k === "escape") tgtCmdClose();
@@ -804,6 +804,20 @@ function onTgtCmd(idx) {
     playerAct(a);
     tgtCmdClose();
   }
+}
+
+function uiHoverSounds() {
+  if (UI.hoverSnd) return;
+  UI.hoverSnd = true;
+  let last = null;
+  document.addEventListener("pointerover", ev => {
+    if (ev.pointerType && ev.pointerType !== "mouse") return;
+    const el = ev.target && ev.target.closest && ev.target.closest("button, .item, [data-a], [data-mc], [data-tc], [data-o], .ffMI, .opt > *");
+    if (!el || el === last) return;
+    last = el;
+    if (el.disabled || el.classList.contains("off")) return;
+    sfx("cursor");
+  }, { passive: true });
 }
 
 function uiEvent(type, d) {
@@ -1203,8 +1217,8 @@ function mainCmdKey(k) {
   const m = UI.mm;
   if (!m) return;
   const n = mainCmdItems().length;
-  if (k === "arrowup") { m.sel = (m.sel - 1 + n) % n; sfx("tab"); renderMainCmd(); }
-  else if (k === "arrowdown") { m.sel = (m.sel + 1) % n; sfx("tab"); renderMainCmd(); }
+  if (k === "arrowup") { m.sel = (m.sel - 1 + n) % n; sfx("cursor"); renderMainCmd(); }
+  else if (k === "arrowdown") { m.sel = (m.sel + 1) % n; sfx("cursor"); renderMainCmd(); }
   else if ((k === "arrowleft" || k === "arrowright") && m.sub) return;
   else if ((k === "escape" || k === "backspace") && m.sub) { m.sub = null; m.sel = m.back || 0; sfx("close"); renderMainCmd(); }
   else if (k === "arrowleft" || k === "arrowright") { m.page = 1 - m.page; m.sel = 0; sfx("tab"); renderMainCmd(); }

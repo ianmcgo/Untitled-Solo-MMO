@@ -1477,6 +1477,14 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.6.0", date: "2026-10-14", title: "Interface sounds", items: [
+    "New classic-style menu sounds throughout the interface, made in the game rather than played from recordings so they stay crisp and quiet:",
+    "A soft high tick when the cursor moves (arrow keys in any menu or list, or pointing at a button with the mouse); a bright two-note chime when you confirm; a falling blip when you back out or close a window; a quick rising shimmer when a window opens; a dull double buzz for anything you can't do.",
+    "A crisp tick when you pick a new target, a metal clink when you equip gear, a coin ping when crystals change hands and a three-note chime when you buy.",
+    "Chat chimes: a three-note bell for an incoming tell and a softer two-note bell for party chat.",
+    "Quest, unlock and notice sounds are now gentle bell arpeggios.",
+    "All of these follow the Interface volume slider in Config."
+  ] },
   { v: "14.5.0", date: "2026-10-14", title: "Planted feet and four-legged gaits", items: [
     "Feet stay planted when people and monsters turn on the spot: the hips hold still while the upper body turns, then they take a quick shuffle step to catch up, instead of their feet sliding left and right.",
     "Four-legged creatures (sheep, longnecks, lizards, dogs, deer, cats and the rest) now walk with real gaits chosen by their size and speed: a four-beat walk, a diagonal trot, and a gallop when they run flat out. Lizards use a low sprawling walk.",
@@ -2618,7 +2626,8 @@ function tabHelp() {
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
-    "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch."
+    "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
+    "<b>Interface sounds:</b> the Interface slider in Config controls menu sounds (cursor tick, confirm, cancel, window open and close, errors, target, equip, coins, tell and party chimes). Turn it down to keep music and combat but silence the menus."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
     "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",
@@ -2805,8 +2814,8 @@ function modalKey(k) {
       if (k === "escape" || k === "backspace" || k === "arrowleft") { q.list = false; q.hover = null; sfx("close"); renderModal(); return true; }
       if (!n) return k.startsWith("arrow") || k === "enter";
       const i = Math.max(0, L.indexOf(q.hover));
-      if (k === "arrowup") { q.hover = L[(i - 1 + n) % n]; sfx("tab"); renderModal(); return true; }
-      if (k === "arrowdown") { q.hover = L[(L.indexOf(q.hover) + 1) % n]; sfx("tab"); renderModal(); return true; }
+      if (k === "arrowup") { q.hover = L[(i - 1 + n) % n]; sfx("cursor"); renderModal(); return true; }
+      if (k === "arrowdown") { q.hover = L[(L.indexOf(q.hover) + 1) % n]; sfx("cursor"); renderModal(); return true; }
       if (k === "enter") { const id = q.hover || L[0], why = canEquip(id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(id, q.slot); q.hover = null; q.list = false; } renderModal(); return true; }
       return false;
     }

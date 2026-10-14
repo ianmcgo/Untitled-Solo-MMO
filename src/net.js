@@ -379,7 +379,7 @@ function netOnTell(p) {
   if (!text || netBlocked(from)) return;
   NET_RT.lastTell = from;
   log(from + " >> " + text, "tell");
-  if (typeof sfx === "function") sfx("notify");
+  if (typeof sfx === "function") sfx("tell");
 }
 
 function netWho() {
@@ -546,7 +546,7 @@ function netOnPChat(p) {
   const text = cleanChat(p.text);
   if (!text) return;
   log("(" + NET_PT.members.get(p.id).name + ") " + text, "pchat");
-  if (typeof sfx === "function") sfx("tab");
+  if (typeof sfx === "function") sfx("pchat");
 }
 
 function netPartyTick() {

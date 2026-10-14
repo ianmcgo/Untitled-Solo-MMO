@@ -1005,7 +1005,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.5.0 · built 2026-10-14 11:35 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.6.0 · built 2026-10-14 11:39 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -11990,6 +11990,7 @@ function conOf(m) {
 function setTarget(e, quiet) {
   const changed = player.target !== e;
   player.target = e;
+  if (changed && e && !quiet && typeof sfx === "function") sfx("target");
   if (isMob(e) && e.alive) noteBeast(e, false);
   if (isMob(e) && e.alive && !quiet && changed) uiEvent("target", e);
   if (isMob(e) && player.engaged && e !== player.attackTarget && e.alive) {
@@ -13099,7 +13100,7 @@ function buy(id) {
   if (!giveItem(id, 1, true)) return;
   save.gil -= price;
   log("You buy " + an(it.name) + " for " + price + " crystals.", "loot");
-  sfx("coin");
+  sfx("buy");
   saveGame();
 }
 
@@ -13335,7 +13336,7 @@ const SFX_FILES = {
   tab: "ui_tab", open: "ui_open", close: "ui_close", toast: "ui_toast"
 };
 const SFX_GAIN = { step: 0.35, hoof: 0.5, miss: 0.6, slash: 0.8, blunt: 0.8, xp: 0.5, click: 0.7, select: 0.7, tab: 0.6, toast: 0.6, aggro: 0.7, cast: 0.7, fanfare: 0.9, levelup: 0.9 };
-const UI_SOUNDS = new Set(["xp", "unlock", "error", "notify", "coin", "click", "select", "tab", "open", "close", "toast", "equip", "loot", "quest"]);
+const UI_SOUNDS = new Set(["xp", "unlock", "error", "notify", "coin", "click", "select", "tab", "open", "close", "toast", "equip", "loot", "quest", "cursor", "tell", "pchat", "target", "page", "buy"]);
 const MUSIC_FOR = { town: "music_outpost", house: "music_residence", field: "music_hollow", cave: "music_den", crypt: "music_crypt" };
 
 function loadAudioSettings() {
@@ -13439,15 +13440,81 @@ function sfxGainFor(name, e) {
   return { v, pan };
 }
 
+const UI_SYNTH = {
+  cursor: [["sine", 2350, 2250, 0, 0.032, 0.32], ["square", 1175, 1175, 0, 0.018, 0.05]],
+  tab: [["sine", 1975, 1865, 0, 0.04, 0.28], ["noise", 4200, 0, 0, 0.012, 0.1]],
+  select: [["sine", 1568, 1568, 0, 0.16, 0.34], ["sine", 2349, 2349, 0.018, 0.2, 0.26], ["sine", 3136, 3136, 0.03, 0.12, 0.08]],
+  click: [["sine", 1760, 1700, 0, 0.06, 0.3], ["triangle", 880, 880, 0, 0.05, 0.12]],
+  close: [["triangle", 1175, 784, 0, 0.09, 0.32], ["sine", 1568, 1046, 0.01, 0.07, 0.12]],
+  open: [["sine", 1046, 1046, 0, 0.06, 0.22], ["sine", 1318, 1318, 0.035, 0.06, 0.22], ["sine", 1760, 1760, 0.07, 0.12, 0.24], ["noise", 6000, 0, 0, 0.09, 0.03]],
+  error: [["square", 196, 180, 0, 0.09, 0.16, 900], ["square", 185, 170, 0.11, 0.12, 0.16, 900]],
+  notify: [["bell", 1318, 1318, 0, 0.5, 0.26], ["bell", 1760, 1760, 0.12, 0.6, 0.24]],
+  tell: [["bell", 1568, 1568, 0, 0.45, 0.24], ["bell", 2093, 2093, 0.1, 0.5, 0.22], ["bell", 1568, 1568, 0.2, 0.6, 0.16]],
+  pchat: [["bell", 1174, 1174, 0, 0.35, 0.18], ["bell", 1568, 1568, 0.08, 0.45, 0.16]],
+  coin: [["bell", 2637, 2637, 0, 0.18, 0.2], ["bell", 3520, 3520, 0.06, 0.3, 0.2]],
+  equip: [["noise", 3200, 0, 0, 0.06, 0.22], ["square", 660, 520, 0, 0.05, 0.08, 2400], ["bell", 1975, 1975, 0.02, 0.2, 0.12]],
+  target: [["sine", 1760, 2200, 0, 0.05, 0.3], ["sine", 3520, 3520, 0.01, 0.05, 0.08]],
+  page: [["noise", 2500, 0, 0, 0.09, 0.14], ["sine", 1318, 1480, 0.01, 0.05, 0.12]],
+  buy: [["bell", 2093, 2093, 0, 0.16, 0.2], ["bell", 2637, 2637, 0.06, 0.16, 0.2], ["bell", 3136, 3136, 0.12, 0.35, 0.2]],
+  quest: [["bell", 1046, 1046, 0, 0.3, 0.2], ["bell", 1318, 1318, 0.09, 0.3, 0.2], ["bell", 1568, 1568, 0.18, 0.3, 0.2], ["bell", 2093, 2093, 0.27, 0.7, 0.22]],
+  unlock: [["bell", 1568, 1568, 0, 0.3, 0.2], ["bell", 2093, 2093, 0.08, 0.3, 0.2], ["bell", 2637, 2637, 0.16, 0.6, 0.22]],
+  toast: [["bell", 1760, 1760, 0, 0.3, 0.16]],
+  xp: [["sine", 1318, 1760, 0, 0.12, 0.18]]
+};
+let UI_NOISE = null;
+function uiNoise(ctx) {
+  if (UI_NOISE) return UI_NOISE;
+  const b = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return (UI_NOISE = b);
+}
+function uiSynth(name, vol) {
+  const def = UI_SYNTH[name], ctx = AUDIO.ctx;
+  if (!def || !ctx) return false;
+  const t0 = ctx.currentTime + 0.005, out = ctx.createGain();
+  out.gain.value = vol;
+  out.connect(AUDIO.bus.ui);
+  let end = 0;
+  for (const [type, f0, f1, at, dur, g, lp] of def) {
+    const t = t0 + at, env = ctx.createGain();
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(g, t + Math.min(0.006, dur * 0.2));
+    env.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    let src;
+    if (type === "noise") {
+      src = ctx.createBufferSource(); src.buffer = uiNoise(ctx);
+      const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = f0; bp.Q.value = 1.2;
+      src.connect(bp); bp.connect(env);
+    } else if (type === "bell") {
+      src = ctx.createOscillator(); src.type = "sine"; src.frequency.value = f0;
+      const mod = ctx.createOscillator(), mg = ctx.createGain();
+      mod.frequency.value = f0 * 3.5; mg.gain.setValueAtTime(f0 * 0.9, t); mg.gain.exponentialRampToValueAtTime(1, t + dur);
+      mod.connect(mg); mg.connect(src.frequency); mod.start(t); mod.stop(t + dur + 0.02);
+      src.connect(env);
+    } else {
+      src = ctx.createOscillator(); src.type = type;
+      src.frequency.setValueAtTime(f0, t);
+      if (f1 !== f0) src.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+      if (lp) { const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = lp; src.connect(f); f.connect(env); } else src.connect(env);
+    }
+    env.connect(out);
+    src.start(t); src.stop(t + dur + 0.02);
+    end = Math.max(end, at + dur);
+  }
+  setTimeout(() => { try { out.disconnect(); } catch (e) {} }, (end + 0.2) * 1000);
+  return true;
+}
+
 function sfx(name, e) {
   if (!AUDIO.ready || !AUDIO.settings || AUDIO.settings.muted) return;
-  const file = SFX_FILES[name];
+  const file = SFX_FILES[name] || (UI_SYNTH[name] ? "syn_" + name : null);
   if (!file) return;
   const now = performance.now();
-  if (now - (AUDIO.lastAt[file] || 0) < (name === "step" || name === "hoof" ? 90 : 45)) return;
+  if (now - (AUDIO.lastAt[file] || 0) < (name === "step" || name === "hoof" ? 90 : name === "cursor" ? 35 : 45)) return;
   AUDIO.lastAt[file] = now;
   const { v, pan } = sfxGainFor(name, e);
   if (v <= 0.01) return;
+  if (UI_SYNTH[name] && !AUDIO.fallback && AUDIO.ctx && uiSynth(name, v)) return;
   if (name === "levelup" || name === "fanfare") duckMusic(name === "fanfare" ? 4.2 : 2.4);
   if (AUDIO.fallback) { playHtml(file, v); return; }
   const buf = AUDIO.buffers[file];
@@ -13755,8 +13822,8 @@ function dlgKey(k) {
   const d = S.dialog;
   if (!d) return;
   const n = d.all.length;
-  if (k === "arrowup") { d.sel = (d.sel - 1 + n) % n; sfx("tab"); renderDlgOpts(); }
-  else if (k === "arrowdown") { d.sel = (d.sel + 1) % n; sfx("tab"); renderDlgOpts(); }
+  if (k === "arrowup") { d.sel = (d.sel - 1 + n) % n; sfx("cursor"); renderDlgOpts(); }
+  else if (k === "arrowdown") { d.sel = (d.sel + 1) % n; sfx("cursor"); renderDlgOpts(); }
   else if (k === "enter" || k === " ") { sfx("select"); d.all[d.sel].fn(); }
 }
 function closeDialog() {
@@ -14422,8 +14489,8 @@ function tgtCmdKey(k) {
   const c = UI.cmd;
   if (!c) return;
   const n = (c.items || []).length;
-  if (k === "arrowup") { c.sel = (c.sel - 1 + n) % n; sfx("tab"); renderTgtCmd(); }
-  else if (k === "arrowdown") { c.sel = (c.sel + 1) % n; sfx("tab"); renderTgtCmd(); }
+  if (k === "arrowup") { c.sel = (c.sel - 1 + n) % n; sfx("cursor"); renderTgtCmd(); }
+  else if (k === "arrowdown") { c.sel = (c.sel + 1) % n; sfx("cursor"); renderTgtCmd(); }
   else if (k === "enter" || k === "arrowright") onTgtCmd(String(c.sel));
   else if (k === "arrowleft" || k === "backspace") { if (c.page !== "root") { c.page = "root"; c.sel = 0; sfx("close"); renderTgtCmd(); } else tgtCmdClose(); }
   else if (k === "escape") tgtCmdClose();
@@ -14458,6 +14525,20 @@ function onTgtCmd(idx) {
     playerAct(a);
     tgtCmdClose();
   }
+}
+
+function uiHoverSounds() {
+  if (UI.hoverSnd) return;
+  UI.hoverSnd = true;
+  let last = null;
+  document.addEventListener("pointerover", ev => {
+    if (ev.pointerType && ev.pointerType !== "mouse") return;
+    const el = ev.target && ev.target.closest && ev.target.closest("button, .item, [data-a], [data-mc], [data-tc], [data-o], .ffMI, .opt > *");
+    if (!el || el === last) return;
+    last = el;
+    if (el.disabled || el.classList.contains("off")) return;
+    sfx("cursor");
+  }, { passive: true });
 }
 
 function uiEvent(type, d) {
@@ -14857,8 +14938,8 @@ function mainCmdKey(k) {
   const m = UI.mm;
   if (!m) return;
   const n = mainCmdItems().length;
-  if (k === "arrowup") { m.sel = (m.sel - 1 + n) % n; sfx("tab"); renderMainCmd(); }
-  else if (k === "arrowdown") { m.sel = (m.sel + 1) % n; sfx("tab"); renderMainCmd(); }
+  if (k === "arrowup") { m.sel = (m.sel - 1 + n) % n; sfx("cursor"); renderMainCmd(); }
+  else if (k === "arrowdown") { m.sel = (m.sel + 1) % n; sfx("cursor"); renderMainCmd(); }
   else if ((k === "arrowleft" || k === "arrowright") && m.sub) return;
   else if ((k === "escape" || k === "backspace") && m.sub) { m.sub = null; m.sel = m.back || 0; sfx("close"); renderMainCmd(); }
   else if (k === "arrowleft" || k === "arrowright") { m.page = 1 - m.page; m.sel = 0; sfx("tab"); renderMainCmd(); }
@@ -16337,13 +16418,21 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v14.5.0 · built 2026-10-14 11:35 PDT";
+const BUILD_INFO = "v14.6.0 · built 2026-10-14 11:39 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "14.6.0", date: "2026-10-14", title: "Interface sounds", items: [
+    "New classic-style menu sounds throughout the interface, made in the game rather than played from recordings so they stay crisp and quiet:",
+    "A soft high tick when the cursor moves (arrow keys in any menu or list, or pointing at a button with the mouse); a bright two-note chime when you confirm; a falling blip when you back out or close a window; a quick rising shimmer when a window opens; a dull double buzz for anything you can't do.",
+    "A crisp tick when you pick a new target, a metal clink when you equip gear, a coin ping when crystals change hands and a three-note chime when you buy.",
+    "Chat chimes: a three-note bell for an incoming tell and a softer two-note bell for party chat.",
+    "Quest, unlock and notice sounds are now gentle bell arpeggios.",
+    "All of these follow the Interface volume slider in Config."
   ] },
   { v: "14.5.0", date: "2026-10-14", title: "Planted feet and four-legged gaits", items: [
     "Feet stay planted when people and monsters turn on the spot: the hips hold still while the upper body turns, then they take a quick shuffle step to catch up, instead of their feet sliding left and right.",
@@ -17486,7 +17575,8 @@ function tabHelp() {
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
-    "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch."
+    "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
+    "<b>Interface sounds:</b> the Interface slider in Config controls menu sounds (cursor tick, confirm, cancel, window open and close, errors, target, equip, coins, tell and party chimes). Turn it down to keep music and combat but silence the menus."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
     "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",
@@ -17509,7 +17599,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "14.5.0";
+const GAME_VERSION = "14.6.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -17673,8 +17763,8 @@ function modalKey(k) {
       if (k === "escape" || k === "backspace" || k === "arrowleft") { q.list = false; q.hover = null; sfx("close"); renderModal(); return true; }
       if (!n) return k.startsWith("arrow") || k === "enter";
       const i = Math.max(0, L.indexOf(q.hover));
-      if (k === "arrowup") { q.hover = L[(i - 1 + n) % n]; sfx("tab"); renderModal(); return true; }
-      if (k === "arrowdown") { q.hover = L[(L.indexOf(q.hover) + 1) % n]; sfx("tab"); renderModal(); return true; }
+      if (k === "arrowup") { q.hover = L[(i - 1 + n) % n]; sfx("cursor"); renderModal(); return true; }
+      if (k === "arrowdown") { q.hover = L[(L.indexOf(q.hover) + 1) % n]; sfx("cursor"); renderModal(); return true; }
       if (k === "enter") { const id = q.hover || L[0], why = canEquip(id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(id, q.slot); q.hover = null; q.list = false; } renderModal(); return true; }
       return false;
     }
@@ -25670,7 +25760,7 @@ function netOnTell(p) {
   if (!text || netBlocked(from)) return;
   NET_RT.lastTell = from;
   log(from + " >> " + text, "tell");
-  if (typeof sfx === "function") sfx("notify");
+  if (typeof sfx === "function") sfx("tell");
 }
 
 function netWho() {
@@ -25837,7 +25927,7 @@ function netOnPChat(p) {
   const text = cleanChat(p.text);
   if (!text) return;
   log("(" + NET_PT.members.get(p.id).name + ") " + text, "pchat");
-  if (typeof sfx === "function") sfx("tab");
+  if (typeof sfx === "function") sfx("pchat");
 }
 
 function netPartyTick() {
@@ -26905,6 +26995,7 @@ async function boot() {
   loaderProgress(0.1, "Waking the world…");
   await frames(1);
   initAudio();
+  if (typeof uiHoverSounds === "function") uiHoverSounds();
   initViewA();
   loaderProgress(0.35, "Weaving cloth and leather…");
   await frames(1);

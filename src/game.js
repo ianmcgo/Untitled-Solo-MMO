@@ -3710,6 +3710,7 @@ function conOf(m) {
 function setTarget(e, quiet) {
   const changed = player.target !== e;
   player.target = e;
+  if (changed && e && !quiet && typeof sfx === "function") sfx("target");
   if (isMob(e) && e.alive) noteBeast(e, false);
   if (isMob(e) && e.alive && !quiet && changed) uiEvent("target", e);
   if (isMob(e) && player.engaged && e !== player.attackTarget && e.alive) {
@@ -4819,7 +4820,7 @@ function buy(id) {
   if (!giveItem(id, 1, true)) return;
   save.gil -= price;
   log("You buy " + an(it.name) + " for " + price + " crystals.", "loot");
-  sfx("coin");
+  sfx("buy");
   saveGame();
 }
 
