@@ -1,0 +1,13 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+const ex = G.ZONES.marsh.exits.find(e => e.to === 'verdant');
+ok(!!ex, 'the Ashen Marsh has an east path to the Verdant Jungle');
+G.enterZone('marsh', ex.x - 5, ex.y + ex.h / 2); run(1.5);
+ok(S.zoneId === 'verdant', 'walking east out of the marsh reaches the jungle');
+const fams = new Set(S.mobs.map(m => m.famKey));
+ok(['vine_crawler', 'jungle_sapling', 'jade_toad', 'birdfolk'].some(f => fams.has(f)), 'jungle monsters lurk in the green (' + [...fams].join(', ') + ')');
+ok(S.mobs.every(m => m.lv >= 17), 'jungle monsters are level 17 and up');
+ok(G.NM_FAMILIES.old_mossback && G.ITEMS.canopy_cloak, 'Old Mossback walks with the Canopy Cloak');
+ok(G.ZONES.verdant.spawns.length >= 6, 'spawn points survive spacing (' + G.ZONES.verdant.spawns.length + ')');
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

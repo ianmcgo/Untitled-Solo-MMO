@@ -266,7 +266,7 @@ function buildVegetation(field, root) {
   const leafTex = texFoliage("leaf", [74, 110, 48]);
   const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
   const pines = [], leafy = [], leafy2 = [], rocks = [], smallRocks = [], tufts = [], stal = [], bushes = [], flowers = [], logs = [], cacti = [];
-  const desert = z.palette === "desert";
+  const desert = z.palette === "desert", jungle = z.palette === "jungle";
   const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
   if (z.vegK) for (const kk of ["trees", "rocks", "small"]) want[kk] = Math.round(want[kk] * z.vegK);
   const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts * (z.vegK || 1) * (desert ? 0.25 : 1);
@@ -277,9 +277,9 @@ function buildVegetation(field, root) {
     if (e > 560) continue;
     if (field.exitMask(px, py) > 0.2) continue;
     if (!placeable(field, px, py, { water: 50, exit: 180 })) continue;
-    const y = field.heightAt(px, py), s = 0.8 + rnd() * 0.7;
+    const y = field.heightAt(px, py), s = (0.8 + rnd() * 0.7) * (jungle ? 1.35 : 1);
     const m = mtx(px * U, y - 0.2, py * U, s, s * (0.9 + rnd() * 0.4), s, rnd() * 6.28);
-    (desert ? (rnd() < 0.85 ? cacti : leafy2) : rnd() < (theme === "town" ? 0.4 : z.palette === "snow" ? 0.85 : 0.6) ? pines : rnd() < 0.45 ? leafy2 : leafy).push(m);
+    (desert ? (rnd() < 0.85 ? cacti : leafy2) : jungle ? (rnd() < 0.6 ? leafy2 : leafy) : rnd() < (theme === "town" ? 0.4 : z.palette === "snow" ? 0.85 : 0.6) ? pines : rnd() < 0.45 ? leafy2 : leafy).push(m);
     z.colliders.push({ x: px, y: py, r: 4.6 * s });
     k++;
   }
@@ -1325,6 +1325,7 @@ const BACKDROP = {
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
   marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
   harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
+  verdant: { h: [40, 80, 140], col: [0x2e5a2a, 0x4a7050, 0x7a9488], mark: "tree" },
   sunscar: { h: [40, 85, 150], col: [0x9a6a48, 0xb48a68, 0xd8b896], mark: "peak" },
   ironvale: { h: [60, 120, 210], col: [0x7a8a96, 0xa8b8c4, 0xe0eaf2], snow: true, mark: "peak" }
 };
@@ -1399,6 +1400,7 @@ const ATMOS = {
   marsh: { tint: 0xa8c49a, haze: 0.38, far: 0.75, clouds: 1 },
   frost: { tint: 0xd2e6ff, haze: 0.25, far: 1.2, clouds: 0.55 },
   harbor: { tint: 0xc4e2ee, haze: 0.3, far: 1, clouds: 0.7 },
+  verdant: { tint: 0xb8d8a0, haze: 0.32, far: 0.85, clouds: 0.9 },
   sunscar: { tint: 0xffe2b8, haze: 0.22, far: 1.25, clouds: 0.3 },
   ironvale: { tint: 0xd8e4f0, haze: 0.22, far: 1.1, clouds: 0.6 },
   depths: { tint: 0x8aa8b8, haze: 0.4, far: 0.7, clouds: 1 }

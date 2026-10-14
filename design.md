@@ -1099,6 +1099,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Spawn spacing (3 cells of max(w,h)/15) keeps 8 camps; the rest become alts.
 - Tests: p36unit; harness exports NM_FAMILIES.
 
+## Phase 77: Verdant Jungle (v12.2.0)
+- data.js (before ZONE_SCALE): families vine_crawler, jade_hornet, jungle_sapling, bloom_mandrake, jade_toad; NM `old_mossback` (treant_elder base) → canopy_cloak; `ZONES.verdant` (3000×2400, palette "jungle", mist, vegK 1.6, lv 17–20; west exit to the marsh). Marsh gets an east exit (orig x 2776, y 700) and its middle path extended to it. WEATHER.verdant (rainy), achievement `verdant`, bestiary at file tail.
+- textures `TERRAIN_THEMES.jungle`; world3d: jungle trees ×1.35 scale, all broadleaf; BACKDROP/ATMOS verdant.
+- Bug fix: dropLoot scroll pool now requires `ITEMS["scroll_" + id]` (blue spells have no scrolls; undefined item crashed giveItem).
+- Tests: p37unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1132,8 +1138,8 @@ World scale track:
 - 71 DONE (11.0.0) SAM/NIN/DRG. 72 DONE (11.1.0) BST/BLU/COR. 73 DONE (11.2.0) PUP/DNC/SCH. 74 DONE (11.3.0) GEO/RUN. All twenty-two jobs done.
 New zones (one per release; each gets its own monsters, NM, gathering, quests, landmarks and music mood):
 - 75 DONE (12.0.0, Ironvale: town, mythril smith, 2 quests; guild/missions/residence not yet) Second city: a rival/allied nation with its own shops, guilds, missions, residence option and a distinct building style; road link to the Outpost region.
-- 76 (12.1.0) Sunscar Desert: dunes, buried temple, sandworm NM, daytime heat that drains MP (shade/water items counter it).
-- 77 (12.2.0) Verdant Jungle: dense canopy, rope bridges, vine-covered ruins.
+- 76 DONE (12.1.0; buried temple not yet) Sunscar Desert: dunes, buried temple, sandworm NM, daytime heat that drains MP (shade/water items counter it).
+- 77 DONE (12.2.0) Verdant Jungle: dense canopy, rope bridges, vine-covered ruins.
 - 78 (12.3.0) Cinder Peak: volcano, lava flows, fire elementals, top-tier smithing ore.
 - 79 (12.4.0) Gull Isle: coastal island reached by ferry; sea cliffs, pirate caves, lighthouse.
 - 80 (12.5.0) The Spire: multi-floor tower dungeon, harder per floor, boss at the top.
@@ -1176,6 +1182,7 @@ World systems:
 | 11.3.0 | Phase 74: Geomancer, Rune Fencer. |
 | 12.0.0 | Phase 75: Ironvale, mythril gear, Brisa quests. |
 | 12.1.0 | Phase 76: Sunscar Desert. |
+| 12.2.0 | Phase 77: Verdant Jungle; scroll drop fix. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

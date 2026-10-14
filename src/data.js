@@ -1149,7 +1149,7 @@ ZONES.frost = {
 
 ZONES.marsh = {
   name: "Ashen Marsh", w: 2800, h: 2400, theme: "field", palette: "marsh", mist: true,
-  exits: [{ x: 1350, y: 0, w: 100, h: 24, to: "hollow", tx: 1600, ty: 2110, label: "Rocky Hollow" }, { x: 2200, y: 2376, w: 100, h: 24, to: "harbor", tx: 500, ty: 95, label: "Saltreach Harbor" }],
+  exits: [{ x: 1350, y: 0, w: 100, h: 24, to: "hollow", tx: 1600, ty: 2110, label: "Rocky Hollow" }, { x: 2200, y: 2376, w: 100, h: 24, to: "harbor", tx: 500, ty: 95, label: "Saltreach Harbor" }, { x: 2776, y: 700, w: 24, h: 100, to: "verdant", tx: 120, ty: 1150, label: "Verdant Jungle" }],
   npcs: [],
   walls: [{ x: 300, y: 300, w: 260, h: 160 }, { x: 2300, y: 1500, w: 200, h: 320 }, { x: 900, y: 2100, w: 380, h: 140 }],
   ruins: {
@@ -1185,7 +1185,7 @@ ZONES.marsh = {
   water: [{ x: 850, y: 1350, r: 150 }, { x: 1500, y: 1100, r: 110 }, { x: 1900, y: 1700, r: 120 }, { x: 600, y: 900, r: 90 }, { x: 1150, y: 1850, r: 100 }, { x: 2400, y: 1300, r: 90 }, { x: 1700, y: 300, r: 70 }],
   paths: [
     { w: 40, pts: [[1400, -500], [1400, 0], [1350, 300], [1250, 650], [1050, 1000], [1150, 1500], [1450, 1750], [1800, 2000], [2300, 2200]] },
-    { w: 34, pts: [[1250, 650], [1700, 750], [2150, 800], [2500, 750]] },
+    { w: 34, pts: [[1250, 650], [1700, 750], [2150, 800], [2500, 750], [2800, 750], [3300, 750]] },
     { w: 30, pts: [[1150, 1500], [800, 1700], [600, 1960]] },
     { w: 34, pts: [[2300, 2200], [2250, 2400], [2250, 2900]] }
   ],
@@ -1401,6 +1401,49 @@ ZONES.sunscar = {
     harvesting: { n: 3, at: [[2100, 1300], [2350, 950], [1200, 1100], [800, 1950]], loot: [["cactus_needle", 0.5], ["healing_herb", 0.3], ["fire_crystal", 0.12]] }
   },
   start: { x: 1500, y: 100 }
+};
+
+Object.assign(FAMILIES, {
+  vine_crawler: tierFam("grass_crawler", { name: "Vine Crawler", color: "#3a7a2a", tint: 0x3a7a2a, tint2: 0xa8d060, hpMul: 1.2, attMul: 1.05, weak: { fire: 1.4 }, loot: [["crawler_cocoon", 0.4], ["worm_silk", 0.3], ["wind_crystal", 0.2], ["hi_potion", 0.06]] }),
+  jade_hornet: tierFam("honey_bee", { name: "Jade Hornet", color: "#4caf50", tint: 0x4caf50, tint2: 0x1b3a1b, attMul: 1.12, weak: { ice: 1.3 }, loot: [["honeycomb", 0.35], ["wind_crystal", 0.25], ["hi_potion", 0.06]] }),
+  jungle_sapling: tierFam("sapling", { name: "Strangler Sapling", color: "#2e6b2e", hpMul: 1.25, attMul: 1.1, aggro: { sight: 140 }, weak: { fire: 1.5 }, loot: [["heartwood", 0.15], ["ash_log", 0.4], ["earth_crystal", 0.2], ["hi_potion", 0.06]] }),
+  bloom_mandrake: tierFam("mandrake", { name: "Bloom Mandrake", color: "#d070a0", tint: 0xd070a0, tint2: 0x2e6b2e, hpMul: 1.2, loot: [["mandrake_leaf", 0.5], ["healing_herb", 0.3], ["hi_potion", 0.06]] }),
+  jade_toad: tierFam("bog_toad", { name: "Jade Toad", color: "#5aa05a", hpMul: 1.2, attMul: 1.05, loot: [["toad_oil", 0.4], ["water_crystal", 0.25], ["hi_potion", 0.06]] })
+});
+NM_FAMILIES.old_mossback = { hint: "Heart of the Canopy, Verdant Jungle · any time", base: "treant_elder", name: "Old Mossback", hpMul: 3.0, attMul: 1.15, scale: 1.6, aura: "#9ccc65", loot: [["canopy_cloak", 0.35], ["heartwood", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 480 };
+ITEMS.canopy_cloak = { name: "Canopy Cloak", kind: "equip", icon: "🧣", rare: true, nm: true, rarity: "epic", slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 4, hp: 25, mp: 25, mnd: 3, eva: 3 }, desc: "Woven from Old Mossback's living bark. It still smells of rain." };
+ZONES.verdant = {
+  name: "Verdant Jungle", w: 3000, h: 2400, theme: "field", palette: "jungle", mist: true, vegK: 1.6,
+  exits: [{ x: 0, y: 1100, w: 24, h: 100, to: "marsh", tx: 2700, ty: 750, label: "Ashen Marsh" }],
+  npcs: [],
+  walls: [{ x: 800, y: 400, w: 260, h: 220 }, { x: 1900, y: 300, w: 300, h: 240 }, { x: 1400, y: 1700, w: 360, h: 200 }, { x: 2500, y: 1500, w: 220, h: 300 }],
+  ruins: { walls: [[2200, 1000, 2420, 1000, 3.0], [2200, 1000, 2200, 1200, 2.4], [2420, 1000, 2420, 1150, 1.8], [2260, 1250, 2420, 1250, 1.2]], pillars: [[2310, 1100, 4.0], [2150, 900, 3.0], [2480, 1300, 2.6]] },
+  landmarks: [
+    { id: "mouth", name: "Green Mouth", x: 350, y: 1150, r: 220, xp: 60 },
+    { id: "falls", name: "Hanging Falls", x: 1200, y: 800, r: 240, xp: 80 },
+    { id: "temple", name: "Overgrown Temple", x: 2300, y: 1100, r: 250, xp: 90 },
+    { id: "canopy", name: "Heart of the Canopy", x: 1500, y: 1350, r: 260, xp: 90 },
+    { id: "ferns", name: "Fern Hollow", x: 700, y: 1900, r: 240, xp: 80 }
+  ],
+  spawns: [
+    { fam: "vine_crawler", lv: [17, 18], x: 600, y: 900 }, { fam: "vine_crawler", lv: [18, 19], x: 1000, y: 1500 }, { fam: "vine_crawler", lv: [18, 19], x: 2700, y: 700 },
+    { fam: "jade_hornet", lv: [18, 19], x: 1300, y: 500, time: "day" }, { fam: "jade_hornet", lv: [18, 20], x: 2000, y: 900, time: "day" },
+    { fam: "jungle_sapling", lv: [18, 19], x: 1700, y: 1100 }, { fam: "jungle_sapling", lv: [19, 20], x: 1500, y: 1250, nm: { id: "old_mossback", lv: 21, chance: 0.12 } }, { fam: "jungle_sapling", lv: [18, 20], x: 2600, y: 2000 },
+    { fam: "bloom_mandrake", lv: [17, 18], x: 500, y: 1700, time: "day" }, { fam: "bloom_mandrake", lv: [18, 19], x: 900, y: 2050, time: "day" },
+    { fam: "jade_toad", lv: [18, 19], x: 1150, y: 1000 }, { fam: "jade_toad", lv: [18, 20], x: 2100, y: 1900 },
+    { fam: "birdfolk", lv: [19, 20], x: 2300, y: 1400 }, { fam: "birdfolk", lv: [19, 20], x: 2450, y: 1350 }
+  ],
+  water: [{ x: 1200, y: 950, r: 130 }, { x: 2050, y: 1950, r: 110 }, { x: 600, y: 1450, r: 90 }],
+  paths: [
+    { w: 40, pts: [[-500, 1150], [0, 1150], [600, 1150], [1000, 1250], [1500, 1350], [1900, 1250], [2200, 1150]] },
+    { w: 30, pts: [[1000, 1250], [1050, 800], [1300, 650]] },
+    { w: 30, pts: [[1500, 1350], [1100, 1700], [700, 1900]] }
+  ],
+  gather: {
+    logging: { n: 3, at: [[400, 600], [1600, 600], [2700, 1100], [800, 2200], [2200, 2200]], loot: [["ash_log", 0.6], ["heartwood", 0.08], ["wind_crystal", 0.15]] },
+    harvesting: { n: 3, at: [[700, 1300], [1300, 1100], [1800, 1600], [2500, 900]], loot: [["healing_herb", 0.6], ["mandrake_leaf", 0.2], ["water_crystal", 0.12]] }
+  },
+  start: { x: 100, y: 1150 }
 };
 
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
@@ -1965,6 +2008,8 @@ Object.assign(NPCS, {
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
+WEATHER.verdant = [["rain", 5], ["cloudy", 3], ["fog", 2], ["clear", 2], ["storm", 1.2]];
+ACHIEVEMENTS.push({ id: "verdant", icon: "🌴", name: "Into the Green", desc: "Set foot in the Verdant Jungle.", test: s => (s.discovered || []).includes("verdant") });
 WEATHER.sunscar = [["clear", 7], ["wind", 3], ["cloudy", 1], ["storm", 0.3]];
 ACHIEVEMENTS.push({ id: "sunscar", icon: "🏜️", name: "Sunburnt", desc: "Set foot in the Sunscar Desert.", test: s => (s.discovered || []).includes("sunscar") });
 WEATHER.ironvale = [["clear", 4], ["snow", 3], ["cloudy", 3], ["wind", 1.5], ["fog", 0.8]];
@@ -2000,4 +2045,12 @@ Object.assign(BESTIARY, {
   dune_worm: { type: "Amorphous", lore: "Long worms that swim through sand as easily as soil." },
   cinder_bomb: { type: "Elemental", lore: "Bombs born of the desert's night fires. They drift between the mesas after dark." },
   sandmaw: { type: "Amorphous", lore: "A worm so large the dunes hum when it moves beneath them. Travellers call the place it hunts the Singing Dunes." }
+});
+Object.assign(BESTIARY, {
+  vine_crawler: { type: "Vermin", lore: "Crawlers wrapped in living vines, impossible to spot until they move." },
+  jade_hornet: { type: "Vermin", lore: "Green-gold hornets the size of a fist that nest in the jungle canopy." },
+  jungle_sapling: { type: "Plantoid", lore: "Young treants of the jungle. They grow fast, climb faster, and strangle what they catch." },
+  bloom_mandrake: { type: "Plantoid", lore: "Mandrakes crowned with heavy pink blooms. Their dust smells sweet and puts you to sleep." },
+  jade_toad: { type: "Amphibian", lore: "Bright green toads that sit in the jungle pools and listen." },
+  old_mossback: { type: "Plantoid", lore: "The oldest tree in the jungle, and it still walks. The canopy bends wherever it goes." }
 });
