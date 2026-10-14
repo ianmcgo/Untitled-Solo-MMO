@@ -1,4 +1,4 @@
-const NET_SCHEMA = 3;
+const NET_SCHEMA = 4;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -224,6 +224,7 @@ function netLeaveZone() {
 }
 
 function netLeaveAll() {
+  if (typeof netLsUnsub === "function") netLsUnsub();
   if (typeof netTradeCancel === "function") netTradeCancel(true);
   if (typeof netPartyLeave === "function") netPartyLeave(true);
   netLeaveZone();
@@ -237,7 +238,8 @@ function netTrack() {
   if (sig === NET_RT.lastSig) return;
   NET_RT.lastSig = sig;
   Promise.resolve(NET_RT.zch.track(m)).catch(() => {});
-  if (NET_RT.wch) Promise.resolve(NET_RT.wch.track({ name: save.name, zone: S.zoneId, lv: player.lv, job: player.job })).catch(() => {});
+  const wm = JSON.stringify(netWorldMeta());
+  if (NET_RT.wch && wm !== NET_RT.lastWSig) { NET_RT.lastWSig = wm; Promise.resolve(NET_RT.wch.track(netWorldMeta())).catch(() => {}); }
 }
 
 function netWorld() {
@@ -253,9 +255,11 @@ function netWorld() {
     ch.on("broadcast", { event: "toff" }, m => netOnToff(m.payload));
     ch.on("broadcast", { event: "tcf" }, m => netOnTcf(m.payload));
     ch.on("broadcast", { event: "tcx" }, m => netOnTcx(m.payload));
-    ch.on("presence", { event: "sync" }, () => { NET_RT.online = Object.values(ch.presenceState()).map(a => a[0]).filter(Boolean); });
-    ch.subscribe(st => { if (st === "SUBSCRIBED") Promise.resolve(ch.track({ name: save.name, zone: S.zoneId, lv: player.lv, job: player.job })).catch(() => {}); });
+    ch.on("broadcast", { event: "lsinv" }, m => netOnLsInv(m.payload));
+    ch.on("presence", { event: "sync" }, () => { NET_RT.online = Object.values(ch.presenceState()).map(a => a[0]).filter(Boolean); netFriendWatch(); });
+    ch.subscribe(st => { if (st === "SUBSCRIBED") { NET_RT.lastWSig = JSON.stringify(netWorldMeta()); Promise.resolve(ch.track(netWorldMeta())).catch(() => {}); } });
     NET_RT.wch = ch;
+    netLsRefresh();
   } catch (e) { NET_RT.wch = null; }
 }
 
@@ -344,7 +348,7 @@ function netChat(kind, text) {
 function netOnChat(p) {
   if (!p || p.id === S.charId) return;
   const text = cleanChat(p.text), name = cleanChat(p.name).slice(0, 12);
-  if (!text) return;
+  if (!text || netBlocked(name)) return;
   if (p.kind === "say" && player && Math.hypot(p.x - player.x, p.y - player.y) > 900) return;
   log((p.kind === "shout" ? name + " shouts: " : name + ": ") + text, p.kind === "shout" ? "shout" : "say");
   const o = S.others && S.others.get(p.id);
@@ -366,7 +370,7 @@ function netTell(to, text) {
 function netOnTell(p) {
   if (!p || String(p.to) !== String(save.name || "").toLowerCase()) return;
   const from = cleanChat(p.from).slice(0, 12), text = cleanChat(p.text);
-  if (!text) return;
+  if (!text || netBlocked(from)) return;
   NET_RT.lastTell = from;
   log(from + " >> " + text, "tell");
   if (typeof sfx === "function") sfx("notify");
@@ -430,6 +434,7 @@ function netPartyInvite(name) {
 function netOnPInv(p) {
   if (!p || p.to !== netLc(save.name)) return;
   const from = cleanChat(p.from).slice(0, 12);
+  if (netBlocked(from)) { netWorldSend("pdecl", { to: netLc(from), from: save.name }); return; }
   if (NET_PT.id || NET_PT.trade) { netWorldSend("pdecl", { to: netLc(from), from: save.name, busy: true }); return; }
   NET_PT.invite = { from, pid: String(p.pid).slice(0, 40), until: Date.now() + 60000 };
   log(from + " invites you to join their party. Type /join to accept or /decline.", "party");
@@ -672,6 +677,7 @@ function netTradeAsk(name) {
 function netOnTrq(p) {
   if (!p || p.to !== netLc(save.name)) return;
   const from = cleanChat(p.from).slice(0, 12);
+  if (netBlocked(from)) { netWorldSend("tno", { to: netLc(from), from: save.name }); return; }
   if (NET_PT.trade || !player || !player.alive || player.engaged) { netWorldSend("tno", { to: netLc(from), from: save.name, busy: true }); return; }
   if (typeof sfx === "function") sfx("notify");
   log(from + " wants to trade with you.", "sys");
@@ -1289,4 +1295,220 @@ async function netAhWatch() {
     }
     NET.ahBoxN = box.length;
   } catch (e) {}
+}
+
+const NET_LS = { list: [], chans: new Map(), loading: false, err: "", at: 0 };
+
+function netWorldMeta() {
+  const ls = NET_LS.list.find(l => l.id === save.lsActive);
+  return { name: save.name, zone: S.zoneId, lv: player ? player.lv : 1, job: player ? player.job : "", sub: player ? player.sub || null : null, lfg: save.lfg ? 1 : 0, cmt: save.lfg ? save.seekMsg || "" : "", ls: ls ? ls.name : "" };
+}
+
+function netBlocked(name) { return !!name && (save.blocked || []).some(b => netLc(b) === netLc(name)); }
+
+function netFriendWatch() {
+  const now = new Set(NET_RT.online.map(o => netLc(o && o.name)));
+  const prev = NET_RT.friendSeen;
+  NET_RT.friendSeen = now;
+  if (!prev) return;
+  for (const f of save.friends || []) {
+    const k = netLc(f);
+    if (now.has(k) && !prev.has(k)) { log("Friend: " + f + " has come online.", "tell"); if (typeof sfx === "function") sfx("notify"); }
+    else if (!now.has(k) && prev.has(k)) log("Friend: " + f + " has gone offline.", "sys");
+  }
+}
+
+function netFriend(cmd, name) {
+  name = cleanChat(name).slice(0, 12);
+  save.friends = save.friends || [];
+  if (cmd === "list" || !name) {
+    if (!save.friends.length) { log("Your friend list is empty. Add someone with /friend add Name.", "sys"); return; }
+    log("Friends: " + save.friends.map(f => { const o = netOnline(f); return f + (o ? " (online, " + (ZONES[o.zone] ? ZONES[o.zone].name : "?") + ")" : ""); }).join(", "), "sys");
+    return;
+  }
+  const i = save.friends.findIndex(f => netLc(f) === netLc(name));
+  if (cmd === "add") {
+    if (netLc(name) === netLc(save.name)) { log("You can't add yourself.", "sys"); return; }
+    if (i >= 0) { log(name + " is already on your friend list.", "sys"); return; }
+    if (save.friends.length >= 50) { log("Your friend list is full (50).", "sys"); return; }
+    const o = netOnline(name);
+    save.friends.push(o ? o.name : name.charAt(0).toUpperCase() + name.slice(1));
+    log(save.friends[save.friends.length - 1] + " is now on your friend list.", "sys");
+  } else if (cmd === "remove" || cmd === "del") {
+    if (i < 0) { log(name + " isn't on your friend list.", "sys"); return; }
+    log(save.friends[i] + " is removed from your friend list.", "sys");
+    save.friends.splice(i, 1);
+  } else { log("Usage: /friend add|remove|list Name", "sys"); return; }
+  saveGame();
+}
+
+function netBlock(cmd, name) {
+  name = cleanChat(name).slice(0, 12);
+  save.blocked = save.blocked || [];
+  if (cmd === "list" || !name) { log(save.blocked.length ? "Blacklist: " + save.blocked.join(", ") : "Your blacklist is empty.", "sys"); return; }
+  const i = save.blocked.findIndex(f => netLc(f) === netLc(name));
+  if (cmd === "add") {
+    if (i >= 0 || netLc(name) === netLc(save.name)) return;
+    if (save.blocked.length >= 50) { log("Your blacklist is full (50).", "sys"); return; }
+    save.blocked.push(name);
+    log("You will no longer see messages, invitations or trade requests from " + name + ".", "sys");
+  } else if (cmd === "remove" || cmd === "del") {
+    if (i < 0) { log(name + " isn't on your blacklist.", "sys"); return; }
+    save.blocked.splice(i, 1);
+    log(name + " is removed from your blacklist.", "sys");
+  } else { log("Usage: /blacklist add|remove|list Name", "sys"); return; }
+  saveGame();
+}
+
+function netSeek(on, msg) {
+  save.lfg = !!on;
+  if (msg != null) save.seekMsg = cleanChat(msg).slice(0, 40);
+  log(save.lfg ? "You are now looking for a party" + (save.seekMsg ? " (\"" + save.seekMsg + "\")" : "") + ". Others see 🔎 by your name in /search." : "You are no longer looking for a party.", "sys");
+  saveGame();
+  netTrack();
+}
+
+function netSearch(arg) {
+  const words = String(arg || "").toLowerCase().split(/\s+/).filter(Boolean);
+  let list = NET_RT.online.filter(o => o && o.name);
+  for (const w of words) {
+    const rng = w.match(/^(\d+)-(\d+)$/);
+    if (rng) list = list.filter(o => o.lv >= +rng[1] && o.lv <= +rng[2]);
+    else if (/^\d+$/.test(w)) list = list.filter(o => o.lv === +w);
+    else if (w === "lfg" || w === "seek") list = list.filter(o => o.lfg);
+    else if (w === "here") list = list.filter(o => o.zone === S.zoneId);
+    else if (JOBS[w.toUpperCase()]) list = list.filter(o => o.job === w.toUpperCase());
+    else list = list.filter(o => netLc(o.name).includes(w) || (ZONES[o.zone] && netLc(ZONES[o.zone].name).includes(w)) || netLc(o.ls).includes(w));
+  }
+  return list;
+}
+
+function netSearchLog(arg) {
+  const list = netSearch(arg);
+  if (!list.length) { log("No adventurers match" + (arg ? " \"" + arg + "\"" : "") + ".", "sys"); return; }
+  log(list.length + " found: " + list.slice(0, 20).map(o => (o.lfg ? "🔎" : "") + o.name + " " + (JOBS[o.job] ? o.job : "?") + o.lv + (o.sub ? "/" + o.sub : "") + " · " + (ZONES[o.zone] ? ZONES[o.zone].name : "?") + (o.cmt ? " · \"" + cleanChat(o.cmt) + "\"" : "")).join(" | "), "sys");
+}
+
+function netLsUnsub() {
+  for (const ch of NET_LS.chans.values()) { try { NET.sb.removeChannel(ch); } catch (e) {} }
+  NET_LS.chans = new Map();
+}
+
+function netLsSet(list) {
+  NET_LS.list = (Array.isArray(list) ? list : []).filter(l => l && l.id);
+  NET_LS.at = Date.now(); NET_LS.err = "";
+  if (!NET_LS.list.some(l => l.id === save.lsActive)) save.lsActive = NET_LS.list[0] ? NET_LS.list[0].id : null;
+  const want = new Set(NET_LS.list.map(l => l.id));
+  for (const [id, ch] of [...NET_LS.chans]) if (!want.has(id)) { try { NET.sb.removeChannel(ch); } catch (e) {} NET_LS.chans.delete(id); }
+  for (const l of NET_LS.list) {
+    if (NET_LS.chans.has(l.id)) continue;
+    try {
+      const ch = NET.sb.channel("ls:" + l.id, { config: { broadcast: { self: false } } });
+      ch.on("broadcast", { event: "lsc" }, m => netOnLsChat(l.id, m.payload));
+      ch.on("broadcast", { event: "lsx" }, () => netLsRefresh());
+      ch.subscribe();
+      NET_LS.chans.set(l.id, ch);
+    } catch (e) {}
+  }
+  netTrack();
+  if (typeof S !== "undefined" && S.modal === "social" && typeof renderModal === "function") renderModal();
+}
+
+async function netLsRefresh() {
+  if (!NET.member || !S.charId || NET_LS.loading) return;
+  NET_LS.loading = true;
+  try {
+    const { data, error } = await NET.sb.rpc("ls_mine", { my_char: S.charId });
+    if (error) throw error;
+    netLsSet(data);
+  } catch (e) { NET_LS.err = netAhErr(e); NET_LS.at = Date.now(); }
+  NET_LS.loading = false;
+}
+
+function netLsOf(idx) {
+  if (idx != null) return NET_LS.list[idx] || null;
+  return NET_LS.list.find(l => l.id === save.lsActive) || NET_LS.list[0] || null;
+}
+
+function netLsChat(text, idx) {
+  text = cleanChat(text);
+  const l = netLsOf(idx);
+  if (!l) { log("You aren't in a linkshell. Make or join one in the Social window.", "sys"); return; }
+  if (!text) return;
+  if (Date.now() - NET_RT.lastChat < 700) { log("You're talking too fast.", "sys"); return; }
+  NET_RT.lastChat = Date.now();
+  log("[" + l.name + "] <" + save.name + "> " + text, "ls");
+  const ch = NET_LS.chans.get(l.id);
+  if (ch) Promise.resolve(ch.send({ type: "broadcast", event: "lsc", payload: { id: S.charId, name: save.name, text } })).catch(() => {});
+}
+
+function netOnLsChat(lsid, p) {
+  const l = NET_LS.list.find(x => x.id === lsid);
+  if (!l || !p) return;
+  const name = cleanChat(p.name).slice(0, 12), text = cleanChat(p.text);
+  if (!text || netBlocked(name) || !l.members.some(m => netLc(m.name) === netLc(name))) return;
+  log("[" + l.name + "] <" + name + "> " + text, "ls");
+  if (typeof sfx === "function") sfx("tab");
+}
+
+function netLsPing(id) { const ch = NET_LS.chans.get(id); if (ch) Promise.resolve(ch.send({ type: "broadcast", event: "lsx", payload: {} })).catch(() => {}); }
+
+async function netLsCall(fn, args) {
+  const { data, error } = await NET.sb.rpc(fn, Object.assign({ my_char: S.charId }, args));
+  if (error) throw error;
+  return data;
+}
+
+async function netLsCreate(name, color) {
+  name = String(name || "").trim().replace(/\s+/g, " ");
+  if (!/^[A-Za-z][A-Za-z ]{1,14}[A-Za-z]$/.test(name)) throw new Error("Linkshell names are 3–16 letters (spaces allowed inside).");
+  const d = await netServerOp("ls_create", { name, color: /^#[0-9a-fA-F]{6}$/.test(color || "") ? color : "#7fd3ff" });
+  log("You create the linkshell " + name + " (500 crystals).", "ls");
+  save.lsActive = d.id;
+  await netLsRefresh();
+  return d;
+}
+
+async function netLsInvite(lsid, target) {
+  target = cleanChat(target).slice(0, 12);
+  const d = await netLsCall("ls_invite", { ls: lsid, target });
+  netWorldSend("lsinv", { to: netLc(d.name), from: save.name, ls: lsid, lsName: d.ls });
+  log("You invite " + d.name + " to " + d.ls + ".", "ls");
+  return d;
+}
+
+function netOnLsInv(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  const from = cleanChat(p.from).slice(0, 12), nm = cleanChat(p.lsName).slice(0, 16), id = String(p.ls || "");
+  if (netBlocked(from) || !/^[0-9a-f-]{36}$/.test(id)) return;
+  NET_LS.invite = { id, name: nm, from, until: Date.now() + 600000 };
+  log(from + " invites you to the linkshell " + nm + ". Accept in the Social window or with /lsjoin.", "ls");
+  if (typeof sfx === "function") sfx("notify");
+  if (typeof gameConfirm === "function" && !(typeof UI !== "undefined" && UI.confirmOpen)) gameConfirm("Linkshell invitation", from + " invites you to join the linkshell " + nm + ".", () => netLsJoin().catch(e => log(netAhErr(e), "sys")), { yes: "Join", no: "Not now" });
+}
+
+async function netLsJoin() {
+  const inv = NET_LS.invite;
+  if (!inv || Date.now() > inv.until) { NET_LS.invite = null; throw new Error("You have no linkshell invitation."); }
+  const d = await netLsCall("ls_join", { ls: inv.id });
+  NET_LS.invite = null;
+  save.lsActive = inv.id;
+  netLsSet(d);
+  netLsPing(inv.id);
+  log("You join the linkshell " + inv.name + ". Talk with /l.", "ls");
+  saveGame();
+}
+
+async function netLsLeave(lsid) {
+  const l = NET_LS.list.find(x => x.id === lsid);
+  const d = await netLsCall("ls_leave", { ls: lsid });
+  netLsPing(lsid);
+  netLsSet(d);
+  log("You leave the linkshell " + (l ? l.name : "") + ".", "ls");
+}
+
+async function netLsSetRank(lsid, target, action) {
+  const d = await netLsCall("ls_set", { ls: lsid, target, action });
+  netLsSet(d);
+  netLsPing(lsid);
 }

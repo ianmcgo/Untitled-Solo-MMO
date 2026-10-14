@@ -20,7 +20,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [typeof netPartySig === "function" ? netPartySig() : "", save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [typeof netPartySig === "function" ? netPartySig() : "", typeof NET_LS !== "undefined" ? NET_LS.at + ":" + !!NET_LS.invite + ":" + NET_RT.online.map(o => o && o.name + o.zone + o.lv + o.lfg).join() + save.friends.join() + save.blocked.join() + save.lfg : "", save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -41,7 +41,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -666,6 +666,42 @@ function tabTrade() {
   return h;
 }
 
+function tabSocial() {
+  if (typeof NET_LS === "undefined" || !NET.member) return '<div class="sub">Social features need the game server.</div>';
+  if (!NET_LS.at && !NET_LS.loading) netLsRefresh().then(() => { if (S.modal === "social") renderModal(); });
+  let h = UI.socMsg ? '<div class="sub" style="color:#ffd54f;margin-bottom:6px">' + esc(UI.socMsg) + "</div>" : "";
+  h += '<h3>🔎 Looking for a party</h3><div class="item"><div><b>' + (save.lfg ? "On" : "Off") + '</b><div class="sub">' + (save.lfg ? esc(save.seekMsg || "No message") + " · others see 🔎 next to your name in search" : "Turn on to let others know you want a party.") + '</div></div><div style="display:flex;gap:6px"><button data-a="socseekmsg">Message</button><button class="' + (save.lfg ? "" : "pri") + '" data-a="socseek">' + (save.lfg ? "Stop" : "Start") + "</button></div></div>";
+  const q = UI.socQ || "";
+  const res = netSearch(q).slice(0, 40);
+  h += '<h3>🌐 Online now (' + NET_RT.online.length + ')</h3><div class="opt" style="margin-bottom:6px"><button data-a="socq">🔍 Filter' + (q ? ": " + esc(q) : "") + "</button>" + (q ? '<button data-a="socqclear">✕</button>' : "") + '<button data-a="socqlfg">🔎 Looking for party</button><button data-a="socqhere">📍 This area</button></div>';
+  if (!res.length) h += '<div class="sub">Nobody matches.</div>';
+  for (const o of res) {
+    const me = netLc(o.name) === netLc(save.name), fr = (save.friends || []).some(f => netLc(f) === netLc(o.name));
+    h += '<div class="item"><div><b>' + (o.lfg ? "🔎 " : "") + esc(o.name) + (fr ? " ⭐" : "") + '</b> <span class="sub">' + (JOBS[o.job] ? o.job : "?") + o.lv + (o.sub ? "/" + esc(o.sub) : "") + " · " + esc(ZONES[o.zone] ? ZONES[o.zone].name : "?") + (o.ls ? " · 🔗 " + esc(o.ls) : "") + "</span>" + (o.cmt ? '<div class="sub">"' + esc(o.cmt) + '"</div>' : "") + "</div>" + (me ? '<span class="sub">You</span>' : '<div style="display:flex;gap:4px;flex-wrap:wrap"><button data-a="soctell" data-v="' + esc(o.name) + '">Tell</button><button data-a="socinv" data-v="' + esc(o.name) + '">Invite</button>' + (fr ? "" : '<button data-a="socfadd" data-v="' + esc(o.name) + '">+ Friend</button>') + "</div>") + "</div>";
+  }
+  h += "<h3>⭐ Friends (" + (save.friends || []).length + ")</h3>";
+  if (!(save.friends || []).length) h += '<div class="sub">No friends yet. Use + Friend above or /friend add Name. You\'re told when they come online.</div>';
+  for (const f of save.friends || []) {
+    const o = netOnline(f);
+    h += '<div class="item"><div><b>' + esc(f) + '</b> <span class="sub">' + (o ? "🟢 " + (JOBS[o.job] ? o.job : "") + o.lv + " · " + esc(ZONES[o.zone] ? ZONES[o.zone].name : "?") : "⚪ offline") + '</span></div><div style="display:flex;gap:4px">' + (o ? '<button data-a="soctell" data-v="' + esc(f) + '">Tell</button><button data-a="socinv" data-v="' + esc(f) + '">Invite</button>' : "") + '<button data-a="socfdel" data-v="' + esc(f) + '">Remove</button></div></div>';
+  }
+  h += "<h3>🔗 Linkshells</h3>";
+  if (NET_LS.invite) h += '<div class="item" style="border-color:#a5d6a7"><span><b>' + esc(NET_LS.invite.from) + "</b> invites you to <b>" + esc(NET_LS.invite.name) + '</b>.</span><button class="pri" data-a="lsjoin">Join</button></div>';
+  if (NET_LS.err) h += '<div class="sub">' + esc(NET_LS.err) + "</div>";
+  else if (!NET_LS.at) h += '<div class="sub">Loading…</div>';
+  else if (!NET_LS.list.length) h += '<div class="sub">A linkshell is a chat group that stays together across areas, like a guild. Make one (500 crystals) and invite friends, or ask someone to invite you. Talk with /l.</div>';
+  NET_LS.list.forEach((l, i) => {
+    const act = l.id === save.lsActive, boss = l.rank === "leader", sack = l.rank === "sack";
+    h += '<div class="item" style="display:block;border-color:' + esc(l.color) + '"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b style="color:' + esc(l.color) + '">🔗 ' + esc(l.name) + '</b> <span class="sub">/l' + (i + 1) + " · " + (boss ? "Leader" : sack ? "Sack holder" : "Member") + " · " + l.members.length + ' members</span></div><div style="display:flex;gap:4px;flex-wrap:wrap">' + (act ? '<span class="sub">Active (/l)</span>' : '<button data-a="lsact" data-v="' + l.id + '">Make active</button>') + (boss || sack ? '<button data-a="lsinv" data-v="' + l.id + '">Invite</button>' : "") + '<button data-a="lsleave" data-v="' + l.id + '">Leave</button></div></div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' + l.members.map(m => { const on = !!netOnline(m.name); return '<span class="chip" style="font-size:11px">' + (m.rank === "leader" ? "👑 " : m.rank === "sack" ? "🎒 " : "") + (on ? "🟢 " : "") + esc(m.name) + (boss && m.rank !== "leader" ? ' <button data-a="lsrank" data-v="' + l.id + "|" + esc(m.name) + "|" + (m.rank === "sack" ? "pearl" : "sack") + '" style="padding:0 4px" title="' + (m.rank === "sack" ? "Make member" : "Make sack holder") + '">' + (m.rank === "sack" ? "▼" : "▲") + '</button><button data-a="lsrank" data-v="' + l.id + "|" + esc(m.name) + '|kick" style="padding:0 4px" title="Remove">✕</button>' : sack && m.rank === "pearl" ? ' <button data-a="lsrank" data-v="' + l.id + "|" + esc(m.name) + '|kick" style="padding:0 4px" title="Remove">✕</button>' : "") + "</span>"; }).join("") + "</div></div>";
+  });
+  if (NET_LS.at && !NET_LS.err && NET_LS.list.length < 3) h += '<div style="margin:6px 0"><button data-a="lsnew">➕ New linkshell (500 💠)</button></div>';
+  h += "<h3>🚫 Blacklist</h3>" + ((save.blocked || []).length ? save.blocked.map(b => '<span class="chip" style="font-size:11px">' + esc(b) + ' <button data-a="socbdel" data-v="' + esc(b) + '" style="padding:0 4px">✕</button></span>').join(" ") : '<div class="sub">Nobody. Use /blacklist add Name to hide someone.</div>');
+  return h;
+}
+
+function socAct(p, ok) { p.then(() => { UI.socMsg = ok || ""; renderModal(); }, e => { UI.socMsg = netAhErr(e); renderModal(); }); }
+
 function tabParty() {
   let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once per game day (about ' + Math.round(COMPANION_CFG.dayMs / 60000) + ' real minutes). If you can\'t pay, they go back to the Mercenary Hall.</div>';
   h += '<div style="display:flex;gap:6px;margin-bottom:10px">' + [["assist", "⚔ Assist", "Fight your target"], ["follow", "🚶 Follow", "Stay close, don't attack"], ["hold", "✋ Hold", "Stand ground"]].map(([k, l, d]) => '<button data-a="stance" data-v="' + k + '" title="' + d + '"' + (save.stance === k ? ' class="pri"' : "") + ">" + l + "</button>").join("") + "</div>";
@@ -1107,6 +1143,23 @@ function onMenuClick(e) {
   else if (a === "ahbuy") { UI.ahMsg = ahBuy(UI.ahSel, UI.ahQty || 1); UI.ahQty = 1; renderModal(); return; }
   else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
   else if (a === "ahcancel") { ahCancel(+v); renderModal(); return; }
+  else if (a === "socseek") { netSeek(!save.lfg, null); renderModal(); return; }
+  else if (a === "socseekmsg") { const m = prompt("Looking-for-party message (up to 40 characters):", save.seekMsg || ""); if (m !== null) netSeek(true, m); renderModal(); return; }
+  else if (a === "socq") { const m = prompt("Filter: job (WHM), level (12) or range (10-15), area, name, lfg, here", UI.socQ || ""); if (m !== null) UI.socQ = m; renderModal(); return; }
+  else if (a === "socqclear") { UI.socQ = ""; renderModal(); return; }
+  else if (a === "socqlfg") { UI.socQ = "lfg"; renderModal(); return; }
+  else if (a === "socqhere") { UI.socQ = "here"; renderModal(); return; }
+  else if (a === "soctell") { closeModal(); const inp = $("chatIn"); if (inp) { inp.value = "/t " + v + " "; inp.focus(); } return; }
+  else if (a === "socinv") { netPartyInvite(v); renderModal(); return; }
+  else if (a === "socfadd") { netFriend("add", v); renderModal(); return; }
+  else if (a === "socfdel") { netFriend("remove", v); renderModal(); return; }
+  else if (a === "socbdel") { netBlock("remove", v); renderModal(); return; }
+  else if (a === "lsjoin") { socAct(netLsJoin()); return; }
+  else if (a === "lsact") { save.lsActive = v; saveGame(); netTrack(); UI.socMsg = "Active linkshell changed. /l talks there."; renderModal(); return; }
+  else if (a === "lsinv") { const nm = prompt("Invite which character to the linkshell?", ""); if (nm) socAct(netLsInvite(v, nm), "Invitation sent."); return; }
+  else if (a === "lsleave") { gameConfirm("Leave linkshell", "Leave this linkshell? You'll need a new invitation to come back.", () => socAct(netLsLeave(v)), { yes: "Leave", danger: true }); return; }
+  else if (a === "lsrank") { const [id, nm, act] = v.split("|"); socAct(netLsSetRank(id, nm, act)); return; }
+  else if (a === "lsnew") { const nm = prompt("Name your linkshell (3–16 letters):", ""); if (!nm) return; const cols = ["#7fd3ff", "#a5d6a7", "#ffd54f", "#ff8a65", "#ce93d8", "#f48fb1"]; socAct(netLsCreate(nm, cols[Math.floor(Math.random() * cols.length)]), "Linkshell created. Invite people from here."); return; }
   else if (a === "pmrefresh") { pmLoad(true); renderModal(); return; }
   else if (a === "pmcat") { UI.pmCat = v; UI.pmSel = null; renderModal(); return; }
   else if (a === "pmsel") { UI.pmSel = v || null; renderModal(); return; }
@@ -1188,6 +1241,14 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.7.0", date: "2026-10-13", title: "Social", items: [
+    "New Social window: everyone online with job, level, area and linkshell, with Tell, Invite and + Friend buttons and filters.",
+    "Friend list with online alerts (/friend).",
+    "Linkshells: create one (500 crystals), invite members, promote sack holders, and chat across the whole world with /l. Up to 3 per character.",
+    "Looking-for-party flag with a short message (/seek), shown in search.",
+    "/search by job, level range, area, name, lfg or here.",
+    "Blacklist (/blacklist) hides a player's messages and requests."
   ] },
   { v: "8.6.0", date: "2026-10-13", title: "Player auction house", items: [
     "New 🌐 Players section at the auction house: buy lots that other adventurers have put up, at their prices, with seller names, time left and recent sale prices.",
@@ -1762,6 +1823,15 @@ function tabHelp() {
     "Kills by a party member nearby count for your quest and guild bounty tallies too.",
     "<b>Magic on party members:</b> tap a party member and choose Magic, or target them and cast. Cure spells and Protect work on players in your party.",
     "Your companions stay with you and fight only your monsters. Party chat: <b>/p text</b>. Leave with <b>/leave</b>, remove a member with <b>/kick Name</b>."
+  ]));
+  h += sec("💬 Social: friends, linkshells and search", ul([
+    "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",
+    "<b>Search:</b> filter the online list by job (WHM), level (12) or range (10-15), area, name, <b>lfg</b> or <b>here</b>. /search does the same in chat.",
+    "<b>Looking for a party:</b> turn it on (or /seek message) and others see 🔎 and your short message next to your name. Turn it off the same way.",
+    "<b>Friends:</b> add up to 50 with + Friend or /friend add Name. You're told when they come online or go offline, and can Tell or Invite them from the list. Your friend list belongs to this character.",
+    "<b>Linkshells</b> are chat groups that stay together across areas, like a guild. Make one for 500 crystals; the founder is the leader (👑) and can promote sack holders (🎒) who can also invite and remove members. You can be in up to 3; talk to the active one with <b>/l</b>, or a specific one with /l1, /l2, /l3. Members' linkshell names show in search.",
+    "If the leader leaves, the longest-serving sack holder (or member) takes over. When the last member leaves, the linkshell is gone.",
+    "<b>Blacklist:</b> /blacklist add Name hides that player's chat, tells, linkshell messages, party invitations and trade requests."
   ]));
   h += sec("🔄 Trading", ul([
     "Stand near another player and tap them, then choose <b>Trade</b>, or type <b>/trade Name</b>. They get a popup to accept.",

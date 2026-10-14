@@ -7,7 +7,7 @@ create table if not exists game_private.config (k text primary key, v text not n
 revoke all on game_private.config from public, anon, authenticated;
 insert into game_private.config (k, v) values ('level_cap', '20') on conflict (k) do nothing;
 insert into game_private.config (k, v) values ('bag_size', '30') on conflict (k) do nothing;
-insert into game_private.config (k, v) values ('schema', '3') on conflict (k) do update set v = greatest(game_private.config.v::int, 3)::text;
+insert into game_private.config (k, v) values ('schema', '4') on conflict (k) do update set v = greatest(game_private.config.v::int, 4)::text;
 
 create table if not exists game_private.audit (id bigserial primary key, at timestamptz not null default now(), char_id uuid, char_name text, owner uuid, kind text not null, detail text);
 create table if not exists game_private.trade_offers (me uuid primary key, peer uuid not null, mine jsonb not null, theirs jsonb not null, created_at timestamptz not null default now(), status text not null default 'open', result jsonb);
@@ -105,6 +105,7 @@ begin
     'schema', (select v from game_private.config where k = 'schema'),
     'trades_7d', (select count(*) from game_private.trade_log where at > now() - interval '7 days'),
     'ah_open', (select count(*) from public.ah_listings where status = 'open'),
+    'linkshells', (select count(*) from public.linkshells),
     'ah_sold_7d', (select count(*) from public.ah_listings where status = 'sold' and sold_at > now() - interval '7 days'),
     'audit', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select a.at, a.char_name, a.kind, a.detail, p.email from game_private.audit a left join public.players p on p.id = a.owner order by a.at desc limit 50) x),
     'banned_list', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select email from public.players where banned order by email limit 100) x),
@@ -428,3 +429,127 @@ $$;
 
 revoke all on function public.ah_post(uuid, text, int, bigint, int), public.ah_buy(uuid, bigint), public.ah_cancel(uuid, bigint), public.ah_box_list(uuid), public.ah_collect(uuid), public.ah_history(text) from public, anon;
 grant execute on function public.ah_post(uuid, text, int, bigint, int), public.ah_buy(uuid, bigint), public.ah_cancel(uuid, bigint), public.ah_box_list(uuid), public.ah_collect(uuid), public.ah_history(text) to authenticated;
+
+create table if not exists public.linkshells (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (char_length(name) between 3 and 16 and name ~ '^[A-Za-z][A-Za-z ]*[A-Za-z]$'),
+  color text not null default '#7fd3ff' check (color ~ '^#[0-9a-fA-F]{6}$'),
+  owner_char uuid references public.characters(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+create unique index if not exists linkshells_name on public.linkshells (lower(name));
+alter table public.linkshells enable row level security;
+revoke all on public.linkshells from anon, authenticated;
+
+create table if not exists public.ls_members (
+  ls_id uuid not null references public.linkshells(id) on delete cascade,
+  char_id uuid not null references public.characters(id) on delete cascade,
+  char_name text not null,
+  rank text not null default 'pearl' check (rank in ('leader', 'sack', 'pearl')),
+  joined_at timestamptz not null default now(),
+  primary key (ls_id, char_id)
+);
+create index if not exists ls_members_char on public.ls_members (char_id);
+alter table public.ls_members enable row level security;
+revoke all on public.ls_members from anon, authenticated;
+
+create table if not exists game_private.ls_invites (ls_id uuid not null, char_name text not null, by_name text, expires_at timestamptz not null, primary key (ls_id, char_name));
+revoke all on game_private.ls_invites from public, anon, authenticated;
+
+create or replace function game_private.ls_rank_of(lsid uuid, cid uuid) returns text
+language sql stable as $$ select rank from public.ls_members where ls_id = lsid and char_id = cid $$;
+
+create or replace function public.ls_mine(my_char uuid) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+begin
+  perform game_private.my_char(my_char);
+  return (select coalesce(jsonb_agg(jsonb_build_object('id', l.id, 'name', l.name, 'color', l.color, 'rank', m.rank,
+    'members', (select coalesce(jsonb_agg(jsonb_build_object('name', x.char_name, 'rank', x.rank) order by case x.rank when 'leader' then 0 when 'sack' then 1 else 2 end, x.char_name), '[]'::jsonb) from public.ls_members x where x.ls_id = l.id)
+  ) order by m.joined_at), '[]'::jsonb) from public.ls_members m join public.linkshells l on l.id = m.ls_id where m.char_id = my_char);
+end $$;
+
+create or replace function public.ls_create(my_char uuid, name text, color text) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare c public.characters; g bigint; lid uuid;
+begin
+  c := game_private.my_char(my_char);
+  if (select count(*) from public.ls_members where char_id = my_char) >= 3 then raise exception 'You can be in up to 3 linkshells'; end if;
+  if exists (select 1 from public.linkshells where lower(linkshells.name) = lower(ls_create.name)) then raise exception 'That linkshell name is taken'; end if;
+  g := coalesce((c.data ->> 'gil')::bigint, 0);
+  if g < 500 then raise exception 'A new linkshell costs 500 crystals'; end if;
+  g := g - 500;
+  perform game_private.char_save(my_char, case when jsonb_typeof(c.data -> 'inventory') = 'array' then c.data -> 'inventory' else '[]'::jsonb end, g);
+  insert into public.linkshells (name, color, owner_char) values (trim(ls_create.name), coalesce(color, '#7fd3ff'), my_char) returning id into lid;
+  insert into public.ls_members (ls_id, char_id, char_name, rank) values (lid, my_char, c.name, 'leader');
+  return jsonb_build_object('id', lid, 'gil', g);
+end $$;
+
+create or replace function public.ls_invite(my_char uuid, ls uuid, target text) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare c public.characters; t public.characters; r text;
+begin
+  c := game_private.my_char(my_char);
+  r := game_private.ls_rank_of(ls, my_char);
+  if r is null or r = 'pearl' then raise exception 'Only the leader or a sack holder can invite'; end if;
+  select * into t from public.characters where lower(characters.name) = lower(target);
+  if not found then raise exception 'Nobody is called %', target; end if;
+  if exists (select 1 from public.ls_members where ls_id = ls and char_id = t.id) then raise exception '% is already in this linkshell', t.name; end if;
+  if (select count(*) from public.ls_members where ls_id = ls) >= 100 then raise exception 'This linkshell is full'; end if;
+  insert into game_private.ls_invites (ls_id, char_name, by_name, expires_at) values (ls, lower(t.name), c.name, now() + interval '10 minutes')
+    on conflict (ls_id, char_name) do update set by_name = excluded.by_name, expires_at = excluded.expires_at;
+  return jsonb_build_object('name', t.name, 'ls', (select name from public.linkshells where id = ls));
+end $$;
+
+create or replace function public.ls_join(my_char uuid, ls uuid) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare c public.characters;
+begin
+  c := game_private.my_char(my_char);
+  if not exists (select 1 from game_private.ls_invites where ls_id = ls and char_name = lower(c.name) and expires_at > now()) then raise exception 'That invitation has expired'; end if;
+  if (select count(*) from public.ls_members where char_id = my_char) >= 3 then raise exception 'You can be in up to 3 linkshells'; end if;
+  insert into public.ls_members (ls_id, char_id, char_name) values (ls, my_char, c.name) on conflict do nothing;
+  delete from game_private.ls_invites where ls_id = ls and char_name = lower(c.name);
+  return public.ls_mine(my_char);
+end $$;
+
+create or replace function public.ls_leave(my_char uuid, ls uuid) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare r text; nxt uuid;
+begin
+  perform game_private.my_char(my_char);
+  r := game_private.ls_rank_of(ls, my_char);
+  if r is null then raise exception 'You are not in that linkshell'; end if;
+  delete from public.ls_members where ls_id = ls and char_id = my_char;
+  if r = 'leader' then
+    select char_id into nxt from public.ls_members where ls_id = ls order by case rank when 'sack' then 0 else 1 end, joined_at limit 1;
+    if nxt is null then delete from public.linkshells where id = ls;
+    else update public.ls_members set rank = 'leader' where ls_id = ls and char_id = nxt; end if;
+  end if;
+  return public.ls_mine(my_char);
+end $$;
+
+create or replace function public.ls_set(my_char uuid, ls uuid, target text, action text) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare r text; tr text; tid uuid;
+begin
+  perform game_private.my_char(my_char);
+  r := game_private.ls_rank_of(ls, my_char);
+  select char_id, rank into tid, tr from public.ls_members where ls_id = ls and lower(char_name) = lower(target);
+  if tid is null then raise exception 'Nobody called % is in this linkshell', target; end if;
+  if tid = my_char then raise exception 'Use Leave for yourself'; end if;
+  if action = 'kick' then
+    if r is null or r = 'pearl' or tr = 'leader' or (r = 'sack' and tr <> 'pearl') then raise exception 'You can''t remove that member'; end if;
+    delete from public.ls_members where ls_id = ls and char_id = tid;
+  elsif action in ('sack', 'pearl') then
+    if r is distinct from 'leader' then raise exception 'Only the leader can change ranks'; end if;
+    update public.ls_members set rank = action where ls_id = ls and char_id = tid;
+  elsif action = 'leader' then
+    if r is distinct from 'leader' then raise exception 'Only the leader can hand over the linkshell'; end if;
+    update public.ls_members set rank = 'sack' where ls_id = ls and char_id = my_char;
+    update public.ls_members set rank = 'leader' where ls_id = ls and char_id = tid;
+  else raise exception 'Unknown action'; end if;
+  return public.ls_mine(my_char);
+end $$;
+
+revoke all on function public.ls_mine(uuid), public.ls_create(uuid, text, text), public.ls_invite(uuid, uuid, text), public.ls_join(uuid, uuid), public.ls_leave(uuid, uuid), public.ls_set(uuid, uuid, text, text) from public, anon;
+grant execute on function public.ls_mine(uuid), public.ls_create(uuid, text, text), public.ls_invite(uuid, uuid, text), public.ls_join(uuid, uuid), public.ls_leave(uuid, uuid), public.ls_set(uuid, uuid, text, text) to authenticated;

@@ -802,11 +802,23 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Tested: local Postgres (post, stack limit, missing item, insufficient crystals, buy, double buy refused, box list, collect both sides, cancel by non-owner refused, withdraw + collect, history, expiry return, RLS hides sold rows from others); netshots mocks listing/box/history/buy/collect and screenshots the Players view.
 - release.sh now runs node --check on dist/game.js (a missing parenthesis in menu4 slipped past the rules tests once).
 
+## Phase 37: social (v8.7.0) — schema 4
+- Save fields (normalizeSave/newSave): friends[] (≤ 50 names), blocked[] (≤ 50), lsActive (linkshell id), lfg, seekMsg (≤ 40). Friends/blacklist are per character and client-side only.
+- World presence meta = netWorldMeta(): name, zone, lv, job, sub, lfg, cmt (seek message when lfg), ls (active linkshell name); netTrack re-tracks the world channel when it changes (lastWSig). netFriendWatch on each world sync logs friends coming online/offline (first sync only seeds).
+- netSearch(words): numbers = level, a-b = range, lfg/seek, here, job codes, else name/area/linkshell substring. netSearchLog for /search.
+- Blacklist checks (netBlocked) in netOnChat, netOnTell, netOnPInv (auto-decline), netOnTrq (auto-decline), netOnLsChat, netOnLsInv.
+- Linkshells (SQL): public.linkshells (name 3–16 letters with inner spaces, unique lower, color hex, owner_char), public.ls_members (rank leader/sack/pearl, ≤ 100 per shell, ≤ 3 shells per character), game_private.ls_invites (10 min). Tables have no client grants; everything through definer RPCs: ls_mine, ls_create (500 crystals via char_save), ls_invite (leader/sack), ls_join (needs invite), ls_leave (leader hand-off to the oldest sack, else oldest member; empty shell deleted), ls_set (kick: leader any non-leader, sack only members; sack/pearl rank changes and leader hand-off: leader only). admin_stats adds linkshells.
+- Client (NET_LS): netLsRefresh on world join → netLsSet subscribes "ls:<id>" channels (events lsc chat, lsx refresh ping). Chat shows only if the sender's name is in the member list. Invites: ls_invite RPC then world broadcast lsinv {to, from, ls, lsName} → confirm → ls_join. Commands /l, /l1–/l3, /lsjoin, /friend, /blacklist (/bl), /search (/sea), /seek (/lfg), /social. Log class ls (green), in the Chat filter.
+- UI: Social tab (MAIN_TABS after Party): LFG toggle/message, online list with filter shortcuts, friends with status, linkshell cards with member chips and rank/kick buttons, new linkshell, blacklist chips. menuSig includes online/friends/linkshell state.
+- Limits: linkshell channels are realtime broadcast channels; someone who learned a shell's id and spoofed a member name could post into it. Friend alerts depend on world presence (no offline mail).
+- Tested on local Postgres (create, name check, invite needs rank, join needs invite, kick rules, rank change, leader leave hand-off, last leave deletes, direct table reads refused) and in netshots (ls refresh, friend alerts, search filters, /l and spoof rejection, blacklist, seek meta, Social screenshot).
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.7.0 | Phase 37: Social window, friends, linkshells, LFG, /search, blacklist. |
 | 8.6.0 | Phase 36: player auction house (server listings, delivery box, sale alerts). |
 | 8.5.0 | Phase 35: save checks + audit, atomic server trades, bans, setup versioning. |
 | 8.4.0 | Phase 34: claim rules, cross-player skillchains/bursts, /assist Name. |

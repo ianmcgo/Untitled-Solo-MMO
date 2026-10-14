@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "8.6.0",
-  "releaseTitle": "Player auction house",
+  "version": "8.7.0",
+  "releaseTitle": "Social",
   "description": "",
   "main": "index.js",
   "scripts": {
