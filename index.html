@@ -522,7 +522,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.5.0 · built 2026-10-13 17:29 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.5.1 · built 2026-10-13 17:32 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5685,6 +5685,9 @@ const ITEMS = {
   ashen_shard: { name: "Ashen Shard", kind: "key", icon: "🕯️", desc: "A sliver of black stone, warm to the touch. Faint letters crawl across it." },
   cinder_mantle: { name: "Cinderweave Mantle", kind: "equip", icon: "🧥", rare: true, nm: true, rarity: "epic", slot: "body", jobs: ALL_J, lv: 19, stats: { def: 24, hp: 40, mp: 40, str: 3, int: 3 }, desc: "Woven from ash that never settles. Faintly warm." },
   ember_ring: { name: "Ember of Ashenreach", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 19, price: 0, stats: { hp: 50, mp: 50, str: 5, int: 5, mnd: 5, att: 8, acc: 8 }, desc: "A ring set with a coal that never cools. Given to the one who kept the embers." },
+  egg_meadow_kit: { name: "Meadow Kit (pet)", kind: "pet", pet: "meadow_kit", icon: "🐇", rare: true, price: 0, desc: "A tiny hare that followed you home. Use it to make it your pet." },
+  egg_batling: { name: "Batling (pet)", kind: "pet", pet: "batling", icon: "🦇", rare: true, price: 0, desc: "A bat pup clinging to your sleeve. Use it to make it your pet." },
+  egg_wormlet: { name: "Wormlet (pet)", kind: "pet", pet: "wormlet", icon: "🪱", rare: true, price: 0, desc: "A stubby worm curled in a pot. Use it to make it your pet." },
   egg_snow_kit: { name: "Snow Kit (pet)", kind: "pet", pet: "snow_kit", icon: "🐇", rare: true, price: 0, desc: "A shivering white kit. Use it to make it your pet." },
   egg_tide_wisp: { name: "Tide Wisp (pet)", kind: "pet", pet: "tide_wisp", icon: "💧", rare: true, price: 0, desc: "A bubble of seafoam in a jar. Use it to make it your pet." },
   egg_shade_kit: { name: "Shade Kit (pet)", kind: "pet", pet: "shade_kit", icon: "🐈", rare: true, price: 0, desc: "A black kit curled in a basket. Use it to make it your pet." },
@@ -5865,12 +5868,12 @@ const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, 
 
 const FAMILIES = {
   goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
-  bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: { sound: 110 }, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05]], model: "bat" },
-  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
+  bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: { sound: 110 }, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["egg_batling", 0.004], ["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05]], model: "bat" },
+  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["egg_wormlet", 0.004], ["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
   ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05]], model: "ghoul" },
   den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05]], gil: [3, 6], model: "goblin" },
   skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.25], ["ether", 0.06]], model: "skeleton" },
-  hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06]], model: "hare" },
+  hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["egg_meadow_kit", 0.004], ["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06]], model: "hare" },
   crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["sentinel_greaves", 0.3]], gil: [20, 30], model: "skeleton" },
   royal_guard: { name: "Royal Guard", color: "#c0c8d8", radius: 15, hpMul: 1.1, attMul: 1.15, defMul: 1.1, delay: 3.0, speed: 95, aggro: null, link: true, linkGroup: "undead", tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.3]], model: "skeleton", summoned: true },
   hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["hollow_crown", 0.3], ["kings_blade", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
@@ -5881,7 +5884,7 @@ const FAMILIES = {
   marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
   tide_priest: { name: "Tidebound Priest", color: "#4dd0e1", radius: 20, hpMul: 3.2, attMul: 1.1, defMul: 1.2, delay: 3.6, speed: 80, int: 6, aggro: { sight: 240, sound: 220 }, link: false, tpMove: { name: "Drowning Tide", mul: 1.6, aoe: 110 }, weak: { lightning: 1.4, light: 1.3 }, nm: true, boss: true, scale: 1.6, aura: "#4dd0e1", respawn: 30, phases: [0.65], adds: "drowned", addsText: "calls the drowned up from the water!", enrage: 0.2, pulse: { at: 0.5, every: 22, dmg: 4, r: 170, name: "Maelstrom", el: "water" }, loot: [], gil: [40, 60], model: "ghoul" },
   snow_hare: { name: "Snow Hare", color: "#e8eef2", radius: 11, hpMul: 0.75, attMul: 0.85, defMul: 0.85, eva: 10, delay: 2.6, speed: 125, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { fire: 1.2 }, loot: [["healing_herb", 0.4], ["wind_crystal", 0.2], ["potion", 0.1]], model: "hare", tint: 0xeef2f6 },
-  ice_bat: { name: "Ice Bat", color: "#9fd8ff", radius: 11, hpMul: 0.85, attMul: 1.0, defMul: 0.9, eva: 12, delay: 2.4, speed: 130, aggro: { sound: 130 }, link: true, linkGroup: "icebat", tpMove: { name: "Frost Wing", mul: 1.9 }, weak: { fire: 1.3 }, loot: [["bat_wing", 0.4], ["frost_shard", 0.25], ["ether", 0.08]], model: "bat", tint: 0x8ab8d8 },
+  ice_bat: { name: "Ice Bat", color: "#9fd8ff", radius: 11, hpMul: 0.85, attMul: 1.0, defMul: 0.9, eva: 12, delay: 2.4, speed: 130, aggro: { sound: 130 }, link: true, linkGroup: "icebat", tpMove: { name: "Frost Wing", mul: 1.9 }, weak: { fire: 1.3 }, loot: [["egg_frost_wisp", 0.005], ["bat_wing", 0.4], ["frost_shard", 0.25], ["ether", 0.08]], model: "bat", tint: 0x8ab8d8 },
   frost_goblin: { name: "Frost Goblin", color: "#9aa8a0", radius: 15, hpMul: 1.15, attMul: 1.1, defMul: 1.1, delay: 3.0, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", tpMove: { name: "Ice Bomb", mul: 1.8, aoe: 80 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.3], ["frost_shard", 0.3], ["hi_potion", 0.08]], gil: [10, 16], model: "goblin" },
   ice_wight: { name: "Ice Wight", color: "#b8e0f0", radius: 15, hpMul: 1.25, attMul: 1.15, defMul: 1.15, delay: 3.1, speed: 85, aggro: { sound: 140, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Rime Grasp", mul: 2.0, drain: true }, weak: { fire: 1.4, light: 1.4 }, loot: [["bone_chip", 0.35], ["frost_shard", 0.35], ["ether", 0.1]], model: "skeleton" },
   glacier_worm: { name: "Glacier Worm", color: "#cfe8f2", radius: 15, hpMul: 1.35, attMul: 1.0, defMul: 1.2, delay: 3.4, speed: 60, int: 5, aggro: { magic: 150 }, link: false, tpMove: { name: "Hail Spit", mul: 1.7, aoe: 70 }, weak: { fire: 1.35 }, loot: [["worm_silk", 0.35], ["frost_shard", 0.25], ["water_crystal", 0.3]], model: "worm", tint: 0xc8e4f0 },
@@ -5889,13 +5892,13 @@ const FAMILIES = {
 };
 
 const NM_FAMILIES = {
-  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["egg_ember_wisp", 0.5], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
-  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["egg_snow_kit", 0.25], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
+  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["egg_ember_wisp", 0.08], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
+  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["egg_snow_kit", 0.04], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
   frost_wight: { hint: "Whispering Cairns, Frostspire Pass · night", base: "ice_wight", name: "The Frost Wight", hpMul: 3.6, attMul: 1.25, defMul: 1.25, scale: 1.45, aura: "#b3e5fc", loot: [["wight_shroud", 0.3], ["frost_ring", 0.3], ["bone_chip", 1], ["hi_potion", 0.6]], gil: [50, 70], respawn: 720 },
   old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["croaker_charm", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
-  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["egg_mini_gob", 0.25], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
+  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["egg_mini_gob", 0.03], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
   grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["scavenger_cap", 0.35], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
-  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["egg_shade_kit", 0.2], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["egg_shade_kit", 0.03], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
   king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["moonbloom_seeds", 0.4], ["burrower_trousers", 0.35], ["hare_charm", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
   ossuary_warden: { hint: "Bone Pit, Goblin Den · any time", base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.3], ["gravedigger_boots", 0.35], ["bonecharm_ring", 0.3], ["bone_chip", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 360 }
 };
@@ -6423,19 +6426,19 @@ const STORY = [
 ];
 
 const BUDDIES = {
-  meadow_kit: { name: "Meadow Kit", icon: "🐇", model: "hare", col: 0xd8b890, scale: 0.6, perk: { xp: 0.02 }, lore: "A tame young hare from Shepherd's Meadow. Hops along at your heels." },
-  snow_kit: { name: "Snow Kit", icon: "🐇", model: "hare", col: 0xf2f6fa, scale: 0.6, perk: { rest: 0.25 }, lore: "A white hare from the pass, calm as fresh snow. You rest easier with it beside you." },
-  batling: { name: "Batling", icon: "🦇", model: "bat", col: 0x6a5a7a, eye: 0xff8a80, scale: 0.5, perk: { eva: 3 }, lore: "A tiny cave bat that flutters around your head and squeaks at anything sneaking up." },
-  wormlet: { name: "Wormlet", icon: "🪱", model: "worm", col: 0xd8a080, scale: 0.4, perk: { gather: 0.08 }, lore: "A stubby tunnel worm with a nose for ore and roots. Gathering goes better with it digging alongside." },
-  ember_wisp: { name: "Ember Wisp", icon: "🔥", model: "wisp", col: 0xff7043, eye: 0xfff3c0, scale: 0.55, perk: { craft: 0.05 }, lore: "A mote of living flame. It warms your hands at the forge and the cookfire." },
-  frost_wisp: { name: "Frost Wisp", icon: "❄️", model: "wisp", col: 0x81d4fa, eye: 0xffffff, scale: 0.55, perk: { mp: 0.04 }, lore: "A drifting shard of cold light. Its chill keeps your thoughts sharp." },
-  tide_wisp: { name: "Tide Wisp", icon: "💧", model: "wisp", col: 0x4fc3f7, eye: 0xe0f7fa, scale: 0.55, perk: { fish: 0.08 }, lore: "A bubble of seafoam that never pops. Fish come to it." },
-  mini_gob: { name: "Pocket Goblin", icon: "👺", model: "goblin", scale: 0.5, perk: { sell: 0.05 }, lore: "A goblin runt who decided you were its chief. Haggles on your behalf, badly but loudly." },
-  shade_kit: { name: "Shade Kit", icon: "🐈", model: "hare", col: 0x3a3a44, eye: 0xffd54f, scale: 0.6, perk: { drop: 0.03 }, lore: "A sleek black hare with lamp-yellow eyes. Things turn up in its wake." },
-  ash_sprite: { name: "Ash Sprite", icon: "🕯️", model: "wisp", col: 0x9e9e9e, eye: 0xff7043, scale: 0.6, perk: { xp: 0.04 }, lore: "A cinder from the Ember Throne that chose to follow you. It remembers everything you learn." }
+  meadow_kit: { name: "Meadow Kit", icon: "🐇", model: "hare", col: 0xd8b890, scale: 0.6, lore: "A tame young hare from Shepherd's Meadow. Hops along at your heels." },
+  snow_kit: { name: "Snow Kit", icon: "🐇", model: "hare", col: 0xf2f6fa, scale: 0.6, lore: "A white hare from the pass, calm as fresh snow. You rest easier with it beside you." },
+  batling: { name: "Batling", icon: "🦇", model: "bat", col: 0x6a5a7a, eye: 0xff8a80, scale: 0.5, lore: "A tiny cave bat that flutters around your head and squeaks at anything sneaking up." },
+  wormlet: { name: "Wormlet", icon: "🪱", model: "worm", col: 0xd8a080, scale: 0.4, lore: "A stubby tunnel worm with a nose for ore and roots. Gathering goes better with it digging alongside." },
+  ember_wisp: { name: "Ember Wisp", icon: "🔥", model: "wisp", col: 0xff7043, eye: 0xfff3c0, scale: 0.55, lore: "A mote of living flame. It warms your hands at the forge and the cookfire." },
+  frost_wisp: { name: "Frost Wisp", icon: "❄️", model: "wisp", col: 0x81d4fa, eye: 0xffffff, scale: 0.55, lore: "A drifting shard of cold light. Its chill keeps your thoughts sharp." },
+  tide_wisp: { name: "Tide Wisp", icon: "💧", model: "wisp", col: 0x4fc3f7, eye: 0xe0f7fa, scale: 0.55, lore: "A bubble of seafoam that never pops. Fish come to it." },
+  mini_gob: { name: "Pocket Goblin", icon: "👺", model: "goblin", scale: 0.5, lore: "A goblin runt who decided you were its chief. Haggles on your behalf, badly but loudly." },
+  shade_kit: { name: "Shade Kit", icon: "🐈", model: "hare", col: 0x3a3a44, eye: 0xffd54f, scale: 0.6, lore: "A sleek black hare with lamp-yellow eyes. Things turn up in its wake." },
+  ash_sprite: { name: "Ash Sprite", icon: "🕯️", model: "wisp", col: 0x9e9e9e, eye: 0xff7043, scale: 0.6, lore: "A cinder from the Ember Throne that chose to follow you. It remembers everything you learn." }
 };
-const BUDDY_PERK_TEXT = { xp: v => "+" + Math.round(v * 100) + "% experience", rest: v => "Resting heals " + Math.round(v * 100) + "% faster", eva: v => "+" + v + " evasion", gather: v => "+" + Math.round(v * 100) + "% gathering chance", craft: v => "+" + Math.round(v * 100) + "% synthesis chance", mp: v => "+" + Math.round(v * 100) + "% MP", fish: v => "+" + Math.round(v * 100) + "% catch rate", sell: v => "Shops pay " + Math.round(v * 100) + "% more", drop: v => "+" + Math.round(v * 100) + "% drop chance" };
-const BUDDY_SHOP = [["meadow_kit", 600], ["batling", 900], ["wormlet", 1200]];
+const BUDDY_PERK_TEXT_OLD = { xp: v => "+" + Math.round(v * 100) + "% experience", rest: v => "Resting heals " + Math.round(v * 100) + "% faster", eva: v => "+" + v + " evasion", gather: v => "+" + Math.round(v * 100) + "% gathering chance", craft: v => "+" + Math.round(v * 100) + "% synthesis chance", mp: v => "+" + Math.round(v * 100) + "% MP", fish: v => "+" + Math.round(v * 100) + "% catch rate", sell: v => "Shops pay " + Math.round(v * 100) + "% more", drop: v => "+" + Math.round(v * 100) + "% drop chance" };
+const BUDDY_SHOP = [];
 
 const BLESSING = { baseMin: 60, perRankMin: 30, maxMin: 210 };
 
@@ -6489,63 +6492,63 @@ const GUILD_BOUNTIES = [
 const GUILD_SHOP = [
   { id: "hi_potion", gp: 6, rank: 0 }, { id: "ether", gp: 8, rank: 0 },
   { id: "guild_ring", gp: 60, rank: 1 }, { id: "pathfinder_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
-  { id: "egg_frost_wisp", gp: 150, rank: 2 }, { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
+  { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
 ];
 
 const ACHIEVEMENTS = [
-  { id: "first_blood", icon: "⚔️", name: "First Blood", desc: "Defeat a monster.", gil: 20, test: s => s.stats.kills >= 1 },
-  { id: "hunter", icon: "🏹", name: "Hunter", desc: "Defeat 50 monsters.", gil: 100, test: s => s.stats.kills >= 50 },
-  { id: "slayer", icon: "🗡️", name: "Slayer", desc: "Defeat 250 monsters.", gil: 400, test: s => s.stats.kills >= 250 },
-  { id: "notorious", icon: "☠️", name: "Notorious", desc: "Defeat a notorious monster.", gil: 150, test: s => s.stats.nm >= 1 },
-  { id: "nm_all", icon: "👑", name: "Most Wanted", desc: "Defeat every notorious monster.", gil: 800, test: s => Object.keys(NM_FAMILIES).concat(["chieftain", "crypt_sentinel", "hollow_king"]).every(k => s.nmKilled[k]) },
-  { id: "chain", icon: "⛓️", name: "Chain Reaction", desc: "Close a skillchain.", gil: 50, test: s => s.stats.sc >= 1 },
-  { id: "chain50", icon: "🔗", name: "Chain Master", desc: "Close 50 skillchains.", gil: 300, test: s => s.stats.sc >= 50 },
-  { id: "burst", icon: "✨", name: "Burst!", desc: "Land a magic burst.", gil: 50, test: s => s.stats.mb >= 1 },
-  { id: "lv5", icon: "⭐", name: "Finding Your Feet", desc: "Reach level 5 on any job.", gil: 60, test: s => Object.values(s.jobs).some(j => j.lv >= 5) },
-  { id: "lv10", icon: "🌟", name: "Seasoned", desc: "Reach level 10 on any job.", gil: 200, test: s => Object.values(s.jobs).some(j => j.lv >= 10) },
-  { id: "lv15", icon: "💫", name: "Veteran", desc: "Reach level 15 on any job.", gil: 500, test: s => Object.values(s.jobs).some(j => j.lv >= 15) },
-  { id: "marsh", icon: "🐸", name: "Into the Mire", desc: "Set foot in the Ashen Marsh.", gil: 60, test: s => (s.discovered || []).includes("marsh") },
-  { id: "two_jobs", icon: "🎓", name: "Jack of Trades", desc: "Reach level 5 on two jobs.", gil: 120, test: s => Object.values(s.jobs).filter(j => j.lv >= 5).length >= 2 },
-  { id: "adv_job", icon: "🛡️", name: "Advanced Studies", desc: "Unlock an advanced job.", gil: 150, test: s => Object.values(s.jobsUnlocked || {}).some(Boolean) },
-  { id: "quests5", icon: "📜", name: "Helping Hand", desc: "Complete 5 quests.", gil: 100, test: s => Object.values(s.quests).filter(q => q === "done").length >= 5 },
-  { id: "quests_all", icon: "📚", name: "Pillar of the Outpost", desc: "Complete every quest.", gil: 600, test: s => Object.keys(QUESTS).every(k => s.quests[k] === "done") },
-  { id: "landmarks", icon: "🧭", name: "Wanderer", desc: "Discover 5 landmarks.", gil: 80, test: s => Object.keys(s.landmarks).length >= 5 },
-  { id: "zones", icon: "🗺️", name: "Cartographer", desc: "Visit every area.", gil: 150, test: s => Object.keys(ZONES).every(z => (s.discovered || []).includes(z)) },
-  { id: "crafter", icon: "⚒️", name: "Artisan", desc: "Complete 10 syntheses.", gil: 80, test: s => s.stats.crafts >= 10 },
-  { id: "hq", icon: "💎", name: "Masterwork", desc: "Make a high-quality item.", gil: 100, test: s => s.stats.hq >= 1 },
-  { id: "gatherer", icon: "⛏️", name: "Forager", desc: "Gather 25 times.", gil: 60, test: s => s.stats.gathers >= 25 },
-  { id: "gardener", icon: "🌱", name: "Green Thumb", desc: "Harvest a plant.", gil: 50, test: s => s.harvests >= 1 },
-  { id: "homebody", icon: "🏠", name: "Homebody", desc: "Have 5 pieces of furniture placed.", gil: 80, test: s => s.furniture.length >= 5 },
-  { id: "companion", icon: "🤝", name: "Not Alone", desc: "Hire a companion.", gil: 30, test: s => s.hired.length >= 1 },
-  { id: "full_party", icon: "👥", name: "Full Party", desc: "Adventure with five companions.", gil: 150, test: s => s.hired.length >= 5 },
-  { id: "bond", icon: "💞", name: "Kindred Spirits", desc: "Reach bond level 5 with a companion.", gil: 250, test: s => Object.values(s.bond).some(b => b >= COMPANION_CFG.bondSteps[5]) },
-  { id: "bestiary10", icon: "📖", name: "Naturalist", desc: "Record 10 creatures in the bestiary.", gil: 100, test: s => Object.keys(s.bestiary).length >= 10 },
-  { id: "bestiary_all", icon: "📕", name: "Complete Bestiary", desc: "Record every creature in the bestiary.", gil: 500, test: s => Object.keys(BESTIARY).every(k => s.bestiary[k]) },
-  { id: "trader", icon: "📋", name: "Odd Jobs", desc: "Fill 10 trade board requests.", gil: 150, test: s => (s.stats.trades || 0) >= 10 },
-  { id: "augment", icon: "🔨", name: "Tinkerer", desc: "Augment a piece of gear.", gil: 80, test: s => Object.keys(s.augments || {}).length >= 1 },
-  { id: "lotwin", icon: "🎲", name: "Lucky Roll", desc: "Win a treasure pool lot.", gil: 40, test: s => (s.stats.lotsWon || 0) >= 1 },
-  { id: "angler", icon: "🎣", name: "Angler", desc: "Catch a fish.", gil: 30, test: s => (s.stats.fish || 0) >= 1 },
-  { id: "bigcatch", icon: "🐠", name: "The Big One", desc: "Land a Lakeking Pike or a Ghost Koi.", gil: 200, test: s => (s.stats.bigFish || 0) >= 1 },
-  { id: "fed", icon: "🍲", name: "Well Fed", desc: "Eat a meal.", gil: 20, test: s => (s.stats.meals || 0) >= 1 },
-  { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", gil: 200, test: s => (s.crafts.cooking || 0) >= 10 },
-  { id: "harbor", icon: "⚓", name: "Sea Air", desc: "Reach Saltreach Harbor.", gil: 80, test: s => (s.discovered || []).includes("harbor") },
-  { id: "tuna", icon: "🐟", name: "Tidecaller", desc: "Land a Tidecaller Tuna.", gil: 300, test: s => (s.stats.tuna || 0) >= 1 },
-  { id: "racer", icon: "🏁", name: "Thornstrider Racer", desc: "Win gold on the Hollow Run.", gil: 300, test: s => s.race && s.race.medals && s.race.medals.gold },
-  { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", gil: 150, test: s => (s.stats.ride || 0) >= 20000 },
-  { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", gil: 50, test: s => (s.stats.summons || 0) >= 1 },
-  { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", gil: 120, test: s => (s.stats.rngKills || 0) >= 25 },
-  { id: "story", icon: "🕯️", name: "Keeper of the Embers", desc: "Complete the main story.", gil: 2000, test: s => !!(s.story && s.story.done) },
-  { id: "petkeeper", icon: "🐾", name: "Pet Keeper", desc: "Own five pets.", gil: 300, test: s => (s.buddies || []).length >= 5 },
-  { id: "auction", icon: "⚖️", name: "Market Savvy", desc: "Sell 10 lots at the auction house.", gil: 300, test: s => (s.stats.ahSold || 0) >= 10 },
-  { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", gil: 100, test: s => (s.stats.bounties || 0) >= 1 },
-  { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", gil: 400, test: s => (s.guild && s.guild.total || 0) >= 700 },
-  { id: "mythril", icon: "💎", name: "Mythril Legend", desc: "Reach Mythril rank in the Adventurers' Guild.", gil: 1500, test: s => (s.guild && s.guild.total || 0) >= 3000 },
-  { id: "priest", icon: "🔱", name: "Tidebreaker", desc: "Defeat the Tidebound Priest in the Chapel Depths.", gil: 500, test: s => (s.stats.bfWins || 0) >= 1 },
-  { id: "lv20", icon: "🏔️", name: "Summit", desc: "Reach level 20 on any job.", gil: 1000, test: s => Object.values(s.jobs).some(j => j.lv >= 20) },
-  { id: "frost", icon: "❄️", name: "Cold Feet", desc: "Set foot in Frostspire Pass.", gil: 100, test: s => (s.discovered || []).includes("frost") },
-  { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", gil: 0, test: s => s.gil >= 5000 },
-  { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", gil: 20, test: s => s.stats.kos >= 1 },
-  { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", gil: 30, test: s => s.stats.jumps >= 100 }
+  { id: "first_blood", icon: "⚔️", name: "First Blood", desc: "Defeat a monster.", test: s => s.stats.kills >= 1 },
+  { id: "hunter", icon: "🏹", name: "Hunter", desc: "Defeat 50 monsters.", test: s => s.stats.kills >= 50 },
+  { id: "slayer", icon: "🗡️", name: "Slayer", desc: "Defeat 250 monsters.", test: s => s.stats.kills >= 250 },
+  { id: "notorious", icon: "☠️", name: "Notorious", desc: "Defeat a notorious monster.", test: s => s.stats.nm >= 1 },
+  { id: "nm_all", icon: "👑", name: "Most Wanted", desc: "Defeat every notorious monster.", test: s => Object.keys(NM_FAMILIES).concat(["chieftain", "crypt_sentinel", "hollow_king"]).every(k => s.nmKilled[k]) },
+  { id: "chain", icon: "⛓️", name: "Chain Reaction", desc: "Close a skillchain.", test: s => s.stats.sc >= 1 },
+  { id: "chain50", icon: "🔗", name: "Chain Master", desc: "Close 50 skillchains.", test: s => s.stats.sc >= 50 },
+  { id: "burst", icon: "✨", name: "Burst!", desc: "Land a magic burst.", test: s => s.stats.mb >= 1 },
+  { id: "lv5", icon: "⭐", name: "Finding Your Feet", desc: "Reach level 5 on any job.", test: s => Object.values(s.jobs).some(j => j.lv >= 5) },
+  { id: "lv10", icon: "🌟", name: "Seasoned", desc: "Reach level 10 on any job.", test: s => Object.values(s.jobs).some(j => j.lv >= 10) },
+  { id: "lv15", icon: "💫", name: "Veteran", desc: "Reach level 15 on any job.", test: s => Object.values(s.jobs).some(j => j.lv >= 15) },
+  { id: "marsh", icon: "🐸", name: "Into the Mire", desc: "Set foot in the Ashen Marsh.", test: s => (s.discovered || []).includes("marsh") },
+  { id: "two_jobs", icon: "🎓", name: "Jack of Trades", desc: "Reach level 5 on two jobs.", test: s => Object.values(s.jobs).filter(j => j.lv >= 5).length >= 2 },
+  { id: "adv_job", icon: "🛡️", name: "Advanced Studies", desc: "Unlock an advanced job.", test: s => Object.values(s.jobsUnlocked || {}).some(Boolean) },
+  { id: "quests5", icon: "📜", name: "Helping Hand", desc: "Complete 5 quests.", test: s => Object.values(s.quests).filter(q => q === "done").length >= 5 },
+  { id: "quests_all", icon: "📚", name: "Pillar of the Outpost", desc: "Complete every quest.", test: s => Object.keys(QUESTS).every(k => s.quests[k] === "done") },
+  { id: "landmarks", icon: "🧭", name: "Wanderer", desc: "Discover 5 landmarks.", test: s => Object.keys(s.landmarks).length >= 5 },
+  { id: "zones", icon: "🗺️", name: "Cartographer", desc: "Visit every area.", test: s => Object.keys(ZONES).every(z => (s.discovered || []).includes(z)) },
+  { id: "crafter", icon: "⚒️", name: "Artisan", desc: "Complete 10 syntheses.", test: s => s.stats.crafts >= 10 },
+  { id: "hq", icon: "💎", name: "Masterwork", desc: "Make a high-quality item.", test: s => s.stats.hq >= 1 },
+  { id: "gatherer", icon: "⛏️", name: "Forager", desc: "Gather 25 times.", test: s => s.stats.gathers >= 25 },
+  { id: "gardener", icon: "🌱", name: "Green Thumb", desc: "Harvest a plant.", test: s => s.harvests >= 1 },
+  { id: "homebody", icon: "🏠", name: "Homebody", desc: "Have 5 pieces of furniture placed.", test: s => s.furniture.length >= 5 },
+  { id: "companion", icon: "🤝", name: "Not Alone", desc: "Hire a companion.", test: s => s.hired.length >= 1 },
+  { id: "full_party", icon: "👥", name: "Full Party", desc: "Adventure with five companions.", test: s => s.hired.length >= 5 },
+  { id: "bond", icon: "💞", name: "Kindred Spirits", desc: "Reach bond level 5 with a companion.", test: s => Object.values(s.bond).some(b => b >= COMPANION_CFG.bondSteps[5]) },
+  { id: "bestiary10", icon: "📖", name: "Naturalist", desc: "Record 10 creatures in the bestiary.", test: s => Object.keys(s.bestiary).length >= 10 },
+  { id: "bestiary_all", icon: "📕", name: "Complete Bestiary", desc: "Record every creature in the bestiary.", test: s => Object.keys(BESTIARY).every(k => s.bestiary[k]) },
+  { id: "trader", icon: "📋", name: "Odd Jobs", desc: "Fill 10 trade board requests.", test: s => (s.stats.trades || 0) >= 10 },
+  { id: "augment", icon: "🔨", name: "Tinkerer", desc: "Augment a piece of gear.", test: s => Object.keys(s.augments || {}).length >= 1 },
+  { id: "lotwin", icon: "🎲", name: "Lucky Roll", desc: "Win a treasure pool lot.", test: s => (s.stats.lotsWon || 0) >= 1 },
+  { id: "angler", icon: "🎣", name: "Angler", desc: "Catch a fish.", test: s => (s.stats.fish || 0) >= 1 },
+  { id: "bigcatch", icon: "🐠", name: "The Big One", desc: "Land a Lakeking Pike or a Ghost Koi.", test: s => (s.stats.bigFish || 0) >= 1 },
+  { id: "fed", icon: "🍲", name: "Well Fed", desc: "Eat a meal.", test: s => (s.stats.meals || 0) >= 1 },
+  { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", test: s => (s.crafts.cooking || 0) >= 10 },
+  { id: "harbor", icon: "⚓", name: "Sea Air", desc: "Reach Saltreach Harbor.", test: s => (s.discovered || []).includes("harbor") },
+  { id: "tuna", icon: "🐟", name: "Tidecaller", desc: "Land a Tidecaller Tuna.", test: s => (s.stats.tuna || 0) >= 1 },
+  { id: "racer", icon: "🏁", name: "Thornstrider Racer", desc: "Win gold on the Hollow Run.", test: s => s.race && s.race.medals && s.race.medals.gold },
+  { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", test: s => (s.stats.ride || 0) >= 20000 },
+  { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", test: s => (s.stats.summons || 0) >= 1 },
+  { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", test: s => (s.stats.rngKills || 0) >= 25 },
+  { id: "story", icon: "🕯️", name: "Keeper of the Embers", desc: "Complete the main story.", test: s => !!(s.story && s.story.done) },
+  { id: "petkeeper", icon: "🐾", name: "Pet Keeper", desc: "Own five pets.", test: s => (s.buddies || []).length >= 5 },
+  { id: "auction", icon: "⚖️", name: "Market Savvy", desc: "Sell 10 lots at the auction house.", test: s => (s.stats.ahSold || 0) >= 10 },
+  { id: "bounty", icon: "📜", name: "On the Books", desc: "Complete your first guild bounty.", test: s => (s.stats.bounties || 0) >= 1 },
+  { id: "silver", icon: "🥈", name: "Silver Standing", desc: "Reach Silver rank in the Adventurers' Guild.", test: s => (s.guild && s.guild.total || 0) >= 700 },
+  { id: "mythril", icon: "💎", name: "Mythril Legend", desc: "Reach Mythril rank in the Adventurers' Guild.", test: s => (s.guild && s.guild.total || 0) >= 3000 },
+  { id: "priest", icon: "🔱", name: "Tidebreaker", desc: "Defeat the Tidebound Priest in the Chapel Depths.", test: s => (s.stats.bfWins || 0) >= 1 },
+  { id: "lv20", icon: "🏔️", name: "Summit", desc: "Reach level 20 on any job.", test: s => Object.values(s.jobs).some(j => j.lv >= 20) },
+  { id: "frost", icon: "❄️", name: "Cold Feet", desc: "Set foot in Frostspire Pass.", test: s => (s.discovered || []).includes("frost") },
+  { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", test: s => s.gil >= 5000 },
+  { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", test: s => s.stats.kos >= 1 },
+  { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", test: s => s.stats.jumps >= 100 }
 ];
 
 const TRADE_REQUESTS = [
@@ -6577,7 +6580,7 @@ const STAT_LABELS = { str: "STR", dex: "DEX", vit: "VIT", agi: "AGI", int: "INT"
 const FISH = {
   outpost: [["pond_minnow", 0, 10], ["moat_carp", 3, 3]],
   hollow: [["moat_carp", 0, 8], ["silver_shad", 4, 5], ["pond_minnow", 0, 3], ["lakeking_pike", 12, 0.6]],
-  harbor: [["harbor_bream", 2, 8], ["sea_bass", 9, 5], ["pond_minnow", 0, 2], ["tidecaller_tuna", 16, 0.5], ["egg_tide_wisp", 10, 0.25]],
+  harbor: [["harbor_bream", 2, 8], ["sea_bass", 9, 5], ["pond_minnow", 0, 2], ["tidecaller_tuna", 16, 0.5], ["egg_tide_wisp", 10, 0.03]],
   marsh: [["mud_eel", 4, 7], ["bog_perch", 7, 5], ["moat_carp", 0, 2], ["ghost_koi", 14, 0.5, "storm"], ["ghost_koi", 14, 0.4, "rain"]]
 };
 const FISH_CFG = { waitMin: 3, waitMax: 9, bite: 2.4, reach: 70, cap: 20 };
@@ -7700,7 +7703,7 @@ function eatFood(id) {
 
 function foodText(fd) { return Object.keys(fd).map(k => STAT_LABELS[k] + " +" + fd[k]).join(", "); }
 
-function buddyPerk(k) { if (!save.buddy || !save.buddyOut || !BUDDIES[save.buddy]) return 0; return BUDDIES[save.buddy].perk[k] || 0; }
+function buddyPerk(k) { return 0; }
 function buddyName(id) { return save.buddyNames[id] || BUDDIES[id].name; }
 
 function learnBuddy(id) {
@@ -9591,8 +9594,7 @@ function checkAchievements() {
     try { ok = a.test(save); } catch (e) { ok = false; }
     if (!ok) continue;
     save.ach[a.id] = Date.now();
-    if (a.gil) save.gil += a.gil;
-    log("Achievement unlocked: " + a.name + "!" + (a.gil ? " +" + a.gil + " crystals." : ""), "loot");
+    log("Achievement unlocked: " + a.name + "!", "loot");
     sfx("levelup");
     uiEvent("ach", a);
   }
@@ -9607,7 +9609,6 @@ function checkLandmarks() {
     save.landmarks[key] = Date.now();
     log("You discover " + lm.name + "!", "loot");
     uiEvent("landmark", lm);
-    gainXp(lm.xp, 0, true);
     saveGame();
   }
 }
@@ -10336,13 +10337,13 @@ const TALK = {
     const q = save.quests;
     if (save.mountLicense) {
       openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. I can dye her coat, sell you a faster saddle, or time you on the Hollow Run." + (save.race.best != null ? " Your best run: " + save.race.best + "s." : ""), [
-        { label: "Pets (buy and summon)", fn: () => { closeDialog(); openModal("pets"); } },
+        { label: "Pets", fn: () => { closeDialog(); openModal("pets"); } },
         { label: "Stable (coats and saddle)", fn: () => { closeDialog(); openModal("stable"); } },
         { label: "Run the Hollow course", fn: () => { closeDialog(); const why = startRace(); if (why) { log(why, "sys"); sfx("error"); } } }
       ]);
       return;
     }
-    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license. Until then I've a few small creatures looking for a home, if you've a soft heart.", [{ label: "Pets (buy and summon)", fn: () => { closeDialog(); openModal("pets"); } }]); return; }
+    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license. Until then, if you've found a small creature on the road, I can help you look after it.", [{ label: "Pets", fn: () => { closeDialog(); openModal("pets"); } }]); return; }
     if (false) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
@@ -11617,7 +11618,7 @@ function onTgtCmd(key) {
 
 function uiEvent(type, d) {
   if (type === "target") { tgtCmdOpen(d); return; }
-  if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name + (d.gil ? " · +" + d.gil + " 💠" : ""), "r-epic"); return; }
+  if (type === "ach") { toast(d.icon, "Achievement unlocked", d.name, "r-epic"); return; }
   if (type === "bond") { toast("💞", "Bond level " + d.lv, MERCS[d.id].name, "r-rare"); return; }
   if (type === "bf") { toast("🔱", "Victory!", d.prize ? ITEMS[d.prize].name : "The chapel is quiet", "r-epic"); return; }
   if (type === "race") { UI.mmForce = true; return; }
@@ -11633,7 +11634,7 @@ function uiEvent(type, d) {
     const r = itemRarity(d.id);
     toast(it.icon || "📦", r === "epic" ? "Epic item!" : r === "rare" ? "Rare item!" : r === "uncommon" ? "Uncommon item" : "Obtained", (d.n > 1 ? d.n + " × " : "") + it.name, "r-" + r);
   }
-  if (type === "landmark") { toast("🧭", "Landmark discovered", d.name + (player.lv < CONFIG.levelCap ? " · +" + d.xp + " XP" : ""), "r-rare"); sfx("unlock"); }
+  if (type === "landmark") { toast("🧭", "Landmark discovered", d.name, "r-rare"); sfx("unlock"); }
 }
 
 function watchProgress() {
@@ -12550,24 +12551,17 @@ function tabBoard() {
 
 function tabPets() {
   const have = save.buddies, cur = save.buddy;
-  let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around and give one small perk while they\'re out. They never fight and can\'t be attacked. Equip one, then summon it here, with the Pet button on your action bar, or with /pet.</div>';
+  let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around for company. They never fight, can\'t be attacked and give no bonuses. Equip one, then summon it here, with the Pet button on your action bar, or with /pet.</div>';
   if (UI.petMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.petMsg) + "</div>";
   if (cur && BUDDIES[cur]) {
     const B = BUDDIES[cur];
-    h += '<div class="item" style="border-color:#c9a227"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:28px">' + B.icon + "</span><div><b>" + esc(buddyName(cur)) + '</b> <span class="sub">· ' + esc(B.name) + '</span><div class="sub">' + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div><div style=\"display:flex;gap:6px\"><button data-a=\"petname\" data-v=\"" + cur + '">Rename</button><button class="pri" data-a="petsummon">' + (S.buddy ? "Dismiss" : "Summon") + "</button></div></div>";
+    h += '<div class="item" style="border-color:#c9a227"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:28px">' + B.icon + "</span><div><b>" + esc(buddyName(cur)) + '</b> <span class="sub">· ' + esc(B.name) + '</span><div class="sub">' + esc(B.lore) + "</div></div></div><div style=\"display:flex;gap:6px\"><button data-a=\"petname\" data-v=\"" + cur + '">Rename</button><button class="pri" data-a="petsummon">' + (S.buddy ? "Dismiss" : "Summon") + "</button></div></div>";
   } else h += '<div class="sub" style="margin-bottom:8px">No pet equipped.</div>';
   h += "<h3>Your pets (" + have.length + ")</h3>";
-  if (!have.length) h += '<div class="sub">None yet. Ysolde sells a few, others come from notorious monsters, fishing, the Adventurers\' Guild and the story.</div>';
+  if (!have.length) h += '<div class="sub">None yet. Pets are very rare drops from monsters and notorious monsters, a rare catch in Saltreach, and a gift at the end of the story.</div>';
   for (const id of have) {
     const B = BUDDIES[id];
-    h += '<div class="item"' + (id === cur ? ' style="border-color:#c9a227"' : "") + '><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(buddyName(id)) + (save.buddyNames[id] ? ' <span class="sub">(' + esc(B.name) + ")</span>" : "") + '</b><div class="sub">' + esc(B.lore) + " · " + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div>" + (id === cur ? '<span class="sub">Equipped ✓</span>' : '<button data-a="petsel" data-v="' + id + '">Equip</button>') + "</div>";
-  }
-  if (S.modal === "pets" && S.npcs.some(n => n.id === "ysolde" && dist(n, player) < 200)) {
-    h += "<h3>Ysolde's pens</h3>";
-    for (const [id, price] of BUDDY_SHOP) {
-      const B = BUDDIES[id], own = have.includes(id);
-      h += '<div class="item"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(B.name) + '</b><div class="sub">' + esc(B.lore) + " · " + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div>" + (own ? '<span class="sub">Owned ✓</span>' : '<button data-a="petbuy" data-v="' + id + '"' + (save.gil < price ? " disabled" : "") + ">" + price + " 💠</button>") + "</div>";
-    }
+    h += '<div class="item"' + (id === cur ? ' style="border-color:#c9a227"' : "") + '><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(buddyName(id)) + (save.buddyNames[id] ? ' <span class="sub">(' + esc(B.name) + ")</span>" : "") + '</b><div class="sub">' + esc(B.lore) + "</div></div></div>" + (id === cur ? '<span class="sub">Equipped ✓</span>' : '<button data-a="petsel" data-v="' + id + '">Equip</button>') + "</div>";
   }
   const others = Object.keys(BUDDIES).filter(id => !have.includes(id) && !BUDDY_SHOP.some(s => s[0] === id));
   if (others.length) h += '<h3>Still to find</h3><div class="sub">' + others.map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(" · ") + "</div>";
@@ -12659,10 +12653,10 @@ function tabGuild() {
 
 function tabAchievements() {
   const got = ACHIEVEMENTS.filter(a => save.ach[a.id]).length;
-  let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked. Most come with a crystal reward.</div>";
+  let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked.</div>";
   for (const a of ACHIEVEMENTS) {
     const t = save.ach[a.id];
-    h += '<div class="item" style="' + (t ? "" : "opacity:.55") + '"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + (t ? a.icon : "🔒") + "</span><div><b>" + esc(a.name) + '</b><div class="sub">' + esc(a.desc) + "</div></div></div>" + '<span class="sub">' + (t ? new Date(t).toLocaleDateString() : a.gil ? "💠 " + a.gil : "") + "</span></div>";
+    h += '<div class="item" style="' + (t ? "" : "opacity:.55") + '"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + (t ? a.icon : "🔒") + "</span><div><b>" + esc(a.name) + '</b><div class="sub">' + esc(a.desc) + "</div></div></div>" + '<span class="sub">' + (t ? new Date(t).toLocaleDateString() : "") + "</span></div>";
   }
   return h;
 }
@@ -12835,13 +12829,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v6.5.0 · built 2026-10-13 17:29 PDT";
+const BUILD_INFO = "v6.5.1 · built 2026-10-13 17:32 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "6.5.1", date: "2026-10-13", title: "Pet and discovery changes", items: [
+    "Pets no longer give any bonuses; they're companions only.",
+    "Pets are now very rare drops instead of shop purchases: hares, bats, worms and ice bats drop kits about once in 250 kills, notorious monsters a few percent of the time, and the Tide Wisp is a rare catch. Ysolde no longer sells pets and the Frost Wisp left the guild shop. ",
+    "Discovering landmarks no longer gives experience, and achievements no longer pay crystals. Both are for bragging rights only."
   ] },
   { v: "6.4.0", date: "2026-10-13", title: "Five Races and the City Blessing", items: [
     "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like; the best casters, fast, but weak and frail), Ursan (huge; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
@@ -12959,7 +12958,7 @@ const UPDATES = [
     "Bond: companions grow closer as you fight together. Each bond level up to 5 adds 3% to their stats and unlocks a personal line.",
     "Wages: hiring fee covers the first game day, then each companion takes a daily wage. If you can't pay, they head back to the Mercenary Hall.",
     "Bestiary (Y): creatures are recorded when you meet them, with more detail as you defeat them.",
-    "Achievements (O): 29 to unlock, most with a crystal reward.",
+    "Achievements (O): 29 to unlock.",
     "The command box for a targeted monster now sits in the bottom-right corner. The round Attack, Target and Talk buttons are gone (phones keep Jump).",
     "Smoother limbs: arms and legs now bend at the elbows, knees, shoulders and hips instead of hinging like a doll's, and walking bends the knees and elbows more.",
     "You can no longer walk through trees, lamp posts or torches.",
@@ -13113,9 +13112,9 @@ function tabHelp() {
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
   h += sec("🐾 Pets", ul([
-    "Pets are small companions that follow you around. They never fight and can't be attacked, and each gives one small perk while it's out: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name + " (" + Object.keys(BUDDIES[id].perk).map(k => BUDDY_PERK_TEXT[k](BUDDIES[id].perk[k])).join(", ") + ")").join(", ") + ".",
+    "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
     "Open the <b>Pets</b> window (Ysolde offers it, or the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
-    "Where to find them: Ysolde sells the Meadow Kit, Batling and Wormlet. The Frost Wisp is a guild reward (Iron rank). Rimefang, Duskwing, Mirelord Gax and the Ashen Herald can drop pet items; the Tide Wisp is fished up in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
+    "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
   h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
@@ -13149,7 +13148,7 @@ function tabHelp() {
     "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
     "Kill XP scales with the monster's con. Tougher monsters give much more.",
     "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
-    "<b>Discovery:</b> landmarks give bonus XP the first time you reach them (🧭 toast). The Map shows how many you've found in each zone.",
+    "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 toast); they give no experience. The Map shows how many you've found in each zone.",
     "Quests give big XP rewards.",
     "Defeat costs 10% of your current level's XP requirement, but you never lose a level."
   ]));
@@ -13261,7 +13260,7 @@ function tabHelp() {
   ]));
   h += sec("🏆 Achievements (O)", ul([
     "Achievements track hunting, notorious monsters, skillchains, bursts, levels, quests, exploring, crafting, gathering, gardening, your home, companions, the bestiary and more.",
-    "Most pay out crystals when they unlock. Locked ones show their reward."
+    "They give no rewards: they are a record of what you have done."
   ]));
   h += sec("🏠 Your residence", ul([
     "The door is on the west cottage of Ashenreach Outpost; walking into it asks if you want to go in. <b>Pip the Nubbin</b> lives there.",
@@ -13304,7 +13303,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "6.5.0";
+const GAME_VERSION = "6.5.1";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

@@ -53,9 +53,9 @@ ok(G.chainInfo() === null, 'chain expires after 60 s');
 G.save.jobs.WAR.lv = 3; G.save.jobs.WAR.xp = 0; G.refreshPlayer(true);
 const lm = G.ZONES.hollow.landmarks.find(l => l.id === 'fort');
 P().x = lm.x; P().y = lm.y + 60; run(1);
-ok(G.save.landmarks['hollow:fort'] && G.save.jobs.WAR.xp === lm.xp, 'discovering the Old Fort Ruins gives ' + lm.xp + ' XP');
+ok(G.save.landmarks['hollow:fort'] && G.save.jobs.WAR.xp === 0, 'discovering the Old Fort Ruins logs it without XP');
 run(1);
-ok(G.save.jobs.WAR.xp === lm.xp, 'a landmark only pays once');
+ok(G.save.jobs.WAR.xp === 0, 'a landmark only logs once');
 
 const wall = G.ZONES.hollow.walls[0];
 P().x = wall.x + wall.w / 2; P().y = wall.y + 30; G.keepOutOfRects(P());

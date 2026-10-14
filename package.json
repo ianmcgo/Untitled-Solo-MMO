@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "6.5.0",
-  "releaseTitle": "Pets",
+  "version": "6.5.1",
+  "releaseTitle": "Pet and discovery changes",
   "description": "",
   "main": "index.js",
   "scripts": {

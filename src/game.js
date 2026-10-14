@@ -1070,7 +1070,7 @@ function eatFood(id) {
 
 function foodText(fd) { return Object.keys(fd).map(k => STAT_LABELS[k] + " +" + fd[k]).join(", "); }
 
-function buddyPerk(k) { if (!save.buddy || !save.buddyOut || !BUDDIES[save.buddy]) return 0; return BUDDIES[save.buddy].perk[k] || 0; }
+function buddyPerk(k) { return 0; }
 function buddyName(id) { return save.buddyNames[id] || BUDDIES[id].name; }
 
 function learnBuddy(id) {
@@ -2961,8 +2961,7 @@ function checkAchievements() {
     try { ok = a.test(save); } catch (e) { ok = false; }
     if (!ok) continue;
     save.ach[a.id] = Date.now();
-    if (a.gil) save.gil += a.gil;
-    log("Achievement unlocked: " + a.name + "!" + (a.gil ? " +" + a.gil + " crystals." : ""), "loot");
+    log("Achievement unlocked: " + a.name + "!", "loot");
     sfx("levelup");
     uiEvent("ach", a);
   }
@@ -2977,7 +2976,6 @@ function checkLandmarks() {
     save.landmarks[key] = Date.now();
     log("You discover " + lm.name + "!", "loot");
     uiEvent("landmark", lm);
-    gainXp(lm.xp, 0, true);
     saveGame();
   }
 }
@@ -3706,13 +3704,13 @@ const TALK = {
     const q = save.quests;
     if (save.mountLicense) {
       openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. I can dye her coat, sell you a faster saddle, or time you on the Hollow Run." + (save.race.best != null ? " Your best run: " + save.race.best + "s." : ""), [
-        { label: "Pets (buy and summon)", fn: () => { closeDialog(); openModal("pets"); } },
+        { label: "Pets", fn: () => { closeDialog(); openModal("pets"); } },
         { label: "Stable (coats and saddle)", fn: () => { closeDialog(); openModal("stable"); } },
         { label: "Run the Hollow course", fn: () => { closeDialog(); const why = startRace(); if (why) { log(why, "sys"); sfx("error"); } } }
       ]);
       return;
     }
-    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license. Until then I've a few small creatures looking for a home, if you've a soft heart.", [{ label: "Pets (buy and summon)", fn: () => { closeDialog(); openModal("pets"); } }]); return; }
+    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license. Until then, if you've found a small creature on the road, I can help you look after it.", [{ label: "Pets", fn: () => { closeDialog(); openModal("pets"); } }]); return; }
     if (false) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [

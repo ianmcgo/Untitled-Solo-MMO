@@ -732,24 +732,17 @@ function tabBoard() {
 
 function tabPets() {
   const have = save.buddies, cur = save.buddy;
-  let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around and give one small perk while they\'re out. They never fight and can\'t be attacked. Equip one, then summon it here, with the Pet button on your action bar, or with /pet.</div>';
+  let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around for company. They never fight, can\'t be attacked and give no bonuses. Equip one, then summon it here, with the Pet button on your action bar, or with /pet.</div>';
   if (UI.petMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.petMsg) + "</div>";
   if (cur && BUDDIES[cur]) {
     const B = BUDDIES[cur];
-    h += '<div class="item" style="border-color:#c9a227"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:28px">' + B.icon + "</span><div><b>" + esc(buddyName(cur)) + '</b> <span class="sub">· ' + esc(B.name) + '</span><div class="sub">' + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div><div style=\"display:flex;gap:6px\"><button data-a=\"petname\" data-v=\"" + cur + '">Rename</button><button class="pri" data-a="petsummon">' + (S.buddy ? "Dismiss" : "Summon") + "</button></div></div>";
+    h += '<div class="item" style="border-color:#c9a227"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:28px">' + B.icon + "</span><div><b>" + esc(buddyName(cur)) + '</b> <span class="sub">· ' + esc(B.name) + '</span><div class="sub">' + esc(B.lore) + "</div></div></div><div style=\"display:flex;gap:6px\"><button data-a=\"petname\" data-v=\"" + cur + '">Rename</button><button class="pri" data-a="petsummon">' + (S.buddy ? "Dismiss" : "Summon") + "</button></div></div>";
   } else h += '<div class="sub" style="margin-bottom:8px">No pet equipped.</div>';
   h += "<h3>Your pets (" + have.length + ")</h3>";
-  if (!have.length) h += '<div class="sub">None yet. Ysolde sells a few, others come from notorious monsters, fishing, the Adventurers\' Guild and the story.</div>';
+  if (!have.length) h += '<div class="sub">None yet. Pets are very rare drops from monsters and notorious monsters, a rare catch in Saltreach, and a gift at the end of the story.</div>';
   for (const id of have) {
     const B = BUDDIES[id];
-    h += '<div class="item"' + (id === cur ? ' style="border-color:#c9a227"' : "") + '><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(buddyName(id)) + (save.buddyNames[id] ? ' <span class="sub">(' + esc(B.name) + ")</span>" : "") + '</b><div class="sub">' + esc(B.lore) + " · " + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div>" + (id === cur ? '<span class="sub">Equipped ✓</span>' : '<button data-a="petsel" data-v="' + id + '">Equip</button>') + "</div>";
-  }
-  if (S.modal === "pets" && S.npcs.some(n => n.id === "ysolde" && dist(n, player) < 200)) {
-    h += "<h3>Ysolde's pens</h3>";
-    for (const [id, price] of BUDDY_SHOP) {
-      const B = BUDDIES[id], own = have.includes(id);
-      h += '<div class="item"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(B.name) + '</b><div class="sub">' + esc(B.lore) + " · " + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div>" + (own ? '<span class="sub">Owned ✓</span>' : '<button data-a="petbuy" data-v="' + id + '"' + (save.gil < price ? " disabled" : "") + ">" + price + " 💠</button>") + "</div>";
-    }
+    h += '<div class="item"' + (id === cur ? ' style="border-color:#c9a227"' : "") + '><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(buddyName(id)) + (save.buddyNames[id] ? ' <span class="sub">(' + esc(B.name) + ")</span>" : "") + '</b><div class="sub">' + esc(B.lore) + "</div></div></div>" + (id === cur ? '<span class="sub">Equipped ✓</span>' : '<button data-a="petsel" data-v="' + id + '">Equip</button>') + "</div>";
   }
   const others = Object.keys(BUDDIES).filter(id => !have.includes(id) && !BUDDY_SHOP.some(s => s[0] === id));
   if (others.length) h += '<h3>Still to find</h3><div class="sub">' + others.map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(" · ") + "</div>";
@@ -841,10 +834,10 @@ function tabGuild() {
 
 function tabAchievements() {
   const got = ACHIEVEMENTS.filter(a => save.ach[a.id]).length;
-  let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked. Most come with a crystal reward.</div>";
+  let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked.</div>";
   for (const a of ACHIEVEMENTS) {
     const t = save.ach[a.id];
-    h += '<div class="item" style="' + (t ? "" : "opacity:.55") + '"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + (t ? a.icon : "🔒") + "</span><div><b>" + esc(a.name) + '</b><div class="sub">' + esc(a.desc) + "</div></div></div>" + '<span class="sub">' + (t ? new Date(t).toLocaleDateString() : a.gil ? "💠 " + a.gil : "") + "</span></div>";
+    h += '<div class="item" style="' + (t ? "" : "opacity:.55") + '"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + (t ? a.icon : "🔒") + "</span><div><b>" + esc(a.name) + '</b><div class="sub">' + esc(a.desc) + "</div></div></div>" + '<span class="sub">' + (t ? new Date(t).toLocaleDateString() : "") + "</span></div>";
   }
   return h;
 }
@@ -1025,6 +1018,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "6.5.1", date: "2026-10-13", title: "Pet and discovery changes", items: [
+    "Pets no longer give any bonuses; they're companions only.",
+    "Pets are now very rare drops instead of shop purchases: hares, bats, worms and ice bats drop kits about once in 250 kills, notorious monsters a few percent of the time, and the Tide Wisp is a rare catch. Ysolde no longer sells pets and the Frost Wisp left the guild shop. ",
+    "Discovering landmarks no longer gives experience, and achievements no longer pay crystals. Both are for bragging rights only."
+  ] },
   { v: "6.4.0", date: "2026-10-13", title: "Five Races and the City Blessing", items: [
     "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like; the best casters, fast, but weak and frail), Ursan (huge; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
     "Race changes your body shape, ears and tail, and gives modest stat bonuses and penalties. Existing characters are Human.",
@@ -1141,7 +1139,7 @@ const UPDATES = [
     "Bond: companions grow closer as you fight together. Each bond level up to 5 adds 3% to their stats and unlocks a personal line.",
     "Wages: hiring fee covers the first game day, then each companion takes a daily wage. If you can't pay, they head back to the Mercenary Hall.",
     "Bestiary (Y): creatures are recorded when you meet them, with more detail as you defeat them.",
-    "Achievements (O): 29 to unlock, most with a crystal reward.",
+    "Achievements (O): 29 to unlock.",
     "The command box for a targeted monster now sits in the bottom-right corner. The round Attack, Target and Talk buttons are gone (phones keep Jump).",
     "Smoother limbs: arms and legs now bend at the elbows, knees, shoulders and hips instead of hinging like a doll's, and walking bends the knees and elbows more.",
     "You can no longer walk through trees, lamp posts or torches.",
@@ -1295,9 +1293,9 @@ function tabHelp() {
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
   h += sec("🐾 Pets", ul([
-    "Pets are small companions that follow you around. They never fight and can't be attacked, and each gives one small perk while it's out: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name + " (" + Object.keys(BUDDIES[id].perk).map(k => BUDDY_PERK_TEXT[k](BUDDIES[id].perk[k])).join(", ") + ")").join(", ") + ".",
+    "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
     "Open the <b>Pets</b> window (Ysolde offers it, or the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
-    "Where to find them: Ysolde sells the Meadow Kit, Batling and Wormlet. The Frost Wisp is a guild reward (Iron rank). Rimefang, Duskwing, Mirelord Gax and the Ashen Herald can drop pet items; the Tide Wisp is fished up in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
+    "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
   h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
@@ -1331,7 +1329,7 @@ function tabHelp() {
     "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
     "Kill XP scales with the monster's con. Tougher monsters give much more.",
     "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
-    "<b>Discovery:</b> landmarks give bonus XP the first time you reach them (🧭 toast). The Map shows how many you've found in each zone.",
+    "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 toast); they give no experience. The Map shows how many you've found in each zone.",
     "Quests give big XP rewards.",
     "Defeat costs 10% of your current level's XP requirement, but you never lose a level."
   ]));
@@ -1443,7 +1441,7 @@ function tabHelp() {
   ]));
   h += sec("🏆 Achievements (O)", ul([
     "Achievements track hunting, notorious monsters, skillchains, bursts, levels, quests, exploring, crafting, gathering, gardening, your home, companions, the bestiary and more.",
-    "Most pay out crystals when they unlock. Locked ones show their reward."
+    "They give no rewards: they are a record of what you have done."
   ]));
   h += sec("🏠 Your residence", ul([
     "The door is on the west cottage of Ashenreach Outpost; walking into it asks if you want to go in. <b>Pip the Nubbin</b> lives there.",
