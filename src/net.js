@@ -992,7 +992,7 @@ function netShTick() {
   }
   if (now - NET_SH.lastWant > 20000) {
     NET_SH.lastWant = now;
-    const ids = S.zone.spawns.filter(sp => sp.nm && storyWants(sp.nm.id)).map(sp => sp.nm.id);
+    const ids = S.zone.spawns.flatMap(sp => [sp].concat(sp.alts || [])).filter(o => o.nm && storyWants(o.nm.id)).map(o => o.nm.id);
     if (ids.length) netZoneSend("want", { id: S.charId, ids });
   }
 }

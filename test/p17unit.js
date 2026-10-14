@@ -12,8 +12,8 @@ ok(G.actionList(P()).some(a => a.id === 'stone_sprite') || P().job !== 'SMN', 'S
 const ex = G.ZONES.harbor.exits.find(e => e.to === 'frost');
 ok(ex && G.ZONES.frost.exits.some(e => e.to === 'harbor'), 'Saltreach Harbor and Frostspire Pass connect both ways');
 G.enterZone('frost', 900, 1200); run(1);
-const fams = new Set(S.mobs.map(m => m.famKey));
-ok(['snow_hare', 'frost_goblin', 'ice_wight', 'glacier_worm', 'ice_bat'].filter(f => fams.has(f)).length >= 3, 'Frostspire has its own monsters: ' + [...fams].join(','));
+const fams = new Set(G.ZONES.frost.spawns.flatMap(s => [s].concat(s.alts || [])).map(o => o.fam));
+ok(['snow_hare', 'frost_goblin', 'ice_wight', 'glacier_worm', 'ice_bat'].filter(f => fams.has(f)).length >= 3 && S.mobs.length >= 3, 'Frostspire has its own monsters: ' + [...fams].join(','));
 const seen = new Set(); for (let k = 0; k < 300; k++) { S.timeShift = k * 3 * 3600000 / 25; seen.add(G.weatherNow('frost')); }
 ok(seen.has('snow') && seen.has('blizzard') && !seen.has('rain'), 'it snows in the pass, never rains');
 S.timeShift = 0;

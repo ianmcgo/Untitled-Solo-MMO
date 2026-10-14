@@ -6,7 +6,7 @@ const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
 G.save.story.done = true;
 const tiers = [['grass_crawler', 'bog_crawler', 'rime_crawler'], ['honey_bee', 'marsh_hornet', 'frost_wasp'], ['hill_lizard', 'bog_lizard', 'frost_lizard'], ['pond_crab', 'mud_crab', 'ice_crab'], ['lake_snapper', 'marsh_snapper', 'ice_snapper']];
 for (const t of tiers) ok(new Set(t.map(f => G.FAMILIES[f].name)).size === 3 && new Set(t.map(f => G.FAMILIES[f].tint)).size === 3 && G.FAMILIES[t[0]].model === G.FAMILIES[t[2]].model, t[0] + ' has differently named and coloured tiers');
-const zoneOf = f => Object.keys(G.ZONES).filter(z => (G.ZONES[z].spawns || []).some(s => s.fam === f));
+const zoneOf = f => Object.keys(G.ZONES).filter(z => (G.ZONES[z].spawns || []).some(s => [s].concat(s.alts || []).some(o => o.fam === f)));
 ok(zoneOf('grass_crawler').includes('hollow') && zoneOf('bog_crawler').includes('marsh') && zoneOf('rime_crawler').includes('frost'), 'crawler tiers go Hollow → Marsh → Frostspire');
 const near = G.ZONES.hollow.spawns.filter(s => s.x < 800 && s.y > 700 && !s.nm);
 const aggrNear = near.filter(s => G.FAMILIES[s.fam].aggro);

@@ -15,7 +15,7 @@ ok(ex && G.ZONES.marsh.exits.some(e => e.to === 'hollow'), 'Rocky Hollow and the
 G.enterZone('hollow', ex.x + ex.w / 2, ex.y - 40); S.zoneCooldown = 0; P().y = ex.y + 4; run(0.5);
 ok(S.zoneId === 'marsh', 'walking through the south exit enters the marsh');
 run(1);
-const fams = new Set(S.mobs.map(m => m.famKey));
+const fams = new Set(G.ZONES.marsh.spawns.flatMap(s => [s].concat(s.alts || [])).filter(o => o.time !== 'night').map(o => o.fam));
 ok(['bog_toad', 'bog_leech', 'mire_goblin'].every(f => fams.has(f)), 'the marsh spawns toads, leeches and mire goblins by day (' + [...fams].join(',') + ')');
 ok(S.mobs.every(m => m.lv >= 9), 'marsh monsters are level 9 and up');
 let minD = 1e9; const sp = G.ZONES.marsh.spawns; for (let i = 0; i < sp.length; i++) for (let j = i + 1; j < sp.length; j++) minD = Math.min(minD, Math.hypot(sp[i].x - sp[j].x, sp[i].y - sp[j].y));

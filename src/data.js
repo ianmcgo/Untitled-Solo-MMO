@@ -1,4 +1,6 @@
 const CONFIG = {
+  spawnGapCells: 3,
+  spawnExitCells: 2,
   mobRegen: 0.04,
   mercDaily: 5,
   mercPermadeath: true,
@@ -1451,11 +1453,23 @@ for (const id in SPELLS) {
   ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
   if (lv <= 10) SHOP.push(sid); else if (lv <= 17) SHOPS.vela.push(sid);
 }
-{
-  const kept = [], overlap = (a, b) => !a.time || !b.time || a.time === b.time;
-  for (const sp of ZONES.hollow.spawns) {
-    if (!sp.nm && sp.x < 1300 && kept.some(k => overlap(k, sp) && Math.hypot(k.x - sp.x, k.y - sp.y) < 170)) continue;
-    kept.push(sp);
+for (const zid in ZONES) {
+  const z = ZONES[zid];
+  if (!z.spawns || !z.spawns.length || !z.w) continue;
+  const cell = Math.max(z.w, z.h) / 15, gap = CONFIG.spawnGapCells * cell, exitR = CONFIG.spawnExitCells * cell;
+  const exitDist = sp => Math.min(...(z.exits || []).map(e => Math.hypot(sp.x - (e.x + e.w / 2), sp.y - (e.y + e.h / 2))), 1e9);
+  const near = (a, b) => Math.abs(a.x - b.x) < gap && Math.abs(a.y - b.y) < gap;
+  const order = z.spawns.slice().sort((a, b) => (b.nm ? 1 : 0) - (a.nm ? 1 : 0) || (b.bf ? 1 : 0) - (a.bf ? 1 : 0) || exitDist(b) - exitDist(a));
+  const fixed = sp => FAMILIES[sp.fam] && (FAMILIES[sp.fam].nm || FAMILIES[sp.fam].boss);
+  const kept = z.spawns.filter(fixed);
+  for (const sp of order) if (!kept.includes(sp) && (sp.bf || exitDist(sp) >= exitR) && !kept.some(k => near(k, sp))) kept.push(sp);
+  if (!kept.length) kept.push(order[0]);
+  for (const sp of z.spawns) {
+    if (kept.includes(sp)) continue;
+    let best = null, bd = 1e12;
+    for (const k of kept) { if (!!k.bf !== !!sp.bf || fixed(k)) continue; const d = Math.hypot(k.x - sp.x, k.y - sp.y); if (d < bd) { bd = d; best = k; } }
+    if (!best) best = kept[0];
+    (best.alts = best.alts || []).push({ fam: sp.fam, lv: sp.lv, time: sp.time, nm: sp.nm, passive: sp.passive });
   }
-  ZONES.hollow.spawns = kept;
+  z.spawns = z.spawns.filter(sp => kept.includes(sp));
 }

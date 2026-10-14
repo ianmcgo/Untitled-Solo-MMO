@@ -3111,22 +3111,27 @@ function harvestGarden(i) {
   return "";
 }
 
-function spawnAllowed(sp) { if (sp.bf && !(S.bf && !S.bf.won)) return false; return !sp.time || sp.time === period(); }
+function spawnOpts(sp) { return [sp].concat(sp.alts || []).filter(o => !o.time || o.time === period()); }
+function spawnAllowed(sp) { if (sp.bf && !(S.bf && !S.bf.won)) return false; return spawnOpts(sp).length > 0; }
+function spawnHas(sp, pred) { return [sp].concat(sp.alts || []).some(pred); }
 
-function spawnMob(i) {
+function spawnMob(i, wantNm) {
   const sp = S.zone.spawns[i];
   if (!spawnAllowed(sp)) { S.spawnAt[i] = S.time + 5; return; }
-  let fam = sp.fam, lv = randInt(sp.lv[0], sp.lv[1]);
-  if (FEATURES.nms && sp.nm && (!sp.nm.time || sp.nm.time === period())) {
-    const key = "nm:" + sp.nm.id;
-    const story = storyWants(sp.nm.id) || (typeof netWanted === "function" && netWanted(sp.nm.id));
-    if ((story || !(save.timers[key] > Date.now())) && !S.mobs.some(m => m.alive && m.famKey === sp.nm.id) && (story || Math.random() < sp.nm.chance)) {
-      fam = sp.nm.id; lv = sp.nm.lv;
+  const opts = spawnOpts(sp);
+  const o = (wantNm && opts.find(x => x.nm && x.nm.id === wantNm)) || opts.find(x => x.nm && (storyWants(x.nm.id) || (typeof netWanted === "function" && netWanted(x.nm.id)))) || opts[Math.floor(Math.random() * opts.length)];
+  let fam = o.fam, lv = randInt(o.lv[0], o.lv[1]);
+  if (FEATURES.nms && o.nm && (!o.nm.time || o.nm.time === period())) {
+    const key = "nm:" + o.nm.id;
+    const story = storyWants(o.nm.id) || (typeof netWanted === "function" && netWanted(o.nm.id));
+    if ((story || !(save.timers[key] > Date.now())) && !S.mobs.some(m => m.alive && m.famKey === o.nm.id) && (story || Math.random() < o.nm.chance)) {
+      fam = o.nm.id; lv = o.nm.lv;
       if (S.time > 1 && Math.hypot(sp.x - player.x, sp.y - player.y) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
     }
   }
   const mob = buildMob(fam, lv, sp.x, sp.y, i);
-  if (sp.passive && !mob.fam.nm) { mob.aggro = null; mob.passive = true; }
+  mob.spawnOpt = o;
+  if (o.passive && !mob.fam.nm) { mob.aggro = null; mob.passive = true; }
   S.mobs.push(mob);
   S.spawnAt[i] = null;
 }
@@ -3183,7 +3188,8 @@ function updatePeriod() {
   if (!S.zone.indoor && S.zone.theme !== "cave" && S.zone.theme !== "crypt") log(per === "night" ? "Night falls over " + S.zone.name + "." : "The sun rises over " + S.zone.name + ".", "sys");
   for (const m of S.mobs) {
     const sp = S.zone.spawns[m.spawnIdx];
-    if (m.alive && sp && sp.time && sp.time !== per && m.state === "idle") {
+    const ot = m.spawnOpt ? m.spawnOpt.time : sp && sp.time;
+    if (m.alive && sp && ot && ot !== per && m.state === "idle") {
       m.alive = false;
       m.deadAt = S.time - 2;
       m.despawned = true;
@@ -3515,11 +3521,11 @@ function advanceStory() {
 }
 
 function summonStoryFoe(fam) {
-  const i = (S.zone.spawns || []).findIndex(sp => sp.nm && sp.nm.id === fam);
+  const i = (S.zone.spawns || []).findIndex(sp => spawnHas(sp, o => o.nm && o.nm.id === fam));
   if (i < 0) return;
   for (const m of S.mobs) if (m.spawnIdx === i && m.alive) { m.alive = false; m.despawned = true; m.deadAt = S.time - 99; }
   S.mobs = S.mobs.filter(m => !(m.spawnIdx === i && m.despawned));
-  spawnMob(i);
+  spawnMob(i, fam);
 }
 
 function storyKill(e) {
