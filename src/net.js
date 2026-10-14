@@ -288,7 +288,7 @@ function netRemote(meta) {
   if (!S.others) S.others = new Map();
   let o = S.others.get(meta.id);
   if (!o) {
-    o = { kind: "remote", remote: true, id: meta.id, x: player ? player.x : 0, y: player ? player.y : 0, tx: null, ty: null, face: 0, tf: 0, alive: true, radius: 14, speed: 140, buffs: {}, hp: 100, maxHp: 100, tp: 0, mp: 0, maxMp: 0, recasts: {}, lastSwing: -9, lastWS: -9, lastHit: -9, casting: null, seen: S.time, placed: false };
+    o = { kind: "remote", remote: true, id: meta.id, x: player ? player.x : 0, y: player ? player.y : 0, tx: null, ty: null, face: 0, tf: 0, alive: true, radius: 14, speed: CONFIG.runSpeed, buffs: {}, hp: 100, maxHp: 100, tp: 0, mp: 0, maxMp: 0, recasts: {}, lastSwing: -9, lastWS: -9, lastHit: -9, casting: null, seen: S.time, placed: false };
     S.others.set(meta.id, o);
   }
   o.name = meta.name || o.name || "Adventurer";

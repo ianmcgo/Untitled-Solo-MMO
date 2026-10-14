@@ -9,8 +9,8 @@ const mockLogin = require('./mocklogin');
   await page.addInitScript(() => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: 'low' })); } catch (e) {} });
   await mockLogin(page, html);
   const list = JSON.parse(listArg), poses = (posesArg || 'idle,walk,swing').split(','), cols = +(colsArg || 6);
-  const url = await page.evaluate(async ({ list, poses, cols }) => {
-    const T = 220;
+  const url = await page.evaluate(async ({ list, poses, cols, TS }) => {
+    const T = TS;
     const sheet = document.createElement('canvas');
     const rows = Math.ceil(list.length * poses.length / cols);
     sheet.width = cols * T; sheet.height = rows * T;
@@ -72,7 +72,7 @@ const mockLogin = require('./mocklogin');
       studio.remove(v.group); destroyView(v); VIEW.views.delete(e);
     }
     return sheet.toDataURL('image/png');
-  }, { list, poses, cols });
+  }, { list, poses, cols, TS: +(process.env.SHOT_T || 220) });
   require('fs').writeFileSync(out, Buffer.from(url.split(',')[1], 'base64'));
   console.log(errs.length ? 'ERRORS ' + errs.slice(0, 5).join(' || ') : 'ok ' + out);
   await browser.close();

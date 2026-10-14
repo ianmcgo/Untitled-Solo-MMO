@@ -1172,6 +1172,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Test tool: test/headshot.js `<html> <out> '[specs]' front,q,side,back <cols>` (env SHOT_T tile px, QUALITY low|medium|high; race spec race/job/build/hairStyle/face).
 - Known limits: hair locks are single-sided strips (double-sided material); beards are one shell; face paint is still one texture cell per face (Q4/Q5 bring more).
 
+## Phase 89: lofted bodies, movement speed, foot planting (v13.6.0) — plan Q2
+- `gLoft(rings, seg, capFirst, capLast, v0, v1)`: tube through superellipse cross-sections {y, x, z, rx, rz, f (front depth mult), b (back), p (exponent)}; winding follows ring direction; caps optional; seam normals averaged. `blendW(y, [[y, bone, halfWidth]...])` gives two-bone weights across joints. `RigBuilder.addW(geo, bone, color, region, wfn)` writes explicit skin weights and marks `userData.rig.pre` so `smoothJoints` skips it.
+- Human torso = two lofts sharing the belt ring: pelvis (crotch, glutes deeper at the back, hips; legs colour or robe colour) and torso (waist, ribcage, chest/bust front depth, shoulder line, trapezius slope, neck base), weights hips→spine→chest→neck. Arms: one loft per segment colour (deltoid cap tucked into the torso, biceps front fullness, elbow, forearm muscle, wrist), weights chest 0.3 at the shoulder top, upArm/foreArm across the elbow (±0.035), foreArm/hand at the wrist. Legs: one loft (inside the pelvis, upper thigh, knee with front bulge, calf back bulge, ankle), hips 0.35 at the top, thigh/shin across the knee (±0.04), shin/foot at the ankle. Old shoulder/elbow/knee balls and limb tapers removed (skeletons keep their bones look).
+- Speeds: `CONFIG.runSpeed` 100 px/s (5 m/s; was 140), `mobSpeedMul` 0.72 on family speeds, `npcSpeed` 45, companions ×1.08, pets ×1.15, buddy ×1.2, remote players runSpeed. Mount ×2.2 unchanged.
+- Gait (beat sheet, human, leg length L ≈ 0.86 m): walk 1.3 m/s, cycle 1.4 m, duty 0.62, ~1.9 steps/s, heel strike 42% of stance length ahead of the hip, toe-off with heel lift when out of reach, swing arc 6 cm; run 5 m/s, cycle up to 1.4 × 1.9, duty 0.34, ~4 steps/s, swing arc 16 cm, hips 3 cm lower. Arms counter-swing (existing), hips bob highest mid-stance.
+- `strideEff(v, spd)` = stride × (1 + 0.9·run) capped at 1.25·L/duty (short legs take quicker steps); used by both the phase integrator (`trackEvents`) and the IK so planted feet move exactly with the ground. Base strides: human 1.4, elari 1.55, ursan 1.65, pipkin 0.85.
+- `humanLegIK(v, an, w, run)` runs after `applyPose` (not eased, so no lag slide): per foot, phase → stance (z from +0.42D to −0.58D, D = duty·stride) or swing (smoothstep + sine lift, toes up); hip joint from hips quaternion + root offset; out-of-reach targets lift the ankle (heel raise, foot pitched); two-bone solve in the sagittal plane, knee forward; thigh set by quaternion inv(hips)·Rx(angle) so hip twist/roll don't drag the feet; weight `an.ikW` eases with speed and drops to 0 when mounted, resting, sitting, dead, jumping or during a weapon skill.
+- Verification (test/gaitprobe.js, phase-based stance frames, horizontal world speed of the ankle): planted-foot median 0.005 m/s walking, 0.014–0.024 at 3.6 m/s, 0.03–0.04 running (was 0.8 / 3.2). test/gaitsheet.js renders side/three-quarter contact sheets (`<html> <out> <spec> <px/s> side|q <frames>`).
+- Fixed: effects3d `updateTrail` used `L` before its declaration (crashed during gold weapon-skill trails).
+- Known limits: IK is sagittal only (no terrain slope or step-up IK yet); monsters with non-human rigs keep their old cycles (phase 98).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1224,6 +1235,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 13.6.0 | Phase 89: lofted bodies, slower movement, foot-planting leg IK, trail crash fix. |
 | 13.5.0 | Phase 88: sculpted heads, realistic faces and hair, skull jaws, cactus Needlekin, 512 px atlas on High. |
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
