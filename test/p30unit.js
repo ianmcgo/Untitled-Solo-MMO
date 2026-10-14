@@ -1,0 +1,15 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player; G.save.story.done = true;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const onlineRoster = G.loadRoster().chars.length;
+G.PLAY.offline = true;
+ok(G.loadRoster().chars.length === 0, 'offline mode has its own empty character list');
+const id = G.createChar({ name: 'Solo', job: 'WAR', look: {} });
+const d = G.loadChar(id);
+ok(d && d.offline === true && id[0] === 'o' && G.charKey(id).startsWith('usr_off_char_') && G.STORE.get('usr_char_' + id) == null, 'offline characters are marked and stored separately');
+G.PLAY.offline = false;
+ok(G.loadRoster().chars.length === onlineRoster && !G.loadRoster().chars.some(c => c.id === id), 'offline characters never show in the online list');
+ok(G.loadChar(id) == null, 'the online side cannot read an offline character');
+const before = JSON.stringify(G.save);
+G.applyLoadedSave(Object.assign({}, d));
+ok(JSON.stringify(G.save) === before && H.alllog.some(l => /can never be brought online/.test(l)), 'loading an offline save file while online is refused');
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

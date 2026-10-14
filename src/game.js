@@ -177,9 +177,11 @@ const STORE = {
   remove(k) { MEM_STORE.delete(k); try { localStorage.removeItem(k); } catch (e) {} }
 };
 
-const ROSTER_KEY = "usr_roster_v1";
+const PLAY = { offline: false };
+const ROSTER_ON = "usr_roster_v1", ROSTER_OFF = "usr_off_roster_v1";
 const MAX_CHARS = 8;
-const charKey = id => "usr_char_" + id;
+const charKey = id => (PLAY.offline ? "usr_off_char_" : "usr_char_") + id;
+function rosterKey() { return PLAY.offline ? ROSTER_OFF : ROSTER_ON; }
 
 function charSummary(id, d, prev) {
   return { id, name: d.name || "Adventurer", job: d.mainJob, lv: d.jobs[d.mainJob].lv, zone: d.home && ZONES[d.home.zone] ? ZONES[d.home.zone].name : "Ashenreach Outpost", look: Object.assign({}, d.look), created: d.created || (prev && prev.created) || Date.now(), played: Date.now(), gil: d.gil };
@@ -187,11 +189,11 @@ function charSummary(id, d, prev) {
 
 function loadRoster() {
   let r = null;
-  try { r = JSON.parse(STORE.get(ROSTER_KEY)); } catch (e) {}
+  try { r = JSON.parse(STORE.get(rosterKey())); } catch (e) {}
   if (r && Array.isArray(r.chars)) return r;
   r = { chars: [], current: null };
   try {
-    const raw = STORE.get(CONFIG.saveKey);
+    const raw = PLAY.offline ? null : STORE.get(CONFIG.saveKey);
     if (raw) {
       const d = normalizeSave(JSON.parse(raw));
       if (d) {
@@ -206,7 +208,7 @@ function loadRoster() {
   return r;
 }
 
-function saveRoster(r) { STORE.set(ROSTER_KEY, JSON.stringify(r)); }
+function saveRoster(r) { STORE.set(rosterKey(), JSON.stringify(r)); }
 
 function loadChar(id) {
   try {
@@ -227,7 +229,8 @@ function createChar(opts) {
   if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" };
   else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" };
   d.inventory = [{ id: "potion", qty: 3 }];
-  const id = typeof NET !== "undefined" && NET.member && typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  if (PLAY.offline) d.offline = true;
+  const id = PLAY.offline ? "o" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36) : typeof NET !== "undefined" && NET.member && typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   STORE.set(charKey(id), JSON.stringify(d));
   r.chars.push(charSummary(id, d));
   r.current = id;
@@ -254,6 +257,7 @@ function validCharName(name, roster) {
 function selectChar(id) {
   const d = loadChar(id);
   if (!d) return false;
+  if (!!d.offline !== PLAY.offline) return false;
   const r = loadRoster();
   r.current = id;
   saveRoster(r);
@@ -4138,6 +4142,8 @@ function startNewGame() {
 }
 
 function applyLoadedSave(d) {
+  if (d.offline && !PLAY.offline) { log("That save belongs to an offline character. Offline characters can never be brought online.", "foe"); sfx("error"); return; }
+  if (PLAY.offline) d.offline = true;
   if (S.charId) d.created = (loadRoster().chars.find(c => c.id === S.charId) || {}).created || d.created;
   save = d;
   saveGame();

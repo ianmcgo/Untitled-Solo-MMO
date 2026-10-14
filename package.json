@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "9.6.0",
-  "releaseTitle": "Classic windows everywhere",
+  "version": "9.7.0",
+  "releaseTitle": "Offline play",
   "description": "",
   "main": "index.js",
   "scripts": {

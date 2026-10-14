@@ -143,10 +143,26 @@ function showTitle() {
     window.removeEventListener("keydown", go);
     b.onclick = null;
     if (typeof sfx === "function") sfx("select");
-    showAccount();
+    showModeChoice();
   };
   b.onclick = go;
   window.addEventListener("keydown", go);
+}
+
+function showModeChoice() {
+  const ld = $("loading");
+  ld.classList.add("ready", "roster");
+  $("ldStart").style.display = "none";
+  $("ldSub").textContent = "How do you want to play?";
+  const box = $("charSel");
+  box.innerHTML = '<div class="ccOpts" style="max-width:420px;margin:0 auto;text-align:center"><div class="ccAct" style="flex-direction:column;gap:10px"><button class="pri" data-play="on">Play Online</button><div class="sub">Sign in and play with others. Your characters are saved on the server.</div><button data-play="off">Play Offline</button><div class="sub">No account needed. Offline characters are saved on this device only, play solo with companions, and can never be brought online.</div></div></div>';
+  box.style.display = "block";
+  box.onclick = e => {
+    const b = e.target.closest("[data-play]");
+    if (!b) return;
+    if (typeof sfx === "function") sfx("select");
+    if (b.dataset.play === "off") { PLAY.offline = true; showCharSelect(); } else { PLAY.offline = false; showAccount(); }
+  };
 }
 
 const CC = { job: "WAR", look: null, name: "" };
@@ -249,7 +265,7 @@ function showCharSelect() {
   ld.classList.add("ready", "roster");
   ld.classList.remove("zone");
   $("ldTitle").textContent = "LEID'ANAV REBORN";
-  $("ldSub").textContent = "Choose your character";
+  $("ldSub").textContent = PLAY.offline ? "Choose your offline character" : "Choose your character";
   $("ldStart").style.display = "none";
   const r = loadRoster();
   r.chars.sort((a, b) => (b.played || 0) - (a.played || 0));
@@ -260,8 +276,8 @@ function showCharSelect() {
   }
   if (!r.chars.length) h += '<div class="ccEmpty">No characters yet. Create one to begin your journey.</div>';
   h += "</div>";
-  if (NET.localOnly && NET.localOnly.length) h += '<div class="ccEmpty" style="margin-top:6px">' + NET.localOnly.length + " character" + (NET.localOnly.length > 1 ? "s" : "") + " from this browser (" + NET.localOnly.map(c => esc(c.name)).join(", ") + ') can be moved to your account. <button data-upload="1">Upload to my account</button></div>';
-  h += '<div class="ccFoot">' + (r.chars.length < MAX_CHARS ? '<button class="pri" data-new="1">＋ New character</button>' : '<span class="sub">Character limit reached (' + MAX_CHARS + ').</span>') + '<span class="sub">' + r.chars.length + " / " + MAX_CHARS + " characters · " + esc(NET.user ? NET.user.email : "") + ' <button data-signout="1">Sign out</button></span></div>';
+  if (!PLAY.offline && NET.localOnly && NET.localOnly.length) h += '<div class="ccEmpty" style="margin-top:6px">' + NET.localOnly.length + " character" + (NET.localOnly.length > 1 ? "s" : "") + " from this browser (" + NET.localOnly.map(c => esc(c.name)).join(", ") + ') can be moved to your account. <button data-upload="1">Upload to my account</button></div>';
+  h += '<div class="ccFoot">' + (r.chars.length < MAX_CHARS ? '<button class="pri" data-new="1">＋ New character</button>' : '<span class="sub">Character limit reached (' + MAX_CHARS + ').</span>') + '<span class="sub">' + r.chars.length + " / " + MAX_CHARS + " characters · " + (PLAY.offline ? 'Offline (this device only) <button data-mode="1">Play online instead</button>' : esc(NET.user ? NET.user.email : "") + ' <button data-signout="1">Sign out</button>') + "</span></div>";
   const box = $("charSel");
   box.innerHTML = h;
   box.style.display = "block";
@@ -273,6 +289,7 @@ function showCharSelect() {
       if (c) gameConfirm("Delete " + c.name + "?", "This character and everything they own will be gone for good.", async () => { try { await netDeleteChar(c.id); deleteChar(c.id); showCharSelect(); } catch (err) { acctBusy("Couldn't delete: " + netErr(err)); setTimeout(showCharSelect, 2500); } }, { yes: "Delete", danger: true });
       return;
     }
+    if (b && b.dataset.mode) { PLAY.offline = false; showModeChoice(); return; }
     if (b && b.dataset.signout) { netSignOut().then(() => showLogin("signin")); return; }
     if (b && b.dataset.upload) { acctBusy("Uploading characters…"); netUploadLocal().then(res => { acctBusy(res.join(" · ")); setTimeout(openRoster, 2200); }); return; }
     if (b && b.dataset.new) { showCharCreate(); return; }

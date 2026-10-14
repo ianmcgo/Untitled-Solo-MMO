@@ -911,11 +911,19 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - template4 CSS: #mBody h3 → pale gradient title bar; #mBody .item → flat rows with separators; details/summary → classic headings; range sliders accent blue; .sub/.d use --ffFont.
 - Help text updated (first hire via daily hall, Heal via self menu, Config names, compass map, Party window, Pip job changes); intro log line points to Pip; mercenary role labels.
 
+## Phase 47: offline play (v9.7.0)
+- game.js: PLAY.offline; rosterKey() (usr_roster_v1 / usr_off_roster_v1); charKey prefix usr_char_ / usr_off_char_. createChar marks d.offline and uses "o…" ids offline. selectChar refuses a save whose offline flag doesn't match the mode. applyLoadedSave refuses offline saves while online; offline loads get the mark.
+- main4: showTitle → showModeChoice (Play Online → showAccount, Play Offline → showCharSelect). Offline select footer: "Play online instead". Logout reloads to the title.
+- net.js: netMarkDirty/netFlush skip offline saves; netCreateChar throws for offline; NET_SCHEMA 5.
+- hud4: offline hides Trade/Search/Linkshell/Friend List/Communication in the main menu; Network shows Offline. Residence entry replaces Map by key.
+- setup.sql (schema 5): trigger characters_no_offline (before insert or update) rejects data.offline.
+- Test p30unit; harness exports PLAY, loadChar, charKey, STORE.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
 - 46 (9.6.0) Remaining classic windows + Help rewrite: DONE.
-- 47 (9.7.0) Offline play: a separate offline character list stored only on the device (flag offline: true, own storage key). Plays solo with mercenaries and NPC systems; online-only features (other players, party/trade/tells, linkshells, player auction house, search, server bounties) hidden. Offline characters can never be uploaded, imported or converted to online: the client refuses, the export format is marked offline and rejected by the online import, and the server save trigger/RPCs reject any save carrying the offline flag or an offline-only id. Title screen gets Play Online / Play Offline; offline needs no login.
+- 47 (9.7.0) Offline play: DONE.
 - 48 (9.8.0) G1 Sky and light: sky dome gradient + layered moving clouds, sun/moon/stars, time-of-day colour grading, per-zone fog colour/distance, hemisphere + sun light balance, weather tints.
 - 49 (9.9.0) G2 Terrain: painted texture splatting (grass/dirt/path/rock/sand/snow) by height/slope/zone, detail textures up close, cliff and rock-face meshes, smoother height variety, path decals.
 - 50 (9.10.0) G3 Plants and props: layered-canopy trees, conifers, bushes, flowers, instanced grass tufts with wind sway, scattered rocks, logs, fences; distance fade/LOD.
@@ -957,7 +965,7 @@ World systems:
 - 85 (13.2.0) Expeditions: multi-zone quests far from home.
 - 86 (13.3.0) World map atlas: fills in as you explore, every zone joined up.
 - 87 (13.4.0) Night-only and weather-only content: monsters, areas and NPCs that appear only at certain times or weather.
-- Pending on the user's side: run the latest setup.sql in Supabase.
+- Pending on the user's side: run the latest setup.sql (schema 5) in Supabase.
 
 ## Version log
 
@@ -967,6 +975,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.7.0 | Phase 47: offline play with separate storage and server-side rejection. |
 | 9.6.0 | Phase 46: classic styling for all remaining windows, Help rewrite. |
 | 9.5.1 | Spawn points 3 grid squares apart, clear of exits, alternate monsters per point. |
 | 9.5.0 | Phase 45: generated daily mercenaries, permadeath, freeze-proof loop. |
