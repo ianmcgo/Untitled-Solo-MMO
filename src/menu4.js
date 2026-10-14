@@ -2,6 +2,7 @@ function openMenu(tab) {
   tab = TAB_ALIAS[tab] || tab || "character";
   const was = !!S.modal;
   if (S.dialog) closeDialog();
+  UI.hov = null; UI.modalHelp = null; if (tab === "quests" && !was) { UI.qCat = null; UI.qSel = null; } if (tab === "shop" && S.modal !== "shop") UI.shopMode = "buy";
   S.modal = tab;
   $("menu").style.display = "block";
   S.keys = {};
@@ -44,6 +45,9 @@ function renderModal() {
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
   const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
+  const win = document.querySelector("#menu .win");
+  if (win) win.className = "win" + (SLIM_TABS[S.modal] ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "");
+  renderMCard();
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
   const li = $("loadInput");
@@ -94,31 +98,24 @@ function ffJobLevels() {
   return h + "</div></div>";
 }
 
+function orbRow(a, v, col, name, right, help, off) {
+  return '<button class="lr' + (off ? " dim" : "") + '" data-a="' + a + '" data-v="' + v + '" data-hs="' + esc(help || "") + '"><span class="cur">➤</span><span class="orb" style="--oc:' + col + '"></span><span class="nm">' + esc(name) + "</span>" + (right != null ? '<span class="rt">' + right + "</span>" : "") + "</button>";
+}
 function tabMagic() {
+  UI.modalHelp = UI.modalHelp || "Select a spell.";
   const acts = actionList(player).filter(a => a.kind === "ma");
-  if (!acts.length) return '<div class="sub">Your current jobs know no magic.</div>';
-  const groups = {};
-  for (const a of acts) { const sk = spellSkill(SPELLS[a.id]); const g = ["healing", "divine", "enhancing"].includes(sk) || (sk === "enfeebling" && SPELLS[a.id].element === "light") ? "White Magic" : sk === "singing" ? "Songs" : sk === "summoning" ? "Summoning Magic" : "Black Magic"; (groups[g] = groups[g] || []).push(a); }
-  let h = '<div class="ffPanels">';
-  for (const g of ["White Magic", "Black Magic", "Songs", "Summoning Magic"]) {
-    if (!groups[g]) continue;
-    h += '<div class="ffStatus ffSk"><div class="ffHead"><span>' + g + "</span></div>";
-    for (const a of groups[g]) { const sp = SPELLS[a.id], rc = recastLeft(player, "ma:" + a.id); h += '<button class="mcR" data-a="mcast" data-v="' + a.id + '" title="' + esc(sp.desc || "") + '"><span class="ic">✦</span><span class="nm">' + esc(sp.name) + '</span><span class="q">' + (rc > 0 ? Math.ceil(rc) + "s" : sp.mp + " MP") + "</span></button>"; }
-    h += "</div>";
-  }
-  return h + '</div><div class="sub">Tap a spell to cast it on your current target (or yourself for spells that help).</div>';
+  if (!acts.length) return '<div class="lList"><div class="lr empty"><span class="nm">Your current jobs know no magic.</span></div></div>';
+  let h = '<div class="lList">';
+  for (const a of acts) { const sp = SPELLS[a.id], rc = recastLeft(player, "ma:" + a.id); h += orbRow("mcast", a.id, ELEMENT_COLORS[sp.element] || "#9fe8ff", sp.name, rc > 0 ? Math.ceil(rc) + "s" : sp.mp + " MP", sp.desc || sp.name, sp.mp > player.mp); }
+  return h + "</div>";
 }
 
 function tabAbilities() {
+  UI.modalHelp = UI.modalHelp || "Select an ability.";
   const acts = actionList(player).filter(a => a.kind === "ja" || a.kind === "ws");
-  let h = '<div class="ffPanels">';
-  for (const [title, kind] of [["Job Abilities", "ja"], ["Weapon Skills", "ws"]]) {
-    const L = acts.filter(a => a.kind === kind);
-    h += '<div class="ffStatus ffSk"><div class="ffHead"><span>' + title + "</span></div>";
-    if (!L.length) h += '<div class="mcR empty"><span class="nm dim">None yet.</span></div>';
-    for (const a of L) { const rc = a.kind === "ja" ? recastLeft(player, "ja:" + a.id) : 0; h += '<button class="mcR" data-a="mact" data-v="' + a.kind + ":" + a.id + '" title="' + esc(cmdHelpOf(a)) + '"><span class="ic">' + (a.kind === "ws" ? "⚔" : "⚡") + '</span><span class="nm">' + esc(actName(a)) + '</span><span class="q">' + (rc > 0 ? Math.ceil(rc) + "s" : a.kind === "ws" ? "1000 TP" : "") + "</span></button>"; }
-    h += "</div>";
-  }
+  let h = '<div class="lList">';
+  if (!acts.length) h += '<div class="lr empty"><span class="nm">None yet.</span></div>';
+  for (const a of acts) { const rc = a.kind === "ja" ? recastLeft(player, "ja:" + a.id) : 0; h += orbRow("mact", a.kind + ":" + a.id, a.kind === "ws" ? "#ffb070" : "#b0ffb0", actName(a), rc > 0 ? Math.ceil(rc) + "s" : a.kind === "ws" ? "1000 TP" : "", cmdHelpOf(a), a.kind === "ws" && player.tp < 1000); }
   return h + "</div>";
 }
 
@@ -164,7 +161,7 @@ function itemCard(id) {
 function tabEquipment() {
   UI.eq = UI.eq || { slot: null, hover: null };
   const q = UI.eq, st = player.stats;
-  let h = '<div class="eqWrap"><div class="eqBox"><div class="eqGrid">';
+  let h = '<div class="eqW"><div class="eqL">' + statusLeftHTML(true) + '<div class="stBox gilB"><em>Current Crystals</em><b>' + save.gil.toLocaleString() + '</b></div></div><div class="eqWrap"><div class="eqBox"><div class="eqGrid">';
   for (const sl of SLOTS) {
     const id = save.gear[sl];
     h += '<button class="eqS' + (q.slot === sl ? " sel" : "") + (id ? " on" : "") + '" data-a="eqslot" data-v="' + sl + '" title="' + (id ? esc(ITEMS[id].name) : SLOT_NAMES[sl]) + '">' + (id ? '<span class="ic">' + (ITEMS[id].icon || "📦") + "</span>" : '<span class="lbl">' + SLOT_NAMES[sl] + "</span>") + "</button>";
@@ -185,7 +182,7 @@ function tabEquipment() {
     if (q.hover && ITEMS[q.hover]) { h += itemCard(q.hover); if (cur) h += '<div class="eqArrow">▼</div>' + itemCard(cur); if (!canEquip(q.hover)) h += '<button class="pri" data-a="eqpick" data-v="' + q.hover + '" style="margin-top:6px">Equip</button>'; }
     else if (cur) h += itemCard(cur);
   }
-  return h + "</div></div>";
+  return h + "</div></div></div>";
 }
 
 function attachPreview(wrapId) {
@@ -378,36 +375,50 @@ function invSorted() {
     return true;
   });
 }
+const SLIM_TABS = { inventory: 1, shop: 1, quests: 1, magic: 1, abilities: 1 };
+function listRow(a, v, id, qty, name, right, sel, cls) {
+  return '<button class="lr' + (sel ? " sel" : "") + (cls ? " " + cls : "") + '" data-a="' + a + '" data-v="' + v + '"' + (id ? ' data-hv="' + id + '"' : "") + '><span class="cur">➤</span>' + (qty != null ? '<span class="lq">' + (qty > 1 ? qty : "") + "</span>" : "") + '<span class="ic">' + (id && ITEMS[id] ? ITEMS[id].icon || "📦" : "•") + '</span><span class="nm">' + esc(name) + "</span>" + (right != null ? '<span class="rt">' + right + "</span>" : "") + "</button>";
+}
 function tabInventory() {
-  const f = (k, l) => '<button data-a="filter" data-v="' + k + '"' + (UI.filter === k ? ' class="on"' : "") + ">" + l + "</button>";
-  let h = '<div class="invTop">' + f("all", "All") + f("use", "🧪 Usable") + f("gear", "🗡️ Gear") + f("mat", "🪨 Materials") + f("rare", "✦ Rare & other") + '<button class="sp" data-a="sort">Sort</button></div>';
-  if (UI.slotFilter) h += '<div class="sub" style="margin-bottom:6px">Showing items for: ' + SLOT_NAMES[UI.slotFilter] + ' · <a href="#" data-a="clearslot" style="color:var(--gold)">show all</a></div>';
-  h += '<div class="inv">';
+  UI.modalHelp = "Select an item.";
   let list = invSorted();
   if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].kind === "equip" && slotKeys(ITEMS[s.id].slot).includes(UI.slotFilter));
-  for (const { s, i } of list) {
-    const it = ITEMS[s.id];
-    h += '<button class="cell ' + rarityOf(s.id) + (UI.sel === i ? " sel" : "") + '" data-a="sel" data-v="' + i + '" title="' + esc(it.name) + '"><span class="ic">' + (it.icon || "📦") + '</span><span class="inm">' + esc(it.name) + "</span>" + (s.qty > 1 ? '<span class="q">' + s.qty + "</span>" : "") + "</button>";
-  }
-  h += "</div>";
-  const s = save.inventory[UI.sel];
-  if (s) {
-    const it = ITEMS[s.id];
-    h += '<div class="detail">' + itemCard(s.id) + (s.qty > 1 ? '<div class="sub">Quantity ' + s.qty + "</div>" : "");
-    h += '<div class="sub" style="margin-top:6px">' + esc(itemDesc(s.id)) + "</div>";
-    if (augText(s.id)) h += '<div class="sub" style="margin-top:4px;color:#ce93d8">✨ Augments: ' + esc(augText(s.id)) + "</div>";
-    if (it.kind === "equip") {
-      const base = player.stats;
-      const next = statsFor(Object.assign({}, save.gear, { [slotFor(s.id, save.gear)]: s.id }));
-      const cur = save.gear[slotFor(s.id, save.gear)];
-      h += '<div class="cmp"><span class="sub">vs ' + (cur ? esc(ITEMS[cur].name) : "nothing") + ":</span> " + statDeltaHTML(base, next, true) + "</div>";
-    }
-    h += '<div class="acts">';
-    if (it.kind === "use" || it.kind === "food") h += '<button data-a="use" data-v="' + s.id + '">' + (it.kind === "food" ? "Eat" : "Use") + '</button><button data-a="tobar" data-v="' + s.id + '">Add to action bar</button>';
-    if (it.food) h += '<div class="sub" style="margin-top:4px;color:#ffcc80">🍲 ' + esc(foodText(it.food)) + " for " + CONFIG.foodMinutes + " minutes. One meal at a time.</div>";
-    if (it.kind === "equip") { const why = canEquip(s.id); h += why ? '<span class="sub bad" style="color:#ff8a80">' + esc(why) + "</span>" : '<button data-a="equip" data-v="' + s.id + '">Equip</button>'; h += '<button data-a="compare" data-v="' + s.id + '">Compare on character</button>'; }
-    h += '<button data-a="drop" data-v="' + UI.sel + '">Drop</button></div></div>';
-  } else h += '<div class="sub" style="margin-top:10px">Tap an item to see details.</div>';
+  let h = '<div class="lHead"><button data-a="sort">Sort</button></div><div class="lList">';
+  if (!list.length) h += '<div class="lr empty"><span class="nm">Your bag is empty.</span></div>';
+  for (const { s, i } of list) h += listRow("isel", i, s.id, s.qty, ITEMS[s.id].name, null, UI.sel === i, rarityOf(s.id));
+  return h + "</div>";
+}
+function invActions(i) {
+  const s = save.inventory[i];
+  if (!s) return;
+  const it = ITEMS[s.id], o = [];
+  if (it.kind === "use" || it.kind === "food") { o.push({ label: it.kind === "food" ? "Eat" : "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } }); o.push({ label: "Add to action bar", fn: () => { closeDialog(); placeOnBar({ kind: "item", id: s.id }); } }); }
+  if (it.kind === "equip") o.push({ label: "Equip", fn: () => { closeDialog(); const why = canEquip(s.id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(s.id); UI.sel = null; } renderModal(); } });
+  o.push({ label: "Drop", fn: () => { closeDialog(); onMenuClick({ target: { closest: () => ({ dataset: { a: "drop", v: String(i) } }) }, preventDefault() {} }); } });
+  promptChoice(it.name, o);
+}
+function renderMCard() {
+  const el = $("mCard");
+  if (!el) return;
+  let id = UI.hov, h = "";
+  if (S.modal === "inventory") { const s = save.inventory[UI.sel]; id = id || (s && s.id); }
+  if (S.modal === "shop") { h += '<div class="gilBox"><em>Current Crystals</em><b>' + save.gil.toLocaleString() + "</b></div>"; }
+  if (S.modal === "quests" && UI.qSel && QUESTS[UI.qSel]) h += '<div class="qCard">' + questCardHTML(UI.qSel) + "</div>";
+  else if ((S.modal === "inventory" || S.modal === "shop") && id && ITEMS[id]) h += '<div class="cardBox">' + itemCard(id) + (S.modal === "inventory" && augText(id) ? '<div class="sub" style="color:#ce93d8">✨ ' + esc(augText(id)) + "</div>" : "") + "</div>";
+  el.innerHTML = h;
+  el.classList.toggle("on", !!h);
+  const win = document.querySelector("#menu .win");
+  el.style.bottom = "auto";
+  el.style.top = win ? Math.round(win.getBoundingClientRect().bottom + 6) + "px" : "";
+}
+function questCardHTML(id) {
+  const q = QUESTS[id], st = save.quests[id];
+  let h = '<div class="qT">' + esc(q.name) + '</div><div class="qS">' + ({ none: "Not started", active: "In progress", killed: "Ready to report", done: "Complete" }[st] || "") + "</div>";
+  if (q.desc) h += '<div class="qD">' + esc(q.desc) + "</div>";
+  const pr = questProgress(id);
+  if (pr.length) h += '<div class="qD">' + pr.map(l => esc(l)).join("<br>") + "</div>";
+  const rc = rewardChips(q.reward);
+  if (rc.length) h += '<div class="qD">Reward: ' + rc.join(" · ") + "</div>";
   return h;
 }
 
@@ -474,20 +485,25 @@ function storyBlock() {
 }
 
 function tabQuests() {
-  let h = storyBlock() + "<h3>Quests</h3>";
-  const order = ["active", "killed", "none", "done"];
-  const ids = Object.keys(QUESTS).filter(id => save.quests[id] !== "none").sort((a, b) => order.indexOf(save.quests[a]) - order.indexOf(save.quests[b]));
-  if (!ids.length) return h + '<div class="sub">You have no quests yet. Talk to the people of the Outpost. A ❗ over someone means they have work for you.</div>';
-  for (const id of ids) {
-    const st = save.quests[id];
-    const q = QUESTS[id];
-    const label = { none: "Not started", active: "In progress", killed: "Ready to report", done: "Complete" }[st];
-    const col = { none: "#888", active: "#f1cf73", killed: "#8fd66a", done: "#6aa9ff" }[st];
-    h += '<div class="item" style="display:block' + (st === "done" ? ";opacity:.65" : "") + '"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-family:var(--serif)">' + esc(q.name) + '</b><span class="sub" style="color:' + col + '">' + label + '</span></div><div class="d">From ' + esc(q.giver) + " · " + esc(q.desc) + "</div>";
-    const pr = questProgress(id);
-    if (pr.length) h += '<div style="margin-top:4px;font-size:12px">' + pr.map(l => "· " + l).join("<br>") + "</div>";
-    const rc = rewardChips(q.reward);
-    if (rc.length) h += '<div class="d" style="margin-top:4px">Reward: ' + rc.join(" · ") + "</div>";
+  const cur = Object.keys(QUESTS).filter(id => save.quests[id] === "active" || save.quests[id] === "killed");
+  const done = Object.keys(QUESTS).filter(id => save.quests[id] === "done");
+  UI.modalHelp = UI.qSel && QUESTS[UI.qSel] ? QUESTS[UI.qSel].name : UI.qCat ? "Select a quest." : "Select a category.";
+  let h = '<div class="lList">';
+  if (!UI.qCat) {
+    h += listRow("qcat", "story", null, null, "Story", storyChapter() ? "" : "✓", false);
+    h += listRow("qcat", "cur", null, null, "Current", cur.length, false);
+    h += listRow("qcat", "done", null, null, "Completed", done.length, false);
+    if (save.guild && Object.keys(save.guild.active || {}).length) h += listRow("qcat", "guild", null, null, "Guild Bounties", Object.keys(save.guild.active).length, false);
+    h += "</div>";
+    return h;
+  }
+  h += listRow("qback", "", null, null, "◀ Back", null, false, "back");
+  if (UI.qCat === "story") h += "</div>" + storyBlock();
+  else if (UI.qCat === "guild") { for (const id of Object.keys(save.guild.active)) { const b = GUILD_BOUNTIES.find(x => x.id === id); if (b) h += listRow("noop", id, null, null, b.name || id, save.guild.active[id] + "/" + (b.n || b.count || ""), false); } h += "</div>"; }
+  else {
+    const ids = UI.qCat === "cur" ? cur : done;
+    if (!ids.length) h += '<div class="lr empty"><span class="nm">' + (UI.qCat === "cur" ? "No quests right now. A ❗ over someone means they have work for you." : "Nothing finished yet.") + "</span></div>";
+    for (const id of ids) h += listRow("qsel", id, null, null, QUESTS[id].name, save.quests[id] === "killed" ? "!" : "", UI.qSel === id, save.quests[id] === "killed" ? "rdy" : "");
     h += "</div>";
   }
   return h;
@@ -584,14 +600,16 @@ function tabSystem() {
   return h;
 }
 function tabShop() {
-  const kind = S.shopKind && SHOPS[S.shopKind] ? S.shopKind : "pell";
-  let h = '<div class="sub" style="margin-bottom:6px">' + SHOP_NAMES[kind] + " buys and sells. 💠 " + save.gil + " crystals</div><h3>Buy</h3>";
-  shopList(kind).forEach(id => { h += '<div class="item"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:20px">' + (ITEMS[id].icon || "") + "</span><div><div>" + esc(ITEMS[id].name) + '</div><div class="d">' + esc(itemDesc(id)) + '</div></div></div><button data-a="buy" data-v="' + id + '"' + (save.gil < ITEMS[id].price ? " disabled" : "") + ">" + ITEMS[id].price + " gil</button></div>"; });
-  h += "<h3>Sell</h3>";
-  const sellable = save.inventory.filter(s => sellPrice(s.id) > 0);
-  if (!sellable.length) h += '<div class="sub">Nothing to sell.</div>';
-  sellable.forEach(s => { h += '<div class="item"><div>' + (ITEMS[s.id].icon || "") + " " + esc(ITEMS[s.id].name) + (s.qty > 1 ? " ×" + s.qty : "") + '</div><button data-a="sell" data-v="' + s.id + '">' + sellPrice(s.id) + " gil</button></div>"; });
-  return h;
+  const kind = S.shopKind && SHOPS[S.shopKind] ? S.shopKind : "pell", mode = UI.shopMode === "sell" ? "sell" : "buy";
+  UI.modalHelp = mode === "buy" ? "Buy merchandise." : "Sell merchandise.";
+  let h = '<div class="lHead"><button data-a="shopmode" data-v="buy"' + (mode === "buy" ? ' class="on"' : "") + '>Buy</button><button data-a="shopmode" data-v="sell"' + (mode === "sell" ? ' class="on"' : "") + ">Sell</button></div><div class=\"lList\">";
+  if (mode === "buy") for (const id of shopList(kind)) h += listRow("shopbuy", id, id, null, ITEMS[id].name, ITEMS[id].price.toLocaleString(), UI.hov === id, save.gil < ITEMS[id].price ? "dim" : "");
+  else {
+    const seen = new Set();
+    for (const s of save.inventory) { if (seen.has(s.id) || sellPrice(s.id) <= 0) continue; seen.add(s.id); h += listRow("shopsell", s.id, s.id, invCount(s.id), ITEMS[s.id].name, sellPrice(s.id).toLocaleString(), UI.hov === s.id); }
+    if (!seen.size) h += '<div class="lr empty"><span class="nm">Nothing to sell.</span></div>';
+  }
+  return h + "</div>";
 }
 function tabCredits() {
   const link = (url, label, icon) => '<a class="credLink" href="' + url + '" target="_blank" rel="noopener">' + icon + " " + esc(label) + "</a>";
@@ -1214,6 +1232,14 @@ function onMenuClick(e) {
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
   else if (a === "sort") { save.inventory.sort((x, y) => (KIND_ORDER[ITEMS[x.id].kind] - KIND_ORDER[ITEMS[y.id].kind]) || ITEMS[x.id].name.localeCompare(ITEMS[y.id].name)); UI.sel = null; saveGame(); sfx("select"); }
   else if (a === "sel") { UI.sel = UI.sel === +v ? null : +v; sfx("select"); }
+  else if (a === "isel") { UI.sel = +v; UI.hov = null; sfx("select"); renderModal(); invActions(+v); return; }
+  else if (a === "qcat") { UI.qCat = v; UI.qSel = null; sfx("select"); }
+  else if (a === "qback") { UI.qCat = null; UI.qSel = null; sfx("close"); }
+  else if (a === "qsel") { UI.qSel = v; sfx("select"); }
+  else if (a === "noop") { return; }
+  else if (a === "shopmode") { UI.shopMode = v; UI.hov = null; sfx("tab"); }
+  else if (a === "shopbuy") { const it = ITEMS[v]; UI.hov = v; renderMCard(); const o = [1, 3, 12].filter(n => n === 1 || it.stack !== false && it.kind !== "equip").map(n => ({ label: "Buy " + n + " (" + (it.price * n).toLocaleString() + " crystals)", fn: () => { closeDialog(); for (let k = 0; k < n; k++) { if (save.gil < it.price) break; buy(v); } renderModal(); } })); promptChoice(it.name, o); return; }
+  else if (a === "shopsell") { const it = ITEMS[v], n = invCount(v), p = sellPrice(v); UI.hov = v; renderMCard(); const o = [{ label: "Sell 1 (" + p + " crystals)", fn: () => { closeDialog(); sell(v); renderModal(); } }]; if (n > 1) o.push({ label: "Sell all " + n + " (" + (p * n).toLocaleString() + " crystals)", fn: () => { closeDialog(); for (let k = 0; k < n; k++) sell(v); renderModal(); } }); promptChoice(it.name, o); return; }
   else if (a === "mcast") { closeModal(); playerAct({ kind: "ma", id: v, name: SPELLS[v].name }); return; }
   else if (a === "mact") { const [kd, id] = v.split(":"); closeModal(); playerAct({ kind: kd, id, name: kd === "ws" ? WEAPON_SKILLS[id].name : ABILITIES[id].name }); return; }
   else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; sfx("select"); renderModal(); return; }
@@ -1411,6 +1437,18 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.3.0", date: "2026-10-13", title: "Classic lists", items: [
+    "Items is a slim list in the top left (the Commands box shows how full your bag is, like Items 11/30). Point at an item to see its card under the list; choose it to get Use, Eat, Equip, Add to action bar or Drop in a small box.",
+    "Shops are a slim Buy/Sell list with prices, your crystals and the item's card underneath. Choose an item to buy or sell one, a few or all of them.",
+    "Quests open on Story, Current, Completed (and Guild Bounties when you have any). Pick one to see its description, progress and reward under the list. Esc goes back a level.",
+    "The Equipment window now has your status and crystals on the left, the 16 equipment boxes in the middle and the choices and item cards on the right.",
+    "Choosing Magic, Abilities or Items from a command menu turns it into a Magic List (or Ability/Item List): coloured orbs by element, the spell's description in the Help bar, and an MP Cost / Next box above the target frame showing the cost and recast time. Magic and Abilities from the main menu use the same lists.",
+    "Target and Party are now separate boxes in the bottom right.",
+    "Every box (choices, item cards, windows, the quest tracker and the command menus) now uses the same blue striped style as the event log.",
+    "The compass map hides while a command menu, choice box or window is open on the left so nothing overlaps.",
+    "Enter with nothing targeted now starts typing in the event log. With a person targeted it talks to them; with yourself targeted it opens your own menu.",
+    "Monsters that aren't fighting slowly regain their health (about 4% a second once they've gone 5 seconds without being hit)."
   ] },
   { v: "9.2.0", date: "2026-10-13", title: "Windows in the world", items: [
     "Menus no longer cover the screen. Each one opens as a window in the top left with its name in the Commands box and a short description in the Help bar; the old side list of menus is gone. Esc closes the window and returns to the main menu.",
@@ -1823,7 +1861,7 @@ function tabHelp() {
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
-    "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with nothing targeted opens your own menu · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
+    "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
     "1–0 still use your saved hotkeys (Shift for page 2; set them in the Hotkeys tab) · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
@@ -2062,6 +2100,8 @@ function tabHelp() {
   h += sec("🖥️ The screen", ul([
     "<b>Main menu:</b> Esc with nothing targeted, - (or Insert) or ☰ opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
     "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
+    "<b>Lists:</b> Items, Shop, Quests, Magic and Abilities are slim lists in the top left. Point at an entry for its card (under the list) and description (Help bar); choose it for a small box of actions. In a command menu, Magic shows MP Cost and Next (recast) above the target frame.",
+    "<b>Bottom right:</b> separate Target and Party boxes.",
     "<b>Windows:</b> menus open in the top left of the screen while the world keeps going. The Commands box shows the window's name and the Help bar explains it. Esc closes it.",
     "<b>Talking:</b> what people say goes into the event log. If there's a choice to make, a small box appears above the log: ↑ ↓ choose, Enter confirm, Esc back out. Yes/no questions use the same box.",
     "<b>Top:</b> the Commands box and the Help bar appear while something is targeted or a menu is open; the Help bar explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
@@ -2184,7 +2224,7 @@ function fmtPlay(sec) {
   const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
   return (d ? d + " day" + (d > 1 ? "s " : " ") : "") + h + " hr " + m + " min " + s + " sec";
 }
-function statusLeftHTML() {
+function statusLeftHTML(noLv) {
   const p = player, j = save.jobs[save.mainJob], need = xpNeed(j.lv), g = gearBonus();
   const gear = SLOTS.map(sl => save.gear[sl]).filter(id => id && ITEMS[id] && ITEMS[id].kind === "equip");
   const ilv = gear.length ? Math.round(gear.reduce((n, id) => n + (ITEMS[id].lv || 1), 0) / gear.length) : 0;
@@ -2200,6 +2240,7 @@ function statusLeftHTML() {
     h += "<em>" + l + "</em><b>" + (tot - b) + "</b><i>" + (b ? (b > 0 ? "+" : "") + b : "") + "</i>";
   }
   h += "</div></div>";
+  if (noLv) return h;
   const pct = need ? Math.max(0, Math.min(100, j.xp / need * 100)) : 100;
   h += '<div class="stBox stLv"><div class="stJob main">Level ' + j.lv + '</div><div class="stK">EXP</div><div class="stV">' + (need ? j.xp.toLocaleString() : "—") + '</div><div class="stK">NEXT Level</div><div class="stV">' + (need ? need.toLocaleString() : "MAX") + '</div><div class="stBar"><span style="width:' + pct + '%"></span></div></div>';
   return h;

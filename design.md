@@ -873,6 +873,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - /clock: gameDate() (360-day years from 880) + Earth time.
 - #ffNetBox matches #ffTop (top +4px, 34px).
 
+## Phase 43: classic lists (v9.3.0)
+- menu4 SLIM_TABS {inventory, shop, quests, magic, abilities} → .win.slim (320px, no #mHead); equipment → .win.wide. listRow()/orbRow() build .lr rows (data-hv = item id for hover card, data-hs = help text).
+- #mCard (inside #menu, before .win) holds gilBox/cardBox/qCard; renderMCard positions it just under the window. UI.hov = hovered item; UI.modalHelp = Help bar text (reset in openMenu).
+- promptChoice(q, opts) (hud4) = S.dialog prompt without logging. When a window is open the prompt sits beside it (updateFF sets top/left); otherwise above the log. main4 handles S.dialog keys before S.modal.
+- Items: isel → invActions(i). Shop: UI.shopMode buy/sell; shopbuy/shopsell prompts (1/3/12 for stackables; sell 1/all). Quests: UI.qCat (story/cur/done/guild) → UI.qSel → questCardHTML; Esc goes back a level.
+- Equipment: .eqW = .eqL (statusLeftHTML(true) + crystals) + existing .eqWrap. CSS for #stL also applies to .eqL via :is().
+- Target command lists: #tCmd.list for pages ma/ja/items (orbs by element); Commands label Magic/Ability/Item List; renderMpBox → #mpBox above #ffSide (MP Cost, Next recast).
+- #ffSide split into #ffTBox and #ffPBox. Unified box style: dialog, confirm, mCard, tCmd, mCmd, menu .win, tracker, mpBox use --ffStripe.
+- Compass hidden while UI.cmd/S.dialog/S.modal/confirm. Enter with no target focuses #chatIn.
+- Mob regen: idle/return mobs gain CONFIG.mobRegen (4%) max HP per second after 5 s without a hit.
+
 ## Version log
 
 | Version | Change |
@@ -881,6 +892,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.3.0 | Phase 43: slim Items/Shop/Quests/Magic lists, equipment layout, Magic List + MP box, split side boxes, mob regen. |
 | 9.0.0 | Phase 40: 16 equipment slots, Equipment window, item cards, resistances, slim Character, storage transfer screen. |
 | 8.9.0 | Phase 39: classic interface (command bar, combat status, target/party panel, log, command menu, plates, cursor, status/skills/crafting/bag windows). |
 | 8.8.0 | Phase 38: rename to Leid'anav Reborn, favicon, joint blending/bridges/islands for all rigs, bestiary portraits. |

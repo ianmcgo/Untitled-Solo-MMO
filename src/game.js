@@ -2286,6 +2286,7 @@ function updateMob(m, dt) {
   if (!m.alive) return;
   if (m.chain && S.time > m.chain.closeAt) m.chain = null;
   if (m.burst && S.time > m.burst.until) m.burst = null;
+  if ((m.state === "idle" || m.state === "return") && m.hp < m.maxHp && S.time - (m.lastHit || -99) > 5) m.hp = Math.min(m.maxHp, m.hp + m.maxHp * CONFIG.mobRegen * dt);
   if (m.state === "idle") {
     m.wanderTimer -= dt;
     if (m.wanderTimer <= 0) {

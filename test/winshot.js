@@ -1,0 +1,26 @@
+const { chromium } = require('/opt/npm-tools/node_modules/playwright');
+const mockLogin = require('./mocklogin');
+(async () => {
+  const [html, out, w, h] = process.argv.slice(2);
+  const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  const page = await (await browser.newContext({ viewport: { width: +(w || 1280), height: +(h || 720) } })).newPage();
+  const errs = [];
+  page.on('pageerror', e => errs.push('pageerror: ' + e.message + ' ' + (e.stack || '').split('\n')[1]));
+  await page.addInitScript(() => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: 'low' })); } catch (e) {} });
+  await mockLogin(page, html);
+  const shot = async (n, fn, wait) => { if (fn) await page.evaluate(fn); await page.waitForTimeout(wait || 800); await page.screenshot({ path: out + '-' + n + '.png' }); };
+  await page.evaluate(() => { save.gil = 4321; for (const id of ['leather_gorget', 'copper_earring', 'travelers_cape', 'scale_mail', 'healing_herb', 'copper_ore']) giveItem(id, 2, true); save.quests.pouches = 'active'; document.querySelectorAll('.toast').forEach(x => x.remove()); });
+  await shot('items', () => { openMenu('inventory'); UI.hov = save.inventory[1].id; renderMCard(); });
+  await shot('itemsel', () => { onMenuClick({ target: document.querySelector('[data-a="isel"]'), preventDefault() {} }); });
+  await shot('shop', () => { closeDialog(); S.shopKind = 'pell'; openMenu('shop'); UI.hov = shopList('pell')[0]; renderMCard(); });
+  await shot('shopbuy', () => { onMenuClick({ target: document.querySelector('[data-a="shopbuy"]'), preventDefault() {} }); });
+  await shot('quests', () => { closeDialog(); openMenu('quests'); });
+  await shot('quest1', () => { UI.qCat = 'cur'; UI.qSel = 'pouches'; renderModal(); });
+  await shot('equip', () => { openMenu('equipment'); UI.eq = { slot: 'body', hover: 'scale_mail' }; renderModal(); }, 1200);
+  await page.evaluate(() => { closeModal(); setJob('WHM', null); });
+  await page.waitForTimeout(500);
+  await shot('magic', () => { player.target = player; tgtCmdOpen(player); UI.cmd.page = 'ma'; UI.cmd.sel = 0; renderTgtCmd(); }, 1000);
+  await shot('mmagic', () => { tgtCmdClose(); openMenu('magic'); }, 800);
+  console.log(errs.length ? 'ERRORS ' + errs.slice(0, 5).join(' || ') : 'ok');
+  await browser.close();
+})();
