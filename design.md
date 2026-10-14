@@ -1116,6 +1116,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - world3d: `zone.island` skips the edge cliff raise in buildFieldSteps and skips backdrop ridges (open sea horizon). textures `TERRAIN_THEMES.beach`. rig NPC_LOOK ferryman, wend.
 - Tests: p39unit.
 
+## Phase 80: The Red Spire (v12.5.0)
+- data.js (before ZONE_SCALE): `SPIRE_FLOORS` → zones spire1..spire4 (1000×800, crypt theme, west exit down / east exit up, 4 spawns per floor, lv 17–18 → 20–21) and `spire_top` (boss `spire_warden` lv 23 = hollow_king clone, scale 1.9, Spire Collapse AoE; loot warden_blade (gsword, RUN), spire_mantle). Sunscar gets a door exit at the Red Spire (2600,600) → spire1; spire1's west exit returns beside the door (tx/ty kept because the door has no hall).
+- rig mobLook `spire_warden` (skull, red plate with glowing trim, horned helm, greatsword). Achievement `spire` uses `save.nmKilled.spire_warden`.
+- Tests: p40unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1153,7 +1158,7 @@ New zones (one per release; each gets its own monsters, NM, gathering, quests, l
 - 77 DONE (12.2.0) Verdant Jungle: dense canopy, rope bridges, vine-covered ruins.
 - 78 DONE (12.3.0) Cinder Peak: volcano, lava flows, fire elementals, top-tier smithing ore.
 - 79 DONE (12.4.0) Gull Isle: coastal island reached by ferry; sea cliffs, pirate caves, lighthouse.
-- 80 (12.5.0) The Spire: multi-floor tower dungeon, harder per floor, boss at the top.
+- 80 DONE (12.5.0) The Spire: multi-floor tower dungeon, harder per floor, boss at the top.
 - 81 (12.6.0) Underdeep River: underground river by boat, glowing caves, fishing.
 - 82 (12.7.0) Highland plateau: open grassland, large mount area, nomad camps.
 World systems:
@@ -1196,6 +1201,7 @@ World systems:
 | 12.2.0 | Phase 77: Verdant Jungle; scroll drop fix. |
 | 12.3.0 | Phase 78: Cinder Peak volcano. |
 | 12.4.0 | Phase 79: Gull Isle and the ferry. |
+| 12.5.0 | Phase 80: The Red Spire tower dungeon. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |
