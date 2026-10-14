@@ -768,11 +768,22 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Known limits: everything is client-trusted (a modified client could fake kills, lots or trades); trade execution is two independent commits, so a crash between them can lose or duplicate; monsters still per-client, so mates fight separate copies. Server-side validation and shared monsters are phase 11.
 - Tests: netshots.js simulates invite, presence, pst, kill share, pool lot/win, heal/buff fx, party chat, target command box, and a full trade.
 
+## Phase 33: shared monsters (v8.3.0) — multiplayer phase 11a
+- Zone host authority, all in src/net.js (NET_SH) plus hooks in game.js. Zone presence meta adds t (zone join ms), v (GAME_VERSION), h (1 when I am the active host), away (document.hidden). Visibility change re-tracks.
+- netElect(state) on every zone presence sync: peers = same version + same zone; sharing on when > 1 peer and zone isn't a battlefield (netShareable). Host = among non-away peers, those claiming h first (sticky), else all; lowest t then id. Transitions: lose host / join with existing host → netDemote (drop local mobs and spawn timers, send req); gain host or left alone → netPromote (proxies become real mobs: home from spawn point, enmity from last target, spawn timers for empty spawn slots at 4–25 s).
+- Host: netSnap every 160 ms (changed rows) and full every 2 s; row = [nid, famKey, lv, x, y, face, hp, maxHp, state 0/1/2, targetCharId, flags(1 dead,2 readying,4 passive), spawnIdx, swingCount, wsCount, tp, "buff:secs,..."]. nid = host charId prefix + seq (kept across host changes). Events handled: hit {nid,d,en} (applyDamage from the remote entity, or enmity+aggro when d = 0), deb {nid,k,dur,tick,el,pow} (debuff with remote src), req (force full), want {ids} (story NMs the others need; spawnMob treats netWanted ids like storyWants for 60 s). Mob swings/TP moves on a remote target send mat {nid,to,k: sw|tp} instead of resolving locally; TP AoE also sends mat to every remote in range. onKO → netMobDied sends die {nid, claim}.
+- Non-host: proxies are normal mob entities with proxy = true in S.mobs (map NET_SH.map). updateMob → netProxyStep (interpolate, expire chain/burst). applyDamage on a proxy → netMobHit (predicted HP for 0.9 s, then host HP wins); addEnmity/aggro on a proxy → enmity queue flushed every 250 ms as hit d=0; new local debuffs on proxies relayed as deb (sentBuff), host buffs mirrored with remaining seconds. mat → swing(proxy, player) or execTpMove(proxy) locally against my own stats. die → netProxyKO (visual), and killRewards(m) if claim is me. Full snapshot removes proxies not listed. Proxies excluded from separation except pushing my own party; no spawns while non-host.
+- Claim: m.claim set on first damage or aggro (claimId: remote id or own charId), cleared when the mob returns home. onKO rewards only if claim is me (or unset). killRewards(e) is the old reward block (XP with party share, loot, bounties, story, quests, bond).
+- isSide(e) = party or remote player: used by addEnmity, aggro, applyDamage enmity. Host idle detection also checks S.others (moving flag from tickRemotes). Remote entities get alive = false when removed so enmity drops them.
+- Known limits: companions are local only (their attacks count as their owner's; mobs can't target other players' companions); skillchain/burst windows and boss phases are host-local; clients trust each other.
+- Tests: netshots.js "shared" block covers demote, proxy creation, hits, debuff relay, mat swings, readying flag, die + reward, promote, snapshot, remote hit/claim, mob attacking a remote, kill with remote claim.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.3.0 | Phase 33: shared monsters with zone host authority, claims. |
 | 8.2.0 | Phase 32: player parties (shared XP, pool, crystals, cures), trading. |
 | 8.1.0 | Phase 31: see other players in your zone, say/shout/tell/who chat. |
 | 8.0.0 | Phase 30: Supabase accounts, cloud saves, sign-up password, admin panel; offline play removed. |
