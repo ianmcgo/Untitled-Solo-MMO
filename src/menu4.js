@@ -1453,6 +1453,13 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.10.0", date: "2026-10-14", title: "Plants and props", items: [
+    "A second kind of broadleaf tree with a taller trunk, branching limbs and a fuller, layered canopy.",
+    "Bushes along the edges of fields and towns, clusters of wildflowers in five colours in the grass, and fallen logs near the field edges (you can't walk through the logs).",
+    "Every tree and bush has a slightly different shade of green so woods don't look copy-pasted. Bushes and flowers sway in the wind.",
+    "Fewer bushes and flowers on the Low graphics setting to keep phones smooth.",
+    "If an area ever fails to load, the game now carries on instead of getting stuck on the loading screen."
+  ] },
   { v: "9.9.0", date: "2026-10-14", title: "Terrain detail", items: [
     "The ground now has close-up texture: grass has fine blade streaks, dirt paths and bare earth show grit and pebbles, and the textures fade out smoothly into the distance so far fields don't shimmer.",
     "Steep slopes and cliff faces automatically turn to grey rock with texture that wraps around the cliff instead of stretching.",

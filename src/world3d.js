@@ -189,6 +189,13 @@ function terrainDetail(mat, field) {
   mat.customProgramCacheKey = () => "terrainDetail";
 }
 
+function tintInst(im, rnd, amt) {
+  const c = new THREE.Color();
+  for (let i = 0; i < im.count; i++) { const v = 1 - amt / 2 + rnd() * amt; c.setRGB(v * (0.95 + rnd() * 0.1), v, v * (0.9 + rnd() * 0.1)); im.setColorAt(i, c); }
+  if (im.instanceColor) im.instanceColor.needsUpdate = true;
+  return im;
+}
+
 function rngFor(z, salt) { return seeded(hashStr(z.name + salt)); }
 
 function placeable(field, px, py, opts) {
@@ -254,7 +261,7 @@ function buildVegetation(field, root) {
   const pineTex = texFoliage("pine", [48, 82, 52]);
   const leafTex = texFoliage("leaf", [74, 110, 48]);
   const rockTex = theme === "cave" || theme === "crypt" ? texCaveRock() : texRock();
-  const pines = [], leafy = [], rocks = [], smallRocks = [], tufts = [], stal = [];
+  const pines = [], leafy = [], leafy2 = [], rocks = [], smallRocks = [], tufts = [], stal = [], bushes = [], flowers = [], logs = [];
   const want = theme === "crypt" ? { trees: 0, rocks: 60, small: 90, tufts: 0, stal: 40 } : theme === "cave" ? { trees: 0, rocks: 140, small: 220, tufts: 0, stal: 160 } : theme === "town" ? { trees: 160, rocks: 40, small: 60, tufts: 1, stal: 0 } : { trees: 420, rocks: 160, small: 260, tufts: 1, stal: 0 };
   const tuftCount = { low: 0, medium: 2500, high: 6000 }[q] * want.tufts;
   for (let k = 0, tries = 0; k < want.trees && tries < want.trees * 30; tries++) {
@@ -266,7 +273,7 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 50, exit: 180 })) continue;
     const y = field.heightAt(px, py), s = 0.8 + rnd() * 0.7;
     const m = mtx(px * U, y - 0.2, py * U, s, s * (0.9 + rnd() * 0.4), s, rnd() * 6.28);
-    (rnd() < (theme === "town" ? 0.4 : z.palette === "snow" ? 0.85 : 0.6) ? pines : leafy).push(m);
+    (rnd() < (theme === "town" ? 0.4 : z.palette === "snow" ? 0.85 : 0.6) ? pines : rnd() < 0.45 ? leafy2 : leafy).push(m);
     z.colliders.push({ x: px, y: py, r: 4.6 * s });
     k++;
   }
@@ -297,6 +304,37 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 40, npc: 60, path: 0.05, exit: 170 })) continue;
     const s = inside ? 0.35 + rnd() * 0.45 : 1 + rnd() * 2.5;
     stal.push(mtx(px * U, field.heightAt(px, py) - 0.2, py * U, s, s * (inside ? 1 + rnd() * 1.4 : 1.5 + rnd() * 2.5), s, rnd() * 6.28));
+    k++;
+  }
+  const outdoors = theme === "field" || theme === "town";
+  const bushN = outdoors ? { low: 60, medium: 160, high: 260 }[q] : 0, flowerN = outdoors && z.palette !== "snow" ? { low: 80, medium: 260, high: 500 }[q] : 0, logN = theme === "field" ? 18 : 0;
+  for (let k = 0, tries = 0; k < bushN && tries < bushN * 20; tries++) {
+    const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
+    const e = field.outsideE(px, py);
+    if (e < (theme === "town" ? 10 : -260) || e > 300 || field.exitMask(px, py) > 0.2) continue;
+    if (!placeable(field, px, py, { water: 25, npc: 60, path: 0.08 })) continue;
+    const s = 0.5 + rnd() * 0.7;
+    bushes.push(mtx(px * U, field.heightAt(px, py) - 0.1, py * U, s * (0.9 + rnd() * 0.4), s * (0.7 + rnd() * 0.4), s * (0.9 + rnd() * 0.4), rnd() * 6.28));
+    k++;
+  }
+  for (let k = 0, tries = 0; k < flowerN && tries < flowerN * 10; tries++) {
+    const cx = 40 + rnd() * (z.w - 80), cy = 40 + rnd() * (z.h - 80);
+    if (field.outsideE(cx, cy) > -30 || !placeable(field, cx, cy, { water: 20, npc: 40, path: 0.06 })) continue;
+    const n = 3 + Math.floor(rnd() * 5), hue = Math.floor(rnd() * 5);
+    for (let i = 0; i < n && k < flowerN; i++, k++) {
+      const px = cx + (rnd() - 0.5) * 40, py = cy + (rnd() - 0.5) * 40, s = 0.6 + rnd() * 0.5;
+      const m = mtx(px * U, field.heightAt(px, py), py * U, s, s, s, rnd() * 6.28);
+      m.hue = hue;
+      flowers.push(m);
+    }
+  }
+  for (let k = 0, tries = 0; k < logN && tries < logN * 30; tries++) {
+    const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
+    const e = field.outsideE(px, py);
+    if (e < -220 || e > 60 || !placeable(field, px, py, { water: 40, npc: 80, path: 0.05, exit: 200 })) continue;
+    const s = 0.8 + rnd() * 0.6;
+    logs.push(mtx(px * U, field.heightAt(px, py) + 0.15 * s, py * U, s, s, s, rnd() * 6.28, 0, Math.PI / 2));
+    z.colliders.push({ x: px, y: py, r: 1.4 * s / U });
     k++;
   }
   if (tuftCount) for (let k = 0, tries = 0; k < tuftCount && tries < tuftCount * 6; tries++) {
@@ -333,7 +371,39 @@ function buildVegetation(field, root) {
   addWind(pineMat, 0.02);
   addWind(leafMat, 0.03);
   if (pines.length) { root.add(instanced(trunkGeo, barkMat, pines, true)); root.add(instanced(pineGeo, pineMat, pines, true)); }
-  if (leafy.length) { root.add(instanced(trunkGeo, barkMat, leafy, true)); root.add(instanced(leafGeo, leafMat, leafy, true)); }
+  if (leafy.length) { root.add(instanced(trunkGeo, barkMat, leafy, true)); root.add(tintInst(instanced(leafGeo, leafMat, leafy, true), rnd, 0.14)); }
+  if (leafy2.length) {
+    const trunk2 = THREE.mergeGeometries([new THREE.CylinderGeometry(0.1, 0.2, 3.4, 7).translate(0, 1.7, 0), new THREE.CylinderGeometry(0.05, 0.08, 1.4, 5).rotateZ(0.8).translate(0.55, 2.6, 0), new THREE.CylinderGeometry(0.05, 0.08, 1.2, 5).rotateZ(-0.9).translate(-0.5, 2.9, 0.1)]);
+    const canopy = THREE.mergeGeometries([
+      new THREE.IcosahedronGeometry(1.25, 1).translate(0, 4.3, 0), new THREE.IcosahedronGeometry(1.0, 1).translate(1.0, 3.8, 0.3), new THREE.IcosahedronGeometry(0.95, 1).translate(-0.9, 3.9, -0.3),
+      new THREE.IcosahedronGeometry(0.85, 1).translate(0.2, 3.5, 0.95), new THREE.IcosahedronGeometry(0.8, 1).translate(-0.3, 3.4, -0.95), new THREE.IcosahedronGeometry(0.7, 1).translate(0.1, 5.1, 0.1)
+    ]);
+    noisyGeo(canopy, 0.2, 13);
+    root.add(instanced(trunk2, barkMat, leafy2, true));
+    root.add(tintInst(instanced(canopy, leafMat, leafy2, true), rnd, 0.18));
+  }
+  if (bushes.length) {
+    const bg = noisyGeo(THREE.mergeGeometries([new THREE.IcosahedronGeometry(0.7, 1).translate(0, 0.45, 0), new THREE.IcosahedronGeometry(0.55, 1).translate(0.5, 0.35, 0.2), new THREE.IcosahedronGeometry(0.5, 1).translate(-0.45, 0.35, -0.2)]), 0.2, 17);
+    const bm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0x9aae86 });
+    addWind(bm, 0.02);
+    root.add(tintInst(instanced(bg, bm, bushes, true), rnd, 0.2));
+  }
+  if (flowers.length) {
+    const stem = new THREE.CylinderGeometry(0.012, 0.015, 0.32, 3).translate(0, 0.16, 0).toNonIndexed();
+    const head = new THREE.IcosahedronGeometry(0.06, 0).translate(0, 0.34, 0);
+    const fg = THREE.mergeGeometries([stem, head.clone().translate(0.08, -0.04, 0.02), head, head.clone().translate(-0.07, -0.06, -0.05)]);
+    const fm = std({ color: 0xffffff, roughness: 0.8 });
+    addWind(fm, 0.06);
+    const im = instanced(fg, fm, flowers, false);
+    const pal = [0xf2d24a, 0xe8e8ff, 0xc890e8, 0xf08a8a, 0x8ac8f0];
+    flowers.forEach((m, i) => im.setColorAt(i, new THREE.Color(pal[m.hue])));
+    im.instanceColor.needsUpdate = true;
+    root.add(im);
+  }
+  if (logs.length) {
+    const lg = THREE.mergeGeometries([new THREE.CylinderGeometry(0.28, 0.32, 2.6, 9), new THREE.CylinderGeometry(0.07, 0.09, 0.6, 5).rotateZ(Math.PI / 2).translate(0.3, 0.4, 0)]);
+    root.add(instanced(lg, barkMat, logs, true));
+  }
   const rockGeo = noisyGeo(new THREE.IcosahedronGeometry(1, 2), 0.22, 3);
   const rockMat = std({ map: rockTex.map, normalMap: rockTex.normalMap, normalScale: new THREE.Vector2(1.2, 1.2) });
   if (rocks.length) root.add(instanced(rockGeo, rockMat, rocks, true));

@@ -417,7 +417,7 @@ function onZoneEntered() {
 async function loadZoneAsync(job) {
   try { await loadZoneInner(job); } catch (e) {
     reportError(e, "zone");
-    if (job === VIEW.zoneJob) { VIEW.loading = false; try { loaderHide(); } catch (e2) {} }
+    if (job === VIEW.zoneJob) { VIEW.loading = false; try { loaderHide(); } catch (e2) {} const ws = VIEW.zoneWaiters || []; VIEW.zoneWaiters = []; for (const f of ws) try { f(); } catch (e3) {} }
   }
 }
 async function loadZoneInner(job) {
