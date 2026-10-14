@@ -44,10 +44,10 @@ function updateLabels() {
     const nameEl = el.firstChild, bar = el.children[1], cbar = el.children[2];
     const isT = player.target === e;
     let name = e === player ? save.name : e.name, col = "#cfe6ff";
-    if (isMob(e)) { col = e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
+    if (isMob(e)) { const cs = claimState(e); col = cs === "mine" ? "#ff6b6b" : cs === "other" ? "#c77dff" : e.fam.nm ? "#ff8a65" : "#f0d9a8"; if (e.fam.nm) name = "☠ " + name; }
     if (e.kind === "npc") { col = "#e8d9b0"; if (questMarker(e)) name = "❗ " + name; }
     if (e.buddy) col = "#ffd54f";
-    if (e.remote) { col = "#a5d6a7"; name = e.name + (e.lv ? " · " + e.job + e.lv : ""); }
+    if (e.remote) { col = isMate(e) ? "#9fd0ff" : "#a5d6a7"; name = e.name + (e.lv ? " · " + e.job + e.lv : ""); }
     const other = isMob(e) || e.kind === "npc";
     if (other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
     nameEl.style.display = name ? "" : "none";

@@ -1113,6 +1113,14 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "8.4.0", date: "2026-10-13", title: "Claims and party combat", items: [
+    "Monster claims: once a player claims a monster, only they and their party can attack it. Red names are yours or your party's, purple names belong to someone else, and the target window says who.",
+    "Skillchains and magic bursts now work between players in a party fighting a shared monster.",
+    "Damage from other players shows over the monster in blue.",
+    "/assist Name targets what another player has targeted.",
+    "Party members' names show in blue in the world.",
+    "A notorious monster appearing nearby is announced to everyone in the area."
+  ] },
   { v: "8.3.0", date: "2026-10-13", title: "Shared monsters", items: [
     "Monsters are now shared: everyone in an area sees the same monsters, in the same places, with the same HP. Parties can finally fight the same goblin together.",
     "One player's game runs each area's monsters. If they leave or switch away from the game, another player takes over without anything resetting.",
@@ -1648,7 +1656,9 @@ function tabHelp() {
     "The <b>Chat</b> tab in the log shows only player messages.",
     "Tap or click another player to see their job and level and to Invite, Trade, send a Tell or Check them.",
     "<b>Shared monsters:</b> when other adventurers are in your area, everyone sees and fights the same monsters. One player's game (the first to arrive) runs the area's monsters for everyone; if they leave or put the game in the background, another player takes over without the monsters resetting. /who shows who is running the area.",
-    "Monsters can notice, chase and attack any player. The first player to hit or be attacked by a monster claims it; only the claimer (and their party, through party sharing) gets experience and loot when it falls.",
+    "<b>Claims:</b> the first player to hit a monster, or the player it attacks first, claims it. Only the claimer and their party can attack it, and only the claimer (sharing with their party) gets experience and loot. Name colors: <span style=\"color:#ff6b6b\">red</span> = claimed by you or your party, <span style=\"color:#c77dff\">purple</span> = claimed by someone else. The target window says who. A claim ends when the monster gives up and walks home.",
+    "<b>Fighting together:</b> skillchains and magic bursts work across players in the same party: one player opens with a weapon skill, another closes it, and a mage can burst the result. Damage from other players shows in blue over the monster.",
+    "<b>/assist Name</b> targets whatever that player nearby is targeting. Party members show with blue names; other players with green.",
     "Your companions still fight beside you, but other players don't see them, and monsters you share treat their attacks as yours.",
     "Battlefields such as the Chapel Depths stay private to you."
   ]));

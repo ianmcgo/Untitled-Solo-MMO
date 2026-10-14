@@ -20,6 +20,18 @@ const isMob = e => !!e && e.kind === "mob";
 const isParty = e => !!e && (e.kind === "pc" || e.kind === "ally");
 const isSide = e => isParty(e) || (!!e && e.kind === "remote");
 const claimId = e => (e && e.kind === "remote" ? e.id : S.charId || "me");
+function claimOk(m, who) {
+  if (!m || !m.claim) return true;
+  const remote = !!who && who.kind === "remote";
+  const id = remote ? who.id : S.charId || "me";
+  if (m.claim === id || m.claim === "me") return true;
+  if (!remote) return typeof netIsMate === "function" && netIsMate(m.claim);
+  const c = S.others && S.others.get(m.claim);
+  const cp = m.claim === S.charId ? (typeof NET_PT !== "undefined" ? NET_PT.id : null) : c && c.pid;
+  return !!cp && cp === who.pid;
+}
+function claimState(m) { return !m || !m.claim || !m.alive ? "" : claimOk(m) ? "mine" : "other"; }
+function claimName(m) { if (!m.claim) return ""; if (m.claim === S.charId || m.claim === "me") return "you"; const o = S.others && S.others.get(m.claim); return o ? o.name : "another adventurer"; }
 const isMate = e => !!e && e.kind === "remote" && typeof netIsMate === "function" && netIsMate(e.id);
 const subj = e => e === player ? "You" : isMob(e) ? "The " + e.name : e.name;
 const obj = e => e === player ? "you" : isMob(e) ? "the " + e.name : e.name;
@@ -758,6 +770,7 @@ function applyDamage(src, tgt, amt, opt) {
   opt = opt || {};
   if (!tgt.alive) return;
   amt = Math.max(0, Math.round(amt));
+  if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
   if (tgt.proxy) {
     netMobHit(tgt, amt, opt.enmity != null ? opt.enmity : 40 + amt * 2);
     tgt.flash = 0.15;
@@ -1771,6 +1784,7 @@ function resolveChain(a, t, ws, dmg) {
   if (!result) {
     t.chain = { props: ws.props.slice(), lv: 0, name: ws.name, openAt: now + CONFIG.chainDelay, closeAt: now + CONFIG.chainDelay + CONFIG.chainWindow, by: a };
     if (a !== player) partySay(a, "ws");
+    if (t.proxy) netChainOut(t);
     return;
   }
   const p = SC_PROPS[result];
@@ -1788,6 +1802,7 @@ function resolveChain(a, t, ws, dmg) {
   if (!t.alive) return;
   t.burst = { el: p.el, lv: p.lv, name: result, until: now + CONFIG.burstWindow };
   t.chain = { props: [result], lv: p.lv, name: result, openAt: now + CONFIG.chainDelay, closeAt: now + CONFIG.chainDelay + CONFIG.chainWindow, by: a };
+  if (t.proxy) netChainOut(t);
 }
 
 function doAbility(a, id, t) {
@@ -2224,6 +2239,7 @@ function autoAttack(a, dt) {
   const t = a.attackTarget;
   if (!a.engaged || !t) return;
   if (!t.alive) { a.engaged = false; a.attackTarget = null; return; }
+  if (isMob(t) && !claimOk(t)) { a.engaged = false; a.attackTarget = null; if (a === player) log("The " + t.name + " is claimed by " + claimName(t) + ".", "sys"); return; }
   if (a.casting) return;
   a.swingTimer -= dt;
   if (a.swingTimer <= 0) {
@@ -3204,7 +3220,7 @@ function cycleTarget() {
 
 function nearestMob() {
   let best = null, bd = 450;
-  for (const m of S.mobs) if (m.alive && dist(m, player) < bd) { bd = dist(m, player); best = m; }
+  for (const m of S.mobs) if (m.alive && claimOk(m) && dist(m, player) < bd) { bd = dist(m, player); best = m; }
   return best;
 }
 
@@ -3219,6 +3235,7 @@ function toggleEngage(fromTap) {
   }
   const t = isMob(player.target) && player.target.alive ? player.target : nearestMob();
   if (!t) { log("No enemy to engage.", "sys"); return; }
+  if (!claimOk(t)) { log("The " + t.name + " is claimed by " + claimName(t) + ".", "sys"); sfx("error"); return; }
   player.target = t;
   if (player.engaged) { setTarget(t); return; }
   player.engaged = true;
@@ -3341,7 +3358,7 @@ function playerAct(act) {
   if (player.mounted) dismount("You dismount.");
   let t = resolveTarget(act);
   if (!t && act.kind !== "ws") { const n = nearestMob(); if (n) { player.target = n; t = resolveTarget(act); } }
-  const why = checkAction(player, act, t);
+  const why = checkAction(player, act, t) || (isMob(t) && !claimOk(t) ? "The " + t.name + " is claimed by " + claimName(t) + "." : "");
   if (why) { log(why, "sys"); sfx("error"); return; }
   perform(player, act, t);
 }
@@ -4063,7 +4080,7 @@ const COMMANDS = [
   ["/stand", "Stand up."],
   ["/attack", "Attack your target, or the nearest enemy. Also /a."],
   ["/target name", "Target the nearest character whose name matches. Also /ta."],
-  ["/assist", "Target what your party is fighting."],
+  ["/assist [Name]", "Target what your party is fighting, or what a named player nearby has targeted."],
   ["/check", "Inspect your target: how tough it looks and whether it is hostile. Also /c."],
   ["/cast spell", "Cast a spell by name, e.g. /cast cure. Also /ma."],
   ["/ja ability", "Use a job ability, e.g. /ja provoke."],
@@ -4140,6 +4157,7 @@ function runCommand(text) {
       return;
     }
     case "assist": {
+      if (arg && typeof netAssist === "function") { netAssist(arg); return; }
       const t = partyBattleTarget();
       if (!t) { log("Your party isn't fighting anything.", "sys"); return; }
       setTarget(t); sfx("select");

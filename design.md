@@ -778,11 +778,20 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Known limits: companions are local only (their attacks count as their owner's; mobs can't target other players' companions); skillchain/burst windows and boss phases are host-local; clients trust each other.
 - Tests: netshots.js "shared" block covers demote, proxy creation, hits, debuff relay, mat swings, readying flag, die + reward, promote, snapshot, remote hit/claim, mob attacking a remote, kill with remote claim.
 
+## Phase 34: claims and party combat (v8.4.0) — multiplayer phase 11b
+- claimOk(m, who) in game.js: unclaimed, claimed by me/"me", or (local actor) claim is a party mate; for a remote actor (host check) claim is that actor, or claimer's party id equals actor's (pid from zone presence meta p = NET_PT.id; my own pid when I'm the claimer). claimState(m) → "mine"/"other"/"" drives name colors (view3d labels, target box: #ff6b6b mine, #c77dff other); claimName for messages and target info.
+- Enforcement: applyDamage ignores party damage to a mob that isn't claimOk (covers spells, WS, companions); playerAct and toggleEngage refuse with a message; autoAttack disengages; nearestMob skips claimed. Host netOnHit/netOnDeb/netOnSc reject remote actors failing claimOk.
+- Snapshot row gains [16] claim id, [17] chain [props, lv, name, openIn, closeIn], [18] burst [els, lv, name, untilIn] (relative seconds, 0.1 s). Non-host keeps its own chain/burst for 1.5 s after changing them (scLocalUntil) and sends sc {nid, c, b} from resolveChain on proxies; host validates and applies (with skillchain visuals). Decoders validate props against SC_PROPS/SC_TABLE and elements against ELEMENT_COLORS.
+- Non-host shows other players' damage as blue numbers from host HP drops outside the prediction window (hostHp). NM proxies announce "You sense a powerful presence" when created near you.
+- mv payload gains tg (nid of my current mob target); netAssist(name) targets that mob (/assist Name). Remote party mates' labels are blue.
+- Tests: netshots "claims" block (claim colors, engage refusal, blocked hit, chain decode/relay, assist, host claim, non-party hit rejected, party hit accepted).
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.4.0 | Phase 34: claim rules, cross-player skillchains/bursts, /assist Name. |
 | 8.3.0 | Phase 33: shared monsters with zone host authority, claims. |
 | 8.2.0 | Phase 32: player parties (shared XP, pool, crystals, cures), trading. |
 | 8.1.0 | Phase 31: see other players in your zone, say/shout/tell/who chat. |
