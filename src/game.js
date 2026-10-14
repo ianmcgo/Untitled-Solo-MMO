@@ -866,6 +866,7 @@ function buildMob(famKey, L, x, y, spawnIdx) {
 function stat(e, k) {
   let v = e.stats[k];
   const b = e.buffs;
+  if (b.weakened && (k === "att" || k === "def" || k === "acc")) v *= 0.85;
   if (k === "att" && b.berserk) v *= 1.25;
   if (k === "att" && b.warcry) v *= 1.2;
   if (k === "att" && b.last_resort) v *= 1.25;
@@ -1103,8 +1104,9 @@ function onKO(e, src) {
     if (e === player) for (const p of S.party) p.mounted = false;
     for (const m of S.mobs) m.enmity.delete(e);
     if (e !== player) partySay(e, "ko", true);
-    if (e.mercId && CONFIG.mercPermadeath) { e.fallAt = S.time + 4; log(e.name + " is badly wounded…", "foe"); }
-    if (e === player) { save.stats.kos++; S.ko = true; S.chase = false; S.moveTarget = null; showKO(true); }
+    e.koUntil = Date.now() + CONFIG.koMinutes * 60000; e.koAt = S.time; e.casting = null; e.engaged = false; e.attackTarget = null; e.buffs = {};
+    if (e.mercId) { save.mercDown = save.mercDown || {}; save.mercDown[e.mercId] = e.koUntil; log(e.name + " is down. Raise them or use an Ember Plume before an hour passes.", "foe"); }
+    if (e === player) { save.stats.kos++; S.ko = true; S.chase = false; S.moveTarget = null; player.engaged = false; player.attackTarget = null; save.ko = { until: e.koUntil }; player.target = null; if (typeof tgtCmdClose === "function") tgtCmdClose(); if (typeof mainCmdClose === "function" && UI.mm) mainCmdClose(); showKO(true); saveGame(); }
   }
 }
 
@@ -1987,6 +1989,7 @@ function checkAction(a, act, t) {
     if (a.mp < sp.mp) return "Not enough MP.";
     if (sp.target === "enemy" && (!t || !isMob(t) || !t.alive)) return "No valid target.";
     if (sp.target === "ally" && (!t || !(isParty(t) || (a === player && isMate(t))) || !t.alive)) return "Invalid target.";
+    if (sp.target === "dead" && (!t || !(isParty(t) || (a === player && isMate(t))) || t.alive || t === a)) return "Target a KO'd party member.";
     if (dist(a, t) > CONFIG.castRange) return "Target is out of range.";
     return "";
   }
@@ -2330,6 +2333,7 @@ function interruptCast(e) {
 function finishCast(a) {
   const { sp, t, id } = a.casting;
   a.casting = null;
+  if (sp.kind === "raise") { if (t.alive) { log(sp.name + " has no effect: " + (t === player ? "you are" : t.name + " is") + " not KO'd.", "missc"); return; } if (t.kind === "remote") { if (typeof netCastOn === "function") netCastOn(a, t, sp, id); log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + t.name + ".", cls(a)); return; } log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ".", cls(a)); revive(t, sp.pow, a === player ? null : a.name); return; }
   if (!t.alive) { log(sp.name + " fizzles: the target is gone.", cls(a)); return; }
   const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
   const free = white && a.buffs.penury;
@@ -2520,6 +2524,15 @@ function useItem(id) {
   if (it.spell) { learnSpell(id); return; }
   if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
+  if (it.revive) {
+    const t = (isParty(player.target) || isMate(player.target)) && !player.target.alive ? player.target : S.party.find(p => p !== player && !p.alive);
+    if (!t) { log("Target a KO'd party member to use the " + it.name + ".", "sys"); sfx("error"); return; }
+    if (dist(t, player) > CONFIG.castRange) { log(t.name + " is too far away.", "sys"); sfx("error"); return; }
+    removeItem(id, 1); S.itemReadyAt = S.time + 3;
+    log("You use " + an(it.name) + " on " + t.name + ".", "you");
+    if (t.kind === "remote") { if (typeof netCastOn === "function") netCastOn(player, t, SPELLS.raise, "raise", it.revive); } else revive(t, it.revive, null);
+    return;
+  }
   if (it.heal && player.hp >= player.maxHp) { log("Your HP is already full.", "sys"); sfx("error"); return; }
   if (it.mpRestore && player.mp >= player.maxMp) { log("Your MP is already full.", "sys"); sfx("error"); return; }
   if (it.heal) {
@@ -2866,6 +2879,18 @@ function allyTry(a, act, t) {
   return true;
 }
 
+function raiseAI(a, dt) {
+  const down = S.party.find(p => p !== a && !p.alive && (p !== player || S.ko));
+  if (!down) return false;
+  const acts = actionList(a).filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "raise").sort((p, q) => SPELLS[q.id].pow - SPELLS[p.id].pow);
+  const act = acts.find(x => a.mp >= SPELLS[x.id].mp && !(a.recasts && a.recasts[x.id] > S.time));
+  if (!act) return false;
+  if ([...S.mobs].some(m => m.alive && m.target === a && m.state === "combat") && a.hp / a.maxHp < 0.5) return false;
+  if (dist(a, down) > CONFIG.castRange * 0.8) { moveToward(a, down.x, down.y, dt, CONFIG.castRange * 0.6); a.face = Math.atan2(down.y - a.y, down.x - a.x); return true; }
+  if (allyTry(a, act, down)) { partySay(a, "raise"); return true; }
+  return false;
+}
+
 function updateAlly(a, dt) {
   if (!a.alive || a.casting) return;
   if (a.mounted) { a.engaged = false; a.attackTarget = null; follow(a, dt); return; }
@@ -2875,6 +2900,7 @@ function updateAlly(a, dt) {
   const hx = a.x, hy = a.y;
   if (stance === "hold" && !a.holdAt) a.holdAt = { x: a.x, y: a.y };
   if (stance !== "hold") a.holdAt = null;
+  if (raiseAI(a, dt)) return;
   if (role === "healer" || role === "support") healerAI(a, tgt, dt);
   else if (role === "nuker" || role === "burster") nukerAI(a, tgt, dt);
   else if (role === "bard") { if (!bardAI(a, tgt, dt)) meleeAI(a, tgt, dt); }
@@ -3653,11 +3679,7 @@ function step(dt) {
   S.mobs = S.mobs.filter(m => m.alive || S.time - m.deadAt < 2.5);
   if (partyInCombat()) S.lastCombat = S.time;
   const calm = S.time - S.lastCombat;
-  for (const a of S.party) {
-    if (a === player || a.alive || !player.alive || calm <= CONFIG.allyReviveAfter) continue;
-    a.alive = true; a.hp = Math.round(a.maxHp * 0.3); a.x = player.x - 20; a.y = player.y + 20; a.stillSince = S.time;
-    log(a.name + " gets back up.", "ally");
-  }
+  koTick();
   for (const p of S.party) if (p.target && isMob(p.target) && !S.mobs.includes(p.target)) p.target = null;
   S.saveTimer += dt;
   if (S.saveTimer > 15) { S.saveTimer = 0; saveGame(); }
@@ -3850,6 +3872,7 @@ function resolveTarget(act) {
   const sp = SPELLS[act.id];
   if (sp.target === "self") return player;
   if (sp.target === "ally") return (isParty(player.target) || isMate(player.target)) && player.target.alive ? player.target : player;
+  if (sp.target === "dead") return (isParty(player.target) || isMate(player.target)) && !player.target.alive ? player.target : S.party.find(p => p !== player && !p.alive) || null;
   return isMob(player.target) ? player.target : player.attackTarget;
 }
 
@@ -4615,13 +4638,59 @@ function homePos() {
   return c ? { zone: save.home.zone, x: c.x, y: c.y + 80 } : { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y };
 }
 
+function koTick() {
+  const now = Date.now();
+  if (S.ko && player.koUntil && now >= player.koUntil) { log("An hour has passed. You are carried back to your home point.", "warn"); returnHome(); return; }
+  for (const a of S.party) {
+    if (a === player || a.alive || !a.mercId || !a.koUntil || now < a.koUntil) continue;
+    a.koUntil = 0;
+    if (save.mercDown) delete save.mercDown[a.mercId];
+    if (CONFIG.mercPermadeath) { a.fallAt = S.time; mercFallTick(); return; }
+    log(a.name + " limps back to the Mercenary Hall.", "foe");
+    dismissMerc(a.mercId, true);
+    return;
+  }
+}
+
+function revive(t, pct, by) {
+  if (!t || t.alive) return false;
+  t.alive = true; t.hp = Math.max(1, Math.round(t.maxHp * pct)); t.mp = Math.round(t.maxMp * pct); t.tp = 0;
+  t.koUntil = 0; t.buffs = { weakened: { until: S.time + CONFIG.weakenedSecs } }; t.stillSince = S.time;
+  if (t.mercId && save.mercDown) delete save.mercDown[t.mercId];
+  if (t === player) { S.ko = false; save.ko = null; showKO(false); log((by ? by + " revives you" : "You are revived") + ". You keep your experience.", "heal"); }
+  else log(t.name + " is revived" + (by ? " by " + by : "") + ".", "heal");
+  popText(t, "Revived", "#8cff98", 18, 1.4);
+  ring(t, "#fff4c0", 30, 0.8, "sparkle");
+  vfx("levelup", { tgt: t });
+  sfx("cure", t);
+  saveGame();
+  return true;
+}
+
+function restoreKO() {
+  const now = Date.now();
+  for (const a of S.party) if (a.mercId && save.mercDown && save.mercDown[a.mercId] > now) { a.alive = false; a.hp = 0; a.koUntil = save.mercDown[a.mercId]; }
+  if (save.ko && save.ko.until) {
+    if (save.ko.until > now) { player.alive = false; player.hp = 0; player.koUntil = save.ko.until; S.ko = true; showKO(true); }
+    else { save.ko = null; returnHome(); }
+  }
+}
+
+function giveUpKO() {
+  if (!S.ko) return;
+  gameConfirm ? gameConfirm("Back to Home Point", "Return to your home point now? You'll lose experience. Anyone could still raise you if you wait.", () => returnHome(), { yes: "Return", no: "Wait" }) : returnHome();
+}
+
 function returnHome() {
+  save.ko = null;
+  if (save.mercDown) for (const id of Object.keys(save.mercDown)) delete save.mercDown[id];
   const j = save.jobs[save.mainJob];
   const loss = Math.min(j.xp, Math.floor(xpNeed(j.lv) * CONFIG.deathXpLossPct));
   if (loss > 0 && j.lv < CONFIG.levelCap) { j.xp -= loss; log("You lose " + loss + " experience points.", "foe"); }
   S.ko = false;
   showKO(false);
-  for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; p.tp = 0; p.buffs = {}; p.mounted = false; }
+  for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; p.tp = 0; p.buffs = {}; p.mounted = false; p.koUntil = 0; }
+  player.buffs.weakened = { until: S.time + CONFIG.weakenedSecs };
   const h = homePos();
   enterZone(h.zone, h.x, h.y);
 }

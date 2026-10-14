@@ -1477,6 +1477,15 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "13.7.0", date: "2026-10-14", title: "Hands, feet, animal heads and raising the fallen", items: [
+    "Hands now have five fingers and a thumb. They relax at your sides, close around a drawn weapon and make fists when you fight barehanded.",
+    "Feet are shaped with a heel, arch and toes; boots get a darker sole and toe cap, and bare feet show toes.",
+    "Animals have real heads: sheep, deer, dogs, cats, lizards and longnecks get a skull, brow, eyes with highlights, a muzzle with nostrils, a lower jaw and shaped ears (droopy for sheep, pointed for deer and dogs, a wide flat mouth for lizards).",
+    "Knock-outs work like a classic MMO: you fall and stay down for up to an hour while a Time Left box counts down. Raise (White Mage 12, Red Mage 17, Paladin 18), Raise II (White Mage 18) or an Ember Plume (Pell's shop) bring you back with no experience lost. Back to Home Point gives up early and costs experience as before.",
+    "Companions stay down when they fall instead of getting back up on their own. Healing companions walk over and raise anyone who is down. A companion left down for an hour returns to the Mercenary Hall.",
+    "Text colours follow the classic scheme: green names for townsfolk, white for players and calm monsters, red for aggressive monsters or anything attacking your party, cyan for party members, yellow for companions and pets, grey for the fallen or far away. In the log: white for say and normal hits, cyan party chat, yellow tells, green linkshell, orange shouts, gold for weapon skills and criticals, green healing, blue MP and buffs, pink damage taken, purple misses, red warnings.",
+    "The target box is simpler when you attack: name, a slim HP bar and the Locked arrows, with no timers."
+  ] },
   { v: "13.6.1", date: "2026-10-14", title: "Classic command menu", items: [
     "The main menu is restyled: a dark navy panel with a fine border, a Commands label sitting on the top edge, lavender pill buttons with bold italic outlined text, an orange pill for the selection, and a silver pointer that sticks out past the left edge of the box.",
     "The Help, Network and Commands labels are no longer cut off at the top of the screen.",
@@ -2295,7 +2304,7 @@ function tabHelp() {
     "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
     "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 in the event log); they give no experience. The Map shows how many you've found in each zone.",
     "Quests give big XP rewards.",
-    "Defeat costs 10% of your current level's XP requirement, but you never lose a level."
+    "When you are knocked out you fall and stay down for up to an hour. Anyone in your party can bring you back with Raise or an Ember Plume, and you keep all your experience. If nobody does, or you press Back to Home Point, you return to your home point and lose 10% of your current level's XP requirement (you never lose a level). After being revived or returning home you are Weakened for three minutes (attack, defence and accuracy -15%).", "Companions who fall stay down too. Healers in your party will walk over and cast Raise when it is safe; otherwise use Raise or an Ember Plume on them. A companion left down for an hour goes back to the Mercenary Hall (hall recruits are lost for good)."
   ]));
   const nmRows = Object.keys(NM_FAMILIES).map(k => { const n = NM_FAMILIES[k], u = ITEMS[n.loot[0][0]]; return ["☠ " + n.name, n.hint || "", (FAMILIES[n.base] || {}).name || "", u ? u.name : ""]; });
   h += sec("☠ Notorious monsters", "<p>Rare, stronger versions of normal monsters with a coloured aura. They sometimes appear in place of a regular monster (its placeholder) when it respawns. After one is defeated it can't appear again for about 5 minutes of real time, even while you're offline. Each has a unique drop with about a 30% chance.</p>" + tbl(["Name", "Where and when", "Pops from", "Unique drop"], nmRows) + "<p>The Goblin Chieftain at the back of the Goblin Den is a fixed boss that returns every 3 minutes.</p>");

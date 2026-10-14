@@ -48,7 +48,7 @@ function boot() {
   function frame(now) {
     const dt = clamp((now - last) / 1000, 0, 0.05);
     last = now;
-    if (!S.ko) step(dt);
+    step(dt);
     age(dt);
     draw(dt);
     updateHud();

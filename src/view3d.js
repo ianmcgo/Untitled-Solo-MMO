@@ -45,11 +45,13 @@ function updateLabels() {
     const isT = player.target === e;
     const plates = VIEW.settings.plates !== false;
     let name = e === player ? save.name : e.name, col = "#ffffff", kind = "pc";
-    if (isMob(e)) { kind = "mob"; const cs = claimState(e); col = ffMobAttacking(e) ? "#ff4a3a" : cs === "other" ? "#c77dff" : e.fam.nm ? "#ffb070" : "#f2ead2"; }
-    if (e.kind === "npc") { kind = "npc"; if (questMarker(e)) name = "❗ " + name; }
-    if (e.buddy) { kind = "mob"; col = "#ffd54f"; }
-    if (e.remote) { kind = "pc"; name = e.name; }
-    if (isParty(e) && e !== player) kind = "pc";
+    if (isMob(e)) { kind = "mob"; const cs = claimState(e); col = ffMobAttacking(e) || (e.aggro && !e.passive) ? "#ff5a48" : cs === "other" ? "#c77dff" : "#ffffff"; }
+    if (e.kind === "npc") { kind = "npc"; col = "#8cff98"; if (questMarker(e)) name = "❗ " + name; }
+    if (e.buddy || e.pet || (e.kind === "ally" && e.mercId)) { kind = "ally"; col = "#ffe45c"; }
+    if (e.remote) { kind = "pc"; name = e.name; col = typeof isMate === "function" && isMate(e) ? "#7ee8ff" : "#ffffff"; if (isMate && isMate(e)) kind = "party"; }
+    if (isParty(e) && e !== player && !e.mercId && !e.pet && !e.remote) { kind = "party"; col = "#7ee8ff"; }
+    if (isT && (e.kind === "npc" || e.remote)) col = "#ffffff";
+    if (e.alive === false || (d > 600 && !isT)) col = "#a0a0a8";
     const other = isMob(e) || e.kind === "npc";
     if (!plates && other && !isT) name = e.kind === "npc" && questMarker(e) ? "❗" : "";
     if (!plates && !other && e !== player && !isT && !isParty(e)) name = "";
@@ -57,7 +59,7 @@ function updateLabels() {
     nameEl.style.display = name ? "" : "none";
     if (nameEl.textContent !== name) nameEl.textContent = name;
     nameEl.style.color = col;
-    if (el.dataset.k !== kind) { el.dataset.k = kind; el.classList.remove("k-pc", "k-npc", "k-mob"); el.classList.add("k-" + kind); }
+    if (el.dataset.k !== kind) { el.dataset.k = kind; el.classList.remove("k-pc", "k-npc", "k-mob", "k-ally", "k-party"); el.classList.add("k-" + kind); }
     el.classList.toggle("tgt", isT);
     const showHp = e.kind !== "npc" && !e.buddy && (isParty(e) || isT || e.state === "combat");
     bar.style.display = showHp ? "block" : "none";

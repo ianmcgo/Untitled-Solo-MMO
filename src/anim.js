@@ -524,6 +524,14 @@ function poseHuman(v, e, dt) {
     v.rootOff[1] = -0.45 * kneel;
     sharp = false;
   }
+  if (P.fingersR) {
+    const wk = v.weaponKind, held = v.weapon && v.weaponDrawn, two = held && ["greataxe", "scythe", "gkatana", "gsword", "staff", "polearm", "archery"].includes(wk);
+    const fist = (wk === "h2h" || (!wk && !isMob(e))) && an.fight > 0.5;
+    const relax = e.alive === false ? 0.15 : 0.35 + 0.08 * Math.sin(t * 0.7);
+    const cR = fist ? 1.55 : held ? 1.3 : relax, cL = fist ? 1.55 : two ? 1.2 : relax;
+    setP(P, "fingersR", 0, 0, cR, 1); setP(P, "fingersL", 0, 0, -cL, 1);
+    setP(P, "thumbR", 0.3 * cR, 0, 0.4 * cR, 1); setP(P, "thumbL", 0.3 * cL, 0, -0.4 * cL, 1);
+  }
   applyPose(v, dt, sharp);
   let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;

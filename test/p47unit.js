@@ -1,0 +1,16 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player; G.save.story.done = true;
+let fails = 0;
+const ok = (c, m) => { console.log((c ? 'ok   ' : 'FAIL ') + m); if (!c) fails++; };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+ok(G.SPELLS.raise && G.SPELLS.raise.kind === 'raise' && G.ITEMS.ember_plume && G.ITEMS.ember_plume.revive, 'Raise and Ember Plume exist');
+const xp0 = (G.save.jobs[G.save.mainJob].xp = 500);
+P().hp = 1; G.onKO(P(), null);
+ok(S.ko && !P().alive && G.save.ko && G.save.ko.until > Date.now() + 59 * 60000, 'a KO lasts an hour');
+run(3);
+ok(S.ko && !P().alive, 'you stay down instead of being sent home');
+G.revive(P(), 0.25, 'Mira');
+ok(!S.ko && P().alive && G.save.jobs[G.save.mainJob].xp === 500 && P().buffs.weakened, 'raising keeps your experience and leaves you weakened');
+P().hp = 1; G.onKO(P(), null);
+P().koUntil = Date.now() - 1; run(1);
+ok(!S.ko && P().alive && G.save.jobs[G.save.mainJob].xp < 500, 'after an hour you return home and lose experience');
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

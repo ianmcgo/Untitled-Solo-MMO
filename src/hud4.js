@@ -32,12 +32,26 @@ function log(msg, c) {
   if (!el) return;
   const near = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
   const d = document.createElement("div");
-  d.className = c || "sys";
+  d.className = logTone(msg, c || "sys");
   d.textContent = msg;
   if (typeof S !== "undefined") { UI.logRows = logFull(); UI.logAt = S.time || 0; }
   el.appendChild(d);
   while (el.children.length > 250) el.removeChild(el.firstChild);
   if (near || $("chat").classList.contains("min")) el.scrollTop = el.scrollHeight;
+}
+function logTone(msg, c) {
+  if (["say", "pchat", "tell", "ls", "shout", "yell", "npc", "loot", "sc"].includes(c)) return c;
+  const m = String(msg);
+  if (/^You can'?t|^You cannot|^Not enough|^Can'?t |too far|out of range|is full|Unable|failed to|^You need|^There'?s no/i.test(m)) return "warn";
+  if (/defeated|has fallen|is KO|knocked out|(is|are) (poisoned|silenced|paralyzed|slowed|asleep|stunned|bound|blinded)|wears? off and/i.test(m) && c !== "you") return "warn";
+  if (/\(critical\)|critical hit|Magic Burst|Skillchain|\(\d+ TP\)|learn the weapon skill/i.test(m)) return "ws";
+  if (/\b(recover|recovers|restore|restores|regain|regains)\b[^.]*\b\d+ MP\b|\bMP\b[^.]*\brestored/i.test(m)) return "mpc";
+  if (/\b(recover|recovers|restore|restores|heal|heals)\b[^.]*\b\d+ HP\b/i.test(m)) return "heal";
+  if (/gains? the effect|is protected|feels? (stronger|faster|steadier|sharper)|\b(Protect|Shell|Haste|Regen|Refresh|Berserk|Warcry|Sentinel|Focus|Boost|Hasso|Valor Roll)\b.*\b(gain|gains|cast|casts|use|uses)\b/i.test(m) && c !== "foe") return "buff";
+  if (/\bmiss(es)?\b|resists?\b|no effect/i.test(m)) return "missc";
+  if (c === "foe") return "hurt";
+  if (c === "you" || c === "ally" || c === "party" || c === "cast" || c === "skill") return c === "party" ? "party" : "dmg";
+  return c;
 }
 function clearLog() { $("log").innerHTML = ""; }
 function showKO(on) { $("ko").style.display = on ? "flex" : "none"; }
@@ -367,7 +381,7 @@ function updateTarget() {
     const [c, col] = conOf(t);
     setTxt($("tName"), t.name);
     const cs = claimState(t);
-    $("tName").style.color = cs === "mine" ? "#ff6b6b" : cs === "other" ? "#c77dff" : t.fam.nm ? "#ff8a65" : "#f0d9a8";
+    $("tName").style.color = !t.alive ? "#a0a0a8" : cs === "other" ? "#c77dff" : cs === "mine" || ffMobAttacking(t) || (t.aggro && !t.passive) ? "#ff5a48" : "#ffffff";
     setTxt($("tLv"), "");
     $("tTag").style.display = t.fam.nm ? "inline-block" : "none";
     pct = 100 * t.hp / t.maxHp;
@@ -393,7 +407,7 @@ function updateTarget() {
     setHtml($("tChain"), ch);
   } else if (isParty(t)) {
     setTxt($("tName"), t === player ? save.name || "You" : t.name);
-    $("tName").style.color = "#9fd0ff";
+    $("tName").style.color = t === player ? "#ffffff" : t.mercId || t.pet ? "#ffe45c" : "#7ee8ff";
     setTxt($("tLv"), jobTag(t) + " · Party");
     $("tTag").style.display = "none";
     pct = 100 * t.hp / t.maxHp;
@@ -408,7 +422,7 @@ function updateTarget() {
   } else if (t.kind === "remote") {
     const mate = isMate(t);
     setTxt($("tName"), t.name);
-    $("tName").style.color = mate ? "#9fd0ff" : "#a5d6a7";
+    $("tName").style.color = mate ? "#7ee8ff" : "#ffffff";
     setTxt($("tLv"), (t.job ? t.job + t.lv + (t.sub ? "/" + t.sub : "") : "") + (mate ? " · Party" : " · Player"));
     $("tTag").style.display = "none";
     pct = 100 * t.hp / Math.max(1, t.maxHp);
@@ -421,7 +435,7 @@ function updateTarget() {
     setHtml($("tChain"), "");
   } else {
     setTxt($("tName"), t.name);
-    $("tName").style.color = t.prop || t.crystal ? "#b8f0c0" : "#e8f0c0";
+    $("tName").style.color = "#8cff98";
     setTxt($("tLv"), "");
     box.classList.add("npc");
     $("tTag").style.display = "none";
@@ -1027,12 +1041,18 @@ function ffMobAttacking(m) { return m && m.alive && m.state === "combat" && m.ta
 
 function updateFF() {
   const ui = $("ui"), t = player.target;
+  ui.classList.toggle("isKO", !!S.ko);
+  if (S.ko) {
+    const left = Math.max(0, (player.koUntil || Date.now()) - Date.now()), mm = Math.floor(left / 60000), ss = Math.floor(left / 1000) % 60;
+    setTxt($("koTime"), String(mm).padStart(2, "0") + ":" + String(ss).padStart(2, "0"));
+  }
   const tOk = !!t && (t === player || t.kind === "npc" || t.kind === "remote" || isParty(t) || (isMob(t) && t.alive && !t.despawned));
-  ui.classList.toggle("hasTop", tOk || !!UI.cmd || !!UI.mm || !!S.modal);
+  ui.classList.toggle("hasTop", tOk || !!UI.cmd || !!UI.mm || !!S.modal || !!S.ko);
   const cmdLbl = S.modal && TAB_INFO[S.modal] ? (S.modal === "inventory" ? "Items " + save.inventory.length + "/" + CONFIG.inventorySize : TAB_INFO[S.modal][0]) : UI.mm && UI.mm.sub === "status" ? "Status" : UI.cmd && UI.cmd.page === "ma" ? "Magic List" : UI.cmd && UI.cmd.page === "ja" ? "Ability List" : UI.cmd && UI.cmd.page === "items" ? "Item List" : "Commands";
-  if (UI.cmdLbl !== cmdLbl) { UI.cmdLbl = cmdLbl; setTxt(document.querySelector("#ffTop .ffCmd"), cmdLbl); }
-  if (tOk || UI.cmd || UI.mm || S.modal) {
-    setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : ffDefaultHelp(t));
+  const cmdL = S.ko && !S.modal && !UI.cmd && !UI.mm ? "K.O." : cmdLbl;
+  if (UI.cmdLbl !== cmdL) { UI.cmdLbl = cmdL; setTxt(document.querySelector("#ffTop .ffCmd"), cmdL); }
+  if (tOk || UI.cmd || UI.mm || S.modal || S.ko) {
+    setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : S.ko ? "You've been knocked out. Wait to be raised, or go back to your home point (you'll lose experience)." : ffDefaultHelp(t));
     if (UI.mm && UI.mm.sub && Date.now() - (UI.stAt || 0) > 500) { UI.stAt = Date.now(); renderStatusOv(); }
     const now = Date.now();
     if (now - (UI.netAt || 0) > 1000) {
@@ -1091,7 +1111,7 @@ function updateFF() {
   $("target").style.display = showT ? "block" : "none";
   if (showT && isMob(t)) {
     const atk = ffMobAttacking(t), cs = claimState(t);
-    $("tName").style.color = atk ? "#ff5a4a" : cs === "other" ? "#c77dff" : "#7dff8a";
+    $("tName").style.color = !t.alive ? "#a0a0a8" : atk || cs === "mine" || (t.aggro && !t.passive) ? "#ff5a48" : cs === "other" ? "#c77dff" : "#ffffff";
   }
   $("target").classList.toggle("locked", showT && isMob(t) && player.engaged && player.attackTarget === t);
   const solo = S.party.length <= 1 && !(typeof NET_PT !== "undefined" && NET_PT.id);
