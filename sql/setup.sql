@@ -5,6 +5,14 @@ revoke all on schema game_private from public, anon, authenticated;
 
 create table if not exists game_private.config (k text primary key, v text not null);
 revoke all on game_private.config from public, anon, authenticated;
+insert into game_private.config (k, v) values ('level_cap', '20') on conflict (k) do nothing;
+insert into game_private.config (k, v) values ('bag_size', '30') on conflict (k) do nothing;
+insert into game_private.config (k, v) values ('schema', '2') on conflict (k) do update set v = greatest(game_private.config.v::int, 2)::text;
+
+create table if not exists game_private.audit (id bigserial primary key, at timestamptz not null default now(), char_id uuid, char_name text, owner uuid, kind text not null, detail text);
+create table if not exists game_private.trade_offers (me uuid primary key, peer uuid not null, mine jsonb not null, theirs jsonb not null, created_at timestamptz not null default now(), status text not null default 'open', result jsonb);
+create table if not exists game_private.trade_log (id bigserial primary key, at timestamptz not null default now(), a uuid, b uuid, a_gave jsonb, b_gave jsonb);
+revoke all on game_private.audit, game_private.trade_offers, game_private.trade_log from public, anon, authenticated;
 
 create table if not exists public.players (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -55,6 +63,7 @@ language plpgsql security definer set search_path = public as $$
 declare want text;
 begin
   if auth.uid() is null then raise exception 'Not signed in'; end if;
+  if exists (select 1 from public.players p where p.id = auth.uid() and p.banned) then raise exception 'This account has been banned.'; end if;
   if public.is_member() then return true; end if;
   if public.is_admin() then
     insert into public.players (id, email) values (auth.uid(), auth.jwt() ->> 'email') on conflict (id) do nothing;
@@ -93,6 +102,10 @@ begin
     'db_size', pg_size_pretty(pg_database_size(current_database())),
     'chars_size', pg_size_pretty(pg_total_relation_size('public.characters')),
     'code_set', exists (select 1 from game_private.config where k = 'signup_code'),
+    'schema', (select v from game_private.config where k = 'schema'),
+    'trades_7d', (select count(*) from game_private.trade_log where at > now() - interval '7 days'),
+    'audit', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select a.at, a.char_name, a.kind, a.detail, p.email from game_private.audit a left join public.players p on p.id = a.owner order by a.at desc limit 50) x),
+    'banned_list', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select email from public.players where banned order by email limit 100) x),
     'online_list', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select email, last_seen from public.players where last_seen > now() - interval '5 minutes' order by last_seen desc limit 50) x),
     'recent', (select coalesce(jsonb_agg(x), '[]'::jsonb) from (select c.name, c.summary ->> 'job' as job, c.summary ->> 'lv' as lv, c.summary ->> 'zone' as zone, p.email, c.updated_at from public.characters c left join public.players p on p.id = c.owner order by c.updated_at desc limit 50) x)
   ) into r;
@@ -103,3 +116,165 @@ revoke all on function public.join_game(text), public.touch_player(), public.adm
 grant execute on function public.join_game(text), public.touch_player(), public.admin_set_signup_code(text), public.admin_stats(), public.is_admin(), public.is_member() to authenticated;
 grant select, insert, update, delete on public.characters to authenticated;
 grant select on public.players to authenticated;
+
+create or replace function public.check_character_save() returns trigger
+language plpgsql security definer set search_path = public, game_private as $$
+declare cap int; bag int; og numeric; ng numeric; secs numeric; maxlv int; oldmax int; n int;
+begin
+  new.updated_at := now();
+  if current_setting('game.server', true) = '1' then return new; end if;
+  if new.owner <> old.owner then raise exception 'A character cannot change owner'; end if;
+  if lower(new.name) <> lower(old.name) then raise exception 'A character cannot change name'; end if;
+  select coalesce((select v::int from game_private.config where k = 'level_cap'), 20) into cap;
+  select coalesce((select v::int from game_private.config where k = 'bag_size'), 30) into bag;
+  select coalesce(max((x.value ->> 'lv')::int), 1) into maxlv from jsonb_each(case when jsonb_typeof(new.data -> 'jobs') = 'object' then new.data -> 'jobs' else '{}'::jsonb end) x;
+  select coalesce(max((x.value ->> 'lv')::int), 1) into oldmax from jsonb_each(case when jsonb_typeof(old.data -> 'jobs') = 'object' then old.data -> 'jobs' else '{}'::jsonb end) x;
+  if maxlv > cap then raise exception 'Level above the level cap'; end if;
+  n := case when jsonb_typeof(new.data -> 'inventory') = 'array' then jsonb_array_length(new.data -> 'inventory') else 0 end;
+  if n > 200 then raise exception 'Bag holds too many items'; end if;
+  ng := coalesce((new.data ->> 'gil')::numeric, 0);
+  og := coalesce((old.data ->> 'gil')::numeric, 0);
+  if ng < 0 or ng > 999999999 then raise exception 'Crystal count out of range'; end if;
+  secs := greatest(1, extract(epoch from now() - old.updated_at));
+  if ng - og > 5000 + 200 * secs then
+    insert into game_private.audit (char_id, char_name, owner, kind, detail) values (new.id, new.name, new.owner, 'crystals', 'gained ' || (ng - og) || ' crystals in ' || round(secs) || ' s');
+  end if;
+  if maxlv - oldmax > 3 then
+    insert into game_private.audit (char_id, char_name, owner, kind, detail) values (new.id, new.name, new.owner, 'level', 'jumped from level ' || oldmax || ' to ' || maxlv);
+  end if;
+  if n > bag then
+    insert into game_private.audit (char_id, char_name, owner, kind, detail) values (new.id, new.name, new.owner, 'bag', n || ' items in a ' || bag || '-slot bag');
+  end if;
+  return new;
+end $$;
+revoke all on function public.check_character_save() from public, anon, authenticated;
+drop trigger if exists characters_check on public.characters;
+create trigger characters_check before update on public.characters for each row execute function public.check_character_save();
+
+create or replace function game_private.offer_key(o jsonb) returns text
+language sql immutable as $$
+  select coalesce((select string_agg((e ->> 'id') || ':' || ((e ->> 'qty')::int)::text, ',' order by e ->> 'id', (e ->> 'qty')::int) from jsonb_array_elements(case when jsonb_typeof(o -> 'items') = 'array' then o -> 'items' else '[]'::jsonb end) e), '') || '|' || coalesce((o ->> 'gil')::bigint, 0)::text
+$$;
+
+create or replace function game_private.inv_take(inv jsonb, item text, n int) returns jsonb
+language plpgsql as $$
+declare arr jsonb := '[]'::jsonb; e jsonb; have int; rest int := n; i int; q int;
+begin
+  select coalesce(sum((x ->> 'qty')::int), 0) into have from jsonb_array_elements(inv) x where x ->> 'id' = item;
+  if n is null or n <= 0 or have < n then raise exception 'Missing items for the trade (%)', item; end if;
+  for i in reverse jsonb_array_length(inv) - 1 .. 0 loop
+    e := inv -> i;
+    if rest > 0 and e ->> 'id' = item then
+      q := (e ->> 'qty')::int;
+      if q <= rest then rest := rest - q; e := null;
+      else e := jsonb_set(e, '{qty}', to_jsonb(q - rest)); rest := 0; end if;
+    end if;
+    if e is not null then arr := jsonb_build_array(e) || arr; end if;
+  end loop;
+  return arr;
+end $$;
+
+create or replace function game_private.inv_give(inv jsonb, item text, n int, st int) returns jsonb
+language plpgsql as $$
+declare res jsonb := '[]'::jsonb; e jsonb; q int; add int; rest int := n; i int; cap int := greatest(1, least(coalesce(st, 1), 999));
+begin
+  if n is null or n <= 0 then raise exception 'Bad item count'; end if;
+  for i in 0 .. jsonb_array_length(inv) - 1 loop
+    e := inv -> i;
+    if rest > 0 and e ->> 'id' = item and (e ->> 'qty')::int < cap then
+      q := (e ->> 'qty')::int; add := least(cap - q, rest);
+      e := jsonb_set(e, '{qty}', to_jsonb(q + add)); rest := rest - add;
+    end if;
+    res := res || jsonb_build_array(e);
+  end loop;
+  while rest > 0 loop
+    add := least(cap, rest);
+    res := res || jsonb_build_array(jsonb_build_object('id', item, 'qty', add));
+    rest := rest - add;
+  end loop;
+  return res;
+end $$;
+
+create or replace function public.trade_offer(my_char uuid, peer_char uuid, mine jsonb, theirs jsonb) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare a public.characters; b public.characters; po game_private.trade_offers; bag int; ainv jsonb; binv jsonb; e jsonb; ag bigint; bg bigint; agive bigint; bgive bigint;
+begin
+  if not public.is_member() then raise exception 'Not allowed'; end if;
+  if my_char = peer_char then raise exception 'Not allowed'; end if;
+  if not exists (select 1 from public.characters where id = my_char and owner = auth.uid()) then raise exception 'Not your character'; end if;
+  if jsonb_typeof(mine -> 'items') <> 'array' or jsonb_typeof(theirs -> 'items') <> 'array' then raise exception 'Bad offer'; end if;
+  if jsonb_array_length(mine -> 'items') > 8 or jsonb_array_length(theirs -> 'items') > 8 then raise exception 'Too many items in the trade'; end if;
+  if coalesce((mine ->> 'gil')::bigint, 0) < 0 or coalesce((theirs ->> 'gil')::bigint, 0) < 0 then raise exception 'Bad offer'; end if;
+  perform pg_advisory_xact_lock(hashtext(least(my_char::text, peer_char::text) || greatest(my_char::text, peer_char::text)));
+  delete from game_private.trade_offers where created_at < now() - interval '10 minutes';
+  insert into game_private.trade_offers (me, peer, mine, theirs, created_at, status, result) values (my_char, peer_char, mine, theirs, now(), 'open', null)
+    on conflict (me) do update set peer = excluded.peer, mine = excluded.mine, theirs = excluded.theirs, created_at = now(), status = 'open', result = null;
+  select * into po from game_private.trade_offers where me = peer_char and peer = my_char and status = 'open' and created_at > now() - interval '60 seconds';
+  if not found then return jsonb_build_object('status', 'pending'); end if;
+  if game_private.offer_key(po.mine) <> game_private.offer_key(theirs) or game_private.offer_key(po.theirs) <> game_private.offer_key(mine) then return jsonb_build_object('status', 'mismatch'); end if;
+  select * into a from public.characters where id = my_char for update;
+  select * into b from public.characters where id = peer_char for update;
+  if b.id is null then raise exception 'The other character no longer exists'; end if;
+  select coalesce((select v::int from game_private.config where k = 'bag_size'), 30) into bag;
+  ainv := case when jsonb_typeof(a.data -> 'inventory') = 'array' then a.data -> 'inventory' else '[]'::jsonb end;
+  binv := case when jsonb_typeof(b.data -> 'inventory') = 'array' then b.data -> 'inventory' else '[]'::jsonb end;
+  for e in select * from jsonb_array_elements(mine -> 'items') loop
+    ainv := game_private.inv_take(ainv, e ->> 'id', (e ->> 'qty')::int);
+    binv := game_private.inv_give(binv, e ->> 'id', (e ->> 'qty')::int, (e ->> 'st')::int);
+  end loop;
+  for e in select * from jsonb_array_elements(po.mine -> 'items') loop
+    binv := game_private.inv_take(binv, e ->> 'id', (e ->> 'qty')::int);
+    ainv := game_private.inv_give(ainv, e ->> 'id', (e ->> 'qty')::int, (e ->> 'st')::int);
+  end loop;
+  ag := coalesce((a.data ->> 'gil')::bigint, 0); bg := coalesce((b.data ->> 'gil')::bigint, 0);
+  agive := coalesce((mine ->> 'gil')::bigint, 0); bgive := coalesce((po.mine ->> 'gil')::bigint, 0);
+  if ag < agive or bg < bgive then raise exception 'Not enough crystals for the trade'; end if;
+  ag := ag - agive + bgive; bg := bg - bgive + agive;
+  if jsonb_array_length(ainv) > bag or jsonb_array_length(binv) > bag then raise exception 'Not enough room in a bag for the trade'; end if;
+  perform set_config('game.server', '1', true);
+  update public.characters set data = jsonb_set(jsonb_set(data, '{inventory}', ainv), '{gil}', to_jsonb(ag)) where id = a.id;
+  update public.characters set data = jsonb_set(jsonb_set(data, '{inventory}', binv), '{gil}', to_jsonb(bg)) where id = b.id;
+  perform set_config('game.server', '0', true);
+  update game_private.trade_offers set status = 'done', result = jsonb_build_object('inventory', binv, 'gil', bg) where me = peer_char;
+  delete from game_private.trade_offers where me = my_char;
+  insert into game_private.trade_log (a, b, a_gave, b_gave) values (a.id, b.id, mine, po.mine);
+  return jsonb_build_object('status', 'done', 'inventory', ainv, 'gil', ag);
+end $$;
+
+create or replace function public.trade_status(my_char uuid) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare o game_private.trade_offers;
+begin
+  if not exists (select 1 from public.characters where id = my_char and owner = auth.uid()) then raise exception 'Not your character'; end if;
+  select * into o from game_private.trade_offers where me = my_char;
+  if not found then return jsonb_build_object('status', 'none'); end if;
+  if o.status = 'done' then delete from game_private.trade_offers where me = my_char; return jsonb_build_object('status', 'done') || o.result; end if;
+  return jsonb_build_object('status', 'pending');
+end $$;
+
+create or replace function public.trade_cancel(my_char uuid) returns jsonb
+language plpgsql security definer set search_path = public, game_private as $$
+declare o game_private.trade_offers;
+begin
+  if not exists (select 1 from public.characters where id = my_char and owner = auth.uid()) then raise exception 'Not your character'; end if;
+  select * into o from game_private.trade_offers where me = my_char for update;
+  if not found then return jsonb_build_object('status', 'none'); end if;
+  delete from game_private.trade_offers where me = my_char;
+  if o.status = 'done' then return jsonb_build_object('status', 'done') || o.result; end if;
+  return jsonb_build_object('status', 'cancelled');
+end $$;
+
+create or replace function public.admin_set_ban(target text, ban boolean) returns int
+language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  if not public.is_admin() then raise exception 'Admins only'; end if;
+  update public.players set banned = ban
+    where (lower(email) = lower(target) or id in (select owner from public.characters where lower(name) = lower(target)))
+      and lower(coalesce(email, '')) <> 'ianmcgon@gmail.com';
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+revoke all on function public.trade_offer(uuid, uuid, jsonb, jsonb), public.trade_status(uuid), public.trade_cancel(uuid), public.admin_set_ban(text, boolean) from public, anon;
+grant execute on function public.trade_offer(uuid, uuid, jsonb, jsonb), public.trade_status(uuid), public.trade_cancel(uuid), public.admin_set_ban(text, boolean) to authenticated;

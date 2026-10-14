@@ -786,11 +786,21 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - mv payload gains tg (nid of my current mob target); netAssist(name) targets that mob (/assist Name). Remote party mates' labels are blue.
 - Tests: netshots "claims" block (claim colors, engage refusal, blocked hit, chain decode/relay, assist, host claim, non-party hit rejected, party hit accepted).
 
+## Phase 35: server checks (v8.5.0) — schema 2
+- Server setup is versioned: game_private.config 'schema' (setup.sql sets it to max(existing, N)); client NET_SCHEMA; admin_stats returns schema and the Admin panel shows "Server update needed" when behind. The owner updates by copying setup SQL from Admin and running it (idempotent). Config also holds level_cap (20) and bag_size (30).
+- Save trigger public.check_character_save (before update on characters, security definer, no client execute): sets updated_at; skips when set_config('game.server','1') (server RPCs); refuses owner/name changes, any job lv > level_cap, inventory > 200 entries, crystals < 0 or > 999,999,999; audits (game_private.audit) crystal gains > 5000 + 200/s since last save, level jumps > 3 per save, bags over bag_size.
+- Atomic trades: game_private.trade_offers (one open offer per character), trade_log. public.trade_offer(my_char, peer_char, mine, theirs): member + owner checks, ≤ 8 items, advisory lock per pair, upsert my offer; if the peer's mirrored offer (offer_key = sorted id:qty list + gil, ignoring stack info) is open and < 60 s old, lock both rows, inv_take/inv_give (stack sizes from the giver's st), crystal and bag checks, write both characters (game.server flag), mark the peer's offer done with its result, log, return {status: done, inventory, gil}. Else pending or mismatch. trade_status / trade_cancel return the stored result when the other side finished it. Any exception rolls back everything.
+- Client: netTradeFinish (async) → saveGame + netFlushNow (wait out an in-flight save) → NET.saveLock (netFlush does nothing while locked so stale bags can't overwrite the server) → trade_offer → done: netTradeApply (replace inventory and crystals from the server, unlock, save) / pending: poll trade_status every 1.2 s for 24 s, then trade_cancel (which may still return done) / mismatch: fail. If the RPC is missing (server not updated), falls back to the old two-sided local trade (netTradeLocal). tcx while busy calls trade_cancel. netTradeCancel is refused while the server step runs.
+- Bans: admin_set_ban(target email or character name, bool), never the admin. join_game raises for banned accounts; RLS already blocks saves (is_member excludes banned). Admin panel: trades tile, setup version tile, suspicious saves, banned list, ban/unban box. Diagnostics SQL lists config (code hidden), audit, trade log and open offers.
+- Tested against a local Postgres 16 with a Supabase auth shim (roles anon/authenticated, auth.uid/jwt from request settings): setup runs twice cleanly; level cap, rename, crystal audit, completed trade with stacking, missing-item dupe refused (whole call rolled back), mismatch, foreign character refused, ban + join refused, admin can't ban self. Shim lives in the session scratchpad only.
+- Limits: saves are still written by the client, so the server can only refuse impossible values and flag odd ones; items gained in the few seconds between a trade's start and finish on the waiting side are replaced by the server's bag.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 8.5.0 | Phase 35: save checks + audit, atomic server trades, bans, setup versioning. |
 | 8.4.0 | Phase 34: claim rules, cross-player skillchains/bursts, /assist Name. |
 | 8.3.0 | Phase 33: shared monsters with zone host authority, claims. |
 | 8.2.0 | Phase 32: player parties (shared XP, pool, crystals, cures), trading. |
