@@ -1,8 +1,8 @@
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "fur", "bone", "scale", "feather", "wood", "glow", "plain", "chain", "quilt", "face2", "face3", "face4", "face5", "face6", "face7", "face8"];
 const ATLAS_COLS = 6, ATLAS_ROWS = 4;
-const FACE_COUNT = 8;
-const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud"];
+const FACE_PAINTS = 8, FACE_COUNT = 16;
+const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud", "Bold", "Soft", "Sharp", "Sunny", "Kind", "Stern", "Dreamy", "Noble"];
 const ATLAS_SIZE = 1024;
 let ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
 const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
@@ -198,7 +198,7 @@ function buildAtlas() {
     im.data[p] = 255; im.data[p + 1] = clamp(rgh[k], 0.05, 1) * 255; im.data[p + 2] = clamp(mtl[k], 0, 1) * 255; im.data[p + 3] = 255;
   }
   ga.putImageData(ia, 0, 0);
-  for (let f = 0; f < FACE_COUNT; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f); }
+  for (let f = 0; f < FACE_PAINTS; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f); }
   gn.putImageData(inn, 0, 0);
   gm.putImageData(im, 0, 0);
   const mk = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = TEXLIB.anisotropy; t.needsUpdate = true; return t; };
@@ -286,7 +286,7 @@ class RigBuilder {
     let lo = Infinity, hi = -Infinity;
     for (const L of by) for (const p of L) { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; }
     const H = Math.max(0.15, hi - lo), tol = 0.012 * H;
-    const skip = new Set(["lids", "saddle", "hairTail"].concat(this.noBridgeBones || []));
+    const skip = new Set(["lids", "saddle", "hairTail", "mouth", "jaw"].concat(this.noBridgeBones || []));
     for (const d of this.defs) {
       if (d.parent == null || skip.has(d.name)) continue;
       let pi = d.parent;
@@ -394,7 +394,7 @@ class RigBuilder {
   }
   smoothJoints() {
     const J = { foreArm: [0.06, 0.5, 0.1], hand: [0.04, 0.5, 0.08], shin: [0.07, 0.5, 0.12], foot: [0.04, 0.45, 0.1], upArm: [0.07, 0.4, 0.11], thigh: [0.07, 0.4, 0.16], chest: [0.08, 0.45, 0.32], spine: [0.08, 0.5, 0.32], neck: [0.04, 0.4, 0.12], head: [0.045, 0.4, 0.14], tail: [0.06, 0.5, 0.1], cape: [0.06, 0.5, 0.3] };
-    const rigid = new Set(["lids", "saddle"].concat(this.rigidBones || []));
+    const rigid = new Set(["lids", "saddle", "mouth", "jaw"].concat(this.rigidBones || []));
     const kidsAll = this.defs.map(() => []);
     this.defs.forEach(d => { if (d.parent != null) kidsAll[d.parent].push(d.index); });
     const info = this.defs.map(d => {
@@ -579,6 +579,7 @@ function headProfile(L) {
   }
   const P = Object.assign({}, HEAD_PROFILES[k] || HEAD_PROFILES.human0);
   if (L.build === 1 && !/human|skull|plain/.test(k)) { P.brow *= 0.5; P.jaw += 0.04; P.nose *= 0.85; P.lips *= 1.2; }
+  if (!L.noFace && (L.face || 0) >= FACE_PAINTS) { P.nose *= 1.18; P.jaw = Math.max(0, P.jaw - 0.06); P.cheek += 0.025; P.lips *= 1.15; P.chin += 0.03; P.brow += 0.015; }
   P.key = k;
   return P;
 }
@@ -1081,7 +1082,23 @@ function humanEntry(L) {
   const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered", "furhat", "widebrim"].includes(L.head.type);
 
   const HP = headProfile(L);
-  R.add(gHead(HP, hc, hr), "head", skin, L.noFace ? (L.headRegion || SKR) : (L.face ? "face" + (L.face % FACE_COUNT + 1) : "face"));
+  const faceReg = L.noFace ? (L.headRegion || SKR) : (L.face % FACE_PAINTS ? "face" + (L.face % FACE_PAINTS + 1) : "face");
+  if (!L.noFace && !L.skull) {
+    const jy = hc - hr * 0.25;
+    R.bone("jaw", "head", 0, jy, -hr * 0.1);
+    const mb = Math.PI / 2 + 0.437, mp = V3(0, hc + Math.cos(mb) * headRadial(HP, 0, Math.cos(mb), Math.sin(mb), true) * hr * HEAD_SCALE[1], 0.005 + Math.sin(mb) * headRadial(HP, 0, Math.cos(mb), Math.sin(mb), true) * hr * HEAD_SCALE[2]);
+    R.bone("mouth", "head", mp.x, mp.y, mp.z);
+    R.addW(gHead(HP, hc, hr), "head", skin, faceReg, (x, y, z) => {
+      const qx = x / (hr * HEAD_SCALE[0]), qy = (y - hc) / (hr * HEAD_SCALE[1]), qz = (z - 0.005) / (hr * HEAD_SCALE[2]), l = Math.hypot(qx, qy, qz) || 1;
+      const b = -Math.asin(clamp(qy / l, -1, 1)), a = Math.atan2(qx, qz);
+      const w = smoothRange(0.44, 0.58, b) * smoothRange(1.3, 0.7, Math.abs(a));
+      return w > 0.001 ? [["head", 1 - w], ["jaw", w]] : [["head", 1]];
+    });
+    const phis = [], ths = [];
+    for (let i = 0; i <= 6; i++) phis.push(Math.PI / 2 - 0.14 + 0.28 * i / 6);
+    for (let j = 0; j <= 3; j++) ths.push(mb - 0.05 + 0.1 * j / 3);
+    R.add(gHeadPatch(HP, hc, hr, phis, ths, 0.006, true), "mouth", 0x3a1210, "plain");
+  } else R.add(gHead(HP, hc, hr), "head", skin, faceReg);
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.8), V3(0, hc - hr * 0.42, hr * 1.75), hr * 0.2, hr * 0.05, 8), "head", skin, SKR);
   const earBone = s => { const n = "ear" + (s > 0 ? "L" : "R"); if (!R.byName[n]) R.bone(n, "head", s * hr * (L.ears === "cat" ? 0.55 : 0.88), hc + hr * (L.ears === "cat" ? 0.72 : 0.0), -hr * 0.05); return n; };
   for (const s of [-1, 1]) {

@@ -971,7 +971,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.8.0 · built 2026-10-14 10:01 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.9.0 · built 2026-10-14 10:06 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -13170,6 +13170,7 @@ function actByName(kind, q) {
 }
 
 function runCommand(text) {
+  if (player && text && (text[0] !== "/" || /^\/(s|say|sh|shout|p|party|l\d?|t|tell|r|reply) /.test(text))) player.talkUntil = S.time + Math.min(5, 0.6 + text.length * 0.04);
   text = String(text || "").trim();
   if (!text) return;
   if (text[0] !== "/") { if (typeof netChat === "function") netChat("say", text); else log(save.name + ": " + text, "say"); return; }
@@ -13669,6 +13670,7 @@ function openDialog(who, text, opts) {
   opts = opts || [];
   const offer = opts.some(o => /^(Accept|I'll handle him|I'll get them)$/.test(o.label));
   const paras = String(text || "").split(/\n+/).filter(Boolean);
+  { const sp = S.npcs && S.npcs.find(n => n.name === who || (n.name && who && n.name.split(",")[0] === who.split(",")[0])); if (sp) sp.talkUntil = S.time + Math.min(6, 0.6 + String(text || "").length * 0.035); }
   if (!S.dialog || S.dialog.text !== text) paras.forEach((p, i) => log((i ? "  " : who + " : ") + p, "npc"));
   UI.logRows = logFull(); UI.logAt = S.time;
   if (opts.length === 1 && /^(Trade|Shop|Buy)\b/.test(opts[0].label)) { S.dialog = null; $("dialog").style.display = "none"; opts[0].fn(); return; }
@@ -16291,13 +16293,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v13.8.0 · built 2026-10-14 10:01 PDT";
+const BUILD_INFO = "v13.9.0 · built 2026-10-14 10:06 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "13.9.0", date: "2026-10-14", title: "Faces that talk", items: [
+    "16 faces to choose from (was 8): the new eight pair the painted features with a different bone structure (stronger nose and chin, wider jaw, higher cheekbones, fuller lips).",
+    "Mouths move. Townsfolk talk while their lines appear in the log, you and other players talk when you chat, and the jaw drops with each syllable.",
+    "Expressions: a shout on weapon skills, a grimace when hit, chanting while casting, open-mouthed laughs, cheers and panics, a trembling mouth when crying, and a slack jaw when knocked out. Eyes still blink and squint as before."
   ] },
   { v: "13.8.0", date: "2026-10-14", title: "Detailed textures", items: [
     "Clothing is woven: over-and-under threads, uneven slubs, folds, double-stitched hems and frayed, lighter edges.",
@@ -17055,7 +17062,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked) and every face has its own eye colour, brows and mouth. Set Graphics to High for the sharpest faces and clothing.",
+    "Creating a character: pick race, sex, skin, one of 16 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked) and every face has its own eye colour, brows and mouth. Set Graphics to High for the sharpest faces and clothing.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
@@ -17402,7 +17409,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "13.8.0";
+const GAME_VERSION = "13.9.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19685,8 +19692,8 @@ function saveSettings(s) { try { localStorage.setItem(CONFIG.settingsKey, JSON.s
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
 const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "fur", "bone", "scale", "feather", "wood", "glow", "plain", "chain", "quilt", "face2", "face3", "face4", "face5", "face6", "face7", "face8"];
 const ATLAS_COLS = 6, ATLAS_ROWS = 4;
-const FACE_COUNT = 8;
-const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud"];
+const FACE_PAINTS = 8, FACE_COUNT = 16;
+const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud", "Bold", "Soft", "Sharp", "Sunny", "Kind", "Stern", "Dreamy", "Noble"];
 const ATLAS_SIZE = 1024;
 let ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
 const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
@@ -19882,7 +19889,7 @@ function buildAtlas() {
     im.data[p] = 255; im.data[p + 1] = clamp(rgh[k], 0.05, 1) * 255; im.data[p + 2] = clamp(mtl[k], 0, 1) * 255; im.data[p + 3] = 255;
   }
   ga.putImageData(ia, 0, 0);
-  for (let f = 0; f < FACE_COUNT; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f); }
+  for (let f = 0; f < FACE_PAINTS; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f); }
   gn.putImageData(inn, 0, 0);
   gm.putImageData(im, 0, 0);
   const mk = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = TEXLIB.anisotropy; t.needsUpdate = true; return t; };
@@ -19970,7 +19977,7 @@ class RigBuilder {
     let lo = Infinity, hi = -Infinity;
     for (const L of by) for (const p of L) { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; }
     const H = Math.max(0.15, hi - lo), tol = 0.012 * H;
-    const skip = new Set(["lids", "saddle", "hairTail"].concat(this.noBridgeBones || []));
+    const skip = new Set(["lids", "saddle", "hairTail", "mouth", "jaw"].concat(this.noBridgeBones || []));
     for (const d of this.defs) {
       if (d.parent == null || skip.has(d.name)) continue;
       let pi = d.parent;
@@ -20078,7 +20085,7 @@ class RigBuilder {
   }
   smoothJoints() {
     const J = { foreArm: [0.06, 0.5, 0.1], hand: [0.04, 0.5, 0.08], shin: [0.07, 0.5, 0.12], foot: [0.04, 0.45, 0.1], upArm: [0.07, 0.4, 0.11], thigh: [0.07, 0.4, 0.16], chest: [0.08, 0.45, 0.32], spine: [0.08, 0.5, 0.32], neck: [0.04, 0.4, 0.12], head: [0.045, 0.4, 0.14], tail: [0.06, 0.5, 0.1], cape: [0.06, 0.5, 0.3] };
-    const rigid = new Set(["lids", "saddle"].concat(this.rigidBones || []));
+    const rigid = new Set(["lids", "saddle", "mouth", "jaw"].concat(this.rigidBones || []));
     const kidsAll = this.defs.map(() => []);
     this.defs.forEach(d => { if (d.parent != null) kidsAll[d.parent].push(d.index); });
     const info = this.defs.map(d => {
@@ -20263,6 +20270,7 @@ function headProfile(L) {
   }
   const P = Object.assign({}, HEAD_PROFILES[k] || HEAD_PROFILES.human0);
   if (L.build === 1 && !/human|skull|plain/.test(k)) { P.brow *= 0.5; P.jaw += 0.04; P.nose *= 0.85; P.lips *= 1.2; }
+  if (!L.noFace && (L.face || 0) >= FACE_PAINTS) { P.nose *= 1.18; P.jaw = Math.max(0, P.jaw - 0.06); P.cheek += 0.025; P.lips *= 1.15; P.chin += 0.03; P.brow += 0.015; }
   P.key = k;
   return P;
 }
@@ -20765,7 +20773,23 @@ function humanEntry(L) {
   const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered", "furhat", "widebrim"].includes(L.head.type);
 
   const HP = headProfile(L);
-  R.add(gHead(HP, hc, hr), "head", skin, L.noFace ? (L.headRegion || SKR) : (L.face ? "face" + (L.face % FACE_COUNT + 1) : "face"));
+  const faceReg = L.noFace ? (L.headRegion || SKR) : (L.face % FACE_PAINTS ? "face" + (L.face % FACE_PAINTS + 1) : "face");
+  if (!L.noFace && !L.skull) {
+    const jy = hc - hr * 0.25;
+    R.bone("jaw", "head", 0, jy, -hr * 0.1);
+    const mb = Math.PI / 2 + 0.437, mp = V3(0, hc + Math.cos(mb) * headRadial(HP, 0, Math.cos(mb), Math.sin(mb), true) * hr * HEAD_SCALE[1], 0.005 + Math.sin(mb) * headRadial(HP, 0, Math.cos(mb), Math.sin(mb), true) * hr * HEAD_SCALE[2]);
+    R.bone("mouth", "head", mp.x, mp.y, mp.z);
+    R.addW(gHead(HP, hc, hr), "head", skin, faceReg, (x, y, z) => {
+      const qx = x / (hr * HEAD_SCALE[0]), qy = (y - hc) / (hr * HEAD_SCALE[1]), qz = (z - 0.005) / (hr * HEAD_SCALE[2]), l = Math.hypot(qx, qy, qz) || 1;
+      const b = -Math.asin(clamp(qy / l, -1, 1)), a = Math.atan2(qx, qz);
+      const w = smoothRange(0.44, 0.58, b) * smoothRange(1.3, 0.7, Math.abs(a));
+      return w > 0.001 ? [["head", 1 - w], ["jaw", w]] : [["head", 1]];
+    });
+    const phis = [], ths = [];
+    for (let i = 0; i <= 6; i++) phis.push(Math.PI / 2 - 0.14 + 0.28 * i / 6);
+    for (let j = 0; j <= 3; j++) ths.push(mb - 0.05 + 0.1 * j / 3);
+    R.add(gHeadPatch(HP, hc, hr, phis, ths, 0.006, true), "mouth", 0x3a1210, "plain");
+  } else R.add(gHead(HP, hc, hr), "head", skin, faceReg);
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.8), V3(0, hc - hr * 0.42, hr * 1.75), hr * 0.2, hr * 0.05, 8), "head", skin, SKR);
   const earBone = s => { const n = "ear" + (s > 0 ? "L" : "R"); if (!R.byName[n]) R.bone(n, "head", s * hr * (L.ears === "cat" ? 0.55 : 0.88), hc + hr * (L.ears === "cat" ? 0.72 : 0.0), -hr * 0.05); return n; };
   for (const s of [-1, 1]) {
@@ -22544,6 +22568,22 @@ function poseHuman(v, e, dt) {
   let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;
   an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
+  if (v.bones.mouth) {
+    const em = e.emote && S.time - e.emote.at < (e.emote.id === "dance" ? 5 : 2.4) ? e.emote.id : null;
+    let m = 0;
+    if (e.alive === false) m = 0.35;
+    else if (e.talkUntil > S.time) m = 0.25 + 0.55 * Math.abs(Math.sin(t * 13 + Math.sin(t * 5.3) * 2));
+    else if (S.time - an.wsStart < 0.55) m = 0.9;
+    else if (em === "laugh" || em === "cheer") m = 0.35 + 0.5 * Math.abs(Math.sin(t * 11));
+    else if (em === "panic" || em === "surprised") m = 0.8;
+    else if (em === "cry") m = 0.3 + 0.15 * Math.sin(t * 6);
+    else if (S.time - an.hitStart < 0.3) m = 0.5;
+    else if (e.casting) m = 0.15 + 0.25 * Math.abs(Math.sin(t * 9));
+    else if (an.fight > 0.5 && S.time - an.aStart < 0.35) m = 0.3;
+    an.mouth = (an.mouth || 0) + (m - (an.mouth || 0)) * Math.min(1, dt * 18);
+    v.bones.mouth.scale.set(1, 0.04 + an.mouth, 1);
+    if (v.bones.jaw) v.bones.jaw.rotation.x = an.mouth * 0.16;
+  }
   if (an.ikW > 0.01) humanLegIK(v, an, an.ikW, clamp((an.spd - 1.2) / 4, 0, 1));
 }
 
@@ -25081,6 +25121,7 @@ function netOnChat(p) {
   if (!text || netBlocked(name)) return;
   if (p.kind === "say" && player && Math.hypot(p.x - player.x, p.y - player.y) > 900) return;
   log((p.kind === "shout" ? name + " shouts: " : name + ": ") + text, p.kind === "shout" ? "shout" : "say");
+  { const o = S.others && S.others.get(p.id); if (o) o.talkUntil = S.time + Math.min(5, 0.6 + String(text).length * 0.04); }
   const o = S.others && S.others.get(p.id);
   if (o && p.kind === "say") popText(o, "💬 " + text.slice(0, 40), "#f4f1e8", 12, 3.5, 30);
   if (typeof sfx === "function") sfx("tab");

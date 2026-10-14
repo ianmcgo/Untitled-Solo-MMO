@@ -536,6 +536,22 @@ function poseHuman(v, e, dt) {
   let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;
   an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
+  if (v.bones.mouth) {
+    const em = e.emote && S.time - e.emote.at < (e.emote.id === "dance" ? 5 : 2.4) ? e.emote.id : null;
+    let m = 0;
+    if (e.alive === false) m = 0.35;
+    else if (e.talkUntil > S.time) m = 0.25 + 0.55 * Math.abs(Math.sin(t * 13 + Math.sin(t * 5.3) * 2));
+    else if (S.time - an.wsStart < 0.55) m = 0.9;
+    else if (em === "laugh" || em === "cheer") m = 0.35 + 0.5 * Math.abs(Math.sin(t * 11));
+    else if (em === "panic" || em === "surprised") m = 0.8;
+    else if (em === "cry") m = 0.3 + 0.15 * Math.sin(t * 6);
+    else if (S.time - an.hitStart < 0.3) m = 0.5;
+    else if (e.casting) m = 0.15 + 0.25 * Math.abs(Math.sin(t * 9));
+    else if (an.fight > 0.5 && S.time - an.aStart < 0.35) m = 0.3;
+    an.mouth = (an.mouth || 0) + (m - (an.mouth || 0)) * Math.min(1, dt * 18);
+    v.bones.mouth.scale.set(1, 0.04 + an.mouth, 1);
+    if (v.bones.jaw) v.bones.jaw.rotation.x = an.mouth * 0.16;
+  }
   if (an.ikW > 0.01) humanLegIK(v, an, an.ikW, clamp((an.spd - 1.2) / 4, 0, 1));
 }
 
