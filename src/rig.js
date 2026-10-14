@@ -354,6 +354,8 @@ const NPC_LOOK = {
   tobin: { build: 0, skin: SKIN_TONES[0], hair: { style: "bald", color: 0xdedede }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x5a3a7a, trim: 0xd8b050, sleeves: "wide" }, legs: 0x3a2a4a, weapon: "staff", alwaysDrawn: true },
   ilsa: { build: 1, skin: SKIN_TONES[1], hair: { style: "ponytail", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x1f3a5a, trim: 0xd8c070 }, head: { type: "feathered", color: 0x1f2a3a, color2: 0xd8c070 }, legs: 0x2a2a30, boots: 0x1a1410, belt: 0x3a2a1a, weapon: "sword", prop: { leg: 0.9 } },
   marn: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[2] }, beard: HAIR_COLORS[2], top: { type: "apron", color: 0x5a8aa8, color2: 0xd8d0c0 }, head: { type: "bandana", color: 0x1a5a8a }, legs: 0x3a4048, boots: 0x2a2a2a, belt: 0x3a2a1a, prop: { girth: 1.15 } },
+  guard: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[0] }, top: { type: "tabard", color: 0x2f4a7a, region: "chain", color2: 0xd8c070 }, head: { type: "helm", color: 0x8a90a0 }, pauldrons: 0x8a90a0, legs: 0x2a2a30, boots: 0x2a1a10, gloves: 0x4a3a28, belt: 0x3a2412, weapon: "sword", alwaysDrawn: false, prop: { girth: 1.08, shoulder: 0.21 } },
+  guard_f: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[1] }, top: { type: "tabard", color: 0x2f4a7a, region: "chain", color2: 0xd8c070 }, head: { type: "cap", color: 0x8a90a0 }, pauldrons: 0x8a90a0, legs: 0x2a2a30, boots: 0x2a1a10, gloves: 0x4a3a28, belt: 0x3a2412, weapon: "sword", alwaysDrawn: false },
   corvin: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[5] }, beard: HAIR_COLORS[5], top: { type: "coat", color: 0x2a4a3a, trim: 0xd8c070 }, legs: 0x2a2620, boots: 0x2a1a10, belt: 0x3a2412 },
   selene: { build: 1, skin: SKIN_TONES[3], hair: { style: "long", color: 0x1d1d22 }, top: { type: "coat", color: 0x4a2a5a, trim: 0xd8c070 }, legs: 0x2a2030, boots: 0x2a1a10, belt: 0x3a2412 },
   maera: { build: 1, skin: SKIN_TONES[2], hair: { style: "bob", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x5a3a1e, trim: 0xc9a227 }, legs: 0x2e2a24, boots: 0x2a1a10, gloves: 0x5a3a20, belt: 0x3a2412, weapon: "sword" },
@@ -461,6 +463,7 @@ function humanEntry(L) {
   for (const s of [-1, 1]) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, "skin");
     else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr + 0.17), hc + hr * 0.62, -hr * 0.5), hr * 0.2, 0.004, 6, 0.4), "head", skin, "skin");
+    else if (L.ears === "ursan") R.add(gBall(V3(s * hr * 0.78, hc + hr * 0.62, -hr * 0.1), hr * 0.26, 1, 0.9, 0.6, 8), "head", L.hair.color, "hair");
     else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), "head", skin, "skin");
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), "head", L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), "head", 0xd89a9a, "skin"); } }
     else if (!L.skull) R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.05, -hr * 0.05), hr * 0.2, 0.45, 1, 0.75, 8), "head", skin, "skin");
@@ -1033,7 +1036,7 @@ const RACE_BODY = {
   human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.075 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.075 }],
   elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
   pipkin: [{ leg: 0.34, torso: 0.3, arm: 0.3, girth: 1.0, waist: 1.0, shoulder: 0.125, hip: 0.072, headR: 0.2, neck: 0.03 }, { leg: 0.34, torso: 0.3, arm: 0.3, girth: 0.96, waist: 0.94, shoulder: 0.118, hip: 0.074, headR: 0.2, neck: 0.03 }],
-  ursan: [{ leg: 0.9, torso: 0.72, arm: 0.76, girth: 1.55, waist: 1.38, shoulder: 0.29, hip: 0.14, headR: 0.16, neck: 0.045 }, { leg: 0.9, torso: 0.72, arm: 0.76, girth: 1.55, waist: 1.38, shoulder: 0.29, hip: 0.14, headR: 0.16, neck: 0.045 }],
+  ursan: [{ leg: 0.96, torso: 0.76, arm: 0.8, girth: 1.35, waist: 1.25, shoulder: 0.27, hip: 0.135, headR: 0.165, neck: 0.05 }, { leg: 0.96, torso: 0.76, arm: 0.8, girth: 1.35, waist: 1.25, shoulder: 0.27, hip: 0.135, headR: 0.165, neck: 0.05 }],
   nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.075 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.075 }]
 };
 
@@ -1055,7 +1058,7 @@ function baseFromLook(look) {
   if (race === "elari") b.ears = "elf";
   if (race === "pipkin") { b.ears = "pip"; b.doll = true; }
   if (race === "nekari") { b.ears = "cat"; b.tail = "cat"; }
-  if (race === "ursan") { b.tail = "ursan"; b.beard = b.hair.color; b.longBeard = true; b.mane = true; }
+  if (race === "ursan") { b.tail = "ursan"; b.beard = b.hair.color; b.ears = "ursan"; }
   return b;
 }
 

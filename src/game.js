@@ -70,7 +70,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
@@ -982,6 +982,7 @@ function dropLoot(m) {
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
+    if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
     if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1)) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     if (ITEMS[id].kind === "equip" && S.party.length > 1) { addToPool(id); continue; }
@@ -1063,6 +1064,30 @@ function eatFood(id) {
 }
 
 function foodText(fd) { return Object.keys(fd).map(k => STAT_LABELS[k] + " +" + fd[k]).join(", "); }
+
+function blessingMinutes() { return Math.min(BLESSING.maxMin, BLESSING.baseMin + BLESSING.perRankMin * guildRank()); }
+function blessed() { return !!(save.blessing && save.blessing > Date.now()); }
+
+function giveBlessing() {
+  const mins = blessingMinutes();
+  save.blessing = Date.now() + mins * 60000;
+  save.stats.blessings = (save.stats.blessings || 0) + 1;
+  log("You receive the City Blessing. Monsters will yield essences for " + mins + " minutes.", "loot");
+  popText(player, "City Blessing", "#ffd54f", 14, 1.2, 14);
+  ring(player, "#ffd54f", 30, 0.8, "sparkle");
+  sfx("buff", player);
+  vfx("buff", { tgt: player, id: "blessing" });
+  tickBlessing();
+  saveGame();
+}
+
+function tickBlessing() {
+  if (!save.blessing) { if (player.buffs.blessing) delete player.buffs.blessing; return; }
+  const left = (save.blessing - Date.now()) / 1000;
+  if (left <= 0) { save.blessing = 0; delete player.buffs.blessing; log("The City Blessing fades. Visit a gate guard for another.", "sys"); return; }
+  if (!player.buffs.blessing) player.buffs.blessing = { until: S.time + left + 1 };
+  else player.buffs.blessing.until = S.time + left + 1;
+}
 
 function tickFood() {
   const f = save.food;
@@ -2914,7 +2939,7 @@ function step(dt) {
     } else if (!onAsk) S.exitAsked = null;
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); } }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
@@ -3224,6 +3249,7 @@ function questMarker(n) {
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
   if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
+  if (n.talk === "talkGuard") return !blessed();
   { const st = storyStep(); if (st && st.type === "talk" && st.npc === n.id && storyReady()) return true; }
   if (n.id === "maera") return Object.keys(save.guild.active).some(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && save.guild.active[id] >= b.n; }) || (player.lv >= 2 && !save.guild.total && !Object.keys(save.guild.active).length);
   return false;
@@ -3528,6 +3554,13 @@ const TALK = {
   talkGarrick(n) {
     openDialog(n.name, "Gear's only as good as the hands that finish it. Bring me iron ore, a fire essence and some crystals, and I'll work a little extra into any piece you own: up to two augments each. Don't like what you got? I can reforge it.", [
       { label: "Augment gear", fn: () => { closeDialog(); openModal("forge"); } }
+    ]);
+  },
+  talkGuard(n) {
+    const mins = blessingMinutes(), left = blessed() ? Math.ceil((save.blessing - Date.now()) / 60000) : 0;
+    const rank = GUILD_RANKS[guildRank()][0];
+    openDialog(n.name, (left ? "Your City Blessing holds for another " + left + " minute" + (left > 1 ? "s" : "") + ". " : "Heading out? Monsters only yield essences to those who carry the City Blessing, and it fades after a while. ") + "At " + rank + " rank the blessing lasts " + mins + " minutes. Shall I renew it?", [
+      { label: left ? "Renew the City Blessing (" + mins + " min)" : "Receive the City Blessing (" + mins + " min)", fn: () => { closeDialog(); giveBlessing(); } }
     ]);
   },
   talkAuction(n) {

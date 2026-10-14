@@ -1,6 +1,7 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+const npc = id => S.npcs.find(n => n.id === id);
 G.save.story.done = true;
 G.enterZone('outpost'); run(0.2);
 ok(G.RACE_ORDER.length === 5 && G.RACE_ORDER.every(r => G.RACES[r]), 'five playable races');
@@ -9,7 +10,7 @@ for (const r of G.RACE_ORDER) {
   G.save.look.race = r; G.save.mainJob = 'BLM'; G.save.jobs.BLM.lv = 20; G.refreshPlayer(true);
   stats[r] = { hp: P().maxHp, mp: P().maxMp, int: P().stats.int, str: P().stats.str, att: P().stats.att, vit: P().stats.vit, spd: P().speed };
 }
-console.log(JSON.stringify(stats));
+
 ok(stats.ursan.hp > stats.human.hp && stats.human.hp > stats.elari.hp && stats.elari.hp > stats.pipkin.hp, 'HP: Ursan > Human > Elari > Pipkin');
 ok(stats.pipkin.mp > stats.elari.mp && stats.elari.mp > stats.human.mp && stats.human.mp > stats.ursan.mp, 'MP: Pipkin > Elari > Human > Ursan');
 ok(stats.pipkin.int > stats.nekari.int && stats.nekari.int > stats.human.int && stats.human.int > stats.ursan.int, 'INT: Pipkin best, Ursan worst');
@@ -23,4 +24,29 @@ const id1 = G.createChar({ name: 'Brum', job: 'WAR', look: { race: 'ursan', buil
 const id2 = G.createChar({ name: 'Mira', job: 'WAR', look: { race: 'nekari', build: 0 } });
 const ro = G.loadRoster().chars;
 ok(ro.find(c => c.id === id1).look.build === 0 && ro.find(c => c.id === id2).look.build === 1, 'Ursan are always male and Nekari always female');
+
+G.save.look.race = 'human'; G.save.mainJob = 'WAR'; G.save.jobs.WAR.lv = 5; G.refreshPlayer(true);
+G.enterZone('outpost'); run(0.2);
+ok(!!npc('guard_east') && npc('guard_east').x > 900, 'a gate guard stands at the Outpost east gate');
+G.enterZone('harbor', 600, 420); run(0.2);
+ok(!!npc('guard_north') && !!npc('guard_pass'), 'Saltreach has guards at both exits');
+ok(!G.blessed() && G.blessingMinutes() === 60, 'you start unblessed; Copper rank gets 60 minutes');
+G.save.guild.total = 700; ok(G.blessingMinutes() === 150, 'Silver rank gets 150 minutes');
+G.save.guild.total = 9999; ok(G.blessingMinutes() === 210, 'capped at 210 minutes');
+G.save.guild.total = 0;
+const crys = G.FAMILIES.goblin.loot.filter(l => G.ITEMS[l[0]].kind === 'crystal');
+ok(crys.length >= 1, 'goblins carry essences');
+G.save.inventory = [];
+const fakeMob = { fam: { loot: crys.map(l => [l[0], 1]) }, lv: 5 };
+for (let i = 0; i < 5; i++) G.dropLoot(fakeMob);
+ok(G.save.inventory.length === 0, 'without the blessing no essences drop');
+G.giveBlessing();
+ok(G.blessed() && P().buffs.blessing, 'the guard\'s blessing shows as a buff');
+for (let i = 0; i < 5; i++) G.dropLoot(fakeMob);
+ok(G.save.inventory.some(s => G.ITEMS[s.id].kind === 'crystal'), 'blessed, essences drop');
+G.save.inventory = []; const weak = { fam: { loot: crys.map(l => [l[0], 1]) }, lv: 1 }; G.save.jobs.WAR.lv = 20; G.refreshPlayer(true);
+for (let i = 0; i < 5; i++) G.dropLoot(weak);
+ok(G.save.inventory.length === 0, 'too-weak monsters give no essences even when blessed');
+G.save.blessing = Date.now() - 1; G.tickBlessing();
+ok(!G.blessed() && !P().buffs.blessing, 'the blessing runs out');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

@@ -177,8 +177,8 @@ const ABILITIES = {
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -570,7 +570,7 @@ const ZONES = {
       { id: "rhea", x: 560, y: 210, home: 4, sleep: [22, 6] }, { id: "tobin", x: 840, y: 250, home: 1, sleep: [20, 7] }, { id: "pell", x: 380, y: 520, home: 0, sleep: [21, 6.5] },
       { id: "brann", x: 780, y: 560, home: 2, sleep: [23, 7.5] }, { id: "crystal_town", x: 560, y: 420 }, { id: "ysolde", x: 890, y: 500, home: 2, sleep: [19.5, 5.5] },
       { id: "odette", x: 330, y: 330, home: 0, sleep: [21.5, 6] },
-      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }
+      { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
     ],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
@@ -738,7 +738,7 @@ ZONES.harbor = {
   exits: [{ x: 450, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }, { x: 1376, y: 380, w: 24, h: 100, to: "frost", tx: 110, ty: 1200, label: "Frostspire Pass" }],
   npcs: [
     { id: "ilsa", x: 700, y: 330, home: 4, sleep: [22, 6] }, { id: "marn", x: 480, y: 600, home: 2, sleep: [20.5, 4.5] }, { id: "vela", x: 930, y: 600, home: 3, sleep: [21, 7] },
-    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }
+    { id: "crystal_harbor", x: 700, y: 460 }, { id: "trade_board", x: 860, y: 380 }, { id: "selene", x: 560, y: 420 }, { id: "guard_north", x: 530, y: 80 }, { id: "guard_pass", x: 1330, y: 340 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1180, r: 360 }, { x: 900, y: 1230, r: 420 }, { x: 1350, y: 1100, r: 260 }],
@@ -872,6 +872,9 @@ const NPCS = {
   garrick: { name: "Garrick, Smith", model: "garrick", talk: "talkGarrick" },
   trade_board: { name: "Trade Board", prop: "board", talk: "talkBoard" },
   maera: { name: "Maera, Adventurers' Guild", model: "maera", talk: "talkMaera" },
+  guard_east: { name: "Gate Guard Aldo", model: "guard", talk: "talkGuard" },
+  guard_north: { name: "Harbor Guard Senna", model: "guard_f", talk: "talkGuard" },
+  guard_pass: { name: "Harbor Guard Tomas", model: "guard", talk: "talkGuard" },
   corvin: { name: "Corvin, Auction House", model: "corvin", talk: "talkAuction" },
   selene: { name: "Selene, Auction House", model: "selene", talk: "talkAuction" },
   odette: { name: "Odette, Furnishings", model: "odette", talk: "talkOdette", shop: "furniture" },
@@ -1072,6 +1075,8 @@ const STORY = [
     { type: "talk", npc: "rhea", goal: "Return to Captain Rhea in Ashenreach Outpost.", text: ["The ash stopped falling this morning. Every soul in the Outpost walked out to watch the sky clear.", "I don't know what that throne is, or who its king was. But I know who stood between it and us. Take this. It's been kept at the Outpost since before my time, waiting for someone who earned it."] }
   ] }
 ];
+
+const BLESSING = { baseMin: 60, perRankMin: 30, maxMin: 210 };
 
 const RACES = {
   human: { name: "Human", icon: "🧑", sex: null, hp: 1, mp: 1, speed: 1, attrs: {}, blurb: "Balanced at everything. No strengths, no weaknesses." },
