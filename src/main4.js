@@ -98,7 +98,7 @@ async function boot() {
   $("btnEngage").onclick = () => toggleEngage(true);
   $("btnTarget").onclick = () => { cycleTarget(); sfx("select"); };
   $("btnTalk").onclick = talkNearest;
-  $("btnHome").onclick = returnHome;
+  $("btnHome").onclick = giveUpKO;
   $("btnMount").onclick = toggleMount;
   $("btnJump").onclick = tryJump;
   loaderProgress(1, "");
@@ -111,7 +111,7 @@ async function boot() {
     requestAnimationFrame(frame);
     try {
       if (UI.started && !VIEW.loading) {
-        if (!S.ko) step(dt); else S.time += dt;
+        step(dt);
         if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
         age(dt);
         draw(dt);
@@ -417,6 +417,7 @@ async function enterWorld(id, fresh) {
   enterZone(h.zone, h.x, h.y);
   if (h.face != null) player.face = h.face;
   if (save.buddyOut && save.buddy && typeof summonBuddy === "function") summonBuddy();
+  restoreKO();
   await zoneReady();
   VIEW.booting = false;
   UI.started = true;

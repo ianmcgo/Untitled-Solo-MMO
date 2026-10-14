@@ -1187,6 +1187,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - template4 tail CSS: #ffTop/#ffNetBox at top 13px so the on-border labels (-9px) are on screen; .ffLbl 12px italic outlined. #mCmd: navy panel, light border with inset rules, overflow visible (so the pointer can stick out), `.ffMLeg` legend ("Commands", or "Status" in the Status list) centred on the top border, page arrows small under it; `.ffb` lavender pills, `.sel` brown-orange with orange text, `.cur` an inline SVG silver pointer at left -58px (-42px on phones).
 - hud4: main menu header markup gains `.ffMLeg`; NPC/object targets show no "NPC" tag or talk hint (only the ❗ line), name green for props/crystals; empty #tInfo/#tToT/#tChain hidden; npc target box hides bars.
 
+## Phase 90: hands, feet, animal heads, knock-outs and raising (v13.7.0) — plan Q3
+- Hands (rig.js humanEntry, non-skull): wrist ball, palm box + flattened ball, four two-segment fingers on new bone `fingersL/R` (knuckle line at wrY − 0.078·hk), two-segment thumb on `thumbL/R`. anim.js poseHuman sets curl on those bones every frame: relaxed 0.35 (+ slow breathing wobble), 1.3 right hand when a weapon is drawn, 1.2 left for two-handed weapons, 1.55 fists when barehanded and fighting (curl is a z rotation, sign by side; thumb x/z).
+- Feet: `gSweepZ(rings, seg, capA, capB)` lofts superellipse rings along +z (normals auto-corrected). Foot = heel → arch → ball → toes, sole flat on y 0; boots ×1.08 with a darker sole slab and toe cap; barefoot adds five toes (big toe inside).
+- Animal heads: `animalHead(R, bone, o)` = skull sweep (cranium, brow, cheek, muzzle, nose cap), lower jaw sweep, nose pad, nostrils, eyes with catch-lights, brow ridges, optional mouth line; options r, snout, mw (muzzle width), flat, eye, eyeK. quadEntry uses it; ears are flattened tapers with an inner skin layer (`droop` for sheep). Tuned: sheep snout .75 droop, lizard snout .9 mw 1.1 flat .62 mouthLine, longneck 1.0/.75, deer .85/.72, dog .75/.78, cat .22.
+- Knock-outs: onKO sets `koUntil` = now + CONFIG.koMinutes (60, real time) and clears buffs; the player gets `save.ko` (persists; `restoreKO()` on login re-applies or sends home if expired) and the world keeps running (main loops always call step). `koTick()` (in step): player timeout → returnHome; companion timeout → permadeath (`mercFallTick`) or dismissed back to the hall. `revive(t, pct, by)` restores pct HP/MP, buff `weakened` (CONFIG.weakenedSecs 180; att/def/acc ×0.85 in stat()), clears save.ko/mercDown. returnHome also applies Weakened. `giveUpKO()` confirms then returns home.
+- Raise: SPELLS raise (WHM 12, RDM 17, PLD 18, 50 MP, 8 s, pow .25) and raise2 (WHM 18, 90 MP, pow .5), kind "raise", target "dead" (checkAction/resolveTarget accept KO'd party members or mates). finishCast handles raise before the alive check; remote mates get netCastOn → fx kind "raise" → netOnFx revives the receiver. Item ember_plume (revive .2, 1200, Pell) on the targeted or first KO'd party member within cast range. `raiseAI(a, dt)` runs before role AI: walks into range of a KO'd member and casts the best affordable raise unless hurt and targeted. MERC_LINES.raise.
+- KO box: #ko is now a small box at top-left under the Commands bar ("Time Left: mm:ss" + orange "Back to Home Point" pill); the Commands label reads K.O. and Help explains the choice; menus close and the target clears on KO.
+- Colours: hud4 `logTone(msg, cls)` maps lines to say/pchat/tell/ls/shout/yell (chat), ws (WS, crits, skillchains, bursts: gold), heal (green), mpc/buff (blue), hurt (damage taken: pink), missc (misses/resists: purple), warn (errors, KOs, bad status: red), dmg (white). view3d name plates: NPC green, players/calm mobs white, aggressive or attacking mobs red, claimed by others purple, party cyan (k-party), companions/pets yellow (k-ally), dead/far grey. Target box name follows the same rules.
+- Target box (engaged): only name, slim salmon HP bar and the Locked arrows (TP/swing/chain/info rows hidden).
+- Tests: p47unit (Raise/Ember Plume exist, KO lasts an hour, stays down, revive keeps XP + Weakened, timeout sends home with XP loss); p29unit updated (KO'd hire can be raised; permadeath only after the hour).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1239,6 +1250,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 13.7.0 | Phase 90: fingers, feet, animal heads, hour-long KO with Raise/Ember Plume, classic text colours, simpler target box. |
 | 13.6.1 | Classic command menu styling, readable top labels, compact object target box. |
 | 13.6.0 | Phase 89: lofted bodies, slower movement, foot-planting leg IK, trail crash fix. |
 | 13.5.0 | Phase 88: sculpted heads, realistic faces and hair, skull jaws, cactus Needlekin, 512 px atlas on High. |

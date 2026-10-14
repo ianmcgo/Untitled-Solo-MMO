@@ -942,6 +942,31 @@
   @media (max-width: 720px) { #mCmd { width: 146px; padding: 12px 5px 6px 6px !important; } #mCmd .ffb { font-size: 12px !important; height: 21px; padding: 0 9px !important; } #mCmd .ffb .cur { left: -42px !important; width: 30px; height: 17px; } }
   #tInfo:empty, #tToT:empty, #tChain:empty { display: none !important; }
   #ffTBox.npc .bar, #ffTBox.npc #tHpT { display: none !important; }
+
+  #log .say, #log .sys, #log .npc, #log .dmg, #log .you, #log .ally, #log .cast, #log .skill { color: #ffffff !important; }
+  #log .party { color: #e8e8ff !important; font-style: italic; }
+  #log .pchat { color: #7ee8ff !important; } #log .tell { color: #ffe45c !important; } #log .ls { color: #8cff98 !important; } #log .shout { color: #ffa94d !important; } #log .yell { color: #c99bff !important; }
+  #log .warn { color: #ff7a8c !important; } #log .hurt { color: #ff9ac8 !important; } #log .missc { color: #c99bff !important; }
+  #log .ws, #log .sc, #log .loot { color: #ffd84a !important; } #log .heal { color: #8cff98 !important; } #log .mpc, #log .buff { color: #8cc4ff !important; }
+  .plate .pn { -webkit-text-stroke: .7px #0a0a1a !important; text-shadow: 1px 1px 0 #000, 0 0 4px rgba(0,0,0,.8) !important; letter-spacing: .1em; }
+  .plate.k-npc .pn { -webkit-text-stroke: .6px #0a3010 !important; text-shadow: 1px 1px 0 #002a08, 0 0 5px rgba(90,255,120,.45) !important; }
+  .plate.k-party .pn { -webkit-text-stroke: .6px #04303a !important; text-shadow: 1px 1px 0 #002838, 0 0 5px rgba(80,220,255,.5) !important; }
+  .plate.k-ally .pn { -webkit-text-stroke: .6px #3a3000 !important; text-shadow: 1px 1px 0 #2a2000, 0 0 5px rgba(255,220,80,.45) !important; }
+  #mBody .dis, #mBody button:disabled, #mBody .lr.dis, #mCmd .ffb.dis, .lr.no { color: #8a8a98 !important; }
+  .gil, #gilBox, .cur-gil { color: #ffd84a; }
+
+  #ffSide #tRow2, #ffSide #tChain, #ffSide #tToT, #ffSide #tHpT, #ffSide #tInfo, #ffSide #tLv, #ffSide #tTag, #ffSide #tWarn, #ffSide .ghost { display: none !important; }
+  #ffSide #target .bar.hp { height: 5px !important; margin: 1px 0 0 !important; border-radius: 3px; background: rgba(10,10,30,.7) !important; border: 1px solid rgba(0,0,0,.6); }
+  #ffSide #target .bar.hp > i#tHp { background: linear-gradient(180deg, #ffd0c8, #f08a7a 50%, #c04a3a) !important; border-radius: 3px; }
+  #ffSide #target.npc .bar.hp { display: none !important; }
+  #tLock { margin-top: 2px !important; font-size: 13px !important; color: #ff6a6a !important; }
+  #tLock i { color: #ff4848 !important; font-size: 12px !important; }
+
+  #ko { position: absolute !important; inset: auto !important; left: calc(8px + var(--sal)) !important; top: calc(56px + var(--sat)) !important; display: none; flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; background: none !important; z-index: 7 !important; font-family: var(--ffFont) !important; }
+  #ko .koBox { display: flex; align-items: center; gap: 10px; padding: 3px 12px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.5); font: italic 900 13px var(--ffFont); letter-spacing: .06em; color: #fff; -webkit-text-stroke: .5px #10103a; text-shadow: 1px 1px 0 #000; }
+  #ko .koBox b { font: italic 900 14px var(--ffFont); letter-spacing: .08em; }
+  #ko #btnHome { height: 24px !important; padding: 0 16px !important; font: italic 900 13px var(--ffFont) !important; letter-spacing: .08em; color: #ffb54a !important; border-radius: 12px !important; border: 1px solid #3a1a06 !important; background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; -webkit-text-stroke: .8px #3a1a06; paint-order: stroke fill; text-shadow: 1px 1px 0 #3a1a06; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 2px 6px rgba(0,0,0,.6) !important; cursor: pointer; }
+  #ui.isKO #ffTop { display: flex; }
 </style>
 </head>
 <body>
@@ -998,7 +1023,7 @@
     <div id="toasts"></div>
     <div id="banner"></div>
     <div id="zoneTitle"></div>
-    <div id="ko"><div>You were defeated.</div><div class="sub">You'll lose 10% of this level's XP and return to your home point.</div><button id="btnHome">Return to Home Point</button></div>
+    <div id="ko"><div class="koBox"><span class="koT">Time Left:</span><b id="koTime">60:00</b></div><button id="btnHome">Back to Home Point</button></div>
   </div>
   <div id="dialog" class="glass"><div id="dlgWho"></div><div id="dlgText"></div><div id="dlgOpts"></div></div>
   <div id="menu"><div id="mCard"></div><div class="win"><div id="mNav"></div><div id="mMain"><div id="mHead"></div><div id="mBody"></div></div></div></div>

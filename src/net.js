@@ -634,7 +634,8 @@ function netOnWin(p) {
   log(cleanChat(p.name).slice(0, 24) + " obtains the " + it.name + ".", "loot");
 }
 
-function netCastOn(a, t, sp, id) {
+function netCastOn(a, t, sp, id, pct) {
+  if (sp.kind === "raise") { netPartySend("fx", { id: S.charId, to: t.id, kind: "raise", sp: id, amt: pct || sp.pow }); ring(t, "#fff4c0", 30, 0.8, "sparkle"); sfx("cure", t); return; }
   if (sp.kind === "heal") {
     const amt = healAmount(a, sp);
     netPartySend("fx", { id: S.charId, to: t.id, kind: "heal", sp: id, amt });
@@ -648,6 +649,7 @@ function netCastOn(a, t, sp, id) {
 }
 
 function netOnFx(p) {
+  if (p && p.kind === "raise" && p.to === S.charId && netIsMate(p.id) && player && !player.alive && S.ko) { const sp = SPELLS[p.sp]; if (sp && sp.kind === "raise") revive(player, clamp(+p.amt || sp.pow, 0.1, 0.5), NET_PT.members.get(p.id).name); return; }
   if (!p || p.to !== S.charId || !netIsMate(p.id) || !player || !player.alive) return;
   const sp = SPELLS[p.sp], from = NET_PT.members.get(p.id).name;
   if (!sp) return;
