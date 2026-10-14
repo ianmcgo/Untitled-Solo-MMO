@@ -611,7 +611,7 @@ function genMercDef(rnd, id) {
   const s = MERC_SYL, nm = s[0][Math.floor(rnd() * s[0].length)] + s[1][Math.floor(rnd() * s[1].length)] + s[2][Math.floor(rnd() * s[2].length)];
   const lv = player.lv, mul = { tank: 1.1, healer: 1.15, burster: 1.2, bard: 1.15, hybrid: 1.1 }[role] || 1;
   const hue = Math.floor(rnd() * 360);
-  return { gen: true, name: nm, job, role, fee: Math.round((40 + 18 * lv) * mul / 5) * 5, color: "hsl(" + hue + ",60%,72%)", look: { build: rnd() < 0.5 ? 0 : 1, skin: Math.floor(rnd() * 4), hairStyle: Math.floor(rnd() * 6), hairColor: Math.floor(rnd() * 8) }, desc: "A " + JOBS[job].name + ". " + MERC_ROLE_TEXT[role] + " " + MERC_TRAITS[Math.floor(rnd() * MERC_TRAITS.length)] };
+  return { gen: true, name: nm, job, role, fee: Math.round((40 + 18 * lv) * mul / 5) * 5, color: "hsl(" + hue + ",60%,72%)", look: { build: rnd() < 0.5 ? 0 : 1, skin: Math.floor(rnd() * 4), hairStyle: [0, 1, 2, 3, 4, 5, 7, 8, 9, 10][Math.floor(rnd() * 10)], hairColor: Math.floor(rnd() * 8), face: Math.floor(rnd() * 8) }, desc: "A " + JOBS[job].name + ". " + MERC_ROLE_TEXT[role] + " " + MERC_TRAITS[Math.floor(rnd() * MERC_TRAITS.length)] };
 }
 function mercPool(dayOverride) {
   mercDefsSync();
