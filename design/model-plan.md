@@ -13,10 +13,10 @@ Rules: no code comments; keep low/medium/high quality tiers; check Low on phones
 | 92 | 13.9.0 | Faces and expression | 16 faces per race; jaw and brow bones; talk, emote and combat expressions; mouth movement in dialogue |
 | 93 | 14.0.0 | Hair and cloth | Layered hair, 16 styles; swinging capes, robe skirts, sleeves, tabards, long hair |
 | 94 | 14.1.0 | Armour and weapons | Armour fitted to the new bodies; tiered sets per job (22 jobs); detailed weapons (bevels, engraving, gems, glow) |
-| 95 | 14.2.0 | NPCs | Unique outfits and held props for every named NPC; townsfolk wardrobe generator |
-| 96 | 14.3.0 | Beastmen and bosses | Goblins, orcs, Reefkin, Crag Talons, treants, undead, bosses rebuilt; family textures; armour variants |
-| 97 | 14.4.0 | Critters | Bee, crawler, sheep, lizard, crab, toad, bat, worm, fish, mandrake, shroom, Thornstrider rebuilt; fur/feather shells on High |
-| 98 | 14.5.0 | Monster limbs and motion | Every monster gets real jointed arms/legs; gaits per body plan (biped, quadruped walk/trot/gallop, six-legged, crab, bird, wings, serpent); feet planted on terrain; weight shift and follow-through; attack, hit, idle and death poses |
+| 95 ✅ | 14.2.0 | NPCs | Unique outfits and held props for every named NPC; townsfolk wardrobe generator |
+| 96 ✅ | 14.3.0 | Beastmen and bosses | Goblins, orcs, Reefkin, Crag Talons, treants, undead, bosses rebuilt; family textures; armour variants |
+| 97 ✅ | 14.4.0 | Critters | Bee, crawler, sheep, lizard, crab, toad, bat, worm, fish, mandrake, shroom, Thornstrider rebuilt; fur/feather shells on High |
+| 98 ✅ | 14.5.0 | Monster limbs and motion | Every monster gets real jointed arms/legs; gaits per body plan (biped, quadruped walk/trot/gallop, six-legged, crab, bird, wings, serpent); feet planted on terrain; weight shift and follow-through; attack, hit, idle and death poses |
 
 ## Track 2: sound and icons (99–101)
 | 99 | 14.6.0 | Interface sounds | Classic menu sounds everywhere: cursor move, confirm, cancel, error, window open/close, page turn, tab, target, equip, buy/sell, chat tell/party chime, level-up, quest |
@@ -42,5 +42,9 @@ Rules: no code comments; keep low/medium/high quality tiers; check Low on phones
 | 113 | 16.2.0 | Marsh, Frost, Jungle | 2–3 zones each |
 | 114 | 16.3.0 | Desert, Cinder, Gull Isle | 2–3 zones each |
 | 115 | 16.4.0 | Points of interest | 4–6 spots per zone: caves, camps, wrecks, NM lairs, overlooks, waterfalls, rare gathering, lore ruins, small puzzles and treasure |
+
+## Added on request (done)
+- v14.2.0: head look-at, red damage numbers + toggle, V torsos/necks, Pipkin feet, status icon spacing, remove one Outpost walker, audio unlock.
+- v14.5.0 (with 98): feet planted when turning in place; spells learnable only by main job (or support job at half level) at the spell's level; no action-bar option on spell scrolls.
 
 Open questions: real-phone cost of 512 px atlas cells and cloth physics (High only for now); more zones means more loading screens (about 1–2 s each on phones), still better than one huge map for frame rates.
