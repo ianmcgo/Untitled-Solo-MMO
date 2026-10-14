@@ -356,6 +356,7 @@ function netOnChat(p) {
   if (!text || netBlocked(name)) return;
   if (p.kind === "say" && player && Math.hypot(p.x - player.x, p.y - player.y) > 900) return;
   log((p.kind === "shout" ? name + " shouts: " : name + ": ") + text, p.kind === "shout" ? "shout" : "say");
+  { const o = S.others && S.others.get(p.id); if (o) o.talkUntil = S.time + Math.min(5, 0.6 + String(text).length * 0.04); }
   const o = S.others && S.others.get(p.id);
   if (o && p.kind === "say") popText(o, "💬 " + text.slice(0, 40), "#f4f1e8", 12, 3.5, 30);
   if (typeof sfx === "function") sfx("tab");

@@ -1202,6 +1202,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - REGION_PAINT painters now receive float 256-space pixel coords (X, Y) so detail sharpens on the 512 px High atlas (chain keeps integer coords). cloth: plain weave (2-unit cells, warp/weft sine threads, over/under checker), slub value noise, folds, hem, two dashed stitch rows, edge wear. leather: ridge grain + pebble pores, saddle stitch with holes (9-unit period) along both edges, creases, scratches, burnished edges. metal: fine brushing, scratch lines, dents, rust, engraved scroll band (ev 0.06–0.15, sine scroll), rivet row (18 per u). trim: diamonds + curl motif + diagonal thread stitch. fur: strands + clumps; hair: two-scale strands, root darkening, sheen; scale: 16×12 rows with rims and specks; feather: split barbs; wood: knots; bone: pores; skin/face: pores; chain: staggered rows with top highlight; quilt: dashed seams.
 - Atlas build reuses a base painter's cell for variants (face2…face8 copy the face base before their paint layer), and several fbm calls became single value-noise lookups: build time (test machine, software GL) 530 ms Low / 2.0 s High (was ~0.5 / 2.2 s before this phase).
 
+## Phase 92: faces and expression (v13.9.0) — plan Q5
+- `FACE_PAINTS` 8 painted face cells, `FACE_COUNT` 16: faces 8–15 reuse paint `face % 8` with a bone-structure variant in headProfile (nose ×1.18, jaw −0.06, cheek +0.025, lips ×1.15, chin +0.03, brow +0.015). FACE_NAMES has 16 names.
+- Painted-face heads (not noFace/skull) get bones `jaw` (child of head, behind the ear line) and `mouth` (on the mouth surface point at b = 0.437). The head is added with addW: vertices below the lips (b 0.44→0.58) and in front (|a| < 1.3→0.7) blend to `jaw`. A dark mouth-interior patch (gHeadPatch, a ±0.14, b ±0.05, +0.006) is bound to `mouth`. Both bones are rigid and skipped by bridgeGaps.
+- anim.js (after the leg IK): mouth target = KO 0.35 / talking (e.talkUntil) syllable flaps / weapon skill shout 0.9 / laugh, cheer flaps / panic 0.8 / cry tremble / hit 0.5 / casting chant / attack grunt; eased (rate 18/s); `mouth.scale.y` = 0.04 + m, `jaw.rotation.x` = 0.16·m.
+- talkUntil: hud4 openDialog sets it on the matching NPC (length-based, max 6 s); runCommand (say/shout/party/linkshell/tell) on the player; net chat on remote players.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1254,6 +1260,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 13.9.0 | Phase 92: 16 faces, talking mouths and jaw, expressions. |
 | 13.8.0 | Phase 91: woven cloth, stitched leather, engraved metal, embroidered trim, faster atlas. |
 | 13.7.0 | Phase 90: fingers, feet, animal heads, hour-long KO with Raise/Ember Plume, classic text colours, simpler target box. |
 | 13.6.1 | Classic command menu styling, readable top labels, compact object target box. |

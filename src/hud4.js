@@ -60,6 +60,7 @@ function openDialog(who, text, opts) {
   opts = opts || [];
   const offer = opts.some(o => /^(Accept|I'll handle him|I'll get them)$/.test(o.label));
   const paras = String(text || "").split(/\n+/).filter(Boolean);
+  { const sp = S.npcs && S.npcs.find(n => n.name === who || (n.name && who && n.name.split(",")[0] === who.split(",")[0])); if (sp) sp.talkUntil = S.time + Math.min(6, 0.6 + String(text || "").length * 0.035); }
   if (!S.dialog || S.dialog.text !== text) paras.forEach((p, i) => log((i ? "  " : who + " : ") + p, "npc"));
   UI.logRows = logFull(); UI.logAt = S.time;
   if (opts.length === 1 && /^(Trade|Shop|Buy)\b/.test(opts[0].label)) { S.dialog = null; $("dialog").style.display = "none"; opts[0].fn(); return; }

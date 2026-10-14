@@ -52,6 +52,7 @@ const mockLogin = require('./mocklogin');
         if (pose === 'swing') { e.engaged = true; e.state = 'combat'; step(10); e.lastSwing = S.time; step(5); }
         if (pose === 'ws') { e.engaged = true; e.state = 'combat'; step(10); e.lastWS = S.time; step(9); }
         if (pose === 'hit') { e.lastHit = S.time; step(3); }
+        if (pose === 'talk' || pose === 'talk2') { e.talkUntil = S.time + 9; step(pose === 'talk' ? 7 : 9); }
         if (pose === 'cast') { e.casting = { id: 'fire', sp: SPELLS.fire || SPELLS.cure, start: S.time, end: S.time + 3 }; step(15); }
         v.group.position.set(0, 0, 0);
         v.group.rotation.y = 0;
@@ -67,7 +68,7 @@ const mockLogin = require('./mocklogin');
         c.y += hs * 0.75;
         const r = hs * 1.6;
         const d = r / Math.tan(15 * Math.PI / 180);
-        const ang = { front: [1, 0], q: [0.8, 0.6], side: [0.05, 1], back: [-1, 0.1] }[pose] || [0.8, 0.6];
+        const ang = { front: [1, 0], q: [0.8, 0.6], side: [0.05, 1], back: [-1, 0.1], talk: [1, 0], talk2: [0.8, 0.6] }[pose] || [0.8, 0.6];
         cam.position.copy(c).addScaledVector(fwd, d * ang[0]).addScaledVector(side, d * ang[1]); cam.position.y += d * 0.08;
         cam.lookAt(c);
         cam.updateProjectionMatrix();

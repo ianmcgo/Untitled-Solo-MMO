@@ -4927,6 +4927,7 @@ function actByName(kind, q) {
 }
 
 function runCommand(text) {
+  if (player && text && (text[0] !== "/" || /^\/(s|say|sh|shout|p|party|l\d?|t|tell|r|reply) /.test(text))) player.talkUntil = S.time + Math.min(5, 0.6 + text.length * 0.04);
   text = String(text || "").trim();
   if (!text) return;
   if (text[0] !== "/") { if (typeof netChat === "function") netChat("say", text); else log(save.name + ": " + text, "say"); return; }
