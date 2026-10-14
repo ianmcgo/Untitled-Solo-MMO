@@ -771,6 +771,8 @@
   #mmTime { margin: 2px 0 0 18px; font: italic 900 14px var(--ffFont); color: #fff; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
   #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
   #clockBox, #trBtns { display: none !important; }
+  @media (max-width: 1020px) { #ui.modalOn #mCmd { display: none !important; } }
+  #log, #chat.min #log, #chat.lite #log { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 4px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; }
   @media (max-width: 600px) {
     #mCmd { width: 138px; padding: 3px 4px 4px 16px; gap: 2px; }
     #mCmd .ffb { height: 22px; font-size: 12px; padding: 0 8px; }
@@ -786,7 +788,7 @@
     #stM .stGrid { padding: 0 8px; }
     #ffTop .ffCmd { width: 84px; font-size: 12px; }
     #ffHelp { font-size: 12px; }
-    #ui.modalOn #mCmd { display: none !important; }
+    #mCmd .ffMHead.sub .pg { padding: 0 6px; }
     #mCmd .ffMHead.sub .pg { padding: 0 6px; }
     #menu .win, #menu .win.slim, #menu .win.wide { width: calc(100vw - 8px - var(--sal) - var(--sar)) !important; left: calc(4px + var(--sal)); }
     #mBody { font-size: 12.5px; }

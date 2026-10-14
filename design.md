@@ -937,6 +937,9 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - normalizeSave keeps hired ids found in d.mercDefs (generated companions were dropped on load). COMPANION_CFG.dayMs = 24 h real, wageRate 1. companionInfo(p) (party row tap): countdown, wage, Pay now, Dismiss. Paths ending near a hall exit are rerouted via exitInner then the exit centre.
 - Capture-phase pointerdown outside #tCmd (and its companions: mobBar, dialog, confirm, ffSide, mpBox) closes the target command box.
 
+## v9.8.3
+- #ui.modalOn hides #mCmd at ≤1020px. tabStorage outside S.zone.residence is a read-only slim list; store/retrieve actions refuse outside the residence. #log always uses --ffStripe (overrides .min/.lite phone styles).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -993,6 +996,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.8.3 | Phone window/menu overlap, read-only View House, blue log on phones. |
 | 9.8.2 | Exit halls with inward arrivals, caster melee when safe, phone Status layout, back buttons. |
 | 9.8.1 | Smarter generic companion AI, per-companion error isolation. |
 | 9.8.0 | Phase 48: layered clouds, sun glow, moon phases, horizon haze, zone atmosphere; mobile buttons; blue top toasts. |
