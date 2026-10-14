@@ -895,9 +895,16 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Hotkeys: Ctrl+digit → line 0, Shift+digit → line 1, plain digit → line 0.
 - CSS: Help/Network labels on top border (gradient top lines with gap), darker shorter pill buttons, blue scrollbars, #mHead .meta hidden.
 
+## Phase 45: mercenary guild (v9.5.0)
+- game.js: MERC_ROLES (job → roles with existing ally AI), name syllables, traits. genMercDef(rnd) → {gen, name, job, role, fee (40+18·lv)·roleMul, color, look, desc}. mercPool(dayOverride) refreshes once per local day: drops unhired defs, generates CONFIG.mercDaily (5) seeded by save.created+day, ids "m<day>_<i>" (x-suffixed if taken). save.mercDefs registered into MERCS by mercDefsSync (rebuildParty, tickWages, mercPool). rig.js uses MERCS[id].look via baseFromLook.
+- Permadeath (CONFIG.mercPermadeath): onKO sets e.fallAt = +4 s; mercFallTick (in step) removes from save.hired, marks save.mercFallen[id], deletes stale defs, rebuilds party. mercAvailable false for fallen; generated mercs need no unlocks. dismissMerc drops defs not in today's pool.
+- tabMercs: today's offers, your company, fallen count, time to refresh. Brann dialog updated.
+- Robustness: frame loop wraps work in try/catch (rAF requested first); loadZoneAsync wraps loadZoneInner and clears VIEW.loading on error; reportError(e, where) logs once per message to the event log.
+- Test: p29unit (pool, same-day stability, daily change, level, permadeath, no rehire). harness exports mercPool.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
-- 45 (9.5.0) Mercenary guild: 5 random daily hires, any job, scale with player level, permadeath.
+- 45 (9.5.0) Mercenary guild: DONE.
 - 46 (9.6.0) Remaining classic windows (Crafting, Storage, Party, Bestiary, Achievements, Social, Config, Map, Help, Updates) + Help rewrite.
 - 47 (9.7.0) Offline play: a separate offline character list stored only on the device (flag offline: true, own storage key). Plays solo with mercenaries and NPC systems; online-only features (other players, party/trade/tells, linkshells, player auction house, search, server bounties) hidden. Offline characters can never be uploaded, imported or converted to online: the client refuses, the export format is marked offline and rejected by the online import, and the server save trigger/RPCs reject any save carrying the offline flag or an offline-only id. Title screen gets Play Online / Play Offline; offline needs no login.
 - 48 (9.8.0) G1 Sky and light: sky dome gradient + layered moving clouds, sun/moon/stars, time-of-day colour grading, per-zone fog colour/distance, hemisphere + sun light balance, weather tints.
@@ -951,6 +958,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.5.0 | Phase 45: generated daily mercenaries, permadeath, freeze-proof loop. |
 | 9.4.0 | Phase 44: spell scrolls, keyboard windows, Pip jobs, easier start, Ctrl/Shift hotkeys, UI polish. |
 | 9.3.1 | mainCmdDo keeps UI.mm open (only Log Out closes it); mainCmdOpen keeps sel; Status closes any window. |
 | 9.3.0 | Phase 43: slim Items/Shop/Quests/Magic lists, equipment layout, Magic List + MP box, split side boxes, mob regen. |

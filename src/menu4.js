@@ -291,7 +291,7 @@ const LORE = {
   rhea: ["Captain Rhea commands the Outpost's garrison and pays bounties on goblins and worse.", "Rhea turns in at 22:00 and is back on the plaza at dawn."],
   tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
   pell: ["Pell buys and sells potions, ethers, arms and armour. Crystals talk.", "Pell keeps late hours for a merchant: he shuts at 21:00."],
-  brann: ["Brann runs the Mercenary Hall. One fee hires a companion for good; dismissing is free.", "Brann drinks till 23:00 and is up by half past seven."],
+  brann: ["Brann runs the Mercenary Hall. Five new fighters arrive every day, and a companion who falls is gone for good.", "Brann drinks till 23:00 and is up by half past seven."],
   ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 5.", "Ysolde beds down with the beasts at 19:30."],
   odette: ["Odette sells furnishings for your residence, and her cousin Pip keeps it.", "Odette closes up at 21:30."]
 };
@@ -767,17 +767,19 @@ function tabJob() {
   return h;
 }
 function tabMercs() {
-  let h = '<div class="sub" style="margin-bottom:6px">Party ' + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil + " crystals · The fee covers the first day; after that each companion takes a daily wage. Manage them in the Party tab (P).</div>";
-  for (const id in MERCS) {
-    const m = MERCS[id];
-    const hired = save.hired.includes(id);
-    const avail = mercAvailable(id);
-    let btn;
-    if (hired) btn = '<button data-a="dismiss" data-v="' + id + '">Dismiss</button>';
-    else if (!avail) btn = '<span class="d">' + esc(mercLockedReason(id)) + "</span>";
-    else btn = '<button data-a="hire" data-v="' + id + '"' + (save.gil < m.fee || save.hired.length >= CONFIG.maxParty - 1 ? " disabled" : "") + ">Hire · " + m.fee + " 💠</button>";
-    h += '<div class="item"><div style="display:flex;gap:10px;align-items:center"><span class="por" style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:2px solid ' + m.color + ';flex:none">' + (JOBS[m.job] ? JOBS[m.job].icon : "?") + "</span><div><div>" + esc(m.name) + ' <span class="sub">' + (JOBS[m.job] ? JOBS[m.job].name : m.job) + " · " + m.role + '</span></div><div class="d">' + esc(m.desc) + "</div></div></div>" + btn + "</div>";
-  }
+  const pool = mercPool(), full = save.hired.length >= CONFIG.maxParty - 1;
+  const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+  UI.modalHelp = "Hire a companion. They fight at your level; if they fall, they're gone for good.";
+  const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc(m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
+  let h = '<div class="sub" style="margin-bottom:6px">Brann has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first day; after that each takes a daily wage.</div><h3>For hire today</h3>";
+  const offers = pool.filter(id => !save.hired.includes(id));
+  if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
+  for (const id of offers) h += row(id, '<button data-a="hire" data-v="' + id + '"' + (save.gil < MERCS[id].fee || full ? " disabled" : "") + ">Hire · " + MERCS[id].fee + " 💠</button>");
+  h += "<h3>Your company</h3>";
+  if (!save.hired.length) h += '<div class="sub">No one has joined you yet.</div>';
+  for (const id of save.hired) if (MERCS[id]) h += row(id, '<button data-a="dismiss" data-v="' + id + '">Dismiss</button>');
+  const fallen = Object.keys(save.mercFallen || {}).length;
+  if (fallen) h += '<div class="sub" style="margin-top:8px">🕯️ ' + fallen + " companion" + (fallen > 1 ? "s have" : " has") + " fallen in your service.</div>";
   return h;
 }
 
@@ -1441,6 +1443,13 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.5.0", date: "2026-10-13", title: "Mercenary guild", items: [
+    "Brann's Mercenary Hall now has 5 randomly generated fighters for hire each day, with their own names, looks, jobs, roles and personalities. Any job can turn up, with no level requirement, and the list changes at midnight.",
+    "Companions always fight at your level and grow with you.",
+    "Permadeath: a companion who is knocked out leaves your company for good a few seconds later and can never be hired again. The Mercenary Hall keeps count of the fallen.",
+    "Companions you already had stay with you (under the same rules). The old fixed list of named companions is no longer offered.",
+    "Safety: if something in the game throws an error, the game now keeps running and writes a short error note in the event log instead of freezing. Please send that note if you see one."
+  ] },
   { v: "9.4.0", date: "2026-10-13", title: "Spell scrolls", items: [
     "Spells are now learned from scrolls. Read a Scroll of (spell) from your items to learn it, if any of your jobs is high enough level for it. Spells you already had from your levels are kept.",
     "Pell sells scrolls for spells up to level 10, Vela in Saltreach sells levels 11–17, and any monster may drop a scroll for spells near its level. When you level up, the log tells you which new spells you can now learn.",
@@ -2017,6 +2026,8 @@ function tabHelp() {
   ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("👥 Party and companions (P)", ul([
+    "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement, and always fight at your level as you grow.",
+    "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party tab or with /stance.",
     "<b>Gear:</b> give companions equipment from your bag in the Party tab. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",

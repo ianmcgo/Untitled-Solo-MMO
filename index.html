@@ -770,6 +770,9 @@
   #mmTime { margin: 2px 0 0 18px; font: italic 900 14px var(--ffFont); color: #fff; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
   #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
   #clockBox, #trBtns { display: none !important; }
+  #mBody .mRow { display: flex; align-items: center; gap: 10px; padding: 5px 6px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  #mBody .mRow .por { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; border: 2px solid; flex: none; font-style: normal; }
+  #mBody .mRow .mInfo { flex: 1; min-width: 0; font-family: var(--ffFont); } #mBody .mRow .mInfo b { font-style: italic; } #mBody .mRow .d { font-size: 12px; color: #dcdcff; }
   #mCmd .ffb:not(.sel):not(.gold), #tCmd:not(.list) .ffb:not(.sel), #mBody button:not(.lr):not(.on):not(.pri):not(.danger):not(.mcR):not(.eqS):not(.csS):not(.csRow) { background: linear-gradient(180deg, #b8c2f4 0%, #6a76d0 18%, #3e48a6 55%, #283080 100%) !important; }
   #mCmd .ffb { height: 21px; font-size: 12.5px; } #mCmd { gap: 2px; }
   #tCmd:not(.list) .ffb { height: 22px; font-size: 13px; } #tCmd:not(.list) { gap: 2px; }
@@ -860,7 +863,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.4.0 · built 2026-10-13 23:31 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.5.0 · built 2026-10-13 23:59 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5717,6 +5720,8 @@ ${_}`}var A=class extends Error{constructor({message:e,code:t,cause:s,name:n}){v
 <script>
 const CONFIG = {
   mobRegen: 0.04,
+  mercDaily: 5,
+  mercPermadeath: true,
   scrollDrop: 0.05,
   levelCap: 20,
   bowRange: 230,
@@ -7261,6 +7266,7 @@ function newSave() {
   const jobs = {}, skills = {};
   for (const j in JOBS) { jobs[j] = { lv: 1, xp: 0 }; skills[j] = newSkillSet(); }
   return {
+    mercDefs: {}, mercDay: { day: -1, ids: [] }, mercFallen: {},
     spells: Object.keys(SPELLS).filter(id => Object.values(SPELLS[id].jobs).includes(1)),
     v: 2, name: "Adventurer", mainJob: "WAR", subJob: null, supportUnlocked: false,
     jobs, skills,
@@ -7676,6 +7682,7 @@ function addBond(id, n) {
 function mercWage(id) { return Math.max(10, Math.ceil(MERCS[id].fee * COMPANION_CFG.wageRate)); }
 
 function tickWages() {
+  mercDefsSync();
   const now = Date.now();
   for (const id of save.hired.slice()) {
     if (!save.mercPaid[id]) save.mercPaid[id] = now + COMPANION_CFG.dayMs;
@@ -7767,7 +7774,52 @@ function syncAllies(full) {
   }
 }
 
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"] };
+const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
+const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
+const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
+function mercDayNum() { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000); }
+function mercDefsSync() {
+  if (!save.mercDefs) save.mercDefs = {};
+  for (const id in save.mercDefs) MERCS[id] = save.mercDefs[id];
+}
+function genMercDef(rnd, id) {
+  const jobs = Object.keys(MERC_ROLES).filter(j => JOBS[j]);
+  const job = jobs[Math.floor(rnd() * jobs.length)], roles = MERC_ROLES[job], role = roles[Math.floor(rnd() * roles.length)];
+  const s = MERC_SYL, nm = s[0][Math.floor(rnd() * s[0].length)] + s[1][Math.floor(rnd() * s[1].length)] + s[2][Math.floor(rnd() * s[2].length)];
+  const lv = player.lv, mul = { tank: 1.1, healer: 1.15, burster: 1.2, bard: 1.15, hybrid: 1.1 }[role] || 1;
+  const hue = Math.floor(rnd() * 360);
+  return { gen: true, name: nm, job, role, fee: Math.round((40 + 18 * lv) * mul / 5) * 5, color: "hsl(" + hue + ",60%,72%)", look: { build: rnd() < 0.5 ? 0 : 1, skin: Math.floor(rnd() * 4), hairStyle: Math.floor(rnd() * 6), hairColor: Math.floor(rnd() * 8) }, desc: "A " + JOBS[job].name + ". " + MERC_ROLE_TEXT[role] + " " + MERC_TRAITS[Math.floor(rnd() * MERC_TRAITS.length)] };
+}
+function mercPool(dayOverride) {
+  mercDefsSync();
+  const day = dayOverride != null ? dayOverride : mercDayNum();
+  if (!save.mercDay || save.mercDay.day !== day) {
+    for (const id of (save.mercDay && save.mercDay.ids) || []) if (!save.hired.includes(id)) { delete save.mercDefs[id]; delete MERCS[id]; }
+    const rnd = seeded(hashStr(String(save.created || 1) + ":merc:" + day));
+    const ids = [];
+    for (let i = 0; i < CONFIG.mercDaily; i++) { let id = "m" + day + "_" + i; while (save.mercDefs[id]) id += "x"; save.mercDefs[id] = genMercDef(rnd, id); MERCS[id] = save.mercDefs[id]; ids.push(id); }
+    save.mercDay = { day, ids };
+  }
+  return save.mercDay.ids.filter(id => MERCS[id] && !save.mercFallen[id]);
+}
+function mercFallTick() {
+  for (const p of S.party) if (p.mercId && p.fallAt && S.time >= p.fallAt) {
+    const id = p.mercId, nm = MERCS[id] ? MERCS[id].name : p.name;
+    p.fallAt = 0;
+    save.mercFallen[id] = Date.now();
+    const i = save.hired.indexOf(id);
+    if (i >= 0) save.hired.splice(i, 1);
+    delete save.mercPaid[id];
+    if (save.mercDefs[id] && !(save.mercDay && save.mercDay.ids.includes(id))) delete save.mercDefs[id];
+    log(nm + " has fallen and will not be coming back.", "foe");
+    rebuildParty();
+    saveGame();
+    return;
+  }
+}
 function rebuildParty() {
+  mercDefsSync();
   const old = S.party;
   S.party = [player];
   if (S.pet) S.party.push(S.pet);
@@ -7788,6 +7840,8 @@ function rebuildParty() {
 }
 
 function mercAvailable(id) {
+  if (!MERCS[id] || (save.mercFallen && save.mercFallen[id])) return false;
+  if (MERCS[id].gen) return true;
   const r = MERCS[id].requires;
   if (!JOBS[MERCS[id].job]) return false;
   if (r && r.quest && save.quests[r.quest] !== "done") return false;
@@ -7824,6 +7878,7 @@ function dismissMerc(id, quiet) {
   delete save.mercPaid[id];
   rebuildParty();
   if (!quiet) log(MERCS[id].name + " leaves the party.", "sys");
+  if (MERCS[id].gen && !(save.mercDay && save.mercDay.ids.includes(id))) delete save.mercDefs[id];
   saveGame();
 }
 
@@ -8085,6 +8140,7 @@ function onKO(e, src) {
     if (e === player) for (const p of S.party) p.mounted = false;
     for (const m of S.mobs) m.enmity.delete(e);
     if (e !== player) partySay(e, "ko", true);
+    if (e.mercId && CONFIG.mercPermadeath) { e.fallAt = S.time + 4; log(e.name + " is badly wounded…", "foe"); }
     if (e === player) { save.stats.kos++; S.ko = true; S.chase = false; S.moveTarget = null; showKO(true); }
   }
 }
@@ -8239,7 +8295,7 @@ function dropLoot(m, mates) {
     if (ITEMS[id].kind === "equip" && (S.party.length > 1 || mates.length)) { const pe = addToPool(id); if (mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); continue; }
     giveItem(id, 1);
   }
-  if (Math.random() < CONFIG.scrollDrop) {
+  if (Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
     const pool = Object.values(SPELLS).filter(sp => sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
     if (pool.length) giveItem("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, 1);
   }
@@ -10329,6 +10385,7 @@ function step(dt) {
   for (const e of S.party.concat(S.mobs)) { e.px = e.x; e.py = e.y; }
   updatePlayer(dt);
   for (const a of S.party) if (a !== player) updateAlly(a, dt);
+  mercFallTick();
   for (const m of S.mobs) updateMob(m, dt);
   updateNpcs(dt);
   for (const p of S.party) { if (p.alive) { tickBuffs(p); tickCasting(p); } }
@@ -11057,7 +11114,7 @@ const TALK = {
   },
   talkBrann(n) {
     const hired = save.hired.length;
-    openDialog(n.name, hired ? "Your company's holding up, I hope. Need more swords, or fewer mouths to feed?" : "Nobody walks the Hollow alone for long. My people fight for coin: pay their fee to hire them, then a daily wage to keep them. They'll follow you anywhere. Up to five at a time.", [
+    openDialog(n.name, hired ? "Your company's holding up, I hope. I get new faces every day, any trade you like, and they'll fight at your side as long as they draw breath. Lose one and they're gone for good, so look after them." : "Nobody walks the Hollow alone for long. Every day five new fighters come through my hall, all kinds. They match your strength and grow with you. Pay their fee, then a daily wage. And mind them: the fallen don't come back.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
     ].concat(questOptions("brann", n)));
   },
@@ -11747,6 +11804,15 @@ const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" 
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+function reportError(e, where) {
+  console.error(where, e);
+  const key = where + ":" + (e && e.message);
+  UI.errSeen = UI.errSeen || {};
+  if (UI.errSeen[key]) return;
+  UI.errSeen[key] = 1;
+  const at = String((e && e.stack) || "").split("\n")[1] || "";
+  try { log("⚠ Game error (" + where + "): " + (e && e.message) + " " + at.trim().slice(0, 120) + ". The game kept running; please tell the developer.", "foe"); } catch (e2) {}
+}
 function log(msg, c) {
   const el = $("log");
   if (!el) return;
@@ -13172,7 +13238,7 @@ const LORE = {
   rhea: ["Captain Rhea commands the Outpost's garrison and pays bounties on goblins and worse.", "Rhea turns in at 22:00 and is back on the plaza at dawn."],
   tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
   pell: ["Pell buys and sells potions, ethers, arms and armour. Crystals talk.", "Pell keeps late hours for a merchant: he shuts at 21:00."],
-  brann: ["Brann runs the Mercenary Hall. One fee hires a companion for good; dismissing is free.", "Brann drinks till 23:00 and is up by half past seven."],
+  brann: ["Brann runs the Mercenary Hall. Five new fighters arrive every day, and a companion who falls is gone for good.", "Brann drinks till 23:00 and is up by half past seven."],
   ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 5.", "Ysolde beds down with the beasts at 19:30."],
   odette: ["Odette sells furnishings for your residence, and her cousin Pip keeps it.", "Odette closes up at 21:30."]
 };
@@ -13648,17 +13714,19 @@ function tabJob() {
   return h;
 }
 function tabMercs() {
-  let h = '<div class="sub" style="margin-bottom:6px">Party ' + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil + " crystals · The fee covers the first day; after that each companion takes a daily wage. Manage them in the Party tab (P).</div>";
-  for (const id in MERCS) {
-    const m = MERCS[id];
-    const hired = save.hired.includes(id);
-    const avail = mercAvailable(id);
-    let btn;
-    if (hired) btn = '<button data-a="dismiss" data-v="' + id + '">Dismiss</button>';
-    else if (!avail) btn = '<span class="d">' + esc(mercLockedReason(id)) + "</span>";
-    else btn = '<button data-a="hire" data-v="' + id + '"' + (save.gil < m.fee || save.hired.length >= CONFIG.maxParty - 1 ? " disabled" : "") + ">Hire · " + m.fee + " 💠</button>";
-    h += '<div class="item"><div style="display:flex;gap:10px;align-items:center"><span class="por" style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:2px solid ' + m.color + ';flex:none">' + (JOBS[m.job] ? JOBS[m.job].icon : "?") + "</span><div><div>" + esc(m.name) + ' <span class="sub">' + (JOBS[m.job] ? JOBS[m.job].name : m.job) + " · " + m.role + '</span></div><div class="d">' + esc(m.desc) + "</div></div></div>" + btn + "</div>";
-  }
+  const pool = mercPool(), full = save.hired.length >= CONFIG.maxParty - 1;
+  const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+  UI.modalHelp = "Hire a companion. They fight at your level; if they fall, they're gone for good.";
+  const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc(m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
+  let h = '<div class="sub" style="margin-bottom:6px">Brann has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first day; after that each takes a daily wage.</div><h3>For hire today</h3>";
+  const offers = pool.filter(id => !save.hired.includes(id));
+  if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
+  for (const id of offers) h += row(id, '<button data-a="hire" data-v="' + id + '"' + (save.gil < MERCS[id].fee || full ? " disabled" : "") + ">Hire · " + MERCS[id].fee + " 💠</button>");
+  h += "<h3>Your company</h3>";
+  if (!save.hired.length) h += '<div class="sub">No one has joined you yet.</div>';
+  for (const id of save.hired) if (MERCS[id]) h += row(id, '<button data-a="dismiss" data-v="' + id + '">Dismiss</button>');
+  const fallen = Object.keys(save.mercFallen || {}).length;
+  if (fallen) h += '<div class="sub" style="margin-top:8px">🕯️ ' + fallen + " companion" + (fallen > 1 ? "s have" : " has") + " fallen in your service.</div>";
   return h;
 }
 
@@ -14314,13 +14382,20 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.4.0 · built 2026-10-13 23:31 PDT";
+const BUILD_INFO = "v9.5.0 · built 2026-10-13 23:59 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.5.0", date: "2026-10-13", title: "Mercenary guild", items: [
+    "Brann's Mercenary Hall now has 5 randomly generated fighters for hire each day, with their own names, looks, jobs, roles and personalities. Any job can turn up, with no level requirement, and the list changes at midnight.",
+    "Companions always fight at your level and grow with you.",
+    "Permadeath: a companion who is knocked out leaves your company for good a few seconds later and can never be hired again. The Mercenary Hall keeps count of the fallen.",
+    "Companions you already had stay with you (under the same rules). The old fixed list of named companions is no longer offered.",
+    "Safety: if something in the game throws an error, the game now keeps running and writes a short error note in the event log instead of freezing. Please send that note if you see one."
   ] },
   { v: "9.4.0", date: "2026-10-13", title: "Spell scrolls", items: [
     "Spells are now learned from scrolls. Read a Scroll of (spell) from your items to learn it, if any of your jobs is high enough level for it. Spells you already had from your levels are kept.",
@@ -14898,6 +14973,8 @@ function tabHelp() {
   ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("👥 Party and companions (P)", ul([
+    "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement, and always fight at your level as you grow.",
+    "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party tab or with /stance.",
     "<b>Gear:</b> give companions equipment from your bag in the Party tab. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
@@ -15036,7 +15113,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.4.0";
+const GAME_VERSION = "9.5.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18302,7 +18379,7 @@ function buildEntityRig(e) {
     sig = "pet|" + e.petKey;
     make = () => batEntry(P.col, P.eye);
   } else {
-    const base = e === player ? playerBase() : e.remote ? baseFromLook(e.look || {}) : (MERC_BASE[e.mercId] || MERC_BASE.kael);
+    const base = e === player ? playerBase() : e.remote ? baseFromLook(e.look || {}) : (MERC_BASE[e.mercId] || (MERCS[e.mercId] && MERCS[e.mercId].look ? baseFromLook(MERCS[e.mercId].look) : MERC_BASE.kael));
     const L = lookFor(e.job, e.gear, base);
     sig = "h|" + stableKey(L);
     make = () => humanEntry(L);
@@ -20619,6 +20696,12 @@ function onZoneEntered() {
   loadZoneAsync(job);
 }
 async function loadZoneAsync(job) {
+  try { await loadZoneInner(job); } catch (e) {
+    reportError(e, "zone");
+    if (job === VIEW.zoneJob) { VIEW.loading = false; try { loaderHide(); } catch (e2) {} }
+  }
+}
+async function loadZoneInner(job) {
   const t0 = performance.now();
   await frames(2);
   if (job !== VIEW.zoneJob) return;
@@ -22384,16 +22467,18 @@ async function boot() {
   function frame(now) {
     const dt = clamp((now - last) / 1000, 0, 0.05);
     last = now;
-    if (UI.started && !VIEW.loading) {
-      if (!S.ko) step(dt); else S.time += dt;
-      if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
-      age(dt);
-      draw(dt);
-      updateHud(dt);
-      updateAudio();
-    } else if (UI.creating && UI.pv) renderPreview(now);
-    else if (UI.showcase && UI.pv) renderShowcase(now);
     requestAnimationFrame(frame);
+    try {
+      if (UI.started && !VIEW.loading) {
+        if (!S.ko) step(dt); else S.time += dt;
+        if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
+        age(dt);
+        draw(dt);
+        updateHud(dt);
+        updateAudio();
+      } else if (UI.creating && UI.pv) renderPreview(now);
+      else if (UI.showcase && UI.pv) renderShowcase(now);
+    } catch (e) { reportError(e, "frame"); }
   }
   requestAnimationFrame(frame);
   showTitle();

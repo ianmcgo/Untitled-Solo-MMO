@@ -1,5 +1,7 @@
 const CONFIG = {
   mobRegen: 0.04,
+  mercDaily: 5,
+  mercPermadeath: true,
   scrollDrop: 0.05,
   levelCap: 20,
   bowRange: 230,
