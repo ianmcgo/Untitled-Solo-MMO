@@ -1018,6 +1018,13 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "6.8.0", date: "2026-10-13", title: "The world, repopulated", items: [
+    "Monsters are now placed by difficulty. Near the Outpost gate you'll only meet peaceful critters (bees, crawlers, sheep, mandrakes); goblins, worms, orcs and the undead are further in.",
+    "The same kinds of monster get new names and colours the deeper you go: Grass, Bog and Rime Crawlers; Honey Bees, Marsh Hornets and Frost Wasps; Hill, Bog and Frost Lizards; Pond, Mud and Ice Crabs; Lake, Marsh and Ice Snappers; Meadow Sheep and Mountain Rams; Mandrakes and Marsh Mandrakes; Shroomlings and Bog Shrooms; Stonechuckers, Bombs and Treants of the frost.",
+    "Bats, Ice Bats and Bog Leeches are now critters too: they leave you alone unless you attack.",
+    "New notorious monsters: the Silkmother (a giant crawler in Burrow Flats; Silkweave Mantle, Silk Gloves) and Gorruk the Warlord (the marsh orc camp; Warlord's Cleaver, Warlord's Band).",
+    "New quest: Pell's Silk for Sale (6 Grass Crawlers). New guild bounties for crawlers, bees, lizards, orcs, Reefkin, Crag Talons, frost bombs, the Silkmother and Gorruk."
+  ] },
   { v: "6.7.0", date: "2026-10-13", title: "Orcs, Reefkin, Crag Talons and more", items: [
     "New aggressive families with their own looks: Orc Grunts and Orc Stonechuckers (who throw from range), Reefkin fish-folk, Crag Talons and Crag Chanters (beaked bird-folk), Elder Treants, Needlekin (cactus folk who fire needles from range) and Ember Bombs (which explode when cornered).",
     "Wandering Saplings, young treants, are peaceful until bothered.",
@@ -1302,7 +1309,8 @@ function tabHelp() {
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
-    "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Sticky Thread slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",
+    "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
+    "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares, bats, leeches and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Sticky Thread slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",
     "<b>Ranged and dangerous:</b> Orc Stonechuckers and Needlekin attack from a distance, so close in or pull them around a corner. Ember Bombs swell up and Self-Destruct, a big area blast that also destroys the bomb; kill them fast or step away when they ready it. Elder Treants shake the ground around them.",
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
@@ -1357,7 +1365,7 @@ function tabHelp() {
   ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, consumables and (only while you carry the <b>City Blessing</b>) elemental essences; gear comes from NMs, quests and Pell's shop.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, auction house, home point"],
-    ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs. Bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, shroomlings and snappers further in"],
+    ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
     ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), Selene (auction house), home point, trade board, docks"],
