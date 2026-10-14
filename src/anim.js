@@ -97,7 +97,38 @@ function sitPlan(v) {
   return (v._sit = { a, b: ab - a, f: 0.15 - ab, drop, back: -0.02 * H });
 }
 
+const LOOK_KINDS = { human: 1, quad: 1, hare: 1, mandrake: 1, bird: 1 };
+const LOOK_V = { a: null, b: null };
+function headLook(v, dt) {
+  const B = v.bones, P = v.pose;
+  if (!B || !B.head || !P.head || !LOOK_KINDS[v.kind]) return;
+  if (!LOOK_V.a) { LOOK_V.a = new THREE.Vector3(); LOOK_V.b = new THREE.Vector3(); }
+  let yaw = 0, pitch = 0, want = 0;
+  const t = v.lookTgt;
+  if (t) {
+    const tv = VIEW.views.get(t), a = LOOK_V.a, b = LOOK_V.b;
+    if (tv && tv.bones && tv.bones.head && tv.group.visible !== false) tv.bones.head.getWorldPosition(a);
+    else a.set(t.x * U, groundY(t.x, t.y) + (t.kind === "npc" || t.chest || t.crystal ? 1.0 : 1.3), t.y * U);
+    B.head.getWorldPosition(b);
+    v.group.worldToLocal(a); v.group.worldToLocal(b);
+    const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z, hz = Math.hypot(dx, dz);
+    const twist = (P.hips ? P.hips[1] : 0) + (P.spine ? P.spine[1] : 0) + (P.chest ? P.chest[1] : 0);
+    yaw = Math.atan2(dx, dz) - twist;
+    if (Math.abs(yaw) < 2.1 && hz > 0.05) { want = 1; yaw = clamp(yaw, -1.25, 1.25); pitch = clamp(-Math.atan2(dy, hz), -0.55, 0.5); }
+  }
+  v.lookW = (v.lookW || 0) + (want - (v.lookW || 0)) * Math.min(1, dt * 4);
+  if (v.lookW < 0.01) return;
+  const w = v.lookW;
+  v.lookYaw = (v.lookYaw || 0) + ((want ? yaw : v.lookYaw || 0) - (v.lookYaw || 0)) * Math.min(1, dt * 7);
+  v.lookPitch = (v.lookPitch || 0) + ((want ? pitch : 0) - (v.lookPitch || 0)) * Math.min(1, dt * 7);
+  const hasNeck = !!(B.neck && P.neck), hs = hasNeck ? 0.62 : 1;
+  P.head[1] += (v.lookYaw * hs - P.head[1] * 0.5) * w;
+  P.head[0] += v.lookPitch * hs * w;
+  if (hasNeck) { P.neck[1] += v.lookYaw * (1 - hs) * w; P.neck[0] += v.lookPitch * (1 - hs) * w; }
+}
+
 function applyPose(v, dt, sharp) {
+  headLook(v, dt);
   const k = 1 - Math.exp(-dt * (sharp ? 26 : 15));
   for (const n in v.pose) {
     const b = v.bones[n], p = v.pose[n];
@@ -211,7 +242,6 @@ function poseHuman(v, e, dt) {
     an.look = (an.look || 0) + (near - (an.look || 0)) * Math.min(1, dt * 3);
     if (an.look > 0.01) {
       const ang = normAngA(Math.atan2(player.y - e.y, player.x - e.x) - (e.face || 0));
-      addP(P, "head", -0.08 * an.look, -clamp(ang, -1.1, 1.1) * an.look, 0);
       addP(P, "chest", 0, -clamp(ang, -1.1, 1.1) * 0.25 * an.look, 0);
     }
     const ww = (1 - an.look) * (amp < 0.1 ? 1 : 0);
@@ -274,18 +304,21 @@ function poseHuman(v, e, dt) {
       setP(P, "chest", 0.05, 0.55 * a - 0.8 * b, 0, w);
       setP(P, "spine", 0.1 * b, 0, 0, w);
       addP(P, "thighL", -0.3 * b * w, 0, 0); addP(P, "shinL", 0.3 * b * w, 0, 0);
+      setP(P, "handR", -0.3 * a + 2.7 * b, 0, 0, w);
     } else if (kind === "slash" && an.aVar === 1) {
       const a = ease(ak / 0.28), b = ease((ak - 0.28) / 0.2);
       setP(P, "upArmR", -1.3 * a + 0.2 * b, 0, -1.2 * a + 1.7 * b, w);
       setP(P, "foreArmR", -0.5 * a + 0.3 * b, 0, 0, w);
       setP(P, "chest", 0, -0.7 * a + 1.1 * b, 0, w);
       setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
+      setP(P, "handR", 1.5 * a, 0, 0, w);
     } else if (kind === "slash") {
       const a = ease(ak / 0.32), b = ease((ak - 0.32) / 0.22);
       setP(P, "upArmR", -2.1 * a + 1.8 * b, 0, -0.55 * a + 1.05 * b, w);
       setP(P, "foreArmR", -1.0 * a + 0.85 * b, 0, 0, w);
       setP(P, "chest", 0.05, -0.5 * a + 0.95 * b, 0, w);
       setP(P, "spine", 0.08 + 0.12 * b, 0, 0, w);
+      setP(P, "handR", 0.5 * a - 1.7 * b, 0, 0, w);
     } else if ((kind === "smash" || kind === "cleave") && an.aVar === 1) {
       const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.22);
       setP(P, "upArmR", -1.4, 0, -1.3 * a + 1.9 * b, w);
@@ -300,6 +333,7 @@ function poseHuman(v, e, dt) {
       setP(P, "foreArmR", -0.7 * a + 0.5 * b, 0, 0, w);
       if (kind === "cleave") { setP(P, "upArmL", -2.6 * a + 2.3 * b, 0, -0.35, w); setP(P, "foreArmL", -0.8 * a + 0.6 * b, 0, 0, w); }
       setP(P, "spine", -0.15 * a + 0.45 * b, 0, 0, w);
+      setP(P, "handR", 0.6 * a - 1.3 * b, 0, 0, w);
       setP(P, "chest", 0, -0.15 * a, 0, w);
     } else if (kind === "thrust") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.18);

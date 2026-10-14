@@ -73,10 +73,12 @@ function updateLabels() {
 }
 
 function updateFloaters() {
+  const nums = !VIEW.settings || VIEW.settings.dmgNums !== false;
   for (const f of S.floaters) {
+    if (f.dmg && !nums) { if (f.el) { f.el.remove(); f.el = null; VIEW.floaters.delete(f); } continue; }
     if (!f.el) {
       f.el = document.createElement("div");
-      f.el.className = "floater";
+      f.el.className = f.dmg ? "floater dmg" : "floater";
       f.el.textContent = f.text;
       f.el.style.color = f.color;
       f.el.style.fontSize = f.size + "px";
@@ -84,9 +86,20 @@ function updateFloaters() {
       VIEW.floaters.set(f, true);
     }
     const k = f.t / f.life;
-    const sc = screenOf(f.x, f.y, 2.0 + (f.h - 18) * U * 0.6 + k * 1.1);
+    const rise = f.dmg ? (k < 0.18 ? 0.5 * Math.sin(k / 0.18 * Math.PI / 2) : 0.5 + (k - 0.18) * 0.55) : k * 1.1;
+    const sc = screenOf(f.x, f.y, (f.dmg ? 1.25 : 2.0) + (f.h - 18) * U * 0.6 + rise);
     if (!sc) { f.el.style.display = "none"; continue; }
     f.el.style.display = "block";
+    if (f.dmg) {
+      const pop = k < 0.08 ? 0.4 + 1.1 * (k / 0.08) : k < 0.2 ? 1.5 - 0.5 * ((k - 0.08) / 0.12) : 1;
+      const fz = k > 0.62 ? (k - 0.62) / 0.38 : 0;
+      const dx = (f.drift || 0) * 14 * k;
+      f.el.style.transform = "translate(" + (sc.x + dx).toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-50%) scale(" + (pop * (1 + fz * 0.35)).toFixed(2) + "," + (pop * (1 - fz * 0.5)).toFixed(2) + ")";
+      f.el.style.opacity = fz ? (Math.max(0, 1 - fz * 1.1) * (0.7 + 0.3 * Math.sin(f.t * 70))).toFixed(2) : 1;
+      f.el.style.filter = fz ? "blur(" + (fz * 2.6).toFixed(1) + "px)" : "";
+      f.el.style.letterSpacing = fz ? (fz * 0.35).toFixed(2) + "em" : "";
+      continue;
+    }
     const pop = k < 0.12 ? 1 + (0.12 - k) * 3 : 1;
     f.el.style.transform = "translate(" + sc.x.toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-50%) scale(" + pop.toFixed(2) + ")";
     f.el.style.opacity = k > 0.6 ? 1 - (k - 0.6) / 0.4 : 1;

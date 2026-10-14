@@ -27,6 +27,7 @@
   .plate .pb, .plate .pc { width: 46px; height: 4px; margin: 2px auto 0; background: rgba(0,0,0,.65); border-radius: 2px; overflow: hidden; }
   .plate .pb div, .plate .pc div { height: 100%; }
   .floater { position: absolute; left: 0; top: 0; font-weight: 800; text-shadow: 0 0 3px #000, 0 2px 3px #000, 0 0 1px #000; white-space: nowrap; will-change: transform; }
+  .floater.dmg { font-family: var(--ffFont, sans-serif); font-style: italic; font-weight: 900; -webkit-text-stroke: 1px #2a0000; text-shadow: 0 0 2px #000, 1px 2px 0 #3a0000, 0 0 8px rgba(255,40,20,.55); pointer-events: none; }
   #flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: screen; }
   #joy { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.06), rgba(255,255,255,.12)); border: 2px solid rgba(241,207,115,.35); display: none; pointer-events: none; z-index: 3; }
   #knob { position: absolute; left: 36px; top: 36px; width: 44px; height: 44px; border-radius: 50%; background: rgba(241,207,115,.45); box-shadow: 0 0 12px rgba(241,207,115,.4); }
@@ -924,6 +925,8 @@
   #chat.lite #log { overflow: hidden; scrollbar-width: none; }
 
   #ffTop { top: calc(13px + var(--sat)) !important; }
+  #ui.hasTop #ffStat { top: calc(54px + var(--sat)) !important; }
+  #stOv { top: calc(56px + var(--sat)) !important; }
   #ffNetBox { top: calc(13px + var(--sat)) !important; }
   #ui.hasTop #topRight, #ui:has(#mCmd.on) #topRight { top: calc(52px + var(--sat)); }
   #ffTop .ffBar .ffRight { top: -9px; }
@@ -1002,7 +1005,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.1.0 · built 2026-10-14 10:22 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v14.2.0 · built 2026-10-14 11:04 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6776,7 +6779,7 @@ const ZONES = {
       { id: "luna", x: 660, y: 470 }, { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
     ],
     props: [{ type: "anvil", x: 690, y: 690, rot: 0.2, r: 26 }, { type: "desk", x: 455, y: 290, r: 22 }, { type: "desk", x: 430, y: 465, r: 22 }, { type: "barrels", x: 900, y: 560, rot: 1.2, r: 26 }],
-    ambient: [{ type: "chicken", x: 400, y: 600, n: 4, r: 70 }, { type: "dog", x: 640, y: 470, n: 1, r: 120, col: 0x8a6a4a }, { type: "cat", x: 300, y: 330, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 560, y: 420, n: 1, path: [[560, 300], [820, 410], [700, 520], [480, 500]] }, { type: "walker", x: 600, y: 450, n: 1, path: [[380, 470], [560, 560], [760, 470], [620, 330]] }],
+    ambient: [{ type: "chicken", x: 400, y: 600, n: 4, r: 70 }, { type: "dog", x: 640, y: 470, n: 1, r: 120, col: 0x8a6a4a }, { type: "cat", x: 300, y: 330, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 560, y: 420, n: 1, path: [[560, 300], [820, 410], [700, 520], [480, 500]] }],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
     plaza: { x: 560, y: 420, r: 150 },
@@ -8347,8 +8350,9 @@ function gameDate() {
 }
 function clockText() { const v = vana(); return DAY_NAMES[v.dayIndex] + " " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0"); }
 
-function popText(e, text, color, size, life, yOff) {
-  S.floaters.push({ x: e.x + rand(-10, 10), y: e.y, h: (e.radius || 14) + 4 + (yOff || 0), text: String(text), color, size: size || 16, t: 0, life: life || 1.0 });
+const DMG_RED = "#ff2a20";
+function popText(e, text, color, size, life, yOff, dmg) {
+  S.floaters.push({ x: e.x + rand(-10, 10), y: e.y, h: (e.radius || 14) + 4 + (yOff || 0), text: String(text), color, size: size || 16, t: 0, life: life || 1.0, dmg: !!dmg, drift: rand(-1, 1) });
 }
 
 function ring(e, color, grow, life, kind) {
@@ -9247,14 +9251,14 @@ function applyDamage(src, tgt, amt, opt) {
     tgt.flash = 0.15;
     tgt.lastHit = S.time;
     if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
-    if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (src === player ? "#ffffff" : "#b3d9ff"), opt.size || 16, opt.life, opt.yOff);
+    if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || DMG_RED, (opt.size || 16) + 6, opt.life || 1.25, opt.yOff, opt.text == null);
     return;
   }
   tgt.hp = Math.max(0, tgt.hp - amt);
   tgt.flash = 0.15;
   tgt.lastHit = S.time;
   if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
-  if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (isMob(tgt) ? (src === player ? "#ffffff" : "#b3d9ff") : "#ff8a80"), opt.size || 16, opt.life, opt.yOff);
+  if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (isMob(tgt) ? DMG_RED : "#ff5a48"), (opt.size || 16) + 6, opt.life || 1.25, opt.yOff, opt.text == null);
   if (isMob(tgt)) {
     if (src && isSide(src)) {
       if (!tgt.claim) tgt.claim = claimId(src);
@@ -13348,7 +13352,12 @@ function b64ToBytes(b64) {
 
 function initAudio() {
   AUDIO.settings = loadAudioSettings();
-  const unlock = () => { if (UI.started) startAudio(); };
+  const unlock = () => {
+    startAudio();
+    const c = AUDIO.ctx;
+    if (c && c.state !== "running") { try { c.resume(); } catch (e) {} }
+    if (c && !AUDIO.kicked) { AUDIO.kicked = true; try { const b = c.createBuffer(1, 1, 22050), src = c.createBufferSource(); src.buffer = b; src.connect(c.destination); src.start(0); } catch (e) {} }
+  };
   for (const ev of ["pointerdown", "keydown", "touchend"]) window.addEventListener(ev, unlock, { capture: true, passive: true });
   document.addEventListener("visibilitychange", () => {
     if (!AUDIO.ctx) return;
@@ -15471,7 +15480,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + "</div>";
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -16123,7 +16132,7 @@ function onMenuClick(e) {
   e.preventDefault();
   const a = t.dataset.a, v = t.dataset.v;
   if (a === "mute") { toggleMute(); renderModal(); return; }
-  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates" || v === "compass")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
+  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates" || v === "compass" || v === "dmgNums")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
   if (typeof handleSettingAction === "function" && handleSettingAction(a, v)) { renderModal(); sfx("click"); return; }
   const hb = hotbar();
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
@@ -16328,13 +16337,25 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v14.1.0 · built 2026-10-14 10:22 PDT";
+const BUILD_INFO = "v14.2.0 · built 2026-10-14 11:04 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "14.2.0", date: "2026-10-14", title: "Townsfolk, swordplay and damage numbers", items: [
+    "Named NPCs now hold their trade: Garrick and Haldor carry forge hammers, the clerks keep ledgers, Tobin a tome, guards their spears, the ferryman an oar, Wend a fishing rod, Luna a lantern and more.",
+    "Background townsfolk get a fuller wardrobe (shirts, vests, aprons, tunics, robes and coats; bandanas, wide-brim and fur hats; capes, collars and gloves) and sometimes carry a basket, broom, tankard, book, walking staff or scroll.",
+    "Heads turn to look at things: you look at your target, people turn their head to face you when you target them, talk to them or walk close, and monsters watch whoever they're fighting or you when you target them.",
+    "Sword swings fixed: the wrist now snaps through the cut, so the blade leads the overhead chop, lies flat through the side sweep and points ahead in the stab instead of swinging backwards. The grip sits deeper in the fist.",
+    "Red damage numbers pop out of whoever is hit, rise, then fizzle away. Turn them off in Config → Interface → Damage numbers.",
+    "Rounder, V-shaped chests that slope from the neck into the shoulders instead of square boxes; Ursan chests are no longer wider than their shoulders. Thicker, natural necks.",
+    "Pipkin feet are smaller. Skin is a touch less shiny in bright sun.",
+    "Status icons now sit below the Commands bar instead of under it.",
+    "One of the Outpost's background walkers is gone.",
+    "Sound now starts on your first tap, click or key press, even if the browser held it back; a note appears if sound is still blocked."
   ] },
   { v: "14.1.0", date: "2026-10-14", title: "Fitted armour and finer weapons", items: [
     "Armour is now shaped to the body underneath it: breastplates wrap the chest and waist with a centre ridge and riveted bands, pauldrons cap the shoulder in layers, vambraces follow the forearm, greaves follow the shin with a knee cop, and boots hug the calf with a turned top. Everything bends with the body instead of floating.",
@@ -17436,7 +17457,10 @@ function tabHelp() {
     "<b>Bottom:</b> the event log. New messages open it fully; after a few quiet seconds it shrinks to three lines. Each Esc hides one more line until it's gone. Press / to type (the tabs and typing box appear), or L to keep it open; on phones tap yourself and choose Chat. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
-    "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you)."
+    "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
+    "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
+    "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
+    "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
     "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",
@@ -17459,7 +17483,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "14.1.0";
+const GAME_VERSION = "14.2.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19756,8 +19780,8 @@ const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytai
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 
 const REGION_PAINT = {
-  skin(u, v, o, X, Y) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11), f = NOISE.value(u * 40, v * 40, 0, 12), pore = NOISE.value(u * 160, v * 160, 0, 14); o[0] = 0.92 + 0.06 * n + 0.02 * f - (pore > 0.86 ? 0.025 : 0); o[1] = n * 0.12 + f * 0.05 - (pore > 0.86 ? 0.05 : 0); o[2] = 0.56 + 0.08 * f + (pore > 0.86 ? 0.06 : 0); o[3] = 0; },
-  face(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 13), f = NOISE.value(u * 40, v * 40, 0, 15); o[0] = 0.94 + 0.05 * n + 0.01 * f; o[1] = n * 0.08 + f * 0.03; o[2] = 0.56; o[3] = 0; },
+  skin(u, v, o, X, Y) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11), f = NOISE.value(u * 40, v * 40, 0, 12), pore = NOISE.value(u * 160, v * 160, 0, 14); o[0] = 0.8 + 0.06 * n + 0.02 * f - (pore > 0.86 ? 0.025 : 0); o[1] = n * 0.12 + f * 0.05 - (pore > 0.86 ? 0.05 : 0); o[2] = 0.56 + 0.08 * f + (pore > 0.86 ? 0.06 : 0); o[3] = 0; },
+  face(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 13), f = NOISE.value(u * 40, v * 40, 0, 15); o[0] = 0.82 + 0.05 * n + 0.01 * f; o[1] = n * 0.08 + f * 0.03; o[2] = 0.64; o[3] = 0; },
   cloth(u, v, o, X, Y) {
     const tx = X * 1.0, ty = Y * 1.0, cx = Math.floor(tx / 2), cy = Math.floor(ty / 2), over = (cx + cy) & 1;
     const fx = tx / 2 - cx, fy = ty / 2 - cy, warp = Math.sin(fx * Math.PI), weft = Math.sin(fy * Math.PI);
@@ -20628,6 +20652,7 @@ const NPC_LOOK = {
   ysolde: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
 };
 
+
 function lookFor(job, gear, base) {
   const tint = JOB_TINT[job] || JOB_TINT.WAR;
   const L = Object.assign({ legs: tint.pants, top: { type: "shirt", color: tint.shirt }, belt: 0x4a3020 }, base);
@@ -20897,15 +20922,15 @@ function humanEntry(L) {
   const BODY = {};
   const shellOf = (rs, off) => rs.map(r => Object.assign({}, r, { rx: r.rx + off, rz: r.rz + off }));
   if (!L.skull) {
-    R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.04, 0.0), 0.05 * gi, 0.043 * gi, 10), "neck", skin, SKR);
+    R.add(gTaper(V3(0, neckY - 0.06, -0.006), V3(0, headY + 0.03, 0.008), (fem ? 0.056 : 0.064) * gi, (fem ? 0.046 : 0.054) * gi, 14), "neck", skin, SKR);
     const W = sw / 0.195;
     const robe = top.type === "robe" || top.type === "coat";
     const hipR = fem ? 0.165 : 0.152, waistR = 0.15 * pr.waist, beltY = hipsY + 0.03;
-    const hx0 = gi * (fem ? 1.08 : 1.0), cx0 = gi * W, cx1 = gi * W * 1.04, hz = 0.7 * gi, cz = 0.67 * gi;
-    const ring = (y, r, xs, zs, f, b, z, p) => ({ y, rx: r * xs, rz: r * zs, f, b, z: z || 0, p: p || 2.3 });
+    const hx0 = gi * (fem ? 1.08 : 1.0), cx0 = Math.min(gi, 1.04) * W, cx1 = Math.min(gi, 1.1) * W * 1.04, hz = 0.7 * gi, cz = 0.67 * gi;
+    const ring = (y, r, xs, zs, f, b, z, p) => ({ y, rx: r * xs, rz: r * zs, f, b, z: z || 0, p: p || 2.1 });
     const lowR = [ring(hipJ - 0.078, 0.045, hx0, hz, 1, 1), ring(hipJ - 0.06, 0.11, hx0, hz, 0.95, 1.08, -0.004), ring(hipJ - 0.02, hipR * 0.95, hx0, hz, 0.95, 1.16, -0.006), ring(hipJ + 0.015, hipR * 0.99, hx0, hz, 0.97, 1.12, -0.004), ring(beltY, hipR, hx0, hz, 1, 1.04)];
     const bust = fem ? 0.16 : 0.08;
-    const upR = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.97, (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring((spineY + chestY) / 2, waistR, cx0, cz, 1.06, 0.92), ring(chestY - 0.04, 0.152, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.168, (cx0 + cx1) / 2, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.174, cx1, cz, 1.02 + bust * 0.3, 1.05), ring(shY - 0.015, 0.176, cx1, cz * 0.98, 0.98, 1.04, 0, 2.6), ring(shY + 0.018, 0.15, cx1 * 0.98, cz * 0.92, 0.9, 1.0, -0.004, 2.4), ring(neckY - 0.022, 0.1, cx1 * 0.9, cz * 0.95, 0.85, 0.95, -0.004), ring(neckY + 0.012, 0.058, gi, gi * 0.95, 1, 1, -0.004, 2)];
+    const upR = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.95, (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring((spineY + chestY) / 2, waistR * 0.93, cx0 * 0.95, cz, 1.06, 0.92), ring(chestY - 0.04, 0.155, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.172, cx1 * 1.03, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.18, cx1 * 1.06, cz, 1.0 + bust * 0.3, 1.05), ring(shY - 0.025, 0.17, cx1 * 1.04, cz * 0.95, 0.97, 1.03, 0, 2.1), ring(shY - 0.002, 0.148, cx1 * 1.0, cz * 0.9, 0.94, 1.02, -0.004, 2.0), ring(shY + 0.022, 0.112, cx1 * 0.94, cz * 0.88, 0.92, 1.0, -0.006, 2.0), ring(neckY - 0.024, 0.084, cx1 * 0.86, cz * 0.92, 0.9, 0.95, -0.006, 2.0), ring(neckY + 0.012, 0.066, gi * (fem ? 0.86 : 1), gi * 0.95, 1, 1, -0.006, 2)];
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     R.addW(gLoft(lowR, 24, true, false, 0, 0.3), "hips", robe ? topC : legC, robe ? topR : legR, tw);
     R.addW(gLoft(upR, 24, false, false, 0.3, 1), "chest", topC, topR, tw);
@@ -20935,7 +20960,7 @@ function humanEntry(L) {
       const ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi, rz: r * gi, f: f || 1, b: b || 1, p: p || 2 });
       const aw = (x, y) => y > shY - 0.03 ? [["upArm" + sd, 1 - 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)], ["chest", 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)]] : blendW(y, [[0, "foreArm" + sd, 0], [elY, "upArm" + sd, 0.035]]).map(([n, w]) => [n, w]);
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
-      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings = [tuck(ar(shY + 0.02, 0.024), 0.02), tuck(ar(shY + 0.008, 0.046), 0.014), tuck(ar(shY - 0.014, 0.056), 0.006), ar(shY - 0.045, 0.057, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
+      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings = [tuck(ar(shY + 0.004, 0.022), 0.024), tuck(ar(shY - 0.006, 0.044), 0.016), tuck(ar(shY - 0.024, 0.055), 0.007), ar(shY - 0.045, 0.057, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
       const fa1 = [ar(elY, 0.042, 1, 1.08), ar(elY - 0.03, 0.045, 1.05, 1.0), ar(elY - 0.07, 0.043), ar(mid, 0.039)];
       const fa2 = [ar(mid, 0.039), ar((mid + wrY) / 2, 0.035), ar(wrY + 0.018, 0.031, 1, 1, 2.4), ar(wrY - 0.004, 0.03, 1, 1, 2.4)];
       const flip = rs => rs.slice().reverse();
@@ -20974,6 +20999,7 @@ function humanEntry(L) {
       R.add(gTaper(t1, t2, 0.0098 * hk, 0.0082 * hk, 6), tb, handC, handR);
       R.add(gBall(t2, 0.0082 * hk, 1, 1, 1, 5), tb, handC, handR);
     }
+    if (L.held && !L.skull && (L.held === "ledger" || L.held === "book" || L.held === "scroll" || L.held === "basket" ? sd === "L" : sd === "R")) heldProp(R, L.held, sd, s * (sw + 0.024), wrY, gi * (L.doll ? 1.25 : 1));
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
     if (L.pauldrons) {
       const A = BODY["arm" + sd];
@@ -21039,7 +21065,7 @@ function humanEntry(L) {
       R.add(gBox(V3(hx, 0.042, 0.035), 0.06, 0.075, 0.2), "foot" + sd, footC, footR);
       R.add(gBall(V3(hx, 0.045, 0.13), 0.035, 1, 0.8, 1.0, 10), "foot" + sd, footC, footR);
     } else {
-      const bt = L.boots != null, fk = gi * (L.doll ? 1.15 : 1) * (bt ? 1.08 : 1), fx = hx + s * 0.004;
+      const bt = L.boots != null, fk = gi * (L.doll ? 0.8 : 1) * (bt ? 1.08 : 1), fx = hx + s * 0.004;
       const fr = (z, w, hh, p) => ({ x: fx, z: z * fk, rx: w * fk, ry: hh / 2 * fk, y: hh / 2 * fk, top: 1, bot: 1, p: p || 2.6 });
       R.add(gSweepZ([fr(-0.075, 0.026, 0.06, 2.2), fr(-0.06, 0.038, 0.085), fr(-0.02, 0.042, 0.1), fr(0.03, 0.043, 0.075), fr(0.09, 0.048, 0.05), fr(0.13, 0.046, 0.038), fr(0.165, 0.036, 0.028, 2.4)], 16, true, true), "foot" + sd, footC, footR);
       if (bt) {
@@ -21249,6 +21275,25 @@ function cactusBody(R, L, J) {
   return R.finish();
 }
 
+const NPC_HELD = { garrick: "hammer", haldor: "hammer", pell: "ledger", corvin: "ledger", selene: "ledger", orla: "ledger", vela: "ledger", tobin: "book", maera: "scroll", brisa: "scroll", marn: "basket", essa: "basket", odette: "bolt", ysolde: "brush", luna: "lantern", ilsa: "spyglass", ferryman: "oar", wend: "rod", guard: "spear", guard_f: "spear", nomad: "spear", tarqa: "staffwalk" };
+function heldProp(R, kind, sd, hx, wrY, gi) {
+  const hb = "hand" + sd, gy = wrY - 0.07 * gi, z = 0.012, wood = 0x7a5432, dark = 0x3a2a1a, metal = 0x9aa0a8, brass = 0xc8a040;
+  if (kind === "hammer") { R.add(gTaper(V3(hx, gy + 0.05, z), V3(hx, gy - 0.32, z + 0.02), 0.012, 0.014, 6), hb, wood, "wood"); R.add(gBox(V3(hx, gy - 0.33, z + 0.02), 0.04, 0.05, 0.12), hb, 0x5a5a62, "metal"); }
+  else if (kind === "spear") { R.add(gTaper(V3(hx, gy + 0.95, z), V3(hx, gy - 0.75, z), 0.014, 0.016, 6), hb, wood, "wood"); R.add(gTaper(V3(hx, gy + 0.95, z), V3(hx, gy + 1.15, z), 0.03, 0.002, 4, 0.35), hb, metal, "metal"); R.add(gRing(V3(hx, gy + 0.94, z), 0.018, 0.006, "y", 8), hb, brass, "metal"); }
+  else if (kind === "staffwalk") R.add(gTaper(V3(hx, gy + 0.8, z), V3(hx, gy - 0.75, z), 0.018, 0.014, 6), hb, wood, "wood");
+  else if (kind === "ledger" || kind === "book") { const c = kind === "book" ? 0x5a2a6a : 0x5a3a20; R.add(gBox(V3(hx, gy - 0.07, z + 0.03), 0.04, 0.2, 0.15, 0, 0, 0), hb, c, "leather"); R.add(gBox(V3(hx, gy - 0.07, z + 0.03), 0.032, 0.19, 0.146), hb, 0xf0e8d0, "plain"); if (kind === "book") R.add(gBox(V3(hx, gy - 0.07, z + 0.03), 0.042, 0.03, 0.152), hb, brass, "metal"); }
+  else if (kind === "scroll") { R.add(gCyl(V3(hx, gy - 0.04, z + 0.02), 0.022, 0.022, 0.2, 10), hb, 0xf0e2c0, "plain"); for (const k of [-1, 1]) R.add(gBall(V3(hx, gy - 0.04 + k * 0.105, z + 0.02), 0.014, 1, 0.6, 1, 6), hb, dark, "wood"); }
+  else if (kind === "basket") { R.add(gPartSphere(V3(hx, gy - 0.12, z + 0.02), 0.11, 0, Math.PI * 0.5, 1, 0.8, 0.8, 12, Math.PI * 0.5), hb, 0xa07848, "wood"); R.add(gRing(V3(hx, gy - 0.05, z + 0.02), 0.09, 0.008, "x", 12, Math.PI), hb, 0x8a6038, "wood"); R.add(gBall(V3(hx, gy - 0.12, z + 0.02), 0.085, 1, 0.3, 0.8, 8), hb, 0xc84a3a, "plain"); }
+  else if (kind === "bolt") R.add(gCyl(V3(hx, gy - 0.06, z + 0.03), 0.05, 0.05, 0.36, 12), hb, 0x7a5aa8, "cloth");
+  else if (kind === "brush") { R.add(gTaper(V3(hx, gy + 0.02, z), V3(hx, gy - 0.12, z), 0.012, 0.012, 6), hb, wood, "wood"); R.add(gBox(V3(hx, gy - 0.15, z), 0.05, 0.04, 0.09), hb, 0x8a6a40, "fur"); }
+  else if (kind === "lantern") { R.add(gRing(V3(hx, gy - 0.02, z), 0.025, 0.004, "x", 10), hb, dark, "metal"); R.add(gCyl(V3(hx, gy - 0.12, z), 0.04, 0.05, 0.12, 8), hb, dark, "metal"); R.add(gCyl(V3(hx, gy - 0.12, z), 0.034, 0.042, 0.1, 8), hb, 0xffd080, "glow", true); }
+  else if (kind === "spyglass") { R.add(gTaper(V3(hx, gy + 0.02, z - 0.06), V3(hx, gy - 0.02, z + 0.24), 0.018, 0.024, 10), hb, brass, "metal"); R.add(gRing(V3(hx, gy, z + 0.08), 0.022, 0.004, "z", 10), hb, dark, "leather"); }
+  else if (kind === "oar") { R.add(gTaper(V3(hx, gy + 0.6, z), V3(hx, gy - 0.9, z), 0.016, 0.016, 6), hb, wood, "wood"); R.add(gBox(V3(hx, gy - 1.0, z), 0.02, 0.28, 0.12), hb, wood, "wood"); }
+  else if (kind === "rod") { R.add(gTaper(V3(hx, gy + 0.05, z), V3(hx, gy + 1.4, z + 0.5), 0.012, 0.003, 5), hb, 0x6a4a28, "wood"); }
+  else if (kind === "broom") { R.add(gTaper(V3(hx, gy + 0.6, z), V3(hx, gy - 0.7, z), 0.013, 0.013, 6), hb, wood, "wood"); R.add(gTaper(V3(hx, gy - 0.66, z), V3(hx, gy - 0.95, z), 0.03, 0.08, 8, 0.6), hb, 0xc8a860, "fur"); }
+  else if (kind === "tankard") { R.add(gCyl(V3(hx, gy - 0.05, z + 0.03), 0.035, 0.038, 0.1, 10), hb, 0x8a8a92, "metal"); R.add(gRing(V3(hx, gy - 0.05, z + 0.07), 0.025, 0.007, "x", 8, Math.PI), hb, 0x8a8a92, "metal"); }
+}
+
 function goblinLook(variant) {
   const base = { noFace: true, ears: "goblin", nose: "goblin", eyesGlow: 0xffd040, barefoot: true, sack: true, legs: 0x5a4632, belt: 0x3a2a1a };
   if (variant === "chieftain") return Object.assign(base, { skin: 0x6a7a34, top: { type: "mail", color: 0x55585e, region: "chain" }, head: { type: "horned", color: 0x4a4a44, color2: 0xe8dcc0 }, cape: 0x8a1f1f, pauldrons: 0x6a6a64, weapon: "greataxe", sack: false, prop: { leg: 0.62, torso: 0.56, headR: 0.18, arm: 0.62, shoulder: 0.22, hip: 0.11, neck: 0.04, girth: 1.25 } });
@@ -21337,7 +21382,17 @@ function birdEntry(col, comb, beak) {
 function walkerLook(seed) {
   const r = seeded(hashStr("walker" + seed));
   const fem = r() < 0.5, pick = a => a[Math.floor(r() * a.length)];
-  return { face: Math.floor(r() * FACE_COUNT), build: fem ? 1 : 0, skin: SKIN_TONES[Math.floor(r() * SKIN_TONES.length)], hair: { style: pick(HAIR_BY_SEX[fem ? 1 : 0]), color: pick(HAIR_COLORS) }, top: { type: pick(["shirt", "vest", "apron", "tunic"]), color: pick([0x8a5a3a, 0x3a5a7a, 0x6a7a3a, 0x7a3a3a, 0xc8b890, 0x5a4a6a]), color2: 0xd8d0c0, under: 0xd8cfb8 }, legs: pick([0x3a3028, 0x2a2a30, 0x4a3a2c]), boots: 0x2a1a10, belt: 0x3a2412 };
+  const pal = [0x8a5a3a, 0x3a5a7a, 0x6a7a3a, 0x7a3a3a, 0xc8b890, 0x5a4a6a, 0x2f4a5a, 0x8a7a4a, 0xa05a3a, 0x4a6a5a, 0x6a4a3a, 0xb8a888, 0x5a2a3a, 0x3a3a52];
+  const ty = pick(["shirt", "vest", "apron", "tunic", "tunic", "vest", "robe", "coat"]), col = pick(pal);
+  const L = { face: Math.floor(r() * FACE_COUNT), build: fem ? 1 : 0, skin: SKIN_TONES[Math.floor(r() * SKIN_TONES.length)], hair: { style: pick(HAIR_BY_SEX[fem ? 1 : 0]), color: pick(HAIR_COLORS) }, top: { type: ty, color: col, color2: pick([0xd8d0c0, 0x8a6a40, 0xe8e0c8]), under: pick([0xd8cfb8, 0xc8c0a8, 0xe8e0d0]), trim: r() < 0.35 ? pick([0xd8c070, 0x8a3a2a, 0x3a5a7a]) : null }, legs: pick([0x3a3028, 0x2a2a30, 0x4a3a2c, 0x5a4a38, 0x3a3a44]), boots: pick([0x2a1a10, 0x3a2818, 0x4a3a28]), belt: pick([0x3a2412, 0x5a3a20, 0x2a2a2a]) };
+  const hat = r();
+  if (hat < 0.14) L.head = { type: "bandana", color: pick(pal) }; else if (hat < 0.24) L.head = { type: "widebrim", color: pick([0x8a7a4a, 0x5a4a32, 0x3a3a3a]), color2: 0xd8c070 }; else if (hat < 0.3) L.head = { type: "furhat", color: 0x6a4a2a };
+  if (r() < 0.12) L.cape = pick(pal);
+  if (r() < 0.1) L.collar = 0xd8c8a8;
+  if (r() < 0.15) L.gloves = pick([0x5a3a22, 0x3a2a1a]);
+  if (fem && r() < 0.3) L.prop = { girth: 0.9 }; else if (!fem && r() < 0.3) L.prop = { girth: 1.12 };
+  L.held = pick([null, null, null, "basket", "broom", "tankard", "book", "staffwalk", "scroll"]);
+  return L;
 }
 
 function wispEntry(col, eye) {
@@ -22038,7 +22093,8 @@ function buildEntityRig(e) {
     const L = NPC_LOOK[e.id] || (nd && NPC_LOOK[nd.model]) || (nd ? walkerLook(hashStr(e.id) % 997) : null);
     if (!L) return null;
     sig = "n|" + e.id;
-    const LF = L.face == null && !L.noFace ? Object.assign({ face: hashStr(e.id) % FACE_COUNT }, L) : L;
+    const held = L.held !== undefined ? L.held : NPC_HELD[e.id] || (nd && NPC_HELD[nd.model]) || null;
+    const LF = Object.assign(L.face == null && !L.noFace ? { face: hashStr(e.id) % FACE_COUNT } : {}, L, { held });
     make = () => humanEntry(LF);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {
@@ -22239,7 +22295,38 @@ function sitPlan(v) {
   return (v._sit = { a, b: ab - a, f: 0.15 - ab, drop, back: -0.02 * H });
 }
 
+const LOOK_KINDS = { human: 1, quad: 1, hare: 1, mandrake: 1, bird: 1 };
+const LOOK_V = { a: null, b: null };
+function headLook(v, dt) {
+  const B = v.bones, P = v.pose;
+  if (!B || !B.head || !P.head || !LOOK_KINDS[v.kind]) return;
+  if (!LOOK_V.a) { LOOK_V.a = new THREE.Vector3(); LOOK_V.b = new THREE.Vector3(); }
+  let yaw = 0, pitch = 0, want = 0;
+  const t = v.lookTgt;
+  if (t) {
+    const tv = VIEW.views.get(t), a = LOOK_V.a, b = LOOK_V.b;
+    if (tv && tv.bones && tv.bones.head && tv.group.visible !== false) tv.bones.head.getWorldPosition(a);
+    else a.set(t.x * U, groundY(t.x, t.y) + (t.kind === "npc" || t.chest || t.crystal ? 1.0 : 1.3), t.y * U);
+    B.head.getWorldPosition(b);
+    v.group.worldToLocal(a); v.group.worldToLocal(b);
+    const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z, hz = Math.hypot(dx, dz);
+    const twist = (P.hips ? P.hips[1] : 0) + (P.spine ? P.spine[1] : 0) + (P.chest ? P.chest[1] : 0);
+    yaw = Math.atan2(dx, dz) - twist;
+    if (Math.abs(yaw) < 2.1 && hz > 0.05) { want = 1; yaw = clamp(yaw, -1.25, 1.25); pitch = clamp(-Math.atan2(dy, hz), -0.55, 0.5); }
+  }
+  v.lookW = (v.lookW || 0) + (want - (v.lookW || 0)) * Math.min(1, dt * 4);
+  if (v.lookW < 0.01) return;
+  const w = v.lookW;
+  v.lookYaw = (v.lookYaw || 0) + ((want ? yaw : v.lookYaw || 0) - (v.lookYaw || 0)) * Math.min(1, dt * 7);
+  v.lookPitch = (v.lookPitch || 0) + ((want ? pitch : 0) - (v.lookPitch || 0)) * Math.min(1, dt * 7);
+  const hasNeck = !!(B.neck && P.neck), hs = hasNeck ? 0.62 : 1;
+  P.head[1] += (v.lookYaw * hs - P.head[1] * 0.5) * w;
+  P.head[0] += v.lookPitch * hs * w;
+  if (hasNeck) { P.neck[1] += v.lookYaw * (1 - hs) * w; P.neck[0] += v.lookPitch * (1 - hs) * w; }
+}
+
 function applyPose(v, dt, sharp) {
+  headLook(v, dt);
   const k = 1 - Math.exp(-dt * (sharp ? 26 : 15));
   for (const n in v.pose) {
     const b = v.bones[n], p = v.pose[n];
@@ -22353,7 +22440,6 @@ function poseHuman(v, e, dt) {
     an.look = (an.look || 0) + (near - (an.look || 0)) * Math.min(1, dt * 3);
     if (an.look > 0.01) {
       const ang = normAngA(Math.atan2(player.y - e.y, player.x - e.x) - (e.face || 0));
-      addP(P, "head", -0.08 * an.look, -clamp(ang, -1.1, 1.1) * an.look, 0);
       addP(P, "chest", 0, -clamp(ang, -1.1, 1.1) * 0.25 * an.look, 0);
     }
     const ww = (1 - an.look) * (amp < 0.1 ? 1 : 0);
@@ -22416,18 +22502,21 @@ function poseHuman(v, e, dt) {
       setP(P, "chest", 0.05, 0.55 * a - 0.8 * b, 0, w);
       setP(P, "spine", 0.1 * b, 0, 0, w);
       addP(P, "thighL", -0.3 * b * w, 0, 0); addP(P, "shinL", 0.3 * b * w, 0, 0);
+      setP(P, "handR", -0.3 * a + 2.7 * b, 0, 0, w);
     } else if (kind === "slash" && an.aVar === 1) {
       const a = ease(ak / 0.28), b = ease((ak - 0.28) / 0.2);
       setP(P, "upArmR", -1.3 * a + 0.2 * b, 0, -1.2 * a + 1.7 * b, w);
       setP(P, "foreArmR", -0.5 * a + 0.3 * b, 0, 0, w);
       setP(P, "chest", 0, -0.7 * a + 1.1 * b, 0, w);
       setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
+      setP(P, "handR", 1.5 * a, 0, 0, w);
     } else if (kind === "slash") {
       const a = ease(ak / 0.32), b = ease((ak - 0.32) / 0.22);
       setP(P, "upArmR", -2.1 * a + 1.8 * b, 0, -0.55 * a + 1.05 * b, w);
       setP(P, "foreArmR", -1.0 * a + 0.85 * b, 0, 0, w);
       setP(P, "chest", 0.05, -0.5 * a + 0.95 * b, 0, w);
       setP(P, "spine", 0.08 + 0.12 * b, 0, 0, w);
+      setP(P, "handR", 0.5 * a - 1.7 * b, 0, 0, w);
     } else if ((kind === "smash" || kind === "cleave") && an.aVar === 1) {
       const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.22);
       setP(P, "upArmR", -1.4, 0, -1.3 * a + 1.9 * b, w);
@@ -22442,6 +22531,7 @@ function poseHuman(v, e, dt) {
       setP(P, "foreArmR", -0.7 * a + 0.5 * b, 0, 0, w);
       if (kind === "cleave") { setP(P, "upArmL", -2.6 * a + 2.3 * b, 0, -0.35, w); setP(P, "foreArmL", -0.8 * a + 0.6 * b, 0, 0, w); }
       setP(P, "spine", -0.15 * a + 0.45 * b, 0, 0, w);
+      setP(P, "handR", 0.6 * a - 1.3 * b, 0, 0, w);
       setP(P, "chest", 0, -0.15 * a, 0, w);
     } else if (kind === "thrust") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.18);
@@ -23907,6 +23997,17 @@ function clearViews() {
   clearFX();
 }
 
+function lookTargetOf(e) {
+  if (!player || e.alive === false) return null;
+  const near = (t, r) => t && t !== e && t.alive !== false && !t.away && dist(e, t) < r;
+  if (e === player) return near(player.target, 900) ? player.target : null;
+  if (e.kind === "npc") return (player.target === e || S.pendingTalk === e || e.talkUntil > S.time) && near(player, 700) || near(player, 130) ? player : null;
+  if (isMob(e)) { if (near(e.target, 1200)) return e.target; return player.target === e && near(player, 600) ? player : null; }
+  const t = e.attackTarget || e.target;
+  if (near(t, 900)) return t;
+  return e !== player && player.target === e && near(player, 500) ? player : null;
+}
+
 function placeWeapon(v, e) {
   if (!v.weapon || !v.bones.handR) return;
   const an = v.an;
@@ -23917,7 +24018,7 @@ function placeWeapon(v, e) {
   const w = v.weapon, k = w.userData.kind;
   if (drawn) {
     v.bones.handR.add(w);
-    w.position.set(0, -0.06, 0.01);
+    w.position.set(0.016, -0.074, 0.012);
     if (k === "staff" || k === "polearm") w.rotation.set(0.2, 0, 0);
     else if (k === "archery") w.rotation.set(0, 0, 0.1);
     else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "gsword") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
@@ -24008,6 +24109,7 @@ function syncEntity(e, dt) {
     g.visible = !e.despawned && k < 1;
   } else g.visible = !(e === player && VIEW.first) && !((e.kind === "npc" || e.ambient) && e.away);
   if (e.fly) g.position.y += e.fly + Math.sin(S.time * 0.8 + (e.home ? e.home.x : 0)) * 0.6;
+  v.lookTgt = lookTargetOf(e);
   if (v.kind === "human") poseHuman(v, e, dt);
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);
@@ -24417,10 +24519,12 @@ function updateLabels() {
 }
 
 function updateFloaters() {
+  const nums = !VIEW.settings || VIEW.settings.dmgNums !== false;
   for (const f of S.floaters) {
+    if (f.dmg && !nums) { if (f.el) { f.el.remove(); f.el = null; VIEW.floaters.delete(f); } continue; }
     if (!f.el) {
       f.el = document.createElement("div");
-      f.el.className = "floater";
+      f.el.className = f.dmg ? "floater dmg" : "floater";
       f.el.textContent = f.text;
       f.el.style.color = f.color;
       f.el.style.fontSize = f.size + "px";
@@ -24428,9 +24532,20 @@ function updateFloaters() {
       VIEW.floaters.set(f, true);
     }
     const k = f.t / f.life;
-    const sc = screenOf(f.x, f.y, 2.0 + (f.h - 18) * U * 0.6 + k * 1.1);
+    const rise = f.dmg ? (k < 0.18 ? 0.5 * Math.sin(k / 0.18 * Math.PI / 2) : 0.5 + (k - 0.18) * 0.55) : k * 1.1;
+    const sc = screenOf(f.x, f.y, (f.dmg ? 1.25 : 2.0) + (f.h - 18) * U * 0.6 + rise);
     if (!sc) { f.el.style.display = "none"; continue; }
     f.el.style.display = "block";
+    if (f.dmg) {
+      const pop = k < 0.08 ? 0.4 + 1.1 * (k / 0.08) : k < 0.2 ? 1.5 - 0.5 * ((k - 0.08) / 0.12) : 1;
+      const fz = k > 0.62 ? (k - 0.62) / 0.38 : 0;
+      const dx = (f.drift || 0) * 14 * k;
+      f.el.style.transform = "translate(" + (sc.x + dx).toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-50%) scale(" + (pop * (1 + fz * 0.35)).toFixed(2) + "," + (pop * (1 - fz * 0.5)).toFixed(2) + ")";
+      f.el.style.opacity = fz ? (Math.max(0, 1 - fz * 1.1) * (0.7 + 0.3 * Math.sin(f.t * 70))).toFixed(2) : 1;
+      f.el.style.filter = fz ? "blur(" + (fz * 2.6).toFixed(1) + "px)" : "";
+      f.el.style.letterSpacing = fz ? (fz * 0.35).toFixed(2) + "em" : "";
+      continue;
+    }
     const pop = k < 0.12 ? 1 + (0.12 - k) * 3 : 1;
     f.el.style.transform = "translate(" + sc.x.toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-50%) scale(" + pop.toFixed(2) + ")";
     f.el.style.opacity = k > 0.6 ? 1 - (k - 0.6) / 0.4 : 1;
@@ -26540,20 +26655,26 @@ async function boot() {
     const dt = clamp((now - last) / 1000, 0, 0.05);
     last = now;
     requestAnimationFrame(frame);
-    try {
-      if (UI.started && !VIEW.loading) {
-        step(dt);
-        if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
-        age(dt);
-        draw(dt);
-        updateHud(dt);
-        updateAudio();
-      } else if (UI.creating && UI.pv) renderPreview(now);
-      else if (UI.showcase && UI.pv) renderShowcase(now);
-    } catch (e) { reportError(e, "frame"); }
+    if (UI.started && !VIEW.loading) {
+      try { step(dt); } catch (e) { reportError(e, "step"); }
+      try { if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); } } catch (e) { reportError(e, "net"); }
+      try { age(dt); } catch (e) { reportError(e, "age"); }
+      try { draw(dt); } catch (e) { reportError(e, "draw"); }
+      try { updateHud(dt); } catch (e) { reportError(e, "hud"); }
+      try { updateAudio(); audioNag(); } catch (e) { reportError(e, "audio"); }
+    } else {
+      try { if (UI.creating && UI.pv) renderPreview(now); else if (UI.showcase && UI.pv) renderShowcase(now); } catch (e) { reportError(e, "frame"); }
+    }
   }
   requestAnimationFrame(frame);
   showTitle();
+}
+
+function audioNag() {
+  const need = AUDIO.ready && AUDIO.ctx && AUDIO.ctx.state !== "running" && !(AUDIO.settings && AUDIO.settings.muted) && !document.hidden;
+  if (need && !UI.audioNagAt) UI.audioNagAt = performance.now();
+  if (!need) UI.audioNagAt = 0;
+  if (need && performance.now() - UI.audioNagAt > 2500 && !UI.audioNagShown) { UI.audioNagShown = true; if (typeof toast === "function") toast("🔇", "Sound is paused by your browser", "Tap or press any key to turn it on."); log("Sound is paused by your browser. Tap the screen or press any key to turn it on.", "warn"); }
 }
 
 function showTitle() {

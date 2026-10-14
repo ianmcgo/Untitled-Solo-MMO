@@ -1222,6 +1222,15 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - weaponEntry: sword/dagger/gsword tiers by item level (1: bar guard; 2 (lv ≥ 8): short block + swept quillons + langet; 3 (lv ≥ 15): taller quillons, gems on both faces of the guard and the pommel). Other kinds: band at lv ≥ 8, gold band + gem at lv ≥ 15.
 - Title: #ldTip hidden in the ready state, #ldVer pinned under #ldCred; #ldCred hidden on the roster screen. Test tools: studio race spec takes a 4th field of comma-separated item ids; studio/headshot use the scene environment map.
 
+## Phase 95: NPCs, swing, look-at, damage numbers (v14.2.0) — plan Q8, plus requests
+- `NPC_HELD` (rig.js) maps NPC id/model → prop kind; `heldProp(R, kind, sd, hx, wrY, gi)` builds it on the hand bone (ledger/book/scroll/basket in the left hand, the rest right). buildEntityRig: `held = L.held ?? NPC_HELD[id] ?? NPC_HELD[model]`. walkerLook: 14-colour palette, 6 top types, hats, cape/collar/gloves/girth odds, random held prop. Outpost has one ambient walker (the second was removed on request).
+- Swing beat sheet (anim.js slash, ak 0..1 over 0.5 s, a = wind-up ease, b = strike ease): var0 overhead chop — handR x +0.5a (cock back) → −1.7b (snap, blade leads, ends forward-down); var1 side sweep — handR x +1.5a (blade lies flat, sweeps right→left); var2 stab — handR x −0.3a → +2.7b (blade points ahead along the arm). Smash/cleave overhead: handR x 0.6a − 1.3b. Weapon grip offset in placeWeapon (0.016, −0.074, 0.012). Verified with contact sheets (sheet tool: forces skinned meshes visible; studio meshes otherwise read visible=false so weapons vanished).
+- Look-at: models3d `lookTargetOf(e)` sets `v.lookTgt` (player → its target ≤900; NPC → player when targeted/talking ≤700 or within 130; mob → its fight target ≤1200 or player when targeted ≤600; allies → attack target). anim `headLook(v, dt)` runs inside applyPose for kinds human/quad/hare/mandrake/bird: target head (or ground +1.0/1.3) in group-local space, yaw minus hips+spine+chest twist, clamp ±1.25 (ignored past 2.1), pitch −0.55..0.5, split 62% head / 38% neck, weight lookW eases at 4/s, angles at 7/s. The old NPC head-turn add was removed (chest twist kept). Never name a view field `look` (collides); it is `lookTgt`. Headless rAF barely ticks: probes must step syncEntity manually.
+- Damage numbers: popText gains `dmg` flag (numeric applyDamage pops), colour DMG_RED #ff2a20 (#ff5a48 on party), size +6, life 1.25. updateFloaters: dmg pops from 1.25 m, scale 0.4→1.5→1 in 0.2 of life, rises, drifts sideways, last 38% fizzles (blur up to 2.6 px, letter-spacing, squash, flicker). `VIEW.settings.dmgNums` (Config → Interface) hides them.
+- Torso: ring superellipse default p 2.1 (was 2.3); chest width capped by shoulders (`cx0 = min(gi,1.04)·W`, `cx1 = min(gi,1.1)·W·1.04`), waist 0.93/0.95, shoulder rings step down from shY−0.025 to neck so the trapezius slopes; arm caps start at shY+0.004. Neck taper 0.064/0.054 (male) or 0.056/0.046 (female) × girth, slight forward lean. Pipkin foot scale 0.8 (was 1.15). Skin/face albedo 0.8/0.82, face roughness 0.64.
+- HUD: `#ui.hasTop #ffStat` top 54 px and `#stOv` 56 px so status icons clear the Commands bar.
+- Audio: unlock on any pointer/key/touch calls startAudio, resumes the context and plays one silent buffer; main4 runs step/view/audio in separate try/catch; `audioNag()` toasts if the context isn't running 2.5 s after starting.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1274,6 +1283,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.2.0 | Phase 95: NPC props and wardrobe, wrist-led swings, head look-at, red damage numbers + toggle, V torsos and necks, smaller Pipkin feet, status icon spacing, audio unlock. |
 | 14.1.0 | Phase 94: body-fitted armour shells, weapon tiers, title tidy-up. |
 | 14.0.0 | Phase 93: spring capes/hair/tabards, 5 hairstyles, hair under helmets, fitted helmets, no exit arches, blue title screens, denser starter spawns, critters at night. |
 | 13.9.0 | Phase 92: 16 faces, talking mouths and jaw, expressions. |

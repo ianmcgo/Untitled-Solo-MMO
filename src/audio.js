@@ -36,7 +36,12 @@ function b64ToBytes(b64) {
 
 function initAudio() {
   AUDIO.settings = loadAudioSettings();
-  const unlock = () => { if (UI.started) startAudio(); };
+  const unlock = () => {
+    startAudio();
+    const c = AUDIO.ctx;
+    if (c && c.state !== "running") { try { c.resume(); } catch (e) {} }
+    if (c && !AUDIO.kicked) { AUDIO.kicked = true; try { const b = c.createBuffer(1, 1, 22050), src = c.createBufferSource(); src.buffer = b; src.connect(c.destination); src.start(0); } catch (e) {} }
+  };
   for (const ev of ["pointerdown", "keydown", "touchend"]) window.addEventListener(ev, unlock, { capture: true, passive: true });
   document.addEventListener("visibilitychange", () => {
     if (!AUDIO.ctx) return;
