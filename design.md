@@ -1297,6 +1297,14 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - 3D `buildCityWalls`: wall pieces ≈140 px long (each sits on its own lowest ground point), 4.4 m tall with brick world-UVs (`uvBox`), a cap and instanced merlons on both edges; per gate two 8.2 m towers with pyramid shingle roofs, a lintel, a stone half-torus arch and district-coloured banners with a gold trim on each face. `placeable` keeps scatter off walls and gates.
 - Map: districts get a 15% tint, walls and towers are drawn, and visited districts are labelled in their colour.
 
+## Phase 107: Outpost city (v15.1.0) — plan C2
+- Houses with a `type` (home, shop, hall, barracks, guard, cityhall, auction, forge, mill, warehouse) skip the old house loops and are built by `buildCityBuildings`. Optional per house: `floors`, `sign` (canvas text via `texSign`), `signCol`, `awning` colour, `flag` colour, `tint` (plaster colour 0–3), `roof` (0–3).
+- Draw-call budget: everything static goes through `cityBatch()` — geometry is made non-indexed, stripped to position/normal/uv, transformed by local × building matrix and merged per material at the end (about 20 meshes for the whole city). Only signs, awnings, flags, sails, clock faces/hands, glows and the forge light stay separate.
+- Building recipe: stone plinth, `floors` × 3 m storeys (timber types jetty 0.22 m per storey and get corner posts, floor beams and braces), front and back windows every 2.3 m (skipping the door bay on the ground floor), side windows when deep, gable roof (`roofGeo`) with matching gable wall shapes, dormer, chimney, framed door with step and lantern.
+- Type extras: awning + bracket sign (shop), portico columns and pediment (auction), chimney with ember cap + hearth glow + flickering point light in `W3.torchLights` (forge), four-blade sails in `W3.spinners` (mill), crane and crates (warehouse), clock tower with two faces whose hands follow `vana()` in `updateCityAnim` (cityhall), waving flag (barracks, guard, cityhall).
+- Zone extras: `plazas` (extra paved circles, used by terrain and map), `fountains` (basin, column, bowl, gilded finial, water disc, spray cone, collider r 48), `gardens` (soil bed, rows of plants, picket fence with a front gap), `dummies`, `racks`, `benches` (all colliders), `paved` (town paths drawn as cobbles), `outerWall` (perimeter wall 5.2 m with merlons, corner towers, a gatehouse at every non-door exit with the city name sign; replaces the palisade).
+- Outpost data: City Hall at the north end of the Government square; Maera's Guild is house 18 (her home index moved). Industrial gained Woodworkers (19) and Alchemists (20) halls; Garrick and the anvil sit north of the street.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1349,6 +1357,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.1.0 | Phase 107: city buildings (multi-storey, signs, awnings, clock tower, windmill, forge, warehouse), fountain square, gardens, outer wall and gatehouse, cobbled streets. |
 | 15.0.0 | Phase 106: Outpost split into five walled districts with gate halls, banners, district titles and map labels, gate routing for movement. |
 | 14.12.0 | Phase 105: brick crypt walls, pilasters, torch sconces, flagstones, sarcophagi, bones, urns, cobwebs; cave timber supports and crates. |
 | 14.11.0 | Phase 104: sunbeams, cave light shafts, dust motes, crystal light pools, wet shorelines. |

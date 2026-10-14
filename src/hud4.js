@@ -501,7 +501,9 @@ function zoneMapCanvas(zoneId) {
   const rnd = seeded(hashStr(zoneId + "map"));
   for (let i = 0; i < 260; i++) { g.fillStyle = "rgba(0,0,0," + (rnd() * 0.12).toFixed(3) + ")"; g.beginPath(); g.arc(rnd() * z.w, rnd() * z.h, 6 + rnd() * 30, 0, 7); g.fill(); }
   for (const d of z.districts || []) { g.fillStyle = d.color + "26"; g.fillRect(d.x, d.y, d.w, d.h); }
-  if (z.plaza) { g.fillStyle = "#9b8c6c"; g.beginPath(); g.arc(z.plaza.x, z.plaza.y, z.plaza.r, 0, 7); g.fill(); }
+  for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) { g.fillStyle = "#9b8c6c"; g.beginPath(); g.arc(q.x, q.y, q.r, 0, 7); g.fill(); }
+  for (const f of z.fountains || []) { g.fillStyle = "#5a9ad0"; g.beginPath(); g.arc(f.x, f.y, 44, 0, 7); g.fill(); }
+  for (const gd of z.gardens || []) { g.fillStyle = "#4f7a34"; g.fillRect(gd.x - gd.w / 2, gd.y - gd.h / 2, gd.w, gd.h); }
   g.lineCap = "round"; g.lineJoin = "round";
   for (const p of z.paths || []) {
     g.strokeStyle = z.theme === "cave" ? "#55493c" : z.theme === "crypt" ? "#4a4852" : "#a8946a"; g.lineWidth = p.w;
