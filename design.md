@@ -1333,6 +1333,14 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Hair: fringe styles (bob, long, twintails, wavy) front edge −0.5 / −0.42 and front locks 0.13 long so they stop at the brows.
 - Test tool: test/faceshot.js (own WebGL renderer with ACES so render targets are tone mapped like the game; poses front, q, lid0, lidh).
 
+## Phase 110.3: Creation polish and skin removal (v15.7.0) — Track 0
+
+- Skin tones removed: classic MMO had no skin choice. save.look.skin is no longer written (normalizeSave deletes it from old saves). rig.js RACE_SKIN maps race to a SKIN_TONES index (human 1, elari 0, pipkin 0, ursan 2, nekari 1) and baseFromLook uses it. CC_FACE_SKIN is gone; ccFaceThumb(v, fem, race) uses the race tone, and thumbnails are cached per race.
+- Name and job step now shows a .ccSum summary (race, gender, face, hair, size) and a Start over button (data-restart) that resets the look, step and name. The preview keeps turning on that step because focus is 0.
+- Status screen (statusLeftHTML) shows race, gender symbol and size under the name.
+- Click sounds already existed on every creator button.
+- Test: test/p53unit.js creates all 1536 race/gender/face/hair/size combinations and checks they save and load intact with no skin field.
+
 ## Phase 110.2: Creation flow (v15.6.0) — Track 0
 - `showCharCreate` (main4.js) is a stepper: `CC_STEPS` race, gender, face, hair, size, name; `ccSteps(look)` drops gender when `RACES[race].sex` is set. `CC.step` indexes the filtered list. `paint()` rebuilds `#ccSteps`, `#ccStepT`, `#ccBody`; the name input is wired only when the name step renders. The Next button carries `data-create` on the last step (tests click `[data-next]` until `#ccName` exists, then `[data-create]`).
 - Face drives hairstyle and skin like classic MMO face types: `CC_FACE_HAIR[sex][face]`, `CC_FACE_SKIN[sex][face]`, applied by `ccApplyFace` whenever race, gender or face changes. Saved looks still store hairStyle and skin, so old characters and the renderer are unchanged.
@@ -1394,6 +1402,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.7.0 | Phase 110.3: skin tones removed, creation summary and Start over, race and size on Status. |
 | 15.6.0 | Phase 110.2: step-by-step character creation (race, gender, face, hair colour, size, name and job). |
 | 15.5.0 | Phase 110.1: anime faces (8 face types, male/female paints, smoother heads, fringes at the brows). |
 | 15.4.0 | Phase 110: city life: crowds, guard patrols, district signposts, district ambience, tour quests. |

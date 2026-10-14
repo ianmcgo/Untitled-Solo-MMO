@@ -9,7 +9,7 @@ Requested 2026-10-14. Goal: recreate the feel of the classic MMO creation screen
 |---|---|---|---|
 | 110.1 ✅ | 15.5.0 | Anime faces | Redo the face paint and head shape for all five races in a stylised cartoon/anime style: big shaded eyes with highlights, tiny nose, small mouth, thin brows, softer jaw and cheeks; 8 face types per race and gender (replaces the current 16 realistic faces; old saves map to the nearest type); expressions, lip-sync and look-at keep working |
 | 110.2 ✅ | 15.6.0 | Creation flow | Rebuild the creator as four sequential screens with a live 3D preview on the left and Back/Next: Race (five races with blurb and stat bonuses) → Gender (skipped for locked-gender races) → Face type (grid of eight) → Hair color (palette of 8 to 10 colours; hair style comes from the face type) → Physical size (Small, Medium, Large, changing height and build; cosmetic only, as in classic MMO). Fits phones without scrolling; saves old characters unchanged |
-| 110.3 | 15.7.0 | Confirm and polish | Final summary screen with name entry, starting job and a rotating preview; click sounds; a "start over" button; size shown on the Status screen; Help and Updates updated; tests for every race/gender/face/hair/size combination |
+| 110.3 ✅ | 15.7.0 | Confirm and polish | Final summary screen with name entry, starting job and a rotating preview; click sounds; a "start over" button; size shown on the Status screen; Help and Updates updated; tests for every race/gender/face/hair/size combination |
 
 ## Track 1: models (88–98)
 | Phase | Ver | Name | Scope |
