@@ -1105,6 +1105,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Bug fix: dropLoot scroll pool now requires `ITEMS["scroll_" + id]` (blue spells have no scrolls; undefined item crashed giveItem).
 - Tests: p37unit.
 
+## Phase 78: Cinder Peak (v12.3.0)
+- data.js (before ZONE_SCALE): families magma_lizard, obsidian_crab, magma_worm, ash_orc (orc_grunt), cinder_bones (skeleton); NM `pyreclaw` (hill_lizard base, night) → pyre_ring (res_fire 10). `ZONES.cinder` (2800×2400, palette "volcanic", lv 18–20, lava = zone water; no FISH entry so no fishing). Sunscar gets an east exit (orig x 2976, y 950) and a trail from the Red Spire. WEATHER.cinder, achievement `cinder`, bestiary at file tail.
+- textures `TERRAIN_THEMES.volcanic`. world3d: volcanic vegetation (trees ×0.08, rocks ×1.8, small ×1.5, tufts ×0.06, no bushes/flowers); rock material tinted dark (volcanic) or sandy (desert); lava water = emissive orange MeshStandardMaterial with scrolling normal map. effects3d: rising embers and falling ash near the player in volcanic zones.
+- Tests: p38unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1140,7 +1145,7 @@ New zones (one per release; each gets its own monsters, NM, gathering, quests, l
 - 75 DONE (12.0.0, Ironvale: town, mythril smith, 2 quests; guild/missions/residence not yet) Second city: a rival/allied nation with its own shops, guilds, missions, residence option and a distinct building style; road link to the Outpost region.
 - 76 DONE (12.1.0; buried temple not yet) Sunscar Desert: dunes, buried temple, sandworm NM, daytime heat that drains MP (shade/water items counter it).
 - 77 DONE (12.2.0) Verdant Jungle: dense canopy, rope bridges, vine-covered ruins.
-- 78 (12.3.0) Cinder Peak: volcano, lava flows, fire elementals, top-tier smithing ore.
+- 78 DONE (12.3.0) Cinder Peak: volcano, lava flows, fire elementals, top-tier smithing ore.
 - 79 (12.4.0) Gull Isle: coastal island reached by ferry; sea cliffs, pirate caves, lighthouse.
 - 80 (12.5.0) The Spire: multi-floor tower dungeon, harder per floor, boss at the top.
 - 81 (12.6.0) Underdeep River: underground river by boat, glowing caves, fishing.
@@ -1183,6 +1188,7 @@ World systems:
 | 12.0.0 | Phase 75: Ironvale, mythril gear, Brisa quests. |
 | 12.1.0 | Phase 76: Sunscar Desert. |
 | 12.2.0 | Phase 77: Verdant Jungle; scroll drop fix. |
+| 12.3.0 | Phase 78: Cinder Peak volcano. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

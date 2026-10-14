@@ -1370,7 +1370,7 @@ NM_FAMILIES.sandmaw = { hint: "Singing Dunes, Sunscar Desert · any time", base:
 ITEMS.dunestrider_boots = { name: "Dunestrider Boots", kind: "equip", icon: "👢", rare: true, nm: true, rarity: "epic", slot: "feet", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 7, agi: 4, eva: 5, hp: 20 }, desc: "Sandmaw's hide, stitched into boots that never sink." };
 ZONES.sunscar = {
   name: "Sunscar Desert", w: 3000, h: 2200, theme: "field", palette: "desert",
-  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }],
+  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }],
   npcs: [],
   walls: [{ x: 600, y: 480, w: 300, h: 220 }, { x: 2000, y: 380, w: 260, h: 300 }, { x: 1250, y: 1500, w: 380, h: 200 }, { x: 2400, y: 1600, w: 240, h: 260 }],
   ruins: { walls: [[2520, 420, 2680, 420, 2.4], [2520, 420, 2520, 560, 1.6]], pillars: [[860, 1050, 3.6], [910, 1000, 4.4], [960, 1050, 4.0], [1010, 1100, 3.0], [820, 1120, 2.2]] },
@@ -1394,7 +1394,8 @@ ZONES.sunscar = {
   paths: [
     { w: 44, pts: [[1500, -500], [1500, 0], [1500, 400], [1300, 800], [920, 1080], [700, 1600], [600, 1800]] },
     { w: 34, pts: [[1300, 800], [1800, 1000], [2060, 1050]] },
-    { w: 30, pts: [[1800, 1000], [2300, 700], [2600, 560]] }
+    { w: 30, pts: [[1800, 1000], [2300, 700], [2600, 560]] },
+    { w: 30, pts: [[2600, 560], [2850, 850], [3000, 1000], [3500, 1000]] }
   ],
   gather: {
     mining: { n: 3, at: [[700, 800], [2300, 400], [1700, 1900], [2800, 1500], [400, 1500]], loot: [["iron_ore", 0.4], ["copper_ore", 0.3], ["fire_crystal", 0.15], ["earth_crystal", 0.15]] },
@@ -1444,6 +1445,46 @@ ZONES.verdant = {
     harvesting: { n: 3, at: [[700, 1300], [1300, 1100], [1800, 1600], [2500, 900]], loot: [["healing_herb", 0.6], ["mandrake_leaf", 0.2], ["water_crystal", 0.12]] }
   },
   start: { x: 100, y: 1150 }
+};
+
+Object.assign(FAMILIES, {
+  magma_lizard: tierFam("hill_lizard", { name: "Magma Lizard", color: "#c0402a", tint: 0x8a2a1a, tint2: 0xff8a40, hpMul: 1.25, attMul: 1.1, weak: { water: 1.4, ice: 1.3 }, loot: [["lizard_skin", 0.4], ["fire_crystal", 0.35], ["hi_potion", 0.07]] }),
+  obsidian_crab: tierFam("pond_crab", { name: "Obsidian Crab", color: "#3a3440", tint: 0x2a2630, hpMul: 1.3, defMul: 1.4, weak: { water: 1.3, lightning: 1.25 }, loot: [["crab_shell", 0.4], ["earth_crystal", 0.25], ["hi_potion", 0.07]] }),
+  magma_worm: tierFam("worm", { name: "Magma Worm", color: "#a03a20", tint: 0xa03a20, hpMul: 1.45, attMul: 1.1, weak: { water: 1.4 }, loot: [["worm_silk", 0.3], ["fire_crystal", 0.35], ["hi_potion", 0.07]] }),
+  ash_orc: tierFam("orc_grunt", { name: "Ashen Orc", color: "#6a6a6a", hpMul: 1.3, attMul: 1.15, loot: [["orc_tooth", 0.4], ["fire_crystal", 0.25], ["hi_potion", 0.08]] }),
+  cinder_bones: tierFam("skeleton", { name: "Cinder Bones", color: "#5a4a44", hpMul: 1.25, attMul: 1.1, weak: { light: 1.5, water: 1.2 }, loot: [["bone_chip", 0.45], ["fire_crystal", 0.25], ["hi_potion", 0.07]] })
+});
+NM_FAMILIES.pyreclaw = { hint: "Crater Rim, Cinder Peak · night", base: "hill_lizard", name: "Pyreclaw", hpMul: 3.2, attMul: 1.2, scale: 2.0, aura: "#ff5722", loot: [["pyre_ring", 0.35], ["lizard_skin", 1], ["fire_crystal", 1], ["hi_potion", 0.5]], respawn: 540 };
+ITEMS.pyre_ring = { name: "Pyre Ring", kind: "equip", icon: "💍", rare: true, nm: true, rarity: "epic", slot: "ring", jobs: ALL_JOBS, lv: 20, price: 0, stats: { str: 4, att: 8, acc: 4, res_fire: 10 }, desc: "Cut from Pyreclaw's heartstone. Warm to the touch, always." };
+ZONES.cinder = {
+  name: "Cinder Peak", w: 2800, h: 2400, theme: "field", palette: "volcanic",
+  exits: [{ x: 0, y: 1150, w: 24, h: 100, to: "sunscar", tx: 2900, ty: 1000, label: "Sunscar Desert" }],
+  npcs: [],
+  walls: [{ x: 700, y: 400, w: 280, h: 260 }, { x: 1800, y: 1500, w: 300, h: 260 }, { x: 600, y: 1800, w: 360, h: 180 }, { x: 2300, y: 1100, w: 220, h: 300 }],
+  ruins: { walls: [[1700, 450, 1900, 450, 2.0], [1900, 450, 1900, 600, 1.4]], pillars: [[1650, 520, 3.0], [1950, 380, 2.4]] },
+  landmarks: [
+    { id: "ashfall", name: "Ashfall Road", x: 400, y: 1200, r: 220, xp: 60 },
+    { id: "steps", name: "Obsidian Steps", x: 1100, y: 800, r: 240, xp: 80 },
+    { id: "lake", name: "Molten Lake", x: 1400, y: 1300, r: 280, xp: 90 },
+    { id: "rim", name: "Crater Rim", x: 2300, y: 600, r: 260, xp: 100 },
+    { id: "vent", name: "Smoking Vent", x: 1200, y: 2000, r: 220, xp: 80 }
+  ],
+  spawns: [
+    { fam: "magma_lizard", lv: [18, 19], x: 700, y: 1000 }, { fam: "magma_lizard", lv: [19, 20], x: 1700, y: 900 }, { fam: "magma_lizard", lv: [19, 20], x: 2400, y: 500, nm: { id: "pyreclaw", lv: 22, chance: 0.12, time: "night" } },
+    { fam: "obsidian_crab", lv: [18, 19], x: 1100, y: 1500 }, { fam: "obsidian_crab", lv: [19, 20], x: 1700, y: 1250 },
+    { fam: "magma_worm", lv: [18, 20], x: 1000, y: 2050 }, { fam: "magma_worm", lv: [19, 20], x: 1500, y: 1900 },
+    { fam: "ash_orc", lv: [19, 20], x: 2100, y: 1900 }, { fam: "ash_orc", lv: [19, 20], x: 2250, y: 1950 },
+    { fam: "cinder_bomb", lv: [18, 20], x: 1300, y: 600, time: "night" }, { fam: "cinder_bones", lv: [19, 20], x: 1800, y: 500, time: "night" }
+  ],
+  water: [{ x: 1400, y: 1300, r: 190 }, { x: 2150, y: 750, r: 110 }],
+  paths: [
+    { w: 40, pts: [[-500, 1200], [0, 1200], [500, 1200], [900, 950], [1100, 800], [1500, 700], [1900, 700], [2200, 600]] },
+    { w: 30, pts: [[500, 1200], [900, 1600], [1200, 2000]] }
+  ],
+  gather: {
+    mining: { n: 4, at: [[500, 700], [1300, 950], [2000, 1200], [900, 2200], [2500, 1800], [1600, 1700]], loot: [["iron_ore", 0.45], ["copper_ore", 0.2], ["fire_crystal", 0.25], ["earth_crystal", 0.1]] }
+  },
+  start: { x: 100, y: 1200 }
 };
 
 const ZONE_SCALE = { hollow: 1.5, frost: 1.4, marsh: 1.4 };
@@ -2008,6 +2049,8 @@ Object.assign(NPCS, {
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });
+WEATHER.cinder = [["cloudy", 4], ["clear", 3], ["fog", 2], ["wind", 2], ["storm", 0.5]];
+ACHIEVEMENTS.push({ id: "cinder", icon: "🌋", name: "Trial by Fire", desc: "Set foot on Cinder Peak.", test: s => (s.discovered || []).includes("cinder") });
 WEATHER.verdant = [["rain", 5], ["cloudy", 3], ["fog", 2], ["clear", 2], ["storm", 1.2]];
 ACHIEVEMENTS.push({ id: "verdant", icon: "🌴", name: "Into the Green", desc: "Set foot in the Verdant Jungle.", test: s => (s.discovered || []).includes("verdant") });
 WEATHER.sunscar = [["clear", 7], ["wind", 3], ["cloudy", 1], ["storm", 0.3]];
@@ -2053,4 +2096,12 @@ Object.assign(BESTIARY, {
   bloom_mandrake: { type: "Plantoid", lore: "Mandrakes crowned with heavy pink blooms. Their dust smells sweet and puts you to sleep." },
   jade_toad: { type: "Amphibian", lore: "Bright green toads that sit in the jungle pools and listen." },
   old_mossback: { type: "Plantoid", lore: "The oldest tree in the jungle, and it still walks. The canopy bends wherever it goes." }
+});
+Object.assign(BESTIARY, {
+  magma_lizard: { type: "Lizard", lore: "Lizards with glowing cracks in their scales who bask on cooling lava." },
+  obsidian_crab: { type: "Aquan", lore: "Crabs whose shells are black volcanic glass. Hard to crack, harder to see at night." },
+  magma_worm: { type: "Amorphous", lore: "Worms that burrow through warm ash and leave smoking trails." },
+  ash_orc: { type: "Beastman", lore: "Orcs who forge their axes in the mountain's heat and cover themselves in ash for war." },
+  cinder_bones: { type: "Undead", lore: "The scorched remains of climbers who never came back down." },
+  pyreclaw: { type: "Lizard", lore: "A lizard as big as a cart, with fire in its throat. It suns itself on the Crater Rim at night." }
 });
