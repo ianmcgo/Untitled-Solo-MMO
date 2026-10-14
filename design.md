@@ -1231,6 +1231,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - HUD: `#ui.hasTop #ffStat` top 54 px and `#stOv` 56 px so status icons clear the Commands bar.
 - Audio: unlock on any pointer/key/touch calls startAudio, resumes the context and plays one silent buffer; main4 runs step/view/audio in separate try/catch; `audioNag()` toasts if the context isn't running 2.5 s after starting.
 
+## Phase 96: beastmen and bosses (v14.3.0) — plan Q9
+- `FAMILY_SHAPE` (rig.js) by fam.model → { family, hunch, prop }; `familyLook(L, m)` runs in buildEntityRig after varyMobLook and sets L.family / L.hunch / merged prop, L.boss for boss/nm/scale ≥ 1.3, L.banner from `BOSS_BANNER` (chieftain, orc_warlord, mirelord_gax, rimefang). tide_priest/drowned use ghoul extras.
+- `familyExtras(R, L, D)` (called from humanEntry before R.meta): orc spikes on pauldrons (upArm bones), 9-tooth necklace + cord, bracers; goblin hip pouches, bone charm, knee pads (shin bones); reef dorsal fin and forearm fins via `finPlane` (gMembrane rotated into the YZ plane), gill slits on neck; talon 6 arm feathers per side, 5-feather tail fan, 3 toe claws; treant shoulder branches with leaf balls, forearm twigs, 4 roots per foot, moss pads, knot hole; ghoul/undead 7 rag strips at the hips, ghoul spine bumps; boss banner pole + waving flag on chest.
+- Posture: R.meta.hunch → poseHuman adds spine 0.55h, chest 0.45h, neck −0.45h, head −0.4h, upper arms 0.3h, root −0.08h. Hunch: goblin 0.2, chieftain 0.14, orc 0.1, reef 0.24, talon 0.12, treant 0.07, ghoul 0.32, skeleton 0.04.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1283,6 +1288,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.3.0 | Phase 96: beastman family silhouettes and gear, hunched postures, boss banners. |
 | 14.2.0 | Phase 95: NPC props and wardrobe, wrist-led swings, head look-at, red damage numbers + toggle, V torsos and necks, smaller Pipkin feet, status icon spacing, audio unlock. |
 | 14.1.0 | Phase 94: body-fitted armour shells, weapon tiers, title tidy-up. |
 | 14.0.0 | Phase 93: spring capes/hair/tabards, 5 hairstyles, hair under helmets, fitted helmets, no exit arches, blue title screens, denser starter spawns, critters at night. |

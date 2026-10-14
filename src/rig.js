@@ -1054,6 +1054,95 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
   }
 }
 
+function finPlane(pts, x) {
+  const g = gMembrane(pts, 0);
+  g.rotateZ(Math.PI / 2);
+  g.translate(x || 0, 0, 0);
+  return g;
+}
+
+function familyExtras(R, L, D) {
+  const { hx, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid } = D;
+  const F = L.family, bz = -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04);
+  const dark = shadeHex(skin, 0.55), sides = [[1, "L"], [-1, "R"]];
+  if (F === "orc") {
+    if (L.pauldrons != null) for (const [s, sd] of sides) for (let k = 0; k < 3; k++) {
+      const a = V3(s * (sw + 0.03 - k * 0.025), shY + 0.05 - k * 0.012, 0.03 - k * 0.04);
+      R.add(gTaper(a, a.clone().add(V3(s * 0.05, 0.09 - k * 0.015, -0.01)), 0.018 * gi, 0.002, 6), "upArm" + sd, 0xe8dcc0, "bone");
+    }
+    for (let k = 0; k < 9; k++) {
+      const t = (k - 4) / 4, a = V3(t * 0.1 * gi, neckY - 0.045 - (1 - t * t) * 0.05, (0.1 - Math.abs(t) * 0.035) * gi + 0.035);
+      R.add(gTaper(a, a.clone().add(V3(0, -0.04 - (1 - Math.abs(t)) * 0.015, 0.008)), 0.009, 0.002, 5), "chest", 0xf0e6cc, "bone");
+    }
+    R.add(gRing(V3(0, neckY - 0.06, 0.012), 0.11 * gi, 0.005, "y", 18, Math.PI, [0, -Math.PI / 2, 0]), "chest", 0x4a3020, "leather");
+    for (const [s, sd] of sides) R.add(gBox(V3(s * (sw + 0.03), elY - 0.08, 0), 0.07 * gi, 0.12, 0.07 * gi), "foreArm" + sd, 0x4a3020, "leather");
+  }
+  if (F === "goblin") {
+    R.add(gBox(V3(0.1 * gi, hipsY - 0.01, 0.1 * gi), 0.07, 0.08, 0.04, 0, 0.5, 0), "hips", 0x6a4a2a, "leather");
+    R.add(gBox(V3(-0.11 * gi, hipsY - 0.02, 0.05 * gi), 0.05, 0.07, 0.035, 0, -0.9, 0), "hips", 0x5a3a20, "leather");
+    R.add(gBall(V3(-0.11 * gi, hipsY - 0.08, 0.06 * gi), 0.022, 1, 1.2, 1, 6), "hips", 0xe8dcc0, "bone");
+    for (const [s, sd] of sides) R.add(gBall(V3(s * hx, knee + 0.01, 0.05 * gi), 0.05 * gi, 1, 0.8, 0.6, 8), "shin" + sd, 0x5a3a20, "leather");
+  }
+  if (F === "reef") {
+    const fc = L.finColor || 0x7ac0b0;
+    R.add(finPlane([[neckY + 0.02, bz * 0.6], [neckY + 0.08, bz - 0.06], [chestY + 0.02, bz - 0.12], [spineY, bz - 0.08], [spineY - 0.04, bz + 0.02], [chestY, bz + 0.02], [neckY - 0.02, bz * 0.6 + 0.02]]), "chest", fc, "scale");
+    for (const [s, sd] of sides) {
+      R.add(finPlane([[elY - 0.01, 0], [elY + 0.04, -0.08], [mid, -0.1], [wrY + 0.03, -0.02], [wrY + 0.03, 0]], s * (sw + 0.05)), "foreArm" + sd, fc, "scale");
+      for (let k = 0; k < 3; k++) R.add(gBox(V3(s * 0.052 * gi, neckY + 0.005 - k * 0.018, 0.0), 0.004, 0.006, 0.05), "neck", dark, "plain");
+    }
+  }
+  if (F === "talon") {
+    const fc = L.crest || 0x4a3a2a, lt = shadeHex(skin, 1.1);
+    for (const [s, sd] of sides) for (let k = 0; k < 6; k++) {
+      const y = elY + 0.02 - k * (elY - wrY + 0.03) / 6, a = V3(s * (sw + 0.03), y, -0.02);
+      R.add(gTaper(a, a.clone().add(V3(s * 0.02, -0.16 - k * 0.02, -0.08 - k * 0.012)), 0.03, 0.006, 5, 0.25), "foreArm" + sd, k % 2 ? fc : lt, "feather");
+    }
+    for (let k = 0; k < 5; k++) {
+      const t = (k - 2) / 2, a = V3(t * 0.04, hipsY - 0.02, bz * 0.9);
+      R.add(gTaper(a, a.clone().add(V3(t * 0.14, -0.22 + Math.abs(t) * 0.06, -0.24)), 0.04, 0.008, 5, 0.25), "hips", k % 2 ? fc : lt, "feather");
+    }
+    for (const [s, sd] of sides) for (let k = 0; k < 3; k++) {
+      const a = V3(s * hx + (k - 1) * 0.022, 0.02, 0.15);
+      R.add(gTaper(a, a.clone().add(V3(s * (k - 1) * 0.02, -0.04, 0.07)), 0.012, 0.002, 5), "foot" + sd, 0x3a3020, "bone");
+    }
+  }
+  if (F === "treant") {
+    const bark = skin, leaf = L.leafHead || 0x6aa84a;
+    for (const [s, sd] of sides) {
+      const a = V3(s * sw * 0.9, shY + 0.02, -0.02), b = a.clone().add(V3(s * 0.12, 0.22, -0.05)), c = b.clone().add(V3(s * 0.08, 0.1, 0.04));
+      R.add(gTaper(a, b, 0.03 * gi, 0.016, 6), "upArm" + sd, bark, "wood");
+      R.add(gTaper(b, c, 0.016, 0.004, 5), "upArm" + sd, bark, "wood");
+      R.add(gBall(c, 0.07, 1.2, 0.8, 1, 8), "upArm" + sd, leaf, "plain");
+      const f0 = V3(s * (sw + 0.02), mid, 0), f1 = f0.clone().add(V3(s * 0.1, 0.06, 0.02));
+      R.add(gTaper(f0, f1, 0.015, 0.003, 5), "foreArm" + sd, bark, "wood");
+      R.add(gBall(f1, 0.04, 1, 0.8, 1, 6), "foreArm" + sd, leaf, "plain");
+      for (let k = 0; k < 4; k++) {
+        const ang = (k / 3 - 0.5) * 2.2 + (s > 0 ? 0.3 : -0.3), r0 = V3(s * hx, 0.04, 0.02);
+        R.add(gTaper(r0, r0.clone().add(V3(Math.sin(ang) * 0.16, -0.07, Math.cos(ang) * 0.16)), 0.028, 0.004, 5), "foot" + sd, bark, "wood");
+      }
+      R.add(gBall(V3(s * sw * 0.6, shY + 0.01, 0.04), 0.06 * gi, 1.3, 0.35, 1, 8), "chest", 0x5a7a2a, "fur");
+    }
+    R.add(gBall(V3(0.04, chestY - 0.05, 0.13 * gi), 0.04, 1, 1.3, 0.4, 8), "chest", 0x1a120a, "plain");
+  }
+  if (F === "ghoul" || F === "undead") {
+    const rag = L.top && L.top.color != null ? L.top.color : 0x3a3028;
+    for (let k = 0; k < 7; k++) {
+      const a = (k / 7) * Math.PI * 2, r = 0.15 * gi;
+      R.add(gBox(V3(Math.sin(a) * r, hipsY - 0.1 - (k % 3) * 0.03, Math.cos(a) * r), 0.05, 0.2 + (k % 3) * 0.06, 0.008, 0, a, 0.05 * (k % 2 ? 1 : -1)), "hips", shadeHex(rag, 0.8 + (k % 3) * 0.1), "cloth");
+    }
+    if (F === "ghoul") for (let k = 0; k < 5; k++) R.add(gBall(V3(0, chestY + 0.06 - k * 0.07, bz - 0.005), 0.022, 1, 0.8, 0.8, 6), k < 3 ? "chest" : "spine", skin, SKR);
+  }
+  if (L.boss && L.banner) {
+    const px = -0.06, pz = bz - 0.05, top = shY + 0.75;
+    R.add(gTaper(V3(px, hipsY - 0.1, pz), V3(px, top, pz), 0.014, 0.012, 6), "chest", 0x4a3020, "wood");
+    R.add(gBall(V3(px, top + 0.02, pz), 0.03, 1, 1, 1, 6), "chest", 0xd8b040, "metal");
+    const fl = new THREE.PlaneGeometry(0.3, 0.42, 4, 6), fp = fl.attributes.position;
+    for (let i = 0; i < fp.count; i++) { const x = fp.getX(i), y = fp.getY(i); fp.setXYZ(i, px + 0.16 + x, top - 0.25 + y, pz - 0.03 * Math.sin((x + 0.15) * 9) - (y < -0.15 ? 0.02 : 0)); }
+    fl.computeVertexNormals();
+    R.add(fl, "chest", L.banner, "cloth");
+  }
+}
+
 function humanEntry(L) {
   const fem = L.build === 1;
   const pr = Object.assign({ leg: 0.86, torso: 0.52, headR: 0.138, shoulder: fem ? 0.165 : 0.195, hip: fem ? 0.1 : 0.095, arm: 0.6, girth: fem ? 0.9 : 1, neck: 0.075, waist: fem ? 0.8 : 0.92 }, L.prop || {});
@@ -1441,7 +1530,8 @@ function humanEntry(L) {
       R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - 0.5, tz - 0.3), 0.055, 0.02, 8), "tail2", tc, "hair");
     }
   }
-  R.meta = { kind: "human", race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY };
+  if (L.family || L.boss) familyExtras(R, L, { hx: pr.hip, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid: (elY + wrY) / 2 });
+  R.meta = { kind: "human", race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY, hunch: L.hunch || 0 };
   return R.finish();
 }
 
@@ -2229,6 +2319,29 @@ function toadEntry(col) {
   return R.finish();
 }
 
+const FAMILY_SHAPE = {
+  goblin: { family: "goblin", hunch: 0.2 },
+  chieftain: { family: "goblin", hunch: 0.14 },
+  orc: { family: "orc", hunch: 0.1 },
+  fishfolk: { family: "reef", hunch: 0.24, prop: { arm: 0.7, neck: 0.035 } },
+  birdfolk: { family: "talon", hunch: 0.12 },
+  treant: { family: "treant", hunch: 0.07, prop: { girth: 1.4, waist: 1.3, shoulder: 0.24, arm: 0.72, leg: 0.78, hip: 0.13, neck: 0.03, torso: 0.6 } },
+  ghoul: { family: "ghoul", hunch: 0.32 },
+  skeleton: { family: "undead", hunch: 0.04 }
+};
+const BOSS_BANNER = { chieftain: 0x8a1f1f, orc_warlord: 0x6a1a1a, mirelord_gax: 0x2f4a2a, rimefang: 0x3a5a7a };
+
+function familyLook(L, m) {
+  const f = m.fam || {}, sh = FAMILY_SHAPE[f.model];
+  if (!sh) return L;
+  const out = Object.assign({}, L, { family: sh.family, hunch: sh.hunch });
+  if (sh.prop) out.prop = Object.assign({}, L.prop || {}, sh.prop);
+  const key = f.key || m.famKey;
+  if (f.boss || f.nm || (f.scale || 1) >= 1.3) { out.boss = true; if (BOSS_BANNER[key]) out.banner = BOSS_BANNER[key]; }
+  if (key === "tide_priest" || key === "drowned") out.family = "ghoul";
+  return out;
+}
+
 function mobLook(m) {
   const f = m.fam, key = f.key || m.famKey;
   const model = f.model;
@@ -2302,6 +2415,7 @@ function buildEntityRig(e) {
   let sig, make, weaponKind = null, weaponId = null, alwaysDrawn = false;
   if (isMob(e)) {
     const ml = varyMobLook(mobLook(e), mobVariant(e));
+    if (ml.kind === "human") ml.look = familyLook(ml.look, e);
     if (ml.kind === "human") {
       sig = "m|" + stableKey(ml.look);
       make = () => humanEntry(ml.look);
