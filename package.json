@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "12.7.0",
-  "releaseTitle": "Windreach Highlands",
+  "version": "13.0.0",
+  "releaseTitle": "Regions and nations",
   "description": "",
   "main": "index.js",
   "scripts": {

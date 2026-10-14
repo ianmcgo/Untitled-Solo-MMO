@@ -1109,6 +1109,7 @@ function onKO(e, src) {
 }
 
 function killRewards(e) {
+  try { conquestKill(e); } catch (err) {}
   save.stats.kills++;
   if (player.job === "RNG") save.stats.rngKills++;
   noteBeast(e, true);
@@ -1172,6 +1173,7 @@ function gainXp(n, chain, quiet) {
   if (j.lv >= CONFIG.levelCap) { if (!quiet) log("You are at the level cap.", "sys"); return; }
   if (buddyPerk("xp")) n = Math.round(n * (1 + buddyPerk("xp")));
   if (player && player.buffs && player.buffs.boon) n = Math.round(n * 1.1);
+  if (!chain || chain >= 0) n = Math.round(n * conquestXpMul());
   j.xp += n;
   log((chain > 0 ? "EXP chain #" + chain + "! " : "") + "You gain " + n + " experience points.", "you");
   popText(player, "+" + n + " XP" + (chain > 0 ? " · Chain " + chain : ""), chain > 0 ? "#ffd54f" : "#9ad06b", 14, 1.2, 16);
@@ -3245,6 +3247,7 @@ function enterZone(id, x, y) {
   S.zoneCooldown = 1;
   S.lastPeriod = period();
   log("Entering " + S.zone.name + ".", "sys");
+  { const rg = regionOf(id); if (rg) { const c = conquestState(); log(CONQUEST.regions[rg].name + " is held by " + CONQUEST.nations[c.held[rg]].name + "." + (c.nation && c.held[rg] === c.nation ? " Your nation's banner flies here: +5% experience." : ""), "sys"); } }
   if (prev !== id) sfx("zone");
   onZoneEntered();
   saveGame();
@@ -4146,6 +4149,8 @@ function furnitureRects() {
 const TALK = {
   talkRhea(n) {
     const q = save.quests;
+    const pl = conquestState().nation !== "ash" ? [{ label: "Pledge to the Ashenreach League", fn: () => { closeDialog(); pledge("ash"); } }] : [];
+    if (q.pouches !== "none" && pl.length && !questOptions("rhea", n).length) { openDialog(n.name, "The League needs every blade it can get. Fight under our banner and every monster you put down in the wilds strengthens our hold on that region. " + conquestReport(), pl); return; }
     if (q.pouches === "none") {
       openDialog(n.name, "Goblins out in Rocky Hollow keep raiding our supply crates. Bring me 3 Goblin Pouches as proof you've thinned them out, and I'll make it worth your while.", [
         { label: "Accept", fn: () => { q.pouches = "active"; log("Quest accepted: " + QUESTS.pouches.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
@@ -4286,7 +4291,7 @@ const TALK = {
     openDialog(n.name, g.length ? "Ah, company! Sit, sit. Mind the gulls; they bite." : "The gulls and I thank you. Come back any time.", g);
   },
   talkBrisa(n) {
-    const g = questOptions("brisa", n);
+    const g = questOptions("brisa", n).concat(conquestState().nation !== "iron" ? [{ label: "Pledge to the Ironvale Compact", fn: () => { closeDialog(); pledge("iron"); } }] : []);
     openDialog(n.name, g.length ? "Welcome to Ironvale, traveller. Stone walls, hot forges, and more work than hands. Pull up a crate." : "The pass is quiet for now. Come back when you've grown a little.", g);
   },
   talkHaldor(n) {
@@ -4603,14 +4608,60 @@ function shopList(kind) {
   });
 }
 
+function conquestDay() { return Math.floor((Date.now() + (S.timeShift || 0)) / 86400000); }
+function regionOf(zoneId) { for (const r in CONQUEST.regions) if (CONQUEST.regions[r].zones.includes(zoneId)) return r; return null; }
+function conquestState() {
+  const c = save.conquest || (save.conquest = { day: conquestDay(), pts: {}, held: {}, nation: null });
+  for (const r in CONQUEST.regions) if (!c.held[r]) c.held[r] = CONQUEST.regions[r].start;
+  const d = conquestDay();
+  if (c.day !== d) {
+    for (const r in CONQUEST.regions) {
+      const p = c.pts[r] || {};
+      const tally = { ash: (p.ash || 0) + (c.nation === "ash" ? 0 : CONQUEST.rivalDaily), iron: (p.iron || 0) + (c.nation === "iron" ? 0 : CONQUEST.rivalDaily), beast: (p.beast || 0) + CONQUEST.beastDaily };
+      tally[c.held[r]] += CONQUEST.holdBonus;
+      c.held[r] = Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0];
+    }
+    c.day = d; c.pts = {};
+  }
+  return c;
+}
+function conquestKill(m) {
+  const c = conquestState(), r = regionOf(S.zoneId);
+  if (!r || !c.nation) return;
+  const p = c.pts[r] || (c.pts[r] = {});
+  p[c.nation] = (p[c.nation] || 0) + Math.max(1, Math.round(m.lv / 2));
+}
+function heldCount(side) { const c = conquestState(); return Object.values(c.held).filter(x => x === side).length; }
+function conquestPriceMul() {
+  const c = conquestState();
+  if (!c.nation) return 1;
+  const mine = heldCount(c.nation), beast = heldCount("beast");
+  return mine >= 3 ? 0.9 : beast >= 3 ? 1.1 : 1;
+}
+function conquestXpMul() {
+  const c = conquestState(), r = regionOf(S.zoneId);
+  return r && c.nation && c.held[r] === c.nation ? 1.05 : 1;
+}
+function buyPrice(id) { return Math.max(1, Math.round(ITEMS[id].price * conquestPriceMul())); }
+function conquestReport() {
+  const c = conquestState(), N = CONQUEST.nations;
+  const lines = Object.keys(CONQUEST.regions).map(r => { const R = CONQUEST.regions[r], p = c.pts[r] || {}; return R.name + ": held by " + N[c.held[r]].short + (c.nation ? " (today: your nation " + (p[c.nation] || 0) + " points)" : ""); });
+  return (c.nation ? "You fight for the " + N[c.nation].name + ". " : "You haven't pledged to a nation. Talk to Captain Rhea in Ashenreach or Brisa in Ironvale. ") + lines.join(". ") + ". Standings are tallied once a day.";
+}
+function pledge(side) {
+  const c = conquestState();
+  c.nation = side;
+  log("You pledge yourself to the " + CONQUEST.nations[side].name + ". Your victories in the wilds now count toward its hold on each region.", "loot");
+  sfx("unlock"); saveGame();
+}
 function sellPrice(id) { const it = ITEMS[id]; return it.rare || it.ex ? 0 : Math.floor(it.price / 4 * (1 + buddyPerk("sell"))); }
 
 function buy(id) {
-  const it = ITEMS[id];
-  if (save.gil < it.price) { log("You cannot afford the " + it.name + ".", "sys"); sfx("error"); return; }
+  const it = ITEMS[id], price = buyPrice(id);
+  if (save.gil < price) { log("You cannot afford the " + it.name + ".", "sys"); sfx("error"); return; }
   if (!giveItem(id, 1, true)) return;
-  save.gil -= it.price;
-  log("You buy " + an(it.name) + " for " + it.price + " crystals.", "loot");
+  save.gil -= price;
+  log("You buy " + an(it.name) + " for " + price + " crystals.", "loot");
   sfx("coin");
   saveGame();
 }
@@ -4802,6 +4853,7 @@ function runCommand(text) {
     case "dismount": if (player.mounted) dismount("You dismount."); return;
     case "jump": if (typeof tryJump === "function") tryJump(); return;
     case "craft": case "synth": openModal("craft"); return;
+    case "conquest": case "regions": log(conquestReport(), "sys"); break;
     case "time": case "clock": { const v = vana(); log("Leid'anav: " + gameDate() + " (" + DAY_NAMES[v.dayIndex] + ") " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); log("Earth: " + new Date().toLocaleString([], { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }), "sys"); return; }
     case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
     case "clear": if (typeof clearLog === "function") clearLog(); return;

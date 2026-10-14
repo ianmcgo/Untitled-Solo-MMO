@@ -608,7 +608,7 @@ function tabShop() {
   const kind = S.shopKind && SHOPS[S.shopKind] ? S.shopKind : "pell", mode = UI.shopMode === "sell" ? "sell" : "buy";
   UI.modalHelp = mode === "buy" ? "Buy merchandise." : "Sell merchandise.";
   let h = '<div class="lHead"><button data-a="shopmode" data-v="buy"' + (mode === "buy" ? ' class="on"' : "") + '>Buy</button><button data-a="shopmode" data-v="sell"' + (mode === "sell" ? ' class="on"' : "") + ">Sell</button></div><div class=\"lList\">";
-  if (mode === "buy") for (const id of shopList(kind)) h += listRow("shopbuy", id, id, null, ITEMS[id].name, ITEMS[id].price.toLocaleString(), UI.hov === id, save.gil < ITEMS[id].price ? "dim" : "");
+  if (mode === "buy") for (const id of shopList(kind)) h += listRow("shopbuy", id, id, null, ITEMS[id].name, buyPrice(id).toLocaleString(), UI.hov === id, save.gil < buyPrice(id) ? "dim" : "");
   else {
     const seen = new Set();
     for (const s of save.inventory) { if (seen.has(s.id) || sellPrice(s.id) <= 0) continue; seen.add(s.id); h += listRow("shopsell", s.id, s.id, invCount(s.id), ITEMS[s.id].name, sellPrice(s.id).toLocaleString(), UI.hov === s.id); }
@@ -1252,7 +1252,7 @@ function onMenuClick(e) {
   else if (a === "qsel") { UI.qSel = v; sfx("select"); }
   else if (a === "noop") { return; }
   else if (a === "shopmode") { UI.shopMode = v; UI.hov = null; sfx("tab"); }
-  else if (a === "shopbuy") { const it = ITEMS[v]; UI.hov = v; renderMCard(); const o = [1, 3, 12].filter(n => n === 1 || it.stack !== false && it.kind !== "equip").map(n => ({ label: "Buy " + n + " (" + (it.price * n).toLocaleString() + " crystals)", fn: () => { closeDialog(); for (let k = 0; k < n; k++) { if (save.gil < it.price) break; buy(v); } renderModal(); } })); promptChoice(it.name, o); return; }
+  else if (a === "shopbuy") { const it = ITEMS[v]; UI.hov = v; renderMCard(); const o = [1, 3, 12].filter(n => n === 1 || it.stack !== false && it.kind !== "equip").map(n => ({ label: "Buy " + n + " (" + (buyPrice(v) * n).toLocaleString() + " crystals)", fn: () => { closeDialog(); for (let k = 0; k < n; k++) { if (save.gil < buyPrice(v)) break; buy(v); } renderModal(); } })); promptChoice(it.name, o); return; }
   else if (a === "shopsell") { const it = ITEMS[v], n = invCount(v), p = sellPrice(v); UI.hov = v; renderMCard(); const o = [{ label: "Sell 1 (" + p + " crystals)", fn: () => { closeDialog(); sell(v); renderModal(); } }]; if (n > 1) o.push({ label: "Sell all " + n + " (" + (p * n).toLocaleString() + " crystals)", fn: () => { closeDialog(); for (let k = 0; k < n; k++) sell(v); renderModal(); } }); promptChoice(it.name, o); return; }
   else if (a === "mcast") { closeModal(); playerAct({ kind: "ma", id: v, name: SPELLS[v].name }); return; }
   else if (a === "mact") { const [kd, id] = v.split(":"); closeModal(); playerAct({ kind: kd, id, name: kd === "ws" ? WEAPON_SKILLS[id].name : ABILITIES[id].name }); return; }
@@ -1452,6 +1452,12 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "13.0.0", date: "2026-10-14", title: "Regions and nations", items: [
+    "The wilds are now five regions (the Vale, the Mire, the Coast, the Peaks and the Sands), each held by the Ashenreach League, the Ironvale Compact or the Beastmen.",
+    "Pledge to a nation with Captain Rhea or Brisa. Every monster you defeat in a region adds points for your nation, and once a day the region goes to whoever earned the most.",
+    "Holding regions matters: shops are 10% cheaper while your nation holds three or more, 10% dearer if the Beastmen do, and you earn 5% more experience in regions your nation holds.",
+    "New command: /conquest shows the standings. Entering an area tells you who holds it."
   ] },
   { v: "12.7.0", date: "2026-10-14", title: "Windreach Highlands", items: [
     "A new road leads north out of Rocky Hollow to the Windreach Highlands: a huge open plateau of golden grass for levels 10–15. Mounts run at full road speed anywhere on it.",
@@ -2251,6 +2257,13 @@ function tabHelp() {
     ["Underdeep River", "16–20", "A glowing cavern under the Verdant Jungle (door near the jungle's south-east). A rock wall splits it in two: Boatman Ferro rows you across the river for free. Glow Bats, Pale Crabs, Lumicaps and Deep Worms; the Lumicap Matron (NM) lights the Glimmer Grotto. Fish for Glowfin and the rare Blind Eel"],
     ["Windreach Highlands", "10–15", "North of Rocky Hollow. A wide golden plateau: ride anywhere at road speed. The nomad camp (Tarqa the chief with two quests, Essa the trader) and Rider's Rest are camps. Plains Hares, Plains Lizards, Wind Wasps, Highland Longnecks and Highland Orcs; Thunderhoof (NM) roams the Stormgrass Flats by day"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("🚩 Regions and nations", ul([
+    "The wilds are split into five regions: the Vale (Rocky Hollow, Goblin Den, Sunken Crypt, Windreach Highlands), the Mire (Ashen Marsh, Chapel Depths, Verdant Jungle, Underdeep), the Coast (Gull Isle), the Peaks (Frostspire Pass) and the Sands (Sunscar Desert, Cinder Peak, Red Spire). Each is held by the Ashenreach League, the Ironvale Compact or the Beastmen.",
+    "Pledge to a nation by talking to Captain Rhea (Ashenreach) or Brisa (Ironvale). Every monster you defeat in a region adds points for your nation there (about half its level).",
+    "Once a day the points are tallied: the side with the most takes the region. The current holder gets a defence bonus, the Beastmen always push, and the rival nation gains some ground on its own.",
+    "While your nation holds three or more regions, shop prices are 10% lower; if the Beastmen hold three or more, prices are 10% higher. Fighting in a region your nation holds gives +5% experience.",
+    "Type /conquest to see who holds each region and your nation's points today. Entering an area tells you who holds it."
+  ]));
   h += sec("🧭 Exploring the wilds", ul([
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
     "<b>Lookout Tower</b>: climb it to see the whole area. Every landmark there is marked as discovered, and your first climb gives 60 EXP.",

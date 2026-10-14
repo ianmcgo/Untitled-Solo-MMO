@@ -1133,6 +1133,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - textures `TERRAIN_THEMES.highland`; world3d highland trees ×0.35, rocks ×0.8; BACKDROP/ATMOS highlands. rig NPC_LOOK tarqa/essa/nomad.
 - Tests: p42unit.
 
+## Phase 83: Region control (v13.0.0)
+- data.js `CONQUEST` {nations ash/iron/beast, regions vale/mire/coast/peaks/sands with zone lists and start holders, beastDaily 30, rivalDaily 20, holdBonus 40}.
+- game.js: `conquestState()` (lazy `save.conquest {day, pts, held, nation}`; on a new real day tallies pts + beast daily + rival daily (if not your nation) + holder bonus → `held`, resets pts). `conquestKill(m)` from killRewards (+max(1, lv/2) for your nation in the current region). `conquestPriceMul()` (0.9 if your nation holds ≥3, 1.1 if beasts ≥3) via `buyPrice(id)` (buy(), shop list and buy prompt). `conquestXpMul()` +5% in held regions (gainXp). `pledge(side)` from Rhea (when she has nothing else) and Brisa options. `/conquest` command; region line on zone entry.
+- Tests: p43unit; harness exports conquestState, killRewards, heldCount, buyPrice.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1174,7 +1179,7 @@ New zones (one per release; each gets its own monsters, NM, gathering, quests, l
 - 81 DONE (12.6.0) Underdeep River: underground river by boat, glowing caves, fishing.
 - 82 DONE (12.7.0) Highland plateau: open grassland, large mount area, nomad camps.
 World systems:
-- 83 (13.0.0) Regions with control status: each region shows which side holds it; affects shop stock and prices.
+- 83 DONE (13.0.0) Regions with control status: each region shows which side holds it; affects shop stock and prices.
 - 84 (13.1.0) Weather that matters: sandstorms, blizzards, fog change spawns and view distance.
 - 85 (13.2.0) Expeditions: multi-zone quests far from home.
 - 86 (13.3.0) World map atlas: fills in as you explore, every zone joined up.
@@ -1216,6 +1221,7 @@ World systems:
 | 12.5.0 | Phase 80: The Red Spire tower dungeon. |
 | 12.6.0 | Phase 81: Underdeep River. |
 | 12.7.0 | Phase 82: Windreach Highlands. |
+| 13.0.0 | Phase 83: Regions and nations (conquest). |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

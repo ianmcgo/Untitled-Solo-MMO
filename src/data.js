@@ -2322,3 +2322,14 @@ BESTIARY.wind_wasp = { type: "Vermin", lore: "Pale green wasps that ride the hig
 BESTIARY.highland_longneck = { type: "Beast", lore: "Tall grazers that cross the plateau in slow herds." };
 BESTIARY.highland_orc = { type: "Beastman", lore: "Orcs who hunt the plateau's herds from Eagle Ridge." };
 BESTIARY.thunderhoof = { type: "Beast", lore: "A huge longneck whose stamping can be heard before it is seen. The nomads call it the storm's own mount." };
+const CONQUEST = {
+  nations: { ash: { name: "Ashenreach League", short: "Ashenreach", color: "#e57373", town: "outpost" }, iron: { name: "Ironvale Compact", short: "Ironvale", color: "#90a4ae", town: "ironvale" }, beast: { name: "the Beastmen", short: "Beastmen", color: "#8d6e63" } },
+  regions: {
+    vale: { name: "The Vale", zones: ["hollow", "den", "crypt", "highlands"], start: "ash" },
+    mire: { name: "The Mire", zones: ["marsh", "depths", "verdant", "underdeep"], start: "beast" },
+    coast: { name: "The Coast", zones: ["gullisle"], start: "ash" },
+    peaks: { name: "The Peaks", zones: ["frost"], start: "iron" },
+    sands: { name: "The Sands", zones: ["sunscar", "cinder", "spire1", "spire2", "spire3", "spire4", "spire_top"], start: "iron" }
+  },
+  beastDaily: 30, rivalDaily: 20, holdBonus: 40
+};
