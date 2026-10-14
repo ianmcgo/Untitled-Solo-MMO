@@ -68,6 +68,7 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   await page.fill('#acPw', 'secret1'); await page.click('[data-go]'); await page.waitForTimeout(2500);
   await page.screenshot({ path: out + '-roster.png' });
   await page.click('[data-new]'); await page.waitForTimeout(2500);
+  for (let i = 0; i < 8 && !(await page.$('#ccName')); i++) { await page.click('[data-next]'); await page.waitForTimeout(150); }
   await page.fill('#ccName', 'Tessa'); await page.click('[data-create]');
   await page.waitForFunction(() => UI.started, null, { timeout: 200000 });
   await page.waitForTimeout(1500);

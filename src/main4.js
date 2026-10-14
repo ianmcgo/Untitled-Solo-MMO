@@ -173,7 +173,7 @@ function showModeChoice() {
   };
 }
 
-const CC = { job: "WAR", look: null, name: "" };
+const CC = { job: "WAR", look: null, name: "", step: 0, thumbs: {} };
 const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" }, WHM: { main: "ash_club", head: "bronze_cap", body: "linen_robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "linen_robe" } };
 const JOB_BLURB = { PLD: "", RDM: "", THF: "", MNK: "", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
 
@@ -306,63 +306,119 @@ function showCharSelect() {
   };
 }
 
+const CC_FACE_HAIR = [["short", "sidepart", "spiky", "ponytail", "long", "topknot", "curly", "braid"], ["bob", "long", "ponytail", "twintails", "wavy", "bun", "pixie", "braid"]];
+const CC_FACE_SKIN = [[1, 0, 1, 2, 0, 3, 1, 2], [0, 1, 0, 1, 2, 1, 3, 0]];
+const CC_SIZES = [["Small", 0, 1], ["Medium", 2, 2], ["Large", 4, 3]];
+const CC_STEPS = [["race", "Race"], ["gender", "Gender"], ["face", "Face"], ["hair", "Hair colour"], ["size", "Size"], ["name", "Name & job"]];
+function ccApplyFace(l) {
+  const sx = l.build ? 1 : 0, f = (l.face || 0) % FACE_COUNT;
+  l.hairStyle = HAIR_STYLES.indexOf(CC_FACE_HAIR[sx][f]);
+  l.skin = CC_FACE_SKIN[sx][f] % SKIN_TONES.length;
+}
+function ccSizeOf(l) { const i = CC_SIZES.findIndex(s => s[1] === l.height && s[2] === l.girth); return i < 0 ? 1 : i; }
+function ccSteps(l) { return CC_STEPS.filter(s => s[0] !== "gender" || RACES[l.race].sex == null); }
+function ccFaceThumb(v, fem, skin) {
+  const k = ATLAS_CELL / 256, c = document.createElement("canvas"), g = c.getContext("2d");
+  c.width = ATLAS_CELL; c.height = ATLAS_CELL;
+  g.fillStyle = "#" + skin.toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
+  paintFace(g, 0, 0, v, fem);
+  const t = document.createElement("canvas"); t.width = 72; t.height = 60;
+  const tg = t.getContext("2d");
+  tg.drawImage(c, 26 * k, 66 * k, 76 * k, 108 * k, 0, 0, 72, 60);
+  return t.toDataURL();
+}
+function ccRaceStats(rc) {
+  const a = rc.attrs || {}, out = [];
+  if (rc.hp !== 1) out.push("HP " + (rc.hp > 1 ? "+" : "") + Math.round((rc.hp - 1) * 100) + "%");
+  if (rc.mp !== 1) out.push("MP " + (rc.mp > 1 ? "+" : "") + Math.round((rc.mp - 1) * 100) + "%");
+  for (const s of ["str", "dex", "vit", "agi", "int", "mnd"]) if (a[s]) out.push(s.toUpperCase() + " " + (a[s] > 0 ? "+" : "") + a[s]);
+  if (rc.speed && rc.speed !== 1) out.push("Speed " + (rc.speed > 1 ? "+" : "") + Math.round((rc.speed - 1) * 100) + "%");
+  return out.length ? out.join(" · ") : "No bonuses or penalties";
+}
+
 function showCharCreate() {
   const r = loadRoster();
   CC.job = "WAR";
+  CC.step = 0;
   const randomLook = () => {
     const race = RACE_ORDER[Math.floor(Math.random() * RACE_ORDER.length)];
-    const l = { race, build: RACES[race].sex != null ? RACES[race].sex : Math.floor(Math.random() * 2), skin: Math.floor(Math.random() * SKIN_TONES.length), hairStyle: 0, hairColor: Math.floor(Math.random() * HAIR_COLORS.length), height: Math.floor(Math.random() * 5), girth: Math.floor(Math.random() * 5) };
-    const st = HAIR_BY_SEX[l.build];
-    l.hairStyle = HAIR_STYLES.indexOf(st[Math.floor(Math.random() * st.length)]);
-    l.face = Math.floor(Math.random() * FACE_COUNT);
+    const l = { race, build: RACES[race].sex != null ? RACES[race].sex : Math.floor(Math.random() * 2), hairColor: Math.floor(Math.random() * HAIR_COLORS.length), face: Math.floor(Math.random() * FACE_COUNT) };
+    const sz = CC_SIZES[Math.floor(Math.random() * 3)]; l.height = sz[1]; l.girth = sz[2];
+    ccApplyFace(l);
     return l;
   };
-  CC.look = randomLook();
-  CC.look.race = "human"; CC.look.build = 0; CC.look.skin = 1; CC.look.height = 2; CC.look.girth = 2;
-  CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[0][0]);
+  CC.look = { race: "human", build: 0, face: 0, hairColor: 1, height: 2, girth: 2 };
+  ccApplyFace(CC.look);
   CC.name = "";
+  CC.thumbs = {};
   $("ldSub").textContent = "Create your character";
   const box = $("charSel");
   box.innerHTML = '<div class="ccForm"><div id="ccPv"><div class="lbl" id="ccLbl"></div></div><div class="ccOpts">' +
-    '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters"></label>' +
-    '<div class="ccSec">Job</div><div class="ccJobs">' + BASE_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '">' + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb"></div>' +
-    '<div class="ccSec">Appearance <small>· drag the model to turn it</small></div><div class="ccLook" id="ccLook"></div>' +
-    '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>' +
+    '<div class="ccSteps" id="ccSteps"></div><div class="ccStepT" id="ccStepT"></div><div class="ccBody" id="ccBody"></div>' +
     '<div class="ccErr" id="ccErr"></div>' +
-    '<div class="ccAct"><button data-back="1">◂ Back</button><button class="pri" data-create="1">Begin your journey</button></div></div></div>';
+    '<div class="ccAct"><button data-prev="1">◂ Back</button><button data-rand="1" title="Random look">🎲</button><button class="pri" data-next="1">Next ▸</button></div></div></div>';
   UI.creating = true;
   if (typeof attachPreview === "function") {
-    const wrap = $("ccPv");
     attachPreview("ccPv");
     if (UI.pv && !UI.pv.failed) { UI.pv.rot = 0.4; UI.pv.sig = null; }
   }
+  const label = () => { $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + (RACES[CC.look.race] || RACES.human).name + " " + (CC.look.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(CC.look)][0] + "</small>"; };
+  const thumb = (v, fem) => { const key = v + "|" + fem + "|" + ATLAS_CELL; if (!CC.thumbs[key]) { try { CC.thumbs[key] = ccFaceThumb(v, fem, SKIN_TONES[CC_FACE_SKIN[fem ? 1 : 0][v] % SKIN_TONES.length]); } catch (e) { CC.thumbs[key] = ""; } } return CC.thumbs[key]; };
   const paint = () => {
-    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: CC.look }; }
-    box.querySelectorAll("[data-job]").forEach(b => b.classList.toggle("on", b.dataset.job === CC.job));
-    $("ccJobBlurb").textContent = JOB_BLURB[CC.job];
-    const l = CC.look;
-    const sw = c => '<span class="sw" style="background:#' + c.toString(16).padStart(6, "0") + '"></span>';
-    const row = (k, label, n, val) => '<div class="ccRow"><span>' + label + '</span><button data-look="' + k + '" data-d="-1">‹</button><b>' + val + '</b><button data-look="' + k + '" data-d="1">›</button></div>';
-    const styles = HAIR_BY_SEX[l.build];
-    if (!styles.includes(HAIR_STYLES[l.hairStyle])) l.hairStyle = HAIR_STYLES.indexOf(styles[0]);
-    const rc = RACES[l.race] || RACES.human;
-    const sexRow = rc.sex != null ? '<div class="ccRow"><span>Sex</span><b style="flex:1;text-align:center">' + (rc.sex ? "Female" : "Male") + ' <small style="color:var(--muted)">(' + rc.name + " only)</small></b></div>" : row("build", "Sex", 2, l.build ? "Female" : "Male");
-    $("ccLook").innerHTML = row("race", "Race", RACE_ORDER.length, rc.icon + " " + rc.name) + '<div class="sub" style="margin:-2px 0 6px">' + esc(rc.blurb) + "</div>" + sexRow + row("skin", "Skin", SKIN_TONES.length, sw(SKIN_TONES[l.skin])) + row("hairStyle", "Hair", styles.length, HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] + ' <small style="color:var(--muted)">' + (styles.indexOf(HAIR_STYLES[l.hairStyle]) + 1) + "/" + styles.length + "</small>") + row("face", "Face", FACE_COUNT, FACE_NAMES[l.face || 0] + ' <small style="color:var(--muted)">' + ((l.face || 0) + 1) + "/" + FACE_COUNT + "</small>") + row("hairColor", "Hair colour", HAIR_COLORS.length, sw(HAIR_COLORS[l.hairColor])) + row("height", "Height", 5, BODY_HEIGHT_NAMES[l.height == null ? 2 : l.height]) + row("girth", "Build", 5, BODY_GIRTH_NAMES[l.girth == null ? 2 : l.girth]) + '<div class="ccRow"><button data-rand="1" style="flex:1">🎲 Randomize all</button></div>';
-    $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + (RACES[CC.look.race] || RACES.human).name + " " + JOBS[CC.job].name + " Lv.1</small>";
+    const l = CC.look, steps = ccSteps(l);
+    CC.step = Math.max(0, Math.min(CC.step, steps.length - 1));
+    const st = steps[CC.step][0];
+    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; UI.pv.focus = st === "face" || st === "hair" ? 1 : 0; }
+    $("ccSteps").innerHTML = steps.map((s, i) => '<button data-goto="' + i + '" class="' + (i === CC.step ? "on" : i < CC.step ? "done" : "") + '">' + (i + 1) + '<small>' + s[1] + "</small></button>").join("");
+    $("ccStepT").textContent = (CC.step + 1) + ". " + steps[CC.step][1];
+    const sel = (on) => on ? " on" : "";
+    let h = "";
+    if (st === "race") {
+      h = '<div class="ccGrid ccRaces">' + RACE_ORDER.map(k => { const rc = RACES[k]; return '<button data-race="' + k + '" class="ccCard2' + sel(l.race === k) + '"><b>' + rc.icon + " " + rc.name + "</b>" + (rc.sex != null ? '<small class="lock">' + (rc.sex ? "Female only" : "Male only") + "</small>" : "") + "</button>"; }).join("") + "</div>";
+      const rc = RACES[l.race];
+      h += '<div class="ccInfo2"><div>' + esc(rc.blurb) + '</div><div class="st">' + ccRaceStats(rc) + "</div></div>";
+    } else if (st === "gender") {
+      h = '<div class="ccGrid ccTwo">' + [["0", "♂ Male"], ["1", "♀ Female"]].map(([v, n]) => '<button data-sex="' + v + '" class="ccCard2' + sel(String(l.build) === v) + '"><b>' + n + "</b></button>").join("") + "</div>";
+    } else if (st === "face") {
+      const fem = l.build === 1;
+      h = '<div class="ccGrid ccFaces">' + FACE_NAMES.map((n, i) => { const src = thumb(i, fem); return '<button data-face="' + i + '" class="ccFaceB' + sel((l.face || 0) === i) + '">' + (src ? '<img alt="" src="' + src + '">' : "") + "<small>" + (i + 1) + ". " + n + "</small></button>"; }).join("") + "</div>";
+      h += '<div class="ccInfo2"><div>Each face comes with its own hairstyle and skin tone: ' + esc(HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || "") + ".</div></div>";
+    } else if (st === "hair") {
+      h = '<div class="ccGrid ccHair">' + HAIR_COLORS.map((c, i) => '<button data-hc="' + i + '" class="ccSw' + sel(l.hairColor === i) + '" style="--c:#' + c.toString(16).padStart(6, "0") + '"><span></span></button>').join("") + "</div>";
+    } else if (st === "size") {
+      const cur = ccSizeOf(l);
+      h = '<div class="ccGrid ccSizes">' + CC_SIZES.map((s, i) => '<button data-size="' + i + '" class="ccCard2' + sel(cur === i) + '"><b>' + s[0] + "</b><small>" + BODY_HEIGHT_NAMES[s[1]] + ", " + BODY_GIRTH_NAMES[s[2]].toLowerCase() + "</small></button>").join("") + "</div>";
+      h += '<div class="ccInfo2"><div>Size is only for looks; it does not change your stats.</div></div>';
+    } else {
+      h = '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters" value="' + esc(CC.name) + '"></label>' +
+        '<div class="ccSec">Job</div><div class="ccJobs">' + BASE_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '"' + (CC.job === j ? ' class="on"' : "") + ">" + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb">' + esc(JOB_BLURB[CC.job]) + "</div>" +
+        '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>';
+    }
+    $("ccBody").innerHTML = h;
+    const last = CC.step === steps.length - 1;
+    const nx = box.querySelector("[data-next]");
+    nx.textContent = last ? "Begin your journey" : "Next ▸";
+    nx.dataset.create = last ? "1" : "";
+    box.querySelector("[data-prev]").textContent = CC.step ? "◂ Back" : "◂ Characters";
+    label();
+    if (last) {
+      const nm = $("ccName");
+      nm.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") create(); });
+      nm.addEventListener("input", () => { CC.name = nm.value.replace(/[^A-Za-z' -]/g, "").slice(0, 12); if (nm.value !== CC.name) nm.value = CC.name; $("ccErr").textContent = ""; label(); });
+      if (window.innerWidth > 700) setTimeout(() => nm.focus(), 50);
+    }
   };
   paint();
-  const nm = $("ccName");
-  nm.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") create(); });
-  nm.addEventListener("input", () => { CC.name = nm.value.replace(/[^A-Za-z' -]/g, "").slice(0, 12); if (nm.value !== CC.name) nm.value = CC.name; $("ccErr").textContent = ""; paint(); });
-  setTimeout(() => nm.focus(), 50);
   const create = async () => {
     const name = CC.name.trim().replace(/^./, c => c.toUpperCase());
     const why = validCharName(name, r);
-    if (why) { $("ccErr").textContent = why; sfx("error"); nm.focus(); return; }
-    const btn = box.querySelector("[data-create]");
+    const nm = $("ccName");
+    if (why) { $("ccErr").textContent = why; sfx("error"); if (nm) nm.focus(); return; }
+    const btn = box.querySelector("[data-next]");
     if (btn.disabled) return;
     btn.disabled = true; btn.textContent = "Creating…";
-    const id = createChar({ name, job: CC.job, look: CC.look });
+    const look = Object.assign({}, CC.look);
+    const id = createChar({ name, job: CC.job, look });
     try { await netCreateChar(id, loadChar(id)); }
     catch (e) { deleteChar(id); btn.disabled = false; btn.textContent = "Begin your journey"; $("ccErr").textContent = netErr(e); sfx("error"); return; }
     enterWorld(id, true);
@@ -370,29 +426,17 @@ function showCharCreate() {
   box.onclick = e => {
     const b = e.target.closest("button");
     if (!b) return;
-    if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); paint(); return; }
-    if (b.dataset.look) {
-      const k = b.dataset.look, d = parseInt(b.dataset.d, 10);
-      if (k === "hairStyle") {
-        const styles = HAIR_BY_SEX[CC.look.build];
-        const i = styles.indexOf(HAIR_STYLES[CC.look.hairStyle]);
-        CC.look.hairStyle = HAIR_STYLES.indexOf(styles[(i + d + styles.length) % styles.length]);
-      } else if (k === "race") {
-        const i = RACE_ORDER.indexOf(CC.look.race || "human");
-        CC.look.race = RACE_ORDER[(i + d + RACE_ORDER.length) % RACE_ORDER.length];
-        const sx = RACES[CC.look.race].sex;
-        if (sx != null && CC.look.build !== sx) { CC.look.build = sx; CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[sx][0]); }
-      } else {
-        const n = { build: 2, skin: SKIN_TONES.length, hairColor: HAIR_COLORS.length, height: 5, girth: 5, face: FACE_COUNT }[k];
-        const cur = CC.look[k] == null ? (k === "height" || k === "girth" ? 2 : 0) : CC.look[k];
-        CC.look[k] = k === "height" || k === "girth" ? clamp(cur + d, 0, n - 1) : (cur + d + n) % n;
-        if (k === "build") CC.look.hairStyle = HAIR_STYLES.indexOf(HAIR_BY_SEX[CC.look.build][0]);
-      }
-      sfx("click"); paint(); return;
-    }
-    if (b.dataset.rand) { CC.look = randomLook(); sfx("click"); paint(); return; }
-    if (b.dataset.back) { UI.creating = false; releasePreview(); sfx("close"); showCharSelect(); return; }
-    if (b.dataset.create) create();
+    const l = CC.look;
+    if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); box.querySelectorAll("[data-job]").forEach(x => x.classList.toggle("on", x.dataset.job === CC.job)); $("ccJobBlurb").textContent = JOB_BLURB[CC.job]; if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; } return; }
+    if (b.dataset.race) { l.race = b.dataset.race; const sx = RACES[l.race].sex; if (sx != null) l.build = sx; ccApplyFace(l); sfx("click"); paint(); return; }
+    if (b.dataset.sex != null && b.dataset.sex !== "") { l.build = +b.dataset.sex; ccApplyFace(l); sfx("click"); paint(); return; }
+    if (b.dataset.face != null && b.dataset.face !== "") { l.face = +b.dataset.face; ccApplyFace(l); sfx("click"); paint(); return; }
+    if (b.dataset.hc != null && b.dataset.hc !== "") { l.hairColor = +b.dataset.hc; sfx("click"); paint(); return; }
+    if (b.dataset.size != null && b.dataset.size !== "") { const s = CC_SIZES[+b.dataset.size]; l.height = s[1]; l.girth = s[2]; sfx("click"); paint(); return; }
+    if (b.dataset.goto != null && b.dataset.goto !== "") { const i = +b.dataset.goto; if (i <= CC.step || i <= ccSteps(l).length - 1) { CC.step = i; sfx("tab"); paint(); } return; }
+    if (b.dataset.rand) { const keep = CC.step; CC.look = randomLook(); CC.step = keep; sfx("click"); paint(); return; }
+    if (b.dataset.prev) { if (CC.step > 0) { CC.step--; sfx("close"); paint(); return; } UI.creating = false; releasePreview(); sfx("close"); showCharSelect(); return; }
+    if (b.dataset.next) { if (b.dataset.create) { create(); return; } CC.step++; sfx("click"); paint(); return; }
   };
 }
 

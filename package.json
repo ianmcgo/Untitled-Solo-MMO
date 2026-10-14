@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "15.5.0",
-  "releaseTitle": "Anime faces",
+  "version": "15.6.0",
+  "releaseTitle": "New character creation",
   "description": "",
   "main": "index.js",
   "scripts": {

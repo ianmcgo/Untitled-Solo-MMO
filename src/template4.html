@@ -449,6 +449,30 @@
   .ccErr { font-size: 12px; color: #ff8a80; min-height: 16px; }
   .ccAct { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
   .ccAct .pri { padding: 10px 18px; font: 700 14px var(--serif); }
+  .ccSteps { display: flex; gap: 3px; }
+  .ccSteps button { flex: 1; min-width: 0; padding: 3px 2px; font: 700 12px var(--serif); display: flex; flex-direction: column; align-items: center; gap: 1px; opacity: .55; }
+  .ccSteps button small { font: 9.5px system-ui; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .ccSteps button.on { opacity: 1; border-color: var(--gold); color: var(--gold); }
+  .ccSteps button.done { opacity: .85; }
+  .ccStepT { font: 700 16px var(--serif); color: var(--gold); margin-top: 4px; }
+  .ccBody { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+  .ccGrid { display: grid; gap: 5px; }
+  .ccRaces { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .ccTwo, .ccSizes { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+  .ccFaces { grid-template-columns: repeat(4, 1fr); }
+  .ccHair { grid-template-columns: repeat(8, 1fr); }
+  .ccCard2 { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 9px 4px; }
+  .ccCard2 b { font-size: 13px; }
+  .ccCard2 small { font-size: 10.5px; color: var(--muted); }
+  .ccCard2 .lock { color: #ffcc80; }
+  .ccCard2.on, .ccFaceB.on, .ccSw.on { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold), 0 0 8px rgba(241,207,115,.35); color: #fff; }
+  .ccFaceB { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; }
+  .ccFaceB img { width: 100%; max-width: 72px; aspect-ratio: 72/60; border-radius: 6px; display: block; }
+  .ccFaceB small { font-size: 10px; white-space: nowrap; }
+  .ccSw { padding: 4px; aspect-ratio: 1; display: grid; place-items: center; }
+  .ccSw span { width: 100%; height: 100%; border-radius: 50%; background: var(--c); border: 1px solid #000; box-shadow: inset 0 3px 4px rgba(255,255,255,.25); }
+  .ccInfo2 { font-size: 12px; color: #dcdcff; line-height: 1.35; }
+  .ccInfo2 .st { margin-top: 3px; color: var(--gold); font-size: 11.5px; }
   .bb.jmp { width: 46px; height: 46px; }
   @media (max-width: 900px) {
     :root { --slot: 46px; }
@@ -990,6 +1014,7 @@
   #charSel { padding: 10px 12px 12px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.6); font-family: var(--ffFont); color: #fff; }
   #charSel h2, #charSel h3 { font: italic 900 15px var(--ffFont) !important; color: #fff !important; letter-spacing: .08em; text-shadow: 1px 1px 0 #000; }
   #charSel .ccCard { border-radius: 6px !important; background: rgba(10,12,50,.55) !important; border: 1px solid rgba(220,224,255,.7) !important; }
+  #charSel .ccCard2.on, #charSel .ccFaceB.on, #charSel .ccSw.on, #charSel .ccSteps button.on, #charSel .ccJobs button.on { background: linear-gradient(#e0904a, #8a4a1c) !important; border-color: #ffd28a !important; color: #fff !important; box-shadow: 0 0 0 2px #ffb54a, 0 0 10px rgba(255,181,74,.6) !important; }
   #charSel .ccCard:hover, #charSel .ccCard.sel { background: rgba(200,120,60,.35) !important; border-color: #ffb54a !important; }
   #charSel .ccInfo b { font: italic 900 16px var(--ffFont) !important; color: #fff !important; text-shadow: 1px 1px 0 #000; }
   #charSel .ccInfo span, #charSel .ccInfo small, #charSel .sub, #charSel label { font-family: var(--ffFont) !important; color: #dcdcff !important; }
@@ -1024,6 +1049,15 @@
     .ccRow button { padding: 1px 0; height: 22px; }
     .ccAct .pri, .ccAct button { padding: 7px 10px; font-size: 13px; }
     .ccForm + .sub, .ccOpts .sub { font-size: 11px; }
+    .ccSteps button { padding: 2px 1px; font-size: 11px; }
+    .ccSteps button small { display: none; }
+    .ccStepT { font-size: 14px; margin-top: 2px; }
+    .ccRaces { grid-template-columns: 1fr; }
+    .ccRaces .ccCard2 { flex-direction: row; justify-content: space-between; padding: 6px 8px; }
+    .ccFaces { grid-template-columns: repeat(4, 1fr); gap: 3px; }
+    .ccFaceB small { font-size: 9px; }
+    .ccHair { grid-template-columns: repeat(4, 1fr); }
+    .ccInfo2 { font-size: 11px; }
   }
 </style>
 </head>
