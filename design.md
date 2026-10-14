@@ -919,12 +919,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - setup.sql (schema 5): trigger characters_no_offline (before insert or update) rejects data.offline.
 - Test p30unit; harness exports PLAY, loadChar, charKey, STORE.
 
+## Phase 48: G1 sky and light (v9.8.0)
+- world3d.js: W3.clouds2 (higher, slower, scaled layer), W3.sunGlow (additive sprite at sun dir, warmer/larger in golden hour), W3.moonDisc (moonTex(phase) canvas, phase from game day % 24), W3.haze (open cylinder, hazeTex vertical alpha, coloured with fog), ATMOS per zone {tint, haze, far, clouds} blended into fog/hemi colour, fog distance and cloud opacity. Cloud colour picks up golden-hour tint. Stars rotate with time of day.
+- Mobile: #mobBar (Target → cycleTarget, Menu → toggle main menu/close window) above #ffSide (and above #mpBox when shown); jump hidden on coarse pointers; tapping #log on touch opens openChatInput.
+- Toasts and #verPop: blue stripe style, top centre. showWhatsNew uses the entry for GAME_VERSION (was UPDATES[0], which is the misplaced 6.5.0 Pets entry); tabUpdates sorts newest first (verNum).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
 - 46 (9.6.0) Remaining classic windows + Help rewrite: DONE.
 - 47 (9.7.0) Offline play: DONE.
-- 48 (9.8.0) G1 Sky and light: sky dome gradient + layered moving clouds, sun/moon/stars, time-of-day colour grading, per-zone fog colour/distance, hemisphere + sun light balance, weather tints.
+- 48 (9.8.0) G1 Sky and light: DONE.
 - 49 (9.9.0) G2 Terrain: painted texture splatting (grass/dirt/path/rock/sand/snow) by height/slope/zone, detail textures up close, cliff and rock-face meshes, smoother height variety, path decals.
 - 50 (9.10.0) G3 Plants and props: layered-canopy trees, conifers, bushes, flowers, instanced grass tufts with wind sway, scattered rocks, logs, fences; distance fade/LOD.
 - 51 (9.11.0) G4 Water: animated reflective water with depth tint, shoreline foam, ripples, waterfalls and streams.
@@ -975,6 +980,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.8.0 | Phase 48: layered clouds, sun glow, moon phases, horizon haze, zone atmosphere; mobile buttons; blue top toasts. |
 | 9.7.0 | Phase 47: offline play with separate storage and server-side rejection. |
 | 9.6.0 | Phase 46: classic styling for all remaining windows, Help rewrite. |
 | 9.5.1 | Spawn points 3 grid squares apart, clear of exits, alternate monsters per point. |

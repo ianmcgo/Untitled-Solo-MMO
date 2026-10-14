@@ -1443,6 +1443,16 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.8.0", date: "2026-10-14", title: "Sky and light", items: [
+    "A second, higher cloud layer drifts more slowly than the first for depth, and clouds glow orange and pink around sunrise and sunset.",
+    "The sun has a soft glow that grows and warms near the horizon. The moon now shows its phase, which changes from one game day to the next.",
+    "A horizon haze blends the land into the sky so distant areas fade softly.",
+    "Each area has its own air: the Outpost warm, Rocky Hollow golden, the Ashen Marsh hazy green with a shorter view, Frostspire Pass crisp and blue with a longer view, and Saltreach Harbor a salty sea haze.",
+    "The stars turn slowly across the night sky.",
+    "Phones: the Jump button is gone (Shift+Space still jumps on a keyboard). New Target and Menu buttons sit above the boxes in the bottom right, and tapping anywhere in the event log opens the typing box.",
+    "Achievement, item and update notices now use the blue striped style and pop up at the top of the screen.",
+    "Fixed the update notice always naming the old Pets update; it now names the current version's update. The Updates list is in newest-first order."
+  ] },
   { v: "9.7.0", date: "2026-10-14", title: "Offline play", items: [
     "After Press Start you now choose Play Online or Play Offline. Offline needs no account or internet connection.",
     "Offline characters have their own list, are saved only on this device, and play solo with companions and every non-player system (quests, crafting, gathering, the NPC market, guild bounties and more). Parties with other players, trades, tells, linkshells, search and the players' auction house are hidden.",
@@ -1883,9 +1893,11 @@ const UPDATES = [
   { v: "1.0", title: "Phase 1: the rules", items: ["Combat, TP, weapon skills, skillchains, magic bursts, enmity, con colours and aggro.", "Hired companions, standing regen, home points, skills, support jobs and the real-time clock."] }
 ];
 
+function verNum(v) { return String(v).split(".").reduce((n, x) => n * 1000 + (parseInt(x, 10) || 0), 0); }
+function updatesSorted() { return UPDATES.slice().sort((a, b) => verNum(b.v) - verNum(a.v)); }
 function tabUpdates() {
   let h = '<div class="sub" style="margin-bottom:8px">' + BUILD_INFO + "</div>";
-  for (const u of UPDATES) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>";
+  for (const u of updatesSorted()) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>";
   return h;
 }
 
@@ -2157,6 +2169,7 @@ function tabHelp() {
     "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
     "<b>Spells</b> are learned by reading scrolls (from shops and monster drops) once one of your jobs is high enough level.",
     "<b>Keyboard in windows:</b> arrows move, Enter chooses, Esc goes back or closes.",
+    "<b>Phones:</b> Target and Menu buttons sit above the bottom-right boxes; tap the event log to type.",
     "<b>Lists:</b> Items, Shop, Quests, Magic and Abilities are slim lists in the top left. Point at an entry for its card (under the list) and description (Help bar); choose it for a small box of actions. In a command menu, Magic shows MP Cost and Next (recast) above the target frame.",
     "<b>Bottom right:</b> separate Target and Party boxes.",
     "<b>Windows:</b> menus open in the top left of the screen while the world keeps going. The Commands box shows the window's name and the Help bar explains it. Esc closes it.",
@@ -2248,7 +2261,7 @@ function showWhatsNew() {
   let seen = null;
   try { seen = localStorage.getItem("usr_seen_version"); localStorage.setItem("usr_seen_version", GAME_VERSION); } catch (e) {}
   if (/^__/.test(GAME_VERSION) || !seen || seen === GAME_VERSION) return;
-  const u = UPDATES[0];
+  const u = UPDATES.find(x => x.v === GAME_VERSION) || updatesSorted()[0];
   toast("📰", "Updated to v" + GAME_VERSION, u.title + " · see the Updates tab");
   log("Updated to v" + GAME_VERSION + ": " + u.title + ". Open Updates (📰) for details.", "sys");
 }
