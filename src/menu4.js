@@ -1243,6 +1243,14 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "8.8.0", date: "2026-10-13", title: "Leid'anav Reborn: attached bodies", items: [
+    "The game is now called Leid'anav Reborn, with a new crystal-and-shield icon in the browser tab.",
+    "Every character, NPC and monster model was checked in idle, walking, running, attacking, weapon skill, hit and casting poses. Joints now bend smoothly instead of pulling apart: torsos stay on hips, heads on necks, arms on shoulders, and monster legs, wings, fins and tails stay attached.",
+    "Parts that were built floating are now joined: crawler bands, lizard spines, crab eye stalks, cactus needles, mandrake leaf stems, skeleton shoulders, the hind legs of hares and toads, and more.",
+    "The big race is broader in the shoulders and bulkier with a smaller head, to match its reference sculpt.",
+    "The bestiary now shows a picture of each creature you've met.",
+    "Ysolde the stablemaster sticks to mounts now; pets are managed from the Pets window."
+  ] },
   { v: "8.7.0", date: "2026-10-13", title: "Social", items: [
     "New Social window: everyone online with job, level, area and linkshell, with Tell, Invite and + Friend buttons and filters.",
     "Friend list with online alerts (/friend).",
