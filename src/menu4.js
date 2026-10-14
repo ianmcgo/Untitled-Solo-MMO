@@ -1453,6 +1453,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.11.0", date: "2026-10-14", title: "Water", items: [
+    "Lakes and ponds have a bluer, deeper tint instead of looking grey, and calmer reflections.",
+    "A soft band of foam laps around every shoreline and slowly drifts.",
+    "Little ripples spread across the water now and then.",
+    "Lakes close to a cliff get a waterfall pouring down into them, with spray at the bottom."
+  ] },
   { v: "9.10.0", date: "2026-10-14", title: "Plants and props", items: [
     "A second kind of broadleaf tree with a taller trunk, branching limbs and a fuller, layered canopy.",
     "Bushes along the edges of fields and towns, clusters of wildflowers in five colours in the grass, and fallen logs near the field edges (you can't walk through the logs).",

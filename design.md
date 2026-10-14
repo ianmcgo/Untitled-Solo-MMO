@@ -954,6 +954,9 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - buildVegetation: leafy2 (branching trunk + 6-clump canopy), bushes (quality 60/160/260), flower clusters (80/260/500, 5 colours via instanceColor, not in snow), fallen logs (fields, colliders). tintInst gives per-instance colour variation. Merged geometries must all be indexed or all non-indexed (Icosahedron is non-indexed → stem.toNonIndexed()).
 - loadZoneAsync error path also resolves VIEW.zoneWaiters so enterWorld never hangs.
 
+## Phase 51: G4 water (v9.11.0)
+- buildWater: per pond foam ring (foamTex, double-sided, UV scroll + pulse), 2–4 ripple rings that respawn at random points every 3.2 s, waterfall (curved plane with scrolling fallTex + mist sprite) when a field pond is within r+420 of the zone edge and the terrain 140 units beyond is > 2.5 m above water. W3.waterFx animated by updateWaterFx (called from updateSky). Water colour 0x1e5a68, distortion 1.6.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -962,7 +965,7 @@ Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big ski
 - 48 (9.8.0) G1 Sky and light: DONE.
 - 49 (9.9.0) G2 Terrain: DONE (detail splat; cliff meshes left to G3/G12).
 - 50 (9.10.0) G3 Plants and props: DONE.
-- 51 (9.11.0) G4 Water: animated reflective water with depth tint, shoreline foam, ripples, waterfalls and streams.
+- 51 (9.11.0) G4 Water: DONE (streams left out).
 - 52 (9.12.0) G5 Towns and buildings: textured stone/plaster/timber walls, tiled roofs, windows/doors with frames, lanterns, banners, market stalls, crates; residence interior detail; light pools at night.
 - 53 (9.13.0) G6 Characters: higher-detail heads and faces (eyes, brows, mouths), hair meshes with strands/ponytails, smoother limb joints, gear with trims, layered cloth (skirts/tabards/capes) that moves, per-race silhouettes.
 - 54 (9.14.0) G7 Monsters: per-family detail pass with painted textures, using the uploaded reference files for proportions only (original designs).
@@ -1010,6 +1013,7 @@ World systems:
 | 9.0.1 | Phase 40b: log auto-hide with pin, separate Network box. |
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
+| 9.11.0 | Phase 51: water tint, shore foam, ripples, waterfalls. |
 | 9.10.0 | Phase 50: layered trees, bushes, flowers, logs, tint variation. |
 | 9.9.0 | Phase 49: tiled terrain detail, slope rock. |
 | 9.8.6 | Tap-to-type fix on phones, phone Status shows all boxes. |
