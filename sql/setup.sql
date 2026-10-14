@@ -7,7 +7,7 @@ create table if not exists game_private.config (k text primary key, v text not n
 revoke all on game_private.config from public, anon, authenticated;
 insert into game_private.config (k, v) values ('level_cap', '20') on conflict (k) do nothing;
 insert into game_private.config (k, v) values ('bag_size', '30') on conflict (k) do nothing;
-insert into game_private.config (k, v) values ('schema', '5') on conflict (k) do update set v = greatest(game_private.config.v::int, 5)::text;
+insert into game_private.config (k, v) values ('schema', '6') on conflict (k) do update set v = greatest(game_private.config.v::int, 6)::text;
 
 create table if not exists game_private.audit (id bigserial primary key, at timestamptz not null default now(), char_id uuid, char_name text, owner uuid, kind text not null, detail text);
 create table if not exists game_private.trade_offers (me uuid primary key, peer uuid not null, mine jsonb not null, theirs jsonb not null, created_at timestamptz not null default now(), status text not null default 'open', result jsonb);
@@ -54,7 +54,7 @@ drop policy if exists chars_insert on public.characters;
 drop policy if exists chars_update on public.characters;
 drop policy if exists chars_delete on public.characters;
 create policy chars_select on public.characters for select using (owner = auth.uid() or public.is_admin());
-create policy chars_insert on public.characters for insert with check (owner = auth.uid() and public.is_member() and (select count(*) from public.characters c where c.owner = auth.uid()) < 8);
+create policy chars_insert on public.characters for insert with check (owner = auth.uid() and public.is_member() and (select count(*) from public.characters c where c.owner = auth.uid()) < 5);
 create policy chars_update on public.characters for update using (owner = auth.uid() and public.is_member()) with check (owner = auth.uid());
 create policy chars_delete on public.characters for delete using (owner = auth.uid());
 

@@ -276,7 +276,7 @@ function showCharSelect() {
   }
   if (!r.chars.length) h += '<div class="ccEmpty">No characters yet. Create one to begin your journey.</div>';
   h += "</div>";
-  if (!PLAY.offline && NET.localOnly && NET.localOnly.length) h += '<div class="ccEmpty" style="margin-top:6px">' + NET.localOnly.length + " character" + (NET.localOnly.length > 1 ? "s" : "") + " from this browser (" + NET.localOnly.map(c => esc(c.name)).join(", ") + ') can be moved to your account. <button data-upload="1">Upload to my account</button></div>';
+  if (false) h += '<div class="ccEmpty" style="margin-top:6px">' + NET.localOnly.length + " character" + (NET.localOnly.length > 1 ? "s" : "") + " from this browser (" + NET.localOnly.map(c => esc(c.name)).join(", ") + ') can be moved to your account. <button data-upload="1">Upload to my account</button></div>';
   h += '<div class="ccFoot">' + (r.chars.length < MAX_CHARS ? '<button class="pri" data-new="1">＋ New character</button>' : '<span class="sub">Character limit reached (' + MAX_CHARS + ').</span>') + '<span class="sub">' + r.chars.length + " / " + MAX_CHARS + " characters · " + (PLAY.offline ? 'Offline (this device only) <button data-mode="1">Play online instead</button>' : esc(NET.user ? NET.user.email : "") + ' <button data-signout="1">Sign out</button>') + "</span></div>";
   const box = $("charSel");
   box.innerHTML = h;

@@ -179,7 +179,7 @@ const STORE = {
 
 const PLAY = { offline: false };
 const ROSTER_ON = "usr_roster_v1", ROSTER_OFF = "usr_off_roster_v1";
-const MAX_CHARS = 8;
+const MAX_CHARS = 5;
 const charKey = id => (PLAY.offline ? "usr_off_char_" : "usr_char_") + id;
 function rosterKey() { return PLAY.offline ? ROSTER_OFF : ROSTER_ON; }
 
