@@ -1324,6 +1324,15 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Quests: `tour_outpost`, `tour_harbor`, `tour_ironvale` use `check` with `QUEST_CHECKS` and `tourDone(zid)` against `save.districts`.
 - Test: test/p52unit.js.
 
+## Phase 110.1: Anime faces (v15.5.0) — Track 0
+- `paintFace(g, ox, oy, v, fem)` replaced. The head UV is not isotropic: 1 px across ≈ 1/43 rad × 0.87 hr, 1 px down ≈ 1/86.7 rad × 1.04 hr, so the paint is drawn in a local space `translate(64,120) scale(1,1.7)` where units are square on the model. Eye centres at ±15.5, mouth at y 26 (canvas ≈ +44, matching the mouth bone at b 0.437), nose tick at y 13–15.6, brows at −(up + 5.5).
+- `EYE[v] = [rx, up, dn, tilt, lidDrop, irisScale]`, `BROW[v]`, `IRIS[v]`, mouth width and smile per face. Face order: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy, Proud (`FACE_NAMES`, `FACE_COUNT` 8). Female paint: eyes ×1.05/×1.08, lash width 2.6 plus three flick lashes, lip tint, blush 0.32 (male 0.12).
+- Atlas: `ATLAS_COLS` 8 (2048 × 1024 at 256 cells), regions face … face16. Face cell = face % 8 + (build 1 ? 8 : 0).
+- `headProfile` for human/elari/pipkin/ursan/nekari: nose × 0.3, sock × 0.2, brow × 0.3, lips × 0.25, cheek × 0.4 (cheek bulges made dark creases on Pipkin). The old "face ≥ 8 changes bone structure" rule is gone; `normalizeSave` maps look.face ≥ 8 to face % 8.
+- `FACE_PX.eyeA` 15.5 px. Lids (`gLid`) cover a ±0.31 × (−0.26…+0.17) rad patch; rest rotation −0.7 (anim.js) so the raised lid clears the brows.
+- Hair: fringe styles (bob, long, twintails, wavy) front edge −0.5 / −0.42 and front locks 0.13 long so they stop at the brows.
+- Test tool: test/faceshot.js (own WebGL renderer with ACES so render targets are tone mapped like the game; poses front, q, lid0, lidh).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1376,6 +1385,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.5.0 | Phase 110.1: anime faces (8 face types, male/female paints, smoother heads, fringes at the brows). |
 | 15.4.0 | Phase 110: city life: crowds, guard patrols, district signposts, district ambience, tour quests. |
 | 15.3.0 | Phase 109: warp stones in every district, free in-city warps, paid inter-city warps, /warp. |
 | 15.2.0 | Phase 108: Harbor and Ironvale districts, hireling bodies persist an hour, Phoenix Down, mobile and label fixes. |

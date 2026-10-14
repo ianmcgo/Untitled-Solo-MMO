@@ -7,7 +7,7 @@ const mockLogin = require('./mocklogin');
   const errs = [];
   page.on('pageerror', e => errs.push('pageerror: ' + e.message));
   await page.addInitScript(q => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: q })); } catch (e) {} }, process.env.QUALITY || 'low');
-  await mockLogin(page, html);
+  await mockLogin(page, html); await page.evaluate(l => { window.SHOT_L = l; }, process.env.SHOT_L || '1');
   const list = JSON.parse(listArg), poses = (posesArg || 'idle,walk,swing').split(','), cols = +(colsArg || 6);
   const url = await page.evaluate(async ({ DY, RR, list, poses, cols, TS }) => {
     const T = TS;
@@ -18,8 +18,8 @@ const mockLogin = require('./mocklogin');
     g2.fillStyle = '#20242c'; g2.fillRect(0, 0, sheet.width, sheet.height);
     const studio = new THREE.Scene();
     studio.background = new THREE.Color(0x8a96a8); studio.environment = W3.scene.environment || null;
-    studio.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6));
-    const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 6, 4); studio.add(sun);
+    studio.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6 * (+(window.SHOT_L || 1))));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.2 * (+(window.SHOT_L || 1))); sun.position.set(3, 6, 4); studio.add(sun);
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: 0x6a7a5a }));
     floor.rotation.x = -Math.PI / 2; studio.add(floor);
     const grid = new THREE.GridHelper(40, 160, 0x4a5a3a, 0x5a6a4a); grid.position.y = 0.002; studio.add(grid);
@@ -72,7 +72,7 @@ const mockLogin = require('./mocklogin');
         cam.position.copy(c).addScaledVector(fwd, d * ang[0]).addScaledVector(side, d * ang[1]); cam.position.y += d * 0.08;
         cam.lookAt(c);
         cam.updateProjectionMatrix();
-        R.setRenderTarget(rt); R.render(studio, cam); R.readRenderTargetPixels(rt, 0, 0, T, T, buf); R.setRenderTarget(null);
+        R.toneMappingExposure = 0.85 * (+(window.SHOT_L || 1)); R.setRenderTarget(rt); R.render(studio, cam); R.readRenderTargetPixels(rt, 0, 0, T, T, buf); R.setRenderTarget(null);
         for (let y = 0; y < T; y++) for (let x = 0; x < T; x++) { const si = ((T - 1 - y) * T + x) * 4, di = (y * T + x) * 4; img.data[di] = buf[si]; img.data[di + 1] = buf[si + 1]; img.data[di + 2] = buf[si + 2]; img.data[di + 3] = 255; }
         const px = (k % cols) * T, py = Math.floor(k / cols) * T;
         g2.putImageData(img, px, py);

@@ -1478,6 +1478,15 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.5.0", date: "2026-10-14", title: "Anime faces", items: [
+    "Every player race and townsperson now has a cartoon/anime face in the spirit of classic online RPGs: large glossy eyes with two highlights, a tall shaded iris, a thick upper lash line, a tiny nose and a small mouth.",
+    "Eight face types: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud. Each has its own eye shape (round, narrow, upturned, droopy, half-lidded), eye colour, brows and mouth.",
+    "Men and women have separate face paints: women get heavier lashes with a flick at the corner, a lip tint and a blush.",
+    "Faces are smoother: smaller nose, shallower eye sockets and softer cheeks.",
+    "Fringes (bob, long, twin tails, wavy) now stop at the brows so the eyes show.",
+    "Blinking and closing the eyes when knocked out still work with the larger eyes.",
+    "Characters that used faces 9 to 16 now use the matching face from the first eight."
+  ] },
   { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
     "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
     "The markets and fish market are crowded; the residential wards are quieter.",
@@ -1614,7 +1623,7 @@ const UPDATES = [
     "Critters (hares, bees, sheep, mandrakes and the like) stay out at night. Night adds its own harder monsters rather than emptying the fields."
   ] },
   { v: "13.9.0", date: "2026-10-14", title: "Faces that talk", items: [
-    "16 faces to choose from (was 8): the new eight pair the painted features with a different bone structure (stronger nose and chin, wider jaw, higher cheekbones, fuller lips).",
+    "16 faces to choose from (was 8). Since 15.5.0 there are 8 anime-style faces instead.",
     "Mouths move. Townsfolk talk while their lines appear in the log, you and other players talk when you chat, and the jaw drops with each syllable.",
     "Expressions: a shout on weapon skills, a grimace when hit, chanting while casting, open-mouthed laughs, cheers and panics, a trembling mouth when crying, and a slack jaw when knocked out. Eyes still blink and squint as before."
   ] },
@@ -2392,7 +2401,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character: pick race, sex, skin, one of 16 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked) and every face has its own eye colour, brows and mouth. Set Graphics to High for the sharpest faces and clothing.",
+    "Creating a character: pick race, sex, skin, one of 8 faces, one of the hairstyles (including braid, crest, twin tails and topknot), hair colour, height and build. Faces are drawn in a cartoon/anime style: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud, each with its own eye shape, eye colour, brows and mouth. Women's faces have heavier lashes, a lip tint and a blush. Each race has its own head shape (Elari long and fine-boned, Ursan broad with a short muzzle, Pipkin round, Nekari high-cheeked). Set Graphics to High for the sharpest faces and clothing.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
