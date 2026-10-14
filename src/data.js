@@ -190,8 +190,8 @@ const ABILITIES = {
   convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
-const BUFF_ICONS = { blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+const BUFF_NAMES = { boon: "Shrine's Favour", blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_ICONS = { boon: "🕯️", blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
@@ -1569,3 +1569,29 @@ for (const zid in ZONES) {
   }
   z.spawns = z.spawns.filter(sp => kept.includes(sp));
 }
+const POI_LORE = {
+  hollow: "Before the Outpost there was the Fort, and before the Fort there was only the Hollow and the people who herded in it. They cut these words so their children would know the safe paths: keep to the old road, drink from the mirror lake, and never sleep where the goblins dig.",
+  frost: "Here the first climbers turned back. Above this stone the air grows thin and the black rock bleeds cold. Whoever reads this: the summit is not empty. Something stands there and waits for the ash to fall.",
+  marsh: "The chapel bell rang for a hundred years before the water took it. They say it still rings for those who drown in the mire. Count the tolls; if you hear thirteen, turn back."
+};
+const POI_IDS = [];
+function poiSpot(z, cx, cy, rad) {
+  const segD = (px, py, a) => { const dx = a[2] - a[0], dy = a[3] - a[1], l = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / l)); return Math.hypot(px - a[0] - dx * t, py - a[1] - dy * t); };
+  const ok = (x, y) => x > 160 && y > 160 && x < z.w - 160 && y < z.h - 160 && !(z.walls || []).some(q => x > q.x - 70 && x < q.x + q.w + 70 && y > q.y - 70 && y < q.y + q.h + 70) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 70) && !((z.ruins && z.ruins.walls) || []).some(a => segD(x, y, a) < 90) && !(z.spawns || []).some(sp => Math.hypot(sp.x - x, sp.y - y) < 110) && !(z.npcs || []).some(n => Math.hypot(n.x - x, n.y - y) < 140);
+  for (let k = 0; k < 64; k++) { const a = k * 2.4, r = rad * (0.5 + (k % 8) / 8); const x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r); if (ok(x, y)) return { x, y }; }
+  return null;
+}
+for (const zid of ["hollow", "frost", "marsh"]) {
+  const z = ZONES[zid], L = z.landmarks || [];
+  if (!L.length) continue;
+  const pick = i => L[Math.min(L.length - 1, i)];
+  const defs = [["lookout", "Lookout Tower", "lookout", "talkLookout", pick(0)], ["shrine", "Wayside Shrine", "shrine", "talkShrine", pick(2)], ["tablet", "Weathered Tablet", "tablet", "talkLore", pick(4)], ["cache", "Hidden Cache", "chest", "talkChest", pick(L.length - 1)]];
+  for (const [k, name, prop, talk, lm] of defs) {
+    const id = k + "_" + zid, at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 140);
+    if (!at) continue;
+    NPCS[id] = Object.assign({ name, prop, talk, poi: k }, prop === "chest" ? { chest: "vault" } : {});
+    z.npcs.push({ id, x: at.x, y: at.y });
+    if (k !== "cache") POI_IDS.push(id);
+  }
+}
+ACHIEVEMENTS.push({ id: "wayfarer", icon: "🧭", name: "Wayfarer", desc: "Visit every lookout tower, wayside shrine and weathered tablet in the wilds.", test: s => POI_IDS.every(id => (s.poi || {})[id]) });
