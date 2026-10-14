@@ -2338,3 +2338,36 @@ const CONQUEST = {
   },
   beastDaily: 30, rivalDaily: 20, holdBonus: 40
 };
+const EXPEDITIONS = {
+  wilds: { name: "Across the Wilds", lv: 12, reward: { xp: 4000, gil: 2000, item: "trailblazer_boots" },
+    intro: "The Guild wants a survey of the far roads. Go up through Frostspire Pass to the mountain city of Ironvale and see the Quartermaster there, then cross the Sunscar Desert to the bones the locals call Titan's Ribs. Come back and tell me what you saw.",
+    steps: [
+      { type: "zone", zone: "ironvale", text: "Reach the city of Ironvale, east of Frostspire Pass." },
+      { type: "talk", npc: "brisa", text: "Speak with Brisa, Ironvale's quartermaster.", say: "From Ashenreach, are you? The Guild's maps of the south are years out of date. Take a look at the Ribs while you're down there; the dunes have moved." },
+      { type: "visit", zone: "sunscar", lm: "ribs", text: "Find Titan's Ribs in the Sunscar Desert." },
+      { type: "talk", npc: "maera", text: "Return to Maera in Ashenreach Outpost.", final: true }
+    ] },
+  fire: { name: "Fire and Water", lv: 17, reward: { xp: 9000, gil: 4000, item: "explorers_ring" },
+    intro: "A scholar is paying well for proof of two places most people think are legends: a lake of fire on Cinder Peak and a grotto that glows under the jungle. Old Wend out on Gull Isle swears he's seen both. Find them, then ask him.",
+    steps: [
+      { type: "visit", zone: "cinder", lm: "lake", text: "Stand at the Molten Lake on Cinder Peak." },
+      { type: "kill", fam: "magma_worm", n: 4, text: "Defeat 4 Magma Worms (Cinder Peak)." },
+      { type: "visit", zone: "underdeep", lm: "grotto", text: "Find the Glimmer Grotto in the Underdeep." },
+      { type: "talk", npc: "wend", text: "Tell Old Wend on Gull Isle what you found.", say: "Ha! Told them, didn't I? Fire you can drink and caves full of stars. Go on back and tell your Guild the old man was right." },
+      { type: "talk", npc: "maera", text: "Return to Maera in Ashenreach Outpost.", final: true }
+    ] },
+  ends: { name: "The Ends of the Map", lv: 19, reward: { xp: 12000, gil: 6000, item: "pathfinder_mantle" },
+    intro: "Last job I've got, and it's a big one. Three places at the very edges of every map we own: the Standing Stones on the Windreach plateau, the Overgrown Temple deep in the jungle, and the summit of the Red Spire. Bring back proof you stood in all three.",
+    steps: [
+      { type: "visit", zone: "highlands", lm: "stones", text: "Visit the Standing Stones in the Windreach Highlands." },
+      { type: "visit", zone: "verdant", lm: "temple", text: "Reach the Overgrown Temple in the Verdant Jungle." },
+      { type: "visit", zone: "spire_top", lm: "summit", text: "Climb to the Red Spire Summit." },
+      { type: "talk", npc: "maera", text: "Return to Maera in Ashenreach Outpost.", final: true }
+    ] }
+};
+Object.assign(ITEMS, {
+  trailblazer_boots: { name: "Trailblazer Boots", kind: "equip", icon: "👢", rare: true, slot: "feet", jobs: ALL_JOBS, lv: 12, price: 0, stats: { def: 5, agi: 2, hp: 20 }, desc: "Guild-issue boots for those who've walked the far roads." },
+  explorers_ring: { name: "Explorer's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_JOBS, lv: 17, price: 0, stats: { hp: 25, mp: 25, acc: 4, eva: 4 }, desc: "Engraved with a compass rose." },
+  pathfinder_mantle: { name: "Pathfinder's Mantle", kind: "equip", icon: "🧣", rare: true, slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 6, hp: 30, str: 2, int: 2, agi: 2 }, desc: "Given only to those who have stood at the edges of every map." }
+});
+ACHIEVEMENTS.push({ id: "expeditions", icon: "🗺️", name: "Far Traveller", desc: "Complete every Guild expedition.", test: s => s.expDone && Object.keys(EXPEDITIONS).every(k => s.expDone[k]) });

@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "13.2.0", date: "2026-10-14", title: "Expeditions", items: [
+    "Maera at the Adventurers' Guild now offers expeditions: long journeys that send you across several areas, talking to people and standing at far-off landmarks before you report back.",
+    "Three to start: Across the Wilds (level 12), Fire and Water (level 17) and The Ends of the Map (level 19), rewarding the Trailblazer Boots, the Explorer's Ring and the Pathfinder's Mantle.",
+    "Type /expedition to see your next leg. New achievement: Far Traveller."
+  ] },
   { v: "13.1.0", date: "2026-10-14", title: "Weather that matters", items: [
     "New weather: sandstorms sweep the Sunscar Desert (and sometimes Cinder Peak), turning the air tan and blowing dust across the dunes.",
     "Weather now affects play: fog, blizzards and sandstorms (and to a lesser extent rain and storms) cut how far monsters can see you, and blizzards and sandstorms slow you down on foot.",
@@ -2262,6 +2267,13 @@ function tabHelp() {
     ["Underdeep River", "16–20", "A glowing cavern under the Verdant Jungle (door near the jungle's south-east). A rock wall splits it in two: Boatman Ferro rows you across the river for free. Glow Bats, Pale Crabs, Lumicaps and Deep Worms; the Lumicap Matron (NM) lights the Glimmer Grotto. Fish for Glowfin and the rare Blind Eel"],
     ["Windreach Highlands", "10–15", "North of Rocky Hollow. A wide golden plateau: ride anywhere at road speed. The nomad camp (Tarqa the chief with two quests, Essa the trader) and Rider's Rest are camps. Plains Hares, Plains Lizards, Wind Wasps, Highland Longnecks and Highland Orcs; Thunderhoof (NM) roams the Stormgrass Flats by day"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("🗺️ Expeditions", ul([
+    "Maera at the Adventurers' Guild hands out long journeys across several areas. Each has a list of legs; the next one is shown when you talk to her or type /expedition.",
+    "<i>Across the Wilds</i> (level 12): reach Ironvale, speak to Brisa, find Titan's Ribs in the Sunscar Desert, then report back. Reward: Trailblazer Boots.",
+    "<i>Fire and Water</i> (level 17): the Molten Lake on Cinder Peak, 4 Magma Worms, the Glimmer Grotto in the Underdeep, then Old Wend on Gull Isle. Reward: Explorer's Ring.",
+    "<i>The Ends of the Map</i> (level 19): the Standing Stones (Windreach Highlands), the Overgrown Temple (Verdant Jungle) and the Red Spire Summit. Reward: Pathfinder's Mantle.",
+    "One expedition at a time. Finish all three for the Far Traveller achievement."
+  ]));
   h += sec("🚩 Regions and nations", ul([
     "The wilds are split into five regions: the Vale (Rocky Hollow, Goblin Den, Sunken Crypt, Windreach Highlands), the Mire (Ashen Marsh, Chapel Depths, Verdant Jungle, Underdeep), the Coast (Gull Isle), the Peaks (Frostspire Pass) and the Sands (Sunscar Desert, Cinder Peak, Red Spire). Each is held by the Ashenreach League, the Ironvale Compact or the Beastmen.",
     "Pledge to a nation by talking to Captain Rhea (Ashenreach) or Brisa (Ironvale). Every monster you defeat in a region adds points for your nation there (about half its level).",
