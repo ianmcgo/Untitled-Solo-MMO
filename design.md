@@ -1281,6 +1281,11 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Cave crystals: first 2/4/6 clusters (low/medium/high) get a PointLight (cluster colour, 7, range 16, decay 1.6) flagged crystal; pulse 6 ± 1.5 at 1.3 rad/s in the torch loop.
 - Terrain bake: wet band where shoreWeight 0.55–0.95 darkens up to 32% (blue kept more).
 
+## Phase 105: dungeons (v14.12.0) — plan E4
+- `wallEdges(z)` walks every wall rect edge in 40 px steps and keeps runs whose outward side (8 px out) is open floor (not in another wall or outside the zone); returns {ax, ay, bx, by, nx, ny}.
+- `buildDungeon(field, root)` after buildCrypt for crypt and cave themes. Crypt: each run becomes a 6.2 m brick box (0.7 m thick, set 6 px into the wall) merged into one mesh with world-scaled UVs (`boxUV`, 2.2 m per texture repeat) and per-wall vertex shade; pilasters every 110 px (instanced, UV v ×3, caps top and bottom); sconces at odd pilasters with a PointLight on ~70% (cap low 4, medium 8, high 12, joining W3.torchLights flicker); cobweb quads (webTex) on half the runs; 3 sarcophagi in vault/throne/sentinel landmarks (1 elsewhere, 26 px colliders); 40 bones/urns 12–60 px from walls. Cave: timber frames on 55% of runs every 160–280 px; crates/barrels in 1–3s around 55% of torches.
+- Terrain bake (crypt, inside the walls): running-bond flagstones 46 px with noise-jittered rows, mortar lines < 3.5% of a stone darkened 40%, per-stone value 0.6–0.85.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1333,6 +1338,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 14.12.0 | Phase 105: brick crypt walls, pilasters, torch sconces, flagstones, sarcophagi, bones, urns, cobwebs; cave timber supports and crates. |
 | 14.11.0 | Phase 104: sunbeams, cave light shafts, dust motes, crystal light pools, wet shorelines. |
 | 14.10.0 | Phase 103: ferns, reeds, mushrooms, carts, fences, stumps and per-region prop sets. |
 | 14.9.0 | Phase 102: strata on cliffs, instanced rock outcrops, wheel-rutted roads with edging stones. |

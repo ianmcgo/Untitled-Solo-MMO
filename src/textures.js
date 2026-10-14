@@ -351,6 +351,14 @@ function* bakeTerrainAlbedoSteps(field, size) {
       const rv = 0.75 + NOISE.ridge(px * 0.03, py * 0.03, 3, 0, 209) * 0.5;
       r = mix(r, th.cliff[0] * rv, rock); g = mix(g, th.cliff[1] * rv, rock); b = mix(b, th.cliff[2] * rv, rock);
     }
+    if (z.theme === "crypt" && field.outside(px, py) < 0.5) {
+      const S0 = 46, row = Math.floor(py / S0), qx = px / S0 + (row % 2) * 0.5 + (NOISE.value(row * 3.1, 0, 0, 451) - 0.5) * 0.3, cx = qx - Math.floor(qx), cy = py / S0 - row;
+      const mort = Math.min(cx, 1 - cx, cy, 1 - cy), id = NOISE.value(Math.floor(qx) * 7.3, row * 3.7, 0, 453);
+      const k = (mort < 0.035 ? 0.55 : 0.82 + id * 0.3) * (1 - field.outside(px, py));
+      const stv = 0.6 + id * 0.25;
+      r = mix(r, 118 * stv, k); g = mix(g, 114 * stv, k); b = mix(b, 124 * stv, k);
+      if (mort < 0.035) { r *= 0.6; g *= 0.6; b *= 0.6; }
+    }
     const speck = 0.88 + n3 * 0.24;
     setRGB(o, r * speck, g * speck, b * speck);
   });
