@@ -722,11 +722,18 @@
   .eqArrow { text-align: center; color: #ffb060; font-size: 16px; line-height: 1; }
   #mBody .detail .iCard { margin-bottom: 6px; }
   @media (max-width: 760px) { .eqWrap { grid-template-columns: 1fr; } }
+  #ffTop { right: calc(150px + var(--sar)); }
+  #ffNetBox { position: absolute; right: calc(4px + var(--sar)); top: var(--sat); width: 140px; height: 32px; display: none; align-items: center; justify-content: center; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.45); z-index: 6; color: #fff; }
+  #ui.hasTop #ffNetBox { display: flex; }
+  @media (max-width: 720px) { #ffTop { right: calc(104px + var(--sar)); } #ffNetBox { width: 96px; } #ffNet b { font-size: 11px; } }
+  #chat { transition: opacity .25s, transform .25s; }
+  #chat.gone { opacity: 0; transform: translateY(16px); pointer-events: none; }
+  #trBtns { display: flex; gap: 6px; } #btnChat.on { border-color: #ffd070; box-shadow: 0 0 8px rgba(255,200,100,.6); }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.0.0 · built 2026-10-13 22:05 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.0.1 · built 2026-10-13 22:08 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -734,7 +741,8 @@
   <div id="flash"></div>
   <div id="joy"><div id="knob"></div></div>
   <div id="ui">
-    <div id="ffTop"><div class="ffCmd">Commands</div><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div></div>
+    <div id="ffTop"><div class="ffCmd">Commands</div><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div>
+    <div id="ffNetBox"><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div>
     <div id="ffStat"><div id="ffBars"><div class="r hp"><em>HP</em><div class="b"><i></i></div><b></b></div><div class="r mp"><em>MP</em><div class="b"><i></i></div><b></b></div><div class="r tp"><em>TP</em><div class="b"><i></i></div><b></b></div></div><div id="ffIcons"></div></div>
     <div id="ffSide"><div class="ffHead" id="ffTHead"><span>Target</span></div>
     <div id="target" class="glass">
@@ -756,7 +764,7 @@
     <div id="topRight">
       <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
-      <div id="trBtns"><button id="btnMenu" title="Menu (Esc)">☰</button></div>
+      <div id="trBtns"><button id="btnChat" title="Show the log (/)">💬</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
     </div>
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
@@ -11564,6 +11572,7 @@ function log(msg, c) {
   const d = document.createElement("div");
   d.className = c || "sys";
   d.textContent = msg;
+  if (["tell", "pchat", "ls", "say", "shout", "loot", "npc"].includes(c) && typeof S !== "undefined") UI.chatFlashUntil = (S.time || 0) + 6;
   el.appendChild(d);
   while (el.children.length > 250) el.removeChild(el.firstChild);
   if (near || $("chat").classList.contains("min")) el.scrollTop = el.scrollHeight;
@@ -12425,6 +12434,7 @@ function initHud() {
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
   $("btnMenu").onclick = () => S.modal ? closeModal() : openMenu("character");
+  $("btnChat").onclick = () => chatToggle();
   const ci = $("chatIn");
   UI.cmdHist = []; UI.cmdIdx = 0;
   ci.addEventListener("keydown", e => {
@@ -12434,7 +12444,7 @@ function initHud() {
       ci.value = "";
       if (v) { UI.cmdHist.push(v); if (UI.cmdHist.length > 30) UI.cmdHist.shift(); UI.cmdIdx = UI.cmdHist.length; runCommand(v); }
       ci.blur();
-    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); }
+    } else if (e.key === "Escape") { ci.value = ""; ci.blur(); chatToggle(false); }
     else if (e.key === "ArrowUp") { if (UI.cmdIdx > 0) { UI.cmdIdx--; ci.value = UI.cmdHist[UI.cmdIdx]; } e.preventDefault(); }
     else if (e.key === "ArrowDown") { if (UI.cmdIdx < UI.cmdHist.length) { UI.cmdIdx++; ci.value = UI.cmdHist[UI.cmdIdx] || ""; } e.preventDefault(); }
   });
@@ -12479,6 +12489,10 @@ function updateFF() {
       setTxt($("ffNetR"), "R " + (typeof NET_RT !== "undefined" ? (NET_RT.recv || 0) % 1000 : 0));
     }
   }
+  const ci = $("chatIn"), typing = document.activeElement === ci;
+  const showChat = tOk || !!UI.cmd || typing || UI.chatPin || S.time < (UI.chatFlashUntil || 0) || !!S.dialog;
+  $("chat").classList.toggle("gone", !showChat);
+  $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);
   const combat = player.engaged || inCombatWith(player);
   $("ffStat").classList.toggle("combat", !!combat && player.alive);
   if (combat) {
@@ -12505,6 +12519,12 @@ function updateFF() {
   $("target").classList.toggle("locked", showT && isMob(t) && player.engaged && player.attackTarget === t);
   const solo = S.party.length <= 1 && !(typeof NET_PT !== "undefined" && NET_PT.id);
   setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
+}
+
+function chatToggle(force) {
+  UI.chatPin = force == null ? !UI.chatPin : force;
+  if (!UI.chatPin) { const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur(); UI.chatFlashUntil = 0; }
+  if (typeof sfx === "function") sfx("click");
 }
 
 function openMenu(tab) {
@@ -13874,13 +13894,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.0.0 · built 2026-10-13 22:05 PDT";
+const BUILD_INFO = "v9.0.1 · built 2026-10-13 22:08 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.0.1", date: "2026-10-13", title: "Tidier screen", items: [
+    "The event log and typing box slide away when nothing is targeted. They come back when you target something, press / to type, someone talks to you or you find loot, or when you pin them with the 💬 button (or L). Esc hides them.",
+    "The Network box is now separate from the Commands bar."
   ] },
   { v: "9.0.0", date: "2026-10-13", title: "Equipment and classic windows", items: [
     "New Equipment window (G) with 16 slots: Main, Sub, Range, Ammo, Head, Neck, two Ears, Body, Hands, two Rings, Back, Waist, Legs and Feet. Tap a box for a pop-up list of what fits, with item cards comparing your choice to what you're wearing.",
@@ -14505,10 +14529,10 @@ function tabHelp() {
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells starter neck, ear, back, waist, shield, sling and ammo pieces; Vela in Saltreach sells better ones."
   ]));
   h += sec("🖥️ The screen", ul([
-    "<b>Top:</b> the Commands bar appears while something is targeted. It explains the highlighted command; Network on the right shows connection strength and messages sent (S) and received (R).",
+    "<b>Top:</b> the Commands bar appears while something is targeted and explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
     "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
-    "<b>Bottom:</b> the event log. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
+    "<b>Bottom:</b> the event log. It slides away when nothing is targeted, and comes back when you target something, start typing (press / ), when someone talks to you or you find loot, or while you pin it open with 💬 (top right) or L. Esc hides it again. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Settings → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you)."
@@ -14534,7 +14558,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.0.0";
+const GAME_VERSION = "9.0.1";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -21633,6 +21657,7 @@ function onKey(e) {
   if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
   if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
+  if (k === "l" && !S.modal) { chatToggle(); return; }
   if (k === "f") { toggleEngage(false); return; }
   if (k === "enter") { const t = player.target; if (t && (isMob(t) && t.alive || t.kind === "remote")) tgtCmdOpen(t); else if (nearNpc() && dist(nearNpc(), player) <= CONFIG.talkRange) talkNearest(); else tgtCmdOpen(player); return; }
   if (menuKeys[k]) { openMenu(menuKeys[k]); return; }
@@ -21641,6 +21666,7 @@ function onKey(e) {
   if (k === "[") { setPage(UI.page - 1); return; }
   if (k === "]") { setPage(UI.page + 1); return; }
   if (k === "escape" && UI.cmd) { tgtCmdClose(); return; }
+  if (k === "escape" && (UI.chatPin || S.time < (UI.chatFlashUntil || 0)) && !player.target) { chatToggle(false); return; }
   if (k === "escape") {
     if (player.casting) { player.casting = null; log("You stop casting.", "sys"); }
     else if (player.target && !player.engaged) player.target = null;

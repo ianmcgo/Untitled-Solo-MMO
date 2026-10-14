@@ -1373,6 +1373,10 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.0.1", date: "2026-10-13", title: "Tidier screen", items: [
+    "The event log and typing box slide away when nothing is targeted. They come back when you target something, press / to type, someone talks to you or you find loot, or when you pin them with the 💬 button (or L). Esc hides them.",
+    "The Network box is now separate from the Commands bar."
+  ] },
   { v: "9.0.0", date: "2026-10-13", title: "Equipment and classic windows", items: [
     "New Equipment window (G) with 16 slots: Main, Sub, Range, Ammo, Head, Neck, two Ears, Body, Hands, two Rings, Back, Waist, Legs and Feet. Tap a box for a pop-up list of what fits, with item cards comparing your choice to what you're wearing.",
     "Attack, Defense and resistance to all eight elements show under the slots. Resistance now reduces elemental damage from monsters.",
@@ -1996,10 +2000,10 @@ function tabHelp() {
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells starter neck, ear, back, waist, shield, sling and ammo pieces; Vela in Saltreach sells better ones."
   ]));
   h += sec("🖥️ The screen", ul([
-    "<b>Top:</b> the Commands bar appears while something is targeted. It explains the highlighted command; Network on the right shows connection strength and messages sent (S) and received (R).",
+    "<b>Top:</b> the Commands bar appears while something is targeted and explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
     "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
-    "<b>Bottom:</b> the event log. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
+    "<b>Bottom:</b> the event log. It slides away when nothing is targeted, and comes back when you target something, start typing (press / ), when someone talks to you or you find loot, or while you pin it open with 💬 (top right) or L. Esc hides it again. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Settings → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you)."
