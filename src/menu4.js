@@ -19,7 +19,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -35,11 +35,11 @@ function renderModal() {
   if (!S.modal) return;
   UI.menuSig = menuSig();
   const tabs = MAIN_TABS.slice();
-  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "stable"]) if (S.modal === t) tabs.unshift(t);
+  for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "pets", "stable"]) if (S.modal === t) tabs.unshift(t);
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, guild: tabGuild, auction: tabAuction, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, guild: tabGuild, auction: tabAuction, pets: tabPets, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -730,6 +730,32 @@ function tabBoard() {
   return h;
 }
 
+function tabPets() {
+  const have = save.buddies, cur = save.buddy;
+  let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around and give one small perk while they\'re out. They never fight and can\'t be attacked. Equip one, then summon it here, with the Pet button on your action bar, or with /pet.</div>';
+  if (UI.petMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.petMsg) + "</div>";
+  if (cur && BUDDIES[cur]) {
+    const B = BUDDIES[cur];
+    h += '<div class="item" style="border-color:#c9a227"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:28px">' + B.icon + "</span><div><b>" + esc(buddyName(cur)) + '</b> <span class="sub">· ' + esc(B.name) + '</span><div class="sub">' + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div><div style=\"display:flex;gap:6px\"><button data-a=\"petname\" data-v=\"" + cur + '">Rename</button><button class="pri" data-a="petsummon">' + (S.buddy ? "Dismiss" : "Summon") + "</button></div></div>";
+  } else h += '<div class="sub" style="margin-bottom:8px">No pet equipped.</div>';
+  h += "<h3>Your pets (" + have.length + ")</h3>";
+  if (!have.length) h += '<div class="sub">None yet. Ysolde sells a few, others come from notorious monsters, fishing, the Adventurers\' Guild and the story.</div>';
+  for (const id of have) {
+    const B = BUDDIES[id];
+    h += '<div class="item"' + (id === cur ? ' style="border-color:#c9a227"' : "") + '><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(buddyName(id)) + (save.buddyNames[id] ? ' <span class="sub">(' + esc(B.name) + ")</span>" : "") + '</b><div class="sub">' + esc(B.lore) + " · " + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div>" + (id === cur ? '<span class="sub">Equipped ✓</span>' : '<button data-a="petsel" data-v="' + id + '">Equip</button>') + "</div>";
+  }
+  if (S.modal === "pets" && S.npcs.some(n => n.id === "ysolde" && dist(n, player) < 200)) {
+    h += "<h3>Ysolde's pens</h3>";
+    for (const [id, price] of BUDDY_SHOP) {
+      const B = BUDDIES[id], own = have.includes(id);
+      h += '<div class="item"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + B.icon + "</span><div><b>" + esc(B.name) + '</b><div class="sub">' + esc(B.lore) + " · " + Object.keys(B.perk).map(k => BUDDY_PERK_TEXT[k](B.perk[k])).join(", ") + "</div></div></div>" + (own ? '<span class="sub">Owned ✓</span>' : '<button data-a="petbuy" data-v="' + id + '"' + (save.gil < price ? " disabled" : "") + ">" + price + " 💠</button>") + "</div>";
+    }
+  }
+  const others = Object.keys(BUDDIES).filter(id => !have.includes(id) && !BUDDY_SHOP.some(s => s[0] === id));
+  if (others.length) h += '<h3>Still to find</h3><div class="sub">' + others.map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(" · ") + "</div>";
+  return h;
+}
+
 function sparkline(vals, w, h) {
   const lo = Math.min(...vals), hi = Math.max(...vals), rg = Math.max(1, hi - lo);
   const pts = vals.map((v, i) => (i / (vals.length - 1) * w).toFixed(1) + "," + (h - 3 - (v - lo) / rg * (h - 6)).toFixed(1)).join(" ");
@@ -918,6 +944,10 @@ function onMenuClick(e) {
   else if (a === "reforge") { UI.forgeMsg = augmentItem(v, true); renderModal(); return; }
   else if (a === "coat") { UI.stableMsg = buyCoat(v); renderModal(); return; }
   else if (a === "saddle") { UI.stableMsg = buySaddle(); renderModal(); return; }
+  else if (a === "petsel") { UI.petMsg = equipBuddy(v); renderModal(); return; }
+  else if (a === "petsummon") { UI.petMsg = toggleBuddy(); renderModal(); return; }
+  else if (a === "petbuy") { const e = BUDDY_SHOP.find(x => x[0] === v); if (!e) return; if (save.gil < e[1]) { UI.petMsg = "You need " + e[1] + " crystals."; sfx("error"); } else { save.gil -= e[1]; learnBuddy(v); UI.petMsg = ""; } renderModal(); return; }
+  else if (a === "petname") { const cur = save.buddyNames[v] || ""; const nm = prompt("Name your " + BUDDIES[v].name + " (2–12 letters, blank to reset):", cur); if (nm !== null) { UI.petMsg = nameBuddy(v, nm); renderModal(); } return; }
   else if (a === "ahview") { UI.ahView = v; UI.ahSel = null; UI.ahMsg = ""; renderModal(); return; }
   else if (a === "ahcat") { UI.ahCat = v; UI.ahSel = null; renderModal(); return; }
   else if (a === "ahsel") { UI.ahSel = v; UI.ahMsg = ""; const it = ITEMS[v]; UI.ahQty = UI.ahView === "sell" ? Math.min(invCount(v), it.stack || 1) : 1; UI.ahPrice = marketPrice(v) * UI.ahQty; renderModal(); return; }
@@ -989,6 +1019,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
+    "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
+    "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
+    "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
+    "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
   { v: "6.4.0", date: "2026-10-13", title: "Five Races and the City Blessing", items: [
     "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like; the best casters, fast, but weak and frail), Ursan (huge; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
     "Race changes your body shape, ears and tail, and gives modest stat bonuses and penalties. Existing characters are Human.",
@@ -1257,6 +1293,12 @@ function tabHelp() {
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
+  ]));
+  h += sec("🐾 Pets", ul([
+    "Pets are small companions that follow you around. They never fight and can't be attacked, and each gives one small perk while it's out: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name + " (" + Object.keys(BUDDIES[id].perk).map(k => BUDDY_PERK_TEXT[k](BUDDIES[id].perk[k])).join(", ") + ")").join(", ") + ".",
+    "Open the <b>Pets</b> window (Ysolde offers it, or the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
+    "Where to find them: Ysolde sells the Meadow Kit, Batling and Wormlet. The Frost Wisp is a guild reward (Iron rank). Rimefang, Duskwing, Mirelord Gax and the Ashen Herald can drop pet items; the Tide Wisp is fished up in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
+    "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
   h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
     "Pick a race at character creation. It's permanent, like the rest of your appearance. Race shapes your body and gives small stat bonuses and penalties that grow a little with level; your job still matters far more.",

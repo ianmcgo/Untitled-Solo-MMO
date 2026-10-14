@@ -292,6 +292,7 @@ async function enterWorld(id, fresh) {
   const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : resumePos();
   enterZone(h.zone, h.x, h.y);
   if (h.face != null) player.face = h.face;
+  if (save.buddyOut && save.buddy && typeof summonBuddy === "function") summonBuddy();
   await zoneReady();
   VIEW.booting = false;
   UI.started = true;
