@@ -1477,6 +1477,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "13.4.0", date: "2026-10-14", title: "Night and weather secrets", items: [
+    "Luna, the Moonlit Peddler, now sets up in the Ashenreach plaza after dark with Moon Tonics and the Nightglass Earring. She's gone by dawn.",
+    "During sandstorms a shimmering mirage appears in the south-west of the Sunscar Desert. Step into it to find the Mirage: a hidden glass garden with level 20 monsters, a treasure cache and the Sandglass Wisp, which may drop the Mirage Veil. The way in vanishes when the storm passes.",
+    "Gloamhorn, a new notorious monster, grazes the eastern Windreach Highlands only at night and may drop the Gloam Ring.",
+    "New achievement: Seen Through."
+  ] },
   { v: "13.3.0", date: "2026-10-14", title: "World atlas", items: [
     "The world map in the Map window is now a full atlas of every area, joined by roads, doors and the Gull Isle ferry.",
     "It fills in as you travel: places you've been are named and coloured by whoever holds their region, places next to them show as ???, and everything else stays hidden. Each area shows how much of it you've mapped.",
@@ -2302,6 +2308,13 @@ function tabHelp() {
     "<i>Fire and Water</i> (level 17): the Molten Lake on Cinder Peak, 4 Magma Worms, the Glimmer Grotto in the Underdeep, then Old Wend on Gull Isle. Reward: Explorer's Ring.",
     "<i>The Ends of the Map</i> (level 19): the Standing Stones (Windreach Highlands), the Overgrown Temple (Verdant Jungle) and the Red Spire Summit. Reward: Pathfinder's Mantle.",
     "One expedition at a time. Finish all three for the Far Traveller achievement."
+  ]));
+  h += sec("🌙 Night and weather secrets", ul([
+    "Some things only happen at certain times or in certain weather.",
+    "<b>Luna, the Moonlit Peddler</b>, sets up in the Ashenreach plaza only at night (18:00–6:00) and sells Moon Tonics and the Nightglass Earring.",
+    "<b>The Mirage</b>: during a sandstorm, the air shimmers in the south-west of the Sunscar Desert. Walk into it to enter a hidden glass garden with level 20 monsters, a treasure cache and the Sandglass Wisp (NM). When the storm ends, the way in closes.",
+    "<b>Gloamhorn</b>, a dusk-coloured longneck, only grazes the eastern Windreach Highlands at night.",
+    "Weather-only monsters (see Weather) also come and go with the sky."
   ]));
   h += sec("🧭 Atlas", ul([
     "The Map window shows the area you're in (with fog over parts you haven't walked) and, below it, the atlas of the whole world.",
