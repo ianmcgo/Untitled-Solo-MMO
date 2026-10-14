@@ -1477,6 +1477,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "13.6.0", date: "2026-10-14", title: "Smooth bodies and natural movement", items: [
+    "Bodies are now one smooth skin: chest, waist, hips, shoulders, arms and legs flow into each other instead of being built from balls and tubes. Shoulders, biceps, forearms, thighs, knees and calves have real shape, and joints bend without gaps.",
+    "Everyone moves at a calmer pace. You run at about 5 m/s instead of 7, companions and pets keep up at a similar pace, monsters chase at roughly two-thirds of your speed, and townsfolk stroll.",
+    "Feet now plant on the ground: each foot stays put while it carries weight, rolls from heel to toe and lifts in a smooth arc, so characters and humanoid monsters no longer skate. Longer, slower strides when running.",
+    "Fixed a crash that could stop the game during weapon-skill trails."
+  ] },
   { v: "13.5.0", date: "2026-10-14", title: "Sculpted heads", items: [
     "Heads are no longer balls. Every race now has a sculpted head with a jawline, chin, brow, eye sockets, cheekbones, a real nose and lips, and a slim neck that meets the jaw cleanly.",
     "New realistic face painting: almond eyes with a coloured iris, pupil and highlights, lash lines, eyelid creases, natural brows, nostrils, shaped lips and soft shading. The eyes blink with lids that follow the new face shape.",
@@ -2211,6 +2217,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
+    "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
     "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line (plain 1–0 also use the Ctrl line); set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."

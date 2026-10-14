@@ -411,7 +411,7 @@ function buildStats(ch) {
   ch.maxHp = s.maxHp;
   ch.maxMp = s.maxMp;
   ch.delay = delay;
-  if (ch.kind === "pc") ch.speed = 140 * (rc ? rc.speed : 1);
+  if (ch.kind === "pc") ch.speed = CONFIG.runSpeed * (rc ? rc.speed : 1);
   ch.hp = ch.hp == null ? s.maxHp : Math.min(ch.hp, s.maxHp);
   ch.mp = ch.mp == null ? s.maxMp : Math.min(ch.mp, s.maxMp);
   ch.color = ch.mercId ? MERCS[ch.mercId].color : ch.pet ? (ch.color || "#4dd0e1") : JOBS[ch.job].color;
@@ -419,7 +419,7 @@ function buildStats(ch) {
 
 function makeChar(o) {
   return Object.assign({
-    kind: "pc", hp: null, mp: null, tp: 0, x: 0, y: 0, px: 0, py: 0, radius: 14, speed: 140, swingTimer: 2,
+    kind: "pc", hp: null, mp: null, tp: 0, x: 0, y: 0, px: 0, py: 0, radius: 14, speed: CONFIG.runSpeed, swingTimer: 2,
     engaged: false, target: null, attackTarget: null, alive: true, casting: null, recasts: {}, buffs: {},
     moving: false, flash: 0, stillSince: 0, regenerating: false, gear: {}, face: 0, lastSwing: -9, lastHit: -9, lastWS: -9
   }, o);
@@ -542,7 +542,7 @@ function summonPet(a, sp) {
   if (a !== player) return;
   if (S.pet) releasePet(null);
   const P = PETS[sp.pet];
-  const pet = makeChar({ kind: "ally", pet: true, petKey: sp.pet, name: P.name, job: "MNK", sub: null, role: "pet", speed: 160, lv: player.lv });
+  const pet = makeChar({ kind: "ally", pet: true, petKey: sp.pet, name: P.name, job: "MNK", sub: null, role: "pet", speed: CONFIG.runSpeed * 1.15, lv: player.lv });
   pet.gear = {};
   pet.x = player.x + Math.cos(player.face) * 30; pet.y = player.y + Math.sin(player.face) * 30;
   pet.px = pet.x; pet.py = pet.y;
@@ -561,7 +561,7 @@ function summonPet(a, sp) {
 function activateAutomaton(a) {
   if (a !== player) return;
   if (S.pet) releasePet(null);
-  const pet = makeChar({ kind: "ally", pet: true, automaton: true, petKey: "automaton", name: "Automaton", job: "WAR", sub: null, role: "pet", speed: 160, lv: player.lv });
+  const pet = makeChar({ kind: "ally", pet: true, automaton: true, petKey: "automaton", name: "Automaton", job: "WAR", sub: null, role: "pet", speed: CONFIG.runSpeed * 1.15, lv: player.lv });
   pet.gear = {};
   pet.x = player.x + Math.cos(player.face) * 30; pet.y = player.y + Math.sin(player.face) * 30;
   pet.px = pet.x; pet.py = pet.y;
@@ -606,7 +606,7 @@ function callBeast(a) {
   if (a !== player) return;
   if (S.pet) releasePet(null);
   const B = BEASTS.filter(b => player.lv >= b.lv).pop() || BEASTS[0];
-  const pet = makeChar({ kind: "ally", pet: true, beast: B.fam, petKey: "beast_" + B.fam, name: B.name, job: "WAR", sub: null, role: "pet", speed: 160, lv: player.lv });
+  const pet = makeChar({ kind: "ally", pet: true, beast: B.fam, petKey: "beast_" + B.fam, name: B.name, job: "WAR", sub: null, role: "pet", speed: CONFIG.runSpeed * 1.15, lv: player.lv });
   pet.gear = {};
   pet.fam = FAMILIES[B.fam];
   pet.x = player.x + Math.cos(player.face) * 30; pet.y = player.y + Math.sin(player.face) * 30;
@@ -684,7 +684,7 @@ function tickPet() {
 }
 
 function makeMerc(id) {
-  return makeChar({ kind: "ally", mercId: id, name: MERCS[id].name, job: MERCS[id].job, sub: null, role: MERCS[id].role, speed: 150, nextNuke: 0 });
+  return makeChar({ kind: "ally", mercId: id, name: MERCS[id].name, job: MERCS[id].job, sub: null, role: MERCS[id].role, speed: CONFIG.runSpeed * 1.08, nextNuke: 0 });
 }
 
 function refreshPlayer(full) {
@@ -856,7 +856,7 @@ function buildMob(famKey, L, x, y, spawnIdx) {
   st.delay = f.delay;
   return {
     id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
-    x, y, px: x, py: y, home: { x, y }, radius: Math.round(f.radius * (f.scale || 1)), color: f.color, speed: f.speed, delay: f.delay, swingTimer: f.delay,
+    x, y, px: x, py: y, home: { x, y }, radius: Math.round(f.radius * (f.scale || 1)), color: f.color, speed: f.speed * CONFIG.mobSpeedMul, delay: f.delay, swingTimer: f.delay,
     state: "idle", enmity: new Map(), face: Math.random() * Math.PI * 2, alive: true, buffs: {}, chain: null, burst: null,
     spawnIdx, wanderTimer: 0, wanderDir: { x: 0, y: 0 }, readying: null, flash: 0, casting: null, recasts: {}, deadAt: 0, target: null, moving: false,
     lastSwing: -9, lastHit: -9, lastWS: -9
@@ -1398,7 +1398,7 @@ function summonBuddy() {
   if (S.zone && S.zone.battlefield) return "Pets stay out of the battlefield.";
   if (S.buddy) dismissBuddy(true);
   const B = BUDDIES[save.buddy];
-  const b = { kind: "buddy", buddy: true, petId: save.buddy, name: buddyName(save.buddy), alive: true, x: player.x - Math.cos(player.face) * 36, y: player.y - Math.sin(player.face) * 36, px: 0, py: 0, face: player.face, speed: 170, radius: 8, buffs: {}, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wander: 0, idleT: 0 };
+  const b = { kind: "buddy", buddy: true, petId: save.buddy, name: buddyName(save.buddy), alive: true, x: player.x - Math.cos(player.face) * 36, y: player.y - Math.sin(player.face) * 36, px: 0, py: 0, face: player.face, speed: CONFIG.runSpeed * 1.2, radius: 8, buffs: {}, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wander: 0, idleT: 0 };
   b.px = b.x; b.py = b.y;
   S.buddy = b;
   save.buddyOut = true;
@@ -3225,7 +3225,7 @@ function enterZone(id, x, y) {
     if (fixed && fixed > Date.now()) { S.spawnAt[i] = S.time + (fixed - Date.now()) / 1000; return; }
     spawnMob(i);
   });
-  S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: 60 }, NPCS[n.id]));
+  S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
   S.gatherAt = [];
   if (FEATURES.gathering && S.zone.gather) for (const type in S.zone.gather) {
     const g = S.zone.gather[type];

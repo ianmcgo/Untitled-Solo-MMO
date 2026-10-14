@@ -6,6 +6,12 @@ function animState(v) {
   return v.an;
 }
 
+function strideEff(v, spd) {
+  const run = clamp((spd - 1.2) / 4, 0, 1), S = (v.stride || 1.7) * (1 + 0.9 * run), B = v.bones;
+  if (v.kind !== "human" || !B || !B.shinL || !B.footL) return S;
+  const L = (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1);
+  return Math.min(S, 1.25 * L / (0.62 - 0.28 * run));
+}
 function trackEvents(v, e, dt) {
   const an = animState(v);
   if (an.lx == null) { an.lx = e.x; an.ly = e.y; }
@@ -13,7 +19,7 @@ function trackEvents(v, e, dt) {
   an.lx = e.x; an.ly = e.y;
   const raw = dt > 0 ? Math.min(d / dt, 20) : 0;
   an.spd += (raw - an.spd) * Math.min(1, dt * 10);
-  an.ph += d * (Math.PI * 2) / (v.stride || 1.7);
+  an.ph += d * (Math.PI * 2) / strideEff(v, an.spd);
   if (e.lastSwing !== an.swing) { if (an.swing !== null && S.time - e.lastSwing < 0.3) { an.aStart = e.lastSwing; an.aVar = (an.aVar + 1) % 3; } an.swing = e.lastSwing; }
   if (e.lastWS !== an.ws) { if (an.ws !== null && S.time - e.lastWS < 0.3) { an.wsStart = e.lastWS; an.wsStyle = wsStyle(e.lastWSId); } an.ws = e.lastWS; }
   if (e.lastHit !== an.hit) { if (an.hit !== null && S.time - e.lastHit < 0.3) an.hitStart = e.lastHit; an.hit = e.lastHit; }
@@ -252,7 +258,7 @@ function poseHuman(v, e, dt) {
     addP(P, "hips", 0, -s1 * 0.1 * amp, s1 * 0.07 * amp);
     addP(P, "neck", 0.04 * Math.abs(s1) * amp, -s1 * 0.06 * amp, 0);
     addP(P, "head", (0.07 * Math.abs(c1) - 0.04) * amp, -s1 * 0.09 * amp, -s1 * 0.04 * amp);
-    v.rootOff[1] += Math.abs(c1) * (st.hop ? 0.09 : 0.055) * amp - 0.02 * run;
+    v.rootOff[1] += Math.abs(c1) * (st.hop ? 0.07 : 0.035) * amp - 0.03 * amp - 0.03 * run;
     const step = Math.floor(an.ph / Math.PI);
     if (step !== an.lastStep) { an.lastStep = step; if (run > 0.4 && e.alive !== false) fxFootstep(e, v); }
   }
@@ -519,7 +525,51 @@ function poseHuman(v, e, dt) {
     sharp = false;
   }
   applyPose(v, dt, sharp);
+  let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
+  if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;
+  an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
+  if (an.ikW > 0.01) humanLegIK(v, an, an.ikW, clamp((an.spd - 1.2) / 4, 0, 1));
 }
+
+const IKQ = { h: null, inv: null, q: null, x: null, v: null };
+function humanLegIK(v, an, w, run) {
+  const B = v.bones;
+  if (!B.thighL || !B.shinL || !B.footL || !B.root || !B.hips) return;
+  if (!IKQ.h) { IKQ.h = new THREE.Quaternion(); IKQ.inv = new THREE.Quaternion(); IKQ.q = new THREE.Quaternion(); IKQ.x = new THREE.Quaternion(); IKQ.v = new THREE.Vector3(); }
+  const Lt = B.shinL.position.length(), Ls = B.footL.position.length(), L = Lt + Ls;
+  const sc = v.scale || 1, S = strideEff(v, an.spd);
+  const beta = 0.62 - 0.28 * run, D = beta * S / sc, lift = (0.06 + 0.1 * run) / sc;
+  const rest = B.root.userData.rest;
+  const restHip = B.hips.position.y - (B.root.position.y - rest.y) + B.thighL.position.y, ank0 = restHip - L;
+  IKQ.h.setFromEuler(B.hips.rotation); IKQ.inv.copy(IKQ.h).invert();
+  for (const [sd, off] of [["L", 0], ["R", Math.PI]]) {
+    let q = an.ph + off; q = Math.atan2(Math.sin(q), Math.cos(q));
+    const bp = beta * Math.PI;
+    let z, y = 0, toe = 0;
+    const zf = D * 0.42, zb = zf - D;
+    if (Math.abs(q) <= bp) { const st = (q + bp) / (2 * bp); z = zf - D * st; }
+    else { let u = (q - bp) / (2 * Math.PI - 2 * bp); if (u < 0) u += Math.PI / (Math.PI - bp); u = clamp(u, 0, 1); const e = u * u * (3 - 2 * u); z = zb + D * e; y = lift * Math.sin(Math.PI * u); toe = -0.25 * Math.sin(Math.PI * u); }
+    const t = B["thigh" + sd], k = B["shin" + sd], f = B["foot" + sd];
+    const hj = IKQ.v.copy(t.position).applyQuaternion(IKQ.h).add(B.hips.position).add(B.root.position).sub(rest);
+    const dz = z - hj.z;
+    let depth = hj.y + rest.y - (ank0 + y);
+    const reach = L * 0.995;
+    let raise = 0;
+    if (Math.hypot(dz, depth) > reach) { const nd = Math.sqrt(Math.max(0.0001, reach * reach - Math.min(reach * 0.98, Math.abs(dz)) ** 2)); raise = depth - nd; depth = nd; }
+    const d = Math.min(reach, Math.hypot(dz, depth));
+    const al = Math.atan2(dz, depth);
+    const bt = Math.acos(clamp((Lt * Lt + d * d - Ls * Ls) / (2 * Lt * d), -1, 1));
+    const thigh = -(al + bt);
+    const shin = Math.PI - Math.acos(clamp((Lt * Lt + Ls * Ls - d * d) / (2 * Lt * Ls), -1, 1));
+    const foot = -(thigh + shin) + toe + clamp(raise / (0.06 / sc), 0, 1) * 0.55;
+    IKQ.x.setFromAxisAngle(V3X, thigh);
+    IKQ.q.copy(IKQ.inv).multiply(IKQ.x);
+    t.quaternion.slerp(IKQ.q, w);
+    k.rotation.set(k.rotation.x + (shin - k.rotation.x) * w, k.rotation.y * (1 - w), k.rotation.z * (1 - w));
+    f.rotation.set(f.rotation.x + (foot - f.rotation.x) * w, f.rotation.y * (1 - w), f.rotation.z * (1 - w));
+  }
+}
+const V3X = new THREE.Vector3(1, 0, 0);
 
 function poseBat(v, e, dt) {
   const an = trackEvents(v, e, dt);

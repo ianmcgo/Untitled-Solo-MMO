@@ -57,7 +57,10 @@ const CONFIG = {
   saveKey: "ashenreach_save_v2",
   settingsKey: "ashenreach_settings_v1",
   startGil: 100,
-  mountSpeed: 2.2
+  mountSpeed: 2.2,
+  runSpeed: 100,
+  mobSpeedMul: 0.72,
+  npcSpeed: 45
 };
 
 const ELEMENT_COLORS = { fire: "#ff7043", ice: "#81d4fa", wind: "#9ccc65", earth: "#d7b46a", lightning: "#ce93d8", water: "#4fc3f7", light: "#fff59d", dark: "#9575cd" };

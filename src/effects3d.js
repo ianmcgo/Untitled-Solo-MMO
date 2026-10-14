@@ -766,8 +766,8 @@ function updateTrail(v, e, dt) {
   const pos = T.mesh.geometry.attributes.position, col = T.mesh.geometry.attributes.color;
   const gold = an && (S.time - an.wsStart) < 0.75;
   const c = gold ? (v.wsEl ? C(ELEMENT_COLORS[v.wsEl]).lerp(C(0xffffff), 0.25) : C(0xffd060)) : C(0xcfe4ff);
-  if (gold && active && L && Math.random() < dt * 40) { const tp = T.pts[L - 1][1]; FX.add.spawn(tp.x, tp.y, tp.z, rnd(-0.5, 0.5), rnd(-0.2, 0.6), rnd(-0.5, 0.5), 0.4, 0.1, 0.02, C(0xffffff), c, 2, 0.5, 1); }
   const L = T.pts.length;
+  if (gold && active && L && Math.random() < dt * 40) { const tp = T.pts[L - 1][1]; FX.add.spawn(tp.x, tp.y, tp.z, rnd(-0.5, 0.5), rnd(-0.2, 0.6), rnd(-0.5, 0.5), 0.4, 0.1, 0.02, C(0xffffff), c, 2, 0.5, 1); }
   T.mesh.visible = L > 1;
   for (let i = 0; i < T.n; i++) {
     const pr = T.pts[Math.min(i, L - 1)] || [new THREE.Vector3(), new THREE.Vector3()];
