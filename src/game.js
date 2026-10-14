@@ -3814,14 +3814,12 @@ const TALK = {
     const q = save.quests;
     if (save.mountLicense) {
       openDialog(n.name, "Your Thornstrider's been fed and brushed. Call it in open country with the Mount button or R. I can dye her coat, sell you a faster saddle, or time you on the Hollow Run." + (save.race.best != null ? " Your best run: " + save.race.best + "s." : ""), [
-        { label: "Pets", fn: () => { closeDialog(); openModal("pets"); } },
         { label: "Stable (coats and saddle)", fn: () => { closeDialog(); openModal("stable"); } },
         { label: "Run the Hollow course", fn: () => { closeDialog(); const why = startRace(); if (why) { log(why, "sys"); sfx("error"); } } }
       ]);
       return;
     }
-    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license. Until then, if you've found a small creature on the road, I can help you look after it.", [{ label: "Pets", fn: () => { closeDialog(); openModal("pets"); } }]); return; }
-    if (false) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
+    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
         { label: "I'll get them", fn: () => { q.riding = "active"; log("Quest accepted: " + QUESTS.riding.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }

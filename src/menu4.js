@@ -39,7 +39,7 @@ function renderModal() {
   for (const t of ["shop", "job", "mercs", "storage", "home", "furnishings", "forge", "board", "guild", "auction", "pets", "stable", "admin"]) if (S.modal === t) tabs.unshift(t);
   if (S.modal === "trade" || (typeof NET_PT !== "undefined" && NET_PT.trade)) tabs.unshift("trade");
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
-  $("mNav").innerHTML = '<div class="ttl">UNTITLED SOLO RPG</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
+  $("mNav").innerHTML = '<div class="ttl">LEID\'ANAV REBORN</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
   const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
@@ -497,7 +497,7 @@ function tabShop() {
 }
 function tabCredits() {
   const link = (url, label, icon) => '<a class="credLink" href="' + url + '" target="_blank" rel="noopener">' + icon + " " + esc(label) + "</a>";
-  let h = '<div class="credits"><div class="credT">Untitled Solo RPG</div><div class="credBy">A game made by <b>Ian McGonigal</b></div>';
+  let h = '<div class="credits"><div class="credT">Leid\'anav Reborn</div><div class="credBy">A game made by <b>Ian McGonigal</b></div>';
   h += '<div class="credLinks">' + link("https://ianmcgo.github.io/cabalcoffers/#ebay", "Cabal Coffers store", "🛒") + link("https://www.patreon.com/c/ianmcg", "Support on Patreon", "💛") + link("https://ianmcgo.github.io/website/", "Ian's other works", "🌐") + "</div>";
   h += '<div class="sub" style="margin-top:14px">All names, art, music and sound in this game are original. Inspired by the classic MMORPGs of the early 2000s. ' + BUILD_INFO + "</div></div>";
   return h;
@@ -740,7 +740,7 @@ function tabBestiary() {
   for (const k of keys) {
     const b = save.bestiary[k];
     const f = FAMILIES[k] || (NM_FAMILIES[k] && Object.assign({}, FAMILIES[NM_FAMILIES[k].base], NM_FAMILIES[k], { nm: true }));
-    if (!b || !f) { h += '<div class="item"><span class="sub">??? · not yet encountered</span></div>'; continue; }
+    if (!b || !f) { h += '<div class="item beast" style="display:flex;gap:10px;align-items:center"><div class="bpic"><span>?</span></div><span class="sub">??? · not yet encountered</span></div>'; continue; }
     const info = BESTIARY[k];
     let body = '<div class="sub">' + info.type + (f.nm ? " · Notorious" : "") + " · Seen in " + esc(beastHabitat(k).join(", ") || "unknown parts") + " · Defeated " + b.kills + "</div>";
     body += '<div style="margin:5px 0;font-size:13px">' + esc(info.lore) + "</div>";
@@ -755,7 +755,8 @@ function tabBestiary() {
       body += '<div class="sub">Weak to: ' + (weak.length ? weak.join(", ") : "nothing in particular") + "</div>";
       body += '<div class="sub">Known to carry: ' + esc(loot.join(", ")) + "</div>";
     } else if (b.kills >= 1) body += '<div class="sub">Defeat ' + (need - b.kills) + " more to learn its weaknesses and spoils.</div>";
-    h += '<div class="item" style="display:block"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div>";
+    const pic = typeof beastThumb === "function" ? beastThumb(k, () => { if (S.modal === "bestiary") renderModal(); }) : null;
+    h += '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start"><div class="bpic">' + (pic ? '<img src="' + pic + '" alt="">' : '<span>' + (typeof THUMBS !== "undefined" && THUMBS.cache.has(k) ? "?" : "…") + "</span>") + '</div><div style="flex:1;min-width:0"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div></div>";
   }
   return h;
 }
@@ -957,7 +958,7 @@ function copyText(t) {
 }
 
 function adminReport() {
-  return JSON.stringify({ game: "Untitled Solo RPG", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
+  return JSON.stringify({ game: "Leid'anav Reborn", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
 }
 
 function tabAdmin() {
@@ -1045,7 +1046,7 @@ function onLoadFile(ev) {
   const r = new FileReader();
   r.onload = () => {
     const d = importSaveText(String(r.result));
-    if (!d) { log("That file isn't an Untitled Solo RPG save.", "sys"); sfx("error"); return; }
+    if (!d) { log("That file isn't a Leid'anav Reborn save.", "sys"); sfx("error"); return; }
     gameConfirm("Load this save?", "Your current progress for this character will be replaced by the file.", () => {
       closeModal();
       applyLoadedSave(d);
@@ -1614,7 +1615,7 @@ function tabHelp() {
   ]));
   h += sec("🐾 Pets", ul([
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
-    "Open the <b>Pets</b> window (Ysolde offers it, or the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
+    "Open the <b>Pets</b> window (the Pet button on your action bar / the Pets tab) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet, and the Pet button appears on your action bar once you own one. A summoned pet comes back when you log in.",
     "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));

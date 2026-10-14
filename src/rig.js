@@ -171,18 +171,160 @@ class RigBuilder {
     g.setAttribute("skinIndex", new THREE.BufferAttribute(si, 4));
     g.setAttribute("skinWeight", new THREE.BufferAttribute(sw, 4));
     g.clearGroups();
+    g.userData.rig = { bone: bi, color, region: glow ? "glow" : (region || "plain"), glow: !!glow };
     (glow ? this.glow : this.pieces).push(g);
   }
+  partPoints() {
+    const by = this.defs.map(() => []);
+    for (const g of this.pieces) {
+      const info = g.userData.rig;
+      if (!info) continue;
+      const pos = g.attributes.position;
+      for (let i = 0; i < pos.count; i++) by[info.bone].push([pos.getX(i), pos.getY(i), pos.getZ(i), g]);
+    }
+    return by;
+  }
+  bridgeGaps() {
+    if (this.noBridge) return;
+    const by = this.partPoints();
+    let lo = Infinity, hi = -Infinity;
+    for (const L of by) for (const p of L) { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; }
+    const H = Math.max(0.15, hi - lo), tol = 0.012 * H;
+    const skip = new Set(["lids", "saddle", "hairTail"].concat(this.noBridgeBones || []));
+    for (const d of this.defs) {
+      if (d.parent == null || skip.has(d.name)) continue;
+      let pi = d.parent;
+      while (pi != null && !by[pi].length) pi = this.defs[pi].parent;
+      const A = by[d.index];
+      if (pi == null || !A.length) continue;
+      const B = by[pi];
+      const cell = tol * 4, grid = new Map(), key = (x, y, z) => x + "," + y + "," + z;
+      for (const q of B) { const k = key(Math.floor(q[0] / cell), Math.floor(q[1] / cell), Math.floor(q[2] / cell)); let L = grid.get(k); if (!L) grid.set(k, L = []); L.push(q); }
+      let near = false;
+      for (const p of A) {
+        const cx = Math.floor(p[0] / cell), cy = Math.floor(p[1] / cell), cz = Math.floor(p[2] / cell);
+        for (let dx = -1; dx <= 1 && !near; dx++) for (let dy = -1; dy <= 1 && !near; dy++) for (let dz = -1; dz <= 1 && !near; dz++) {
+          const L = grid.get(key(cx + dx, cy + dy, cz + dz));
+          if (L) for (const q of L) if ((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2 < tol * tol) { near = true; break; }
+        }
+        if (near) break;
+      }
+      if (near) continue;
+      const J = d.world;
+      let pa = null, pb = null, da = Infinity, db = Infinity;
+      for (const p of A) { const dd = (p[0] - J.x) ** 2 + (p[1] - J.y) ** 2 + (p[2] - J.z) ** 2; if (dd < da) { da = dd; pa = p; } }
+      for (const q of B) { const dd = (q[0] - J.x) ** 2 + (q[1] - J.y) ** 2 + (q[2] - J.z) ** 2; if (dd < db) { db = dd; pb = q; } }
+      if (Math.sqrt(da) + Math.sqrt(db) > 0.45 * H) continue;
+      const ext = new THREE.Box3();
+      for (const p of A) ext.expandByPoint(new THREE.Vector3(p[0], p[1], p[2]));
+      const sz = ext.getSize(new THREE.Vector3());
+      const thick = Math.min(sz.x, sz.y, sz.z) || 0.02;
+      const r = clamp(thick * 0.32, 0.006 * H, 0.04 * H);
+      const va = V3(pa[0], pa[1], pa[2]), vb = V3(pb[0], pb[1], pb[2]);
+      const ia = pa[3].userData.rig, ib = pb[3].userData.rig;
+      const regA = ia.region === "glow" ? "plain" : ia.region, regB = ib.region === "glow" ? "plain" : ib.region;
+      this.add(gBall(J.clone(), r * 1.25, 1, 1, 1, 10), d.name, ia.color, regA);
+      if (va.distanceTo(J) > r) this.add(gTaper(J.clone(), va.clone().add(va.clone().sub(J).setLength(r)), r, r * 0.9, 8), d.name, ia.color, regA);
+      if (vb.distanceTo(J) > r) this.add(gTaper(vb.clone().add(vb.clone().sub(J).setLength(r)), J.clone(), r * 0.95, r, 8), this.defs[pi].name, ib.color, regB);
+      this.bridges = (this.bridges || 0) + 1;
+    }
+  }
+  findIslands() {
+    let lo = Infinity, hi = -Infinity;
+    for (const g of this.pieces) { const pos = g.attributes.position; for (let i = 0; i < pos.count; i++) { const y = pos.getY(i); if (y < lo) lo = y; if (y > hi) hi = y; } }
+    const H = Math.max(0.15, hi - lo), tol = 0.015 * H, cell = tol * 2;
+    const key = (x, y, z) => x + "," + y + "," + z;
+    const grid = new Map();
+    this.pieces.forEach((g, gi) => {
+      const pos = g.attributes.position;
+      for (let i = 0; i < pos.count; i++) { const k = key(Math.floor(pos.getX(i) / cell), Math.floor(pos.getY(i) / cell), Math.floor(pos.getZ(i) / cell)); let L = grid.get(k); if (!L) grid.set(k, L = new Set()); L.add(gi); }
+    });
+    const parent = this.pieces.map((_, i) => i);
+    const find = i => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+    for (const [k, L] of grid) {
+      const [x, y, z] = k.split(",").map(Number);
+      const here = [...L];
+      for (let dx = 0; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (let dz = -1; dz <= 1; dz++) {
+        const M = grid.get(key(x + dx, y + dy, z + dz));
+        if (M) for (const b of M) for (const a of here) { const ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; }
+      }
+    }
+    const sizes = new Map();
+    this.pieces.forEach((g, i) => { const r = find(i); sizes.set(r, (sizes.get(r) || 0) + g.attributes.position.count); });
+    let main = -1, best = -1;
+    for (const [r, n] of sizes) if (n > best) { best = n; main = r; }
+    const out = [];
+    this.pieces.forEach((g, i) => { if (find(i) !== main) out.push(this.defs[g.userData.rig.bone].name + "#" + i); });
+    this._comp = { find, main, H, tol };
+    return out;
+  }
+  attachIslands() {
+    for (let pass = 0; pass < 4; pass++) {
+      const isl = this.findIslands();
+      if (!isl.length) return;
+      const { find, main, H, tol } = this._comp;
+      const comps = new Map();
+      this.pieces.forEach((g, i) => { const r = find(i); if (r === main) return; if (!comps.has(r)) comps.set(r, []); comps.get(r).push(g); });
+      const M = [];
+      this.pieces.forEach((g, i) => { if (find(i) !== main) return; const pos = g.attributes.position, st = Math.max(1, Math.floor(pos.count / 1500)); for (let k = 0; k < pos.count; k += st) M.push(pos.getX(k), pos.getY(k), pos.getZ(k)); });
+      let moved = 0;
+      for (const gs of comps.values()) {
+        let best = Infinity, bp = null, bq = null;
+        for (const g of gs) {
+          const pos = g.attributes.position;
+          for (let i = 0; i < pos.count; i++) {
+            const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+            for (let j = 0; j < M.length; j += 3) { const d = (x - M[j]) ** 2 + (y - M[j + 1]) ** 2 + (z - M[j + 2]) ** 2; if (d < best) { best = d; bp = [x, y, z]; bq = [M[j], M[j + 1], M[j + 2]]; } }
+          }
+        }
+        const dist = Math.sqrt(best);
+        if (!bp || dist > 0.25 * H) continue;
+        let gy = Infinity;
+        for (const g of gs) { g.computeBoundingBox(); gy = Math.min(gy, g.boundingBox.min.y); }
+        if (gy < 0.03 * H) {
+          const info = gs[0].userData.rig, r = clamp(tol * 1.6, 0.004 * H, 0.03 * H);
+          const a = V3(...bp), b = V3(...bq);
+          this.add(gTaper(a.clone().add(a.clone().sub(b).setLength(r)), b.clone().add(b.clone().sub(a).setLength(r)), r, r, 6), this.defs[info.bone].name, info.color, info.region === "glow" ? "plain" : info.region);
+          moved++;
+          continue;
+        }
+        const k = (dist + tol * 0.6) / Math.max(dist, 1e-6);
+        const dx = (bq[0] - bp[0]) * k, dy = (bq[1] - bp[1]) * k, dz = (bq[2] - bp[2]) * k;
+        for (const g of gs) g.translate(dx, dy, dz);
+        moved++;
+      }
+      if (!moved) return;
+    }
+  }
   smoothJoints() {
-    const J = { foreArm: [0.085, 0.5], hand: [0.05, 0.5], shin: [0.095, 0.5], foot: [0.05, 0.45], upArm: [0.075, 0.35], thigh: [0.09, 0.35], chest: [0.1, 0.35], spine: [0.09, 0.35], neck: [0.05, 0.3] };
+    const J = { foreArm: [0.06, 0.5, 0.1], hand: [0.04, 0.5, 0.08], shin: [0.07, 0.5, 0.12], foot: [0.04, 0.45, 0.1], upArm: [0.07, 0.4, 0.11], thigh: [0.07, 0.4, 0.16], chest: [0.08, 0.45, 0.32], spine: [0.08, 0.5, 0.32], neck: [0.04, 0.4, 0.12], head: [0.045, 0.4, 0.14], tail: [0.06, 0.5, 0.1], cape: [0.06, 0.5, 0.3] };
+    const rigid = new Set(["lids", "saddle"].concat(this.rigidBones || []));
+    const kidsAll = this.defs.map(() => []);
+    this.defs.forEach(d => { if (d.parent != null) kidsAll[d.parent].push(d.index); });
     const info = this.defs.map(d => {
+      if (d.parent == null || rigid.has(d.name)) return null;
+      const P = this.defs[d.parent].world;
+      const k0 = kidsAll[d.index][0];
+      const axis = (k0 != null ? this.defs[k0].world.clone().sub(d.world) : d.world.clone().sub(P));
+      if (axis.lengthSq() < 1e-8) axis.set(0, 1, 0);
+      axis.normalize();
       const key = d.name.replace(/[LR]$/, "");
-      const j = J[key];
-      return j && d.parent != null ? { r: j[0], m: j[1], at: d.world, parent: d.parent } : null;
+      const j = J[key], sc = this.jointScale || 1;
+      if (j) return { r: j[0] * sc, m: j[1], lat: j[2] * sc, at: d.world, axis, parent: d.parent };
+      const seg = d.world.distanceTo(P);
+      const r = clamp(seg * 0.35, 0.025, 0.1) * sc;
+      return { r, m: 0.5, lat: r * 2.2, at: d.world, axis, parent: d.parent };
     });
     const kids = this.defs.map(() => []);
     info.forEach((j, i) => { if (j) kids[j.parent].push(i); });
-    const v = new THREE.Vector3();
+    const v = new THREE.Vector3(), t = new THREE.Vector3();
+    const wOf = j => {
+      t.copy(v).sub(j.at);
+      const ax = t.dot(j.axis);
+      const lat = Math.sqrt(Math.max(0, t.lengthSq() - ax * ax));
+      if (lat > j.lat || Math.abs(ax) > j.r) return 0;
+      return j.m * (1 - Math.abs(ax) / j.r) * (lat > j.lat * 0.7 ? (j.lat - lat) / (j.lat * 0.3) : 1);
+    };
     for (const g of this.pieces) {
       const pos = g.attributes.position, si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
       for (let i = 0; i < pos.count; i++) {
@@ -190,11 +332,8 @@ class RigBuilder {
         v.fromBufferAttribute(pos, i);
         let other = -1, w = 0;
         const own = info[b];
-        if (own) { const d = v.distanceTo(own.at); if (d < own.r) { other = own.parent; w = own.m * (1 - d / own.r); } }
-        for (const k of kids[b]) {
-          const j = info[k], d = v.distanceTo(j.at);
-          if (d < j.r) { const wk = j.m * (1 - d / j.r); if (wk > w) { other = k; w = wk; } }
-        }
+        if (own) { const wo = wOf(own); if (wo > 0) { other = own.parent; w = wo; } }
+        for (const k of kids[b]) { const wk = wOf(info[k]); if (wk > w) { other = k; w = wk; } }
         if (other < 0 || w <= 0.001) continue;
         si.setXY(i, b, other);
         sw.setXY(i, 1 - w, w);
@@ -202,7 +341,9 @@ class RigBuilder {
     }
   }
   finish() {
-    if (this.defs.length > 6) this.smoothJoints();
+    this.attachIslands();
+    if (this.defs.length > 1) { this.bridgeGaps(); this.smoothJoints(); }
+    if (typeof window !== "undefined" && window.RIG_CHECK) this.meta.islands = this.findIslands();
     const main = this.pieces.length ? THREE.mergeGeometries(this.pieces) : null;
     const glow = this.glow.length ? THREE.mergeGeometries(this.glow) : null;
     let geo;
@@ -210,6 +351,10 @@ class RigBuilder {
     else { geo = main || glow; geo.clearGroups(); geo.addGroup(0, geo.attributes.position.count, main ? 0 : 1); }
     geo.computeBoundingSphere();
     geo.boundingSphere.radius *= 1.6;
+    let minY = Infinity;
+    const pa = (main || geo).attributes.position;
+    for (let i = 0; i < pa.count; i++) if (pa.getY(i) < minY) minY = pa.getY(i);
+    this.meta.minY = minY;
     for (const g of this.pieces.concat(this.glow)) g.dispose();
     return { geo, defs: this.defs.map(d => ({ name: d.name, parent: d.parent, local: d.local })), meta: this.meta };
   }
@@ -911,7 +1056,7 @@ function mandrakeEntry(col, leaf) {
     R.add(gBall(V3(s * 0.1, 0.02, 0.06), 0.06, 1.1, 0.5, 1.4, 7), "leg" + sd, dark, "skin");
   }
   R.add(gBall(V3(0, Y + 0.22, 0.17), 0.05, 1.3, 0.35, 0.5, 8), "head", 0x4a2a2a, "plain");
-  R.add(gTaper(V3(0, Y + 0.46, -0.02), V3(0, Y + 0.62, -0.04), 0.03, 0.02, 6), "leaf", lfd, "wood");
+  R.add(gTaper(V3(0, Y + 0.44, -0.02), V3(0, Y + 0.72, -0.04), 0.03, 0.02, 6), "leaf", lfd, "wood");
   for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + 0.4; R.add(gBall(V3(Math.cos(a) * 0.16, Y + 0.7, -0.04 + Math.sin(a) * 0.16), 0.14, 1.3, 0.18, 0.6, 8), "leaf", lf, "plain"); }
   R.meta = { kind: "mandrake", headTop: Y + 0.8 };
   return R.finish();
@@ -1010,6 +1155,7 @@ function hareEntry(col) {
     R.add(gTaper(V3(s * 0.06, 0.22, 0.15), V3(s * 0.06, 0.03, 0.19), 0.03, 0.022, 8), "legF" + sd, col, "fur");
     R.add(gBall(V3(s * 0.06, 0.025, 0.21), 0.03, 1, 0.7, 1.3, 8), "legF" + sd, light, "fur");
     R.add(gBall(V3(s * 0.1, 0.24, -0.1), 0.1, 0.7, 1, 1.15, 10), "legB" + sd, col, "fur");
+    R.add(gTaper(V3(s * 0.1, 0.2, -0.12), V3(s * 0.1, 0.04, -0.1), 0.045, 0.028, 8), "legB" + sd, col, "fur");
     R.add(gBox(V3(s * 0.1, 0.025, -0.03), 0.05, 0.04, 0.2), "legB" + sd, light, "fur");
   }
   R.add(gBall(V3(0, 0.33, -0.28), 0.06, 1, 1, 1, 8), "body", 0xf6f2ea, "fur");
@@ -1238,6 +1384,7 @@ function toadEntry(col) {
     R.add(gTaper(V3(s * 0.13, 0.2, 0.16), V3(s * 0.15, 0.03, 0.24), 0.04, 0.03, 8), "legF" + sd, col, "skin");
     R.add(gBall(V3(s * 0.16, 0.02, 0.27), 0.05, 1.2, 0.35, 1.2, 8), "legF" + sd, dark, "skin");
     R.add(gBall(V3(s * 0.2, 0.18, -0.1), 0.12, 0.75, 0.9, 1.25, 10), "legB" + sd, col, "skin");
+    R.add(gTaper(V3(s * 0.2, 0.14, -0.08), V3(s * 0.22, 0.04, -0.06), 0.05, 0.035, 8), "legB" + sd, col, "skin");
     R.add(gBox(V3(s * 0.22, 0.025, 0.0), 0.09, 0.04, 0.24), "legB" + sd, dark, "skin");
   }
   R.meta = { kind: "hare", headTop: 0.6 };
@@ -1367,7 +1514,7 @@ const RACE_BODY = {
   human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.075 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.075 }],
   elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
   pipkin: [{ leg: 0.34, torso: 0.3, arm: 0.3, girth: 1.0, waist: 1.0, shoulder: 0.125, hip: 0.072, headR: 0.2, neck: 0.03 }, { leg: 0.34, torso: 0.3, arm: 0.3, girth: 0.96, waist: 0.94, shoulder: 0.118, hip: 0.074, headR: 0.2, neck: 0.03 }],
-  ursan: [{ leg: 0.96, torso: 0.76, arm: 0.8, girth: 1.35, waist: 1.25, shoulder: 0.27, hip: 0.135, headR: 0.165, neck: 0.05 }, { leg: 0.96, torso: 0.76, arm: 0.8, girth: 1.35, waist: 1.25, shoulder: 0.27, hip: 0.135, headR: 0.165, neck: 0.05 }],
+  ursan: [{ leg: 0.94, torso: 0.78, arm: 0.84, girth: 1.45, waist: 1.32, shoulder: 0.3, hip: 0.14, headR: 0.155, neck: 0.045 }, { leg: 0.94, torso: 0.78, arm: 0.84, girth: 1.45, waist: 1.32, shoulder: 0.3, hip: 0.14, headR: 0.155, neck: 0.045 }],
   nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.075 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.075 }]
 };
 
