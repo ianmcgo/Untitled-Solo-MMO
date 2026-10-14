@@ -1478,10 +1478,15 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.7.0", date: "2026-10-14", title: "Creation polish", items: [
+    "Skin tones are gone from character creation, as in the classics. Your skin now comes from your race, and faces no longer change it. Existing characters keep their looks.",
+    "The last creation step now shows a summary of your choices (race, gender, face, hair, size) beside the turning preview, with a Start over button that resets everything.",
+    "Your race, gender and size now show on the Status screen under your name."
+  ] },
   { v: "15.6.0", date: "2026-10-14", title: "New character creation", items: [
     "Character creation is now a step-by-step flow like the classic online RPGs: Race → Gender → Face → Hair colour → Size → Name and job.",
     "Race: pick from five cards, with each race's description and its HP, MP and attribute bonuses. Ursan (always male) and Nekari (always female) skip the Gender step.",
-    "Face: choose from eight painted face portraits. Each face comes with its own hairstyle and skin tone, as in the classics, so there are no separate hairstyle or skin pickers any more.",
+    "Face: choose from eight painted face portraits. Each face comes with its own hairstyle, so there is no separate hairstyle picker.",
     "Hair colour: a palette of eight colours.",
     "Size: Small, Medium or Large. It is only for looks and doesn't change your stats.",
     "The 3D preview zooms in on the face for the Face and Hair colour steps and turns to face you.",
@@ -2409,9 +2414,9 @@ function tabHelp() {
     "Offline characters can never be moved online, uploaded or loaded into an online character. Use System → Save to file to back one up on the same or another device's offline list."
   ]));
   h += sec("👥 Characters", ul([
-    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
+    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, race, gender, face, hair colour and size. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each face comes with its own hairstyle and skin tone) → <b>Hair colour</b> → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b>. Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
+    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each face comes with its own hairstyle; skin comes from your race) → <b>Hair colour</b> → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b> (with a summary of your choices and a <b>Start over</b> button). Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
@@ -2865,6 +2870,7 @@ function statusLeftHTML(noLv) {
   let h = '<div class="stBox"><div class="ffHead"><span>Status</span></div>';
   h += '<div class="stNm">' + esc(save.name || "Adventurer") + "</div>";
   h += '<div class="stJob main">Lv' + p.lv + " " + esc(JOBS[p.job].name) + "</div>";
+  { const lk = save.look || {}; h += '<div class="stJob">' + esc((RACES[lk.race] || RACES.human).name) + " " + (lk.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(lk)][0] + "</div>"; }
   if (p.sub && JOBS[p.sub]) h += '<div class="stJob">Lv' + Math.floor(p.lv / 2) + " " + esc(JOBS[p.sub].name) + "</div>";
   h += '<div class="stRow"><em>ILv</em><b>' + ilv + ' <small>Su —</small></b></div>';
   h += '<div class="stRow gap"><em>HP</em><b>' + Math.ceil(p.hp) + " / " + p.maxHp + '</b></div><div class="stRow"><em>MP</em><b>' + Math.floor(p.mp) + " / " + p.maxMp + '</b></div><div class="stRow"><em>TP</em><b>' + Math.floor(p.tp) + "</b></div>";

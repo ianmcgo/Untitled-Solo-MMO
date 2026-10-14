@@ -445,6 +445,9 @@
   .ccRow b { text-align: center; font-weight: 600; font-size: 12px; }
   .ccRow button { padding: 4px 0; }
   .ccRow .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 1px solid #000; vertical-align: -3px; }
+  .ccSum { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; margin: 6px 0; }
+  .ccSum em { font-style: normal; opacity: .6; margin-right: 4px; }
+  .ccRestart { margin-top: 4px; }
   .ccWarn { font-size: 11.5px; color: #ffb74d; margin-top: 4px; }
   .ccErr { font-size: 12px; color: #ff8a80; min-height: 16px; }
   .ccAct { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
@@ -1063,7 +1066,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.6.0 · built 2026-10-14 16:14 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v15.7.0 · built 2026-10-14 16:28 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -8525,7 +8528,7 @@ function newSave() {
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
-    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, skin: 1, hairStyle: 0, hairColor: 1 },
+    mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
@@ -8548,7 +8551,7 @@ function normalizeSave(d) {
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
-  if (typeof SKIN_TONES !== "undefined") out.look.skin = Math.min(Math.max(0, out.look.skin || 0), SKIN_TONES.length - 1);
+  delete out.look.skin;
   out.mountLicense = !!d.mountLicense;
   out.hired = (Array.isArray(d.hired) ? d.hired : []).filter(id => MERCS[id] || (d.mercDefs && d.mercDefs[id])).slice(0, CONFIG.maxParty - 1);
   out.home = d.home && ZONES[d.home.zone] && ZONES[d.home.zone].safe && NPCS[d.home.npc] && ZONES[d.home.zone].npcs.some(n => n.id === d.home.npc) ? d.home : newSave().home;
@@ -9164,7 +9167,7 @@ function genMercDef(rnd, id) {
   const s = MERC_SYL, nm = s[0][Math.floor(rnd() * s[0].length)] + s[1][Math.floor(rnd() * s[1].length)] + s[2][Math.floor(rnd() * s[2].length)];
   const lv = player.lv, mul = { tank: 1.1, healer: 1.15, burster: 1.2, bard: 1.15, hybrid: 1.1 }[role] || 1;
   const hue = Math.floor(rnd() * 360);
-  return { gen: true, name: nm, job, role, fee: Math.round((40 + 18 * lv) * mul / 5) * 5, color: "hsl(" + hue + ",60%,72%)", look: { build: rnd() < 0.5 ? 0 : 1, skin: Math.floor(rnd() * 4), hairStyle: [0, 1, 2, 3, 4, 5, 7, 8, 9, 10][Math.floor(rnd() * 10)], hairColor: Math.floor(rnd() * 8), face: Math.floor(rnd() * 8) }, desc: "A " + JOBS[job].name + ". " + MERC_ROLE_TEXT[role] + " " + MERC_TRAITS[Math.floor(rnd() * MERC_TRAITS.length)] };
+  return { gen: true, name: nm, job, role, fee: Math.round((40 + 18 * lv) * mul / 5) * 5, color: "hsl(" + hue + ",60%,72%)", look: { build: rnd() < 0.5 ? 0 : 1, hairStyle: [0, 1, 2, 3, 4, 5, 7, 8, 9, 10][Math.floor(rnd() * 10)], hairColor: Math.floor(rnd() * 8), face: Math.floor(rnd() * 8) }, desc: "A " + JOBS[job].name + ". " + MERC_ROLE_TEXT[role] + " " + MERC_TRAITS[Math.floor(rnd() * MERC_TRAITS.length)] };
 }
 function mercPool(dayOverride) {
   mercDefsSync();
@@ -17160,7 +17163,7 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v15.6.0 · built 2026-10-14 16:14 PDT";
+const BUILD_INFO = "v15.7.0 · built 2026-10-14 16:28 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
@@ -17168,10 +17171,15 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.7.0", date: "2026-10-14", title: "Creation polish", items: [
+    "Skin tones are gone from character creation, as in the classics. Your skin now comes from your race, and faces no longer change it. Existing characters keep their looks.",
+    "The last creation step now shows a summary of your choices (race, gender, face, hair, size) beside the turning preview, with a Start over button that resets everything.",
+    "Your race, gender and size now show on the Status screen under your name."
+  ] },
   { v: "15.6.0", date: "2026-10-14", title: "New character creation", items: [
     "Character creation is now a step-by-step flow like the classic online RPGs: Race → Gender → Face → Hair colour → Size → Name and job.",
     "Race: pick from five cards, with each race's description and its HP, MP and attribute bonuses. Ursan (always male) and Nekari (always female) skip the Gender step.",
-    "Face: choose from eight painted face portraits. Each face comes with its own hairstyle and skin tone, as in the classics, so there are no separate hairstyle or skin pickers any more.",
+    "Face: choose from eight painted face portraits. Each face comes with its own hairstyle, so there is no separate hairstyle picker.",
     "Hair colour: a palette of eight colours.",
     "Size: Small, Medium or Large. It is only for looks and doesn't change your stats.",
     "The 3D preview zooms in on the face for the Face and Hair colour steps and turns to face you.",
@@ -18099,9 +18107,9 @@ function tabHelp() {
     "Offline characters can never be moved online, uploaded or loaded into an online character. Use System → Save to file to back one up on the same or another device's offline list."
   ]));
   h += sec("👥 Characters", ul([
-    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, sex, skin, hair, height and build. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
+    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, race, gender, face, hair colour and size. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each face comes with its own hairstyle and skin tone) → <b>Hair colour</b> → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b>. Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
+    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each face comes with its own hairstyle; skin comes from your race) → <b>Hair colour</b> → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b> (with a summary of your choices and a <b>Start over</b> button). Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));
@@ -18457,7 +18465,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "15.6.0";
+const GAME_VERSION = "15.7.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18555,6 +18563,7 @@ function statusLeftHTML(noLv) {
   let h = '<div class="stBox"><div class="ffHead"><span>Status</span></div>';
   h += '<div class="stNm">' + esc(save.name || "Adventurer") + "</div>";
   h += '<div class="stJob main">Lv' + p.lv + " " + esc(JOBS[p.job].name) + "</div>";
+  { const lk = save.look || {}; h += '<div class="stJob">' + esc((RACES[lk.race] || RACES.human).name) + " " + (lk.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(lk)][0] + "</div>"; }
   if (p.sub && JOBS[p.sub]) h += '<div class="stJob">Lv' + Math.floor(p.lv / 2) + " " + esc(JOBS[p.sub].name) + "</div>";
   h += '<div class="stRow"><em>ILv</em><b>' + ilv + ' <small>Su —</small></b></div>';
   h += '<div class="stRow gap"><em>HP</em><b>' + Math.ceil(p.hp) + " / " + p.maxHp + '</b></div><div class="stRow"><em>MP</em><b>' + Math.floor(p.mp) + " / " + p.maxMp + '</b></div><div class="stRow"><em>TP</em><b>' + Math.floor(p.tp) + "</b></div>";
@@ -24172,9 +24181,10 @@ function bodyProp(l) {
   return { leg: B.leg * H, torso: B.torso * H, arm: B.arm * H, girth: B.girth * G, waist: B.waist * Math.pow(G, 1.4), shoulder: B.shoulder * (1 + (G - 1) * 0.6) * (0.5 + H * 0.5), hip: B.hip * (1 + (G - 1) * 0.7), headR: B.headR, neck: B.neck };
 }
 
+const RACE_SKIN = { human: 1, elari: 0, pipkin: 0, ursan: 2, nekari: 1 };
 function baseFromLook(look) {
   const l = look || {};
-  const b = { build: l.build || 0, skin: SKIN_TONES[Math.min(l.skin || 0, SKIN_TONES.length - 1)], hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
+  const b = { build: l.build || 0, skin: SKIN_TONES[RACE_SKIN[raceOfLook(l)]], hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
   const p = bodyProp(l);
   if (p) b.prop = p;
   const race = raceOfLook(l);
@@ -28974,20 +28984,18 @@ function showCharSelect() {
 }
 
 const CC_FACE_HAIR = [["short", "sidepart", "spiky", "ponytail", "long", "topknot", "curly", "braid"], ["bob", "long", "ponytail", "twintails", "wavy", "bun", "pixie", "braid"]];
-const CC_FACE_SKIN = [[1, 0, 1, 2, 0, 3, 1, 2], [0, 1, 0, 1, 2, 1, 3, 0]];
 const CC_SIZES = [["Small", 0, 1], ["Medium", 2, 2], ["Large", 4, 3]];
 const CC_STEPS = [["race", "Race"], ["gender", "Gender"], ["face", "Face"], ["hair", "Hair colour"], ["size", "Size"], ["name", "Name & job"]];
 function ccApplyFace(l) {
   const sx = l.build ? 1 : 0, f = (l.face || 0) % FACE_COUNT;
   l.hairStyle = HAIR_STYLES.indexOf(CC_FACE_HAIR[sx][f]);
-  l.skin = CC_FACE_SKIN[sx][f] % SKIN_TONES.length;
 }
 function ccSizeOf(l) { const i = CC_SIZES.findIndex(s => s[1] === l.height && s[2] === l.girth); return i < 0 ? 1 : i; }
 function ccSteps(l) { return CC_STEPS.filter(s => s[0] !== "gender" || RACES[l.race].sex == null); }
-function ccFaceThumb(v, fem, skin) {
+function ccFaceThumb(v, fem, race) {
   const k = ATLAS_CELL / 256, c = document.createElement("canvas"), g = c.getContext("2d");
   c.width = ATLAS_CELL; c.height = ATLAS_CELL;
-  g.fillStyle = "#" + skin.toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
+  g.fillStyle = "#" + SKIN_TONES[RACE_SKIN[race] || 0].toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
   paintFace(g, 0, 0, v, fem);
   const t = document.createElement("canvas"); t.width = 72; t.height = 60;
   const tg = t.getContext("2d");
@@ -29030,7 +29038,7 @@ function showCharCreate() {
     if (UI.pv && !UI.pv.failed) { UI.pv.rot = 0.4; UI.pv.sig = null; }
   }
   const label = () => { $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + (RACES[CC.look.race] || RACES.human).name + " " + (CC.look.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(CC.look)][0] + "</small>"; };
-  const thumb = (v, fem) => { const key = v + "|" + fem + "|" + ATLAS_CELL; if (!CC.thumbs[key]) { try { CC.thumbs[key] = ccFaceThumb(v, fem, SKIN_TONES[CC_FACE_SKIN[fem ? 1 : 0][v] % SKIN_TONES.length]); } catch (e) { CC.thumbs[key] = ""; } } return CC.thumbs[key]; };
+  const thumb = (v, fem) => { const key = v + "|" + fem + "|" + CC.look.race + "|" + ATLAS_CELL; if (!CC.thumbs[key]) { try { CC.thumbs[key] = ccFaceThumb(v, fem, CC.look.race); } catch (e) { CC.thumbs[key] = ""; } } return CC.thumbs[key]; };
   const paint = () => {
     const l = CC.look, steps = ccSteps(l);
     CC.step = Math.max(0, Math.min(CC.step, steps.length - 1));
@@ -29049,7 +29057,7 @@ function showCharCreate() {
     } else if (st === "face") {
       const fem = l.build === 1;
       h = '<div class="ccGrid ccFaces">' + FACE_NAMES.map((n, i) => { const src = thumb(i, fem); return '<button data-face="' + i + '" class="ccFaceB' + sel((l.face || 0) === i) + '">' + (src ? '<img alt="" src="' + src + '">' : "") + "<small>" + (i + 1) + ". " + n + "</small></button>"; }).join("") + "</div>";
-      h += '<div class="ccInfo2"><div>Each face comes with its own hairstyle and skin tone: ' + esc(HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || "") + ".</div></div>";
+      h += '<div class="ccInfo2"><div>Each face comes with its own hairstyle: ' + esc(HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || "") + ".</div></div>";
     } else if (st === "hair") {
       h = '<div class="ccGrid ccHair">' + HAIR_COLORS.map((c, i) => '<button data-hc="' + i + '" class="ccSw' + sel(l.hairColor === i) + '" style="--c:#' + c.toString(16).padStart(6, "0") + '"><span></span></button>').join("") + "</div>";
     } else if (st === "size") {
@@ -29059,6 +29067,8 @@ function showCharCreate() {
     } else {
       h = '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters" value="' + esc(CC.name) + '"></label>' +
         '<div class="ccSec">Job</div><div class="ccJobs">' + BASE_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '"' + (CC.job === j ? ' class="on"' : "") + ">" + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb">' + esc(JOB_BLURB[CC.job]) + "</div>" +
+        '<div class="ccSum">' + [["Race", RACES[l.race].name], ["Gender", l.build ? "Female" : "Male"], ["Face", FACE_NAMES[(l.face || 0) % FACE_NAMES.length]], ["Hair", HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || ""], ["Size", CC_SIZES[ccSizeOf(l)][0]]].map(x => "<span><em>" + x[0] + "</em>" + esc(x[1]) + "</span>").join("") + '</div>' +
+        '<button class="ccRestart" data-restart="1">↺ Start over</button>' +
         '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>';
     }
     $("ccBody").innerHTML = h;
@@ -29094,6 +29104,7 @@ function showCharCreate() {
     const b = e.target.closest("button");
     if (!b) return;
     const l = CC.look;
+    if (b.dataset.restart) { CC.look = { race: "human", build: 0, face: 0, hairColor: 1, height: 2, girth: 2 }; ccApplyFace(CC.look); CC.step = 0; CC.name = ""; sfx("close"); paint(); return; }
     if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); box.querySelectorAll("[data-job]").forEach(x => x.classList.toggle("on", x.dataset.job === CC.job)); $("ccJobBlurb").textContent = JOB_BLURB[CC.job]; if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; } return; }
     if (b.dataset.race) { l.race = b.dataset.race; const sx = RACES[l.race].sex; if (sx != null) l.build = sx; ccApplyFace(l); sfx("click"); paint(); return; }
     if (b.dataset.sex != null && b.dataset.sex !== "") { l.build = +b.dataset.sex; ccApplyFace(l); sfx("click"); paint(); return; }

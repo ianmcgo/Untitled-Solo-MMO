@@ -307,20 +307,18 @@ function showCharSelect() {
 }
 
 const CC_FACE_HAIR = [["short", "sidepart", "spiky", "ponytail", "long", "topknot", "curly", "braid"], ["bob", "long", "ponytail", "twintails", "wavy", "bun", "pixie", "braid"]];
-const CC_FACE_SKIN = [[1, 0, 1, 2, 0, 3, 1, 2], [0, 1, 0, 1, 2, 1, 3, 0]];
 const CC_SIZES = [["Small", 0, 1], ["Medium", 2, 2], ["Large", 4, 3]];
 const CC_STEPS = [["race", "Race"], ["gender", "Gender"], ["face", "Face"], ["hair", "Hair colour"], ["size", "Size"], ["name", "Name & job"]];
 function ccApplyFace(l) {
   const sx = l.build ? 1 : 0, f = (l.face || 0) % FACE_COUNT;
   l.hairStyle = HAIR_STYLES.indexOf(CC_FACE_HAIR[sx][f]);
-  l.skin = CC_FACE_SKIN[sx][f] % SKIN_TONES.length;
 }
 function ccSizeOf(l) { const i = CC_SIZES.findIndex(s => s[1] === l.height && s[2] === l.girth); return i < 0 ? 1 : i; }
 function ccSteps(l) { return CC_STEPS.filter(s => s[0] !== "gender" || RACES[l.race].sex == null); }
-function ccFaceThumb(v, fem, skin) {
+function ccFaceThumb(v, fem, race) {
   const k = ATLAS_CELL / 256, c = document.createElement("canvas"), g = c.getContext("2d");
   c.width = ATLAS_CELL; c.height = ATLAS_CELL;
-  g.fillStyle = "#" + skin.toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
+  g.fillStyle = "#" + SKIN_TONES[RACE_SKIN[race] || 0].toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
   paintFace(g, 0, 0, v, fem);
   const t = document.createElement("canvas"); t.width = 72; t.height = 60;
   const tg = t.getContext("2d");
@@ -363,7 +361,7 @@ function showCharCreate() {
     if (UI.pv && !UI.pv.failed) { UI.pv.rot = 0.4; UI.pv.sig = null; }
   }
   const label = () => { $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + (RACES[CC.look.race] || RACES.human).name + " " + (CC.look.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(CC.look)][0] + "</small>"; };
-  const thumb = (v, fem) => { const key = v + "|" + fem + "|" + ATLAS_CELL; if (!CC.thumbs[key]) { try { CC.thumbs[key] = ccFaceThumb(v, fem, SKIN_TONES[CC_FACE_SKIN[fem ? 1 : 0][v] % SKIN_TONES.length]); } catch (e) { CC.thumbs[key] = ""; } } return CC.thumbs[key]; };
+  const thumb = (v, fem) => { const key = v + "|" + fem + "|" + CC.look.race + "|" + ATLAS_CELL; if (!CC.thumbs[key]) { try { CC.thumbs[key] = ccFaceThumb(v, fem, CC.look.race); } catch (e) { CC.thumbs[key] = ""; } } return CC.thumbs[key]; };
   const paint = () => {
     const l = CC.look, steps = ccSteps(l);
     CC.step = Math.max(0, Math.min(CC.step, steps.length - 1));
@@ -382,7 +380,7 @@ function showCharCreate() {
     } else if (st === "face") {
       const fem = l.build === 1;
       h = '<div class="ccGrid ccFaces">' + FACE_NAMES.map((n, i) => { const src = thumb(i, fem); return '<button data-face="' + i + '" class="ccFaceB' + sel((l.face || 0) === i) + '">' + (src ? '<img alt="" src="' + src + '">' : "") + "<small>" + (i + 1) + ". " + n + "</small></button>"; }).join("") + "</div>";
-      h += '<div class="ccInfo2"><div>Each face comes with its own hairstyle and skin tone: ' + esc(HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || "") + ".</div></div>";
+      h += '<div class="ccInfo2"><div>Each face comes with its own hairstyle: ' + esc(HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || "") + ".</div></div>";
     } else if (st === "hair") {
       h = '<div class="ccGrid ccHair">' + HAIR_COLORS.map((c, i) => '<button data-hc="' + i + '" class="ccSw' + sel(l.hairColor === i) + '" style="--c:#' + c.toString(16).padStart(6, "0") + '"><span></span></button>').join("") + "</div>";
     } else if (st === "size") {
@@ -392,6 +390,8 @@ function showCharCreate() {
     } else {
       h = '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters" value="' + esc(CC.name) + '"></label>' +
         '<div class="ccSec">Job</div><div class="ccJobs">' + BASE_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '"' + (CC.job === j ? ' class="on"' : "") + ">" + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb">' + esc(JOB_BLURB[CC.job]) + "</div>" +
+        '<div class="ccSum">' + [["Race", RACES[l.race].name], ["Gender", l.build ? "Female" : "Male"], ["Face", FACE_NAMES[(l.face || 0) % FACE_NAMES.length]], ["Hair", HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || ""], ["Size", CC_SIZES[ccSizeOf(l)][0]]].map(x => "<span><em>" + x[0] + "</em>" + esc(x[1]) + "</span>").join("") + '</div>' +
+        '<button class="ccRestart" data-restart="1">↺ Start over</button>' +
         '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>';
     }
     $("ccBody").innerHTML = h;
@@ -427,6 +427,7 @@ function showCharCreate() {
     const b = e.target.closest("button");
     if (!b) return;
     const l = CC.look;
+    if (b.dataset.restart) { CC.look = { race: "human", build: 0, face: 0, hairColor: 1, height: 2, girth: 2 }; ccApplyFace(CC.look); CC.step = 0; CC.name = ""; sfx("close"); paint(); return; }
     if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); box.querySelectorAll("[data-job]").forEach(x => x.classList.toggle("on", x.dataset.job === CC.job)); $("ccJobBlurb").textContent = JOB_BLURB[CC.job]; if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; } return; }
     if (b.dataset.race) { l.race = b.dataset.race; const sx = RACES[l.race].sex; if (sx != null) l.build = sx; ccApplyFace(l); sfx("click"); paint(); return; }
     if (b.dataset.sex != null && b.dataset.sex !== "") { l.build = +b.dataset.sex; ccApplyFace(l); sfx("click"); paint(); return; }
