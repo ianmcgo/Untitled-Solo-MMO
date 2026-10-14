@@ -1144,6 +1144,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - world3d updateSky: sandstorm = gloom 0.5, tan fog lerp, fog ×0.2, fast clouds. effects3d: sandstorm blows tan dust (blizzard branch).
 - Tests: p44unit; harness exports visMul, weatherSlow.
 
+## Phase 85: Expeditions (v13.2.0)
+- data.js tail: `EXPEDITIONS` {wilds lv 12, fire lv 17, ends lv 19} with `steps` of type zone / visit (zone + landmark id) / kill (fam, n) / talk (npc, say); last step `final` talk to maera. Reward items trailblazer_boots, explorers_ring, pathfinder_mantle; achievement `expeditions` (save.expDone).
+- game.js: `save.exped {id, step, count}`; `expTick` (zone/visit checks, from updatePeriod each tick), `expKill` (killRewards), `expTalk` (talkTo before TALK; non-final talk steps show `say`), `expOptions()` added to talkMaera (offer by level when idle; "Report" on the final step), `expReport()` + `/expedition`.
+- Tests: p45unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1187,7 +1192,7 @@ New zones (one per release; each gets its own monsters, NM, gathering, quests, l
 World systems:
 - 83 DONE (13.0.0) Regions with control status: each region shows which side holds it; affects shop stock and prices.
 - 84 DONE (13.1.0) Weather that matters: sandstorms, blizzards, fog change spawns and view distance.
-- 85 (13.2.0) Expeditions: multi-zone quests far from home.
+- 85 DONE (13.2.0) Expeditions: multi-zone quests far from home.
 - 86 (13.3.0) World map atlas: fills in as you explore, every zone joined up.
 - 87 (13.4.0) Night-only and weather-only content: monsters, areas and NPCs that appear only at certain times or weather.
 - Pending on the user's side: run the latest setup.sql (schema 6) in Supabase.
@@ -1229,6 +1234,7 @@ World systems:
 | 12.7.0 | Phase 82: Windreach Highlands. |
 | 13.0.0 | Phase 83: Regions and nations (conquest). |
 | 13.1.0 | Phase 84: Weather that matters. |
+| 13.2.0 | Phase 85: Expeditions. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

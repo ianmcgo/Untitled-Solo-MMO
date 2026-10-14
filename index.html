@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.1.0 · built 2026-10-14 05:17 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.2.0 · built 2026-10-14 05:20 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -8121,6 +8121,39 @@ const CONQUEST = {
   },
   beastDaily: 30, rivalDaily: 20, holdBonus: 40
 };
+const EXPEDITIONS = {
+  wilds: { name: "Across the Wilds", lv: 12, reward: { xp: 4000, gil: 2000, item: "trailblazer_boots" },
+    intro: "The Guild wants a survey of the far roads. Go up through Frostspire Pass to the mountain city of Ironvale and see the Quartermaster there, then cross the Sunscar Desert to the bones the locals call Titan's Ribs. Come back and tell me what you saw.",
+    steps: [
+      { type: "zone", zone: "ironvale", text: "Reach the city of Ironvale, east of Frostspire Pass." },
+      { type: "talk", npc: "brisa", text: "Speak with Brisa, Ironvale's quartermaster.", say: "From Ashenreach, are you? The Guild's maps of the south are years out of date. Take a look at the Ribs while you're down there; the dunes have moved." },
+      { type: "visit", zone: "sunscar", lm: "ribs", text: "Find Titan's Ribs in the Sunscar Desert." },
+      { type: "talk", npc: "maera", text: "Return to Maera in Ashenreach Outpost.", final: true }
+    ] },
+  fire: { name: "Fire and Water", lv: 17, reward: { xp: 9000, gil: 4000, item: "explorers_ring" },
+    intro: "A scholar is paying well for proof of two places most people think are legends: a lake of fire on Cinder Peak and a grotto that glows under the jungle. Old Wend out on Gull Isle swears he's seen both. Find them, then ask him.",
+    steps: [
+      { type: "visit", zone: "cinder", lm: "lake", text: "Stand at the Molten Lake on Cinder Peak." },
+      { type: "kill", fam: "magma_worm", n: 4, text: "Defeat 4 Magma Worms (Cinder Peak)." },
+      { type: "visit", zone: "underdeep", lm: "grotto", text: "Find the Glimmer Grotto in the Underdeep." },
+      { type: "talk", npc: "wend", text: "Tell Old Wend on Gull Isle what you found.", say: "Ha! Told them, didn't I? Fire you can drink and caves full of stars. Go on back and tell your Guild the old man was right." },
+      { type: "talk", npc: "maera", text: "Return to Maera in Ashenreach Outpost.", final: true }
+    ] },
+  ends: { name: "The Ends of the Map", lv: 19, reward: { xp: 12000, gil: 6000, item: "pathfinder_mantle" },
+    intro: "Last job I've got, and it's a big one. Three places at the very edges of every map we own: the Standing Stones on the Windreach plateau, the Overgrown Temple deep in the jungle, and the summit of the Red Spire. Bring back proof you stood in all three.",
+    steps: [
+      { type: "visit", zone: "highlands", lm: "stones", text: "Visit the Standing Stones in the Windreach Highlands." },
+      { type: "visit", zone: "verdant", lm: "temple", text: "Reach the Overgrown Temple in the Verdant Jungle." },
+      { type: "visit", zone: "spire_top", lm: "summit", text: "Climb to the Red Spire Summit." },
+      { type: "talk", npc: "maera", text: "Return to Maera in Ashenreach Outpost.", final: true }
+    ] }
+};
+Object.assign(ITEMS, {
+  trailblazer_boots: { name: "Trailblazer Boots", kind: "equip", icon: "👢", rare: true, slot: "feet", jobs: ALL_JOBS, lv: 12, price: 0, stats: { def: 5, agi: 2, hp: 20 }, desc: "Guild-issue boots for those who've walked the far roads." },
+  explorers_ring: { name: "Explorer's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_JOBS, lv: 17, price: 0, stats: { hp: 25, mp: 25, acc: 4, eva: 4 }, desc: "Engraved with a compass rose." },
+  pathfinder_mantle: { name: "Pathfinder's Mantle", kind: "equip", icon: "🧣", rare: true, slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 6, hp: 30, str: 2, int: 2, agi: 2 }, desc: "Given only to those who have stood at the edges of every map." }
+});
+ACHIEVEMENTS.push({ id: "expeditions", icon: "🗺️", name: "Far Traveller", desc: "Complete every Guild expedition.", test: s => s.expDone && Object.keys(EXPEDITIONS).every(k => s.expDone[k]) });
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -9233,7 +9266,7 @@ function onKO(e, src) {
 }
 
 function killRewards(e) {
-  try { conquestKill(e); } catch (err) {}
+  try { conquestKill(e); expKill(e); } catch (err) {}
   save.stats.kills++;
   if (player.job === "RNG") save.stats.rngKills++;
   noteBeast(e, true);
@@ -11694,7 +11727,7 @@ function checkLandmarks() {
 }
 
 function updatePeriod() {
-  try { updateWeatherSpawns(); } catch (err) {}
+  try { updateWeatherSpawns(); expTick(); } catch (err) {}
   const per = period();
   if (per === S.lastPeriod) return;
   S.lastPeriod = per;
@@ -11999,6 +12032,7 @@ function talkTo(n) {
   n.face = Math.atan2(player.y - n.y, player.x - n.x);
   const st = storyStep();
   if (st && st.type === "talk" && st.npc === n.id && storyReady()) { storyScene(n.name, st.text, 0, () => advanceStory()); return; }
+  if (expTalk(n)) return;
   TALK[n.talk](n);
 }
 
@@ -12391,7 +12425,8 @@ const TALK = {
   talkMaera(n) {
     const g = save.guild, rk = guildRank(), ready = Object.keys(g.active).filter(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && g.active[id] >= b.n; }).length;
     const line = !g.total && !Object.keys(g.active).length ? "Welcome to the Adventurers' Guild. Every day I post bounties on monsters that are giving folk trouble. Finish them for crystals and guild points; points raise your rank and buy things you won't find in any shop." : ready ? "Back already? Let's see what you've brought in." : "You're " + GUILD_RANKS[rk][0] + " rank with " + g.gp + " guild points to spend. Today's bounties are on the board behind me.";
-    openDialog(n.name, line, [{ label: "Guild bounties and shop", fn: () => { closeDialog(); openModal("guild"); } }]);
+    const st = expStep();
+    openDialog(n.name, line + (st && !st.final ? " " + expReport() : ""), [{ label: "Guild bounties and shop", fn: () => { closeDialog(); openModal("guild"); } }].concat(expOptions()));
   },
   talkBoard(n) {
     const left = boardToday().filter(r => !save.board.done.includes(r.id)).length;
@@ -12658,6 +12693,57 @@ function tickFerry() {
   }
   enterZone(f.to, f.x, f.y);
   log("The ferry bumps against the dock at " + ZONES[f.to].name + ".", "npc");
+}
+function expStep() { const e = save.exped; if (!e) return null; const X = EXPEDITIONS[e.id]; return X ? X.steps[e.step] : null; }
+function expAdvance(msg) {
+  const e = save.exped, X = EXPEDITIONS[e.id];
+  e.step++; e.count = 0;
+  const nx = X.steps[e.step];
+  log((msg ? msg + " " : "") + "Expedition: " + X.name + " — " + (nx ? "next: " + nx.text : "complete!"), "npc");
+  sfx("quest"); saveGame();
+}
+function expTick() {
+  const st = expStep();
+  if (!st) return;
+  if (st.type === "zone" && S.zoneId === st.zone) expAdvance("You reach " + ZONES[st.zone].name + ".");
+  else if (st.type === "visit" && S.zoneId === st.zone) { const lm = (S.zone.landmarks || []).find(l => l.id === st.lm); if (lm && Math.hypot(player.x - lm.x, player.y - lm.y) < lm.r) expAdvance("You stand at " + lm.name + "."); }
+}
+function expKill(m) {
+  const st = expStep();
+  if (!st || st.type !== "kill" || m.famKey !== st.fam) return;
+  save.exped.count = (save.exped.count || 0) + 1;
+  if (save.exped.count >= st.n) expAdvance("That makes " + st.n + ".");
+  else log("Expedition: " + save.exped.count + "/" + st.n + " " + FAMILIES[st.fam].name + ".", "npc");
+}
+function expTalk(n) {
+  const st = expStep();
+  if (!st || st.type !== "talk" || st.npc !== n.id || st.final) return false;
+  openDialog(n.name, st.say || "...", []);
+  expAdvance();
+  return true;
+}
+function expOptions() {
+  const e = save.exped, st = expStep(), out = [];
+  if (st && st.final) out.push({ label: "Report: " + EXPEDITIONS[e.id].name, fn: () => {
+    const X = EXPEDITIONS[e.id], R = X.reward;
+    closeDialog();
+    save.expDone = save.expDone || {}; save.expDone[e.id] = Date.now();
+    save.exped = null;
+    gainXp(R.xp, 0); save.gil += R.gil; if (R.item) giveItem(R.item, 1);
+    log("Expedition complete: " + X.name + "! You receive " + R.gil + " crystals" + (R.item ? " and " + an(ITEMS[R.item].name) : "") + ".", "loot");
+    sfx("fanfare"); saveGame();
+  } });
+  else if (!e) for (const id in EXPEDITIONS) {
+    const X = EXPEDITIONS[id];
+    if ((save.expDone || {})[id] || player.lv < X.lv) continue;
+    out.push({ label: "Expedition: " + X.name, fn: () => { openDialog("Maera, Adventurers' Guild", X.intro, [{ label: "Set out", fn: () => { save.exped = { id, step: 0, count: 0 }; closeDialog(); log("Expedition started: " + X.name + " — " + X.steps[0].text, "npc"); sfx("notify"); saveGame(); } }]); } });
+  }
+  return out;
+}
+function expReport() {
+  const st = expStep();
+  if (!st) return "You're not on an expedition. Maera at the Adventurers' Guild hands them out from level 12.";
+  return "Expedition: " + EXPEDITIONS[save.exped.id].name + " — " + st.text + (st.type === "kill" ? " (" + (save.exped.count || 0) + "/" + st.n + ")" : "");
 }
 function resumePos() {
   const l = save.loc;
@@ -12996,6 +13082,7 @@ function runCommand(text) {
     case "jump": if (typeof tryJump === "function") tryJump(); return;
     case "craft": case "synth": openModal("craft"); return;
     case "conquest": case "regions": log(conquestReport(), "sys"); break;
+    case "expedition": case "exp": log(expReport(), "sys"); break;
     case "time": case "clock": { const v = vana(); log("Leid'anav: " + gameDate() + " (" + DAY_NAMES[v.dayIndex] + ") " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); log("Earth: " + new Date().toLocaleString([], { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }), "sys"); return; }
     case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
     case "clear": if (typeof clearLog === "function") clearLog(); return;
@@ -15990,13 +16077,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v13.1.0 · built 2026-10-14 05:17 PDT";
+const BUILD_INFO = "v13.2.0 · built 2026-10-14 05:20 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "13.2.0", date: "2026-10-14", title: "Expeditions", items: [
+    "Maera at the Adventurers' Guild now offers expeditions: long journeys that send you across several areas, talking to people and standing at far-off landmarks before you report back.",
+    "Three to start: Across the Wilds (level 12), Fire and Water (level 17) and The Ends of the Map (level 19), rewarding the Trailblazer Boots, the Explorer's Ring and the Pathfinder's Mantle.",
+    "Type /expedition to see your next leg. New achievement: Far Traveller."
   ] },
   { v: "13.1.0", date: "2026-10-14", title: "Weather that matters", items: [
     "New weather: sandstorms sweep the Sunscar Desert (and sometimes Cinder Peak), turning the air tan and blowing dust across the dunes.",
@@ -16807,6 +16899,13 @@ function tabHelp() {
     ["Underdeep River", "16–20", "A glowing cavern under the Verdant Jungle (door near the jungle's south-east). A rock wall splits it in two: Boatman Ferro rows you across the river for free. Glow Bats, Pale Crabs, Lumicaps and Deep Worms; the Lumicap Matron (NM) lights the Glimmer Grotto. Fish for Glowfin and the rare Blind Eel"],
     ["Windreach Highlands", "10–15", "North of Rocky Hollow. A wide golden plateau: ride anywhere at road speed. The nomad camp (Tarqa the chief with two quests, Essa the trader) and Rider's Rest are camps. Plains Hares, Plains Lizards, Wind Wasps, Highland Longnecks and Highland Orcs; Thunderhoof (NM) roams the Stormgrass Flats by day"],
   ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  h += sec("🗺️ Expeditions", ul([
+    "Maera at the Adventurers' Guild hands out long journeys across several areas. Each has a list of legs; the next one is shown when you talk to her or type /expedition.",
+    "<i>Across the Wilds</i> (level 12): reach Ironvale, speak to Brisa, find Titan's Ribs in the Sunscar Desert, then report back. Reward: Trailblazer Boots.",
+    "<i>Fire and Water</i> (level 17): the Molten Lake on Cinder Peak, 4 Magma Worms, the Glimmer Grotto in the Underdeep, then Old Wend on Gull Isle. Reward: Explorer's Ring.",
+    "<i>The Ends of the Map</i> (level 19): the Standing Stones (Windreach Highlands), the Overgrown Temple (Verdant Jungle) and the Red Spire Summit. Reward: Pathfinder's Mantle.",
+    "One expedition at a time. Finish all three for the Far Traveller achievement."
+  ]));
   h += sec("🚩 Regions and nations", ul([
     "The wilds are split into five regions: the Vale (Rocky Hollow, Goblin Den, Sunken Crypt, Windreach Highlands), the Mire (Ashen Marsh, Chapel Depths, Verdant Jungle, Underdeep), the Coast (Gull Isle), the Peaks (Frostspire Pass) and the Sands (Sunscar Desert, Cinder Peak, Red Spire). Each is held by the Ashenreach League, the Ironvale Compact or the Beastmen.",
     "Pledge to a nation by talking to Captain Rhea (Ashenreach) or Brisa (Ironvale). Every monster you defeat in a region adds points for your nation there (about half its level).",
@@ -17029,7 +17128,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "13.1.0";
+const GAME_VERSION = "13.2.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

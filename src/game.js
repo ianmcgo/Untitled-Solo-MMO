@@ -1109,7 +1109,7 @@ function onKO(e, src) {
 }
 
 function killRewards(e) {
-  try { conquestKill(e); } catch (err) {}
+  try { conquestKill(e); expKill(e); } catch (err) {}
   save.stats.kills++;
   if (player.job === "RNG") save.stats.rngKills++;
   noteBeast(e, true);
@@ -3570,7 +3570,7 @@ function checkLandmarks() {
 }
 
 function updatePeriod() {
-  try { updateWeatherSpawns(); } catch (err) {}
+  try { updateWeatherSpawns(); expTick(); } catch (err) {}
   const per = period();
   if (per === S.lastPeriod) return;
   S.lastPeriod = per;
@@ -3875,6 +3875,7 @@ function talkTo(n) {
   n.face = Math.atan2(player.y - n.y, player.x - n.x);
   const st = storyStep();
   if (st && st.type === "talk" && st.npc === n.id && storyReady()) { storyScene(n.name, st.text, 0, () => advanceStory()); return; }
+  if (expTalk(n)) return;
   TALK[n.talk](n);
 }
 
@@ -4267,7 +4268,8 @@ const TALK = {
   talkMaera(n) {
     const g = save.guild, rk = guildRank(), ready = Object.keys(g.active).filter(id => { const b = GUILD_BOUNTIES.find(x => x.id === id); return b && g.active[id] >= b.n; }).length;
     const line = !g.total && !Object.keys(g.active).length ? "Welcome to the Adventurers' Guild. Every day I post bounties on monsters that are giving folk trouble. Finish them for crystals and guild points; points raise your rank and buy things you won't find in any shop." : ready ? "Back already? Let's see what you've brought in." : "You're " + GUILD_RANKS[rk][0] + " rank with " + g.gp + " guild points to spend. Today's bounties are on the board behind me.";
-    openDialog(n.name, line, [{ label: "Guild bounties and shop", fn: () => { closeDialog(); openModal("guild"); } }]);
+    const st = expStep();
+    openDialog(n.name, line + (st && !st.final ? " " + expReport() : ""), [{ label: "Guild bounties and shop", fn: () => { closeDialog(); openModal("guild"); } }].concat(expOptions()));
   },
   talkBoard(n) {
     const left = boardToday().filter(r => !save.board.done.includes(r.id)).length;
@@ -4534,6 +4536,57 @@ function tickFerry() {
   }
   enterZone(f.to, f.x, f.y);
   log("The ferry bumps against the dock at " + ZONES[f.to].name + ".", "npc");
+}
+function expStep() { const e = save.exped; if (!e) return null; const X = EXPEDITIONS[e.id]; return X ? X.steps[e.step] : null; }
+function expAdvance(msg) {
+  const e = save.exped, X = EXPEDITIONS[e.id];
+  e.step++; e.count = 0;
+  const nx = X.steps[e.step];
+  log((msg ? msg + " " : "") + "Expedition: " + X.name + " — " + (nx ? "next: " + nx.text : "complete!"), "npc");
+  sfx("quest"); saveGame();
+}
+function expTick() {
+  const st = expStep();
+  if (!st) return;
+  if (st.type === "zone" && S.zoneId === st.zone) expAdvance("You reach " + ZONES[st.zone].name + ".");
+  else if (st.type === "visit" && S.zoneId === st.zone) { const lm = (S.zone.landmarks || []).find(l => l.id === st.lm); if (lm && Math.hypot(player.x - lm.x, player.y - lm.y) < lm.r) expAdvance("You stand at " + lm.name + "."); }
+}
+function expKill(m) {
+  const st = expStep();
+  if (!st || st.type !== "kill" || m.famKey !== st.fam) return;
+  save.exped.count = (save.exped.count || 0) + 1;
+  if (save.exped.count >= st.n) expAdvance("That makes " + st.n + ".");
+  else log("Expedition: " + save.exped.count + "/" + st.n + " " + FAMILIES[st.fam].name + ".", "npc");
+}
+function expTalk(n) {
+  const st = expStep();
+  if (!st || st.type !== "talk" || st.npc !== n.id || st.final) return false;
+  openDialog(n.name, st.say || "...", []);
+  expAdvance();
+  return true;
+}
+function expOptions() {
+  const e = save.exped, st = expStep(), out = [];
+  if (st && st.final) out.push({ label: "Report: " + EXPEDITIONS[e.id].name, fn: () => {
+    const X = EXPEDITIONS[e.id], R = X.reward;
+    closeDialog();
+    save.expDone = save.expDone || {}; save.expDone[e.id] = Date.now();
+    save.exped = null;
+    gainXp(R.xp, 0); save.gil += R.gil; if (R.item) giveItem(R.item, 1);
+    log("Expedition complete: " + X.name + "! You receive " + R.gil + " crystals" + (R.item ? " and " + an(ITEMS[R.item].name) : "") + ".", "loot");
+    sfx("fanfare"); saveGame();
+  } });
+  else if (!e) for (const id in EXPEDITIONS) {
+    const X = EXPEDITIONS[id];
+    if ((save.expDone || {})[id] || player.lv < X.lv) continue;
+    out.push({ label: "Expedition: " + X.name, fn: () => { openDialog("Maera, Adventurers' Guild", X.intro, [{ label: "Set out", fn: () => { save.exped = { id, step: 0, count: 0 }; closeDialog(); log("Expedition started: " + X.name + " — " + X.steps[0].text, "npc"); sfx("notify"); saveGame(); } }]); } });
+  }
+  return out;
+}
+function expReport() {
+  const st = expStep();
+  if (!st) return "You're not on an expedition. Maera at the Adventurers' Guild hands them out from level 12.";
+  return "Expedition: " + EXPEDITIONS[save.exped.id].name + " — " + st.text + (st.type === "kill" ? " (" + (save.exped.count || 0) + "/" + st.n + ")" : "");
 }
 function resumePos() {
   const l = save.loc;
@@ -4872,6 +4925,7 @@ function runCommand(text) {
     case "jump": if (typeof tryJump === "function") tryJump(); return;
     case "craft": case "synth": openModal("craft"); return;
     case "conquest": case "regions": log(conquestReport(), "sys"); break;
+    case "expedition": case "exp": log(expReport(), "sys"); break;
     case "time": case "clock": { const v = vana(); log("Leid'anav: " + gameDate() + " (" + DAY_NAMES[v.dayIndex] + ") " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); log("Earth: " + new Date().toLocaleString([], { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }), "sys"); return; }
     case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
     case "clear": if (typeof clearLog === "function") clearLog(); return;
