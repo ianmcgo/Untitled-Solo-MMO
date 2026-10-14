@@ -971,7 +971,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.7.0 · built 2026-10-14 09:55 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v13.8.0 · built 2026-10-14 10:01 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -16291,13 +16291,21 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v13.7.0 · built 2026-10-14 09:55 PDT";
+const BUILD_INFO = "v13.8.0 · built 2026-10-14 10:01 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "13.8.0", date: "2026-10-14", title: "Detailed textures", items: [
+    "Clothing is woven: over-and-under threads, uneven slubs, folds, double-stitched hems and frayed, lighter edges.",
+    "Leather has a pebbled grain, saddle stitching with holes along the edges, creases, scratches and burnished borders.",
+    "Metal shows fine brushing and scratches, engraved scrollwork bands near the edges and a row of rivets, with dents and rust in the hollows.",
+    "Embroidered trim has diamond and scroll motifs with visible thread stitching; quilting has stitched seams; chain mail links are staggered and catch the light.",
+    "Hair strands, fur clumps, scales with rims, split feathers, knotted wood grain, porous bone and skin with fine pores.",
+    "Character textures now paint faster at start-up on every quality setting."
   ] },
   { v: "13.7.0", date: "2026-10-14", title: "Hands, feet, animal heads and raising the fallen", items: [
     "Hands now have five fingers and a thumb. They relax at your sides, close around a drawn weapon and make fists when you fight barehanded.",
@@ -17394,7 +17402,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "13.7.0";
+const GAME_VERSION = "13.8.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19690,65 +19698,75 @@ const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytai
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 
 const REGION_PAINT = {
-  skin(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11), f = NOISE.fbm(u * 40, v * 40, 2, 40, 12); o[0] = 0.92 + 0.06 * n + 0.02 * f; o[1] = n * 0.12 + f * 0.05; o[2] = 0.58 + 0.08 * f; o[3] = 0; },
-  face(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 13); o[0] = 0.94 + 0.06 * n; o[1] = n * 0.08; o[2] = 0.58; o[3] = 0; },
-  cloth(u, v, o, x, y) {
-    const w = ((x >> 1) & 1) ^ ((y >> 1) & 1), n = NOISE.fbm(u * 10, v * 10, 3, 10, 21);
+  skin(u, v, o, X, Y) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11), f = NOISE.value(u * 40, v * 40, 0, 12), pore = NOISE.value(u * 160, v * 160, 0, 14); o[0] = 0.92 + 0.06 * n + 0.02 * f - (pore > 0.86 ? 0.025 : 0); o[1] = n * 0.12 + f * 0.05 - (pore > 0.86 ? 0.05 : 0); o[2] = 0.56 + 0.08 * f + (pore > 0.86 ? 0.06 : 0); o[3] = 0; },
+  face(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 13), f = NOISE.value(u * 40, v * 40, 0, 15); o[0] = 0.94 + 0.05 * n + 0.01 * f; o[1] = n * 0.08 + f * 0.03; o[2] = 0.56; o[3] = 0; },
+  cloth(u, v, o, X, Y) {
+    const tx = X * 1.0, ty = Y * 1.0, cx = Math.floor(tx / 2), cy = Math.floor(ty / 2), over = (cx + cy) & 1;
+    const fx = tx / 2 - cx, fy = ty / 2 - cy, warp = Math.sin(fx * Math.PI), weft = Math.sin(fy * Math.PI);
+    const thread = over ? warp * (0.6 + 0.4 * weft) : weft * (0.6 + 0.4 * warp);
+    const slub = NOISE.value(u * 3, v * 60, 0, 24) * 0.5 + NOISE.value(u * 60, v * 3, 0, 25) * 0.5;
+    const n = NOISE.fbm(u * 10, v * 10, 2, 10, 21);
     const fold = NOISE.fbm(u * 5, v * 0.8, 3, 5, 23), fk = Math.sin((u * 7 + fold * 1.6) * Math.PI * 2) * 0.5 + 0.5;
-    const hem = (v < 0.035 || v > 0.965) ? 1 : 0, st = ((v > 0.05 && v < 0.06) || (v > 0.94 && v < 0.95)) && x % 8 < 5 ? 1 : 0;
-    o[0] = 0.72 + 0.06 * w + 0.1 * n + 0.14 * fk - hem * 0.1 - st * 0.12; o[1] = 0.25 + 0.4 * w + 0.15 * n + fk * 0.5 + hem * 0.3 - st * 0.3; o[2] = 0.95; o[3] = 0;
+    const ev = Math.min(v, 1 - v), hem = ev < 0.035 ? 1 : 0, st = ev > 0.048 && ev < 0.058 && (X % 7) < 4.2 ? 1 : 0, st2 = ev > 0.064 && ev < 0.072 && ((X + 3.5) % 7) < 4.2 ? 1 : 0;
+    const wear = Math.max(0, 1 - ev * 18) * (NOISE.value(u * 90, v * 90, 0, 26) > 0.55 ? 1 : 0);
+    o[0] = 0.66 + 0.16 * thread + 0.05 * slub + 0.08 * n + 0.12 * fk - hem * 0.08 - (st + st2) * 0.14 + wear * 0.08; o[1] = 0.2 + 0.5 * thread + 0.12 * n + fk * 0.45 + hem * 0.3 - (st + st2) * 0.35; o[2] = 0.95; o[3] = 0;
   },
-  leather(u, v, o, x, y) {
-    const n = NOISE.fbm(u * 12, v * 12, 4, 12, 31);
-    const st = (x % 22 < 12 && ((y > 8 && y < 12) || (y > 244 && y < 248))) ? 1 : 0;
-    const pore = NOISE.value(u * 90, v * 90, 0, 33) > 0.82 ? 0.06 : 0, edge = Math.max(0, 1 - Math.min(v, 1 - v) * 14);
-    const crease = NOISE.ridge(u * 4, v * 6, 3, 4, 35) > 0.88 ? 0.1 : 0;
-    o[0] = 0.66 + 0.3 * n - st * 0.3 - pore - crease + edge * 0.12; o[1] = n * 0.6 - st * 0.4 - pore * 2 - crease * 2; o[2] = 0.5 + 0.25 * (1 - n) - edge * 0.12; o[3] = 0;
+  leather(u, v, o, X, Y) {
+    const n = NOISE.fbm(u * 12, v * 12, 4, 12, 31), grain = NOISE.ridge(u * 70, v * 70, 2, 70, 32), pebble = NOISE.value(u * 110, v * 110, 0, 36);
+    const ev = Math.min(v, 1 - v), stl = ev > 0.035 && ev < 0.05, hole = stl && (X % 9) < 1.6, st = stl && (X % 9) >= 2.5 && (X % 9) < 7.5;
+    const pore = pebble > 0.84 ? 0.05 : 0, edge = Math.max(0, 1 - ev * 14);
+    const crease = NOISE.ridge(u * 4, v * 6, 3, 4, 35) > 0.88 ? 0.1 : 0, scratch = Math.abs(NOISE.value(u * 2, v * 30, 0, 37) - 0.5) < 0.008 ? 0.08 : 0;
+    o[0] = 0.62 + 0.28 * n + 0.06 * grain - (st ? 0.22 : 0) - (hole ? 0.35 : 0) - pore - crease + scratch + edge * 0.1; o[1] = n * 0.5 + grain * 0.35 - (st ? 0.1 : 0) - (hole ? 0.6 : 0) - pore * 2 - crease * 2 + (st ? 0.25 : 0); o[2] = 0.48 + 0.25 * (1 - n) - edge * 0.14 - (st ? 0.1 : 0); o[3] = 0;
   },
-  metal(u, v, o) {
-    const br = NOISE.value(u * 3, v * 140, 0, 41);
-    const sc = NOISE.value(u * 30, v * 30, 0, 43) > 0.9 ? -0.12 : 0;
-    const dent = NOISE.fbm(u * 9, v * 9, 2, 9, 45), edge = Math.max(0, 1 - Math.min(v, 1 - v) * 16), rust = NOISE.fbm(u * 6, v * 6, 3, 6, 47) > 0.7 ? 1 : 0;
-    o[0] = 0.76 + 0.14 * br + sc + 0.08 * dent + edge * 0.12 - rust * 0.12; o[1] = br * 0.2 + sc + dent * 0.35 + edge * 0.2; o[2] = 0.24 + 0.18 * br - edge * 0.1 + rust * 0.35; o[3] = 0.95 - rust * 0.4;
+  metal(u, v, o, X, Y) {
+    const br = NOISE.value(u * 3, v * 220, 0, 41);
+    const sc = NOISE.value(u * 30, v * 30, 0, 43) > 0.92 ? -0.1 : 0, fine = Math.abs(NOISE.value(u * 1.5, v * 40, 0, 44) - 0.5) < 0.006 ? 0.12 : 0;
+    const dent = NOISE.fbm(u * 9, v * 9, 2, 9, 45), ev = Math.min(v, 1 - v), edge = Math.max(0, 1 - ev * 16), rust = NOISE.fbm(u * 6, v * 6, 3, 6, 47) > 0.76 ? 1 : 0;
+    const band = ev > 0.06 && ev < 0.15, scroll = band && Math.abs(Math.sin(u * Math.PI * 2 * 9 + 2.6 * Math.sin(ev * Math.PI * 22))) < 0.14 ? 1 : 0;
+    const rv = ev < 0.045 && Math.hypot(((u * 18) % 1) - 0.5, (ev - 0.022) * 18) < 0.22 ? 1 : 0;
+    o[0] = 0.74 + 0.14 * br + sc + fine + 0.08 * dent + edge * 0.12 - rust * 0.1 - scroll * 0.22 + rv * 0.15; o[1] = br * 0.2 + sc + dent * 0.35 + edge * 0.2 - scroll * 0.5 + rv * 0.6; o[2] = 0.22 + 0.18 * br - edge * 0.1 + rust * 0.35 + scroll * 0.2 - rv * 0.1; o[3] = 0.95 - rust * 0.4 - scroll * 0.2;
   },
-  hair(u, v, o) { const s = NOISE.fbm(u * 56, v * 2.2, 3, 0, 51); const sheen = Math.exp(-Math.pow((v - 0.35) * 7, 2)) * 0.15; o[0] = 0.55 + 0.4 * s + sheen; o[1] = s; o[2] = 0.42; o[3] = 0; },
-  trim(u, v, o) {
+  hair(u, v, o) { const s = NOISE.fbm(u * 70, v * 2.2, 3, 0, 51), s2 = NOISE.value(u * 160, v * 3, 0, 52); const sheen = Math.exp(-Math.pow((v - 0.35) * 7, 2)) * 0.18 * (0.6 + 0.8 * s2); o[0] = 0.5 + 0.35 * s + 0.12 * s2 + sheen - 0.1 * (1 - v); o[1] = s * 0.7 + s2 * 0.3; o[2] = 0.38; o[3] = 0; },
+  trim(u, v, o, X, Y) {
     const fu = (u * 6) % 1;
     const d = Math.abs(fu - 0.5) + Math.abs(v - 0.5) * 1.2;
-    const on = Math.max(d < 0.3 ? 1 : 0, v < 0.13 || v > 0.87 ? 1 : 0);
-    o[0] = 0.5 + 0.5 * on; o[1] = 0.25 + 0.6 * on; o[2] = 0.55 - 0.25 * on; o[3] = on * 0.6;
+    const curl = Math.abs(Math.sin(fu * Math.PI * 2 + 3 * (v - 0.5))) < 0.16 && v > 0.22 && v < 0.78 ? 1 : 0;
+    const on = Math.max(d < 0.24 ? 1 : 0, v < 0.11 || v > 0.89 ? 1 : 0, curl);
+    const stitch = 0.5 + 0.5 * Math.sin((X + Y) * 2.2);
+    o[0] = 0.48 + (0.4 + 0.12 * stitch) * on; o[1] = 0.2 + 0.55 * on + 0.15 * stitch * on; o[2] = 0.55 - 0.25 * on; o[3] = on * 0.65;
   },
-  fur(u, v, o) { const n = NOISE.fbm(u * 36, v * 14, 4, 0, 61); o[0] = 0.62 + 0.38 * n; o[1] = n; o[2] = 1; o[3] = 0; },
-  bone(u, v, o) { const n = NOISE.fbm(u * 6, v * 6, 4, 6, 71); const crack = NOISE.ridge(u * 5, v * 5, 3, 5, 73) > 0.93 ? -0.25 : 0; o[0] = 0.84 + 0.16 * n + crack; o[1] = n * 0.4 + crack; o[2] = 0.72; o[3] = 0; },
+  fur(u, v, o) { const n = NOISE.fbm(u * 36, v * 14, 3, 0, 61), clump = NOISE.value(u * 8, v * 4, 0, 62), strand = NOISE.value(u * 120, v * 8, 0, 63); o[0] = 0.55 + 0.3 * n + 0.15 * strand + 0.1 * clump; o[1] = n * 0.6 + strand * 0.4; o[2] = 1; o[3] = 0; },
+  bone(u, v, o) { const n = NOISE.fbm(u * 6, v * 6, 4, 6, 71), por = NOISE.value(u * 90, v * 90, 0, 74) > 0.88 ? -0.06 : 0; const crack = NOISE.ridge(u * 5, v * 5, 3, 5, 73) > 0.93 ? -0.25 : 0; o[0] = 0.82 + 0.16 * n + crack + por; o[1] = n * 0.4 + crack + por * 2; o[2] = 0.72; o[3] = 0; },
   scale(u, v, o) {
-    const rows = 14, cols = 10;
+    const rows = 16, cols = 12;
     const ry = v * rows, row = Math.floor(ry), off = row % 2 ? 0.5 : 0;
     const cx = u * cols + off, col = Math.floor(cx);
     const dx = cx - col - 0.5, dy = ry - row - 0.15;
-    const d = Math.min(1, Math.hypot(dx, dy * 1.1) * 1.6);
-    o[0] = 0.62 + 0.38 * (1 - d * d); o[1] = 1 - d; o[2] = 0.45 + 0.2 * d; o[3] = 0.05;
+    const d = Math.min(1, Math.hypot(dx, dy * 1.1) * 1.6), rim = d > 0.82 && d < 0.95 ? 1 : 0, sp = NOISE.value(u * 80, v * 80, 0, 66) > 0.9 ? 0.06 : 0;
+    o[0] = 0.6 + 0.36 * (1 - d * d) + rim * 0.08 + sp; o[1] = 1 - d + rim * 0.2; o[2] = 0.42 + 0.22 * d; o[3] = 0.05;
   },
   feather(u, v, o) {
     const ax = Math.abs(u - 0.5);
-    const barb = (ax * 2.2 + v * 1.4) * 22 % 1;
-    const shaft = ax < 0.02 ? 1 : 0;
-    o[0] = 0.72 + 0.22 * barb + shaft * 0.15 - v * 0.12; o[1] = barb * 0.7 + shaft; o[2] = 0.8; o[3] = 0;
+    const split = NOISE.value(u * 6, v * 30, 0, 67) > 0.86 ? 0.15 : 0;
+    const barb = (ax * 2.2 + v * 1.4 + split) * 30 % 1;
+    const shaft = ax < 0.015 ? 1 : 0;
+    o[0] = 0.7 + 0.22 * barb + shaft * 0.18 - v * 0.12 - split * 0.4; o[1] = barb * 0.7 + shaft; o[2] = 0.8; o[3] = 0;
   },
-  wood(u, v, o) { const n = NOISE.fbm(u * 2, v * 8, 3, 0, 81); const g = Math.sin((u * 5 + n * 3) * Math.PI * 2) * 0.5 + 0.5; o[0] = 0.66 + 0.24 * g + 0.1 * n; o[1] = g * 0.5; o[2] = 0.78; o[3] = 0; },
+  wood(u, v, o) { const n = NOISE.fbm(u * 2, v * 8, 3, 0, 81); const kx = (u * 3) % 1 - 0.5, ky = (v * 1.5) % 1 - 0.5, knot = Math.exp(-(kx * kx * 40 + ky * ky * 160)); const g = Math.sin((u * 5 + n * 3 + knot * 2) * Math.PI * 2) * 0.5 + 0.5; o[0] = 0.64 + 0.24 * g + 0.1 * n - knot * 0.2; o[1] = g * 0.5 - knot * 0.3; o[2] = 0.78; o[3] = 0; },
   glow(u, v, o) { o[0] = 1; o[1] = 0; o[2] = 1; o[3] = 0; },
   plain(u, v, o) { const n = NOISE.fbm(u * 6, v * 6, 2, 6, 91); o[0] = 0.95 + 0.05 * n; o[1] = 0; o[2] = 0.5; o[3] = 0; },
   chain(u, v, o, x, y) {
-    const cs = 10;
-    const gx = (x % cs) - cs / 2, gy = (y % cs) - cs / 2;
-    const r = Math.hypot(gx, gy * 1.2);
-    const ring = Math.abs(r - 3.3) < 1.3 ? 1 : 0;
-    o[0] = 0.45 + 0.5 * ring; o[1] = ring; o[2] = 0.35 + 0.3 * (1 - ring); o[3] = 0.6 + 0.35 * ring;
+    const cs = 10, row = Math.floor(y / cs), ox = row % 2 ? cs / 2 : 0;
+    const gx = ((x + ox) % cs) - cs / 2, gy = (y % cs) - cs / 2;
+    const r = Math.hypot(gx, gy * 1.2), dr = Math.abs(r - 3.3);
+    const ring = dr < 1.3 ? 1 : 0, hl = ring && gy < 0 ? 0.12 : 0;
+    o[0] = 0.4 + 0.5 * ring * (1 - dr / 1.6) + hl; o[1] = ring * (1 - dr / 1.3); o[2] = 0.35 + 0.3 * (1 - ring); o[3] = 0.6 + 0.35 * ring;
   },
-  quilt(u, v, o) {
+  quilt(u, v, o, X) {
     const a = (u * 6 + v * 6) % 1, b = (u * 6 - v * 6 + 10) % 1;
-    const seam = Math.min(Math.abs(a - 0.5), Math.abs(b - 0.5)) < 0.04 ? 1 : 0;
+    const seam = Math.min(Math.abs(a - 0.5), Math.abs(b - 0.5)) < 0.035 ? ((X % 5) < 3 ? 1 : 0.4) : 0;
     const puff = (1 - Math.abs(a - 0.5) * 2) * (1 - Math.abs(b - 0.5) * 2);
-    o[0] = 0.82 + 0.15 * puff - seam * 0.2; o[1] = puff - seam; o[2] = 0.92; o[3] = 0;
+    o[0] = 0.8 + 0.16 * puff - seam * 0.2; o[1] = puff - seam; o[2] = 0.92; o[3] = 0;
   }
 };
 
@@ -19832,11 +19850,18 @@ function buildAtlas() {
   const N = ATLAS_W, NH = ATLAS_H, PK = ATLAS_CELL / 256;
   const alb = new Float32Array(N * NH), hgt = new Float32Array(N * NH), rgh = new Float32Array(N * NH), mtl = new Float32Array(N * NH);
   const o = [0, 0, 0, 0];
+  const done = {};
   REGIONS.forEach((name, i) => {
     const ox = (i % ATLAS_COLS) * ATLAS_CELL, oy = Math.floor(i / ATLAS_COLS) * ATLAS_CELL;
-    const fn = REGION_PAINT[name] || REGION_PAINT[name.replace(/\d+$/, "")];
+    const base = REGION_PAINT[name] ? name : name.replace(/\d+$/, ""), fn = REGION_PAINT[base];
+    if (done[base] && base !== name) {
+      const [sx, sy] = done[base];
+      for (let y = 0; y < ATLAS_CELL; y++) { const a = (sy + y) * N + sx, b = (oy + y) * N + ox; alb.copyWithin(b, a, a + ATLAS_CELL); hgt.copyWithin(b, a, a + ATLAS_CELL); rgh.copyWithin(b, a, a + ATLAS_CELL); mtl.copyWithin(b, a, a + ATLAS_CELL); }
+      return;
+    }
+    done[base] = [ox, oy];
     for (let y = 0; y < ATLAS_CELL; y++) for (let x = 0; x < ATLAS_CELL; x++) {
-      fn(x / ATLAS_CELL, y / ATLAS_CELL, o, (x / PK) | 0, (y / PK) | 0);
+      fn(x / ATLAS_CELL, y / ATLAS_CELL, o, name === "chain" ? (x / PK) | 0 : x / PK, name === "chain" ? (y / PK) | 0 : y / PK);
       const k = (oy + y) * N + ox + x;
       alb[k] = o[0]; hgt[k] = o[1]; rgh[k] = o[2]; mtl[k] = o[3];
     }
