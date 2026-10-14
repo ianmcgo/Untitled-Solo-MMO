@@ -772,6 +772,7 @@
   #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
   #clockBox, #trBtns { display: none !important; }
   @media (max-width: 1020px) { #ui.modalOn #mCmd { display: none !important; } }
+  @media (pointer: coarse) { #chat #log, #chat.min #log, #chat.lite #log { pointer-events: auto !important; } }
   #log, #chat.min #log, #chat.lite #log { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 4px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; }
   @media (max-width: 600px) {
     #mCmd { width: 138px; padding: 3px 4px 4px 16px; gap: 2px; }
@@ -925,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.5 · built 2026-10-14 00:53 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.8.6 · built 2026-10-14 00:55 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -12950,8 +12951,11 @@ function initHud() {
   }, true);
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
   $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
-  $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
-  $("logTap").addEventListener("click", e => { e.stopPropagation(); if (!S.modal) openChatInput(""); });
+  const tapType = e => { if (!matchMedia("(pointer: coarse)").matches || S.modal || e.target.closest("#chatTabs, #chatIn")) return; e.preventDefault(); e.stopPropagation(); openChatInput(""); };
+  $("log").addEventListener("touchend", tapType);
+  $("log").addEventListener("click", tapType);
+  $("logTap").addEventListener("touchend", tapType);
+  $("logTap").addEventListener("click", tapType);
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
   $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if (v === "back") { mainCmdKey("escape"); return; } if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
   $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });
@@ -13067,9 +13071,11 @@ function updateFF() {
 function openChatInput(pre) {
   UI.chatPin = true; UI.chatTyping = true;
   UI.logRows = logFull(); UI.logAt = S.time;
-  const ch = $("chat"); ch.classList.remove("lite", "gone");
+  const ch = $("chat"); ch.classList.remove("lite", "gone", "min");
   const ci = $("chatIn"); ci.value = pre || "";
-  setTimeout(() => { ci.focus(); ci.setSelectionRange(ci.value.length, ci.value.length); }, 0);
+  ci.style.display = "block";
+  try { ci.focus({ preventScroll: true }); ci.setSelectionRange(ci.value.length, ci.value.length); } catch (e) {}
+  setTimeout(() => { ci.style.display = ""; if (document.activeElement !== ci) ci.focus(); }, 60);
 }
 function logFull() { return innerWidth < 900 ? 6 : 8; }
 function logEsc() {
@@ -14602,7 +14608,7 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.8.5 · built 2026-10-14 00:53 PDT";
+const BUILD_INFO = "v9.8.6 · built 2026-10-14 00:55 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
@@ -14612,7 +14618,7 @@ const UPDATES = [
   ] },
   { v: "9.8.5", date: "2026-10-14", title: "Phone buttons", items: [
     "Phones: the Target and Menu buttons are now exactly as wide as the boxes below them, so they no longer overlap the event log.",
-    "Phones: tapping the bottom-left of the screen where the event log sits opens the typing box, even when the log is hidden.",
+    "Phones: tapping the event log (or the bottom-left of the screen when the log is hidden) opens the typing box and the keyboard. Before, the small phone log ignored taps.",
     "Check now only writes its result in the event log instead of also showing it under the command box.",
     "Phones: the Status screen now shows everything: the chosen page on top, then your status sheet (name, jobs, HP/MP/TP, attributes) and the level/EXP box underneath."
   ] },
@@ -15403,7 +15409,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.8.5";
+const GAME_VERSION = "9.8.6";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

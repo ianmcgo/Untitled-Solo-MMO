@@ -944,7 +944,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - MAX_CHARS 5 (client); setup.sql chars_insert policy count < 5, schema 6 (NET_SCHEMA 6). Local-upload offer removed from the character list.
 
 ## v9.8.5
-- #mobBar width matches #ffSide per breakpoint (210/168px), buttons flex. #logTap: invisible bottom-left zone on touch shown only while #chat.gone; tap → openChatInput.
+- #mobBar width matches #ffSide per breakpoint (210/168px), buttons flex. #logTap: invisible bottom-left zone on touch shown only while #chat.gone; tap → openChatInput. Phone #chat.min made #log pointer-events none, so taps never arrived; now forced auto on coarse pointers, touchend + click handlers, and openChatInput focuses synchronously (inside the gesture) so the phone keyboard opens.
 
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.

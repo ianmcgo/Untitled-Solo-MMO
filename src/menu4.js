@@ -1455,7 +1455,7 @@ const UPDATES = [
   ] },
   { v: "9.8.5", date: "2026-10-14", title: "Phone buttons", items: [
     "Phones: the Target and Menu buttons are now exactly as wide as the boxes below them, so they no longer overlap the event log.",
-    "Phones: tapping the bottom-left of the screen where the event log sits opens the typing box, even when the log is hidden.",
+    "Phones: tapping the event log (or the bottom-left of the screen when the log is hidden) opens the typing box and the keyboard. Before, the small phone log ignored taps.",
     "Check now only writes its result in the event log instead of also showing it under the command box.",
     "Phones: the Status screen now shows everything: the chosen page on top, then your status sheet (name, jobs, HP/MP/TP, attributes) and the level/EXP box underneath."
   ] },
