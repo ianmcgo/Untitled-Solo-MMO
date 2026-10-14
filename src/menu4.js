@@ -1453,6 +1453,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.14.0", date: "2026-10-14", title: "Monster proportions", items: [
+    "Crawlers are chunkier, stand taller and carry their front segments raised, with longer legs, instead of lying flat.",
+    "Bees and hornets have a longer striped abdomen and stinger and smaller, tidier wings.",
+    "Snappers and other fish-like monsters have deeper bodies and larger side fins.",
+    "Sheep stand a little taller on longer legs with a more compact body."
+  ] },
   { v: "9.13.0", date: "2026-10-14", title: "Faces and hair", items: [
     "Eight faces to choose from when you create a character (Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy, Proud), each with its own eye colour and shape, brows, lashes and mouth. Existing characters keep the original face; townsfolk, travellers and hired companions now have varied faces.",
     "Four new hairstyles: a long braid tied with a ribbon, a crest (mohawk), twin tails and a topknot. Companions from the Mercenary Hall can have them too.",
