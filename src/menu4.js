@@ -1456,7 +1456,8 @@ const UPDATES = [
   { v: "9.8.5", date: "2026-10-14", title: "Phone buttons", items: [
     "Phones: the Target and Menu buttons are now exactly as wide as the boxes below them, so they no longer overlap the event log.",
     "Phones: tapping the bottom-left of the screen where the event log sits opens the typing box, even when the log is hidden.",
-    "Check now only writes its result in the event log instead of also showing it under the command box."
+    "Check now only writes its result in the event log instead of also showing it under the command box.",
+    "Phones: the Status screen now shows everything: the chosen page on top, then your status sheet (name, jobs, HP/MP/TP, attributes) and the level/EXP box underneath."
   ] },
   { v: "9.8.4", date: "2026-10-14", title: "Five characters", items: [
     "Each account can now have up to 5 characters (was 8). The server enforces it too once the latest setup SQL is run (server version 6). Accounts that already have more keep them but can't make new ones until they're under 5.",
