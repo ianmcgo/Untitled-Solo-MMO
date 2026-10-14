@@ -400,6 +400,111 @@ function buildProps(field, root) {
   if (carts.length) root.add(instanced(cartGeo(), woodMat, carts, true));
 }
 
+function wallEdges(z) {
+  const out = [], walls = z.walls || [];
+  const inWall = (x, y) => x < 0 || y < 0 || x > z.w || y > z.h || walls.some(r => x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h);
+  for (const r of walls) {
+    const edges = [[r.x, r.y + r.h, r.x + r.w, r.y + r.h, 0, 1], [r.x, r.y, r.x + r.w, r.y, 0, -1], [r.x, r.y, r.x, r.y + r.h, -1, 0], [r.x + r.w, r.y, r.x + r.w, r.y + r.h, 1, 0]];
+    for (const [ax, ay, bx, by, nx, ny] of edges) {
+      const L = Math.hypot(bx - ax, by - ay), n = Math.max(1, Math.round(L / 40));
+      let run = null;
+      for (let i = 0; i <= n; i++) {
+        const t = i / n, x = ax + (bx - ax) * t, y = ay + (by - ay) * t;
+        const open = i < n && !inWall(x + (bx - ax) / n * 0.5 + nx * 8, y + (by - ay) / n * 0.5 + ny * 8);
+        if (open && !run) run = [x, y];
+        if ((!open || i === n) && run) { if (Math.hypot(x - run[0], y - run[1]) > 20) out.push({ ax: run[0], ay: run[1], bx: x, by: y, nx, ny }); run = null; }
+      }
+    }
+  }
+  return out;
+}
+
+function buildDungeon(field, root) {
+  const z = field.zone, th = themeOf(z);
+  if (th !== "crypt" && th !== "cave") return;
+  const rnd = rngFor(z, "dungeon"), crypt = th === "crypt";
+  const edges = wallEdges(z);
+  const walls = [], pils = [], sconces = [], webs = [];
+  const H = crypt ? 6.2 : 0;
+  for (const e of edges) {
+    const L = Math.hypot(e.bx - e.ax, e.by - e.ay), ang = Math.atan2(e.by - e.ay, e.bx - e.ax);
+    const mx = (e.ax + e.bx) / 2 - e.nx * 6, my = (e.ay + e.by) / 2 - e.ny * 6, gy = field.heightAt(mx + e.nx * 14, my + e.ny * 14);
+    if (crypt) {
+      walls.push(mtx(mx * U, gy - 0.4 + H / 2, my * U, L * U + 0.6, H, 0.7, -ang));
+      for (let d = 0; d <= L; d += 110) {
+        const px = e.ax + Math.cos(ang) * d + e.nx * 2, py = e.ay + Math.sin(ang) * d + e.ny * 2;
+        pils.push(mtx(px * U, gy - 0.4 + (H + 0.4) / 2, py * U, 1, H + 0.4, 1, -ang));
+        if (d > 0 && d < L - 40 && Math.round(d / 110) % 2 === 1) sconces.push({ x: px + e.nx * 10, y: py + e.ny * 10, gy, ang: Math.atan2(e.nx, e.ny) });
+      }
+      if (rnd() < 0.5) webs.push(mtx((e.ax + e.nx * 8) * U, gy + H - 1.0, (e.ay + e.ny * 8) * U, 1.4, 1.4, 1, -ang + Math.PI / 4));
+    } else if (rnd() < 0.55) {
+      for (let d = 30; d < L - 30; d += 160 + rnd() * 120) {
+        const px = e.ax + Math.cos(ang) * d + e.nx * 14, py = e.ay + Math.sin(ang) * d + e.ny * 14;
+        if (!placeable(field, px, py, { path: 2, water: 30, npc: 50, exit: 120 })) continue;
+        pils.push(mtx(px * U, field.heightAt(px, py), py * U, 1, 1, 1, -ang));
+      }
+    }
+  }
+  const stone = texBricks(), bark = texBark();
+  if (crypt) {
+    const boxUV = (w, h, d, k) => { const g = new THREE.BoxGeometry(w, h, d).toNonIndexed(), uv = g.attributes.uv, nr = g.attributes.normal; for (let i = 0; i < uv.count; i++) { const ax = Math.abs(nr.getX(i)), ay = Math.abs(nr.getY(i)); const su = ax > 0.5 ? d : w, sv = ay > 0.5 ? d : h; uv.setXY(i, uv.getX(i) * su / k, uv.getY(i) * sv / k); } return g; };
+    if (walls.length) {
+      const parts = walls.map(m => { const p = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3(); m.decompose(p, q, sc); const g = boxUV(sc.x, sc.y, sc.z, 2.2); g.applyQuaternion(q); g.translate(p.x, p.y, p.z); const c = new Float32Array(g.attributes.position.count * 3), v = 0.85 + rnd() * 0.25; c.fill(v); g.setAttribute("color", new THREE.BufferAttribute(c, 3)); return g; });
+      const wmesh = new THREE.Mesh(THREE.mergeGeometries(parts), std({ map: stone.map, normalMap: stone.normalMap, color: 0x9a9cb0, roughness: 0.95, vertexColors: true }));
+      wmesh.castShadow = wmesh.receiveShadow = true; root.add(wmesh);
+    }
+    const pg = THREE.mergeGeometries([boxUV(1, 1, 1, 0.45), boxUV(1.25, 0.08, 1.25, 1).translate(0, 0.46, 0), boxUV(1.25, 0.08, 1.25, 1).translate(0, -0.46, 0)]);
+    const puv = pg.attributes.uv; for (let i = 0; i < puv.count; i++) puv.setY(i, puv.getY(i) * 3);
+    if (pils.length) root.add(tintInst(instanced(pg, std({ map: stone.map, normalMap: stone.normalMap, color: 0x82808e }), pils, true), rnd, 0.1));
+    const flameMat = new THREE.MeshBasicMaterial({ color: 0xffb050 }), ironMat = std({ color: 0x3a3a40, metalness: 0.6, roughness: 0.5 });
+    let lights = 0;
+    for (const s of sconces) {
+      const g = new THREE.Group();
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.5), ironMat); arm.position.set(0, 2.6, -0.1);
+      const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.08, 0.2, 8), ironMat); cup.position.set(0, 2.7, 0.15);
+      const fl = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.38, 8), flameMat); fl.position.set(0, 2.98, 0.15);
+      g.add(arm, cup, fl);
+      if (lights < (W3.quality === "low" ? 4 : W3.quality === "high" ? 12 : 8) && rnd() < 0.7) { const L = new THREE.PointLight(0xff9a40, 12, 22, 1.5); L.position.set(0, 3.0, 0.3); L.userData.phase = rnd() * 6; g.add(L); W3.torchLights.push(L); lights++; }
+      g.position.set(s.x * U, s.gy, s.y * U); g.rotation.y = s.ang;
+      root.add(g);
+    }
+    if (webs.length) { const wbm = new THREE.MeshBasicMaterial({ map: webTex(), transparent: true, depthWrite: false, side: THREE.DoubleSide, opacity: 0.55 }); root.add(instanced(new THREE.PlaneGeometry(1, 1), wbm, webs, false)); }
+    const sarc = [], bones = [], urns = [];
+    for (const lm of z.landmarks || []) {
+      const n = lm.id === "vault" || lm.id === "throne" || lm.id === "sentinel" ? 3 : 1;
+      for (let k = 0, tr = 0; k < n && tr < 40; tr++) { const a = rnd() * 6.28, r = lm.r * (0.45 + rnd() * 0.4), px = lm.x + Math.cos(a) * r, py = lm.y + Math.sin(a) * r; if (!placeable(field, px, py, { npc: 90, exit: 150, path: 2 }) || field.outsideE(px, py) > -30) continue; sarc.push(mtx(px * U, field.heightAt(px, py), py * U, 1, 1, 1, Math.round(rnd() * 4) * Math.PI / 2)); z.colliders && z.colliders.push({ x: px, y: py, r: 26 }); k++; }
+    }
+    for (let k = 0, tr = 0; k < 40 && tr < 400; tr++) { const px = rnd() * z.w, py = rnd() * z.h, e = field.outsideE(px, py); if (e < -60 || e > -12 || !placeable(field, px, py, { npc: 50, exit: 100, path: 2 })) continue; (rnd() < 0.55 ? bones : urns).push(mtx(px * U, field.heightAt(px, py), py * U, 0.8 + rnd() * 0.5, 0.8 + rnd() * 0.5, 0.8 + rnd() * 0.5, rnd() * 6.28)); k++; }
+    const sg = THREE.mergeGeometries([new THREE.BoxGeometry(1.2, 0.8, 2.6).translate(0, 0.4, 0).toNonIndexed(), new THREE.BoxGeometry(1.35, 0.18, 2.75).translate(0, 0.89, 0).toNonIndexed(), new THREE.BoxGeometry(0.5, 0.12, 0.5).translate(0, 1.04, -0.9).toNonIndexed(), new THREE.BoxGeometry(0.2, 0.08, 1.4).translate(0, 1.02, 0.15).toNonIndexed()]);
+    if (sarc.length) root.add(instanced(sg, std({ map: stone.map, normalMap: stone.normalMap, color: 0xa09cb0 }), sarc, true));
+    if (bones.length) root.add(tintInst(instanced(skullGeo().scale(0.5, 0.5, 0.5), std({ color: 0xe8e0c8, roughness: 0.8 }), bones, false), rnd, 0.15));
+    const ug = THREE.mergeGeometries([new THREE.SphereGeometry(0.25, 10, 8).scale(1, 1.2, 1).translate(0, 0.3, 0).toNonIndexed(), new THREE.CylinderGeometry(0.12, 0.16, 0.14, 10).translate(0, 0.6, 0).toNonIndexed()]);
+    if (urns.length) root.add(tintInst(instanced(ug, std({ color: 0x8a6a4a, roughness: 0.7 }), urns, true), rnd, 0.25));
+  } else {
+    const wood = std({ map: bark.map, normalMap: bark.normalMap, color: 0xb08a68 });
+    const frame = THREE.mergeGeometries([new THREE.BoxGeometry(0.25, 3.4, 0.25).translate(-1.3, 1.7, 0).toNonIndexed(), new THREE.BoxGeometry(0.25, 3.4, 0.25).translate(1.3, 1.7, 0).toNonIndexed(), new THREE.BoxGeometry(3.0, 0.28, 0.32).translate(0, 3.45, 0).toNonIndexed(), new THREE.BoxGeometry(0.12, 1.2, 0.12).rotateZ(0.8).translate(-0.9, 2.9, 0).toNonIndexed(), new THREE.BoxGeometry(0.12, 1.2, 0.12).rotateZ(-0.8).translate(0.9, 2.9, 0).toNonIndexed()]);
+    if (pils.length) root.add(tintInst(instanced(frame, wood, pils, true), rnd, 0.18));
+    const crates = [], barrels = [];
+    for (const [tx, ty] of z.torches || []) {
+      if (rnd() < 0.45) continue;
+      for (let k = 0; k < 1 + Math.floor(rnd() * 3); k++) { const a = rnd() * 6.28, r = 26 + rnd() * 30, px = tx + Math.cos(a) * r, py = ty + Math.sin(a) * r; if (!placeable(field, px, py, { npc: 40, exit: 100, path: 0.6 })) continue; (rnd() < 0.5 ? crates : barrels).push(mtx(px * U, field.heightAt(px, py), py * U, 0.8 + rnd() * 0.4, 0.8 + rnd() * 0.4, 0.8 + rnd() * 0.4, rnd() * 6.28)); }
+    }
+    if (crates.length) root.add(tintInst(instanced(new THREE.BoxGeometry(0.9, 0.9, 0.9).translate(0, 0.45, 0), wood, crates, true), rnd, 0.2));
+    if (barrels.length) root.add(tintInst(instanced(THREE.mergeGeometries([new THREE.CylinderGeometry(0.42, 0.42, 1.0, 12).translate(0, 0.5, 0).toNonIndexed(), new THREE.TorusGeometry(0.43, 0.03, 4, 14).rotateX(Math.PI / 2).translate(0, 0.2, 0).toNonIndexed(), new THREE.TorusGeometry(0.43, 0.03, 4, 14).rotateX(Math.PI / 2).translate(0, 0.8, 0).toNonIndexed()]), wood, barrels, true), rnd, 0.2));
+  }
+}
+
+let WEB_TEX = null;
+function webTex() {
+  if (WEB_TEX) return WEB_TEX;
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const g = c.getContext("2d"); g.strokeStyle = "rgba(235,235,245,.9)"; g.lineWidth = 1;
+  for (let k = 0; k < 7; k++) { const a = k / 6 * Math.PI / 2; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a) * 128, Math.sin(a) * 128); g.stroke(); }
+  for (let r = 14; r < 128; r += 14) { g.beginPath(); for (let k = 0; k <= 6; k++) { const a = k / 6 * Math.PI / 2, rr = r * (0.92 + (k % 2) * 0.1); k ? g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : g.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); } g.stroke(); }
+  WEB_TEX = new THREE.CanvasTexture(c);
+  return WEB_TEX;
+}
+
 function tintInst(im, rnd, amt) {
   const c = new THREE.Color();
   for (let i = 0; i < im.count; i++) { const v = 1 - amt / 2 + rnd() * amt; c.setRGB(v * (0.95 + rnd() * 0.1), v, v * (0.9 + rnd() * 0.1)); im.setColorAt(i, c); }
@@ -1542,6 +1647,7 @@ function* buildZone3DSteps() {
   if (themeOf(z) === "town") buildTown(field, root);
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
+  buildDungeon(field, root);
   if (z.glow) buildGlow(field, root);
   if (themeOf(z) === "house") buildHouse(field, root);
   buildRuins(field, root);

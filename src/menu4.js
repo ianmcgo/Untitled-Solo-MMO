@@ -1477,6 +1477,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.12.0", date: "2026-10-14", title: "Dungeons", items: [
+    "Crypts are now built halls: every wall is a real brick wall with stone pilasters, iron wall sconces with burning torches that light the corridors, and flagstone floors with mortar lines.",
+    "Crypt halls are dressed with stone sarcophagi in the vault, throne room and sentinel's rest, scattered skulls and bones, clay urns along the walls and cobwebs in the upper corners.",
+    "Caves get timber mine supports along the rock walls, and crates and barrels piled near the goblins' torches."
+  ] },
   { v: "14.11.0", date: "2026-10-14", title: "Light and atmosphere", items: [
     "Sunbeams: soft shafts of light slant down through the open country in daytime, angled along the sun and glowing warmer and stronger at dawn and dusk. They fade in rain, fog and overcast weather.",
     "Caves get pale blue light shafts falling from cracks above, and their glowing crystal clusters now light the ground around them in teal and violet pools, gently pulsing.",
