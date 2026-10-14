@@ -1453,6 +1453,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "9.12.0", date: "2026-10-14", title: "Town buildings", items: [
+    "Houses come in three styles: plain plank, and two timber-framed styles with a plastered upper storey, dark corner posts, a mid beam and cross braces.",
+    "Every house has framed windows with sills and coloured shutters, a framed door, a stone chimney and a wooden lantern by the door that glows warmly at night. Some have flower boxes under the windows.",
+    "Roofs are tiled with overlapping shingles instead of a flat texture.",
+    "Barrels and crates are stacked around the houses."
+  ] },
   { v: "9.11.0", date: "2026-10-14", title: "Water", items: [
     "Lakes and ponds have a bluer, deeper tint instead of looking grey, and calmer reflections.",
     "A soft band of foam laps around every shoreline and slowly drifts.",

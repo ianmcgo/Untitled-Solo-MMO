@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.11.0 · built 2026-10-14 01:31 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.12.0 · built 2026-10-14 01:38 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -14609,13 +14609,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.11.0 · built 2026-10-14 01:31 PDT";
+const BUILD_INFO = "v9.12.0 · built 2026-10-14 01:38 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.12.0", date: "2026-10-14", title: "Town buildings", items: [
+    "Houses come in three styles: plain plank, and two timber-framed styles with a plastered upper storey, dark corner posts, a mid beam and cross braces.",
+    "Every house has framed windows with sills and coloured shutters, a framed door, a stone chimney and a wooden lantern by the door that glows warmly at night. Some have flower boxes under the windows.",
+    "Roofs are tiled with overlapping shingles instead of a flat texture.",
+    "Barrels and crates are stacked around the houses."
   ] },
   { v: "9.11.0", date: "2026-10-14", title: "Water", items: [
     "Lakes and ponds have a bluer, deeper tint instead of looking grey, and calmer reflections.",
@@ -15432,7 +15438,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.11.0";
+const GAME_VERSION = "9.12.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -15843,6 +15849,17 @@ function texRoof() {
   return texPair("roof", 256, 256,
     (x, y) => { const row = Math.floor(y / 24), off = row % 2 ? 16 : 0; const sx = (x + off) % 32, sy = y % 24; return (sy / 24) * 0.6 + (sx < 2 ? -0.4 : 0) + NOISE.fbm(x / 256 * 20, y / 256 * 20, 2, 20, 71) * 0.2; },
     (x, y, hv, o) => { const row = Math.floor(y / 24), off = row % 2 ? 16 : 0; const id = Math.floor((x + off) / 32) + row * 9; const t = 0.8 + NOISE.hash2(id, 5) * 0.35; const v = (70 + hv * 60) * t; setRGB(o, v * 1.25, v * 0.62, v * 0.48); }, 5);
+}
+
+function texPlaster() {
+  return texPair("plaster", 256, 256,
+    (x, y) => NOISE.fbm(x / 256 * 10, y / 256 * 10, 4, 10, 91) * 0.6 + NOISE.value(x / 256 * 80, y / 256 * 80, 80, 92) * 0.15,
+    (x, y, hv, o) => { const stain = sstep(0.55, 0.8, NOISE.fbm(x / 256 * 3, y / 256 * 3, 3, 3, 93)) * 0.18; const v = 205 + hv * 30; setRGB(o, v * (1 - stain * 0.6), v * (0.95 - stain * 0.7), v * (0.84 - stain * 0.8)); }, 3);
+}
+function texShingle() {
+  return texPair("shingle", 256, 256,
+    (x, y) => { const row = Math.floor(y / 16), off = row % 2 ? 16 : 0, col = Math.floor((x + off) / 32); const u = ((x + off) % 32) / 32, v = (y % 16) / 16; return 0.3 + v * 0.5 - (u < 0.06 ? 0.4 : 0) + NOISE.hash2(col, row) * 0.15; },
+    (x, y, hv, o) => { const row = Math.floor(y / 16), col = Math.floor((x + (row % 2 ? 16 : 0)) / 32); const t = 0.85 + NOISE.hash2(col * 7, row * 3) * 0.3; setRGB(o, (120 + hv * 60) * t, (58 + hv * 30) * t, (42 + hv * 20) * t); }, 6);
 }
 
 function texCloth(key, c1, c2) {
@@ -16477,6 +16494,56 @@ function buildTown(field, root) {
   const doorMat = std({ color: 0x3b2716 });
   const winMat = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
   W3.windowMats.push(winMat);
+  const plaster = texPlaster(), shingle = texShingle();
+  const plasterMat = std({ map: plaster.map, normalMap: plaster.normalMap, roughness: 0.95 });
+  const shingleMat = std({ map: shingle.map, normalMap: shingle.normalMap, roughness: 0.85 });
+  const beamMat = std({ color: 0x3e2a1a, roughness: 0.9 });
+  const frameMat = std({ color: 0x5a3e26, roughness: 0.85 });
+  const lampMat = std({ color: 0x3a2a14, emissive: 0xffc070, emissiveIntensity: 0 });
+  W3.windowMats.push(lampMat);
+  const barrelGeo = new THREE.CylinderGeometry(0.34, 0.3, 0.9, 10).translate(0, 0.45, 0), crateGeo = new THREE.BoxGeometry(0.7, 0.7, 0.7).translate(0, 0.35, 0);
+  const barrels = [], hcrates = [];
+  W3.lampGlows = W3.lampGlows || [];
+  let hi = 0;
+  for (const hs of z.houses || []) {
+    hi++;
+    const style = (hashStr(z.name + hi) % 3);
+    const tg = new THREE.Group();
+    const tw = hs.w * U, td = hs.h * U, tH = 3.2, bwq = hs.rot ? td : tw, bdq = hs.rot ? tw : td;
+    if (style !== 0) {
+      const up = new THREE.Mesh(new THREE.BoxGeometry(bwq + 0.05, tH * 0.48, bdq + 0.05), plasterMat);
+      up.position.y = 0.8 + tH * 0.76;
+      tg.add(up);
+      for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.2, tH, 0.2), beamMat); b.position.set(sx * (bwq / 2 + 0.02), 0.8 + tH / 2, sz * (bdq / 2 + 0.02)); tg.add(b); }
+      const mid = new THREE.Mesh(new THREE.BoxGeometry(bwq + 0.12, 0.18, bdq + 0.12), beamMat); mid.position.y = 0.8 + tH * 0.52; tg.add(mid);
+      for (let i = -1; i <= 1; i += 2) { const br = new THREE.Mesh(new THREE.BoxGeometry(0.12, tH * 0.55, 0.08), beamMat); br.position.set(i * bwq * 0.4, 0.8 + tH * 0.76, bdq / 2 + 0.04); br.rotation.z = i * 0.6; tg.add(br); }
+    }
+    for (const sx of [-1, 1]) {
+      const fr = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.0, 0.08), frameMat); fr.position.set(sx * bwq * 0.3, 0.8 + 2.0, bdq / 2 + 0.03); tg.add(fr);
+      const sill = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.08, 0.22), frameMat); sill.position.set(sx * bwq * 0.3, 0.8 + 1.52, bdq / 2 + 0.1); tg.add(sill);
+      for (const s2 of [-1, 1]) { const sh = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.9, 0.05), std({ color: [0x3a5a3a, 0x5a2a2a, 0x2a3a5a][style] })); sh.position.set(sx * bwq * 0.3 + s2 * 0.72, 0.8 + 2.0, bdq / 2 + 0.06); sh.rotation.y = s2 * 0.25; tg.add(sh); }
+      if (style === 1) { const fb = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.22, 0.24), frameMat); fb.position.set(sx * bwq * 0.3, 0.8 + 1.42, bdq / 2 + 0.16); tg.add(fb); for (let f = 0; f < 4; f++) { const fl = new THREE.Mesh(new THREE.IcosahedronGeometry(0.09, 0), std({ color: [0xf0d040, 0xe85a6a, 0xc890f0, 0xffffff][f] })); fl.position.set(sx * bwq * 0.3 - 0.36 + f * 0.24, 0.8 + 1.6, bdq / 2 + 0.17); tg.add(fl); } }
+    }
+    const dfr = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.4, 0.1), frameMat); dfr.position.set(0, 0.8 + 1.2, bdq / 2 + 0.02); tg.add(dfr);
+    const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.32, 0.22), lampMat); lamp.position.set(0.95, 0.8 + 2.3, bdq / 2 + 0.25); tg.add(lamp);
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffb860, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    glow.scale.setScalar(2.2); glow.position.copy(lamp.position); tg.add(glow); W3.lampGlows.push(glow);
+    const ch = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), stoneMat); ch.position.set(bwq * 0.28, 0.8 + tH + 1.4, -bdq * 0.15); tg.add(ch);
+    tg.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    tg.position.set(hs.x * U, field.heightAt(hs.x, hs.y) - 0.2, hs.y * U);
+    tg.rotation.y = hs.rot ? Math.PI / 2 : 0;
+    root.add(tg);
+    const rnd2 = seeded(hashStr(z.name + "props" + hi));
+    for (let k = 0; k < 2 + Math.floor(rnd2() * 3); k++) {
+      const side = rnd2() < 0.5 ? -1 : 1, along = (rnd2() - 0.5) * hs.h * 0.8;
+      const px = hs.x + side * (hs.w / 2 + 18 + rnd2() * 10), py = hs.y + along;
+      if (!placeable(field, px, py, { npc: 40, path: 0.6, water: 20 })) continue;
+      (rnd2() < 0.5 ? barrels : hcrates).push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, 1, 1, 1, rnd2() * 6.28));
+    }
+  }
+  if (barrels.length) root.add(instanced(barrelGeo, std({ map: planks.map, normalMap: planks.normalMap, color: 0xb08a60 }), barrels, true));
+  if (hcrates.length) root.add(instanced(crateGeo, wallMat, hcrates, true));
+  roofMat.map = shingle.map; roofMat.normalMap = shingle.normalMap; roofMat.color.set(0xffffff); roofMat.needsUpdate = true;
   for (const hs of z.houses || []) {
     const g = new THREE.Group();
     const w = hs.w * U, d = hs.h * U, wallH = 3.2;
@@ -17211,7 +17278,7 @@ function buildZone3D() { runSteps(buildZone3DSteps()); }
 function* buildZone3DSteps() {
   const z = S.zone;
   if (W3.zoneRoot) { W3.scene.remove(W3.zoneRoot); disposeTree(W3.zoneRoot); }
-  W3.grassMats = []; W3.torchLights = []; W3.windowMats = []; W3.lampLights = [];
+  W3.grassMats = []; W3.torchLights = []; W3.windowMats = []; W3.lampLights = []; W3.lampGlows = [];
   const root = new THREE.Group();
   W3.zoneRoot = root;
   const field = yield* scaleSteps(buildFieldSteps(z), 0, 0.3, "Shaping the land…");
@@ -17439,6 +17506,7 @@ function updateSky(force) {
   W3.playerLight.position.copy(centre).add(new THREE.Vector3(0, 2.6, 0));
   const nightGlow = 1 - dayAmt;
   for (const m of W3.windowMats) m.emissiveIntensity = nightGlow * 1.6;
+  for (const g of W3.lampGlows || []) g.material.opacity = nightGlow * 0.9;
   for (const L of W3.lampLights) L.intensity = nightGlow * 10;
   for (const L of W3.torchLights) L.intensity = 16 + Math.sin(S.time * 9 + L.userData.phase) * 1.5 + Math.sin(S.time * 23 + L.userData.phase) * 0.8;
   W3.renderer.toneMappingExposure = cave ? 1.45 : mix(1.5, 0.85, dayAmt);

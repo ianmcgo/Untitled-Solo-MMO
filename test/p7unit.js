@@ -22,7 +22,7 @@ G.takeMercGear('kael', 'hands');
 ok(G.invCount('leather_gloves') === 1 && !G.save.mercGear.kael.hands, 'taking gear back returns it');
 G.setStance('follow');
 G.enterZone('hollow', 300, 1100); run(0.5);
-const m = G.buildMob('goblin', 1, P().x + 60, P().y, 0); S.mobs.push(m);
+const m = G.buildMob('goblin', 1, P().x + 60, P().y, 0); m.hp = m.maxHp = 9999; S.mobs.push(m);
 m.enmity.set(P(), 10); m.state = 'combat'; P().target = m; G.toggleEngage(); run(2);
 ok(!k().engaged, 'on follow, companions do not attack');
 G.setStance('assist'); run(2);
