@@ -810,7 +810,7 @@ function ahDetail(id) {
     const unit = UI.ahPrice / q, chance = saleChance({ id, qty: q, price: UI.ahPrice });
     const speed = chance > 0.5 ? "sells fast" : chance > 0.2 ? "should sell soon" : chance > 0.06 ? "may take a while" : "unlikely to sell";
     h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">Qty</span><button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><span class="sub" style="margin-left:10px">Price</span><button data-a="ahprice" data-v="-0.1">−10%</button><b>' + UI.ahPrice + ' 💠</b><button data-a="ahprice" data-v="0.1">+10%</button></div>';
-    h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) · at this price it " + speed + '.</div><div style="margin-top:8px"><button data-a="ahlist">Put up for auction</button></div>';
+    h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) · at this price it " + speed + '.</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The market buys over a few hours at its own prices. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
   } else {
     const st = ahStock(id);
     h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">' + st + ' on the market today</span>' + (st ? '<button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><button data-a="ahbuy"' + (save.gil < cur * q ? " disabled" : "") + ">Buy for " + cur * q + " 💠</button>" : "") + "</div>";
@@ -818,11 +818,70 @@ function ahDetail(id) {
   return h + "</div>";
 }
 
+function pmLoad(force) {
+  const P = UI.pm = UI.pm || {};
+  if (typeof netAhList !== "function" || P.loading || (!force && P.at && Date.now() - P.at < 20000)) return P;
+  P.loading = true;
+  Promise.all([netAhList(), netAhMine(), netAhBox()]).then(([list, mine, box]) => { Object.assign(P, { list, mine, box, at: Date.now(), err: "" }); }, e => { P.err = netAhErr(e); P.at = Date.now(); }).finally(() => { P.loading = false; if (S.modal === "auction") renderModal(); });
+  return P;
+}
+
+function pmLeft(t) { const m = Math.max(0, Math.round((Date.parse(t) - Date.now()) / 60000)); return m >= 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m + "m"; }
+
+function pmView() {
+  const P = pmLoad(false), cat = UI.pmCat || "all";
+  let h = '<div class="sub" style="margin-bottom:8px">Lots put up by other adventurers. Prices are set by the sellers. What you buy goes straight to your bag (or your delivery box if it\'s full). <button data-a="pmrefresh" style="padding:0 8px">🔄 Refresh</button></div>';
+  h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">' + [["all", "All"]].concat(Object.entries(AH_CATS)).map(([k, l]) => '<button data-a="pmcat" data-v="' + k + '"' + (cat === k ? ' style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + l + "</button>").join("") + "</div>";
+  if (P.err) return h + '<div class="item" style="display:block;border-color:#ff8a80"><div class="sub">' + esc(P.err) + "</div></div>";
+  if (!P.at) return h + '<div class="sub">Loading the player market…</div>';
+  const groups = new Map();
+  for (const l of P.list || []) { if (cat !== "all" && ahCategory(l.item) !== cat) continue; if (!groups.has(l.item)) groups.set(l.item, []); groups.get(l.item).push(l); }
+  const sel = UI.pmSel && groups.get(UI.pmSel);
+  if (sel) {
+    const it = ITEMS[UI.pmSel];
+    P.hist = P.hist || {};
+    if (!P.hist[UI.pmSel] && !P.histLoading) { P.histLoading = true; const id = UI.pmSel; netAhHistory(id).then(r => { P.hist[id] = r; }, () => { P.hist[id] = []; }).finally(() => { P.histLoading = false; if (S.modal === "auction") renderModal(); }); }
+    const hist = P.hist[UI.pmSel];
+    h += '<div class="item" style="display:block;border-color:#c9a227"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + esc(itemDesc(UI.pmSel)) + '</div></div><button data-a="pmsel" data-v="">✕</button></div>';
+    h += '<div class="sub" style="margin:6px 0">Recent player sales: ' + (!hist ? "…" : hist.length ? hist.slice(0, 5).map(x => x.price + (x.qty > 1 ? " for " + x.qty : "")).join(", ") : "none yet") + " · market price " + marketPrice(UI.pmSel) + " each</div>";
+    for (const l of sel.slice().sort((a, b) => a.price / a.qty - b.price / b.qty)) {
+      const own = l.seller === S.charId, poor = save.gil < l.price;
+      h += '<div class="item"><div><b>' + (l.qty > 1 ? l.qty + " × " : "") + l.price + ' 💠</b> <span class="sub">' + (l.qty > 1 ? "(" + Math.round(l.price / l.qty) + " each) " : "") + "· " + esc(l.seller_name) + " · " + pmLeft(l.expires_at) + " left</span></div>" + (own ? '<span class="sub">Yours</span>' : '<button data-a="pmbuy" data-v="' + l.id + '"' + (poor || UI.pmBusy ? " disabled" : "") + ">Buy</button>") + "</div>";
+    }
+    h += "</div>";
+  }
+  if (!groups.size) h += '<div class="sub">Nobody has anything up in this category right now. Be the first: choose Sell, pick an item and press Offer to players.</div>';
+  for (const [id, ls] of [...groups].sort((a, b) => ITEMS[a[0]].name.localeCompare(ITEMS[b[0]].name))) {
+    const it = ITEMS[id], best = Math.min(...ls.map(l => l.price / l.qty));
+    h += '<div class="item ' + rarityOf(id) + '" data-a="pmsel" data-v="' + id + '" style="cursor:pointer' + (UI.pmSel === id ? ";border-color:#c9a227" : "") + '"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + ls.length + " lot" + (ls.length > 1 ? "s" : "") + " from players</div></div><span>from " + Math.round(best) + " 💠 each</span></div>";
+  }
+  return h;
+}
+
+function pmAct(p, ok) {
+  UI.pmBusy = true; UI.ahMsg = ""; renderModal();
+  p.then(() => { UI.ahMsg = ok || ""; }, e => { UI.ahMsg = netAhErr(e); }).finally(() => { UI.pmBusy = false; pmLoad(true); renderModal(); });
+}
+
 function tabAuction() {
   const view = UI.ahView || "buy", cat = UI.ahCat || "materials", news = marketNews(marketDay());
   let h = '<div class="sub" style="margin-bottom:6px">📰 ' + esc(news.text[0]) + " " + esc(news.text[1]) + "</div>";
-  h += '<div style="display:flex;gap:6px;margin-bottom:8px">' + [["buy", "Buy"], ["sell", "Sell"], ["lots", "My lots (" + save.market.listings.length + ")" + (save.market.box.length ? " · 📦" : "")]].map(([k, l]) => '<button data-a="ahview" data-v="' + k + '"' + (view === k ? ' class="on" style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + l + "</button>").join("") + "</div>";
+  h += '<div style="display:flex;gap:6px;margin-bottom:8px">' + [["buy", "Buy"]].concat(typeof netAhList === "function" && NET.member ? [["players", "🌐 Players"]] : []).concat([["sell", "Sell"], ["lots", "My lots (" + save.market.listings.length + ")" + (save.market.box.length ? " · 📦" : "")]]).map(([k, l]) => '<button data-a="ahview" data-v="' + k + '"' + (view === k ? ' class="on" style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + l + "</button>").join("") + "</div>";
   if (UI.ahMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.ahMsg) + "</div>";
+  if (UI.pmBusy) h += '<div class="sub" style="color:#ffd54f;margin-bottom:6px">Talking to the game server…</div>';
+  if (view === "players") return h + pmView();
+  if (view === "lots" && typeof netAhList === "function" && NET.member) {
+    const P = pmLoad(false);
+    h += "<h3>🌐 With other players</h3>";
+    if (P.err) h += '<div class="sub">' + esc(P.err) + "</div>";
+    else if (!P.at) h += '<div class="sub">Loading…</div>';
+    else {
+      if ((P.box || []).length) h += '<div class="item"><div><b>📦 Player delivery box</b><div class="sub">' + P.box.map(b => b.kind === "sold" ? "💠 " + b.gil + " (sold " + (ITEMS[b.item] ? ITEMS[b.item].name : "?") + " to " + esc(b.note || "") + ")" : (ITEMS[b.item] ? ITEMS[b.item].name : "?") + (b.qty > 1 ? " ×" + b.qty : "") + (b.kind === "returned" ? " (returned)" : "")).join(", ") + '</div></div><button data-a="pmcollect"' + (UI.pmBusy ? " disabled" : "") + ">Collect</button></div>";
+      if (!(P.mine || []).length) h += '<div class="sub">You have nothing up for other players. Lots stay up for 48 hours; unsold items come back to the box.</div>';
+      for (const l of P.mine || []) h += '<div class="item"><div><b>' + (ITEMS[l.item] ? (ITEMS[l.item].icon || "") + " " + esc(ITEMS[l.item].name) : "?") + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">Asking ' + l.price + " 💠 · " + pmLeft(l.expires_at) + ' left</div></div><button data-a="pmcancel" data-v="' + l.id + '"' + (UI.pmBusy ? " disabled" : "") + ">Withdraw</button></div>";
+    }
+    h += "<h3>🏛️ With the market</h3>";
+  }
   if (view === "lots") {
     if (save.market.box.length) h += '<div class="item"><div><b>📦 Delivery box</b><div class="sub">' + save.market.box.map(b => ITEMS[b.id].name + (b.qty > 1 ? " ×" + b.qty : "")).join(", ") + '</div></div><button data-a="ahcollect">Collect</button></div>';
     if (!save.market.listings.length) h += '<div class="sub">You have nothing up for auction. Lots stay up for ' + AH_CFG.expireMs / 3600000 + " hours (real time) and keep selling while you're away.</div>";
@@ -1048,6 +1107,13 @@ function onMenuClick(e) {
   else if (a === "ahbuy") { UI.ahMsg = ahBuy(UI.ahSel, UI.ahQty || 1); UI.ahQty = 1; renderModal(); return; }
   else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
   else if (a === "ahcancel") { ahCancel(+v); renderModal(); return; }
+  else if (a === "pmrefresh") { pmLoad(true); renderModal(); return; }
+  else if (a === "pmcat") { UI.pmCat = v; UI.pmSel = null; renderModal(); return; }
+  else if (a === "pmsel") { UI.pmSel = v || null; renderModal(); return; }
+  else if (a === "pmbuy") { pmAct(netAhBuy(+v)); return; }
+  else if (a === "pmcancel") { pmAct(netAhCancel(+v)); return; }
+  else if (a === "pmcollect") { pmAct(netAhCollect()); return; }
+  else if (a === "pmpost") { const id = UI.ahSel, q = UI.ahQty || 1, pr = UI.ahPrice; pmAct(netAhPost(id, q, pr).then(() => { UI.ahSel = null; }), "Your lot is up for other players."); return; }
   else if (a === "ahcollect") { UI.ahMsg = ahCollect(); renderModal(); return; }
   else if (a === "btake") { UI.guildMsg = takeBounty(v); renderModal(); return; }
   else if (a === "bdrop") { dropBounty(v); UI.guildMsg = ""; renderModal(); return; }
@@ -1122,6 +1188,13 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "8.6.0", date: "2026-10-13", title: "Player auction house", items: [
+    "New 🌐 Players section at the auction house: buy lots that other adventurers have put up, at their prices, with seller names, time left and recent sale prices.",
+    "Offer to players: put an item up for other players for 48 hours (3% fee, up to 10 lots).",
+    "Sales, purchases and returns go through the game server and a player delivery box, so nothing can be duplicated.",
+    "You're told when another player buys your lot, even if you're out in the field.",
+    "My lots shows your player lots and market lots separately. The simulated market is unchanged."
   ] },
   { v: "8.5.0", date: "2026-10-13", title: "Server checks", items: [
     "Trades now happen on the game server in one step, so items can't be duplicated or lost if someone disconnects halfway.",
@@ -1548,7 +1621,10 @@ function tabHelp() {
     "Items that shops sell never fetch more than " + 95 + "% of the shop price at auction, so the auction house is for bargains, materials and other adventurers' gear.",
     "<b>Buying:</b> pick a category and tap an item for its price chart and today's stock (stock refreshes each game day). Weapons and armor more than 5 levels above you are hidden.",
     "<b>Selling:</b> choose an item and quantity (up to one stack), adjust the price, and pay a " + Math.round(AH_CFG.fee * 100) + "% listing fee. The window tells you how quickly it's likely to sell. Up to " + AH_CFG.maxListings + " lots at once; each stays up " + AH_CFG.expireMs / 3600000 + " hours (real time) and keeps selling while you're away. Crystals from a sale go straight to you.",
-    "Unsold or withdrawn lots go to your <b>delivery box</b>; collect them from the My lots view. Rare, Ex, key items and furniture can't be auctioned."
+    "Unsold or withdrawn lots go to your <b>delivery box</b>; collect them from the My lots view. Rare, Ex, key items and furniture can't be auctioned.",
+    "<b>🌐 Players:</b> lots put up by other adventurers. Pick a category and an item to see every lot, its seller, time left and recent player sale prices, then Buy. Purchases go straight to your bag (or your delivery box if it's full). Everything is handled by the game server, so a sale can't be duplicated.",
+    "<b>Offer to players:</b> in Sell, choose the item, quantity and price, then press <b>🌐 Offer to players</b> instead of Sell to the market. Players see it for 48 hours and pay exactly your price. The same 3% fee applies. Up to 10 player lots at once.",
+    "When a player buys your lot you get a message wherever you are; the crystals wait in your <b>player delivery box</b> (My lots) until you collect them at any auction house. Unsold lots come back to the box after 48 hours."
   ]));
   h += sec("🕯️ Main story: Embers of Ashenreach", ul([
     "Eight chapters. Talk to <b>Captain Rhea</b> at level 3 to begin. Your current chapter and goal are always at the top of the Quests window, and a ❗ marks the person with your next story scene.",

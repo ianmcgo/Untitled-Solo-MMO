@@ -1,4 +1,4 @@
-const NET_SCHEMA = 2;
+const NET_SCHEMA = 3;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -160,6 +160,7 @@ function netTick() {
   if (now - NET.lastSave > NET_CFG.saveEvery && Object.keys(NET.dirty).length) netFlush();
   netTrack();
   if (now - NET.beatAt > NET_CFG.beat) { NET.beatAt = now; NET.sb.rpc("touch_player").then(() => {}, () => {}); }
+  if (S.charId && now - (NET.ahAt || 0) > 60000) { NET.ahAt = now; netAhWatch(); }
 }
 
 async function netAdminStats() {
@@ -1183,4 +1184,109 @@ function netAssist(name) {
   setTarget(m);
   if (typeof sfx === "function") sfx("select");
   log("You assist " + o.name + ": " + m.name + ".", "sys");
+}
+
+function netAhErr(e) {
+  const m = String((e && (e.message || e.code)) || e || "");
+  if (/PGRST202|PGRST205|Could not find|does not exist|schema cache/i.test(m + " " + ((e && e.code) || ""))) return "The player market isn't set up on the game server yet. The admin needs to run the latest setup SQL (Settings → Admin).";
+  return netErr(e).replace(/ in the bag$/, "");
+}
+
+function netApplyServerBag(d) {
+  if (!d) return;
+  if (Array.isArray(d.inventory)) save.inventory = d.inventory.filter(x => x && ITEMS[x.id] && +x.qty > 0).map(x => Object.assign({}, x, { qty: Math.floor(+x.qty) }));
+  if (d.gil != null) save.gil = Math.max(0, Math.floor(+d.gil || 0));
+}
+
+async function netServerOp(fn, args) {
+  if (!NET.member || !NET.sb) throw new Error("This needs the game server.");
+  saveGame();
+  const ok = await netFlushNow();
+  if (!ok) throw new Error("Can't reach the game server. Try again in a moment.");
+  NET.saveLock = true;
+  try {
+    const { data, error } = await NET.sb.rpc(fn, Object.assign({ my_char: S.charId }, args));
+    if (error) throw error;
+    netApplyServerBag(data);
+    return data;
+  } finally {
+    NET.saveLock = false;
+    saveGame();
+    netFlush();
+  }
+}
+
+async function netAhList() {
+  const { data, error } = await NET.sb.from("ah_listings").select("id,seller,seller_name,item,qty,price,expires_at").eq("status", "open").gt("expires_at", new Date().toISOString()).order("price", { ascending: true }).limit(400);
+  if (error) throw error;
+  return (data || []).filter(l => ITEMS[l.item] && ahTradable(l.item));
+}
+
+async function netAhMine() {
+  const { data, error } = await NET.sb.from("ah_listings").select("id,item,qty,price,expires_at,status").eq("seller", S.charId).eq("status", "open").order("id", { ascending: false }).limit(50);
+  if (error) throw error;
+  return data || [];
+}
+
+async function netAhBox() {
+  const { data, error } = await NET.sb.rpc("ah_box_list", { my_char: S.charId });
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
+async function netAhHistory(item) {
+  const { data, error } = await NET.sb.rpc("ah_history", { item });
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
+async function netAhPost(id, qty, price) {
+  if (!ahTradable(id)) throw new Error("You can't sell that at auction.");
+  if (invCount(id) < qty) throw new Error("You don't have that many.");
+  const d = await netServerOp("ah_post", { item: id, qty, price, st: ITEMS[id].stack || 1 });
+  log("You offer " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " to other players for " + price + " crystals (fee " + d.fee + ").", "sys");
+  sfx("coin");
+  return d;
+}
+
+async function netAhBuy(lot) {
+  const d = await netServerOp("ah_buy", { lot });
+  log("You buy " + (d.qty > 1 ? d.qty + " " + ITEMS[d.item].name + "s" : an(ITEMS[d.item].name)) + " from another player for " + d.price + " crystals.", "loot");
+  sfx("coin");
+  save.stats.ahBought = (save.stats.ahBought || 0) + d.qty;
+  const c = await netServerOp("ah_collect", {});
+  return c;
+}
+
+async function netAhCancel(lot) {
+  const { error } = await NET.sb.rpc("ah_cancel", { my_char: S.charId, lot });
+  if (error) throw error;
+  log("You withdraw your lot. It goes to your delivery box.", "sys");
+  return netAhCollect();
+}
+
+async function netAhCollect() {
+  const d = await netServerOp("ah_collect", {});
+  if (d.got) { log("You collect " + d.got + " deliver" + (d.got > 1 ? "ies" : "y") + " from the auction house.", "loot"); sfx("loot"); }
+  if (d.left) log("Your bag is full; " + d.left + " deliver" + (d.left > 1 ? "ies are" : "y is") + " still waiting.", "sys");
+  return d;
+}
+
+async function netAhWatch() {
+  if (!NET.member || !S.charId || typeof player === "undefined" || !player) return;
+  try {
+    const box = await netAhBox();
+    NET.ahSeen = NET.ahSeen || new Set();
+    const first = !NET.ahWatched;
+    NET.ahWatched = true;
+    for (const b of box) {
+      if (NET.ahSeen.has(b.id)) continue;
+      NET.ahSeen.add(b.id);
+      if (first || b.kind !== "sold" || !ITEMS[b.item]) continue;
+      log("Auction: " + cleanChat(b.note).slice(0, 12) + " bought your " + (b.qty > 1 ? b.qty + " " + ITEMS[b.item].name + "s" : ITEMS[b.item].name) + " for " + b.gil + " crystals. Collect it at an auction house.", "loot");
+      if (typeof uiEvent === "function") uiEvent("ahsold", { id: b.item, price: b.gil });
+      sfx("coin");
+    }
+    NET.ahBoxN = box.length;
+  } catch (e) {}
 }
