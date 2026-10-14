@@ -917,7 +917,7 @@ const ZONES = {
       { id: "luna", x: 660, y: 470 }, { id: "garrick", x: 690, y: 640, home: 2, sleep: [22, 6.5] }, { id: "trade_board", x: 640, y: 300 }, { id: "maera", x: 455, y: 255, home: 4, sleep: [22.5, 6.5] }, { id: "corvin", x: 430, y: 430 }, { id: "guard_east", x: 985, y: 345 }
     ],
     props: [{ type: "anvil", x: 690, y: 690, rot: 0.2, r: 26 }, { type: "desk", x: 455, y: 290, r: 22 }, { type: "desk", x: 430, y: 465, r: 22 }, { type: "barrels", x: 900, y: 560, rot: 1.2, r: 26 }],
-    ambient: [{ type: "chicken", x: 400, y: 600, n: 4, r: 70 }, { type: "dog", x: 640, y: 470, n: 1, r: 120, col: 0x8a6a4a }, { type: "cat", x: 300, y: 330, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 560, y: 420, n: 1, path: [[560, 300], [820, 410], [700, 520], [480, 500]] }, { type: "walker", x: 600, y: 450, n: 1, path: [[380, 470], [560, 560], [760, 470], [620, 330]] }],
+    ambient: [{ type: "chicken", x: 400, y: 600, n: 4, r: 70 }, { type: "dog", x: 640, y: 470, n: 1, r: 120, col: 0x8a6a4a }, { type: "cat", x: 300, y: 330, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 560, y: 420, n: 1, path: [[560, 300], [820, 410], [700, 520], [480, 500]] }],
     spawns: [],
     water: [{ x: 250, y: 640, r: 75 }],
     plaza: { x: 560, y: 420, r: 150 },

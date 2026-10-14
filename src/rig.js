@@ -14,8 +14,8 @@ const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytai
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 
 const REGION_PAINT = {
-  skin(u, v, o, X, Y) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11), f = NOISE.value(u * 40, v * 40, 0, 12), pore = NOISE.value(u * 160, v * 160, 0, 14); o[0] = 0.92 + 0.06 * n + 0.02 * f - (pore > 0.86 ? 0.025 : 0); o[1] = n * 0.12 + f * 0.05 - (pore > 0.86 ? 0.05 : 0); o[2] = 0.56 + 0.08 * f + (pore > 0.86 ? 0.06 : 0); o[3] = 0; },
-  face(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 13), f = NOISE.value(u * 40, v * 40, 0, 15); o[0] = 0.94 + 0.05 * n + 0.01 * f; o[1] = n * 0.08 + f * 0.03; o[2] = 0.56; o[3] = 0; },
+  skin(u, v, o, X, Y) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11), f = NOISE.value(u * 40, v * 40, 0, 12), pore = NOISE.value(u * 160, v * 160, 0, 14); o[0] = 0.8 + 0.06 * n + 0.02 * f - (pore > 0.86 ? 0.025 : 0); o[1] = n * 0.12 + f * 0.05 - (pore > 0.86 ? 0.05 : 0); o[2] = 0.56 + 0.08 * f + (pore > 0.86 ? 0.06 : 0); o[3] = 0; },
+  face(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 13), f = NOISE.value(u * 40, v * 40, 0, 15); o[0] = 0.82 + 0.05 * n + 0.01 * f; o[1] = n * 0.08 + f * 0.03; o[2] = 0.64; o[3] = 0; },
   cloth(u, v, o, X, Y) {
     const tx = X * 1.0, ty = Y * 1.0, cx = Math.floor(tx / 2), cy = Math.floor(ty / 2), over = (cx + cy) & 1;
     const fx = tx / 2 - cx, fy = ty / 2 - cy, warp = Math.sin(fx * Math.PI), weft = Math.sin(fy * Math.PI);
@@ -886,6 +886,7 @@ const NPC_LOOK = {
   ysolde: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
 };
 
+
 function lookFor(job, gear, base) {
   const tint = JOB_TINT[job] || JOB_TINT.WAR;
   const L = Object.assign({ legs: tint.pants, top: { type: "shirt", color: tint.shirt }, belt: 0x4a3020 }, base);
@@ -1155,15 +1156,15 @@ function humanEntry(L) {
   const BODY = {};
   const shellOf = (rs, off) => rs.map(r => Object.assign({}, r, { rx: r.rx + off, rz: r.rz + off }));
   if (!L.skull) {
-    R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.04, 0.0), 0.05 * gi, 0.043 * gi, 10), "neck", skin, SKR);
+    R.add(gTaper(V3(0, neckY - 0.06, -0.006), V3(0, headY + 0.03, 0.008), (fem ? 0.056 : 0.064) * gi, (fem ? 0.046 : 0.054) * gi, 14), "neck", skin, SKR);
     const W = sw / 0.195;
     const robe = top.type === "robe" || top.type === "coat";
     const hipR = fem ? 0.165 : 0.152, waistR = 0.15 * pr.waist, beltY = hipsY + 0.03;
-    const hx0 = gi * (fem ? 1.08 : 1.0), cx0 = gi * W, cx1 = gi * W * 1.04, hz = 0.7 * gi, cz = 0.67 * gi;
-    const ring = (y, r, xs, zs, f, b, z, p) => ({ y, rx: r * xs, rz: r * zs, f, b, z: z || 0, p: p || 2.3 });
+    const hx0 = gi * (fem ? 1.08 : 1.0), cx0 = Math.min(gi, 1.04) * W, cx1 = Math.min(gi, 1.1) * W * 1.04, hz = 0.7 * gi, cz = 0.67 * gi;
+    const ring = (y, r, xs, zs, f, b, z, p) => ({ y, rx: r * xs, rz: r * zs, f, b, z: z || 0, p: p || 2.1 });
     const lowR = [ring(hipJ - 0.078, 0.045, hx0, hz, 1, 1), ring(hipJ - 0.06, 0.11, hx0, hz, 0.95, 1.08, -0.004), ring(hipJ - 0.02, hipR * 0.95, hx0, hz, 0.95, 1.16, -0.006), ring(hipJ + 0.015, hipR * 0.99, hx0, hz, 0.97, 1.12, -0.004), ring(beltY, hipR, hx0, hz, 1, 1.04)];
     const bust = fem ? 0.16 : 0.08;
-    const upR = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.97, (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring((spineY + chestY) / 2, waistR, cx0, cz, 1.06, 0.92), ring(chestY - 0.04, 0.152, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.168, (cx0 + cx1) / 2, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.174, cx1, cz, 1.02 + bust * 0.3, 1.05), ring(shY - 0.015, 0.176, cx1, cz * 0.98, 0.98, 1.04, 0, 2.6), ring(shY + 0.018, 0.15, cx1 * 0.98, cz * 0.92, 0.9, 1.0, -0.004, 2.4), ring(neckY - 0.022, 0.1, cx1 * 0.9, cz * 0.95, 0.85, 0.95, -0.004), ring(neckY + 0.012, 0.058, gi, gi * 0.95, 1, 1, -0.004, 2)];
+    const upR = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.95, (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring((spineY + chestY) / 2, waistR * 0.93, cx0 * 0.95, cz, 1.06, 0.92), ring(chestY - 0.04, 0.155, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.172, cx1 * 1.03, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.18, cx1 * 1.06, cz, 1.0 + bust * 0.3, 1.05), ring(shY - 0.025, 0.17, cx1 * 1.04, cz * 0.95, 0.97, 1.03, 0, 2.1), ring(shY - 0.002, 0.148, cx1 * 1.0, cz * 0.9, 0.94, 1.02, -0.004, 2.0), ring(shY + 0.022, 0.112, cx1 * 0.94, cz * 0.88, 0.92, 1.0, -0.006, 2.0), ring(neckY - 0.024, 0.084, cx1 * 0.86, cz * 0.92, 0.9, 0.95, -0.006, 2.0), ring(neckY + 0.012, 0.066, gi * (fem ? 0.86 : 1), gi * 0.95, 1, 1, -0.006, 2)];
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     R.addW(gLoft(lowR, 24, true, false, 0, 0.3), "hips", robe ? topC : legC, robe ? topR : legR, tw);
     R.addW(gLoft(upR, 24, false, false, 0.3, 1), "chest", topC, topR, tw);
@@ -1193,7 +1194,7 @@ function humanEntry(L) {
       const ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi, rz: r * gi, f: f || 1, b: b || 1, p: p || 2 });
       const aw = (x, y) => y > shY - 0.03 ? [["upArm" + sd, 1 - 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)], ["chest", 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)]] : blendW(y, [[0, "foreArm" + sd, 0], [elY, "upArm" + sd, 0.035]]).map(([n, w]) => [n, w]);
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
-      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings = [tuck(ar(shY + 0.02, 0.024), 0.02), tuck(ar(shY + 0.008, 0.046), 0.014), tuck(ar(shY - 0.014, 0.056), 0.006), ar(shY - 0.045, 0.057, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
+      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings = [tuck(ar(shY + 0.004, 0.022), 0.024), tuck(ar(shY - 0.006, 0.044), 0.016), tuck(ar(shY - 0.024, 0.055), 0.007), ar(shY - 0.045, 0.057, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
       const fa1 = [ar(elY, 0.042, 1, 1.08), ar(elY - 0.03, 0.045, 1.05, 1.0), ar(elY - 0.07, 0.043), ar(mid, 0.039)];
       const fa2 = [ar(mid, 0.039), ar((mid + wrY) / 2, 0.035), ar(wrY + 0.018, 0.031, 1, 1, 2.4), ar(wrY - 0.004, 0.03, 1, 1, 2.4)];
       const flip = rs => rs.slice().reverse();
@@ -1232,6 +1233,7 @@ function humanEntry(L) {
       R.add(gTaper(t1, t2, 0.0098 * hk, 0.0082 * hk, 6), tb, handC, handR);
       R.add(gBall(t2, 0.0082 * hk, 1, 1, 1, 5), tb, handC, handR);
     }
+    if (L.held && !L.skull && (L.held === "ledger" || L.held === "book" || L.held === "scroll" || L.held === "basket" ? sd === "L" : sd === "R")) heldProp(R, L.held, sd, s * (sw + 0.024), wrY, gi * (L.doll ? 1.25 : 1));
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
     if (L.pauldrons) {
       const A = BODY["arm" + sd];
@@ -1297,7 +1299,7 @@ function humanEntry(L) {
       R.add(gBox(V3(hx, 0.042, 0.035), 0.06, 0.075, 0.2), "foot" + sd, footC, footR);
       R.add(gBall(V3(hx, 0.045, 0.13), 0.035, 1, 0.8, 1.0, 10), "foot" + sd, footC, footR);
     } else {
-      const bt = L.boots != null, fk = gi * (L.doll ? 1.15 : 1) * (bt ? 1.08 : 1), fx = hx + s * 0.004;
+      const bt = L.boots != null, fk = gi * (L.doll ? 0.8 : 1) * (bt ? 1.08 : 1), fx = hx + s * 0.004;
       const fr = (z, w, hh, p) => ({ x: fx, z: z * fk, rx: w * fk, ry: hh / 2 * fk, y: hh / 2 * fk, top: 1, bot: 1, p: p || 2.6 });
       R.add(gSweepZ([fr(-0.075, 0.026, 0.06, 2.2), fr(-0.06, 0.038, 0.085), fr(-0.02, 0.042, 0.1), fr(0.03, 0.043, 0.075), fr(0.09, 0.048, 0.05), fr(0.13, 0.046, 0.038), fr(0.165, 0.036, 0.028, 2.4)], 16, true, true), "foot" + sd, footC, footR);
       if (bt) {
@@ -1507,6 +1509,25 @@ function cactusBody(R, L, J) {
   return R.finish();
 }
 
+const NPC_HELD = { garrick: "hammer", haldor: "hammer", pell: "ledger", corvin: "ledger", selene: "ledger", orla: "ledger", vela: "ledger", tobin: "book", maera: "scroll", brisa: "scroll", marn: "basket", essa: "basket", odette: "bolt", ysolde: "brush", luna: "lantern", ilsa: "spyglass", ferryman: "oar", wend: "rod", guard: "spear", guard_f: "spear", nomad: "spear", tarqa: "staffwalk" };
+function heldProp(R, kind, sd, hx, wrY, gi) {
+  const hb = "hand" + sd, gy = wrY - 0.07 * gi, z = 0.012, wood = 0x7a5432, dark = 0x3a2a1a, metal = 0x9aa0a8, brass = 0xc8a040;
+  if (kind === "hammer") { R.add(gTaper(V3(hx, gy + 0.05, z), V3(hx, gy - 0.32, z + 0.02), 0.012, 0.014, 6), hb, wood, "wood"); R.add(gBox(V3(hx, gy - 0.33, z + 0.02), 0.04, 0.05, 0.12), hb, 0x5a5a62, "metal"); }
+  else if (kind === "spear") { R.add(gTaper(V3(hx, gy + 0.95, z), V3(hx, gy - 0.75, z), 0.014, 0.016, 6), hb, wood, "wood"); R.add(gTaper(V3(hx, gy + 0.95, z), V3(hx, gy + 1.15, z), 0.03, 0.002, 4, 0.35), hb, metal, "metal"); R.add(gRing(V3(hx, gy + 0.94, z), 0.018, 0.006, "y", 8), hb, brass, "metal"); }
+  else if (kind === "staffwalk") R.add(gTaper(V3(hx, gy + 0.8, z), V3(hx, gy - 0.75, z), 0.018, 0.014, 6), hb, wood, "wood");
+  else if (kind === "ledger" || kind === "book") { const c = kind === "book" ? 0x5a2a6a : 0x5a3a20; R.add(gBox(V3(hx, gy - 0.07, z + 0.03), 0.04, 0.2, 0.15, 0, 0, 0), hb, c, "leather"); R.add(gBox(V3(hx, gy - 0.07, z + 0.03), 0.032, 0.19, 0.146), hb, 0xf0e8d0, "plain"); if (kind === "book") R.add(gBox(V3(hx, gy - 0.07, z + 0.03), 0.042, 0.03, 0.152), hb, brass, "metal"); }
+  else if (kind === "scroll") { R.add(gCyl(V3(hx, gy - 0.04, z + 0.02), 0.022, 0.022, 0.2, 10), hb, 0xf0e2c0, "plain"); for (const k of [-1, 1]) R.add(gBall(V3(hx, gy - 0.04 + k * 0.105, z + 0.02), 0.014, 1, 0.6, 1, 6), hb, dark, "wood"); }
+  else if (kind === "basket") { R.add(gPartSphere(V3(hx, gy - 0.12, z + 0.02), 0.11, 0, Math.PI * 0.5, 1, 0.8, 0.8, 12, Math.PI * 0.5), hb, 0xa07848, "wood"); R.add(gRing(V3(hx, gy - 0.05, z + 0.02), 0.09, 0.008, "x", 12, Math.PI), hb, 0x8a6038, "wood"); R.add(gBall(V3(hx, gy - 0.12, z + 0.02), 0.085, 1, 0.3, 0.8, 8), hb, 0xc84a3a, "plain"); }
+  else if (kind === "bolt") R.add(gCyl(V3(hx, gy - 0.06, z + 0.03), 0.05, 0.05, 0.36, 12), hb, 0x7a5aa8, "cloth");
+  else if (kind === "brush") { R.add(gTaper(V3(hx, gy + 0.02, z), V3(hx, gy - 0.12, z), 0.012, 0.012, 6), hb, wood, "wood"); R.add(gBox(V3(hx, gy - 0.15, z), 0.05, 0.04, 0.09), hb, 0x8a6a40, "fur"); }
+  else if (kind === "lantern") { R.add(gRing(V3(hx, gy - 0.02, z), 0.025, 0.004, "x", 10), hb, dark, "metal"); R.add(gCyl(V3(hx, gy - 0.12, z), 0.04, 0.05, 0.12, 8), hb, dark, "metal"); R.add(gCyl(V3(hx, gy - 0.12, z), 0.034, 0.042, 0.1, 8), hb, 0xffd080, "glow", true); }
+  else if (kind === "spyglass") { R.add(gTaper(V3(hx, gy + 0.02, z - 0.06), V3(hx, gy - 0.02, z + 0.24), 0.018, 0.024, 10), hb, brass, "metal"); R.add(gRing(V3(hx, gy, z + 0.08), 0.022, 0.004, "z", 10), hb, dark, "leather"); }
+  else if (kind === "oar") { R.add(gTaper(V3(hx, gy + 0.6, z), V3(hx, gy - 0.9, z), 0.016, 0.016, 6), hb, wood, "wood"); R.add(gBox(V3(hx, gy - 1.0, z), 0.02, 0.28, 0.12), hb, wood, "wood"); }
+  else if (kind === "rod") { R.add(gTaper(V3(hx, gy + 0.05, z), V3(hx, gy + 1.4, z + 0.5), 0.012, 0.003, 5), hb, 0x6a4a28, "wood"); }
+  else if (kind === "broom") { R.add(gTaper(V3(hx, gy + 0.6, z), V3(hx, gy - 0.7, z), 0.013, 0.013, 6), hb, wood, "wood"); R.add(gTaper(V3(hx, gy - 0.66, z), V3(hx, gy - 0.95, z), 0.03, 0.08, 8, 0.6), hb, 0xc8a860, "fur"); }
+  else if (kind === "tankard") { R.add(gCyl(V3(hx, gy - 0.05, z + 0.03), 0.035, 0.038, 0.1, 10), hb, 0x8a8a92, "metal"); R.add(gRing(V3(hx, gy - 0.05, z + 0.07), 0.025, 0.007, "x", 8, Math.PI), hb, 0x8a8a92, "metal"); }
+}
+
 function goblinLook(variant) {
   const base = { noFace: true, ears: "goblin", nose: "goblin", eyesGlow: 0xffd040, barefoot: true, sack: true, legs: 0x5a4632, belt: 0x3a2a1a };
   if (variant === "chieftain") return Object.assign(base, { skin: 0x6a7a34, top: { type: "mail", color: 0x55585e, region: "chain" }, head: { type: "horned", color: 0x4a4a44, color2: 0xe8dcc0 }, cape: 0x8a1f1f, pauldrons: 0x6a6a64, weapon: "greataxe", sack: false, prop: { leg: 0.62, torso: 0.56, headR: 0.18, arm: 0.62, shoulder: 0.22, hip: 0.11, neck: 0.04, girth: 1.25 } });
@@ -1595,7 +1616,17 @@ function birdEntry(col, comb, beak) {
 function walkerLook(seed) {
   const r = seeded(hashStr("walker" + seed));
   const fem = r() < 0.5, pick = a => a[Math.floor(r() * a.length)];
-  return { face: Math.floor(r() * FACE_COUNT), build: fem ? 1 : 0, skin: SKIN_TONES[Math.floor(r() * SKIN_TONES.length)], hair: { style: pick(HAIR_BY_SEX[fem ? 1 : 0]), color: pick(HAIR_COLORS) }, top: { type: pick(["shirt", "vest", "apron", "tunic"]), color: pick([0x8a5a3a, 0x3a5a7a, 0x6a7a3a, 0x7a3a3a, 0xc8b890, 0x5a4a6a]), color2: 0xd8d0c0, under: 0xd8cfb8 }, legs: pick([0x3a3028, 0x2a2a30, 0x4a3a2c]), boots: 0x2a1a10, belt: 0x3a2412 };
+  const pal = [0x8a5a3a, 0x3a5a7a, 0x6a7a3a, 0x7a3a3a, 0xc8b890, 0x5a4a6a, 0x2f4a5a, 0x8a7a4a, 0xa05a3a, 0x4a6a5a, 0x6a4a3a, 0xb8a888, 0x5a2a3a, 0x3a3a52];
+  const ty = pick(["shirt", "vest", "apron", "tunic", "tunic", "vest", "robe", "coat"]), col = pick(pal);
+  const L = { face: Math.floor(r() * FACE_COUNT), build: fem ? 1 : 0, skin: SKIN_TONES[Math.floor(r() * SKIN_TONES.length)], hair: { style: pick(HAIR_BY_SEX[fem ? 1 : 0]), color: pick(HAIR_COLORS) }, top: { type: ty, color: col, color2: pick([0xd8d0c0, 0x8a6a40, 0xe8e0c8]), under: pick([0xd8cfb8, 0xc8c0a8, 0xe8e0d0]), trim: r() < 0.35 ? pick([0xd8c070, 0x8a3a2a, 0x3a5a7a]) : null }, legs: pick([0x3a3028, 0x2a2a30, 0x4a3a2c, 0x5a4a38, 0x3a3a44]), boots: pick([0x2a1a10, 0x3a2818, 0x4a3a28]), belt: pick([0x3a2412, 0x5a3a20, 0x2a2a2a]) };
+  const hat = r();
+  if (hat < 0.14) L.head = { type: "bandana", color: pick(pal) }; else if (hat < 0.24) L.head = { type: "widebrim", color: pick([0x8a7a4a, 0x5a4a32, 0x3a3a3a]), color2: 0xd8c070 }; else if (hat < 0.3) L.head = { type: "furhat", color: 0x6a4a2a };
+  if (r() < 0.12) L.cape = pick(pal);
+  if (r() < 0.1) L.collar = 0xd8c8a8;
+  if (r() < 0.15) L.gloves = pick([0x5a3a22, 0x3a2a1a]);
+  if (fem && r() < 0.3) L.prop = { girth: 0.9 }; else if (!fem && r() < 0.3) L.prop = { girth: 1.12 };
+  L.held = pick([null, null, null, "basket", "broom", "tankard", "book", "staffwalk", "scroll"]);
+  return L;
 }
 
 function wispEntry(col, eye) {
@@ -2296,7 +2327,8 @@ function buildEntityRig(e) {
     const L = NPC_LOOK[e.id] || (nd && NPC_LOOK[nd.model]) || (nd ? walkerLook(hashStr(e.id) % 997) : null);
     if (!L) return null;
     sig = "n|" + e.id;
-    const LF = L.face == null && !L.noFace ? Object.assign({ face: hashStr(e.id) % FACE_COUNT }, L) : L;
+    const held = L.held !== undefined ? L.held : NPC_HELD[e.id] || (nd && NPC_HELD[nd.model]) || null;
+    const LF = Object.assign(L.face == null && !L.noFace ? { face: hashStr(e.id) % FACE_COUNT } : {}, L, { held });
     make = () => humanEntry(LF);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {

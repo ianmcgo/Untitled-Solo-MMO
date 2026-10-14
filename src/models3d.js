@@ -82,6 +82,17 @@ function clearViews() {
   clearFX();
 }
 
+function lookTargetOf(e) {
+  if (!player || e.alive === false) return null;
+  const near = (t, r) => t && t !== e && t.alive !== false && !t.away && dist(e, t) < r;
+  if (e === player) return near(player.target, 900) ? player.target : null;
+  if (e.kind === "npc") return (player.target === e || S.pendingTalk === e || e.talkUntil > S.time) && near(player, 700) || near(player, 130) ? player : null;
+  if (isMob(e)) { if (near(e.target, 1200)) return e.target; return player.target === e && near(player, 600) ? player : null; }
+  const t = e.attackTarget || e.target;
+  if (near(t, 900)) return t;
+  return e !== player && player.target === e && near(player, 500) ? player : null;
+}
+
 function placeWeapon(v, e) {
   if (!v.weapon || !v.bones.handR) return;
   const an = v.an;
@@ -92,7 +103,7 @@ function placeWeapon(v, e) {
   const w = v.weapon, k = w.userData.kind;
   if (drawn) {
     v.bones.handR.add(w);
-    w.position.set(0, -0.06, 0.01);
+    w.position.set(0.016, -0.074, 0.012);
     if (k === "staff" || k === "polearm") w.rotation.set(0.2, 0, 0);
     else if (k === "archery") w.rotation.set(0, 0, 0.1);
     else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "gsword") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
@@ -183,6 +194,7 @@ function syncEntity(e, dt) {
     g.visible = !e.despawned && k < 1;
   } else g.visible = !(e === player && VIEW.first) && !((e.kind === "npc" || e.ambient) && e.away);
   if (e.fly) g.position.y += e.fly + Math.sin(S.time * 0.8 + (e.home ? e.home.x : 0)) * 0.6;
+  v.lookTgt = lookTargetOf(e);
   if (v.kind === "human") poseHuman(v, e, dt);
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);

@@ -9,7 +9,7 @@ const mockLogin = require('./mocklogin');
   await page.addInitScript(q => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: q })); } catch (e) {} }, process.env.QUALITY || 'low');
   await mockLogin(page, html);
   const list = JSON.parse(listArg), poses = (posesArg || 'idle,walk,swing').split(','), cols = +(colsArg || 6);
-  const url = await page.evaluate(async ({ list, poses, cols, TS }) => {
+  const url = await page.evaluate(async ({ DY, RR, list, poses, cols, TS }) => {
     const T = TS;
     const sheet = document.createElement('canvas');
     const rows = Math.ceil(list.length * poses.length / cols);
@@ -65,8 +65,8 @@ const mockLogin = require('./mocklogin');
         const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(fq); fwd.y = 0; fwd.normalize();
         const side = new THREE.Vector3(fwd.z, 0, -fwd.x);
         const hs = Math.max(0.14, sz.y * 0.11);
-        c.y += hs * 0.75;
-        const r = hs * 1.6;
+        c.y += hs * DY;
+        const r = hs * RR;
         const d = r / Math.tan(15 * Math.PI / 180);
         const ang = { front: [1, 0], q: [0.8, 0.6], side: [0.05, 1], back: [-1, 0.1], talk: [1, 0], talk2: [0.8, 0.6] }[pose] || [0.8, 0.6];
         cam.position.copy(c).addScaledVector(fwd, d * ang[0]).addScaledVector(side, d * ang[1]); cam.position.y += d * 0.08;
@@ -82,7 +82,7 @@ const mockLogin = require('./mocklogin');
       studio.remove(v.group); destroyView(v); VIEW.views.delete(e);
     }
     return sheet.toDataURL('image/png');
-  }, { list, poses, cols, TS: +(process.env.SHOT_T || 220) });
+  }, { DY: +(process.env.SHOT_DY || 0.75), RR: +(process.env.SHOT_R || 1.6), list, poses, cols, TS: +(process.env.SHOT_T || 220) });
   require('fs').writeFileSync(out, Buffer.from(url.split(',')[1], 'base64'));
   console.log(errs.length ? 'ERRORS ' + errs.slice(0, 5).join(' || ') : 'ok ' + out);
   await browser.close();

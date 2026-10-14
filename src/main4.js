@@ -109,20 +109,26 @@ async function boot() {
     const dt = clamp((now - last) / 1000, 0, 0.05);
     last = now;
     requestAnimationFrame(frame);
-    try {
-      if (UI.started && !VIEW.loading) {
-        step(dt);
-        if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); }
-        age(dt);
-        draw(dt);
-        updateHud(dt);
-        updateAudio();
-      } else if (UI.creating && UI.pv) renderPreview(now);
-      else if (UI.showcase && UI.pv) renderShowcase(now);
-    } catch (e) { reportError(e, "frame"); }
+    if (UI.started && !VIEW.loading) {
+      try { step(dt); } catch (e) { reportError(e, "step"); }
+      try { if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); } } catch (e) { reportError(e, "net"); }
+      try { age(dt); } catch (e) { reportError(e, "age"); }
+      try { draw(dt); } catch (e) { reportError(e, "draw"); }
+      try { updateHud(dt); } catch (e) { reportError(e, "hud"); }
+      try { updateAudio(); audioNag(); } catch (e) { reportError(e, "audio"); }
+    } else {
+      try { if (UI.creating && UI.pv) renderPreview(now); else if (UI.showcase && UI.pv) renderShowcase(now); } catch (e) { reportError(e, "frame"); }
+    }
   }
   requestAnimationFrame(frame);
   showTitle();
+}
+
+function audioNag() {
+  const need = AUDIO.ready && AUDIO.ctx && AUDIO.ctx.state !== "running" && !(AUDIO.settings && AUDIO.settings.muted) && !document.hidden;
+  if (need && !UI.audioNagAt) UI.audioNagAt = performance.now();
+  if (!need) UI.audioNagAt = 0;
+  if (need && performance.now() - UI.audioNagAt > 2500 && !UI.audioNagShown) { UI.audioNagShown = true; if (typeof toast === "function") toast("🔇", "Sound is paused by your browser", "Tap or press any key to turn it on."); log("Sound is paused by your browser. Tap the screen or press any key to turn it on.", "warn"); }
 }
 
 function showTitle() {

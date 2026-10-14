@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "14.1.0",
-  "releaseTitle": "Fitted armour and finer weapons",
+  "version": "14.2.0",
+  "releaseTitle": "Townsfolk, swordplay and damage numbers",
   "description": "",
   "main": "index.js",
   "scripts": {

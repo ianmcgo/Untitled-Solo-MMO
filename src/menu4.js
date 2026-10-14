@@ -612,7 +612,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + "</div>";
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -1264,7 +1264,7 @@ function onMenuClick(e) {
   e.preventDefault();
   const a = t.dataset.a, v = t.dataset.v;
   if (a === "mute") { toggleMute(); renderModal(); return; }
-  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates" || v === "compass")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
+  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates" || v === "compass" || v === "dmgNums")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
   if (typeof handleSettingAction === "function" && handleSettingAction(a, v)) { renderModal(); sfx("click"); return; }
   const hb = hotbar();
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
@@ -1476,6 +1476,18 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "14.2.0", date: "2026-10-14", title: "Townsfolk, swordplay and damage numbers", items: [
+    "Named NPCs now hold their trade: Garrick and Haldor carry forge hammers, the clerks keep ledgers, Tobin a tome, guards their spears, the ferryman an oar, Wend a fishing rod, Luna a lantern and more.",
+    "Background townsfolk get a fuller wardrobe (shirts, vests, aprons, tunics, robes and coats; bandanas, wide-brim and fur hats; capes, collars and gloves) and sometimes carry a basket, broom, tankard, book, walking staff or scroll.",
+    "Heads turn to look at things: you look at your target, people turn their head to face you when you target them, talk to them or walk close, and monsters watch whoever they're fighting or you when you target them.",
+    "Sword swings fixed: the wrist now snaps through the cut, so the blade leads the overhead chop, lies flat through the side sweep and points ahead in the stab instead of swinging backwards. The grip sits deeper in the fist.",
+    "Red damage numbers pop out of whoever is hit, rise, then fizzle away. Turn them off in Config → Interface → Damage numbers.",
+    "Rounder, V-shaped chests that slope from the neck into the shoulders instead of square boxes; Ursan chests are no longer wider than their shoulders. Thicker, natural necks.",
+    "Pipkin feet are smaller. Skin is a touch less shiny in bright sun.",
+    "Status icons now sit below the Commands bar instead of under it.",
+    "One of the Outpost's background walkers is gone.",
+    "Sound now starts on your first tap, click or key press, even if the browser held it back; a note appears if sound is still blocked."
   ] },
   { v: "14.1.0", date: "2026-10-14", title: "Fitted armour and finer weapons", items: [
     "Armour is now shaped to the body underneath it: breastplates wrap the chest and waist with a centre ridge and riveted bands, pauldrons cap the shoulder in layers, vambraces follow the forearm, greaves follow the shin with a knee cop, and boots hug the calf with a turned top. Everything bends with the body instead of floating.",
@@ -2577,7 +2589,10 @@ function tabHelp() {
     "<b>Bottom:</b> the event log. New messages open it fully; after a few quiet seconds it shrinks to three lines. Each Esc hides one more line until it's gone. Press / to type (the tabs and typing box appear), or L to keep it open; on phones tap yourself and choose Chat. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
-    "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you)."
+    "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
+    "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
+    "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
+    "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
     "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",

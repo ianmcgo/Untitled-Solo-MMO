@@ -70,8 +70,9 @@ function gameDate() {
 }
 function clockText() { const v = vana(); return DAY_NAMES[v.dayIndex] + " " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0"); }
 
-function popText(e, text, color, size, life, yOff) {
-  S.floaters.push({ x: e.x + rand(-10, 10), y: e.y, h: (e.radius || 14) + 4 + (yOff || 0), text: String(text), color, size: size || 16, t: 0, life: life || 1.0 });
+const DMG_RED = "#ff2a20";
+function popText(e, text, color, size, life, yOff, dmg) {
+  S.floaters.push({ x: e.x + rand(-10, 10), y: e.y, h: (e.radius || 14) + 4 + (yOff || 0), text: String(text), color, size: size || 16, t: 0, life: life || 1.0, dmg: !!dmg, drift: rand(-1, 1) });
 }
 
 function ring(e, color, grow, life, kind) {
@@ -970,14 +971,14 @@ function applyDamage(src, tgt, amt, opt) {
     tgt.flash = 0.15;
     tgt.lastHit = S.time;
     if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
-    if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (src === player ? "#ffffff" : "#b3d9ff"), opt.size || 16, opt.life, opt.yOff);
+    if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || DMG_RED, (opt.size || 16) + 6, opt.life || 1.25, opt.yOff, opt.text == null);
     return;
   }
   tgt.hp = Math.max(0, tgt.hp - amt);
   tgt.flash = 0.15;
   tgt.lastHit = S.time;
   if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
-  if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (isMob(tgt) ? (src === player ? "#ffffff" : "#b3d9ff") : "#ff8a80"), opt.size || 16, opt.life, opt.yOff);
+  if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (isMob(tgt) ? DMG_RED : "#ff5a48"), (opt.size || 16) + 6, opt.life || 1.25, opt.yOff, opt.text == null);
   if (isMob(tgt)) {
     if (src && isSide(src)) {
       if (!tgt.claim) tgt.claim = claimId(src);
