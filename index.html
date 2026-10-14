@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.9.0 · built 2026-10-14 03:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.10.0 · built 2026-10-14 03:41 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5793,7 +5793,7 @@ const CONFIG = {
   scrollDrop: 0.05,
   levelCap: 20,
   bowRange: 230,
-  foodMinutes: 30,
+  foodMinutes: 30, warpCost: 50, roadBonus: 1.15,
   poolTime: 45, partyMax: 6, partyRange: 900, partyShare: [1, 1, 0.6, 0.45, 0.37, 0.32, 0.28], tradeRange: 250, tradeSlots: 8,
   meleeRange: 42,
   tpMax: 3000,
@@ -7378,6 +7378,28 @@ for (const zid of ["hollow", "frost", "marsh"]) {
   }
 }
 ACHIEVEMENTS.push({ id: "wayfarer", icon: "🧭", name: "Wayfarer", desc: "Visit every lookout tower, wayside shrine and weathered tablet in the wilds.", test: s => POI_IDS.every(id => (s.poi || {})[id]) });
+const CAMP_NAMES = { hollow: "Hollow Camp", frost: "Frostspire Camp", marsh: "Mire Camp" };
+for (const zid of ["hollow", "frost", "marsh"]) {
+  const z = ZONES[zid], L = z.landmarks || [], lm = L[Math.floor(L.length / 2)] || { x: z.w / 2, y: z.h / 2, r: 200 };
+  const at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 260);
+  if (!at) continue;
+  const cid = "campcrystal_" + zid;
+  NPCS[cid] = { name: CAMP_NAMES[zid] + " Crystal", model: "crystal", crystal: true, talk: "talkCrystal", camp: zid };
+  z.npcs.push({ id: cid, x: at.x, y: at.y });
+  NPCS["camp_" + zid] = { name: CAMP_NAMES[zid], prop: "camp", talk: "talkCamp", poi: "camp" };
+  z.npcs.push({ id: "camp_" + zid, x: at.x + 90, y: at.y + 10 });
+}
+for (const zid in ZONES) {
+  const z = ZONES[zid];
+  if (z.indoor || z.theme === "house" || z.theme === "cave" || z.theme === "crypt") continue;
+  (z.exits || []).forEach((e, i) => {
+    if (!e.hall || e.kind === "door" || !ZONES[e.to]) return;
+    const inner = exitInner(z, e), horiz = e.x <= 0 || e.x + e.w >= z.w, off = (e.lane || 110) + 45;
+    const id = "sign_" + zid + "_" + i;
+    NPCS[id] = { name: "Signpost", prop: "sign", talk: "talkSign", signTo: e.to };
+    z.npcs.push({ id, x: Math.round(inner.x + (horiz ? 0 : off)), y: Math.round(inner.y + (horiz ? off : 0)) });
+  });
+}
 
 const S = {
   time: 0, zoneId: "outpost", zone: null, party: [], mobs: [], npcs: [], effects: [], floaters: [], decor: [],
@@ -10811,7 +10833,7 @@ function toggleEngage(fromTap) {
   log("You engage the " + t.name + ".", "you");
 }
 
-function mountMul() { return CONFIG.mountSpeed * (save.saddle ? SADDLE_BONUS : 1); }
+function mountMul() { return CONFIG.mountSpeed * (save.saddle ? SADDLE_BONUS : 1) * (player && player.mounted && S.zone && !S.zone.safe && onRoad(player) ? CONFIG.roadBonus : 1); }
 
 function buyCoat(id) {
   const c = MOUNT_COATS[id];
@@ -11496,18 +11518,55 @@ const TALK = {
   talkThrone(n) {
     openDialog(n.name, save.timers["nm:hollow_king"] > Date.now() ? "The throne stands empty. For now." : "A throne of black stone, cold as the grave. Its king is never far.", []);
   },
+  talkSign(n) {
+    const lines = (S.zone.exits || []).filter(e => ZONES[e.to] && e.kind !== "door").map(e => {
+      const cx = e.x + e.w / 2, cy = e.y + e.h / 2, dx = cx - player.x, dy = cy - player.y;
+      const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "east" : "west") : (dy > 0 ? "south" : "north");
+      return ZONES[e.to].name + ": " + dir + ", about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms";
+    });
+    openDialog("Signpost", "Carved arrows point the way. " + lines.join(". ") + ".", []);
+  },
+  talkCamp(n) {
+    openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Touch the camp crystal beside it to restore your party and to be able to warp here from any other crystal.", []);
+  },
   talkCrystal(n) {
+    save.attuned = save.attuned || {};
+    if (!save.attuned[n.id]) { save.attuned[n.id] = S.zoneId; log("You attune to the " + n.name + ". You can now warp here from other crystals.", "loot"); }
     const hurt = S.party.some(p => !p.alive || p.hp < p.maxHp || p.mp < p.maxMp);
     for (const p of S.party) { p.alive = true; p.hp = p.maxHp; p.mp = p.maxMp; }
     if (hurt) { ring(n, "#80deea", 60, 0.9, "sparkle"); sfx("cure", n); vfx("crystal", { at: n }); }
     saveGame();
     const isHome = save.home.zone === S.zoneId && save.home.npc === n.id;
-    openDialog(n.name, "The crystal's light washes over your party. HP and MP restored." + (isHome ? " This is your home point." : " You can make this your home point: you'll return here if you fall."), isHome ? [] : [
+    const opts = isHome || !S.zone.safe ? [] : [
       { label: "Set as home point", fn: () => { save.home = { zone: S.zoneId, npc: n.id }; log("Home point set: " + S.zone.name + ".", "npc"); sfx("unlock"); saveGame(); closeDialog(); } }
-    ]);
+    ];
+    const dests = Object.keys(save.attuned).filter(id => id !== n.id && NPCS[id] && ZONES[save.attuned[id]]);
+    if (dests.length) opts.push({ label: "Warp (" + CONFIG.warpCost + " crystals)", fn: () => {
+      closeDialog();
+      if (typeof promptChoice === "function") promptChoice("Warp to which crystal?", dests.map(id => ({ label: NPCS[id].name + " (" + ZONES[save.attuned[id]].name + ")", fn: () => warpTo(id) })));
+    } });
+    openDialog(n.name, "The crystal's light washes over your party. HP and MP restored." + (isHome ? " This is your home point." : S.zone.safe ? " You can make this your home point: you'll return here if you fall." : " Camp crystals can't be home points, but you can warp here from any crystal you've touched."), opts);
   }
 };
 
+function warpTo(id) {
+  const zid = save.attuned && save.attuned[id], z = ZONES[zid];
+  const c = z && z.npcs.find(q => q.id === id);
+  if (!c) return;
+  if (save.gil < CONFIG.warpCost) { log("Warping costs " + CONFIG.warpCost + " crystals.", "sys"); return; }
+  if (player.engaged || S.party.some(p => p.engaged)) { log("You can't warp in the middle of a fight.", "sys"); return; }
+  save.gil -= CONFIG.warpCost;
+  log("The crystal flares, and the world folds around you.", "loot");
+  vfx("crystal", { at: player });
+  enterZone(zid, c.x, c.y + 80);
+}
+function onRoad(e) {
+  for (const p of S.zone.paths || []) for (let i = 0; i < p.pts.length - 1; i++) {
+    const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((e.x - a[0]) * dx + (e.y - a[1]) * dy) / l));
+    if (Math.hypot(e.x - a[0] - dx * t, e.y - a[1] - dy * t) < p.w * 0.6) return true;
+  }
+  return false;
+}
 function resumePos() {
   const l = save.loc;
   if (l && ZONES[l.zone] && isFinite(l.x) && isFinite(l.y) && l.x > 0 && l.y > 0 && l.x < ZONES[l.zone].w && l.y < ZONES[l.zone].h) return l;
@@ -14792,13 +14851,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v10.9.0 · built 2026-10-14 03:30 PDT";
+const BUILD_INFO = "v10.10.0 · built 2026-10-14 03:41 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "10.10.0", date: "2026-10-14", title: "Travel", items: [
+    "Camps in Rocky Hollow, Frostspire Pass and the Ashen Marsh, each with a tent, campfire and camp crystal that restores your party.",
+    "Crystal warps: touching a crystal attunes you to it, and from any crystal you can warp to another attuned crystal for " + CONFIG.warpCost + " crystals. Home points still only work in towns.",
+    "Signposts at every entrance of the outdoor areas point the way and give the distance to each neighbouring area.",
+    "Riding on a road outside town is " + Math.round((CONFIG.roadBonus - 1) * 100) + "% faster than riding cross-country."
   ] },
   { v: "10.9.0", date: "2026-10-14", title: "Points of interest", items: [
     "Rocky Hollow, Frostspire Pass and the Ashen Marsh each have four new places to find: a Lookout Tower that marks every landmark in the area on your map, a Wayside Shrine that grants Shrine's Favour (+10% experience for 30 minutes) for a 10-crystal offering, a Weathered Tablet with a piece of local history, and a Hidden Cache vault chest.",
@@ -15508,6 +15573,9 @@ function tabHelp() {
     "<b>Wayside Shrine</b>: leave 10 crystals to pray and receive Shrine's Favour (🕯️), +10% experience for 30 minutes. Each shrine can be used once an hour. Your first prayer at each gives 40 EXP.",
     "<b>Weathered Tablet</b>: a piece of the area's history. Reading one for the first time gives 50 EXP.",
     "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It refills about 20 minutes after you open it.",
+    "<b>Camps</b>: Rocky Hollow, Frostspire Pass and the Ashen Marsh each have a camp with a tent, a fire and a camp crystal. Touching any crystal (camp or town) restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
+    "<b>Signposts</b> stand at every way in and out of an outdoor area; read one for the direction and rough distance to each neighbouring area.",
+    "<b>Roads</b>: riding along a road outside town is " + Math.round((CONFIG.roadBonus - 1) * 100) + "% faster than riding cross-country.",
     "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."
   ]));
   h += sec("🔱 Battlefield: the Chapel Depths", ul([
@@ -15713,7 +15781,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "10.9.0";
+const GAME_VERSION = "10.10.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -21540,6 +21608,22 @@ function propView(n) {
     g.add(base, back, cap, orb, L);
     for (let i = 0; i < 5; i++) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.18, 6), std({ color: 0xf0e8d0 })); c.position.set(-0.5 + i * 0.25, 0.59, 0.3); g.add(c); const fl = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 4), new THREE.MeshBasicMaterial({ color: 0xffc060 })); fl.position.set(-0.5 + i * 0.25, 0.71, 0.3); g.add(fl); }
     v.meta.headTop = 2.4; v.light = L;
+  } else if (n.prop === "sign") {
+    const wood = std({ color: 0x7a5432, roughness: 0.9 });
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), wood); post.position.y = 1.1; post.castShadow = true;
+    g.add(post);
+    for (let i = 0; i < 2; i++) { const arm = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.24, 0.05), std({ color: 0x9a7448, roughness: 0.9 })); arm.position.set(i ? -0.35 : 0.35, 1.75 - i * 0.35, 0.06); arm.rotation.y = i ? 0.4 : -0.3; arm.castShadow = true; g.add(arm); }
+    v.meta.headTop = 2.3;
+  } else if (n.prop === "camp") {
+    const canvas = std({ color: 0xc8b890, roughness: 1, side: THREE.DoubleSide });
+    const tent = new THREE.Mesh(new THREE.ConeGeometry(1.3, 1.6, 4, 1, true), canvas); tent.position.set(0, 0.8, -0.6); tent.rotation.y = Math.PI / 4; tent.castShadow = true;
+    const stones = std({ color: 0x6a6660 });
+    for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; const st = new THREE.Mesh(new THREE.DodecahedronGeometry(0.13, 0), stones); st.position.set(1.2 + Math.cos(a) * 0.38, 0.08, 0.6 + Math.sin(a) * 0.38); g.add(st); }
+    const fire = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.55, 7), new THREE.MeshBasicMaterial({ color: 0xff9a40, transparent: true, opacity: 0.9 })); fire.position.set(1.2, 0.3, 0.6);
+    const L = new THREE.PointLight(0xff9a50, 6, 10, 1.6); L.position.set(1.2, 0.8, 0.6);
+    for (let i = 0; i < 2; i++) { const log = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1.1, 7), std({ color: 0x5a3a22 })); log.rotation.z = Math.PI / 2; log.position.set(1.2 + (i ? 0 : 0), 0.12, 1.35 - i * 1.5); g.add(log); }
+    g.add(tent, fire, L);
+    v.campFire = fire; v.light = L; v.meta.headTop = 2.0;
   } else if (n.prop === "throne") {
     v.meta.headTop = 4.5;
   } else if (n.prop === "gather") {
@@ -21605,6 +21689,7 @@ function syncNpc(n, dt) {
       v.flame[0].scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.12, k);
       v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
     }
+    if (v.campFire) { const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.12; v.campFire.scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.15, k); v.light.intensity = 5 + Math.sin(S.time * 11) * 1.5; }
     if (v.bob) {
       const b = Math.sin(S.time * 3 + n.x) * 0.05;
       v.group.position.y += Math.max(0, b * 2);

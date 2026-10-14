@@ -10,7 +10,7 @@ const CONFIG = {
   scrollDrop: 0.05,
   levelCap: 20,
   bowRange: 230,
-  foodMinutes: 30,
+  foodMinutes: 30, warpCost: 50, roadBonus: 1.15,
   poolTime: 45, partyMax: 6, partyRange: 900, partyShare: [1, 1, 0.6, 0.45, 0.37, 0.32, 0.28], tradeRange: 250, tradeSlots: 8,
   meleeRange: 42,
   tpMax: 3000,
@@ -1595,3 +1595,25 @@ for (const zid of ["hollow", "frost", "marsh"]) {
   }
 }
 ACHIEVEMENTS.push({ id: "wayfarer", icon: "🧭", name: "Wayfarer", desc: "Visit every lookout tower, wayside shrine and weathered tablet in the wilds.", test: s => POI_IDS.every(id => (s.poi || {})[id]) });
+const CAMP_NAMES = { hollow: "Hollow Camp", frost: "Frostspire Camp", marsh: "Mire Camp" };
+for (const zid of ["hollow", "frost", "marsh"]) {
+  const z = ZONES[zid], L = z.landmarks || [], lm = L[Math.floor(L.length / 2)] || { x: z.w / 2, y: z.h / 2, r: 200 };
+  const at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 260);
+  if (!at) continue;
+  const cid = "campcrystal_" + zid;
+  NPCS[cid] = { name: CAMP_NAMES[zid] + " Crystal", model: "crystal", crystal: true, talk: "talkCrystal", camp: zid };
+  z.npcs.push({ id: cid, x: at.x, y: at.y });
+  NPCS["camp_" + zid] = { name: CAMP_NAMES[zid], prop: "camp", talk: "talkCamp", poi: "camp" };
+  z.npcs.push({ id: "camp_" + zid, x: at.x + 90, y: at.y + 10 });
+}
+for (const zid in ZONES) {
+  const z = ZONES[zid];
+  if (z.indoor || z.theme === "house" || z.theme === "cave" || z.theme === "crypt") continue;
+  (z.exits || []).forEach((e, i) => {
+    if (!e.hall || e.kind === "door" || !ZONES[e.to]) return;
+    const inner = exitInner(z, e), horiz = e.x <= 0 || e.x + e.w >= z.w, off = (e.lane || 110) + 45;
+    const id = "sign_" + zid + "_" + i;
+    NPCS[id] = { name: "Signpost", prop: "sign", talk: "talkSign", signTo: e.to };
+    z.npcs.push({ id, x: Math.round(inner.x + (horiz ? 0 : off)), y: Math.round(inner.y + (horiz ? off : 0)) });
+  });
+}

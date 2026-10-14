@@ -1054,6 +1054,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - game.js TALK: `talkLookout` (marks all zone landmarks, first visit +60 xp), `talkShrine` (10 crystals, 1h cooldown in `save.timers["shrine:"+id]`, buff `boon` 30 min → gainXp ×1.1, first +40 xp), `talkLore` (first read +50 xp). `save.poi[id]` = first-visit time.
 - models3d propView: `lookout` (4 posts, deck, roof, ladder, flag), `shrine` (stone altar, orb, candles, warm light). hud4 minimap shows `n.poi` dots (purple; cache gold).
 
+## Phase 70: Z5 travel (v10.10.0)
+- data.js tail: camps for hollow/frost/marsh via poiSpot near the middle landmark: NPCS `campcrystal_<z>` (crystal, talkCrystal, camp) + `camp_<z>` (prop camp, talkCamp, poi "camp") 90px east. Signposts `sign_<z>_<i>` (prop sign, talkSign, signTo) beside each hall's inner end (offset lane+45 sideways) in non-cave, non-house zones.
+- game.js: talkCrystal attunes (`save.attuned[id] = zone`), "Set as home point" only when `S.zone.safe` (town-only home rule kept; p1 test asserts no crystal_hollow), "Warp" option → promptChoice → `warpTo(id)` (CONFIG.warpCost 50, not while engaged; enterZone at crystal +80y). `talkSign` lists exits with compass direction and distance (px/10 "yalms"). `onRoad(e)` (path w×0.6); `mountMul` × CONFIG.roadBonus 1.15 on roads outside safe zones (p3 speed bound widened).
+- models3d propView: `sign` (post + two arms), `camp` (tent cone, stone ring, fire, logs, light); syncNpc flickers `v.campFire`.
+- Ferry deferred to phase 79 (Gull Isle) since it needs the island zone.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1083,7 +1089,7 @@ World scale track:
 - 67 (10.7.0) DONE (scaling + plateaus/ravines; no new caves yet). Z2 Bigger zones: existing fields 2–3x larger with sub-regions (plateaus, canyons, ravines, ridges), multiple entrances, hidden pockets and caves.
 - 68 (10.8.0) DONE. Z3 Life: ambient wildlife (birds, butterflies, fish, deer), wandering travellers and caravans, per-area ambient sound, ecology that changes by time and weather.
 - 69 (10.9.0) DONE (lookouts, shrines, tablets, caches; wrecks/NM lairs not yet). Z4 Points of interest: lookouts, shrines, wrecks, ruins, hidden chests, rare gathering spots, NM lairs, lore tablets; map regions and discovery rewards.
-- 70 (10.10.0) Z5 Travel: roads with signposts, mount routes, a ferry between harbor and an island, crystal warps with costs, outpost camps that act as home points.
+- 70 (10.10.0) DONE (camps are warp points, not home points; ferry moved to phase 79). Z5 Travel: roads with signposts, mount routes, a ferry between harbor and an island, crystal warps with costs, outpost camps that act as home points.
 - 71–74 (11.0.0–11.3.0) New jobs in groups: SAM/NIN/DRG, BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
 New zones (one per release; each gets its own monsters, NM, gathering, quests, landmarks and music mood):
 - 75 (12.0.0) Second city: a rival/allied nation with its own shops, guilds, missions, residence option and a distinct building style; road link to the Outpost region.
@@ -1124,6 +1130,7 @@ World systems:
 | 10.7.0 | Phase 67: Hollow ×1.5, Frost/Marsh ×1.4, plateaus and ravines. |
 | 10.8.0 | Phase 68: wildlife, travellers, butterflies, fish, procedural ambience. |
 | 10.9.0 | Phase 69: lookouts, shrines, lore tablets, hidden caches, Wayfarer. |
+| 10.10.0 | Phase 70: camps, crystal warps, signposts, road riding bonus. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |
