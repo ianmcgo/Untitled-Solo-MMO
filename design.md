@@ -1067,6 +1067,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - rig: JOB_TINT for new jobs; weaponEntry `gkatana`/`katana` (curved extruded blade, wrapped grip, round guard, edge strip/glow) and `polearm` (long shaft, two grips, spearhead + side prongs). anim: gkatana = cleave/two-hand stance; polearm = thrust/staff stance; jump arc pose (rootOff up to 2.2/3.2). models3d attach/sheathe rules include new kinds.
 - Tests: p31unit (quests, abilities, shadows, Third Eye, Jump). harness exports `aggro`.
 
+## Phase 72: Beastmaster, Blue Mage, Corsair (v11.1.0)
+- data.js block before `const SHOP`: jobs BST/BLU/COR (lv 14 quests bst/blu/cor appended at file end), skill `axe` + magic `blue`, 4 axe WS, abilities call_beast/reward/feral_howl (BST), burst_affinity (BLU), phantom_roll ("Valor Roll")/quick_shot/hawk_roll/double_down (COR). 10 blue spells `blu_*` (`blue: true`, skill "blue", kinds bluephys/debuff/drain/nuke) and `BLUE_LEARN` move-name → id; scroll generator skips `sp.blue`. `BEASTS` tiers (hill_lizard 1, pond_crab 8, mountain_ram 14). Axes bronze–steel at SHOP, frost at vela. Equip rules: COR on daggers/swords, BLU on swords/clubs; armour WAR→BST, RDM→BLU, THF→COR.
+- game.js: `callBeast` (ally pet with `beast`, `fam`, job WAR; tickPet releases on job change/death, no upkeep), Reward, Feral Howl (`weaken` ×0.85 attacker dmg), `rollDice(a, kind, add)` (d6; Double Down adds; >7 busts; tables valor [..,14 at 5,..16 at 7], hawk [..,10 at 4,..12 at 7]; party within 300 px, 3 min; `a.lastRoll`), Quick Shot, `castBluePhys` (baseDmg × pDIF × mul × (1+blue skill×0.004)), Burst Affinity also boosts blue nukes, `blueLearnFrom(m, mv)` in execTpMove (BLU within 400 px, 50%, level gate). swing: valor_roll damage, hawk_roll accuracy, weaken.
+- rig: beast pets render via mobLook → lizard/crab/sheep entries (`beast|fam` sig); JOB_TINT for BST/BLU/COR; weaponEntry `axe`.
+- Tests: p32unit.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1097,7 +1103,7 @@ World scale track:
 - 68 (10.8.0) DONE. Z3 Life: ambient wildlife (birds, butterflies, fish, deer), wandering travellers and caravans, per-area ambient sound, ecology that changes by time and weather.
 - 69 (10.9.0) DONE (lookouts, shrines, tablets, caches; wrecks/NM lairs not yet). Z4 Points of interest: lookouts, shrines, wrecks, ruins, hidden chests, rare gathering spots, NM lairs, lore tablets; map regions and discovery rewards.
 - 70 (10.10.0) DONE (camps are warp points, not home points; ferry moved to phase 79). Z5 Travel: roads with signposts, mount routes, a ferry between harbor and an island, crystal warps with costs, outpost camps that act as home points.
-- 71 DONE (11.0.0) SAM/NIN/DRG. 72–74 (11.1.0–11.3.0) New jobs in groups: BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
+- 71 DONE (11.0.0) SAM/NIN/DRG. 72 DONE (11.1.0) BST/BLU/COR. 73–74 (11.2.0–11.3.0) New jobs in groups: BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
 New zones (one per release; each gets its own monsters, NM, gathering, quests, landmarks and music mood):
 - 75 (12.0.0) Second city: a rival/allied nation with its own shops, guilds, missions, residence option and a distinct building style; road link to the Outpost region.
 - 76 (12.1.0) Sunscar Desert: dunes, buried temple, sandworm NM, daytime heat that drains MP (shade/water items counter it).
@@ -1139,6 +1145,7 @@ World systems:
 | 10.9.0 | Phase 69: lookouts, shrines, lore tablets, hidden caches, Wayfarer. |
 | 10.10.0 | Phase 70: camps, crystal warps, signposts, road riding bonus. |
 | 11.0.0 | Phase 71: Samurai, Ninja, Dragoon jobs, three weapon types. |
+| 11.1.0 | Phase 72: Beastmaster, Blue Mage, Corsair. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

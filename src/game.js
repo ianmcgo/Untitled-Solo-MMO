@@ -438,6 +438,9 @@ function mercGear(m, lv) {
   if (job === "SAM") return lv >= 11 ? { main: "steel_tachi", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_tachi", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_tachi", body: "leather_vest", head: "bronze_cap" };
   if (job === "NIN") return lv >= 11 ? { main: "steel_katana", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_katana", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_katana", body: "leather_vest" };
   if (job === "DRG") return lv >= 11 ? { main: "steel_halberd", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_lance", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_spear", body: "leather_vest", head: "bronze_cap" };
+  if (job === "BST") return lv >= 11 ? { main: "steel_axe", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_axe", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_axe", body: "leather_vest", head: "bronze_cap" };
+  if (job === "BLU") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
+  if (job === "COR") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
   if (job === "MNK") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
   if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
   return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
@@ -550,6 +553,63 @@ function summonPet(a, sp) {
   sfx("burst", pet);
 }
 
+function callBeast(a) {
+  if (a !== player) return;
+  if (S.pet) releasePet(null);
+  const B = BEASTS.filter(b => player.lv >= b.lv).pop() || BEASTS[0];
+  const pet = makeChar({ kind: "ally", pet: true, beast: B.fam, petKey: "beast_" + B.fam, name: B.name, job: "WAR", sub: null, role: "pet", speed: 160, lv: player.lv });
+  pet.gear = {};
+  pet.fam = FAMILIES[B.fam];
+  pet.x = player.x + Math.cos(player.face) * 30; pet.y = player.y + Math.sin(player.face) * 30;
+  pet.px = pet.x; pet.py = pet.y;
+  buildStats(pet);
+  pet.color = "#8d6e63";
+  S.pet = pet;
+  S.party.push(pet);
+  S.petTick = S.time + 3;
+  log("You whistle, and a " + B.name + " bounds to your side!", "you");
+  popText(pet, B.name, pet.color, 13, 1.2, 14);
+  vfx("mount", { tgt: pet });
+  sfx("mount", pet);
+}
+function rollDice(a, kind, add) {
+  const prev = a.lastRoll && a.lastRoll.kind === kind && S.time - a.lastRoll.at < 180 ? a.lastRoll.total : 0;
+  const die = randInt(1, 6), total = add ? prev + die : die;
+  const name = kind === "valor_roll" ? "Valor Roll" : "Hawk Roll";
+  if (total > 7) {
+    for (const p of S.party) if (p.buffs[kind]) delete p.buffs[kind];
+    a.lastRoll = null;
+    log(subj(a) + " " + vb(a, "roll") + " a " + die + " for " + total + ". Bust! " + name + " is lost.", cls(a));
+    popText(a, "Bust!", "#c62828", 15, 1.2, 14);
+    sfx("error", a);
+    return;
+  }
+  const lucky = kind === "valor_roll" ? 5 : 4;
+  const pow = (kind === "valor_roll" ? [0, 4, 5, 6, 7, 14, 9, 16] : [0, 3, 4, 5, 10, 6, 7, 12])[total];
+  for (const p of S.party) if (p.alive && dist(p, a) < 300) { p.buffs[kind] = { until: S.time + 180, pow }; ring(p, "#ffd54f", 24, 0.5); }
+  a.lastRoll = { kind, total, at: S.time };
+  log(subj(a) + " " + vb(a, "roll") + (add ? " again: a " + die + ", total " + total : " a " + total) + (total === lucky ? ". Lucky!" : ".") + " " + name + ": " + (kind === "valor_roll" ? "attack +" + pow + "%" : "accuracy +" + pow) + " for the party.", cls(a));
+  popText(a, "🎲 " + total + (total === lucky ? " Lucky!" : ""), "#ffd54f", 16, 1.3, 14);
+  sfx("coin", a);
+}
+function blueLearnFrom(m, mv) {
+  if (player.job !== "BLU" || !player.alive || dist(m, player) > 400) return;
+  const id = BLUE_LEARN[mv.name];
+  if (!id || save.spells.includes(id) || SPELLS[id].jobs.BLU > player.lv) return;
+  if (Math.random() > 0.5) return;
+  save.spells.push(id);
+  log("You watch the " + m.name + "'s " + mv.name + " closely... and learn it! New blue magic: " + SPELLS[id].name + ".", "loot");
+  popText(player, "Learned " + SPELLS[id].name, "#42a5f5", 14, 1.4, 14);
+  sfx("unlock");
+  saveGame();
+}
+function castBluePhys(a, t, sp) {
+  let dmg = Math.max(1, Math.floor(baseDmg(a, t) * pDIF(a, t) * sp.mul * (1 + skillOf(a, "blue") * 0.004)));
+  if (a.buffs.burst_affinity) { dmg = Math.floor(dmg * 1.5); delete a.buffs.burst_affinity; }
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " takes " + dmg + " damage.", cls(a));
+  sfx("crit", t); vfx("hit", { src: a, tgt: t, crit: true, slash: false });
+  applyDamage(a, t, dmg, { color: "#42a5f5", size: 20, enmity: 60 + dmg });
+}
 function releasePet(msg) {
   const pet = S.pet;
   if (!pet) return;
@@ -563,6 +623,7 @@ function releasePet(msg) {
 function tickPet() {
   const pet = S.pet;
   if (!pet) return;
+  if (pet.beast) { if (!pet.alive || player.job !== "BST" || !player.alive) releasePet(pet.alive ? "Your " + pet.name + " wanders back into the wild." : "Your " + pet.name + " is too hurt to go on."); return; }
   if (!pet.alive || player.job !== "SMN" || !player.alive) { releasePet("Your " + pet.name + " fades away."); return; }
   if (S.time >= S.petTick) {
     S.petTick = S.time + 3;
@@ -601,7 +662,7 @@ function syncAllies(full) {
   }
 }
 
-const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"] };
+const MERC_ROLES = { WAR: ["tank", "dd"], WHM: ["healer", "support"], BLM: ["nuker", "burster"], PLD: ["tank"], RDM: ["hybrid"], THF: ["dd"], RNG: ["dd"], DRK: ["dd"], BRD: ["bard"], MNK: ["dd"], SAM: ["dd"], NIN: ["tank", "dd"], DRG: ["dd"], BST: ["dd"], BLU: ["dd"], COR: ["dd"] };
 const MERC_ROLE_TEXT = { tank: "Holds enemy attention and keeps them off you.", dd: "Deals steady damage and works skillchains.", healer: "Keeps the party alive with cures.", support: "Backs up the healer and weakens foes.", nuker: "Blasts enemies with elemental magic.", burster: "Saves MP to magic-burst your skillchains.", hybrid: "Fights in melee, debuffs and heals in a pinch.", bard: "Keeps songs on the party and lulls extra foes." };
 const MERC_SYL = [["Al", "Bre", "Cas", "Da", "El", "Fa", "Gor", "Hal", "Is", "Jo", "Ka", "Lo", "Mar", "Ne", "Or", "Pe", "Quin", "Ro", "Sa", "Tor", "Ul", "Va", "Wy", "Ys", "Zan"], ["ra", "en", "ric", "li", "dor", "mi", "wen", "so", "thar", "ny", "vel", "ris", "do", "ka", "len", "bry", "ti", "mon"], ["", "", "n", "s", "a", "el", "or", "is", "e"]];
 const MERC_TRAITS = ["Quiet but dependable.", "Talks too much in a fight.", "Fresh from the frontier.", "A veteran of the Hollow wars.", "Saving up for a farm.", "Never misses breakfast.", "Owes Brann a favour.", "Hums while working.", "Keeps a lucky charm.", "Wants a story worth telling."];
@@ -915,7 +976,7 @@ function swing(a, d) {
     a.volley = false;
     return;
   }
-  if (!sneak && Math.random() * 100 >= hitChance(a, d, b.hasso ? 10 : 0)) {
+  if (!sneak && Math.random() * 100 >= hitChance(a, d, (b.hasso ? 10 : 0) + (b.hawk_roll ? b.hawk_roll.pow : 0))) {
     log(subj(a) + " " + vb(a, "miss", "misses") + " " + obj(d) + ".", cls(a));
     popText(d, "Miss", "#bbbbbb", 14, 0.8);
     sfx("miss", a);
@@ -930,11 +991,13 @@ function swing(a, d) {
   if (boost) dmg = Math.floor(dmg * 1.5);
   if (b.hasso) dmg = Math.floor(dmg * 1.12);
   if (b.dragon_spirit) dmg = Math.floor(dmg * 1.15);
+  if (b.valor_roll) dmg = Math.floor(dmg * (1 + b.valor_roll.pow / 100));
+  if (b.weaken) dmg = Math.floor(dmg * 0.85);
   if (b.soulfire && a.hp > 1) { const burn = Math.min(a.hp - 1, Math.floor(a.hp * 0.06)); a.hp -= burn; dmg += Math.floor(burn * 1.6); }
   a.tp = Math.min(CONFIG.tpMax, a.tp + tpGain + (boost ? 100 : 0));
   d.tp = Math.min(CONFIG.tpMax, d.tp + Math.round(tpGain / 3));
   if (crit) S.shake = Math.max(S.shake, 0.1);
-  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm"].includes(a.stats.wtype) ? "slash" : "blunt");
+  const wt = isMob(a) ? "blunt" : (["sword", "greataxe", "archery", "gkatana", "katana", "polearm", "axe"].includes(a.stats.wtype) ? "slash" : "blunt");
   sfx(crit ? "crit" : wt === "slash" ? "slash" : "blunt", a);
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
@@ -2031,6 +2094,38 @@ function doAbility(a, id, t) {
     if (heal > 0) { ring(a, "#ffb74d", 30, 0.6); sfx("cure", a); vfx("cure", { tgt: a }); }
     return;
   }
+  if (id === "call_beast") { callBeast(a); return; }
+  if (id === "reward") {
+    const pet = S.pet;
+    if (!pet || !pet.beast || !pet.alive) { log("You have no beast to reward.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    const heal = Math.min(pet.maxHp - pet.hp, Math.round(pet.maxHp * 0.4));
+    pet.hp += heal;
+    log("You give your " + pet.name + " a treat. It recovers " + heal + " HP.", "you");
+    popText(pet, "+" + heal, "#9ad06b", 15, 1.1); vfx("cure", { tgt: pet }); sfx("cure", pet);
+    return;
+  }
+  if (id === "feral_howl") {
+    t.buffs.weaken = { until: S.time + 30 };
+    log(subj(a) + " " + vb(a, "let") + " out a Feral Howl. The " + t.name + " cowers!", cls(a));
+    popText(t, "Cowed", "#8d6e63", 13, 1); ring(a, "#8d6e63", 40, 0.6); sfx("provoke", a);
+    addEnmity(t, a, ab.enmity); aggro(t, a);
+    return;
+  }
+  if (id === "phantom_roll") { rollDice(a, "valor_roll", false); return; }
+  if (id === "hawk_roll") { rollDice(a, "hawk_roll", false); return; }
+  if (id === "double_down") {
+    if (!a.lastRoll) { log("You have no roll to double down on.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    rollDice(a, a.lastRoll.kind, true); return;
+  }
+  if (id === "quick_shot") {
+    const dmg = Math.max(1, Math.round((10 + a.lv * 4 + a.stats.agi * 0.8) * rand(0.9, 1.15)));
+    a.face = Math.atan2(t.y - a.y, t.x - a.x);
+    log(subj(a) + " " + vb(a, "fire") + " a Quick Shot! The " + t.name + " takes " + dmg + " damage.", cls(a));
+    vfx("arrow", { src: a, tgt: t }); sfx("blunt", t);
+    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg });
+    if (t.alive) aggro(t, a);
+    return;
+  }
   if (id === "meditate") {
     a.tp = Math.min(CONFIG.tpMax, a.tp + 400);
     log(subj(a) + " " + vb(a, "meditate", "meditates") + " and " + vb(a, "gain", "gains") + " 400 TP.", cls(a));
@@ -2111,6 +2206,7 @@ function finishCast(a) {
   if (isMate(t)) { netCastOn(a, t, sp, id); return; }
   if (sp.kind === "heal") castHeal(a, t, sp);
   else if (sp.kind === "nuke") castNuke(a, t, sp);
+  else if (sp.kind === "bluephys") castBluePhys(a, t, sp);
   else if (sp.kind === "dot") castDia(a, t, sp);
   else if (sp.kind === "debuff") castDebuff(a, t, sp);
   else if (sp.kind === "buff") castBuff(a, t, sp);
@@ -2151,6 +2247,7 @@ function castNuke(a, t, sp) {
   dmg *= (t.fam.weak && t.fam.weak[sp.element]) || 1;
   if (sp.element === dayElement()) dmg *= 1.1;
   if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
+  if (sp.blue && a.buffs.burst_affinity) { dmg *= 1.5; delete a.buffs.burst_affinity; }
   let resist = 1;
   if (Math.random() * 100 >= magicHit(a, t, sp)) resist = Math.random() < 0.75 ? 0.5 : 0.25;
   dmg *= resist;
@@ -2583,6 +2680,7 @@ function execTpMove(m) {
   if (!t.alive) return;
   log("The " + m.name + " uses " + mv.name + ".", "foe");
   sfx("tpmove", m);
+  blueLearnFrom(m, mv);
   vfx("tpmove", { src: m, tgt: t, mv });
   if (S.others && S.others.size && !m.proxy) for (const o of S.others.values()) if (o.alive && (o === t || (mv.aoe && dist(o, t) <= mv.aoe))) netMobAttack(m, o, "tp");
   const targets = (mv.aoe ? S.party.filter(p => p.alive && dist(p, t) <= mv.aoe) : [t]).filter(x => x.kind !== "remote");

@@ -564,6 +564,74 @@ for (const id in ITEMS) {
   if (it.jobs.includes("WAR")) { if (!it.jobs.includes("SAM")) it.jobs.push("SAM"); if (!it.jobs.includes("DRG")) it.jobs.push("DRG"); }
   if (it.jobs.includes("THF") && !it.jobs.includes("NIN")) it.jobs.push("NIN");
 }
+ALL_JOBS.push("BST", "BLU", "COR");
+Object.assign(ADVANCED_JOBS, { BST: { quest: "bst", lv: 14 }, BLU: { quest: "blu", lv: 14 }, COR: { quest: "cor", lv: 14 } });
+Object.assign(JOBS, {
+  BST: { name: "Beastmaster", color: "#8d6e63", icon: "🐾", hp: [62, 12], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [8, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [7, 0.7], advanced: true },
+  BLU: { name: "Blue Mage", color: "#42a5f5", icon: "🔷", hp: [58, 11], mp: [18, 5], str: [8, 0.8], dex: [8, 0.8], vit: [7, 0.7], agi: [7, 0.7], int: [8, 0.8], mnd: [7, 0.6], advanced: true },
+  COR: { name: "Corsair", color: "#c62828", icon: "🎲", hp: [58, 11], mp: [6, 2], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [9, 0.9], int: [7, 0.7], mnd: [6, 0.5], advanced: true }
+});
+COMBAT_SKILLS.push("axe");
+MAGIC_SKILLS.push("blue");
+Object.assign(SKILL_NAMES, { axe: "Axe", blue: "Blue Magic" });
+Object.assign(SKILL_RATINGS, {
+  BST: { axe: "A", scythe: "B", sword: "C", dagger: "C", club: "D" },
+  BLU: { sword: "A", club: "B", dagger: "D", blue: "A" },
+  COR: { dagger: "A", sword: "B", archery: "C", h2h: "E" }
+});
+Object.assign(WEAPON_SKILLS, {
+  cleaving_chop: { name: "Cleaving Chop", wtype: "axe", skill: 5, props: ["Detonation", "Impaction"], ftp: [1.5, 2.1, 2.7] },
+  wild_hack: { name: "Wild Hack", wtype: "axe", skill: 22, props: ["Scission"], ftp: [1.8, 2.5, 3.3] },
+  feral_rend: { name: "Feral Rend", wtype: "axe", skill: 40, props: ["Induration", "Scission"], ftp: [2.1, 2.9, 3.7] },
+  primal_fury: { name: "Primal Fury", wtype: "axe", skill: 75, props: ["Fusion", "Fragmentation"], ftp: [2.5, 3.3, 4.3] }
+});
+Object.assign(ABILITIES, {
+  call_beast: { name: "Call Beast", job: "BST", lv: 1, recast: 60, target: "self", desc: "Whistle up a loyal beast to fight at your side: a scaleback lizard, a pincher crab from level 8, or a great ram from level 14." },
+  reward: { name: "Reward", job: "BST", lv: 5, recast: 60, target: "self", desc: "Feed your beast a treat, restoring 40% of its HP." },
+  feral_howl: { name: "Feral Howl", job: "BST", lv: 15, recast: 90, target: "enemy", enmity: 100, desc: "A savage howl that cows the target: its attack drops 15% for 30 s." },
+  burst_affinity: { name: "Burst Affinity", job: "BLU", lv: 5, recast: 90, target: "self", buff: "burst_affinity", dur: 30, desc: "Your next blue magic spell hits 50% harder." },
+  phantom_roll: { name: "Valor Roll", job: "COR", lv: 1, recast: 60, target: "self", desc: "Roll a die for the whole party: attack rises by an amount set by the roll (5 is lucky) for 3 minutes." },
+  quick_shot: { name: "Quick Shot", job: "COR", lv: 5, recast: 45, target: "enemy", enmity: 60, desc: "A fast pistol shot for moderate damage." },
+  hawk_roll: { name: "Hawk Roll", job: "COR", lv: 8, recast: 60, target: "self", desc: "Roll a die for the party: accuracy rises by an amount set by the roll (4 is lucky) for 3 minutes." },
+  double_down: { name: "Double Down", job: "COR", lv: 10, recast: 30, target: "self", desc: "Roll again and add it to your last roll. Go over 7 and you bust: the roll's effect is lost." }
+});
+const BLUE_LEARN = {};
+for (const [id, name, lv, def] of [
+  ["blu_hind_kick", "Hind Kick", 1, { kind: "bluephys", mul: 1.6, mp: 6 }],
+  ["blu_sticky_thread", "Sticky Thread", 2, { kind: "debuff", element: "earth", buff: "slow", dur: 45, enmity: 60, mp: 8 }],
+  ["blu_dream_dust", "Dream Dust", 4, { kind: "debuff", element: "light", buff: "sleep", dur: 30, enmity: 40, mp: 10 }],
+  ["blu_snapjaw", "Snapjaw", 5, { kind: "bluephys", mul: 1.9, mp: 9 }],
+  ["blu_big_pinch", "Big Pinch", 6, { kind: "bluephys", mul: 1.8, mp: 10 }],
+  ["blu_tail_whip", "Tail Whip", 8, { kind: "bluephys", mul: 1.7, mp: 11 }],
+  ["blu_blood_drain", "Blood Drain", 10, { kind: "drain", element: "dark", power: 18, mp: 12 }],
+  ["blu_water_lance", "Water Lance", 13, { kind: "nuke", element: "water", power: 40, stat: "int", mp: 14 }],
+  ["blu_battle_roar", "Battle Roar", 14, { kind: "bluephys", mul: 2.0, mp: 16 }],
+  ["blu_boulder_toss", "Boulder Toss", 16, { kind: "bluephys", mul: 2.1, mp: 18 }]
+]) {
+  SPELLS[id] = Object.assign({ name, jobs: { BLU: lv }, cast: 1.5, recast: 12, target: def.kind === "debuff" || def.kind === "nuke" || def.kind === "drain" || def.kind === "bluephys" ? "enemy" : "self", skill: "blue", blue: true, desc: "Blue magic learned from monsters that use " + name + "." + (def.kind === "bluephys" ? " A physical blow." : "") }, def);
+  BLUE_LEARN[name] = id;
+}
+const BEASTS = [{ lv: 1, fam: "hill_lizard", name: "Scaleback" }, { lv: 8, fam: "pond_crab", name: "Pincher" }, { lv: 14, fam: "mountain_ram", name: "Great Ram" }];
+Object.assign(BUFF_NAMES, { weaken: "Cowed", burst_affinity: "Burst Affinity", valor_roll: "Valor Roll", hawk_roll: "Hawk Roll" });
+Object.assign(BUFF_ICONS, { weaken: "😨", burst_affinity: "🔷", valor_roll: "🎲", hawk_roll: "🦅" });
+Object.assign(ITEMS, {
+  bronze_axe: { name: "Bronze Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 8, delay: 2.8, jobs: ["BST"], lv: 1, price: 110 },
+  iron_axe: { name: "Iron Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 12, delay: 2.8, jobs: ["BST"], lv: 6, price: 980, stats: { str: 1 } },
+  steel_axe: { name: "Steel Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 17, delay: 2.8, jobs: ["BST"], lv: 11, price: 2800, stats: { str: 1, acc: 2 } },
+  frost_axe: { name: "Frostforged Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 24, delay: 2.8, jobs: ["BST"], lv: 17, price: 9900, stats: { str: 3, acc: 3 } }
+});
+for (const id in ITEMS) {
+  const it = ITEMS[id];
+  if (!it.jobs) continue;
+  if (it.slot === "main") {
+    if ((it.wtype === "dagger" || it.wtype === "sword") && !it.jobs.includes("COR")) it.jobs.push("COR");
+    if ((it.wtype === "sword" || it.wtype === "club") && !it.jobs.includes("BLU")) it.jobs.push("BLU");
+    continue;
+  }
+  if (it.jobs.includes("WAR") && !it.jobs.includes("BST")) it.jobs.push("BST");
+  if (it.jobs.includes("RDM") && !it.jobs.includes("BLU")) it.jobs.push("BLU");
+  if (it.jobs.includes("THF") && !it.jobs.includes("COR")) it.jobs.push("COR");
+}
 const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
@@ -1549,6 +1617,7 @@ const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["tide_crown", "abys
 for (const id in SPELLS) {
   const sp = SPELLS[id], lv = Math.min(...Object.values(sp.jobs));
   sp.id = id; sp.minLv = lv;
+  if (sp.blue) continue;
   const sid = "scroll_" + id;
   ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
   if (lv <= 10) SHOP.push(sid); else if (lv <= 17) SHOPS.vela.push(sid);
@@ -1695,3 +1764,13 @@ Object.assign(QUESTS, {
 });
 SHOP.push("bronze_tachi", "iron_tachi", "steel_tachi", "bronze_katana", "iron_katana", "steel_katana", "bronze_spear", "iron_lance", "steel_halberd");
 if (SHOPS.vela) SHOPS.vela.push("frost_tachi", "rime_katana", "frost_lance");
+Object.assign(QUESTS, {
+  bst: { name: "Call of the Wild", giver: "Tobin", npc: "tobin", lv: 14, items: { lizard_skin: 2, wool_tuft: 3 }, desc: "Bring Tobin 2 Lizard Skins and 3 Wool Tufts to learn the Beastmaster's ways.", reward: { xp: 800, gil: 0, item: "bronze_axe", qty: 1, unlock: "BST" },
+    intro: "A Beastmaster never fights alone. They whistle up a beast of the wilds, feed it, and set it on their foes, then wade in after it with an axe. Bring me a lizard's skin and some sheep's wool for a beast's harness, and I'll teach you the call.", progress: "2 Lizard Skins and 3 Wool Tufts. The Hollow has both.", turn: "A good harness. Take this axe, and whistle; something will answer." },
+  blu: { name: "The Borrowed Art", giver: "Tobin", npc: "tobin", lv: 14, items: { crab_shell: 2, mandrake_leaf: 2 }, desc: "Bring Tobin 2 Crab Shells and 2 Mandrake Leaves to begin the Blue Mage's study.", reward: { xp: 800, gil: 0, item: "iron_sword", qty: 1, unlock: "BLU" },
+    intro: "A Blue Mage learns magic from monsters. Watch a beast use its special move up close and survive it, and you can learn to do the same. A dangerous way to study. Bring me crab shells and mandrake leaves and I'll open your eyes to it.", progress: "2 Crab Shells and 2 Mandrake Leaves. Crabs live by the water; mandrakes come out by day.", turn: "Now stand close when the monsters strike. As a Blue Mage, every move you see might become your own." },
+  cor: { name: "Lady Luck", giver: "Tobin", npc: "tobin", lv: 14, items: { harbor_bream: 2, orc_tooth: 1 }, desc: "Bring Tobin 2 Harbor Bream and 1 Orc Tooth to roll with the Corsairs.", reward: { xp: 800, gil: 0, item: "iron_dagger", qty: 1, unlock: "COR" },
+    intro: "Corsairs trust the dice. A good roll lifts the whole crew's blade or aim; a greedy one can bust. They carry daggers and a pistol for a quick shot. Bring me fresh bream from Saltreach and an orc's tooth for a lucky die, and I'll show you the game.", progress: "2 Harbor Bream from the Saltreach docks and 1 Orc Tooth from the marsh orcs.", turn: "Here's a dagger and a pair of dice. Roll well." }
+});
+SHOP.push("bronze_axe", "iron_axe", "steel_axe");
+if (SHOPS.vela) SHOPS.vela.push("frost_axe");

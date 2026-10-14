@@ -487,6 +487,9 @@ const JOB_TINT = {
   MNK: { shirt: 0xd8893a, pants: 0x5a3f28, robe: 0xd8893a, trim: 0x8a3a2a },
   RNG: { shirt: 0x4a6a34, pants: 0x3a3024, robe: 0x4a6a34, trim: 0xb08a50 },
   DRK: { shirt: 0x2a2232, pants: 0x1e1a22, robe: 0x2a2232, trim: 0x8e6bbf },
+  BST: { shirt: 0x5a4a32, pants: 0x3a3024, robe: 0x5a4a32, trim: 0x8d6e63 },
+  BLU: { shirt: 0x1f4a7a, pants: 0x2a2a3a, robe: 0x1f4a7a, trim: 0x42a5f5 },
+  COR: { shirt: 0x7a1e1e, pants: 0x2a2020, robe: 0x7a1e1e, trim: 0xd8b040 },
   SAM: { shirt: 0x6a3a2a, pants: 0x2a2420, robe: 0x6a3a2a, trim: 0xe0a060 },
   NIN: { shirt: 0x2a3038, pants: 0x1e2228, robe: 0x2a3038, trim: 0x78909c },
   DRG: { shirt: 0x2a3a6a, pants: 0x2a2a34, robe: 0x2a3a6a, trim: 0x5c8adb },
@@ -1480,6 +1483,19 @@ function weaponEntry(kind, id) {
     R.add(bg, "w", blade, "metal");
     R.add(gBox(V3(curve * 0.35, 0.1 + L * 0.45, 0), W * 0.12, L * 0.8, 0.0135), "w", glowC || 0xf4f6f8, glowC ? "glow" : "metal", !!glowC);
     tip = [0.3, 0.1 + L];
+  } else if (kind === "axe") {
+    R.add(gTaper(V3(0, -0.2, 0), V3(0, 0.42, 0), 0.018, 0.02, 8), "w", wood, "wood");
+    R.add(gTaper(V3(0, -0.12, 0), V3(0, 0.02, 0), 0.022, 0.022, 8), "w", grip, "leather");
+    const sh = new THREE.Shape();
+    sh.moveTo(0, 0.05); sh.quadraticCurveTo(0.1, 0.07, 0.17, 0.14); sh.quadraticCurveTo(0.13, 0, 0.17, -0.12); sh.quadraticCurveTo(0.1, -0.06, 0, -0.05); sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 1 });
+    g.translate(0, 0, -0.006);
+    const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / 0.18, (uv.getY(i) + 0.12) / 0.26);
+    g.rotateY(Math.PI / 2); g.translate(0, 0.36, 0);
+    R.add(g, "w", blade, "metal");
+    R.add(gBox(V3(0, 0.36, 0), 0.035, 0.08, 0.05), "w", blade, "metal");
+    if (glowC) R.add(gRing(V3(0, 0.3, 0), 0.026, 0.007, "y", 10), "w", glowC, "glow", true);
+    tip = [0.3, 0.5];
   } else if (kind === "polearm") {
     R.add(gTaper(V3(0, -0.7, 0), V3(0, 1.0, 0), 0.02, 0.018, 8), "w", wood, "wood");
     for (let k = 0; k < 2; k++) R.add(gTaper(V3(0, 0.1 - k * 0.55, 0), V3(0, 0.25 - k * 0.55, 0), 0.024, 0.024, 8), "w", grip, "leather");
@@ -1717,6 +1733,13 @@ function buildEntityRig(e) {
     else if (B.model === "wisp") make = () => wispEntry(B.col, B.eye);
     else if (B.model === "worm") make = () => wormEntry(B.col);
     else { const L = goblinLook("goblin"); L.weapon = null; L.sack = false; make = () => humanEntry(L); }
+  } else if (e.pet && e.beast) {
+    const fk = e.beast, ml = mobLook({ fam: FAMILIES[fk], famKey: fk, id: 0 });
+    sig = "beast|" + fk;
+    if (ml.kind === "lizard") make = () => lizardEntry(ml.col, ml.col2);
+    else if (ml.kind === "crab") make = () => crabEntry(ml.col, ml.col2);
+    else if (ml.kind === "sheep") make = () => sheepEntry(ml.col);
+    else make = () => hareEntry(ml.col);
   } else if (e.pet) {
     const P = PETS[e.petKey];
     sig = "pet|" + e.petKey;
