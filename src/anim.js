@@ -153,6 +153,26 @@ function poseHuman(v, e, dt) {
       else { setP(P, "upArmR", -2.3, 0, 0.6, w); setP(P, "foreArmR", -1.9 + Math.sin(S.time * 14) * 0.15, 0, 0, w); addP(P, "head", 0.1 * w, 0, 0.15 * w); }
     }
   }
+  const em = e.emote;
+  if (em && amp < 0.2 && !e.casting && e.alive !== false) {
+    const len = em.id === "dance" ? 5 : em.id === "panic" ? 3 : 2.4, ek = (S.time - em.at) / len;
+    if (ek > 1) e.emote = null;
+    else {
+      const w = env(ek, 0.12, 0.2), T = S.time - em.at, osc = Math.sin(T * 8);
+      if (em.id === "wave") { setP(P, "upArmR", -2.6, 0, -0.5, w); setP(P, "foreArmR", -0.6, 0, osc * 0.5, w); addP(P, "head", 0, 0, -0.1 * w); }
+      else if (em.id === "bow") { const b = Math.sin(Math.min(1, ek * 1.6) * Math.PI) * w; addP(P, "spine", 0.7 * b, 0, 0); addP(P, "chest", 0.3 * b, 0, 0); addP(P, "head", 0.2 * b, 0, 0); setP(P, "upArmR", 0.2, 0, 0.3, b); setP(P, "foreArmR", -1.5, 0, 0, b); }
+      else if (em.id === "cheer") { const j = Math.abs(Math.sin(T * 6)); setP(P, "upArmL", -2.9, 0, 0.3, w); setP(P, "upArmR", -2.9, 0, -0.3, w); setP(P, "foreArmL", -0.2, 0, 0, w); setP(P, "foreArmR", -0.2, 0, 0, w); v.rootOff[1] += j * 0.12 * w; }
+      else if (em.id === "dance") { addP(P, "hips", 0, Math.sin(T * 5) * 0.4 * w, Math.sin(T * 5) * 0.12 * w); addP(P, "chest", 0, -Math.sin(T * 5) * 0.3 * w, 0); setP(P, "upArmL", -1.6 + Math.sin(T * 5) * 0.8, 0, 0.6, w); setP(P, "upArmR", -1.6 - Math.sin(T * 5) * 0.8, 0, -0.6, w); setP(P, "foreArmL", -1.2, 0, 0, w); setP(P, "foreArmR", -1.2, 0, 0, w); addP(P, "thighL", Math.max(0, Math.sin(T * 5)) * -0.5 * w, 0, 0); addP(P, "thighR", Math.max(0, -Math.sin(T * 5)) * -0.5 * w, 0, 0); addP(P, "shinL", Math.max(0, Math.sin(T * 5)) * 0.8 * w, 0, 0); addP(P, "shinR", Math.max(0, -Math.sin(T * 5)) * 0.8 * w, 0, 0); v.rootOff[1] += Math.abs(Math.sin(T * 10)) * 0.04 * w; }
+      else if (em.id === "laugh") { addP(P, "spine", -0.15 * w + Math.sin(T * 16) * 0.05 * w, 0, 0); addP(P, "head", -0.25 * w, 0, 0); setP(P, "upArmL", 0.1, 0, 0.5, w); setP(P, "foreArmL", -1.6, 0, 0, w); setP(P, "upArmR", 0.1, 0, -0.5, w); setP(P, "foreArmR", -1.6, 0, 0, w); }
+      else if (em.id === "nod") addP(P, "head", Math.max(0, Math.sin(T * 7)) * 0.35 * w, 0, 0);
+      else if (em.id === "clap") { const c = Math.sin(T * 14); setP(P, "upArmL", -1.0, 0.6, 0.15, w); setP(P, "upArmR", -1.0, -0.6, -0.15, w); setP(P, "foreArmL", -0.9, 0, -0.4 - c * 0.25, w); setP(P, "foreArmR", -0.9, 0, 0.4 + c * 0.25, w); }
+      else if (em.id === "point") { setP(P, "upArmR", -1.55, 0, -0.1, w); setP(P, "foreArmR", -0.1, 0, 0, w); addP(P, "head", 0.05 * w, 0, 0); }
+      else if (em.id === "salute") { setP(P, "upArmR", -1.5, 0, -0.9, w); setP(P, "foreArmR", -2.2, 0, 0, w); addP(P, "spine", -0.08 * w, 0, 0); }
+      else if (em.id === "panic") { setP(P, "upArmL", -2.7, 0, 0.6 + osc * 0.3, w); setP(P, "upArmR", -2.7, 0, -0.6 - osc * 0.3, w); addP(P, "head", 0, Math.sin(T * 11) * 0.5 * w, 0); v.rootOff[1] += Math.abs(Math.sin(T * 9)) * 0.06 * w; }
+      else if (em.id === "cry") { addP(P, "spine", 0.3 * w, 0, 0); addP(P, "head", 0.4 * w, 0, 0); setP(P, "upArmL", -1.3, 0.5, 0.1, w); setP(P, "upArmR", -1.3, -0.5, -0.1, w); setP(P, "foreArmL", -2.1, 0, 0, w); setP(P, "foreArmR", -2.1, 0, 0, w); addP(P, "chest", Math.sin(T * 9) * 0.04 * w, 0, 0); }
+      else if (em.id === "thumbsup") { setP(P, "upArmR", -1.1, 0, -0.2, w); setP(P, "foreArmR", -1.4, 0, 0, w); addP(P, "head", -0.05 * w, 0, 0.1 * w); }
+    }
+  }
   if (!an.lastYaw) an.lastYaw = e.face || 0;
   const dyaw = Math.abs(normAngA((e.face || 0) - an.lastYaw));
   an.lastYaw = e.face || 0;

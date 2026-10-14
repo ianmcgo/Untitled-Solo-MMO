@@ -977,6 +977,11 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - rig.js charMaterial onBeforeCompile adds fresnel rim (RIM uniforms shared, cache key charRim); updateSky sets RIM colour from sun (cool at night) and strength (0.4 night → 0.28 day, 0.18 caves).
 - High quality uses PCFSoftShadowMap.
 
+## Phase 57: G10 motion (v9.17.0)
+- `player.emote = {id, at}` set by emote commands (game.js); stands up if resting, faces target. `poseHuman` (anim.js) plays a per-emote pose block before the yaw logic; lengths: dance 5s, panic 3s, others 2.4s; uses setP/addP/env and v.rootOff.
+- net.js `netEmote(id)` broadcasts event "emo" {id, e}; listener sets `o.emote` on the matching `S.others` entry.
+- Start/stop smoothing (`an.spd`), idle variety (`idleAct`), cast and hit reactions already existed and were kept.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -991,7 +996,7 @@ Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big ski
 - 54 (9.14.0) G7 Monsters: proportion pass DONE; per-family sculpt + textures continue in M6.
 - 55 (9.15.0) G8 Grounding and collision: DONE.
 - 56 (9.16.0) G9 Shadows and depth: DONE (SSAO skipped for phone budget).
-- 57 (9.17.0) G10 Motion (was model phase 4): smoother turns/starts/stops, idle variety, better attack, cast and hit reactions, emotes.
+- 57 (9.17.0) G10 Motion: DONE (animated, networked emotes). Was: smoother turns/starts/stops, idle variety, better attack, cast and hit reactions, emotes.
 - 58 (9.18.0) G11 Effects: particle spell effects per element, weapon-skill trails, hit sparks, level-up and crystal effects, rain/snow/mist weather particles.
 - 59 (9.19.0) G12 Camera and finish: anti-aliasing, subtle bloom and colour grade, depth fog tuning, auto quality for phones, final performance pass.
 Model detail track (era-style detail comes mostly from painted textures on ~2–3k-triangle models, so textures carry most of the work):
@@ -1034,6 +1039,7 @@ World systems:
 | 9.1.0 | Phase 41: main menu window, in-world Status screen, map bottom-left, Commands box split. |
 | 9.2.0 | Phase 42: in-world windows, talk in log + prompt box, shrinking log, compass map, seated rest. |
 | 9.16.0 | Phase 56: blob shadows, rim light, soft shadows on high. |
+| 9.17.0 | Phase 57: animated emotes, shared with other players. |
 | 9.15.0 | Phase 55: slope pitch for long-bodied monsters, no sinking. |
 | 9.14.0 | Phase 54: monster proportions from reference measurements (crawler, bee, fish, sheep). |
 | 9.13.0 | Phase 53: 8 faces, 4 new hairstyles, wider character atlas. |

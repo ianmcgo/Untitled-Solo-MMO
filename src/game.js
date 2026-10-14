@@ -4362,6 +4362,10 @@ function runCommand(text) {
   if (EMOTES[cmd]) {
     const t = player.target && player.target !== player ? (isMob(player.target) ? " at the " : " at ") + player.target.name : "";
     log(save.name + " " + EMOTES[cmd] + t + ".", "say");
+    if (player.resting) standUp(player, true);
+    player.emote = { id: cmd, at: S.time };
+    if (player.target && player.target !== player) player.face = Math.atan2(player.target.y - player.y, player.target.x - player.x);
+    if (typeof netEmote === "function") netEmote(cmd);
     return;
   }
   log("Unknown command: /" + cmd + ". Type /help for a list.", "sys");
