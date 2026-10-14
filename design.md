@@ -912,7 +912,21 @@ Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big ski
 - 57 (9.17.0) G10 Motion (was model phase 4): smoother turns/starts/stops, idle variety, better attack, cast and hit reactions, emotes.
 - 58 (9.18.0) G11 Effects: particle spell effects per element, weapon-skill trails, hit sparks, level-up and crystal effects, rain/snow/mist weather particles.
 - 59 (9.19.0) G12 Camera and finish: anti-aliasing, subtle bloom and colour grade, depth fog tuning, auto quality for phones, final performance pass.
-- 60–63 (10.0.0–10.3.0) New jobs in groups: SAM/NIN/DRG, BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
+Model detail track (era-style detail comes mostly from painted textures on ~2–3k-triangle models, so textures carry most of the work):
+- 60 (10.0.0) M1 Mesh pipeline: replace primitive-part bodies with continuous lofted/lathed meshes per race (smooth shoulders, hips, necks, hands with fingers grouped), triangle budgets per tier, LOD levels.
+- 61 (10.1.0) M2 Painted texture system: canvas-painted texture atlases per model (cloth weave, leather grain, metal engraving, trim, shading baked in), per-region UVs, seeded variation.
+- 62 (10.2.0) M3 Faces and hair: painted face atlases (eyes, lashes, brows, lips, cheek shading) with 8 faces per race, blink/mouth flaps, carded hair meshes with alpha strands and 12 styles.
+- 63 (10.3.0) M4 Gear sets: unique meshes per armour piece (pauldrons, gauntlets, greaves, hoods, robes) and tiered visual sets; weapons with detailed silhouettes (guards, wraps, engraved blades) and glow on high tiers.
+- 64 (10.4.0) M5 Races in motion: per-race proportions, skeleton tweaks and animation sets (small folk bounce, big folk heavy steps, tails/ears that react).
+- 65 (10.5.0) M6 Monsters and NPCs: per-family sculpted meshes + painted textures + tier variants (colour, size, armour, accessories); every named NPC gets a unique outfit.
+World scale track:
+- 66 (10.6.0) Z1 Distance: far-terrain impostors, mountain/skyline backdrops per zone, longer draw distance with aerial perspective fog, landmarks visible from far away.
+- 67 (10.7.0) Z2 Bigger zones: existing fields 2–3x larger with sub-regions (plateaus, canyons, ravines, ridges), multiple entrances, hidden pockets and caves.
+- 68 (10.8.0) Z3 Life: ambient wildlife (birds, butterflies, fish, deer), wandering travellers and caravans, per-area ambient sound, ecology that changes by time and weather.
+- 69 (10.9.0) Z4 Points of interest: lookouts, shrines, wrecks, ruins, hidden chests, rare gathering spots, NM lairs, lore tablets; map regions and discovery rewards.
+- 70 (10.10.0) Z5 Travel: roads with signposts, mount routes, a ferry between harbor and an island, crystal warps with costs, outpost camps that act as home points.
+- 71 (10.11.0) Z6 New zones (to be picked by the user from suggestions: second city, desert, jungle, volcano, coastal cliffs/island, multi-floor tower, underground river, highland plateau).
+- 72–75 (11.0.0–11.3.0) New jobs in groups: SAM/NIN/DRG, BST/BLU/COR, PUP/DNC/SCH, GEO/RUN.
 - Pending on the user's side: run the latest setup.sql in Supabase.
 
 ## Version log
