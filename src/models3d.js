@@ -181,7 +181,8 @@ function syncEntity(e, dt) {
     const k = (S.time - e.deadAt - 1.4) / 1.0;
     g.position.y -= clamp(k, 0, 1) * 1.2;
     g.visible = !e.despawned && k < 1;
-  } else g.visible = !(e === player && VIEW.first) && !(e.kind === "npc" && e.away);
+  } else g.visible = !(e === player && VIEW.first) && !((e.kind === "npc" || e.ambient) && e.away);
+  if (e.fly) g.position.y += e.fly + Math.sin(S.time * 0.8 + (e.home ? e.home.x : 0)) * 0.6;
   if (v.kind === "human") poseHuman(v, e, dt);
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);

@@ -254,9 +254,52 @@ function desiredAmb() {
   return isNight() ? "amb_night" : "amb_day";
 }
 
+const AMBX = { on: false, layers: {}, nextCritter: 0 };
+function ambxInit() {
+  const ctx = AUDIO.ctx, N = ctx.sampleRate * 2, buf = ctx.createBuffer(1, N, ctx.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < N; i++) d[i] = Math.random() * 2 - 1;
+  const mk = (type, freq, q) => {
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    const g = ctx.createGain(); g.gain.value = 0;
+    src.connect(f); f.connect(g); g.connect(AUDIO.bus.amb); src.start();
+    return { g, f };
+  };
+  AMBX.layers = { rain: mk("bandpass", 2600, 0.6), wind: mk("lowpass", 420, 0.8), surf: mk("lowpass", 700, 0.7) };
+  AMBX.on = true;
+}
+function ambxCritter(kind) {
+  const ctx = AUDIO.ctx, t0 = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
+  o.connect(g); g.connect(AUDIO.bus.amb);
+  if (kind === "frog") { o.type = "square"; o.frequency.setValueAtTime(320, t0); o.frequency.exponentialRampToValueAtTime(180, t0 + 0.18); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.035, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0005, t0 + 0.2); o.start(t0); o.stop(t0 + 0.22); }
+  else if (kind === "bird") { o.type = "sine"; const f = 2400 + Math.random() * 1600; o.frequency.setValueAtTime(f, t0); o.frequency.exponentialRampToValueAtTime(f * 1.4, t0 + 0.08); o.frequency.exponentialRampToValueAtTime(f * 0.9, t0 + 0.16); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.02, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0005, t0 + 0.18); o.start(t0); o.stop(t0 + 0.2); }
+  else { o.type = "sine"; o.frequency.value = 4200 + Math.random() * 800; g.gain.setValueAtTime(0, t0); for (let k = 0; k < 3; k++) { g.gain.linearRampToValueAtTime(0.008, t0 + k * 0.07 + 0.01); g.gain.linearRampToValueAtTime(0, t0 + k * 0.07 + 0.05); } o.start(t0); o.stop(t0 + 0.25); }
+}
+function ambxTick() {
+  if (AUDIO.fallback || !AUDIO.ctx || !AUDIO.bus.amb) return;
+  if (!AMBX.on) ambxInit();
+  const th = S.zone ? S.zone.theme : "house", out = th !== "cave" && th !== "crypt" && th !== "house";
+  const wx = out && typeof weatherNow === "function" ? weatherNow() : null, now = AUDIO.ctx.currentTime;
+  if (now - (AMBX.last || 0) < 0.5) return;
+  AMBX.last = now;
+  const set = (k, v) => AMBX.layers[k].g.gain.setTargetAtTime(v, now, 1.2);
+  set("rain", wx === "storm" ? 0.32 : wx === "rain" ? 0.22 : 0);
+  const windy = wx === "wind" || wx === "storm" || wx === "blizzard";
+  set("wind", out ? (windy ? 0.3 : S.zoneId === "frost" ? 0.12 : 0.04) * (0.7 + 0.3 * Math.sin(now * 0.4)) : 0);
+  AMBX.layers.wind.f.frequency.setTargetAtTime(windy ? 650 : 380, now, 2);
+  set("surf", S.zoneId === "harbor" ? 0.16 * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
+  if (out && now > AMBX.nextCritter && !/rain|storm|blizzard/.test(wx || "")) {
+    AMBX.nextCritter = now + 1.5 + Math.random() * 4;
+    const night = typeof isNight === "function" && isNight();
+    if (S.zone.mist && night) ambxCritter("frog");
+    else if (night && th === "field") ambxCritter("cricket");
+    else if (!night && th === "field" && S.zone.palette !== "snow") ambxCritter("bird");
+  }
+}
 function updateAudio() {
   if (!AUDIO.ready) return;
   if (AUDIO.ctx && AUDIO.ctx.state === "suspended") return;
+  try { ambxTick(); } catch (err) {}
   const m = desiredMusic();
   const a = desiredAmb();
   const cur = AUDIO.music && AUDIO.music.name;

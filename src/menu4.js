@@ -1453,6 +1453,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.8.0", date: "2026-10-14", title: "Living world", items: [
+    "The wilds are alive: small herds of deer graze in the fields by day and bolt when you get close, flocks of birds circle overhead (and shelter when it rains or snows), butterflies flit over the grass on fine days, and fish leap from lakes and ponds.",
+    "Travellers walk the main roads by day, one with a dog at their heels.",
+    "Each area sounds different: rain patters, wind gusts and howls in storms and on the high pass, waves wash against the harbour, birds sing in the daytime fields, crickets chirp at night, and frogs croak in the marsh after dark. The Ambience slider in Settings controls all of it."
+  ] },
   { v: "10.7.0", date: "2026-10-14", title: "Wider lands", items: [
     "Rocky Hollow is half again as large in each direction, and Frostspire Pass and the Ashen Marsh are 40% larger. Monster camps, landmarks, gathering spots, lakes and roads have all spread out, so there's more open country between fights.",
     "New terrain to explore: raised plateaus with rocky slopes and shallow ravines cut across each of these areas.",

@@ -926,7 +926,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.7.0 · built 2026-10-14 03:18 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v10.8.0 · built 2026-10-14 03:24 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -8659,8 +8659,36 @@ function tickBuddy(dt) {
   keepOutOfColliders(b);
 }
 
+function addWildlife(id) {
+  const z = S.zone, r = seeded(hashStr(id + "wild")), rects = zoneRects(z);
+  const free = (x, y) => x > 200 && y > 200 && x < z.w - 200 && y < z.h - 200 && !rects.some(q => x > q.x - 40 && x < q.x + q.w + 40 && y > q.y - 40 && y < q.y + q.h + 40) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 40);
+  const spot = () => { for (let k = 0; k < 40; k++) { const x = r() * z.w, y = r() * z.h; if (free(x, y)) return [x, y]; } return null; };
+  const mk = (type, x, y, o) => S.ambient.push(Object.assign({ kind: "ambient", ambient: true, wild: true, type, seed: 0, x, y, px: x, py: y, home: { x, y }, roam: 120, pi: 0, face: r() * 6.28, speed: 60, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 }, o));
+  const snowy = z.palette === "snow", wet = z.mist;
+  for (let h = 0; h < (snowy ? 1 : 2); h++) { const p = spot(); if (p) for (let i = 0; i < 3; i++) mk("deer", p[0] + (r() - 0.5) * 120, p[1] + (r() - 0.5) * 120, { col: snowy ? 0xb8b0a4 : 0x8a6a48, roam: 180, speed: 70, time: "day", shy: true }); }
+  for (let f = 0; f < 2; f++) { const p = spot(); if (p) for (let i = 0; i < 4; i++) mk("bird", p[0] + (r() - 0.5) * 80, p[1] + (r() - 0.5) * 80, { col: wet ? 0x3a3a34 : snowy ? 0xe8ecf0 : 0x6a5a4a, roam: 500, speed: 150, fly: 7 + r() * 5, time: "day", dry: true, wait: 0 }); }
+  const road = (z.paths || [])[0];
+  if (road) {
+    const pts = road.pts.filter(q => q[0] > 150 && q[1] > 150 && q[0] < z.w - 150 && q[1] < z.h - 150);
+    if (pts.length >= 2) for (let t = 0; t < 2; t++) {
+      const path = t ? pts.slice().reverse() : pts.slice();
+      const loop = path.concat(path.slice(1, -1).reverse());
+      mk("walker", path[0][0], path[0][1], { seed: hashStr(id + "trav" + t) % 997, path: loop, speed: 50, time: "day", traveller: true });
+      if (t === 0) mk("dog", path[0][0] + 20, path[0][1], { col: 0x6a5a48, path: loop, speed: 50, time: "day" });
+    }
+  }
+}
+function ambientAwake(a) {
+  if (a.time === "day" && isNight()) return false;
+  if (a.time === "night" && !isNight()) return false;
+  if (a.dry && /rain|storm|snow|blizzard/.test(weatherNow() || "")) return false;
+  return true;
+}
 function tickAmbient(dt) {
   for (const a of S.ambient || []) {
+    a.away = !ambientAwake(a);
+    if (a.away) continue;
+    if (a.shy && player && dist(a, player) < 140 && !a.flee) { const ang = Math.atan2(a.y - player.y, a.x - player.x); a.tx = a.x + Math.cos(ang) * 260; a.ty = a.y + Math.sin(ang) * 260; a.flee = true; a.wait = 0; a.speedBase = a.speedBase || a.speed; a.speed = a.speedBase * 2.6; }
     if (a.path) {
       const p = a.path[a.pi % a.path.length];
       if (a.wait > 0) { a.wait -= dt; continue; }
@@ -8669,7 +8697,7 @@ function tickAmbient(dt) {
     }
     if (a.wait > 0) { a.wait -= dt; continue; }
     if (a.tx == null) { a.tx = a.home.x + (Math.random() - 0.5) * a.roam * 2; a.ty = a.home.y + (Math.random() - 0.5) * a.roam * 2; }
-    if (moveToward(a, a.tx, a.ty, dt, 4)) { a.tx = null; a.wait = 1.5 + Math.random() * 5; }
+    if (moveToward(a, a.tx, a.ty, dt, 4)) { a.tx = null; a.wait = a.fly ? 0 : 1.5 + Math.random() * 5; if (a.flee) { a.flee = false; a.speed = a.speedBase; a.home = { x: a.x, y: a.y }; } }
     keepOutOfColliders(a);
   }
 }
@@ -10276,6 +10304,7 @@ function enterZone(id, x, y) {
     const x = a.x + (r() - 0.5) * (a.r || 60), y = a.y + (r() - 0.5) * (a.r || 60);
     S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
   }
+  if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
   const rnd = seeded(hashStr(id));
   S.decor = [];
@@ -11987,9 +12016,52 @@ function desiredAmb() {
   return isNight() ? "amb_night" : "amb_day";
 }
 
+const AMBX = { on: false, layers: {}, nextCritter: 0 };
+function ambxInit() {
+  const ctx = AUDIO.ctx, N = ctx.sampleRate * 2, buf = ctx.createBuffer(1, N, ctx.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < N; i++) d[i] = Math.random() * 2 - 1;
+  const mk = (type, freq, q) => {
+    const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    const g = ctx.createGain(); g.gain.value = 0;
+    src.connect(f); f.connect(g); g.connect(AUDIO.bus.amb); src.start();
+    return { g, f };
+  };
+  AMBX.layers = { rain: mk("bandpass", 2600, 0.6), wind: mk("lowpass", 420, 0.8), surf: mk("lowpass", 700, 0.7) };
+  AMBX.on = true;
+}
+function ambxCritter(kind) {
+  const ctx = AUDIO.ctx, t0 = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
+  o.connect(g); g.connect(AUDIO.bus.amb);
+  if (kind === "frog") { o.type = "square"; o.frequency.setValueAtTime(320, t0); o.frequency.exponentialRampToValueAtTime(180, t0 + 0.18); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.035, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0005, t0 + 0.2); o.start(t0); o.stop(t0 + 0.22); }
+  else if (kind === "bird") { o.type = "sine"; const f = 2400 + Math.random() * 1600; o.frequency.setValueAtTime(f, t0); o.frequency.exponentialRampToValueAtTime(f * 1.4, t0 + 0.08); o.frequency.exponentialRampToValueAtTime(f * 0.9, t0 + 0.16); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.02, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0005, t0 + 0.18); o.start(t0); o.stop(t0 + 0.2); }
+  else { o.type = "sine"; o.frequency.value = 4200 + Math.random() * 800; g.gain.setValueAtTime(0, t0); for (let k = 0; k < 3; k++) { g.gain.linearRampToValueAtTime(0.008, t0 + k * 0.07 + 0.01); g.gain.linearRampToValueAtTime(0, t0 + k * 0.07 + 0.05); } o.start(t0); o.stop(t0 + 0.25); }
+}
+function ambxTick() {
+  if (AUDIO.fallback || !AUDIO.ctx || !AUDIO.bus.amb) return;
+  if (!AMBX.on) ambxInit();
+  const th = S.zone ? S.zone.theme : "house", out = th !== "cave" && th !== "crypt" && th !== "house";
+  const wx = out && typeof weatherNow === "function" ? weatherNow() : null, now = AUDIO.ctx.currentTime;
+  if (now - (AMBX.last || 0) < 0.5) return;
+  AMBX.last = now;
+  const set = (k, v) => AMBX.layers[k].g.gain.setTargetAtTime(v, now, 1.2);
+  set("rain", wx === "storm" ? 0.32 : wx === "rain" ? 0.22 : 0);
+  const windy = wx === "wind" || wx === "storm" || wx === "blizzard";
+  set("wind", out ? (windy ? 0.3 : S.zoneId === "frost" ? 0.12 : 0.04) * (0.7 + 0.3 * Math.sin(now * 0.4)) : 0);
+  AMBX.layers.wind.f.frequency.setTargetAtTime(windy ? 650 : 380, now, 2);
+  set("surf", S.zoneId === "harbor" ? 0.16 * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
+  if (out && now > AMBX.nextCritter && !/rain|storm|blizzard/.test(wx || "")) {
+    AMBX.nextCritter = now + 1.5 + Math.random() * 4;
+    const night = typeof isNight === "function" && isNight();
+    if (S.zone.mist && night) ambxCritter("frog");
+    else if (night && th === "field") ambxCritter("cricket");
+    else if (!night && th === "field" && S.zone.palette !== "snow") ambxCritter("bird");
+  }
+}
 function updateAudio() {
   if (!AUDIO.ready) return;
   if (AUDIO.ctx && AUDIO.ctx.state === "suspended") return;
+  try { ambxTick(); } catch (err) {}
   const m = desiredMusic();
   const a = desiredAmb();
   const cur = AUDIO.music && AUDIO.music.name;
@@ -14660,13 +14732,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v10.7.0 · built 2026-10-14 03:18 PDT";
+const BUILD_INFO = "v10.8.0 · built 2026-10-14 03:24 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "10.8.0", date: "2026-10-14", title: "Living world", items: [
+    "The wilds are alive: small herds of deer graze in the fields by day and bolt when you get close, flocks of birds circle overhead (and shelter when it rains or snows), butterflies flit over the grass on fine days, and fish leap from lakes and ponds.",
+    "Travellers walk the main roads by day, one with a dog at their heels.",
+    "Each area sounds different: rain patters, wind gusts and howls in storms and on the high pass, waves wash against the harbour, birds sing in the daytime fields, crickets chirp at night, and frogs croak in the marsh after dark. The Ambience slider in Settings controls all of it."
   ] },
   { v: "10.7.0", date: "2026-10-14", title: "Wider lands", items: [
     "Rocky Hollow is half again as large in each direction, and Frostspire Pass and the Ashen Marsh are 40% larger. Monster camps, landmarks, gathering spots, lakes and roads have all spread out, so there's more open country between fights.",
@@ -15563,7 +15640,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "10.7.0";
+const GAME_VERSION = "10.8.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19471,6 +19548,8 @@ function buildEntityRig(e) {
     if (e.type === "walker") { const L = walkerLook(e.seed || 0); make = () => humanEntry(L); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
+    else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);
+    else if (e.type === "deer") make = () => quadEntry({ col: e.col || 0x8a6a48, belly: 0xe8dcc8, bodyY: 0.75, bodyR: 0.22, bodyLen: 0.8, leg: 0.68, hip: 0.12, legR: 0.035, neckUp: 0.32, neckFwd: 0.22, neckR: 0.07, headR: 0.11, ears: 1.5, hoof: true, tailLen: 0.12, tailDrop: 0.04, tailR: 0.04, stride: 1.6 });
     else if (e.type === "dog") make = () => quadEntry({ col: e.col || 0x8a6a4a, bodyY: 0.32, bodyR: 0.15, bodyLen: 0.5, leg: 0.28, hip: 0.08, legR: 0.035, neckUp: 0.12, neckFwd: 0.12, neckR: 0.06, headR: 0.09, ears: 1.6, tailLen: 0.22, tailDrop: -0.1, tailR: 0.025, stride: 0.9 });
     else make = () => quadEntry({ col: e.col || 0x5a5a5a, bodyY: 0.2, bodyR: 0.1, bodyLen: 0.36, leg: 0.17, hip: 0.05, legR: 0.022, neckUp: 0.08, neckFwd: 0.08, neckR: 0.045, headR: 0.07, ears: 1.3, eye: 0x9ccc65, tailLen: 0.3, tailDrop: -0.2, tailR: 0.018, stride: 0.6 });
   } else if (e.buddy) {
@@ -19596,9 +19675,10 @@ function poseBird(v, e, dt) {
   addP(P, "head", Math.sin(t * 9) * 0.25 * mv, 0, 0);
   const peck = (1 - mv) * (Math.sin(t * 0.9) > 0.4 ? Math.max(0, Math.sin(t * 9)) : 0);
   addP(P, "body", 0.5 * peck, 0, 0); addP(P, "head", 0.6 * peck, Math.sin(t * 0.7) * 0.5 * (1 - mv), 0);
-  const fl = Math.sin(t * 0.5) > 0.95 ? Math.sin(t * 30) * 0.6 : 0;
+  const fl = e.fly ? Math.sin(t * 16) * 0.9 : Math.sin(t * 0.5) > 0.95 ? Math.sin(t * 30) * 0.6 : 0;
   addP(P, "wingL", 0, 0, 0.1 + fl); addP(P, "wingR", 0, 0, -0.1 - fl);
-  v.rootOff[1] = Math.abs(s1) * 0.02 * mv;
+  if (e.fly) { addP(P, "legL", 0.9, 0, 0); addP(P, "legR", 0.9, 0, 0); }
+  v.rootOff[1] = e.fly ? 0 : Math.abs(s1) * 0.02 * mv;
   applyPose(v, dt, false);
 }
 
@@ -20586,6 +20666,35 @@ function updateWeatherFx(dt) {
   if (wx === "fog" || S.zone.mist) {
     if (Math.random() < dt * (low ? 2 : 5)) { const q = near(); q.y += rnd(0.2, 1); FX.smoke.spawn(q.x, q.y, q.z, rnd(0.2, 0.6), rnd(0, 0.1), rnd(-0.2, 0.2), rnd(4, 6), 2.5, 4.5, C(0xdfe6e8), C(0xc8d0d4), 0, 0, 0.18); }
   }
+  const dry = !/rain|storm|snow|blizzard/.test(wx || "");
+  WFX.bf = WFX.bf || [];
+  if (th === "field" && dry && W3.daylight > 0.6 && S.zone.palette !== "snow") {
+    while (WFX.bf.length < (low ? 3 : 7)) { const q = near(); q.y += rnd(0.3, 1.2); WFX.bf.push({ p: q, v: new THREE.Vector3(rnd(-1, 1), 0, rnd(-1, 1)), c: C([0xffd54f, 0xffffff, 0x90caf9, 0xff8a65, 0xce93d8][Math.floor(Math.random() * 5)]), life: rnd(8, 16) }); }
+  }
+  for (let i = WFX.bf.length - 1; i >= 0; i--) {
+    const b = WFX.bf[i];
+    b.life -= dt;
+    if (b.life <= 0 || !dry || W3.daylight < 0.5 || b.p.distanceTo(g) > 30) { WFX.bf.splice(i, 1); continue; }
+    b.v.x += rnd(-6, 6) * dt; b.v.z += rnd(-6, 6) * dt; b.v.clampLength(0.3, 1.4);
+    b.p.addScaledVector(b.v, dt);
+    const gy = groundY(b.p.x / U, b.p.z / U);
+    b.p.y = Math.max(gy + 0.25, Math.min(gy + 1.8, b.p.y + rnd(-1.5, 1.5) * dt + Math.sin(S.time * 14 + i) * 0.02));
+    FX.add.spawn(b.p.x, b.p.y, b.p.z, 0, 0, 0, 0.12, 0.09 * (0.6 + 0.4 * Math.abs(Math.sin(S.time * 22 + i))), 0.05, b.c, b.c, 0, 0, 0.9);
+  }
+  if ((S.zone.water || []).length && th !== "town") {
+    WFX.fish = WFX.fish || S.time + rnd(3, 7);
+    if (S.time > WFX.fish) {
+      WFX.fish = S.time + rnd(4, 9);
+      const w = S.zone.water.find(w => Math.hypot(w.x - player.x, w.y - player.y) < w.r + 1600);
+      if (w) {
+        const a = Math.random() * Math.PI * 2, rr = Math.random() * w.r * 0.6, fx = w.x + Math.cos(a) * rr, fy = w.y + Math.sin(a) * rr;
+        const wy = (W3.field && W3.field.waterLevel != null ? W3.field.waterLevel : groundY(fx, fy)) + 0.3, p0 = new THREE.Vector3(fx * U, wy, fy * U), dir = rnd(0, Math.PI * 2);
+        splash(p0, 0x9fd8f0, 0.35);
+        for (let k = 0; k < 10; k++) { const t = k / 9; FX.add.spawn(p0.x + Math.cos(dir) * t * 1.2, wy + Math.sin(t * Math.PI) * 0.9, p0.z + Math.sin(dir) * t * 1.2, 0, 0, 0, 0.12 + t * 0.35, 0.12, 0.06, C(0xd8e8f0), C(0x80a0b0), 0, 0, 0.9); }
+        setTimeout(() => FX.ready && splash(new THREE.Vector3(p0.x + Math.cos(dir) * 1.2, wy, p0.z + Math.sin(dir) * 1.2), 0x9fd8f0, 0.3), 450);
+      }
+    }
+  }
   if (W3.daylight < 0.35 && th === "field" && !/rain|storm|snow|blizzard/.test(wx || "")) {
     if (Math.random() < dt * (low ? 1 : 3)) { const q = near(); q.y += rnd(0.4, 1.8); FX.add.spawn(q.x, q.y, q.z, rnd(-0.3, 0.3), rnd(-0.1, 0.2), rnd(-0.3, 0.3), rnd(2.5, 4), 0.1, 0.1, C(0xf0ff90), C(0x90d040), 0, 0.3, 0.9); }
   }
@@ -21249,7 +21358,8 @@ function syncEntity(e, dt) {
     const k = (S.time - e.deadAt - 1.4) / 1.0;
     g.position.y -= clamp(k, 0, 1) * 1.2;
     g.visible = !e.despawned && k < 1;
-  } else g.visible = !(e === player && VIEW.first) && !(e.kind === "npc" && e.away);
+  } else g.visible = !(e === player && VIEW.first) && !((e.kind === "npc" || e.ambient) && e.away);
+  if (e.fly) g.position.y += e.fly + Math.sin(S.time * 0.8 + (e.home ? e.home.x : 0)) * 0.6;
   if (v.kind === "human") poseHuman(v, e, dt);
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);
