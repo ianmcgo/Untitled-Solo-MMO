@@ -37,7 +37,7 @@ function viewFor(e) {
   v = {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
-    style: styleFor(e), stride: kind === "hare" ? 1.2 : 1.7, scale: s, mount: null, sink: 0
+    style: styleFor(e), stride: kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
   if (e.buddy) v.pick.visible = false;
@@ -130,6 +130,13 @@ function syncEntity(e, dt) {
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);
   else if (v.kind === "hare") poseHare(v, e, dt);
+  else if (v.kind === "bee") poseBee(v, e, dt);
+  else if (v.kind === "crawler") poseCrawler(v, e, dt);
+  else if (v.kind === "quad") poseQuad(v, e, dt);
+  else if (v.kind === "crab") poseCrab(v, e, dt);
+  else if (v.kind === "mandrake") poseMandrake(v, e, dt);
+  else if (v.kind === "shroom") poseShroom(v, e, dt);
+  else if (v.kind === "fish") poseFish(v, e, dt);
   placeWeapon(v, e);
   if (v.weapon && v.weaponKind !== "staff") updateTrail(v, e, dt);
   const flash = e.flash > 0 ? e.flash / 0.15 : 0;

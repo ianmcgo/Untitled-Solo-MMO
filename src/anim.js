@@ -316,6 +316,161 @@ function poseBat(v, e, dt) {
   applyPose(v, dt, sharp);
 }
 
+function poseBee(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.5, 0, 1);
+  const f = Math.sin(t * 40);
+  addP(P, "wingL", 0, 0, 0.3 + f * 0.6); addP(P, "wingR", 0, 0, -(0.3 + f * 0.6));
+  addP(P, "wing2L", 0, 0, 0.2 - f * 0.5); addP(P, "wing2R", 0, 0, -(0.2 - f * 0.5));
+  addP(P, "body", mv * 0.4, 0, Math.sin(t * 3) * 0.08);
+  addP(P, "tail", -mv * 0.2 + Math.sin(t * 5) * 0.05, 0, 0);
+  addP(P, "head", Math.sin(t * 2.2) * 0.1, Math.sin(t * 1.1) * 0.3 * (1 - mv), 0);
+  v.rootOff[1] = Math.sin(t * 2.6) * 0.07 + Math.sin(t * 7.3) * 0.02;
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.4;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.25, 0.5); addP(P, "body", 0.9 * w, 0, 0); addP(P, "tail", 1.2 * w, 0, 0); v.rootOff[2] += 0.35 * w; v.rootOff[1] -= 0.2 * w; }
+  if (e.readying) { addP(P, "body", -0.6, 0, 0); addP(P, "tail", -0.5, Math.sin(t * 25) * 0.1, 0); v.rootOff[1] += 0.2; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.4 * w, 0, 0.4 * w); v.rootOff[2] -= 0.15 * w; }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.5); v.rootOff[1] = -0.85 * k; v.rootRot[2] = 2.6 * k; P.wingL[2] = 0.1; P.wingR[2] = -0.1; }
+  applyPose(v, dt, sharp);
+}
+
+function poseCrawler(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.2, 0, 1);
+  for (let i = 0; i < 6; i++) addP(P, "t" + i, Math.sin(t * 7 - i * 1.1) * 0.08 * mv + Math.sin(t * 1.5 - i) * 0.02, Math.sin(t * 2.5 - i * 0.7) * (0.04 + 0.1 * mv), 0);
+  addP(P, "head", Math.sin(t * 1.3) * 0.08, Math.sin(t * 0.7) * 0.3 * (1 - mv), 0);
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.6;
+  if (ak >= 0 && ak <= 1) {
+    sharp = true;
+    const lift = ease(ak / 0.35) * (1 - ease((ak - 0.35) / 0.25)), strike = ak > 0.35 ? env((ak - 0.35) / 0.65, 0.2, 0.7) : 0;
+    addP(P, "t3", -0.5 * lift + 0.3 * strike, 0, 0); addP(P, "t4", -0.45 * lift + 0.35 * strike, 0, 0); addP(P, "t5", -0.35 * lift + 0.3 * strike, 0, 0); addP(P, "head", -0.3 * lift + 0.5 * strike, 0, 0);
+  }
+  if (e.readying) { const sh = Math.sin(t * 28) * 0.06; addP(P, "t3", -0.55, sh, 0); addP(P, "t4", -0.5, -sh, 0); addP(P, "t5", -0.3, sh, 0); addP(P, "head", -0.2, 0, 0); }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "t4", 0.2 * w, 0, 0); addP(P, "head", 0.3 * w, 0, 0); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.7); for (let i = 0; i < 6; i++) { const p = P["t" + i]; p[0] *= 1 - k; p[1] = p[1] * (1 - k) + (i % 2 ? 0.12 : -0.12) * k; } v.rootRot[2] = 1.2 * k; v.rootOff[1] = 0.1 * k; }
+  applyPose(v, dt, sharp);
+}
+
+function poseQuad(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const q = v.meta.quad || {};
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.3, 0, 1);
+  const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
+  addP(P, "legFL", c1 * 0.7 * mv, 0, 0); addP(P, "legBR", c1 * 0.7 * mv, 0, 0);
+  addP(P, "legFR", -c1 * 0.7 * mv, 0, 0); addP(P, "legBL", -c1 * 0.7 * mv, 0, 0);
+  addP(P, "shinFL", Math.max(0, -s1) * 0.9 * mv, 0, 0); addP(P, "shinBR", Math.max(0, -s1) * 0.9 * mv, 0, 0);
+  addP(P, "shinFR", Math.max(0, s1) * 0.9 * mv, 0, 0); addP(P, "shinBL", Math.max(0, s1) * 0.9 * mv, 0, 0);
+  addP(P, "body", Math.sin(t * 1.6) * 0.02 + c1 * 0.04 * mv, 0, 0);
+  v.rootOff[1] = Math.abs(s1) * 0.04 * mv;
+  const graze = (1 - mv) * (Math.sin(t * 0.35) > 0.6 ? 1 : 0);
+  addP(P, "neck", graze * 0.9 + Math.sin(t * 1.1) * 0.04, Math.sin(t * 0.5) * 0.25 * (1 - mv), 0);
+  addP(P, "head", graze * 0.5 + Math.sin(t * 2.3) * 0.03, Math.sin(t * 0.7) * 0.2 * (1 - mv), 0);
+  const wag = Math.sin(t * (2 + mv * 4)) * 0.35;
+  addP(P, "tail", 0, wag, 0); addP(P, "tail2", 0, wag * 1.3, 0);
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.45;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.3, 0.6); addP(P, "neck", -0.5 * w, 0, 0); addP(P, "head", 0.8 * w, 0, 0); addP(P, "body", -0.15 * w, 0, 0); v.rootOff[2] += 0.2 * w; }
+  if (e.readying) { addP(P, "neck", -0.4, 0, 0); addP(P, "head", -0.3, Math.sin(t * 20) * 0.08, 0); addP(P, "legFL", -0.5, 0, 0); addP(P, "legFR", -0.5, 0, 0); v.rootOff[1] += 0.06; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.15 * w, 0, 0.2 * w); addP(P, "head", -0.3 * w, 0, 0); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = 0.12 * k; for (const n of ["legFL", "legFR", "legBL", "legBR"]) addP(P, n, 0, 0, 0.6 * k); }
+  applyPose(v, dt, sharp);
+}
+
+function poseCrab(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.2, 0, 1);
+  const ph = an.ph * 1.6;
+  for (const s of ["L", "R"]) for (let k = 0; k < 4; k++) { const f = Math.sin(ph + k * 1.6 + (s === "L" ? 0 : Math.PI)); addP(P, "leg" + s + k, Math.max(0, f) * 0.5 * mv, 0, (s === "L" ? 1 : -1) * f * 0.25 * mv); }
+  addP(P, "body", Math.sin(t * 2.1) * 0.03, 0, Math.sin(ph) * 0.05 * mv);
+  const snip = Math.sin(t * 2.7) > 0.7 ? Math.sin(t * 24) * 0.25 : 0;
+  addP(P, "armL", 0, 0.15 + snip * 0.2, 0.1); addP(P, "armR", 0, -0.15 - snip * 0.2, -0.1);
+  addP(P, "clawL", 0, snip, 0); addP(P, "clawR", 0, -snip, 0);
+  v.rootOff[1] = Math.abs(Math.sin(ph)) * 0.03 * mv;
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.45;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.3, 0.6); const side = an.aVar ? 1 : -1; addP(P, side > 0 ? "armL" : "armR", -0.9 * w, side * 0.8 * w, 0); addP(P, side > 0 ? "clawL" : "clawR", 0, side * 1.0 * w, 0); addP(P, "body", -0.2 * w, side * 0.3 * w, 0); v.rootOff[2] += 0.2 * w; }
+  if (e.readying) { addP(P, "armL", -1.2, 0.5, 0); addP(P, "armR", -1.2, -0.5, 0); addP(P, "clawL", 0, 0.8 + Math.sin(t * 22) * 0.2, 0); addP(P, "clawR", 0, -0.8 - Math.sin(t * 22) * 0.2, 0); v.rootOff[1] += 0.08; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); v.rootOff[2] -= 0.15 * w; addP(P, "body", -0.2 * w, 0, 0); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[0] = 3.1 * k; v.rootOff[1] = 0.35 * k; }
+  applyPose(v, dt, sharp);
+}
+
+function poseMandrake(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.2, 0, 1);
+  const s1 = Math.sin(an.ph * 1.3);
+  v.rootOff[1] = Math.max(0, s1) * 0.22 * mv;
+  addP(P, "body", -s1 * 0.2 * mv + Math.sin(t * 1.7) * 0.03, 0, 0);
+  addP(P, "legL", -s1 * 0.8 * mv, 0, 0); addP(P, "legR", -s1 * 0.8 * mv, 0, 0);
+  addP(P, "armL", 0, 0, 0.4 + s1 * 0.5 * mv + Math.sin(t * 2.3) * 0.1); addP(P, "armR", 0, 0, -(0.4 + s1 * 0.5 * mv + Math.sin(t * 2.3) * 0.1));
+  addP(P, "head", Math.sin(t * 1.2) * 0.08, Math.sin(t * 0.6) * 0.5 * (1 - mv), Math.sin(t * 0.9) * 0.1);
+  addP(P, "leaf", Math.sin(t * 2.6) * 0.15, 0, Math.sin(t * 1.9) * 0.2);
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.45;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.25, 0.6); addP(P, "body", 0.6 * w, 0, 0); addP(P, "head", 0.8 * w, 0, 0); v.rootOff[2] += 0.3 * w; v.rootOff[1] += 0.15 * w; }
+  if (e.readying) { addP(P, "body", -0.4, 0, 0); addP(P, "head", -0.5, 0, 0); addP(P, "leaf", -0.6, 0, Math.sin(t * 25) * 0.3); v.rootOff[1] += 0.1; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.3 * w, 0, 0); addP(P, "head", -0.4 * w, 0, 0); v.rootOff[1] += 0.1 * w; }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = 0.2 * k; addP(P, "leaf", 0, 0, 1.2 * k); }
+  applyPose(v, dt, sharp);
+}
+
+function poseShroom(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.0, 0, 1);
+  const s1 = Math.sin(an.ph * 1.4);
+  v.rootOff[1] = Math.max(0, s1) * 0.18 * mv;
+  addP(P, "body", -s1 * 0.15 * mv + Math.sin(t * 1.4) * 0.03, 0, Math.sin(t * 0.9) * 0.05);
+  addP(P, "head", Math.sin(t * 1.1) * 0.06, Math.sin(t * 0.4) * 0.3 * (1 - mv), Math.sin(t * 1.6) * 0.08);
+  addP(P, "armL", 0, 0, 0.3 + Math.sin(t * 2.1) * 0.15); addP(P, "armR", 0, 0, -(0.3 + Math.sin(t * 2.1) * 0.15));
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.5;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.3, 0.5); addP(P, "head", 0.7 * w, 0, 0); addP(P, "body", 0.3 * w, 0, 0); v.rootOff[1] += 0.12 * w; }
+  if (e.readying) { addP(P, "head", -0.4 + Math.sin(t * 30) * 0.08, 0, 0); addP(P, "body", -0.2, 0, 0); v.rootOff[1] += 0.08; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.3 * w, 0, 0.2 * w); addP(P, "head", -0.3 * w, 0, 0); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[0] = 1.5 * k; v.rootOff[1] = 0.1 * k; }
+  applyPose(v, dt, sharp);
+}
+
+function poseFish(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.3, 0, 1);
+  const flap = Math.sin(t * (4 + mv * 6));
+  addP(P, "tail", 0, flap * 0.35, 0); addP(P, "tail2", 0, flap * 0.5, 0);
+  addP(P, "finL", 0, 0, 0.3 + Math.sin(t * 5) * 0.3); addP(P, "finR", 0, 0, -(0.3 + Math.sin(t * 5) * 0.3));
+  addP(P, "body", Math.sin(t * 1.8) * 0.05 - mv * 0.2, flap * 0.08, Math.sin(t * 1.2) * 0.05);
+  v.rootOff[1] = 0.1 + Math.sin(t * 2.2) * 0.08 + Math.abs(Math.sin(an.ph * 0.8)) * 0.25 * mv;
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.45;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.3, 0.6); addP(P, "body", 0.5 * w, 0, 0); v.rootOff[2] += 0.4 * w; v.rootOff[1] += 0.3 * w; }
+  if (e.readying) { addP(P, "body", -0.5, 0, 0); addP(P, "tail", 0, Math.sin(t * 24) * 0.4, 0); v.rootOff[1] += 0.25; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); v.rootOff[2] -= 0.15 * w; addP(P, "body", 0, 0, 0.5 * w); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = -0.15 * k; addP(P, "tail2", 0, 0.3 * k, 0); }
+  applyPose(v, dt, sharp);
+}
+
 function poseWorm(v, e, dt) {
   const an = trackEvents(v, e, dt);
   const P = newPose(v);
