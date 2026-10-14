@@ -175,23 +175,25 @@ async function netAdminSetCode(code) {
 if (typeof window !== "undefined") {
   setInterval(() => { try { netTick(); } catch (e) {} }, 3000);
   window.addEventListener("pagehide", () => { netFlush(true); });
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") netFlush(true); });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") netFlush(true); NET_RT.lastSig = ""; if (typeof netTrack === "function") netTrack(); });
 }
 
 const NET_RT = { zone: null, zch: null, wch: null, lastSend: 0, lastSig: "", lastPos: "", sw: 0, ws: 0, ht: 0, swT: -9, wsT: -9, htT: -9, lastTell: null, lastChat: 0, online: [] };
 
-function netMeta() { return { id: S.charId, name: save.name, job: player.job, sub: player.sub, lv: player.lv, look: save.look, gear: Object.assign({}, save.gear), coat: save.mountCoat, zone: S.zoneId }; }
+function netMeta() { return { id: S.charId, name: save.name, job: player.job, sub: player.sub, lv: player.lv, look: save.look, gear: Object.assign({}, save.gear), coat: save.mountCoat, zone: S.zoneId, t: NET_SH.joinT, v: GAME_VERSION, h: NET_SH.on && NET_SH.host ? 1 : 0, away: document.hidden ? 1 : 0 }; }
 
 function netJoinZone(zoneId) {
   if (!NET.member || !NET.sb || !S.charId) return;
-  if (NET_RT.zone === zoneId && NET_RT.zch) return;
+  if (NET_RT.zone === zoneId && NET_RT.zch) { if (NET_SH.on && !NET_SH.host) netDemote(); return; }
   netLeaveZone();
   NET_RT.zone = zoneId;
+  netShReset();
   try {
     const ch = NET.sb.channel("zone:" + zoneId, { config: { broadcast: { self: false }, presence: { key: S.charId } } });
     ch.on("broadcast", { event: "mv" }, m => netOnMove(m.payload));
     ch.on("broadcast", { event: "chat" }, m => netOnChat(m.payload));
-    ch.on("presence", { event: "sync" }, () => netOnPresence(ch.presenceState()));
+    for (const [ev, fn] of [["ms", netOnMs], ["hit", netOnHit], ["deb", netOnDeb], ["mat", netOnMat], ["die", netOnDie], ["req", netOnReq], ["want", netOnWant]]) ch.on("broadcast", { event: ev }, m => fn(m.payload));
+    ch.on("presence", { event: "sync" }, () => { const st = ch.presenceState(); netOnPresence(st); netElect(st); });
     ch.subscribe(st => { if (st === "SUBSCRIBED") { NET_RT.lastSig = ""; NET_RT.lastPos = ""; netTrack(); } });
     NET_RT.zch = ch;
   } catch (e) { NET_RT.zch = null; }
@@ -201,7 +203,10 @@ function netJoinZone(zoneId) {
 function netLeaveZone() {
   if (NET_RT.zch) { try { NET.sb.removeChannel(NET_RT.zch); } catch (e) {} }
   NET_RT.zch = null; NET_RT.zone = null;
+  if (S.others) for (const o of S.others.values()) o.alive = false;
   S.others = new Map();
+  if (NET_SH.on && !NET_SH.host) { S.mobs = S.mobs.filter(m => !m.proxy); }
+  NET_SH.on = false; NET_SH.host = true;
 }
 
 function netLeaveAll() {
@@ -242,6 +247,7 @@ function netWorld() {
 
 function netRtTick() {
   if (typeof netPartyTick === "function") netPartyTick();
+  netShTick();
   if (!NET_RT.zch || !player || !S.charId) return;
   if (player.lastSwing !== NET_RT.swT) { NET_RT.swT = player.lastSwing; NET_RT.sw++; }
   if (player.lastWS !== NET_RT.wsT) { NET_RT.wsT = player.lastWS; NET_RT.ws++; }
@@ -273,7 +279,7 @@ function netRemote(meta) {
 function netOnPresence(state) {
   const live = new Set();
   for (const key in state) { const m = state[key] && state[key][0]; if (!m || m.id === S.charId) continue; live.add(m.id); netRemote(m); }
-  for (const id of [...(S.others || new Map()).keys()]) if (!live.has(id)) S.others.delete(id);
+  for (const id of [...(S.others || new Map()).keys()]) if (!live.has(id)) { S.others.get(id).alive = false; S.others.delete(id); }
 }
 
 function netOnMove(p) {
@@ -296,9 +302,10 @@ function netOnMove(p) {
 function tickRemotes(dt) {
   if (!S.others || !S.others.size) return;
   for (const [id, o] of S.others) {
-    if (S.time - o.seen > 25) { S.others.delete(id); continue; }
+    if (S.time - o.seen > 25) { o.alive = false; S.others.delete(id); continue; }
     if (o.tx == null) continue;
     const d = Math.hypot(o.tx - o.x, o.ty - o.y);
+    o.moving = d > 2;
     if (d > 500) { o.x = o.tx; o.y = o.ty; }
     else if (d > 0.5) { const k = Math.min(1, dt * 7); o.x += (o.tx - o.x) * k; o.y += (o.ty - o.y) * k; }
     o.face += normAng(o.tf - o.face) * Math.min(1, dt * 10);
@@ -352,6 +359,7 @@ function netOnTell(p) {
 function netWho() {
   const list = NET_RT.online.filter(o => o && o.name);
   if (!list.length) { log("Nobody else is online (or the server isn't connected).", "sys"); return; }
+  if (NET_SH.on) log("Monsters in " + S.zone.name + " are being run by " + netHostName() + ".", "sys");
   log(list.length + " online: " + list.map(o => o.name + " (" + (JOBS[o.job] ? o.job : "?") + o.lv + ", " + (ZONES[o.zone] ? ZONES[o.zone].name : "?") + ")").join(", "), "sys");
 }
 
@@ -791,4 +799,253 @@ function netOnTcx(p) {
 
 function netPartySig() {
   return [NET_PT.id, netPartyList().map(m => m.id + m.job + m.lv + m.zone + Math.round(10 * m.hp / m.maxHp)).join(), NET_PT.trade ? JSON.stringify([NET_PT.trade.mine, NET_PT.trade.theirs, NET_PT.trade.myOk, NET_PT.trade.theirOk, NET_PT.trade.msg]) : ""].join("|");
+}
+
+const NET_SH = { on: false, host: true, pending: true, hostId: null, joinT: 0, seq: 0, map: new Map(), sigs: new Map(), lastSnap: 0, lastFull: 0, lastFlush: 0, lastWant: 0, wants: new Map(), enQ: new Map() };
+
+function netShareOn() { return NET_SH.on; }
+function netMobsLocal() { return !NET_SH.on || NET_SH.host; }
+function netWanted(id) { const t = NET_SH.wants.get(id); return !!t && t > Date.now(); }
+function netShareable() { return !!S.zone && !S.zone.battlefield && !S.bf; }
+function netZoneSend(event, payload) {
+  if (!NET_RT.zch) return;
+  Promise.resolve(NET_RT.zch.send({ type: "broadcast", event, payload })).catch(() => {});
+}
+function netHostName() {
+  if (!NET_SH.on) return save.name;
+  if (NET_SH.host) return save.name;
+  const o = S.others && S.others.get(NET_SH.hostId);
+  return o ? o.name : "?";
+}
+
+function netShReset() {
+  NET_SH.on = false; NET_SH.host = true; NET_SH.pending = true; NET_SH.hostId = S.charId; NET_SH.joinT = Date.now();
+  NET_SH.map = new Map(); NET_SH.sigs = new Map(); NET_SH.enQ = new Map(); NET_SH.lastFull = 0; NET_SH.wants = new Map();
+}
+
+function netElect(state) {
+  const metas = [];
+  for (const k in state) { const m = state[k] && state[k][0]; if (m && m.id) metas.push(m); }
+  if (!metas.some(m => m.id === S.charId)) return;
+  const peers = metas.filter(m => m.v === GAME_VERSION && m.zone === S.zoneId);
+  const was = { on: NET_SH.on, host: NET_SH.host };
+  const on = netShareable() && peers.length > 1;
+  let hostId = S.charId;
+  if (on) {
+    const awake = peers.filter(m => !m.away);
+    const claim = awake.filter(m => m.h);
+    const pool = claim.length ? claim : awake.length ? awake : peers;
+    hostId = pool.slice().sort((a, b) => (a.t || 0) - (b.t || 0) || (a.id < b.id ? -1 : 1))[0].id;
+  }
+  const host = hostId === S.charId;
+  NET_SH.on = on; NET_SH.host = host; NET_SH.hostId = hostId; NET_SH.pending = false;
+  if (!on) { if (was.on && !was.host) netPromote(); }
+  else if (host) { if (was.on && !was.host) netPromote(); NET_SH.lastFull = 0; }
+  else if (was.host || !was.on) netDemote();
+  if (was.on !== on || was.host !== host) { NET_RT.lastSig = ""; if (on && was.on !== on) log(host ? "Other adventurers are here. Monsters in this area are now shared." : "Monsters in this area are shared with other adventurers.", "sys"); }
+}
+
+function netPromote() {
+  for (const m of S.mobs) {
+    if (!m.proxy) continue;
+    m.proxy = false;
+    if (!m.alive) continue;
+    if (m.tx != null) { m.x = m.tx; m.y = m.ty; }
+    const sp = m.spawnIdx != null ? S.zone.spawns[m.spawnIdx] : null;
+    m.home = sp ? { x: sp.x, y: sp.y } : { x: m.x, y: m.y };
+    m.enmity = new Map();
+    if (m.target && m.target.alive) m.enmity.set(m.target, 10);
+    if (m.state === "combat" && !m.enmity.size) m.state = "return";
+    m.aggro = m.passive ? null : m.fam.aggro;
+    m.swingTimer = m.delay; m.readying = null;
+    for (const k in m.buffs) { const b = m.buffs[k]; if (b.host) b.src = null; delete b.host; if (b.next == null) b.next = S.time + 3; }
+  }
+  S.spawnAt = [];
+  S.zone.spawns.forEach((sp, i) => { if (!S.mobs.some(m => m.alive && m.spawnIdx === i)) S.spawnAt[i] = S.time + rand(4, 25); });
+  NET_SH.map = new Map(); NET_SH.sigs = new Map(); NET_SH.lastFull = 0;
+}
+
+function netDemote() {
+  S.mobs = []; S.spawnAt = [];
+  NET_SH.map = new Map(); NET_SH.enQ = new Map();
+  for (const p of S.party) if (isMob(p.attackTarget)) { p.attackTarget = null; p.engaged = false; }
+  if (isMob(player.target)) player.target = null;
+  S.chase = false;
+  netZoneSend("req", { id: S.charId });
+  NET_SH.lastWant = 0;
+}
+
+function netShTick() {
+  if (!NET_SH.on || !NET_RT.zch || !player) return;
+  const now = Date.now();
+  if (NET_SH.host) { netSnap(now); return; }
+  if (now - NET_SH.lastFlush >= 250) {
+    NET_SH.lastFlush = now;
+    for (const [nid, en] of NET_SH.enQ) netZoneSend("hit", { id: S.charId, nid, d: 0, en: Math.round(en) });
+    NET_SH.enQ = new Map();
+    for (const m of NET_SH.map.values()) {
+      if (!m.alive) continue;
+      for (const k in m.buffs) {
+        const b = m.buffs[k];
+        if (b.host || m.sentBuff[k]) continue;
+        m.sentBuff[k] = S.time;
+        netZoneSend("deb", { id: S.charId, nid: m.nid, k, dur: Math.round(clamp(b.until - S.time, 1, 600)), tick: b.tick || 0, el: b.el || null, pow: b.pow || 0 });
+      }
+    }
+  }
+  if (now - NET_SH.lastWant > 20000) {
+    NET_SH.lastWant = now;
+    const ids = S.zone.spawns.filter(sp => sp.nm && storyWants(sp.nm.id)).map(sp => sp.nm.id);
+    if (ids.length) netZoneSend("want", { id: S.charId, ids });
+  }
+}
+
+function netNid(m) { if (!m.nid) m.nid = (S.charId || "x").slice(0, 4) + (++NET_SH.seq).toString(36); return m.nid; }
+
+function netSnap(now) {
+  if (now - NET_SH.lastSnap < 160) return;
+  NET_SH.lastSnap = now;
+  const full = now - NET_SH.lastFull > 2000;
+  if (full) NET_SH.lastFull = now;
+  const out = [];
+  for (const m of S.mobs) {
+    if (m.proxy) continue;
+    const nid = netNid(m);
+    if (m.lastSwing !== m._lsw) { m._lsw = m.lastSwing; m._swc = (m._swc || 0) + 1; }
+    if (m.lastWS !== m._lws) { m._lws = m.lastWS; m._wsc = (m._wsc || 0) + 1; }
+    const t = m.target, tgt = !t ? "" : t === player ? S.charId : t.kind === "remote" ? t.id : "";
+    const fl = (m.alive ? 0 : 1) | (m.readying ? 2 : 0) | (m.passive ? 4 : 0);
+    const bf = Object.keys(m.buffs).map(k => k + ":" + Math.max(1, Math.ceil(m.buffs[k].until - S.time))).join(",");
+    const row = [nid, m.famKey, m.lv, Math.round(m.x), Math.round(m.y), +m.face.toFixed(2), Math.ceil(m.hp), m.maxHp, m.state === "combat" ? 1 : m.state === "return" ? 2 : 0, tgt, fl, m.spawnIdx != null ? m.spawnIdx : -1, m._swc || 0, m._wsc || 0, Math.floor(m.tp), bf];
+    const sig = row.slice(3).join("|");
+    if (!full && NET_SH.sigs.get(nid) === sig) continue;
+    NET_SH.sigs.set(nid, sig);
+    out.push(row);
+  }
+  if (full) { const live = new Set(S.mobs.map(m => m.nid)); for (const k of [...NET_SH.sigs.keys()]) if (!live.has(k)) NET_SH.sigs.delete(k); }
+  if (out.length || full) netZoneSend("ms", { id: S.charId, f: full ? 1 : 0, m: out });
+}
+
+function netOnMs(p) {
+  if (!p || !NET_SH.on || NET_SH.host || p.id !== NET_SH.hostId || !Array.isArray(p.m)) return;
+  const seen = new Set();
+  for (const r of p.m) {
+    if (!Array.isArray(r) || r.length < 16) continue;
+    const [nid, fk, lv, x, y, f, hp, maxHp, st, tgt, fl, si, swc, wsc, tp, bf] = r;
+    if (!famOf(fk)) continue;
+    seen.add(nid);
+    let m = NET_SH.map.get(nid);
+    const dead = fl & 1;
+    if (!m) {
+      if (dead) continue;
+      m = buildMob(fk, clamp(+lv || 1, 1, 99), +x, +y, si >= 0 ? si : null);
+      m.proxy = true; m.nid = nid; m.aggro = null; m.sentBuff = {};
+      m.face = +f || 0; m._swc = swc; m._wsc = wsc;
+      S.mobs.push(m); NET_SH.map.set(nid, m);
+    }
+    m.tx = +x; m.ty = +y; m.tf = +f || 0;
+    m.maxHp = Math.max(1, +maxHp || 1);
+    m.hp = S.time < (m.predUntil || 0) ? Math.min(+hp, m.predHp) : clamp(+hp, 0, m.maxHp);
+    m.state = st === 1 ? "combat" : st === 2 ? "return" : "idle";
+    m.passive = !!(fl & 4);
+    m.tp = +tp || 0;
+    const te = tgt ? (tgt === S.charId ? player : S.others && S.others.get(tgt)) : null;
+    m.target = te || null;
+    if (te === player) { if (!m.enmity.has(player)) m.enmity = new Map([[player, 1]]); } else if (m.enmity.size) m.enmity = new Map();
+    if (fl & 2) {
+      if (!m.readying && m.alive && m.fam.tpMove) { m.readying = { t: 1, target: te, start: S.time }; if (dist(m, player) < 900) { log("The " + m.name + " readies " + m.fam.tpMove.name + ".", "foe"); popText(m, m.fam.tpMove.name, "#ff8a65", 13, 1.2, 14); sfx("tpready", m); } }
+    } else m.readying = null;
+    if (swc !== m._swc) { m._swc = swc; m.lastSwing = S.time; }
+    if (wsc !== m._wsc) { m._wsc = wsc; m.lastWS = S.time; }
+    const hb = {};
+    for (const part of String(bf || "").split(",")) { const [k, sec] = part.split(":"); if (k && /^[a-z_]{2,16}$/.test(k)) hb[k] = clamp(+sec || 1, 1, 3600); }
+    for (const k in hb) { if (m.buffs[k]) { m.buffs[k].host = true; m.buffs[k].until = S.time + hb[k]; } else m.buffs[k] = { until: S.time + hb[k], host: true }; }
+    for (const k in m.buffs) if (!hb[k] && (m.buffs[k].host || (m.sentBuff[k] != null && S.time - m.sentBuff[k] > 2))) { delete m.buffs[k]; delete m.sentBuff[k]; }
+    if (dead && m.alive) netProxyKO(m, false);
+  }
+  if (p.f) for (const [nid, m] of [...NET_SH.map]) if (!seen.has(nid)) { if (m.alive) { m.alive = false; m.despawned = true; m.deadAt = S.time; } NET_SH.map.delete(nid); }
+}
+
+function netProxyStep(m, dt) {
+  if (m.chain && S.time > m.chain.closeAt) m.chain = null;
+  if (m.burst && S.time > m.burst.until) m.burst = null;
+  if (m.tx == null) return;
+  const d = Math.hypot(m.tx - m.x, m.ty - m.y);
+  if (d > 400) { m.x = m.tx; m.y = m.ty; }
+  else if (d > 0.5) { const k = Math.min(1, dt * 8); m.x += (m.tx - m.x) * k; m.y += (m.ty - m.y) * k; }
+  m.face += normAng(m.tf - m.face) * Math.min(1, dt * 10);
+}
+
+function netMobHit(m, amt, en) {
+  const base = S.time < (m.predUntil || 0) ? m.predHp : m.hp;
+  m.predHp = Math.max(0, base - amt); m.predUntil = S.time + 0.9; m.hp = m.predHp;
+  netZoneSend("hit", { id: S.charId, nid: m.nid, d: amt, en: Math.round(en) });
+}
+
+function netMobEnmity(m, en) { NET_SH.enQ.set(m.nid, (NET_SH.enQ.get(m.nid) || 0) + en); }
+
+function netHostMob(nid) { return S.mobs.find(x => x.nid === nid && x.alive && !x.proxy); }
+
+function netOnHit(p) {
+  if (!p || !NET_SH.on || !NET_SH.host) return;
+  const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
+  if (!m || !src || !src.alive) return;
+  const d = clamp(Math.round(+p.d || 0), 0, 99999), en = clamp(+p.en || 0, 0, 100000);
+  if (d > 0) applyDamage(src, m, d, { enmity: en, color: "#b3d9ff", size: 15 });
+  else { addEnmity(m, src, en); aggro(m, src); }
+}
+
+function netOnDeb(p) {
+  if (!p || !NET_SH.on || !NET_SH.host || !/^[a-z_]{2,16}$/.test(String(p.k))) return;
+  const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
+  if (!m || !src || !src.alive) return;
+  m.buffs[p.k] = { until: S.time + clamp(+p.dur || 1, 1, 600), src, next: S.time + 3, tick: clamp(+p.tick || 0, 0, 500), el: ELEMENT_COLORS[p.el] ? p.el : undefined, pow: clamp(+p.pow || 0, 0, 5) };
+  addEnmity(m, src, 30);
+  aggro(m, src);
+}
+
+function netMobAttack(m, t, k) {
+  if (!NET_SH.on || !NET_SH.host || m.proxy || !t || t.kind !== "remote") return;
+  netZoneSend("mat", { id: S.charId, nid: netNid(m), to: t.id, k });
+}
+
+function netOnMat(p) {
+  if (!p || p.to !== S.charId || !NET_SH.on || NET_SH.host || p.id !== NET_SH.hostId || !player.alive) return;
+  const m = NET_SH.map.get(p.nid);
+  if (!m || !m.alive) return;
+  m.face = Math.atan2(player.y - m.y, player.x - m.x);
+  if (p.k === "sw") swing(m, player);
+  else if (p.k === "tp" && m.fam.tpMove) { m.readying = { t: 0, target: player, start: S.time }; execTpMove(m); }
+}
+
+function netMobDied(e) {
+  if (!NET_SH.on || !NET_SH.host || e.proxy) return;
+  netZoneSend("die", { id: S.charId, nid: netNid(e), claim: e.claim || S.charId });
+}
+
+function netOnDie(p) {
+  if (!p || !NET_SH.on || NET_SH.host || p.id !== NET_SH.hostId) return;
+  const m = NET_SH.map.get(p.nid);
+  if (m) netProxyKO(m, p.claim === S.charId);
+}
+
+function netProxyKO(m, reward) {
+  if (m.alive) {
+    m.alive = false; m.hp = 0; m.deadAt = S.time; m.readying = null; m.casting = null;
+    const near = dist(m, player) < 900;
+    if (near || reward) { log("The " + m.name + " is defeated.", "you"); sfx("defeat", m); vfx("defeat", { tgt: m }); }
+    for (const p of S.party) if (p.attackTarget === m) { p.attackTarget = null; p.engaged = false; }
+    if (S.chase && player.attackTarget == null) S.chase = false;
+  }
+  if (reward && !m.rewarded) { m.rewarded = true; killRewards(m); }
+}
+
+function netOnReq(p) {
+  if (!p || !NET_SH.on || !NET_SH.host) return;
+  NET_SH.lastFull = 0;
+}
+
+function netOnWant(p) {
+  if (!p || !NET_SH.on || !NET_SH.host || !Array.isArray(p.ids)) return;
+  for (const id of p.ids.slice(0, 8)) if (NM_FAMILIES[id] || FAMILIES[id]) NET_SH.wants.set(id, Date.now() + 60000);
 }

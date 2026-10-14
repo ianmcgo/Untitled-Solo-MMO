@@ -1113,6 +1113,14 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "8.3.0", date: "2026-10-13", title: "Shared monsters", items: [
+    "Monsters are now shared: everyone in an area sees the same monsters, in the same places, with the same HP. Parties can finally fight the same goblin together.",
+    "One player's game runs each area's monsters. If they leave or switch away from the game, another player takes over without anything resetting.",
+    "Monsters notice, chase and attack any player, and their special moves hit everyone caught in range.",
+    "The first player to hit (or be attacked by) a monster claims it; the claimer gets the experience and loot, shared with their party as before.",
+    "Spells such as Dia, Slow and Paralyze on a shared monster work for everyone.",
+    "/who now shows which player is running the area's monsters. Battlefields stay private."
+  ] },
   { v: "8.2.0", date: "2026-10-13", title: "Parties and trading", items: [
     "Party up with other players: invite up to 6 with /invite, the Party tab, or by tapping a player. Accept with the popup or /join.",
     "Party members show in your party frame with HP, MP and TP, and in the Party tab with their area.",
@@ -1639,7 +1647,10 @@ function tabHelp() {
     "Type in the chat box to <b>say</b> something to players near you (a speech bubble appears over your head). <b>/shout</b> reaches everyone in the area, <b>/tell Name message</b> reaches one player anywhere (<b>/r</b> replies), and <b>/who</b> lists who's online and where.",
     "The <b>Chat</b> tab in the log shows only player messages.",
     "Tap or click another player to see their job and level and to Invite, Trade, send a Tell or Check them.",
-    "Monsters aren't shared yet: each player still fights their own copy. Shared monsters are coming."
+    "<b>Shared monsters:</b> when other adventurers are in your area, everyone sees and fights the same monsters. One player's game (the first to arrive) runs the area's monsters for everyone; if they leave or put the game in the background, another player takes over without the monsters resetting. /who shows who is running the area.",
+    "Monsters can notice, chase and attack any player. The first player to hit or be attacked by a monster claims it; only the claimer (and their party, through party sharing) gets experience and loot when it falls.",
+    "Your companions still fight beside you, but other players don't see them, and monsters you share treat their attacks as yours.",
+    "Battlefields such as the Chapel Depths stay private to you."
   ]));
   h += sec("🤝 Parties with other players", ul([
     "Invite up to " + CONFIG.partyMax + " players: tap them and choose <b>Invite</b>, use the Party tab, or type <b>/invite Name</b>. The invited player gets a popup, or can type <b>/join</b> or <b>/decline</b>. Only the leader (👑, the player who has been in the party longest) can invite or remove members.",

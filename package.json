@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "8.2.0",
-  "releaseTitle": "Parties and trading",
+  "version": "8.3.0",
+  "releaseTitle": "Shared monsters",
   "description": "",
   "main": "index.js",
   "scripts": {

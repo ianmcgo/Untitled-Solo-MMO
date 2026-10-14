@@ -18,6 +18,8 @@ const an = n => (/^[aeiou]/i.test(n) ? "an " : "a ") + n;
 const fmt = s => s < 10 ? s.toFixed(1) : String(Math.ceil(s));
 const isMob = e => !!e && e.kind === "mob";
 const isParty = e => !!e && (e.kind === "pc" || e.kind === "ally");
+const isSide = e => isParty(e) || (!!e && e.kind === "remote");
+const claimId = e => (e && e.kind === "remote" ? e.id : S.charId || "me");
 const isMate = e => !!e && e.kind === "remote" && typeof netIsMate === "function" && netIsMate(e.id);
 const subj = e => e === player ? "You" : isMob(e) ? "The " + e.name : e.name;
 const obj = e => e === player ? "you" : isMob(e) ? "the " + e.name : e.name;
@@ -705,8 +707,9 @@ function findChain(openProps, closeProps) {
 function recastLeft(e, key) { return Math.max(0, (e.recasts[key] || 0) - S.time); }
 
 function addEnmity(m, e, amt) {
-  if (!e || !e.alive || !isParty(e) || !m.alive) return;
+  if (!e || !e.alive || !isSide(e) || !m.alive) return;
   if (e.buffs && e.buffs.sentinel) amt *= 2;
+  if (m.proxy) { if (isParty(e)) netMobEnmity(m, amt); return; }
   m.enmity.set(e, (m.enmity.get(e) || 0) + amt);
 }
 
@@ -726,7 +729,9 @@ function inCombatWith(e) {
 }
 
 function aggro(m, t) {
-  if (!m.alive || !t || !t.alive || !isParty(t)) return;
+  if (!m.alive || !t || !t.alive || !isSide(t)) return;
+  if (m.proxy) { if (isParty(t)) netMobEnmity(m, 1); return; }
+  if (!m.claim) m.claim = claimId(t);
   if (!m.enmity.has(t)) m.enmity.set(t, 1);
   if (m.state === "combat") return;
   m.state = "combat";
@@ -753,13 +758,22 @@ function applyDamage(src, tgt, amt, opt) {
   opt = opt || {};
   if (!tgt.alive) return;
   amt = Math.max(0, Math.round(amt));
+  if (tgt.proxy) {
+    netMobHit(tgt, amt, opt.enmity != null ? opt.enmity : 40 + amt * 2);
+    tgt.flash = 0.15;
+    tgt.lastHit = S.time;
+    if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
+    if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (src === player ? "#ffffff" : "#b3d9ff"), opt.size || 16, opt.life, opt.yOff);
+    return;
+  }
   tgt.hp = Math.max(0, tgt.hp - amt);
   tgt.flash = 0.15;
   tgt.lastHit = S.time;
   if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
   if (opt.pop !== false) popText(tgt, opt.text != null ? opt.text : amt, opt.color || (isMob(tgt) ? (src === player ? "#ffffff" : "#b3d9ff") : "#ff8a80"), opt.size || 16, opt.life, opt.yOff);
   if (isMob(tgt)) {
-    if (src && isParty(src)) {
+    if (src && isSide(src)) {
+      if (!tgt.claim) tgt.claim = claimId(src);
       addEnmity(tgt, src, opt.enmity != null ? opt.enmity : 40 + amt * 2);
       aggro(tgt, src);
     }
@@ -829,6 +843,7 @@ function swing(a, d) {
 }
 
 function onKO(e, src) {
+  if (e.proxy) return;
   e.alive = false;
   e.engaged = false;
   e.casting = null;
@@ -849,30 +864,9 @@ function onKO(e, src) {
     for (const p of S.party) if (p.attackTarget === e) { p.attackTarget = null; p.engaged = false; }
     if (S.chase && player.attackTarget == null) S.chase = false;
     const byParty = [...e.enmity.keys()].some(isParty);
-    if (byParty || (src && isParty(src))) {
-      save.stats.kills++;
-      if (player.job === "RNG") save.stats.rngKills++;
-      noteBeast(e, true);
-      if (e.fam.nm) { save.stats.nm++; save.nmKilled[e.famKey] = (save.nmKilled[e.famKey] || 0) + 1; }
-      for (const id of save.hired) if (S.party.some(p => p.mercId === id)) addBond(id, e.fam.nm ? 4 : xpFor(e.lv, player.lv) > 0 ? 1 : 0);
-      const mates = typeof netPartyNear === "function" ? netPartyNear(e.x, e.y) : [];
-      const pn = 1 + mates.length, top = Math.max(player.lv, ...mates.map(m => m.lv || 1));
-      const xp = pn > 1 ? Math.round(xpFor(e.lv, top) * partyShare(pn) * player.lv / top) : xpFor(e.lv, player.lv);
-      let ch = 0;
-      if (xp > 0) { ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
-      const gilShare = dropLoot(e, mates);
-      if (pn > 1) netPartyKill(e, mates, top, pn, ch, gilShare);
-      bountyKill(e);
-      storyKill(e);
-      questKillCredit(e.famKey);
-      if (e.famKey === "chieftain" && save.quests.chieftain === "active") {
-        save.quests.chieftain = "killed";
-        log("Quest updated: report the Chieftain's defeat to Captain Rhea.", "npc");
-        sfx("notify");
-      }
-      const talker = S.party.filter(p => p !== player && p.alive);
-      if (talker.length && Math.random() < 0.3) partySay(pick(talker), "victory");
-    }
+    const mine = !e.claim || e.claim === S.charId || e.claim === "me";
+    if ((byParty || (src && isParty(src))) && mine) killRewards(e);
+    if (typeof netMobDied === "function") netMobDied(e);
   } else {
     e.hp = 0;
     e.tp = 0;
@@ -885,6 +879,31 @@ function onKO(e, src) {
     if (e !== player) partySay(e, "ko", true);
     if (e === player) { save.stats.kos++; S.ko = true; S.chase = false; S.moveTarget = null; showKO(true); }
   }
+}
+
+function killRewards(e) {
+  save.stats.kills++;
+  if (player.job === "RNG") save.stats.rngKills++;
+  noteBeast(e, true);
+  if (e.fam.nm) { save.stats.nm++; save.nmKilled[e.famKey] = (save.nmKilled[e.famKey] || 0) + 1; }
+  for (const id of save.hired) if (S.party.some(p => p.mercId === id)) addBond(id, e.fam.nm ? 4 : xpFor(e.lv, player.lv) > 0 ? 1 : 0);
+  const mates = typeof netPartyNear === "function" ? netPartyNear(e.x, e.y) : [];
+  const pn = 1 + mates.length, top = Math.max(player.lv, ...mates.map(m => m.lv || 1));
+  const xp = pn > 1 ? Math.round(xpFor(e.lv, top) * partyShare(pn) * player.lv / top) : xpFor(e.lv, player.lv);
+  let ch = 0;
+  if (xp > 0) { ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
+  const gilShare = dropLoot(e, mates);
+  if (pn > 1) netPartyKill(e, mates, top, pn, ch, gilShare);
+  bountyKill(e);
+  storyKill(e);
+  questKillCredit(e.famKey);
+  if (e.famKey === "chieftain" && save.quests.chieftain === "active") {
+    save.quests.chieftain = "killed";
+    log("Quest updated: report the Chieftain's defeat to Captain Rhea.", "npc");
+    sfx("notify");
+  }
+  const talker = S.party.filter(p => p !== player && p.alive);
+  if (talker.length && Math.random() < 0.3) partySay(pick(talker), "victory");
 }
 
 function xpFor(mobLv, plLv) {
@@ -2231,6 +2250,7 @@ function detects(m, p) {
 
 function updateMob(m, dt) {
   if (!m.alive) return;
+  if (m.proxy) { netProxyStep(m, dt); return; }
   tickBuffs(m);
   if (!m.alive) return;
   if (m.chain && S.time > m.chain.closeAt) m.chain = null;
@@ -2247,6 +2267,7 @@ function updateMob(m, dt) {
     const ny = m.y + m.wanderDir.y * m.speed * 0.3 * dt;
     if (Math.hypot(nx - m.home.x, ny - m.home.y) < (S.zone.theme === "field" ? 150 : 90)) { m.x = nx; m.y = ny; }
     for (const p of S.party) if (p.alive && detects(m, p)) { aggro(m, p); break; }
+    if (m.state === "idle" && S.others && S.others.size) for (const o of S.others.values()) if (o.alive && o.placed && o.job && detects(m, o)) { aggro(m, o); break; }
     return;
   }
   if (m.state === "combat") {
@@ -2258,6 +2279,7 @@ function updateMob(m, dt) {
       m.enmity.clear();
       m.readying = null;
       m.target = null;
+      m.claim = null;
       return;
     }
     m.target = t;
@@ -2273,7 +2295,8 @@ function updateMob(m, dt) {
     m.swingTimer -= dt;
     if (m.swingTimer <= 0) {
       if (dist(m, t) <= mobReach(m)) {
-        swing(m, t);
+        if (t.kind === "remote") { m.lastSwing = S.time; m.tp = Math.min(CONFIG.tpMax, m.tp + Math.round(CONFIG.tpPerDelay * m.delay)); netMobAttack(m, t, "sw"); }
+        else swing(m, t);
         m.swingTimer = swingDelay(m);
         if (m.alive && m.tp >= 1000 && m.fam.tpMove) {
           m.readying = { t: 1.0, target: t, start: S.time };
@@ -2367,18 +2390,19 @@ function execTpMove(m) {
   log("The " + m.name + " uses " + mv.name + ".", "foe");
   sfx("tpmove", m);
   vfx("tpmove", { src: m, tgt: t, mv });
-  const targets = mv.aoe ? S.party.filter(p => p.alive && dist(p, t) <= mv.aoe) : [t];
+  if (S.others && S.others.size && !m.proxy) for (const o of S.others.values()) if (o.alive && (o === t || (mv.aoe && dist(o, t) <= mv.aoe))) netMobAttack(m, o, "tp");
+  const targets = (mv.aoe ? S.party.filter(p => p.alive && dist(p, t) <= mv.aoe) : [t]).filter(x => x.kind !== "remote");
   for (const tg of targets) {
     let total = 0;
     for (let h = 0; h < (mv.hits || 1); h++) total += Math.floor(baseDmg(m, tg) * mv.mul * pDIF(m, tg));
     ring(tg, "#ff7043", mv.aoe || 30, 0.6, "burst");
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
     applyDamage(m, tg, total, { color: "#ff8a80", size: 22 });
-    if (mv.explode && m.alive) { m.hp = 0; onKO(m, m); }
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
     if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
     if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
   }
+  if (mv.explode && m.alive && !m.proxy) { m.hp = 0; onKO(m, m); }
   S.shake = Math.max(S.shake, 0.2);
 }
 
@@ -2985,7 +3009,7 @@ function spawnMob(i) {
   let fam = sp.fam, lv = randInt(sp.lv[0], sp.lv[1]);
   if (FEATURES.nms && sp.nm && (!sp.nm.time || sp.nm.time === period())) {
     const key = "nm:" + sp.nm.id;
-    const story = storyWants(sp.nm.id);
+    const story = storyWants(sp.nm.id) || (typeof netWanted === "function" && netWanted(sp.nm.id));
     if ((story || !(save.timers[key] > Date.now())) && !S.mobs.some(m => m.alive && m.famKey === sp.nm.id) && (story || Math.random() < sp.nm.chance)) {
       fam = sp.nm.id; lv = sp.nm.lv;
       if (S.time > 1 && Math.hypot(sp.x - player.x, sp.y - player.y) < 900) { log("You sense a powerful presence nearby...", "foe"); sfx("notify"); }
@@ -3071,8 +3095,9 @@ function step(dt) {
   for (const m of S.mobs) updateMob(m, dt);
   updateNpcs(dt);
   for (const p of S.party) { if (p.alive) { tickBuffs(p); tickCasting(p); } }
-  const bodies = S.party.concat(S.mobs).filter(e => e.alive);
+  const bodies = S.party.concat(S.mobs).filter(e => e.alive && !e.proxy);
   for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) separate(bodies[i], bodies[j]);
+  for (const m of S.mobs) if (m.proxy && m.alive) for (const p of S.party) if (p.alive) separate(p, m, true);
   for (const n of S.npcs) if (!n.away) for (const p of S.party) separate(p, n, true);
   for (const e of bodies) { keepOutOfWater(e); keepOutOfRects(e); keepInZone(e); }
   for (const e of S.party.concat(S.mobs)) {
@@ -3108,7 +3133,7 @@ function step(dt) {
   if (player.mounted && player.moving) save.stats.ride += Math.hypot(player.x - player.px, player.y - player.py) / 20;
   S.periodTimer -= dt;
   if (S.periodTimer <= 0) { S.periodTimer = 1; updatePeriod(); }
-  S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
+  if (typeof netMobsLocal !== "function" || netMobsLocal()) S.spawnAt.forEach((t, i) => { if (t != null && S.time >= t) spawnMob(i); });
   S.mobs = S.mobs.filter(m => m.alive || S.time - m.deadAt < 2.5);
   if (partyInCombat()) S.lastCombat = S.time;
   const calm = S.time - S.lastCombat;
