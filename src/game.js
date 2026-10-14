@@ -18,6 +18,7 @@ const an = n => (/^[aeiou]/i.test(n) ? "an " : "a ") + n;
 const fmt = s => s < 10 ? s.toFixed(1) : String(Math.ceil(s));
 const isMob = e => !!e && e.kind === "mob";
 const isParty = e => !!e && (e.kind === "pc" || e.kind === "ally");
+const isMate = e => !!e && e.kind === "remote" && typeof netIsMate === "function" && netIsMate(e.id);
 const subj = e => e === player ? "You" : isMob(e) ? "The " + e.name : e.name;
 const obj = e => e === player ? "you" : isMob(e) ? "the " + e.name : e.name;
 const vb = (e, v, s) => e === player ? v : (s || v + "s");
@@ -854,19 +855,16 @@ function onKO(e, src) {
       noteBeast(e, true);
       if (e.fam.nm) { save.stats.nm++; save.nmKilled[e.famKey] = (save.nmKilled[e.famKey] || 0) + 1; }
       for (const id of save.hired) if (S.party.some(p => p.mercId === id)) addBond(id, e.fam.nm ? 4 : xpFor(e.lv, player.lv) > 0 ? 1 : 0);
-      const xp = xpFor(e.lv, player.lv);
-      if (xp > 0) { const ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
-      dropLoot(e);
+      const mates = typeof netPartyNear === "function" ? netPartyNear(e.x, e.y) : [];
+      const pn = 1 + mates.length, top = Math.max(player.lv, ...mates.map(m => m.lv || 1));
+      const xp = pn > 1 ? Math.round(xpFor(e.lv, top) * partyShare(pn) * player.lv / top) : xpFor(e.lv, player.lv);
+      let ch = 0;
+      if (xp > 0) { ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
+      const gilShare = dropLoot(e, mates);
+      if (pn > 1) netPartyKill(e, mates, top, pn, ch, gilShare);
       bountyKill(e);
       storyKill(e);
-      for (const id in QUESTS) {
-        const q = QUESTS[id];
-        if (!q.kill || save.quests[id] !== "active") continue;
-        if (q.kill.fam !== e.famKey) continue;
-        const n = (save.qprog[id] || 0) + 1;
-        save.qprog[id] = Math.min(q.kill.n, n);
-        if (n <= q.kill.n) { log("Quest progress: " + q.kill.name + " " + Math.min(n, q.kill.n) + "/" + q.kill.n + ".", "npc"); if (n === q.kill.n) { log("Quest updated: report to " + q.giver + ".", "npc"); sfx("notify"); } }
-      }
+      questKillCredit(e.famKey);
       if (e.famKey === "chieftain" && save.quests.chieftain === "active") {
         save.quests.chieftain = "killed";
         log("Quest updated: report the Chieftain's defeat to Captain Rhea.", "npc");
@@ -906,6 +904,19 @@ function chainInfo() {
   const c = S.chain;
   if (c.n < 0 || S.time >= c.until) return null;
   return { n: c.n, left: c.until - S.time, frac: (c.until - S.time) / CONFIG.chainWindow, next: Math.min(c.n + 1, CONFIG.chainMax) };
+}
+
+function partyShare(n) { return CONFIG.partyShare[Math.min(n, CONFIG.partyShare.length - 1)]; }
+
+function questKillCredit(fam) {
+  for (const id in QUESTS) {
+    const q = QUESTS[id];
+    if (!q.kill || save.quests[id] !== "active") continue;
+    if (q.kill.fam !== fam) continue;
+    const n = (save.qprog[id] || 0) + 1;
+    save.qprog[id] = Math.min(q.kill.n, n);
+    if (n <= q.kill.n) { log("Quest progress: " + q.kill.name + " " + Math.min(n, q.kill.n) + "/" + q.kill.n + ".", "npc"); if (n === q.kill.n) { log("Quest updated: report to " + q.giver + ".", "npc"); sfx("notify"); } }
+  }
 }
 
 function xpNeed(lv) { return lv >= CONFIG.levelCap ? 0 : CONFIG.xpTable[lv]; }
@@ -987,30 +998,36 @@ function giveKeyItem(id) {
   return true;
 }
 
-function dropLoot(m) {
+function dropLoot(m, mates) {
+  mates = mates || [];
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
     if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
-    if (ITEMS[id].kind === "equip" && S.party.length > 1) { addToPool(id); continue; }
+    if (ITEMS[id].kind === "equip" && (S.party.length > 1 || mates.length)) { const pe = addToPool(id); if (mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); continue; }
     giveItem(id, 1);
   }
   if (m.fam.gil) {
-    const g = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
+    const total = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
+    const g = mates.length ? Math.floor(total / (1 + mates.length)) : total;
     save.gil += g;
-    log("You obtain " + g + " crystals.", "loot");
+    log("You obtain " + g + " crystals" + (mates.length ? " (party share)" : "") + ".", "loot");
     sfx("coin");
+    return mates.length ? g : 0;
   }
+  return 0;
 }
 
 function addToPool(id) {
   S.pool = S.pool || [];
-  S.pool.push({ id, until: S.time + CONFIG.poolTime, lots: {}, mine: null, seq: ++S.mobSeq });
+  const e = { id, until: S.time + CONFIG.poolTime, lots: {}, mine: null, seq: ++S.mobSeq };
+  S.pool.push(e);
   log("The " + ITEMS[id].name + " goes into the treasure pool.", "loot");
   sfx("loot");
   uiEvent("pool", { id });
+  return e;
 }
 
 function poolUpgrade(merc, id) {
@@ -1026,6 +1043,7 @@ function lotPool(seq, pass) {
   if (!e || e.mine != null) return;
   if (pass) { e.mine = 0; log("You pass on the " + ITEMS[e.id].name + ".", "sys"); }
   else { e.mine = 1 + Math.floor(Math.random() * 999); log("You lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); }
+  if (e.net && typeof netLotOut === "function") netLotOut(e);
   sfx("select");
   tickPool(true);
 }
@@ -1033,19 +1051,28 @@ function lotPool(seq, pass) {
 function tickPool(force) {
   if (!S.pool || !S.pool.length) return;
   for (const e of S.pool.slice()) {
+    if (e.net && !e.net.owner) {
+      if (e.mine == null && S.time >= e.until) { e.mine = 1 + Math.floor(Math.random() * 999); log("Time's up: you lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); if (typeof netLotOut === "function") netLotOut(e); }
+      if (S.time > e.until + 20) S.pool.splice(S.pool.indexOf(e), 1);
+      continue;
+    }
     for (const m of S.party) {
       if (m === player || !m.mercId || e.lots[m.mercId] != null) continue;
       if (S.time < e.until - CONFIG.poolTime + 1.5) continue;
       if (poolUpgrade(m, e.id)) { e.lots[m.mercId] = 1 + Math.floor(Math.random() * 999); log(m.name + " lots " + e.lots[m.mercId] + " on the " + ITEMS[e.id].name + ".", "party"); }
       else e.lots[m.mercId] = 0;
     }
-    const allIn = e.mine != null && S.party.every(m => m === player || !m.mercId || e.lots[m.mercId] != null);
-    if (!allIn && S.time < e.until) continue;
+    const netIn = !e.net || e.net.ids.every(id => e.net.lots[id] != null || !netIsMate(id));
+    const allIn = e.mine != null && netIn && S.party.every(m => m === player || !m.mercId || e.lots[m.mercId] != null);
+    if (!allIn && S.time < e.until + (e.net ? 3 : 0)) continue;
     if (e.mine == null) { e.mine = 1 + Math.floor(Math.random() * 999); log("Time's up: you lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); }
     S.pool.splice(S.pool.indexOf(e), 1);
     let best = e.mine, who = e.mine > 0 ? "me" : null;
     for (const k in e.lots) if (e.lots[k] > best) { best = e.lots[k]; who = k; }
+    if (e.net) for (const k in e.net.lots) if (e.net.lots[k] > best && netIsMate(k)) { best = e.net.lots[k]; who = "net:" + k; }
+    if (e.net) netWinOut(e, who === "me" ? S.charId : !who ? null : who.startsWith("net:") ? who.slice(4) : "merc", who === "me" ? save.name : !who ? "" : who.startsWith("net:") ? NET_PT.members.get(who.slice(4)).name : MERCS[who].name);
     if (!who) { log("Nobody wanted the " + ITEMS[e.id].name + ". It is lost.", "sys"); continue; }
+    if (who.startsWith("net:")) { log(NET_PT.members.get(who.slice(4)).name + " obtains the " + ITEMS[e.id].name + ".", "loot"); continue; }
     if (who === "me") { save.stats.lotsWon++; giveItem(e.id, 1); continue; }
     const it = ITEMS[e.id], own = save.mercGear[who] = save.mercGear[who] || {};
     if (own[it.slot]) giveItem(own[it.slot], 1, true);
@@ -1673,7 +1700,7 @@ function checkAction(a, act, t) {
     if (recastLeft(a, "ma:" + act.id) > 0) return sp.name + " is not ready.";
     if (a.mp < sp.mp) return "Not enough MP.";
     if (sp.target === "enemy" && (!t || !isMob(t) || !t.alive)) return "No valid target.";
-    if (sp.target === "ally" && (!t || !isParty(t) || !t.alive)) return "Invalid target.";
+    if (sp.target === "ally" && (!t || !(isParty(t) || (a === player && isMate(t))) || !t.alive)) return "Invalid target.";
     if (dist(a, t) > CONFIG.castRange) return "Target is out of range.";
     return "";
   }
@@ -1886,6 +1913,7 @@ function finishCast(a) {
   a.recasts["ma:" + id] = S.time + sp.recast;
   touch(a);
   if (a === player) trySkillUp(spellSkill(sp), isMob(t) ? t.lv : null);
+  if (isMate(t)) { netCastOn(a, t, sp, id); return; }
   if (sp.kind === "heal") castHeal(a, t, sp);
   else if (sp.kind === "nuke") castNuke(a, t, sp);
   else if (sp.kind === "dot") castDia(a, t, sp);
@@ -1897,10 +1925,14 @@ function finishCast(a) {
   if (a !== player && a.mp < a.maxMp * 0.15) partySay(a, "lowmp");
 }
 
-function castHeal(a, t, sp) {
+function healAmount(a, sp) {
   let amt = (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
   if (a.buffs.divine_seal) { amt *= 2; delete a.buffs.divine_seal; }
-  amt = Math.round(amt * rand(0.95, 1.05));
+  return Math.round(amt * rand(0.95, 1.05));
+}
+
+function castHeal(a, t, sp) {
+  const amt = healAmount(a, sp);
   const real = Math.max(0, Math.min(amt, t.maxHp - t.hp));
   t.hp += real;
   if (real > 0) {
@@ -3275,7 +3307,7 @@ function resolveTarget(act) {
   if (act.kind === "ja") return ABILITIES[act.id].target === "self" ? player : (isMob(player.target) ? player.target : player.attackTarget);
   const sp = SPELLS[act.id];
   if (sp.target === "self") return player;
-  if (sp.target === "ally") return isParty(player.target) && player.target.alive ? player.target : player;
+  if (sp.target === "ally") return (isParty(player.target) || isMate(player.target)) && player.target.alive ? player.target : player;
   return isMob(player.target) ? player.target : player.attackTarget;
 }
 
@@ -3991,10 +4023,16 @@ const COMMANDS = [
   ["/shout text", "Talk to everyone in this area. Also /sh."],
   ["/tell Name text", "Private message to a player anywhere. Also /t. /r replies to the last tell."],
   ["/who", "List players online and where they are."],
+  ["/invite Name", "Invite a player to your party (up to 6 players). Also /pcmd add Name."],
+  ["/join · /decline", "Accept or turn down a party invitation."],
+  ["/p text", "Talk to your party, wherever they are. Also /party text."],
+  ["/leave", "Leave your party."],
+  ["/kick Name", "Party leader only: remove a player from the party."],
+  ["/trade Name", "Ask a nearby player to trade items and crystals."],
   ["/fish", "Cast a line at the water's edge (needs a Willow Rod and Fishing Bait). Type it again when something bites to reel in."],
   ["/weather", "Show the current weather and its element bonus."],
   ["/stance assist|follow|hold", "Tell your companions how to fight: assist your target, follow without attacking, or hold their ground."],
-  ["/party", "Open the Party tab: companions, stance, gear, bond and wages. Also P."],
+  ["/party", "Open the Party tab: players, companions, stance, gear, bond and wages. Also P."],
   ["/bestiary", "Open the bestiary. Also Y."],
   ["/achievements", "Open your achievements."],
   ["/stand", "Stand up."],
@@ -4055,7 +4093,15 @@ function runCommand(text) {
     case "stance": setStance((arg || "").toLowerCase().trim()); return;
     case "fish": { if (S.fish && S.fish.state === "bite") { reelFish(); return; } const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
     case "weather": { const w = weatherNow(); log(w ? "Weather: " + WEATHER_INFO[w].name + (WEATHER_INFO[w].el ? " (" + WEATHER_INFO[w].el + " spells +10%)" : "") + "." : "No weather here.", "sys"); return; }
-    case "party": if (typeof openMenu === "function") openMenu("party"); return;
+    case "party": if (arg && typeof netPartyChat === "function") { netPartyChat(arg); return; } if (typeof openMenu === "function") openMenu("party"); return;
+    case "p": if (typeof netPartyChat === "function") netPartyChat(arg); else log("Party chat needs the game server.", "sys"); return;
+    case "invite": case "pinvite": if (typeof netPartyInvite === "function") netPartyInvite(arg); else log("Parties need the game server.", "sys"); return;
+    case "pcmd": { const [sub, ...rest] = arg.split(/\s+/); const who = rest.join(" "); if (typeof netPartyInvite !== "function") { log("Parties need the game server.", "sys"); return; } if (sub === "add") netPartyInvite(who); else if (sub === "leave") netPartyLeave(); else if (sub === "kick" || sub === "remove") netPartyKick(who); else log("Usage: /pcmd add|leave|kick Name", "sys"); return; }
+    case "join": if (typeof netPartyJoin === "function") netPartyJoin(); return;
+    case "decline": if (typeof netPartyDecline === "function") netPartyDecline(); return;
+    case "leave": if (typeof netPartyLeave === "function") netPartyLeave(); return;
+    case "kick": if (typeof netPartyKick === "function") netPartyKick(arg); return;
+    case "trade": if (typeof netTradeAsk === "function") netTradeAsk(arg || (player.target && player.target.kind === "remote" ? player.target.name : "")); else log("Trading needs the game server.", "sys"); return;
     case "bestiary": case "beasts": if (typeof openMenu === "function") openMenu("bestiary"); return;
     case "achievements": case "ach": if (typeof openMenu === "function") openMenu("achievements"); return;
     case "stand": if (player.resting) standUp(player); else log("You're already standing.", "sys"); return;

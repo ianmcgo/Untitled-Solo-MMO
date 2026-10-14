@@ -329,6 +329,12 @@ function onWorldTap(p, ent) {
     if (!UI.cmd) uiEvent("target", e);
     return;
   }
+  if (e.kind === "remote") {
+    if (player.target === e && UI.cmd && UI.cmd.t === e) { tgtCmdClose(); return; }
+    setTarget(e);
+    tgtCmdOpen(e);
+    return;
+  }
   if (e.kind === "npc") {
     if (dist(player, e) <= CONFIG.talkRange) { talkTo(e); return; }
     player.target = e;

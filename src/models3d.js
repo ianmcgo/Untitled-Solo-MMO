@@ -43,7 +43,7 @@ function viewFor(e) {
     style: styleFor(e), stride: kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
-  if (e.buddy || e.ambient || e.remote) { v.pick.visible = false; v.pick.userData.entity = null; }
+  if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }
   W3.scene.add(group);
   VIEW.views.set(e, v);
   return v;

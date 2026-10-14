@@ -205,6 +205,8 @@ function netLeaveZone() {
 }
 
 function netLeaveAll() {
+  if (typeof netTradeCancel === "function") netTradeCancel(true);
+  if (typeof netPartyLeave === "function") netPartyLeave(true);
   netLeaveZone();
   if (NET_RT.wch) { try { NET.sb.removeChannel(NET_RT.wch); } catch (e) {} }
   NET_RT.wch = null;
@@ -224,6 +226,14 @@ function netWorld() {
   try {
     const ch = NET.sb.channel("world", { config: { broadcast: { self: false }, presence: { key: S.charId || NET.user.id } } });
     ch.on("broadcast", { event: "tell" }, m => netOnTell(m.payload));
+    ch.on("broadcast", { event: "pinv" }, m => netOnPInv(m.payload));
+    ch.on("broadcast", { event: "pdecl" }, m => netOnPDecl(m.payload));
+    ch.on("broadcast", { event: "trq" }, m => netOnTrq(m.payload));
+    ch.on("broadcast", { event: "tok" }, m => netOnTok(m.payload));
+    ch.on("broadcast", { event: "tno" }, m => netOnTno(m.payload));
+    ch.on("broadcast", { event: "toff" }, m => netOnToff(m.payload));
+    ch.on("broadcast", { event: "tcf" }, m => netOnTcf(m.payload));
+    ch.on("broadcast", { event: "tcx" }, m => netOnTcx(m.payload));
     ch.on("presence", { event: "sync" }, () => { NET_RT.online = Object.values(ch.presenceState()).map(a => a[0]).filter(Boolean); });
     ch.subscribe(st => { if (st === "SUBSCRIBED") Promise.resolve(ch.track({ name: save.name, zone: S.zoneId, lv: player.lv, job: player.job })).catch(() => {}); });
     NET_RT.wch = ch;
@@ -231,6 +241,7 @@ function netWorld() {
 }
 
 function netRtTick() {
+  if (typeof netPartyTick === "function") netPartyTick();
   if (!NET_RT.zch || !player || !S.charId) return;
   if (player.lastSwing !== NET_RT.swT) { NET_RT.swT = player.lastSwing; NET_RT.sw++; }
   if (player.lastWS !== NET_RT.wsT) { NET_RT.wsT = player.lastWS; NET_RT.ws++; }
@@ -342,4 +353,442 @@ function netWho() {
   const list = NET_RT.online.filter(o => o && o.name);
   if (!list.length) { log("Nobody else is online (or the server isn't connected).", "sys"); return; }
   log(list.length + " online: " + list.map(o => o.name + " (" + (JOBS[o.job] ? o.job : "?") + o.lv + ", " + (ZONES[o.zone] ? ZONES[o.zone].name : "?") + ")").join(", "), "sys");
+}
+
+const NET_PT = { id: null, ch: null, me: 0, members: new Map(), names: new Map(), invite: null, lastSt: 0, stSig: "", trade: null, ask: null };
+
+function netWorldSend(event, payload) {
+  if (!NET_RT.wch) return false;
+  Promise.resolve(NET_RT.wch.send({ type: "broadcast", event, payload })).catch(() => {});
+  return true;
+}
+function netPartySend(event, payload) {
+  if (!NET_PT.ch) return false;
+  Promise.resolve(NET_PT.ch.send({ type: "broadcast", event, payload })).catch(() => {});
+  return true;
+}
+const netLc = s => String(s || "").toLowerCase();
+function netOnline(name) { return NET_RT.online.find(o => o && netLc(o.name) === netLc(name)); }
+function netInParty() { return !!NET_PT.id; }
+function netIsMate(id) { return !!id && NET_PT.members.has(id); }
+function netPartyList() { return [...NET_PT.members.values()]; }
+function netPartySize() { return NET_PT.id ? 1 + NET_PT.members.size : 1; }
+function netIsLeader() {
+  if (!NET_PT.id) return true;
+  for (const m of NET_PT.members.values()) if ((m.t || 0) < NET_PT.me) return false;
+  return true;
+}
+function netLeaderName() {
+  let best = { name: save.name, t: NET_PT.me };
+  for (const m of NET_PT.members.values()) if ((m.t || 0) < best.t) best = m;
+  return best.name;
+}
+function netPartyNear(x, y) {
+  if (!NET_PT.id) return [];
+  const r = CONFIG.partyRange;
+  return netPartyList().filter(m => m.zone === S.zoneId && m.alive !== false && m.x != null && Math.hypot(m.x - x, m.y - y) <= r && Date.now() - (m.at || 0) < 12000);
+}
+
+function netPartyInvite(name) {
+  name = cleanChat(name).slice(0, 12);
+  if (!NET.member || !NET_RT.wch) { log("Parties need the game server.", "sys"); return; }
+  if (!name) { log("Usage: /invite Name (or target a player and press Invite).", "sys"); return; }
+  if (netLc(name) === netLc(save.name)) { log("You can't invite yourself.", "sys"); return; }
+  if (!netOnline(name)) { log(name + " isn't online right now.", "sys"); return; }
+  if (netPartyList().some(m => netLc(m.name) === netLc(name))) { log(name + " is already in your party.", "sys"); return; }
+  if (NET_PT.id && !netIsLeader()) { log("Only the party leader (" + netLeaderName() + ") can invite.", "sys"); return; }
+  if (netPartySize() >= CONFIG.partyMax) { log("Your party is full (" + CONFIG.partyMax + " players).", "sys"); return; }
+  if (!NET_PT.id) netPartySub((S.charId || "p").slice(0, 8) + Date.now().toString(36));
+  netWorldSend("pinv", { to: netLc(name), from: save.name, pid: NET_PT.id });
+  log("You invite " + netOnline(name).name + " to your party.", "party");
+}
+
+function netOnPInv(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  const from = cleanChat(p.from).slice(0, 12);
+  if (NET_PT.id || NET_PT.trade) { netWorldSend("pdecl", { to: netLc(from), from: save.name, busy: true }); return; }
+  NET_PT.invite = { from, pid: String(p.pid).slice(0, 40), until: Date.now() + 60000 };
+  log(from + " invites you to join their party. Type /join to accept or /decline.", "party");
+  if (typeof sfx === "function") sfx("notify");
+  if (typeof gameConfirm === "function" && !(typeof UI !== "undefined" && UI.confirmOpen)) gameConfirm("Party invitation", from + " invites you to join their party.", () => netPartyJoin(), { yes: "Join", no: "Decline", onNo: () => netPartyDecline() });
+}
+
+function netPartyJoin() {
+  const inv = NET_PT.invite;
+  if (!inv || Date.now() > inv.until) { NET_PT.invite = null; log("You have no party invitation.", "sys"); return; }
+  if (NET_PT.id) { log("Leave your current party first.", "sys"); return; }
+  NET_PT.invite = null;
+  netPartySub(inv.pid);
+  log("You join " + inv.from + "'s party.", "party");
+}
+
+function netPartyDecline() {
+  const inv = NET_PT.invite;
+  if (!inv) { log("You have no party invitation.", "sys"); return; }
+  NET_PT.invite = null;
+  netWorldSend("pdecl", { to: netLc(inv.from), from: save.name });
+  log("You decline " + inv.from + "'s invitation.", "sys");
+}
+
+function netOnPDecl(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  const from = cleanChat(p.from).slice(0, 12);
+  log(from + (p.busy ? " is busy (already in a party or trading)." : " declines your invitation."), "party");
+  if (NET_PT.id && !NET_PT.members.size) setTimeout(() => { if (NET_PT.id && !NET_PT.members.size) netPartyLeave(true); }, 4000);
+}
+
+function netPartySub(pid) {
+  if (!NET.sb) return;
+  netPartyLeave(true);
+  NET_PT.id = pid; NET_PT.me = Date.now(); NET_PT.members = new Map(); NET_PT.stSig = ""; NET_PT.lastSt = 0;
+  try {
+    const ch = NET.sb.channel("party:" + pid, { config: { broadcast: { self: false }, presence: { key: S.charId } } });
+    ch.on("presence", { event: "sync" }, () => netOnPartyPresence(ch.presenceState()));
+    ch.on("broadcast", { event: "pst" }, m => netOnPSt(m.payload));
+    ch.on("broadcast", { event: "pchat" }, m => netOnPChat(m.payload));
+    ch.on("broadcast", { event: "kill" }, m => netOnKill(m.payload));
+    ch.on("broadcast", { event: "pool" }, m => netOnPool(m.payload));
+    ch.on("broadcast", { event: "lot" }, m => netOnLot(m.payload));
+    ch.on("broadcast", { event: "win" }, m => netOnWin(m.payload));
+    ch.on("broadcast", { event: "kick" }, m => netOnKick(m.payload));
+    ch.on("broadcast", { event: "fx" }, m => netOnFx(m.payload));
+    ch.subscribe(st => { if (st === "SUBSCRIBED") Promise.resolve(ch.track({ id: S.charId, name: save.name, t: NET_PT.me })).catch(() => {}); });
+    NET_PT.ch = ch;
+  } catch (e) { NET_PT.ch = null; NET_PT.id = null; }
+  if (typeof uiPartyChanged === "function") uiPartyChanged();
+}
+
+function netPartyLeave(quiet) {
+  if (!NET_PT.id) { if (!quiet) log("You aren't in a party.", "sys"); return; }
+  if (NET_PT.ch) { try { NET_PT.ch.untrack(); } catch (e) {} try { NET.sb.removeChannel(NET_PT.ch); } catch (e) {} }
+  NET_PT.ch = null; NET_PT.id = null; NET_PT.members = new Map();
+  if (S.pool) S.pool = S.pool.filter(e => !e.net || e.net.owner);
+  if (!quiet) log("You leave the party.", "party");
+  if (typeof uiPartyChanged === "function") uiPartyChanged();
+}
+
+function netOnPartyPresence(state) {
+  const live = new Map();
+  for (const key in state) { const m = state[key] && state[key][0]; if (!m || !m.id || m.id === S.charId) continue; live.set(m.id, m); }
+  for (const [id, m] of live) if (!NET_PT.members.has(id)) {
+    if (NET_PT.members.size + 1 >= CONFIG.partyMax + 1) continue;
+    NET_PT.members.set(id, { id, name: cleanChat(m.name).slice(0, 12), t: +m.t || 0, at: Date.now(), hp: 1, maxHp: 1, mp: 0, maxMp: 0, tp: 0, lv: 1, job: "WAR", alive: true });
+    log(cleanChat(m.name).slice(0, 12) + " joins the party.", "party");
+    if (typeof sfx === "function") sfx("notify");
+    NET_PT.stSig = "";
+  }
+  for (const [id, m] of [...NET_PT.members]) if (!live.has(id)) { NET_PT.members.delete(id); log(m.name + " leaves the party.", "party"); }
+  if (typeof uiPartyChanged === "function") uiPartyChanged();
+}
+
+function netPartyKick(name) {
+  if (!NET_PT.id) { log("You aren't in a party.", "sys"); return; }
+  if (!netIsLeader()) { log("Only the party leader can remove members.", "sys"); return; }
+  const m = netPartyList().find(x => netLc(x.name) === netLc(cleanChat(name)));
+  if (!m) { log("Nobody called " + cleanChat(name) + " is in your party.", "sys"); return; }
+  netPartySend("kick", { id: m.id, name: m.name });
+  log("You remove " + m.name + " from the party.", "party");
+}
+
+function netOnKick(p) {
+  if (!p) return;
+  if (p.id === S.charId) { netPartyLeave(true); log("You have been removed from the party.", "party"); return; }
+}
+
+function netPartyChat(text) {
+  text = cleanChat(text);
+  if (!text) return;
+  if (!NET_PT.id) { log("You aren't in a party.", "sys"); return; }
+  if (Date.now() - NET_RT.lastChat < 700) { log("You're talking too fast.", "sys"); return; }
+  NET_RT.lastChat = Date.now();
+  log("(" + save.name + ") " + text, "pchat");
+  netPartySend("pchat", { id: S.charId, name: save.name, text });
+}
+
+function netOnPChat(p) {
+  if (!p || !netIsMate(p.id)) return;
+  const text = cleanChat(p.text);
+  if (!text) return;
+  log("(" + NET_PT.members.get(p.id).name + ") " + text, "pchat");
+  if (typeof sfx === "function") sfx("tab");
+}
+
+function netPartyTick() {
+  if (!NET_PT.ch || !player) return;
+  const now = Date.now();
+  if (NET_PT.invite && now > NET_PT.invite.until) NET_PT.invite = null;
+  const st = { id: S.charId, name: save.name, job: player.job, sub: player.sub || null, lv: player.lv, zone: S.zoneId, x: Math.round(player.x), y: Math.round(player.y), hp: Math.ceil(player.hp), maxHp: player.maxHp, mp: Math.floor(player.mp), maxMp: player.maxMp, tp: Math.floor(player.tp), alive: !!player.alive, b: Object.keys(player.buffs || {}).slice(0, 8) };
+  const sig = JSON.stringify(st);
+  const gap = sig === NET_PT.stSig ? 4000 : 500;
+  if (now - NET_PT.lastSt < gap) return;
+  NET_PT.lastSt = now; NET_PT.stSig = sig;
+  netPartySend("pst", st);
+}
+
+function netOnPSt(p) {
+  if (!p || !netIsMate(p.id)) return;
+  const m = NET_PT.members.get(p.id);
+  m.at = Date.now();
+  m.job = JOBS[p.job] ? p.job : m.job; m.sub = JOBS[p.sub] ? p.sub : null;
+  m.lv = clamp(+p.lv || 1, 1, CONFIG.levelCap); m.zone = String(p.zone || ""); m.x = +p.x || 0; m.y = +p.y || 0;
+  m.maxHp = Math.max(1, +p.maxHp || 1); m.hp = clamp(+p.hp || 0, 0, m.maxHp); m.maxMp = Math.max(0, +p.maxMp || 0); m.mp = clamp(+p.mp || 0, 0, m.maxMp); m.tp = clamp(+p.tp || 0, 0, CONFIG.tpMax);
+  m.alive = !!p.alive; m.buffs = {}; for (const k of (Array.isArray(p.b) ? p.b : []).slice(0, 8)) if (typeof k === "string") m.buffs[k] = 1;
+  const o = S.others && S.others.get(p.id);
+  if (o) { o.mate = true; o.hp = m.hp; o.maxHp = m.maxHp; o.mp = m.mp; o.maxMp = m.maxMp; o.tp = m.tp; }
+}
+
+function netPartyKill(e, mates, top, n, ch, gil) {
+  netPartySend("kill", { id: S.charId, name: save.name, zone: S.zoneId, x: Math.round(e.x), y: Math.round(e.y), mlv: e.lv, fam: e.famKey, top, n, ch, gil, ids: mates.map(m => m.id) });
+}
+
+function netOnKill(p) {
+  if (!p || !netIsMate(p.id) || !player) return;
+  if (!Array.isArray(p.ids) || !p.ids.includes(S.charId)) return;
+  if (p.zone !== S.zoneId || !player.alive || Math.hypot(player.x - p.x, player.y - p.y) > CONFIG.partyRange + 150) return;
+  const n = clamp(+p.n || 2, 2, CONFIG.partyMax), top = clamp(+p.top || player.lv, player.lv, CONFIG.levelCap), ch = clamp(+p.ch || 0, 0, CONFIG.chainMax);
+  const base = xpFor(clamp(+p.mlv || 1, 1, 99), top);
+  const xp = Math.round(base * partyShare(n) * player.lv / top * (1 + CONFIG.chainStep * ch));
+  if (xp > 0) gainXp(xp, ch); else log("No experience gained (too weak).", "sys");
+  const g = clamp(+p.gil || 0, 0, 5000);
+  if (g > 0) { save.gil += g; log("You obtain " + g + " crystals (party share).", "loot"); }
+  if (FAMILIES[p.fam] || NM_FAMILIES[p.fam]) { const fe = { famKey: p.fam }; save.stats.kills++; questKillCredit(p.fam); bountyKill(fe); }
+  saveGame();
+}
+
+function netPoolOut(e, mates) {
+  e.net = { key: S.charId + ":" + e.seq, owner: true, ids: mates.map(m => m.id), lots: {} };
+  netPartySend("pool", { id: S.charId, name: save.name, key: e.net.key, item: e.id, dur: CONFIG.poolTime, ids: e.net.ids });
+}
+
+function netOnPool(p) {
+  if (!p || !netIsMate(p.id) || !Array.isArray(p.ids) || !p.ids.includes(S.charId) || !ITEMS[p.item]) return;
+  S.pool = S.pool || [];
+  const dur = clamp(+p.dur || CONFIG.poolTime, 5, 120);
+  S.pool.push({ id: p.item, until: S.time + dur, lots: {}, mine: null, seq: ++S.mobSeq, net: { key: String(p.key), owner: false, from: NET_PT.members.get(p.id).name } });
+  log("The " + ITEMS[p.item].name + " goes into the treasure pool.", "loot");
+  if (typeof uiEvent === "function") uiEvent("pool", { id: p.item });
+}
+
+function netLotOut(e) {
+  if (!e.net) return;
+  netPartySend("lot", { id: S.charId, name: save.name, key: e.net.key, roll: e.mine });
+}
+
+function netOnLot(p) {
+  if (!p || !netIsMate(p.id)) return;
+  const e = (S.pool || []).find(x => x.net && x.net.key === p.key);
+  if (!e) return;
+  const roll = clamp(Math.floor(+p.roll || 0), 0, 999);
+  if (e.net.owner) e.net.lots[p.id] = roll;
+  const nm = NET_PT.members.get(p.id).name;
+  log(roll ? nm + " lots " + roll + " on the " + ITEMS[e.id].name + "." : nm + " passes on the " + ITEMS[e.id].name + ".", "party");
+}
+
+function netWinOut(e, winId, winName) {
+  netPartySend("win", { id: S.charId, key: e.net.key, win: winId, name: winName, item: e.id });
+}
+
+function netOnWin(p) {
+  if (!p || !netIsMate(p.id)) return;
+  const e = (S.pool || []).find(x => x.net && x.net.key === p.key);
+  if (!e) return;
+  S.pool.splice(S.pool.indexOf(e), 1);
+  const it = ITEMS[e.id];
+  if (!p.win) { log("Nobody wanted the " + it.name + ". It is lost.", "sys"); return; }
+  if (p.win === S.charId) { save.stats.lotsWon++; giveItem(e.id, 1); saveGame(); return; }
+  log(cleanChat(p.name).slice(0, 24) + " obtains the " + it.name + ".", "loot");
+}
+
+function netCastOn(a, t, sp, id) {
+  if (sp.kind === "heal") {
+    const amt = healAmount(a, sp);
+    netPartySend("fx", { id: S.charId, to: t.id, kind: "heal", sp: id, amt });
+    ring(t, "#9ad06b", 30, 0.6, "sparkle"); sfx("cure", t); vfx("cure", { src: a, tgt: t, big: sp.power > 40 });
+    log("You cast " + sp.name + " on " + t.name + ".", "you");
+  } else if (sp.kind === "buff") {
+    netPartySend("fx", { id: S.charId, to: t.id, kind: "buff", sp: id });
+    ring(t, "#9ad06b", 26, 0.5); sfx("buff", t); vfx("buff", { tgt: t, id: sp.buff });
+    log("You cast " + sp.name + " on " + t.name + ".", "you");
+  }
+}
+
+function netOnFx(p) {
+  if (!p || p.to !== S.charId || !netIsMate(p.id) || !player || !player.alive) return;
+  const sp = SPELLS[p.sp], from = NET_PT.members.get(p.id).name;
+  if (!sp) return;
+  const o = S.others && S.others.get(p.id);
+  if (o && Math.hypot(o.x - player.x, o.y - player.y) > CONFIG.castRange + 200) return;
+  if (p.kind === "heal" && sp.kind === "heal") {
+    const amt = clamp(Math.round(+p.amt || 0), 0, 2000);
+    const real = Math.max(0, Math.min(amt, player.maxHp - player.hp));
+    player.hp += real;
+    if (real > 0) { popText(player, "+" + real, "#9ad06b", 18); ring(player, "#9ad06b", 30, 0.6, "sparkle"); sfx("cure", player); vfx("cure", { tgt: player }); }
+    log(from + " casts " + sp.name + ". You recover " + real + " HP.", "party");
+  } else if (p.kind === "buff" && sp.kind === "buff") {
+    player.buffs[sp.buff] = { until: S.time + sp.dur, src: player };
+    popText(player, sp.name, "#9ad06b", 13, 1.1, 14); ring(player, "#9ad06b", 26, 0.5); sfx("buff", player); vfx("buff", { tgt: player, id: sp.buff });
+    log(from + " casts " + sp.name + " on you.", "party");
+    if (typeof refreshPlayer === "function") refreshPlayer(false);
+  }
+}
+
+function netTradeAsk(name) {
+  name = cleanChat(name).slice(0, 12);
+  if (!NET.member || !NET_RT.wch) { log("Trading needs the game server.", "sys"); return; }
+  if (NET_PT.trade) { log("You're already trading.", "sys"); return; }
+  const o = [...(S.others || new Map()).values()].find(x => netLc(x.name) === netLc(name));
+  if (!o) { log((name || "That player") + " isn't in this area.", "sys"); return; }
+  if (Math.hypot(o.x - player.x, o.y - player.y) > CONFIG.tradeRange) { log(o.name + " is too far away to trade.", "sys"); return; }
+  if (!player.alive || player.engaged) { log("You can't trade right now.", "sys"); return; }
+  NET_PT.ask = { name: o.name, id: o.id, until: Date.now() + 30000 };
+  netWorldSend("trq", { to: netLc(o.name), from: save.name, fid: S.charId });
+  log("You ask " + o.name + " to trade.", "sys");
+}
+
+function netOnTrq(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  const from = cleanChat(p.from).slice(0, 12);
+  if (NET_PT.trade || !player || !player.alive || player.engaged) { netWorldSend("tno", { to: netLc(from), from: save.name, busy: true }); return; }
+  if (typeof sfx === "function") sfx("notify");
+  log(from + " wants to trade with you.", "sys");
+  const yes = () => { netTradeOpen(from, String(p.fid || "")); netWorldSend("tok", { to: netLc(from), from: save.name, fid: S.charId }); };
+  const no = () => netWorldSend("tno", { to: netLc(from), from: save.name });
+  if (typeof gameConfirm === "function") gameConfirm("Trade request", from + " wants to trade with you.", yes, { yes: "Trade", no: "Decline", onNo: no }); else no();
+}
+
+function netOnTok(p) {
+  if (!p || p.to !== netLc(save.name) || !NET_PT.ask || netLc(p.from) !== netLc(NET_PT.ask.name) || Date.now() > NET_PT.ask.until) return;
+  NET_PT.ask = null;
+  netTradeOpen(cleanChat(p.from).slice(0, 12), String(p.fid || ""));
+}
+
+function netOnTno(p) {
+  if (!p || p.to !== netLc(save.name)) return;
+  if (NET_PT.ask && netLc(p.from) === netLc(NET_PT.ask.name)) NET_PT.ask = null;
+  log(cleanChat(p.from).slice(0, 12) + (p.busy ? " is busy right now." : " declines to trade."), "sys");
+}
+
+function netTradeOpen(name, id) {
+  NET_PT.trade = { name, id, mine: { items: [], gil: 0 }, theirs: { items: [], gil: 0 }, myOk: false, theirOk: "", msg: "" };
+  log("Trading with " + name + ".", "sys");
+  if (typeof openMenu === "function") openMenu("trade");
+}
+
+const tradeHash = (a, b) => { const x = [[netLc(a[0]), a[1]], [netLc(b[0]), b[1]]].sort((p, q) => (p[0] < q[0] ? -1 : 1)); return JSON.stringify(x); };
+function netTradeMyHash() { const t = NET_PT.trade; return tradeHash([save.name, t.mine], [t.name, t.theirs]); }
+
+function netTradeOffered(id) { const t = NET_PT.trade; return t ? t.mine.items.filter(s => s.id === id).reduce((n, s) => n + s.qty, 0) : 0; }
+function tradeable(id) { const it = ITEMS[id]; return !!it && it.kind !== "key" && !it.ex; }
+
+function netTradeAdd(id, n) {
+  const t = NET_PT.trade;
+  if (!t) return "";
+  if (!tradeable(id)) return "That item can't be traded.";
+  n = Math.max(1, Math.floor(n || 1));
+  const free = invCount(id) - netTradeOffered(id);
+  if (free < n) return "You don't have that many.";
+  if (t.mine.items.length >= CONFIG.tradeSlots && !t.mine.items.some(s => s.id === id)) return "Trades hold up to " + CONFIG.tradeSlots + " kinds of item.";
+  const s = t.mine.items.find(x => x.id === id);
+  if (s) s.qty += n; else t.mine.items.push({ id, qty: n });
+  netTradeChanged();
+  return "";
+}
+function netTradeRemove(id) { const t = NET_PT.trade; if (!t) return; t.mine.items = t.mine.items.filter(s => s.id !== id); netTradeChanged(); }
+function netTradeGil(g) { const t = NET_PT.trade; if (!t) return ""; g = Math.max(0, Math.floor(+g || 0)); if (g > save.gil) return "You don't have that many crystals."; t.mine.gil = g; netTradeChanged(); return ""; }
+
+function netTradeChanged() {
+  const t = NET_PT.trade;
+  t.myOk = false; t.theirOk = "";
+  netWorldSend("toff", { to: netLc(t.name), from: save.name, items: t.mine.items, gil: t.mine.gil });
+}
+
+function netOnToff(p) {
+  const t = NET_PT.trade;
+  if (!p || !t || p.to !== netLc(save.name) || netLc(p.from) !== netLc(t.name)) return;
+  const items = (Array.isArray(p.items) ? p.items : []).slice(0, CONFIG.tradeSlots).filter(s => s && tradeable(s.id)).map(s => ({ id: s.id, qty: clamp(Math.floor(+s.qty || 0), 1, 999) }));
+  t.theirs = { items, gil: Math.max(0, Math.floor(+p.gil || 0)) };
+  t.myOk = false; t.theirOk = ""; t.msg = "";
+  if (typeof sfx === "function") sfx("tab");
+}
+
+function tradeRoom(give, get) {
+  let need = 0;
+  for (const g of get) {
+    const st = ITEMS[g.id].stack || 1;
+    const space = save.inventory.filter(x => x.id === g.id).reduce((n, x) => n + Math.max(0, st - x.qty), 0);
+    need += Math.ceil(Math.max(0, g.qty - space) / st);
+  }
+  return save.inventory.length + need <= CONFIG.inventorySize;
+}
+
+function netTradeCheck() {
+  const t = NET_PT.trade;
+  if (!t) return "No trade open.";
+  for (const s of t.mine.items) if (invCount(s.id) < s.qty) return "You no longer have " + ITEMS[s.id].name + ".";
+  if (save.gil < t.mine.gil) return "You don't have that many crystals.";
+  for (const s of t.theirs.items) if (ITEMS[s.id].rare && (hasItem(s.id) || t.theirs.items.filter(x => x.id === s.id).reduce((n, x) => n + x.qty, 0) > 1)) return "You can only carry one " + ITEMS[s.id].name + ".";
+  if (!tradeRoom(t.mine.items, t.theirs.items)) return "Not enough room in your bag.";
+  const o = S.others && S.others.get(t.id);
+  if (!o || Math.hypot(o.x - player.x, o.y - player.y) > CONFIG.tradeRange + 60) return t.name + " is too far away.";
+  return "";
+}
+
+function netTradeAccept() {
+  const t = NET_PT.trade;
+  if (!t) return;
+  const why = netTradeCheck();
+  if (why) { t.msg = why; return; }
+  if (!t.mine.items.length && !t.mine.gil && !t.theirs.items.length && !t.theirs.gil) { t.msg = "Nothing to trade yet."; return; }
+  t.myOk = true; t.msg = "";
+  const h = netTradeMyHash();
+  netWorldSend("tcf", { to: netLc(t.name), from: save.name, h });
+  if (t.theirOk === h) netTradeFinish();
+}
+
+function netOnTcf(p) {
+  const t = NET_PT.trade;
+  if (!p || !t || p.to !== netLc(save.name) || netLc(p.from) !== netLc(t.name)) return;
+  t.theirOk = String(p.h || "");
+  if (t.myOk && t.theirOk === netTradeMyHash()) netTradeFinish();
+}
+
+function netTradeFinish() {
+  const t = NET_PT.trade;
+  if (!t || t.done) return;
+  const why = netTradeCheck();
+  if (why) { t.msg = why; t.myOk = false; netWorldSend("tcx", { to: netLc(t.name), from: save.name, why }); NET_PT.trade = null; log("Trade cancelled: " + why, "sys"); if (S.modal === "trade" && typeof closeModal === "function") closeModal(); return; }
+  t.done = true;
+  for (const s of t.mine.items) removeItem(s.id, s.qty);
+  save.gil -= t.mine.gil;
+  for (const s of t.theirs.items) giveItem(s.id, s.qty, true);
+  save.gil += t.theirs.gil;
+  const got = t.theirs.items.map(s => (s.qty > 1 ? s.qty + " " : "") + ITEMS[s.id].name).concat(t.theirs.gil ? [t.theirs.gil + " crystals"] : []);
+  log("Trade with " + t.name + " complete." + (got.length ? " You receive " + got.join(", ") + "." : ""), "loot");
+  save.stats.trades = (save.stats.trades || 0) + 1;
+  if (typeof sfx === "function") sfx("loot");
+  NET_PT.trade = null;
+  saveGame();
+  if (typeof netFlush === "function") netFlush();
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+function netTradeCancel(quiet) {
+  const t = NET_PT.trade;
+  if (!t) return;
+  NET_PT.trade = null;
+  netWorldSend("tcx", { to: netLc(t.name), from: save.name });
+  if (!quiet) log("You cancel the trade.", "sys");
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+function netOnTcx(p) {
+  const t = NET_PT.trade;
+  if (!p || !t || p.to !== netLc(save.name) || netLc(p.from) !== netLc(t.name)) return;
+  NET_PT.trade = null;
+  log(t.name + " cancels the trade." + (p.why ? " (" + cleanChat(p.why) + ")" : ""), "sys");
+  if (S.modal === "trade" && typeof closeModal === "function") closeModal();
+}
+
+function netPartySig() {
+  return [NET_PT.id, netPartyList().map(m => m.id + m.job + m.lv + m.zone + Math.round(10 * m.hp / m.maxHp)).join(), NET_PT.trade ? JSON.stringify([NET_PT.trade.mine, NET_PT.trade.theirs, NET_PT.trade.myOk, NET_PT.trade.theirOk, NET_PT.trade.msg]) : ""].join("|");
 }

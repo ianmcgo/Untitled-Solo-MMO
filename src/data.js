@@ -2,7 +2,7 @@ const CONFIG = {
   levelCap: 20,
   bowRange: 230,
   foodMinutes: 30,
-  poolTime: 45,
+  poolTime: 45, partyMax: 6, partyRange: 900, partyShare: [1, 1, 0.6, 0.45, 0.37, 0.32, 0.28], tradeRange: 250, tradeSlots: 8,
   meleeRange: 42,
   tpMax: 3000,
   tpPerDelay: 40,
