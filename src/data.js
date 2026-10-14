@@ -2,8 +2,8 @@ const CONFIG = {
   terrainDetailLow: true,
   hallField: 380,
   hallTown: 180,
-  spawnGapCells: 3,
-  spawnExitCells: 2,
+  spawnGapCells: 1.4,
+  spawnExitCells: 1.2,
   mobRegen: 0.04,
   mercDaily: 5,
   mercPermadeath: true,
@@ -2138,7 +2138,8 @@ for (const zid in ZONES) {
   const order = z.spawns.slice().sort((a, b) => (b.nm ? 1 : 0) - (a.nm ? 1 : 0) || (b.bf ? 1 : 0) - (a.bf ? 1 : 0) || exitDist(b) - exitDist(a));
   const fixed = sp => FAMILIES[sp.fam] && (FAMILIES[sp.fam].nm || FAMILIES[sp.fam].boss);
   const kept = z.spawns.filter(fixed);
-  for (const sp of order) if (!kept.includes(sp) && (sp.bf || exitDist(sp) >= exitR) && !kept.some(k => near(k, sp))) kept.push(sp);
+  const inWall = sp => (z.walls || []).some(q => sp.x > q.x - 24 && sp.x < q.x + q.w + 24 && sp.y > q.y - 24 && sp.y < q.y + q.h + 24) || (z.water || []).some(w => Math.hypot(sp.x - w.x, sp.y - w.y) < w.r + 20);
+  for (const sp of order) if (!kept.includes(sp) && !inWall(sp) && (sp.bf || exitDist(sp) >= exitR) && !kept.some(k => near(k, sp))) kept.push(sp);
   if (!kept.length) kept.push(order[0]);
   for (const sp of z.spawns) {
     if (kept.includes(sp)) continue;
@@ -2148,6 +2149,8 @@ for (const zid in ZONES) {
     (best.alts = best.alts || []).push({ fam: sp.fam, lv: sp.lv, time: sp.time, weather: sp.weather, nm: sp.nm, passive: sp.passive });
   }
   z.spawns = z.spawns.filter(sp => kept.includes(sp));
+  const critter = o => FAMILIES[o.fam] && !FAMILIES[o.fam].aggro && !FAMILIES[o.fam].nm;
+  for (const sp of z.spawns) { if (critter(sp) && sp.time === "day") delete sp.time; for (const a of sp.alts || []) if (critter(a) && a.time === "day") delete a.time; }
 }
 const POI_LORE = {
   hollow: "Before the Outpost there was the Fort, and before the Fort there was only the Hollow and the people who herded in it. They cut these words so their children would know the safe paths: keep to the old road, drink from the mirror lake, and never sleep where the goblins dig.",

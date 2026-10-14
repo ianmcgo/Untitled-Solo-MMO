@@ -8,9 +8,9 @@ let ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
 const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
-const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot"];
-const HAIR_BY_SEX = [["short", "spiky", "long", "ponytail", "bald", "mohawk", "topknot", "braid"], ["long", "ponytail", "bob", "bun", "short", "braid", "twintails", "topknot"]];
-const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" , braid: "Braid", mohawk: "Crest", twintails: "Twin tails", topknot: "Topknot" };
+const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot", "wavy", "pixie", "sidepart", "dreads", "curly"];
+const HAIR_BY_SEX = [["short", "sidepart", "spiky", "curly", "long", "ponytail", "dreads", "bald", "mohawk", "topknot", "braid", "pixie"], ["long", "wavy", "ponytail", "bob", "bun", "pixie", "curly", "short", "sidepart", "braid", "twintails", "dreads", "topknot"]];
+const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" , braid: "Braid", mohawk: "Crest", twintails: "Twin tails", topknot: "Topknot", wavy: "Wavy", pixie: "Pixie", sidepart: "Side part", dreads: "Locs", curly: "Curly" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 
 const REGION_PAINT = {
@@ -286,7 +286,7 @@ class RigBuilder {
     let lo = Infinity, hi = -Infinity;
     for (const L of by) for (const p of L) { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; }
     const H = Math.max(0.15, hi - lo), tol = 0.012 * H;
-    const skip = new Set(["lids", "saddle", "hairTail", "mouth", "jaw"].concat(this.noBridgeBones || []));
+    const skip = new Set(["lids", "saddle", "hairTail", "hairTail2", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB"].concat(this.noBridgeBones || []));
     for (const d of this.defs) {
       if (d.parent == null || skip.has(d.name)) continue;
       let pi = d.parent;
@@ -394,7 +394,7 @@ class RigBuilder {
   }
   smoothJoints() {
     const J = { foreArm: [0.06, 0.5, 0.1], hand: [0.04, 0.5, 0.08], shin: [0.07, 0.5, 0.12], foot: [0.04, 0.45, 0.1], upArm: [0.07, 0.4, 0.11], thigh: [0.07, 0.4, 0.16], chest: [0.08, 0.45, 0.32], spine: [0.08, 0.5, 0.32], neck: [0.04, 0.4, 0.12], head: [0.045, 0.4, 0.14], tail: [0.06, 0.5, 0.1], cape: [0.06, 0.5, 0.3] };
-    const rigid = new Set(["lids", "saddle", "mouth", "jaw"].concat(this.rigidBones || []));
+    const rigid = new Set(["lids", "saddle", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB", "hairTail2"].concat(this.rigidBones || []));
     const kidsAll = this.defs.map(() => []);
     this.defs.forEach(d => { if (d.parent != null) kidsAll[d.parent].push(d.index); });
     const info = this.defs.map(d => {
@@ -924,9 +924,9 @@ function stableKey(o) {
 }
 
 function hairEdgeFn(st) {
-  const K = { short: [-0.52, -0.34, 0.0, 0.3, 0.42], spiky: [-0.44, -0.4, -0.05, 0.25, 0.36], bob: [-0.26, -0.2, 0.42, 0.52, 0.56], long: [-0.3, -0.24, 0.3, 0.42, 0.45], ponytail: [-0.56, -0.4, -0.02, 0.2, 0.3], bun: [-0.56, -0.4, -0.02, 0.2, 0.3], braid: [-0.42, -0.38, 0.0, 0.25, 0.32], twintails: [-0.28, -0.24, 0.05, 0.25, 0.32], topknot: [-0.46, -0.42, -0.02, 0.22, 0.32] }[st] || [-0.4, -0.36, 0.0, 0.3, 0.42];
+  const K = { short: [-0.52, -0.34, 0.0, 0.3, 0.42], spiky: [-0.44, -0.4, -0.05, 0.25, 0.36], bob: [-0.26, -0.2, 0.42, 0.52, 0.56], long: [-0.3, -0.24, 0.3, 0.42, 0.45], ponytail: [-0.56, -0.4, -0.02, 0.2, 0.3], bun: [-0.56, -0.4, -0.02, 0.2, 0.3], braid: [-0.42, -0.38, 0.0, 0.25, 0.32], twintails: [-0.28, -0.24, 0.05, 0.25, 0.32], topknot: [-0.46, -0.42, -0.02, 0.22, 0.32], wavy: [-0.28, -0.22, 0.32, 0.45, 0.5], pixie: [-0.4, -0.36, -0.06, 0.16, 0.28], sidepart: [-0.5, -0.32, 0.0, 0.28, 0.4], dreads: [-0.56, -0.42, -0.04, 0.15, 0.25], curly: [-0.46, -0.34, 0.06, 0.3, 0.4] }[st] || [-0.4, -0.36, 0.0, 0.3, 0.42];
   const angs = [0, 0.75, 1.45, 2.2, Math.PI];
-  const fringe = st === "bob" || st === "long" || st === "twintails";
+  const fringe = st === "bob" || st === "long" || st === "twintails" || st === "wavy";
   const edge = a => {
     const aa = Math.abs(a);
     let k = 0; while (k < angs.length - 2 && aa > angs[k + 1]) k++;
@@ -936,15 +936,15 @@ function hairEdgeFn(st) {
   };
   return edge;
 }
-function gHairShell(P, hc, hr, st) {
-  const edge = hairEdgeFn(st);
+function gHairShell(P, hc, hr, st, thMin) {
+  const edge = hairEdgeFn(st), t0 = thMin || 0;
   const nu = Math.max(16, sgK(40)), nv = Math.max(6, sgK(12));
   const pos = [], uv = [], idx = [];
   for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
     const phi = i / nu * Math.PI * 2, a = Math.atan2(Math.sin(phi - Math.PI / 2), Math.cos(phi - Math.PI / 2));
-    const f = j / nv, th = edge(a) * f;
+    const f = j / nv, th = t0 + (edge(a) - t0) * f;
     const x = -Math.cos(phi) * Math.sin(th), y = Math.cos(th), z = Math.sin(phi) * Math.sin(th);
-    const vol = st === "spiky" ? 0.07 : st === "bob" ? 0.1 : 0.075;
+    const vol = t0 ? 0.05 : st === "spiky" ? 0.07 : st === "curly" ? 0.2 : st === "bob" || st === "wavy" ? 0.1 : 0.075;
     const off = (vol + 0.03 * Math.cos(f * Math.PI / 2)) * (1 - 0.55 * f * f) + 0.012 * Math.sin(phi * 23) * f;
     const r = headRadial(P, x, y, z, false) * (1 + off);
     pos.push(x * r * hr * HEAD_SCALE[0], hc + y * r * hr * HEAD_SCALE[1], 0.005 + z * r * hr * HEAD_SCALE[2]);
@@ -952,7 +952,7 @@ function gHairShell(P, hc, hr, st) {
   }
   for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
     const a = j * (nu + 1) + i, b = a + nu + 1;
-    if (j > 0) idx.push(a, b, a + 1);
+    if (j > 0 || t0) idx.push(a, b, a + 1);
     idx.push(a + 1, b, b + 1);
   }
   const g = new THREE.BufferGeometry();
@@ -969,14 +969,14 @@ function hairPoint(P, hc, hr, phi, th, off) {
   return V3(x * r * hr * HEAD_SCALE[0], hc + y * r * hr * HEAD_SCALE[1], 0.005 + z * r * hr * HEAD_SCALE[2]);
 }
 function gHairLocks(P, hc, hr, st) {
-  if (st === "spiky" || st === "mohawk") return [];
-  const edge = hairEdgeFn(st), out = [], fringe = st === "bob" || st === "long" || st === "twintails";
+  if (st === "spiky" || st === "mohawk" || st === "curly" || st === "dreads") return [];
+  const edge = hairEdgeFn(st), out = [], fringe = st === "bob" || st === "long" || st === "twintails" || st === "wavy";
   const n = Math.max(10, sgK(24));
   for (let k = 0; k < n; k++) {
     const a = -Math.PI + (k + 0.5) / n * Math.PI * 2, phi0 = a + Math.PI / 2;
     const front = Math.abs(a) < 0.9;
-    const e = edge(a), len = (front ? (fringe ? 0.16 : 0.09) : 0.12) * (0.75 + 0.5 * Math.abs(Math.sin(k * 2.7)));
-    const sweep = front && !fringe ? (a >= 0 ? 0.1 : -0.1) : 0.04 * Math.sin(k * 1.9);
+    const e = edge(a), len = (front ? (fringe ? 0.16 : st === "sidepart" ? 0.13 : 0.09) : 0.12) * (st === "pixie" ? 0.6 : 1) * (0.75 + 0.5 * Math.abs(Math.sin(k * 2.7)));
+    const sweep = st === "sidepart" && front ? 0.28 : st === "pixie" ? 0.12 * Math.sin(k * 2.3) : front && !fringe ? (a >= 0 ? 0.1 : -0.1) : 0.04 * Math.sin(k * 1.9);
     const w0 = Math.PI * 2 / n * 0.75, rows = 5;
     const pos = [], uv = [], idx = [];
     for (let j = 0; j <= rows; j++) {
@@ -1009,6 +1009,10 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
     }
     return;
   }
+  if (covered && st !== "mohawk" && st !== "spiky" && st !== "curly") {
+    R.add(gHairShell(HP, hc, hr, st, Math.PI * 0.4), "head", c, "hair");
+    for (const lk of gHairLocks(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
+  } else if (covered && (st === "spiky" || st === "curly")) R.add(gHairShell(HP, hc, hr, "short", Math.PI * 0.4), "head", c, "hair");
   if (!covered) {
     R.add(gHairShell(HP, hc, hr, st), "head", c, "hair");
     for (const lk of gHairLocks(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
@@ -1033,12 +1037,15 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
     R.add(gBall(V3(s * hr * 0.85, hc + hr * 0.25, -hr * 0.45), hr * 0.24, 1, 1, 1, 8), "head", c, "hair");
     R.add(gTaper(V3(s * hr * 0.95, hc + hr * 0.15, -hr * 0.55), V3(s * hr * 1.35, hc - hr * 1.5, -hr * 0.75), hr * 0.26, hr * 0.06, 8), TB, c, "hair");
   }
-  if (st === "long") {
+  if (st === "curly" && !covered) for (let k = 0; k < 60; k++) { const ph = k * 2.399, th = Math.acos(1 - (k + 0.5) / 60 * 1.15); if (Math.abs(Math.atan2(Math.sin(ph - Math.PI / 2), Math.cos(ph - Math.PI / 2))) < 0.7 && th > 0.9) continue; const p = hairPoint(HP, hc, hr, ph, th, 0.13); R.add(gBall(p, hr * 0.2, 1, 1, 1, 7), "head", c, "hair"); }
+  if (st === "dreads") for (let k = 0; k < 16; k++) { const a = Math.PI / 2 + Math.PI * (0.35 + 1.3 * k / 15), p0 = hairPoint(HP, hc, hr, a, Math.PI / 2 + 0.1, 0.06), ln = hr * (1.4 + 0.3 * Math.sin(k * 1.7)); const out = V3(Math.sign(p0.x) * 0.15, 0, -0.3).normalize(); R.add(gTaper(p0, p0.clone().add(V3(out.x * hr * 0.3, -ln, out.z * hr * 0.4)), hr * 0.07, hr * 0.05, 6), Math.abs(a - Math.PI * 1.5) < 1.0 ? TB : "head", c, "hair"); }
+  if (st === "long" || st === "wavy") {
     R.add(gBall(V3(0, hc - hr * 0.95, -hr * 0.66), hr * 0.85, 1.0, 1.75, 0.38, 12), TB, c, "hair");
     for (let k = 0; k < 7; k++) {
       const f = k / 6 - 0.5, ln = hr * (1.9 + 0.25 * Math.cos(k * 1.7));
       R.add(gTaper(V3(f * hr * 1.5, hc + hr * 0.1, -hr * 0.95), V3(f * hr * 1.9, hc + hr * 0.1 - ln, -hr * (0.95 + 0.12 * Math.abs(f))), hr * 0.26, hr * 0.05, 5, 0.3), TB, c, "hair");
     }
+    if (st === "wavy") for (let k = 0; k < 8; k++) { const f = k / 7 - 0.5; let p = V3(f * hr * 1.7, hc - hr * 0.2, -hr * (0.95 + 0.1 * Math.abs(f))); for (let j = 0; j < 4; j++) { const q = p.clone().add(V3((j % 2 ? 1 : -1) * hr * 0.12, -hr * 0.45, -hr * 0.03)); R.add(gTaper(p, q, hr * (0.16 - j * 0.025), hr * (0.13 - j * 0.025), 5, 0.45), TB, c, "hair"); p = q; } }
   }
   if (st === "ponytail") {
     R.add(gBall(V3(0, hc + hr * 0.2, -hr * 0.98), hr * 0.3, 1, 1, 1, 8), "head", c, "hair");
@@ -1135,7 +1142,7 @@ function humanEntry(L) {
     { const ml = []; for (const s of [-1, 1]) { const a = s * 0.09, b0 = 0.385; const p0 = hairPoint(HP, hc, hr, Math.PI / 2 + a * 0.4, Math.PI / 2 + b0 - 0.02, 0.05), p1 = hairPoint(HP, hc, hr, Math.PI / 2 + s * 0.24, Math.PI / 2 + b0 + 0.07, 0.04); R.add(gTaper(p0, p1, hr * 0.07, hr * 0.02, 6), "head", L.beard, "hair"); } }
     if (L.longBeard) R.add(gBall(V3(0, hc - hr * 1.2, hr * 0.6), hr * 0.5, 0.9, 1.6, 0.55, 10), "head", L.beard, "hair");
   }
-  const tailed = L.hair && ["long", "ponytail", "braid", "twintails"].includes(L.hair.style);
+  const tailed = L.hair && ["long", "ponytail", "braid", "twintails", "wavy", "dreads"].includes(L.hair.style);
   if (tailed) R.bone("hairTail", "head", 0, hc + hr * 0.15, -hr * 0.95);
   hairPieces(R, L.hair, hc, hr, headCovers, tailed ? "hairTail" : null, HP);
   if (!L.noFace) {
@@ -1308,8 +1315,18 @@ function humanEntry(L) {
   }
   if (L.collar && !L.skull) R.add(gRing(V3(0, neckY - 0.035, 0), 0.1 * gi, 0.045, "y", 16), "chest", L.collar, "fur");
   if (t === "tabard") {
-    R.add(gBox(V3(0, chestY - 0.12, 0.125 * gi), 0.2, 0.62, 0.012), "chest", top.color2, "cloth");
-    R.add(gBox(V3(0, chestY - 0.12, -0.125 * gi), 0.2, 0.62, 0.012), "chest", top.color2, "cloth");
+    const ty0 = chestY + 0.19, ty1 = chestY - 0.43;
+    for (const [fz, bn] of [[1, "tabF"], [-1, "tabB"]]) {
+      R.bone(bn, "hips", 0, hipsY - 0.02, fz * 0.13 * gi);
+      const tg = new THREE.PlaneGeometry(0.2, ty0 - ty1, 2, 10);
+      tg.translate(0, (ty0 + ty1) / 2, fz * (0.125 * gi + 0.006));
+      if (fz < 0) tg.rotateY(Math.PI).translate(0, 0, 0);
+      const tp = tg.attributes.position;
+      for (let i = 0; i < tp.count; i++) { const y = tp.getY(i); if (y > hipsY) tp.setZ(i, tp.getZ(i) + fz * 0.02 * clamp((y - hipsY) / (ty0 - hipsY), 0, 1) * gi); }
+      tg.computeVertexNormals();
+      R.addW(tg, "chest", top.color2, "cloth", (x, y) => y > hipsY + 0.06 ? [["chest", 1]] : y > hipsY - 0.02 ? [["chest", (y - hipsY + 0.02) / 0.08], [bn, 1 - (y - hipsY + 0.02) / 0.08]] : [[bn, 1]]);
+      R.add(gBox(V3(0, ty1 + 0.015, fz * (0.125 * gi + 0.01)), 0.2, 0.025, 0.006), bn, top.trim || 0xd8c070, "trim");
+    }
   }
   if (t === "apron") R.add(gBox(V3(0, hipsY - 0.05, 0.13 * gi), 0.26, 0.55, 0.012), "hips", top.color2, "leather");
   if (t === "fur") R.add(gRing(V3(0, neckY - 0.04, 0), 0.12 * gi, 0.06, "y", 14), "chest", topC, "fur");
@@ -1320,8 +1337,15 @@ function humanEntry(L) {
     R.add(gBox(V3(0, hipsY + 0.03, bR * 0.72 + 0.006), 0.05, 0.04, 0.012), "hips", 0xc8a040, "metal");
   }
   if (L.cape) {
-    R.bone("cape", "chest", 0, shY, -0.15 * gi);
-    R.add(gBox(V3(0, (shY + knee) / 2 + 0.02, -0.15 * gi), sw * 2.0, shY - knee, 0.02, 0.1, 0, 0), "cape", L.cape, "cloth");
+    const cz = -0.15 * gi, ch = shY - knee, c1 = shY - ch / 3, c2 = shY - ch * 2 / 3;
+    R.bone("cape", "chest", 0, shY, cz);
+    R.bone("cape2", "cape", 0, c1, cz - 0.03);
+    R.bone("cape3", "cape2", 0, c2, cz - 0.06);
+    const cg = new THREE.PlaneGeometry(sw * 2.0, ch, 6, 12);
+    const cp = cg.attributes.position;
+    for (let i = 0; i < cp.count; i++) { const x = cp.getX(i), y = cp.getY(i), f = (ch / 2 - y) / ch; cp.setXYZ(i, x * (1 + 0.15 * f), y + (shY + knee) / 2 + 0.02, cz - 0.05 * f - (x * x) * 1.4 * (0.3 + f)); }
+    cg.computeVertexNormals();
+    R.addW(cg, "cape", L.cape, "cloth", (x, y) => blendW(y, [[0, "cape3", 0], [c2, "cape2", 0.06], [c1, "cape", 0.06]]));
     R.add(gRing(V3(0, neckY - 0.03, 0), 0.085 * gi, 0.025, "y", 16), "chest", L.cape, "cloth");
   }
   if (L.sack) {
@@ -1333,11 +1357,11 @@ function humanEntry(L) {
   if (H) {
     const hp = V3(0, hc + 0.005, 0);
     if (H.type === "cap" || H.type === "helm" || H.type === "horned") {
-      R.add(gPartSphere(hp, hr * 1.13, 0, Math.PI * 0.37, 1, 1.05, 1.05, 18), "head", H.color, "metal");
-      R.add(gRing(V3(0, hc + hr * 0.47, 0), hr * 1.07, 0.014, "y", 22), "head", H.color, "metal");
+      R.add(warpToHead(gPartSphere(V3(0, hc, 0.005), hr * 1.12, 0, Math.PI * 0.4, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 22), HP, hc, hr), "head", H.color, "metal");
+      R.add(warpToHead(gRing(V3(0, hc + hr * 0.32 * HEAD_SCALE[1], 0.005), hr * 1.1, hr * 0.06, "y", 24).scale(1, 1, 1), HP, hc, hr).scale(HEAD_SCALE[0] * 1.01, 1, 1).translate(0, 0, 0), "head", H.color, "metal");
       if (H.type !== "cap") {
-        R.add(gBox(V3(0, hc - hr * 0.02, hr * 1.12), 0.018, hr * 0.62, 0.016), "head", H.color, "metal");
-        for (const s of [-1, 1]) R.add(gBox(V3(s * hr * 0.92, hc - hr * 0.3, hr * 0.12), 0.016, hr * 0.62, hr * 0.62, 0, -s * 0.25, s * 0.12), "head", H.color, "metal");
+        R.add(gBox(V3(0, hc + hr * 0.02, hr * 1.06), 0.016, hr * 0.5, 0.014), "head", H.color, "metal");
+        for (const s of [-1, 1]) { R.add(gFront(V3(0, hc, 0.005), hr * 1.09, 0.9, Math.PI * 0.42, Math.PI * 0.68, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 6).rotateY(s * 1.25), "head", H.color, "metal"); }
       }
       if (H.type === "horned") for (const s of [-1, 1]) {
         const a = V3(s * hr * 0.9, hc + hr * 0.45, 0), b = V3(s * hr * 1.6, hc + hr * 1.0, -hr * 0.1), c = V3(s * hr * 1.7, hc + hr * 1.75, hr * 0.2);

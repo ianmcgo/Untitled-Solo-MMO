@@ -32,7 +32,7 @@ const mockLogin = require('./mocklogin');
       const [type, id] = spec.split(':');
       if (type === 'mob') { const m = buildMob(id, 5, 0, 0, null); return m; }
       if (type === 'npc') { const n = Object.assign({}, NPCS[id] || {}, { kind: 'npc', id, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0 }); return n; }
-      if (type === 'race') { const [race, job, build, hs, fc] = id.split('/'); const lk = Object.assign({}, save.look, { race, build: +build || 0 }); if (hs) lk.hairStyle = HAIR_STYLES.indexOf(hs); if (fc) lk.face = +fc; const e = { kind: 'remote', remote: true, id: 'lab' + id, name: 'Lab', job, lv: 10, look: lk, gear: {}, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0, recasts: {} }; return e; }
+      if (type === 'race') { const [race, job, build, hs, fc] = id.split('/'); const lk = Object.assign({}, save.look, { race, build: +build || 0 }); if (hs) lk.hairStyle = HAIR_STYLES.indexOf(hs); if (fc) lk.face = +fc; const gear = {}; if (id.split('/')[5]) gear.head = id.split('/')[5]; const e = { kind: 'remote', remote: true, id: 'lab' + id, name: 'Lab', job, lv: 10, look: lk, gear, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0, recasts: {} }; return e; }
       if (type === 'amb') return { kind: 'ambient', ambient: true, type: id, seed: 3, x: 0, y: 0, face: 0, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9 };
     };
     let k = 0;

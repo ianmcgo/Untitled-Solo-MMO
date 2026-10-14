@@ -18,6 +18,7 @@ const mockLogin = require('./mocklogin');
     const [type, id] = spec.split(':');
     let e;
     if (type === 'mob') e = buildMob(id, 5, 0, 0, null);
+    else if (type === 'npc') e = Object.assign({}, NPCS[id] || {}, { kind: 'npc', id, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0 });
     else { const [race, job, build] = id.split('/'); e = { kind: 'remote', remote: true, id: 'gs' + id, name: 'G', job, lv: 10, look: Object.assign({}, save.look, { race, build: +build || 0 }), gear: {}, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0, recasts: {} }; }
     e.x = 0; e.y = 0; e.face = 0;
     window.groundY = () => 0; window.footGround = () => 0;

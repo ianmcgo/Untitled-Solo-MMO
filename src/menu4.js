@@ -1477,6 +1477,16 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "14.0.0", date: "2026-10-14", title: "Flowing capes and hair, five new hairstyles", items: [
+    "Capes are now cloth in three hinged sections driven by spring physics: they hang still when you stand, stream back when you run, swing out on turns and settle with a little bounce when you stop.",
+    "Ponytails, braids and long hair swing with your stride and lag behind turns; tabard flaps are pushed by your legs and flutter when running.",
+    "Five new hairstyles: Wavy, Pixie, Side part, Locs and Curly (16 in all).",
+    "Helmets, caps and hats no longer make you look bald: your fringe, sides and back hair show beneath the rim. Helmets now fit the shape of the head, with a nose guard and cheek guards that follow the face.",
+    "The wooden arches at zone exits are gone.",
+    "The title, loading and character select screens use the same blue striped boxes, white-bordered panels and pill buttons as the in-game menus.",
+    "More to fight close to town: the bigger fields now have about two to three times as many spawn points, and the first ones are only a short walk from the gate. Level 1–2 critters near town show as easy prey or a decent challenge for new characters.",
+    "Critters (hares, bees, sheep, mandrakes and the like) stay out at night. Night adds its own harder monsters rather than emptying the fields."
+  ] },
   { v: "13.9.0", date: "2026-10-14", title: "Faces that talk", items: [
     "16 faces to choose from (was 8): the new eight pair the painted features with a different bone structure (stronger nose and chin, wider jaw, higher cheekbones, fuller lips).",
     "Mouths move. Townsfolk talk while their lines appear in the log, you and other players talk when you chat, and the jaw drops with each syllable.",

@@ -967,6 +967,32 @@
   #ko .koBox b { font: italic 900 14px var(--ffFont); letter-spacing: .08em; }
   #ko #btnHome { height: 24px !important; padding: 0 16px !important; font: italic 900 13px var(--ffFont) !important; letter-spacing: .08em; color: #ffb54a !important; border-radius: 12px !important; border: 1px solid #3a1a06 !important; background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; -webkit-text-stroke: .8px #3a1a06; paint-order: stroke fill; text-shadow: 1px 1px 0 #3a1a06; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 2px 6px rgba(0,0,0,.6) !important; cursor: pointer; }
   #ui.isKO #ffTop { display: flex; }
+
+  #loading, #loading.zone { background: radial-gradient(ellipse at 50% 40%, #1c2458 0%, #0c1236 50%, #04060f 100%) !important; font-family: var(--ffFont); }
+  #loading .crest { border: 2px solid var(--ffEdge) !important; color: #fff !important; background: var(--ffStripe); box-shadow: 0 0 22px rgba(120,140,255,.35), inset 0 0 14px rgba(255,255,255,.12) !important; animation: none !important; }
+  #loading .crest::after { border-top-color: #b8c0ff !important; border-right-color: rgba(184,192,255,.35) !important; }
+  #ldTitle { font: italic 900 34px var(--ffFont) !important; letter-spacing: .12em !important; color: #fff !important; -webkit-text-stroke: 1px #10103a; paint-order: stroke fill; text-shadow: 2px 2px 0 #10103a, 0 0 18px rgba(120,140,255,.5) !important; }
+  #ldSub, #ldVer { font-family: var(--ffFont) !important; font-style: italic; color: #c8ccf0 !important; }
+  #ldBar { height: 12px !important; border-radius: 6px !important; background: rgba(8,10,40,.85) !important; border: 2px solid var(--ffEdge) !important; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+  #ldFill { background: linear-gradient(180deg, #e4e2fa 0%, #a4a6ea 40%, #6a68a6 100%) !important; box-shadow: none !important; }
+  #ldText { font: italic 800 12px var(--ffFont) !important; color: #e4e4ff !important; text-shadow: 1px 1px 0 #000; }
+  #ldTip { padding: 6px 12px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; font: 700 12px var(--ffFont) !important; color: #fff !important; text-shadow: 1px 1px 0 #000; box-shadow: 0 3px 12px rgba(0,0,0,.5); }
+  #ldTip b { color: #ffd84a !important; }
+  #ldStart { font: italic 900 16px var(--ffFont) !important; letter-spacing: .1em !important; padding: 8px 30px !important; border-radius: 18px !important; border: 1px solid #3a1a06 !important; color: #ffb54a !important; background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; -webkit-text-stroke: .8px #3a1a06; paint-order: stroke fill; text-shadow: 1px 1px 0 #3a1a06; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 3px 10px rgba(0,0,0,.6) !important; animation: none !important; }
+  #ldPv { border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; background: var(--ffStripe) !important; }
+  #ldPv .lbl b { font-family: var(--ffFont) !important; font-style: italic; color: #fff !important; }
+  #ldCred { font-family: var(--ffFont) !important; color: #c8ccf0 !important; }
+  #ldCred a { color: #ffd84a !important; }
+  #charSel { padding: 10px 12px 12px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.6); font-family: var(--ffFont); color: #fff; }
+  #charSel h2, #charSel h3 { font: italic 900 15px var(--ffFont) !important; color: #fff !important; letter-spacing: .08em; text-shadow: 1px 1px 0 #000; }
+  #charSel .ccCard { border-radius: 6px !important; background: rgba(10,12,50,.55) !important; border: 1px solid rgba(220,224,255,.7) !important; }
+  #charSel .ccCard:hover, #charSel .ccCard.sel { background: rgba(200,120,60,.35) !important; border-color: #ffb54a !important; }
+  #charSel .ccInfo b { font: italic 900 16px var(--ffFont) !important; color: #fff !important; text-shadow: 1px 1px 0 #000; }
+  #charSel .ccInfo span, #charSel .ccInfo small, #charSel .sub, #charSel label { font-family: var(--ffFont) !important; color: #dcdcff !important; }
+  #charSel button { font: italic 800 13px var(--ffFont) !important; letter-spacing: .06em; border-radius: 12px !important; border: 1px solid #14143c !important; color: #fff !important; background: linear-gradient(180deg, #e4e2fa 0%, #b4b2e6 22%, #8e8cc8 58%, #6a68a6 100%) !important; -webkit-text-stroke: .6px #14143c; paint-order: stroke fill; text-shadow: 1px 1px 0 #14143c; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(0,0,0,.5) !important; }
+  #charSel button.pri, #charSel .pri { color: #ffb54a !important; background: linear-gradient(180deg, #e8b48a 0%, #b8784a 25%, #8a4e26 60%, #5e3214 100%) !important; border-color: #3a1a06 !important; -webkit-text-stroke: .6px #3a1a06; }
+  #charSel button.danger { background: linear-gradient(180deg, #f0b0b0 0%, #c86060 40%, #8a2a2a 100%) !important; }
+  #charSel input, #charSel select { font: 700 13px var(--ffFont) !important; background: rgba(8,10,40,.85) !important; color: #fff !important; border: 1px solid var(--ffEdge) !important; border-radius: 4px !important; }
 </style>
 </head>
 <body>
