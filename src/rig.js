@@ -443,6 +443,9 @@ const JOB_TINT = {
 
 const ITEM_LOOK = {
   leather_vest: { top: { type: "vest", color: 0x7a5230, region: "leather" } },
+  travelers_cape: { cape: 0x6a5a3a }, wolf_mantle: { cape: 0x5a5a62 }, mage_cape: { cape: 0x3a2a6a },
+  leather_belt: { belt: 0x5a3a20 }, warriors_belt: { belt: 0x7a2a1a }, silk_sash: { belt: 0xc8b8e8 },
+  buckler: { shield: { color: 0x8a6a4a, trim: 0xb08a50, emblem: 0x5a3a20 } },
   scale_mail: { top: { type: "mail", color: 0x9aa0a8, region: "chain" }, pauldrons: 0xa8aeb6 },
   kite_shield: { shield: { color: 0x8a90a0, trim: 0xc8a040, emblem: 0x2f5c9a } },
   scarlet_tabard: { top: { type: "tabard", color: 0xa0242c, region: "cloth", color2: 0xd8c070 }, hat: 0xa0242c },
@@ -531,6 +534,8 @@ function lookFor(job, gear, base) {
     if (il.pauldrons) L.pauldrons = il.pauldrons;
     if (il.shield) L.shield = il.shield;
     if (il.hat) L.hat = il.hat;
+    if (il.cape) L.cape = il.cape;
+    if (il.belt) L.belt = il.belt;
   }
   if (!L.boots) L.shoes = 0x3a2a1e;
   L.weapon = gear.main ? ITEMS[gear.main].wtype : null;

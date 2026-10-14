@@ -95,8 +95,12 @@ const SC_TABLE = [
 ];
 
 const ATTRS = ["str", "dex", "vit", "agi", "int", "mnd"];
-const SLOTS = ["main", "head", "body", "hands", "legs", "feet", "ring"];
-const SLOT_NAMES = { main: "Main", head: "Head", body: "Body", hands: "Hands", legs: "Legs", feet: "Feet", ring: "Ring" };
+const SLOTS = ["main", "sub", "ranged", "ammo", "head", "neck", "ear1", "ear2", "body", "hands", "ring1", "ring2", "back", "waist", "legs", "feet"];
+const SLOT_NAMES = { main: "Main", sub: "Sub", ranged: "Range", ammo: "Ammo", head: "Head", neck: "Neck", ear1: "Ear", ear2: "Ear", body: "Body", hands: "Hands", ring1: "Ring", ring2: "Ring", back: "Back", waist: "Waist", legs: "Legs", feet: "Feet", ring: "Ring", ear: "Ear" };
+const SLOT_PAIRS = { ring: ["ring1", "ring2"], ear: ["ear1", "ear2"] };
+function slotKeys(type) { return SLOT_PAIRS[type] || [type]; }
+function slotFor(id, gear, want) { const ks = slotKeys(ITEMS[id].slot); if (want && ks.includes(want)) return want; return ks.find(k => !gear[k]) || ks[0]; }
+const RES_ELEMENTS = ["fire", "ice", "wind", "earth", "lightning", "water", "light", "dark"];
 const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN", "DRK", "BRD"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
 const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 }, THF: { quest: "thf", lv: 6 }, MNK: { quest: "mnk", lv: 6 }, RNG: { quest: "rng", lv: 6 }, SMN: { quest: "smn", lv: 6 }, DRK: { quest: "drk", lv: 10 }, BRD: { quest: "brd", lv: 10 } };
@@ -306,7 +310,7 @@ const ITEMS = {
   iron_helm: { name: "Iron Helm", kind: "equip", icon: "⛑️", slot: "head", jobs: ["WAR", "PLD"], lv: 12, price: 1800, stats: { def: 6, hp: 12 } },
   wool_hat: { name: "Wool Hat", kind: "equip", icon: "🎩", slot: "head", jobs: ALL_J, lv: 10, price: 900, stats: { def: 3, mp: 10 } },
   marsh_boots: { name: "Marsh Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 10, rare: true, stats: { def: 4, agi: 3, eva: 4 }, desc: "Waterproofed with toad oil. A reward from Captain Rhea." },
-  croaker_charm: { name: "Croaker Charm", kind: "equip", icon: "🐸", slot: "ring", jobs: ALL_J, lv: 12, rare: true, nm: true, stats: { hp: 30, vit: 3, def: 3 }, desc: "Carved from the Old Croaker's throat stone." },
+  croaker_charm: { name: "Croaker Charm", kind: "equip", icon: "🐸", slot: "neck", jobs: ALL_J, lv: 12, rare: true, nm: true, stats: { hp: 30, vit: 3, def: 3 }, desc: "Carved from the Old Croaker's throat stone." },
   gax_cleaver: { name: "Gax's Cleaver", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 29, delay: 4.0, jobs: ["WAR"], lv: 14, rare: true, nm: true, stats: { str: 4, att: 8 }, desc: "The Mirelord's notched axe." },
   mire_mantle: { name: "Mire Mantle", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 14, rare: true, nm: true, stats: { def: 12, hp: 20, mp: 20, eva: 5 }, desc: "A hooded mantle that drips no matter how long it hangs to dry." },
   fishing_rod: { name: "Willow Rod", kind: "use", icon: "🎣", price: 150, fishing: true, desc: "Use it beside water (or type /fish) to cast a line. Needs Fishing Bait." },
@@ -412,7 +416,7 @@ const ITEMS = {
   bronze_cap_hq: { name: "Bronze Cap +1", kind: "equip", icon: "⛑️", hq: true, slot: "head", jobs: ALL_J, lv: 1, price: 130, stats: { def: 3, hp: 5 } },
   chieftain_cap: { name: "Chieftain's Cap", kind: "equip", icon: "👑", ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 5, price: 2000, stats: { def: 4, hp: 10, str: 2, dex: 2, int: 2, mnd: 2 } },
   leather_vest: { name: "Leather Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ALL_J, lv: 1, price: 120, stats: { def: 4, hp: 6 } },
-  kite_shield: { name: "Kite Shield", kind: "equip", icon: "🛡️", slot: "ring", jobs: ["PLD", "WAR"], lv: 3, price: 450, stats: { def: 5, hp: 6 }, shield: true, desc: "Worn on the off hand. Counts as your accessory slot." },
+  kite_shield: { name: "Kite Shield", kind: "equip", icon: "🛡️", slot: "sub", jobs: ["PLD", "WAR"], lv: 3, price: 450, stats: { def: 5, hp: 6 }, shield: true, desc: "Worn on the off hand. Counts as your accessory slot." },
   scarlet_tabard: { name: "Scarlet Tabard", kind: "equip", icon: "👘", slot: "body", jobs: ["RDM"], lv: 5, price: 1050, stats: { def: 6, mp: 10, int: 1, mnd: 1, str: 1 } },
   scale_mail: { name: "Scale Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 5, price: 1100, stats: { def: 9, hp: 15 } },
   linen_robe: { name: "Linen Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 1, price: 110, stats: { def: 3, mp: 10 } },
@@ -420,6 +424,23 @@ const ITEMS = {
   cotton_robe: { name: "Cotton Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 5, price: 1000, stats: { def: 6, mp: 18, int: 1, mnd: 1 } },
   leather_gloves: { name: "Leather Gloves", kind: "equip", icon: "🧤", slot: "hands", jobs: ALL_J, lv: 2, price: 90, stats: { def: 2, dex: 1 } },
   leather_trousers: { name: "Leather Trousers", kind: "equip", icon: "👖", slot: "legs", jobs: ALL_J, lv: 2, price: 110, stats: { def: 3 } },
+  leather_gorget: { name: "Leather Gorget", kind: "equip", icon: "📿", slot: "neck", jobs: ALL_J, lv: 3, price: 220, stats: { def: 2, hp: 6 } },
+  mage_pendant: { name: "Mage's Pendant", kind: "equip", icon: "📿", slot: "neck", jobs: ["WHM", "BLM", "RDM", "SMN", "BRD"], lv: 6, price: 640, stats: { int: 2, mp: 8 } },
+  spirit_torque: { name: "Spirit Torque", kind: "equip", icon: "📿", slot: "neck", jobs: ALL_J, lv: 11, price: 1500, stats: { mnd: 2, hp: 10, res_dark: 6 } },
+  copper_earring: { name: "Copper Earring", kind: "equip", icon: "🔸", slot: "ear", jobs: ALL_J, lv: 2, price: 150, stats: { str: 1 } },
+  beetle_earring: { name: "Beetle Earring", kind: "equip", icon: "🔸", slot: "ear", jobs: ALL_J, lv: 5, price: 380, stats: { def: 2, vit: 1 } },
+  silver_earring: { name: "Silver Earring", kind: "equip", icon: "🔹", slot: "ear", jobs: ALL_J, lv: 9, price: 900, stats: { mp: 6, int: 1 } },
+  ember_earring: { name: "Ember Earring", kind: "equip", icon: "🔥", slot: "ear", jobs: ALL_J, lv: 13, price: 1400, stats: { att: 3, res_fire: 10 } },
+  travelers_cape: { name: "Traveler's Cape", kind: "equip", icon: "🧣", slot: "back", jobs: ALL_J, lv: 1, price: 120, stats: { def: 2, eva: 1 } },
+  wolf_mantle: { name: "Wolf Mantle", kind: "equip", icon: "🧣", slot: "back", jobs: ["WAR", "PLD", "THF", "MNK", "RNG", "DRK", "BRD", "RDM"], lv: 9, price: 1100, stats: { att: 4, def: 2, res_ice: 5 } },
+  mage_cape: { name: "Mage's Cape", kind: "equip", icon: "🧣", slot: "back", jobs: ["WHM", "BLM", "RDM", "SMN", "BRD"], lv: 7, price: 820, stats: { int: 2, mnd: 2, res_wind: 5 } },
+  leather_belt: { name: "Leather Belt", kind: "equip", icon: "🪢", slot: "waist", jobs: ALL_J, lv: 2, price: 140, stats: { hp: 8 } },
+  warriors_belt: { name: "Warrior's Belt", kind: "equip", icon: "🪢", slot: "waist", jobs: ["WAR", "PLD", "THF", "MNK", "RNG", "DRK", "BRD", "RDM"], lv: 8, price: 900, stats: { str: 2, att: 2 } },
+  silk_sash: { name: "Silk Sash", kind: "equip", icon: "🪢", slot: "waist", jobs: ALL_J, lv: 8, price: 880, stats: { mp: 10, res_water: 5 } },
+  buckler: { name: "Buckler", kind: "equip", icon: "🛡️", slot: "sub", jobs: ["WAR", "PLD", "RDM", "THF", "DRK", "BRD"], lv: 2, price: 260, stats: { def: 4 } },
+  sling: { name: "Sling", kind: "equip", icon: "🪃", slot: "ranged", jobs: ["WAR", "WHM", "MNK", "THF", "RDM", "BRD", "PLD", "DRK"], lv: 1, price: 90, stats: { acc: 3 } },
+  pebble_pouch: { name: "Pebble Pouch", kind: "equip", icon: "🪨", slot: "ammo", jobs: ALL_J, lv: 1, price: 40, stats: { att: 1 } },
+  wooden_arrows: { name: "Wooden Arrows", kind: "equip", icon: "➶", slot: "ammo", jobs: ["RNG", "WAR", "THF"], lv: 3, price: 120, stats: { att: 3 } },
   leather_boots: { name: "Leather Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 3, price: 100, stats: { def: 2, agi: 1 } },
   captains_ring: { name: "Captain's Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 1, price: 0, stats: { hp: 12, mp: 12, acc: 5, att: 5 } },
   raiders_ring: { name: "Raider's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_J, lv: 4, price: 0, stats: { str: 2, acc: 4, att: 4 } },
@@ -436,7 +457,7 @@ const ITEMS = {
   sentinel_greaves: { name: "Sentinel's Greaves", kind: "equip", icon: "👖", rare: true, rarity: "rare", slot: "legs", jobs: ["WAR", "PLD"], lv: 9, price: 0, stats: { def: 7, vit: 3, hp: 12 } },
   hollow_crown: { name: "Hollow Crown", kind: "equip", icon: "👑", rare: true, ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 10, price: 0, stats: { def: 6, hp: 15, mp: 15, str: 2, dex: 2, int: 3, mnd: 3 } },
   kings_blade: { name: "King's Blade", kind: "equip", icon: "🗡️", rare: true, ex: true, rarity: "epic", slot: "main", wtype: "sword", dmg: 14, delay: 2.5, jobs: ["WAR", "PLD", "RDM"], lv: 10, price: 0, stats: { acc: 5, att: 6, str: 2 } },
-  ashen_medallion: { name: "Ashen Medallion", kind: "equip", icon: "🏅", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 9, price: 0, stats: { hp: 20, mp: 20, acc: 6, att: 6, def: 4 } },
+  ashen_medallion: { name: "Ashen Medallion", kind: "equip", icon: "🏅", ex: true, rarity: "epic", slot: "neck", jobs: ALL_J, lv: 9, price: 0, stats: { hp: 20, mp: 20, acc: 6, att: 6, def: 4 } },
   crypt_dust: { name: "Crypt Dust", kind: "mat", icon: "⚱️", rarity: "uncommon", price: 140, stack: 12, desc: "Grave dust that glitters faintly. Alchemists pay well for it." },
   wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
   flowerpot: { name: "Flowerpot", kind: "furniture", icon: "🪴", fp: [1, 1], price: 120, model: "pot", garden: true, desc: "Plant a seed, water it and feed it an essence. Grows in real time." },
@@ -466,7 +487,7 @@ for (const id in ITEMS) {
   if (it.slot !== "main" && it.slot !== "ring" && it.jobs.includes("RDM") && !it.jobs.includes("BRD")) it.jobs.push("BRD");
 }
 
-const SHOP = ["bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
+const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -1393,7 +1414,7 @@ const WEATHER = {
 
 const SHOPS = {
   marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
-  vela: ["tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil", "frost_sword", "frost_greataxe", "glacier_staff", "rime_dagger", "frost_claws", "frost_bow", "frost_mail", "snowfur_coat", "frost_robe", "fur_hat", "rime_scythe", "troubadour_coat"]
+  vela: ["spirit_torque", "silver_earring", "ember_earring", "wolf_mantle", "warriors_belt", "silk_sash", "tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil", "frost_sword", "frost_greataxe", "glacier_staff", "rime_dagger", "frost_claws", "frost_bow", "frost_mail", "snowfur_coat", "frost_robe", "fur_hat", "rime_scythe", "troubadour_coat"]
 };
 const MOUNT_COATS = {
   teal: { name: "Marsh Teal", main: 0x3f6f6a, dark: 0x2a4a48, glow: 0x6ff0e8, price: 0 },
