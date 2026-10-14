@@ -5,7 +5,7 @@ function onKey(e) {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
   const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
   if (S.modal) {
-    if (k === "escape") closeModal();
+    if (k === "escape") { closeModal(); mainCmdOpen(); }
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
     return;
   }
@@ -16,6 +16,7 @@ function onKey(e) {
     return;
   }
   if (S.fish && S.fish.state === "bite" && (k === " " || k === "spacebar" || k === "enter" || k === "f")) { e.preventDefault(); reelFish(); return; }
+  if (UI.mm && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); mainCmdKey(k); return; }
   if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
   if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
@@ -32,9 +33,10 @@ function onKey(e) {
   if (k === "escape") {
     if (player.casting) { player.casting = null; log("You stop casting.", "sys"); }
     else if (player.target && !player.engaged) player.target = null;
-    else openMenu("character");
+    else mainCmdOpen();
     return;
   }
+  if (k === "-" || k === "insert") { mainCmdOpen(); return; }
   const code = e.code || "";
   const dm = /^Digit([0-9])$/.exec(code);
   const digit = dm ? dm[1] : /^[0-9]$/.test(k) ? k : null;

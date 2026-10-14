@@ -41,7 +41,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">LEID\'ANAV REBORN</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -91,6 +91,42 @@ function ffJobLevels() {
     h += '<div class="ffr' + (j === save.mainJob ? " main" : j === save.subJob ? " sub" : "") + '"><em>' + esc(JOBS[j].name) + "</em><b>" + lv + "</b></div>";
   }
   return h + "</div></div>";
+}
+
+function tabMagic() {
+  const acts = actionList(player).filter(a => a.kind === "ma");
+  if (!acts.length) return '<div class="sub">Your current jobs know no magic.</div>';
+  const groups = {};
+  for (const a of acts) { const sk = spellSkill(SPELLS[a.id]); const g = ["healing", "divine", "enhancing"].includes(sk) || (sk === "enfeebling" && SPELLS[a.id].element === "light") ? "White Magic" : sk === "singing" ? "Songs" : sk === "summoning" ? "Summoning Magic" : "Black Magic"; (groups[g] = groups[g] || []).push(a); }
+  let h = '<div class="ffPanels">';
+  for (const g of ["White Magic", "Black Magic", "Songs", "Summoning Magic"]) {
+    if (!groups[g]) continue;
+    h += '<div class="ffStatus ffSk"><div class="ffHead"><span>' + g + "</span></div>";
+    for (const a of groups[g]) { const sp = SPELLS[a.id], rc = recastLeft(player, "ma:" + a.id); h += '<button class="mcR" data-a="mcast" data-v="' + a.id + '" title="' + esc(sp.desc || "") + '"><span class="ic">✦</span><span class="nm">' + esc(sp.name) + '</span><span class="q">' + (rc > 0 ? Math.ceil(rc) + "s" : sp.mp + " MP") + "</span></button>"; }
+    h += "</div>";
+  }
+  return h + '</div><div class="sub">Tap a spell to cast it on your current target (or yourself for spells that help).</div>';
+}
+
+function tabAbilities() {
+  const acts = actionList(player).filter(a => a.kind === "ja" || a.kind === "ws");
+  let h = '<div class="ffPanels">';
+  for (const [title, kind] of [["Job Abilities", "ja"], ["Weapon Skills", "ws"]]) {
+    const L = acts.filter(a => a.kind === kind);
+    h += '<div class="ffStatus ffSk"><div class="ffHead"><span>' + title + "</span></div>";
+    if (!L.length) h += '<div class="mcR empty"><span class="nm dim">None yet.</span></div>';
+    for (const a of L) { const rc = a.kind === "ja" ? recastLeft(player, "ja:" + a.id) : 0; h += '<button class="mcR" data-a="mact" data-v="' + a.kind + ":" + a.id + '" title="' + esc(cmdHelpOf(a)) + '"><span class="ic">' + (a.kind === "ws" ? "⚔" : "⚡") + '</span><span class="nm">' + esc(actName(a)) + '</span><span class="q">' + (rc > 0 ? Math.ceil(rc) + "s" : a.kind === "ws" ? "1000 TP" : "") + "</span></button>"; }
+    h += "</div>";
+  }
+  return h + "</div>";
+}
+
+function tabKeyItems() {
+  const ks = (save.keyItems || []).filter(id => ITEMS[id]);
+  let h = '<div class="ffStatus ffSk" style="max-width:520px"><div class="ffHead"><span>Key Items</span></div>';
+  if (!ks.length) h += '<div class="mcR empty"><span class="nm dim">No key items yet.</span></div>';
+  for (const id of ks) h += '<div class="mcR"><span class="ic">' + (ITEMS[id].icon || "🗝️") + '</span><span class="nm" title="' + esc(ITEMS[id].desc || "") + '">' + esc(ITEMS[id].name) + "</span></div>";
+  return h + "</div>";
 }
 
 function tabCharacter() {
@@ -1177,6 +1213,8 @@ function onMenuClick(e) {
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
   else if (a === "sort") { save.inventory.sort((x, y) => (KIND_ORDER[ITEMS[x.id].kind] - KIND_ORDER[ITEMS[y.id].kind]) || ITEMS[x.id].name.localeCompare(ITEMS[y.id].name)); UI.sel = null; saveGame(); sfx("select"); }
   else if (a === "sel") { UI.sel = UI.sel === +v ? null : +v; sfx("select"); }
+  else if (a === "mcast") { closeModal(); playerAct({ kind: "ma", id: v, name: SPELLS[v].name }); return; }
+  else if (a === "mact") { const [kd, id] = v.split(":"); closeModal(); playerAct({ kind: kd, id, name: kd === "ws" ? WEAPON_SKILLS[id].name : ABILITIES[id].name }); return; }
   else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; sfx("select"); renderModal(); return; }
   else if (a === "eqpick") { const q = UI.eq; if (q.hover === v) { const why = canEquip(v); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(v, q.slot); q.hover = null; } } else { q.hover = v; sfx("tab"); } renderModal(); return; }
   else if (a === "equnq") { unequip(v); UI.eq.hover = null; renderModal(); return; }
@@ -1372,6 +1410,16 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.1.0", date: "2026-10-13", title: "Main menu window", items: [
+    "Esc (with nothing targeted), - or the ☰ button opens the main menu as a command window in the top right under the Network box. It has two pages; ← → or the arrows at the top switch pages.",
+    "Page 1: Status, Equipment, Magic, Items, Crafting, Abilities, Party, Trade, Search, Linkshell, Friend List and Map (Residence while you're at home). Page 2: Quests, Key Items, View House, Bestiary, Achievements, Hotkeys, Config, Help, Updates, Current Time, Communication and Log Out.",
+    "Settings are now called Config.",
+    "New Status screen: choosing Status keeps you in the world and shows your status sheet on the left (with gear bonuses in green beside each attribute), a level box with EXP and the next level, and a Status list on the right: Profile, Job Levels, Combat Skl., Magic Skl., Craft Skl., Currencies and Play Time. Moving through the list shows each page in the middle; Esc goes back to the menu.",
+    "Profile shows your title (your most recent achievement) in the Help bar, plus race, home point, guild rank and story progress. Play time is now counted.",
+    "New Magic, Abilities and Key Items windows from the menu. Tap a spell or ability to use it.",
+    "The Commands label is now its own box, separate from the Help bar.",
+    "The map moved to the bottom left and only shows while the event log is hidden."
   ] },
   { v: "9.0.1", date: "2026-10-13", title: "Tidier screen", items: [
     "The event log and typing box slide away when nothing is targeted. They come back when you target something, press / to type, someone talks to you or you find loot, or when you pin them with the 💬 button (or L). Esc hides them.",
@@ -1764,7 +1812,7 @@ function tabHelp() {
   h += sec("🎮 Controls", ul([
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with nothing targeted opens your own menu · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
-    "1–0 still use your saved hotkeys (Shift for page 2; set them in the Hotkeys tab) · Esc closes the command menu, then the main menu · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "1–0 still use your saved hotkeys (Shift for page 2; set them in the Hotkeys tab) · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -2000,7 +2048,9 @@ function tabHelp() {
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells starter neck, ear, back, waist, shield, sling and ammo pieces; Vela in Saltreach sells better ones."
   ]));
   h += sec("🖥️ The screen", ul([
-    "<b>Top:</b> the Commands bar appears while something is targeted and explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
+    "<b>Main menu:</b> Esc with nothing targeted, - (or Insert) or ☰ opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
+    "<b>Bottom left:</b> the map, shown only while the event log is hidden. Tap it for the full map.",
+    "<b>Top:</b> the Commands box and the Help bar appear while something is targeted or a menu is open; the Help bar explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
     "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
     "<b>Bottom:</b> the event log. It slides away when nothing is targeted, and comes back when you target something, start typing (press / ), when someone talks to you or you find loot, or while you pin it open with 💬 (top right) or L. Esc hides it again. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
@@ -2097,4 +2147,87 @@ function initVersionCheck() {
   setTimeout(() => checkForUpdate(false), 4000);
   setInterval(() => checkForUpdate(false), 10 * 60 * 1000);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkForUpdate(false); });
+}
+
+function gearBonus() {
+  const g = {};
+  const augs = save.augments || {};
+  for (const sl of SLOTS) {
+    const id = player.gear[sl], it = id && ITEMS[id];
+    if (!it) continue;
+    if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
+    if (augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
+  }
+  return g;
+}
+function playerTitle() {
+  let best = null;
+  for (const a of ACHIEVEMENTS) { const t = save.ach && save.ach[a.id]; if (t && (!best || t > best[0])) best = [t, a.name]; }
+  return best ? best[1] : "Fledgling Adventurer";
+}
+function fmtPlay(sec) {
+  sec = Math.floor(sec || 0);
+  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  return (d ? d + " day" + (d > 1 ? "s " : " ") : "") + h + " hr " + m + " min " + s + " sec";
+}
+function statusLeftHTML() {
+  const p = player, j = save.jobs[save.mainJob], need = xpNeed(j.lv), g = gearBonus();
+  const gear = SLOTS.map(sl => save.gear[sl]).filter(id => id && ITEMS[id] && ITEMS[id].kind === "equip");
+  const ilv = gear.length ? Math.round(gear.reduce((n, id) => n + (ITEMS[id].lv || 1), 0) / gear.length) : 0;
+  let h = '<div class="stBox"><div class="ffHead"><span>Status</span></div>';
+  h += '<div class="stNm">' + esc(save.name || "Adventurer") + "</div>";
+  h += '<div class="stJob main">Lv' + p.lv + " " + esc(JOBS[p.job].name) + "</div>";
+  if (p.sub && JOBS[p.sub]) h += '<div class="stJob">Lv' + Math.floor(p.lv / 2) + " " + esc(JOBS[p.sub].name) + "</div>";
+  h += '<div class="stRow"><em>ILv</em><b>' + ilv + ' <small>Su —</small></b></div>';
+  h += '<div class="stRow gap"><em>HP</em><b>' + Math.ceil(p.hp) + " / " + p.maxHp + '</b></div><div class="stRow"><em>MP</em><b>' + Math.floor(p.mp) + " / " + p.maxMp + '</b></div><div class="stRow"><em>TP</em><b>' + Math.floor(p.tp) + "</b></div>";
+  h += '<div class="stAt">';
+  for (const [k, l] of [["str", "STR"], ["dex", "DEX"], ["vit", "VIT"], ["agi", "AGI"], ["int", "INT"], ["mnd", "MND"], ["chr", "CHR"]]) {
+    const tot = p.stats[k] || 0, b = Math.round(g[k] || 0);
+    h += "<em>" + l + "</em><b>" + (tot - b) + "</b><i>" + (b ? (b > 0 ? "+" : "") + b : "") + "</i>";
+  }
+  h += "</div></div>";
+  const pct = need ? Math.max(0, Math.min(100, j.xp / need * 100)) : 100;
+  h += '<div class="stBox stLv"><div class="stJob main">Level ' + j.lv + '</div><div class="stK">EXP</div><div class="stV">' + (need ? j.xp.toLocaleString() : "—") + '</div><div class="stK">NEXT Level</div><div class="stV">' + (need ? need.toLocaleString() : "MAX") + '</div><div class="stBar"><span style="width:' + pct + '%"></span></div></div>';
+  return h;
+}
+function statusPanelHTML(k) {
+  const sec = (t, body) => '<div class="stTitle">' + t + "</div>" + body;
+  const kv = (l, v) => '<div class="stKV"><em>' + l + "</em><b>" + v + "</b></div>";
+  const cur = sk => Math.floor(Math.min((save.skills[player.job] || {})[sk] || 0, Math.max(0, skillCap(player, sk))));
+  const grid = rows => '<div class="stGrid">' + rows.join("") + "</div>";
+  const sr = (n, v, off) => '<div class="stSk' + (off ? " off" : "") + '"><em>' + esc(n) + "</em><b>" + v + "</b></div>";
+  if (k === "profile") {
+    const rc = RACES[save.look.race] || RACES.human, gr = guildRank(), nx = GUILD_RANKS[gr + 1], tot = save.guild.total || 0;
+    const pct = nx ? Math.round((tot - GUILD_RANKS[gr][1]) / (nx[1] - GUILD_RANKS[gr][1]) * 100) : 100;
+    const ch = storyChapter();
+    let h = sec("Profile", kv("Race:", esc(rc.name || save.look.race)) + kv("Home Point:", esc(ZONES[save.home.zone] ? ZONES[save.home.zone].name : "—")) + kv("Guild Rank:", esc(GUILD_RANKS[gr][0]) + '<span class="stSp">Guild Points</span>' + (save.guild.gp || 0)) + '<div class="stBar wide"><span style="width:' + pct + '%"></span></div>');
+    h += sec("Adventure", kv("Story:", ch ? esc(ch.title || ch.name || "Chapter " + (save.story.ch + 1)) : "Complete") + kv("Achievements:", Object.keys(save.ach || {}).length + " / " + ACHIEVEMENTS.length) + kv("Monsters defeated:", (save.stats.kills || 0).toLocaleString()));
+    return h;
+  }
+  if (k === "jobs") {
+    const known = Object.keys(JOBS).filter(j => !JOBS[j].advanced || (save.jobsUnlocked && save.jobsUnlocked[j]));
+    return sec("Job Levels", grid(known.map(j => '<div class="stSk' + (j === save.mainJob ? " main" : j === save.subJob ? " sub" : "") + '"><em>' + esc(JOBS[j].name) + "</em><b>" + (save.jobs[j] ? save.jobs[j].lv : 1) + "</b></div>")));
+  }
+  if (k === "combat") return sec("Combat Skills", grid(COMBAT_SKILLS.map(sk => sr(SKILL_NAMES[sk], skillCap(player, sk) > 0 ? cur(sk) : "—", skillCap(player, sk) <= 0))));
+  if (k === "magic") return sec("Magic Skills", grid(MAGIC_SKILLS.map(sk => sr(SKILL_NAMES[sk].replace(" Magic", ""), skillCap(player, sk) > 0 ? cur(sk) : "—", skillCap(player, sk) <= 0))));
+  if (k === "craft") {
+    const row = (n, v) => '<div class="stCr"><em>' + esc(n) + "</em><b>" + craftRank(v) + "</b><i>(" + v + ")</i></div>";
+    let rows = [row("Fishing", save.gatherSkill.fishing || 0)];
+    for (const c of Object.keys(CRAFTS)) rows.push(row(CRAFTS[c].name, Math.floor(craftSkill(c))));
+    for (const [g, l] of [["mining", "Mining"], ["logging", "Logging"], ["harvesting", "Harvesting"]]) rows.push(row(l, save.gatherSkill[g] || 0));
+    return sec("Craft Skills", rows.join(""));
+  }
+  if (k === "cur") return sec("Currencies", kv("Crystals:", (save.gil || 0).toLocaleString()) + kv("Guild Points:", (save.guild.gp || 0).toLocaleString()) + kv("Guild Points earned:", (save.guild.total || 0).toLocaleString()) + kv("Bounties finished:", save.stats.bounties || 0));
+  if (k === "time") return sec("Play Time", kv("Total:", fmtPlay(save.playSec)) + kv("Character made:", new Date(save.created || Date.now()).toLocaleDateString()));
+  return "";
+}
+function renderStatusOv() {
+  const el = $("stOv");
+  if (!el) return;
+  const m = UI.mm;
+  if (!m || m.sub !== "status") { el.classList.remove("on"); $("ui").classList.remove("stOn"); return; }
+  const it = STATUS_CMDS[m.sel];
+  el.innerHTML = '<div id="stL">' + statusLeftHTML() + '</div><div id="stM" class="stBox">' + statusPanelHTML(it[1]) + "</div>";
+  el.classList.add("on");
+  $("ui").classList.add("stOn");
 }

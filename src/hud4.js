@@ -8,10 +8,10 @@ const SPELL_ICON = { blight: "☠️", drain: "🩸", mind_drain: "🌀", stun: 
 const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5 };
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Hotkeys", "✨", "B"],
-  quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
+  quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Config", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], social: ["Social", "💬", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "party", "social", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -886,7 +886,9 @@ function initHud() {
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
-  $("btnMenu").onclick = () => S.modal ? closeModal() : openMenu("character");
+  $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
+  $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
+  $("mCmd").addEventListener("mouseover", e => { const b = e.target.closest("[data-mc]"); if (!b || !UI.mm || isNaN(+b.dataset.mc)) return; const i = +b.dataset.mc; if (UI.mm.sel !== i) { UI.mm.sel = i; $("mCmd").querySelectorAll(".ffb").forEach((x, k) => x.classList.toggle("sel", k === i)); UI.ffHelp = mainCmdHelp(mainCmdItems()[i]); if (UI.mm.sub) renderStatusOv(); } });
   $("btnChat").onclick = () => chatToggle();
   const ci = $("chatIn");
   UI.cmdHist = []; UI.cmdIdx = 0;
@@ -924,9 +926,10 @@ function ffMobAttacking(m) { return m && m.alive && m.state === "combat" && m.ta
 function updateFF() {
   const ui = $("ui"), t = player.target;
   const tOk = !!t && (t === player || t.kind === "npc" || t.kind === "remote" || isParty(t) || (isMob(t) && t.alive && !t.despawned));
-  ui.classList.toggle("hasTop", tOk || !!UI.cmd);
-  if (tOk || UI.cmd) {
-    setTxt($("ffHelp"), UI.cmd ? UI.ffHelp || "" : ffDefaultHelp(t));
+  ui.classList.toggle("hasTop", tOk || !!UI.cmd || !!UI.mm);
+  if (tOk || UI.cmd || UI.mm) {
+    setTxt($("ffHelp"), UI.cmd || UI.mm ? UI.ffHelp || "" : ffDefaultHelp(t));
+    if (UI.mm && UI.mm.sub && Date.now() - (UI.stAt || 0) > 500) { UI.stAt = Date.now(); renderStatusOv(); }
     const now = Date.now();
     if (now - (UI.netAt || 0) > 1000) {
       UI.netAt = now;
@@ -943,7 +946,7 @@ function updateFF() {
     }
   }
   const ci = $("chatIn"), typing = document.activeElement === ci;
-  const showChat = tOk || !!UI.cmd || typing || UI.chatPin || S.time < (UI.chatFlashUntil || 0) || !!S.dialog;
+  const showChat = tOk || !!UI.cmd || !!UI.mm || typing || UI.chatPin || S.time < (UI.chatFlashUntil || 0) || !!S.dialog;
   $("chat").classList.toggle("gone", !showChat);
   $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);
   const combat = player.engaged || inCombatWith(player);
@@ -978,4 +981,66 @@ function chatToggle(force) {
   UI.chatPin = force == null ? !UI.chatPin : force;
   if (!UI.chatPin) { const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur(); UI.chatFlashUntil = 0; }
   if (typeof sfx === "function") sfx("click");
+}
+
+const MAIN_CMDS = [
+  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Party", "party", "Party members, companions, invitations and the looking-for-party flag."], ["Trade", "@trade", "Trade items or crystals with your current target."], ["Search", "@search", "Search for adventurers who are online."], ["Linkshell", "@ls", "Your linkshells: members, invitations and chat."], ["Friend List", "@friends", "See which friends are online and send them a tell."], ["Map", "map", "View the map of this area."]],
+  [["Quests", "quests", "Your story chapter and current and finished quests."], ["Key Items", "keyitems", "Important items that can't be traded or dropped."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Bestiary", "bestiary", "Creatures you've met and what you've learned about them."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Help", "help", "How everything works."], ["Updates", "updates", "What's new in each version."], ["Current Time", "@time", "Show the time of day and the day's element."], ["Communication", "social", "Friends, linkshells, search and emotes."], ["Log Out", "@logout", "Return to the character selection screen."]]
+];
+
+const STATUS_CMDS = [["Profile", "profile", ""], ["Job Levels", "jobs", "View the levels of the jobs you know."], ["Combat Skl.", "combat", "View current combat skills."], ["Magic Skl.", "magic", "View current magic skills."], ["Craft Skl.", "craft", "View current craft and gathering skills."], ["Currencies", "cur", "View your crystals and guild points."], ["Play Time", "time", "View your total time spent adventuring."]];
+function mainCmdHelp(it) { return UI.mm && UI.mm.sub === "status" && it[1] === "profile" ? "Title: " + playerTitle() : it[2]; }
+function mainCmdItems() {
+  if (UI.mm.sub === "status") return STATUS_CMDS;
+  const pg = MAIN_CMDS[UI.mm.page].slice();
+  if (UI.mm.page === 0 && S.zone && S.zone.residence) pg[11] = ["Residence", "home", "Arrange furniture and use your residence."];
+  return pg;
+}
+
+function mainCmdOpen() {
+  if (S.modal) closeModal();
+  tgtCmdClose();
+  UI.mm = { page: UI.mm ? UI.mm.page : 0, sel: 0 };
+  renderMainCmd();
+  sfx("open");
+}
+function mainCmdClose() { UI.mm = null; const el = $("mCmd"); if (el) { el.classList.remove("on"); el.innerHTML = ""; } UI.ffHelp = ""; renderStatusOv(); }
+function renderMainCmd() {
+  const el = $("mCmd"), m = UI.mm;
+  if (!el || !m) return;
+  const items = mainCmdItems();
+  m.sel = clamp(m.sel, 0, items.length - 1);
+  let h = m.sub === "status" ? '<div class="ffMHead sub"><span>Status</span></div>' : '<div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>Menu ' + (m.page + 1) + "/2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
+  items.forEach((it, i) => { h += '<button data-mc="' + i + '" class="ffb' + (i === m.sel ? " sel" : "") + (it[1] === "home" ? " gold" : "") + '"><span class="cur">➤</span><span class="lb">' + esc(it[0]) + "</span></button>"; });
+  el.innerHTML = h;
+  el.classList.add("on");
+  UI.ffHelp = mainCmdHelp(items[m.sel]);
+  renderStatusOv();
+}
+function mainCmdDo(i) {
+  const it = mainCmdItems()[i];
+  if (!it) return;
+  const k = it[1];
+  sfx("select");
+  if (UI.mm.sub === "status") { UI.mm.sel = i; renderMainCmd(); return; }
+  if (k === "character") { UI.mm.back = i; UI.mm.sub = "status"; UI.mm.sel = 0; renderMainCmd(); return; }
+  mainCmdClose();
+  if (k === "@trade") { const t = player.target; if (t && t.kind === "remote") netTradeAsk(t.name); else log("Target another player first, then choose Trade.", "sys"); return; }
+  if (k === "@search") { UI.socQ = ""; openMenu("social"); return; }
+  if (k === "@ls" || k === "@friends") { openMenu("social"); return; }
+  if (k === "@time") { runCommand("/clock"); return; }
+  if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out" }); return; }
+  openMenu(k);
+}
+function mainCmdKey(k) {
+  const m = UI.mm;
+  if (!m) return;
+  const n = mainCmdItems().length;
+  if (k === "arrowup") { m.sel = (m.sel - 1 + n) % n; sfx("tab"); renderMainCmd(); }
+  else if (k === "arrowdown") { m.sel = (m.sel + 1) % n; sfx("tab"); renderMainCmd(); }
+  else if ((k === "arrowleft" || k === "arrowright") && m.sub) return;
+  else if ((k === "escape" || k === "backspace") && m.sub) { m.sub = null; m.sel = m.back || 0; sfx("close"); renderMainCmd(); }
+  else if (k === "arrowleft" || k === "arrowright") { m.page = 1 - m.page; m.sel = 0; sfx("tab"); renderMainCmd(); }
+  else if (k === "enter") mainCmdDo(m.sel);
+  else if (k === "escape" || k === "backspace") { mainCmdClose(); sfx("close"); }
 }

@@ -530,10 +530,11 @@
 
   :root { --ffFont: "Verdana", "Tahoma", "Segoe UI", sans-serif; --ffStripe: repeating-linear-gradient(180deg, rgba(52,52,128,.80) 0 2px, rgba(34,32,96,.80) 2px 4px); --ffEdge: rgba(236,236,255,.88); }
   .ffPanel, #ffTop, #ffSide, #log, #ffBars, #tCmd { font-family: var(--ffFont); }
-  #ffTop { position: absolute; left: 0; right: 0; top: var(--sat); height: 32px; display: none; align-items: center; gap: 0; background: var(--ffStripe); border-top: 2px solid var(--ffEdge); border-bottom: 2px solid var(--ffEdge); box-shadow: 0 2px 8px rgba(0,0,0,.45); z-index: 6; color: #fff; }
+  #ffTop { position: absolute; left: calc(6px + var(--sal)); right: 0; top: calc(4px + var(--sat)); height: 34px; display: none; align-items: center; gap: 6px; z-index: 6; color: #fff; }
   #ui.hasTop #ffTop { display: flex; }
-  #ffTop .ffCmd { width: 150px; padding-left: 10px; font-weight: 800; font-size: 14px; letter-spacing: .06em; text-shadow: 1px 1px 0 #000, -1px -1px 0 #1a1a40; }
+  #ffTop .ffCmd { flex: 0 0 auto; width: 130px; height: 100%; display: flex; align-items: center; justify-content: center; box-sizing: border-box; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.45); font-weight: 800; font-size: 14px; letter-spacing: .06em; text-shadow: 1px 1px 0 #000, -1px -1px 0 #1a1a40; }
   #ffHelp { flex: 1; font-weight: 700; font-size: 14px; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ffTop .ffBar { flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; box-sizing: border-box; padding-left: 12px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.45); }
   #ffTop .ffRight { display: flex; align-items: center; gap: 16px; padding-right: 12px; height: 100%; }
   .ffLbl { font-size: 10px; font-style: italic; font-weight: 800; letter-spacing: .08em; color: #fff; text-shadow: 1px 1px 0 #000; }
   .ffHelpLbl { align-self: flex-start; margin-top: -1px; }
@@ -620,7 +621,7 @@
   #fishBox { bottom: calc(200px + var(--sab)); }
   #dialog { bottom: calc(196px + var(--sab)); }
   @media (max-width: 900px) { #ffSide { width: 210px; } #chat { right: calc(222px + var(--sar)); } #log { height: 110px; font-size: 11.5px; } #bottom { bottom: calc(160px + var(--sab)); } #tCmd { bottom: calc(160px + var(--sab)); } }
-  @media (max-width: 720px) { #ffSide { width: 168px; padding: 1px 5px 4px; } #chat { right: calc(178px + var(--sar)); } #tCmd { left: calc(22px + var(--sal)); bottom: calc(150px + var(--sab)); width: 180px; } #ffSide #tName { font-size: 13px; } #ffSide .pf .nm { font-size: 12px; } #ffBars { width: 180px; } #ffTop .ffCmd { width: 90px; font-size: 12px; } #ffHelp { font-size: 12px; } }
+  @media (max-width: 720px) { #ffSide { width: 168px; padding: 1px 5px 4px; } #chat { right: calc(178px + var(--sar)); } #tCmd { left: calc(22px + var(--sal)); bottom: calc(150px + var(--sab)); width: 180px; } #ffSide #tName { font-size: 13px; } #ffSide .pf .nm { font-size: 12px; } #ffBars { width: 180px; } #ffTop .ffCmd { width: 84px; font-size: 12px; } #ffHelp { font-size: 12px; } }
   @media (pointer: coarse) { #big { bottom: calc(150px + var(--sab)); } }
 
   .ffStatus { max-width: 300px; margin: 0 0 10px; padding: 6px 10px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; font-family: var(--ffFont); }
@@ -729,11 +730,44 @@
   #chat { transition: opacity .25s, transform .25s; }
   #chat.gone { opacity: 0; transform: translateY(16px); pointer-events: none; }
   #trBtns { display: flex; gap: 6px; } #btnChat.on { border-color: #ffd070; box-shadow: 0 0 8px rgba(255,200,100,.6); }
+  #mCmd { position: absolute; right: calc(4px + var(--sar)); top: calc(40px + var(--sat)); width: 190px; display: none; flex-direction: column; gap: 3px; padding: 4px 6px 6px 22px; background: linear-gradient(180deg, rgba(60,64,150,.88), rgba(26,28,84,.9)); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,.55); z-index: 8; max-height: calc(100% - 60px); overflow-y: auto; font-family: var(--ffFont); }
+  #mCmd.on { display: flex; }
+  #stOv { display: none; position: absolute; left: calc(6px + var(--sal)); top: calc(44px + var(--sat)); right: calc(206px + var(--sar)); z-index: 5; gap: 6px; align-items: flex-start; pointer-events: none; font-family: var(--ffFont); color: #fff; }
+  #stOv.on { display: flex; }
+  #ui.stOn #ffStat, #ui.stOn #ffBars, #ui.stOn #ffIcons { display: none !important; }
+  #stOv .stBox { background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.45); padding: 2px 10px 6px; }
+  #stOv em, #stOv b, #stOv i, #stOv .stNm, #stOv .stJob, #stOv .stK, #stOv .stV { font-style: italic; font-weight: 900; letter-spacing: .05em; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
+  #stL { width: 196px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; }
+  #stL .stNm { font-size: 15px; }
+  #stL .stJob { font-size: 14px; } #stL .stJob.main { color: #7fd8ff; }
+  #stL .stRow { display: flex; gap: 10px; font-size: 14px; } #stL .stRow em { width: 34px; } #stL .stRow b { flex: 1; text-align: right; } #stL .stRow small { font-size: 11px; color: #c8c8ff; } #stL .stRow.gap { margin-top: 4px; }
+  #stL .stAt { display: grid; grid-template-columns: 40px 1fr 44px; column-gap: 6px; font-size: 14px; margin-top: 4px; line-height: 1.35; } #stL .stAt b { text-align: right; } #stL .stAt i { color: #7dff9a; }
+  #stL .stLv { padding: 4px 12px 8px; } #stL .stK { font-size: 13px; color: #d8d8f0; padding-left: 8px; } #stL .stV { font-size: 14px; text-align: right; }
+  #stOv .stBar { height: 8px; margin: 6px 6px 0; border-radius: 4px; background: rgba(10,10,40,.6); border: 1px solid rgba(255,255,255,.7); overflow: hidden; } #stOv .stBar span { display: block; height: 100%; background: linear-gradient(180deg, #fff, #c8d0ff); } #stOv .stBar.wide { margin: 4px 40px 6px; }
+  #stM { flex: 0 1 520px; min-width: 0; padding: 0 0 6px; }
+  #stM .stTitle { margin: 0 0 4px; padding: 2px 12px; font: italic 900 14px var(--ffFont); letter-spacing: .08em; color: #fff; -webkit-text-stroke: .5px #3a3a80; text-shadow: 1px 1px 0 #2a2a70; background: linear-gradient(90deg, rgba(235,238,255,.9), rgba(190,196,240,.55) 70%, rgba(190,196,240,.15)); }
+  #stM .stTitle:not(:first-child) { margin-top: 8px; }
+  #stM .stKV { display: flex; gap: 12px; padding: 0 14px; font-size: 14px; line-height: 1.6; } #stM .stKV em { min-width: 120px; } #stM .stKV .stSp { margin: 0 10px 0 22px; font-style: italic; }
+  #stM .stGrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 22px; padding: 0 14px; }
+  #stM .stSk { display: flex; justify-content: space-between; font-size: 14px; line-height: 1.55; } #stM .stSk b { color: #8fd0ff; } #stM .stSk.off { opacity: .45; } #stM .stSk.main em, #stM .stSk.main b { color: #fff07a; } #stM .stSk.sub em { color: #c8e0ff; }
+  #stM .stCr { display: grid; grid-template-columns: 1.3fr 1fr 50px; padding: 0 14px; font-size: 14px; line-height: 1.55; } #stM .stCr i { text-align: right; }
+  #mCmd .ffMHead.sub { justify-content: center; }
+  @media (max-width: 760px) { #stL { display: none; } #stOv { right: calc(200px + var(--sar)); } #stM .stGrid { grid-template-columns: 1fr; } #stM .stKV em { min-width: 90px; } }
+  #mCmd .ffMHead { display: flex; align-items: center; justify-content: space-between; margin: 0 0 2px -18px; font: italic 800 11px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
+  #mCmd .pg { padding: 0 8px; height: 18px; font-size: 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,.6); background: rgba(40,44,120,.8); color: #fff; }
+  #mCmd .ffb { position: relative; display: flex; align-items: center; height: 24px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.75); background: linear-gradient(180deg, #e8ecff 0%, #a8b4ff 18%, #6a76d8 55%, #4a54b0 100%); color: #fff; font: italic 900 13px var(--ffFont); letter-spacing: .04em; text-align: left; -webkit-text-stroke: .5px #1a1a60; text-shadow: 1px 1px 0 #1a1a50; box-shadow: inset 0 -2px 3px rgba(0,0,40,.4); cursor: pointer; }
+  #mCmd .ffb.sel { background: linear-gradient(180deg, #fff2c8 0%, #ffc860 20%, #e88a1a 60%, #a85a08 100%); -webkit-text-stroke: .5px #4a2000; text-shadow: 1px 1px 0 #4a2200; color: #fff6c0; }
+  #mCmd .ffb.gold:not(.sel) { background: linear-gradient(180deg, #fff6d0, #e8c050 40%, #a88010); }
+  #mCmd .ffb .cur { position: absolute; left: -22px; font-size: 15px; color: #e8c8a8; opacity: 0; } #mCmd .ffb.sel .cur { opacity: 1; }
+  #ui.hasTop #topRight, #ui:has(#mCmd.on) #topRight { top: calc(40px + var(--sat)); }
+  #ui:has(#mCmd.on) #topRight { right: calc(200px + var(--sar)); }
+  #ui > #mmWrap { position: absolute; left: calc(8px + var(--sal)); bottom: calc(8px + var(--sab)); right: auto; top: auto; z-index: 3; transition: opacity .25s; }
+  #ui:has(#chat:not(.gone)) > #mmWrap { opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.0.1 · built 2026-10-13 22:08 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v9.1.0 · built 2026-10-13 22:19 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -741,7 +775,8 @@
   <div id="flash"></div>
   <div id="joy"><div id="knob"></div></div>
   <div id="ui">
-    <div id="ffTop"><div class="ffCmd">Commands</div><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div>
+    <div id="stOv"></div>
+    <div id="ffTop"><div class="ffCmd">Commands</div><div class="ffBar"><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div></div>
     <div id="ffNetBox"><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div>
     <div id="ffStat"><div id="ffBars"><div class="r hp"><em>HP</em><div class="b"><i></i></div><b></b></div><div class="r mp"><em>MP</em><div class="b"><i></i></div><b></b></div><div class="r tp"><em>TP</em><div class="b"><i></i></div><b></b></div></div><div id="ffIcons"></div></div>
     <div id="ffSide"><div class="ffHead" id="ffTHead"><span>Target</span></div>
@@ -758,11 +793,12 @@
     <div id="party"></div>
     </div>
     <div id="tCmd" class="glass"></div>
+    <div id="mCmd"></div>
+    <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
     <div id="pool" class="glass"></div>
     <div id="fishBox" class="glass"></div>
     <div id="raceBox" class="glass"></div>
     <div id="topRight">
-      <div id="mmWrap" title="Map (M)"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN">N</div></div>
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
       <div id="trBtns"><button id="btnChat" title="Show the log (/)">💬</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
       <div id="tracker" class="glass"></div>
@@ -10145,6 +10181,7 @@ function circleRect(c, r, m) {
 
 function step(dt) {
   S.time += dt;
+  if (typeof save !== "undefined" && save) save.playSec = (save.playSec || 0) + dt;
   for (const e of S.party.concat(S.mobs)) { e.px = e.x; e.py = e.y; }
   updatePlayer(dt);
   for (const a of S.party) if (a !== player) updateAlly(a, dt);
@@ -11555,10 +11592,10 @@ const SPELL_ICON = { blight: "☠️", drain: "🩸", mind_drain: "🌀", stun: 
 const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5 };
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Hotkeys", "✨", "B"],
-  quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Settings", "⚙️", ""], system: ["System", "💾", ""],
+  quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Config", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], social: ["Social", "💬", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "party", "social", "craft", "quests", "bestiary", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
@@ -12433,7 +12470,9 @@ function initHud() {
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
-  $("btnMenu").onclick = () => S.modal ? closeModal() : openMenu("character");
+  $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
+  $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
+  $("mCmd").addEventListener("mouseover", e => { const b = e.target.closest("[data-mc]"); if (!b || !UI.mm || isNaN(+b.dataset.mc)) return; const i = +b.dataset.mc; if (UI.mm.sel !== i) { UI.mm.sel = i; $("mCmd").querySelectorAll(".ffb").forEach((x, k) => x.classList.toggle("sel", k === i)); UI.ffHelp = mainCmdHelp(mainCmdItems()[i]); if (UI.mm.sub) renderStatusOv(); } });
   $("btnChat").onclick = () => chatToggle();
   const ci = $("chatIn");
   UI.cmdHist = []; UI.cmdIdx = 0;
@@ -12471,9 +12510,10 @@ function ffMobAttacking(m) { return m && m.alive && m.state === "combat" && m.ta
 function updateFF() {
   const ui = $("ui"), t = player.target;
   const tOk = !!t && (t === player || t.kind === "npc" || t.kind === "remote" || isParty(t) || (isMob(t) && t.alive && !t.despawned));
-  ui.classList.toggle("hasTop", tOk || !!UI.cmd);
-  if (tOk || UI.cmd) {
-    setTxt($("ffHelp"), UI.cmd ? UI.ffHelp || "" : ffDefaultHelp(t));
+  ui.classList.toggle("hasTop", tOk || !!UI.cmd || !!UI.mm);
+  if (tOk || UI.cmd || UI.mm) {
+    setTxt($("ffHelp"), UI.cmd || UI.mm ? UI.ffHelp || "" : ffDefaultHelp(t));
+    if (UI.mm && UI.mm.sub && Date.now() - (UI.stAt || 0) > 500) { UI.stAt = Date.now(); renderStatusOv(); }
     const now = Date.now();
     if (now - (UI.netAt || 0) > 1000) {
       UI.netAt = now;
@@ -12490,7 +12530,7 @@ function updateFF() {
     }
   }
   const ci = $("chatIn"), typing = document.activeElement === ci;
-  const showChat = tOk || !!UI.cmd || typing || UI.chatPin || S.time < (UI.chatFlashUntil || 0) || !!S.dialog;
+  const showChat = tOk || !!UI.cmd || !!UI.mm || typing || UI.chatPin || S.time < (UI.chatFlashUntil || 0) || !!S.dialog;
   $("chat").classList.toggle("gone", !showChat);
   $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);
   const combat = player.engaged || inCombatWith(player);
@@ -12525,6 +12565,68 @@ function chatToggle(force) {
   UI.chatPin = force == null ? !UI.chatPin : force;
   if (!UI.chatPin) { const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur(); UI.chatFlashUntil = 0; }
   if (typeof sfx === "function") sfx("click");
+}
+
+const MAIN_CMDS = [
+  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Party", "party", "Party members, companions, invitations and the looking-for-party flag."], ["Trade", "@trade", "Trade items or crystals with your current target."], ["Search", "@search", "Search for adventurers who are online."], ["Linkshell", "@ls", "Your linkshells: members, invitations and chat."], ["Friend List", "@friends", "See which friends are online and send them a tell."], ["Map", "map", "View the map of this area."]],
+  [["Quests", "quests", "Your story chapter and current and finished quests."], ["Key Items", "keyitems", "Important items that can't be traded or dropped."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Bestiary", "bestiary", "Creatures you've met and what you've learned about them."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Help", "help", "How everything works."], ["Updates", "updates", "What's new in each version."], ["Current Time", "@time", "Show the time of day and the day's element."], ["Communication", "social", "Friends, linkshells, search and emotes."], ["Log Out", "@logout", "Return to the character selection screen."]]
+];
+
+const STATUS_CMDS = [["Profile", "profile", ""], ["Job Levels", "jobs", "View the levels of the jobs you know."], ["Combat Skl.", "combat", "View current combat skills."], ["Magic Skl.", "magic", "View current magic skills."], ["Craft Skl.", "craft", "View current craft and gathering skills."], ["Currencies", "cur", "View your crystals and guild points."], ["Play Time", "time", "View your total time spent adventuring."]];
+function mainCmdHelp(it) { return UI.mm && UI.mm.sub === "status" && it[1] === "profile" ? "Title: " + playerTitle() : it[2]; }
+function mainCmdItems() {
+  if (UI.mm.sub === "status") return STATUS_CMDS;
+  const pg = MAIN_CMDS[UI.mm.page].slice();
+  if (UI.mm.page === 0 && S.zone && S.zone.residence) pg[11] = ["Residence", "home", "Arrange furniture and use your residence."];
+  return pg;
+}
+
+function mainCmdOpen() {
+  if (S.modal) closeModal();
+  tgtCmdClose();
+  UI.mm = { page: UI.mm ? UI.mm.page : 0, sel: 0 };
+  renderMainCmd();
+  sfx("open");
+}
+function mainCmdClose() { UI.mm = null; const el = $("mCmd"); if (el) { el.classList.remove("on"); el.innerHTML = ""; } UI.ffHelp = ""; renderStatusOv(); }
+function renderMainCmd() {
+  const el = $("mCmd"), m = UI.mm;
+  if (!el || !m) return;
+  const items = mainCmdItems();
+  m.sel = clamp(m.sel, 0, items.length - 1);
+  let h = m.sub === "status" ? '<div class="ffMHead sub"><span>Status</span></div>' : '<div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>Menu ' + (m.page + 1) + "/2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
+  items.forEach((it, i) => { h += '<button data-mc="' + i + '" class="ffb' + (i === m.sel ? " sel" : "") + (it[1] === "home" ? " gold" : "") + '"><span class="cur">➤</span><span class="lb">' + esc(it[0]) + "</span></button>"; });
+  el.innerHTML = h;
+  el.classList.add("on");
+  UI.ffHelp = mainCmdHelp(items[m.sel]);
+  renderStatusOv();
+}
+function mainCmdDo(i) {
+  const it = mainCmdItems()[i];
+  if (!it) return;
+  const k = it[1];
+  sfx("select");
+  if (UI.mm.sub === "status") { UI.mm.sel = i; renderMainCmd(); return; }
+  if (k === "character") { UI.mm.back = i; UI.mm.sub = "status"; UI.mm.sel = 0; renderMainCmd(); return; }
+  mainCmdClose();
+  if (k === "@trade") { const t = player.target; if (t && t.kind === "remote") netTradeAsk(t.name); else log("Target another player first, then choose Trade.", "sys"); return; }
+  if (k === "@search") { UI.socQ = ""; openMenu("social"); return; }
+  if (k === "@ls" || k === "@friends") { openMenu("social"); return; }
+  if (k === "@time") { runCommand("/clock"); return; }
+  if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out" }); return; }
+  openMenu(k);
+}
+function mainCmdKey(k) {
+  const m = UI.mm;
+  if (!m) return;
+  const n = mainCmdItems().length;
+  if (k === "arrowup") { m.sel = (m.sel - 1 + n) % n; sfx("tab"); renderMainCmd(); }
+  else if (k === "arrowdown") { m.sel = (m.sel + 1) % n; sfx("tab"); renderMainCmd(); }
+  else if ((k === "arrowleft" || k === "arrowright") && m.sub) return;
+  else if ((k === "escape" || k === "backspace") && m.sub) { m.sub = null; m.sel = m.back || 0; sfx("close"); renderMainCmd(); }
+  else if (k === "arrowleft" || k === "arrowright") { m.page = 1 - m.page; m.sel = 0; sfx("tab"); renderMainCmd(); }
+  else if (k === "enter") mainCmdDo(m.sel);
+  else if (k === "escape" || k === "backspace") { mainCmdClose(); sfx("close"); }
 }
 
 function openMenu(tab) {
@@ -12570,7 +12672,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">LEID\'ANAV REBORN</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -12620,6 +12722,42 @@ function ffJobLevels() {
     h += '<div class="ffr' + (j === save.mainJob ? " main" : j === save.subJob ? " sub" : "") + '"><em>' + esc(JOBS[j].name) + "</em><b>" + lv + "</b></div>";
   }
   return h + "</div></div>";
+}
+
+function tabMagic() {
+  const acts = actionList(player).filter(a => a.kind === "ma");
+  if (!acts.length) return '<div class="sub">Your current jobs know no magic.</div>';
+  const groups = {};
+  for (const a of acts) { const sk = spellSkill(SPELLS[a.id]); const g = ["healing", "divine", "enhancing"].includes(sk) || (sk === "enfeebling" && SPELLS[a.id].element === "light") ? "White Magic" : sk === "singing" ? "Songs" : sk === "summoning" ? "Summoning Magic" : "Black Magic"; (groups[g] = groups[g] || []).push(a); }
+  let h = '<div class="ffPanels">';
+  for (const g of ["White Magic", "Black Magic", "Songs", "Summoning Magic"]) {
+    if (!groups[g]) continue;
+    h += '<div class="ffStatus ffSk"><div class="ffHead"><span>' + g + "</span></div>";
+    for (const a of groups[g]) { const sp = SPELLS[a.id], rc = recastLeft(player, "ma:" + a.id); h += '<button class="mcR" data-a="mcast" data-v="' + a.id + '" title="' + esc(sp.desc || "") + '"><span class="ic">✦</span><span class="nm">' + esc(sp.name) + '</span><span class="q">' + (rc > 0 ? Math.ceil(rc) + "s" : sp.mp + " MP") + "</span></button>"; }
+    h += "</div>";
+  }
+  return h + '</div><div class="sub">Tap a spell to cast it on your current target (or yourself for spells that help).</div>';
+}
+
+function tabAbilities() {
+  const acts = actionList(player).filter(a => a.kind === "ja" || a.kind === "ws");
+  let h = '<div class="ffPanels">';
+  for (const [title, kind] of [["Job Abilities", "ja"], ["Weapon Skills", "ws"]]) {
+    const L = acts.filter(a => a.kind === kind);
+    h += '<div class="ffStatus ffSk"><div class="ffHead"><span>' + title + "</span></div>";
+    if (!L.length) h += '<div class="mcR empty"><span class="nm dim">None yet.</span></div>';
+    for (const a of L) { const rc = a.kind === "ja" ? recastLeft(player, "ja:" + a.id) : 0; h += '<button class="mcR" data-a="mact" data-v="' + a.kind + ":" + a.id + '" title="' + esc(cmdHelpOf(a)) + '"><span class="ic">' + (a.kind === "ws" ? "⚔" : "⚡") + '</span><span class="nm">' + esc(actName(a)) + '</span><span class="q">' + (rc > 0 ? Math.ceil(rc) + "s" : a.kind === "ws" ? "1000 TP" : "") + "</span></button>"; }
+    h += "</div>";
+  }
+  return h + "</div>";
+}
+
+function tabKeyItems() {
+  const ks = (save.keyItems || []).filter(id => ITEMS[id]);
+  let h = '<div class="ffStatus ffSk" style="max-width:520px"><div class="ffHead"><span>Key Items</span></div>';
+  if (!ks.length) h += '<div class="mcR empty"><span class="nm dim">No key items yet.</span></div>';
+  for (const id of ks) h += '<div class="mcR"><span class="ic">' + (ITEMS[id].icon || "🗝️") + '</span><span class="nm" title="' + esc(ITEMS[id].desc || "") + '">' + esc(ITEMS[id].name) + "</span></div>";
+  return h + "</div>";
 }
 
 function tabCharacter() {
@@ -13706,6 +13844,8 @@ function onMenuClick(e) {
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
   else if (a === "sort") { save.inventory.sort((x, y) => (KIND_ORDER[ITEMS[x.id].kind] - KIND_ORDER[ITEMS[y.id].kind]) || ITEMS[x.id].name.localeCompare(ITEMS[y.id].name)); UI.sel = null; saveGame(); sfx("select"); }
   else if (a === "sel") { UI.sel = UI.sel === +v ? null : +v; sfx("select"); }
+  else if (a === "mcast") { closeModal(); playerAct({ kind: "ma", id: v, name: SPELLS[v].name }); return; }
+  else if (a === "mact") { const [kd, id] = v.split(":"); closeModal(); playerAct({ kind: kd, id, name: kd === "ws" ? WEAPON_SKILLS[id].name : ABILITIES[id].name }); return; }
   else if (a === "eqslot") { UI.eq = UI.eq || {}; UI.eq.slot = UI.eq.slot === v ? null : v; UI.eq.hover = null; sfx("select"); renderModal(); return; }
   else if (a === "eqpick") { const q = UI.eq; if (q.hover === v) { const why = canEquip(v); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(v, q.slot); q.hover = null; } } else { q.hover = v; sfx("tab"); } renderModal(); return; }
   else if (a === "equnq") { unequip(v); UI.eq.hover = null; renderModal(); return; }
@@ -13894,13 +14034,23 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v9.0.1 · built 2026-10-13 22:08 PDT";
+const BUILD_INFO = "v9.1.0 · built 2026-10-13 22:19 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "9.1.0", date: "2026-10-13", title: "Main menu window", items: [
+    "Esc (with nothing targeted), - or the ☰ button opens the main menu as a command window in the top right under the Network box. It has two pages; ← → or the arrows at the top switch pages.",
+    "Page 1: Status, Equipment, Magic, Items, Crafting, Abilities, Party, Trade, Search, Linkshell, Friend List and Map (Residence while you're at home). Page 2: Quests, Key Items, View House, Bestiary, Achievements, Hotkeys, Config, Help, Updates, Current Time, Communication and Log Out.",
+    "Settings are now called Config.",
+    "New Status screen: choosing Status keeps you in the world and shows your status sheet on the left (with gear bonuses in green beside each attribute), a level box with EXP and the next level, and a Status list on the right: Profile, Job Levels, Combat Skl., Magic Skl., Craft Skl., Currencies and Play Time. Moving through the list shows each page in the middle; Esc goes back to the menu.",
+    "Profile shows your title (your most recent achievement) in the Help bar, plus race, home point, guild rank and story progress. Play time is now counted.",
+    "New Magic, Abilities and Key Items windows from the menu. Tap a spell or ability to use it.",
+    "The Commands label is now its own box, separate from the Help bar.",
+    "The map moved to the bottom left and only shows while the event log is hidden."
   ] },
   { v: "9.0.1", date: "2026-10-13", title: "Tidier screen", items: [
     "The event log and typing box slide away when nothing is targeted. They come back when you target something, press / to type, someone talks to you or you find loot, or when you pin them with the 💬 button (or L). Esc hides them.",
@@ -14293,7 +14443,7 @@ function tabHelp() {
   h += sec("🎮 Controls", ul([
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with nothing targeted opens your own menu · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Space jump · R mount.",
-    "1–0 still use your saved hotkeys (Shift for page 2; set them in the Hotkeys tab) · Esc closes the command menu, then the main menu · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "1–0 still use your saved hotkeys (Shift for page 2; set them in the Hotkeys tab) · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -14529,7 +14679,9 @@ function tabHelp() {
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells starter neck, ear, back, waist, shield, sling and ammo pieces; Vela in Saltreach sells better ones."
   ]));
   h += sec("🖥️ The screen", ul([
-    "<b>Top:</b> the Commands bar appears while something is targeted and explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
+    "<b>Main menu:</b> Esc with nothing targeted, - (or Insert) or ☰ opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
+    "<b>Bottom left:</b> the map, shown only while the event log is hidden. Tap it for the full map.",
+    "<b>Top:</b> the Commands box and the Help bar appear while something is targeted or a menu is open; the Help bar explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
     "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
     "<b>Bottom:</b> the event log. It slides away when nothing is targeted, and comes back when you target something, start typing (press / ), when someone talks to you or you find loot, or while you pin it open with 💬 (top right) or L. Esc hides it again. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
@@ -14558,7 +14710,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "9.0.1";
+const GAME_VERSION = "9.1.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -14626,6 +14778,89 @@ function initVersionCheck() {
   setTimeout(() => checkForUpdate(false), 4000);
   setInterval(() => checkForUpdate(false), 10 * 60 * 1000);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkForUpdate(false); });
+}
+
+function gearBonus() {
+  const g = {};
+  const augs = save.augments || {};
+  for (const sl of SLOTS) {
+    const id = player.gear[sl], it = id && ITEMS[id];
+    if (!it) continue;
+    if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
+    if (augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
+  }
+  return g;
+}
+function playerTitle() {
+  let best = null;
+  for (const a of ACHIEVEMENTS) { const t = save.ach && save.ach[a.id]; if (t && (!best || t > best[0])) best = [t, a.name]; }
+  return best ? best[1] : "Fledgling Adventurer";
+}
+function fmtPlay(sec) {
+  sec = Math.floor(sec || 0);
+  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  return (d ? d + " day" + (d > 1 ? "s " : " ") : "") + h + " hr " + m + " min " + s + " sec";
+}
+function statusLeftHTML() {
+  const p = player, j = save.jobs[save.mainJob], need = xpNeed(j.lv), g = gearBonus();
+  const gear = SLOTS.map(sl => save.gear[sl]).filter(id => id && ITEMS[id] && ITEMS[id].kind === "equip");
+  const ilv = gear.length ? Math.round(gear.reduce((n, id) => n + (ITEMS[id].lv || 1), 0) / gear.length) : 0;
+  let h = '<div class="stBox"><div class="ffHead"><span>Status</span></div>';
+  h += '<div class="stNm">' + esc(save.name || "Adventurer") + "</div>";
+  h += '<div class="stJob main">Lv' + p.lv + " " + esc(JOBS[p.job].name) + "</div>";
+  if (p.sub && JOBS[p.sub]) h += '<div class="stJob">Lv' + Math.floor(p.lv / 2) + " " + esc(JOBS[p.sub].name) + "</div>";
+  h += '<div class="stRow"><em>ILv</em><b>' + ilv + ' <small>Su —</small></b></div>';
+  h += '<div class="stRow gap"><em>HP</em><b>' + Math.ceil(p.hp) + " / " + p.maxHp + '</b></div><div class="stRow"><em>MP</em><b>' + Math.floor(p.mp) + " / " + p.maxMp + '</b></div><div class="stRow"><em>TP</em><b>' + Math.floor(p.tp) + "</b></div>";
+  h += '<div class="stAt">';
+  for (const [k, l] of [["str", "STR"], ["dex", "DEX"], ["vit", "VIT"], ["agi", "AGI"], ["int", "INT"], ["mnd", "MND"], ["chr", "CHR"]]) {
+    const tot = p.stats[k] || 0, b = Math.round(g[k] || 0);
+    h += "<em>" + l + "</em><b>" + (tot - b) + "</b><i>" + (b ? (b > 0 ? "+" : "") + b : "") + "</i>";
+  }
+  h += "</div></div>";
+  const pct = need ? Math.max(0, Math.min(100, j.xp / need * 100)) : 100;
+  h += '<div class="stBox stLv"><div class="stJob main">Level ' + j.lv + '</div><div class="stK">EXP</div><div class="stV">' + (need ? j.xp.toLocaleString() : "—") + '</div><div class="stK">NEXT Level</div><div class="stV">' + (need ? need.toLocaleString() : "MAX") + '</div><div class="stBar"><span style="width:' + pct + '%"></span></div></div>';
+  return h;
+}
+function statusPanelHTML(k) {
+  const sec = (t, body) => '<div class="stTitle">' + t + "</div>" + body;
+  const kv = (l, v) => '<div class="stKV"><em>' + l + "</em><b>" + v + "</b></div>";
+  const cur = sk => Math.floor(Math.min((save.skills[player.job] || {})[sk] || 0, Math.max(0, skillCap(player, sk))));
+  const grid = rows => '<div class="stGrid">' + rows.join("") + "</div>";
+  const sr = (n, v, off) => '<div class="stSk' + (off ? " off" : "") + '"><em>' + esc(n) + "</em><b>" + v + "</b></div>";
+  if (k === "profile") {
+    const rc = RACES[save.look.race] || RACES.human, gr = guildRank(), nx = GUILD_RANKS[gr + 1], tot = save.guild.total || 0;
+    const pct = nx ? Math.round((tot - GUILD_RANKS[gr][1]) / (nx[1] - GUILD_RANKS[gr][1]) * 100) : 100;
+    const ch = storyChapter();
+    let h = sec("Profile", kv("Race:", esc(rc.name || save.look.race)) + kv("Home Point:", esc(ZONES[save.home.zone] ? ZONES[save.home.zone].name : "—")) + kv("Guild Rank:", esc(GUILD_RANKS[gr][0]) + '<span class="stSp">Guild Points</span>' + (save.guild.gp || 0)) + '<div class="stBar wide"><span style="width:' + pct + '%"></span></div>');
+    h += sec("Adventure", kv("Story:", ch ? esc(ch.title || ch.name || "Chapter " + (save.story.ch + 1)) : "Complete") + kv("Achievements:", Object.keys(save.ach || {}).length + " / " + ACHIEVEMENTS.length) + kv("Monsters defeated:", (save.stats.kills || 0).toLocaleString()));
+    return h;
+  }
+  if (k === "jobs") {
+    const known = Object.keys(JOBS).filter(j => !JOBS[j].advanced || (save.jobsUnlocked && save.jobsUnlocked[j]));
+    return sec("Job Levels", grid(known.map(j => '<div class="stSk' + (j === save.mainJob ? " main" : j === save.subJob ? " sub" : "") + '"><em>' + esc(JOBS[j].name) + "</em><b>" + (save.jobs[j] ? save.jobs[j].lv : 1) + "</b></div>")));
+  }
+  if (k === "combat") return sec("Combat Skills", grid(COMBAT_SKILLS.map(sk => sr(SKILL_NAMES[sk], skillCap(player, sk) > 0 ? cur(sk) : "—", skillCap(player, sk) <= 0))));
+  if (k === "magic") return sec("Magic Skills", grid(MAGIC_SKILLS.map(sk => sr(SKILL_NAMES[sk].replace(" Magic", ""), skillCap(player, sk) > 0 ? cur(sk) : "—", skillCap(player, sk) <= 0))));
+  if (k === "craft") {
+    const row = (n, v) => '<div class="stCr"><em>' + esc(n) + "</em><b>" + craftRank(v) + "</b><i>(" + v + ")</i></div>";
+    let rows = [row("Fishing", save.gatherSkill.fishing || 0)];
+    for (const c of Object.keys(CRAFTS)) rows.push(row(CRAFTS[c].name, Math.floor(craftSkill(c))));
+    for (const [g, l] of [["mining", "Mining"], ["logging", "Logging"], ["harvesting", "Harvesting"]]) rows.push(row(l, save.gatherSkill[g] || 0));
+    return sec("Craft Skills", rows.join(""));
+  }
+  if (k === "cur") return sec("Currencies", kv("Crystals:", (save.gil || 0).toLocaleString()) + kv("Guild Points:", (save.guild.gp || 0).toLocaleString()) + kv("Guild Points earned:", (save.guild.total || 0).toLocaleString()) + kv("Bounties finished:", save.stats.bounties || 0));
+  if (k === "time") return sec("Play Time", kv("Total:", fmtPlay(save.playSec)) + kv("Character made:", new Date(save.created || Date.now()).toLocaleDateString()));
+  return "";
+}
+function renderStatusOv() {
+  const el = $("stOv");
+  if (!el) return;
+  const m = UI.mm;
+  if (!m || m.sub !== "status") { el.classList.remove("on"); $("ui").classList.remove("stOn"); return; }
+  const it = STATUS_CMDS[m.sel];
+  el.innerHTML = '<div id="stL">' + statusLeftHTML() + '</div><div id="stM" class="stBox">' + statusPanelHTML(it[1]) + "</div>";
+  el.classList.add("on");
+  $("ui").classList.add("stOn");
 }
 
 const NOISE = (() => {
@@ -21643,7 +21878,7 @@ function onKey(e) {
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
   const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
   if (S.modal) {
-    if (k === "escape") closeModal();
+    if (k === "escape") { closeModal(); mainCmdOpen(); }
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
     return;
   }
@@ -21654,6 +21889,7 @@ function onKey(e) {
     return;
   }
   if (S.fish && S.fish.state === "bite" && (k === " " || k === "spacebar" || k === "enter" || k === "f")) { e.preventDefault(); reelFish(); return; }
+  if (UI.mm && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); mainCmdKey(k); return; }
   if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
   if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
   if (k === "/") { e.preventDefault(); const ci = $("chatIn"); ci.value = "/"; ci.focus(); return; }
@@ -21670,9 +21906,10 @@ function onKey(e) {
   if (k === "escape") {
     if (player.casting) { player.casting = null; log("You stop casting.", "sys"); }
     else if (player.target && !player.engaged) player.target = null;
-    else openMenu("character");
+    else mainCmdOpen();
     return;
   }
+  if (k === "-" || k === "insert") { mainCmdOpen(); return; }
   const code = e.code || "";
   const dm = /^Digit([0-9])$/.exec(code);
   const digit = dm ? dm[1] : /^[0-9]$/.test(k) ? k : null;
