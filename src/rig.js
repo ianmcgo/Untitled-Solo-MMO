@@ -4,7 +4,7 @@ const ATLAS_COLS = 6, ATLAS_ROWS = 4;
 const FACE_COUNT = 8;
 const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud"];
 const ATLAS_SIZE = 1024, ATLAS_CELL = 256, ATLAS_W = 1536, ATLAS_H = 1024;
-const RIG = { atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
+const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
 const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot"];
@@ -382,6 +382,7 @@ class RigBuilder {
   }
 }
 
+function sgK(n, d) { return Math.max(3, Math.round((n || d) * RIG.segK)); }
 function orientBetween(g, a, b) {
   const d = new THREE.Vector3().subVectors(b, a);
   const q = new THREE.Quaternion().setFromUnitVectors(V3(0, 1, 0), d.clone().normalize());
@@ -390,31 +391,31 @@ function orientBetween(g, a, b) {
   return g;
 }
 function gTaper(a, b, ra, rb, seg, flat) {
-  const g = new THREE.CylinderGeometry(rb, ra, Math.max(0.001, a.distanceTo(b)), seg || 10, 1);
+  const g = new THREE.CylinderGeometry(rb, ra, Math.max(0.001, a.distanceTo(b)), sgK(seg, 10), 1);
   if (flat) g.scale(flat, 1, 1);
   return orientBetween(g, a, b);
 }
 function gBall(p, r, sx, sy, sz, seg) {
-  const s = seg || 12;
-  const g = new THREE.SphereGeometry(r, s, Math.max(6, Math.round(s * 0.7)));
+  const s = sgK(seg, 12);
+  const g = new THREE.SphereGeometry(r, s, Math.max(4, Math.round(s * 0.7)));
   g.scale(sx || 1, sy || 1, sz || 1);
   g.translate(p.x, p.y, p.z);
   return g;
 }
 function gPartSphere(p, r, gap, thetaLen, sx, sy, sz, seg, thetaStart) {
-  const g = new THREE.SphereGeometry(r, seg || 16, 10, Math.PI / 2 + gap / 2, Math.PI * 2 - gap, thetaStart || 0, thetaLen);
+  const g = new THREE.SphereGeometry(r, sgK(seg, 16), sgK(10, 10), Math.PI / 2 + gap / 2, Math.PI * 2 - gap, thetaStart || 0, thetaLen);
   g.scale(sx || 1, sy || 1, sz || 1);
   g.translate(p.x, p.y, p.z);
   return g;
 }
 function gFront(p, r, width, t0, t1, sx, sy, sz, seg) {
-  const g = new THREE.SphereGeometry(r, seg || 12, 8, Math.PI / 2 - width / 2, width, t0, t1 - t0);
+  const g = new THREE.SphereGeometry(r, sgK(seg, 12), sgK(8, 8), Math.PI / 2 - width / 2, width, t0, t1 - t0);
   g.scale(sx || 1, sy || 1, sz || 1);
   g.translate(p.x, p.y, p.z);
   return g;
 }
 function gLathe(prof, sx, sz, seg) {
-  const g = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(Math.max(0.002, r), y)), seg || 18);
+  const g = new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(Math.max(0.002, r), y)), sgK(seg, 18));
   g.scale(sx, 1, sz);
   return g;
 }
@@ -425,12 +426,12 @@ function gBox(p, w, h, d, rx, ry, rz) {
   return g;
 }
 function gCyl(p, rt, rb, h, seg, open, t0, tl) {
-  const g = new THREE.CylinderGeometry(rt, rb, h, seg || 14, 1, !!open, t0 || 0, tl || Math.PI * 2);
+  const g = new THREE.CylinderGeometry(rt, rb, h, sgK(seg, 14), 1, !!open, t0 || 0, tl || Math.PI * 2);
   g.translate(p.x, p.y, p.z);
   return g;
 }
 function gRing(p, R, r, axis, seg, arc, rot) {
-  const g = new THREE.TorusGeometry(R, r, 6, seg || 20, arc || Math.PI * 2);
+  const g = new THREE.TorusGeometry(R, r, sgK(6, 6), sgK(seg, 20), arc || Math.PI * 2);
   if (axis === "y") g.rotateX(Math.PI / 2);
   if (axis === "x") g.rotateY(Math.PI / 2);
   if (rot) g.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(rot[0], rot[1], rot[2])));
@@ -718,8 +719,16 @@ function humanEntry(L) {
       if (top.trim) R.add(gRing(V3(ex, wrY - 0.01, 0), 0.085 * gi, 0.012, "y", 18), "foreArm" + sd, top.trim, "trim", !!top.glowTrim);
     } else if (top.trim && longS) R.add(gRing(V3(wx, wrY + 0.02, 0), 0.04 * gi, 0.009, "y", 14), "foreArm" + sd, top.trim, "trim");
     const handC = L.gloves != null ? L.gloves : skin, handR = L.gloves != null ? (L.glovesRegion || "leather") : (L.skull ? "bone" : SKR);
-    R.add(gBall(V3(s * (sw + 0.025), wrY - 0.055, 0.005), L.skull ? 0.03 : 0.045, 0.75, 1.15, 0.55, 10), "hand" + sd, handC, handR);
-    R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
+    if (L.skull) {
+      R.add(gBall(V3(s * (sw + 0.025), wrY - 0.055, 0.005), 0.03, 0.75, 1.15, 0.55, 10), "hand" + sd, handC, handR);
+      R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
+    } else {
+      const hk = gi * (L.doll ? 1.25 : 1), hx = s * (sw + 0.024);
+      R.add(gBall(V3(hx, wrY - 0.04, 0.004), 0.038 * hk, 0.62, 1.0, 0.95, 10), "hand" + sd, handC, handR);
+      R.add(gTaper(V3(hx, wrY - 0.06, 0.012), V3(hx + s * 0.004, wrY - 0.105 * hk, 0.03), 0.026 * hk, 0.017 * hk, 8, 0.55), "hand" + sd, handC, handR);
+      R.add(gBall(V3(hx + s * 0.004, wrY - 0.105 * hk, 0.03), 0.0175 * hk, 0.6, 0.75, 1.0, 8), "hand" + sd, handC, handR);
+      R.add(gTaper(V3(s * (sw + 0.01), wrY - 0.035, 0.03), V3(s * (sw + 0.006), wrY - 0.075 * hk, 0.06), 0.013 * hk, 0.0095 * hk, 6), "hand" + sd, handC, handR);
+    }
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
     if (L.pauldrons) {
       R.add(gPartSphere(V3(ax * 1.01, shY - 0.012, 0), 0.068 * gi, 0, Math.PI * 0.55, 1.12, 0.75, 1.0, 14), "upArm" + sd, L.pauldrons, "metal");
@@ -1551,6 +1560,7 @@ function buildEntityRig(e) {
   const entry = entryFor(sig, make);
   const inst = instantiate(entry);
   inst.sig = sig;
+  inst.lodEntry = () => entryFor("lo|" + sig, () => { const k = RIG.segK; RIG.segK = 0.5; try { return make(); } finally { RIG.segK = k; } });
   inst.weaponKind = weaponKind;
   inst.weapon = makeWeapon(weaponKind, weaponId);
   inst.alwaysDrawn = alwaysDrawn;

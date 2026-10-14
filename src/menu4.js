@@ -1453,6 +1453,10 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "10.0.0", date: "2026-10-14", title: "Model detail I", items: [
+    "Characters have proper hands now: a palm, a group of fingers that curls forward, and a separate thumb, sized to each race.",
+    "Characters and monsters further from the camera switch to a lighter version of their model, so crowded towns and big pulls run smoother. You won't notice the switch at normal distances; it happens sooner on Low graphics."
+  ] },
   { v: "9.19.0", date: "2026-10-14", title: "Finishing touches", items: [
     "High graphics now has smoother edges and a colour grade that follows the day: warm at sunrise and sunset, cooler and softer at night, duller in bad weather, with a light vignette around the screen edges.",
     "If the game keeps running slowly even at its lowest render scale, it now turns off glow effects, then sun shadows, and tells you.",
