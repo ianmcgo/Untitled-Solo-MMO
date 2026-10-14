@@ -1183,6 +1183,10 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Fixed: effects3d `updateTrail` used `L` before its declaration (crashed during gold weapon-skill trails).
 - Known limits: IK is sagittal only (no terrain slope or step-up IK yet); monsters with non-human rigs keep their old cycles (phase 98).
 
+## v13.6.1: classic command menu
+- template4 tail CSS: #ffTop/#ffNetBox at top 13px so the on-border labels (-9px) are on screen; .ffLbl 12px italic outlined. #mCmd: navy panel, light border with inset rules, overflow visible (so the pointer can stick out), `.ffMLeg` legend ("Commands", or "Status" in the Status list) centred on the top border, page arrows small under it; `.ffb` lavender pills, `.sel` brown-orange with orange text, `.cur` an inline SVG silver pointer at left -58px (-42px on phones).
+- hud4: main menu header markup gains `.ffMLeg`; NPC/object targets show no "NPC" tag or talk hint (only the ❗ line), name green for props/crystals; empty #tInfo/#tToT/#tChain hidden; npc target box hides bars.
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1235,6 +1239,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 13.6.1 | Classic command menu styling, readable top labels, compact object target box. |
 | 13.6.0 | Phase 89: lofted bodies, slower movement, foot-planting leg IK, trail crash fix. |
 | 13.5.0 | Phase 88: sculpted heads, realistic faces and hair, skull jaws, cactus Needlekin, 512 px atlas on High. |
 | 4.8.0 | Phase 7: performance settings and balance check (above). |

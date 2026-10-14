@@ -1477,6 +1477,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "13.6.1", date: "2026-10-14", title: "Classic command menu", items: [
+    "The main menu is restyled: a dark navy panel with a fine border, a Commands label sitting on the top edge, lavender pill buttons with bold italic outlined text, an orange pill for the selection, and a silver pointer that sticks out past the left edge of the box.",
+    "The Help, Network and Commands labels are no longer cut off at the top of the screen.",
+    "Targeting a person or object shows a compact box with just the name (green for objects); people with something for you still show the ❗ line. Party HP bars are a warm salmon colour."
+  ] },
   { v: "13.6.0", date: "2026-10-14", title: "Smooth bodies and natural movement", items: [
     "Bodies are now one smooth skin: chest, waist, hips, shoulders, arms and legs flow into each other instead of being built from balls and tubes. Shoulders, biceps, forearms, thighs, knees and calves have real shape, and joints bend without gaps.",
     "Everyone moves at a calmer pace. You run at about 5 m/s instead of 7, companions and pets keep up at a similar pace, monsters chase at roughly two-thirds of your speed, and townsfolk stroll.",
