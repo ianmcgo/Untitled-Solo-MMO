@@ -980,8 +980,11 @@ function initHud() {
   }, true);
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
   $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
-  $("log").addEventListener("click", () => { if (matchMedia("(pointer: coarse)").matches && !S.modal) openChatInput(""); });
-  $("logTap").addEventListener("click", e => { e.stopPropagation(); if (!S.modal) openChatInput(""); });
+  const tapType = e => { if (!matchMedia("(pointer: coarse)").matches || S.modal || e.target.closest("#chatTabs, #chatIn")) return; e.preventDefault(); e.stopPropagation(); openChatInput(""); };
+  $("log").addEventListener("touchend", tapType);
+  $("log").addEventListener("click", tapType);
+  $("logTap").addEventListener("touchend", tapType);
+  $("logTap").addEventListener("click", tapType);
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
   $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if (v === "back") { mainCmdKey("escape"); return; } if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
   $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });
@@ -1097,9 +1100,11 @@ function updateFF() {
 function openChatInput(pre) {
   UI.chatPin = true; UI.chatTyping = true;
   UI.logRows = logFull(); UI.logAt = S.time;
-  const ch = $("chat"); ch.classList.remove("lite", "gone");
+  const ch = $("chat"); ch.classList.remove("lite", "gone", "min");
   const ci = $("chatIn"); ci.value = pre || "";
-  setTimeout(() => { ci.focus(); ci.setSelectionRange(ci.value.length, ci.value.length); }, 0);
+  ci.style.display = "block";
+  try { ci.focus({ preventScroll: true }); ci.setSelectionRange(ci.value.length, ci.value.length); } catch (e) {}
+  setTimeout(() => { ci.style.display = ""; if (document.activeElement !== ci) ci.focus(); }, 60);
 }
 function logFull() { return innerWidth < 900 ? 6 : 8; }
 function logEsc() {

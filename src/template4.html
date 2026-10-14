@@ -772,6 +772,7 @@
   #mmTime::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; border-radius: 50%; background: #fff; vertical-align: -1px; }
   #clockBox, #trBtns { display: none !important; }
   @media (max-width: 1020px) { #ui.modalOn #mCmd { display: none !important; } }
+  @media (pointer: coarse) { #chat #log, #chat.min #log, #chat.lite #log { pointer-events: auto !important; } }
   #log, #chat.min #log, #chat.lite #log { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 4px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; }
   @media (max-width: 600px) {
     #mCmd { width: 138px; padding: 3px 4px 4px 16px; gap: 2px; }
