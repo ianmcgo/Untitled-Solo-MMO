@@ -924,31 +924,38 @@ const ZONES = {
       { x: 262, y: 740, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }
     ],
     npcs: [
-      { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 1, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
+      { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 18, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
       { id: "crystal_town", x: 1000, y: 760 }, { id: "pell", x: 800, y: 650, home: 4, sleep: [21, 6.5] }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
       { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "corvin", x: 840, y: 900 },
-      { id: "garrick", x: 780, y: 1210, home: 7, sleep: [22, 6.5] },
+      { id: "garrick", x: 820, y: 1205, home: 7, sleep: [22, 6.5] },
       { id: "ysolde", x: 1700, y: 960, home: 16, sleep: [19.5, 5.5] }, { id: "guard_east", x: 1790, y: 690 }
     ],
-    props: [{ type: "anvil", x: 780, y: 1262, rot: 0.2, r: 26 }, { type: "desk", x: 930, y: 336, r: 22 }, { type: "desk", x: 840, y: 936, r: 22 }, { type: "barrels", x: 1250, y: 1200, rot: 1.2, r: 26 }, { type: "crates", x: 1340, y: 1220, rot: 0.4, r: 26 }, { type: "barrels", x: 1820, y: 1120, rot: 0.3, r: 26 }],
+    props: [{ type: "anvil", x: 750, y: 1190, rot: 0.2, r: 26 }, { type: "desk", x: 930, y: 336, r: 22 }, { type: "desk", x: 840, y: 936, r: 22 }, { type: "barrels", x: 900, y: 1150, rot: 1.2, r: 26 }, { type: "crates", x: 920, y: 1215, rot: 0.4, r: 26 }, { type: "barrels", x: 1820, y: 1120, rot: 0.3, r: 26 }],
     ambient: [{ type: "chicken", x: 160, y: 1300, n: 4, r: 70 }, { type: "dog", x: 1000, y: 760, n: 1, r: 140, col: 0x8a6a4a }, { type: "cat", x: 420, y: 300, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 1000, y: 760, n: 1, path: [[860, 640], [1140, 640], [1140, 880], [860, 880]] }],
     spawns: [],
     water: [{ x: 440, y: 1180, r: 70 }],
     plaza: { x: 1000, y: 760, r: 170 },
+    plazas: [{ x: 1000, y: 320, r: 95 }],
+    paved: true, outerWall: true,
+    fountains: [{ x: 1000, y: 320 }],
+    gardens: [{ x: 180, y: 430, w: 140, h: 80 }, { x: 170, y: 1250, w: 140, h: 80 }, { x: 440, y: 1050, w: 120, h: 60 }],
+    dummies: [[640, 210, 0.3], [640, 300, -0.2]], racks: [[690, 330, 0]],
+    benches: [[880, 760, 1.57], [1120, 760, -1.57], [1000, 420, 0], [300, 640, 1.57]],
     paths: [
       { w: 56, pts: [[100, 760], [1000, 760], [2000, 760], [2400, 760]] },
-      { w: 44, pts: [[1000, 60], [1000, 1440]] },
+      { w: 44, pts: [[1000, 190], [1000, 1310]] },
       { w: 36, pts: [[300, 80], [300, 1440]] },
       { w: 36, pts: [[1700, 120], [1700, 1400]] },
       { w: 36, pts: [[300, 250], [1700, 250]] },
       { w: 36, pts: [[300, 1270], [1700, 1270]] }
     ],
     houses: [
-      { x: 760, y: 150, w: 220, h: 110, rot: 0 }, { x: 1000, y: 130, w: 180, h: 100, rot: 0 }, { x: 1240, y: 150, w: 200, h: 110, rot: 0 }, { x: 1260, y: 370, w: 150, h: 70, rot: 0 },
-      { x: 690, y: 560, w: 140, h: 100, rot: 0 }, { x: 1310, y: 560, w: 140, h: 100, rot: 0 }, { x: 690, y: 975, w: 140, h: 90, rot: 0 },
-      { x: 700, y: 1370, w: 180, h: 100, rot: 0 }, { x: 1000, y: 1380, w: 160, h: 100, rot: 0 }, { x: 1290, y: 1380, w: 200, h: 100, rot: 0 },
-      { x: 200, y: 760, w: 110, h: 130, rot: 1 }, { x: 180, y: 300, w: 150, h: 110, rot: 0 }, { x: 430, y: 140, w: 130, h: 100, rot: 0 }, { x: 180, y: 1100, w: 150, h: 110, rot: 0 }, { x: 430, y: 1380, w: 140, h: 100, rot: 0 }, { x: 440, y: 520, w: 110, h: 120, rot: 0 },
-      { x: 1700, y: 1300, w: 140, h: 110, rot: 0 }, { x: 1720, y: 160, w: 160, h: 110, rot: 0 }
+      { x: 760, y: 150, w: 220, h: 110, type: "barracks", sign: "Barracks", flag: "#c0392b" }, { x: 1000, y: 120, w: 200, h: 110, type: "cityhall", floors: 3, flag: "#c0392b" }, { x: 1240, y: 150, w: 200, h: 110, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b" }, { x: 1260, y: 370, w: 150, h: 70, type: "hall", floors: 1, sign: "Job Master" },
+      { x: 690, y: 560, w: 140, h: 100, type: "shop", sign: "Pell's Goods", awning: "#b5651d" }, { x: 1310, y: 560, w: 140, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" }, { x: 690, y: 975, w: 140, h: 90, type: "auction", sign: "Auction House" },
+      { x: 700, y: 1370, w: 180, h: 100, type: "forge", floors: 1, sign: "Smithy", signCol: "#ff7a30" }, { x: 1000, y: 1380, w: 160, h: 100, type: "mill" }, { x: 1290, y: 1380, w: 200, h: 100, type: "warehouse", floors: 2 },
+      { x: 200, y: 760, w: 110, h: 130, rot: 1, type: "home", tint: 0, floors: 2 }, { x: 180, y: 300, w: 150, h: 110, type: "home", floors: 3 }, { x: 430, y: 140, w: 130, h: 100, type: "home" }, { x: 180, y: 1100, w: 150, h: 110, type: "home" }, { x: 430, y: 1380, w: 140, h: 100, type: "home", floors: 3 }, { x: 440, y: 520, w: 110, h: 120, type: "home" },
+      { x: 1700, y: 1300, w: 140, h: 110, type: "home", sign: "Stables" }, { x: 1720, y: 160, w: 160, h: 110, type: "guard", flag: "#9aa0a8" },
+      { x: 800, y: 390, w: 180, h: 70, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" }, { x: 1130, y: 1150, w: 160, h: 90, type: "hall", sign: "Woodworkers" }, { x: 1340, y: 1150, w: 140, h: 90, type: "hall", sign: "Alchemists", signCol: "#7ae0a0" }
     ],
     stalls: [{ x: 800, y: 690, color: "#b5651d" }, { x: 1200, y: 690, color: "#7b1fa2" }, { x: 1180, y: 960, color: "#2e7d32" }],
     lamps: [[880, 640], [1120, 640], [880, 880], [1120, 880], [1600, 700], [1600, 820], [400, 700], [1000, 1180]],

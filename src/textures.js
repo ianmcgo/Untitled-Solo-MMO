@@ -331,11 +331,11 @@ function* bakeTerrainAlbedoSteps(field, size) {
     r = mix(r, th.dirt[0], patch); g = mix(g, th.dirt[1], patch); b = mix(b, th.dirt[2], patch);
     const pw = field.pathWeight(px, py);
     if (pw > 0) {
-      if (cob && field.plazaWeight(px, py) > 0.5) {
+      if (cob && (z.paved || field.plazaWeight(px, py) > 0.5)) {
         const cx = ((px * 4) % 256 + 256) % 256 | 0, cy = ((py * 4) % 256 + 256) % 256 | 0;
         const cb = field.cobbleHeight(cx, cy);
         const v = cb < 0.15 ? 70 : 105 + cb * 60;
-        const t2 = pw * field.plazaWeight(px, py);
+        const t2 = z.paved ? pw : pw * field.plazaWeight(px, py);
         r = mix(r, v, t2); g = mix(g, v * 0.97, t2); b = mix(b, v * 0.92, t2);
       } else {
         const t2 = pw * (0.85 + 0.15 * n2);

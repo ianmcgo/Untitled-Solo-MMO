@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "15.0.0",
-  "releaseTitle": "City districts",
+  "version": "15.1.0",
+  "releaseTitle": "Outpost city",
   "description": "",
   "main": "index.js",
   "scripts": {

@@ -1478,6 +1478,15 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "15.1.0", date: "2026-10-14", title: "Outpost city", items: [
+    "Every building in Ashenreach Outpost has been rebuilt as a proper city building: stone plinths, two- and three-storey houses with timber framing and overhanging upper floors, gable walls, windows with frames, sills, shutters and flower boxes, doors with steps and a lantern that lights at night, and chimneys.",
+    "Government District: Rhea's stone barracks with training dummies, a weapon rack and the Ashenreach flag; the new City Hall, three storeys with a clock tower whose hands follow the in-game time; Maera's Adventurers' Guild; Brann's Mercenary Hall; Tobin's Job Master hall; and a square with a fountain and benches.",
+    "Market District: Pell's Goods and Odette's Furnishings are two-storey shops with striped awnings and hanging signs; Corvin's Auction House has a columned porch; benches line the plaza.",
+    "Industrial District: Garrick's smithy with a tall glowing chimney and a forge hearth that lights the street, a working windmill with turning sails, a warehouse with a loading crane and crates, and new Woodworkers' and Alchemists' halls.",
+    "Residential District: townhouses in four plaster colours with fenced vegetable gardens.",
+    "The city is now ringed by a stone outer wall with corner towers, and the road to Rocky Hollow leaves through a great gatehouse with the city's name over the arch.",
+    "Streets are paved with cobblestones throughout the city."
+  ] },
   { v: "15.0.0", date: "2026-10-14", title: "City districts", items: [
     "Ashenreach Outpost has grown into a walled city of five districts: the Market District around the home point crystal, the Government District to the north, the Residential District to the west, the Industrial District to the south and Eastgate, which leads out to Rocky Hollow.",
     "Districts are divided by stone walls with crenellations and joined by gate halls: twin towers with tiled roofs, an arched passage and banners in each district's colour on either side.",
@@ -2339,7 +2348,8 @@ function tabHelp() {
     "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, Pell, Odette, Corvin's auction desk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
     "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
-    "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically."
+    "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
+    "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
   ]));
   h += sec("📴 Offline play", ul([
     "Choose <b>Play Offline</b> after Press Start to play without an account. Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",
