@@ -724,11 +724,18 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Quest silk (Pell, lv 2, 6 grass_crawler → silk_gloves_q). GUILD_BOUNTIES add b_crawler, b_beehive, b_lizard, b_orc, b_silkmother, b_bogcrawler, b_reefkin, b_crag, b_warlord, b_rimecrawler, b_frostbomb.
 - Tests: test/p25unit.js (tiers differ in name/colour and progress by zone; nothing aggressive near the Hollow gate; NMs; quest; bounties).
 
+## Phase 28: animation upgrade (v6.9.0)
+- trackEvents: aVar cycles 0..2 per swing; WS start records an.wsStyle = wsStyle(e.lastWSId) (doWS sets a.lastWSId; skill ≥ 75 → 0 leaping slam, ≥ 40 → 1 spin (rootRot[1] 2π), ≥ 22 → 2 three-hit flurry, else 3 stepping lunge). Hits record an.hitSide from e.lastHitAng (applyDamage sets tgt.lastHitAng = angle to the source) relative to facing. KO sets an.deadVar (±1 side); revival sets an.rise.
+- poseHuman: slash variants (0 overhead diagonal, 1 horizontal sweep, 2 rising backhand with step), smash/cleave variant 1 wide horizontal arc. Idle actions for non-mobs standing still out of combat every 9–19 s (look around, stretch, weight shift, scratch head; 2.6 s each). Turn-in-place foot shuffle from facing change rate (normAngA). Cast pose by castSchool(e): heal/buff, song, summon, dark, debuff, elemental. Directional flinch. KO: knees buckle (0.35 s) then fall back with a side tilt; rise: 1.4 s kneel-to-stand.
+- main4 frame loop: while S.ko, S.time still advances (no step) so the KO animation plays under the defeat dialog.
+- p5shots scenes an_heal, an_song, an_summon, an_ws, an_idle, an_ko. (Headless software rendering is very slow under the defeat overlay, so an_ko screenshots catch the fall early.)
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.9.0 | Phase 28: swing/WS/cast variety, idle fidgets, turn shuffle, directional flinch, KO and rise. |
 | 6.8.0 | Phase 27: difficulty-based placement, tiered names/colours, Silkmother, Gorruk, Silk for Sale. |
 | 6.7.0 | Phase 26: orcs, Reefkin, Crag Talons, treants, Needlekin, bombs; ranged mobs. |
 | 6.6.0 | Phase 25: nine critter families with models and animations; rock colliders; camera stays out of houses. |

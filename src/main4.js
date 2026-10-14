@@ -100,7 +100,7 @@ async function boot() {
     const dt = clamp((now - last) / 1000, 0, 0.05);
     last = now;
     if (UI.started && !VIEW.loading) {
-      if (!S.ko) step(dt);
+      if (!S.ko) step(dt); else S.time += dt;
       age(dt);
       draw(dt);
       updateHud(dt);

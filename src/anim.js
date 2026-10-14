@@ -14,16 +14,37 @@ function trackEvents(v, e, dt) {
   const raw = dt > 0 ? Math.min(d / dt, 20) : 0;
   an.spd += (raw - an.spd) * Math.min(1, dt * 10);
   an.ph += d * (Math.PI * 2) / (v.stride || 1.7);
-  if (e.lastSwing !== an.swing) { if (an.swing !== null && S.time - e.lastSwing < 0.3) { an.aStart = e.lastSwing; an.aVar ^= 1; } an.swing = e.lastSwing; }
-  if (e.lastWS !== an.ws) { if (an.ws !== null && S.time - e.lastWS < 0.3) an.wsStart = e.lastWS; an.ws = e.lastWS; }
+  if (e.lastSwing !== an.swing) { if (an.swing !== null && S.time - e.lastSwing < 0.3) { an.aStart = e.lastSwing; an.aVar = (an.aVar + 1) % 3; } an.swing = e.lastSwing; }
+  if (e.lastWS !== an.ws) { if (an.ws !== null && S.time - e.lastWS < 0.3) { an.wsStart = e.lastWS; an.wsStyle = wsStyle(e.lastWSId); } an.ws = e.lastWS; }
   if (e.lastHit !== an.hit) { if (an.hit !== null && S.time - e.lastHit < 0.3) an.hitStart = e.lastHit; an.hit = e.lastHit; }
   if (an.casting && !e.casting) an.relStart = S.time;
   an.casting = !!e.casting;
   if (e.readying && !an.wasReady) an.readyStart = S.time;
   an.wasReady = !!e.readying;
-  if (e.alive === false && an.dead == null) an.dead = S.time;
-  if (e.alive !== false) an.dead = null;
+  if (e.lastHit !== an.hit && e.lastHitAng != null) an.hitSide = Math.sin(e.lastHitAng - (e.face || 0)) > 0 ? 1 : -1;
+  if (e.alive === false && an.dead == null) { an.dead = S.time; an.deadVar = Math.random() < 0.5 ? 1 : -1; }
+  if (e.alive !== false && an.dead != null) { an.dead = null; an.rise = S.time; }
   return an;
+}
+
+function normAngA(a) { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
+
+function wsStyle(id) {
+  if (!id || typeof WEAPON_SKILLS === "undefined" || !WEAPON_SKILLS[id]) return 0;
+  const w = WEAPON_SKILLS[id];
+  return w.skill >= 75 ? 0 : w.skill >= 40 ? 1 : w.skill >= 22 ? 2 : 3;
+}
+
+function castSchool(e) {
+  const sp = e.casting && e.casting.sp;
+  if (!sp) return "elemental";
+  if (sp.kind === "song") return "song";
+  if (sp.kind === "summon") return "summon";
+  if (sp.kind === "heal") return "heal";
+  if (sp.kind === "buff") return "buff";
+  if (sp.skill === "dark") return "dark";
+  if (sp.kind === "debuff" || sp.kind === "dot") return "debuff";
+  return "elemental";
 }
 
 function newPose(v) {
@@ -84,6 +105,31 @@ function poseHuman(v, e, dt) {
   addP(P, "upArmL", 0, 0, 0.09); addP(P, "upArmR", 0, 0, -0.09);
   addP(P, "foreArmL", -0.12, 0, 0); addP(P, "foreArmR", -0.12, 0, 0);
   addP(P, "head", Math.sin(t * 0.37) * 0.05, Math.sin(t * 0.23) * 0.3 * (1 - amp) * (1 - an.fight), 0);
+  const idleOk = amp < 0.05 && an.fight < 0.1 && !e.casting && !e.resting && !e.mounted && e.alive !== false && e.kind !== "mob";
+  if (idleOk) {
+    if (!an.idleNext) an.idleNext = S.time + 6 + Math.random() * 8;
+    if (S.time > an.idleNext && !an.idleAct) { an.idleAct = 1 + Math.floor(Math.random() * 4); an.idleStart = S.time; an.idleNext = S.time + 9 + Math.random() * 10; }
+  } else { an.idleAct = 0; an.idleNext = S.time + 5 + Math.random() * 6; }
+  if (an.idleAct) {
+    const ik = (S.time - an.idleStart) / 2.6;
+    if (ik > 1) an.idleAct = 0;
+    else {
+      const w = env(ik, 0.2, 0.25);
+      if (an.idleAct === 1) { addP(P, "head", 0, 0.9 * Math.sin(ik * Math.PI * 2) * w, 0); addP(P, "chest", 0, 0.25 * Math.sin(ik * Math.PI * 2) * w, 0); }
+      else if (an.idleAct === 2) { setP(P, "upArmL", -2.6, 0, 0.35, w); setP(P, "upArmR", -2.6, 0, -0.35, w); setP(P, "foreArmL", -0.6, 0, 0, w); setP(P, "foreArmR", -0.6, 0, 0, w); addP(P, "spine", -0.18 * w, 0, 0); addP(P, "head", -0.3 * w, 0, 0); }
+      else if (an.idleAct === 3) { addP(P, "hips", 0, 0, 0.08 * w); addP(P, "thighL", 0, 0, 0.1 * w); addP(P, "shinR", 0.25 * w, 0, 0); addP(P, "thighR", -0.1 * w, 0, 0); addP(P, "chest", 0, 0, -0.06 * w); v.rootOff[0] += 0.03 * w; }
+      else { setP(P, "upArmR", -2.3, 0, 0.6, w); setP(P, "foreArmR", -1.9 + Math.sin(S.time * 14) * 0.15, 0, 0, w); addP(P, "head", 0.1 * w, 0, 0.15 * w); }
+    }
+  }
+  if (!an.lastYaw) an.lastYaw = e.face || 0;
+  const dyaw = Math.abs(normAngA((e.face || 0) - an.lastYaw));
+  an.lastYaw = e.face || 0;
+  an.turn = (an.turn || 0) * Math.exp(-dt * 6) + (amp < 0.1 ? Math.min(1, dyaw / Math.max(dt, 0.001) / 3) : 0) * Math.min(1, dt * 8);
+  if (an.turn > 0.05 && !e.mounted && !e.resting) {
+    const sp = Math.sin(t * 14) * an.turn;
+    addP(P, "thighL", -Math.max(0, sp) * 0.35, 0, 0); addP(P, "shinL", Math.max(0, sp) * 0.6, 0, 0);
+    addP(P, "thighR", -Math.max(0, -sp) * 0.35, 0, 0); addP(P, "shinR", Math.max(0, -sp) * 0.6, 0, 0);
+  }
   if (st.hunch) { addP(P, "spine", 0.22, 0, 0); addP(P, "chest", 0.12, 0, 0); addP(P, "head", -0.3, 0, 0); addP(P, "upArmL", -0.25, 0, 0.1); addP(P, "upArmR", -0.25, 0, -0.1); }
   if (st.prowl) { addP(P, "upArmL", -0.6, 0, 0.15); addP(P, "upArmR", -0.6, 0, -0.15); addP(P, "foreArmL", -0.3, 0, 0); addP(P, "foreArmR", -0.3, 0, 0); }
 
@@ -125,12 +171,33 @@ function poseHuman(v, e, dt) {
     const kind = attackKind(v, e);
     const w = Math.min(1, ak / 0.08, (1 - ak) / 0.3);
     const side = an.aVar ? 1 : -1;
-    if (kind === "slash") {
+    if (kind === "slash" && an.aVar === 2) {
+      const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);
+      setP(P, "upArmR", -0.4 * a - 1.6 * b, 0, 0.9 * a - 0.9 * b, w);
+      setP(P, "foreArmR", -1.3 * a + 1.1 * b, 0, 0, w);
+      setP(P, "chest", 0.05, 0.55 * a - 0.8 * b, 0, w);
+      setP(P, "spine", 0.1 * b, 0, 0, w);
+      addP(P, "thighL", -0.3 * b * w, 0, 0); addP(P, "shinL", 0.3 * b * w, 0, 0);
+    } else if (kind === "slash" && an.aVar === 1) {
+      const a = ease(ak / 0.28), b = ease((ak - 0.28) / 0.2);
+      setP(P, "upArmR", -1.3 * a + 0.2 * b, 0, -1.2 * a + 1.7 * b, w);
+      setP(P, "foreArmR", -0.5 * a + 0.3 * b, 0, 0, w);
+      setP(P, "chest", 0, -0.7 * a + 1.1 * b, 0, w);
+      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
+    } else if (kind === "slash") {
       const a = ease(ak / 0.32), b = ease((ak - 0.32) / 0.22);
       setP(P, "upArmR", -2.1 * a + 1.8 * b, 0, -0.55 * a + 1.05 * b, w);
       setP(P, "foreArmR", -1.0 * a + 0.85 * b, 0, 0, w);
       setP(P, "chest", 0.05, -0.5 * a + 0.95 * b, 0, w);
       setP(P, "spine", 0.08 + 0.12 * b, 0, 0, w);
+    } else if ((kind === "smash" || kind === "cleave") && an.aVar === 1) {
+      const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.22);
+      setP(P, "upArmR", -1.4, 0, -1.3 * a + 1.9 * b, w);
+      setP(P, "foreArmR", -0.4, 0, 0, w);
+      if (kind === "cleave") { setP(P, "upArmL", -1.3, 0, -1.1 * a + 1.7 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
+      setP(P, "chest", 0, -0.8 * a + 1.3 * b, 0, w);
+      setP(P, "hips", 0, -0.3 * a + 0.4 * b, 0, w);
+      addP(P, "thighL", -0.25 * w, 0, 0); addP(P, "shinL", 0.35 * w, 0, 0);
     } else if (kind === "smash" || kind === "cleave") {
       const a = ease(ak / 0.36), b = ease((ak - 0.36) / 0.2);
       setP(P, "upArmR", -2.7 * a + 2.4 * b, 0, -0.1, w);
@@ -160,7 +227,33 @@ function poseHuman(v, e, dt) {
   }
 
   const wk = (S.time - an.wsStart) / 1.05;
-  if (wk >= 0 && wk <= 1) {
+  if (wk >= 0 && wk <= 1 && (an.wsStyle === 1 || an.wsStyle === 2 || an.wsStyle === 3)) {
+    sharp = true;
+    const w = Math.min(1, wk / 0.06, (1 - wk) / 0.25);
+    if (an.wsStyle === 1) {
+      const spin = ease((wk - 0.15) / 0.55), wind = ease(wk / 0.15) * (1 - spin);
+      setP(P, "upArmR", -1.5, 0, -1.2 * wind + 0.4, w); setP(P, "foreArmR", -0.3, 0, 0, w);
+      setP(P, "upArmL", -1.2, 0, 0.9, w);
+      setP(P, "thighL", -0.4, 0, 0.2, w); setP(P, "shinL", 0.6, 0, 0, w); setP(P, "thighR", -0.2, 0, -0.25, w); setP(P, "shinR", 0.4, 0, 0, w);
+      v.rootRot[1] += (-0.6 * wind + Math.PI * 2 * spin) * w;
+      v.rootOff[1] += -0.15 * w;
+    } else if (an.wsStyle === 2) {
+      const n = 3, seg = Math.min(n - 1, Math.floor(wk * n * 1.1)), sk = (wk * n * 1.1) % 1;
+      const a = ease(sk / 0.45), b = ease((sk - 0.45) / 0.3), sd = seg % 2 ? 1 : -1;
+      setP(P, "upArmR", -1.9 * a + 1.5 * b, 0, sd * (0.8 * a - 1.2 * b), w);
+      setP(P, "foreArmR", -0.9 * a + 0.7 * b, 0, 0, w);
+      setP(P, "chest", 0, sd * (-0.6 * a + 0.9 * b), 0, w);
+      setP(P, "upArmL", -0.8, 0, 0.4, w);
+      v.rootOff[2] += 0.08 * seg * w;
+    } else {
+      const a = ease(wk / 0.35), b = ease((wk - 0.35) / 0.18);
+      setP(P, "upArmR", -2.9 * a + 2.7 * b, 0, -0.2, w); setP(P, "foreArmR", -0.6 * a + 0.4 * b, 0, 0, w);
+      setP(P, "upArmL", -1.0 * a, 0, 0.6 * a, w);
+      setP(P, "spine", -0.3 * a + 0.6 * b, 0, 0, w);
+      setP(P, "thighL", -0.6 * b, 0, 0, w); setP(P, "shinL", 0.7 * b, 0, 0, w); setP(P, "thighR", 0.3 * b, 0, 0, w);
+      v.rootOff[1] += -0.12 * b * w; v.rootOff[2] += 0.15 * b * w;
+    }
+  } else if (wk >= 0 && wk <= 1) {
     sharp = true;
     const w = Math.min(1, wk / 0.06, (1 - wk) / 0.25);
     const crouch = ease(wk / 0.22) * (1 - ease((wk - 0.22) / 0.12));
@@ -204,11 +297,34 @@ function poseHuman(v, e, dt) {
 
   if (e.casting) {
     const cw = Math.min(1, (S.time - e.casting.start) / 0.25);
-    const bob = Math.sin(t * 7) * 0.08;
-    setP(P, "upArmL", -1.25 + bob, 0, -0.42, cw); setP(P, "upArmR", -1.25 - bob, 0, 0.42, cw);
-    setP(P, "foreArmL", -0.95, 0, 0, cw); setP(P, "foreArmR", -0.95, 0, 0, cw);
-    setP(P, "head", 0.18, 0, 0, cw);
-    setP(P, "spine", 0.04, 0, 0, cw);
+    const bob = Math.sin(t * 7) * 0.08, school = castSchool(e);
+    if (school === "heal" || school === "buff") {
+      setP(P, "upArmL", -1.7 + bob, 0, -0.35, cw); setP(P, "upArmR", -1.7 - bob, 0, 0.35, cw);
+      setP(P, "foreArmL", -0.7, 0, 0, cw); setP(P, "foreArmR", -0.7, 0, 0, cw);
+      setP(P, "head", -0.25, 0, 0, cw); setP(P, "spine", -0.08, 0, 0, cw);
+    } else if (school === "song") {
+      setP(P, "upArmR", -1.2, 0, -0.1, cw); setP(P, "foreArmR", -1.9, 0, 0, cw);
+      setP(P, "upArmL", -0.9 + Math.sin(t * 3) * 0.3, 0, 0.9, cw); setP(P, "foreArmL", -0.4, 0, 0, cw);
+      setP(P, "chest", 0, Math.sin(t * 2.2) * 0.15, Math.sin(t * 2.2) * 0.06, cw); setP(P, "head", -0.15, Math.sin(t * 2.2) * 0.2, 0, cw);
+      v.rootOff[1] += Math.abs(Math.sin(t * 4.4)) * 0.03 * cw;
+    } else if (school === "summon") {
+      setP(P, "upArmL", -2.7 + bob, 0, 0.6, cw); setP(P, "upArmR", -2.7 - bob, 0, -0.6, cw);
+      setP(P, "foreArmL", -0.2, 0, 0, cw); setP(P, "foreArmR", -0.2, 0, 0, cw);
+      setP(P, "head", -0.35, 0, 0, cw); setP(P, "spine", -0.12, 0, 0, cw);
+    } else if (school === "dark") {
+      setP(P, "upArmL", -0.6, 0, -0.5, cw); setP(P, "upArmR", -0.6, 0, 0.5, cw);
+      setP(P, "foreArmL", -1.5 + bob, 0, 0, cw); setP(P, "foreArmR", -1.5 - bob, 0, 0, cw);
+      setP(P, "spine", 0.3, 0, 0, cw); setP(P, "head", 0.25, 0, 0, cw);
+    } else if (school === "debuff") {
+      setP(P, "upArmR", -1.55, 0, 0.1, cw); setP(P, "foreArmR", -0.15 + bob, 0, 0, cw);
+      setP(P, "upArmL", -0.5, 0, 0.3, cw); setP(P, "foreArmL", -1.3, 0, 0, cw);
+      setP(P, "chest", 0, -0.35, 0, cw); setP(P, "head", 0.05, 0.3, 0, cw);
+    } else {
+      setP(P, "upArmL", -1.25 + bob, 0, -0.42, cw); setP(P, "upArmR", -1.25 - bob, 0, 0.42, cw);
+      setP(P, "foreArmL", -0.95, 0, 0, cw); setP(P, "foreArmR", -0.95, 0, 0, cw);
+      setP(P, "head", 0.18, 0, 0, cw);
+      setP(P, "spine", 0.04, 0, 0, cw);
+    }
     v.rootOff[1] += Math.sin(t * 3.5) * 0.015 * cw;
   }
   const rk = (S.time - an.relStart) / 0.45;
@@ -227,10 +343,11 @@ function poseHuman(v, e, dt) {
 
   const hk = (S.time - an.hitStart) / 0.32;
   if (hk >= 0 && hk <= 1) {
-    const w = env(hk, 0.12, 0.7);
-    addP(P, "spine", -0.32 * w, 0, 0); addP(P, "head", -0.25 * w, 0, 0);
+    const w = env(hk, 0.12, 0.7), hs = an.hitSide || 0;
+    addP(P, "spine", -0.32 * w, -0.25 * hs * w, -0.12 * hs * w); addP(P, "head", -0.25 * w, -0.3 * hs * w, 0);
     addP(P, "upArmL", 0.35 * w, 0, 0.2 * w); addP(P, "upArmR", 0.35 * w, 0, -0.2 * w);
-    v.rootOff[2] -= 0.06 * w;
+    addP(P, "chest", 0, -0.2 * hs * w, 0);
+    v.rootOff[2] -= 0.06 * w; v.rootOff[0] -= 0.04 * hs * w;
   }
 
   const sitT = e.resting && e.alive !== false && !e.mounted ? 1 : 0;
@@ -271,13 +388,23 @@ function poseHuman(v, e, dt) {
     addP(P, "tail2", -0.25 - run * 0.2, wag, 0);
   }
   if (an.dead != null) {
-    const k = ease((S.time - an.dead) / 0.6);
+    const k = ease((S.time - an.dead) / 0.9), kn = ease((S.time - an.dead) / 0.35), sd = an.deadVar || 1;
     for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; }
+    addP(P, "thighL", -0.9 * kn * (1 - k) - 0.2 * k, 0, 0.15 * k); addP(P, "thighR", -0.6 * kn * (1 - k), 0, -0.1 * k);
+    addP(P, "shinL", 1.4 * kn * (1 - k), 0, 0); addP(P, "shinR", 1.1 * kn * (1 - k), 0, 0);
     addP(P, "upArmL", 0, 0, 1.1 * k); addP(P, "upArmR", 0, 0, -1.1 * k);
-    addP(P, "thighL", -0.2 * k, 0, 0.15 * k); addP(P, "thighR", 0, 0, -0.1 * k);
-    addP(P, "head", -0.25 * k, 0.5 * k, 0);
-    v.rootRot[0] = -1.5 * k;
-    v.rootOff[0] = 0; v.rootOff[1] = 0.14 * k; v.rootOff[2] = 0;
+    addP(P, "head", -0.25 * k, 0.5 * k * sd, 0);
+    v.rootRot[0] = -1.5 * k; v.rootRot[2] = 0.15 * sd * k;
+    v.rootOff[0] = 0; v.rootOff[1] = 0.14 * k - 0.35 * kn * (1 - k); v.rootOff[2] = 0;
+    sharp = false;
+  } else if (an.rise != null && S.time - an.rise < 1.4) {
+    const rk = (S.time - an.rise) / 1.4, up = ease(rk), kneel = Math.sin(Math.PI * Math.min(1, rk * 1.2));
+    setP(P, "thighL", -1.1 * kneel, 0, 0.1, 1); setP(P, "shinL", 1.6 * kneel, 0, 0, 1);
+    setP(P, "thighR", -0.3 * kneel, 0, -0.1, 1); setP(P, "shinR", 1.9 * kneel, 0, 0, 1);
+    setP(P, "spine", 0.4 * kneel, 0, 0, 1); setP(P, "head", 0.3 * kneel, 0, 0, 1);
+    setP(P, "upArmL", -0.4 * kneel, 0, 0.3, 1); setP(P, "upArmR", 0.2 * kneel, 0, -0.3, 1);
+    v.rootRot[0] = -1.5 * (1 - ease(rk / 0.35));
+    v.rootOff[1] = -0.45 * kneel;
     sharp = false;
   }
   applyPose(v, dt, sharp);
