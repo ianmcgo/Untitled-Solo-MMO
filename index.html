@@ -522,7 +522,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.5.1 · built 2026-10-13 17:32 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">UNTITLED SOLO RPG</div><div id="ldSub">A frontier tale</div><div id="ldVer">v6.6.0 · built 2026-10-13 17:42 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5720,6 +5720,14 @@ const ITEMS = {
   frost_ring: { name: "Frost Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 18, rare: true, nm: true, stats: { hp: 30, mp: 30, int: 3, str: 3 }, desc: "Cold to the touch, always." },
   wight_shroud: { name: "Wight's Shroud", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 19, rare: true, nm: true, rarity: "epic", stats: { def: 20, hp: 45, mp: 45, eva: 8, int: 3, mnd: 3 }, desc: "It weighs nothing at all." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
+  honeycomb: { name: "Honeycomb", kind: "mat", icon: "🍯", price: 28, stack: 12, desc: "Sweet comb cut from a hive. Cooks and alchemists want it." },
+  wool_tuft: { name: "Wool Tuft", kind: "mat", icon: "🧶", price: 22, stack: 12, desc: "Soft sheep's wool. Spins into cloth." },
+  lizard_skin: { name: "Lizard Skin", kind: "mat", icon: "🦎", price: 45, stack: 12, desc: "Tough scaled hide. Good for boots and gloves." },
+  crab_shell: { name: "Crab Shell", kind: "mat", icon: "🦀", price: 40, stack: 12, desc: "A hard plate of shell. Smiths use it like light armor." },
+  crawler_cocoon: { name: "Crawler Cocoon", kind: "mat", icon: "🧵", price: 50, stack: 12, desc: "A bundle of crawler silk. Prized by weavers." },
+  mandrake_leaf: { name: "Mandrake Leaf", kind: "mat", icon: "🍃", price: 24, stack: 12, desc: "A fragrant leaf from a mandrake's crown. Soothing when steeped." },
+  spore_cap: { name: "Spore Cap", kind: "mat", icon: "🍄", price: 36, stack: 12, desc: "A dried mushroom cap, dusty with spores. Alchemists are careful with it." },
+  longneck_hide: { name: "Longneck Hide", kind: "mat", icon: "🟫", price: 90, stack: 6, desc: "A broad, supple hide. Enough for a whole coat." },
   mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
   iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
   iron_sword_hq: { name: "Iron Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 11, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 1800, stats: { acc: 3, att: 3 } },
@@ -5868,6 +5876,15 @@ const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, 
 
 const FAMILIES = {
   goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
+  honey_bee: { name: "Honey Bee", color: "#f2c230", radius: 10, hpMul: 0.55, attMul: 0.85, defMul: 0.75, eva: 10, delay: 2.2, speed: 135, aggro: null, link: true, linkGroup: "bees", tpMove: { name: "Final Sting", mul: 2.2 }, weak: { ice: 1.2 }, loot: [["honeycomb", 0.4], ["wind_crystal", 0.2], ["potion", 0.05]], model: "bee", tint: 0xf2c230, tint2: 0x2a2218, scale: 1.15 },
+  grass_crawler: { name: "Grass Crawler", color: "#7fb04a", radius: 14, hpMul: 0.9, attMul: 0.8, defMul: 1.1, eva: 2, delay: 3.4, speed: 70, aggro: null, link: false, tpMove: { name: "Sticky Thread", mul: 1.3, slow: true }, weak: { fire: 1.3 }, loot: [["crawler_cocoon", 0.3], ["worm_silk", 0.25], ["earth_crystal", 0.2], ["potion", 0.05]], model: "crawler", tint: 0x7fb04a },
+  meadow_sheep: { name: "Meadow Sheep", color: "#e8e2d6", radius: 15, hpMul: 0.9, attMul: 0.8, defMul: 0.9, eva: 2, delay: 3.0, speed: 100, aggro: null, link: true, linkGroup: "sheep", tpMove: { name: "Rampant Butt", mul: 1.7 }, weak: { fire: 1.1 }, loot: [["wool_tuft", 0.45], ["earth_crystal", 0.2], ["healing_herb", 0.15]], model: "sheep", tint: 0xd8cfc0 },
+  hill_lizard: { name: "Hill Lizard", color: "#8a9a4a", radius: 14, hpMul: 1.0, attMul: 1.0, defMul: 1.0, eva: 6, delay: 2.9, speed: 110, aggro: null, link: false, tpMove: { name: "Tail Whip", mul: 1.6, aoe: 60 }, weak: { ice: 1.2 }, loot: [["lizard_skin", 0.35], ["fire_crystal", 0.2], ["potion", 0.06]], model: "lizard", tint: 0x8a9a4a, tint2: 0xd8d4a0, scale: 1.3 },
+  pond_crab: { name: "Pond Crab", color: "#b86a4a", radius: 14, hpMul: 1.0, attMul: 0.9, defMul: 1.3, eva: 0, delay: 3.2, speed: 80, aggro: null, link: false, tpMove: { name: "Big Pinch", mul: 1.8 }, weak: { lightning: 1.3 }, loot: [["crab_shell", 0.35], ["water_crystal", 0.25], ["potion", 0.05]], model: "crab", tint: 0xb86a4a },
+  mandrake: { name: "Mandrake", color: "#d8b46a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.5, speed: 125, aggro: null, link: true, linkGroup: "mandrake", tpMove: { name: "Dream Dust", mul: 1.2, sleepy: true }, weak: { fire: 1.3 }, loot: [["mandrake_leaf", 0.4], ["healing_herb", 0.25], ["earth_crystal", 0.15]], model: "mandrake", tint: 0xd8b46a, tint2: 0x5aa84a },
+  shroomling: { name: "Shroomling", color: "#c8b8a0", radius: 13, hpMul: 1.1, attMul: 0.9, defMul: 1.0, eva: 0, delay: 3.3, speed: 60, int: 7, aggro: null, link: false, tpMove: { name: "Spore Cloud", mul: 1.1, aoe: 70 }, weak: { fire: 1.4 }, loot: [["spore_cap", 0.35], ["water_crystal", 0.2], ["ether", 0.05]], model: "shroom", tint: 0xd8c8b0, tint2: 0xb04a3a },
+  lake_snapper: { name: "Lake Snapper", color: "#5a8ab0", radius: 12, hpMul: 0.9, attMul: 1.05, defMul: 0.9, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Snapjaw", mul: 1.9 }, weak: { lightning: 1.3 }, loot: [["moat_carp", 0.3], ["water_crystal", 0.25], ["potion", 0.05]], model: "fish", tint: 0x5a8ab0 },
+  longneck: { name: "Marsh Longneck", color: "#b09070", radius: 20, hpMul: 1.8, attMul: 1.1, defMul: 1.1, eva: 2, delay: 3.6, speed: 105, aggro: null, link: false, tpMove: { name: "Stomp", mul: 1.9, aoe: 80 }, weak: { lightning: 1.2 }, loot: [["longneck_hide", 0.35], ["earth_crystal", 0.3], ["hi_potion", 0.06]], model: "longneck", tint: 0xb09070 },
   bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: { sound: 110 }, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["egg_batling", 0.004], ["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05]], model: "bat" },
   worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["egg_wormlet", 0.004], ["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
   ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05]], model: "ghoul" },
@@ -5968,6 +5985,10 @@ const ZONES = {
       { id: "egate", name: "Eastern Gate", x: 3000, y: 1080, r: 170, xp: 40 }
     ],
     spawns: [
+      { fam: "honey_bee", lv: [1, 2], x: 300, y: 1050, time: "day" }, { fam: "honey_bee", lv: [1, 2], x: 340, y: 1080, time: "day" }, { fam: "grass_crawler", lv: [1, 3], x: 520, y: 1600 }, { fam: "grass_crawler", lv: [2, 3], x: 470, y: 1650 }, { fam: "grass_crawler", lv: [2, 4], x: 900, y: 1500 },
+      { fam: "meadow_sheep", lv: [1, 2], x: 250, y: 1400, time: "day" }, { fam: "meadow_sheep", lv: [1, 3], x: 300, y: 1450, time: "day" }, { fam: "mandrake", lv: [2, 3], x: 650, y: 1000, time: "day" }, { fam: "mandrake", lv: [2, 4], x: 700, y: 1040, time: "day" },
+      { fam: "hill_lizard", lv: [4, 5], x: 1500, y: 1500 }, { fam: "hill_lizard", lv: [4, 6], x: 1850, y: 1100 }, { fam: "pond_crab", lv: [3, 5], x: 1150, y: 850 }, { fam: "pond_crab", lv: [4, 5], x: 1950, y: 1620 },
+      { fam: "shroomling", lv: [4, 6], x: 2050, y: 1900 }, { fam: "shroomling", lv: [5, 6], x: 2150, y: 1950, time: "night" }, { fam: "lake_snapper", lv: [3, 5], x: 1120, y: 500 }, { fam: "honey_bee", lv: [3, 4], x: 1050, y: 1250, time: "day" }, { fam: "grass_crawler", lv: [4, 5], x: 1600, y: 1750 },
       { fam: "hare", lv: [1, 2], x: 350, y: 1300, time: "day" }, { fam: "hare", lv: [1, 2], x: 620, y: 1450, time: "day" }, { fam: "hare", lv: [1, 2], x: 420, y: 800, time: "day" },
       { fam: "worm", lv: [1, 2], x: 700, y: 1250 }, { fam: "worm", lv: [1, 2], x: 300, y: 1700 }, { fam: "worm", lv: [2, 2], x: 600, y: 420 },
       { fam: "goblin", lv: [1, 2], x: 750, y: 800 }, { fam: "goblin", lv: [1, 2], x: 500, y: 1800 }, { fam: "goblin", lv: [1, 1], x: 420, y: 950 },
@@ -6166,6 +6187,7 @@ ZONES.marsh = {
     { id: "chapel", name: "Drowned Chapel", x: 600, y: 1960, r: 230, xp: 200 }
   ],
   spawns: [
+    { fam: "longneck", lv: [11, 13], x: 1500, y: 1500, time: "day" }, { fam: "longneck", lv: [12, 13], x: 1700, y: 1600, time: "day" },
     { fam: "marsh_hare", lv: [9, 10], x: 1250, y: 330, time: "day" }, { fam: "marsh_hare", lv: [9, 10], x: 1650, y: 420, time: "day" }, { fam: "marsh_hare", lv: [10, 11], x: 1000, y: 900, time: "day" },
     { fam: "bog_toad", lv: [9, 10], x: 1100, y: 450 }, { fam: "bog_toad", lv: [9, 10], x: 1600, y: 600 }, { fam: "bog_toad", lv: [10, 11], x: 800, y: 700 },
     { fam: "bog_toad", lv: [10, 11], x: 700, y: 1200 }, { fam: "bog_toad", lv: [11, 12], x: 1000, y: 1500 }, { fam: "bog_toad", lv: [11, 12], x: 650, y: 1550, nm: { id: "old_croaker", lv: 15, chance: 0.15, time: "day" } },
@@ -6355,6 +6377,15 @@ const BESTIARY = {
   chieftain: { type: "Beastman", lore: "The warlord of the Goblin Den. He rules by out-shouting, out-eating and out-fighting everyone around him." },
   bat: { type: "Vermin", lore: "Leathery wings and keen ears. They hunt by sound, so slow footsteps are your friend in the dark." },
   worm: { type: "Amorphous", lore: "Burrowers that feel the hum of magic through the soil. They spit grit that stings the eyes." },
+  honey_bee: { type: "Vermin", lore: "Fat yellow bees that drone over the meadow flowers. Harmless until one is swatted; then the hive comes." },
+  grass_crawler: { type: "Vermin", lore: "Plump green caterpillars as long as a man is tall. They spit sticky thread that slows you down, and never start a fight." },
+  meadow_sheep: { type: "Beast", lore: "Woolly and placid. The flock will charge if you bother one of them." },
+  hill_lizard: { type: "Lizard", lore: "Sun-warmed lizards that bask on the rocks. A whip of the tail knocks the wind out of anyone close." },
+  pond_crab: { type: "Aquan", lore: "Hard-shelled crabs that scuttle sideways along the lakeshore. Their pinch is worse than their bite." },
+  mandrake: { type: "Plantoid", lore: "Root-folk with a crown of leaves. They hop about in little gangs and scatter sleepy dust when cornered." },
+  shroomling: { type: "Plantoid", lore: "Walking mushrooms that bob along the damp ground. Their spore cloud stings the eyes." },
+  lake_snapper: { type: "Aquan", lore: "Long-jawed fish that leap from the lakes to snap at passers-by. They tire quickly out of the water." },
+  longneck: { type: "Beast", lore: "Tall, gentle grazers of the marsh. Peaceful, but a stomp from one will flatten you." },
   hare: { type: "Beast", lore: "Skittish meadow hares. Harmless unless you start it, though a frightened kick can still bruise." },
   skeleton: { type: "Undead", lore: "Bones that walk after dusk. They hear the living move and sense when a body grows weak." },
   ghoul: { type: "Undead", lore: "Hungry dead who drain the life of anything they claw. Light and fire hurt them most." },
@@ -8955,6 +8986,8 @@ function execTpMove(m) {
     ring(tg, "#ff7043", mv.aoe || 30, 0.6, "burst");
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
     applyDamage(m, tg, total, { color: "#ff8a80", size: 22 });
+    if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
+    if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
     if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
   }
   S.shake = Math.max(S.shake, 0.2);
@@ -12829,13 +12862,19 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v6.5.1 · built 2026-10-13 17:32 PDT";
+const BUILD_INFO = "v6.6.0 · built 2026-10-13 17:42 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "6.6.0", date: "2026-10-13", title: "New critters", items: [
+    "Nine new monster families with their own models and animations: Honey Bees, Grass Crawlers, Meadow Sheep, Mandrakes, Hill Lizards, Pond Crabs, Shroomlings and Lake Snappers in Rocky Hollow, and Marsh Longnecks in the Ashen Marsh.",
+    "All of them are peaceful until attacked. Bees, sheep and mandrakes defend each other. Crawlers spit Sticky Thread (slow); mandrakes scatter Dream Dust (companions may doze off); lizards whip their tails; shroomlings puff a Spore Cloud; longnecks stomp.",
+    "New materials: Honeycomb, Wool Tuft, Lizard Skin, Crab Shell, Crawler Cocoon, Mandrake Leaf, Spore Cap and Longneck Hide, plus bestiary entries for all nine.",
+    "Boulders now block movement, and the camera no longer passes inside houses when you're outside."
   ] },
   { v: "6.5.1", date: "2026-10-13", title: "Pet and discovery changes", items: [
     "Pets no longer give any bonuses; they're companions only.",
@@ -13109,6 +13148,7 @@ function tabHelp() {
     "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Debuffs:</b> Slow makes a monster swing 25% slower, Paralyze makes it lose some swings, Flash cuts its accuracy by 40%. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
+    "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Sticky Thread slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",
     "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
   ]));
   h += sec("🐾 Pets", ul([
@@ -13162,7 +13202,7 @@ function tabHelp() {
   ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, consumables and (only while you carry the <b>City Blessing</b>) elemental essences; gear comes from NMs, quests and Pell's shop.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, auction house, home point"],
-    ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs"],
+    ["Rocky Hollow", "1–6", "Meadow, two lakes, Old Fort Ruins, Goblin Camp, Burrow Flats, 3 NMs. Bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, shroomlings and snappers further in"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
     ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), Selene (auction house), home point, trade board, docks"],
@@ -13303,7 +13343,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "6.5.1";
+const GAME_VERSION = "6.6.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -13950,7 +13990,9 @@ function buildVegetation(field, root) {
     if (e < -120 || e > 600 || field.exitMask(px, py) > 0.3) continue;
     if (!placeable(field, px, py, { water: 30 })) continue;
     const s = 0.8 + rnd() * 2.6;
-    rocks.push(mtx(px * U, field.heightAt(px, py) - s * 0.25, py * U, s * (0.8 + rnd() * 0.6), s * (0.5 + rnd() * 0.5), s * (0.8 + rnd() * 0.6), rnd() * 6.28, rnd() * 0.3));
+    const rsx = s * (0.8 + rnd() * 0.6), rsy = s * (0.5 + rnd() * 0.5), rsz = s * (0.8 + rnd() * 0.6);
+    rocks.push(mtx(px * U, field.heightAt(px, py) - s * 0.25, py * U, rsx, rsy, rsz, rnd() * 6.28, rnd() * 0.3));
+    if (s > 1.3) z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.8 / U * 1.0 });
     k++;
   }
   for (let k = 0, tries = 0; k < want.small && tries < want.small * 20; tries++) {
@@ -15594,6 +15636,207 @@ function wispEntry(col, eye) {
   return R.finish();
 }
 
+function beeEntry(col, col2) {
+  const R = new RigBuilder();
+  const Y = 0.95;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y + 0.02, 0.2);
+  R.bone("tail", "body", 0, Y - 0.02, -0.2);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("wing" + sd, "body", s * 0.06, Y + 0.12, 0.02); R.bone("wing2" + sd, "body", s * 0.05, Y + 0.11, -0.08); }
+  const dark = 0x2a2218, light = new THREE.Color(col).lerp(new THREE.Color(0xffffff), 0.3).getHex();
+  R.add(gBall(V3(0, Y, 0.02), 0.16, 1, 0.9, 1.1, 14), "body", col, "fur");
+  R.add(gBall(V3(0, Y - 0.02, -0.22), 0.19, 1, 0.9, 1.35, 14), "tail", col2 || dark, "fur");
+  for (let i = 0; i < 3; i++) R.add(gRing(V3(0, Y - 0.02, -0.12 - i * 0.1), 0.17 - i * 0.03, 0.02, "z", 16), "tail", i % 2 ? col : dark, "fur");
+  R.add(gTaper(V3(0, Y - 0.04, -0.44), V3(0, Y - 0.06, -0.58), 0.03, 0.003, 6), "tail", dark, "bone");
+  R.add(gBall(V3(0, Y + 0.02, 0.24), 0.11, 1, 0.95, 0.9, 12), "head", dark, "fur");
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gBall(V3(s * 0.07, Y + 0.05, 0.3), 0.045, 1, 1.3, 0.8, 8), "head", 0x8a1a1a, "glow", true);
+    R.add(gTaper(V3(s * 0.03, Y + 0.11, 0.28), V3(s * 0.12, Y + 0.3, 0.34), 0.012, 0.004, 5), "head", dark, "bone");
+    R.add(gMembrane([[0.04, 0.08], [0.55, 0.14], [0.62, 0.0], [0.4, -0.1], [0.06, -0.06]].map(([x, z]) => [s * x, z]), Y + 0.12), "wing" + sd, 0xe8f4ff, "glow");
+    R.add(gMembrane([[0.03, 0.0], [0.4, -0.02], [0.45, -0.14], [0.25, -0.2], [0.05, -0.12]].map(([x, z]) => [s * x, z]), Y + 0.11), "wing2" + sd, 0xe8f4ff, "glow");
+    for (let k = 0; k < 3; k++) R.add(gTaper(V3(s * 0.1, Y - 0.08, 0.12 - k * 0.1), V3(s * 0.2, Y - 0.24, 0.1 - k * 0.1), 0.012, 0.004, 5), "body", dark, "bone");
+  }
+  R.meta = { kind: "bee", headTop: Y + 0.35 };
+  return R.finish();
+}
+
+function crawlerEntry(col, col2) {
+  const R = new RigBuilder();
+  const n = 6, Y = 0.22;
+  const zs = []; for (let i = 0; i < n; i++) zs.push(-0.75 + i * 0.3);
+  R.bone("root", null, 0, 0, 0);
+  for (let i = 0; i < n; i++) R.bone("t" + i, i ? "t" + (i - 1) : "root", 0, Y, zs[i]);
+  R.bone("head", "t" + (n - 1), 0, Y + 0.02, zs[n - 1] + 0.22);
+  const c = new THREE.Color(col), dark = c.clone().multiplyScalar(0.55).getHex(), belly = col2 || c.clone().lerp(new THREE.Color(0xf0e4b0), 0.5).getHex();
+  for (let i = 0; i < n; i++) {
+    const r = 0.17 + 0.02 * Math.sin(i / (n - 1) * Math.PI);
+    R.add(gBall(V3(0, Y + 0.02, zs[i]), r, 1.05, 0.9, 1.0, 12), "t" + i, col, "scale");
+    R.add(gBall(V3(0, Y - 0.05, zs[i]), r * 0.8, 1, 0.55, 0.9, 10), "t" + i, belly, "skin");
+    R.add(gRing(V3(0, Y + 0.02, zs[i] + 0.14), r * 0.95, 0.018, "z", 16), "t" + i, dark, "scale");
+    for (const s of [-1, 1]) { R.add(gTaper(V3(s * 0.12, Y - 0.06, zs[i]), V3(s * 0.22, Y - 0.2, zs[i] + 0.02), 0.03, 0.012, 5), "t" + i, dark, "skin"); R.add(gBall(V3(s * 0.22, Y - 0.21, zs[i] + 0.02), 0.03, 1, 0.6, 1, 6), "t" + i, dark, "skin"); }
+    if (i % 2) R.add(gTaper(V3(0, Y + 0.17, zs[i]), V3(0, Y + 0.3, zs[i] - 0.04), 0.03, 0.004, 5), "t" + i, dark, "bone");
+  }
+  const hz = zs[n - 1] + 0.22;
+  R.add(gBall(V3(0, Y + 0.02, hz), 0.17, 1.1, 0.95, 1.05, 12), "head", dark, "scale");
+  for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * 0.09, Y + 0.08, hz + 0.12), 0.05, 1, 1.2, 0.8, 8), "head", 0xffb300, "glow", true);
+    R.add(gTaper(V3(s * 0.08, Y - 0.02, hz + 0.14), V3(s * 0.04, Y - 0.06, hz + 0.3), 0.03, 0.004, 5), "head", 0xf0e8d0, "bone");
+    R.add(gTaper(V3(s * 0.05, Y + 0.14, hz + 0.08), V3(s * 0.18, Y + 0.34, hz + 0.16), 0.012, 0.003, 5), "head", dark, "bone");
+  }
+  R.meta = { kind: "crawler", headTop: 0.55 };
+  return R.finish();
+}
+
+function quadEntry(o) {
+  const R = new RigBuilder();
+  const L = o.leg, B = o.bodyY, bl = o.bodyLen;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, B, 0);
+  R.bone("neck", "body", 0, B + o.neckUp * 0.3, bl * 0.45);
+  R.bone("head", "neck", 0, B + o.neckUp, bl * 0.45 + o.neckFwd);
+  R.bone("tail", "body", 0, B, -bl * 0.5);
+  R.bone("tail2", "tail", 0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
+    R.bone("legF" + sd, "body", s * o.hip, B - 0.02, bl * 0.32);
+    R.bone("shinF" + sd, "legF" + sd, s * o.hip, B - L * 0.5, bl * 0.32);
+    R.bone("legB" + sd, "body", s * o.hip, B - 0.02, -bl * 0.32);
+    R.bone("shinB" + sd, "legB" + sd, s * o.hip, B - L * 0.5, -bl * 0.32);
+  }
+  const col = o.col, reg = o.region || "fur", dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), light = o.belly || new THREE.Color(col).lerp(new THREE.Color(0xf2ede4), 0.45).getHex();
+  R.add(gBall(V3(0, B, 0), o.bodyR, 1, o.bodyH || 0.95, bl / o.bodyR * 0.5, 16), "body", col, reg);
+  if (o.wool) for (let k = 0; k < 10; k++) { const a = k * 2.4; R.add(gBall(V3(Math.sin(a) * o.bodyR * 0.7, B + o.bodyR * 0.45 + (k % 2) * 0.05, Math.cos(a) * bl * 0.4), o.bodyR * 0.45, 1, 0.9, 1, 8), "body", light, "fur"); }
+  R.add(gBall(V3(0, B - o.bodyR * 0.25, 0), o.bodyR * 0.85, 0.95, 0.7, bl / o.bodyR * 0.45, 12), "body", light, reg);
+  R.add(gTaper(V3(0, B + o.neckUp * 0.2, bl * 0.42), V3(0, B + o.neckUp, bl * 0.45 + o.neckFwd), o.neckR, o.neckR * 0.8, 8), "neck", col, reg);
+  const hy = B + o.neckUp, hz = bl * 0.45 + o.neckFwd;
+  R.add(gBall(V3(0, hy, hz + 0.04), o.headR, 1, 0.95, 1.25, 12), "head", col, reg);
+  R.add(gBall(V3(0, hy - o.headR * 0.15, hz + o.headR * 1.1), o.headR * 0.55, 1, 0.75, 0.9, 8), "head", light, reg);
+  for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * o.headR * 0.6, hy + o.headR * 0.2, hz + o.headR * 0.7), o.headR * 0.17, 1, 1, 0.7, 6), "head", o.eye || 0x111111, o.eyeGlow ? "glow" : "plain", !!o.eyeGlow);
+    if (o.ears) R.add(gBall(V3(s * o.headR * 0.8, hy + o.headR * 0.6, hz - 0.02), o.headR * 0.25, 0.5, o.ears, 0.4, 6), "head", col, reg);
+    if (o.horns) R.add(gTaper(V3(s * o.headR * 0.5, hy + o.headR * 0.7, hz - 0.02), V3(s * o.headR * 1.2, hy + o.headR * 0.5, hz - 0.2), o.headR * 0.18, 0.006, 6), "head", 0xd8ccb0, "bone");
+    const sd = s > 0 ? "L" : "R";
+    for (const [p, zz] of [["F", bl * 0.32], ["B", -bl * 0.32]]) {
+      R.add(gTaper(V3(s * o.hip, B - 0.02, zz), V3(s * o.hip * 1.05, B - L * 0.5, zz), o.legR, o.legR * 0.8, 7), "leg" + p + sd, col, reg);
+      R.add(gTaper(V3(s * o.hip * 1.05, B - L * 0.5, zz), V3(s * o.hip * 1.05, 0.03, zz + 0.02), o.legR * 0.8, o.legR * 0.6, 7), "shin" + p + sd, col, reg);
+      R.add(gBall(V3(s * o.hip * 1.05, 0.03, zz + 0.03), o.legR * 0.95, 1.1, 0.5, 1.3, 7), "shin" + p + sd, dark, o.hoof ? "bone" : reg);
+    }
+  }
+  if (o.tailLen > 0) {
+    R.add(gTaper(V3(0, B, -bl * 0.5), V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), o.tailR, o.tailR * 0.7, 7), "tail", col, reg);
+    R.add(gTaper(V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), V3(0, B - o.tailDrop, -bl * 0.5 - o.tailLen), o.tailR * 0.7, o.tailR * 0.2, 7), "tail2", col, reg);
+  }
+  if (o.spines) for (let k = 0; k < o.spines; k++) R.add(gTaper(V3(0, B + o.bodyR * 0.85, bl * 0.35 - k * (bl * 0.7 / o.spines)), V3(0, B + o.bodyR * 0.85 + 0.12, bl * 0.35 - k * (bl * 0.7 / o.spines) - 0.04), 0.03, 0.004, 5), "body", dark, "bone");
+  R.meta = { kind: "quad", headTop: hy + o.headR * 1.4, quad: { stride: o.stride || 1.2, hop: !!o.hop } };
+  return R.finish();
+}
+
+function sheepEntry(col) { return quadEntry({ col, belly: 0xf4f0e6, bodyY: 0.5, bodyR: 0.3, bodyLen: 0.8, leg: 0.42, hip: 0.14, legR: 0.045, neckUp: 0.1, neckFwd: 0.18, neckR: 0.09, headR: 0.13, ears: 1.4, hoof: true, wool: true, tailLen: 0.1, tailDrop: 0.05, tailR: 0.05, stride: 1.1 }); }
+function lizardEntry(col, belly) { return quadEntry({ col, belly, region: "scale", bodyY: 0.22, bodyR: 0.18, bodyLen: 0.7, leg: 0.2, hip: 0.22, legR: 0.045, neckUp: 0.04, neckFwd: 0.22, neckR: 0.1, headR: 0.13, eye: 0xffd54f, eyeGlow: true, tailLen: 0.7, tailDrop: 0.1, tailR: 0.1, spines: 5, stride: 0.9 }); }
+function longneckEntry(col) { return quadEntry({ col, bodyY: 1.3, bodyR: 0.45, bodyLen: 1.5, leg: 1.1, hip: 0.22, legR: 0.08, neckUp: 1.0, neckFwd: 0.5, neckR: 0.13, headR: 0.17, ears: 1.2, hoof: true, tailLen: 0.5, tailDrop: 0.3, tailR: 0.08, stride: 2.4 }); }
+
+function crabEntry(col, col2) {
+  const R = new RigBuilder();
+  const Y = 0.22;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
+    R.bone("arm" + sd, "body", s * 0.25, Y, 0.18);
+    R.bone("claw" + sd, "arm" + sd, s * 0.42, Y + 0.02, 0.32);
+    for (let k = 0; k < 4; k++) R.bone("leg" + sd + k, "body", s * 0.28, Y - 0.02, 0.1 - k * 0.1);
+  }
+  const dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), under = col2 || new THREE.Color(col).lerp(new THREE.Color(0xf0dcc0), 0.5).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.34, 1, 0.5, 0.8, 16), "body", col, "scale");
+  R.add(gBall(V3(0, Y - 0.06, 0), 0.3, 0.95, 0.4, 0.75, 12), "body", under, "skin");
+  for (let k = 0; k < 5; k++) R.add(gBall(V3(-0.24 + k * 0.12, Y + 0.14, 0.16), 0.035, 1, 0.8, 1, 6), "body", dark, "scale");
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gTaper(V3(s * 0.06, Y + 0.1, 0.24), V3(s * 0.07, Y + 0.24, 0.26), 0.02, 0.03, 6), "body", dark, "bone");
+    R.add(gBall(V3(s * 0.07, Y + 0.25, 0.26), 0.04, 1, 1, 1, 6), "body", 0x111111, "plain");
+    R.add(gTaper(V3(s * 0.25, Y, 0.18), V3(s * 0.42, Y + 0.02, 0.32), 0.055, 0.05, 7), "arm" + sd, col, "scale");
+    R.add(gBall(V3(s * 0.48, Y + 0.02, 0.38), 0.11, 1.4, 0.7, 1.1, 10), "claw" + sd, col, "scale");
+    R.add(gTaper(V3(s * 0.52, Y + 0.06, 0.44), V3(s * 0.58, Y + 0.08, 0.62), 0.045, 0.006, 6), "claw" + sd, dark, "bone");
+    R.add(gTaper(V3(s * 0.52, Y - 0.02, 0.44), V3(s * 0.56, Y - 0.04, 0.6), 0.04, 0.006, 6), "claw" + sd, dark, "bone");
+    for (let k = 0; k < 4; k++) {
+      const z = 0.1 - k * 0.1;
+      R.add(gTaper(V3(s * 0.28, Y - 0.02, z), V3(s * 0.5, Y + 0.08, z - 0.03), 0.03, 0.022, 6), "leg" + sd + k, col, "scale");
+      R.add(gTaper(V3(s * 0.5, Y + 0.08, z - 0.03), V3(s * 0.6, 0.02, z - 0.06), 0.022, 0.006, 6), "leg" + sd + k, dark, "scale");
+    }
+  }
+  R.meta = { kind: "crab", headTop: 0.5 };
+  return R.finish();
+}
+
+function mandrakeEntry(col, leaf) {
+  const R = new RigBuilder();
+  const Y = 0.32;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y + 0.3, 0);
+  R.bone("leaf", "head", 0, Y + 0.5, -0.02);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("arm" + sd, "body", s * 0.17, Y + 0.08, 0.02); R.bone("leg" + sd, "body", s * 0.09, Y - 0.14, 0); }
+  const dark = new THREE.Color(col).multiplyScalar(0.65).getHex(), lf = leaf || 0x5aa84a, lfd = new THREE.Color(lf).multiplyScalar(0.6).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.2, 1, 1.15, 0.95, 14), "body", col, "skin");
+  R.add(gBall(V3(0, Y + 0.3, 0.02), 0.19, 1.05, 0.95, 1, 14), "head", col, "skin");
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gBall(V3(s * 0.08, Y + 0.33, 0.17), 0.04, 1, 1.1, 0.6, 8), "head", 0x111111, "plain");
+    R.add(gBall(V3(s * 0.08, Y + 0.34, 0.19), 0.012, 1, 1, 0.6, 5), "head", 0xffffff, "plain");
+    R.add(gTaper(V3(s * 0.17, Y + 0.08, 0.02), V3(s * 0.3, Y - 0.06, 0.08), 0.045, 0.02, 6), "arm" + sd, dark, "skin");
+    R.add(gTaper(V3(s * 0.09, Y - 0.14, 0), V3(s * 0.1, 0.02, 0.03), 0.055, 0.045, 6), "leg" + sd, dark, "skin");
+    R.add(gBall(V3(s * 0.1, 0.02, 0.06), 0.06, 1.1, 0.5, 1.4, 7), "leg" + sd, dark, "skin");
+  }
+  R.add(gBall(V3(0, Y + 0.22, 0.17), 0.05, 1.3, 0.35, 0.5, 8), "head", 0x4a2a2a, "plain");
+  R.add(gTaper(V3(0, Y + 0.46, -0.02), V3(0, Y + 0.62, -0.04), 0.03, 0.02, 6), "leaf", lfd, "wood");
+  for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + 0.4; R.add(gBall(V3(Math.cos(a) * 0.16, Y + 0.7, -0.04 + Math.sin(a) * 0.16), 0.14, 1.3, 0.18, 0.6, 8), "leaf", lf, "plain"); }
+  R.meta = { kind: "mandrake", headTop: Y + 0.8 };
+  return R.finish();
+}
+
+function shroomEntry(col, cap) {
+  const R = new RigBuilder();
+  const Y = 0.3;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y + 0.3, 0);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) R.bone("arm" + sd, "body", s * 0.16, Y + 0.05, 0);
+  const capC = cap || 0xb04a3a, spots = new THREE.Color(capC).lerp(new THREE.Color(0xffffff), 0.7).getHex(), dark = new THREE.Color(col).multiplyScalar(0.7).getHex();
+  R.add(gTaper(V3(0, 0.02, 0), V3(0, Y + 0.32, 0), 0.19, 0.14, 12), "body", col, "skin");
+  R.add(gBall(V3(0, 0.03, 0), 0.2, 1, 0.3, 1, 10), "body", dark, "skin");
+  for (const s of [-1, 1]) { R.add(gBall(V3(s * 0.07, Y + 0.08, 0.14), 0.035, 1, 1.2, 0.6, 8), "body", 0x111111, "plain"); R.add(gTaper(V3(s * 0.16, Y + 0.05, 0), V3(s * 0.3, Y - 0.06, 0.06), 0.04, 0.02, 6), "arm" + (s > 0 ? "L" : "R"), dark, "skin"); }
+  R.add(gBall(V3(0, Y - 0.02, 0.15), 0.04, 1.4, 0.3, 0.5, 8), "body", 0x3a2222, "plain");
+  R.add(gPartSphere(V3(0, Y + 0.28, 0), 0.42, 0, Math.PI * 0.55, 1, 0.8, 1, 16), "head", capC, "skin");
+  R.add(gBall(V3(0, Y + 0.3, 0), 0.4, 1, 0.12, 1, 14), "head", spots, "skin");
+  for (let k = 0; k < 6; k++) { const a = k * 1.05, r = 0.12 + (k % 3) * 0.09; R.add(gBall(V3(Math.cos(a) * r, Y + 0.3 + Math.sqrt(Math.max(0, 0.42 * 0.42 - r * r)) * 0.78, Math.sin(a) * r), 0.045, 1, 0.5, 1, 7), "head", spots, "plain"); }
+  R.meta = { kind: "shroom", headTop: Y + 0.65 };
+  return R.finish();
+}
+
+function fishEntry(col, belly) {
+  const R = new RigBuilder();
+  const Y = 0.4;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("tail", "body", 0, Y, -0.3);
+  R.bone("tail2", "tail", 0, Y, -0.5);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) R.bone("fin" + sd, "body", s * 0.14, Y - 0.04, 0.08);
+  const dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), light = belly || new THREE.Color(col).lerp(new THREE.Color(0xf0f4f0), 0.55).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.2, 0.7, 1, 1.9, 14), "body", col, "scale");
+  R.add(gBall(V3(0, Y - 0.06, 0.02), 0.17, 0.65, 0.7, 1.7, 10), "body", light, "scale");
+  R.add(gBall(V3(0, Y + 0.18, -0.05), 0.12, 0.25, 1.4, 1.2, 8), "body", dark, "skin");
+  R.add(gBall(V3(0, Y + 0.02, 0.34), 0.07, 0.9, 0.6, 1, 8), "body", light, "skin");
+  for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * 0.11, Y + 0.05, 0.25), 0.04, 1, 1.1, 0.6, 8), "body", 0xffe082, "glow", true);
+    R.add(gBall(V3(s * 0.11, Y + 0.05, 0.27), 0.02, 1, 1, 0.6, 5), "body", 0x111111, "plain");
+    R.add(gBall(V3(s * 0.2, Y - 0.04, 0.06), 0.1, 0.2, 0.6, 1.1, 8), "fin" + (s > 0 ? "L" : "R"), dark, "skin");
+  }
+  R.add(gTaper(V3(0, Y, -0.3), V3(0, Y, -0.5), 0.1, 0.05, 8), "tail", col, "scale");
+  R.add(gBall(V3(0, Y, -0.62), 0.17, 0.2, 1.3, 0.9, 8), "tail2", dark, "skin");
+  R.meta = { kind: "fish", headTop: 0.7 };
+  return R.finish();
+}
+
 function wormEntry(col) {
   const R = new RigBuilder();
   const Y = 0.32, n = 8;
@@ -15902,6 +16145,7 @@ function mobLook(m) {
   if (model === "bat") return { kind: "bat", col: key === "duskwing" ? 0x3a2a5a : f.tint || 0x5a4a6a, eye: key === "duskwing" ? 0xd080ff : f.tint ? 0x80d8ff : 0xff3030 };
   if (model === "worm") return { kind: "worm", col: key === "king_wiggles" ? 0xc8a050 : f.tint || 0xb8866a };
   if (model === "hare") return { kind: "hare", col: f.tint || 0xc8a27a };
+  if (["bee", "crawler", "sheep", "lizard", "longneck", "crab", "mandrake", "shroom", "fish"].includes(model)) return { kind: model, col: f.tint || 0x888888, col2: f.tint2 };
   return { kind: "human", look: goblinLook("goblin") };
 }
 
@@ -15917,6 +16161,15 @@ function buildEntityRig(e) {
     } else if (ml.kind === "bat") { sig = "bat|" + ml.col; make = () => batEntry(ml.col, ml.eye); }
     else if (ml.kind === "worm") { sig = "worm|" + ml.col; make = () => wormEntry(ml.col); }
     else if (ml.kind === "toad") { sig = "toad|" + ml.col; make = () => toadEntry(ml.col); }
+    else if (ml.kind === "bee") { sig = "bee|" + ml.col + ml.col2; make = () => beeEntry(ml.col, ml.col2); }
+    else if (ml.kind === "crawler") { sig = "crawler|" + ml.col + ml.col2; make = () => crawlerEntry(ml.col, ml.col2); }
+    else if (ml.kind === "sheep") { sig = "sheep|" + ml.col; make = () => sheepEntry(ml.col); }
+    else if (ml.kind === "lizard") { sig = "lizard|" + ml.col + ml.col2; make = () => lizardEntry(ml.col, ml.col2); }
+    else if (ml.kind === "longneck") { sig = "longneck|" + ml.col; make = () => longneckEntry(ml.col); }
+    else if (ml.kind === "crab") { sig = "crab|" + ml.col + ml.col2; make = () => crabEntry(ml.col, ml.col2); }
+    else if (ml.kind === "mandrake") { sig = "mandrake|" + ml.col + ml.col2; make = () => mandrakeEntry(ml.col, ml.col2); }
+    else if (ml.kind === "shroom") { sig = "shroom|" + ml.col + ml.col2; make = () => shroomEntry(ml.col, ml.col2); }
+    else if (ml.kind === "fish") { sig = "fish|" + ml.col + ml.col2; make = () => fishEntry(ml.col, ml.col2); }
     else { sig = "hare|" + ml.col; make = () => hareEntry(ml.col); }
   } else if (e.kind === "npc") {
     const L = NPC_LOOK[e.id];
@@ -16316,6 +16569,161 @@ function poseBat(v, e, dt) {
     P.wing2L[2] = -1.2 * k; P.wing2R[2] = 1.2 * k;
     v.rootOff[1] = -1.22 * k; v.rootRot[2] = 1.4 * k; v.rootOff[2] = 0;
   }
+  applyPose(v, dt, sharp);
+}
+
+function poseBee(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.5, 0, 1);
+  const f = Math.sin(t * 40);
+  addP(P, "wingL", 0, 0, 0.3 + f * 0.6); addP(P, "wingR", 0, 0, -(0.3 + f * 0.6));
+  addP(P, "wing2L", 0, 0, 0.2 - f * 0.5); addP(P, "wing2R", 0, 0, -(0.2 - f * 0.5));
+  addP(P, "body", mv * 0.4, 0, Math.sin(t * 3) * 0.08);
+  addP(P, "tail", -mv * 0.2 + Math.sin(t * 5) * 0.05, 0, 0);
+  addP(P, "head", Math.sin(t * 2.2) * 0.1, Math.sin(t * 1.1) * 0.3 * (1 - mv), 0);
+  v.rootOff[1] = Math.sin(t * 2.6) * 0.07 + Math.sin(t * 7.3) * 0.02;
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.4;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.25, 0.5); addP(P, "body", 0.9 * w, 0, 0); addP(P, "tail", 1.2 * w, 0, 0); v.rootOff[2] += 0.35 * w; v.rootOff[1] -= 0.2 * w; }
+  if (e.readying) { addP(P, "body", -0.6, 0, 0); addP(P, "tail", -0.5, Math.sin(t * 25) * 0.1, 0); v.rootOff[1] += 0.2; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.4 * w, 0, 0.4 * w); v.rootOff[2] -= 0.15 * w; }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.5); v.rootOff[1] = -0.85 * k; v.rootRot[2] = 2.6 * k; P.wingL[2] = 0.1; P.wingR[2] = -0.1; }
+  applyPose(v, dt, sharp);
+}
+
+function poseCrawler(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.2, 0, 1);
+  for (let i = 0; i < 6; i++) addP(P, "t" + i, Math.sin(t * 7 - i * 1.1) * 0.08 * mv + Math.sin(t * 1.5 - i) * 0.02, Math.sin(t * 2.5 - i * 0.7) * (0.04 + 0.1 * mv), 0);
+  addP(P, "head", Math.sin(t * 1.3) * 0.08, Math.sin(t * 0.7) * 0.3 * (1 - mv), 0);
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.6;
+  if (ak >= 0 && ak <= 1) {
+    sharp = true;
+    const lift = ease(ak / 0.35) * (1 - ease((ak - 0.35) / 0.25)), strike = ak > 0.35 ? env((ak - 0.35) / 0.65, 0.2, 0.7) : 0;
+    addP(P, "t3", -0.5 * lift + 0.3 * strike, 0, 0); addP(P, "t4", -0.45 * lift + 0.35 * strike, 0, 0); addP(P, "t5", -0.35 * lift + 0.3 * strike, 0, 0); addP(P, "head", -0.3 * lift + 0.5 * strike, 0, 0);
+  }
+  if (e.readying) { const sh = Math.sin(t * 28) * 0.06; addP(P, "t3", -0.55, sh, 0); addP(P, "t4", -0.5, -sh, 0); addP(P, "t5", -0.3, sh, 0); addP(P, "head", -0.2, 0, 0); }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "t4", 0.2 * w, 0, 0); addP(P, "head", 0.3 * w, 0, 0); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.7); for (let i = 0; i < 6; i++) { const p = P["t" + i]; p[0] *= 1 - k; p[1] = p[1] * (1 - k) + (i % 2 ? 0.12 : -0.12) * k; } v.rootRot[2] = 1.2 * k; v.rootOff[1] = 0.1 * k; }
+  applyPose(v, dt, sharp);
+}
+
+function poseQuad(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const q = v.meta.quad || {};
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.3, 0, 1);
+  const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
+  addP(P, "legFL", c1 * 0.7 * mv, 0, 0); addP(P, "legBR", c1 * 0.7 * mv, 0, 0);
+  addP(P, "legFR", -c1 * 0.7 * mv, 0, 0); addP(P, "legBL", -c1 * 0.7 * mv, 0, 0);
+  addP(P, "shinFL", Math.max(0, -s1) * 0.9 * mv, 0, 0); addP(P, "shinBR", Math.max(0, -s1) * 0.9 * mv, 0, 0);
+  addP(P, "shinFR", Math.max(0, s1) * 0.9 * mv, 0, 0); addP(P, "shinBL", Math.max(0, s1) * 0.9 * mv, 0, 0);
+  addP(P, "body", Math.sin(t * 1.6) * 0.02 + c1 * 0.04 * mv, 0, 0);
+  v.rootOff[1] = Math.abs(s1) * 0.04 * mv;
+  const graze = (1 - mv) * (Math.sin(t * 0.35) > 0.6 ? 1 : 0);
+  addP(P, "neck", graze * 0.9 + Math.sin(t * 1.1) * 0.04, Math.sin(t * 0.5) * 0.25 * (1 - mv), 0);
+  addP(P, "head", graze * 0.5 + Math.sin(t * 2.3) * 0.03, Math.sin(t * 0.7) * 0.2 * (1 - mv), 0);
+  const wag = Math.sin(t * (2 + mv * 4)) * 0.35;
+  addP(P, "tail", 0, wag, 0); addP(P, "tail2", 0, wag * 1.3, 0);
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.45;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.3, 0.6); addP(P, "neck", -0.5 * w, 0, 0); addP(P, "head", 0.8 * w, 0, 0); addP(P, "body", -0.15 * w, 0, 0); v.rootOff[2] += 0.2 * w; }
+  if (e.readying) { addP(P, "neck", -0.4, 0, 0); addP(P, "head", -0.3, Math.sin(t * 20) * 0.08, 0); addP(P, "legFL", -0.5, 0, 0); addP(P, "legFR", -0.5, 0, 0); v.rootOff[1] += 0.06; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.15 * w, 0, 0.2 * w); addP(P, "head", -0.3 * w, 0, 0); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = 0.12 * k; for (const n of ["legFL", "legFR", "legBL", "legBR"]) addP(P, n, 0, 0, 0.6 * k); }
+  applyPose(v, dt, sharp);
+}
+
+function poseCrab(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.2, 0, 1);
+  const ph = an.ph * 1.6;
+  for (const s of ["L", "R"]) for (let k = 0; k < 4; k++) { const f = Math.sin(ph + k * 1.6 + (s === "L" ? 0 : Math.PI)); addP(P, "leg" + s + k, Math.max(0, f) * 0.5 * mv, 0, (s === "L" ? 1 : -1) * f * 0.25 * mv); }
+  addP(P, "body", Math.sin(t * 2.1) * 0.03, 0, Math.sin(ph) * 0.05 * mv);
+  const snip = Math.sin(t * 2.7) > 0.7 ? Math.sin(t * 24) * 0.25 : 0;
+  addP(P, "armL", 0, 0.15 + snip * 0.2, 0.1); addP(P, "armR", 0, -0.15 - snip * 0.2, -0.1);
+  addP(P, "clawL", 0, snip, 0); addP(P, "clawR", 0, -snip, 0);
+  v.rootOff[1] = Math.abs(Math.sin(ph)) * 0.03 * mv;
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.45;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.3, 0.6); const side = an.aVar ? 1 : -1; addP(P, side > 0 ? "armL" : "armR", -0.9 * w, side * 0.8 * w, 0); addP(P, side > 0 ? "clawL" : "clawR", 0, side * 1.0 * w, 0); addP(P, "body", -0.2 * w, side * 0.3 * w, 0); v.rootOff[2] += 0.2 * w; }
+  if (e.readying) { addP(P, "armL", -1.2, 0.5, 0); addP(P, "armR", -1.2, -0.5, 0); addP(P, "clawL", 0, 0.8 + Math.sin(t * 22) * 0.2, 0); addP(P, "clawR", 0, -0.8 - Math.sin(t * 22) * 0.2, 0); v.rootOff[1] += 0.08; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); v.rootOff[2] -= 0.15 * w; addP(P, "body", -0.2 * w, 0, 0); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[0] = 3.1 * k; v.rootOff[1] = 0.35 * k; }
+  applyPose(v, dt, sharp);
+}
+
+function poseMandrake(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.2, 0, 1);
+  const s1 = Math.sin(an.ph * 1.3);
+  v.rootOff[1] = Math.max(0, s1) * 0.22 * mv;
+  addP(P, "body", -s1 * 0.2 * mv + Math.sin(t * 1.7) * 0.03, 0, 0);
+  addP(P, "legL", -s1 * 0.8 * mv, 0, 0); addP(P, "legR", -s1 * 0.8 * mv, 0, 0);
+  addP(P, "armL", 0, 0, 0.4 + s1 * 0.5 * mv + Math.sin(t * 2.3) * 0.1); addP(P, "armR", 0, 0, -(0.4 + s1 * 0.5 * mv + Math.sin(t * 2.3) * 0.1));
+  addP(P, "head", Math.sin(t * 1.2) * 0.08, Math.sin(t * 0.6) * 0.5 * (1 - mv), Math.sin(t * 0.9) * 0.1);
+  addP(P, "leaf", Math.sin(t * 2.6) * 0.15, 0, Math.sin(t * 1.9) * 0.2);
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.45;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.25, 0.6); addP(P, "body", 0.6 * w, 0, 0); addP(P, "head", 0.8 * w, 0, 0); v.rootOff[2] += 0.3 * w; v.rootOff[1] += 0.15 * w; }
+  if (e.readying) { addP(P, "body", -0.4, 0, 0); addP(P, "head", -0.5, 0, 0); addP(P, "leaf", -0.6, 0, Math.sin(t * 25) * 0.3); v.rootOff[1] += 0.1; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.3 * w, 0, 0); addP(P, "head", -0.4 * w, 0, 0); v.rootOff[1] += 0.1 * w; }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = 0.2 * k; addP(P, "leaf", 0, 0, 1.2 * k); }
+  applyPose(v, dt, sharp);
+}
+
+function poseShroom(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.0, 0, 1);
+  const s1 = Math.sin(an.ph * 1.4);
+  v.rootOff[1] = Math.max(0, s1) * 0.18 * mv;
+  addP(P, "body", -s1 * 0.15 * mv + Math.sin(t * 1.4) * 0.03, 0, Math.sin(t * 0.9) * 0.05);
+  addP(P, "head", Math.sin(t * 1.1) * 0.06, Math.sin(t * 0.4) * 0.3 * (1 - mv), Math.sin(t * 1.6) * 0.08);
+  addP(P, "armL", 0, 0, 0.3 + Math.sin(t * 2.1) * 0.15); addP(P, "armR", 0, 0, -(0.3 + Math.sin(t * 2.1) * 0.15));
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.5;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.3, 0.5); addP(P, "head", 0.7 * w, 0, 0); addP(P, "body", 0.3 * w, 0, 0); v.rootOff[1] += 0.12 * w; }
+  if (e.readying) { addP(P, "head", -0.4 + Math.sin(t * 30) * 0.08, 0, 0); addP(P, "body", -0.2, 0, 0); v.rootOff[1] += 0.08; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.3 * w, 0, 0.2 * w); addP(P, "head", -0.3 * w, 0, 0); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[0] = 1.5 * k; v.rootOff[1] = 0.1 * k; }
+  applyPose(v, dt, sharp);
+}
+
+function poseFish(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.3, 0, 1);
+  const flap = Math.sin(t * (4 + mv * 6));
+  addP(P, "tail", 0, flap * 0.35, 0); addP(P, "tail2", 0, flap * 0.5, 0);
+  addP(P, "finL", 0, 0, 0.3 + Math.sin(t * 5) * 0.3); addP(P, "finR", 0, 0, -(0.3 + Math.sin(t * 5) * 0.3));
+  addP(P, "body", Math.sin(t * 1.8) * 0.05 - mv * 0.2, flap * 0.08, Math.sin(t * 1.2) * 0.05);
+  v.rootOff[1] = 0.1 + Math.sin(t * 2.2) * 0.08 + Math.abs(Math.sin(an.ph * 0.8)) * 0.25 * mv;
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.45;
+  if (ak >= 0 && ak <= 1) { sharp = true; const w = env(ak, 0.3, 0.6); addP(P, "body", 0.5 * w, 0, 0); v.rootOff[2] += 0.4 * w; v.rootOff[1] += 0.3 * w; }
+  if (e.readying) { addP(P, "body", -0.5, 0, 0); addP(P, "tail", 0, Math.sin(t * 24) * 0.4, 0); v.rootOff[1] += 0.25; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); v.rootOff[2] -= 0.15 * w; addP(P, "body", 0, 0, 0.5 * w); }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = -0.15 * k; addP(P, "tail2", 0, 0.3 * k, 0); }
   applyPose(v, dt, sharp);
 }
 
@@ -17107,7 +17515,7 @@ function viewFor(e) {
   v = {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
-    style: styleFor(e), stride: kind === "hare" ? 1.2 : 1.7, scale: s, mount: null, sink: 0
+    style: styleFor(e), stride: kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.7, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
   if (e.buddy) v.pick.visible = false;
@@ -17200,6 +17608,13 @@ function syncEntity(e, dt) {
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);
   else if (v.kind === "hare") poseHare(v, e, dt);
+  else if (v.kind === "bee") poseBee(v, e, dt);
+  else if (v.kind === "crawler") poseCrawler(v, e, dt);
+  else if (v.kind === "quad") poseQuad(v, e, dt);
+  else if (v.kind === "crab") poseCrab(v, e, dt);
+  else if (v.kind === "mandrake") poseMandrake(v, e, dt);
+  else if (v.kind === "shroom") poseShroom(v, e, dt);
+  else if (v.kind === "fish") poseFish(v, e, dt);
   placeWeapon(v, e);
   if (v.weapon && v.weaponKind !== "staff") updateTrail(v, e, dt);
   const flash = e.flash > 0 ? e.flash / 0.15 : 0;
@@ -17617,7 +18032,8 @@ function updateCamera(dt) {
       const d = VIEW.dist * i / 16;
       const sx = VIEW.camTarget.x - f.x * h0 * d, sz = VIEW.camTarget.z - f.y * h0 * d;
       const inW = S.zone.indoor && (sx / U < 14 || sz / U < 14 || sx / U > S.zone.w - 14 || sz / U > S.zone.h - 14 || VIEW.camTarget.y + v0 * d > 3.1);
-      if (inW || groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(S.zone.indoor ? 0.9 : 1.6, d - VIEW.dist / 16); break; }
+      const inHouse = !S.zone.indoor && VIEW.camTarget.y + v0 * d < groundY(sx / U, sz / U) + 6 && (S.zone.houses || []).some(h => Math.abs(sx / U - h.x) < (h.rot ? h.h : h.w) / 2 + 10 && Math.abs(sz / U - h.y) < (h.rot ? h.w : h.h) / 2 + 10);
+      if (inW || inHouse || groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(S.zone.indoor ? 0.9 : 1.6, d - VIEW.dist / 16); break; }
     }
     if (VIEW.camEff == null) VIEW.camEff = want;
     VIEW.camEff = want < VIEW.camEff ? want : VIEW.camEff + (want - VIEW.camEff) * Math.min(1, dt * 2.5);

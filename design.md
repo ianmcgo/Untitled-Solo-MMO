@@ -703,11 +703,19 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Pets give no bonuses: buddyPerk() always returns 0 (call sites kept for future use), BUDDIES entries have no perk, BUDDY_SHOP is empty (Ysolde's pens and the guild egg removed). Pet items are very rare drops: hare/bat/worm/ice_bat loot 0.4–0.5% (egg_meadow_kit, egg_batling, egg_wormlet, egg_frost_wisp), NM eggs 3–8%, egg_tide_wisp fish weight 0.03. Ash Sprite still from the story.
 - No XP for landmark discovery (checkLandmarks no longer calls gainXp; toast has no XP line) and no crystals for achievements (ACHIEVEMENTS entries have no gil; checkAchievements/toast/tab show none).
 
+## Phase 25: critter families (v6.6.0)
+- New rig entries (rig.js): beeEntry(col, col2) striped body + 4 membrane wings, kind "bee"; crawlerEntry(col, col2) 6 segments t0..t5 + head, side legs, kind "crawler"; quadEntry(o) generic four-legged rig (body/neck/head/tail/tail2, legF*/shinF*/legB*/shinB*) used by sheepEntry (wool balls, hooves), lizardEntry (scale region, spines, glow eyes, long tail) and longneckEntry (tall), kind "quad" with meta.quad.stride; crabEntry (flat shell, 2 arms+claws, 8 legs), kind "crab"; mandrakeEntry (round body, leaf crown bone "leaf"), kind "mandrake"; shroomEntry (stalk + part-sphere cap with spots), kind "shroom"; fishEntry (hovering body, fins, tail2), kind "fish". mobLook maps fam.model to these kinds with tint/tint2; buildEntityRig makes the entries; models3d dispatches poseBee/poseCrawler/poseQuad/poseCrab/poseMandrake/poseShroom/poseFish (anim.js). Stride per kind in viewFor.
+- Poses share the trackEvents contract (spd, ph, aStart, hitStart, readying, dead): bee flutters at 40 Hz and lunges; crawler undulates and rears for a strike; quad trots with diagonal pairs, grazes when idle, wags tail; crab scuttles sideways, snips, pinches with alternating claws; mandrake hops; shroom bobs and headbutts; fish hovers 0.1 above ground and leaps.
+- Families (FAMILIES): honey_bee, grass_crawler, meadow_sheep, hill_lizard (scale 1.3), pond_crab, mandrake, shroomling, lake_snapper (Rocky Hollow, lv 1–6), longneck (marsh 11–13). All aggro null (passive); bees/sheep/mandrakes link. TP moves: `slow: true` applies a 20 s slow, `sleepy: true` 50% sleep (6 s) on companions (execTpMove). Loot adds mats honeycomb, wool_tuft, lizard_skin, crab_shell, crawler_cocoon, mandrake_leaf, spore_cap, longneck_hide. Bestiary entries. Spawns added to ZONES.hollow (near the gate and around the lakes) and ZONES.marsh.
+- World: boulders with s > 1.3 push a collider (r ≈ max(sx, sz)·0.8/U) in buildVegetation; updateCamera pulls the camera in when a sample point lies inside a house footprint (rot-aware, +10 px margin) below roof height (ground + 6).
+- Tests: p6unit passive check now "no fam.aggro". p5shots scenes zoo, zoo2.
+
 ## Version log
 
 | Version | Change |
 |---|---|
 | 4.8.0 | Phase 7: performance settings and balance check (above). |
+| 6.6.0 | Phase 25: nine critter families with models and animations; rock colliders; camera stays out of houses. |
 | 6.5.1 | Phase 24b: pets give no bonuses and are rare drops; no XP for landmarks; no crystals for achievements. |
 | 6.5.0 | Phase 24: ten pets that follow you, Pets window, /pet, perks. |
 | 6.4.0 | Phase 23: five playable races, gate guards and the City Blessing (essences need it). |

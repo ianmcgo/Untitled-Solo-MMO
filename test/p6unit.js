@@ -56,7 +56,7 @@ ok(G.save.quests.home === 'done' && G.invCount('flowerpot') === 1 && G.invCount(
 
 G.enterZone('hollow', 200, 1100); run(0.5);
 const passive = S.mobs.filter(m => m.passive && !m.fam.nm), aggr = S.mobs.filter(m => !m.passive);
-ok(passive.length >= 3 && passive.every(m => m.famKey === 'hare') && aggr.length >= 15, 'only critters are passive (' + passive.length + ') and the rest aggressive (' + aggr.length + ')');
+ok(passive.length >= 3 && passive.every(m => !m.fam.aggro) && aggr.length >= 15, 'only critters are passive (' + passive.length + ') and the rest aggressive (' + aggr.length + ')');
 const ph = passive[0];
 P().x = ph.x + 20; P().y = ph.y; P().moving = true; run(1); P().moving = false;
 ok(ph.state === 'idle', 'a hare ignores you walking beside it');

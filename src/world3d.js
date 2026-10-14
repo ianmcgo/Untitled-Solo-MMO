@@ -241,7 +241,9 @@ function buildVegetation(field, root) {
     if (e < -120 || e > 600 || field.exitMask(px, py) > 0.3) continue;
     if (!placeable(field, px, py, { water: 30 })) continue;
     const s = 0.8 + rnd() * 2.6;
-    rocks.push(mtx(px * U, field.heightAt(px, py) - s * 0.25, py * U, s * (0.8 + rnd() * 0.6), s * (0.5 + rnd() * 0.5), s * (0.8 + rnd() * 0.6), rnd() * 6.28, rnd() * 0.3));
+    const rsx = s * (0.8 + rnd() * 0.6), rsy = s * (0.5 + rnd() * 0.5), rsz = s * (0.8 + rnd() * 0.6);
+    rocks.push(mtx(px * U, field.heightAt(px, py) - s * 0.25, py * U, rsx, rsy, rsz, rnd() * 6.28, rnd() * 0.3));
+    if (s > 1.3) z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.8 / U * 1.0 });
     k++;
   }
   for (let k = 0, tries = 0; k < want.small && tries < want.small * 20; tries++) {

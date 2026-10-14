@@ -206,7 +206,8 @@ function updateCamera(dt) {
       const d = VIEW.dist * i / 16;
       const sx = VIEW.camTarget.x - f.x * h0 * d, sz = VIEW.camTarget.z - f.y * h0 * d;
       const inW = S.zone.indoor && (sx / U < 14 || sz / U < 14 || sx / U > S.zone.w - 14 || sz / U > S.zone.h - 14 || VIEW.camTarget.y + v0 * d > 3.1);
-      if (inW || groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(S.zone.indoor ? 0.9 : 1.6, d - VIEW.dist / 16); break; }
+      const inHouse = !S.zone.indoor && VIEW.camTarget.y + v0 * d < groundY(sx / U, sz / U) + 6 && (S.zone.houses || []).some(h => Math.abs(sx / U - h.x) < (h.rot ? h.h : h.w) / 2 + 10 && Math.abs(sz / U - h.y) < (h.rot ? h.w : h.h) / 2 + 10);
+      if (inW || inHouse || groundY(sx / U, sz / U) + 0.45 > VIEW.camTarget.y + v0 * d) { want = Math.max(S.zone.indoor ? 0.9 : 1.6, d - VIEW.dist / 16); break; }
     }
     if (VIEW.camEff == null) VIEW.camEff = want;
     VIEW.camEff = want < VIEW.camEff ? want : VIEW.camEff + (want - VIEW.camEff) * Math.min(1, dt * 2.5);

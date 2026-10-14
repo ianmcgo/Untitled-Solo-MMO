@@ -694,6 +694,207 @@ function wispEntry(col, eye) {
   return R.finish();
 }
 
+function beeEntry(col, col2) {
+  const R = new RigBuilder();
+  const Y = 0.95;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y + 0.02, 0.2);
+  R.bone("tail", "body", 0, Y - 0.02, -0.2);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("wing" + sd, "body", s * 0.06, Y + 0.12, 0.02); R.bone("wing2" + sd, "body", s * 0.05, Y + 0.11, -0.08); }
+  const dark = 0x2a2218, light = new THREE.Color(col).lerp(new THREE.Color(0xffffff), 0.3).getHex();
+  R.add(gBall(V3(0, Y, 0.02), 0.16, 1, 0.9, 1.1, 14), "body", col, "fur");
+  R.add(gBall(V3(0, Y - 0.02, -0.22), 0.19, 1, 0.9, 1.35, 14), "tail", col2 || dark, "fur");
+  for (let i = 0; i < 3; i++) R.add(gRing(V3(0, Y - 0.02, -0.12 - i * 0.1), 0.17 - i * 0.03, 0.02, "z", 16), "tail", i % 2 ? col : dark, "fur");
+  R.add(gTaper(V3(0, Y - 0.04, -0.44), V3(0, Y - 0.06, -0.58), 0.03, 0.003, 6), "tail", dark, "bone");
+  R.add(gBall(V3(0, Y + 0.02, 0.24), 0.11, 1, 0.95, 0.9, 12), "head", dark, "fur");
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gBall(V3(s * 0.07, Y + 0.05, 0.3), 0.045, 1, 1.3, 0.8, 8), "head", 0x8a1a1a, "glow", true);
+    R.add(gTaper(V3(s * 0.03, Y + 0.11, 0.28), V3(s * 0.12, Y + 0.3, 0.34), 0.012, 0.004, 5), "head", dark, "bone");
+    R.add(gMembrane([[0.04, 0.08], [0.55, 0.14], [0.62, 0.0], [0.4, -0.1], [0.06, -0.06]].map(([x, z]) => [s * x, z]), Y + 0.12), "wing" + sd, 0xe8f4ff, "glow");
+    R.add(gMembrane([[0.03, 0.0], [0.4, -0.02], [0.45, -0.14], [0.25, -0.2], [0.05, -0.12]].map(([x, z]) => [s * x, z]), Y + 0.11), "wing2" + sd, 0xe8f4ff, "glow");
+    for (let k = 0; k < 3; k++) R.add(gTaper(V3(s * 0.1, Y - 0.08, 0.12 - k * 0.1), V3(s * 0.2, Y - 0.24, 0.1 - k * 0.1), 0.012, 0.004, 5), "body", dark, "bone");
+  }
+  R.meta = { kind: "bee", headTop: Y + 0.35 };
+  return R.finish();
+}
+
+function crawlerEntry(col, col2) {
+  const R = new RigBuilder();
+  const n = 6, Y = 0.22;
+  const zs = []; for (let i = 0; i < n; i++) zs.push(-0.75 + i * 0.3);
+  R.bone("root", null, 0, 0, 0);
+  for (let i = 0; i < n; i++) R.bone("t" + i, i ? "t" + (i - 1) : "root", 0, Y, zs[i]);
+  R.bone("head", "t" + (n - 1), 0, Y + 0.02, zs[n - 1] + 0.22);
+  const c = new THREE.Color(col), dark = c.clone().multiplyScalar(0.55).getHex(), belly = col2 || c.clone().lerp(new THREE.Color(0xf0e4b0), 0.5).getHex();
+  for (let i = 0; i < n; i++) {
+    const r = 0.17 + 0.02 * Math.sin(i / (n - 1) * Math.PI);
+    R.add(gBall(V3(0, Y + 0.02, zs[i]), r, 1.05, 0.9, 1.0, 12), "t" + i, col, "scale");
+    R.add(gBall(V3(0, Y - 0.05, zs[i]), r * 0.8, 1, 0.55, 0.9, 10), "t" + i, belly, "skin");
+    R.add(gRing(V3(0, Y + 0.02, zs[i] + 0.14), r * 0.95, 0.018, "z", 16), "t" + i, dark, "scale");
+    for (const s of [-1, 1]) { R.add(gTaper(V3(s * 0.12, Y - 0.06, zs[i]), V3(s * 0.22, Y - 0.2, zs[i] + 0.02), 0.03, 0.012, 5), "t" + i, dark, "skin"); R.add(gBall(V3(s * 0.22, Y - 0.21, zs[i] + 0.02), 0.03, 1, 0.6, 1, 6), "t" + i, dark, "skin"); }
+    if (i % 2) R.add(gTaper(V3(0, Y + 0.17, zs[i]), V3(0, Y + 0.3, zs[i] - 0.04), 0.03, 0.004, 5), "t" + i, dark, "bone");
+  }
+  const hz = zs[n - 1] + 0.22;
+  R.add(gBall(V3(0, Y + 0.02, hz), 0.17, 1.1, 0.95, 1.05, 12), "head", dark, "scale");
+  for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * 0.09, Y + 0.08, hz + 0.12), 0.05, 1, 1.2, 0.8, 8), "head", 0xffb300, "glow", true);
+    R.add(gTaper(V3(s * 0.08, Y - 0.02, hz + 0.14), V3(s * 0.04, Y - 0.06, hz + 0.3), 0.03, 0.004, 5), "head", 0xf0e8d0, "bone");
+    R.add(gTaper(V3(s * 0.05, Y + 0.14, hz + 0.08), V3(s * 0.18, Y + 0.34, hz + 0.16), 0.012, 0.003, 5), "head", dark, "bone");
+  }
+  R.meta = { kind: "crawler", headTop: 0.55 };
+  return R.finish();
+}
+
+function quadEntry(o) {
+  const R = new RigBuilder();
+  const L = o.leg, B = o.bodyY, bl = o.bodyLen;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, B, 0);
+  R.bone("neck", "body", 0, B + o.neckUp * 0.3, bl * 0.45);
+  R.bone("head", "neck", 0, B + o.neckUp, bl * 0.45 + o.neckFwd);
+  R.bone("tail", "body", 0, B, -bl * 0.5);
+  R.bone("tail2", "tail", 0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
+    R.bone("legF" + sd, "body", s * o.hip, B - 0.02, bl * 0.32);
+    R.bone("shinF" + sd, "legF" + sd, s * o.hip, B - L * 0.5, bl * 0.32);
+    R.bone("legB" + sd, "body", s * o.hip, B - 0.02, -bl * 0.32);
+    R.bone("shinB" + sd, "legB" + sd, s * o.hip, B - L * 0.5, -bl * 0.32);
+  }
+  const col = o.col, reg = o.region || "fur", dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), light = o.belly || new THREE.Color(col).lerp(new THREE.Color(0xf2ede4), 0.45).getHex();
+  R.add(gBall(V3(0, B, 0), o.bodyR, 1, o.bodyH || 0.95, bl / o.bodyR * 0.5, 16), "body", col, reg);
+  if (o.wool) for (let k = 0; k < 10; k++) { const a = k * 2.4; R.add(gBall(V3(Math.sin(a) * o.bodyR * 0.7, B + o.bodyR * 0.45 + (k % 2) * 0.05, Math.cos(a) * bl * 0.4), o.bodyR * 0.45, 1, 0.9, 1, 8), "body", light, "fur"); }
+  R.add(gBall(V3(0, B - o.bodyR * 0.25, 0), o.bodyR * 0.85, 0.95, 0.7, bl / o.bodyR * 0.45, 12), "body", light, reg);
+  R.add(gTaper(V3(0, B + o.neckUp * 0.2, bl * 0.42), V3(0, B + o.neckUp, bl * 0.45 + o.neckFwd), o.neckR, o.neckR * 0.8, 8), "neck", col, reg);
+  const hy = B + o.neckUp, hz = bl * 0.45 + o.neckFwd;
+  R.add(gBall(V3(0, hy, hz + 0.04), o.headR, 1, 0.95, 1.25, 12), "head", col, reg);
+  R.add(gBall(V3(0, hy - o.headR * 0.15, hz + o.headR * 1.1), o.headR * 0.55, 1, 0.75, 0.9, 8), "head", light, reg);
+  for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * o.headR * 0.6, hy + o.headR * 0.2, hz + o.headR * 0.7), o.headR * 0.17, 1, 1, 0.7, 6), "head", o.eye || 0x111111, o.eyeGlow ? "glow" : "plain", !!o.eyeGlow);
+    if (o.ears) R.add(gBall(V3(s * o.headR * 0.8, hy + o.headR * 0.6, hz - 0.02), o.headR * 0.25, 0.5, o.ears, 0.4, 6), "head", col, reg);
+    if (o.horns) R.add(gTaper(V3(s * o.headR * 0.5, hy + o.headR * 0.7, hz - 0.02), V3(s * o.headR * 1.2, hy + o.headR * 0.5, hz - 0.2), o.headR * 0.18, 0.006, 6), "head", 0xd8ccb0, "bone");
+    const sd = s > 0 ? "L" : "R";
+    for (const [p, zz] of [["F", bl * 0.32], ["B", -bl * 0.32]]) {
+      R.add(gTaper(V3(s * o.hip, B - 0.02, zz), V3(s * o.hip * 1.05, B - L * 0.5, zz), o.legR, o.legR * 0.8, 7), "leg" + p + sd, col, reg);
+      R.add(gTaper(V3(s * o.hip * 1.05, B - L * 0.5, zz), V3(s * o.hip * 1.05, 0.03, zz + 0.02), o.legR * 0.8, o.legR * 0.6, 7), "shin" + p + sd, col, reg);
+      R.add(gBall(V3(s * o.hip * 1.05, 0.03, zz + 0.03), o.legR * 0.95, 1.1, 0.5, 1.3, 7), "shin" + p + sd, dark, o.hoof ? "bone" : reg);
+    }
+  }
+  if (o.tailLen > 0) {
+    R.add(gTaper(V3(0, B, -bl * 0.5), V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), o.tailR, o.tailR * 0.7, 7), "tail", col, reg);
+    R.add(gTaper(V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), V3(0, B - o.tailDrop, -bl * 0.5 - o.tailLen), o.tailR * 0.7, o.tailR * 0.2, 7), "tail2", col, reg);
+  }
+  if (o.spines) for (let k = 0; k < o.spines; k++) R.add(gTaper(V3(0, B + o.bodyR * 0.85, bl * 0.35 - k * (bl * 0.7 / o.spines)), V3(0, B + o.bodyR * 0.85 + 0.12, bl * 0.35 - k * (bl * 0.7 / o.spines) - 0.04), 0.03, 0.004, 5), "body", dark, "bone");
+  R.meta = { kind: "quad", headTop: hy + o.headR * 1.4, quad: { stride: o.stride || 1.2, hop: !!o.hop } };
+  return R.finish();
+}
+
+function sheepEntry(col) { return quadEntry({ col, belly: 0xf4f0e6, bodyY: 0.5, bodyR: 0.3, bodyLen: 0.8, leg: 0.42, hip: 0.14, legR: 0.045, neckUp: 0.1, neckFwd: 0.18, neckR: 0.09, headR: 0.13, ears: 1.4, hoof: true, wool: true, tailLen: 0.1, tailDrop: 0.05, tailR: 0.05, stride: 1.1 }); }
+function lizardEntry(col, belly) { return quadEntry({ col, belly, region: "scale", bodyY: 0.22, bodyR: 0.18, bodyLen: 0.7, leg: 0.2, hip: 0.22, legR: 0.045, neckUp: 0.04, neckFwd: 0.22, neckR: 0.1, headR: 0.13, eye: 0xffd54f, eyeGlow: true, tailLen: 0.7, tailDrop: 0.1, tailR: 0.1, spines: 5, stride: 0.9 }); }
+function longneckEntry(col) { return quadEntry({ col, bodyY: 1.3, bodyR: 0.45, bodyLen: 1.5, leg: 1.1, hip: 0.22, legR: 0.08, neckUp: 1.0, neckFwd: 0.5, neckR: 0.13, headR: 0.17, ears: 1.2, hoof: true, tailLen: 0.5, tailDrop: 0.3, tailR: 0.08, stride: 2.4 }); }
+
+function crabEntry(col, col2) {
+  const R = new RigBuilder();
+  const Y = 0.22;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
+    R.bone("arm" + sd, "body", s * 0.25, Y, 0.18);
+    R.bone("claw" + sd, "arm" + sd, s * 0.42, Y + 0.02, 0.32);
+    for (let k = 0; k < 4; k++) R.bone("leg" + sd + k, "body", s * 0.28, Y - 0.02, 0.1 - k * 0.1);
+  }
+  const dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), under = col2 || new THREE.Color(col).lerp(new THREE.Color(0xf0dcc0), 0.5).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.34, 1, 0.5, 0.8, 16), "body", col, "scale");
+  R.add(gBall(V3(0, Y - 0.06, 0), 0.3, 0.95, 0.4, 0.75, 12), "body", under, "skin");
+  for (let k = 0; k < 5; k++) R.add(gBall(V3(-0.24 + k * 0.12, Y + 0.14, 0.16), 0.035, 1, 0.8, 1, 6), "body", dark, "scale");
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gTaper(V3(s * 0.06, Y + 0.1, 0.24), V3(s * 0.07, Y + 0.24, 0.26), 0.02, 0.03, 6), "body", dark, "bone");
+    R.add(gBall(V3(s * 0.07, Y + 0.25, 0.26), 0.04, 1, 1, 1, 6), "body", 0x111111, "plain");
+    R.add(gTaper(V3(s * 0.25, Y, 0.18), V3(s * 0.42, Y + 0.02, 0.32), 0.055, 0.05, 7), "arm" + sd, col, "scale");
+    R.add(gBall(V3(s * 0.48, Y + 0.02, 0.38), 0.11, 1.4, 0.7, 1.1, 10), "claw" + sd, col, "scale");
+    R.add(gTaper(V3(s * 0.52, Y + 0.06, 0.44), V3(s * 0.58, Y + 0.08, 0.62), 0.045, 0.006, 6), "claw" + sd, dark, "bone");
+    R.add(gTaper(V3(s * 0.52, Y - 0.02, 0.44), V3(s * 0.56, Y - 0.04, 0.6), 0.04, 0.006, 6), "claw" + sd, dark, "bone");
+    for (let k = 0; k < 4; k++) {
+      const z = 0.1 - k * 0.1;
+      R.add(gTaper(V3(s * 0.28, Y - 0.02, z), V3(s * 0.5, Y + 0.08, z - 0.03), 0.03, 0.022, 6), "leg" + sd + k, col, "scale");
+      R.add(gTaper(V3(s * 0.5, Y + 0.08, z - 0.03), V3(s * 0.6, 0.02, z - 0.06), 0.022, 0.006, 6), "leg" + sd + k, dark, "scale");
+    }
+  }
+  R.meta = { kind: "crab", headTop: 0.5 };
+  return R.finish();
+}
+
+function mandrakeEntry(col, leaf) {
+  const R = new RigBuilder();
+  const Y = 0.32;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y + 0.3, 0);
+  R.bone("leaf", "head", 0, Y + 0.5, -0.02);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("arm" + sd, "body", s * 0.17, Y + 0.08, 0.02); R.bone("leg" + sd, "body", s * 0.09, Y - 0.14, 0); }
+  const dark = new THREE.Color(col).multiplyScalar(0.65).getHex(), lf = leaf || 0x5aa84a, lfd = new THREE.Color(lf).multiplyScalar(0.6).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.2, 1, 1.15, 0.95, 14), "body", col, "skin");
+  R.add(gBall(V3(0, Y + 0.3, 0.02), 0.19, 1.05, 0.95, 1, 14), "head", col, "skin");
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gBall(V3(s * 0.08, Y + 0.33, 0.17), 0.04, 1, 1.1, 0.6, 8), "head", 0x111111, "plain");
+    R.add(gBall(V3(s * 0.08, Y + 0.34, 0.19), 0.012, 1, 1, 0.6, 5), "head", 0xffffff, "plain");
+    R.add(gTaper(V3(s * 0.17, Y + 0.08, 0.02), V3(s * 0.3, Y - 0.06, 0.08), 0.045, 0.02, 6), "arm" + sd, dark, "skin");
+    R.add(gTaper(V3(s * 0.09, Y - 0.14, 0), V3(s * 0.1, 0.02, 0.03), 0.055, 0.045, 6), "leg" + sd, dark, "skin");
+    R.add(gBall(V3(s * 0.1, 0.02, 0.06), 0.06, 1.1, 0.5, 1.4, 7), "leg" + sd, dark, "skin");
+  }
+  R.add(gBall(V3(0, Y + 0.22, 0.17), 0.05, 1.3, 0.35, 0.5, 8), "head", 0x4a2a2a, "plain");
+  R.add(gTaper(V3(0, Y + 0.46, -0.02), V3(0, Y + 0.62, -0.04), 0.03, 0.02, 6), "leaf", lfd, "wood");
+  for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + 0.4; R.add(gBall(V3(Math.cos(a) * 0.16, Y + 0.7, -0.04 + Math.sin(a) * 0.16), 0.14, 1.3, 0.18, 0.6, 8), "leaf", lf, "plain"); }
+  R.meta = { kind: "mandrake", headTop: Y + 0.8 };
+  return R.finish();
+}
+
+function shroomEntry(col, cap) {
+  const R = new RigBuilder();
+  const Y = 0.3;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("head", "body", 0, Y + 0.3, 0);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) R.bone("arm" + sd, "body", s * 0.16, Y + 0.05, 0);
+  const capC = cap || 0xb04a3a, spots = new THREE.Color(capC).lerp(new THREE.Color(0xffffff), 0.7).getHex(), dark = new THREE.Color(col).multiplyScalar(0.7).getHex();
+  R.add(gTaper(V3(0, 0.02, 0), V3(0, Y + 0.32, 0), 0.19, 0.14, 12), "body", col, "skin");
+  R.add(gBall(V3(0, 0.03, 0), 0.2, 1, 0.3, 1, 10), "body", dark, "skin");
+  for (const s of [-1, 1]) { R.add(gBall(V3(s * 0.07, Y + 0.08, 0.14), 0.035, 1, 1.2, 0.6, 8), "body", 0x111111, "plain"); R.add(gTaper(V3(s * 0.16, Y + 0.05, 0), V3(s * 0.3, Y - 0.06, 0.06), 0.04, 0.02, 6), "arm" + (s > 0 ? "L" : "R"), dark, "skin"); }
+  R.add(gBall(V3(0, Y - 0.02, 0.15), 0.04, 1.4, 0.3, 0.5, 8), "body", 0x3a2222, "plain");
+  R.add(gPartSphere(V3(0, Y + 0.28, 0), 0.42, 0, Math.PI * 0.55, 1, 0.8, 1, 16), "head", capC, "skin");
+  R.add(gBall(V3(0, Y + 0.3, 0), 0.4, 1, 0.12, 1, 14), "head", spots, "skin");
+  for (let k = 0; k < 6; k++) { const a = k * 1.05, r = 0.12 + (k % 3) * 0.09; R.add(gBall(V3(Math.cos(a) * r, Y + 0.3 + Math.sqrt(Math.max(0, 0.42 * 0.42 - r * r)) * 0.78, Math.sin(a) * r), 0.045, 1, 0.5, 1, 7), "head", spots, "plain"); }
+  R.meta = { kind: "shroom", headTop: Y + 0.65 };
+  return R.finish();
+}
+
+function fishEntry(col, belly) {
+  const R = new RigBuilder();
+  const Y = 0.4;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("tail", "body", 0, Y, -0.3);
+  R.bone("tail2", "tail", 0, Y, -0.5);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) R.bone("fin" + sd, "body", s * 0.14, Y - 0.04, 0.08);
+  const dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), light = belly || new THREE.Color(col).lerp(new THREE.Color(0xf0f4f0), 0.55).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.2, 0.7, 1, 1.9, 14), "body", col, "scale");
+  R.add(gBall(V3(0, Y - 0.06, 0.02), 0.17, 0.65, 0.7, 1.7, 10), "body", light, "scale");
+  R.add(gBall(V3(0, Y + 0.18, -0.05), 0.12, 0.25, 1.4, 1.2, 8), "body", dark, "skin");
+  R.add(gBall(V3(0, Y + 0.02, 0.34), 0.07, 0.9, 0.6, 1, 8), "body", light, "skin");
+  for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * 0.11, Y + 0.05, 0.25), 0.04, 1, 1.1, 0.6, 8), "body", 0xffe082, "glow", true);
+    R.add(gBall(V3(s * 0.11, Y + 0.05, 0.27), 0.02, 1, 1, 0.6, 5), "body", 0x111111, "plain");
+    R.add(gBall(V3(s * 0.2, Y - 0.04, 0.06), 0.1, 0.2, 0.6, 1.1, 8), "fin" + (s > 0 ? "L" : "R"), dark, "skin");
+  }
+  R.add(gTaper(V3(0, Y, -0.3), V3(0, Y, -0.5), 0.1, 0.05, 8), "tail", col, "scale");
+  R.add(gBall(V3(0, Y, -0.62), 0.17, 0.2, 1.3, 0.9, 8), "tail2", dark, "skin");
+  R.meta = { kind: "fish", headTop: 0.7 };
+  return R.finish();
+}
+
 function wormEntry(col) {
   const R = new RigBuilder();
   const Y = 0.32, n = 8;
@@ -1002,6 +1203,7 @@ function mobLook(m) {
   if (model === "bat") return { kind: "bat", col: key === "duskwing" ? 0x3a2a5a : f.tint || 0x5a4a6a, eye: key === "duskwing" ? 0xd080ff : f.tint ? 0x80d8ff : 0xff3030 };
   if (model === "worm") return { kind: "worm", col: key === "king_wiggles" ? 0xc8a050 : f.tint || 0xb8866a };
   if (model === "hare") return { kind: "hare", col: f.tint || 0xc8a27a };
+  if (["bee", "crawler", "sheep", "lizard", "longneck", "crab", "mandrake", "shroom", "fish"].includes(model)) return { kind: model, col: f.tint || 0x888888, col2: f.tint2 };
   return { kind: "human", look: goblinLook("goblin") };
 }
 
@@ -1017,6 +1219,15 @@ function buildEntityRig(e) {
     } else if (ml.kind === "bat") { sig = "bat|" + ml.col; make = () => batEntry(ml.col, ml.eye); }
     else if (ml.kind === "worm") { sig = "worm|" + ml.col; make = () => wormEntry(ml.col); }
     else if (ml.kind === "toad") { sig = "toad|" + ml.col; make = () => toadEntry(ml.col); }
+    else if (ml.kind === "bee") { sig = "bee|" + ml.col + ml.col2; make = () => beeEntry(ml.col, ml.col2); }
+    else if (ml.kind === "crawler") { sig = "crawler|" + ml.col + ml.col2; make = () => crawlerEntry(ml.col, ml.col2); }
+    else if (ml.kind === "sheep") { sig = "sheep|" + ml.col; make = () => sheepEntry(ml.col); }
+    else if (ml.kind === "lizard") { sig = "lizard|" + ml.col + ml.col2; make = () => lizardEntry(ml.col, ml.col2); }
+    else if (ml.kind === "longneck") { sig = "longneck|" + ml.col; make = () => longneckEntry(ml.col); }
+    else if (ml.kind === "crab") { sig = "crab|" + ml.col + ml.col2; make = () => crabEntry(ml.col, ml.col2); }
+    else if (ml.kind === "mandrake") { sig = "mandrake|" + ml.col + ml.col2; make = () => mandrakeEntry(ml.col, ml.col2); }
+    else if (ml.kind === "shroom") { sig = "shroom|" + ml.col + ml.col2; make = () => shroomEntry(ml.col, ml.col2); }
+    else if (ml.kind === "fish") { sig = "fish|" + ml.col + ml.col2; make = () => fishEntry(ml.col, ml.col2); }
     else { sig = "hare|" + ml.col; make = () => hareEntry(ml.col); }
   } else if (e.kind === "npc") {
     const L = NPC_LOOK[e.id];
