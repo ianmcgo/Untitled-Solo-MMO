@@ -2256,7 +2256,51 @@ function birdEntry(col, comb, beak) {
   return R.finish();
 }
 
-function walkerLook(seed) {
+const DISTRICT_DRESS = {
+  res: { tops: ["shirt", "apron", "tunic", "vest"], pal: [0xc8b890, 0x8a9a6a, 0x9a7a5a, 0xa8b0a0, 0xb08a6a], head: [["bandana", 0.1]], held: ["basket", "broom", null, null], boots: 0x4a3a28 },
+  gov: { tops: ["coat", "coat", "robe", "tabard"], pal: [0x2a3a5a, 0x3a4a7a, 0x4a3a5a, 0x2a4a4a], trim: 0xd8c070, head: [["mortar", 0.25], ["feathered", 0.15]], held: ["scroll", "book", "ledger", null], boots: 0x2a1a10 },
+  market: { tops: ["apron", "vest", "coat", "apron"], pal: [0xc86a3a, 0xd8a838, 0x5a8aa8, 0x9a4a5a, 0x6a9a5a], head: [["bandana", 0.3], ["widebrim", 0.15], ["beret", 0.1]], held: ["basket", "ledger", "tankard", null], boots: 0x3a2818 },
+  ind: { tops: ["apron", "vest", "tunic"], pal: [0x4a3a30, 0x5a4a3a, 0x3a3a3a, 0x6a4a2a], trim: 0x8a8f96, head: [["bandana", 0.35], ["headband", 0.15]], held: ["hammer", "hammer", null], gloves: [0x3a2a1a, 0.7], boots: 0x2a1e14, belt: 0x2a1a10 },
+  gate: { tops: ["coat", "vest", "mail"], pal: [0x5a4a2a, 0x3f5a2c, 0x4a5a6a, 0x6a5a3a], trim: 0xb08a50, head: [["widebrim", 0.25], ["furhat", 0.15], ["cap", 0.15]], held: ["spear", "staffwalk", null], cape: 0.3, boots: 0x3a2a1a },
+  fish: { tops: ["vest", "apron", "tunic"], pal: [0x3a6a8a, 0xd8d0c0, 0x4a8a7a, 0x7a9aa8], head: [["bandana", 0.35], ["widebrim", 0.2]], held: ["basket", "rod", null], boots: 0x3a3a3a },
+  square: { tops: ["coat", "vest", "shirt"], pal: [0x2a4a6a, 0xd8d0c0, 0x8a2a2a, 0x3a5a7a], trim: 0xd8c070, head: [["tricorne", 0.25], ["widebrim", 0.2]], held: ["spyglass", "ledger", null], boots: 0x2a1a10 },
+  yard: { tops: ["apron", "vest", "tunic"], pal: [0x6a5a3a, 0x4a4a52, 0x7a5a3a, 0x3a4a5a], head: [["bandana", 0.3], ["cap", 0.2]], held: ["hammer", "oar", null], gloves: [0x5a3a22, 0.6], boots: 0x2a1e14, belt: 0x3a2412 },
+  docks: { tops: ["vest", "shirt", "tunic"], pal: [0x2a4a6a, 0xd8d0c0, 0x4a6a8a, 0x8a3a2a], head: [["tricorne", 0.2], ["bandana", 0.3], ["cap", 0.2]], held: ["oar", "rod", "basket", null], boots: 0x2a2a2a },
+  keep: { tops: ["coat", "tabard", "robe"], pal: [0x2a3a5a, 0x3a4a6a, 0x5a2a3a], trim: 0xd8c070, head: [["mortar", 0.2], ["feathered", 0.2]], held: ["scroll", null], boots: 0x2a1a10 },
+  south: { tops: ["shirt", "apron", "tunic", "vest"], pal: [0xc8b890, 0x8a9a6a, 0x9a7a5a, 0xb08a6a], head: [["bandana", 0.1]], held: ["basket", "broom", null], boots: 0x4a3a28 },
+  forge: { tops: ["apron", "vest", "tunic"], pal: [0x4a3a30, 0x6a3a2a, 0x3a3a3a], trim: 0xff8a50, head: [["bandana", 0.4], ["headband", 0.15]], held: ["hammer", "hammer", null], gloves: [0x3a2a1a, 0.8], boots: 0x2a1e14, belt: 0x2a1a10 }
+};
+const WALKER_RACES = [["human", 1]];
+
+function walkerCoded(seed, district, night) {
+  const r = seeded(hashStr("walkerC" + seed + (district || "")));
+  const pick = a => a[Math.floor(r() * a.length)], D = DISTRICT_DRESS[district] || DISTRICT_DRESS.res;
+  let q = r(), race = "human";
+  for (const [k, w] of WALKER_RACES) { if (q < w) { race = k; break; } q -= w; }
+  const fem = race === "ursan" ? false : r() < 0.5;
+  const base = baseFromLook({ race, build: fem ? 1 : 0, face: Math.floor(r() * FACE_COUNT), skinTone: 0 });
+  const L = Object.assign(base, {
+    skin: race === "human" || race === "elari" || race === "nekari" ? SKIN_TONES[Math.floor(r() * SKIN_TONES.length)] : base.skin,
+    hair: { style: pick(HAIR_BY_SEX[fem ? 1 : 0]), color: pick(HAIR_COLORS) }
+  });
+  if (race === "ursan") L.hair = { style: "bald", color: 0x222222 };
+  const ty = pick(D.tops), col = pick(D.pal), shade = shadeHex(col, 0.75);
+  const topRegion = ty === "mail" ? "chain" : ty === "apron" || ty === "vest" ? "leather" : "cloth";
+  L.top = { type: ty, color: ty === "mail" ? 0x8a9098 : col, region: topRegion, color2: 0xd8d0c0, under: pick([0xe8e0d0, 0xd8cfb8, 0xc8c0a8]), trim: D.trim && r() < 0.8 ? D.trim : null };
+  if (ty === "mail") L.top.plate = 0x8a9098;
+  L.legs = shade; L.boots = D.boots || 0x3a2a1e; L.belt = D.belt || pick([0x3a2412, 0x5a3a20, 0x2a2a2a]);
+  for (const [t, p] of D.head || []) if (r() < p) { L.head = { type: t, color: pick(D.pal), color2: D.trim || 0xd8c070 }; break; }
+  if (L.head && L.head.type === "tricorne") L.head.color = 0x2a2a3a;
+  if (D.gloves && r() < D.gloves[1]) L.gloves = D.gloves[0];
+  if (D.cape && r() < D.cape) L.cape = shadeHex(col, 0.7);
+  if (race === "pipkin") L.held = null; else L.held = pick(D.held);
+  if (night) { L.cape = L.cape || 0x2a2a3a; L.held = "lantern"; if (L.head && L.head.type === "bandana") delete L.head; }
+  if (race === "ursan" || race === "pipkin") { L.prop = bodyProp({ race, build: fem ? 1 : 0, height: 2, girth: 2 }) || L.prop; }
+  return L;
+}
+
+function walkerLook(seed, district, night) {
+  if (classicOn() && district) return walkerCoded(seed, district, night);
   const r = seeded(hashStr("walker" + seed));
   const fem = r() < 0.5, pick = a => a[Math.floor(r() * a.length)];
   const pal = [0x8a5a3a, 0x3a5a7a, 0x6a7a3a, 0x7a3a3a, 0xc8b890, 0x5a4a6a, 0x2f4a5a, 0x8a7a4a, 0xa05a3a, 0x4a6a5a, 0x6a4a3a, 0xb8a888, 0x5a2a3a, 0x3a3a52];
@@ -3091,8 +3135,8 @@ function buildEntityRig(e) {
     make = () => humanEntry(LF);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {
-    sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "");
-    if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0); make = () => humanEntry(L); }
+    sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "") + (e.district && classicOn() ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
+    if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0, e.district, e.time === "night"); make = () => humanEntry(L); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
     else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);
@@ -3179,7 +3223,7 @@ function playerBase() { return baseFromLook(save.look); }
 function rigSigFor(e) {
   if (e.pet) return "pet|" + e.petKey;
   if (e.buddy) return "buddy|" + e.petId;
-  if (e.ambient) return "amb|" + e.type + "|" + (e.seed || 0);
+  if (e.ambient) return "amb|" + e.type + "|" + (e.seed || 0) + (e.district && classicOn() ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
   const jt = jobStyleOn() ? "|t" + jobStyleTier(e.lv) : "";
   if (e.remote) return "r|" + e.job + jt + "|" + SLOTS.map(s => (e.gear || {})[s] || "").join(",") + "|" + JSON.stringify(e.look || {});
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);

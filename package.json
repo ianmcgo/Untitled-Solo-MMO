@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.9.0",
-  "releaseTitle": "Bold monsters",
+  "version": "16.10.0",
+  "releaseTitle": "Townsfolk",
   "description": "",
   "main": "index.js",
   "scripts": {
