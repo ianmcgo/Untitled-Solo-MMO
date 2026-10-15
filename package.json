@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.1.1",
-  "releaseTitle": "Creator preview on phones",
+  "version": "16.1.2",
+  "releaseTitle": "Creator camera locked on touch screens",
   "description": "",
   "main": "index.js",
   "scripts": {
