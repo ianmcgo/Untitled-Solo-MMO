@@ -420,7 +420,7 @@ function showCharCreate() {
     btn.disabled = true; btn.textContent = "Creating…";
     const look = Object.assign({}, CC.look);
     const id = createChar({ name, job: CC.job, look });
-    try { await netCreateChar(id, loadChar(id)); }
+    try { if (!PLAY.offline) await netCreateChar(id, loadChar(id)); }
     catch (e) { deleteChar(id); btn.disabled = false; btn.textContent = "Begin your journey"; $("ccErr").textContent = netErr(e); sfx("error"); return; }
     enterWorld(id, true);
   };
