@@ -3025,7 +3025,7 @@ function fleeFrom(a, list, dt, mul) {
   return true;
 }
 
-function allyMode(a, threatened) {
+function allyMode(a, threatened, still) {
   if (!a.mercId) return null;
   const f = a.hp / a.maxHp;
   const full = a.hp >= a.maxHp * 0.995 && (a.maxMp <= 0 || a.mp >= a.maxMp * 0.99);
@@ -3033,6 +3033,9 @@ function allyMode(a, threatened) {
   if (a.retreat === "rest") {
     if (full || (!threatened && pd > 600)) a.retreat = null;
   } else if (f < CONFIG.allyRestHp && (threatened || pd <= 450)) a.retreat = "rest";
+  else if (a.retreat === "sit") {
+    if (full || threatened || !still || pd > 600) a.retreat = null;
+  } else if (!threatened && still && f <= CONFIG.allySitHp && pd <= 450) a.retreat = "sit";
   else if (a.retreat === "kite") { if (f > CONFIG.allyKiteExit) a.retreat = null; }
   else if (f <= CONFIG.allyKiteHp) a.retreat = "kite";
   if (!a.retreat) { a.fleeTurnUntil = 0; a.fleeChk = null; }
@@ -3040,7 +3043,11 @@ function allyMode(a, threatened) {
 }
 
 function restAI(a, dt, threats, hold) {
-  for (const m of threats) if (m.enmity.has(a) && (m.target !== a || dist(a, m) > CONFIG.allyRestDist)) m.enmity.delete(a);
+  for (const m of threats) {
+    if (!m.enmity.has(a)) continue;
+    const held = [...m.enmity.keys()].some(e => e !== a && e.alive && isParty(e));
+    if (held || m.target !== a || dist(a, m) > CONFIG.allyRestDist) m.enmity.delete(a);
+  }
   a.engaged = false; a.attackTarget = null; a.target = null;
   if (a.resting && canRest(a)) return;
   if (!hold) {
@@ -3080,10 +3087,11 @@ function updateAlly(a, dt) {
   if (stance !== "hold") a.holdAt = null;
   if (a.mercId) {
     const threats = allyThreats();
-    const mode = allyMode(a, threats.length > 0);
+    const still = !player.moving && !player.engaged && S.time - (player.stillSince || 0) >= 1;
+    const mode = allyMode(a, threats.length > 0, still);
     a.kiting = mode === "kite" && stance !== "hold";
     if (a.resting && !mode && !player.resting) standUp(a, true);
-    if (mode === "rest") {
+    if (mode === "rest" || mode === "sit") {
       restAI(a, dt, threats, stance === "hold");
       if (stance === "hold") { a.x = hx; a.y = hy; }
       return;

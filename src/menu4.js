@@ -1485,6 +1485,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.23.0", date: "2026-10-15", title: "Resting mercenaries", items: [
+    "A mercenary at 75% health or less now sits down and /rests on their own once the fighting is over and you stand still, until HP and MP are full. They stand up and follow as soon as you move or something attacks.",
+    "Resting during a fight works now: a mercenary below 25% health who isn't the only one a monster is hunting drops off its target list at once, steps clear of the fight and sits. If the monster is chasing only them, they run a shorter way (about 300 steps instead of 420) before sitting."
+  ] },
   { v: "16.22.0", date: "2026-10-15", title: "Admin session info", items: [
     "Config → More → Admin now opens with a This session block: ping, last save, unsaved changes, packets sent and received, players online, players in your zone, who hosts the shared monsters, current zone and game version.",
     "Below it a new list shows every player online right now with job, level, zone, party search and linkshell. Server totals, suspicious saves, bans and recent characters are still underneath."
@@ -2809,7 +2813,7 @@ function tabHelp() {
   h += sec("👥 Party and companions (P)", ul([
     "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement, and always fight at your level as you grow.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
-    "<b>Hurt mercenaries:</b> at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
+    "<b>Hurt mercenaries:</b> when the fight is over and you stand still, a mercenary at 75% health or less sits and rests to full. In a fight, at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
     "<b>Gear:</b> give companions equipment from your bag in the Party window. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
