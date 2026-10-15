@@ -1650,8 +1650,8 @@ function humanEntry(L) {
       R.add(gTaper(V3(0, hipsY - 0.32, tz - 0.2), V3(0, hipsY - 0.24, tz - 0.48), 0.026, 0.012, 8), "tail2", tc, "hair");
     } else {
       const lz = L.tail === "ursan", tr = lz ? "scale" : "hair";
-      R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.26, tz - 0.22), lz ? 0.1 : 0.07, lz ? 0.075 : 0.055, 8), "tail", tc, tr);
-      R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - (lz ? 0.56 : 0.5), tz - (lz ? 0.6 : 0.3)), lz ? 0.075 : 0.055, 0.015, 8), "tail2", tc, tr);
+      R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.22, tz - 0.14), lz ? 0.055 : 0.07, lz ? 0.045 : 0.055, 8), "tail", tc, tr);
+      R.add(gTaper(V3(0, hipsY - (lz ? 0.22 : 0.26), tz - (lz ? 0.14 : 0.22)), V3(0, hipsY - (lz ? 0.36 : 0.5), tz - (lz ? 0.3 : 0.3)), lz ? 0.045 : 0.055, 0.012, 8), "tail2", tc, tr);
     }
   }
   if (L.family || L.boss) familyExtras(R, L, { hx: pr.hip, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid: (elY + wrY) / 2 });
@@ -2643,7 +2643,7 @@ const RACE_BODY = {
   human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.075 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.075 }],
   elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
   pipkin: [{ leg: 0.34, torso: 0.3, arm: 0.3, girth: 1.0, waist: 1.0, shoulder: 0.125, hip: 0.072, headR: 0.2, neck: -0.05 }, { leg: 0.34, torso: 0.3, arm: 0.3, girth: 0.96, waist: 0.94, shoulder: 0.118, hip: 0.074, headR: 0.2, neck: -0.05 }],
-  ursan: [{ leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: 0.05 }, { leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: 0.05 }],
+  ursan: [{ leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }, { leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }],
   nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.075 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.075 }]
 };
 
