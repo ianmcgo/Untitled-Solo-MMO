@@ -28,6 +28,7 @@
   .plate .pb div, .plate .pc div { height: 100%; }
   .floater { position: absolute; left: 0; top: 0; font-weight: 800; text-shadow: 0 0 3px #000, 0 2px 3px #000, 0 0 1px #000; white-space: nowrap; will-change: transform; }
   .floater.dmg { font-family: var(--ffFont, sans-serif); font-style: italic; font-weight: 900; -webkit-text-stroke: 1px #2a0000; text-shadow: 0 0 2px #000, 1px 2px 0 #3a0000, 0 0 8px rgba(255,40,20,.55); pointer-events: none; }
+  .floater.cl { font-family: var(--ffFont, sans-serif); font-style: italic; font-weight: 900; -webkit-text-stroke: 3.5px #14102a; paint-order: stroke fill; text-shadow: 2px 2px 0 #000; letter-spacing: .02em; }
   #flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: screen; }
   #joy { position: absolute; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.06), rgba(255,255,255,.12)); border: 2px solid rgba(241,207,115,.35); display: none; pointer-events: none; z-index: 3; }
   #knob { position: absolute; left: 36px; top: 36px; width: 44px; height: 44px; border-radius: 50%; background: rgba(241,207,115,.45); box-shadow: 0 0 12px rgba(241,207,115,.4); }
@@ -1075,7 +1076,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.16.0 · built 2026-10-15 08:31 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.17.0 · built 2026-10-15 09:02 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -12471,7 +12472,7 @@ function tabNext(list) {
 
 function cycleNpcTarget() {
   const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && !n.warpstone && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
-  const crystals = S.npcs.filter(n => (n.crystal || n.warpstone) && !n.away && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const crystals = S.npcs.filter(n => (n.crystal || n.warpstone || (n.prop && n.prop !== "nubbin")) && !n.away && !n.gone && dist(n, player) < 900).sort((a, b) => dist(a, player) - dist(b, player));
   const list = people.concat(crystals);
   if (!list.length) return false;
   player.target = tabNext(list);
@@ -17393,8 +17394,13 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.16.0 · built 2026-10-15 08:31 PDT";
+const BUILD_INFO = "v16.17.0 · built 2026-10-15 09:02 PDT";
 const UPDATES = [
+  { v: "16.17.0", date: "2026-10-15", title: "Classic effects", items: [
+    "In the Classic look spell and hit effects are bolder: the glowing sparks are flat, hard-edged discs in a few tones and about a third bigger, shockwave rings are thick double rings, and light pillars are built from three flat bands.",
+    "Damage and healing numbers get a thick dark outline and a hard drop shadow, and fade out without blurring.",
+    "Tab now targets objects too (signs, boards, tablets, chests, braziers, gathering points, camps, crystals and warp stones), after the people nearby."
+  ] },
   { v: "16.16.0", date: "2026-10-15", title: "World match", items: [
     "In the Classic look the world now matches the characters: ground, bark, leaves, stonework and sky textures use a few flat painted tones, lighting on terrain, trees and buildings falls in soft bands, clouds are blockier, and the distance haze closes in sooner.",
     "The glow effect is off in the Classic look. The Modern look is unchanged."
@@ -17561,7 +17567,7 @@ const UPDATES = [
   { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
     "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
     "The markets and fish market are crowded; the residential wards are quieter.",
-    "Warp stones are robed stone statues holding a glowing crystal (Tab targets them too). A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
+    "Warp stones are robed stone statues holding a glowing crystal (Tab targets them and other objects too). A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
     "Ambience follows the district: crowd noise swells in the markets and fades in the wards, and the surf is loudest on the Docks.",
     "Three new quests for touring each city: Know Your City (Pell), Harbor Rounds (Marn) and The Ironvale Circuit (Brisa). Walk through every district, then report back."
   ] },
@@ -18839,7 +18845,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.16.0";
+const GAME_VERSION = "16.17.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -26283,7 +26289,7 @@ class ParticleLayer {
     g.setAttribute("palpha", new THREE.BufferAttribute(this.aAlpha, 1).setUsage(THREE.DynamicDrawUsage));
     g.setDrawRange(0, 0);
     this.mat = new THREE.ShaderMaterial({
-      uniforms: { map: { value: texGlow() }, scale: { value: 400 }, soft: { value: additive ? 0 : 1 } },
+      uniforms: { map: { value: glowFXTexture() }, scale: { value: 400 }, soft: { value: additive ? 0 : 1 } },
       vertexShader: "attribute vec3 pcolor; attribute float psize; attribute float palpha; uniform float scale; varying vec3 vC; varying float vA; void main(){ vC = pcolor; vA = palpha; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = psize * scale / max(0.1, -mv.z); gl_Position = projectionMatrix * mv; }",
       fragmentShader: "uniform sampler2D map; uniform float soft; varying vec3 vC; varying float vA; void main(){ vec4 t = texture2D(map, gl_PointCoord); float a = mix(t.a, smoothstep(0.0, 1.0, t.a), soft) * vA; if (a < 0.004) discard; gl_FragColor = vec4(vC, a); \n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}",
       transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending
@@ -26300,7 +26306,7 @@ class ParticleLayer {
     this.c0[j] = c0.r; this.c0[j + 1] = c0.g; this.c0[j + 2] = c0.b;
     const e = c1 || c0;
     this.c1[j] = e.r; this.c1[j + 1] = e.g; this.c1[j + 2] = e.b;
-    this.age[i] = 0; this.life[i] = life; this.s0[i] = s0; this.s1[i] = s1;
+    this.age[i] = 0; this.life[i] = life; this.s0[i] = s0 * (FX.big || 1); this.s1[i] = s1 * (FX.big || 1);
     this.grav[i] = grav || 0; this.drag[i] = drag || 0; this.a0[i] = a0 == null ? 1 : a0;
   }
   update(dt) {
@@ -26366,6 +26372,13 @@ function runeTexture() {
 }
 
 function gradientTexture() {
+  if (classicOn()) {
+    const c = makeCanvas(8, 128), g = c.getContext("2d");
+    [[0, 1], [42, 0.55], [84, 0.2]].forEach(([y, a]) => { g.fillStyle = "rgba(255,255,255," + a + ")"; g.fillRect(0, 128 - y - 44, 8, 44); });
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = THREE.RepeatWrapping;
+    return t;
+  }
   const c = makeCanvas(8, 128), g = c.getContext("2d");
   const gr = g.createLinearGradient(0, 128, 0, 0);
   gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.5, "rgba(255,255,255,0.45)"); gr.addColorStop(1, "rgba(255,255,255,0)");
@@ -26376,6 +26389,12 @@ function gradientTexture() {
 }
 
 function ringTexture() {
+  if (classicOn()) {
+    const c = makeCanvas(128, 128), g = c.getContext("2d");
+    g.strokeStyle = "#fff"; g.lineWidth = 12; g.beginPath(); g.arc(64, 64, 56, 0, Math.PI * 2); g.stroke();
+    g.globalAlpha = 0.6; g.lineWidth = 5; g.beginPath(); g.arc(64, 64, 38, 0, Math.PI * 2); g.stroke();
+    return new THREE.CanvasTexture(c);
+  }
   const c = makeCanvas(128, 128), g = c.getContext("2d");
   const gr = g.createRadialGradient(64, 64, 30, 64, 64, 64);
   gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.75, "rgba(255,255,255,0.9)"); gr.addColorStop(0.85, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,0)");
@@ -26383,7 +26402,17 @@ function ringTexture() {
   return new THREE.CanvasTexture(c);
 }
 
+function glowFXTexture() {
+  if (!classicOn()) return texGlow();
+  if (FX.glowC) return FX.glowC;
+  const c = makeCanvas(64, 64), g = c.getContext("2d");
+  for (const [r, a] of [[31, 0.4], [23, 0.7], [14, 1]]) { g.fillStyle = "rgba(255,255,255," + a + ")"; g.beginPath(); g.arc(32, 32, r, 0, Math.PI * 2); g.fill(); }
+  FX.glowC = new THREE.CanvasTexture(c);
+  return FX.glowC;
+}
+
 function initFX() {
+  FX.big = classicOn() ? 1.3 : 1;
   FX.add = new ParticleLayer(3500, true);
   FX.smoke = new ParticleLayer(1200, false);
   W3.scene.add(FX.add.points, FX.smoke.points);
@@ -26576,7 +26605,7 @@ function sphereFlash(p, color, radius, life) {
 }
 
 function sprite(p, color, size, life, grow) {
-  const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: C(color), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+  const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowFXTexture(), color: C(color), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
   m.position.copy(p);
   addItem(m, life, k => { const s = size * (1 + (grow || 0.5) * k); m.scale.set(s, s, 1); m.material.opacity = 1 - k; });
 }
@@ -27711,7 +27740,7 @@ function updateFloaters() {
     if (f.dmg && !nums) { if (f.el) { f.el.remove(); f.el = null; VIEW.floaters.delete(f); } continue; }
     if (!f.el) {
       f.el = document.createElement("div");
-      f.el.className = f.dmg ? "floater dmg" : "floater";
+      f.el.className = (f.dmg ? "floater dmg" : "floater") + (classicOn() ? " cl" : "");
       f.el.textContent = f.text;
       f.el.style.color = f.color;
       f.el.style.fontSize = f.size + "px";
@@ -27729,7 +27758,7 @@ function updateFloaters() {
       const dx = (f.drift || 0) * 14 * k;
       f.el.style.transform = "translate(" + (sc.x + dx).toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-50%) scale(" + (pop * (1 + fz * 0.35)).toFixed(2) + "," + (pop * (1 - fz * 0.5)).toFixed(2) + ")";
       f.el.style.opacity = fz ? (Math.max(0, 1 - fz * 1.1) * (0.7 + 0.3 * Math.sin(f.t * 70))).toFixed(2) : 1;
-      f.el.style.filter = fz ? "blur(" + (fz * 2.6).toFixed(1) + "px)" : "";
+      f.el.style.filter = fz && !classicOn() ? "blur(" + (fz * 2.6).toFixed(1) + "px)" : "";
       f.el.style.letterSpacing = fz ? (fz * 0.35).toFixed(2) + "em" : "";
       continue;
     }

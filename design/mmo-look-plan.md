@@ -19,7 +19,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 | 123 ✅ | 16.9.0 | Bold monsters | Families as chunky painted shapes recoloured per tier; NMs get extra parts | Opus |
 | 124 ✅ | 16.10.0 | NPCs and townsfolk | Outfits coded by race, job and district | Sonnet |
 | 125 ✅ | 16.16.0 | World match | Terrain, trees, props, sky and fog in the same painted style; bloom off in Classic | Sonnet |
-| 126 | | Classic effects | Bold sprite and ring spell effects, painted numbers | Sonnet |
+| 126 ✅ | 16.17.0 | Classic effects | Bold sprite and ring spell effects, painted numbers | Sonnet |
 | 127 | | Polish | Performance on all tiers, real-phone check, contact sheets, remove dead PBR paths | Sonnet |
 
 ## Phase 116: Classic shading (v16.2.0)
@@ -114,6 +114,10 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - `classicWorldChunk()` (world3d.js, run in initRenderer before any compile) prepends a banding block to THREE.ShaderChunk.opaque_fragment under `#ifdef STANDARD` (opaque only, ratio above 0.2, 4 bands, 45% blend). Lambert characters are unaffected; it affects terrain, trees, buildings and props.
 - Bloom pass is not added in Classic. Open-air fog near/far x0.78 in Classic.
 - Not done: painted-style tree/foliage geometry, sky gradient banding.
+
+## Phase 126: Classic effects (v16.17.0)
+- effects3d.js (Classic only): `glowFXTexture()` is a 3-tone hard disc used by ParticleLayer and `sprite()`; `FX.big` (1.3) scales every particle size in `spawn`; `ringTexture()` is a thick double ring; `gradientTexture()` has 3 flat bands. Floaters get class `cl` (thick stroke with paint-order stroke, hard 2px shadow, no blur on fade).
+- Also in 16.17.0: Tab (cycleNpcTarget) lists people, then objects (props, crystals, warp stones) within 900.
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.16.0",
-  "releaseTitle": "World match",
+  "version": "16.17.0",
+  "releaseTitle": "Classic effects",
   "description": "",
   "main": "index.js",
   "scripts": {

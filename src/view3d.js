@@ -115,7 +115,7 @@ function updateFloaters() {
     if (f.dmg && !nums) { if (f.el) { f.el.remove(); f.el = null; VIEW.floaters.delete(f); } continue; }
     if (!f.el) {
       f.el = document.createElement("div");
-      f.el.className = f.dmg ? "floater dmg" : "floater";
+      f.el.className = (f.dmg ? "floater dmg" : "floater") + (classicOn() ? " cl" : "");
       f.el.textContent = f.text;
       f.el.style.color = f.color;
       f.el.style.fontSize = f.size + "px";
@@ -133,7 +133,7 @@ function updateFloaters() {
       const dx = (f.drift || 0) * 14 * k;
       f.el.style.transform = "translate(" + (sc.x + dx).toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-50%) scale(" + (pop * (1 + fz * 0.35)).toFixed(2) + "," + (pop * (1 - fz * 0.5)).toFixed(2) + ")";
       f.el.style.opacity = fz ? (Math.max(0, 1 - fz * 1.1) * (0.7 + 0.3 * Math.sin(f.t * 70))).toFixed(2) : 1;
-      f.el.style.filter = fz ? "blur(" + (fz * 2.6).toFixed(1) + "px)" : "";
+      f.el.style.filter = fz && !classicOn() ? "blur(" + (fz * 2.6).toFixed(1) + "px)" : "";
       f.el.style.letterSpacing = fz ? (fz * 0.35).toFixed(2) + "em" : "";
       continue;
     }

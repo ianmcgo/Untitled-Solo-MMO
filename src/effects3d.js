@@ -16,7 +16,7 @@ class ParticleLayer {
     g.setAttribute("palpha", new THREE.BufferAttribute(this.aAlpha, 1).setUsage(THREE.DynamicDrawUsage));
     g.setDrawRange(0, 0);
     this.mat = new THREE.ShaderMaterial({
-      uniforms: { map: { value: texGlow() }, scale: { value: 400 }, soft: { value: additive ? 0 : 1 } },
+      uniforms: { map: { value: glowFXTexture() }, scale: { value: 400 }, soft: { value: additive ? 0 : 1 } },
       vertexShader: "attribute vec3 pcolor; attribute float psize; attribute float palpha; uniform float scale; varying vec3 vC; varying float vA; void main(){ vC = pcolor; vA = palpha; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = psize * scale / max(0.1, -mv.z); gl_Position = projectionMatrix * mv; }",
       fragmentShader: "uniform sampler2D map; uniform float soft; varying vec3 vC; varying float vA; void main(){ vec4 t = texture2D(map, gl_PointCoord); float a = mix(t.a, smoothstep(0.0, 1.0, t.a), soft) * vA; if (a < 0.004) discard; gl_FragColor = vec4(vC, a); \n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}",
       transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending
@@ -33,7 +33,7 @@ class ParticleLayer {
     this.c0[j] = c0.r; this.c0[j + 1] = c0.g; this.c0[j + 2] = c0.b;
     const e = c1 || c0;
     this.c1[j] = e.r; this.c1[j + 1] = e.g; this.c1[j + 2] = e.b;
-    this.age[i] = 0; this.life[i] = life; this.s0[i] = s0; this.s1[i] = s1;
+    this.age[i] = 0; this.life[i] = life; this.s0[i] = s0 * (FX.big || 1); this.s1[i] = s1 * (FX.big || 1);
     this.grav[i] = grav || 0; this.drag[i] = drag || 0; this.a0[i] = a0 == null ? 1 : a0;
   }
   update(dt) {
@@ -99,6 +99,13 @@ function runeTexture() {
 }
 
 function gradientTexture() {
+  if (classicOn()) {
+    const c = makeCanvas(8, 128), g = c.getContext("2d");
+    [[0, 1], [42, 0.55], [84, 0.2]].forEach(([y, a]) => { g.fillStyle = "rgba(255,255,255," + a + ")"; g.fillRect(0, 128 - y - 44, 8, 44); });
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = THREE.RepeatWrapping;
+    return t;
+  }
   const c = makeCanvas(8, 128), g = c.getContext("2d");
   const gr = g.createLinearGradient(0, 128, 0, 0);
   gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.5, "rgba(255,255,255,0.45)"); gr.addColorStop(1, "rgba(255,255,255,0)");
@@ -109,6 +116,12 @@ function gradientTexture() {
 }
 
 function ringTexture() {
+  if (classicOn()) {
+    const c = makeCanvas(128, 128), g = c.getContext("2d");
+    g.strokeStyle = "#fff"; g.lineWidth = 12; g.beginPath(); g.arc(64, 64, 56, 0, Math.PI * 2); g.stroke();
+    g.globalAlpha = 0.6; g.lineWidth = 5; g.beginPath(); g.arc(64, 64, 38, 0, Math.PI * 2); g.stroke();
+    return new THREE.CanvasTexture(c);
+  }
   const c = makeCanvas(128, 128), g = c.getContext("2d");
   const gr = g.createRadialGradient(64, 64, 30, 64, 64, 64);
   gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.75, "rgba(255,255,255,0.9)"); gr.addColorStop(0.85, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,0)");
@@ -116,7 +129,17 @@ function ringTexture() {
   return new THREE.CanvasTexture(c);
 }
 
+function glowFXTexture() {
+  if (!classicOn()) return texGlow();
+  if (FX.glowC) return FX.glowC;
+  const c = makeCanvas(64, 64), g = c.getContext("2d");
+  for (const [r, a] of [[31, 0.4], [23, 0.7], [14, 1]]) { g.fillStyle = "rgba(255,255,255," + a + ")"; g.beginPath(); g.arc(32, 32, r, 0, Math.PI * 2); g.fill(); }
+  FX.glowC = new THREE.CanvasTexture(c);
+  return FX.glowC;
+}
+
 function initFX() {
+  FX.big = classicOn() ? 1.3 : 1;
   FX.add = new ParticleLayer(3500, true);
   FX.smoke = new ParticleLayer(1200, false);
   W3.scene.add(FX.add.points, FX.smoke.points);
@@ -309,7 +332,7 @@ function sphereFlash(p, color, radius, life) {
 }
 
 function sprite(p, color, size, life, grow) {
-  const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: C(color), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+  const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowFXTexture(), color: C(color), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
   m.position.copy(p);
   addItem(m, life, k => { const s = size * (1 + (grow || 0.5) * k); m.scale.set(s, s, 1); m.material.opacity = 1 - k; });
 }
