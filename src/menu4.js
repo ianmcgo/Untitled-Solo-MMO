@@ -1480,13 +1480,16 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "16.1.1", date: "2026-10-15", title: "Creator preview on phones", items: [
+    "Character creation no longer zooms in on the face on phones and tablets, including when held sideways; the preview stays full-length."
+  ] },
   { v: "16.1.0", date: "2026-10-15", title: "Rocky Hollow and Windreach in three zones", items: [
     "Rocky Hollow is now three zones: West Meadows (Lv 1–3, from the Outpost), Mirror Lake (Lv 3–5, with the roads to the Ashen Marsh and the Windreach Highlands) and Eastern Ruins (Lv 5–7, with the Old Fort and the way to the Goblin Den). Walk off the east or west edge to cross between them.",
     "Windreach Highlands is now three zones: Windreach Foothills (Lv 10–13, where the road from the Hollow arrives), Windreach Plateau (Lv 11–14, with the nomad camp, Tarqa and Essa) and Eagle Ridge (Lv 11–14, with Rider's Rest). Walk north to climb.",
     "Each zone has its own name, level range, monsters, gathering spots, signposts and camp crystal (Hollow). The new Highland zones have more monsters to fight.",
     "The Hollow Run now crosses all three Hollow zones; the next checkpoint's zone is shown in the tracker.",
     "Weather is shared across a whole area. Your position, found landmarks, explored map, camp attunement and quest progress carried over from the old Hollow and Highlands.",
-    "Character creation on a phone no longer zooms in on the face; the preview stays full-length."
+    "Character creation on a phone no longer zooms in on the face (fixed properly in 16.1.1)."
   ] },
   { v: "16.0.0", date: "2026-10-15", title: "Region framework", items: [
     "Every outdoor zone now has a level range. It shows on the banner when you arrive (with its region), in the chat log, in the Map window and under each area on the atlas.",
