@@ -1341,7 +1341,7 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Weather: weatherNow uses the area id for table and seed, so all parts share weather. Fishing, lore, backdrop, atmosphere use zkey.
 - Hollow Run: RACE.zones lists the three parts; RACE.start and every checkpoint carry zone plus part-local x,y (splitLocal). tickRace only counts a checkpoint in its zone; crossing between parts keeps the run; leaving the Hollow ends it. The HUD tracker shows "in <zone>" for a checkpoint elsewhere, and the minimap dot and beacon only show in the checkpoint's zone.
 - POI_PLAN: shrine in West Meadows, lookout in Mirror Lake, tablet and cache in Eastern Ruins (ids keep the old "_hollow" suffix so saves keep them); each part has its own camp crystal (campcrystal_hollow, _hollow_lake, _hollow_ruins). The lookout reveals only its own zone's landmarks. Highlands has no camps or POIs yet (phase 115).
-- Creator: on phones (width 700 or less) the face and hair steps no longer zoom the preview camera.
+- Creator: the face and hair steps skip the zoom camera on touch devices. 16.1.0 tested width only (innerWidth > 700), which missed sideways phones; 16.1.1 uses ccTouch() in main4.js (width 720 or less, coarse pointer, or any touch points).
 - Tests: p54unit now checks the real split (bands, spawns, paired edges, exits, signposts, POIs, weather, race, migration of Hollow and Highlands positions, edge crossing). Older tests that assumed one Hollow zone were pointed at the right part (p5, p6, p6b, p8, p11, p14, p20, p24, p42).
 
 ## Phase 111: Region framework (v16.0.0) — Track 5
@@ -1430,6 +1430,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.1.1 | Creator preview never zooms on touch devices (ccTouch). |
 | 16.1.0 | Phase 112: Rocky Hollow and Windreach Highlands split into three zones each. |
 | 16.0.0 | Phase 111: region framework (areas, zone splitting, save migration, level bands). |
 | 15.7.1 | Creator preview: face-centred camera, no auto-turn. |

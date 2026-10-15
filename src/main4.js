@@ -313,6 +313,7 @@ function ccApplyFace(l) {
   const sx = l.build ? 1 : 0, f = (l.face || 0) % FACE_COUNT;
   l.hairStyle = HAIR_STYLES.indexOf(CC_FACE_HAIR[sx][f]);
 }
+function ccTouch() { try { return window.innerWidth <= 720 || window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0; } catch (e) { return false; } }
 function ccSizeOf(l) { const i = CC_SIZES.findIndex(s => s[1] === l.height && s[2] === l.girth); return i < 0 ? 1 : i; }
 function ccSteps(l) { return CC_STEPS.filter(s => s[0] !== "gender" || RACES[l.race].sex == null); }
 function ccFaceThumb(v, fem, race) {
@@ -366,7 +367,7 @@ function showCharCreate() {
     const l = CC.look, steps = ccSteps(l);
     CC.step = Math.max(0, Math.min(CC.step, steps.length - 1));
     const st = steps[CC.step][0];
-    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; UI.pv.focus = (st === "face" || st === "hair") && window.innerWidth > 700 ? 1 : 0; }
+    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; UI.pv.focus = (st === "face" || st === "hair") && !ccTouch() ? 1 : 0; }
     $("ccSteps").innerHTML = steps.map((s, i) => '<button data-goto="' + i + '" class="' + (i === CC.step ? "on" : i < CC.step ? "done" : "") + '">' + (i + 1) + '<small>' + s[1] + "</small></button>").join("");
     $("ccStepT").textContent = (CC.step + 1) + ". " + steps[CC.step][1];
     const sel = (on) => on ? " on" : "";
