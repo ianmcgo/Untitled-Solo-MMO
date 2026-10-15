@@ -1333,6 +1333,17 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Hair: fringe styles (bob, long, twintails, wavy) front edge −0.5 / −0.42 and front locks 0.13 long so they stop at the brows.
 - Test tool: test/faceshot.js (own WebGL renderer with ACES so render targets are tone mapped like the game; poses front, q, lid0, lidh).
 
+## Phase 112: Rocky Hollow and Windreach in three zones (v16.1.0) — Track 5
+
+- Calls: the split block (helpers + splitZone/migrateSplits) now sits in data.js right after spreadSpawns, before exit halls, camps, POIs and signposts, so those generate per part. Order: extra Highland spawns pushed, splitZone("hollow"), splitZone("highlands"), then computeBand for unfixed zones.
+- Hollow (4800x3300, cut at x 1650 and 3300): hollow = West Meadows (band 1–3, keeps Outpost exit), hollow_lake = Mirror Lake (3–5, Marsh south exit, Highlands north exit), hollow_ruins = Eastern Ruins (5–7, Den exit). Highlands (4000x3000, cut at y 2000 and 1000): highlands = Windreach Foothills (arrival from the Hollow), highlands_plateau (nomad camp, Tarqa, Essa), highlands_ridge = Eagle Ridge (Rider's Rest). Added 4 spawns to the Foothills and 5 to the Ridge so each has 5+.
+- splitZone changes: other zones' exits that pointed at src are re-pointed using the src zone's own exit back to them (their tx/ty were still unscaled); spawns are clamped 80 px inside the part.
+- Weather: weatherNow uses the area id for table and seed, so all parts share weather. Fishing, lore, backdrop, atmosphere use zkey.
+- Hollow Run: RACE.zones lists the three parts; RACE.start and every checkpoint carry zone plus part-local x,y (splitLocal). tickRace only counts a checkpoint in its zone; crossing between parts keeps the run; leaving the Hollow ends it. The HUD tracker shows "in <zone>" for a checkpoint elsewhere, and the minimap dot and beacon only show in the checkpoint's zone.
+- POI_PLAN: shrine in West Meadows, lookout in Mirror Lake, tablet and cache in Eastern Ruins (ids keep the old "_hollow" suffix so saves keep them); each part has its own camp crystal (campcrystal_hollow, _hollow_lake, _hollow_ruins). The lookout reveals only its own zone's landmarks. Highlands has no camps or POIs yet (phase 115).
+- Creator: on phones (width 700 or less) the face and hair steps no longer zoom the preview camera.
+- Tests: p54unit now checks the real split (bands, spawns, paired edges, exits, signposts, POIs, weather, race, migration of Hollow and Highlands positions, edge crossing). Older tests that assumed one Hollow zone were pointed at the right part (p5, p6, p6b, p8, p11, p14, p20, p24, p42).
+
 ## Phase 111: Region framework (v16.0.0) — Track 5
 
 Terms: region = conquest region (CONQUEST.regions, e.g. The Vale). Area = one wild place on the atlas (Rocky Hollow). Zone = one loaded map. An area may hold several zones.
@@ -1419,6 +1430,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.1.0 | Phase 112: Rocky Hollow and Windreach Highlands split into three zones each. |
 | 16.0.0 | Phase 111: region framework (areas, zone splitting, save migration, level bands). |
 | 15.7.1 | Creator preview: face-centred camera, no auto-turn. |
 | 15.7.0 | Phase 110.3: skin tones removed, creation summary and Start over, race and size on Status. |
