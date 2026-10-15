@@ -408,7 +408,7 @@ function renderMCard() {
   if (!el) return;
   let id = UI.hov, h = "";
   if (S.modal === "inventory") { const s = save.inventory[UI.sel]; id = id || (s && s.id); }
-  if (S.modal === "shop") { h += '<div class="gilBox"><em>Current Crystals</em><b>' + save.gil.toLocaleString() + "</b></div>"; }
+  if (S.modal === "shop" || S.modal === "auction") { h += '<div class="gilBox"><em>Current Crystals</em><b>' + save.gil.toLocaleString() + "</b></div>"; }
   if (S.modal === "quests" && UI.qSel && QUESTS[UI.qSel]) h += '<div class="qCard">' + questCardHTML(UI.qSel) + "</div>";
   else if ((S.modal === "inventory" || S.modal === "shop") && id && ITEMS[id]) h += '<div class="cardBox">' + itemCard(id) + (S.modal === "inventory" && augText(id) ? '<div class="sub" style="color:#ce93d8">✨ ' + esc(augText(id)) + "</div>" : "") + "</div>";
   el.innerHTML = h;
@@ -1474,6 +1474,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.14.1", date: "2026-10-15", title: "Auction balance", items: [
+    "The Auction House now shows a Current Crystals box below its window, so you can see your balance while you buy and post."
+  ] },
   { v: "16.14.0", date: "2026-10-15", title: "Camera and Tab", items: [
     "Dragging to turn the camera left and right is now inverted. Config, Camera has an Invert horizontal switch to change it back.",
     "Tab now targets warp stones as well as crystals and people, so you can reach a stone without tapping it."
@@ -2698,6 +2701,7 @@ function tabHelp() {
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
   ]));
   h += sec("⚖️ Auction house", ul([
+    "A <b>Current Crystals</b> box under the window shows your balance while you shop.",
     "Talk to <b>Corvin</b> in Ashenreach Outpost or <b>Selene</b> in Saltreach Harbor.",
     "<b>Prices move.</b> Every item drifts around its usual value through the game day (a new price every 6 game hours, about 14 real minutes). Each game day the market news lifts one category (▲) and lowers another (▼). Buying pushes a price up; your lots selling pull it down; both effects fade.",
     "Items that shops sell never fetch more than " + 95 + "% of the shop price at auction, so the auction house is for bargains, materials and other adventurers' gear.",
