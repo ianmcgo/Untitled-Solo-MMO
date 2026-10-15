@@ -1072,7 +1072,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.10.0 · built 2026-10-15 06:25 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.11.0 · built 2026-10-15 06:37 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -8357,11 +8357,50 @@ const WARP_STONES = {
 };
 for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
   const id = "warpstone_" + zid + "_" + did, d = ZONES[zid].districts.find(q => q.id === did);
-  NPCS[id] = { name: "Warp Stone: " + d.name, model: "crystal", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
+  NPCS[id] = { name: "Warp Stone: " + d.name, prop: "statue", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
   ZONES[zid].npcs.push({ id, x: WARP_STONES[zid][did][0], y: WARP_STONES[zid][did][1] });
   const sid = "dsign_" + zid + "_" + did;
   NPCS[sid] = { name: "District Signpost", prop: "sign", talk: "talkDistrictSign" };
   ZONES[zid].npcs.push({ id: sid, x: WARP_STONES[zid][did][0] + 60, y: WARP_STONES[zid][did][1] + 6 });
+}
+const OFFROAD_PROPS = { sign: 1, board: 1, tablet: 1, brazier: 1, shrine: 1, lookout: 1, statue: 1 };
+function clearOfRoads(z, x, y, extra) {
+  for (const p of z.paths || []) for (let i = 0; i < p.pts.length - 1; i++) {
+    const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1;
+    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L));
+    if (Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t) < p.w / 2 + extra) return false;
+  }
+  for (const h of z.houses || []) {
+    const sw = (h.rot || 0) % 2 ? h.h : h.w, sh = (h.rot || 0) % 2 ? h.w : h.h;
+    if (Math.abs(x - h.x) < sw / 2 + 28 && Math.abs(y - h.y) < sh / 2 + 28) return false;
+  }
+  for (const f of z.fountains || []) if (Math.hypot(x - f.x, y - f.y) < 90) return false;
+  return x > 60 && y > 60 && x < z.w - 60 && y < z.h - 60;
+}
+function offRoad(z, at, extra) {
+  if (clearOfRoads(z, at.x, at.y, extra)) return;
+  for (let r = 12; r <= 420; r += 12) for (let k = 0; k < 24; k++) {
+    const a = k / 24 * Math.PI * 2, x = Math.round(at.x + Math.cos(a) * r), y = Math.round(at.y + Math.sin(a) * r);
+    if (clearOfRoads(z, x, y, extra)) { at.x = x; at.y = y; return; }
+  }
+}
+for (const zid in ZONES) {
+  const z = ZONES[zid];
+  if (z.indoor || z.theme === "house" || z.theme === "cave" || z.theme === "crypt" || !(z.paths || []).length) continue;
+  const grid = a => (a || []).forEach(q => { const at = { x: q[0], y: q[1] }; offRoad(z, at, 24); q[0] = at.x; q[1] = at.y; });
+  const objs = a => (a || []).forEach(q => offRoad(z, q, 24));
+  for (const n of z.npcs) if (NPCS[n.id] && NPCS[n.id].warpstone) offRoad(z, n, 30);
+  for (const n of z.npcs) {
+    const d = NPCS[n.id];
+    if (!d || !d.prop || !OFFROAD_PROPS[d.prop] || d.warpstone) continue;
+    if (n.id.startsWith("dsign_")) {
+      const st = z.npcs.find(q => q.id === "warpstone_" + n.id.slice(6));
+      if (st) { n.x = st.x + 60; n.y = st.y + 6; }
+    }
+    offRoad(z, n, 24);
+  }
+  grid(z.benches); grid(z.racks); grid(z.dummies); objs(z.props); objs(z.stalls);
+  (z.lamps || []).forEach(q => { const at = { x: q[0], y: q[1] }; offRoad(z, at, 6); q[0] = at.x; q[1] = at.y; });
 }
 const CITY_LIFE = {
   market: [6, 1], square: [6, 1], fish: [4, 1], docks: [4, 1], gov: [2, 2], keep: [1, 2], res: [3, 1], south: [3, 1], ind: [3, 1], yard: [3, 1], gate: [2, 2], forge: [3, 1]
@@ -10062,16 +10101,6 @@ function addWildlife(id) {
   const snowy = z.palette === "snow", wet = z.mist;
   for (let h = 0; h < (snowy ? 1 : 2); h++) { const p = spot(); if (p) for (let i = 0; i < 3; i++) mk("deer", p[0] + (r() - 0.5) * 120, p[1] + (r() - 0.5) * 120, { col: snowy ? 0xb8b0a4 : 0x8a6a48, roam: 180, speed: 70, time: "day", shy: true }); }
   for (let f = 0; f < 2; f++) { const p = spot(); if (p) for (let i = 0; i < 4; i++) mk("bird", p[0] + (r() - 0.5) * 80, p[1] + (r() - 0.5) * 80, { col: wet ? 0x3a3a34 : snowy ? 0xe8ecf0 : 0x6a5a4a, roam: 500, speed: 150, fly: 7 + r() * 5, time: "day", dry: true, wait: 0 }); }
-  const road = (z.paths || [])[0];
-  if (road) {
-    const pts = road.pts.filter(q => q[0] > 150 && q[1] > 150 && q[0] < z.w - 150 && q[1] < z.h - 150);
-    if (pts.length >= 2) for (let t = 0; t < 2; t++) {
-      const path = t ? pts.slice().reverse() : pts.slice();
-      const loop = path.concat(path.slice(1, -1).reverse());
-      mk("walker", path[0][0], path[0][1], { seed: hashStr(id + "trav" + t) % 997, path: loop, speed: 50, time: "day", traveller: true });
-      if (t === 0) mk("dog", path[0][0] + 20, path[0][1], { col: 0x6a5a48, path: loop, speed: 50, time: "day" });
-    }
-  }
 }
 function cityLife(z, id) {
   const rs = zoneRects(z);
@@ -11964,12 +11993,11 @@ function enterZone(id, x, y) {
     for (const [gx, gy] of picks) spawnGather(type, gx, gy);
   }
   S.ambient = [];
-  for (const a of S.zone.ambient || []) for (let i = 0; i < (a.n || 1); i++) {
+  for (const a of S.zone.ambient || []) for (let i = 0; i < (a.type === "walker" ? 0 : a.n || 1); i++) {
     const r = seeded(hashStr(id + a.type + i));
     const x = a.x + (r() - 0.5) * (a.r || 60), y = a.y + (r() - 0.5) * (a.r || 60);
     S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, time: a.time, look: a.look, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
   }
-  if (S.zone.districts) cityLife(S.zone, id);
   if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
   for (const n of S.npcs) if (n.only) n.away = !npcOn(n);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
@@ -17318,8 +17346,13 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.10.0 · built 2026-10-15 06:25 PDT";
+const BUILD_INFO = "v16.11.0 · built 2026-10-15 06:37 PDT";
 const UPDATES = [
+  { v: "16.11.0", date: "2026-10-15", title: "Clear roads", items: [
+    "Random wandering people are gone: city walkers, night walkers, patrolling guards and road travellers no longer spawn. Every named NPC stays at a fixed spot. Animals still roam.",
+    "Warp stones are now stone statues: a robed figure on a plinth holding a glowing crystal.",
+    "Warp stones, signposts, benches, practice dummies, weapon racks, crates, barrels, stalls and lamps no longer stand in the middle of roads and paths in the cities and fields; they sit beside them instead."
+  ] },
   { v: "16.10.0", date: "2026-10-15", title: "Townsfolk", items: [
     "In the Classic look the people walking through the cities are a mix of the five races (human, elari, pipkin, ursan and nekari), each with its own proper body, and they dress for where they are: clerks in mortarboards and trimmed coats in the Government District and the Keep, bandanas and baskets in the markets, aproned smiths with hammers in the Industrial District and Smelters' Row, travellers in coats, capes and wide hats at the gates, sailors in tricornes with oars and spyglasses at the harbour.",
     "Night walkers carry lanterns and wear dark capes.",
@@ -17450,7 +17483,7 @@ const UPDATES = [
   { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
     "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
     "The markets and fish market are crowded; the residential wards are quieter.",
-    "A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
+    "Warp stones are robed stone statues holding a glowing crystal. A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
     "Ambience follows the district: crowd noise swells in the markets and fades in the wards, and the surf is loudest on the Docks.",
     "Three new quests for touring each city: Know Your City (Pell), Harbor Rounds (Marn) and The Ironvale Circuit (Brisa). Walk through every district, then report back."
   ] },
@@ -18343,7 +18376,7 @@ function tabHelp() {
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
   ]));
   h += sec("🚶 City life", ul([
-    "Townsfolk walk set routes inside their district: crowds by day (thickest in the markets), a few night-walkers after dark, and guards who patrol all day and night. Signposts beside the warp stones list the other districts with directions and distances. Crowd and surf sounds change with the district you are in.",
+    "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
     "Tour quests: Pell (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([
@@ -18724,7 +18757,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.10.0";
+const GAME_VERSION = "16.11.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -27232,6 +27265,20 @@ function propView(n) {
     g.add(post);
     for (let i = 0; i < 2; i++) { const arm = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.24, 0.05), std({ color: 0x9a7448, roughness: 0.9 })); arm.position.set(i ? -0.35 : 0.35, 1.75 - i * 0.35, 0.06); arm.rotation.y = i ? 0.4 : -0.3; arm.castShadow = true; g.add(arm); }
     v.meta.headTop = 2.3;
+  } else if (n.prop === "statue") {
+    const pale = std({ color: 0xc9c7d1, roughness: 0.85 });
+    const pl = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.05, 0.7, 8), stone); pl.position.y = 0.35; pl.castShadow = pl.receiveShadow = true;
+    const pl2 = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.72, 0.25, 8), pale); pl2.position.y = 0.82;
+    const rb = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.36, 1.45, 8), pale); rb.position.y = 1.65; rb.castShadow = true;
+    const sh = new THREE.Mesh(new THREE.SphereGeometry(0.27, 8, 6), pale); sh.position.y = 2.28; sh.scale.set(1.15, 0.55, 0.8);
+    const hd = new THREE.Mesh(new THREE.SphereGeometry(0.19, 10, 8), pale); hd.position.y = 2.55;
+    const hood = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.36, 8), pale); hood.position.y = 2.72;
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.55, 6), pale); arm.position.set(0.31, 2.5, 0.235); arm.rotation.x = 0.75;
+    const orb = new THREE.Mesh(new THREE.OctahedronGeometry(0.2, 0), new THREE.MeshStandardMaterial({ color: 0x9ff3ff, emissive: 0x40d8ff, emissiveIntensity: 0.9, roughness: 0.1, transparent: true, opacity: 0.92 }));
+    orb.position.set(0.34, 2.78, 0.46);
+    const L = new THREE.PointLight(0x60e0ff, 3.5, 11, 1.6); L.position.set(0.34, 2.78, 0.46);
+    g.add(pl, pl2, rb, sh, hd, hood, arm, orb, L);
+    v.orb = orb; v.meta.headTop = 3.4;
   } else if (n.prop === "camp") {
     const canvas = std({ color: 0xc8b890, roughness: 1, side: THREE.DoubleSide });
     const tent = new THREE.Mesh(new THREE.ConeGeometry(1.3, 1.6, 4, 1, true), canvas); tent.position.set(0, 0.8, -0.6); tent.rotation.y = Math.PI / 4; tent.castShadow = true;
@@ -27307,6 +27354,7 @@ function syncNpc(n, dt) {
       v.flame[0].scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.12, k);
       v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
     }
+    if (v.orb) { v.orb.rotation.y += dt * 0.9; v.orb.position.y = 2.78 + Math.sin(S.time * 1.5 + n.x) * 0.08; }
     if (v.campFire) { const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.12; v.campFire.scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.15, k); v.light.intensity = 5 + Math.sin(S.time * 11) * 1.5; }
     if (v.bob) {
       const b = Math.sin(S.time * 3 + n.x) * 0.05;
