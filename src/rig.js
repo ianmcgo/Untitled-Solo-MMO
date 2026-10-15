@@ -2270,7 +2270,7 @@ const DISTRICT_DRESS = {
   south: { tops: ["shirt", "apron", "tunic", "vest"], pal: [0xc8b890, 0x8a9a6a, 0x9a7a5a, 0xb08a6a], head: [["bandana", 0.1]], held: ["basket", "broom", null], boots: 0x4a3a28 },
   forge: { tops: ["apron", "vest", "tunic"], pal: [0x4a3a30, 0x6a3a2a, 0x3a3a3a], trim: 0xff8a50, head: [["bandana", 0.4], ["headband", 0.15]], held: ["hammer", "hammer", null], gloves: [0x3a2a1a, 0.8], boots: 0x2a1e14, belt: 0x2a1a10 }
 };
-const WALKER_RACES = [["human", 1]];
+const WALKER_RACES = [["human", 0.5], ["elari", 0.15], ["pipkin", 0.1], ["ursan", 0.1], ["nekari", 0.15]];
 
 function walkerCoded(seed, district, night) {
   const r = seeded(hashStr("walkerC" + seed + (district || "")));
@@ -2291,6 +2291,7 @@ function walkerCoded(seed, district, night) {
   L.legs = shade; L.boots = D.boots || 0x3a2a1e; L.belt = D.belt || pick([0x3a2412, 0x5a3a20, 0x2a2a2a]);
   for (const [t, p] of D.head || []) if (r() < p) { L.head = { type: t, color: pick(D.pal), color2: D.trim || 0xd8c070 }; break; }
   if (L.head && L.head.type === "tricorne") L.head.color = 0x2a2a3a;
+  if (race === "nekari") delete L.head;
   if (D.gloves && r() < D.gloves[1]) L.gloves = D.gloves[0];
   if (D.cape && r() < D.cape) L.cape = shadeHex(col, 0.7);
   if (race === "pipkin") L.held = null; else L.held = pick(D.held);

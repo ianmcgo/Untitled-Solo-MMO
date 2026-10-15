@@ -1383,7 +1383,7 @@ Full notes and the remaining plan are in design/ffxi-look-plan.md. Summary:
 - 116 (16.2.0): Classic look is the default. classicCharMaterial (Lambert with light bands, a lift floor and metal shine), an outline pass (back-face skinned shell child of each rig mesh), and the Look and Outlines settings in Config → Graphics. Offline character creation fixed.
 - 117 (16.3.0): CLASSIC_PAINT hand-painted region painters, 256 px atlas cells, nearest magnification.
 - 118 (16.4.0): RIG.segK 0.55/0.45/0.38 (High/Medium/Low) in Classic, mitten hands, bigger hands and feet, cuffs, collars, boot flares.
-- 124 (16.10.0): district-coded human walkers (DISTRICT_DRESS, walkerCoded), lantern night walkers.
+- 124 (16.10.0): district-coded mixed-race walkers (DISTRICT_DRESS, walkerCoded), lantern night walkers.
 - 123 (16.9.0): monster level-band tints (boldTint/mobBand), chunky quads, NM decor via RIG.hook + nmDecor/NM_DECOR.
 - 122 (16.8.0): chunky weapons (gT/gR/fat in weaponEntry), weapon outlines, extruded shields with crest cross, kite shape.
 - 121 (16.7.0): Job style: JOB_STYLE per job × 4 tiers (levels 1/5/10/16) replaces armour visuals in Classic; attire setting; 9 new head types, head decor options, oversized pauldrons. Details in design/ffxi-look-plan.md.
@@ -1442,7 +1442,7 @@ World systems:
 
 | Version | Change |
 |---|---|
-| 16.10.0 | Phase 124: townsfolk coded by district (Track 6). |
+| 16.10.0 | Phase 124: townsfolk coded by district and race (Track 6). |
 | 16.9.0 | Phase 123: bold monsters, level-band colours, NM crowns/horns/auras (Track 6). |
 | 16.8.0 | Phase 122: bold weapons and shields (Track 6). |
 | 16.7.0 | Phase 121: Job style, iconic tiered outfits for all 22 jobs (Track 6). |
