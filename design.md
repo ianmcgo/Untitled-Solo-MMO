@@ -1442,6 +1442,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.15.0 | Nameplate range per kind in updateLabels (npc 260, mob 450, other 700; target and party always). build.mjs now also writes root version.json (it was stale at 16.10.0, so the update popup never fired); update check every 5 min plus on tab focus. |
 | 16.14.1 | renderMCard shows the Current Crystals gilBox for modal "auction" as well as "shop". |
 | 16.14.0 | Drag-yaw inverted by default (settings.invertX, default true); Tab (cycleNpcTarget) includes warp stones in the crystal group. |
 | 16.13.1 | #tgtAct moved to first child of #ffSide (above #ffTBox), FF .ffb pill style; no per-frame world projection. |
