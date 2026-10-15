@@ -1431,6 +1431,7 @@ World systems:
 | Version | Change |
 |---|---|
 | 16.1.1 | Creator preview never zooms on touch devices (ccTouch). |
+| 16.1.2 | renderPreview forces focus 0 and fz 0 while UI.creating and ccTouch(), so a stale pv.fz can never zoom the creator camera on touch screens. Real-phone zoom was not reproducible headlessly; a stale cached build is the other suspect. |
 | 16.1.0 | Phase 112: Rocky Hollow and Windreach Highlands split into three zones each. |
 | 16.0.0 | Phase 111: region framework (areas, zone splitting, save migration, level bands). |
 | 15.7.1 | Creator preview: face-centred camera, no auto-turn. |
