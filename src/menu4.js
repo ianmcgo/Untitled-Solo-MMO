@@ -1480,6 +1480,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "16.1.7", date: "2026-10-15", title: "More humanoid faces", items: [
+    "Every player race now has a narrower jaw and a defined chin instead of a round ball of a head; Pipkin and Ursan especially.",
+    "Ursan skin is now a cool gray with only a hint of green.",
+    "Pipkin have little brown button noses and slightly smaller eyes."
+  ] },
   { v: "16.1.6", date: "2026-10-15", title: "Ursan and Pipkin redesigned", items: [
     "Ursan are now big, gray-green lizard-skinned brutes: heavy brow, small deep-set eyes, a stern frown, a thick neck, a broad frame, thicker arms and a long lizard tail. The bear ears and beard are gone.",
     "Pipkin are now cute and doll-like: big round dark eyes with a shine, a tiny nose, rosy cheeks, a small smile, a rounder face and warm peach skin.",
