@@ -14,7 +14,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 | 118 ✅ | 16.4.0 | Chunky humans | Lower segment counts, mitten hands, bigger hands and feet, cuffs, collars, boot flares | Opus |
 | 119 ✅ | 16.5.0 | Chunky hair | 12–14 thick clumps per style, fuller shell, smooth shading on skin and faces | Opus |
 | 120 ✅ | 16.6.0 | Face finish | 3-tone face shading, ink eyelid line, cleaner ears per race | Sonnet |
-| 121 | | Iconic gear sets | 3–4 tiered looks per job for all 22 jobs (WAR horned helm, BLM pointed hat, RDM feather hat, DRG winged helm…), oversized shoulders, cuffs, boots | Opus |
+| 121 ✅ | 16.7.0 | Iconic gear sets | 3–4 tiered looks per job for all 22 jobs (WAR horned helm, BLM pointed hat, RDM feather hat, DRG winged helm…), oversized shoulders, cuffs, boots | Opus |
 | 122 | | Weapons and shields | Chunkier weapons, bolder guards and heads, painted crests; match the item icons | Sonnet |
 | 123 | | Bold monsters | Families as chunky painted shapes recoloured per tier; NMs get extra parts | Opus |
 | 124 | | NPCs and townsfolk | Outfits coded by race, job and district | Sonnet |
@@ -77,6 +77,17 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - Ears: after the default ear code, a darker inner shape (`shadeHex(skin, 0.74)`) for elf (taper on earBone), pipkin (taper), goblin (taper) and the default round ear (small ball). Not added for cat, fin, ursan, skull or doll.
 - Banding on skin and faces (mr red channel below 0.5) is now 0 (was 0.1). This removed the hard diagonal cheek shadow seen in the creator.
 - Ursan and pipkin face painters are unchanged.
+
+## Phase 121: Iconic gear sets / Job style (v16.7.0)
+- Decision: gear items are shared by many jobs, so iconic looks come from the job, not the items. "Job style" (like classic MMO lockstyle) replaces the armour visuals with the job's signature outfit in Classic. Setting `attire` ("job" default, or "gear"); button in Config → Graphics (`gfx attire:job|gear`, reloads). `jobStyleOn()` = classicOn() and attire is not "gear". Modern always shows gear.
+- `JOB_STYLE[job](tier, JOB_TINT[job])` returns a partial look for tiers 0–3. `JOB_STYLE_TIERS = [1, 5, 10, 16]` (level cap 20); `jobStyleTier(lv)`.
+- `lookFor(job, gear, base, lv)` calls `lookForGear` (the old function), then, when Job style is on and base has no own `top` (mercs with outfits) and is not a skull, deletes `JOB_STYLE_SLOTS` (top, head, gloves, legs, boots, pauldrons, pad*, cape, belt, gauntlets, greaves, collar, barefoot, hat, shoes) and applies the style. Shield and weapon stay from gear. Callers pass the level: player.lv, e.lv (remotes and mercs), o.lv (creator, so tier 0).
+- `rigSigFor` adds `|t<tier>` when Job style is on, so models rebuild on reaching a new tier.
+- New head types: winged (DRG), kabuto (SAM: neck guard, side flaps, crescent crest), tricorne (COR), beret (BRD), turban (BLU), headband (MNK, SAM T1), circlet (DNC, RUN), jester (PUP), mortar (SCH), ninjahood (NIN, with a forehead plate and tails). All except headband and circlet count as covering hair.
+- Head options for any type, applied by `headDecor()` after the head block: `horns` (scale, also on hoods and fur hats), `hornK` (horned helm horn size, via `headHorns()`), `crest` (ridge and three plumes), `spikes` (count), `wings` (side wings on non-winged types), `wingK`, `gem` (glowing forehead gem), `plume` and `plumeK` (feather, for types other than feathered and widebrim, where plumeK enlarges the existing feather), `tails` (two cloth tails at the back). Pointy hats take `brimK`, `tallK` and a `color2` band. Hoods take `color2` as a trim ring around the face.
+- Shoulders: `padK > 1` adds an oversized dome and rim ring on top of the normal pauldron, with `padRegion` (metal, cloth, leather or fur), `padTrim`, and `padSpikes` with `padSpikeC`.
+- Mail tops in the table set `plate` to their own colour so the hip skirt is not light grey.
+- Contact sheets: scratch script t12.mjs sets `UI.pv.override = { job, gear: {}, lv, look }` in the creator and screenshots each job and tier (env R = race, S = sex).
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.
