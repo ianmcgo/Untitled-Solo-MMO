@@ -1474,6 +1474,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.11.0", date: "2026-10-15", title: "Clear roads", items: [
+    "Random wandering people are gone: city walkers, night walkers, patrolling guards and road travellers no longer spawn. Every named NPC stays at a fixed spot. Animals still roam.",
+    "Warp stones are now stone statues: a robed figure on a plinth holding a glowing crystal.",
+    "Warp stones, signposts, benches, practice dummies, weapon racks, crates, barrels, stalls and lamps no longer stand in the middle of roads and paths in the cities and fields; they sit beside them instead."
+  ] },
   { v: "16.10.0", date: "2026-10-15", title: "Townsfolk", items: [
     "In the Classic look the people walking through the cities are a mix of the five races (human, elari, pipkin, ursan and nekari), each with its own proper body, and they dress for where they are: clerks in mortarboards and trimmed coats in the Government District and the Keep, bandanas and baskets in the markets, aproned smiths with hammers in the Industrial District and Smelters' Row, travellers in coats, capes and wide hats at the gates, sailors in tricornes with oars and spyglasses at the harbour.",
     "Night walkers carry lanterns and wear dark capes.",
@@ -1604,7 +1609,7 @@ const UPDATES = [
   { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
     "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
     "The markets and fish market are crowded; the residential wards are quieter.",
-    "A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
+    "Warp stones are robed stone statues holding a glowing crystal. A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
     "Ambience follows the district: crowd noise swells in the markets and fades in the wards, and the surf is loudest on the Docks.",
     "Three new quests for touring each city: Know Your City (Pell), Harbor Rounds (Marn) and The Ironvale Circuit (Brisa). Walk through every district, then report back."
   ] },
@@ -2497,7 +2502,7 @@ function tabHelp() {
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
   ]));
   h += sec("🚶 City life", ul([
-    "Townsfolk walk set routes inside their district: crowds by day (thickest in the markets), a few night-walkers after dark, and guards who patrol all day and night. Signposts beside the warp stones list the other districts with directions and distances. Crowd and surf sounds change with the district you are in.",
+    "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
     "Tour quests: Pell (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([

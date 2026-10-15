@@ -2428,11 +2428,50 @@ const WARP_STONES = {
 };
 for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
   const id = "warpstone_" + zid + "_" + did, d = ZONES[zid].districts.find(q => q.id === did);
-  NPCS[id] = { name: "Warp Stone: " + d.name, model: "crystal", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
+  NPCS[id] = { name: "Warp Stone: " + d.name, prop: "statue", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
   ZONES[zid].npcs.push({ id, x: WARP_STONES[zid][did][0], y: WARP_STONES[zid][did][1] });
   const sid = "dsign_" + zid + "_" + did;
   NPCS[sid] = { name: "District Signpost", prop: "sign", talk: "talkDistrictSign" };
   ZONES[zid].npcs.push({ id: sid, x: WARP_STONES[zid][did][0] + 60, y: WARP_STONES[zid][did][1] + 6 });
+}
+const OFFROAD_PROPS = { sign: 1, board: 1, tablet: 1, brazier: 1, shrine: 1, lookout: 1, statue: 1 };
+function clearOfRoads(z, x, y, extra) {
+  for (const p of z.paths || []) for (let i = 0; i < p.pts.length - 1; i++) {
+    const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1;
+    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L));
+    if (Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t) < p.w / 2 + extra) return false;
+  }
+  for (const h of z.houses || []) {
+    const sw = (h.rot || 0) % 2 ? h.h : h.w, sh = (h.rot || 0) % 2 ? h.w : h.h;
+    if (Math.abs(x - h.x) < sw / 2 + 28 && Math.abs(y - h.y) < sh / 2 + 28) return false;
+  }
+  for (const f of z.fountains || []) if (Math.hypot(x - f.x, y - f.y) < 90) return false;
+  return x > 60 && y > 60 && x < z.w - 60 && y < z.h - 60;
+}
+function offRoad(z, at, extra) {
+  if (clearOfRoads(z, at.x, at.y, extra)) return;
+  for (let r = 12; r <= 420; r += 12) for (let k = 0; k < 24; k++) {
+    const a = k / 24 * Math.PI * 2, x = Math.round(at.x + Math.cos(a) * r), y = Math.round(at.y + Math.sin(a) * r);
+    if (clearOfRoads(z, x, y, extra)) { at.x = x; at.y = y; return; }
+  }
+}
+for (const zid in ZONES) {
+  const z = ZONES[zid];
+  if (z.indoor || z.theme === "house" || z.theme === "cave" || z.theme === "crypt" || !(z.paths || []).length) continue;
+  const grid = a => (a || []).forEach(q => { const at = { x: q[0], y: q[1] }; offRoad(z, at, 24); q[0] = at.x; q[1] = at.y; });
+  const objs = a => (a || []).forEach(q => offRoad(z, q, 24));
+  for (const n of z.npcs) if (NPCS[n.id] && NPCS[n.id].warpstone) offRoad(z, n, 30);
+  for (const n of z.npcs) {
+    const d = NPCS[n.id];
+    if (!d || !d.prop || !OFFROAD_PROPS[d.prop] || d.warpstone) continue;
+    if (n.id.startsWith("dsign_")) {
+      const st = z.npcs.find(q => q.id === "warpstone_" + n.id.slice(6));
+      if (st) { n.x = st.x + 60; n.y = st.y + 6; }
+    }
+    offRoad(z, n, 24);
+  }
+  grid(z.benches); grid(z.racks); grid(z.dummies); objs(z.props); objs(z.stalls);
+  (z.lamps || []).forEach(q => { const at = { x: q[0], y: q[1] }; offRoad(z, at, 6); q[0] = at.x; q[1] = at.y; });
 }
 const CITY_LIFE = {
   market: [6, 1], square: [6, 1], fish: [4, 1], docks: [4, 1], gov: [2, 2], keep: [1, 2], res: [3, 1], south: [3, 1], ind: [3, 1], yard: [3, 1], gate: [2, 2], forge: [3, 1]

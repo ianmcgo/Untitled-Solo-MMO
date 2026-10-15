@@ -1477,16 +1477,6 @@ function addWildlife(id) {
   const snowy = z.palette === "snow", wet = z.mist;
   for (let h = 0; h < (snowy ? 1 : 2); h++) { const p = spot(); if (p) for (let i = 0; i < 3; i++) mk("deer", p[0] + (r() - 0.5) * 120, p[1] + (r() - 0.5) * 120, { col: snowy ? 0xb8b0a4 : 0x8a6a48, roam: 180, speed: 70, time: "day", shy: true }); }
   for (let f = 0; f < 2; f++) { const p = spot(); if (p) for (let i = 0; i < 4; i++) mk("bird", p[0] + (r() - 0.5) * 80, p[1] + (r() - 0.5) * 80, { col: wet ? 0x3a3a34 : snowy ? 0xe8ecf0 : 0x6a5a4a, roam: 500, speed: 150, fly: 7 + r() * 5, time: "day", dry: true, wait: 0 }); }
-  const road = (z.paths || [])[0];
-  if (road) {
-    const pts = road.pts.filter(q => q[0] > 150 && q[1] > 150 && q[0] < z.w - 150 && q[1] < z.h - 150);
-    if (pts.length >= 2) for (let t = 0; t < 2; t++) {
-      const path = t ? pts.slice().reverse() : pts.slice();
-      const loop = path.concat(path.slice(1, -1).reverse());
-      mk("walker", path[0][0], path[0][1], { seed: hashStr(id + "trav" + t) % 997, path: loop, speed: 50, time: "day", traveller: true });
-      if (t === 0) mk("dog", path[0][0] + 20, path[0][1], { col: 0x6a5a48, path: loop, speed: 50, time: "day" });
-    }
-  }
 }
 function cityLife(z, id) {
   const rs = zoneRects(z);
@@ -3379,12 +3369,11 @@ function enterZone(id, x, y) {
     for (const [gx, gy] of picks) spawnGather(type, gx, gy);
   }
   S.ambient = [];
-  for (const a of S.zone.ambient || []) for (let i = 0; i < (a.n || 1); i++) {
+  for (const a of S.zone.ambient || []) for (let i = 0; i < (a.type === "walker" ? 0 : a.n || 1); i++) {
     const r = seeded(hashStr(id + a.type + i));
     const x = a.x + (r() - 0.5) * (a.r || 60), y = a.y + (r() - 0.5) * (a.r || 60);
     S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, time: a.time, look: a.look, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
   }
-  if (S.zone.districts) cityLife(S.zone, id);
   if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
   for (const n of S.npcs) if (n.only) n.away = !npcOn(n);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
