@@ -72,9 +72,9 @@
 
   #tCmd { position: absolute; right: calc(10px + var(--sar)); bottom: calc(12px + var(--sab)); width: 230px; max-height: 52vh; overflow-y: auto; display: none; flex-direction: column; gap: 5px; padding: 8px; pointer-events: auto; z-index: 6; }
   #tCmd.on { display: flex; }
-  #tgtAct { position: absolute; left: 0; top: 0; display: none; pointer-events: auto; z-index: 7; transform: translate(-50%, -100%); padding: 8px 18px; border-radius: 999px; border: 2px solid #e6c36a; background: rgba(30,32,44,0.94); color: #ffe7a8; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .03em; box-shadow: 0 3px 12px rgba(0,0,0,0.5); touch-action: manipulation; }
+  #tgtAct { display: none; pointer-events: auto; height: 32px; padding: 0 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,.75); background: linear-gradient(180deg, #e8ecff 0%, #a8b4ff 18%, #6a76d8 55%, #4a54b0 100%); color: #fff; font: italic 900 15px var(--ffFont); letter-spacing: .06em; text-align: center; -webkit-text-stroke: .5px #1a1a60; text-shadow: 1px 1px 0 #1a1a50, -1px 0 0 #1a1a50; box-shadow: inset 0 -2px 3px rgba(0,0,40,.4), 0 1px 2px rgba(0,0,0,.4), 0 3px 10px rgba(0,0,0,.45); cursor: pointer; touch-action: manipulation; }
   #tgtAct.on { display: block; }
-  #tgtAct.fight { border-color: #ff7a6a; color: #ffd0c8; }
+  #tgtAct.fight { background: linear-gradient(180deg, #fff2c8 0%, #ffc860 20%, #e88a1a 60%, #a85a08 100%); -webkit-text-stroke: .5px #4a2000; text-shadow: 1px 1px 0 #4a2200; color: #fff6c0; }
   #tCmd .tcHead { font-size: 12px; color: var(--gold); letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
   #tCmd button { flex: 0 0 auto; text-align: left; min-width: 0; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); background: rgba(30,32,44,0.9); color: #e8e2d0; font: inherit; font-size: 12.5px; cursor: pointer; }
   #tCmd button:hover { border-color: #e6c36a; }
@@ -1075,7 +1075,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.13.0 · built 2026-10-15 06:58 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.13.1 · built 2026-10-15 07:05 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -1087,7 +1087,7 @@
     <div id="ffTop"><div class="ffCmd">Commands</div><div class="ffBar"><div id="ffHelp"></div><div class="ffRight"><span class="ffLbl ffHelpLbl">Help</span></div></div></div>
     <div id="ffNetBox"><div id="ffNet"><span class="ffLbl">Network</span><span class="arr"><i>▶</i><i>◀</i></span><b id="ffNetPct">—</b><span id="ffNetSR"><span id="ffNetS">S 0</span><span id="ffNetR">R 0</span></span></div></div>
     <div id="ffStat"><div id="ffBars"><div class="r hp"><em>HP</em><div class="b"><i></i></div><b></b></div><div class="r mp"><em>MP</em><div class="b"><i></i></div><b></b></div><div class="r tp"><em>TP</em><div class="b"><i></i></div><b></b></div></div><div id="ffIcons"></div></div>
-    <div id="ffSide"><div id="ffTBox"><div class="ffHead" id="ffTHead"><span>Target</span></div>
+    <div id="ffSide"><button id="tgtAct"></button><div id="ffTBox"><div class="ffHead" id="ffTHead"><span>Target</span></div>
     <div id="target" class="glass">
       <div class="tn"><span id="tName"></span><span id="tTag">NOTORIOUS</span><span id="tLv"></span><span id="tToT"></span></div>
       <div class="bar hp"><i class="ghost" id="tHpG"></i><i id="tHp"></i><b id="tHpT"></b></div>
@@ -1101,7 +1101,6 @@
     <div id="party"></div></div>
     </div>
     <div id="tCmd" class="glass"></div>
-    <button id="tgtAct" class="glass"></button>
     <div id="mCmd"></div>
     <div id="mmWrap" title="Map (M)"><div id="mmDisc"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN" class="mmL n">N</div><div id="mmE" class="mmL">E</div><div id="mmS" class="mmL">S</div><div id="mmW" class="mmL">W</div></div><div id="mmTime"></div></div>
     <div id="pool" class="glass"></div>
@@ -14998,14 +14997,10 @@ function updateTgtAct() {
   if (!el) return;
   const t = player.target, touch = (typeof VIEW !== "undefined" && VIEW.touch) || matchMedia("(pointer: coarse)").matches;
   const a = touch ? tgtActFor(t) : null;
-  const pos = a && !(UI.cmd && UI.cmd.t === t) && typeof screenOf === "function" ? screenOf(t.x, t.y, entityHeight(t) + 1.1) : null;
-  if (!a || !pos) { if (el.classList.contains("on")) el.classList.remove("on"); return; }
+  if (!a || (UI.cmd && UI.cmd.t === t)) { if (el.classList.contains("on")) el.classList.remove("on"); return; }
   if (el.textContent !== a.label) el.textContent = a.label;
   el.classList.toggle("fight", !!a.fight);
   el.classList.add("on");
-  const w = $("game").clientWidth, h = $("game").clientHeight;
-  el.style.left = clamp(pos.x, 50, w - 50) + "px";
-  el.style.top = clamp(pos.y - 28, 44, h - 20) + "px";
 }
 function tgtActPress() {
   const t = player.target, a = tgtActFor(t);
@@ -17391,14 +17386,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.13.0 · built 2026-10-15 06:58 PDT";
+const BUILD_INFO = "v16.13.1 · built 2026-10-15 07:05 PDT";
 const UPDATES = [
+  { v: "16.13.1", date: "2026-10-15", title: "Target button placement", items: [
+    "The Talk / Use / Inspect / Harvest / Fight button now sits directly above the Target panel instead of floating over the target, and uses the same blue and gold style as the command menu."
+  ] },
   { v: "16.13.0", date: "2026-10-15", title: "Offline password", items: [
     "Playing offline now asks for the email and password of your online account before you can open the offline characters. The password is checked with the server, then remembered on that device (as a one-way hash) so offline play keeps working with no connection afterwards.",
     "If you have never signed in on a device and it is offline, connect once to unlock offline play there."
   ] },
   { v: "16.12.0", date: "2026-10-15", title: "Target button", items: [
-    "On a touch screen, targeting something now puts a button above it: Talk for people, Use or Inspect for objects (signs, boards and tablets are Inspect; crystals, warp stones, chests, braziers and camps are Use), Harvest for gathering points, and Fight for monsters.",
+    "On a touch screen, targeting something now puts a button above the Target panel, styled like the command menu: Talk for people, Use or Inspect for objects (signs, boards and tablets are Inspect; crystals, warp stones, chests, braziers and camps are Use), Harvest for gathering points, and Fight for monsters.",
     "Fight engages the monster and opens its command box (magic, abilities, items) in one tap.",
     "Attacking no longer makes you run to the monster. If you want the old behaviour, turn on Auto-run to target in Config, Camera."
   ] },
@@ -18455,7 +18453,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
-    "<b>Target button (touch):</b> a button floats above whatever you target: Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
+    "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
@@ -18813,7 +18811,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.13.0";
+const GAME_VERSION = "16.13.1";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
