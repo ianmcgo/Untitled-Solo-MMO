@@ -316,6 +316,20 @@ function propView(n) {
     g.add(post);
     for (let i = 0; i < 2; i++) { const arm = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.24, 0.05), std({ color: 0x9a7448, roughness: 0.9 })); arm.position.set(i ? -0.35 : 0.35, 1.75 - i * 0.35, 0.06); arm.rotation.y = i ? 0.4 : -0.3; arm.castShadow = true; g.add(arm); }
     v.meta.headTop = 2.3;
+  } else if (n.prop === "statue") {
+    const pale = std({ color: 0xc9c7d1, roughness: 0.85 });
+    const pl = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.05, 0.7, 8), stone); pl.position.y = 0.35; pl.castShadow = pl.receiveShadow = true;
+    const pl2 = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.72, 0.25, 8), pale); pl2.position.y = 0.82;
+    const rb = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.36, 1.45, 8), pale); rb.position.y = 1.65; rb.castShadow = true;
+    const sh = new THREE.Mesh(new THREE.SphereGeometry(0.27, 8, 6), pale); sh.position.y = 2.28; sh.scale.set(1.15, 0.55, 0.8);
+    const hd = new THREE.Mesh(new THREE.SphereGeometry(0.19, 10, 8), pale); hd.position.y = 2.55;
+    const hood = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.36, 8), pale); hood.position.y = 2.72;
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.55, 6), pale); arm.position.set(0.31, 2.5, 0.235); arm.rotation.x = 0.75;
+    const orb = new THREE.Mesh(new THREE.OctahedronGeometry(0.2, 0), new THREE.MeshStandardMaterial({ color: 0x9ff3ff, emissive: 0x40d8ff, emissiveIntensity: 0.9, roughness: 0.1, transparent: true, opacity: 0.92 }));
+    orb.position.set(0.34, 2.78, 0.46);
+    const L = new THREE.PointLight(0x60e0ff, 3.5, 11, 1.6); L.position.set(0.34, 2.78, 0.46);
+    g.add(pl, pl2, rb, sh, hd, hood, arm, orb, L);
+    v.orb = orb; v.meta.headTop = 3.4;
   } else if (n.prop === "camp") {
     const canvas = std({ color: 0xc8b890, roughness: 1, side: THREE.DoubleSide });
     const tent = new THREE.Mesh(new THREE.ConeGeometry(1.3, 1.6, 4, 1, true), canvas); tent.position.set(0, 0.8, -0.6); tent.rotation.y = Math.PI / 4; tent.castShadow = true;
@@ -391,6 +405,7 @@ function syncNpc(n, dt) {
       v.flame[0].scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.12, k);
       v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
     }
+    if (v.orb) { v.orb.rotation.y += dt * 0.9; v.orb.position.y = 2.78 + Math.sin(S.time * 1.5 + n.x) * 0.08; }
     if (v.campFire) { const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.12; v.campFire.scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.15, k); v.light.intensity = 5 + Math.sin(S.time * 11) * 1.5; }
     if (v.bob) {
       const b = Math.sin(S.time * 3 + n.x) * 0.05;

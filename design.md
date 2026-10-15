@@ -1442,6 +1442,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.11.0 | Warp stones are statues (propView "statue", prop+warpstone flag); offRoad pass in data.js moves benches, racks, dummies, props, stalls, lamps, signposts and statues clear of z.paths and houses. Ambient walkers removed (cityLife no longer called, zone walker ambients and road travellers skipped); only animals roam. |
 | 16.10.0 | Phase 124: townsfolk coded by district and race (Track 6). |
 | 16.9.0 | Phase 123: bold monsters, level-band colours, NM crowns/horns/auras (Track 6). |
 | 16.8.0 | Phase 122: bold weapons and shields (Track 6). |
