@@ -1333,6 +1333,11 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Hair: fringe styles (bob, long, twintails, wavy) front edge −0.5 / −0.42 and front locks 0.13 long so they stop at the brows.
 - Test tool: test/faceshot.js (own WebGL renderer with ACES so render targets are tone mapped like the game; poses front, q, lid0, lidh).
 
+## Phase 110.4: Creator preview fix (v15.7.1) — Track 0
+
+- rig.js human meta now carries headC (head centre height) and headR. menu4.js renderPreview focus camera aims at headC minus a quarter head radius and stands 7.8 head radii away, so the face stays centred for every race and size (before, it scaled with headTop, which pointed ears and hair inflate).
+- While UI.creating the preview never auto-turns or snaps back to front; it starts facing forward (rot 0) and only moves when dragged.
+
 ## Phase 110.3: Creation polish and skin removal (v15.7.0) — Track 0
 
 - Skin tones removed: FFXI had no skin choice. save.look.skin is no longer written (normalizeSave deletes it from old saves). rig.js RACE_SKIN maps race to a SKIN_TONES index (human 1, elari 0, pipkin 0, ursan 2, nekari 1) and baseFromLook uses it. CC_FACE_SKIN is gone; ccFaceThumb(v, fem, race) uses the race tone, and thumbnails are cached per race.
@@ -1402,6 +1407,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 15.7.1 | Creator preview: face-centred camera, no auto-turn. |
 | 15.7.0 | Phase 110.3: skin tones removed, creation summary and Start over, race and size on Status. |
 | 15.6.0 | Phase 110.2: step-by-step character creation (race, gender, face, hair colour, size, name and job). |
 | 15.5.0 | Phase 110.1: anime faces (8 face types, male/female paints, smoother heads, fringes at the brows). |
