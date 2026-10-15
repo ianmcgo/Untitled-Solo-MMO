@@ -264,10 +264,11 @@ function renderPreview(now) {
     pv.scene.add(holder);
     pv.holder = holder;
     pv.sig = sig;
-    pv.top = inst.meta.headTop || 1.8;
+    pv.top = inst.meta.headTop || 1.8; pv.hc = inst.meta.headC || pv.top - 0.17; pv.hr = inst.meta.headR || 0.14;
   }
-  { const top = pv.top || 1.8, ft = pv.focus || 0; pv.fz = (pv.fz == null ? ft : pv.fz) + (ft - (pv.fz == null ? ft : pv.fz)) * Math.min(1, (dt || 0.016) * 5); const f = pv.fz; pv.cam.position.set(0, top * (0.62 + 0.33 * f), top * (2.15 - 1.62 * f)); pv.cam.lookAt(0, top * (0.5 + 0.42 * f), 0); }
-  if (pv.focus && (!pv.spinPause || now - pv.spinPause > 2500)) { const tgt = Math.round(pv.rot / (Math.PI * 2)) * Math.PI * 2; pv.rot += (tgt - pv.rot) * Math.min(1, dt * 3); }
+  { const top = pv.top || 1.8, ft = pv.focus || 0; pv.fz = (pv.fz == null ? ft : pv.fz) + (ft - (pv.fz == null ? ft : pv.fz)) * Math.min(1, (dt || 0.016) * 5); const f = pv.fz; const fy = (pv.hc || top - 0.17) - (pv.hr || 0.14) * 0.25, fz = (pv.hr || 0.14) * 7.8; pv.cam.position.set(0, top * (0.62 + 0.33 * f) * (1 - f) + (fy + 0.01) * f, top * 2.15 * (1 - f) + fz * f); pv.cam.lookAt(0, top * 0.5 * (1 - f) + fy * f, 0); }
+  if (UI.creating) { if (pv.rot === undefined || pv.spinInit !== 1) { pv.spinInit = 1; pv.rot = 0; } }
+  else if (pv.focus && (!pv.spinPause || now - pv.spinPause > 2500)) { const tgt = Math.round(pv.rot / (Math.PI * 2)) * Math.PI * 2; pv.rot += (tgt - pv.rot) * Math.min(1, dt * 3); }
   else if (!pv.spinPause || now - pv.spinPause > 2500) pv.rot += dt * 0.35;
   pv.holder.rotation.y = pv.rot;
   try { poseHuman(pv.view, pv.ent, dt || 0.016); placeWeapon(pv.view, pv.ent); } catch (e) {}
@@ -1477,6 +1478,10 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "15.7.1", date: "2026-10-15", title: "Creator preview fix", items: [
+    "The character preview in creation now stays centred on the face for every race and size on the Face and Hair colour steps.",
+    "The preview no longer turns by itself. It faces forward, and you can drag it to turn the model."
   ] },
   { v: "15.7.0", date: "2026-10-14", title: "Creation polish", items: [
     "Skin tones are gone from character creation, as in the classics. Your skin now comes from your race, and faces no longer change it. Existing characters keep their looks.",
