@@ -1474,6 +1474,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.17.0", date: "2026-10-15", title: "Classic effects", items: [
+    "In the Classic look spell and hit effects are bolder: the glowing sparks are flat, hard-edged discs in a few tones and about a third bigger, shockwave rings are thick double rings, and light pillars are built from three flat bands.",
+    "Damage and healing numbers get a thick dark outline and a hard drop shadow, and fade out without blurring.",
+    "Tab now targets objects too (signs, boards, tablets, chests, braziers, gathering points, camps, crystals and warp stones), after the people nearby."
+  ] },
   { v: "16.16.0", date: "2026-10-15", title: "World match", items: [
     "In the Classic look the world now matches the characters: ground, bark, leaves, stonework and sky textures use a few flat painted tones, lighting on terrain, trees and buildings falls in soft bands, clouds are blockier, and the distance haze closes in sooner.",
     "The glow effect is off in the Classic look. The Modern look is unchanged."
@@ -1640,7 +1645,7 @@ const UPDATES = [
   { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
     "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
     "The markets and fish market are crowded; the residential wards are quieter.",
-    "Warp stones are robed stone statues holding a glowing crystal (Tab targets them too). A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
+    "Warp stones are robed stone statues holding a glowing crystal (Tab targets them and other objects too). A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
     "Ambience follows the district: crowd noise swells in the markets and fades in the wards, and the surf is loudest on the Docks.",
     "Three new quests for touring each city: Know Your City (Pell), Harbor Rounds (Marn) and The Ironvale Circuit (Brisa). Walk through every district, then report back."
   ] },
