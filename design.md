@@ -1392,7 +1392,7 @@ Full notes and the remaining plan are in design/ffxi-look-plan.md. Summary:
 
 ## Companion retreat, rest and healing priority (v16.21.0)
 
-- Scope: only hired mercenaries (`a.mercId`); pets, beasts and automatons never retreat. Config keys: `allyKiteHp` 0.5, `allyKiteExit` 0.7, `allyRestHp` 0.25, `allyKiteDist` 200, `allyRestDist` 420, `allyMpReserve` 0.04.
+- Scope: only hired mercenaries (`a.mercId`); pets, beasts and automatons never retreat. Config keys: `allyKiteHp` 0.5, `allyKiteExit` 0.7, `allyRestHp` 0.25, `allyKiteDist` 200, `allyRestDist` 300 (was 420), `allySitHp` 0.75, `allyMpReserve` 0.04.
 - Modes (`allyMode(a, threatened)` sets `a.retreat`): "kite" from HP at or below 50% until above 70%; "rest" from HP under 25% (only if a threat exists or the player is within 450 px) until HP and MP are full. Rest is also dropped when no threat exists and the player is over 600 px away. `a.kiting` = kite mode and stance not hold.
 - `updateAlly`: threats come from `allyThreats()` (living combat mobs with a party member in enmity). Rest mode calls `restAI` and returns. Kite mode flees (`fleeFrom`) whenever the nearest threat is closer than `allyKiteDist - 15`, clearing engaged/attackTarget/target; otherwise the role AI runs with `a.kiting` set. `raiseAI(a, dt, still)` will not walk toward a body while kiting. A companion that rested by itself stands up when its mode ends (unless the player is resting). Hold stance never flees; position is restored at the end, and rest happens in place.
 - `fleeFrom(a, list, dt, mul)`: sums unit vectors away from threats within 700 px weighted 300/d, adds a pull toward the player when over 520 px away, moves at `a.speed * mul`. Wall check every 0.6 s: if progress is under 35% of expected, `fleeTurn` (plus or minus 1.2 rad) applies for 1.5 s.
@@ -1402,6 +1402,7 @@ Full notes and the remaining plan are in design/ffxi-look-plan.md. Summary:
 - `healerAI`: `needy` = living party members under healAt (healer 0.75; support 0.5, or under 0.35 when another healer exists) sorted by HP% ascending. Heals the lowest one within `castRange - 30`; if none is in range it walks toward the lowest unless kiting. Spell choice from every heal-kind spell sorted by power: the smallest whose `healEstimate` covers the missing HP, else the largest; Divine Seal under 35%.
 - `enterZone` clears `retreat` and `kiting` on the party.
 - Check by hand: a mercenary at about 45% HP backs off to about 200 px and still casts or shoots; under 25% it runs, mobs lose it beyond 420 px, it sits (`resting`) and stands at full HP and MP.
+- v16.23.0: new mode "sit" in `allyMode(a, threatened, still)`: no threat, player still (not moving, not engaged, 1 s), HP at or below `allySitHp` 0.75 and player within 450 px; ends at full HP and MP, when a threat appears, the player moves, or the player is over 600 px away. Handled by `restAI` like rest. `restAI` now drops a companion from a mob's enmity at once when another living party member also holds enmity (so resting works mid-fight); otherwise it flees until the mob is over `allyRestDist` (now 300) away.
 - Admin panel (v16.22.0): `adminLiveHtml()` in menu4.js renders a This session block (ping, last save, unsaved count, sent/received, players online, players in zone, monster host from `NET_SH`, zone, version) and the world-presence player list (`NET_RT.online`) at the top of `tabAdmin`. It uses client state only, so it needs no server setup change. `adminReport()` also carries ping and the online list.
 
 ## Roadmap (planned phases)
@@ -1485,6 +1486,7 @@ World systems:
 | 16.1.7 | Head profiles: jaw/chin/long raised for human0/1, elari, nekari, pipkin (jaw 0.3), ursan (jaw 0.24). Ursan skin 0x8e9688. Pipkin eyes rx 7.2, painted brown button nose (radial gradient + highlight) replaces the pink blob. |
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
+| 16.23.0 | Mercenaries at 75% or less rest when you stand still; rest works mid-fight; shorter flee distance. |
 | 16.22.0 | Admin panel shows session info and players online. |
 | 16.21.0 | Companion retreat and rest, ranged casters use all MP, healers heal lowest HP first (see Companion retreat section). |
 | 16.1.10 | Default human neck 0.075 -> 0.02 (RACE_BODY human, nekari and the humanEntry default; also shortens NPC necks). Elari unchanged. |
