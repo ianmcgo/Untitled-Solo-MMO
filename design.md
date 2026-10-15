@@ -1378,11 +1378,12 @@ Terms: region = conquest region (CONQUEST.regions, e.g. The Vale). Area = one wi
 - CSS: `.ccSteps`, `.ccStepT`, `.ccGrid` (`.ccRaces`, `.ccTwo`, `.ccSizes`, `.ccFaces` 4 columns, `.ccHair` 8 or 4 on phones), `.ccCard2`, `.ccFaceB`, `.ccSw`, `.ccInfo2`; selected state forced with `#charSel … .on` because the FF theme overrides button colours with !important.
 - Screenshot tool: /tmp ccshot.js (offline play, walks every step at 1100 × 720 and 412 × 780; no page scroll on either).
 
-## Track 6: Classic look (v16.2.0–16.5.0)
+## Track 6: Classic look (v16.2.0–16.6.0)
 Full notes and the remaining plan are in design/ffxi-look-plan.md. Summary:
 - 116 (16.2.0): Classic look is the default. classicCharMaterial (Lambert with light bands, a lift floor and metal shine), an outline pass (back-face skinned shell child of each rig mesh), and the Look and Outlines settings in Config → Graphics. Offline character creation fixed.
 - 117 (16.3.0): CLASSIC_PAINT hand-painted region painters, 256 px atlas cells, nearest magnification.
 - 118 (16.4.0): RIG.segK 0.55/0.45/0.38 (High/Medium/Low) in Classic, mitten hands, bigger hands and feet, cuffs, collars, boot flares.
+- 120 (16.6.0): Classic face finish: hard-edged face tones, 4-band iris, bolder lid ink, inner-ear shapes, no banding on skin.
 - 119 (16.5.0): gHairClumps thick hair clumps, fuller shell, smooth shading on skin and faces (mr red channel).
 
 ## Roadmap (planned phases)
@@ -1437,6 +1438,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.6.0 | Phase 120: Classic face finish (Track 6). |
 | 16.5.0 | Phase 119: chunky hair clumps, smooth skin shading (Track 6). |
 | 16.4.0 | Phase 118: chunky humans, lower segment counts, mitten hands, cuffs, collars, boot flares (Track 6). |
 | 16.3.0 | Phase 117: hand-painted atlas, crisp textures (Track 6). |

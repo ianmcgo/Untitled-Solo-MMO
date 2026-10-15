@@ -13,7 +13,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 | 117 ✅ | 16.3.0 | Painted atlas | Hand-painted region painters, 256 px cells on every tier, nearest magnification | Opus |
 | 118 ✅ | 16.4.0 | Chunky humans | Lower segment counts, mitten hands, bigger hands and feet, cuffs, collars, boot flares | Opus |
 | 119 ✅ | 16.5.0 | Chunky hair | 12–14 thick clumps per style, fuller shell, smooth shading on skin and faces | Opus |
-| 120 | | Face finish | 3-tone face shading, ink eyelid line, cleaner ears per race | Sonnet |
+| 120 ✅ | 16.6.0 | Face finish | 3-tone face shading, ink eyelid line, cleaner ears per race | Sonnet |
 | 121 | | Iconic gear sets | 3–4 tiered looks per job for all 22 jobs (WAR horned helm, BLM pointed hat, RDM feather hat, DRG winged helm…), oversized shoulders, cuffs, boots | Opus |
 | 122 | | Weapons and shields | Chunkier weapons, bolder guards and heads, painted crests; match the item icons | Sonnet |
 | 123 | | Bold monsters | Families as chunky painted shapes recoloured per tier; NMs get extra parts | Opus |
@@ -71,6 +71,12 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - Spiky, mohawk, curly and dreads keep their own pieces. Hair under helmets still uses gHairLocks.
 - The gHairShell volume is × 1.35 in Classic (when uncovered).
 - Smooth skin: buildAtlas writes 40 into the red channel of the mr map for skin and face cells, and 255 everywhere else. The Classic shader reads it and blends the light bands only 10% on skin and faces, versus 50% elsewhere, so faces are not blotchy.
+
+## Phase 120: Face finish (v16.6.0)
+- paintFace (rig.js) in Classic (`CLF = classicOn()`): `soft()` draws two hard-edged ellipses (55% and 45% of the alpha, inner at 0.55 radius) instead of a radial gradient. Flat tones under the eyes: jaw shade, nose-side wedge, lit forehead ellipse. Iris gradient has 4 hard bands. Upper lid ink 3.0 (3.6 female), crease line darker (0.6 alpha, width 1.1).
+- Ears: after the default ear code, a darker inner shape (`shadeHex(skin, 0.74)`) for elf (taper on earBone), pipkin (taper), goblin (taper) and the default round ear (small ball). Not added for cat, fin, ursan, skull or doll.
+- Banding on skin and faces (mr red channel below 0.5) is now 0 (was 0.1). This removed the hard diagonal cheek shadow seen in the creator.
+- Ursan and pipkin face painters are unchanged.
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.

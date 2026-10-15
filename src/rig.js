@@ -97,8 +97,14 @@ function paintFace(g, ox, oy, v, fem) {
   g.translate(64, 120); g.scale(1, 1.7);
   const ex = 0, ey = 0, sp = 15.5;
   const rgba = (c, a) => "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
-  const soft = (x, y, rx, ry, col, a) => { g.save(); g.translate(x, y); g.scale(rx, ry); const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill(); g.restore(); };
+  const CLF = classicOn();
+  const soft = CLF ? (x, y, rx, ry, col, a) => { g.fillStyle = rgba(col, a * 0.55); g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = rgba(col, a * 0.45); g.beginPath(); g.ellipse(x, y, rx * 0.55, ry * 0.55, 0, 0, Math.PI * 2); g.fill(); } : (x, y, rx, ry, col, a) => { g.save(); g.translate(x, y); g.scale(rx, ry); const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill(); g.restore(); };
   g.lineCap = "round"; g.lineJoin = "round";
+  if (CLF) {
+    g.fillStyle = "rgba(150,92,84,0.13)"; g.beginPath(); g.ellipse(0, 31, 36, 13, 0, 0, Math.PI); g.fill();
+    g.fillStyle = "rgba(150,92,84,0.1)"; g.beginPath(); g.moveTo(2, 4); g.lineTo(6, 12); g.lineTo(3, 15); g.lineTo(0.5, 13); g.closePath(); g.fill();
+    g.fillStyle = "rgba(255,244,232,0.14)"; g.beginPath(); g.ellipse(0, -22, 16, 5, 0, 0, Math.PI * 2); g.fill();
+  }
   for (const s of [-1, 1]) {
     const x = ex + s * sp, rx = EYE[0] * (fem ? 1.05 : 1), up = EYE[1] * (fem ? 1.08 : 1), dn = EYE[2], tilt = EYE[3], drop = EYE[4], isz = EYE[5];
     const inner = x - s * rx, outer = x + s * rx, oy2 = ey + tilt * 0.5, iy2 = ey + 1.2;
@@ -115,7 +121,8 @@ function paintFace(g, ox, oy, v, fem) {
     const ix = x + s * 0.4, iy = ey + 0.4 + drop * up * 0.5, irx = 6.4 * isz * (fem ? 1.04 : 1), iry = 10.2 * isz * (fem ? 1.06 : 1);
     g.save(); g.translate(ix, iy); g.scale(irx, iry);
     const ig = g.createLinearGradient(0, -1, 0, 1);
-    ig.addColorStop(0, rgba(IRIS.map(c => c * 0.32 | 0), 1)); ig.addColorStop(0.42, rgba(IRIS.map(c => c * 0.75 | 0), 1)); ig.addColorStop(0.78, rgba(IRIS, 1)); ig.addColorStop(1, rgba(IRIS.map(c => Math.min(255, c + 70)), 1));
+    if (CLF) { const c1 = rgba(IRIS.map(c => c * 0.3 | 0), 1), c2 = rgba(IRIS.map(c => c * 0.7 | 0), 1), c3 = rgba(IRIS, 1), c4 = rgba(IRIS.map(c => Math.min(255, c + 70)), 1); ig.addColorStop(0, c1); ig.addColorStop(0.3, c1); ig.addColorStop(0.31, c2); ig.addColorStop(0.62, c2); ig.addColorStop(0.63, c3); ig.addColorStop(0.86, c3); ig.addColorStop(0.87, c4); ig.addColorStop(1, c4); }
+    else { ig.addColorStop(0, rgba(IRIS.map(c => c * 0.32 | 0), 1)); ig.addColorStop(0.42, rgba(IRIS.map(c => c * 0.75 | 0), 1)); ig.addColorStop(0.78, rgba(IRIS, 1)); ig.addColorStop(1, rgba(IRIS.map(c => Math.min(255, c + 70)), 1)); }
     g.fillStyle = ig; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill();
     g.strokeStyle = rgba(IRIS.map(c => c * 0.25 | 0), 1); g.lineWidth = 0.14; g.stroke();
     g.fillStyle = "rgb(14,10,14)"; g.beginPath(); g.ellipse(0, -0.05, 0.42, 0.5, 0, 0, Math.PI * 2); g.fill();
@@ -125,12 +132,12 @@ function paintFace(g, ox, oy, v, fem) {
     g.fillStyle = "rgba(255,255,255,0.8)"; g.beginPath(); g.arc(ix + s * 1.8, iy + iry * 0.38, 0.95, 0, Math.PI * 2); g.fill();
     g.restore();
     g.strokeStyle = "rgb(22,14,16)";
-    g.lineWidth = fem ? 2.6 : 2.0;
+    g.lineWidth = CLF ? (fem ? 3.6 : 3) : fem ? 2.6 : 2.0;
     g.beginPath(); g.moveTo(inner + s * 0.4, iy2 - 0.4); g.bezierCurveTo(inner + s * rx * 0.15, top() - 1.5, outer - s * rx * 0.55, top() - 1.2 + tilt * 0.6, outer + s * (fem ? 1.6 : 0.8), oy2 - 1.6 - (fem ? 0.8 : 0)); g.stroke();
     if (fem) { g.lineWidth = 1.1; for (let k = 0; k < 3; k++) { const bx = outer - s * k * 2.2, by = oy2 - 1.8 - k * 1.2 + (k ? -1 : 0); g.beginPath(); g.moveTo(bx, by); g.quadraticCurveTo(bx + s * 1.8, by - 1.2, bx + s * 2.6, by - 2.6); g.stroke(); } }
     g.strokeStyle = "rgba(60,30,34,0.7)"; g.lineWidth = 0.8;
     g.beginPath(); g.moveTo(outer - s * 0.6, oy2 + 0.5); g.quadraticCurveTo(x + s * rx * 0.3, ey + dn * 1.1, x - s * rx * 0.1, ey + dn * 1.05); g.stroke();
-    g.strokeStyle = "rgba(110,60,60,0.35)"; g.lineWidth = 0.7;
+    g.strokeStyle = CLF ? "rgba(96,50,52,0.6)" : "rgba(110,60,60,0.35)"; g.lineWidth = CLF ? 1.1 : 0.7;
     g.beginPath(); g.moveTo(inner + s * 1.2, top() - 3.2); g.quadraticCurveTo(x, top() - 4.8 + tilt * 0.3, outer - s * 1.4, top() - 3 + tilt * 0.5); g.stroke();
     const by = ey - up - 5.5 + BROW[1], bw = fem ? 1.1 : 1.7;
     g.fillStyle = "rgba(48,30,24,0.9)";
@@ -415,7 +422,7 @@ function classicCharMaterial() {
   const m = new THREE.MeshLambertMaterial({ map: RIG.atlas.map, vertexColors: true, side: THREE.DoubleSide, envMapIntensity: 1.0 });
   m.onBeforeCompile = sh => {
     sh.uniforms.clLift = CLASSIC.lift; sh.uniforms.clMetal = CLASSIC.metal; sh.uniforms.clMR = { value: RIG.atlas.mr };
-    sh.fragmentShader = "uniform float clLift;\nuniform float clMetal;\nuniform sampler2D clMR;\n" + sh.fragmentShader.replace("#include <opaque_fragment>", "{ float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; float qn = floor(r * 3.0 + 0.5) / 3.0; vec4 mrs = texture2D(clMR, vMapUv); float rr = mix(r, qn, mrs.r > 0.5 ? 0.5 : 0.1); outgoingLight *= rr / max(r, 0.001); outgoingLight = max(outgoingLight, diffuseColor.rgb * clLift); float mt = mrs.b; vec3 nn = normalize(normal); float sp = pow(max(dot(nn, normalize(vec3(-0.35, 0.65, 0.68))), 0.0), 14.0); outgoingLight += diffuseColor.rgb * mt * sp * clMetal * 2.0; }\n#include <opaque_fragment>");
+    sh.fragmentShader = "uniform float clLift;\nuniform float clMetal;\nuniform sampler2D clMR;\n" + sh.fragmentShader.replace("#include <opaque_fragment>", "{ float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; float qn = floor(r * 3.0 + 0.5) / 3.0; vec4 mrs = texture2D(clMR, vMapUv); float rr = mix(r, qn, mrs.r > 0.5 ? 0.5 : 0.0); outgoingLight *= rr / max(r, 0.001); outgoingLight = max(outgoingLight, diffuseColor.rgb * clLift); float mt = mrs.b; vec3 nn = normalize(normal); float sp = pow(max(dot(nn, normalize(vec3(-0.35, 0.65, 0.68))), 0.0), 14.0); outgoingLight += diffuseColor.rgb * mt * sp * clMetal * 2.0; }\n#include <opaque_fragment>");
   };
   m.customProgramCacheKey = () => "classicChar";
   return m;
@@ -1479,6 +1486,13 @@ function humanEntry(L) {
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
     else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.88, hc - hr * 0.08, -hr * 0.08), hr * 0.2, 0.4, 1.05, 0.7, 10), "head", skin, SKR);
+    if (classicOn() && !L.skull && !L.doll && L.ears !== "none" && L.ears !== "cat" && L.ears !== "fin" && L.ears !== "ursan") {
+      const ik = shadeHex(skin, 0.74);
+      if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.04, -hr * 0.1), V3(s * (hr + 0.06), hc + hr * 0.3, -hr * 0.38), hr * 0.1, 0.003, 6, 0.4), earBone(s), ik, SKR);
+      else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.06, -hr * 0.03), V3(s * (hr + 0.08), hc + hr * 0.1, -hr * 0.12), hr * 0.12, 0.004, 6, 0.4), earBone(s), ik, SKR);
+      else if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.82, hc + hr * 0.04, -0.03), V3(s * (hr + 0.18), hc + hr * 0.6, -0.1), hr * 0.14, 0.004, 6, 0.45), "head", ik, SKR);
+      else R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.08, -hr * 0.05), hr * 0.1, 0.4, 1.05, 0.7, 8), "head", ik, SKR);
+    }
     if (L.tusks) R.add(gTaper(V3(s * hr * 0.35, hc - hr * 0.55, hr * 0.75), V3(s * hr * 0.45, hc - hr * 0.1, hr * 0.95), hr * 0.1, 0.004, 6), "head", 0xf0e8d0, "bone");
     if (L.needles) for (let k = 0; k < 4; k++) R.add(gTaper(V3(s * hr * (0.3 + k * 0.2), hc + hr * (0.9 - k * 0.35), hr * 0.3 - k * 0.1), V3(s * hr * (0.5 + k * 0.3), hc + hr * (1.4 - k * 0.5), hr * 0.3 - k * 0.1), 0.012, 0.002, 4), "head", 0xf0f0d8, "bone");
     if (L.eyesGlow && !L.cactus) {
