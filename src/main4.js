@@ -98,6 +98,7 @@ async function boot() {
   await frames(1);
   initHud();
   $("btnEngage").onclick = () => toggleEngage(true);
+  $("tgtAct").onclick = e => { e.stopPropagation(); tgtActPress(); };
   $("btnTarget").onclick = () => { cycleTarget(); sfx("select"); };
   $("btnTalk").onclick = talkNearest;
   $("btnHome").onclick = giveUpKO;
@@ -169,8 +170,68 @@ function showModeChoice() {
     const b = e.target.closest("[data-play]");
     if (!b) return;
     if (typeof sfx === "function") sfx("select");
-    if (b.dataset.play === "off") { PLAY.offline = true; showCharSelect(); } else { PLAY.offline = false; showAccount(); }
+    if (b.dataset.play === "off") { showOfflineGate(""); } else { PLAY.offline = false; showAccount(); }
   };
+}
+
+const OFFLINE_GATE_KEY = "ashenreach_offline_gate";
+async function gateHash(email, salt, pw) {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email + ":" + salt + ":" + pw));
+  return Array.from(new Uint8Array(d)).map(x => x.toString(16).padStart(2, "0")).join("");
+}
+async function verifyOfflinePassword(email, pw) {
+  email = email.trim().toLowerCase();
+  let cache = null;
+  try { cache = JSON.parse(localStorage.getItem(OFFLINE_GATE_KEY) || "null"); } catch (e) {}
+  let net = true;
+  try {
+    if (typeof SUPA === "undefined") throw new Error("Failed to fetch");
+    const c = SUPA.createClient(NET_CFG.url, NET_CFG.key, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+    const { error } = await c.auth.signInWithPassword({ email, password: pw });
+    if (error) {
+      if (/fetch|network|Failed/i.test(error.message || "")) throw error;
+      throw new Error(/confirm/i.test(error.message || "") ? "Confirm your email first, then try again." : "Wrong email or password.");
+    }
+    const salt = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(x => x.toString(16)).join("");
+    try { localStorage.setItem(OFFLINE_GATE_KEY, JSON.stringify({ e: email, s: salt, h: await gateHash(email, salt, pw) })); } catch (e) {}
+    return;
+  } catch (e) {
+    if (!/fetch|network|Failed/i.test(e.message || "")) throw e;
+    net = false;
+  }
+  if (!net && cache && cache.e === email && cache.h === await gateHash(email, cache.s, pw)) return;
+  if (!net && cache && cache.e === email) throw new Error("Wrong email or password.");
+  throw new Error("Can't reach the server to check your password. Connect once to unlock offline play on this device.");
+}
+
+function showOfflineGate(err) {
+  const ld = $("loading");
+  ld.classList.add("ready", "roster");
+  $("ldStart").style.display = "none";
+  $("ldSub").textContent = "Offline play needs your account password";
+  let last = "";
+  try { last = (JSON.parse(localStorage.getItem(OFFLINE_GATE_KEY) || "null") || {}).e || ""; } catch (e) {}
+  const box = $("charSel");
+  box.innerHTML = '<div class="ccOpts" style="max-width:360px;margin:0 auto"><label>Email<input id="ofEmail" type="email" autocomplete="email" spellcheck="false" value="' + esc(last) + '"></label><label>Password<input id="ofPw" type="password" autocomplete="current-password" spellcheck="false"></label><div class="ccErr" id="ofErr">' + esc(err || "") + '</div><div class="ccAct"><button class="pri" data-go="1">Unlock offline play</button></div><div class="sub" style="text-align:center;margin-top:8px"><button data-back="1">Back</button></div><div class="sub" style="text-align:center;margin-top:10px;opacity:.7">Use the email and password of your online account. Once checked, this device remembers it so you can play with no connection.</div></div>';
+  box.style.display = "block";
+  const val = id => $(id).value;
+  const submit = async () => {
+    const btn = box.querySelector("[data-go]");
+    if (btn.disabled) return;
+    const email = val("ofEmail").trim();
+    if (!email || !val("ofPw")) { $("ofErr").textContent = "Enter your email and password."; if (typeof sfx === "function") sfx("error"); return; }
+    btn.disabled = true; btn.textContent = "Checking…";
+    try { await verifyOfflinePassword(email, val("ofPw")); PLAY.offline = true; showCharSelect(); }
+    catch (e) { btn.disabled = false; btn.textContent = "Unlock offline play"; $("ofErr").textContent = e.message || "Could not check the password."; if (typeof sfx === "function") sfx("error"); }
+  };
+  box.querySelectorAll("input").forEach(i => i.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") submit(); }));
+  box.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.go) submit();
+    else if (b.dataset.back) { if (typeof sfx === "function") sfx("close"); showModeChoice(); }
+  };
+  setTimeout(() => { const f = $(last ? "ofPw" : "ofEmail"); if (f) f.focus(); }, 50);
 }
 
 const CC = { job: "WAR", look: null, name: "", step: 0, thumbs: {} };

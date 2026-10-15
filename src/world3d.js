@@ -2527,7 +2527,7 @@ function updateSky(force) {
   }
 }
 
-const SETTINGS_DEFAULT = { look: "classic", outline: null, attire: "job", quality: null, aggroHints: false, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
+const SETTINGS_DEFAULT = { look: "classic", outline: null, attire: "job", quality: null, aggroHints: false, autoRun: false, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
 const DRAW_DIST = { near: 1000, normal: 1700, far: 2600 };
 
 function perfTick() {

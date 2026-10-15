@@ -3859,6 +3859,8 @@ function nearestMob() {
   return best;
 }
 
+function autoRunOn() { return typeof VIEW !== "undefined" && !!VIEW.settings && !!VIEW.settings.autoRun; }
+
 function toggleEngage(fromTap) {
   if (!player.alive) return;
   standUp(player);
@@ -3877,7 +3879,7 @@ function toggleEngage(fromTap) {
   player.attackTarget = t;
   player.swingTimer = Math.min(player.swingTimer, 1.0);
   touch(player);
-  if (fromTap) S.chase = true;
+  if (fromTap && autoRunOn()) S.chase = true;
   log("You engage the " + t.name + ".", "you");
 }
 

@@ -677,6 +677,44 @@ function gameConfirmClose(tag) {
   if (typeof sfx === "function") sfx("close");
 }
 
+const TGT_INSPECT = { sign: 1, board: 1, tablet: 1, lookout: 1, mirage: 1, shrine: 1 };
+function tgtActFor(t) {
+  if (!t || S.ko || S.modal || S.dialog || !player.alive) return null;
+  if (isMob(t)) return t.alive ? { label: "Fight", fight: true } : null;
+  if (t.kind !== "npc" || t.away || t.gone) return null;
+  if (t.prop === "gather") return { label: "Harvest" };
+  if (t.prop) return { label: TGT_INSPECT[t.prop] ? "Inspect" : "Use" };
+  if (t.crystal || (NPCS[t.id] && NPCS[t.id].warpstone)) return { label: "Use" };
+  return { label: "Talk" };
+}
+function updateTgtAct() {
+  const el = $("tgtAct");
+  if (!el) return;
+  const t = player.target, touch = (typeof VIEW !== "undefined" && VIEW.touch) || matchMedia("(pointer: coarse)").matches;
+  const a = touch ? tgtActFor(t) : null;
+  const pos = a && !(UI.cmd && UI.cmd.t === t) && typeof screenOf === "function" ? screenOf(t.x, t.y, entityHeight(t) + 1.1) : null;
+  if (!a || !pos) { if (el.classList.contains("on")) el.classList.remove("on"); return; }
+  if (el.textContent !== a.label) el.textContent = a.label;
+  el.classList.toggle("fight", !!a.fight);
+  el.classList.add("on");
+  const w = $("game").clientWidth, h = $("game").clientHeight;
+  el.style.left = clamp(pos.x, 50, w - 50) + "px";
+  el.style.top = clamp(pos.y - 28, 44, h - 20) + "px";
+}
+function tgtActPress() {
+  const t = player.target, a = tgtActFor(t);
+  if (!a) return;
+  if (isMob(t)) {
+    if (!claimOk(t)) { log("The " + t.name + " is claimed by " + claimName(t) + ".", "sys"); sfx("error"); return; }
+    if (!(player.engaged && player.attackTarget === t)) toggleEngage(false);
+    tgtCmdOpen(t);
+    return;
+  }
+  if (dist(player, t) <= CONFIG.talkRange) { talkTo(t); return; }
+  S.pendingTalk = t;
+  S.moveTarget = { x: t.x, y: t.y };
+}
+
 function tgtCmdOpen(t) {
   if (!t || (!isMob(t) && t.kind !== "remote" && t !== player) || (isMob(t) && !t.alive)) { tgtCmdClose(); return; }
   UI.cmd = { t, page: "root", info: "", sel: 0 };
@@ -981,6 +1019,7 @@ function updateHud(dt) {
   updateParty();
   updateTarget();
   updateFF();
+  updateTgtAct();
   updateBottom();
   watchProgress();
   updateActionBar();
