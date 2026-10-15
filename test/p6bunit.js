@@ -6,8 +6,11 @@ const opt = re => S.dialog.all.find(o => re.test(o.label));
 
 ok(G.FEATURES.crafting && G.FEATURES.gathering, 'crafting and gathering are switched on');
 G.enterZone('hollow', 200, 1100); run(0.5); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
+let tot = { mining: 0, logging: 0, harvesting: 0 };
+for (const zid of ['hollow_lake', 'hollow_ruins', 'hollow']) { G.enterZone(zid, 200, 1100); run(0.3); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null); for (const n of S.npcs) if (n.prop === 'gather') tot[n.gtype]++; }
 const points = S.npcs.filter(n => n.prop === 'gather');
-ok(points.length === 9 && ['mining', 'logging', 'harvesting'].every(t => points.filter(p => p.gtype === t).length === 3), 'Rocky Hollow has three points of each gathering type');
+ok(Object.values(tot).every(v => v >= 3 && v <= 5), 'Rocky Hollow has gathering points of each type across its three zones (' + JSON.stringify(tot) + ')');
+const mineN0 = points.filter(p => p.gtype === 'mining').length;
 const mine = points.find(p => p.gtype === 'mining'); mine.uses = 3;
 P().x = mine.x; P().y = mine.y + 30;
 const n0 = H.alllog.length; G.doGather(mine);
@@ -23,7 +26,7 @@ Math.random = () => 0.2;
 while (!mine.gone) { G.giveItem('pickaxe', 1, true); G.doGather(mine); }
 ok(mine.gone && S.gatherAt.filter(r => r.type === 'mining').length === 1, 'an exhausted point retires and schedules a new one');
 S.gatherAt.forEach(r => r.at = Date.now() - 1); run(1);
-ok(S.npcs.filter(n => n.prop === 'gather' && n.gtype === 'mining' && !n.gone).length === 3, 'a replacement point appears elsewhere after the timer');
+ok(S.npcs.filter(n => n.prop === 'gather' && n.gtype === 'mining' && !n.gone).length === mineN0, 'a replacement point appears elsewhere after the timer');
 Math.random = saved;
 
 const r = G.RECIPES.find(x => x.id === 'r_bronze_ingot');

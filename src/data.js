@@ -1784,6 +1784,146 @@ function scaleZone(z, k) {
 for (const id in ZONE_SCALE) if (ZONES[id]) { ZONES[id].id = id; scaleZone(ZONES[id], ZONE_SCALE[id]); }
 function zsc(id) { return ZONE_SCALE[id] || 1; }
 for (const id in ZONES) if (ZONES[id].spawns.length) spreadSpawns(ZONES[id], id === "hollow" ? 170 : 120);
+const AREA_NAMES = { spire: "Red Spire" };
+for (const id of ["spire1", "spire2", "spire3", "spire4", "spire_top"]) if (ZONES[id]) ZONES[id].area = "spire";
+const ZONE_SPLITS = {};
+function areaOf(zid) { return (ZONES[zid] && ZONES[zid].area) || zid; }
+function areaZones(a) { return Object.keys(ZONES).filter(id => areaOf(id) === a); }
+function areaName(a) { return AREA_NAMES[a] || (ZONES[a] ? ZONES[a].name : a); }
+function inArea(ref, zid) { return ref === zid || areaOf(zid) === ref; }
+function areaVisited(s, a) { const d = s.discovered || []; return d.includes(a) || d.some(z => areaOf(z) === a); }
+function zkey(tbl, zid) { return tbl[zid] != null ? tbl[zid] : tbl[areaOf(zid)]; }
+function computeBand(z) {
+  const lv = (z.spawns || []).filter(s => !s.weather && s.lv).map(s => s.lv);
+  z.band = z.safe || z.indoor || !lv.length ? null : [Math.min(...lv.map(l => l[0])), Math.max(...lv.map(l => l[1]))];
+}
+function zoneBand(zid) { const z = ZONES[zid]; return z && z.band ? z.band : null; }
+function areaBand(a) { const b = areaZones(a).map(zoneBand).filter(Boolean); return b.length ? [Math.min(...b.map(x => x[0])), Math.max(...b.map(x => x[1]))] : null; }
+function bandText(b) { return b ? "Lv " + (b[0] === b[1] ? b[0] : b[0] + "–" + b[1]) : ""; }
+
+function splitZone(src, parts) {
+  const Z = ZONES[src], snap = v => Math.round(v / 50) * 50;
+  const P = parts.map(p => ({ id: p.id, name: p.name, x0: snap(p.rect[0]), y0: snap(p.rect[1]), x1: Math.min(Z.w, snap(p.rect[2])), y1: Math.min(Z.h, snap(p.rect[3])), band: p.band, start: p.start }));
+  for (const p of P) { if (p.x1 >= Z.w - 25) p.x1 = Z.w; if (p.y1 >= Z.h - 25) p.y1 = Z.h; }
+  const inR = (p, x, y) => x >= p.x0 && x < p.x1 && y >= p.y0 && y < p.y1;
+  const partAt = (x, y) => P.find(p => inR(p, x, y)) || P.reduce((a, p) => { const d = Math.hypot(Math.max(p.x0 - x, 0, x - p.x1), Math.max(p.y0 - y, 0, y - p.y1)); return !a || d < a.d ? { p, d } : a; }, null).p;
+  const out = {};
+  for (const p of P) {
+    const ox = p.x0, oy = p.y0, mine = (x, y) => partAt(x, y) === p, mv = o => Object.assign({}, o, { x: o.x - ox, y: o.y - oy });
+    const nz = { name: p.name, w: p.x1 - p.x0, h: p.y1 - p.y0, theme: Z.theme, area: src, id: p.id, splitFrom: src };
+    for (const k of ["palette", "mist", "openRange", "cs", "vegK", "glow", "island"]) if (Z[k] != null) nz[k] = Z[k];
+    nz.spawns = (Z.spawns || []).filter(s => mine(s.x, s.y)).map(mv);
+    for (const s of nz.spawns) { s.x = Math.max(80, Math.min(nz.w - 80, s.x)); s.y = Math.max(80, Math.min(nz.h - 80, s.y)); }
+    nz.npcs = (Z.npcs || []).filter(s => mine(s.x, s.y)).map(mv);
+    nz.landmarks = (Z.landmarks || []).filter(s => mine(s.x, s.y)).map(mv);
+    nz.water = (Z.water || []).filter(s => mine(s.x, s.y)).map(mv);
+    nz.walls = (Z.walls || []).filter(w => mine(w.x + w.w / 2, w.y + w.h / 2)).map(mv);
+    for (const k of ["props", "ambient"]) if (Z[k]) nz[k] = Z[k].filter(s => mine(s.x, s.y)).map(mv);
+    for (const k of ["torches"]) if (Z[k]) nz[k] = Z[k].filter(q => mine(q[0], q[1])).map(q => [q[0] - ox, q[1] - oy].concat(q.slice(2)));
+    if (Z.pillars) nz.pillars = Z.pillars.filter(q => mine(q.x != null ? q.x : q[0], q.y != null ? q.y : q[1])).map(q => q.x != null ? mv(q) : [q[0] - ox, q[1] - oy].concat(q.slice(2)));
+    if (Z.ruins) nz.ruins = { walls: (Z.ruins.walls || []).filter(r => mine((r[0] + r[2]) / 2, (r[1] + r[3]) / 2)).map(r => [r[0] - ox, r[1] - oy, r[2] - ox, r[3] - oy, r[4]]), pillars: (Z.ruins.pillars || []).filter(r => mine(r[0], r[1])).map(r => [r[0] - ox, r[1] - oy, r[2]]) };
+    nz.paths = (Z.paths || []).filter(pa => pa.pts.some(q => mine(q[0], q[1]))).map(pa => Object.assign({}, pa, { pts: pa.pts.map(q => [q[0] - ox, q[1] - oy]) }));
+    nz.features = (Z.features || []).filter(f => f.t === "ravine" ? f.pts.some(q => mine(q[0], q[1])) : mine(f.x, f.y)).map(f => f.t === "ravine" ? Object.assign({}, f, { pts: f.pts.map(q => [q[0] - ox, q[1] - oy]) }) : mv(f));
+    nz.gather = {};
+    for (const g in Z.gather || {}) { const at = Z.gather[g].at.filter(q => mine(q[0], q[1])).map(q => [q[0] - ox, q[1] - oy]); if (at.length) nz.gather[g] = Object.assign({}, Z.gather[g], { at, n: Math.max(1, Math.min(Z.gather[g].n, Math.round(Z.gather[g].n * at.length / Z.gather[g].at.length + 0.4), at.length)) }); }
+    nz.exits = (Z.exits || []).filter(e => mine(e.x + e.w / 2, e.y + e.h / 2)).map(e => { const n = mv(e); n.x = Math.max(0, Math.min(nz.w - n.w, n.x)); n.y = Math.max(0, Math.min(nz.h - n.h, n.y)); return n; });
+    nz.start = p.start ? { x: p.start[0], y: p.start[1] } : inR(p, Z.start.x, Z.start.y) ? { x: Z.start.x - ox, y: Z.start.y - oy } : { x: Math.round(nz.w / 2), y: Math.round(nz.h / 2) };
+    if (p.band) { nz.band = p.band; nz.bandFixed = true; } else computeBand(nz);
+    out[p.id] = nz;
+  }
+  const L = 160, T = 24, IN = 70;
+  for (const a of P) for (const b of P) {
+    if (a === b) continue;
+    let seg = null;
+    if (a.x1 === b.x0) { const lo = Math.max(a.y0, b.y0), hi = Math.min(a.y1, b.y1); if (hi - lo >= L) seg = { v: true, at: a.x1, lo, hi }; }
+    if (a.y1 === b.y0) { const lo = Math.max(a.x0, b.x0), hi = Math.min(a.x1, b.x1); if (hi - lo >= L) seg = { v: false, at: a.y1, lo, hi }; }
+    if (!seg) continue;
+    let c = (seg.lo + seg.hi) / 2, best = 1e9;
+    for (const pa of Z.paths || []) for (let i = 1; i < pa.pts.length; i++) {
+      const [p0, p1] = [pa.pts[i - 1], pa.pts[i]], k0 = seg.v ? p0[0] : p0[1], k1 = seg.v ? p1[0] : p1[1];
+      if ((k0 - seg.at) * (k1 - seg.at) > 0 || k0 === k1) continue;
+      const t = (seg.at - k0) / (k1 - k0), m = seg.v ? p0[1] + t * (p1[1] - p0[1]) : p0[0] + t * (p1[0] - p0[0]);
+      if (m > seg.lo + L / 2 && m < seg.hi - L / 2 && Math.abs(m - c) < best) { best = Math.abs(m - c); c = m; }
+    }
+    c = Math.round(Math.max(seg.lo + L / 2, Math.min(seg.hi - L / 2, c)));
+    const A = out[a.id], B = out[b.id];
+    if (seg.v) {
+      A.exits.push({ x: A.w - T, y: c - a.y0 - L / 2, w: T, h: L, to: b.id, tx: IN, ty: c - b.y0, label: b.name, edge: true });
+      B.exits.push({ x: 0, y: c - b.y0 - L / 2, w: T, h: L, to: a.id, tx: A.w - IN, ty: c - a.y0, label: a.name, edge: true });
+    } else {
+      A.exits.push({ x: c - a.x0 - L / 2, y: A.h - T, w: L, h: T, to: b.id, tx: c - b.x0, ty: IN, label: b.name, edge: true });
+      B.exits.push({ x: c - b.x0 - L / 2, y: 0, w: L, h: T, to: a.id, tx: c - a.x0, ty: A.h - IN, label: a.name, edge: true });
+    }
+  }
+  for (const zid in ZONES) {
+    if (out[zid]) continue;
+    for (const e of ZONES[zid].exits || []) if (e.to === src) {
+      const back = (Z.exits || []).find(x => x.to === zid), p = back ? partAt(back.x + back.w / 2, back.y + back.h / 2) : partAt(e.tx, e.ty);
+      e.to = p.id;
+      if (back) { e.tx = Math.round(back.x + back.w / 2 - p.x0); e.ty = Math.round(back.y + back.h / 2 - p.y0); } else { e.tx -= p.x0; e.ty -= p.y0; }
+    }
+  }
+  if (!AREA_NAMES[src]) AREA_NAMES[src] = Z.name;
+  ZONE_SPLITS[src] = { w: Z.w, h: Z.h, parts: P.map(p => ({ id: p.id, x0: p.x0, y0: p.y0, x1: p.x1, y1: p.y1 })) };
+  for (const id in out) ZONES[id] = out[id];
+  if (!out[src]) delete ZONES[src];
+  return out;
+}
+
+function splitLocal(src, x, y) {
+  const S0 = ZONE_SPLITS[src];
+  if (!S0) return { zone: src, x, y };
+  const p = S0.parts.find(q => x >= q.x0 && x < q.x1 && y >= q.y0 && y < q.y1) || S0.parts[0];
+  return { zone: p.id, x: Math.round(x - p.x0), y: Math.round(y - p.y0) };
+}
+function migrateSplits(out) {
+  out.zsplit = out.zsplit && typeof out.zsplit === "object" ? out.zsplit : {};
+  for (const src in ZONE_SPLITS) {
+    if (out.zsplit[src]) continue;
+    out.zsplit[src] = 1;
+    const S0 = ZONE_SPLITS[src], P = S0.parts;
+    const partAt = (x, y) => P.find(p => x >= p.x0 && x < p.x1 && y >= p.y0 && y < p.y1) || P[0];
+    const byNpc = id => P.find(p => ZONES[p.id] && ZONES[p.id].npcs.some(n => n.id === id));
+    if (out.loc && out.loc.zone === src) { const p = partAt(out.loc.x, out.loc.y); out.loc = { zone: p.id, x: out.loc.x - p.x0, y: out.loc.y - p.y0 }; }
+    if (out.home && out.home.zone === src) { const p = byNpc(out.home.npc); if (p) out.home = { zone: p.id, npc: out.home.npc }; }
+    if (out.attuned) for (const k in out.attuned) if (out.attuned[k] === src) { const p = byNpc(k); if (p) out.attuned[k] = p.id; }
+    if (out.landmarks) for (const key of Object.keys(out.landmarks)) {
+      const [z, lm] = key.split(":");
+      if (z !== src) continue;
+      const p = P.find(q => ZONES[q.id] && (ZONES[q.id].landmarks || []).some(l => l.id === lm));
+      if (p && p.id !== src) { out.landmarks[p.id + ":" + lm] = out.landmarks[key]; delete out.landmarks[key]; }
+      if (p && Array.isArray(out.discovered) && !out.discovered.includes(p.id)) out.discovered.push(p.id);
+    }
+    if (out.loc && Array.isArray(out.discovered) && P.some(p => p.id === out.loc.zone) && !out.discovered.includes(out.loc.zone)) out.discovered.push(out.loc.zone);
+    const ex = out.explored && out.explored[src];
+    if (typeof ex === "string") {
+      const cols = Math.ceil(S0.w / 50), rows = Math.ceil(S0.h / 50);
+      if (ex.length === cols * rows) for (const p of P) {
+        const pc = Math.ceil((p.x1 - p.x0) / 50), pr = Math.ceil((p.y1 - p.y0) / 50), c0 = p.x0 / 50, r0 = p.y0 / 50;
+        let s = "";
+        for (let r = 0; r < pr; r++) for (let c = 0; c < pc; c++) { const rr = r0 + r, cc = c0 + c; s += rr < rows && cc < cols ? ex[rr * cols + cc] : "0"; }
+        out.explored[p.id] = s;
+      }
+      if (!P.some(p => p.id === src)) delete out.explored[src];
+    }
+  }
+  return out;
+}
+splitZone("hollow", [
+  { id: "hollow", name: "West Meadows", rect: [0, 0, 1650, 3300], band: [1, 3] },
+  { id: "hollow_lake", name: "Mirror Lake", rect: [1650, 0, 3300, 3300], band: [3, 5] },
+  { id: "hollow_ruins", name: "Eastern Ruins", rect: [3300, 0, 4800, 3300], band: [5, 7] }
+]);
+ZONES.highlands.spawns.push(
+  { fam: "plains_hare", lv: [10, 11], x: 900, y: 2600, time: "day" }, { fam: "plains_lizard", lv: [11, 12], x: 3000, y: 2700 }, { fam: "wind_wasp", lv: [11, 12], x: 2300, y: 2200, time: "day" }, { fam: "highland_orc", lv: [12, 13], x: 3400, y: 2400 },
+  { fam: "highland_orc", lv: [13, 14], x: 3300, y: 500 }, { fam: "highland_orc", lv: [13, 14], x: 3420, y: 580 }, { fam: "skeleton", lv: [12, 13], x: 700, y: 300, time: "night" }, { fam: "plains_hare", lv: [11, 12], x: 1200, y: 300, time: "day" }, { fam: "highland_longneck", lv: [12, 13], x: 2000, y: 350 }
+);
+splitZone("highlands", [
+  { id: "highlands", name: "Windreach Foothills", rect: [0, 2000, 4000, 3000] },
+  { id: "highlands_plateau", name: "Windreach Plateau", rect: [0, 1000, 4000, 2000] },
+  { id: "highlands_ridge", name: "Eagle Ridge", rect: [0, 0, 4000, 1000] }
+]);
+for (const id in ZONES) if (!ZONES[id].bandFixed) computeBand(ZONES[id]);
 
 
 const COMPANION_CFG = { dayMs: 86400000, wageRate: 1, bondSteps: [0, 20, 60, 130, 250, 420], bondBonus: 0.03, maxBond: 5 };
@@ -2122,7 +2262,7 @@ const RACE_BASE = {
   zone: "hollow", start: { x: 120, y: 1100 },
   checkpoints: [{ x: 800, y: 1010, name: "the old road" }, { x: 1450, y: 1880, name: "Burrow Flats" }, { x: 2515, y: 680, name: "the Old Fort" }, { x: 2650, y: 1440, name: "the Goblin Camp" }, { x: 3000, y: 1080, name: "the Eastern Gate" }],
   radius: 90, limit: 75, medals: [["gold", 26, 1200], ["silver", 36, 600], ["bronze", 50, 300]]
-};const RACE = (() => { const k = zsc(RACE_BASE.zone), r = Object.assign({}, RACE_BASE); r.start = { x: RACE_BASE.start.x * k, y: RACE_BASE.start.y * k }; r.checkpoints = RACE_BASE.checkpoints.map(c => Object.assign({}, c, { x: c.x * k, y: c.y * k })); r.limit = Math.round(RACE_BASE.limit * k); r.medals = RACE_BASE.medals.map(m => [m[0], Math.round(m[1] * k), m[2]]); return r; })();
+};const RACE = (() => { const k = zsc(RACE_BASE.zone), r = Object.assign({}, RACE_BASE); r.start = { x: RACE_BASE.start.x * k, y: RACE_BASE.start.y * k }; r.checkpoints = RACE_BASE.checkpoints.map(c => Object.assign({}, c, { x: c.x * k, y: c.y * k })); r.limit = Math.round(RACE_BASE.limit * k); { const ls = p => Object.assign(p, splitLocal(RACE_BASE.zone, p.x, p.y)); ls(r.start); r.checkpoints.forEach(ls); r.zone = r.start.zone; r.zones = ZONE_SPLITS[RACE_BASE.zone] ? ZONE_SPLITS[RACE_BASE.zone].parts.map(q => q.id) : [RACE_BASE.zone]; } r.medals = RACE_BASE.medals.map(m => [m[0], Math.round(m[1] * k), m[2]]); return r; })();
 
 const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 
@@ -2242,13 +2382,16 @@ function poiSpot(z, cx, cy, rad) {
   for (let k = 0; k < 64; k++) { const a = k * 2.4, r = rad * (0.5 + (k % 8) / 8); const x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r); if (ok(x, y)) return { x, y }; }
   return null;
 }
-for (const zid of ["hollow", "frost", "marsh"]) {
+const POI_PLAN = { hollow: ["shrine"], hollow_lake: ["lookout"], hollow_ruins: ["tablet", "cache"], frost: ["lookout", "shrine", "tablet", "cache"], marsh: ["lookout", "shrine", "tablet", "cache"] };
+for (const zid in POI_PLAN) {
   const z = ZONES[zid], L = z.landmarks || [];
   if (!L.length) continue;
   const pick = i => L[Math.min(L.length - 1, i)];
   const defs = [["lookout", "Lookout Tower", "lookout", "talkLookout", pick(0)], ["shrine", "Wayside Shrine", "shrine", "talkShrine", pick(2)], ["tablet", "Weathered Tablet", "tablet", "talkLore", pick(4)], ["cache", "Hidden Cache", "chest", "talkChest", pick(L.length - 1)]];
+  let salt = 0;
   for (const [k, name, prop, talk, lm] of defs) {
-    const id = k + "_" + zid, at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 140);
+    if (!POI_PLAN[zid].includes(k)) continue;
+    const id = k + "_" + areaOf(zid), at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 140 + 110 * salt++);
     if (!at) continue;
     NPCS[id] = Object.assign({ name, prop, talk, poi: k }, prop === "chest" ? { chest: "vault" } : {});
     z.npcs.push({ id, x: at.x, y: at.y });
@@ -2256,8 +2399,8 @@ for (const zid of ["hollow", "frost", "marsh"]) {
   }
 }
 ACHIEVEMENTS.push({ id: "wayfarer", icon: "🧭", name: "Wayfarer", desc: "Visit every lookout tower, wayside shrine and weathered tablet in the wilds.", test: s => POI_IDS.every(id => (s.poi || {})[id]) });
-const CAMP_NAMES = { hollow: "Hollow Camp", frost: "Frostspire Camp", marsh: "Mire Camp" };
-for (const zid of ["hollow", "frost", "marsh"]) {
+const CAMP_NAMES = { hollow: "Meadow Camp", hollow_lake: "Mirror Lake Camp", hollow_ruins: "Ruins Camp", frost: "Frostspire Camp", marsh: "Mire Camp" };
+for (const zid of ["hollow", "hollow_lake", "hollow_ruins", "frost", "marsh"]) {
   const z = ZONES[zid], L = z.landmarks || [], lm = L[Math.floor(L.length / 2)] || { x: z.w / 2, y: z.h / 2, r: 200 };
   const at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 260);
   if (!at) continue;
@@ -2510,115 +2653,3 @@ BESTIARY.gloamhorn = { type: "Beast", lore: "A longneck with a coat like dusk. I
 BESTIARY.sandglass_wisp = { type: "Elemental", lore: "A spark of sand and heat that lives inside the mirage. When the storm passes, so does it." };
 ACHIEVEMENTS.push({ id: "mirage", icon: "🏜️", name: "Seen Through", desc: "Step into the Mirage during a sandstorm.", test: s => areaVisited(s, "mirage") });
 
-const AREA_NAMES = { spire: "Red Spire" };
-for (const id of ["spire1", "spire2", "spire3", "spire4", "spire_top"]) if (ZONES[id]) ZONES[id].area = "spire";
-const ZONE_SPLITS = {};
-function areaOf(zid) { return (ZONES[zid] && ZONES[zid].area) || zid; }
-function areaZones(a) { return Object.keys(ZONES).filter(id => areaOf(id) === a); }
-function areaName(a) { return AREA_NAMES[a] || (ZONES[a] ? ZONES[a].name : a); }
-function inArea(ref, zid) { return ref === zid || areaOf(zid) === ref; }
-function areaVisited(s, a) { const d = s.discovered || []; return d.includes(a) || d.some(z => areaOf(z) === a); }
-function zkey(tbl, zid) { return tbl[zid] != null ? tbl[zid] : tbl[areaOf(zid)]; }
-function computeBand(z) {
-  const lv = (z.spawns || []).filter(s => !s.weather && s.lv).map(s => s.lv);
-  z.band = z.safe || z.indoor || !lv.length ? null : [Math.min(...lv.map(l => l[0])), Math.max(...lv.map(l => l[1]))];
-}
-for (const id in ZONES) if (!ZONES[id].bandFixed) computeBand(ZONES[id]);
-function zoneBand(zid) { const z = ZONES[zid]; return z && z.band ? z.band : null; }
-function areaBand(a) { const b = areaZones(a).map(zoneBand).filter(Boolean); return b.length ? [Math.min(...b.map(x => x[0])), Math.max(...b.map(x => x[1]))] : null; }
-function bandText(b) { return b ? "Lv " + (b[0] === b[1] ? b[0] : b[0] + "–" + b[1]) : ""; }
-
-function splitZone(src, parts) {
-  const Z = ZONES[src], snap = v => Math.round(v / 50) * 50;
-  const P = parts.map(p => ({ id: p.id, name: p.name, x0: snap(p.rect[0]), y0: snap(p.rect[1]), x1: Math.min(Z.w, snap(p.rect[2])), y1: Math.min(Z.h, snap(p.rect[3])), band: p.band, start: p.start }));
-  for (const p of P) { if (p.x1 >= Z.w - 25) p.x1 = Z.w; if (p.y1 >= Z.h - 25) p.y1 = Z.h; }
-  const inR = (p, x, y) => x >= p.x0 && x < p.x1 && y >= p.y0 && y < p.y1;
-  const partAt = (x, y) => P.find(p => inR(p, x, y)) || P.reduce((a, p) => { const d = Math.hypot(Math.max(p.x0 - x, 0, x - p.x1), Math.max(p.y0 - y, 0, y - p.y1)); return !a || d < a.d ? { p, d } : a; }, null).p;
-  const out = {};
-  for (const p of P) {
-    const ox = p.x0, oy = p.y0, mine = (x, y) => partAt(x, y) === p, mv = o => Object.assign({}, o, { x: o.x - ox, y: o.y - oy });
-    const nz = { name: p.name, w: p.x1 - p.x0, h: p.y1 - p.y0, theme: Z.theme, area: src, id: p.id, splitFrom: src };
-    for (const k of ["palette", "mist", "openRange", "cs", "vegK", "glow", "island"]) if (Z[k] != null) nz[k] = Z[k];
-    nz.spawns = (Z.spawns || []).filter(s => mine(s.x, s.y)).map(mv);
-    nz.npcs = (Z.npcs || []).filter(s => mine(s.x, s.y)).map(mv);
-    nz.landmarks = (Z.landmarks || []).filter(s => mine(s.x, s.y)).map(mv);
-    nz.water = (Z.water || []).filter(s => mine(s.x, s.y)).map(mv);
-    nz.walls = (Z.walls || []).filter(w => mine(w.x + w.w / 2, w.y + w.h / 2)).map(mv);
-    for (const k of ["props", "ambient"]) if (Z[k]) nz[k] = Z[k].filter(s => mine(s.x, s.y)).map(mv);
-    for (const k of ["torches"]) if (Z[k]) nz[k] = Z[k].filter(q => mine(q[0], q[1])).map(q => [q[0] - ox, q[1] - oy].concat(q.slice(2)));
-    if (Z.pillars) nz.pillars = Z.pillars.filter(q => mine(q.x != null ? q.x : q[0], q.y != null ? q.y : q[1])).map(q => q.x != null ? mv(q) : [q[0] - ox, q[1] - oy].concat(q.slice(2)));
-    if (Z.ruins) nz.ruins = { walls: (Z.ruins.walls || []).filter(r => mine((r[0] + r[2]) / 2, (r[1] + r[3]) / 2)).map(r => [r[0] - ox, r[1] - oy, r[2] - ox, r[3] - oy, r[4]]), pillars: (Z.ruins.pillars || []).filter(r => mine(r[0], r[1])).map(r => [r[0] - ox, r[1] - oy, r[2]]) };
-    nz.paths = (Z.paths || []).filter(pa => pa.pts.some(q => mine(q[0], q[1]))).map(pa => Object.assign({}, pa, { pts: pa.pts.map(q => [q[0] - ox, q[1] - oy]) }));
-    nz.features = (Z.features || []).filter(f => f.t === "ravine" ? f.pts.some(q => mine(q[0], q[1])) : mine(f.x, f.y)).map(f => f.t === "ravine" ? Object.assign({}, f, { pts: f.pts.map(q => [q[0] - ox, q[1] - oy]) }) : mv(f));
-    nz.gather = {};
-    for (const g in Z.gather || {}) { const at = Z.gather[g].at.filter(q => mine(q[0], q[1])).map(q => [q[0] - ox, q[1] - oy]); if (at.length) nz.gather[g] = Object.assign({}, Z.gather[g], { at, n: Math.max(1, Math.min(Z.gather[g].n, Math.round(Z.gather[g].n * at.length / Z.gather[g].at.length + 0.4), at.length)) }); }
-    nz.exits = (Z.exits || []).filter(e => mine(e.x + e.w / 2, e.y + e.h / 2)).map(e => { const n = mv(e); n.x = Math.max(0, Math.min(nz.w - n.w, n.x)); n.y = Math.max(0, Math.min(nz.h - n.h, n.y)); return n; });
-    nz.start = p.start ? { x: p.start[0], y: p.start[1] } : inR(p, Z.start.x, Z.start.y) ? { x: Z.start.x - ox, y: Z.start.y - oy } : { x: Math.round(nz.w / 2), y: Math.round(nz.h / 2) };
-    if (p.band) { nz.band = p.band; nz.bandFixed = true; } else computeBand(nz);
-    out[p.id] = nz;
-  }
-  const L = 160, T = 24, IN = 70;
-  for (const a of P) for (const b of P) {
-    if (a === b) continue;
-    let seg = null;
-    if (a.x1 === b.x0) { const lo = Math.max(a.y0, b.y0), hi = Math.min(a.y1, b.y1); if (hi - lo >= L) seg = { v: true, at: a.x1, lo, hi }; }
-    if (a.y1 === b.y0) { const lo = Math.max(a.x0, b.x0), hi = Math.min(a.x1, b.x1); if (hi - lo >= L) seg = { v: false, at: a.y1, lo, hi }; }
-    if (!seg) continue;
-    let c = (seg.lo + seg.hi) / 2, best = 1e9;
-    for (const pa of Z.paths || []) for (let i = 1; i < pa.pts.length; i++) {
-      const [p0, p1] = [pa.pts[i - 1], pa.pts[i]], k0 = seg.v ? p0[0] : p0[1], k1 = seg.v ? p1[0] : p1[1];
-      if ((k0 - seg.at) * (k1 - seg.at) > 0 || k0 === k1) continue;
-      const t = (seg.at - k0) / (k1 - k0), m = seg.v ? p0[1] + t * (p1[1] - p0[1]) : p0[0] + t * (p1[0] - p0[0]);
-      if (m > seg.lo + L / 2 && m < seg.hi - L / 2 && Math.abs(m - c) < best) { best = Math.abs(m - c); c = m; }
-    }
-    c = Math.round(Math.max(seg.lo + L / 2, Math.min(seg.hi - L / 2, c)));
-    const A = out[a.id], B = out[b.id];
-    if (seg.v) {
-      A.exits.push({ x: A.w - T, y: c - a.y0 - L / 2, w: T, h: L, to: b.id, tx: IN, ty: c - b.y0, label: b.name, edge: true });
-      B.exits.push({ x: 0, y: c - b.y0 - L / 2, w: T, h: L, to: a.id, tx: A.w - IN, ty: c - a.y0, label: a.name, edge: true });
-    } else {
-      A.exits.push({ x: c - a.x0 - L / 2, y: A.h - T, w: L, h: T, to: b.id, tx: c - b.x0, ty: IN, label: b.name, edge: true });
-      B.exits.push({ x: c - b.x0 - L / 2, y: 0, w: L, h: T, to: a.id, tx: c - a.x0, ty: A.h - IN, label: a.name, edge: true });
-    }
-  }
-  for (const zid in ZONES) for (const e of ZONES[zid].exits || []) if (e.to === src) { const p = partAt(e.tx, e.ty); e.to = p.id; e.tx -= p.x0; e.ty -= p.y0; }
-  if (!AREA_NAMES[src]) AREA_NAMES[src] = Z.name;
-  ZONE_SPLITS[src] = { w: Z.w, h: Z.h, parts: P.map(p => ({ id: p.id, x0: p.x0, y0: p.y0, x1: p.x1, y1: p.y1 })) };
-  for (const id in out) ZONES[id] = out[id];
-  if (!out[src]) delete ZONES[src];
-  return out;
-}
-
-function migrateSplits(out) {
-  out.zsplit = out.zsplit && typeof out.zsplit === "object" ? out.zsplit : {};
-  for (const src in ZONE_SPLITS) {
-    if (out.zsplit[src]) continue;
-    out.zsplit[src] = 1;
-    const S0 = ZONE_SPLITS[src], P = S0.parts;
-    const partAt = (x, y) => P.find(p => x >= p.x0 && x < p.x1 && y >= p.y0 && y < p.y1) || P[0];
-    const byNpc = id => P.find(p => ZONES[p.id] && ZONES[p.id].npcs.some(n => n.id === id));
-    if (out.loc && out.loc.zone === src) { const p = partAt(out.loc.x, out.loc.y); out.loc = { zone: p.id, x: out.loc.x - p.x0, y: out.loc.y - p.y0 }; }
-    if (out.home && out.home.zone === src) { const p = byNpc(out.home.npc); if (p) out.home = { zone: p.id, npc: out.home.npc }; }
-    if (out.attuned) for (const k in out.attuned) if (out.attuned[k] === src) { const p = byNpc(k); if (p) out.attuned[k] = p.id; }
-    if (out.landmarks) for (const key of Object.keys(out.landmarks)) {
-      const [z, lm] = key.split(":");
-      if (z !== src) continue;
-      const p = P.find(q => ZONES[q.id] && (ZONES[q.id].landmarks || []).some(l => l.id === lm));
-      if (p && p.id !== src) { out.landmarks[p.id + ":" + lm] = out.landmarks[key]; delete out.landmarks[key]; }
-      if (p && Array.isArray(out.discovered) && !out.discovered.includes(p.id)) out.discovered.push(p.id);
-    }
-    if (out.loc && Array.isArray(out.discovered) && P.some(p => p.id === out.loc.zone) && !out.discovered.includes(out.loc.zone)) out.discovered.push(out.loc.zone);
-    const ex = out.explored && out.explored[src];
-    if (typeof ex === "string") {
-      const cols = Math.ceil(S0.w / 50), rows = Math.ceil(S0.h / 50);
-      if (ex.length === cols * rows) for (const p of P) {
-        const pc = Math.ceil((p.x1 - p.x0) / 50), pr = Math.ceil((p.y1 - p.y0) / 50), c0 = p.x0 / 50, r0 = p.y0 / 50;
-        let s = "";
-        for (let r = 0; r < pr; r++) for (let c = 0; c < pc; c++) { const rr = r0 + r, cc = c0 + c; s += rr < rows && cc < cols ? ex[rr * cols + cc] : "0"; }
-        out.explored[p.id] = s;
-      }
-      if (!P.some(p => p.id === src)) delete out.explored[src];
-    }
-  }
-  return out;
-}

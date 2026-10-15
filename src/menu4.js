@@ -1480,6 +1480,14 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "16.1.0", date: "2026-10-15", title: "Rocky Hollow and Windreach in three zones", items: [
+    "Rocky Hollow is now three zones: West Meadows (Lv 1–3, from the Outpost), Mirror Lake (Lv 3–5, with the roads to the Ashen Marsh and the Windreach Highlands) and Eastern Ruins (Lv 5–7, with the Old Fort and the way to the Goblin Den). Walk off the east or west edge to cross between them.",
+    "Windreach Highlands is now three zones: Windreach Foothills (Lv 10–13, where the road from the Hollow arrives), Windreach Plateau (Lv 11–14, with the nomad camp, Tarqa and Essa) and Eagle Ridge (Lv 11–14, with Rider's Rest). Walk north to climb.",
+    "Each zone has its own name, level range, monsters, gathering spots, signposts and camp crystal (Hollow). The new Highland zones have more monsters to fight.",
+    "The Hollow Run now crosses all three Hollow zones; the next checkpoint's zone is shown in the tracker.",
+    "Weather is shared across a whole area. Your position, found landmarks, explored map, camp attunement and quest progress carried over from the old Hollow and Highlands.",
+    "Character creation on a phone no longer zooms in on the face; the preview stays full-length."
+  ] },
   { v: "16.0.0", date: "2026-10-15", title: "Region framework", items: [
     "Every outdoor zone now has a level range. It shows on the banner when you arrive (with its region), in the chat log, in the Map window and under each area on the atlas.",
     "Behind the scenes, wild areas can now be split into several connected zones joined at their edges, like the classics. The next updates use this to split Rocky Hollow, the Windreach Highlands and the other wilds.",
@@ -2559,7 +2567,7 @@ function tabHelp() {
   ]));
   h += sec("📍 Areas, zones and levels", ul([
     "Every outdoor zone has a level range, worked out from the monsters that live there. You see it on the banner when you enter (with the region's name), in the chat log, in the Map window and on the atlas.",
-    "Big wild areas are being split into several connected zones, each with its own name and level range, like the classics. You walk from one to the next across the edge of the map; the atlas still shows the whole area as one place.",
+    "Big wild areas are split into several connected zones, each with its own name and level range, like the classics. Rocky Hollow (West Meadows, Mirror Lake, Eastern Ruins) and the Windreach Highlands (Foothills, Plateau, Eagle Ridge) are done; more follow. You walk from one to the next across the edge of the map; the atlas still shows the whole area as one place.",
     "When an area is split, your character is moved to the matching spot in the new zone, landmarks you found and the parts of the map you explored are kept, and quests, expeditions, achievements and conquest treat all its zones as the same area."
   ]));
   h += sec("🚩 Regions and nations", ul([
@@ -2570,12 +2578,12 @@ function tabHelp() {
     "Type /conquest to see who holds each region and your nation's points today. Entering an area tells you who holds it."
   ]));
   h += sec("🧭 Exploring the wilds", ul([
-    "Rocky Hollow, Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
+    "Rocky Hollow (spread over its three zones), Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
     "<b>Lookout Tower</b>: climb it to see the whole area. Every landmark there is marked as discovered, and your first climb gives 60 EXP.",
     "<b>Wayside Shrine</b>: leave 10 crystals to pray and receive Shrine's Favour (🕯️), +10% experience for 30 minutes. Each shrine can be used once an hour. Your first prayer at each gives 40 EXP.",
     "<b>Weathered Tablet</b>: a piece of the area's history. Reading one for the first time gives 50 EXP.",
     "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It refills about 20 minutes after you open it.",
-    "<b>Camps</b>: Rocky Hollow, Frostspire Pass and the Ashen Marsh each have a camp with a tent, a fire and a camp crystal. Touching any crystal (camp or town) restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
+    "<b>Camps</b>: Rocky Hollow (one in each of its three zones), Frostspire Pass and the Ashen Marsh each have a camp with a tent, a fire and a camp crystal. Touching any crystal (camp or town) restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
     "<b>Signposts</b> stand at every way in and out of an outdoor area; read one for the direction and rough distance to each neighbouring area.",
     "<b>Roads</b>: riding along a road outside town is " + Math.round((CONFIG.roadBonus - 1) * 100) + "% faster than riding cross-country. On the open plateau of the Windreach Highlands you get that speed everywhere.",
     "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."

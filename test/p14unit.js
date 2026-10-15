@@ -11,7 +11,7 @@ const m0 = G.mountMul(); ok(G.buySaddle() === '' && G.mountMul() > m0 * 1.1, 'th
 ok(G.startRace() === '' && S.zoneId === 'hollow' && P().mounted && S.race, 'starting the Hollow Run puts you mounted at the start');
 S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 const g0 = G.save.gil;
-for (const cp of G.RACE.checkpoints) { P().x = cp.x; P().y = cp.y; run(0.1); }
+for (const cp of G.RACE.checkpoints) { if (S.zoneId !== cp.zone) G.enterZone(cp.zone, cp.x, cp.y); P().x = cp.x; P().y = cp.y; run(0.1); }
 ok(!S.race && G.save.race.best != null && G.save.race.medals.gold && G.save.gil === g0 + 1200, 'riding through every checkpoint finishes with a medal and prize');
 G.startRace(); run(0.2); G.dismount('x'); run(0.2);
 ok(!S.race, 'dismounting ends the run');

@@ -3,11 +3,14 @@ let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' 
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const npc = id => S.npcs.find(n => n.id === id);
 const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
-const ex = G.ZONES.hollow.exits.find(e => e.to === 'highlands');
+const ex = G.ZONES.hollow_lake.exits.find(e => e.to === 'highlands');
 ok(ex && ex.y <= 0, 'Rocky Hollow has a north road to the Windreach Highlands');
-G.enterZone('hollow', ex.x + ex.w / 2, ex.y + 5); run(1.5);
+G.enterZone('hollow_lake', ex.x + ex.w / 2, ex.y + 5); run(1.5);
 ok(S.zoneId === 'highlands', 'walking north out of the Hollow reaches the Highlands');
-ok(['tarqa', 'essa', 'nomad_rider', 'camp_nomad_a'].every(id => npc(id)), 'the nomad camp has a chief, a trader and a rider');
+G.enterZone('highlands_ridge', 2000, 500); run(0.3);
+ok(['nomad_rider', 'camp_nomad_b'].every(id => npc(id)), 'Rider\'s Rest has its rider');
+G.enterZone('highlands_plateau', 2000, 1000); run(0.3);
+ok(['tarqa', 'essa', 'camp_nomad_a'].every(id => npc(id)), 'the nomad camp has a chief and a trader');
 G.save.jobs[G.save.mainJob].lv = 12; G.refreshPlayer(true);
 G.talkTo(npc('tarqa'));
 ok(!!opt(/Raiders on the Wind/) && !!opt(/Felt for Winter/), 'Tarqa has work for you');

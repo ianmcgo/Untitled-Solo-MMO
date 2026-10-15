@@ -3,7 +3,7 @@ let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' 
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const inRect = (x, y, r, m) => x > r.x - m && x < r.x + r.w + m && y > r.y - m && y < r.y + r.h + m;
 
-for (const zid of ['hollow', 'den']) {
+for (const zid of ['hollow', 'hollow_lake', 'hollow_ruins', 'den']) {
   const z = G.ZONES[zid];
   const rects = G.zoneRects(z);
   const bad = [];
@@ -21,7 +21,7 @@ for (const zid of ['hollow', 'den']) {
   }
   ok(!bad.length, zid + ' layout: spawns, NPCs and paths clear of walls and water ' + bad.slice(0, 6).join('; '));
 }
-ok(G.ZONES.hollow.w === 4800 && G.ZONES.hollow.h === 3300 && G.ZONES.den.w === 2400 && G.ZONES.den.h === 1600, 'zone sizes match the plan');
+ok(G.ZONES.hollow.w + G.ZONES.hollow_lake.w + G.ZONES.hollow_ruins.w === 4800 && G.ZONES.hollow.h === 3300 && G.ZONES.den.w === 2400 && G.ZONES.den.h === 1600, 'zone sizes match the plan');
 
 { const v = G.vana(); let d = 10 - v.hour - v.minute / 60; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; }
 G.enterZone('outpost', 610, 440);
@@ -51,20 +51,23 @@ run(61);
 ok(G.chainInfo() === null, 'chain expires after 60 s');
 
 G.save.jobs.WAR.lv = 3; G.save.jobs.WAR.xp = 0; G.refreshPlayer(true);
-const lm = G.ZONES.hollow.landmarks.find(l => l.id === 'fort');
+const lm = G.ZONES.hollow_ruins.landmarks.find(l => l.id === 'fort');
+G.enterZone('hollow_ruins', lm.x, lm.y + 200); run(0.3);
 P().x = lm.x; P().y = lm.y + 60; run(1);
-ok(G.save.landmarks['hollow:fort'] && G.save.jobs.WAR.xp === 0, 'discovering the Old Fort Ruins logs it without XP');
+ok(G.save.landmarks['hollow_ruins:fort'] && G.save.jobs.WAR.xp === 0, 'discovering the Old Fort Ruins logs it without XP');
 run(1);
 ok(G.save.jobs.WAR.xp === 0, 'a landmark only logs once');
 
+G.enterZone('hollow', 300, 300); run(0.2);
 const wall = G.ZONES.hollow.walls[0];
 P().x = wall.x + wall.w / 2; P().y = wall.y + 30; G.keepOutOfRects(P());
 ok(!inRect(P().x, P().y, wall, -1), 'rock outcrops are solid');
-const pil = G.ZONES.hollow.ruins.pillars[0];
+G.enterZone('hollow_ruins', 400, 400); run(0.2);
+const pil = G.ZONES.hollow_ruins.ruins.pillars[0];
 P().x = pil[0]; P().y = pil[1]; G.keepOutOfRects(P());
 ok(G.dist(P(), { x: pil[0], y: pil[1] }) > 20, 'ruin pillars are solid');
 
-const GI = G.ZONES.hollow.spawns.findIndex(sp => sp.nm && sp.nm.id === 'grimtooth');
+const GI = G.ZONES.hollow_ruins.spawns.findIndex(sp => sp.nm && sp.nm.id === 'grimtooth');
 const g = G.buildMob('grimtooth', 6, 2850, 1600, GI); S.mobs.push(g); g.enmity.set(P(), 10);
 G.save.inventory = G.save.inventory.filter(s => s.id !== 'raiders_ring');
 G.onKO(g, P());

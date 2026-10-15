@@ -588,7 +588,7 @@ function drawMinimap() {
     if (dist(mb, player) > 360 && player.target !== mb && !(mb.state === "combat" && mb.enmity && [...mb.enmity.keys()].some(isParty))) continue;
     dot(mb.x, mb.y, mb.fam.nm ? 8 : 6, mb.state === "combat" ? "#ff4a4a" : "#ffb070");
   }
-  if (S.race && RACE.checkpoints[S.race.next]) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 10, "rgba(255,213,79,.9)"); }
+  if (S.race && RACE.checkpoints[S.race.next] && RACE.checkpoints[S.race.next].zone === S.zoneId) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 10, "rgba(255,213,79,.9)"); }
   for (const p of S.party) if (p !== player) dot(p.x, p.y, 6, p.alive ? "#62b6ff" : "#555");
   g.restore();
   g.beginPath(); g.arc(R, R, 8, 0, 7); g.fillStyle = "#ff6ad5"; g.fill(); g.lineWidth = 2; g.strokeStyle = "#fff"; g.stroke();
@@ -969,8 +969,8 @@ function updateRace() {
   if (b) { const left = Math.max(0, b.until - S.time); setHtml(el, "🔱 <b>" + Math.floor(left / 60) + ":" + String(Math.floor(left % 60)).padStart(2, "0") + "</b> <span class=\"sub\">· Defeat the Tidebound Priest</span>"); return; }
   if (!r) return;
   const t = S.time - r.t0, cp = RACE.checkpoints[r.next];
-  const d = cp ? Math.round(Math.hypot(player.x - cp.x, player.y - cp.y) / 20) : 0;
-  setHtml(el, '🏁 <b>' + t.toFixed(1) + 's</b> <span class="sub">/ ' + RACE.limit + "s</span> · " + (cp ? "Checkpoint " + (r.next + 1) + "/" + RACE.checkpoints.length + ": " + esc(cp.name) + " · " + d + " m" : ""));
+  const d = cp ? (cp.zone === S.zoneId ? Math.round(Math.hypot(player.x - cp.x, player.y - cp.y) / 20) + " m" : "in " + esc(ZONES[cp.zone].name)) : "";
+  setHtml(el, '🏁 <b>' + t.toFixed(1) + 's</b> <span class="sub">/ ' + RACE.limit + "s</span> · " + (cp ? "Checkpoint " + (r.next + 1) + "/" + RACE.checkpoints.length + ": " + esc(cp.name) + " · " + d : ""));
 }
 
 function updateHud(dt) {
