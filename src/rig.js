@@ -13,78 +13,6 @@ const HAIR_BY_SEX = [["short", "sidepart", "spiky", "curly", "long", "ponytail",
 const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" , braid: "Braid", mohawk: "Crest", twintails: "Twin tails", topknot: "Topknot", wavy: "Wavy", pixie: "Pixie", sidepart: "Side part", dreads: "Locs", curly: "Curly" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 
-const REGION_PAINT = {
-  skin(u, v, o, X, Y) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 11), f = NOISE.value(u * 40, v * 40, 0, 12), pore = NOISE.value(u * 160, v * 160, 0, 14); o[0] = 0.8 + 0.06 * n + 0.02 * f - (pore > 0.86 ? 0.025 : 0); o[1] = n * 0.12 + f * 0.05 - (pore > 0.86 ? 0.05 : 0); o[2] = 0.56 + 0.08 * f + (pore > 0.86 ? 0.06 : 0); o[3] = 0; },
-  face(u, v, o) { const n = NOISE.fbm(u * 8, v * 8, 3, 8, 13), f = NOISE.value(u * 40, v * 40, 0, 15); o[0] = 0.82 + 0.05 * n + 0.01 * f; o[1] = n * 0.08 + f * 0.03; o[2] = 0.64; o[3] = 0; },
-  cloth(u, v, o, X, Y) {
-    const tx = X * 1.0, ty = Y * 1.0, cx = Math.floor(tx / 2), cy = Math.floor(ty / 2), over = (cx + cy) & 1;
-    const fx = tx / 2 - cx, fy = ty / 2 - cy, warp = Math.sin(fx * Math.PI), weft = Math.sin(fy * Math.PI);
-    const thread = over ? warp * (0.6 + 0.4 * weft) : weft * (0.6 + 0.4 * warp);
-    const slub = NOISE.value(u * 3, v * 60, 0, 24) * 0.5 + NOISE.value(u * 60, v * 3, 0, 25) * 0.5;
-    const n = NOISE.fbm(u * 10, v * 10, 2, 10, 21);
-    const fold = NOISE.fbm(u * 5, v * 0.8, 3, 5, 23), fk = Math.sin((u * 7 + fold * 1.6) * Math.PI * 2) * 0.5 + 0.5;
-    const ev = Math.min(v, 1 - v), hem = ev < 0.035 ? 1 : 0, st = ev > 0.048 && ev < 0.058 && (X % 7) < 4.2 ? 1 : 0, st2 = ev > 0.064 && ev < 0.072 && ((X + 3.5) % 7) < 4.2 ? 1 : 0;
-    const wear = Math.max(0, 1 - ev * 18) * (NOISE.value(u * 90, v * 90, 0, 26) > 0.55 ? 1 : 0);
-    o[0] = 0.66 + 0.16 * thread + 0.05 * slub + 0.08 * n + 0.12 * fk - hem * 0.08 - (st + st2) * 0.14 + wear * 0.08; o[1] = 0.2 + 0.5 * thread + 0.12 * n + fk * 0.45 + hem * 0.3 - (st + st2) * 0.35; o[2] = 0.95; o[3] = 0;
-  },
-  leather(u, v, o, X, Y) {
-    const n = NOISE.fbm(u * 12, v * 12, 4, 12, 31), grain = NOISE.ridge(u * 70, v * 70, 2, 70, 32), pebble = NOISE.value(u * 110, v * 110, 0, 36);
-    const ev = Math.min(v, 1 - v), stl = ev > 0.035 && ev < 0.05, hole = stl && (X % 9) < 1.6, st = stl && (X % 9) >= 2.5 && (X % 9) < 7.5;
-    const pore = pebble > 0.84 ? 0.05 : 0, edge = Math.max(0, 1 - ev * 14);
-    const crease = NOISE.ridge(u * 4, v * 6, 3, 4, 35) > 0.88 ? 0.1 : 0, scratch = Math.abs(NOISE.value(u * 2, v * 30, 0, 37) - 0.5) < 0.008 ? 0.08 : 0;
-    o[0] = 0.62 + 0.28 * n + 0.06 * grain - (st ? 0.22 : 0) - (hole ? 0.35 : 0) - pore - crease + scratch + edge * 0.1; o[1] = n * 0.5 + grain * 0.35 - (st ? 0.1 : 0) - (hole ? 0.6 : 0) - pore * 2 - crease * 2 + (st ? 0.25 : 0); o[2] = 0.48 + 0.25 * (1 - n) - edge * 0.14 - (st ? 0.1 : 0); o[3] = 0;
-  },
-  metal(u, v, o, X, Y) {
-    const br = NOISE.value(u * 3, v * 220, 0, 41);
-    const sc = NOISE.value(u * 30, v * 30, 0, 43) > 0.92 ? -0.1 : 0, fine = Math.abs(NOISE.value(u * 1.5, v * 40, 0, 44) - 0.5) < 0.006 ? 0.12 : 0;
-    const dent = NOISE.fbm(u * 9, v * 9, 2, 9, 45), ev = Math.min(v, 1 - v), edge = Math.max(0, 1 - ev * 16), rust = NOISE.fbm(u * 6, v * 6, 3, 6, 47) > 0.76 ? 1 : 0;
-    const band = ev > 0.06 && ev < 0.15, scroll = band && Math.abs(Math.sin(u * Math.PI * 2 * 9 + 2.6 * Math.sin(ev * Math.PI * 22))) < 0.14 ? 1 : 0;
-    const rv = ev < 0.045 && Math.hypot(((u * 18) % 1) - 0.5, (ev - 0.022) * 18) < 0.22 ? 1 : 0;
-    o[0] = 0.74 + 0.14 * br + sc + fine + 0.08 * dent + edge * 0.12 - rust * 0.1 - scroll * 0.22 + rv * 0.15; o[1] = br * 0.2 + sc + dent * 0.35 + edge * 0.2 - scroll * 0.5 + rv * 0.6; o[2] = 0.22 + 0.18 * br - edge * 0.1 + rust * 0.35 + scroll * 0.2 - rv * 0.1; o[3] = 0.95 - rust * 0.4 - scroll * 0.2;
-  },
-  hair(u, v, o) { const s = NOISE.fbm(u * 70, v * 2.2, 3, 0, 51), s2 = NOISE.value(u * 160, v * 3, 0, 52); const sheen = Math.exp(-Math.pow((v - 0.35) * 7, 2)) * 0.18 * (0.6 + 0.8 * s2); o[0] = 0.5 + 0.35 * s + 0.12 * s2 + sheen - 0.1 * (1 - v); o[1] = s * 0.7 + s2 * 0.3; o[2] = 0.38; o[3] = 0; },
-  trim(u, v, o, X, Y) {
-    const fu = (u * 6) % 1;
-    const d = Math.abs(fu - 0.5) + Math.abs(v - 0.5) * 1.2;
-    const curl = Math.abs(Math.sin(fu * Math.PI * 2 + 3 * (v - 0.5))) < 0.16 && v > 0.22 && v < 0.78 ? 1 : 0;
-    const on = Math.max(d < 0.24 ? 1 : 0, v < 0.11 || v > 0.89 ? 1 : 0, curl);
-    const stitch = 0.5 + 0.5 * Math.sin((X + Y) * 2.2);
-    o[0] = 0.48 + (0.4 + 0.12 * stitch) * on; o[1] = 0.2 + 0.55 * on + 0.15 * stitch * on; o[2] = 0.55 - 0.25 * on; o[3] = on * 0.65;
-  },
-  fur(u, v, o) { const n = NOISE.fbm(u * 36, v * 14, 3, 0, 61), clump = NOISE.value(u * 8, v * 4, 0, 62), strand = NOISE.value(u * 120, v * 8, 0, 63); o[0] = 0.55 + 0.3 * n + 0.15 * strand + 0.1 * clump; o[1] = n * 0.6 + strand * 0.4; o[2] = 1; o[3] = 0; },
-  bone(u, v, o) { const n = NOISE.fbm(u * 6, v * 6, 4, 6, 71), por = NOISE.value(u * 90, v * 90, 0, 74) > 0.88 ? -0.06 : 0; const crack = NOISE.ridge(u * 5, v * 5, 3, 5, 73) > 0.93 ? -0.25 : 0; o[0] = 0.82 + 0.16 * n + crack + por; o[1] = n * 0.4 + crack + por * 2; o[2] = 0.72; o[3] = 0; },
-  scale(u, v, o) {
-    const rows = 16, cols = 12;
-    const ry = v * rows, row = Math.floor(ry), off = row % 2 ? 0.5 : 0;
-    const cx = u * cols + off, col = Math.floor(cx);
-    const dx = cx - col - 0.5, dy = ry - row - 0.15;
-    const d = Math.min(1, Math.hypot(dx, dy * 1.1) * 1.6), rim = d > 0.82 && d < 0.95 ? 1 : 0, sp = NOISE.value(u * 80, v * 80, 0, 66) > 0.9 ? 0.06 : 0;
-    o[0] = 0.6 + 0.36 * (1 - d * d) + rim * 0.08 + sp; o[1] = 1 - d + rim * 0.2; o[2] = 0.42 + 0.22 * d; o[3] = 0.05;
-  },
-  feather(u, v, o) {
-    const ax = Math.abs(u - 0.5);
-    const split = NOISE.value(u * 6, v * 30, 0, 67) > 0.86 ? 0.15 : 0;
-    const barb = (ax * 2.2 + v * 1.4 + split) * 30 % 1;
-    const shaft = ax < 0.015 ? 1 : 0;
-    o[0] = 0.7 + 0.22 * barb + shaft * 0.18 - v * 0.12 - split * 0.4; o[1] = barb * 0.7 + shaft; o[2] = 0.8; o[3] = 0;
-  },
-  wood(u, v, o) { const n = NOISE.fbm(u * 2, v * 8, 3, 0, 81); const kx = (u * 3) % 1 - 0.5, ky = (v * 1.5) % 1 - 0.5, knot = Math.exp(-(kx * kx * 40 + ky * ky * 160)); const g = Math.sin((u * 5 + n * 3 + knot * 2) * Math.PI * 2) * 0.5 + 0.5; o[0] = 0.64 + 0.24 * g + 0.1 * n - knot * 0.2; o[1] = g * 0.5 - knot * 0.3; o[2] = 0.78; o[3] = 0; },
-  glow(u, v, o) { o[0] = 1; o[1] = 0; o[2] = 1; o[3] = 0; },
-  plain(u, v, o) { const n = NOISE.fbm(u * 6, v * 6, 2, 6, 91); o[0] = 0.95 + 0.05 * n; o[1] = 0; o[2] = 0.5; o[3] = 0; },
-  chain(u, v, o, x, y) {
-    const cs = 10, row = Math.floor(y / cs), ox = row % 2 ? cs / 2 : 0;
-    const gx = ((x + ox) % cs) - cs / 2, gy = (y % cs) - cs / 2;
-    const r = Math.hypot(gx, gy * 1.2), dr = Math.abs(r - 3.3);
-    const ring = dr < 1.3 ? 1 : 0, hl = ring && gy < 0 ? 0.12 : 0;
-    o[0] = 0.4 + 0.5 * ring * (1 - dr / 1.6) + hl; o[1] = ring * (1 - dr / 1.3); o[2] = 0.35 + 0.3 * (1 - ring); o[3] = 0.6 + 0.35 * ring;
-  },
-  quilt(u, v, o, X) {
-    const a = (u * 6 + v * 6) % 1, b = (u * 6 - v * 6 + 10) % 1;
-    const seam = Math.min(Math.abs(a - 0.5), Math.abs(b - 0.5)) < 0.035 ? ((X % 5) < 3 ? 1 : 0.4) : 0;
-    const puff = (1 - Math.abs(a - 0.5) * 2) * (1 - Math.abs(b - 0.5) * 2);
-    o[0] = 0.8 + 0.16 * puff - seam * 0.2; o[1] = puff - seam; o[2] = 0.92; o[3] = 0;
-  }
-};
 
 function paintFace(g, ox, oy, v, fem) {
   v = v || 0;
@@ -97,10 +25,9 @@ function paintFace(g, ox, oy, v, fem) {
   g.translate(64, 120); g.scale(1, 1.7);
   const ex = 0, ey = 0, sp = 15.5;
   const rgba = (c, a) => "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
-  const CLF = classicOn();
-  const soft = CLF ? (x, y, rx, ry, col, a) => { g.fillStyle = rgba(col, a * 0.55); g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = rgba(col, a * 0.45); g.beginPath(); g.ellipse(x, y, rx * 0.55, ry * 0.55, 0, 0, Math.PI * 2); g.fill(); } : (x, y, rx, ry, col, a) => { g.save(); g.translate(x, y); g.scale(rx, ry); const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill(); g.restore(); };
+  const soft = (x, y, rx, ry, col, a) => { g.fillStyle = rgba(col, a * 0.55); g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = rgba(col, a * 0.45); g.beginPath(); g.ellipse(x, y, rx * 0.55, ry * 0.55, 0, 0, Math.PI * 2); g.fill(); };
   g.lineCap = "round"; g.lineJoin = "round";
-  if (CLF) {
+  {
     g.fillStyle = "rgba(150,92,84,0.13)"; g.beginPath(); g.ellipse(0, 31, 36, 13, 0, 0, Math.PI); g.fill();
     g.fillStyle = "rgba(150,92,84,0.1)"; g.beginPath(); g.moveTo(2, 4); g.lineTo(6, 12); g.lineTo(3, 15); g.lineTo(0.5, 13); g.closePath(); g.fill();
     g.fillStyle = "rgba(255,244,232,0.14)"; g.beginPath(); g.ellipse(0, -22, 16, 5, 0, 0, Math.PI * 2); g.fill();
@@ -121,8 +48,7 @@ function paintFace(g, ox, oy, v, fem) {
     const ix = x + s * 0.4, iy = ey + 0.4 + drop * up * 0.5, irx = 6.4 * isz * (fem ? 1.04 : 1), iry = 10.2 * isz * (fem ? 1.06 : 1);
     g.save(); g.translate(ix, iy); g.scale(irx, iry);
     const ig = g.createLinearGradient(0, -1, 0, 1);
-    if (CLF) { const c1 = rgba(IRIS.map(c => c * 0.3 | 0), 1), c2 = rgba(IRIS.map(c => c * 0.7 | 0), 1), c3 = rgba(IRIS, 1), c4 = rgba(IRIS.map(c => Math.min(255, c + 70)), 1); ig.addColorStop(0, c1); ig.addColorStop(0.3, c1); ig.addColorStop(0.31, c2); ig.addColorStop(0.62, c2); ig.addColorStop(0.63, c3); ig.addColorStop(0.86, c3); ig.addColorStop(0.87, c4); ig.addColorStop(1, c4); }
-    else { ig.addColorStop(0, rgba(IRIS.map(c => c * 0.32 | 0), 1)); ig.addColorStop(0.42, rgba(IRIS.map(c => c * 0.75 | 0), 1)); ig.addColorStop(0.78, rgba(IRIS, 1)); ig.addColorStop(1, rgba(IRIS.map(c => Math.min(255, c + 70)), 1)); }
+    const c1 = rgba(IRIS.map(c => c * 0.3 | 0), 1), c2 = rgba(IRIS.map(c => c * 0.7 | 0), 1), c3 = rgba(IRIS, 1), c4 = rgba(IRIS.map(c => Math.min(255, c + 70)), 1); ig.addColorStop(0, c1); ig.addColorStop(0.3, c1); ig.addColorStop(0.31, c2); ig.addColorStop(0.62, c2); ig.addColorStop(0.63, c3); ig.addColorStop(0.86, c3); ig.addColorStop(0.87, c4); ig.addColorStop(1, c4);
     g.fillStyle = ig; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill();
     g.strokeStyle = rgba(IRIS.map(c => c * 0.25 | 0), 1); g.lineWidth = 0.14; g.stroke();
     g.fillStyle = "rgb(14,10,14)"; g.beginPath(); g.ellipse(0, -0.05, 0.42, 0.5, 0, 0, Math.PI * 2); g.fill();
@@ -132,12 +58,12 @@ function paintFace(g, ox, oy, v, fem) {
     g.fillStyle = "rgba(255,255,255,0.8)"; g.beginPath(); g.arc(ix + s * 1.8, iy + iry * 0.38, 0.95, 0, Math.PI * 2); g.fill();
     g.restore();
     g.strokeStyle = "rgb(22,14,16)";
-    g.lineWidth = CLF ? (fem ? 3.6 : 3) : fem ? 2.6 : 2.0;
+    g.lineWidth = fem ? 3.6 : 3;
     g.beginPath(); g.moveTo(inner + s * 0.4, iy2 - 0.4); g.bezierCurveTo(inner + s * rx * 0.15, top() - 1.5, outer - s * rx * 0.55, top() - 1.2 + tilt * 0.6, outer + s * (fem ? 1.6 : 0.8), oy2 - 1.6 - (fem ? 0.8 : 0)); g.stroke();
     if (fem) { g.lineWidth = 1.1; for (let k = 0; k < 3; k++) { const bx = outer - s * k * 2.2, by = oy2 - 1.8 - k * 1.2 + (k ? -1 : 0); g.beginPath(); g.moveTo(bx, by); g.quadraticCurveTo(bx + s * 1.8, by - 1.2, bx + s * 2.6, by - 2.6); g.stroke(); } }
     g.strokeStyle = "rgba(60,30,34,0.7)"; g.lineWidth = 0.8;
     g.beginPath(); g.moveTo(outer - s * 0.6, oy2 + 0.5); g.quadraticCurveTo(x + s * rx * 0.3, ey + dn * 1.1, x - s * rx * 0.1, ey + dn * 1.05); g.stroke();
-    g.strokeStyle = CLF ? "rgba(96,50,52,0.6)" : "rgba(110,60,60,0.35)"; g.lineWidth = CLF ? 1.1 : 0.7;
+    g.strokeStyle = "rgba(96,50,52,0.6)"; g.lineWidth = 1.1;
     g.beginPath(); g.moveTo(inner + s * 1.2, top() - 3.2); g.quadraticCurveTo(x, top() - 4.8 + tilt * 0.3, outer - s * 1.4, top() - 3 + tilt * 0.5); g.stroke();
     const by = ey - up - 5.5 + BROW[1], bw = fem ? 1.1 : 1.7;
     g.fillStyle = "rgba(48,30,24,0.9)";
@@ -344,9 +270,9 @@ const CLASSIC_PAINT = {
 };
 
 function buildAtlas() {
-  const CL = classicOn(), PAINT = CL ? Object.assign({}, REGION_PAINT, CLASSIC_PAINT) : REGION_PAINT;
-  RIG.segK = CL ? ({ high: 0.55, medium: 0.45, low: 0.38 }[typeof W3 !== "undefined" && W3.quality] || 0.45) : 1;
-  ATLAS_CELL = !CL && typeof W3 !== "undefined" && W3.quality === "high" ? 512 : 256;
+  const PAINT = CLASSIC_PAINT;
+  RIG.segK = { high: 0.55, medium: 0.45, low: 0.38 }[typeof W3 !== "undefined" && W3.quality] || 0.45;
+  ATLAS_CELL = 256;
   RIG.shellLayers = typeof W3 !== "undefined" && W3.quality === "high" ? 5 : 0; RIG.shellMat = null;
   ATLAS_W = ATLAS_CELL * ATLAS_COLS; ATLAS_H = ATLAS_CELL * ATLAS_ROWS;
   const N = ATLAS_W, NH = ATLAS_H, PK = ATLAS_CELL / 256;
@@ -369,31 +295,21 @@ function buildAtlas() {
     }
   });
   const ca = makeCanvas(N, NH), ga = ca.getContext("2d"), ia = ga.createImageData(N, NH);
-  const cn = CL ? null : makeCanvas(N, NH), gn = CL ? null : cn.getContext("2d"), inn = CL ? null : gn.createImageData(N, NH);
   const cm = makeCanvas(N, NH), gm = cm.getContext("2d"), im = gm.createImageData(N, NH);
   for (let y = 0; y < NH; y++) for (let x = 0; x < N; x++) {
     const k = y * N + x, p = k * 4;
     const a = clamp(alb[k], 0, 1) * 255;
     ia.data[p] = a; ia.data[p + 1] = a; ia.data[p + 2] = a; ia.data[p + 3] = 255;
-    if (!CL) {
-      const rx = Math.floor(x / ATLAS_CELL) * ATLAS_CELL, ry = Math.floor(y / ATLAS_CELL) * ATLAS_CELL;
-      const lx = x - rx, ly = y - ry;
-      const at = (xx, yy) => hgt[(ry + ((yy + ATLAS_CELL) % ATLAS_CELL)) * N + rx + ((xx + ATLAS_CELL) % ATLAS_CELL)];
-      let nx = (at(lx - 1, ly) - at(lx + 1, ly)) * 3 * PK, ny = (at(lx, ly - 1) - at(lx, ly + 1)) * 3 * PK;
-      const len = Math.hypot(nx, ny, 1);
-      inn.data[p] = (nx / len * 0.5 + 0.5) * 255; inn.data[p + 1] = (ny / len * 0.5 + 0.5) * 255; inn.data[p + 2] = (1 / len * 0.5 + 0.5) * 255; inn.data[p + 3] = 255;
-    }
     const rn = REGIONS[Math.floor(y / ATLAS_CELL) * ATLAS_COLS + Math.floor(x / ATLAS_CELL)] || "";
     im.data[p] = rn === "skin" || rn.startsWith("face") ? 40 : 255; im.data[p + 1] = clamp(rgh[k], 0.05, 1) * 255; im.data[p + 2] = clamp(mtl[k], 0, 1) * 255; im.data[p + 3] = 255;
   }
   ga.putImageData(ia, 0, 0);
   for (let f = 0; f < FACE_PAINTS * 2; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % FACE_PAINTS, f >= FACE_PAINTS); }
   for (let f = 0; f < 16; f++) { const i = REGIONS.indexOf("face" + (17 + f)); paintFaceFor(f < 8 ? "ursan" : "pipkin", ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % 8, false); }
-  if (!CL) gn.putImageData(inn, 0, 0);
   gm.putImageData(im, 0, 0);
   const mk = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = TEXLIB.anisotropy; t.needsUpdate = true; return t; };
-  RIG.atlas = { map: mk(ca, true), normal: CL ? null : mk(cn, false), mr: mk(cm, false) };
-  if (CL) { RIG.atlas.map.magFilter = THREE.NearestFilter; RIG.atlas.map.needsUpdate = true; }
+  RIG.atlas = { map: mk(ca, true), mr: mk(cm, false) };
+  RIG.atlas.map.magFilter = THREE.NearestFilter; RIG.atlas.map.needsUpdate = true;
   RIG.glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: THREE.DoubleSide });
   RIG.weaponMat = charMaterial();
 }
@@ -401,21 +317,18 @@ function buildAtlas() {
 const SHELL_REGIONS = { fur: 1, feather: 0.6, hair: 0.45 };
 function shellMaterial() {
   if (RIG.shellMat) return RIG.shellMat;
-  const m = classicOn() ? new THREE.MeshLambertMaterial({ map: RIG.atlas.map, vertexColors: true, side: THREE.DoubleSide }) : new THREE.MeshStandardMaterial({ map: RIG.atlas.map, vertexColors: true, roughness: 0.95, metalness: 0, side: THREE.DoubleSide });
+  const m = new THREE.MeshLambertMaterial({ map: RIG.atlas.map, vertexColors: true, side: THREE.DoubleSide });
   m.onBeforeCompile = sh => {
     sh.vertexShader = "attribute float shell;\nvarying float vShell;\n" + sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvShell = shell;");
     sh.fragmentShader = "varying float vShell;\n" + sh.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n{ vec2 q = floor(vMapUv * 1800.0); float h = fract(sin(dot(q, vec2(12.9898, 78.233))) * 43758.5453); if (h < 0.08 + vShell * 0.86) discard; diffuseColor.rgb *= 0.72 + 0.4 * vShell; }");
   };
-  m.customProgramCacheKey = () => (classicOn() ? "furShellC" : "furShell");
+  m.customProgramCacheKey = () => "furShellC";
   RIG.shellMat = m;
   return m;
 }
 
-const RIM = { color: { value: new THREE.Color(0xb8c8ff) }, str: { value: 0.35 } };
 const CLASSIC = { lift: { value: 0.24 }, metal: { value: 0.32 } };
-function classicOn() { return !(typeof VIEW !== "undefined" && VIEW.settings && VIEW.settings.look === "modern"); }
 function outlineOn() {
-  if (!classicOn()) return false;
   const st = typeof VIEW !== "undefined" && VIEW.settings ? VIEW.settings.outline : null;
   if (st === true || st === false) return st;
   return !(W3 && W3.quality === "low");
@@ -441,20 +354,7 @@ function outlineMaterial() {
   return m;
 }
 
-function charMaterial() {
-  if (classicOn()) return classicCharMaterial();
-  const m = new THREE.MeshStandardMaterial({
-    map: RIG.atlas.map, normalMap: RIG.atlas.normal, normalScale: new THREE.Vector2(0.7, 0.7),
-    roughnessMap: RIG.atlas.mr, metalnessMap: RIG.atlas.mr, roughness: 1, metalness: 1,
-    vertexColors: true, side: THREE.DoubleSide, envMapIntensity: 1.6
-  });
-  m.onBeforeCompile = sh => {
-    sh.uniforms.rimColor = RIM.color; sh.uniforms.rimStr = RIM.str;
-    sh.fragmentShader = "uniform vec3 rimColor;\nuniform float rimStr;\n" + sh.fragmentShader.replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\n{ float fr = pow(1.0 - clamp(abs(dot(normalize(vNormal), normalize(vViewPosition))), 0.0, 1.0), 3.0); totalEmissiveRadiance += rimColor * fr * rimStr; }");
-  };
-  m.customProgramCacheKey = () => "charRim";
-  return m;
-}
+function charMaterial() { return classicCharMaterial(); }
 
 function regionUV(geo, region) {
   const idx = Math.max(0, REGIONS.indexOf(region));
@@ -1301,7 +1201,7 @@ const JOB_STYLE = {
 };
 const JOB_STYLE_TIERS = [1, 5, 10, 16];
 function jobStyleTier(lv) { let t = 0; for (let k = 0; k < JOB_STYLE_TIERS.length; k++) if ((lv || 1) >= JOB_STYLE_TIERS[k]) t = k; return t; }
-function jobStyleOn() { return classicOn() && !(typeof VIEW !== "undefined" && VIEW.settings && VIEW.settings.attire === "gear"); }
+function jobStyleOn() { return !(typeof VIEW !== "undefined" && VIEW.settings && VIEW.settings.attire === "gear"); }
 const JOB_STYLE_SLOTS = ["top", "head", "gloves", "glovesRegion", "legs", "legsRegion", "boots", "pauldrons", "padK", "padSpikes", "padSpikeC", "padRegion", "padTrim", "cape", "belt", "gauntlets", "greaves", "collar", "barefoot", "hat", "shoes"];
 
 function lookFor(job, gear, base, lv) {
@@ -1376,7 +1276,7 @@ function gHairShell(P, hc, hr, st, thMin) {
     const phi = i / nu * Math.PI * 2, a = Math.atan2(Math.sin(phi - Math.PI / 2), Math.cos(phi - Math.PI / 2));
     const f = j / nv, th = t0 + (edge(a) - t0) * f;
     const x = -Math.cos(phi) * Math.sin(th), y = Math.cos(th), z = Math.sin(phi) * Math.sin(th);
-    const vol = (t0 ? 0.05 : st === "spiky" ? 0.07 : st === "curly" ? 0.2 : st === "bob" || st === "wavy" ? 0.1 : 0.075) * (!t0 && classicOn() ? 1.35 : 1);
+    const vol = (t0 ? 0.05 : st === "spiky" ? 0.07 : st === "curly" ? 0.2 : st === "bob" || st === "wavy" ? 0.1 : 0.075) * (!t0 ? 1.35 : 1);
     const off = (vol + 0.03 * Math.cos(f * Math.PI / 2)) * (1 - 0.55 * f * f) + 0.012 * Math.sin(phi * 23) * f;
     const r = headRadial(P, x, y, z, false) * (1 + off);
     pos.push(x * r * hr * HEAD_SCALE[0], hc + y * r * hr * HEAD_SCALE[1], 0.005 + z * r * hr * HEAD_SCALE[2]);
@@ -1474,7 +1374,7 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
   } else if (covered && (st === "spiky" || st === "curly")) R.add(gHairShell(HP, hc, hr, "short", Math.PI * 0.4), "head", c, "hair");
   if (!covered) {
     R.add(gHairShell(HP, hc, hr, st), "head", c, "hair");
-    for (const lk of (classicOn() ? gHairClumps : gHairLocks)(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
+    for (const lk of gHairClumps(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
     if (st === "spiky") {
       const spikes = [[0, 1, 0.1], [0.5, 0.85, -0.25], [-0.5, 0.85, -0.25], [0.25, 0.6, -0.8], [-0.25, 0.6, -0.8], [0, 0.75, -0.6], [0.6, 0.5, 0.3], [-0.6, 0.5, 0.3], [0.2, 0.7, 0.55], [-0.2, 0.7, 0.55]];
       for (const [x, y, z] of spikes) {
@@ -1602,7 +1502,7 @@ function familyExtras(R, L, D) {
 }
 
 function humanEntry(L) {
-  const fem = L.build === 1, CH = classicOn();
+  const fem = L.build === 1;
   const pr = Object.assign({ leg: 0.86, torso: 0.52, headR: 0.138, shoulder: fem ? 0.165 : 0.195, hip: fem ? 0.1 : 0.095, arm: 0.6, girth: fem ? 0.9 : 1, neck: 0.02, waist: fem ? 0.8 : 0.92 }, L.prop || {});
   const R = new RigBuilder();
   const ank = 0.08, knee = ank + pr.leg * 0.5, hipJ = ank + pr.leg;
@@ -1664,7 +1564,7 @@ function humanEntry(L) {
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned", "winged", "kabuto", "turban", "ninjahood", "jester"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
     else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.88, hc - hr * 0.08, -hr * 0.08), hr * 0.2, 0.4, 1.05, 0.7, 10), "head", skin, SKR);
-    if (classicOn() && !L.skull && !L.doll && L.ears !== "none" && L.ears !== "cat" && L.ears !== "fin" && L.ears !== "ursan") {
+    if (!L.skull && !L.doll && L.ears !== "none" && L.ears !== "cat" && L.ears !== "fin" && L.ears !== "ursan") {
       const ik = shadeHex(skin, 0.74);
       if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.04, -hr * 0.1), V3(s * (hr + 0.06), hc + hr * 0.3, -hr * 0.38), hr * 0.1, 0.003, 6, 0.4), earBone(s), ik, SKR);
       else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.06, -hr * 0.03), V3(s * (hr + 0.08), hc + hr * 0.1, -hr * 0.12), hr * 0.12, 0.004, 6, 0.4), earBone(s), ik, SKR);
@@ -1750,7 +1650,7 @@ function humanEntry(L) {
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
       const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings = [tuck(ar(shY + 0.004, 0.022), 0.024), tuck(ar(shY - 0.006, 0.044), 0.016), tuck(ar(shY - 0.024, 0.055), 0.007), ar(shY - 0.045, 0.057, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
       const fa1 = [ar(elY, 0.042, 1, 1.08), ar(elY - 0.03, 0.045, 1.05, 1.0), ar(elY - 0.07, 0.043), ar(mid, 0.039)];
-      const WK = CH ? 1.16 : 1, fa2 = [ar(mid, 0.039), ar((mid + wrY) / 2, 0.035 * (CH ? 1.06 : 1)), ar(wrY + 0.018, 0.031 * WK, 1, 1, 2.4), ar(wrY - 0.004, 0.03 * WK, 1, 1, 2.4)];
+      const WK = 1.16, fa2 = [ar(mid, 0.039), ar((mid + wrY) / 2, 0.035 * 1.06), ar(wrY + 0.018, 0.031 * WK, 1, 1, 2.4), ar(wrY - 0.004, 0.03 * WK, 1, 1, 2.4)];
       const flip = rs => rs.slice().reverse();
       const armW = (x, y, z) => y < elY - 0.035 ? [["foreArm" + sd, 1]] : awFix(x, y, z);
       R.addW(gLoft(flip(upRings), 16, true, false, 0, 0.5), "upArm" + sd, upC, upR, armW);
@@ -1761,44 +1661,26 @@ function humanEntry(L) {
     if (sleeves === "wide" && !bare) {
       R.add(gCyl(V3(ex, wrY + 0.07, 0), 0.05 * gi, 0.085 * gi, 0.16, 14, true), "foreArm" + sd, sleeveC, sleeveR);
       if (top.trim) R.add(gRing(V3(ex, wrY - 0.01, 0), 0.085 * gi, 0.012, "y", 18), "foreArm" + sd, top.trim, "trim", !!top.glowTrim);
-    } else if (CH && longS) {
+    } else if (longS) {
       R.add(gCyl(V3(wx, wrY + 0.034, 0), 0.041 * gi, 0.06 * gi, 0.075, 12, true), "foreArm" + sd, sleeveC, sleeveR);
       if (top.trim) R.add(gRing(V3(wx, wrY - 0.003, 0), 0.06 * gi, 0.01, "y", 14), "foreArm" + sd, top.trim, "trim");
-    } else if (top.trim && longS) R.add(gRing(V3(wx, wrY + 0.02, 0), 0.04 * gi, 0.009, "y", 14), "foreArm" + sd, top.trim, "trim");
-    if (CH && s > 0 && !bare && !L.skull && top.type !== "robe" && top.type !== "fur") R.add(gCyl(V3(0, shY + 0.03, 0.004), 0.086 * gi, 0.072 * gi, 0.045, 14, true), "chest", sleeveC, sleeveR);
+    }
+    if (s > 0 && !bare && !L.skull && top.type !== "robe" && top.type !== "fur") R.add(gCyl(V3(0, shY + 0.03, 0.004), 0.086 * gi, 0.072 * gi, 0.045, 14, true), "chest", sleeveC, sleeveR);
     const handC = L.gloves != null ? L.gloves : skin, handR = L.gloves != null ? (L.glovesRegion || "leather") : (L.skull ? "bone" : SKR);
     if (L.skull) {
       R.add(gBall(V3(s * (sw + 0.025), wrY - 0.055, 0.005), 0.03, 0.75, 1.15, 0.55, 10), "hand" + sd, handC, handR);
       R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
     } else {
-      const hk = gi * (L.doll ? 1.25 : 1) * (CH ? 1.18 : 1), hx = s * (sw + 0.024), fb = "fingers" + sd, tb = "thumb" + sd;
+      const hk = gi * (L.doll ? 1.25 : 1) * 1.18, hx = s * (sw + 0.024), fb = "fingers" + sd, tb = "thumb" + sd;
       R.add(gBall(V3(hx, wrY - 0.012, 0.004), 0.026 * hk, 0.7, 0.75, 1.0, 10), "hand" + sd, handC, handR);
       R.add(gBox(V3(hx, wrY - 0.045 * hk, 0.004), 0.022 * hk, 0.06 * hk, 0.072 * hk), "hand" + sd, handC, handR);
       R.add(gBall(V3(hx, wrY - 0.045 * hk, 0.004), 0.038 * hk, 0.36, 0.95, 1.0, 10), "hand" + sd, handC, handR);
       const ky = wrY - 0.078 * hk;
-      if (CH) {
-        R.add(gBall(V3(hx - s * 0.003 * hk, ky - 0.008 * hk, 0.004), 0.03 * hk, 0.44, 0.62, 0.95, 8), fb, handC, handR);
-        R.add(gBall(V3(hx - s * 0.011 * hk, ky - 0.034 * hk, 0.004), 0.028 * hk, 0.4, 0.92, 0.88, 8), fb, handC, handR);
-        const u0 = V3(hx - s * 0.008 * hk, wrY - 0.024 * hk, 0.03 * hk), u1 = V3(hx - s * 0.02 * hk, wrY - 0.064 * hk, 0.054 * hk);
-        R.add(gTaper(u0, u1, 0.013 * hk, 0.01 * hk, 6), tb, handC, handR);
-        R.add(gBall(u1, 0.0105 * hk, 1, 1, 1, 5), tb, handC, handR);
-      }
-      for (let k = 0; k < (CH ? 0 : 4); k++) {
-        const fz = (0.026 - k * 0.0165) * hk, ln = [0.046, 0.052, 0.049, 0.038][k] * hk, fr = [0.0085, 0.0088, 0.0085, 0.0075][k] * hk;
-        const a = V3(hx, ky, fz), b = V3(hx - s * 0.006 * hk, ky - ln * 0.55, fz + (k - 1.5) * 0.002), c = V3(hx - s * 0.016 * hk, ky - ln, fz + (k - 1.5) * 0.003);
-        R.add(gBall(a, fr * 1.15, 1, 1, 1, 6), fb, handC, handR);
-        R.add(gTaper(a, b, fr, fr * 0.9, 6), fb, handC, handR);
-        R.add(gBall(b, fr * 0.92, 1, 1, 1, 5), fb, handC, handR);
-        R.add(gTaper(b, c, fr * 0.9, fr * 0.75, 6), fb, handC, handR);
-        R.add(gBall(c, fr * 0.78, 1, 1, 1, 5), fb, handC, handR);
-      }
-      if (!CH) {
-      const t0 = V3(hx - s * 0.008 * hk, wrY - 0.022 * hk, 0.03 * hk), t1 = V3(hx - s * 0.016 * hk, wrY - 0.05 * hk, 0.05 * hk), t2 = V3(hx - s * 0.022 * hk, wrY - 0.07 * hk, 0.058 * hk);
-      R.add(gTaper(t0, t1, 0.012 * hk, 0.0105 * hk, 6), tb, handC, handR);
-      R.add(gBall(t1, 0.0102 * hk, 1, 1, 1, 5), tb, handC, handR);
-      R.add(gTaper(t1, t2, 0.0098 * hk, 0.0082 * hk, 6), tb, handC, handR);
-      R.add(gBall(t2, 0.0082 * hk, 1, 1, 1, 5), tb, handC, handR);
-      }
+      R.add(gBall(V3(hx - s * 0.003 * hk, ky - 0.008 * hk, 0.004), 0.03 * hk, 0.44, 0.62, 0.95, 8), fb, handC, handR);
+      R.add(gBall(V3(hx - s * 0.011 * hk, ky - 0.034 * hk, 0.004), 0.028 * hk, 0.4, 0.92, 0.88, 8), fb, handC, handR);
+      const u0 = V3(hx - s * 0.008 * hk, wrY - 0.024 * hk, 0.03 * hk), u1 = V3(hx - s * 0.02 * hk, wrY - 0.064 * hk, 0.054 * hk);
+      R.add(gTaper(u0, u1, 0.013 * hk, 0.01 * hk, 6), tb, handC, handR);
+      R.add(gBall(u1, 0.0105 * hk, 1, 1, 1, 5), tb, handC, handR);
     }
     if (L.held && !L.skull && (L.held === "ledger" || L.held === "book" || L.held === "scroll" || L.held === "basket" ? sd === "L" : sd === "R")) heldProp(R, L.held, sd, s * (sw + 0.024), wrY, gi * (L.doll ? 1.25 : 1));
     if (L.claws) for (let k = -1; k <= 1; k++) R.add(gTaper(V3(s * (sw + 0.025) + k * 0.015, wrY - 0.09, 0.01), V3(s * (sw + 0.03) + k * 0.02, wrY - 0.19, 0.05), 0.01, 0.002, 5), "hand" + sd, 0xd8d0b8, "bone");
@@ -1823,8 +1705,8 @@ function humanEntry(L) {
       R.add(gBox(V3(s * (sw + 0.024), wrY - 0.075, 0.034), 0.05, 0.022, 0.016), "hand" + sd, gc, "metal");
     }
     if (L.shield && s < 0) {
-      const sy = (elY + wrY) / 2, sx = ex - 0.075, sc = L.shield, CS = classicOn();
-      if (CS) {
+      const sy = (elY + wrY) / 2, sx = ex - 0.075, sc = L.shield;
+      {
         const kite = !!sc.kite, rr = kite ? 0.2 : 0.185, th = 0.034;
         const sh = new THREE.Shape();
         if (kite) { sh.moveTo(-0.15, 0.17); sh.lineTo(0.15, 0.17); sh.lineTo(0.16, 0.0); sh.lineTo(0.0, -0.3); sh.lineTo(-0.16, 0.0); } else { for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; if (k) sh.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); else sh.moveTo(rr, 0); } }
@@ -1840,13 +1722,6 @@ function humanEntry(L) {
         R.add(gBall(V3(fx - 0.004, sy + (kite ? 0.07 : 0), 0), 0.05, 0.45, 1, 1, 8), "foreArm" + sd, sc.trim || 0xc8a040, "metal");
         if (kite) for (const z of [-0.14, 0.14]) R.add(gBall(V3(fx, sy + 0.14, z), 0.022, 0.5, 1, 1, 6), "foreArm" + sd, sc.trim || 0xc8a040, "metal");
         else for (let k = 0; k < 8; k++) { const a = (k + 0.5) / 8 * Math.PI * 2; R.add(gBall(V3(fx, sy + Math.sin(a) * rr * 0.86, Math.cos(a) * rr * 0.86), 0.017, 0.5, 1, 1, 6), "foreArm" + sd, sc.trim || 0xc8a040, "metal"); }
-      } else {
-      const shG = new THREE.CylinderGeometry(0.155, 0.135, 0.022, 7);
-      shG.rotateZ(Math.PI / 2);
-      shG.translate(sx, sy, 0);
-      R.add(shG, "foreArm" + sd, sc.color, "metal");
-      R.add(gRing(V3(sx - 0.012, sy, 0), 0.15, 0.012, "x", 7), "foreArm" + sd, sc.trim || 0xc8a040, "metal");
-      R.add(gBall(V3(sx - 0.02, sy, 0), 0.045, 0.5, 1, 1, 8), "foreArm" + sd, sc.emblem || 0x2f5c9a, "metal");
       }
     }
 
@@ -1872,7 +1747,7 @@ function humanEntry(L) {
       if (LG) { const bs = shellOf(LG.rings.filter(r => r.y <= bootTop + 0.001), 0.008 * gi); bs.unshift(Object.assign({}, bs[0], { y: bootTop + 0.004, rx: bs[0].rx + 0.006, rz: bs[0].rz + 0.006 })); R.addW(gLoft(bs.slice().reverse(), 16, false, false, 0, 1), "shin" + sd, L.boots, "leather", LG.w); R.addW(gRing(V3(bs[0].x, bootTop + 0.004, bs[0].z), bs[0].rx, 0.011, "y", 16).scale(1, 1, bs[0].rz / bs[0].rx), "shin" + sd, L.boots, "leather", LG.w); }
       else { R.add(gTaper(V3(hx, bootTop, 0.012), V3(hx, ank + 0.01, 0.0), 0.062 * gi, 0.048 * gi, 12), "shin" + sd, L.boots, "leather"); R.add(gRing(V3(hx, bootTop, 0.012), 0.062 * gi, 0.012, "y", 14), "shin" + sd, L.boots, "leather"); }
     }
-    if (CH && L.boots != null && !L.skull) R.add(gCyl(V3(hx, bootTop + 0.012, 0.012), 0.086 * gi, 0.066 * gi, 0.06, 12, true), "shin" + sd, L.boots, "leather");
+    if (L.boots != null && !L.skull) R.add(gCyl(V3(hx, bootTop + 0.012, 0.012), 0.086 * gi, 0.066 * gi, 0.06, 12, true), "shin" + sd, L.boots, "leather");
     if (L.greaves != null && !L.skull) {
       if (LG) {
         const gr = shellOf(LG.rings.filter(r => r.y <= knee + 0.065 && r.y >= ank + 0.06), 0.014 * gi);
@@ -1891,7 +1766,7 @@ function humanEntry(L) {
       R.add(gBox(V3(hx, 0.042, 0.035), 0.06, 0.075, 0.2), "foot" + sd, footC, footR);
       R.add(gBall(V3(hx, 0.045, 0.13), 0.035, 1, 0.8, 1.0, 10), "foot" + sd, footC, footR);
     } else {
-      const bt = L.boots != null, fk = gi * (L.doll ? 0.8 : 1) * (bt ? 1.08 : 1) * (CH ? 1.12 : 1), fx = hx + s * 0.004;
+      const bt = L.boots != null, fk = gi * (L.doll ? 0.8 : 1) * (bt ? 1.08 : 1) * 1.12, fx = hx + s * 0.004;
       const fr = (z, w, hh, p) => ({ x: fx, z: z * fk, rx: w * fk, ry: hh / 2 * fk, y: hh / 2 * fk, top: 1, bot: 1, p: p || 2.6 });
       R.add(gSweepZ([fr(-0.075, 0.026, 0.06, 2.2), fr(-0.06, 0.038, 0.085), fr(-0.02, 0.042, 0.1), fr(0.03, 0.043, 0.075), fr(0.09, 0.048, 0.05), fr(0.13, 0.046, 0.038), fr(0.165, 0.036, 0.028, 2.4)], 16, true, true), "foot" + sd, footC, footR);
       if (bt) {
@@ -2303,7 +2178,7 @@ function walkerCoded(seed, district, night) {
 }
 
 function walkerLook(seed, district, night) {
-  if (classicOn() && district) return walkerCoded(seed, district, night);
+  if (district) return walkerCoded(seed, district, night);
   const r = seeded(hashStr("walker" + seed));
   const fem = r() < 0.5, pick = a => a[Math.floor(r() * a.length)];
   const pal = [0x8a5a3a, 0x3a5a7a, 0x6a7a3a, 0x7a3a3a, 0xc8b890, 0x5a4a6a, 0x2f4a5a, 0x8a7a4a, 0xa05a3a, 0x4a6a5a, 0x6a4a3a, 0xb8a888, 0x5a2a3a, 0x3a3a52];
@@ -2432,7 +2307,7 @@ function animalHead(R, bone, o) {
 }
 
 function quadEntry(o) {
-  if (classicOn() && !o.chunked) o = Object.assign({}, o, { chunked: true, headR: o.headR * 1.18, legR: o.legR * 1.28, neckR: o.neckR * 1.15, tailR: (o.tailR || 0) * 1.2 });
+  if (!o.chunked) o = Object.assign({}, o, { chunked: true, headR: o.headR * 1.18, legR: o.legR * 1.28, neckR: o.neckR * 1.15, tailR: (o.tailR || 0) * 1.2 });
   const R = new RigBuilder();
   const L = o.leg, B = o.bodyY, bl = o.bodyLen;
   R.bone("root", null, 0, 0, 0);
@@ -2722,21 +2597,20 @@ function weaponEntry(kind, id) {
   if (RIG.weaponCache.has(key)) return RIG.weaponCache.get(key);
   const R = new RigBuilder();
   R.bone("w", null, 0, 0, 0);
-  const CW = classicOn();
-  const gT = CW ? (a, c, ra, rb, sg, fl) => gTaper(a, c, ra * 1.4, rb > 0.006 ? rb * 1.4 : rb * 1.8, sg, fl) : gTaper;
-  const gR = CW ? (pp, RR, rr, ax, sg, arc, rot) => gRing(pp, RR * 1.08, rr * 1.5, ax, sg, arc, rot) : gRing;
-  const fat = g => { if (CW) g.scale(1.22, 1.22, 2.0); return g; };
+  const gT = (a, c, ra, rb, sg, fl) => gTaper(a, c, ra * 1.4, rb > 0.006 ? rb * 1.4 : rb * 1.8, sg, fl);
+  const gR = (pp, RR, rr, ax, sg, arc, rot) => gRing(pp, RR * 1.08, rr * 1.5, ax, sg, arc, rot);
+  const fat = g => { g.scale(1.22, 1.22, 2.0); return g; };
   const iron = id && /iron/.test(id), bronze = id && /bronze/.test(id), wlv = (id && ITEMS[id] && ITEMS[id].lv) || 1;
   const blade = !id ? 0xb8bcc2 : /frost|rime|glacier/.test(id) ? 0xc8ecf8 : /tidesteel|coral/.test(id) ? 0x9ec8d0 : /drowned|abyssal/.test(id) ? 0x5a7a88 : /kings/.test(id) ? 0xe8e0c0 : /steel/.test(id) ? 0xdfe4ea : iron ? 0xd0d4da : bronze ? 0xc89458 : 0xb8bcc2;
   const glowC = wlv >= 14 && id ? (/frost|rime|glacier/.test(id) ? 0x9fe8ff : /tide|coral|drowned|abyssal/.test(id) ? 0x4fc3f7 : /kings/.test(id) ? 0xffe080 : /warlord|gax|cleaver/.test(id) ? 0xff7043 : null) : null;
   const wood = 0x7a5432, grip = 0x3a2618, gold = 0xc8a040;
   let tip = [0.1, 0.7];
   if (kind === "sword" || kind === "dagger" || kind === "gsword") {
-    const L = kind === "gsword" ? 1.05 : kind === "sword" ? 0.72 : 0.26, W = (kind === "gsword" ? 0.1 : kind === "sword" ? 0.05 : 0.035) * (CW ? 1.5 : 1);
+    const L = kind === "gsword" ? 1.05 : kind === "sword" ? 0.72 : 0.26, W = (kind === "gsword" ? 0.1 : kind === "sword" ? 0.05 : 0.035) * 1.5;
     R.add(gT(V3(0, -0.08, 0), V3(0, 0.08, 0), 0.018, 0.016, 8), "w", grip, "leather");
     R.add(gBall(V3(0, -0.1, 0), 0.026, 1, 1, 1, 8), "w", gold, "metal");
-    const tier = wlv >= 15 ? 3 : wlv >= 8 ? 2 : 1, gw = (kind === "gsword" ? 0.3 : kind === "sword" ? 0.18 : 0.09) * (CW ? 1.35 : 1);
-    if (tier === 1) R.add(gBox(V3(0, 0.09, 0), gw, CW ? 0.04 : 0.025, CW ? 0.05 : 0.035), "w", gold, "metal");
+    const tier = wlv >= 15 ? 3 : wlv >= 8 ? 2 : 1, gw = (kind === "gsword" ? 0.3 : kind === "sword" ? 0.18 : 0.09) * 1.35;
+    if (tier === 1) R.add(gBox(V3(0, 0.09, 0), gw, 0.04, 0.05), "w", gold, "metal");
     else {
       R.add(gBox(V3(0, 0.09, 0), gw * 0.4, 0.03, 0.04), "w", gold, "metal");
       for (const s of [-1, 1]) R.add(gT(V3(s * gw * 0.18, 0.09, 0), V3(s * gw * 0.5, 0.09 + (tier === 3 ? 0.04 : 0.02), 0), 0.014, 0.007, 6), "w", gold, "metal");
@@ -2746,11 +2620,11 @@ function weaponEntry(kind, id) {
     if (kind === "gsword") R.add(gT(V3(0, -0.3, 0), V3(0, -0.08, 0), 0.02, 0.019, 8), "w", grip, "leather");
     const sh = new THREE.Shape();
     sh.moveTo(-W / 2, 0); sh.lineTo(W / 2, 0); sh.lineTo(W / 2 * 0.9, L * 0.82); sh.lineTo(0, L); sh.lineTo(-W / 2 * 0.9, L * 0.82); sh.closePath();
-    const bg = new THREE.ExtrudeGeometry(sh, { depth: CW ? 0.016 : 0.008, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.003, bevelSegments: 1 });
-    bg.translate(0, 0.1, CW ? -0.008 : -0.004);
+    const bg = new THREE.ExtrudeGeometry(sh, { depth: 0.016, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.003, bevelSegments: 1 });
+    bg.translate(0, 0.1, -0.008);
     const uv = bg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + W) / (2 * W), uv.getY(i) / L);
     R.add(bg, "w", blade, "metal");
-    R.add(gBox(V3(0, 0.1 + L * 0.4, 0), W * 0.18, L * 0.62, CW ? 0.026 : 0.0175), "w", glowC || new THREE.Color(blade).multiplyScalar(0.6).getHex(), glowC ? "glow" : "metal", !!glowC);
+    R.add(gBox(V3(0, 0.1 + L * 0.4, 0), W * 0.18, L * 0.62, 0.026), "w", glowC || new THREE.Color(blade).multiplyScalar(0.6).getHex(), glowC ? "glow" : "metal", !!glowC);
     for (let k = 0; k < 3; k++) R.add(gR(V3(0, -0.06 + k * 0.05, 0), 0.019, 0.005, "y", 8), "w", 0x1e140c, "leather");
     if (kind === "sword" || kind === "gsword") for (const s of [-1, 1]) R.add(gBall(V3(s * (kind === "gsword" ? 0.155 : 0.095), 0.09, 0), 0.016, 1, 1, 1, 6), "w", gold, "metal");
     tip = [0.3, 0.1 + L];
@@ -2761,7 +2635,7 @@ function weaponEntry(kind, id) {
       R.add(gBall(V3(0, 0.38, 0), 0.04, 1, 1.6, 1, 8), "w", 0x9fe0ff, "glow", true);
       R.add(gR(V3(0, 0.33, 0), 0.032, 0.008, "y", 10), "w", gold, "metal");
     } else {
-      R.add(gBall(V3(0, 0.38, 0), CW ? 0.085 : 0.065, 1, 1.15, 1, 10), "w", wood, "wood");
+      R.add(gBall(V3(0, 0.38, 0), 0.085, 1, 1.15, 1, 10), "w", wood, "wood");
       R.add(gR(V3(0, 0.36, 0), 0.066, 0.012, "y", 12), "w", 0x8a8f96, "metal");
       for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; R.add(gT(V3(Math.cos(a) * 0.055, 0.4, Math.sin(a) * 0.055), V3(Math.cos(a) * 0.1, 0.42, Math.sin(a) * 0.1), 0.014, 0.002, 4), "w", 0x8a8f96, "metal"); }
     }
@@ -2778,22 +2652,22 @@ function weaponEntry(kind, id) {
     const holly = id === "holly_staff";
     R.add(gT(V3(0, -0.65, 0), V3(0, 0.82, 0), 0.02, 0.016, 8), "w", holly ? 0x5a3a28 : wood, "wood");
     for (let k = 0; k < 3; k++) { const a = k / 3 * Math.PI * 2; R.add(gT(V3(0, 0.8, 0), V3(Math.cos(a) * 0.06, 0.98, Math.sin(a) * 0.06), 0.014, 0.008, 5), "w", holly ? 0x5a3a28 : wood, "wood"); }
-    R.add(gBall(V3(0, 0.96, 0), (wlv >= 14 ? 0.065 : 0.05) * (CW ? 1.3 : 1), 1, 1, 1, 10), "w", glowC || (holly ? 0xb070ff : 0x7ad7ff), "glow", true);
+    R.add(gBall(V3(0, 0.96, 0), (wlv >= 14 ? 0.065 : 0.05) * 1.3, 1, 1, 1, 10), "w", glowC || (holly ? 0xb070ff : 0x7ad7ff), "glow", true);
     if (wlv >= 11) for (let k = 0; k < 2; k++) R.add(gR(V3(0, 0.2 - k * 0.5, 0), 0.022, 0.006, "y", 10), "w", gold, "metal");
     R.add(gR(V3(0, 0.78, 0), 0.025, 0.008, "y", 10), "w", gold, "metal");
     tip = [0.6, 1.0];
   } else if (kind === "gkatana" || kind === "katana") {
-    const big = kind === "gkatana", L = big ? 0.92 : 0.6, W = (big ? 0.04 : 0.032) * (CW ? 1.5 : 1), curve = big ? 0.06 : 0.04;
+    const big = kind === "gkatana", L = big ? 0.92 : 0.6, W = (big ? 0.04 : 0.032) * 1.5, curve = big ? 0.06 : 0.04;
     R.add(gT(V3(0, big ? -0.24 : -0.12, 0), V3(0, 0.08, 0), 0.017, 0.016, 8), "w", 0x1a1418, "leather");
     for (let k = 0; k < (big ? 6 : 4); k++) R.add(gR(V3(0, (big ? -0.22 : -0.1) + k * 0.05, 0), 0.0185, 0.004, "y", 8), "w", 0xd8d0c0, "cloth");
     R.add(gCyl(V3(0, 0.09, 0), 0.05, 0.05, 0.012, 12), "w", gold, "metal");
     const sh = new THREE.Shape();
     sh.moveTo(-W / 2, 0); sh.quadraticCurveTo(-W / 2 + curve * 0.4, L * 0.5, -W * 0.1 + curve, L * 0.97); sh.lineTo(W * 0.4 + curve, L); sh.quadraticCurveTo(W / 2 + curve * 0.5, L * 0.5, W / 2, 0); sh.closePath();
-    const bg = new THREE.ExtrudeGeometry(sh, { depth: CW ? 0.012 : 0.006, bevelEnabled: true, bevelThickness: 0.003, bevelSize: 0.003, bevelSegments: 1 });
-    bg.translate(0, 0.1, CW ? -0.006 : -0.003);
+    const bg = new THREE.ExtrudeGeometry(sh, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.003, bevelSize: 0.003, bevelSegments: 1 });
+    bg.translate(0, 0.1, -0.006);
     const uv = bg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + W) / (2 * W + curve), uv.getY(i) / L);
     R.add(bg, "w", blade, "metal");
-    R.add(gBox(V3(curve * 0.35, 0.1 + L * 0.45, 0), W * 0.12, L * 0.8, CW ? 0.02 : 0.0135), "w", glowC || 0xf4f6f8, glowC ? "glow" : "metal", !!glowC);
+    R.add(gBox(V3(curve * 0.35, 0.1 + L * 0.45, 0), W * 0.12, L * 0.8, 0.02), "w", glowC || 0xf4f6f8, glowC ? "glow" : "metal", !!glowC);
     tip = [0.3, 0.1 + L];
   } else if (kind === "axe") {
     R.add(gT(V3(0, -0.2, 0), V3(0, 0.42, 0), 0.018, 0.02, 8), "w", wood, "wood");
@@ -2815,7 +2689,7 @@ function weaponEntry(kind, id) {
     const sh = new THREE.Shape();
     sh.moveTo(0, 0); sh.lineTo(0.05, 0.08); sh.lineTo(0.02, 0.32); sh.lineTo(0, 0.36); sh.lineTo(-0.02, 0.32); sh.lineTo(-0.05, 0.08); sh.closePath();
     const hg = new THREE.ExtrudeGeometry(sh, { depth: 0.012, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 1 });
-    if (CW) hg.scale(1.4, 1.15, 2.2); hg.translate(0, 1.0, -0.006);
+    hg.scale(1.4, 1.15, 2.2); hg.translate(0, 1.0, -0.006);
     const uv = hg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) + 0.05) / 0.1, uv.getY(i) / 0.36);
     R.add(hg, "w", blade, "metal");
     for (const s of [-1, 1]) R.add(gT(V3(0, 1.02, 0), V3(s * 0.09, 1.1, 0), 0.012, 0.003, 5), "w", blade, "metal");
@@ -3105,7 +2979,7 @@ function buildEntityRig(e) {
   if (isMob(e)) {
     const ml = varyMobLook(mobLook(e), mobVariant(e));
     if (ml.kind === "human") ml.look = familyLook(ml.look, e);
-    else if (classicOn()) { const band = mobBand(e.lv); if (ml.col != null) ml.col = boldTint(ml.col, band); if (ml.col2 != null) ml.col2 = boldTint(ml.col2, band); }
+    else { const band = mobBand(e.lv); if (ml.col != null) ml.col = boldTint(ml.col, band); if (ml.col2 != null) ml.col2 = boldTint(ml.col2, band); }
     if (ml.kind === "human") {
       sig = "m|" + stableKey(ml.look);
       make = () => humanEntry(ml.look);
@@ -3125,7 +2999,7 @@ function buildEntityRig(e) {
     else if (ml.kind === "shroom") { sig = "shroom|" + ml.col + ml.col2; make = () => shroomEntry(ml.col, ml.col2); }
     else if (ml.kind === "fish") { sig = "fish|" + ml.col + ml.col2; make = () => fishEntry(ml.col, ml.col2); }
     else { sig = "hare|" + ml.col; make = () => hareEntry(ml.col); }
-    const nk = e.fam && e.fam.nm && ml.kind !== "human" && classicOn() ? (e.fam.key || e.famKey) : null;
+    const nk = e.fam && e.fam.nm && ml.kind !== "human" ? (e.fam.key || e.famKey) : null;
     if (nk) { const mk = make; sig += "|nm:" + nk; make = () => { RIG.hook = R => nmDecor(R, nk); try { return mk(); } finally { RIG.hook = null; } }; }
   } else if (e.kind === "npc") {
     const nd = typeof NPCS !== "undefined" ? NPCS[e.id] : null;
@@ -3138,7 +3012,7 @@ function buildEntityRig(e) {
     make = () => humanEntry(LF);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {
-    sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "") + (e.district && classicOn() ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
+    sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "") + (e.district ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
     if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0, e.district, e.time === "night"); make = () => humanEntry(L); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
@@ -3226,7 +3100,7 @@ function playerBase() { return baseFromLook(save.look); }
 function rigSigFor(e) {
   if (e.pet) return "pet|" + e.petKey;
   if (e.buddy) return "buddy|" + e.petId;
-  if (e.ambient) return "amb|" + e.type + "|" + (e.seed || 0) + (e.district && classicOn() ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
+  if (e.ambient) return "amb|" + e.type + "|" + (e.seed || 0) + (e.district ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
   const jt = jobStyleOn() ? "|t" + jobStyleTier(e.lv) : "";
   if (e.remote) return "r|" + e.job + jt + "|" + SLOTS.map(s => (e.gear || {})[s] || "").join(",") + "|" + JSON.stringify(e.look || {});
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);

@@ -115,7 +115,7 @@ function updateFloaters() {
     if (f.dmg && !nums) { if (f.el) { f.el.remove(); f.el = null; VIEW.floaters.delete(f); } continue; }
     if (!f.el) {
       f.el = document.createElement("div");
-      f.el.className = (f.dmg ? "floater dmg" : "floater") + (classicOn() ? " cl" : "");
+      f.el.className = f.dmg ? "floater dmg cl" : "floater cl";
       f.el.textContent = f.text;
       f.el.style.color = f.color;
       f.el.style.fontSize = f.size + "px";
@@ -133,7 +133,6 @@ function updateFloaters() {
       const dx = (f.drift || 0) * 14 * k;
       f.el.style.transform = "translate(" + (sc.x + dx).toFixed(1) + "px," + sc.y.toFixed(1) + "px) translate(-50%,-50%) scale(" + (pop * (1 + fz * 0.35)).toFixed(2) + "," + (pop * (1 - fz * 0.5)).toFixed(2) + ")";
       f.el.style.opacity = fz ? (Math.max(0, 1 - fz * 1.1) * (0.7 + 0.3 * Math.sin(f.t * 70))).toFixed(2) : 1;
-      f.el.style.filter = fz && !classicOn() ? "blur(" + (fz * 2.6).toFixed(1) + "px)" : "";
       f.el.style.letterSpacing = fz ? (fz * 0.35).toFixed(2) + "em" : "";
       continue;
     }
@@ -531,7 +530,7 @@ function graphicsSettingsHTML() {
   const s = VIEW.settings;
   const q = W3.quality;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="sub">Look: Classic uses painted, soft lighting like early online RPGs. Modern uses reflective shading. Changing it reloads the game.</div><div class="opt">' + btn("gfx", "look:classic", "Classic look", classicOn()) + btn("gfx", "look:modern", "Modern look", !classicOn()) + btn("gfx", "outline:" + (outlineOn() ? "off" : "on"), "Outlines " + (outlineOn() ? "on" : "off"), outlineOn()) + (classicOn() ? btn("gfx", "attire:" + (jobStyleOn() ? "gear" : "job"), jobStyleOn() ? "Job style" : "Show gear", jobStyleOn()) : "") + '</div><div class="sub">Job style dresses every adventurer in their job\'s signature outfit, which grows grander at levels 5, 10 and 16. Show gear draws the armour you have equipped instead. Weapons and shields always show.</div><div class="sub">High adds glow, colour grading that follows the time of day, smoother edges, sharper shadows and full-resolution water reflections. If the game stays slow, it turns off glow and then sun shadows by itself. Characters far from the camera always use simpler models (sooner on Low). Changing quality reloads the 3D scene.</div>' +
+  return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="opt">' + btn("gfx", "outline:" + (outlineOn() ? "off" : "on"), "Outlines " + (outlineOn() ? "on" : "off"), outlineOn()) + btn("gfx", "attire:" + (jobStyleOn() ? "gear" : "job"), jobStyleOn() ? "Job style" : "Show gear", jobStyleOn()) + '</div><div class="sub">Job style dresses every adventurer in their job\'s signature outfit, which grows grander at levels 5, 10 and 16. Show gear draws the armour you have equipped instead. Weapons and shields always show.</div><div class="sub">High adds colour grading that follows the time of day, smoother edges, sharper shadows and full-resolution water reflections. If the game stays slow, it turns off colour grading and then sun shadows by itself. Characters far from the camera always use simpler models (sooner on Low). Changing quality reloads the 3D scene.</div>' +
     "<h3>Performance</h3><div class=\"opt\">" + btn("draw", "near", "Draw near", s.draw === "near") + btn("draw", "normal", "Draw normal", (s.draw || "normal") === "normal") + btn("draw", "far", "Draw far", s.draw === "far") + btn("toggle", "adaptive", "Auto resolution " + (s.adaptive !== false ? "on" : "off"), s.adaptive !== false) + btn("toggle", "fps", "FPS counter " + (s.fps ? "on" : "off"), s.fps) + '</div><div class="sub">Draw distance hides far monsters and name plates. Auto resolution lowers the render scale when the frame rate drops and raises it again when there is headroom. Use Low graphics on older phones.</div>' +
     "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertX", "Invert horizontal " + (s.invertX !== false ? "on" : "off"), s.invertX !== false) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + '</div><div class="opt">' + btn("toggle", "autoRun", "Auto-run to target " + (s.autoRun ? "on" : "off"), !!s.autoRun) + '</div><div class="sub">Off by default: attacking or engaging an enemy leaves you where you stand, so you choose when to move in. On makes you run to your target when you attack.</div>' +
 
@@ -551,8 +550,7 @@ function handleSettingAction(a, v) {
   if (a === "quality") { s.quality = v; saveSettings(s); location.reload(); return true; }
   if (a === "gfx") {
     const kv = String(v).split(":");
-    if (kv[0] === "look") s.look = kv[1] === "modern" ? "modern" : "classic";
-    else if (kv[0] === "outline") s.outline = kv[1] === "on";
+    if (kv[0] === "outline") s.outline = kv[1] === "on";
     else if (kv[0] === "attire") s.attire = kv[1] === "gear" ? "gear" : "job";
     saveSettings(s);
     location.reload();

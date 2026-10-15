@@ -99,38 +99,21 @@ function runeTexture() {
 }
 
 function gradientTexture() {
-  if (classicOn()) {
-    const c = makeCanvas(8, 128), g = c.getContext("2d");
-    [[0, 1], [42, 0.55], [84, 0.2]].forEach(([y, a]) => { g.fillStyle = "rgba(255,255,255," + a + ")"; g.fillRect(0, 128 - y - 44, 8, 44); });
-    const t = new THREE.CanvasTexture(c);
-    t.wrapS = THREE.RepeatWrapping;
-    return t;
-  }
   const c = makeCanvas(8, 128), g = c.getContext("2d");
-  const gr = g.createLinearGradient(0, 128, 0, 0);
-  gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.5, "rgba(255,255,255,0.45)"); gr.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = gr; g.fillRect(0, 0, 8, 128);
+  [[0, 1], [42, 0.55], [84, 0.2]].forEach(([y, a]) => { g.fillStyle = "rgba(255,255,255," + a + ")"; g.fillRect(0, 128 - y - 44, 8, 44); });
   const t = new THREE.CanvasTexture(c);
   t.wrapS = THREE.RepeatWrapping;
   return t;
 }
 
 function ringTexture() {
-  if (classicOn()) {
-    const c = makeCanvas(128, 128), g = c.getContext("2d");
-    g.strokeStyle = "#fff"; g.lineWidth = 12; g.beginPath(); g.arc(64, 64, 56, 0, Math.PI * 2); g.stroke();
-    g.globalAlpha = 0.6; g.lineWidth = 5; g.beginPath(); g.arc(64, 64, 38, 0, Math.PI * 2); g.stroke();
-    return new THREE.CanvasTexture(c);
-  }
   const c = makeCanvas(128, 128), g = c.getContext("2d");
-  const gr = g.createRadialGradient(64, 64, 30, 64, 64, 64);
-  gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.75, "rgba(255,255,255,0.9)"); gr.addColorStop(0.85, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  g.strokeStyle = "#fff"; g.lineWidth = 12; g.beginPath(); g.arc(64, 64, 56, 0, Math.PI * 2); g.stroke();
+  g.globalAlpha = 0.6; g.lineWidth = 5; g.beginPath(); g.arc(64, 64, 38, 0, Math.PI * 2); g.stroke();
   return new THREE.CanvasTexture(c);
 }
 
 function glowFXTexture() {
-  if (!classicOn()) return texGlow();
   if (FX.glowC) return FX.glowC;
   const c = makeCanvas(64, 64), g = c.getContext("2d");
   for (const [r, a] of [[31, 0.4], [23, 0.7], [14, 1]]) { g.fillStyle = "rgba(255,255,255," + a + ")"; g.beginPath(); g.arc(32, 32, r, 0, Math.PI * 2); g.fill(); }
@@ -139,7 +122,7 @@ function glowFXTexture() {
 }
 
 function initFX() {
-  FX.big = classicOn() ? 1.3 : 1;
+  FX.big = 1.3;
   FX.add = new ParticleLayer(3500, true);
   FX.smoke = new ParticleLayer(1200, false);
   W3.scene.add(FX.add.points, FX.smoke.points);

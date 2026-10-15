@@ -86,7 +86,7 @@ function posterCanvas(c, lv, alv) {
 }
 
 function toTexture(canvas, color, repeat) {
-  if (color && classicOn()) posterCanvas(canvas, 7, 5);
+  if (color) posterCanvas(canvas, 7, 5);
   const t = new THREE.CanvasTexture(canvas);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.anisotropy = TEXLIB.anisotropy;
@@ -106,7 +106,7 @@ function texPair(key, w, h, heightFn, colorFn, strength) {
   if (TEXLIB.cache[key]) return TEXLIB.cache[key];
   const hf = heightField(w, h, heightFn);
   const albedo = paintPixels(w, h, (x, y, o) => colorFn(x, y, hf[y * w + x], o));
-  const normal = heightToNormalCanvas(w, h, hf, (strength || 4) * (classicOn() ? 0.5 : 1));
+  const normal = heightToNormalCanvas(w, h, hf, (strength || 4) * 0.5);
   const pair = { map: toTexture(albedo, true), normalMap: toTexture(normal, false) };
   TEXLIB.cache[key] = pair;
   return pair;
@@ -132,7 +132,7 @@ function texGray(key, S2, fn) {
   for (let y = 0; y < S2; y++) for (let x = 0; x < S2; x++) { const v = fn(x, y); vals[y * S2 + x] = v; sum += v; }
   const mean = sum / vals.length;
   const c = paintPixels(S2, S2, (x, y, o) => { const v = clamp(128 + (vals[y * S2 + x] - mean) * 255, 0, 255); o[0] = o[1] = o[2] = v; o[3] = 255; });
-  if (classicOn()) posterCanvas(c, 5, 0);
+  posterCanvas(c, 5, 0);
   const t = toTexture(c, false);
   TEXLIB.cache[key] = t;
   return t;
