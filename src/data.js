@@ -2435,12 +2435,13 @@ for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
   ZONES[zid].npcs.push({ id: sid, x: WARP_STONES[zid][did][0] + 60, y: WARP_STONES[zid][did][1] + 6 });
 }
 const OFFROAD_PROPS = { sign: 1, board: 1, tablet: 1, brazier: 1, shrine: 1, lookout: 1, statue: 1 };
-function clearOfRoads(z, x, y, extra) {
+function clearOfRoads(z, x, y, extra, plaza) {
   for (const p of z.paths || []) for (let i = 0; i < p.pts.length - 1; i++) {
     const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1;
     const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L));
     if (Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t) < p.w / 2 + extra) return false;
   }
+  if (plaza) for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) if (Math.hypot(x - q.x, y - q.y) < q.r + extra) return false;
   for (const h of z.houses || []) {
     const sw = (h.rot || 0) % 2 ? h.h : h.w, sh = (h.rot || 0) % 2 ? h.w : h.h;
     if (Math.abs(x - h.x) < sw / 2 + 28 && Math.abs(y - h.y) < sh / 2 + 28) return false;
@@ -2448,30 +2449,36 @@ function clearOfRoads(z, x, y, extra) {
   for (const f of z.fountains || []) if (Math.hypot(x - f.x, y - f.y) < 90) return false;
   return x > 60 && y > 60 && x < z.w - 60 && y < z.h - 60;
 }
-function offRoad(z, at, extra) {
-  if (clearOfRoads(z, at.x, at.y, extra)) return;
-  for (let r = 12; r <= 420; r += 12) for (let k = 0; k < 24; k++) {
-    const a = k / 24 * Math.PI * 2, x = Math.round(at.x + Math.cos(a) * r), y = Math.round(at.y + Math.sin(a) * r);
-    if (clearOfRoads(z, x, y, extra)) { at.x = x; at.y = y; return; }
+function offRoadGroup(z, items, extra, plaza) {
+  const ok = (dx, dy) => items.every(q => clearOfRoads(z, q.x + dx, q.y + dy, extra, plaza));
+  if (ok(0, 0)) return;
+  for (let r = 12; r <= 480; r += 12) for (let k = 0; k < 24; k++) {
+    const a = k / 24 * Math.PI * 2, dx = Math.round(Math.cos(a) * r), dy = Math.round(Math.sin(a) * r);
+    if (ok(dx, dy)) { for (const q of items) { q.x += dx; q.y += dy; } return; }
   }
 }
 for (const zid in ZONES) {
   const z = ZONES[zid];
-  if (z.indoor || z.theme === "house" || z.theme === "cave" || z.theme === "crypt" || !(z.paths || []).length) continue;
-  const grid = a => (a || []).forEach(q => { const at = { x: q[0], y: q[1] }; offRoad(z, at, 24); q[0] = at.x; q[1] = at.y; });
-  const objs = a => (a || []).forEach(q => offRoad(z, q, 24));
-  for (const n of z.npcs) if (NPCS[n.id] && NPCS[n.id].warpstone) offRoad(z, n, 30);
+  if (z.indoor || z.theme === "house" || z.theme === "cave" || z.theme === "crypt" || !((z.paths || []).length || z.plaza || (z.plazas || []).length)) continue;
+  const one = (q, extra, plaza) => offRoadGroup(z, [q], extra, plaza);
+  const grid = a => (a || []).forEach(q => { const at = { x: q[0], y: q[1] }; one(at, 24); q[0] = at.x; q[1] = at.y; });
+  const folk = n => { const d = NPCS[n.id]; return d && !d.prop && !d.crystal && !d.warpstone; };
+  const tables = (z.stalls || []).concat((z.props || []).filter(p => p.type === "desk"));
+  for (const t of tables) offRoadGroup(z, [t].concat(z.npcs.filter(n => folk(n) && Math.hypot(n.x - t.x, n.y - t.y) < 110)), 24);
+  for (const n of z.npcs) if (NPCS[n.id] && NPCS[n.id].warpstone) one(n, 30, true);
   for (const n of z.npcs) {
     const d = NPCS[n.id];
     if (!d || !d.prop || !OFFROAD_PROPS[d.prop] || d.warpstone) continue;
-    if (n.id.startsWith("dsign_")) {
+    const plz = n.id.startsWith("dsign_");
+    if (plz) {
       const st = z.npcs.find(q => q.id === "warpstone_" + n.id.slice(6));
       if (st) { n.x = st.x + 60; n.y = st.y + 6; }
     }
-    offRoad(z, n, 24);
+    one(n, 24, plz);
   }
-  grid(z.benches); grid(z.racks); grid(z.dummies); objs(z.props); objs(z.stalls);
-  (z.lamps || []).forEach(q => { const at = { x: q[0], y: q[1] }; offRoad(z, at, 6); q[0] = at.x; q[1] = at.y; });
+  grid(z.benches); grid(z.racks); grid(z.dummies);
+  (z.props || []).filter(p => p.type !== "desk").forEach(p => one(p, 24));
+  (z.lamps || []).forEach(q => { const at = { x: q[0], y: q[1] }; one(at, 6); q[0] = at.x; q[1] = at.y; });
 }
 const CITY_LIFE = {
   market: [6, 1], square: [6, 1], fish: [4, 1], docks: [4, 1], gov: [2, 2], keep: [1, 2], res: [3, 1], south: [3, 1], ind: [3, 1], yard: [3, 1], gate: [2, 2], forge: [3, 1]
