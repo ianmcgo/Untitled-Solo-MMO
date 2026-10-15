@@ -1617,3 +1617,6 @@ World systems:
 - `checkForUpdate`: throttled to once per 60 s (manual skips it), one request at a time, one visibilitychange listener.
 - localStorage `usr_ver_dismissed` (Later; holds until a newer version), `usr_reload_target` + `usr_reload_at` (set on Reload; if the page still loads an older build, no auto popup for that target for 15 min, and showWhatsNew logs a note). Cleared when up to date.
 - The popup always names the newest version (`#verPop[data-ver]`), so several releases in a row give one popup.
+
+## Publishing note
+- GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.
