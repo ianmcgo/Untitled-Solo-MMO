@@ -60,4 +60,5 @@ fs.writeFileSync(path.join(root, "version.json"), JSON.stringify({ version: pkg.
 fs.writeFileSync(path.join(root, "dist", "version.json"), JSON.stringify({ version: pkg.version, built: stamp, title: pkg.releaseTitle || "" }) + "\n");
 const dest = path.join(root, "dist", "index.html");
 fs.writeFileSync(dest, html);
+if (phase === 4) fs.writeFileSync(path.join(root, "index.html"), html);
 console.log("phase", phase, "->", dest, (html.length / 1024).toFixed(0) + " KB");
