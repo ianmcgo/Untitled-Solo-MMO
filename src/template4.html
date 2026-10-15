@@ -1033,6 +1033,10 @@
   #loading.roster { scrollbar-width: none; }
   #loading.roster::-webkit-scrollbar { display: none; }
   #loading.roster #ldVer { display: none; }
+  @media (max-width: 360px) {
+    .ccFaces, .ccHair { grid-template-columns: repeat(2, 1fr) !important; }
+    .ccForm { grid-template-columns: 38% 1fr !important; }
+  }
   @media (max-width: 720px) {
     #loading.roster { gap: 4px; padding-top: max(8px, 1.5vh); }
     #loading.roster .crest { display: none; }
