@@ -30,7 +30,7 @@ The game is written as separate source files and assembled into one `index.html`
 | `src/game.js` | The rules: state `S`, saving, stats, skills, combat, magic, skillchains, AI, zones, spawning, the clock, NPC dialogue, jobs, shop |
 | `src/hud.js` | Log, dialog box, menus (items, equip, status, skills, quests, settings, shop, jobs, mercenaries), party and target panels, action buttons |
 | `src/view2d.js` | Phase 1 top-down renderer (kept for the rules tests) |
-| `src/three-entry.js` | Which parts of three.js get bundled (core, Sky, Water, bloom post-processing, geometry merging) |
+| `src/three-entry.js` | Which parts of three.js get bundled (core, Sky, Water, composer passes, geometry merging; no bloom since 16.19.0) |
 | `src/textures.js` | Procedural texture generator: noise, normal maps, every surface texture, the baked terrain texture |
 | `src/world3d.js` | Renderer, terrain, vegetation, buildings, cave dressing, gates, water, sky, sun, moon, stars, clouds, fog, lighting by time of day |
 | `src/rig.js` | Character, monster, mount and weapon models built in code: the painted texture atlas, the skinned-mesh builder, gear-to-appearance rules, NPC and mercenary looks |
@@ -974,7 +974,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 
 ## Phase 56: G9 shadows and depth (v9.16.0)
 - models3d viewFor adds a shared blob shadow plane (radial canvas, opacity 0.7 low / 0.35 otherwise, polygonOffset) under every non-flying, non-prop entity; long bodies stretch 1.8×.
-- rig.js charMaterial onBeforeCompile adds fresnel rim (RIM uniforms shared, cache key charRim); updateSky sets RIM colour from sun (cool at night) and strength (0.4 night → 0.28 day, 0.18 caves).
+- (Removed in 16.19.0) rig.js charMaterial onBeforeCompile adds fresnel rim (RIM uniforms shared, cache key charRim); updateSky sets RIM colour from sun (cool at night) and strength (0.4 night → 0.28 day, 0.18 caves).
 - High quality uses PCFSoftShadowMap.
 
 ## Phase 57: G10 motion (v9.17.0)
@@ -1005,7 +1005,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 
 ## Phase 61: M2 painted textures (v10.1.0)
 - `RigBuilder.bakeShade()` (in `finish` after smoothJoints, skipped if `noBake`): multiplies vertex colours by k = (0.87 + 0.18·(0.5+0.5·normal.y)) × ground fade (0.86→1 over bottom 18% of height) × joint darkening (up to −12% where second skin weight > 0).
-- REGION_PAINT: cloth folds (tiling sin + fbm), hem + stitch lines near v edges; leather pores, ridge creases, lighter worn edges; metal dents, edge highlights, rust patches (rougher, less metal); skin fine fbm. All fbm calls use matching periods so u wraps without seams.
+- (Removed in 16.19.0, see CLASSIC_PAINT) REGION_PAINT: cloth folds (tiling sin + fbm), hem + stitch lines near v edges; leather pores, ridge creases, lighter worn edges; metal dents, edge highlights, rust patches (rougher, less metal); skin fine fbm. All fbm calls use matching periods so u wraps without seams.
 
 ## Phase 62: M3 faces/hair (v10.2.0)
 - anim.js lids: eased blink (sin over 0.16s), 20% double-blink; expression: laugh/cry 0.5 squint, panic wide (no blink), casting 0.3, resting 0.55, dead 1.
@@ -1199,7 +1199,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Tests: p47unit (Raise/Ember Plume exist, KO lasts an hour, stays down, revive keeps XP + Weakened, timeout sends home with XP loss); p29unit updated (KO'd hire can be raised; permadeath only after the hour).
 
 ## Phase 91: detailed textures (v13.8.0) — plan Q4
-- REGION_PAINT painters now receive float 256-space pixel coords (X, Y) so detail sharpens on the 512 px High atlas (chain keeps integer coords). cloth: plain weave (2-unit cells, warp/weft sine threads, over/under checker), slub value noise, folds, hem, two dashed stitch rows, edge wear. leather: ridge grain + pebble pores, saddle stitch with holes (9-unit period) along both edges, creases, scratches, burnished edges. metal: fine brushing, scratch lines, dents, rust, engraved scroll band (ev 0.06–0.15, sine scroll), rivet row (18 per u). trim: diamonds + curl motif + diagonal thread stitch. fur: strands + clumps; hair: two-scale strands, root darkening, sheen; scale: 16×12 rows with rims and specks; feather: split barbs; wood: knots; bone: pores; skin/face: pores; chain: staggered rows with top highlight; quilt: dashed seams.
+- (Removed in 16.19.0) REGION_PAINT painters now receive float 256-space pixel coords (X, Y) so detail sharpens on the 512 px High atlas (chain keeps integer coords). cloth: plain weave (2-unit cells, warp/weft sine threads, over/under checker), slub value noise, folds, hem, two dashed stitch rows, edge wear. leather: ridge grain + pebble pores, saddle stitch with holes (9-unit period) along both edges, creases, scratches, burnished edges. metal: fine brushing, scratch lines, dents, rust, engraved scroll band (ev 0.06–0.15, sine scroll), rivet row (18 per u). trim: diamonds + curl motif + diagonal thread stitch. fur: strands + clumps; hair: two-scale strands, root darkening, sheen; scale: 16×12 rows with rims and specks; feather: split barbs; wood: knots; bone: pores; skin/face: pores; chain: staggered rows with top highlight; quilt: dashed seams.
 - Atlas build reuses a base painter's cell for variants (face2…face8 copy the face base before their paint layer), and several fbm calls became single value-noise lookups: build time (test machine, software GL) 530 ms Low / 2.0 s High (was ~0.5 / 2.2 s before this phase).
 
 ## Phase 92: faces and expression (v13.9.0) — plan Q5
@@ -1444,6 +1444,7 @@ World systems:
 |---|---|
 | 16.17.0 | Phase 126: Classic effects (banded sprites, thick rings, outlined numbers); Tab targets objects. |
 | 16.18.0 | Phase 127: Classic polish (cliff chunk detail by tier, no character normal map in Classic). |
+| 16.19.0 | Modern look removed; Classic is the only look (see design/ffxi-look-plan.md "One look"). |
 | 16.16.0 | Phase 125: Classic world match (posterised textures, banded world lighting chunk, no bloom, shorter fog). |
 | 16.15.1 | offRoadGroup in data.js: stalls/desks move together with NPCs standing at them; warp stones and dsigns also avoid plazas (r+extra). |
 | 16.15.0 | Nameplate range per kind in updateLabels (npc 260, mob 450, other 700; target and party always). build.mjs now also writes root version.json (it was stale at 16.10.0, so the update popup never fired); update check every 5 min plus on tab focus. |

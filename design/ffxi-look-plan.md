@@ -2,7 +2,7 @@
 
 Goal: make models look like an early-2000s online RPG: painted textures, soft flat lighting, chunky silhouettes, thick hair, iconic job gear. Original art only. Same rules as model-plan.md: one phase per version, Help + Updates, design notes, build, tests, push, index.html delivered. Keep Low/Medium/High tiers and check Low on phones.
 
-User decisions (2026-10-15): Classic is the default look and Modern stays as a setting. Real outline pass, not just painted seams. Texture scaling: crisp up close (nearest magnification), smooth at a distance (mipmaps).
+User decisions (2026-10-15): Classic is the default look and Modern stays as a setting (reversed in 16.19.0: Modern removed, Classic is the only look). Real outline pass, not just painted seams. Texture scaling: crisp up close (nearest magnification), smooth at a distance (mipmaps).
 
 Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases move to the next free minor (113 → 16.6.0 or later).
 
@@ -123,8 +123,13 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - Measured with renderer triangle counts (SwiftShader has no GPU, so frame rates are not meaningful). Before: Low about 490k triangles, Medium about 740k; cliff chunks (3 instanced meshes of 180/320/520 on Low/Medium/High) were the largest part, then terrain (127k), characters and props.
 - `cliffChunkGeo` box segments by tier: Low 2, Medium 3, High 4 (was 4 everywhere), cutting cliff triangles about 4x on Low and 1.6x on Medium.
 - buildAtlas skips the normal-map canvas and texture in Classic (`RIG.atlas.normal` is null; only the Modern charMaterial reads it).
-- Modern paths are kept: Modern is still a setting, so the PBR code is not dead.
 - Real-phone check cannot be run from the build sandbox. Things to look for: frame rate while many monsters are in view, load time, heat after 10 minutes, and whether Low looks right.
+
+## One look (v16.19.0, user request)
+- Modern look removed. `classicOn()` no longer exists; every branch was folded to its Classic side. Read older "in Classic" notes in this file as the only behaviour, and ignore "Modern" alternatives.
+- Removed: settings `look` and the Config look buttons; REGION_PAINT (PAINT is CLASSIC_PAINT); MeshStandard charMaterial and RIM fresnel uniforms (charMaterial returns classicCharMaterial); atlas normal map; 512 High atlas (ATLAS_CELL is always 256); gradient face shading and gradient iris; four-finger hands and the old thumb; old weapon proportions (CW folded) and the cylinder shield; bloom pass and the UnrealBloomPass import; Modern effect textures; damage-number blur.
+- Kept: gHairLocks (hair under helmets), world normal maps at 0.5 strength, colour grade composer on High (autoQuality toast now says "Colour grading").
+- Bundle 5961 KB → 5938 KB.
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.

@@ -1474,6 +1474,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.19.0", date: "2026-10-15", title: "One look", items: [
+    "Update popups are calmer: you get one popup for the newest version only, Later is remembered until an even newer version comes out, and if a reload lands on an older copy while the web host catches up, it waits 15 minutes instead of asking again and again.",
+    "The Modern look is gone. The painted Classic look is now the only look, and Config → Graphics no longer has a look switch. Outlines and Job style / Show gear are still there.",
+    "The game file is smaller and loads a little faster, since the unused reflective shading, smooth eye and face painting, finger-by-finger hands, old weapon and shield shapes and the glow effect were removed."
+  ] },
   { v: "16.18.0", date: "2026-10-15", title: "Classic polish", items: [
     "Cliff rocks use fewer triangles on Low and Medium, so the world draws faster on phones and older computers. They look the same from a normal distance.",
     "The Classic look no longer builds a character bump map it never used, so characters load a little faster and use less memory."
@@ -2899,7 +2904,7 @@ function tabHelp() {
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
-    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (the world is painted to match: flatter few-tone ground, bark, leaves and stonework, banded sunlight and shade on terrain, trees and buildings, shorter distance haze, blockier clouds and no glow; chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. If the game feels slow on a phone, set Quality to Low or Medium; Classic is the lighter look. Classic townsfolk are a mix of the five races and dress by district (clerks, merchants, smiths, sailors, travellers); night walkers carry lanterns. Classic monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Classic weapons and shields are chunkier, with outlines and crest-painted shields. In Classic, Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); the Show gear button draws equipped armour instead, and weapons and shields always show. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
+    "<b>Look and outlines:</b> The game has one look, painted in the style of early online RPGs: flatter few-tone ground, bark, leaves and stonework, banded sunlight and shade, shorter distance haze and blocky clouds; chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair and hand-painted textures with a few tones and ink lines, crisp up close. Config → Graphics has Outlines (a dark line around characters and monsters; on for Medium and High and off for Low unless you change them) and Job style / Show gear. Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); Show gear draws equipped armour instead, and weapons and shields always show. If the game feels slow on a phone, set Quality to Low or Medium. Townsfolk are a mix of the five races and dress by district (clerks, merchants, smiths, sailors, travellers); night walkers carry lanterns. Monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Weapons and shields are chunky with crest-painted shields. Faces use a few flat shading tones, an ink eyelid line and darker inner ears. Changing a graphics option reloads the game.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
@@ -2923,7 +2928,7 @@ function tabHelp() {
     "Trades are finished on the game server in a single step: the server checks that both players really have the items and crystals and room in their bags, then moves everything at once. If anything is off, nothing changes for either player."
   ]));
   h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
-  h += sec("💾 Updates", ul([ "The game checks for new versions and shows a popup offering to reload. You can also use System → Check for updates."]));
+  h += sec("💾 Updates", ul([ "The game checks for new versions about every 5 minutes and shows one popup for the newest version only, even if several came out. Reload jumps straight to the newest. Later hides it until an even newer version comes out. If a reload still lands on an older copy (the web host can take a few minutes to catch up), it waits 15 minutes before asking again. System → Check for updates checks right away."]));
   return h + "</div>";
 }
 
@@ -2950,12 +2955,25 @@ async function fetchLatest() {
   return null;
 }
 
+function verStore(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} return null; }
+
 async function checkForUpdate(manual) {
   if (/^__/.test(GAME_VERSION)) return;
-  const j = await fetchLatest();
+  const now = Date.now();
+  if (!manual && (UI.verBusy || now - (UI.verLast || 0) < 60000)) return;
+  UI.verBusy = true; UI.verLast = now;
+  let j = null;
+  try { j = await fetchLatest(); } finally { UI.verBusy = false; }
   if (!j) { if (manual) log("Couldn't check for updates right now.", "sys"); return; }
-  if (verCmp(j.version, GAME_VERSION) > 0) { if (manual || UI.verDismissed !== j.version) showVersionPopup(j); }
-  else if (manual) log("You have the latest version (v" + GAME_VERSION + ").", "sys");
+  if (verCmp(j.version, GAME_VERSION) <= 0) { verStore("usr_reload_target", null); if (manual) log("You have the latest version (v" + GAME_VERSION + ").", "sys"); return; }
+  if (!manual) {
+    if (verStore("usr_ver_dismissed") && verCmp(j.version, verStore("usr_ver_dismissed")) <= 0) return;
+    const tried = verStore("usr_reload_target"), at = +(verStore("usr_reload_at") || 0);
+    if (tried && verCmp(j.version, tried) <= 0 && now - at < 15 * 60000) return;
+    const pop = $("verPop");
+    if (pop && pop.style.display === "block" && pop.dataset.ver === j.version) return;
+  }
+  showVersionPopup(j);
 }
 
 function versionPop(html) {
@@ -2969,21 +2987,25 @@ function versionPop(html) {
 function showVersionPopup(j) {
   const web = location.protocol.startsWith("http");
   const el = versionPop('<div class="vpT">✨ New version available</div><div class="vpB">Version <b>v' + esc(j.version) + "</b> is out (you have v" + esc(GAME_VERSION) + ")." + (j.title ? "<br>" + esc(j.title) : "") + '<br><span class="sub">Your progress is saved first, so nothing is lost.</span></div><div class="vpA"><button data-v="reload" class="pri">' + (web ? "Reload now" : "Open latest") + '</button><button data-v="later">Later</button></div>');
+  el.dataset.ver = j.version;
   sfx("notify");
   el.onclick = e => {
     const b = e.target.closest("button");
     if (!b) return;
     if (b.dataset.v === "reload") {
       saveGame();
+      verStore("usr_reload_target", j.version); verStore("usr_reload_at", String(Date.now()));
       if (web) { const u = new URL(location.href); u.searchParams.set("v", j.version); location.replace(u.toString()); }
       else window.open(PLAY_URL, "_blank");
-    } else { UI.verDismissed = j.version; el.style.display = "none"; sfx("close"); }
+    } else { verStore("usr_ver_dismissed", j.version); el.style.display = "none"; sfx("close"); }
   };
 }
 
 function showWhatsNew() {
   let seen = null;
   try { seen = localStorage.getItem("usr_seen_version"); localStorage.setItem("usr_seen_version", GAME_VERSION); } catch (e) {}
+  const tried = verStore("usr_reload_target");
+  if (tried && verCmp(GAME_VERSION, tried) < 0 && !/^__/.test(GAME_VERSION)) log("The newest version (v" + tried + ") hasn't reached this page yet. It will load next time you open the game.", "sys");
   if (/^__/.test(GAME_VERSION) || !seen || seen === GAME_VERSION) return;
   const u = UPDATES.find(x => x.v === GAME_VERSION) || updatesSorted()[0];
   toast("📰", "Updated to v" + GAME_VERSION, u.title + " · see the Updates tab");
@@ -2995,7 +3017,6 @@ function initVersionCheck() {
   setTimeout(() => checkForUpdate(false), 4000);
   setInterval(() => checkForUpdate(false), 5 * 60 * 1000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) checkForUpdate(false); });
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkForUpdate(false); });
 }
 
 function gearBonus() {

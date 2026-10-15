@@ -1,6 +1,6 @@
 const U = 0.05;
 const W3 = {
-  renderer: null, scene: null, camera: null, composer: null, bloom: null, pmrem: null,
+  renderer: null, scene: null, camera: null, composer: null, pmrem: null,
   sky: null, skyScene: null, sun: null, hemi: null, stars: null, moon: null, clouds: null,
   zoneRoot: null, fxRoot: null, field: null, water: null, grassMats: [], torchLights: [], windowMats: [], lampLights: [],
   envRT: null, envTimer: 0, lastSunY: -9, quality: "high", envScene: null, fog: null, daylight: 1, playerLight: null
@@ -1959,7 +1959,7 @@ function classicWorldChunk() {
   THREE.ShaderChunk.opaque_fragment = "#ifdef STANDARD\n{ float clWorld = 1.0; if (diffuseColor.a > 0.98) { float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; if (r > 0.2) { float qn = floor(r * 4.0 + 0.5) / 4.0; float rr = mix(r, qn, 0.45); outgoingLight *= rr / max(r, 0.001); } } }\n#endif\n" + THREE.ShaderChunk.opaque_fragment;
 }
 function initRenderer() {
-  if (classicOn()) classicWorldChunk();
+  classicWorldChunk();
   const canvas = $("game");
   const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
   const saved = loadSettings();
@@ -2041,8 +2041,6 @@ function initRenderer() {
     const rt = new THREE.WebGLRenderTarget(256, 256, { type: THREE.HalfFloatType, samples: r.capabilities.isWebGL2 === false ? 0 : 4 });
     const comp = new THREE.EffectComposer(r, rt);
     comp.addPass(new THREE.RenderPass(W3.scene, W3.camera));
-    W3.bloom = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), classicOn() ? 0.1 : 0.22, 0.5, 0.95);
-    if (!classicOn()) comp.addPass(W3.bloom);
     comp.addPass(new THREE.OutputPass());
     W3.grade = new THREE.ShaderPass(GRADE_SHADER);
     comp.addPass(W3.grade);
@@ -2062,7 +2060,7 @@ function gradeTick(dayAmt, golden, gloom, cave) {
   if (!W3.grade) return;
   const u = W3.grade.uniforms;
   u.tint.value.set(1 + golden * 0.06 - (1 - dayAmt) * 0.04, 1 + golden * 0.01 - (1 - dayAmt) * 0.01, 1 - golden * 0.06 + (1 - dayAmt) * 0.06);
-  u.sat.value = (cave ? 0.95 : 1.1 - gloom * 0.25 - (1 - dayAmt) * 0.12) + (classicOn() ? 0.1 : 0);
+  u.sat.value = (cave ? 0.95 : 1.1 - gloom * 0.25 - (1 - dayAmt) * 0.12) + 0.1;
   u.con.value = 1.05 + golden * 0.03;
   u.vig.value = cave ? 0.35 : 0.2 + (1 - dayAmt) * 0.1;
 }
@@ -2072,7 +2070,7 @@ function autoQuality(P) {
   P.slow = (P.slow || 0) + 1;
   if (P.slow < 12) return;
   P.slow = 0;
-  if (W3.composer) { W3.composer = null; W3.grade = null; if (typeof toast === "function") toast("⚙️", "Graphics", "Glow effects turned off to keep the game smooth. Pick Low in Settings for older devices."); return; }
+  if (W3.composer) { W3.composer = null; W3.grade = null; if (typeof toast === "function") toast("⚙️", "Graphics", "Colour grading turned off to keep the game smooth. Pick Low in Settings for older devices."); return; }
   if (W3.sun.castShadow) { W3.sun.castShadow = false; if (typeof toast === "function") toast("⚙️", "Graphics", "Sun shadows turned off to keep the game smooth."); }
 }
 
@@ -2466,7 +2464,7 @@ function updateSky(force) {
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
-  else { const ck = classicOn() ? 0.78 : 1; W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1) * ck; W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1) * ck; }
+  else { const ck = 0.78; W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1) * ck; W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1) * ck; }
   if (!cave && !indoor && (wx === "fog" || wet || wx === "blizzard" || sand)) { const k = wx === "fog" ? 0.45 : wx === "blizzard" ? 0.22 : sand ? 0.2 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
@@ -2500,7 +2498,6 @@ function updateSky(force) {
   for (const m of W3.windowMats) m.emissiveIntensity = nightGlow * 1.6;
   for (const g of W3.lampGlows || []) g.material.opacity = nightGlow * 0.9;
   CLASSIC.lift.value = cave ? 0.2 : mix(0.13, 0.26, dayAmt);
-  if (typeof RIM !== "undefined") { RIM.str.value = cave ? 0.18 : mix(0.4, 0.28, dayAmt); RIM.color.value.copy(sunY > 0 ? W3.sun.color : new THREE.Color(0x8aa0ff)).lerp(new THREE.Color(0xffffff), 0.3); }
   for (const L of W3.lampLights) L.intensity = nightGlow * 10;
   updateCityAnim();
   for (const L of W3.torchLights) L.intensity = L.userData.crystal ? 6 + Math.sin(S.time * 1.3 + L.userData.phase) * 1.5 : 16 + Math.sin(S.time * 9 + L.userData.phase) * 1.5 + Math.sin(S.time * 23 + L.userData.phase) * 0.8;
@@ -2532,7 +2529,7 @@ function updateSky(force) {
   }
 }
 
-const SETTINGS_DEFAULT = { look: "classic", outline: null, attire: "job", quality: null, aggroHints: false, autoRun: false, invertX: true, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
+const SETTINGS_DEFAULT = { outline: null, attire: "job", quality: null, aggroHints: false, autoRun: false, invertX: true, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
 const DRAW_DIST = { near: 1000, normal: 1700, far: 2600 };
 
 function perfTick() {
