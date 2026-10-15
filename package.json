@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.14.1",
-  "releaseTitle": "Auction balance",
+  "version": "16.15.0",
+  "releaseTitle": "Closer names",
   "description": "",
   "main": "index.js",
   "scripts": {

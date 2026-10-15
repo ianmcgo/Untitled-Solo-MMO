@@ -1474,6 +1474,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.15.0", date: "2026-10-15", title: "Closer names", items: [
+    "Name labels over people, objects and monsters now appear only when you are fairly close (people and objects within a short walk, monsters a little further). Your target and party members always keep their names.",
+    "The new-version popup with its Reload button is checked more often (every 5 minutes and whenever you return to the game tab), and the published version file was out of date, which is why no popup appeared recently; that is fixed."
+  ] },
   { v: "16.14.1", date: "2026-10-15", title: "Auction balance", items: [
     "The Auction House now shows a Current Crystals box below its window, so you can see your balance while you buy and post."
   ] },
@@ -2972,7 +2976,8 @@ function showWhatsNew() {
 function initVersionCheck() {
   showWhatsNew();
   setTimeout(() => checkForUpdate(false), 4000);
-  setInterval(() => checkForUpdate(false), 10 * 60 * 1000);
+  setInterval(() => checkForUpdate(false), 5 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) checkForUpdate(false); });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkForUpdate(false); });
 }
 

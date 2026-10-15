@@ -1075,7 +1075,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.14.1 · built 2026-10-15 08:04 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.15.0 · built 2026-10-15 08:09 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -17386,8 +17386,12 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.14.1 · built 2026-10-15 08:04 PDT";
+const BUILD_INFO = "v16.15.0 · built 2026-10-15 08:09 PDT";
 const UPDATES = [
+  { v: "16.15.0", date: "2026-10-15", title: "Closer names", items: [
+    "Name labels over people, objects and monsters now appear only when you are fairly close (people and objects within a short walk, monsters a little further). Your target and party members always keep their names.",
+    "The new-version popup with its Reload button is checked more often (every 5 minutes and whenever you return to the game tab), and the published version file was out of date, which is why no popup appeared recently; that is fixed."
+  ] },
   { v: "16.14.1", date: "2026-10-15", title: "Auction balance", items: [
     "The Auction House now shows a Current Crystals box below its window, so you can see your balance while you buy and post."
   ] },
@@ -18820,7 +18824,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.14.1";
+const GAME_VERSION = "16.15.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -18886,7 +18890,8 @@ function showWhatsNew() {
 function initVersionCheck() {
   showWhatsNew();
   setTimeout(() => checkForUpdate(false), 4000);
-  setInterval(() => checkForUpdate(false), 10 * 60 * 1000);
+  setInterval(() => checkForUpdate(false), 5 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) checkForUpdate(false); });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkForUpdate(false); });
 }
 
@@ -27627,7 +27632,8 @@ function updateLabels() {
     if (isMob(e) && (!e.alive || e.despawned)) continue;
     if (e.kind === "npc" && e.away) continue;
     const d = dist(e, player);
-    if (d > Math.min(900, DRAW_DIST[VIEW.settings.draw || "normal"] * 0.6) && player.target !== e) continue;
+    const lim = Math.min(e.kind === "npc" ? 260 : isMob(e) ? 450 : 700, DRAW_DIST[VIEW.settings.draw || "normal"] * 0.6);
+    if (d > lim && player.target !== e && !(isParty(e) && e !== player)) continue;
     const sc = screenOf(e.x, e.y, entityHeight(e) + 0.25);
     if (!sc) continue;
     if ((e._occT || 0) < S.time) { e._occT = S.time + 0.15; e._occ = labelHidden(e); }

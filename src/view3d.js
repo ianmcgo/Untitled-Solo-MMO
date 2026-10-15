@@ -69,7 +69,8 @@ function updateLabels() {
     if (isMob(e) && (!e.alive || e.despawned)) continue;
     if (e.kind === "npc" && e.away) continue;
     const d = dist(e, player);
-    if (d > Math.min(900, DRAW_DIST[VIEW.settings.draw || "normal"] * 0.6) && player.target !== e) continue;
+    const lim = Math.min(e.kind === "npc" ? 260 : isMob(e) ? 450 : 700, DRAW_DIST[VIEW.settings.draw || "normal"] * 0.6);
+    if (d > lim && player.target !== e && !(isParty(e) && e !== player)) continue;
     const sc = screenOf(e.x, e.y, entityHeight(e) + 0.25);
     if (!sc) continue;
     if ((e._occT || 0) < S.time) { e._occT = S.time + 0.15; e._occ = labelHidden(e); }
