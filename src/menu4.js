@@ -1474,6 +1474,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.20.0", date: "2026-10-15", title: "Waiting", items: [
+    "Current Time in the main menu is now Time. It opens a box with the clock and two choices: Current time (writes the time to the log as before) or Wait.",
+    "Wait: pick 1 to 24 hours. In a town, with no other adventurer online, the clock ticks forward one game hour every 5 seconds until it reaches that time; Stop ends it early. Outside a town it says enemies are near, and with other players online it explains that time can't be sped up."
+  ] },
   { v: "16.19.0", date: "2026-10-15", title: "One look", items: [
     "Update popups are calmer: you get one popup for the newest version only, Later is remembered until an even newer version comes out, and if a reload lands on an older copy while the web host catches up, it waits 15 minutes instead of asking again and again.",
     "The Modern look is gone. The painted Classic look is now the only look, and Config → Graphics no longer has a look switch. Outlines and Job style / Show gear are still there.",
@@ -2794,6 +2798,12 @@ function tabHelp() {
     "Wait for a bite, then press <b>Reel in!</b> (or Space, Enter or F) within about 2 seconds. Walking away, fighting or changing area pulls your line in.",
     "Catches: Outpost pond: Pond Minnow, Moat Carp. Rocky Hollow lakes: Moat Carp, Silver Shad, and the rare Lakeking Pike. Ashen Marsh ponds: Mud Eel, Bog Perch, and the rare Ghost Koi, which only bites in rain or storms.",
     "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to Pell, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
+  ]));
+  h += sec("🕰️ Time and waiting", ul([
+    "A game day passes in about 58 real minutes (one game hour is about 2.4 real minutes). Night runs from 18:00 to 06:00 and brings different monsters.",
+    "Main menu → Time opens a box: <b>Current time</b> writes the Leid'anav date, time and day element plus your own date and time to the log; <b>Wait</b> lets you pick 1 to 24 hours with − / + or the slider.",
+    "Waiting only works in a town (enemies are near anywhere else) and only when no other adventurer is online, because everyone online shares one clock. The clock then races ahead, one game hour every 5 seconds, and the sky, weather, shops and night monsters follow. Stop ends it early. Leaving town, a fight or another player coming online interrupts it.",
+    "Time you skip is saved with your character. If another adventurer comes online later, your clock rejoins the world's time."
   ]));
   h += sec("🌦️ Weather", ul([
     "Each outdoor area has its own weather, changing every 3 game hours (about 7 real minutes): clear, cloudy, rain, wind, fog or thunderstorms. The icon next to the clock shows it; /weather tells you more.",

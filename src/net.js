@@ -259,7 +259,7 @@ function netWorld() {
     ch.on("broadcast", { event: "tcf" }, m => netOnTcf(m.payload));
     ch.on("broadcast", { event: "tcx" }, m => netOnTcx(m.payload));
     ch.on("broadcast", { event: "lsinv" }, m => netOnLsInv(m.payload));
-    ch.on("presence", { event: "sync" }, () => { NET_RT.online = Object.values(ch.presenceState()).map(a => a[0]).filter(Boolean); netFriendWatch(); });
+    ch.on("presence", { event: "sync" }, () => { NET_RT.online = Object.values(ch.presenceState()).map(a => a[0]).filter(Boolean); netFriendWatch(); if (typeof timeSyncCheck === "function") timeSyncCheck(); });
     ch.subscribe(st => { if (st === "SUBSCRIBED") { NET_RT.lastWSig = JSON.stringify(netWorldMeta()); Promise.resolve(ch.track(netWorldMeta())).catch(() => {}); } });
     NET_RT.wch = ch;
     netLsRefresh();

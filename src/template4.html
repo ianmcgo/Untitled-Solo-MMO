@@ -168,6 +168,20 @@
   #verPop .vpA { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
   #verPop .vpA button { padding: 7px 14px; }
   #verPop .vpA .pri { border-color: var(--gold); color: var(--gold); }
+  #timeBox { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); z-index: 25; width: min(320px, 90vw); padding: 14px 16px; display: none; pointer-events: auto; animation: tin .3s ease-out; text-align: center; }
+  #timeBox .vpT { font: italic 900 15px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; margin-bottom: 8px; text-align: left; }
+  #timeBox .vpB { color: #e8e8ff; font-size: 13px; line-height: 1.5; }
+  #timeBox .vpA { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  #timeBox .vpA button { padding: 7px 14px; }
+  #timeBox .tbClock { font: 900 34px var(--ffFont); color: #fff; text-shadow: 2px 2px 0 #000; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+  #timeBox .tbSub { font-size: 11.5px; color: #c8c8e8; margin-top: 2px; }
+  #timeBox .tbPick { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 8px 0 4px; }
+  #timeBox .tbPick b { font: 900 22px var(--ffFont); min-width: 56px; }
+  #timeBox .tbPick button { width: 36px; height: 32px; font-size: 18px; padding: 0; }
+  #timeBox input[type=range] { width: 100%; margin: 6px 0 2px; }
+  #timeBox .tbWarn { color: #ffb0a0; font-size: 12px; margin-bottom: 8px; text-align: left; }
+  #timeBox .tbBar { height: 8px; border: 1px solid #000; border-radius: 4px; background: rgba(0,0,0,.4); margin: 10px 0 4px; overflow: hidden; }
+  #timeBox .tbBar i { display: block; height: 100%; background: linear-gradient(#ffe9a0, #d8a030); }
   body, #ui, #overlay, #loading, #menu { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   input, textarea { -webkit-user-select: text; user-select: text; }
   #chatIn { margin-top: 4px; height: 26px; padding: 0 9px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(10,12,20,.7); color: #f2efe6; font: 12px system-ui; outline: none; pointer-events: auto; }
@@ -833,6 +847,7 @@
   #toasts { top: calc(48px + var(--sat)) !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; align-items: center !important; }
   .toast { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; backdrop-filter: none !important; font-family: var(--ffFont); color: #fff; min-width: 240px; max-width: min(420px, 90vw) !important; }
   .toast b { font: italic 900 13.5px var(--ffFont) !important; color: #fff !important; letter-spacing: .04em; text-shadow: 1px 1px 0 #000; }
+  #timeBox { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; backdrop-filter: none !important; font-family: var(--ffFont); }
   #verPop { top: calc(48px + var(--sat)) !important; background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; backdrop-filter: none !important; font-family: var(--ffFont); }
   #verPop .vpT { font: italic 900 15px var(--ffFont) !important; color: #fff !important; text-shadow: 1px 1px 0 #000; }
   #verPop .vpB { color: #e8e8ff !important; font-family: var(--ffFont); }

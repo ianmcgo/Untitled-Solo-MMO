@@ -1008,6 +1008,7 @@ function updateRace() {
 }
 
 function updateHud(dt) {
+  tickWait(dt);
   updatePool();
   updateRace();
   updateFish();
@@ -1205,7 +1206,7 @@ function chatToggle(force) {
 
 const MAIN_CMDS = [
   [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Party", "party", "Party members, companions, invitations and the looking-for-party flag."], ["Trade", "@trade", "Trade items or crystals with your current target."], ["Search", "@search", "Search for adventurers who are online."], ["Linkshell", "@ls", "Your linkshells: members, invitations and chat."], ["Friend List", "@friends", "See which friends are online and send them a tell."], ["Map", "map", "View the map of this area."]],
-  [["Quests", "quests", "Your story chapter and current and finished quests."], ["Key Items", "keyitems", "Important items that can't be traded or dropped."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Bestiary", "bestiary", "Creatures you've met and what you've learned about them."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Help", "help", "How everything works."], ["Updates", "updates", "What's new in each version."], ["Current Time", "@time", "Show the time of day and the day's element."], ["Communication", "social", "Friends, linkshells, search and emotes."], ["Log Out", "@logout", "Return to the character selection screen."]]
+  [["Quests", "quests", "Your story chapter and current and finished quests."], ["Key Items", "keyitems", "Important items that can't be traded or dropped."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Bestiary", "bestiary", "Creatures you've met and what you've learned about them."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Help", "help", "How everything works."], ["Updates", "updates", "What's new in each version."], ["Time", "@time", "Check the time, or wait in town for hours to pass."], ["Communication", "social", "Friends, linkshells, search and emotes."], ["Log Out", "@logout", "Return to the character selection screen."]]
 ];
 
 const STATUS_CMDS = [["Profile", "profile", ""], ["Job Levels", "jobs", "View the levels of the jobs you know."], ["Combat Skl.", "combat", "View current combat skills."], ["Magic Skl.", "magic", "View current magic skills."], ["Craft Skl.", "craft", "View current craft and gathering skills."], ["Currencies", "cur", "View your crystals and guild points."], ["Play Time", "time", "View your total time spent adventuring."]];
@@ -1256,7 +1257,7 @@ function mainCmdDo(i) {
   if (k === "@trade") { const t = player.target; if (t && t.kind === "remote") netTradeAsk(t.name); else log("Target another player first, then choose Trade.", "sys"); return; }
   if (k === "@search") { UI.socQ = ""; openMenu("social"); return; }
   if (k === "@ls" || k === "@friends") { openMenu("social"); return; }
-  if (k === "@time") { runCommand("/clock"); return; }
+  if (k === "@time") { mainCmdClose(); openTimeBox(); return; }
   if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out" }); return; }
   openMenu(k);
 }
@@ -1271,4 +1272,101 @@ function mainCmdKey(k) {
   else if (k === "arrowleft" || k === "arrowright") { m.page = 1 - m.page; m.sel = 0; sfx("tab"); renderMainCmd(); }
   else if (k === "enter") mainCmdDo(m.sel);
   else if (k === "escape" || k === "backspace") { mainCmdClose(); sfx("close"); }
+}
+
+const WAIT_CFG = { secPerHour: 5, maxHours: 24, msPerHour: 144000 };
+function hhmm(v) { return String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0"); }
+function othersOnline() {
+  if (PLAY.offline || typeof NET === "undefined" || !NET.member || typeof NET_RT === "undefined") return 0;
+  const me = String(save.name || "").toLowerCase();
+  return (NET_RT.online || []).filter(o => o && String(o.name || "").toLowerCase() !== me).length;
+}
+function timeBoxEl() {
+  let el = $("timeBox");
+  if (!el) { el = document.createElement("div"); el.id = "timeBox"; el.className = "glass"; $("ui").appendChild(el); }
+  el.style.display = "block";
+  return el;
+}
+function closeTimeBox() { const el = $("timeBox"); if (el) el.style.display = "none"; if (UI.timeBox) UI.timeBox = null; }
+function timeNowHTML() {
+  const v = vana();
+  return '<div class="tbClock">' + (isNight() ? "🌙 " : "☀️ ") + hhmm(v) + '</div><div class="tbSub">' + gameDate() + " · " + DAY_NAMES[v.dayIndex] + " (" + dayElement() + ")</div>";
+}
+function openTimeBox(view) {
+  if (S.wait) return;
+  UI.timeBox = { view: view || "menu", hours: (UI.timeBox && UI.timeBox.hours) || 8 };
+  renderTimeBox();
+  sfx("open");
+}
+function renderTimeBox(msg) {
+  const tb = UI.timeBox; if (!tb) return;
+  const el = timeBoxEl();
+  if (tb.view === "menu") {
+    el.innerHTML = '<div class="vpT">Time</div><div class="vpB">' + timeNowHTML() + '</div><div class="vpA"><button data-t="now" class="pri">Current time</button><button data-t="wait">Wait</button><button data-t="close">Close</button></div>';
+  } else if (tb.view === "wait") {
+    const v = vana(), to = (v.hour + tb.hours) % 24;
+    el.innerHTML = '<div class="vpT">Wait</div><div class="vpB">' + (msg ? '<div class="tbWarn">' + msg + "</div>" : "") + 'How many hours?<div class="tbPick"><button data-t="minus">−</button><b>' + tb.hours + " h</b><button data-t=\"plus\">+</button></div><input type=\"range\" min=\"1\" max=\"" + WAIT_CFG.maxHours + '" value="' + tb.hours + '" data-t="range"><div class="tbSub">Now ' + hhmm(v) + " → about " + String(to).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + '</div></div><div class="vpA"><button data-t="go" class="pri">Wait ' + tb.hours + ' h</button><button data-t="back">Back</button></div>';
+    const r = el.querySelector("input[type=range]");
+    if (r) r.oninput = () => { tb.hours = +r.value; renderTimeBox(); };
+  }
+  el.onclick = e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const t = b.dataset.t;
+    if (t === "close") { closeTimeBox(); sfx("close"); }
+    else if (t === "now") { closeTimeBox(); runCommand("/clock"); }
+    else if (t === "wait") { tb.view = "wait"; sfx("select"); renderTimeBox(); }
+    else if (t === "back") { tb.view = "menu"; sfx("close"); renderTimeBox(); }
+    else if (t === "minus") { tb.hours = Math.max(1, tb.hours - 1); sfx("tab"); renderTimeBox(); }
+    else if (t === "plus") { tb.hours = Math.min(WAIT_CFG.maxHours, tb.hours + 1); sfx("tab"); renderTimeBox(); }
+    else if (t === "go") startWait(tb.hours);
+    else if (t === "stop") stopWait(true);
+  };
+}
+function waitBlocked() {
+  if (othersOnline() > 0) return "Other adventurers are in the world right now, so time can't be sped up. Time only passes faster when you're the only one online.";
+  if (!S.zone || !S.zone.safe) return "You can't wait here. Enemies are near. Find a town first.";
+  if (player && (!player.alive || player.engaged || S.ko)) return "You can't wait right now.";
+  return null;
+}
+function startWait(h) {
+  const why = waitBlocked();
+  if (why) { log(why, "sys"); sfx("error"); renderTimeBox(why); return; }
+  S.wait = { hours: h, done: 0, total: h * WAIT_CFG.msPerHour };
+  UI.timeBox.view = "run";
+  sfx("select");
+  log("You settle in to wait " + h + (h === 1 ? " hour." : " hours."), "sys");
+  drawWait();
+}
+function drawWait() {
+  const w = S.wait; if (!w) return;
+  const el = timeBoxEl(), h = w.done / WAIT_CFG.msPerHour;
+  el.innerHTML = '<div class="vpT">Waiting…</div><div class="vpB">' + timeNowHTML() + '<div class="tbBar"><i style="width:' + (w.done / w.total * 100).toFixed(1) + '%"></i></div><div class="tbSub">' + Math.floor(h) + " of " + w.hours + ' h</div></div><div class="vpA"><button data-t="stop">Stop</button></div>';
+  el.onclick = e => { const b = e.target.closest("button"); if (b && b.dataset.t === "stop") stopWait(true); };
+}
+function tickWait(dt) {
+  const w = S.wait; if (!w) return;
+  const why = waitBlocked();
+  if (why) { stopWait(false); log("Your wait is interrupted. " + why, "sys"); return; }
+  const now = performance.now(), rt = Math.min(1, (now - (w.last || now)) / 1000); w.last = now;
+  const step = Math.min(w.total - w.done, rt * WAIT_CFG.msPerHour / WAIT_CFG.secPerHour);
+  w.done += step; S.timeShift += step;
+  w.ui = (w.ui || 0) + rt;
+  if (w.ui > 0.05) { w.ui = 0; drawWait(); }
+  if (w.done >= w.total - 1) stopWait(false, true);
+}
+function stopWait(byPlayer, finished) {
+  const w = S.wait; if (!w) return;
+  S.wait = null;
+  save.timeShift = S.timeShift;
+  saveGame();
+  const v = vana(), h = Math.round(w.done / WAIT_CFG.msPerHour * 10) / 10;
+  log((finished ? "You waited " + w.hours + (w.hours === 1 ? " hour" : " hours") : "You stop waiting after " + h + (h === 1 ? " hour" : " hours")) + ". It is now " + hhmm(v) + " on " + DAY_NAMES[v.dayIndex] + ".", "sys");
+  sfx(finished ? "notify" : "close");
+  closeTimeBox();
+}
+function timeSyncCheck() {
+  if (!S.timeShift || othersOnline() === 0) return;
+  if (S.wait) stopWait(false);
+  S.timeShift = 0; save.timeShift = 0;
+  log("Another adventurer came online, so your clock rejoins the world's time.", "sys");
 }
