@@ -16,7 +16,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 | 120 ✅ | 16.6.0 | Face finish | 3-tone face shading, ink eyelid line, cleaner ears per race | Sonnet |
 | 121 ✅ | 16.7.0 | Iconic gear sets | 3–4 tiered looks per job for all 22 jobs (WAR horned helm, BLM pointed hat, RDM feather hat, DRG winged helm…), oversized shoulders, cuffs, boots | Opus |
 | 122 ✅ | 16.8.0 | Weapons and shields | Chunkier weapons, bolder guards and heads, painted crests; match the item icons | Sonnet |
-| 123 | | Bold monsters | Families as chunky painted shapes recoloured per tier; NMs get extra parts | Opus |
+| 123 ✅ | 16.9.0 | Bold monsters | Families as chunky painted shapes recoloured per tier; NMs get extra parts | Opus |
 | 124 | | NPCs and townsfolk | Outfits coded by race, job and district | Sonnet |
 | 125 | | World match | Terrain, trees, props, sky and fog in the same painted style; bloom off in Classic | Sonnet |
 | 126 | | Classic effects | Bold sprite and ring spell effects, painted numbers | Sonnet |
@@ -94,6 +94,13 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - makeWeapon adds an outline child Mesh (shared outlineMaterial) when outlineOn().
 - Shield (humanEntry): Classic builds an extruded octagon (radius 0.185) or, for `shield.kite` (kite_shield), a kite shape, 0.034 thick with bevel, a cross emblem in `emblem` colour, a centre boss and rim studs in `trim` colour. Modern keeps the old cylinder.
 - Item icons were not changed in this phase.
+
+## Phase 123: Bold monsters (v16.9.0)
+- buildEntityRig, non-human mobs in Classic: `ml.col` and `ml.col2` go through `boldTint(c, mobBand(e.lv))`. Bands: lv 1–5 → 0, 6–10 → 1, 11–15 → 2, 16+ → 3. boldTint raises saturation (× 1.25 + band × 0.08), shifts hue by [0, +0.045, +0.09, −0.09] and scales lightness by [1, 0.88, 0.76, 0.64]. The colour is part of the rig sig, so each band caches its own model. Showcase and bestiary previews use lv 1, so band 0.
+- quadEntry in Classic (once, flagged `chunked`): headR × 1.18, legR × 1.28, neckR × 1.15, tailR × 1.2 (sheep, lizards, longnecks, ambient deer and dogs).
+- NM decor: `RigBuilder.finish()` runs and clears `RIG.hook(R)` first. For non-human NMs in Classic, buildEntityRig appends `|nm:<key>` to the sig and wraps `make` to set `RIG.hook = R => nmDecor(R, key)` (also for the LOD entry). nmDecor measures the head bone's pieces (or body, or all) and adds by `NM_DECOR[key].style`: crown (ring, 5 spikes, glowing gem), horns (two 2-part horns) or spikes (3 bone spikes). Then 4 back spikes on the body bone (glowing when `spikes` colour is set) and a glowing ring at y 0.02 on the root bone sized to the model. NM_DECOR covers king_wiggles, old_croaker, lumicap_matron, sandglass_wisp (crowns), silkmother, old_saltjaw, sandmaw (spikes), duskwing, pyreclaw, thunderhoof, gloamhorn (horns); others default to bone horns with a red ring.
+- Humanoid families are unchanged; their bosses already have banners and gear.
+- Test: scratch t14.mjs renders `buildEntityRig({ kind: "mob", famKey, fam: famOf(key), lv })` into its own canvas on the title screen.
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.

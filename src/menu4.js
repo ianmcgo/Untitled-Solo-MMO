@@ -1474,6 +1474,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.9.0", date: "2026-10-15", title: "Bold monsters", items: [
+    "In the Classic look beasts and creatures use bolder, more saturated painted colours, and four-legged animals have bigger heads and thicker legs and necks.",
+    "Monsters are recoloured by level, so you can judge a creature at a glance: levels 1–5 keep the family colour, 6–10 shift a shade, 11–15 shift further and darken, and 16 and up turn deep and dark.",
+    "Notorious monsters now stand out: a crown, horns or bone spikes on the head, a ridge of spikes along the back (glowing on some) and a glowing ring at their feet. Old Croaker, King Wiggles, the Lumicap Matron and the Sandglass Wisp wear crowns.",
+    "Humanoid monsters (goblins, orcs, skeletons and the rest) keep their own looks."
+  ] },
   { v: "16.8.0", date: "2026-10-15", title: "Bold weapons and shields", items: [
     "In the Classic look weapons are chunkier: wider, thicker blades, bigger crossguards, thicker shafts and grips, larger axe, spear and scythe heads and bigger staff orbs and club heads.",
     "Weapons now have the same dark outline as characters.",
@@ -2839,7 +2845,7 @@ function tabHelp() {
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
-    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. Classic weapons and shields are chunkier, with outlines and crest-painted shields. In Classic, Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); the Show gear button draws equipped armour instead, and weapons and shields always show. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
+    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. Classic monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Classic weapons and shields are chunkier, with outlines and crest-painted shields. In Classic, Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); the Show gear button draws equipped armour instead, and weapons and shields always show. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",

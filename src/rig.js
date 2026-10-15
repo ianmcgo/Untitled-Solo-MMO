@@ -5,7 +5,7 @@ const FACE_PAINTS = 8, FACE_COUNT = 8;
 const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud"];
 const ATLAS_SIZE = 1024;
 let ATLAS_CELL = 256, ATLAS_W = 2048, ATLAS_H = 1024;
-const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null };
+const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null, hook: null };
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
 const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot", "wavy", "pixie", "sidepart", "dreads", "curly"];
@@ -708,6 +708,7 @@ class RigBuilder {
     return geo;
   }
   finish() {
+    if (RIG.hook) { const h = RIG.hook; RIG.hook = null; h(this); }
     this.attachIslands();
     if (this.defs.length > 1) { this.bridgeGaps(); this.smoothJoints(); }
     this.bakeShade();
@@ -2384,6 +2385,7 @@ function animalHead(R, bone, o) {
 }
 
 function quadEntry(o) {
+  if (classicOn() && !o.chunked) o = Object.assign({}, o, { chunked: true, headR: o.headR * 1.18, legR: o.legR * 1.28, neckR: o.neckR * 1.15, tailR: (o.tailR || 0) * 1.2 });
   const R = new RigBuilder();
   const L = o.leg, B = o.bodyY, bl = o.bodyLen;
   R.bone("root", null, 0, 0, 0);
@@ -2973,6 +2975,68 @@ function mobLook(m) {
   return { kind: "human", look: goblinLook("goblin") };
 }
 
+function mobBand(lv) { return (lv || 1) >= 16 ? 3 : (lv || 1) >= 11 ? 2 : (lv || 1) >= 6 ? 1 : 0; }
+function boldTint(c, band) {
+  const q = new THREE.Color(c), h = {};
+  q.getHSL(h);
+  const dh = [0, 0.045, 0.09, -0.09][band], dl = [1, 0.88, 0.76, 0.64][band];
+  q.setHSL((h.h + dh + 1) % 1, Math.min(1, h.s * 1.25 + band * 0.08), Math.max(0.06, h.l * dl));
+  return q.getHex();
+}
+
+const NM_DECOR = {
+  king_wiggles: { style: "crown", col: 0xd8b040, gem: 0xff5252 },
+  old_croaker: { style: "crown", col: 0xd8b040, gem: 0x69f0ae },
+  lumicap_matron: { style: "crown", col: 0xe8d8ff, gem: 0xb388ff },
+  sandglass_wisp: { style: "crown", col: 0xd8b040, gem: 0xffe082 },
+  silkmother: { style: "spikes", col: 0x6a3a8a, aura: 0xce93d8 },
+  duskwing: { style: "horns", col: 0x2a1a3a, aura: 0xd080ff },
+  pyreclaw: { style: "horns", col: 0x3a1a10, aura: 0xff7043, spikes: 0xff7043 },
+  old_saltjaw: { style: "spikes", col: 0xe8dcc0, aura: 0x4fc3f7 },
+  thunderhoof: { style: "horns", col: 0xd8b040, aura: 0xffe082 },
+  gloamhorn: { style: "horns", col: 0x2a2a3a, aura: 0xb388ff, spikes: 0x4a3a6a },
+  sandmaw: { style: "spikes", col: 0xd8c8a0, aura: 0xffb74d }
+};
+
+function nmDecor(R, key) {
+  const D = NM_DECOR[key] || { style: "horns", col: 0xe8dcc0, aura: 0xff5252 };
+  const bbOf = name => {
+    const d = R.byName[name];
+    if (!d) return null;
+    const bb = new THREE.Box3(), v = new THREE.Vector3();
+    let n = 0;
+    for (const g of R.pieces) if (g.userData.rig && g.userData.rig.bone === d.index) { const p = g.attributes.position; for (let i = 0; i < p.count; i++) { bb.expandByPoint(v.fromBufferAttribute(p, i)); n++; } }
+    return n ? bb : null;
+  };
+  const all = new THREE.Box3(), v = new THREE.Vector3();
+  for (const g of R.pieces) { const p = g.attributes.position; for (let i = 0; i < p.count; i++) all.expandByPoint(v.fromBufferAttribute(p, i)); }
+  const hb = R.byName.head ? "head" : R.byName.body ? "body" : R.defs[0].name;
+  const hbb = bbOf(hb) || all;
+  const hc = hbb.getCenter(new THREE.Vector3()), hs = hbb.getSize(new THREE.Vector3()), hr = Math.max(0.04, Math.min(hs.x, hs.y, hs.z) * 0.5), top = hbb.max.y;
+  const fz = hc.z;
+  if (D.style === "crown") {
+    const cr = Math.min(Math.max(hs.x, hs.z) * 0.32, hr * 0.9), cy = top - hr * 0.05;
+    R.add(gRing(V3(hc.x, cy, fz), cr, Math.max(0.01, cr * 0.12), "y", 14), hb, D.col, "metal");
+    for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; R.add(gTaper(V3(hc.x + Math.sin(a) * cr, cy, fz + Math.cos(a) * cr), V3(hc.x + Math.sin(a) * cr * 1.1, cy + cr * 0.9, fz + Math.cos(a) * cr * 1.1), cr * 0.22, 0.004, 5), hb, D.col, "metal"); }
+    if (D.gem) R.add(gBall(V3(hc.x, cy + cr * 0.2, fz + cr * 1.02), cr * 0.18, 1, 1.2, 0.7, 8), hb, D.gem, "glow", true);
+  } else if (D.style === "horns") {
+    for (const s of [-1, 1]) {
+      const a = V3(hc.x + s * hs.x * 0.3, top - hr * 0.15, fz - hs.z * 0.1), b = a.clone().add(V3(s * hr * 0.9, hr * 0.8, -hr * 0.4)), c = b.clone().add(V3(s * hr * 0.1, hr * 0.9, hr * 0.5));
+      R.add(gTaper(a, b, hr * 0.28, hr * 0.17, 6), hb, D.col, "bone");
+      R.add(gTaper(b, c, hr * 0.17, 0.004, 6), hb, D.col, "bone");
+    }
+  } else {
+    for (let k = 0; k < 3; k++) { const a = V3(hc.x + (k - 1) * hs.x * 0.22, top - hr * 0.1, fz - hs.z * 0.1); R.add(gTaper(a, a.clone().add(V3((k - 1) * hr * 0.3, hr * (1.1 - Math.abs(k - 1) * 0.3), -hr * 0.4)), hr * 0.2, 0.004, 5), hb, D.col, "bone"); }
+  }
+  const body = R.byName.body ? "body" : hb, bbb = bbOf(body);
+  if (bbb && body !== hb) {
+    const bs = bbb.getSize(new THREE.Vector3()), bc = bbb.getCenter(new THREE.Vector3()), n = 4, sr = Math.max(0.025, Math.min(bs.x, bs.y) * 0.12);
+    for (let k = 0; k < n; k++) { const z = bc.z + bs.z * (0.3 - k * 0.6 / (n - 1)), a = V3(bc.x, bbb.max.y - sr * 0.4, z); R.add(gTaper(a, a.clone().add(V3(0, sr * 2.6, -sr * 0.8)), sr, 0.004, 5), body, D.spikes || D.col, D.spikes ? "glow" : "bone", !!D.spikes); }
+  }
+  const root = R.defs[0].name, ar = Math.max(all.max.x - all.min.x, all.max.z - all.min.z) * 0.6 + 0.1;
+  R.add(gRing(V3((all.min.x + all.max.x) / 2, 0.02, (all.min.z + all.max.z) / 2), ar, 0.012, "y", 24), root, D.aura || D.gem || 0xff5252, "glow", true);
+}
+
 function mobVariant(m) { return m.fam && m.fam.nm ? 0 : hashStr((m.famKey || "") + ":" + m.id) % 3; }
 function shadeHex(c, k) { const q = new THREE.Color(c); q.multiplyScalar(k); return q.getHex(); }
 function varyMobLook(ml, vr) {
@@ -2994,6 +3058,7 @@ function buildEntityRig(e) {
   if (isMob(e)) {
     const ml = varyMobLook(mobLook(e), mobVariant(e));
     if (ml.kind === "human") ml.look = familyLook(ml.look, e);
+    else if (classicOn()) { const band = mobBand(e.lv); if (ml.col != null) ml.col = boldTint(ml.col, band); if (ml.col2 != null) ml.col2 = boldTint(ml.col2, band); }
     if (ml.kind === "human") {
       sig = "m|" + stableKey(ml.look);
       make = () => humanEntry(ml.look);
@@ -3013,6 +3078,8 @@ function buildEntityRig(e) {
     else if (ml.kind === "shroom") { sig = "shroom|" + ml.col + ml.col2; make = () => shroomEntry(ml.col, ml.col2); }
     else if (ml.kind === "fish") { sig = "fish|" + ml.col + ml.col2; make = () => fishEntry(ml.col, ml.col2); }
     else { sig = "hare|" + ml.col; make = () => hareEntry(ml.col); }
+    const nk = e.fam && e.fam.nm && ml.kind !== "human" && classicOn() ? (e.fam.key || e.famKey) : null;
+    if (nk) { const mk = make; sig += "|nm:" + nk; make = () => { RIG.hook = R => nmDecor(R, nk); try { return mk(); } finally { RIG.hook = null; } }; }
   } else if (e.kind === "npc") {
     const nd = typeof NPCS !== "undefined" ? NPCS[e.id] : null;
     if (nd && (nd.prop || nd.crystal || nd.hidden)) return null;
