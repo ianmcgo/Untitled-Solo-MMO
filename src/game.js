@@ -1001,6 +1001,7 @@ function applyDamage(src, tgt, amt, opt) {
     }
   } else {
     touch(tgt);
+    if (amt > 0 && tgt.resting && src && isMob(src)) standUp(tgt, tgt !== player);
     if (tgt.mounted) dismount("You're thrown from the saddle!");
     if (tgt.casting && Math.random() < CONFIG.interruptChance) interruptCast(tgt);
   }
@@ -3049,12 +3050,12 @@ function restAI(a, dt, threats, hold) {
     if (held || m.target !== a || dist(a, m) > CONFIG.allyRestDist) m.enmity.delete(a);
   }
   a.engaged = false; a.attackTarget = null; a.target = null;
-  if (a.resting && canRest(a)) return;
   if (!hold) {
     const chased = threats.some(m => m.enmity.has(a));
     const near = closestOf(a, threats);
     if ((chased || (near && dist(a, near) < CONFIG.allyKiteDist)) && fleeFrom(a, threats, dt, 1)) { if (a.resting) standUp(a, true); return; }
   }
+  if (a.resting) return;
   if (canRest(a)) startRest(a);
 }
 
@@ -3380,7 +3381,7 @@ function updatePlayer(dt) {
   autoAttack(player, dt);
 }
 
-function canRest(p) { return p.alive && !p.engaged && !p.casting && !p.mounted && !inCombatWith(p); }
+function canRest(p) { return p.alive && !p.engaged && !p.casting && !p.mounted; }
 
 function startRest(p) {
   if (p.resting) return;
@@ -3404,7 +3405,7 @@ function toggleRest() {
   if (player.resting) { standUp(player); return; }
   if (!player.alive) return;
   if (player.mounted) { log("You can't rest while riding.", "sys"); sfx("error"); return; }
-  if (player.engaged || inCombatWith(player)) { log("You can't rest while monsters are attacking you.", "sys"); sfx("error"); return; }
+  if (player.engaged) { player.engaged = false; player.attackTarget = null; }
   if (player.casting) { log("You can't rest while casting.", "sys"); sfx("error"); return; }
   S.moveTarget = null; S.chase = false; S.pendingTalk = null;
   startRest(player);
@@ -3414,7 +3415,7 @@ function toggleRest() {
 
 function regen(p, dt) {
   if (p.resting && (!canRest(p) || p.moving)) standUp(p, p !== player);
-  const can = p.alive && !p.engaged && !p.casting && S.time - p.stillSince >= CONFIG.regenDelay && !inCombatWith(p);
+  const can = p.alive && !p.engaged && !p.casting && S.time - p.stillSince >= CONFIG.regenDelay && (p.resting || !inCombatWith(p));
   const rest = can && p.resting && S.time - p.restSince >= CONFIG.restDelay;
   p.regenerating = can && (p.hp < p.maxHp || p.mp < p.maxMp);
   p.restHealing = rest && (p.hp < p.maxHp || p.mp < p.maxMp);

@@ -1091,7 +1091,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.23.0 · built 2026-10-15 16:37 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.24.0 · built 2026-10-15 16:52 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -9545,6 +9545,7 @@ function applyDamage(src, tgt, amt, opt) {
     }
   } else {
     touch(tgt);
+    if (amt > 0 && tgt.resting && src && isMob(src)) standUp(tgt, tgt !== player);
     if (tgt.mounted) dismount("You're thrown from the saddle!");
     if (tgt.casting && Math.random() < CONFIG.interruptChance) interruptCast(tgt);
   }
@@ -11593,12 +11594,12 @@ function restAI(a, dt, threats, hold) {
     if (held || m.target !== a || dist(a, m) > CONFIG.allyRestDist) m.enmity.delete(a);
   }
   a.engaged = false; a.attackTarget = null; a.target = null;
-  if (a.resting && canRest(a)) return;
   if (!hold) {
     const chased = threats.some(m => m.enmity.has(a));
     const near = closestOf(a, threats);
     if ((chased || (near && dist(a, near) < CONFIG.allyKiteDist)) && fleeFrom(a, threats, dt, 1)) { if (a.resting) standUp(a, true); return; }
   }
+  if (a.resting) return;
   if (canRest(a)) startRest(a);
 }
 
@@ -11924,7 +11925,7 @@ function updatePlayer(dt) {
   autoAttack(player, dt);
 }
 
-function canRest(p) { return p.alive && !p.engaged && !p.casting && !p.mounted && !inCombatWith(p); }
+function canRest(p) { return p.alive && !p.engaged && !p.casting && !p.mounted; }
 
 function startRest(p) {
   if (p.resting) return;
@@ -11948,7 +11949,7 @@ function toggleRest() {
   if (player.resting) { standUp(player); return; }
   if (!player.alive) return;
   if (player.mounted) { log("You can't rest while riding.", "sys"); sfx("error"); return; }
-  if (player.engaged || inCombatWith(player)) { log("You can't rest while monsters are attacking you.", "sys"); sfx("error"); return; }
+  if (player.engaged) { player.engaged = false; player.attackTarget = null; }
   if (player.casting) { log("You can't rest while casting.", "sys"); sfx("error"); return; }
   S.moveTarget = null; S.chase = false; S.pendingTalk = null;
   startRest(player);
@@ -11958,7 +11959,7 @@ function toggleRest() {
 
 function regen(p, dt) {
   if (p.resting && (!canRest(p) || p.moving)) standUp(p, p !== player);
-  const can = p.alive && !p.engaged && !p.casting && S.time - p.stillSince >= CONFIG.regenDelay && !inCombatWith(p);
+  const can = p.alive && !p.engaged && !p.casting && S.time - p.stillSince >= CONFIG.regenDelay && (p.resting || !inCombatWith(p));
   const rest = can && p.resting && S.time - p.restSince >= CONFIG.restDelay;
   p.regenerating = can && (p.hp < p.maxHp || p.mp < p.maxMp);
   p.restHealing = rest && (p.hp < p.maxHp || p.mp < p.maxMp);
@@ -17515,8 +17516,12 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.23.0 · built 2026-10-15 16:37 PDT";
+const BUILD_INFO = "v16.24.0 · built 2026-10-15 16:52 PDT";
 const UPDATES = [
+  { v: "16.24.0", date: "2026-10-15", title: "Rest in combat", items: [
+    "You can now /rest while monsters are fighting your party, even when one has you on its list. Resting disengages you first. If an enemy hits you while you sit, you stand up and stop resting.",
+    "Resting heals at the normal sitting rate during a fight. Mercenaries use the same rule, so a hurt one that is hit while sitting stands and moves away again."
+  ] },
   { v: "16.23.0", date: "2026-10-15", title: "Resting mercenaries", items: [
     "A mercenary at 75% health or less now sits down and /rests on their own once the fighting is over and you stand still, until HP and MP are full. They stand up and follow as soon as you move or something attacks.",
     "Resting during a fight works now: a mercenary below 25% health who isn't the only one a monster is hunting drops off its target list at once, steps clear of the fight and sits. If the monster is chasing only them, they run a shorter way (about 300 steps instead of 420) before sitting."
@@ -18598,7 +18603,7 @@ function tabHelp() {
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave through Eastgate, the east district of the city, into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
     "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
-    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
+    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. You can rest during a fight too (it disengages you first). Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("🏙️ Cities and districts", ul([
     "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, Pell, Odette, Corvin's auction desk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
@@ -19000,7 +19005,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.23.0";
+const GAME_VERSION = "16.24.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

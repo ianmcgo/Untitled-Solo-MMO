@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.23.0",
-  "releaseTitle": "Resting mercenaries",
+  "version": "16.24.0",
+  "releaseTitle": "Rest in combat",
   "description": "",
   "main": "index.js",
   "scripts": {

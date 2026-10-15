@@ -1485,6 +1485,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.24.0", date: "2026-10-15", title: "Rest in combat", items: [
+    "You can now /rest while monsters are fighting your party, even when one has you on its list. Resting disengages you first. If an enemy hits you while you sit, you stand up and stop resting.",
+    "Resting heals at the normal sitting rate during a fight. Mercenaries use the same rule, so a hurt one that is hit while sitting stands and moves away again."
+  ] },
   { v: "16.23.0", date: "2026-10-15", title: "Resting mercenaries", items: [
     "A mercenary at 75% health or less now sits down and /rests on their own once the fighting is over and you stand still, until HP and MP are full. They stand up and follow as soon as you move or something attacks.",
     "Resting during a fight works now: a mercenary below 25% health who isn't the only one a monster is hunting drops off its target list at once, steps clear of the fight and sits. If the monster is chasing only them, they run a shorter way (about 300 steps instead of 420) before sitting."
@@ -2566,7 +2570,7 @@ function tabHelp() {
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave through Eastgate, the east district of the city, into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
     "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
-    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. Moving, attacking or getting hit stands you up."
+    "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. You can rest during a fight too (it disengages you first). Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("🏙️ Cities and districts", ul([
     "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, Pell, Odette, Corvin's auction desk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",

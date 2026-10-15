@@ -1403,6 +1403,7 @@ Full notes and the remaining plan are in design/ffxi-look-plan.md. Summary:
 - `enterZone` clears `retreat` and `kiting` on the party.
 - Check by hand: a mercenary at about 45% HP backs off to about 200 px and still casts or shoots; under 25% it runs, mobs lose it beyond 420 px, it sits (`resting`) and stands at full HP and MP.
 - v16.23.0: new mode "sit" in `allyMode(a, threatened, still)`: no threat, player still (not moving, not engaged, 1 s), HP at or below `allySitHp` 0.75 and player within 450 px; ends at full HP and MP, when a threat appears, the player moves, or the player is over 600 px away. Handled by `restAI` like rest. `restAI` now drops a companion from a mob's enmity at once when another living party member also holds enmity (so resting works mid-fight); otherwise it flees until the mob is over `allyRestDist` (now 300) away.
+- v16.24.0: `canRest` no longer checks `inCombatWith`, so anyone can sit mid-fight; `toggleRest` disengages the player instead of refusing. `regen` heals a resting unit even with enmity (`p.resting || !inCombatWith(p)`). `applyDamage` stands a resting target up when a mob deals damage (`standUp`, quiet for companions). `restAI` flees first and only then sits.
 - Admin panel (v16.22.0): `adminLiveHtml()` in menu4.js renders a This session block (ping, last save, unsaved count, sent/received, players online, players in zone, monster host from `NET_SH`, zone, version) and the world-presence player list (`NET_RT.online`) at the top of `tabAdmin`. It uses client state only, so it needs no server setup change. `adminReport()` also carries ping and the online list.
 
 ## Roadmap (planned phases)
@@ -1486,6 +1487,7 @@ World systems:
 | 16.1.7 | Head profiles: jaw/chin/long raised for human0/1, elari, nekari, pipkin (jaw 0.3), ursan (jaw 0.24). Ursan skin 0x8e9688. Pipkin eyes rx 7.2, painted brown button nose (radial gradient + highlight) replaces the pink blob. |
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
+| 16.24.0 | /rest works in combat; a hit while resting stands you up. |
 | 16.23.0 | Mercenaries at 75% or less rest when you stand still; rest works mid-fight; shorter flee distance. |
 | 16.22.0 | Admin panel shows session info and players online. |
 | 16.21.0 | Companion retreat and rest, ranged casters use all MP, healers heal lowest HP first (see Companion retreat section). |
