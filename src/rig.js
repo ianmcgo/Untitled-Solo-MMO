@@ -1140,7 +1140,182 @@ const NPC_LOOK = {
 };
 
 
-function lookFor(job, gear, base) {
+function headHorns(R, H, hc, hr, k) {
+  for (const s of [-1, 1]) {
+    const a = V3(s * hr * 0.9, hc + hr * 0.45, 0), b = V3(s * hr * (0.9 + 0.7 * k), hc + hr * (0.45 + 0.55 * k), -hr * 0.1), c = V3(s * hr * (0.9 + 0.8 * k), hc + hr * (0.45 + 1.3 * k), hr * 0.2);
+    R.add(gTaper(a, b, hr * 0.22 * Math.sqrt(k), hr * 0.14 * Math.sqrt(k), 8), "head", H.color2 || 0xe8dcc0, "bone");
+    R.add(gTaper(b, c, hr * 0.14 * Math.sqrt(k), 0.004, 8), "head", H.color2 || 0xe8dcc0, "bone");
+  }
+}
+
+function headDecor(R, H, hc, hr) {
+  if (H.horns && H.type !== "horned") headHorns(R, H, hc, hr, H.horns);
+  if (H.crest) {
+    R.add(gBox(V3(0, hc + hr * 1.12, -hr * 0.05), 0.02, hr * 0.3, hr * 1.5), "head", H.color2 || 0xd8b040, "metal");
+    for (let k = 0; k < 3; k++) R.add(gTaper(V3(0, hc + hr * 1.22, hr * (0.4 - k * 0.4)), V3(0, hc + hr * (1.7 - k * 0.15), -hr * (0.5 + k * 0.55)), hr * 0.16, 0.006, 5, 0.35), "head", H.crest, "feather");
+  }
+  if (H.spikes) for (let k = 0; k < H.spikes; k++) { const a = (k / H.spikes - 0.5) * 2.2; R.add(gTaper(V3(Math.sin(a) * hr * 0.75, hc + hr * 0.95, Math.cos(a) * hr * 0.2 - hr * 0.1), V3(Math.sin(a) * hr * 1.15, hc + hr * 1.7, Math.cos(a) * hr * 0.3 - hr * 0.3), hr * 0.13, 0.004, 5), "head", H.color2 || H.color, "metal"); }
+  if (H.wings && H.type !== "winged") for (const s of [-1, 1]) for (let k = 0; k < 2; k++) R.add(gTaper(V3(s * hr * 1.0, hc + hr * (0.4 + k * 0.1), -hr * 0.1), V3(s * hr * (1.4 + k * 0.15), hc + hr * (0.9 + k * 0.35), -hr * (0.5 + k * 0.3)), hr * 0.16, 0.005, 5, 0.3), "head", H.color2 || 0xd8c070, "metal");
+  if (H.gem) R.add(gBall(V3(0, hc + hr * 0.45, hr * 1.08), 0.02, 1, 1.25, 0.6, 8), "head", H.gem, "glow", true);
+  if (H.plume && !["feathered", "widebrim"].includes(H.type)) R.add(gTaper(V3(hr * 0.7, hc + hr * 0.7, -hr * 0.4), V3(hr * 1.2, hc + hr * (1.4 + 0.6 * (H.plumeK || 1)), -hr * (1.1 + 0.4 * (H.plumeK || 1))), 0.028 * (H.plumeK || 1), 0.004, 6, 0.3), "head", H.plume, "feather");
+  if (H.tails) for (const s of [-1, 1]) R.add(gBox(V3(s * 0.025, hc + hr * 0.05, -hr * 1.12), 0.035, hr * 1.3, 0.008, 0.28, 0, s * 0.18), "head", H.tails, "cloth");
+}
+
+const JS_IRON = 0x8a9098, JS_STEEL = 0xa8b0b8, JS_GOLD = 0xd8b040, JS_DARK = 0x3a3442, JS_LEATHER = 0x6a4428, JS_BONE = 0xe8dcc0;
+const JOB_STYLE = {
+  WAR: (t, c) => [
+    { top: { type: "vest", color: 0x7a5230, region: "leather" }, gloves: JS_LEATHER, boots: 0x4a2e1a, belt: 0x4a2e1a },
+    { top: { type: "mail", color: JS_IRON, region: "chain", plate: JS_IRON }, pauldrons: JS_IRON, head: { type: "horned", color: JS_IRON, color2: JS_BONE }, gloves: JS_LEATHER, boots: 0x4a2e1a, belt: 0x5a2a1a },
+    { top: { type: "plate", color: c.shirt, region: "chain", plate: JS_STEEL, trim: JS_GOLD }, pauldrons: JS_STEEL, padK: 1.35, gauntlets: true, gloves: JS_STEEL, greaves: JS_STEEL, head: { type: "horned", color: JS_STEEL, color2: JS_BONE, hornK: 1.3 }, cape: c.shirt, boots: 0x3a2618 },
+    { top: { type: "plate", color: 0x6a1e18, region: "chain", plate: 0x9a8a78, trim: JS_GOLD }, pauldrons: 0x9a8a78, padK: 1.6, padSpikes: 2, padSpikeC: JS_BONE, gauntlets: true, gloves: 0x9a8a78, greaves: 0x9a8a78, head: { type: "horned", color: 0x9a8a78, color2: JS_BONE, hornK: 1.65 }, cape: 0x8a2018, collar: 0x8a7a6a, boots: 0x2a1a10 }
+  ][t],
+  WHM: (t, c) => [
+    { top: { type: "robe", color: c.robe, trim: c.trim }, shoes: 0x8a7a6a },
+    { top: { type: "robe", color: c.robe, trim: c.trim }, head: { type: "hood", color: c.robe, color2: c.trim }, boots: 0xb8ac98 },
+    { top: { type: "robe", color: c.robe, trim: c.trim }, head: { type: "hood", color: c.robe, color2: c.trim }, cape: 0xd8d0c0, gloves: 0xe8e0d0, glovesRegion: "cloth", boots: 0xb8ac98, belt: c.trim },
+    { top: { type: "robe", color: 0xf4f0e6, trim: c.trim, glowTrim: true }, head: { type: "hood", color: 0xf4f0e6, color2: c.trim, gem: 0xff8a80 }, cape: 0xe8dcc6, collar: c.trim, gloves: 0xf4f0e6, glovesRegion: "cloth", pauldrons: 0xf4f0e6, padK: 1.2, padRegion: "cloth", padTrim: c.trim, boots: 0xd8ccb8 }
+  ][t],
+  BLM: (t, c) => [
+    { top: { type: "robe", color: c.robe, trim: c.trim }, head: { type: "pointy", color: 0x3a3060 } },
+    { top: { type: "robe", color: c.deep, trim: c.trim }, head: { type: "pointy", color: 0x3a2a5a, brimK: 1.15, tallK: 1.15 }, gloves: 0x2a2440, glovesRegion: "cloth" },
+    { top: { type: "robe", color: c.deep, trim: c.trim }, head: { type: "pointy", color: 0x2e2450, brimK: 1.3, tallK: 1.3, color2: c.trim }, collar: 0x2a2440, gloves: 0x2a2440, glovesRegion: "cloth", boots: 0x2a2030 },
+    { top: { type: "robe", color: 0x2a1a48, trim: c.trim, glowTrim: true }, head: { type: "pointy", color: 0x24183e, brimK: 1.5, tallK: 1.45, color2: c.trim, gem: 0xffb74d }, collar: 0x1a1430, cape: 0x1a1430, gloves: 0x2a2440, glovesRegion: "cloth", boots: 0x1a1428 }
+  ][t],
+  PLD: (t, c) => [
+    { top: { type: "tabard", color: c.shirt, region: "cloth", color2: 0x24346a }, gloves: JS_LEATHER, boots: 0x4a2e1a, belt: 0x4a2e1a },
+    { top: { type: "mail", color: JS_STEEL, region: "chain", plate: JS_STEEL }, pauldrons: JS_STEEL, head: { type: "helm", color: JS_STEEL }, gloves: JS_LEATHER, boots: 0x3a2a1e, cape: c.shirt },
+    { top: { type: "plate", color: c.shirt, region: "chain", plate: 0xc0c8d0, trim: JS_GOLD }, pauldrons: 0xc0c8d0, padK: 1.35, gauntlets: true, gloves: 0xc0c8d0, greaves: 0xc0c8d0, head: { type: "helm", color: 0xc0c8d0, crest: 0x3a5aa8 }, cape: c.shirt, boots: 0x3a2a1e },
+    { top: { type: "plate", color: 0x2a3a6a, region: "chain", plate: 0xe0e4ea, trim: JS_GOLD }, pauldrons: 0xe0e4ea, padK: 1.6, padTrim: JS_GOLD, gauntlets: true, gloves: 0xe0e4ea, greaves: 0xe0e4ea, head: { type: "helm", color: 0xe0e4ea, color2: JS_GOLD, crest: 0x2a4aa8, wings: true }, cape: 0x1d3f75, boots: 0x2a2030 }
+  ][t],
+  RDM: (t, c) => [
+    { top: { type: "tunic", color: c.shirt, region: "cloth" }, boots: 0x3a2a1e, belt: 0x2a1a10 },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "feathered", color: c.shirt, color2: c.trim }, gloves: 0xe8e0d0, glovesRegion: "cloth", boots: 0x2a1a10 },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "feathered", color: c.shirt, color2: c.trim, plumeK: 1.4 }, cape: c.shirt, gloves: 0xe8e0d0, glovesRegion: "cloth", boots: 0x2a1a10, collar: 0xe8e0d0 },
+    { top: { type: "coat", color: 0xb0202a, trim: JS_GOLD }, head: { type: "feathered", color: 0xb0202a, color2: JS_GOLD, plumeK: 1.8, plume: 0xffffff }, cape: 0x7a1018, gloves: 0xf4f0e6, glovesRegion: "cloth", boots: 0x1a1010, collar: 0xf4f0e6, pauldrons: 0xb0202a, padK: 1.2, padRegion: "cloth", padTrim: JS_GOLD }
+  ][t],
+  THF: (t, c) => [
+    { top: { type: "vest", color: c.shirt, region: "leather" }, boots: 0x3a2a1e, belt: 0x2a1a10 },
+    { top: { type: "vest", color: 0x3a3028, region: "leather", under: c.shirt }, head: { type: "bandana", color: 0x6a2a2a }, gloves: 0x3a2a20, boots: 0x2a1e14, belt: 0x2a1a10 },
+    { top: { type: "vest", color: 0x2a2420, region: "leather", under: 0x4a3a30 }, head: { type: "bandana", color: 0x4a1a2a }, gloves: 0x2a2018, boots: 0x1e1610, belt: 0x5a3a20, cape: 0x3a2a24 },
+    { top: { type: "coat", color: 0x4a3440, trim: 0x8a6a4a }, head: { type: "hood", color: 0x3a2a34 }, gloves: 0x1e1814, boots: 0x1a1210, belt: 0x5a3a20, collar: 0x3a2a24, pauldrons: 0x3a2e28, padK: 1.15, padRegion: "leather", padTrim: 0x8a6a4a }
+  ][t],
+  MNK: (t, c) => [
+    { top: { type: "tunic", color: 0xe8e0cc, region: "cloth" }, belt: 0x2a2a2a, barefoot: true },
+    { top: { type: "tunic", color: c.shirt, region: "cloth" }, head: { type: "headband", color: 0xe8e0cc }, belt: 0x2a2a2a, gloves: 0xe8e0cc, glovesRegion: "cloth", barefoot: true },
+    { top: { type: "tunic", color: c.shirt, region: "cloth", sleeves: "none" }, head: { type: "headband", color: 0x8a2a2a }, belt: 0x1a1a1a, gloves: 0xd8d0c0, glovesRegion: "cloth", boots: 0x5a3f28, collar: 0x5a3a28 },
+    { top: { type: "tunic", color: 0xe07a2a, region: "cloth", sleeves: "none" }, head: { type: "headband", color: 0xa02020, gem: 0xffd54f }, belt: 0x1a1a1a, gloves: 0xd8d0c0, glovesRegion: "cloth", gauntlets: true, boots: 0x4a2e1a, collar: 0x7a4a2a, pauldrons: 0x8a3a2a, padK: 1.2, padRegion: "cloth" }
+  ][t],
+  RNG: (t, c) => [
+    { top: { type: "vest", color: 0x5a6a3a, region: "leather", under: c.shirt }, boots: 0x4a3a24, belt: 0x4a2e1a },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "cap", color: 0x5a4a2a, plume: 0x8a5a2a }, gloves: JS_LEATHER, boots: 0x4a3a24, belt: 0x4a2e1a },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "widebrim", color: 0x4a5a2c, color2: 0xb08a50 }, cape: 0x3a4a2a, gloves: JS_LEATHER, boots: 0x3a2e1e, belt: 0x4a2e1a },
+    { top: { type: "coat", color: 0x2e4a24, trim: JS_GOLD }, head: { type: "hood", color: 0x2e4a24, color2: 0xb08a50 }, cape: 0x24381c, gloves: 0x4a3420, boots: 0x2a2014, belt: 0x5a3a20, pauldrons: 0x5a4028, padK: 1.25, padRegion: "leather", padTrim: 0xb08a50, collar: 0x6a5a3a }
+  ][t],
+  SMN: (t, c) => [
+    { top: { type: "robe", color: c.robe, trim: c.trim } },
+    { top: { type: "robe", color: c.deep, trim: c.trim }, head: { type: "hood", color: c.deep, color2: c.trim, horns: 0.55 }, gloves: c.deep, glovesRegion: "cloth" },
+    { top: { type: "robe", color: c.deep, trim: c.trim, glowTrim: true }, head: { type: "hood", color: c.deep, color2: c.trim, horns: 0.75, gem: 0x80deea }, gloves: c.deep, glovesRegion: "cloth", collar: 0x1a3a44 },
+    { top: { type: "robe", color: 0x184450, trim: JS_GOLD, glowTrim: true }, head: { type: "hood", color: 0x184450, color2: JS_GOLD, horns: 1.0, gem: 0x80deea }, cape: 0x12343e, gloves: 0x184450, glovesRegion: "cloth", collar: 0x12343e, pauldrons: 0x184450, padK: 1.3, padRegion: "cloth", padTrim: JS_GOLD }
+  ][t],
+  DRK: (t, c) => [
+    { top: { type: "mail", color: JS_DARK, region: "chain", plate: JS_DARK }, gloves: 0x2a2228, boots: 0x1e1a22 },
+    { top: { type: "mail", color: JS_DARK, region: "chain", plate: JS_DARK }, pauldrons: 0x4a4258, head: { type: "helm", color: 0x4a4258, spikes: 3 }, gloves: 0x2a2228, boots: 0x1e1a22, cape: 0x1e1a22 },
+    { top: { type: "plate", color: 0x2a2232, region: "chain", plate: 0x4a4258, trim: c.trim }, pauldrons: 0x4a4258, padK: 1.45, padSpikes: 2, gauntlets: true, gloves: 0x4a4258, greaves: 0x4a4258, head: { type: "horned", color: 0x4a4258, color2: 0x2a2232, hornK: 1.1 }, cape: 0x1a1420, boots: 0x14101a },
+    { top: { type: "plate", color: 0x1a1422, region: "chain", plate: 0x3a3048, trim: 0xb388ff, glowTrim: true }, pauldrons: 0x3a3048, padK: 1.75, padSpikes: 3, gauntlets: true, gloves: 0x3a3048, greaves: 0x3a3048, head: { type: "horned", color: 0x3a3048, color2: 0x1a1422, hornK: 1.45, spikes: 3 }, cape: 0x120e18, collar: 0x2a2232, boots: 0x0e0a12 }
+  ][t],
+  BRD: (t, c) => [
+    { top: { type: "tunic", color: c.shirt, region: "cloth" }, boots: 0x4a2e1a, belt: 0x4a2e1a },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "beret", color: 0x6a2a3a, color2: c.trim, plume: 0xf4f1e8 }, boots: 0x4a2e1a, belt: 0x4a2e1a },
+    { top: { type: "coat", color: 0x7a3a5a, trim: c.trim }, head: { type: "beret", color: 0x5a2040, color2: c.trim, plume: 0xffd54f, plumeK: 1.3 }, cape: 0x5a2040, collar: 0xf4f1e8, boots: 0x3a2214, belt: 0x5a3a20 },
+    { top: { type: "coat", color: 0x6a1e44, trim: JS_GOLD }, head: { type: "beret", color: 0x4a1434, color2: JS_GOLD, plume: 0xffffff, plumeK: 1.7 }, cape: 0x3a0e28, collar: 0xf4f1e8, gloves: 0xf4f1e8, glovesRegion: "cloth", boots: 0x2a1610, belt: 0x5a3a20, pauldrons: 0x6a1e44, padK: 1.2, padRegion: "cloth", padTrim: JS_GOLD }
+  ][t],
+  SAM: (t, c) => [
+    { top: { type: "tunic", color: c.shirt, region: "cloth" }, belt: 0xe0d8c0, boots: 0x2a2420 },
+    { top: { type: "tunic", color: 0x3a2a4a, region: "cloth" }, head: { type: "headband", color: 0xe8e0d0 }, belt: c.trim, gloves: 0x3a2a20, boots: 0x2a2420 },
+    { top: { type: "mail", color: 0x8a2a20, region: "scale", plate: 0x8a2a20 }, pauldrons: 0x8a2a20, padK: 1.35, head: { type: "kabuto", color: 0x3a2a24, color2: JS_GOLD }, gloves: 0x3a2a20, greaves: 0x8a2a20, belt: 0xe0d8c0, boots: 0x1e1a16 },
+    { top: { type: "plate", color: 0x6a1a14, region: "scale", plate: 0xa02a20, trim: JS_GOLD }, pauldrons: 0xa02a20, padK: 1.6, padTrim: JS_GOLD, head: { type: "kabuto", color: 0x2a1e1a, color2: JS_GOLD }, gauntlets: true, gloves: 0xa02a20, greaves: 0xa02a20, belt: 0xe0d8c0, cape: 0x3a1a14, boots: 0x14100c }
+  ][t],
+  NIN: (t, c) => [
+    { top: { type: "vest", color: 0x3a4658, region: "leather", under: 0x4a566a }, boots: 0x2a3242, belt: 0x5a3a2a },
+    { top: { type: "tunic", color: 0x3a4658, region: "cloth" }, head: { type: "ninjahood", color: 0x3a4658, color2: JS_IRON }, gloves: 0x2a3242, glovesRegion: "cloth", boots: 0x2a3242, belt: 0x8a2a20 },
+    { top: { type: "tunic", color: 0x36405a, region: "cloth" }, head: { type: "ninjahood", color: 0x323c50, color2: JS_STEEL, tails: 0x8a2a20 }, gloves: 0x2a3242, glovesRegion: "cloth", gauntlets: true, boots: 0x222836, belt: 0x8a2a20, collar: 0x3a4658 },
+    { top: { type: "mail", color: 0x2e3646, region: "chain", plate: 0x2e3646 }, head: { type: "ninjahood", color: 0x283040, color2: JS_GOLD, tails: 0xb02a20 }, pauldrons: 0x3a4658, padK: 1.3, padRegion: "leather", padTrim: 0xb02a20, gloves: 0x283040, gauntlets: true, greaves: 0x3a4658, boots: 0x1e2430, belt: 0xb02a20, cape: 0x283040 }
+  ][t],
+  DRG: (t, c) => [
+    { top: { type: "mail", color: 0x5a6a8a, region: "chain", plate: 0x5a6a8a }, gloves: JS_LEATHER, boots: 0x2a2a34 },
+    { top: { type: "mail", color: 0x4a5a8a, region: "chain", plate: 0x4a5a8a }, pauldrons: 0x6a7aa0, head: { type: "winged", color: 0x6a7aa0, color2: JS_STEEL }, gloves: JS_LEATHER, boots: 0x2a2a34 },
+    { top: { type: "plate", color: c.shirt, region: "chain", plate: 0x5a7ab8, trim: JS_STEEL }, pauldrons: 0x5a7ab8, padK: 1.4, gauntlets: true, gloves: 0x5a7ab8, greaves: 0x5a7ab8, head: { type: "winged", color: 0x5a7ab8, color2: JS_STEEL, wingK: 1.2 }, cape: 0x1e2a4a, boots: 0x1e1e28 },
+    { top: { type: "plate", color: 0x1a2a5a, region: "scale", plate: 0x4a6ac8, trim: JS_GOLD }, pauldrons: 0x4a6ac8, padK: 1.65, padSpikes: 2, padSpikeC: JS_STEEL, gauntlets: true, gloves: 0x4a6ac8, greaves: 0x4a6ac8, head: { type: "winged", color: 0x4a6ac8, color2: JS_GOLD, wingK: 1.45 }, cape: 0x14204a, boots: 0x14141e }
+  ][t],
+  BST: (t, c) => [
+    { top: { type: "vest", color: 0x6a4a2a, region: "leather", under: c.shirt }, boots: 0x3a2a1e, belt: 0x3a2a1a },
+    { top: { type: "vest", color: 0x5a3a24, region: "leather", under: c.shirt }, head: { type: "furhat", color: 0x7a5a3a }, gloves: JS_LEATHER, boots: 0x3a2a1e, belt: 0x3a2a1a, collar: 0x8a6a4a },
+    { top: { type: "coat", color: 0x5a4028, trim: 0x8a6a4a }, head: { type: "furhat", color: 0x8a6a4a }, pauldrons: 0x7a5a3a, padK: 1.3, padRegion: "fur", gloves: JS_LEATHER, boots: 0x2a1e14, collar: 0x9a7a5a },
+    { top: { type: "coat", color: 0x4a3420, trim: JS_GOLD }, head: { type: "furhat", color: 0x9a7a52, horns: 0.7, color2: JS_BONE }, pauldrons: 0x8a6a4a, padK: 1.55, padRegion: "fur", padSpikes: 2, padSpikeC: JS_BONE, gloves: 0x4a3020, boots: 0x2a1e14, collar: 0xa88a62, cape: 0x3a2a1a }
+  ][t],
+  BLU: (t, c) => [
+    { top: { type: "tunic", color: c.shirt, region: "cloth" }, boots: 0x2a2a3a, belt: 0x5a4a2a },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "turban", color: 0x2a5a9a, color2: 0xd8c070 }, boots: 0x2a2a3a, belt: 0x5a4a2a },
+    { top: { type: "coat", color: 0x1a3a6a, trim: c.trim }, head: { type: "turban", color: 0x1a4a8a, color2: JS_GOLD, gem: 0x4fc3f7 }, cape: 0x14305a, gloves: 0x1a3a6a, glovesRegion: "cloth", boots: 0x1e1e2a, belt: 0x5a4a2a },
+    { top: { type: "coat", color: 0x123060, trim: JS_GOLD }, head: { type: "turban", color: 0x123a7a, color2: JS_GOLD, gem: 0x4fc3f7, plume: 0xf4f1e8 }, cape: 0x0e2448, gloves: 0x123060, glovesRegion: "cloth", boots: 0x14141e, collar: 0xd8c070, pauldrons: 0x1a4a8a, padK: 1.3, padRegion: "cloth", padTrim: JS_GOLD }
+  ][t],
+  COR: (t, c) => [
+    { top: { type: "vest", color: 0x3a2a24, region: "leather", under: c.shirt }, boots: 0x2a1a10, belt: 0x1a1210 },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "tricorne", color: 0x2a2020, color2: c.trim }, boots: 0x2a1a10, belt: 0x1a1210 },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "tricorne", color: 0x2a1a1a, color2: c.trim, plume: 0xf4f1e8 }, cape: 0x4a1414, gloves: 0x2a1a10, boots: 0x1a1008, belt: 0x1a1210, collar: 0xf4f1e8 },
+    { top: { type: "coat", color: 0x5a1010, trim: JS_GOLD }, head: { type: "tricorne", color: 0x1a1010, color2: JS_GOLD, plume: 0xb02a20, plumeK: 1.4 }, cape: 0x3a0a0a, gloves: 0x2a1a10, boots: 0x140c08, belt: 0x1a1210, collar: 0xf4f1e8, pauldrons: JS_GOLD, padK: 1.2, padTrim: 0x5a1010 }
+  ][t],
+  PUP: (t, c) => [
+    { top: { type: "tunic", color: c.shirt, region: "cloth" }, boots: 0x2a2030, belt: 0x5a3a2a },
+    { top: { type: "vest", color: c.shirt, region: "cloth", under: 0xe8d8a0 }, head: { type: "jester", color: c.shirt, color2: 0xe8d8a0 }, boots: 0x2a2030, belt: 0x5a3a2a },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "jester", color: 0x6a2a7a, color2: 0xd8b040 }, gloves: 0xe8d8a0, glovesRegion: "cloth", boots: 0x2a1a24, collar: 0xe8d8a0 },
+    { top: { type: "coat", color: 0x4a1a5a, trim: JS_GOLD }, head: { type: "jester", color: 0x4a1a5a, color2: 0xd8b040, gem: 0xce93d8 }, cape: 0x2a1030, gloves: 0xe8d8a0, glovesRegion: "cloth", boots: 0x1e1018, collar: 0xe8d8a0, pauldrons: 0x6a2a7a, padK: 1.3, padRegion: "cloth", padTrim: JS_GOLD }
+  ][t],
+  DNC: (t, c) => [
+    { top: { type: "vest", color: c.shirt, region: "cloth", under: 0xe8d0c0 }, boots: 0x3a2030, belt: 0xd8b040 },
+    { top: { type: "vest", color: c.shirt, region: "cloth", under: 0xf4e0d8 }, head: { type: "circlet", color: JS_GOLD, gem: 0xf06292 }, gloves: 0xf4e0d8, glovesRegion: "cloth", boots: 0x3a2030, belt: JS_GOLD },
+    { top: { type: "tunic", color: 0xa02a5a, region: "cloth", sleeves: "none" }, head: { type: "circlet", color: JS_GOLD, gem: 0xf06292, tails: 0xf8bbd0 }, gloves: 0xf4e0d8, glovesRegion: "cloth", boots: 0x2a1424, belt: JS_GOLD, collar: JS_GOLD },
+    { top: { type: "tunic", color: 0xb0204a, region: "cloth", sleeves: "none" }, head: { type: "circlet", color: JS_GOLD, gem: 0xff80ab, tails: 0xf8bbd0, plume: 0xf8bbd0 }, gloves: 0xf4e0d8, glovesRegion: "cloth", gauntlets: true, boots: 0x2a1020, belt: JS_GOLD, collar: JS_GOLD, cape: 0x8a1a3a }
+  ][t],
+  SCH: (t, c) => [
+    { top: { type: "robe", color: c.robe, trim: c.trim } },
+    { top: { type: "coat", color: c.shirt, trim: c.trim }, head: { type: "mortar", color: 0x2a2420, color2: JS_GOLD }, boots: 0x2a2420, belt: 0x3a2a20 },
+    { top: { type: "robe", color: c.deep, trim: c.trim }, head: { type: "mortar", color: 0x2a2018, color2: JS_GOLD }, collar: 0xe8e0d0, gloves: 0xe8e0d0, glovesRegion: "cloth", boots: 0x2a2420 },
+    { top: { type: "robe", color: 0x2e2420, trim: JS_GOLD, glowTrim: true }, head: { type: "mortar", color: 0x1e1814, color2: JS_GOLD, gem: 0xffe082 }, cape: 0x3a2e2a, collar: 0xe8e0d0, gloves: 0xe8e0d0, glovesRegion: "cloth", boots: 0x1e1814, pauldrons: 0x4a3a34, padK: 1.25, padRegion: "cloth", padTrim: JS_GOLD }
+  ][t],
+  GEO: (t, c) => [
+    { top: { type: "robe", color: c.robe, trim: c.trim } },
+    { top: { type: "robe", color: c.deep, trim: c.trim }, head: { type: "hood", color: c.deep, color2: c.trim }, gloves: c.deep, glovesRegion: "cloth" },
+    { top: { type: "robe", color: c.deep, trim: c.trim, glowTrim: true }, head: { type: "hood", color: c.deep, color2: c.trim, gem: 0x69f0ae }, collar: 0x1a3020, gloves: c.deep, glovesRegion: "cloth", boots: 0x2a3028 },
+    { top: { type: "robe", color: 0x1a3a22, trim: JS_GOLD, glowTrim: true }, head: { type: "hood", color: 0x1a3a22, color2: JS_GOLD, gem: 0x69f0ae, horns: 0.5 }, cape: 0x142c1a, collar: 0x142c1a, gloves: 0x1a3a22, glovesRegion: "cloth", boots: 0x1e241e, pauldrons: 0x2a4a30, padK: 1.3, padRegion: "cloth", padTrim: JS_GOLD }
+  ][t],
+  RUN: (t, c) => [
+    { top: { type: "tunic", color: c.shirt, region: "leather" }, boots: 0x2a2424, belt: 0x3a2a1a, gloves: JS_LEATHER },
+    { top: { type: "mail", color: 0x7a5a5a, region: "chain", plate: 0x7a5a5a }, pauldrons: JS_IRON, head: { type: "circlet", color: JS_IRON, gem: 0xef5350 }, gloves: JS_LEATHER, boots: 0x2a2424, belt: 0x3a2a1a },
+    { top: { type: "plate", color: c.shirt, region: "chain", plate: 0x9a9088, trim: c.trim }, pauldrons: 0x9a9088, padK: 1.35, gauntlets: true, gloves: 0x9a9088, greaves: 0x9a9088, head: { type: "circlet", color: 0x9a9088, gem: 0xef5350, wings: true, color2: 0x9a9088 }, cape: 0x4a1a1a, boots: 0x1e1818 },
+    { top: { type: "plate", color: 0x5a1a1a, region: "chain", plate: 0xb0a898, trim: 0xef5350, glowTrim: true }, pauldrons: 0xb0a898, padK: 1.6, padTrim: 0xef5350, gauntlets: true, gloves: 0xb0a898, greaves: 0xb0a898, head: { type: "circlet", color: 0xb0a898, gem: 0xff5252, wings: true, color2: JS_GOLD }, cape: 0x3a1010, collar: 0x8a7a6a, boots: 0x140e0e }
+  ][t]
+};
+const JOB_STYLE_TIERS = [1, 5, 10, 16];
+function jobStyleTier(lv) { let t = 0; for (let k = 0; k < JOB_STYLE_TIERS.length; k++) if ((lv || 1) >= JOB_STYLE_TIERS[k]) t = k; return t; }
+function jobStyleOn() { return classicOn() && !(typeof VIEW !== "undefined" && VIEW.settings && VIEW.settings.attire === "gear"); }
+const JOB_STYLE_SLOTS = ["top", "head", "gloves", "glovesRegion", "legs", "legsRegion", "boots", "pauldrons", "padK", "padSpikes", "padSpikeC", "padRegion", "padTrim", "cape", "belt", "gauntlets", "greaves", "collar", "barefoot", "hat", "shoes"];
+
+function lookFor(job, gear, base, lv) {
+  const L0 = lookForGear(job, gear, base);
+  const fn = JOB_STYLE[job];
+  if (!fn || !jobStyleOn() || base && (base.noJobStyle || base.skull || base.top)) return L0;
+  const tint = JOB_TINT[job] || JOB_TINT.WAR, st = fn(jobStyleTier(lv), tint);
+  const L = Object.assign({}, L0);
+  for (const k of JOB_STYLE_SLOTS) delete L[k];
+  Object.assign(L, JSON.parse(JSON.stringify(st)));
+  if (!L.legs) L.legs = tint.pants;
+  if (!L.boots && !L.barefoot) L.shoes = 0x3a2a1e;
+  if (L0.shield) L.shield = L0.shield;
+  return L;
+}
+
+function lookForGear(job, gear, base) {
   const tint = JOB_TINT[job] || JOB_TINT.WAR;
   const L = Object.assign({ legs: tint.pants, top: { type: "shirt", color: tint.shirt }, belt: 0x4a3020 }, base);
   for (const slot of SLOTS) {
@@ -1456,7 +1631,7 @@ function humanEntry(L) {
   const sleeveR = top.type === "vest" ? "cloth" : top.type === "tabard" ? (top.region === "cloth" ? "cloth" : "chain") : topR;
   const hr = pr.headR, hc = headY + hr * 0.82;
   if (!L.head && L.hat) L.head = { type: "feathered", color: L.hat, color2: 0xd8c070 };
-  const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered", "furhat", "widebrim"].includes(L.head.type);
+  const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered", "furhat", "widebrim", "winged", "kabuto", "tricorne", "beret", "turban", "jester", "mortar", "ninjahood"].includes(L.head.type);
 
   const HP = headProfile(L);
   const faceIx = ((L.face || 0) % FACE_PAINTS) + (L.build === 1 ? FACE_PAINTS : 0), faceReg = L.noFace ? (L.headRegion || SKR) : L.ears === "ursan" ? "face" + (17 + (L.face || 0) % 8) : L.doll ? "face" + (25 + (L.face || 0) % 8) : (faceIx ? "face" + (faceIx + 1) : "face");
@@ -1483,7 +1658,7 @@ function humanEntry(L) {
     else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.8, hc - hr * 0.06, -hr * 0.06), V3(s * (hr + 0.1), hc + hr * 0.45, -hr * 0.42), hr * 0.2, 0.004, 8, 0.4), earBone(s), skin, SKR);
     else if (L.ears === "ursan") R.add(gTaper(V3(s * hr * 0.9, hc - hr * 0.05, -hr * 0.12), V3(s * (hr + 0.04), hc + hr * 0.08, -hr * 0.3), hr * 0.13, 0.006, 6, 0.4), "head", skin, SKR);
     else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), earBone(s), skin, SKR);
-    else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
+    else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned", "winged", "kabuto", "turban", "ninjahood", "jester"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
     else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.88, hc - hr * 0.08, -hr * 0.08), hr * 0.2, 0.4, 1.05, 0.7, 10), "head", skin, SKR);
     if (classicOn() && !L.skull && !L.doll && L.ears !== "none" && L.ears !== "cat" && L.ears !== "fin" && L.ears !== "ursan") {
@@ -1631,6 +1806,12 @@ function humanEntry(L) {
         R.addW(gLoft(cap.slice().reverse(), 16, false, true, 0, 0.4), "upArm" + sd, L.pauldrons, "metal", A.w);
         for (let k = 0; k < 2; k++) { const rr = A.up[3 + k]; R.addW(gRing(V3(rr.x, rr.y - 0.004, 0), rr.rx + 0.022 * gi - k * 0.004, 0.009, "y", 16), "upArm" + sd, k ? L.pauldrons : 0xc8a040, "metal", A.w); }
       } else R.add(gPartSphere(V3(ax * 1.01, shY - 0.012, 0), 0.068 * gi, 0, Math.PI * 0.55, 1.12, 0.75, 1.0, 14), "upArm" + sd, L.pauldrons, "metal");
+      if (L.padK > 1) {
+        const pk = L.padK, pc = V3(s * (sw + 0.02 * pk), shY + 0.012 * pk, 0), pr2 = L.padRegion || "metal";
+        R.add(gPartSphere(pc, 0.07 * gi * pk, 0, Math.PI * 0.5, 1.1, 0.72, 1.05, 12), "upArm" + sd, L.pauldrons, pr2);
+        R.add(gRing(V3(pc.x, pc.y - 0.002, 0), 0.07 * gi * pk * 1.08, 0.008 * pk, "y", 14, 0, [0, 0, s * 0.35]).scale(1, 1, 1.02), "upArm" + sd, L.padTrim || 0xc8a040, pr2 === "metal" ? "metal" : "trim");
+        if (L.padSpikes) for (let k = 0; k < L.padSpikes; k++) { const a = V3(pc.x + s * 0.01, pc.y + 0.03 * pk, (k - (L.padSpikes - 1) / 2) * 0.045); R.add(gTaper(a, a.clone().add(V3(s * 0.05 * pk, 0.08 * pk, 0)), 0.016 * pk, 0.002, 5), "upArm" + sd, L.padSpikeC || L.pauldrons, "metal"); }
+      }
     }
     if (L.gauntlets && !L.skull) {
       const gc = L.gloves != null ? L.gloves : 0x8a9098, A = BODY["arm" + sd];
@@ -1774,25 +1955,34 @@ function humanEntry(L) {
   const H = L.head;
   if (H) {
     const hp = V3(0, hc + 0.005, 0);
-    if (H.type === "cap" || H.type === "helm" || H.type === "horned") {
+    if (H.type === "cap" || H.type === "helm" || H.type === "horned" || H.type === "winged" || H.type === "kabuto") {
       R.add(warpToHead(gPartSphere(V3(0, hc, 0.005), hr * 1.12, 0, Math.PI * 0.4, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 22), HP, hc, hr), "head", H.color, "metal");
       R.add(warpToHead(gRing(V3(0, hc + hr * 0.32 * HEAD_SCALE[1], 0.005), hr * 1.1, hr * 0.06, "y", 24).scale(1, 1, 1), HP, hc, hr).scale(HEAD_SCALE[0] * 1.01, 1, 1).translate(0, 0, 0), "head", H.color, "metal");
-      if (H.type !== "cap") {
+      if (H.type !== "cap" && H.type !== "kabuto") {
         R.add(gBox(V3(0, hc + hr * 0.02, hr * 1.06), 0.016, hr * 0.5, 0.014), "head", H.color, "metal");
         for (const s of [-1, 1]) { R.add(gFront(V3(0, hc, 0.005), hr * 1.09, 0.9, Math.PI * 0.42, Math.PI * 0.68, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 6).rotateY(s * 1.25), "head", H.color, "metal"); }
       }
-      if (H.type === "horned") for (const s of [-1, 1]) {
-        const a = V3(s * hr * 0.9, hc + hr * 0.45, 0), b = V3(s * hr * 1.6, hc + hr * 1.0, -hr * 0.1), c = V3(s * hr * 1.7, hc + hr * 1.75, hr * 0.2);
-        R.add(gTaper(a, b, hr * 0.22, hr * 0.14, 8), "head", H.color2, "bone");
-        R.add(gTaper(b, c, hr * 0.14, 0.004, 8), "head", H.color2, "bone");
+      if (H.type === "horned") headHorns(R, H, hc, hr, H.hornK || 1);
+      if (H.type === "kabuto") {
+        R.add(gCyl(V3(0, hc + hr * 0.02, -hr * 0.05), hr * 1.12, hr * 1.6, hr * 0.5, 16, true, Math.PI * 0.62, Math.PI * 1.76), "head", H.color, "metal");
+        R.add(gCyl(V3(0, hc - hr * 0.22, -hr * 0.05), hr * 1.6, hr * 1.72, hr * 0.06, 16, true, Math.PI * 0.62, Math.PI * 1.76), "head", H.color2 || 0xd8b040, "trim");
+        for (const s of [-1, 1]) R.add(gBox(V3(s * hr * 1.08, hc + hr * 0.22, hr * 0.62), hr * 0.08, hr * 0.42, hr * 0.42, 0, s * 0.5, s * 0.25), "head", H.color2 || 0xd8b040, "metal");
+        for (const s of [-1, 1]) R.add(gTaper(V3(s * hr * 0.12, hc + hr * 0.62, hr * 0.98), V3(s * hr * 0.95, hc + hr * 1.75, hr * 0.85), hr * 0.12, 0.006, 6, 0.35), "head", H.color2 || 0xd8b040, "metal");
+      }
+      if (H.type === "winged") for (const s of [-1, 1]) for (let k = 0; k < 3; k++) {
+        const a = V3(s * hr * 1.0, hc + hr * (0.32 + k * 0.08), -hr * 0.1), b = V3(s * hr * (1.55 + k * 0.12) * (H.wingK || 1), hc + hr * (0.9 + k * 0.42) * (H.wingK || 1), -hr * (0.55 + k * 0.3));
+        R.add(gTaper(a, b, hr * (0.2 - k * 0.04), 0.006, 5, 0.3), "head", k === 1 ? (H.color2 || 0xd8b040) : H.color, "metal");
       }
     } else if (H.type === "hood") {
       R.add(gPartSphere(hp, hr * 1.2, 2.2, Math.PI * 0.75, 1, 1.05, 1.05, 18), "head", H.color, "cloth");
+      if (H.color2) R.add(gRing(V3(0, hc + hr * 0.05, hr * 0.66), hr * 1.0, 0.018, "z", 16, Math.PI * 1.24, [0, 0, -Math.PI * 0.12]), "head", H.color2, "trim");
       R.add(gBall(V3(0, neckY + 0.02, -0.08), 0.13, 1.2, 1.0, 0.6, 12), "head", H.color, "cloth");
     } else if (H.type === "pointy") {
-      R.add(gCyl(V3(0, hc + hr * 0.5, 0), hr * 2.3, hr * 2.3, 0.02, 22), "head", H.color, "cloth");
-      R.add(gCyl(V3(0, hc + hr * 0.5 + 0.17, 0), hr * 0.5, hr * 1.08, 0.34, 16), "head", H.color, "cloth");
-      R.add(gTaper(V3(0, hc + hr * 0.5 + 0.33, 0), V3(0, hc + hr * 0.5 + 0.5, -0.14), hr * 0.52, 0.01, 10), "head", H.color, "cloth");
+      const bk = H.brimK || 1, tk = H.tallK || 1;
+      R.add(gCyl(V3(0, hc + hr * 0.5, 0), hr * 2.3 * bk, hr * 2.3 * bk, 0.02, 22), "head", H.color, "cloth");
+      R.add(gCyl(V3(0, hc + hr * 0.5 + 0.17 * tk, 0), hr * 0.5, hr * 1.08, 0.34 * tk, 16), "head", H.color, "cloth");
+      R.add(gTaper(V3(0, hc + hr * 0.5 + 0.33 * tk, 0), V3(0, hc + hr * 0.5 + 0.5 * tk, -0.14 * tk), hr * 0.52, 0.01, 10), "head", H.color, "cloth");
+      if (H.color2) R.add(gCyl(V3(0, hc + hr * 0.5 + 0.03, 0), hr * 1.07, hr * 1.09, 0.035, 16, true), "head", H.color2, "trim");
     } else if (H.type === "bandana") {
       R.add(gPartSphere(hp, hr * 1.08, 0, Math.PI * 0.38, 1, 1.04, 1.04, 16), "head", H.color, "cloth");
       R.add(gBall(V3(0, hc + hr * 0.25, -hr * 1.05), hr * 0.22, 1.3, 1, 1, 8), "head", H.color, "cloth");
@@ -1801,7 +1991,7 @@ function humanEntry(L) {
       R.add(gCyl(V3(0, hc + hr * 0.45, 0), hr * 1.75, hr * 1.75, 0.02, 20), "head", H.color, "cloth");
       R.add(gPartSphere(V3(0, hc + hr * 0.42, 0), hr * 1.02, 0, Math.PI * 0.5, 1, 1.0, 1.0, 16), "head", H.color, "cloth");
       R.add(gRing(V3(0, hc + hr * 0.5, 0), hr * 1.02, 0.012, "y", 18), "head", H.color2 || 0xd8c070, "trim");
-      R.add(gTaper(V3(hr * 0.5, hc + hr * 0.75, -hr * 0.6), V3(hr * 1.3, hc + hr * 2.0, -hr * 1.5), 0.028, 0.004, 6, 0.3), "head", 0xf4f1e8, "feather");
+      { const pk = H.plumeK || 1; R.add(gTaper(V3(hr * 0.5, hc + hr * 0.75, -hr * 0.6), V3(hr * (0.5 + 0.8 * pk), hc + hr * (0.75 + 1.25 * pk), -hr * (0.6 + 0.9 * pk)), 0.028 * pk, 0.004, 6, 0.3), "head", H.plume || 0xf4f1e8, "feather"); }
     } else if (H.type === "crown") {
       const cc = H.color || 0xd8b040, cr = hr * (L.hair && L.hair.style !== "bald" ? 1.04 : 0.95);
       R.add(gRing(V3(0, hc + hr * 0.55, 0), cr, 0.02, "y", 18), "head", cc, "metal");
@@ -1811,6 +2001,40 @@ function humanEntry(L) {
       R.add(gPartSphere(hp, hr * 1.14, 0, Math.PI * 0.42, 1, 1.12, 1.05, 16), "head", H.color, "fur");
       R.add(gRing(V3(0, hc + hr * 0.4, 0), hr * 1.1, hr * 0.2, "y", 18), "head", new THREE.Color(H.color).multiplyScalar(1.25).getHex(), "fur");
       for (const s of [-1, 1]) R.add(gBall(V3(s * hr * 1.0, hc - hr * 0.2, -hr * 0.05), hr * 0.3, 0.5, 1.2, 0.9, 8), "head", H.color, "fur");
+    } else if (H.type === "tricorne") {
+      R.add(gPartSphere(V3(0, hc + hr * 0.38, 0), hr * 1.05, 0, Math.PI * 0.5, 1, 0.85, 1.0, 14), "head", H.color, "leather");
+      R.add(gCyl(V3(0, hc + hr * 0.42, 0), hr * 1.7, hr * 1.75, 0.016, 18), "head", H.color, "leather");
+      for (let k = 0; k < 3; k++) { const a = k / 3 * Math.PI * 2; R.add(gBox(V3(Math.sin(a) * hr * 1.42, hc + hr * 0.7, Math.cos(a) * hr * 1.42), hr * 1.9, hr * 0.62, 0.014, Math.cos(a) * -0.5, a, Math.sin(a) * 0.5), "head", H.color, "leather"); }
+      R.add(gRing(V3(0, hc + hr * 0.48, 0), hr * 1.04, 0.012, "y", 18), "head", H.color2 || 0xd8b040, "trim");
+    } else if (H.type === "beret") {
+      R.add(gBall(V3(-hr * 0.15, hc + hr * 0.62, -hr * 0.05), hr * 1.18, 1.08, 0.42, 1.05, 14), "head", H.color, "cloth");
+      R.add(gRing(V3(0, hc + hr * 0.45, 0), hr * 1.02, 0.016, "y", 18), "head", H.color2 || 0xd8b040, "trim");
+    } else if (H.type === "turban") {
+      R.add(gPartSphere(V3(0, hc + hr * 0.1, 0), hr * 1.18, 0, Math.PI * 0.5, 1, 1.18, 1.05, 16), "head", H.color, "cloth");
+      for (let k = 0; k < 2; k++) R.add(gRing(V3(0, hc + hr * (0.25 + k * 0.32), 0), hr * (1.18 - k * 0.12), hr * 0.17, "y", 18, 0, [0.12 - k * 0.24, 0, 0]), "head", k ? H.color : (H.color2 || 0xd8c070), "cloth");
+    } else if (H.type === "headband") {
+      R.add(gRing(V3(0, hc + hr * 0.36, 0), hr * 1.06, hr * 0.07, "y", 18), "head", H.color, "cloth");
+      H.tails = H.tails || H.color;
+    } else if (H.type === "circlet") {
+      R.add(gRing(V3(0, hc + hr * 0.42, 0.01), hr * 1.04, 0.009, "y", 18, 0, [-0.12, 0, 0]), "head", H.color, "metal");
+    } else if (H.type === "jester") {
+      R.add(gPartSphere(hp, hr * 1.1, 0, Math.PI * 0.42, 1, 1.06, 1.04, 16), "head", H.color, "cloth");
+      for (const s of [-1, 1]) {
+        const a = V3(s * hr * 0.5, hc + hr * 0.8, 0), b = V3(s * hr * 1.5, hc + hr * 1.5, -hr * 0.1), c = V3(s * hr * 2.0, hc + hr * 0.9, -hr * 0.15), col = s > 0 ? H.color : (H.color2 || 0xd8c070);
+        R.add(gTaper(a, b, hr * 0.42, hr * 0.2, 8), "head", col, "cloth");
+        R.add(gTaper(b, c, hr * 0.2, hr * 0.08, 8), "head", col, "cloth");
+        R.add(gBall(c, hr * 0.16, 1, 1, 1, 8), "head", 0xd8b040, "metal");
+      }
+    } else if (H.type === "mortar") {
+      R.add(gPartSphere(hp, hr * 1.09, 0, Math.PI * 0.4, 1, 1.04, 1.04, 16), "head", H.color, "cloth");
+      R.add(gBox(V3(0, hc + hr * 0.98, 0), hr * 2.1, 0.022, hr * 2.1, 0, Math.PI / 4, 0), "head", H.color, "cloth");
+      R.add(gTaper(V3(0, hc + hr * 1.0, 0), V3(hr * 1.2, hc + hr * 0.4, hr * 0.3), 0.008, 0.008, 4), "head", H.color2 || 0xd8b040, "trim");
+      R.add(gBall(V3(hr * 1.2, hc + hr * 0.35, hr * 0.3), 0.02, 1, 1.6, 1, 6), "head", H.color2 || 0xd8b040, "trim");
+    } else if (H.type === "ninjahood") {
+      R.add(gPartSphere(hp, hr * 1.12, 2.0, Math.PI * 0.72, 1, 1.04, 1.06, 18), "head", H.color, "cloth");
+      R.add(gBall(V3(0, neckY + 0.03, -0.04), 0.1, 1.2, 0.9, 0.9, 10), "head", H.color, "cloth");
+      R.add(gBox(V3(0, hc + hr * 0.5, hr * 0.98), hr * 0.7, hr * 0.26, 0.014, -0.35, 0, 0), "head", H.color2 || 0x9aa0a8, "metal");
+      H.tails = H.tails || H.color;
     } else if (H.type === "widebrim") {
       R.add(gCyl(V3(0, hc + hr * 0.42, 0), hr * 2.0, hr * 2.05, 0.018, 22), "head", H.color, "leather");
       R.add(gPartSphere(V3(0, hc + hr * 0.4, 0), hr * 1.04, 0, Math.PI * 0.5, 1, 0.9, 1.0, 16), "head", H.color, "leather");
@@ -1818,6 +2042,8 @@ function humanEntry(L) {
       for (let k = 0; k < 2; k++) R.add(gTaper(V3(hr * (0.6 + k * 0.15), hc + hr * 0.65, -hr * 0.55), V3(hr * (1.3 + k * 0.3), hc + hr * (1.7 - k * 0.3), -hr * 1.4), 0.03, 0.004, 6, 0.3), "head", H.color2 || 0xf4f1e8, "feather");
     }
   }
+
+  if (H) headDecor(R, H, hc, hr);
 
   if (L.tail) {
     const cat = L.tail === "cat", tz = -(0.12 * gi * (sw / 0.195) + 0.02), tc = cat ? L.hair.color : L.tail === "ursan" ? skin : (L.hair && L.hair.color) || skin;
@@ -1833,7 +2059,7 @@ function humanEntry(L) {
     }
   }
   if (L.family || L.boss) familyExtras(R, L, { hx: pr.hip, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid: (elY + wrY) / 2 });
-  R.meta = { kind: "human", headC: hc, headR: hr, race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 : L.head && L.head.type === "horned" ? 2.1 : 1.2), hand: "handR", wrY, hunch: L.hunch || 0 };
+  R.meta = { kind: "human", headC: hc, headR: hr, race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 * (L.head.tallK || 1) : L.head && (L.head.type === "horned" || L.head.type === "winged" || L.head.type === "jester" || L.head.type === "kabuto") ? 2.1 : 1.2), hand: "handR", wrY, hunch: L.hunch || 0 };
   return R.finish();
 }
 
@@ -2807,7 +3033,7 @@ function buildEntityRig(e) {
     make = () => batEntry(P.col, P.eye);
   } else {
     const base = e === player ? playerBase() : e.remote ? baseFromLook(e.look || {}) : (MERC_BASE[e.mercId] || (MERCS[e.mercId] && MERCS[e.mercId].look ? baseFromLook(MERCS[e.mercId].look) : MERC_BASE.kael));
-    const L = lookFor(e.job, e.gear, base);
+    const L = lookFor(e.job, e.gear, base, e.lv);
     sig = "h|" + stableKey(L);
     make = () => humanEntry(L);
     weaponKind = L.weapon; weaponId = L.weaponId;
@@ -2864,10 +3090,11 @@ function rigSigFor(e) {
   if (e.pet) return "pet|" + e.petKey;
   if (e.buddy) return "buddy|" + e.petId;
   if (e.ambient) return "amb|" + e.type + "|" + (e.seed || 0);
-  if (e.remote) return "r|" + e.job + "|" + SLOTS.map(s => (e.gear || {})[s] || "").join(",") + "|" + JSON.stringify(e.look || {});
+  const jt = jobStyleOn() ? "|t" + jobStyleTier(e.lv) : "";
+  if (e.remote) return "r|" + e.job + jt + "|" + SLOTS.map(s => (e.gear || {})[s] || "").join(",") + "|" + JSON.stringify(e.look || {});
   if (isMob(e)) return "m|" + (e.fam.key || e.famKey);
   if (e.kind === "npc") return "n|" + e.id;
-  return "p|" + e.job + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);
+  return "p|" + e.job + jt + "|" + SLOTS.map(s => e.gear[s] || "").join(",") + "|" + (e === player ? JSON.stringify(save.look || {}) : e.mercId);
 }
 
 function buildMount(coatId) {

@@ -250,7 +250,7 @@ function renderPreview(now) {
   if (!w || !h) return;
   if (pv.sized !== w * 10000 + h) { pv.sized = w * 10000 + h; pv.r.setSize(w, h, false); pv.cam.aspect = w / h; pv.cam.updateProjectionMatrix(); }
   const o = pv.override;
-  const L = o ? lookFor(o.job, o.gear, lookBase(o.look)) : lookFor(player.job, save.gear, playerBase());
+  const L = o ? lookFor(o.job, o.gear, lookBase(o.look), o.lv) : lookFor(player.job, save.gear, playerBase(), player.lv);
   const sig = stableKey(L) + (o ? "|cc" : "");
   if (sig !== pv.sig) {
     if (pv.holder) { pv.scene.remove(pv.holder); pv.view && pv.view.mat && pv.view.mat.dispose(); }
@@ -1474,6 +1474,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.7.0", date: "2026-10-15", title: "Job style", items: [
+    "New in the Classic look: Job style. Every adventurer now wears their job's signature outfit, and it gets grander at levels 5, 10 and 16, so you can tell a job at a glance.",
+    "All 22 jobs have four looks each, for example horned helms for Warriors, tall pointed hats for Black Mages, hoods with red trim for White Mages, feathered hats for Red Mages, winged helms for Dragoons, kabuto for Samurai, hoods for Ninjas, tricornes for Corsairs, jester hats for Puppetmasters, circlets for Dancers and mortarboards for Scholars.",
+    "Higher tiers add oversized shoulder guards (some with spikes), capes, collars, gauntlets and greaves.",
+    "Weapons and shields always show. To see the armour you have equipped instead, choose Show gear in Config → Graphics.",
+    "Mercenaries with their own outfits keep them."
+  ] },
   { v: "16.6.0", date: "2026-10-15", title: "Face finish", items: [
     "In the Classic look faces are shaded in a few flat tones (shadow under the jaw, a nose shadow, a lit forehead, hard-edged blush) instead of soft gradients.",
     "Eyes have a bolder ink upper lid, a stronger lid crease and banded iris colours so they stay readable from a distance.",
@@ -2827,7 +2834,7 @@ function tabHelp() {
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
-    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
+    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. In Classic, Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); the Show gear button draws equipped armour instead, and weapons and shields always show. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
