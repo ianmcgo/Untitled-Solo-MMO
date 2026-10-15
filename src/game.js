@@ -94,7 +94,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
-    hired: [], home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
@@ -112,6 +112,8 @@ function normalizeSave(d) {
   if ((d.zv || 0) < 2 && out.loc && out.loc.zone === "outpost") out.loc = { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y };
   if ((d.zv || 0) < 3 && out.loc && (out.loc.zone === "harbor" || out.loc.zone === "ironvale")) out.loc = { zone: out.loc.zone, x: ZONES[out.loc.zone].start.x, y: ZONES[out.loc.zone].start.y };
   out.zv = 3;
+  out.zsplit = d.zsplit;
+  migrateSplits(out);
   if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
@@ -1573,7 +1575,7 @@ function startFishing() {
   if (!player.alive) return "You are KO'd.";
   if (S.fish) return "You're already fishing.";
   if (invCount("fishing_rod") < 1 && invCount("sea_rod") < 1) return "You need a fishing rod. Pell and Marn sell them.";
-  if (!FISH[S.zoneId]) return "Nothing bites here.";
+  if (!zkey(FISH, S.zoneId)) return "Nothing bites here.";
   const w = nearWater(player);
   if (!w) return "Stand at the water's edge to fish.";
   if (player.engaged || inCombatWith(player)) return "You can't fish during a fight.";
@@ -1597,7 +1599,7 @@ function stopFishing(msg) {
 
 function pickFish() {
   const w = weatherNow();
-  const tbl = FISH[S.zoneId].filter(f => !f[3] || f[3] === w);
+  const tbl = zkey(FISH, S.zoneId).filter(f => !f[3] || f[3] === w);
   const tot = tbl.reduce((a, f) => a + f[2], 0);
   let r = Math.random() * tot;
   for (const f of tbl) { r -= f[2]; if (r <= 0) return f; }
@@ -2711,6 +2713,7 @@ function districtAt(z, x, y) {
   for (const d of (z && z.districts) || []) if (x >= d.x && x < d.x + d.w && y >= d.y && y < d.y + d.h) return d;
   return null;
 }
+function zoneSubtitle(zid) { const r = regionOf(zid), b = zoneBand(zid), a = areaOf(zid); return [a !== zid ? areaName(a) : "", r ? CONQUEST.regions[r].name : "", bandText(b)].filter(Boolean).join(" · "); }
 function districtName(zid, x, y) { const d = districtAt(ZONES[zid], x, y); return d ? d.name : ""; }
 function markDistrict(d) {
   if (!d) return false;
@@ -3392,7 +3395,7 @@ function enterZone(id, x, y) {
   S.zoneCooldown = 1;
   { const dd = districtAt(S.zone, x, y); S.district = dd ? dd.id : null; markDistrict(dd); }
   S.lastPeriod = period();
-  log("Entering " + S.zone.name + ".", "sys");
+  log("Entering " + S.zone.name + (zoneBand(id) ? " (" + bandText(zoneBand(id)) + ")" : "") + ".", "sys");
   { const rg = regionOf(id); if (rg) { const c = conquestState(); log(CONQUEST.regions[rg].name + " is held by " + CONQUEST.nations[c.held[rg]].name + "." + (c.nation && c.held[rg] === c.nation ? " Your nation's banner flies here: +5% experience." : ""), "sys"); } }
   if (prev !== id) sfx("zone");
   onZoneEntered();
@@ -4081,7 +4084,7 @@ function storyKill(e) {
 
 function tickStory() {
   const st = storyStep();
-  if (!st || st.type !== "visit" || st.zone !== S.zoneId || !storyReady() || S.dialog || !player.alive) return;
+  if (!st || st.type !== "visit" || !inArea(st.zone, S.zoneId) || !storyReady() || S.dialog || !player.alive) return;
   const lm = (S.zone.landmarks || []).find(l => l.id === st.lm);
   if (!lm || Math.hypot(player.x - lm.x, player.y - lm.y) > lm.r) return;
   storyScene(lm.name, st.text, 0, () => advanceStory());
@@ -4614,7 +4617,7 @@ const TALK = {
     save.poi = save.poi || {};
     const first = !save.poi[n.id];
     if (first) { save.poi[n.id] = Date.now(); gainXp(50, 0, true); log("You read the " + n.name.toLowerCase() + ". (+50 EXP)", "loot"); saveGame(); }
-    openDialog(n.name, POI_LORE[S.zoneId] || "The words are too worn to read.", []);
+    openDialog(n.name, zkey(POI_LORE, S.zoneId) || "The words are too worn to read.", []);
   },
   talkChest(n) {
     const st = chestState(n);
@@ -4760,8 +4763,8 @@ function expAdvance(msg) {
 function expTick() {
   const st = expStep();
   if (!st) return;
-  if (st.type === "zone" && S.zoneId === st.zone) expAdvance("You reach " + ZONES[st.zone].name + ".");
-  else if (st.type === "visit" && S.zoneId === st.zone) { const lm = (S.zone.landmarks || []).find(l => l.id === st.lm); if (lm && Math.hypot(player.x - lm.x, player.y - lm.y) < lm.r) expAdvance("You stand at " + lm.name + "."); }
+  if (st.type === "zone" && inArea(st.zone, S.zoneId)) expAdvance("You reach " + ZONES[st.zone].name + ".");
+  else if (st.type === "visit" && inArea(st.zone, S.zoneId)) { const lm = (S.zone.landmarks || []).find(l => l.id === st.lm); if (lm && Math.hypot(player.x - lm.x, player.y - lm.y) < lm.r) expAdvance("You stand at " + lm.name + "."); }
 }
 function expKill(m) {
   const st = expStep();
@@ -4948,7 +4951,7 @@ function shopList(kind) {
 }
 
 function conquestDay() { return Math.floor((Date.now() + (S.timeShift || 0)) / 86400000); }
-function regionOf(zoneId) { for (const r in CONQUEST.regions) if (CONQUEST.regions[r].zones.includes(zoneId)) return r; return null; }
+function regionOf(zoneId) { const a = areaOf(zoneId); for (const r in CONQUEST.regions) if (CONQUEST.regions[r].zones.includes(zoneId) || CONQUEST.regions[r].zones.includes(a)) return r; return null; }
 function conquestState() {
   const c = save.conquest || (save.conquest = { day: conquestDay(), pts: {}, held: {}, nation: null });
   for (const r in CONQUEST.regions) if (!c.held[r]) c.held[r] = CONQUEST.regions[r].start;

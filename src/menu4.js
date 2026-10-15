@@ -519,7 +519,7 @@ function tabMap() {
   let h = '<div class="mapBox"><canvas id="mapCanvas"></canvas></div><div class="legend"><span><i style="background:#fff"></i>You</span><span><i style="background:#62b6ff"></i>Party</span><span><i style="background:#ead9ae"></i>People</span><span><i style="background:#ffd54f"></i>Quest</span><span><i style="background:#7ff3ff"></i>Home point</span><span><i style="background:#f1cf73;border-radius:2px"></i>Exit</span><span><i style="background:#111;border:1px solid #555"></i>Unexplored</span></div>';
   const f = exploredFor(S.zoneId);
   const pct = Math.round(100 * f.s.split("").filter(c => c === "1").length / f.s.length);
-  h += '<div class="sub" style="margin-top:4px">' + esc(S.zone.name) + " · " + pct + "% explored</div>";
+  h += '<div class="sub" style="margin-top:4px">' + esc([S.zone.name, zoneSubtitle(S.zoneId)].filter(Boolean).join(" · ")) + " · " + pct + "% explored</div>";
   const lms = S.zone.landmarks || [];
   if (lms.length) {
     const found = lms.filter(l => save.landmarks[S.zoneId + ":" + l.id]);
@@ -568,15 +568,16 @@ function drawZoneMap() {
   g.beginPath(); g.moveTo(12, 0); g.lineTo(-8, -8); g.lineTo(-3, 0); g.lineTo(-8, 8); g.closePath(); g.fillStyle = "#fff"; g.fill(); g.lineWidth = 2; g.strokeStyle = "#000"; g.stroke();
   g.restore();
 }
-const ATLAS_POS = { highlands: [300, 40], residence: [60, 140], outpost: [150, 140], hollow: [300, 140], den: [460, 140], crypt: [600, 190], depths: [150, 260], marsh: [300, 260], verdant: [460, 260], underdeep: [600, 300], harbor: [300, 370], gullisle: [140, 450], frost: [460, 370], ironvale: [610, 380], sunscar: [600, 470], cinder: [730, 420], spire1: [740, 520] };
-function atlasNode(id) { return /^spire/.test(id) ? "spire1" : id; }
+const ATLAS_POS = { highlands: [300, 40], residence: [60, 140], outpost: [150, 140], hollow: [300, 140], den: [460, 140], crypt: [600, 190], depths: [150, 260], marsh: [300, 260], verdant: [460, 260], underdeep: [600, 300], harbor: [300, 370], gullisle: [140, 450], frost: [460, 370], ironvale: [610, 380], sunscar: [600, 470], cinder: [730, 420], spire: [740, 520] };
+function atlasNode(id) { return areaOf(id); }
 function atlasLinks() {
   const out = new Set();
   for (const id in ZONES) for (const e of ZONES[id].exits || []) { const a = atlasNode(id), b = atlasNode(e.to); if (a !== b && ATLAS_POS[a] && ATLAS_POS[b]) out.add([a, b].sort().join("|") + (e.kind === "door" ? "|door" : "")); }
   out.add("gullisle|harbor|ferry");
   return [...out].map(k => k.split("|"));
 }
-function atlasExplored(id) { const s = save.explored && save.explored[id]; if (typeof s !== "string" || !s.length) return 0; let n = 0; for (let i = 0; i < s.length; i++) if (s.charCodeAt(i) === 49) n++; return n / s.length; }
+function atlasExplored(a) { const zs = areaZones(a); return zs.length ? zs.reduce((n, z) => n + zoneExplored(z), 0) / zs.length : 0; }
+function zoneExplored(id) { const s = save.explored && save.explored[id]; if (typeof s !== "string" || !s.length) return 0; let n = 0; for (let i = 0; i < s.length; i++) if (s.charCodeAt(i) === 49) n++; return n / s.length; }
 function worldMapSVG() {
   const known = new Set((save.discovered || []).map(atlasNode).concat(["outpost", "residence", atlasNode(S.zoneId)]));
   const near = new Set();
@@ -596,12 +597,12 @@ function worldMapSVG() {
     const isKnown = known.has(id), isNear = near.has(id);
     if (isKnown) seen++;
     if (!isKnown && !isNear) continue;
-    const [x, y] = ATLAS_POS[id], here = atlasNode(S.zoneId) === id, z = ZONES[id];
-    const name = id === "spire1" ? "Red Spire" : z.name, pct = Math.round(atlasExplored(id) * 100);
+    const [x, y] = ATLAS_POS[id], here = atlasNode(S.zoneId) === id, z = ZONES[id] || ZONES[areaZones(id)[0]];
+    const name = areaName(id), pct = Math.round(atlasExplored(id) * 100), band = bandText(areaBand(id));
     const fill = here ? "#f1cf73" : isKnown ? (z.safe || id === "residence" ? "#c8b070" : holderCol(id)) : "#333";
     s += '<g><circle cx="' + x + '" cy="' + y + '" r="' + (here ? 13 : 10) + '" fill="' + fill + '" stroke="#000" stroke-width="2"/>' + (here ? '<circle cx="' + x + '" cy="' + y + '" r="19" fill="none" stroke="#f1cf73" stroke-width="2"/>' : "");
     s += '<text x="' + x + '" y="' + (y + 28) + '" text-anchor="middle" font-size="12" font-family="Georgia,serif" fill="' + (isKnown ? "#ecebe6" : "#777") + '">' + (isKnown ? esc(name) : "???") + "</text>";
-    if (isKnown && !z.safe && id !== "residence" && pct > 0) s += '<text x="' + x + '" y="' + (y + 41) + '" text-anchor="middle" font-size="10" fill="#b8b090">' + pct + "% mapped</text>";
+    if (isKnown && !z.safe && id !== "residence" && (pct > 0 || band)) s += '<text x="' + x + '" y="' + (y + 41) + '" text-anchor="middle" font-size="10" fill="#b8b090">' + [band, pct > 0 ? pct + "% mapped" : ""].filter(Boolean).join(" · ") + "</text>";
     s += "</g>";
   }
   s += '<text x="12" y="570" font-size="12" fill="#cfc8a8" font-family="Georgia,serif">Areas discovered: ' + seen + " / " + total + (c ? " · " + Object.keys(CONQUEST.nations).map(k => '<tspan fill="' + CONQUEST.nations[k].color + '">● ' + CONQUEST.nations[k].short + "</tspan>").join(" ") : "") + "</text>";
@@ -1478,6 +1479,12 @@ const UPDATES = [
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "16.0.0", date: "2026-10-15", title: "Region framework", items: [
+    "Every outdoor zone now has a level range. It shows on the banner when you arrive (with its region), in the chat log, in the Map window and under each area on the atlas.",
+    "Behind the scenes, wild areas can now be split into several connected zones joined at their edges, like the classics. The next updates use this to split Rocky Hollow, the Windreach Highlands and the other wilds.",
+    "Saves are ready for it: when an area is split, your position, found landmarks, explored map, home point and crystal attunements move to the right new zone automatically.",
+    "Quests, the story, expeditions, achievements, conquest, fishing and the atlas now treat all zones of one area as that area. The Red Spire's five floors show as one place on the atlas."
   ] },
   { v: "15.7.1", date: "2026-10-15", title: "Creator preview fix", items: [
     "The character preview in creation now stays centred on the face for every race and size on the Face and Hair colour steps.",
@@ -2547,7 +2554,13 @@ function tabHelp() {
   h += sec("🧭 Atlas", ul([
     "The Map window shows the area you're in (with fog over parts you haven't walked) and, below it, the atlas of the whole world.",
     "The atlas fills in as you travel. Areas you've visited are named and coloured by the nation or Beastmen holding their region; areas next to them show as ???. Each wild area shows how much of it you've mapped. Roads are solid lines, doors and the ferry dashed.",
+    "Each wild area on the atlas shows its monster level range (for example Lv 1–7) and how much of it you've mapped. The Red Spire's floors count as one area.",
     "Visit every area on the atlas for the Cartographer achievement."
+  ]));
+  h += sec("📍 Areas, zones and levels", ul([
+    "Every outdoor zone has a level range, worked out from the monsters that live there. You see it on the banner when you enter (with the region's name), in the chat log, in the Map window and on the atlas.",
+    "Big wild areas are being split into several connected zones, each with its own name and level range, like the classics. You walk from one to the next across the edge of the map; the atlas still shows the whole area as one place.",
+    "When an area is split, your character is moved to the matching spot in the new zone, landmarks you found and the parts of the map you explored are kept, and quests, expeditions, achievements and conquest treat all its zones as the same area."
   ]));
   h += sec("🚩 Regions and nations", ul([
     "The wilds are split into five regions: the Vale (Rocky Hollow, Goblin Den, Sunken Crypt, Windreach Highlands), the Mire (Ashen Marsh, Chapel Depths, Verdant Jungle, Underdeep), the Coast (Gull Isle), the Peaks (Frostspire Pass) and the Sands (Sunscar Desert, Cinder Peak, Red Spire). Each is held by the Ashenreach League, the Ironvale Compact or the Beastmen.",

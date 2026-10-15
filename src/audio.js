@@ -188,8 +188,8 @@ function surfaceAt(e) {
   if (th === "house") return "wood";
   if (th === "cave" || th === "crypt" || th === "town") return "stone";
   const wx = typeof weatherNow === "function" ? weatherNow() : null;
-  if (th === "snow" || z.palette === "snow" || S.zoneId === "frost" || wx === "snow" || wx === "blizzard") return "snow";
-  if (z.palette === "desert" || S.zoneId === "desert" || S.zoneId === "cinder") return "sand";
+  if (th === "snow" || z.palette === "snow" || areaOf(S.zoneId) === "frost" || wx === "snow" || wx === "blizzard") return "snow";
+  if (z.palette === "desert" || areaOf(S.zoneId) === "cinder") return "sand";
   return "grass";
 }
 let UI_NOISE = null;
@@ -409,7 +409,7 @@ function ambxTick() {
   const set = (k, v) => AMBX.layers[k].g.gain.setTargetAtTime(v, now, 1.2);
   set("rain", wx === "storm" ? 0.32 : wx === "rain" ? 0.22 : 0);
   const windy = wx === "wind" || wx === "storm" || wx === "blizzard";
-  set("wind", out ? (windy ? 0.3 : S.zoneId === "frost" ? 0.12 : 0.04) * (0.7 + 0.3 * Math.sin(now * 0.4)) : 0);
+  set("wind", out ? (windy ? 0.3 : areaOf(S.zoneId) === "frost" ? 0.12 : 0.04) * (0.7 + 0.3 * Math.sin(now * 0.4)) : 0);
   AMBX.layers.wind.f.frequency.setTargetAtTime(windy ? 650 : 380, now, 2);
   const dm = S.district || "";
   const surfMul = dm === "docks" ? 1.4 : dm === "fish" ? 1 : dm === "square" ? 0.6 : 0.35;

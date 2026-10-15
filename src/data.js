@@ -2009,7 +2009,7 @@ const ACHIEVEMENTS = [
   { id: "lv5", icon: "⭐", name: "Finding Your Feet", desc: "Reach level 5 on any job.", test: s => Object.values(s.jobs).some(j => j.lv >= 5) },
   { id: "lv10", icon: "🌟", name: "Seasoned", desc: "Reach level 10 on any job.", test: s => Object.values(s.jobs).some(j => j.lv >= 10) },
   { id: "lv15", icon: "💫", name: "Veteran", desc: "Reach level 15 on any job.", test: s => Object.values(s.jobs).some(j => j.lv >= 15) },
-  { id: "marsh", icon: "🐸", name: "Into the Mire", desc: "Set foot in the Ashen Marsh.", test: s => (s.discovered || []).includes("marsh") },
+  { id: "marsh", icon: "🐸", name: "Into the Mire", desc: "Set foot in the Ashen Marsh.", test: s => areaVisited(s, "marsh") },
   { id: "two_jobs", icon: "🎓", name: "Jack of Trades", desc: "Reach level 5 on two jobs.", test: s => Object.values(s.jobs).filter(j => j.lv >= 5).length >= 2 },
   { id: "adv_job", icon: "🛡️", name: "Advanced Studies", desc: "Unlock an advanced job.", test: s => Object.values(s.jobsUnlocked || {}).some(Boolean) },
   { id: "quests5", icon: "📜", name: "Helping Hand", desc: "Complete 5 quests.", test: s => Object.values(s.quests).filter(q => q === "done").length >= 5 },
@@ -2033,7 +2033,7 @@ const ACHIEVEMENTS = [
   { id: "bigcatch", icon: "🐠", name: "The Big One", desc: "Land a Lakeking Pike or a Ghost Koi.", test: s => (s.stats.bigFish || 0) >= 1 },
   { id: "fed", icon: "🍲", name: "Well Fed", desc: "Eat a meal.", test: s => (s.stats.meals || 0) >= 1 },
   { id: "chef", icon: "🧑‍🍳", name: "Head Chef", desc: "Reach Cooking skill 10.", test: s => (s.crafts.cooking || 0) >= 10 },
-  { id: "harbor", icon: "⚓", name: "Sea Air", desc: "Reach Saltreach Harbor.", test: s => (s.discovered || []).includes("harbor") },
+  { id: "harbor", icon: "⚓", name: "Sea Air", desc: "Reach Saltreach Harbor.", test: s => areaVisited(s, "harbor") },
   { id: "tuna", icon: "🐟", name: "Tidecaller", desc: "Land a Tidecaller Tuna.", test: s => (s.stats.tuna || 0) >= 1 },
   { id: "racer", icon: "🏁", name: "Thornstrider Racer", desc: "Win gold on the Hollow Run.", test: s => s.race && s.race.medals && s.race.medals.gold },
   { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", test: s => (s.stats.ride || 0) >= 20000 },
@@ -2047,7 +2047,7 @@ const ACHIEVEMENTS = [
   { id: "mythril", icon: "💎", name: "Mythril Legend", desc: "Reach Mythril rank in the Adventurers' Guild.", test: s => (s.guild && s.guild.total || 0) >= 3000 },
   { id: "priest", icon: "🔱", name: "Tidebreaker", desc: "Defeat the Tidebound Priest in the Chapel Depths.", test: s => (s.stats.bfWins || 0) >= 1 },
   { id: "lv20", icon: "🏔️", name: "Summit", desc: "Reach level 20 on any job.", test: s => Object.values(s.jobs).some(j => j.lv >= 20) },
-  { id: "frost", icon: "❄️", name: "Cold Feet", desc: "Set foot in Frostspire Pass.", test: s => (s.discovered || []).includes("frost") },
+  { id: "frost", icon: "❄️", name: "Cold Feet", desc: "Set foot in Frostspire Pass.", test: s => areaVisited(s, "frost") },
   { id: "rich", icon: "💠", name: "Well Off", desc: "Hold 5,000 crystals.", test: s => s.gil >= 5000 },
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", test: s => s.stats.jumps >= 100 }
@@ -2340,23 +2340,23 @@ Object.assign(NPCS, {
 ACHIEVEMENTS.push({ id: "spire", icon: "🗼", name: "Top of the Spire", desc: "Defeat the Spire Warden at the summit of the Red Spire.", test: s => !!(s.nmKilled && s.nmKilled.spire_warden) });
 WEATHER.highlands = [["clear", 5], ["wind", 4], ["cloudy", 3], ["rain", 1.5], ["storm", 1]];
 SHOPS.essa = ["potion", "hi_potion", "ether", "herb_bread", "carp_stew", "bait", "fishing_rod"].filter(id => ITEMS[id]);
-ACHIEVEMENTS.push({ id: "highlands", icon: "🐎", name: "Wide Open Sky", desc: "Set foot in the Windreach Highlands.", test: s => (s.discovered || []).includes("highlands") });
+ACHIEVEMENTS.push({ id: "highlands", icon: "🐎", name: "Wide Open Sky", desc: "Set foot in the Windreach Highlands.", test: s => areaVisited(s, "highlands") });
 FISH.underdeep = [["glowfin", 8, 7], ["blind_eel", 14, 2], ["mud_eel", 0, 3]];
 ACHIEVEMENTS.push({ id: "underdeep", icon: "🛶", name: "Down the River", desc: "Ride the boat across the Underdeep River.", test: s => !!(s.stats && s.stats.boatRides) });
 WEATHER.gullisle = [["clear", 6], ["wind", 3], ["cloudy", 2], ["rain", 2], ["storm", 0.7]];
 FISH.gullisle = [["sea_bass", 6, 7], ["harbor_bream", 0, 4], ["tidecaller_tuna", 14, 1.2]];
-ACHIEVEMENTS.push({ id: "gullisle", icon: "🏝️", name: "Island Hopper", desc: "Take the ferry to Gull Isle.", test: s => (s.discovered || []).includes("gullisle") });
+ACHIEVEMENTS.push({ id: "gullisle", icon: "🏝️", name: "Island Hopper", desc: "Take the ferry to Gull Isle.", test: s => areaVisited(s, "gullisle") });
 CONFIG.ferryCost = 100;
 WEATHER.cinder = [["cloudy", 4], ["clear", 3], ["fog", 2], ["wind", 2], ["storm", 0.5]];
-ACHIEVEMENTS.push({ id: "cinder", icon: "🌋", name: "Trial by Fire", desc: "Set foot on Cinder Peak.", test: s => (s.discovered || []).includes("cinder") });
+ACHIEVEMENTS.push({ id: "cinder", icon: "🌋", name: "Trial by Fire", desc: "Set foot on Cinder Peak.", test: s => areaVisited(s, "cinder") });
 WEATHER.verdant = [["rain", 5], ["cloudy", 3], ["fog", 2], ["clear", 2], ["storm", 1.2]];
-ACHIEVEMENTS.push({ id: "verdant", icon: "🌴", name: "Into the Green", desc: "Set foot in the Verdant Jungle.", test: s => (s.discovered || []).includes("verdant") });
+ACHIEVEMENTS.push({ id: "verdant", icon: "🌴", name: "Into the Green", desc: "Set foot in the Verdant Jungle.", test: s => areaVisited(s, "verdant") });
 WEATHER.sunscar = [["clear", 6], ["wind", 2.5], ["sandstorm", 2], ["cloudy", 1], ["storm", 0.3]];
 WEATHER.cinder.push(["sandstorm", 1]);
 ZONES.sunscar.spawns.push({ fam: "dune_worm", lv: [20, 20], x: 1500, y: 1900, weather: "sandstorm" });
 ZONES.frost.spawns.push({ fam: "ice_wight", lv: [19, 20], x: Math.round(2200 * zsc("frost")), y: Math.round(1400 * zsc("frost")), weather: "blizzard" });
 ZONES.marsh.spawns.push({ fam: "drowned", lv: [15, 16], x: Math.round(1700 * zsc("marsh")), y: Math.round(1400 * zsc("marsh")), weather: "fog" });
-ACHIEVEMENTS.push({ id: "sunscar", icon: "🏜️", name: "Sunburnt", desc: "Set foot in the Sunscar Desert.", test: s => (s.discovered || []).includes("sunscar") });
+ACHIEVEMENTS.push({ id: "sunscar", icon: "🏜️", name: "Sunburnt", desc: "Set foot in the Sunscar Desert.", test: s => areaVisited(s, "sunscar") });
 WEATHER.ironvale = [["clear", 4], ["snow", 3], ["cloudy", 3], ["wind", 1.5], ["fog", 0.8]];
 const MYTHRIL_GEAR = [];
 for (const id of Object.keys(ITEMS)) {
@@ -2382,7 +2382,7 @@ Object.assign(QUESTS, {
   orerun: { name: "The Ore Run", giver: "Brisa", npc: "brisa", lv: 17, items: { iron_ore: 4, frost_shard: 3 }, desc: "Bring Brisa 4 Iron Ore and 3 Frost Shards for Ironvale's forges.", reward: { xp: 3000, gil: 1600 },
     intro: "Haldor's forges eat ore faster than the carts can bring it. If you're heading out, dig some iron and pick up frost shards; the mythril won't temper without them.", progress: "4 Iron Ore and 3 Frost Shards.", turn: "That'll keep the fires lit for a week. Here's your pay." }
 });
-ACHIEVEMENTS.push({ id: "ironvale", icon: "⛰️", name: "Mountain Welcome", desc: "Reach the city of Ironvale.", test: s => (s.discovered || []).includes("ironvale") });
+ACHIEVEMENTS.push({ id: "ironvale", icon: "⛰️", name: "Mountain Welcome", desc: "Reach the city of Ironvale.", test: s => areaVisited(s, "ironvale") });
 Object.assign(BESTIARY, {
   dune_lizard: { type: "Lizard", lore: "Sand-coloured lizards that lie half-buried in the dunes and burst out at passing feet." },
   sand_crab: { type: "Aquan", lore: "Crabs that live around the Glass Oasis and carry the desert on their backs." },
@@ -2498,7 +2498,7 @@ Object.assign(ITEMS, {
   pathfinder_mantle: { name: "Pathfinder's Mantle", kind: "equip", icon: "🧣", rare: true, slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 6, hp: 30, str: 2, int: 2, agi: 2 }, desc: "Given only to those who have stood at the edges of every map." }
 });
 ACHIEVEMENTS.push({ id: "expeditions", icon: "🗺️", name: "Far Traveller", desc: "Complete every Guild expedition.", test: s => s.expDone && Object.keys(EXPEDITIONS).every(k => s.expDone[k]) });
-ACHIEVEMENTS.push({ id: "atlas", icon: "🧭", name: "Cartographer", desc: "Set foot in every area on the world atlas.", test: s => ["highlands", "outpost", "hollow", "den", "crypt", "depths", "marsh", "verdant", "underdeep", "harbor", "gullisle", "frost", "ironvale", "sunscar", "cinder", "spire1"].every(z => (s.discovered || []).includes(z)) });
+ACHIEVEMENTS.push({ id: "atlas", icon: "🧭", name: "Cartographer", desc: "Set foot in every area on the world atlas.", test: s => ["highlands", "outpost", "hollow", "den", "crypt", "depths", "marsh", "verdant", "underdeep", "harbor", "gullisle", "frost", "ironvale", "sunscar", "cinder", "spire"].every(z => areaVisited(s, z)) });
 Object.assign(NPCS, {
   luna: { name: "Luna, Moonlit Peddler", model: "luna", talk: "talkLuna", only: "night" },
   mirage_shimmer: { name: "Shimmering Air", prop: "mirage", talk: "talkMirage", only: "sandstorm", poi: "mirage" },
@@ -2508,4 +2508,117 @@ ZONES.sunscar.npcs.push({ id: "mirage_shimmer", x: 400, y: 1460 });
 SHOPS.luna = ["moon_tonic", "nightglass_earring", "ether", "hi_potion"];
 BESTIARY.gloamhorn = { type: "Beast", lore: "A longneck with a coat like dusk. It only grazes after the sun goes down." };
 BESTIARY.sandglass_wisp = { type: "Elemental", lore: "A spark of sand and heat that lives inside the mirage. When the storm passes, so does it." };
-ACHIEVEMENTS.push({ id: "mirage", icon: "🏜️", name: "Seen Through", desc: "Step into the Mirage during a sandstorm.", test: s => (s.discovered || []).includes("mirage") });
+ACHIEVEMENTS.push({ id: "mirage", icon: "🏜️", name: "Seen Through", desc: "Step into the Mirage during a sandstorm.", test: s => areaVisited(s, "mirage") });
+
+const AREA_NAMES = { spire: "Red Spire" };
+for (const id of ["spire1", "spire2", "spire3", "spire4", "spire_top"]) if (ZONES[id]) ZONES[id].area = "spire";
+const ZONE_SPLITS = {};
+function areaOf(zid) { return (ZONES[zid] && ZONES[zid].area) || zid; }
+function areaZones(a) { return Object.keys(ZONES).filter(id => areaOf(id) === a); }
+function areaName(a) { return AREA_NAMES[a] || (ZONES[a] ? ZONES[a].name : a); }
+function inArea(ref, zid) { return ref === zid || areaOf(zid) === ref; }
+function areaVisited(s, a) { const d = s.discovered || []; return d.includes(a) || d.some(z => areaOf(z) === a); }
+function zkey(tbl, zid) { return tbl[zid] != null ? tbl[zid] : tbl[areaOf(zid)]; }
+function computeBand(z) {
+  const lv = (z.spawns || []).filter(s => !s.weather && s.lv).map(s => s.lv);
+  z.band = z.safe || z.indoor || !lv.length ? null : [Math.min(...lv.map(l => l[0])), Math.max(...lv.map(l => l[1]))];
+}
+for (const id in ZONES) if (!ZONES[id].bandFixed) computeBand(ZONES[id]);
+function zoneBand(zid) { const z = ZONES[zid]; return z && z.band ? z.band : null; }
+function areaBand(a) { const b = areaZones(a).map(zoneBand).filter(Boolean); return b.length ? [Math.min(...b.map(x => x[0])), Math.max(...b.map(x => x[1]))] : null; }
+function bandText(b) { return b ? "Lv " + (b[0] === b[1] ? b[0] : b[0] + "–" + b[1]) : ""; }
+
+function splitZone(src, parts) {
+  const Z = ZONES[src], snap = v => Math.round(v / 50) * 50;
+  const P = parts.map(p => ({ id: p.id, name: p.name, x0: snap(p.rect[0]), y0: snap(p.rect[1]), x1: Math.min(Z.w, snap(p.rect[2])), y1: Math.min(Z.h, snap(p.rect[3])), band: p.band, start: p.start }));
+  for (const p of P) { if (p.x1 >= Z.w - 25) p.x1 = Z.w; if (p.y1 >= Z.h - 25) p.y1 = Z.h; }
+  const inR = (p, x, y) => x >= p.x0 && x < p.x1 && y >= p.y0 && y < p.y1;
+  const partAt = (x, y) => P.find(p => inR(p, x, y)) || P.reduce((a, p) => { const d = Math.hypot(Math.max(p.x0 - x, 0, x - p.x1), Math.max(p.y0 - y, 0, y - p.y1)); return !a || d < a.d ? { p, d } : a; }, null).p;
+  const out = {};
+  for (const p of P) {
+    const ox = p.x0, oy = p.y0, mine = (x, y) => partAt(x, y) === p, mv = o => Object.assign({}, o, { x: o.x - ox, y: o.y - oy });
+    const nz = { name: p.name, w: p.x1 - p.x0, h: p.y1 - p.y0, theme: Z.theme, area: src, id: p.id, splitFrom: src };
+    for (const k of ["palette", "mist", "openRange", "cs", "vegK", "glow", "island"]) if (Z[k] != null) nz[k] = Z[k];
+    nz.spawns = (Z.spawns || []).filter(s => mine(s.x, s.y)).map(mv);
+    nz.npcs = (Z.npcs || []).filter(s => mine(s.x, s.y)).map(mv);
+    nz.landmarks = (Z.landmarks || []).filter(s => mine(s.x, s.y)).map(mv);
+    nz.water = (Z.water || []).filter(s => mine(s.x, s.y)).map(mv);
+    nz.walls = (Z.walls || []).filter(w => mine(w.x + w.w / 2, w.y + w.h / 2)).map(mv);
+    for (const k of ["props", "ambient"]) if (Z[k]) nz[k] = Z[k].filter(s => mine(s.x, s.y)).map(mv);
+    for (const k of ["torches"]) if (Z[k]) nz[k] = Z[k].filter(q => mine(q[0], q[1])).map(q => [q[0] - ox, q[1] - oy].concat(q.slice(2)));
+    if (Z.pillars) nz.pillars = Z.pillars.filter(q => mine(q.x != null ? q.x : q[0], q.y != null ? q.y : q[1])).map(q => q.x != null ? mv(q) : [q[0] - ox, q[1] - oy].concat(q.slice(2)));
+    if (Z.ruins) nz.ruins = { walls: (Z.ruins.walls || []).filter(r => mine((r[0] + r[2]) / 2, (r[1] + r[3]) / 2)).map(r => [r[0] - ox, r[1] - oy, r[2] - ox, r[3] - oy, r[4]]), pillars: (Z.ruins.pillars || []).filter(r => mine(r[0], r[1])).map(r => [r[0] - ox, r[1] - oy, r[2]]) };
+    nz.paths = (Z.paths || []).filter(pa => pa.pts.some(q => mine(q[0], q[1]))).map(pa => Object.assign({}, pa, { pts: pa.pts.map(q => [q[0] - ox, q[1] - oy]) }));
+    nz.features = (Z.features || []).filter(f => f.t === "ravine" ? f.pts.some(q => mine(q[0], q[1])) : mine(f.x, f.y)).map(f => f.t === "ravine" ? Object.assign({}, f, { pts: f.pts.map(q => [q[0] - ox, q[1] - oy]) }) : mv(f));
+    nz.gather = {};
+    for (const g in Z.gather || {}) { const at = Z.gather[g].at.filter(q => mine(q[0], q[1])).map(q => [q[0] - ox, q[1] - oy]); if (at.length) nz.gather[g] = Object.assign({}, Z.gather[g], { at, n: Math.max(1, Math.min(Z.gather[g].n, Math.round(Z.gather[g].n * at.length / Z.gather[g].at.length + 0.4), at.length)) }); }
+    nz.exits = (Z.exits || []).filter(e => mine(e.x + e.w / 2, e.y + e.h / 2)).map(e => { const n = mv(e); n.x = Math.max(0, Math.min(nz.w - n.w, n.x)); n.y = Math.max(0, Math.min(nz.h - n.h, n.y)); return n; });
+    nz.start = p.start ? { x: p.start[0], y: p.start[1] } : inR(p, Z.start.x, Z.start.y) ? { x: Z.start.x - ox, y: Z.start.y - oy } : { x: Math.round(nz.w / 2), y: Math.round(nz.h / 2) };
+    if (p.band) { nz.band = p.band; nz.bandFixed = true; } else computeBand(nz);
+    out[p.id] = nz;
+  }
+  const L = 160, T = 24, IN = 70;
+  for (const a of P) for (const b of P) {
+    if (a === b) continue;
+    let seg = null;
+    if (a.x1 === b.x0) { const lo = Math.max(a.y0, b.y0), hi = Math.min(a.y1, b.y1); if (hi - lo >= L) seg = { v: true, at: a.x1, lo, hi }; }
+    if (a.y1 === b.y0) { const lo = Math.max(a.x0, b.x0), hi = Math.min(a.x1, b.x1); if (hi - lo >= L) seg = { v: false, at: a.y1, lo, hi }; }
+    if (!seg) continue;
+    let c = (seg.lo + seg.hi) / 2, best = 1e9;
+    for (const pa of Z.paths || []) for (let i = 1; i < pa.pts.length; i++) {
+      const [p0, p1] = [pa.pts[i - 1], pa.pts[i]], k0 = seg.v ? p0[0] : p0[1], k1 = seg.v ? p1[0] : p1[1];
+      if ((k0 - seg.at) * (k1 - seg.at) > 0 || k0 === k1) continue;
+      const t = (seg.at - k0) / (k1 - k0), m = seg.v ? p0[1] + t * (p1[1] - p0[1]) : p0[0] + t * (p1[0] - p0[0]);
+      if (m > seg.lo + L / 2 && m < seg.hi - L / 2 && Math.abs(m - c) < best) { best = Math.abs(m - c); c = m; }
+    }
+    c = Math.round(Math.max(seg.lo + L / 2, Math.min(seg.hi - L / 2, c)));
+    const A = out[a.id], B = out[b.id];
+    if (seg.v) {
+      A.exits.push({ x: A.w - T, y: c - a.y0 - L / 2, w: T, h: L, to: b.id, tx: IN, ty: c - b.y0, label: b.name, edge: true });
+      B.exits.push({ x: 0, y: c - b.y0 - L / 2, w: T, h: L, to: a.id, tx: A.w - IN, ty: c - a.y0, label: a.name, edge: true });
+    } else {
+      A.exits.push({ x: c - a.x0 - L / 2, y: A.h - T, w: L, h: T, to: b.id, tx: c - b.x0, ty: IN, label: b.name, edge: true });
+      B.exits.push({ x: c - b.x0 - L / 2, y: 0, w: L, h: T, to: a.id, tx: c - a.x0, ty: A.h - IN, label: a.name, edge: true });
+    }
+  }
+  for (const zid in ZONES) for (const e of ZONES[zid].exits || []) if (e.to === src) { const p = partAt(e.tx, e.ty); e.to = p.id; e.tx -= p.x0; e.ty -= p.y0; }
+  if (!AREA_NAMES[src]) AREA_NAMES[src] = Z.name;
+  ZONE_SPLITS[src] = { w: Z.w, h: Z.h, parts: P.map(p => ({ id: p.id, x0: p.x0, y0: p.y0, x1: p.x1, y1: p.y1 })) };
+  for (const id in out) ZONES[id] = out[id];
+  if (!out[src]) delete ZONES[src];
+  return out;
+}
+
+function migrateSplits(out) {
+  out.zsplit = out.zsplit && typeof out.zsplit === "object" ? out.zsplit : {};
+  for (const src in ZONE_SPLITS) {
+    if (out.zsplit[src]) continue;
+    out.zsplit[src] = 1;
+    const S0 = ZONE_SPLITS[src], P = S0.parts;
+    const partAt = (x, y) => P.find(p => x >= p.x0 && x < p.x1 && y >= p.y0 && y < p.y1) || P[0];
+    const byNpc = id => P.find(p => ZONES[p.id] && ZONES[p.id].npcs.some(n => n.id === id));
+    if (out.loc && out.loc.zone === src) { const p = partAt(out.loc.x, out.loc.y); out.loc = { zone: p.id, x: out.loc.x - p.x0, y: out.loc.y - p.y0 }; }
+    if (out.home && out.home.zone === src) { const p = byNpc(out.home.npc); if (p) out.home = { zone: p.id, npc: out.home.npc }; }
+    if (out.attuned) for (const k in out.attuned) if (out.attuned[k] === src) { const p = byNpc(k); if (p) out.attuned[k] = p.id; }
+    if (out.landmarks) for (const key of Object.keys(out.landmarks)) {
+      const [z, lm] = key.split(":");
+      if (z !== src) continue;
+      const p = P.find(q => ZONES[q.id] && (ZONES[q.id].landmarks || []).some(l => l.id === lm));
+      if (p && p.id !== src) { out.landmarks[p.id + ":" + lm] = out.landmarks[key]; delete out.landmarks[key]; }
+      if (p && Array.isArray(out.discovered) && !out.discovered.includes(p.id)) out.discovered.push(p.id);
+    }
+    if (out.loc && Array.isArray(out.discovered) && P.some(p => p.id === out.loc.zone) && !out.discovered.includes(out.loc.zone)) out.discovered.push(out.loc.zone);
+    const ex = out.explored && out.explored[src];
+    if (typeof ex === "string") {
+      const cols = Math.ceil(S0.w / 50), rows = Math.ceil(S0.h / 50);
+      if (ex.length === cols * rows) for (const p of P) {
+        const pc = Math.ceil((p.x1 - p.x0) / 50), pr = Math.ceil((p.y1 - p.y0) / 50), c0 = p.x0 / 50, r0 = p.y0 / 50;
+        let s = "";
+        for (let r = 0; r < pr; r++) for (let c = 0; c < pc; c++) { const rr = r0 + r, cc = c0 + c; s += rr < rows && cc < cols ? ex[rr * cols + cc] : "0"; }
+        out.explored[p.id] = s;
+      }
+      if (!P.some(p => p.id === src)) delete out.explored[src];
+    }
+  }
+  return out;
+}

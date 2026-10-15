@@ -885,7 +885,7 @@ function watchProgress() {
     const first = !(save.discovered || []).includes(S.zoneId);
     if (!save.discovered) save.discovered = [];
     if (first) { save.discovered.push(S.zoneId); toast("🧭", "Discovered", S.zone.name); }
-    zoneTitle(S.zone.name, first ? "Discovered" : districtName(S.zoneId, player.x, player.y));
+    zoneTitle(S.zone.name, first ? ["Discovered", zoneSubtitle(S.zoneId)].filter(Boolean).join(" · ") : districtName(S.zoneId, player.x, player.y) || zoneSubtitle(S.zoneId));
   }
   Object.assign(w, { job: j, lv, quests: Object.assign({}, save.quests), maxHp: player.maxHp, maxMp: player.maxMp, zone: S.zoneId, mount: save.mountLicense, sup: save.supportUnlocked });
 }

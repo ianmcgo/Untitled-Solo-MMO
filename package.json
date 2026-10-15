@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "15.7.1",
-  "releaseTitle": "Creator preview fix",
+  "version": "16.0.0",
+  "releaseTitle": "Region framework",
   "description": "",
   "main": "index.js",
   "scripts": {

@@ -2145,7 +2145,7 @@ const BACKDROP = {
   ironvale: { h: [60, 120, 210], col: [0x7a8a96, 0xa8b8c4, 0xe0eaf2], snow: true, mark: "peak" }
 };
 function buildBackdrop(field, root) {
-  const th = themeOf(S.zone), B = BACKDROP[S.zoneId] || (th === "field" ? BACKDROP.hollow : null);
+  const th = themeOf(S.zone), B = zkey(BACKDROP, S.zoneId) || (th === "field" ? BACKDROP.hollow : null);
   W3.backdrop = []; W3.beacon = null;
   if (!B || th === "cave" || th === "crypt" || th === "house" || S.zone.island) return;
   const cx = (field.x0 + field.w / 2) * U, cz = (field.y0 + field.h / 2) * U, half = Math.hypot(field.w, field.h) * U / 2;
@@ -2424,7 +2424,7 @@ function updateSky(force) {
   W3.moon.material.opacity = (1 - dayAmt) * 0.6;
   W3.clouds.position.x = W3.camera.position.x;
   W3.clouds.position.z = W3.camera.position.z;
-  const atm = ATMOS[S.zoneId] || null;
+  const atm = zkey(ATMOS, S.zoneId) || null;
   for (const o of [W3.clouds2, W3.sunGlow, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
   if (W3.clouds2) { W3.clouds2.position.x = W3.camera.position.x; W3.clouds2.position.z = W3.camera.position.z; }
   if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.camera.position.y - 20, W3.camera.position.z); }
