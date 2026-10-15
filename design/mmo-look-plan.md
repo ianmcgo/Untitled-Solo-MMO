@@ -17,7 +17,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 | 121 ✅ | 16.7.0 | Iconic gear sets | 3–4 tiered looks per job for all 22 jobs (WAR horned helm, BLM pointed hat, RDM feather hat, DRG winged helm…), oversized shoulders, cuffs, boots | Opus |
 | 122 ✅ | 16.8.0 | Weapons and shields | Chunkier weapons, bolder guards and heads, painted crests; match the item icons | Sonnet |
 | 123 ✅ | 16.9.0 | Bold monsters | Families as chunky painted shapes recoloured per tier; NMs get extra parts | Opus |
-| 124 | | NPCs and townsfolk | Outfits coded by race, job and district | Sonnet |
+| 124 ✅ | 16.10.0 | NPCs and townsfolk | Outfits coded by race, job and district | Sonnet |
 | 125 | | World match | Terrain, trees, props, sky and fog in the same painted style; bloom off in Classic | Sonnet |
 | 126 | | Classic effects | Bold sprite and ring spell effects, painted numbers | Sonnet |
 | 127 | | Polish | Performance on all tiers, real-phone check, contact sheets, remove dead PBR paths | Sonnet |
@@ -101,6 +101,13 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - NM decor: `RigBuilder.finish()` runs and clears `RIG.hook(R)` first. For non-human NMs in Classic, buildEntityRig appends `|nm:<key>` to the sig and wraps `make` to set `RIG.hook = R => nmDecor(R, key)` (also for the LOD entry). nmDecor measures the head bone's pieces (or body, or all) and adds by `NM_DECOR[key].style`: crown (ring, 5 spikes, glowing gem), horns (two 2-part horns) or spikes (3 bone spikes). Then 4 back spikes on the body bone (glowing when `spikes` colour is set) and a glowing ring at y 0.02 on the root bone sized to the model. NM_DECOR covers king_wiggles, old_croaker, lumicap_matron, sandglass_wisp (crowns), silkmother, old_saltjaw, sandmaw (spikes), duskwing, pyreclaw, thunderhoof, gloamhorn (horns); others default to bone horns with a red ring.
 - Humanoid families are unchanged; their bosses already have banners and gear.
 - Test: scratch t14.mjs renders `buildEntityRig({ kind: "mob", famKey, fam: famOf(key), lv })` into its own canvas on the title screen.
+
+## Phase 124: NPCs and townsfolk (v16.10.0)
+- `walkerLook(seed, district, night)` returns `walkerCoded()` in Classic when the walker has a district (all city walkers do); otherwise the old random look. Named NPCs (NPC_LOOK) and guards are untouched.
+- walkerCoded: race from WALKER_RACES, which is human only by the user's decision (mixed races are not true to the original game); the table still accepts other races if it is ever changed. The outfit comes from `DISTRICT_DRESS[district]`: allowed tops, colour palette, trim colour, head types with probabilities, held props, gloves, boots, belt and cape chance. Districts covered: res, gov, market, ind, gate (Ashenreach); fish, square, yard, docks (harbour); gate, keep, market, south, forge (third city; shared ids use the first match).
+- Night walkers (`time: "night"`) get a dark cape and a lantern and lose bandanas.
+- The ambient rig sig adds `|district` (and `n` at night) in Classic, so the same seed rebuilds per district.
+- Test: scratch t16.mjs renders walkers for each district (day, alt seed, night) in one canvas.
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.
