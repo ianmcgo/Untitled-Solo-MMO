@@ -1445,6 +1445,7 @@ World systems:
 | 16.17.0 | Phase 126: Classic effects (banded sprites, thick rings, outlined numbers); Tab targets objects. |
 | 16.18.0 | Phase 127: Classic polish (cliff chunk detail by tier, no character normal map in Classic). |
 | 16.19.0 | Modern look removed; Classic is the only look (see design/ffxi-look-plan.md "One look"). |
+| 16.20.0 | Time box and Wait (hud4.js openTimeBox/startWait/tickWait/stopWait/timeSyncCheck); calmer update popups (menu4.js checkForUpdate). |
 | 16.16.0 | Phase 125: Classic world match (posterised textures, banded world lighting chunk, no bloom, shorter fog). |
 | 16.15.1 | offRoadGroup in data.js: stalls/desks move together with NPCs standing at them; warp stones and dsigns also avoid plazas (r+extra). |
 | 16.15.0 | Nameplate range per kind in updateLabels (npc 260, mob 450, other 700; target and party always). build.mjs now also writes root version.json (it was stale at 16.10.0, so the update popup never fired); update check every 5 min plus on tab focus. |
@@ -1603,3 +1604,16 @@ World systems:
 | 4.2.0 | Phase 5a (above). |
 | 4.1.0 | Renamed the game to Untitled Solo RPG. Title screen shows version and build date/time (`package.json` version, stamped by `build.mjs`). Save keys unchanged. Source pushed to GitHub. |
 | 4.0 | Phase 4 build: interface, audio, loading screens, jumping. |
+
+## Time box and waiting (v16.20.0)
+- Main menu "Time" (`@time`) closes the main menu and calls `openTimeBox()` (hud4.js). `UI.timeBox = { view: "menu" | "wait" | "run", hours }`; panel `#timeBox` (template4 CSS, FF stripe).
+- `WAIT_CFG = { secPerHour: 5, maxHours: 24, msPerHour: 144000 }` (one game hour = 144 s real at the 25× clock).
+- `waitBlocked()`: `othersOnline() > 0` (world presence `NET_RT.online` minus own name; 0 offline or not a member) → "others online"; `!S.zone.safe` → "enemies are near"; dead, engaged or KO → "can't wait right now". Rechecked every frame while waiting.
+- `S.wait = { hours, done, total }`; `tickWait(dt)` (called at the top of updateHud) adds real elapsed seconds (performance.now, capped at 1 s per frame, so slow frame rates keep 5 s per hour) × msPerHour / secPerHour to `S.timeShift`, redraws the clock every 0.05 s. `stopWait` writes `save.timeShift`, saves and logs.
+- `selectChar` restores `S.timeShift = save.timeShift`. `timeSyncCheck()` runs on world presence sync: if others are online and the shift is non-zero, it resets to 0 and logs.
+- Side effects of a shift: vana(), weather slots, AH market ticks and conquestDay all read `S.timeShift`.
+
+## Update check (v16.20.0)
+- `checkForUpdate`: throttled to once per 60 s (manual skips it), one request at a time, one visibilitychange listener.
+- localStorage `usr_ver_dismissed` (Later; holds until a newer version), `usr_reload_target` + `usr_reload_at` (set on Reload; if the page still loads an older build, no auto popup for that target for 15 min, and showWhatsNew logs a note). Cleared when up to date.
+- The popup always names the newest version (`#verPop[data-ver]`), so several releases in a row give one popup.

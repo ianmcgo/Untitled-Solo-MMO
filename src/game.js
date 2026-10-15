@@ -272,6 +272,7 @@ function selectChar(id) {
   saveRoster(r);
   S.charId = id;
   save = d;
+  S.timeShift = +d.timeShift || 0;
   return true;
 }
 
