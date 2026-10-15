@@ -1474,6 +1474,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.14.0", date: "2026-10-15", title: "Camera and Tab", items: [
+    "Dragging to turn the camera left and right is now inverted. Config, Camera has an Invert horizontal switch to change it back.",
+    "Tab now targets warp stones as well as crystals and people, so you can reach a stone without tapping it."
+  ] },
   { v: "16.13.1", date: "2026-10-15", title: "Target button placement", items: [
     "The Talk / Use / Inspect / Harvest / Fight button now sits directly above the Target panel instead of floating over the target, and uses the same blue and gold style as the command menu."
   ] },
@@ -1621,7 +1625,7 @@ const UPDATES = [
   { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
     "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
     "The markets and fish market are crowded; the residential wards are quieter.",
-    "Warp stones are robed stone statues holding a glowing crystal. A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
+    "Warp stones are robed stone statues holding a glowing crystal (Tab targets them too). A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
     "Ambience follows the district: crowd noise swells in the markets and fades in the wards, and the surf is loudest on the Docks.",
     "Three new quests for touring each city: Know Your City (Pell), Harbor Rounds (Marn) and The Ironvale Circuit (Brisa). Walk through every district, then report back."
   ] },
@@ -2539,6 +2543,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
+    "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Change it with Invert horizontal in Config, Camera; Invert vertical does the same for up and down.",
     "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",

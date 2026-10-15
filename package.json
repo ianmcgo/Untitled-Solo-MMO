@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.13.1",
-  "releaseTitle": "Target button placement",
+  "version": "16.14.0",
+  "releaseTitle": "Camera and Tab",
   "description": "",
   "main": "index.js",
   "scripts": {

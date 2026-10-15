@@ -3836,8 +3836,8 @@ function tabNext(list) {
 }
 
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
-  const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && !n.warpstone && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const crystals = S.npcs.filter(n => (n.crystal || n.warpstone) && !n.away && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const list = people.concat(crystals);
   if (!list.length) return false;
   player.target = tabNext(list);

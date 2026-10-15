@@ -1075,7 +1075,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.13.1 · built 2026-10-15 07:05 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.14.0 · built 2026-10-15 08:03 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -12463,8 +12463,8 @@ function tabNext(list) {
 }
 
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
-  const crystals = S.npcs.filter(n => n.crystal && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && !n.warpstone && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const crystals = S.npcs.filter(n => (n.crystal || n.warpstone) && !n.away && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
   const list = people.concat(crystals);
   if (!list.length) return false;
   player.target = tabNext(list);
@@ -17386,8 +17386,12 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.13.1 · built 2026-10-15 07:05 PDT";
+const BUILD_INFO = "v16.14.0 · built 2026-10-15 08:03 PDT";
 const UPDATES = [
+  { v: "16.14.0", date: "2026-10-15", title: "Camera and Tab", items: [
+    "Dragging to turn the camera left and right is now inverted. Config, Camera has an Invert horizontal switch to change it back.",
+    "Tab now targets warp stones as well as crystals and people, so you can reach a stone without tapping it."
+  ] },
   { v: "16.13.1", date: "2026-10-15", title: "Target button placement", items: [
     "The Talk / Use / Inspect / Harvest / Fight button now sits directly above the Target panel instead of floating over the target, and uses the same blue and gold style as the command menu."
   ] },
@@ -17535,7 +17539,7 @@ const UPDATES = [
   { v: "15.4.0", date: "2026-10-14", title: "City life", items: [
     "The three cities are busier. Every district has townsfolk walking their own routes by day, a few night-walkers after dark, and guards on patrol (two in the Government District, Keep and Eastgate).",
     "The markets and fish market are crowded; the residential wards are quieter.",
-    "Warp stones are robed stone statues holding a glowing crystal. A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
+    "Warp stones are robed stone statues holding a glowing crystal (Tab targets them too). A district signpost stands beside every warp stone and tells you which way the other districts lie and how far.",
     "Ambience follows the district: crowd noise swells in the markets and fades in the wards, and the surf is loudest on the Docks.",
     "Three new quests for touring each city: Know Your City (Pell), Harbor Rounds (Marn) and The Ironvale Circuit (Brisa). Walk through every district, then report back."
   ] },
@@ -18453,6 +18457,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
+    "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Change it with Invert horizontal in Config, Camera; Invert vertical does the same for up and down.",
     "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
@@ -18811,7 +18816,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.13.1";
+const GAME_VERSION = "16.14.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -21942,7 +21947,7 @@ function updateSky(force) {
   }
 }
 
-const SETTINGS_DEFAULT = { look: "classic", outline: null, attire: "job", quality: null, aggroHints: false, autoRun: false, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
+const SETTINGS_DEFAULT = { look: "classic", outline: null, attire: "job", quality: null, aggroHints: false, autoRun: false, invertX: true, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
 const DRAW_DIST = { near: 1000, normal: 1700, far: 2600 };
 
 function perfTick() {
@@ -27898,7 +27903,7 @@ function onPointerMove(ev) {
   }
   if (ptr.moved) {
     const sp = VIEW.settings.camSpeed || 1;
-    VIEW.yaw += dx * 0.006 * sp;
+    VIEW.yaw += dx * 0.006 * sp * (VIEW.settings.invertX === false ? 1 : -1);
     VIEW.pitch = clamp(VIEW.pitch + dy * 0.004 * sp * (VIEW.settings.invertY ? -1 : 1), -0.25, 1.25);
     VIEW.lastManual = S.time;
   }
@@ -28081,7 +28086,7 @@ function graphicsSettingsHTML() {
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="sub">Look: Classic uses painted, soft lighting like early online RPGs. Modern uses reflective shading. Changing it reloads the game.</div><div class="opt">' + btn("gfx", "look:classic", "Classic look", classicOn()) + btn("gfx", "look:modern", "Modern look", !classicOn()) + btn("gfx", "outline:" + (outlineOn() ? "off" : "on"), "Outlines " + (outlineOn() ? "on" : "off"), outlineOn()) + (classicOn() ? btn("gfx", "attire:" + (jobStyleOn() ? "gear" : "job"), jobStyleOn() ? "Job style" : "Show gear", jobStyleOn()) : "") + '</div><div class="sub">Job style dresses every adventurer in their job\'s signature outfit, which grows grander at levels 5, 10 and 16. Show gear draws the armour you have equipped instead. Weapons and shields always show.</div><div class="sub">High adds glow, colour grading that follows the time of day, smoother edges, sharper shadows and full-resolution water reflections. If the game stays slow, it turns off glow and then sun shadows by itself. Characters far from the camera always use simpler models (sooner on Low). Changing quality reloads the 3D scene.</div>' +
     "<h3>Performance</h3><div class=\"opt\">" + btn("draw", "near", "Draw near", s.draw === "near") + btn("draw", "normal", "Draw normal", (s.draw || "normal") === "normal") + btn("draw", "far", "Draw far", s.draw === "far") + btn("toggle", "adaptive", "Auto resolution " + (s.adaptive !== false ? "on" : "off"), s.adaptive !== false) + btn("toggle", "fps", "FPS counter " + (s.fps ? "on" : "off"), s.fps) + '</div><div class="sub">Draw distance hides far monsters and name plates. Auto resolution lowers the render scale when the frame rate drops and raises it again when there is headroom. Use Low graphics on older phones.</div>' +
-    "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + '</div><div class="opt">' + btn("toggle", "autoRun", "Auto-run to target " + (s.autoRun ? "on" : "off"), !!s.autoRun) + '</div><div class="sub">Off by default: attacking or engaging an enemy leaves you where you stand, so you choose when to move in. On makes you run to your target when you attack.</div>' +
+    "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertX", "Invert horizontal " + (s.invertX !== false ? "on" : "off"), s.invertX !== false) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + '</div><div class="opt">' + btn("toggle", "autoRun", "Auto-run to target " + (s.autoRun ? "on" : "off"), !!s.autoRun) + '</div><div class="sub">Off by default: attacking or engaging an enemy leaves you where you stand, so you choose when to move in. On makes you run to your target when you attack.</div>' +
 
     appearanceHTML();
 }
