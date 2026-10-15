@@ -74,7 +74,19 @@ function heightToNormalCanvas(w, h, hf, strength) {
   });
 }
 
+function posterCanvas(c, lv, alv) {
+  const g = c.getContext("2d"), img = g.getImageData(0, 0, c.width, c.height), d = img.data, k = lv - 1, ak = alv - 1;
+  for (let i = 0; i < d.length; i += 4) {
+    const l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2];
+    if (l > 1) { const q = Math.round(l / 255 * k) / k * 255, f = Math.max(q, 14) / l; d[i] = Math.min(255, d[i] * f); d[i + 1] = Math.min(255, d[i + 1] * f); d[i + 2] = Math.min(255, d[i + 2] * f); }
+    if (alv && d[i + 3] < 250) d[i + 3] = Math.round(d[i + 3] / 255 * ak) / ak * 255;
+  }
+  g.putImageData(img, 0, 0);
+  return c;
+}
+
 function toTexture(canvas, color, repeat) {
+  if (color && classicOn()) posterCanvas(canvas, 7, 5);
   const t = new THREE.CanvasTexture(canvas);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.anisotropy = TEXLIB.anisotropy;
@@ -94,7 +106,7 @@ function texPair(key, w, h, heightFn, colorFn, strength) {
   if (TEXLIB.cache[key]) return TEXLIB.cache[key];
   const hf = heightField(w, h, heightFn);
   const albedo = paintPixels(w, h, (x, y, o) => colorFn(x, y, hf[y * w + x], o));
-  const normal = heightToNormalCanvas(w, h, hf, strength || 4);
+  const normal = heightToNormalCanvas(w, h, hf, (strength || 4) * (classicOn() ? 0.5 : 1));
   const pair = { map: toTexture(albedo, true), normalMap: toTexture(normal, false) };
   TEXLIB.cache[key] = pair;
   return pair;
@@ -120,6 +132,7 @@ function texGray(key, S2, fn) {
   for (let y = 0; y < S2; y++) for (let x = 0; x < S2; x++) { const v = fn(x, y); vals[y * S2 + x] = v; sum += v; }
   const mean = sum / vals.length;
   const c = paintPixels(S2, S2, (x, y, o) => { const v = clamp(128 + (vals[y * S2 + x] - mean) * 255, 0, 255); o[0] = o[1] = o[2] = v; o[3] = 255; });
+  if (classicOn()) posterCanvas(c, 5, 0);
   const t = toTexture(c, false);
   TEXLIB.cache[key] = t;
   return t;

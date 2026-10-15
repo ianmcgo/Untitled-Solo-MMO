@@ -1075,7 +1075,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.15.1 · built 2026-10-15 08:12 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.16.0 · built 2026-10-15 08:31 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -17393,8 +17393,12 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.15.1 · built 2026-10-15 08:12 PDT";
+const BUILD_INFO = "v16.16.0 · built 2026-10-15 08:31 PDT";
 const UPDATES = [
+  { v: "16.16.0", date: "2026-10-15", title: "World match", items: [
+    "In the Classic look the world now matches the characters: ground, bark, leaves, stonework and sky textures use a few flat painted tones, lighting on terrain, trees and buildings falls in soft bands, clouds are blockier, and the distance haze closes in sooner.",
+    "The glow effect is off in the Classic look. The Modern look is unchanged."
+  ] },
   { v: "16.15.1", date: "2026-10-15", title: "Off the roads, again", items: [
     "Warp stones and their district signposts now also keep out of the paved plazas, not only the dirt roads.",
     "Townspeople who work at a stall or desk (Marn, Maera and the others) are moved off the roads together with their table, so nobody stands in the middle of a road."
@@ -18807,7 +18811,7 @@ function tabHelp() {
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
-    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. Classic townsfolk are a mix of the five races and dress by district (clerks, merchants, smiths, sailors, travellers); night walkers carry lanterns. Classic monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Classic weapons and shields are chunkier, with outlines and crest-painted shields. In Classic, Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); the Show gear button draws equipped armour instead, and weapons and shields always show. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
+    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (the world is painted to match: flatter few-tone ground, bark, leaves and stonework, banded sunlight and shade on terrain, trees and buildings, shorter distance haze, blockier clouds and no glow; chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. Classic townsfolk are a mix of the five races and dress by district (clerks, merchants, smiths, sailors, travellers); night walkers carry lanterns. Classic monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Classic weapons and shields are chunkier, with outlines and crest-painted shields. In Classic, Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); the Show gear button draws equipped armour instead, and weapons and shields always show. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
@@ -18835,7 +18839,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.15.1";
+const GAME_VERSION = "16.16.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -19123,7 +19127,19 @@ function heightToNormalCanvas(w, h, hf, strength) {
   });
 }
 
+function posterCanvas(c, lv, alv) {
+  const g = c.getContext("2d"), img = g.getImageData(0, 0, c.width, c.height), d = img.data, k = lv - 1, ak = alv - 1;
+  for (let i = 0; i < d.length; i += 4) {
+    const l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2];
+    if (l > 1) { const q = Math.round(l / 255 * k) / k * 255, f = Math.max(q, 14) / l; d[i] = Math.min(255, d[i] * f); d[i + 1] = Math.min(255, d[i + 1] * f); d[i + 2] = Math.min(255, d[i + 2] * f); }
+    if (alv && d[i + 3] < 250) d[i + 3] = Math.round(d[i + 3] / 255 * ak) / ak * 255;
+  }
+  g.putImageData(img, 0, 0);
+  return c;
+}
+
 function toTexture(canvas, color, repeat) {
+  if (color && classicOn()) posterCanvas(canvas, 7, 5);
   const t = new THREE.CanvasTexture(canvas);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.anisotropy = TEXLIB.anisotropy;
@@ -19143,7 +19159,7 @@ function texPair(key, w, h, heightFn, colorFn, strength) {
   if (TEXLIB.cache[key]) return TEXLIB.cache[key];
   const hf = heightField(w, h, heightFn);
   const albedo = paintPixels(w, h, (x, y, o) => colorFn(x, y, hf[y * w + x], o));
-  const normal = heightToNormalCanvas(w, h, hf, strength || 4);
+  const normal = heightToNormalCanvas(w, h, hf, (strength || 4) * (classicOn() ? 0.5 : 1));
   const pair = { map: toTexture(albedo, true), normalMap: toTexture(normal, false) };
   TEXLIB.cache[key] = pair;
   return pair;
@@ -19169,6 +19185,7 @@ function texGray(key, S2, fn) {
   for (let y = 0; y < S2; y++) for (let x = 0; x < S2; x++) { const v = fn(x, y); vals[y * S2 + x] = v; sum += v; }
   const mean = sum / vals.length;
   const c = paintPixels(S2, S2, (x, y, o) => { const v = clamp(128 + (vals[y * S2 + x] - mean) * 255, 0, 255); o[0] = o[1] = o[2] = v; o[3] = 255; });
+  if (classicOn()) posterCanvas(c, 5, 0);
   const t = toTexture(c, false);
   TEXLIB.cache[key] = t;
   return t;
@@ -21394,7 +21411,12 @@ function makeStars() {
   return new THREE.Points(g, m);
 }
 
+function classicWorldChunk() {
+  if (THREE.ShaderChunk.opaque_fragment.indexOf("clWorld") >= 0) return;
+  THREE.ShaderChunk.opaque_fragment = "#ifdef STANDARD\n{ float clWorld = 1.0; if (diffuseColor.a > 0.98) { float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; if (r > 0.2) { float qn = floor(r * 4.0 + 0.5) / 4.0; float rr = mix(r, qn, 0.45); outgoingLight *= rr / max(r, 0.001); } } }\n#endif\n" + THREE.ShaderChunk.opaque_fragment;
+}
 function initRenderer() {
+  if (classicOn()) classicWorldChunk();
   const canvas = $("game");
   const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
   const saved = loadSettings();
@@ -21477,7 +21499,7 @@ function initRenderer() {
     const comp = new THREE.EffectComposer(r, rt);
     comp.addPass(new THREE.RenderPass(W3.scene, W3.camera));
     W3.bloom = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), classicOn() ? 0.1 : 0.22, 0.5, 0.95);
-    comp.addPass(W3.bloom);
+    if (!classicOn()) comp.addPass(W3.bloom);
     comp.addPass(new THREE.OutputPass());
     W3.grade = new THREE.ShaderPass(GRADE_SHADER);
     comp.addPass(W3.grade);
@@ -21901,7 +21923,7 @@ function updateSky(force) {
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
-  else { W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1); W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1); }
+  else { const ck = classicOn() ? 0.78 : 1; W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1) * ck; W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1) * ck; }
   if (!cave && !indoor && (wx === "fog" || wet || wx === "blizzard" || sand)) { const k = wx === "fog" ? 0.45 : wx === "blizzard" ? 0.22 : sand ? 0.2 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;

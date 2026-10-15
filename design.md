@@ -1442,6 +1442,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.16.0 | Phase 125: Classic world match (posterised textures, banded world lighting chunk, no bloom, shorter fog). |
 | 16.15.1 | offRoadGroup in data.js: stalls/desks move together with NPCs standing at them; warp stones and dsigns also avoid plazas (r+extra). |
 | 16.15.0 | Nameplate range per kind in updateLabels (npc 260, mob 450, other 700; target and party always). build.mjs now also writes root version.json (it was stale at 16.10.0, so the update popup never fired); update check every 5 min plus on tab focus. |
 | 16.14.1 | renderMCard shows the Current Crystals gilBox for modal "auction" as well as "shop". |
