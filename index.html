@@ -1072,7 +1072,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.1.5 · built 2026-10-14 18:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.1.6 · built 2026-10-14 18:55 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -17318,13 +17318,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.1.5 · built 2026-10-14 18:30 PDT";
+const BUILD_INFO = "v16.1.6 · built 2026-10-14 18:55 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
+  ] },
+  { v: "16.1.6", date: "2026-10-15", title: "Ursan and Pipkin redesigned", items: [
+    "Ursan are now big, gray-green lizard-skinned brutes: heavy brow, small deep-set eyes, a stern frown, a thick neck, a broad frame, thicker arms and a long lizard tail. The bear ears and beard are gone.",
+    "Pipkin are now cute and doll-like: big round dark eyes with a shine, a tiny nose, rosy cheeks, a small smile, a rounder face and warm peach skin.",
+    "Each race has its own eight face choices, shown in the creator's face step."
   ] },
   { v: "16.1.5", date: "2026-10-15", title: "Creator fits narrow phones", items: [
     "The character creation preview on narrow phones was cropping the character at the sides, which looked like a zoom. The camera now pulls back to fit the whole body, and the preview column is wider.",
@@ -18017,7 +18022,7 @@ const UPDATES = [
     "Discovering landmarks no longer gives experience, and achievements no longer pay crystals. Both are for bragging rights only."
   ] },
   { v: "6.4.0", date: "2026-10-13", title: "Five Races and the City Blessing", items: [
-    "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like; the best casters, fast, but weak and frail), Ursan (huge; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
+    "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like, with big round eyes and rosy cheeks; the best casters, fast, but weak and frail), Ursan (huge gray-green lizard-skinned brutes with a tail; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
     "Race changes your body shape, ears and tail, and gives modest stat bonuses and penalties. Existing characters are Human.",
     "City Blessing: gate guards now stand at every town exit. Monsters only yield elemental essences while you carry the blessing, which lasts 60 minutes at Copper rank and 30 minutes more per guild rank (up to 3½ hours). Talk to a guard before you head out.",
     "The character sheet and roster now show your race."
@@ -18654,7 +18659,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.1.5";
+const GAME_VERSION = "16.1.6";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -21809,8 +21814,8 @@ function loadSettings() {
 function saveSettings(s) { try { localStorage.setItem(CONFIG.settingsKey, JSON.stringify(s)); } catch (e) {} }
 
 const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
-const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "fur", "bone", "scale", "feather", "wood", "glow", "plain", "chain", "quilt", "face2", "face3", "face4", "face5", "face6", "face7", "face8", "face9", "face10", "face11", "face12", "face13", "face14", "face15", "face16"];
-const ATLAS_COLS = 8, ATLAS_ROWS = 4;
+const REGIONS = ["skin", "face", "cloth", "leather", "metal", "hair", "trim", "fur", "bone", "scale", "feather", "wood", "glow", "plain", "chain", "quilt", "face2", "face3", "face4", "face5", "face6", "face7", "face8", "face9", "face10", "face11", "face12", "face13", "face14", "face15", "face16", "face17", "face18", "face19", "face20", "face21", "face22", "face23", "face24", "face25", "face26", "face27", "face28", "face29", "face30", "face31", "face32"];
+const ATLAS_COLS = 8, ATLAS_ROWS = 6;
 const FACE_PAINTS = 8, FACE_COUNT = 8;
 const FACE_NAMES = ["Bright", "Calm", "Keen", "Freckled", "Gentle", "Fierce", "Sleepy", "Proud"];
 const ATLAS_SIZE = 1024;
@@ -21963,6 +21968,99 @@ function paintFace(g, ox, oy, v, fem) {
   g.restore();
 }
 
+function paintFaceUrsan(g, ox, oy, v) {
+  g.save();
+  g.translate(ox, oy);
+  g.scale(ATLAS_CELL / 256, ATLAS_CELL / 256);
+  const IRIS = [[205, 160, 40], [120, 165, 60], [196, 86, 40], [214, 204, 74], [124, 84, 40], [222, 192, 104], [70, 150, 130], [224, 124, 44]][v];
+  const BROWA = [2.6, 3.4, 1.8, 3, 2.2, 3.8, 2.8, 1.4][v], MW = [8, 9, 7.4, 8.6, 7.8, 9.4, 8.2, 7][v], MD = [1.6, 2.2, 1, 2, 1.4, 2.6, 1.8, 0.8][v];
+  g.translate(64, 120); g.scale(1, 1.7);
+  g.lineCap = "round"; g.lineJoin = "round";
+  const rgba = (c, a) => "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
+  const soft = (x, y, rx, ry, col, a) => { g.save(); g.translate(x, y); g.scale(rx, ry); const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill(); g.restore(); };
+  const rr = seeded(71 + v);
+  for (let k = 0; k < 90; k++) { const x = (rr() - 0.5) * 70, y = (rr() - 0.5) * 50 + 8; g.fillStyle = "rgba(40,60,36," + (0.08 + rr() * 0.1) + ")"; g.beginPath(); g.arc(x, y, 0.5 + rr() * 0.8, 0, Math.PI * 2); g.fill(); }
+  soft(-24, 16, 9, 5, [60, 80, 52], 0.22); soft(24, 16, 9, 5, [60, 80, 52], 0.22);
+  soft(0, 2, 12, 9, [40, 56, 36], 0.16);
+  for (const s of [-1, 1]) {
+    const x = s * 16, rx = 8.2, up = 4.6, dn = 3.4;
+    soft(x, -3, rx + 6, up + 5, [36, 48, 32], 0.3);
+    g.save();
+    g.beginPath(); g.moveTo(x - s * rx, 0.8); g.bezierCurveTo(x - s * rx * 0.3, -up - 1, x + s * rx * 0.5, -up, x + s * rx, 0.6); g.bezierCurveTo(x + s * rx * 0.4, dn, x - s * rx * 0.4, dn + 0.6, x - s * rx, 0.8);
+    g.fillStyle = "rgb(236,226,186)"; g.fill(); g.clip();
+    g.fillStyle = rgba(IRIS, 1); g.beginPath(); g.ellipse(x + s * 0.6, 0, 4.6, 5.6, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = rgba(IRIS.map(c => c * 0.45 | 0), 1); g.beginPath(); g.ellipse(x + s * 0.6, -1.2, 4.6, 2.4, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgb(10,8,8)"; g.beginPath(); g.ellipse(x + s * 0.6, 0.2, 1.2, 3.4, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.9)"; g.beginPath(); g.arc(x - s * 0.8, -1.8, 0.9, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(30,40,28,0.55)"; g.beginPath(); g.ellipse(x, -up + 0.6, rx * 1.1, 2.6, 0, 0, Math.PI * 2); g.fill();
+    g.restore();
+    g.strokeStyle = "rgb(28,38,26)"; g.lineWidth = 2.2;
+    g.beginPath(); g.moveTo(x - s * rx, 0.8); g.bezierCurveTo(x - s * rx * 0.3, -up - 1, x + s * rx * 0.5, -up, x + s * rx + s * 0.8, 0.4); g.stroke();
+    g.strokeStyle = "rgba(30,44,28,0.7)"; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(x - s * rx * 0.8, 1.2); g.quadraticCurveTo(x, dn + 1, x + s * rx * 0.9, 0.9); g.stroke();
+    const by = -up - 7;
+    g.fillStyle = "rgba(34,46,30,0.96)";
+    g.beginPath(); g.moveTo(x - s * 8.5, by + BROWA + 1.4); g.quadraticCurveTo(x, by - 1.2, x + s * 12, by - 0.6); g.lineTo(x + s * 12, by + 3); g.quadraticCurveTo(x, by + 3.2, x - s * 8.5, by + BROWA + 4.4); g.fill();
+    soft(x, by + 4, rx + 3, 2.4, [30, 42, 26], 0.4);
+  }
+  g.fillStyle = "rgba(24,34,22,0.8)";
+  for (const s of [-1, 1]) { g.beginPath(); g.ellipse(s * 3.4, 12.4, 1.5, 1.1, s * 0.4, 0, Math.PI * 2); g.fill(); }
+  soft(0, 9, 3, 6, [160, 180, 140], 0.14);
+  g.strokeStyle = "rgb(26,34,24)"; g.lineWidth = 1.8;
+  const my = 26;
+  g.beginPath(); g.moveTo(-MW, my + MD * 0.8); g.quadraticCurveTo(-MW * 0.4, my - 0.4, 0, my - 0.2); g.quadraticCurveTo(MW * 0.4, my - 0.4, MW, my + MD * 0.8); g.stroke();
+  soft(0, my + 3.4, MW * 0.8, 1.8, [34, 46, 30], 0.3);
+  g.strokeStyle = "rgba(34,46,30,0.45)"; g.lineWidth = 1;
+  for (const s of [-1, 1]) { g.beginPath(); g.moveTo(s * 7, 14); g.quadraticCurveTo(s * 11, 20, s * (MW + 1), my + 1); g.stroke(); }
+  if (v === 3 || v === 6) { g.strokeStyle = "rgba(190,205,170,0.7)"; g.lineWidth = 1.2; g.beginPath(); g.moveTo(-26, -8); g.lineTo(-16, 10); g.stroke(); }
+  g.restore();
+}
+
+function paintFacePipkin(g, ox, oy, v) {
+  g.save();
+  g.translate(ox, oy);
+  g.scale(ATLAS_CELL / 256, ATLAS_CELL / 256);
+  const IRIS = [[74, 44, 30], [38, 30, 30], [62, 102, 160], [60, 130, 90], [136, 92, 42], [112, 74, 150], [156, 104, 44], [92, 102, 112]][v];
+  const SMILE = [1.8, 2.5, 1, 2.9, 1.4, 2.2, 0.6, 2][v], BLUSH = [0.34, 0.4, 0.28, 0.46, 0.32, 0.38, 0.26, 0.42][v], TILT = [0, 0.8, -0.6, 1.2, 0, 0.5, -1, 0.3][v];
+  g.translate(64, 120); g.scale(1, 1.7);
+  g.lineCap = "round"; g.lineJoin = "round";
+  const rgba = (c, a) => "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
+  const soft = (x, y, rx, ry, col, a) => { g.save(); g.translate(x, y); g.scale(rx, ry); const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill(); g.restore(); };
+  for (const s of [-1, 1]) {
+    const x = s * 19, y = 2 + s * TILT * 0.3;
+    soft(x, y + 1, 12, 10, [150, 90, 70], 0.1);
+    g.fillStyle = "rgb(252,248,244)"; g.beginPath(); g.ellipse(x, y, 8.8, 8.6, 0, 0, Math.PI * 2); g.fill();
+    g.save(); g.beginPath(); g.ellipse(x, y, 8.8, 8.6, 0, 0, Math.PI * 2); g.clip();
+    const ig = g.createLinearGradient(0, y - 9, 0, y + 9);
+    ig.addColorStop(0, rgba(IRIS.map(c => c * 0.45 | 0), 1)); ig.addColorStop(0.55, rgba(IRIS, 1)); ig.addColorStop(1, rgba(IRIS.map(c => Math.min(255, c + 60)), 1));
+    g.fillStyle = ig; g.beginPath(); g.ellipse(x + s * 0.4, y + 0.6, 8.4, 8.8, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgb(16,10,10)"; g.beginPath(); g.ellipse(x + s * 0.4, y + 0.6, 4, 4.4, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.98)"; g.beginPath(); g.ellipse(x - s * 2.6, y - 3.4, 2.8, 3, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.8)"; g.beginPath(); g.arc(x + s * 3, y + 4, 1.3, 0, Math.PI * 2); g.fill();
+    g.restore();
+    g.strokeStyle = "rgba(70,36,28,0.85)"; g.lineWidth = 1.5;
+    g.beginPath(); g.ellipse(x, y, 8.8, 8.6, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
+    g.strokeStyle = "rgba(110,60,50,0.4)"; g.lineWidth = 0.9;
+    g.beginPath(); g.moveTo(x - 8, y - 12.6 - s * TILT * 0.4); g.quadraticCurveTo(x, y - 15.4, x + 8, y - 12.4 + s * TILT * 0.4); g.stroke();
+    soft(x + s * 6, y + 16, 9, 5, [244, 120, 120], BLUSH);
+  }
+  soft(0, 13, 3.6, 3.2, [214, 130, 100], 0.55);
+  soft(-0.8, 12, 1.4, 1.2, [255, 235, 220], 0.7);
+  g.fillStyle = "rgba(120,60,50,0.55)";
+  for (const s of [-1, 1]) { g.beginPath(); g.arc(s * 1.5, 15, 0.7, 0, Math.PI * 2); g.fill(); }
+  g.strokeStyle = "rgb(140,64,64)"; g.lineWidth = 1.3;
+  const my = 25;
+  g.beginPath(); g.moveTo(-3.8, my - SMILE * 0.45); g.quadraticCurveTo(0, my + SMILE, 3.8, my - SMILE * 0.45); g.stroke();
+  soft(0, my + 1.4, 3.4, 1.6, [236, 120, 120], 0.3);
+  g.restore();
+}
+
+function paintFaceFor(race, g, ox, oy, v, fem) {
+  if (race === "ursan") paintFaceUrsan(g, ox, oy, v % 8);
+  else if (race === "pipkin") paintFacePipkin(g, ox, oy, v % 8);
+  else paintFace(g, ox, oy, v, fem);
+}
+
 function buildAtlas() {
   ATLAS_CELL = typeof W3 !== "undefined" && W3.quality === "high" ? 512 : 256;
   RIG.shellLayers = typeof W3 !== "undefined" && W3.quality === "high" ? 5 : 0; RIG.shellMat = null;
@@ -22003,6 +22101,7 @@ function buildAtlas() {
   }
   ga.putImageData(ia, 0, 0);
   for (let f = 0; f < FACE_PAINTS * 2; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % FACE_PAINTS, f >= FACE_PAINTS); }
+  for (let f = 0; f < 16; f++) { const i = REGIONS.indexOf("face" + (17 + f)); paintFaceFor(f < 8 ? "ursan" : "pipkin", ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % 8, false); }
   gn.putImageData(inn, 0, 0);
   gm.putImageData(im, 0, 0);
   const mk = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = TEXLIB.anisotropy; t.needsUpdate = true; return t; };
@@ -22386,8 +22485,8 @@ const HEAD_PROFILES = {
   human0: { jaw: 0.26, chin: 0.09, brow: 0.05, sock: 0.05, cheek: 0.04, nose: 0.2, lips: 1, long: 0.06 },
   human1: { jaw: 0.32, chin: 0.05, brow: 0.02, sock: 0.045, cheek: 0.05, nose: 0.15, lips: 1.3, long: 0.03 },
   elari: { jaw: 0.36, chin: 0.1, brow: 0.03, sock: 0.05, cheek: 0.06, nose: 0.17, lips: 1, long: 0.12 },
-  pipkin: { jaw: 0.14, chin: 0.02, brow: 0.01, sock: 0.03, cheek: 0.08, nose: 0.1, lips: 0.8, long: -0.04 },
-  ursan: { jaw: 0.08, chin: 0.04, brow: 0.07, sock: 0.05, cheek: 0.05, nose: 0.12, noseW: 1.5, lips: 0.8, long: 0.02, muzzle: 0.16 },
+  pipkin: { jaw: 0.08, chin: 0.01, brow: 0.01, sock: 0.03, cheek: 0.13, nose: 0.1, lips: 0.8, long: -0.06 },
+  ursan: { jaw: 0.02, chin: 0.06, brow: 0.16, sock: 0.07, cheek: 0.04, nose: 0.14, noseW: 1.7, lips: 0.2, long: 0, muzzle: 0 },
   nekari: { jaw: 0.32, chin: 0.05, brow: 0.02, sock: 0.045, cheek: 0.08, nose: 0.1, lips: 0.9, long: 0.02, muzzle: 0.05 },
   goblin: { jaw: 0.16, chin: 0.09, brow: 0.13, sock: 0.1, cheek: 0.08, nose: 0, lips: 0.7, long: 0, muzzle: 0.06 },
   orc: { jaw: -0.06, chin: 0.15, brow: 0.15, sock: 0.08, cheek: 0.05, nose: 0.12, noseW: 1.9, lips: 1.6, long: 0.05, muzzle: 0.1 },
@@ -22417,7 +22516,7 @@ function headProfile(L) {
   }
   const P = Object.assign({}, HEAD_PROFILES[k] || HEAD_PROFILES.human0);
   if (L.build === 1 && !/human|skull|plain/.test(k)) { P.brow *= 0.5; P.jaw += 0.04; P.nose *= 0.85; P.lips *= 1.2; }
-  if (!L.noFace && /human|elari|pipkin|ursan|nekari/.test(k)) { P.nose *= 0.3; P.sock *= 0.2; P.brow *= 0.3; P.lips *= 0.25; P.cheek *= 0.4; P.anime = true; }
+  if (!L.noFace && /human|elari|pipkin|nekari/.test(k)) { P.nose *= 0.3; P.sock *= 0.2; P.brow *= 0.3; P.lips *= 0.25; P.cheek *= 0.4; P.anime = true; }
   P.key = k;
   return P;
 }
@@ -23017,7 +23116,7 @@ function humanEntry(L) {
   const headCovers = L.head && ["cap", "helm", "horned", "hood", "pointy", "feathered", "furhat", "widebrim"].includes(L.head.type);
 
   const HP = headProfile(L);
-  const faceIx = ((L.face || 0) % FACE_PAINTS) + (L.build === 1 ? FACE_PAINTS : 0), faceReg = L.noFace ? (L.headRegion || SKR) : (faceIx ? "face" + (faceIx + 1) : "face");
+  const faceIx = ((L.face || 0) % FACE_PAINTS) + (L.build === 1 ? FACE_PAINTS : 0), faceReg = L.noFace ? (L.headRegion || SKR) : L.ears === "ursan" ? "face" + (17 + (L.face || 0) % 8) : L.doll ? "face" + (25 + (L.face || 0) % 8) : (faceIx ? "face" + (faceIx + 1) : "face");
   if (!L.noFace && !L.skull) {
     const jy = hc - hr * 0.25;
     R.bone("jaw", "head", 0, jy, -hr * 0.1);
@@ -23039,7 +23138,7 @@ function humanEntry(L) {
   for (const s of [-1, 1]) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, SKR);
     else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.8, hc - hr * 0.06, -hr * 0.06), V3(s * (hr + 0.1), hc + hr * 0.45, -hr * 0.42), hr * 0.2, 0.004, 8, 0.4), earBone(s), skin, SKR);
-    else if (L.ears === "ursan") R.add(gBall(V3(s * hr * 0.78, hc + hr * 0.62, -hr * 0.1), hr * 0.26, 1, 0.9, 0.6, 8), "head", L.hair.color, "hair");
+    else if (L.ears === "ursan") R.add(gTaper(V3(s * hr * 0.9, hc - hr * 0.05, -hr * 0.12), V3(s * (hr + 0.04), hc + hr * 0.08, -hr * 0.3), hr * 0.13, 0.006, 6, 0.4), "head", skin, SKR);
     else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.08, -0.01), V3(s * (hr + 0.12), hc + hr * 0.12, -hr * 0.12), hr * 0.24, 0.006, 6, 0.42), earBone(s), skin, SKR);
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
@@ -23106,7 +23205,7 @@ function humanEntry(L) {
   for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
     const ax = s * sw, ex = s * (sw + 0.01), wx = s * (sw + 0.02), mid = (elY + wrY) / 2;
     const bare = sleeves === "none" || L.skull;
-    const armR = L.skull ? 0.022 : 0.05 * gi;
+    const armR = L.skull ? 0.022 : 0.05 * gi * (L.ears === "ursan" ? 1.3 : 1);
     const upC = bare ? skin : sleeveC, upR = L.skull ? "bone" : bare ? "skin" : sleeveR;
     const longS = !bare && (sleeves === "long" || sleeves === "wide");
     const fa1C = longS ? sleeveC : (L.skull ? skin : skin), fa1R = longS ? sleeveR : (L.skull ? "bone" : SKR);
@@ -23357,15 +23456,16 @@ function humanEntry(L) {
   }
 
   if (L.tail) {
-    const cat = L.tail === "cat", tz = -(0.12 * gi * (sw / 0.195) + 0.02), tc = cat ? L.hair.color : (L.hair && L.hair.color) || skin;
+    const cat = L.tail === "cat", tz = -(0.12 * gi * (sw / 0.195) + 0.02), tc = cat ? L.hair.color : L.tail === "ursan" ? skin : (L.hair && L.hair.color) || skin;
     R.bone("tail", "hips", 0, hipsY - 0.04, tz);
     R.bone("tail2", "tail", 0, hipsY - (cat ? 0.32 : 0.26), tz - (cat ? 0.2 : 0.22));
     if (cat) {
       R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.32, tz - 0.2), 0.03, 0.026, 8), "tail", tc, "hair");
       R.add(gTaper(V3(0, hipsY - 0.32, tz - 0.2), V3(0, hipsY - 0.24, tz - 0.48), 0.026, 0.012, 8), "tail2", tc, "hair");
     } else {
-      R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.26, tz - 0.22), 0.07, 0.055, 8), "tail", tc, "hair");
-      R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - 0.5, tz - 0.3), 0.055, 0.02, 8), "tail2", tc, "hair");
+      const lz = L.tail === "ursan", tr = lz ? "scale" : "hair";
+      R.add(gTaper(V3(0, hipsY - 0.04, tz), V3(0, hipsY - 0.26, tz - 0.22), lz ? 0.1 : 0.07, lz ? 0.075 : 0.055, 8), "tail", tc, tr);
+      R.add(gTaper(V3(0, hipsY - 0.26, tz - 0.22), V3(0, hipsY - (lz ? 0.56 : 0.5), tz - (lz ? 0.6 : 0.3)), lz ? 0.075 : 0.055, 0.015, 8), "tail2", tc, tr);
     }
   }
   if (L.family || L.boss) familyExtras(R, L, { hx: pr.hip, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid: (elY + wrY) / 2 });
@@ -24357,7 +24457,7 @@ const RACE_BODY = {
   human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.075 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.075 }],
   elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
   pipkin: [{ leg: 0.34, torso: 0.3, arm: 0.3, girth: 1.0, waist: 1.0, shoulder: 0.125, hip: 0.072, headR: 0.2, neck: 0.03 }, { leg: 0.34, torso: 0.3, arm: 0.3, girth: 0.96, waist: 0.94, shoulder: 0.118, hip: 0.074, headR: 0.2, neck: 0.03 }],
-  ursan: [{ leg: 0.94, torso: 0.78, arm: 0.84, girth: 1.45, waist: 1.32, shoulder: 0.3, hip: 0.14, headR: 0.155, neck: 0.045 }, { leg: 0.94, torso: 0.78, arm: 0.84, girth: 1.45, waist: 1.32, shoulder: 0.3, hip: 0.14, headR: 0.155, neck: 0.045 }],
+  ursan: [{ leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: 0.05 }, { leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: 0.05 }],
   nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.075 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.075 }]
 };
 
@@ -24371,16 +24471,18 @@ function bodyProp(l) {
 }
 
 const RACE_SKIN = { human: 1, elari: 0, pipkin: 0, ursan: 2, nekari: 1 };
+const RACE_SKINCOL = { ursan: 0x8a9a74, pipkin: 0xf2c9aa };
+function raceSkinColor(race) { return RACE_SKINCOL[race] != null ? RACE_SKINCOL[race] : SKIN_TONES[RACE_SKIN[race] || 0]; }
 function baseFromLook(look) {
   const l = look || {};
-  const b = { build: l.build || 0, skin: SKIN_TONES[RACE_SKIN[raceOfLook(l)]], hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
+  const b = { build: l.build || 0, skin: raceSkinColor(raceOfLook(l)), hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
   const p = bodyProp(l);
   if (p) b.prop = p;
   const race = raceOfLook(l);
   if (race === "elari") b.ears = "elf";
   if (race === "pipkin") { b.ears = "pip"; b.doll = true; }
   if (race === "nekari") { b.ears = "cat"; b.tail = "cat"; }
-  if (race === "ursan") { b.tail = "ursan"; b.beard = b.hair.color; b.ears = "ursan"; }
+  if (race === "ursan") { b.tail = "ursan"; b.ears = "ursan"; }
   return b;
 }
 
@@ -29185,8 +29287,8 @@ function ccSteps(l) { return CC_STEPS.filter(s => s[0] !== "gender" || RACES[l.r
 function ccFaceThumb(v, fem, race) {
   const k = ATLAS_CELL / 256, c = document.createElement("canvas"), g = c.getContext("2d");
   c.width = ATLAS_CELL; c.height = ATLAS_CELL;
-  g.fillStyle = "#" + SKIN_TONES[RACE_SKIN[race] || 0].toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
-  paintFace(g, 0, 0, v, fem);
+  g.fillStyle = "#" + raceSkinColor(race).toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
+  paintFaceFor(race, g, 0, 0, v, fem);
   const t = document.createElement("canvas"); t.width = 72; t.height = 60;
   const tg = t.getContext("2d");
   tg.drawImage(c, 26 * k, 66 * k, 76 * k, 108 * k, 0, 0, 72, 60);
