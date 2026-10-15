@@ -15,7 +15,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 | 119 ✅ | 16.5.0 | Chunky hair | 12–14 thick clumps per style, fuller shell, smooth shading on skin and faces | Opus |
 | 120 ✅ | 16.6.0 | Face finish | 3-tone face shading, ink eyelid line, cleaner ears per race | Sonnet |
 | 121 ✅ | 16.7.0 | Iconic gear sets | 3–4 tiered looks per job for all 22 jobs (WAR horned helm, BLM pointed hat, RDM feather hat, DRG winged helm…), oversized shoulders, cuffs, boots | Opus |
-| 122 | | Weapons and shields | Chunkier weapons, bolder guards and heads, painted crests; match the item icons | Sonnet |
+| 122 ✅ | 16.8.0 | Weapons and shields | Chunkier weapons, bolder guards and heads, painted crests; match the item icons | Sonnet |
 | 123 | | Bold monsters | Families as chunky painted shapes recoloured per tier; NMs get extra parts | Opus |
 | 124 | | NPCs and townsfolk | Outfits coded by race, job and district | Sonnet |
 | 125 | | World match | Terrain, trees, props, sky and fog in the same painted style; bloom off in Classic | Sonnet |
@@ -88,6 +88,12 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - Shoulders: `padK > 1` adds an oversized dome and rim ring on top of the normal pauldron, with `padRegion` (metal, cloth, leather or fur), `padTrim`, and `padSpikes` with `padSpikeC`.
 - Mail tops in the table set `plate` to their own colour so the hip skirt is not light grey.
 - Contact sheets: scratch script t12.mjs sets `UI.pv.override = { job, gear: {}, lv, look }` in the creator and screenshots each job and tier (env R = race, S = sex).
+
+## Phase 122: Weapons and shields (v16.8.0)
+- weaponEntry (rig.js) `CW = classicOn()`: local `gT` (gTaper radii × 1.4, spike tips × 1.8), `gR` (ring radius × 1.08, tube × 1.5) and `fat(g)` (scales axe, greataxe and scythe heads 1.22 × 1.22 × 2.0). Sword, dagger and greatsword blades are 1.5 × wider with doubled extrude depth and fuller, guards 1.35 × wider and thicker; katana and tachi blades 1.5 × wider; polearm head scaled 1.4 × 1.15 × 2.2; club head and staff orb larger.
+- makeWeapon adds an outline child Mesh (shared outlineMaterial) when outlineOn().
+- Shield (humanEntry): Classic builds an extruded octagon (radius 0.185) or, for `shield.kite` (kite_shield), a kite shape, 0.034 thick with bevel, a cross emblem in `emblem` colour, a centre boss and rim studs in `trim` colour. Modern keeps the old cylinder.
+- Item icons were not changed in this phase.
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.
