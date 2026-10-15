@@ -692,14 +692,10 @@ function updateTgtAct() {
   if (!el) return;
   const t = player.target, touch = (typeof VIEW !== "undefined" && VIEW.touch) || matchMedia("(pointer: coarse)").matches;
   const a = touch ? tgtActFor(t) : null;
-  const pos = a && !(UI.cmd && UI.cmd.t === t) && typeof screenOf === "function" ? screenOf(t.x, t.y, entityHeight(t) + 1.1) : null;
-  if (!a || !pos) { if (el.classList.contains("on")) el.classList.remove("on"); return; }
+  if (!a || (UI.cmd && UI.cmd.t === t)) { if (el.classList.contains("on")) el.classList.remove("on"); return; }
   if (el.textContent !== a.label) el.textContent = a.label;
   el.classList.toggle("fight", !!a.fight);
   el.classList.add("on");
-  const w = $("game").clientWidth, h = $("game").clientHeight;
-  el.style.left = clamp(pos.x, 50, w - 50) + "px";
-  el.style.top = clamp(pos.y - 28, 44, h - 20) + "px";
 }
 function tgtActPress() {
   const t = player.target, a = tgtActFor(t);

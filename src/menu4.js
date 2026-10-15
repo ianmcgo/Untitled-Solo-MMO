@@ -1474,12 +1474,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.13.1", date: "2026-10-15", title: "Target button placement", items: [
+    "The Talk / Use / Inspect / Harvest / Fight button now sits directly above the Target panel instead of floating over the target, and uses the same blue and gold style as the command menu."
+  ] },
   { v: "16.13.0", date: "2026-10-15", title: "Offline password", items: [
     "Playing offline now asks for the email and password of your online account before you can open the offline characters. The password is checked with the server, then remembered on that device (as a one-way hash) so offline play keeps working with no connection afterwards.",
     "If you have never signed in on a device and it is offline, connect once to unlock offline play there."
   ] },
   { v: "16.12.0", date: "2026-10-15", title: "Target button", items: [
-    "On a touch screen, targeting something now puts a button above it: Talk for people, Use or Inspect for objects (signs, boards and tablets are Inspect; crystals, warp stones, chests, braziers and camps are Use), Harvest for gathering points, and Fight for monsters.",
+    "On a touch screen, targeting something now puts a button above the Target panel, styled like the command menu: Talk for people, Use or Inspect for objects (signs, boards and tablets are Inspect; crystals, warp stones, chests, braziers and camps are Use), Harvest for gathering points, and Fight for monsters.",
     "Fight engages the monster and opens its command box (magic, abilities, items) in one tap.",
     "Attacking no longer makes you run to the monster. If you want the old behaviour, turn on Auto-run to target in Config, Camera."
   ] },
@@ -2536,7 +2539,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
-    "<b>Target button (touch):</b> a button floats above whatever you target: Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
+    "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.13.0",
-  "releaseTitle": "Offline password",
+  "version": "16.13.1",
+  "releaseTitle": "Target button placement",
   "description": "",
   "main": "index.js",
   "scripts": {
