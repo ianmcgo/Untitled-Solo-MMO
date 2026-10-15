@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.15.1",
-  "releaseTitle": "Off the roads, again",
+  "version": "16.16.0",
+  "releaseTitle": "World match",
   "description": "",
   "main": "index.js",
   "scripts": {

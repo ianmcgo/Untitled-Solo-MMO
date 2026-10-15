@@ -18,7 +18,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 | 122 ✅ | 16.8.0 | Weapons and shields | Chunkier weapons, bolder guards and heads, painted crests; match the item icons | Sonnet |
 | 123 ✅ | 16.9.0 | Bold monsters | Families as chunky painted shapes recoloured per tier; NMs get extra parts | Opus |
 | 124 ✅ | 16.10.0 | NPCs and townsfolk | Outfits coded by race, job and district | Sonnet |
-| 125 | | World match | Terrain, trees, props, sky and fog in the same painted style; bloom off in Classic | Sonnet |
+| 125 ✅ | 16.16.0 | World match | Terrain, trees, props, sky and fog in the same painted style; bloom off in Classic | Sonnet |
 | 126 | | Classic effects | Bold sprite and ring spell effects, painted numbers | Sonnet |
 | 127 | | Polish | Performance on all tiers, real-phone check, contact sheets, remove dead PBR paths | Sonnet |
 
@@ -108,6 +108,12 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - Night walkers (`time: "night"`) get a dark cape and a lantern and lose bandanas.
 - The ambient rig sig adds `|district` (and `n` at night) in Classic, so the same seed rebuilds per district.
 - Test: scratch t16.mjs renders walkers for each district (day, alt seed, night) in one canvas.
+
+## Phase 125: World match (v16.16.0)
+- Classic only (classicOn at load). `posterCanvas(c, lv, alv)` in textures.js quantises luminance (hue kept, floor 14) and alpha below 250; toTexture applies it (7 tones, 5 alpha steps) to every colour texture, and texGray posterises the terrain detail maps to 5 tones. texPair normal strength is halved.
+- `classicWorldChunk()` (world3d.js, run in initRenderer before any compile) prepends a banding block to THREE.ShaderChunk.opaque_fragment under `#ifdef STANDARD` (opaque only, ratio above 0.2, 4 bands, 45% blend). Lambert characters are unaffected; it affects terrain, trees, buildings and props.
+- Bloom pass is not added in Classic. Open-air fog near/far x0.78 in Classic.
+- Not done: painted-style tree/foliage geometry, sky gradient banding.
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.

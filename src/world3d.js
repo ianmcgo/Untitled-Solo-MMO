@@ -1954,7 +1954,12 @@ function makeStars() {
   return new THREE.Points(g, m);
 }
 
+function classicWorldChunk() {
+  if (THREE.ShaderChunk.opaque_fragment.indexOf("clWorld") >= 0) return;
+  THREE.ShaderChunk.opaque_fragment = "#ifdef STANDARD\n{ float clWorld = 1.0; if (diffuseColor.a > 0.98) { float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; if (r > 0.2) { float qn = floor(r * 4.0 + 0.5) / 4.0; float rr = mix(r, qn, 0.45); outgoingLight *= rr / max(r, 0.001); } } }\n#endif\n" + THREE.ShaderChunk.opaque_fragment;
+}
 function initRenderer() {
+  if (classicOn()) classicWorldChunk();
   const canvas = $("game");
   const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
   const saved = loadSettings();
@@ -2037,7 +2042,7 @@ function initRenderer() {
     const comp = new THREE.EffectComposer(r, rt);
     comp.addPass(new THREE.RenderPass(W3.scene, W3.camera));
     W3.bloom = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), classicOn() ? 0.1 : 0.22, 0.5, 0.95);
-    comp.addPass(W3.bloom);
+    if (!classicOn()) comp.addPass(W3.bloom);
     comp.addPass(new THREE.OutputPass());
     W3.grade = new THREE.ShaderPass(GRADE_SHADER);
     comp.addPass(W3.grade);
@@ -2461,7 +2466,7 @@ function updateSky(force) {
   else if (cave) { W3.fog.near = 6; W3.fog.far = 70; }
   else if (indoor) { W3.fog.near = 30; W3.fog.far = 120; }
   else if (S.zone.mist) { W3.fog.near = mix(16, 30, dayAmt); W3.fog.far = mix(110, 210, dayAmt); }
-  else { W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1); W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1); }
+  else { const ck = classicOn() ? 0.78 : 1; W3.fog.near = mix(30, 70, dayAmt) * (atm ? atm.far : 1) * ck; W3.fog.far = mix(180, 420, dayAmt) * (atm ? atm.far : 1) * ck; }
   if (!cave && !indoor && (wx === "fog" || wet || wx === "blizzard" || sand)) { const k = wx === "fog" ? 0.45 : wx === "blizzard" ? 0.22 : sand ? 0.2 : 0.7; W3.fog.near *= k; W3.fog.far *= k; }
   W3.scene.background = cave || indoor ? fogC : null;
   const lightDir = sunY > -0.02 ? dir : moonDir;
