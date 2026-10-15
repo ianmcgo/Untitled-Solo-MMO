@@ -358,7 +358,7 @@ function showCharCreate() {
   UI.creating = true;
   if (typeof attachPreview === "function") {
     attachPreview("ccPv");
-    if (UI.pv && !UI.pv.failed) { UI.pv.rot = 0.4; UI.pv.sig = null; }
+    if (UI.pv && !UI.pv.failed) { UI.pv.rot = 0; UI.pv.spinInit = 0; UI.pv.sig = null; }
   }
   const label = () => { $("ccLbl").innerHTML = esc(CC.name || "Adventurer") + "<small>" + (RACES[CC.look.race] || RACES.human).name + " " + (CC.look.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(CC.look)][0] + "</small>"; };
   const thumb = (v, fem) => { const key = v + "|" + fem + "|" + CC.look.race + "|" + ATLAS_CELL; if (!CC.thumbs[key]) { try { CC.thumbs[key] = ccFaceThumb(v, fem, CC.look.race); } catch (e) { CC.thumbs[key] = ""; } } return CC.thumbs[key]; };

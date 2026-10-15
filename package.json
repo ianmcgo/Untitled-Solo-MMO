@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "15.7.0",
-  "releaseTitle": "Creation polish",
+  "version": "15.7.1",
+  "releaseTitle": "Creator preview fix",
   "description": "",
   "main": "index.js",
   "scripts": {
