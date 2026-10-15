@@ -212,27 +212,28 @@ function paintFacePipkin(g, ox, oy, v) {
   const rgba = (c, a) => "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
   const soft = (x, y, rx, ry, col, a) => { g.save(); g.translate(x, y); g.scale(rx, ry); const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1); gr.addColorStop(0, rgba(col, a)); gr.addColorStop(1, rgba(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, Math.PI * 2); g.fill(); g.restore(); };
   for (const s of [-1, 1]) {
-    const x = s * 19, y = 2 + s * TILT * 0.3;
+    const x = s * 19, y = 3 + s * TILT * 0.3;
     soft(x, y + 1, 12, 10, [150, 90, 70], 0.1);
-    g.fillStyle = "rgb(252,248,244)"; g.beginPath(); g.ellipse(x, y, 8.8, 8.6, 0, 0, Math.PI * 2); g.fill();
-    g.save(); g.beginPath(); g.ellipse(x, y, 8.8, 8.6, 0, 0, Math.PI * 2); g.clip();
+    g.fillStyle = "rgb(252,248,244)"; g.beginPath(); g.ellipse(x, y, 7.2, 7, 0, 0, Math.PI * 2); g.fill();
+    g.save(); g.beginPath(); g.ellipse(x, y, 7.2, 7, 0, 0, Math.PI * 2); g.clip();
     const ig = g.createLinearGradient(0, y - 9, 0, y + 9);
     ig.addColorStop(0, rgba(IRIS.map(c => c * 0.45 | 0), 1)); ig.addColorStop(0.55, rgba(IRIS, 1)); ig.addColorStop(1, rgba(IRIS.map(c => Math.min(255, c + 60)), 1));
-    g.fillStyle = ig; g.beginPath(); g.ellipse(x + s * 0.4, y + 0.6, 8.4, 8.8, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "rgb(16,10,10)"; g.beginPath(); g.ellipse(x + s * 0.4, y + 0.6, 4, 4.4, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "rgba(255,255,255,0.98)"; g.beginPath(); g.ellipse(x - s * 2.6, y - 3.4, 2.8, 3, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "rgba(255,255,255,0.8)"; g.beginPath(); g.arc(x + s * 3, y + 4, 1.3, 0, Math.PI * 2); g.fill();
+    g.fillStyle = ig; g.beginPath(); g.ellipse(x + s * 0.3, y + 0.5, 6.9, 7.2, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgb(16,10,10)"; g.beginPath(); g.ellipse(x + s * 0.3, y + 0.5, 3.3, 3.6, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.98)"; g.beginPath(); g.ellipse(x - s * 2.1, y - 2.8, 2.3, 2.5, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.8)"; g.beginPath(); g.arc(x + s * 2.5, y + 3.3, 1.1, 0, Math.PI * 2); g.fill();
     g.restore();
     g.strokeStyle = "rgba(70,36,28,0.85)"; g.lineWidth = 1.5;
-    g.beginPath(); g.ellipse(x, y, 8.8, 8.6, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
+    g.beginPath(); g.ellipse(x, y, 7.2, 7, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
     g.strokeStyle = "rgba(110,60,50,0.4)"; g.lineWidth = 0.9;
     g.beginPath(); g.moveTo(x - 8, y - 12.6 - s * TILT * 0.4); g.quadraticCurveTo(x, y - 15.4, x + 8, y - 12.4 + s * TILT * 0.4); g.stroke();
     soft(x + s * 6, y + 16, 9, 5, [244, 120, 120], BLUSH);
   }
-  soft(0, 13, 3.6, 3.2, [214, 130, 100], 0.55);
-  soft(-0.8, 12, 1.4, 1.2, [255, 235, 220], 0.7);
-  g.fillStyle = "rgba(120,60,50,0.55)";
-  for (const s of [-1, 1]) { g.beginPath(); g.arc(s * 1.5, 15, 0.7, 0, Math.PI * 2); g.fill(); }
+  g.save(); g.translate(0, 13.5); g.scale(1, 0.62);
+  g.fillStyle = "rgb(112,66,44)"; g.beginPath(); g.arc(0, 0, 5.2, 0, Math.PI * 2); g.fill();
+  const bg = g.createRadialGradient(-1.6, -1.8, 0.3, 0, 0, 5.2); bg.addColorStop(0, "rgba(176,116,80,1)"); bg.addColorStop(1, "rgba(112,66,44,0)"); g.fillStyle = bg; g.beginPath(); g.arc(0, 0, 5.2, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "rgba(255,230,210,0.75)"; g.beginPath(); g.ellipse(-1.8, -2, 1.4, 1, -0.4, 0, Math.PI * 2); g.fill();
+  g.restore();
   g.strokeStyle = "rgb(140,64,64)"; g.lineWidth = 1.3;
   const my = 25;
   g.beginPath(); g.moveTo(-3.8, my - SMILE * 0.45); g.quadraticCurveTo(0, my + SMILE, 3.8, my - SMILE * 0.45); g.stroke();
@@ -667,12 +668,12 @@ function gMembrane(ptsXZ, y) {
 }
 
 const HEAD_PROFILES = {
-  human0: { jaw: 0.26, chin: 0.09, brow: 0.05, sock: 0.05, cheek: 0.04, nose: 0.2, lips: 1, long: 0.06 },
-  human1: { jaw: 0.32, chin: 0.05, brow: 0.02, sock: 0.045, cheek: 0.05, nose: 0.15, lips: 1.3, long: 0.03 },
-  elari: { jaw: 0.36, chin: 0.1, brow: 0.03, sock: 0.05, cheek: 0.06, nose: 0.17, lips: 1, long: 0.12 },
-  pipkin: { jaw: 0.08, chin: 0.01, brow: 0.01, sock: 0.03, cheek: 0.13, nose: 0.1, lips: 0.8, long: -0.06 },
-  ursan: { jaw: 0.02, chin: 0.06, brow: 0.16, sock: 0.07, cheek: 0.04, nose: 0.14, noseW: 1.7, lips: 0.2, long: 0, muzzle: 0 },
-  nekari: { jaw: 0.32, chin: 0.05, brow: 0.02, sock: 0.045, cheek: 0.08, nose: 0.1, lips: 0.9, long: 0.02, muzzle: 0.05 },
+  human0: { jaw: 0.34, chin: 0.1, brow: 0.05, sock: 0.05, cheek: 0.04, nose: 0.2, lips: 1, long: 0.1 },
+  human1: { jaw: 0.38, chin: 0.06, brow: 0.02, sock: 0.045, cheek: 0.05, nose: 0.15, lips: 1.3, long: 0.03 },
+  elari: { jaw: 0.4, chin: 0.1, brow: 0.03, sock: 0.05, cheek: 0.06, nose: 0.17, lips: 1, long: 0.15 },
+  pipkin: { jaw: 0.3, chin: 0.06, brow: 0.01, sock: 0.03, cheek: 0.1, nose: 0.1, lips: 0.8, long: 0.04 },
+  ursan: { jaw: 0.24, chin: 0.1, brow: 0.16, sock: 0.07, cheek: 0.04, nose: 0.14, noseW: 1.7, lips: 0.2, long: 0, muzzle: 0 },
+  nekari: { jaw: 0.38, chin: 0.06, brow: 0.02, sock: 0.045, cheek: 0.08, nose: 0.1, lips: 0.9, long: 0.08, muzzle: 0.05 },
   goblin: { jaw: 0.16, chin: 0.09, brow: 0.13, sock: 0.1, cheek: 0.08, nose: 0, lips: 0.7, long: 0, muzzle: 0.06 },
   orc: { jaw: -0.06, chin: 0.15, brow: 0.15, sock: 0.08, cheek: 0.05, nose: 0.12, noseW: 1.9, lips: 1.6, long: 0.05, muzzle: 0.1 },
   skull: { jaw: 0.3, chin: 0.07, brow: 0.08, sock: 0.2, cheek: 0.08, nose: -0.11, lips: 0, long: 0.05 },
@@ -2656,7 +2657,7 @@ function bodyProp(l) {
 }
 
 const RACE_SKIN = { human: 1, elari: 0, pipkin: 0, ursan: 2, nekari: 1 };
-const RACE_SKINCOL = { ursan: 0x8a9a74, pipkin: 0xf2c9aa };
+const RACE_SKINCOL = { ursan: 0x8e9688, pipkin: 0xf2c9aa };
 function raceSkinColor(race) { return RACE_SKINCOL[race] != null ? RACE_SKINCOL[race] : SKIN_TONES[RACE_SKIN[race] || 0]; }
 function baseFromLook(look) {
   const l = look || {};
