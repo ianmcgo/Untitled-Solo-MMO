@@ -215,11 +215,11 @@ function terrainDetail(mat, field) {
 
 function cliffChunkGeo(seed) {
   const rnd = seeded(seed), parts = [];
-  const layers = 3 + Math.floor(rnd() * 3);
+  const layers = 3 + Math.floor(rnd() * 3), CS = W3.quality === "low" ? 2 : W3.quality === "medium" ? 3 : 4;
   let y = 0;
   for (let i = 0; i < layers; i++) {
     const h = 0.18 + rnd() * 0.22, w = 1.1 - i * 0.08 + (rnd() - 0.5) * 0.25, d = 0.9 - i * 0.05 + (rnd() - 0.5) * 0.25;
-    const g = new THREE.BoxGeometry(w * 2, h, d * 2, 4, 1, 4).toNonIndexed();
+    const g = new THREE.BoxGeometry(w * 2, h, d * 2, CS, 1, CS).toNonIndexed();
     g.translate((rnd() - 0.5) * 0.25, y + h / 2, (rnd() - 0.5) * 0.25);
     g.rotateY((rnd() - 0.5) * 0.3);
     const p = g.attributes.position, col = new Float32Array(p.count * 3), shade = 0.78 + rnd() * 0.3, warm = (rnd() - 0.5) * 0.08;

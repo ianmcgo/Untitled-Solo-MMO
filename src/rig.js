@@ -369,28 +369,30 @@ function buildAtlas() {
     }
   });
   const ca = makeCanvas(N, NH), ga = ca.getContext("2d"), ia = ga.createImageData(N, NH);
-  const cn = makeCanvas(N, NH), gn = cn.getContext("2d"), inn = gn.createImageData(N, NH);
+  const cn = CL ? null : makeCanvas(N, NH), gn = CL ? null : cn.getContext("2d"), inn = CL ? null : gn.createImageData(N, NH);
   const cm = makeCanvas(N, NH), gm = cm.getContext("2d"), im = gm.createImageData(N, NH);
   for (let y = 0; y < NH; y++) for (let x = 0; x < N; x++) {
     const k = y * N + x, p = k * 4;
     const a = clamp(alb[k], 0, 1) * 255;
     ia.data[p] = a; ia.data[p + 1] = a; ia.data[p + 2] = a; ia.data[p + 3] = 255;
-    const rx = Math.floor(x / ATLAS_CELL) * ATLAS_CELL, ry = Math.floor(y / ATLAS_CELL) * ATLAS_CELL;
-    const lx = x - rx, ly = y - ry;
-    const at = (xx, yy) => hgt[(ry + ((yy + ATLAS_CELL) % ATLAS_CELL)) * N + rx + ((xx + ATLAS_CELL) % ATLAS_CELL)];
-    let nx = (at(lx - 1, ly) - at(lx + 1, ly)) * 3 * PK, ny = (at(lx, ly - 1) - at(lx, ly + 1)) * 3 * PK;
-    const len = Math.hypot(nx, ny, 1);
-    inn.data[p] = (nx / len * 0.5 + 0.5) * 255; inn.data[p + 1] = (ny / len * 0.5 + 0.5) * 255; inn.data[p + 2] = (1 / len * 0.5 + 0.5) * 255; inn.data[p + 3] = 255;
+    if (!CL) {
+      const rx = Math.floor(x / ATLAS_CELL) * ATLAS_CELL, ry = Math.floor(y / ATLAS_CELL) * ATLAS_CELL;
+      const lx = x - rx, ly = y - ry;
+      const at = (xx, yy) => hgt[(ry + ((yy + ATLAS_CELL) % ATLAS_CELL)) * N + rx + ((xx + ATLAS_CELL) % ATLAS_CELL)];
+      let nx = (at(lx - 1, ly) - at(lx + 1, ly)) * 3 * PK, ny = (at(lx, ly - 1) - at(lx, ly + 1)) * 3 * PK;
+      const len = Math.hypot(nx, ny, 1);
+      inn.data[p] = (nx / len * 0.5 + 0.5) * 255; inn.data[p + 1] = (ny / len * 0.5 + 0.5) * 255; inn.data[p + 2] = (1 / len * 0.5 + 0.5) * 255; inn.data[p + 3] = 255;
+    }
     const rn = REGIONS[Math.floor(y / ATLAS_CELL) * ATLAS_COLS + Math.floor(x / ATLAS_CELL)] || "";
     im.data[p] = rn === "skin" || rn.startsWith("face") ? 40 : 255; im.data[p + 1] = clamp(rgh[k], 0.05, 1) * 255; im.data[p + 2] = clamp(mtl[k], 0, 1) * 255; im.data[p + 3] = 255;
   }
   ga.putImageData(ia, 0, 0);
   for (let f = 0; f < FACE_PAINTS * 2; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % FACE_PAINTS, f >= FACE_PAINTS); }
   for (let f = 0; f < 16; f++) { const i = REGIONS.indexOf("face" + (17 + f)); paintFaceFor(f < 8 ? "ursan" : "pipkin", ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % 8, false); }
-  gn.putImageData(inn, 0, 0);
+  if (!CL) gn.putImageData(inn, 0, 0);
   gm.putImageData(im, 0, 0);
   const mk = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = TEXLIB.anisotropy; t.needsUpdate = true; return t; };
-  RIG.atlas = { map: mk(ca, true), normal: mk(cn, false), mr: mk(cm, false) };
+  RIG.atlas = { map: mk(ca, true), normal: CL ? null : mk(cn, false), mr: mk(cm, false) };
   if (CL) { RIG.atlas.map.magFilter = THREE.NearestFilter; RIG.atlas.map.needsUpdate = true; }
   RIG.glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: THREE.DoubleSide });
   RIG.weaponMat = charMaterial();

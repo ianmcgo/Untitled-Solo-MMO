@@ -20,7 +20,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 | 124 ✅ | 16.10.0 | NPCs and townsfolk | Outfits coded by race, job and district | Sonnet |
 | 125 ✅ | 16.16.0 | World match | Terrain, trees, props, sky and fog in the same painted style; bloom off in Classic | Sonnet |
 | 126 ✅ | 16.17.0 | Classic effects | Bold sprite and ring spell effects, painted numbers | Sonnet |
-| 127 | | Polish | Performance on all tiers, real-phone check, contact sheets, remove dead PBR paths | Sonnet |
+| 127 ✅ | 16.18.0 | Polish | Performance on all tiers, real-phone check, contact sheets, remove dead PBR paths | Sonnet |
 
 ## Phase 116: Classic shading (v16.2.0)
 - Settings `look` ("classic" by default, or "modern") and `outline` (null = automatic, which means on unless the quality is Low; true or false when the player sets it). They are in SETTINGS_DEFAULT. Config → Graphics has Classic look, Modern look and Outlines buttons, which use action `gfx` with `key:value`. Any change saves and reloads. `classicOn()` and `outlineOn()` are in rig.js next to RIM.
@@ -118,6 +118,13 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 ## Phase 126: Classic effects (v16.17.0)
 - effects3d.js (Classic only): `glowFXTexture()` is a 3-tone hard disc used by ParticleLayer and `sprite()`; `FX.big` (1.3) scales every particle size in `spawn`; `ringTexture()` is a thick double ring; `gradientTexture()` has 3 flat bands. Floaters get class `cl` (thick stroke with paint-order stroke, hard 2px shadow, no blur on fade).
 - Also in 16.17.0: Tab (cycleNpcTarget) lists people, then objects (props, crystals, warp stones) within 900.
+
+## Phase 127: Polish (v16.18.0)
+- Measured with renderer triangle counts (SwiftShader has no GPU, so frame rates are not meaningful). Before: Low about 490k triangles, Medium about 740k; cliff chunks (3 instanced meshes of 180/320/520 on Low/Medium/High) were the largest part, then terrain (127k), characters and props.
+- `cliffChunkGeo` box segments by tier: Low 2, Medium 3, High 4 (was 4 everywhere), cutting cliff triangles about 4x on Low and 1.6x on Medium.
+- buildAtlas skips the normal-map canvas and texture in Classic (`RIG.atlas.normal` is null; only the Modern charMaterial reads it).
+- Modern paths are kept: Modern is still a setting, so the PBR code is not dead.
+- Real-phone check cannot be run from the build sandbox. Things to look for: frame rate while many monsters are in view, load time, heat after 10 minutes, and whether Low looks right.
 
 ## Testing tools used (scratch, not in the repo)
 - Headless Chromium (`/opt/pw-browsers/chromium`, `--use-gl=swiftshader`) driving the title, then Play Offline, then the creator. Screenshots of the creator preview (clip 284,176 220×290). The face step zooms on the head; click `[data-face=n]` and `[data-sex=n]` to change faces and sexes.
