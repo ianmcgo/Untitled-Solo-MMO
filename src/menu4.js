@@ -1474,6 +1474,27 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.5.0", date: "2026-10-15", title: "Chunky hair", items: [
+    "In the Classic look hair is built from 12 to 14 thick, pointed clumps with dark lines between them and a painted shine band, instead of thin strips. Hair also sits a little fuller on the head.",
+    "Skin and faces shade smoothly instead of in light bands, so faces no longer look blotchy.",
+    "Hair under hats and helmets is unchanged."
+  ] },
+  { v: "16.4.0", date: "2026-10-15", title: "Chunkier characters", items: [
+    "In the Classic look characters and monsters are built from fewer, bolder shapes, about a third of the old triangle count (around 3,000 for a person on Medium), so they read more like an early-2000s online RPG and run lighter on phones.",
+    "Bigger hands with fingers grouped into one shape, thicker wrists and feet, flared cuffs on long sleeves, a raised collar on shirts, vests and armour, and flared boot tops.",
+    "Far-away characters use an even simpler model. The Modern look is unchanged."
+  ] },
+  { v: "16.3.0", date: "2026-10-15", title: "Painted textures", items: [
+    "In the Classic look every material is now hand-painted instead of photo-like: cloth has painted folds with dark creases and stitched hems, leather has painted panels, bright edges and stitching, metal has painted shine bands, bevelled edges and rivets, hair has clumps with dark lines and a shine band, and fur, scales, feathers, bone, wood, chain and quilting all use bold shapes with a few tones and dark ink lines.",
+    "Textures stay crisp up close (no blur) and smooth out at a distance.",
+    "The Modern look keeps the old textures."
+  ] },
+  { v: "16.2.0", date: "2026-10-15", title: "Classic look", items: [
+    "Fixed: creating a character in offline play was refused with an \"Offline characters can never be brought online\" message.",
+    "New Classic look (now the default): characters, monsters, NPCs and weapons use painted, softly lit shading with simple light bands and a small fixed shine on metal, instead of reflective shading. Glow is gentler and colours are a little richer.",
+    "Dark outlines now trace characters and monsters. Outlines are on for Medium and High and off for Low.",
+    "Config → Graphics has Classic look, Modern look and Outlines on/off. Changing any of them reloads the game."
+  ] },
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
     "Each pet gives one small perk while it's out, such as extra experience, faster resting, better gathering or fishing, higher sell prices or a bigger drop chance.",
@@ -2800,6 +2821,7 @@ function tabHelp() {
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
+    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. Changing either reloads the game.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",

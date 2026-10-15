@@ -2036,7 +2036,7 @@ function initRenderer() {
     const rt = new THREE.WebGLRenderTarget(256, 256, { type: THREE.HalfFloatType, samples: r.capabilities.isWebGL2 === false ? 0 : 4 });
     const comp = new THREE.EffectComposer(r, rt);
     comp.addPass(new THREE.RenderPass(W3.scene, W3.camera));
-    W3.bloom = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), 0.22, 0.5, 0.95);
+    W3.bloom = new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), classicOn() ? 0.1 : 0.22, 0.5, 0.95);
     comp.addPass(W3.bloom);
     comp.addPass(new THREE.OutputPass());
     W3.grade = new THREE.ShaderPass(GRADE_SHADER);
@@ -2057,7 +2057,7 @@ function gradeTick(dayAmt, golden, gloom, cave) {
   if (!W3.grade) return;
   const u = W3.grade.uniforms;
   u.tint.value.set(1 + golden * 0.06 - (1 - dayAmt) * 0.04, 1 + golden * 0.01 - (1 - dayAmt) * 0.01, 1 - golden * 0.06 + (1 - dayAmt) * 0.06);
-  u.sat.value = cave ? 0.95 : 1.1 - gloom * 0.25 - (1 - dayAmt) * 0.12;
+  u.sat.value = (cave ? 0.95 : 1.1 - gloom * 0.25 - (1 - dayAmt) * 0.12) + (classicOn() ? 0.1 : 0);
   u.con.value = 1.05 + golden * 0.03;
   u.vig.value = cave ? 0.35 : 0.2 + (1 - dayAmt) * 0.1;
 }
@@ -2494,6 +2494,7 @@ function updateSky(force) {
   const nightGlow = 1 - dayAmt;
   for (const m of W3.windowMats) m.emissiveIntensity = nightGlow * 1.6;
   for (const g of W3.lampGlows || []) g.material.opacity = nightGlow * 0.9;
+  CLASSIC.lift.value = cave ? 0.2 : mix(0.13, 0.26, dayAmt);
   if (typeof RIM !== "undefined") { RIM.str.value = cave ? 0.18 : mix(0.4, 0.28, dayAmt); RIM.color.value.copy(sunY > 0 ? W3.sun.color : new THREE.Color(0x8aa0ff)).lerp(new THREE.Color(0xffffff), 0.3); }
   for (const L of W3.lampLights) L.intensity = nightGlow * 10;
   updateCityAnim();
@@ -2526,7 +2527,7 @@ function updateSky(force) {
   }
 }
 
-const SETTINGS_DEFAULT = { quality: null, aggroHints: false, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
+const SETTINGS_DEFAULT = { look: "classic", outline: null, quality: null, aggroHints: false, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
 const DRAW_DIST = { near: 1000, normal: 1700, far: 2600 };
 
 function perfTick() {

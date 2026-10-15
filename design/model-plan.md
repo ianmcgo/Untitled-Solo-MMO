@@ -3,6 +3,9 @@
 Done one phase at a time; each phase = new version, Help + Updates text, design docs, build, tests, push to GitHub, index.html delivered.
 Rules: no code comments; keep low/medium/high quality tiers; check Low on phones; original names and art (era-style look, nothing copied).
 
+## Track 6: Classic look (116–127)
+See design/ffxi-look-plan.md. 116–119 done (v16.2.0–16.5.0). Track 6 took 16.2.0–16.5.0, so phase 113 and later take the next free version.
+
 ## Track 0: classic MMO-style character creation (priority, before Track 5)
 Requested 2026-10-14. Goal: recreate the feel of the classic MMO creation screen with an original look (no copied art or names). Flow is exactly four steps: Race → Gender (skipped for Ursan, locked male, and Nekari, locked female, like Galka and Mithra) → Face type → Hair color → Physical size (small, medium, large). Name and starting job stay on a final confirm step. Faces move to a cartoon/anime style like classic MMO: large glossy eyes, small nose and mouth, soft jaw, simple eyebrows. Opus recommended for 110.1 (face meshes and paint), Sonnet is enough for 110.2 and 110.3.
 | Phase | Ver | Name | Scope |

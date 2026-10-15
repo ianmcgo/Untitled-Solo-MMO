@@ -1378,6 +1378,13 @@ Terms: region = conquest region (CONQUEST.regions, e.g. The Vale). Area = one wi
 - CSS: `.ccSteps`, `.ccStepT`, `.ccGrid` (`.ccRaces`, `.ccTwo`, `.ccSizes`, `.ccFaces` 4 columns, `.ccHair` 8 or 4 on phones), `.ccCard2`, `.ccFaceB`, `.ccSw`, `.ccInfo2`; selected state forced with `#charSel … .on` because the FF theme overrides button colours with !important.
 - Screenshot tool: /tmp ccshot.js (offline play, walks every step at 1100 × 720 and 412 × 780; no page scroll on either).
 
+## Track 6: Classic look (v16.2.0–16.5.0)
+Full notes and the remaining plan are in design/ffxi-look-plan.md. Summary:
+- 116 (16.2.0): Classic look is the default. classicCharMaterial (Lambert with light bands, a lift floor and metal shine), an outline pass (back-face skinned shell child of each rig mesh), and the Look and Outlines settings in Config → Graphics. Offline character creation fixed.
+- 117 (16.3.0): CLASSIC_PAINT hand-painted region painters, 256 px atlas cells, nearest magnification.
+- 118 (16.4.0): RIG.segK 0.55/0.45/0.38 (High/Medium/Low) in Classic, mitten hands, bigger hands and feet, cuffs, collars, boot flares.
+- 119 (16.5.0): gHairClumps thick hair clumps, fuller shell, smooth shading on skin and faces (mr red channel).
+
 ## Roadmap (planned phases)
 Graphics goal: early-2000s classic MMO look (painted textures, warm fog, big skies, readable silhouettes) within browser/phone budgets. Every graphics phase keeps a low/normal/high quality tier and checks fps on the low tier.
 - 45 (9.5.0) Mercenary guild: DONE.
@@ -1430,6 +1437,10 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.5.0 | Phase 119: chunky hair clumps, smooth skin shading (Track 6). |
+| 16.4.0 | Phase 118: chunky humans, lower segment counts, mitten hands, cuffs, collars, boot flares (Track 6). |
+| 16.3.0 | Phase 117: hand-painted atlas, crisp textures (Track 6). |
+| 16.2.0 | Phase 116: Classic look (Lambert bands, outlines, Look setting), offline creation fix (Track 6). |
 | 16.1.1 | Creator preview never zooms on touch devices (ccTouch). |
 | 16.1.2 | renderPreview forces focus 0 and fz 0 while UI.creating and ccTouch(), so a stale pv.fz can never zoom the creator camera on touch screens. Real-phone zoom was not reproducible headlessly; a stale cached build is the other suspect. |
 | 16.1.3-16.1.5 | Real cause of the phone "zoom": the preview column was only 107-133 px wide (aspect 0.27-0.46), so the fixed camera cropped the arms at the sides. renderPreview now pulls the camera back by wm = clamp(0.7 / aspect, 1, 1.9) and lowers the look-at slightly; mobile creator column 42% with minmax(0,1fr); at 360 px and below faces and hair use two columns. Panel still overflows slightly at 320 px wide (known, rare). |
