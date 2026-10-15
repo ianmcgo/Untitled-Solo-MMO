@@ -1437,6 +1437,7 @@ World systems:
 | 16.1.7 | Head profiles: jaw/chin/long raised for human0/1, elari, nekari, pipkin (jaw 0.3), ursan (jaw 0.24). Ursan skin 0x8e9688. Pipkin eyes rx 7.2, painted brown button nose (radial gradient + highlight) replaces the pink blob. |
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
+| 16.1.10 | Default human neck 0.075 -> 0.02 (RACE_BODY human, nekari and the humanEntry default; also shortens NPC necks). Elari unchanged. |
 | 16.1.0 | Phase 112: Rocky Hollow and Windreach Highlands split into three zones each. |
 | 16.0.0 | Phase 111: region framework (areas, zone splitting, save migration, level bands). |
 | 15.7.1 | Creator preview: face-centred camera, no auto-turn. |

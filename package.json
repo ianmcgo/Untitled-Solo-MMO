@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.1.9",
-  "releaseTitle": "Ursan: no neck, smaller tail",
+  "version": "16.1.10",
+  "releaseTitle": "Shorter necks for Humans and Nekari",
   "description": "",
   "main": "index.js",
   "scripts": {
