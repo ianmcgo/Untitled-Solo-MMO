@@ -1442,6 +1442,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.14.0 | Drag-yaw inverted by default (settings.invertX, default true); Tab (cycleNpcTarget) includes warp stones in the crystal group. |
 | 16.13.1 | #tgtAct moved to first child of #ffSide (above #ffTBox), FF .ffb pill style; no per-frame world projection. |
 | 16.13.0 | Offline play gate (showOfflineGate/verifyOfflinePassword in main4.js): account email+password verified with a throwaway non-persistent Supabase client; salted SHA-256 cached in localStorage ashenreach_offline_gate for no-network checks. Client-side only, so it deters casual use rather than being real security. |
 | 16.12.0 | Mobile target button (#tgtAct, tgtActFor/updateTgtAct/tgtActPress in hud4.js): Talk/Use/Inspect/Harvest/Fight above the target; Fight engages without chase and opens the command box. S.chase now only set when settings.autoRun (autoRunOn in game.js, Config > Camera). |
