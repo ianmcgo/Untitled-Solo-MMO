@@ -1480,6 +1480,9 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "16.1.10", date: "2026-10-15", title: "Shorter necks for Humans and Nekari", items: [
+    "Humans and Nekari now have much shorter necks, as do the townspeople, so heads sit closer to the shoulders."
+  ] },
   { v: "16.1.9", date: "2026-10-15", title: "Ursan: no neck, smaller tail", items: [
     "Ursan heads now sit right on their shoulders, and their lizard tail is shorter and slimmer."
   ] },
