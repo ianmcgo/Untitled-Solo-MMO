@@ -1035,7 +1035,9 @@
   #loading.roster #ldVer { display: none; }
   @media (max-width: 360px) {
     .ccFaces, .ccHair { grid-template-columns: repeat(2, 1fr) !important; }
-    .ccForm { grid-template-columns: 38% 1fr !important; }
+    .ccForm { grid-template-columns: 38% minmax(0, 1fr) !important; }
+    #charSel { width: 100vw !important; box-sizing: border-box; }
+    .ccFaceB, .ccSw { min-width: 0; }
   }
   @media (max-width: 720px) {
     #loading.roster { gap: 4px; padding-top: max(8px, 1.5vh); }
@@ -1043,7 +1045,7 @@
     #loading.roster #ldTitle { font-size: 21px !important; white-space: nowrap; }
     #loading.roster #ldSub { font-size: 11px; }
     #charSel { padding: 8px !important; width: 96vw; }
-    .ccForm { grid-template-columns: 42% 1fr; gap: 8px; }
+    .ccForm { grid-template-columns: 42% minmax(0, 1fr); gap: 8px; }
     #ccPv { height: auto !important; min-height: 240px; aspect-ratio: auto !important; align-self: stretch; }
     .ccOpts { gap: 4px; }
     .ccOpts input { height: 30px; width: 100%; box-sizing: border-box; min-width: 0; }
@@ -1070,7 +1072,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.1.4 · built 2026-10-14 18:28 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.1.5 · built 2026-10-14 18:30 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -17316,7 +17318,7 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.1.4 · built 2026-10-14 18:28 PDT";
+const BUILD_INFO = "v16.1.5 · built 2026-10-14 18:30 PDT";
 const UPDATES = [
   { v: "6.5.0", date: "2026-10-13", title: "Pets", items: [
     "Ten pets that follow you around: Meadow Kit, Snow Kit, Shade Kit, Batling, Wormlet, Pocket Goblin, and the Ember, Frost, Tide and Ash wisps. They don't fight and can't be attacked.",
@@ -17324,9 +17326,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
-  { v: "16.1.2", date: "2026-10-15", title: "Creator preview fits narrow phone screens", items: [
-    "The creation preview on narrow phone screens was cropping the character at the sides, which looked like a zoom. The camera now pulls back to fit the whole body and the preview column is wider.",
-    "On phones and tablets the character creation preview now always uses the fixed full-length camera, whatever step you are on. If it still looks zoomed in, check the version number on the title screen and refresh the page to clear an old cached copy."
+  { v: "16.1.5", date: "2026-10-15", title: "Creator fits narrow phones", items: [
+    "The character creation preview on narrow phones was cropping the character at the sides, which looked like a zoom. The camera now pulls back to fit the whole body, and the preview column is wider.",
+    "On very narrow phones (360 px wide or less) the face and hair choices use two columns, and the panel no longer runs off the side of the screen."
+  ] },
+  { v: "16.1.2", date: "2026-10-15", title: "Creator camera locked on touch screens", items: [
+    "On phones and tablets the creation preview always uses the fixed full-length camera, whatever step you are on."
   ] },
   { v: "16.1.1", date: "2026-10-15", title: "Creator preview on phones", items: [
     "Character creation no longer zooms in on the face on phones and tablets, including when held sideways; the preview stays full-length."
@@ -18649,7 +18654,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.1.4";
+const GAME_VERSION = "16.1.5";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

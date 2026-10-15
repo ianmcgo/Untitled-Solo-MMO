@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.1.4",
-  "releaseTitle": "Creator on very small phones",
+  "version": "16.1.5",
+  "releaseTitle": "Creator fits narrow phones",
   "description": "",
   "main": "index.js",
   "scripts": {
