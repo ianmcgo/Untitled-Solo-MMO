@@ -1035,7 +1035,9 @@
   #loading.roster #ldVer { display: none; }
   @media (max-width: 360px) {
     .ccFaces, .ccHair { grid-template-columns: repeat(2, 1fr) !important; }
-    .ccForm { grid-template-columns: 38% 1fr !important; }
+    .ccForm { grid-template-columns: 38% minmax(0, 1fr) !important; }
+    #charSel { width: 100vw !important; box-sizing: border-box; }
+    .ccFaceB, .ccSw { min-width: 0; }
   }
   @media (max-width: 720px) {
     #loading.roster { gap: 4px; padding-top: max(8px, 1.5vh); }
@@ -1043,7 +1045,7 @@
     #loading.roster #ldTitle { font-size: 21px !important; white-space: nowrap; }
     #loading.roster #ldSub { font-size: 11px; }
     #charSel { padding: 8px !important; width: 96vw; }
-    .ccForm { grid-template-columns: 42% 1fr; gap: 8px; }
+    .ccForm { grid-template-columns: 42% minmax(0, 1fr); gap: 8px; }
     #ccPv { height: auto !important; min-height: 240px; aspect-ratio: auto !important; align-self: stretch; }
     .ccOpts { gap: 4px; }
     .ccOpts input { height: 30px; width: 100%; box-sizing: border-box; min-width: 0; }

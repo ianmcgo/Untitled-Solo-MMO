@@ -1480,9 +1480,12 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
-  { v: "16.1.2", date: "2026-10-15", title: "Creator preview fits narrow phone screens", items: [
-    "The creation preview on narrow phone screens was cropping the character at the sides, which looked like a zoom. The camera now pulls back to fit the whole body and the preview column is wider.",
-    "On phones and tablets the character creation preview now always uses the fixed full-length camera, whatever step you are on. If it still looks zoomed in, check the version number on the title screen and refresh the page to clear an old cached copy."
+  { v: "16.1.5", date: "2026-10-15", title: "Creator fits narrow phones", items: [
+    "The character creation preview on narrow phones was cropping the character at the sides, which looked like a zoom. The camera now pulls back to fit the whole body, and the preview column is wider.",
+    "On very narrow phones (360 px wide or less) the face and hair choices use two columns, and the panel no longer runs off the side of the screen."
+  ] },
+  { v: "16.1.2", date: "2026-10-15", title: "Creator camera locked on touch screens", items: [
+    "On phones and tablets the creation preview always uses the fixed full-length camera, whatever step you are on."
   ] },
   { v: "16.1.1", date: "2026-10-15", title: "Creator preview on phones", items: [
     "Character creation no longer zooms in on the face on phones and tablets, including when held sideways; the preview stays full-length."
