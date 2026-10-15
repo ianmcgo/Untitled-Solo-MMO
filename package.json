@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.14.0",
-  "releaseTitle": "Camera and Tab",
+  "version": "16.14.1",
+  "releaseTitle": "Auction balance",
   "description": "",
   "main": "index.js",
   "scripts": {
