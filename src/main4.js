@@ -366,7 +366,7 @@ function showCharCreate() {
     const l = CC.look, steps = ccSteps(l);
     CC.step = Math.max(0, Math.min(CC.step, steps.length - 1));
     const st = steps[CC.step][0];
-    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; UI.pv.focus = st === "face" || st === "hair" ? 1 : 0; }
+    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; UI.pv.focus = (st === "face" || st === "hair") && window.innerWidth > 700 ? 1 : 0; }
     $("ccSteps").innerHTML = steps.map((s, i) => '<button data-goto="' + i + '" class="' + (i === CC.step ? "on" : i < CC.step ? "done" : "") + '">' + (i + 1) + '<small>' + s[1] + "</small></button>").join("");
     $("ccStepT").textContent = (CC.step + 1) + ". " + steps[CC.step][1];
     const sel = (on) => on ? " on" : "";

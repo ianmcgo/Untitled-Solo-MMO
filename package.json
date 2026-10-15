@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.0.0",
-  "releaseTitle": "Region framework",
+  "version": "16.1.0",
+  "releaseTitle": "Rocky Hollow and Windreach in three zones",
   "description": "",
   "main": "index.js",
   "scripts": {

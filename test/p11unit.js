@@ -8,7 +8,7 @@ S.timeShift = 0;
 ok(seen.size >= 4 && [...seen].every(w => G.WEATHER.hollow.some(x => x[0] === w)), 'Rocky Hollow cycles through several kinds of weather (' + [...seen].join(', ') + ')');
 ok(G.weatherNow('den') === null && G.weatherNow('residence') === null, 'caves and your home have no weather');
 const a = G.weatherNow('marsh'); run(1); ok(G.weatherNow('marsh') === a, 'weather holds steady for a while');
-const WQ = G.ZONES.hollow.water[0]; G.enterZone('hollow', WQ.x, WQ.y + WQ.r + 40); run(0.3); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
+const WQ = G.ZONES.hollow_lake.water[0]; G.enterZone('hollow_lake', WQ.x, WQ.y + WQ.r + 40); run(0.3); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 ok(G.startFishing() !== '', 'fishing needs a rod');
 G.giveItem('fishing_rod', 1, true);
 ok(/Bait/.test(G.startFishing()), 'and bait');

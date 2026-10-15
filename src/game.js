@@ -52,7 +52,7 @@ function isNight() { const h = vana().hour; return h >= 18 || h < 6; }
 function period() { return isNight() ? "night" : "day"; }
 function dayElement() { return DAY_ELEMENTS[vana().dayIndex]; }
 function weatherNow(zoneId) {
-  const id = zoneId || S.zoneId, tbl = WEATHER[id];
+  const id = areaOf(zoneId || S.zoneId), tbl = WEATHER[id];
   if (!tbl) return null;
   const mins = (Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000;
   const slot = Math.floor(mins / 180);
@@ -3343,7 +3343,7 @@ function partyInCombat() {
 function enterZone(id, x, y) {
   const prev = S.zoneId;
   S.fish = null;
-  if (S.race && id !== RACE.zone) S.race = null;
+  if (S.race && !RACE.zones.includes(id)) S.race = null;
   if (S.bf && id !== BATTLEFIELD.zone) { if (!S.bf.won) log("You leave the Chapel Depths. The battle is lost.", "sys"); S.bf = null; }
   S.zoneId = id;
   S.zone = ZONES[id];
@@ -3924,7 +3924,7 @@ function startRace() {
   if (!save.mountLicense) return "You need a riding license.";
   if (partyInCombat()) return "Not during a fight.";
   if (S.pet) releasePet(null);
-  enterZone(RACE.zone, RACE.start.x, RACE.start.y);
+  enterZone(RACE.start.zone, RACE.start.x, RACE.start.y);
   for (const p of S.party) if (p.alive) { p.mounted = true; p.engaged = false; p.attackTarget = null; }
   S.race = { t0: S.time, next: 0 };
   log("The Hollow Run! Ride through " + RACE.checkpoints.length + " checkpoints, starting at " + RACE.checkpoints[0].name + ". The clock is running.", "loot");
@@ -3944,10 +3944,10 @@ function tickRace() {
   const r = S.race;
   if (!r) return;
   const t = S.time - r.t0;
-  if (S.zoneId !== RACE.zone || !player.mounted || !player.alive) { endRace("You left the course. The Hollow Run is over."); return; }
+  if (!RACE.zones.includes(S.zoneId) || !player.mounted || !player.alive) { endRace("You left the course. The Hollow Run is over."); return; }
   if (t > RACE.limit) { endRace("Time's up! Try the Hollow Run again with Ysolde."); return; }
   const cp = RACE.checkpoints[r.next];
-  if (Math.hypot(player.x - cp.x, player.y - cp.y) > RACE.radius) return;
+  if (cp.zone !== S.zoneId || Math.hypot(player.x - cp.x, player.y - cp.y) > RACE.radius) return;
   r.next++;
   sfx("select");
   if (r.next < RACE.checkpoints.length) { log("Checkpoint " + r.next + "/" + RACE.checkpoints.length + " at " + cp.name + " (" + t.toFixed(1) + "s). Next: " + RACE.checkpoints[r.next].name + ".", "loot"); uiEvent("race", {}); return; }

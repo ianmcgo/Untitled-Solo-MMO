@@ -429,7 +429,7 @@ function syncNpc(n, dt) {
 
 function syncBeacon() {
   const cp = S.race && RACE.checkpoints[S.race.next];
-  if (!cp) { if (VIEW.beacon) VIEW.beacon.visible = false; return; }
+  if (!cp || cp.zone !== S.zoneId) { if (VIEW.beacon) VIEW.beacon.visible = false; return; }
   if (!VIEW.beacon || !VIEW.beacon.parent) {
     const g = new THREE.Group();
     const col = new THREE.Mesh(new THREE.CylinderGeometry(RACE.radius * U * 0.5, RACE.radius * U * 0.5, 14, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd54f, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }));
