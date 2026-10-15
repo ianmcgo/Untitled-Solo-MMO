@@ -45,7 +45,7 @@ Requested 2026-10-14. Goal: recreate the feel of the Final Fantasy XI creation s
 | 110 ✅ | 15.4.0 | City life | Townsfolk with district schedules, guard patrols, market crowds, side quests per district, district music and ambience, signposts |
 
 ## Track 5: wilderness (111–115)
-| 111 | 16.0.0 | Region framework | Each wilderness area becomes a region of several connected zones; save migration; atlas, conquest, quests, bounties, expeditions re-pointed; level band per zone |
+| 111 ✅ | 16.0.0 | Region framework | Each wilderness area becomes a region of several connected zones; save migration; atlas, conquest, quests, bounties, expeditions re-pointed; level band per zone |
 | 112 | 16.1.0 | Rocky Hollow + Windreach | Hollow in 3 zones (West Meadows 1–3, Mirror Lake 3–5, Eastern Ruins 5–7), Highlands in 3 |
 | 113 | 16.2.0 | Marsh, Frost, Jungle | 2–3 zones each |
 | 114 | 16.3.0 | Desert, Cinder, Gull Isle | 2–3 zones each |

@@ -1333,6 +1333,18 @@ Style branch: retro MMO (painted albedo, vertex-colour layers, strong fog colour
 - Hair: fringe styles (bob, long, twintails, wavy) front edge −0.5 / −0.42 and front locks 0.13 long so they stop at the brows.
 - Test tool: test/faceshot.js (own WebGL renderer with ACES so render targets are tone mapped like the game; poses front, q, lid0, lidh).
 
+## Phase 111: Region framework (v16.0.0) — Track 5
+
+Terms: region = conquest region (CONQUEST.regions, e.g. The Vale). Area = one wild place on the atlas (Rocky Hollow). Zone = one loaded map. An area may hold several zones.
+
+- data.js tail: AREA_NAMES, ZONE_SPLITS, areaOf(zid) (zone.area or its own id), areaZones, areaName, inArea(ref, zid), areaVisited(save, area), zkey(table, zid) (zone entry, else area entry), computeBand/zoneBand/areaBand/bandText. Bands come from spawn levels (weather-only spawns excluded) unless a split part sets band (bandFixed). Red Spire floors carry area "spire"; ATLAS_POS key is now "spire".
+- splitZone(src, parts): parts = [{ id, name, rect: [x0,y0,x1,y1], band?, start? }] in final (post-ZONE_SCALE) coordinates; rects snap to 50 px so explored fog slices exactly. Keep src as the id of the part that holds the old main entrance so outside references keep working. It copies theme/palette/mist/openRange/cs/vegK, partitions spawns, npcs, landmarks, water, walls, props, ambient, torches, pillars, ruins, paths (any point inside), features, gather nodes (n scaled), exits; adds paired edge exits (160 long, placed where a road crosses the shared edge, else mid-edge, flagged edge: true); re-points every other zone's exits by target point; records ZONE_SPLITS[src] and AREA_NAMES[src] (old name).
+- migrateSplits(save) runs in normalizeSave with save.zsplit marking done splits (newSave marks all). Moves loc by rect, home/attuned by crystal npc id, landmark keys by landmark id, adds discovered parts, slices explored strings per part.
+- Re-pointed: regionOf uses area fallback; story and expedition visit/zone steps use inArea; achievements use areaVisited; FISH, POI_LORE, BACKDROP, ATMOS use zkey; footstep/wind audio use areaOf; atlasNode = areaOf, atlas explored = mean over the area's zones, atlas label shows band and % mapped.
+- UI: zoneSubtitle(zid) = area (if differs) · region · band; used by the zone banner (hud4), the Map window line and the entry log.
+- Test: test/p54unit.js splits Rocky Hollow into three parts at runtime and checks spawns, landmarks, paired edges, re-pointed exits (Den → east part, Marsh/Highlands → middle), migration (position, landmarks, fog, discovered, run-once), entering each part and walking across an edge.
+- Notes for 112+: call splitZone at the very end of data.js after all late pushes (frost/marsh weather spawns, camps, signposts, POIs). Signposts are generated per exit before the split, so edge exits need signposts generated after splitting. RACE (Hollow Run course) is tied to zone "hollow"; check its course stays inside the kept part or move it. ZONE_FEATURES/ravines that cross a cut are copied to both parts. p18unit and p21unit are occasionally flaky (time of day); rerun before suspecting a regression.
+
 ## Phase 110.4: Creator preview fix (v15.7.1) — Track 0
 
 - rig.js human meta now carries headC (head centre height) and headR. menu4.js renderPreview focus camera aims at headC minus a quarter head radius and stands 7.8 head radii away, so the face stays centred for every race and size (before, it scaled with headTop, which pointed ears and hair inflate).
@@ -1407,6 +1419,7 @@ World systems:
 
 | Version | Change |
 |---|---|
+| 16.0.0 | Phase 111: region framework (areas, zone splitting, save migration, level bands). |
 | 15.7.1 | Creator preview: face-centred camera, no auto-turn. |
 | 15.7.0 | Phase 110.3: skin tones removed, creation summary and Start over, race and size on Status. |
 | 15.6.0 | Phase 110.2: step-by-step character creation (race, gender, face, hair colour, size, name and job). |
