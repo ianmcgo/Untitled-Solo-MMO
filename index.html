@@ -72,6 +72,9 @@
 
   #tCmd { position: absolute; right: calc(10px + var(--sar)); bottom: calc(12px + var(--sab)); width: 230px; max-height: 52vh; overflow-y: auto; display: none; flex-direction: column; gap: 5px; padding: 8px; pointer-events: auto; z-index: 6; }
   #tCmd.on { display: flex; }
+  #tgtAct { position: absolute; left: 0; top: 0; display: none; pointer-events: auto; z-index: 7; transform: translate(-50%, -100%); padding: 8px 18px; border-radius: 999px; border: 2px solid #e6c36a; background: rgba(30,32,44,0.94); color: #ffe7a8; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .03em; box-shadow: 0 3px 12px rgba(0,0,0,0.5); touch-action: manipulation; }
+  #tgtAct.on { display: block; }
+  #tgtAct.fight { border-color: #ff7a6a; color: #ffd0c8; }
   #tCmd .tcHead { font-size: 12px; color: var(--gold); letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
   #tCmd button { flex: 0 0 auto; text-align: left; min-width: 0; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); background: rgba(30,32,44,0.9); color: #e8e2d0; font: inherit; font-size: 12.5px; cursor: pointer; }
   #tCmd button:hover { border-color: #e6c36a; }
@@ -1072,7 +1075,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.11.0 · built 2026-10-15 06:37 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.13.0 · built 2026-10-15 06:58 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -1098,6 +1101,7 @@
     <div id="party"></div></div>
     </div>
     <div id="tCmd" class="glass"></div>
+    <button id="tgtAct" class="glass"></button>
     <div id="mCmd"></div>
     <div id="mmWrap" title="Map (M)"><div id="mmDisc"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN" class="mmL n">N</div><div id="mmE" class="mmL">E</div><div id="mmS" class="mmL">S</div><div id="mmW" class="mmL">W</div></div><div id="mmTime"></div></div>
     <div id="pool" class="glass"></div>
@@ -12483,6 +12487,8 @@ function nearestMob() {
   return best;
 }
 
+function autoRunOn() { return typeof VIEW !== "undefined" && !!VIEW.settings && !!VIEW.settings.autoRun; }
+
 function toggleEngage(fromTap) {
   if (!player.alive) return;
   standUp(player);
@@ -12501,7 +12507,7 @@ function toggleEngage(fromTap) {
   player.attackTarget = t;
   player.swingTimer = Math.min(player.swingTimer, 1.0);
   touch(player);
-  if (fromTap) S.chase = true;
+  if (fromTap && autoRunOn()) S.chase = true;
   log("You engage the " + t.name + ".", "you");
 }
 
@@ -14977,6 +14983,44 @@ function gameConfirmClose(tag) {
   if (typeof sfx === "function") sfx("close");
 }
 
+const TGT_INSPECT = { sign: 1, board: 1, tablet: 1, lookout: 1, mirage: 1, shrine: 1 };
+function tgtActFor(t) {
+  if (!t || S.ko || S.modal || S.dialog || !player.alive) return null;
+  if (isMob(t)) return t.alive ? { label: "Fight", fight: true } : null;
+  if (t.kind !== "npc" || t.away || t.gone) return null;
+  if (t.prop === "gather") return { label: "Harvest" };
+  if (t.prop) return { label: TGT_INSPECT[t.prop] ? "Inspect" : "Use" };
+  if (t.crystal || (NPCS[t.id] && NPCS[t.id].warpstone)) return { label: "Use" };
+  return { label: "Talk" };
+}
+function updateTgtAct() {
+  const el = $("tgtAct");
+  if (!el) return;
+  const t = player.target, touch = (typeof VIEW !== "undefined" && VIEW.touch) || matchMedia("(pointer: coarse)").matches;
+  const a = touch ? tgtActFor(t) : null;
+  const pos = a && !(UI.cmd && UI.cmd.t === t) && typeof screenOf === "function" ? screenOf(t.x, t.y, entityHeight(t) + 1.1) : null;
+  if (!a || !pos) { if (el.classList.contains("on")) el.classList.remove("on"); return; }
+  if (el.textContent !== a.label) el.textContent = a.label;
+  el.classList.toggle("fight", !!a.fight);
+  el.classList.add("on");
+  const w = $("game").clientWidth, h = $("game").clientHeight;
+  el.style.left = clamp(pos.x, 50, w - 50) + "px";
+  el.style.top = clamp(pos.y - 28, 44, h - 20) + "px";
+}
+function tgtActPress() {
+  const t = player.target, a = tgtActFor(t);
+  if (!a) return;
+  if (isMob(t)) {
+    if (!claimOk(t)) { log("The " + t.name + " is claimed by " + claimName(t) + ".", "sys"); sfx("error"); return; }
+    if (!(player.engaged && player.attackTarget === t)) toggleEngage(false);
+    tgtCmdOpen(t);
+    return;
+  }
+  if (dist(player, t) <= CONFIG.talkRange) { talkTo(t); return; }
+  S.pendingTalk = t;
+  S.moveTarget = { x: t.x, y: t.y };
+}
+
 function tgtCmdOpen(t) {
   if (!t || (!isMob(t) && t.kind !== "remote" && t !== player) || (isMob(t) && !t.alive)) { tgtCmdClose(); return; }
   UI.cmd = { t, page: "root", info: "", sel: 0 };
@@ -15281,6 +15325,7 @@ function updateHud(dt) {
   updateParty();
   updateTarget();
   updateFF();
+  updateTgtAct();
   updateBottom();
   watchProgress();
   updateActionBar();
@@ -17346,8 +17391,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.11.0 · built 2026-10-15 06:37 PDT";
+const BUILD_INFO = "v16.13.0 · built 2026-10-15 06:58 PDT";
 const UPDATES = [
+  { v: "16.13.0", date: "2026-10-15", title: "Offline password", items: [
+    "Playing offline now asks for the email and password of your online account before you can open the offline characters. The password is checked with the server, then remembered on that device (as a one-way hash) so offline play keeps working with no connection afterwards.",
+    "If you have never signed in on a device and it is offline, connect once to unlock offline play there."
+  ] },
+  { v: "16.12.0", date: "2026-10-15", title: "Target button", items: [
+    "On a touch screen, targeting something now puts a button above it: Talk for people, Use or Inspect for objects (signs, boards and tablets are Inspect; crystals, warp stones, chests, braziers and camps are Use), Harvest for gathering points, and Fight for monsters.",
+    "Fight engages the monster and opens its command box (magic, abilities, items) in one tap.",
+    "Attacking no longer makes you run to the monster. If you want the old behaviour, turn on Auto-run to target in Config, Camera."
+  ] },
   { v: "16.11.0", date: "2026-10-15", title: "Clear roads", items: [
     "Random wandering people are gone: city walkers, night walkers, patrolling guards and road travellers no longer spawn. Every named NPC stays at a fixed spot. Animals still roam.",
     "Warp stones are now stone statues: a robed figure on a plinth holding a glowing crystal.",
@@ -18387,7 +18441,8 @@ function tabHelp() {
     "<b>Phoenix Down</b> (Pell's shop) revives with half HP, <b>Ember Plume</b> with a fifth. Use them on a KO'd hireling, party member or friend. When you are KO'd yourself, open your items and use one on yourself."
   ]));
   h += sec("📴 Offline play", ul([
-    "Choose <b>Play Offline</b> after Press Start to play without an account. Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",
+    "Offline play asks for the email and password of your online account each time you start the game. It is checked with the server once, then remembered on that device so it works with no connection afterwards.",
+    "Choose <b>Play Offline</b> after Press Start to play without a connection (it asks for your online account password first). Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",
     "Everything that doesn't need other players works offline: quests, story, companions, crafting, gathering, fishing, the NPC market and guild bounties.",
     "Offline characters can never be moved online, uploaded or loaded into an online character. Use System → Save to file to back one up on the same or another device's offline list."
   ]));
@@ -18400,6 +18455,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
+    "<b>Target button (touch):</b> a button floats above whatever you target: Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
@@ -18757,7 +18813,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.11.0";
+const GAME_VERSION = "16.13.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -21888,7 +21944,7 @@ function updateSky(force) {
   }
 }
 
-const SETTINGS_DEFAULT = { look: "classic", outline: null, attire: "job", quality: null, aggroHints: false, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
+const SETTINGS_DEFAULT = { look: "classic", outline: null, attire: "job", quality: null, aggroHints: false, autoRun: false, camSpeed: 1, invertY: false, autoCam: true, draw: "normal", adaptive: true, fps: false };
 const DRAW_DIST = { near: 1000, normal: 1700, far: 2600 };
 
 function perfTick() {
@@ -27886,7 +27942,7 @@ function onWorldTap(p, ent) {
     return;
   }
   if (isMob(e)) {
-    if (player.engaged && player.attackTarget === e) S.chase = true;
+    if (player.engaged && player.attackTarget === e && autoRunOn()) S.chase = true;
     if (player.target === e && UI.cmd && UI.cmd.t === e) { tgtCmdClose(); return; }
     setTarget(e);
     if (!UI.cmd) uiEvent("target", e);
@@ -28027,7 +28083,7 @@ function graphicsSettingsHTML() {
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="sub">Look: Classic uses painted, soft lighting like early online RPGs. Modern uses reflective shading. Changing it reloads the game.</div><div class="opt">' + btn("gfx", "look:classic", "Classic look", classicOn()) + btn("gfx", "look:modern", "Modern look", !classicOn()) + btn("gfx", "outline:" + (outlineOn() ? "off" : "on"), "Outlines " + (outlineOn() ? "on" : "off"), outlineOn()) + (classicOn() ? btn("gfx", "attire:" + (jobStyleOn() ? "gear" : "job"), jobStyleOn() ? "Job style" : "Show gear", jobStyleOn()) : "") + '</div><div class="sub">Job style dresses every adventurer in their job\'s signature outfit, which grows grander at levels 5, 10 and 16. Show gear draws the armour you have equipped instead. Weapons and shields always show.</div><div class="sub">High adds glow, colour grading that follows the time of day, smoother edges, sharper shadows and full-resolution water reflections. If the game stays slow, it turns off glow and then sun shadows by itself. Characters far from the camera always use simpler models (sooner on Low). Changing quality reloads the 3D scene.</div>' +
     "<h3>Performance</h3><div class=\"opt\">" + btn("draw", "near", "Draw near", s.draw === "near") + btn("draw", "normal", "Draw normal", (s.draw || "normal") === "normal") + btn("draw", "far", "Draw far", s.draw === "far") + btn("toggle", "adaptive", "Auto resolution " + (s.adaptive !== false ? "on" : "off"), s.adaptive !== false) + btn("toggle", "fps", "FPS counter " + (s.fps ? "on" : "off"), s.fps) + '</div><div class="sub">Draw distance hides far monsters and name plates. Auto resolution lowers the render scale when the frame rate drops and raises it again when there is headroom. Use Low graphics on older phones.</div>' +
-    "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + "</div>" +
+    "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + '</div><div class="opt">' + btn("toggle", "autoRun", "Auto-run to target " + (s.autoRun ? "on" : "off"), !!s.autoRun) + '</div><div class="sub">Off by default: attacking or engaging an enemy leaves you where you stand, so you choose when to move in. On makes you run to your target when you attack.</div>' +
 
     appearanceHTML();
 }
@@ -29738,6 +29794,7 @@ async function boot() {
   await frames(1);
   initHud();
   $("btnEngage").onclick = () => toggleEngage(true);
+  $("tgtAct").onclick = e => { e.stopPropagation(); tgtActPress(); };
   $("btnTarget").onclick = () => { cycleTarget(); sfx("select"); };
   $("btnTalk").onclick = talkNearest;
   $("btnHome").onclick = giveUpKO;
@@ -29809,8 +29866,68 @@ function showModeChoice() {
     const b = e.target.closest("[data-play]");
     if (!b) return;
     if (typeof sfx === "function") sfx("select");
-    if (b.dataset.play === "off") { PLAY.offline = true; showCharSelect(); } else { PLAY.offline = false; showAccount(); }
+    if (b.dataset.play === "off") { showOfflineGate(""); } else { PLAY.offline = false; showAccount(); }
   };
+}
+
+const OFFLINE_GATE_KEY = "ashenreach_offline_gate";
+async function gateHash(email, salt, pw) {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email + ":" + salt + ":" + pw));
+  return Array.from(new Uint8Array(d)).map(x => x.toString(16).padStart(2, "0")).join("");
+}
+async function verifyOfflinePassword(email, pw) {
+  email = email.trim().toLowerCase();
+  let cache = null;
+  try { cache = JSON.parse(localStorage.getItem(OFFLINE_GATE_KEY) || "null"); } catch (e) {}
+  let net = true;
+  try {
+    if (typeof SUPA === "undefined") throw new Error("Failed to fetch");
+    const c = SUPA.createClient(NET_CFG.url, NET_CFG.key, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+    const { error } = await c.auth.signInWithPassword({ email, password: pw });
+    if (error) {
+      if (/fetch|network|Failed/i.test(error.message || "")) throw error;
+      throw new Error(/confirm/i.test(error.message || "") ? "Confirm your email first, then try again." : "Wrong email or password.");
+    }
+    const salt = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(x => x.toString(16)).join("");
+    try { localStorage.setItem(OFFLINE_GATE_KEY, JSON.stringify({ e: email, s: salt, h: await gateHash(email, salt, pw) })); } catch (e) {}
+    return;
+  } catch (e) {
+    if (!/fetch|network|Failed/i.test(e.message || "")) throw e;
+    net = false;
+  }
+  if (!net && cache && cache.e === email && cache.h === await gateHash(email, cache.s, pw)) return;
+  if (!net && cache && cache.e === email) throw new Error("Wrong email or password.");
+  throw new Error("Can't reach the server to check your password. Connect once to unlock offline play on this device.");
+}
+
+function showOfflineGate(err) {
+  const ld = $("loading");
+  ld.classList.add("ready", "roster");
+  $("ldStart").style.display = "none";
+  $("ldSub").textContent = "Offline play needs your account password";
+  let last = "";
+  try { last = (JSON.parse(localStorage.getItem(OFFLINE_GATE_KEY) || "null") || {}).e || ""; } catch (e) {}
+  const box = $("charSel");
+  box.innerHTML = '<div class="ccOpts" style="max-width:360px;margin:0 auto"><label>Email<input id="ofEmail" type="email" autocomplete="email" spellcheck="false" value="' + esc(last) + '"></label><label>Password<input id="ofPw" type="password" autocomplete="current-password" spellcheck="false"></label><div class="ccErr" id="ofErr">' + esc(err || "") + '</div><div class="ccAct"><button class="pri" data-go="1">Unlock offline play</button></div><div class="sub" style="text-align:center;margin-top:8px"><button data-back="1">Back</button></div><div class="sub" style="text-align:center;margin-top:10px;opacity:.7">Use the email and password of your online account. Once checked, this device remembers it so you can play with no connection.</div></div>';
+  box.style.display = "block";
+  const val = id => $(id).value;
+  const submit = async () => {
+    const btn = box.querySelector("[data-go]");
+    if (btn.disabled) return;
+    const email = val("ofEmail").trim();
+    if (!email || !val("ofPw")) { $("ofErr").textContent = "Enter your email and password."; if (typeof sfx === "function") sfx("error"); return; }
+    btn.disabled = true; btn.textContent = "Checking…";
+    try { await verifyOfflinePassword(email, val("ofPw")); PLAY.offline = true; showCharSelect(); }
+    catch (e) { btn.disabled = false; btn.textContent = "Unlock offline play"; $("ofErr").textContent = e.message || "Could not check the password."; if (typeof sfx === "function") sfx("error"); }
+  };
+  box.querySelectorAll("input").forEach(i => i.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") submit(); }));
+  box.onclick = e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.go) submit();
+    else if (b.dataset.back) { if (typeof sfx === "function") sfx("close"); showModeChoice(); }
+  };
+  setTimeout(() => { const f = $(last ? "ofPw" : "ofEmail"); if (f) f.focus(); }, 50);
 }
 
 const CC = { job: "WAR", look: null, name: "", step: 0, thumbs: {} };

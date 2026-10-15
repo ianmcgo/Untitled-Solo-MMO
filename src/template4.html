@@ -72,6 +72,9 @@
 
   #tCmd { position: absolute; right: calc(10px + var(--sar)); bottom: calc(12px + var(--sab)); width: 230px; max-height: 52vh; overflow-y: auto; display: none; flex-direction: column; gap: 5px; padding: 8px; pointer-events: auto; z-index: 6; }
   #tCmd.on { display: flex; }
+  #tgtAct { position: absolute; left: 0; top: 0; display: none; pointer-events: auto; z-index: 7; transform: translate(-50%, -100%); padding: 8px 18px; border-radius: 999px; border: 2px solid #e6c36a; background: rgba(30,32,44,0.94); color: #ffe7a8; font: inherit; font-size: 15px; font-weight: 700; letter-spacing: .03em; box-shadow: 0 3px 12px rgba(0,0,0,0.5); touch-action: manipulation; }
+  #tgtAct.on { display: block; }
+  #tgtAct.fight { border-color: #ff7a6a; color: #ffd0c8; }
   #tCmd .tcHead { font-size: 12px; color: var(--gold); letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
   #tCmd button { flex: 0 0 auto; text-align: left; min-width: 0; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); background: rgba(30,32,44,0.9); color: #e8e2d0; font: inherit; font-size: 12.5px; cursor: pointer; }
   #tCmd button:hover { border-color: #e6c36a; }
@@ -1098,6 +1101,7 @@
     <div id="party"></div></div>
     </div>
     <div id="tCmd" class="glass"></div>
+    <button id="tgtAct" class="glass"></button>
     <div id="mCmd"></div>
     <div id="mmWrap" title="Map (M)"><div id="mmDisc"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN" class="mmL n">N</div><div id="mmE" class="mmL">E</div><div id="mmS" class="mmL">S</div><div id="mmW" class="mmL">W</div></div><div id="mmTime"></div></div>
     <div id="pool" class="glass"></div>

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.11.0",
-  "releaseTitle": "Clear roads",
+  "version": "16.13.0",
+  "releaseTitle": "Offline password",
   "description": "",
   "main": "index.js",
   "scripts": {

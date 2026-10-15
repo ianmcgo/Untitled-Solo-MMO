@@ -1474,6 +1474,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.13.0", date: "2026-10-15", title: "Offline password", items: [
+    "Playing offline now asks for the email and password of your online account before you can open the offline characters. The password is checked with the server, then remembered on that device (as a one-way hash) so offline play keeps working with no connection afterwards.",
+    "If you have never signed in on a device and it is offline, connect once to unlock offline play there."
+  ] },
+  { v: "16.12.0", date: "2026-10-15", title: "Target button", items: [
+    "On a touch screen, targeting something now puts a button above it: Talk for people, Use or Inspect for objects (signs, boards and tablets are Inspect; crystals, warp stones, chests, braziers and camps are Use), Harvest for gathering points, and Fight for monsters.",
+    "Fight engages the monster and opens its command box (magic, abilities, items) in one tap.",
+    "Attacking no longer makes you run to the monster. If you want the old behaviour, turn on Auto-run to target in Config, Camera."
+  ] },
   { v: "16.11.0", date: "2026-10-15", title: "Clear roads", items: [
     "Random wandering people are gone: city walkers, night walkers, patrolling guards and road travellers no longer spawn. Every named NPC stays at a fixed spot. Animals still roam.",
     "Warp stones are now stone statues: a robed figure on a plinth holding a glowing crystal.",
@@ -2513,7 +2522,8 @@ function tabHelp() {
     "<b>Phoenix Down</b> (Pell's shop) revives with half HP, <b>Ember Plume</b> with a fifth. Use them on a KO'd hireling, party member or friend. When you are KO'd yourself, open your items and use one on yourself."
   ]));
   h += sec("📴 Offline play", ul([
-    "Choose <b>Play Offline</b> after Press Start to play without an account. Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",
+    "Offline play asks for the email and password of your online account each time you start the game. It is checked with the server once, then remembered on that device so it works with no connection afterwards.",
+    "Choose <b>Play Offline</b> after Press Start to play without a connection (it asks for your online account password first). Offline characters live only on this device, in their own list (up to " + MAX_CHARS + ").",
     "Everything that doesn't need other players works offline: quests, story, companions, crafting, gathering, fishing, the NPC market and guild bounties.",
     "Offline characters can never be moved online, uploaded or loaded into an online character. Use System → Save to file to back one up on the same or another device's offline list."
   ]));
@@ -2526,6 +2536,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
+    "<b>Target button (touch):</b> a button floats above whatever you target: Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
