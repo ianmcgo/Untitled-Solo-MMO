@@ -319,8 +319,8 @@ function ccSteps(l) { return CC_STEPS.filter(s => s[0] !== "gender" || RACES[l.r
 function ccFaceThumb(v, fem, race) {
   const k = ATLAS_CELL / 256, c = document.createElement("canvas"), g = c.getContext("2d");
   c.width = ATLAS_CELL; c.height = ATLAS_CELL;
-  g.fillStyle = "#" + SKIN_TONES[RACE_SKIN[race] || 0].toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
-  paintFace(g, 0, 0, v, fem);
+  g.fillStyle = "#" + raceSkinColor(race).toString(16).padStart(6, "0"); g.fillRect(0, 0, c.width, c.height);
+  paintFaceFor(race, g, 0, 0, v, fem);
   const t = document.createElement("canvas"); t.width = 72; t.height = 60;
   const tg = t.getContext("2d");
   tg.drawImage(c, 26 * k, 66 * k, 76 * k, 108 * k, 0, 0, 72, 60);

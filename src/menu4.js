@@ -1480,6 +1480,11 @@ const UPDATES = [
     "New Pets window: equip a pet, give it a name, and summon or dismiss it. The Pet button joins your action bar once you own one, and /pet toggles it. Your pet is remembered between sessions.",
     "Ysolde sells three pets. Others come from notorious monsters (Duskwing, Mirelord Gax, Rimefang, the Ashen Herald), fishing in Saltreach, the Adventurers' Guild shop, and finishing the main story. New achievement: Pet Keeper."
   ] },
+  { v: "16.1.6", date: "2026-10-15", title: "Ursan and Pipkin redesigned", items: [
+    "Ursan are now big, gray-green lizard-skinned brutes: heavy brow, small deep-set eyes, a stern frown, a thick neck, a broad frame, thicker arms and a long lizard tail. The bear ears and beard are gone.",
+    "Pipkin are now cute and doll-like: big round dark eyes with a shine, a tiny nose, rosy cheeks, a small smile, a rounder face and warm peach skin.",
+    "Each race has its own eight face choices, shown in the creator's face step."
+  ] },
   { v: "16.1.5", date: "2026-10-15", title: "Creator fits narrow phones", items: [
     "The character creation preview on narrow phones was cropping the character at the sides, which looked like a zoom. The camera now pulls back to fit the whole body, and the preview column is wider.",
     "On very narrow phones (360 px wide or less) the face and hair choices use two columns, and the panel no longer runs off the side of the screen."
@@ -2171,7 +2176,7 @@ const UPDATES = [
     "Discovering landmarks no longer gives experience, and achievements no longer pay crystals. Both are for bragging rights only."
   ] },
   { v: "6.4.0", date: "2026-10-13", title: "Five Races and the City Blessing", items: [
-    "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like; the best casters, fast, but weak and frail), Ursan (huge; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
+    "Five playable races at character creation: Human (balanced), Elari (tall, long-eared; strong magic and bow accuracy, less HP), Pipkin (small and doll-like, with big round eyes and rosy cheeks; the best casters, fast, but weak and frail), Ursan (huge gray-green lizard-skinned brutes with a tail; the most HP and strength, poor magic, a little slow; male only) and Nekari (cat-eared and tailed; fast and nimble with good magic, slightly less HP; female only).",
     "Race changes your body shape, ears and tail, and gives modest stat bonuses and penalties. Existing characters are Human.",
     "City Blessing: gate guards now stand at every town exit. Monsters only yield elemental essences while you carry the blessing, which lasts 60 minutes at Copper rank and 30 minutes more per guild rank (up to 3½ hours). Talk to a guard before you head out.",
     "The character sheet and roster now show your race."
