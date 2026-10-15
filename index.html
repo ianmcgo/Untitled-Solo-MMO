@@ -1072,7 +1072,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.10.0 · built 2026-10-15 06:24 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.10.0 · built 2026-10-15 06:25 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -17318,10 +17318,10 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.10.0 · built 2026-10-15 06:24 PDT";
+const BUILD_INFO = "v16.10.0 · built 2026-10-15 06:25 PDT";
 const UPDATES = [
   { v: "16.10.0", date: "2026-10-15", title: "Townsfolk", items: [
-    "In the Classic look the people walking through the cities are all human and dress for where they are: clerks in mortarboards and trimmed coats in the Government District and the Keep, bandanas and baskets in the markets, aproned smiths with hammers in the Industrial District and Smelters' Row, travellers in coats, capes and wide hats at the gates, sailors in tricornes with oars and spyglasses at the harbour.",
+    "In the Classic look the people walking through the cities are a mix of the five races (human, elari, pipkin, ursan and nekari), each with its own proper body, and they dress for where they are: clerks in mortarboards and trimmed coats in the Government District and the Keep, bandanas and baskets in the markets, aproned smiths with hammers in the Industrial District and Smelters' Row, travellers in coats, capes and wide hats at the gates, sailors in tricornes with oars and spyglasses at the harbour.",
     "Night walkers carry lanterns and wear dark capes.",
     "Named townspeople keep their own outfits."
   ] },
@@ -18696,7 +18696,7 @@ function tabHelp() {
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
-    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. Classic townsfolk are all human and dress by district (clerks, merchants, smiths, sailors, travellers); night walkers carry lanterns. Classic monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Classic weapons and shields are chunkier, with outlines and crest-painted shields. In Classic, Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); the Show gear button draws equipped armour instead, and weapons and shields always show. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
+    "<b>Look and outlines:</b> Config → Graphics switches between the Classic look (chunky low-detail models with big hands, flared cuffs and collars, thick clumped hair, hand-painted textures with a few tones and ink lines, crisp up close, softly lit, like early online RPGs; the default) and the Modern look (reflective shading). Outlines draw a dark line around characters and monsters; they are on for Medium and High and off for Low unless you change them. Classic townsfolk are a mix of the five races and dress by district (clerks, merchants, smiths, sailors, travellers); night walkers carry lanterns. Classic monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Classic weapons and shields are chunkier, with outlines and crest-painted shields. In Classic, Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); the Show gear button draws equipped armour instead, and weapons and shields always show. Faces in Classic use a few flat shading tones, an ink eyelid line and darker inner ears. Changing either reloads the game.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
@@ -24151,7 +24151,7 @@ const DISTRICT_DRESS = {
   south: { tops: ["shirt", "apron", "tunic", "vest"], pal: [0xc8b890, 0x8a9a6a, 0x9a7a5a, 0xb08a6a], head: [["bandana", 0.1]], held: ["basket", "broom", null], boots: 0x4a3a28 },
   forge: { tops: ["apron", "vest", "tunic"], pal: [0x4a3a30, 0x6a3a2a, 0x3a3a3a], trim: 0xff8a50, head: [["bandana", 0.4], ["headband", 0.15]], held: ["hammer", "hammer", null], gloves: [0x3a2a1a, 0.8], boots: 0x2a1e14, belt: 0x2a1a10 }
 };
-const WALKER_RACES = [["human", 1]];
+const WALKER_RACES = [["human", 0.5], ["elari", 0.15], ["pipkin", 0.1], ["ursan", 0.1], ["nekari", 0.15]];
 
 function walkerCoded(seed, district, night) {
   const r = seeded(hashStr("walkerC" + seed + (district || "")));
@@ -24172,6 +24172,7 @@ function walkerCoded(seed, district, night) {
   L.legs = shade; L.boots = D.boots || 0x3a2a1e; L.belt = D.belt || pick([0x3a2412, 0x5a3a20, 0x2a2a2a]);
   for (const [t, p] of D.head || []) if (r() < p) { L.head = { type: t, color: pick(D.pal), color2: D.trim || 0xd8c070 }; break; }
   if (L.head && L.head.type === "tricorne") L.head.color = 0x2a2a3a;
+  if (race === "nekari") delete L.head;
   if (D.gloves && r() < D.gloves[1]) L.gloves = D.gloves[0];
   if (D.cape && r() < D.cape) L.cape = shadeHex(col, 0.7);
   if (race === "pipkin") L.held = null; else L.held = pick(D.held);
