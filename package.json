@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.20.0",
-  "releaseTitle": "Waiting",
+  "version": "16.22.0",
+  "releaseTitle": "Admin session info",
   "description": "",
   "main": "index.js",
   "scripts": {

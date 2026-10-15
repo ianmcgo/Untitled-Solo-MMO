@@ -2979,6 +2979,7 @@ function follow(a, dt) {
   const o0 = followOffset(S.party.indexOf(a)), mf = a.mounted ? 1.9 : 1, o = { x: o0.x * mf, y: o0.y * mf };
   const cos = Math.cos(player.face), sin = Math.sin(player.face);
   const tx = player.x + o.x * cos - o.y * sin, ty = player.y + o.x * sin + o.y * cos;
+  if (a.kiting) { const nt = closestOf({ x: tx, y: ty }, allyThreats()); if (nt && dist({ x: tx, y: ty }, nt) < CONFIG.allyKiteDist) return; }
   if (dist(a, player) > 700 && !partyInCombat()) { a.x = player.x - Math.cos(player.face) * 40 + rand(-20, 20); a.y = player.y - Math.sin(player.face) * 40 + rand(-20, 20); a.px = a.x; a.py = a.y; return; }
   if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? mountMul() : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
 }
@@ -2989,20 +2990,87 @@ function allyTry(a, act, t) {
   return true;
 }
 
-function raiseAI(a, dt) {
+function allyThreats() {
+  return S.mobs.filter(m => m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty));
+}
+
+function closestOf(a, list) {
+  let best = null, bd = 1e9;
+  for (const m of list) { const d = dist(a, m); if (d < bd) { bd = d; best = m; } }
+  return best;
+}
+
+function fleeFrom(a, list, dt, mul) {
+  let vx = 0, vy = 0;
+  for (const m of list) {
+    const dx = a.x - m.x, dy = a.y - m.y, d = Math.hypot(dx, dy);
+    if (d > 700) continue;
+    const w = 300 / Math.max(d, 40);
+    vx += (dx / Math.max(d, 1)) * w;
+    vy += (dy / Math.max(d, 1)) * w;
+  }
+  const pd = dist(a, player);
+  if (pd > 520) { vx += ((player.x - a.x) / pd) * 1.5; vy += ((player.y - a.y) / pd) * 1.5; }
+  if (Math.hypot(vx, vy) < 0.01) return false;
+  const step = a.speed * mul * dt;
+  if (!a.fleeChk) a.fleeChk = { x: a.x, y: a.y, t: S.time };
+  else if (S.time - a.fleeChk.t >= 0.6) {
+    if (Math.hypot(a.x - a.fleeChk.x, a.y - a.fleeChk.y) < a.speed * mul * 0.6 * 0.35) { a.fleeTurn = (Math.random() < 0.5 ? -1 : 1) * 1.2; a.fleeTurnUntil = S.time + 1.5; }
+    a.fleeChk = { x: a.x, y: a.y, t: S.time };
+  }
+  const ang = Math.atan2(vy, vx) + (S.time < (a.fleeTurnUntil || 0) ? a.fleeTurn : 0);
+  a.x += Math.cos(ang) * step;
+  a.y += Math.sin(ang) * step;
+  a.face = ang;
+  return true;
+}
+
+function allyMode(a, threatened) {
+  if (!a.mercId) return null;
+  const f = a.hp / a.maxHp;
+  const full = a.hp >= a.maxHp * 0.995 && (a.maxMp <= 0 || a.mp >= a.maxMp * 0.99);
+  const pd = dist(a, player);
+  if (a.retreat === "rest") {
+    if (full || (!threatened && pd > 600)) a.retreat = null;
+  } else if (f < CONFIG.allyRestHp && (threatened || pd <= 450)) a.retreat = "rest";
+  else if (a.retreat === "kite") { if (f > CONFIG.allyKiteExit) a.retreat = null; }
+  else if (f <= CONFIG.allyKiteHp) a.retreat = "kite";
+  if (!a.retreat) { a.fleeTurnUntil = 0; a.fleeChk = null; }
+  return a.retreat || null;
+}
+
+function restAI(a, dt, threats, hold) {
+  for (const m of threats) if (m.enmity.has(a) && (m.target !== a || dist(a, m) > CONFIG.allyRestDist)) m.enmity.delete(a);
+  a.engaged = false; a.attackTarget = null; a.target = null;
+  if (a.resting && canRest(a)) return;
+  if (!hold) {
+    const chased = threats.some(m => m.enmity.has(a));
+    const near = closestOf(a, threats);
+    if ((chased || (near && dist(a, near) < CONFIG.allyKiteDist)) && fleeFrom(a, threats, dt, 1)) { if (a.resting) standUp(a, true); return; }
+  }
+  if (canRest(a)) startRest(a);
+}
+
+function raiseAI(a, dt, still) {
   const down = S.party.find(p => p !== a && !p.alive && (p !== player || S.ko));
   if (!down) return false;
   const acts = actionList(a).filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "raise").sort((p, q) => SPELLS[q.id].pow - SPELLS[p.id].pow);
   const act = acts.find(x => a.mp >= SPELLS[x.id].mp && !(a.recasts && a.recasts[x.id] > S.time));
   if (!act) return false;
   if ([...S.mobs].some(m => m.alive && m.target === a && m.state === "combat") && a.hp / a.maxHp < 0.5) return false;
-  if (dist(a, down) > CONFIG.castRange * 0.8) { moveToward(a, down.x, down.y, dt, CONFIG.castRange * 0.6); a.face = Math.atan2(down.y - a.y, down.x - a.x); return true; }
+  if (dist(a, down) > CONFIG.castRange * 0.8) {
+    if (still) return false;
+    moveToward(a, down.x, down.y, dt, CONFIG.castRange * 0.6);
+    a.face = Math.atan2(down.y - a.y, down.x - a.x);
+    return true;
+  }
   if (allyTry(a, act, down)) { partySay(a, "raise"); return true; }
   return false;
 }
 
 function updateAlly(a, dt) {
-  if (!a.alive || a.casting) return;
+  if (!a.alive) { a.retreat = null; a.kiting = false; return; }
+  if (a.casting) return;
   if (a.mounted) { a.engaged = false; a.attackTarget = null; follow(a, dt); return; }
   const stance = save.stance || "assist";
   const tgt = stance === "follow" ? null : partyBattleTarget();
@@ -3010,7 +3078,22 @@ function updateAlly(a, dt) {
   const hx = a.x, hy = a.y;
   if (stance === "hold" && !a.holdAt) a.holdAt = { x: a.x, y: a.y };
   if (stance !== "hold") a.holdAt = null;
-  if (raiseAI(a, dt)) return;
+  if (a.mercId) {
+    const threats = allyThreats();
+    const mode = allyMode(a, threats.length > 0);
+    a.kiting = mode === "kite" && stance !== "hold";
+    if (a.resting && !mode && !player.resting) standUp(a, true);
+    if (mode === "rest") {
+      restAI(a, dt, threats, stance === "hold");
+      if (stance === "hold") { a.x = hx; a.y = hy; }
+      return;
+    }
+    if (a.kiting) {
+      const near = closestOf(a, threats);
+      if (near && dist(a, near) < CONFIG.allyKiteDist - 15 && fleeFrom(a, threats, dt, 1)) { a.engaged = false; a.attackTarget = null; a.target = null; return; }
+    }
+  } else a.kiting = false;
+  if (raiseAI(a, dt, a.kiting)) return;
   if (role === "healer" || role === "support") healerAI(a, tgt, dt);
   else if (role === "nuker" || role === "burster") nukerAI(a, tgt, dt);
   else if (role === "bard") { if (!bardAI(a, tgt, dt)) meleeAI(a, tgt, dt); }
@@ -3030,21 +3113,24 @@ function setStance(st) {
 function meleeAI(a, tgt, dt) {
   if (!tgt) { a.engaged = false; a.attackTarget = null; a.target = null; follow(a, dt); return; }
   if (a.attackTarget !== tgt) a.swingTimer = Math.min(a.swingTimer, 1.2);
-  a.attackTarget = tgt;
   a.target = tgt;
-  a.engaged = true;
-  moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8);
-  autoAttack(a, dt);
+  if (a.kiting && !(a.stats && a.stats.wtype === "archery")) { a.engaged = false; a.attackTarget = null; }
+  else {
+    a.attackTarget = tgt;
+    a.engaged = true;
+    moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8);
+    autoAttack(a, dt);
+  }
   const acts = actionList(a);
   if (a.role === "tank") {
     const prov = acts.find(x => x.id === "provoke");
-    if (prov && tgt.state === "combat" && topEnmity(tgt) !== a && allyTry(a, prov, tgt)) return;
+    if (prov && !a.kiting && tgt.state === "combat" && topEnmity(tgt) !== a && allyTry(a, prov, tgt)) return;
     const flash = acts.find(x => x.id === "flash");
-    if (flash && tgt.state === "combat" && (topEnmity(tgt) !== a || !tgt.buffs.flash) && allyTry(a, flash, tgt)) return;
+    if (flash && !a.kiting && tgt.state === "combat" && (topEnmity(tgt) !== a || !tgt.buffs.flash) && allyTry(a, flash, tgt)) return;
     const sent = acts.find(x => x.id === "sentinel");
-    if (sent && tgt.state === "combat" && (a.hp < a.maxHp * 0.5 || topEnmity(tgt) !== a) && allyTry(a, sent, a)) return;
+    if (sent && !a.kiting && tgt.state === "combat" && (a.hp < a.maxHp * 0.5 || topEnmity(tgt) !== a) && allyTry(a, sent, a)) return;
     const bash = acts.find(x => x.id === "shield_bash");
-    if (bash && tgt.readying && allyTry(a, bash, tgt)) return;
+    if (bash && !a.kiting && tgt.readying && allyTry(a, bash, tgt)) return;
     const cure = acts.find(x => x.id === "cure");
     if (cure && a.hp < a.maxHp * 0.4 && !S.party.some(p => p !== a && p.alive && p.role === "healer") && allyTry(a, cure, a)) return;
   }
@@ -3114,9 +3200,9 @@ function hybridMagic(a, tgt, acts) {
     const nk = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "nuke" && tgt.burst.el.includes(SPELLS[x.id].element)).sort((p, q) => SPELLS[q.id].power - SPELLS[p.id].power)[0];
     if (nk && allyTry(a, nk, tgt)) return true;
   }
-  if (S.time >= (a.nextNuke || 0) && a.mp > a.maxMp * 0.6) {
+  if (S.time >= (a.nextNuke || 0) && a.mp > a.maxMp * (a.kiting ? 0.1 : 0.6)) {
     const nukes = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "nuke").sort((p, q) => { const wp = (tgt.fam.weak || {})[SPELLS[p.id].element] || 1, wq = (tgt.fam.weak || {})[SPELLS[q.id].element] || 1; return SPELLS[q.id].power * wq - SPELLS[p.id].power * wp; });
-    if (nukes.length && allyTry(a, nukes[0], tgt)) { a.nextNuke = S.time + rand(9, 13); return true; }
+    if (nukes.length && allyTry(a, nukes[0], tgt)) { a.nextNuke = S.time + (a.kiting ? rand(3, 5) : rand(9, 13)); return true; }
   }
   return false;
 }
@@ -3143,10 +3229,10 @@ function smartAct(a, tgt, acts) {
     const debuffs = acts.filter(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && !tgt.buffs[SPELLS[x.id].buff || x.id]);
     for (const d of debuffs) if (allyTry(a, d, tgt)) return true;
   }
-  if (a.maxMp > 0 && a.mp > a.maxMp * 0.55 && S.time >= (a.nextNuke || 0) && tgt.hp > tgt.maxHp * 0.2) {
+  if (a.maxMp > 0 && a.mp > a.maxMp * (a.kiting ? 0.1 : 0.55) && S.time >= (a.nextNuke || 0) && tgt.hp > tgt.maxHp * 0.2) {
     const weak = tgt.fam.weak || {};
     const nukes = acts.filter(x => x.kind === "ma" && (SPELLS[x.id].kind === "nuke" || SPELLS[x.id].kind === "drain")).sort((p, q) => (SPELLS[q.id].power || 0) * (weak[SPELLS[q.id].element] || 1) - (SPELLS[p.id].power || 0) * (weak[SPELLS[p.id].element] || 1));
-    for (const n of nukes) if (allyTry(a, n, tgt)) { a.nextNuke = S.time + rand(10, 14); return true; }
+    for (const n of nukes) if (allyTry(a, n, tgt)) { a.nextNuke = S.time + (a.kiting ? rand(3, 6) : rand(10, 14)); return true; }
   }
   return false;
 }
@@ -3170,7 +3256,7 @@ function allyWeaponSkill(a, tgt, acts) {
 }
 
 function meleeIfSafe(a, tgt, dt, acts) {
-  const safe = a.hp > a.maxHp * 0.6 && (tgt.target !== a || a.hp > a.maxHp * 0.8);
+  const safe = !a.kiting && a.hp > a.maxHp * 0.6 && (tgt.target !== a || a.hp > a.maxHp * 0.8);
   if (!safe || tgt.state !== "combat") { a.engaged = false; a.attackTarget = null; return false; }
   a.attackTarget = tgt; a.target = tgt; a.engaged = true;
   moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8);
@@ -3181,26 +3267,32 @@ function meleeIfSafe(a, tgt, dt, acts) {
 
 function keepCasterRange(a, tgt, dt) {
   const d = dist(a, tgt);
-  if (d > 170) moveToward(a, tgt.x, tgt.y, dt, 140);
-  else if (d < 90) { const ang = Math.atan2(a.y - tgt.y, a.x - tgt.x); a.x += Math.cos(ang) * a.speed * 0.6 * dt; a.y += Math.sin(ang) * a.speed * 0.6 * dt; a.face = ang + Math.PI; }
+  if (d > (a.kiting ? CONFIG.castRange - 5 : 200)) moveToward(a, tgt.x, tgt.y, dt, a.kiting ? CONFIG.allyKiteDist : 170);
+  else if (d < 110) { const ang = Math.atan2(a.y - tgt.y, a.x - tgt.x); a.x += Math.cos(ang) * a.speed * 0.6 * dt; a.y += Math.sin(ang) * a.speed * 0.6 * dt; a.face = ang + Math.PI; }
+}
+
+function healEstimate(a, sp) {
+  return (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
 }
 
 function healerAI(a, tgt, dt) {
   const acts = actionList(a);
-  const living = S.party.filter(p => p.alive);
-  let low = null;
-  for (const p of living) if (!low || p.hp / p.maxHp < low.hp / low.maxHp) low = p;
-  const healAt = a.role === "healer" ? 0.65 : 0.5;
+  const healAt = a.role === "healer" ? 0.75 : 0.5;
   const otherHealer = S.party.some(p => p !== a && p.alive && p.role === "healer" && !p.casting);
-  if (low && low.hp / low.maxHp < healAt && (a.role === "healer" || !otherHealer || low.hp / low.maxHp < 0.35)) {
-    const pct = low.hp / low.maxHp;
-    const seal = acts.find(x => x.id === "divine_seal");
-    if (seal && pct < 0.35 && !a.buffs.divine_seal && allyTry(a, seal, a)) return;
-    const c2 = acts.find(x => x.id === "cure2");
-    const c1 = acts.find(x => x.id === "cure");
-    const order = c2 && low.maxHp - low.hp > 70 ? [c2, c1] : [c1, c2];
-    if (dist(a, low) > CONFIG.castRange - 30) { moveToward(a, low.x, low.y, dt, CONFIG.castRange - 60); return; }
-    for (const c of order) if (allyTry(a, c, low)) return;
+  const needy = S.party.filter(p => p.alive && p.hp < p.maxHp * healAt && (a.role === "healer" || !otherHealer || p.hp < p.maxHp * 0.35)).sort((p, q) => p.hp / p.maxHp - q.hp / q.maxHp);
+  if (needy.length) {
+    const inRange = needy.filter(p => dist(a, p) <= CONFIG.castRange - 30);
+    if (inRange.length) {
+      const low = inRange[0], miss = low.maxHp - low.hp;
+      const seal = acts.find(x => x.id === "divine_seal");
+      if (seal && low.hp < low.maxHp * 0.35 && !a.buffs.divine_seal && allyTry(a, seal, a)) return;
+      const heals = acts.filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "heal").sort((p, q) => SPELLS[p.id].power - SPELLS[q.id].power);
+      const order = heals.filter(x => healEstimate(a, SPELLS[x.id]) >= miss).concat(heals.filter(x => healEstimate(a, SPELLS[x.id]) < miss).reverse());
+      for (const c of order) if (allyTry(a, c, low)) return;
+    } else if (!a.kiting) {
+      moveToward(a, needy[0].x, needy[0].y, dt, CONFIG.castRange - 60);
+      return;
+    }
   }
   if (tgt) {
     const dia = acts.find(x => x.id === "dia");
@@ -3229,17 +3321,18 @@ function nukerAI(a, tgt, dt) {
       if (allyTry(a, n, tgt)) return;
     }
   }
-  const reserve = a.role === "burster" ? (tgt.chain ? 0.8 : 0.5) : 0.3;
-  if (S.time >= a.nextNuke && a.mp > a.maxMp * reserve && tgt.state === "combat" && tgt.hp > tgt.maxHp * 0.15) {
+  const reserve = a.role === "burster" && tgt.chain ? 0.2 : CONFIG.allyMpReserve;
+  if (S.time >= a.nextNuke && a.mp > a.maxMp * reserve && tgt.state === "combat" && tgt.hp > tgt.maxHp * 0.1) {
     const ranked = nukes.slice().sort((p, q) => {
       const wp = (tgt.fam.weak || {})[SPELLS[p.id].element] || 1, wq = (tgt.fam.weak || {})[SPELLS[q.id].element] || 1;
       return SPELLS[q.id].power * wq - SPELLS[p.id].power * wp;
     });
-    for (const n of ranked) if (allyTry(a, n, tgt)) { a.nextNuke = S.time + rand(6, 9); return; }
+    for (const n of ranked) if (allyTry(a, n, tgt)) { a.nextNuke = S.time + rand(1.2, 2.4); return; }
   }
-  const dbf = acts.find(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && a.mp > a.maxMp * 0.4);
+  const dbf = acts.find(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && a.mp > a.maxMp * 0.15);
   if (dbf && tgt.state === "combat" && allyTry(a, dbf, tgt)) return;
-  if (meleeIfSafe(a, tgt, dt, acts)) return;
+  if (a.mp <= a.maxMp * 0.1 && meleeIfSafe(a, tgt, dt, acts)) return;
+  a.engaged = false; a.attackTarget = null;
   keepCasterRange(a, tgt, dt);
 }
 
@@ -3341,6 +3434,7 @@ function enterZone(id, x, y) {
   if (S.party.some(p => p.mercId) || (save.mercBodies && Object.keys(save.mercBodies).length)) rebuildParty();
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
   S.mobs = [];
+  for (const p of S.party) { p.retreat = null; p.kiting = false; }
   S.effects = [];
   S.floaters = [];
   S.spawnAt = [];

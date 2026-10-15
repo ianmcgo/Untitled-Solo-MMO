@@ -1156,7 +1156,17 @@ function copyText(t) {
 }
 
 function adminReport() {
-  return JSON.stringify({ game: "Leid'anav Reborn", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
+  return JSON.stringify({ game: "Leid'anav Reborn", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, ping: NET.ping || null, online: (NET_RT.online || []).map(o => o && [o.name, o.job, o.lv, o.zone]), stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
+}
+
+function adminLiveHtml() {
+  const on = NET_RT.online || [];
+  const host = typeof NET_SH !== "undefined" ? (NET_SH.on ? (NET_SH.host ? "you" : "another player") : "not shared") : "–";
+  const kv = (k, v) => '<div class="item" style="display:block;text-align:center;min-width:110px"><div class="sub">' + k + '</div><b style="font-size:16px">' + esc(String(v)) + "</b></div>";
+  let h = '<h3>This session</h3><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + kv("Ping", NET.ping ? NET.ping + " ms" : "–") + kv("Last save", NET.lastSave ? fmtAgo(NET.lastSave) : "never") + kv("Unsaved changes", Object.keys(NET.dirty).length) + kv("Sent / received", (NET_RT.sent || 0) + " / " + (NET_RT.recv || 0)) + kv("Players online", on.length) + kv("Players in zone", S.others ? S.others.size : 0) + kv("Monster host", host) + kv("Zone", S.zone ? S.zone.name : "–") + kv("Game version", GAME_VERSION) + "</div>";
+  if (NET.lastErr) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">Last save error: ' + esc(NET.lastErr) + "</div>";
+  h += "<h3>Players online now (" + on.length + ")</h3>" + (on.length ? on.map(o => '<div class="sub">' + esc(o.name || "?") + " · " + esc(o.job || "") + (o.sub ? "/" + esc(o.sub) : "") + " Lv." + esc(o.lv || "") + " · " + esc(o.zone || "") + (o.lfg ? " · looking for party" : "") + (o.ls ? " · " + esc(o.ls) : "") + "</div>").join("") : '<div class="sub">Nobody online.</div>');
+  return h;
 }
 
 function tabAdmin() {
@@ -1165,6 +1175,7 @@ function tabAdmin() {
   const st = UI.adminStats;
   let h = '<div class="sub" style="margin-bottom:8px">Server: ' + esc(NET_CFG.url) + " · signed in as " + esc(NET.user.email) + " · " + esc(typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "") + "</div>";
   if (UI.adminMsg) h += '<div class="sub" style="color:#ffd54f;margin-bottom:6px">' + esc(UI.adminMsg) + "</div>";
+  h += adminLiveHtml();
   if (UI.adminErr) h += '<div class="item" style="display:block;border-color:#ff8a80"><b>Couldn\'t read server stats</b><div class="sub">' + esc(UI.adminErr) + '. If the database hasn\'t been set up yet, copy the setup SQL below and run it in the Supabase SQL editor.</div></div>';
   else if (!st) h += '<div class="sub">Loading server stats…</div>';
   else {
@@ -1474,6 +1485,16 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "16.22.0", date: "2026-10-15", title: "Admin session info", items: [
+    "Config → More → Admin now opens with a This session block: ping, last save, unsaved changes, packets sent and received, players online, players in your zone, who hosts the shared monsters, current zone and game version.",
+    "Below it a new list shows every player online right now with job, level, zone, party search and linkshell. Server totals, suspicious saves, bans and recent characters are still underneath."
+  ] },
+  { v: "16.21.0", date: "2026-10-15", title: "Mercenaries know when to run", items: [
+    "Hired mercenaries now back off when hurt. At half health or less they run to a safe distance (about 200 steps from the enemies) and keep fighting from range with spells or bows. Fighters with no ranged attack stay back and use their abilities, and tanks stop pulling aggro until they recover. They go back to normal above 70% health.",
+    "Below 25% health a mercenary runs clear of the fight, drops out of the monsters' attention and sits down to /rest until HP and MP are full. If they are chased they keep running first; a monster that is too far away loses interest in them. On Hold stance they rest in place instead of running.",
+    "Casters and ranged jobs now use nearly all of their MP (down to about 4%) in quick succession and stay at range instead of running in to melee between spells. They only swing a weapon when almost out of MP.",
+    "Healers now heal the party member with the lowest health first, up to 75% for a healer, and pick the smallest cure that covers the damage (using Cure III and IV when they know them). Mercenaries who are running away can still heal and cast from where they stand."
+  ] },
   { v: "16.20.0", date: "2026-10-15", title: "Waiting", items: [
     "Current Time in the main menu is now Time. It opens a box with the clock and two choices: Current time (writes the time to the log as before) or Wait.",
     "Wait: pick 1 to 24 hours. In a town, with no other adventurer online, the clock ticks forward one game hour every 5 seconds until it reaches that time; Stop ends it early. Outside a town it says enemies are near, and with other players online it explains that time can't be sped up."
@@ -2788,6 +2809,7 @@ function tabHelp() {
   h += sec("👥 Party and companions (P)", ul([
     "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement, and always fight at your level as you grow.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
+    "<b>Hurt mercenaries:</b> at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
     "<b>Gear:</b> give companions equipment from your bag in the Party window. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
@@ -2937,7 +2959,7 @@ function tabHelp() {
     "Key items and Exclusive items can't be traded. Closing the trade window or walking away cancels it.",
     "Trades are finished on the game server in a single step: the server checks that both players really have the items and crystals and room in their bags, then moves everything at once. If anything is off, nothing changes for either player."
   ]));
-  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
+  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The game owner's account also gets Config → More → Admin: ping, last save, who is online and where, server totals, suspicious saves and bans.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions about every 5 minutes and shows one popup for the newest version only, even if several came out. Reload jumps straight to the newest. Later hides it until an even newer version comes out. If a reload still lands on an older copy (the web host can take a few minutes to catch up), it waits 15 minutes before asking again. System → Check for updates checks right away."]));
   return h + "</div>";
 }

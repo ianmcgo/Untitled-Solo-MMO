@@ -1091,7 +1091,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.20.0 · built 2026-10-15 11:47 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v16.22.0 · built 2026-10-15 16:17 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -5845,6 +5845,12 @@ const CONFIG = {
   scrollDrop: 0.05,
   levelCap: 20,
   bowRange: 230,
+  allyKiteHp: 0.5,
+  allyKiteExit: 0.7,
+  allyRestHp: 0.25,
+  allyKiteDist: 200,
+  allyRestDist: 420,
+  allyMpReserve: 0.04,
   foodMinutes: 30, warpCost: 50, roadBonus: 1.15,
   poolTime: 45, partyMax: 6, partyRange: 900, partyShare: [1, 1, 0.6, 0.45, 0.37, 0.32, 0.28], tradeRange: 250, tradeSlots: 8,
   meleeRange: 42,
@@ -11516,6 +11522,7 @@ function follow(a, dt) {
   const o0 = followOffset(S.party.indexOf(a)), mf = a.mounted ? 1.9 : 1, o = { x: o0.x * mf, y: o0.y * mf };
   const cos = Math.cos(player.face), sin = Math.sin(player.face);
   const tx = player.x + o.x * cos - o.y * sin, ty = player.y + o.x * sin + o.y * cos;
+  if (a.kiting) { const nt = closestOf({ x: tx, y: ty }, allyThreats()); if (nt && dist({ x: tx, y: ty }, nt) < CONFIG.allyKiteDist) return; }
   if (dist(a, player) > 700 && !partyInCombat()) { a.x = player.x - Math.cos(player.face) * 40 + rand(-20, 20); a.y = player.y - Math.sin(player.face) * 40 + rand(-20, 20); a.px = a.x; a.py = a.y; return; }
   if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? mountMul() : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
 }
@@ -11526,20 +11533,87 @@ function allyTry(a, act, t) {
   return true;
 }
 
-function raiseAI(a, dt) {
+function allyThreats() {
+  return S.mobs.filter(m => m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty));
+}
+
+function closestOf(a, list) {
+  let best = null, bd = 1e9;
+  for (const m of list) { const d = dist(a, m); if (d < bd) { bd = d; best = m; } }
+  return best;
+}
+
+function fleeFrom(a, list, dt, mul) {
+  let vx = 0, vy = 0;
+  for (const m of list) {
+    const dx = a.x - m.x, dy = a.y - m.y, d = Math.hypot(dx, dy);
+    if (d > 700) continue;
+    const w = 300 / Math.max(d, 40);
+    vx += (dx / Math.max(d, 1)) * w;
+    vy += (dy / Math.max(d, 1)) * w;
+  }
+  const pd = dist(a, player);
+  if (pd > 520) { vx += ((player.x - a.x) / pd) * 1.5; vy += ((player.y - a.y) / pd) * 1.5; }
+  if (Math.hypot(vx, vy) < 0.01) return false;
+  const step = a.speed * mul * dt;
+  if (!a.fleeChk) a.fleeChk = { x: a.x, y: a.y, t: S.time };
+  else if (S.time - a.fleeChk.t >= 0.6) {
+    if (Math.hypot(a.x - a.fleeChk.x, a.y - a.fleeChk.y) < a.speed * mul * 0.6 * 0.35) { a.fleeTurn = (Math.random() < 0.5 ? -1 : 1) * 1.2; a.fleeTurnUntil = S.time + 1.5; }
+    a.fleeChk = { x: a.x, y: a.y, t: S.time };
+  }
+  const ang = Math.atan2(vy, vx) + (S.time < (a.fleeTurnUntil || 0) ? a.fleeTurn : 0);
+  a.x += Math.cos(ang) * step;
+  a.y += Math.sin(ang) * step;
+  a.face = ang;
+  return true;
+}
+
+function allyMode(a, threatened) {
+  if (!a.mercId) return null;
+  const f = a.hp / a.maxHp;
+  const full = a.hp >= a.maxHp * 0.995 && (a.maxMp <= 0 || a.mp >= a.maxMp * 0.99);
+  const pd = dist(a, player);
+  if (a.retreat === "rest") {
+    if (full || (!threatened && pd > 600)) a.retreat = null;
+  } else if (f < CONFIG.allyRestHp && (threatened || pd <= 450)) a.retreat = "rest";
+  else if (a.retreat === "kite") { if (f > CONFIG.allyKiteExit) a.retreat = null; }
+  else if (f <= CONFIG.allyKiteHp) a.retreat = "kite";
+  if (!a.retreat) { a.fleeTurnUntil = 0; a.fleeChk = null; }
+  return a.retreat || null;
+}
+
+function restAI(a, dt, threats, hold) {
+  for (const m of threats) if (m.enmity.has(a) && (m.target !== a || dist(a, m) > CONFIG.allyRestDist)) m.enmity.delete(a);
+  a.engaged = false; a.attackTarget = null; a.target = null;
+  if (a.resting && canRest(a)) return;
+  if (!hold) {
+    const chased = threats.some(m => m.enmity.has(a));
+    const near = closestOf(a, threats);
+    if ((chased || (near && dist(a, near) < CONFIG.allyKiteDist)) && fleeFrom(a, threats, dt, 1)) { if (a.resting) standUp(a, true); return; }
+  }
+  if (canRest(a)) startRest(a);
+}
+
+function raiseAI(a, dt, still) {
   const down = S.party.find(p => p !== a && !p.alive && (p !== player || S.ko));
   if (!down) return false;
   const acts = actionList(a).filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "raise").sort((p, q) => SPELLS[q.id].pow - SPELLS[p.id].pow);
   const act = acts.find(x => a.mp >= SPELLS[x.id].mp && !(a.recasts && a.recasts[x.id] > S.time));
   if (!act) return false;
   if ([...S.mobs].some(m => m.alive && m.target === a && m.state === "combat") && a.hp / a.maxHp < 0.5) return false;
-  if (dist(a, down) > CONFIG.castRange * 0.8) { moveToward(a, down.x, down.y, dt, CONFIG.castRange * 0.6); a.face = Math.atan2(down.y - a.y, down.x - a.x); return true; }
+  if (dist(a, down) > CONFIG.castRange * 0.8) {
+    if (still) return false;
+    moveToward(a, down.x, down.y, dt, CONFIG.castRange * 0.6);
+    a.face = Math.atan2(down.y - a.y, down.x - a.x);
+    return true;
+  }
   if (allyTry(a, act, down)) { partySay(a, "raise"); return true; }
   return false;
 }
 
 function updateAlly(a, dt) {
-  if (!a.alive || a.casting) return;
+  if (!a.alive) { a.retreat = null; a.kiting = false; return; }
+  if (a.casting) return;
   if (a.mounted) { a.engaged = false; a.attackTarget = null; follow(a, dt); return; }
   const stance = save.stance || "assist";
   const tgt = stance === "follow" ? null : partyBattleTarget();
@@ -11547,7 +11621,22 @@ function updateAlly(a, dt) {
   const hx = a.x, hy = a.y;
   if (stance === "hold" && !a.holdAt) a.holdAt = { x: a.x, y: a.y };
   if (stance !== "hold") a.holdAt = null;
-  if (raiseAI(a, dt)) return;
+  if (a.mercId) {
+    const threats = allyThreats();
+    const mode = allyMode(a, threats.length > 0);
+    a.kiting = mode === "kite" && stance !== "hold";
+    if (a.resting && !mode && !player.resting) standUp(a, true);
+    if (mode === "rest") {
+      restAI(a, dt, threats, stance === "hold");
+      if (stance === "hold") { a.x = hx; a.y = hy; }
+      return;
+    }
+    if (a.kiting) {
+      const near = closestOf(a, threats);
+      if (near && dist(a, near) < CONFIG.allyKiteDist - 15 && fleeFrom(a, threats, dt, 1)) { a.engaged = false; a.attackTarget = null; a.target = null; return; }
+    }
+  } else a.kiting = false;
+  if (raiseAI(a, dt, a.kiting)) return;
   if (role === "healer" || role === "support") healerAI(a, tgt, dt);
   else if (role === "nuker" || role === "burster") nukerAI(a, tgt, dt);
   else if (role === "bard") { if (!bardAI(a, tgt, dt)) meleeAI(a, tgt, dt); }
@@ -11567,21 +11656,24 @@ function setStance(st) {
 function meleeAI(a, tgt, dt) {
   if (!tgt) { a.engaged = false; a.attackTarget = null; a.target = null; follow(a, dt); return; }
   if (a.attackTarget !== tgt) a.swingTimer = Math.min(a.swingTimer, 1.2);
-  a.attackTarget = tgt;
   a.target = tgt;
-  a.engaged = true;
-  moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8);
-  autoAttack(a, dt);
+  if (a.kiting && !(a.stats && a.stats.wtype === "archery")) { a.engaged = false; a.attackTarget = null; }
+  else {
+    a.attackTarget = tgt;
+    a.engaged = true;
+    moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8);
+    autoAttack(a, dt);
+  }
   const acts = actionList(a);
   if (a.role === "tank") {
     const prov = acts.find(x => x.id === "provoke");
-    if (prov && tgt.state === "combat" && topEnmity(tgt) !== a && allyTry(a, prov, tgt)) return;
+    if (prov && !a.kiting && tgt.state === "combat" && topEnmity(tgt) !== a && allyTry(a, prov, tgt)) return;
     const flash = acts.find(x => x.id === "flash");
-    if (flash && tgt.state === "combat" && (topEnmity(tgt) !== a || !tgt.buffs.flash) && allyTry(a, flash, tgt)) return;
+    if (flash && !a.kiting && tgt.state === "combat" && (topEnmity(tgt) !== a || !tgt.buffs.flash) && allyTry(a, flash, tgt)) return;
     const sent = acts.find(x => x.id === "sentinel");
-    if (sent && tgt.state === "combat" && (a.hp < a.maxHp * 0.5 || topEnmity(tgt) !== a) && allyTry(a, sent, a)) return;
+    if (sent && !a.kiting && tgt.state === "combat" && (a.hp < a.maxHp * 0.5 || topEnmity(tgt) !== a) && allyTry(a, sent, a)) return;
     const bash = acts.find(x => x.id === "shield_bash");
-    if (bash && tgt.readying && allyTry(a, bash, tgt)) return;
+    if (bash && !a.kiting && tgt.readying && allyTry(a, bash, tgt)) return;
     const cure = acts.find(x => x.id === "cure");
     if (cure && a.hp < a.maxHp * 0.4 && !S.party.some(p => p !== a && p.alive && p.role === "healer") && allyTry(a, cure, a)) return;
   }
@@ -11651,9 +11743,9 @@ function hybridMagic(a, tgt, acts) {
     const nk = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "nuke" && tgt.burst.el.includes(SPELLS[x.id].element)).sort((p, q) => SPELLS[q.id].power - SPELLS[p.id].power)[0];
     if (nk && allyTry(a, nk, tgt)) return true;
   }
-  if (S.time >= (a.nextNuke || 0) && a.mp > a.maxMp * 0.6) {
+  if (S.time >= (a.nextNuke || 0) && a.mp > a.maxMp * (a.kiting ? 0.1 : 0.6)) {
     const nukes = acts.filter(x => x.kind === "ma" && SPELLS[x.id].kind === "nuke").sort((p, q) => { const wp = (tgt.fam.weak || {})[SPELLS[p.id].element] || 1, wq = (tgt.fam.weak || {})[SPELLS[q.id].element] || 1; return SPELLS[q.id].power * wq - SPELLS[p.id].power * wp; });
-    if (nukes.length && allyTry(a, nukes[0], tgt)) { a.nextNuke = S.time + rand(9, 13); return true; }
+    if (nukes.length && allyTry(a, nukes[0], tgt)) { a.nextNuke = S.time + (a.kiting ? rand(3, 5) : rand(9, 13)); return true; }
   }
   return false;
 }
@@ -11680,10 +11772,10 @@ function smartAct(a, tgt, acts) {
     const debuffs = acts.filter(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && !tgt.buffs[SPELLS[x.id].buff || x.id]);
     for (const d of debuffs) if (allyTry(a, d, tgt)) return true;
   }
-  if (a.maxMp > 0 && a.mp > a.maxMp * 0.55 && S.time >= (a.nextNuke || 0) && tgt.hp > tgt.maxHp * 0.2) {
+  if (a.maxMp > 0 && a.mp > a.maxMp * (a.kiting ? 0.1 : 0.55) && S.time >= (a.nextNuke || 0) && tgt.hp > tgt.maxHp * 0.2) {
     const weak = tgt.fam.weak || {};
     const nukes = acts.filter(x => x.kind === "ma" && (SPELLS[x.id].kind === "nuke" || SPELLS[x.id].kind === "drain")).sort((p, q) => (SPELLS[q.id].power || 0) * (weak[SPELLS[q.id].element] || 1) - (SPELLS[p.id].power || 0) * (weak[SPELLS[p.id].element] || 1));
-    for (const n of nukes) if (allyTry(a, n, tgt)) { a.nextNuke = S.time + rand(10, 14); return true; }
+    for (const n of nukes) if (allyTry(a, n, tgt)) { a.nextNuke = S.time + (a.kiting ? rand(3, 6) : rand(10, 14)); return true; }
   }
   return false;
 }
@@ -11707,7 +11799,7 @@ function allyWeaponSkill(a, tgt, acts) {
 }
 
 function meleeIfSafe(a, tgt, dt, acts) {
-  const safe = a.hp > a.maxHp * 0.6 && (tgt.target !== a || a.hp > a.maxHp * 0.8);
+  const safe = !a.kiting && a.hp > a.maxHp * 0.6 && (tgt.target !== a || a.hp > a.maxHp * 0.8);
   if (!safe || tgt.state !== "combat") { a.engaged = false; a.attackTarget = null; return false; }
   a.attackTarget = tgt; a.target = tgt; a.engaged = true;
   moveToward(a, tgt.x, tgt.y, dt, reach(a) - 8);
@@ -11718,26 +11810,32 @@ function meleeIfSafe(a, tgt, dt, acts) {
 
 function keepCasterRange(a, tgt, dt) {
   const d = dist(a, tgt);
-  if (d > 170) moveToward(a, tgt.x, tgt.y, dt, 140);
-  else if (d < 90) { const ang = Math.atan2(a.y - tgt.y, a.x - tgt.x); a.x += Math.cos(ang) * a.speed * 0.6 * dt; a.y += Math.sin(ang) * a.speed * 0.6 * dt; a.face = ang + Math.PI; }
+  if (d > (a.kiting ? CONFIG.castRange - 5 : 200)) moveToward(a, tgt.x, tgt.y, dt, a.kiting ? CONFIG.allyKiteDist : 170);
+  else if (d < 110) { const ang = Math.atan2(a.y - tgt.y, a.x - tgt.x); a.x += Math.cos(ang) * a.speed * 0.6 * dt; a.y += Math.sin(ang) * a.speed * 0.6 * dt; a.face = ang + Math.PI; }
+}
+
+function healEstimate(a, sp) {
+  return (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
 }
 
 function healerAI(a, tgt, dt) {
   const acts = actionList(a);
-  const living = S.party.filter(p => p.alive);
-  let low = null;
-  for (const p of living) if (!low || p.hp / p.maxHp < low.hp / low.maxHp) low = p;
-  const healAt = a.role === "healer" ? 0.65 : 0.5;
+  const healAt = a.role === "healer" ? 0.75 : 0.5;
   const otherHealer = S.party.some(p => p !== a && p.alive && p.role === "healer" && !p.casting);
-  if (low && low.hp / low.maxHp < healAt && (a.role === "healer" || !otherHealer || low.hp / low.maxHp < 0.35)) {
-    const pct = low.hp / low.maxHp;
-    const seal = acts.find(x => x.id === "divine_seal");
-    if (seal && pct < 0.35 && !a.buffs.divine_seal && allyTry(a, seal, a)) return;
-    const c2 = acts.find(x => x.id === "cure2");
-    const c1 = acts.find(x => x.id === "cure");
-    const order = c2 && low.maxHp - low.hp > 70 ? [c2, c1] : [c1, c2];
-    if (dist(a, low) > CONFIG.castRange - 30) { moveToward(a, low.x, low.y, dt, CONFIG.castRange - 60); return; }
-    for (const c of order) if (allyTry(a, c, low)) return;
+  const needy = S.party.filter(p => p.alive && p.hp < p.maxHp * healAt && (a.role === "healer" || !otherHealer || p.hp < p.maxHp * 0.35)).sort((p, q) => p.hp / p.maxHp - q.hp / q.maxHp);
+  if (needy.length) {
+    const inRange = needy.filter(p => dist(a, p) <= CONFIG.castRange - 30);
+    if (inRange.length) {
+      const low = inRange[0], miss = low.maxHp - low.hp;
+      const seal = acts.find(x => x.id === "divine_seal");
+      if (seal && low.hp < low.maxHp * 0.35 && !a.buffs.divine_seal && allyTry(a, seal, a)) return;
+      const heals = acts.filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "heal").sort((p, q) => SPELLS[p.id].power - SPELLS[q.id].power);
+      const order = heals.filter(x => healEstimate(a, SPELLS[x.id]) >= miss).concat(heals.filter(x => healEstimate(a, SPELLS[x.id]) < miss).reverse());
+      for (const c of order) if (allyTry(a, c, low)) return;
+    } else if (!a.kiting) {
+      moveToward(a, needy[0].x, needy[0].y, dt, CONFIG.castRange - 60);
+      return;
+    }
   }
   if (tgt) {
     const dia = acts.find(x => x.id === "dia");
@@ -11766,17 +11864,18 @@ function nukerAI(a, tgt, dt) {
       if (allyTry(a, n, tgt)) return;
     }
   }
-  const reserve = a.role === "burster" ? (tgt.chain ? 0.8 : 0.5) : 0.3;
-  if (S.time >= a.nextNuke && a.mp > a.maxMp * reserve && tgt.state === "combat" && tgt.hp > tgt.maxHp * 0.15) {
+  const reserve = a.role === "burster" && tgt.chain ? 0.2 : CONFIG.allyMpReserve;
+  if (S.time >= a.nextNuke && a.mp > a.maxMp * reserve && tgt.state === "combat" && tgt.hp > tgt.maxHp * 0.1) {
     const ranked = nukes.slice().sort((p, q) => {
       const wp = (tgt.fam.weak || {})[SPELLS[p.id].element] || 1, wq = (tgt.fam.weak || {})[SPELLS[q.id].element] || 1;
       return SPELLS[q.id].power * wq - SPELLS[p.id].power * wp;
     });
-    for (const n of ranked) if (allyTry(a, n, tgt)) { a.nextNuke = S.time + rand(6, 9); return; }
+    for (const n of ranked) if (allyTry(a, n, tgt)) { a.nextNuke = S.time + rand(1.2, 2.4); return; }
   }
-  const dbf = acts.find(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && a.mp > a.maxMp * 0.4);
+  const dbf = acts.find(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && a.mp > a.maxMp * 0.15);
   if (dbf && tgt.state === "combat" && allyTry(a, dbf, tgt)) return;
-  if (meleeIfSafe(a, tgt, dt, acts)) return;
+  if (a.mp <= a.maxMp * 0.1 && meleeIfSafe(a, tgt, dt, acts)) return;
+  a.engaged = false; a.attackTarget = null;
   keepCasterRange(a, tgt, dt);
 }
 
@@ -11878,6 +11977,7 @@ function enterZone(id, x, y) {
   if (S.party.some(p => p.mercId) || (save.mercBodies && Object.keys(save.mercBodies).length)) rebuildParty();
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
   S.mobs = [];
+  for (const p of S.party) { p.retreat = null; p.kiting = false; }
   S.effects = [];
   S.floaters = [];
   S.spawnAt = [];
@@ -17079,7 +17179,17 @@ function copyText(t) {
 }
 
 function adminReport() {
-  return JSON.stringify({ game: "Leid'anav Reborn", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
+  return JSON.stringify({ game: "Leid'anav Reborn", build: typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "", server: NET_CFG.url, admin: NET.user && NET.user.email, lastSave: NET.lastSave ? new Date(NET.lastSave).toISOString() : null, lastError: NET.lastErr || null, ping: NET.ping || null, online: (NET_RT.online || []).map(o => o && [o.name, o.job, o.lv, o.zone]), stats: UI.adminStats || null, error: UI.adminErr || null }, null, 1);
+}
+
+function adminLiveHtml() {
+  const on = NET_RT.online || [];
+  const host = typeof NET_SH !== "undefined" ? (NET_SH.on ? (NET_SH.host ? "you" : "another player") : "not shared") : "–";
+  const kv = (k, v) => '<div class="item" style="display:block;text-align:center;min-width:110px"><div class="sub">' + k + '</div><b style="font-size:16px">' + esc(String(v)) + "</b></div>";
+  let h = '<h3>This session</h3><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + kv("Ping", NET.ping ? NET.ping + " ms" : "–") + kv("Last save", NET.lastSave ? fmtAgo(NET.lastSave) : "never") + kv("Unsaved changes", Object.keys(NET.dirty).length) + kv("Sent / received", (NET_RT.sent || 0) + " / " + (NET_RT.recv || 0)) + kv("Players online", on.length) + kv("Players in zone", S.others ? S.others.size : 0) + kv("Monster host", host) + kv("Zone", S.zone ? S.zone.name : "–") + kv("Game version", GAME_VERSION) + "</div>";
+  if (NET.lastErr) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">Last save error: ' + esc(NET.lastErr) + "</div>";
+  h += "<h3>Players online now (" + on.length + ")</h3>" + (on.length ? on.map(o => '<div class="sub">' + esc(o.name || "?") + " · " + esc(o.job || "") + (o.sub ? "/" + esc(o.sub) : "") + " Lv." + esc(o.lv || "") + " · " + esc(o.zone || "") + (o.lfg ? " · looking for party" : "") + (o.ls ? " · " + esc(o.ls) : "") + "</div>").join("") : '<div class="sub">Nobody online.</div>');
+  return h;
 }
 
 function tabAdmin() {
@@ -17088,6 +17198,7 @@ function tabAdmin() {
   const st = UI.adminStats;
   let h = '<div class="sub" style="margin-bottom:8px">Server: ' + esc(NET_CFG.url) + " · signed in as " + esc(NET.user.email) + " · " + esc(typeof BUILD_INFO !== "undefined" ? BUILD_INFO : "") + "</div>";
   if (UI.adminMsg) h += '<div class="sub" style="color:#ffd54f;margin-bottom:6px">' + esc(UI.adminMsg) + "</div>";
+  h += adminLiveHtml();
   if (UI.adminErr) h += '<div class="item" style="display:block;border-color:#ff8a80"><b>Couldn\'t read server stats</b><div class="sub">' + esc(UI.adminErr) + '. If the database hasn\'t been set up yet, copy the setup SQL below and run it in the Supabase SQL editor.</div></div>';
   else if (!st) h += '<div class="sub">Loading server stats…</div>';
   else {
@@ -17395,8 +17506,18 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v16.20.0 · built 2026-10-15 11:47 PDT";
+const BUILD_INFO = "v16.22.0 · built 2026-10-15 16:17 PDT";
 const UPDATES = [
+  { v: "16.22.0", date: "2026-10-15", title: "Admin session info", items: [
+    "Config → More → Admin now opens with a This session block: ping, last save, unsaved changes, packets sent and received, players online, players in your zone, who hosts the shared monsters, current zone and game version.",
+    "Below it a new list shows every player online right now with job, level, zone, party search and linkshell. Server totals, suspicious saves, bans and recent characters are still underneath."
+  ] },
+  { v: "16.21.0", date: "2026-10-15", title: "Mercenaries know when to run", items: [
+    "Hired mercenaries now back off when hurt. At half health or less they run to a safe distance (about 200 steps from the enemies) and keep fighting from range with spells or bows. Fighters with no ranged attack stay back and use their abilities, and tanks stop pulling aggro until they recover. They go back to normal above 70% health.",
+    "Below 25% health a mercenary runs clear of the fight, drops out of the monsters' attention and sits down to /rest until HP and MP are full. If they are chased they keep running first; a monster that is too far away loses interest in them. On Hold stance they rest in place instead of running.",
+    "Casters and ranged jobs now use nearly all of their MP (down to about 4%) in quick succession and stay at range instead of running in to melee between spells. They only swing a weapon when almost out of MP.",
+    "Healers now heal the party member with the lowest health first, up to 75% for a healer, and pick the smallest cure that covers the damage (using Cure III and IV when they know them). Mercenaries who are running away can still heal and cast from where they stand."
+  ] },
   { v: "16.20.0", date: "2026-10-15", title: "Waiting", items: [
     "Current Time in the main menu is now Time. It opens a box with the clock and two choices: Current time (writes the time to the log as before) or Wait.",
     "Wait: pick 1 to 24 hours. In a town, with no other adventurer online, the clock ticks forward one game hour every 5 seconds until it reaches that time; Stop ends it early. Outside a town it says enemies are near, and with other players online it explains that time can't be sped up."
@@ -18711,6 +18832,7 @@ function tabHelp() {
   h += sec("👥 Party and companions (P)", ul([
     "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement, and always fight at your level as you grow.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
+    "<b>Hurt mercenaries:</b> at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
     "<b>Gear:</b> give companions equipment from your bag in the Party window. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
@@ -18860,12 +18982,12 @@ function tabHelp() {
     "Key items and Exclusive items can't be traded. Closing the trade window or walking away cancels it.",
     "Trades are finished on the game server in a single step: the server checks that both players really have the items and crystals and room in their bags, then moves everything at once. If anything is off, nothing changes for either player."
   ]));
-  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
+  h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The game owner's account also gets Config → More → Admin: ping, last save, who is online and where, server totals, suspicious saves and bans.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions about every 5 minutes and shows one popup for the newest version only, even if several came out. Reload jumps straight to the newest. Later hides it until an even newer version comes out. If a reload still lands on an older copy (the web host can take a few minutes to catch up), it waits 15 minutes before asking again. System → Check for updates checks right away."]));
   return h + "</div>";
 }
 
-const GAME_VERSION = "16.20.0";
+const GAME_VERSION = "16.22.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
