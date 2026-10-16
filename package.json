@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.3.0",
-  "releaseTitle": "Monster balance",
+  "version": "18.4.0",
+  "releaseTitle": "Economy",
   "description": "",
   "main": "index.js",
   "scripts": {

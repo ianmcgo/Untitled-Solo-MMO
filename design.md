@@ -1492,6 +1492,7 @@ World systems:
 | 18.1 | Tools only: tools/balance/sim.js, runsim.sh, report.js (fight simulator). Baseline in design/balance-18.1.md. |
 | 18.2.0 | Player power: delay curve, WTYPE_MULT, DMG_LV_K, ammoDmgMul, hpLvBonus, mpMul. Results in design/balance-18.2.md. |
 | 18.3.0 | Monster curve: CONFIG.mobCurve scales mob HP, attack and damage by level. Results in design/balance-18.3.md. |
+| 18.4.0 | Economy: gentler gear prices, CONFIG.mobGil for every XP-giving monster, Ryl./Lgn. shop regex fix. Model in design/economy-18.4.md. |
 | 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
 | 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | classic MMO spells and potions: SPELLS/ITEMS potion family rebuilt from classic MMO data; rule version 17 wipes older saves. See "classic MMO rules (v17.0.0)". |
@@ -1709,7 +1710,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Weapon skill ids: 1 h2h, 2 dagger, 3 sword, 4 gsword, 5 axe, 6 greataxe, 7 scythe, 8 polearm, 9 katana, 10 gkatana, 11 club, 12 staff, 25 and 26 archery (bows, crossbows and guns all count as archery), 27 throwing, 41 and 42 instrument.
 - Melee `dmg` = classic MMO DMG x WTYPE_MULT[type] x (1 + 0.015 x item level), rounded (h2h uses DMG + 3). WTYPE_MULT (fitted in 18.2 so each weapon type keeps its 17.3 damage per second): sword 1.15, dagger 1.5, club 0.95, staff 1.05, greataxe 1.1, gsword 0.95, axe 1.05, h2h 1.1, scythe 0.8, polearm 1.0, katana 1.4, gkatana 1.0, archery and throwing 1.0. Melee `delay` = 1.9 x (classic MMO delay / 183)^0.75 seconds (dagger 1.9, sword 2.3, staff 3.2, great axe 4.1); h2h 2.6. Ranged `delay` is delay / 120. Ammo keeps `dmg`.
 - Stats: DEF def, HP hp, MP mp, STR DEX VIT AGI INT MND CHR, Attack att, Accuracy acc, Evasion eva. Ranged Accuracy and Ranged Attack become acc and att only on Range and Ammo items. Dropped: Haste, Enmity, HP%, MP%, skill bonuses, latent and special effects.
-- Prices: `40 + 80 * lv^1.6` times a slot factor (weapon 1, body 1, legs and rings about 0.8 to 0.9, head and hands and feet 0.7, ammo cheap), x1.4 for +1. Not balanced yet.
+- Prices (18.4): `30 + 40 * lv^1.5` times a slot factor (main and body 1, ranged 0.9, legs and sub 0.8, head, hands and feet 0.7, neck, ear, ring, back and waist 0.6; ammo price / 6, at least 2), x1.4 for +1. Sell price stays price / 4.
 - Job quests whose classic MMO weapon is above level 1 also give a level 1 weapon: Samurai gets Tachi (Lv8) plus Harpoon, Rune Fencer gets Claymore (Lv10) plus Bronze Sword (`reward.items`). Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner rewards are level 1 pieces. The Warp Ring has `enchant: "warp"`; Use in the bag casts Warp (5 s item delay).
 
 ### Engine
@@ -1734,10 +1735,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `runsim.sh <game.js> <outdir> <trials>` runs all 22 jobs 8 at a time (about 15 minutes at 3 trials) and writes `all.json`. Copy dist/game.js first if you will rebuild during the run.
 - `report.js <old.json> <new.json> <out.md>` writes the comparison (summary by level, player stats, per-job even fights, flags, gear used).
 - The baseline is 17.3.0 built from git e6506d9 in a worktree. Note 17.3 itself is not tuned for solo play: even fights at level 10+ are lost solo there too, so compare versions, not absolute wins.
-- Open after 18.2: level 5 even fights (DEF 38 vs 50, classic MMO armor tier gap between level 1 and 7 pieces) and level 20 easy fights (50% vs 90%). Both go to the monster pass (18.3). The `src` regex for shop items has escaped dots that never match (`ryl\\.`, `lgn\\.` and similar), so Royal and Legionnaire pieces are sold in shops; fix in the economy pass (18.4).
+- Open after 18.2: level 5 even fights (DEF 38 vs 50, classic MMO armor tier gap between level 1 and 7 pieces) and level 20 easy fights (50% vs 90%). Both go to the monster pass (18.3). The `src` regex escaped dots were fixed in 18.4 (shop 298, drop 490).
 - 18.3 monster curve: `CONFIG.mobCurve = { lv: [1,5,10,15,20], hp, att, dmg }`, linear between points and clamped outside, read by `mobCurve(L)` in buildMob. Values hp 1/0.85/0.8/0.78/0.74, att and dmg 1/0.9/0.9/0.87/0.85. Applies to every monster (families, NMs, bosses) on top of the level 1-6 newbie ramp and family multipliers. Fitted with `iter` runs (10 jobs, 3 trials) then a full run.
 - Target (solo, shop gear, skills at cap, median over jobs; mean in brackets): Easy Prey win ~100% (80-99%), HP lost 30-60%; Even Match ~50% (40-55%); Tough 0% (0-11%). Level 1 is left as is (even 100%, tough 5%). 18.3 results in design/balance-18.3.md.
 - Sim knobs: env SIM_CURVE (JSON merged into mobCurve), SIM_JOBS, SIM_LEVELS, SIM_DIFFS. `tools/balance/summ.js all.json` prints win, mean win, HP lost and TTK by level.
+- 18.4 economy: `tools/balance/econ.js <game.js> <sim all.json>` prints per level kills/hr, XP/hr, hours per level, crystals/hr (drops, materials at sell price, 6% gear drops) and the cost and hours of a full shop set; design/economy-18.4.md compares 17.3. `CONFIG.mobGil = [2, 4]` (crystals x monster level) is paid in dropLoot for any non-NM, non-boss monster that gives XP and has no own `gil`. Targets: a full set in about 1 to 6 hours of solo hunting at every level; the level 16 dip comes from poor-loot families in Frostspire and Underdeep.
 
 ## Publishing note
 - GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.

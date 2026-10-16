@@ -1378,8 +1378,9 @@ function dropLoot(m, mates) {
     const pool = Object.values(SPELLS).filter(sp => ITEMS["scroll_" + sp.id] && sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
     if (pool.length) giveItem("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, 1);
   }
-  if (m.fam.gil) {
-    const total = Math.round(rand(m.fam.gil[0], m.fam.gil[1]) * m.lv);
+  const gr = m.fam.gil || (!m.fam.nm && !m.fam.boss && xpFor(m.lv, player.lv) > 0 ? CONFIG.mobGil : null);
+  if (gr) {
+    const total = Math.round(rand(gr[0], gr[1]) * m.lv);
     const g = mates.length ? Math.floor(total / (1 + mates.length)) : total;
     save.gil += g;
     log("You obtain " + g + " crystals" + (mates.length ? " (party share)" : "") + ".", "loot");
