@@ -16,11 +16,13 @@ function strideEff(v, spd) {
 function trackEvents(v, e, dt) {
   const an = animState(v);
   if (an.lx == null) { an.lx = e.x; an.ly = e.y; }
-  const d = Math.hypot(e.x - an.lx, e.y - an.ly) * U;
+  const mdx = e.x - an.lx, mdy = e.y - an.ly, d = Math.hypot(mdx, mdy) * U;
   an.lx = e.x; an.ly = e.y;
   const raw = dt > 0 ? Math.min(d / dt, 20) : 0;
   an.spd += (raw - an.spd) * Math.min(1, dt * 10);
-  an.ph += d * (Math.PI * 2) / strideEff(v, an.spd);
+  if (d > 0.0005) { const rel = Math.atan2(mdy, mdx) - (e.face || 0), k = Math.min(1, dt * 8); an.mf = (an.mf == null ? 1 : an.mf) + (Math.cos(rel) - (an.mf == null ? 1 : an.mf)) * k; an.ms = (an.ms || 0) + (Math.sin(rel) - (an.ms || 0)) * k; }
+  else if (an.spd < 0.2) { const m0 = an.mf == null ? 1 : an.mf; an.mf = m0 + (1 - m0) * Math.min(1, dt * 4); an.ms = (an.ms || 0) * (1 - Math.min(1, dt * 4)); }
+  an.ph += (an.mf != null && an.mf < -0.3 ? -1 : 1) * d * (Math.PI * 2) / strideEff(v, an.spd);
   if (e.lastSwing !== an.swing) { if (an.swing !== null && S.time - e.lastSwing < 0.3) { an.aStart = e.lastSwing; an.aVar = (an.aVar + 1) % 3; } an.swing = e.lastSwing; }
   if (e.lastWS !== an.ws) { if (an.ws !== null && S.time - e.lastWS < 0.3) { an.wsStart = e.lastWS; an.wsStyle = wsStyle(e.lastWSId); } an.ws = e.lastWS; }
   if (e.lastHit !== an.hit) { if (an.hit !== null && S.time - e.lastHit < 0.3) an.hitStart = e.lastHit; an.hit = e.lastHit; }
@@ -154,6 +156,14 @@ function applyPose(v, dt, sharp) {
   }
   if (BH && BS) { BH.rotation.y -= ty; BS.rotation.y += ty; v.tipApplied = ty; }
 }
+
+const RACE_GAIT = {
+  human: { bob: 1, arm: 1, roll: 0, lean: 0 },
+  elari: { bob: 0.8, arm: 0.9, roll: 0, lean: -0.02 },
+  pipkin: { bob: 1.7, arm: 1.35, roll: 0.04, lean: 0.04 },
+  ursan: { bob: 0.7, arm: 0.85, roll: 0.12, lean: 0.06 },
+  nekari: { bob: 1.15, arm: 1.05, roll: 0, lean: 0.05 }
+};
 
 const JA_CLASS = {
   provoke: "shout", warcry: "shout", feral_howl: "shout",
@@ -363,7 +373,7 @@ function poseHuman(v, e, dt) {
   const idleOk = amp < 0.05 && an.fight < 0.1 && !e.casting && !e.resting && !e.mounted && e.alive !== false && e.kind !== "mob";
   if (idleOk) {
     if (!an.idleNext) an.idleNext = S.time + 6 + Math.random() * 8;
-    if (S.time > an.idleNext && !an.idleAct) { an.idleAct = 1 + Math.floor(Math.random() * 4); an.idleStart = S.time; an.idleNext = S.time + 9 + Math.random() * 10; }
+    if (S.time > an.idleNext && !an.idleAct) { an.idleAct = 1 + Math.floor(Math.random() * 6); an.idleStart = S.time; an.idleNext = S.time + 9 + Math.random() * 10; }
   } else { an.idleAct = 0; an.idleNext = S.time + 5 + Math.random() * 6; }
   if (an.idleAct) {
     const ik = (S.time - an.idleStart) / 2.6;
@@ -373,6 +383,8 @@ function poseHuman(v, e, dt) {
       if (an.idleAct === 1) { addP(P, "head", 0, 0.9 * Math.sin(ik * Math.PI * 2) * w, 0); addP(P, "chest", 0, 0.25 * Math.sin(ik * Math.PI * 2) * w, 0); }
       else if (an.idleAct === 2) { setP(P, "upArmL", -2.6, 0, 0.35, w); setP(P, "upArmR", -2.6, 0, -0.35, w); setP(P, "foreArmL", -0.6, 0, 0, w); setP(P, "foreArmR", -0.6, 0, 0, w); addP(P, "spine", -0.18 * w, 0, 0); addP(P, "head", -0.3 * w, 0, 0); }
       else if (an.idleAct === 3) { addP(P, "hips", 0, 0, 0.08 * w); addP(P, "thighL", 0, 0, 0.1 * w); addP(P, "shinR", 0.25 * w, 0, 0); addP(P, "thighR", -0.1 * w, 0, 0); addP(P, "chest", 0, 0, -0.06 * w); v.rootOff[0] += 0.03 * w; }
+      else if (an.idleAct === 5) { setP(P, "upArmL", -1.3, 0, -0.9, w); setP(P, "foreArmL", -2.0 + Math.sin(S.time * 9) * 0.12, 0, 0, w); addP(P, "head", 0.1 * w, -0.5 * w, 0); }
+      else if (an.idleAct === 6) { const kk = Math.max(0, Math.sin(ik * Math.PI * 4)); addP(P, "thighR", -0.35 * kk * w, 0, 0); addP(P, "shinR", 0.2 * kk * w, 0, 0); addP(P, "head", 0.3 * w, 0, 0); addP(P, "spine", 0.06 * w, 0, 0); }
       else { setP(P, "upArmR", -2.1, 0, -0.7, w); setP(P, "foreArmR", -1.5 + Math.sin(S.time * 14) * 0.15, 0, 0, w); addP(P, "head", 0.1 * w, 0, -0.12 * w); }
     }
   }
@@ -457,8 +469,15 @@ function poseHuman(v, e, dt) {
   }
 
   if (amp > 0.01) {
-    const lean = st.hop ? 0.22 : 0.14;
-    addP(P, "thighL", s1 * 0.78 * amp, 0, 0); addP(P, "thighR", -s1 * 0.78 * amp, 0, 0);
+    const race = v.meta && v.meta.race, RG = RACE_GAIT[race] || RACE_GAIT.human;
+    const mf = an.mf == null ? 1 : an.mf, ms = an.ms || 0, side = Math.abs(ms) * (1 - Math.max(0, mf)), backK = Math.max(0, -mf);
+    const lean = (st.hop ? 0.22 : 0.14) * (1 - backK) - 0.1 * backK + RG.lean;
+    const legK = 1 - 0.35 * side - 0.3 * backK;
+    addP(P, "thighL", s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp); addP(P, "thighR", -s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp);
+    if (side > 0.05) { addP(P, "hips", 0, ms * 0.55 * side * amp, 0); addP(P, "chest", 0, -ms * 0.45 * side * amp, 0); }
+    if (RG.roll) addP(P, "hips", 0, 0, s1 * RG.roll * amp);
+    if (RG.arm !== 1) { addP(P, "upArmL", -s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); addP(P, "upArmR", s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); }
+    v.rootOff[1] += Math.abs(c1) * 0.035 * (RG.bob - 1) * amp;
     const kn = 1.0 + 0.35 * run;
     addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp, 0, 0);
     addP(P, "footL", (-s1 * 0.22 + 0.3 * Math.max(0, -c1) * Math.max(0, s1)) * amp, 0, 0); addP(P, "footR", (s1 * 0.22 + 0.3 * Math.max(0, c1) * Math.max(0, -s1)) * amp, 0, 0);
@@ -477,6 +496,7 @@ function poseHuman(v, e, dt) {
     if (step !== an.lastStep) { an.lastStep = step; if (run > 0.4 && e.alive !== false) fxFootstep(e, v); }
   }
 
+  if (v.weapon && !v.weaponDrawn && !v.wTr && !v.wBlend && v.wBaseRot) { v.weapon.rotation.x = v.wBaseRot.x + Math.sin(an.ph * 2) * 0.05 * amp; v.weapon.rotation.y = v.wBaseRot.y + Math.cos(an.ph) * 0.04 * amp; }
   { const eng = Math.sin(Math.PI * Math.min(1, Math.max(0, an.fight))); if (eng > 0.01) { addP(P, "spine", 0.1 * eng, 0, 0); addP(P, "thighL", -0.12 * eng, 0, 0); addP(P, "thighR", -0.08 * eng, 0, 0); addP(P, "shinL", 0.15 * eng, 0, 0); addP(P, "shinR", 0.1 * eng, 0, 0); v.rootOff[1] -= 0.025 * eng; } }
   if (v.wTr) {
     const wp = Math.min(1, Math.max(0, (S.time - v.wTr.t0) / v.wTr.dur));

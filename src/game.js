@@ -3694,7 +3694,8 @@ function updatePlayer(dt) {
     const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1) * weatherSlow();
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
-    player.face = Math.atan2(mv.y, mv.x);
+    const lockT = player.engaged && player.target && player.target !== player && player.target.alive !== false && !player.mounted ? player.target : null;
+    player.face = lockT ? Math.atan2(lockT.y - player.y, lockT.x - player.x) : Math.atan2(mv.y, mv.x);
     moved = true;
   } else if (S.moveTarget) {
     moved = true;

@@ -122,6 +122,7 @@ function snapWeapon(v, drawn) {
   const w = v.weapon, t = weaponPose(v, drawn);
   (drawn ? v.bones.handR : v.bones.chest).add(w);
   w.position.copy(t.pos); w.rotation.copy(t.rot);
+  v.wBaseRot = t.rot.clone();
   v.weaponDrawn = drawn; v.wTr = null; v.wBlend = null;
 }
 
