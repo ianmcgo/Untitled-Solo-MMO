@@ -1636,6 +1636,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.6", date: "2026-10-16", title: "Weapon swing sets", items: [
+    "<b>Every weapon now swings its own way:</b> daggers jab fast with a short lunge, axes raise overhead and chop down, bows draw the string back and release, polearms thrust or sweep wide, and fists alternate jabs with a kick.",
+    "<b>Swings have a full rhythm:</b> wind-up, strike, follow-through and a recovery back to your guard before the next swing.",
+    "<b>Fight settle:</b> drawing into a fight now drops you into a slight crouch before you square up."
+  ] },
   { v: "18.19.5", date: "2026-10-16", title: "Staff combat loop", items: [
     "<b>Staff guard stance:</b> in a fight you now hold the staff across your body in both hands, low hand at the hip, high hand at the chest, head angled up over your shoulder.",
     "<b>Full staff swing:</b> twist away and raise the staff behind your shoulder (wind-up), pivot the hips and bring it down in a wide arc, connect at chest height in front of you, follow through, then pull it back to the guard stance before the next swing.",
