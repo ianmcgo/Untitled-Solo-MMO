@@ -1831,3 +1831,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - EMOTE_LEN and emoteLen(id) in game.js drive emote duration in all three anim.js places (pose, blink mood, mouth). New emotes: shrug, think, beckon, stretch, kneel, flex.
 - Work poses (player only, amp<0.2, not casting/mounted/resting): fishing uses S.fish (state wait/bite, since for the cast swing) and player.reelAt (0.8s reel); crafting uses player.synth; gathering uses player.gatherAt/gatherType stamps set in doGather (mining and logging overhead swing, harvesting crouch).
 - Not done: monster KO poses (phase 6), rod prop, remote players do not show work poses.
+
+## 18.19.11: monsters (animation plan phase 6)
+- trackEvents sets an.alertStart when a mob's state first becomes "combat" (an.pst tracks previous state; the first frame never alerts).
+- mobAlert(v, e, an, P) is a shared 0.9s rear/flare pose chosen by bone presence (body/neck/legF, armL/R, wings, t3-t5, upArm humanoid). Called in human (mobs only), bird, crawler, quad, hare, crab, mandrake.
+- Quad attack is now crouch, leap (forward 0.45, up 0.3) and bite. Crawler adds a forward surge. Bird gained peck attack, hit flinch and death tumble. Undead humanoids (v.style.family "undead") quantize attack progress to fifths for a stiff look.
+- Not done: spawn pop-in, per-family defeat dissolve, bat/bee/fish/worm/shroom alerts. Caterpillar leg wave and rabbit rebuild are phase 6b.
+- test/mobsheet.js: WS=<attack|alert|hit|dead>:<FAMILIES key> STEP=0.06 CY=0.5 DIST=4 node mobsheet.js <abs html> <png> x human 0 side.
