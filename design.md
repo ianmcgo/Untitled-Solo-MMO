@@ -1880,3 +1880,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Item icon atlas is built by `itemIconSteps()` (generator in icons.js) driven by `buildItemIconsAsync()` in about 10 ms ticks after `showTitle()`. `iconsReady()` is awaited in `loadZoneInner` before the zone is released, so item icons are always ready in the world. `buildItemIcons()` is the synchronous form for tools.
 - `uploadTexturesAsync` calls `renderer.initTexture` for zone textures in 6 ms slices before compileAsync.
 - Measured (SwiftShader headless): title at 1.7 s instead of 4.8 s; icons finish about 5.5 s. First draw after build still takes 5 to 10 s here: `renderer.render` spends it waiting for program links (programs build in 24 ms but link lazily in the driver). `compileAsync` only avoids that where KHR_parallel_shader_compile exists; cannot verify on a real GPU from the test rig. A per-material `renderer.compile(obj)` slicing was tried and gave no gain (reverted).
+
+## 18.23.0: IndexedDB cache (Phase 3)
+- src/cache.js: database `leidanav_cache_v1`, store `blobs`, records `{ v: CACHE_VER, t, blob, meta }`. CACHE_VER is `__PKGVER__` (replaced by the build), so any release invalidates everything; `cachePrune()` on open deletes other versions and keeps the newest 24 terrain (`t|` keys) and 2 icon (`i|` keys) records. Every call fails soft to null (private mode, quota, no IndexedDB).
+- Terrain: key `t|<zoneId>|<size>` (`terrainKey()`, `terrainSize()` in world3d.js). `buildZoneAsync` reads it first and decodes with createImageBitmap into `W3.terrainPre`; `bakeTerrainAlbedoSteps` draws it into a canvas and skips painting. On a miss the painted canvas is stored as WebP 0.95 (PNG where WebP encode is missing) before `toTexture` posterizes it, so the hit path posterizes the same input.
+- Icons: key `i|<count>|<first id>|<last id>`, PNG plus meta `{cols, rows, map}`. `iconsFromCache()` applies it through `applyIconAtlas` with a blob URL.
+- Measured: return visit icons ready at 1.1 s (was about 6 s), terrain painting 1.5 s down to about 40 ms read. Rig atlas (buildAtlas, several float maps) is not cached.
+- `/clearcache` empties the store.
+- Any change to terrain painting or icon drawing needs a version bump (always true by project rule), otherwise old pictures would show.

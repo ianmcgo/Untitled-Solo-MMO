@@ -331,6 +331,17 @@ function* bakeTerrainAlbedoSteps(field, size) {
   const W = size, H = Math.max(64, Math.round(size * field.h / field.w));
   const sx = field.w / W, sy = field.h / H;
   const cob = z.theme === "town";
+  const tkey = terrainKey(), pre = W3.terrainPre && W3.terrainPre.key === tkey ? W3.terrainPre.img : null;
+  W3.terrainPre = null;
+  if (pre) {
+    const hc = makeCanvas(W, H);
+    hc.getContext("2d").drawImage(pre, 0, 0, W, H);
+    if (pre.close) pre.close();
+    const ht = toTexture(hc, true);
+    ht.wrapS = ht.wrapT = THREE.ClampToEdgeWrapping;
+    PERF.slice("terrain cache hit", 0);
+    return ht;
+  }
   const c = yield* paintPixelsSteps(W, H, (ix, iy, o) => {
     const px = field.x0 + (ix + 0.5) * sx, py = field.y0 + (iy + 0.5) * sy;
     const hgt = field.heightAt(px, py);
@@ -375,6 +386,7 @@ function* bakeTerrainAlbedoSteps(field, size) {
     const speck = 0.88 + n3 * 0.24;
     setRGB(o, r * speck, g * speck, b * speck);
   });
+  cacheStoreCanvas(tkey, c, "image/webp", 0.95);
   const t = toTexture(c, true);
   t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
   return t;
