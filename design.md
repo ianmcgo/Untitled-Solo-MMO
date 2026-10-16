@@ -1959,3 +1959,14 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - UI: the Players tab and `pmView` are removed. `tabAuction` Buy view has the Show filter (`UI.ahSrc`, action `ahsrc`), per-row kind counts and minimum price, and `ahDetail` lists the lines with a coloured left border. Online lots load through `pmLoad` when the player is online.
 - `normalizeSave` filters `save.market.local.lots`.
 - Tests: test/m5bunit.js.
+
+## 18.33.0: offline market, town buying, companion lots (M5c)
+- `save.market.local = { lots, lastTick, lastSale, seq }` (`marketLocal()` creates it). Lots: `{ id, qty, price, kind: "merc"|"town", seller, owner, merc|town, t, seq }`.
+- `mercTownSell` now consigns each for-sale bag entry with `mercConsign(id, entry)` (market price x qty, no fee, `ahTradable` only, cap `AH_CFG.mercLotCap` 300 merc lots). Untradable or over-cap entries are deleted (sold to a shop for nothing).
+- `tickTownBuying()` runs from the 1 s auction tick on play time: every `AH_CFG.townBuySec` (1200) each town calls `townBuyOnce(town)`, capped at `townBuyMaxSteps` (36) steps per catch-up. `townBuyOnce`: player listings (`save.market.listings`) first, then merc lots; only lots with unit price at most `townBuyCeil` (1.25) x market. `townPick` rotates sellers by `lastSale[seller]` (never paid first) and takes the seller's oldest lot (player listings by creation time, merc lots by `seq`). Town relistings are never bought.
+- Player listing sale pays gil at once (as before); merc lot sale pays the delivery box via `townPayBox(gil, note)`. Box entries can now be `{ gil, note }`; `ahCollect` adds the crystals, `normalizeSave` keeps them.
+- Relist: `Math.random() < relistChance` (0.25) adds a town lot at `ceil(price x 1.03)`; never expires, buyable via `ahBuyLocal`.
+- `ahBuyLocal` on a merc lot pays its price into the box (you are the owner offline).
+- The random `tickAuction` sale of player listings is unchanged and still runs alongside.
+- Until M5d, online players use the same local market too (nothing is sent to the server).
+- Tests: test/m5cunit.js.

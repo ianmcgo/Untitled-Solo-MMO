@@ -1267,12 +1267,16 @@ function tabAuction() {
     h += "<h3>🏛️ With the market</h3>";
   }
   if (view === "lots") {
-    if (save.market.box.length) h += '<div class="item"><div><b>📦 Delivery box</b><div class="sub">' + save.market.box.map(b => ITEMS[b.id].name + (b.qty > 1 ? " ×" + b.qty : "")).join(", ") + '</div></div><button data-a="ahcollect">Collect</button></div>';
+    if (save.market.box.length) h += '<div class="item"><div><b>📦 Delivery box</b><div class="sub">' + save.market.box.map(b => b.gil ? "💠 " + b.gil + (b.note ? " (" + esc(b.note) + ")" : "") : ITEMS[b.id].name + (b.qty > 1 ? " ×" + b.qty : "")).join(", ") + '</div></div><button data-a="ahcollect">Collect</button></div>';
     if (!save.market.listings.length) h += '<div class="sub">You have nothing up for auction. Lots stay up for ' + AH_CFG.expireMs / 3600000 + " hours (real time) and keep selling while you're away.</div>";
     save.market.listings.forEach((l, i) => {
       const left = Math.max(0, Math.ceil((l.exp - Date.now()) / 60000));
       h += '<div class="item"><div><b>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">Asking ' + l.price + " 💠 · market " + marketPrice(l.id) * l.qty + " 💠 · " + (left >= 60 ? Math.floor(left / 60) + "h " : "") + (left % 60) + 'm left</div></div><button data-a="ahcancel" data-v="' + i + '">Withdraw</button></div>';
     });
+    const ml = marketLocalLots().filter(l => l.kind === "merc");
+    h += '<h3 style="color:' + AH_KINDS.merc.color + '">⚔ Your companions\' lots (' + ml.length + " / " + AH_CFG.mercLotCap + ")</h3>";
+    if (!ml.length) h += '<div class="sub">None. When you reach a town with a companion\'s bag at least half full, they list what they carry here. Towns buy these slowly, after any lots of yours; the crystals go to your delivery box.</div>';
+    for (const l of ml) h += '<div class="item" style="border-left:3px solid ' + AH_KINDS.merc.color + '"><div><b>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">' + esc(l.seller) + " · " + l.price + " 💠</div></div></div>";
     return h;
   }
   const online = view === "buy" && typeof pmLoad === "function" && typeof netAhList === "function" && NET.member ? pmLoad(false) : null;
@@ -1654,6 +1658,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.33.0", date: "2026-10-16", title: "Companions sell at the auction house", items: [
+    "<b>Companion lots:</b> when a companion with a half-full bag reaches town, their goods go up at the auction house under their name (⚔, violet) at the market price, with no fee, instead of disappearing. My lots shows them, up to 300.",
+    "<b>Towns buy from the market:</b> every 20 minutes of play each town buys one lot: yours first, then your companions', taking turns between sellers. Lots priced above 1.25 times the market price are left alone.",
+    "<b>Crystals in the box:</b> what your companions' lots earn goes to your delivery box; Collect adds it to your crystals. Buying one of their lots yourself also pays them through the box.",
+    "<b>Town relistings:</b> about a quarter of what a town buys goes back up under the town's name (🏛, gold) at 3% more. These never expire.",
+    "Over the 300-lot cap, extra items are sold to a shop and you get nothing for them."
+  ] },
   { v: "18.32.0", date: "2026-10-16", title: "One market list", items: [
     "<b>One list:</b> the auction house Buy view now shows every seller together: 🏛 towns (in gold), 👤 players (green) and ⚔ mercenaries (violet), each under its own name. The separate Players tab is gone.",
     "<b>Filter:</b> use Show: All, Towns, Players or Mercenaries to narrow the list.",
@@ -3249,6 +3260,7 @@ function tabHelp() {
     "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
     "Talk to <b>Corvin</b> in Ashenreach Outpost, <b>Selene</b> in Saltreach Harbor or <b>Orla</b> in Ironvale. Every town has its own auction house.",
     "<b>One list.</b> The Buy view shows every seller together: 🏛 towns in gold, 👤 players in green and ⚔ mercenaries in violet. Use Show to filter, and open an item to see all sellers sorted by price. Hover a mercenary's name to see whose it is.",
+    "<b>Towns buy too.</b> Every 20 minutes of play, each town buys one lot from the market. It buys your own lots first (paying you at once), then your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. About a quarter of what a town buys it puts back up under its own name at 3% more.",
     "<b>Each town stocks differently.</b> Every town's auction house has its own daily stock and its own sold-out counts, so something that has run out in one town may still be in another. The list shows everything on the market, and the item card shows how many each town has. Buying takes from the town you are in first, then the others.",
     "<b>Prices move.</b> Every item drifts around its usual value through the game day (a new price every 6 game hours, about 14 real minutes). Each game day the market news lifts one category (▲) and lowers another (▼). Buying pushes a price up; your lots selling pull it down; both effects fade.",
     "Items that shops sell never fetch more than " + 95 + "% of the shop price at auction, so the auction house is for bargains, materials and other adventurers' gear.",
@@ -3340,7 +3352,7 @@ function tabHelp() {
   h += sec("🎲 Treasure pool", ul([
     "With anyone else in the party, every item a monster drops goes into the treasure pool (the panel above the log) instead of straight into your bag. Crystals are split and key items go to you.",
     "Press <b>Lot</b> to roll 1–999 or <b>Pass</b>. Companions lot on everything except gear they can't wear, and pass when their 30-slot bag is full. Highest lot wins. A companion who wins a better piece wears it (the old one goes into their bag); anything else goes into their bag to sell.",
-    "Companions sell everything they have for sale when you reach a town and the bag is at least half full; the items are gone. Kept gear (put away after a level sync) is never sold, but it does take bag slots. The Party tab shows each bag. You can still give them gear from the Party tab.",
+    "When you reach a town and a companion's bag is at least half full, they put everything they have for sale up at the auction house under their own name (⚔, violet), at the market price with no fee. The towns buy these lots slowly and the crystals go to your delivery box. Your companions can have up to 300 lots up between them; anything over that is sold to a shop and you get nothing for it. Kept gear (put away after a level sync) is never sold, but it does take bag slots. The Party tab shows each bag. You can still give them gear from the Party tab.",
     "If you don't choose within 45 seconds you lot automatically. If everyone passes, the item is lost."
   ]));
   h += sec("📋 Trade Board and 🔨 Forge", ul([

@@ -2049,7 +2049,7 @@ const RACE_ORDER = ["human", "elari", "pipkin", "ursan", "nekari"];
 
 const AH_KINDS = { town: { label: "Town", icon: "🏛", color: "#f1cf73" }, player: { label: "Players", icon: "👤", color: "#81c784" }, merc: { label: "Mercenaries", icon: "⚔", color: "#b39ddb" } };
 const AH_CATS = { materials: "Materials", consumables: "Consumables", weapons: "Weapons", armor: "Armor" };
-const AH_CFG = { fee: 0.03, maxListings: 7, checkMs: 60000, expireMs: 3 * 3600000, tickMins: 360 };
+const AH_CFG = { fee: 0.03, maxListings: 7, checkMs: 60000, expireMs: 3 * 3600000, tickMins: 360, townBuySec: 1200, townBuyCeil: 1.25, relistChance: 0.25, relistMarkup: 1.03, mercLotCap: 300, townBuyMaxSteps: 36 };
 const AH_NEWS = {
   materials: ["The smiths of the capital are buying up ore and timber.", "A caravan of raw goods just flooded the market."],
   consumables: ["A fever in the villages has everyone buying medicine and food.", "Healers have overstocked their potions and are selling cheap."],
