@@ -60,3 +60,6 @@ Suggested model: Sonnet for A to E and H; Opus for F and G (formula design and b
 
 ## Data sourcing rule (user)
 Anything the Windower files lack (spell MP, cast, recast, power, potion effects, item stats, formulas, mob data) is looked up on the FFXI wiki (bg-wiki.com first) and recorded in the data tables with the page it came from. Nothing is entered from memory when a wiki page exists. Confirmed reachable: bg-wiki.com/ffxi/Cure returns MP 8, cast 2s, recast 5s, WHM1 RDM3 PLD5 SCH5, which matches the scroll data. Formula pages (Cure Formula and similar) are separate lookups. Lookups are batched per phase and cached in tools/items-import/wiki-cache.json so each page is fetched once.
+
+## Naming decision (user)
+Use the real FFXI item and spell names for now. The design notes' "names are original" line gets updated in design.md when the first slice ships. Names can be swapped later because ids are separate from display names.
