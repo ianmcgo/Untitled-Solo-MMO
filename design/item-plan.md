@@ -73,3 +73,4 @@ Use the real FFXI item and spell names for now. The design notes' "names are ori
 
 - 18.0.0 shipped: equipment import (788 pieces, level 20 and below) replaces all old gear. Details in design.md "Equipment (v18.0.0)". Next: balance (monsters, XP, prices, damage) against the new gear and spells; Opus recommended.
 - 18.1 (tools) and 18.2.0 (player power) done; see design.md "Balance tools (18.1)". Next: 18.3 monsters, 18.4 economy, 18.5 crafting and sources.
+- 18.3.0 (monster curve) done. Next: 18.4 economy (prices, XP, drop rate, shop regex fix), 18.5 crafting and sources.

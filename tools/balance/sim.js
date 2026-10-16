@@ -4,11 +4,12 @@ const harnessSrc = fs.readFileSync(path.join(__dirname, '../../test/harness.js')
 const tmp = path.join(__dirname, '.harness_ext_' + process.pid + '.js');
 fs.writeFileSync(tmp, harnessSrc);
 process.argv[2] = gamePath;
+const CURVE = process.env.SIM_CURVE ? JSON.parse(process.env.SIM_CURVE) : null;
 const H = require(tmp);
 const { G, tick } = H; const S = G.S; const P = () => G.player;
 const RATE = { A: 5, B: 4, C: 3, D: 2, E: 1 };
-const LEVELS = [1, 5, 10, 15, 20];
-const DIFFS = [['easy', -3], ['even', 0], ['tough', 2]];
+const LEVELS = process.env.SIM_LEVELS ? process.env.SIM_LEVELS.split(',').map(Number) : [1, 5, 10, 15, 20];
+const DIFFS = [['easy', -3], ['even', 0], ['tough', 2]].filter(d => !process.env.SIM_DIFFS || process.env.SIM_DIFFS.split(',').includes(d[0]));
 const FAMS = ['goblin', 'hill_lizard'];
 const TRIALS = +(trialsArg || 4);
 const NUKES = ['stone', 'water', 'aero', 'fire', 'blizzard', 'thunder', 'banish', 'dia'];
@@ -69,6 +70,7 @@ function fight(fam, mlv) {
   return { win: !m.alive && p.alive && !S.ko, dead: !p.alive || S.ko, secs: S.time - t0, hpLoss: 1 - Math.max(0, p.hp) / p.maxHp, mhp, matt: m.att || (m.stats && m.stats.att), mdef: m.def || (m.stats && m.stats.def) };
 }
 
+if (CURVE) Object.assign(G.CONFIG.mobCurve, CURVE);
 G.enterZone('hollow', G.ZONES.hollow.start.x, G.ZONES.hollow.start.y);
 for (let i = 0; i < 30; i++) tick(1000 / 60);
 const jobs = (jobsArg && jobsArg !== 'all' ? jobsArg.split(',') : G.ALL_JOBS.slice());

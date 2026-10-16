@@ -892,17 +892,31 @@ function famOf(key) {
   return n._merged;
 }
 
+function mobCurve(L) {
+  const c = CONFIG.mobCurve, ls = c.lv, o = {};
+  for (const k of ["hp", "att", "dmg"]) {
+    const v = c[k];
+    if (L <= ls[0]) { o[k] = v[0]; continue; }
+    if (L >= ls[ls.length - 1]) { o[k] = v[v.length - 1]; continue; }
+    let i = 0; while (L > ls[i + 1]) i++;
+    const t = (L - ls[i]) / (ls[i + 1] - ls[i]);
+    o[k] = v[i] + (v[i + 1] - v[i]) * t;
+  }
+  return o;
+}
+
 function buildMob(famKey, L, x, y, spawnIdx) {
   const f = famOf(famKey);
   const st = { str: 6 + 0.9 * L, dex: 6 + 0.8 * L, vit: 6 + 0.8 * L, agi: 6 + 0.8 * L, int: (f.int || 6) + 0.7 * L, mnd: 6 + 0.7 * L };
   for (const k of ATTRS) st[k] = Math.round(st[k]);
   const easy = f.nm || f.boss || L > 6 ? 1 : 0.55 + 0.075 * (L - 1), easyA = f.nm || f.boss || L > 6 ? 1 : 0.75 + 0.05 * (L - 1);
-  st.maxHp = Math.round((70 + 40 * L) * f.hpMul * easy);
-  st.att = Math.round((16 + 5.5 * L) * f.attMul * easyA);
+  const cv = mobCurve(L);
+  st.maxHp = Math.round((70 + 40 * L) * f.hpMul * easy * cv.hp);
+  st.att = Math.round((16 + 5.5 * L) * f.attMul * easyA * cv.att);
   st.def = Math.round((10 + 4.5 * L) * f.defMul);
   st.acc = Math.round(62 + 4 * L);
   st.eva = Math.round((48 + 3.5 * L + (f.eva || 0)) * (easy < 1 ? 0.8 : 1));
-  st.dmg = (6 + 1.25 * L) * easyA;
+  st.dmg = (6 + 1.25 * L) * easyA * cv.dmg;
   st.delay = f.delay;
   return {
     id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,

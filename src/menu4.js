@@ -1486,6 +1486,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.3.0", date: "2026-10-15", title: "Monster balance", items: [
+    "<b>Monsters retuned for FFXI gear:</b> from level 5 up, monsters have less HP (down to 74% at level 20) and hit a little softer (down to 85%). Level 1 to 4 monsters are unchanged.",
+    "<b>What to expect alone:</b> Easy Prey is almost always a safe kill, an Even Match is about half and half, and Tough monsters need companions. Before this, even fights from level 10 up were nearly always lost solo.",
+    "Notorious monsters, bosses, Elementals and goblin casters get the same scaling, so they stay just as hard compared to normal monsters of their level.",
+    "Prices, XP and drop rates come next."
+  ] },
   { v: "18.2.0", date: "2026-10-15", title: "Gear balance: player power", items: [
     "<b>Weapons retuned:</b> two-handed FFXI weapons swing faster (a Great Axe now swings every 4.1 s instead of 5.2 s) and each weapon type's damage was matched to how strong it was before the FFXI gear arrived. Daggers, katanas, swords and hand-to-hand hit harder; scythes a little softer. Higher-level weapons gain a little extra damage.",
     "<b>More HP and MP:</b> every character gains 3 HP per level, and MP from your jobs is 35% higher. This replaces the HP and MP the old invented gear used to give.",
@@ -2722,6 +2728,7 @@ function tabHelp() {
   h += sec("📈 Experience", ul([
     "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
     "Kill XP scales with the monster's con. Tougher monsters give much more.",
+    "Fighting alone in shop gear, an Easy Prey monster is almost always a safe kill, an Even Match is about a coin flip (much safer with companions), and a Tough one usually needs help.",
     "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
     "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 in the event log); they give no experience. The Map shows how many you've found in each zone.",
     "Quests give big XP rewards.",

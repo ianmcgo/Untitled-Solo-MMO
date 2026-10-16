@@ -68,6 +68,7 @@ const CONFIG = {
   hpLvBonus: 3,
   ammoDmgMul: 0.5,
   mpMul: 1.35,
+  mobCurve: { lv: [1, 5, 10, 15, 20], hp: [1, 0.85, 0.8, 0.78, 0.74], att: [1, 0.9, 0.9, 0.87, 0.85], dmg: [1, 0.9, 0.9, 0.87, 0.85] },
   settingsKey: "ashenreach_settings_v1",
   startGil: 100,
   mountSpeed: 2.2,

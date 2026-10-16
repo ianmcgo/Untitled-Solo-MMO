@@ -1091,7 +1091,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.2.0 · built 2026-10-15 19:51 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.3.0 · built 2026-10-15 20:11 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6694,6 +6694,7 @@ const CONFIG = {
   hpLvBonus: 3,
   ammoDmgMul: 0.5,
   mpMul: 1.35,
+  mobCurve: { lv: [1, 5, 10, 15, 20], hp: [1, 0.85, 0.8, 0.78, 0.74], att: [1, 0.9, 0.9, 0.87, 0.85], dmg: [1, 0.9, 0.9, 0.87, 0.85] },
   settingsKey: "ashenreach_settings_v1",
   startGil: 100,
   mountSpeed: 2.2,
@@ -10157,17 +10158,31 @@ function famOf(key) {
   return n._merged;
 }
 
+function mobCurve(L) {
+  const c = CONFIG.mobCurve, ls = c.lv, o = {};
+  for (const k of ["hp", "att", "dmg"]) {
+    const v = c[k];
+    if (L <= ls[0]) { o[k] = v[0]; continue; }
+    if (L >= ls[ls.length - 1]) { o[k] = v[v.length - 1]; continue; }
+    let i = 0; while (L > ls[i + 1]) i++;
+    const t = (L - ls[i]) / (ls[i + 1] - ls[i]);
+    o[k] = v[i] + (v[i + 1] - v[i]) * t;
+  }
+  return o;
+}
+
 function buildMob(famKey, L, x, y, spawnIdx) {
   const f = famOf(famKey);
   const st = { str: 6 + 0.9 * L, dex: 6 + 0.8 * L, vit: 6 + 0.8 * L, agi: 6 + 0.8 * L, int: (f.int || 6) + 0.7 * L, mnd: 6 + 0.7 * L };
   for (const k of ATTRS) st[k] = Math.round(st[k]);
   const easy = f.nm || f.boss || L > 6 ? 1 : 0.55 + 0.075 * (L - 1), easyA = f.nm || f.boss || L > 6 ? 1 : 0.75 + 0.05 * (L - 1);
-  st.maxHp = Math.round((70 + 40 * L) * f.hpMul * easy);
-  st.att = Math.round((16 + 5.5 * L) * f.attMul * easyA);
+  const cv = mobCurve(L);
+  st.maxHp = Math.round((70 + 40 * L) * f.hpMul * easy * cv.hp);
+  st.att = Math.round((16 + 5.5 * L) * f.attMul * easyA * cv.att);
   st.def = Math.round((10 + 4.5 * L) * f.defMul);
   st.acc = Math.round(62 + 4 * L);
   st.eva = Math.round((48 + 3.5 * L + (f.eva || 0)) * (easy < 1 ? 0.8 : 1));
-  st.dmg = (6 + 1.25 * L) * easyA;
+  st.dmg = (6 + 1.25 * L) * easyA * cv.dmg;
   st.delay = f.delay;
   return {
     id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
@@ -18514,8 +18529,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.2.0 · built 2026-10-15 19:51 PDT";
+const BUILD_INFO = "v18.3.0 · built 2026-10-15 20:11 PDT";
 const UPDATES = [
+  { v: "18.3.0", date: "2026-10-15", title: "Monster balance", items: [
+    "<b>Monsters retuned for FFXI gear:</b> from level 5 up, monsters have less HP (down to 74% at level 20) and hit a little softer (down to 85%). Level 1 to 4 monsters are unchanged.",
+    "<b>What to expect alone:</b> Easy Prey is almost always a safe kill, an Even Match is about half and half, and Tough monsters need companions. Before this, even fights from level 10 up were nearly always lost solo.",
+    "Notorious monsters, bosses, Elementals and goblin casters get the same scaling, so they stay just as hard compared to normal monsters of their level.",
+    "Prices, XP and drop rates come next."
+  ] },
   { v: "18.2.0", date: "2026-10-15", title: "Gear balance: player power", items: [
     "<b>Weapons retuned:</b> two-handed FFXI weapons swing faster (a Great Axe now swings every 4.1 s instead of 5.2 s) and each weapon type's damage was matched to how strong it was before the FFXI gear arrived. Daggers, katanas, swords and hand-to-hand hit harder; scythes a little softer. Higher-level weapons gain a little extra damage.",
     "<b>More HP and MP:</b> every character gains 3 HP per level, and MP from your jobs is 35% higher. This replaces the HP and MP the old invented gear used to give.",
@@ -19752,6 +19773,7 @@ function tabHelp() {
   h += sec("📈 Experience", ul([
     "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
     "Kill XP scales with the monster's con. Tougher monsters give much more.",
+    "Fighting alone in shop gear, an Easy Prey monster is almost always a safe kill, an Even Match is about a coin flip (much safer with companions), and a Tough one usually needs help.",
     "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
     "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 in the event log); they give no experience. The Map shows how many you've found in each zone.",
     "Quests give big XP rewards.",
@@ -20045,7 +20067,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "18.2.0";
+const GAME_VERSION = "18.3.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
