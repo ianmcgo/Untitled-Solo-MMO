@@ -158,7 +158,14 @@ function normalizeSave(d) {
   out.lsActive = typeof d.lsActive === "string" ? d.lsActive : null;
   out.lfg = !!d.lfg;
   out.seekMsg = typeof d.seekMsg === "string" ? d.seekMsg.slice(0, 40) : "";
-  if (!out.buddies.includes(out.buddy)) out.buddy = null;
+  out.inventory = out.inventory.filter(x => {
+    const it = ITEMS[x.id], pid = it && it.kind === "pet" ? it.pet : null;
+    if (!pid || !BUDDIES[pid] || out.buddies.includes(pid)) return true;
+    out.buddies.push(pid);
+    if (x.qty > 1) { x.qty--; return true; }
+    return false;
+  });
+  if (!out.buddies.includes(out.buddy)) out.buddy = out.buddies[0] || null;
   out.buddyOut = !!out.buddyOut && !!out.buddy;
   out.market = Object.assign(newSave().market, d.market && typeof d.market === "object" ? d.market : {});
   if (!Array.isArray(out.market.listings)) out.market.listings = [];
