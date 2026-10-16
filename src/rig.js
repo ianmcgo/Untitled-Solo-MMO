@@ -3002,11 +3002,68 @@ function varyMobLook(ml, vr) {
   if (vr === 2 && L.belt == null) L.belt = 0x3a2a1a;
   return { kind: "human", look: L };
 }
+const MOB_GEAR_CACHE = new Map();
+function mobGearFor(job, lv) {
+  const key = job + "|" + lv;
+  if (MOB_GEAR_CACHE.has(key)) return MOB_GEAR_CACHE.get(key);
+  const wt = MOB_JOB_WEAPON[job];
+  const best = test => Object.keys(ITEMS).filter(id => { const it = ITEMS[id]; return it && !it.hq && test(it) && (it.lv || 1) <= lv; }).sort((a, b) => (ITEMS[b].lv || 1) - (ITEMS[a].lv || 1) || (ITEMS[a].price || 0) - (ITEMS[b].price || 0))[0] || null;
+  const gear = {};
+  if (wt && wt !== "h2h") gear.main = best(it => it.slot === "main" && it.wtype === wt);
+  if (job === "PLD") gear.sub = best(it => it.slot === "sub" && /shield/i.test(it.name || ""));
+  const g = lookForGear(job, gear, {});
+  const out = { weapon: gear.main ? g.weapon : null, weaponId: gear.main || null, shield: g.shield || null };
+  MOB_GEAR_CACHE.set(key, out);
+  return out;
+}
+function mobPalette(e) {
+  const k = e.famKey || "", m = e.fam && e.fam.model;
+  if (/^(frost_|ice_|rime_|glacier)/.test(k)) return 0xd8eaf4;
+  if (/^mire_|^bog_/.test(k)) return 0x4a5a30;
+  if (k === "drowned") return 0x2e5656;
+  if (m === "fishfolk") return 0x2a5a5a;
+  if (m === "birdfolk") return 0xc8a870;
+  if (m === "skeleton") return 0x5a5a52;
+  if (m === "ghoul") return 0x4a4a40;
+  return null;
+}
+function tintHex(c, to, k) { return typeof c === "number" ? new THREE.Color(c).lerp(new THREE.Color(to), k).getHex() : c; }
+function jobMobLook(L, e) {
+  const fn = JOB_STYLE[e.job];
+  if (!fn) return L;
+  const tint = JOB_TINT[e.job] || JOB_TINT.WAR, st = JSON.parse(JSON.stringify(fn(jobStyleTier(e.lv), tint)));
+  const out = Object.assign({}, L);
+  for (const k of JOB_STYLE_SLOTS) delete out[k];
+  Object.assign(out, st);
+  if (!out.legs) out.legs = L.skull ? L.legs : tint.pants;
+  const m = e.fam && e.fam.model;
+  if (m === "birdfolk" || m === "fishfolk" || L.skull) { delete out.boots; delete out.shoes; delete out.greaves; out.barefoot = true; if (L.skull && !st.legs) out.legs = L.legs; }
+  else if (!out.boots) out.shoes = 0x3a2a1e;
+  if (L.crest && out.head && ["helm", "kabuto", "winged"].includes(out.head.type)) out.head = Object.assign({}, out.head, { type: "cap" });
+  const pal = mobPalette(e);
+  if (pal != null) {
+    const k = 0.32;
+    if (out.top) { out.top = Object.assign({}, out.top); for (const f of ["color", "color2", "plate", "under"]) if (out.top[f] != null) out.top[f] = tintHex(out.top[f], pal, k); }
+    if (out.head) { out.head = Object.assign({}, out.head); if (out.head.color != null) out.head.color = tintHex(out.head.color, pal, k); }
+    for (const f of ["cape", "boots", "pauldrons", "belt", "gloves", "greaves"]) if (out[f] != null) out[f] = tintHex(out[f], pal, k);
+    if (!L.skull && out.legs != null) out.legs = tintHex(out.legs, pal, k);
+  }
+  const vr = mobVariant(e);
+  if (vr && out.top && out.top.color != null) out.top = Object.assign({}, out.top, { color: shadeHex(out.top.color, vr === 1 ? 0.85 : 1.12) });
+  if (!(e.fam && e.fam.range)) {
+    const g = mobGearFor(e.job, e.lv || 1);
+    out.weapon = g.weapon; out.weaponId = g.weaponId;
+    if (g.shield) out.shield = g.shield; else delete out.shield;
+  }
+  out.jobLook = e.job;
+  return out;
+}
 function buildEntityRig(e) {
   let sig, make, weaponKind = null, weaponId = null, alwaysDrawn = false;
   if (isMob(e)) {
     const ml = varyMobLook(mobLook(e), mobVariant(e));
     if (ml.kind === "human") ml.look = familyLook(ml.look, e);
+    if (ml.kind === "human" && e.job && !(e.fam && (e.fam.nm || e.fam.boss))) ml.look = jobMobLook(ml.look, e);
     else { const band = mobBand(e.lv); if (ml.col != null) ml.col = boldTint(ml.col, band); if (ml.col2 != null) ml.col2 = boldTint(ml.col2, band); }
     if (ml.kind === "human") {
       sig = "m|" + stableKey(ml.look);

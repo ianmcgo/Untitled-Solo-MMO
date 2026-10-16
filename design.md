@@ -2036,3 +2036,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - net.js mob snapshot rows add index 19 job and 20 readied move code; proxies build with that job (false when host sends none) and resolve the move with mobBigMove.
 - Removed families: goblin_apprentice, den_conjurer, mire_hexer, frost_shaman, birdfolk_priest (spawns now goblin, den_goblin, mire_goblin, frost_goblin, birdfolk). scroll_stone 2% on den_goblin, scroll_blizzard 1.5% on frost_goblin. rig.js still has look entries for the old keys (unused; H2 replaces looks).
 - Tests: test/h1unit.js; p56unit and p24unit updated.
+
+
+## 18.40.0 Monster job looks (H2 of design/humanoid-job-plan.md)
+- rig.js `jobMobLook(L, e)` runs in buildEntityRig after familyLook for any human-kind mob with `e.job` that is not nm/boss. It reuses the player job outfits: `JOB_STYLE[job](jobStyleTier(lv), JOB_TINT[job])`, clears JOB_STYLE_SLOTS from the family look and lays the job outfit on top, keeping the family body (skin, ears, tusks, beak, crest, skull, prop, eyes).
+- Birdfolk, fishfolk and skeletons stay barefoot (boots, shoes, greaves removed); skeletons keep bone legs unless the outfit has legs. Crested birdfolk get a cap instead of a helm, kabuto or winged helm.
+- `mobPalette(e)` tints clothing 32% toward a home colour: frost_/ice_/rime_/glacier keys pale blue, mire_/bog_ swamp green, drowned and fishfolk sea-dark, birdfolk sand, skeleton faded grey, ghoul dark. mobVariant shades the top colour (variant 1 darker, 2 lighter).
+- `mobGearFor(job, lv)` (cached per job and level) picks the highest-level non-HQ main weapon of MOB_JOB_WEAPON[job] at or under the mob level, plus a shield for PLD, and builds weapon and shield looks through lookForGear. h2h jobs (MNK, PUP) carry nothing. Mobs whose family has `range` keep the family weapon (bow or rocks).
+- Rig cache keys include the whole look (stableKey), so each job and tier is its own cached entry.
