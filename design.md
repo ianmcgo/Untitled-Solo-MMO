@@ -1972,7 +1972,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Tests: test/m5cunit.js.
 
 ## 18.34.0: job unlock tree (J1)
-- Starting jobs: Warrior, White Mage, Black Mage (the non-advanced ones).
+- Starting jobs: Warrior, White Mage, Black Mage, Thief (from 18.34.3) (the non-advanced ones).
 - JOB_REQ (data.js) maps each of the 19 non-starting jobs to required job levels; JOB_FLAVOUR holds Tobin's lines. jobReqMet(sv,j) checks levels reached.
 - checkJobUnlocksIn(sv) sets sv.jobsUnlocked and returns the new ones; used silently in normalizeSave (no popups on load). checkJobUnlocks() runs after level up and every 4th landmark tick, logs a line and queues save.jobPopups.
 - jobPopupTick shows queued popups via gameConfirm (tag jobpop, no No button) only when calmNow() and no confirm is open.
@@ -1982,3 +1982,4 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Tests: j1unit.js; older tests pre-unlock jobs.
 - 18.34.2: mercenary hiring follows jobs. genMercDef picks only unlocked jobs, mercAvailable requires jobUnlocked(MERCS[id].job) for generated and named companions, mercPool hides locked-job offers unless hired, the old hall list skips locked non-hired companions.
 - Achievements: unlock_<JOB> for each JOB_REQ job, jobs_bronze/silver/gold (6/12/18 open jobs) and jobs_all, via jobsOpenCount (data.js after ACHIEVEMENTS).
+- 18.34.3: Thief is no longer advanced and has no JOB_REQ entry, so it starts open (WAR, WHM, BLM, THF); no unlock_THF achievement.

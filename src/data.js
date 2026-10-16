@@ -138,7 +138,7 @@ const RES_ELEMENTS = ["fire", "ice", "wind", "earth", "lightning", "water", "lig
 const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN", "DRK", "BRD"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
 const JOB_REQ = {
-  THF: { WAR: 5 }, MNK: { WAR: 5 }, RDM: { WHM: 5, BLM: 5 }, RNG: { THF: 5, MNK: 5 }, SCH: { WHM: 10 }, COR: { SCH: 5, THF: 5 },
+  MNK: { WAR: 5 }, RDM: { WHM: 5, BLM: 5 }, RNG: { THF: 5, MNK: 5 }, SCH: { WHM: 10 }, COR: { SCH: 5, THF: 5 },
   DRK: { WAR: 5, BLM: 5 }, GEO: { MNK: 5 }, BST: { GEO: 5 }, NIN: { THF: 5, WAR: 5 }, PLD: { WAR: 5, WHM: 5 }, DNC: { THF: 5, BLM: 5 },
   BRD: { WHM: 5, THF: 5 }, DRG: { THF: 5, NIN: 5 }, SAM: { WAR: 10 }, SMN: { BLM: 10, WHM: 10, RDM: 10 }, BLU: { BLM: 10, WHM: 10 },
   RUN: { WAR: 10, BLM: 10 }, PUP: { RDM: 10, BLM: 10 }
@@ -172,7 +172,7 @@ const JOBS = {
   BLM: { name: "Black Mage", color: "#9575cd", icon: "✦", hp: [46, 9], mp: [26, 8], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.5], agi: [7, 0.7], int: [10, 1.0], mnd: [7, 0.6] },
   PLD: { name: "Paladin", color: "#90caf9", icon: "🛡️", hp: [68, 13], mp: [12, 4], str: [8, 0.8], dex: [7, 0.7], vit: [10, 1.0], agi: [6, 0.6], int: [5, 0.4], mnd: [8, 0.8], advanced: true },
   RDM: { name: "Red Mage", color: "#f48fb1", icon: "🎩", hp: [56, 11], mp: [20, 6], str: [7, 0.7], dex: [8, 0.8], vit: [7, 0.6], agi: [7, 0.7], int: [8, 0.8], mnd: [8, 0.8], advanced: true },
-  THF: { name: "Thief", color: "#a1887f", icon: "🗝️", hp: [58, 11], mp: [0, 0], str: [7, 0.7], dex: [10, 1.0], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.6], mnd: [6, 0.5], advanced: true },
+  THF: { name: "Thief", color: "#a1887f", icon: "🗝️", hp: [58, 11], mp: [0, 0], str: [7, 0.7], dex: [10, 1.0], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.6], mnd: [6, 0.5] },
   MNK: { name: "Monk", color: "#ffb74d", icon: "👊", hp: [76, 15], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [10, 1.0], agi: [7, 0.7], int: [5, 0.4], mnd: [6, 0.6], advanced: true },
   RNG: { name: "Ranger", color: "#9ccc65", icon: "🏹", hp: [56, 11], mp: [0, 0], str: [7, 0.7], dex: [9, 0.9], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.5], mnd: [6, 0.5], advanced: true },
   DRK: { name: "Dark Knight", color: "#8e6bbf", icon: "🌑", hp: [64, 13], mp: [10, 3], str: [10, 1.0], dex: [8, 0.8], vit: [8, 0.7], agi: [7, 0.6], int: [8, 0.7], mnd: [5, 0.4], advanced: true },
