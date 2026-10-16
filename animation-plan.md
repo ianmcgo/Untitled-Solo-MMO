@@ -33,6 +33,10 @@ Goal: combat and movement that read like the original: weighty, readable, tied t
 - Per-family attack and idle sets: goblins (club swing), crawlers (lunge and bite), beasts (pounce), birds (peck), skeletons (stiff slash).
 - Aggro roar/alert pose, spawn pop-in, defeat collapse or dissolve.
 
+## Phase 6b: Specific monster fixes (requested)
+- Caterpillar (crawler): every leg moves on its own in a travelling wave from head to tail, each leg lifting, reaching and planting in turn, with the body segments rippling to match.
+- Rabbit (hare): remove or tuck the front legs so it reads like a Rarab (small body, hind-leg hops, front paws folded up). Interpretation of the request; confirm before building.
+
 ## Method and risks
 - Reference stills are guides, not copies; match feel, not exact frames.
 - Our rig is FK-only (no IK), so hand-on-weapon contact needs per-pose tuning and checks in side and front renders.
