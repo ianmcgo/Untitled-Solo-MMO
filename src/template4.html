@@ -922,10 +922,11 @@
   .eqW { display: flex; gap: 8px; align-items: flex-start; } .eqL { width: 196px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; color: #fff; } .eqW .eqWrap { flex: 1; min-width: 0; }
   .eqL .gilB { display: flex; flex-direction: row; align-items: baseline; justify-content: space-between; gap: 14px; } .eqL .gilB em { font-size: 13px; } .eqL .gilB b { font-size: 15px; text-align: right; margin-top: 0; }
   #ui:has(#menu .win.wide) #ffStat { display: none; }
-  @media (max-width: 760px) { .eqL { display: none; } }
+  @media (max-width: 760px) { .eqW .eqL { display: none !important; } .eqW { display: block; } .eqSide.two { grid-template-columns: 1fr; } .eqSide.two .eqPop, .eqPop { max-height: 28vh; } .eqGrid { gap: 3px; } }
   #menu .win.slim { width: 320px; max-height: calc(100vh - 330px - var(--sat) - var(--sab)); min-height: 120px; }
   #menu .win.fit { width: max-content; min-width: 320px; max-width: min(560px, calc(100vw - 232px - var(--sal) - var(--sar))); }
   #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar)));  max-height: calc(100vh - 70px - var(--sat) - var(--sab)); }
+  #menu .win.slim-abilities, #menu .win.slim-magic, #menu .win.slim-inventory, #menu .win.slim-quests, #menu .win.slim-storage { width: max-content; min-width: 220px; max-width: min(420px, calc(100vw - 16px)); }
   #menu .win.slim #mHead { display: none; }
   #menu .win.slim #mBody { padding: 4px 6px 6px 22px; }
   #mBody .lHead { display: flex; gap: 6px; justify-content: flex-end; margin: 0 0 4px -16px; }
