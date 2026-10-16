@@ -358,7 +358,8 @@ function reach(e) { return e && e.stats && e.stats.wtype === "archery" ? CONFIG.
 function spellSkill(sp) {
   if (sp.skill) return sp.skill;
   if (sp.kind === "summon") return "summoning";
-  if (sp.kind === "heal") return "healing";
+  if (sp.kind === "heal" || sp.kind === "cleanse") return "healing";
+  if (sp.kind === "warp") return "enhancing";
   if (sp.kind === "debuff") return "enfeebling";
   if (sp.kind === "buff") return "enhancing";
   if (sp.kind === "dot" || sp.element === "light") return "divine";
@@ -628,7 +629,7 @@ function tickGeo(dt) {
   }
 }
 function artsMatch(a, sp) {
-  const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
+  const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot" || sp.kind === "cleanse";
   const black = sp.kind === "nuke" || sp.kind === "debuff" || sp.kind === "drain" || sp.kind === "aspir";
   return (a.buffs.light_arts && white) || (a.buffs.dark_arts && black);
 }
@@ -997,6 +998,7 @@ function applyDamage(src, tgt, amt, opt) {
   amt = Math.max(0, Math.round(amt));
   if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
   if (opt.el && tgt.buffs && tgt.buffs.shell && !isMob(tgt)) amt = Math.max(0, Math.round(amt * (1 - tgt.buffs.shell.pow)));
+  if (opt.el && BAR_EL[opt.el] && tgt.buffs && tgt.buffs[BAR_EL[opt.el]] && !isMob(tgt)) amt = Math.max(0, Math.round(amt * (1 - tgt.buffs[BAR_EL[opt.el]].pow)));
   if (opt.el && !isMob(tgt) && tgt.stats && tgt.stats["res_" + opt.el]) amt = Math.max(0, Math.round(amt * (1 - Math.min(0.5, tgt.stats["res_" + opt.el] / 100))));
   if (tgt.buffs && !isMob(tgt) && src && isMob(src)) {
     if (tgt.buffs.runes && tgt.buffs.runes.list) amt = Math.round(amt * (1 - 0.05 * tgt.buffs.runes.list.length));
@@ -1027,7 +1029,7 @@ function applyDamage(src, tgt, amt, opt) {
     touch(tgt);
     if (amt > 0 && tgt.resting && src && isMob(src)) standUp(tgt, tgt !== player);
     if (tgt.mounted) dismount("You're thrown from the saddle!");
-    if (tgt.casting && Math.random() < CONFIG.interruptChance) interruptCast(tgt);
+    if (tgt.casting && Math.random() < CONFIG.interruptChance) { if (tgt.buffs.aquaveil) { tgt.buffs.aquaveil.n--; popText(tgt, "Aquaveil", "#4fc3f7", 12, 0.9, 12); if (tgt.buffs.aquaveil.n <= 0) delete tgt.buffs.aquaveil; } else interruptCast(tgt); }
   }
   if (tgt.buffs && tgt.buffs.sleep && amt > 0) { delete tgt.buffs.sleep; if (isMob(tgt)) log("The " + tgt.name + " wakes up!", "sys"); }
   if (tgt.hp <= 0) onKO(tgt, src);
@@ -2044,6 +2046,7 @@ function checkAction(a, act, t) {
   }
   if (act.kind === "ma") {
     const sp = SPELLS[act.id];
+    if (a.buffs.silence) return "You are silenced.";
     if (recastLeft(a, "ma:" + act.id) > 0) return sp.name + " is not ready.";
     if (a.mp < sp.mp) return "Not enough MP.";
     if (sp.target === "enemy" && (!t || !isMob(t) || !t.alive)) return "No valid target.";
@@ -2412,6 +2415,8 @@ function finishCast(a) {
   else if (sp.kind === "dot") castDia(a, t, sp);
   else if (sp.kind === "debuff") castDebuff(a, t, sp);
   else if (sp.kind === "buff") castBuff(a, t, sp);
+  else if (sp.kind === "cleanse") castCleanse(a, t, sp);
+  else if (sp.kind === "warp") castWarp(a, sp);
   else if (sp.kind === "summon") summonPet(a, sp);
   else if (sp.kind === "song") castSong(a, sp);
   else if (sp.kind === "drain" || sp.kind === "aspir") castDrain(a, t, sp);
@@ -2570,16 +2575,49 @@ function castDebuff(a, t, sp) {
   aggro(t, a);
 }
 
-function castBuff(a, t, sp) {
-  t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
-  if (sp.pow != null) t.buffs[sp.buff].pow = sp.pow;
-  if (sp.buff === "shadows") t.buffs.shadows.n = sp.n + (a.lv >= 12 ? 1 : 0);
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + obj(t) + ".", cls(a));
+const BAR_EL = { fire: "barfire", earth: "barstone", water: "barwater", wind: "baraero" };
+const BAR_ST = { poison: "barpoison", paralyze: "barparalyze", flash: "barblind", sleep: "barsleep" };
+function applyBuffTo(a, t, sp) {
+  const b = t.buffs[sp.buff] = { until: S.time + sp.dur + (sp.rnd ? 60 * Math.floor(Math.random() * 3) : 0), src: a };
+  if (sp.pow != null) b.pow = sp.pow;
+  if (sp.bar) b.pow = Math.min(0.35, (40 + Math.floor(skillOf(a, "enhancing") / 5)) / 400);
+  if (sp.barst) b.pow = 0.5;
+  if (sp.buff === "shadows") b.n = sp.n + (a.lv >= 12 && !sp.exact ? 1 : 0);
+  if (sp.buff === "aquaveil") b.n = sp.n + (skillOf(a, "enhancing") > 300 ? 1 : 0);
   popText(t, sp.name, "#9ad06b", 13, 1.1, 14);
   ring(t, "#9ad06b", 26, 0.5);
-  sfx("buff", t);
   vfx("buff", { tgt: t, id: sp.buff });
-  for (const m of S.mobs) if (m.alive && m.state === "combat" && m.enmity.has(t)) addEnmity(m, a, 30);
+}
+function castBuff(a, t, sp) {
+  const group = sp.party ? S.party.filter(p => p.alive && dist(p, t) <= 300) : [t];
+  for (const g of group) applyBuffTo(a, g, sp);
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + (sp.party ? "the party" : obj(t)) + ".", cls(a));
+  sfx("buff", t);
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && group.some(g => m.enmity.has(g))) addEnmity(m, a, 30);
+}
+function castCleanse(a, t, sp) {
+  const gone = sp.cleanse.filter(k => t.buffs[k]);
+  for (const k of sp.cleanse) delete t.buffs[k];
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + obj(t) + (gone.length ? ". " + gone.map(k => BUFF_NAMES[k] || k).join(", ") + " is cured." : ", but nothing happens."), cls(a));
+  popText(t, gone.length ? "Cured" : sp.name, "#9ad06b", 13, 1.1, 14);
+  ring(t, "#fff59d", 26, 0.5, "sparkle");
+  sfx("heal", t);
+  vfx("buff", { tgt: t, id: "cleanse" });
+}
+function castWarp(a, sp) {
+  if (a !== player) return;
+  log("You are drawn back to your home point.", "sys");
+  const h = homePos();
+  enterZone(h.zone, h.x, h.y);
+}
+function inflictStatus(m, tg, key, dur, pow) {
+  const bar = BAR_ST[key];
+  if (bar && tg.buffs[bar] && Math.random() < tg.buffs[bar].pow) { popText(tg, "Resisted", "#bbbbbb", 12, 0.9, 12); return false; }
+  const b = tg.buffs[key] = { until: S.time + dur, src: m };
+  if (pow != null) b.pow = pow;
+  if (key === "poison") { b.tick = 1 + Math.floor(tg.lv / 5); b.next = S.time + 3; b.el = "dark"; }
+  popText(tg, BUFF_NAMES[key] || key, "#d7b46a", 12, 0.9, 12);
+  return true;
 }
 
 function dotTick(a, d) {
@@ -2886,9 +2924,9 @@ function detects(m, p) {
     const diff = Math.abs(normAng(Math.atan2(p.y - m.y, p.x - m.x) - m.face));
     if (diff <= Math.PI * 0.45) return true;
   }
-  if (a.sound && d <= a.sound && p.moving) return true;
+  if (a.sound && d <= a.sound && p.moving && !p.buffs.sneak) return true;
   if (a.magic && d <= a.magic && p.casting) return true;
-  if (a.lowhp && d <= a.lowhp && p.hp / p.maxHp < 0.5) return true;
+  if (a.lowhp && d <= a.lowhp && p.hp / p.maxHp < 0.5 && !p.buffs.deodorize) return true;
   return false;
 }
 
@@ -3045,7 +3083,8 @@ function execTpMove(m) {
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
     applyDamage(m, tg, total, { color: "#ff8a80", size: 22, el: mv.el });
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
-    if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
+    if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player && !(tg.buffs.barsleep && Math.random() < tg.buffs.barsleep.pow)) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
+    if (mv.status && tg.alive) inflictStatus(m, tg, mv.status[0], mv.status[1], mv.status[2]);
     if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
   }
   if (mv.explode && m.alive && !m.proxy) { m.hp = 0; onKO(m, m); }
@@ -3245,7 +3284,7 @@ function meleeAI(a, tgt, dt) {
   const stn = acts.find(x => x.id === "stun");
   if (stn && tgt.readying && allyTry(a, stn, tgt)) return;
   const blt = acts.find(x => x.id === "bio");
-  if (blt && !tgt.buffs.blight && tgt.state === "combat" && a.mp > a.maxMp * 0.4 && allyTry(a, blt, tgt)) return;
+  if (blt && !tgt.buffs.bio && tgt.state === "combat" && a.mp > a.maxMp * 0.4 && allyTry(a, blt, tgt)) return;
   for (const id of ["focus", "boost", "sneak_attack", "sharpshot", "barrage", "last_resort", "soulfire", "blood_blade"]) {
     const x = acts.find(q => q.id === id);
     if (x && !a.buffs[id] && dist(a, tgt) <= reach(a) && allyTry(a, x, a)) return;
@@ -3373,6 +3412,26 @@ function healEstimate(a, sp) {
   return (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
 }
 
+function healerSupport(a, acts, tgt) {
+  if (S.time < (a.nextSupport || 0)) return false;
+  a.nextSupport = S.time + 2;
+  const reach = CONFIG.castRange - 30;
+  for (const x of acts) {
+    const sp = x.kind === "ma" && SPELLS[x.id];
+    if (!sp || sp.kind !== "cleanse") continue;
+    const p = S.party.find(q => q.alive && sp.cleanse.some(k => q.buffs[k]) && dist(a, q) <= reach);
+    if (p && allyTry(a, x, p)) return true;
+  }
+  if (!tgt || tgt.state !== "combat" || a.mp < a.maxMp * 0.5) return false;
+  for (const key of ["protect", "shell"]) {
+    const opts = acts.filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "buff" && SPELLS[x.id].buff === key).sort((p, q) => (SPELLS[q.id].party ? 1 : 0) - (SPELLS[p.id].party ? 1 : 0));
+    if (!opts.length) continue;
+    const p = S.party.find(q => q.alive && !q.buffs[key] && dist(a, q) <= reach);
+    if (p && opts.some(x => allyTry(a, x, p))) return true;
+  }
+  return false;
+}
+
 function healerAI(a, tgt, dt) {
   const acts = actionList(a);
   const healAt = a.role === "healer" ? 0.75 : 0.5;
@@ -3392,6 +3451,7 @@ function healerAI(a, tgt, dt) {
       return;
     }
   }
+  if (healerSupport(a, acts, tgt)) return;
   if (tgt) {
     const dia = acts.find(x => x.id === "dia");
     const diaMp = a.role === "support" ? 0.25 : 0.5;
