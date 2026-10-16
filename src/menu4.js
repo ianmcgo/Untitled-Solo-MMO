@@ -1658,8 +1658,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.34.1", date: "2026-10-16", title: "Jobs unlock as you grow (text fix)", items: [
+    "Help and Updates now correctly say that Warrior, White Mage and Black Mage are the three jobs open from the start.",
+  ]},
   { v: "18.34.0", date: "2026-10-16", title: "Jobs unlock as you grow", items: [
-    "<b>Job unlock tree:</b> only Warrior and White Mage start open. Every other job opens when earlier jobs reach a set level (for example, a second fighting job after Warrior level 5, the top summoning job after three mage jobs at level 10).",
+    "<b>Job unlock tree:</b> Warrior, White Mage and Black Mage start open. Every other job opens when earlier jobs reach a set level (for example, a second fighting job after Warrior level 5, the top summoning job after three mage jobs at level 10).",
     "<b>Pop-up:</b> when a level up meets a requirement, a pop-up tells you which job you can now take. Several unlocks queue up and show one after another when it is calm.",
     "<b>Hidden until unlocked:</b> Pip's job-change list at your residence and the companion lists no longer show locked jobs.",
     "<b>Ask Tobin:</b> two new questions: why jobs must be unlocked, and how you are doing, with a hint about what to train next.",
@@ -3171,7 +3174,7 @@ function tabHelp() {
     ["Geomancer (advanced)", "Support", "Club B, Geomancy A. Auras follow you and affect the party nearby: Vigor (HP over time), Fury (5: attack +10%), Focus (11: spell damage +12%). Wards plant a luopan by the target that affects monsters near it: Torpor (3: slow), Frailty (8: they take 12% more damage), Languor (15: they deal 15% less). One aura and one luopan at a time, 3 minutes each. Full Circle (5: dismiss the luopan for half its MP back), Mending Halation (15: shatter it to heal the party 20%)"],
     ["Rune Fencer (advanced)", "Tank", "Great Sword A (new weapon type), sword and great axe B. Kindle, Rime (3), Gale (5) and Stone (7) Runes: hold up to three; each cuts damage you take by 5%. Lunge (10: release every rune as elemental damage), Vallation (15: damage taken −20% for 30 s, and your hits draw extra enmity). Weapon skills: Rune Cleave, Glyph Rend (22), Ward Breaker (40), Final Verse (75)"]
   ]) + ul([
-    "<b>Jobs unlock as you grow.</b> Only Warrior and White Mage start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
+    "<b>Jobs unlock as you grow.</b> Warrior, White Mage and Black Mage start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
     "<b>Ask Tobin</b> (Job Master) why jobs must be unlocked, or how you are doing: he gives a vague hint about what to train next without naming the job.",
     "<b>Initiation quests:</b> Tobin's old job quests are offered only after the job is unlocked. They no longer unlock anything but still give the job's first weapon.",
     "Support jobs unlock at level 10 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
