@@ -153,11 +153,19 @@ function applyPose(v, dt, sharp) {
   if (BH && BS) { BH.rotation.y -= ty; BS.rotation.y += ty; v.tipApplied = ty; }
 }
 
+function kfMaker(ak, a, b, c0, c1) {
+  const t1 = ease(ak / a), t2 = ease((ak - a) / (b - a)), t3 = ease((ak - c0) / (c1 - c0));
+  return (S0, W0, K0) => { const q = S0 + (W0 - S0) * t1 + (K0 - W0) * t2; return q + (S0 - q) * t3; };
+}
+
 function attackKind(v, e) {
   const w = v.weaponKind;
   if (v.style && v.style.claws) return "claw";
   if (w === "greataxe" || w === "scythe" || w === "gkatana" || w === "gsword") return "cleave";
   if (w === "polearm") return "thrust";
+  if (w === "dagger") return "stab";
+  if (w === "axe") return "chop";
+  if (w === "archery") return "shoot";
   if (w === "club") return "smash";
   if (w === "staff") return "staffswing";
   if (!w || w === "h2h") return "punch";
@@ -322,6 +330,7 @@ function poseHuman(v, e, dt) {
     if (step !== an.lastStep) { an.lastStep = step; if (run > 0.4 && e.alive !== false) fxFootstep(e, v); }
   }
 
+  { const eng = Math.sin(Math.PI * Math.min(1, Math.max(0, an.fight))); if (eng > 0.01) { addP(P, "spine", 0.1 * eng, 0, 0); addP(P, "thighL", -0.12 * eng, 0, 0); addP(P, "thighR", -0.08 * eng, 0, 0); addP(P, "shinL", 0.15 * eng, 0, 0); addP(P, "shinR", 0.1 * eng, 0, 0); v.rootOff[1] -= 0.025 * eng; } }
   if (v.wTr) {
     const wp = Math.min(1, Math.max(0, (S.time - v.wTr.t0) / v.wTr.dur));
     const r = wp < 0.5 ? ease(wp / 0.5) : 1 - ease((wp - 0.5) / 0.5);
@@ -382,7 +391,7 @@ function poseHuman(v, e, dt) {
       setP(P, "hips", 0, -0.25 * a + 0.35 * b, 0, w);
       setP(P, "handR", 1.45, 0, 0, w);
       v.rootOff[2] += 0.08 * b * w;
-    } else if (kind === "thrust") {
+    } else if (kind === "thrust" && an.aVar !== 1) {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.18);
       setP(P, "upArmR", -0.4 * a - 1.0 * b, 0, 0, w);
       setP(P, "foreArmR", -1.2 * a + 1.1 * b, 0, 0, w);
@@ -400,6 +409,58 @@ function poseHuman(v, e, dt) {
       setP(P, "hips", 0, kf(0, -0.25, 0.3), 0, sw2);
       setP(P, "spine", kf(0, -0.15, 0.3), 0, 0, sw2);
       v.rootOff[2] += 0.08 * t2 * (1 - t3) * sw2;
+    } else if (kind === "stab") {
+      const kf = kfMaker(ak, 0.18, 0.32, 0.5, 0.85), sw3 = Math.min(1, ak / 0.05, (1 - ak) / 0.1), V = an.aVar;
+      const kU = V === 1 ? -1.1 : V === 2 ? -1.7 : -1.5, ya = V === 2 ? 0.5 : 0.35;
+      setP(P, "upArmR", kf(-1.2, -0.9, kU), 0, kf(-0.1, 0.2, V === 2 ? -0.3 : -0.1), sw3);
+      setP(P, "foreArmR", kf(-0.4, -1.5, -0.1), 0, 0, sw3);
+      setP(P, "handR", 1.45, 0, 0, sw3);
+      setP(P, "upArmL", kf(-0.5, -0.3, -0.7), 0, kf(0.05, 0.3, 0.2), sw3);
+      setP(P, "chest", 0, kf(0, -0.3, ya), 0, sw3);
+      setP(P, "hips", 0, kf(0, -0.15, 0.2), 0, sw3);
+      setP(P, "spine", kf(0, -0.05, 0.2), 0, 0, sw3);
+      v.rootOff[2] += 0.14 * ease((ak - 0.18) / 0.14) * (1 - ease((ak - 0.5) / 0.35)) * sw3;
+    } else if (kind === "chop") {
+      const kf = kfMaker(ak, 0.38, 0.5, 0.62, 0.92), sw3 = Math.min(1, ak / 0.06, (1 - ak) / 0.1), diag = an.aVar === 1;
+      setP(P, "upArmR", kf(-1.2, -2.6, -1.1), 0, kf(-0.1, diag ? -0.6 : -0.1, diag ? 0.3 : 0), sw3);
+      setP(P, "foreArmR", kf(-0.4, -0.9, -0.3), 0, 0, sw3);
+      setP(P, "handR", kf(1.45, 1.3, 1.95), 0, 0, sw3);
+      setP(P, "upArmL", kf(-0.5, -0.9, -0.3), 0, kf(0.05, 0.3, 0.1), sw3);
+      setP(P, "chest", 0, kf(0, diag ? -0.6 : -0.1, diag ? 0.7 : 0.1), 0, sw3);
+      setP(P, "hips", 0, kf(0, diag ? -0.2 : 0, diag ? 0.25 : 0), 0, sw3);
+      setP(P, "spine", kf(0, -0.28, 0.38), 0, 0, sw3);
+      v.rootOff[2] += 0.1 * ease((ak - 0.38) / 0.12) * (1 - ease((ak - 0.62) / 0.3)) * sw3;
+    } else if (kind === "shoot") {
+      const kf = kfMaker(ak, 0.4, 0.5, 0.65, 0.95), sw3 = Math.min(1, ak / 0.08, (1 - ak) / 0.1);
+      setP(P, "upArmR", kf(-1.2, -1.55, -1.5), 0, kf(-0.1, -0.15, -0.15), sw3);
+      setP(P, "foreArmR", kf(-0.4, -0.05, -0.05), 0, 0, sw3);
+      setP(P, "upArmL", kf(-0.5, -1.4, -1.0), 0, kf(0.05, 0.45, 0.3), sw3);
+      setP(P, "foreArmL", kf(-1.0, -2.1, -1.2), 0, 0, sw3);
+      setP(P, "chest", 0, kf(0, 0.45, 0.4), 0, sw3);
+      setP(P, "spine", kf(0, 0.04, -0.04), 0, 0, sw3);
+    } else if (kind === "thrust" && an.aVar === 1) {
+      const kf = kfMaker(ak, 0.34, 0.52, 0.6, 0.92), sw3 = Math.min(1, ak / 0.06, (1 - ak) / 0.1);
+      setP(P, "chest", 0, kf(0, -0.9, 0.9), 0, sw3);
+      setP(P, "hips", 0, kf(0, -0.3, 0.35), 0, sw3);
+      setP(P, "spine", kf(0, 0.1, 0.25), 0, 0, sw3);
+      v.rootOff[2] += 0.05 * ease((ak - 0.34) / 0.18) * (1 - ease((ak - 0.6) / 0.3)) * sw3;
+    } else if (kind === "punch") {
+      const kf = kfMaker(ak, 0.22, 0.36, 0.55, 0.9), sw3 = Math.min(1, ak / 0.05, (1 - ak) / 0.1), V = an.aVar;
+      if (V === 2) {
+        setP(P, "thighR", kf(0, 0.1, -1.4), 0, kf(0, 0, 0), sw3);
+        setP(P, "shinR", kf(0, 0.8, 0.2), 0, 0, sw3);
+        setP(P, "spine", kf(0, 0.12, -0.2), 0, 0, sw3);
+        setP(P, "chest", 0, kf(0, -0.4, 0.3), 0, sw3);
+        setP(P, "upArmL", kf(-1.0, -1.3, -0.6), 0, 0.3, sw3);
+        v.rootOff[1] += 0.0;
+      } else {
+        const L = V === 1, arm = L ? "L" : "R", sg = L ? 1 : -1;
+        setP(P, "upArm" + arm, kf(-0.9, -0.6, -1.5), 0, sg * kf(0.25, 0.4, 0.05), sw3);
+        setP(P, "foreArm" + arm, kf(-1.7, -2.1, -0.08), 0, 0, sw3);
+        setP(P, "chest", 0, sg * kf(0, 0.45, -0.5), 0, sw3);
+        setP(P, "hips", 0, sg * kf(0, 0.2, -0.25), 0, sw3);
+        v.rootOff[2] += 0.07 * ease((ak - 0.22) / 0.14) * (1 - ease((ak - 0.55) / 0.35)) * sw3;
+      }
     } else if (kind === "claw") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);
       const arm = side > 0 ? "R" : "L", s = side > 0 ? -1 : 1;

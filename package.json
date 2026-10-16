@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.19.5",
-  "releaseTitle": "Staff combat loop",
+  "version": "18.19.6",
+  "releaseTitle": "Weapon swing sets",
   "description": "",
   "main": "index.js",
   "scripts": {

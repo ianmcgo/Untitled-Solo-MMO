@@ -1797,3 +1797,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - rig.js pipkin face: jaw 0.64, cheek 0.14, long -0.11, chin 0.
 - Not done: staff weapon skill leap variant; approach step uses normal movement.
 - test/swingsheet2.js with JOB=BLM renders swings; /tmp rb scripts not kept.
+
+## 18.19.6: weapon swing sets (animation plan phase 1)
+- anim.js kfMaker(ak,a,b,c0,c1) returns kf(S,W,K): stance to wind-up to strike, then recovery back to stance.
+- attackKind: dagger "stab", axe "chop", archery "shoot", staff "staffswing", polearm "thrust" (aVar 1 = wide sweep), h2h "punch" (aVar 0 right jab, 1 left jab, 2 kick). Sword and club/cleave sets unchanged.
+- Engage settle: spine and knee bend scaled by sin(pi*an.fight) while the stance blends in.
+- Not done: dual-wield (the game has no off-hand weapon); sword and club sets could be moved to kf later.
