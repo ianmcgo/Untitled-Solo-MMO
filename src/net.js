@@ -1,4 +1,4 @@
-const NET_SCHEMA = 8;
+const NET_SCHEMA = 9;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000, seatBeat: 30000, queuePoll: 5000, idleWarn: 60000, selectIdleMin: 15 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -82,14 +82,29 @@ async function netQueueJoin() {
   return d;
 }
 
-async function netQueueLeave(keepalive) {
+async function netQueueLeave(keepalive, why) {
   NET.seated = false;
   if (!NET.sb || NET.queueOff) return;
   if (keepalive && NET.session) {
-    try { await fetch(NET_CFG.url + "/rest/v1/rpc/queue_leave", { method: "POST", keepalive: true, headers: { apikey: NET_CFG.key, Authorization: "Bearer " + NET.session.access_token, "Content-Type": "application/json" }, body: "{}" }); } catch (e) {}
+    try { await fetch(NET_CFG.url + "/rest/v1/rpc/queue_leave", { method: "POST", keepalive: true, headers: { apikey: NET_CFG.key, Authorization: "Bearer " + NET.session.access_token, "Content-Type": "application/json" }, body: JSON.stringify(why ? { why } : {}) }); } catch (e) {}
     return;
   }
-  try { await NET.sb.rpc("queue_leave"); } catch (e) {}
+  try {
+    const { error } = why ? await NET.sb.rpc("queue_leave", { why }) : await NET.sb.rpc("queue_leave");
+    if (error && why) await NET.sb.rpc("queue_leave");
+  } catch (e) {}
+}
+
+function netSessionChar() {
+  if (!NET.seated || NET.queueOff || !UI.started || !S.charId || typeof save === "undefined" || !save || !save.name || NET.sessChar === save.name) return;
+  NET.sessChar = save.name;
+  NET.sb.rpc("session_char", { name: save.name }).then(() => {}, () => {});
+}
+
+async function netAdminLogins(lim) {
+  const { data, error } = await NET.sb.rpc("admin_logins", { lim: lim || 100 });
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
 }
 
 function netSeatStart() {
@@ -131,14 +146,14 @@ async function netIdleLogout(min, sel) {
   NET.leaving = true;
   try { saveGame(); } catch (e) {}
   try { await netFlush(); } catch (e) {}
-  await netQueueLeave();
+  await netQueueLeave(false, sel ? "idle at character screen" : "idle");
   try { sessionStorage.setItem("usr_idle", sel ? "You were logged out after " + min + " minutes on the character screen without any input." : "You were logged out after " + min + " minutes without any input. Your progress was saved."); } catch (e) {}
   location.reload();
 }
 
 async function netSignOut() {
   await netFlush();
-  await netQueueLeave();
+  await netQueueLeave(false, "signed out");
   try { netLeaveAll(); } catch (e) {}
   try { await NET.sb.auth.signOut(); } catch (e) {}
   NET.user = null; NET.session = null; NET.member = false;
@@ -244,6 +259,7 @@ function netTick() {
   if (now - NET.lastSave > NET_CFG.saveEvery && Object.keys(NET.dirty).length) netFlush();
   netTrack();
   netIdleTick(now);
+  netSessionChar();
   if (now - NET.beatAt > NET_CFG.beat) { NET.beatAt = now; const t0 = performance.now(); NET.sb.rpc("touch_player").then(() => { NET.ping = Math.round(performance.now() - t0); }, () => {}); }
   if (S.charId && now - (NET.ahAt || 0) > 60000) { NET.ahAt = now; netAhWatch(); }
 }

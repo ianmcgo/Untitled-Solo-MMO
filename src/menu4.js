@@ -1333,6 +1333,31 @@ function adminLiveHtml() {
   return h;
 }
 
+function adminDur(ms) {
+  const m = Math.max(0, Math.round(ms / 60000));
+  return m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min";
+}
+
+function adminLoginsHtml() {
+  if (typeof netAdminLogins !== "function") return "";
+  if (!UI.adminLogins && !UI.adminLoginsErr && !UI.adminLoginsBusy) {
+    UI.adminLoginsBusy = true;
+    netAdminLogins(100).then(l => { UI.adminLogins = l; }, e => { UI.adminLoginsErr = netMissing(e) ? "The login log needs server setup version 9. Copy the setup SQL below and run it." : netErr(e); }).finally(() => { UI.adminLoginsBusy = false; if (S.modal === "admin") renderModal(); });
+  }
+  let h = "<h3>Logins</h3>";
+  if (UI.adminLoginsErr) return h + '<div class="sub">' + esc(UI.adminLoginsErr) + "</div>";
+  if (!UI.adminLogins) return h + '<div class="sub">Loading…</div>';
+  if (!UI.adminLogins.length) return h + '<div class="sub">No logins recorded yet.</div>';
+  const when = t => new Date(t).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  const now = Date.now();
+  h += '<div class="sub" style="margin-bottom:4px">Newest first, last 30 days. A session starts when a player gets a place on the server and ends when they log out, are logged out for being idle, or stop answering for 2 minutes.</div>';
+  for (const l of UI.adminLogins) {
+    const st = Date.parse(l.started), end = l.ended ? Date.parse(l.ended) : now;
+    h += '<div class="sub" style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,.08)">' + (l.online ? "🟢 " : "⚪ ") + "<b>" + esc(l.email || "?") + "</b>" + (l.char_name ? " · " + esc(l.char_name) : "") + " · " + esc(when(st)) + " · " + adminDur(end - st) + (l.online ? " · <b style=\"color:#9ccc65\">still in</b>" : " · " + esc(l.reason || "ended")) + "</div>";
+  }
+  return h;
+}
+
 function tabAdmin() {
   if (typeof netIsAdmin !== "function" || !netIsAdmin()) return '<div class="sub">Admins only.</div>';
   if (!UI.adminStats && !UI.adminErr && !UI.adminLoading) { UI.adminLoading = true; netAdminStats().then(s => { UI.adminStats = s; UI.adminLoading = false; if (S.modal === "admin") renderModal(); }, e => { UI.adminErr = netErr(e); UI.adminLoading = false; if (S.modal === "admin") renderModal(); }); }
@@ -1348,6 +1373,7 @@ function tabAdmin() {
     if (sv < NET_SCHEMA) h += '<div class="item" style="display:block;border-color:#ffd54f"><b>Server update needed</b><div class="sub">This version of the game needs server setup version ' + NET_SCHEMA + ' (the server has ' + sv + '). Press Copy setup SQL below, paste it into the Supabase SQL editor and press Run. It is safe to run again; nothing is deleted.</div></div>';
     h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + tile("Trades (7 days)", st.trades_7d != null ? st.trades_7d : "–") + tile("Server setup", "v" + sv) + tile("Accounts", st.players) + tile("Online now", st.online) + tile("Characters", st.characters) + tile("New (7 days)", st.signups_7d) + tile("Banned", st.banned) + tile("Database", st.db_size) + tile("Saves", st.chars_size) + tile("Sign-up password", st.code_set ? "set" : "NOT SET") + "</div>";
     h += "<h3>Online now</h3>" + (st.online_list && st.online_list.length ? st.online_list.map(o => '<div class="sub">' + esc(o.email) + " · " + fmtAgo(Date.parse(o.last_seen)) + "</div>").join("") : '<div class="sub">Nobody else right now.</div>');
+    h += adminLoginsHtml();
     h += "<h3>Suspicious saves</h3>" + (st.audit && st.audit.length ? st.audit.map(a => '<div class="sub">⚠ ' + esc(a.char_name || "?") + " (" + esc(a.email || "?") + ") · " + esc(a.kind) + ": " + esc(a.detail || "") + " · " + fmtAgo(Date.parse(a.at)) + "</div>").join("") : '<div class="sub">Nothing flagged.</div>');
     h += "<h3>Banned accounts</h3>" + (st.banned_list && st.banned_list.length ? st.banned_list.map(b => '<div class="sub">' + esc(b.email) + "</div>").join("") : '<div class="sub">None.</div>');
     h += "<h3>Recently saved characters</h3>" + (st.recent || []).map(c => '<div class="sub">' + esc(c.name) + " · " + esc(c.job || "") + " Lv." + esc(c.lv || "") + " · " + esc(c.zone || "") + " · " + esc(c.email || "") + " · " + fmtAgo(Date.parse(c.updated_at)) + "</div>").join("");
@@ -1631,7 +1657,7 @@ function onMenuClick(e) {
   else if (a === "syncnow") { saveGame(); netFlush().then(() => renderModal()); return; }
   else if (a === "idlemin") { VIEW.settings.idleMin = Math.max(5, Math.min(60, +v || 30)); saveSettings(VIEW.settings); UI.lastInput = Date.now(); renderModal(); return; }
   else if (a === "signout") { closeModal(); saveGame(); netFlush().then(() => netSignOut()).then(() => location.reload()); return; }
-  else if (a === "adminrefresh") { UI.adminStats = null; UI.adminErr = ""; renderModal(); return; }
+  else if (a === "adminrefresh") { UI.adminStats = null; UI.adminErr = ""; UI.adminLogins = null; UI.adminLoginsErr = ""; renderModal(); return; }
   else if (a === "admincopy") { copyText(v === "setup" ? SETUP_SQL : v === "diag" ? ADMIN_DIAG_SQL : adminReport()); UI.adminMsg = "Copied to the clipboard."; renderModal(); return; }
   else if (a === "adminban") { const tg = (($("adBan") || {}).value || "").trim(); if (!tg) return; netAdminBan(tg, v === "1").then(n => { UI.adminMsg = n ? (v === "1" ? "Banned " : "Unbanned ") + tg + "." : "No account matched " + tg + "."; UI.adminStats = null; renderModal(); }, e => { UI.adminMsg = netErr(e); renderModal(); }); return; }
   else if (a === "admincode") { const c = ($("adCode") || {}).value || ""; netAdminSetCode(c).then(() => { UI.adminMsg = "Sign-up password changed."; renderModal(); }, e => { UI.adminMsg = netErr(e); renderModal(); }); return; }
@@ -1666,6 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.37.0", date: "2026-10-16", title: "Login log for the admin", items: [
+    "<b>Admin → Logins:</b> a list of who logged in, when, which character they played, how long they stayed, and whether they are still in (🟢 still in) or how they left (logged out, signed out, idle, idle at character screen, timed out). Newest first, the last 30 days.",
+    "<b>Server owners:</b> run the latest setup SQL (Admin → Copy setup SQL), server version 9.",
+  ]},
   { v: "18.36.1", date: "2026-10-16", title: "Idle log-out on the character screen", items: [
     "<b>Character screen:</b> sitting on the character select or creation screen for 15 minutes without input now logs you out too (with the same one-minute warning), so you don't hold a server place while away.",
   ]},
@@ -3548,6 +3578,7 @@ function tabHelp() {
     "A place is held while your game keeps in touch with the server. If your connection drops you keep your place for about 2 minutes, so a refresh or a short network blip won't send you to the back of the line.",
     "Not touching anything logs you out after 30 minutes so your place can go to someone waiting. You get a one-minute warning with an I'm here button. Change the time (5 to 60 minutes) in Config → Online. On the character select and creation screens the limit is a fixed 15 minutes.",
     "The Network box shows how many players are online, for example 👥 12/20. The admin account never needs a place.",
+    "<b>Admin → Logins</b> lists every session from the last 30 days: who, which character, when they started, how long they stayed, and whether they are still in or how they left (logged out, signed out, idle, timed out).",
   ]));
   h += sec("💾 Updates", ul([ "The game checks for new versions about every 5 minutes and shows one popup for the newest version only, even if several came out. Reload jumps straight to the newest. Later hides it until an even newer version comes out. If a reload still lands on an older copy (the web host can take a few minutes to catch up), it waits 15 minutes before asking again. System → Check for updates checks right away."]));
   sec("📋 Every menu and key", guideRef());

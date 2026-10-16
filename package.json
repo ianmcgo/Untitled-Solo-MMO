@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.36.1",
-  "releaseTitle": "Idle log-out on the character screen",
+  "version": "18.37.0",
+  "releaseTitle": "Login log for the admin",
   "description": "",
   "main": "index.js",
   "scripts": {

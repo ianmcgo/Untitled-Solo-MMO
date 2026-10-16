@@ -308,7 +308,7 @@ async function queueGate() {
     if (!b) return;
     left = true;
     if (typeof sfx === "function") sfx("close");
-    netQueueLeave().then(() => showModeChoice());
+    netQueueLeave(false, "left").then(() => showModeChoice());
   };
   for (;;) {
     if (left || UI.queueRun !== my) return false;
