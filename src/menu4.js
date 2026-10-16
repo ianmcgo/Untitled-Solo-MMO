@@ -1636,6 +1636,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.8", date: "2026-10-16", title: "Spell release and ability poses", items: [
+    "<b>Spell release flourish for each school:</b> elemental and debuff spells snap forward, healing and support spells sweep arms outward, summons slam down, dark magic draws back, and songs end with a bow-arm flick.",
+    "<b>Interrupted casts flinch:</b> if a cast is broken you recoil with a shake instead of just dropping your arms.",
+    "<b>Job abilities have their own poses:</b> shouts (Provoke, Warcry, Feral Howl) throw the head back with arms wide; Steal and Shield Bash lunge; Sneak Attack, Smoke Step and Flee crouch low; Meditate, Chakra, Focus and similar calm abilities bring the hands together; Jump leaps; rolls flick the dice arm; dances spin; shots aim a bow; other self-buffs pull your fists in."
+  ] },
   { v: "18.19.7", date: "2026-10-16", title: "Weapon skill moves", items: [
     "<b>Weapon skills now match your weapon:</b> staves raise overhead and slam down, or swing three times; daggers lunge in quick flurries; polearms drive forward in thrusts; bows draw and loose; fists throw jabs, a haymaker or a spinning kick.",
     "<b>Tiers still scale the move:</b> low-level skills are a single heavy blow, mid-level skills chain blows, high-level skills spin, and the top skills leap."

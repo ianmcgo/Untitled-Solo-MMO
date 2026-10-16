@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.19.7",
-  "releaseTitle": "Weapon skill moves",
+  "version": "18.19.8",
+  "releaseTitle": "Spell release and ability poses",
   "description": "",
   "main": "index.js",
   "scripts": {
