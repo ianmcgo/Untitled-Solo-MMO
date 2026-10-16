@@ -1206,7 +1206,7 @@ function mobKit(job, lv) {
   const pick = arr => arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
   const nuke = best(have.filter(s => s.mul && SPELLS[s.id].kind === "nuke"));
   const spells = [best(have.filter(s => s.heal)), nuke || best(have.filter(s => s.mul)), pick(have.filter(s => s.status || s.dot)), pick(have.filter(s => s.buff))].filter(Boolean);
-  const abil = Object.keys(ABILITIES).filter(id => ABILITIES[id].job === job && ABILITIES[id].lv <= lv && (MOB_ABIL_BUFFS.includes(ABILITIES[id].buff) || MOB_ABIL_HEALS[id]));
+  const abil = Object.keys(ABILITIES).filter(id => ABILITIES[id].job === job && ABILITIES[id].lv <= lv && (MOB_ABIL_BUFFS.includes(ABILITIES[id].buff) || MOB_ABIL_HEALS[id] || MOB_ROLLS[id]));
   const wt = MOB_JOB_WEAPON[job], skill = 5 + lv * 3;
   const ws = Object.keys(WEAPON_SKILLS).filter(id => WEAPON_SKILLS[id].wtype === wt && WEAPON_SKILLS[id].skill <= skill).sort((a, b) => WEAPON_SKILLS[b].skill - WEAPON_SKILLS[a].skill)[0];
   const big = MOB_CASTERS[job] && nuke ? "sp:" + nuke.id : ws ? "ws:" + ws : null;
@@ -1240,15 +1240,46 @@ function mobBuffPow(k, lv) {
 }
 function mobUseAbility(m) {
   m.nextAbil = S.time + rand(12, 20);
-  const ok = m.kit.abil.filter(id => S.time >= (m.recasts[id] || 0) && (MOB_ABIL_HEALS[id] ? m.hp < m.maxHp * 0.5 : !m.buffs[ABILITIES[id].buff]));
+  const ok = m.kit.abil.filter(id => S.time >= (m.recasts[id] || 0) && (MOB_ABIL_HEALS[id] ? m.hp < m.maxHp * 0.5 : MOB_ROLLS[id] ? !m.buffs[MOB_ROLLS[id][0]] : !m.buffs[ABILITIES[id].buff]));
   if (!ok.length) return false;
   const id = ok[Math.floor(Math.random() * ok.length)], ab = ABILITIES[id];
   m.recasts[id] = S.time + Math.max(30, ab.recast || 60);
   log("The " + m.name + " uses " + ab.name + ".", "foe");
   popText(m, ab.name, "#ffcc80", 13, 1.1, 14);
+  if (MOB_ROLLS[id]) {
+    const [key, tbl] = MOB_ROLLS[id], d = 1 + Math.floor(Math.random() * 6), grp = m.fam.linkGroup || m.famKey;
+    log("The " + m.name + " rolls a " + d + "!", "foe");
+    for (const o of S.mobs) if (o.alive && !o.proxy && (o === m || o.petOf === m || (o.state === "combat" && (o.fam.linkGroup || o.famKey) === grp)) && dist(o, m) <= 220) o.buffs[key] = { until: S.time + 90, src: m, pow: tbl[d - 1] };
+    sfx("buff", m);
+    return true;
+  }
   if (MOB_ABIL_HEALS[id]) { const amt = Math.min(m.maxHp - m.hp, Math.round(m.maxHp * MOB_ABIL_HEALS[id])); m.hp += amt; popText(m, "+" + amt, "#9ad06b", 16); sfx("cure", m); }
   else { m.buffs[ab.buff] = { until: S.time + (ab.dur || 30), src: m }; sfx("buff", m); }
   return true;
+}
+
+function zoneElement(z) { return (z && (z.element || ZONE_ELEMENT[z.palette] || ZONE_ELEMENT[z.theme])) || "earth"; }
+function spawnMobPet(o) {
+  const el = zoneElement(S.zone), key = "pet_" + el;
+  if (!FAMILIES[key] || !MOB_PET_JOBS[o.job]) return null;
+  const p = buildMob(key, Math.max(1, o.lv - 1), o.x + 26, o.y + 18, null, false);
+  p.petOf = o; o.pet = p;
+  p.name = MOB_PET_EL[el][0] + " " + MOB_PET_JOBS[o.job];
+  p.passive = !!o.passive; p.aggro = null;
+  S.mobs.push(p);
+  return p;
+}
+function petStep(m, dt) {
+  const o = m.petOf;
+  if (!o.alive || o.despawned) { m.alive = false; m.deadAt = S.time - 2; m.despawned = true; return true; }
+  m.home = { x: o.home.x + 26, y: o.home.y + 18 };
+  if (m.state === "combat" && o.state !== "combat") { m.state = "return"; m.enmity.clear(); m.readying = null; m.casting = null; m.target = null; }
+  if (m.state === "idle" || m.state === "return") {
+    if (dist(m, o) > 40) moveToward(m, o.x + 26, o.y + 18, dt, 6, 1.2); else m.face = o.face;
+    if (m.state === "return" && dist(m, o) <= 40) { m.state = "idle"; m.hp = m.maxHp; m.tp = 0; m.buffs = {}; }
+    return true;
+  }
+  return false;
 }
 
 function buildMob(famKey, L, x, y, spawnIdx, jobWant) {
@@ -1358,6 +1389,8 @@ function aggro(m, t) {
   popText(m, "!", "#ff5252", 22, 0.8);
   sfx("aggro", m);
   mobVoice(m, "aggro");
+  if (m.pet && m.pet.alive) aggro(m.pet, t);
+  if (m.petOf && m.petOf.alive) aggro(m.petOf, t);
   if (!m.fam.link) return;
   const grp = m.fam.linkGroup || m.famKey;
   for (const o of S.mobs) {
@@ -1536,7 +1569,8 @@ function onKO(e, src) {
     if (S.chase && player.attackTarget == null) S.chase = false;
     const byParty = [...e.enmity.keys()].some(isParty);
     const mine = !e.claim || e.claim === S.charId || e.claim === "me";
-    if ((byParty || (src && isParty(src))) && mine) killRewards(e);
+    if (e.pet && e.pet.alive) { const p = e.pet; p.alive = false; p.deadAt = S.time - 2; p.despawned = true; log("The " + p.name + " fades away.", "sys"); }
+    if ((byParty || (src && isParty(src))) && mine && !e.petOf) killRewards(e);
     if (typeof netMobDied === "function") netMobDied(e);
   } else {
     if (e.buffs && e.buffs.reraise && S.time < e.buffs.reraise.until) { const pct = e.buffs.reraise.pct; delete e.buffs.reraise; revive(e, pct, "Reraise"); return; }
@@ -3658,6 +3692,7 @@ function updateMob(m, dt) {
   if (m.chain && S.time > m.chain.closeAt) m.chain = null;
   if (m.burst && S.time > m.burst.until) m.burst = null;
   if ((m.state === "idle" || m.state === "return") && m.hp < m.maxHp && S.time - (m.lastHit || -99) > 5) m.hp = Math.min(m.maxHp, m.hp + m.maxHp * CONFIG.mobRegen * dt);
+  if (m.petOf && petStep(m, dt)) return;
   if (m.state === "idle") {
     m.wanderTimer -= dt;
     if (m.wanderTimer <= 0) {
@@ -4773,6 +4808,7 @@ function spawnMob(i, wantNm) {
   mob.spawnOpt = o;
   if (o.passive && !mob.fam.nm) { mob.aggro = null; mob.passive = true; }
   S.mobs.push(mob);
+  if (mob.job && MOB_PET_JOBS[mob.job]) spawnMobPet(mob);
   S.spawnAt[i] = null;
 }
 

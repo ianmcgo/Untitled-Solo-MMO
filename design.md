@@ -2044,3 +2044,13 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `mobPalette(e)` tints clothing 32% toward a home colour: frost_/ice_/rime_/glacier keys pale blue, mire_/bog_ swamp green, drowned and fishfolk sea-dark, birdfolk sand, skeleton faded grey, ghoul dark. mobVariant shades the top colour (variant 1 darker, 2 lighter).
 - `mobGearFor(job, lv)` (cached per job and level) picks the highest-level non-HQ main weapon of MOB_JOB_WEAPON[job] at or under the mob level, plus a shield for PLD, and builds weapon and shield looks through lookForGear. h2h jobs (MNK, PUP) carry nothing. Mobs whose family has `range` keep the family weapon (bow or rocks).
 - Rig cache keys include the whole look (stableKey), so each job and tier is its own cached entry.
+
+
+## 18.41.0 Monster pets (H3 of design/humanoid-job-plan.md)
+- data.js (end): MOB_PET_JOBS (SMN Spirit, BST Familiar, PUP Puppet, GEO Luopan), ZONE_ELEMENT (palette or theme -> element; zone `element` overrides, The Mirage = lightning), MOB_PET_EL (element -> display name, PETS key for colours and pact, opposite element), generated FAMILIES pet_<element> (model "wisp", summoned, mobPet, no loot, hpMul 0.55, tpMove = PETS pact mul 1.6 with element, weak to the opposite element 1.3). MOB_ROLLS (COR phantom_roll -> valor_roll, hawk_roll -> hawk_roll, pow table by d6).
+- game.js: zoneElement(z), spawnMobPet(owner) (only from spawnMob, so host only; builds pet at owner level - 1 with no job, sets pet.petOf / owner.pet, name "<Element> <Spirit|Familiar|Puppet|Luopan>"), petStep(m, dt) (runs before idle logic: despawns if owner gone, home follows owner, leaves combat when owner does, follows owner when idle or returning).
+- aggro() also aggroes owner.pet and pet.petOf. onKO: owner KO despawns its pet ("fades away"); pets never call killRewards.
+- mobUseAbility: COR rolls d6 and gives the buff (90 s) to itself, its pet and fighting packmates of the same link group within 220. swing() already reads valor_roll and hawk_roll pow.
+- rig.js: mobLook model "wisp" -> kind wisp (col tint, col2 eye), drawn with wispEntry (meta kind bat, uses bat pose).
+- Online: the host spawns pets; proxies see them as ordinary pet_<element> mobs named by family ("Water Spirit"), without the owner link.
+- Tests: test/h3unit.js.

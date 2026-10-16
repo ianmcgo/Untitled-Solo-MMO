@@ -1,0 +1,38 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player; G.save.story.done = true;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+for (const el of ['fire', 'ice', 'wind', 'earth', 'lightning', 'water', 'light', 'dark']) ok(G.FAMILIES['pet_' + el] && G.FAMILIES['pet_' + el].summoned, el + ' pet family exists');
+const ze = id => G.zoneElement(G.ZONES[id]);
+ok(ze('marsh') === 'water' && ze('frost') === 'ice' && ze('hollow') === 'earth' && ze('crypt') === 'dark', 'zone elements follow the map (' + ['marsh', 'frost', 'hollow', 'crypt'].map(ze).join(',') + ')');
+const zk = Object.keys(G.ZONES); ok(zk.every(k => G.FAMILIES['pet_' + ze(k)]), 'every zone has a pet element');
+G.enterZone('marsh', 1900, 700); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
+P().hp = P().maxHp = 99999;
+const smn = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'SMN'); S.mobs.push(smn); const pet = G.spawnMobPet(smn);
+ok(pet && pet.name === 'Water Spirit' && pet.petOf === smn && smn.pet === pet && !pet.job, 'a Summoner in the marsh calls a Water Spirit (' + (pet && pet.name) + ')');
+ok(pet.lv === 12 && pet.maxHp < smn.maxHp, 'the pet is a level lower and weaker');
+const war = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'WAR'); ok(!G.spawnMobPet(war), 'a Warrior has no pet');
+const bst = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'BST'); ok(G.spawnMobPet(bst).name === 'Water Familiar', 'a Beastmaster pet is a Familiar');
+S.mobs = [smn, pet];
+G.aggro(smn, P());
+ok(pet.state === 'combat', 'the pet joins its master\'s fight');
+const hp0 = P().hp; let petHit = false; for (let i = 0; i < 60 * 20; i++) { tick(1000 / 60); if (pet.lastSwing > 0) petHit = true; smn.hp = smn.maxHp; pet.hp = pet.maxHp; }
+ok(petHit && P().hp < hp0, 'the pet attacks you');
+const xp0 = JSON.stringify(G.save.jobs);
+G.onKO(pet, P());
+ok(JSON.stringify(G.save.jobs) === xp0, 'a pet gives no experience');
+const smn2 = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'SMN'); S.mobs.push(smn2); const pet2 = G.spawnMobPet(smn2);
+G.aggro(smn2, P()); run(0.5);
+G.onKO(smn2, P());
+ok(!pet2.alive && pet2.despawned, 'the pet fades when its master falls');
+S.mobs = [];
+const smn3 = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'SMN'); S.mobs.push(smn3); const pet3 = G.spawnMobPet(smn3);
+G.aggro(pet3, P());
+ok(smn3.state === 'combat', 'hitting the pet draws its master');
+smn3.enmity.clear(); pet3.enmity.clear(); run(12);
+ok(pet3.state === 'idle' && Math.hypot(pet3.x - smn3.x, pet3.y - smn3.y) < 80, 'the pet goes back to its master after the fight (' + pet3.state + ')');
+S.mobs = [];
+const cor = G.buildMob('mire_goblin', 10, P().x + 30, P().y, null, 'COR'), mate = G.buildMob('mire_goblin', 10, P().x + 50, P().y, null, 'WAR');
+S.mobs.push(cor, mate); G.aggro(cor, P());
+let rolled = false; for (let i = 0; i < 60 * 30; i++) { tick(1000 / 60); if (mate.buffs.valor_roll || mate.buffs.hawk_roll) rolled = true; cor.hp = cor.maxHp; mate.hp = mate.maxHp; }
+ok(rolled, 'a Corsair rolls for its pack');
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

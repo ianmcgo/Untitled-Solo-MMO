@@ -1737,7 +1737,7 @@ Object.assign(ITEMS, {
   moon_tonic: { name: "Moon Tonic", kind: "use", icon: "🧪", price: 900, stack: 12, heal: 250, desc: "Restores 250 HP. Brewed by moonlight." }
 });
 ZONES.mirage = {
-  name: "The Mirage", w: 1400, h: 1000, theme: "field", palette: "desert", mist: true,
+  name: "The Mirage", w: 1400, h: 1000, theme: "field", palette: "desert", mist: true, element: "lightning",
   exits: [{ x: 0, y: 450, w: 24, h: 100, to: "sunscar", tx: 440, ty: 1520, label: "Sunscar Desert" }],
   npcs: [{ id: "cache_mirage", x: 1100, y: 300 }],
   walls: [{ x: 600, y: 200, w: 200, h: 160 }],
@@ -2716,3 +2716,11 @@ BESTIARY.gloamhorn = { type: "Beast", lore: "A longneck with a coat like dusk. I
 BESTIARY.sandglass_wisp = { type: "Elemental", lore: "A spark of sand and heat that lives inside the mirage. When the storm passes, so does it." };
 ACHIEVEMENTS.push({ id: "mirage", icon: "🏜️", name: "Seen Through", desc: "Step into the Mirage during a sandstorm.", test: s => areaVisited(s, "mirage") });
 
+const MOB_PET_JOBS = { SMN: "Spirit", BST: "Familiar", PUP: "Puppet", GEO: "Luopan" };
+const ZONE_ELEMENT = { snow: "ice", marsh: "water", beach: "water", desert: "fire", volcanic: "fire", jungle: "earth", highland: "wind", crypt: "dark", cave: "earth", town: "light", house: "light", field: "earth" };
+const MOB_PET_EL = { fire: ["Fire", "ember", "water"], ice: ["Ice", "frost", "fire"], wind: ["Wind", "gale", "ice"], earth: ["Earth", "stone", "wind"], lightning: ["Thunder", "thunder", "earth"], water: ["Water", "water", "lightning"], light: ["Light", "light", "dark"], dark: ["Dark", "dark", "light"] };
+const MOB_ROLLS = { phantom_roll: ["valor_roll", [4, 6, 8, 10, 16, 7]], hawk_roll: ["hawk_roll", [6, 8, 10, 16, 9, 11]] };
+for (const el in MOB_PET_EL) {
+  const [nm, pk, opp] = MOB_PET_EL[el], P = PETS[pk];
+  FAMILIES["pet_" + el] = { name: nm + " Spirit", color: "#" + P.col.toString(16).padStart(6, "0"), radius: 11, hpMul: 0.55, attMul: 0.75, defMul: 0.8, eva: 6, delay: 3.0, speed: 120, aggro: null, link: false, tpMove: { name: P.pact, mul: 1.6, el }, weak: { [opp]: 1.3 }, loot: [], model: "wisp", tint: P.col, tint2: P.eye, summoned: true, mobPet: true };
+}
