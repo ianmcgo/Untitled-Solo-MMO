@@ -253,7 +253,7 @@ function createChar(opts) {
   const d = newSave();
   d.name = opts.name;
   d.mainJob = JOBS[opts.job] ? opts.job : "WAR";
-  d.spells = Object.keys(SPELLS).filter(id => SPELLS[id].jobs[d.mainJob] === 1);
+  d.spells = Object.keys(SPELLS).filter(id => SPELLS[id].jobs[d.mainJob] === 1 && !SPELLS[id].drop);
   d.look = Object.assign(newSave().look, opts.look || {});
   if (!RACES[d.look.race]) d.look.race = "human";
   if (RACES[d.look.race].sex != null) d.look.build = RACES[d.look.race].sex;
@@ -1031,6 +1031,7 @@ function applyDamage(src, tgt, amt, opt) {
     if (tgt.mounted) dismount("You're thrown from the saddle!");
     if (tgt.casting && Math.random() < CONFIG.interruptChance) { if (tgt.buffs.aquaveil) { tgt.buffs.aquaveil.n--; popText(tgt, "Aquaveil", "#4fc3f7", 12, 0.9, 12); if (tgt.buffs.aquaveil.n <= 0) delete tgt.buffs.aquaveil; } else interruptCast(tgt); }
   }
+  if (isMob(tgt) && tgt.casting && amt > 0 && Math.random() < 0.3) interruptCast(tgt);
   if (tgt.buffs && tgt.buffs.sleep && amt > 0) { delete tgt.buffs.sleep; if (isMob(tgt)) log("The " + tgt.name + " wakes up!", "sys"); }
   if (tgt.hp <= 0) onKO(tgt, src);
 }
@@ -2567,7 +2568,7 @@ function castDebuff(a, t, sp) {
   const pw = sp.buff === "slow" ? Math.max(0.073, Math.min(0.292, 0.146 + dS * 0.0018)) : sp.buff === "paralyze" ? Math.max(0.05, Math.min(0.25, 0.15 + dS * 0.0025)) : sp.buff === "flash" && sp.stat ? Math.max(0.05, Math.min(0.5, (dS + 80) / 400)) : null;
   t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
   if (pw != null) t.buffs[sp.buff].pow = pw;
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place" }[sp.buff] + ".", cls(a));
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place", silence: "silenced" }[sp.buff] + ".", cls(a));
   popText(t, sp.name, col, 14, 1.1);
   if (sp.buff === "stun" && t.readying) { t.readying = null; t.tp = Math.floor(t.tp / 2); log("The " + t.name + "'s " + t.fam.tpMove.name + " is cut short!", cls(a)); }
   if (sp.buff === "sleep") { t.swingTimer = Math.max(t.swingTimer, 1); t.readying = null; }
@@ -2966,13 +2967,19 @@ function updateMob(m, dt) {
       return;
     }
     m.target = t;
-    if (m.buffs.sleep || m.buffs.stun) { m.readying = null; return; }
+    if (m.buffs.sleep || m.buffs.stun) { m.readying = null; if (m.casting) m.casting = null; return; }
     bossPhases(m, t);
     if (m.readying) {
       m.readying.t -= dt;
       if (m.readying.t <= 0) execTpMove(m);
       return;
     }
+    if (m.casting) {
+      m.face = Math.atan2(m.casting.t.y - m.y, m.casting.t.x - m.x);
+      if (S.time >= m.casting.end) finishMobCast(m);
+      return;
+    }
+    if (m.fam.spells && !m.buffs.silence && S.time >= (m.nextCast || 0) && dist(m, t) <= CONFIG.castRange && startMobCast(m, t)) return;
     if (!m.buffs.bind) moveToward(m, t.x, t.y, dt, mobReach(m) - 8);
     m.face = Math.atan2(t.y - m.y, t.x - m.x);
     m.swingTimer -= dt;
@@ -3061,6 +3068,48 @@ function bossReset(m) {
   m.phase = 0;
   if (m.enraged) { m.enraged = false; m.auraOverride = null; m.delay = m.fam.delay; m.stats.att = Math.round((16 + 5.5 * m.lv) * m.fam.attMul); }
   for (const g of S.mobs) if (g.summonedBy === m && g.alive) { g.alive = false; g.deadAt = S.time - 2; g.despawned = true; }
+}
+
+function startMobCast(m, t) {
+  if (t.kind === "remote") return false;
+  const kin = S.mobs.filter(o => o.alive && o !== m && o.fam.spells && o.hp < o.maxHp * 0.5 && dist(o, m) <= CONFIG.castRange);
+  const woundedSelf = m.hp < m.maxHp * 0.5 ? m : kin[0];
+  let pick = null, tg = t;
+  const cure = m.fam.spells.find(x => x.heal);
+  if (cure && woundedSelf && Math.random() < 0.7) { pick = cure; tg = woundedSelf; }
+  else {
+    const offense = m.fam.spells.filter(x => !x.heal && !(x.status && t.buffs[x.status[0]]));
+    if (!offense.length) return false;
+    pick = offense[Math.floor(Math.random() * offense.length)];
+  }
+  const sp = SPELLS[pick.id];
+  m.casting = { id: pick.id, sp, spec: pick, t: tg, start: S.time, end: S.time + Math.max(1.5, sp.cast + 1) };
+  m.nextCast = S.time + rand(m.fam.castGap[0], m.fam.castGap[1]);
+  log("The " + m.name + " starts casting " + sp.name + ".", "foe");
+  popText(m, sp.name, "#ba68c8", 13, 1.2, 14);
+  sfx("cast", m);
+  vfx("cast", { src: m, sp });
+  return true;
+}
+function finishMobCast(m) {
+  const { sp, spec, t } = m.casting;
+  m.casting = null;
+  if (!t.alive) return;
+  if (spec.heal) {
+    const amt = Math.round(t.maxHp * spec.heal);
+    t.hp = Math.min(t.maxHp, t.hp + amt);
+    log("The " + m.name + " casts " + sp.name + ". The " + t.name + " recovers " + amt + " HP.", "foe");
+    popText(t, "+" + amt, "#9ad06b", 16);
+    ring(t, "#9ad06b", 28, 0.5, "sparkle");
+    return;
+  }
+  log("The " + m.name + " casts " + sp.name + " on " + obj(t) + ".", "foe");
+  ring(t, ELEMENT_COLORS[sp.element] || "#ce93d8", 32, 0.5, "element");
+  vfx("nuke", { src: m, tgt: t, el: sp.element, dia: true });
+  if (spec.status) { inflictStatus(m, t, spec.status[0], spec.status[1], spec.status[2]); return; }
+  const dmg = Math.floor(baseDmg(m, t) * spec.mul * rand(0.9, 1.1));
+  log(subj(t) + " " + vb(t, "take") + " " + dmg + " damage.", "foe");
+  applyDamage(m, t, dmg, { color: ELEMENT_COLORS[sp.element], size: 20, el: sp.element });
 }
 
 function execTpMove(m) {
@@ -3363,7 +3412,7 @@ function smartAct(a, tgt, acts) {
   }
   if (tgt.state !== "combat" || dist(a, tgt) > CONFIG.castRange) return false;
   if (a.maxMp > 0 && a.mp > a.maxMp * 0.35) {
-    const debuffs = acts.filter(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && !tgt.buffs[SPELLS[x.id].buff || x.id]);
+    const debuffs = acts.filter(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && !tgt.buffs[SPELLS[x.id].buff || x.id] && (x.id !== "silence" || tgt.fam.spells));
     for (const d of debuffs) if (allyTry(a, d, tgt)) return true;
   }
   if (a.maxMp > 0 && a.mp > a.maxMp * (a.kiting ? 0.1 : 0.55) && S.time >= (a.nextNuke || 0) && tgt.hp > tgt.maxHp * 0.2) {

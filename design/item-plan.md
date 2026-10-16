@@ -68,3 +68,4 @@ Use the real FFXI item and spell names for now. The design notes' "names are ori
 - 17.0.0 shipped: spells, potions, starting spells, save wipe. Details in design.md "FFXI rules (v17.0.0)".
 - Next: 17.1 (deferred spells and statuses), equipment import (level 20 and below), phase F rules, phase G balance (Opus recommended for F and G).
 - 17.1.0 shipped: status and support spells. 17.2 next: area spells, En- spells, Spikes, Shock/Rasp/Choke, remaining songs, Silence.
+- 17.2.0 shipped: Carbuncle start, Elemental NMs, goblin casters, Silence. AoE, En- spells, Spikes, Shock/Rasp/Choke and songs now move to 17.3.

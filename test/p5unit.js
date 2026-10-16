@@ -87,7 +87,7 @@ ok(G.invCount('raiders_ring') === before, 'a Rare item already held is lost inst
 let regularGear = false;
 for (const k in G.FAMILIES) if (!G.FAMILIES[k].nm) for (const [id] of G.FAMILIES[k].loot) if (G.ITEMS[id].kind === 'equip') regularGear = true;
 ok(!regularGear, 'regular monsters never drop equipment');
-ok(Object.keys(G.NM_FAMILIES).every(k => G.NM_FAMILIES[k].loot.some(([id]) => G.ITEMS[id].kind === 'equip')), 'every notorious monster drops equipment');
+ok(Object.keys(G.NM_FAMILIES).filter(k => !/_elemental$/.test(k)).every(k => G.NM_FAMILIES[k].loot.some(([id]) => G.ITEMS[id].kind === 'equip')), 'every notorious monster drops equipment');
 Math.random = saved;
 ok(G.itemRarity('potion') === 'common' && G.itemRarity('hi_potion') === 'uncommon' && G.itemRarity('raiders_ring') === 'rare' && G.itemRarity('chieftain_cap') === 'epic', 'rarity tiers');
 let gearOk = true;
