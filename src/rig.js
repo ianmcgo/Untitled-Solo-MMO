@@ -2210,6 +2210,7 @@ function crawlerEntry(col, col2) {
   R.bone("root", null, 0, 0, 0);
   for (let i = 0; i < n; i++) R.bone("t" + i, i ? "t" + (i - 1) : "root", 0, Y0 + lift(i), zs[i]);
   R.bone("head", "t" + (n - 1), 0, Y0 + lift(n) + 0.02, zs[n - 1] + 0.22);
+  for (let i = 0; i < n; i++) for (const s of [-1, 1]) R.bone((s > 0 ? "lL" : "lR") + i, "t" + i, s * 0.14, Y0 + lift(i) - 0.06, zs[i]);
   const c = new THREE.Color(col), dark = c.clone().multiplyScalar(0.55).getHex(), belly = col2 || c.clone().lerp(new THREE.Color(0xf0e4b0), 0.5).getHex();
   for (let i = 0; i < n; i++) {
     const Y = Y0 + lift(i);
@@ -2217,7 +2218,7 @@ function crawlerEntry(col, col2) {
     R.add(gBall(V3(0, Y + 0.02, zs[i]), r, 1.05, 0.9, 1.0, 12), "t" + i, col, "scale");
     R.add(gBall(V3(0, Y - 0.05, zs[i]), r * 0.8, 1, 0.55, 0.9, 10), "t" + i, belly, "skin");
     R.add(gRing(V3(0, Y + 0.02, zs[i] + 0.14), r * 0.95, 0.018, "z", 16), "t" + i, dark, "scale");
-    for (const s of [-1, 1]) { R.add(gTaper(V3(s * 0.14, Y - 0.06, zs[i]), V3(s * 0.26, Y0 - 0.24, zs[i] + 0.02), 0.035, 0.014, 5), "t" + i, dark, "skin"); R.add(gBall(V3(s * 0.26, Y0 - 0.25, zs[i] + 0.02), 0.032, 1, 0.6, 1, 6), "t" + i, dark, "skin"); }
+    for (const s of [-1, 1]) { const ln = (s > 0 ? "lL" : "lR") + i; R.add(gTaper(V3(s * 0.14, Y - 0.06, zs[i]), V3(s * 0.26, Y0 - 0.24, zs[i] + 0.02), 0.035, 0.014, 5), ln, dark, "skin"); R.add(gBall(V3(s * 0.26, Y0 - 0.25, zs[i] + 0.02), 0.032, 1, 0.6, 1, 6), ln, dark, "skin"); }
     if (i % 2) R.add(gTaper(V3(0, Y + 0.17, zs[i]), V3(0, Y + 0.3, zs[i] - 0.04), 0.03, 0.004, 5), "t" + i, dark, "bone");
   }
   const hz = zs[n - 1] + 0.22, Y = Y0 + lift(n);
@@ -2454,33 +2455,40 @@ function wormEntry(col) {
 function hareEntry(col) {
   const R = new RigBuilder();
   R.bone("root", null, 0, 0, 0);
-  R.bone("body", "root", 0, 0.3, 0);
-  R.bone("head", "body", 0, 0.42, 0.2);
+  R.bone("hips", "root", 0, 0.2, 0);
+  R.bone("body", "hips", 0, 0.24, 0);
+  R.bone("head", "body", 0, 0.42, 0.02);
+  R.bone("tail", "hips", 0, 0.18, -0.15);
   for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
-    R.bone("ear" + sd, "head", s * 0.04, 0.53, 0.2);
-    R.bone("legF" + sd, "body", s * 0.06, 0.22, 0.15);
-    R.bone("legB" + sd, "body", s * 0.09, 0.24, -0.12);
+    R.bone("ear" + sd, "head", s * 0.05, 0.6, 0);
+    R.bone("ear2" + sd, "ear" + sd, s * 0.055, 0.77, -0.01);
+    R.bone("legB" + sd, "hips", s * 0.09, 0.2, -0.02);
+    R.bone("footB" + sd, "legB" + sd, s * 0.1, 0.05, -0.04);
   }
-  const light = new THREE.Color(col).lerp(new THREE.Color(0xf2ede4), 0.55).getHex();
-  R.add(gBall(V3(0, 0.3, -0.02), 0.2, 0.85, 0.85, 1.25, 14), "body", col, "fur");
-  R.add(gBall(V3(0, 0.27, 0.08), 0.15, 0.8, 0.8, 1, 12), "body", light, "fur");
-  R.add(gBall(V3(0, 0.45, 0.25), 0.11, 0.9, 0.95, 1.1, 14), "head", col, "fur");
-  R.add(gBall(V3(0, 0.42, 0.34), 0.05, 1.2, 0.8, 0.8, 8), "head", light, "fur");
-  R.add(gBall(V3(0, 0.44, 0.37), 0.014, 1, 0.8, 1, 6), "head", 0xd88a90, "skin");
+  const light = new THREE.Color(col).lerp(new THREE.Color(0xf2ede4), 0.55).getHex(), dark = new THREE.Color(col).multiplyScalar(0.72).getHex();
+  R.add(gBall(V3(0, 0.27, 0), 0.17, 1, 1.15, 0.95, 16), "body", col, "fur");
+  R.add(gBall(V3(0, 0.25, 0.075), 0.13, 0.85, 1.0, 0.6, 12), "body", light, "fur");
+  R.add(gBall(V3(0, 0.2, -0.01), 0.16, 1.05, 0.7, 1.0, 14), "hips", col, "fur");
+  R.add(gBall(V3(0, 0.5, 0.04), 0.13, 1.05, 0.95, 1.0, 16), "head", col, "fur");
+  R.add(gBall(V3(0, 0.46, 0.14), 0.055, 1.25, 0.8, 0.8, 10), "head", light, "fur");
+  R.add(gBall(V3(0, 0.485, 0.188), 0.016, 1.2, 0.8, 1, 6), "head", 0xd88a90, "skin");
   for (const s of [-1, 1]) {
     const sd = s > 0 ? "L" : "R";
-    R.add(gBall(V3(s * 0.065, 0.48, 0.32), 0.022, 1, 1, 0.7, 8), "head", 0x111111, "plain");
-    for (let k = 0; k < 3; k++) R.add(gTaper(V3(s * 0.025, 0.425 + k * 0.008, 0.37), V3(s * 0.13, 0.43 + (k - 1) * 0.025, 0.35 - k * 0.01), 0.002, 0.0008, 3), "head", 0xf0ece4, "plain");
-    R.add(gBall(V3(s * 0.05, 0.67, 0.18), 0.04, 0.7, 3.0, 0.4, 10), "ear" + sd, col, "fur");
-    R.add(gBall(V3(s * 0.05, 0.67, 0.193), 0.03, 0.55, 2.6, 0.2, 8), "ear" + sd, 0xe0a8a8, "skin");
-    R.add(gTaper(V3(s * 0.06, 0.22, 0.15), V3(s * 0.06, 0.03, 0.19), 0.03, 0.022, 8), "legF" + sd, col, "fur");
-    R.add(gBall(V3(s * 0.06, 0.025, 0.21), 0.03, 1, 0.7, 1.3, 8), "legF" + sd, light, "fur");
-    R.add(gBall(V3(s * 0.1, 0.24, -0.1), 0.1, 0.7, 1, 1.15, 10), "legB" + sd, col, "fur");
-    R.add(gTaper(V3(s * 0.1, 0.2, -0.12), V3(s * 0.1, 0.04, -0.1), 0.045, 0.028, 8), "legB" + sd, col, "fur");
-    R.add(gBox(V3(s * 0.1, 0.025, -0.03), 0.05, 0.04, 0.2), "legB" + sd, light, "fur");
+    R.add(gBall(V3(s * 0.066, 0.53, 0.13), 0.026, 1, 1.15, 0.7, 8), "head", 0x111111, "plain");
+    R.add(gBall(V3(s * 0.072, 0.54, 0.148), 0.007, 1, 1, 1, 5), "head", 0xffffff, "plain");
+    R.add(gBall(V3(s * 0.09, 0.46, 0.1), 0.03, 1, 0.6, 0.7, 8), "head", 0xe8b0b0, "skin");
+    for (let k = 0; k < 3; k++) R.add(gTaper(V3(s * 0.03, 0.465 + k * 0.008, 0.18), V3(s * 0.14, 0.47 + (k - 1) * 0.025, 0.16 - k * 0.01), 0.002, 0.0008, 3), "head", 0xf0ece4, "plain");
+    R.add(gBall(V3(s * 0.055, 0.69, 0), 0.042, 0.75, 2.2, 0.38, 10), "ear" + sd, col, "fur");
+    R.add(gBall(V3(s * 0.055, 0.69, 0.012), 0.032, 0.6, 2.0, 0.2, 8), "ear" + sd, 0xe0a8a8, "skin");
+    R.add(gBall(V3(s * 0.057, 0.865, -0.01), 0.042, 0.72, 2.4, 0.36, 10), "ear2" + sd, col, "fur");
+    R.add(gBall(V3(s * 0.057, 0.865, 0.002), 0.031, 0.58, 2.2, 0.2, 8), "ear2" + sd, 0xe0a8a8, "skin");
+    R.add(gBall(V3(s * 0.058, 0.96, -0.012), 0.022, 1, 1, 0.8, 6), "ear2" + sd, dark, "fur");
+    R.add(gBall(V3(s * 0.1, 0.15, -0.01), 0.09, 0.75, 1.0, 1.2, 12), "legB" + sd, col, "fur");
+    R.add(gTaper(V3(s * 0.1, 0.12, -0.04), V3(s * 0.1, 0.045, -0.045), 0.04, 0.03, 8), "legB" + sd, col, "fur");
+    R.add(gBall(V3(s * 0.1, 0.025, 0.04), 0.06, 0.85, 0.42, 2.0, 10), "footB" + sd, light, "fur");
   }
-  R.add(gBall(V3(0, 0.33, -0.28), 0.06, 1, 1, 1, 8), "body", 0xf6f2ea, "fur");
-  R.meta = { kind: "hare", headTop: 0.85 };
+  R.add(gBall(V3(0, 0.19, -0.19), 0.058, 1, 1, 1, 10), "tail", 0xf6f2ea, "fur");
+  R.meta = { kind: "rarab", headTop: 0.98 };
   return R.finish();
 }
 

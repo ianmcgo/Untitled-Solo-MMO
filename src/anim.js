@@ -126,7 +126,7 @@ function sitPlan(v) {
   return (v._sit = { a, b: ab - a, f: 0.15 - ab, drop, back: -0.02 * H });
 }
 
-const LOOK_KINDS = { human: 1, quad: 1, hare: 1, mandrake: 1, bird: 1 };
+const LOOK_KINDS = { human: 1, quad: 1, hare: 1, rarab: 1, mandrake: 1, bird: 1 };
 const LOOK_V = { a: null, b: null };
 function headLook(v, dt) {
   const B = v.bones, P = v.pose;
@@ -1102,7 +1102,16 @@ function poseCrawler(v, e, dt) {
   const P = newPose(v);
   const t = S.time + an.t0;
   const mv = clamp(an.spd / 1.2, 0, 1);
-  for (let i = 0; i < 6; i++) addP(P, "t" + i, Math.sin(t * 7 - i * 1.1) * 0.08 * mv + Math.sin(t * 1.5 - i) * 0.02, Math.sin(t * 2.5 - i * 0.7) * (0.04 + 0.1 * mv), 0);
+  const cyc = an.ph * 1.6 + t * 0.6 * (1 - mv);
+  for (let i = 0; i < 6; i++) {
+    const ph = cyc + (5 - i) * 0.95, rip = Math.sin(ph);
+    addP(P, "t" + i, rip * 0.07 * mv + Math.sin(t * 1.5 - i) * 0.02, Math.sin(t * 2.5 - i * 0.7) * (0.04 + 0.06 * mv), 0);
+    let u = (ph / (Math.PI * 2)) % 1; if (u < 0) u += 1;
+    const A = 0.18 + 0.32 * mv, st = 0.62;
+    const sx = u < st ? -A + 2 * A * (u / st) : A - 2 * A * ease((u - st) / (1 - st)), up = u < st ? 0 : Math.sin(Math.PI * (u - st) / (1 - st)) * (0.25 + 0.35 * mv);
+    const idle = (1 - mv) * 0.35;
+    addP(P, "lL" + i, sx * (1 - idle), 0, up * (1 - idle)); addP(P, "lR" + i, sx * (1 - idle), 0, -up * (1 - idle));
+  }
   addP(P, "head", Math.sin(t * 1.3) * 0.08, Math.sin(t * 0.7) * 0.3 * (1 - mv), 0);
   let sharp = false;
   const ak = (S.time - an.aStart) / 0.6;
@@ -1343,6 +1352,49 @@ function poseHare(v, e, dt) {
   if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.3 * w, 0, 0); v.rootOff[1] += 0.08 * w; }
   mobAlert(v, e, an, P);
   if (an.dead != null) { const k = ease((S.time - an.dead) / 0.5); v.rootRot[2] = 1.5 * k; v.rootOff[1] = 0.05 * k; addP(P, "legBL", 0.5 * k, 0, 0); }
+  applyPose(v, dt, sharp);
+}
+
+function poseRarab(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 0.9, 0, 1);
+  let u = (an.ph / (Math.PI * 2)) % 1; if (u < 0) u += 1;
+  const air = u < 0.58 ? Math.sin(Math.PI * u / 0.58) : 0, land = u >= 0.58 ? Math.sin(Math.PI * (u - 0.58) / 0.42) : 0;
+  v.rootOff[1] = air * 0.17 * mv - land * 0.03 * mv;
+  const sway = Math.sin(t * 1.3) * 0.045 * (1 - mv), nod = Math.sin(t * 0.9) * 0.03 * (1 - mv), br = Math.sin(t * 3.1) * 0.012;
+  addP(P, "body", (0.3 * air + 0.12 * land) * mv + nod + br, 0, sway);
+  addP(P, "hips", -0.08 * land * mv, 0, -sway * 0.4);
+  addP(P, "head", (-0.2 * air) * mv - nod * 0.6 + Math.sin(t * 6) * 0.02 * (1 - mv), Math.sin(t * 0.5) * 0.35 * (1 - mv), -sway * 0.7);
+  addP(P, "legBL", (0.8 * air - 0.7 * land) * mv, 0, 0); addP(P, "legBR", (0.8 * air - 0.7 * land) * mv, 0, 0);
+  addP(P, "footBL", (0.5 * air + 0.75 * land) * mv, 0, 0); addP(P, "footBR", (0.5 * air + 0.75 * land) * mv, 0, 0);
+  const tw = Math.sin(t * 2.3) > 0.96 ? 1 : 0, tw2 = Math.sin(t * 1.7 + 2) > 0.97 ? 1 : 0;
+  addP(P, "earL", -0.5 * air * mv - 0.08 * tw, 0, 0.12 + 0.12 * tw); addP(P, "earR", -0.5 * air * mv - 0.08 * tw2, 0, -0.12 - 0.12 * tw2);
+  addP(P, "ear2L", -0.35 * air * mv + 0.25 * tw + Math.sin(t * 2) * 0.04, 0, 0.06); addP(P, "ear2R", -0.35 * air * mv + 0.25 * tw2 + Math.sin(t * 2 + 1) * 0.04, 0, -0.06);
+  addP(P, "tail", Math.sin(t * 5) * 0.08 + 0.3 * air * mv, Math.sin(t * 3) * 0.15, 0);
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.55;
+  if (ak >= 0 && ak <= 1) {
+    sharp = true;
+    const cr = ak < 0.3 ? ease(ak / 0.3) : 1 - ease((ak - 0.3) / 0.1), jp = ak >= 0.3 && ak < 0.8 ? Math.sin(Math.PI * (ak - 0.3) / 0.5) : 0;
+    addP(P, "legBL", -0.7 * cr + 0.9 * jp, 0, 0); addP(P, "legBR", -0.7 * cr + 0.9 * jp, 0, 0);
+    addP(P, "footBL", 0.75 * cr + 0.4 * jp, 0, 0); addP(P, "footBR", 0.75 * cr + 0.4 * jp, 0, 0);
+    addP(P, "body", 0.15 * cr + 0.65 * jp, 0, 0); addP(P, "head", 0.25 * jp, 0, 0);
+    addP(P, "earL", -0.7 * jp, 0, 0); addP(P, "earR", -0.7 * jp, 0, 0);
+    v.rootOff[1] += -0.05 * cr + 0.2 * jp; v.rootOff[2] += 0.32 * (ak > 0.3 ? Math.min(1, (ak - 0.3) / 0.3) * (1 - ease((ak - 0.75) / 0.25)) : 0);
+  }
+  if (e.readying) { const sh = Math.sin(t * 26) * 0.05; addP(P, "legBL", -0.6, 0, 0); addP(P, "legBR", -0.6, 0, 0); addP(P, "footBL", 0.65, 0, 0); addP(P, "footBR", 0.65, 0, 0); addP(P, "body", 0.2, sh, 0); addP(P, "earL", -0.4, 0, 0); addP(P, "earR", -0.4, 0, 0); v.rootOff[1] -= 0.04; }
+  const hk = (S.time - an.hitStart) / 0.35;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.35 * w, 0, 0.1 * w); addP(P, "head", -0.2 * w, 0, 0); addP(P, "earL", 0.4 * w, 0, 0.3 * w); addP(P, "earR", 0.4 * w, 0, -0.3 * w); v.rootOff[1] += 0.05 * w; }
+  mobAlert(v, e, an, P);
+  if (an.dead != null) {
+    const k = ease((S.time - an.dead) / 0.6);
+    for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; }
+    v.rootRot[2] = 1.45 * k; v.rootOff[1] = 0.06 * k;
+    addP(P, "earL", 0.5 * k, 0, 0.4 * k); addP(P, "earR", 0.5 * k, 0, -0.2 * k); addP(P, "ear2L", 0.6 * k, 0, 0); addP(P, "ear2R", 0.6 * k, 0, 0);
+    addP(P, "legBL", 0.6 * k, 0, 0); addP(P, "legBR", -0.3 * k, 0, 0);
+  }
   applyPose(v, dt, sharp);
 }
 

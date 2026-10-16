@@ -62,7 +62,7 @@ function viewFor(e) {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
     lodEntry: inst.lodEntry, lo: null,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
-    style: styleFor(e), stride: inst.meta.race === "pipkin" ? 0.85 : inst.meta.race === "ursan" ? 1.65 : inst.meta.race === "elari" ? 1.55 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.4, scale: s, mount: null, sink: 0
+    style: styleFor(e), stride: inst.meta.race === "pipkin" ? 0.85 : inst.meta.race === "ursan" ? 1.65 : inst.meta.race === "elari" ? 1.55 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "rarab" ? 1.1 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.4, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
   if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }
@@ -162,7 +162,7 @@ function placeWeapon(v, e) {
   }
 }
 
-const SLOPE_KINDS = { crawler: 1, worm: 1, quad: 1, crab: 1, fish: 1, hare: 1 };
+const SLOPE_KINDS = { crawler: 1, worm: 1, quad: 1, crab: 1, fish: 1, hare: 1, rarab: 1 };
 function footGround(e) {
   const r = Math.max(4, (e.radius || 14) * 0.55);
   let g = groundY(e.x, e.y);
@@ -245,6 +245,7 @@ function syncEntity(e, dt) {
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);
   else if (v.kind === "hare") poseHare(v, e, dt);
+  else if (v.kind === "rarab") poseRarab(v, e, dt);
   else if (v.kind === "bee") poseBee(v, e, dt);
   else if (v.kind === "bird") poseBird(v, e, dt);
   else if (v.kind === "crawler") poseCrawler(v, e, dt);

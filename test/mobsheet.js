@@ -27,7 +27,7 @@ const mockLogin = require('/home/claude/untitled-solo-mmo/test/mocklogin');
     else if (A === 'dead') e.alive = false;
     S.time += dt; syncEntity(e, dt);
     for (let k = 0; k < N; k++) {
-      for (let j = 0; j < Math.round((+ENV.STEP||0.2)/dt); j++) { S.time += dt; syncEntity(e, dt); }
+      for (let j = 0; j < Math.round((+ENV.STEP||0.2)/dt); j++) { if (A === 'walk' && v.an) { const sp = +ENV.SPD || 60; v.an.lx = e.x - sp * dt; v.an.ly = e.y; } S.time += dt; syncEntity(e, dt); }
       v.group.updateMatrixWorld(true);
       v.group.traverse(o => { if (o.isSkinnedMesh) o.visible = true; }); v.group.updateMatrixWorld(true);
       const c = v.group.position.clone(); c.y += (+ENV.CY||1.1); const d = (+ENV.DIST||3.6);
