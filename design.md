@@ -1908,3 +1908,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.26.0: release guard (Phase 6)
 - `npm run check` (tools/release-check.mjs) builds phase 4 and fails if index.html is over 6.2 MB, the title screen appears later than 3.5 s (headless, software GL) or the second load does not use the icon cache or has icons ready later than 2.5 s. `--write` appends the row to the "Release history" table in design/load-baseline.md (replaces the same version); `--no-browser` checks only the size. Run it with `--write` before each release; budgets are the constants at the top of the file and should be tightened when numbers improve.
 - Config > Interface > Load timings (`UI.perfShow`, action `perfshow`) lists `PERF.table()` inline; same data as `/perf`.
+
+## 18.27.0: treasure pool for everything, companion bags (M1)
+- `lootGive(id, mates)`: with a party (S.party longer than 1, or online mates) every mob drop goes to `addToPool`, otherwise `giveItem`. Used by `dropLoot` (except key items and crystals, which keep their direct rules), `gearDrop` and scroll drops. Other sources (gathering, fishing, quest rewards) are unchanged.
+- Companion bag: `save.mercInv[id] = [{ id, qty, sale: true }]`, `CONFIG.inventorySize` slots, helpers `mercBag`, `mercBagRoom`, `mercBagAdd`, `mercBagCount`. `mercWants(merc, itemId)` is the lot rule: false for gear they cannot wear (`mercCanWear`) or with no room; true otherwise (replaces `poolUpgrade` as the lot test).
+- Winning: a wearable upgrade (`poolUpgrade`) is put on and the old piece goes to their bag (or to the player if the bag is full); anything else goes to their bag. Nothing goes to the player any more.
+- `mercTownSell()` (called from `enterZone` after the zone is set): in a `theme: "town"` zone, a hired companion whose bag has at least half of `CONFIG.inventorySize` slots used loses the whole bag, as if sold to a shop; no crystals are paid. M5 will turn these into market listings.
+- The old rule that companions only lot on upgrades and send replaced gear to the player is gone. Tests in p10unit.js updated.
+- design/online-queue-plan.md: 20-player online cap and wait queue (not built).

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.26.0",
-  "releaseTitle": "Load timings in Config",
+  "version": "18.27.0",
+  "releaseTitle": "Everything goes to the treasure pool",
   "description": "",
   "main": "index.js",
   "scripts": {
