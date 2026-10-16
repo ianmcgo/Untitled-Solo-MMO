@@ -733,6 +733,24 @@ const RECIPES = [
   { id: "r_grilled_bass", craft: "cooking", lv: 12, mats: { sea_bass: 1, rock_salt: 1 }, out: "grilled_bass", qty: 2 },
   { id: "r_pike_feast", craft: "cooking", lv: 16, mats: { lakeking_pike: 1, grain_flour: 2, healing_herb: 2 }, out: "pike_feast", qty: 3 }
 ];
+const GEAR_CRAFT_RULES = [
+  [/bone/, "alchemy"],
+  [/linen|cotton|robe|cape|cuffs|slops|tunic|doublet|hachimaki|kyahan|sitabaki|kenpogi|tekko|mitts|headband|hat|bandana|leather|lizard|dhalmel|rabbit|cesti|solea|gaiters|gloves|trousers|vest|jerkin|mantle|belt|obi|sash|collar|gorget|subligar|hose|slacks|brais|gi$/, "clothcraft"],
+  [/ash|maple|willow|holly|yew|elm|lauan|oak|mahogany|chestnut|bow|crossbow|staff|pole|wand|club|harp|flute|piccolo|boomerang|clogs|lantern/, "woodworking"]
+];
+for (const id in GEAR_DATA) {
+  const g = GEAR_DATA[id], hq = id + "_hq";
+  if (g.src !== "shop" || g.slot === "ammo" || !GEAR_DATA[hq] || RECIPES.some(r => r.out === id)) continue;
+  const n = g.name.toLowerCase(), big = g.slot === "main" || g.slot === "body" || g.slot === "ranged" ? 1 : 0;
+  let craft = "smithing";
+  for (const [re, c] of GEAR_CRAFT_RULES) if (re.test(n)) { craft = c; break; }
+  const mats = {};
+  if (craft === "smithing") { if (g.lv < 7) mats.bronze_ingot = 2 + big; else if (g.lv < 13) { mats.bronze_ingot = 1 + big; mats.iron_ingot = 1; } else mats.iron_ingot = 2 + big; }
+  else if (craft === "woodworking") { mats.ash_lumber = 2 + big; if (g.lv >= 10) mats.heartwood = 1; }
+  else if (craft === "clothcraft") { mats.silk_cloth = 1 + big; if (/leather|lizard|dhalmel|rabbit|cesti|solea|gaiters|belt|collar|gorget|vest|jerkin|mantle/.test(n)) mats.lizard_skin = 1 + big; else mats.worm_silk = 1 + big; if (g.lv >= 10) mats.wool_tuft = 1; }
+  else { mats.bone_chip = 2 + big; if (g.lv >= 10) mats.crab_shell = 1; }
+  RECIPES.push({ id: "g_" + id, craft, lv: Math.min(CONFIG.craftCap, g.lv), mats, out: id, hq });
+}
 
 const MERCS = {
   kael: { name: "Kael", job: "WAR", role: "tank", fee: 120, color: "#ef9a9a", desc: "A steady Warrior. Holds enemy attention with Provoke and closes skillchains." },

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.4.0",
-  "releaseTitle": "Economy",
+  "version": "18.5.0",
+  "releaseTitle": "Crafting FFXI gear",
   "description": "",
   "main": "index.js",
   "scripts": {

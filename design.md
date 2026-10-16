@@ -1493,6 +1493,7 @@ World systems:
 | 18.2.0 | Player power: delay curve, WTYPE_MULT, DMG_LV_K, ammoDmgMul, hpLvBonus, mpMul. Results in design/balance-18.2.md. |
 | 18.3.0 | Monster curve: CONFIG.mobCurve scales mob HP, attack and damage by level. Results in design/balance-18.3.md. |
 | 18.4.0 | Economy: gentler gear prices, CONFIG.mobGil for every XP-giving monster, Ryl./Lgn. shop regex fix. Model in design/economy-18.4.md. |
+| 18.5.0 | Gear recipes: 128 generated recipes (shop item + its +1 as HQ). Coverage check. Test p58unit.js. |
 | 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
 | 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | FFXI spells and potions: SPELLS/ITEMS potion family rebuilt from FFXI data; rule version 17 wipes older saves. See "FFXI rules (v17.0.0)". |
@@ -1726,7 +1727,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ### Not done
 - Balance: monster HP and attack, XP, prices and damage tuning for the new gear.
-- Crafting recipes were only re-pointed (bronze cap, bronze sword, iron sword, ash club, ash staff, holly staff, scale mail, linen robe, leather gloves, robe, ash clogs).
+- Crafting (18.5): data.js after `RECIPES` generates `g_<id>` recipes for every `src: "shop"` item (not ammo) that has an `<id>_hq`, unless a hand-made recipe already outputs it. Craft by name (`GEAR_CRAFT_RULES`, first match): bone -> alchemy; cloth and leather words -> clothcraft; wood words, bows, staves, clubs, wands, clogs -> woodworking; else smithing. Mats (+1 of the main mat for main, body, ranged): smithing bronze_ingot x2 under level 7, bronze_ingot + iron_ingot 7-12, iron_ingot x2 from 13; woodworking ash_lumber x2 (+ heartwood from 10); clothcraft silk_cloth + lizard_skin (leather words) or worm_silk (+ wool_tuft from 10); alchemy bone_chip x2 (+ crab_shell from 10). Recipe level = item level (cap 20); HQ chance is the usual 5% per skill point above. Many recipes share the same ingredients; the crafting window lists every match (exact first, up to 30) and the player picks one.
+- Coverage check (18.5): every job has a shop weapon, head, body, hands, legs and feet in the 1-5 band. Bands with no new piece (mage hands 16-20, PUP main 6-10) keep the earlier piece; not filled.
 - Windower short names stay abbreviated (Brz., Lgn., Ryl.Ftm.).
 - Tests: p7, p10, p22, p31 and p35 changed for the new items (levels, drops, Haldor); other tests only had ids swapped. Run test/p57unit.js style files with `node build.mjs 1` first.
 

@@ -669,11 +669,11 @@ function tabCrafting() {
   h += '<div class="csMats">';
   for (let i = 0; i < 8; i++) h += slot(cs.mats[i], "csrem", i);
   h += '</div><div class="csBtns"><button class="ffb2" data-a="csok">OK</button><button class="ffb2" data-a="cscancel">Cancel</button></div></div></div>';
-  const m = csMatches();
+  const m = csMatches().sort((x, y) => (y.exact - x.exact) || x.r.lv - y.r.lv);
   h += '<div class="csPane csRes"><div class="csHead">Craft this combination of</div><div class="csList">';
   if (!cs.crystal) h += '<div class="csHint">Choose a crystal and ingredients from your bag below.</div>';
   else if (!m.length) h += '<div class="csHint">Nothing you know uses these.</div>';
-  for (const { r, exact } of m.slice(0, 14)) h += '<button class="csRow' + (exact ? " exact" : "") + '" data-a="csfill" data-v="' + r.id + '"><span>' + (ITEMS[r.out].icon || "") + " " + esc(ITEMS[r.out].name) + (r.qty > 1 ? " ×" + r.qty : "") + "</span>" + (exact ? '<span class="st">★</span>' : '<span class="lvl">' + esc(CRAFTS[r.craft].name) + " " + r.lv + "</span>") + "</button>";
+  for (const { r, exact } of m.slice(0, 30)) h += '<button class="csRow' + (exact ? " exact" : "") + '" data-a="csfill" data-v="' + r.id + '"><span>' + (ITEMS[r.out].icon || "") + " " + esc(ITEMS[r.out].name) + (r.qty > 1 ? " ×" + r.qty : "") + "</span>" + (exact ? '<span class="st">★</span>' : '<span class="lvl">' + esc(CRAFTS[r.craft].name) + " " + r.lv + "</span>") + "</button>";
   h += "</div></div></div>";
   const hv = cs.hover && ITEMS[cs.hover] ? cs.hover : null;
   h += '<div class="csDesc">' + (hv ? '<span class="ic">' + (ITEMS[hv].icon || "📦") + "</span><div><b>" + esc(ITEMS[hv].name) + "</b><div>" + esc(itemDesc(hv)) + "</div></div>" : '<div class="dim">Tap an item to see what it is.</div>') + "</div>";
@@ -1486,6 +1486,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.5.0", date: "2026-10-15", title: "Crafting FFXI gear", items: [
+    "<b>128 new recipes:</b> every shop item that has a +1 version can now be crafted, and a good synthesis can come out as the +1. Smithing makes metal weapons and armor, Woodworking makes bows, staves, clubs, wands, shields and clogs, Clothcraft makes cloth and leather pieces, and Alchemy makes bone gear.",
+    "Recipes use the materials you already gather and loot: Bronze and Iron Ingots, Ash Lumber, Silk Cloth, Worm Silk, Lizard Skin, Bone Chips, and Heartwood, Wool Tufts or Crab Shells from level 10. The recipe level is the item's level.",
+    "The crafting window now lists exact matches first and shows up to 30 recipes for the ingredients you put in.",
+    "Checked: every job can find shop gear for its weapon, head, body, hands, legs and feet from level 1, so nobody is stuck without a piece."
+  ] },
   { v: "18.4.0", date: "2026-10-15", title: "Economy", items: [
     "<b>Gear is cheaper:</b> shop prices follow a gentler curve (a level 10 piece costs about 40% of what it did, level 20 about 35%). Neck, ear, ring, back and waist pieces cost less than armor. A full level-appropriate set now takes about 1 to 6 hours of hunting instead of up to dozens.",
     "<b>Every monster drops crystals:</b> anything that still gives you XP drops 2 to 4 crystals per level of the monster. Beastmen keep their bigger purses.",
@@ -2937,7 +2943,7 @@ function tabHelp() {
     "Each craft uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
     "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure uses up the essence and loses some ingredients.",
     "Skill rises on recipes near or above your level, up to " + CONFIG.craftCap + "."
-  ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, RECIPES.filter(r => r.craft === k).map(r => ITEMS[r.out].name).join(", ")])));
+  ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, (l => l.length > 12 ? l.slice(0, 10).join(", ") + " and " + (l.length - 10) + " more" : l.join(", "))(RECIPES.filter(r => r.craft === k).sort((x, y) => x.lv - y.lv).map(r => ITEMS[r.out].name))])));
   h += sec("🍳 Cooking and food", ul([
     "Cooking is a craft (Crafting in the main menu) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
     "Eat a meal from your bag or the Items command for " + CONFIG.foodMinutes + " real minutes of bonuses (it keeps counting while you're away). One meal at a time: eating another replaces it. You can't eat mid-fight.",
