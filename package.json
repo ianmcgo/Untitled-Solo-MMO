@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.19.10",
-  "releaseTitle": "Falls, emotes and work poses",
+  "version": "18.19.11",
+  "releaseTitle": "Monster moves",
   "description": "",
   "main": "index.js",
   "scripts": {

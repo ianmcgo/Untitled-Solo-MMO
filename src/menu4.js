@@ -1636,6 +1636,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.11", date: "2026-10-16", title: "Monster moves", items: [
+    "<b>Aggro alert:</b> when a monster notices you it rears up, flares its arms or wings, or raises its head with a short shake before it attacks.",
+    "<b>Pounces and lunges:</b> four-legged beasts crouch, leap and snap; crawlers surge forward as they bite.",
+    "<b>Birds</b> now peck, flinch when hit and tumble when defeated.",
+    "<b>Undead fight stiffly:</b> skeletons and other undead swing in jerky, stepped motions."
+  ] },
   { v: "18.19.10", date: "2026-10-16", title: "Falls, emotes and work poses", items: [
     "<b>Knock-outs play out in stages:</b> you stagger, drop to your knees, then topple backward, forward or sideways. Getting raised now pushes up from the ground the way you fell.",
     "<b>Six new emotes:</b> /shrug, /think, /beckon, /stretch, /kneel and /flex. Others nearby see them too.",
