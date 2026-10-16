@@ -1803,3 +1803,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - attackKind: dagger "stab", axe "chop", archery "shoot", staff "staffswing", polearm "thrust" (aVar 1 = wide sweep), h2h "punch" (aVar 0 right jab, 1 left jab, 2 kick). Sword and club/cleave sets unchanged.
 - Engage settle: spine and knee bend scaled by sin(pi*an.fight) while the stance blends in.
 - Not done: dual-wield (the game has no off-hand weapon); sword and club sets could be moved to kf later.
+
+## 18.19.7: weapon skill moves (animation plan phase 2)
+- anim.js wsClass(v) maps weapon to staff, dagger, polearm, bow or fist; wsPose handles styles 1-3 for those (style 3 single blow, 2 chained blows (5 for dagger), 1 spin). Other weapons and style 0 (leap) keep the original generic poses.
+- Blows use kfMaker (wind-up, strike, recovery) per blow with alternating sides.
+- Existing camera shake on WS (game.js doWS) kept. Not done: hit-stop freeze, per-weapon glow, bow style 1 variant.
+- test/wssheet.js: WS=<skill id> JOB=WAR IDLE=1 STEP=0.09 MODE=none node wssheet.js <abs html> <png> <weapon id> human 0 side.
