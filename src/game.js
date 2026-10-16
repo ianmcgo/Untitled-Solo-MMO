@@ -95,7 +95,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, mercInv: {}, bond: {}, mercPaid: {}, mercContract: {}, oldFriends: {}, mercWageSeen: {}, mercHireLv: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, mercInv: {}, bond: {}, mercPaid: {}, mercContract: {}, oldFriends: {}, mercWageSeen: {}, mercHireLv: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, t: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -714,6 +714,13 @@ function mercLeave(id) {
   const m = MERCS[id];
   save.oldFriends = save.oldFriends || {};
   save.oldFriends[id] = { left: save.playSec || 0, hall: "outpost", lv: player.lv, fee: m.fee };
+  const ofKeys = Object.keys(save.oldFriends);
+  while (ofKeys.length > COMPANION_CFG.oldFriendsMax) {
+    const oldest = ofKeys.reduce((a, k) => save.oldFriends[k].left < save.oldFriends[a].left ? k : a, ofKeys[0]);
+    ofKeys.splice(ofKeys.indexOf(oldest), 1);
+    delete save.oldFriends[oldest];
+    if (save.mercDefs[oldest] && !(save.mercDay && save.mercDay.ids.includes(oldest))) { delete save.mercDefs[oldest]; delete MERCS[oldest]; }
+  }
   const i = save.hired.indexOf(id);
   if (i >= 0) save.hired.splice(i, 1);
   if (save.mercContract) delete save.mercContract[id];
@@ -2074,9 +2081,21 @@ function ahGroup(id) {
   return "mat";
 }
 
-function ahDaily() {
+function ahTowns() {
+  if (S.ahTownList) return S.ahTownList;
+  return S.ahTownList = Object.keys(ZONES).filter(z => ZONES[z].theme === "town" && (ZONES[z].houses || []).some(b => b.type === "auction"));
+}
+
+function ahHere() { return ahTowns().includes(S.zoneId) ? S.zoneId : ahTowns()[0]; }
+
+function ahTownName(z) { return ZONES[z] ? ZONES[z].city || ZONES[z].name : z; }
+
+function ahDaily(town) {
+  town = town || ahHere();
   const day = marketDay(), lv = player.lv;
-  if (S.ahDay && S.ahDay.day === day && S.ahDay.lv === lv) return S.ahDay.set;
+  S.ahDay = S.ahDay || {};
+  const c = S.ahDay[town];
+  if (c && c.day === day && c.lv === lv) return c.set;
   const pools = {};
   for (const id of Object.keys(ITEMS).sort()) {
     if (!ahTradable(id)) continue;
@@ -2086,24 +2105,39 @@ function ahDaily() {
   }
   const set = new Set();
   for (const g in pools) {
-    const pool = pools[g], r = seeded(hashStr("ahdaily:" + g + ":" + day));
+    const pool = pools[g], r = seeded(hashStr("ahdaily:" + town + ":" + g + ":" + day));
     for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
     pool.slice(0, AH_DAILY[g]).forEach(id => set.add(id));
   }
-  S.ahDay = { day, lv, set };
+  S.ahDay[town] = { day, lv, set };
   return set;
 }
 
-function ahStock(id) {
-  const day = marketDay(), it = ITEMS[id];
-  if (save.market.bought.day !== day) save.market.bought = { day, n: {} };
-  if (!ahDaily().has(id)) return 0;
-  if (it.kind === "equip" && it.slot !== "ammo") return Math.max(0, 1 - (save.market.bought.n[id] || 0));
-  const r = seeded(hashStr(id + ":" + day));
+function ahMarketSet() {
+  const u = new Set();
+  for (const t of ahTowns()) for (const id of ahDaily(t)) u.add(id);
+  return u;
+}
+
+function ahBoughtOf(town) {
+  const day = marketDay();
+  if (!save.market.bought || save.market.bought.day !== day || !save.market.bought.t) save.market.bought = { day, t: {} };
+  return save.market.bought.t[town] || (save.market.bought.t[town] = {});
+}
+
+function ahStockAt(id, town) {
+  const it = ITEMS[id], bought = ahBoughtOf(town), day = marketDay();
+  if (!ahDaily(town).has(id)) return 0;
+  if (it.kind === "equip" && it.slot !== "ammo") return Math.max(0, 1 - (bought[id] || 0));
+  const r = seeded(hashStr(id + ":" + town + ":" + day));
   const base = it.price > 3000 ? 1 : it.price > 800 ? 2 : it.price > 150 ? 4 : 8;
   const n = Math.floor(r() * (base + 1)) + (ahCategory(id) === "materials" || ahCategory(id) === "consumables" ? Math.ceil(base / 2) : 0);
-  return Math.max(0, n - (save.market.bought.n[id] || 0));
+  return Math.max(0, n - (bought[id] || 0));
 }
+
+function ahStock(id) { return ahTowns().reduce((a, t) => a + ahStockAt(id, t), 0); }
+
+function ahStockLines(id) { return ahTowns().map(t => ({ town: t, name: ahTownName(t), n: ahStockAt(id, t), here: t === ahHere() })); }
 
 function ahBuy(id, qty) {
   qty = Math.max(1, qty || 1);
@@ -2113,7 +2147,12 @@ function ahBuy(id, qty) {
   if (save.gil < cost) return "You need " + cost + " crystals.";
   if (!giveItem(id, qty, true)) return "Your bag is full.";
   save.gil -= cost;
-  save.market.bought.n[id] = (save.market.bought.n[id] || 0) + qty;
+  let need = qty;
+  for (const t of [ahHere()].concat(ahTowns().filter(x => x !== ahHere()))) {
+    const take = Math.min(need, ahStockAt(id, t));
+    if (take > 0) { const b = ahBoughtOf(t); b[id] = (b[id] || 0) + take; need -= take; }
+    if (need <= 0) break;
+  }
   save.stats.ahBought = (save.stats.ahBought || 0) + qty;
   addPress(id, 0.03 * qty);
   log("You buy " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " at auction for " + cost + " crystals.", "loot");
