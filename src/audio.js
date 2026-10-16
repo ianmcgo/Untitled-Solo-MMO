@@ -123,7 +123,23 @@ function sfxGainFor(name, e) {
   return { v, pan };
 }
 
+function victoryDef() {
+  const d = [], B = 0.12;
+  const N = { C3: 130.8, C4: 261.6, D4: 293.7, E4: 329.6, F4: 349.2, G4: 392, A4: 440, B4: 493.9, C5: 523.3, D5: 587.3, E5: 659.3, F5: 698.5, G5: 784, A5: 880, B5: 987.8, C6: 1046.5 };
+  const lead = (f, at, dur, g) => { d.push(["brass", f, f, at, dur, g, 2800]); d.push(["brass", f * 2, f * 2, at, dur, g * 0.35, 3600]); d.push(["sine", f, f, at, dur * 0.9, g * 0.5]); };
+  const chord = (fs, at, dur, g) => { for (const f of fs) d.push(["brass", f, f, at, dur, g, 1800]); };
+  lead(N.E5, 0, B, 0.2); lead(N.E5, B, B, 0.2); lead(N.E5, B * 2, B, 0.2); lead(N.G5, B * 3, 0.62, 0.26);
+  chord([N.C4, N.E4, N.G4], B * 3, 0.62, 0.07); d.push(["brass", N.C3, N.C3, B * 3, 0.62, 0.12, 700]);
+  lead(N.F5, 0.98, B, 0.2); lead(N.F5, 0.98 + B, B, 0.2); lead(N.F5, 0.98 + B * 2, B, 0.2); lead(N.A5, 0.98 + B * 3, 0.62, 0.26);
+  chord([N.F4, N.A4, N.C5], 0.98 + B * 3, 0.62, 0.07); d.push(["brass", N.C3 * 0.8, N.C3 * 0.8, 0.98 + B * 3, 0.62, 0.12, 700]);
+  lead(N.G5, 1.96, 0.16, 0.22); lead(N.A5, 2.12, 0.16, 0.22); lead(N.B5, 2.28, 0.16, 0.24);
+  chord([N.G4, N.B4, N.D5], 1.96, 0.48, 0.07);
+  lead(N.C6, 2.44, 1.5, 0.3); chord([N.C4, N.E4, N.G4, N.C5], 2.44, 1.5, 0.08); d.push(["brass", N.C3, N.C3, 2.44, 1.5, 0.14, 700]);
+  d.push(["bell", N.C6 * 2, N.C6 * 2, 2.5, 1.3, 0.1]);
+  return d;
+}
 const UI_SYNTH = {
+  victory: victoryDef(),
   cursor: [["sine", 2350, 2250, 0, 0.032, 0.32], ["square", 1175, 1175, 0, 0.018, 0.05]],
   tab: [["sine", 1975, 1865, 0, 0.04, 0.28], ["noise", 4200, 0, 0, 0.012, 0.1]],
   select: [["sine", 1568, 1568, 0, 0.16, 0.34], ["sine", 2349, 2349, 0.018, 0.2, 0.26], ["sine", 3136, 3136, 0.03, 0.12, 0.08]],
@@ -212,9 +228,10 @@ function uiSynth(name, vol, o) {
   for (let [type, f0, f1, at, dur, g, lp] of def) {
     f0 *= mul; f1 *= mul; at *= len; dur *= len;
     const t = t0 + at, env = ctx.createGain();
+    const brass = type === "brass";
     env.gain.setValueAtTime(0, t);
-    env.gain.linearRampToValueAtTime(g, t + Math.min(0.006, dur * 0.2));
-    env.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    if (brass) { env.gain.linearRampToValueAtTime(g, t + Math.min(0.03, dur * 0.25)); env.gain.setValueAtTime(g * 0.85, t + dur * 0.6); env.gain.exponentialRampToValueAtTime(0.0008, t + dur); }
+    else { env.gain.linearRampToValueAtTime(g, t + Math.min(0.006, dur * 0.2)); env.gain.exponentialRampToValueAtTime(0.0008, t + dur); }
     let src;
     if (type === "noise" || type === "sweep") {
       src = ctx.createBufferSource(); src.buffer = uiNoise(ctx); src.loop = true;
@@ -228,7 +245,7 @@ function uiSynth(name, vol, o) {
       mod.connect(mg); mg.connect(src.frequency); mod.start(t); mod.stop(t + dur + 0.02);
       src.connect(env);
     } else {
-      src = ctx.createOscillator(); src.type = type;
+      src = ctx.createOscillator(); src.type = brass ? "sawtooth" : type;
       src.frequency.setValueAtTime(f0, t);
       if (f1 !== f0) src.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
       if (lp) { const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = lp; src.connect(f); f.connect(env); } else src.connect(env);
@@ -251,7 +268,7 @@ function sfx(name, e, o) {
   const { v, pan } = sfxGainFor(name, e);
   if (v <= 0.01) return;
   if ((UI_SYNTH[name] || WORLD_SYNTH[name]) && !AUDIO.fallback && AUDIO.ctx && uiSynth(name, v * ((o && o.vol) || 1), Object.assign({ pan }, o || {}, o && o.mul ? { mul: o.mul * (0.96 + Math.random() * 0.08) } : name.startsWith("step_") || name.startsWith("swing_") ? { mul: 0.92 + Math.random() * 0.16 } : {}))) return;
-  if (name === "levelup" || name === "fanfare") duckMusic(name === "fanfare" ? 4.2 : 2.4);
+  if (name === "levelup" || name === "fanfare" || name === "victory") duckMusic(name === "fanfare" || name === "victory" ? 4.2 : 2.4);
   if (AUDIO.fallback) { playHtml(file, v); return; }
   const buf = AUDIO.buffers[file];
   if (!buf) { decodeClip(file); return; }

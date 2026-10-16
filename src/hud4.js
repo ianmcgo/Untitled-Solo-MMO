@@ -1221,13 +1221,15 @@ function updateFF() {
     set(rows[0], Math.ceil(player.hp), player.maxHp); set(rows[1], player.mp, player.maxMp); set(rows[2], player.tp, CONFIG.tpMax);
   }
   const icons = [];
-  if (blessed()) icons.push(['<div class="ffIc crys" title="City Blessing · ' + fmtDur(save.blessing - Date.now()) + '"></div>', "bless"]);
-  if (save.food && save.food.until > Date.now() && ITEMS[save.food.id]) icons.push(['<div class="ffIc" title="' + esc(ITEMS[save.food.id].name) + " · " + fmtDur(save.food.until - Date.now()) + '">' + (ITEMS[save.food.id].icon || "🍖") + "</div>", "food" + save.food.id]);
+  const ic = (cls, key, inner) => '<div class="ffIc' + cls + '" data-st="' + esc(key) + '">' + inner + "</div>";
+  if (blessed()) icons.push([ic(" crys", "bless", ""), "bless"]);
+  if (save.food && foodLeft() > 0 && ITEMS[save.food.id]) icons.push([ic("", "food", ITEMS[save.food.id].icon || "🍖"), "food" + save.food.id]);
   const BAD = { slow: 1, paralyze: 1, poison: 1, sleep: 1, bind: 1, blind: 1, silence: 1, weight: 1, dia: 1, bio: 1, stun: 1, blight: 1, flash: 1 };
-  for (const k of Object.keys(player.buffs || {})) { if (k === "blessing") continue; const b = player.buffs[k]; icons.push(['<div class="ffIc' + (BAD[k] ? " bad" : "") + '" title="' + esc(BUFF_NAMES[k] || k) + (b && b.until ? " · " + Math.ceil(b.until - S.time) + "s" : "") + '">' + (BUFF_ICONS[k] || "•") + "</div>", k]); }
-  if (player.resting) icons.push(['<div class="ffIc" title="Healing">💤</div>', "rest"]);
+  for (const k of Object.keys(player.buffs || {})) { if (k === "blessing" || k === "food") continue; icons.push([ic(BAD[k] ? " bad" : "", "b:" + k, BUFF_ICONS[k] || "•"), k]); }
+  if (player.resting) icons.push([ic("", "rest", "💤"), "rest"]);
   const sig = icons.map(i => i[1]).join(",");
   if (sig !== UI.ffIconSig) { UI.ffIconSig = sig; $("ffIcons").innerHTML = icons.map(i => i[0]).join(""); }
+  statusPopTick();
   const side = $("ffSide");
   const showT = tOk && t !== player;
   side.classList.toggle("hasT", showT);
@@ -1239,6 +1241,50 @@ function updateFF() {
   $("target").classList.toggle("locked", showT && isMob(t) && player.engaged && player.attackTarget === t);
   const solo = S.party.length <= 1 && !(typeof NET_PT !== "undefined" && NET_PT.id);
   setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
+}
+
+function fmtSecs(sec) {
+  sec = Math.max(0, Math.ceil(sec));
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), r = sec % 60;
+  return h ? h + "h " + m + "m" : m ? m + "m " + (r < 10 ? "0" : "") + r + "s" : r + "s";
+}
+
+function statusInfo(key) {
+  if (key === "bless") return { name: "City Blessing", left: blessLeft(), desc: "Monsters yield essences. Counts down only while you are playing, so logging out pauses it." };
+  if (key === "food") { const it = save.food && ITEMS[save.food.id]; return it ? { name: it.name, left: foodLeft(), desc: "Well fed. Counts down only while you are playing." } : null; }
+  if (key === "rest") return player.resting ? { name: "Healing", left: null, desc: "Recovering HP and MP while resting." } : null;
+  if (key.indexOf("b:") === 0) {
+    const k = key.slice(2), b = player.buffs && player.buffs[k];
+    if (!b) return null;
+    return { name: BUFF_NAMES[k] || k, left: b.until != null ? b.until - S.time : null, desc: "" };
+  }
+  return null;
+}
+
+function statusPopTick() {
+  let pop = $("stPop");
+  if (!UI.stInit) {
+    UI.stInit = true;
+    pop = document.createElement("div"); pop.id = "stPop";
+    pop.style.cssText = "position:fixed;z-index:60;display:none;max-width:240px;padding:8px 10px;border-radius:8px;background:rgba(14,22,54,.94);border:1px solid rgba(255,255,255,.6);color:#fff;font:600 13px var(--ffFont,sans-serif);box-shadow:0 4px 14px rgba(0,0,0,.6);pointer-events:none;line-height:1.35";
+    document.body.appendChild(pop);
+    document.addEventListener("click", ev => {
+      const t = ev.target && ev.target.closest ? ev.target.closest("#ffIcons .ffIc") : null;
+      UI.stKey = t && t.dataset.st && t.dataset.st !== UI.stKey ? t.dataset.st : null;
+      UI.stEl = UI.stKey ? t : null;
+    }, true);
+  }
+  pop = pop || $("stPop");
+  if (!UI.stKey) { pop.style.display = "none"; return; }
+  const info = statusInfo(UI.stKey);
+  if (!info) { UI.stKey = null; pop.style.display = "none"; return; }
+  const el = $("ffIcons").querySelector('[data-st="' + UI.stKey + '"]') || UI.stEl;
+  if (!el) { pop.style.display = "none"; return; }
+  pop.innerHTML = "<b>" + esc(info.name) + "</b>" + (info.left != null ? "<div>" + fmtSecs(info.left) + " remaining</div>" : "") + (info.desc ? '<div style="font-weight:400;opacity:.85;margin-top:2px">' + esc(info.desc) + "</div>" : "");
+  const r = el.getBoundingClientRect();
+  pop.style.display = "block";
+  pop.style.left = Math.max(6, Math.min(innerWidth - pop.offsetWidth - 6, r.left)) + "px";
+  pop.style.top = Math.round(r.bottom + 8) + "px";
 }
 
 function openChatInput(pre) {

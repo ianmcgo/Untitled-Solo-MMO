@@ -184,7 +184,7 @@ function applyPose(v, dt, sharp) {
 const RACE_GAIT = {
   human: { bob: 1, arm: 1, roll: 0, lean: 0 },
   elari: { bob: 0.8, arm: 0.9, roll: 0, lean: -0.02 },
-  pipkin: { bob: 1.7, arm: 1.35, roll: 0.04, lean: 0.04 },
+  pipkin: { bob: 1.7, arm: 1.35, roll: 0.04, lean: 0.04, leg: 0.6 },
   ursan: { bob: 0.7, arm: 0.85, roll: 0.12, lean: 0.06 },
   nekari: { bob: 1.15, arm: 1.05, roll: 0, lean: 0.05 }
 };
@@ -525,14 +525,14 @@ function poseHuman(v, e, dt) {
     const race = v.meta && v.meta.race, RG = RACE_GAIT[race] || RACE_GAIT.human;
     const mf = an.mf == null ? 1 : an.mf, ms = an.ms || 0, side = Math.abs(ms) * (1 - Math.max(0, mf)), backK = Math.max(0, -mf);
     const lean = (st.hop ? 0.22 : 0.14) * (1 - backK) - 0.1 * backK + RG.lean;
-    const legK = 1 - 0.35 * side - 0.3 * backK;
+    const legK = (1 - 0.35 * side - 0.3 * backK) * (RG.leg || 1), kneeK = RG.leg || 1;
     addP(P, "thighL", s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp); addP(P, "thighR", -s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp);
     if (side > 0.05) { addP(P, "hips", 0, ms * 0.55 * side * amp, 0); addP(P, "chest", 0, -ms * 0.45 * side * amp, 0); }
     if (RG.roll) addP(P, "hips", 0, 0, s1 * RG.roll * amp);
     if (RG.arm !== 1) { addP(P, "upArmL", -s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); addP(P, "upArmR", s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); }
     v.rootOff[1] += Math.abs(c1) * 0.035 * (RG.bob - 1) * amp;
     const kn = 1.0 + 0.35 * run;
-    addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp, 0, 0);
+    addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp * kneeK, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp * kneeK, 0, 0);
     addP(P, "footL", (-s1 * 0.22 + 0.3 * Math.max(0, -c1) * Math.max(0, s1)) * amp, 0, 0); addP(P, "footR", (s1 * 0.22 + 0.3 * Math.max(0, c1) * Math.max(0, -s1)) * amp, 0, 0);
     const aa = Math.min(1, amp), armSwing = (an.fight > 0.5 ? 0.16 : 0.3 + 0.12 * run) * aa;
     addP(P, "upArmL", -s1 * armSwing, 0, 0); addP(P, "upArmR", s1 * armSwing, 0, 0);

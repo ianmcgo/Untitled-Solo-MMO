@@ -48,7 +48,7 @@ function renderModal() {
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
   const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, database: tabDatabase, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
-  if (UI.kbBtn != null && !isSlim(S.modal) && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
+  if (UI.kbBtn != null && !isSlim(S.modal) && S.modal !== "equipment") { const b = [...document.querySelectorAll(KB_SEL)].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
   if (UI.kbRow != null && isSlim(S.modal)) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
   const win = document.querySelector("#menu .win");
   if (win) win.className = "win" + (isSlim(S.modal) ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "") + (S.modal === "auction" || S.modal === "achievements" ? " fit" : "");
@@ -383,6 +383,7 @@ function invSorted() {
     return true;
   }).sort((x, y) => (KIND_ORDER[ITEMS[x.s.id].kind] - KIND_ORDER[ITEMS[y.s.id].kind]) || ITEMS[x.s.id].name.localeCompare(ITEMS[y.s.id].name));
 }
+const KB_SEL = "#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a], #mBody .item[data-a]";
 const SLIM_TABS = { inventory: 1, shop: 1, quests: 1, magic: 1, abilities: 1 };
 function isSlim(t) { return !!SLIM_TABS[t] || (t === "storage" && !(S.zone && S.zone.residence)); }
 function listRow(a, v, id, qty, name, right, sel, cls) {
@@ -1637,6 +1638,19 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.20.0", date: "2026-10-16", title: "Sprint, victory fanfare and a living sky", items: [
+    "<b>Sprint:</b> hold Shift while moving to run about 45% faster on foot.",
+    "<b>Victory fanfare:</b> winning a battle plays a short triumphant brass fanfare once the last monster that was fighting you falls. Monsters too weak to give experience stay quiet.",
+    "<b>Sun and moon:</b> a visible sun disc and a bigger moon now travel across the sky with the game clock, with the sun reddening near the horizon and the moon rising after sunset and setting at dawn. The moon is no longer parked at the horizon in daytime.",
+    "<b>Status icons:</b> click or tap a status icon at the top left to see its name and time left.",
+    "<b>City Blessing and meals now count down on play time.</b> Logging out pauses them, so a blessing no longer runs out while you are away. Existing blessings and meals convert to the time they had left.",
+    "<b>Menus:</b> arrow keys now move the highlight in the auction house and every other window with selectable rows, and Enter picks the highlighted row.",
+    "<b>Companions arrive farther from you</b> when you enter a new area, so they no longer crowd or bump you as you load in.",
+    "<b>Rocks block movement:</b> every rock and large cave spike now has a body, so you and your companions can no longer walk through them.",
+    "<b>Bees:</b> the eyes are now rounded and sit in the head with a small highlight, instead of floating off its sides.",
+    "<b>Deer, dogs and cats:</b> slimmer, deeper-chested bodies instead of round barrels, with shoulder and haunch muscle and thinner lower legs that bend more naturally.",
+    "<b>Pipkin:</b> take shorter, calmer leg steps when walking."
+  ] },
   { v: "18.19.13", date: "2026-10-16", title: "Rods and gathering tools", items: [
     "<b>Fishing rod:</b> a long rod appears in your hands while you fish, with a line and a red-and-white float. The float bobs while you wait, dips and jitters when a fish bites, and is pulled back to you as you reel.",
     "<b>Gathering tools:</b> your pickaxe, hatchet or sickle appears in your hand for each swing, then vanishes. Your own weapon is hidden while a tool is in hand.",
@@ -2991,9 +3005,11 @@ function tabHelp() {
   h += sec("🎮 Controls", ul([
     "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Config, Camera has separate Mouse and Keyboard switches for inverting horizontal (left and right) and vertical (up and down); the keyboard ones affect the arrow keys and Q and E.",
     "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
-    "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
+    "Movement: you run at about 5 metres a second (more on roads and much more mounted). <b>Hold Shift to sprint</b> about 45% faster on foot; letting go returns you to a normal run. Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Shift+Tab cycles nearby objects (signposts, warp stones, crystals, shrines) even with monsters around · Monsters chase you until you leave the zone · Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
+    "<b>Menus:</b> in the auction house, shops, forge, guild, storage and other windows, ↑ ↓ ← → move the highlight over every row and button, the side card shows the highlighted item, and Enter picks it. Esc closes.",
+    "<b>Status icons:</b> the round icons at the top left are your blessings, meals and effects. Click or tap one to see its name and time remaining; tap again or elsewhere to close. Everything counts down on play time, not on the clock.",
     "Hotkeys: plain 1–0 use the line shown on the pinned bar (Main by default), Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first). There is no Ctrl line, because browsers keep Ctrl+number for switching tabs. Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
@@ -3026,7 +3042,7 @@ function tabHelp() {
   h += sec("🏰 The City Blessing", ul([
     "Gate guards stand at every town exit: Aldo at the Outpost's east gate, Senna and Tomas at Saltreach's two gates. Talk to one before you leave and they'll bless you.",
     "<b>Elemental essences only drop while you're blessed</b>, and only from monsters that still give you experience. Everything else (materials, consumables, notorious monster gear) drops as usual.",
-    "The blessing lasts " + BLESSING.baseMin + " minutes at Copper guild rank, " + BLESSING.perRankMin + " minutes more per Adventurers' Guild rank, up to " + BLESSING.maxMin + " minutes at Mythril. It counts down in real time, even while you're logged out. The 🏰 icon on your party frame shows it's active, and a guard with a ❗ means you've no blessing.",
+    "The blessing lasts " + BLESSING.baseMin + " minutes at Copper guild rank, " + BLESSING.perRankMin + " minutes more per Adventurers' Guild rank, up to " + BLESSING.maxMin + " minutes at Mythril. It counts down only while you are playing, so logging out pauses it. The 🏰 icon at the top left shows it's active (tap it to see the time left), and a guard with a ❗ means you've no blessing.",
     "You can renew it any time; renewing restarts the timer."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
@@ -3217,6 +3233,7 @@ function tabHelp() {
     "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to Pell, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
   ]));
   h += sec("🕰️ Time and waiting", ul([
+    "The <b>sun</b> and <b>moon</b> cross the sky with the game clock: the sun rises in the east around 06:00 and sets in the west around 18:00, turning orange near the horizon; the moon climbs after sunset and sets at dawn. Its shape follows the day of the cycle. Caves and buildings have no sky.",
     "A game day passes in about 58 real minutes (one game hour is about 2.4 real minutes). Night runs from 18:00 to 06:00 and brings different monsters.",
     "Main menu → Time opens a box: <b>Current time</b> writes the Leid'anav date, time and day element plus your own date and time to the log; <b>Wait</b> lets you pick 1 to 24 hours with − / + or the slider.",
     "Waiting only works in a town (enemies are near anywhere else) and only when no other adventurer is online, because everyone online shares one clock. The clock then races ahead, one game hour every 5 seconds, and the sky, weather, shops and night monsters follow. Stop ends it early. Leaving town, a fight or another player coming online interrupts it.",
@@ -3274,7 +3291,7 @@ function tabHelp() {
   ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, (l => l.length > 12 ? l.slice(0, 10).join(", ") + " and " + (l.length - 10) + " more" : l.join(", "))(RECIPES.filter(r => r.craft === k).sort((x, y) => x.lv - y.lv).map(r => ITEMS[r.out].name))])));
   h += sec("🍳 Cooking and food", ul([
     "Cooking is a craft (Crafting in the main menu) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
-    "Eat a meal from your bag or the Items command for " + CONFIG.foodMinutes + " real minutes of bonuses (it keeps counting while you're away). One meal at a time: eating another replaces it. You can't eat mid-fight.",
+    "Eat a meal from your bag or the Items command for " + CONFIG.foodMinutes + " minutes of play time of bonuses (it only counts down while you're playing). One meal at a time: eating another replaces it. You can't eat mid-fight.",
     "Meals: " + Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food").map(k => ITEMS[k].name + " (" + foodText(ITEMS[k].food) + ")").join(" · ") + "."
   ]));
   h += sec("🌱 Gardening", ul([
@@ -3580,7 +3597,7 @@ function modalKey(k) {
     if (k === "enter" && i >= 0) { rows[i].click(); return true; }
     return false;
   }
-  const btns = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(b => b.offsetParent);
+  const btns = [...document.querySelectorAll(KB_SEL)].filter(b => b.offsetParent);
   if (!btns.length) return false;
   let i = btns.findIndex(b => b.classList.contains("kb"));
   const d = { arrowup: -1, arrowleft: -1, arrowdown: 1, arrowright: 1 }[k];
@@ -3590,6 +3607,7 @@ function modalKey(k) {
     UI.kbBtn = i;
     btns[i].scrollIntoView({ block: "nearest" });
     if (btns[i].title) UI.modalHelp = btns[i].title;
+    if (btns[i].dataset.hv) { UI.hov = btns[i].dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); }
     sfx("tab");
     return true;
   }

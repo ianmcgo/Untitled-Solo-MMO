@@ -1850,3 +1850,23 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Rod hand rotation x = 2.45 (about 45 degrees forward and up with the fishing arm pose). The line is a thin cylinder and the float a half red, half white sphere with a stem, both children of v.group so they use group-local coordinates; float flies out after the cast swing (0.45-0.75s), bobs, dips and jitters on a bite, and reels in over 0.8s.
 - Remote players do not show tools. Item-specific tool tiers are not modelled.
 - test/evsheet.js: WS=work:fish (MODE=bite), work:gather:mining|logging|harvesting, work:craft.
+
+## 18.20.0: sprint, victory fanfare, sky, play-time timers, collision, model fixes
+
+**Sprint.** `CONFIG.sprintMul` (1.45) multiplies keyboard movement speed in `updatePlayer` while `S.keys.shift` is held and the player is not mounted. Touch and click-to-move are unchanged. Gait speed follows actual movement, so the run cycle appears on its own.
+
+**Victory fanfare.** `victoryDef()` in `audio.js` builds the `UI_SYNTH.victory` note list: three-note pickups on E5 then F5 into held G5 and A5, a rising G-A-B run and a held C6 with chords and a bass note. A new `"brass"` voice type in `uiSynth` uses a sawtooth, low-pass filter and a sustained envelope (attack, hold to 60% of the note, then decay). `sfx("victory")` ducks the music for 4.2 s. It is called at the end of the mob kill handler in `game.js` when the kill gave experience (`xp > 0`) and no other living mob in combat has any party member on its enmity list.
+
+**Sky.** `W3.sunDisc` is a solid sprite (`sunTex`) placed 880 units along the sun direction, tinted toward orange by the `golden` factor and faded by weather gloom. The moon sprites now use the unclamped opposite of the sun direction (`moonSky`) and fade in through `moonUp` as they clear the horizon, so the moon sets and rises instead of sitting at the horizon. The clamped `moonDir` is still used for night lighting only. Moon disc scale 50, moon glow 110.
+
+**Play-time timers.** City Blessing is `save.blessEnd` and meals are `save.food.endSec`, both in `save.playSec` seconds (play time only advances in `step`). `migratePlayTimers()` converts old wall-clock `save.blessing` and `save.food.until` the first time they are read. `blessLeft()` and `foodLeft()` give seconds remaining. Combat buffs already ran on `S.time`.
+
+**Status popups.** `statusPopTick()` in `hud4.js` owns the `#stPop` element and a capture-phase document click listener. Status icons carry `data-st` keys (`bless`, `food`, `b:<buff>`, `rest`); `statusInfo(key)` returns name, seconds left and a description, and the popup text is refreshed each HUD update.
+
+**Menu arrows.** `KB_SEL` in `menu4.js` adds `.item[data-a]` rows to the keyboard-navigable set, so the auction house, forge, guild and similar windows work with arrow keys. The highlighted row's `data-hv` item drives the side card and help line. `.item.kb` gets the same outline as buttons.
+
+**Companion arrival.** `arrivalSpot(i, x, y, face)` places companion `i` at `CONFIG.arriveGap` (95) plus 24 per pair, behind the player and fanned 0.45 rad to each side; if that lands within 50 units of a zone edge it uses the front instead. Used by `enterZone` and warp stones, followed by `keepInZone` and `keepOutOfColliders`.
+
+**Collision.** In `world3d.js` every large rock now adds a collider (radius 0.85 of its visual radius; before, only rocks with scale above 1.3 did) and outer stalagmites add one (0.7 of base radius). Pebbles (small rocks) still do not block.
+
+**Models.** Bee eyes (`beeEntry`): radius 0.04, 12 segments, centred on the head surface, plus a highlight ball. `quadEntry` has a `slim` mode: the torso is a `gSweepZ` loft (`TORSO` ring table) with a tucked waist and deeper chest, shoulder and haunch balls on the leg bones, thicker upper legs and thin cannon bones with a knee ball. Deer, dog and cat use it with narrower `bodyW`. Pipkin gait: `RACE_GAIT.pipkin.leg` 0.6 scales thigh and knee swing and the Pipkin stride is 1.3 (was 0.85), so legs step less often and swing less.

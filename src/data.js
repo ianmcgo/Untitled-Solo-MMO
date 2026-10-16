@@ -76,6 +76,8 @@ const CONFIG = {
   startGil: 100,
   mountSpeed: 2.2,
   runSpeed: 100,
+  sprintMul: 1.45,
+  arriveGap: 95,
   mobSpeedMul: 0.72,
   npcSpeed: 45
 };
