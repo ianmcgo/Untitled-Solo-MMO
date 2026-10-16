@@ -53,7 +53,7 @@ function onKey(e) {
     const idx = digit === "0" ? 9 : parseInt(digit, 10) - 1;
     e.preventDefault();
     if (UI.tabHeld) UI.tabUsed = true;
-    activateSlot(UI.tabHeld ? 3 : e.altKey ? 2 : e.shiftKey ? 1 : e.ctrlKey ? 0 : UI.page, idx);
+    activateSlot(UI.tabHeld ? 3 : e.altKey ? 2 : e.shiftKey ? 1 : UI.page, idx);
     return;
   }
   if (k === "e" && !S.keys.e && nearNpc() && dist(nearNpc(), player) <= CONFIG.talkRange) { talkNearest(); return; }

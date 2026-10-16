@@ -1104,7 +1104,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.14.0 · built 2026-10-15 21:41 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.15.0 · built 2026-10-15 21:45 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -15684,14 +15684,14 @@ function buildActionBar() {
     el.appendChild(b);
     UI.slots.push({ el: b, a, cost: b.querySelector(".cost"), cd: b.querySelector(".cd"), cdt: b.querySelector(".cdt"), chip: null, last: {} });
   }
-  $("pgNum").textContent = ["Ctrl", "Shft", "Alt", "Tab"][UI.page];
+  $("pgNum").textContent = ["Main", "Shft", "Alt", "Tab"][UI.page];
   if (typeof VIEW !== "undefined" && VIEW.settings) barPosApply();
 }
 function toggleFullscreen() {
   const d = document;
   if (d.fullscreenElement) { d.exitFullscreen(); return; }
   const p = d.documentElement.requestFullscreen ? d.documentElement.requestFullscreen({ navigationUI: "hide" }) : null;
-  if (p) p.then(() => { if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(() => {}); log("Fullscreen on. The browser now passes Ctrl+number and other shortcuts to the game.", "sys"); }).catch(() => log("Your browser would not enter fullscreen.", "sys"));
+  if (p) p.then(() => { if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(() => {}); log("Fullscreen on. The browser now passes more shortcuts to the game.", "sys"); }).catch(() => log("Your browser would not enter fullscreen.", "sys"));
 }
 
 function lineShown(pg) { return pg.some(a => a && a.hud !== false); }
@@ -17639,9 +17639,9 @@ function tabSkills() {
 
 function tabActions() {
   const hb = hotbar();
-  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Select a slot, then Hide from HUD or Show on HUD to choose whether it appears on the pinned bar (its hotkey still works; hidden slots are dimmed here). With no slot shown the bar disappears; the ✕ on the bar hides every slot. Four lines of ten: hold <b>Ctrl</b>, <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press 1–9 or 0. Plain 1–0 use the line shown on the pinned bar (Ctrl by default), which also works when your browser keeps Ctrl+number for switching tabs.</div>';
+  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Select a slot, then Hide from HUD or Show on HUD to choose whether it appears on the pinned bar (its hotkey still works; hidden slots are dimmed here). With no slot shown the bar disappears; the ✕ on the bar hides every slot. Four lines of ten: plain 1–9 and 0 fire the line shown on the pinned bar (Main by default); hold <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press a number for those lines.</div>';
   hb.pages.forEach((pg, p) => {
-    h += "<h3>" + ["Ctrl", "Shift", "Alt", "Tab"][p] + " line</h3><div class=\"barEdit\">";
+    h += "<h3>" + ["Main", "Shift", "Alt", "Tab"][p] + " line</h3><div class=\"barEdit\">";
     pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + (a && a.hud === false ? " nohud" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
     h += "</div>";
   });
@@ -18669,8 +18669,12 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.14.0 · built 2026-10-15 21:41 PDT";
+const BUILD_INFO = "v18.15.0 · built 2026-10-15 21:45 PDT";
 const UPDATES = [
+  { v: "18.15.0", date: "2026-10-15", title: "Ctrl hotkey line removed", items: [
+    "<b>The Ctrl hotkey line is gone</b>, since browsers keep Ctrl+number for switching tabs. The old Ctrl line is now the <b>Main</b> line: plain 1–9 and 0 fire it, and your saved slots are kept.",
+    "Shift, Alt and Tab still hold their own lines of ten. The pinned bar label reads Main, Shft, Alt or Tab."
+  ] },
   { v: "18.14.0", date: "2026-10-15", title: "Pricier shops, no camp crystals", items: [
     "<b>Empty hotkey slots do nothing</b> instead of opening the Hotkeys window. If Ctrl+number does nothing, your browser is keeping it for tab switching: turn on Fullscreen (free keys) in Config > Interface, or use plain 1–0 or Alt+1–0.",
     "<b>Everything in the shops costs 10 times as much.</b> Selling prices, mercenary fees, the stable and the Auction House are unchanged.",
@@ -19437,7 +19441,7 @@ const UPDATES = [
     "Pell sells scrolls for spells up to level 10, Vela in Saltreach sells levels 11–17, and any monster may drop a scroll for spells near its level. When you level up, the log tells you which new spells you can now learn.",
     "Walking looks calmer: smaller arm swing and less twisting through the chest.",
     "Space (or Enter with nothing targeted) opens the typing box in the event log. Jump moved to Shift+Space.",
-    "Hotkeys have two lines: hold Ctrl and press 1–9 or 0 for the Ctrl line, or Shift for the Shift line. Plain 1–0 also use the Ctrl line, because many browsers keep Ctrl+number for switching tabs.",
+    "Hotkeys have lines: plain 1–9 and 0 fire the Main line, and holding Shift fires the Shift line.",
     "Every window can be used with the arrow keys: ↑ ↓ move through lists (Items, Shop, Quests, Magic, Abilities), Enter chooses. In Equipment the arrows move between the 16 boxes, Enter opens that box's choices, ↑ ↓ pick and Enter equips, ← or Esc goes back. Other windows (Crafting, Config and so on) step through their buttons.",
     "Pip now changes your job (and support job); Tobin still teaches support and advanced jobs. Tab can target Pip.",
     "Closing a window you opened through Pip (or anyone else) no longer opens the main menu; only windows opened from the main menu return to it.",
@@ -19905,7 +19909,7 @@ function tabHelp() {
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Shift+Tab cycles nearby objects (signposts, warp stones, crystals, shrines) even with monsters around · Monsters chase you until you leave the zone · Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
-    "Browsers reserve some Ctrl+number shortcuts; the game blocks them, and Fullscreen in Config > Interface frees the rest. Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first) (plain 1–0 use the line shown on the pinned bar, Ctrl by default; browsers may keep Ctrl+number for switching tabs). Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "Hotkeys: plain 1–0 use the line shown on the pinned bar (Main by default), Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first). There is no Ctrl line, because browsers keep Ctrl+number for switching tabs. Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -20271,7 +20275,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "18.14.0";
+const GAME_VERSION = "18.15.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -31085,7 +31089,7 @@ function onKey(e) {
     const idx = digit === "0" ? 9 : parseInt(digit, 10) - 1;
     e.preventDefault();
     if (UI.tabHeld) UI.tabUsed = true;
-    activateSlot(UI.tabHeld ? 3 : e.altKey ? 2 : e.shiftKey ? 1 : e.ctrlKey ? 0 : UI.page, idx);
+    activateSlot(UI.tabHeld ? 3 : e.altKey ? 2 : e.shiftKey ? 1 : UI.page, idx);
     return;
   }
   if (k === "e" && !S.keys.e && nearNpc() && dist(nearNpc(), player) <= CONFIG.talkRange) { talkNearest(); return; }
