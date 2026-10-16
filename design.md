@@ -1844,3 +1844,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - hareEntry now builds a rarab with meta.kind "rarab": bones hips, body, head, ear/ear2 L/R, legB/footB L/R, tail; no front legs. Toad still uses kind "hare" and poseHare.
 - poseRarab: hop cycle from an.ph (air 58%, land 42%), body leans into hops, ears stream back, idle sway, nod and random ear twitches; crouch-spring attack, readying crouch, hit flinch, side flop on death. Stride 1.1. Added to SLOPE_KINDS and LOOK_KINDS; dispatch in models3d.js and menu4.js.
 - mobsheet.js gained ACT walk (treadmill via an.lx, SPD env).
+
+## 18.19.13: rod and gathering tool props
+- models3d.js: buildTool(kind) makes pickaxe, hatchet, sickle and rod from primitives with plain Lambert materials (no outline). toolWant(v, e) picks the tool for the player only: rod while S.fish or within 0.8s of player.reelAt, otherwise a gather tool within 0.9s of player.gatherAt. placeTool(v, e) is called after placeWeapon in syncEntity; it parents the prop to handR, scales it in over 0.18s by weaponBodyK, and hides the weapon only when it is in hand.
+- Rod hand rotation x = 2.45 (about 45 degrees forward and up with the fishing arm pose). The line is a thin cylinder and the float a half red, half white sphere with a stem, both children of v.group so they use group-local coordinates; float flies out after the cast swing (0.45-0.75s), bobs, dips and jitters on a bite, and reels in over 0.8s.
+- Remote players do not show tools. Item-specific tool tiers are not modelled.
+- test/evsheet.js: WS=work:fish (MODE=bite), work:gather:mining|logging|harvesting, work:craft.

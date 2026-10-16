@@ -162,6 +162,86 @@ function placeWeapon(v, e) {
   }
 }
 
+const TOOL_MATS = {};
+function toolMat(c) { return TOOL_MATS[c] || (TOOL_MATS[c] = new THREE.MeshLambertMaterial({ color: c })); }
+function toolPart(geo, col, x, y, z, rx, ry, rz) { const m = new THREE.Mesh(geo, toolMat(col)); m.position.set(x, y, z); m.rotation.set(rx || 0, ry || 0, rz || 0); m.castShadow = true; return m; }
+function buildTool(kind) {
+  const g = new THREE.Group(), wood = 0x7a5230, steel = 0xb9c2cc, dark = 0x4a3420;
+  const cyl = (r1, r2, h) => new THREE.CylinderGeometry(r2, r1, h, 7);
+  if (kind === "pickaxe") {
+    g.add(toolPart(cyl(0.02, 0.016, 0.62), wood, 0, 0.26, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.05, 0.05, 0.07), steel, 0, 0.58, 0));
+    g.add(toolPart(new THREE.CylinderGeometry(0.003, 0.026, 0.2, 6), steel, 0.12, 0.58, 0, 0, 0, -Math.PI / 2 + 0.2));
+    g.add(toolPart(new THREE.CylinderGeometry(0.003, 0.026, 0.2, 6), steel, -0.12, 0.58, 0, 0, 0, Math.PI / 2 - 0.2));
+  } else if (kind === "hatchet") {
+    g.add(toolPart(cyl(0.02, 0.016, 0.5), wood, 0, 0.2, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.03, 0.14, 0.05), dark, 0, 0.43, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.15, 0.16, 0.022), steel, 0.08, 0.42, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.02, 0.2, 0.012), 0xe8eef4, 0.16, 0.42, 0));
+  } else if (kind === "sickle") {
+    g.add(toolPart(cyl(0.02, 0.017, 0.3), wood, 0, 0.1, 0));
+    const arc = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.013, 6, 14, Math.PI * 1.15), toolMat(steel));
+    arc.position.set(0.11, 0.34, 0); arc.rotation.set(0, 0, Math.PI * 0.55); arc.castShadow = true; g.add(arc);
+  } else {
+    const hand = new THREE.Group(); g.add(hand);
+    hand.add(toolPart(cyl(0.022, 0.019, 0.34), dark, 0, 0.0, 0));
+    hand.add(toolPart(new THREE.CylinderGeometry(0.004, 0.018, 1.3, 6), wood, 0, 0.98, 0));
+    hand.add(toolPart(new THREE.TorusGeometry(0.03, 0.005, 5, 10), steel, 0, 0.5, 0.0, Math.PI / 2, 0, 0));
+    hand.add(toolPart(new THREE.SphereGeometry(0.02, 8, 6), 0xb0b8c0, 0, 0.1, 0.03));
+    g.userData.tipLocal = new THREE.Vector3(0, 1.64, 0);
+    const line = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0035, 1, 4), toolMat(0xf4f4f0)); line.visible = false; g.userData.line = line;
+    const fl = new THREE.Group();
+    fl.add(toolPart(new THREE.SphereGeometry(0.035, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0xe53935, 0, 0, 0));
+    fl.add(toolPart(new THREE.SphereGeometry(0.035, 10, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), 0xf5f5f5, 0, 0, 0));
+    fl.add(toolPart(cyl(0.004, 0.004, 0.07), 0xf5f5f5, 0, 0.06, 0));
+    fl.visible = false; g.userData.float = fl;
+  }
+  return g;
+}
+function toolWant(v, e) {
+  if (e !== player || e.alive === false || e.mounted || e.resting) return null;
+  if (S.fish || (e.reelAt != null && S.time - e.reelAt < 0.8)) return "rod";
+  if (e.gatherAt != null && S.time - e.gatherAt < 0.9) return e.gatherType === "mining" ? "pickaxe" : e.gatherType === "logging" ? "hatchet" : "sickle";
+  return null;
+}
+function placeTool(v, e) {
+  if (v.kind !== "human" || !v.bones.handR) return;
+  const want = toolWant(v, e), cur = v.tool;
+  if (want !== (cur && cur.kind)) {
+    if (cur) { cur.g.parent && cur.g.parent.remove(cur.g); if (cur.g.userData.line) { cur.g.userData.line.parent && cur.g.userData.line.parent.remove(cur.g.userData.line); cur.g.userData.float.parent && cur.g.userData.float.parent.remove(cur.g.userData.float); } v.tool = null; }
+    if (want) {
+      const g = (v.toolCache || (v.toolCache = {}))[want] || (v.toolCache[want] = buildTool(want));
+      v.bones.handR.add(g);
+      if (want === "rod") { g.position.set(0.016, -0.06, 0.012); g.rotation.set(2.45, 0, 0); v.group.add(g.userData.line); v.group.add(g.userData.float); }
+      else { g.position.set(0.016, -0.074, 0.012); g.rotation.set(Math.PI / 2 - 0.25, 0, 0); }
+      v.tool = { kind: want, g, t0: S.time };
+    }
+  }
+  const tl = v.tool;
+  if (v.weapon && v.weaponDrawn && tl) v.weapon.visible = false; else if (v.weapon) v.weapon.visible = true;
+  if (!tl) return;
+  const k = Math.min(1, (S.time - tl.t0) / 0.18), sc = weaponBodyK(v) * (0.3 + 0.7 * k * k * (3 - 2 * k));
+  tl.g.scale.setScalar(sc);
+  if (tl.kind !== "rod") return;
+  const ud = tl.g.userData, fs = S.fish, line = ud.line, fl = ud.float;
+  tl.g.updateWorldMatrix(true, false);
+  const tipW = tl.g.localToWorld(ud.tipLocal.clone()), tip = v.group.worldToLocal(tipW.clone());
+  const sy = v.group.scale.y || 1, rk = e.reelAt != null ? (S.time - e.reelAt) / 0.8 : 9;
+  const T = fs ? S.time - (fs.since || S.time) : 0.7;
+  const reach = fs ? 1.5 / sy : (1.5 - 1.2 * ease(rk)) / sy;
+  const show = fs ? T > 0.45 : rk < 1;
+  line.visible = fl.visible = show;
+  if (!show) return;
+  const flyK = fs ? ease((T - 0.45) / 0.3) : 1, bite = fs && fs.state === "bite";
+  const bob = Math.sin(S.time * 2.2) * 0.008 / sy + (bite ? -0.05 / sy + Math.sin(S.time * 30) * 0.015 / sy : 0);
+  const fx = tip.x * (1 - flyK), fz = tip.z + (reach - tip.z) * flyK, fy = tip.y * (1 - flyK) + (-0.01 / sy + bob) * flyK + Math.sin(flyK * Math.PI) * 0.5 / sy;
+  fl.position.set(fx, fy, fz);
+  const dx = fx - tip.x, dy = fy + 0.06 - tip.y, dz = fz - tip.z, len = Math.hypot(dx, dy, dz) || 1e-3;
+  line.position.set(tip.x + dx / 2, tip.y + dy / 2, tip.z + dz / 2);
+  line.scale.set(1 / sy, len, 1 / sy);
+  line.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(dx, dy, dz).normalize());
+}
+
 const SLOPE_KINDS = { crawler: 1, worm: 1, quad: 1, crab: 1, fish: 1, hare: 1, rarab: 1 };
 function footGround(e) {
   const r = Math.max(4, (e.radius || 14) * 0.55);
@@ -255,6 +335,7 @@ function syncEntity(e, dt) {
   else if (v.kind === "shroom") poseShroom(v, e, dt);
   else if (v.kind === "fish") poseFish(v, e, dt);
   placeWeapon(v, e);
+  placeTool(v, e);
   if (v.weapon && v.weaponKind !== "staff") updateTrail(v, e, dt);
   const flash = e.flash > 0 ? e.flash / 0.15 : 0;
   v.mat.emissive.setRGB(flash, flash * 0.95, flash * 0.9);
