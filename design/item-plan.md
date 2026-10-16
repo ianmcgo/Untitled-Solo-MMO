@@ -63,3 +63,7 @@ Anything the Windower files lack (spell MP, cast, recast, power, potion effects,
 
 ## Naming decision (user)
 Use the real FFXI item and spell names for now. The design notes' "names are original" line gets updated in design.md when the first slice ships. Names can be swapped later because ids are separate from display names.
+
+## Status
+- 17.0.0 shipped: spells, potions, starting spells, save wipe. Details in design.md "FFXI rules (v17.0.0)".
+- Next: 17.1 (deferred spells and statuses), equipment import (level 20 and below), phase F rules, phase G balance (Opus recommended for F and G).

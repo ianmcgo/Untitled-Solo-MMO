@@ -338,7 +338,9 @@ function showCharSelect() {
   $("ldStart").style.display = "none";
   const r = loadRoster();
   r.chars.sort((a, b) => (b.played || 0) - (a.played || 0));
-  let h = '<div class="ccList">';
+  let h = '';
+  if (OLD_CHARS.length) { h += '<div class="ccEmpty" style="margin-bottom:8px">Update 17.0 changed the rules (FFXI spells, potions and gear). These characters could not be kept and were deleted: ' + esc(OLD_CHARS.join(', ')) + '. Please create a new character.</div>'; OLD_CHARS.length = 0; }
+  h += '<div class="ccList">';
   for (const c of r.chars) {
     const j = JOBS[c.job] || JOBS.WAR;
     h += '<div class="ccCard" data-id="' + c.id + '"><div class="ccPor" style="background:' + j.color + '22;border-color:' + j.color + '">' + j.icon + '</div><div class="ccInfo"><b>' + esc(c.name) + '</b><span>' + esc(((RACES[(c.look || {}).race] || RACES.human).name) + " " + j.name) + " Lv." + c.lv + ' · ' + esc(c.zone) + '</span><small>Last played ' + fmtAgo(c.played || c.created) + '</small></div><div class="ccBtns"><button class="pri" data-play="' + c.id + '">Play</button><button class="del" data-del="' + c.id + '" title="Delete">🗑</button></div></div>';

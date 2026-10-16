@@ -4,11 +4,11 @@ let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' 
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 ok(G.CONFIG.levelCap === 20 && G.CONFIG.xpTable.length === 20, 'level cap is 20');
 G.save.jobs.WHM.lv = 18; G.setJob('WHM', null); G.gainXp(1e7);
-ok(P().lv === 20 && G.actionList(P()).some(a => a.id === 'cure4'), 'White Mages reach 20 and know Cure IV');
+ok(P().lv === 20 && G.actionList(P()).some(a => a.id === 'cure2'), 'White Mages reach 20 and know Cure II');
 G.save.jobs.BLM.lv = 19; G.setJob('BLM', null); G.gainXp(1e7);
-ok(G.actionList(P()).some(a => a.id === 'fire3') && G.actionList(P()).some(a => a.id === 'thunder2'), 'Black Mages learn Thunder II and Fire III');
+ok(G.actionList(P()).some(a => a.id === 'fire') && G.actionList(P()).some(a => a.id === 'blizzard'), 'Black Mages learn Fire and Blizzard');
 G.save.jobs.SMN = G.save.jobs.SMN || { lv: 1, xp: 0 }; G.save.jobs.SMN.lv = 15; G.save.unlocked = G.save.unlocked || []; G.setJob('SMN', null);
-ok(G.actionList(P()).some(a => a.id === 'stone_sprite') || P().job !== 'SMN', 'Summoners learn the Stone Sprite at 15');
+ok(G.actionList(P()).some(a => a.id === 'earth_spirit') || P().job !== 'SMN', 'Summoners know the Earth Spirit');
 const ex = G.ZONES.harbor.exits.find(e => e.to === 'frost');
 ok(ex && G.ZONES.frost.exits.some(e => e.to === 'harbor'), 'Saltreach Harbor and Frostspire Pass connect both ways');
 G.enterZone('frost', 900, 1200); run(1);

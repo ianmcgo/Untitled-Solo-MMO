@@ -92,6 +92,12 @@ async function netFetchChar(id) {
   const { data, error } = await NET.sb.from("characters").select("data").eq("id", id).single();
   if (error) throw error;
   const d = normalizeSave(data.data);
+  if (!d && data.data && data.data.rv !== CONFIG.ruleVer) {
+    try { await netDeleteChar(id); } catch (e) {}
+    STORE.remove(charKey(id));
+    OLD_CHARS.push(data.data.name || "A character");
+    throw new Error("That character was made before the 17.0 rules update and has been deleted. Please create a new character.");
+  }
   if (!d) throw new Error("That character's save is damaged.");
   STORE.set(charKey(id), JSON.stringify(d));
   return d;

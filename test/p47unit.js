@@ -2,7 +2,7 @@ const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P
 let fails = 0;
 const ok = (c, m) => { console.log((c ? 'ok   ' : 'FAIL ') + m); if (!c) fails++; };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-ok(G.SPELLS.raise && G.SPELLS.raise.kind === 'raise' && G.ITEMS.ember_plume && G.ITEMS.ember_plume.revive, 'Raise and Ember Plume exist');
+ok(G.ITEMS.reraiser && G.ITEMS.reraiser.reraise && !G.SPELLS.raise, 'Reraiser exists and Raise is not a level 20 spell');
 const xp0 = (G.save.jobs[G.save.mainJob].xp = 500);
 P().hp = 1; G.onKO(P(), null);
 ok(S.ko && !P().alive && G.save.ko && G.save.ko.until > Date.now() + 59 * 60000, 'a KO lasts an hour');
