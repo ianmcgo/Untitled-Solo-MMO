@@ -1,4 +1,4 @@
-# Load time and zoning plan (drafted 2026-10-16). Done: Phase 0, 1 (18.21.0), 2 (18.22.0), 3 (18.23.0), 5 (18.24.0, without building during the walk). Next: 5b, then 4 only if needed, 6
+# Load time and zoning plan (drafted 2026-10-16). Done: Phase 0, 1 (18.21.0), 2 (18.22.0), 3 (18.23.0), 5 (18.24.0), 5b (18.25.0). Left: 4 only if needed, 6
 
 Baseline at v18.19.13: dist/index.html 6.37 MB, single file. Order: CSS, HTML, THREE bundle (full namespace), game scripts, audio JSON block (about 3.1 MB, does not compress). Boot: renderer, atlas (0.5 s low / 2.0 s high), effects, icon atlas, save and party, zone build in 28 ms slices, compileAsync (6 s cap). data.js runs heavy generation at parse time. localStorage is shared per github.io origin, so any cache must use IndexedDB.
 

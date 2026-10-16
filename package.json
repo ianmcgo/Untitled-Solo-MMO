@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.24.0",
-  "releaseTitle": "Walking between zones",
+  "version": "18.25.0",
+  "releaseTitle": "Natural zone exits",
   "description": "",
   "main": "index.js",
   "scripts": {

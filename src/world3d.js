@@ -7,6 +7,12 @@ const W3 = {
 };
 
 function p2w(px, py, h) { return new THREE.Vector3(px * U, h == null ? groundY(px, py) : h, py * U); }
+function footY(field, px, py, rw) {
+  const r = Math.max(0.5, rw / U);
+  let m = field.heightAt(px, py);
+  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7], [-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7]]) m = Math.min(m, field.heightAt(px + dx * r, py + dy * r));
+  return m;
+}
 function groundY(px, py) { return W3.field ? W3.field.heightAt(px, py) : 0; }
 
 function themeOf(z) { return z.theme || "field"; }
@@ -85,8 +91,13 @@ function* buildFieldSteps(zone) {
       const horiz = ex.x <= 0 || ex.x + ex.w >= zone.w;
       const lateral = horiz ? Math.abs(py - cy) : Math.abs(px - cx);
       const along = horiz ? (ex.x <= 0 ? -px : px - zone.w) : (ex.y <= 0 ? -py : py - zone.h);
-      const lane = ex.lane || 70, depth = (ex.hall || 220) + 60;
-      if (along > -depth) m = Math.max(m, 1 - sstep(lane - 10, lane + 40, lateral));
+      const lane0 = ex.lane || 70, depth = (ex.hall || 220) + 60;
+      const into = Math.max(0, -along), seedK = (cx * 0.013 + cy * 0.017) % 97;
+      const bend = sstep(50, 200, into);
+      const wob = (NOISE.fbm(into * 0.0045 + seedK, seedK * 1.7, 2, 0, 521) - 0.5) * 2 * lane0 * 0.7 * bend;
+      const lane = lane0 * (1 + (NOISE.fbm(into * 0.008 + seedK * 2, seedK, 2, 0, 523) - 0.5) * 0.7 * bend);
+      const lat = Math.abs((horiz ? py - cy : px - cx) - wob) + (NOISE.value(px * 0.035, py * 0.035, 0, 525) - 0.5) * 46 * bend;
+      if (along > -depth) m = Math.max(m, 1 - sstep(lane - 20, lane + 105, lat));
     }
     return m;
   };
@@ -254,7 +265,7 @@ function buildCliffs(field, root) {
   for (let py = field.y0 + step / 2; py < field.y0 + field.h && count < cap * 3; py += step) {
     for (let px = field.x0 + step / 2; px < field.x0 + field.w && count < cap * 3; px += step) {
       const jx = px + (rnd() - 0.5) * step * 0.9, jy = py + (rnd() - 0.5) * step * 0.9;
-      const h0 = field.heightAt(jx, jy), hx = field.heightAt(jx + 6, jy) - field.heightAt(jx - 6, jy), hy = field.heightAt(jx, jy + 6) - field.heightAt(jx, jy - 6);
+      const h0 = footY(field, jx, jy, 1.4), hx = field.heightAt(jx + 6, jy) - field.heightAt(jx - 6, jy), hy = field.heightAt(jx, jy + 6) - field.heightAt(jx, jy - 6);
       const grad = Math.hypot(hx, hy) / (12 * U);
       const out = field.outside(jx, jy);
       if (grad < 0.55 && out < 0.35) continue;
@@ -610,7 +621,7 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 30 })) continue;
     const s = 0.8 + rnd() * 2.6;
     const rsx = s * (0.8 + rnd() * 0.6), rsy = s * (0.5 + rnd() * 0.5), rsz = s * (0.8 + rnd() * 0.6);
-    rocks.push(mtx(px * U, field.heightAt(px, py) - s * 0.25, py * U, rsx, rsy, rsz, rnd() * 6.28, rnd() * 0.3));
+    rocks.push(mtx(px * U, footY(field, px, py, Math.max(rsx, rsz) * 0.9) - s * 0.25, py * U, rsx, rsy, rsz, rnd() * 6.28, rnd() * 0.3));
     z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.85 / U });
     k++;
   }
@@ -618,7 +629,7 @@ function buildVegetation(field, root) {
     const px = 30 + rnd() * (z.w - 60), py = 30 + rnd() * (z.h - 60);
     if (!placeable(field, px, py, { water: 10, npc: 40, path: 0.5 })) continue;
     const s = 0.15 + rnd() * 0.35;
-    smallRocks.push(mtx(px * U, field.heightAt(px, py) - s * 0.2, py * U, s, s * 0.6, s, rnd() * 6.28));
+    smallRocks.push(mtx(px * U, footY(field, px, py, s * 0.8) - s * 0.2, py * U, s, s * 0.6, s, rnd() * 6.28));
     k++;
   }
   for (let k = 0, tries = 0; k < want.stal && tries < want.stal * 30; tries++) {
@@ -629,7 +640,7 @@ function buildVegetation(field, root) {
     if (inside && rnd() < 0.7) continue;
     if (!placeable(field, px, py, { water: 40, npc: 60, path: 0.05, exit: 170 })) continue;
     const s = inside ? 0.35 + rnd() * 0.45 : 1 + rnd() * 2.5;
-    stal.push(mtx(px * U, field.heightAt(px, py) - 0.2, py * U, s, s * (inside ? 1 + rnd() * 1.4 : 1.5 + rnd() * 2.5), s, rnd() * 6.28));
+    stal.push(mtx(px * U, footY(field, px, py, s * 0.9) - 0.2, py * U, s, s * (inside ? 1 + rnd() * 1.4 : 1.5 + rnd() * 2.5), s, rnd() * 6.28));
     if (!inside) z.colliders.push({ x: px, y: py, r: s * 0.7 / U });
     k++;
   }
@@ -2134,6 +2145,7 @@ function* buildZone3DSteps() {
   buildExits(field, root);
   buildWater(field, root);
   buildBackdrop(field, root);
+  buildExitBackdrops(field, root);
   yield { p: 0.94, t: "Filling the water…" };
   W3.scene.add(root);
   W3.lastSunY = -9;
@@ -2154,6 +2166,56 @@ const BACKDROP = {
   sunscar: { h: [40, 85, 150], col: [0x9a6a48, 0xb48a68, 0xd8b896], mark: "peak" },
   ironvale: { h: [60, 120, 210], col: [0x7a8a96, 0xa8b8c4, 0xe0eaf2], snow: true, mark: "peak" }
 };
+const EXIT_TEX = {};
+function exitRidgeTex(destZone) {
+  const key = destZone.palette || destZone.theme || "field";
+  if (EXIT_TEX[key]) return EXIT_TEX[key];
+  const th = TERRAIN_THEMES[key] || TERRAIN_THEMES.field, W = 512, H = 128;
+  const cv = makeCanvas(W, H), g = cv.getContext("2d");
+  const haze = [200, 212, 224];
+  const layers = [{ base: 0.55, amp: 0.34, mix: 0.62, col: th.cliff }, { base: 0.4, amp: 0.34, mix: 0.42, col: th.grassA }, { base: 0.22, amp: 0.3, mix: 0.2, col: th.grassB }];
+  const seed = hashStr("exit" + key);
+  layers.forEach((L, li) => {
+    const c = L.col.map((v, i) => Math.round(v * (1 - L.mix) + haze[i] * L.mix));
+    g.fillStyle = "rgb(" + c.join(",") + ")";
+    g.beginPath(); g.moveTo(0, H);
+    for (let x = 0; x <= W; x += 4) {
+      const n = NOISE.fbm(x / W * 5 + li * 7, li * 3.1, 3, 0, seed % 997);
+      g.lineTo(x, H * (1 - L.base - (n - 0.5) * L.amp * 2));
+    }
+    g.lineTo(W, H); g.closePath(); g.fill();
+  });
+  const grad = g.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, "rgba(255,255,255,0)"); grad.addColorStop(1, "rgba(255,255,255,0)");
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  EXIT_TEX[key] = t;
+  return t;
+}
+function buildExitBackdrops(field, root) {
+  const z = field.zone;
+  if (z.indoor || themeOf(z) === "house") return;
+  W3.exitPanels = [];
+  for (const ex of z.exits || []) {
+    const a = typeof exitEdgeAngle === "function" ? exitEdgeAngle(ex, z) : null;
+    const dest = ZONES[ex.to];
+    if (a == null || !dest) continue;
+    const dx = Math.cos(a), dy = Math.sin(a);
+    const cx = ex.x + ex.w / 2, cy = ex.y + ex.h / 2;
+    const px = cx + dx * 1500, py = cy + dy * 1500;
+    const tex = exitRidgeTex(dest);
+    const m = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, fog: true, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(520, 150), m);
+    const gy = field.heightAt(cx + dx * 600, cy + dy * 600);
+    mesh.position.set(px * U, gy + 36, py * U);
+    mesh.rotation.y = Math.atan2(-dx, -dy);
+    mesh.renderOrder = -1;
+    mesh.name = "exitPanel";
+    root.add(mesh);
+  }
+}
+
 function buildBackdrop(field, root) {
   const th = themeOf(S.zone), B = zkey(BACKDROP, S.zoneId) || (th === "field" ? BACKDROP.hollow : null);
   W3.backdrop = []; W3.beacon = null;
