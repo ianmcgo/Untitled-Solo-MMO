@@ -95,7 +95,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, mercInv: {}, bond: {}, mercPaid: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -1375,7 +1375,10 @@ function gearDrop(m, mates) {
   }
   const c = GEAR_DROP_IDS.filter(id => !GEAR_RESERVED.has(id) && ITEMS[id].lv >= m.lv - 3 && ITEMS[id].lv <= m.lv + 1);
   if (!c.length) return;
-  const id = c[Math.floor(Math.random() * c.length)];
+  lootGive(c[Math.floor(Math.random() * c.length)], mates);
+}
+
+function lootGive(id, mates) {
   if (S.party.length > 1 || (mates && mates.length)) { const pe = addToPool(id); if (mates && mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); return; }
   giveItem(id, 1);
 }
@@ -1388,13 +1391,12 @@ function dropLoot(m, mates) {
     if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
     if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
-    if (ITEMS[id].kind === "equip" && (S.party.length > 1 || mates.length)) { const pe = addToPool(id); if (mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); continue; }
-    giveItem(id, 1);
+    lootGive(id, mates);
   }
   gearDrop(m, mates);
   if (Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
     const pool = Object.values(SPELLS).filter(sp => ITEMS["scroll_" + sp.id] && sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
-    if (pool.length) giveItem("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, 1);
+    if (pool.length) lootGive("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, mates);
   }
   const gr = m.fam.gil || (!m.fam.nm && !m.fam.boss && xpFor(m.lv, player.lv) > 0 ? CONFIG.mobGil : null);
   if (gr) {
@@ -1416,6 +1418,36 @@ function addToPool(id) {
   sfx("loot");
   uiEvent("pool", { id });
   return e;
+}
+
+function mercBag(id) { return (save.mercInv = save.mercInv || {})[id] || (save.mercInv[id] = []); }
+function mercBagRoom(id, itemId) {
+  const bag = mercBag(id), stack = ITEMS[itemId].stack || 1;
+  return bag.length < CONFIG.inventorySize || bag.some(x => x.id === itemId && x.qty < stack);
+}
+function mercBagAdd(id, itemId) {
+  const bag = mercBag(id), stack = ITEMS[itemId].stack || 1;
+  const s0 = bag.find(x => x.id === itemId && x.qty < stack);
+  if (s0) { s0.qty++; return true; }
+  if (bag.length >= CONFIG.inventorySize) return false;
+  bag.push({ id: itemId, qty: 1, sale: true });
+  return true;
+}
+function mercBagCount(id) { return (save.mercInv && save.mercInv[id] || []).reduce((a, x) => a + x.qty, 0); }
+function mercWants(merc, itemId) {
+  const it = ITEMS[itemId];
+  if (it.kind === "equip" && mercCanWear(merc.mercId, itemId)) return false;
+  return mercBagRoom(merc.mercId, itemId);
+}
+function mercTownSell() {
+  if (!S.zone || S.zone.theme !== "town" || !save.mercInv) return;
+  for (const id of save.hired) {
+    const bag = save.mercInv[id];
+    if (!bag || bag.length < Math.ceil(CONFIG.inventorySize / 2)) continue;
+    const n = bag.reduce((a, x) => a + x.qty, 0);
+    save.mercInv[id] = [];
+    log(MERCS[id].name + " sells " + n + " item" + (n === 1 ? "" : "s") + " around " + (S.zone.city || "town") + ".", "party");
+  }
 }
 
 function poolUpgrade(merc, id) {
@@ -1447,7 +1479,7 @@ function tickPool(force) {
     for (const m of S.party) {
       if (m === player || !m.mercId || e.lots[m.mercId] != null) continue;
       if (S.time < e.until - CONFIG.poolTime + 1.5) continue;
-      if (poolUpgrade(m, e.id)) { e.lots[m.mercId] = 1 + Math.floor(Math.random() * 999); log(m.name + " lots " + e.lots[m.mercId] + " on the " + ITEMS[e.id].name + ".", "party"); }
+      if (mercWants(m, e.id)) { e.lots[m.mercId] = 1 + Math.floor(Math.random() * 999); log(m.name + " lots " + e.lots[m.mercId] + " on the " + ITEMS[e.id].name + ".", "party"); }
       else e.lots[m.mercId] = 0;
     }
     const netIn = !e.net || e.net.ids.every(id => e.net.lots[id] != null || !netIsMate(id));
@@ -1463,10 +1495,18 @@ function tickPool(force) {
     if (who.startsWith("net:")) { log(NET_PT.members.get(who.slice(4)).name + " obtains the " + ITEMS[e.id].name + ".", "loot"); continue; }
     if (who === "me") { save.stats.lotsWon++; giveItem(e.id, 1); continue; }
     const it = ITEMS[e.id], own = save.mercGear[who] = save.mercGear[who] || {};
-    const sk = slotKeys(it.slot)[0];
-    if (own[sk]) giveItem(own[sk], 1, true);
-    own[sk] = e.id;
-    log(MERCS[who].name + " obtains the " + it.name + " and puts it on.", "party");
+    const wm = S.party.find(p => p.mercId === who);
+    if (it.kind === "equip" && wm && poolUpgrade(wm, e.id)) {
+      const sk = slotKeys(it.slot)[0], old = own[sk];
+      own[sk] = e.id;
+      if (old && !mercBagAdd(who, old)) giveItem(old, 1, true);
+      log(MERCS[who].name + " obtains the " + it.name + " and puts it on.", "party");
+      syncAllies(false);
+    } else if (mercBagAdd(who, e.id)) {
+      log(MERCS[who].name + " obtains the " + it.name + " and keeps it to sell.", "party");
+    } else {
+      log(MERCS[who].name + "'s bag is full. The " + it.name + " is lost.", "sys");
+    }
     partySay(S.party.find(p => p.mercId === who), "gift", true);
     syncAllies(false);
   }
@@ -3887,6 +3927,7 @@ function enterZone(id, x, y, opt) {
   const nRocks = S.zone.theme === "town" ? 6 : S.zone.theme === "cave" ? 26 : S.zone.theme === "crypt" ? 0 : 30;
   for (let i = 0; i < nRocks; i++) S.decor.push({ x: 40 + rnd() * (S.zone.w - 80), y: 40 + rnd() * (S.zone.h - 80), r: 6 + rnd() * 16, a: rnd() * Math.PI });
   S.zoneCooldown = 1;
+  mercTownSell();
   { const dd = districtAt(S.zone, x, y); S.district = dd ? dd.id : null; markDistrict(dd); }
   S.lastPeriod = period();
   log("Entering " + S.zone.name + (zoneBand(id) ? " (" + bandText(zoneBand(id)) + ")" : "") + ".", "sys");

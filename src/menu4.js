@@ -929,6 +929,7 @@ function tabParty() {
     h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b style="color:' + m.color + '">' + esc(m.name) + "</b> <span class=\"sub\">" + JOBS[m.job].name + " · " + m.role + (a ? " · HP " + a.hp + "/" + a.maxHp : "") + '</span></div><button data-a="dismiss" data-v="' + id + '">Dismiss</button></div>';
     h += '<div class="sub" style="margin:4px 0">💞 Bond ' + bl + "/" + COMPANION_CFG.maxBond + " (+" + Math.round(bl * COMPANION_CFG.bondBonus * 100) + '% stats)</div><div class="bar" style="height:6px;margin-bottom:6px"><i style="width:' + pct + '%;background:#f48fb1"></i></div>';
     h += '<div class="sub">💠 Wage ' + mercWage(id) + " crystals per day · next in " + fmtDur(paid) + "</div>";
+    h += '<div class="sub">🎒 Bag ' + (save.mercInv && save.mercInv[id] ? save.mercInv[id].length : 0) + "/" + CONFIG.inventorySize + " slots · " + mercBagCount(id) + " items kept to sell. They sell everything when you reach a town with their bag at least half full.</div>";
     const own = save.mercGear[id] || {};
     const gear = a ? a.gear : mercGearFor(id, player.lv);
     h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' + SLOTS.filter(sl => gear[sl]).map(sl => '<span class="chip" style="font-size:11px">' + esc(ITEMS[gear[sl]].name) + (own[sl] ? ' <button data-a="mtake" data-v="' + id + ":" + sl + '" style="padding:0 5px">↩</button>' : "") + "</span>").join("") + "</div>";
@@ -1639,6 +1640,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.27.0", date: "2026-10-16", title: "Everything goes to the treasure pool", items: [
+    "<b>All drops are rolled for:</b> with anyone else in your party, every item a monster drops (materials, potions, scrolls and gear) goes into the treasure pool instead of straight into your bag. Crystals are still split and key items still go straight to you.",
+    "<b>Companions roll on everything:</b> they lot on any item, except gear they can't wear. If they win, the item goes into their own bag. Better gear for their job is worn at once and the old piece goes into their bag; anything else they keep to sell.",
+    "<b>Companion bags:</b> each companion has a normal 30-slot bag. With a full bag they pass on every roll. When you enter a town and a companion's bag is half full or more, they sell all the items they carry and the items are gone. Their old gear no longer comes back to your bag.",
+    "The Party tab shows each companion's bag."
+  ] },
   { v: "18.26.0", date: "2026-10-16", title: "Load timings in Config", items: [
     "<b>Load timings:</b> Config > Interface has a new Load timings button that shows how long start-up and your recent zone loads took, step by step. The same list is available with /perf.",
     "Behind the scenes, every release is now checked against a file-size limit and a start-up time limit, so downloads and loading can't quietly get slower."
@@ -2673,7 +2680,7 @@ const UPDATES = [
     "Party up with other players: invite up to 6 with /invite, the Party tab, or by tapping a player. Accept with the popup or /join.",
     "Party members show in your party frame with HP, MP and TP, and in the Party tab with their area.",
     "Shared experience: kills share XP with party members nearby, based on the highest level member. Bigger parties earn more in total.",
-    "Shared loot: gear drops go into a treasure pool everyone nearby can lot on, and crystals are split.",
+    "Shared loot: every drop goes into a treasure pool everyone nearby can lot on, and crystals are split.",
     "Party kills count toward quests and guild bounties for everyone nearby.",
     "Cure and Protect now work on other players in your party.",
     "Trading: trade items and crystals with a nearby player. Both players see both offers and must accept the same deal.",
@@ -3276,8 +3283,9 @@ function tabHelp() {
     "You can see the weather around you: raindrops splash on the ground, distant lightning lights up the sky before the thunder arrives, wind carries leaves and dust, blizzards blow snow sideways and fog drifts past at ground level. On clear nights in the fields, fireflies come out. Snow kicks up under your feet in snowy weather."
   ]));
   h += sec("🎲 Treasure pool", ul([
-    "With companions in the party, equipment drops go into the treasure pool (the panel above the log) instead of straight into your bag. Other loot still goes to your bag.",
-    "Press <b>Lot</b> to roll 1–999 or <b>Pass</b>. Companions lot only on pieces their job can use that beat what they're wearing. Highest lot wins. If a companion wins, they wear it right away (their old piece comes to your bag).",
+    "With anyone else in the party, every item a monster drops goes into the treasure pool (the panel above the log) instead of straight into your bag. Crystals are split and key items go to you.",
+    "Press <b>Lot</b> to roll 1–999 or <b>Pass</b>. Companions lot on everything except gear they can't wear, and pass when their 30-slot bag is full. Highest lot wins. A companion who wins a better piece wears it (the old one goes into their bag); anything else goes into their bag to sell.",
+    "Companions sell everything in their bag when you reach a town and the bag is at least half full; the items are gone. The Party tab shows each bag. You can still give them gear from the Party tab.",
     "If you don't choose within 45 seconds you lot automatically. If everyone passes, the item is lost."
   ]));
   h += sec("📋 Trade Board and 🔨 Forge", ul([
