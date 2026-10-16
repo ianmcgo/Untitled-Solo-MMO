@@ -1222,7 +1222,7 @@ function ahDetail(id) {
     h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) · at this price it " + speed + '.</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The market buys over a few hours at its own prices. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
   } else {
     const st = ahStock(id);
-    h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">' + st + ' on the market today</span>' + (st ? '<button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><button data-a="ahbuy"' + (save.gil < cur * q ? " disabled" : "") + ">Buy for " + cur * q + " 💠</button>" : "") + "</div>";
+    h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">' + st + ' on the market today (' + ahStockLines(id).map(l => esc(l.name) + " " + l.n).join(" · ") + ')</span>' + (st ? '<button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><button data-a="ahbuy"' + (save.gil < cur * q ? " disabled" : "") + ">Buy for " + cur * q + " 💠</button>" : "") + "</div>";
   }
   return h + "</div>";
 }
@@ -1302,7 +1302,7 @@ function tabAuction() {
   }
   if (view === "buy") h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">' + Object.keys(AH_CATS).map(k => '<button data-a="ahcat" data-v="' + k + '"' + (cat === k ? ' style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + AH_CATS[k] + (news.up === k ? " ▲" : news.down === k ? " ▼" : "") + "</button>").join("") + "</div>";
   if (UI.ahSel && ITEMS[UI.ahSel]) h += ahDetail(UI.ahSel);
-  const ids = view === "buy" ? Object.keys(ITEMS).filter(id => ahTradable(id) && ahCategory(id) === cat && ahDaily().has(id)).sort((a, b) => (ITEMS[a].lv || 0) - (ITEMS[b].lv || 0) || ITEMS[a].price - ITEMS[b].price) : [...new Set(save.inventory.map(s => s.id))].filter(ahTradable);
+  const ids = view === "buy" ? Object.keys(ITEMS).filter(id => ahTradable(id) && ahCategory(id) === cat && ahMarketSet().has(id)).sort((a, b) => (ITEMS[a].lv || 0) - (ITEMS[b].lv || 0) || ITEMS[a].price - ITEMS[b].price) : [...new Set(save.inventory.map(s => s.id))].filter(ahTradable);
   if (!ids.length) h += '<div class="sub">' + (view === "sell" ? "Nothing in your bag can be sold at auction. Rare and Ex items, key items and furniture can't be listed." : "Nothing here right now.") + "</div>";
   for (const id of ids) {
     const it = ITEMS[id];
@@ -1674,6 +1674,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.31.0", date: "2026-10-16", title: "Every town has its own auction stock", items: [
+    "<b>Per-town stock:</b> Ashenreach, Saltreach and Ironvale each stock their auction house differently each day, and each keeps its own count of what has sold out.",
+    "The list shows the whole market. Open an item to see how many each town has. Buying takes from the town you are in first, then the others.",
+    "Old Friends at the Mercenary Hall now keeps up to 8. When a ninth leaves, the one who left longest ago is dropped.",
+    "Old sold-out counts from before this update reset once."
+  ] },
   { v: "18.30.0", date: "2026-10-16", title: "Contracts and Old Friends", items: [
     "<b>Hourly contracts on play time:</b> the hiring fee covers one hour of play. The clock only runs while you play. Wages are no longer paid once a real day.",
     "<b>Payment request:</b> when the hour is up, the companion asks for the next hour once you are out of combat, done zoning and have no menus open. Pay, or refuse.",
@@ -3255,7 +3261,8 @@ function tabHelp() {
   ]));
   h += sec("⚖️ Auction house", ul([
     "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
-    "Talk to <b>Corvin</b> in Ashenreach Outpost or <b>Selene</b> in Saltreach Harbor.",
+    "Talk to <b>Corvin</b> in Ashenreach Outpost, <b>Selene</b> in Saltreach Harbor or <b>Orla</b> in Ironvale. Every town has its own auction house.",
+    "<b>Each town stocks differently.</b> Every town's auction house has its own daily stock and its own sold-out counts, so something that has run out in one town may still be in another. The list shows everything on the market, and the item card shows how many each town has. Buying takes from the town you are in first, then the others.",
     "<b>Prices move.</b> Every item drifts around its usual value through the game day (a new price every 6 game hours, about 14 real minutes). Each game day the market news lifts one category (▲) and lowers another (▼). Buying pushes a price up; your lots selling pull it down; both effects fade.",
     "Items that shops sell never fetch more than " + 95 + "% of the shop price at auction, so the auction house is for bargains, materials and other adventurers' gear.",
     "Each game day the market stocks only a random handful: 10 pieces of +1 (high-quality) equipment (one of each), 5 kinds of ammo, 10 kinds of potions and other consumables, 3 spell scrolls, 10 kinds of food and 10 kinds of materials. Nothing is listed above your level + 1. Point at any entry to see its item card.",

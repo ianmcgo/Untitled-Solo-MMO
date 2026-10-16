@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.30.0",
-  "releaseTitle": "Contracts and Old Friends",
+  "version": "18.31.0",
+  "releaseTitle": "Every town has its own auction stock",
   "description": "",
   "main": "index.js",
   "scripts": {

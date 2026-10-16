@@ -1943,3 +1943,12 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - UI: Party tab contract line with Pay now (`mpay`), Brann window "Old Friends" section (`rehire`). `companionInfo` removed.
 - Fix: `addBond` used `MERC_PERSONAL[id]`, which daily companions don't have; now falls back to `MERC_PERSONAL_GEN`.
 - Tests: test/m4unit.js; p7unit.js updated.
+
+## 18.31.0: per-town auction stock (M5a) and Old Friends cap
+- `ahTowns()` = zones with `theme: "town"` and a house of `type: "auction"` (cached in `S.ahTownList`). `ahHere()` = current zone if it is one, else the first. `ahTownName(z)` = zone `city` or name.
+- `ahDaily(town)` caches `S.ahDay[town]`; seed `ahdaily:<town>:<group>:<day>`. `ahMarketSet()` is the union used by the Buy list. `ahStockAt(id, town)` seeds `<id>:<town>:<day>` and subtracts `save.market.bought.t[town][id]`; `ahStock(id)` sums all towns; `ahStockLines(id)` feeds the item card.
+- `save.market.bought` is now `{ day, t: { town: { id: n } } }`; any older shape resets on the first read (`ahBoughtOf`).
+- `ahBuy` takes from `ahHere()` first, then the other towns in zone order. Prices are global (`marketPrice`), unchanged.
+- `COMPANION_CFG.oldFriendsMax = 8`; `mercLeave` drops the entry with the smallest `left` and frees its generated def.
+- Tests: test/m5aunit.js (towns have a house and an auctioneer, own rotation, per-town counts, migration, cap).
+- M5b will merge player and mercenary lots into the same list; the Buy list is still town-stock only.

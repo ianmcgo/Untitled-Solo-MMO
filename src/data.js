@@ -1886,7 +1886,7 @@ splitZone("highlands", [
 for (const id in ZONES) if (!ZONES[id].bandFixed) computeBand(ZONES[id]);
 
 
-const COMPANION_CFG = { dayMs: 86400000, wageRate: 1, contractSec: 3600, gearWage: 0.02, hqWage: 0.05, bribePerLv: 100, bondSteps: [0, 20, 60, 130, 250, 420], bondBonus: 0.03, maxBond: 5 };
+const COMPANION_CFG = { dayMs: 86400000, wageRate: 1, contractSec: 3600, gearWage: 0.02, hqWage: 0.05, bribePerLv: 100, oldFriendsMax: 8, bondSteps: [0, 20, 60, 130, 250, 420], bondBonus: 0.03, maxBond: 5 };
 
 const MERC_PERSONAL_GEN = ["I'm glad it's you I'm fighting beside.", "You don't leave people behind. I noticed.", "I've started to look forward to these days.", "Whatever comes, I'll be at your side.", "Partners, then. For as long as you'll have me."];
 const MERC_PERSONAL = {

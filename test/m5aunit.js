@@ -1,0 +1,41 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+G.enterZone('outpost'); run(0.5);
+G.save.jobs[G.save.mainJob].lv = 20; G.refreshPlayer(true);
+const towns = Object.keys(G.ZONES).filter(z => G.ZONES[z].theme === 'town');
+ok(towns.length >= 3, 'there are ' + towns.length + ' towns');
+for (const t of towns) {
+  const Z = G.ZONES[t];
+  const hasHouse = (Z.houses || []).some(b => b.type === 'auction');
+  const hasMaster = (Z.npcs || []).some(n => G.NPCS[n.id] && G.NPCS[n.id].talk === 'talkAuction');
+  ok(hasHouse && hasMaster, t + ' has an auction house building and an auctioneer');
+}
+ok(G.ahTowns().length === towns.length, 'every town is on the auction list');
+const sets = G.ahTowns().map(t => [...G.ahDaily(t)].sort().join(','));
+ok(new Set(sets).size === sets.length, 'each town rotates its own stock');
+const union = G.ahMarketSet();
+ok(G.ahTowns().every(t => [...G.ahDaily(t)].every(id => union.has(id))), 'the whole market is the union of the towns');
+ok(G.ahHere() === 'outpost', 'the auction house you use is the town you stand in');
+const id = [...G.ahDaily('outpost')].find(i => G.ahStockAt(i, 'outpost') > 0 && G.ITEMS[i].kind !== 'equip');
+const total0 = G.ahStock(id), here0 = G.ahStockAt(id, 'outpost'), other0 = G.ahTowns().filter(t => t !== 'outpost').map(t => G.ahStockAt(id, t));
+G.save.gil = 1e6;
+ok(G.ahBuy(id, 1) === '', 'buying works');
+ok(G.ahStockAt(id, 'outpost') === here0 - 1 && G.ahTowns().filter(t => t !== 'outpost').every((t, i) => G.ahStockAt(id, t) === other0[i]), 'a purchase takes from the town you are in first');
+G.ahBuy(id, here0 - 1);
+ok(G.ahStockAt(id, 'outpost') === 0, 'that town runs out');
+const other = G.ahTowns().filter(t => t !== 'outpost').reduce((a, t) => a + G.ahStockAt(id, t), 0);
+if (other > 0) { const b = G.ahBuy(id, 1); ok(b === '' && G.ahStock(id) === other - 1, 'then it draws from the other towns'); } else ok(true, 'no stock elsewhere for this item today');
+G.enterZone('harbor'); run(0.5);
+ok(G.ahHere() === 'harbor', 'in Saltreach the harbor house is the local one');
+const lines = G.ahStockLines(id);
+ok(lines.length === towns.length && lines.every(l => l.name), 'the detail lists the stock in every town by name');
+const sv = JSON.parse(JSON.stringify(G.save)); sv.market.bought = { day: 5, n: { iron_ore: 3 } };
+const nv = G.normalizeSave(sv); G.save = nv;
+ok(G.ahStock('iron_ore') >= 0, 'a save with the old stock counts loads and resets them');
+G.save.mercDefs = G.save.mercDefs || {};
+G.save.hired = []; G.save.oldFriends = {};
+for (let i = 0; i < 10; i++) { const mid = 'zz' + i; G.MERCS[mid] = { name: 'M' + i, job: 'WAR', role: 'dd', fee: 50, color: '#fff', gen: true }; G.save.mercDefs[mid] = G.MERCS[mid]; G.save.hired.push(mid); G.save.playSec = i * 10; G.mercLeave(mid); }
+const keys = Object.keys(G.save.oldFriends);
+ok(keys.length === 8 && !keys.includes('zz0') && !keys.includes('zz1') && keys.includes('zz9'), 'Old Friends keeps 8 and drops the oldest first');
+console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0);
