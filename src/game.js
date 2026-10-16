@@ -1804,9 +1804,41 @@ function inShops(id) {
 
 function priceHistory(id, n) { const now = marketTick(), out = []; for (let i = n - 1; i >= 0; i--) out.push(marketPrice(id, now - i)); return out; }
 
+const AH_DAILY = { equip: 10, ammo: 5, use: 10, scroll: 3, food: 10, mat: 10 };
+
+function ahGroup(id) {
+  const it = ITEMS[id];
+  if (it.kind === "equip") return it.slot === "ammo" ? "ammo" : it.hq ? "equip" : null;
+  if (it.kind === "food") return "food";
+  if (it.kind === "use") return it.spell ? "scroll" : "use";
+  return "mat";
+}
+
+function ahDaily() {
+  const day = marketDay(), lv = player.lv;
+  if (S.ahDay && S.ahDay.day === day && S.ahDay.lv === lv) return S.ahDay.set;
+  const pools = {};
+  for (const id of Object.keys(ITEMS).sort()) {
+    if (!ahTradable(id)) continue;
+    const g = ahGroup(id);
+    if (!g || (ITEMS[id].lv || 0) > lv + 1) continue;
+    (pools[g] = pools[g] || []).push(id);
+  }
+  const set = new Set();
+  for (const g in pools) {
+    const pool = pools[g], r = seeded(hashStr("ahdaily:" + g + ":" + day));
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
+    pool.slice(0, AH_DAILY[g]).forEach(id => set.add(id));
+  }
+  S.ahDay = { day, lv, set };
+  return set;
+}
+
 function ahStock(id) {
   const day = marketDay(), it = ITEMS[id];
   if (save.market.bought.day !== day) save.market.bought = { day, n: {} };
+  if (!ahDaily().has(id)) return 0;
+  if (it.kind === "equip" && it.slot !== "ammo") return Math.max(0, 1 - (save.market.bought.n[id] || 0));
   const r = seeded(hashStr(id + ":" + day));
   const base = it.price > 3000 ? 1 : it.price > 800 ? 2 : it.price > 150 ? 4 : 8;
   const n = Math.floor(r() * (base + 1)) + (ahCategory(id) === "materials" || ahCategory(id) === "consumables" ? Math.ceil(base / 2) : 0);
@@ -3047,7 +3079,7 @@ function updateMob(m, dt) {
   if (m.state === "combat") {
     for (const [e, v] of m.enmity) m.enmity.set(e, Math.max(1, v * (1 - 0.04 * dt)));
     const t = topEnmity(m);
-    if (!t || (!S.zone.battlefield && Math.hypot(m.x - m.home.x, m.y - m.home.y) > CONFIG.leash)) {
+    if (!t) {
       if (t) log("The " + m.name + " loses interest.", "sys");
       m.state = "return";
       m.enmity.clear();
@@ -4238,6 +4270,13 @@ function cycleNpcTarget() {
   player.target = tabNext(list);
   sfx("select");
   return true;
+}
+
+function cycleObjectTarget() {
+  const list = S.npcs.filter(n => (n.crystal || n.warpstone || n.prop) && !n.away && !n.gone && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  if (!list.length) { log("No objects nearby.", "sys"); return; }
+  player.target = tabNext(list);
+  sfx("select");
 }
 
 function cycleTarget() {
