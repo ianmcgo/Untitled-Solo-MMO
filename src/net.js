@@ -1,4 +1,4 @@
-const NET_SCHEMA = 6;
+const NET_SCHEMA = 7;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -1230,7 +1230,12 @@ function netApplyServerBag(d) {
   if (d.gil != null) save.gil = Math.max(0, Math.floor(+d.gil || 0));
 }
 
-async function netServerOp(fn, args) {
+function netMissing(e) {
+  const m = String((e && (e.message || "")) || e || "") + " " + String((e && e.code) || "");
+  return /PGRST202|PGRST204|PGRST205|42703|42883|Could not find|does not exist|schema cache/i.test(m);
+}
+
+async function netServerOp(fn, args, apply) {
   if (!NET.member || !NET.sb) throw new Error("This needs the game server.");
   saveGame();
   const ok = await netFlushNow();
@@ -1240,6 +1245,7 @@ async function netServerOp(fn, args) {
     const { data, error } = await NET.sb.rpc(fn, Object.assign({ my_char: S.charId }, args));
     if (error) throw error;
     netApplyServerBag(data);
+    if (apply) apply(data);
     return data;
   } finally {
     NET.saveLock = false;
@@ -1249,12 +1255,23 @@ async function netServerOp(fn, args) {
 }
 
 async function netAhList() {
+  if (NET.market !== false) {
+    const { data, error } = await NET.sb.rpc("ah_market");
+    if (!error) { NET.market = true; return (Array.isArray(data) ? data : []).filter(l => ITEMS[l.item] && ahTradable(l.item)); }
+    if (!netMissing(error)) throw error;
+    NET.market = false;
+  }
   const { data, error } = await NET.sb.from("ah_listings").select("id,seller,seller_name,item,qty,price,expires_at").eq("status", "open").gt("expires_at", new Date().toISOString()).order("price", { ascending: true }).limit(400);
   if (error) throw error;
   return (data || []).filter(l => ITEMS[l.item] && ahTradable(l.item));
 }
 
 async function netAhMine() {
+  if (NET.market !== false) {
+    const r = await NET.sb.from("ah_listings").select("id,item,qty,price,expires_at,status,kind,merc_name").eq("seller", S.charId).eq("status", "open").order("id", { ascending: false }).limit(400);
+    if (!r.error) return r.data || [];
+    if (!netMissing(r.error)) throw r.error;
+  }
   const { data, error } = await NET.sb.from("ah_listings").select("id,item,qty,price,expires_at,status").eq("seller", S.charId).eq("status", "open").order("id", { ascending: false }).limit(50);
   if (error) throw error;
   return data || [];
@@ -1288,6 +1305,16 @@ async function netAhBuy(lot) {
   save.stats.ahBought = (save.stats.ahBought || 0) + d.qty;
   const c = await netServerOp("ah_collect", {});
   return c;
+}
+
+function netMarketOnline() { return !!(NET.member && NET.sb && S.charId && NET.market !== false); }
+
+async function netMercConsign(id) {
+  const d = await netServerOp("ah_consign", { merc: id, merc_name: MERCS[id] ? MERCS[id].name : "Companion" }, r => {
+    if (Array.isArray(r.bag) && save.mercInv) save.mercInv[id] = r.bag.filter(x => x && ITEMS[x.id] && +x.qty > 0).map(x => Object.assign({}, x, { qty: Math.floor(+x.qty) }));
+  });
+  if (UI.pm) UI.pm.at = 0;
+  return d;
 }
 
 async function netAhCancel(lot) {
