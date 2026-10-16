@@ -271,14 +271,14 @@ function buildActionBar() {
     el.appendChild(b);
     UI.slots.push({ el: b, a, cost: b.querySelector(".cost"), cd: b.querySelector(".cd"), cdt: b.querySelector(".cdt"), chip: null, last: {} });
   }
-  $("pgNum").textContent = ["Ctrl", "Shft", "Alt", "Tab"][UI.page];
+  $("pgNum").textContent = ["Main", "Shft", "Alt", "Tab"][UI.page];
   if (typeof VIEW !== "undefined" && VIEW.settings) barPosApply();
 }
 function toggleFullscreen() {
   const d = document;
   if (d.fullscreenElement) { d.exitFullscreen(); return; }
   const p = d.documentElement.requestFullscreen ? d.documentElement.requestFullscreen({ navigationUI: "hide" }) : null;
-  if (p) p.then(() => { if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(() => {}); log("Fullscreen on. The browser now passes Ctrl+number and other shortcuts to the game.", "sys"); }).catch(() => log("Your browser would not enter fullscreen.", "sys"));
+  if (p) p.then(() => { if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(() => {}); log("Fullscreen on. The browser now passes more shortcuts to the game.", "sys"); }).catch(() => log("Your browser would not enter fullscreen.", "sys"));
 }
 
 function lineShown(pg) { return pg.some(a => a && a.hud !== false); }

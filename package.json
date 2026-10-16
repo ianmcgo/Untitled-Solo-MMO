@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.14.0",
-  "releaseTitle": "Pricier shops, no camp crystals",
+  "version": "18.15.0",
+  "releaseTitle": "Ctrl hotkey line removed",
   "description": "",
   "main": "index.js",
   "scripts": {
