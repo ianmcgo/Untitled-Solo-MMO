@@ -74,9 +74,9 @@ Server work needed (not done, not run): extend `ah_listings` with `kind text def
 
 Open questions (guesses used if not answered)
 - The previous message said "auction house should be shared". I read it as: the mercenary items are shared with other players. I kept the NPC rotation per town, as you asked before. If you meant the NPC stock should be one shared list for every town, tell me and I will drop M5a.
-- Soft cap on merc listings: 300 per player, oldest returned to the owner's box. Not applied unless you say so.
 
 ## Decisions (answered 2026-10-16)
+0. Cap: at most 300 mercenary listings per player on the shared market. When a sell-off would go over the cap, the extra items are deleted from the mercenary's bag as if sold to a shop. Nothing is returned or consigned, and the player gets no crystals for them. The server enforces the cap in `ah_consign`, which returns the count that were accepted so the client can drop the rest. In the offline queue the same cap applies to the local list.
 1. Bribe: full hire fee plus 100 crystals per level.
 2. Items with no auction value: vendor value x 3, then the 1.5x markup.
 3. Given gear that isn't better: handed back.
