@@ -20,7 +20,7 @@ ok(Z.marsh.exits.some(e => e.to === 'hollow_lake') && Z.highlands.exits.some(e =
 const sign = id => Z[id].npcs.filter(n => n.id.startsWith('sign_' + id));
 ok(HP.concat(WP).every(p => sign(p).length === Z[p].exits.filter(e => e.hall && e.kind !== 'door').length && sign(p).length > 0), 'signposts stand at every way in and out of each part');
 const poiNpcs = HP.flatMap(p => Z[p].npcs.map(n => n.id)).filter(id => G.NPCS[id] && G.NPCS[id].poi);
-ok(['shrine_hollow', 'lookout_hollow', 'tablet_hollow', 'cache_hollow'].every(i => poiNpcs.includes(i)) && HP.every(p => Z[p].npcs.some(n => G.NPCS[n.id] && G.NPCS[n.id].crystal)), 'Hollow keeps its four sites, and each part has a camp crystal');
+ok(['shrine_hollow', 'lookout_hollow', 'tablet_hollow', 'cache_hollow'].every(i => poiNpcs.includes(i)) && HP.every(p => !Z[p].npcs.some(n => G.NPCS[n.id] && G.NPCS[n.id].crystal)), 'Hollow keeps its four sites, and no part has a crystal');
 ok(HP.every(p => Z[p].npcs.every(n => inside(p, n.x, n.y))), 'all Hollow NPCs and sites are inside their zone');
 ok(G.weatherNow('hollow') === G.weatherNow('hollow_ruins') && G.weatherNow('highlands') === G.weatherNow('highlands_ridge'), 'weather is shared across an area');
 const R = G.RACE;

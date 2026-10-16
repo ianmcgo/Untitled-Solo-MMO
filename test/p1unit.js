@@ -41,9 +41,9 @@ G.save.skills.WAR.sword = 5; G.refreshPlayer(true);
 ok(G.actionList(p).some(a => a.id === 'fast_blade') && !G.actionList(p).some(a => a.id === 'burning_blade'), 'Fast Blade unlocks at skill 5');
 
 G.enterZone('outpost', 610, 440);
-G.save.jobs.WAR.lv = 5; G.refreshPlayer(true);
+G.save.jobs.WAR.lv = 10; G.refreshPlayer(true);
 G.TALK.talkTobin(npc('tobin'));
-const acc = S.dialog.all.find(o => o.label === 'Accept'); ok(!!acc, 'Tobin offers the support quest at level 5'); acc.fn();
+const acc = S.dialog.all.find(o => o.label === 'Accept'); ok(!!acc, 'Tobin offers the support quest at level 10'); acc.fn();
 G.giveItem('bat_wing', 2, true); G.giveItem('worm_silk', 1, true);
 G.TALK.talkTobin(npc('tobin')); S.dialog.all[0].fn();
 ok(G.save.supportUnlocked && G.save.quests.support === 'done', 'support jobs unlocked');
@@ -63,7 +63,7 @@ P().hp = 0; P().alive = false; S.ko = true;
 G.returnHome();
 ok(j.xp === 500 - Math.floor(G.CONFIG.xpTable[j.lv] * 0.1) && S.zoneId === 'outpost' && P().alive && P().hp === P().maxHp, 'death costs 10% of the level requirement and returns to the town crystal (xp ' + j.xp + ')');
 j.xp = 20; P().alive = false; S.ko = true; G.returnHome();
-ok(j.xp === 0 && j.lv === 5, 'XP never goes negative and you never de-level');
+ok(j.xp === 0 && j.lv === 10, 'XP never goes negative and you never de-level');
 
 const text = G.exportSaveText();
 const back = G.importSaveText(text);

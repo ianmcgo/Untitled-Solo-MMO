@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.13.0",
-  "releaseTitle": "Hotkey bar close button",
+  "version": "18.14.0",
+  "releaseTitle": "Pricier shops, no camp crystals",
   "description": "",
   "main": "index.js",
   "scripts": {

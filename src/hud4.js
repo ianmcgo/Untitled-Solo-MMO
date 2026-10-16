@@ -296,7 +296,7 @@ function closeHotBar() {
 function activateSlot(page, i) {
   const a = hotbar().pages[page][i];
   if (page === UI.page && UI.slots[i]) { const el = UI.slots[i].el; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
-  if (!a) { openMenu("actions"); return; }
+  if (!a) return;
   if (a.kind === "cmd") { runCommand("/" + a.id); return; }
   if (a.kind === "item") {
     if (invCount(a.id) < 1) { log("You don't have any " + ITEMS[a.id].name + "s.", "sys"); sfx("error"); return; }

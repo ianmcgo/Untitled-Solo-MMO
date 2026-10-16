@@ -70,6 +70,7 @@ const CONFIG = {
   ammoDmgMul: 0.5,
   mpMul: 1.35,
   mobGil: [2, 4],
+  shopMul: 10,
   mobCurve: { lv: [1, 5, 10, 15, 20], hp: [1, 0.85, 0.8, 0.78, 0.74], att: [1, 0.9, 0.9, 0.87, 0.85], dmg: [1, 0.9, 0.9, 0.87, 0.85] },
   settingsKey: "ashenreach_settings_v1",
   startGil: 100,
@@ -2370,11 +2371,8 @@ for (const zid of ["hollow", "hollow_lake", "hollow_ruins", "frost", "marsh"]) {
   const z = ZONES[zid], L = z.landmarks || [], lm = L[Math.floor(L.length / 2)] || { x: z.w / 2, y: z.h / 2, r: 200 };
   const at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 260);
   if (!at) continue;
-  const cid = "campcrystal_" + zid;
-  NPCS[cid] = { name: CAMP_NAMES[zid] + " Crystal", model: "crystal", crystal: true, talk: "talkCrystal", camp: zid };
-  z.npcs.push({ id: cid, x: at.x, y: at.y });
   NPCS["camp_" + zid] = { name: CAMP_NAMES[zid], prop: "camp", talk: "talkCamp", poi: "camp" };
-  z.npcs.push({ id: "camp_" + zid, x: at.x + 90, y: at.y + 10 });
+  z.npcs.push({ id: "camp_" + zid, x: at.x, y: at.y });
 }
 for (const zid in ZONES) {
   const z = ZONES[zid];
