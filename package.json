@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.2.0",
-  "releaseTitle": "Gear balance: player power",
+  "version": "18.3.0",
+  "releaseTitle": "Monster balance",
   "description": "",
   "main": "index.js",
   "scripts": {

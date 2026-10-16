@@ -1491,6 +1491,7 @@ World systems:
 | 18.0.0 | classic MMO equipment: 788 pieces at level 20 and below replace every old item. See "Equipment (v18.0.0)". |
 | 18.1 | Tools only: tools/balance/sim.js, runsim.sh, report.js (fight simulator). Baseline in design/balance-18.1.md. |
 | 18.2.0 | Player power: delay curve, WTYPE_MULT, DMG_LV_K, ammoDmgMul, hpLvBonus, mpMul. Results in design/balance-18.2.md. |
+| 18.3.0 | Monster curve: CONFIG.mobCurve scales mob HP, attack and damage by level. Results in design/balance-18.3.md. |
 | 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
 | 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | classic MMO spells and potions: SPELLS/ITEMS potion family rebuilt from classic MMO data; rule version 17 wipes older saves. See "classic MMO rules (v17.0.0)". |
@@ -1734,6 +1735,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `report.js <old.json> <new.json> <out.md>` writes the comparison (summary by level, player stats, per-job even fights, flags, gear used).
 - The baseline is 17.3.0 built from git e6506d9 in a worktree. Note 17.3 itself is not tuned for solo play: even fights at level 10+ are lost solo there too, so compare versions, not absolute wins.
 - Open after 18.2: level 5 even fights (DEF 38 vs 50, classic MMO armor tier gap between level 1 and 7 pieces) and level 20 easy fights (50% vs 90%). Both go to the monster pass (18.3). The `src` regex for shop items has escaped dots that never match (`ryl\\.`, `lgn\\.` and similar), so Royal and Legionnaire pieces are sold in shops; fix in the economy pass (18.4).
+- 18.3 monster curve: `CONFIG.mobCurve = { lv: [1,5,10,15,20], hp, att, dmg }`, linear between points and clamped outside, read by `mobCurve(L)` in buildMob. Values hp 1/0.85/0.8/0.78/0.74, att and dmg 1/0.9/0.9/0.87/0.85. Applies to every monster (families, NMs, bosses) on top of the level 1-6 newbie ramp and family multipliers. Fitted with `iter` runs (10 jobs, 3 trials) then a full run.
+- Target (solo, shop gear, skills at cap, median over jobs; mean in brackets): Easy Prey win ~100% (80-99%), HP lost 30-60%; Even Match ~50% (40-55%); Tough 0% (0-11%). Level 1 is left as is (even 100%, tough 5%). 18.3 results in design/balance-18.3.md.
+- Sim knobs: env SIM_CURVE (JSON merged into mobCurve), SIM_JOBS, SIM_LEVELS, SIM_DIFFS. `tools/balance/summ.js all.json` prints win, mean win, HP lost and TTK by level.
 
 ## Publishing note
 - GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.
