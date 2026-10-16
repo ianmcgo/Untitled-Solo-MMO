@@ -1765,5 +1765,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.19.0: status, item choices, swings
 - Status Profile (`statusPanelHTML`, menu4.js) shows only Race, Home Point, Guild Rank, Guild Points and the guild bar. The Adventure block (story, achievements, defeated) was removed.
 - Item choices on phones: in `hud4.js` the per-frame dialog placement puts the choice box below both the menu window and `#mCard` (the item card) when the box does not fit beside the window.
-- `anim.js` melee block: fight stance raises the weapon arm forward (`upArmR` about -1.2 one-handed, -1.1 two-handed); slash, smash and cleave poses keep the arm forward at about -1.4 and sweep with arm z and chest yaw; the third slash variant lunges with `rootOff[2]`. Not yet checked in a browser screenshot: axis signs follow the old poses.
+- `anim.js` melee block: fight stance raises the weapon arm forward (`upArmR` about -1.2 one-handed, -1.1 two-handed); slash, smash and cleave poses keep the arm forward at about -1.4 and sweep with arm z and chest yaw; the third slash variant lunges with `rootOff[2]`. Checked with test/swingsheet.js (side and top views).
 - Text rule: Help, Updates and in-game messages must not name other games. 17.0, 18.0 and 18.5 update entries were reworded.
+
+## 18.19.1: weapon direction
+- Weapon direction in the world is the sum of pitch (x rotation) along spine, upArm, foreArm and hand. With the arm raised forward (about -1.8 total) a blade points straight up, so blade weapons add `handR` +1.45 in the fight stance and in every slash, smash and cleave pose to bring the blade level.
+- Staff and polearm: the tip is on the long side of the grip and pointed backward when the arm was raised. `anim.js` now sets `v.weapon.rotation.z = PI * an.fight` for them, so the tip leads in a fight and points up at rest.
+- Wind-up amplitudes were reduced (arm z about 0.3 to 0.6 instead of 1.0) so the weapon never swings behind the body.
+- Check with `node test/swingsheet.js dist/index.html out.png <weaponId> human <variant 0-2> side|top`.

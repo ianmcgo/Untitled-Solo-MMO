@@ -1636,6 +1636,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.1", date: "2026-10-16", title: "Weapons face forward", items: [
+    "<b>Combat animation fix:</b> swords, axes and clubs now point forward at the enemy through the whole swing instead of pointing up and back, and staves and polearms are held with the tip leading instead of trailing behind you.",
+    "The wind-up before each swing is smaller, so the weapon stays out in front of you."
+  ] },
   { v: "18.19.0", date: "2026-10-16", title: "Cleaner status, forward swings", items: [
     "<b>Status:</b> the Profile page no longer has an Adventure section. It now shows race, home point, guild rank and guild points.",
     "<b>Phones:</b> when you choose an item, its choices (Use, Equip, Drop and so on) now appear below the item card instead of covering it, so you can read the item's details while you decide.",
