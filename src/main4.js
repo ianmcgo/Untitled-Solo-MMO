@@ -589,7 +589,7 @@ async function enterWorld(id, fresh) {
   initParty();
   UI.watch = null; UI.slotKey = ""; UI.actKeys = null; UI.partyKey = "";
   clearLog();
-  log(fresh ? "A new adventure begins. Talk to Captain Rhea for work, Brann to hire companions, Pip at your residence to change jobs, Pell to trade." : "Welcome back, " + save.name + ".", "npc");
+  log(fresh ? "A new adventure begins. Talk to Captain Rhea for work, Brann to hire companions, Pip at your residence to change jobs, the market vendors to trade." : "Welcome back, " + save.name + ".", "npc");
   if (S.storageFull) { log("Your browser's storage for this site is full or blocked, so this character won't be saved between visits. Use System → Save to file to keep a copy, or clear space (other games or sites on the same address share it).", "foe"); if (typeof toast === "function") toast("⚠️", "Storage full", "Progress won't be kept. Save to file in System.", "r-epic"); }
   const h = fresh ? { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y } : resumePos();
   enterZone(h.zone, h.x, h.y);

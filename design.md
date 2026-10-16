@@ -2065,3 +2065,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - game.js marketPrice = ITEMS.price * CONFIG.shopMul * AH_CFG.shopRatio (1.5) * marketMult * (1 + press). The old cap of 95% of base price for items in shops (inShops) is gone, since the AH is now meant to sit above shop prices. AH_CFG.shopRatio in data.js is the knob. Conquest price changes are not included.
 - Everything priced from marketPrice scales with it: town buy ceiling (townBuyCeil 1.25), merc lots, mercSalePrice (1.5x), the sell-screen suggestion.
 - Known side effect: buying at a shop and listing at the auction house is now profitable (about 1.5x minus the 3% fee); limited only by 7 listings and the slow town buying rate.
+
+## 18.44.0 Six vendors in every town
+- data.js (after the SHOP build loops): VENDOR_ROLES (armorer, weaponsmith, tradesman, quartermaster, spellsmith, jeweler: item test, work pose, held prop, greeting), VENDOR_POOL[role] = SHOP + SHOPS.marn items with ITEMS.lv <= 5, not hq, not recipe, matching the role. Old SHOP items that fit no pool (recipes, lv 6 to 10 gear and scrolls, X-potions...) are pushed onto SHOPS.vela so nothing becomes unobtainable.
+- VENDOR_TOWNS gives per-town names and spots for outpost, harbor, ironvale. NPC ids are v_<role>_<town> (tradesman: v_trade_<town>), model vend_<role> (looks in rig.js NPC_LOOK, held props in NPC_HELD), talk talkVendor, def field shop = role. VENDOR_WORK feeds anim.js idle poses. Positions pass through the later off-road pass, so final spots differ slightly from the table.
+- game.js vendorStock(role, town): seeded shuffle by role, town and boardDay(), first 10, sorted by price. shopList("v:<role>") uses it with S.zoneId. The jeweler's pool only has 4 items at level 5 or less (shop-sold rings and necklaces); drop-only rings are not added.
+- Pell removed (NPCS, zone list, look, tables). His quests (tour_outpost, herbs, silk) are now given by v_trade_outpost (Hale). The old Pell's Goods building is signed Market Hall.
+- Storage bug: menu4 and hud4 tested S.zone.residence, a flag no zone has, so the residence always showed the read-only view. They now test S.zoneId === "residence".
+- Tests: test/h5unit.js; p25, p5c and p6 updated for Hale.

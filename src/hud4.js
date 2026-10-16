@@ -1341,7 +1341,7 @@ function mainCmdItems() {
   let pg = MAIN_CMDS[UI.mm.page].slice();
   if (PLAY.offline) pg = pg.filter(it => !["social"].includes(it[1]));
   const mi = pg.findIndex(it => it[1] === "map");
-  if (mi >= 0 && S.zone && S.zone.residence) pg[mi] = ["Residence", "home", "Arrange furniture and use your residence."];
+  if (mi >= 0 && S.zoneId === "residence") pg[mi] = ["Residence", "home", "Arrange furniture and use your residence."];
   return pg;
 }
 

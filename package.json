@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.43.0",
-  "releaseTitle": "Auction prices match the shops",
+  "version": "18.44.0",
+  "releaseTitle": "Six vendors in every town",
   "description": "",
   "main": "index.js",
   "scripts": {

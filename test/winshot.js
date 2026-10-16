@@ -12,7 +12,7 @@ const mockLogin = require('./mocklogin');
   await page.evaluate(() => { save.gil = 4321; for (const id of ['leather_gorget', 'silver_earring_hq', 'rabbit_mantle', 'scale_mail', 'healing_herb', 'copper_ore']) giveItem(id, 2, true); save.quests.pouches = 'active'; document.querySelectorAll('.toast').forEach(x => x.remove()); });
   await shot('items', () => { openMenu('inventory'); UI.hov = save.inventory[1].id; renderMCard(); });
   await shot('itemsel', () => { onMenuClick({ target: document.querySelector('[data-a="isel"]'), preventDefault() {} }); });
-  await shot('shop', () => { closeDialog(); S.shopKind = 'pell'; openMenu('shop'); UI.hov = shopList('pell')[0]; renderMCard(); });
+  await shot('shop', () => { closeDialog(); S.shopKind = 'v:armorer'; openMenu('shop'); UI.hov = shopList('v:armorer')[0]; renderMCard(); });
   await shot('shopbuy', () => { onMenuClick({ target: document.querySelector('[data-a="shopbuy"]'), preventDefault() {} }); });
   await shot('quests', () => { closeDialog(); openMenu('quests'); });
   await shot('quest1', () => { UI.qCat = 'cur'; UI.qSel = 'pouches'; renderModal(); });

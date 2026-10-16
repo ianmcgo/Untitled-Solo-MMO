@@ -57,7 +57,7 @@ function mobAlert(v, e, an, P) {
 
 function normAngA(a) { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
 
-const NPC_WORK = { garrick: "hammer", pell: "count", marn: "work", odette: "work", tobin: "read", brann: "arms", ysolde: "work", vela: "work", maera: "read", corvin: "count", selene: "count", guard_east: "guard", guard_north: "guard", guard_pass: "guard", rhea: "arms", ilsa: "look" };
+const NPC_WORK = { garrick: "hammer", marn: "work", odette: "work", tobin: "read", brann: "arms", ysolde: "work", vela: "work", maera: "read", corvin: "count", selene: "count", guard_east: "guard", guard_north: "guard", guard_pass: "guard", rhea: "arms", ilsa: "look" };
 
 function poseBird(v, e, dt) {
   const an = trackEvents(v, e, dt);
@@ -486,7 +486,7 @@ function poseHuman(v, e, dt) {
     addP(P, "lids", -0.7 * (1 - shut), 0, 0);
   }
   if (e.kind === "npc" && player && e.alive !== false) {
-    const d = dist(e, player), work = NPC_WORK[e.id];
+    const d = dist(e, player), work = NPC_WORK[e.id] || VENDOR_WORK[e.id];
     const near = d < 160 && player.target === e ? 1 : d < 130 ? 1 : 0;
     an.look = (an.look || 0) + (near - (an.look || 0)) * Math.min(1, dt * 3);
     if (an.look > 0.01) {
