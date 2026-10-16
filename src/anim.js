@@ -218,7 +218,7 @@ function poseHuman(v, e, dt) {
       if (an.idleAct === 1) { addP(P, "head", 0, 0.9 * Math.sin(ik * Math.PI * 2) * w, 0); addP(P, "chest", 0, 0.25 * Math.sin(ik * Math.PI * 2) * w, 0); }
       else if (an.idleAct === 2) { setP(P, "upArmL", -2.6, 0, 0.35, w); setP(P, "upArmR", -2.6, 0, -0.35, w); setP(P, "foreArmL", -0.6, 0, 0, w); setP(P, "foreArmR", -0.6, 0, 0, w); addP(P, "spine", -0.18 * w, 0, 0); addP(P, "head", -0.3 * w, 0, 0); }
       else if (an.idleAct === 3) { addP(P, "hips", 0, 0, 0.08 * w); addP(P, "thighL", 0, 0, 0.1 * w); addP(P, "shinR", 0.25 * w, 0, 0); addP(P, "thighR", -0.1 * w, 0, 0); addP(P, "chest", 0, 0, -0.06 * w); v.rootOff[0] += 0.03 * w; }
-      else { setP(P, "upArmR", -2.3, 0, 0.6, w); setP(P, "foreArmR", -1.9 + Math.sin(S.time * 14) * 0.15, 0, 0, w); addP(P, "head", 0.1 * w, 0, 0.15 * w); }
+      else { setP(P, "upArmR", -2.1, 0, -0.7, w); setP(P, "foreArmR", -1.5 + Math.sin(S.time * 14) * 0.15, 0, 0, w); addP(P, "head", 0.1 * w, 0, -0.12 * w); }
     }
   }
   const em = e.emote;

@@ -927,6 +927,7 @@
   #menu .win.fit { width: max-content; min-width: 320px; max-width: min(560px, calc(100vw - 232px - var(--sal) - var(--sar))); }
   #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar)));  max-height: calc(100vh - 70px - var(--sat) - var(--sab)); }
   #menu .win.slim-abilities, #menu .win.slim-magic, #menu .win.slim-inventory, #menu .win.slim-quests, #menu .win.slim-storage { width: max-content; min-width: 220px; max-width: min(420px, calc(100vw - 16px)); }
+  @media (pointer: coarse) { #ui.modalOn #dialog { bottom: calc(8px + var(--sab)) !important; } }
   #menu .win.slim #mHead { display: none; }
   #menu .win.slim #mBody { padding: 4px 6px 6px 22px; }
   #mBody .lHead { display: flex; gap: 6px; justify-content: flex-end; margin: 0 0 4px -16px; }

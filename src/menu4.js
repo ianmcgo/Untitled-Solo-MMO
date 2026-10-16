@@ -380,7 +380,7 @@ function invSorted() {
     if (UI.filter === "mat") return it.kind === "mat" || it.kind === "crystal" || it.kind === "tool";
     if (UI.filter === "rare") return it.rare || it.ex || it.kind === "furniture" || ["rare", "epic"].includes(itemRarity(s.id));
     return true;
-  });
+  }).sort((x, y) => (KIND_ORDER[ITEMS[x.s.id].kind] - KIND_ORDER[ITEMS[y.s.id].kind]) || ITEMS[x.s.id].name.localeCompare(ITEMS[y.s.id].name));
 }
 const SLIM_TABS = { inventory: 1, shop: 1, quests: 1, magic: 1, abilities: 1 };
 function isSlim(t) { return !!SLIM_TABS[t] || (t === "storage" && !(S.zone && S.zone.residence)); }
@@ -399,7 +399,7 @@ function tabInventory() {
   }
   let list = invSorted();
   if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].kind === "equip" && slotKeys(ITEMS[s.id].slot).includes(UI.slotFilter));
-  let h = '<div class="lHead"><button data-a="sort">Sort</button>' + tabs + '<button data-a="slimclose">✕ Close</button></div><div class="lList">';
+  let h = '<div class="lHead">' + (UI.sel != null && save.inventory[UI.sel] ? '<button data-a="dropsel">Drop</button>' : "") + tabs + '<button data-a="slimclose">✕ Close</button></div><div class="lList">';
   if (!list.length) h += '<div class="lr empty"><span class="nm">Your bag is empty.</span></div>';
   for (const { s, i } of list) h += listRow("isel", i, s.id, s.qty, ITEMS[s.id].name, null, UI.sel === i, rarityOf(s.id));
   return h + "</div>";
@@ -411,8 +411,7 @@ function invActions(i) {
   if (it.kind === "use" || it.kind === "food") { o.push({ label: it.kind === "food" ? "Eat" : "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } }); if (!it.spell) o.push({ label: "Add to action bar", fn: () => { closeDialog(); placeOnBar({ kind: "item", id: s.id }); } }); }
   if (it.enchant) o.push({ label: "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } });
   if (it.kind === "equip") o.push({ label: "Equip", fn: () => { closeDialog(); const why = canEquip(s.id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(s.id); UI.sel = null; } renderModal(); } });
-  o.push({ label: "Drop", fn: () => { closeDialog(); onMenuClick({ target: { closest: () => ({ dataset: { a: "drop", v: String(i) } }) }, preventDefault() {} }); } });
-  promptChoice(it.name, o);
+  if (o.length) promptChoice(it.name, o);
 }
 function renderMCard() {
   const el = $("mCard");
@@ -669,7 +668,7 @@ function csCounts() { const n = {}; for (const id of UI.cs.mats) n[id] = (n[id] 
 function csMatches() {
   const cs = UI.cs, n = csCounts();
   if (!cs.crystal) return [];
-  return RECIPES.filter(r => CRAFTS[r.craft].crystal === cs.crystal && Object.keys(n).every(id => (r.mats[id] || 0) >= n[id])).map(r => ({ r, exact: Object.keys(r.mats).every(id => n[id] === r.mats[id]) && Object.keys(n).every(id => r.mats[id]) }));
+  return RECIPES.filter(r => recipeKnown(r) && CRAFTS[r.craft].crystal === cs.crystal && Object.keys(n).every(id => (r.mats[id] || 0) >= n[id])).map(r => ({ r, exact: Object.keys(r.mats).every(id => n[id] === r.mats[id]) && Object.keys(n).every(id => r.mats[id]) }));
 }
 function tabCrafting() {
   UI.cs = UI.cs || { crystal: null, mats: [], hover: null };
@@ -690,7 +689,7 @@ function tabCrafting() {
   h += '<div class="csDesc">' + (hv ? '<span class="ic">' + (ITEMS[hv].icon || "📦") + "</span><div><b>" + esc(ITEMS[hv].name) + "</b><div>" + esc(itemDesc(hv)) + "</div></div>" : '<div class="dim">Tap an item to see what it is.</div>') + "</div>";
   if (UI.craftMsg) h += '<div class="sub" style="color:#ffd070;margin:6px 0">' + esc(UI.craftMsg) + "</div>";
   const n = csCounts();
-  const usable = [...new Set(save.inventory.map(x => x.id))].filter(id => craftCrystals().includes(id) || RECIPES.some(r => r.mats[id]));
+  const usable = [...new Set(save.inventory.map(x => x.id))].filter(id => craftCrystals().includes(id) || RECIPES.some(r => recipeKnown(r) && r.mats[id]));
   h += '<h3>Your bag</h3><div class="inv csBag">';
   if (!usable.length) h += '<div class="sub" style="padding:6px">No crystals or crafting materials in your bag.</div>';
   for (const id of usable) { const left = invCount(id) - (n[id] || 0) - (cs.crystal === id ? 1 : 0); h += '<button class="cell' + (left <= 0 ? " off" : "") + '" data-a="csadd" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="inm">' + esc(ITEMS[id].name) + '</span><span class="q">' + left + "</span></button>"; }
@@ -707,7 +706,8 @@ function tabCraftBook() {
   const c = UI.craft;
   let h = '<div class="invTop">' + Object.keys(CRAFTS).map(k => '<button data-a="craftsel" data-v="' + k + '"' + (k === c ? ' class="on"' : "") + ">" + CRAFTS[k].icon + " " + CRAFTS[k].name + ' <span class="sub">' + craftSkill(k).toFixed(1) + "</span></button>").join("") + "</div>";
   h += '<div class="sub" style="margin-bottom:8px">' + CRAFTS[c].name + " skill " + craftSkill(c).toFixed(1) + " / " + CONFIG.craftCap + " · needs " + an(ITEMS[CRAFTS[c].crystal].name) + " (have " + invCount(CRAFTS[c].crystal) + ") · about " + CONFIG.synthTime + " s per synthesis, anywhere outside combat.</div>";
-  const list = RECIPES.filter(r => r.craft === c).sort((a, b) => a.lv - b.lv);
+  const list = RECIPES.filter(r => r.craft === c && recipeKnown(r)).sort((a, b) => a.lv - b.lv);
+  if (!list.length) h += '<div class="sub">You know no recipes for this craft yet. Learn them from Recipe scrolls.</div>';
   for (const r of list) {
     const ok = recipeMatsOk(r);
     const why = canSynth(r);
@@ -1425,7 +1425,6 @@ function onMenuClick(e) {
   if (typeof handleSettingAction === "function" && handleSettingAction(a, v)) { renderModal(); sfx("click"); return; }
   const hb = hotbar();
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
-  else if (a === "sort") { save.inventory.sort((x, y) => (KIND_ORDER[ITEMS[x.id].kind] - KIND_ORDER[ITEMS[y.id].kind]) || ITEMS[x.id].name.localeCompare(ITEMS[y.id].name)); UI.sel = null; saveGame(); sfx("select"); }
   else if (a === "sel") { UI.sel = UI.sel === +v ? null : +v; sfx("select"); }
   else if (a === "isel") { UI.sel = +v; UI.hov = null; sfx("select"); renderModal(); invActions(+v); return; }
   else if (a === "qcat") { UI.qCat = v; UI.qSel = null; sfx("select"); }
@@ -1511,6 +1510,7 @@ function onMenuClick(e) {
   else if (a === "ahbuy") { UI.ahMsg = ahBuy(UI.ahSel, UI.ahQty || 1); UI.ahQty = 1; renderModal(); return; }
   else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
   else if (a === "ahcancel") { ahCancel(+v); renderModal(); return; }
+  else if (a === "dropsel") { if (UI.sel != null) onMenuClick({ target: { closest: () => ({ dataset: { a: "drop", v: String(UI.sel) } }) }, preventDefault() {} }); return; }
   else if (a === "invview") { UI.invView = v; UI.sel = null; renderModal(); return; }
   else if (a === "slimclose") { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); return; }
   else if (a === "helpcat") { UI.helpCat = v; renderModal(); return; }
@@ -1636,6 +1636,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.18.0", date: "2026-10-15", title: "Recipe scrolls", items: [
+    "<b>Crafting recipes are now learned from Recipe scrolls</b>, like spell scrolls. Read one (Use from Items) to learn it. You start knowing only the basic materials: Bronze Ingot, Ash Lumber, Silk Cloth, Potion and Grilled Minnow. Crafting and the recipe book only show recipes you know.",
+    "<b>Common recipe scrolls are sold in shops</b> (Pell for level 10 and under, Vela after that): early gear, furniture, potions, ethers and cooking.",
+    "<b>+1 recipes are rare.</b> The recipes for gear that can come out as the +1 version drop rarely from monsters of about the right level (more often from notorious monsters and bosses) or come as quest rewards.",
+    "Characters that already crafted keep the recipes their craft skill could make.",
+    "Items are sorted automatically and the Sort button is gone. Tapping an item no longer asks to drop it; use the Drop button at the top. Choices now appear at the bottom of the screen on phones.",
+    "<b>Animation:</b> the head-scratch idle no longer pushes the hand through the head, and sheathed staves, polearms and swords sit farther from the back so they clip less through robes and capes."
+  ] },
   { v: "18.17.0", date: "2026-10-15", title: "Game guide", items: [
     "<b>Help is now the Guide.</b> The Guide command (second page of the main menu, or H) opens a guide split into six topics: All functions, Getting started, Combat and jobs, The world, Crafting and economy, and Social and records.",
     "<b>All functions</b> lists every command in the main menu with its key and what it does, the Status sub-menu, and every chat command, always matching the game as it is.",
@@ -3186,6 +3194,7 @@ function tabHelp() {
     "A point runs dry after 1–3 uses and a new one appears elsewhere 45 seconds later. Gathering raises its own skill, up to 20."
   ]));
   h += sec("⚒️ Crafting", ul([
+    "<b>Recipes are learned from Recipe scrolls.</b> You start knowing only the basic materials (Bronze Ingot, Ash Lumber, Silk Cloth, Potion, Grilled Minnow). Common scrolls are sold by Pell (level 10 and under) and Vela. Rare recipes for gear that can come out as the +1 version drop rarely from monsters of about the right level (notorious monsters and bosses more often) or come as quest rewards. Read a scroll with Use from Items.",
     "Open the Crafting window (N, or /craft). Put an essence in the big slot on the left and up to 8 ingredients in the small slots by tapping them in your bag. The right side lists what that combination can make; ★ means the combination is exact. Press OK to craft, Cancel to clear. Tapping a result fills in the slots for you when you have the ingredients. Recipe notes lists every recipe you can learn. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
     "Each craft uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
     "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure uses up the essence and loses some ingredients.",

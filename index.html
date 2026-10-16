@@ -927,6 +927,7 @@
   #menu .win.fit { width: max-content; min-width: 320px; max-width: min(560px, calc(100vw - 232px - var(--sal) - var(--sar))); }
   #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar)));  max-height: calc(100vh - 70px - var(--sat) - var(--sab)); }
   #menu .win.slim-abilities, #menu .win.slim-magic, #menu .win.slim-inventory, #menu .win.slim-quests, #menu .win.slim-storage { width: max-content; min-width: 220px; max-width: min(420px, calc(100vw - 16px)); }
+  @media (pointer: coarse) { #ui.modalOn #dialog { bottom: calc(8px + var(--sab)) !important; } }
   #menu .win.slim #mHead { display: none; }
   #menu .win.slim #mBody { padding: 4px 6px 6px 22px; }
   #mBody .lHead { display: flex; gap: 6px; justify-content: flex-end; margin: 0 0 4px -16px; }
@@ -1105,7 +1106,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.17.0 · built 2026-10-15 22:45 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.18.0 · built 2026-10-15 22:50 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -8889,6 +8890,24 @@ for (const id in SPELLS) {
   if (lv <= 10) SHOP.push(sid); else if (lv <= 20) SHOPS.vela.push(sid);
 }
 SHOPS.vela.push("x_potion", "hi_ether", "super_ether", "reraiser");
+const RECIPE_START = RECIPES.filter(r => r.lv === 0 && !r.id.startsWith("g_")).map(r => r.id);
+for (const r of RECIPES) {
+  if (RECIPE_START.includes(r.id)) continue;
+  const rare = r.id.startsWith("g_"), sid = "rcp_" + r.id, o = ITEMS[r.out];
+  ITEMS[sid] = { name: "Recipe: " + o.name, kind: "use", icon: "📜", recipe: r.id, lv: r.lv, price: Math.round(30 + r.lv * r.lv * 6) * (rare ? 3 : 1), desc: "Read it to learn how to craft " + o.name + " (" + CRAFTS[r.craft].name + " Lv." + r.lv + ")." + (rare ? " A rare recipe: it can come out as the +1 version." : "") };
+  if (!rare) { if (r.lv <= 10) SHOP.push(sid); else SHOPS.vela.push(sid); }
+}
+const RARE_RECIPES = RECIPES.filter(r => r.id.startsWith("g_")).sort((a, b) => a.lv - b.lv);
+{
+  const free = RARE_RECIPES.slice(), qs = Object.keys(QUESTS).filter(q => QUESTS[q].reward && QUESTS[q].lv >= 3 && !/^tour_/.test(q));
+  qs.forEach((q, i) => {
+    if (i % 2 || !free.length) return;
+    let bi = 0;
+    free.forEach((r, k) => { if (Math.abs(r.lv - (QUESTS[q].lv + 2)) < Math.abs(free[bi].lv - (QUESTS[q].lv + 2))) bi = k; });
+    const r = free.splice(bi, 1)[0];
+    QUESTS[q].reward.items = (QUESTS[q].reward.items || []).concat([["rcp_" + r.id, 1]]);
+  });
+}
 for (const id in GEAR_DATA) { const g = GEAR_DATA[id]; if (g.src !== "shop") continue; if (g.lv <= 10) SHOP.push(id); else SHOPS.vela.push(id); }
 function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
 function exitInner(z, e) {
@@ -9393,7 +9412,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -9416,6 +9435,8 @@ function normalizeSave(d) {
   if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
+  out.recipes = Object.assign({}, d.recipes || {});
+  if (!d.recipes) { for (const r of RECIPES) if (r.lv <= Math.floor((d.crafts && d.crafts[r.craft]) || 0)) out.recipes[r.id] = 1; for (const id of RECIPE_START) out.recipes[id] = 1; }
   out.seen = { items: Object.assign({}, d.seen && d.seen.items), npcs: Object.assign({}, d.seen && d.seen.npcs) };
   for (const s of out.inventory) out.seen.items[s.id] = 1;
   for (const k in out.gear) out.seen.items[out.gear[k]] = 1;
@@ -10510,6 +10531,7 @@ function onKO(e, src) {
 function killRewards(e) {
   try { conquestKill(e); expKill(e); } catch (err) {}
   save.stats.kills++;
+  rareRecipeDrop(e);
   if (player.job === "RNG") save.stats.rngKills++;
   noteBeast(e, true);
   if (e.fam.nm) { save.stats.nm++; save.nmKilled[e.famKey] = (save.nmKilled[e.famKey] || 0) + 1; }
@@ -12103,6 +12125,7 @@ function useItem(id) {
   if (it.enchant === "warp") { S.itemReadyAt = S.time + 5; castWarp(player); return; }
   if (it.kind === "food") { eatFood(id); return; }
   if (it.spell) { learnSpell(id); return; }
+  if (it.recipe) { learnRecipe(id); return; }
   if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.revive) {
@@ -13217,6 +13240,27 @@ function doGather(n) {
 }
 
 function craftSkill(c) { return save.crafts[c] || 0; }
+function recipeKnown(r) { return !!(save.recipes && save.recipes[r.id]); }
+function learnRecipe(itemId) {
+  const it = ITEMS[itemId], r = RECIPES.find(x => x.id === it.recipe);
+  if (!r) return;
+  if (recipeKnown(r)) { log("You already know the recipe for " + ITEMS[r.out].name + ".", "sys"); sfx("error"); return; }
+  if (!removeItem(itemId, 1)) return;
+  save.recipes[r.id] = 1;
+  log("You learn the recipe for " + ITEMS[r.out].name + " (" + CRAFTS[r.craft].name + " Lv." + r.lv + ").", "loot");
+  sfx("unlock");
+  saveGame();
+  if (S.modal) renderModal();
+}
+function rareRecipeDrop(e) {
+  if (!e || !e.fam || e.fam.peaceful || xpFor(e.lv, player.lv) <= 0) return;
+  const chance = e.fam.boss ? 0.5 : e.fam.nm ? 0.25 : 0.015;
+  if (Math.random() >= chance) return;
+  const pool = RARE_RECIPES.filter(r => !recipeKnown(r) && invCount("rcp_" + r.id) < 1 && r.lv >= e.lv - 5 && r.lv <= e.lv + 3);
+  if (!pool.length) return;
+  const r = pick(pool);
+  giveItem("rcp_" + r.id, 1);
+}
 function recipeMatsOk(r) { return Object.keys(r.mats).every(id => invCount(id) >= r.mats[id]) && invCount(CRAFTS[r.craft].crystal) >= 1; }
 function synthChance(r) { return clamp(65 + 7 * (craftSkill(r.craft) - r.lv) + buddyPerk("craft") * 100, 5, 95); }
 function synthHqChance(r) { return r.hq ? clamp(5 * (craftSkill(r.craft) - r.lv), 0, 50) : 0; }
@@ -13227,6 +13271,7 @@ function canSynth(r) {
   if (player.casting) return "You are casting.";
   if (player.synth) return "You're already crafting.";
   if (player.mounted) return "Dismount first.";
+  if (!recipeKnown(r)) return "You haven't learned that recipe.";
   if (invCount(CRAFTS[r.craft].crystal) < 1) return "You need " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".";
   if (!recipeMatsOk(r)) return "You're missing ingredients.";
   return "";
@@ -17569,7 +17614,7 @@ function invSorted() {
     if (UI.filter === "mat") return it.kind === "mat" || it.kind === "crystal" || it.kind === "tool";
     if (UI.filter === "rare") return it.rare || it.ex || it.kind === "furniture" || ["rare", "epic"].includes(itemRarity(s.id));
     return true;
-  });
+  }).sort((x, y) => (KIND_ORDER[ITEMS[x.s.id].kind] - KIND_ORDER[ITEMS[y.s.id].kind]) || ITEMS[x.s.id].name.localeCompare(ITEMS[y.s.id].name));
 }
 const SLIM_TABS = { inventory: 1, shop: 1, quests: 1, magic: 1, abilities: 1 };
 function isSlim(t) { return !!SLIM_TABS[t] || (t === "storage" && !(S.zone && S.zone.residence)); }
@@ -17588,7 +17633,7 @@ function tabInventory() {
   }
   let list = invSorted();
   if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].kind === "equip" && slotKeys(ITEMS[s.id].slot).includes(UI.slotFilter));
-  let h = '<div class="lHead"><button data-a="sort">Sort</button>' + tabs + '<button data-a="slimclose">✕ Close</button></div><div class="lList">';
+  let h = '<div class="lHead">' + (UI.sel != null && save.inventory[UI.sel] ? '<button data-a="dropsel">Drop</button>' : "") + tabs + '<button data-a="slimclose">✕ Close</button></div><div class="lList">';
   if (!list.length) h += '<div class="lr empty"><span class="nm">Your bag is empty.</span></div>';
   for (const { s, i } of list) h += listRow("isel", i, s.id, s.qty, ITEMS[s.id].name, null, UI.sel === i, rarityOf(s.id));
   return h + "</div>";
@@ -17600,8 +17645,7 @@ function invActions(i) {
   if (it.kind === "use" || it.kind === "food") { o.push({ label: it.kind === "food" ? "Eat" : "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } }); if (!it.spell) o.push({ label: "Add to action bar", fn: () => { closeDialog(); placeOnBar({ kind: "item", id: s.id }); } }); }
   if (it.enchant) o.push({ label: "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } });
   if (it.kind === "equip") o.push({ label: "Equip", fn: () => { closeDialog(); const why = canEquip(s.id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(s.id); UI.sel = null; } renderModal(); } });
-  o.push({ label: "Drop", fn: () => { closeDialog(); onMenuClick({ target: { closest: () => ({ dataset: { a: "drop", v: String(i) } }) }, preventDefault() {} }); } });
-  promptChoice(it.name, o);
+  if (o.length) promptChoice(it.name, o);
 }
 function renderMCard() {
   const el = $("mCard");
@@ -17858,7 +17902,7 @@ function csCounts() { const n = {}; for (const id of UI.cs.mats) n[id] = (n[id] 
 function csMatches() {
   const cs = UI.cs, n = csCounts();
   if (!cs.crystal) return [];
-  return RECIPES.filter(r => CRAFTS[r.craft].crystal === cs.crystal && Object.keys(n).every(id => (r.mats[id] || 0) >= n[id])).map(r => ({ r, exact: Object.keys(r.mats).every(id => n[id] === r.mats[id]) && Object.keys(n).every(id => r.mats[id]) }));
+  return RECIPES.filter(r => recipeKnown(r) && CRAFTS[r.craft].crystal === cs.crystal && Object.keys(n).every(id => (r.mats[id] || 0) >= n[id])).map(r => ({ r, exact: Object.keys(r.mats).every(id => n[id] === r.mats[id]) && Object.keys(n).every(id => r.mats[id]) }));
 }
 function tabCrafting() {
   UI.cs = UI.cs || { crystal: null, mats: [], hover: null };
@@ -17879,7 +17923,7 @@ function tabCrafting() {
   h += '<div class="csDesc">' + (hv ? '<span class="ic">' + (ITEMS[hv].icon || "📦") + "</span><div><b>" + esc(ITEMS[hv].name) + "</b><div>" + esc(itemDesc(hv)) + "</div></div>" : '<div class="dim">Tap an item to see what it is.</div>') + "</div>";
   if (UI.craftMsg) h += '<div class="sub" style="color:#ffd070;margin:6px 0">' + esc(UI.craftMsg) + "</div>";
   const n = csCounts();
-  const usable = [...new Set(save.inventory.map(x => x.id))].filter(id => craftCrystals().includes(id) || RECIPES.some(r => r.mats[id]));
+  const usable = [...new Set(save.inventory.map(x => x.id))].filter(id => craftCrystals().includes(id) || RECIPES.some(r => recipeKnown(r) && r.mats[id]));
   h += '<h3>Your bag</h3><div class="inv csBag">';
   if (!usable.length) h += '<div class="sub" style="padding:6px">No crystals or crafting materials in your bag.</div>';
   for (const id of usable) { const left = invCount(id) - (n[id] || 0) - (cs.crystal === id ? 1 : 0); h += '<button class="cell' + (left <= 0 ? " off" : "") + '" data-a="csadd" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="inm">' + esc(ITEMS[id].name) + '</span><span class="q">' + left + "</span></button>"; }
@@ -17896,7 +17940,8 @@ function tabCraftBook() {
   const c = UI.craft;
   let h = '<div class="invTop">' + Object.keys(CRAFTS).map(k => '<button data-a="craftsel" data-v="' + k + '"' + (k === c ? ' class="on"' : "") + ">" + CRAFTS[k].icon + " " + CRAFTS[k].name + ' <span class="sub">' + craftSkill(k).toFixed(1) + "</span></button>").join("") + "</div>";
   h += '<div class="sub" style="margin-bottom:8px">' + CRAFTS[c].name + " skill " + craftSkill(c).toFixed(1) + " / " + CONFIG.craftCap + " · needs " + an(ITEMS[CRAFTS[c].crystal].name) + " (have " + invCount(CRAFTS[c].crystal) + ") · about " + CONFIG.synthTime + " s per synthesis, anywhere outside combat.</div>";
-  const list = RECIPES.filter(r => r.craft === c).sort((a, b) => a.lv - b.lv);
+  const list = RECIPES.filter(r => r.craft === c && recipeKnown(r)).sort((a, b) => a.lv - b.lv);
+  if (!list.length) h += '<div class="sub">You know no recipes for this craft yet. Learn them from Recipe scrolls.</div>';
   for (const r of list) {
     const ok = recipeMatsOk(r);
     const why = canSynth(r);
@@ -18614,7 +18659,6 @@ function onMenuClick(e) {
   if (typeof handleSettingAction === "function" && handleSettingAction(a, v)) { renderModal(); sfx("click"); return; }
   const hb = hotbar();
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
-  else if (a === "sort") { save.inventory.sort((x, y) => (KIND_ORDER[ITEMS[x.id].kind] - KIND_ORDER[ITEMS[y.id].kind]) || ITEMS[x.id].name.localeCompare(ITEMS[y.id].name)); UI.sel = null; saveGame(); sfx("select"); }
   else if (a === "sel") { UI.sel = UI.sel === +v ? null : +v; sfx("select"); }
   else if (a === "isel") { UI.sel = +v; UI.hov = null; sfx("select"); renderModal(); invActions(+v); return; }
   else if (a === "qcat") { UI.qCat = v; UI.qSel = null; sfx("select"); }
@@ -18700,6 +18744,7 @@ function onMenuClick(e) {
   else if (a === "ahbuy") { UI.ahMsg = ahBuy(UI.ahSel, UI.ahQty || 1); UI.ahQty = 1; renderModal(); return; }
   else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
   else if (a === "ahcancel") { ahCancel(+v); renderModal(); return; }
+  else if (a === "dropsel") { if (UI.sel != null) onMenuClick({ target: { closest: () => ({ dataset: { a: "drop", v: String(UI.sel) } }) }, preventDefault() {} }); return; }
   else if (a === "invview") { UI.invView = v; UI.sel = null; renderModal(); return; }
   else if (a === "slimclose") { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); return; }
   else if (a === "helpcat") { UI.helpCat = v; renderModal(); return; }
@@ -18823,8 +18868,16 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.17.0 · built 2026-10-15 22:45 PDT";
+const BUILD_INFO = "v18.18.0 · built 2026-10-15 22:50 PDT";
 const UPDATES = [
+  { v: "18.18.0", date: "2026-10-15", title: "Recipe scrolls", items: [
+    "<b>Crafting recipes are now learned from Recipe scrolls</b>, like spell scrolls. Read one (Use from Items) to learn it. You start knowing only the basic materials: Bronze Ingot, Ash Lumber, Silk Cloth, Potion and Grilled Minnow. Crafting and the recipe book only show recipes you know.",
+    "<b>Common recipe scrolls are sold in shops</b> (Pell for level 10 and under, Vela after that): early gear, furniture, potions, ethers and cooking.",
+    "<b>+1 recipes are rare.</b> The recipes for gear that can come out as the +1 version drop rarely from monsters of about the right level (more often from notorious monsters and bosses) or come as quest rewards.",
+    "Characters that already crafted keep the recipes their craft skill could make.",
+    "Items are sorted automatically and the Sort button is gone. Tapping an item no longer asks to drop it; use the Drop button at the top. Choices now appear at the bottom of the screen on phones.",
+    "<b>Animation:</b> the head-scratch idle no longer pushes the hand through the head, and sheathed staves, polearms and swords sit farther from the back so they clip less through robes and capes."
+  ] },
   { v: "18.17.0", date: "2026-10-15", title: "Game guide", items: [
     "<b>Help is now the Guide.</b> The Guide command (second page of the main menu, or H) opens a guide split into six topics: All functions, Getting started, Combat and jobs, The world, Crafting and economy, and Social and records.",
     "<b>All functions</b> lists every command in the main menu with its key and what it does, the Status sub-menu, and every chat command, always matching the game as it is.",
@@ -20375,6 +20428,7 @@ function tabHelp() {
     "A point runs dry after 1–3 uses and a new one appears elsewhere 45 seconds later. Gathering raises its own skill, up to 20."
   ]));
   h += sec("⚒️ Crafting", ul([
+    "<b>Recipes are learned from Recipe scrolls.</b> You start knowing only the basic materials (Bronze Ingot, Ash Lumber, Silk Cloth, Potion, Grilled Minnow). Common scrolls are sold by Pell (level 10 and under) and Vela. Rare recipes for gear that can come out as the +1 version drop rarely from monsters of about the right level (notorious monsters and bosses more often) or come as quest rewards. Read a scroll with Use from Items.",
     "Open the Crafting window (N, or /craft). Put an essence in the big slot on the left and up to 8 ingredients in the small slots by tapping them in your bag. The right side lists what that combination can make; ★ means the combination is exact. Press OK to craft, Cancel to clear. Tapping a result fills in the slots for you when you have the ingredients. Recipe notes lists every recipe you can learn. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
     "Each craft uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
     "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure uses up the essence and loses some ingredients.",
@@ -20479,7 +20533,7 @@ function tabHelp() {
   return out + "</div>";
 }
 
-const GAME_VERSION = "18.17.0";
+const GAME_VERSION = "18.18.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -26960,7 +27014,7 @@ function poseHuman(v, e, dt) {
       if (an.idleAct === 1) { addP(P, "head", 0, 0.9 * Math.sin(ik * Math.PI * 2) * w, 0); addP(P, "chest", 0, 0.25 * Math.sin(ik * Math.PI * 2) * w, 0); }
       else if (an.idleAct === 2) { setP(P, "upArmL", -2.6, 0, 0.35, w); setP(P, "upArmR", -2.6, 0, -0.35, w); setP(P, "foreArmL", -0.6, 0, 0, w); setP(P, "foreArmR", -0.6, 0, 0, w); addP(P, "spine", -0.18 * w, 0, 0); addP(P, "head", -0.3 * w, 0, 0); }
       else if (an.idleAct === 3) { addP(P, "hips", 0, 0, 0.08 * w); addP(P, "thighL", 0, 0, 0.1 * w); addP(P, "shinR", 0.25 * w, 0, 0); addP(P, "thighR", -0.1 * w, 0, 0); addP(P, "chest", 0, 0, -0.06 * w); v.rootOff[0] += 0.03 * w; }
-      else { setP(P, "upArmR", -2.3, 0, 0.6, w); setP(P, "foreArmR", -1.9 + Math.sin(S.time * 14) * 0.15, 0, 0, w); addP(P, "head", 0.1 * w, 0, 0.15 * w); }
+      else { setP(P, "upArmR", -2.1, 0, -0.7, w); setP(P, "foreArmR", -1.5 + Math.sin(S.time * 14) * 0.15, 0, 0, w); addP(P, "head", 0.1 * w, 0, -0.12 * w); }
     }
   }
   const em = e.emote;
@@ -28654,8 +28708,8 @@ function placeWeapon(v, e) {
   } else {
     v.bones.chest.add(w);
     const bz = v.meta.backZ || -0.15;
-    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
-    else { w.position.set(0.04, 0.0, bz); w.rotation.set(0, 0, Math.PI + 0.55); }
+    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { w.position.set(0, 0.0, bz - 0.045); w.rotation.set(0, 0, 0.78); }
+    else { w.position.set(0.04, 0.0, bz - 0.04); w.rotation.set(0, 0, Math.PI + 0.55); }
   }
 }
 

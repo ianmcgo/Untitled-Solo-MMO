@@ -5,6 +5,7 @@ G.enterZone('outpost'); run(0.2);
 ok(G.CRAFTS.cooking && G.RECIPES.filter(r => r.craft === 'cooking').length >= 7, 'Cooking has at least 7 recipes');
 G.giveItem('grain_flour', 4, true); G.giveItem('healing_herb', 2, true); G.giveItem('fire_crystal', 2, true);
 const r = G.RECIPES.find(x => x.id === 'r_herb_bread');
+G.save.recipes.r_herb_bread = 1;
 G.save.crafts.cooking = 5;
 const saved = Math.random; Math.random = () => 0.01;
 ok(G.canSynth(r) === '' , 'herb bread can be cooked');
@@ -22,3 +23,12 @@ const m = G.buildMob('goblin', 2, P().x + 30, P().y, 0); S.mobs.push(m); P().tar
 const n0 = G.invCount('herb_bread'); G.useItem('herb_bread');
 ok(G.invCount('herb_bread') === n0, 'you cannot eat during a fight');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');
+{
+  const sid = 'rcp_r_herb_bread', rid = 'r_herb_bread';
+  G.save.recipes = {};
+  G.save.inventory.push({ id: sid, qty: 1 });
+  ok(G.canSynth(G.RECIPES.find(x => x.id === rid)) !== '', 'an unlearned recipe cannot be crafted');
+  G.useItem(sid);
+  ok(G.save.recipes[rid] === 1 && G.invCount(sid) === 0, 'reading a recipe scroll learns it and uses it up');
+  ok(G.ITEMS['rcp_g_' + G.RECIPES.find(x => x.id.startsWith('g_')).out] !== undefined || G.RARE_RECIPES.length > 0, 'rare recipe scrolls exist');
+}

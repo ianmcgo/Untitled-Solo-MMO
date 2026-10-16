@@ -111,8 +111,8 @@ function placeWeapon(v, e) {
   } else {
     v.bones.chest.add(w);
     const bz = v.meta.backZ || -0.15;
-    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { w.position.set(0, -0.05, bz); w.rotation.set(0, 0, 0.65); }
-    else { w.position.set(0.04, 0.0, bz); w.rotation.set(0, 0, Math.PI + 0.55); }
+    if (k === "staff" || k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { w.position.set(0, 0.0, bz - 0.045); w.rotation.set(0, 0, 0.78); }
+    else { w.position.set(0.04, 0.0, bz - 0.04); w.rotation.set(0, 0, Math.PI + 0.55); }
   }
 }
 
