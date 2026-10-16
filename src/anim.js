@@ -33,7 +33,7 @@ function trackEvents(v, e, dt) {
   if (e.readying && !an.wasReady) an.readyStart = S.time;
   an.wasReady = !!e.readying;
   if (e.lastHit !== an.hit && e.lastHitAng != null) an.hitSide = Math.sin(e.lastHitAng - (e.face || 0)) > 0 ? 1 : -1;
-  if (e.alive === false && an.dead == null) { an.dead = S.time; an.deadVar = Math.random() < 0.5 ? 1 : -1; }
+  if (e.alive === false && an.dead == null) { an.dead = S.time; an.deadVar = [1, -1, 2][Math.floor(Math.random() * 3)]; }
   if (e.alive !== false && an.dead != null) { an.dead = null; an.rise = S.time; }
   return an;
 }
@@ -390,7 +390,7 @@ function poseHuman(v, e, dt) {
   }
   const em = e.emote;
   if (em && amp < 0.2 && !e.casting && e.alive !== false) {
-    const len = em.id === "dance" ? 5 : em.id === "panic" ? 3 : 2.4, ek = (S.time - em.at) / len;
+    const len = emoteLen(em.id), ek = (S.time - em.at) / len;
     if (ek > 1) e.emote = null;
     else {
       const w = env(ek, 0.12, 0.2), T = S.time - em.at, osc = Math.sin(T * 8);
@@ -405,7 +405,36 @@ function poseHuman(v, e, dt) {
       else if (em.id === "salute") { setP(P, "upArmR", -1.5, 0, -0.9, w); setP(P, "foreArmR", -2.2, 0, 0, w); addP(P, "spine", -0.08 * w, 0, 0); }
       else if (em.id === "panic") { setP(P, "upArmL", -2.7, 0, 0.6 + osc * 0.3, w); setP(P, "upArmR", -2.7, 0, -0.6 - osc * 0.3, w); addP(P, "head", 0, Math.sin(T * 11) * 0.5 * w, 0); v.rootOff[1] += Math.abs(Math.sin(T * 9)) * 0.06 * w; }
       else if (em.id === "cry") { addP(P, "spine", 0.3 * w, 0, 0); addP(P, "head", 0.4 * w, 0, 0); setP(P, "upArmL", -1.3, 0.5, 0.1, w); setP(P, "upArmR", -1.3, -0.5, -0.1, w); setP(P, "foreArmL", -2.1, 0, 0, w); setP(P, "foreArmR", -2.1, 0, 0, w); addP(P, "chest", Math.sin(T * 9) * 0.04 * w, 0, 0); }
+      else if (em.id === "shrug") { const sh = Math.sin(Math.min(1, ek * 1.3) * Math.PI); setP(P, "upArmL", -0.5, 0, 0.7, w); setP(P, "upArmR", -0.5, 0, -0.7, w); setP(P, "foreArmL", -1.1, 0, 0, w); setP(P, "foreArmR", -1.1, 0, 0, w); addP(P, "chest", 0, 0, 0.05 * w); addP(P, "head", 0, 0, -0.18 * sh * w); v.rootOff[1] += 0.03 * sh * w; }
+      else if (em.id === "think") { setP(P, "upArmR", -1.0, 0.3, -0.25, w); setP(P, "foreArmR", -2.1, 0, 0, w); setP(P, "upArmL", -0.8, 0, 0.1, w); setP(P, "foreArmL", -1.4, 0, 0, w); addP(P, "head", 0.1 * w, Math.sin(T * 1.6) * 0.3 * w, 0.12 * w); addP(P, "spine", 0.08 * w, 0, 0); }
+      else if (em.id === "beckon") { const c = Math.sin(T * 9); setP(P, "upArmR", -1.45, 0, -0.35, w); setP(P, "foreArmR", -0.9 - c * 0.7, 0, 0, w); addP(P, "head", 0, 0, 0.1 * w); addP(P, "chest", 0, -0.15 * w, 0); }
+      else if (em.id === "stretch") { const a = env(ek, 0.2, 0.25); setP(P, "upArmL", -3.0, 0, 0.45, a); setP(P, "upArmR", -3.0, 0, -0.45, a); setP(P, "foreArmL", -0.2, 0, 0, a); setP(P, "foreArmR", -0.2, 0, 0, a); addP(P, "spine", -0.3 * a, 0, 0); addP(P, "chest", -0.15 * a, 0, 0); addP(P, "head", -0.35 * a, 0, 0); addP(P, "hips", 0.1 * a, 0, 0); v.rootOff[1] += 0.03 * a; }
+      else if (em.id === "kneel") { const a = env(ek, 0.18, 0.25); setP(P, "thighL", -1.5, 0, 0.1, a); setP(P, "shinL", 1.6, 0, 0, a); setP(P, "thighR", -0.1, 0, -0.1, a); setP(P, "shinR", 2.1, 0, 0, a); setP(P, "spine", 0.2, 0, 0, a); setP(P, "head", 0.3, 0, 0, a); setP(P, "upArmL", -0.5, 0, 0.1, a); setP(P, "foreArmL", -0.9, 0, 0, a); setP(P, "upArmR", -0.7, 0, -0.1, a); setP(P, "foreArmR", -0.4, 0, 0, a); v.rootOff[1] -= 0.46 * a; }
+      else if (em.id === "flex") { const a = env(ek, 0.15, 0.2), pu = 0.5 + 0.5 * Math.sin(T * 6); setP(P, "upArmL", -0.3, 0, 1.45, a); setP(P, "upArmR", -0.3, 0, -1.45, a); setP(P, "foreArmL", -2.3 - pu * 0.2, 0, 0, a); setP(P, "foreArmR", -2.3 - pu * 0.2, 0, 0, a); addP(P, "chest", -0.1 * a, 0, 0); addP(P, "head", -0.1 * a, 0, 0); addP(P, "thighL", 0, 0, 0.12 * a); addP(P, "thighR", 0, 0, -0.12 * a); }
       else if (em.id === "thumbsup") { setP(P, "upArmR", -1.1, 0, -0.2, w); setP(P, "foreArmR", -1.4, 0, 0, w); addP(P, "head", -0.05 * w, 0, 0.1 * w); }
+    }
+  }
+  if (e === player && amp < 0.2 && !e.casting && e.alive !== false && !e.mounted && !e.resting) {
+    const fs = S.fish, gk = e.gatherAt != null ? (S.time - e.gatherAt) / 0.9 : 9, rk = e.reelAt != null ? (S.time - e.reelAt) / 0.8 : 9;
+    if (fs || rk < 1) {
+      const T = fs ? S.time - (fs.since || S.time) : 0, castK = fs ? clamp(T / 0.7, 0, 1) : 1, bite = fs && fs.state === "bite", w = fs ? 1 : 1 - ease(rk);
+      const swing = castK < 1 ? Math.sin(castK * Math.PI) : 0, back = castK < 1 ? (castK < 0.5 ? castK * 2 : 1 - (castK - 0.5) * 2) : 0;
+      setP(P, "upArmR", -1.0 - (bite ? 0.8 + Math.sin(S.time * 24) * 0.08 : 0) - back * 1.3, 0, -0.2, w);
+      setP(P, "foreArmR", -0.7 + (rk < 1 ? Math.sin(rk * 18) * 0.5 : 0) - swing * 0.4, 0, 0, w);
+      setP(P, "upArmL", -0.85 - back * 0.9, 0, 0.15, w);
+      setP(P, "foreArmL", -1.0 + (rk < 1 ? Math.sin(rk * 18 + 1.5) * 0.3 : 0), 0, 0, w);
+      addP(P, "spine", (0.08 + (bite ? -0.22 : 0) - back * 0.25 + (rk < 1 ? -0.15 * Math.sin(rk * Math.PI) : 0)) * w, 0, 0);
+      addP(P, "head", (0.18 - (bite ? 0.1 : 0)) * w, 0, 0);
+      addP(P, "hips", 0, 0, Math.sin(S.time * 0.9) * 0.015 * w);
+    } else if (e.synth) {
+      const sy = e.synth, T = S.time - sy.start, hit = Math.max(0, Math.sin(T * 7)), g = env((S.time - sy.start) / (sy.end - sy.start), 0.08, 0.1);
+      setP(P, "upArmL", -0.85 + Math.sin(T * 7 + 1.2) * 0.12, 0, 0.1, g); setP(P, "upArmR", -0.85 - hit * 0.5, 0, -0.1, g);
+      setP(P, "foreArmL", -1.2, 0, 0, g); setP(P, "foreArmR", -1.4 + hit * 0.7, 0, 0, g);
+      addP(P, "spine", 0.3 * g, 0, 0); addP(P, "chest", 0.1 * g, 0, 0); addP(P, "head", 0.35 * g + Math.sin(T * 0.8) * 0.06 * g, 0, 0);
+    } else if (gk >= 0 && gk < 1) {
+      const gt = e.gatherType, w = env(gk, 0.1, 0.25);
+      if (gt === "harvesting") { const pull = Math.sin(clamp(gk * 1.4, 0, 1) * Math.PI); setP(P, "upArmL", -0.9, 0, 0.1, w); setP(P, "upArmR", -0.9, 0, -0.1, w); setP(P, "foreArmL", -0.5 - pull * 0.8, 0, 0, w); setP(P, "foreArmR", -0.5 - pull * 0.8, 0, 0, w); addP(P, "spine", (0.55 - pull * 0.25) * w, 0, 0); addP(P, "head", 0.3 * w, 0, 0); addP(P, "thighL", -0.4 * w, 0, 0.1 * w); addP(P, "thighR", -0.4 * w, 0, -0.1 * w); addP(P, "shinL", 0.7 * w, 0, 0); addP(P, "shinR", 0.7 * w, 0, 0); v.rootOff[1] -= 0.12 * w; }
+      else { const up = gk < 0.4 ? ease(gk / 0.4) : 1 - ease(clamp((gk - 0.4) / 0.2, 0, 1)); setP(P, "upArmR", -0.4 - 2.2 * up, 0, -0.25, w); setP(P, "upArmL", -0.5 - 2.0 * up, 0, 0.25, w); setP(P, "foreArmR", -0.9 - 0.5 * up + (gk >= 0.4 ? 0.6 : 0), 0, 0, w); setP(P, "foreArmL", -0.9 - 0.5 * up + (gk >= 0.4 ? 0.6 : 0), 0, 0, w); addP(P, "spine", (-0.2 * up + (gk >= 0.4 && gk < 0.7 ? 0.45 : 0)) * w, 0, 0); addP(P, "thighL", -0.2 * w, 0, 0); addP(P, "thighR", 0.1 * w, 0, 0); }
     }
   }
   if (e.jumpAt != null && S.time - e.jumpAt < 0.9) {
@@ -427,7 +456,7 @@ function poseHuman(v, e, dt) {
   if (P.lids) {
     if (!an.blinkAt || S.time > an.blinkAt + 0.2) an.blinkAt = S.time + (an.blinkAt && Math.random() < 0.2 ? 0.25 : 2.5 + Math.random() * 3.5);
     const bt = (S.time - an.blinkAt) / 0.16, bl = bt >= 0 && bt <= 1 ? Math.sin(bt * Math.PI) : 0;
-    const em = e.emote && S.time - e.emote.at < 2.4 ? e.emote.id : null;
+    const em = e.emote && S.time - e.emote.at < emoteLen(e.emote.id) ? e.emote.id : null;
     const mood = em === "laugh" || em === "cry" ? 0.5 : em === "panic" ? -0.2 : e.casting ? 0.3 : 0;
     const shut = e.alive === false ? 1 : e.resting && an.sit > 0.9 ? 0.55 : em === "panic" ? 0 : Math.max(mood, bl);
     addP(P, "lids", -0.7 * (1 - shut), 0, 0);
@@ -861,23 +890,28 @@ function poseHuman(v, e, dt) {
     addP(P, "tail2", -0.25 - run * 0.2 - lash * 0.5, wag, 0);
   }
   if (an.dead != null) {
-    const k = ease((S.time - an.dead) / 0.9), kn = ease((S.time - an.dead) / 0.35), sd = an.deadVar || 1;
-    for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; }
-    addP(P, "thighL", -0.9 * kn * (1 - k) - 0.2 * k, 0, 0.15 * k); addP(P, "thighR", -0.6 * kn * (1 - k), 0, -0.1 * k);
-    addP(P, "shinL", 1.4 * kn * (1 - k), 0, 0); addP(P, "shinR", 1.1 * kn * (1 - k), 0, 0);
-    addP(P, "upArmL", 0, 0, 1.1 * k); addP(P, "upArmR", 0, 0, -1.1 * k);
-    addP(P, "head", -0.25 * k, 0.5 * k * sd, 0);
-    v.rootRot[0] = -1.5 * k; v.rootRot[2] = 0.15 * sd * k;
-    v.rootOff[0] = 0; v.rootOff[1] = 0.14 * k - 0.35 * kn * (1 - k); v.rootOff[2] = 0;
+    const T = S.time - an.dead, sd = an.deadVar || 1, sg = ease(T / 0.25), kn = ease((T - 0.15) / 0.4), k = ease((T - 0.5) / 0.7), kall = ease(T / 0.5);
+    for (const n in P) { const p = P[n]; p[0] *= 1 - kall; p[1] *= 1 - kall; p[2] *= 1 - kall; }
+    const rec = sg * (1 - k);
+    addP(P, "spine", -0.2 * rec * (sd === 2 ? -1 : 1) + 0.35 * kn * (1 - k), 0, 0); addP(P, "chest", 0.15 * kn * (1 - k), 0, 0);
+    addP(P, "thighL", -1.3 * kn * (1 - k) - 0.2 * k, 0, 0.15 * k); addP(P, "thighR", -0.1 * kn * (1 - k), 0, -0.1 * k);
+    addP(P, "shinL", 1.5 * kn * (1 - k), 0, 0); addP(P, "shinR", 2.0 * kn * (1 - k), 0, 0);
+    addP(P, "upArmL", -0.6 * kn * (1 - k), 0, 1.1 * k); addP(P, "upArmR", -0.6 * kn * (1 - k), 0, -1.1 * k);
+    addP(P, "foreArmL", -0.8 * rec, 0, 0); addP(P, "foreArmR", -0.8 * rec, 0, 0);
+    addP(P, "head", (sd === 2 ? 0.3 : -0.25) * k + 0.25 * kn * (1 - k), 0.5 * k * (sd === 2 ? 0 : sd), 0);
+    an.deadRot = sd === 2 ? [1.5, 0] : sd === -1 ? [-1.5, -0.35] : [-1.5, 0.15];
+    v.rootRot[0] = an.deadRot[0] * k; v.rootRot[2] = an.deadRot[1] * k;
+    v.rootOff[0] = 0; v.rootOff[1] = 0.14 * k - 0.45 * kn * (1 - k); v.rootOff[2] = (-0.12 * sg * (1 - kn)) * (sd === 2 ? -1 : 1);
     sharp = false;
-  } else if (an.rise != null && S.time - an.rise < 1.4) {
-    const rk = (S.time - an.rise) / 1.4, up = ease(rk), kneel = Math.sin(Math.PI * Math.min(1, rk * 1.2));
+  } else if (an.rise != null && S.time - an.rise < 1.5) {
+    const rk = (S.time - an.rise) / 1.5, up = ease(rk), kneel = Math.sin(Math.PI * Math.min(1, rk * 1.2)), dr = an.deadRot || [-1.5, 0.15], push = Math.sin(Math.PI * clamp(rk / 0.4, 0, 1));
     setP(P, "thighL", -1.1 * kneel, 0, 0.1, 1); setP(P, "shinL", 1.6 * kneel, 0, 0, 1);
     setP(P, "thighR", -0.3 * kneel, 0, -0.1, 1); setP(P, "shinR", 1.9 * kneel, 0, 0, 1);
     setP(P, "spine", 0.4 * kneel, 0, 0, 1); setP(P, "head", 0.3 * kneel, 0, 0, 1);
-    setP(P, "upArmL", -0.4 * kneel, 0, 0.3, 1); setP(P, "upArmR", 0.2 * kneel, 0, -0.3, 1);
-    v.rootRot[0] = -1.5 * (1 - ease(rk / 0.35));
-    v.rootOff[1] = -0.45 * kneel;
+    setP(P, "upArmL", -0.4 * kneel + 0.6 * push, 0, 0.3 + 0.5 * push, 1); setP(P, "upArmR", 0.2 * kneel + 0.6 * push, 0, -0.3 - 0.5 * push, 1);
+    const lie = 1 - ease(rk / 0.35);
+    v.rootRot[0] = dr[0] * lie; v.rootRot[2] = dr[1] * lie;
+    v.rootOff[1] = -0.45 * kneel + 0.14 * lie * (1 - kneel);
     sharp = false;
   }
   if (P.fingersR) {
@@ -894,7 +928,7 @@ function poseHuman(v, e, dt) {
   an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
   clothSprings(v, e, an, dt, t);
   if (v.bones.mouth) {
-    const em = e.emote && S.time - e.emote.at < (e.emote.id === "dance" ? 5 : 2.4) ? e.emote.id : null;
+    const em = e.emote && S.time - e.emote.at < emoteLen(e.emote.id) ? e.emote.id : null;
     let m = 0;
     if (e.alive === false) m = 0.35;
     else if (e.talkUntil > S.time) m = 0.25 + 0.55 * Math.abs(Math.sin(t * 13 + Math.sin(t * 5.3) * 2));
