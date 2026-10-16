@@ -153,6 +153,7 @@ function renderModal() {
     for (const id in MERCS) {
       const m = MERCS[id];
       const hired = save.hired.includes(id);
+      if (!hired && JOBS[m.job] && !jobUnlocked(m.job)) continue;
       const avail = mercAvailable(id);
       let btn;
       if (hired) btn = '<button data-a="dismiss" data-v="' + id + '">Dismiss</button>';

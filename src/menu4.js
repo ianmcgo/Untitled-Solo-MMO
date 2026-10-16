@@ -1658,6 +1658,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.34.2", date: "2026-10-16", title: "Hire only unlocked jobs, job achievements", items: [
+    "<b>Job achievements:</b> one for every job you unlock, plus Bronze (6 jobs), Silver (12), Gold (18) and Every Trade (all jobs).",
+    "<b>Brann's fighters for hire</b> now come only from jobs you have unlocked, and named companions whose job is still locked stay hidden. Companions you already hired are kept.",
+  ]},
   { v: "18.34.1", date: "2026-10-16", title: "Jobs unlock as you grow (text fix)", items: [
     "Help and Updates now correctly say that Warrior, White Mage and Black Mage are the three jobs open from the start.",
   ]},
@@ -3175,6 +3179,8 @@ function tabHelp() {
     ["Rune Fencer (advanced)", "Tank", "Great Sword A (new weapon type), sword and great axe B. Kindle, Rime (3), Gale (5) and Stone (7) Runes: hold up to three; each cuts damage you take by 5%. Lunge (10: release every rune as elemental damage), Vallation (15: damage taken −20% for 30 s, and your hits draw extra enmity). Weapon skills: Rune Cleave, Glyph Rend (22), Ward Breaker (40), Final Verse (75)"]
   ]) + ul([
     "<b>Jobs unlock as you grow.</b> Warrior, White Mage and Black Mage start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
+    "<b>Job achievements:</b> each job you unlock earns its own achievement; Bronze, Silver and Gold mark 6, 12 and 18 open jobs, and Every Trade needs them all.",
+    "<b>Companions follow your jobs:</b> Brann only offers fighters whose job you have unlocked.",
     "<b>Ask Tobin</b> (Job Master) why jobs must be unlocked, or how you are doing: he gives a vague hint about what to train next without naming the job.",
     "<b>Initiation quests:</b> Tobin's old job quests are offered only after the job is unlocked. They no longer unlock anything but still give the job's first weapon.",
     "Support jobs unlock at level 10 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
