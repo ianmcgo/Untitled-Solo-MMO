@@ -1487,6 +1487,7 @@ World systems:
 | 16.1.7 | Head profiles: jaw/chin/long raised for human0/1, elari, nekari, pipkin (jaw 0.3), ursan (jaw 0.24). Ursan skin 0x8e9688. Pipkin eyes rx 7.2, painted brown button nose (radial gradient + highlight) replaces the pink blob. |
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
+| 17.3.0 | Area spells, Spikes, En-spells, Shock/Rasp/Choke, Requiem, Threnodies, Mambo, Pastoral, Operetta. See "Area spells and songs (v17.3.0)". |
 | 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
 | 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | FFXI spells and potions: SPELLS/ITEMS potion family rebuilt from FFXI data; rule version 17 wipes older saves. See "FFXI rules (v17.0.0)". |
@@ -1678,6 +1679,17 @@ World systems:
 - Silence spell: WHM 15, RDM 18, 16 MP, 3 s cast, 10 s recast, 120 s (Windower). Mercenary `smartAct` casts it only at targets with `fam.spells`.
 - Test p15unit "the sprite fades when MP runs out" is flaky (also on 17.1.0).
 - Tests: test/p56unit.js (elementals, goblin casters, silence).
+
+## Area spells and songs (v17.3.0)
+- `aoe: radius` on a spell: `castHeal` heals party members within it of the target (Curaga 300); `castNuke` and `castDia` loop mobs within it (`nukeOne`, `diaOne`; Banishga, Stonega, Waterga, Diaga use 170). Single-target spells are unchanged.
+- Curaga uses the old FFXI formula mapped onto the `cure.t` table (divisor doubled because the old formula halves power first).
+- Nuke powers for the -ga spells and Shock/Rasp/Choke tick are mine, interpolated between neighbouring tiers; LandSandBoat has no per-spell damage constants. Level, MP, cast and recast are Windower values.
+- DoT ticks are generic: `tickBuffs` damages any buff with `tick`, `next` and `src`. `dot.pot: "int"` gives tick 1 to 5 by caster INT (>40, >70, >100, >150, as `getElementalDebuffPotency`). `sd` = (tick-1)*2+5 is stored for Rasp (accuracy) and Choke (defense) in `stat()`. `replaces: [...]` deletes other DoTs on cast. Shock's MND loss is not modelled.
+- Spikes: buff `blaze_spikes`/`ice_spikes` with `pow` = clamp(floor((INT+50)/div), 1, max) (div 12 max 25; div 20 max 15), applied in `swing` against non-ranged attackers; Ice Spikes paralyzes 30% for 10 s (my guess). En-spells: `enthunder/enstone/enaero`, `pow` from Enhancing skill (floor(sqrt)-1 up to 150, then skill/20+5), added after each melee hit as elemental damage.
+- Threnody: debuff `threnody_<element>` with `pow` 0.25; read in `nukeOne` only. FFXI lowers elemental resistance by 50: my 25% is an approximation.
+- Mambo (`mambo`, evasion), Pastoral and Operetta (`pastoral`, `operetta`: resist Poison and Silence via `SONG_RES`, chance min(0.75, pow/50): my approximation) join `SONG_KEYS` (two-song limit). Foe Requiem I/II are `dot` spells with buff `requiem`.
+- Mercenary fixes: `healEstimate` now uses `cureAmount` for table cures; `healerAI` casts Curaga when two or more allies within 300 are hurt; `bardAI` uses `foe_lullaby` and the current song keys.
+- Tests: test/p57unit.js.
 
 ## Publishing note
 - GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.

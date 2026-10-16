@@ -911,6 +911,9 @@ function stat(e, k) {
   if (k === "def" && b.minne) v += b.minne.pow;
   if (k === "att" && b.blight) v *= 0.9;
   if (k === "acc" && b.madrigal) v += b.madrigal.pow;
+  if (k === "eva" && b.mambo) v += b.mambo.pow;
+  if (k === "acc" && b.rasp) v -= b.rasp.sd;
+  if (k === "def" && b.choke) v -= b.choke.sd;
   if (k === "def" && b.berserk) v *= 0.75;
   if (k === "def" && b.dia) v *= 0.9;
   if (k === "def" && b.sentinel) v *= 1.5;
@@ -1109,6 +1112,17 @@ function swing(a, d) {
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
   applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16 });
+  if (d.alive && !bow) for (const k of EN_KEYS) if (b[k]) applyDamage(a, d, b[k].pow, { color: ELEMENT_COLORS[EN_EL[k]], size: 13, enmity: 0, el: EN_EL[k] });
+  if (a.alive && d.alive && !bow) {
+    for (const k of ["blaze_spikes", "ice_spikes"]) {
+      const sk = d.buffs && d.buffs[k];
+      if (!sk) continue;
+      const sp = SPELLS[k], el = sp.spikes.el;
+      popText(d, sp.name, ELEMENT_COLORS[el], 12, 0.9, 12);
+      applyDamage(d, a, sk.pow, { color: ELEMENT_COLORS[el], size: 13, enmity: 0, el });
+      if (sp.spikes.para && a.alive && Math.random() < sp.spikes.para && !a.buffs.paralyze) a.buffs.paralyze = { until: S.time + 10, src: d, pow: 0.15 };
+    }
+  }
   if (b.blood_blade && a.alive) { const heal = Math.min(a.maxHp - a.hp, Math.floor(dmg * 0.4)); if (heal > 0) { a.hp += heal; popText(a, "+" + heal, "#9ad06b", 13, 0.8); } }
   if (a.job === "MNK" && a.stats.wtype === "h2h" && d.alive && !a.kicking && Math.random() < 0.14) {
     a.kicking = true;
@@ -2442,17 +2456,24 @@ function healAmount(a, sp) {
 
 function castHeal(a, t, sp) {
   const amt = healAmount(a, sp);
-  const real = Math.max(0, Math.min(amt, t.maxHp - t.hp));
-  t.hp += real;
-  if (real > 0) {
-    popText(t, "+" + real, "#9ad06b", 18);
-    ring(t, "#9ad06b", 30, 0.6, "sparkle");
-    sfx("cure", t);
-    vfx("cure", { src: a, tgt: t, big: sp.power > 40 });
-  } else popText(t, "No effect", "#bbbbbb", 13, 0.9);
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + subj(t) + " " + vb(t, "recover") + " " + real + " HP.", cls(a));
+  const group = sp.aoe ? S.party.filter(p => p.alive && dist(p, t) <= sp.aoe) : [t];
+  const parts = [];
+  let total = 0;
+  for (const g of group) {
+    const real = Math.max(0, Math.min(amt, g.maxHp - g.hp));
+    g.hp += real;
+    total += real;
+    parts.push(subj(g) + " " + vb(g, "recover") + " " + real + " HP");
+    if (real > 0) {
+      popText(g, "+" + real, "#9ad06b", 18);
+      ring(g, "#9ad06b", 30, 0.6, "sparkle");
+      sfx("cure", g);
+      vfx("cure", { src: a, tgt: g, big: sp.power > 40 || !!sp.aoe });
+    } else popText(g, "No effect", "#bbbbbb", 13, 0.9);
+  }
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + parts.join(", ") + ".", cls(a));
   if (a !== player && t !== a) partySay(a, "cure");
-  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, real * 1.5);
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, total * 1.5);
 }
 
 function magicHit(a, t, sp) {
@@ -2460,12 +2481,17 @@ function magicHit(a, t, sp) {
 }
 
 function castNuke(a, t, sp) {
+  const list = sp.aoe ? S.mobs.filter(m => m.alive && (m === t || dist(m, t) <= sp.aoe)) : [t];
+  for (const m of list) if (m.alive) nukeOne(a, m, sp);
+}
+function nukeOne(a, t, sp) {
   const dStat = a.stats[sp.stat] - t.stats[sp.stat];
   let dmg = sp.k != null
     ? sp.power + sp.k * Math.max(-40, Math.min(dStat, 50)) + sp.k2 * Math.max(0, Math.min(dStat, 100) - 50)
     : (sp.power + 1.5 * Math.max(0, dStat)) * (1 + 0.08 * (a.lv - 1));
   if (sp.k != null && t.fam.undead && sp.element === "light") dmg *= 1.5;
   dmg *= (t.fam.weak && t.fam.weak[sp.element]) || 1;
+  if (t.buffs["threnody_" + sp.element]) dmg *= 1 + t.buffs["threnody_" + sp.element].pow;
   if (sp.element === dayElement()) dmg *= 1.1;
   if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
   if (sp.blue && a.buffs.burst_affinity) { dmg *= 1.5; delete a.buffs.burst_affinity; }
@@ -2495,7 +2521,8 @@ function castNuke(a, t, sp) {
   applyDamage(a, t, dmg, { color: col, size: burst ? 26 : 20, enmity: 60 + dmg * 1.5 });
 }
 
-const SONG_KEYS = ["minuet", "paeon", "ballad", "madrigal", "march", "minne"];
+const SONG_KEYS = ["minuet", "paeon", "ballad", "madrigal", "march", "minne", "mambo", "pastoral", "operetta"];
+const SONG_RES = { poison: "pastoral", silence: "operetta" };
 
 function applySong(p, a, sp) {
   const have = SONG_KEYS.filter(k => p.buffs[k] && k !== sp.song).sort((x, y) => p.buffs[x].until - p.buffs[y].until);
@@ -2568,7 +2595,8 @@ function castDebuff(a, t, sp) {
   const pw = sp.buff === "slow" ? Math.max(0.073, Math.min(0.292, 0.146 + dS * 0.0018)) : sp.buff === "paralyze" ? Math.max(0.05, Math.min(0.25, 0.15 + dS * 0.0025)) : sp.buff === "flash" && sp.stat ? Math.max(0.05, Math.min(0.5, (dS + 80) / 400)) : null;
   t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
   if (pw != null) t.buffs[sp.buff].pow = pw;
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place", silence: "silenced" }[sp.buff] + ".", cls(a));
+  if (sp.thr) t.buffs[sp.buff].pow = sp.thr;
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place", silence: "silenced" }[sp.buff] || "weakened to " + sp.element + ".", cls(a));
   popText(t, sp.name, col, 14, 1.1);
   if (sp.buff === "stun" && t.readying) { t.readying = null; t.tp = Math.floor(t.tp / 2); log("The " + t.name + "'s " + t.fam.tpMove.name + " is cut short!", cls(a)); }
   if (sp.buff === "sleep") { t.swingTimer = Math.max(t.swingTimer, 1); t.readying = null; }
@@ -2576,6 +2604,8 @@ function castDebuff(a, t, sp) {
   aggro(t, a);
 }
 
+const EN_KEYS = ["enthunder", "enstone", "enaero"];
+const EN_EL = { enthunder: "lightning", enstone: "earth", enaero: "wind" };
 const BAR_EL = { fire: "barfire", earth: "barstone", water: "barwater", wind: "baraero" };
 const BAR_ST = { poison: "barpoison", paralyze: "barparalyze", flash: "barblind", sleep: "barsleep" };
 function applyBuffTo(a, t, sp) {
@@ -2584,6 +2614,8 @@ function applyBuffTo(a, t, sp) {
   if (sp.bar) b.pow = Math.min(0.35, (40 + Math.floor(skillOf(a, "enhancing") / 5)) / 400);
   if (sp.barst) b.pow = 0.5;
   if (sp.buff === "shadows") b.n = sp.n + (a.lv >= 12 && !sp.exact ? 1 : 0);
+  if (sp.spikes) b.pow = Math.max(1, Math.min(sp.spikes.max, Math.floor((a.stats.int + 50) / sp.spikes.div)));
+  if (sp.en) { const sk = skillOf(a, "enhancing"); b.pow = sk > 150 ? Math.floor(sk / 20) + 5 : Math.max(Math.floor(Math.sqrt(sk)) - 1, 1); }
   if (sp.buff === "aquaveil") b.n = sp.n + (skillOf(a, "enhancing") > 300 ? 1 : 0);
   popText(t, sp.name, "#9ad06b", 13, 1.1, 14);
   ring(t, "#9ad06b", 26, 0.5);
@@ -2612,7 +2644,8 @@ function castWarp(a, sp) {
   enterZone(h.zone, h.x, h.y);
 }
 function inflictStatus(m, tg, key, dur, pow) {
-  const bar = BAR_ST[key];
+  const bar = BAR_ST[key], song = SONG_RES[key];
+  if (song && tg.buffs[song] && Math.random() < Math.min(0.75, tg.buffs[song].pow / 50)) { popText(tg, "Resisted", "#bbbbbb", 12, 0.9, 12); return false; }
   if (bar && tg.buffs[bar] && Math.random() < tg.buffs[bar].pow) { popText(tg, "Resisted", "#bbbbbb", 12, 0.9, 12); return false; }
   const b = tg.buffs[key] = { until: S.time + dur, src: m };
   if (pow != null) b.pow = pow;
@@ -2622,11 +2655,16 @@ function inflictStatus(m, tg, key, dur, pow) {
 }
 
 function dotTick(a, d) {
+  if (d.pot) { const v = a.stats[d.pot]; return 1 + (v > 150 ? 4 : v > 100 ? 3 : v > 70 ? 2 : v > 40 ? 1 : 0); }
   if (!d.skill) return d.tick;
   const raw = skillOf(a, d.skill) / d.div;
   return Math.max(d.min || 1, Math.min(d.max || 999, d.ceil ? Math.ceil(raw) : raw));
 }
 function castDia(a, t, sp) {
+  const list = sp.aoe ? S.mobs.filter(m => m.alive && (m === t || dist(m, t) <= sp.aoe)) : [t];
+  for (const m of list) if (m.alive) diaOne(a, m, sp);
+}
+function diaOne(a, t, sp) {
   const el = sp.element || "light", key = sp.buff || "dia";
   if (sp.dot) {
     ring(t, ELEMENT_COLORS[el], 30, 0.5, "element");
@@ -2634,12 +2672,16 @@ function castDia(a, t, sp) {
     vfx("nuke", { src: a, tgt: t, el, dia: true });
     const up = key === "dia" ? t.buffs.blight : key === "blight" ? t.buffs.dia : null;
     if (up) { delete t.buffs[key === "dia" ? "blight" : "dia"]; }
+    for (const r of sp.replaces || []) delete t.buffs[r];
     if (Math.random() * 100 >= magicHit(a, t, sp) + 15) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20); aggro(t, a); return; }
     const direct = Math.round(sp.power);
     log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + (direct > 0 ? " takes " + direct + " damage and" : "") + " is afflicted with " + sp.name + ".", cls(a));
     if (direct > 0) applyDamage(a, t, direct, { color: ELEMENT_COLORS[el], size: 16, enmity: 120 });
     else { addEnmity(t, a, 120); aggro(t, a); }
-    if (t.alive) t.buffs[key] = { until: S.time + sp.dot.dur, next: S.time + 3, tick: dotTick(a, sp.dot), src: a, el };
+    if (t.alive) {
+      const tk = dotTick(a, sp.dot);
+      t.buffs[key] = { until: S.time + sp.dot.dur, next: S.time + 3, tick: tk, src: a, el, sd: (tk - 1) * 2 + 5 };
+    }
     return;
   }
   const dmg = Math.round(sp.power * (1 + 0.08 * (a.lv - 1)));
@@ -2718,7 +2760,7 @@ function useItem(id) {
 function tickBuffs(e) {
   for (const id in e.buffs) {
     const b = e.buffs[id];
-    if ((id === "dia" || id === "blight" || id === "poison") && S.time >= b.next && e.alive) {
+    if (b.tick && b.next && b.src && S.time >= b.next && e.alive) {
       b.next += 3;
       applyDamage(b.src, e, b.tick, { color: ELEMENT_COLORS[b.el || "light"], size: 13, enmity: b.tick });
     }
@@ -3349,7 +3391,7 @@ function bardAI(a, tgt, dt) {
   for (const x of songs) { const sp = SPELLS[x.id]; if (!best[sp.song] || SPELLS[best[sp.song].id].pow < sp.pow) best[sp.song] = x; }
   const fighting = !!tgt && tgt.state === "combat";
   const casterHeavy = S.party.filter(p => p.alive && p.maxMp > 0 && p.role !== "dd" && p.role !== "tank").length >= 2;
-  const order = fighting ? ["minuet", "march", "madrigal", casterHeavy ? "ballad" : "paeon", "paeon", "ballad"] : ["paeon", "ballad"];
+  const order = fighting ? ["minuet", "madrigal", "minne", "paeon"] : ["paeon"];
   const want = [];
   for (const k of order) if (best[k] && !want.includes(k) && want.length < 2) want.push(k);
   const near = S.party.filter(p => p.alive && dist(p, a) <= 260);
@@ -3361,7 +3403,7 @@ function bardAI(a, tgt, dt) {
     }
   }
   if (fighting) {
-    const lull = acts.find(x => x.id === "drowsy_lullaby");
+    const lull = acts.find(x => x.id === "foe_lullaby");
     const extra = S.mobs.find(m => m.alive && m !== tgt && m.state === "combat" && !m.buffs.sleep && !m.fam.boss && [...m.enmity.keys()].some(isParty) && dist(a, m) <= CONFIG.castRange);
     if (lull && extra && allyTry(a, lull, extra)) return true;
   }
@@ -3458,6 +3500,7 @@ function keepCasterRange(a, tgt, dt) {
 }
 
 function healEstimate(a, sp) {
+  if (sp.cure) return cureAmount(a, sp);
   return (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
 }
 
@@ -3490,6 +3533,8 @@ function healerAI(a, tgt, dt) {
     const inRange = needy.filter(p => dist(a, p) <= CONFIG.castRange - 30);
     if (inRange.length) {
       const low = inRange[0], miss = low.maxHp - low.hp;
+      const cga = acts.find(x => x.id === "curaga");
+      if (cga && inRange.filter(p => dist(p, low) <= 300).length >= 2 && allyTry(a, cga, low)) return;
       const seal = acts.find(x => x.id === "divine_seal");
       if (seal && low.hp < low.maxHp * 0.35 && !a.buffs.divine_seal && allyTry(a, seal, a)) return;
       const heals = acts.filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "heal").sort((p, q) => SPELLS[p.id].power - SPELLS[q.id].power);
