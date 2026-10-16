@@ -1809,3 +1809,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Blows use kfMaker (wind-up, strike, recovery) per blow with alternating sides.
 - Existing camera shake on WS (game.js doWS) kept. Not done: hit-stop freeze, per-weapon glow, bow style 1 variant.
 - test/wssheet.js: WS=<skill id> JOB=WAR IDLE=1 STEP=0.09 MODE=none node wssheet.js <abs html> <png> <weapon id> human 0 side.
+
+## 18.19.8: spell release, ability poses, interrupt flinch (animation plan phase 3)
+- game.js: doAbility sets a.lastJA and a.lastJAId; interruptCast sets e.lastIntr.
+- anim.js: an.ja/jaStart/jaId and an.intr/intrStart tracked with the other event stamps; an.cSchool remembers the last cast school for the release flourish.
+- JA_CLASS maps ability id to shout, grab, bash, sneak, calm, leap, roll, dance, aim; anything else is "power". jaDuration and jaPose hold the poses.
+- Casting pose per school already existed; release flourish is now per school, interrupt flinch 0.5s.
+- Not done: staff glow while casting.
+- test/jasheet.js: WS=<ability id> (reuses the env name) JOB=WAR IDLE=1 STEP=0.08 node jasheet.js <abs html> <png> <weapon id> human 0 side.

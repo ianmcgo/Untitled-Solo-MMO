@@ -24,6 +24,8 @@ function trackEvents(v, e, dt) {
   if (e.lastSwing !== an.swing) { if (an.swing !== null && S.time - e.lastSwing < 0.3) { an.aStart = e.lastSwing; an.aVar = (an.aVar + 1) % 3; } an.swing = e.lastSwing; }
   if (e.lastWS !== an.ws) { if (an.ws !== null && S.time - e.lastWS < 0.3) { an.wsStart = e.lastWS; an.wsStyle = wsStyle(e.lastWSId); } an.ws = e.lastWS; }
   if (e.lastHit !== an.hit) { if (an.hit !== null && S.time - e.lastHit < 0.3) an.hitStart = e.lastHit; an.hit = e.lastHit; }
+  if (e.lastJA !== an.ja) { if (an.ja !== null && S.time - e.lastJA < 0.3) { an.jaStart = e.lastJA; an.jaId = e.lastJAId; } an.ja = e.lastJA; }
+  if (e.lastIntr !== an.intr) { if (an.intr !== null && S.time - e.lastIntr < 0.3) an.intrStart = e.lastIntr; an.intr = e.lastIntr; }
   if (an.casting && !e.casting) an.relStart = S.time;
   an.casting = !!e.casting;
   if (e.readying && !an.wasReady) an.readyStart = S.time;
@@ -151,6 +153,81 @@ function applyPose(v, dt, sharp) {
     r.rotation.z += (v.rootRot[2] - r.rotation.z) * k;
   }
   if (BH && BS) { BH.rotation.y -= ty; BS.rotation.y += ty; v.tipApplied = ty; }
+}
+
+const JA_CLASS = {
+  provoke: "shout", warcry: "shout", feral_howl: "shout",
+  steal: "grab", shield_bash: "bash",
+  sneak_attack: "sneak", smoke_step: "sneak", flee: "sneak",
+  meditate: "calm", chakra: "calm", focus: "calm", third_eye: "calm", hasso: "calm", convert: "calm", light_arts: "calm", dark_arts: "calm",
+  jump: "leap", high_jump: "leap",
+  phantom_roll: "roll", hawk_roll: "roll", double_down: "roll",
+  healing_waltz: "dance", quick_step: "dance", rising_flourish: "dance", group_waltz: "dance",
+  sharpshot: "aim", barrage: "aim", quick_shot: "aim", shadowbind: "aim"
+};
+
+function jaClass(id) { return JA_CLASS[id] || "power"; }
+function jaDuration(id) { const c = jaClass(id); return c === "calm" ? 1.5 : c === "dance" ? 1.1 : c === "leap" ? 1.0 : 0.9; }
+
+function jaPose(v, P, an, k, w, cls) {
+  const pk = ease(k / 0.35);
+  if (cls === "shout") {
+    setP(P, "head", -0.5 * pk + 0.5 * ease((k - 0.4) / 0.2), 0, 0, w);
+    setP(P, "spine", -0.3 * pk + 0.5 * ease((k - 0.4) / 0.2), 0, 0, w);
+    setP(P, "upArmL", -1.0 - 0.8 * pk, 0, -0.9 * pk, w); setP(P, "upArmR", -1.0 - 0.8 * pk, 0, 0.9 * pk, w);
+    setP(P, "foreArmL", -0.5, 0, 0, w); setP(P, "foreArmR", -0.5, 0, 0, w);
+  } else if (cls === "grab") {
+    const g = ease((k - 0.2) / 0.2) * (1 - ease((k - 0.55) / 0.3));
+    setP(P, "upArmL", -0.5 - 1.1 * g, 0, 0.1, w); setP(P, "foreArmL", -0.5, 0, 0, w);
+    setP(P, "spine", 0.1 + 0.35 * g, 0, 0, w); setP(P, "chest", 0, -0.4 * g, 0, w);
+    v.rootOff[2] += 0.18 * g * w; v.rootOff[1] += -0.1 * g * w;
+  } else if (cls === "bash") {
+    const b = ease((k - 0.2) / 0.15) * (1 - ease((k - 0.5) / 0.3));
+    setP(P, "upArmL", -0.8 - 0.7 * b, 0, -0.2, w); setP(P, "foreArmL", -1.6 + 1.4 * b, 0, 0, w);
+    setP(P, "spine", 0.1 + 0.3 * b, 0, 0, w); v.rootOff[2] += 0.2 * b * w;
+  } else if (cls === "sneak") {
+    const c = ease(k / 0.25) * (1 - ease((k - 0.7) / 0.3));
+    setP(P, "thighL", -0.9 * c, 0, 0, w); setP(P, "thighR", -0.9 * c, 0, 0, w);
+    setP(P, "shinL", 1.4 * c, 0, 0, w); setP(P, "shinR", 1.4 * c, 0, 0, w);
+    setP(P, "spine", 0.5 * c, 0, 0, w); setP(P, "head", -0.3 * c, 0, 0, w);
+    setP(P, "upArmL", -0.5 * c, 0, 0.3, w); setP(P, "upArmR", -0.5 * c, 0, -0.3, w);
+    v.rootOff[1] += -0.28 * c * w;
+  } else if (cls === "calm") {
+    const c = ease(k / 0.25) * (1 - ease((k - 0.8) / 0.2));
+    setP(P, "upArmL", -0.8 * c, 0, -0.3 * c, w); setP(P, "upArmR", -0.8 * c, 0, 0.3 * c, w);
+    setP(P, "foreArmL", -1.7 * c, 0, 0, w); setP(P, "foreArmR", -1.7 * c, 0, 0, w);
+    setP(P, "head", 0.3 * c, 0, 0, w); setP(P, "spine", 0.08 * c, 0, 0, w);
+    setP(P, "thighL", -0.15 * c, 0, 0, w); setP(P, "thighR", -0.15 * c, 0, 0, w);
+    v.rootOff[1] += -0.04 * c * w;
+  } else if (cls === "leap") {
+    const c = ease(k / 0.2) * (1 - ease((k - 0.2) / 0.1)), air = k > 0.25 && k < 0.8 ? Math.sin((k - 0.25) / 0.55 * Math.PI) : 0;
+    setP(P, "thighL", -0.7 * c - 0.5 * air, 0, 0, w); setP(P, "thighR", -0.5 * c - 0.2 * air, 0, 0, w);
+    setP(P, "shinL", 1.0 * c + 0.8 * air, 0, 0, w); setP(P, "shinR", 0.8 * c + 0.4 * air, 0, 0, w);
+    setP(P, "upArmR", -2.4 * ease(k / 0.3), 0, -0.2, w); setP(P, "upArmL", -1.6 * ease(k / 0.3), 0, 0.3, w);
+    v.rootOff[1] += (-0.18 * c + 1.1 * air) * w;
+  } else if (cls === "roll") {
+    const f = ease((k - 0.25) / 0.2) * (1 - ease((k - 0.55) / 0.3));
+    setP(P, "upArmR", -1.2 - 0.9 * ease(k / 0.25) + 0.9 * f, 0, -0.2, w); setP(P, "foreArmR", -1.0 + 0.9 * f, 0, 0, w);
+    setP(P, "spine", -0.1 + 0.3 * f, 0, 0, w); setP(P, "chest", 0, -0.3 * (1 - f), 0, w);
+  } else if (cls === "dance") {
+    const sp = ease((k - 0.1) / 0.7);
+    v.rootRot[1] += Math.PI * 2 * sp * w;
+    setP(P, "upArmL", -1.2, 0, -1.1, w); setP(P, "upArmR", -1.2, 0, 1.1, w);
+    setP(P, "foreArmL", -0.3, 0, 0, w); setP(P, "foreArmR", -0.3, 0, 0, w);
+    setP(P, "thighR", -0.4 * Math.sin(sp * Math.PI), 0, 0, w); setP(P, "shinR", 0.6 * Math.sin(sp * Math.PI), 0, 0, w);
+    v.rootOff[1] += 0.08 * Math.sin(sp * Math.PI) * w;
+  } else if (cls === "aim") {
+    const a = ease(k / 0.3);
+    setP(P, "upArmR", -1.55 * a, 0, -0.1, w); setP(P, "foreArmR", -0.05, 0, 0, w);
+    setP(P, "upArmL", -1.2 * a, 0, 0.4, w); setP(P, "foreArmL", -1.8 * a, 0, 0, w);
+    setP(P, "chest", 0, 0.45 * a, 0, w);
+  } else {
+    const c = ease(k / 0.3) * (1 - ease((k - 0.6) / 0.3));
+    setP(P, "upArmL", -1.0 * c, 0, -0.5 * c, w); setP(P, "upArmR", -1.0 * c, 0, 0.5 * c, w);
+    setP(P, "foreArmL", -2.0 * c, 0, 0, w); setP(P, "foreArmR", -2.0 * c, 0, 0, w);
+    setP(P, "spine", -0.2 * c, 0, 0, w); setP(P, "head", -0.2 * c, 0, 0, w);
+    v.rootOff[1] += 0.04 * c * w;
+  }
 }
 
 function wsClass(v) {
@@ -621,6 +698,7 @@ function poseHuman(v, e, dt) {
   if (e.casting) {
     const cw = Math.min(1, (S.time - e.casting.start) / 0.25);
     const bob = Math.sin(t * 7) * 0.08, school = castSchool(e);
+    an.cSchool = school;
     if (school === "heal" || school === "buff") {
       setP(P, "upArmL", -1.7 + bob, 0, -0.35, cw); setP(P, "upArmR", -1.7 - bob, 0, 0.35, cw);
       setP(P, "foreArmL", -0.7, 0, 0, cw); setP(P, "foreArmR", -0.7, 0, 0, cw);
@@ -651,11 +729,44 @@ function poseHuman(v, e, dt) {
     v.rootOff[1] += Math.sin(t * 3.5) * 0.015 * cw;
   }
   const rk = (S.time - an.relStart) / 0.45;
-  if (rk >= 0 && rk <= 1 && !e.casting) {
-    const w = env(rk, 0.15, 0.6);
-    setP(P, "upArmL", -1.9, 0, 0.25, w); setP(P, "upArmR", -1.9, 0, -0.25, w);
-    setP(P, "foreArmL", -0.05, 0, 0, w); setP(P, "foreArmR", -0.05, 0, 0, w);
-    setP(P, "spine", -0.12, 0, 0, w); setP(P, "head", -0.15, 0, 0, w);
+  if (rk >= 0 && rk <= 1 && !e.casting && !(S.time - (an.intrStart || -9) < 0.5)) {
+    const w = env(rk, 0.15, 0.6), sc = an.cSchool || "elemental", pk = ease(rk / 0.4);
+    if (sc === "heal" || sc === "buff") {
+      setP(P, "upArmL", -1.3, 0, -0.95 * pk, w); setP(P, "upArmR", -1.3, 0, 0.95 * pk, w);
+      setP(P, "foreArmL", -0.1, 0, 0, w); setP(P, "foreArmR", -0.1, 0, 0, w);
+      setP(P, "head", -0.25, 0, 0, w); setP(P, "spine", -0.12, 0, 0, w);
+    } else if (sc === "summon") {
+      setP(P, "upArmL", -2.9 + 2.6 * pk, 0, 0.4, w); setP(P, "upArmR", -2.9 + 2.6 * pk, 0, -0.4, w);
+      setP(P, "foreArmL", -0.1, 0, 0, w); setP(P, "foreArmR", -0.1, 0, 0, w);
+      setP(P, "spine", 0.1 + 0.3 * pk, 0, 0, w); v.rootOff[1] += -0.08 * pk * w;
+    } else if (sc === "dark") {
+      setP(P, "upArmL", -0.8, 0, -0.2, w); setP(P, "upArmR", -0.8, 0, 0.2, w);
+      setP(P, "foreArmL", -1.9, 0, 0, w); setP(P, "foreArmR", -1.9, 0, 0, w);
+      setP(P, "spine", 0.35 - 0.5 * pk, 0, 0, w); setP(P, "head", 0.2 - 0.4 * pk, 0, 0, w);
+    } else if (sc === "song") {
+      setP(P, "upArmR", -1.0 - 0.9 * pk, 0, -0.3, w); setP(P, "foreArmR", -1.9 + 1.8 * pk, 0, 0, w);
+      setP(P, "upArmL", -0.5, 0, 0.8 * pk, w); setP(P, "chest", 0, 0.3 * pk, 0, w);
+    } else {
+      setP(P, "upArmL", -1.9 + 0.5 * pk, 0, 0.1, w); setP(P, "upArmR", -1.9 + 0.5 * pk, 0, -0.1, w);
+      setP(P, "foreArmL", -0.05, 0, 0, w); setP(P, "foreArmR", -0.05, 0, 0, w);
+      setP(P, "spine", -0.12 + 0.3 * pk, 0, 0, w); setP(P, "head", -0.15 + 0.25 * pk, 0, 0, w);
+      v.rootOff[2] += 0.05 * pk * w;
+    }
+  }
+
+  const ik = (S.time - (an.intrStart || -9)) / 0.5;
+  if (ik >= 0 && ik <= 1 && !e.casting) {
+    const w = env(ik, 0.12, 0.65), sh = Math.sin(ik * 30) * 0.06 * (1 - ik);
+    setP(P, "spine", -0.4, 0, 0, w); setP(P, "head", -0.35, sh * 3, 0, w);
+    setP(P, "upArmL", -0.3 + sh, 0, 0.5, w); setP(P, "upArmR", -0.3 - sh, 0, -0.5, w);
+    setP(P, "foreArmL", -0.5, 0, 0, w); setP(P, "foreArmR", -0.5, 0, 0, w);
+    v.rootOff[2] -= 0.05 * w;
+  }
+
+  const jd = an.jaId ? jaDuration(an.jaId) : 1;
+  const jk = (S.time - (an.jaStart || -9)) / jd;
+  if (jk >= 0 && jk <= 1 && !e.casting) {
+    jaPose(v, P, an, jk, env(jk, 0.12, 0.7), jaClass(an.jaId));
   }
 
   if (e.readying) {

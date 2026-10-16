@@ -2230,6 +2230,7 @@ function resolveChain(a, t, ws, dmg) {
 
 function doAbility(a, id, t) {
   const ab = ABILITIES[id];
+  a.lastJA = S.time; a.lastJAId = id;
   if (a === player) save.stats.abilitiesUsed++;
   a.recasts["ja:" + id] = S.time + ab.recast;
   if (id === "provoke") {
@@ -2490,6 +2491,7 @@ function startCast(a, id, t) {
 
 function interruptCast(e) {
   if (!e.casting) return;
+  e.lastIntr = S.time;
   log(e === player ? "Your casting is interrupted." : e.name + "'s casting is interrupted.", cls(e));
   popText(e, "Interrupted", "#bbbbbb", 12, 0.9, 14);
   sfx("interrupt", e);
