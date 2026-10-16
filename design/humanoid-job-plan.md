@@ -66,7 +66,7 @@ The family supplies skin, ears, tusks, beak and proportions; the job supplies th
 |---|---|---|
 | H0 (done 18.38.0) | Sonnet | Wandering Sapling bulb model, animation, bestiary and Help/Updates. Independent of the rest and a quick release. |
 | H1 (done 18.39.0) | Opus | Data: job roll at spawn (uniform, any job); kit from job and level; generalised mob casting and abilities; weapon-skill TP moves; stat modifiers; unit tests (every job at several levels, no job picks a spell above its level, silenced/stunned mobs behave). |
-| H2 | Opus | `JOB_LOOK` table and the new props (shield, katana, harp, claws, bow on monsters); family palettes; screenshot check of every job on every humanoid family at low, medium and high quality. |
+| H2 (done 18.40.0) | Opus | `JOB_LOOK` table and the new props (shield, katana, harp, claws, bow on monsters); family palettes; screenshot check of every job on every humanoid family at low, medium and high quality. |
 | H3 | Opus | Pet jobs: `ZONE_ELEMENT` table, elemental pets for SMN, BST, PUP and GEO mobs, pet AI and cleanup, tests. |
 | H4 | Sonnet | Names and UI (target job tag, bestiary), packs mix jobs, balance pass against the 18.x balance notes, Help, Updates, tests. |
 
