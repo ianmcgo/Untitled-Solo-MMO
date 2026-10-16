@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.19.0",
-  "releaseTitle": "Cleaner status, forward swings",
+  "version": "18.19.1",
+  "releaseTitle": "Weapons face forward",
   "description": "",
   "main": "index.js",
   "scripts": {
