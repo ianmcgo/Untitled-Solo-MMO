@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.36.0",
-  "releaseTitle": "Server places and the waiting line",
+  "version": "18.36.1",
+  "releaseTitle": "Idle log-out on the character screen",
   "description": "",
   "main": "index.js",
   "scripts": {

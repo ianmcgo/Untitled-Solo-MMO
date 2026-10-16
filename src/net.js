@@ -1,5 +1,5 @@
 const NET_SCHEMA = 8;
-const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000, seatBeat: 30000, queuePoll: 5000, idleWarn: 60000 };
+const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000, seatBeat: 30000, queuePoll: 5000, idleWarn: 60000, selectIdleMin: 15 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
 const isUuid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s || ""));
@@ -116,22 +116,23 @@ function netSeatLost() {
 function netIdleTick(now) {
   if (PLAY.offline || !NET.member || NET.leaving || typeof UI === "undefined" || !(S.charId || NET.seated)) return;
   const last = UI.lastInput || (UI.lastInput = now);
-  const min = Math.max(5, Math.min(60, (typeof VIEW !== "undefined" && VIEW.settings && +VIEW.settings.idleMin) || 30));
+  const sel = !UI.started;
+  const min = sel ? NET_CFG.selectIdleMin : Math.max(5, Math.min(60, (typeof VIEW !== "undefined" && VIEW.settings && +VIEW.settings.idleMin) || 30));
   const left = min * 60000 - (now - last);
-  if (left <= 0) { netIdleLogout(min); return; }
+  if (left <= 0) { netIdleLogout(min, sel); return; }
   if (left <= NET_CFG.idleWarn && !UI.idleWarned && typeof gameConfirm === "function") {
     UI.idleWarned = true;
     gameConfirm("Still there?", "You haven't done anything for a while. You'll be logged out in a minute to free your place for other players.", () => { UI.lastInput = Date.now(); UI.idleWarned = false; }, { yes: "I'm here", noBtn: false, onNo: () => { UI.lastInput = Date.now(); UI.idleWarned = false; }, tag: "idle" });
   }
 }
 
-async function netIdleLogout(min) {
+async function netIdleLogout(min, sel) {
   if (NET.leaving) return;
   NET.leaving = true;
   try { saveGame(); } catch (e) {}
   try { await netFlush(); } catch (e) {}
   await netQueueLeave();
-  try { sessionStorage.setItem("usr_idle", "You were logged out after " + min + " minutes without any input. Your progress was saved."); } catch (e) {}
+  try { sessionStorage.setItem("usr_idle", sel ? "You were logged out after " + min + " minutes on the character screen without any input." : "You were logged out after " + min + " minutes without any input. Your progress was saved."); } catch (e) {}
   location.reload();
 }
 

@@ -1666,6 +1666,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.36.1", date: "2026-10-16", title: "Idle log-out on the character screen", items: [
+    "<b>Character screen:</b> sitting on the character select or creation screen for 15 minutes without input now logs you out too (with the same one-minute warning), so you don't hold a server place while away.",
+  ]},
   { v: "18.36.0", date: "2026-10-16", title: "Server places and the waiting line", items: [
     "<b>Unequip a pet:</b> the Pets window has an Unequip to bag button that turns the equipped pet back into its item (it needs a free bag slot). Use the item to make it your pet again. The Ash Sprite has no item form and stays with you.",
     "<b>20 players online at once.</b> When the server is full, Play Online puts you in a line that shows your place and how many are ahead. You join automatically when a place frees up, and you can leave the line at any time.",
@@ -3543,7 +3546,7 @@ function tabHelp() {
   h += sec("👥 Server places and the line", ul([
     "Up to 20 players can be online at once. When the server is full, Play Online puts you in a line that shows your place (#1 is next) and how many are ahead. Keep the page open; you join as soon as a place frees up. Leave the line at any time and Play Offline is still there.",
     "A place is held while your game keeps in touch with the server. If your connection drops you keep your place for about 2 minutes, so a refresh or a short network blip won't send you to the back of the line.",
-    "Not touching anything logs you out after 30 minutes so your place can go to someone waiting. You get a one-minute warning with an I'm here button. Change the time (5 to 60 minutes) in Config → Online.",
+    "Not touching anything logs you out after 30 minutes so your place can go to someone waiting. You get a one-minute warning with an I'm here button. Change the time (5 to 60 minutes) in Config → Online. On the character select and creation screens the limit is a fixed 15 minutes.",
     "The Network box shows how many players are online, for example 👥 12/20. The admin account never needs a place.",
   ]));
   h += sec("💾 Updates", ul([ "The game checks for new versions about every 5 minutes and shows one popup for the newest version only, even if several came out. Reload jumps straight to the newest. Later hides it until an even newer version comes out. If a reload still lands on an older copy (the web host can take a few minutes to catch up), it waits 15 minutes before asking again. System → Check for updates checks right away."]));
