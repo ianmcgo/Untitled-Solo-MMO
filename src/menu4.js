@@ -618,7 +618,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + btn("toggle", "autoFull", "Fullscreen on start " + (s.autoFull ? "on" : "off"), !!s.autoFull) + "</div>";
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -1491,10 +1491,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.14.0", date: "2026-10-15", title: "Pricier shops, no camp crystals", items: [
+    "<b>Empty hotkey slots do nothing</b> instead of opening the Hotkeys window. If Ctrl+number does nothing, your browser is keeping it for tab switching: turn on Fullscreen (free keys) in Config > Interface, or use plain 1–0 or Alt+1–0.",
+    "<b>Everything in the shops costs 10 times as much.</b> Selling prices, mercenary fees, the stable and the Auction House are unchanged.",
+    "<b>Camp crystals are gone.</b> Crystals stand only in towns now, so warping and healing by crystal happen there. Camps keep their tent and fire as scenery."
+  ] },
   { v: "18.13.0", date: "2026-10-15", title: "Hotkey bar close button", items: [
     "<b>The hotkey bar has a ✕ button.</b> It hides every hotkey on the bar; pick which ones come back in Hotkeys (B) with Show on HUD.",
     "<b>The bar only appears when at least one hotkey is set to show on it.</b> With none shown, there is no empty box, and the ▲ ▼ buttons skip lines with nothing to show.",
-    "<b>Browser shortcuts no longer steal your hotkeys:</b> Ctrl, Alt and Cmd + number are blocked from switching browser tabs while the game is open, and Ctrl+letter combinations no longer trigger game keys. Some browsers still reserve a few of these. Config > Interface > <i>Fullscreen (free keys)</i> asks the browser (Chrome and Edge) to pass every shortcut to the game."
+    "<b>Browser shortcuts no longer steal your hotkeys:</b> Ctrl, Alt and Cmd + number are blocked from switching browser tabs while the game is open, and Ctrl+letter combinations no longer trigger game keys. Some browsers still reserve a few of these. Config > Interface > <i>Fullscreen (free keys)</i> (or <i>Fullscreen on start</i>) asks the browser (Chrome and Edge) to pass every shortcut to the game."
   ] },
   { v: "18.12.0", date: "2026-10-15", title: "Tab fix, hotkey bar styling and level gates", items: [
     "<b>Tab now targets the nearest thing first.</b> Walk up to a warp stone, signpost, crystal or person and press Tab to target it. In the field, monsters within range and objects within arm's reach are cycled together by distance.",
@@ -2860,7 +2865,7 @@ function tabHelp() {
     "<b>Wayside Shrine</b>: leave 10 crystals to pray and receive Shrine's Favour (🕯️), +10% experience for 30 minutes. Each shrine can be used once an hour. Your first prayer at each gives 40 EXP.",
     "<b>Weathered Tablet</b>: a piece of the area's history. Reading one for the first time gives 50 EXP.",
     "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It refills about 20 minutes after you open it.",
-    "<b>Camps</b>: Rocky Hollow (one in each of its three zones), Frostspire Pass and the Ashen Marsh each have a camp with a tent, a fire and a camp crystal. Touching any crystal (camp or town) restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
+    "<b>Camps</b>: Rocky Hollow (one in each of its three zones), Frostspire Pass and the Ashen Marsh each have a camp with a tent and a fire. Crystals stand only in towns, and touching one restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
     "<b>Signposts</b> stand at every way in and out of an outdoor area; read one for the direction and rough distance to each neighbouring area.",
     "<b>Roads</b>: riding along a road outside town is " + Math.round((CONFIG.roadBonus - 1) * 100) + "% faster than riding cross-country. On the open plateau of the Windreach Highlands you get that speed everywhere.",
     "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."

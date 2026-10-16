@@ -1104,7 +1104,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.13.0 · built 2026-10-15 21:34 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.14.0 · built 2026-10-15 21:41 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6709,6 +6709,7 @@ const CONFIG = {
   ammoDmgMul: 0.5,
   mpMul: 1.35,
   mobGil: [2, 4],
+  shopMul: 10,
   mobCurve: { lv: [1, 5, 10, 15, 20], hp: [1, 0.85, 0.8, 0.78, 0.74], att: [1, 0.9, 0.9, 0.87, 0.85], dmg: [1, 0.9, 0.9, 0.87, 0.85] },
   settingsKey: "ashenreach_settings_v1",
   startGil: 100,
@@ -9009,11 +9010,8 @@ for (const zid of ["hollow", "hollow_lake", "hollow_ruins", "frost", "marsh"]) {
   const z = ZONES[zid], L = z.landmarks || [], lm = L[Math.floor(L.length / 2)] || { x: z.w / 2, y: z.h / 2, r: 200 };
   const at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 260);
   if (!at) continue;
-  const cid = "campcrystal_" + zid;
-  NPCS[cid] = { name: CAMP_NAMES[zid] + " Crystal", model: "crystal", crystal: true, talk: "talkCrystal", camp: zid };
-  z.npcs.push({ id: cid, x: at.x, y: at.y });
   NPCS["camp_" + zid] = { name: CAMP_NAMES[zid], prop: "camp", talk: "talkCamp", poi: "camp" };
-  z.npcs.push({ id: "camp_" + zid, x: at.x + 90, y: at.y + 10 });
+  z.npcs.push({ id: "camp_" + zid, x: at.x, y: at.y });
 }
 for (const zid in ZONES) {
   const z = ZONES[zid];
@@ -14103,7 +14101,7 @@ const TALK = {
     const advNote = (q.pld === "active" ? " The oath needs 2 Bone Chips and 1 Iron Ore." : "") + (q.rdm === "active" ? " The scarlet lessons need 2 Worm Silk, 1 Fire Essence and 1 Water Essence." : "");
     if (!save.supportUnlocked) {
       if (player.lv < CONFIG.supportUnlockLevel) {
-        openDialog(n.name, "Every job keeps its own level and its own weapon skills. Come back when you've reached level " + CONFIG.supportUnlockLevel + ", and I'll teach you to call on a second job.", opts);
+        openDialog(n.name, "Every job keeps its own level and its own weapon skills. Come back when you've reached level " + CONFIG.supportUnlockLevel + ", and I'll teach you to call on a second job." + (adv.length ? advNote : ""), opts.concat(adv));
         return;
       }
       if (q.support === "none") {
@@ -14365,7 +14363,7 @@ const TALK = {
     openDialog("Signpost", "Carved arrows point the way. " + lines.join(". ") + ".", []);
   },
   talkCamp(n) {
-    openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Touch the camp crystal beside it to restore your party and to be able to warp here from any other crystal.", []);
+    openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Crystals stand only in towns, so rest here and press on.", []);
   },
   talkDistrictSign(n) {
     const z = S.zone, here = districtAt(z, n.x, n.y);
@@ -14712,7 +14710,7 @@ function conquestXpMul() {
   const c = conquestState(), r = regionOf(S.zoneId);
   return r && c.nation && c.held[r] === c.nation ? 1.05 : 1;
 }
-function buyPrice(id) { return Math.max(1, Math.round(ITEMS[id].price * conquestPriceMul())); }
+function buyPrice(id) { return Math.max(1, Math.round(ITEMS[id].price * CONFIG.shopMul * conquestPriceMul())); }
 function conquestReport() {
   const c = conquestState(), N = CONQUEST.nations;
   const lines = Object.keys(CONQUEST.regions).map(r => { const R = CONQUEST.regions[r], p = c.pts[r] || {}; return R.name + ": held by " + N[c.held[r]].short + (c.nation ? " (today: your nation " + (p[c.nation] || 0) + " points)" : ""); });
@@ -15711,7 +15709,7 @@ function closeHotBar() {
 function activateSlot(page, i) {
   const a = hotbar().pages[page][i];
   if (page === UI.page && UI.slots[i]) { const el = UI.slots[i].el; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
-  if (!a) { openMenu("actions"); return; }
+  if (!a) return;
   if (a.kind === "cmd") { runCommand("/" + a.id); return; }
   if (a.kind === "item") {
     if (invCount(a.id) < 1) { log("You don't have any " + ITEMS[a.id].name + "s.", "sys"); sfx("error"); return; }
@@ -17800,7 +17798,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + btn("toggle", "autoFull", "Fullscreen on start " + (s.autoFull ? "on" : "off"), !!s.autoFull) + "</div>";
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -18671,12 +18669,17 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.13.0 · built 2026-10-15 21:34 PDT";
+const BUILD_INFO = "v18.14.0 · built 2026-10-15 21:41 PDT";
 const UPDATES = [
+  { v: "18.14.0", date: "2026-10-15", title: "Pricier shops, no camp crystals", items: [
+    "<b>Empty hotkey slots do nothing</b> instead of opening the Hotkeys window. If Ctrl+number does nothing, your browser is keeping it for tab switching: turn on Fullscreen (free keys) in Config > Interface, or use plain 1–0 or Alt+1–0.",
+    "<b>Everything in the shops costs 10 times as much.</b> Selling prices, mercenary fees, the stable and the Auction House are unchanged.",
+    "<b>Camp crystals are gone.</b> Crystals stand only in towns now, so warping and healing by crystal happen there. Camps keep their tent and fire as scenery."
+  ] },
   { v: "18.13.0", date: "2026-10-15", title: "Hotkey bar close button", items: [
     "<b>The hotkey bar has a ✕ button.</b> It hides every hotkey on the bar; pick which ones come back in Hotkeys (B) with Show on HUD.",
     "<b>The bar only appears when at least one hotkey is set to show on it.</b> With none shown, there is no empty box, and the ▲ ▼ buttons skip lines with nothing to show.",
-    "<b>Browser shortcuts no longer steal your hotkeys:</b> Ctrl, Alt and Cmd + number are blocked from switching browser tabs while the game is open, and Ctrl+letter combinations no longer trigger game keys. Some browsers still reserve a few of these. Config > Interface > <i>Fullscreen (free keys)</i> asks the browser (Chrome and Edge) to pass every shortcut to the game."
+    "<b>Browser shortcuts no longer steal your hotkeys:</b> Ctrl, Alt and Cmd + number are blocked from switching browser tabs while the game is open, and Ctrl+letter combinations no longer trigger game keys. Some browsers still reserve a few of these. Config > Interface > <i>Fullscreen (free keys)</i> (or <i>Fullscreen on start</i>) asks the browser (Chrome and Edge) to pass every shortcut to the game."
   ] },
   { v: "18.12.0", date: "2026-10-15", title: "Tab fix, hotkey bar styling and level gates", items: [
     "<b>Tab now targets the nearest thing first.</b> Walk up to a warp stone, signpost, crystal or person and press Tab to target it. In the field, monsters within range and objects within arm's reach are cycled together by distance.",
@@ -20042,7 +20045,7 @@ function tabHelp() {
     "<b>Wayside Shrine</b>: leave 10 crystals to pray and receive Shrine's Favour (🕯️), +10% experience for 30 minutes. Each shrine can be used once an hour. Your first prayer at each gives 40 EXP.",
     "<b>Weathered Tablet</b>: a piece of the area's history. Reading one for the first time gives 50 EXP.",
     "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It refills about 20 minutes after you open it.",
-    "<b>Camps</b>: Rocky Hollow (one in each of its three zones), Frostspire Pass and the Ashen Marsh each have a camp with a tent, a fire and a camp crystal. Touching any crystal (camp or town) restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
+    "<b>Camps</b>: Rocky Hollow (one in each of its three zones), Frostspire Pass and the Ashen Marsh each have a camp with a tent and a fire. Crystals stand only in towns, and touching one restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
     "<b>Signposts</b> stand at every way in and out of an outdoor area; read one for the direction and rough distance to each neighbouring area.",
     "<b>Roads</b>: riding along a road outside town is " + Math.round((CONFIG.roadBonus - 1) * 100) + "% faster than riding cross-country. On the open plateau of the Windreach Highlands you get that speed everywhere.",
     "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."
@@ -20268,7 +20271,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "18.13.0";
+const GAME_VERSION = "18.14.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -31112,6 +31115,7 @@ async function boot() {
   window.addEventListener("contextmenu", e => { if (!(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"))) e.preventDefault(); });
   window.addEventListener("dragstart", e => e.preventDefault());
   window.addEventListener("keydown", guardKeys, true);
+  window.addEventListener("pointerdown", () => { if (!UI.autoFullDone && UI.started && VIEW.settings.autoFull) { UI.autoFullDone = true; if (!document.fullscreenElement) toggleFullscreen(); } }, true);
   window.addEventListener("keydown", onKey);
   window.addEventListener("pagehide", () => { if (UI.started) saveGame(); });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && UI.started) saveGame(); });

@@ -83,6 +83,7 @@ async function boot() {
   window.addEventListener("contextmenu", e => { if (!(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"))) e.preventDefault(); });
   window.addEventListener("dragstart", e => e.preventDefault());
   window.addEventListener("keydown", guardKeys, true);
+  window.addEventListener("pointerdown", () => { if (!UI.autoFullDone && UI.started && VIEW.settings.autoFull) { UI.autoFullDone = true; if (!document.fullscreenElement) toggleFullscreen(); } }, true);
   window.addEventListener("keydown", onKey);
   window.addEventListener("pagehide", () => { if (UI.started) saveGame(); });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && UI.started) saveGame(); });

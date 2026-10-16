@@ -19,7 +19,7 @@ ok((G.conquestState().pts.mire || {}).ash > 100, 'victories in the Mire count fo
 S.timeShift += 86400000; G.conquestState();
 ok(G.conquestState().held.mire === 'ash', 'after the daily tally the League holds the Mire');
 const p0 = G.ITEMS.potion.price;
-ok(G.heldCount('ash') >= 3 && G.buyPrice('potion') < p0, 'holding three regions makes League shops cheaper');
+ok(G.heldCount('ash') >= 3 && G.buyPrice('potion') < p0 * G.CONFIG.shopMul, 'holding three regions makes League shops cheaper');
 G.runCommand('/conquest');
 ok(H.alllog.slice(-3).join(' ').includes('held by'), '/conquest reports who holds each region');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

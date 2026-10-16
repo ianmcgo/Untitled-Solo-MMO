@@ -12,7 +12,7 @@ ok(npc('odette') && G.ZONES.outpost.npcs.filter(n => n.sleep).length >= 7, 'Odet
 ok(S.npcs.filter(n => n.sleep).every(n => !n.away), 'everyone is out at 10:00');
 G.TALK.talkOdette(npc('odette')); ok(opt(/Make It Home/), 'Odette offers Make It Home'); opt(/Make It Home/).fn(); opt(/Accept/).fn();
 G.closeModal();
-G.save.gil = 5000; G.openModal('furnishings'); G.buy('wooden_chair'); G.buy('wooden_chair'); G.buy('storage_chest'); G.buy('round_rug'); G.closeModal();
+G.save.gil = 500000; G.openModal('furnishings'); G.buy('wooden_chair'); G.buy('wooden_chair'); G.buy('storage_chest'); G.buy('round_rug'); G.closeModal();
 ok(G.invCount('wooden_chair') === 2 && G.invCount('storage_chest') === 1, 'bought furniture from Odette');
 setHour(22.5); run(0.2);
 ok(npc('tobin').away || npc('tobin').heading, 'Tobin (bed at 20:00) has gone home by 22:30');

@@ -4804,7 +4804,7 @@ const TALK = {
     const advNote = (q.pld === "active" ? " The oath needs 2 Bone Chips and 1 Iron Ore." : "") + (q.rdm === "active" ? " The scarlet lessons need 2 Worm Silk, 1 Fire Essence and 1 Water Essence." : "");
     if (!save.supportUnlocked) {
       if (player.lv < CONFIG.supportUnlockLevel) {
-        openDialog(n.name, "Every job keeps its own level and its own weapon skills. Come back when you've reached level " + CONFIG.supportUnlockLevel + ", and I'll teach you to call on a second job.", opts);
+        openDialog(n.name, "Every job keeps its own level and its own weapon skills. Come back when you've reached level " + CONFIG.supportUnlockLevel + ", and I'll teach you to call on a second job." + (adv.length ? advNote : ""), opts.concat(adv));
         return;
       }
       if (q.support === "none") {
@@ -5066,7 +5066,7 @@ const TALK = {
     openDialog("Signpost", "Carved arrows point the way. " + lines.join(". ") + ".", []);
   },
   talkCamp(n) {
-    openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Touch the camp crystal beside it to restore your party and to be able to warp here from any other crystal.", []);
+    openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Crystals stand only in towns, so rest here and press on.", []);
   },
   talkDistrictSign(n) {
     const z = S.zone, here = districtAt(z, n.x, n.y);
@@ -5413,7 +5413,7 @@ function conquestXpMul() {
   const c = conquestState(), r = regionOf(S.zoneId);
   return r && c.nation && c.held[r] === c.nation ? 1.05 : 1;
 }
-function buyPrice(id) { return Math.max(1, Math.round(ITEMS[id].price * conquestPriceMul())); }
+function buyPrice(id) { return Math.max(1, Math.round(ITEMS[id].price * CONFIG.shopMul * conquestPriceMul())); }
 function conquestReport() {
   const c = conquestState(), N = CONQUEST.nations;
   const lines = Object.keys(CONQUEST.regions).map(r => { const R = CONQUEST.regions[r], p = c.pts[r] || {}; return R.name + ": held by " + N[c.held[r]].short + (c.nation ? " (today: your nation " + (p[c.nation] || 0) + " points)" : ""); });
