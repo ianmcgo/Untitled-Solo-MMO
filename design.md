@@ -1380,14 +1380,14 @@ Terms: region = conquest region (CONQUEST.regions, e.g. The Vale). Area = one wi
 - Screenshot tool: /tmp ccshot.js (offline play, walks every step at 1100 × 720 and 412 × 780; no page scroll on either).
 
 ## Track 6: Classic look (v16.2.0–16.10.0)
-Full notes and the remaining plan are in design/ffxi-look-plan.md. Summary:
+Full notes and the remaining plan are in design/mmo-look-plan.md. Summary:
 - 116 (16.2.0): Classic look is the default. classicCharMaterial (Lambert with light bands, a lift floor and metal shine), an outline pass (back-face skinned shell child of each rig mesh), and the Look and Outlines settings in Config → Graphics. Offline character creation fixed.
 - 117 (16.3.0): CLASSIC_PAINT hand-painted region painters, 256 px atlas cells, nearest magnification.
 - 118 (16.4.0): RIG.segK 0.55/0.45/0.38 (High/Medium/Low) in Classic, mitten hands, bigger hands and feet, cuffs, collars, boot flares.
 - 124 (16.10.0): district-coded mixed-race walkers (DISTRICT_DRESS, walkerCoded), lantern night walkers.
 - 123 (16.9.0): monster level-band tints (boldTint/mobBand), chunky quads, NM decor via RIG.hook + nmDecor/NM_DECOR.
 - 122 (16.8.0): chunky weapons (gT/gR/fat in weaponEntry), weapon outlines, extruded shields with crest cross, kite shape.
-- 121 (16.7.0): Job style: JOB_STYLE per job × 4 tiers (levels 1/5/10/16) replaces armour visuals in Classic; attire setting; 9 new head types, head decor options, oversized pauldrons. Details in design/ffxi-look-plan.md.
+- 121 (16.7.0): Job style: JOB_STYLE per job × 4 tiers (levels 1/5/10/16) replaces armour visuals in Classic; attire setting; 9 new head types, head decor options, oversized pauldrons. Details in design/mmo-look-plan.md.
 - 120 (16.6.0): Classic face finish: hard-edged face tones, 4-band iris, bolder lid ink, inner-ear shapes, no banding on skin.
 - 119 (16.5.0): gHairClumps thick hair clumps, fuller shell, smooth shading on skin and faces (mr red channel).
 
@@ -1461,7 +1461,7 @@ World systems:
 |---|---|
 | 16.17.0 | Phase 126: Classic effects (banded sprites, thick rings, outlined numbers); Tab targets objects. |
 | 16.18.0 | Phase 127: Classic polish (cliff chunk detail by tier, no character normal map in Classic). |
-| 16.19.0 | Modern look removed; Classic is the only look (see design/ffxi-look-plan.md "One look"). |
+| 16.19.0 | Modern look removed; Classic is the only look (see design/mmo-look-plan.md "One look"). |
 | 16.20.0 | Time box and Wait (hud4.js openTimeBox/startWait/tickWait/stopWait/timeSyncCheck); calmer update popups (menu4.js checkForUpdate). |
 | 16.16.0 | Phase 125: Classic world match (posterised textures, banded world lighting chunk, no bloom, shorter fog). |
 | 16.15.1 | offRoadGroup in data.js: stalls/desks move together with NPCs standing at them; warp stones and dsigns also avoid plazas (r+extra). |
