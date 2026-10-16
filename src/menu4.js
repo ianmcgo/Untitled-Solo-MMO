@@ -1693,6 +1693,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.43.0", date: "2026-10-16", title: "Auction prices match the shops", items: [
+    "<b>Auction house prices are now 1.5 times the shop price</b> for the same item (they used to be a tenth of it). Prices still drift with the daily news and with how much people buy and sell.",
+    "Companion lots, town buying of your listings and the suggested sell price all follow the new level, so selling spoils at auction pays far better than selling them to a shop."
+  ]},
   { v: "18.42.0", date: "2026-10-16", title: "Know your foe", items: [
     "<b>The target window shows a monster's job</b> (Thief, White Mage, Paladin...) next to its name, and <b>Check</b> now says how it fights.",
     "<b>The Bestiary lists the jobs you have seen</b> each creature fighting as.",
@@ -3390,7 +3394,7 @@ function tabHelp() {
     "<b>Offline</b> the market is your own: your lots, your companions' lots and the towns, with town buying counted on play time. Offline lots are never copied online.",
     "<b>Each town stocks differently.</b> Every town's auction house has its own daily stock and its own sold-out counts, so something that has run out in one town may still be in another. The list shows everything on the market, and the item card shows how many each town has. Buying takes from the town you are in first, then the others.",
     "<b>Prices move.</b> Every item drifts around its usual value through the game day (a new price every 6 game hours, about 14 real minutes). Each game day the market news lifts one category (▲) and lowers another (▼). Buying pushes a price up; your lots selling pull it down; both effects fade.",
-    "Items that shops sell never fetch more than " + 95 + "% of the shop price at auction, so the auction house is for bargains, materials and other adventurers' gear.",
+    "<b>Auction prices follow the shops:</b> the going rate for an item is " + AH_CFG.shopRatio + " times what a shop charges for it, and it still drifts up and down with the daily news and with how much people buy and sell.",
     "Each game day the market stocks only a random handful: 10 pieces of +1 (high-quality) equipment (one of each), 5 kinds of ammo, 10 kinds of potions and other consumables, 3 spell scrolls, 10 kinds of food and 10 kinds of materials. Nothing is listed above your level + 1. Point at any entry to see its item card.",
     "<b>Buying:</b> pick a category and tap an item for its price chart and today's stock (stock refreshes each game day). Weapons and armor more than 5 levels above you are hidden.",
     "<b>Selling:</b> choose an item and quantity (up to one stack), adjust the price, and pay a " + Math.round(AH_CFG.fee * 100) + "% listing fee. The window tells you how quickly it's likely to sell. Up to " + AH_CFG.maxListings + " lots at once; each stays up " + AH_CFG.expireMs / 3600000 + " hours (real time) and keeps selling while you're away. Crystals from a sale go straight to you.",

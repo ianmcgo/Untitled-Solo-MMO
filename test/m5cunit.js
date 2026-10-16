@@ -24,8 +24,8 @@ L.lots.push({ id: 'bat_wing', qty: 1, price: mp('bat_wing'), kind: 'merc', selle
 G.save.market.listings = [{ id: 'healing_herb', qty: 1, price: mp('healing_herb'), next: Date.now() + 1e9, exp: Date.now() + 1e9 }];
 const r = Math.random; Math.random = () => 0.99;
 const g0 = G.save.gil;
-const b1 = G.townBuyOnce('outpost');
-ok(b1 && b1.id === 'healing_herb' && G.save.gil === g0 + mp('healing_herb') && !G.save.market.listings.length, 'a town buys your own lot first and pays you');
+const hp0 = mp('healing_herb'); const b1 = G.townBuyOnce('outpost');
+ok(b1 && b1.id === 'healing_herb' && G.save.gil === g0 + hp0 && !G.save.market.listings.length, 'a town buys your own lot first and pays you');
 const b2 = G.townBuyOnce('outpost'), b3 = G.townBuyOnce('harbor');
 ok(b2.seller === 'A' && b2.seq === 1 && b3.seller === 'B', 'then mercenary lots, taking turns between sellers, oldest lot first');
 const b4 = G.townBuyOnce('ironvale');
