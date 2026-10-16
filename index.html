@@ -1106,7 +1106,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.19.12 · built 2026-10-16 08:38 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.19.13 · built 2026-10-16 08:50 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -18875,8 +18875,13 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.19.12 · built 2026-10-16 08:38 PDT";
+const BUILD_INFO = "v18.19.13 · built 2026-10-16 08:50 PDT";
 const UPDATES = [
+  { v: "18.19.13", date: "2026-10-16", title: "Rods and gathering tools", items: [
+    "<b>Fishing rod:</b> a long rod appears in your hands while you fish, with a line and a red-and-white float. The float bobs while you wait, dips and jitters when a fish bites, and is pulled back to you as you reel.",
+    "<b>Gathering tools:</b> your pickaxe, hatchet or sickle appears in your hand for each swing, then vanishes. Your own weapon is hidden while a tool is in hand.",
+    "Tools scale with your race's body size, like weapons."
+  ] },
   { v: "18.19.12", date: "2026-10-16", title: "Caterpillar legs and new hares", items: [
     "<b>Crawler legs</b> now move one pair at a time in a wave from head to tail, each lifting, reaching and planting in turn, with the body rippling to match.",
     "<b>Hares rebuilt:</b> no front legs, a round body standing upright on big hind feet, long two-part ears and a puff tail. They hop to move, sway and twitch their ears while idle, spring forward to attack and flop over when defeated.",
@@ -20446,7 +20451,7 @@ function tabHelp() {
     "<b>Wages:</b> the hiring fee covers the first real day (24 hours); after that each companion takes the same amount each day. Wages wait until a fight ends. Tap a companion in the Party box to see how long until their next wage and how much, pay early, or dismiss them."
   ]));
   h += sec("🎣 Fishing", ul([
-    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait.",
+    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait. You raise the rod in both hands, a line and red-and-white float settle on the water, and the float dips and jitters when something bites.",
     "Wait for a bite, then press <b>Reel in!</b> (or Space, Enter or F) within about 2 seconds. Walking away, fighting or changing area pulls your line in.",
     "Catches: Outpost pond: Pond Minnow, Moat Carp. Rocky Hollow lakes: Moat Carp, Silver Shad, and the rare Lakeking Pike. Ashen Marsh ponds: Mud Eel, Bog Perch, and the rare Ghost Koi, which only bites in rain or storms.",
     "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to Pell, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
@@ -20606,7 +20611,7 @@ function tabHelp() {
   return out + "</div>";
 }
 
-const GAME_VERSION = "18.19.12";
+const GAME_VERSION = "18.19.13";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -29264,6 +29269,86 @@ function placeWeapon(v, e) {
   }
 }
 
+const TOOL_MATS = {};
+function toolMat(c) { return TOOL_MATS[c] || (TOOL_MATS[c] = new THREE.MeshLambertMaterial({ color: c })); }
+function toolPart(geo, col, x, y, z, rx, ry, rz) { const m = new THREE.Mesh(geo, toolMat(col)); m.position.set(x, y, z); m.rotation.set(rx || 0, ry || 0, rz || 0); m.castShadow = true; return m; }
+function buildTool(kind) {
+  const g = new THREE.Group(), wood = 0x7a5230, steel = 0xb9c2cc, dark = 0x4a3420;
+  const cyl = (r1, r2, h) => new THREE.CylinderGeometry(r2, r1, h, 7);
+  if (kind === "pickaxe") {
+    g.add(toolPart(cyl(0.02, 0.016, 0.62), wood, 0, 0.26, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.05, 0.05, 0.07), steel, 0, 0.58, 0));
+    g.add(toolPart(new THREE.CylinderGeometry(0.003, 0.026, 0.2, 6), steel, 0.12, 0.58, 0, 0, 0, -Math.PI / 2 + 0.2));
+    g.add(toolPart(new THREE.CylinderGeometry(0.003, 0.026, 0.2, 6), steel, -0.12, 0.58, 0, 0, 0, Math.PI / 2 - 0.2));
+  } else if (kind === "hatchet") {
+    g.add(toolPart(cyl(0.02, 0.016, 0.5), wood, 0, 0.2, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.03, 0.14, 0.05), dark, 0, 0.43, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.15, 0.16, 0.022), steel, 0.08, 0.42, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.02, 0.2, 0.012), 0xe8eef4, 0.16, 0.42, 0));
+  } else if (kind === "sickle") {
+    g.add(toolPart(cyl(0.02, 0.017, 0.3), wood, 0, 0.1, 0));
+    const arc = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.013, 6, 14, Math.PI * 1.15), toolMat(steel));
+    arc.position.set(0.11, 0.34, 0); arc.rotation.set(0, 0, Math.PI * 0.55); arc.castShadow = true; g.add(arc);
+  } else {
+    const hand = new THREE.Group(); g.add(hand);
+    hand.add(toolPart(cyl(0.022, 0.019, 0.34), dark, 0, 0.0, 0));
+    hand.add(toolPart(new THREE.CylinderGeometry(0.004, 0.018, 1.3, 6), wood, 0, 0.98, 0));
+    hand.add(toolPart(new THREE.TorusGeometry(0.03, 0.005, 5, 10), steel, 0, 0.5, 0.0, Math.PI / 2, 0, 0));
+    hand.add(toolPart(new THREE.SphereGeometry(0.02, 8, 6), 0xb0b8c0, 0, 0.1, 0.03));
+    g.userData.tipLocal = new THREE.Vector3(0, 1.64, 0);
+    const line = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0035, 1, 4), toolMat(0xf4f4f0)); line.visible = false; g.userData.line = line;
+    const fl = new THREE.Group();
+    fl.add(toolPart(new THREE.SphereGeometry(0.035, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0xe53935, 0, 0, 0));
+    fl.add(toolPart(new THREE.SphereGeometry(0.035, 10, 8, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), 0xf5f5f5, 0, 0, 0));
+    fl.add(toolPart(cyl(0.004, 0.004, 0.07), 0xf5f5f5, 0, 0.06, 0));
+    fl.visible = false; g.userData.float = fl;
+  }
+  return g;
+}
+function toolWant(v, e) {
+  if (e !== player || e.alive === false || e.mounted || e.resting) return null;
+  if (S.fish || (e.reelAt != null && S.time - e.reelAt < 0.8)) return "rod";
+  if (e.gatherAt != null && S.time - e.gatherAt < 0.9) return e.gatherType === "mining" ? "pickaxe" : e.gatherType === "logging" ? "hatchet" : "sickle";
+  return null;
+}
+function placeTool(v, e) {
+  if (v.kind !== "human" || !v.bones.handR) return;
+  const want = toolWant(v, e), cur = v.tool;
+  if (want !== (cur && cur.kind)) {
+    if (cur) { cur.g.parent && cur.g.parent.remove(cur.g); if (cur.g.userData.line) { cur.g.userData.line.parent && cur.g.userData.line.parent.remove(cur.g.userData.line); cur.g.userData.float.parent && cur.g.userData.float.parent.remove(cur.g.userData.float); } v.tool = null; }
+    if (want) {
+      const g = (v.toolCache || (v.toolCache = {}))[want] || (v.toolCache[want] = buildTool(want));
+      v.bones.handR.add(g);
+      if (want === "rod") { g.position.set(0.016, -0.06, 0.012); g.rotation.set(2.45, 0, 0); v.group.add(g.userData.line); v.group.add(g.userData.float); }
+      else { g.position.set(0.016, -0.074, 0.012); g.rotation.set(Math.PI / 2 - 0.25, 0, 0); }
+      v.tool = { kind: want, g, t0: S.time };
+    }
+  }
+  const tl = v.tool;
+  if (v.weapon && v.weaponDrawn && tl) v.weapon.visible = false; else if (v.weapon) v.weapon.visible = true;
+  if (!tl) return;
+  const k = Math.min(1, (S.time - tl.t0) / 0.18), sc = weaponBodyK(v) * (0.3 + 0.7 * k * k * (3 - 2 * k));
+  tl.g.scale.setScalar(sc);
+  if (tl.kind !== "rod") return;
+  const ud = tl.g.userData, fs = S.fish, line = ud.line, fl = ud.float;
+  tl.g.updateWorldMatrix(true, false);
+  const tipW = tl.g.localToWorld(ud.tipLocal.clone()), tip = v.group.worldToLocal(tipW.clone());
+  const sy = v.group.scale.y || 1, rk = e.reelAt != null ? (S.time - e.reelAt) / 0.8 : 9;
+  const T = fs ? S.time - (fs.since || S.time) : 0.7;
+  const reach = fs ? 1.5 / sy : (1.5 - 1.2 * ease(rk)) / sy;
+  const show = fs ? T > 0.45 : rk < 1;
+  line.visible = fl.visible = show;
+  if (!show) return;
+  const flyK = fs ? ease((T - 0.45) / 0.3) : 1, bite = fs && fs.state === "bite";
+  const bob = Math.sin(S.time * 2.2) * 0.008 / sy + (bite ? -0.05 / sy + Math.sin(S.time * 30) * 0.015 / sy : 0);
+  const fx = tip.x * (1 - flyK), fz = tip.z + (reach - tip.z) * flyK, fy = tip.y * (1 - flyK) + (-0.01 / sy + bob) * flyK + Math.sin(flyK * Math.PI) * 0.5 / sy;
+  fl.position.set(fx, fy, fz);
+  const dx = fx - tip.x, dy = fy + 0.06 - tip.y, dz = fz - tip.z, len = Math.hypot(dx, dy, dz) || 1e-3;
+  line.position.set(tip.x + dx / 2, tip.y + dy / 2, tip.z + dz / 2);
+  line.scale.set(1 / sy, len, 1 / sy);
+  line.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(dx, dy, dz).normalize());
+}
+
 const SLOPE_KINDS = { crawler: 1, worm: 1, quad: 1, crab: 1, fish: 1, hare: 1, rarab: 1 };
 function footGround(e) {
   const r = Math.max(4, (e.radius || 14) * 0.55);
@@ -29357,6 +29442,7 @@ function syncEntity(e, dt) {
   else if (v.kind === "shroom") poseShroom(v, e, dt);
   else if (v.kind === "fish") poseFish(v, e, dt);
   placeWeapon(v, e);
+  placeTool(v, e);
   if (v.weapon && v.weaponKind !== "staff") updateTrail(v, e, dt);
   const flash = e.flash > 0 ? e.flash / 0.15 : 0;
   v.mat.emissive.setRGB(flash, flash * 0.95, flash * 0.9);

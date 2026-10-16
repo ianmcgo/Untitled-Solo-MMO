@@ -1637,6 +1637,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.13", date: "2026-10-16", title: "Rods and gathering tools", items: [
+    "<b>Fishing rod:</b> a long rod appears in your hands while you fish, with a line and a red-and-white float. The float bobs while you wait, dips and jitters when a fish bites, and is pulled back to you as you reel.",
+    "<b>Gathering tools:</b> your pickaxe, hatchet or sickle appears in your hand for each swing, then vanishes. Your own weapon is hidden while a tool is in hand.",
+    "Tools scale with your race's body size, like weapons."
+  ] },
   { v: "18.19.12", date: "2026-10-16", title: "Caterpillar legs and new hares", items: [
     "<b>Crawler legs</b> now move one pair at a time in a wave from head to tail, each lifting, reaching and planting in turn, with the body rippling to match.",
     "<b>Hares rebuilt:</b> no front legs, a round body standing upright on big hind feet, long two-part ears and a puff tail. They hop to move, sway and twitch their ears while idle, spring forward to attack and flop over when defeated.",
@@ -3206,7 +3211,7 @@ function tabHelp() {
     "<b>Wages:</b> the hiring fee covers the first real day (24 hours); after that each companion takes the same amount each day. Wages wait until a fight ends. Tap a companion in the Party box to see how long until their next wage and how much, pay early, or dismiss them."
   ]));
   h += sec("🎣 Fishing", ul([
-    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait.",
+    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait. You raise the rod in both hands, a line and red-and-white float settle on the water, and the float dips and jitters when something bites.",
     "Wait for a bite, then press <b>Reel in!</b> (or Space, Enter or F) within about 2 seconds. Walking away, fighting or changing area pulls your line in.",
     "Catches: Outpost pond: Pond Minnow, Moat Carp. Rocky Hollow lakes: Moat Carp, Silver Shad, and the rare Lakeking Pike. Ashen Marsh ponds: Mud Eel, Bog Perch, and the rare Ghost Koi, which only bites in rain or storms.",
     "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to Pell, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
