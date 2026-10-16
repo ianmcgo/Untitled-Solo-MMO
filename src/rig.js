@@ -1837,6 +1837,7 @@ function humanEntry(L) {
       R.add(gBall(V3(0, neckY + 0.02, -0.08), 0.13, 1.2, 1.0, 0.6, 12), "head", H.color, "cloth");
     } else if (H.type === "pointy") {
       const bk = H.brimK || 1, tk = H.tallK || 1;
+      R.add(warpToHead(gPartSphere(V3(0, hc, 0.005), hr * 1.12, 0, Math.PI * 0.4, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 22), HP, hc, hr), "head", H.color, "cloth");
       R.add(gCyl(V3(0, hc + hr * 0.5, 0), hr * 2.3 * bk, hr * 2.3 * bk, 0.02, 22), "head", H.color, "cloth");
       R.add(gCyl(V3(0, hc + hr * 0.5 + 0.17 * tk, 0), hr * 0.5, hr * 1.08, 0.34 * tk, 16), "head", H.color, "cloth");
       R.add(gTaper(V3(0, hc + hr * 0.5 + 0.33 * tk, 0), V3(0, hc + hr * 0.5 + 0.5 * tk, -0.14 * tk), hr * 0.52, 0.01, 10), "head", H.color, "cloth");

@@ -159,7 +159,7 @@ function attackKind(v, e) {
   if (w === "greataxe" || w === "scythe" || w === "gkatana" || w === "gsword") return "cleave";
   if (w === "polearm") return "thrust";
   if (w === "club") return "smash";
-  if (w === "staff") return "thrust";
+  if (w === "staff") return "staffswing";
   if (!w || w === "h2h") return "punch";
   return "slash";
 }
@@ -376,6 +376,16 @@ function poseHuman(v, e, dt) {
       setP(P, "foreArmR", -1.2 * a + 1.1 * b, 0, 0, w);
       setP(P, "upArmL", -0.95 - 0.5 * b, 0, -0.5, w); setP(P, "foreArmL", -0.15, 0, 0, w);
       setP(P, "chest", 0, -0.35 * a + 0.6 * b, 0, w);
+    } else if (kind === "staffswing") {
+      const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.2);
+      setP(P, "upArmR", -0.9 - 1.1 * a + 1.5 * b, 0, -0.3 * a + 0.5 * b, w);
+      setP(P, "foreArmR", -0.6 - 0.2 * a + 0.4 * b, 0, 0, w);
+      setP(P, "upArmL", -0.95 - 0.9 * a + 1.3 * b, 0, -0.5 - 0.2 * a + 0.3 * b, w);
+      setP(P, "foreArmL", -0.15 - 0.3 * a + 0.4 * b, 0, 0, w);
+      setP(P, "chest", 0, -0.7 * a + 0.9 * b, 0, w);
+      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
+      setP(P, "spine", -0.12 * a + 0.32 * b, 0, 0, w);
+      v.rootOff[2] += 0.06 * b * w;
     } else if (kind === "claw") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);
       const arm = side > 0 ? "R" : "L", s = side > 0 ? -1 : 1;

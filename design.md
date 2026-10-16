@@ -1777,3 +1777,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.19.2: two-handed staves, monster eyes
 - Staff and polearm fight stance (\`anim.js\`, the \`sw\` block) and the thrust pose put the left arm on the shaft: \`upArmL\` -0.95 with z -0.5 and \`foreArmL\` -0.15 (the right arm keeps -0.9 and -0.6). Checked with test/swingsheet.js side and top views; hands sit close together on the shaft.
 - Eyes (\`rig.js\`, head block that reads \`L.eyesGlow\`): the eye position had no side sign, so both eyes landed on the same side. It now uses \`s\`. Humanoid monsters (noFace with eyesGlow, not skull, not claws) get a cream sclera, a glowing iris and a dark pupil; skulls keep dark sockets with a glow; claw monsters (ghouls) keep a plain glow. Check with \`node test/faceshot.js dist/index.html out.png '["mob:den_goblin"]' idle 3\`.
+
+## 18.19.3: staff swing, hat fit
+- attackKind staff returns "staffswing" (anim.js swing block): wind-up arms up (upArmR -2.0, upArmL -1.85), chest yaw -0.7 (right), strike drops arms and yaws to +0.2, spine leans forward. Polearm remains "thrust".
+- Pointy hat (rig.js): added cloth dome (same as cap) under brim so no skin shows between hat and head.
+- placeWeapon (models3d.js): sheathed staff uses its own pose pos (0,-0.1,bz-0.045) rot z 1.2 so it clears wide hats; other two-handers keep z 0.78.
+- Test render for hats: JOB=BLM (uppercase) with test/swingsheet2.js; absolute html path required.
