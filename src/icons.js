@@ -305,13 +305,13 @@ function icoFrame(g, id) {
   g.fillStyle = col; for (const [x, y] of [[2, 2], [42, 2], [2, 42], [42, 42]]) g.fillRect(x, y, 4, 4);
 }
 
-function buildItemIcons() {
+function* itemIconSteps() {
   if (ICONS.url || typeof ITEMS === "undefined") return;
   const ids = Object.keys(ITEMS), C = ICONS.cell, cols = ICONS.cols, rows = Math.ceil(ids.length / cols);
   const cv = document.createElement("canvas"); cv.width = cols * C; cv.height = rows * C;
   const g0 = cv.getContext("2d");
-  ids.forEach((id, i) => {
-    const it = ITEMS[id];
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i], it = ITEMS[id];
     if (it.emoji == null) it.emoji = it.icon || "📦";
     const x = (i % cols) * C, y = Math.floor(i / cols) * C;
     g0.save(); g0.translate(x, y); g0.beginPath(); g0.rect(0, 0, C, C); g0.clip();
@@ -323,7 +323,8 @@ function buildItemIcons() {
     icoFrame(g0, id);
     g0.restore();
     ICONS.map[id] = [i % cols, Math.floor(i / cols), ok];
-  });
+    if (i % 12 === 11) yield;
+  }
   ICONS.cols = cols; ICONS.rows = rows;
   ICONS.url = cv.toDataURL("image/png");
   const st = document.createElement("style");
@@ -331,3 +332,23 @@ function buildItemIcons() {
   document.head.appendChild(st);
   for (const id of ids) { const [cx, cy] = ICONS.map[id]; ITEMS[id].icon = '<i class="iico" style="background-position:-' + (cx * 1.45).toFixed(2) + "em -" + (cy * 1.45).toFixed(2) + 'em"></i>'; }
 }
+
+function buildItemIcons() {
+  for (const _ of itemIconSteps()) {}
+}
+
+function buildItemIconsAsync() {
+  if (ICONS.job) return ICONS.job;
+  ICONS.job = new Promise(res => {
+    const gen = itemIconSteps();
+    const tick = () => {
+      const t = performance.now();
+      let r;
+      try { while (!(r = gen.next()).done) { if (performance.now() - t > 10) break; } } catch (e) { reportError(e, "icons"); res(); return; }
+      if (r.done) { PERF.mark("icons"); res(); } else setTimeout(tick, 3);
+    };
+    setTimeout(tick, 0);
+  });
+  return ICONS.job;
+}
+function iconsReady() { return ICONS.job || Promise.resolve(); }

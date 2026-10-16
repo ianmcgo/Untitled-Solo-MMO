@@ -1875,3 +1875,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - build.mjs phase 4 minifies the game script with esbuild (`min: true`); dist/game.js stays unminified so test/harness.js keeps working. src/three-entry.js lists only the THREE names the code uses (regenerate the list with grep `THREE\.\w+` if new ones are added, otherwise it is undefined at runtime).
 - Supabase bundle is embedded as `<script type="text/plain" id="supaSrc">` and evaluated on demand by `supaLoad()` in net.js (called from `netInit` and offline sign-in).
 - PERF (view3d.js): boot marks, per-zone step timings, worst frame gap, `PERF.props()` floating-prop scan, `/perf` command. Numbers and findings in design/load-baseline.md.
+
+## 18.22.0: start-up overlap
+- Item icon atlas is built by `itemIconSteps()` (generator in icons.js) driven by `buildItemIconsAsync()` in about 10 ms ticks after `showTitle()`. `iconsReady()` is awaited in `loadZoneInner` before the zone is released, so item icons are always ready in the world. `buildItemIcons()` is the synchronous form for tools.
+- `uploadTexturesAsync` calls `renderer.initTexture` for zone textures in 6 ms slices before compileAsync.
+- Measured (SwiftShader headless): title at 1.7 s instead of 4.8 s; icons finish about 5.5 s. First draw after build still takes 5 to 10 s here: `renderer.render` spends it waiting for program links (programs build in 24 ms but link lazily in the driver). `compileAsync` only avoids that where KHR_parallel_shader_compile exists; cannot verify on a real GPU from the test rig. A per-material `renderer.compile(obj)` slicing was tried and gave no gain (reverted).
