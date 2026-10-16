@@ -1486,6 +1486,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.4.0", date: "2026-10-15", title: "Economy", items: [
+    "<b>Gear is cheaper:</b> shop prices follow a gentler curve (a level 10 piece costs about 40% of what it did, level 20 about 35%). Neck, ear, ring, back and waist pieces cost less than armor. A full level-appropriate set now takes about 1 to 6 hours of hunting instead of up to dozens.",
+    "<b>Every monster drops crystals:</b> anything that still gives you XP drops 2 to 4 crystals per level of the monster. Beastmen keep their bigger purses.",
+    "<b>Shop fix:</b> Royal and Legionnaire gear (Ryl. and Lgn.) were wrongly sold in shops; they now come from monsters like the other set pieces.",
+    "Sell prices are still a quarter of the shop price, so gear and drops sell for less than before. XP needed per level is unchanged (about 13 hours of solo hunting to reach 20)."
+  ] },
   { v: "18.3.0", date: "2026-10-15", title: "Monster balance", items: [
     "<b>Monsters retuned for FFXI gear:</b> from level 5 up, monsters have less HP (down to 74% at level 20) and hit a little softer (down to 85%). Level 1 to 4 monsters are unchanged.",
     "<b>What to expect alone:</b> Easy Prey is almost always a safe kill, an Even Match is about half and half, and Tough monsters need companions. Before this, even fights from level 10 up were nearly always lost solo.",
@@ -2728,6 +2734,7 @@ function tabHelp() {
   h += sec("📈 Experience", ul([
     "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
     "Kill XP scales with the monster's con. Tougher monsters give much more.",
+    "Every monster that still gives XP drops a few crystals (2 to 4 per level of the monster). Beastmen such as goblins and orcs carry more.",
     "Fighting alone in shop gear, an Easy Prey monster is almost always a safe kill, an Even Match is about a coin flip (much safer with companions), and a Tough one usually needs help.",
     "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
     "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 in the event log); they give no experience. The Map shows how many you've found in each zone.",
