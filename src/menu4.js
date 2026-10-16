@@ -48,10 +48,10 @@ function renderModal() {
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
   const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, database: tabDatabase, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
-  if (UI.kbBtn != null && !SLIM_TABS[S.modal] && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
-  if (UI.kbRow != null && SLIM_TABS[S.modal]) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
+  if (UI.kbBtn != null && !isSlim(S.modal) && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
+  if (UI.kbRow != null && isSlim(S.modal)) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
   const win = document.querySelector("#menu .win");
-  if (win) win.className = "win" + (SLIM_TABS[S.modal] ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "") + (S.modal === "auction" ? " fit" : "");
+  if (win) win.className = "win" + (isSlim(S.modal) ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "") + (S.modal === "auction" || S.modal === "achievements" ? " fit" : "");
   renderMCard();
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -109,8 +109,8 @@ function orbRow(a, v, col, name, right, help, off) {
 function tabMagic() {
   UI.modalHelp = UI.modalHelp || "Select a spell.";
   const acts = actionList(player).filter(a => a.kind === "ma");
-  if (!acts.length) return '<div class="lList"><div class="lr empty"><span class="nm">Your current jobs know no magic.</span></div></div>';
-  let h = '<div class="lList">';
+  if (!acts.length) return '<div class="lHead"><button data-a="slimclose">✕ Close</button></div><div class="lList"><div class="lr empty"><span class="nm">Your current jobs know no magic.</span></div></div>';
+  let h = '<div class="lHead"><button data-a="slimclose">✕ Close</button></div><div class="lList">';
   for (const a of acts) { const sp = SPELLS[a.id], rc = recastLeft(player, "ma:" + a.id); h += orbRow("mcast", a.id, ELEMENT_COLORS[sp.element] || "#9fe8ff", sp.name, rc > 0 ? Math.ceil(rc) + "s" : sp.mp + " MP", sp.desc || sp.name, sp.mp > player.mp); }
   return h + "</div>";
 }
@@ -118,7 +118,7 @@ function tabMagic() {
 function tabAbilities() {
   UI.modalHelp = UI.modalHelp || "Select an ability.";
   const acts = actionList(player).filter(a => a.kind === "ja" || a.kind === "ws");
-  let h = '<div class="lList">';
+  let h = '<div class="lHead"><button data-a="slimclose">✕ Close</button></div><div class="lList">';
   if (!acts.length) h += '<div class="lr empty"><span class="nm">None yet.</span></div>';
   for (const a of acts) { const rc = a.kind === "ja" ? recastLeft(player, "ja:" + a.id) : 0; h += orbRow("mact", a.kind + ":" + a.id, a.kind === "ws" ? "#ffb070" : "#b0ffb0", actName(a), rc > 0 ? Math.ceil(rc) + "s" : a.kind === "ws" ? "1000 TP" : "", cmdHelpOf(a), a.kind === "ws" && player.tp < 1000); }
   return h + "</div>";
@@ -383,14 +383,23 @@ function invSorted() {
   });
 }
 const SLIM_TABS = { inventory: 1, shop: 1, quests: 1, magic: 1, abilities: 1 };
+function isSlim(t) { return !!SLIM_TABS[t] || (t === "storage" && !(S.zone && S.zone.residence)); }
 function listRow(a, v, id, qty, name, right, sel, cls) {
   return '<button class="lr' + (sel ? " sel" : "") + (cls ? " " + cls : "") + '" data-a="' + a + '" data-v="' + v + '"' + (id ? ' data-hv="' + id + '"' : "") + '><span class="cur">➤</span>' + (qty != null ? '<span class="lq">' + (qty > 1 ? qty : "") + "</span>" : "") + '<span class="ic">' + (id && ITEMS[id] ? ITEMS[id].icon || "📦" : "•") + '</span><span class="nm">' + esc(name) + "</span>" + (right != null ? '<span class="rt">' + right + "</span>" : "") + "</button>";
 }
 function tabInventory() {
   UI.modalHelp = "Select an item.";
+  const tabs = '<button data-a="invview" data-v="bag"' + (UI.invView !== "keys" ? ' class="on"' : "") + '>Items</button><button data-a="invview" data-v="keys"' + (UI.invView === "keys" ? ' class="on"' : "") + ">Key Items</button>";
+  if (UI.invView === "keys") {
+    const ks = (save.keyItems || []).filter(id => ITEMS[id]);
+    let k = '<div class="lHead">' + tabs + '<button data-a="slimclose">✕ Close</button></div><div class="lList">';
+    if (!ks.length) k += '<div class="lr empty"><span class="nm">No key items yet.</span></div>';
+    for (const id of ks) k += listRow("noop", id, id, null, ITEMS[id].name, null, false, "");
+    return k + "</div>";
+  }
   let list = invSorted();
   if (UI.slotFilter) list = list.filter(({ s }) => ITEMS[s.id].kind === "equip" && slotKeys(ITEMS[s.id].slot).includes(UI.slotFilter));
-  let h = '<div class="lHead"><button data-a="sort">Sort</button></div><div class="lList">';
+  let h = '<div class="lHead"><button data-a="sort">Sort</button>' + tabs + '<button data-a="slimclose">✕ Close</button></div><div class="lList">';
   if (!list.length) h += '<div class="lr empty"><span class="nm">Your bag is empty.</span></div>';
   for (const { s, i } of list) h += listRow("isel", i, s.id, s.qty, ITEMS[s.id].name, null, UI.sel === i, rarityOf(s.id));
   return h + "</div>";
@@ -497,7 +506,7 @@ function tabQuests() {
   const cur = Object.keys(QUESTS).filter(id => save.quests[id] === "active" || save.quests[id] === "killed");
   const done = Object.keys(QUESTS).filter(id => save.quests[id] === "done");
   UI.modalHelp = UI.qSel && QUESTS[UI.qSel] ? QUESTS[UI.qSel].name : UI.qCat ? "Select a quest." : "Select a category.";
-  let h = '<div class="lList">';
+  let h = '<div class="lHead"><button data-a="slimclose">✕ Close</button></div><div class="lList">';
   if (!UI.qCat) {
     h += listRow("qcat", "story", null, null, "Story", storyChapter() ? "" : "✓", false);
     h += listRow("qcat", "cur", null, null, "Current", cur.length, false);
@@ -619,7 +628,7 @@ function tabSettings() {
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + btn("toggle", "autoFull", "Fullscreen on start " + (s.autoFull ? "on" : "off"), !!s.autoFull) + "</div>";
-  h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
+  h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
 function tabSystem() {
@@ -723,7 +732,7 @@ function tabStorage() {
   const cap = storageCap();
   if (!(S.zone && S.zone.residence)) {
     UI.modalHelp = "What Pip is keeping for you at your residence.";
-    let h = '<div class="lList">';
+    let h = '<div class="lHead"><button data-a="slimclose">✕ Close</button></div><div class="lList">';
     if (!save.storage.length) h += '<div class="lr empty"><span class="nm">Nothing in storage. Visit Pip at your residence to store things.</span></div>';
     for (const s of save.storage) h += listRow("noop", s.id, s.id, s.qty, ITEMS[s.id].name, null, false, rarityOf(s.id));
     return h + '</div><div class="sub" style="margin-top:6px">' + storageUsed() + " / " + cap + " slots used. You can only move items in or out at your residence.</div>";
@@ -1039,7 +1048,7 @@ const STAT_GROUPS = [
   ["Combat", [["Monsters defeated", "kills"], ["Notorious monsters", "nm"], ["Times KO'd", "kos"], ["Damage dealt", "dmgDealt"], ["Damage taken", "dmgTaken"], ["Biggest hit", "bigHit"], ["Spells cast", "spellsCast"], ["Abilities used", "abilitiesUsed"], ["Skillchains", "sc"], ["Magic bursts", "mb"], ["Ranger kills", "rngKills"], ["Battlefields won", "bfWins"], ["Summons", "summons"]]],
   ["Crafting and gathering", [["Items crafted", "crafts"], ["High-quality results", "hq"], ["Gathered", "gathers"], ["Fish caught", "fish"], ["Big fish", "bigFish"], ["Meals eaten", "meals"], ["Items used", "itemsUsed"]]],
   ["Economy", [["Crystals from monsters", "killGil"], ["Trades", "trades"], ["Auction purchases", "ahBought"], ["Auction sales", "ahSold"], ["Bounties", "bounties"], ["Lots won", "lotsWon"]]],
-  ["Travel", [["Distance ridden", "ride"], ["Jumps", "jumps"], ["Boat rides", "boatRides"], ["Blessings", "blessings"]]]
+  ["Travel", [["Distance walked", "walk"], ["Distance ridden", "ride"], ["Jumps", "jumps"], ["Boat rides", "boatRides"], ["Blessings", "blessings"]]]
 ];
 function tabStats() {
   const st = save.stats || {}, num = v => Math.round(v || 0).toLocaleString();
@@ -1047,7 +1056,18 @@ function tabStats() {
   const done = Object.keys(QUESTS).filter(q => save.quests[q] === "done").length;
   const lore = [["Playing time", fmtPlay(save.playSec)], ["Highest job level", Math.max(...lvls)], ["Jobs above level 1", lvls.filter(l => l > 1).length + " / " + lvls.length], ["Achievements", ACHIEVEMENTS.filter(a => save.ach[a.id]).length + " / " + ACHIEVEMENTS.length], ["Quests completed", done + " / " + Object.keys(QUESTS).length], ["Places discovered", (save.discovered || []).length + " / " + Object.keys(ZONES).length], ["Creatures recorded", Object.keys(save.bestiary).length + " / " + Object.keys(BESTIARY).length], ["Items discovered", Object.keys(save.seen.items).length + " / " + Object.keys(ITEMS).length], ["Spells learned", save.spells.length + " / " + Object.keys(SPELLS).length], ["People met", Object.keys(save.seen.npcs).length], ["Crystals held", num(save.gil)], ["Companions hired", (save.hired || []).length]];
   const row = (k, v) => '<div class="item" style="display:flex;justify-content:space-between;align-items:center"><span>' + esc(k) + "</span><b>" + esc(String(v)) + "</b></div>";
-  let h = "<h3>Adventure</h3>" + lore.map(r => row(r[0], r[1])).join("");
+  const bk = Object.keys(save.bestiary), totalKills = bk.reduce((n, k) => n + (save.bestiary[k].kills || 0), 0);
+  const top = bk.sort((a, b) => (save.bestiary[b].kills || 0) - (save.bestiary[a].kills || 0))[0];
+  const topName = top && save.bestiary[top].kills ? ((FAMILIES[top] || NM_FAMILIES[top] || {}).name || top) + " (" + save.bestiary[top].kills + ")" : "none yet";
+  const nmDone = Object.keys(save.nmKilled || {}).length, nmTot = Object.keys(NM_FAMILIES).length;
+  const qs = Object.keys(QUESTS), qActive = qs.filter(q => save.quests[q] === "active" || save.quests[q] === "killed").length;
+  const cr = save.crafts || {}, gs = save.gatherSkill || {};
+  const more = [["Creatures defeated (by kind)", totalKills.toLocaleString()], ["Most defeated", topName], ["Notorious monsters beaten", nmDone + " / " + nmTot], ["Quests in progress", qActive], ["Key items held", (save.keyItems || []).length], ["Items in bag", save.inventory.length + " / " + CONFIG.inventorySize], ["Items in storage", (save.storage || []).length], ["Furniture owned", (save.furniture || []).length], ["Pets learned", (save.buddies || []).length], ["Guild points earned", ((save.guild && save.guild.total) || 0).toLocaleString()], ["Main job", JOBS[save.mainJob].name + " " + save.jobs[save.mainJob].lv], ["Support job", save.subJob ? JOBS[save.subJob].name + " " + save.jobs[save.subJob].lv : "none"]];
+  const jobsHave = Object.keys(JOBS).filter(j => save.jobs[j].lv > 1).sort((a, b) => save.jobs[b].lv - save.jobs[a].lv);
+  const skillsRows = Object.keys(cr).map(k => [k.charAt(0).toUpperCase() + k.slice(1), Math.floor(cr[k] || 0)]).concat(Object.keys(gs).map(k => [k.charAt(0).toUpperCase() + k.slice(1), Math.floor(gs[k] || 0)]));
+  let h = "<h3>Adventure</h3>" + lore.concat(more).map(r => row(r[0], r[1])).join("");
+  if (jobsHave.length) h += "<h3>Job levels</h3>" + jobsHave.map(j => row(JOBS[j].name, "Lv." + save.jobs[j].lv)).join("");
+  h += "<h3>Craft and gather skills</h3>" + skillsRows.map(r => row(r[0], r[1])).join("");
   for (const g of STAT_GROUPS) h += "<h3>" + g[0] + "</h3>" + g[1].map(r => row(r[0], num(st[r[1]]))).join("");
   return h;
 }
@@ -1491,6 +1511,9 @@ function onMenuClick(e) {
   else if (a === "ahbuy") { UI.ahMsg = ahBuy(UI.ahSel, UI.ahQty || 1); UI.ahQty = 1; renderModal(); return; }
   else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
   else if (a === "ahcancel") { ahCancel(+v); renderModal(); return; }
+  else if (a === "invview") { UI.invView = v; UI.sel = null; renderModal(); return; }
+  else if (a === "slimclose") { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); return; }
+  else if (a === "helpcat") { UI.helpCat = v; renderModal(); return; }
   else if (a === "dbcat") { UI.dbCat = v; renderModal(); return; }
   else if (a === "achview") { UI.achView = v; renderModal(); return; }
   else if (a === "socseek") { netSeek(!save.lfg, null); renderModal(); return; }
@@ -1613,6 +1636,18 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.17.0", date: "2026-10-15", title: "Game guide", items: [
+    "<b>Help is now the Guide.</b> The Guide command (second page of the main menu, or H) opens a guide split into six topics: All functions, Getting started, Combat and jobs, The world, Crafting and economy, and Social and records.",
+    "<b>All functions</b> lists every command in the main menu with its key and what it does, the Status sub-menu, and every chat command, always matching the game as it is.",
+    "The Help button is gone from Config, and Help no longer fails to open (a typo in the World section broke it).",
+    "<b>Items, Magic, Abilities, Quests and View House are now as wide as their text</b> and have a ✕ Close button. Closing one leaves the command menu open.",
+    "<b>The Time box leaves the command menu open.</b>",
+    "<b>Key Items is a tab inside Items</b> (Items / Key Items) and is gone from the command menu.",
+    "<b>Trade is gone from the command menu.</b> Target another player and choose Trade from their menu.",
+    "<b>The Achievements window is as wide as its text</b>, and Stats has many more rows: job levels, craft and gather skills, most defeated creature, notorious monsters beaten, quests in progress, bag and storage use, guild points and distance walked (walking counts from this version).",
+    "<b>Database entries no longer spill out of their boxes on phones.</b>",
+    "<b>The Equipment window fits a phone screen</b> without scrolling sideways or up and down."
+  ] },
   { v: "18.16.1", date: "2026-10-15", title: "Database mobile fit", items: [
     "<b>Equipment entries in the Database no longer spill out of their box on phones.</b> Long job lists now wrap, and the doubled name and frame are gone."
   ] },
@@ -2811,8 +2846,27 @@ function tabUpdates() {
   return h;
 }
 
+const HELP_CATS = [
+  ["ref", "📋", "All functions", /^📋 Every menu/],
+  ["start", "🌅", "Getting started", /Getting started|Controls|Chat commands|Characters|Offline|Accounts|Updates|Falling|Time and waiting|Weather|Performance|The screen/],
+  ["combat", "⚔️", "Combat and jobs", /Combat|Pets|Jobs and companions|Experience|Notorious|Loot|Treasure|Equipment|Mount|Races|Blessing|Party and companions|Battlefield/],
+  ["world", "🗺️", "The world", /Cities|City life|Warp|^🗺️ World|Expeditions|Night and weather|Atlas|Areas|Regions|Exploring|Frostspire|Saltreach|Marsh|Crypt|Main story|Quests|Townsfolk/],
+  ["craft", "⚒️", "Crafting and economy", /Auction|Guild|Trade Board|Gathering|Crafting|Cooking|Gardening|Fishing|residence/],
+  ["social", "💬", "Social and records", /Other players|Parties with|Social|Trading|Database|Achievements/]
+];
+function guideRef() {
+  const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
+  const keyOf = t => TAB_INFO[t] && TAB_INFO[t][2] ? TAB_INFO[t][2] : "";
+  let h = "<p>Open the menu with Esc (or - or Insert, or tap yourself). It has two pages of commands, switched with ◀ ▶. Every command and what it does:</p>";
+  MAIN_CMDS.forEach((pg, i) => { h += "<b>Commands, page " + (i + 1) + "</b>" + tbl(["Command", "Key", "What it does"], pg.map(it => [esc(it[0]), esc(keyOf(it[1])), esc(it[2])])); });
+  h += "<b>Status sub-menu</b>" + tbl(["Entry", "What it shows"], STATUS_CMDS.map(it => [esc(it[0]), esc(it[2] || "Your profile, title and story progress.")]));
+  h += "<b>Slash commands</b> (type in the chat box)" + tbl(["Command", "What it does"], COMMANDS.map(c => ["<code>" + esc(c[0]) + "</code>", esc(c[1])]));
+  return h;
+}
+
 function tabHelp() {
-  const sec = (title, body, open) => "<details" + (open ? " open" : "") + "><summary>" + title + "</summary>" + body + "</details>";
+  const secs = [];
+  const sec = (title, body) => { secs.push([title, body]); return ""; };
   const ul = arr => "<ul>" + arr.map(x => "<li>" + x + "</li>").join("") + "</ul>";
   const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
   let h = '<div class="help">';
@@ -2952,7 +3006,7 @@ function tabHelp() {
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
     ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), Selene (auction house), home point, trade board, docks"],
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
-    ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
+    ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"],
     ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the smith (high-quality +1 gear, level 14 and up), Orla's auction house, home point, trade board"],
     ["Sunscar Desert", "17–20", "South of Ironvale. Sand, cacti and red mesas: Dune Lizards, Sand Crabs, Sun Wasps (day), Dune Worms, Needlekin, Cinder Bombs (night). Sunscar Gate, Titan's Ribs, the Glass Oasis, the Singing Dunes (NM Sandmaw) and the Red Spire"],
     ["Verdant Jungle", "17–20", "East of the Ashen Marsh. Huge trees, warm rain and green mist: Vine Crawlers, Jade Hornets (day), Strangler Saplings, Bloom Mandrakes (day), Jade Toads and a Crag Talon war band by the Overgrown Temple. Old Mossback, an ancient treant, walks the Heart of the Canopy"],
@@ -3114,7 +3168,7 @@ function tabHelp() {
   h += sec("🏆 Achievements (O) and Stats", ul([
     "Achievements track hunting, notorious monsters, skillchains, bursts, levels, quests, exploring, crafting, gathering, gardening, your home, companions, the Database and more.",
     "They give no rewards: they are a record of what you have done.",
-    "The <b>Stats</b> tab inside Achievements counts what you have done: play time, monsters defeated, damage dealt and taken, your biggest hit, spells cast, abilities and items used, crafting, gathering, fishing, trading, auction sales and distance ridden. Damage, spell, ability and item counts begin at version 18.16."
+    "The <b>Stats</b> tab inside Achievements counts what you have done: play time, job levels, craft and gather skills, creatures defeated by kind, distance walked and ridden, monsters defeated, damage dealt and taken, your biggest hit, spells cast, abilities and items used, crafting, gathering, fishing, trading, auction sales and distance ridden. Damage, spell, ability and item counts begin at version 18.16."
   ]));
   h += sec("🏠 Your residence", ul([
     "The door is on the west cottage of Ashenreach Outpost; walking into it asks if you want to go in. <b>Pip the Nubbin</b> lives there.",
@@ -3225,7 +3279,15 @@ function tabHelp() {
   ]));
   h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The game owner's account also gets Config → More → Admin: ping, last save, who is online and where, server totals, suspicious saves and bans.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
   h += sec("💾 Updates", ul([ "The game checks for new versions about every 5 minutes and shows one popup for the newest version only, even if several came out. Reload jumps straight to the newest. Later hides it until an even newer version comes out. If a reload still lands on an older copy (the web host can take a few minutes to catch up), it waits 15 minutes before asking again. System → Check for updates checks right away."]));
-  return h + "</div>";
+  sec("📋 Every menu and key", guideRef());
+  if (!HELP_CATS.some(c => c[0] === UI.helpCat)) UI.helpCat = "ref";
+  const cat = HELP_CATS.find(c => c[0] === UI.helpCat), rest = HELP_CATS.slice(1), isRef = x => HELP_CATS[0][3].test(x[0]);
+  const mine = cat[0] === "ref" ? secs.filter(isRef) : secs.filter(x => !isRef(x) && cat[3].test(x[0]) && rest.find(c => c[3].test(x[0])) === cat);
+  const extra = cat[0] === "start" ? secs.filter(x => !isRef(x) && !rest.some(c => c[3].test(x[0]))) : [];
+  let out = '<div class="help"><div class="opt" style="flex-wrap:wrap;margin-bottom:8px">' + HELP_CATS.map(c => '<button data-a="helpcat" data-v="' + c[0] + '"' + (c[0] === cat[0] ? ' class="pri"' : "") + ">" + c[1] + " " + c[2] + "</button>").join("") + "</div>";
+  out += '<p style="margin:0 0 8px">' + (cat[0] === "ref" ? "Every command, key and chat command in the game. Pick a topic above for the full guide." : "Tap a heading to open it.") + "</p>";
+  mine.concat(extra).forEach((x, i) => { out += "<details" + (cat[0] === "ref" || i === 0 ? " open" : "") + "><summary>" + x[0] + "</summary>" + x[1] + "</details>"; });
+  return out + "</div>";
 }
 
 const GAME_VERSION = "__PKGVER__";
@@ -3421,7 +3483,7 @@ function modalKey(k) {
     if (k === "enter" && q.slot) { const L = eqFits(q.slot); q.list = true; q.hover = L[0] || null; sfx("select"); renderModal(); return true; }
     return false;
   }
-  if (SLIM_TABS[S.modal]) {
+  if (isSlim(S.modal)) {
     const rows = [...document.querySelectorAll("#mBody .lr:not(.empty)")];
     if (!rows.length) return false;
     let i = rows.findIndex(r => r.classList.contains("kb"));
