@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.19.6",
-  "releaseTitle": "Weapon swing sets",
+  "version": "18.19.7",
+  "releaseTitle": "Weapon skill moves",
   "description": "",
   "main": "index.js",
   "scripts": {

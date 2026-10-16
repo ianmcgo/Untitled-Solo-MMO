@@ -153,6 +153,76 @@ function applyPose(v, dt, sharp) {
   if (BH && BS) { BH.rotation.y -= ty; BS.rotation.y += ty; v.tipApplied = ty; }
 }
 
+function wsClass(v) {
+  const k = v.weaponKind;
+  if (k === "staff") return "staff";
+  if (k === "dagger") return "dagger";
+  if (k === "polearm") return "polearm";
+  if (k === "archery") return "bow";
+  if (!k || k === "h2h") return "fist";
+  return null;
+}
+
+function wsPose(v, P, wk, w, style, cls) {
+  const n = style === 2 ? (cls === "dagger" ? 5 : 3) : style === 3 ? 1 : 0;
+  if (n === 0) {
+    if (style !== 1 || cls === "bow") return false;
+    const crouch = ease(wk / 0.18) * (1 - ease((wk - 0.18) / 0.1)), spin = ease((wk - 0.2) / 0.5), wind = ease(wk / 0.2) * (1 - spin);
+    v.rootRot[1] += (-0.7 * wind + Math.PI * 2 * spin) * w;
+    v.rootOff[1] += -0.12 * crouch * w;
+    if (cls === "fist") { setP(P, "thighR", -1.3 * Math.sin(spin * Math.PI), 0, 0, w); setP(P, "shinR", 0.3 * Math.sin(spin * Math.PI), 0, 0, w); setP(P, "upArmL", -1.0, 0, 0.5, w); setP(P, "upArmR", -1.0, 0, -0.5, w); }
+    if (cls === "dagger") { setP(P, "upArmR", -1.5, 0, -1.0 * Math.sin(spin * Math.PI), w); setP(P, "foreArmR", -0.3, 0, 0, w); setP(P, "handR", 1.45, 0, 0, w); }
+    return true;
+  }
+  const span = (wk - 0.06) / 0.8;
+  if (span < 0 || span > 1) return false;
+  const seg = Math.min(n - 1, Math.floor(span * n)), u = Math.min(1, span * n - seg), sd = seg % 2 ? 1 : -1;
+  const fast = cls === "dagger" || cls === "fist" ? 1 : 0;
+  const kf = fast ? kfMaker(u, 0.35, 0.6, 0.7, 1) : kfMaker(u, 0.45, 0.7, 0.78, 1);
+  const lunge = 0.12 * ease((u - 0.4) / 0.2) * (1 - ease((u - 0.75) / 0.25)) + 0.04 * seg;
+  if (cls === "staff") {
+    const big = n === 1;
+    setP(P, "upArmR", kf(-0.5, big ? -2.6 : -2.0, big ? -0.7 : -0.9), 0, 0, w);
+    setP(P, "foreArmR", kf(-0.8, -1.1, -0.5), 0, 0, w);
+    setP(P, "handR", kf(-1.15, big ? -0.3 : -0.5, big ? -0.2 : -0.1), 0, 0.3, w);
+    setP(P, "upArmL", kf(-1.0, big ? -2.5 : -1.8, big ? -0.8 : -1.0), 0, -0.45, w);
+    setP(P, "foreArmL", kf(-0.65, -0.9, -0.5), 0, 0, w);
+    setP(P, "chest", 0, big ? 0 : sd * kf(0, -0.7, 0.6), 0, w);
+    setP(P, "spine", kf(0, big ? -0.3 : -0.15, big ? 0.5 : 0.3), 0, 0, w);
+    v.rootOff[2] += lunge * w;
+  } else if (cls === "dagger") {
+    setP(P, "upArmR", kf(-1.2, -0.9, -1.5), 0, kf(-0.1, 0.2, -0.1), w);
+    setP(P, "foreArmR", kf(-0.4, -1.5, -0.1), 0, 0, w);
+    setP(P, "handR", 1.45, 0, 0, w);
+    setP(P, "upArmL", kf(-0.5, -0.3, -0.7), 0, 0.2, w);
+    setP(P, "chest", 0, sd * kf(0, -0.3, 0.35), 0, w);
+    setP(P, "spine", kf(0, -0.05, 0.2), 0, 0, w);
+    v.rootOff[2] += lunge * w;
+  } else if (cls === "polearm") {
+    setP(P, "upArmR", kf(-0.9, -0.6, -1.2), 0, 0, w);
+    setP(P, "foreArmR", kf(-0.6, -1.4, -0.2), 0, 0, w);
+    setP(P, "upArmL", kf(-0.95, -0.7, -1.3), 0, -0.5, w);
+    setP(P, "foreArmL", kf(-0.15, -0.9, -0.1), 0, 0, w);
+    setP(P, "chest", 0, kf(0, -0.4, 0.5), 0, w);
+    v.rootOff[2] += lunge * 1.5 * w;
+  } else if (cls === "bow") {
+    setP(P, "upArmR", -1.55, 0, -0.15, w);
+    setP(P, "foreArmR", -0.05, 0, 0, w);
+    setP(P, "upArmL", kf(-0.5, -1.4, -1.0), 0, kf(0.05, 0.45, 0.3), w);
+    setP(P, "foreArmL", kf(-1.0, -2.1, -1.2), 0, 0, w);
+    setP(P, "chest", 0, 0.45, 0, w);
+  } else {
+    const L = seg % 2 === 1, arm = L ? "L" : "R", sg = L ? 1 : -1, big = n === 1;
+    setP(P, "upArm" + arm, kf(-0.9, big ? -2.0 : -0.6, -1.5), 0, sg * kf(0.25, 0.4, 0.05), w);
+    setP(P, "foreArm" + arm, kf(-1.7, big ? -0.6 : -2.1, -0.08), 0, 0, w);
+    setP(P, "chest", 0, sg * kf(0, 0.45, -0.5), 0, w);
+    setP(P, "hips", 0, sg * kf(0, 0.2, -0.25), 0, w);
+    setP(P, "spine", kf(0, big ? -0.3 : 0.05, big ? 0.45 : 0.1), 0, 0, w);
+    v.rootOff[2] += lunge * w;
+  }
+  return true;
+}
+
 function kfMaker(ak, a, b, c0, c1) {
   const t1 = ease(ak / a), t2 = ease((ak - a) / (b - a)), t3 = ease((ak - c0) / (c1 - c0));
   return (S0, W0, K0) => { const q = S0 + (W0 - S0) * t1 + (K0 - W0) * t2; return q + (S0 - q) * t3; };
@@ -477,7 +547,10 @@ function poseHuman(v, e, dt) {
   }
 
   const wk = (S.time - an.wsStart) / 1.05;
-  if (wk >= 0 && wk <= 1 && (an.wsStyle === 1 || an.wsStyle === 2 || an.wsStyle === 3)) {
+  const wsCls = wsClass(v);
+  if (wk >= 0 && wk <= 1 && wsCls && (an.wsStyle === 1 || an.wsStyle === 2 || an.wsStyle === 3) && wsPose(v, P, wk, Math.min(1, wk / 0.06, (1 - wk) / 0.2), an.wsStyle, wsCls)) {
+    sharp = true;
+  } else if (wk >= 0 && wk <= 1 && (an.wsStyle === 1 || an.wsStyle === 2 || an.wsStyle === 3)) {
     sharp = true;
     const w = Math.min(1, wk / 0.06, (1 - wk) / 0.25);
     if (an.wsStyle === 1) {

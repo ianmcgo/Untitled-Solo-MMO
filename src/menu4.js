@@ -1636,6 +1636,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.7", date: "2026-10-16", title: "Weapon skill moves", items: [
+    "<b>Weapon skills now match your weapon:</b> staves raise overhead and slam down, or swing three times; daggers lunge in quick flurries; polearms drive forward in thrusts; bows draw and loose; fists throw jabs, a haymaker or a spinning kick.",
+    "<b>Tiers still scale the move:</b> low-level skills are a single heavy blow, mid-level skills chain blows, high-level skills spin, and the top skills leap."
+  ] },
   { v: "18.19.6", date: "2026-10-16", title: "Weapon swing sets", items: [
     "<b>Every weapon now swings its own way:</b> daggers jab fast with a short lunge, axes raise overhead and chop down, bows draw the string back and release, polearms thrust or sweep wide, and fists alternate jabs with a kick.",
     "<b>Swings have a full rhythm:</b> wind-up, strike, follow-through and a recovery back to your guard before the next swing.",
