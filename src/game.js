@@ -426,7 +426,7 @@ function buildStats(ch) {
     const amm = ch.gear.ammo && ITEMS[ch.gear.ammo];
     dmg = rwp.dmg + (amm && amm.dmg ? Math.round(amm.dmg * CONFIG.ammoDmgMul) : 0); delay = rwp.delay; wtype = "archery";
   }
-  const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
+  const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && foodLeft() > 0 && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
   if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
   for (const el of RES_ELEMENTS) s["res_" + el] = g["res_" + el] || 0;
@@ -885,6 +885,13 @@ function partySay(m, kind, force) {
   log(m.name + ": " + pick(MERC_LINES[kind]), "party");
 }
 
+function arrivalSpot(i, x, y, face) {
+  const k = Math.ceil(i / 2), side = i % 2 ? 1 : -1, d = CONFIG.arriveGap + 24 * k, z = S.zone;
+  let a = face + Math.PI + side * 0.45, px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+  if (px < 50 || py < 50 || px > z.w - 50 || py > z.h - 50) { a = face + side * 0.45; px = x + Math.cos(a) * d; py = y + Math.sin(a) * d; }
+  return { x: px, y: py };
+}
+
 function followOffset(i) {
   const offs = [{ x: 0, y: 0 }, { x: -40, y: 26 }, { x: -40, y: -26 }, { x: -72, y: 0 }, { x: -76, y: 42 }, { x: -76, y: -42 }];
   return offs[i] || offs[5];
@@ -1236,6 +1243,7 @@ function killRewards(e) {
   }
   const talker = S.party.filter(p => p !== player && p.alive);
   if (talker.length && Math.random() < 0.3) partySay(pick(talker), "victory");
+  if (xp > 0 && !S.mobs.some(m => m !== e && m.alive && m.state === "combat" && S.party.some(p => m.enmity && m.enmity.has(p)))) sfx("victory");
 }
 
 function xpFor(mobLv, plLv) {
@@ -1468,9 +1476,9 @@ function tickPool(force) {
 function eatFood(id) {
   const it = ITEMS[id];
   if (player.engaged || inCombatWith(player)) { log("You can't eat during a fight.", "sys"); sfx("error"); return; }
-  if (save.food && save.food.until > Date.now() && save.food.id !== id) log("You set aside the " + ITEMS[save.food.id].name + " and eat something else.", "sys");
+  if (save.food && foodLeft() > 0 && save.food.id !== id) log("You set aside the " + ITEMS[save.food.id].name + " and eat something else.", "sys");
   removeItem(id, 1);
-  save.food = { id, until: Date.now() + CONFIG.foodMinutes * 60000 };
+  save.food = { id, endSec: (save.playSec || 0) + CONFIG.foodMinutes * 60 };
   save.stats.meals++;
   player.buffs.food = { until: S.time + CONFIG.foodMinutes * 60 };
   log("You eat the " + it.name + ". " + foodText(it.food) + " for " + CONFIG.foodMinutes + " minutes.", "you");
@@ -1625,13 +1633,22 @@ function tickAmbient(dt) {
 }
 
 function blessingMinutes() { return Math.min(BLESSING.maxMin, BLESSING.baseMin + BLESSING.perRankMin * guildRank()); }
-function blessed() { return !!(save.blessing && save.blessing > Date.now()); }
+function migratePlayTimers() {
+  if (!save) return;
+  const ps = save.playSec || 0;
+  if (save.blessing) { save.blessEnd = ps + Math.max(0, (save.blessing - Date.now()) / 1000); save.blessing = 0; }
+  const f = save.food;
+  if (f && f.until != null) { f.endSec = ps + Math.max(0, (f.until - Date.now()) / 1000); delete f.until; }
+}
+function blessLeft() { migratePlayTimers(); return save.blessEnd ? Math.max(0, save.blessEnd - (save.playSec || 0)) : 0; }
+function foodLeft() { migratePlayTimers(); return save.food && save.food.endSec != null ? Math.max(0, save.food.endSec - (save.playSec || 0)) : 0; }
+function blessed() { return blessLeft() > 0; }
 
 function giveBlessing() {
   const mins = blessingMinutes();
-  save.blessing = Date.now() + mins * 60000;
+  save.blessEnd = (save.playSec || 0) + mins * 60;
   save.stats.blessings = (save.stats.blessings || 0) + 1;
-  log("You receive the City Blessing. Monsters will yield essences for " + mins + " minutes.", "loot");
+  log("You receive the City Blessing. Monsters will yield essences for " + mins + " minutes of play time.", "loot");
   popText(player, "City Blessing", "#ffd54f", 14, 1.2, 14);
   ring(player, "#ffd54f", 30, 0.8, "sparkle");
   sfx("buff", player);
@@ -1641,9 +1658,9 @@ function giveBlessing() {
 }
 
 function tickBlessing() {
-  if (!save.blessing) { if (player.buffs.blessing) delete player.buffs.blessing; return; }
-  const left = (save.blessing - Date.now()) / 1000;
-  if (left <= 0) { save.blessing = 0; delete player.buffs.blessing; log("The City Blessing fades. Visit a gate guard for another.", "sys"); return; }
+  const left = blessLeft();
+  if (!save.blessEnd) { if (player.buffs.blessing) delete player.buffs.blessing; return; }
+  if (left <= 0) { save.blessEnd = 0; delete player.buffs.blessing; log("The City Blessing fades. Visit a gate guard for another.", "sys"); return; }
   if (!player.buffs.blessing) player.buffs.blessing = { until: S.time + left + 1 };
   else player.buffs.blessing.until = S.time + left + 1;
 }
@@ -1651,7 +1668,7 @@ function tickBlessing() {
 function tickFood() {
   const f = save.food;
   if (!f) { if (player.buffs.food) delete player.buffs.food; return; }
-  const left = (f.until - Date.now()) / 1000;
+  const left = foodLeft();
   if (left <= 0) { save.food = null; delete player.buffs.food; log("The effects of your " + (ITEMS[f.id] ? ITEMS[f.id].name : "meal") + " wear off.", "sys"); refreshPlayer(false); return; }
   if (!player.buffs.food) player.buffs.food = { until: S.time + left + 1 };
   else player.buffs.food.until = S.time + left + 1;
@@ -3691,7 +3708,7 @@ function updatePlayer(dt) {
   if (mv.x || mv.y) {
     S.moveTarget = null; S.chase = false; S.pendingTalk = null;
     const len = Math.hypot(mv.x, mv.y);
-    const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1) * weatherSlow();
+    const sp = player.speed * Math.min(1, len) * (S.keys && S.keys.shift && !player.mounted ? CONFIG.sprintMul : 1) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1) * weatherSlow();
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
     const lockT = player.engaged && player.target && player.target !== player && player.target.alive !== false && !player.mounted ? player.target : null;
@@ -3794,7 +3811,7 @@ function enterZone(id, x, y) {
   player.face = home ? Math.atan2(home.y - y, home.x - x) : Math.atan2(ZONES[id].h / 2 - y, ZONES[id].w / 2 - x);
   S.party.forEach((p, i) => {
     p.engaged = false; p.target = null; p.attackTarget = null; p.casting = null;
-    if (i > 0 && !(p.mercId && !p.alive)) { const o = followOffset(i); p.x = x + o.x; p.y = y + o.y; }
+    if (i > 0 && !(p.mercId && !p.alive)) { const o = arrivalSpot(i, x, y, player.face); p.x = o.x; p.y = o.y; keepInZone(p); keepOutOfColliders(p); }
     p.px = p.x; p.py = p.y;
     p.stillSince = S.time;
   });
@@ -4878,7 +4895,7 @@ const TALK = {
     ]);
   },
   talkGuard(n) {
-    const mins = blessingMinutes(), left = blessed() ? Math.ceil((save.blessing - Date.now()) / 60000) : 0;
+    const mins = blessingMinutes(), left = blessed() ? Math.ceil(blessLeft() / 60) : 0;
     const rank = GUILD_RANKS[guildRank()][0];
     openDialog(n.name, (left ? "Your City Blessing holds for another " + left + " minute" + (left > 1 ? "s" : "") + ". " : "Heading out? Monsters only yield essences to those who carry the City Blessing, and it fades after a while. ") + "At " + rank + " rank the blessing lasts " + mins + " minutes. Shall I renew it?", [
       { label: left ? "Renew the City Blessing (" + mins + " min)" : "Receive the City Blessing (" + mins + " min)", fn: () => { closeDialog(); giveBlessing(); } }
@@ -5157,7 +5174,7 @@ function warpToStone(id) {
   closeDialog();
   if (def.warpZone !== S.zoneId) { enterZone(def.warpZone, c.x, c.y + 70); return; }
   player.x = c.x; player.y = c.y + 70; S.moveTarget = null; S.chase = false;
-  S.party.forEach((p, i) => { if (i > 0 && !(p.mercId && !p.alive)) { const o = followOffset(i); p.x = player.x + o.x; p.y = player.y + o.y; p.px = p.x; p.py = p.y; } });
+  S.party.forEach((p, i) => { if (i > 0 && !(p.mercId && !p.alive)) { const o = arrivalSpot(i, player.x, player.y, player.face); p.x = o.x; p.y = o.y; keepInZone(p); keepOutOfColliders(p); p.px = p.x; p.py = p.y; } });
   player.px = player.x; player.py = player.y;
   sfx("unlock");
   if (typeof checkDistrict === "function") checkDistrict();

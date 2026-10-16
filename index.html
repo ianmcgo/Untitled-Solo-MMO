@@ -911,7 +911,7 @@
   #ffNetBox { border-top: 0 !important; padding-top: 2px; background: linear-gradient(var(--ffEdge), var(--ffEdge)) 0 0 / calc(50% - 34px) 2px no-repeat, linear-gradient(var(--ffEdge), var(--ffEdge)) 100% 0 / calc(50% - 34px) 2px no-repeat, var(--ffStripe) !important; }
   #ffNet .ffLbl { position: absolute; left: 50%; top: -8px; transform: translateX(-50%); margin: 0; font-size: 11px; }
   #ffNet { grid-template-rows: auto; }
-  #mBody button.kb:not(.lr), #mBody a.kb { outline: 2px solid #ffb060 !important; outline-offset: 1px; box-shadow: 0 0 10px rgba(255,170,80,.7) !important; }
+  #mBody button.kb:not(.lr), #mBody a.kb, #mBody .item.kb { outline: 2px solid #ffb060 !important; outline-offset: 1px; box-shadow: 0 0 10px rgba(255,170,80,.7) !important; }
   #mBody .eqPop.kbl { outline: 2px solid #ffb060; outline-offset: 2px; }
   #mHead .meta { display: none; }
   #ffSide { background: none; border: none; box-shadow: none; padding: 0; gap: 6px; }
@@ -1106,7 +1106,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.19.13 · built 2026-10-16 08:50 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.20.0 · built 2026-10-16 09:55 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6717,6 +6717,8 @@ const CONFIG = {
   startGil: 100,
   mountSpeed: 2.2,
   runSpeed: 100,
+  sprintMul: 1.45,
+  arriveGap: 95,
   mobSpeedMul: 0.72,
   npcSpeed: 45
 };
@@ -9743,7 +9745,7 @@ function buildStats(ch) {
     const amm = ch.gear.ammo && ITEMS[ch.gear.ammo];
     dmg = rwp.dmg + (amm && amm.dmg ? Math.round(amm.dmg * CONFIG.ammoDmgMul) : 0); delay = rwp.delay; wtype = "archery";
   }
-  const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
+  const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && foodLeft() > 0 && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
   if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
   for (const el of RES_ELEMENTS) s["res_" + el] = g["res_" + el] || 0;
@@ -10202,6 +10204,13 @@ function partySay(m, kind, force) {
   log(m.name + ": " + pick(MERC_LINES[kind]), "party");
 }
 
+function arrivalSpot(i, x, y, face) {
+  const k = Math.ceil(i / 2), side = i % 2 ? 1 : -1, d = CONFIG.arriveGap + 24 * k, z = S.zone;
+  let a = face + Math.PI + side * 0.45, px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+  if (px < 50 || py < 50 || px > z.w - 50 || py > z.h - 50) { a = face + side * 0.45; px = x + Math.cos(a) * d; py = y + Math.sin(a) * d; }
+  return { x: px, y: py };
+}
+
 function followOffset(i) {
   const offs = [{ x: 0, y: 0 }, { x: -40, y: 26 }, { x: -40, y: -26 }, { x: -72, y: 0 }, { x: -76, y: 42 }, { x: -76, y: -42 }];
   return offs[i] || offs[5];
@@ -10553,6 +10562,7 @@ function killRewards(e) {
   }
   const talker = S.party.filter(p => p !== player && p.alive);
   if (talker.length && Math.random() < 0.3) partySay(pick(talker), "victory");
+  if (xp > 0 && !S.mobs.some(m => m !== e && m.alive && m.state === "combat" && S.party.some(p => m.enmity && m.enmity.has(p)))) sfx("victory");
 }
 
 function xpFor(mobLv, plLv) {
@@ -10785,9 +10795,9 @@ function tickPool(force) {
 function eatFood(id) {
   const it = ITEMS[id];
   if (player.engaged || inCombatWith(player)) { log("You can't eat during a fight.", "sys"); sfx("error"); return; }
-  if (save.food && save.food.until > Date.now() && save.food.id !== id) log("You set aside the " + ITEMS[save.food.id].name + " and eat something else.", "sys");
+  if (save.food && foodLeft() > 0 && save.food.id !== id) log("You set aside the " + ITEMS[save.food.id].name + " and eat something else.", "sys");
   removeItem(id, 1);
-  save.food = { id, until: Date.now() + CONFIG.foodMinutes * 60000 };
+  save.food = { id, endSec: (save.playSec || 0) + CONFIG.foodMinutes * 60 };
   save.stats.meals++;
   player.buffs.food = { until: S.time + CONFIG.foodMinutes * 60 };
   log("You eat the " + it.name + ". " + foodText(it.food) + " for " + CONFIG.foodMinutes + " minutes.", "you");
@@ -10942,13 +10952,22 @@ function tickAmbient(dt) {
 }
 
 function blessingMinutes() { return Math.min(BLESSING.maxMin, BLESSING.baseMin + BLESSING.perRankMin * guildRank()); }
-function blessed() { return !!(save.blessing && save.blessing > Date.now()); }
+function migratePlayTimers() {
+  if (!save) return;
+  const ps = save.playSec || 0;
+  if (save.blessing) { save.blessEnd = ps + Math.max(0, (save.blessing - Date.now()) / 1000); save.blessing = 0; }
+  const f = save.food;
+  if (f && f.until != null) { f.endSec = ps + Math.max(0, (f.until - Date.now()) / 1000); delete f.until; }
+}
+function blessLeft() { migratePlayTimers(); return save.blessEnd ? Math.max(0, save.blessEnd - (save.playSec || 0)) : 0; }
+function foodLeft() { migratePlayTimers(); return save.food && save.food.endSec != null ? Math.max(0, save.food.endSec - (save.playSec || 0)) : 0; }
+function blessed() { return blessLeft() > 0; }
 
 function giveBlessing() {
   const mins = blessingMinutes();
-  save.blessing = Date.now() + mins * 60000;
+  save.blessEnd = (save.playSec || 0) + mins * 60;
   save.stats.blessings = (save.stats.blessings || 0) + 1;
-  log("You receive the City Blessing. Monsters will yield essences for " + mins + " minutes.", "loot");
+  log("You receive the City Blessing. Monsters will yield essences for " + mins + " minutes of play time.", "loot");
   popText(player, "City Blessing", "#ffd54f", 14, 1.2, 14);
   ring(player, "#ffd54f", 30, 0.8, "sparkle");
   sfx("buff", player);
@@ -10958,9 +10977,9 @@ function giveBlessing() {
 }
 
 function tickBlessing() {
-  if (!save.blessing) { if (player.buffs.blessing) delete player.buffs.blessing; return; }
-  const left = (save.blessing - Date.now()) / 1000;
-  if (left <= 0) { save.blessing = 0; delete player.buffs.blessing; log("The City Blessing fades. Visit a gate guard for another.", "sys"); return; }
+  const left = blessLeft();
+  if (!save.blessEnd) { if (player.buffs.blessing) delete player.buffs.blessing; return; }
+  if (left <= 0) { save.blessEnd = 0; delete player.buffs.blessing; log("The City Blessing fades. Visit a gate guard for another.", "sys"); return; }
   if (!player.buffs.blessing) player.buffs.blessing = { until: S.time + left + 1 };
   else player.buffs.blessing.until = S.time + left + 1;
 }
@@ -10968,7 +10987,7 @@ function tickBlessing() {
 function tickFood() {
   const f = save.food;
   if (!f) { if (player.buffs.food) delete player.buffs.food; return; }
-  const left = (f.until - Date.now()) / 1000;
+  const left = foodLeft();
   if (left <= 0) { save.food = null; delete player.buffs.food; log("The effects of your " + (ITEMS[f.id] ? ITEMS[f.id].name : "meal") + " wear off.", "sys"); refreshPlayer(false); return; }
   if (!player.buffs.food) player.buffs.food = { until: S.time + left + 1 };
   else player.buffs.food.until = S.time + left + 1;
@@ -13008,7 +13027,7 @@ function updatePlayer(dt) {
   if (mv.x || mv.y) {
     S.moveTarget = null; S.chase = false; S.pendingTalk = null;
     const len = Math.hypot(mv.x, mv.y);
-    const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1) * weatherSlow();
+    const sp = player.speed * Math.min(1, len) * (S.keys && S.keys.shift && !player.mounted ? CONFIG.sprintMul : 1) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1) * weatherSlow();
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
     const lockT = player.engaged && player.target && player.target !== player && player.target.alive !== false && !player.mounted ? player.target : null;
@@ -13111,7 +13130,7 @@ function enterZone(id, x, y) {
   player.face = home ? Math.atan2(home.y - y, home.x - x) : Math.atan2(ZONES[id].h / 2 - y, ZONES[id].w / 2 - x);
   S.party.forEach((p, i) => {
     p.engaged = false; p.target = null; p.attackTarget = null; p.casting = null;
-    if (i > 0 && !(p.mercId && !p.alive)) { const o = followOffset(i); p.x = x + o.x; p.y = y + o.y; }
+    if (i > 0 && !(p.mercId && !p.alive)) { const o = arrivalSpot(i, x, y, player.face); p.x = o.x; p.y = o.y; keepInZone(p); keepOutOfColliders(p); }
     p.px = p.x; p.py = p.y;
     p.stillSince = S.time;
   });
@@ -14195,7 +14214,7 @@ const TALK = {
     ]);
   },
   talkGuard(n) {
-    const mins = blessingMinutes(), left = blessed() ? Math.ceil((save.blessing - Date.now()) / 60000) : 0;
+    const mins = blessingMinutes(), left = blessed() ? Math.ceil(blessLeft() / 60) : 0;
     const rank = GUILD_RANKS[guildRank()][0];
     openDialog(n.name, (left ? "Your City Blessing holds for another " + left + " minute" + (left > 1 ? "s" : "") + ". " : "Heading out? Monsters only yield essences to those who carry the City Blessing, and it fades after a while. ") + "At " + rank + " rank the blessing lasts " + mins + " minutes. Shall I renew it?", [
       { label: left ? "Renew the City Blessing (" + mins + " min)" : "Receive the City Blessing (" + mins + " min)", fn: () => { closeDialog(); giveBlessing(); } }
@@ -14474,7 +14493,7 @@ function warpToStone(id) {
   closeDialog();
   if (def.warpZone !== S.zoneId) { enterZone(def.warpZone, c.x, c.y + 70); return; }
   player.x = c.x; player.y = c.y + 70; S.moveTarget = null; S.chase = false;
-  S.party.forEach((p, i) => { if (i > 0 && !(p.mercId && !p.alive)) { const o = followOffset(i); p.x = player.x + o.x; p.y = player.y + o.y; p.px = p.x; p.py = p.y; } });
+  S.party.forEach((p, i) => { if (i > 0 && !(p.mercId && !p.alive)) { const o = arrivalSpot(i, player.x, player.y, player.face); p.x = o.x; p.y = o.y; keepInZone(p); keepOutOfColliders(p); p.px = p.x; p.py = p.y; } });
   player.px = player.x; player.py = player.y;
   sfx("unlock");
   if (typeof checkDistrict === "function") checkDistrict();
@@ -15135,7 +15154,23 @@ function sfxGainFor(name, e) {
   return { v, pan };
 }
 
+function victoryDef() {
+  const d = [], B = 0.12;
+  const N = { C3: 130.8, C4: 261.6, D4: 293.7, E4: 329.6, F4: 349.2, G4: 392, A4: 440, B4: 493.9, C5: 523.3, D5: 587.3, E5: 659.3, F5: 698.5, G5: 784, A5: 880, B5: 987.8, C6: 1046.5 };
+  const lead = (f, at, dur, g) => { d.push(["brass", f, f, at, dur, g, 2800]); d.push(["brass", f * 2, f * 2, at, dur, g * 0.35, 3600]); d.push(["sine", f, f, at, dur * 0.9, g * 0.5]); };
+  const chord = (fs, at, dur, g) => { for (const f of fs) d.push(["brass", f, f, at, dur, g, 1800]); };
+  lead(N.E5, 0, B, 0.2); lead(N.E5, B, B, 0.2); lead(N.E5, B * 2, B, 0.2); lead(N.G5, B * 3, 0.62, 0.26);
+  chord([N.C4, N.E4, N.G4], B * 3, 0.62, 0.07); d.push(["brass", N.C3, N.C3, B * 3, 0.62, 0.12, 700]);
+  lead(N.F5, 0.98, B, 0.2); lead(N.F5, 0.98 + B, B, 0.2); lead(N.F5, 0.98 + B * 2, B, 0.2); lead(N.A5, 0.98 + B * 3, 0.62, 0.26);
+  chord([N.F4, N.A4, N.C5], 0.98 + B * 3, 0.62, 0.07); d.push(["brass", N.C3 * 0.8, N.C3 * 0.8, 0.98 + B * 3, 0.62, 0.12, 700]);
+  lead(N.G5, 1.96, 0.16, 0.22); lead(N.A5, 2.12, 0.16, 0.22); lead(N.B5, 2.28, 0.16, 0.24);
+  chord([N.G4, N.B4, N.D5], 1.96, 0.48, 0.07);
+  lead(N.C6, 2.44, 1.5, 0.3); chord([N.C4, N.E4, N.G4, N.C5], 2.44, 1.5, 0.08); d.push(["brass", N.C3, N.C3, 2.44, 1.5, 0.14, 700]);
+  d.push(["bell", N.C6 * 2, N.C6 * 2, 2.5, 1.3, 0.1]);
+  return d;
+}
 const UI_SYNTH = {
+  victory: victoryDef(),
   cursor: [["sine", 2350, 2250, 0, 0.032, 0.32], ["square", 1175, 1175, 0, 0.018, 0.05]],
   tab: [["sine", 1975, 1865, 0, 0.04, 0.28], ["noise", 4200, 0, 0, 0.012, 0.1]],
   select: [["sine", 1568, 1568, 0, 0.16, 0.34], ["sine", 2349, 2349, 0.018, 0.2, 0.26], ["sine", 3136, 3136, 0.03, 0.12, 0.08]],
@@ -15224,9 +15259,10 @@ function uiSynth(name, vol, o) {
   for (let [type, f0, f1, at, dur, g, lp] of def) {
     f0 *= mul; f1 *= mul; at *= len; dur *= len;
     const t = t0 + at, env = ctx.createGain();
+    const brass = type === "brass";
     env.gain.setValueAtTime(0, t);
-    env.gain.linearRampToValueAtTime(g, t + Math.min(0.006, dur * 0.2));
-    env.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    if (brass) { env.gain.linearRampToValueAtTime(g, t + Math.min(0.03, dur * 0.25)); env.gain.setValueAtTime(g * 0.85, t + dur * 0.6); env.gain.exponentialRampToValueAtTime(0.0008, t + dur); }
+    else { env.gain.linearRampToValueAtTime(g, t + Math.min(0.006, dur * 0.2)); env.gain.exponentialRampToValueAtTime(0.0008, t + dur); }
     let src;
     if (type === "noise" || type === "sweep") {
       src = ctx.createBufferSource(); src.buffer = uiNoise(ctx); src.loop = true;
@@ -15240,7 +15276,7 @@ function uiSynth(name, vol, o) {
       mod.connect(mg); mg.connect(src.frequency); mod.start(t); mod.stop(t + dur + 0.02);
       src.connect(env);
     } else {
-      src = ctx.createOscillator(); src.type = type;
+      src = ctx.createOscillator(); src.type = brass ? "sawtooth" : type;
       src.frequency.setValueAtTime(f0, t);
       if (f1 !== f0) src.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
       if (lp) { const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = lp; src.connect(f); f.connect(env); } else src.connect(env);
@@ -15263,7 +15299,7 @@ function sfx(name, e, o) {
   const { v, pan } = sfxGainFor(name, e);
   if (v <= 0.01) return;
   if ((UI_SYNTH[name] || WORLD_SYNTH[name]) && !AUDIO.fallback && AUDIO.ctx && uiSynth(name, v * ((o && o.vol) || 1), Object.assign({ pan }, o || {}, o && o.mul ? { mul: o.mul * (0.96 + Math.random() * 0.08) } : name.startsWith("step_") || name.startsWith("swing_") ? { mul: 0.92 + Math.random() * 0.16 } : {}))) return;
-  if (name === "levelup" || name === "fanfare") duckMusic(name === "fanfare" ? 4.2 : 2.4);
+  if (name === "levelup" || name === "fanfare" || name === "victory") duckMusic(name === "fanfare" || name === "victory" ? 4.2 : 2.4);
   if (AUDIO.fallback) { playHtml(file, v); return; }
   const buf = AUDIO.buffers[file];
   if (!buf) { decodeClip(file); return; }
@@ -16697,13 +16733,15 @@ function updateFF() {
     set(rows[0], Math.ceil(player.hp), player.maxHp); set(rows[1], player.mp, player.maxMp); set(rows[2], player.tp, CONFIG.tpMax);
   }
   const icons = [];
-  if (blessed()) icons.push(['<div class="ffIc crys" title="City Blessing · ' + fmtDur(save.blessing - Date.now()) + '"></div>', "bless"]);
-  if (save.food && save.food.until > Date.now() && ITEMS[save.food.id]) icons.push(['<div class="ffIc" title="' + esc(ITEMS[save.food.id].name) + " · " + fmtDur(save.food.until - Date.now()) + '">' + (ITEMS[save.food.id].icon || "🍖") + "</div>", "food" + save.food.id]);
+  const ic = (cls, key, inner) => '<div class="ffIc' + cls + '" data-st="' + esc(key) + '">' + inner + "</div>";
+  if (blessed()) icons.push([ic(" crys", "bless", ""), "bless"]);
+  if (save.food && foodLeft() > 0 && ITEMS[save.food.id]) icons.push([ic("", "food", ITEMS[save.food.id].icon || "🍖"), "food" + save.food.id]);
   const BAD = { slow: 1, paralyze: 1, poison: 1, sleep: 1, bind: 1, blind: 1, silence: 1, weight: 1, dia: 1, bio: 1, stun: 1, blight: 1, flash: 1 };
-  for (const k of Object.keys(player.buffs || {})) { if (k === "blessing") continue; const b = player.buffs[k]; icons.push(['<div class="ffIc' + (BAD[k] ? " bad" : "") + '" title="' + esc(BUFF_NAMES[k] || k) + (b && b.until ? " · " + Math.ceil(b.until - S.time) + "s" : "") + '">' + (BUFF_ICONS[k] || "•") + "</div>", k]); }
-  if (player.resting) icons.push(['<div class="ffIc" title="Healing">💤</div>', "rest"]);
+  for (const k of Object.keys(player.buffs || {})) { if (k === "blessing" || k === "food") continue; icons.push([ic(BAD[k] ? " bad" : "", "b:" + k, BUFF_ICONS[k] || "•"), k]); }
+  if (player.resting) icons.push([ic("", "rest", "💤"), "rest"]);
   const sig = icons.map(i => i[1]).join(",");
   if (sig !== UI.ffIconSig) { UI.ffIconSig = sig; $("ffIcons").innerHTML = icons.map(i => i[0]).join(""); }
+  statusPopTick();
   const side = $("ffSide");
   const showT = tOk && t !== player;
   side.classList.toggle("hasT", showT);
@@ -16715,6 +16753,50 @@ function updateFF() {
   $("target").classList.toggle("locked", showT && isMob(t) && player.engaged && player.attackTarget === t);
   const solo = S.party.length <= 1 && !(typeof NET_PT !== "undefined" && NET_PT.id);
   setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
+}
+
+function fmtSecs(sec) {
+  sec = Math.max(0, Math.ceil(sec));
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), r = sec % 60;
+  return h ? h + "h " + m + "m" : m ? m + "m " + (r < 10 ? "0" : "") + r + "s" : r + "s";
+}
+
+function statusInfo(key) {
+  if (key === "bless") return { name: "City Blessing", left: blessLeft(), desc: "Monsters yield essences. Counts down only while you are playing, so logging out pauses it." };
+  if (key === "food") { const it = save.food && ITEMS[save.food.id]; return it ? { name: it.name, left: foodLeft(), desc: "Well fed. Counts down only while you are playing." } : null; }
+  if (key === "rest") return player.resting ? { name: "Healing", left: null, desc: "Recovering HP and MP while resting." } : null;
+  if (key.indexOf("b:") === 0) {
+    const k = key.slice(2), b = player.buffs && player.buffs[k];
+    if (!b) return null;
+    return { name: BUFF_NAMES[k] || k, left: b.until != null ? b.until - S.time : null, desc: "" };
+  }
+  return null;
+}
+
+function statusPopTick() {
+  let pop = $("stPop");
+  if (!UI.stInit) {
+    UI.stInit = true;
+    pop = document.createElement("div"); pop.id = "stPop";
+    pop.style.cssText = "position:fixed;z-index:60;display:none;max-width:240px;padding:8px 10px;border-radius:8px;background:rgba(14,22,54,.94);border:1px solid rgba(255,255,255,.6);color:#fff;font:600 13px var(--ffFont,sans-serif);box-shadow:0 4px 14px rgba(0,0,0,.6);pointer-events:none;line-height:1.35";
+    document.body.appendChild(pop);
+    document.addEventListener("click", ev => {
+      const t = ev.target && ev.target.closest ? ev.target.closest("#ffIcons .ffIc") : null;
+      UI.stKey = t && t.dataset.st && t.dataset.st !== UI.stKey ? t.dataset.st : null;
+      UI.stEl = UI.stKey ? t : null;
+    }, true);
+  }
+  pop = pop || $("stPop");
+  if (!UI.stKey) { pop.style.display = "none"; return; }
+  const info = statusInfo(UI.stKey);
+  if (!info) { UI.stKey = null; pop.style.display = "none"; return; }
+  const el = $("ffIcons").querySelector('[data-st="' + UI.stKey + '"]') || UI.stEl;
+  if (!el) { pop.style.display = "none"; return; }
+  pop.innerHTML = "<b>" + esc(info.name) + "</b>" + (info.left != null ? "<div>" + fmtSecs(info.left) + " remaining</div>" : "") + (info.desc ? '<div style="font-weight:400;opacity:.85;margin-top:2px">' + esc(info.desc) + "</div>" : "");
+  const r = el.getBoundingClientRect();
+  pop.style.display = "block";
+  pop.style.left = Math.max(6, Math.min(innerWidth - pop.offsetWidth - 6, r.left)) + "px";
+  pop.style.top = Math.round(r.bottom + 8) + "px";
 }
 
 function openChatInput(pre) {
@@ -17288,7 +17370,7 @@ function renderModal() {
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
   const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, database: tabDatabase, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
-  if (UI.kbBtn != null && !isSlim(S.modal) && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
+  if (UI.kbBtn != null && !isSlim(S.modal) && S.modal !== "equipment") { const b = [...document.querySelectorAll(KB_SEL)].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
   if (UI.kbRow != null && isSlim(S.modal)) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
   const win = document.querySelector("#menu .win");
   if (win) win.className = "win" + (isSlim(S.modal) ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "") + (S.modal === "auction" || S.modal === "achievements" ? " fit" : "");
@@ -17623,6 +17705,7 @@ function invSorted() {
     return true;
   }).sort((x, y) => (KIND_ORDER[ITEMS[x.s.id].kind] - KIND_ORDER[ITEMS[y.s.id].kind]) || ITEMS[x.s.id].name.localeCompare(ITEMS[y.s.id].name));
 }
+const KB_SEL = "#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a], #mBody .item[data-a]";
 const SLIM_TABS = { inventory: 1, shop: 1, quests: 1, magic: 1, abilities: 1 };
 function isSlim(t) { return !!SLIM_TABS[t] || (t === "storage" && !(S.zone && S.zone.residence)); }
 function listRow(a, v, id, qty, name, right, sel, cls) {
@@ -18875,8 +18958,21 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.19.13 · built 2026-10-16 08:50 PDT";
+const BUILD_INFO = "v18.20.0 · built 2026-10-16 09:55 PDT";
 const UPDATES = [
+  { v: "18.20.0", date: "2026-10-16", title: "Sprint, victory fanfare and a living sky", items: [
+    "<b>Sprint:</b> hold Shift while moving to run about 45% faster on foot.",
+    "<b>Victory fanfare:</b> winning a battle plays a short triumphant brass fanfare once the last monster that was fighting you falls. Monsters too weak to give experience stay quiet.",
+    "<b>Sun and moon:</b> a visible sun disc and a bigger moon now travel across the sky with the game clock, with the sun reddening near the horizon and the moon rising after sunset and setting at dawn. The moon is no longer parked at the horizon in daytime.",
+    "<b>Status icons:</b> click or tap a status icon at the top left to see its name and time left.",
+    "<b>City Blessing and meals now count down on play time.</b> Logging out pauses them, so a blessing no longer runs out while you are away. Existing blessings and meals convert to the time they had left.",
+    "<b>Menus:</b> arrow keys now move the highlight in the auction house and every other window with selectable rows, and Enter picks the highlighted row.",
+    "<b>Companions arrive farther from you</b> when you enter a new area, so they no longer crowd or bump you as you load in.",
+    "<b>Rocks block movement:</b> every rock and large cave spike now has a body, so you and your companions can no longer walk through them.",
+    "<b>Bees:</b> the eyes are now rounded and sit in the head with a small highlight, instead of floating off its sides.",
+    "<b>Deer, dogs and cats:</b> slimmer, deeper-chested bodies instead of round barrels, with shoulder and haunch muscle and thinner lower legs that bend more naturally.",
+    "<b>Pipkin:</b> take shorter, calmer leg steps when walking."
+  ] },
   { v: "18.19.13", date: "2026-10-16", title: "Rods and gathering tools", items: [
     "<b>Fishing rod:</b> a long rod appears in your hands while you fish, with a line and a red-and-white float. The float bobs while you wait, dips and jitters when a fish bites, and is pulled back to you as you reel.",
     "<b>Gathering tools:</b> your pickaxe, hatchet or sickle appears in your hand for each swing, then vanishes. Your own weapon is hidden while a tool is in hand.",
@@ -20231,9 +20327,11 @@ function tabHelp() {
   h += sec("🎮 Controls", ul([
     "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Config, Camera has separate Mouse and Keyboard switches for inverting horizontal (left and right) and vertical (up and down); the keyboard ones affect the arrow keys and Q and E.",
     "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
-    "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
+    "Movement: you run at about 5 metres a second (more on roads and much more mounted). <b>Hold Shift to sprint</b> about 45% faster on foot; letting go returns you to a normal run. Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Shift+Tab cycles nearby objects (signposts, warp stones, crystals, shrines) even with monsters around · Monsters chase you until you leave the zone · Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
+    "<b>Menus:</b> in the auction house, shops, forge, guild, storage and other windows, ↑ ↓ ← → move the highlight over every row and button, the side card shows the highlighted item, and Enter picks it. Esc closes.",
+    "<b>Status icons:</b> the round icons at the top left are your blessings, meals and effects. Click or tap one to see its name and time remaining; tap again or elsewhere to close. Everything counts down on play time, not on the clock.",
     "Hotkeys: plain 1–0 use the line shown on the pinned bar (Main by default), Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first). There is no Ctrl line, because browsers keep Ctrl+number for switching tabs. Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
@@ -20266,7 +20364,7 @@ function tabHelp() {
   h += sec("🏰 The City Blessing", ul([
     "Gate guards stand at every town exit: Aldo at the Outpost's east gate, Senna and Tomas at Saltreach's two gates. Talk to one before you leave and they'll bless you.",
     "<b>Elemental essences only drop while you're blessed</b>, and only from monsters that still give you experience. Everything else (materials, consumables, notorious monster gear) drops as usual.",
-    "The blessing lasts " + BLESSING.baseMin + " minutes at Copper guild rank, " + BLESSING.perRankMin + " minutes more per Adventurers' Guild rank, up to " + BLESSING.maxMin + " minutes at Mythril. It counts down in real time, even while you're logged out. The 🏰 icon on your party frame shows it's active, and a guard with a ❗ means you've no blessing.",
+    "The blessing lasts " + BLESSING.baseMin + " minutes at Copper guild rank, " + BLESSING.perRankMin + " minutes more per Adventurers' Guild rank, up to " + BLESSING.maxMin + " minutes at Mythril. It counts down only while you are playing, so logging out pauses it. The 🏰 icon at the top left shows it's active (tap it to see the time left), and a guard with a ❗ means you've no blessing.",
     "You can renew it any time; renewing restarts the timer."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
@@ -20457,6 +20555,7 @@ function tabHelp() {
     "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to Pell, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
   ]));
   h += sec("🕰️ Time and waiting", ul([
+    "The <b>sun</b> and <b>moon</b> cross the sky with the game clock: the sun rises in the east around 06:00 and sets in the west around 18:00, turning orange near the horizon; the moon climbs after sunset and sets at dawn. Its shape follows the day of the cycle. Caves and buildings have no sky.",
     "A game day passes in about 58 real minutes (one game hour is about 2.4 real minutes). Night runs from 18:00 to 06:00 and brings different monsters.",
     "Main menu → Time opens a box: <b>Current time</b> writes the Leid'anav date, time and day element plus your own date and time to the log; <b>Wait</b> lets you pick 1 to 24 hours with − / + or the slider.",
     "Waiting only works in a town (enemies are near anywhere else) and only when no other adventurer is online, because everyone online shares one clock. The clock then races ahead, one game hour every 5 seconds, and the sky, weather, shops and night monsters follow. Stop ends it early. Leaving town, a fight or another player coming online interrupts it.",
@@ -20514,7 +20613,7 @@ function tabHelp() {
   ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, (l => l.length > 12 ? l.slice(0, 10).join(", ") + " and " + (l.length - 10) + " more" : l.join(", "))(RECIPES.filter(r => r.craft === k).sort((x, y) => x.lv - y.lv).map(r => ITEMS[r.out].name))])));
   h += sec("🍳 Cooking and food", ul([
     "Cooking is a craft (Crafting in the main menu) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
-    "Eat a meal from your bag or the Items command for " + CONFIG.foodMinutes + " real minutes of bonuses (it keeps counting while you're away). One meal at a time: eating another replaces it. You can't eat mid-fight.",
+    "Eat a meal from your bag or the Items command for " + CONFIG.foodMinutes + " minutes of play time of bonuses (it only counts down while you're playing). One meal at a time: eating another replaces it. You can't eat mid-fight.",
     "Meals: " + Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food").map(k => ITEMS[k].name + " (" + foodText(ITEMS[k].food) + ")").join(" · ") + "."
   ]));
   h += sec("🌱 Gardening", ul([
@@ -20611,7 +20710,7 @@ function tabHelp() {
   return out + "</div>";
 }
 
-const GAME_VERSION = "18.19.13";
+const GAME_VERSION = "18.20.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -20820,7 +20919,7 @@ function modalKey(k) {
     if (k === "enter" && i >= 0) { rows[i].click(); return true; }
     return false;
   }
-  const btns = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(b => b.offsetParent);
+  const btns = [...document.querySelectorAll(KB_SEL)].filter(b => b.offsetParent);
   if (!btns.length) return false;
   let i = btns.findIndex(b => b.classList.contains("kb"));
   const d = { arrowup: -1, arrowleft: -1, arrowdown: 1, arrowright: 1 }[k];
@@ -20830,6 +20929,7 @@ function modalKey(k) {
     UI.kbBtn = i;
     btns[i].scrollIntoView({ block: "nearest" });
     if (btns[i].title) UI.modalHelp = btns[i].title;
+    if (btns[i].dataset.hv) { UI.hov = btns[i].dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); }
     sfx("tab");
     return true;
   }
@@ -21851,7 +21951,7 @@ function buildVegetation(field, root) {
     const s = 0.8 + rnd() * 2.6;
     const rsx = s * (0.8 + rnd() * 0.6), rsy = s * (0.5 + rnd() * 0.5), rsz = s * (0.8 + rnd() * 0.6);
     rocks.push(mtx(px * U, field.heightAt(px, py) - s * 0.25, py * U, rsx, rsy, rsz, rnd() * 6.28, rnd() * 0.3));
-    if (s > 1.3) z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.8 / U * 1.0 });
+    z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.85 / U });
     k++;
   }
   for (let k = 0, tries = 0; k < want.small && tries < want.small * 20; tries++) {
@@ -21870,6 +21970,7 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 40, npc: 60, path: 0.05, exit: 170 })) continue;
     const s = inside ? 0.35 + rnd() * 0.45 : 1 + rnd() * 2.5;
     stal.push(mtx(px * U, field.heightAt(px, py) - 0.2, py * U, s, s * (inside ? 1 + rnd() * 1.4 : 1.5 + rnd() * 2.5), s, rnd() * 6.28));
+    if (!inside) z.colliders.push({ x: px, y: py, r: s * 0.7 / U });
     k++;
   }
   const outdoors = theme === "field" || theme === "town";
@@ -23236,7 +23337,7 @@ function initRenderer() {
   W3.stars = makeStars();
   W3.scene.add(W3.stars);
   const moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xdfe8ff, transparent: true, depthWrite: false, fog: false }));
-  moon.scale.setScalar(70);
+  moon.scale.setScalar(110);
   W3.moon = moon;
   W3.scene.add(moon);
   const cloudGeo = new THREE.PlaneGeometry(2600, 2600);
@@ -23255,8 +23356,11 @@ function initRenderer() {
   W3.sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xfff0d0, transparent: true, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
   W3.sunGlow.scale.setScalar(220);
   W3.scene.add(W3.sunGlow);
+  W3.sunDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: sunTex(), color: 0xfff4d8, transparent: true, depthWrite: false, fog: false }));
+  W3.sunDisc.scale.setScalar(48);
+  W3.scene.add(W3.sunDisc);
   W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(0.5), transparent: true, depthWrite: false, fog: false }));
-  W3.moonDisc.scale.setScalar(34);
+  W3.moonDisc.scale.setScalar(50);
   W3.scene.add(W3.moonDisc);
   const hz = new THREE.CylinderGeometry(1150, 1150, 320, 48, 1, true);
   W3.haze = new THREE.Mesh(hz, new THREE.MeshBasicMaterial({ map: hazeTex(), transparent: true, depthWrite: false, fog: false, side: THREE.BackSide }));
@@ -23469,6 +23573,15 @@ const ATMOS = {
   ironvale: { tint: 0xd8e4f0, haze: 0.22, far: 1.1, clouds: 0.6 },
   depths: { tint: 0x8aa8b8, haze: 0.4, far: 0.7, clouds: 1 }
 };
+function sunTex() {
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const g = c.getContext("2d");
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.55, "rgba(255,255,255,1)"); gr.addColorStop(0.64, "rgba(255,255,255,.55)"); gr.addColorStop(0.8, "rgba(255,255,255,.12)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
 function moonTex(phase) {
   const c = document.createElement("canvas"); c.width = c.height = 64;
   const g = c.getContext("2d");
@@ -23664,14 +23777,15 @@ function updateSky(force) {
   W3.stars.material.opacity = 1 - sstep(-0.15, 0.05, sunY);
   W3.stars.position.copy(W3.camera.position);
   const moonDir = dir.clone().multiplyScalar(-1);
+  const moonSky = moonDir.clone().normalize(), moonUp = sstep(-0.04, 0.08, moonSky.y);
   if (moonDir.y < 0.05) moonDir.y = 0.05;
-  W3.moon.position.copy(W3.camera.position).addScaledVector(moonDir.normalize(), 800);
-  if (W3.moonDisc) { W3.moonDisc.position.copy(W3.moon.position); W3.moonDisc.material.opacity = 1 - dayAmt * 0.85; }
-  W3.moon.material.opacity = (1 - dayAmt) * 0.6;
+  W3.moon.position.copy(W3.camera.position).addScaledVector(moonSky, 800);
+  if (W3.moonDisc) { W3.moonDisc.position.copy(W3.moon.position); W3.moonDisc.material.opacity = moonUp * (1 - dayAmt * 0.85); }
+  W3.moon.material.opacity = moonUp * (1 - dayAmt) * 0.6;
   W3.clouds.position.x = W3.camera.position.x;
   W3.clouds.position.z = W3.camera.position.z;
   const atm = zkey(ATMOS, S.zoneId) || null;
-  for (const o of [W3.clouds2, W3.sunGlow, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
+  for (const o of [W3.clouds2, W3.sunGlow, W3.sunDisc, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
   if (W3.clouds2) { W3.clouds2.position.x = W3.camera.position.x; W3.clouds2.position.z = W3.camera.position.z; }
   if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.camera.position.y - 20, W3.camera.position.z); }
   W3.stars.rotation.y = v.frac * Math.PI * 2;
@@ -23693,6 +23807,7 @@ function updateSky(force) {
   W3.clouds.material.opacity = 0.8 * (atm ? atm.clouds : 1) * (1 + gloom * 0.25);
   if (W3.clouds2) { W3.clouds2.material.color.copy(cloudC).lerp(new THREE.Color(0xffc8a0), golden * 0.3); W3.clouds2.material.opacity = 0.42 * (atm ? atm.clouds : 1) + gloom * 0.3; }
   if (W3.sunGlow) { W3.sunGlow.position.copy(W3.camera.position).addScaledVector(dir, 900); W3.sunGlow.material.opacity = sstep(-0.08, 0.05, sunY) * (1 - gloom * 0.85) * 0.9; W3.sunGlow.material.color.setRGB(1, mix(0.94, 0.62, golden), mix(0.82, 0.4, golden)); W3.sunGlow.scale.setScalar(mix(200, 320, golden)); }
+  if (W3.sunDisc) { W3.sunDisc.position.copy(W3.camera.position).addScaledVector(dir, 880); W3.sunDisc.material.opacity = sstep(-0.06, 0.04, sunY) * (1 - gloom * 0.9); W3.sunDisc.material.color.setRGB(1, mix(0.97, 0.62, golden), mix(0.88, 0.35, golden)); W3.sunDisc.scale.setScalar(mix(46, 64, golden)); }
   if (W3.moonDisc) {
     const day = Math.floor((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000 / 1440), ph = ((day % 24) + 24) % 24 / 24;
     if (W3.moonPhase !== day) { W3.moonPhase = day; W3.moonDisc.material.map.dispose(); W3.moonDisc.material.map = moonTex(ph); W3.moonDisc.material.needsUpdate = true; }
@@ -25990,7 +26105,8 @@ function beeEntry(col, col2) {
   R.add(gBall(V3(0, Y + 0.02, 0.24), 0.11, 1, 0.95, 0.9, 12), "head", dark, "fur");
   for (const s of [-1, 1]) {
     const sd = s > 0 ? "L" : "R";
-    R.add(gBall(V3(s * 0.07, Y + 0.05, 0.3), 0.045, 1, 1.3, 0.8, 8), "head", 0x8a1a1a, "glow", true);
+    R.add(gBall(V3(s * 0.056, Y + 0.05, 0.316), 0.04, 0.75, 1.1, 0.8, 12), "head", 0x8a1a1a, "glow", true);
+    R.add(gBall(V3(s * 0.066, Y + 0.062, 0.34), 0.011, 1, 1, 1, 6), "head", 0xffd0c0, "glow", true);
     R.add(gTaper(V3(s * 0.03, Y + 0.11, 0.28), V3(s * 0.12, Y + 0.3, 0.34), 0.012, 0.004, 5), "head", dark, "bone");
     R.add(gMembrane([[0.04, 0.08], [0.42, 0.12], [0.48, 0.0], [0.32, -0.12], [0.06, -0.08]].map(([x, z]) => [s * x, z]), Y + 0.12), "wing" + sd, 0xe8f4ff, "glow");
     R.add(gMembrane([[0.03, 0.0], [0.4, -0.02], [0.45, -0.14], [0.25, -0.2], [0.05, -0.12]].map(([x, z]) => [s * x, z]), Y + 0.11), "wing2" + sd, 0xe8f4ff, "glow");
@@ -26089,9 +26205,12 @@ function quadEntry(o) {
     R.bone("shinB" + sd, "legB" + sd, s * o.hip, B - L * 0.5, -bl * 0.32);
   }
   const col = o.col, reg = o.region || "fur", dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), light = o.belly || new THREE.Color(col).lerp(new THREE.Color(0xf2ede4), 0.45).getHex();
-  R.add(gBall(V3(0, B, 0), o.bodyR, 1, o.bodyH || 0.95, bl / o.bodyR * 0.5, 16), "body", col, reg);
+  const SL = o.slim, bw = o.bodyW || 0.7, rr = o.bodyR;
+  const TORSO = [[0, 0.42, 0.5, 0, 1, 1], [0.08, 0.7, 0.82, 0.02, 1, 0.95], [0.22, 0.9, 0.98, 0, 1, 0.9], [0.42, 0.84, 0.86, 0.04, 1, 0.72], [0.62, 0.95, 1.06, 0, 1, 0.85], [0.82, 0.9, 1.0, 0.01, 1, 0.9], [0.94, 0.66, 0.78, 0.05, 1, 1], [1, 0.42, 0.55, 0.07, 1, 1]];
+  if (SL) R.add(gSweepZ(TORSO.map(t => ({ x: 0, y: B + rr * t[3], rx: rr * t[1] * bw, ry: rr * t[2], z: -bl / 2 + t[0] * bl, p: 2.4, top: t[4], bot: t[5] })), 16, true, true), "body", col, reg);
+  else R.add(gBall(V3(0, B, 0), o.bodyR, 1, o.bodyH || 0.95, bl / o.bodyR * 0.5, 16), "body", col, reg);
   if (o.wool) for (let k = 0; k < 10; k++) { const a = k * 2.4; R.add(gBall(V3(Math.sin(a) * o.bodyR * 0.7, B + o.bodyR * 0.45 + (k % 2) * 0.05, Math.cos(a) * bl * 0.4), o.bodyR * 0.45, 1, 0.9, 1, 8), "body", light, "fur"); }
-  R.add(gBall(V3(0, B - o.bodyR * 0.25, 0), o.bodyR * 0.85, 0.95, 0.7, bl / o.bodyR * 0.45, 12), "body", light, reg);
+  if (SL) R.add(gBall(V3(0, B - rr * 0.5, 0), rr * 0.62, bw * 0.7, 0.55, bl / (rr * 0.62) * 0.4, 12), "body", light, reg); else R.add(gBall(V3(0, B - o.bodyR * 0.25, 0), o.bodyR * 0.85, 0.95, 0.7, bl / o.bodyR * 0.45, 12), "body", light, reg);
   R.add(gTaper(V3(0, B + o.neckUp * 0.2, bl * 0.42), V3(0, B + o.neckUp, bl * 0.45 + o.neckFwd), o.neckR, o.neckR * 0.8, 8), "neck", col, reg);
   const hy = B + o.neckUp, hz = bl * 0.45 + o.neckFwd;
   animalHead(R, "head", { r: o.headR, y: hy, z: hz, snout: o.snout != null ? o.snout : 0.6, mw: o.mw, flat: o.flat, col, light, region: reg, eye: o.eye, eyeGlow: o.eyeGlow, mouthLine: o.mouthLine, nose: o.nose || (reg === "scale" ? dark : 0x2a1e1a), noseRegion: reg === "scale" ? "scale" : "skin" });
@@ -26100,9 +26219,18 @@ function quadEntry(o) {
     if (o.horns) R.add(gTaper(V3(s * o.headR * 0.5, hy + o.headR * 0.7, hz - 0.02), V3(s * o.headR * 1.2, hy + o.headR * 0.5, hz - 0.2), o.headR * 0.18, 0.006, 6), "head", 0xd8ccb0, "bone");
     const sd = s > 0 ? "L" : "R";
     for (const [p, zz] of [["F", bl * 0.32], ["B", -bl * 0.32]]) {
+      if (SL) {
+        const hx = Math.min(o.hip, rr * bw * 0.78), lr = o.legR, back = p === "B";
+        R.add(gTaper(V3(s * hx, B - 0.02, zz), V3(s * hx * 1.02, B - L * 0.5, zz), lr * (back ? 1.55 : 1.3), lr * 0.72, 8), "leg" + p + sd, col, reg);
+        R.add(gBall(V3(s * hx, B - rr * 0.12, zz + (back ? -0.02 : 0.02)), rr * (back ? 0.52 : 0.42), 0.7, 1.05, 0.95, 10), "leg" + p + sd, col, reg);
+        R.add(gTaper(V3(s * hx * 1.02, B - L * 0.5, zz), V3(s * hx * 1.02, 0.03, zz + 0.01), lr * 0.62, lr * 0.44, 7), "shin" + p + sd, col, reg);
+        R.add(gBall(V3(s * hx * 1.02, B - L * 0.5, zz), lr * 0.78, 1, 1, 1, 7), "shin" + p + sd, col, reg);
+        R.add(gBall(V3(s * hx * 1.02, 0.025, zz + 0.02), lr * 0.72, 1, 0.55, 1.35, 7), "shin" + p + sd, dark, o.hoof ? "bone" : reg);
+      } else {
       R.add(gTaper(V3(s * o.hip, B - 0.02, zz), V3(s * o.hip * 1.05, B - L * 0.5, zz), o.legR, o.legR * 0.8, 7), "leg" + p + sd, col, reg);
       R.add(gTaper(V3(s * o.hip * 1.05, B - L * 0.5, zz), V3(s * o.hip * 1.05, 0.03, zz + 0.02), o.legR * 0.8, o.legR * 0.6, 7), "shin" + p + sd, col, reg);
       R.add(gBall(V3(s * o.hip * 1.05, 0.03, zz + 0.03), o.legR * 0.95, 1.1, 0.5, 1.3, 7), "shin" + p + sd, dark, o.hoof ? "bone" : reg);
+      }
     }
   }
   if (o.tailLen > 0) {
@@ -26790,9 +26918,9 @@ function buildEntityRig(e) {
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
     else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);
-    else if (e.type === "deer") make = () => quadEntry({ col: e.col || 0x8a6a48, belly: 0xe8dcc8, bodyY: 0.75, bodyR: 0.22, bodyLen: 0.8, leg: 0.68, hip: 0.12, legR: 0.035, neckUp: 0.32, neckFwd: 0.22, neckR: 0.07, headR: 0.1, ears: 1.3, snout: 0.85, mw: 0.72, hoof: true, tailLen: 0.12, tailDrop: 0.04, tailR: 0.04, stride: 1.6 });
-    else if (e.type === "dog") make = () => quadEntry({ col: e.col || 0x8a6a4a, bodyY: 0.32, bodyR: 0.15, bodyLen: 0.5, leg: 0.28, hip: 0.08, legR: 0.035, neckUp: 0.12, neckFwd: 0.12, neckR: 0.06, headR: 0.085, ears: 1.3, snout: 0.75, mw: 0.78, tailLen: 0.22, tailDrop: -0.1, tailR: 0.025, stride: 0.9 });
-    else make = () => quadEntry({ col: e.col || 0x5a5a5a, bodyY: 0.2, bodyR: 0.1, bodyLen: 0.36, leg: 0.17, hip: 0.05, legR: 0.022, neckUp: 0.08, neckFwd: 0.08, neckR: 0.045, headR: 0.07, ears: 1.1, snout: 0.22, mw: 0.95, eye: 0x9ccc65, eyeK: 1.25, tailLen: 0.3, tailDrop: -0.2, tailR: 0.018, stride: 0.6 });
+    else if (e.type === "deer") make = () => quadEntry({ col: e.col || 0x8a6a48, belly: 0xe8dcc8, slim: true, bodyW: 0.62, bodyY: 0.78, bodyR: 0.2, bodyLen: 0.86, leg: 0.72, hip: 0.1, legR: 0.03, neckUp: 0.34, neckFwd: 0.22, neckR: 0.052, headR: 0.09, ears: 1.3, snout: 0.85, mw: 0.72, hoof: true, tailLen: 0.12, tailDrop: 0.04, tailR: 0.04, stride: 1.6 });
+    else if (e.type === "dog") make = () => quadEntry({ col: e.col || 0x8a6a4a, slim: true, bodyW: 0.68, bodyY: 0.36, bodyR: 0.125, bodyLen: 0.6, leg: 0.33, hip: 0.07, legR: 0.03, neckUp: 0.14, neckFwd: 0.13, neckR: 0.048, headR: 0.08, ears: 1.3, snout: 0.75, mw: 0.78, tailLen: 0.22, tailDrop: -0.1, tailR: 0.025, stride: 0.9 });
+    else make = () => quadEntry({ col: e.col || 0x5a5a5a, slim: true, bodyW: 0.66, bodyY: 0.22, bodyR: 0.082, bodyLen: 0.4, leg: 0.19, hip: 0.04, legR: 0.018, neckUp: 0.08, neckFwd: 0.08, neckR: 0.036, headR: 0.062, ears: 1.1, snout: 0.22, mw: 0.95, eye: 0x9ccc65, eyeK: 1.25, tailLen: 0.3, tailDrop: -0.2, tailR: 0.018, stride: 0.6 });
   } else if (e.buddy) {
     const B = BUDDIES[e.petId];
     sig = "buddy|" + e.petId;
@@ -27073,7 +27201,7 @@ function applyPose(v, dt, sharp) {
 const RACE_GAIT = {
   human: { bob: 1, arm: 1, roll: 0, lean: 0 },
   elari: { bob: 0.8, arm: 0.9, roll: 0, lean: -0.02 },
-  pipkin: { bob: 1.7, arm: 1.35, roll: 0.04, lean: 0.04 },
+  pipkin: { bob: 1.7, arm: 1.35, roll: 0.04, lean: 0.04, leg: 0.6 },
   ursan: { bob: 0.7, arm: 0.85, roll: 0.12, lean: 0.06 },
   nekari: { bob: 1.15, arm: 1.05, roll: 0, lean: 0.05 }
 };
@@ -27414,14 +27542,14 @@ function poseHuman(v, e, dt) {
     const race = v.meta && v.meta.race, RG = RACE_GAIT[race] || RACE_GAIT.human;
     const mf = an.mf == null ? 1 : an.mf, ms = an.ms || 0, side = Math.abs(ms) * (1 - Math.max(0, mf)), backK = Math.max(0, -mf);
     const lean = (st.hop ? 0.22 : 0.14) * (1 - backK) - 0.1 * backK + RG.lean;
-    const legK = 1 - 0.35 * side - 0.3 * backK;
+    const legK = (1 - 0.35 * side - 0.3 * backK) * (RG.leg || 1), kneeK = RG.leg || 1;
     addP(P, "thighL", s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp); addP(P, "thighR", -s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp);
     if (side > 0.05) { addP(P, "hips", 0, ms * 0.55 * side * amp, 0); addP(P, "chest", 0, -ms * 0.45 * side * amp, 0); }
     if (RG.roll) addP(P, "hips", 0, 0, s1 * RG.roll * amp);
     if (RG.arm !== 1) { addP(P, "upArmL", -s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); addP(P, "upArmR", s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); }
     v.rootOff[1] += Math.abs(c1) * 0.035 * (RG.bob - 1) * amp;
     const kn = 1.0 + 0.35 * run;
-    addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp, 0, 0);
+    addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp * kneeK, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp * kneeK, 0, 0);
     addP(P, "footL", (-s1 * 0.22 + 0.3 * Math.max(0, -c1) * Math.max(0, s1)) * amp, 0, 0); addP(P, "footR", (s1 * 0.22 + 0.3 * Math.max(0, c1) * Math.max(0, -s1)) * amp, 0, 0);
     const aa = Math.min(1, amp), armSwing = (an.fight > 0.5 ? 0.16 : 0.3 + 0.12 * run) * aa;
     addP(P, "upArmL", -s1 * armSwing, 0, 0); addP(P, "upArmR", s1 * armSwing, 0, 0);
@@ -29169,7 +29297,7 @@ function viewFor(e) {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
     lodEntry: inst.lodEntry, lo: null,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
-    style: styleFor(e), stride: inst.meta.race === "pipkin" ? 0.85 : inst.meta.race === "ursan" ? 1.65 : inst.meta.race === "elari" ? 1.55 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "rarab" ? 1.1 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.4, scale: s, mount: null, sink: 0
+    style: styleFor(e), stride: inst.meta.race === "pipkin" ? 1.3 : inst.meta.race === "ursan" ? 1.65 : inst.meta.race === "elari" ? 1.55 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "rarab" ? 1.1 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.4, scale: s, mount: null, sink: 0
   };
   if (isMob(e) || e.buddy) v.an = null;
   if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }

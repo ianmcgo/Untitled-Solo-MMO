@@ -2192,7 +2192,8 @@ function beeEntry(col, col2) {
   R.add(gBall(V3(0, Y + 0.02, 0.24), 0.11, 1, 0.95, 0.9, 12), "head", dark, "fur");
   for (const s of [-1, 1]) {
     const sd = s > 0 ? "L" : "R";
-    R.add(gBall(V3(s * 0.07, Y + 0.05, 0.3), 0.045, 1, 1.3, 0.8, 8), "head", 0x8a1a1a, "glow", true);
+    R.add(gBall(V3(s * 0.056, Y + 0.05, 0.316), 0.04, 0.75, 1.1, 0.8, 12), "head", 0x8a1a1a, "glow", true);
+    R.add(gBall(V3(s * 0.066, Y + 0.062, 0.34), 0.011, 1, 1, 1, 6), "head", 0xffd0c0, "glow", true);
     R.add(gTaper(V3(s * 0.03, Y + 0.11, 0.28), V3(s * 0.12, Y + 0.3, 0.34), 0.012, 0.004, 5), "head", dark, "bone");
     R.add(gMembrane([[0.04, 0.08], [0.42, 0.12], [0.48, 0.0], [0.32, -0.12], [0.06, -0.08]].map(([x, z]) => [s * x, z]), Y + 0.12), "wing" + sd, 0xe8f4ff, "glow");
     R.add(gMembrane([[0.03, 0.0], [0.4, -0.02], [0.45, -0.14], [0.25, -0.2], [0.05, -0.12]].map(([x, z]) => [s * x, z]), Y + 0.11), "wing2" + sd, 0xe8f4ff, "glow");
@@ -2291,9 +2292,12 @@ function quadEntry(o) {
     R.bone("shinB" + sd, "legB" + sd, s * o.hip, B - L * 0.5, -bl * 0.32);
   }
   const col = o.col, reg = o.region || "fur", dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), light = o.belly || new THREE.Color(col).lerp(new THREE.Color(0xf2ede4), 0.45).getHex();
-  R.add(gBall(V3(0, B, 0), o.bodyR, 1, o.bodyH || 0.95, bl / o.bodyR * 0.5, 16), "body", col, reg);
+  const SL = o.slim, bw = o.bodyW || 0.7, rr = o.bodyR;
+  const TORSO = [[0, 0.42, 0.5, 0, 1, 1], [0.08, 0.7, 0.82, 0.02, 1, 0.95], [0.22, 0.9, 0.98, 0, 1, 0.9], [0.42, 0.84, 0.86, 0.04, 1, 0.72], [0.62, 0.95, 1.06, 0, 1, 0.85], [0.82, 0.9, 1.0, 0.01, 1, 0.9], [0.94, 0.66, 0.78, 0.05, 1, 1], [1, 0.42, 0.55, 0.07, 1, 1]];
+  if (SL) R.add(gSweepZ(TORSO.map(t => ({ x: 0, y: B + rr * t[3], rx: rr * t[1] * bw, ry: rr * t[2], z: -bl / 2 + t[0] * bl, p: 2.4, top: t[4], bot: t[5] })), 16, true, true), "body", col, reg);
+  else R.add(gBall(V3(0, B, 0), o.bodyR, 1, o.bodyH || 0.95, bl / o.bodyR * 0.5, 16), "body", col, reg);
   if (o.wool) for (let k = 0; k < 10; k++) { const a = k * 2.4; R.add(gBall(V3(Math.sin(a) * o.bodyR * 0.7, B + o.bodyR * 0.45 + (k % 2) * 0.05, Math.cos(a) * bl * 0.4), o.bodyR * 0.45, 1, 0.9, 1, 8), "body", light, "fur"); }
-  R.add(gBall(V3(0, B - o.bodyR * 0.25, 0), o.bodyR * 0.85, 0.95, 0.7, bl / o.bodyR * 0.45, 12), "body", light, reg);
+  if (SL) R.add(gBall(V3(0, B - rr * 0.5, 0), rr * 0.62, bw * 0.7, 0.55, bl / (rr * 0.62) * 0.4, 12), "body", light, reg); else R.add(gBall(V3(0, B - o.bodyR * 0.25, 0), o.bodyR * 0.85, 0.95, 0.7, bl / o.bodyR * 0.45, 12), "body", light, reg);
   R.add(gTaper(V3(0, B + o.neckUp * 0.2, bl * 0.42), V3(0, B + o.neckUp, bl * 0.45 + o.neckFwd), o.neckR, o.neckR * 0.8, 8), "neck", col, reg);
   const hy = B + o.neckUp, hz = bl * 0.45 + o.neckFwd;
   animalHead(R, "head", { r: o.headR, y: hy, z: hz, snout: o.snout != null ? o.snout : 0.6, mw: o.mw, flat: o.flat, col, light, region: reg, eye: o.eye, eyeGlow: o.eyeGlow, mouthLine: o.mouthLine, nose: o.nose || (reg === "scale" ? dark : 0x2a1e1a), noseRegion: reg === "scale" ? "scale" : "skin" });
@@ -2302,9 +2306,18 @@ function quadEntry(o) {
     if (o.horns) R.add(gTaper(V3(s * o.headR * 0.5, hy + o.headR * 0.7, hz - 0.02), V3(s * o.headR * 1.2, hy + o.headR * 0.5, hz - 0.2), o.headR * 0.18, 0.006, 6), "head", 0xd8ccb0, "bone");
     const sd = s > 0 ? "L" : "R";
     for (const [p, zz] of [["F", bl * 0.32], ["B", -bl * 0.32]]) {
+      if (SL) {
+        const hx = Math.min(o.hip, rr * bw * 0.78), lr = o.legR, back = p === "B";
+        R.add(gTaper(V3(s * hx, B - 0.02, zz), V3(s * hx * 1.02, B - L * 0.5, zz), lr * (back ? 1.55 : 1.3), lr * 0.72, 8), "leg" + p + sd, col, reg);
+        R.add(gBall(V3(s * hx, B - rr * 0.12, zz + (back ? -0.02 : 0.02)), rr * (back ? 0.52 : 0.42), 0.7, 1.05, 0.95, 10), "leg" + p + sd, col, reg);
+        R.add(gTaper(V3(s * hx * 1.02, B - L * 0.5, zz), V3(s * hx * 1.02, 0.03, zz + 0.01), lr * 0.62, lr * 0.44, 7), "shin" + p + sd, col, reg);
+        R.add(gBall(V3(s * hx * 1.02, B - L * 0.5, zz), lr * 0.78, 1, 1, 1, 7), "shin" + p + sd, col, reg);
+        R.add(gBall(V3(s * hx * 1.02, 0.025, zz + 0.02), lr * 0.72, 1, 0.55, 1.35, 7), "shin" + p + sd, dark, o.hoof ? "bone" : reg);
+      } else {
       R.add(gTaper(V3(s * o.hip, B - 0.02, zz), V3(s * o.hip * 1.05, B - L * 0.5, zz), o.legR, o.legR * 0.8, 7), "leg" + p + sd, col, reg);
       R.add(gTaper(V3(s * o.hip * 1.05, B - L * 0.5, zz), V3(s * o.hip * 1.05, 0.03, zz + 0.02), o.legR * 0.8, o.legR * 0.6, 7), "shin" + p + sd, col, reg);
       R.add(gBall(V3(s * o.hip * 1.05, 0.03, zz + 0.03), o.legR * 0.95, 1.1, 0.5, 1.3, 7), "shin" + p + sd, dark, o.hoof ? "bone" : reg);
+      }
     }
   }
   if (o.tailLen > 0) {
@@ -2992,9 +3005,9 @@ function buildEntityRig(e) {
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
     else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);
-    else if (e.type === "deer") make = () => quadEntry({ col: e.col || 0x8a6a48, belly: 0xe8dcc8, bodyY: 0.75, bodyR: 0.22, bodyLen: 0.8, leg: 0.68, hip: 0.12, legR: 0.035, neckUp: 0.32, neckFwd: 0.22, neckR: 0.07, headR: 0.1, ears: 1.3, snout: 0.85, mw: 0.72, hoof: true, tailLen: 0.12, tailDrop: 0.04, tailR: 0.04, stride: 1.6 });
-    else if (e.type === "dog") make = () => quadEntry({ col: e.col || 0x8a6a4a, bodyY: 0.32, bodyR: 0.15, bodyLen: 0.5, leg: 0.28, hip: 0.08, legR: 0.035, neckUp: 0.12, neckFwd: 0.12, neckR: 0.06, headR: 0.085, ears: 1.3, snout: 0.75, mw: 0.78, tailLen: 0.22, tailDrop: -0.1, tailR: 0.025, stride: 0.9 });
-    else make = () => quadEntry({ col: e.col || 0x5a5a5a, bodyY: 0.2, bodyR: 0.1, bodyLen: 0.36, leg: 0.17, hip: 0.05, legR: 0.022, neckUp: 0.08, neckFwd: 0.08, neckR: 0.045, headR: 0.07, ears: 1.1, snout: 0.22, mw: 0.95, eye: 0x9ccc65, eyeK: 1.25, tailLen: 0.3, tailDrop: -0.2, tailR: 0.018, stride: 0.6 });
+    else if (e.type === "deer") make = () => quadEntry({ col: e.col || 0x8a6a48, belly: 0xe8dcc8, slim: true, bodyW: 0.62, bodyY: 0.78, bodyR: 0.2, bodyLen: 0.86, leg: 0.72, hip: 0.1, legR: 0.03, neckUp: 0.34, neckFwd: 0.22, neckR: 0.052, headR: 0.09, ears: 1.3, snout: 0.85, mw: 0.72, hoof: true, tailLen: 0.12, tailDrop: 0.04, tailR: 0.04, stride: 1.6 });
+    else if (e.type === "dog") make = () => quadEntry({ col: e.col || 0x8a6a4a, slim: true, bodyW: 0.68, bodyY: 0.36, bodyR: 0.125, bodyLen: 0.6, leg: 0.33, hip: 0.07, legR: 0.03, neckUp: 0.14, neckFwd: 0.13, neckR: 0.048, headR: 0.08, ears: 1.3, snout: 0.75, mw: 0.78, tailLen: 0.22, tailDrop: -0.1, tailR: 0.025, stride: 0.9 });
+    else make = () => quadEntry({ col: e.col || 0x5a5a5a, slim: true, bodyW: 0.66, bodyY: 0.22, bodyR: 0.082, bodyLen: 0.4, leg: 0.19, hip: 0.04, legR: 0.018, neckUp: 0.08, neckFwd: 0.08, neckR: 0.036, headR: 0.062, ears: 1.1, snout: 0.22, mw: 0.95, eye: 0x9ccc65, eyeK: 1.25, tailLen: 0.3, tailDrop: -0.2, tailR: 0.018, stride: 0.6 });
   } else if (e.buddy) {
     const B = BUDDIES[e.petId];
     sig = "buddy|" + e.petId;

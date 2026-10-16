@@ -608,7 +608,7 @@ function buildVegetation(field, root) {
     const s = 0.8 + rnd() * 2.6;
     const rsx = s * (0.8 + rnd() * 0.6), rsy = s * (0.5 + rnd() * 0.5), rsz = s * (0.8 + rnd() * 0.6);
     rocks.push(mtx(px * U, field.heightAt(px, py) - s * 0.25, py * U, rsx, rsy, rsz, rnd() * 6.28, rnd() * 0.3));
-    if (s > 1.3) z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.8 / U * 1.0 });
+    z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.85 / U });
     k++;
   }
   for (let k = 0, tries = 0; k < want.small && tries < want.small * 20; tries++) {
@@ -627,6 +627,7 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 40, npc: 60, path: 0.05, exit: 170 })) continue;
     const s = inside ? 0.35 + rnd() * 0.45 : 1 + rnd() * 2.5;
     stal.push(mtx(px * U, field.heightAt(px, py) - 0.2, py * U, s, s * (inside ? 1 + rnd() * 1.4 : 1.5 + rnd() * 2.5), s, rnd() * 6.28));
+    if (!inside) z.colliders.push({ x: px, y: py, r: s * 0.7 / U });
     k++;
   }
   const outdoors = theme === "field" || theme === "town";
@@ -1993,7 +1994,7 @@ function initRenderer() {
   W3.stars = makeStars();
   W3.scene.add(W3.stars);
   const moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xdfe8ff, transparent: true, depthWrite: false, fog: false }));
-  moon.scale.setScalar(70);
+  moon.scale.setScalar(110);
   W3.moon = moon;
   W3.scene.add(moon);
   const cloudGeo = new THREE.PlaneGeometry(2600, 2600);
@@ -2012,8 +2013,11 @@ function initRenderer() {
   W3.sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xfff0d0, transparent: true, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
   W3.sunGlow.scale.setScalar(220);
   W3.scene.add(W3.sunGlow);
+  W3.sunDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: sunTex(), color: 0xfff4d8, transparent: true, depthWrite: false, fog: false }));
+  W3.sunDisc.scale.setScalar(48);
+  W3.scene.add(W3.sunDisc);
   W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(0.5), transparent: true, depthWrite: false, fog: false }));
-  W3.moonDisc.scale.setScalar(34);
+  W3.moonDisc.scale.setScalar(50);
   W3.scene.add(W3.moonDisc);
   const hz = new THREE.CylinderGeometry(1150, 1150, 320, 48, 1, true);
   W3.haze = new THREE.Mesh(hz, new THREE.MeshBasicMaterial({ map: hazeTex(), transparent: true, depthWrite: false, fog: false, side: THREE.BackSide }));
@@ -2226,6 +2230,15 @@ const ATMOS = {
   ironvale: { tint: 0xd8e4f0, haze: 0.22, far: 1.1, clouds: 0.6 },
   depths: { tint: 0x8aa8b8, haze: 0.4, far: 0.7, clouds: 1 }
 };
+function sunTex() {
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const g = c.getContext("2d");
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.55, "rgba(255,255,255,1)"); gr.addColorStop(0.64, "rgba(255,255,255,.55)"); gr.addColorStop(0.8, "rgba(255,255,255,.12)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
 function moonTex(phase) {
   const c = document.createElement("canvas"); c.width = c.height = 64;
   const g = c.getContext("2d");
@@ -2421,14 +2434,15 @@ function updateSky(force) {
   W3.stars.material.opacity = 1 - sstep(-0.15, 0.05, sunY);
   W3.stars.position.copy(W3.camera.position);
   const moonDir = dir.clone().multiplyScalar(-1);
+  const moonSky = moonDir.clone().normalize(), moonUp = sstep(-0.04, 0.08, moonSky.y);
   if (moonDir.y < 0.05) moonDir.y = 0.05;
-  W3.moon.position.copy(W3.camera.position).addScaledVector(moonDir.normalize(), 800);
-  if (W3.moonDisc) { W3.moonDisc.position.copy(W3.moon.position); W3.moonDisc.material.opacity = 1 - dayAmt * 0.85; }
-  W3.moon.material.opacity = (1 - dayAmt) * 0.6;
+  W3.moon.position.copy(W3.camera.position).addScaledVector(moonSky, 800);
+  if (W3.moonDisc) { W3.moonDisc.position.copy(W3.moon.position); W3.moonDisc.material.opacity = moonUp * (1 - dayAmt * 0.85); }
+  W3.moon.material.opacity = moonUp * (1 - dayAmt) * 0.6;
   W3.clouds.position.x = W3.camera.position.x;
   W3.clouds.position.z = W3.camera.position.z;
   const atm = zkey(ATMOS, S.zoneId) || null;
-  for (const o of [W3.clouds2, W3.sunGlow, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
+  for (const o of [W3.clouds2, W3.sunGlow, W3.sunDisc, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
   if (W3.clouds2) { W3.clouds2.position.x = W3.camera.position.x; W3.clouds2.position.z = W3.camera.position.z; }
   if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.camera.position.y - 20, W3.camera.position.z); }
   W3.stars.rotation.y = v.frac * Math.PI * 2;
@@ -2450,6 +2464,7 @@ function updateSky(force) {
   W3.clouds.material.opacity = 0.8 * (atm ? atm.clouds : 1) * (1 + gloom * 0.25);
   if (W3.clouds2) { W3.clouds2.material.color.copy(cloudC).lerp(new THREE.Color(0xffc8a0), golden * 0.3); W3.clouds2.material.opacity = 0.42 * (atm ? atm.clouds : 1) + gloom * 0.3; }
   if (W3.sunGlow) { W3.sunGlow.position.copy(W3.camera.position).addScaledVector(dir, 900); W3.sunGlow.material.opacity = sstep(-0.08, 0.05, sunY) * (1 - gloom * 0.85) * 0.9; W3.sunGlow.material.color.setRGB(1, mix(0.94, 0.62, golden), mix(0.82, 0.4, golden)); W3.sunGlow.scale.setScalar(mix(200, 320, golden)); }
+  if (W3.sunDisc) { W3.sunDisc.position.copy(W3.camera.position).addScaledVector(dir, 880); W3.sunDisc.material.opacity = sstep(-0.06, 0.04, sunY) * (1 - gloom * 0.9); W3.sunDisc.material.color.setRGB(1, mix(0.97, 0.62, golden), mix(0.88, 0.35, golden)); W3.sunDisc.scale.setScalar(mix(46, 64, golden)); }
   if (W3.moonDisc) {
     const day = Math.floor((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000 / 1440), ph = ((day % 24) + 24) % 24 / 24;
     if (W3.moonPhase !== day) { W3.moonPhase = day; W3.moonDisc.material.map.dispose(); W3.moonDisc.material.map = moonTex(ph); W3.moonDisc.material.needsUpdate = true; }
