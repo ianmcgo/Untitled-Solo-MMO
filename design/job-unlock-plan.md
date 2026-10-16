@@ -35,6 +35,7 @@ All requirements are the job's own level, not the main job level, and a job coun
 
 ## Design
 1. A table `JOB_REQ = { THF: { WAR: 5 }, ... }` in data.js. A job with an entry unlocks as soon as every listed job's level (`save.jobs[j].lv`) reaches the requirement. Level ups run the check and unlock the job with a log line and a toast ("You can now become a Thief. Change jobs with Pip at your residence.").
+1b. **Popup (answered 2026-10-16):** the moment a level up meets a job's requirements, a popup opens in the middle of the screen with the job's icon and name ("New job unlocked: Thief!"), one line of flavour, and a Continue button. If several jobs unlock on the same level up they are shown one after another in the same popup. It waits until the player is out of combat and not zooming, so it never covers a fight; until then it sits in a queue (kept in the save so a log out does not lose it). The log line and the toast stay as well. Guess: reuse the existing level-up or quest-complete popup style rather than a new design.
 2. The unlock flag stays in `save.jobsUnlocked`. It is set once and never taken back, so a player who later levels down or changes level sync keeps the job.
 3. **Hidden until unlocked (answered 2026-10-16):** the job change menu at the residence (Pip) lists only unlocked jobs. Locked jobs are not shown at all, with no greyed rows and no requirement text, so players find the tree by playing. The unlock toast and log line are what announce a new job. Help describes the tree in general words only.
 3b. **Ask the Job Master (answered 2026-10-16):** Tobin, Job Master (`tobin`, the NPC who gives the current job quests) gets a new dialog option, "Why do I have to unlock jobs?". He explains in character that a trade is learned on the back of another (a thief learns from a fighter's footwork, a scholar from a healer's books) and that new jobs open as you master the ones you know. He does not list exact requirements or the tree, so hidden jobs stay hidden. Optional second answer, "How am I doing?": he says in general terms whether you are close to opening something ("You're nearly ready for something new") without naming the job. Guess for the second answer: yes, keep it vague. The text for this lives in `TALK.talkTobin` (data.js) and its existing job-quest options are replaced as in the open question on quests.
@@ -50,6 +51,6 @@ All requirements are the job's own level, not the main job level, and a job coun
 
 | Phase | Model | Work |
 |---|---|---|
-| J1 | Sonnet | `JOB_REQ` table, the unlock check on level up and on load, residence list that hides locked jobs, toast, tests, Help, Updates. Quests stay as story only. |
+| J1 | Sonnet | `JOB_REQ` table, the unlock check on level up and on load, residence list that hides locked jobs, toast, unlock popup with queue, tests, Help, Updates. Quests stay as story only. |
 
 Dependencies: none. It can be built before or after M4.
