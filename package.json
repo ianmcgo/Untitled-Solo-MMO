@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.16.0",
-  "releaseTitle": "Database, stats and Social button",
+  "version": "18.16.1",
+  "releaseTitle": "Database mobile fit",
   "description": "",
   "main": "index.js",
   "scripts": {
