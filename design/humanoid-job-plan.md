@@ -16,17 +16,18 @@ Requested 2026-10-16: humanoid monsters can be any job of the game and know the 
 Humanoid families only: goblins (all variants), orcs, Reefkin, Crag Talons, skeletons, ghouls and the drowned. Animals, plants, bombs, bats, worms and the like never get a job. Named monsters and bosses keep their hand-made look and kit (they may be given a fixed job later).
 
 ### 2. Job roll
-- Each humanoid family gets `jobs: [[JOB, weight], ...]` in data.js. Guess at the tables (lore first): goblins WAR THF BLM WHM RDM BRD NIN; orcs WAR DRK SAM DRG RNG PLD; Reefkin MNK NIN RNG WHM BLM BRD; Crag Talons RNG DRG WHM BLM THF BRD; skeletons WAR DRK PLD BLM SAM; ghouls and the drowned MNK DRK BLM.
-- A job is only offered if the mob's level is at least the level where the job is useful (jobs have no minimum of their own; most kits just start small at low level). Guess: the existing caster families become fixed-job families (Apprentice and Conjurer = BLM and WHM, Hexer = BLM, Shaman = BLM with ice spells) so zones keep their feel, and the plain families (Raider, Grunt, Reefkin, Talon, Bones) roll from their table. This keeps old balance and loot.
-- Rolled in `spawnMob`/`buildMob` and stored on the mob (`m.job`). Linked packs (`linkGroup`) roll with a bias so a pack of three is usually a mix: fighter, caster, support, instead of three of the same.
+- Any humanoid can be any job. No lore tables and no per-family job lists: the roll is uniform over every job (guess: each job equally likely, with a small bonus to the three starting jobs so ordinary fights are not all exotic).
+- The existing caster families (Apprentice, Conjurer, Mire Hexer, Frost Shaman, Crag Chanter) stop being special: they become the plain family with a job roll, since any monster can now be a caster. Their names stay as flavour variants only if they are kept as zone-specific spawns (guess: keep the spawn entries, but their job is rolled too).
+- Rolled in `spawnMob`/`buildMob` and stored on the mob (`m.job`). Linked packs (`linkGroup`) roll with a bias so a pack of three is usually a mix of roles, not three of the same.
 
 ### 3. Kit from job and level
 - Spells: all `SPELLS` entries where `jobs[job] <= mob level`, trimmed to a short list (at most 4): the best heal, the best nuke, one debuff, one buff. Mob level is capped like players are (a level 6 goblin RDM has Dia, Cure, Protect, not Cure II).
 - Abilities: `ABILITIES` entries with `job` and `lv <= mob level`. Mobs use the self buffs (Berserk, Boost, Sneak Attack, Last Resort...) and only a short whitelist of the rest. Skip abilities that need a pet or player-only state.
-- TP move: a weapon skill picked from `WEAPON_SKILLS` for the job's weapon type and level, replacing the family's single `tpMove` for job mobs (damage multiplier tuned to match the family's current `mul`). Family flavour moves (Bomb Toss, Battle Roar) stay as a second option for the plain job of that family.
+- Monster abilities stay: every family keeps its own `tpMove` (Bomb Toss, Battle Roar, Water Lance, Talon Dive...). A job mob has both: the family move plus a weapon skill picked from `WEAPON_SKILLS` for the job's weapon type and level. When TP is full it picks one of the two (guess: family move 50%, weapon skill 50%, weapon skill only if the job has one at that level).
 - Stats: small multipliers per job on HP, attack, defence, evasion and magic (WAR/PLD/DRK hit harder and tougher, MNK fast, THF evasive, BLM/WHM/RDM soft). Total strength stays near the family baseline so level bands, XP and loot do not change.
 - Casting code: extend `startMobCast`/`finishMobCast` to handle buffs (Protect, Haste, enspells), damage-over-time (Dia, Poison), debuffs from `SPELLS` directly (no hand-written `status` arrays) and ability use. Mobs follow the same silence, stun and sleep rules as now.
-- Jobs that need a pet or a song loop (SMN, BST, PUP, COR, GEO, BRD songs) are left out of phase H1 (see open questions). BRD mobs use only the damage and debuff songs at first.
+- Pet jobs (SMN, BST, PUP, GEO) are allowed. A pet job mob brings a pet, always an elemental pet matched to the map type: forest and jungle earth, marsh and coast water, desert and volcano fire, snow and glacier ice, high crags and plains wind, ruins and crypts dark, holy ground light (the zone's element; table lives in data.js as `ZONE_ELEMENT`). The pet is a small elemental sprite of that element (reuse the player summoner sprites and the existing `summoned` mob support, as the Hollow King adds do). Summoner: the pet is out from the start and uses its blood pact. Beastmaster, Puppetmaster, Geomancer: same pet, different name and look (a tame spirit, a clockwork elemental, a luopan sprite). The pet dies with its owner, fights beside it, never counts for XP or loot, and does not link outside its pack.
+- Corsair and Bard have no pet. Bard mobs use damage and debuff songs and a simple buff song; Corsair uses its dice rolls as party-wide buffs on its pack (guess).
 
 ### 4. Cosmetic gear per job
 A `JOB_LOOK` table in rig.js gives each job its top, head, pauldrons, cape, belt and weapon (type and id) using the pieces the rig already draws:
@@ -63,16 +64,17 @@ The family supplies skin, ears, tusks, beak and proportions; the job supplies th
 | Phase | Model | Work |
 |---|---|---|
 | H0 | Sonnet | Wandering Sapling bulb model, animation, bestiary and Help/Updates. Independent of the rest and a quick release. |
-| H1 | Opus | Data: `jobs` tables on humanoid families; roll at spawn; kit from job and level; generalised mob casting and abilities; weapon-skill TP moves; stat modifiers; unit tests (every job at several levels, no job picks a spell above its level, silenced/stunned mobs behave). |
+| H1 | Opus | Data: job roll at spawn (uniform, any job); kit from job and level; generalised mob casting and abilities; weapon-skill TP moves; stat modifiers; unit tests (every job at several levels, no job picks a spell above its level, silenced/stunned mobs behave). |
 | H2 | Opus | `JOB_LOOK` table and the new props (shield, katana, harp, claws, bow on monsters); family palettes; screenshot check of every job on every humanoid family at low, medium and high quality. |
-| H3 | Sonnet | Names and UI (target job tag, bestiary), packs mix jobs, balance pass against the 18.x balance notes, Help, Updates, tests. |
+| H3 | Opus | Pet jobs: `ZONE_ELEMENT` table, elemental pets for SMN, BST, PUP and GEO mobs, pet AI and cleanup, tests. |
+| H4 | Sonnet | Names and UI (target job tag, bestiary), packs mix jobs, balance pass against the 18.x balance notes, Help, Updates, tests. |
 
 Guess: H1 and H2 can ship together as one release if H1 is quick, otherwise H1 ships first with plain looks.
 
 ## Open questions (guesses used if not answered)
-- Pet and song jobs (SMN, BST, PUP, COR, GEO, BRD): skip pets for monsters (no monster pets) and keep BRD simple? Guess: yes.
-- Should every mob of a job give exactly the player's kit, or the trimmed four spells? Guess: trimmed, so fights do not turn into a spell storm.
-- Do the existing caster families stay as fixed-job families, or does everything roll? Guess: keep them fixed so existing zones keep the same feel.
+- Roll odds: uniform over all jobs with a small bonus to WAR, WHM, BLM and THF. Guess: yes.
+- Does each mob give exactly the player's kit, or the trimmed four spells? Guess: trimmed, so fights do not turn into a spell storm.
 - Job tag in the name ("Goblin Thief") or only in the target window? Guess: target window and check only.
 - Strangler Sapling (jungle) also becomes a bulb? Guess: yes, same model with a green and thorny tint.
-- Do named monsters get jobs? Guess: not in this plan.
+- Named monsters and bosses: keep their hand-made kit, no random job. Guess: yes.
+- Pets of one mob: exactly one elemental pet, level equal to the owner's minus 1. Guess: yes.
