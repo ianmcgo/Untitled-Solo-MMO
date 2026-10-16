@@ -1676,7 +1676,7 @@ function startFishing() {
   removeItem("bait", 1);
   player.face = Math.atan2(w.y - player.y, w.x - player.x);
   const rainy = ["rain", "storm"].includes(weatherNow());
-  S.fish = { state: "wait", at: S.time + rand(FISH_CFG.waitMin, FISH_CFG.waitMax) * (rainy ? 0.75 : 1), x: player.x, y: player.y };
+  S.fish = { state: "wait", at: S.time + rand(FISH_CFG.waitMin, FISH_CFG.waitMax) * (rainy ? 0.75 : 1), x: player.x, y: player.y, since: S.time };
   log("You cast your line.", "you");
   sfx("cast_line", player);
   return "";
@@ -1700,7 +1700,7 @@ function pickFish() {
 function reelFish() {
   const f = S.fish;
   if (!f || f.state !== "bite") return;
-  S.fish = null;
+  S.fish = null; player.reelAt = S.time;
   const [id, lv] = pickFish();
   const skill = save.gatherSkill.fishing || 0;
   const chance = clamp(62 + (skill - lv) * 6 + (invCount("sea_rod") > 0 ? 10 : 0) + buddyPerk("fish") * 100, 12, 95);
@@ -3910,6 +3910,7 @@ function doGather(n) {
   if (player.resting) standUp(player, true);
   const skill = save.gatherSkill[type] || 0;
   player.face = Math.atan2(n.y - player.y, n.x - player.x);
+  player.gatherAt = S.time; player.gatherType = type;
   sfx(type === "mining" ? "blunt" : type === "logging" ? "slash" : "miss", player);
   vfx("hit", { src: player, tgt: n, crit: false, slash: type === "logging" });
   let got = null;
@@ -5522,7 +5523,9 @@ function initParty() {
   S.macroKey = "";
 }
 
-const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", laugh: "laughs", nod: "nods", clap: "claps", point: "points", salute: "salutes", panic: "panics", cry: "cries", thumbsup: "gives a thumbs up" };
+const EMOTES = { wave: "waves", bow: "bows", cheer: "cheers", dance: "dances", laugh: "laughs", nod: "nods", clap: "claps", point: "points", salute: "salutes", panic: "panics", cry: "cries", thumbsup: "gives a thumbs up", shrug: "shrugs", think: "thinks it over", beckon: "beckons", stretch: "stretches", kneel: "kneels", flex: "flexes" };
+const EMOTE_LEN = { dance: 5, panic: 3, stretch: 3.2, kneel: 3.4, beckon: 2.8, think: 3 };
+const emoteLen = id => EMOTE_LEN[id] || 2.4;
 const COMMANDS = [
   ["/rest", "Sit down and recover HP and MP quickly. Also /heal or /sit. Type it again or move to stand up."],
   ["/pet", "Summon or dismiss your equipped pet."],

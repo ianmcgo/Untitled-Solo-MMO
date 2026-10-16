@@ -1636,6 +1636,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.10", date: "2026-10-16", title: "Falls, emotes and work poses", items: [
+    "<b>Knock-outs play out in stages:</b> you stagger, drop to your knees, then topple backward, forward or sideways. Getting raised now pushes up from the ground the way you fell.",
+    "<b>Six new emotes:</b> /shrug, /think, /beckon, /stretch, /kneel and /flex. Others nearby see them too.",
+    "<b>Work poses:</b> fishing has a cast swing, a patient hold, a jerk on a bite and a cranking reel; crafting hunches over the work with tapping hands; mining and logging swing overhead and harvesting crouches to pull."
+  ] },
   { v: "18.19.9", date: "2026-10-16", title: "Movement and idle", items: [
     "<b>Locked-on movement:</b> while you're auto-attacking, you keep facing your target as you move. Moving sideways sidesteps with your hips turned into the step, and moving away back-pedals with your legs stepping backward.",
     "<b>Race gaits:</b> Pipkin bounce with quick, swinging arms; Ursan sway side to side with a heavy lean; Elari glide with less bob; Nekari run low and springy.",
@@ -2861,7 +2866,7 @@ const UPDATES = [
   ] },
   { v: "4.2.0", date: "2026-10-13", title: "Phase 5a: a bigger world", items: [
     "Character creation: choose a name, job and appearance before you start. Appearance is permanent. Keep up to 8 characters and pick one on the character select screen each time you play, like an MMO. System → Change character logs out to that screen.",
-    "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes (/wave, /bow, /cheer, /dance, /laugh, /nod, /clap, /point, /salute, /panic, /cry, /thumbsup), which play a short animation that others nearby can see.",
+    "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes (/wave, /bow, /cheer, /dance, /laugh, /nod, /clap, /point, /salute, /panic, /cry, /thumbsup, /shrug, /think, /beckon, /stretch, /kneel, /flex), which play a short animation that others nearby can see.",
     "A Rest action is on page 2 of the action bar.",
     "Real loading screens: every area change shows a progress bar that moves while the land is shaped, instead of freezing.",
     "New-version popup: the game checks for updates and offers to reload. After an update, a what's-new card shows the changes.",

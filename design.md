@@ -1825,3 +1825,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Sheathed weapon bounce uses v.wBaseRot saved in snapWeapon.
 - Idle acts 5 (brush shoulder) and 6 (scuff ground) added; existing sit/rest, cape and hair springs unchanged.
 - test/walksheet.js: treadmill test (moves an.lx/ly not e.x). DIR=0|90|180 ENG=1 STEP=0.06 MODE=none.
+
+## 18.19.10: death, emotes, work poses (animation plan phase 5)
+- Death in poseHuman: stagger (0.25s), knees (0.15-0.55s), topple (0.5-1.2s). deadVar 1 back, -1 side-back, 2 face-down; an.deadRot stores the final root rotation so the rise starts from the same lie. Rise 1.5s: lie to kneel with a hand push, then stand.
+- EMOTE_LEN and emoteLen(id) in game.js drive emote duration in all three anim.js places (pose, blink mood, mouth). New emotes: shrug, think, beckon, stretch, kneel, flex.
+- Work poses (player only, amp<0.2, not casting/mounted/resting): fishing uses S.fish (state wait/bite, since for the cast swing) and player.reelAt (0.8s reel); crafting uses player.synth; gathering uses player.gatherAt/gatherType stamps set in doGather (mining and logging overhead swing, harvesting crouch).
+- Not done: monster KO poses (phase 6), rod prop, remote players do not show work poses.
