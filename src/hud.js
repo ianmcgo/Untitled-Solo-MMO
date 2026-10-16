@@ -335,7 +335,7 @@ function updateHud() {
       setBar("tTp", t.tp, CONFIG.tpMax, "tTpT", "TP " + t.tp);
       $("tSwing").style.width = (t.state === "combat" && t.alive ? 100 * clamp(1 - t.swingTimer / t.delay, 0, 1) : 0) + "%";
       const ag = t.fam.aggro ? Object.keys(t.fam.aggro).map(k => ({ sight: "sight", sound: "sound", magic: "magic", lowhp: "low HP" }[k])).join(", ") : "passive";
-      let info = !t.alive ? "Defeated" : t.readying ? "Readying " + t.fam.tpMove.name + "!" : t.state === "combat" ? "Fighting " + (t.target ? obj(t.target) : "") : t.state === "return" ? "Returning home" : "Idle";
+      let info = !t.alive ? "Defeated" : t.readying ? "Readying " + mobMoveName(t) + "!" : t.state === "combat" ? "Fighting " + (t.target ? obj(t.target) : "") : t.state === "return" ? "Returning home" : "Idle";
       info += " · aggro: " + ag + (t.fam.link ? " · links" : "") + (t.fam.nm ? " · Notorious" : "");
       if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= CONFIG.meleeRange ? " · in range" : " · too far";
       $("tInfo").textContent = info;

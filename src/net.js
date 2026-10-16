@@ -1119,7 +1119,7 @@ function netSnap(now) {
     const t = m.target, tgt = !t ? "" : t === player ? S.charId : t.kind === "remote" ? t.id : "";
     const fl = (m.alive ? 0 : 1) | (m.readying ? 2 : 0) | (m.passive ? 4 : 0);
     const bf = Object.keys(m.buffs).map(k => k + ":" + Math.max(1, Math.ceil(m.buffs[k].until - S.time))).join(",");
-    const row = [nid, m.famKey, m.lv, Math.round(m.x), Math.round(m.y), +m.face.toFixed(2), Math.ceil(m.hp), m.maxHp, m.state === "combat" ? 1 : m.state === "return" ? 2 : 0, tgt, fl, m.spawnIdx != null ? m.spawnIdx : -1, m._swc || 0, m._wsc || 0, Math.floor(m.tp), bf, m.claim === "me" ? S.charId : m.claim || "", netEncChain(m.chain), netEncBurst(m.burst)];
+    const row = [nid, m.famKey, m.lv, Math.round(m.x), Math.round(m.y), +m.face.toFixed(2), Math.ceil(m.hp), m.maxHp, m.state === "combat" ? 1 : m.state === "return" ? 2 : 0, tgt, fl, m.spawnIdx != null ? m.spawnIdx : -1, m._swc || 0, m._wsc || 0, Math.floor(m.tp), bf, m.claim === "me" ? S.charId : m.claim || "", netEncChain(m.chain), netEncBurst(m.burst), m.job || "", m.readying && m.readying.move && m.readying.move.code || ""];
     const sig = row.slice(3).join("|");
     if (!full && NET_SH.sigs.get(nid) === sig) continue;
     NET_SH.sigs.set(nid, sig);
@@ -1135,14 +1135,14 @@ function netOnMs(p) {
   const seen = new Set();
   for (const r of p.m) {
     if (!Array.isArray(r) || r.length < 16) continue;
-    const [nid, fk, lv, x, y, f, hp, maxHp, st, tgt, fl, si, swc, wsc, tp, bf, claim, ch, bu] = r;
+    const [nid, fk, lv, x, y, f, hp, maxHp, st, tgt, fl, si, swc, wsc, tp, bf, claim, ch, bu, jb, mvc] = r;
     if (!famOf(fk)) continue;
     seen.add(nid);
     let m = NET_SH.map.get(nid);
     const dead = fl & 1;
     if (!m) {
       if (dead) continue;
-      m = buildMob(fk, clamp(+lv || 1, 1, 99), +x, +y, si >= 0 ? si : null);
+      m = buildMob(fk, clamp(+lv || 1, 1, 99), +x, +y, si >= 0 ? si : null, typeof jb === "string" && JOBS[jb] ? jb : false);
       m.proxy = true; m.nid = nid; m.aggro = null; m.sentBuff = {};
       m.face = +f || 0; m._swc = swc; m._wsc = wsc;
       S.mobs.push(m); NET_SH.map.set(nid, m);
@@ -1163,7 +1163,7 @@ function netOnMs(p) {
     m.target = te || null;
     if (te === player) { if (!m.enmity.has(player)) m.enmity = new Map([[player, 1]]); } else if (m.enmity.size) m.enmity = new Map();
     if (fl & 2) {
-      if (!m.readying && m.alive && m.fam.tpMove) { m.readying = { t: 1, target: te, start: S.time }; if (dist(m, player) < 900) { log("The " + m.name + " readies " + m.fam.tpMove.name + ".", "foe"); popText(m, m.fam.tpMove.name, "#ff8a65", 13, 1.2, 14); sfx("tpready", m); } }
+      if (!m.readying && m.alive && m.fam.tpMove) { const mv = mobBigMove(m, typeof mvc === "string" ? mvc : ""); m.readying = { t: 1, target: te, start: S.time, move: mv }; if (dist(m, player) < 900) { log("The " + m.name + " readies " + mv.name + ".", "foe"); popText(m, mv.name, mv.spell ? "#ba68c8" : "#ff8a65", 13, 1.2, 14); sfx("tpready", m); } }
     } else m.readying = null;
     if (swc !== m._swc) { m._swc = swc; m.lastSwing = S.time; }
     if (wsc !== m._wsc) { m._wsc = wsc; m.lastWS = S.time; }
@@ -1226,7 +1226,7 @@ function netOnMat(p) {
   if (!m || !m.alive) return;
   m.face = Math.atan2(player.y - m.y, player.x - m.x);
   if (p.k === "sw") swing(m, player);
-  else if (p.k === "tp" && m.fam.tpMove) { m.readying = { t: 0, target: player, start: S.time }; execTpMove(m); }
+  else if (p.k === "tp" && m.fam.tpMove) { m.readying = { t: 0, target: player, start: S.time, move: (m.readying && m.readying.move) || m.fam.tpMove }; execTpMove(m); }
 }
 
 function netMobDied(e) {

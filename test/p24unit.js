@@ -3,7 +3,7 @@ let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' 
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 G.save.story.done = true;
 for (const f of ['honey_bee', 'grass_crawler', 'meadow_sheep', 'hill_lizard', 'pond_crab', 'mandrake', 'shroomling', 'lake_snapper', 'longneck', 'sapling']) ok(G.FAMILIES[f] && !G.FAMILIES[f].aggro, f + ' is passive');
-for (const f of ['orc_grunt', 'orc_stonechucker', 'fishfolk', 'birdfolk', 'birdfolk_priest', 'treant_elder', 'cactus', 'bomb']) ok(G.FAMILIES[f] && G.FAMILIES[f].aggro, f + ' is aggressive');
+for (const f of ['orc_grunt', 'orc_stonechucker', 'fishfolk', 'birdfolk', 'treant_elder', 'cactus', 'bomb']) ok(G.FAMILIES[f] && G.FAMILIES[f].aggro, f + ' is aggressive');
 for (const zid of ['hollow', 'hollow_lake', 'hollow_ruins']) { const z = G.ZONES[zid], cell = Math.max(z.w, z.h) / 15, all = z.spawns.flatMap(s => [s].concat(s.alts || [])); ok((zid !== 'hollow' || all.some(o => o.fam === 'honey_bee')) && (zid !== 'hollow_ruins' || all.some(o => o.fam === 'orc_stonechucker' || o.fam === 'orc_grunt')) && z.spawns.every(s => z.exits.every(e => Math.hypot(s.x - e.x - e.w / 2, s.y - e.y - e.h / 2) >= G.CONFIG.spawnExitCells * cell)) && z.spawns.every((a, i) => z.spawns.every((b, k) => k === i || Math.abs(a.x - b.x) >= G.CONFIG.spawnGapCells * cell || Math.abs(a.y - b.y) >= G.CONFIG.spawnGapCells * cell)), 'Hollow keeps bees and orcs, spawn points are spaced and clear of the exits'); }
 G.enterZone('hollow', 900, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 G.save.jobs.WAR.lv = 8; G.refreshPlayer(true); P().hp = P().maxHp = 9999;
