@@ -1696,18 +1696,39 @@ function mercWants(merc, itemId) {
   if (it.kind === "equip" && mercCanWear(merc.mercId, itemId)) return false;
   return mercBagRoom(merc.mercId, itemId);
 }
+function mercTownSellLocal(id) {
+  const bag = save.mercInv[id], sale = bag.filter(x => x.sale);
+  let listed = 0, gone = 0;
+  for (const e of sale) { if (mercConsign(id, e)) listed += e.qty; else gone += e.qty; }
+  save.mercInv[id] = bag.filter(x => !x.sale);
+  mercSellLog(id, listed, gone);
+}
+
+function mercSellLog(id, listed, gone) {
+  log(MERCS[id].name + " puts " + listed + " item" + (listed === 1 ? "" : "s") + " up at the auction house" + (gone ? " and sells " + gone + " more to a shop" : "") + ".", "party");
+}
+
+function mercTownSellDue(id) {
+  const bag = save.mercInv && save.mercInv[id];
+  return !!bag && bag.length >= Math.ceil(CONFIG.inventorySize / 2) && bag.some(x => x.sale && x.qty > 0);
+}
+
 function mercTownSell() {
   if (!S.zone || S.zone.theme !== "town" || !save.mercInv) return;
   for (const id of save.hired) {
-    const bag = save.mercInv[id];
-    if (!bag || bag.length < Math.ceil(CONFIG.inventorySize / 2)) continue;
-    const sale = bag.filter(x => x.sale), n = sale.reduce((a, x) => a + x.qty, 0);
-    if (!n) continue;
-    let listed = 0, gone = 0;
-    for (const e of sale) { if (mercConsign(id, e)) listed += e.qty; else gone += e.qty; }
-    save.mercInv[id] = bag.filter(x => !x.sale);
-    log(MERCS[id].name + " puts " + listed + " item" + (listed === 1 ? "" : "s") + " up at the auction house" + (gone ? " and sells " + gone + " more to a shop" : "") + ".", "party");
+    if (!mercTownSellDue(id)) continue;
+    if (typeof netMarketOnline === "function" && netMarketOnline()) mercTownSellOnline(id);
+    else mercTownSellLocal(id);
   }
+}
+
+function mercTownSellOnline(id) {
+  S.consigning = S.consigning || {};
+  if (S.consigning[id]) return;
+  S.consigning[id] = true;
+  netMercConsign(id).then(d => { mercSellLog(id, d.listed || 0, d.gone || 0); }, e => {
+    if (netMissing(e)) { NET.market = false; if (mercTownSellDue(id)) mercTownSellLocal(id); saveGame(); }
+  }).finally(() => { delete S.consigning[id]; });
 }
 
 function poolUpgrade(merc, id) {
@@ -2278,7 +2299,7 @@ function tickTownBuying() {
 
 function marketLines(id, online) {
   const out = [];
-  for (const t of ahTowns()) { const n = ahStockAt(id, t); if (n > 0) out.push({ kind: "town", seller: ahTownName(t), owner: "", town: t, qty: n, unit: marketPrice(id), price: marketPrice(id) * n }); }
+  for (const t of ahTowns()) { const n = ahStockAt(id, t); if (n > 0) out.push({ kind: "town", stock: true, seller: ahTownName(t), owner: "", town: t, qty: n, unit: marketPrice(id), price: marketPrice(id) * n }); }
   marketLocalLots().forEach((l, i) => { if (l.id === id) out.push({ kind: l.kind || "player", seller: l.seller || "", owner: l.owner || "", qty: l.qty, unit: l.price / l.qty, price: l.price, local: i }); });
   for (const l of online || []) {
     if (l.item !== id) continue;

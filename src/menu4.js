@@ -1225,9 +1225,9 @@ function ahDetail(id) {
     const lines = marketLines(id, P && P.at ? P.list : []).filter(l => !UI.ahSrc || UI.ahSrc === "all" || l.kind === UI.ahSrc);
     if (!lines.length) h += '<div class="sub" style="margin-top:8px">Nobody is selling this' + (UI.ahSrc && UI.ahSrc !== "all" ? " in this filter" : " right now") + ".</div>";
     for (const l of lines) {
-      const k = AH_KINDS[l.kind], q1 = Math.min(q, l.qty), cost = l.kind === "town" ? l.unit * q1 : l.price, poor = save.gil < cost;
-      const btn = l.own ? '<span class="sub">Yours</span>' : l.kind === "town" ? '<span style="display:flex;gap:4px;align-items:center"><button data-a="ahqty" data-v="-1">−</button><b>' + q1 + '</b><button data-a="ahqty" data-v="1">+</button><button data-a="ahbuy" data-v="' + l.town + '"' + (poor ? " disabled" : "") + ">Buy · " + cost + " 💠</button></span>" : '<button data-a="' + (l.lot != null ? "pmbuy" : "ahbuylocal") + '" data-v="' + (l.lot != null ? l.lot : l.local) + '"' + (poor || UI.pmBusy ? " disabled" : "") + ">Buy · " + cost + " 💠</button>";
-      h += '<div class="item" style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-left:3px solid ' + k.color + '"><div><b style="color:' + k.color + '" title="' + esc(l.owner ? "Sold for " + l.owner : k.label) + '">' + k.icon + " " + esc(l.seller) + "</b> <span class=\"sub\">" + (l.kind === "town" ? l.qty + " in stock" : (l.qty > 1 ? l.qty + " × " + Math.round(l.unit) + " each" : l.price + " 💠")) + "</span></div>" + btn + "</div>";
+      const k = AH_KINDS[l.kind], q1 = Math.min(q, l.qty), cost = l.stock ? l.unit * q1 : l.price, poor = save.gil < cost;
+      const btn = l.own ? '<span class="sub">Yours</span>' : l.stock ? '<span style="display:flex;gap:4px;align-items:center"><button data-a="ahqty" data-v="-1">−</button><b>' + q1 + '</b><button data-a="ahqty" data-v="1">+</button><button data-a="ahbuy" data-v="' + l.town + '"' + (poor ? " disabled" : "") + ">Buy · " + cost + " 💠</button></span>" : '<button data-a="' + (l.lot != null ? "pmbuy" : "ahbuylocal") + '" data-v="' + (l.lot != null ? l.lot : l.local) + '"' + (poor || UI.pmBusy ? " disabled" : "") + ">Buy · " + cost + " 💠</button>";
+      h += '<div class="item" style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-left:3px solid ' + k.color + '"><div><b style="color:' + k.color + '" title="' + esc(l.owner ? "Sold for " + l.owner : k.label) + '">' + k.icon + " " + esc(l.seller) + "</b> <span class=\"sub\">" + (l.stock ? l.qty + " in stock" : (l.qty > 1 ? l.qty + " × " + Math.round(l.unit) + " each" : l.price + " 💠")) + "</span></div>" + btn + "</div>";
     }
   }
   return h + "</div>";
@@ -1261,8 +1261,9 @@ function tabAuction() {
     else if (!P.at) h += '<div class="sub">Loading…</div>';
     else {
       if ((P.box || []).length) h += '<div class="item"><div><b>📦 Player delivery box</b><div class="sub">' + P.box.map(b => b.kind === "sold" ? "💠 " + b.gil + " (sold " + (ITEMS[b.item] ? ITEMS[b.item].name : "?") + " to " + esc(b.note || "") + ")" : (ITEMS[b.item] ? ITEMS[b.item].name : "?") + (b.qty > 1 ? " ×" + b.qty : "") + (b.kind === "returned" ? " (returned)" : "")).join(", ") + '</div></div><button data-a="pmcollect"' + (UI.pmBusy ? " disabled" : "") + ">Collect</button></div>";
-      if (!(P.mine || []).length) h += '<div class="sub">You have nothing up for other players. Lots stay up for 48 hours; unsold items come back to the box.</div>';
-      for (const l of P.mine || []) h += '<div class="item"><div><b>' + (ITEMS[l.item] ? (ITEMS[l.item].icon || "") + " " + esc(ITEMS[l.item].name) : "?") + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">Asking ' + l.price + " 💠 · " + pmLeft(l.expires_at) + ' left</div></div><button data-a="pmcancel" data-v="' + l.id + '"' + (UI.pmBusy ? " disabled" : "") + ">Withdraw</button></div>";
+      const pmine = (P.mine || []).filter(l => l.kind !== "merc");
+      if (!pmine.length) h += '<div class="sub">You have nothing up for other players. Lots stay up for 48 hours; unsold items come back to the box.</div>';
+      for (const l of pmine) h += '<div class="item"><div><b>' + (ITEMS[l.item] ? (ITEMS[l.item].icon || "") + " " + esc(ITEMS[l.item].name) : "?") + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">Asking ' + l.price + " 💠 · " + pmLeft(l.expires_at) + ' left</div></div><button data-a="pmcancel" data-v="' + l.id + '"' + (UI.pmBusy ? " disabled" : "") + ">Withdraw</button></div>";
     }
     h += "<h3>🏛️ With the market</h3>";
   }
@@ -1273,10 +1274,11 @@ function tabAuction() {
       const left = Math.max(0, Math.ceil((l.exp - Date.now()) / 60000));
       h += '<div class="item"><div><b>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">Asking ' + l.price + " 💠 · market " + marketPrice(l.id) * l.qty + " 💠 · " + (left >= 60 ? Math.floor(left / 60) + "h " : "") + (left % 60) + 'm left</div></div><button data-a="ahcancel" data-v="' + i + '">Withdraw</button></div>';
     });
-    const ml = marketLocalLots().filter(l => l.kind === "merc");
+    const om = UI.pm && UI.pm.at && Array.isArray(UI.pm.mine) && typeof netAhList === "function" && NET.member ? UI.pm.mine.filter(l => l.kind === "merc" && ITEMS[l.item]).map(l => ({ id: l.item, qty: l.qty, price: l.price, seller: l.merc_name || "Companion", online: true })) : [];
+    const ml = marketLocalLots().filter(l => l.kind === "merc").concat(om);
     h += '<h3 style="color:' + AH_KINDS.merc.color + '">⚔ Your companions\' lots (' + ml.length + " / " + AH_CFG.mercLotCap + ")</h3>";
     if (!ml.length) h += '<div class="sub">None. When you reach a town with a companion\'s bag at least half full, they list what they carry here. Towns buy these slowly, after any lots of yours; the crystals go to your delivery box.</div>';
-    for (const l of ml) h += '<div class="item" style="border-left:3px solid ' + AH_KINDS.merc.color + '"><div><b>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">' + esc(l.seller) + " · " + l.price + " 💠</div></div></div>";
+    for (const l of ml) h += '<div class="item" style="border-left:3px solid ' + AH_KINDS.merc.color + '"><div><b>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">' + esc(l.seller) + " · " + l.price + " 💠" + (l.online ? " · 🌐 online" : "") + "</div></div></div>";
     return h;
   }
   const online = view === "buy" && typeof pmLoad === "function" && typeof netAhList === "function" && NET.member ? pmLoad(false) : null;
@@ -1658,6 +1660,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.35.0", date: "2026-10-16", title: "Online market", items: [
+    "<b>Companions sell online:</b> when you play online, a companion's sell-off in town goes to the shared market under their name, visible to every player. Up to 300 companion lots per player; they never expire and are priced at each item's usual value. Items without a market value are sold to a shop as before.",
+    "<b>Towns buy online:</b> every 20 minutes of real time each town buys one lot from the shared market: players' lots first, then companions', taking turns between sellers and starting with each seller's oldest lot. Only lots priced at most 1.25 times an item's usual value are bought. About a quarter go back up under the town's name at 3% more, and anyone can buy them.",
+    "<b>Crystals</b> from these sales arrive in your player delivery box (My lots → With other players). Your companions' online lots show under Your companions' lots, marked 🌐.",
+    "<b>Fixed:</b> buying a lot a town had relisted took the item from the town's daily stock instead of buying that lot.",
+    "<b>Server owners:</b> run the latest setup SQL (Admin → Copy setup SQL), server version 7. Until then companions keep using the offline market list.",
+  ]},
   { v: "18.34.3", date: "2026-10-16", title: "Thief from the start", items: [
     "<b>Thief is open from the start</b>, alongside Warrior, White Mage and Black Mage. Jobs that needed Thief level 5 can now be reached through it, and the Thief's own job-trade quest from Tobin is available straight away.",
   ]},
@@ -3278,6 +3287,8 @@ function tabHelp() {
     "Talk to <b>Corvin</b> in Ashenreach Outpost, <b>Selene</b> in Saltreach Harbor or <b>Orla</b> in Ironvale. Every town has its own auction house.",
     "<b>One list.</b> The Buy view shows every seller together: 🏛 towns in gold, 👤 players in green and ⚔ mercenaries in violet. Use Show to filter, and open an item to see all sellers sorted by price. Hover a mercenary's name to see whose it is.",
     "<b>Towns buy too.</b> Every 20 minutes of play, each town buys one lot from the market. It buys your own lots first (paying you at once), then your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. About a quarter of what a town buys it puts back up under its own name at 3% more.",
+    "<b>Online, the market is shared.</b> When you play online, your companions' sell-offs go to the shared market under their names (up to 300 lots per player, no expiry, priced at each item's usual value), and every player sees them. The towns buy on real time there: every 20 minutes each town buys one lot, players' lots first and companions' lots after, taking turns between sellers. Crystals from these sales go to your player delivery box. A town's relisted lots show under its name and anyone can buy them.",
+    "<b>Offline</b> the market is your own: your lots, your companions' lots and the towns, with town buying counted on play time. Offline lots are never copied online.",
     "<b>Each town stocks differently.</b> Every town's auction house has its own daily stock and its own sold-out counts, so something that has run out in one town may still be in another. The list shows everything on the market, and the item card shows how many each town has. Buying takes from the town you are in first, then the others.",
     "<b>Prices move.</b> Every item drifts around its usual value through the game day (a new price every 6 game hours, about 14 real minutes). Each game day the market news lifts one category (▲) and lowers another (▼). Buying pushes a price up; your lots selling pull it down; both effects fade.",
     "Items that shops sell never fetch more than " + 95 + "% of the shop price at auction, so the auction house is for bargains, materials and other adventurers' gear.",
