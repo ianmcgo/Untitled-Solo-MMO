@@ -491,9 +491,9 @@ function thumbStudio() {
   return THUMBS.studio;
 }
 
-function renderThumb(famKey) {
+function renderThumb(famKey, ent) {
   const st = thumbStudio(), R = W3.renderer;
-  const m = buildMob(famKey, 5, 0, 0, null);
+  const m = ent || buildMob(famKey, 5, 0, 0, null);
   const inst = buildEntityRig(m);
   if (!inst) return null;
   const g = new THREE.Group();
@@ -523,8 +523,9 @@ function renderThumb(famKey) {
   return cv.toDataURL("image/png");
 }
 
-function beastThumb(famKey, onReady) {
+function beastThumb(famKey, onReady, ent) {
   if (THUMBS.cache.has(famKey)) return THUMBS.cache.get(famKey);
+  if (ent) (THUMBS.ent = THUMBS.ent || {})[famKey] = ent;
   if (!THUMBS.queue.includes(famKey)) THUMBS.queue.push(famKey);
   if (!THUMBS.busy) {
     THUMBS.busy = true;
@@ -532,7 +533,7 @@ function beastThumb(famKey, onReady) {
       const k = THUMBS.queue.shift();
       if (!k) { THUMBS.busy = false; if (onReady) onReady(); return; }
       let url = null;
-      try { url = renderThumb(k); } catch (e) { url = null; THUMBS.err = String(e && e.message || e); }
+      try { url = renderThumb(k, THUMBS.ent && THUMBS.ent[k]); } catch (e) { url = null; THUMBS.err = String(e && e.message || e); }
       THUMBS.cache.set(k, url);
       THUMBS.done = (THUMBS.done || 0) + 1;
       if (onReady && (THUMBS.done % 3 === 0 || !THUMBS.queue.length)) onReady();

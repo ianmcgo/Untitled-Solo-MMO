@@ -46,7 +46,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">LEID\'ANAV REBORN</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, database: tabDatabase, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (UI.kbBtn != null && !SLIM_TABS[S.modal] && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
   if (UI.kbRow != null && SLIM_TABS[S.modal]) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
@@ -934,7 +934,125 @@ function beastHabitat(k) {
   return out;
 }
 
-function tabBestiary() {
+const DB_CATS = [["items", "🧪", "Items"], ["equipment", "🛡️", "Equipment"], ["magic", "✦", "Magic"], ["abilities", "⚡", "Abilities"], ["jobs", "🎓", "Jobs"], ["people", "👥", "People"], ["places", "🗺️", "Places"], ["beasts", "📖", "Bestiary"]];
+
+function dbSyncSeen() {
+  if (!save.seen) save.seen = { items: {}, npcs: {} };
+  for (const s of save.inventory) save.seen.items[s.id] = 1;
+  for (const k in save.gear) if (save.gear[k]) save.seen.items[save.gear[k]] = 1;
+  for (const s of save.storage || []) if (s && ITEMS[s.id]) save.seen.items[s.id] = 1;
+}
+function dbPic(icon, thumb, color) {
+  return '<div class="bpic"' + (color ? ' style="background:radial-gradient(circle at 50% 40%,' + color + '66,rgba(10,14,28,.85))"' : "") + ">" + (thumb ? '<img src="' + thumb + '" alt="">' : '<span style="font-size:38px;color:#fff">' + icon + "</span>") + "</div>";
+}
+function dbCard(pic, title, lines) {
+  return '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start">' + pic + '<div style="flex:1;min-width:0"><b>' + title + "</b>" + lines.filter(Boolean).map(l => '<div class="sub" style="margin-top:3px">' + l + "</div>").join("") + "</div></div>";
+}
+function dbCount(have, total, what) {
+  return '<div class="sub" style="margin-bottom:8px">' + have + " / " + total + " " + what + " recorded.</div>";
+}
+function dbThumbReady() { if (S.modal === "database") renderModal(); }
+
+function dbItems(equip) {
+  const ids = Object.keys(ITEMS).filter(id => (ITEMS[id].kind === "equip") === equip);
+  const have = ids.filter(id => save.seen.items[id]);
+  let h = dbCount(have.length, ids.length, equip ? "pieces of equipment" : "items") + '<div class="sub" style="margin-bottom:8px">Anything you have owned is recorded here.</div>';
+  for (const id of have) {
+    const it = ITEMS[id];
+    if (equip) {
+      h += dbCard(dbPic(it.icon || "📦", null, "#8aa4d8"), esc(it.name), [itemCard(id)]);
+    } else {
+      const tags = [it.kind, it.rarity, it.rare ? "Rare" : "", it.ex ? "Ex" : ""].filter(Boolean).join(" · ");
+      h += dbCard(dbPic(it.icon || "📦", null, "#8aa4d8"), esc(it.name), [esc(itemDesc(id)), esc(tags) + (it.price ? " · Value " + it.price + " crystals" : "") + (it.stack > 1 ? " · Stacks to " + it.stack : ""), "You carry " + invCount(id)]);
+    }
+  }
+  return h;
+}
+function dbMagic() {
+  const ids = Object.keys(SPELLS), have = ids.filter(id => save.spells.includes(id));
+  let h = dbCount(have.length, ids.length, "spells");
+  for (const id of have) {
+    const sp = SPELLS[id], jb = Object.keys(sp.jobs).map(j => j + " " + sp.jobs[j]).join(", ");
+    const el = sp.el || sp.element, col = el && ELEMENT_COLORS[el] ? ELEMENT_COLORS[el] : "#b39ddb";
+    h += dbCard(dbPic(sp.kind === "heal" ? "💚" : sp.kind === "buff" ? "✨" : "🔮", null, col), esc(sp.name), [esc(sp.desc || ""), "MP " + sp.mp + " · Cast " + sp.cast + "s · Recast " + sp.recast + "s" + (el ? " · " + esc(el) : ""), "Learned by: " + esc(jb)]);
+  }
+  return h;
+}
+function dbAbilities() {
+  const ids = Object.keys(ABILITIES), have = ids.filter(id => (save.jobs[ABILITIES[id].job] || { lv: 0 }).lv >= ABILITIES[id].lv);
+  let h = dbCount(have.length, ids.length, "abilities");
+  for (const id of have) {
+    const ab = ABILITIES[id], jb = JOBS[ab.job];
+    h += dbCard(dbPic(jb ? jb.icon : "⚡", null, jb ? jb.color : "#ffd54f"), esc(ab.name), [esc(ab.desc || ""), esc(jb ? jb.name : ab.job) + " Lv." + ab.lv + " · Recast " + ab.recast + "s · Target: " + esc(ab.target || "self")]);
+  }
+  return h;
+}
+function dbJobs() {
+  const ids = Object.keys(JOBS).filter(j => (save.jobs[j] && save.jobs[j].lv > 1) || j === save.mainJob || j === save.subJob);
+  let h = dbCount(ids.length, Object.keys(JOBS).length, "jobs");
+  for (const j of ids) {
+    const jb = JOBS[j], lv = save.jobs[j].lv;
+    const abil = Object.keys(ABILITIES).filter(id => ABILITIES[id].job === j && ABILITIES[id].lv <= lv).map(id => ABILITIES[id].name);
+    const spl = Object.keys(SPELLS).filter(id => SPELLS[id].jobs[j] && SPELLS[id].jobs[j] <= lv).map(id => SPELLS[id].name);
+    h += dbCard(dbPic(jb.icon, null, jb.color), esc(jb.name) + " (" + j + ")" + (j === save.mainJob ? " · main" : j === save.subJob ? " · support" : ""), ["Level " + lv + " · Experience " + (save.jobs[j].xp || 0), "Base HP " + jb.hp[0] + " · MP " + jb.mp[0], "Abilities: " + (abil.length ? esc(abil.join(", ")) : "none yet"), "Magic: " + (spl.length ? esc(spl.join(", ")) : "none yet")]);
+  }
+  return h;
+}
+function dbWhere(npcId) {
+  const out = [];
+  for (const z in ZONES) if ((ZONES[z].npcs || []).some(n => n.id === npcId)) out.push(ZONES[z].name);
+  return out;
+}
+function dbPeople() {
+  const ids = Object.keys(NPCS).filter(id => !NPCS[id].prop), have = ids.filter(id => save.seen.npcs[id]);
+  let h = dbCount(have.length, ids.length, "people") + '<div class="sub" style="margin-bottom:8px">Talk to someone to add them.</div>';
+  for (const id of have) {
+    const n = NPCS[id], key = "npc:" + id;
+    const pic = typeof beastThumb === "function" ? beastThumb(key, dbThumbReady, Object.assign({ id, kind: "npc", x: 0, y: 0, face: 0, radius: 14 }, n)) : null;
+    const where = dbWhere(id);
+    h += dbCard(dbPic("👤", pic, "#a5d6a7"), esc(n.name), ["Found in: " + esc(where.join(", ") || "various places")]);
+  }
+  return h;
+}
+function dbPlaces() {
+  const ids = Object.keys(ZONES).filter(z => (save.discovered || []).includes(z) || z === S.zoneId), seen = new Set(ids);
+  let h = dbCount(ids.length, Object.keys(ZONES).length, "places");
+  for (const z of ids) {
+    const zn = ZONES[z], ex = [...new Set((zn.exits || []).map(e => ZONES[e.to] ? ZONES[e.to].name : null).filter(Boolean))];
+    const folk = (zn.npcs || []).filter(n => save.seen.npcs[n.id] && NPCS[n.id]).map(n => NPCS[n.id].name);
+    const beasts = Object.keys(BESTIARY).filter(k => save.bestiary[k] && beastHabitat(k).includes(zn.name)).map(k => (FAMILIES[k] || NM_FAMILIES[k] || { name: k }).name || k);
+    const ico = zn.safe ? "🏘️" : zn.theme === "town" ? "🏘️" : zn.theme === "field" ? "🌾" : "🗺️";
+    h += dbCard(dbPic(ico, null, "#d8a838"), esc(zn.name) + (zn.safe ? " · safe" : ""), [esc(zn.city ? "City of " + zn.city : "Theme: " + (zn.theme || "field")), "Leads to: " + esc(ex.join(", ") || "nowhere"), "People you know here: " + esc(folk.join(", ") || "none yet"), "Creatures met here: " + esc(beasts.join(", ") || "none yet")]);
+  }
+  return h;
+}
+
+function tabDatabase() {
+  dbSyncSeen();
+  if (!DB_CATS.some(c => c[0] === UI.dbCat)) UI.dbCat = "items";
+  let h = '<div class="opt" style="flex-wrap:wrap;margin-bottom:8px">' + DB_CATS.map(c => '<button data-a="dbcat" data-v="' + c[0] + '"' + (c[0] === UI.dbCat ? ' class="pri"' : "") + ">" + c[1] + " " + c[2] + "</button>").join("") + "</div>";
+  const fn = { items: () => dbItems(false), equipment: () => dbItems(true), magic: dbMagic, abilities: dbAbilities, jobs: dbJobs, people: dbPeople, places: dbPlaces, beasts: dbBeasts }[UI.dbCat];
+  return h + fn();
+}
+
+const STAT_GROUPS = [
+  ["Combat", [["Monsters defeated", "kills"], ["Notorious monsters", "nm"], ["Times KO'd", "kos"], ["Damage dealt", "dmgDealt"], ["Damage taken", "dmgTaken"], ["Biggest hit", "bigHit"], ["Spells cast", "spellsCast"], ["Abilities used", "abilitiesUsed"], ["Skillchains", "sc"], ["Magic bursts", "mb"], ["Ranger kills", "rngKills"], ["Battlefields won", "bfWins"], ["Summons", "summons"]]],
+  ["Crafting and gathering", [["Items crafted", "crafts"], ["High-quality results", "hq"], ["Gathered", "gathers"], ["Fish caught", "fish"], ["Big fish", "bigFish"], ["Meals eaten", "meals"], ["Items used", "itemsUsed"]]],
+  ["Economy", [["Crystals from monsters", "killGil"], ["Trades", "trades"], ["Auction purchases", "ahBought"], ["Auction sales", "ahSold"], ["Bounties", "bounties"], ["Lots won", "lotsWon"]]],
+  ["Travel", [["Distance ridden", "ride"], ["Jumps", "jumps"], ["Boat rides", "boatRides"], ["Blessings", "blessings"]]]
+];
+function tabStats() {
+  const st = save.stats || {}, num = v => Math.round(v || 0).toLocaleString();
+  const lvls = Object.keys(JOBS).map(j => save.jobs[j].lv), jobsMax = lvls.filter(l => l >= 75).length;
+  const done = Object.keys(QUESTS).filter(q => save.quests[q] === "done").length;
+  const lore = [["Playing time", fmtPlay(save.playSec)], ["Highest job level", Math.max(...lvls)], ["Jobs above level 1", lvls.filter(l => l > 1).length + " / " + lvls.length], ["Achievements", ACHIEVEMENTS.filter(a => save.ach[a.id]).length + " / " + ACHIEVEMENTS.length], ["Quests completed", done + " / " + Object.keys(QUESTS).length], ["Places discovered", (save.discovered || []).length + " / " + Object.keys(ZONES).length], ["Creatures recorded", Object.keys(save.bestiary).length + " / " + Object.keys(BESTIARY).length], ["Items discovered", Object.keys(save.seen.items).length + " / " + Object.keys(ITEMS).length], ["Spells learned", save.spells.length + " / " + Object.keys(SPELLS).length], ["People met", Object.keys(save.seen.npcs).length], ["Crystals held", num(save.gil)], ["Companions hired", (save.hired || []).length]];
+  const row = (k, v) => '<div class="item" style="display:flex;justify-content:space-between;align-items:center"><span>' + esc(k) + "</span><b>" + esc(String(v)) + "</b></div>";
+  let h = "<h3>Adventure</h3>" + lore.map(r => row(r[0], r[1])).join("");
+  for (const g of STAT_GROUPS) h += "<h3>" + g[0] + "</h3>" + g[1].map(r => row(r[0], num(st[r[1]]))).join("");
+  return h;
+}
+
+function dbBeasts() {
   const keys = Object.keys(BESTIARY);
   const known = keys.filter(k => save.bestiary[k]);
   let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " creatures recorded. Meet a creature to add it; defeat it to learn more.</div>";
@@ -956,7 +1074,7 @@ function tabBestiary() {
       body += '<div class="sub">Weak to: ' + (weak.length ? weak.join(", ") : "nothing in particular") + "</div>";
       body += '<div class="sub">Known to carry: ' + esc(loot.join(", ")) + "</div>";
     } else if (b.kills >= 1) body += '<div class="sub">Defeat ' + (need - b.kills) + " more to learn its weaknesses and spoils.</div>";
-    const pic = typeof beastThumb === "function" ? beastThumb(k, () => { if (S.modal === "bestiary") renderModal(); }) : null;
+    const pic = typeof beastThumb === "function" ? beastThumb(k, () => { if (S.modal === "database") renderModal(); }) : null;
     h += '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start"><div class="bpic">' + (pic ? '<img src="' + pic + '" alt="">' : '<span>' + (typeof THUMBS !== "undefined" && THUMBS.cache.has(k) ? "?" : "…") + "</span>") + '</div><div style="flex:1;min-width:0"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div></div>";
   }
   return h;
@@ -1230,8 +1348,10 @@ function tabGuild() {
 }
 
 function tabAchievements() {
+  const tabs = '<div class="opt" style="margin-bottom:8px"><button data-a="achview" data-v="list"' + (UI.achView !== "stats" ? ' class="pri"' : "") + '>🏆 Achievements</button><button data-a="achview" data-v="stats"' + (UI.achView === "stats" ? ' class="pri"' : "") + ">📊 Stats</button></div>";
+  if (UI.achView === "stats") return tabs + tabStats();
   const got = ACHIEVEMENTS.filter(a => save.ach[a.id]).length;
-  let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked.</div>";
+  let h = tabs + '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked.</div>";
   for (const a of ACHIEVEMENTS) {
     const t = save.ach[a.id];
     h += '<div class="item" style="' + (t ? "" : "opacity:.55") + '"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + (t ? a.icon : "🔒") + "</span><div><b>" + esc(a.name) + '</b><div class="sub">' + esc(a.desc) + "</div></div></div>" + '<span class="sub">' + (t ? new Date(t).toLocaleDateString() : "") + "</span></div>";
@@ -1371,6 +1491,8 @@ function onMenuClick(e) {
   else if (a === "ahbuy") { UI.ahMsg = ahBuy(UI.ahSel, UI.ahQty || 1); UI.ahQty = 1; renderModal(); return; }
   else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
   else if (a === "ahcancel") { ahCancel(+v); renderModal(); return; }
+  else if (a === "dbcat") { UI.dbCat = v; renderModal(); return; }
+  else if (a === "achview") { UI.achView = v; renderModal(); return; }
   else if (a === "socseek") { netSeek(!save.lfg, null); renderModal(); return; }
   else if (a === "socseekmsg") { const m = prompt("Looking-for-party message (up to 40 characters):", save.seekMsg || ""); if (m !== null) netSeek(true, m); renderModal(); return; }
   else if (a === "socq") { const m = prompt("Filter: job (WHM), level (12) or range (10-15), area, name, lfg, here", UI.socQ || ""); if (m !== null) UI.socQ = m; renderModal(); return; }
@@ -1491,6 +1613,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.16.0", date: "2026-10-15", title: "Database, stats and Social button", items: [
+    "<b>New Database (Y)</b> replaces the Bestiary button. Tabs for Items, Equipment, Magic, Abilities, Jobs, People, Places and the Bestiary, each with details and a picture. It only lists what you have owned, learned, leveled, talked to, visited or met.",
+    "<b>Achievements has a Stats tab</b> with your play time, fights, damage, spells, crafting, gathering, fishing, trading and travel counts. Damage, spells, abilities and items used start counting from this version.",
+    "<b>One Social button</b> on the first command page replaces Party, Search, Linkshell and Friend List, which all opened the same window. Party is still on P and in the window tabs.",
+    "<b>HP and MP numbers no longer overlap</b> in the party panel at the bottom right."
+  ] },
   { v: "18.15.0", date: "2026-10-15", title: "Ctrl hotkey line removed", items: [
     "<b>The Ctrl hotkey line is gone</b>, since browsers keep Ctrl+number for switching tabs. The old Ctrl line is now the <b>Main</b> line: plain 1–9 and 0 fire it, and your saved slots are kept.",
     "Shift, Alt and Tab still hold their own lines of ten. The pinned bar label reads Main, Shft, Alt or Tab."
@@ -2974,14 +3102,16 @@ function tabHelp() {
     "<b>Garrick the smith</b>, by the stalls, augments equipment: each augment adds a random bonus (STR, DEX, VIT, AGI, INT, MND, Attack, Defense, Accuracy, Evasion, HP or MP). Up to 2 per piece. Cost: 60 crystals per item level, 1 Iron Ore and 1 Fire Essence. Reforging rerolls all of a piece's augments for 40 crystals per level plus the same materials.",
     "Augments belong to the item type: every copy of that item you own shares them. They only apply to you, not to companions wearing the same piece."
   ]));
-  h += sec("📖 Bestiary (Y)", ul([
-    "A creature is recorded the first time you meet it: come within sight or target it. You learn its type, where it lives and a little lore.",
-    "Defeat one to learn how it hunts (sight, sound, magic, weakness), whether it calls for help and its special attack.",
-    "Defeat five (or one notorious monster) to learn its elemental weaknesses and what it carries."
+  h += sec("📚 Database (Y)", ul([
+    "The Database is your record of the world, in eight tabs: Items, Equipment, Magic, Abilities, Jobs, People, Places and Bestiary. Each entry has a picture and details.",
+    "It only lists what you have found: items and gear you have owned, spells you have learned, abilities of jobs you have leveled to, jobs above level 1 (and your current ones), people you have talked to, places you have visited and creatures you have met.",
+    "<b>Bestiary:</b> a creature is recorded when you first meet it. Defeat one to learn how it hunts and its special attack; defeat five (or one notorious monster) to learn its elemental weaknesses and what it carries.",
+    "/bestiary and /database open it too."
   ]));
-  h += sec("🏆 Achievements (O)", ul([
-    "Achievements track hunting, notorious monsters, skillchains, bursts, levels, quests, exploring, crafting, gathering, gardening, your home, companions, the bestiary and more.",
-    "They give no rewards: they are a record of what you have done."
+  h += sec("🏆 Achievements (O) and Stats", ul([
+    "Achievements track hunting, notorious monsters, skillchains, bursts, levels, quests, exploring, crafting, gathering, gardening, your home, companions, the Database and more.",
+    "They give no rewards: they are a record of what you have done.",
+    "The <b>Stats</b> tab inside Achievements counts what you have done: play time, monsters defeated, damage dealt and taken, your biggest hit, spells cast, abilities and items used, crafting, gathering, fishing, trading, auction sales and distance ridden. Damage, spell, ability and item counts begin at version 18.16."
   ]));
   h += sec("🏠 Your residence", ul([
     "The door is on the west cottage of Ashenreach Outpost; walking into it asks if you want to go in. <b>Pip the Nubbin</b> lives there.",
@@ -3075,7 +3205,7 @@ function tabHelp() {
     "<b>Listening:</b> monsters call out when they notice you, so a jabber or a growl behind you is worth turning around for. Footsteps tell you what you're walking on."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
-    "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",
+    "Open <b>Social</b> from the first page of the main menu (or /social); it replaces the old Party, Search, Linkshell and Friend List buttons. Party is also on P. It shows who's online, your friends, your linkshells and your blacklist.",
     "<b>Search:</b> filter the online list by job (WHM), level (12) or range (10-15), area, name, <b>lfg</b> or <b>here</b>. /search does the same in chat.",
     "<b>Looking for a party:</b> turn it on (or /seek message) and others see 🔎 and your short message next to your name. Turn it off the same way.",
     "<b>Friends:</b> add up to 50 with + Friend or /friend add Name. You're told when they come online or go offline, and can Tell or Invite them from the list. Your friend list belongs to this character.",
