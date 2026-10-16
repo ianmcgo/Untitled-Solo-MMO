@@ -86,6 +86,8 @@ async function boot() {
   window.addEventListener("pointerdown", () => { if (!UI.autoFullDone && UI.started && VIEW.settings.autoFull) { UI.autoFullDone = true; if (!document.fullscreenElement) toggleFullscreen(); } }, true);
   window.addEventListener("keydown", onKey);
   window.addEventListener("pagehide", () => { if (UI.started) saveGame(); });
+  const seen = () => { UI.lastInput = Date.now(); };
+  for (const ev of ["keydown", "pointerdown", "wheel", "touchstart"]) window.addEventListener(ev, seen, { capture: true, passive: true });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && UI.started) saveGame(); });
   window.addEventListener("keyup", e => {
     S.keys[e.key.toLowerCase()] = false;
@@ -183,9 +185,12 @@ function showModeChoice() {
   const ld = $("loading");
   ld.classList.add("ready", "roster");
   $("ldStart").style.display = "none";
+  let note = "", rq = "";
+  try { note = sessionStorage.getItem("usr_idle") || ""; sessionStorage.removeItem("usr_idle"); rq = sessionStorage.getItem("usr_requeue") || ""; sessionStorage.removeItem("usr_requeue"); } catch (e) {}
+  if (rq) { UI.queueNote = rq; PLAY.offline = false; showAccount(); return; }
   $("ldSub").textContent = "How do you want to play?";
   const box = $("charSel");
-  box.innerHTML = '<div class="ccOpts" style="max-width:420px;margin:0 auto;text-align:center"><div class="ccAct" style="flex-direction:column;gap:10px"><button class="pri" data-play="on">Play Online</button><div class="sub">Sign in and play with others. Your characters are saved on the server.</div><button data-play="off">Play Offline</button><div class="sub">No account needed. Offline characters are saved on this device only, play solo with companions, and can never be brought online.</div></div></div>';
+  box.innerHTML = '<div class="ccOpts" style="max-width:420px;margin:0 auto;text-align:center">' + (note ? '<div class="ccEmpty" style="margin-bottom:10px">' + esc(note) + "</div>" : "") + '<div class="ccAct" style="flex-direction:column;gap:10px"><button class="pri" data-play="on">Play Online</button><div class="sub">Sign in and play with others. Your characters are saved on the server.</div><button data-play="off">Play Offline</button><div class="sub">No account needed. Offline characters are saved on this device only, play solo with companions, and can never be brought online.</div></div></div>';
   box.style.display = "block";
   box.onclick = e => {
     const b = e.target.closest("[data-play]");
@@ -285,7 +290,42 @@ async function showAccount() {
   showLogin(NET.user ? "member" : "signin", NET.lastErr);
 }
 
+function showQueue(d) {
+  const ld = $("loading");
+  ld.classList.add("ready", "roster");
+  $("ldStart").style.display = "none";
+  $("ldSub").textContent = "The server is full";
+  const box = $("charSel");
+  box.innerHTML = '<div class="ccOpts" style="max-width:380px;margin:0 auto;text-align:center">' + (UI.queueNote ? '<div class="ccErr" style="margin-bottom:8px">' + esc(UI.queueNote) + "</div>" : "") + '<div class="ccEmpty" style="font-size:18px"><b>You are #' + ((d.ahead || 0) + 1) + ' in line</b></div><div class="sub" style="margin:6px 0 10px">' + (d.online != null ? d.online + " of " + d.max + " players are online. " : "") + (d.ahead ? d.ahead + (d.ahead === 1 ? " person is" : " people are") + " ahead of you." : "You're next.") + " Keep this page open; you'll join as soon as a place frees up.</div><div class=\"ccAct\" style=\"justify-content:center\"><button data-leaveq=\"1\">Leave the line</button></div><div class=\"sub\" style=\"margin-top:10px;opacity:.7\">Play Offline is still available from the start screen.</div></div>";
+  box.style.display = "block";
+}
+
+async function queueGate() {
+  const my = (UI.queueRun = (UI.queueRun || 0) + 1);
+  let left = false;
+  $("charSel").onclick = e => {
+    const b = e.target.closest("[data-leaveq]");
+    if (!b) return;
+    left = true;
+    if (typeof sfx === "function") sfx("close");
+    netQueueLeave().then(() => showModeChoice());
+  };
+  for (;;) {
+    if (left || UI.queueRun !== my) return false;
+    let d;
+    try { d = await netQueueJoin(); }
+    catch (e) { if (left || UI.queueRun !== my) return false; acctBusy("Can't reach the server. Retrying…"); await new Promise(r => setTimeout(r, NET_CFG.queuePoll)); continue; }
+    if (left || UI.queueRun !== my) return false;
+    if (d.state === "play") { UI.queueNote = ""; netSeatStart(); if (UI.queued && typeof sfx === "function") sfx("unlock"); UI.queued = false; return true; }
+    UI.queued = true;
+    showQueue(d);
+    await new Promise(r => setTimeout(r, NET_CFG.queuePoll));
+  }
+}
+
 async function openRoster() {
+  acctBusy("Checking for a place on the server…");
+  if (!(await queueGate())) return;
   acctBusy("Loading your characters…");
   try { await netPullRoster(); } catch (e) { showLogin("signin", netErr(e)); return; }
   showCharSelect();

@@ -35,7 +35,7 @@ function audioData() {
 }
 
 const b = builds[phase];
-const sqlData = () => "const SETUP_SQL = " + JSON.stringify(["setup.sql", "m5d-market.sql", "m5d-item-ref.sql"].map(f => fs.readFileSync(path.join(root, "sql", f), "utf8")).join("\n")) + ";";
+const sqlData = () => "const SETUP_SQL = " + JSON.stringify(["setup.sql", "m5d-market.sql", "m5d-item-ref.sql", "q1-seats.sql"].map(f => fs.readFileSync(path.join(root, "sql", f), "utf8")).join("\n")) + ";";
 const game = b.files.map(f => f === "@audio" ? audioData() : f === "@sql" ? sqlData() : src(f)).join("\n");
 const shipped = b.min ? execFileSync(path.join(root, "node_modules", ".bin", "esbuild"), ["--minify", "--legal-comments=none", "--target=es2020"], { input: game, maxBuffer: 1 << 28 }).toString("utf8") : game;
 fs.mkdirSync(path.join(root, "dist"), { recursive: true });

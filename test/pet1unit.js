@@ -12,4 +12,8 @@ ok(r2 === false, 'a duplicate pet item is not auto-used (bag full, so it is lost
 const old = JSON.parse(JSON.stringify(G.save)); old.buddies = []; old.buddy = null; old.inventory = [{ id: 'egg_meadow_kit', qty: 1 }, { id: 'potion', qty: 5 }];
 const nv = G.normalizeSave(old);
 ok(nv.buddies.includes('meadow_kit') && nv.buddy === 'meadow_kit' && !nv.inventory.some(x => x.id === 'egg_meadow_kit') && nv.inventory.length === 1, 'a pet item already in the bag becomes a pet on load and is equipped');
+G.save = nv; G.save.inventory = [{ id: 'potion', qty: 5 }];
+ok(G.petToBag('meadow_kit') === '' && !G.save.buddies.includes('meadow_kit') && G.save.buddy === null && G.save.inventory.some(x => x.id === 'egg_meadow_kit'), 'unequip to bag turns the pet back into its item');
+G.save.buddies.push('ash_sprite');
+ok(G.petToBag('ash_sprite') !== '' && G.save.buddies.includes('ash_sprite'), 'the Ash Sprite has no item form and stays');
 console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0);

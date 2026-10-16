@@ -1203,6 +1203,7 @@ function updateFF() {
       setTxt($("ffNetPct"), pct);
       setTxt($("ffNetS"), "S " + (typeof NET_RT !== "undefined" ? (NET_RT.sent || 0) % 1000 : 0));
       setTxt($("ffNetR"), "R " + (typeof NET_RT !== "undefined" ? (NET_RT.recv || 0) % 1000 : 0));
+      setTxt($("ffNetOn"), !PLAY.offline && typeof NET !== "undefined" && NET.online && NET.online.max > 0 ? "👥 " + NET.online.n + "/" + NET.online.max : "");
     }
   }
   const ci = $("chatIn"), typing = document.activeElement === ci;

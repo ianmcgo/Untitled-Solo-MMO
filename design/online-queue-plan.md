@@ -1,4 +1,4 @@
-# Online player cap and wait queue plan (drafted 2026-10-16, not built)
+# Online player cap and wait queue plan (drafted 2026-10-16, built in 18.36.0)
 
 Requested 2026-10-16: only 20 people on the server in online mode; anyone else who tries to log in goes into a wait queue, and they can leave it.
 

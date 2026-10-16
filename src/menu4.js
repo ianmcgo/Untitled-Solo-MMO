@@ -629,6 +629,10 @@ function tabSettings() {
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + btn("toggle", "autoFull", "Fullscreen on start " + (s.autoFull ? "on" : "off"), !!s.autoFull) + btn("perfshow", "", "Load timings " + (UI.perfShow ? "shown" : "hidden"), !!UI.perfShow) + "</div>" + (UI.perfShow && typeof PERF !== "undefined" ? '<div class="sub" style="white-space:pre-wrap;font-size:11px;max-height:180px;overflow:auto">' + esc(PERF.table().join("\n")) + "</div>" : "");
+  if (typeof NET !== "undefined" && NET.user && !PLAY.offline) {
+    const im = Math.max(5, Math.min(60, +VIEW.settings.idleMin || 30));
+    h += '<h3>Online</h3><div class="sub" style="margin-bottom:6px">' + (NET.online && NET.online.max > 0 ? NET.online.n + " of " + NET.online.max + " players online" + (NET.online.queue ? ", " + NET.online.queue + " waiting" : "") + ". " : "") + "If you don't touch anything for this long you are logged out, so your place can go to someone waiting. You get a one-minute warning first.</div><div class=\"opt\">" + [5, 15, 30, 45, 60].map(m => '<button data-a="idlemin" data-v="' + m + '"' + (im === m ? ' class="on"' : "") + ">" + m + " min</button>").join("") + "</div>";
+  }
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -1184,11 +1188,11 @@ function tabBoard() {
 
 function tabPets() {
   const have = save.buddies, cur = save.buddy;
-  let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around for company. They never fight, can\'t be attacked and give no bonuses. Equip one, then summon it here, with the Pet button on your action bar, or with /pet.</div>';
+  let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around for company. They never fight, can\'t be attacked and give no bonuses. Equip one, then summon it here or with /pet. Unequip to bag turns the equipped pet back into its item.</div>';
   if (UI.petMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.petMsg) + "</div>";
   if (cur && BUDDIES[cur]) {
     const B = BUDDIES[cur];
-    h += '<div class="item" style="border-color:#c9a227"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:28px">' + B.icon + "</span><div><b>" + esc(buddyName(cur)) + '</b> <span class="sub">· ' + esc(B.name) + '</span><div class="sub">' + esc(B.lore) + "</div></div></div><div style=\"display:flex;gap:6px\"><button data-a=\"petname\" data-v=\"" + cur + '">Rename</button><button class="pri" data-a="petsummon">' + (S.buddy ? "Dismiss" : "Summon") + "</button></div></div>";
+    h += '<div class="item" style="border-color:#c9a227"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:28px">' + B.icon + "</span><div><b>" + esc(buddyName(cur)) + '</b> <span class="sub">· ' + esc(B.name) + '</span><div class="sub">' + esc(B.lore) + "</div></div></div><div style=\"display:flex;gap:6px\"><button data-a=\"petname\" data-v=\"" + cur + '">Rename</button><button class="pri" data-a="petsummon">' + (S.buddy ? "Dismiss" : "Summon") + "</button>" + (petItemOf(cur) ? '<button data-a="petbag" data-v="' + cur + '">Unequip to bag</button>' : "") + "</div></div>";
   } else h += '<div class="sub" style="margin-bottom:8px">No pet equipped.</div>';
   h += "<h3>Your pets (" + have.length + ")</h3>";
   if (!have.length) h += '<div class="sub">None yet. Pets are very rare drops from monsters and notorious monsters, a rare catch in Saltreach, and a gift at the end of the story.</div>';
@@ -1519,6 +1523,7 @@ function onMenuClick(e) {
   else if (a === "tacc") { netTradeAccept(); renderModal(); return; }
   else if (a === "tcan") { netTradeCancel(); return; }
   else if (a === "petsel") { UI.petMsg = equipBuddy(v); renderModal(); return; }
+  else if (a === "petbag") { UI.petMsg = petToBag(v); renderModal(); return; }
   else if (a === "petsummon") { UI.petMsg = toggleBuddy(); renderModal(); return; }
   else if (a === "petbuy") { const e = BUDDY_SHOP.find(x => x[0] === v); if (!e) return; if (save.gil < e[1]) { UI.petMsg = "You need " + e[1] + " crystals."; sfx("error"); } else { save.gil -= e[1]; learnBuddy(v); UI.petMsg = ""; } renderModal(); return; }
   else if (a === "petname") { const cur = save.buddyNames[v] || ""; const nm = prompt("Name your " + BUDDIES[v].name + " (2–12 letters, blank to reset):", cur); if (nm !== null) { UI.petMsg = nameBuddy(v, nm); renderModal(); } return; }
@@ -1624,6 +1629,7 @@ function onMenuClick(e) {
   else if (a === "checkupd") { checkForUpdate(true); return; }
   else if (a === "loadfile") { return; }
   else if (a === "syncnow") { saveGame(); netFlush().then(() => renderModal()); return; }
+  else if (a === "idlemin") { VIEW.settings.idleMin = Math.max(5, Math.min(60, +v || 30)); saveSettings(VIEW.settings); UI.lastInput = Date.now(); renderModal(); return; }
   else if (a === "signout") { closeModal(); saveGame(); netFlush().then(() => netSignOut()).then(() => location.reload()); return; }
   else if (a === "adminrefresh") { UI.adminStats = null; UI.adminErr = ""; renderModal(); return; }
   else if (a === "admincopy") { copyText(v === "setup" ? SETUP_SQL : v === "diag" ? ADMIN_DIAG_SQL : adminReport()); UI.adminMsg = "Copied to the clipboard."; renderModal(); return; }
@@ -1660,6 +1666,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.36.0", date: "2026-10-16", title: "Server places and the waiting line", items: [
+    "<b>Unequip a pet:</b> the Pets window has an Unequip to bag button that turns the equipped pet back into its item (it needs a free bag slot). Use the item to make it your pet again. The Ash Sprite has no item form and stays with you.",
+    "<b>20 players online at once.</b> When the server is full, Play Online puts you in a line that shows your place and how many are ahead. You join automatically when a place frees up, and you can leave the line at any time.",
+    "<b>Reconnecting:</b> a dropped connection keeps your place for about 2 minutes. If you were gone longer you go back in line with a message saying why.",
+    "<b>Idle log-out:</b> after 30 minutes without input you are logged out (with a one-minute warning) so someone waiting can play. Set 5 to 60 minutes in Config → Online.",
+    "<b>Online count</b> in the Network box (👥 12/20) and in Config → Online.",
+    "<b>Server owners:</b> run the latest setup SQL (Admin → Copy setup SQL), server version 8. The player limit is the max_online setting in the server's config table (0 turns the limit off). Until then there is no limit or line; the idle log-out works either way.",
+  ]},
   { v: "18.35.3", date: "2026-10-16", title: "Pet items in your bag become pets", items: [
     "<b>Fixed:</b> pet items you already had in your bag (from before 18.35.1) now turn into pets when you log in, so they show in the Pets window and free their bag slot. Your first pet is equipped automatically.",
     "<b>Pets</b> is always on page 1 of the Commands menu now, even before you own a pet.",
@@ -3165,6 +3179,7 @@ function tabHelp() {
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
     "Open <b>Pets</b> on page 1 of the Commands menu to equip one, rename it, and summon or dismiss it. The <b>Pet button</b> on command bar 1 and <b>/pet</b> both toggle your equipped pet. A summoned pet comes back when you log in.",
     "A pet item you get joins you at once and never takes a bag slot, even when your bag is full.",
+    "<b>Unequip to bag</b> in the Pets window turns the equipped pet back into its item (needs a free bag slot), for example to trade it. Use the item again to get the pet back. The Ash Sprite has no item form.",
     "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. A pet item you get joins you straight away.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
@@ -3525,6 +3540,12 @@ function tabHelp() {
     "Trades are finished on the game server in a single step: the server checks that both players really have the items and crystals and room in their bags, then moves everything at once. If anything is off, nothing changes for either player."
   ]));
   h += sec("🌐 Accounts and saving", ul(["You need an account and an internet connection to play. Sign in on the title screen with your email and password. Creating an account needs the sign-up password from the server owner; you may have to confirm your email first.", "Your characters live on the game server, so sign in from any device to keep playing. Up to 8 characters per account, and every name is unique on the server.", "Progress saves to the server about every 15 seconds and when you close or hide the game. If the connection drops, the game keeps saving on your device and catches up when it's back; System shows when you last saved.", "Characters you made in this browser before accounts existed can be uploaded once from the character screen.", "System → Download a copy saves a backup file of the current character. Sign out from System or the character screen.", "The game owner's account also gets Config → More → Admin: ping, last save, who is online and where, server totals, suspicious saves and bans.", "The server checks each save. Impossible changes (a level above the cap, a negative or enormous crystal count, a renamed character) are refused, and unusual jumps are flagged for the game's admin. Accounts that cheat can be banned."]));
+  h += sec("👥 Server places and the line", ul([
+    "Up to 20 players can be online at once. When the server is full, Play Online puts you in a line that shows your place (#1 is next) and how many are ahead. Keep the page open; you join as soon as a place frees up. Leave the line at any time and Play Offline is still there.",
+    "A place is held while your game keeps in touch with the server. If your connection drops you keep your place for about 2 minutes, so a refresh or a short network blip won't send you to the back of the line.",
+    "Not touching anything logs you out after 30 minutes so your place can go to someone waiting. You get a one-minute warning with an I'm here button. Change the time (5 to 60 minutes) in Config → Online.",
+    "The Network box shows how many players are online, for example 👥 12/20. The admin account never needs a place.",
+  ]));
   h += sec("💾 Updates", ul([ "The game checks for new versions about every 5 minutes and shows one popup for the newest version only, even if several came out. Reload jumps straight to the newest. Later hides it until an even newer version comes out. If a reload still lands on an older copy (the web host can take a few minutes to catch up), it waits 15 minutes before asking again. System → Check for updates checks right away."]));
   sec("📋 Every menu and key", guideRef());
   if (!HELP_CATS.some(c => c[0] === UI.helpCat)) UI.helpCat = "ref";
