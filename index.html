@@ -1106,7 +1106,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.19.8 · built 2026-10-16 07:58 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.19.9 · built 2026-10-16 08:09 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -13011,7 +13011,8 @@ function updatePlayer(dt) {
     const sp = player.speed * Math.min(1, len) * (player.mounted ? mountMul() : 1) * (player.buffs && player.buffs.flee ? 1.8 : 1) * weatherSlow();
     player.x += (mv.x / len) * sp * dt;
     player.y += (mv.y / len) * sp * dt;
-    player.face = Math.atan2(mv.y, mv.x);
+    const lockT = player.engaged && player.target && player.target !== player && player.target.alive !== false && !player.mounted ? player.target : null;
+    player.face = lockT ? Math.atan2(lockT.y - player.y, lockT.x - player.x) : Math.atan2(mv.y, mv.x);
     moved = true;
   } else if (S.moveTarget) {
     moved = true;
@@ -18870,8 +18871,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.19.8 · built 2026-10-16 07:58 PDT";
+const BUILD_INFO = "v18.19.9 · built 2026-10-16 08:09 PDT";
 const UPDATES = [
+  { v: "18.19.9", date: "2026-10-16", title: "Movement and idle", items: [
+    "<b>Locked-on movement:</b> while you're auto-attacking, you keep facing your target as you move. Moving sideways sidesteps with your hips turned into the step, and moving away back-pedals with your legs stepping backward.",
+    "<b>Race gaits:</b> Pipkin bounce with quick, swinging arms; Ursan sway side to side with a heavy lean; Elari glide with less bob; Nekari run low and springy.",
+    "<b>Sheathed weapons bounce</b> gently on your back as you run.",
+    "<b>Two new idle moves:</b> brushing off a shoulder and scuffing the ground with a boot."
+  ] },
   { v: "18.19.8", date: "2026-10-16", title: "Spell release and ability poses", items: [
     "<b>Spell release flourish for each school:</b> elemental and debuff spells snap forward, healing and support spells sweep arms outward, summons slam down, dark magic draws back, and songs end with a bow-arm flick.",
     "<b>Interrupted casts flinch:</b> if a cast is broken you recoil with a shake instead of just dropping your arms.",
@@ -20538,7 +20545,7 @@ function tabHelp() {
     "<b>Top:</b> the Commands box and the Help bar appear while something is targeted or a menu is open; the Help bar explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
     "<b>Item icons:</b> every item has a painted icon. A green, blue or purple frame marks uncommon, rare and epic items. Weapon metal hints at quality: bronze, iron, steel, then gold-trimmed and gem-set pieces.",
-    "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
+    "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it; while locked you keep facing it as you move, so you sidestep and back-pedal instead of turning away. Disengage to run off freely. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
     "<b>Bottom:</b> the event log. New messages open it fully; after a few quiet seconds it shrinks to three lines. Each Esc hides one more line until it's gone. Press / to type (the tabs and typing box appear), or L to keep it open; on phones tap yourself and choose Chat. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
@@ -20579,7 +20586,7 @@ function tabHelp() {
   return out + "</div>";
 }
 
-const GAME_VERSION = "18.19.8";
+const GAME_VERSION = "18.19.9";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -26865,11 +26872,13 @@ function strideEff(v, spd) {
 function trackEvents(v, e, dt) {
   const an = animState(v);
   if (an.lx == null) { an.lx = e.x; an.ly = e.y; }
-  const d = Math.hypot(e.x - an.lx, e.y - an.ly) * U;
+  const mdx = e.x - an.lx, mdy = e.y - an.ly, d = Math.hypot(mdx, mdy) * U;
   an.lx = e.x; an.ly = e.y;
   const raw = dt > 0 ? Math.min(d / dt, 20) : 0;
   an.spd += (raw - an.spd) * Math.min(1, dt * 10);
-  an.ph += d * (Math.PI * 2) / strideEff(v, an.spd);
+  if (d > 0.0005) { const rel = Math.atan2(mdy, mdx) - (e.face || 0), k = Math.min(1, dt * 8); an.mf = (an.mf == null ? 1 : an.mf) + (Math.cos(rel) - (an.mf == null ? 1 : an.mf)) * k; an.ms = (an.ms || 0) + (Math.sin(rel) - (an.ms || 0)) * k; }
+  else if (an.spd < 0.2) { const m0 = an.mf == null ? 1 : an.mf; an.mf = m0 + (1 - m0) * Math.min(1, dt * 4); an.ms = (an.ms || 0) * (1 - Math.min(1, dt * 4)); }
+  an.ph += (an.mf != null && an.mf < -0.3 ? -1 : 1) * d * (Math.PI * 2) / strideEff(v, an.spd);
   if (e.lastSwing !== an.swing) { if (an.swing !== null && S.time - e.lastSwing < 0.3) { an.aStart = e.lastSwing; an.aVar = (an.aVar + 1) % 3; } an.swing = e.lastSwing; }
   if (e.lastWS !== an.ws) { if (an.ws !== null && S.time - e.lastWS < 0.3) { an.wsStart = e.lastWS; an.wsStyle = wsStyle(e.lastWSId); } an.ws = e.lastWS; }
   if (e.lastHit !== an.hit) { if (an.hit !== null && S.time - e.lastHit < 0.3) an.hitStart = e.lastHit; an.hit = e.lastHit; }
@@ -27003,6 +27012,14 @@ function applyPose(v, dt, sharp) {
   }
   if (BH && BS) { BH.rotation.y -= ty; BS.rotation.y += ty; v.tipApplied = ty; }
 }
+
+const RACE_GAIT = {
+  human: { bob: 1, arm: 1, roll: 0, lean: 0 },
+  elari: { bob: 0.8, arm: 0.9, roll: 0, lean: -0.02 },
+  pipkin: { bob: 1.7, arm: 1.35, roll: 0.04, lean: 0.04 },
+  ursan: { bob: 0.7, arm: 0.85, roll: 0.12, lean: 0.06 },
+  nekari: { bob: 1.15, arm: 1.05, roll: 0, lean: 0.05 }
+};
 
 const JA_CLASS = {
   provoke: "shout", warcry: "shout", feral_howl: "shout",
@@ -27212,7 +27229,7 @@ function poseHuman(v, e, dt) {
   const idleOk = amp < 0.05 && an.fight < 0.1 && !e.casting && !e.resting && !e.mounted && e.alive !== false && e.kind !== "mob";
   if (idleOk) {
     if (!an.idleNext) an.idleNext = S.time + 6 + Math.random() * 8;
-    if (S.time > an.idleNext && !an.idleAct) { an.idleAct = 1 + Math.floor(Math.random() * 4); an.idleStart = S.time; an.idleNext = S.time + 9 + Math.random() * 10; }
+    if (S.time > an.idleNext && !an.idleAct) { an.idleAct = 1 + Math.floor(Math.random() * 6); an.idleStart = S.time; an.idleNext = S.time + 9 + Math.random() * 10; }
   } else { an.idleAct = 0; an.idleNext = S.time + 5 + Math.random() * 6; }
   if (an.idleAct) {
     const ik = (S.time - an.idleStart) / 2.6;
@@ -27222,6 +27239,8 @@ function poseHuman(v, e, dt) {
       if (an.idleAct === 1) { addP(P, "head", 0, 0.9 * Math.sin(ik * Math.PI * 2) * w, 0); addP(P, "chest", 0, 0.25 * Math.sin(ik * Math.PI * 2) * w, 0); }
       else if (an.idleAct === 2) { setP(P, "upArmL", -2.6, 0, 0.35, w); setP(P, "upArmR", -2.6, 0, -0.35, w); setP(P, "foreArmL", -0.6, 0, 0, w); setP(P, "foreArmR", -0.6, 0, 0, w); addP(P, "spine", -0.18 * w, 0, 0); addP(P, "head", -0.3 * w, 0, 0); }
       else if (an.idleAct === 3) { addP(P, "hips", 0, 0, 0.08 * w); addP(P, "thighL", 0, 0, 0.1 * w); addP(P, "shinR", 0.25 * w, 0, 0); addP(P, "thighR", -0.1 * w, 0, 0); addP(P, "chest", 0, 0, -0.06 * w); v.rootOff[0] += 0.03 * w; }
+      else if (an.idleAct === 5) { setP(P, "upArmL", -1.3, 0, -0.9, w); setP(P, "foreArmL", -2.0 + Math.sin(S.time * 9) * 0.12, 0, 0, w); addP(P, "head", 0.1 * w, -0.5 * w, 0); }
+      else if (an.idleAct === 6) { const kk = Math.max(0, Math.sin(ik * Math.PI * 4)); addP(P, "thighR", -0.35 * kk * w, 0, 0); addP(P, "shinR", 0.2 * kk * w, 0, 0); addP(P, "head", 0.3 * w, 0, 0); addP(P, "spine", 0.06 * w, 0, 0); }
       else { setP(P, "upArmR", -2.1, 0, -0.7, w); setP(P, "foreArmR", -1.5 + Math.sin(S.time * 14) * 0.15, 0, 0, w); addP(P, "head", 0.1 * w, 0, -0.12 * w); }
     }
   }
@@ -27306,8 +27325,15 @@ function poseHuman(v, e, dt) {
   }
 
   if (amp > 0.01) {
-    const lean = st.hop ? 0.22 : 0.14;
-    addP(P, "thighL", s1 * 0.78 * amp, 0, 0); addP(P, "thighR", -s1 * 0.78 * amp, 0, 0);
+    const race = v.meta && v.meta.race, RG = RACE_GAIT[race] || RACE_GAIT.human;
+    const mf = an.mf == null ? 1 : an.mf, ms = an.ms || 0, side = Math.abs(ms) * (1 - Math.max(0, mf)), backK = Math.max(0, -mf);
+    const lean = (st.hop ? 0.22 : 0.14) * (1 - backK) - 0.1 * backK + RG.lean;
+    const legK = 1 - 0.35 * side - 0.3 * backK;
+    addP(P, "thighL", s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp); addP(P, "thighR", -s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp);
+    if (side > 0.05) { addP(P, "hips", 0, ms * 0.55 * side * amp, 0); addP(P, "chest", 0, -ms * 0.45 * side * amp, 0); }
+    if (RG.roll) addP(P, "hips", 0, 0, s1 * RG.roll * amp);
+    if (RG.arm !== 1) { addP(P, "upArmL", -s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); addP(P, "upArmR", s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); }
+    v.rootOff[1] += Math.abs(c1) * 0.035 * (RG.bob - 1) * amp;
     const kn = 1.0 + 0.35 * run;
     addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp, 0, 0);
     addP(P, "footL", (-s1 * 0.22 + 0.3 * Math.max(0, -c1) * Math.max(0, s1)) * amp, 0, 0); addP(P, "footR", (s1 * 0.22 + 0.3 * Math.max(0, c1) * Math.max(0, -s1)) * amp, 0, 0);
@@ -27326,6 +27352,7 @@ function poseHuman(v, e, dt) {
     if (step !== an.lastStep) { an.lastStep = step; if (run > 0.4 && e.alive !== false) fxFootstep(e, v); }
   }
 
+  if (v.weapon && !v.weaponDrawn && !v.wTr && !v.wBlend && v.wBaseRot) { v.weapon.rotation.x = v.wBaseRot.x + Math.sin(an.ph * 2) * 0.05 * amp; v.weapon.rotation.y = v.wBaseRot.y + Math.cos(an.ph) * 0.04 * amp; }
   { const eng = Math.sin(Math.PI * Math.min(1, Math.max(0, an.fight))); if (eng > 0.01) { addP(P, "spine", 0.1 * eng, 0, 0); addP(P, "thighL", -0.12 * eng, 0, 0); addP(P, "thighR", -0.08 * eng, 0, 0); addP(P, "shinL", 0.15 * eng, 0, 0); addP(P, "shinR", 0.1 * eng, 0, 0); v.rootOff[1] -= 0.025 * eng; } }
   if (v.wTr) {
     const wp = Math.min(1, Math.max(0, (S.time - v.wTr.t0) / v.wTr.dur));
@@ -29047,6 +29074,7 @@ function snapWeapon(v, drawn) {
   const w = v.weapon, t = weaponPose(v, drawn);
   (drawn ? v.bones.handR : v.bones.chest).add(w);
   w.position.copy(t.pos); w.rotation.copy(t.rot);
+  v.wBaseRot = t.rot.clone();
   v.weaponDrawn = drawn; v.wTr = null; v.wBlend = null;
 }
 

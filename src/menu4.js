@@ -1636,6 +1636,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.9", date: "2026-10-16", title: "Movement and idle", items: [
+    "<b>Locked-on movement:</b> while you're auto-attacking, you keep facing your target as you move. Moving sideways sidesteps with your hips turned into the step, and moving away back-pedals with your legs stepping backward.",
+    "<b>Race gaits:</b> Pipkin bounce with quick, swinging arms; Ursan sway side to side with a heavy lean; Elari glide with less bob; Nekari run low and springy.",
+    "<b>Sheathed weapons bounce</b> gently on your back as you run.",
+    "<b>Two new idle moves:</b> brushing off a shoulder and scuffing the ground with a boot."
+  ] },
   { v: "18.19.8", date: "2026-10-16", title: "Spell release and ability poses", items: [
     "<b>Spell release flourish for each school:</b> elemental and debuff spells snap forward, healing and support spells sweep arms outward, summons slam down, dark magic draws back, and songs end with a bow-arm flick.",
     "<b>Interrupted casts flinch:</b> if a cast is broken you recoil with a shake instead of just dropping your arms.",
@@ -3302,7 +3308,7 @@ function tabHelp() {
     "<b>Top:</b> the Commands box and the Help bar appear while something is targeted or a menu is open; the Help bar explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",
     "<b>Top left:</b> HP, MP and TP appear while you're in a fight. Status icons beside them show your buffs, food, resting and the City Blessing (blue crystal). Hover or long-press an icon for its name and time left.",
     "<b>Item icons:</b> every item has a painted icon. A green, blue or purple frame marks uncommon, rare and epic items. Weapon metal hints at quality: bronze, iron, steel, then gold-trimmed and gem-set pieces.",
-    "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
+    "<b>Bottom right:</b> Target shows your target's name and HP. Monster names are green while calm and red once they attack you or your party; purple means someone else has claimed it. <b>Locked</b> shows while you're auto-attacking it; while locked you keep facing it as you move, so you sidestep and back-pedal instead of turning away. Disengage to run off freely. Below is Party (or Solo when you're alone) with everyone's HP and MP.",
     "<b>Bottom:</b> the event log. New messages open it fully; after a few quiet seconds it shrinks to three lines. Each Esc hides one more line until it's gone. Press / to type (the tabs and typing box appear), or L to keep it open; on phones tap yourself and choose Chat. Tabs filter combat, loot, system and player chat; type commands in the box under it.",
     "<b>Command menu:</b> opens on the left above the log when you target a monster or player, tap yourself, or press Enter. ↑ ↓ to choose, Enter or → to confirm, ← to go back, Esc to close. Disengage stops attacking and lets go of the target.",
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",

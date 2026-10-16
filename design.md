@@ -1817,3 +1817,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Casting pose per school already existed; release flourish is now per school, interrupt flinch 0.5s.
 - Not done: staff glow while casting.
 - test/jasheet.js: WS=<ability id> (reuses the env name) JOB=WAR IDLE=1 STEP=0.08 node jasheet.js <abs html> <png> <weapon id> human 0 side.
+
+## 18.19.9: movement and idle (animation plan phase 4)
+- game.js: joystick/keyboard movement keeps player.face on the target while engaged (lockT), not mounted. No speed penalty when back-pedalling.
+- anim.js trackEvents: an.mf/an.ms = smoothed cos/sin of move direction relative to facing; phase runs backward when an.mf < -0.3. Guard against undefined mf (caused NaN collapse during testing).
+- Walk block: legK reduces stride on side/back moves, thigh roll on strafe, hips yaw into the step with chest counter-yaw, RACE_GAIT (bob, arm, roll, lean) per race.
+- Sheathed weapon bounce uses v.wBaseRot saved in snapWeapon.
+- Idle acts 5 (brush shoulder) and 6 (scuff ground) added; existing sit/rest, cape and hair springs unchanged.
+- test/walksheet.js: treadmill test (moves an.lx/ly not e.x). DIR=0|90|180 ENG=1 STEP=0.06 MODE=none.
