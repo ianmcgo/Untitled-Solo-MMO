@@ -9,7 +9,7 @@ function onKey(e) {
   if (!UI.started) return;
   if ((e.ctrlKey || e.metaKey) && !/^(Digit|Numpad)[0-9]$/.test(e.code || "")) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
+  const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "database", o: "achievements" };
   if (S.dialog) {
     if (k === "escape") closeDialog();
     if (["arrowup", "arrowdown", "enter", " "].includes(k)) { e.preventDefault(); dlgKey(k); return; }

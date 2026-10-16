@@ -95,7 +95,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -118,6 +118,10 @@ function normalizeSave(d) {
   if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
+  out.seen = { items: Object.assign({}, d.seen && d.seen.items), npcs: Object.assign({}, d.seen && d.seen.npcs) };
+  for (const s of out.inventory) out.seen.items[s.id] = 1;
+  for (const k in out.gear) out.seen.items[out.gear[k]] = 1;
+  for (const s of d.storage || []) if (s && ITEMS[s.id]) out.seen.items[s.id] = 1;
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
   delete out.look.skin;
   out.mountLicense = !!d.mountLicense;
@@ -1028,6 +1032,8 @@ function applyDamage(src, tgt, amt, opt) {
   if (!tgt.alive) return;
   amt = Math.max(0, Math.round(amt));
   if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
+  if (src === player && tgt !== player) { save.stats.dmgDealt += amt; if (amt > save.stats.bigHit) save.stats.bigHit = amt; }
+  if (tgt === player) save.stats.dmgTaken += amt;
   if (opt.el && tgt.buffs && tgt.buffs.shell && !isMob(tgt)) amt = Math.max(0, Math.round(amt * (1 - tgt.buffs.shell.pow)));
   if (opt.el && BAR_EL[opt.el] && tgt.buffs && tgt.buffs[BAR_EL[opt.el]] && !isMob(tgt)) amt = Math.max(0, Math.round(amt * (1 - tgt.buffs[BAR_EL[opt.el]].pow)));
   if (opt.el && !isMob(tgt) && tgt.stats && tgt.stats["res_" + opt.el]) amt = Math.max(0, Math.round(amt * (1 - Math.min(0.5, tgt.stats["res_" + opt.el] / 100))));
@@ -1294,6 +1300,7 @@ function invCount(id) { return save.inventory.filter(s => s.id === id).reduce((n
 
 function giveItem(id, n, quiet) {
   const it = ITEMS[id];
+  if (save.seen) save.seen.items[id] = 1;
   const stack = it.stack || 1;
   let left = n;
   for (const s of save.inventory) {
@@ -1382,7 +1389,7 @@ function dropLoot(m, mates) {
   if (gr) {
     const total = Math.round(rand(gr[0], gr[1]) * m.lv);
     const g = mates.length ? Math.floor(total / (1 + mates.length)) : total;
-    save.gil += g;
+    save.gil += g; save.stats.killGil += g;
     log("You obtain " + g + " crystals" + (mates.length ? " (party share)" : "") + ".", "loot");
     sfx("coin");
     return mates.length ? g : 0;
@@ -2220,6 +2227,7 @@ function resolveChain(a, t, ws, dmg) {
 
 function doAbility(a, id, t) {
   const ab = ABILITIES[id];
+  if (a === player) save.stats.abilitiesUsed++;
   a.recasts["ja:" + id] = S.time + ab.recast;
   if (id === "provoke") {
     log(subj(a) + " " + vb(a, "use") + " Provoke on the " + t.name + ".", cls(a));
@@ -2489,6 +2497,7 @@ function interruptCast(e) {
 function finishCast(a) {
   const { sp, t, id } = a.casting;
   a.casting = null;
+  if (a === player) save.stats.spellsCast++;
   if (sp.kind === "raise") { if (t.alive) { log(sp.name + " has no effect: " + (t === player ? "you are" : t.name + " is") + " not KO'd.", "missc"); return; } if (t.kind === "remote") { if (typeof netCastOn === "function") netCastOn(a, t, sp, id); log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + t.name + ".", cls(a)); return; } log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ".", cls(a)); revive(t, sp.pow, a === player ? null : a.name); return; }
   if (!t.alive) { log(sp.name + " fizzles: the target is gone.", cls(a)); return; }
   const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
@@ -2792,6 +2801,7 @@ function useItem(id) {
   if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
+  save.stats.itemsUsed++;
   if (it.enchant === "warp") { S.itemReadyAt = S.time + 5; castWarp(player); return; }
   if (it.kind === "food") { eatFood(id); return; }
   if (it.spell) { learnSpell(id); return; }
@@ -4453,6 +4463,7 @@ function talkNearest() {
 }
 
 function talkTo(n) {
+  if (save.seen && NPCS[n.id]) save.seen.npcs[n.id] = 1;
   player.target = n;
   player.face = Math.atan2(n.y - player.y, n.x - player.x);
   n.face = Math.atan2(player.y - n.y, player.x - n.x);
@@ -5586,7 +5597,7 @@ function runCommand(text) {
     case "seek": case "lfg": if (typeof netSeek === "function") netSeek(arg ? true : !save.lfg, arg || null); return;
     case "social": if (typeof openMenu === "function") openMenu("social"); return;
     case "trade": if (typeof netTradeAsk === "function") netTradeAsk(arg || (player.target && player.target.kind === "remote" ? player.target.name : "")); else log("Trading needs the game server.", "sys"); return;
-    case "bestiary": case "beasts": if (typeof openMenu === "function") openMenu("bestiary"); return;
+    case "bestiary": case "beasts": case "database": if (typeof openMenu === "function") { UI.dbCat = "beasts"; openMenu("database"); } return;
     case "achievements": case "ach": if (typeof openMenu === "function") openMenu("achievements"); return;
     case "stand": if (player.resting) standUp(player); else log("You're already standing.", "sys"); return;
     case "attack": case "a": toggleEngage(false); return;

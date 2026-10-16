@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.15.0",
-  "releaseTitle": "Ctrl hotkey line removed",
+  "version": "18.16.0",
+  "releaseTitle": "Database, stats and Social button",
   "description": "",
   "main": "index.js",
   "scripts": {

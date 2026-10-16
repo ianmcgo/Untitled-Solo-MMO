@@ -11,9 +11,9 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Config", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], database: ["Database", "📚", "Y"], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], achievements: ["Achievements", "🏆", "O"]
 };
-const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "party", "social", "craft", "quests", "bestiary", "achievements", "map", "settings"];
+const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "party", "social", "craft", "quests", "database", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -1265,8 +1265,8 @@ function chatToggle(force) {
 }
 
 const MAIN_CMDS = [
-  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Party", "party", "Party members, companions, invitations and the looking-for-party flag."], ["Trade", "@trade", "Trade items or crystals with your current target."], ["Search", "@search", "Search for adventurers who are online."], ["Linkshell", "@ls", "Your linkshells: members, invitations and chat."], ["Friend List", "@friends", "See which friends are online and send them a tell."], ["Map", "map", "View the map of this area."]],
-  [["Quests", "quests", "Your story chapter and current and finished quests."], ["Key Items", "keyitems", "Important items that can't be traded or dropped."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Bestiary", "bestiary", "Creatures you've met and what you've learned about them."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Help", "help", "How everything works."], ["Updates", "updates", "What's new in each version."], ["Time", "@time", "Check the time, or wait in town for hours to pass."], ["Communication", "social", "Friends, linkshells, search and emotes."], ["Log Out", "@logout", "Return to the character selection screen."]]
+  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Trade", "@trade", "Trade items or crystals with your current target."], ["Social", "social", "Who is online, friends, linkshells, party search and the blacklist."], ["Map", "map", "View the map of this area."]],
+  [["Quests", "quests", "Your story chapter and current and finished quests."], ["Key Items", "keyitems", "Important items that can't be traded or dropped."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Database", "database", "Everything you've owned, learned, met and visited: items, gear, magic, abilities, jobs, people, places and creatures."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Help", "help", "How everything works."], ["Updates", "updates", "What's new in each version."], ["Time", "@time", "Check the time, or wait in town for hours to pass."], ["Log Out", "@logout", "Return to the character selection screen."]]
 ];
 
 const STATUS_CMDS = [["Profile", "profile", ""], ["Job Levels", "jobs", "View the levels of the jobs you know."], ["Combat Skl.", "combat", "View current combat skills."], ["Magic Skl.", "magic", "View current magic skills."], ["Craft Skl.", "craft", "View current craft and gathering skills."], ["Currencies", "cur", "View your crystals and guild points."], ["Play Time", "time", "View your total time spent adventuring."]];
@@ -1279,7 +1279,7 @@ function tabHelpLine(tab) {
 function mainCmdItems() {
   if (UI.mm.sub === "status") return STATUS_CMDS;
   let pg = MAIN_CMDS[UI.mm.page].slice();
-  if (PLAY.offline) pg = pg.filter(it => !["@trade", "@search", "@ls", "@friends", "social"].includes(it[1]));
+  if (PLAY.offline) pg = pg.filter(it => !["@trade", "social"].includes(it[1]));
   const mi = pg.findIndex(it => it[1] === "map");
   if (mi >= 0 && S.zone && S.zone.residence) pg[mi] = ["Residence", "home", "Arrange furniture and use your residence."];
   return pg;
@@ -1315,8 +1315,6 @@ function mainCmdDo(i) {
   UI.mm.sel = i; renderMainCmd();
   if (k === "@logout") mainCmdClose();
   if (k === "@trade") { const t = player.target; if (t && t.kind === "remote") netTradeAsk(t.name); else log("Target another player first, then choose Trade.", "sys"); return; }
-  if (k === "@search") { UI.socQ = ""; openMenu("social"); return; }
-  if (k === "@ls" || k === "@friends") { openMenu("social"); return; }
   if (k === "@time") { mainCmdClose(); openTimeBox(); return; }
   if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out" }); return; }
   openMenu(k);

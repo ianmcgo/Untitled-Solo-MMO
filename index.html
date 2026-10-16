@@ -633,7 +633,7 @@
   #ffSide .pf .top { display: block; }
   #ffSide .pf .nm { font: italic 800 14px var(--ffFont); letter-spacing: .05em; color: #fff; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
   #ffSide .pf.net .nm { color: #c8e8ff; }
-  #ffSide .pf .bars { display: grid; grid-template-columns: 1fr; gap: 1px; margin-top: -2px; }
+  #ffSide .pf .bars { display: grid; grid-template-columns: 1fr; gap: 13px; margin-top: 4px; padding-bottom: 2px; }
   #ffSide .pf .bar { height: 5px; border-radius: 3px; border: 1px solid rgba(255,255,255,.55); background: rgba(10,10,40,.55); position: relative; overflow: visible; }
   #ffSide .pf .bar > i { border-radius: 2px; }
   #ffSide .pf .bar.hp > i { background: linear-gradient(90deg, #ffd8c8, #fff); } #ffSide .pf .bar.mp > i { background: linear-gradient(90deg, #f8c8ee, #fff); }
@@ -1104,7 +1104,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.15.0 · built 2026-10-15 21:45 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.16.0 · built 2026-10-15 22:19 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -9392,7 +9392,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -9415,6 +9415,10 @@ function normalizeSave(d) {
   if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
+  out.seen = { items: Object.assign({}, d.seen && d.seen.items), npcs: Object.assign({}, d.seen && d.seen.npcs) };
+  for (const s of out.inventory) out.seen.items[s.id] = 1;
+  for (const k in out.gear) out.seen.items[out.gear[k]] = 1;
+  for (const s of d.storage || []) if (s && ITEMS[s.id]) out.seen.items[s.id] = 1;
   if (!["assist", "follow", "hold"].includes(out.stance)) out.stance = "assist";
   delete out.look.skin;
   out.mountLicense = !!d.mountLicense;
@@ -10325,6 +10329,8 @@ function applyDamage(src, tgt, amt, opt) {
   if (!tgt.alive) return;
   amt = Math.max(0, Math.round(amt));
   if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
+  if (src === player && tgt !== player) { save.stats.dmgDealt += amt; if (amt > save.stats.bigHit) save.stats.bigHit = amt; }
+  if (tgt === player) save.stats.dmgTaken += amt;
   if (opt.el && tgt.buffs && tgt.buffs.shell && !isMob(tgt)) amt = Math.max(0, Math.round(amt * (1 - tgt.buffs.shell.pow)));
   if (opt.el && BAR_EL[opt.el] && tgt.buffs && tgt.buffs[BAR_EL[opt.el]] && !isMob(tgt)) amt = Math.max(0, Math.round(amt * (1 - tgt.buffs[BAR_EL[opt.el]].pow)));
   if (opt.el && !isMob(tgt) && tgt.stats && tgt.stats["res_" + opt.el]) amt = Math.max(0, Math.round(amt * (1 - Math.min(0.5, tgt.stats["res_" + opt.el] / 100))));
@@ -10591,6 +10597,7 @@ function invCount(id) { return save.inventory.filter(s => s.id === id).reduce((n
 
 function giveItem(id, n, quiet) {
   const it = ITEMS[id];
+  if (save.seen) save.seen.items[id] = 1;
   const stack = it.stack || 1;
   let left = n;
   for (const s of save.inventory) {
@@ -10679,7 +10686,7 @@ function dropLoot(m, mates) {
   if (gr) {
     const total = Math.round(rand(gr[0], gr[1]) * m.lv);
     const g = mates.length ? Math.floor(total / (1 + mates.length)) : total;
-    save.gil += g;
+    save.gil += g; save.stats.killGil += g;
     log("You obtain " + g + " crystals" + (mates.length ? " (party share)" : "") + ".", "loot");
     sfx("coin");
     return mates.length ? g : 0;
@@ -11517,6 +11524,7 @@ function resolveChain(a, t, ws, dmg) {
 
 function doAbility(a, id, t) {
   const ab = ABILITIES[id];
+  if (a === player) save.stats.abilitiesUsed++;
   a.recasts["ja:" + id] = S.time + ab.recast;
   if (id === "provoke") {
     log(subj(a) + " " + vb(a, "use") + " Provoke on the " + t.name + ".", cls(a));
@@ -11786,6 +11794,7 @@ function interruptCast(e) {
 function finishCast(a) {
   const { sp, t, id } = a.casting;
   a.casting = null;
+  if (a === player) save.stats.spellsCast++;
   if (sp.kind === "raise") { if (t.alive) { log(sp.name + " has no effect: " + (t === player ? "you are" : t.name + " is") + " not KO'd.", "missc"); return; } if (t.kind === "remote") { if (typeof netCastOn === "function") netCastOn(a, t, sp, id); log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + t.name + ".", cls(a)); return; } log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ".", cls(a)); revive(t, sp.pow, a === player ? null : a.name); return; }
   if (!t.alive) { log(sp.name + " fizzles: the target is gone.", cls(a)); return; }
   const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
@@ -12089,6 +12098,7 @@ function useItem(id) {
   if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
+  save.stats.itemsUsed++;
   if (it.enchant === "warp") { S.itemReadyAt = S.time + 5; castWarp(player); return; }
   if (it.kind === "food") { eatFood(id); return; }
   if (it.spell) { learnSpell(id); return; }
@@ -13750,6 +13760,7 @@ function talkNearest() {
 }
 
 function talkTo(n) {
+  if (save.seen && NPCS[n.id]) save.seen.npcs[n.id] = 1;
   player.target = n;
   player.face = Math.atan2(n.y - player.y, n.x - player.x);
   n.face = Math.atan2(player.y - n.y, player.x - n.x);
@@ -14883,7 +14894,7 @@ function runCommand(text) {
     case "seek": case "lfg": if (typeof netSeek === "function") netSeek(arg ? true : !save.lfg, arg || null); return;
     case "social": if (typeof openMenu === "function") openMenu("social"); return;
     case "trade": if (typeof netTradeAsk === "function") netTradeAsk(arg || (player.target && player.target.kind === "remote" ? player.target.name : "")); else log("Trading needs the game server.", "sys"); return;
-    case "bestiary": case "beasts": if (typeof openMenu === "function") openMenu("bestiary"); return;
+    case "bestiary": case "beasts": case "database": if (typeof openMenu === "function") { UI.dbCat = "beasts"; openMenu("database"); } return;
     case "achievements": case "ach": if (typeof openMenu === "function") openMenu("achievements"); return;
     case "stand": if (player.resting) standUp(player); else log("You're already standing.", "sys"); return;
     case "attack": case "a": toggleEngage(false); return;
@@ -15424,9 +15435,9 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Config", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Help", "❓", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], bestiary: ["Bestiary", "📖", "Y"], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], database: ["Database", "📚", "Y"], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], achievements: ["Achievements", "🏆", "O"]
 };
-const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "party", "social", "craft", "quests", "bestiary", "achievements", "map", "settings"];
+const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "party", "social", "craft", "quests", "database", "achievements", "map", "settings"];
 const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -16678,8 +16689,8 @@ function chatToggle(force) {
 }
 
 const MAIN_CMDS = [
-  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Party", "party", "Party members, companions, invitations and the looking-for-party flag."], ["Trade", "@trade", "Trade items or crystals with your current target."], ["Search", "@search", "Search for adventurers who are online."], ["Linkshell", "@ls", "Your linkshells: members, invitations and chat."], ["Friend List", "@friends", "See which friends are online and send them a tell."], ["Map", "map", "View the map of this area."]],
-  [["Quests", "quests", "Your story chapter and current and finished quests."], ["Key Items", "keyitems", "Important items that can't be traded or dropped."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Bestiary", "bestiary", "Creatures you've met and what you've learned about them."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Help", "help", "How everything works."], ["Updates", "updates", "What's new in each version."], ["Time", "@time", "Check the time, or wait in town for hours to pass."], ["Communication", "social", "Friends, linkshells, search and emotes."], ["Log Out", "@logout", "Return to the character selection screen."]]
+  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Trade", "@trade", "Trade items or crystals with your current target."], ["Social", "social", "Who is online, friends, linkshells, party search and the blacklist."], ["Map", "map", "View the map of this area."]],
+  [["Quests", "quests", "Your story chapter and current and finished quests."], ["Key Items", "keyitems", "Important items that can't be traded or dropped."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Database", "database", "Everything you've owned, learned, met and visited: items, gear, magic, abilities, jobs, people, places and creatures."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Help", "help", "How everything works."], ["Updates", "updates", "What's new in each version."], ["Time", "@time", "Check the time, or wait in town for hours to pass."], ["Log Out", "@logout", "Return to the character selection screen."]]
 ];
 
 const STATUS_CMDS = [["Profile", "profile", ""], ["Job Levels", "jobs", "View the levels of the jobs you know."], ["Combat Skl.", "combat", "View current combat skills."], ["Magic Skl.", "magic", "View current magic skills."], ["Craft Skl.", "craft", "View current craft and gathering skills."], ["Currencies", "cur", "View your crystals and guild points."], ["Play Time", "time", "View your total time spent adventuring."]];
@@ -16692,7 +16703,7 @@ function tabHelpLine(tab) {
 function mainCmdItems() {
   if (UI.mm.sub === "status") return STATUS_CMDS;
   let pg = MAIN_CMDS[UI.mm.page].slice();
-  if (PLAY.offline) pg = pg.filter(it => !["@trade", "@search", "@ls", "@friends", "social"].includes(it[1]));
+  if (PLAY.offline) pg = pg.filter(it => !["@trade", "social"].includes(it[1]));
   const mi = pg.findIndex(it => it[1] === "map");
   if (mi >= 0 && S.zone && S.zone.residence) pg[mi] = ["Residence", "home", "Arrange furniture and use your residence."];
   return pg;
@@ -16728,8 +16739,6 @@ function mainCmdDo(i) {
   UI.mm.sel = i; renderMainCmd();
   if (k === "@logout") mainCmdClose();
   if (k === "@trade") { const t = player.target; if (t && t.kind === "remote") netTradeAsk(t.name); else log("Target another player first, then choose Trade.", "sys"); return; }
-  if (k === "@search") { UI.socQ = ""; openMenu("social"); return; }
-  if (k === "@ls" || k === "@friends") { openMenu("social"); return; }
   if (k === "@time") { mainCmdClose(); openTimeBox(); return; }
   if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out" }); return; }
   openMenu(k);
@@ -17226,7 +17235,7 @@ function renderModal() {
   for (const t of ["help", "updates", "system", "credits"]) if (S.modal === t) tabs.push(t);
   $("mNav").innerHTML = '<div class="ttl">LEID\'ANAV REBORN</div>' + tabs.map(t => '<button data-tab="' + t + '"' + (t === S.modal ? ' class="on"' : "") + "><span>" + TAB_INFO[t][1] + "</span>" + TAB_INFO[t][0] + (TAB_INFO[t][2] ? '<span class="k">' + TAB_INFO[t][2] + "</span>" : "") + "</button>").join("") + '<button class="x" data-tab="close">✕ Close</button>';
   $("mHead").innerHTML = "<h2>" + TAB_INFO[S.modal][0] + '</h2><span class="meta">💠 ' + save.gil + " crystals · " + save.inventory.length + "/" + CONFIG.inventorySize + ' bag</span><button class="close" data-tab="close">✕</button>';
-  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, bestiary: tabBestiary, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
+  const R = { character: tabCharacter, inventory: tabInventory, skills: tabSkills, actions: tabActions, quests: tabQuests, map: tabMap, help: tabHelp, updates: tabUpdates, settings: tabSettings, system: tabSystem, shop: tabShop, job: tabJob, mercs: tabMercs, party: tabParty, forge: tabForge, board: tabBoard, admin: tabAdmin, guild: tabGuild, auction: tabAuction, pets: tabPets, trade: tabTrade, equipment: tabEquipment, magic: tabMagic, abilities: tabAbilities, keyitems: tabKeyItems, social: tabSocial, stable: tabStable, database: tabDatabase, achievements: tabAchievements, storage: tabStorage, home: tabHome, furnishings: tabFurnishings, credits: tabCredits, craft: tabCraft }[S.modal];
   $("mBody").innerHTML = R ? R() : "";
   if (UI.kbBtn != null && !SLIM_TABS[S.modal] && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
   if (UI.kbRow != null && SLIM_TABS[S.modal]) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
@@ -18114,7 +18123,125 @@ function beastHabitat(k) {
   return out;
 }
 
-function tabBestiary() {
+const DB_CATS = [["items", "🧪", "Items"], ["equipment", "🛡️", "Equipment"], ["magic", "✦", "Magic"], ["abilities", "⚡", "Abilities"], ["jobs", "🎓", "Jobs"], ["people", "👥", "People"], ["places", "🗺️", "Places"], ["beasts", "📖", "Bestiary"]];
+
+function dbSyncSeen() {
+  if (!save.seen) save.seen = { items: {}, npcs: {} };
+  for (const s of save.inventory) save.seen.items[s.id] = 1;
+  for (const k in save.gear) if (save.gear[k]) save.seen.items[save.gear[k]] = 1;
+  for (const s of save.storage || []) if (s && ITEMS[s.id]) save.seen.items[s.id] = 1;
+}
+function dbPic(icon, thumb, color) {
+  return '<div class="bpic"' + (color ? ' style="background:radial-gradient(circle at 50% 40%,' + color + '66,rgba(10,14,28,.85))"' : "") + ">" + (thumb ? '<img src="' + thumb + '" alt="">' : '<span style="font-size:38px;color:#fff">' + icon + "</span>") + "</div>";
+}
+function dbCard(pic, title, lines) {
+  return '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start">' + pic + '<div style="flex:1;min-width:0"><b>' + title + "</b>" + lines.filter(Boolean).map(l => '<div class="sub" style="margin-top:3px">' + l + "</div>").join("") + "</div></div>";
+}
+function dbCount(have, total, what) {
+  return '<div class="sub" style="margin-bottom:8px">' + have + " / " + total + " " + what + " recorded.</div>";
+}
+function dbThumbReady() { if (S.modal === "database") renderModal(); }
+
+function dbItems(equip) {
+  const ids = Object.keys(ITEMS).filter(id => (ITEMS[id].kind === "equip") === equip);
+  const have = ids.filter(id => save.seen.items[id]);
+  let h = dbCount(have.length, ids.length, equip ? "pieces of equipment" : "items") + '<div class="sub" style="margin-bottom:8px">Anything you have owned is recorded here.</div>';
+  for (const id of have) {
+    const it = ITEMS[id];
+    if (equip) {
+      h += dbCard(dbPic(it.icon || "📦", null, "#8aa4d8"), esc(it.name), [itemCard(id)]);
+    } else {
+      const tags = [it.kind, it.rarity, it.rare ? "Rare" : "", it.ex ? "Ex" : ""].filter(Boolean).join(" · ");
+      h += dbCard(dbPic(it.icon || "📦", null, "#8aa4d8"), esc(it.name), [esc(itemDesc(id)), esc(tags) + (it.price ? " · Value " + it.price + " crystals" : "") + (it.stack > 1 ? " · Stacks to " + it.stack : ""), "You carry " + invCount(id)]);
+    }
+  }
+  return h;
+}
+function dbMagic() {
+  const ids = Object.keys(SPELLS), have = ids.filter(id => save.spells.includes(id));
+  let h = dbCount(have.length, ids.length, "spells");
+  for (const id of have) {
+    const sp = SPELLS[id], jb = Object.keys(sp.jobs).map(j => j + " " + sp.jobs[j]).join(", ");
+    const el = sp.el || sp.element, col = el && ELEMENT_COLORS[el] ? ELEMENT_COLORS[el] : "#b39ddb";
+    h += dbCard(dbPic(sp.kind === "heal" ? "💚" : sp.kind === "buff" ? "✨" : "🔮", null, col), esc(sp.name), [esc(sp.desc || ""), "MP " + sp.mp + " · Cast " + sp.cast + "s · Recast " + sp.recast + "s" + (el ? " · " + esc(el) : ""), "Learned by: " + esc(jb)]);
+  }
+  return h;
+}
+function dbAbilities() {
+  const ids = Object.keys(ABILITIES), have = ids.filter(id => (save.jobs[ABILITIES[id].job] || { lv: 0 }).lv >= ABILITIES[id].lv);
+  let h = dbCount(have.length, ids.length, "abilities");
+  for (const id of have) {
+    const ab = ABILITIES[id], jb = JOBS[ab.job];
+    h += dbCard(dbPic(jb ? jb.icon : "⚡", null, jb ? jb.color : "#ffd54f"), esc(ab.name), [esc(ab.desc || ""), esc(jb ? jb.name : ab.job) + " Lv." + ab.lv + " · Recast " + ab.recast + "s · Target: " + esc(ab.target || "self")]);
+  }
+  return h;
+}
+function dbJobs() {
+  const ids = Object.keys(JOBS).filter(j => (save.jobs[j] && save.jobs[j].lv > 1) || j === save.mainJob || j === save.subJob);
+  let h = dbCount(ids.length, Object.keys(JOBS).length, "jobs");
+  for (const j of ids) {
+    const jb = JOBS[j], lv = save.jobs[j].lv;
+    const abil = Object.keys(ABILITIES).filter(id => ABILITIES[id].job === j && ABILITIES[id].lv <= lv).map(id => ABILITIES[id].name);
+    const spl = Object.keys(SPELLS).filter(id => SPELLS[id].jobs[j] && SPELLS[id].jobs[j] <= lv).map(id => SPELLS[id].name);
+    h += dbCard(dbPic(jb.icon, null, jb.color), esc(jb.name) + " (" + j + ")" + (j === save.mainJob ? " · main" : j === save.subJob ? " · support" : ""), ["Level " + lv + " · Experience " + (save.jobs[j].xp || 0), "Base HP " + jb.hp[0] + " · MP " + jb.mp[0], "Abilities: " + (abil.length ? esc(abil.join(", ")) : "none yet"), "Magic: " + (spl.length ? esc(spl.join(", ")) : "none yet")]);
+  }
+  return h;
+}
+function dbWhere(npcId) {
+  const out = [];
+  for (const z in ZONES) if ((ZONES[z].npcs || []).some(n => n.id === npcId)) out.push(ZONES[z].name);
+  return out;
+}
+function dbPeople() {
+  const ids = Object.keys(NPCS).filter(id => !NPCS[id].prop), have = ids.filter(id => save.seen.npcs[id]);
+  let h = dbCount(have.length, ids.length, "people") + '<div class="sub" style="margin-bottom:8px">Talk to someone to add them.</div>';
+  for (const id of have) {
+    const n = NPCS[id], key = "npc:" + id;
+    const pic = typeof beastThumb === "function" ? beastThumb(key, dbThumbReady, Object.assign({ id, kind: "npc", x: 0, y: 0, face: 0, radius: 14 }, n)) : null;
+    const where = dbWhere(id);
+    h += dbCard(dbPic("👤", pic, "#a5d6a7"), esc(n.name), ["Found in: " + esc(where.join(", ") || "various places")]);
+  }
+  return h;
+}
+function dbPlaces() {
+  const ids = Object.keys(ZONES).filter(z => (save.discovered || []).includes(z) || z === S.zoneId), seen = new Set(ids);
+  let h = dbCount(ids.length, Object.keys(ZONES).length, "places");
+  for (const z of ids) {
+    const zn = ZONES[z], ex = [...new Set((zn.exits || []).map(e => ZONES[e.to] ? ZONES[e.to].name : null).filter(Boolean))];
+    const folk = (zn.npcs || []).filter(n => save.seen.npcs[n.id] && NPCS[n.id]).map(n => NPCS[n.id].name);
+    const beasts = Object.keys(BESTIARY).filter(k => save.bestiary[k] && beastHabitat(k).includes(zn.name)).map(k => (FAMILIES[k] || NM_FAMILIES[k] || { name: k }).name || k);
+    const ico = zn.safe ? "🏘️" : zn.theme === "town" ? "🏘️" : zn.theme === "field" ? "🌾" : "🗺️";
+    h += dbCard(dbPic(ico, null, "#d8a838"), esc(zn.name) + (zn.safe ? " · safe" : ""), [esc(zn.city ? "City of " + zn.city : "Theme: " + (zn.theme || "field")), "Leads to: " + esc(ex.join(", ") || "nowhere"), "People you know here: " + esc(folk.join(", ") || "none yet"), "Creatures met here: " + esc(beasts.join(", ") || "none yet")]);
+  }
+  return h;
+}
+
+function tabDatabase() {
+  dbSyncSeen();
+  if (!DB_CATS.some(c => c[0] === UI.dbCat)) UI.dbCat = "items";
+  let h = '<div class="opt" style="flex-wrap:wrap;margin-bottom:8px">' + DB_CATS.map(c => '<button data-a="dbcat" data-v="' + c[0] + '"' + (c[0] === UI.dbCat ? ' class="pri"' : "") + ">" + c[1] + " " + c[2] + "</button>").join("") + "</div>";
+  const fn = { items: () => dbItems(false), equipment: () => dbItems(true), magic: dbMagic, abilities: dbAbilities, jobs: dbJobs, people: dbPeople, places: dbPlaces, beasts: dbBeasts }[UI.dbCat];
+  return h + fn();
+}
+
+const STAT_GROUPS = [
+  ["Combat", [["Monsters defeated", "kills"], ["Notorious monsters", "nm"], ["Times KO'd", "kos"], ["Damage dealt", "dmgDealt"], ["Damage taken", "dmgTaken"], ["Biggest hit", "bigHit"], ["Spells cast", "spellsCast"], ["Abilities used", "abilitiesUsed"], ["Skillchains", "sc"], ["Magic bursts", "mb"], ["Ranger kills", "rngKills"], ["Battlefields won", "bfWins"], ["Summons", "summons"]]],
+  ["Crafting and gathering", [["Items crafted", "crafts"], ["High-quality results", "hq"], ["Gathered", "gathers"], ["Fish caught", "fish"], ["Big fish", "bigFish"], ["Meals eaten", "meals"], ["Items used", "itemsUsed"]]],
+  ["Economy", [["Crystals from monsters", "killGil"], ["Trades", "trades"], ["Auction purchases", "ahBought"], ["Auction sales", "ahSold"], ["Bounties", "bounties"], ["Lots won", "lotsWon"]]],
+  ["Travel", [["Distance ridden", "ride"], ["Jumps", "jumps"], ["Boat rides", "boatRides"], ["Blessings", "blessings"]]]
+];
+function tabStats() {
+  const st = save.stats || {}, num = v => Math.round(v || 0).toLocaleString();
+  const lvls = Object.keys(JOBS).map(j => save.jobs[j].lv), jobsMax = lvls.filter(l => l >= 75).length;
+  const done = Object.keys(QUESTS).filter(q => save.quests[q] === "done").length;
+  const lore = [["Playing time", fmtPlay(save.playSec)], ["Highest job level", Math.max(...lvls)], ["Jobs above level 1", lvls.filter(l => l > 1).length + " / " + lvls.length], ["Achievements", ACHIEVEMENTS.filter(a => save.ach[a.id]).length + " / " + ACHIEVEMENTS.length], ["Quests completed", done + " / " + Object.keys(QUESTS).length], ["Places discovered", (save.discovered || []).length + " / " + Object.keys(ZONES).length], ["Creatures recorded", Object.keys(save.bestiary).length + " / " + Object.keys(BESTIARY).length], ["Items discovered", Object.keys(save.seen.items).length + " / " + Object.keys(ITEMS).length], ["Spells learned", save.spells.length + " / " + Object.keys(SPELLS).length], ["People met", Object.keys(save.seen.npcs).length], ["Crystals held", num(save.gil)], ["Companions hired", (save.hired || []).length]];
+  const row = (k, v) => '<div class="item" style="display:flex;justify-content:space-between;align-items:center"><span>' + esc(k) + "</span><b>" + esc(String(v)) + "</b></div>";
+  let h = "<h3>Adventure</h3>" + lore.map(r => row(r[0], r[1])).join("");
+  for (const g of STAT_GROUPS) h += "<h3>" + g[0] + "</h3>" + g[1].map(r => row(r[0], num(st[r[1]]))).join("");
+  return h;
+}
+
+function dbBeasts() {
   const keys = Object.keys(BESTIARY);
   const known = keys.filter(k => save.bestiary[k]);
   let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " creatures recorded. Meet a creature to add it; defeat it to learn more.</div>";
@@ -18136,7 +18263,7 @@ function tabBestiary() {
       body += '<div class="sub">Weak to: ' + (weak.length ? weak.join(", ") : "nothing in particular") + "</div>";
       body += '<div class="sub">Known to carry: ' + esc(loot.join(", ")) + "</div>";
     } else if (b.kills >= 1) body += '<div class="sub">Defeat ' + (need - b.kills) + " more to learn its weaknesses and spoils.</div>";
-    const pic = typeof beastThumb === "function" ? beastThumb(k, () => { if (S.modal === "bestiary") renderModal(); }) : null;
+    const pic = typeof beastThumb === "function" ? beastThumb(k, () => { if (S.modal === "database") renderModal(); }) : null;
     h += '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start"><div class="bpic">' + (pic ? '<img src="' + pic + '" alt="">' : '<span>' + (typeof THUMBS !== "undefined" && THUMBS.cache.has(k) ? "?" : "…") + "</span>") + '</div><div style="flex:1;min-width:0"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div></div>";
   }
   return h;
@@ -18410,8 +18537,10 @@ function tabGuild() {
 }
 
 function tabAchievements() {
+  const tabs = '<div class="opt" style="margin-bottom:8px"><button data-a="achview" data-v="list"' + (UI.achView !== "stats" ? ' class="pri"' : "") + '>🏆 Achievements</button><button data-a="achview" data-v="stats"' + (UI.achView === "stats" ? ' class="pri"' : "") + ">📊 Stats</button></div>";
+  if (UI.achView === "stats") return tabs + tabStats();
   const got = ACHIEVEMENTS.filter(a => save.ach[a.id]).length;
-  let h = '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked.</div>";
+  let h = tabs + '<div class="sub" style="margin-bottom:8px">' + got + " / " + ACHIEVEMENTS.length + " unlocked.</div>";
   for (const a of ACHIEVEMENTS) {
     const t = save.ach[a.id];
     h += '<div class="item" style="' + (t ? "" : "opacity:.55") + '"><div style="display:flex;gap:10px;align-items:center"><span style="font-size:22px">' + (t ? a.icon : "🔒") + "</span><div><b>" + esc(a.name) + '</b><div class="sub">' + esc(a.desc) + "</div></div></div>" + '<span class="sub">' + (t ? new Date(t).toLocaleDateString() : "") + "</span></div>";
@@ -18551,6 +18680,8 @@ function onMenuClick(e) {
   else if (a === "ahbuy") { UI.ahMsg = ahBuy(UI.ahSel, UI.ahQty || 1); UI.ahQty = 1; renderModal(); return; }
   else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
   else if (a === "ahcancel") { ahCancel(+v); renderModal(); return; }
+  else if (a === "dbcat") { UI.dbCat = v; renderModal(); return; }
+  else if (a === "achview") { UI.achView = v; renderModal(); return; }
   else if (a === "socseek") { netSeek(!save.lfg, null); renderModal(); return; }
   else if (a === "socseekmsg") { const m = prompt("Looking-for-party message (up to 40 characters):", save.seekMsg || ""); if (m !== null) netSeek(true, m); renderModal(); return; }
   else if (a === "socq") { const m = prompt("Filter: job (WHM), level (12) or range (10-15), area, name, lfg, here", UI.socQ || ""); if (m !== null) UI.socQ = m; renderModal(); return; }
@@ -18669,8 +18800,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.15.0 · built 2026-10-15 21:45 PDT";
+const BUILD_INFO = "v18.16.0 · built 2026-10-15 22:19 PDT";
 const UPDATES = [
+  { v: "18.16.0", date: "2026-10-15", title: "Database, stats and Social button", items: [
+    "<b>New Database (Y)</b> replaces the Bestiary button. Tabs for Items, Equipment, Magic, Abilities, Jobs, People, Places and the Bestiary, each with details and a picture. It only lists what you have owned, learned, leveled, talked to, visited or met.",
+    "<b>Achievements has a Stats tab</b> with your play time, fights, damage, spells, crafting, gathering, fishing, trading and travel counts. Damage, spells, abilities and items used start counting from this version.",
+    "<b>One Social button</b> on the first command page replaces Party, Search, Linkshell and Friend List, which all opened the same window. Party is still on P and in the window tabs.",
+    "<b>HP and MP numbers no longer overlap</b> in the party panel at the bottom right."
+  ] },
   { v: "18.15.0", date: "2026-10-15", title: "Ctrl hotkey line removed", items: [
     "<b>The Ctrl hotkey line is gone</b>, since browsers keep Ctrl+number for switching tabs. The old Ctrl line is now the <b>Main</b> line: plain 1–9 and 0 fire it, and your saved slots are kept.",
     "Shift, Alt and Tab still hold their own lines of ten. The pinned bar label reads Main, Shft, Alt or Tab."
@@ -20154,14 +20291,16 @@ function tabHelp() {
     "<b>Garrick the smith</b>, by the stalls, augments equipment: each augment adds a random bonus (STR, DEX, VIT, AGI, INT, MND, Attack, Defense, Accuracy, Evasion, HP or MP). Up to 2 per piece. Cost: 60 crystals per item level, 1 Iron Ore and 1 Fire Essence. Reforging rerolls all of a piece's augments for 40 crystals per level plus the same materials.",
     "Augments belong to the item type: every copy of that item you own shares them. They only apply to you, not to companions wearing the same piece."
   ]));
-  h += sec("📖 Bestiary (Y)", ul([
-    "A creature is recorded the first time you meet it: come within sight or target it. You learn its type, where it lives and a little lore.",
-    "Defeat one to learn how it hunts (sight, sound, magic, weakness), whether it calls for help and its special attack.",
-    "Defeat five (or one notorious monster) to learn its elemental weaknesses and what it carries."
+  h += sec("📚 Database (Y)", ul([
+    "The Database is your record of the world, in eight tabs: Items, Equipment, Magic, Abilities, Jobs, People, Places and Bestiary. Each entry has a picture and details.",
+    "It only lists what you have found: items and gear you have owned, spells you have learned, abilities of jobs you have leveled to, jobs above level 1 (and your current ones), people you have talked to, places you have visited and creatures you have met.",
+    "<b>Bestiary:</b> a creature is recorded when you first meet it. Defeat one to learn how it hunts and its special attack; defeat five (or one notorious monster) to learn its elemental weaknesses and what it carries.",
+    "/bestiary and /database open it too."
   ]));
-  h += sec("🏆 Achievements (O)", ul([
-    "Achievements track hunting, notorious monsters, skillchains, bursts, levels, quests, exploring, crafting, gathering, gardening, your home, companions, the bestiary and more.",
-    "They give no rewards: they are a record of what you have done."
+  h += sec("🏆 Achievements (O) and Stats", ul([
+    "Achievements track hunting, notorious monsters, skillchains, bursts, levels, quests, exploring, crafting, gathering, gardening, your home, companions, the Database and more.",
+    "They give no rewards: they are a record of what you have done.",
+    "The <b>Stats</b> tab inside Achievements counts what you have done: play time, monsters defeated, damage dealt and taken, your biggest hit, spells cast, abilities and items used, crafting, gathering, fishing, trading, auction sales and distance ridden. Damage, spell, ability and item counts begin at version 18.16."
   ]));
   h += sec("🏠 Your residence", ul([
     "The door is on the west cottage of Ashenreach Outpost; walking into it asks if you want to go in. <b>Pip the Nubbin</b> lives there.",
@@ -20255,7 +20394,7 @@ function tabHelp() {
     "<b>Listening:</b> monsters call out when they notice you, so a jabber or a growl behind you is worth turning around for. Footsteps tell you what you're walking on."
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
-    "Open <b>Social</b> from the menu (or /social). It shows who's online, your friends, your linkshells and your blacklist.",
+    "Open <b>Social</b> from the first page of the main menu (or /social); it replaces the old Party, Search, Linkshell and Friend List buttons. Party is also on P. It shows who's online, your friends, your linkshells and your blacklist.",
     "<b>Search:</b> filter the online list by job (WHM), level (12) or range (10-15), area, name, <b>lfg</b> or <b>here</b>. /search does the same in chat.",
     "<b>Looking for a party:</b> turn it on (or /seek message) and others see 🔎 and your short message next to your name. Turn it off the same way.",
     "<b>Friends:</b> add up to 50 with + Friend or /friend add Name. You're told when they come online or go offline, and can Tell or Invite them from the list. Your friend list belongs to this character.",
@@ -20275,7 +20414,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "18.15.0";
+const GAME_VERSION = "18.16.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -28830,9 +28969,9 @@ function thumbStudio() {
   return THUMBS.studio;
 }
 
-function renderThumb(famKey) {
+function renderThumb(famKey, ent) {
   const st = thumbStudio(), R = W3.renderer;
-  const m = buildMob(famKey, 5, 0, 0, null);
+  const m = ent || buildMob(famKey, 5, 0, 0, null);
   const inst = buildEntityRig(m);
   if (!inst) return null;
   const g = new THREE.Group();
@@ -28862,8 +29001,9 @@ function renderThumb(famKey) {
   return cv.toDataURL("image/png");
 }
 
-function beastThumb(famKey, onReady) {
+function beastThumb(famKey, onReady, ent) {
   if (THUMBS.cache.has(famKey)) return THUMBS.cache.get(famKey);
+  if (ent) (THUMBS.ent = THUMBS.ent || {})[famKey] = ent;
   if (!THUMBS.queue.includes(famKey)) THUMBS.queue.push(famKey);
   if (!THUMBS.busy) {
     THUMBS.busy = true;
@@ -28871,7 +29011,7 @@ function beastThumb(famKey, onReady) {
       const k = THUMBS.queue.shift();
       if (!k) { THUMBS.busy = false; if (onReady) onReady(); return; }
       let url = null;
-      try { url = renderThumb(k); } catch (e) { url = null; THUMBS.err = String(e && e.message || e); }
+      try { url = renderThumb(k, THUMBS.ent && THUMBS.ent[k]); } catch (e) { url = null; THUMBS.err = String(e && e.message || e); }
       THUMBS.cache.set(k, url);
       THUMBS.done = (THUMBS.done || 0) + 1;
       if (onReady && (THUMBS.done % 3 === 0 || !THUMBS.queue.length)) onReady();
@@ -31045,7 +31185,7 @@ function onKey(e) {
   if (!UI.started) return;
   if ((e.ctrlKey || e.metaKey) && !/^(Digit|Numpad)[0-9]$/.test(e.code || "")) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
+  const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "database", o: "achievements" };
   if (S.dialog) {
     if (k === "escape") closeDialog();
     if (["arrowup", "arrowdown", "enter", " "].includes(k)) { e.preventDefault(); dlgKey(k); return; }
