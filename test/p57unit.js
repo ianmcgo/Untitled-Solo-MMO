@@ -2,9 +2,9 @@ const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const sp = G.SPELLS;
-ok(sp.curaga.jobs.WHM === 16 && sp.curaga.mp === 60 && sp.curaga.cast === 4.5 && sp.stonega.jobs.BLM === 15 && sp.waterga.jobs.BLM === 19 && sp.banishga.mp === 41 && sp.diaga.jobs.RDM === 15, 'area spells use FFXI values');
-ok(sp.blaze_spikes.jobs.BLM === 10 && sp.ice_spikes.jobs.BLM === 20 && sp.enthunder.jobs.RDM === 16 && sp.enstone.jobs.RDM === 18 && sp.enaero.jobs.RDM === 20 && sp.shock.jobs.BLM === 16 && sp.rasp.mp === 25, 'Spikes, En- and DoT spells use FFXI values');
-ok(sp.foe_requiem.jobs.BRD === 7 && sp.foe_requiem2.jobs.BRD === 17 && sp.light_threnody.jobs.BRD === 10 && sp.fire_threnody.jobs.BRD === 20 && sp.herb_pastoral.jobs.BRD === 9 && sp.sheepfoe_mambo.jobs.BRD === 13 && sp.scops_operetta.jobs.BRD === 19, 'songs use FFXI levels');
+ok(sp.curaga.jobs.WHM === 16 && sp.curaga.mp === 60 && sp.curaga.cast === 4.5 && sp.stonega.jobs.BLM === 15 && sp.waterga.jobs.BLM === 19 && sp.banishga.mp === 41 && sp.diaga.jobs.RDM === 15, 'area spells use classic MMO values');
+ok(sp.blaze_spikes.jobs.BLM === 10 && sp.ice_spikes.jobs.BLM === 20 && sp.enthunder.jobs.RDM === 16 && sp.enstone.jobs.RDM === 18 && sp.enaero.jobs.RDM === 20 && sp.shock.jobs.BLM === 16 && sp.rasp.mp === 25, 'Spikes, En- and DoT spells use classic MMO values');
+ok(sp.foe_requiem.jobs.BRD === 7 && sp.foe_requiem2.jobs.BRD === 17 && sp.light_threnody.jobs.BRD === 10 && sp.fire_threnody.jobs.BRD === 20 && sp.herb_pastoral.jobs.BRD === 9 && sp.sheepfoe_mambo.jobs.BRD === 13 && sp.scops_operetta.jobs.BRD === 19, 'songs use classic MMO levels');
 G.save.jobs.WHM.lv = 20; G.setJob('WHM', null); G.refreshPlayer(true); P().mp = P().maxMp = 500; P().maxHp = 400; P().hp = 100;
 const ally = G.makeChar ? null : null;
 const hp0 = P().hp; G.castHeal(P(), P(), sp.curaga); ok(P().hp > hp0, 'Curaga heals');

@@ -2,9 +2,9 @@ const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const sp = G.SPELLS;
-ok(sp.poisona.jobs.WHM === 6 && sp.poisona.mp === 8 && sp.blindna.mp === 16 && sp.blindna.recast === 10 && sp.silena.jobs.WHM === 19 && sp.silena.mp === 24, 'status cures use FFXI levels and MP');
-ok(sp.barfira.mp === 12 && sp.barfire.mp === 6 && sp.barfire.jobs.RDM === 17 && sp.barfira.jobs.WHM === 17 && sp.barparalyzra.jobs.WHM === 12 && sp.barblind.jobs.RDM === 18, 'Bar spells use FFXI levels and MP');
-ok(sp.protectra.jobs.WHM === 7 && sp.shellra.jobs.WHM === 17 && sp.blink.cast === 6 && sp.aquaveil.mp === 12 && sp.sneak.jobs.WHM === 20 && sp.deodorize.jobs.RDM === 15 && sp.warp.mp === 100 && sp.warp.jobs.BLM === 17, 'Protectra, Shellra, Blink, Aquaveil, Sneak, Deodorize and Warp use FFXI values');
+ok(sp.poisona.jobs.WHM === 6 && sp.poisona.mp === 8 && sp.blindna.mp === 16 && sp.blindna.recast === 10 && sp.silena.jobs.WHM === 19 && sp.silena.mp === 24, 'status cures use classic MMO levels and MP');
+ok(sp.barfira.mp === 12 && sp.barfire.mp === 6 && sp.barfire.jobs.RDM === 17 && sp.barfira.jobs.WHM === 17 && sp.barparalyzra.jobs.WHM === 12 && sp.barblind.jobs.RDM === 18, 'Bar spells use classic MMO levels and MP');
+ok(sp.protectra.jobs.WHM === 7 && sp.shellra.jobs.WHM === 17 && sp.blink.cast === 6 && sp.aquaveil.mp === 12 && sp.sneak.jobs.WHM === 20 && sp.deodorize.jobs.RDM === 15 && sp.warp.mp === 100 && sp.warp.jobs.BLM === 17, 'Protectra, Shellra, Blink, Aquaveil, Sneak, Deodorize and Warp use classic MMO values');
 G.save.jobs.WHM.lv = 20; G.setJob('WHM', null); G.refreshPlayer(true); P().mp = P().maxMp = 500; P().hp = P().maxHp;
 G.inflictStatus({ name: 'x' }, P(), 'poison', 30);
 ok(P().buffs.poison && P().buffs.poison.tick >= 1, 'a monster can poison you');

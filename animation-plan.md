@@ -1,4 +1,4 @@
-# Animation Plan: FFXI-style feel
+# Animation Plan: classic MMO-style feel
 
 Goal: combat and movement that read like the original: weighty, readable, tied to weapon type and stance. Each phase ships as one version, is checked with render sheets (test/swingsheet2.js, test/drawsheet.js), and updates the Updates and Help text.
 

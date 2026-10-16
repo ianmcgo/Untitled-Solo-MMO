@@ -79,7 +79,7 @@ Version numbers: Track 6 took 16.2.0–16.5.0, so the remaining Track 5 phases m
 - Ursan and pipkin face painters are unchanged.
 
 ## Phase 121: Iconic gear sets / Job style (v16.7.0)
-- Decision: gear items are shared by many jobs, so iconic looks come from the job, not the items. "Job style" (like FFXI lockstyle) replaces the armour visuals with the job's signature outfit in Classic. Setting `attire` ("job" default, or "gear"); button in Config → Graphics (`gfx attire:job|gear`, reloads). `jobStyleOn()` = classicOn() and attire is not "gear". Modern always shows gear.
+- Decision: gear items are shared by many jobs, so iconic looks come from the job, not the items. "Job style" (like classic MMO lockstyle) replaces the armour visuals with the job's signature outfit in Classic. Setting `attire` ("job" default, or "gear"); button in Config → Graphics (`gfx attire:job|gear`, reloads). `jobStyleOn()` = classicOn() and attire is not "gear". Modern always shows gear.
 - `JOB_STYLE[job](tier, JOB_TINT[job])` returns a partial look for tiers 0–3. `JOB_STYLE_TIERS = [1, 5, 10, 16]` (level cap 20); `jobStyleTier(lv)`.
 - `lookFor(job, gear, base, lv)` calls `lookForGear` (the old function), then, when Job style is on and base has no own `top` (mercs with outfits) and is not a skull, deletes `JOB_STYLE_SLOTS` (top, head, gloves, legs, boots, pauldrons, pad*, cape, belt, gauntlets, greaves, collar, barefoot, hat, shoes) and applies the style. Shield and weapon stay from gear. Callers pass the level: player.lv, e.lv (remotes and mercs), o.lv (creator, so tier 0).
 - `rigSigFor` adds `|t<tier>` when Job style is on, so models rebuild on reaching a new tier.

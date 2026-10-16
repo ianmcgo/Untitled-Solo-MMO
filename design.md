@@ -561,7 +561,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 ## Phase 9: level 15 and the Ashen Marsh (v5.0.0)
 - CONFIG.levelCap 15; xpTable extended (4450, 5400, 6450, 7600, 8850). Stats grow linearly, so nothing else needed changing.
 - Spells: cure3 (WHM 13), banish2 (WHM 15), stone2/water2/aero2/fire2/blizzard2 (BLM 11–15, stone2 RDM 15); cure2 now also PLD 11, RDM 14.
-- Items (replaced by FFXI gear in 18.0.0; see "Equipment (v18.0.0)"): mats toad_oil, mire_reed. ITEM_LOOK entries for old ids were removed; autoLook covers new ids.
+- Items (replaced by classic MMO gear in 18.0.0; see "Equipment (v18.0.0)"): mats toad_oil, mire_reed. ITEM_LOOK entries for old ids were removed; autoLook covers new ids.
 - Families: bog_toad (sound), bog_leech (magic + lowhp, worm model with `tint`), mire_goblin (sight 175, linkGroup "mire"), drowned (ghoul model, sound + lowhp, night spawns), marsh_hare (critter, hare model with `tint`). NMs old_croaker (base bog_toad, day, lv 15) and mirelord_gax (base mire_goblin, lv 16). mobLook reads `f.tint` for worm/hare; goblinLook variants "mire" (hooded) and "gax" (horned, mail, cape, greataxe).
 - Toad model: rig.js `toadEntry(col)` uses the hare's bone names (body/head/ear*/legF*/legB*) and meta.kind "hare", so it reuses the hare hop animation. Eyes sit on the ear bones.
 - Zone `ZONES.marsh` (2800×2400, theme field, `palette: "marsh"`, `mist: true`), defined after the den exit push. Linked from Rocky Hollow's south edge (exit at x 1550) to the marsh's north edge (x 1350); Hollow got a path down to the exit. 6 landmarks, 30 spawns, 7 ponds, ruins (Drowned Chapel), 3 walls, gather points (mining 2, logging 3, harvesting 4).
@@ -577,7 +577,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Abilities: THF steal (lv 1, 90 s; chance 45 + 2·(DEX−AGI) + 3·lv diff, 10–85%; one try per mob via `t.stolen`; non-equip, non-key loot), sneak_attack (5; buff consumed by next swing: auto-hit, crit, +0.8·DEX), flee (10; ×1.8 run speed in updatePlayer). MNK boost (1; next hit ×1.5 and +100 TP), focus (5; +25 acc in `stat()`, +10% crit), chakra (10; heal VIT·3 + lv·8). Buff names/icons added.
 - Passives: THF main +5% crit; Treasure Hunter (`dropLoot` chance ×1.2 when player.job is THF). MNK with h2h: Martial Arts in buildStats (dmg + 2 + 0.5·lv, delay ×0.8, min 1.6) and a 14% follow-up kick (re-entrant `swing` guarded by `a.kicking`).
 - Unlock quests (generic, via Tobin; `adv.push(...questOptions("tobin", n))` at lv 6+): thf "Light Fingers" (3 goblin_pouch, 1 bat_wing → bronze_dagger + unlock), mnk "The Open Hand" (2 bone_chip, 3 healing_herb → leather_cesti + unlock). `giveReward` already handles `unlock`.
-- Gear for the new jobs is now FFXI gear (see "Equipment (v18.0.0)"). JOB_TINT and ITEM_LOOK entries for the new jobs and bodies still apply.
+- Gear for the new jobs is now classic MMO gear (see "Equipment (v18.0.0)"). JOB_TINT and ITEM_LOOK entries for the new jobs and bodies still apply.
 - Companions: wren (THF dd, 240) and tamsin (MNK dd, 260), `requires: { job }`. mercGear tiers for THF/MNK; MERC_BASE looks; MERC_PERSONAL lines. meleeAI now uses chakra (<50% HP), steal (once per mob in combat), focus/boost/sneak_attack when in reach.
 - anim.js: fists (h2h or a player/ally with no weapon) take a boxing guard while engaged; attackKind "punch" already existed.
 - Tests: test/p9unit.js. p1bot sets up THF/MNK (15 min: THF lv 5, MNK lv 7 with full party; MA damage trimmed to 2 + 0.5·lv after that run). p5shots scene monk.
@@ -627,7 +627,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - JOBS RNG, SMN (advanced; ADVANCED_JOBS quests rng/smn at lv 6 through Tobin's generic questOptions). ALL_JOBS includes both. Skills: COMBAT archery, MAGIC summoning; ratings RNG archery A, SMN summoning A; WAR archery D, THF archery C.
 - Ranged: `reach(e)` = CONFIG.bowRange 230 for wtype archery, else meleeRange; used by autoAttack, player chase, meleeAI approach, ally WS and WS checks. Mobs are unchanged (they still need melee range). swing(): archery fires vfx("arrow") (particle streak in effects3d) and consumes the `barrage` buff to loose 3 swings (guarded by a.volley). `sharpshot` adds +40 acc in stat(). `shadowbind` sets mob buffs.bind (12 s); updateMob skips moveToward while bound. WS piercing_arrow / flaming_volley / gale_arrow (archery 5/22/40). Bow weapon model kind "archery" (curved limbs, grip, string; steel/yew tints).
 - Summoner: spells ember_sprite / frost_sprite / gale_sprite (kind "summon", target "self"; resolveTarget returns the player). `summonPet` builds an ally `{ pet: true, petKey, job "MNK" stats, role "pet" }` in S.pet and S.party (meleeAI fights). `PETS[key] { name, el, col, eye, pact, weak }`. `tickPet` drains 1 + lv/6 MP every 3 s and releases on 0 MP, death, job change or not SMN; mounting or starting a race releases it. rebuildParty keeps S.pet; syncAllies rebuilds pet stats at your level. Abilities release, blood_pact (24 + 7·lv + 1.2·INT + 0.8·summoning skill, x element weakness, dealt by the pet), siphon (MP 20 + 3·lv). Pet model = batEntry(col, eye) via rigSigFor "pet|key"; party frame tag "Sprite".
-- Gear is FFXI gear since 18.0.0. Companion corin (RNG dd) gets gear from autoGear with a bow in Range and arrows in Ammo, plus MERC_PERSONAL. Achievements summoner, sniper (stats.summons, stats.rngKills).
+- Gear is classic MMO gear since 18.0.0. Companion corin (RNG dd) gets gear from autoGear with a bow in Range and arrows in Ammo, plus MERC_PERSONAL. Achievements summoner, sniper (stats.summons, stats.rngKills).
 - Tests: test/p15unit.js; p5shots scenes ranger, summoner.
 
 ## Phase 17: battlefield and HUD moves (v5.8.0)
@@ -654,12 +654,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Data: GUILD_RANKS [name, totalPoints, color] Copper 0 / Bronze 100 / Iron 300 / Silver 700 / Gold 1500 / Mythril 3000. GUILD_BOUNTIES {id, fam, n, where, lv, gp, tier, nm?} tiers 0-4 across all zones; NM hunts n 1. GUILD_SHOP {id, gp, rank}. GUILD_DAILY 3, GUILD_ACTIVE 3.
 - Save `guild { gp, total, active: {id: kills}, day, done: [] }`; normalizeSave fills it for old saves. stats.bounties.
 - game.js: guildRank(total), guildDay() (resets done on a new UTC day, shared boardDay), guildToday() (seeded by created + day + rank; first pick from tiers >= rank-1, rest from all tiers <= rank), bountyReward (gil = gp*8, xp = gp*(lv+2)*2), takeBounty/dropBounty/turnInBounty/guildBuy, bountyKill(e) called in the kill handler after dropLoot (matches famKey, works for NM keys). Rank-up -> uiEvent "guildrank" banner. Guild gear is ex (one owned).
-- Guild rewards are FFXI pieces since 18.0.0 (desperado_ring, leaping_boots, armored_ring, healing_harness, variable_ring in GUILD_SHOP). Achievements bounty, silver, mythril.
+- Guild rewards are classic MMO pieces since 18.0.0 (desperado_ring, leaping_boots, armored_ring, healing_harness, variable_ring in GUILD_SHOP). Achievements bounty, silver, mythril.
 - Tests: test/p18unit.js; p6unit townsfolk bed count now >= 7. p5shots scenes maera, guild.
 
 ## Phase 20: Dark Knight and Bard (v6.1.0)
 - Jobs DRK, BRD (ADVANCED_JOBS lv 10; quests drk "The Shadowed Path" (2 crypt_dust, 3 bone_chip → bronze_scythe) and brd "A Traveler's Song" (3 mire_reed, 2 bat_wing → minstrel_coat), both from Tobin). jobsUnlocked gains DRK/BRD.
-- New weapon type `scythe` (COMBAT_SKILLS, SKILL_NAMES): WS slice 5, nightreap 22, spiral_reap 40, grim_harvest 75. Items are FFXI Zaghnals and Scythes since 18.0.0. Rig weapon kind "scythe" (pole + curved extruded blade), held/stowed like the greataxe and uses the cleave animation.
+- New weapon type `scythe` (COMBAT_SKILLS, SKILL_NAMES): WS slice 5, nightreap 22, spiral_reap 40, grim_harvest 75. Items are classic MMO Zaghnals and Scythes since 18.0.0. Rig weapon kind "scythe" (pole + curved extruded blade), held/stowed like the greataxe and uses the cleave animation.
 - New magic skills `dark` and `singing`. Spells may carry `skill` which spellSkill() returns first.
 - DRK: abilities last_resort (att ×1.25, def ×0.85), soulfire (each swing burns 6% current HP, adds 1.6× that to damage), blood_blade (heals 40% of melee damage). Spells blight (kind dot, buff "blight": ticks like dia with its element; att ×0.9 on the target), drain (kind drain), mind_drain (kind aspir; 60% amount to MP), stun (debuff "stun", 4 s, cancels readying and halves TP). castDia generalized by sp.element / sp.buff. castDrain handles drain/aspir.
 - BRD: songs are spells with kind "song", `song` key (minuet, paeon, ballad, madrigal, march), `pow`, dur 120. castSong → applySong for party within 300 px; each member keeps at most 2 song buffs (oldest by expiry dropped). pow scales ×(1 + singing/400). stat(): minuet att ×(1+pow), madrigal acc +pow; swingDelay ×(1−march.pow); tickBuffs: paeon HP and ballad MP every 3 s (pow×(1+lv/5), MP half). Encore (BRD 15) cuts song cast time to 34%. drowsy_lullaby: debuff "sleep" 30 s, bosses immune; sleeping/stunned mobs skip their combat step; any damage > 0 clears sleep (applyDamage).
@@ -1364,7 +1364,7 @@ Terms: region = conquest region (CONQUEST.regions, e.g. The Vale). Area = one wi
 
 ## Phase 110.3: Creation polish and skin removal (v15.7.0) — Track 0
 
-- Skin tones removed: FFXI had no skin choice. save.look.skin is no longer written (normalizeSave deletes it from old saves). rig.js RACE_SKIN maps race to a SKIN_TONES index (human 1, elari 0, pipkin 0, ursan 2, nekari 1) and baseFromLook uses it. CC_FACE_SKIN is gone; ccFaceThumb(v, fem, race) uses the race tone, and thumbnails are cached per race.
+- Skin tones removed: classic MMO had no skin choice. save.look.skin is no longer written (normalizeSave deletes it from old saves). rig.js RACE_SKIN maps race to a SKIN_TONES index (human 1, elari 0, pipkin 0, ursan 2, nekari 1) and baseFromLook uses it. CC_FACE_SKIN is gone; ccFaceThumb(v, fem, race) uses the race tone, and thumbnails are cached per race.
 - Name and job step now shows a .ccSum summary (race, gender, face, hair, size) and a Start over button (data-restart) that resets the look, step and name. The preview keeps turning on that step because focus is 0.
 - Status screen (statusLeftHTML) shows race, gender symbol and size under the name.
 - Click sounds already existed on every creator button.
@@ -1372,22 +1372,22 @@ Terms: region = conquest region (CONQUEST.regions, e.g. The Vale). Area = one wi
 
 ## Phase 110.2: Creation flow (v15.6.0) — Track 0
 - `showCharCreate` (main4.js) is a stepper: `CC_STEPS` race, gender, face, hair, size, name; `ccSteps(look)` drops gender when `RACES[race].sex` is set. `CC.step` indexes the filtered list. `paint()` rebuilds `#ccSteps`, `#ccStepT`, `#ccBody`; the name input is wired only when the name step renders. The Next button carries `data-create` on the last step (tests click `[data-next]` until `#ccName` exists, then `[data-create]`).
-- Face drives hairstyle and skin like FFXI face types: `CC_FACE_HAIR[sex][face]`, `CC_FACE_SKIN[sex][face]`, applied by `ccApplyFace` whenever race, gender or face changes. Saved looks still store hairStyle and skin, so old characters and the renderer are unchanged.
-- Size: `CC_SIZES` Small (height 0, girth 1), Medium (2, 2), Large (4, 3). Cosmetic only, as in FFXI (the plan line about a stat effect was wrong: FFXI sizes don't change stats).
+- Face drives hairstyle and skin like classic MMO face types: `CC_FACE_HAIR[sex][face]`, `CC_FACE_SKIN[sex][face]`, applied by `ccApplyFace` whenever race, gender or face changes. Saved looks still store hairStyle and skin, so old characters and the renderer are unchanged.
+- Size: `CC_SIZES` Small (height 0, girth 1), Medium (2, 2), Large (4, 3). Cosmetic only, as in classic MMO (the plan line about a stat effect was wrong: classic MMO sizes don't change stats).
 - Face thumbnails: `ccFaceThumb` paints the face into a skin-filled canvas with `paintFace` and crops x 26–102, y 66–174 (cell units) to 72 × 60, which also undoes the 1.7 vertical paint stretch. Cached per face/sex/cell size in `CC.thumbs`.
 - Preview (`renderPreview`): `pv.focus` 1 on face and hair steps; `pv.fz` eases the camera from full body to head (y 0.62→0.95 of head-top, z 2.15→0.53, look-at 0.5→0.92) and eases `pv.rot` to the nearest front-facing turn instead of spinning.
 - CSS: `.ccSteps`, `.ccStepT`, `.ccGrid` (`.ccRaces`, `.ccTwo`, `.ccSizes`, `.ccFaces` 4 columns, `.ccHair` 8 or 4 on phones), `.ccCard2`, `.ccFaceB`, `.ccSw`, `.ccInfo2`; selected state forced with `#charSel … .on` because the FF theme overrides button colours with !important.
 - Screenshot tool: /tmp ccshot.js (offline play, walks every step at 1100 × 720 and 412 × 780; no page scroll on either).
 
 ## Track 6: Classic look (v16.2.0–16.10.0)
-Full notes and the remaining plan are in design/ffxi-look-plan.md. Summary:
+Full notes and the remaining plan are in design/mmo-look-plan.md. Summary:
 - 116 (16.2.0): Classic look is the default. classicCharMaterial (Lambert with light bands, a lift floor and metal shine), an outline pass (back-face skinned shell child of each rig mesh), and the Look and Outlines settings in Config → Graphics. Offline character creation fixed.
 - 117 (16.3.0): CLASSIC_PAINT hand-painted region painters, 256 px atlas cells, nearest magnification.
 - 118 (16.4.0): RIG.segK 0.55/0.45/0.38 (High/Medium/Low) in Classic, mitten hands, bigger hands and feet, cuffs, collars, boot flares.
 - 124 (16.10.0): district-coded mixed-race walkers (DISTRICT_DRESS, walkerCoded), lantern night walkers.
 - 123 (16.9.0): monster level-band tints (boldTint/mobBand), chunky quads, NM decor via RIG.hook + nmDecor/NM_DECOR.
 - 122 (16.8.0): chunky weapons (gT/gR/fat in weaponEntry), weapon outlines, extruded shields with crest cross, kite shape.
-- 121 (16.7.0): Job style: JOB_STYLE per job × 4 tiers (levels 1/5/10/16) replaces armour visuals in Classic; attire setting; 9 new head types, head decor options, oversized pauldrons. Details in design/ffxi-look-plan.md.
+- 121 (16.7.0): Job style: JOB_STYLE per job × 4 tiers (levels 1/5/10/16) replaces armour visuals in Classic; attire setting; 9 new head types, head decor options, oversized pauldrons. Details in design/mmo-look-plan.md.
 - 120 (16.6.0): Classic face finish: hard-edged face tones, 4-band iris, bolder lid ink, inner-ear shapes, no banding on skin.
 - 119 (16.5.0): gHairClumps thick hair clumps, fuller shell, smooth shading on skin and faces (mr red channel).
 
@@ -1461,7 +1461,7 @@ World systems:
 |---|---|
 | 16.17.0 | Phase 126: Classic effects (banded sprites, thick rings, outlined numbers); Tab targets objects. |
 | 16.18.0 | Phase 127: Classic polish (cliff chunk detail by tier, no character normal map in Classic). |
-| 16.19.0 | Modern look removed; Classic is the only look (see design/ffxi-look-plan.md "One look"). |
+| 16.19.0 | Modern look removed; Classic is the only look (see design/mmo-look-plan.md "One look"). |
 | 16.20.0 | Time box and Wait (hud4.js openTimeBox/startWait/tickWait/stopWait/timeSyncCheck); calmer update popups (menu4.js checkForUpdate). |
 | 16.16.0 | Phase 125: Classic world match (posterised textures, banded world lighting chunk, no bloom, shorter fog). |
 | 16.15.1 | offRoadGroup in data.js: stalls/desks move together with NPCs standing at them; warp stones and dsigns also avoid plazas (r+extra). |
@@ -1489,7 +1489,7 @@ World systems:
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
 | 17.3.0 | Area spells, Spikes, En-spells, Shock/Rasp/Choke, Requiem, Threnodies, Mambo, Pastoral, Operetta. See "Area spells and songs (v17.3.0)". |
-| 18.0.0 | FFXI equipment: 788 pieces at level 20 and below replace every old item. See "Equipment (v18.0.0)". |
+| 18.0.0 | classic MMO equipment: 788 pieces at level 20 and below replace every old item. See "Equipment (v18.0.0)". |
 | 18.1 | Tools only: tools/balance/sim.js, runsim.sh, report.js (fight simulator). Baseline in design/balance-18.1.md. |
 | 18.2.0 | Player power: delay curve, WTYPE_MULT, DMG_LV_K, ammoDmgMul, hpLvBonus, mpMul. Results in design/balance-18.2.md. |
 | 18.3.0 | Monster curve: CONFIG.mobCurve scales mob HP, attack and damage by level. Results in design/balance-18.3.md. |
@@ -1512,7 +1512,7 @@ World systems:
 | 18.18.0 | Recipe scrolls: data.js RECIPE_START (lv0 base recipes, known at start) and items rcp_<recipeId> (kind use, recipe field; r_ ones sold in SHOP/SHOPS.vela, g_ ones are RARE_RECIPES: rare drops via rareRecipeDrop(e) in killRewards (0.015, nm 0.25, boss 0.5, recipe lv within mob lv -5..+3) and added to every other quest reward with lv>=3 as reward.items). save.recipes {id:1}; normalizeSave grandfathers recipes with lv <= craft skill. recipeKnown gates canSynth, csMatches, craft book, usable bag list; learnRecipe via useItem. Inventory list auto-sorted in invSorted (Sort removed), Drop button in lHead (dropsel), tap prompt only when there is Use/Equip/Add to bar; coarse-pointer #dialog sits at the bottom while a window is open. anim.js idle 4 hand no longer crosses the head (upArmR z -0.7); models3d placeWeapon sheathed weapons farther back (bz - 0.04/0.045, staff lean 0.78). |
 | 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
 | 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
-| 17.0.0 | FFXI spells and potions: SPELLS/ITEMS potion family rebuilt from FFXI data; rule version 17 wipes older saves. See "FFXI rules (v17.0.0)". |
+| 17.0.0 | classic MMO spells and potions: SPELLS/ITEMS potion family rebuilt from classic MMO data; rule version 17 wipes older saves. See "classic MMO rules (v17.0.0)". |
 | 16.24.0 | /rest works in combat; a hit while resting stands you up. |
 | 16.23.0 | Mercenaries at 75% or less rest when you stand still; rest works mid-fight; shorter flee distance. |
 | 16.22.0 | Admin panel shows session info and players online. |
@@ -1535,7 +1535,7 @@ World systems:
 | 14.9.0 | Phase 102: strata on cliffs, instanced rock outcrops, wheel-rutted roads with edging stones. |
 | 14.8.0 | Phase 101: painted item icon atlas (weapons by type and metal, armour by slot, consumables, materials, rarity frames). |
 | 14.7.0 | Phase 100: surface footsteps, weapon swings, monster voices, chests, crafting, fishing, town crowd and cave drips. |
-| 14.6.0 | Phase 99: synthesized FFXI-style interface sounds (cursor, confirm, cancel, open/close, error, target, equip, coins, chat chimes). |
+| 14.6.0 | Phase 99: synthesized classic MMO-style interface sounds (cursor, confirm, cancel, open/close, error, target, equip, coins, chat chimes). |
 | 14.5.0 | Phase 98: turn-in-place foot planting, quadruped walk/trot/gallop IK, spell learning by main/support job. |
 | 14.4.0 | Phase 97: fur/feather shells on High, critter details (bat fingers, shroom gills, worm bristles, whiskers, toes). |
 | 14.3.0 | Phase 96: beastman family silhouettes and gear, hunched postures, boss banners. |
@@ -1664,7 +1664,7 @@ World systems:
 - localStorage `usr_ver_dismissed` (Later; holds until a newer version), `usr_reload_target` + `usr_reload_at` (set on Reload; if the page still loads an older build, no auto popup for that target for 15 min, and showWhatsNew logs a note). Cleared when up to date.
 - The popup always names the newest version (`#verPop[data-ver]`), so several releases in a row give one popup.
 
-## FFXI rules (v17.0.0)
+## classic MMO rules (v17.0.0)
 - Save gate: `CONFIG.ruleVer = 17`, `newSave().rv`; `normalizeSave` returns null on mismatch. `loadRoster` calls `purgeOldChars`; deleted names go to `OLD_CHARS` and `showCharSelect` (main4.js) shows a notice. `netFetchChar` (net.js) deletes old online characters.
 - `createChar`: `spells` = every id in SPELLS whose `jobs[mainJob] === 1`.
 - Data in data.js SPELLS (generated by `tools/items-import/gen17.py` from Windower `spells.lua`): 26 specs plus 8 spirits. Songs cost 0 MP.
@@ -1675,14 +1675,14 @@ World systems:
 - Songs: `base, sreq, cap, mult, div`; power = floor(base + (skill-sreq)/div), capped; buffs stored `flat: true`. `SONG_KEYS` includes minne.
 - Debuffs: potency from stat difference. Slow `pow` 0.073-0.292, Paralyze 0.05-0.25, Blind 0.05-0.5 via buff `flash`.
 - Buffs added: poison, shell (-11% elemental damage via `opt.el` in `applyDamage`), minne (flat defense), reraise (`{until, pct}`; consumed in `onKO`).
-- Items: generated by `tools/items-import/potions17.py`; `healPct`/`mpPct` (Elixirs), `reraise` + `rrSecs`. Prices = FFXI BaseSell x 40/130. Raise, Phoenix Down and Ember Plume are removed; Raise-kind code paths in game.js and net.js remain but no spell uses them.
+- Items: generated by `tools/items-import/potions17.py`; `healPct`/`mpPct` (Elixirs), `reraise` + `rrSecs`. Prices = classic MMO BaseSell x 40/130. Raise, Phoenix Down and Ember Plume are removed; Raise-kind code paths in game.js and net.js remain but no spell uses them.
 - Assumed, not verified: Reraise strengths 0.5 / 1 / 1.
 - Deferred to 17.1: AoE spells, status cures, Bar-/En- spells, equipment import (level 20 and below), mob and economy balance. Plan in design/item-plan.md.
 - Tests: test/p55unit.js covers starting spells, purge, cure numbers, potions, Elixir, Reraise, Stone, Fire, Bio.
 
 ## Status magic (v17.1.0)
 - Spell kinds added in data.js SPELLS: `cleanse` (`cleanse: [buffKeys]`, castCleanse), `warp` (castWarp, player only, enterZone to homePos), and buff flags `party` (applies to all alive party within 300 of target), `bar` (element), `barst` (status), `n` and `exact` (shadow count; `exact` skips the level 12 bonus), `rnd` (random 0-120 s added to duration).
-- castBuff now loops over the party group and calls `applyBuffTo`. Bar-element pow = min(0.35, (40 + floor(Enhancing/5)) / 400): my approximation of FFXI's MDEF bonus (40 + skill/5) as a damage cut. Bar-status pow = 0.5 resist chance: also my approximation.
+- castBuff now loops over the party group and calls `applyBuffTo`. Bar-element pow = min(0.35, (40 + floor(Enhancing/5)) / 400): my approximation of classic MMO's MDEF bonus (40 + skill/5) as a damage cut. Bar-status pow = 0.5 resist chance: also my approximation.
 - `BAR_EL` maps fire/earth/water/wind to barfire/barstone/barwater/baraero and is applied in `applyDamage` when `opt.el` is set. `BAR_ST` maps poison/paralyze/flash/sleep to their Bar buffs and is used by `inflictStatus` and the Mandrake sleep.
 - Aquaveil: `n` = 1 (2 above 300 Enhancing); `applyDamage` spends one when an interruption roll succeeds.
 - Sneak ignores `aggro.sound`; Deodorize ignores `aggro.lowhp` (in `detects`).
@@ -1694,7 +1694,7 @@ World systems:
 - Tests: test/p56unit.js.
 
 ## Elementals and mob casters (v17.2.0)
-- SPELLS flag `drop: true` marks the eight Spirit summons: excluded from `createChar` starting spells and from the shops (data.js scroll loop `continue`). Carbuncle (`PETS.carbuncle`, light, pact Searing Light) is the SMN level 1 starter (5 MP, 5 s cast from FFXI data).
+- SPELLS flag `drop: true` marks the eight Spirit summons: excluded from `createChar` starting spells and from the shops (data.js scroll loop `continue`). Carbuncle (`PETS.carbuncle`, light, pact Searing Light) is the SMN level 1 starter (5 MP, 5 s cast from classic MMO data).
 - Eight NM_FAMILIES `<el>_elemental` with loot `scroll_<spirit>` at 0.3. Each is a rare spawn (chance 0.07) attached to an existing placeholder spawn: fire/cinder (magma_lizard), ice/frost (frost_bomb, night), earth/underdeep (deep_worm), air/sunscar (dune_lizard 1800,700), thunder/verdant (jade_hornet, day), water/gullisle (fishfolk), light/highlands (wind_wasp, day), dark/crypt (ghoul, night). Spawns past a zone's width are dropped at load, so check a new placeholder shows in `G.ZONES[z].spawns`.
 - Mob casting: family `spells: [{id, mul | status:[buffKey, secs, pow] | heal}]`, `castGap:[min,max]`, `range`. `updateMob` combat branch: `startMobCast` picks cure on a wounded ally (70%) else a random offence spell not already on the target; `finishMobCast` resolves after `max(1.5, cast+1)` s. Damage = `baseDmg * mul`, element passes through `applyDamage` so Shell and Bar spells work. Statuses go through `inflictStatus`. Hits interrupt a mob cast with 30% chance; sleep and stun cancel it; `buffs.silence` blocks starting one. Mobs never target remote players.
 - Goblin casters: goblin_apprentice (Hollow, stone), den_conjurer (Den, stone/poison/cure), mire_hexer (Marsh, water/poison/slow/silence), frost_shaman (Frostspire, blizzard/paralyze/blind/silence/cure). Look variants in rig.js `goblinLook` keyed by `m.famKey`.
@@ -1704,11 +1704,11 @@ World systems:
 
 ## Area spells and songs (v17.3.0)
 - `aoe: radius` on a spell: `castHeal` heals party members within it of the target (Curaga 300); `castNuke` and `castDia` loop mobs within it (`nukeOne`, `diaOne`; Banishga, Stonega, Waterga, Diaga use 170). Single-target spells are unchanged.
-- Curaga uses the old FFXI formula mapped onto the `cure.t` table (divisor doubled because the old formula halves power first).
+- Curaga uses the old classic MMO formula mapped onto the `cure.t` table (divisor doubled because the old formula halves power first).
 - Nuke powers for the -ga spells and Shock/Rasp/Choke tick are mine, interpolated between neighbouring tiers; LandSandBoat has no per-spell damage constants. Level, MP, cast and recast are Windower values.
 - DoT ticks are generic: `tickBuffs` damages any buff with `tick`, `next` and `src`. `dot.pot: "int"` gives tick 1 to 5 by caster INT (>40, >70, >100, >150, as `getElementalDebuffPotency`). `sd` = (tick-1)*2+5 is stored for Rasp (accuracy) and Choke (defense) in `stat()`. `replaces: [...]` deletes other DoTs on cast. Shock's MND loss is not modelled.
 - Spikes: buff `blaze_spikes`/`ice_spikes` with `pow` = clamp(floor((INT+50)/div), 1, max) (div 12 max 25; div 20 max 15), applied in `swing` against non-ranged attackers; Ice Spikes paralyzes 30% for 10 s (my guess). En-spells: `enthunder/enstone/enaero`, `pow` from Enhancing skill (floor(sqrt)-1 up to 150, then skill/20+5), added after each melee hit as elemental damage.
-- Threnody: debuff `threnody_<element>` with `pow` 0.25; read in `nukeOne` only. FFXI lowers elemental resistance by 50: my 25% is an approximation.
+- Threnody: debuff `threnody_<element>` with `pow` 0.25; read in `nukeOne` only. classic MMO lowers elemental resistance by 50: my 25% is an approximation.
 - Mambo (`mambo`, evasion), Pastoral and Operetta (`pastoral`, `operetta`: resist Poison and Silence via `SONG_RES`, chance min(0.75, pow/50): my approximation) join `SONG_KEYS` (two-song limit). Foe Requiem I/II are `dot` spells with buff `requiem`.
 - Mercenary fixes: `healEstimate` now uses `cureAmount` for table cures; `healerAI` casts Curaga when two or more allies within 300 are hurt; `bardAI` uses `foe_lullaby` and the current song keys.
 - Tests: test/p57unit.js.
@@ -1723,12 +1723,12 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Ids: lower-case name without apostrophes, `_` between words; `+1` becomes `_hq`, `+2` `_hq2`. Duplicates get `_2`. Ids starting with a digit are quoted.
 
 ### Mapping rules
-- Slots from the FFXI bitmask: main, sub, ranged, ammo, head, body, hands, legs, feet, neck, waist, ear (two), ring (two), back. Jobs from bits 1 to 22 (all 22 jobs set means `ALL_J`). Race restrictions are ignored.
+- Slots from the classic MMO bitmask: main, sub, ranged, ammo, head, body, hands, legs, feet, neck, waist, ear (two), ring (two), back. Jobs from bits 1 to 22 (all 22 jobs set means `ALL_J`). Race restrictions are ignored.
 - Weapon skill ids: 1 h2h, 2 dagger, 3 sword, 4 gsword, 5 axe, 6 greataxe, 7 scythe, 8 polearm, 9 katana, 10 gkatana, 11 club, 12 staff, 25 and 26 archery (bows, crossbows and guns all count as archery), 27 throwing, 41 and 42 instrument.
-- Melee `dmg` = FFXI DMG x WTYPE_MULT[type] x (1 + 0.015 x item level), rounded (h2h uses DMG + 3). WTYPE_MULT (fitted in 18.2 so each weapon type keeps its 17.3 damage per second): sword 1.15, dagger 1.5, club 0.95, staff 1.05, greataxe 1.1, gsword 0.95, axe 1.05, h2h 1.1, scythe 0.8, polearm 1.0, katana 1.4, gkatana 1.0, archery and throwing 1.0. Melee `delay` = 1.9 x (FFXI delay / 183)^0.75 seconds (dagger 1.9, sword 2.3, staff 3.2, great axe 4.1); h2h 2.6. Ranged `delay` is delay / 120. Ammo keeps `dmg`.
+- Melee `dmg` = classic MMO DMG x WTYPE_MULT[type] x (1 + 0.015 x item level), rounded (h2h uses DMG + 3). WTYPE_MULT (fitted in 18.2 so each weapon type keeps its 17.3 damage per second): sword 1.15, dagger 1.5, club 0.95, staff 1.05, greataxe 1.1, gsword 0.95, axe 1.05, h2h 1.1, scythe 0.8, polearm 1.0, katana 1.4, gkatana 1.0, archery and throwing 1.0. Melee `delay` = 1.9 x (classic MMO delay / 183)^0.75 seconds (dagger 1.9, sword 2.3, staff 3.2, great axe 4.1); h2h 2.6. Ranged `delay` is delay / 120. Ammo keeps `dmg`.
 - Stats: DEF def, HP hp, MP mp, STR DEX VIT AGI INT MND CHR, Attack att, Accuracy acc, Evasion eva. Ranged Accuracy and Ranged Attack become acc and att only on Range and Ammo items. Dropped: Haste, Enmity, HP%, MP%, skill bonuses, latent and special effects.
 - Prices (18.4): `30 + 40 * lv^1.5` times a slot factor (main and body 1, ranged 0.9, legs and sub 0.8, head, hands and feet 0.7, neck, ear, ring, back and waist 0.6; ammo price / 6, at least 2), x1.4 for +1. Sell price stays price / 4.
-- Job quests whose FFXI weapon is above level 1 also give a level 1 weapon: Samurai gets Tachi (Lv8) plus Harpoon, Rune Fencer gets Claymore (Lv10) plus Bronze Sword (`reward.items`). Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner rewards are level 1 pieces. The Warp Ring has `enchant: "warp"`; Use in the bag casts Warp (5 s item delay).
+- Job quests whose classic MMO weapon is above level 1 also give a level 1 weapon: Samurai gets Tachi (Lv8) plus Harpoon, Rune Fencer gets Claymore (Lv10) plus Bronze Sword (`reward.items`). Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner rewards are level 1 pieces. The Warp Ring has `enchant: "warp"`; Use in the bag casts Warp (5 s item delay).
 
 ### Engine
 - `gearStats` (game.js): a bow in `ranged` sets wtype archery, dmg = bow dmg + ammo dmg x CONFIG.ammoDmgMul (0.5), delay = bow delay; the main hand then only adds stats.
@@ -1753,7 +1753,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `runsim.sh <game.js> <outdir> <trials>` runs all 22 jobs 8 at a time (about 15 minutes at 3 trials) and writes `all.json`. Copy dist/game.js first if you will rebuild during the run.
 - `report.js <old.json> <new.json> <out.md>` writes the comparison (summary by level, player stats, per-job even fights, flags, gear used).
 - The baseline is 17.3.0 built from git e6506d9 in a worktree. Note 17.3 itself is not tuned for solo play: even fights at level 10+ are lost solo there too, so compare versions, not absolute wins.
-- Open after 18.2: level 5 even fights (DEF 38 vs 50, FFXI armor tier gap between level 1 and 7 pieces) and level 20 easy fights (50% vs 90%). Both go to the monster pass (18.3). The `src` regex escaped dots were fixed in 18.4 (shop 298, drop 490).
+- Open after 18.2: level 5 even fights (DEF 38 vs 50, classic MMO armor tier gap between level 1 and 7 pieces) and level 20 easy fights (50% vs 90%). Both go to the monster pass (18.3). The `src` regex escaped dots were fixed in 18.4 (shop 298, drop 490).
 - 18.3 monster curve: `CONFIG.mobCurve = { lv: [1,5,10,15,20], hp, att, dmg }`, linear between points and clamped outside, read by `mobCurve(L)` in buildMob. Values hp 1/0.85/0.8/0.78/0.74, att and dmg 1/0.9/0.9/0.87/0.85. Applies to every monster (families, NMs, bosses) on top of the level 1-6 newbie ramp and family multipliers. Fitted with `iter` runs (10 jobs, 3 trials) then a full run.
 - Target (solo, shop gear, skills at cap, median over jobs; mean in brackets): Easy Prey win ~100% (80-99%), HP lost 30-60%; Even Match ~50% (40-55%); Tough 0% (0-11%). Level 1 is left as is (even 100%, tough 5%). 18.3 results in design/balance-18.3.md.
 - Sim knobs: env SIM_CURVE (JSON merged into mobCurve), SIM_JOBS, SIM_LEVELS, SIM_DIFFS. `tools/balance/summ.js all.json` prints win, mean win, HP lost and TTK by level.

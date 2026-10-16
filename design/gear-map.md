@@ -1,5 +1,5 @@
 # Old to new gear map (18.0.0)
-Every removed id and its FFXI replacement. Ids that kept their name are not listed.
+Every removed id and its classic MMO replacement. Ids that kept their name are not listed.
 
 | old id | new id | item | level |
 |---|---|---|---|

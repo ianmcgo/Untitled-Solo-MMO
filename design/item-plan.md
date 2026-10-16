@@ -31,7 +31,7 @@ Each generated item gets unlockLevel = max(item level, content tier). Shops, dro
 Phase 1 to 3: two to three sessions. Each release slice after that: one session. The balance pass repeats per slice. Start only after the five decisions above.
 
 ## Scope v2 (supersedes the phases above where they conflict)
-Decision: replace the game's own spells, potions and gear with the FFXI data, level 20 and below only. Everything else in the files is ignored for now.
+Decision: replace the game's own spells, potions and gear with the classic MMO data, level 20 and below only. Everything else in the files is ignored for now.
 
 Sizes: 1,912 equipment pieces (level 20 and below), 113 spell scrolls (110 spells), 94 potion-type items (69 without +1 to +3). Source tables come from tools/items-import/parse.py.
 
@@ -41,31 +41,31 @@ Current game facts the plan builds on
 - ITEMS has 11 use-items; levelCap is 20.
 
 Phases
-A. Data tables (no game change). Extend parse.py to emit scrolls (spell, school, every job and level, effect text) and potions with effect text. Hand-write the FFXI numbers the files lack: MP cost, cast time, recast, and base power per spell, taken from FFXI values. Review the tables before use.
-B. Spells. Replace SPELLS with the 44 early spells plus the other scroll types in the 113 (ninjutsu, summoning, geomancy, songs, rolls, threnodys, bar-ra, en- spells). Use FFXI job levels exactly (WHM Cure 1, Cure II 11, Dia 3, Banish 5, and so on). Remove game-only spells that have no FFXI match, or keep them clearly marked as extras if you prefer. Keep scroll items one per spell; duplicate items (Cure, Dia, Stone) merge into one id and keep both ids as aliases so old saves still load.
+A. Data tables (no game change). Extend parse.py to emit scrolls (spell, school, every job and level, effect text) and potions with effect text. Hand-write the classic MMO numbers the files lack: MP cost, cast time, recast, and base power per spell, taken from classic MMO values. Review the tables before use.
+B. Spells. Replace SPELLS with the 44 early spells plus the other scroll types in the 113 (ninjutsu, summoning, geomancy, songs, rolls, threnodys, bar-ra, en- spells). Use classic MMO job levels exactly (WHM Cure 1, Cure II 11, Dia 3, Banish 5, and so on). Remove game-only spells that have no classic MMO match, or keep them clearly marked as extras if you prefer. Keep scroll items one per spell; duplicate items (Cure, Dia, Stone) merge into one id and keep both ids as aliases so old saves still load.
 C. Starting spells. New character gets: BLM Stone; WHM Cure (and Dia at its level, 3); RDM Dia (RDM 1) and the level 1 spells of its job table; BRD Knight's Minne; other jobs get their level 1 entries. Saves that already exist keep their learned list and gain missing spells at level-up as now.
 D. Potions. Replace the 11 use-items with the 94 (stack, effect, price, shop and drop tables). Items without a level are tiered by hand: Potion, Hi-Potion, Ether, Hi-Ether, Antidote, Eye Drops, Echo Drops, Panacea, Remedy, Reraiser and stat potions are buyable at level 20 and below; Elixirs and the rest are drops or locked. Food stays as it is.
-E. Equipment. Import the 1,912 pieces with FFXI level, jobs, slot, race, weapon skill, damage, delay and parsed stats. Map weapon skill ids and slot bitmasks to the game's slots; stats the game lacks are converted to the nearest stat or dropped (a list is kept in design.md). Rename to original names only if you choose; otherwise use the FFXI names. Old gear stays for existing saves until a conversion is agreed.
-F. FFXI rules. Audit and change: damage formula (fSTR, pDIF, delay and TP), hit rate, evasion, defense, MP and HP growth, regen and refresh, cast time and recast, interruption, enmity, TP gain, weapon skill levels, skill caps by job and level, resting and heal-per-tick. Each rule is a small change with a unit test; none is done by eye.
+E. Equipment. Import the 1,912 pieces with classic MMO level, jobs, slot, race, weapon skill, damage, delay and parsed stats. Map weapon skill ids and slot bitmasks to the game's slots; stats the game lacks are converted to the nearest stat or dropped (a list is kept in design.md). Rename to original names only if you choose; otherwise use the classic MMO names. Old gear stays for existing saves until a conversion is agreed.
+F. classic MMO rules. Audit and change: damage formula (fSTR, pDIF, delay and TP), hit rate, evasion, defense, MP and HP growth, regen and refresh, cast time and recast, interruption, enmity, TP gain, weapon skill levels, skill caps by job and level, resting and heal-per-tick. Each rule is a small change with a unit test; none is done by eye.
 G. Balance. Rebuild mob stats against the new gear: target time-to-kill and damage taken per job at levels 1, 5, 10, 15, 20 (even match, easy prey, tough, too tough conning), with and without the new gear and with mercenaries. Tune mob HP, attack and defense, XP and gil, vendor prices and drop rates until the existing bot runs and unit tests pass and the targets hold. This phase is the longest and gets repeated per slice.
 H. Release slices: 17.0 potions and scrolls (B to D), 17.1 weapons, 17.2 armor, 17.3 rules (F), then G after each. Each release: tests, Help and Updates entries, design.md, push.
 
 Risks
 - Wholesale rule changes break existing saves and bot tests; keep a save migration and run the unit suite after every slice.
-- FFXI numbers for MP, cast and recast are not in the files; I would enter them from memory or the wiki and some may be wrong. They get checked in review.
-- FFXI formulas are partly unpublished; "exactly like FFXI" means as close as the known formulas allow.
+- classic MMO numbers for MP, cast and recast are not in the files; I would enter them from memory or the wiki and some may be wrong. They get checked in review.
+- classic MMO formulas are partly unpublished; "exactly like classic MMO" means as close as the known formulas allow.
 - The Project is out of room, so this file lives only in the repo for now.
 
 Suggested model: Sonnet for A to E and H; Opus for F and G (formula design and balance).
 
 ## Data sourcing rule (user)
-Anything the Windower files lack (spell MP, cast, recast, power, potion effects, item stats, formulas, mob data) is looked up on the FFXI wiki (bg-wiki.com first) and recorded in the data tables with the page it came from. Nothing is entered from memory when a wiki page exists. Confirmed reachable: bg-wiki.com/ffxi/Cure returns MP 8, cast 2s, recast 5s, WHM1 RDM3 PLD5 SCH5, which matches the scroll data. Formula pages (Cure Formula and similar) are separate lookups. Lookups are batched per phase and cached in tools/items-import/wiki-cache.json so each page is fetched once.
+Anything the Windower files lack (spell MP, cast, recast, power, potion effects, item stats, formulas, mob data) is looked up on the classic MMO wiki (bg-wiki.com first) and recorded in the data tables with the page it came from. Nothing is entered from memory when a wiki page exists. Confirmed reachable: bg-wiki.com/the wiki/Cure returns MP 8, cast 2s, recast 5s, WHM1 RDM3 PLD5 SCH5, which matches the scroll data. Formula pages (Cure Formula and similar) are separate lookups. Lookups are batched per phase and cached in tools/items-import/wiki-cache.json so each page is fetched once.
 
 ## Naming decision (user)
-Use the real FFXI item and spell names for now. The design notes' "names are original" line gets updated in design.md when the first slice ships. Names can be swapped later because ids are separate from display names.
+Use the real classic MMO item and spell names for now. The design notes' "names are original" line gets updated in design.md when the first slice ships. Names can be swapped later because ids are separate from display names.
 
 ## Status
-- 17.0.0 shipped: spells, potions, starting spells, save wipe. Details in design.md "FFXI rules (v17.0.0)".
+- 17.0.0 shipped: spells, potions, starting spells, save wipe. Details in design.md "classic MMO rules (v17.0.0)".
 - Next: 17.1 (deferred spells and statuses), equipment import (level 20 and below), phase F rules, phase G balance (Opus recommended for F and G).
 - 17.1.0 shipped: status and support spells. 17.2 next: area spells, En- spells, Spikes, Shock/Rasp/Choke, remaining songs, Silence.
 - 17.2.0 shipped: Carbuncle start, Elemental NMs, goblin casters, Silence. AoE, En- spells, Spikes, Shock/Rasp/Choke and songs now move to 17.3.
@@ -75,4 +75,4 @@ Use the real FFXI item and spell names for now. The design notes' "names are ori
 - 18.1 (tools) and 18.2.0 (player power) done; see design.md "Balance tools (18.1)". Next: 18.3 monsters, 18.4 economy, 18.5 crafting and sources.
 - 18.3.0 (monster curve) done. Next: 18.4 economy (prices, XP, drop rate, shop regex fix), 18.5 crafting and sources.
 - 18.4.0 (economy) done. Next: 18.5 crafting recipes for +1 gear and source check.
-- 18.5.0 (gear recipes, coverage) done. Equipment import and balance plan complete. Possible follow-ups: unique ingredients per recipe, Leathercraft and Bonecraft as their own crafts, FFXI vendor data for shops, haste and enmity as real stats.
+- 18.5.0 (gear recipes, coverage) done. Equipment import and balance plan complete. Possible follow-ups: unique ingredients per recipe, Leathercraft and Bonecraft as their own crafts, classic MMO vendor data for shops, haste and enmity as real stats.

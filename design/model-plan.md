@@ -4,14 +4,14 @@ Done one phase at a time; each phase = new version, Help + Updates text, design 
 Rules: no code comments; keep low/medium/high quality tiers; check Low on phones; original names and art (era-style look, nothing copied).
 
 ## Track 6: Classic look (116–127)
-See design/ffxi-look-plan.md. 116–119 done (v16.2.0–16.5.0). Track 6 took 16.2.0–16.5.0, so phase 113 and later take the next free version.
+See design/mmo-look-plan.md. 116–119 done (v16.2.0–16.5.0). Track 6 took 16.2.0–16.5.0, so phase 113 and later take the next free version.
 
-## Track 0: FFXI-style character creation (priority, before Track 5)
-Requested 2026-10-14. Goal: recreate the feel of the Final Fantasy XI creation screen with an original look (no copied art or names). Flow is exactly four steps: Race → Gender (skipped for Ursan, locked male, and Nekari, locked female, like Galka and Mithra) → Face type → Hair color → Physical size (small, medium, large). Name and starting job stay on a final confirm step. Faces move to a cartoon/anime style like FFXI: large glossy eyes, small nose and mouth, soft jaw, simple eyebrows. Opus recommended for 110.1 (face meshes and paint), Sonnet is enough for 110.2 and 110.3.
+## Track 0: classic MMO-style character creation (priority, before Track 5)
+Requested 2026-10-14. Goal: recreate the feel of the classic MMO creation screen with an original look (no copied art or names). Flow is exactly four steps: Race → Gender (skipped for Ursan, locked male, and Nekari, locked female, like Galka and Mithra) → Face type → Hair color → Physical size (small, medium, large). Name and starting job stay on a final confirm step. Faces move to a cartoon/anime style like classic MMO: large glossy eyes, small nose and mouth, soft jaw, simple eyebrows. Opus recommended for 110.1 (face meshes and paint), Sonnet is enough for 110.2 and 110.3.
 | Phase | Ver | Name | Scope |
 |---|---|---|---|
 | 110.1 ✅ | 15.5.0 | Anime faces | Redo the face paint and head shape for all five races in a stylised cartoon/anime style: big shaded eyes with highlights, tiny nose, small mouth, thin brows, softer jaw and cheeks; 8 face types per race and gender (replaces the current 16 realistic faces; old saves map to the nearest type); expressions, lip-sync and look-at keep working |
-| 110.2 ✅ | 15.6.0 | Creation flow | Rebuild the creator as four sequential screens with a live 3D preview on the left and Back/Next: Race (five races with blurb and stat bonuses) → Gender (skipped for locked-gender races) → Face type (grid of eight) → Hair color (palette of 8 to 10 colours; hair style comes from the face type) → Physical size (Small, Medium, Large, changing height and build; cosmetic only, as in FFXI). Fits phones without scrolling; saves old characters unchanged |
+| 110.2 ✅ | 15.6.0 | Creation flow | Rebuild the creator as four sequential screens with a live 3D preview on the left and Back/Next: Race (five races with blurb and stat bonuses) → Gender (skipped for locked-gender races) → Face type (grid of eight) → Hair color (palette of 8 to 10 colours; hair style comes from the face type) → Physical size (Small, Medium, Large, changing height and build; cosmetic only, as in classic MMO). Fits phones without scrolling; saves old characters unchanged |
 | 110.3 ✅ | 15.7.0 | Confirm and polish | Final summary screen with name entry, starting job and a rotating preview; click sounds; a "start over" button; size shown on the Status screen; Help and Updates updated; tests for every race/gender/face/hair/size combination |
 
 ## Track 1: models (88–98)
