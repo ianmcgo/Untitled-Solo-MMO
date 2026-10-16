@@ -1,11 +1,12 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.25.0",
-  "releaseTitle": "Natural zone exits",
+  "version": "18.26.0",
+  "releaseTitle": "Load timings in Config",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "node tools/release-check.mjs"
   },
   "keywords": [],
   "author": "",

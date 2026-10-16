@@ -41,3 +41,8 @@ Scan of instanced meshes against `field.heightAt` (more than 2.5 units above gro
 
 ## Phase 1 result (v18.21.0)
 Minified game JS and named three imports: 6.39 MB to 5.83 MB. The 25 to 40% target is not reachable without changing audio: audio is 3.07 MB and already low bitrate. Options (not done): move audio to separate cached files (split build), or lower bitrates of the eight music tracks (1.9 MB mp3).
+
+## Release history (tools/release-check.mjs --write)
+| Version | Size MB | Title ms | Cached icons ms |
+|---|---|---|---|
+| 18.26.0 | 5.57 | 1993 | 1267 |

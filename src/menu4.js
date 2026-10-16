@@ -628,7 +628,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + btn("toggle", "autoFull", "Fullscreen on start " + (s.autoFull ? "on" : "off"), !!s.autoFull) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + btn("toggle", "autoFull", "Fullscreen on start " + (s.autoFull ? "on" : "off"), !!s.autoFull) + btn("perfshow", "", "Load timings " + (UI.perfShow ? "shown" : "hidden"), !!UI.perfShow) + "</div>" + (UI.perfShow && typeof PERF !== "undefined" ? '<div class="sub" style="white-space:pre-wrap;font-size:11px;max-height:180px;overflow:auto">' + esc(PERF.table().join("\n")) + "</div>" : "");
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -1477,6 +1477,7 @@ function onMenuClick(e) {
   }
   else if (a === "slothud") { if (UI.pick) { const sl = hb.pages[UI.pick[0]][UI.pick[1]]; if (sl) { if (sl.hud === false) delete sl.hud; else sl.hud = false; saveGame(); buildActionBar(); sfx("click"); } } }
   else if (a === "fullscreen") { toggleFullscreen(); }
+  else if (a === "perfshow") { UI.perfShow = !UI.perfShow; sfx("click"); }
   else if (a === "slotclear") { if (UI.pick) { hb.pages[UI.pick[0]][UI.pick[1]] = null; UI.pick = null; saveGame(); buildActionBar(); sfx("close"); } }
   else if (a === "barreset") { delete save.hotbars[save.mainJob]; UI.slotKey = ""; UI.pick = null; syncHotbar(); saveGame(); sfx("click"); }
   else if (a === "buy") buy(v);
@@ -1638,6 +1639,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.26.0", date: "2026-10-16", title: "Load timings in Config", items: [
+    "<b>Load timings:</b> Config > Interface has a new Load timings button that shows how long start-up and your recent zone loads took, step by step. The same list is available with /perf.",
+    "Behind the scenes, every release is now checked against a file-size limit and a start-up time limit, so downloads and loading can't quietly get slower."
+  ] },
   { v: "18.25.0", date: "2026-10-16", title: "Natural zone exits", items: [
     "<b>No more floating rocks:</b> boulders, small rocks, cliff chunks and cave spikes now sit on the lowest point under them, so ones on a slope are buried on the high side instead of hanging over the low side.",
     "<b>Softer, winding exits:</b> the hall leading to a zone exit now bends gently, varies in width and has sloped, uneven sides instead of two straight cut walls.",
@@ -3329,6 +3334,7 @@ function tabHelp() {
     "Zone exits wind and widen, rocks sit on the ground rather than hovering over slopes, and the end of an outside exit shows hazy hills tinted like the zone beyond.",
     "Walking off the edge of a zone hands control to the game for about a second: you walk out, the screen fades to the loading screen, and you walk in on the other side. Doors and warps fade straight away.",
     "The game keeps painted ground textures and the item icon sheet in your browser so return visits load faster. They reset on every update; <b>/clearcache</b> removes them if anything looks wrong.",
+    "Config > Interface > <b>Load timings</b> shows the same start-up and zone-load list as <b>/perf</b> without typing.",
     "Type <b>/perf</b> in chat to list how long start-up and your last few zone loads took, step by step, plus any props floating above the ground.",
     "Config → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Config → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
