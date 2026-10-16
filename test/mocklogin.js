@@ -1,4 +1,4 @@
-module.exports = async function mockLogin(page, html, name) {
+module.exports = async function mockLogin(page, html, name, rpc) {
   const db = { chars: {}, member: false };
   const user = { id: '11111111-2222-3333-4444-555555555555', email: 'ianmcgon@gmail.com', aud: 'authenticated', role: 'authenticated' };
   const sess = () => ({ access_token: 'tok', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: 'ref', user });
@@ -9,6 +9,7 @@ module.exports = async function mockLogin(page, html, name) {
     if (p === '/auth/v1/user') return json(user);
     if (p === '/rest/v1/rpc/is_member') return json(db.member);
     if (p === '/rest/v1/rpc/join_game') { db.member = true; return json(true); }
+    if (rpc && rpc[p.slice(13)]) { const r = rpc[p.slice(13)](req); return r === undefined ? route.fulfill({ status: 204 }) : json(r); }
     if (p.startsWith('/rest/v1/rpc/')) return json([]);
     if (p === '/rest/v1/characters') {
       const sel = url.searchParams.get('select') || '';

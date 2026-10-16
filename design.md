@@ -2001,3 +2001,14 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - giveItem: a kind "pet" item that is not already owned calls learnBuddy and returns true without adding to the inventory, so pet items never take a bag slot. A duplicate is handled as a normal item. Test: pet1unit.js.
 - 18.35.2: MAIN_CMDS page 1 gains ["Pets", "pets"] after Map; mainCmdItems hides it until save.buddies has a pet.
 - 18.35.3: normalizeSave turns unowned pet items in the inventory into learned pets (one item each, buddy defaults to the first pet); Pets is always in MAIN_CMDS page 1.
+
+## 18.36.0: server places, waiting line, idle log-out (Q1)
+- SQL sql/q1-seats.sql (schema 8, bundled into SETUP_SQL after the m5d files): config max_online (default 20, 0 = no limit), game_private.seats(player, since, beat) and game_private.queue(player, joined, polled).
+- public.queue_join(): member only; advisory lock; drops seats with beat older than 120 s and queue rows not polled for 30 s; admin or cap 0 = play without a seat; a seated player refreshes beat; otherwise joins/refreshes the queue and takes a seat when the number ahead (by joined, player) is below the free seats. Returns {state play|wait, ahead, online, max, queue}. Used both for the first join and as the 30 s seat heartbeat.
+- public.queue_leave(): drops the caller's seat and queue row (sign out, idle log-out, Leave the line).
+- public.has_seat(): admin, cap 0 or a fresh seat. Added to characters RLS (select/insert/update/delete) and to game_private.my_char, so loading, saving and every market/trade/linkshell RPC need a place.
+- Client net.js: netQueueJoin (missing function or non-object reply = no queue, NET.queueOff), netQueueLeave(keepalive), netSeatStart (5 s timer, netSeatTick every NET_CFG.seatBeat 30 s; a 'wait' reply = netSeatLost: sessionStorage usr_requeue + reload, which skips the mode screen back into the line), netIdleTick (VIEW.settings.idleMin 5..60, default 30; warning gameConfirm tag idle at 60 s left; netIdleLogout saves, flushes, leaves the queue, sets sessionStorage usr_idle and reloads to the mode screen with the note). UI.lastInput is set by capture listeners in main4.js.
+- main4.js: openRoster → queueGate (polls every 5 s, showQueue screen with #position and Leave the line) before loading characters.
+- Config → Online (menu4 tabSettings, action idlemin) and the Network box #ffNetOn show NET.online.
+- Tested on local Postgres 16 as role authenticated (cap, FIFO, leave, 120 s timeout, admin exempt, RLS blocks reads/saves without a seat, cap 0) and in Playwright with a mock server (queue screen, seat, idle warning and log-out, seat loss).
+- 18.36.0 also: petToBag(id) / petItemOf(id) (game.js) and the Pets window's Unequip to bag button (action petbag): dismisses, removes from save.buddies, unequips and pushes the pet item directly into the bag (bypassing giveItem, which would re-learn it). Pets without an item (ash_sprite) can't be unequipped.

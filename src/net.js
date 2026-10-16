@@ -1,5 +1,5 @@
-const NET_SCHEMA = 7;
-const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000 };
+const NET_SCHEMA = 8;
+const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000, seatBeat: 30000, queuePoll: 5000, idleWarn: 60000 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
 const isUuid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s || ""));
@@ -70,8 +70,74 @@ async function netSignUp(email, password, code) {
   return "ok";
 }
 
+async function netQueueJoin() {
+  const { data, error } = await NET.sb.rpc("queue_join");
+  if (error) {
+    if (netMissing(error)) { NET.queueOff = true; return { state: "play", legacy: true }; }
+    throw error;
+  }
+  const d = data && !Array.isArray(data) && data.state ? data : { state: "play", legacy: true };
+  NET.online = { n: d.online, max: d.max, queue: d.queue, at: Date.now() };
+  NET.seated = d.state === "play";
+  return d;
+}
+
+async function netQueueLeave(keepalive) {
+  NET.seated = false;
+  if (!NET.sb || NET.queueOff) return;
+  if (keepalive && NET.session) {
+    try { await fetch(NET_CFG.url + "/rest/v1/rpc/queue_leave", { method: "POST", keepalive: true, headers: { apikey: NET_CFG.key, Authorization: "Bearer " + NET.session.access_token, "Content-Type": "application/json" }, body: "{}" }); } catch (e) {}
+    return;
+  }
+  try { await NET.sb.rpc("queue_leave"); } catch (e) {}
+}
+
+function netSeatStart() {
+  if (NET.seatTimer) return;
+  NET.seatAt = Date.now();
+  NET.seatTimer = setInterval(() => { const t = Date.now(); netSeatTick(t); if (!UI.started) netIdleTick(t); }, 5000);
+}
+
+function netSeatTick(now) {
+  if (NET.queueOff || NET.seatBusy || PLAY.offline || !NET.seated) return;
+  if (now - (NET.seatAt || 0) < NET_CFG.seatBeat) return;
+  NET.seatAt = now; NET.seatBusy = true;
+  netQueueJoin().then(d => { if (d.state === "wait") netSeatLost(); }, () => {}).finally(() => { NET.seatBusy = false; });
+}
+
+function netSeatLost() {
+  if (NET.leaving) return;
+  NET.leaving = true;
+  try { sessionStorage.setItem("usr_requeue", "You were disconnected for too long and lost your place on the server. You're back in line."); } catch (e) {}
+  try { saveGame(); } catch (e) {}
+  location.reload();
+}
+
+function netIdleTick(now) {
+  if (PLAY.offline || !NET.member || NET.leaving || typeof UI === "undefined" || !(S.charId || NET.seated)) return;
+  const last = UI.lastInput || (UI.lastInput = now);
+  const min = Math.max(5, Math.min(60, (typeof VIEW !== "undefined" && VIEW.settings && +VIEW.settings.idleMin) || 30));
+  const left = min * 60000 - (now - last);
+  if (left <= 0) { netIdleLogout(min); return; }
+  if (left <= NET_CFG.idleWarn && !UI.idleWarned && typeof gameConfirm === "function") {
+    UI.idleWarned = true;
+    gameConfirm("Still there?", "You haven't done anything for a while. You'll be logged out in a minute to free your place for other players.", () => { UI.lastInput = Date.now(); UI.idleWarned = false; }, { yes: "I'm here", noBtn: false, onNo: () => { UI.lastInput = Date.now(); UI.idleWarned = false; }, tag: "idle" });
+  }
+}
+
+async function netIdleLogout(min) {
+  if (NET.leaving) return;
+  NET.leaving = true;
+  try { saveGame(); } catch (e) {}
+  try { await netFlush(); } catch (e) {}
+  await netQueueLeave();
+  try { sessionStorage.setItem("usr_idle", "You were logged out after " + min + " minutes without any input. Your progress was saved."); } catch (e) {}
+  location.reload();
+}
+
 async function netSignOut() {
   await netFlush();
+  await netQueueLeave();
   try { netLeaveAll(); } catch (e) {}
   try { await NET.sb.auth.signOut(); } catch (e) {}
   NET.user = null; NET.session = null; NET.member = false;
@@ -176,6 +242,7 @@ function netTick() {
   const now = Date.now();
   if (now - NET.lastSave > NET_CFG.saveEvery && Object.keys(NET.dirty).length) netFlush();
   netTrack();
+  netIdleTick(now);
   if (now - NET.beatAt > NET_CFG.beat) { NET.beatAt = now; const t0 = performance.now(); NET.sb.rpc("touch_player").then(() => { NET.ping = Math.round(performance.now() - t0); }, () => {}); }
   if (S.charId && now - (NET.ahAt || 0) > 60000) { NET.ahAt = now; netAhWatch(); }
 }

@@ -1872,6 +1872,23 @@ function summonBuddy() {
   return "";
 }
 
+function petItemOf(id) { return Object.keys(ITEMS).find(k => ITEMS[k].kind === "pet" && ITEMS[k].pet === id) || null; }
+
+function petToBag(id) {
+  if (!save.buddies.includes(id)) return "You don't have that pet.";
+  const item = petItemOf(id);
+  if (!item) return BUDDIES[id].name + " stays with you; it has no item form.";
+  if (save.inventory.length >= CONFIG.inventorySize) return "Your bag is full.";
+  if (save.buddy === id && S.buddy) dismissBuddy(true);
+  save.buddies = save.buddies.filter(x => x !== id);
+  if (save.buddy === id) { save.buddy = null; save.buddyOut = false; }
+  save.inventory.push({ id: item, qty: 1 });
+  log(buddyName(id) + " goes back into your bag as " + an(ITEMS[item].name) + ". Use it to make it your pet again.", "sys");
+  sfx("close");
+  saveGame();
+  return "";
+}
+
 function dismissBuddy(quiet) {
   if (!S.buddy) return;
   const b = S.buddy;
