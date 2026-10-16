@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.35.0",
-  "releaseTitle": "Online market",
+  "version": "18.35.1",
+  "releaseTitle": "Pet button on command bar 1",
   "description": "",
   "main": "index.js",
   "scripts": {

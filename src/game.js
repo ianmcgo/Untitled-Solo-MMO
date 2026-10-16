@@ -1569,6 +1569,7 @@ function invCount(id) { return save.inventory.filter(s => s.id === id).reduce((n
 function giveItem(id, n, quiet) {
   const it = ITEMS[id];
   if (save.seen) save.seen.items[id] = 1;
+  if (it.kind === "pet" && n === 1 && save.buddies && !save.buddies.includes(it.pet) && learnBuddy(it.pet)) return true;
   const stack = it.stack || 1;
   let left = n;
   for (const s of save.inventory) {
@@ -1819,7 +1820,8 @@ function learnBuddy(id) {
   if (save.buddies.includes(id)) { log("You already have " + an(BUDDIES[id].name) + ".", "sys"); return false; }
   save.buddies.push(id);
   if (!save.buddy) save.buddy = id;
-  log(BUDDIES[id].name + " joins you as a pet! Open the Pets window to summon it.", "loot");
+  if (save.hotbars && save.hotbars[save.mainJob]) save.hotbars[save.mainJob].petV2 = false;
+  log(BUDDIES[id].name + " joins you as a pet! Press its button on command bar 1, or open the Pets window, to summon it.", "loot");
   sfx("unlock");
   uiEvent("buddy", { id });
   checkAchievements();
