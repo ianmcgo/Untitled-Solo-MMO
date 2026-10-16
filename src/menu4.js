@@ -1638,6 +1638,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.24.0", date: "2026-10-16", title: "Walking between zones", items: [
+    "<b>No more snap when you reach a zone edge:</b> your character keeps walking out of the zone on their own while the screen fades to the loading screen, so the game no longer stops dead the moment you touch the exit.",
+    "<b>Walking in:</b> after the loading screen, the new zone fades in with your character walking a few steps in from the edge, then control comes back to you. Companions arrive behind you.",
+    "The next zone's saved ground picture is fetched during the walk, so return trips load a little sooner. Doors, warp stones, ferries and exits that ask first keep the old quick fade."
+  ] },
   { v: "18.23.0", date: "2026-10-16", title: "Return visits load faster", items: [
     "<b>Saved textures:</b> after a zone's ground is painted once, the picture is kept in your browser. Coming back to that zone (or reloading the game) skips the painting step, which was the slowest part of building a zone.",
     "<b>Saved item icons:</b> the item icon sheet is kept the same way, so after the first start the icons are ready almost instantly.",
@@ -3316,6 +3321,7 @@ function tabHelp() {
   ]));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 20 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
+    "Walking off the edge of a zone hands control to the game for about a second: you walk out, the screen fades to the loading screen, and you walk in on the other side. Doors and warps fade straight away.",
     "The game keeps painted ground textures and the item icon sheet in your browser so return visits load faster. They reset on every update; <b>/clearcache</b> removes them if anything looks wrong.",
     "Type <b>/perf</b> in chat to list how long start-up and your last few zone loads took, step by step, plus any props floating above the ground.",
     "Config → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",

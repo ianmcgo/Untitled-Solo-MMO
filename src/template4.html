@@ -388,6 +388,7 @@
 
   #loading { position: absolute; inset: 0; z-index: 30; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 24px; background: radial-gradient(ellipse at 50% 38%, #2a2416 0%, #12100c 45%, #050507 100%); }
   #loading.on { display: flex; }
+  #zfade { position: fixed; inset: 0; z-index: 31; background: #050507; opacity: 0; pointer-events: none; }
   #loading.zone { background: radial-gradient(ellipse at 50% 45%, rgba(30,26,18,.97), rgba(5,5,7,.99)); }
   #loading .crest { width: 74px; height: 74px; border-radius: 50%; border: 2px solid var(--edge2); display: grid; place-items: center; font-size: 34px; color: var(--gold); box-shadow: 0 0 30px rgba(241,207,115,.25), inset 0 0 18px rgba(241,207,115,.2); animation: crest 3s ease-in-out infinite; }
   #loading.zone .crest { width: 54px; height: 54px; font-size: 24px; }

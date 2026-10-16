@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.23.0",
-  "releaseTitle": "Return visits load faster",
+  "version": "18.24.0",
+  "releaseTitle": "Walking between zones",
   "description": "",
   "main": "index.js",
   "scripts": {
