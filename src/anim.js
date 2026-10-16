@@ -293,10 +293,10 @@ function poseHuman(v, e, dt) {
     addP(P, "footL", -0.17 * sw, 0, 0); addP(P, "footR", -0.35 * sw, 0, 0);
     v.rootOff[1] -= 0.05 * sw;
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
-    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana" || v.weaponKind === "gsword") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
+    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana" || v.weaponKind === "gsword") { addP(P, "upArmR", -1.1 * sw, 0, 0.2 * sw); addP(P, "foreArmR", -0.5 * sw, 0, 0); addP(P, "upArmL", -1.1 * sw, 0, -0.3 * sw); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
-    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.4 * sw, 0, 0); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -0.3 * sw, 0, 0); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
-    else { addP(P, "upArmR", -0.55 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.75 * sw, 0, 0); addP(P, "upArmL", -0.45 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
+    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, 0); addP(P, "foreArmL", -0.5 * sw, 0, 0); }
+    else { addP(P, "upArmR", -1.2 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.4 * sw, 0, 0); addP(P, "upArmL", -0.5 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
   }
 
   if (amp > 0.01) {
@@ -328,42 +328,45 @@ function poseHuman(v, e, dt) {
     const side = an.aVar ? 1 : -1;
     if (kind === "slash" && an.aVar === 2) {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);
-      setP(P, "upArmR", -0.4 * a - 1.6 * b, 0, 0.9 * a - 0.9 * b, w);
-      setP(P, "foreArmR", -1.3 * a + 1.1 * b, 0, 0, w);
-      setP(P, "chest", 0.05, 0.55 * a - 0.8 * b, 0, w);
-      setP(P, "spine", 0.1 * b, 0, 0, w);
+      setP(P, "upArmR", -0.95 * a - 0.5 * b, 0, -0.15, w);
+      setP(P, "foreArmR", -1.4 * a + 1.3 * b, 0, 0, w);
+      setP(P, "chest", 0.05 * b, -0.25 * a + 0.3 * b, 0, w);
+      setP(P, "spine", 0.18 * b, 0, 0, w);
+      setP(P, "handR", -0.2 * a, 0, 0, w);
       addP(P, "thighL", -0.3 * b * w, 0, 0); addP(P, "shinL", 0.3 * b * w, 0, 0);
-      setP(P, "handR", -0.3 * a + 2.7 * b, 0, 0, w);
+      v.rootOff[2] += 0.16 * b * w;
     } else if (kind === "slash" && an.aVar === 1) {
       const a = ease(ak / 0.28), b = ease((ak - 0.28) / 0.2);
-      setP(P, "upArmR", -1.3 * a + 0.2 * b, 0, -1.2 * a + 1.7 * b, w);
-      setP(P, "foreArmR", -0.5 * a + 0.3 * b, 0, 0, w);
-      setP(P, "chest", 0, -0.7 * a + 1.1 * b, 0, w);
-      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
-      setP(P, "handR", 1.5 * a, 0, 0, w);
+      setP(P, "upArmR", -1.4, 0, 0.5 * a - 1.25 * b, w);
+      setP(P, "foreArmR", -0.4, 0, 0, w);
+      setP(P, "chest", 0, 0.55 * a - 0.95 * b, 0, w);
+      setP(P, "hips", 0, 0.2 * a - 0.3 * b, 0, w);
+      setP(P, "handR", 0.3, 0, 0, w);
     } else if (kind === "slash") {
       const a = ease(ak / 0.32), b = ease((ak - 0.32) / 0.22);
-      setP(P, "upArmR", -2.1 * a + 1.8 * b, 0, -0.55 * a + 1.05 * b, w);
-      setP(P, "foreArmR", -1.0 * a + 0.85 * b, 0, 0, w);
-      setP(P, "chest", 0.05, -0.5 * a + 0.95 * b, 0, w);
-      setP(P, "spine", 0.08 + 0.12 * b, 0, 0, w);
-      setP(P, "handR", 0.5 * a - 1.7 * b, 0, 0, w);
+      setP(P, "upArmR", -1.4, 0, -0.95 * a + 1.15 * b, w);
+      setP(P, "foreArmR", -0.4, 0, 0, w);
+      setP(P, "chest", 0.04, -0.55 * a + 1.0 * b, 0, w);
+      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
+      setP(P, "spine", 0.06 + 0.1 * b, 0, 0, w);
+      setP(P, "handR", 0.3, 0, 0, w);
     } else if ((kind === "smash" || kind === "cleave") && an.aVar === 1) {
       const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.22);
-      setP(P, "upArmR", -1.4, 0, -1.3 * a + 1.9 * b, w);
+      setP(P, "upArmR", -1.4, 0, 0.55 * a - 1.35 * b, w);
       setP(P, "foreArmR", -0.4, 0, 0, w);
-      if (kind === "cleave") { setP(P, "upArmL", -1.3, 0, -1.1 * a + 1.7 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
-      setP(P, "chest", 0, -0.8 * a + 1.3 * b, 0, w);
-      setP(P, "hips", 0, -0.3 * a + 0.4 * b, 0, w);
+      if (kind === "cleave") { setP(P, "upArmL", -1.4, 0, 0.35 * a - 1.0 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
+      setP(P, "chest", 0, 0.7 * a - 1.2 * b, 0, w);
+      setP(P, "hips", 0, 0.3 * a - 0.4 * b, 0, w);
       addP(P, "thighL", -0.25 * w, 0, 0); addP(P, "shinL", 0.35 * w, 0, 0);
     } else if (kind === "smash" || kind === "cleave") {
       const a = ease(ak / 0.36), b = ease((ak - 0.36) / 0.2);
-      setP(P, "upArmR", -2.7 * a + 2.4 * b, 0, -0.1, w);
-      setP(P, "foreArmR", -0.7 * a + 0.5 * b, 0, 0, w);
-      if (kind === "cleave") { setP(P, "upArmL", -2.6 * a + 2.3 * b, 0, -0.35, w); setP(P, "foreArmL", -0.8 * a + 0.6 * b, 0, 0, w); }
-      setP(P, "spine", -0.15 * a + 0.45 * b, 0, 0, w);
-      setP(P, "handR", 0.6 * a - 1.3 * b, 0, 0, w);
-      setP(P, "chest", 0, -0.15 * a, 0, w);
+      setP(P, "upArmR", -1.4, 0, -1.0 * a + 1.25 * b, w);
+      setP(P, "foreArmR", -0.4, 0, 0, w);
+      if (kind === "cleave") { setP(P, "upArmL", -1.4, 0, -0.5 * a + 0.8 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
+      setP(P, "spine", 0.08 * a + 0.1 * b, 0, 0, w);
+      setP(P, "chest", 0, -0.6 * a + 1.1 * b, 0, w);
+      setP(P, "hips", 0, -0.25 * a + 0.35 * b, 0, w);
+      v.rootOff[2] += 0.08 * b * w;
     } else if (kind === "thrust") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.18);
       setP(P, "upArmR", -0.4 * a - 1.0 * b, 0, 0, w);

@@ -353,7 +353,7 @@ function showCharSelect() {
   const r = loadRoster();
   r.chars.sort((a, b) => (b.played || 0) - (a.played || 0));
   let h = '';
-  if (OLD_CHARS.length) { h += '<div class="ccEmpty" style="margin-bottom:8px">Updates 17.0 and 18.0 changed the rules (FFXI spells, potions and gear). These characters could not be kept and were deleted: ' + esc(OLD_CHARS.join(', ')) + '. Please create a new character.</div>'; OLD_CHARS.length = 0; }
+  if (OLD_CHARS.length) { h += '<div class="ccEmpty" style="margin-bottom:8px">Updates 17.0 and 18.0 changed the rules (spells, potions and gear). These characters could not be kept and were deleted: ' + esc(OLD_CHARS.join(', ')) + '. Please create a new character.</div>'; OLD_CHARS.length = 0; }
   h += '<div class="ccList">';
   for (const c of r.chars) {
     const j = JOBS[c.job] || JOBS.WAR;
