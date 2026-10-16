@@ -1323,7 +1323,7 @@ function chatToggle(force) {
 }
 
 const MAIN_CMDS = [
-  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Social", "social", "Who is online, friends, linkshells, party search and the blacklist."], ["Map", "map", "View the map of this area."]],
+  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Social", "social", "Who is online, friends, linkshells, party search and the blacklist."], ["Map", "map", "View the map of this area."], ["Pets", "pets", "Summon, dismiss, choose and name your pets."]],
   [["Quests", "quests", "Your story chapter and current and finished quests."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Database", "database", "Everything you've owned, learned, met and visited: items, gear, magic, abilities, jobs, people, places and creatures."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Guide", "help", "A guide to every function in the game."], ["Updates", "updates", "What's new in each version."], ["Time", "@time", "Check the time, or wait in town for hours to pass."], ["Log Out", "@logout", "Return to the character selection screen."]]
 ];
 
@@ -1338,6 +1338,7 @@ function mainCmdItems() {
   if (UI.mm.sub === "status") return STATUS_CMDS;
   let pg = MAIN_CMDS[UI.mm.page].slice();
   if (PLAY.offline) pg = pg.filter(it => !["social"].includes(it[1]));
+  if (!(save.buddies && save.buddies.length)) pg = pg.filter(it => it[1] !== "pets");
   const mi = pg.findIndex(it => it[1] === "map");
   if (mi >= 0 && S.zone && S.zone.residence) pg[mi] = ["Residence", "home", "Arrange furniture and use your residence."];
   return pg;

@@ -1999,3 +1999,4 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.35.1: pet button and pets off the bag
 - hotbar() (hud4.js): characters with a pet get a one-time (hb.petV2) move of the Pet command to the first free slot of page 0 (command bar 1); if page 0 is full it falls back to any free slot. learnBuddy resets hb.petV2 for the current job so a new pet re-places the button.
 - giveItem: a kind "pet" item that is not already owned calls learnBuddy and returns true without adding to the inventory, so pet items never take a bag slot. A duplicate is handled as a normal item. Test: pet1unit.js.
+- 18.35.2: MAIN_CMDS page 1 gains ["Pets", "pets"] after Map; mainCmdItems hides it until save.buddies has a pet.
