@@ -1886,8 +1886,9 @@ splitZone("highlands", [
 for (const id in ZONES) if (!ZONES[id].bandFixed) computeBand(ZONES[id]);
 
 
-const COMPANION_CFG = { dayMs: 86400000, wageRate: 1, bondSteps: [0, 20, 60, 130, 250, 420], bondBonus: 0.03, maxBond: 5 };
+const COMPANION_CFG = { dayMs: 86400000, wageRate: 1, contractSec: 3600, gearWage: 0.02, hqWage: 0.05, bribePerLv: 100, bondSteps: [0, 20, 60, 130, 250, 420], bondBonus: 0.03, maxBond: 5 };
 
+const MERC_PERSONAL_GEN = ["I'm glad it's you I'm fighting beside.", "You don't leave people behind. I noticed.", "I've started to look forward to these days.", "Whatever comes, I'll be at your side.", "Partners, then. For as long as you'll have me."];
 const MERC_PERSONAL = {
   kael: ["You fight like someone who means it. I like that.", "My old captain used to say a shield is a promise. I'm starting to remember why.", "I grew up two valleys past the Hollow. Goblins burned the mill. That's why I took up the axe.", "If I go down, don't stop to grieve. Finish the fight first.", "Wherever you go next, I'm coming. No fee needed for that, but I'll still take it."],
   rook: ["You keep up. Most don't.", "I count every swing. Old habit from the arena.", "The arena paid better, but nobody there watched my back.", "I've stopped counting the swings. I count the fights we walk away from now.", "Partner. That's the word, isn't it?"],

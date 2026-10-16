@@ -66,7 +66,7 @@ const TIPS = [
   "<b>Rest.</b> Stand still out of combat and your HP and MP slowly come back.",
   "<b>Check before you fight.</b> A monster's name colour shows how tough it is compared to you.",
   "<b>Skillchains.</b> Use a weapon skill right after an ally's to chain them, then nuke the matching element for a magic burst.",
-  "<b>Companions.</b> Brann at the Mercenary Hall hires out fighters, healers and mages. A hiring fee, then a small daily wage.",
+  "<b>Companions.</b> Brann at the Mercenary Hall hires out fighters, healers and mages. A hiring fee for the first hour, then an hourly wage.",
   "<b>Night falls.</b> Bats and restless bones come out after dark. Some rare monsters only appear at certain hours.",
   "<b>Home point.</b> Touch a crystal to set where you return after being defeated.",
   "<b>Weekdays.</b> Each day of the week favours one element. Spells of that element hit 10% harder.",
