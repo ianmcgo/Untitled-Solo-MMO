@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.19.1",
-  "releaseTitle": "Weapons face forward",
+  "version": "18.19.2",
+  "releaseTitle": "Two-handed staves, monster eyes",
   "description": "",
   "main": "index.js",
   "scripts": {

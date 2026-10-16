@@ -295,7 +295,7 @@ function poseHuman(v, e, dt) {
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
     if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana" || v.weaponKind === "gsword") { addP(P, "upArmR", -1.1 * sw, 0, 0.2 * sw); addP(P, "foreArmR", -0.5 * sw, 0, 0); addP(P, "upArmL", -1.1 * sw, 0, -0.3 * sw); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
-    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, 0); addP(P, "foreArmL", -0.5 * sw, 0, 0); }
+    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.95 * sw, 0, -0.5 * sw); addP(P, "foreArmL", -0.15 * sw, 0, 0); }
     else { addP(P, "upArmR", -1.2 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.4 * sw, 0, 0); addP(P, "upArmL", -0.5 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
     if (v.weapon && v.weaponDrawn) { const wk2 = v.weaponKind; if (wk2 === "staff" || wk2 === "polearm") v.weapon.rotation.z = Math.PI * an.fight; else if (wk2 && wk2 !== "h2h" && wk2 !== "archery") addP(P, "handR", 1.45 * sw, 0, 0); }
   }
@@ -374,7 +374,7 @@ function poseHuman(v, e, dt) {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.18);
       setP(P, "upArmR", -0.4 * a - 1.0 * b, 0, 0, w);
       setP(P, "foreArmR", -1.2 * a + 1.1 * b, 0, 0, w);
-      setP(P, "upArmL", -0.5 - 0.8 * b, 0, -0.2, w);
+      setP(P, "upArmL", -0.95 - 0.5 * b, 0, -0.5, w); setP(P, "foreArmL", -0.15, 0, 0, w);
       setP(P, "chest", 0, -0.35 * a + 0.6 * b, 0, w);
     } else if (kind === "claw") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);

@@ -1773,3 +1773,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Staff and polearm: the tip is on the long side of the grip and pointed backward when the arm was raised. `anim.js` now sets `v.weapon.rotation.z = PI * an.fight` for them, so the tip leads in a fight and points up at rest.
 - Wind-up amplitudes were reduced (arm z about 0.3 to 0.6 instead of 1.0) so the weapon never swings behind the body.
 - Check with `node test/swingsheet.js dist/index.html out.png <weaponId> human <variant 0-2> side|top`.
+
+## 18.19.2: two-handed staves, monster eyes
+- Staff and polearm fight stance (\`anim.js\`, the \`sw\` block) and the thrust pose put the left arm on the shaft: \`upArmL\` -0.95 with z -0.5 and \`foreArmL\` -0.15 (the right arm keeps -0.9 and -0.6). Checked with test/swingsheet.js side and top views; hands sit close together on the shaft.
+- Eyes (\`rig.js\`, head block that reads \`L.eyesGlow\`): the eye position had no side sign, so both eyes landed on the same side. It now uses \`s\`. Humanoid monsters (noFace with eyesGlow, not skull, not claws) get a cream sclera, a glowing iris and a dark pupil; skulls keep dark sockets with a glow; claw monsters (ghouls) keep a plain glow. Check with \`node test/faceshot.js dist/index.html out.png '["mob:den_goblin"]' idle 3\`.

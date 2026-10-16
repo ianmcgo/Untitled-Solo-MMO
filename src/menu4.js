@@ -1636,6 +1636,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.2", date: "2026-10-16", title: "Two-handed staves, monster eyes", items: [
+    "<b>Staves are held in both hands</b> in a fight and when you thrust: your left hand now grips the shaft beside your right.",
+    "<b>Monster eyes:</b> goblins, orcs, reef folk, bird folk and other humanoid monsters now have two real eyes (white, a glowing coloured iris and a pupil). Before, only one glowing spot showed. Skeletons keep their glowing sockets and ghouls keep their glowing eyes, now on both sides."
+  ] },
   { v: "18.19.1", date: "2026-10-16", title: "Weapons face forward", items: [
     "<b>Combat animation fix:</b> swords, axes and clubs now point forward at the enemy through the whole swing instead of pointing up and back, and staves and polearms are held with the tip leading instead of trailing behind you.",
     "The wind-up before each swing is smaller, so the weapon stays out in front of you."

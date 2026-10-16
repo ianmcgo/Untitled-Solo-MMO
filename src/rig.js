@@ -1529,9 +1529,17 @@ function humanEntry(L) {
     if (L.needles) for (let k = 0; k < 4; k++) R.add(gTaper(V3(s * hr * (0.3 + k * 0.2), hc + hr * (0.9 - k * 0.35), hr * 0.3 - k * 0.1), V3(s * hr * (0.5 + k * 0.3), hc + hr * (1.4 - k * 0.5), hr * 0.3 - k * 0.1), 0.012, 0.002, 4), "head", 0xf0f0d8, "bone");
     if (L.eyesGlow && !L.cactus) {
       const ea = FACE_PX.eyeA * 1.15, eb = FACE_PX.eyeB + 0.02, dx = Math.sin(ea) * Math.cos(eb), dy = -Math.sin(eb), dz = Math.cos(ea) * Math.cos(eb), rr = headRadial(HP, dx, dy, dz, true) * hr;
-      const ep = V3(dx * rr * HEAD_SCALE[0], hc + dy * rr * HEAD_SCALE[1], 0.005 + dz * rr * HEAD_SCALE[2]);
-      if (L.skull) R.add(gBall(ep.clone().multiplyScalar(1).add(V3(0, 0, -hr * 0.06)), hr * 0.17, 1.1, 1, 0.6, 10), "head", 0x0c0806, "plain");
-      R.add(gBall(ep.clone().add(V3(0, 0, -hr * (L.skull ? 0.05 : 0.02))), hr * (L.skull ? 0.07 : 0.1), 1.3, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
+      const ep = V3(s * Math.abs(dx) * rr * HEAD_SCALE[0], hc + dy * rr * HEAD_SCALE[1], 0.005 + dz * rr * HEAD_SCALE[2]);
+      if (L.skull) {
+        R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.06)), hr * 0.17, 1.1, 1, 0.6, 10), "head", 0x0c0806, "plain");
+        R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.05)), hr * 0.07, 1.3, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
+      } else if (L.claws) {
+        R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.02)), hr * 0.1, 1.3, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
+      } else {
+        R.add(gBall(ep.clone(), hr * 0.17, 1.15, 0.9, 0.6, 10), "head", 0xf2ecd0, "plain");
+        R.add(gBall(ep.clone().add(V3(0, 0, hr * 0.07)), hr * 0.12, 1, 1, 0.5, 8), "head", L.eyesGlow, "glow", true);
+        R.add(gBall(ep.clone().add(V3(0, 0, hr * 0.1)), hr * 0.06, 0.8, 1.1, 0.5, 6), "head", 0x0a0806, "plain");
+      }
     }
   }
   if (L.beak) { R.add(gTaper(V3(0, hc - hr * 0.1, hr * 0.8), V3(0, hc - hr * 0.3, hr * 1.9), hr * 0.3, 0.01, 8, 0.8), "head", L.beak, "bone"); R.add(gTaper(V3(0, hc - hr * 0.35, hr * 0.8), V3(0, hc - hr * 0.35, hr * 1.5), hr * 0.18, 0.01, 6, 0.8), "head", new THREE.Color(L.beak).multiplyScalar(0.7).getHex(), "bone"); }
