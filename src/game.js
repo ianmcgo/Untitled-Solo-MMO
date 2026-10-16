@@ -95,7 +95,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, bond: {}, mercPaid: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -118,6 +118,8 @@ function normalizeSave(d) {
   if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
+  out.recipes = Object.assign({}, d.recipes || {});
+  if (!d.recipes) { for (const r of RECIPES) if (r.lv <= Math.floor((d.crafts && d.crafts[r.craft]) || 0)) out.recipes[r.id] = 1; for (const id of RECIPE_START) out.recipes[id] = 1; }
   out.seen = { items: Object.assign({}, d.seen && d.seen.items), npcs: Object.assign({}, d.seen && d.seen.npcs) };
   for (const s of out.inventory) out.seen.items[s.id] = 1;
   for (const k in out.gear) out.seen.items[out.gear[k]] = 1;
@@ -1212,6 +1214,7 @@ function onKO(e, src) {
 function killRewards(e) {
   try { conquestKill(e); expKill(e); } catch (err) {}
   save.stats.kills++;
+  rareRecipeDrop(e);
   if (player.job === "RNG") save.stats.rngKills++;
   noteBeast(e, true);
   if (e.fam.nm) { save.stats.nm++; save.nmKilled[e.famKey] = (save.nmKilled[e.famKey] || 0) + 1; }
@@ -2805,6 +2808,7 @@ function useItem(id) {
   if (it.enchant === "warp") { S.itemReadyAt = S.time + 5; castWarp(player); return; }
   if (it.kind === "food") { eatFood(id); return; }
   if (it.spell) { learnSpell(id); return; }
+  if (it.recipe) { learnRecipe(id); return; }
   if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }
   if (it.fishing) { const why = startFishing(); if (why) { log(why, "sys"); sfx("error"); } return; }
   if (it.revive) {
@@ -3919,6 +3923,27 @@ function doGather(n) {
 }
 
 function craftSkill(c) { return save.crafts[c] || 0; }
+function recipeKnown(r) { return !!(save.recipes && save.recipes[r.id]); }
+function learnRecipe(itemId) {
+  const it = ITEMS[itemId], r = RECIPES.find(x => x.id === it.recipe);
+  if (!r) return;
+  if (recipeKnown(r)) { log("You already know the recipe for " + ITEMS[r.out].name + ".", "sys"); sfx("error"); return; }
+  if (!removeItem(itemId, 1)) return;
+  save.recipes[r.id] = 1;
+  log("You learn the recipe for " + ITEMS[r.out].name + " (" + CRAFTS[r.craft].name + " Lv." + r.lv + ").", "loot");
+  sfx("unlock");
+  saveGame();
+  if (S.modal) renderModal();
+}
+function rareRecipeDrop(e) {
+  if (!e || !e.fam || e.fam.peaceful || xpFor(e.lv, player.lv) <= 0) return;
+  const chance = e.fam.boss ? 0.5 : e.fam.nm ? 0.25 : 0.015;
+  if (Math.random() >= chance) return;
+  const pool = RARE_RECIPES.filter(r => !recipeKnown(r) && invCount("rcp_" + r.id) < 1 && r.lv >= e.lv - 5 && r.lv <= e.lv + 3);
+  if (!pool.length) return;
+  const r = pick(pool);
+  giveItem("rcp_" + r.id, 1);
+}
 function recipeMatsOk(r) { return Object.keys(r.mats).every(id => invCount(id) >= r.mats[id]) && invCount(CRAFTS[r.craft].crystal) >= 1; }
 function synthChance(r) { return clamp(65 + 7 * (craftSkill(r.craft) - r.lv) + buddyPerk("craft") * 100, 5, 95); }
 function synthHqChance(r) { return r.hq ? clamp(5 * (craftSkill(r.craft) - r.lv), 0, 50) : 0; }
@@ -3929,6 +3954,7 @@ function canSynth(r) {
   if (player.casting) return "You are casting.";
   if (player.synth) return "You're already crafting.";
   if (player.mounted) return "Dismount first.";
+  if (!recipeKnown(r)) return "You haven't learned that recipe.";
   if (invCount(CRAFTS[r.craft].crystal) < 1) return "You need " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".";
   if (!recipeMatsOk(r)) return "You're missing ingredients.";
   return "";

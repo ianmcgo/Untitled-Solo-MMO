@@ -2249,6 +2249,24 @@ for (const id in SPELLS) {
   if (lv <= 10) SHOP.push(sid); else if (lv <= 20) SHOPS.vela.push(sid);
 }
 SHOPS.vela.push("x_potion", "hi_ether", "super_ether", "reraiser");
+const RECIPE_START = RECIPES.filter(r => r.lv === 0 && !r.id.startsWith("g_")).map(r => r.id);
+for (const r of RECIPES) {
+  if (RECIPE_START.includes(r.id)) continue;
+  const rare = r.id.startsWith("g_"), sid = "rcp_" + r.id, o = ITEMS[r.out];
+  ITEMS[sid] = { name: "Recipe: " + o.name, kind: "use", icon: "📜", recipe: r.id, lv: r.lv, price: Math.round(30 + r.lv * r.lv * 6) * (rare ? 3 : 1), desc: "Read it to learn how to craft " + o.name + " (" + CRAFTS[r.craft].name + " Lv." + r.lv + ")." + (rare ? " A rare recipe: it can come out as the +1 version." : "") };
+  if (!rare) { if (r.lv <= 10) SHOP.push(sid); else SHOPS.vela.push(sid); }
+}
+const RARE_RECIPES = RECIPES.filter(r => r.id.startsWith("g_")).sort((a, b) => a.lv - b.lv);
+{
+  const free = RARE_RECIPES.slice(), qs = Object.keys(QUESTS).filter(q => QUESTS[q].reward && QUESTS[q].lv >= 3 && !/^tour_/.test(q));
+  qs.forEach((q, i) => {
+    if (i % 2 || !free.length) return;
+    let bi = 0;
+    free.forEach((r, k) => { if (Math.abs(r.lv - (QUESTS[q].lv + 2)) < Math.abs(free[bi].lv - (QUESTS[q].lv + 2))) bi = k; });
+    const r = free.splice(bi, 1)[0];
+    QUESTS[q].reward.items = (QUESTS[q].reward.items || []).concat([["rcp_" + r.id, 1]]);
+  });
+}
 for (const id in GEAR_DATA) { const g = GEAR_DATA[id]; if (g.src !== "shop") continue; if (g.lv <= 10) SHOP.push(id); else SHOPS.vela.push(id); }
 function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
 function exitInner(z, e) {
