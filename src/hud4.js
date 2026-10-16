@@ -1338,7 +1338,6 @@ function mainCmdItems() {
   if (UI.mm.sub === "status") return STATUS_CMDS;
   let pg = MAIN_CMDS[UI.mm.page].slice();
   if (PLAY.offline) pg = pg.filter(it => !["social"].includes(it[1]));
-  if (!(save.buddies && save.buddies.length)) pg = pg.filter(it => it[1] !== "pets");
   const mi = pg.findIndex(it => it[1] === "map");
   if (mi >= 0 && S.zone && S.zone.residence) pg[mi] = ["Residence", "home", "Arrange furniture and use your residence."];
   return pg;

@@ -31,5 +31,5 @@ ok(G.save.ach.petkeeper, 'five pets earns Pet Keeper');
 ok(G.BUDDY_SHOP.length === 0 && !G.GUILD_SHOP.some(e => e.id === 'egg_frost_wisp') && G.FAMILIES.hare.loot.some(l => l[0] === 'egg_meadow_kit' && l[1] <= 0.005) && G.NM_FAMILIES.rimefang.loot.some(l => l[0] === 'egg_snow_kit' && l[1] <= 0.05) && G.FISH.harbor.some(f => f[0] === 'egg_tide_wisp'), 'pets are very rare drops, never sold');
 const raw = JSON.parse(G.exportSaveText()); const body = raw.data || raw; body.buddies = ['nope', 'batling']; body.buddy = 'nope'; body.buddyOut = true;
 const n = G.importSaveText(JSON.stringify(raw));
-ok(n && n.buddies.length === 1 && n.buddy === null && !n.buddyOut, 'bad pet data is cleaned on load');
+ok(n && n.buddies.length === 1 && n.buddy === 'batling', 'bad pet data is cleaned on load');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

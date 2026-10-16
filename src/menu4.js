@@ -1660,8 +1660,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.35.3", date: "2026-10-16", title: "Pet items in your bag become pets", items: [
+    "<b>Fixed:</b> pet items you already had in your bag (from before 18.35.1) now turn into pets when you log in, so they show in the Pets window and free their bag slot. Your first pet is equipped automatically.",
+    "<b>Pets</b> is always on page 1 of the Commands menu now, even before you own a pet.",
+  ]},
   { v: "18.35.2", date: "2026-10-16", title: "Pets in the Commands menu", items: [
-    "<b>Pets</b> is now on page 1 of the Commands menu (after Map) once you own a pet. It opens the Pets window, where you can summon, dismiss, choose and name your pet.",
+    "<b>Pets</b> is now on page 1 of the Commands menu (after Map). It opens the Pets window, where you can summon, dismiss, choose and name your pet.",
   ]},
   { v: "18.35.1", date: "2026-10-16", title: "Pet button on command bar 1", items: [
     "<b>Pet button:</b> the Pet button now sits on command bar 1 (the first free slot) for any character that owns a pet, including characters that already had one. Press it, or type /pet, to summon or dismiss your pet.",

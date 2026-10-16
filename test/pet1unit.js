@@ -9,4 +9,7 @@ ok(r === true && sv.buddies.includes('batling') && !sv.inventory.some(x => x.id 
 ok(sv.inventory.length === G.CONFIG.inventorySize, 'the bag count is unchanged');
 const r2 = G.giveItem('egg_batling', 1, true);
 ok(r2 === false, 'a duplicate pet item is not auto-used (bag full, so it is lost like any item)');
+const old = JSON.parse(JSON.stringify(G.save)); old.buddies = []; old.buddy = null; old.inventory = [{ id: 'egg_meadow_kit', qty: 1 }, { id: 'potion', qty: 5 }];
+const nv = G.normalizeSave(old);
+ok(nv.buddies.includes('meadow_kit') && nv.buddy === 'meadow_kit' && !nv.inventory.some(x => x.id === 'egg_meadow_kit') && nv.inventory.length === 1, 'a pet item already in the bag becomes a pet on load and is equipped');
 console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0);

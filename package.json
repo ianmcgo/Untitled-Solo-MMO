@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.35.2",
-  "releaseTitle": "Pets in the Commands menu",
+  "version": "18.35.3",
+  "releaseTitle": "Pet items in your bag become pets",
   "description": "",
   "main": "index.js",
   "scripts": {
