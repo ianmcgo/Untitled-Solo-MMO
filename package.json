@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.42.0",
-  "releaseTitle": "Know your foe",
+  "version": "18.43.0",
+  "releaseTitle": "Auction prices match the shops",
   "description": "",
   "main": "index.js",
   "scripts": {

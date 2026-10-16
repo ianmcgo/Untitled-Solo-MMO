@@ -2060,3 +2060,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - game.js: rollMobJob(avoid) rerolls up to 4 times against jobs of living same-linkGroup mobs within linkRange*1.5 (packJobs(f, x, y), read at buildMob). noteBeast and scanBeasts add m.job to save.bestiary[k].jobs; menu4 dbBeasts prints "Seen fighting as".
 - data.js MOB_JOB_STATS balance: index = sqrt((att/delay) * hp*(0.6+0.4*def)*(1+eva/400)); fighters 1.02 to 1.09, casters 0.8 to 0.92 (spells make up the rest). MNK and PLD were outliers: MNK now [1.05, 1, 0.95, 4, 0.88], PLD [1.12, 0.95, 1.15, 0, 1].
 - Tests: test/h4unit.js.
+
+## 18.43.0 Auction prices match the shops
+- game.js marketPrice = ITEMS.price * CONFIG.shopMul * AH_CFG.shopRatio (1.5) * marketMult * (1 + press). The old cap of 95% of base price for items in shops (inShops) is gone, since the AH is now meant to sit above shop prices. AH_CFG.shopRatio in data.js is the knob. Conquest price changes are not included.
+- Everything priced from marketPrice scales with it: town buy ceiling (townBuyCeil 1.25), merc lots, mercSalePrice (1.5x), the sell-screen suggestion.
+- Known side effect: buying at a shop and listing at the auction house is now profitable (about 1.5x minus the 3% fee); limited only by 7 listings and the slow town buying rate.

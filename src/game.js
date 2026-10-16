@@ -2287,13 +2287,7 @@ function addPress(id, d) { save.market.press[id] = { v: clamp(pressOf(id) + d, -
 
 function marketPrice(id, tk) {
   const now = marketTick(), t = tk == null ? now : tk;
-  const v = Math.max(1, Math.round(ITEMS[id].price * marketMult(id, t) * (1 + (t === now ? pressOf(id) : 0))));
-  return inShops(id) ? Math.min(v, Math.floor(ITEMS[id].price * 0.95)) : v;
-}
-
-function inShops(id) {
-  if (!S.shopSet) { S.shopSet = new Set(SHOP); for (const k in SHOPS) for (const x of SHOPS[k]) S.shopSet.add(x); }
-  return S.shopSet.has(id);
+  return Math.max(1, Math.round(ITEMS[id].price * CONFIG.shopMul * AH_CFG.shopRatio * marketMult(id, t) * (1 + (t === now ? pressOf(id) : 0))));
 }
 
 function priceHistory(id, n) { const now = marketTick(), out = []; for (let i = n - 1; i >= 0; i--) out.push(marketPrice(id, now - i)); return out; }
