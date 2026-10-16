@@ -432,6 +432,46 @@ function loaderProgress(p, text) {
   if (text != null) $("ldText").textContent = text;
 }
 function loaderHide() { const el = $("loading"); if (el) el.classList.remove("on"); if (typeof stopShowcase === "function") stopShowcase(); }
+const PERF = {
+  boot: [], zones: [], cur: null, t0: 0,
+  mark(name) { this.boot.push([name, Math.round(performance.now() - this.t0)]); },
+  zoneStart(name) { this.cur = { zone: name, t0: performance.now(), steps: {}, gap: 0, frames: 0, last: performance.now(), phases: [] }; this.zones.push(this.cur); if (this.zones.length > 12) this.zones.shift(); },
+  phase(name) { const c = this.cur; if (c) c.phases.push([name, Math.round(performance.now() - c.t0)]); },
+  slice(label, ms) { const c = this.cur; if (!c) return; const e = c.steps[label] || (c.steps[label] = { ms: 0, n: 0, max: 0 }); e.ms += ms; e.n++; if (ms > e.max) e.max = ms; },
+  frame() { const c = this.cur; if (!c || c.done) return; const n = performance.now(); const g = n - c.last; c.last = n; c.frames++; if (g > c.gap) c.gap = g; },
+  zoneEnd() { const c = this.cur; if (!c) return; c.total = Math.round(performance.now() - c.t0); c.done = true; },
+  props() {
+    const out = [], f = W3.field;
+    if (!f || !W3.zoneRoot) return out;
+    const m = new THREE.Matrix4(), v = new THREE.Vector3();
+    W3.zoneRoot.traverse(o => {
+      if (!o.isInstancedMesh) return;
+      let hi = 0, n = 0, worst = null;
+      for (let i = 0; i < o.count; i++) {
+        o.getMatrixAt(i, m);
+        v.setFromMatrixPosition(m);
+        const gy = f.heightAt(v.x / U, v.z / U), d = v.y - gy;
+        if (d > 2.5) { n++; if (d > hi) { hi = d; worst = { x: Math.round(v.x / U), y: Math.round(v.z / U), d: Math.round(d * 10) / 10, edge: Math.round(f.outsideE(v.x / U, v.z / U)) }; } }
+      }
+      if (n) out.push({ mesh: o.name || o.geometry.type, count: o.count, high: n, maxAbove: Math.round(hi * 10) / 10, worst });
+    });
+    return out.sort((a, b) => b.maxAbove - a.maxAbove);
+  },
+  report() {
+    const z = this.zones.map(c => ({ zone: c.zone, total: c.total, worstFrameGap: Math.round(c.gap), phases: c.phases, steps: Object.fromEntries(Object.entries(c.steps).map(([k, e]) => [k, { ms: Math.round(e.ms), slices: e.n, maxSlice: Math.round(e.max) }])) }));
+    return { boot: this.boot, zones: z };
+  },
+  table() {
+    const r = this.report(), L = [];
+    L.push("Boot: " + r.boot.map(b => b[0] + " " + b[1] + "ms").join(", "));
+    for (const c of r.zones) {
+      L.push(c.zone + ": " + c.total + "ms, worst gap " + c.worstFrameGap + "ms");
+      for (const [k, e] of Object.entries(c.steps)) L.push("  " + k + " " + e.ms + "ms (" + e.slices + " slices, max " + e.maxSlice + "ms)");
+      L.push("  " + c.phases.map(p => p[0] + " " + p[1]).join(", "));
+    }
+    return L;
+  }
+};
 function buildZoneNow() {
   clearViews();
   buildZone3D();
@@ -442,16 +482,22 @@ function buildZoneNow() {
 async function buildZoneAsync(job, p0, p1) {
   clearViews();
   const gen = buildZone3DSteps();
-  let last = performance.now(), r;
+  let last = performance.now(), r, lab = "start", sl = last;
   while (!(r = gen.next()).done) {
-    if (performance.now() - last < 28) continue;
     const v = r.value || {};
+    PERF.slice(v.t || lab, performance.now() - sl);
+    if (v.t) lab = v.t;
+    if (performance.now() - last < 28) { sl = performance.now(); continue; }
     loaderProgress(p0 + (p1 - p0) * (v.p || 0), v.t);
     await frames(1);
     if (job !== VIEW.zoneJob) return false;
     last = performance.now();
+    sl = last;
   }
+  PERF.slice("tail", performance.now() - sl);
+  const ta = performance.now();
   if (!RIG.atlas) buildAtlas();
+  PERF.slice("atlas", performance.now() - ta);
   VIEW.yaw = player.face || 0;
   VIEW.camTarget = null;
   VIEW.camEff = null;
@@ -474,24 +520,30 @@ async function loadZoneAsync(job) {
 }
 async function loadZoneInner(job) {
   const t0 = performance.now();
+  PERF.zoneStart(S.zone.name);
   await frames(2);
   if (job !== VIEW.zoneJob) return;
+  PERF.phase("frames");
   loaderProgress(VIEW.booting ? 0.6 : 0.1, "Shaping the land…");
   await frames(1);
   if (job !== VIEW.zoneJob) return;
   if (!(await buildZoneAsync(job, VIEW.booting ? 0.6 : 0.1, VIEW.booting ? 0.85 : 0.85))) return;
+  PERF.phase("built");
   loaderProgress(0.88, "Warming up…");
   try { if (W3.renderer.compileAsync) await Promise.race([W3.renderer.compileAsync(W3.scene, W3.camera), new Promise(r => setTimeout(r, 6000))]); } catch (e) {}
   if (job !== VIEW.zoneJob) return;
+  PERF.phase("compiled");
   loaderProgress(0.9, "Gathering everyone…");
   await frames(1);
   if (job !== VIEW.zoneJob) return;
   draw(1 / 60);
+  PERF.phase("firstDraw");
   loaderProgress(1, "Ready");
   await frames(1);
   const wait = (VIEW.booting ? 0 : 450) - (performance.now() - t0);
   if (wait > 0) await new Promise(r => setTimeout(r, wait));
   if (job !== VIEW.zoneJob) return;
+  PERF.zoneEnd();
   VIEW.loading = false;
   if (!VIEW.booting) loaderHide();
   const ws = VIEW.zoneWaiters || [];

@@ -95,6 +95,7 @@ async function boot() {
   });
   window.addEventListener("blur", () => { S.keys = {}; UI.tabHeld = false; });
   VIEW.booting = true;
+  PERF.mark("boot");
   rotateTip();
   const tipTimer = setInterval(rotateTip, 5000);
   loaderShow("LEID'ANAV REBORN", "A frontier tale");
@@ -102,15 +103,20 @@ async function boot() {
   loaderProgress(0.1, "Waking the world…");
   await frames(1);
   initAudio();
+  PERF.mark("audio");
   if (typeof uiHoverSounds === "function") uiHoverSounds();
   try { buildItemIcons(); } catch (e) { reportError(e, "icons"); }
+  PERF.mark("icons");
   initViewA();
+  PERF.mark("renderer");
   loaderProgress(0.35, "Weaving cloth and leather…");
   await frames(1);
   initViewB();
+  PERF.mark("atlas+fx");
   loaderProgress(0.7, "Opening the roster…");
   await frames(1);
   initHud();
+  PERF.mark("hud");
   $("btnEngage").onclick = () => toggleEngage(true);
   $("tgtAct").onclick = e => { e.stopPropagation(); tgtActPress(); };
   $("btnTarget").onclick = () => { cycleTarget(); sfx("select"); };
@@ -126,6 +132,7 @@ async function boot() {
     const dt = clamp((now - last) / 1000, 0, 0.05);
     last = now;
     requestAnimationFrame(frame);
+    PERF.frame();
     if (UI.started && !VIEW.loading) {
       try { step(dt); } catch (e) { reportError(e, "step"); }
       try { if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); } } catch (e) { reportError(e, "net"); }
@@ -138,6 +145,7 @@ async function boot() {
     }
   }
   requestAnimationFrame(frame);
+  PERF.mark("title");
   showTitle();
 }
 

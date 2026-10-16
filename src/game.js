@@ -5585,6 +5585,7 @@ const COMMANDS = [
   ["/where", "Show your zone and position."],
   ["/clear", "Clear the chat log."],
   ["/fps", "Show or hide the frame-rate counter."],
+  ["/perf", "Show how long the game took to start and to load recent zones."],
   ["/wave, /bow, /cheer…", "Emotes: " + Object.keys(EMOTES).join(", ") + "."],
   ["/help", "List commands."]
 ];
@@ -5692,6 +5693,7 @@ function runCommand(text) {
     case "time": case "clock": { const v = vana(); log("Leid'anav: " + gameDate() + " (" + DAY_NAMES[v.dayIndex] + ") " + String(v.hour).padStart(2, "0") + ":" + String(v.minute).padStart(2, "0") + " · " + (isNight() ? "night" : "day") + " · " + dayElement() + " spells +10% today.", "sys"); log("Earth: " + new Date().toLocaleString([], { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }), "sys"); return; }
     case "where": case "pos": log(S.zone.name + " (" + Math.round(player.x) + ", " + Math.round(player.y) + ")", "sys"); return;
     case "clear": if (typeof clearLog === "function") clearLog(); return;
+    case "perf": if (typeof PERF !== "undefined") { for (const l of PERF.table()) log(l, "sys"); const pr = PERF.props(); log(pr.length ? "Props above ground: " + pr.slice(0, 4).map(x => x.mesh + " " + x.high + "/" + x.count + " up to " + x.maxAbove).join("; ") : "No props float above the ground.", "sys"); } return;
     case "fps": if (typeof VIEW !== "undefined" && VIEW.settings) { VIEW.settings.fps = !VIEW.settings.fps; saveSettings(VIEW.settings); log("FPS counter " + (VIEW.settings.fps ? "on" : "off") + ".", "sys"); } return;
     case "help": case "?": case "commands": for (const [c, d] of COMMANDS) log(c + " — " + d, "sys"); return;
   }
