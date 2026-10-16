@@ -2047,6 +2047,7 @@ const RACES = {
 };
 const RACE_ORDER = ["human", "elari", "pipkin", "ursan", "nekari"];
 
+const AH_KINDS = { town: { label: "Town", icon: "🏛", color: "#f1cf73" }, player: { label: "Players", icon: "👤", color: "#81c784" }, merc: { label: "Mercenaries", icon: "⚔", color: "#b39ddb" } };
 const AH_CATS = { materials: "Materials", consumables: "Consumables", weapons: "Weapons", armor: "Armor" };
 const AH_CFG = { fee: 0.03, maxListings: 7, checkMs: 60000, expireMs: 3 * 3600000, tickMins: 360 };
 const AH_NEWS = {

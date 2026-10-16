@@ -163,6 +163,7 @@ function normalizeSave(d) {
   if (!Array.isArray(out.market.listings)) out.market.listings = [];
   if (!Array.isArray(out.market.box)) out.market.box = [];
   out.market.listings = out.market.listings.filter(l => l && ITEMS[l.id]);
+  if (out.market.local) out.market.local.lots = (Array.isArray(out.market.local.lots) ? out.market.local.lots : []).filter(l => l && ITEMS[l.id] && l.qty > 0 && l.price > 0);
   out.market.box = out.market.box.filter(b => b && ITEMS[b.id] && b.qty > 0);
   out.story = Object.assign(newSave().story, d.story && typeof d.story === "object" ? d.story : {});
   out.guild = Object.assign(newSave().guild, d.guild && typeof d.guild === "object" ? d.guild : {});
@@ -2139,16 +2140,51 @@ function ahStock(id) { return ahTowns().reduce((a, t) => a + ahStockAt(id, t), 0
 
 function ahStockLines(id) { return ahTowns().map(t => ({ town: t, name: ahTownName(t), n: ahStockAt(id, t), here: t === ahHere() })); }
 
-function ahBuy(id, qty) {
+function marketLocalLots() { return (save.market.local && Array.isArray(save.market.local.lots)) ? save.market.local.lots : []; }
+
+function marketLines(id, online) {
+  const out = [];
+  for (const t of ahTowns()) { const n = ahStockAt(id, t); if (n > 0) out.push({ kind: "town", seller: ahTownName(t), owner: "", town: t, qty: n, unit: marketPrice(id), price: marketPrice(id) * n }); }
+  marketLocalLots().forEach((l, i) => { if (l.id === id) out.push({ kind: l.kind || "player", seller: l.seller || "", owner: l.owner || "", qty: l.qty, unit: l.price / l.qty, price: l.price, local: i }); });
+  for (const l of online || []) {
+    if (l.item !== id) continue;
+    const kind = l.kind === "merc" ? "merc" : l.kind === "town" ? "town" : "player";
+    out.push({ kind, seller: kind === "merc" ? l.merc_name || l.seller_name : l.seller_name, owner: l.seller_name, qty: l.qty, unit: l.price / l.qty, price: l.price, lot: l.id, own: l.seller === S.charId });
+  }
+  return out.sort((a, b) => a.unit - b.unit);
+}
+
+function marketItems(online) {
+  const u = ahMarketSet();
+  for (const l of marketLocalLots()) if (ITEMS[l.id]) u.add(l.id);
+  for (const l of online || []) if (ITEMS[l.item]) u.add(l.item);
+  return u;
+}
+
+function ahBuyLocal(i) {
+  const l = marketLocalLots()[i];
+  if (!l || !ITEMS[l.id]) return "That lot is gone.";
+  if (save.gil < l.price) return "You need " + l.price + " crystals.";
+  if (!giveItem(l.id, l.qty, true)) return "Your bag is full.";
+  save.gil -= l.price;
+  save.market.local.lots.splice(i, 1);
+  save.stats.ahBought = (save.stats.ahBought || 0) + l.qty;
+  log("You buy " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : an(ITEMS[l.id].name)) + " from " + (l.seller || "the market") + " for " + l.price + " crystals.", "loot");
+  sfx("coin");
+  saveGame();
+  return "";
+}
+
+function ahBuy(id, qty, town) {
   qty = Math.max(1, qty || 1);
   if (!ahTradable(id)) return "That isn't sold here.";
-  if (ahStock(id) < qty) return "Not enough on the market today.";
+  if ((town ? ahStockAt(id, town) : ahStock(id)) < qty) return "Not enough on the market today.";
   const cost = marketPrice(id) * qty;
   if (save.gil < cost) return "You need " + cost + " crystals.";
   if (!giveItem(id, qty, true)) return "Your bag is full.";
   save.gil -= cost;
   let need = qty;
-  for (const t of [ahHere()].concat(ahTowns().filter(x => x !== ahHere()))) {
+  for (const t of town ? [town] : [ahHere()].concat(ahTowns().filter(x => x !== ahHere()))) {
     const take = Math.min(need, ahStockAt(id, t));
     if (take > 0) { const b = ahBoughtOf(t); b[id] = (b[id] || 0) + take; need -= take; }
     if (need <= 0) break;
