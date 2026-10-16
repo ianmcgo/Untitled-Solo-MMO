@@ -11,10 +11,10 @@ ok(!!opt(/Shadowed Path/) && !!opt(/Traveler's Song/), 'Tobin offers the Dark Kn
 opt(/Shadowed Path/).fn(); opt(/^Accept$/).fn();
 G.giveItem('crypt_dust', 2, true); G.giveItem('bone_chip', 3, true);
 G.talkTo(npc('tobin')); opt(/Shadowed Path/).fn(); opt(/Collect/).fn();
-ok(G.save.jobsUnlocked.DRK && G.invCount('bronze_scythe') === 1, 'The Shadowed Path unlocks Dark Knight and gives a scythe');
-G.setJob('DRK', null); G.equip('bronze_scythe');
+ok(G.save.jobsUnlocked.DRK && G.invCount('bronze_zaghnal') === 1, 'The Shadowed Path unlocks Dark Knight and gives a scythe');
+G.setJob('DRK', null); G.equip('bronze_zaghnal');
 ok(P().stats.wtype === 'scythe' && G.actionList(P()).some(a => a.id === 'slice' || a.id === 'last_resort'), 'Dark Knights swing scythes');
-ok(G.ITEMS.steel_greataxe.jobs.includes('DRK') && G.ITEMS.bronze_dagger.jobs.includes('BRD') && G.ITEMS.chain_mail.jobs.includes('DRK'), 'existing gear fits the new jobs');
+ok(G.ITEMS.great_axe.jobs.includes('DRK') && G.ITEMS.bronze_dagger.jobs.includes('BRD') && G.ITEMS.brass_harness.jobs.includes('DRK'), 'existing gear fits the new jobs');
 G.save.jobs.DRK.lv = 17; G.refreshPlayer(true); P().mp = P().maxMp;
 const ids = G.actionList(P()).map(a => a.id);
 ok(['bio', 'drain', 'last_resort', 'soulfire', 'blood_blade'].every(i => ids.includes(i)), 'level 17 Dark Knights know their spells and abilities');

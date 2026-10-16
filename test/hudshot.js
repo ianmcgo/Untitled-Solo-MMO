@@ -33,7 +33,7 @@ const mockLogin = require('./mocklogin');
   await page.evaluate(() => { openMenu('inventory'); });
   await page.waitForTimeout(800);
   await page.screenshot({ path: out + '-inv.png' });
-  await page.evaluate(() => { for (const id of ['leather_gorget', 'copper_earring', 'travelers_cape', 'leather_belt', 'buckler', 'ember_earring', 'scale_mail']) giveItem(id, 1, true); equip('copper_earring'); equip('travelers_cape'); equip('buckler'); UI.eq = { slot: 'body', hover: 'scale_mail' }; openMenu('equipment'); });
+  await page.evaluate(() => { for (const id of ['leather_gorget', 'silver_earring_hq', 'rabbit_mantle', 'leather_belt', 'shell_shield', 'onyx_earring', 'scale_mail']) giveItem(id, 1, true); equip('silver_earring_hq'); equip('rabbit_mantle'); equip('shell_shield'); UI.eq = { slot: 'body', hover: 'scale_mail' }; openMenu('equipment'); });
   await page.waitForTimeout(1500);
   await page.screenshot({ path: out + '-equip.png' });
   await page.evaluate(() => { openMenu('skills'); });

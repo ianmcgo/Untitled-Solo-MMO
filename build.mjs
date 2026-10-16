@@ -7,10 +7,10 @@ const phase = process.argv[2] || "2";
 const src = f => fs.readFileSync(path.join(root, "src", f), "utf8");
 
 const builds = {
-  "1": { template: "template2d.html", files: ["data.js", "game.js", "hud.js", "view2d.js", "main.js"], three: false },
-  "2": { template: "template3d.html", files: ["data.js", "game.js", "hud.js", "textures.js", "world3d.js", "view3d.js", "main.js"], three: true },
-  "3": { template: "template3d.html", files: ["data.js", "game.js", "hud.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "main.js"], three: true },
-  "4": { template: "template4.html", files: ["data.js", "game.js", "@audio", "@sql", "audio.js", "hud4.js", "icons.js", "menu4.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "net.js", "main4.js"], three: true, supa: true }
+  "1": { template: "template2d.html", files: ["gear.js", "data.js", "game.js", "hud.js", "view2d.js", "main.js"], three: false },
+  "2": { template: "template3d.html", files: ["gear.js", "data.js", "game.js", "hud.js", "textures.js", "world3d.js", "view3d.js", "main.js"], three: true },
+  "3": { template: "template3d.html", files: ["gear.js", "data.js", "game.js", "hud.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "main.js"], three: true },
+  "4": { template: "template4.html", files: ["gear.js", "data.js", "game.js", "@audio", "@sql", "audio.js", "hud4.js", "icons.js", "menu4.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "net.js", "main4.js"], three: true, supa: true }
 };
 
 let AUDIO_JSON = null;

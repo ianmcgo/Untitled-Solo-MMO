@@ -77,7 +77,7 @@ const { chromium } = require('/opt/npm-tools/node_modules/playwright');
   await page.waitForTimeout(800);
   console.log('gil on server', Object.values(db.chars)[0].data.gil);
   await page.evaluate(() => {
-    netOnPresence({ abc: [{ id: 'abc', name: 'Mira', job: 'WHM', lv: 5, look: { race: 'nekari', build: 1, skin: 2, hairStyle: HAIR_STYLES.indexOf(HAIR_BY_SEX[1][0]), hairColor: 6 }, gear: { main: 'ash_club', body: 'linen_robe' } }], def: [{ id: 'def', name: 'Brum', job: 'WAR', lv: 7, look: { race: 'ursan', build: 0, skin: 1, hairColor: 2 }, gear: { main: 'bronze_greataxe', body: 'scale_mail' } }] });
+    netOnPresence({ abc: [{ id: 'abc', name: 'Mira', job: 'WHM', lv: 5, look: { race: 'nekari', build: 1, skin: 2, hairStyle: HAIR_STYLES.indexOf(HAIR_BY_SEX[1][0]), hairColor: 6 }, gear: { main: 'ash_club', body: 'linen_robe' } }], def: [{ id: 'def', name: 'Brum', job: 'WAR', lv: 7, look: { race: 'ursan', build: 0, skin: 1, hairColor: 2 }, gear: { main: 'butterfly_axe', body: 'scale_mail' } }] });
     netOnMove({ id: 'abc', x: player.x + 70, y: player.y - 20, f: Math.PI, st: 0, sw: 0, ws: 0, ht: 0, c: null, hp: 100 });
     netOnMove({ id: 'def', x: player.x + 40, y: player.y - 90, f: Math.PI / 2, st: 4, sw: 0, ws: 0, ht: 0, c: null, hp: 80 });
     VIEW.yaw = Math.PI * 0.5; VIEW.dist = 7; player.face = 0;

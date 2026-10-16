@@ -9,7 +9,7 @@ const mockLogin = require('./mocklogin');
   await page.addInitScript(() => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: 'low' })); } catch (e) {} });
   await mockLogin(page, html);
   const shot = async (n, fn, wait) => { if (fn) await page.evaluate(fn); await page.waitForTimeout(wait || 800); await page.screenshot({ path: out + '-' + n + '.png' }); };
-  await page.evaluate(() => { save.gil = 4321; for (const id of ['leather_gorget', 'copper_earring', 'travelers_cape', 'scale_mail', 'healing_herb', 'copper_ore']) giveItem(id, 2, true); save.quests.pouches = 'active'; document.querySelectorAll('.toast').forEach(x => x.remove()); });
+  await page.evaluate(() => { save.gil = 4321; for (const id of ['leather_gorget', 'silver_earring_hq', 'rabbit_mantle', 'scale_mail', 'healing_herb', 'copper_ore']) giveItem(id, 2, true); save.quests.pouches = 'active'; document.querySelectorAll('.toast').forEach(x => x.remove()); });
   await shot('items', () => { openMenu('inventory'); UI.hov = save.inventory[1].id; renderMCard(); });
   await shot('itemsel', () => { onMenuClick({ target: document.querySelector('[data-a="isel"]'), preventDefault() {} }); });
   await shot('shop', () => { closeDialog(); S.shopKind = 'pell'; openMenu('shop'); UI.hov = shopList('pell')[0]; renderMCard(); });

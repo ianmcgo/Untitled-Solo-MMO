@@ -8,6 +8,6 @@ ok(S.zoneId === 'sunscar', 'walking south out of Ironvale reaches the desert');
 const fams = new Set(S.mobs.map(m => m.famKey));
 ok(['dune_lizard', 'sand_crab', 'dune_worm'].some(f => fams.has(f)), 'desert monsters roam the sands (' + [...fams].join(', ') + ')');
 ok(S.mobs.every(m => m.lv >= 17), 'desert monsters are level 17 and up');
-ok(G.NM_FAMILIES.sandmaw && G.ITEMS.dunestrider_boots, 'Sandmaw lurks with Dunestrider Boots');
+ok(G.NM_FAMILIES.sandmaw && G.ITEMS.garrison_boots, 'Sandmaw lurks with Dunestrider Boots');
 ok(G.ZONES.sunscar.spawns.length >= 6, 'spawn points survive spacing (' + G.ZONES.sunscar.spawns.length + ')');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

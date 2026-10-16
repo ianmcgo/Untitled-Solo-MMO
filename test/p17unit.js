@@ -23,7 +23,7 @@ ok(G.actionList(P()).some(a => a.id === 'warcry'), 'Warriors learn Warcry at 15'
 G.playerAct({ kind: 'ja', id: 'warcry' }); run(0.1);
 ok(P().buffs.warcry && G.stat(P(), 'att') > a0, 'Warcry raises attack');
 ok(['vorpal_arc', 'shadow_fang', 'moonfall', 'earthshaker', 'ruinous_cleave', 'thousand_palms', 'starfall_arrow'].every(k => G.WEAPON_SKILLS[k]), 'tier-four weapon skills exist');
-ok(G.QUESTS.frozencargo && G.ITEMS.fur_hat && G.ITEMS.frost_sword && G.ITEMS.rimefang_axe, 'frost quest and gear exist');
+ok(G.QUESTS.frozencargo && G.ITEMS.bone_mask && G.ITEMS.fire_sword && G.ITEMS.platoon_cutter, 'frost quest and gear exist');
 G.acceptQuest('frozencargo');
 ok(G.save.quests.frozencargo === 'active', 'Frozen Cargo can be accepted');
 ok(G.NM_FAMILIES.rimefang || G.FAMILIES.rimefang, 'Rimefang stalks the pass');

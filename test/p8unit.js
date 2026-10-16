@@ -36,8 +36,8 @@ G.enterZone('marsh'); run(0.3);
 for (let i = 0; i < 6; i++) { const m = G.buildMob('bog_toad', 11, P().x + 50, P().y, 0); S.mobs.push(m); m.enmity.set(P(), 5); G.onKO(m, P()); }
 G.enterZone('outpost'); run(0.3); G.talkTo(npc('rhea'));
 const rep = opt(/Into the Mire|Report/); rep.fn(); opt(/Collect/).fn();
-ok(G.save.quests.mire === 'done' && G.invCount('marsh_boots') === 1, 'reporting back pays out Marsh Boots');
-ok(G.ITEMS.steel_sword && G.ITEMS.oak_staff && G.ITEMS.chain_mail, 'level 11 gear exists');
+ok(G.save.quests.mire === 'done' && G.invCount('bounding_boots') === 1, 'reporting back pays out Marsh Boots');
+ok(G.ITEMS.spatha && G.ITEMS.gelong_staff && G.ITEMS.brass_harness, 'level 11 gear exists');
 G.save.spells = G.save.spells.filter(i => i !== 'banish'); G.save.jobs.WHM.lv = 6; G.setJob('WHM', null);
 ok(!G.actionList(P()).some(a => a.id === 'banish'), 'a spell is not known until its scroll is read');
 G.giveItem('scroll_banish', 1, true); G.S.itemReadyAt = 0; G.useItem('scroll_banish');

@@ -399,6 +399,7 @@ function invActions(i) {
   if (!s) return;
   const it = ITEMS[s.id], o = [];
   if (it.kind === "use" || it.kind === "food") { o.push({ label: it.kind === "food" ? "Eat" : "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } }); if (!it.spell) o.push({ label: "Add to action bar", fn: () => { closeDialog(); placeOnBar({ kind: "item", id: s.id }); } }); }
+  if (it.enchant) o.push({ label: "Use", fn: () => { closeDialog(); useItem(s.id); renderModal(); } });
   if (it.kind === "equip") o.push({ label: "Equip", fn: () => { closeDialog(); const why = canEquip(s.id); if (why) { log(why + ".", "sys"); sfx("error"); } else { equip(s.id); UI.sel = null; } renderModal(); } });
   o.push({ label: "Drop", fn: () => { closeDialog(); onMenuClick({ target: { closest: () => ({ dataset: { a: "drop", v: String(i) } }) }, preventDefault() {} }); } });
   promptChoice(it.name, o);
@@ -1485,6 +1486,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.0.0", date: "2026-10-15", title: "classic MMO equipment", items: [
+    "<b>All gear is now classic MMO gear:</b> 788 weapons and armor from level 1 to 20 with their real names, levels, jobs and slots (Bronze Dagger, Brass Harness, Hunter's Longbow, Warrior's Belt and more). Every older invented piece is gone, and characters from before this update could not be kept.",
+    "<b>Left out on purpose:</b> costumes, event outfits (Yukata, Decennial and summer sets), crafting-guild uniforms, fishing gear and novelty pieces. The Warp Ring is kept: use it from your bag to return to your home point.",
+    "<b>Range and Ammo are real now:</b> a bow or crossbow in the Range slot makes your attacks ranged shots, and the arrow or bolt in Ammo adds its damage. Flutes, harps and boomerangs sit in the same slot.",
+    "<b>Where to get it:</b> Pell sells plain gear to level 10 and Vela levels 11 to 20. Haldor sells +1 gear from level 14. Monsters occasionally drop gear near their own level, and bosses and notorious monsters keep their rare pieces.",
+    "<b>Companions dress themselves</b> from the new gear by job and level, so every job gets a sensible weapon, armor and shield.",
+    "<b>Still to come:</b> damage, defense, prices and monster strength have not been rebalanced for the new gear yet. Stats the game does not have (haste, enmity, skill bonuses) are left out for now."
+  ] },
   { v: "17.3.0", date: "2026-10-15", title: "Area spells, En-spells and songs", items: [
     "<b>Area spells (classic MMO):</b> Curaga (WHM 16), Banishga (WHM 15), Diaga (WHM 18, RDM 15), Stonega (BLM 15) and Waterga (BLM 19) hit or heal everything near the target. Hired healers cast Curaga when two or more allies are hurt.",
     "<b>Spikes and En-spells:</b> Blaze Spikes (BLM 10, RDM 20) and Ice Spikes (BLM 20) damage anything that hits you in melee (Ice Spikes can paralyze it). Enthunder (RDM 16), Enstone (18) and Enaero (20) add elemental damage to your own hits.",
@@ -2220,7 +2229,7 @@ const UPDATES = [
   { v: "9.0.0", date: "2026-10-13", title: "Equipment and classic windows", items: [
     "New Equipment window (G) with 16 slots: Main, Sub, Range, Ammo, Head, Neck, two Ears, Body, Hands, two Rings, Back, Waist, Legs and Feet. Tap a box for a pop-up list of what fits, with item cards comparing your choice to what you're wearing.",
     "Attack, Defense and resistance to all eight elements show under the slots. Resistance now reduces elemental damage from monsters.",
-    "New gear for the new slots: gorgets and pendants, earrings, capes and mantles, belts and sashes, a buckler, a sling and ammo (Pell and Vela). Capes, belts and shields show on your character.",
+    "New gear for the new slots: gorgets and pendants, earrings, capes and mantles, belts and sashes, a shell_shield, a flute and ammo (Pell and Vela). Capes, belts and shields show on your character.",
     "Shields now go in the Sub slot instead of a ring slot; existing saves move them automatically.",
     "Item cards everywhere in the classic style: slot, stats, jobs, level and item level.",
     "The Character window is now just your status sheet and Job Levels (no picture, attributes list or progress list).",
@@ -2727,7 +2736,7 @@ function tabHelp() {
     ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), Selene (auction house), home point, trade board, docks"],
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
     ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"]
-    ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the mythrilsmith (level 18–19 mythril weapons for every weapon type, Mythril Mail and Helm, Ironvale Robe), Orla's auction house, home point, trade board"],
+    ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the smith (high-quality +1 gear, level 14 and up), Orla's auction house, home point, trade board"],
     ["Sunscar Desert", "17–20", "South of Ironvale. Sand, cacti and red mesas: Dune Lizards, Sand Crabs, Sun Wasps (day), Dune Worms, Needlekin, Cinder Bombs (night). Sunscar Gate, Titan's Ribs, the Glass Oasis, the Singing Dunes (NM Sandmaw) and the Red Spire"],
     ["Verdant Jungle", "17–20", "East of the Ashen Marsh. Huge trees, warm rain and green mist: Vine Crawlers, Jade Hornets (day), Strangler Saplings, Bloom Mandrakes (day), Jade Toads and a Crag Talon war band by the Overgrown Temple. Old Mossback, an ancient treant, walks the Heart of the Canopy"],
     ["Cinder Peak", "18–20", "East of the Sunscar Desert. A volcano of black rock, ash and glowing lava pools: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs, Cinder Bombs and Cinder Bones (night). The NM Pyreclaw suns itself on the Crater Rim at night. Rich mining; no fishing in lava"],
@@ -2829,7 +2838,7 @@ function tabHelp() {
     "<b>Bog Toads</b> hear footsteps. <b>Bog Leeches</b> taste magic and blood (they come for casters and the wounded). <b>Mire Goblins</b> see far and call each other. At night the <b>Drowned</b> rise around the chapel. <b>Reed Hares</b> are peaceful.",
     "Notorious monsters: <b>Old Croaker</b> (Croaker's Pool, by day; drops the Croaker Charm) and <b>Mirelord Gax</b> (Mire Village; drops Gax's Cleaver and the Mire Mantle).",
     "Quests: Captain Rhea's <i>Into the Mire</i> (level 10, 6 Bog Toads, rewards Marsh Boots) and Brann's <i>The Mirelord</i> (level 13).",
-    "Gathering: iron-rich ore, willow logs and Mire Reeds. Pell sells level 11 steel, oak and chain gear."
+    "Gathering: iron-rich ore, willow logs and Mire Reeds. Vela sells plain gear for levels 11 to 20."
   ]));
   h += sec("🏚️ The Sunken Crypt", ul([
     "Enter from the Bone Pit at the bottom of the Goblin Den. Bring a full party of level 9 or higher.",
@@ -2947,10 +2956,11 @@ function tabHelp() {
   ]));
   h += sec("🛡️ Equipment", ul([
     "Open <b>Equipment</b> (G). Sixteen boxes: Main, Sub, Range, Ammo / Head, Neck, Ear, Ear / Body, Hands, Ring, Ring / Back, Waist, Legs, Feet.",
-    "<b>Main:</b> one- and two-handed weapons. <b>Sub:</b> shields. <b>Range</b> and <b>Ammo:</b> slings, arrows and other throwing gear (they add accuracy and attack for now). <b>Neck:</b> gorgets and pendants. <b>Ear</b> and <b>Ring:</b> two of each. <b>Back:</b> capes and mantles. <b>Waist:</b> belts and sashes.",
+    "<b>Main:</b> one- and two-handed weapons. <b>Sub:</b> shields. <b>Range</b> and <b>Ammo:</b> bows and crossbows (a bow in Range turns your attack into a ranged shot, and the arrow or bolt in Ammo adds its damage), plus boomerangs and instruments. <b>Neck:</b> gorgets and pendants. <b>Ear</b> and <b>Ring:</b> two of each. <b>Back:</b> capes and mantles. <b>Waist:</b> belts and sashes.",
     "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
     "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
-    "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells starter neck, ear, back, waist, shield, sling and ammo pieces; Vela in Saltreach sells better ones."
+    "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells gear up to level 10 and Vela in Saltreach levels 11 to 20. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
+    "All equipment is real classic MMO gear from level 1 to 20, with its classic MMO name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
   ]));
   h += sec("🖥️ The screen", ul([
     "<b>Main menu:</b> Esc with nothing targeted, - (or Insert), or tapping yourself and choosing Main Menu opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",

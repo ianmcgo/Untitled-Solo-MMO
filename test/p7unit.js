@@ -15,7 +15,7 @@ const k = () => S.party.find(p => p.mercId === 'kael');
 const hp0 = k().maxHp;
 G.addBond('kael', G.COMPANION_CFG.bondSteps[2]);
 ok(G.bondLevel('kael') === 2 && k().maxHp > hp0, 'bond level raises companion stats');
-G.save.jobs.WAR.lv = 3; G.refreshPlayer(true); G.giveItem('leather_gloves', 1, true);
+G.save.jobs.WAR.lv = 7; G.refreshPlayer(true); G.giveItem('leather_gloves', 1, true);
 ok(G.giveMercGear('kael', 'leather_gloves') === '' && k().gear.hands === 'leather_gloves' && G.invCount('leather_gloves') === 0, 'giving gear moves it from your bag to the companion');
 ok(G.giveMercGear('kael', 'maple_wand') !== '', 'a companion refuses gear their job cannot use');
 G.takeMercGear('kael', 'hands');

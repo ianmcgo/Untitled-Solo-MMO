@@ -8,6 +8,6 @@ ok(S.zoneId === 'cinder', 'walking east out of the desert reaches the volcano');
 const fams = new Set(S.mobs.map(m => m.famKey));
 ok(['magma_lizard', 'obsidian_crab', 'magma_worm', 'ash_orc'].some(f => fams.has(f)), 'volcano monsters prowl the ash (' + [...fams].join(', ') + ')');
 ok(S.mobs.every(m => m.lv >= 17), 'volcano monsters are level 17 and up');
-ok(G.NM_FAMILIES.pyreclaw && G.ITEMS.pyre_ring, 'Pyreclaw guards the Pyre Ring');
+ok(G.NM_FAMILIES.pyreclaw && G.ITEMS.bone_ring, 'Pyreclaw guards the Pyre Ring');
 ok(G.ZONES.cinder.spawns.length >= 5, 'spawn points survive spacing (' + G.ZONES.cinder.spawns.length + ')');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

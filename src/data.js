@@ -64,7 +64,7 @@ const CONFIG = {
   craftCap: 20,
   tile: 40,
   saveKey: "ashenreach_save_v2",
-  ruleVer: 17,
+  ruleVer: 18,
   settingsKey: "ashenreach_settings_v1",
   startGil: 100,
   mountSpeed: 2.2,
@@ -383,41 +383,6 @@ const ITEMS = {
   bat_wing: { name: "Bat Wing", kind: "mat", icon: "🦇", price: 32, stack: 12, desc: "Leathery. Used in Clothcraft and Alchemy." },
   worm_silk: { name: "Worm Silk", kind: "mat", icon: "🪱", price: 48, stack: 12, desc: "Spin into Silk Cloth." },
   bone_chip: { name: "Bone Chip", kind: "mat", icon: "🦴", price: 60, stack: 12, desc: "Used in advanced recipes." },
-  bronze_sword: { name: "Bronze Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 6, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 80 },
-  bronze_sword_hq: { name: "Bronze Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 7, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 1, price: 200, stats: { acc: 2 } },
-  shortbow: { name: "Shortbow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 6, delay: 3.0, jobs: ["RNG", "WAR", "THF"], lv: 1, price: 90 },
-  yew_bow: { name: "Yew Bow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 10, delay: 3.0, jobs: ["RNG", "WAR", "THF"], lv: 6, price: 950, stats: { agi: 1 } },
-  steel_longbow: { name: "Steel Longbow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 15, delay: 3.1, jobs: ["RNG", "WAR", "THF"], lv: 11, price: 2700, stats: { agi: 2, acc: 3 } },
-  hunters_coat: { name: "Hunter's Coat", kind: "equip", icon: "🧥", slot: "body", jobs: ["RNG", "THF"], lv: 5, price: 1000, stats: { def: 6, agi: 2, acc: 3 } },
-  bronze_scythe: { name: "Bronze Scythe", kind: "equip", icon: "🌙", slot: "main", wtype: "scythe", dmg: 11, delay: 4.4, jobs: ["DRK"], lv: 1, price: 140 },
-  iron_scythe: { name: "Iron Scythe", kind: "equip", icon: "🌙", slot: "main", wtype: "scythe", dmg: 17, delay: 4.4, jobs: ["DRK"], lv: 6, price: 1200, stats: { str: 1 } },
-  steel_scythe: { name: "Steel Scythe", kind: "equip", icon: "🌙", slot: "main", wtype: "scythe", dmg: 25, delay: 4.5, jobs: ["DRK"], lv: 11, price: 3200, stats: { str: 2, acc: 2 } },
-  rime_scythe: { name: "Rimefrost Scythe", kind: "equip", icon: "🌙", slot: "main", wtype: "scythe", dmg: 36, delay: 4.5, jobs: ["DRK"], lv: 17, price: 10400, stats: { str: 4, acc: 4 } },
-  shadow_plate: { name: "Shadow Plate", kind: "equip", icon: "🛡️", slot: "body", jobs: ["DRK", "WAR"], lv: 5, price: 1100, stats: { def: 8, str: 2, int: 1 } },
-  minstrel_coat: { name: "Minstrel's Coat", kind: "equip", icon: "🧥", slot: "body", jobs: ["BRD", "RDM"], lv: 5, price: 1000, stats: { def: 5, mp: 15, mnd: 1, agi: 1 } },
-  troubadour_coat: { name: "Troubadour's Coat", kind: "equip", icon: "🧥", slot: "body", jobs: ["BRD"], lv: 14, price: 6200, stats: { def: 12, mp: 35, mnd: 3, agi: 2, hp: 15 } },
-  sprite_staff: { name: "Sprite Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 8, delay: 3.6, jobs: ["SMN", "WHM", "BLM"], lv: 1, price: 120, stats: { mp: 10, mnd: 1 } },
-  evoker_robe: { name: "Evoker's Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["SMN"], lv: 5, price: 1000, stats: { def: 5, mp: 25, mnd: 2, int: 1 } },
-  bronze_dagger: { name: "Bronze Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 4, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 1, price: 70 },
-  iron_dagger: { name: "Iron Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 7, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 6, price: 820, stats: { dex: 1 } },
-  steel_dagger: { name: "Steel Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 10, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 11, price: 2300, stats: { dex: 2, acc: 2 } },
-  leather_cesti: { name: "Leather Cesti", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 4, delay: 2.6, jobs: ["MNK", "WAR"], lv: 1, price: 80 },
-  iron_knuckles: { name: "Iron Knuckles", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 7, delay: 2.6, jobs: ["MNK", "WAR"], lv: 6, price: 850, stats: { str: 1 } },
-  steel_claws: { name: "Steel Claws", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 11, delay: 2.6, jobs: ["MNK", "WAR"], lv: 11, price: 2400, stats: { str: 2, att: 3 } },
-  brigand_vest: { name: "Brigand Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "RDM"], lv: 5, price: 1000, stats: { def: 6, dex: 2, agi: 2 } },
-  training_gi: { name: "Training Gi", kind: "equip", icon: "🥋", slot: "body", jobs: ["MNK"], lv: 5, price: 1000, stats: { def: 6, str: 2, vit: 2, hp: 10 } },
-  steel_sword: { name: "Steel Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 14, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 11, price: 2600, stats: { acc: 2 } },
-  steel_greataxe: { name: "Steel Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 25, delay: 4.0, jobs: ["WAR"], lv: 11, price: 2800 },
-  oak_staff: { name: "Oak Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 15, delay: 3.6, jobs: ALL_J, lv: 11, price: 2400, stats: { int: 4, mnd: 4, mp: 15 } },
-  oak_club: { name: "Oak Club", kind: "equip", icon: "🏏", slot: "main", wtype: "club", dmg: 12, delay: 2.9, jobs: ["WAR", "WHM", "PLD", "BLM", "RDM"], lv: 11, price: 2200, stats: { mnd: 2 } },
-  chain_mail: { name: "Chain Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 11, price: 3000, stats: { def: 15, hp: 30 } },
-  wizards_robe: { name: "Wizard's Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 11, price: 2800, stats: { def: 9, mp: 35, int: 3, mnd: 3 } },
-  iron_helm: { name: "Iron Helm", kind: "equip", icon: "⛑️", slot: "head", jobs: ["WAR", "PLD"], lv: 12, price: 1800, stats: { def: 6, hp: 12 } },
-  wool_hat: { name: "Wool Hat", kind: "equip", icon: "🎩", slot: "head", jobs: ALL_J, lv: 10, price: 900, stats: { def: 3, mp: 10 } },
-  marsh_boots: { name: "Marsh Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 10, rare: true, stats: { def: 4, agi: 3, eva: 4 }, desc: "Waterproofed with toad oil. A reward from Captain Rhea." },
-  croaker_charm: { name: "Croaker Charm", kind: "equip", icon: "🐸", slot: "neck", jobs: ALL_J, lv: 12, rare: true, nm: true, stats: { hp: 30, vit: 3, def: 3 }, desc: "Carved from the Old Croaker's throat stone." },
-  gax_cleaver: { name: "Gax's Cleaver", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 29, delay: 4.0, jobs: ["WAR"], lv: 14, rare: true, nm: true, stats: { str: 4, att: 8 }, desc: "The Mirelord's notched axe." },
-  mire_mantle: { name: "Mire Mantle", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 14, rare: true, nm: true, stats: { def: 12, hp: 20, mp: 20, eva: 5 }, desc: "A hooded mantle that drips no matter how long it hangs to dry." },
   fishing_rod: { name: "Willow Rod", kind: "use", icon: "🎣", price: 150, fishing: true, desc: "Use it beside water (or type /fish) to cast a line. Needs Fishing Bait." },
   bait: { name: "Fishing Bait", kind: "mat", icon: "🪱", price: 4, stack: 24, desc: "One is used per cast." },
   pond_minnow: { name: "Pond Minnow", kind: "mat", icon: "🐟", price: 10, stack: 12, desc: "Tiny and silver. Pip likes them." },
@@ -441,19 +406,7 @@ const ITEMS = {
   sea_bass: { name: "Sea Bass", kind: "mat", icon: "🐟", price: 70, stack: 12, desc: "Firm, white and prized by cooks." },
   tidecaller_tuna: { name: "Tidecaller Tuna", kind: "mat", icon: "🐠", price: 400, stack: 12, rarity: "rare", desc: "A great blue tuna. Fishers tell stories about the one that got away." },
   grilled_bass: { name: "Grilled Sea Bass", kind: "food", icon: "🐟", price: 110, stack: 12, food: { hp: 35, agi: 3, eva: 6 }, desc: "Charred skin, lemon and salt." },
-  tidesteel_sword: { name: "Tidesteel Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 17, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 14, price: 5200, stats: { acc: 3, str: 1 } },
-  boarding_axe: { name: "Boarding Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 30, delay: 4.0, jobs: ["WAR"], lv: 14, price: 5600, stats: { str: 2 } },
-  coral_staff: { name: "Coral Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 18, delay: 3.6, jobs: ALL_J, lv: 14, price: 5000, stats: { int: 6, mnd: 6, mp: 25 } },
-  tidesteel_dagger: { name: "Tidesteel Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 12, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 14, price: 4800, stats: { dex: 3, acc: 3 } },
-  shark_claws: { name: "Shark Claws", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 13, delay: 2.6, jobs: ["MNK", "WAR"], lv: 14, price: 4900, stats: { str: 3, att: 5 } },
-  harbor_mail: { name: "Harbor Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 13, price: 5400, stats: { def: 19, hp: 40, vit: 2 } },
-  sailcloth_robe: { name: "Sailcloth Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 13, price: 5000, stats: { def: 11, mp: 45, int: 4, mnd: 4 } },
-  corsair_jerkin: { name: "Corsair Jerkin", kind: "equip", icon: "🦺", slot: "body", jobs: ["THF", "MNK", "RDM"], lv: 13, price: 5000, stats: { def: 13, dex: 3, agi: 3, hp: 20 } },
-  gull_hat: { name: "Gull Feather Hat", kind: "equip", icon: "👒", slot: "head", jobs: ALL_J, lv: 13, price: 2600, stats: { def: 5, agi: 2, mp: 10 } },
-  tide_ring: { name: "Tide Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 12, rare: true, stats: { hp: 20, mp: 20, mnd: 2 }, desc: "A gift from the harbor master." },
   ashen_shard: { name: "Ashen Shard", kind: "key", icon: "🕯️", desc: "A sliver of black stone, warm to the touch. Faint letters crawl across it." },
-  cinder_mantle: { name: "Cinderweave Mantle", kind: "equip", icon: "🧥", rare: true, nm: true, rarity: "epic", slot: "body", jobs: ALL_J, lv: 19, stats: { def: 24, hp: 40, mp: 40, str: 3, int: 3 }, desc: "Woven from ash that never settles. Faintly warm." },
-  ember_ring: { name: "Ember of Ashenreach", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 19, price: 0, stats: { hp: 50, mp: 50, str: 5, int: 5, mnd: 5, att: 8, acc: 8 }, desc: "A ring set with a coal that never cools. Given to the one who kept the embers." },
   egg_meadow_kit: { name: "Meadow Kit (pet)", kind: "pet", pet: "meadow_kit", icon: "🐇", rare: true, price: 0, desc: "A tiny hare that followed you home. Use it to make it your pet." },
   egg_batling: { name: "Batling (pet)", kind: "pet", pet: "batling", icon: "🦇", rare: true, price: 0, desc: "A bat pup clinging to your sleeve. Use it to make it your pet." },
   egg_wormlet: { name: "Wormlet (pet)", kind: "pet", pet: "wormlet", icon: "🪱", rare: true, price: 0, desc: "A stubby worm curled in a pot. Use it to make it your pet." },
@@ -463,31 +416,8 @@ const ITEMS = {
   egg_mini_gob: { name: "Pocket Goblin (pet)", kind: "pet", pet: "mini_gob", icon: "👺", rare: true, price: 0, desc: "A goblin runt in a sack, surprisingly cheerful. Use it to make it your pet." },
   egg_ember_wisp: { name: "Ember Wisp (pet)", kind: "pet", pet: "ember_wisp", icon: "🔥", rare: true, price: 0, desc: "A mote of flame in a lantern. Use it to make it your pet." },
   egg_frost_wisp: { name: "Frost Wisp (pet)", kind: "pet", pet: "frost_wisp", icon: "❄️", rare: true, price: 0, desc: "A shard of cold light in a jar. Use it to make it your pet." },
-  guild_ring: { name: "Guild Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 5, price: 0, stats: { hp: 15, mp: 10, acc: 3, att: 3 }, desc: "Bronze-rank token of the Adventurers' Guild." },
-  pathfinder_boots: { name: "Pathfinder Boots", kind: "equip", icon: "👢", ex: true, slot: "feet", jobs: ALL_J, lv: 10, price: 0, stats: { def: 7, agi: 3, eva: 4, hp: 10 }, desc: "Iron-rank boots. Made for long roads." },
-  silver_insignia: { name: "Silver Insignia", kind: "equip", icon: "💍", ex: true, rarity: "rare", slot: "ring", jobs: ALL_J, lv: 14, price: 0, stats: { hp: 25, mp: 20, str: 2, int: 2, mnd: 2 }, desc: "Silver-rank insignia of the Adventurers' Guild." },
-  guild_greatcoat: { name: "Guild Greatcoat", kind: "equip", icon: "🧥", ex: true, rarity: "rare", slot: "body", jobs: ALL_J, lv: 18, price: 0, stats: { def: 22, hp: 45, mp: 30, vit: 2, mnd: 2 }, desc: "Gold-rank coat with the guild's crossed swords on the back." },
-  mythril_crest: { name: "Mythril Crest", kind: "equip", icon: "💍", ex: true, rarity: "epic", slot: "ring", jobs: ALL_J, lv: 20, price: 0, stats: { hp: 40, mp: 40, str: 4, int: 4, acc: 6, att: 6 }, desc: "Worn only by Mythril-rank adventurers." },
   chapel_sigil: { name: "Chapel Sigil", kind: "mat", icon: "🔱", price: 400, stack: 3, rarity: "rare", desc: "A tarnished sigil that opens the sealed door of the Drowned Chapel. Used up on entry." },
-  tide_crown: { name: "Tide Crown", kind: "equip", icon: "👑", slot: "head", jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { def: 8, hp: 25, mp: 25, int: 3, mnd: 3 }, desc: "Taken from the Tidebound Priest." },
-  abyssal_staff: { name: "Abyssal Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 20, delay: 3.6, jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { int: 8, mnd: 6, mp: 30 }, desc: "Still dripping seawater." },
-  drowned_blade: { name: "Drowned Blade", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 19, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 15, rare: true, nm: true, rarity: "epic", stats: { acc: 5, str: 3 }, desc: "Its edge never dries." },
-  priest_mantle: { name: "Priest's Mantle", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 15, rare: true, nm: true, rarity: "epic", stats: { def: 16, hp: 30, mp: 30, eva: 6 }, desc: "Heavy with the weight of the tide." },
-  tidebreaker_bow: { name: "Tidebreaker Bow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 17, delay: 3.0, jobs: ["RNG", "WAR", "THF"], lv: 15, rare: true, nm: true, rarity: "epic", stats: { agi: 3, acc: 5 }, desc: "Strung with kelp that never snaps." },
   frost_shard: { name: "Frost Shard", kind: "mat", icon: "🧊", price: 60, stack: 12, desc: "A shard of ice that never melts." },
-  frost_sword: { name: "Frostforged Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 21, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 17, price: 9800, stats: { acc: 4, str: 2 } },
-  frost_greataxe: { name: "Frostforged Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 36, delay: 4.0, jobs: ["WAR"], lv: 17, price: 10400, stats: { str: 3 } },
-  glacier_staff: { name: "Glacier Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 22, delay: 3.6, jobs: ALL_J, lv: 17, price: 9400, stats: { int: 9, mnd: 9, mp: 40 } },
-  rime_dagger: { name: "Rime Dagger", kind: "equip", icon: "🔪", slot: "main", wtype: "dagger", dmg: 15, delay: 1.9, jobs: ["WAR", "RDM", "THF", "BLM"], lv: 17, price: 9000, stats: { dex: 4, acc: 4 } },
-  frost_claws: { name: "Frost Claws", kind: "equip", icon: "🥊", slot: "main", wtype: "h2h", dmg: 16, delay: 2.6, jobs: ["MNK", "WAR"], lv: 17, price: 9200, stats: { str: 4, att: 6 } },
-  frost_bow: { name: "Frostwood Bow", kind: "equip", icon: "🏹", slot: "main", wtype: "archery", dmg: 20, delay: 3.0, jobs: ["RNG", "WAR", "THF"], lv: 17, price: 9600, stats: { agi: 4, acc: 5 } },
-  frost_mail: { name: "Frostforged Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 17, price: 10200, stats: { def: 24, hp: 55, vit: 3 } },
-  snowfur_coat: { name: "Snowfur Coat", kind: "equip", icon: "🧥", slot: "body", jobs: ["THF", "MNK", "RNG", "RDM"], lv: 17, price: 9600, stats: { def: 17, dex: 4, agi: 4, hp: 30 } },
-  frost_robe: { name: "Frostweave Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM", "SMN"], lv: 17, price: 9400, stats: { def: 13, mp: 60, int: 5, mnd: 5 } },
-  fur_hat: { name: "Fur Hat", kind: "equip", icon: "🎩", slot: "head", jobs: ALL_J, lv: 16, price: 4200, stats: { def: 7, hp: 15, mp: 15 } },
-  rimefang_axe: { name: "Rimefang's Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 39, delay: 4.0, jobs: ["WAR"], lv: 19, rare: true, nm: true, rarity: "epic", stats: { str: 5, att: 10 }, desc: "Frost creeps along the blade." },
-  frost_ring: { name: "Frost Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_J, lv: 18, rare: true, nm: true, stats: { hp: 30, mp: 30, int: 3, str: 3 }, desc: "Cold to the touch, always." },
-  wight_shroud: { name: "Wight's Shroud", kind: "equip", icon: "🧥", slot: "body", jobs: ALL_J, lv: 19, rare: true, nm: true, rarity: "epic", stats: { def: 20, hp: 45, mp: 45, eva: 8, int: 3, mnd: 3 }, desc: "It weighs nothing at all." },
   toad_oil: { name: "Toad Oil", kind: "mat", icon: "🫙", price: 40, stack: 12, desc: "Slick and smelly. Alchemists use it in salves." },
   orc_tooth: { name: "Orc Tooth", kind: "mat", icon: "🦷", price: 40, stack: 12, desc: "A chipped orc tusk. Carvers pay for them." },
   reef_scale: { name: "Reefkin Scale", kind: "mat", icon: "🐚", price: 48, stack: 12, desc: "An iridescent scale from a Reefkin. Makes fine lacquer." },
@@ -495,11 +425,6 @@ const ITEMS = {
   heartwood: { name: "Heartwood", kind: "mat", icon: "🪵", price: 160, stack: 6, desc: "Dense wood from an elder treant. Nearly as hard as iron." },
   cactus_needle: { name: "Cactus Needle", kind: "mat", icon: "📍", price: 30, stack: 12, desc: "A long green needle, sharp as a pin." },
   bomb_ash: { name: "Bomb Ash", kind: "mat", icon: "🌋", price: 55, stack: 12, desc: "Still-warm ash from a burst bomb. Volatile." },
-  silkweave_mantle: { name: "Silkweave Mantle", kind: "equip", icon: "🧥", rare: true, nm: true, slot: "body", jobs: ALL_J, lv: 5, stats: { def: 6, hp: 18, mp: 18, agi: 2 }, desc: "Woven from the Silkmother's own thread. Light as air." },
-  silk_gloves_q: { name: "Crawler Silk Gloves", kind: "equip", icon: "🧤", slot: "hands", jobs: ALL_J, lv: 2, price: 120, stats: { def: 2, dex: 1 } },
-  silk_gloves: { name: "Silk Gloves", kind: "equip", icon: "🧤", rare: true, nm: true, slot: "hands", jobs: ALL_J, lv: 4, stats: { def: 3, dex: 2, acc: 3 } },
-  warlord_cleaver: { name: "Warlord's Cleaver", kind: "equip", icon: "🪓", rare: true, nm: true, rarity: "epic", slot: "main", wtype: "greataxe", dmg: 33, delay: 4.0, jobs: ["WAR", "DRK"], lv: 15, stats: { str: 4, att: 8 }, desc: "Gorruk's notched cleaver. Still smells of smoke." },
-  warlord_band: { name: "Warlord's Band", kind: "equip", icon: "💍", rare: true, nm: true, slot: "ring", jobs: ALL_J, lv: 14, stats: { str: 3, vit: 3, hp: 25 } },
   honeycomb: { name: "Honeycomb", kind: "mat", icon: "🍯", price: 28, stack: 12, desc: "Sweet comb cut from a hive. Cooks and alchemists want it." },
   wool_tuft: { name: "Wool Tuft", kind: "mat", icon: "🧶", price: 22, stack: 12, desc: "Soft sheep's wool. Spins into cloth." },
   lizard_skin: { name: "Lizard Skin", kind: "mat", icon: "🦎", price: 45, stack: 12, desc: "Tough scaled hide. Good for boots and gloves." },
@@ -509,62 +434,8 @@ const ITEMS = {
   spore_cap: { name: "Spore Cap", kind: "mat", icon: "🍄", price: 36, stack: 12, desc: "A dried mushroom cap, dusty with spores. Alchemists are careful with it." },
   longneck_hide: { name: "Longneck Hide", kind: "mat", icon: "🟫", price: 90, stack: 6, desc: "A broad, supple hide. Enough for a whole coat." },
   mire_reed: { name: "Mire Reed", kind: "mat", icon: "🌾", price: 25, stack: 12, desc: "Tough marsh reed for weaving." },
-  iron_sword: { name: "Iron Sword", kind: "equip", icon: "🗡️", slot: "main", wtype: "sword", dmg: 10, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 900 },
-  iron_sword_hq: { name: "Iron Sword +1", kind: "equip", icon: "🗡️", hq: true, slot: "main", wtype: "sword", dmg: 11, delay: 2.4, jobs: ["WAR", "PLD", "RDM"], lv: 6, price: 1800, stats: { acc: 3, att: 3 } },
-  ash_club: { name: "Ash Club", kind: "equip", icon: "🏏", slot: "main", wtype: "club", dmg: 5, delay: 2.6, jobs: ["WAR", "WHM", "PLD", "RDM"], lv: 1, price: 60 },
-  maple_wand: { name: "Maple Wand", kind: "equip", icon: "🪄", slot: "main", wtype: "club", dmg: 8, delay: 2.6, jobs: ["WHM", "BLM", "RDM"], lv: 5, price: 700, stats: { mnd: 2, int: 1 } },
-  ash_staff: { name: "Ash Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 7, delay: 3.4, jobs: ALL_J, lv: 1, price: 70 },
-  ash_staff_hq: { name: "Ash Staff +1", kind: "equip", icon: "🦯", hq: true, slot: "main", wtype: "staff", dmg: 8, delay: 3.4, jobs: ALL_J, lv: 1, price: 180, stats: { int: 1, mnd: 1 } },
-  holly_staff: { name: "Holly Staff", kind: "equip", icon: "🦯", slot: "main", wtype: "staff", dmg: 11, delay: 3.6, jobs: ALL_J, lv: 6, price: 950, stats: { int: 2, mnd: 2, mp: 8 } },
-  bronze_greataxe: { name: "Bronze Greataxe", kind: "equip", icon: "🪓", slot: "main", wtype: "greataxe", dmg: 14, delay: 4.0, jobs: ["WAR"], lv: 1, price: 150 },
-  bronze_cap: { name: "Bronze Cap", kind: "equip", icon: "⛑️", slot: "head", jobs: ALL_J, lv: 1, price: 50, stats: { def: 2 } },
-  bronze_cap_hq: { name: "Bronze Cap +1", kind: "equip", icon: "⛑️", hq: true, slot: "head", jobs: ALL_J, lv: 1, price: 130, stats: { def: 3, hp: 5 } },
-  chieftain_cap: { name: "Chieftain's Cap", kind: "equip", icon: "👑", ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 5, price: 2000, stats: { def: 4, hp: 10, str: 2, dex: 2, int: 2, mnd: 2 } },
-  leather_vest: { name: "Leather Vest", kind: "equip", icon: "🦺", slot: "body", jobs: ALL_J, lv: 1, price: 120, stats: { def: 4, hp: 6 } },
-  kite_shield: { name: "Kite Shield", kind: "equip", icon: "🛡️", slot: "sub", jobs: ["PLD", "WAR"], lv: 3, price: 450, stats: { def: 5, hp: 6 }, shield: true, desc: "Worn on the off hand. Counts as your accessory slot." },
-  scarlet_tabard: { name: "Scarlet Tabard", kind: "equip", icon: "👘", slot: "body", jobs: ["RDM"], lv: 5, price: 1050, stats: { def: 6, mp: 10, int: 1, mnd: 1, str: 1 } },
-  scale_mail: { name: "Scale Mail", kind: "equip", icon: "🛡️", slot: "body", jobs: ["WAR", "PLD"], lv: 5, price: 1100, stats: { def: 9, hp: 15 } },
-  linen_robe: { name: "Linen Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 1, price: 110, stats: { def: 3, mp: 10 } },
-  linen_robe_hq: { name: "Linen Robe +1", kind: "equip", icon: "👘", hq: true, slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 1, price: 260, stats: { def: 4, mp: 15 } },
-  cotton_robe: { name: "Cotton Robe", kind: "equip", icon: "👘", slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 5, price: 1000, stats: { def: 6, mp: 18, int: 1, mnd: 1 } },
-  leather_gloves: { name: "Leather Gloves", kind: "equip", icon: "🧤", slot: "hands", jobs: ALL_J, lv: 2, price: 90, stats: { def: 2, dex: 1 } },
-  leather_trousers: { name: "Leather Trousers", kind: "equip", icon: "👖", slot: "legs", jobs: ALL_J, lv: 2, price: 110, stats: { def: 3 } },
-  leather_gorget: { name: "Leather Gorget", kind: "equip", icon: "📿", slot: "neck", jobs: ALL_J, lv: 3, price: 220, stats: { def: 2, hp: 6 } },
-  mage_pendant: { name: "Mage's Pendant", kind: "equip", icon: "📿", slot: "neck", jobs: ["WHM", "BLM", "RDM", "SMN", "BRD"], lv: 6, price: 640, stats: { int: 2, mp: 8 } },
-  spirit_torque: { name: "Spirit Torque", kind: "equip", icon: "📿", slot: "neck", jobs: ALL_J, lv: 11, price: 1500, stats: { mnd: 2, hp: 10, res_dark: 6 } },
-  copper_earring: { name: "Copper Earring", kind: "equip", icon: "🔸", slot: "ear", jobs: ALL_J, lv: 2, price: 150, stats: { str: 1 } },
-  beetle_earring: { name: "Beetle Earring", kind: "equip", icon: "🔸", slot: "ear", jobs: ALL_J, lv: 5, price: 380, stats: { def: 2, vit: 1 } },
-  silver_earring: { name: "Silver Earring", kind: "equip", icon: "🔹", slot: "ear", jobs: ALL_J, lv: 9, price: 900, stats: { mp: 6, int: 1 } },
-  ember_earring: { name: "Ember Earring", kind: "equip", icon: "🔥", slot: "ear", jobs: ALL_J, lv: 13, price: 1400, stats: { att: 3, res_fire: 10 } },
-  travelers_cape: { name: "Traveler's Cape", kind: "equip", icon: "🧣", slot: "back", jobs: ALL_J, lv: 1, price: 120, stats: { def: 2, eva: 1 } },
-  wolf_mantle: { name: "Wolf Mantle", kind: "equip", icon: "🧣", slot: "back", jobs: ["WAR", "PLD", "THF", "MNK", "RNG", "DRK", "BRD", "RDM"], lv: 9, price: 1100, stats: { att: 4, def: 2, res_ice: 5 } },
-  mage_cape: { name: "Mage's Cape", kind: "equip", icon: "🧣", slot: "back", jobs: ["WHM", "BLM", "RDM", "SMN", "BRD"], lv: 7, price: 820, stats: { int: 2, mnd: 2, res_wind: 5 } },
-  leather_belt: { name: "Leather Belt", kind: "equip", icon: "🪢", slot: "waist", jobs: ALL_J, lv: 2, price: 140, stats: { hp: 8 } },
-  warriors_belt: { name: "Warrior's Belt", kind: "equip", icon: "🪢", slot: "waist", jobs: ["WAR", "PLD", "THF", "MNK", "RNG", "DRK", "BRD", "RDM"], lv: 8, price: 900, stats: { str: 2, att: 2 } },
-  silk_sash: { name: "Silk Sash", kind: "equip", icon: "🪢", slot: "waist", jobs: ALL_J, lv: 8, price: 880, stats: { mp: 10, res_water: 5 } },
-  buckler: { name: "Buckler", kind: "equip", icon: "🛡️", slot: "sub", jobs: ["WAR", "PLD", "RDM", "THF", "DRK", "BRD"], lv: 2, price: 260, stats: { def: 4 } },
-  sling: { name: "Sling", kind: "equip", icon: "🪃", slot: "ranged", jobs: ["WAR", "WHM", "MNK", "THF", "RDM", "BRD", "PLD", "DRK"], lv: 1, price: 90, stats: { acc: 3 } },
-  pebble_pouch: { name: "Pebble Pouch", kind: "equip", icon: "🪨", slot: "ammo", jobs: ALL_J, lv: 1, price: 40, stats: { att: 1 } },
-  wooden_arrows: { name: "Wooden Arrows", kind: "equip", icon: "➶", slot: "ammo", jobs: ["RNG", "WAR", "THF"], lv: 3, price: 120, stats: { att: 3 } },
-  leather_boots: { name: "Leather Boots", kind: "equip", icon: "🥾", slot: "feet", jobs: ALL_J, lv: 3, price: 100, stats: { def: 2, agi: 1 } },
-  captains_ring: { name: "Captain's Ring", kind: "equip", icon: "💍", ex: true, slot: "ring", jobs: ALL_J, lv: 1, price: 0, stats: { hp: 12, mp: 12, acc: 5, att: 5 } },
-  raiders_ring: { name: "Raider's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_J, lv: 4, price: 0, stats: { str: 2, acc: 4, att: 4 } },
-  duskwing_boots: { name: "Duskwing Boots", kind: "equip", icon: "🥾", rare: true, slot: "feet", jobs: ALL_J, lv: 4, price: 0, stats: { def: 3, agi: 3, eva: 4 } },
-  silkworm_gloves: { name: "Silkworm Gloves", kind: "equip", icon: "🧤", rare: true, slot: "hands", jobs: ["WHM", "BLM", "RDM"], lv: 4, price: 0, stats: { def: 2, int: 2, mnd: 2, mp: 10 } },
-  scavenger_cap: { name: "Scavenger's Cap", kind: "equip", icon: "⛑️", rarity: "uncommon", slot: "head", jobs: ALL_J, lv: 3, price: 300, stats: { def: 3, agi: 1, hp: 4 } },
-  nightwing_gloves: { name: "Nightwing Gloves", kind: "equip", icon: "🧤", rarity: "uncommon", slot: "hands", jobs: ALL_J, lv: 4, price: 340, stats: { def: 2, dex: 2, acc: 2 } },
-  burrower_trousers: { name: "Burrower's Trousers", kind: "equip", icon: "👖", rarity: "uncommon", slot: "legs", jobs: ALL_J, lv: 3, price: 320, stats: { def: 4, vit: 2 } },
-  hare_charm: { name: "Hare Charm", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 1, price: 260, stats: { agi: 2, eva: 3 } },
-  bonecharm_ring: { name: "Bonecharm Ring", kind: "equip", icon: "💍", rarity: "uncommon", slot: "ring", jobs: ALL_J, lv: 4, price: 420, stats: { int: 2, mnd: 2, mp: 6 } },
-  gravedigger_boots: { name: "Gravedigger's Boots", kind: "equip", icon: "🥾", rarity: "uncommon", slot: "feet", jobs: ALL_J, lv: 7, price: 700, stats: { def: 4, vit: 2, hp: 8 } },
-  raider_helm: { name: "Raider Helm", kind: "equip", icon: "⛑️", rarity: "rare", slot: "head", jobs: ["WAR", "PLD"], lv: 7, price: 900, stats: { def: 6, str: 2, att: 3 } },
   crypt_key: { name: "Crypt Key", kind: "key", icon: "🗝️", rare: true, ex: true, rarity: "epic", price: 0, desc: "A heavy iron key taken from the Crypt Sentinel. Opens the throne room door of the Sunken Crypt." },
-  sentinel_greaves: { name: "Sentinel's Greaves", kind: "equip", icon: "👖", rare: true, rarity: "rare", slot: "legs", jobs: ["WAR", "PLD"], lv: 9, price: 0, stats: { def: 7, vit: 3, hp: 12 } },
-  hollow_crown: { name: "Hollow Crown", kind: "equip", icon: "👑", rare: true, ex: true, rarity: "epic", slot: "head", jobs: ALL_J, lv: 10, price: 0, stats: { def: 6, hp: 15, mp: 15, str: 2, dex: 2, int: 3, mnd: 3 } },
-  kings_blade: { name: "King's Blade", kind: "equip", icon: "🗡️", rare: true, ex: true, rarity: "epic", slot: "main", wtype: "sword", dmg: 14, delay: 2.5, jobs: ["WAR", "PLD", "RDM"], lv: 10, price: 0, stats: { acc: 5, att: 6, str: 2 } },
-  ashen_medallion: { name: "Ashen Medallion", kind: "equip", icon: "🏅", ex: true, rarity: "epic", slot: "neck", jobs: ALL_J, lv: 9, price: 0, stats: { hp: 20, mp: 20, acc: 6, att: 6, def: 4 } },
   crypt_dust: { name: "Crypt Dust", kind: "mat", icon: "⚱️", rarity: "uncommon", price: 140, stack: 12, desc: "Grave dust that glitters faintly. Alchemists pay well for it." },
-  wardens_robe: { name: "Warden's Robe", kind: "equip", icon: "👘", rare: true, slot: "body", jobs: ["WHM", "BLM", "RDM"], lv: 8, price: 0, stats: { def: 8, mp: 25, int: 3, mnd: 3 } },
   flowerpot: { name: "Flowerpot", kind: "furniture", icon: "🪴", fp: [1, 1], price: 120, model: "pot", garden: true, desc: "Plant a seed, water it and feed it an essence. Grows in real time." },
   herb_seeds: { name: "Herb Seeds", kind: "seed", icon: "🌱", price: 30, stack: 12, grows: { item: "healing_herb", n: [3, 6], bonus: "earth" }, desc: "Grows 3–6 Healing Herbs. Earth Essence adds more." },
   ash_sapling: { name: "Ash Sapling", kind: "seed", icon: "🌳", price: 45, stack: 12, grows: { item: "ash_log", n: [2, 4], bonus: "wind" }, desc: "Grows 2–4 Ash Logs. Wind Essence adds more." },
@@ -641,18 +512,6 @@ Object.assign(SPELLS, {
 Object.assign(BUFF_NAMES, { hasso: "Hasso", third_eye: "Third Eye", twin_strike: "Twin Strike", dragon_spirit: "Dragon Spirit", shadows: "Shadow Veil", bind: "Bound" });
 Object.assign(BUFF_ICONS, { hasso: "🎌", third_eye: "👁️", twin_strike: "⚔️", dragon_spirit: "🐉", shadows: "👥" });
 Object.assign(ITEMS, {
-  bronze_tachi: { name: "Bronze Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 13, delay: 3.8, jobs: ["SAM"], lv: 1, price: 150 },
-  iron_tachi: { name: "Iron Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 18, delay: 3.8, jobs: ["SAM"], lv: 6, price: 1150, stats: { str: 1 } },
-  steel_tachi: { name: "Steel Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 24, delay: 3.8, jobs: ["SAM"], lv: 11, price: 3000, stats: { str: 1, acc: 2 } },
-  frost_tachi: { name: "Frostforged Tachi", kind: "equip", icon: "🎌", slot: "main", wtype: "gkatana", dmg: 34, delay: 3.8, jobs: ["SAM"], lv: 17, price: 10200, stats: { str: 3, acc: 3 } },
-  bronze_katana: { name: "Bronze Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 6, delay: 2.2, jobs: ["NIN"], lv: 1, price: 90 },
-  iron_katana: { name: "Iron Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 10, delay: 2.2, jobs: ["NIN"], lv: 6, price: 950, stats: { agi: 1 } },
-  steel_katana: { name: "Steel Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 14, delay: 2.2, jobs: ["NIN"], lv: 11, price: 2700, stats: { agi: 1, acc: 2 } },
-  rime_katana: { name: "Rimefrost Katana", kind: "equip", icon: "🌀", slot: "main", wtype: "katana", dmg: 20, delay: 2.2, jobs: ["NIN"], lv: 17, price: 9800, stats: { agi: 3, acc: 4 } },
-  bronze_spear: { name: "Bronze Spear", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 13, delay: 3.9, jobs: ["DRG"], lv: 1, price: 140 },
-  iron_lance: { name: "Iron Lance", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 18, delay: 3.9, jobs: ["DRG"], lv: 6, price: 1150, stats: { str: 1 } },
-  steel_halberd: { name: "Steel Halberd", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 25, delay: 4.0, jobs: ["DRG"], lv: 11, price: 3100, stats: { str: 2 } },
-  frost_lance: { name: "Frostforged Lance", kind: "equip", icon: "🔱", slot: "main", wtype: "polearm", dmg: 35, delay: 4.0, jobs: ["DRG"], lv: 17, price: 10300, stats: { str: 3, acc: 3 } }
 });
 for (const id in ITEMS) {
   const it = ITEMS[id];
@@ -711,10 +570,6 @@ const BEASTS = [{ lv: 1, fam: "hill_lizard", name: "Scaleback" }, { lv: 8, fam: 
 Object.assign(BUFF_NAMES, { weaken: "Cowed", burst_affinity: "Burst Affinity", valor_roll: "Valor Roll", hawk_roll: "Hawk Roll" });
 Object.assign(BUFF_ICONS, { weaken: "😨", burst_affinity: "🔷", valor_roll: "🎲", hawk_roll: "🦅" });
 Object.assign(ITEMS, {
-  bronze_axe: { name: "Bronze Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 8, delay: 2.8, jobs: ["BST"], lv: 1, price: 110 },
-  iron_axe: { name: "Iron Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 12, delay: 2.8, jobs: ["BST"], lv: 6, price: 980, stats: { str: 1 } },
-  steel_axe: { name: "Steel Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 17, delay: 2.8, jobs: ["BST"], lv: 11, price: 2800, stats: { str: 1, acc: 2 } },
-  frost_axe: { name: "Frostforged Axe", kind: "equip", icon: "🪓", slot: "main", wtype: "axe", dmg: 24, delay: 2.8, jobs: ["BST"], lv: 17, price: 9900, stats: { str: 3, acc: 3 } }
 });
 for (const id in ITEMS) {
   const it = ITEMS[id];
@@ -816,10 +671,6 @@ Object.assign(ABILITIES, {
 Object.assign(BUFF_NAMES, { geo_vigor: "Aura of Vigor", geo_fury: "Aura of Fury", geo_focus: "Aura of Focus", geo_frail: "Frailty", vallation: "Vallation", runes: "Runes" });
 Object.assign(BUFF_ICONS, { geo_vigor: "🌿", geo_fury: "🔥", geo_focus: "🔷", geo_frail: "💔", vallation: "🛡️", runes: "🔺" });
 Object.assign(ITEMS, {
-  bronze_greatsword: { name: "Bronze Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 13, delay: 4.0, jobs: ["RUN"], lv: 1, price: 150 },
-  iron_greatsword: { name: "Iron Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 18, delay: 4.0, jobs: ["RUN"], lv: 6, price: 1150, stats: { vit: 1 } },
-  steel_greatsword: { name: "Steel Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 24, delay: 4.0, jobs: ["RUN"], lv: 11, price: 3000, stats: { vit: 1, acc: 2 } },
-  frost_greatsword: { name: "Frostforged Greatsword", kind: "equip", icon: "⚔️", slot: "main", wtype: "gsword", dmg: 34, delay: 4.0, jobs: ["RUN"], lv: 17, price: 10200, stats: { vit: 3, acc: 3 } }
 });
 for (const id in ITEMS) {
   const it = ITEMS[id];
@@ -828,7 +679,9 @@ for (const id in ITEMS) {
   if ((it.jobs.includes("WHM") || it.jobs.includes("BLM")) && !it.jobs.includes("GEO")) it.jobs.push("GEO");
   if ((it.jobs.includes("PLD") || it.jobs.includes("WAR")) && !it.jobs.includes("RUN")) it.jobs.push("RUN");
 }
-const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
+for (const id in GEAR_DATA) { const g = GEAR_DATA[id]; ITEMS[id] = Object.assign({}, g, { jobs: g.jobs === "ALL" ? ALL_J : g.jobs.slice() }); }
+const GEAR_DROP_IDS = Object.keys(GEAR_DATA).filter(id => GEAR_DATA[id].src === "drop");
+const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "fishing_rod", "bait", "grain_flour", "rock_salt"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -859,9 +712,9 @@ const RECIPES = [
   { id: "r_silk_cloth", craft: "clothcraft", lv: 0, mats: { worm_silk: 2 }, out: "silk_cloth" },
   { id: "r_linen_robe", craft: "clothcraft", lv: 2, mats: { silk_cloth: 2 }, out: "linen_robe", hq: "linen_robe_hq" },
   { id: "r_leather_gloves", craft: "clothcraft", lv: 3, mats: { bat_wing: 2, silk_cloth: 1 }, out: "leather_gloves" },
-  { id: "r_leather_boots", craft: "clothcraft", lv: 4, mats: { bat_wing: 2, silk_cloth: 1 }, out: "leather_boots" },
+  { id: "r_leather_boots", craft: "clothcraft", lv: 4, mats: { bat_wing: 2, silk_cloth: 1 }, out: "ash_clogs" },
   { id: "r_round_rug", craft: "clothcraft", lv: 5, mats: { silk_cloth: 3 }, out: "round_rug" },
-  { id: "r_cotton_robe", craft: "clothcraft", lv: 8, mats: { silk_cloth: 4, bone_chip: 1 }, out: "cotton_robe" },
+  { id: "r_cotton_robe", craft: "clothcraft", lv: 8, mats: { silk_cloth: 4, bone_chip: 1 }, out: "robe" },
   { id: "r_potion", craft: "alchemy", lv: 0, mats: { healing_herb: 2 }, out: "potion", qty: 2, hq: "potion_hq" },
   { id: "r_potted_plant", craft: "alchemy", lv: 2, mats: { healing_herb: 3 }, out: "potted_plant" },
   { id: "r_ether", craft: "alchemy", lv: 3, mats: { healing_herb: 1, bat_wing: 1 }, out: "ether", hq: "ether_hq" },
@@ -938,9 +791,9 @@ const FAMILIES = {
   bomb: { name: "Ember Bomb", color: "#ff7043", radius: 14, hpMul: 0.85, attMul: 1.3, defMul: 0.8, eva: 6, delay: 3.0, speed: 100, aggro: { sight: 160 }, link: false, tpMove: { name: "Self-Destruct", mul: 3.2, aoe: 90, explode: true }, weak: { water: 1.5, ice: 1.4 }, loot: [["bomb_ash", 0.4], ["fire_crystal", 0.4], ["ether", 0.06]], gil: [8, 14], model: "bomb" },
   skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.25], ["ether", 0.06]], model: "skeleton" },
   hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["egg_meadow_kit", 0.004], ["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06]], model: "hare" },
-  crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["sentinel_greaves", 0.3]], gil: [20, 30], model: "skeleton" },
+  crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["freeswords_slops", 0.3]], gil: [20, 30], model: "skeleton" },
   royal_guard: { name: "Royal Guard", color: "#c0c8d8", radius: 15, hpMul: 1.1, attMul: 1.15, defMul: 1.1, delay: 3.0, speed: 95, aggro: null, link: true, linkGroup: "undead", tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.3]], model: "skeleton", summoned: true },
-  hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["hollow_crown", 0.3], ["kings_blade", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
+  hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["sol_cap", 0.3], ["bee_spatha", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
   bog_toad: { name: "Bog Toad", color: "#5f7a3a", radius: 14, hpMul: 1.15, attMul: 1.0, defMul: 1.0, delay: 3.0, speed: 90, aggro: { sound: 120 }, link: false, tpMove: { name: "Tongue Lash", mul: 1.8, status: ["paralyze", 20, 0.2] }, weak: { ice: 1.25 }, loot: [["toad_oil", 0.45], ["water_crystal", 0.3], ["healing_herb", 0.2], ["hi_potion", 0.05]], gil: [6, 10], model: "toad" },
   bog_leech: { name: "Bog Leech", color: "#5a2a2a", radius: 13, hpMul: 1.1, attMul: 0.95, defMul: 1.1, delay: 3.2, speed: 60, int: 4, aggro: null, link: false, tpMove: { name: "Blood Drain", mul: 1.6, drain: true }, weak: { fire: 1.3 }, loot: [["worm_silk", 0.3], ["water_crystal", 0.3], ["ether", 0.08]], model: "worm", tint: 0x4a2226 },
   mire_goblin: { name: "Mire Goblin", color: "#58663a", radius: 15, hpMul: 1.05, attMul: 1.05, defMul: 1.05, delay: 3.0, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", tpMove: { name: "Bog Bomb", mul: 1.7, aoe: 75 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.25], ["mire_reed", 0.3], ["fire_crystal", 0.2], ["hi_potion", 0.06]], gil: [8, 14], model: "goblin" },
@@ -952,7 +805,7 @@ const FAMILIES = {
   frost_goblin: { name: "Frost Goblin", color: "#9aa8a0", radius: 15, hpMul: 1.15, attMul: 1.1, defMul: 1.1, delay: 3.0, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", tpMove: { name: "Ice Bomb", mul: 1.8, aoe: 80 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.3], ["frost_shard", 0.3], ["hi_potion", 0.08]], gil: [10, 16], model: "goblin" },
   ice_wight: { name: "Ice Wight", color: "#b8e0f0", radius: 15, hpMul: 1.25, attMul: 1.15, defMul: 1.15, delay: 3.1, speed: 85, aggro: { sound: 140, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Rime Grasp", mul: 2.0, drain: true }, weak: { fire: 1.4, light: 1.4 }, loot: [["bone_chip", 0.35], ["frost_shard", 0.35], ["ether", 0.1]], model: "skeleton" },
   glacier_worm: { name: "Glacier Worm", color: "#cfe8f2", radius: 15, hpMul: 1.35, attMul: 1.0, defMul: 1.2, delay: 3.4, speed: 60, int: 5, aggro: { magic: 150 }, link: false, tpMove: { name: "Hail Spit", mul: 1.7, aoe: 70 }, weak: { fire: 1.35 }, loot: [["worm_silk", 0.35], ["frost_shard", 0.25], ["water_crystal", 0.3]], model: "worm", tint: 0xc8e4f0 },
-  chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["chieftain_cap", 0.3], ["goblin_totem", 0.3], ["raider_helm", 0.25], ["iron_sword", 0.2], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
+  chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["legionnaires_cap", 0.3], ["goblin_totem", 0.3], ["lunar_cap", 0.25], ["iron_sword", 0.2], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
 };
 
 function tierFam(base, o) { return Object.assign({}, FAMILIES[base], o); }
@@ -977,17 +830,17 @@ Object.assign(FAMILIES, {
 FAMILIES.rime_crawler.loot = FAMILIES.rime_crawler.loot.filter(l => l[0] !== "ice_crystal_dummy");
 
 const NM_FAMILIES = {
-  silkmother: { hint: "Burrow Flats, Rocky Hollow · any time", base: "grass_crawler", name: "Silkmother", hpMul: 2.6, attMul: 1.1, defMul: 1.3, scale: 1.7, aura: "#c5e1a5", loot: [["silkweave_mantle", 0.3], ["silk_gloves", 0.35], ["crawler_cocoon", 1], ["potion", 0.6]], gil: [20, 30], respawn: 480 },
-  orc_warlord: { hint: "Orc camp, Ashen Marsh · any time", base: "orc_grunt", name: "Gorruk the Warlord", hpMul: 3.4, attMul: 1.3, defMul: 1.2, scale: 1.35, aura: "#ff7043", loot: [["warlord_cleaver", 0.3], ["warlord_band", 0.35], ["orc_tooth", 1], ["hi_potion", 0.6]], gil: [40, 60], respawn: 600 },
-  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["cinder_mantle", 0.3], ["egg_ember_wisp", 0.08], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
-  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["rimefang_axe", 0.3], ["frost_ring", 0.35], ["egg_snow_kit", 0.04], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
-  frost_wight: { hint: "Whispering Cairns, Frostspire Pass · night", base: "ice_wight", name: "The Frost Wight", hpMul: 3.6, attMul: 1.25, defMul: 1.25, scale: 1.45, aura: "#b3e5fc", loot: [["wight_shroud", 0.3], ["frost_ring", 0.3], ["bone_chip", 1], ["hi_potion", 0.6]], gil: [50, 70], respawn: 720 },
-  old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["croaker_charm", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
-  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["gax_cleaver", 0.3], ["egg_mini_gob", 0.03], ["mire_mantle", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
-  grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["raiders_ring", 0.3], ["scavenger_cap", 0.35], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
-  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["duskwing_boots", 0.3], ["egg_shade_kit", 0.03], ["nightwing_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
-  king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["silkworm_gloves", 0.3], ["moonbloom_seeds", 0.4], ["burrower_trousers", 0.35], ["hare_charm", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
-  ossuary_warden: { hint: "Bone Pit, Goblin Den · any time", base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["wardens_robe", 0.3], ["gravedigger_boots", 0.35], ["bonecharm_ring", 0.3], ["bone_chip", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 360 }
+  silkmother: { hint: "Burrow Flats, Rocky Hollow · any time", base: "grass_crawler", name: "Silkmother", hpMul: 2.6, attMul: 1.1, defMul: 1.3, scale: 1.7, aura: "#c5e1a5", loot: [["rabbit_mantle_hq", 0.3], ["asbestos_mitts", 0.35], ["crawler_cocoon", 1], ["potion", 0.6]], gil: [20, 30], respawn: 480 },
+  orc_warlord: { hint: "Orc camp, Ashen Marsh · any time", base: "orc_grunt", name: "Gorruk the Warlord", hpMul: 3.4, attMul: 1.3, defMul: 1.2, scale: 1.35, aura: "#ff7043", loot: [["hellfire_axe", 0.3], ["poisona_ring", 0.35], ["orc_tooth", 1], ["hi_potion", 0.6]], gil: [40, 60], respawn: 600 },
+  ashen_herald: { hint: "Summit Overlook, Frostspire Pass · story", base: "ice_wight", name: "The Ashen Herald", hpMul: 5.5, attMul: 1.35, defMul: 1.3, scale: 1.7, aura: "#ff7043", loot: [["garrison_tunica", 0.3], ["egg_ember_wisp", 0.08], ["frost_shard", 1], ["hi_potion", 1], ["ether", 1]], gil: [200, 260], respawn: 60 },
+  rimefang: { hint: "Icefall Camp, Frostspire Pass · any time", base: "frost_goblin", name: "Rimefang", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.4, aura: "#80d8ff", loot: [["platoon_cutter", 0.3], ["fasting_ring", 0.35], ["egg_snow_kit", 0.04], ["frost_shard", 1], ["ether", 0.6]], gil: [50, 70], respawn: 600 },
+  frost_wight: { hint: "Whispering Cairns, Frostspire Pass · night", base: "ice_wight", name: "The Frost Wight", hpMul: 3.6, attMul: 1.25, defMul: 1.25, scale: 1.45, aura: "#b3e5fc", loot: [["barons_saio", 0.3], ["fasting_ring", 0.3], ["bone_chip", 1], ["hi_potion", 0.6]], gil: [50, 70], respawn: 720 },
+  old_croaker: { hint: "Croaker's Pool, Ashen Marsh · day", base: "bog_toad", name: "Old Croaker", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.9, aura: "#9ccc65", loot: [["green_scarf", 0.35], ["toad_oil", 1], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 45], respawn: 480 },
+  mirelord_gax: { hint: "Mire Village, Ashen Marsh · any time", base: "mire_goblin", name: "Mirelord Gax", hpMul: 3.4, attMul: 1.25, defMul: 1.2, scale: 1.45, aura: "#ffab40", loot: [["moth_axe", 0.3], ["egg_mini_gob", 0.03], ["anglers_tunica", 0.3], ["goblin_pouch", 1], ["iron_ore", 1], ["ether", 0.5]], gil: [40, 60], respawn: 600 },
+  grimtooth: { hint: "Goblin Camp, eastern Rocky Hollow · any time", base: "goblin", name: "Grimtooth", hpMul: 2.4, attMul: 1.15, defMul: 1.1, scale: 1.3, aura: "#ff5252", loot: [["safeguard_ring", 0.3], ["destrier_beret", 0.35], ["goblin_pouch", 1], ["fire_crystal", 1], ["hi_potion", 0.3]], gil: [12, 16], respawn: 300 },
+  duskwing: { hint: "Old Fort Ruins, Rocky Hollow · night", base: "bat", name: "Duskwing", hpMul: 2.2, attMul: 1.1, eva: 18, scale: 1.6, aura: "#b388ff", loot: [["anglers_boots", 0.3], ["egg_shade_kit", 0.03], ["guerilla_gloves", 0.35], ["bat_wing", 1], ["wind_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  king_wiggles: { hint: "Burrow Flats, southern Rocky Hollow · day", base: "worm", name: "King Wiggles", hpMul: 2.6, attMul: 1.05, scale: 1.5, aura: "#ffd54f", loot: [["zealots_mitts", 0.3], ["moonbloom_seeds", 0.4], ["anglers_hose", 0.35], ["saintly_ring", 0.3], ["worm_silk", 1], ["earth_crystal", 1], ["ether", 0.3]], respawn: 300 },
+  ossuary_warden: { hint: "Bone Pit, Goblin Den · any time", base: "ghoul", name: "Ossuary Warden", hpMul: 2.3, attMul: 1.15, scale: 1.35, aura: "#69f0ae", loot: [["priests_robe", 0.3], ["anus_gaiters", 0.35], ["bastokan_ring", 0.3], ["bone_chip", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 360 }
 };
 
 const RARITY = { common: ["Common", "#e8e8e8"], uncommon: ["Uncommon", "#6fd36f"], rare: ["Rare", "#6aa9ff"], epic: ["Epic", "#c48cff"] };
@@ -1411,7 +1264,7 @@ const QUESTS = {
     intro: "New to Saltreach? Then you don't know where the best catch lands. Visit the Fish Market, Harbor Square, Shipwrights' Row and the Docks, and tell me what you saw. I'll make it worth your while.", progress: "You've not seen it all yet. The Docks run along the south shore, past the gate halls.", turn: "So you've seen the whole harbor. Good. Now you know where to buy fish." },
   tour_ironvale: { name: "The Ironvale Circuit", giver: "Brisa", npc: "brisa", lv: 3, check: "tour_ironvale", desc: "Visit all five districts of Ironvale: Gate Ward, the Keep, Market Square, South Ward and Smelters' Row.", reward: { xp: 250, gil: 300 },
     intro: "Quartermasters hate being asked for directions. Save us both the trouble: walk the Gate Ward, the Keep, Market Square, the South Ward and Smelters' Row, then report back.", progress: "Not all five yet. Smelters' Row is east, past the gate hall; the Keep is north.", turn: "The whole circuit. Now you know your way around Ironvale." },
-  pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", npc: "rhea", lv: 1, desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "captains_ring" } },
+  pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", npc: "rhea", lv: 1, desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "multiple_ring" } },
   home: { name: "Make It Home", giver: "Odette", npc: "odette", lv: 1, check: "furniture", desc: "Buy or craft two pieces of furniture and have Pip place them in your residence (the door is on the west house of the Outpost).", reward: { xp: 100, gil: 0, items: [["flowerpot", 1], ["herb_seeds", 2]] },
     intro: "Every adventurer needs somewhere to hang their helm. The cottage by the west wall is yours; my cousin Pip keeps it. Put two pieces of furniture in it and I'll throw in something green for the windowsill.", progress: "Two pieces placed, that's all. Chairs are cheap. Talk to Pip at the cottage to arrange them.", turn: "Two pieces placed! It's a home now. Here, a flowerpot and some herb seeds; Pip will show you how to garden." },
   greenthumb: { name: "Green Thumb", giver: "Pip", npc: "pip", lv: 1, check: "harvest", desc: "Plant a seed in a Flowerpot at your residence, water it through its three stages, and harvest it.", reward: { xp: 150, gil: 0, items: [["wildgrass_seeds", 2]] },
@@ -1424,33 +1277,33 @@ const QUESTS = {
     intro: "Something's stirring the dead at the Old Fort Ruins, east along the road. Wandering Bones by night. Put 5 of them back in the ground and report to me.", progress: "The bones still walk. The ruins, at night.", turn: "Five of them laid to rest. You're becoming someone this Outpost can count on." },
   grimtooth: { name: "Grimtooth's Bounty", giver: "Captain Rhea", npc: "rhea", lv: 6, pre: "bones", kill: { fam: "grimtooth", n: 1, name: "Grimtooth" }, desc: "Defeat Grimtooth, the notorious goblin who leads the camp in eastern Rocky Hollow. He appears now and then among the goblins there.", reward: { xp: 500, gil: 400, item: "hi_potion", qty: 2 },
     intro: "There's a goblin called Grimtooth running the camp in the east of the Hollow. Red bandana, black eyes, mean as winter. He shows himself now and then among his gang. Bring him down and the bounty's yours.", progress: "Grimtooth still has his head. Watch the goblin camp; he turns up when a goblin there is replaced.", turn: "Grimtooth, finished. The camp will scatter without him. Take the bounty." },
-  hollowking: { name: "The Hollow King", giver: "Captain Rhea", npc: "rhea", lv: 9, pre: "warden", kill: { fam: "hollow_king", n: 1, name: "The Hollow King" }, desc: "Defeat the Hollow King on his throne at the end of the Sunken Crypt, below the Goblin Den's Bone Pit. Light the braziers to pass the gate; the Crypt Sentinel holds the throne door's key.", reward: { xp: 2000, gil: 3000, item: "ashen_medallion" },
+  hollowking: { name: "The Hollow King", giver: "Captain Rhea", npc: "rhea", lv: 9, pre: "warden", kill: { fam: "hollow_king", n: 1, name: "The Hollow King" }, desc: "Defeat the Hollow King on his throne at the end of the Sunken Crypt, below the Goblin Den's Bone Pit. Light the braziers to pass the gate; the Crypt Sentinel holds the throne door's key.", reward: { xp: 2000, gil: 3000, item: "armigers_lace" },
     intro: "Under the Den's Bone Pit lies the Sunken Crypt, and on its throne sits the thing that stirs the dead: the Hollow King. The old way in is sealed by braziers, and a Sentinel holds the throne key. Bring a full party. End him, and the Outpost will give you its highest honour.", progress: "The King still sits his throne. Braziers first, then the Sentinel's key, then the throne room.", turn: "The Hollow King is dust. Wear this medallion with pride: no one in Ashenreach has earned it before." },
   warden: { name: "The Warden's Vigil", giver: "Captain Rhea", npc: "rhea", lv: 8, pre: "chieftain", kill: { fam: "ossuary_warden", n: 1, name: "Ossuary Warden" }, desc: "Defeat the Ossuary Warden, a notorious ghoul that haunts the Bone Pit of the Goblin Den.", reward: { xp: 800, gil: 800, item: "ether", qty: 3 },
     intro: "With the Chieftain gone, the Den's worst is a ghoul the scouts call the Ossuary Warden. It keeps the Bone Pit. End its vigil and I'll pay well.", progress: "The Warden still haunts the Bone Pit. It appears among the ghouls there.", turn: "The Warden is finished. The dead can rest, and so can you. Here." },
   catchday: { name: "Catch of the Day", giver: "Ilsa", npc: "ilsa", lv: 6, items: { harbor_bream: 3 }, desc: "Bring Ilsa 3 Harbor Bream from Saltreach Harbor's waters.", reward: { xp: 500, gil: 300, item: "sea_rod", qty: 1 },
     intro: "New to the harbor? Everyone here fishes, even me. Show me you can hold a rod: bring me 3 Harbor Bream from the docks and I'll give you a proper sea rod.", progress: "3 Harbor Bream. Cast from the docks; they bite best in rain.", turn: "Nice fish. Here, a real rod. Don't lose it over the side." },
-  saltsteel: { name: "Salt and Steel", giver: "Ilsa", npc: "ilsa", lv: 12, kill: { fam: "mire_goblin", n: 5, name: "Mire Goblin" }, desc: "Drive back 5 Mire Goblins that raid the road between the Ashen Marsh and Saltreach Harbor.", reward: { xp: 1600, gil: 800, item: "tide_ring", qty: 1 },
+  saltsteel: { name: "Salt and Steel", giver: "Ilsa", npc: "ilsa", lv: 12, kill: { fam: "mire_goblin", n: 5, name: "Mire Goblin" }, desc: "Drive back 5 Mire Goblins that raid the road between the Ashen Marsh and Saltreach Harbor.", reward: { xp: 1600, gil: 800, item: "eremites_ring", qty: 1 },
     intro: "Goblins from Mire Village keep raiding our carts on the marsh road. I can't spare sailors to guard them. Cut down five of the raiders and the harbor will owe you.", progress: "Five Mire Goblins. They roam north of here in the marsh.", turn: "The carts came through clean today. Take this ring; it was my mother's, and she'd want it on someone useful." },
-  frozencargo: { name: "Frozen Cargo", giver: "Ilsa", npc: "ilsa", lv: 16, kill: { fam: "frost_goblin", n: 6, name: "Frost Goblin" }, desc: "Drive back 6 Frost Goblins raiding the caravans in Frostspire Pass, east of Saltreach.", reward: { xp: 4000, gil: 1500, item: "fur_hat", qty: 1 },
+  frozencargo: { name: "Frozen Cargo", giver: "Ilsa", npc: "ilsa", lv: 16, kill: { fam: "frost_goblin", n: 6, name: "Frost Goblin" }, desc: "Drive back 6 Frost Goblins raiding the caravans in Frostspire Pass, east of Saltreach.", reward: { xp: 4000, gil: 1500, item: "bone_mask", qty: 1 },
     intro: "Our ice caravans come down Frostspire Pass, east of the harbor. Goblins in fur coats have started ambushing them. Thin them out (six should do) and I'll see you warmly dressed.", progress: "Six Frost Goblins in Frostspire Pass. They see far in the snow, so pick your fights.", turn: "The caravan made it through. Here, a fur hat. You'll need it up there." },
-  silk: { name: "Silk for Sale", giver: "Pell", npc: "pell", lv: 2, kill: { fam: "grass_crawler", n: 6, name: "Grass Crawler" }, desc: "Pell wants crawler silk. Defeat 6 Grass Crawlers in Rocky Hollow.", reward: { xp: 250, gil: 300, item: "silk_gloves_q", qty: 1 },
+  silk: { name: "Silk for Sale", giver: "Pell", npc: "pell", lv: 2, kill: { fam: "grass_crawler", n: 6, name: "Grass Crawler" }, desc: "Pell wants crawler silk. Defeat 6 Grass Crawlers in Rocky Hollow.", reward: { xp: 250, gil: 300, item: "bronze_mittens", qty: 1 },
     intro: "Every tailor in the capital wants crawler silk, and the meadow's crawling with the stuff. Literally. Put down six of those big green crawlers and I'll make it worth your while.", progress: "Six Grass Crawlers. They're slow and they won't start a fight, but mind the sticky thread.", turn: "Lovely, lovely. I'll have the cocoons spun by Firesday. Here, a pair of gloves from the first batch." },
-  mire: { name: "Into the Mire", giver: "Captain Rhea", npc: "rhea", lv: 10, kill: { fam: "bog_toad", n: 6, name: "Bog Toad" }, desc: "Thin out the Bog Toads in the Ashen Marsh, south of Rocky Hollow.", reward: { xp: 1200, gil: 600, item: "marsh_boots", qty: 1 },
+  mire: { name: "Into the Mire", giver: "Captain Rhea", npc: "rhea", lv: 10, kill: { fam: "bog_toad", n: 6, name: "Bog Toad" }, desc: "Thin out the Bog Toads in the Ashen Marsh, south of Rocky Hollow.", reward: { xp: 1200, gil: 600, item: "bounding_boots", qty: 1 },
     intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
   mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
     intro: "Two of my people went into the marsh and came back with stories of a goblin who calls himself the Mirelord. Gax. He's taxing the reed cutters. I'd take it personally if you put an end to that.", progress: "Gax keeps to Mire Village, east of the causeway. He shows himself now and then among his goblins.", turn: "The Mirelord's done? My people will drink to you tonight. Here, you've earned this." },
   thf: { name: "Light Fingers", giver: "Tobin", npc: "tobin", lv: 6, items: { goblin_pouch: 3, bat_wing: 1 }, desc: "Bring Tobin 3 Goblin Pouches and 1 Bat Wing to learn the Thief's trade.", reward: { xp: 300, gil: 0, item: "bronze_dagger", qty: 1, unlock: "THF" },
     intro: "A Thief lives by quick hands and quicker feet: daggers, Steal, Sneak Attack, and a nose for treasure. Prove your hands are light. Lift 3 Goblin Pouches off their owners and bring me a Bat Wing besides.", progress: "3 Goblin Pouches and a Bat Wing. Goblins carry the pouches; bats come out at night.", turn: "Not bad at all. Here's a dagger to start with. Ask me to change jobs whenever you like." },
-  mnk: { name: "The Open Hand", giver: "Tobin", npc: "tobin", lv: 6, items: { bone_chip: 2, healing_herb: 3 }, desc: "Bring Tobin 2 Bone Chips and 3 Healing Herbs to begin training as a Monk.", reward: { xp: 300, gil: 0, item: "leather_cesti", qty: 1, unlock: "MNK" },
+  mnk: { name: "The Open Hand", giver: "Tobin", npc: "tobin", lv: 6, items: { bone_chip: 2, healing_herb: 3 }, desc: "Bring Tobin 2 Bone Chips and 3 Healing Herbs to begin training as a Monk.", reward: { xp: 300, gil: 0, item: "cesti", qty: 1, unlock: "MNK" },
     intro: "A Monk needs no blade. Fists, Boost and Focus, and Chakra to mend their own wounds. Training starts with a poultice: 3 Healing Herbs, and 2 Bone Chips ground into it. Don't ask why. It works.", progress: "2 Bone Chips from the undead and 3 Healing Herbs.", turn: "Good. Wrap your hands in these and hit things. That's most of it, honestly." },
   rng: { name: "Steady Aim", giver: "Tobin", npc: "tobin", lv: 6, items: { bat_wing: 3, ash_lumber: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Ash Lumber to learn the Ranger's craft.", reward: { xp: 300, gil: 0, item: "shortbow", qty: 1, unlock: "RNG" },
     intro: "A Ranger fights from afar: bow and arrow, Sharpshot and Barrage, and Shadowbind to pin a foe in place. Fletching starts with good wood and good feathers. Bring me 3 Bat Wings for the fletching and 2 Ash Lumber for the bow.", progress: "3 Bat Wings and 2 Ash Lumber. Woodworkers make lumber from Ash Logs.", turn: "Good wood, fair feathers. Here's your first bow. Keep your distance and let the arrows do the work." },
-  drk: { name: "The Shadowed Path", giver: "Tobin", npc: "tobin", lv: 10, items: { crypt_dust: 2, bone_chip: 3 }, desc: "Bring Tobin 2 Crypt Dust and 3 Bone Chips to walk the Dark Knight's path.", reward: { xp: 600, gil: 0, item: "bronze_scythe", qty: 1, unlock: "DRK" },
+  drk: { name: "The Shadowed Path", giver: "Tobin", npc: "tobin", lv: 10, items: { crypt_dust: 2, bone_chip: 3 }, desc: "Bring Tobin 2 Crypt Dust and 3 Bone Chips to walk the Dark Knight's path.", reward: { xp: 600, gil: 0, item: "bronze_zaghnal", qty: 1, unlock: "DRK" },
     intro: "A Dark Knight trades a little of their own life for power: scythes, Drain, Blight, and Last Resort. It isn't a path for the careful. Bring me dust from the Sunken Crypt and bones from the restless dead, and I'll show you how it's done.", progress: "2 Crypt Dust and 3 Bone Chips. The Crypt has both; the Wandering Bones carry chips at night.", turn: "You carry the crypt's chill with you now. Take this scythe, and don't let it take you." },
-  brd: { name: "A Traveler's Song", giver: "Tobin", npc: "tobin", lv: 10, items: { mire_reed: 3, bat_wing: 2 }, desc: "Bring Tobin 3 Mire Reeds and 2 Bat Wings so he can teach you the Bard's songs.", reward: { xp: 600, gil: 0, item: "minstrel_coat", qty: 1, unlock: "BRD" },
+  brd: { name: "A Traveler's Song", giver: "Tobin", npc: "tobin", lv: 10, items: { mire_reed: 3, bat_wing: 2 }, desc: "Bring Tobin 3 Mire Reeds and 2 Bat Wings so he can teach you the Bard's songs.", reward: { xp: 600, gil: 0, item: "robe", qty: 1, unlock: "BRD" },
     intro: "Bards fight with a dagger in one hand and a song in the other. Their songs lift the whole party: sharper blades, faster swings, wounds that close on their own. I'll teach you, but I need reeds for a pipe and bat wings for the drum skin.", progress: "3 Mire Reeds from the Ashen Marsh and 2 Bat Wings. Bats come out at night.", turn: "Listen to that. A little shaky, but it carries. Here's a coat fit for the road." },
-  smn: { name: "The Calling", giver: "Tobin", npc: "tobin", lv: 6, items: { fire_crystal: 2, wind_crystal: 2, healing_herb: 2 }, desc: "Bring Tobin 2 Fire Essences, 2 Wind Essences and 2 Healing Herbs to learn to call sprites.", reward: { xp: 300, gil: 0, item: "sprite_staff", qty: 1, unlock: "SMN" },
+  smn: { name: "The Calling", giver: "Tobin", npc: "tobin", lv: 6, items: { fire_crystal: 2, wind_crystal: 2, healing_herb: 2 }, desc: "Bring Tobin 2 Fire Essences, 2 Wind Essences and 2 Healing Herbs to learn to call sprites.", reward: { xp: 300, gil: 0, item: "ash_staff", qty: 1, unlock: "SMN" },
     intro: "A Summoner calls elemental sprites to fight for them. The sprites drink your MP while they're out, so mind it. To make the first calling, I'll need 2 Fire Essences, 2 Wind Essences, and 2 Healing Herbs to calm the sprite afterward.", progress: "2 Fire Essences, 2 Wind Essences and 2 Healing Herbs.", turn: "Listen... there. A spark answered. Take this staff and call it with Ember Sprite." },
   support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 5, desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
   riding: { name: "Riding License", giver: "Ysolde", npc: "ysolde", lv: 5, desc: "Reach level 5, then bring Ysolde 300 crystals and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
@@ -1546,8 +1399,7 @@ Object.assign(FAMILIES, {
   dune_worm: tierFam("worm", { name: "Dune Worm", color: "#c8a878", tint: 0xc8a878, hpMul: 1.4, attMul: 1.05, weak: { water: 1.35 }, loot: [["worm_silk", 0.35], ["earth_crystal", 0.3], ["hi_potion", 0.06]] }),
   cinder_bomb: tierFam("bomb", { name: "Cinder Bomb", color: "#ff7043", hpMul: 1.15, weak: { water: 1.4, ice: 1.3 }, loot: [["bomb_ash", 0.4], ["fire_crystal", 0.35], ["hi_potion", 0.06]] })
 });
-NM_FAMILIES.sandmaw = { hint: "Singing Dunes, Sunscar Desert · any time", base: "worm", name: "Sandmaw", hpMul: 3.0, attMul: 1.15, scale: 1.8, aura: "#ffb74d", loot: [["dunestrider_boots", 0.35], ["worm_silk", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 480 };
-ITEMS.dunestrider_boots = { name: "Dunestrider Boots", kind: "equip", icon: "👢", rare: true, nm: true, rarity: "epic", slot: "feet", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 7, agi: 4, eva: 5, hp: 20 }, desc: "Sandmaw's hide, stitched into boots that never sink." };
+NM_FAMILIES.sandmaw = { hint: "Singing Dunes, Sunscar Desert · any time", base: "worm", name: "Sandmaw", hpMul: 3.0, attMul: 1.15, scale: 1.8, aura: "#ffb74d", loot: [["garrison_boots", 0.35], ["worm_silk", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 480 };
 ZONES.sunscar = {
   name: "Sunscar Desert", w: 3000, h: 2200, theme: "field", palette: "desert",
   exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }, { x: 2600, y: 600, w: 40, h: 30, to: "spire1", tx: 110, ty: 400, label: "Red Spire", kind: "door", ask: "Climb into the Red Spire?" }, { x: 380, y: 1480, w: 40, h: 40, to: "mirage", tx: 110, ty: 500, label: "Mirage", kind: "door", weather: "sandstorm", ask: "Step into the shimmering mirage?" }],
@@ -1591,8 +1443,7 @@ Object.assign(FAMILIES, {
   bloom_mandrake: tierFam("mandrake", { name: "Bloom Mandrake", color: "#d070a0", tint: 0xd070a0, tint2: 0x2e6b2e, hpMul: 1.2, loot: [["mandrake_leaf", 0.5], ["healing_herb", 0.3], ["hi_potion", 0.06]] }),
   jade_toad: tierFam("bog_toad", { name: "Jade Toad", color: "#5aa05a", hpMul: 1.2, attMul: 1.05, loot: [["toad_oil", 0.4], ["water_crystal", 0.25], ["hi_potion", 0.06]] })
 });
-NM_FAMILIES.old_mossback = { hint: "Heart of the Canopy, Verdant Jungle · any time", base: "treant_elder", name: "Old Mossback", hpMul: 3.0, attMul: 1.15, scale: 1.6, aura: "#9ccc65", loot: [["canopy_cloak", 0.35], ["heartwood", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 480 };
-ITEMS.canopy_cloak = { name: "Canopy Cloak", kind: "equip", icon: "🧣", rare: true, nm: true, rarity: "epic", slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 4, hp: 25, mp: 25, mnd: 3, eva: 3 }, desc: "Woven from Old Mossback's living bark. It still smells of rain." };
+NM_FAMILIES.old_mossback = { hint: "Heart of the Canopy, Verdant Jungle · any time", base: "treant_elder", name: "Old Mossback", hpMul: 3.0, attMul: 1.15, scale: 1.6, aura: "#9ccc65", loot: [["breath_mantle", 0.35], ["heartwood", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 480 };
 ZONES.verdant = {
   name: "Verdant Jungle", w: 3000, h: 2400, theme: "field", palette: "jungle", mist: true, vegK: 1.6,
   exits: [{ x: 0, y: 1100, w: 24, h: 100, to: "marsh", tx: 2700, ty: 750, label: "Ashen Marsh" }, { x: 2700, y: 2100, w: 40, h: 30, to: "underdeep", tx: 110, ty: 450, label: "Underdeep", kind: "door", ask: "Climb down into the Underdeep?" }],
@@ -1634,8 +1485,7 @@ Object.assign(FAMILIES, {
   ash_orc: tierFam("orc_grunt", { name: "Ashen Orc", color: "#6a6a6a", hpMul: 1.3, attMul: 1.15, loot: [["orc_tooth", 0.4], ["fire_crystal", 0.25], ["hi_potion", 0.08]] }),
   cinder_bones: tierFam("skeleton", { name: "Cinder Bones", color: "#5a4a44", hpMul: 1.25, attMul: 1.1, weak: { light: 1.5, water: 1.2 }, loot: [["bone_chip", 0.45], ["fire_crystal", 0.25], ["hi_potion", 0.07]] })
 });
-NM_FAMILIES.pyreclaw = { hint: "Crater Rim, Cinder Peak · night", base: "hill_lizard", name: "Pyreclaw", hpMul: 3.2, attMul: 1.2, scale: 2.0, aura: "#ff5722", loot: [["pyre_ring", 0.35], ["lizard_skin", 1], ["fire_crystal", 1], ["hi_potion", 0.5]], respawn: 540 };
-ITEMS.pyre_ring = { name: "Pyre Ring", kind: "equip", icon: "💍", rare: true, nm: true, rarity: "epic", slot: "ring", jobs: ALL_JOBS, lv: 20, price: 0, stats: { str: 4, att: 8, acc: 4, res_fire: 10 }, desc: "Cut from Pyreclaw's heartstone. Warm to the touch, always." };
+NM_FAMILIES.pyreclaw = { hint: "Crater Rim, Cinder Peak · night", base: "hill_lizard", name: "Pyreclaw", hpMul: 3.2, attMul: 1.2, scale: 2.0, aura: "#ff5722", loot: [["bone_ring", 0.35], ["lizard_skin", 1], ["fire_crystal", 1], ["hi_potion", 0.5]], respawn: 540 };
 ZONES.cinder = {
   name: "Cinder Peak", w: 2800, h: 2400, theme: "field", palette: "volcanic",
   exits: [{ x: 0, y: 1150, w: 24, h: 100, to: "sunscar", tx: 2900, ty: 1000, label: "Sunscar Desert" }],
@@ -1673,9 +1523,7 @@ Object.assign(FAMILIES, {
   gale_talon: tierFam("birdfolk", { name: "Gale Talon", color: "#e8e0d0", loot: [["crag_feather", 0.4], ["wind_crystal", 0.25], ["hi_potion", 0.05]] }),
   isle_snapper: tierFam("lake_snapper", { name: "Isle Snapper", color: "#4a8aa0", tint: 0x4a8aa0, loot: [["harbor_bream", 0.3], ["water_crystal", 0.3], ["potion", 0.08]] })
 });
-NM_FAMILIES.old_saltjaw = { hint: "Wreck Cove, Gull Isle · any time", base: "lake_snapper", name: "Old Saltjaw", hpMul: 2.8, attMul: 1.1, scale: 1.9, aura: "#4fc3f7", loot: [["saltjaw_earring", 0.35], ["harbor_bream", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 420 };
-ITEMS.saltjaw_earring = { name: "Saltjaw Earring", kind: "equip", icon: "🦷", rare: true, nm: true, rarity: "epic", slot: "ear", jobs: ALL_JOBS, lv: 15, price: 0, stats: { acc: 5, att: 5, res_water: 10 }, desc: "A tooth from Old Saltjaw, bound in silver." };
-ITEMS.gull_charm = { name: "Gull Charm", kind: "equip", icon: "🪶", rare: true, slot: "ear", jobs: ALL_JOBS, lv: 12, price: 0, stats: { agi: 2, eva: 3, mp: 10 }, desc: "Old Wend's lucky charm. Gulls follow whoever wears it." };
+NM_FAMILIES.old_saltjaw = { hint: "Wreck Cove, Gull Isle · any time", base: "lake_snapper", name: "Old Saltjaw", hpMul: 2.8, attMul: 1.1, scale: 1.9, aura: "#4fc3f7", loot: [["valor_earring", 0.35], ["harbor_bream", 1], ["water_crystal", 1], ["hi_potion", 0.4]], respawn: 420 };
 ZONES.gullisle = {
   name: "Gull Isle", w: 2200, h: 1800, theme: "field", palette: "beach", island: true,
   exits: [],
@@ -1707,10 +1555,8 @@ ZONES.gullisle = {
   start: { x: 420, y: 900 }
 };
 
-FAMILIES.spire_warden = Object.assign({}, FAMILIES.hollow_king, { name: "Spire Warden", color: "#ff7043", hpMul: 4.6, attMul: 1.4, defMul: 1.35, scale: 1.9, aura: "#ff7043", tpMove: { name: "Spire Collapse", mul: 2.3, aoe: 110 }, weak: { water: 1.35, light: 1.2 }, respawn: 900, loot: [["warden_blade", 0.3], ["spire_mantle", 0.3], ["hi_potion", 1], ["ether", 1], ["fire_crystal", 1]], gil: [80, 110] });
+FAMILIES.spire_warden = Object.assign({}, FAMILIES.hollow_king, { name: "Spire Warden", color: "#ff7043", hpMul: 4.6, attMul: 1.4, defMul: 1.35, scale: 1.9, aura: "#ff7043", tpMove: { name: "Spire Collapse", mul: 2.3, aoe: 110 }, weak: { water: 1.35, light: 1.2 }, respawn: 900, loot: [["lucent_sword", 0.3], ["variable_cape", 0.3], ["hi_potion", 1], ["ether", 1], ["fire_crystal", 1]], gil: [80, 110] });
 Object.assign(ITEMS, {
-  warden_blade: { name: "Warden's Greatsword", kind: "equip", icon: "⚔️", rare: true, nm: true, rarity: "epic", slot: "main", wtype: "gsword", dmg: 46, delay: 4.0, jobs: ["RUN"], lv: 20, price: 0, stats: { vit: 4, str: 3, acc: 5, def: 6 } },
-  spire_mantle: { name: "Spire Mantle", kind: "equip", icon: "🧣", rare: true, nm: true, rarity: "epic", slot: "back", jobs: ALL_JOBS, lv: 20, price: 0, stats: { hp: 30, mp: 30, str: 3, int: 3, mnd: 3, def: 5 }, desc: "Torn from the Spire Warden's shoulders. It smells of old smoke." }
 });
 const SPIRE_FLOORS = [
   { lv: [17, 18], fams: ["cinder_bones", "magma_lizard", "obsidian_crab"] },
@@ -1749,12 +1595,11 @@ Object.assign(FAMILIES, {
   lumicap: tierFam("shroomling", { name: "Lumicap", color: "#80deea", hpMul: 1.25, attMul: 1.05, weak: { fire: 1.4 }, loot: [["glowcap", 0.45], ["light_crystal", 0.2], ["hi_potion", 0.06]] }),
   deep_worm: tierFam("worm", { name: "Deep Worm", color: "#8a8098", tint: 0x8a8098, hpMul: 1.45, attMul: 1.08, loot: [["worm_silk", 0.35], ["dark_crystal", 0.2], ["hi_potion", 0.06]] })
 });
-NM_FAMILIES.lumicap_matron = { hint: "Glimmer Grotto, Underdeep · any time", base: "shroomling", name: "Lumicap Matron", hpMul: 3.0, attMul: 1.12, scale: 2.2, aura: "#80deea", loot: [["lumen_earring", 0.35], ["glowcap", 1], ["hi_potion", 0.5], ["ether", 0.5]], respawn: 420 };
+NM_FAMILIES.lumicap_matron = { hint: "Glimmer Grotto, Underdeep · any time", base: "shroomling", name: "Lumicap Matron", hpMul: 3.0, attMul: 1.12, scale: 2.2, aura: "#80deea", loot: [["mecurial_earring", 0.35], ["glowcap", 1], ["hi_potion", 0.5], ["ether", 0.5]], respawn: 420 };
 Object.assign(ITEMS, {
   glowcap: { name: "Glowcap", kind: "mat", icon: "🍄", price: 60, stack: 12, desc: "A mushroom that glows a soft blue. Alchemists prize it." },
   glowfin: { name: "Glowfin", kind: "mat", icon: "🐟", price: 85, stack: 12, desc: "A pale fish from the Underdeep River. Its fins shine in the dark." },
   blind_eel: { name: "Blind Eel", kind: "mat", icon: "🐍", price: 120, stack: 12, desc: "A long white eel with no eyes. Strong-tasting and valuable." },
-  lumen_earring: { name: "Lumen Earring", kind: "equip", icon: "💠", rare: true, nm: true, rarity: "epic", slot: "ear", jobs: ALL_JOBS, lv: 18, price: 0, stats: { mp: 20, int: 3, mnd: 3, res_dark: 10 }, desc: "A glowing cap-stone from the Lumicap Matron." }
 });
 for (const id of ["light_crystal", "dark_crystal"]) if (!ITEMS[id]) for (const f of ["lumicap", "deep_worm"]) FAMILIES[f].loot = FAMILIES[f].loot.filter(l => l[0] !== id);
 ZONES.underdeep = {
@@ -1785,11 +1630,8 @@ Object.assign(FAMILIES, {
   highland_orc: tierFam("orc_grunt", { name: "Highland Orc", color: "#7a8a5a", loot: [["orc_tooth", 0.4], ["wind_crystal", 0.2], ["potion", 0.1]] })
 });
 for (const f of ["plains_hare"]) FAMILIES[f].loot = FAMILIES[f].loot.filter(l => l[1] > 0);
-NM_FAMILIES.thunderhoof = { hint: "Stormgrass Flats, Windreach Highlands · day", base: "longneck", name: "Thunderhoof", hpMul: 2.8, attMul: 1.15, scale: 1.6, aura: "#ffee58", loot: [["windrunner_boots", 0.35], ["wool_tuft", 1], ["wind_crystal", 1], ["hi_potion", 0.4]], respawn: 420 };
+NM_FAMILIES.thunderhoof = { hint: "Stormgrass Flats, Windreach Highlands · day", base: "longneck", name: "Thunderhoof", hpMul: 2.8, attMul: 1.15, scale: 1.6, aura: "#ffee58", loot: [["enyos_leggings", 0.35], ["wool_tuft", 1], ["wind_crystal", 1], ["hi_potion", 0.4]], respawn: 420 };
 Object.assign(ITEMS, {
-  windrunner_boots: { name: "Windrunner Boots", kind: "equip", icon: "👢", rare: true, nm: true, rarity: "epic", slot: "feet", jobs: ALL_JOBS, lv: 13, price: 0, stats: { def: 5, agi: 3, eva: 4, hp: 15 }, desc: "Soled with Thunderhoof's hide. The grass barely bends under them." },
-  nomad_sash: { name: "Nomad Sash", kind: "equip", icon: "🪢", rare: true, slot: "waist", jobs: ALL_JOBS, lv: 12, price: 0, stats: { hp: 20, str: 2, agi: 2 }, desc: "Woven by the Windreach nomads for those they trust." },
-  nomad_cloak: { name: "Nomad Cloak", kind: "equip", icon: "🧣", rare: true, slot: "back", jobs: ALL_JOBS, lv: 11, price: 0, stats: { def: 4, hp: 15, mp: 15, eva: 2 }, desc: "A felted wool cloak that keeps out the highland wind." }
 });
 ZONES.highlands = {
   name: "Windreach Highlands", w: 4000, h: 3000, theme: "field", palette: "highland", openRange: true,
@@ -1825,13 +1667,10 @@ ZONES.highlands = {
   start: { x: 2000, y: 2900 }
 };
 
-NM_FAMILIES.gloamhorn = { hint: "Eastern Windreach Highlands · night", base: "longneck", name: "Gloamhorn", hpMul: 2.9, attMul: 1.15, scale: 1.7, aura: "#7e57c2", loot: [["gloam_ring", 0.35], ["wool_tuft", 1], ["dark_crystal_dummy", 0], ["hi_potion", 0.4]], respawn: 420 };
+NM_FAMILIES.gloamhorn = { hint: "Eastern Windreach Highlands · night", base: "longneck", name: "Gloamhorn", hpMul: 2.9, attMul: 1.15, scale: 1.7, aura: "#7e57c2", loot: [["amber_ring", 0.35], ["wool_tuft", 1], ["dark_crystal_dummy", 0], ["hi_potion", 0.4]], respawn: 420 };
 NM_FAMILIES.gloamhorn.loot = NM_FAMILIES.gloamhorn.loot.filter(l => l[1] > 0);
-NM_FAMILIES.sandglass_wisp = { hint: "The Mirage (sandstorms only) · any time", base: "bomb", name: "Sandglass Wisp", hpMul: 2.8, attMul: 1.2, scale: 1.6, aura: "#ffd54f", loot: [["mirage_veil", 0.35], ["fire_crystal", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 300 };
+NM_FAMILIES.sandglass_wisp = { hint: "The Mirage (sandstorms only) · any time", base: "bomb", name: "Sandglass Wisp", hpMul: 2.8, attMul: 1.2, scale: 1.6, aura: "#ffd54f", loot: [["dhalmel_mantle", 0.35], ["fire_crystal", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 300 };
 Object.assign(ITEMS, {
-  gloam_ring: { name: "Gloam Ring", kind: "equip", icon: "💍", rare: true, nm: true, rarity: "epic", slot: "ring", jobs: ALL_JOBS, lv: 15, price: 0, stats: { mp: 20, int: 3, eva: 4 }, desc: "Darker than the night it was found in." },
-  mirage_veil: { name: "Mirage Veil", kind: "equip", icon: "🧣", rare: true, nm: true, rarity: "epic", slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { eva: 8, agi: 4, hp: 20 }, desc: "It shimmers at the edges, as if it isn't quite there." },
-  nightglass_earring: { name: "Nightglass Earring", kind: "equip", icon: "🔮", rarity: "rare", slot: "ear", jobs: ALL_JOBS, lv: 14, price: 12000, stats: { eva: 4, agi: 2, mp: 10 }, desc: "Sold only under the moon." },
   moon_tonic: { name: "Moon Tonic", kind: "use", icon: "🧪", price: 900, stack: 12, heal: 250, desc: "Restores 250 HP. Brewed by moonlight." }
 });
 ZONES.mirage = {
@@ -2146,7 +1985,7 @@ const STORY = [
     { type: "visit", zone: "frost", lm: "summit", summon: "ashen_herald", goal: "Climb to the Summit Overlook in Frostspire Pass.", text: ["At the top of the black stair stands a figure wrapped in ash that burns without heat.", "'The crown is silent. The bells have drowned. The throne remembers its king.' It raises a hand, and the snow turns to cinders."] },
     { type: "kill", fam: "ashen_herald", n: 1, goal: "Defeat the Ashen Herald at the Summit Overlook." }
   ] },
-  { name: "Embers Kept", lv: 19, reward: { xp: 0, gil: 5000, item: "ember_ring" }, steps: [
+  { name: "Embers Kept", lv: 19, reward: { xp: 0, gil: 5000, item: "protean_ring" }, steps: [
     { type: "talk", npc: "rhea", goal: "Return to Captain Rhea in Ashenreach Outpost.", text: ["The ash stopped falling this morning. Every soul in the Outpost walked out to watch the sky clear.", "I don't know what that throne is, or who its king was. But I know who stood between it and us. Take this. It's been kept at the Outpost since before my time, waiting for someone who earned it."] }
   ] }
 ];
@@ -2228,8 +2067,8 @@ const GUILD_BOUNTIES = [
 ];
 const GUILD_SHOP = [
   { id: "hi_potion", gp: 6, rank: 0 }, { id: "ether", gp: 8, rank: 0 },
-  { id: "guild_ring", gp: 60, rank: 1 }, { id: "pathfinder_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
-  { id: "silver_insignia", gp: 220, rank: 3 }, { id: "guild_greatcoat", gp: 400, rank: 4 }, { id: "mythril_crest", gp: 600, rank: 5 }
+  { id: "desperado_ring", gp: 60, rank: 1 }, { id: "leaping_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
+  { id: "armored_ring", gp: 220, rank: 3 }, { id: "healing_harness", gp: 400, rank: 4 }, { id: "variable_ring", gp: 600, rank: 5 }
 ];
 
 const ACHIEVEMENTS = [
@@ -2343,7 +2182,7 @@ const WEATHER = {
 
 const SHOPS = {
   marn: ["fishing_rod", "sea_rod", "bait", "grain_flour", "rock_salt", "herb_bread", "carp_stew", "shad_skewer", "grilled_bass", "potion", "hi_potion", "ether"],
-  vela: ["spirit_torque", "silver_earring", "ember_earring", "wolf_mantle", "warriors_belt", "silk_sash", "tidesteel_sword", "boarding_axe", "coral_staff", "tidesteel_dagger", "shark_claws", "harbor_mail", "sailcloth_robe", "corsair_jerkin", "gull_hat", "steel_sword", "oak_staff", "chain_mail", "wizards_robe", "chapel_sigil", "frost_sword", "frost_greataxe", "glacier_staff", "rime_dagger", "frost_claws", "frost_bow", "frost_mail", "snowfur_coat", "frost_robe", "fur_hat", "rime_scythe", "troubadour_coat"]
+  vela: ["chapel_sigil"]
 };
 const MOUNT_COATS = {
   teal: { name: "Marsh Teal", main: 0x3f6f6a, dark: 0x2a4a48, glow: 0x6ff0e8, price: 0 },
@@ -2373,7 +2212,7 @@ const PETS = {
   dark: { name: "Dark Spirit", el: "dark", col: 0x7e57c2, eye: 0xd1c4e9, pact: "Shadow Bolt", weak: "light" }
 };
 
-const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["tide_crown", "abyssal_staff", "drowned_blade", "priest_mantle", "tidebreaker_bow"], gil: 1500, xp: 3000 };
+const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["anus_tiara", "bastokan_staff", "kingdom_sword", "anus_doublet", "rogetsurin"], gil: 1500, xp: 3000 };
 
 for (const id in SPELLS) {
   const sp = SPELLS[id], lv = Math.min(...Object.values(sp.jobs));
@@ -2385,6 +2224,7 @@ for (const id in SPELLS) {
   if (lv <= 10) SHOP.push(sid); else if (lv <= 20) SHOPS.vela.push(sid);
 }
 SHOPS.vela.push("x_potion", "hi_ether", "super_ether", "reraiser");
+for (const id in GEAR_DATA) { const g = GEAR_DATA[id]; if (g.src !== "shop") continue; if (g.lv <= 10) SHOP.push(id); else SHOPS.vela.push(id); }
 function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
 function exitInner(z, e) {
   const L = e.hall || 0, cx = e.x + e.w / 2, cy = e.y + e.h / 2, sd = exitSide(z, e);
@@ -2586,41 +2426,35 @@ const CITY_LIFE = {
   market: [6, 1], square: [6, 1], fish: [4, 1], docks: [4, 1], gov: [2, 2], keep: [1, 2], res: [3, 1], south: [3, 1], ind: [3, 1], yard: [3, 1], gate: [2, 2], forge: [3, 1]
 };
 Object.assign(QUESTS, {
-  sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "bronze_tachi", qty: 1, unlock: "SAM" },
+  sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "tachi", qty: 1, unlock: "SAM" },
     intro: "A Samurai fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },
-  nin: { name: "Steps Without Sound", giver: "Tobin", npc: "tobin", lv: 12, items: { bat_wing: 3, worm_silk: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Worm Silk to learn the Ninja's arts.", reward: { xp: 700, gil: 0, item: "bronze_katana", qty: 1, unlock: "NIN" },
+  nin: { name: "Steps Without Sound", giver: "Tobin", npc: "tobin", lv: 12, items: { bat_wing: 3, worm_silk: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Worm Silk to learn the Ninja's arts.", reward: { xp: 700, gil: 0, item: "kunai", qty: 1, unlock: "NIN" },
     intro: "A Ninja hides behind shadow images, throws stars of fire and frost, and slips away when the fight turns. Quick hands, quick feet. Bring me bat wings for the shadows and worm silk for the threads.", progress: "3 Bat Wings and 2 Worm Silk. Bats fly at night; worms dig through the Hollow.", turn: "Light, quiet and sharp. Take this katana, and remember: the shadows only take a few hits each." },
-  drg: { name: "Wings of the Wyrm", giver: "Tobin", npc: "tobin", lv: 12, items: { lizard_skin: 3, crag_feather: 1 }, desc: "Bring Tobin 3 Lizard Skins and 1 Crag Feather to take up the Dragoon's lance.", reward: { xp: 700, gil: 0, item: "bronze_spear", qty: 1, unlock: "DRG" },
+  drg: { name: "Wings of the Wyrm", giver: "Tobin", npc: "tobin", lv: 12, items: { lizard_skin: 3, crag_feather: 1 }, desc: "Bring Tobin 3 Lizard Skins and 1 Crag Feather to take up the Dragoon's lance.", reward: { xp: 700, gil: 0, item: "harpoon", qty: 1, unlock: "DRG" },
     intro: "Dragoons fight with the lance and the leap. They spring high into the air and come down point first, and the spirit of the old wyrms lends them strength. Bring me lizard skins for a grip and a feather from the Crag Talons for luck.", progress: "3 Lizard Skins from the Hollow's hill lizards and 1 Crag Feather from the marsh roost.", turn: "Scale and feather. Here is your spear. Jump high, land hard." }
 });
-SHOP.push("bronze_tachi", "iron_tachi", "steel_tachi", "bronze_katana", "iron_katana", "steel_katana", "bronze_spear", "iron_lance", "steel_halberd");
-if (SHOPS.vela) SHOPS.vela.push("frost_tachi", "rime_katana", "frost_lance");
 Object.assign(QUESTS, {
   bst: { name: "Call of the Wild", giver: "Tobin", npc: "tobin", lv: 14, items: { lizard_skin: 2, wool_tuft: 3 }, desc: "Bring Tobin 2 Lizard Skins and 3 Wool Tufts to learn the Beastmaster's ways.", reward: { xp: 800, gil: 0, item: "bronze_axe", qty: 1, unlock: "BST" },
     intro: "A Beastmaster never fights alone. They whistle up a beast of the wilds, feed it, and set it on their foes, then wade in after it with an axe. Bring me a lizard's skin and some sheep's wool for a beast's harness, and I'll teach you the call.", progress: "2 Lizard Skins and 3 Wool Tufts. The Hollow has both.", turn: "A good harness. Take this axe, and whistle; something will answer." },
-  blu: { name: "The Borrowed Art", giver: "Tobin", npc: "tobin", lv: 14, items: { crab_shell: 2, mandrake_leaf: 2 }, desc: "Bring Tobin 2 Crab Shells and 2 Mandrake Leaves to begin the Blue Mage's study.", reward: { xp: 800, gil: 0, item: "iron_sword", qty: 1, unlock: "BLU" },
+  blu: { name: "The Borrowed Art", giver: "Tobin", npc: "tobin", lv: 14, items: { crab_shell: 2, mandrake_leaf: 2 }, desc: "Bring Tobin 2 Crab Shells and 2 Mandrake Leaves to begin the Blue Mage's study.", reward: { xp: 800, gil: 0, item: "bronze_sword", qty: 1, unlock: "BLU" },
     intro: "A Blue Mage learns magic from monsters. Watch a beast use its special move up close and survive it, and you can learn to do the same. A dangerous way to study. Bring me crab shells and mandrake leaves and I'll open your eyes to it.", progress: "2 Crab Shells and 2 Mandrake Leaves. Crabs live by the water; mandrakes come out by day.", turn: "Now stand close when the monsters strike. As a Blue Mage, every move you see might become your own." },
-  cor: { name: "Lady Luck", giver: "Tobin", npc: "tobin", lv: 14, items: { harbor_bream: 2, orc_tooth: 1 }, desc: "Bring Tobin 2 Harbor Bream and 1 Orc Tooth to roll with the Corsairs.", reward: { xp: 800, gil: 0, item: "iron_dagger", qty: 1, unlock: "COR" },
+  cor: { name: "Lady Luck", giver: "Tobin", npc: "tobin", lv: 14, items: { harbor_bream: 2, orc_tooth: 1 }, desc: "Bring Tobin 2 Harbor Bream and 1 Orc Tooth to roll with the Corsairs.", reward: { xp: 800, gil: 0, item: "bronze_dagger", qty: 1, unlock: "COR" },
     intro: "Corsairs trust the dice. A good roll lifts the whole crew's blade or aim; a greedy one can bust. They carry daggers and a pistol for a quick shot. Bring me fresh bream from Saltreach and an orc's tooth for a lucky die, and I'll show you the game.", progress: "2 Harbor Bream from the Saltreach docks and 1 Orc Tooth from the marsh orcs.", turn: "Here's a dagger and a pair of dice. Roll well." }
 });
-SHOP.push("bronze_axe", "iron_axe", "steel_axe");
-if (SHOPS.vela) SHOPS.vela.push("frost_axe");
 Object.assign(QUESTS, {
-  pup: { name: "Strings and Springs", giver: "Tobin", npc: "tobin", lv: 16, items: { ash_lumber: 3, bronze_ingot: 2 }, desc: "Bring Tobin 3 Ash Lumber and 2 Bronze Ingots to build your first automaton.", reward: { xp: 900, gil: 0, item: "leather_cesti", qty: 1, unlock: "PUP" },
+  pup: { name: "Strings and Springs", giver: "Tobin", npc: "tobin", lv: 16, items: { ash_lumber: 3, bronze_ingot: 2 }, desc: "Bring Tobin 3 Ash Lumber and 2 Bronze Ingots to build your first automaton.", reward: { xp: 900, gil: 0, item: "cesti", qty: 1, unlock: "PUP" },
     intro: "A Puppetmaster fights with fists and a friend made of wood and wire. The automaton takes blows and hits back while you weave in and out. I'll need good lumber for its frame and bronze for its springs.", progress: "3 Ash Lumber and 2 Bronze Ingots.", turn: "There. Wind the key, and it'll follow you anywhere. Mind you keep it in repair." },
-  dnc: { name: "The First Step", giver: "Tobin", npc: "tobin", lv: 16, items: { silk_cloth: 2, honeycomb: 2 }, desc: "Bring Tobin 2 Silk Cloth and 2 Honeycombs to learn the Dancer's steps.", reward: { xp: 900, gil: 0, item: "iron_dagger", qty: 1, unlock: "DNC" },
+  dnc: { name: "The First Step", giver: "Tobin", npc: "tobin", lv: 16, items: { silk_cloth: 2, honeycomb: 2 }, desc: "Bring Tobin 2 Silk Cloth and 2 Honeycombs to learn the Dancer's steps.", reward: { xp: 900, gil: 0, item: "bronze_dagger", qty: 1, unlock: "DNC" },
     intro: "A Dancer turns the rhythm of battle into healing and openings. Steps throw a foe off balance, flourishes spend those openings, and waltzes mend your friends. Bring me silk for a costume and honey for the throat.", progress: "2 Silk Cloth and 2 Honeycombs.", turn: "Lovely. Feel the beat: every swing builds the energy you spend on a waltz." },
-  sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Scholar's studies.", reward: { xp: 900, gil: 0, item: "holly_staff", qty: 1, unlock: "SCH" },
+  sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Scholar's studies.", reward: { xp: 900, gil: 0, item: "ash_staff", qty: 1, unlock: "SCH" },
     intro: "A Scholar studies both white and black magic, and leans into one at a time. Light Arts for healing, Dark Arts for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
 });
 Object.assign(QUESTS, {
   geo: { name: "The Shape of the Land", giver: "Tobin", npc: "tobin", lv: 18, items: { crag_feather: 2, frost_shard: 2 }, desc: "Bring Tobin 2 Crag Feathers and 2 Frost Shards to learn geomancy.", reward: { xp: 1000, gil: 0, item: "maple_wand", qty: 1, unlock: "GEO" },
     intro: "A Geomancer bends the land's own currents into auras that follow them, and plants a luopan to curse the ground under their foes. Bring me feathers from the high roost and shards of the pass's ice; they hold the currents well.", progress: "2 Crag Feathers and 2 Frost Shards.", turn: "Ring the bell and listen. The land will answer." },
-  run: { name: "Carved in Steel", giver: "Tobin", npc: "tobin", lv: 18, items: { orc_tooth: 2, iron_ingot: 2 }, desc: "Bring Tobin 2 Orc Teeth and 2 Iron Ingots to become a Rune Fencer.", reward: { xp: 1000, gil: 0, item: "bronze_greatsword", qty: 1, unlock: "RUN" },
+  run: { name: "Carved in Steel", giver: "Tobin", npc: "tobin", lv: 18, items: { orc_tooth: 2, iron_ingot: 2 }, desc: "Bring Tobin 2 Orc Teeth and 2 Iron Ingots to become a Rune Fencer.", reward: { xp: 1000, gil: 0, item: "claymore", qty: 1, unlock: "RUN" },
     intro: "A Rune Fencer carves runes into the air to turn blows aside, then hurls them at the enemy all at once. They wield the great sword and hold the line. Bring me iron for a blade and orc teeth to carve the first runes.", progress: "2 Orc Teeth and 2 Iron Ingots.", turn: "Hold the sword like a wall, and the runes like a promise." }
 });
-SHOP.push("bronze_greatsword", "iron_greatsword", "steel_greatsword");
-if (SHOPS.vela) SHOPS.vela.push("frost_greatsword");
 Object.assign(NPCS, {
   brisa: { name: "Brisa, Quartermaster", model: "brisa", talk: "talkBrisa" },
   haldor: { name: "Haldor, Mythrilsmith", model: "haldor", talk: "talkHaldor" },
@@ -2649,26 +2483,9 @@ ZONES.frost.spawns.push({ fam: "ice_wight", lv: [19, 20], x: Math.round(2200 * z
 ZONES.marsh.spawns.push({ fam: "drowned", lv: [15, 16], x: Math.round(1700 * zsc("marsh")), y: Math.round(1400 * zsc("marsh")), weather: "fog" });
 ACHIEVEMENTS.push({ id: "sunscar", icon: "🏜️", name: "Sunburnt", desc: "Set foot in the Sunscar Desert.", test: s => areaVisited(s, "sunscar") });
 WEATHER.ironvale = [["clear", 4], ["snow", 3], ["cloudy", 3], ["wind", 1.5], ["fog", 0.8]];
-const MYTHRIL_GEAR = [];
-for (const id of Object.keys(ITEMS)) {
-  const it = ITEMS[id];
-  if (!id.startsWith("steel_") || it.slot !== "main") continue;
-  const nid = "mythril_" + id.slice(6);
-  if (ITEMS[nid]) continue;
-  ITEMS[nid] = Object.assign({}, it, { name: "Mythril " + it.name.replace(/^Steel /, ""), dmg: Math.round(it.dmg * 1.45), lv: 19, price: Math.round(it.price * 4.5), stats: Object.assign({}, it.stats || {}, { acc: ((it.stats || {}).acc || 0) + 3, str: ((it.stats || {}).str || 0) + 2 }), jobs: it.jobs.slice() });
-  MYTHRIL_GEAR.push(nid);
-}
-const scaleStats = (st, k) => { const o = {}; for (const key in st) o[key] = Math.round(st[key] * k); return o; };
-Object.assign(ITEMS, {
-  mythril_mail: Object.assign({}, ITEMS.chain_mail, { name: "Mythril Mail", lv: 18, price: 13500, stats: scaleStats(ITEMS.chain_mail.stats, 1.5), jobs: ITEMS.chain_mail.jobs.slice() }),
-  mythril_helm: Object.assign({}, ITEMS.iron_helm, { name: "Mythril Helm", lv: 18, price: 8200, stats: scaleStats(ITEMS.iron_helm.stats, 1.6), jobs: ITEMS.iron_helm.jobs.slice() }),
-  ironvale_robe: Object.assign({}, ITEMS.wizards_robe, { name: "Ironvale Robe", lv: 18, price: 12800, stats: scaleStats(ITEMS.wizards_robe.stats, 1.5), jobs: ITEMS.wizards_robe.jobs.slice() }),
-  ironvale_ring: { name: "Ironvale Ring", kind: "equip", icon: "💍", slot: "ring", jobs: ALL_JOBS, lv: 18, price: 0, rare: true, stats: { hp: 30, vit: 3, def: 4 }, desc: "Brisa's thanks for clearing the pass." }
-});
-MYTHRIL_GEAR.push("mythril_mail", "mythril_helm", "ironvale_robe");
-SHOPS.haldor = MYTHRIL_GEAR.concat(["iron_ingot", "potion", "hi_potion", "ether"].filter(id => ITEMS[id]));
+SHOPS.haldor = Object.keys(GEAR_DATA).filter(id => GEAR_DATA[id].hq && GEAR_DATA[id].lv >= 14).concat(["iron_ingot", "potion", "hi_potion", "ether"].filter(id => ITEMS[id]));
 Object.assign(QUESTS, {
-  smokeline: { name: "Smoke on the Pass", giver: "Brisa", npc: "brisa", lv: 18, kill: { fam: "frost_stonechucker", n: 6, name: "Frost Stonechucker" }, desc: "Drive off 6 Frost Stonechuckers hurling rocks at Ironvale's ore carts in Frostspire Pass.", reward: { xp: 5000, gil: 2000, item: "ironvale_ring", qty: 1 },
+  smokeline: { name: "Smoke on the Pass", giver: "Brisa", npc: "brisa", lv: 18, kill: { fam: "frost_stonechucker", n: 6, name: "Frost Stonechucker" }, desc: "Drive off 6 Frost Stonechuckers hurling rocks at Ironvale's ore carts in Frostspire Pass.", reward: { xp: 5000, gil: 2000, item: "bone_ring_hq", qty: 1 },
     intro: "Ironvale lives on the ore that comes down the pass, and the orcs up there have taken to smashing our carts with boulders. Thin them out and you'll have Ironvale's thanks.", progress: "6 Frost Stonechuckers, up in Frostspire Pass.", turn: "The carts are rolling again. Wear this ring; every guard in Ironvale will know you for a friend." },
   orerun: { name: "The Ore Run", giver: "Brisa", npc: "brisa", lv: 17, items: { iron_ore: 4, frost_shard: 3 }, desc: "Bring Brisa 4 Iron Ore and 3 Frost Shards for Ironvale's forges.", reward: { xp: 3000, gil: 1600 },
     intro: "Haldor's forges eat ore faster than the carts can bring it. If you're heading out, dig some iron and pick up frost shards; the mythril won't temper without them.", progress: "4 Iron Ore and 3 Frost Shards.", turn: "That'll keep the fires lit for a week. Here's your pay." }
@@ -2722,7 +2539,7 @@ Object.assign(NPCS, {
   wend: { name: "Old Wend", model: "wend", talk: "talkWend" }
 });
 Object.assign(QUESTS, {
-  isle_supper: { name: "Supper for Wend", giver: "Old Wend", npc: "wend", lv: 10, items: { sea_bass: 3 }, desc: "Bring Old Wend 3 Sea Bass. His knees won't take him to the water any more.", reward: { xp: 1800, gil: 400, item: "gull_charm", qty: 1 },
+  isle_supper: { name: "Supper for Wend", giver: "Old Wend", npc: "wend", lv: 10, items: { sea_bass: 3 }, desc: "Bring Old Wend 3 Sea Bass. His knees won't take him to the water any more.", reward: { xp: 1800, gil: 400, item: "hope_earring", qty: 1 },
     intro: "Oh, a visitor! I've lived on this rock forty years and the gulls are still my only neighbours. Mind doing an old man a kindness? I've a fierce hunger for sea bass, and my knees won't take me down to the shore.", progress: "3 Sea Bass. They bite off the island's shores and the harbour.", turn: "Oh, that smells like the old days. Here, take my charm. The gulls will know you're a friend." }
 });
 Object.assign(BESTIARY, {
@@ -2752,9 +2569,9 @@ Object.assign(NPCS, {
   camp_nomad_b: { name: "Rider's Rest", prop: "camp", talk: "talkCamp", poi: "camp" }
 });
 Object.assign(QUESTS, {
-  orcraid: { name: "Raiders on the Wind", giver: "Tarqa", npc: "tarqa", lv: 12, kill: { fam: "highland_orc", n: 6, name: "Highland Orc" }, desc: "Drive off 6 Highland Orcs who raid the nomads' herds from Eagle Ridge.", reward: { xp: 2400, gil: 900, item: "nomad_sash", qty: 1 },
+  orcraid: { name: "Raiders on the Wind", giver: "Tarqa", npc: "tarqa", lv: 12, kill: { fam: "highland_orc", n: 6, name: "Highland Orc" }, desc: "Drive off 6 Highland Orcs who raid the nomads' herds from Eagle Ridge.", reward: { xp: 2400, gil: 900, item: "plate_belt", qty: 1 },
     intro: "My people follow the herds across the whole of Windreach. The orcs up on Eagle Ridge have started taking our animals. Show them the plateau has teeth.", progress: "6 Highland Orcs, camped west of the Ridge.", turn: "The herds sleep easier. Wear this sash; any nomad will share a fire with you." },
-  feltwork: { name: "Felt for Winter", giver: "Tarqa", npc: "tarqa", lv: 10, items: { wool_tuft: 4, lizard_skin: 2 }, desc: "Bring Tarqa 4 Wool Tufts and 2 Lizard Skins for the camp's winter cloaks.", reward: { xp: 1600, gil: 500, item: "nomad_cloak", qty: 1 },
+  feltwork: { name: "Felt for Winter", giver: "Tarqa", npc: "tarqa", lv: 10, items: { wool_tuft: 4, lizard_skin: 2 }, desc: "Bring Tarqa 4 Wool Tufts and 2 Lizard Skins for the camp's winter cloaks.", reward: { xp: 1600, gil: 500, item: "travelers_mantle", qty: 1 },
     intro: "Winter on the plateau is long. We felt our cloaks from wool and line them with lizard hide against the wind. Bring us some and you'll have one too.", progress: "4 Wool Tufts and 2 Lizard Skins.", turn: "Good wool. Here, this one was made for a traveller." }
 });
 BESTIARY.plains_hare = { type: "Beast", lore: "Long-legged hares of the open plateau, built for running." };
@@ -2775,7 +2592,7 @@ const CONQUEST = {
   beastDaily: 30, rivalDaily: 20, holdBonus: 40
 };
 const EXPEDITIONS = {
-  wilds: { name: "Across the Wilds", lv: 12, reward: { xp: 4000, gil: 2000, item: "trailblazer_boots" },
+  wilds: { name: "Across the Wilds", lv: 12, reward: { xp: 4000, gil: 2000, item: "holly_clogs" },
     intro: "The Guild wants a survey of the far roads. Go up through Frostspire Pass to the mountain city of Ironvale and see the Quartermaster there, then cross the Sunscar Desert to the bones the locals call Titan's Ribs. Come back and tell me what you saw.",
     steps: [
       { type: "zone", zone: "ironvale", text: "Reach the city of Ironvale, east of Frostspire Pass." },
@@ -2783,7 +2600,7 @@ const EXPEDITIONS = {
       { type: "visit", zone: "sunscar", lm: "ribs", text: "Find Titan's Ribs in the Sunscar Desert." },
       { type: "talk", npc: "maera", text: "Return to Maera in Ashenreach Outpost.", final: true }
     ] },
-  fire: { name: "Fire and Water", lv: 17, reward: { xp: 9000, gil: 4000, item: "explorers_ring" },
+  fire: { name: "Fire and Water", lv: 17, reward: { xp: 9000, gil: 4000, item: "amethyst_ring" },
     intro: "A scholar is paying well for proof of two places most people think are legends: a lake of fire on Cinder Peak and a grotto that glows under the jungle. Old Wend out on Gull Isle swears he's seen both. Find them, then ask him.",
     steps: [
       { type: "visit", zone: "cinder", lm: "lake", text: "Stand at the Molten Lake on Cinder Peak." },
@@ -2792,7 +2609,7 @@ const EXPEDITIONS = {
       { type: "talk", npc: "wend", text: "Tell Old Wend on Gull Isle what you found.", say: "Ha! Told them, didn't I? Fire you can drink and caves full of stars. Go on back and tell your Guild the old man was right." },
       { type: "talk", npc: "maera", text: "Return to Maera in Ashenreach Outpost.", final: true }
     ] },
-  ends: { name: "The Ends of the Map", lv: 19, reward: { xp: 12000, gil: 6000, item: "pathfinder_mantle" },
+  ends: { name: "The Ends of the Map", lv: 19, reward: { xp: 12000, gil: 6000, item: "cotton_cape" },
     intro: "Last job I've got, and it's a big one. Three places at the very edges of every map we own: the Standing Stones on the Windreach plateau, the Overgrown Temple deep in the jungle, and the summit of the Red Spire. Bring back proof you stood in all three.",
     steps: [
       { type: "visit", zone: "highlands", lm: "stones", text: "Visit the Standing Stones in the Windreach Highlands." },
@@ -2802,9 +2619,6 @@ const EXPEDITIONS = {
     ] }
 };
 Object.assign(ITEMS, {
-  trailblazer_boots: { name: "Trailblazer Boots", kind: "equip", icon: "👢", rare: true, slot: "feet", jobs: ALL_JOBS, lv: 12, price: 0, stats: { def: 5, agi: 2, hp: 20 }, desc: "Guild-issue boots for those who've walked the far roads." },
-  explorers_ring: { name: "Explorer's Ring", kind: "equip", icon: "💍", rare: true, slot: "ring", jobs: ALL_JOBS, lv: 17, price: 0, stats: { hp: 25, mp: 25, acc: 4, eva: 4 }, desc: "Engraved with a compass rose." },
-  pathfinder_mantle: { name: "Pathfinder's Mantle", kind: "equip", icon: "🧣", rare: true, slot: "back", jobs: ALL_JOBS, lv: 19, price: 0, stats: { def: 6, hp: 30, str: 2, int: 2, agi: 2 }, desc: "Given only to those who have stood at the edges of every map." }
 });
 ACHIEVEMENTS.push({ id: "expeditions", icon: "🗺️", name: "Far Traveller", desc: "Complete every Guild expedition.", test: s => s.expDone && Object.keys(EXPEDITIONS).every(k => s.expDone[k]) });
 ACHIEVEMENTS.push({ id: "atlas", icon: "🧭", name: "Cartographer", desc: "Set foot in every area on the world atlas.", test: s => ["highlands", "outpost", "hollow", "den", "crypt", "depths", "marsh", "verdant", "underdeep", "harbor", "gullisle", "frost", "ironvale", "sunscar", "cinder", "spire"].every(z => areaVisited(s, z)) });
@@ -2814,7 +2628,7 @@ Object.assign(NPCS, {
   cache_mirage: { name: "Mirage Cache", prop: "chest", chest: "vault", talk: "talkChest" }
 });
 ZONES.sunscar.npcs.push({ id: "mirage_shimmer", x: 400, y: 1460 });
-SHOPS.luna = ["moon_tonic", "nightglass_earring", "ether", "hi_potion"];
+SHOPS.luna = ["moon_tonic", "shield_earring", "ether", "hi_potion"];
 BESTIARY.gloamhorn = { type: "Beast", lore: "A longneck with a coat like dusk. It only grazes after the sun goes down." };
 BESTIARY.sandglass_wisp = { type: "Elemental", lore: "A spark of sand and heat that lives inside the mirage. When the storm passes, so does it." };
 ACHIEVEMENTS.push({ id: "mirage", icon: "🏜️", name: "Seen Through", desc: "Step into the Mirage during a sandstorm.", test: s => areaVisited(s, "mirage") });

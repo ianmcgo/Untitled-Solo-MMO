@@ -235,7 +235,7 @@ function showOfflineGate(err) {
 }
 
 const CC = { job: "WAR", look: null, name: "", step: 0, thumbs: {} };
-const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" }, WHM: { main: "ash_club", head: "bronze_cap", body: "linen_robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "linen_robe" } };
+const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "bronze_harness" }, WHM: { main: "ash_club", head: "bronze_cap", body: "robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "robe" } };
 const JOB_BLURB = { PLD: "", RDM: "", THF: "", MNK: "", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
 
 function fmtAgo(t) {
@@ -339,7 +339,7 @@ function showCharSelect() {
   const r = loadRoster();
   r.chars.sort((a, b) => (b.played || 0) - (a.played || 0));
   let h = '';
-  if (OLD_CHARS.length) { h += '<div class="ccEmpty" style="margin-bottom:8px">Update 17.0 changed the rules (classic MMO spells, potions and gear). These characters could not be kept and were deleted: ' + esc(OLD_CHARS.join(', ')) + '. Please create a new character.</div>'; OLD_CHARS.length = 0; }
+  if (OLD_CHARS.length) { h += '<div class="ccEmpty" style="margin-bottom:8px">Updates 17.0 and 18.0 changed the rules (classic MMO spells, potions and gear). These characters could not be kept and were deleted: ' + esc(OLD_CHARS.join(', ')) + '. Please create a new character.</div>'; OLD_CHARS.length = 0; }
   h += '<div class="ccList">';
   for (const c of r.chars) {
     const j = JOBS[c.job] || JOBS.WAR;

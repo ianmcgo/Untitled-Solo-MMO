@@ -12,7 +12,7 @@ opt(/Strings and Springs/).fn(); opt(/^Accept$/).fn();
 G.giveItem('ash_lumber', 3, true); G.giveItem('bronze_ingot', 2, true);
 G.talkTo(npc('tobin')); opt(/Strings and Springs/).fn(); opt(/Collect/).fn();
 ok(G.save.jobsUnlocked.PUP, 'Strings and Springs unlocks Puppetmaster');
-G.setJob('PUP', null); G.equip('leather_cesti'); G.save.jobs.PUP.lv = 15; G.refreshPlayer(true);
+G.setJob('PUP', null); G.equip('cesti'); G.save.jobs.PUP.lv = 15; G.refreshPlayer(true);
 G.enterZone('hollow', 300, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 G.playerAct({ kind: 'ja', id: 'activate' }); run(0.3);
 ok(S.pet && S.pet.automaton, 'Activate brings out the automaton');

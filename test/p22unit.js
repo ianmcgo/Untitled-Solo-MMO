@@ -40,7 +40,7 @@ ok(crys.length >= 1, 'goblins carry essences');
 G.save.inventory = [];
 const fakeMob = { fam: { loot: crys.map(l => [l[0], 1]) }, lv: 5 };
 for (let i = 0; i < 5; i++) G.dropLoot(fakeMob);
-ok(G.save.inventory.length === 0, 'without the blessing no essences drop');
+ok(G.save.inventory.every(s => G.ITEMS[s.id].kind !== 'crystal'), 'without the blessing no essences drop');
 G.giveBlessing();
 ok(G.blessed() && P().buffs.blessing, 'the guard\'s blessing shows as a buff');
 for (let i = 0; i < 5; i++) G.dropLoot(fakeMob);
