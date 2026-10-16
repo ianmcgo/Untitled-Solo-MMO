@@ -22,6 +22,9 @@ Requested 2026-10-16: jobs unlock by reaching levels in earlier jobs.
 | Dragoon | Thief 5, Ninja 5 |
 | Samurai | Warrior 10 |
 | Summoner | Black Mage 10, White Mage 10, Red Mage 10 |
+| Blue Mage | Black Mage 10, White Mage 10 |
+| Rune Fencer | Warrior 10, Black Mage 10 |
+| Puppetmaster | Red Mage 10, Black Mage 10 |
 
 All requirements are the job's own level, not the main job level, and a job counts once it has reached that level (it does not need to be your current job).
 
@@ -41,7 +44,7 @@ All requirements are the job's own level, not the main job level, and a job coun
 
 ## Open questions (guesses used if not answered)
 - What happens to the existing job quests (Paladin, Red Mage, Thief, Monk, Ranger, Summoner, Dark Knight, Bard)? Guess: keep them as story quests with their rewards, but they no longer gate the job, since the new tree replaces them. Their old level gates (6 to 10) are replaced by the table.
-- Rune Fencer and Puppetmaster and Blue Mage are not in your list. Guess: leave them unlocked the way they are now, and add them when you give a rule.
+- Blue Mage, Rune Fencer and Puppetmaster (answered 2026-10-16): rules added to the table. All 21 jobs now have a rule.
 - Does "Warrior 5" mean the Warrior job has reached level 5 at any time (my assumption), or must it be at least 5 right now? Guess: reached at any time.
 - Level cap: the sub job rule is unchanged.
 
