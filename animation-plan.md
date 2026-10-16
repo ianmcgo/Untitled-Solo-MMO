@@ -35,7 +35,7 @@ Goal: combat and movement that read like the original: weighty, readable, tied t
 
 ## Phase 6b: Specific monster fixes (requested)
 - Caterpillar (crawler): every leg moves on its own in a travelling wave from head to tail, each leg lifting, reaching and planting in turn, with the body segments rippling to match.
-- Rabbit (hare): remove or tuck the front legs so it reads like a Rarab (small body, hind-leg hops, front paws folded up). Interpretation of the request; confirm before building.
+- Rabbit (hare): rebuild like a Rarab. No front legs or arms at all, body stands semi-upright on long hind legs, long ears and tail, and it moves in hops. Idle shows a slight upright sway and ear twitch.
 
 ## Method and risks
 - Reference stills are guides, not copies; match feel, not exact frames.
@@ -43,3 +43,14 @@ Goal: combat and movement that read like the original: weighty, readable, tied t
 - Animations stay data-like keyframes in anim.js; notes live in design.md.
 - Cost: Phase 1 is the largest; each weapon family is about one iteration of render and adjust.
 - Unknown: whether the original's exact timing (delay, animation lengths) should be matched; guess is to match feel only.
+
+## Model per phase (guess, confirmed before each phase starts)
+- Phase 1 combat core: Sonnet 5.5 (many small render-and-adjust loops); switch to Opus only if the dual-wield or bow work gets stuck.
+- Phase 2 weapon skills: Sonnet 5.5.
+- Phase 3 magic and abilities: Sonnet 5.5.
+- Phase 4 locomotion and idle: Opus (foot-planting and gait maths are harder to get right).
+- Phase 5 death, emotes, extras: Sonnet 5.5.
+- Phase 6 and 6b monsters: Sonnet 5.5 (Opus only if the caterpillar leg wave needs a new rig structure).
+
+## Release rule
+Every phase: model check first, then build, tests, version bump, Updates and Help text, design notes, push to GitHub, send index.html.
