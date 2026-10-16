@@ -8,6 +8,6 @@ ok(S.zoneId === 'verdant', 'walking east out of the marsh reaches the jungle');
 const fams = new Set(S.mobs.map(m => m.famKey));
 ok(['vine_crawler', 'jungle_sapling', 'jade_toad', 'birdfolk'].some(f => fams.has(f)), 'jungle monsters lurk in the green (' + [...fams].join(', ') + ')');
 ok(S.mobs.every(m => m.lv >= 17), 'jungle monsters are level 17 and up');
-ok(G.NM_FAMILIES.old_mossback && G.ITEMS.canopy_cloak, 'Old Mossback walks with the Canopy Cloak');
+ok(G.NM_FAMILIES.old_mossback && G.ITEMS.breath_mantle, 'Old Mossback walks with the Canopy Cloak');
 ok(G.ZONES.verdant.spawns.length >= 6, 'spawn points survive spacing (' + G.ZONES.verdant.spawns.length + ')');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

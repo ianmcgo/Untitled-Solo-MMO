@@ -8,7 +8,7 @@ G.enterZone('outpost'); setHour(12); run(0.5);
 ok(npc('luna') && npc('luna').away, 'the Moonlit Peddler is nowhere to be seen by day');
 setHour(22); run(0.5);
 ok(!npc('luna').away, 'she sets up shop at night');
-ok(G.SHOPS.luna.includes('nightglass_earring'), 'she sells things you cannot buy by day');
+ok(G.SHOPS.luna.includes('shield_earring'), 'she sells things you cannot buy by day');
 findWx('sunscar', 'clear');
 const door = G.ZONES.sunscar.exits.find(e => e.to === 'mirage');
 G.enterZone('sunscar', door.x + 20, door.y - 60); run(0.5);

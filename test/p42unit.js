@@ -18,5 +18,5 @@ G.closeDialog && G.closeDialog();
 G.save.mountLicense = true; G.save.license = true;
 P().mounted = true; const fast = G.mountMul(); P().mounted = false;
 ok(fast > G.CONFIG.mountSpeed * 1.1, 'riding anywhere on the open plateau gets the road speed');
-ok(G.NM_FAMILIES.thunderhoof && G.ITEMS.windrunner_boots, 'Thunderhoof roams the Stormgrass Flats');
+ok(G.NM_FAMILIES.thunderhoof && G.ITEMS.enyos_leggings, 'Thunderhoof roams the Stormgrass Flats');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

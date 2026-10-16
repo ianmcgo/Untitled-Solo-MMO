@@ -11,8 +11,8 @@ ok(!!opt(/Shape of the Land/) && !!opt(/Carved in Steel/), 'Tobin offers the Geo
 opt(/Carved in Steel/).fn(); opt(/^Accept$/).fn();
 G.giveItem('orc_tooth', 2, true); G.giveItem('iron_ingot', 2, true);
 G.talkTo(npc('tobin')); opt(/Carved in Steel/).fn(); opt(/Collect/).fn();
-ok(G.save.jobsUnlocked.RUN && G.invCount('bronze_greatsword') === 1, 'Carved in Steel unlocks Rune Fencer and gives a greatsword');
-G.setJob('RUN', null); G.equip('bronze_greatsword'); G.save.jobs.RUN.lv = 15; G.refreshPlayer(true);
+ok(G.save.jobsUnlocked.RUN && G.invCount('claymore') === 1, 'Carved in Steel unlocks Rune Fencer and gives a greatsword');
+G.setJob('RUN', null); G.equip('claymore'); G.save.jobs.RUN.lv = 15; G.refreshPlayer(true);
 ok(P().stats.wtype === 'gsword', 'Rune Fencers swing great swords');
 G.enterZone('hollow', 300, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 const m = G.buildMob('goblin', 12, P().x + 40, P().y, 0); m.hp = m.maxHp = 99999; S.mobs.push(m);

@@ -69,7 +69,7 @@ ok(G.dist(P(), { x: pil[0], y: pil[1] }) > 20, 'ruin pillars are solid');
 
 const GI = G.ZONES.hollow_ruins.spawns.findIndex(sp => sp.nm && sp.nm.id === 'grimtooth');
 const g = G.buildMob('grimtooth', 6, 2850, 1600, GI); S.mobs.push(g); g.enmity.set(P(), 10);
-G.save.inventory = G.save.inventory.filter(s => s.id !== 'raiders_ring');
+G.save.inventory = G.save.inventory.filter(s => s.id !== 'safeguard_ring');
 G.onKO(g, P());
 ok(G.save.timers['nm:grimtooth'] > Date.now() + 290000, 'NM cooldown is stored on the real clock');
 const fam = G.famOf('goblin');
@@ -80,16 +80,16 @@ ok(popped.famKey === 'goblin', 'NM cannot pop again during its cooldown');
 delete G.save.timers['nm:grimtooth']; S.mobs = S.mobs.filter(x => x.famKey !== 'grimtooth');
 S.mobs = S.mobs.filter(x => x !== popped); G.spawnMob(GI);
 ok(S.mobs[S.mobs.length - 1].famKey === 'grimtooth', 'NM pops from its placeholder once the cooldown is over');
-G.giveItem('raiders_ring', 1, true);
-const before = G.invCount('raiders_ring');
+G.giveItem('safeguard_ring', 1, true);
+const before = G.invCount('safeguard_ring');
 G.dropLoot(G.buildMob('grimtooth', 6, 0, 0, GI));
-ok(G.invCount('raiders_ring') === before, 'a Rare item already held is lost instead of duplicated');
+ok(G.invCount('safeguard_ring') === before, 'a Rare item already held is lost instead of duplicated');
 let regularGear = false;
 for (const k in G.FAMILIES) if (!G.FAMILIES[k].nm) for (const [id] of G.FAMILIES[k].loot) if (G.ITEMS[id].kind === 'equip') regularGear = true;
 ok(!regularGear, 'regular monsters never drop equipment');
 ok(Object.keys(G.NM_FAMILIES).filter(k => !/_elemental$/.test(k)).every(k => G.NM_FAMILIES[k].loot.some(([id]) => G.ITEMS[id].kind === 'equip')), 'every notorious monster drops equipment');
 Math.random = saved;
-ok(G.itemRarity('potion') === 'common' && G.itemRarity('hi_potion') === 'uncommon' && G.itemRarity('raiders_ring') === 'rare' && G.itemRarity('chieftain_cap') === 'epic', 'rarity tiers');
+ok(G.itemRarity('potion') === 'common' && G.itemRarity('hi_potion') === 'uncommon' && G.itemRarity('safeguard_ring') === 'rare' && G.itemRarity('legionnaires_cap') === 'epic', 'rarity tiers');
 let gearOk = true;
 for (const k in G.FAMILIES) for (const [id, ch] of G.FAMILIES[k].loot) { const it = G.ITEMS[id]; if (!it) gearOk = false; }
 for (const k in G.NM_FAMILIES) { const u = G.NM_FAMILIES[k].loot[0]; if (u[1] < 0.25 || u[1] > 0.35) gearOk = false; }

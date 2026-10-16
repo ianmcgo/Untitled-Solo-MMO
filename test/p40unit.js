@@ -16,5 +16,5 @@ for (let f = 1; f <= 4; f++) {
 ok(S.zoneId === 'spire_top', 'climbing the east stairs of floor 4 reaches the summit');
 const boss = S.mobs.find(m => m.famKey === 'spire_warden');
 ok(boss && boss.lv === 23 && boss.fam.boss, 'the Spire Warden waits at the summit');
-ok(G.ITEMS.warden_blade && G.ITEMS.spire_mantle, 'the Warden guards a greatsword and a mantle');
+ok(G.ITEMS.lucent_sword && G.ITEMS.variable_cape, 'the Warden guards a greatsword and a mantle');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

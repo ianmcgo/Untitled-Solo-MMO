@@ -28,7 +28,7 @@ G.setJob('PLD', null); ok(G.save.mainJob === 'PLD' && P().job === 'PLD', 'switch
 G.save.jobs.PLD.lv = 7; G.refreshPlayer(true);
 const acts = G.actionList(P()).map(a => a.id);
 ok(acts.includes('sentinel') && acts.includes('shield_bash') && acts.includes('cure') && acts.includes('banish') && !acts.includes('provoke'), 'Paladin 7 knows Sentinel, Shield Bash, Cure, Banish (' + acts.join(',') + ')');
-G.save.gil = 5000; G.giveItem('kite_shield', 1, true); G.equip('kite_shield'); ok(G.save.gear.sub === 'kite_shield', 'kite shield equips in the sub slot');
+G.save.gil = 5000; G.giveItem('lauan_shield', 1, true); G.equip('lauan_shield'); ok(G.save.gear.sub === 'lauan_shield', 'kite shield equips in the sub slot');
 G.setJob('RDM', null); G.save.jobs.RDM.lv = 8; G.refreshPlayer(true);
 const racts = G.actionList(P()).map(a => a.id);
 ok(['dia', 'cure', 'stone', 'poison', 'paralyze', 'protect', 'blind', 'convert'].every(x => racts.includes(x)), 'Red Mage 8 knows Dia, Cure, Stone, Poison, Paralyze, Protect, Blind, Convert');
@@ -65,7 +65,7 @@ ok(P().mp === Math.min(P().maxMp, hp0) && P().hp === 3, 'Convert swaps HP and MP
 G.save.gil = 5000; G.hireMerc('dorn'); G.hireMerc('lisette');
 const dorn = S.party.find(p => p.mercId === 'dorn'), lis = S.party.find(p => p.mercId === 'lisette');
 ok(dorn && dorn.job === 'PLD' && dorn.role === 'tank' && lis && lis.job === 'RDM', 'Dorn and Lisette hired with their jobs');
-ok(dorn.gear.sub === 'kite_shield' && lis.gear.body === 'scarlet_tabard' || lis.gear.body === 'linen_robe', 'companions get job gear');
+ok(dorn.gear.sub === 'lauan_shield' && lis.gear.body === 'hume_tunic' || lis.gear.body === 'linen_robe', 'companions get job gear');
 S.mobs = []; const m2 = G.buildMob('goblin', 6, P().x + 40, P().y, 0); S.mobs.push(m2); m2.state = 'combat'; m2.enmity.set(P(), 10);
 P().engaged = true; P().attackTarget = m2; P().target = m2;
 run(12);

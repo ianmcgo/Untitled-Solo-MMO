@@ -12,7 +12,7 @@ G.save.jobs.WAR.lv = 18; G.refreshPlayer(true);
 G.talkTo(npc('brisa'));
 ok(!!opt(/Smoke on the Pass/) && !!opt(/Ore Run/), 'Brisa offers work');
 G.closeDialog && G.closeDialog();
-ok(G.SHOPS.haldor.includes('mythril_sword') && G.SHOPS.haldor.includes('mythril_mail') && G.ITEMS.mythril_tachi && G.ITEMS.mythril_tachi.lv === 19, 'Haldor sells mythril gear for every weapon type');
+ok(G.SHOPS.haldor.length > 20 && G.SHOPS.haldor.every(i => G.ITEMS[i]) && G.SHOPS.haldor.some(i => G.ITEMS[i].hq && G.ITEMS[i].kind === 'equip'), 'Haldor sells high-quality +1 gear');
 G.talkTo(npc('crystal_ironvale'));
 const hp = opt(/home point/);
 ok(!!hp, 'the Ironvale crystal can be a home point');

@@ -924,60 +924,14 @@ const JOB_TINT = {
 
 const ITEM_LOOK = {
   leather_vest: { top: { type: "vest", color: 0x7a5230, region: "leather" } },
-  travelers_cape: { cape: 0x6a5a3a }, wolf_mantle: { cape: 0x5a5a62 }, mage_cape: { cape: 0x3a2a6a },
-  leather_belt: { belt: 0x5a3a20 }, warriors_belt: { belt: 0x7a2a1a }, silk_sash: { belt: 0xc8b8e8 },
-  buckler: { shield: { color: 0x8a6a4a, trim: 0xb08a50, emblem: 0x5a3a20 } },
+  leather_belt: { belt: 0x5a3a20 }, warriors_belt: { belt: 0x7a2a1a }, bronze_bandolier: { belt: 0xc8b8e8 },
   scale_mail: { top: { type: "mail", color: 0x9aa0a8, region: "chain" }, pauldrons: 0xa8aeb6 },
-  kite_shield: { shield: { color: 0x8a90a0, trim: 0xc8a040, emblem: 0x2f5c9a, kite: true } },
-  scarlet_tabard: { top: { type: "tabard", color: 0xa0242c, region: "cloth", color2: 0xd8c070 }, hat: 0xa0242c },
-  raider_helm: { head: { type: "cap", color: 0x6a6a72 } },
-  scavenger_cap: { head: { type: "cap", color: 0x7a6a4a } },
-  nightwing_gloves: { gloves: 0x3a2850, glovesRegion: "leather" },
-  burrower_trousers: { legs: 0x7a5a3a, legsRegion: "leather" },
-  gravedigger_boots: { boots: 0x2a2a2e },
   linen_robe: { top: { type: "robe" } },
   linen_robe_hq: { top: { type: "robe" } },
-  cotton_robe: { top: { type: "robe", deep: true } },
-  wardens_robe: { top: { type: "robe", color: 0x2b3b33, trim: 0x69f0ae, glowTrim: true } },
   bronze_cap: { head: { type: "cap", color: 0xb0804a } },
   bronze_cap_hq: { head: { type: "cap", color: 0xc8955a } },
-  chieftain_cap: { head: { type: "horned", color: 0x6d6a60, color2: 0xe8dcc0 } },
   leather_gloves: { gloves: 0x6a4428 },
-  silkworm_gloves: { gloves: 0xb9a6d8, glovesRegion: "cloth" },
   leather_trousers: { legs: 0x5a3c24, legsRegion: "leather" },
-  leather_boots: { boots: 0x4a2e1a },
-  duskwing_boots: { boots: 0x3a2850 },
-  chain_mail: { top: { type: "mail", color: 0x7a8088, region: "chain" }, pauldrons: 0x8a9098 },
-  wizards_robe: { top: { type: "robe", deep: true } },
-  iron_helm: { head: { type: "helm", color: 0x8a9098 } },
-  wool_hat: { head: { type: "pointy", color: 0x6a5a8a } },
-  marsh_boots: { boots: 0x3f4a2a },
-  hunters_coat: { top: { type: "coat", color: 0x3f5a2c, trim: 0xb08a50 } },
-  evoker_robe: { top: { type: "robe", deep: true } },
-  shadow_plate: { top: { type: "mail", color: 0x3a3442, region: "chain" }, pauldrons: 0x4a4258 },
-  minstrel_coat: { top: { type: "coat", color: 0x9a6a2a, trim: 0xffd54f } },
-  troubadour_coat: { top: { type: "coat", color: 0x6a2a4a, trim: 0xffd54f } },
-  brigand_vest: { top: { type: "vest", color: 0x2f2a28, region: "leather", under: 0x5a4a3a } },
-  training_gi: { top: { type: "tunic", color: 0xe8e0cc, region: "cloth" }, belt: 0x2a2a2a },
-  mire_mantle: { top: { type: "robe", color: 0x2f4030, trim: 0x8aa070 }, head: { type: "hood", color: 0x2f4030 } },
-  harbor_mail: { top: { type: "plate", color: 0x6a7a88, region: "chain", plate: 0x8a9aa8, trim: 0x2a5a7a }, pauldrons: 0x8a9aa8, gauntlets: true },
-  sailcloth_robe: { top: { type: "robe", color: 0xd8d0b8, trim: 0x2a5a7a } },
-  corsair_jerkin: { top: { type: "vest", color: 0x3a2a24, region: "leather", under: 0xa8382c }, belt: 0x1a1210 },
-  cinder_mantle: { top: { type: "robe", color: 0x5a2418, trim: 0xff8a50, glowTrim: true }, cape: 0x3a1a12 },
-  guild_greatcoat: { top: { type: "coat", color: 0x2a3a5a, trim: 0xd8c070 }, cape: 0x1f2a44 },
-  priest_mantle: { top: { type: "robe", color: 0xece4d0, trim: 0xc8a040 } },
-  frost_mail: { top: { type: "plate", color: 0x8aa8b8, region: "chain", plate: 0xbfe0ee, trim: 0x9fe8ff, glowTrim: true }, pauldrons: 0xbfe0ee, gauntlets: true },
-  snowfur_coat: { top: { type: "coat", color: 0xe0e4e8, trim: 0x9aa8b8 }, collar: 0xf4f6f8 },
-  frost_robe: { top: { type: "robe", color: 0x3a5a7a, trim: 0x9fe8ff, glowTrim: true } },
-  wight_shroud: { top: { type: "robe", color: 0x3a3a44, trim: 0x8a9a8a }, head: { type: "hood", color: 0x2a2a32 } },
-  silkweave_mantle: { cape: 0xb8a8d8 },
-  gull_hat: { head: { type: "widebrim", color: 0x3a4a5a, color2: 0xf4f1e8 } },
-  tide_crown: { head: { type: "crown", color: 0x7ad0e8, gem: 0x4fc3f7 } },
-  fur_hat: { head: { type: "furhat", color: 0x8a6a4a } },
-  hollow_crown: { head: { type: "crown", color: 0x8a8070, gem: 0x69f0ae } },
-  pathfinder_boots: { boots: 0x5a4028 },
-  silk_gloves: { gloves: 0xd8d0e8, glovesRegion: "cloth" }, silk_gloves_q: { gloves: 0xd8d0e8, glovesRegion: "cloth" },
-  sentinel_greaves: { legs: 0x4a4a54, legsRegion: "cloth", greaves: 0x9aa0a8 }
 };
 
 const MAT_TINT = [[/mythril/, 0xb8d8e8], [/ironvale/, 0x4a5a6a], [/frost|rime|glacier|snow/, 0xbfe0ee], [/tide|coral|harbor|sea|gull/, 0x4a7a8a], [/cinder|ember|flame/, 0x8a3a20], [/shadow|dusk|night|wight/, 0x3a3442], [/bronze/, 0xb0804a], [/iron/, 0x7a8088], [/steel/, 0xa8b0b8], [/silk/, 0xd8d0e8], [/linen|cotton/, 0xd8d0b8], [/wool|fur/, 0x8a6a4a], [/leather|hide/, 0x6a4428]];
@@ -2857,9 +2811,9 @@ function mobLook(m) {
   if (model === "goblin") return { kind: "human", look: goblinLook({ den_goblin: "raider", mire_goblin: "mire", frost_goblin: "frost", goblin_apprentice: "apprentice", den_conjurer: "conjurer", mire_hexer: "hexer", frost_shaman: "shaman" }[m.famKey] || "goblin") };
   if (model === "toad") return { kind: "toad", col: key === "old_croaker" ? 0x6a8a30 : 0x5f7a3a };
   if (model === "skeleton") {
-    if (key === "spire_warden") return { kind: "human", look: { skull: true, skin: 0x8a5a48, noFace: true, headRegion: "bone", eyesGlow: 0xff5722, top: { type: "plate", color: 0x5a2a20, region: "chain", plate: 0x8a3a24, trim: 0xffb74d, glowTrim: true }, pauldrons: 0x8a3a24, gauntlets: true, gloves: 0x5a2a20, greaves: 0x8a3a24, head: { type: "horned", color: 0x5a2a20, color2: 0xe8d8c0 }, cape: 0x3a1410, legs: 0x8a5a48, barefoot: true, weapon: "gsword", weaponId: "warden_blade", prop: { girth: 0.9 } } };
+    if (key === "spire_warden") return { kind: "human", look: { skull: true, skin: 0x8a5a48, noFace: true, headRegion: "bone", eyesGlow: 0xff5722, top: { type: "plate", color: 0x5a2a20, region: "chain", plate: 0x8a3a24, trim: 0xffb74d, glowTrim: true }, pauldrons: 0x8a3a24, gauntlets: true, gloves: 0x5a2a20, greaves: 0x8a3a24, head: { type: "horned", color: 0x5a2a20, color2: 0xe8d8c0 }, cape: 0x3a1410, legs: 0x8a5a48, barefoot: true, weapon: "gsword", weaponId: "lucent_sword", prop: { girth: 0.9 } } };
     if (key === "hollow_king") return { kind: "human", look: { skull: true, skin: 0xd8d0b8, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "cloth", color2: 0xd8b040 }, cape: 0x3a1030, legs: 0xd8d0b8, barefoot: true, head: { type: "crown" }, weapon: "sword", weaponId: "iron_sword", prop: { girth: 0.85 } } };
-    if (key === "crypt_sentinel") return { kind: "human", look: { skull: true, skin: 0xc8d0c8, noFace: true, headRegion: "bone", eyesGlow: 0x80cbc4, top: { type: "mail", color: 0x4a5a5a, region: "chain" }, pauldrons: 0x5a6a6a, legs: 0xc8d0c8, barefoot: true, head: { type: "helm", color: 0x4a5a5a }, weapon: "greataxe", weaponId: "bronze_greataxe", prop: { girth: 0.85 } } };
+    if (key === "crypt_sentinel") return { kind: "human", look: { skull: true, skin: 0xc8d0c8, noFace: true, headRegion: "bone", eyesGlow: 0x80cbc4, top: { type: "mail", color: 0x4a5a5a, region: "chain" }, pauldrons: 0x5a6a6a, legs: 0xc8d0c8, barefoot: true, head: { type: "helm", color: 0x4a5a5a }, weapon: "greataxe", weaponId: "butterfly_axe", prop: { girth: 0.85 } } };
     if (key === "royal_guard") return { kind: "human", look: { skull: true, skin: 0xe0dccc, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "chain", color2: 0xd8b040 }, legs: 0xe0dccc, barefoot: true, head: { type: "cap", color: 0x5a5a62 }, weapon: "sword", weaponId: "bronze_sword", prop: { girth: 0.75 } } };
     if (key === "ice_wight" || key === "frost_wight") return { kind: "human", look: { skull: true, skin: 0xd4eef8, noFace: true, headRegion: "bone", eyesGlow: 0x40c4ff, top: { type: key === "frost_wight" ? "robe" : "rags", color: 0x6a8aa0, trim: 0xb3e5fc, glowTrim: key === "frost_wight" }, legs: 0xd4eef8, barefoot: true, head: key === "frost_wight" ? { type: "hood", color: 0x4a6a80 } : null, weapon: "sword", weaponId: "iron_sword", prop: { girth: key === "frost_wight" ? 0.95 : 0.75 } } };
     return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
@@ -2868,11 +2822,11 @@ function mobLook(m) {
   if (model === "orc") {
     const archer = key === "orc_stonechucker" || key === "frost_stonechucker", lord = key === "orc_warlord", frost = key.startsWith("frost_");
     const skin = lord ? 0x5a6a4a : frost ? 0x7a8a8a : 0x6f7f4f;
-    return { kind: "human", look: { skin, noFace: true, eyesGlow: lord ? 0xff5030 : 0xffb040, tusks: true, barefoot: false, boots: 0x2a1e14, top: archer ? { type: "vest", color: 0x4a3a2a, region: "leather", under: skin } : { type: "mail", color: lord ? 0x3a3038 : 0x5a5048, region: "chain" }, pauldrons: lord ? 0x6a4a3a : archer ? null : 0x4a4038, head: lord ? { type: "horned", color: 0x3a3030, color2: 0xe8dcc0 } : archer ? { type: "bandana", color: 0x6a2a2a } : { type: "cap", color: 0x4a4038 }, cape: lord ? 0x6a1a1a : null, legs: 0x3a3028, belt: 0x2a1e14, hair: { style: "bald", color: 0x222 }, weapon: archer ? "archery" : lord ? "greataxe" : "club", weaponId: archer ? "shortbow" : lord ? "steel_greataxe" : null, prop: { leg: 0.86, torso: 0.6, headR: 0.15, arm: 0.66, shoulder: lord ? 0.26 : 0.23, hip: 0.12, neck: 0.04, girth: lord ? 1.4 : 1.25, waist: 1.2 } } };
+    return { kind: "human", look: { skin, noFace: true, eyesGlow: lord ? 0xff5030 : 0xffb040, tusks: true, barefoot: false, boots: 0x2a1e14, top: archer ? { type: "vest", color: 0x4a3a2a, region: "leather", under: skin } : { type: "mail", color: lord ? 0x3a3038 : 0x5a5048, region: "chain" }, pauldrons: lord ? 0x6a4a3a : archer ? null : 0x4a4038, head: lord ? { type: "horned", color: 0x3a3030, color2: 0xe8dcc0 } : archer ? { type: "bandana", color: 0x6a2a2a } : { type: "cap", color: 0x4a4038 }, cape: lord ? 0x6a1a1a : null, legs: 0x3a3028, belt: 0x2a1e14, hair: { style: "bald", color: 0x222 }, weapon: archer ? "archery" : lord ? "greataxe" : "club", weaponId: archer ? "shortbow" : lord ? "great_axe" : null, prop: { leg: 0.86, torso: 0.6, headR: 0.15, arm: 0.66, shoulder: lord ? 0.26 : 0.23, hip: 0.12, neck: 0.04, girth: lord ? 1.4 : 1.25, waist: 1.2 } } };
   }
   if (model === "fishfolk") {
     const chief = key === "fishfolk_chief";
-    return { kind: "human", look: { skin: chief ? 0x3a7a8a : 0x4a8a7a, skinRegion: "scale", noFace: true, eyesGlow: 0xffe082, ears: "fin", finColor: chief ? 0x8ad0e0 : 0x7ac0b0, barefoot: true, top: { type: "vest", color: 0x2a4a5a, region: "leather", under: 0x4a8a7a }, legs: 0x2a4a4a, belt: 0x6a5a3a, hair: { style: "bald", color: 0x222 }, head: chief ? { type: "horned", color: 0x2a5a6a, color2: 0xd8e8f0 } : null, cape: chief ? 0x1a4a5a : null, weapon: chief ? "staff" : "dagger", weaponId: chief ? "coral_staff" : "bronze_dagger", prop: { leg: 0.8, torso: 0.5, headR: 0.15, arm: 0.6, shoulder: 0.19, hip: 0.1, neck: 0.06, girth: 1.0 } } };
+    return { kind: "human", look: { skin: chief ? 0x3a7a8a : 0x4a8a7a, skinRegion: "scale", noFace: true, eyesGlow: 0xffe082, ears: "fin", finColor: chief ? 0x8ad0e0 : 0x7ac0b0, barefoot: true, top: { type: "vest", color: 0x2a4a5a, region: "leather", under: 0x4a8a7a }, legs: 0x2a4a4a, belt: 0x6a5a3a, hair: { style: "bald", color: 0x222 }, head: chief ? { type: "horned", color: 0x2a5a6a, color2: 0xd8e8f0 } : null, cape: chief ? 0x1a4a5a : null, weapon: chief ? "staff" : "dagger", weaponId: chief ? "flexible_pole" : "bronze_dagger", prop: { leg: 0.8, torso: 0.5, headR: 0.15, arm: 0.6, shoulder: 0.19, hip: 0.1, neck: 0.06, girth: 1.0 } } };
   }
   if (model === "birdfolk") {
     const priest = key === "birdfolk_priest" || key === "crag_oracle", oracle = key === "crag_oracle";

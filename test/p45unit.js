@@ -19,5 +19,5 @@ ok(G.save.exped.step === 3, 'standing at Titan\'s Ribs ticks off the third leg')
 G.enterZone('outpost'); run(0.3);
 const g0 = G.save.gil;
 G.talkTo(npc('maera')); opt(/Report: Across the Wilds/).fn();
-ok(!G.save.exped && G.save.expDone.wilds && G.save.gil === g0 + 2000 && G.invCount('trailblazer_boots') === 1, 'reporting back pays out and gives the Trailblazer Boots');
+ok(!G.save.exped && G.save.expDone.wilds && G.save.gil === g0 + 2000 && G.invCount('holly_clogs') === 1, 'reporting back pays out and gives the Trailblazer Boots');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

@@ -26,12 +26,12 @@ const hp0 = m.hp; G.toggleEngage(); for (let i = 0; i < 300 && m.hp === hp0; i++
 ok(m.hp < hp0 && !P().buffs.sneak_attack && H.alllog.some(l => /critical/.test(l)), 'Sneak Attack makes the next hit a critical');
 G.save.jobs.THF.lv = 10; G.refreshPlayer(true);
 ok(G.actionList(P()).some(a => a.id === 'flee'), 'Thieves learn Flee at 10');
-G.save.jobsUnlocked.MNK = true; G.save.jobs.MNK.lv = 10; G.setJob('MNK', null); G.giveItem('leather_cesti', 1, true); G.equip('leather_cesti');
+G.save.jobsUnlocked.MNK = true; G.save.jobs.MNK.lv = 10; G.setJob('MNK', null); G.giveItem('cesti', 1, true); G.equip('cesti');
 ok(P().stats.wtype === 'h2h' && P().delay <= 2.1 && P().stats.dmg >= 11, 'Martial Arts speeds up and strengthens Monk fists (' + P().delay + 's, ' + P().stats.dmg + ')');
 P().hp = 20; G.playerAct({ kind: 'ja', id: 'chakra' });
 ok(P().hp > 100, 'Chakra restores a big chunk of HP');
 G.save.gil = 9000; G.enterZone('outpost'); run(0.2);
 G.hireMerc('wren'); G.hireMerc('tamsin');
 ok(G.save.hired.includes('wren') === !!G.save.jobsUnlocked.THF && G.save.hired.includes('tamsin'), 'Wren and Tamsin join once their jobs are unlocked');
-ok(G.ITEMS.steel_claws && G.ITEMS.steel_dagger && G.ITEMS.training_gi, 'Thief and Monk gear exists');
+ok(G.ITEMS.brass_knuckles && G.ITEMS.dagger && G.ITEMS.kenpogi, 'Thief and Monk gear exists');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

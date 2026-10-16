@@ -560,7 +560,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 ## Phase 9: level 15 and the Ashen Marsh (v5.0.0)
 - CONFIG.levelCap 15; xpTable extended (4450, 5400, 6450, 7600, 8850). Stats grow linearly, so nothing else needed changing.
 - Spells: cure3 (WHM 13), banish2 (WHM 15), stone2/water2/aero2/fire2/blizzard2 (BLM 11–15, stone2 RDM 15); cure2 now also PLD 11, RDM 14.
-- Items: steel_sword, steel_greataxe, oak_staff, oak_club, chain_mail, wizards_robe, iron_helm, wool_hat (in SHOP); marsh_boots (quest), NM drops croaker_charm, gax_cleaver, mire_mantle; mats toad_oil, mire_reed. ITEM_LOOK entries added in rig.js.
+- Items (replaced by FFXI gear in 18.0.0; see "Equipment (v18.0.0)"): mats toad_oil, mire_reed. ITEM_LOOK entries for old ids were removed; autoLook covers new ids.
 - Families: bog_toad (sound), bog_leech (magic + lowhp, worm model with `tint`), mire_goblin (sight 175, linkGroup "mire"), drowned (ghoul model, sound + lowhp, night spawns), marsh_hare (critter, hare model with `tint`). NMs old_croaker (base bog_toad, day, lv 15) and mirelord_gax (base mire_goblin, lv 16). mobLook reads `f.tint` for worm/hare; goblinLook variants "mire" (hooded) and "gax" (horned, mail, cape, greataxe).
 - Toad model: rig.js `toadEntry(col)` uses the hare's bone names (body/head/ear*/legF*/legB*) and meta.kind "hare", so it reuses the hare hop animation. Eyes sit on the ear bones.
 - Zone `ZONES.marsh` (2800×2400, theme field, `palette: "marsh"`, `mist: true`), defined after the den exit push. Linked from Rocky Hollow's south edge (exit at x 1550) to the marsh's north edge (x 1350); Hollow got a path down to the exit. 6 landmarks, 30 spawns, 7 ponds, ruins (Drowned Chapel), 3 walls, gather points (mining 2, logging 3, harvesting 4).
@@ -576,7 +576,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Abilities: THF steal (lv 1, 90 s; chance 45 + 2·(DEX−AGI) + 3·lv diff, 10–85%; one try per mob via `t.stolen`; non-equip, non-key loot), sneak_attack (5; buff consumed by next swing: auto-hit, crit, +0.8·DEX), flee (10; ×1.8 run speed in updatePlayer). MNK boost (1; next hit ×1.5 and +100 TP), focus (5; +25 acc in `stat()`, +10% crit), chakra (10; heal VIT·3 + lv·8). Buff names/icons added.
 - Passives: THF main +5% crit; Treasure Hunter (`dropLoot` chance ×1.2 when player.job is THF). MNK with h2h: Martial Arts in buildStats (dmg + 2 + 0.5·lv, delay ×0.8, min 1.6) and a 14% follow-up kick (re-entrant `swing` guarded by `a.kicking`).
 - Unlock quests (generic, via Tobin; `adv.push(...questOptions("tobin", n))` at lv 6+): thf "Light Fingers" (3 goblin_pouch, 1 bat_wing → bronze_dagger + unlock), mnk "The Open Hand" (2 bone_chip, 3 healing_herb → leather_cesti + unlock). `giveReward` already handles `unlock`.
-- Gear: bronze/iron/steel_dagger (lv 1/6/11, delay 1.9), leather_cesti/iron_knuckles/steel_claws (h2h, 2.6), brigand_vest (THF/RDM 5), training_gi (MNK 5). All in SHOP. JOB_TINT and ITEM_LOOK entries for the new jobs and bodies.
+- Gear for the new jobs is now FFXI gear (see "Equipment (v18.0.0)"). JOB_TINT and ITEM_LOOK entries for the new jobs and bodies still apply.
 - Companions: wren (THF dd, 240) and tamsin (MNK dd, 260), `requires: { job }`. mercGear tiers for THF/MNK; MERC_BASE looks; MERC_PERSONAL lines. meleeAI now uses chakra (<50% HP), steal (once per mob in combat), focus/boost/sneak_attack when in reach.
 - anim.js: fists (h2h or a player/ally with no weapon) take a boxing guard while engaged; attackKind "punch" already existed.
 - Tests: test/p9unit.js. p1bot sets up THF/MNK (15 min: THF lv 5, MNK lv 7 with full party; MA damage trimmed to 2 + 0.5·lv after that run). p5shots scene monk.
@@ -626,7 +626,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - JOBS RNG, SMN (advanced; ADVANCED_JOBS quests rng/smn at lv 6 through Tobin's generic questOptions). ALL_JOBS includes both. Skills: COMBAT archery, MAGIC summoning; ratings RNG archery A, SMN summoning A; WAR archery D, THF archery C.
 - Ranged: `reach(e)` = CONFIG.bowRange 230 for wtype archery, else meleeRange; used by autoAttack, player chase, meleeAI approach, ally WS and WS checks. Mobs are unchanged (they still need melee range). swing(): archery fires vfx("arrow") (particle streak in effects3d) and consumes the `barrage` buff to loose 3 swings (guarded by a.volley). `sharpshot` adds +40 acc in stat(). `shadowbind` sets mob buffs.bind (12 s); updateMob skips moveToward while bound. WS piercing_arrow / flaming_volley / gale_arrow (archery 5/22/40). Bow weapon model kind "archery" (curved limbs, grip, string; steel/yew tints).
 - Summoner: spells ember_sprite / frost_sprite / gale_sprite (kind "summon", target "self"; resolveTarget returns the player). `summonPet` builds an ally `{ pet: true, petKey, job "MNK" stats, role "pet" }` in S.pet and S.party (meleeAI fights). `PETS[key] { name, el, col, eye, pact, weak }`. `tickPet` drains 1 + lv/6 MP every 3 s and releases on 0 MP, death, job change or not SMN; mounting or starting a race releases it. rebuildParty keeps S.pet; syncAllies rebuilds pet stats at your level. Abilities release, blood_pact (24 + 7·lv + 1.2·INT + 0.8·summoning skill, x element weakness, dealt by the pet), siphon (MP 20 + 3·lv). Pet model = batEntry(col, eye) via rigSigFor "pet|key"; party frame tag "Sprite".
-- Gear: shortbow, yew_bow, steel_longbow, hunters_coat, sprite_staff, evoker_robe (SHOP). Companion corin (RNG dd) with mercGear tiers and MERC_PERSONAL. Achievements summoner, sniper (stats.summons, stats.rngKills).
+- Gear is FFXI gear since 18.0.0. Companion corin (RNG dd) gets gear from autoGear with a bow in Range and arrows in Ammo, plus MERC_PERSONAL. Achievements summoner, sniper (stats.summons, stats.rngKills).
 - Tests: test/p15unit.js; p5shots scenes ranger, summoner.
 
 ## Phase 17: battlefield and HUD moves (v5.8.0)
@@ -653,12 +653,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Data: GUILD_RANKS [name, totalPoints, color] Copper 0 / Bronze 100 / Iron 300 / Silver 700 / Gold 1500 / Mythril 3000. GUILD_BOUNTIES {id, fam, n, where, lv, gp, tier, nm?} tiers 0-4 across all zones; NM hunts n 1. GUILD_SHOP {id, gp, rank}. GUILD_DAILY 3, GUILD_ACTIVE 3.
 - Save `guild { gp, total, active: {id: kills}, day, done: [] }`; normalizeSave fills it for old saves. stats.bounties.
 - game.js: guildRank(total), guildDay() (resets done on a new UTC day, shared boardDay), guildToday() (seeded by created + day + rank; first pick from tiers >= rank-1, rest from all tiers <= rank), bountyReward (gil = gp*8, xp = gp*(lv+2)*2), takeBounty/dropBounty/turnInBounty/guildBuy, bountyKill(e) called in the kill handler after dropLoot (matches famKey, works for NM keys). Rank-up -> uiEvent "guildrank" banner. Guild gear is ex (one owned).
-- Items guild_ring (Bronze), pathfinder_boots (Iron), silver_insignia (Silver), guild_greatcoat (Gold), mythril_crest (Mythril). Achievements bounty, silver, mythril.
+- Guild rewards are FFXI pieces since 18.0.0 (desperado_ring, leaping_boots, armored_ring, healing_harness, variable_ring in GUILD_SHOP). Achievements bounty, silver, mythril.
 - Tests: test/p18unit.js; p6unit townsfolk bed count now >= 7. p5shots scenes maera, guild.
 
 ## Phase 20: Dark Knight and Bard (v6.1.0)
 - Jobs DRK, BRD (ADVANCED_JOBS lv 10; quests drk "The Shadowed Path" (2 crypt_dust, 3 bone_chip → bronze_scythe) and brd "A Traveler's Song" (3 mire_reed, 2 bat_wing → minstrel_coat), both from Tobin). jobsUnlocked gains DRK/BRD.
-- New weapon type `scythe` (COMBAT_SKILLS, SKILL_NAMES): WS slice 5, nightreap 22, spiral_reap 40, grim_harvest 75. Items bronze/iron/steel_scythe (Pell SHOP), rime_scythe (Vela). Rig weapon kind "scythe" (pole + curved extruded blade), held/stowed like the greataxe and uses the cleave animation.
+- New weapon type `scythe` (COMBAT_SKILLS, SKILL_NAMES): WS slice 5, nightreap 22, spiral_reap 40, grim_harvest 75. Items are FFXI Zaghnals and Scythes since 18.0.0. Rig weapon kind "scythe" (pole + curved extruded blade), held/stowed like the greataxe and uses the cleave animation.
 - New magic skills `dark` and `singing`. Spells may carry `skill` which spellSkill() returns first.
 - DRK: abilities last_resort (att ×1.25, def ×0.85), soulfire (each swing burns 6% current HP, adds 1.6× that to damage), blood_blade (heals 40% of melee damage). Spells blight (kind dot, buff "blight": ticks like dia with its element; att ×0.9 on the target), drain (kind drain), mind_drain (kind aspir; 60% amount to MP), stun (debuff "stun", 4 s, cancels readying and halves TP). castDia generalized by sp.element / sp.buff. castDrain handles drain/aspir.
 - BRD: songs are spells with kind "song", `song` key (minuet, paeon, ballad, madrigal, march), `pow`, dur 120. castSong → applySong for party within 300 px; each member keeps at most 2 song buffs (oldest by expiry dropped). pow scales ×(1 + singing/400). stat(): minuet att ×(1+pow), madrigal acc +pow; swingDelay ×(1−march.pow); tickBuffs: paeon HP and ballad MP every 3 s (pow×(1+lv/5), MP half). Encore (BRD 15) cuts song cast time to 34%. drowsy_lullaby: debuff "sleep" 30 s, bosses immune; sleeping/stunned mobs skip their combat step; any damage > 0 clears sleep (applyDamage).
@@ -1088,7 +1088,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 
 ## Phase 75: Ironvale, second city (v12.0.0)
 - data.js: `ZONES.ironvale` (1400×1100, safe town, palette snow) defined before ZONE_SCALE; Frostspire gets an east exit (original coords x 2976, y 1080) — scaled with the zone; tx/ty auto from exitInner. NPCs (file tail): brisa (talkBrisa → questOptions), haldor (talkHaldor → shop "haldor"), orla (talkAuction), crystal_ironvale (home point allowed, safe), guard_ironvale, shared trade_board. WEATHER.ironvale.
-- Mythril tier generated from every `steel_*` main weapon (×1.45 dmg, lv 19, price ×4.5, +3 acc +2 str), plus mythril_mail/mythril_helm/ironvale_robe scaled from chain mail/iron helm/wizard's robe, ironvale_ring (quest reward). `SHOPS.haldor`.
+- Haldor's mythril tier was removed in 18.0.0. `SHOPS.haldor` now lists every +1 item of level 14 or higher plus iron_ingot, potions and ether.
 - Quests smokeline (kill 6 frost_stonechucker, lv 18) and orerun (4 iron ore + 3 frost shards, lv 17). Achievement `ironvale`.
 - rig: NPC_LOOK brisa/haldor/orla; MAT_TINT mythril/ironvale. world3d: BACKDROP and ATMOS entries for ironvale.
 - Tests: p35unit.
@@ -1488,6 +1488,7 @@ World systems:
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
 | 17.3.0 | Area spells, Spikes, En-spells, Shock/Rasp/Choke, Requiem, Threnodies, Mambo, Pastoral, Operetta. See "Area spells and songs (v17.3.0)". |
+| 18.0.0 | FFXI equipment: 788 pieces at level 20 and below replace every old item. See "Equipment (v18.0.0)". |
 | 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
 | 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | FFXI spells and potions: SPELLS/ITEMS potion family rebuilt from FFXI data; rule version 17 wipes older saves. See "FFXI rules (v17.0.0)". |
@@ -1690,6 +1691,39 @@ World systems:
 - Mambo (`mambo`, evasion), Pastoral and Operetta (`pastoral`, `operetta`: resist Poison and Silence via `SONG_RES`, chance min(0.75, pow/50): my approximation) join `SONG_KEYS` (two-song limit). Foe Requiem I/II are `dot` spells with buff `requiem`.
 - Mercenary fixes: `healEstimate` now uses `cureAmount` for table cures; `healerAI` casts Curaga when two or more allies within 300 are hurt; `bardAI` uses `foe_lullaby` and the current song keys.
 - Tests: test/p57unit.js.
+
+## Equipment (v18.0.0)
+Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONFIG.ruleVer 18).
+
+### Data and files
+- `src/gear.js` (loaded first in every build) defines `GEAR_DATA`, one line per item, generated. data.js copies it into `ITEMS` just before `const SHOP` (`jobs: "ALL"` becomes `ALL_J`). Do not edit by hand.
+- `tools/items-import/gear18_filter.py` picks the pieces from the Windower table (`gear.json` from `parse.py`): level 1 to 20, minus costumes, event outfits, crafting-guild gear, fishing gear, tokens and novelty items; the Warp Ring is kept. At level 1 only real starters stay (weapon DMG above 2, armor DEF 2 or more or a real stat, or a nation, race, Bronze, Brass, Ash, Copper name; instruments always).
+- `gear18.py <gear.json> src/gear.js` writes `GEAR_DATA`. It also writes `gear18-index.json` (id, slot, level, wtype, src, name, jobs). `gear18-flags.json` carries `rare`, `nm`, `ex` and `rarity` from the old reward items onto their replacements. `gear18_map.js` and `gear18_apply.js` did the one-time old to new id swap.
+- Ids: lower-case name without apostrophes, `_` between words; `+1` becomes `_hq`, `+2` `_hq2`. Duplicates get `_2`. Ids starting with a digit are quoted.
+
+### Mapping rules
+- Slots from the FFXI bitmask: main, sub, ranged, ammo, head, body, hands, legs, feet, neck, waist, ear (two), ring (two), back. Jobs from bits 1 to 22 (all 22 jobs set means `ALL_J`). Race restrictions are ignored.
+- Weapon skill ids: 1 h2h, 2 dagger, 3 sword, 4 gsword, 5 axe, 6 greataxe, 7 scythe, 8 polearm, 9 katana, 10 gkatana, 11 club, 12 staff, 25 and 26 archery (bows, crossbows and guns all count as archery), 27 throwing, 41 and 42 instrument.
+- Melee `dmg` is the FFXI DMG; `delay` is FFXI delay / 96 seconds (h2h: DMG + 3, delay 2.6). Ranged `delay` is delay / 120. Ammo keeps `dmg`.
+- Stats: DEF def, HP hp, MP mp, STR DEX VIT AGI INT MND CHR, Attack att, Accuracy acc, Evasion eva. Ranged Accuracy and Ranged Attack become acc and att only on Range and Ammo items. Dropped: Haste, Enmity, HP%, MP%, skill bonuses, latent and special effects.
+- Prices: `40 + 80 * lv^1.6` times a slot factor (weapon 1, body 1, legs and rings about 0.8 to 0.9, head and hands and feet 0.7, ammo cheap), x1.4 for +1. Not balanced yet.
+- Exceptions: Tachi and Claymore are equip level 1 (job starter weapons). The Warp Ring has `enchant: "warp"`; Use in the bag casts Warp (5 s item delay).
+
+### Engine
+- `gearStats` (game.js): a bow in `ranged` sets wtype archery, dmg = bow dmg + ammo dmg, delay = bow delay; the main hand then only adds stats. Instruments and throwing items are stat sticks.
+- `gearDrop(m)` after `dropLoot`: 6% per kill for non-boss, non-NM monsters to drop one `src: "drop"` item whose level is within monster level -3 to +1, excluding ids that appear in boss or NM loot, quest rewards, battlefield or guild shop (`GEAR_RESERVED`, built on first use).
+- `autoGear(job, lv, role)` dresses companions: best Main by the job's weapon rating then level, best Head, Body, Hands, Legs, Feet at or below their level from `src: "shop"` non-HQ items usable by the job; Range plus Ammo for rangers; a shield for PLD and tanks. `STARTER_GEAR` and `newSave` use bronze_sword, bronze_cap, bronze_harness (WAR) and robe, ash_club or ash_staff (WHM, BLM).
+
+### Sources
+- `src: "shop"` (328 items): plain names (not +1, not a set or notable weapon). Level 10 and below go to Pell's `SHOP`, 11 to 20 to `SHOPS.vela`.
+- `src: "drop"` (460 items): +1 items, set pieces (Anu's, Enyo's, Nemain's, Njord's, Platoon, nation sets), notable weapons. HQ items of level 14+ are also sold by Haldor (63). Reward items keep their flags: boss and NM loot, quest rewards, guild shop, battlefield.
+- Old to new reward mapping is in design/gear-map.md.
+
+### Not done
+- Balance: monster HP and attack, XP, prices and damage tuning for the new gear.
+- Crafting recipes were only re-pointed (bronze cap, bronze sword, iron sword, ash club, ash staff, holly staff, scale mail, linen robe, leather gloves, robe, ash clogs).
+- Windower short names stay abbreviated (Brz., Lgn., Ryl.Ftm.).
+- Tests: p7, p10, p22, p31 and p35 changed for the new items (levels, drops, Haldor); other tests only had ids swapped. Run test/p57unit.js style files with `node build.mjs 1` first.
 
 ## Publishing note
 - GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.

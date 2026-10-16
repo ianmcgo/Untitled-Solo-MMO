@@ -89,7 +89,7 @@ function newSave() {
     spells: Object.keys(SPELLS).filter(id => Object.values(SPELLS[id].jobs).includes(1)),
     v: 2, rv: CONFIG.ruleVer, name: "Adventurer", mainJob: "WAR", subJob: null, supportUnlocked: false,
     jobs, skills,
-    gear: { main: "bronze_sword", head: "bronze_cap", body: "leather_vest" },
+    gear: { main: "bronze_sword", head: "bronze_cap", body: "bronze_harness" },
     inventory: [{ id: "potion", qty: 3 }],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
@@ -257,8 +257,8 @@ function createChar(opts) {
   d.look = Object.assign(newSave().look, opts.look || {});
   if (!RACES[d.look.race]) d.look.race = "human";
   if (RACES[d.look.race].sex != null) d.look.build = RACES[d.look.race].sex;
-  if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "linen_robe" };
-  else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "linen_robe" };
+  if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "robe" };
+  else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "robe" };
   d.inventory = [{ id: "potion", qty: 3 }];
   if (PLAY.offline) d.offline = true;
   const id = PLAY.offline ? "o" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36) : typeof NET !== "undefined" && NET.member && typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
@@ -415,6 +415,11 @@ function buildStats(ch) {
     if (it.stats) for (const k in it.stats) g[k] = (g[k] || 0) + it.stats[k];
     if (augs && augs[id]) for (const [k, v] of augs[id]) g[k] = (g[k] || 0) + v;
   }
+  const rwp = ch.gear.ranged && ITEMS[ch.gear.ranged];
+  if (rwp && rwp.wtype === "archery") {
+    const amm = ch.gear.ammo && ITEMS[ch.gear.ammo];
+    dmg = rwp.dmg + (amm && amm.dmg ? amm.dmg : 0); delay = rwp.delay; wtype = "archery";
+  }
   const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
   if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
   for (const k of ATTRS) s[k] = Math.round(s[k] + g[k]);
@@ -456,30 +461,39 @@ function makeChar(o) {
   }, o);
 }
 
+const RATE_ORDER = { A: 5, B: 4, C: 3, D: 2, E: 1 };
+const AUTO_GEAR_CACHE = {};
+function autoGear(job, lv, role) {
+  const key = job + ":" + lv + ":" + (role || "");
+  if (AUTO_GEAR_CACHE[key]) return AUTO_GEAR_CACHE[key];
+  const rate = SKILL_RATINGS[job] || {};
+  const pool = Object.keys(GEAR_DATA).filter(id => { const g = GEAR_DATA[id]; return g.src === "shop" && !g.hq && g.lv <= lv && (g.jobs === "ALL" || g.jobs.includes(job)); });
+  const better = (a, b) => !b || GEAR_DATA[a].lv > GEAR_DATA[b].lv || (GEAR_DATA[a].lv === GEAR_DATA[b].lv && GEAR_DATA[a].price > GEAR_DATA[b].price);
+  const best = slot => { let b = null; for (const id of pool) if (GEAR_DATA[id].slot === slot && better(id, b)) b = id; return b; };
+  const out = {};
+  let w = null, wr = -1;
+  for (const id of pool) {
+    const g = GEAR_DATA[id];
+    if (g.slot !== "main" || !g.wtype || g.wtype === "instrument") continue;
+    const r = RATE_ORDER[rate[g.wtype]] || 0;
+    if (r > wr || (r === wr && better(id, w))) { w = id; wr = r; }
+  }
+  if (w) out.main = w;
+  if (job === "RNG" || (rate.archery && RATE_ORDER[rate.archery] >= 4)) {
+    let b = null;
+    for (const id of pool) if (GEAR_DATA[id].slot === "ranged" && GEAR_DATA[id].wtype === "archery" && better(id, b)) b = id;
+    if (b) out.ranged = b;
+    let a = null;
+    for (const id of pool) if (GEAR_DATA[id].slot === "ammo" && GEAR_DATA[id].dmg && better(id, a)) a = id;
+    if (a && b) out.ammo = a;
+  }
+  for (const slot of ["head", "body", "hands", "legs", "feet"]) { const b = best(slot); if (b) out[slot] = b; }
+  if (job === "PLD" || role === "tank") { const b = best("sub"); if (b) out.sub = b; }
+  return AUTO_GEAR_CACHE[key] = out;
+}
+
 function mercGear(m, lv) {
-  const role = MERCS[m].role, job = MERCS[m].job;
-  if (job === "WAR" && role === "tank") return lv >= 5 ? { main: "bronze_greataxe", head: "bronze_cap", body: "scale_mail", legs: "leather_trousers" } : { main: "bronze_greataxe", head: "bronze_cap", body: "leather_vest", legs: "leather_trousers" };
-  if (job === "WAR") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", hands: "leather_gloves" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", hands: "leather_gloves" };
-  if (job === "WHM") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: lv >= 3 ? "leather_boots" : undefined } : { main: "ash_club", body: "linen_robe" };
-  if (job === "PLD") return lv >= 6 ? { main: "iron_sword", head: "bronze_cap", body: "scale_mail", sub: "kite_shield", legs: "leather_trousers" } : { main: "bronze_sword", head: "bronze_cap", body: "leather_vest", ring: "kite_shield" };
-  if (job === "THF") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
-  if (job === "RNG") return lv >= 11 ? { main: "steel_longbow", body: "hunters_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "yew_bow", body: "hunters_coat", feet: "leather_boots" } : { main: "shortbow", body: "leather_vest" };
-  if (job === "DRK") return lv >= 11 ? { main: "steel_scythe", body: "shadow_plate", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_scythe", body: "shadow_plate", head: "bronze_cap" } : { main: "bronze_scythe", body: "leather_vest", head: "bronze_cap" };
-  if (job === "BRD") return lv >= 14 ? { main: "steel_dagger", body: "troubadour_coat", feet: "leather_boots", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_dagger", body: "minstrel_coat", feet: "leather_boots" } : { main: "bronze_dagger", body: "linen_robe" };
-  if (job === "SAM") return lv >= 11 ? { main: "steel_tachi", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_tachi", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_tachi", body: "leather_vest", head: "bronze_cap" };
-  if (job === "NIN") return lv >= 11 ? { main: "steel_katana", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_katana", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_katana", body: "leather_vest" };
-  if (job === "DRG") return lv >= 11 ? { main: "steel_halberd", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_lance", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_spear", body: "leather_vest", head: "bronze_cap" };
-  if (job === "GEO") return lv >= 5 ? { main: "maple_wand", body: "cotton_robe", feet: "leather_boots" } : { main: "ash_club", body: "linen_robe" };
-  if (job === "RUN") return lv >= 11 ? { main: "steel_greatsword", body: "chain_mail", head: "iron_helm", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_greatsword", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_greatsword", body: "leather_vest", head: "bronze_cap" };
-  if (job === "PUP") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
-  if (job === "DNC") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
-  if (job === "SCH") return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
-  if (job === "BST") return lv >= 11 ? { main: "steel_axe", body: "scale_mail", head: "iron_helm", hands: "leather_gloves" } : lv >= 6 ? { main: "iron_axe", body: "scale_mail", head: "bronze_cap" } : { main: "bronze_axe", body: "leather_vest", head: "bronze_cap" };
-  if (job === "BLU") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
-  if (job === "COR") return lv >= 11 ? { main: "steel_dagger", body: "brigand_vest", hands: "leather_gloves", feet: "leather_boots" } : lv >= 6 ? { main: "iron_dagger", body: "brigand_vest", feet: "leather_boots" } : { main: "bronze_dagger", body: "leather_vest" };
-  if (job === "MNK") return lv >= 11 ? { main: "steel_claws", body: "training_gi", legs: "leather_trousers" } : lv >= 6 ? { main: "iron_knuckles", body: "training_gi" } : { main: "leather_cesti", body: "leather_vest" };
-  if (job === "RDM") return lv >= 6 ? { main: "iron_sword", body: "scarlet_tabard", hands: "leather_gloves", feet: "leather_boots" } : { main: "bronze_sword", body: "linen_robe", feet: "leather_boots" };
-  return lv >= 6 ? { main: "holly_staff", body: "cotton_robe" } : { main: "ash_staff", body: "linen_robe" };
+  return autoGear(MERCS[m].job, lv, MERCS[m].role);
 }
 
 function mercCanWear(id, itemId) {
@@ -1317,6 +1331,23 @@ function giveKeyItem(id) {
   return true;
 }
 
+let GEAR_RESERVED = null;
+function gearDrop(m, mates) {
+  if (m.fam.boss || m.fam.nm || Math.random() >= 0.06) return;
+  if (!GEAR_RESERVED) {
+    GEAR_RESERVED = new Set();
+    const scan = o => { if (typeof o === "string") GEAR_RESERVED.add(o); else if (Array.isArray(o)) o.forEach(scan); else if (o && typeof o === "object") for (const k in o) scan(o[k]); };
+    for (const f of [FAMILIES, typeof NM_FAMILIES !== "undefined" ? NM_FAMILIES : {}]) for (const k in f) scan(f[k].loot);
+    for (const k in QUESTS) scan(QUESTS[k].reward);
+    scan(BATTLEFIELD.rewards); scan(GUILD_SHOP);
+  }
+  const c = GEAR_DROP_IDS.filter(id => !GEAR_RESERVED.has(id) && ITEMS[id].lv >= m.lv - 3 && ITEMS[id].lv <= m.lv + 1);
+  if (!c.length) return;
+  const id = c[Math.floor(Math.random() * c.length)];
+  if (S.party.length > 1 || (mates && mates.length)) { const pe = addToPool(id); if (mates && mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); return; }
+  giveItem(id, 1);
+}
+
 function dropLoot(m, mates) {
   mates = mates || [];
   for (const [id, chance, minLv] of m.fam.loot || []) {
@@ -1328,6 +1359,7 @@ function dropLoot(m, mates) {
     if (ITEMS[id].kind === "equip" && (S.party.length > 1 || mates.length)) { const pe = addToPool(id); if (mates.length && typeof netPoolOut === "function") netPoolOut(pe, mates); continue; }
     giveItem(id, 1);
   }
+  gearDrop(m, mates);
   if (Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
     const pool = Object.values(SPELLS).filter(sp => ITEMS["scroll_" + sp.id] && sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
     if (pool.length) giveItem("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, 1);
@@ -2713,6 +2745,7 @@ function useItem(id) {
   if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
+  if (it.enchant === "warp") { S.itemReadyAt = S.time + 5; castWarp(player); return; }
   if (it.kind === "food") { eatFood(id); return; }
   if (it.spell) { learnSpell(id); return; }
   if (it.kind === "pet") { if (learnBuddy(it.pet)) removeItem(id, 1); return; }

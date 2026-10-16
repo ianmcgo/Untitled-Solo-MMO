@@ -10,7 +10,7 @@ run(0.2);
 ok(['ilsa', 'marn', 'vela', 'crystal_harbor', 'trade_board'].every(id => npc(id)), 'the harbor has Ilsa, Marn, Vela, a home point crystal and a trade board');
 G.talkTo(npc('crystal_harbor')); opt(/home point/i).fn();
 ok(G.save.home.zone === 'harbor', 'you can set your home point in the harbor');
-ok(G.shopList('marn').includes('sea_rod') && G.shopList('vela').includes('coral_staff'), 'Marn and Vela have their own stock');
+ok(G.shopList('marn').includes('sea_rod') && G.shopList('vela').includes('flexible_pole'), 'Marn and Vela have their own stock');
 G.save.jobs.WAR.lv = 6; G.refreshPlayer(true); G.talkTo(npc('ilsa'));
 ok(!!opt(/Catch of the Day/), 'Ilsa offers Catch of the Day');
 opt(/Catch of the Day/).fn(); opt(/^Accept$/).fn();

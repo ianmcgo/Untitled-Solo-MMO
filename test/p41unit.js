@@ -13,5 +13,5 @@ ok(P().x < 1550, 'the boat takes a moment to cross');
 run(3);
 ok(P().x > 1670 && G.save.gil === g0 && G.save.stats.boatRides === 1, 'the boat lands you past the rock wall for free');
 ok(G.FISH.underdeep && G.ITEMS.glowfin && G.ITEMS.blind_eel, 'the river has its own fish');
-ok(G.NM_FAMILIES.lumicap_matron && G.ITEMS.lumen_earring, 'the Lumicap Matron glows in the grotto');
+ok(G.NM_FAMILIES.lumicap_matron && G.ITEMS.mecurial_earring, 'the Lumicap Matron glows in the grotto');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

@@ -46,7 +46,7 @@ her.hp = 1; her.enmity.set(P(), 9); G.applyDamage(P(), her, 99, {}); run(0.3);
 ok(G.save.story.ch === 7, 'defeating the Herald completes chapter seven');
 G.enterZone('outpost'); run(0.2);
 G.talkTo(npc('rhea')); clickThrough();
-ok(G.save.story.done && G.invCount('ember_ring') === 1 && G.save.ach.story, 'the story ends with the Ember of Ashenreach');
+ok(G.save.story.done && G.invCount('protean_ring') === 1 && G.save.ach.story, 'the story ends with the Ember of Ashenreach');
 const raw = JSON.parse(G.exportSaveText()); const body = raw.data || raw; delete body.story;
 const n = G.importSaveText(JSON.stringify(raw));
 ok(n && n.story && n.story.ch === 0 && !n.story.done, 'old saves start the story from the beginning');

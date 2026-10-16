@@ -1,0 +1,235 @@
+{
+"bounding_boots": {
+"rare": true
+},
+"green_scarf": {
+"rare": true,
+"nm": true
+},
+"moth_axe": {
+"rare": true,
+"nm": true
+},
+"anglers_tunica": {
+"rare": true,
+"nm": true
+},
+"eremites_ring": {
+"rare": true
+},
+"garrison_tunica": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"protean_ring": {
+"ex": true,
+"rarity": "epic"
+},
+"desperado_ring": {
+"ex": true
+},
+"leaping_boots": {
+"ex": true
+},
+"armored_ring": {
+"ex": true,
+"rarity": "rare"
+},
+"healing_harness": {
+"ex": true,
+"rarity": "rare"
+},
+"variable_ring": {
+"ex": true,
+"rarity": "epic"
+},
+"anus_tiara": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"bastokan_staff": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"kingdom_sword": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"anus_doublet": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"rogetsurin": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"platoon_cutter": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"fasting_ring": {
+"rare": true,
+"nm": true
+},
+"barons_saio": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"rabbit_mantle_hq": {
+"rare": true,
+"nm": true
+},
+"asbestos_mitts": {
+"rare": true,
+"nm": true
+},
+"hellfire_axe": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"poisona_ring": {
+"rare": true,
+"nm": true
+},
+"legionnaires_cap": {
+"ex": true,
+"rarity": "epic"
+},
+"multiple_ring": {
+"ex": true
+},
+"safeguard_ring": {
+"rare": true
+},
+"anglers_boots": {
+"rare": true
+},
+"zealots_mitts": {
+"rare": true
+},
+"destrier_beret": {
+"rarity": "uncommon"
+},
+"guerilla_gloves": {
+"rarity": "uncommon"
+},
+"anglers_hose": {
+"rarity": "uncommon"
+},
+"saintly_ring": {
+"rarity": "uncommon"
+},
+"bastokan_ring": {
+"rarity": "uncommon"
+},
+"anus_gaiters": {
+"rarity": "uncommon"
+},
+"lunar_cap": {
+"rarity": "rare"
+},
+"freeswords_slops": {
+"rare": true,
+"rarity": "rare"
+},
+"sol_cap": {
+"rare": true,
+"ex": true,
+"rarity": "epic"
+},
+"bee_spatha": {
+"rare": true,
+"ex": true,
+"rarity": "epic"
+},
+"armigers_lace": {
+"ex": true,
+"rarity": "epic"
+},
+"priests_robe": {
+"rare": true
+},
+"garrison_boots": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"breath_mantle": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"bone_ring": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"valor_earring": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"hope_earring": {
+"rare": true
+},
+"lucent_sword": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"variable_cape": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"mecurial_earring": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"enyos_leggings": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"plate_belt": {
+"rare": true
+},
+"travelers_mantle": {
+"rare": true
+},
+"amber_ring": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"dhalmel_mantle": {
+"rare": true,
+"nm": true,
+"rarity": "epic"
+},
+"shield_earring": {
+"rarity": "rare"
+},
+"bone_ring_hq": {
+"rare": true
+},
+"holly_clogs": {
+"rare": true
+},
+"amethyst_ring": {
+"rare": true
+},
+"cotton_cape": {
+"rare": true
+}
+}
