@@ -1925,3 +1925,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `mercTownSell` sells only `sale` entries and keeps kept ones (M1 bug fix); the half-full threshold counts all bag entries.
 - Bestiary: `noteBeast(m, false)` no longer creates entries, only a kill does; `normalizeSave` drops entries with zero kills.
 - Tests: test/m2unit.js (sync down/up, kept items, fee, plain gear, balance table at 1/10/20/40/60, bestiary). p7unit and p12unit updated (bestiary rule, meals on play time).
+
+## 18.29.0: companion sheet, pouch and shop (M3)
+- Clicking a companion row in the party box (hud4.js `buildParty`) sets `UI.mercSheet = id` and opens the Party tab; `tabParty` renders `mercSheet(id)` (menu4.js) while it is set. Actions: `msheet` (open/close), `mbuy` (`id:index`), `mgive`, `mtake`. `companionInfo` (wage prompt) is no longer reached from the row; M4 will replace it with the payment prompt.
+- Pouch: `<span class="pouch">👝` in each party row, shown by `updateParty` when `mercForSale(id) > 0`.
+- `mercSalePrice(itemId)` = round(`marketPrice` x 1.5), min 1. `buyFromMerc(id, idx)` checks crystals, rare ownership and bag room, moves one item.
+- `mercUpgrade(id, itemId)`: wearable and `gearScore` higher than the effective piece (`mercGearFor`). `giveMercGear` hands the item back with a log line if not an upgrade; otherwise equips it and puts the old effective piece in the companion's bag for sale (or into your bag if theirs is full).
+- Tests: test/m2unit.js (buying, pouch, give rules), p7unit.js updated.

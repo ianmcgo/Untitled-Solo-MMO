@@ -25,7 +25,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [typeof netPartySig === "function" ? netPartySig() : "", typeof NET_LS !== "undefined" ? NET_LS.at + ":" + !!NET_LS.invite + ":" + NET_RT.online.map(o => o && o.name + o.zone + o.lv + o.lfg).join() + save.friends.join() + save.blocked.join() + save.lfg : "", save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [typeof netPartySig === "function" ? netPartySig() : "", typeof NET_LS !== "undefined" ? NET_LS.at + ":" + !!NET_LS.invite + ":" + NET_RT.online.map(o => o && o.name + o.zone + o.lv + o.lfg).join() + save.friends.join() + save.blocked.join() + save.lfg : "", save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), UI.mercSheet, JSON.stringify(save.mercInv), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -914,7 +914,33 @@ function tabSocial() {
 
 function socAct(p, ok) { p.then(() => { UI.socMsg = ok || ""; renderModal(); }, e => { UI.socMsg = netAhErr(e); renderModal(); }); }
 
+function mercSheet(id) {
+  const m = MERCS[id], a = S.party.find(p => p.mercId === id);
+  if (!m) { UI.mercSheet = null; return ""; }
+  const gear = a ? a.gear : mercGearFor(id, player.lv), own = save.mercGear[id] || {}, bag = mercBag(id);
+  let h = '<div style="margin-bottom:8px"><button data-a="msheet" data-v="">← All companions</button></div>';
+  h += '<div class="item" style="display:block"><b style="color:' + m.color + '">' + esc(m.name) + '</b> <span class="sub">' + JOBS[m.job].name + " · " + m.role + " · Lv" + (a ? a.lv : player.lv) + (a ? " · HP " + a.hp + "/" + a.maxHp : "") + "</span></div>";
+  h += "<h3>Wearing</h3>" + '<div style="display:flex;flex-wrap:wrap;gap:4px">' + (SLOTS.filter(sl => gear[sl]).map(sl => '<span class="chip" style="font-size:11px">' + esc(sl) + ": " + (ITEMS[gear[sl]].icon || "") + " " + esc(ITEMS[gear[sl]].name) + (own[sl] ? ' <button data-a="mtake" data-v="' + id + ":" + sl + '" style="padding:0 5px" title="Take it back">↩</button>' : "") + "</span>").join("") || '<span class="sub">Nothing.</span>') + "</div>";
+  const sale = bag.map((x, i) => ({ x, i })).filter(e => e.x.sale);
+  h += "<h3>👝 For sale</h3>";
+  if (!sale.length) h += '<div class="sub">Nothing for sale. They sell what they carry when you reach a town with their bag at least half full.</div>';
+  for (const { x, i } of sale) {
+    const pr = mercSalePrice(x.id), it = ITEMS[x.id];
+    h += '<div class="item" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>' + (it.icon || "") + " " + esc(it.name) + (x.qty > 1 ? " ×" + x.qty : "") + '</span><button data-a="mbuy" data-v="' + id + ":" + i + '"' + (save.gil < pr ? " disabled" : "") + ">Buy · " + pr + " 💠</button></div>";
+  }
+  const kept = bag.filter(x => !x.sale);
+  h += "<h3>Kept (never sold)</h3>" + (kept.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px">' + kept.map(x => '<span class="chip" style="font-size:11px">' + (ITEMS[x.id].icon || "") + " " + esc(ITEMS[x.id].name) + " · Lv" + (ITEMS[x.id].lv || 1) + "</span>").join("") + "</div>" : '<div class="sub">Nothing. Gear they cannot wear at your level is kept here.</div>');
+  h += '<div class="sub" style="margin-top:6px">🎒 Bag ' + bag.length + "/" + CONFIG.inventorySize + " slots</div>";
+  const eq = save.inventory.filter(x => ITEMS[x.id].kind === "equip" && !mercCanWear(id, x.id));
+  h += "<h3>Give gear</h3>";
+  if (!eq.length) h += '<div class="sub">Nothing in your bag that ' + esc(m.name) + " can wear at your level.</div>";
+  else h += '<div class="sub" style="margin-bottom:4px">If it is better than what they wear, they put it on and sell the old piece. If not, they hand it back.</div><div style="display:flex;flex-wrap:wrap;gap:4px">' + eq.map(x => '<button data-a="mgive" data-v="' + id + ":" + x.id + '" style="font-size:11px;padding:2px 7px"' + (mercUpgrade(id, x.id) ? "" : ' title="Not better than what they wear"') + ">" + (ITEMS[x.id].icon || "") + " Wear this: " + esc(ITEMS[x.id].name) + (mercUpgrade(id, x.id) ? " ⬆" : "") + "</button>").join("") + "</div>";
+  return h;
+}
+
 function tabParty() {
+  if (UI.mercSheet && save.hired.includes(UI.mercSheet)) return mercSheet(UI.mercSheet);
+  UI.mercSheet = null;
   let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once a real day (tap a companion in the Party box to see the countdown or pay early). If you can\'t pay, they go back to the Mercenary Hall.</div>';
   h += '<div style="display:flex;gap:6px;margin-bottom:10px">' + [["assist", "⚔ Assist", "Fight your target"], ["follow", "🚶 Follow", "Stay close, don't attack"], ["hold", "✋ Hold", "Stand ground"]].map(([k, l, d]) => '<button data-a="stance" data-v="' + k + '" title="' + d + '"' + (save.stance === k ? ' class="pri"' : "") + ">" + l + "</button>").join("") + "</div>";
   if (!save.hired.length) return h + '<div class="item"><span class="sub">No companions yet. Brann at the Mercenary Hall in the Outpost hires them out.</span></div>';
@@ -926,7 +952,7 @@ function tabParty() {
     const pct = next ? Math.round(100 * (b - st[bl]) / (next - st[bl])) : 100;
     const paid = save.mercPaid[id] ? save.mercPaid[id] - Date.now() : 0;
     h += '<div class="item" style="display:block">';
-    h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b style="color:' + m.color + '">' + esc(m.name) + "</b> <span class=\"sub\">" + JOBS[m.job].name + " · " + m.role + (a ? " · HP " + a.hp + "/" + a.maxHp : "") + '</span></div><button data-a="dismiss" data-v="' + id + '">Dismiss</button></div>';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b style="color:' + m.color + '">' + esc(m.name) + "</b> <span class=\"sub\">" + JOBS[m.job].name + " · " + m.role + (a ? " · HP " + a.hp + "/" + a.maxHp : "") + '</span></div><span><button data-a="msheet" data-v="' + id + '">Sheet' + (mercForSale(id) ? " 👝" : "") + '</button> <button data-a="dismiss" data-v="' + id + '">Dismiss</button></span></div>';
     h += '<div class="sub" style="margin:4px 0">💞 Bond ' + bl + "/" + COMPANION_CFG.maxBond + " (+" + Math.round(bl * COMPANION_CFG.bondBonus * 100) + '% stats)</div><div class="bar" style="height:6px;margin-bottom:6px"><i style="width:' + pct + '%;background:#f48fb1"></i></div>';
     h += '<div class="sub">💠 Wage ' + mercWage(id) + " crystals per day · next in " + fmtDur(paid) + "</div>";
     h += '<div class="sub">🎒 Bag ' + (save.mercInv && save.mercInv[id] ? save.mercInv[id].length : 0) + "/" + CONFIG.inventorySize + " slots · " + mercBagCount(id) + " items kept to sell. They sell everything when you reach a town with their bag at least half full.</div>";
@@ -1550,6 +1576,8 @@ function onMenuClick(e) {
   else if (a === "bturn") { UI.guildMsg = turnInBounty(v); renderModal(); return; }
   else if (a === "gbuy") { UI.guildMsg = guildBuy(v); renderModal(); return; }
   else if (a === "trade") { UI.boardMsg = fillTrade(v); renderModal(); return; }
+  else if (a === "msheet") { UI.mercSheet = v || null; renderModal(); }
+  else if (a === "mbuy") { const [id, i] = v.split(":"); buyFromMerc(id, +i); }
   else if (a === "mgive") { const [id, it] = v.split(":"); giveMercGear(id, it); }
   else if (a === "mtake") { const [id, sl] = v.split(":"); takeMercGear(id, sl); }
   else if (a === "open") { openMenu(v); return; }
@@ -1640,6 +1668,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.29.0", date: "2026-10-16", title: "Companion sheet and shop", items: [
+    "<b>Companion sheet:</b> click a companion in the party box (bottom right) or press Sheet in the Party tab to see what they wear, what they have for sale, the gear they are keeping, and their bag.",
+    "<b>Pouch:</b> a 👝 appears by a companion's name in the party box whenever they have something for sale.",
+    "<b>Buying:</b> items a companion has for sale cost 1.5 times the auction house value. Press Buy on the sheet to pay and take one.",
+    "<b>Wear this:</b> give a companion a piece of gear from your bag. If it is better than what they wear they put it on and keep the old piece to sell. If it is not better they say so and you keep it.",
+    "Companions are now only offered gear they can wear at your level."
+  ] },
   { v: "18.28.0", date: "2026-10-16", title: "Companions sync to your level", items: [
     "<b>Hired at your level:</b> a companion's hiring fee now follows your current level, and they join at that level.",
     "<b>Level sync:</b> when you level up, level down or change jobs, companions sync to your new level. Gear they can no longer wear is put away in their bag as a kept item and goes back on when your level allows. Kept items are never sold.",
@@ -3266,7 +3301,9 @@ function tabHelp() {
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
     "<b>Hurt mercenaries:</b> when the fight is over and you stand still, a mercenary at 75% health or less sits and rests to full. In a fight, at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
-    "<b>Gear:</b> give companions equipment from your bag in the Party window. It must suit their job and your level. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
+    "<b>Companion sheet:</b> click a companion in the party box, or press Sheet in the Party window. It shows what they wear, what they have for sale (👝 shows by their name when there is something), what they are keeping, and their bag.",
+    "<b>Buying from companions:</b> their for-sale items cost 1.5 times the auction house value. Press Buy on the sheet.",
+    "<b>Gear:</b> give companions equipment from your bag with Wear this. It must suit their job and your level. If it is better than what they wear they put it on and keep the old piece to sell; if not, they say so and you keep it. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
     "<b>Wages:</b> the hiring fee covers the first real day (24 hours); after that each companion takes the same amount each day. Wages wait until a fight ends. Tap a companion in the Party box to see how long until their next wage and how much, pay early, or dismiss them."
   ]));

@@ -54,7 +54,7 @@ Requested 2026-10-16. Builds on the existing treasure pool (`addToPool`, `lotPoo
 |---|---|---|
 | M1 Pool, lots and bags (done 18.27.0) | Sonnet | All party drops go to the pool. Mercenaries lot on everything, and pass on gear they can't wear or when their bag is full. Winners store items in mercInv and equip only upgrades. Town sell-off at half-full bags. Pool log lines and tests. |
 | M2 Sync and plain gear (done 18.28.0) | Opus | Hire at player level, sync to the job level on change, move gear above the cap to kept inventory and restore it later, plain `autoGear`. Touches combat stats, so it needs balance tests. |
-| M3 Sheet, pouch and trade | Sonnet | Pouch icon in the party list, the mercenary sheet (worn gear, for sale, kept), buying at 1.5x the auction value, giving an item with "Wear this", keyboard navigation, Help and Updates. |
+| M3 Sheet, pouch and trade (done 18.29.0) | Sonnet | Pouch icon in the party list, the mercenary sheet (worn gear, for sale, kept), buying at 1.5x the auction value, giving an item with "Wear this", keyboard navigation, Help and Updates. |
 | M4 Contracts and Old Friends | Opus | Play-time contracts with save migration, wages that rise with level and gear (rule 10b), a payment prompt gated on combat, zoning and menus, Refuse or can't-pay sends them to Old Friends at the nearest hall, a level-based bribe, and rehiring with gear and bond kept. |
 
 ## One market: town, player and mercenary listings (revised 2026-10-16, third pass)

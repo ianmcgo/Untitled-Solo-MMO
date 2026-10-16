@@ -384,19 +384,19 @@ function buildParty() {
     const row = document.createElement("div");
     row.className = "pf glass";
     const job = JOBS[p.job] || { icon: "?", color: "#ccc" };
-    row.innerHTML = '<div class="por" style="border-color:' + (p.color || job.color) + '">' + job.icon + "<em></em></div><div><div class=\"top\"><span class=\"nm\"></span><span class=\"jb\"></span></div><div class=\"bars\">" +
+    row.innerHTML = '<div class="por" style="border-color:' + (p.color || job.color) + '">' + job.icon + "<em></em></div><div><div class=\"top\"><span class=\"nm\"></span><span class=\"pouch\" title=\"Has items for sale\" style=\"display:none\">👝</span><span class=\"jb\"></span></div><div class=\"bars\">" +
       '<div class="bar hp"><i></i><b></b></div><div class="bar mp"><i></i><b></b></div><div class="bar tp"><i></i><b></b></div>' + '</div></div><div class="bufs"></div><div class="bar cast cb"><i></i></div>';
     if (p.kind === "netmember") row.classList.add("net");
     row.onclick = () => {
       sfx("select");
-      if (p.mercId && MERCS[p.mercId]) { setTarget(p); companionInfo(p); return; }
+      if (p.mercId && MERCS[p.mercId]) { setTarget(p); UI.mercSheet = p.mercId; openMenu("party"); return; }
       if (p.kind !== "netmember") { setTarget(p); return; }
       const o = S.others && S.others.get(p.id);
       if (o) { setTarget(o); tgtCmdOpen(o); } else log(p.name + " is in " + (ZONES[p.zone] ? ZONES[p.zone].name : "another area") + ".", "sys");
     };
     const q = s => row.querySelector(s);
     const bars = row.querySelectorAll(".bars .bar");
-    p.ui = { row, nm: q(".nm"), jb: q(".jb"), lv: q(".por em"), hp: bars[0].firstChild, hpT: bars[0].lastChild, mp: bars[1].firstChild, mpT: bars[1].lastChild, mpBar: bars[1], tp: bars[2].firstChild, bufs: q(".bufs"), cb: q(".cb"), cbI: q(".cb i") };
+    p.ui = { row, nm: q(".nm"), pouch: q(".pouch"), jb: q(".jb"), lv: q(".por em"), hp: bars[0].firstChild, hpT: bars[0].lastChild, mp: bars[1].firstChild, mpT: bars[1].lastChild, mpBar: bars[1], tp: bars[2].firstChild, bufs: q(".bufs"), cb: q(".cb"), cbI: q(".cb i") };
     el.appendChild(row);
   });
 }
@@ -410,6 +410,7 @@ function updateParty() {
     setTxt(u.nm, p === player ? save.name || "You" : p.name);
     setTxt(u.jb, (UI.phone ? jobTag(p) : (JOBS[p.job] ? JOBS[p.job].name : p.job) + (p.sub ? "/" + p.sub : "")) + (p.mounted ? " 🦖" : "") + (p.kind === "netmember" && p.zone && p.zone !== S.zoneId ? " · " + (ZONES[p.zone] ? ZONES[p.zone].name : "away") : ""));
     setTxt(u.lv, String(p.lv));
+    if (u.pouch) { const pv = p.mercId && mercForSale(p.mercId) ? "" : "none"; if (u.pouch.style.display !== pv) u.pouch.style.display = pv; }
     setW(u.hp, 100 * p.hp / p.maxHp);
     setTxt(u.hpT, String(Math.ceil(p.hp)));
     u.mpBar.style.display = p.maxMp > 0 ? "" : "none";
