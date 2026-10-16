@@ -1821,7 +1821,7 @@ function learnBuddy(id) {
   save.buddies.push(id);
   if (!save.buddy) save.buddy = id;
   if (save.hotbars && save.hotbars[save.mainJob]) save.hotbars[save.mainJob].petV2 = false;
-  log(BUDDIES[id].name + " joins you as a pet! Press its button on command bar 1, or open the Pets window, to summon it.", "loot");
+  log(BUDDIES[id].name + " joins you as a pet! Open Pets in the Commands menu to summon it.", "loot");
   sfx("unlock");
   uiEvent("buddy", { id });
   checkAchievements();

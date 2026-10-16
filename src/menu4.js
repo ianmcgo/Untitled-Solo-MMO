@@ -1660,6 +1660,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.35.2", date: "2026-10-16", title: "Pets in the Commands menu", items: [
+    "<b>Pets</b> is now on page 1 of the Commands menu (after Map) once you own a pet. It opens the Pets window, where you can summon, dismiss, choose and name your pet.",
+  ]},
   { v: "18.35.1", date: "2026-10-16", title: "Pet button on command bar 1", items: [
     "<b>Pet button:</b> the Pet button now sits on command bar 1 (the first free slot) for any character that owns a pet, including characters that already had one. Press it, or type /pet, to summon or dismiss your pet.",
     "<b>Pets take no bag space:</b> a pet item now joins you the moment you get it, even with a full bag, and never sits in your bag. A pet you already have is not used a second time.",
@@ -3156,7 +3159,7 @@ function tabHelp() {
   ]));
   h += sec("🐾 Pets", ul([
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
-    "Open the <b>Pets</b> window (the main menu) to equip one, rename it, and summon or dismiss it. The <b>Pet button</b> on command bar 1 and <b>/pet</b> both toggle your equipped pet. A summoned pet comes back when you log in.",
+    "Open <b>Pets</b> on page 1 of the Commands menu to equip one, rename it, and summon or dismiss it. The <b>Pet button</b> on command bar 1 and <b>/pet</b> both toggle your equipped pet. A summoned pet comes back when you log in.",
     "A pet item you get joins you at once and never takes a bag slot, even when your bag is full.",
     "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. A pet item you get joins you straight away.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."

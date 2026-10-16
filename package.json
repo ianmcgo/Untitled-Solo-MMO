@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.35.1",
-  "releaseTitle": "Pet button on command bar 1",
+  "version": "18.35.2",
+  "releaseTitle": "Pets in the Commands menu",
   "description": "",
   "main": "index.js",
   "scripts": {
