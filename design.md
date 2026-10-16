@@ -1980,3 +1980,5 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - tabJob skips locked jobs; mercLockedReason says "Unlocks as you learn more jobs"; setJob refuses locked jobs.
 - talkTobin: "Why do I have to unlock jobs?" and "How am I doing?" (jobProgressHint, never names jobs).
 - Tests: j1unit.js; older tests pre-unlock jobs.
+- 18.34.2: mercenary hiring follows jobs. genMercDef picks only unlocked jobs, mercAvailable requires jobUnlocked(MERCS[id].job) for generated and named companions, mercPool hides locked-job offers unless hired, the old hall list skips locked non-hired companions.
+- Achievements: unlock_<JOB> for each JOB_REQ job, jobs_bronze/silver/gold (6/12/18 open jobs) and jobs_all, via jobsOpenCount (data.js after ACHIEVEMENTS).

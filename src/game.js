@@ -1019,7 +1019,8 @@ function mercDefsSync() {
   for (const id in save.mercDefs) MERCS[id] = save.mercDefs[id];
 }
 function genMercDef(rnd, id) {
-  const jobs = Object.keys(MERC_ROLES).filter(j => JOBS[j]);
+  const jobs = Object.keys(MERC_ROLES).filter(j => JOBS[j] && jobUnlocked(j));
+  if (!jobs.length) jobs.push("WAR");
   const job = jobs[Math.floor(rnd() * jobs.length)], roles = MERC_ROLES[job], role = roles[Math.floor(rnd() * roles.length)];
   const s = MERC_SYL, nm = s[0][Math.floor(rnd() * s[0].length)] + s[1][Math.floor(rnd() * s[1].length)] + s[2][Math.floor(rnd() * s[2].length)];
   const lv = player.lv, mul = { tank: 1.1, healer: 1.15, burster: 1.2, bard: 1.15, hybrid: 1.1 }[role] || 1;
@@ -1036,7 +1037,7 @@ function mercPool(dayOverride) {
     for (let i = 0; i < CONFIG.mercDaily; i++) { let id = "m" + day + "_" + i; while (save.mercDefs[id]) id += "x"; save.mercDefs[id] = genMercDef(rnd, id); MERCS[id] = save.mercDefs[id]; ids.push(id); }
     save.mercDay = { day, ids };
   }
-  return save.mercDay.ids.filter(id => MERCS[id] && !save.mercFallen[id]);
+  return save.mercDay.ids.filter(id => MERCS[id] && !save.mercFallen[id] && (save.hired.includes(id) || jobUnlocked(MERCS[id].job)));
 }
 function mercFallTick() {
   for (const p of S.party) if (p.mercId && p.fallAt && S.time >= p.fallAt) {
@@ -1080,9 +1081,9 @@ function rebuildParty() {
 
 function mercAvailable(id) {
   if (!MERCS[id] || (save.mercFallen && save.mercFallen[id])) return false;
+  if (!JOBS[MERCS[id].job] || !jobUnlocked(MERCS[id].job)) return false;
   if (MERCS[id].gen) return true;
   const r = MERCS[id].requires;
-  if (!JOBS[MERCS[id].job]) return false;
   if (r && r.quest && save.quests[r.quest] !== "done") return false;
   if (r && r.job && !jobUnlocked(r.job)) return false;
   return true;
@@ -1090,7 +1091,7 @@ function mercAvailable(id) {
 
 function mercLockedReason(id) {
   const r = MERCS[id].requires || {};
-  if (r.job) return "Unlocks as you learn more jobs";
+  if (r.job || !jobUnlocked(MERCS[id].job)) return "Unlocks as you learn more jobs";
   if (r.quest) return "Unlocks after " + QUESTS[r.quest].name;
   return "";
 }

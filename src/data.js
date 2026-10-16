@@ -2185,6 +2185,14 @@ const ACHIEVEMENTS = [
   { id: "ko", icon: "💀", name: "Lesson Learned", desc: "Be defeated once.", test: s => s.stats.kos >= 1 },
   { id: "jumps", icon: "🦘", name: "Spring in Your Step", desc: "Jump 100 times.", test: s => s.stats.jumps >= 100 }
 ];
+const jobsOpenCount = s => Object.keys(JOBS).filter(j => !JOBS[j].advanced || (s.jobsUnlocked && s.jobsUnlocked[j])).length;
+for (const j of Object.keys(JOB_REQ)) if (JOBS[j]) ACHIEVEMENTS.push({ id: "unlock_" + j, icon: JOBS[j].icon, name: JOBS[j].name + " Unlocked", desc: "Unlock the " + JOBS[j].name + " job.", test: s => !!(s.jobsUnlocked && s.jobsUnlocked[j]) });
+ACHIEVEMENTS.push(
+  { id: "jobs_bronze", icon: "🥉", name: "Bronze Student", desc: "Have 6 jobs unlocked.", test: s => jobsOpenCount(s) >= 6 },
+  { id: "jobs_silver", icon: "🥈", name: "Silver Scholar", desc: "Have 12 jobs unlocked.", test: s => jobsOpenCount(s) >= 12 },
+  { id: "jobs_gold", icon: "🥇", name: "Gold Master", desc: "Have 18 jobs unlocked.", test: s => jobsOpenCount(s) >= 18 },
+  { id: "jobs_all", icon: "👑", name: "Every Trade", desc: "Have every job unlocked.", test: s => jobsOpenCount(s) >= Object.keys(JOBS).length }
+);
 
 const TRADE_REQUESTS = [
   { id: "t_copper", who: "The forge", items: { copper_ore: 4 }, gil: 160, xp: 60 },
