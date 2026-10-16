@@ -164,7 +164,7 @@ function normalizeSave(d) {
   if (!Array.isArray(out.market.box)) out.market.box = [];
   out.market.listings = out.market.listings.filter(l => l && ITEMS[l.id]);
   if (out.market.local) out.market.local.lots = (Array.isArray(out.market.local.lots) ? out.market.local.lots : []).filter(l => l && ITEMS[l.id] && l.qty > 0 && l.price > 0);
-  out.market.box = out.market.box.filter(b => b && ITEMS[b.id] && b.qty > 0);
+  out.market.box = out.market.box.filter(b => b && ((ITEMS[b.id] && b.qty > 0) || b.gil > 0));
   out.story = Object.assign(newSave().story, d.story && typeof d.story === "object" ? d.story : {});
   out.guild = Object.assign(newSave().guild, d.guild && typeof d.guild === "object" ? d.guild : {});
   if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
@@ -1644,10 +1644,12 @@ function mercTownSell() {
   for (const id of save.hired) {
     const bag = save.mercInv[id];
     if (!bag || bag.length < Math.ceil(CONFIG.inventorySize / 2)) continue;
-    const n = bag.filter(x => x.sale).reduce((a, x) => a + x.qty, 0);
+    const sale = bag.filter(x => x.sale), n = sale.reduce((a, x) => a + x.qty, 0);
     if (!n) continue;
+    let listed = 0, gone = 0;
+    for (const e of sale) { if (mercConsign(id, e)) listed += e.qty; else gone += e.qty; }
     save.mercInv[id] = bag.filter(x => !x.sale);
-    log(MERCS[id].name + " sells " + n + " item" + (n === 1 ? "" : "s") + " around " + (S.zone.city || "town") + ".", "party");
+    log(MERCS[id].name + " puts " + listed + " item" + (listed === 1 ? "" : "s") + " up at the auction house" + (gone ? " and sells " + gone + " more to a shop" : "") + ".", "party");
   }
 }
 
@@ -2142,6 +2144,81 @@ function ahStockLines(id) { return ahTowns().map(t => ({ town: t, name: ahTownNa
 
 function marketLocalLots() { return (save.market.local && Array.isArray(save.market.local.lots)) ? save.market.local.lots : []; }
 
+function marketLocal() {
+  const L = save.market.local = save.market.local || {};
+  if (!Array.isArray(L.lots)) L.lots = [];
+  if (L.lastTick == null) L.lastTick = save.playSec || 0;
+  if (!L.lastSale) L.lastSale = {};
+  return L;
+}
+
+function mercLotCount() { return marketLocalLots().filter(l => l.kind === "merc").length; }
+
+function mercConsign(id, entry) {
+  const L = marketLocal();
+  if (!ahTradable(entry.id) || mercLotCount() >= AH_CFG.mercLotCap) return false;
+  L.lots.push({ id: entry.id, qty: entry.qty, price: marketPrice(entry.id) * entry.qty, kind: "merc", seller: MERCS[id] ? MERCS[id].name : "?", owner: save.name || "", merc: id, t: save.playSec || 0, seq: (L.seq = (L.seq || 0) + 1) });
+  return true;
+}
+
+function townPayBox(gil, note) {
+  save.market.box.push({ gil, note });
+}
+
+function townEligible(price, qty, id) { return price / qty <= marketPrice(id) * AH_CFG.townBuyCeil; }
+
+function townPick(cands, sellerOf, ageOf) {
+  const L = marketLocal(), by = new Map();
+  for (const c of cands) { const k = sellerOf(c); if (!by.has(k)) by.set(k, []); by.get(k).push(c); }
+  let best = null;
+  for (const [k, list] of by) { const last = L.lastSale[k] == null ? -Infinity : L.lastSale[k]; if (!best || last < best.last) best = { k, last, list }; }
+  if (!best) return null;
+  return { seller: best.k, item: best.list.reduce((a, b) => ageOf(b) < ageOf(a) ? b : a) };
+}
+
+function townBuyOnce(town) {
+  const L = marketLocal(), tn = ahTownName(town);
+  let bought = null;
+  const pl = save.market.listings.filter(l => townEligible(l.price, l.qty, l.id));
+  if (pl.length) {
+    const p = townPick(pl, () => "player:" + (save.name || "you"), l => l.exp - AH_CFG.expireMs);
+    const l = p.item, i = save.market.listings.indexOf(l);
+    save.market.listings.splice(i, 1);
+    save.gil += l.price;
+    save.stats.ahSold = (save.stats.ahSold || 0) + 1;
+    addPress(l.id, -0.02 * l.qty);
+    L.lastSale[p.seller] = save.playSec || 0;
+    log("Auction: " + tn + " bought your " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : ITEMS[l.id].name) + " for " + l.price + " crystals!", "loot");
+    sfx("coin");
+    uiEvent("ahsold", { id: l.id, price: l.price });
+    bought = l;
+  } else {
+    const ml = L.lots.filter(l => l.kind === "merc" && townEligible(l.price, l.qty, l.id));
+    if (!ml.length) return null;
+    const p = townPick(ml, l => "merc:" + (l.merc || l.seller), l => l.seq || 0);
+    const l = p.item;
+    L.lots.splice(L.lots.indexOf(l), 1);
+    L.lastSale[p.seller] = save.playSec || 0;
+    townPayBox(l.price, l.seller + " sold " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : ITEMS[l.id].name) + " to " + tn);
+    log("Auction: " + tn + " bought " + l.seller + "'s " + ITEMS[l.id].name + (l.qty > 1 ? " ×" + l.qty : "") + ". " + l.price + " crystals are in your delivery box.", "loot");
+    bought = l;
+  }
+  if (bought && Math.random() < AH_CFG.relistChance) L.lots.push({ id: bought.id, qty: bought.qty, price: Math.ceil(bought.price * AH_CFG.relistMarkup), kind: "town", seller: tn, owner: "", town, t: save.playSec || 0, seq: (L.seq = (L.seq || 0) + 1) });
+  return bought;
+}
+
+function tickTownBuying() {
+  const L = marketLocal(), now = save.playSec || 0;
+  let steps = Math.floor((now - L.lastTick) / AH_CFG.townBuySec);
+  if (steps <= 0) return 0;
+  L.lastTick += steps * AH_CFG.townBuySec;
+  steps = Math.min(steps, AH_CFG.townBuyMaxSteps);
+  let n = 0;
+  for (let s = 0; s < steps; s++) for (const t of ahTowns()) if (townBuyOnce(t)) n++;
+  if (n) { checkAchievements(); saveGame(); }
+  return n;
+}
+
 function marketLines(id, online) {
   const out = [];
   for (const t of ahTowns()) { const n = ahStockAt(id, t); if (n > 0) out.push({ kind: "town", seller: ahTownName(t), owner: "", town: t, qty: n, unit: marketPrice(id), price: marketPrice(id) * n }); }
@@ -2168,6 +2245,7 @@ function ahBuyLocal(i) {
   if (!giveItem(l.id, l.qty, true)) return "Your bag is full.";
   save.gil -= l.price;
   save.market.local.lots.splice(i, 1);
+  if (l.kind === "merc") townPayBox(l.price, l.seller + " sold " + ITEMS[l.id].name + " to you");
   save.stats.ahBought = (save.stats.ahBought || 0) + l.qty;
   log("You buy " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : an(ITEMS[l.id].name)) + " from " + (l.seller || "the market") + " for " + l.price + " crystals.", "loot");
   sfx("coin");
@@ -2230,7 +2308,7 @@ function ahCancel(i) {
 function ahCollect() {
   const left = [];
   let got = 0;
-  for (const b of save.market.box) { if (giveItem(b.id, b.qty, true)) got++; else left.push(b); }
+  for (const b of save.market.box) { if (b.gil) { save.gil += b.gil; got++; continue; } if (giveItem(b.id, b.qty, true)) got++; else left.push(b); }
   save.market.box = left;
   if (got) { log("You collect " + got + " lot" + (got > 1 ? "s" : "") + " from your delivery box.", "loot"); sfx("loot"); }
   saveGame();
@@ -4621,7 +4699,7 @@ function step(dt) {
   tickBuddy(dt);
   tickAmbient(dt);
   tickStory();
-  if (S.time >= (S.ahNext || 0)) { S.ahNext = S.time + 1; if (save.market.listings.length) tickAuction(); }
+  if (S.time >= (S.ahNext || 0)) { S.ahNext = S.time + 1; tickTownBuying(); if (save.market.listings.length) tickAuction(); }
   if (S.bf) tickBattlefield();
   if (player.moving) { const dd = Math.hypot(player.x - player.px, player.y - player.py) / 20; if (player.mounted) save.stats.ride += dd; else save.stats.walk += dd; }
   S.periodTimer -= dt;

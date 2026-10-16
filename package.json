@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.32.0",
-  "releaseTitle": "One market list",
+  "version": "18.33.0",
+  "releaseTitle": "Companions sell at the auction house",
   "description": "",
   "main": "index.js",
   "scripts": {

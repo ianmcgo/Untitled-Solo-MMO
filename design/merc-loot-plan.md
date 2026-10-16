@@ -86,7 +86,7 @@ Server work needed (not done, not run): extend `ah_listings` with `kind text def
 |---|---|---|
 | M5a Per-town stock (done 18.31.0) | Sonnet | Per-town seeds and stock, per-town bought counts with save migration, the auction-house-in-every-town test. No dependency on M1. |
 | M5b Unified list (done 18.32.0) | Sonnet | One merged list with the filter and the three labels, colours and icons; Help and Updates. Works on local data first. |
-| M5c Offline market | Opus | `save.market.local`, town buying and relisting on play time, mercenary listings from sell-off, proceeds to the player's box. Depends on M1. |
+| M5c Offline market (done 18.33.0) | Opus | `save.market.local`, town buying and relisting on play time, mercenary listings from sell-off, proceeds to the player's box. Depends on M1. |
 | M5d Online market | Opus | SQL migration, `ah_consign`, `ah_town_tick`, client calls and list merge. Depends on M5c, M1 and your approval of the live migration. |
 
 Open questions (guesses used if not answered)
