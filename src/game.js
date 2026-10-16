@@ -418,7 +418,7 @@ function buildStats(ch) {
   const rwp = ch.gear.ranged && ITEMS[ch.gear.ranged];
   if (rwp && rwp.wtype === "archery") {
     const amm = ch.gear.ammo && ITEMS[ch.gear.ammo];
-    dmg = rwp.dmg + (amm && amm.dmg ? amm.dmg : 0); delay = rwp.delay; wtype = "archery";
+    dmg = rwp.dmg + (amm && amm.dmg ? Math.round(amm.dmg * CONFIG.ammoDmgMul) : 0); delay = rwp.delay; wtype = "archery";
   }
   const fd = ch.kind === "pc" && typeof save !== "undefined" && save.food && save.food.until > Date.now() && ITEMS[save.food.id] ? ITEMS[save.food.id].food : null;
   if (fd) for (const k in fd) g[k] = (g[k] || 0) + fd[k];
@@ -433,8 +433,8 @@ function buildStats(ch) {
   const wsk = skillOf(ch, wtype);
   const rc = ch.kind === "pc" && typeof save !== "undefined" && save.look ? RACES[save.look.race] || RACES.human : null;
   if (rc) for (const k in rc.attrs) s[k] = Math.max(1, Math.round(s[k] + rc.attrs[k] * (1 + lv / 20)));
-  s.maxHp = Math.round((hp + g.hp) * (rc ? rc.hp : 1));
-  s.maxMp = Math.round((mp + g.mp) * (rc && mp > 0 ? rc.mp : 1) * (ch.kind === "pc" && mp > 0 ? 1 + buddyPerk("mp") : 1));
+  s.maxHp = Math.round((hp + g.hp + CONFIG.hpLvBonus * (lv - 1)) * (rc ? rc.hp : 1));
+  s.maxMp = Math.round((mp * CONFIG.mpMul + g.mp) * (rc && mp > 0 ? rc.mp : 1) * (ch.kind === "pc" && mp > 0 ? 1 + buddyPerk("mp") : 1));
   s.acc = Math.round(58 + s.dex * 0.5 + 0.6 * wsk + lv + g.acc);
   s.att = Math.round((10 + s.str + 4 * lv + g.att) * (rc && rc.attMul ? rc.attMul : 1));
   if (rc && rc.rangedAcc && wtype === "archery") s.acc += rc.rangedAcc;
@@ -3698,7 +3698,7 @@ function regen(p, dt) {
   if (!can) return;
   const rb = rest && p === player ? 1 + buddyPerk("rest") : 1;
   p.hp = Math.min(p.maxHp, p.hp + p.maxHp * (rest ? CONFIG.restHp : CONFIG.regenHp) * dt * rb);
-  p.mp = Math.min(p.maxMp, p.mp + p.maxMp * (rest ? CONFIG.restMp : CONFIG.regenMp) * dt * rb);
+  p.mp = Math.min(p.maxMp, p.mp + p.maxMp / CONFIG.mpMul * (rest ? CONFIG.restMp : CONFIG.regenMp) * dt * rb);
 }
 
 function tickCasting(e) {

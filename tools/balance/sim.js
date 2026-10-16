@@ -15,7 +15,7 @@ const NUKES = ['stone', 'water', 'aero', 'fire', 'blizzard', 'thunder', 'banish'
 
 function gearFor(job, lv) {
   const I = G.ITEMS, rate = G.SKILL_RATINGS[job] || {};
-  const ok = id => { const it = I[id]; if (it.kind !== 'equip' || it.hq || it.rare || it.nm || it.ex || !it.price || it.lv > lv) return false; if (it.src && it.src !== 'shop') return false; return it.jobs.includes(job); };
+  const ok = id => { const it = I[id]; if (it.kind !== 'equip' || it.hq || it.rare || it.nm || it.ex || !it.price || it.lv > lv) return false; return it.jobs.includes(job); };
   const pool = Object.keys(I).filter(ok);
   const better = (a, b) => !b || I[a].lv > I[b].lv || (I[a].lv === I[b].lv && I[a].price > I[b].price);
   const best = slot => { let b = null; for (const id of pool) if (I[id].slot === slot && better(id, b)) b = id; return b; };

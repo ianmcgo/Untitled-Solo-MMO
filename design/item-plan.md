@@ -72,3 +72,4 @@ Use the real classic MMO item and spell names for now. The design notes' "names 
 - 17.3.0 shipped: area spells, Spikes, En-spells, DoTs, remaining songs. Equipment import (level 20 and under) and balance are next.
 
 - 18.0.0 shipped: equipment import (788 pieces, level 20 and below) replaces all old gear. Details in design.md "Equipment (v18.0.0)". Next: balance (monsters, XP, prices, damage) against the new gear and spells; Opus recommended.
+- 18.1 (tools) and 18.2.0 (player power) done; see design.md "Balance tools (18.1)". Next: 18.3 monsters, 18.4 economy, 18.5 crafting and sources.

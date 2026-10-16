@@ -1489,6 +1489,8 @@ World systems:
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
 | 17.3.0 | Area spells, Spikes, En-spells, Shock/Rasp/Choke, Requiem, Threnodies, Mambo, Pastoral, Operetta. See "Area spells and songs (v17.3.0)". |
 | 18.0.0 | classic MMO equipment: 788 pieces at level 20 and below replace every old item. See "Equipment (v18.0.0)". |
+| 18.1 | Tools only: tools/balance/sim.js, runsim.sh, report.js (fight simulator). Baseline in design/balance-18.1.md. |
+| 18.2.0 | Player power: delay curve, WTYPE_MULT, DMG_LV_K, ammoDmgMul, hpLvBonus, mpMul. Results in design/balance-18.2.md. |
 | 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
 | 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | classic MMO spells and potions: SPELLS/ITEMS potion family rebuilt from classic MMO data; rule version 17 wipes older saves. See "classic MMO rules (v17.0.0)". |
@@ -1704,13 +1706,14 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ### Mapping rules
 - Slots from the classic MMO bitmask: main, sub, ranged, ammo, head, body, hands, legs, feet, neck, waist, ear (two), ring (two), back. Jobs from bits 1 to 22 (all 22 jobs set means `ALL_J`). Race restrictions are ignored.
 - Weapon skill ids: 1 h2h, 2 dagger, 3 sword, 4 gsword, 5 axe, 6 greataxe, 7 scythe, 8 polearm, 9 katana, 10 gkatana, 11 club, 12 staff, 25 and 26 archery (bows, crossbows and guns all count as archery), 27 throwing, 41 and 42 instrument.
-- Melee `dmg` is the classic MMO DMG; `delay` is classic MMO delay / 96 seconds (h2h: DMG + 3, delay 2.6). Ranged `delay` is delay / 120. Ammo keeps `dmg`.
+- Melee `dmg` = classic MMO DMG x WTYPE_MULT[type] x (1 + 0.015 x item level), rounded (h2h uses DMG + 3). WTYPE_MULT (fitted in 18.2 so each weapon type keeps its 17.3 damage per second): sword 1.15, dagger 1.5, club 0.95, staff 1.05, greataxe 1.1, gsword 0.95, axe 1.05, h2h 1.1, scythe 0.8, polearm 1.0, katana 1.4, gkatana 1.0, archery and throwing 1.0. Melee `delay` = 1.9 x (classic MMO delay / 183)^0.75 seconds (dagger 1.9, sword 2.3, staff 3.2, great axe 4.1); h2h 2.6. Ranged `delay` is delay / 120. Ammo keeps `dmg`.
 - Stats: DEF def, HP hp, MP mp, STR DEX VIT AGI INT MND CHR, Attack att, Accuracy acc, Evasion eva. Ranged Accuracy and Ranged Attack become acc and att only on Range and Ammo items. Dropped: Haste, Enmity, HP%, MP%, skill bonuses, latent and special effects.
 - Prices: `40 + 80 * lv^1.6` times a slot factor (weapon 1, body 1, legs and rings about 0.8 to 0.9, head and hands and feet 0.7, ammo cheap), x1.4 for +1. Not balanced yet.
-- Exceptions: Tachi and Claymore are equip level 1 (job starter weapons). The Warp Ring has `enchant: "warp"`; Use in the bag casts Warp (5 s item delay).
+- Job quests whose classic MMO weapon is above level 1 also give a level 1 weapon: Samurai gets Tachi (Lv8) plus Harpoon, Rune Fencer gets Claymore (Lv10) plus Bronze Sword (`reward.items`). Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner rewards are level 1 pieces. The Warp Ring has `enchant: "warp"`; Use in the bag casts Warp (5 s item delay).
 
 ### Engine
-- `gearStats` (game.js): a bow in `ranged` sets wtype archery, dmg = bow dmg + ammo dmg, delay = bow delay; the main hand then only adds stats. Instruments and throwing items are stat sticks.
+- `gearStats` (game.js): a bow in `ranged` sets wtype archery, dmg = bow dmg + ammo dmg x CONFIG.ammoDmgMul (0.5), delay = bow delay; the main hand then only adds stats.
+- Player power (18.2): `maxHp` adds CONFIG.hpLvBonus x (level - 1) (3 per level) and `maxMp` uses job MP x CONFIG.mpMul (1.35); passive and resting MP regen divide maxMp by mpMul so regen per second is unchanged (a bigger pool, not faster refill). Both replace the HP and MP that the old invented gear carried. Instruments and throwing items are stat sticks.
 - `gearDrop(m)` after `dropLoot`: 6% per kill for non-boss, non-NM monsters to drop one `src: "drop"` item whose level is within monster level -3 to +1, excluding ids that appear in boss or NM loot, quest rewards, battlefield or guild shop (`GEAR_RESERVED`, built on first use).
 - `autoGear(job, lv, role)` dresses companions: best Main by the job's weapon rating then level, best Head, Body, Hands, Legs, Feet at or below their level from `src: "shop"` non-HQ items usable by the job; Range plus Ammo for rangers; a shield for PLD and tanks. `STARTER_GEAR` and `newSave` use bronze_sword, bronze_cap, bronze_harness (WAR) and robe, ash_club or ash_staff (WHM, BLM).
 
@@ -1724,6 +1727,13 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Crafting recipes were only re-pointed (bronze cap, bronze sword, iron sword, ash club, ash staff, holly staff, scale mail, linen robe, leather gloves, robe, ash clogs).
 - Windower short names stay abbreviated (Brz., Lgn., Ryl.Ftm.).
 - Tests: p7, p10, p22, p31 and p35 changed for the new items (levels, drops, Haldor); other tests only had ids swapped. Run test/p57unit.js style files with `node build.mjs 1` first.
+
+## Balance tools (18.1)
+- `tools/balance/sim.js <game.js> <out.json> <JOB|all> <trials>` loads a build-1 `dist/game.js` through test/harness.js (adds SKILL_RATINGS and ALL_JOBS to the exports), dresses the job in the best non-HQ, non-rare gear at levels 1, 5, 10, 15, 20, sets skills to cap, and duels Goblin and Hill Lizard at level -3, 0, +2. It records win rate, deaths, time to kill and HP lost plus player stats.
+- `runsim.sh <game.js> <outdir> <trials>` runs all 22 jobs 8 at a time (about 15 minutes at 3 trials) and writes `all.json`. Copy dist/game.js first if you will rebuild during the run.
+- `report.js <old.json> <new.json> <out.md>` writes the comparison (summary by level, player stats, per-job even fights, flags, gear used).
+- The baseline is 17.3.0 built from git e6506d9 in a worktree. Note 17.3 itself is not tuned for solo play: even fights at level 10+ are lost solo there too, so compare versions, not absolute wins.
+- Open after 18.2: level 5 even fights (DEF 38 vs 50, classic MMO armor tier gap between level 1 and 7 pieces) and level 20 easy fights (50% vs 90%). Both go to the monster pass (18.3). The `src` regex for shop items has escaped dots that never match (`ryl\\.`, `lgn\\.` and similar), so Royal and Legionnaire pieces are sold in shops; fix in the economy pass (18.4).
 
 ## Publishing note
 - GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.

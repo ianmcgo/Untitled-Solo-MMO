@@ -1486,6 +1486,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.2.0", date: "2026-10-15", title: "Gear balance: player power", items: [
+    "<b>Weapons retuned:</b> two-handed classic MMO weapons swing faster (a Great Axe now swings every 4.1 s instead of 5.2 s) and each weapon type's damage was matched to how strong it was before the classic MMO gear arrived. Daggers, katanas, swords and hand-to-hand hit harder; scythes a little softer. Higher-level weapons gain a little extra damage.",
+    "<b>More HP and MP:</b> every character gains 3 HP per level, and MP from your jobs is 35% higher. This replaces the HP and MP the old invented gear used to give.",
+    "<b>Rangers toned down:</b> arrows and bolts now add half their damage to your bow (they added all of it).",
+    "<b>Samurai and Rune Fencer quests</b> now also give a weapon you can use at level 1 (a Harpoon and a Bronze Sword), since the Tachi and Claymore need levels 8 and 10. Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner quests give level 1 gear.",
+    "Monster strength, prices and drop rates come next."
+  ] },
   { v: "18.0.0", date: "2026-10-15", title: "classic MMO equipment", items: [
     "<b>All gear is now classic MMO gear:</b> 788 weapons and armor from level 1 to 20 with their real names, levels, jobs and slots (Bronze Dagger, Brass Harness, Hunter's Longbow, Warrior's Belt and more). Every older invented piece is gone, and characters from before this update could not be kept.",
     "<b>Left out on purpose:</b> costumes, event outfits (Yukata, Decennial and summer sets), crafting-guild uniforms, fishing gear and novelty pieces. The Warp Ring is kept: use it from your bag to return to your home point.",
@@ -2956,7 +2963,7 @@ function tabHelp() {
   ]));
   h += sec("🛡️ Equipment", ul([
     "Open <b>Equipment</b> (G). Sixteen boxes: Main, Sub, Range, Ammo / Head, Neck, Ear, Ear / Body, Hands, Ring, Ring / Back, Waist, Legs, Feet.",
-    "<b>Main:</b> one- and two-handed weapons. <b>Sub:</b> shields. <b>Range</b> and <b>Ammo:</b> bows and crossbows (a bow in Range turns your attack into a ranged shot, and the arrow or bolt in Ammo adds its damage), plus boomerangs and instruments. <b>Neck:</b> gorgets and pendants. <b>Ear</b> and <b>Ring:</b> two of each. <b>Back:</b> capes and mantles. <b>Waist:</b> belts and sashes.",
+    "<b>Main:</b> one- and two-handed weapons. <b>Sub:</b> shields. <b>Range</b> and <b>Ammo:</b> bows and crossbows (a bow in Range turns your attack into a ranged shot, and the arrow or bolt in Ammo adds half its damage), plus boomerangs and instruments. <b>Neck:</b> gorgets and pendants. <b>Ear</b> and <b>Ring:</b> two of each. <b>Back:</b> capes and mantles. <b>Waist:</b> belts and sashes.",
     "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
     "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells gear up to level 10 and Vela in Saltreach levels 11 to 20. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
