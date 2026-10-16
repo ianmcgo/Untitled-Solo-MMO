@@ -801,8 +801,8 @@ function tabHome() {
 function tabJob() {
   let h = "<h3>Main job</h3>";
   for (const jb in JOBS) {
-    const locked = !jobUnlocked(jb);
-    h += '<div class="item"' + (locked ? ' style="opacity:.6"' : "") + '><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">' + (locked ? "Locked · " + (player.lv < ADVANCED_JOBS[jb].lv ? "reach level " + ADVANCED_JOBS[jb].lv : "Tobin's quest " + QUESTS[ADVANCED_JOBS[jb].quest].name) : "Lv." + save.jobs[jb].lv) + "</span></div>" + (jb === save.mainJob ? '<span class="d">Current</span>' : locked ? "" : '<button data-a="main" data-v="' + jb + '">Set main</button>') + "</div>";
+    if (!jobUnlocked(jb)) continue;
+    h += '<div class="item"><div>' + JOBS[jb].icon + " " + JOBS[jb].name + ' <span class="sub">Lv.' + save.jobs[jb].lv + "</span></div>" + (jb === save.mainJob ? '<span class="d">Current</span>' : '<button data-a="main" data-v="' + jb + '">Set main</button>') + "</div>";
   }
   h += "<h3>Support job</h3>";
   if (!save.supportUnlocked) h += '<div class="sub">Locked. ' + (player.lv < CONFIG.supportUnlockLevel ? "Reach level " + CONFIG.supportUnlockLevel + " and talk to Tobin." : "Complete Tobin's quest, A Second Calling.") + "</div>";
@@ -1658,6 +1658,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.34.0", date: "2026-10-16", title: "Jobs unlock as you grow", items: [
+    "<b>Job unlock tree:</b> only Warrior and White Mage start open. Every other job opens when earlier jobs reach a set level (for example, a second fighting job after Warrior level 5, the top summoning job after three mage jobs at level 10).",
+    "<b>Pop-up:</b> when a level up meets a requirement, a pop-up tells you which job you can now take. Several unlocks queue up and show one after another when it is calm.",
+    "<b>Hidden until unlocked:</b> Pip's job-change list at your residence and the companion lists no longer show locked jobs.",
+    "<b>Ask Tobin:</b> two new questions: why jobs must be unlocked, and how you are doing, with a hint about what to train next.",
+    "<b>Old job quests</b> are offered only after the job is unlocked and are now initiations that give the job's first weapon. Existing characters keep every job they had and gain any they already qualify for, with no pop-ups.",
+  ]},
   { v: "18.33.0", date: "2026-10-16", title: "Companions sell at the auction house", items: [
     "<b>Companion lots:</b> when a companion with a half-full bag reaches town, their goods go up at the auction house under their name (⚔, violet) at the market price, with no fee, instead of disappearing. My lots shows them, up to 300.",
     "<b>Towns buy from the market:</b> every 20 minutes of play each town buys one lot: yours first, then your companions', taking turns between sellers. Lots priced above 1.25 times the market price are left alone.",
@@ -3164,11 +3171,9 @@ function tabHelp() {
     ["Geomancer (advanced)", "Support", "Club B, Geomancy A. Auras follow you and affect the party nearby: Vigor (HP over time), Fury (5: attack +10%), Focus (11: spell damage +12%). Wards plant a luopan by the target that affects monsters near it: Torpor (3: slow), Frailty (8: they take 12% more damage), Languor (15: they deal 15% less). One aura and one luopan at a time, 3 minutes each. Full Circle (5: dismiss the luopan for half its MP back), Mending Halation (15: shatter it to heal the party 20%)"],
     ["Rune Fencer (advanced)", "Tank", "Great Sword A (new weapon type), sword and great axe B. Kindle, Rime (3), Gale (5) and Stone (7) Runes: hold up to three; each cuts damage you take by 5%. Lunge (10: release every rune as elemental damage), Vallation (15: damage taken −20% for 30 s, and your hits draw extra enmity). Weapon skills: Rune Cleave, Glyph Rend (22), Ward Breaker (40), Final Verse (75)"]
   ]) + ul([
-    "<b>Geomancer and Rune Fencer</b> unlock at level 18 through Tobin: <i>The Shape of the Land</i> (2 Crag Feathers, 2 Frost Shards) and <i>Carved in Steel</i> (2 Orc Teeth, 2 Iron Ingots). Geomancers wear mage robes and use clubs; Rune Fencers wear warrior and paladin armour; great swords are sold by Pell and Vela.",
-    "<b>Puppetmaster, Dancer and Scholar</b> unlock at level 16 through Tobin: <i>Strings and Springs</i> (3 Ash Lumber, 2 Bronze Ingots), <i>The First Step</i> (2 Silk Cloth, 2 Honeycombs) and <i>Ink and Insight</i> (1 Heartwood, 2 Crypt Dust). Puppetmasters use monk gear and fist weapons, Dancers thief gear and daggers, Scholars mage robes, staves and clubs.",
-    "<b>Beastmaster, Blue Mage and Corsair</b> unlock at level 14 through Tobin: <i>Call of the Wild</i> (2 Lizard Skins, 3 Wool Tufts), <i>The Borrowed Art</i> (2 Crab Shells, 2 Mandrake Leaves) and <i>Lady Luck</i> (2 Harbor Bream, 1 Orc Tooth). Axes are sold by Pell and Vela; Blue Mages use swords and clubs and wear red mage clothing; Corsairs use daggers and swords and wear thief gear; Beastmasters wear warrior armour.",
-    "<b>Samurai, Ninja and Dragoon</b> unlock at level 12 through Tobin: <i>The Patient Blade</i> (Samurai: 1 Iron Ingot, 2 Ash Lumber), <i>Steps Without Sound</i> (Ninja: 3 Bat Wings, 2 Worm Silk) and <i>Wings of the Wyrm</i> (Dragoon: 3 Lizard Skins, 1 Crag Feather). Their weapons are sold by Pell (bronze to steel) and Vela (frostforged). Samurai and Dragoons can wear warrior armour; Ninjas can wear thief gear.",
-    "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
+    "<b>Jobs unlock as you grow.</b> Only Warrior and White Mage start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
+    "<b>Ask Tobin</b> (Job Master) why jobs must be unlocked, or how you are doing: he gives a vague hint about what to train next without naming the job.",
+    "<b>Initiation quests:</b> Tobin's old job quests are offered only after the job is unlocked. They no longer unlock anything but still give the job's first weapon.",
     "Support jobs unlock at level 10 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first hour of play) and then a wage for each further hour. If you refuse or can't pay, they go back to the Mercenary Hall as Old Friends. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));

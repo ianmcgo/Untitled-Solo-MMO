@@ -134,7 +134,8 @@ function normalizeSave(d) {
   out.gear = {};
   for (const key in d.gear || {}) { const id = d.gear[key]; if (!id || !ITEMS[id] || ITEMS[id].kind !== "equip") continue; const k = slotFor(id, out.gear, key === "ring" ? "ring1" : key); if (!out.gear[k]) out.gear[k] = id; }
   out.jobsUnlocked = Object.assign(newSave().jobsUnlocked, d.jobsUnlocked || {});
-  for (const j in ADVANCED_JOBS) if (out.quests[ADVANCED_JOBS[j].quest] === "done") out.jobsUnlocked[j] = true;
+  checkJobUnlocksIn(out);
+  out.jobPopups = (Array.isArray(d.jobPopups) ? d.jobPopups : []).filter(j => JOBS[j]);
   if (!JOBS[out.mainJob] || !jobUnlockedIn(out, out.mainJob)) out.mainJob = "WAR";
   if (out.subJob && (!JOBS[out.subJob] || !out.supportUnlocked || !jobUnlockedIn(out, out.subJob))) out.subJob = null;
   out.gil = Math.max(0, Math.floor(out.gil || 0));
@@ -343,6 +344,58 @@ function importSaveText(text) {
 
 function jobUnlockedIn(sv, j) { return !!JOBS[j] && (!JOBS[j].advanced || !!(sv.jobsUnlocked && sv.jobsUnlocked[j])); }
 function jobUnlocked(j) { return jobUnlockedIn(save, j); }
+
+function jobReqMet(sv, j) {
+  const r = JOB_REQ[j];
+  return !!r && Object.keys(r).every(k => sv.jobs[k] && sv.jobs[k].lv >= r[k]);
+}
+
+function checkJobUnlocksIn(sv) {
+  sv.jobsUnlocked = sv.jobsUnlocked || {};
+  const got = [];
+  let again = true;
+  while (again) {
+    again = false;
+    for (const j in JOB_REQ) if (JOBS[j] && !sv.jobsUnlocked[j] && jobReqMet(sv, j)) { sv.jobsUnlocked[j] = true; got.push(j); again = true; }
+  }
+  return got;
+}
+
+function checkJobUnlocks() {
+  const got = checkJobUnlocksIn(save);
+  if (!got.length) return got;
+  save.jobPopups = (save.jobPopups || []).concat(got);
+  for (const j of got) log("You can now become " + (/^[AEIOU]/.test(JOBS[j].name) ? "an " : "a ") + JOBS[j].name + ". Change to it with Pip at your residence.", "npc");
+  sfx("unlock");
+  checkAchievements();
+  saveGame();
+  return got;
+}
+
+function jobProgressHint() {
+  const locked = Object.keys(JOB_REQ).filter(j => JOBS[j] && !jobUnlocked(j));
+  if (!locked.length) return "You have learned every trade I know. Nothing more to open.";
+  let best = 99, started = false;
+  for (const j of locked) {
+    const r = JOB_REQ[j];
+    const miss = Object.keys(r).reduce((a, k) => a + Math.max(0, r[k] - ((save.jobs[k] && save.jobs[k].lv) || 0)), 0);
+    best = Math.min(best, miss);
+    if (Object.keys(r).some(k => save.jobs[k] && save.jobs[k].lv >= r[k])) started = true;
+  }
+  if (best <= 3) return "You are nearly ready for something new. A little more work on the trades you know.";
+  if (started) return "You have made a start on a few paths. Keep at it, and don't neglect the old trades.";
+  return "Keep training the trades you know. One leans on another, and the next will open in time.";
+}
+
+function jobPopupTick() {
+  if (!save.jobPopups || !save.jobPopups.length || typeof gameConfirm !== "function") return;
+  if (typeof UI !== "undefined" && UI.confirmOpen) return;
+  if (!calmNow()) return;
+  const j = save.jobPopups[0];
+  const done = () => { save.jobPopups.shift(); saveGame(); };
+  if (!JOBS[j]) { done(); return; }
+  gameConfirm("New job unlocked: " + JOBS[j].name + "!", (JOB_FLAVOUR[j] || "") + " Change jobs with Pip at your residence.", done, { yes: "Continue", noBtn: false, onNo: done, tag: "jobpop" });
+}
 
 function capFor(rating, lv) {
   if (!rating || lv < 1) return 0;
@@ -679,7 +732,9 @@ function migrateMercContracts() {
   for (const id of save.hired) mercContract(id);
 }
 
-function mercPayReady() {
+function mercPayReady() { return calmNow(); }
+
+function calmNow() {
   return player.alive && !partyInCombat() && !S.exitWalk && !S.walkIn && !S.modal && !S.dialog && !S.zoneCooldown && !player.synth && !zoneLoadingOn();
 }
 
@@ -1035,7 +1090,7 @@ function mercAvailable(id) {
 
 function mercLockedReason(id) {
   const r = MERCS[id].requires || {};
-  if (r.job) return "Unlocks with the " + JOBS[r.job].name + " job (Tobin, level " + ADVANCED_JOBS[r.job].lv + ")";
+  if (r.job) return "Unlocks as you learn more jobs";
   if (r.quest) return "Unlocks after " + QUESTS[r.quest].name;
   return "";
 }
@@ -1503,6 +1558,7 @@ function gainXp(n, chain, quiet) {
     S.shake = 0.2;
     sfx("levelup");
     vfx("levelup", { tgt: player });
+    checkJobUnlocks();
   }
   saveGame();
 }
@@ -4688,7 +4744,7 @@ function step(dt) {
     } else if (!onAsk && S.exitAsked && !circleRect(player, S.exitAsked, 40)) { S.exitAsked = null; if (typeof gameConfirmClose === "function") gameConfirmClose("exit"); }
   }
   S.lmTimer -= dt;
-  if (S.lmTimer <= 0) { S.lmTimer = 0.5; checkLandmarks(); checkDistrict(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
+  if (S.lmTimer <= 0) { S.lmTimer = 0.5; if ((S.jobChk = (S.jobChk || 0) + 1) % 4 === 0) { checkJobUnlocks(); jobPopupTick(); } checkLandmarks(); checkDistrict(); tickGather(); gardenTick(); scanBeasts(); S.achTimer = (S.achTimer || 0) + 1; if (S.achTimer % 4 === 0) { checkAchievements(); tickWages(); tickFood(); tickBlessing(); } }
   tickSynth(dt);
   if (S.pool && S.pool.length) tickPool(false);
   if (S.fish) tickFish();
@@ -5028,13 +5084,12 @@ function giveReward(r) {
   if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " crystals.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
   if (r.items) for (const [id, n] of r.items) giveItem(id, n);
-  if (r.unlock) { save.jobsUnlocked[r.unlock] = true; log("You can now become a " + JOBS[r.unlock].name + ". Change to it with Pip at your residence.", "npc"); }
   sfx("fanfare");
 }
 
 function questOfferable(id) {
   const q = QUESTS[id];
-  return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done");
+  return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done") && (!(q.reward && q.reward.unlock) || jobUnlocked(q.reward.unlock));
 }
 const tourDone = zid => ZONES[zid].districts.every(d => save.districts && save.districts[zid + ":" + d.id]);
 const QUEST_CHECKS = { tour_outpost: () => tourDone("outpost"), tour_harbor: () => tourDone("harbor"), tour_ironvale: () => tourDone("ironvale"), furniture: () => save.furniture.length >= 2, harvest: () => save.harvests >= 1 };
@@ -5281,15 +5336,18 @@ const TALK = {
   },
   talkTobin(n) {
     const q = save.quests;
-    const opts = [];
+    const opts = [
+      { label: "Why do I have to unlock jobs?", fn: () => openDialog(n.name, "No trade is learned from nothing. A thief learns his footwork from a fighter, a scholar her letters from a healer's books. Master a few trades and the ones built on them open to you. I won't tell you which leans on which; that's half the fun.", [{ label: "How am I doing?", fn: () => openDialog(n.name, jobProgressHint(), []) }]) },
+      { label: "How am I doing?", fn: () => openDialog(n.name, jobProgressHint(), []) }
+    ];
     const adv = [];
     if (player.lv >= 6) {
       const turnIn = (id, mats, label) => {
         if (mats.every(([it, k]) => invCount(it) >= k)) adv.push({ label, fn: () => { mats.forEach(([it, k]) => removeItem(it, k)); q[id] = "done"; log("Quest complete: " + QUESTS[id].name + ".", "npc"); giveReward(QUESTS[id].reward); refreshPlayer(false); saveGame(); closeDialog(); openModal("job"); } });
       };
-      if (q.pld === "none") adv.push({ label: "Ask about the Paladin's oath", fn: () => openDialog(n.name, "A Paladin stands between the party and harm: sword and shield, Cures for the wounded, Flash to blind the foe. Bring me 2 Bone Chips from the undead and 1 Iron Ore from the Den's raiders, and I'll hear your oath.", [{ label: "Accept", fn: () => { q.pld = "active"; log("Quest accepted: " + QUESTS.pld.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      if (q.pld === "none" && jobUnlocked("PLD")) adv.push({ label: "Ask about the Paladin's oath", fn: () => openDialog(n.name, "A Paladin stands between the party and harm: sword and shield, Cures for the wounded, Flash to blind the foe. Bring me 2 Bone Chips from the undead and 1 Iron Ore from the Den's raiders, and I'll hear your oath.", [{ label: "Accept", fn: () => { q.pld = "active"; log("Quest accepted: " + QUESTS.pld.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
       else if (q.pld === "active") turnIn("pld", [["bone_chip", 2], ["iron_ore", 1]], "Take the Paladin's oath");
-      if (q.rdm === "none") adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Essence and 1 Water Essence for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      if (q.rdm === "none" && jobUnlocked("RDM")) adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Essence and 1 Water Essence for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
       else if (q.rdm === "active") turnIn("rdm", [["worm_silk", 2], ["fire_crystal", 1], ["water_crystal", 1]], "Present the dye materials");
       adv.push(...questOptions("tobin", n));
     }
@@ -5840,9 +5898,9 @@ function unequip(slot) {
 
 function setJob(main, sub) {
   if (sub === main) sub = null;
-  if (!jobUnlocked(main)) { log(JOBS[main].name + " is locked. Tobin can teach it once you reach level " + ADVANCED_JOBS[main].lv + ".", "sys"); sfx("error"); return; }
+  if (!jobUnlocked(main)) { log("You haven't unlocked that job yet.", "sys"); sfx("error"); return; }
   if (sub && !save.supportUnlocked) { log("Support jobs are locked. Talk to Tobin.", "sys"); return; }
-  if (sub && !jobUnlocked(sub)) { log(JOBS[sub].name + " is locked. Tobin can teach it once you reach level " + ADVANCED_JOBS[sub].lv + ".", "sys"); sfx("error"); return; }
+  if (sub && !jobUnlocked(sub)) { log("You haven't unlocked that job yet.", "sys"); sfx("error"); return; }
   if (S.pet) releasePet("Your " + S.pet.name + " fades away.");
   save.mainJob = main;
   save.subJob = sub;

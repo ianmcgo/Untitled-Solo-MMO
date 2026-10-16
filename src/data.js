@@ -137,6 +137,33 @@ function slotFor(id, gear, want) { const ks = slotKeys(ITEMS[id].slot); if (want
 const RES_ELEMENTS = ["fire", "ice", "wind", "earth", "lightning", "water", "light", "dark"];
 const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN", "DRK", "BRD"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
+const JOB_REQ = {
+  THF: { WAR: 5 }, MNK: { WAR: 5 }, RDM: { WHM: 5, BLM: 5 }, RNG: { THF: 5, MNK: 5 }, SCH: { WHM: 10 }, COR: { SCH: 5, THF: 5 },
+  DRK: { WAR: 5, BLM: 5 }, GEO: { MNK: 5 }, BST: { GEO: 5 }, NIN: { THF: 5, WAR: 5 }, PLD: { WAR: 5, WHM: 5 }, DNC: { THF: 5, BLM: 5 },
+  BRD: { WHM: 5, THF: 5 }, DRG: { THF: 5, NIN: 5 }, SAM: { WAR: 10 }, SMN: { BLM: 10, WHM: 10, RDM: 10 }, BLU: { BLM: 10, WHM: 10 },
+  RUN: { WAR: 10, BLM: 10 }, PUP: { RDM: 10, BLM: 10 }
+};
+const JOB_FLAVOUR = {
+  THF: "Quick hands and quicker feet. You picked up a fighter's footwork and put it to better use.",
+  MNK: "A warrior's discipline, turned inward. Your fists are enough.",
+  RDM: "Healing and harm, side by side. Two schools of magic taught you to blend them.",
+  RNG: "Patience from the shadows and a steady eye for a target.",
+  SCH: "Long study in a healer's books has opened a scholar's path.",
+  COR: "A scholar's odds and a thief's nerve. Fortune favours the bold.",
+  DRK: "Steel and dark spells. A heavier power, and a heavier price.",
+  GEO: "The monk's stillness lets you hear the land itself.",
+  BST: "Those who read the land can read its creatures too.",
+  NIN: "Shadow and steel, moving without a sound.",
+  PLD: "Sword and shield, and a healer's mercy. A guardian is born.",
+  DNC: "Grace as a weapon, with a little magic in the steps.",
+  BRD: "A healer's calm and a thief's cheek make a fine singer.",
+  DRG: "The ninja's leap, carried higher on the wing of a spear.",
+  SAM: "A warrior's mastery, cut down to a single perfect stroke.",
+  SMN: "Three schools of magic, and now something answers when you call.",
+  BLU: "Fire and healing taught you how monsters do what they do.",
+  RUN: "A warrior's steel, and the old runes of the dark mages.",
+  PUP: "Scarlet craft and black art, and a puppet that fights for you."
+};
 const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 }, THF: { quest: "thf", lv: 6 }, MNK: { quest: "mnk", lv: 6 }, RNG: { quest: "rng", lv: 6 }, SMN: { quest: "smn", lv: 6 }, DRK: { quest: "drk", lv: 10 }, BRD: { quest: "brd", lv: 10 } };
 
 const JOBS = {

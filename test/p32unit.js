@@ -4,6 +4,7 @@ const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const npc = id => S.npcs.find(n => n.id === id);
 const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
 G.enterZone('outpost'); run(0.2);
+for (const j in G.JOBS) G.save.jobsUnlocked[j] = true;
 G.save.jobs.WAR.lv = 14; G.refreshPlayer(true);
 G.talkTo(npc('tobin'));
 ok(!!opt(/Call of the Wild/) && !!opt(/Borrowed Art/) && !!opt(/Lady Luck/), 'Tobin offers the Beastmaster, Blue Mage and Corsair quests at 14');

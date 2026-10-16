@@ -51,6 +51,6 @@ All requirements are the job's own level, not the main job level, and a job coun
 
 | Phase | Model | Work |
 |---|---|---|
-| J1 | Sonnet | `JOB_REQ` table, the unlock check on level up and on load, residence list that hides locked jobs, toast, unlock popup with queue, tests, Help, Updates. Quests stay as story only. |
+| J1 (done 18.34.0) | Sonnet | `JOB_REQ` table, the unlock check on level up and on load, residence list that hides locked jobs, toast, unlock popup with queue, tests, Help, Updates. Quests stay as story only. |
 
 Dependencies: none. It can be built before or after M4.

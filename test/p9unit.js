@@ -5,6 +5,7 @@ const npc = id => S.npcs.find(n => n.id === id);
 const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
 
 G.enterZone('outpost'); run(0.2);
+for (const j in G.JOBS) G.save.jobsUnlocked[j] = true;
 G.save.jobs.WAR.lv = 6; G.refreshPlayer(true);
 G.talkTo(npc('tobin'));
 ok(!!opt(/Light Fingers/) && !!opt(/Open Hand/), 'Tobin offers the Thief and Monk quests at level 6');

@@ -717,6 +717,7 @@ function gameConfirm(title, text, onYes, opts) {
   const yes = box.querySelector(".yes"), no = box.querySelector(".no");
   yes.textContent = opts.yes || "OK";
   no.textContent = opts.no || "Cancel";
+  no.style.display = opts.noBtn === false ? "none" : "";
   yes.className = "yes sel " + (opts.danger ? "danger" : "pri");
   no.className = "no";
   yes.onmouseenter = () => { yes.classList.add("sel"); no.classList.remove("sel"); };
@@ -964,7 +965,6 @@ function watchProgress() {
     for (const a of actionList(player)) if (!before.includes(a.kind + ":" + a.id)) chips.push(actIcon(a) + " " + esc(actName(a)));
     if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("💬 Tobin wants a word");
     if (lv === CONFIG.mountLevel && !save.mountLicense) chips.push("💬 Ysolde wants a word");
-    if (lv === 6 && Object.keys(ADVANCED_JOBS).some(j => !jobUnlocked(j))) chips.push("💬 Tobin can teach advanced jobs");
     if (lv >= CONFIG.levelCap) chips.push("⭐ Level cap reached");
     banner("LEVEL " + lv, JOBS[j].name, chips);
   }

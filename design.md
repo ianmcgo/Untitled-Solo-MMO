@@ -1970,3 +1970,12 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - The random `tickAuction` sale of player listings is unchanged and still runs alongside.
 - Until M5d, online players use the same local market too (nothing is sent to the server).
 - Tests: test/m5cunit.js.
+
+## 18.34.0: job unlock tree (J1)
+- JOB_REQ (data.js) maps each of the 19 non-starting jobs to required job levels; JOB_FLAVOUR holds Tobin's lines. jobReqMet(sv,j) checks levels reached.
+- checkJobUnlocksIn(sv) sets sv.jobsUnlocked and returns the new ones; used silently in normalizeSave (no popups on load). checkJobUnlocks() runs after level up and every 4th landmark tick, logs a line and queues save.jobPopups.
+- jobPopupTick shows queued popups via gameConfirm (tag jobpop, no No button) only when calmNow() and no confirm is open.
+- giveReward no longer unlocks jobs. questOfferable hides quests whose reward.unlock job is locked; Tobin's PLD/RDM offers are guarded by jobUnlocked. Quests are now post-unlock initiations giving first weapons.
+- tabJob skips locked jobs; mercLockedReason says "Unlocks as you learn more jobs"; setJob refuses locked jobs.
+- talkTobin: "Why do I have to unlock jobs?" and "How am I doing?" (jobProgressHint, never names jobs).
+- Tests: j1unit.js; older tests pre-unlock jobs.
