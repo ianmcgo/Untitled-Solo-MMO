@@ -1870,3 +1870,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 **Collision.** In `world3d.js` every large rock now adds a collider (radius 0.85 of its visual radius; before, only rocks with scale above 1.3 did) and outer stalagmites add one (0.7 of base radius). Pebbles (small rocks) still do not block.
 
 **Models.** Bee eyes (`beeEntry`): radius 0.04, 12 segments, centred on the head surface, plus a highlight ball. `quadEntry` has a `slim` mode: the torso is a `gSweepZ` loft (`TORSO` ring table) with a tucked waist and deeper chest, shoulder and haunch balls on the leg bones, thicker upper legs and thin cannon bones with a knee ball. Deer, dog and cat use it with narrower `bodyW`. Pipkin gait: `RACE_GAIT.pipkin.leg` 0.6 scales thigh and knee swing and the Pipkin stride is 1.3 (was 0.85), so legs step less often and swing less.
+
+## 18.21.0: payload trim and load timing
+- build.mjs phase 4 minifies the game script with esbuild (`min: true`); dist/game.js stays unminified so test/harness.js keeps working. src/three-entry.js lists only the THREE names the code uses (regenerate the list with grep `THREE\.\w+` if new ones are added, otherwise it is undefined at runtime).
+- Supabase bundle is embedded as `<script type="text/plain" id="supaSrc">` and evaluated on demand by `supaLoad()` in net.js (called from `netInit` and offline sign-in).
+- PERF (view3d.js): boot marks, per-zone step timings, worst frame gap, `PERF.props()` floating-prop scan, `/perf` command. Numbers and findings in design/load-baseline.md.

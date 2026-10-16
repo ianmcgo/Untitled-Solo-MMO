@@ -1638,6 +1638,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.21.0", date: "2026-10-16", title: "Smaller download and load timing", items: [
+    "<b>Smaller download:</b> the game code is now compacted and the 3D library only includes the parts the game uses, cutting the file by about 9% (6.39 MB to 5.83 MB). Sound is unchanged.",
+    "<b>Faster start:</b> the online-account library is only unpacked when you open Play Online or offline sign-in, so the title screen appears sooner.",
+    "<b>Load timing:</b> type <b>/perf</b> to see how long the game took to start and to load your recent zones, step by step. It is meant for finding slow spots and for bug reports."
+  ] },
   { v: "18.20.0", date: "2026-10-16", title: "Sprint, victory fanfare and a living sky", items: [
     "<b>Sprint:</b> hold Shift while moving to run about 45% faster on foot.",
     "<b>Victory fanfare:</b> winning a battle plays a short triumphant brass fanfare once the last monster that was fighting you falls. Monsters too weak to give experience stay quiet.",
@@ -3302,6 +3307,7 @@ function tabHelp() {
   ]));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 20 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
+    "Type <b>/perf</b> in chat to list how long start-up and your last few zone loads took, step by step, plus any props floating above the ground.",
     "Config → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Config → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
   ]));

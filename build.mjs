@@ -10,7 +10,7 @@ const builds = {
   "1": { template: "template2d.html", files: ["gear.js", "data.js", "game.js", "hud.js", "view2d.js", "main.js"], three: false },
   "2": { template: "template3d.html", files: ["gear.js", "data.js", "game.js", "hud.js", "textures.js", "world3d.js", "view3d.js", "main.js"], three: true },
   "3": { template: "template3d.html", files: ["gear.js", "data.js", "game.js", "hud.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "main.js"], three: true },
-  "4": { template: "template4.html", files: ["gear.js", "data.js", "game.js", "@audio", "@sql", "audio.js", "hud4.js", "icons.js", "menu4.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "net.js", "main4.js"], three: true, supa: true }
+  "4": { template: "template4.html", files: ["gear.js", "data.js", "game.js", "@audio", "@sql", "audio.js", "hud4.js", "icons.js", "menu4.js", "textures.js", "world3d.js", "rig.js", "anim.js", "effects3d.js", "models3d.js", "view3d.js", "net.js", "main4.js"], three: true, supa: true, min: true }
 };
 
 let AUDIO_JSON = null;
@@ -37,6 +37,7 @@ function audioData() {
 const b = builds[phase];
 const sqlData = () => "const SETUP_SQL = " + JSON.stringify(fs.readFileSync(path.join(root, "sql", "setup.sql"), "utf8")) + ";";
 const game = b.files.map(f => f === "@audio" ? audioData() : f === "@sql" ? sqlData() : src(f)).join("\n");
+const shipped = b.min ? execFileSync(path.join(root, "node_modules", ".bin", "esbuild"), ["--minify", "--legal-comments=none", "--target=es2020"], { input: game, maxBuffer: 1 << 28 }).toString("utf8") : game;
 fs.mkdirSync(path.join(root, "dist"), { recursive: true });
 fs.writeFileSync(path.join(root, "dist", "game.js"), game);
 
@@ -49,10 +50,10 @@ if (b.three) {
 if (b.supa) {
   const out = path.join(root, "dist", "supa.iife.js");
   execFileSync(path.join(root, "node_modules", ".bin", "esbuild"), [path.join(root, "src", "supa-entry.js"), "--bundle", "--minify", "--format=iife", "--global-name=SUPA", "--legal-comments=none", "--outfile=" + out], { stdio: "inherit" });
-  scripts += "<script>" + fs.readFileSync(out, "utf8").replace(/<\/script/gi, "<\\/script") + "</script>\n";
+  scripts += '<script type="text/plain" id="supaSrc">' + fs.readFileSync(out, "utf8").replace(/<\/script/gi, "<\\/script") + "</script>\n";
 }
 if (AUDIO_JSON) scripts += '<script type="application/json" id="audioData">' + AUDIO_JSON + "</script>\n";
-scripts += "<script>\n" + game.replace(/<\/script/gi, "<\\/script") + "\n</script>";
+scripts += "<script>\n" + shipped.replace(/<\/script/gi, "<\\/script") + "\n</script>";
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 const stamp = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, timeZoneName: "short" }).format(new Date()).replace(",", "");
 const html = src(b.template).replace("<!--SCRIPTS-->", () => scripts).replaceAll("__VERSION__", "v" + pkg.version + " · built " + stamp).replaceAll("__PKGVER__", pkg.version);
