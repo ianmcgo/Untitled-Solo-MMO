@@ -19,7 +19,7 @@ const mockLogin = require('/home/claude/untitled-solo-mmo/test/mocklogin');
     window.groundY = () => 0; window.footGround = () => 0;
     const v = viewFor(e); W3.scene.remove(v.group); studio.add(v.group); const dt = 1 / 60;
     for (let i = 0; i < 30; i++) { S.time += dt; syncEntity(e, dt); }
-    for (let i = 0; i < 40; i++) { S.time += dt; syncEntity(e, dt); }
+    for (let i = 0; i < 420; i++) { S.time += dt; syncEntity(e, dt); }
     const A = ENV.WS;
     if (A === 'death') { e.alive = false; }
     else if (A === 'rise') { e.alive = false; for (let i = 0; i < 150; i++) { S.time += dt; syncEntity(e, dt); } e.alive = true; }
