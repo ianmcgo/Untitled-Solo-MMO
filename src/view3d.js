@@ -481,6 +481,13 @@ function buildZoneNow() {
 }
 async function buildZoneAsync(job, p0, p1) {
   clearViews();
+  W3.terrainPre = null;
+  try {
+    const tk = terrainKey(), tc = performance.now(), rec = await cacheGet(tk), img = await cacheImage(rec);
+    PERF.slice(img ? "cache read hit" : "cache read miss", performance.now() - tc);
+    if (job !== VIEW.zoneJob) return false;
+    if (img) W3.terrainPre = { key: tk, img };
+  } catch (e) {}
   const gen = buildZone3DSteps();
   let last = performance.now(), r, lab = "start", sl = last;
   while (!(r = gen.next()).done) {

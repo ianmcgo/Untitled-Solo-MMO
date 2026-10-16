@@ -1,4 +1,4 @@
-# Load time and zoning plan (drafted 2026-10-16). Phase 0 done (design/load-baseline.md), Phase 1 done in 18.21.0, Phase 2 done in 18.22.0 (icons off boot path; shader link wait not fixable in the test rig)
+# Load time and zoning plan (drafted 2026-10-16). Done: Phase 0 (design/load-baseline.md), 1 (18.21.0), 2 (18.22.0), 3 (18.23.0, terrain and icon cache). Next: 5, 5b, then 4 only if needed, 6
 
 Baseline at v18.19.13: dist/index.html 6.37 MB, single file. Order: CSS, HTML, THREE bundle (full namespace), game scripts, audio JSON block (about 3.1 MB, does not compress). Boot: renderer, atlas (0.5 s low / 2.0 s high), effects, icon atlas, save and party, zone build in 28 ms slices, compileAsync (6 s cap). data.js runs heavy generation at parse time. localStorage is shared per github.io origin, so any cache must use IndexedDB.
 

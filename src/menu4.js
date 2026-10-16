@@ -1638,6 +1638,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.23.0", date: "2026-10-16", title: "Return visits load faster", items: [
+    "<b>Saved textures:</b> after a zone's ground is painted once, the picture is kept in your browser. Coming back to that zone (or reloading the game) skips the painting step, which was the slowest part of building a zone.",
+    "<b>Saved item icons:</b> the item icon sheet is kept the same way, so after the first start the icons are ready almost instantly.",
+    "Saved pictures belong to one game version and are thrown away automatically when the game updates. Up to 24 zones are kept, oldest dropped first. Type <b>/clearcache</b> to remove them by hand."
+  ] },
   { v: "18.22.0", date: "2026-10-16", title: "Faster start-up", items: [
     "<b>Faster start-up:</b> the title screen now appears about 3 seconds sooner on a slow test setup (1.7 s instead of 4.8 s). Item icons are drawn in the background while you read the title, then finished before you enter the world.",
     "<b>Smoother zone loading:</b> zone textures are sent to the graphics card in small slices while the loading screen animates, instead of all at once on the first frame. Gains depend on your device."
@@ -3311,6 +3316,7 @@ function tabHelp() {
   ]));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 20 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
+    "The game keeps painted ground textures and the item icon sheet in your browser so return visits load faster. They reset on every update; <b>/clearcache</b> removes them if anything looks wrong.",
     "Type <b>/perf</b> in chat to list how long start-up and your last few zone loads took, step by step, plus any props floating above the ground.",
     "Config → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Config → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."

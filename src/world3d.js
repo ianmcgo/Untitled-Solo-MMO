@@ -148,6 +148,9 @@ function std(params) { return new THREE.MeshStandardMaterial(Object.assign({ rou
 
 function buildTerrain(field) { return runSteps(buildTerrainSteps(field)); }
 
+function terrainSize() { return W3.quality === "high" ? 2048 : W3.quality === "medium" ? 1536 : 1024; }
+function terrainKey() { return "t|" + S.zoneId + "|" + terrainSize(); }
+
 function* buildTerrainSteps(field) {
   const geo = new THREE.PlaneGeometry(field.w * U, field.h * U, field.cols - 1, field.rows - 1);
   geo.rotateX(-Math.PI / 2);
@@ -159,7 +162,7 @@ function* buildTerrainSteps(field) {
     pos.setY(k, field.data[k]);
   }
   geo.computeVertexNormals();
-  const size = W3.quality === "high" ? 2048 : W3.quality === "medium" ? 1536 : 1024;
+  const size = terrainSize();
   const map = yield* bakeTerrainAlbedoSteps(field, size);
   const detail = texDetailNormal();
   const nm = detail.clone();

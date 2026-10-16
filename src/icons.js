@@ -325,12 +325,30 @@ function* itemIconSteps() {
     ICONS.map[id] = [i % cols, Math.floor(i / cols), ok];
     if (i % 12 === 11) yield;
   }
+  cacheStoreCanvas(iconKey(ids), cv, "image/png", 1, { cols, rows, map: ICONS.map });
+  applyIconAtlas(cv.toDataURL("image/png"), cols, rows, ids);
+}
+
+function iconKey(ids) { return "i|" + ids.length + "|" + ids[0] + "|" + ids[ids.length - 1]; }
+
+function applyIconAtlas(url, cols, rows, ids) {
   ICONS.cols = cols; ICONS.rows = rows;
-  ICONS.url = cv.toDataURL("image/png");
+  ICONS.url = url;
   const st = document.createElement("style");
   st.textContent = ".iico{display:inline-block;width:1.45em;height:1.45em;vertical-align:-.36em;background-image:url(" + ICONS.url + ");background-size:" + (cols * 1.45) + "em " + (rows * 1.45) + "em;background-repeat:no-repeat;image-rendering:auto}";
   document.head.appendChild(st);
   for (const id of ids) { const [cx, cy] = ICONS.map[id]; ITEMS[id].icon = '<i class="iico" style="background-position:-' + (cx * 1.45).toFixed(2) + "em -" + (cy * 1.45).toFixed(2) + 'em"></i>'; }
+}
+
+async function iconsFromCache() {
+  if (ICONS.url || typeof ITEMS === "undefined") return false;
+  const ids = Object.keys(ITEMS), rec = await cacheGet(iconKey(ids));
+  const m = rec && rec.meta;
+  if (!m || !m.map || ids.some(id => !m.map[id])) return false;
+  for (const id of ids) { const it = ITEMS[id]; if (it.emoji == null) it.emoji = it.icon || "📦"; }
+  ICONS.map = m.map;
+  applyIconAtlas(URL.createObjectURL(rec.blob), m.cols, m.rows, ids);
+  return true;
 }
 
 function buildItemIcons() {
@@ -339,7 +357,10 @@ function buildItemIcons() {
 
 function buildItemIconsAsync() {
   if (ICONS.job) return ICONS.job;
-  ICONS.job = new Promise(res => {
+  ICONS.job = new Promise(async res => {
+    let hit = false;
+    try { hit = await iconsFromCache(); } catch (e) {}
+    if (hit) { PERF.mark("icons (cache)"); res(); return; }
     const gen = itemIconSteps();
     const tick = () => {
       const t = performance.now();
