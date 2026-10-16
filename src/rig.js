@@ -2912,6 +2912,7 @@ function mobLook(m) {
     const king = key === "cactus_king";
     return { kind: "human", look: { cactus: true, flower: king ? 0xffd54f : 0xf06292, skin: king ? 0x3f7a34 : 0x4f9a42, noFace: true, eyesGlow: 0x111111, ears: "none", needles: true, barefoot: true, top: { type: "rags", color: king ? 0x4a8a3a : 0x5aa04a, sleeves: "none" }, legs: king ? 0x4a8a3a : 0x5aa04a, hair: { style: "bald", color: 0x222 }, head: king ? { type: "crown" } : null, prop: { leg: 0.7, torso: 0.5, headR: 0.13, arm: 0.45, shoulder: 0.15, hip: 0.07, neck: 0.02, girth: 0.95 } } };
   }
+  if (model === "wisp") return { kind: "wisp", col: f.tint || 0xffffff, col2: f.tint2 || 0xffffff };
   if (model === "bomb") return { kind: "bomb", col: key === "frost_bomb" ? 0x81d4fa : key === "ashen_bomb" ? 0x9e9e9e : 0xff7043, eye: key === "frost_bomb" ? 0xffffff : 0xfff3c0 };
   if (model === "ghoul") {
     const warden = key === "ossuary_warden";
@@ -3081,6 +3082,7 @@ function buildEntityRig(e) {
     else if (ml.kind === "longneck") { sig = "longneck|" + ml.col; make = () => longneckEntry(ml.col); }
     else if (ml.kind === "crab") { sig = "crab|" + ml.col + ml.col2; make = () => crabEntry(ml.col, ml.col2); }
     else if (ml.kind === "mandrake") { sig = "mandrake|" + ml.col + ml.col2; make = () => mandrakeEntry(ml.col, ml.col2); }
+    else if (ml.kind === "wisp") { sig = "wisp|" + ml.col + ml.col2; make = () => wispEntry(ml.col, ml.col2); }
     else if (ml.kind === "bulb") { sig = "bulb|" + ml.col + ml.col2; make = () => bulbEntry(ml.col, ml.col2); }
     else if (ml.kind === "shroom") { sig = "shroom|" + ml.col + ml.col2; make = () => shroomEntry(ml.col, ml.col2); }
     else if (ml.kind === "fish") { sig = "fish|" + ml.col + ml.col2; make = () => fishEntry(ml.col, ml.col2); }
