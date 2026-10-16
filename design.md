@@ -1952,3 +1952,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `COMPANION_CFG.oldFriendsMax = 8`; `mercLeave` drops the entry with the smallest `left` and frees its generated def.
 - Tests: test/m5aunit.js (towns have a house and an auctioneer, own rotation, per-town counts, migration, cap).
 - M5b will merge player and mercenary lots into the same list; the Buy list is still town-stock only.
+
+## 18.32.0: one market list (M5b)
+- `AH_KINDS` (data.js): town 🏛 gold, player 👤 green, merc ⚔ violet, with labels.
+- `marketLines(id, online)` returns the sellers for one item sorted by price per item: town lines from `ahStockAt` per town, local lots from `save.market.local.lots` (`{ id, qty, price, kind, seller, owner }`, M5c will fill it), and online lots (`kind` defaults to player; `merc_name` shown for mercenaries). `marketItems(online)` is the union of items to list. `ahBuy(id, qty, town)` buys from one town; `ahBuyLocal(i)` buys a local lot (pays the price, removes the lot; proceeds to the seller are M5c work). Online lots still buy through `netAhBuy` (`pmbuy`).
+- UI: the Players tab and `pmView` are removed. `tabAuction` Buy view has the Show filter (`UI.ahSrc`, action `ahsrc`), per-row kind counts and minimum price, and `ahDetail` lists the lines with a coloured left border. Online lots load through `pmLoad` when the player is online.
+- `normalizeSave` filters `save.market.local.lots`.
+- Tests: test/m5bunit.js.

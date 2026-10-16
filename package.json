@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.31.0",
-  "releaseTitle": "Every town has its own auction stock",
+  "version": "18.32.0",
+  "releaseTitle": "One market list",
   "description": "",
   "main": "index.js",
   "scripts": {
