@@ -37,7 +37,7 @@ ok(['dia', 'cure', 'stone', 'poison', 'paralyze', 'protect', 'blind', 'convert']
 ok(G.skillCap(P(), 'enfeebling') > 0 && G.skillCap(P(), 'sword') > G.skillCap(P(), 'club'), 'RDM skill caps: enfeebling exists, sword B over club D');
 
 G.enterZone('hollow', 200, 1100); run(1); S.mobs = []; S.spawnAt = [];
-const m = G.buildMob('goblin', 6, 240, 1100, 0); S.mobs.push(m);
+const m = G.buildMob('goblin', 6, 240, 1100, 0, false); S.mobs.push(m);
 const d0 = G.stat(m, 'def');
 G.save.jobs.RDM.lv = 13; G.refreshPlayer(true); if (!G.save.spells.includes('slow')) G.save.spells.push('slow');
 P().mp = 200; P().target = m; const sv1 = Math.random; Math.random = () => 0.2;

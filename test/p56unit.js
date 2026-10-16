@@ -54,14 +54,14 @@ ok(spirits.every(id => Object.values(G.NM_FAMILIES).some(f => f.loot.some(l => l
 ok(Object.keys(G.NM_FAMILIES).filter(k => /_elemental$/.test(k)).every(k => G.FAMILIES[G.NM_FAMILIES[k].base]), 'every elemental has a valid base family');
 let nmSpawns = 0; for (const z of Object.values(G.ZONES)) for (const sp of z.spawns || []) if (sp.nm && /_elemental$/.test(sp.nm.id)) nmSpawns++;
 ok(nmSpawns === 8, 'eight elementals have spawn points (' + nmSpawns + ')');
-for (const id of ['goblin_apprentice', 'den_conjurer', 'mire_hexer', 'frost_shaman']) ok(G.FAMILIES[id] && G.FAMILIES[id].spells.every(x => G.SPELLS[x.id]), id + ' is a valid goblin caster');
+for (const id of ['goblin_apprentice', 'den_conjurer', 'mire_hexer', 'frost_shaman', 'birdfolk_priest']) ok(!G.FAMILIES[id], id + ' is gone');
 G.save.jobs.RDM && 0;
 S.mobs = []; P().buffs = {}; P().hp = P().maxHp; P().mp = P().maxMp;
 G.enterZone('marsh', 1900, 700); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
-const hx = G.buildMob('mire_hexer', 12, P().x + 150, P().y, 0); S.mobs.push(hx); hx.nextCast = 0; G.aggro(hx, P());
+const hx = G.buildMob('mire_goblin', 12, P().x + 150, P().y, 0, 'BLM'); S.mobs.push(hx); hx.nextCast = 0; G.aggro(hx, P());
 const seen = {}; const origSay = sv; for (let i = 0; i < 60 * 40 && P().alive; i++) { tick(1000 / 60); if (hx.casting) seen[hx.casting.id] = 1; hx.hp = hx.maxHp; }
-ok(Object.keys(seen).length >= 2, 'a Mire Hexer casts several different spells (' + Object.keys(seen).join(',') + ')');
-ok(P().hp < P().maxHp || P().buffs.poison || P().buffs.slow || P().buffs.silence, 'the Hexer\'s spells affect you');
+ok(Object.keys(seen).length >= 2, 'a Black Mage Mire Goblin casts several different spells (' + Object.keys(seen).join(',') + ')');
+ok(P().hp < P().maxHp || P().buffs.poison || P().buffs.slow || P().buffs.silence, 'its spells affect you');
 P().buffs = {}; hx.buffs.silence = { until: S.time + 60 }; hx.casting = null; hx.nextCast = 0; let c2 = false;
 for (let i = 0; i < 60 * 8; i++) { tick(1000 / 60); if (hx.casting) c2 = true; }
 ok(!c2, 'a silenced goblin caster cannot cast');

@@ -461,7 +461,7 @@ function updateTarget() {
     setW($("tSwing"), t.state === "combat" && t.alive ? 100 * clamp(1 - t.swingTimer / t.delay, 0, 1) : 0);
     setTxt($("tToT"), t.target && t.alive && t.state === "combat" ? "→ " + (t.target === player ? "You" : t.target.name || "") : "");
     const w = $("tWarn");
-    if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + t.fam.tpMove.name + "!"); } else w.style.display = "none";
+    if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + mobMoveName(t) + "!"); } else w.style.display = "none";
     let info = !t.alive ? "Defeated" : t.state === "combat" ? "In combat" : t.state === "return" ? "Returning" : "Idle";
     if (player.engaged && player.attackTarget === t && t.alive) info += dist(player, t) <= reach(player) ? " · in range" : " · too far";
     if (t.claim && t.alive && claimName(t) !== "you") info += " · claimed by " + claimName(t);

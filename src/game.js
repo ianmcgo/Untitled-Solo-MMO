@@ -110,6 +110,7 @@ function normalizeSave(d) {
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
   if (out.bestiary) for (const k in out.bestiary) if (!out.bestiary[k] || !out.bestiary[k].kills) delete out.bestiary[k];
+  if (out.bestiary) for (const o in MOB_RENAMED) if (out.bestiary[o]) { const n = MOB_RENAMED[o], b = out.bestiary[o]; if (out.bestiary[n]) out.bestiary[n].kills = (out.bestiary[n].kills || 0) + (b.kills || 0); else out.bestiary[n] = b; delete out.bestiary[o]; }
   if (!d.zv && out.loc && ZONE_SCALE[out.loc.zone]) { out.loc = Object.assign({}, out.loc, { x: Math.round(out.loc.x * ZONE_SCALE[out.loc.zone]), y: Math.round(out.loc.y * ZONE_SCALE[out.loc.zone]) }); }
   if ((d.zv || 0) < 2 && out.loc && out.loc.zone === "outpost") out.loc = { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y };
   if ((d.zv || 0) < 3 && out.loc && (out.loc.zone === "harbor" || out.loc.zone === "ironvale")) out.loc = { zone: out.loc.zone, x: ZONES[out.loc.zone].start.x, y: ZONES[out.loc.zone].start.y };
@@ -1181,8 +1182,78 @@ function mobCurve(L) {
   return o;
 }
 
-function buildMob(famKey, L, x, y, spawnIdx) {
+function mobJobOk(f) { return !!f && MOB_JOB_MODELS.includes(f.model) && !f.nm && !f.boss && !f.summoned; }
+function rollMobJob() {
+  const js = Object.keys(JOBS), w = js.map(j => BASE_JOBS.includes(j) || j === "THF" ? 1.5 : 1);
+  let r = Math.random() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < js.length; i++) { r -= w[i]; if (r <= 0) return js[i]; }
+  return js[js.length - 1];
+}
+function mobSpellSpec(id, job) {
+  const sp = SPELLS[id], jl = sp.jobs[job] || 1;
+  if (MOB_HEAL[id]) return { id, heal: MOB_HEAL[id] };
+  if (sp.kind === "nuke") return { id, mul: +(1.2 + jl * 0.045).toFixed(2) };
+  if (sp.kind === "bluephys") return { id, mul: sp.mul || 1.5 };
+  if (sp.kind === "drain") return { id, mul: 1.1, drain: true };
+  if (sp.kind === "dot" && sp.buff) return { id, dot: sp.buff, dur: Math.min(60, (sp.dot && sp.dot.dur) || 45), el: sp.element || "dark", tick: (sp.dot && sp.dot.tick) || 1 };
+  if (MOB_DEBUFF[id]) return { id, status: MOB_DEBUFF[id] };
+  if (MOB_BUFF[id]) return { id, buff: MOB_BUFF[id] };
+  return null;
+}
+function mobKit(job, lv) {
+  const have = Object.keys(SPELLS).filter(id => SPELLS[id].jobs && SPELLS[id].jobs[job] && SPELLS[id].jobs[job] <= lv).map(id => mobSpellSpec(id, job)).filter(Boolean);
+  const best = arr => arr.sort((a, b) => SPELLS[b.id].jobs[job] - SPELLS[a.id].jobs[job])[0] || null;
+  const pick = arr => arr.length ? arr[Math.floor(Math.random() * arr.length)] : null;
+  const nuke = best(have.filter(s => s.mul && SPELLS[s.id].kind === "nuke"));
+  const spells = [best(have.filter(s => s.heal)), nuke || best(have.filter(s => s.mul)), pick(have.filter(s => s.status || s.dot)), pick(have.filter(s => s.buff))].filter(Boolean);
+  const abil = Object.keys(ABILITIES).filter(id => ABILITIES[id].job === job && ABILITIES[id].lv <= lv && (MOB_ABIL_BUFFS.includes(ABILITIES[id].buff) || MOB_ABIL_HEALS[id]));
+  const wt = MOB_JOB_WEAPON[job], skill = 5 + lv * 3;
+  const ws = Object.keys(WEAPON_SKILLS).filter(id => WEAPON_SKILLS[id].wtype === wt && WEAPON_SKILLS[id].skill <= skill).sort((a, b) => WEAPON_SKILLS[b].skill - WEAPON_SKILLS[a].skill)[0];
+  const big = MOB_CASTERS[job] && nuke ? "sp:" + nuke.id : ws ? "ws:" + ws : null;
+  return { spells, abil, big, gap: MOB_CASTERS[job] ? [6, 9] : [9, 13] };
+}
+function mobBigMove(m, code) {
+  if (!code || code === "f") return m.fam.tpMove;
+  const i = code.indexOf(":"), k = code.slice(0, i), id = code.slice(i + 1);
+  if (k === "ws" && WEAPON_SKILLS[id]) return { name: WEAPON_SKILLS[id].name, mul: +(WEAPON_SKILLS[id].ftp[0] + 0.1).toFixed(2), code };
+  if (k === "sp" && SPELLS[id]) { const sp = SPELLS[id], jl = (m.job && sp.jobs[m.job]) || 1; return { name: sp.name, mul: +((1.2 + jl * 0.045) * 1.3).toFixed(2), el: sp.element, code, spell: true }; }
+  return m.fam.tpMove;
+}
+function mobMoveName(m) { return ((m.readying && m.readying.move) || m.fam.tpMove || {}).name || "a special move"; }
+function mobReady(m, t) {
+  const code = m.kit && m.kit.big && Math.random() < 0.5 ? m.kit.big : "f";
+  const mv = mobBigMove(m, code);
+  m.readying = { t: 1.0, target: t, start: S.time, move: mv };
+  log("The " + m.name + " readies " + mv.name + ".", "foe");
+  popText(m, mv.name, mv.spell ? "#ba68c8" : "#ff8a65", 13, 1.2, 14);
+  sfx("tpready", m);
+}
+function mobBuffPow(k, lv) {
+  if (k === "protect") return 8 + lv;
+  if (k === "blaze_spikes" || k === "ice_spikes") return 2 + Math.floor(lv / 3);
+  if (EN_KEYS.includes(k)) return 2 + Math.floor(lv / 4);
+  if (k === "minne") return 5 + lv;
+  if (k === "minuet") return 0.1;
+  if (k === "madrigal") return 10 + lv;
+  if (k === "paeon") return 1;
+  return 1;
+}
+function mobUseAbility(m) {
+  m.nextAbil = S.time + rand(12, 20);
+  const ok = m.kit.abil.filter(id => S.time >= (m.recasts[id] || 0) && (MOB_ABIL_HEALS[id] ? m.hp < m.maxHp * 0.5 : !m.buffs[ABILITIES[id].buff]));
+  if (!ok.length) return false;
+  const id = ok[Math.floor(Math.random() * ok.length)], ab = ABILITIES[id];
+  m.recasts[id] = S.time + Math.max(30, ab.recast || 60);
+  log("The " + m.name + " uses " + ab.name + ".", "foe");
+  popText(m, ab.name, "#ffcc80", 13, 1.1, 14);
+  if (MOB_ABIL_HEALS[id]) { const amt = Math.min(m.maxHp - m.hp, Math.round(m.maxHp * MOB_ABIL_HEALS[id])); m.hp += amt; popText(m, "+" + amt, "#9ad06b", 16); sfx("cure", m); }
+  else { m.buffs[ab.buff] = { until: S.time + (ab.dur || 30), src: m }; sfx("buff", m); }
+  return true;
+}
+
+function buildMob(famKey, L, x, y, spawnIdx, jobWant) {
   const f = famOf(famKey);
+  const job = jobWant === false ? null : jobWant && JOBS[jobWant] && mobJobOk(f) ? jobWant : mobJobOk(f) ? rollMobJob() : null;
   const st = { str: 6 + 0.9 * L, dex: 6 + 0.8 * L, vit: 6 + 0.8 * L, agi: 6 + 0.8 * L, int: (f.int || 6) + 0.7 * L, mnd: 6 + 0.7 * L };
   for (const k of ATTRS) st[k] = Math.round(st[k]);
   const easy = f.nm || f.boss || L > 6 ? 1 : 0.55 + 0.075 * (L - 1), easyA = f.nm || f.boss || L > 6 ? 1 : 0.75 + 0.05 * (L - 1);
@@ -1194,9 +1265,12 @@ function buildMob(famKey, L, x, y, spawnIdx) {
   st.eva = Math.round((48 + 3.5 * L + (f.eva || 0)) * (easy < 1 ? 0.8 : 1));
   st.dmg = (6 + 1.25 * L) * easyA * cv.dmg;
   st.delay = f.delay;
+  const js = job && MOB_JOB_STATS[job];
+  if (js) { st.maxHp = Math.round(st.maxHp * js[0]); st.att = Math.round(st.att * js[1]); st.def = Math.round(st.def * js[2]); st.eva += js[3]; st.delay = +(f.delay * js[4]).toFixed(2); }
+  const kit = job ? mobKit(job, L) : null;
   return {
-    id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
-    x, y, px: x, py: y, home: { x, y }, radius: Math.round(f.radius * (f.scale || 1)), color: f.color, speed: f.speed * CONFIG.mobSpeedMul, delay: f.delay, swingTimer: f.delay,
+    id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, job, kit, spells: kit ? kit.spells : f.spells || null, castGap: kit ? kit.gap : f.castGap || [6, 9], stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
+    x, y, px: x, py: y, home: { x, y }, radius: Math.round(f.radius * (f.scale || 1)), color: f.color, speed: f.speed * CONFIG.mobSpeedMul, delay: st.delay, swingTimer: st.delay,
     state: "idle", enmity: new Map(), face: Math.random() * Math.PI * 2, alive: true, buffs: {}, chain: null, burst: null,
     spawnIdx, wanderTimer: 0, wanderDir: { x: 0, y: 0 }, readying: null, flash: 0, casting: null, recasts: {}, deadAt: 0, target: null, moving: false,
     lastSwing: -9, lastHit: -9, lastWS: -9
@@ -2756,7 +2830,7 @@ function doAbility(a, id, t) {
     log(subj(a) + " " + vb(a, "use") + " Shield Bash on the " + t.name + " for " + dmg + " damage.", cls(a));
     sfx("blunt", a);
     vfx("hit", { src: a, tgt: t, crit: true, slash: false });
-    if (t.readying) { t.readying = null; log("The " + t.name + "'s " + t.fam.tpMove.name + " is interrupted!", cls(a)); popText(t, "Interrupted", "#bbbbbb", 12, 0.9, 14); sfx("interrupt", t); }
+    if (t.readying) { const mn = mobMoveName(t); t.readying = null; log("The " + t.name + "'s " + mn + " is interrupted!", cls(a)); popText(t, "Interrupted", "#bbbbbb", 12, 0.9, 14); sfx("interrupt", t); }
     if (t.casting) interruptCast(t);
     applyDamage(a, t, dmg, { enmity: ab.enmity });
     if (t.alive) aggro(t, a);
@@ -3198,7 +3272,7 @@ function castDebuff(a, t, sp) {
   if (sp.thr) t.buffs[sp.buff].pow = sp.thr;
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place", silence: "silenced" }[sp.buff] || "weakened to " + sp.element + ".", cls(a));
   popText(t, sp.name, col, 14, 1.1);
-  if (sp.buff === "stun" && t.readying) { t.readying = null; t.tp = Math.floor(t.tp / 2); log("The " + t.name + "'s " + t.fam.tpMove.name + " is cut short!", cls(a)); }
+  if (sp.buff === "stun" && t.readying) { const mn = mobMoveName(t); t.readying = null; t.tp = Math.floor(t.tp / 2); log("The " + t.name + "'s " + mn + " is cut short!", cls(a)); }
   if (sp.buff === "sleep") { t.swingTimer = Math.max(t.swingTimer, 1); t.readying = null; }
   addEnmity(t, a, sp.enmity || 60);
   aggro(t, a);
@@ -3624,7 +3698,8 @@ function updateMob(m, dt) {
       if (S.time >= m.casting.end) finishMobCast(m);
       return;
     }
-    if (m.fam.spells && !m.buffs.silence && S.time >= (m.nextCast || 0) && dist(m, t) <= CONFIG.castRange && startMobCast(m, t)) return;
+    if (m.spells && m.spells.length && !m.buffs.silence && S.time >= (m.nextCast || 0) && dist(m, t) <= CONFIG.castRange && startMobCast(m, t)) return;
+    if (m.kit && m.kit.abil.length && !m.buffs.paralyze) { if (m.nextAbil == null) m.nextAbil = S.time + rand(3, 8); else if (S.time >= m.nextAbil) mobUseAbility(m); }
     if (!m.buffs.bind) moveToward(m, t.x, t.y, dt, mobReach(m) - 8);
     m.face = Math.atan2(t.y - m.y, t.x - m.x);
     m.swingTimer -= dt;
@@ -3633,12 +3708,7 @@ function updateMob(m, dt) {
         if (t.kind === "remote") { m.lastSwing = S.time; m.tp = Math.min(CONFIG.tpMax, m.tp + Math.round(CONFIG.tpPerDelay * m.delay)); netMobAttack(m, t, "sw"); }
         else swing(m, t);
         m.swingTimer = swingDelay(m);
-        if (m.alive && m.tp >= 1000 && m.fam.tpMove) {
-          m.readying = { t: 1.0, target: t, start: S.time };
-          log("The " + m.name + " readies " + m.fam.tpMove.name + ".", "foe");
-          popText(m, m.fam.tpMove.name, "#ff8a65", 13, 1.2, 14);
-          sfx("tpready", m);
-        }
+        if (m.alive && m.tp >= 1000 && m.fam.tpMove) mobReady(m, t);
       } else m.swingTimer = 0;
     }
     return;
@@ -3655,6 +3725,7 @@ function updateMob(m, dt) {
       m.chain = null;
       m.burst = null;
       m.buffs = {};
+      m.nextAbil = null;
     }
   }
 }
@@ -3717,20 +3788,23 @@ function bossReset(m) {
 
 function startMobCast(m, t) {
   if (t.kind === "remote") return false;
-  const kin = S.mobs.filter(o => o.alive && o !== m && o.fam.spells && o.hp < o.maxHp * 0.5 && dist(o, m) <= CONFIG.castRange);
-  const woundedSelf = m.hp < m.maxHp * 0.5 ? m : kin[0];
+  const list = m.spells || [];
+  const kin = S.mobs.filter(o => o.alive && o !== m && !o.proxy && o.state === "combat" && o.hp < o.maxHp * 0.5 && dist(o, m) <= CONFIG.castRange);
+  const wounded = m.hp < m.maxHp * 0.5 ? m : kin[0];
   let pick = null, tg = t;
-  const cure = m.fam.spells.find(x => x.heal);
-  if (cure && woundedSelf && Math.random() < 0.7) { pick = cure; tg = woundedSelf; }
+  const cure = list.find(x => x.heal), buff = list.find(x => x.buff && !m.buffs[x.buff]);
+  if (cure && wounded && Math.random() < 0.7) { pick = cure; tg = wounded; }
+  else if (buff && Math.random() < 0.35) { pick = buff; tg = m; }
   else {
-    const offense = m.fam.spells.filter(x => !x.heal && !(x.status && t.buffs[x.status[0]]));
+    const offense = list.filter(x => (x.mul || x.status || x.dot) && !(x.status && t.buffs[x.status[0]]) && !(x.dot && t.buffs[x.dot]) && !(x.status && x.status[0] === "sleep" && t === player));
     if (!offense.length) return false;
     pick = offense[Math.floor(Math.random() * offense.length)];
   }
   const sp = SPELLS[pick.id];
   m.casting = { id: pick.id, sp, spec: pick, t: tg, start: S.time, end: S.time + Math.max(1.5, sp.cast + 1) };
-  m.nextCast = S.time + rand(m.fam.castGap[0], m.fam.castGap[1]);
-  log("The " + m.name + " starts casting " + sp.name + ".", "foe");
+  const gap = m.castGap || [6, 9];
+  m.nextCast = S.time + rand(gap[0], gap[1]);
+  log("The " + m.name + " starts " + (sp.kind === "song" ? "singing " : "casting ") + sp.name + ".", "foe");
   popText(m, sp.name, "#ba68c8", 13, 1.2, 14);
   sfx("cast", m);
   vfx("cast", { src: m, sp });
@@ -3748,17 +3822,31 @@ function finishMobCast(m) {
     ring(t, "#9ad06b", 28, 0.5, "sparkle");
     return;
   }
-  log("The " + m.name + " casts " + sp.name + " on " + obj(t) + ".", "foe");
+  if (spec.buff) {
+    const b = t.buffs[spec.buff] = { until: S.time + 120, src: m, pow: mobBuffPow(spec.buff, m.lv) };
+    if (spec.buff === "paeon") b.next = S.time + 3;
+    log("The " + m.name + (sp.kind === "song" ? " sings " : " casts ") + sp.name + ".", "foe");
+    popText(t, sp.name, "#80cbc4", 12, 0.9, 12);
+    ring(t, "#80cbc4", 28, 0.5, "sparkle");
+    sfx("buff", t);
+    return;
+  }
+  log("The " + m.name + (sp.kind === "song" ? " sings " : " casts ") + sp.name + " on " + obj(t) + ".", "foe");
   ring(t, ELEMENT_COLORS[sp.element] || "#ce93d8", 32, 0.5, "element");
   vfx("nuke", { src: m, tgt: t, el: sp.element, dia: true });
   if (spec.status) { inflictStatus(m, t, spec.status[0], spec.status[1], spec.status[2]); return; }
+  if (spec.dot) {
+    if (inflictStatus(m, t, spec.dot, spec.dur)) { const b = t.buffs[spec.dot]; b.tick = spec.tick + Math.floor(m.lv / 5); b.next = S.time + 3; b.el = spec.el; }
+    return;
+  }
   const dmg = Math.floor(baseDmg(m, t) * spec.mul * rand(0.9, 1.1));
   log(subj(t) + " " + vb(t, "take") + " " + dmg + " damage.", "foe");
   applyDamage(m, t, dmg, { color: ELEMENT_COLORS[sp.element], size: 20, el: sp.element });
+  if (spec.drain && m.alive) { const heal = Math.min(dmg, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
 }
 
 function execTpMove(m) {
-  const mv = m.fam.tpMove;
+  const mv = (m.readying && m.readying.move) || m.fam.tpMove;
   const t = m.readying.target;
   m.readying = null;
   m.tp = 0;
@@ -3766,13 +3854,14 @@ function execTpMove(m) {
   if (!t.alive) return;
   log("The " + m.name + " uses " + mv.name + ".", "foe");
   sfx("tpmove", m);
-  blueLearnFrom(m, mv);
+  if (mv === m.fam.tpMove) blueLearnFrom(m, mv);
   vfx("tpmove", { src: m, tgt: t, mv });
+  if (mv.spell) vfx("nuke", { src: m, tgt: t, el: mv.el });
   if (S.others && S.others.size && !m.proxy) for (const o of S.others.values()) if (o.alive && (o === t || (mv.aoe && dist(o, t) <= mv.aoe))) netMobAttack(m, o, "tp");
   const targets = (mv.aoe ? S.party.filter(p => p.alive && dist(p, t) <= mv.aoe) : [t]).filter(x => x.kind !== "remote");
   for (const tg of targets) {
     let total = 0;
-    for (let h = 0; h < (mv.hits || 1); h++) total += Math.floor(baseDmg(m, tg) * mv.mul * pDIF(m, tg));
+    for (let h = 0; h < (mv.hits || 1); h++) total += Math.floor(baseDmg(m, tg) * mv.mul * (mv.spell ? rand(0.9, 1.1) : pDIF(m, tg)));
     ring(tg, "#ff7043", mv.aoe || 30, 0.6, "burst");
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
     applyDamage(m, tg, total, { color: "#ff8a80", size: 22, el: mv.el });
@@ -4057,7 +4146,7 @@ function smartAct(a, tgt, acts) {
   }
   if (tgt.state !== "combat" || dist(a, tgt) > CONFIG.castRange) return false;
   if (a.maxMp > 0 && a.mp > a.maxMp * 0.35) {
-    const debuffs = acts.filter(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && !tgt.buffs[SPELLS[x.id].buff || x.id] && (x.id !== "silence" || tgt.fam.spells));
+    const debuffs = acts.filter(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && !tgt.buffs[SPELLS[x.id].buff || x.id] && (x.id !== "silence" || (tgt.spells && tgt.spells.length)));
     for (const d of debuffs) if (allyTry(a, d, tgt)) return true;
   }
   if (a.maxMp > 0 && a.mp > a.maxMp * (a.kiting ? 0.1 : 0.55) && S.time >= (a.nextNuke || 0) && tgt.hp > tgt.maxHp * 0.2) {
