@@ -191,7 +191,7 @@ const WORLD_SYNTH = {
   splash: [["sweep", 1800, 400, 0, 0.45, 0.32], ["sine", 520, 240, 0, 0.2, 0.08]],
   drip: [["sine", 1900, 1150, 0, 0.05, 0.12], ["sine", 1900, 1150, 0.22, 0.05, 0.04]]
 };
-const MOB_VOICE = { goblin: "v_goblin", chieftain: "v_goblin", orc: "v_orc", fishfolk: "v_gurgle", birdfolk: "v_chirp", treant: "v_creak", skeleton: "v_clatter", ghoul: "v_moan", cactus: "v_creak", bomb: "v_crackle", bat: "v_screech", worm: "v_rumble", hare: "v_squeak", mandrake: "v_squeak", shroom: "v_squeak", bee: "v_buzz", crawler: "v_hiss", lizard: "v_hiss", sheep: "v_bleat", longneck: "v_bleat", crab: "v_gurgle", toad: "v_croak", fish: "v_gurgle" };
+const MOB_VOICE = { goblin: "v_goblin", chieftain: "v_goblin", orc: "v_orc", fishfolk: "v_gurgle", birdfolk: "v_chirp", treant: "v_creak", skeleton: "v_clatter", ghoul: "v_moan", cactus: "v_creak", bomb: "v_crackle", bat: "v_screech", worm: "v_rumble", hare: "v_squeak", mandrake: "v_squeak", bulb: "v_creak", shroom: "v_squeak", bee: "v_buzz", crawler: "v_hiss", lizard: "v_hiss", sheep: "v_bleat", longneck: "v_bleat", crab: "v_gurgle", toad: "v_croak", fish: "v_gurgle" };
 function mobVoice(m, mode) {
   if (!m || !m.fam) return;
   const key = MOB_VOICE[m.fam.model];

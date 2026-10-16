@@ -1257,6 +1257,28 @@ function poseMandrake(v, e, dt) {
   applyPose(v, dt, sharp);
 }
 
+function poseBulb(v, e, dt) {
+  const an = trackEvents(v, e, dt);
+  const P = newPose(v);
+  const t = S.time + an.t0;
+  const mv = clamp(an.spd / 1.0, 0, 1);
+  const s1 = Math.sin(an.ph * 1.2);
+  v.rootOff[1] = Math.abs(s1) * 0.07 * mv;
+  addP(P, "body", Math.sin(t * 1.3) * 0.03, 0, s1 * 0.16 * mv + Math.sin(t * 0.8) * 0.02);
+  addP(P, "legL", s1 * 0.7 * mv, 0, 0); addP(P, "legR", -s1 * 0.7 * mv, 0, 0);
+  addP(P, "sprout", Math.sin(t * 1.9) * 0.12 - s1 * 0.1 * mv, 0, Math.sin(t * 1.4) * 0.18);
+  addP(P, "sprout2", Math.sin(t * 2.4 + 1) * 0.15, 0, Math.sin(t * 1.7) * 0.2);
+  let sharp = false;
+  const ak = (S.time - an.aStart) / 0.55;
+  if (ak >= 0 && ak <= 1) { sharp = true; const back = env(ak, 0.4, 0.15), w = env(ak, 0.55, 0.35); addP(P, "sprout", -0.9 * back + 1.3 * w, 0, 0); addP(P, "sprout2", -0.7 * back + 1.5 * w, 0, 0); addP(P, "body", -0.15 * back + 0.35 * w, 0, 0); v.rootOff[2] += 0.12 * w; v.rootOff[1] += 0.06 * back; }
+  if (e.readying) { addP(P, "sprout", -0.7, 0, Math.sin(t * 26) * 0.25); addP(P, "sprout2", -0.9, 0, Math.sin(t * 30) * 0.3); addP(P, "body", -0.12, 0, 0); v.rootOff[1] += 0.05; }
+  const hk = (S.time - an.hitStart) / 0.3;
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.3 * w, 0, 0.15 * w); addP(P, "sprout", -0.4 * w, 0, 0); v.rootOff[2] -= 0.08 * w; }
+  mobAlert(v, e, an, P);
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = 0.12 * k; addP(P, "sprout", 0, 0, 0.9 * k); addP(P, "sprout2", 0.5 * k, 0, 0.6 * k); }
+  applyPose(v, dt, sharp);
+}
+
 function poseShroom(v, e, dt) {
   const an = trackEvents(v, e, dt);
   const P = newPose(v);

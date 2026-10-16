@@ -2391,6 +2391,46 @@ function mandrakeEntry(col, leaf) {
   return R.finish();
 }
 
+function bulbEntry(col, leaf) {
+  const R = new RigBuilder();
+  const Y = 0.36;
+  R.bone("root", null, 0, 0, 0);
+  R.bone("body", "root", 0, Y, 0);
+  R.bone("sprout", "body", 0, Y + 0.46, 0);
+  R.bone("sprout2", "sprout", 0, Y + 0.7, 0.02);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) R.bone("leg" + sd, "body", s * 0.12, Y - 0.2, 0.02);
+  const dark = new THREE.Color(col).multiplyScalar(0.62).getHex(), paper = new THREE.Color(col).lerp(new THREE.Color(0xe8d4a0), 0.45).getHex(), lf = leaf || 0x5aa84a, lfd = new THREE.Color(lf).multiplyScalar(0.62).getHex();
+  R.add(gBall(V3(0, Y, 0), 0.31, 1.04, 1, 1, 16), "body", col, "skin");
+  R.add(gTaper(V3(0, Y + 0.2, 0), V3(0, Y + 0.5, 0), 0.2, 0.05, 12), "body", paper, "skin");
+  for (let k = 0; k < 9; k++) {
+    const a = k / 9 * Math.PI * 2;
+    if (Math.sin(a) > 0.55) continue;
+    R.add(gTaper(V3(Math.cos(a) * 0.29, Y + 0.06, Math.sin(a) * 0.29), V3(Math.cos(a) * 0.05, Y + 0.48, Math.sin(a) * 0.05), 0.014, 0.008, 5), "body", dark, "wood");
+  }
+  for (let k = 0; k < 5; k++) {
+    const a = Math.PI * (0.9 + k * 0.3);
+    R.add(gTaper(V3(Math.cos(a) * 0.1, Y - 0.26, Math.sin(a) * 0.1), V3(Math.cos(a) * 0.2, 0.06, Math.sin(a) * 0.2), 0.016, 0.004, 5), "body", dark, "wood");
+  }
+  for (const s of [-1, 1]) {
+    const sd = s > 0 ? "L" : "R";
+    R.add(gBall(V3(s * 0.1, Y + 0.1, 0.25), 0.085, 1, 1.15, 0.7, 10), "body", 0xf4f0e0, "plain");
+    R.add(gBall(V3(s * 0.1, Y + 0.1, 0.31), 0.045, 1, 1.1, 0.6, 8), "body", 0x1a1208, "plain");
+    R.add(gBall(V3(s * 0.11, Y + 0.12, 0.34), 0.014, 1, 1, 0.6, 5), "body", 0xffffff, "plain");
+    R.add(gTaper(V3(s * 0.12, Y - 0.2, 0.02), V3(s * 0.13, 0.05, 0.02), 0.06, 0.05, 7), "leg" + sd, dark, "skin");
+    R.add(gBall(V3(s * 0.13, 0.03, 0.09), 0.075, 1.1, 0.5, 1.5, 8), "leg" + sd, dark, "skin");
+  }
+  R.add(gBall(V3(0, Y - 0.08, 0.28), 0.05, 1.3, 0.3, 0.5, 8), "body", 0x3a2218, "plain");
+  R.add(gTaper(V3(0, Y + 0.46, 0), V3(0, Y + 0.7, 0.02), 0.045, 0.034, 7), "sprout", lfd, "wood");
+  R.add(gTaper(V3(0, Y + 0.7, 0.02), V3(0, Y + 0.94, 0.1), 0.034, 0.05, 7), "sprout2", lf, "wood");
+  R.add(gBall(V3(0, Y + 0.98, 0.12), 0.075, 1, 1.1, 1, 9), "sprout2", lfd, "wood");
+  for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * 0.13, Y + 0.6, 0), 0.11, 1.5, 0.16, 0.7, 8), "sprout", lf, "plain");
+    R.add(gBall(V3(s * 0.1, Y + 0.84, 0.06), 0.09, 1.4, 0.16, 0.65, 8), "sprout2", lf, "plain");
+  }
+  R.meta = { kind: "bulb", headTop: Y + 1.1 };
+  return R.finish();
+}
+
 function shroomEntry(col, cap) {
   const R = new RigBuilder();
   const Y = 0.3;
@@ -2880,7 +2920,7 @@ function mobLook(m) {
   if (model === "bat") return { kind: "bat", col: key === "duskwing" ? 0x3a2a5a : f.tint || 0x5a4a6a, eye: key === "duskwing" ? 0xd080ff : f.tint ? 0x80d8ff : 0xff3030 };
   if (model === "worm") return { kind: "worm", col: key === "king_wiggles" ? 0xc8a050 : f.tint || 0xb8866a };
   if (model === "hare") return { kind: "hare", col: f.tint || 0xc8a27a };
-  if (["bee", "crawler", "sheep", "lizard", "longneck", "crab", "mandrake", "shroom", "fish"].includes(model)) return { kind: model, col: f.tint || 0x888888, col2: f.tint2 };
+  if (["bee", "crawler", "sheep", "lizard", "longneck", "crab", "mandrake", "shroom", "fish", "bulb"].includes(model)) return { kind: model, col: f.tint || 0x888888, col2: f.tint2 };
   return { kind: "human", look: goblinLook("goblin") };
 }
 
@@ -2984,6 +3024,7 @@ function buildEntityRig(e) {
     else if (ml.kind === "longneck") { sig = "longneck|" + ml.col; make = () => longneckEntry(ml.col); }
     else if (ml.kind === "crab") { sig = "crab|" + ml.col + ml.col2; make = () => crabEntry(ml.col, ml.col2); }
     else if (ml.kind === "mandrake") { sig = "mandrake|" + ml.col + ml.col2; make = () => mandrakeEntry(ml.col, ml.col2); }
+    else if (ml.kind === "bulb") { sig = "bulb|" + ml.col + ml.col2; make = () => bulbEntry(ml.col, ml.col2); }
     else if (ml.kind === "shroom") { sig = "shroom|" + ml.col + ml.col2; make = () => shroomEntry(ml.col, ml.col2); }
     else if (ml.kind === "fish") { sig = "fish|" + ml.col + ml.col2; make = () => fishEntry(ml.col, ml.col2); }
     else { sig = "hare|" + ml.col; make = () => hareEntry(ml.col); }

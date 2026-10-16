@@ -333,6 +333,7 @@ function syncEntity(e, dt) {
   else if (v.kind === "crab") poseCrab(v, e, dt);
   else if (v.kind === "mandrake") poseMandrake(v, e, dt);
   else if (v.kind === "shroom") poseShroom(v, e, dt);
+  else if (v.kind === "bulb") poseBulb(v, e, dt);
   else if (v.kind === "fish") poseFish(v, e, dt);
   placeWeapon(v, e);
   placeTool(v, e);
