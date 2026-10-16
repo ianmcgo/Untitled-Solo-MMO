@@ -4,8 +4,17 @@ const NET = { sb: null, user: null, session: null, member: false, ready: false, 
 const NET_PENDING = "usr_pending_code";
 const isUuid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s || ""));
 
+function supaLoad() {
+  if (typeof SUPA !== "undefined") return true;
+  const el = document.getElementById("supaSrc");
+  if (!el) return false;
+  try { (0, eval)(el.textContent); } catch (e) { return false; }
+  return typeof SUPA !== "undefined";
+}
+
 function netInit() {
   if (NET.sb) return NET.sb;
+  supaLoad();
   if (typeof SUPA === "undefined") return null;
   NET.sb = SUPA.createClient(NET_CFG.url, NET_CFG.key, { auth: { persistSession: true, autoRefreshToken: true, storageKey: "usr_auth" } });
   NET.sb.auth.onAuthStateChange((ev, session) => { NET.session = session; NET.user = session ? session.user : null; });

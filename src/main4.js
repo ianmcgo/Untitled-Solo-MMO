@@ -207,7 +207,7 @@ async function verifyOfflinePassword(email, pw) {
   try { cache = JSON.parse(localStorage.getItem(OFFLINE_GATE_KEY) || "null"); } catch (e) {}
   let net = true;
   try {
-    if (typeof SUPA === "undefined") throw new Error("Failed to fetch");
+    if (!supaLoad()) throw new Error("Failed to fetch");
     const c = SUPA.createClient(NET_CFG.url, NET_CFG.key, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
     const { error } = await c.auth.signInWithPassword({ email, password: pw });
     if (error) {

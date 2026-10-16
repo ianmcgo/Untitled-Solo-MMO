@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.20.0",
-  "releaseTitle": "Sprint, victory fanfare and a living sky",
+  "version": "18.21.0",
+  "releaseTitle": "Smaller download and load timing",
   "description": "",
   "main": "index.js",
   "scripts": {
