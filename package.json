@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "16.24.0",
-  "releaseTitle": "Rest in combat",
+  "version": "17.0.0",
+  "releaseTitle": "classic MMO spells and potions",
   "description": "",
   "main": "index.js",
   "scripts": {

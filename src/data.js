@@ -64,6 +64,7 @@ const CONFIG = {
   craftCap: 20,
   tile: 40,
   saveKey: "ashenreach_save_v2",
+  ruleVer: 17,
   settingsKey: "ashenreach_settings_v1",
   startGil: 100,
   mountSpeed: 2.2,
@@ -204,50 +205,44 @@ const ABILITIES = {
 
 const BUFF_NAMES = { weakened: "Weakened", boon: "Shrine's Favour", blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
 const BUFF_ICONS = { weakened: "🥀", boon: "🕯️", blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+Object.assign(BUFF_NAMES, { reraise: "Reraise", poison: "Poison", shell: "Shell", minne: "Knight's Minne" });
+Object.assign(BUFF_ICONS, { reraise: "🪽", poison: "☠️", shell: "🔰", minne: "🎵" });
 
 const SPELLS = {
-  raise: { name: "Raise", jobs: { WHM: 12, RDM: 17, PLD: 18 }, mp: 50, cast: 8.0, recast: 30, kind: "raise", pow: 0.25, target: "dead", desc: "Revives a KO'd party member with a quarter of their HP. Nobody loses experience when raised." },
-  raise2: { name: "Raise II", jobs: { WHM: 18 }, mp: 90, cast: 8.0, recast: 45, kind: "raise", pow: 0.5, target: "dead", desc: "Revives a KO'd party member with half of their HP." },
-  cure: { name: "Cure", jobs: { WHM: 1, PLD: 5, RDM: 3 }, mp: 8, cast: 2.0, recast: 5, kind: "heal", power: 22, mnd: 1.0, target: "ally", desc: "Restores HP." },
-  cure2: { name: "Cure II", jobs: { WHM: 6, PLD: 11, RDM: 14 }, mp: 22, cast: 2.25, recast: 6, kind: "heal", power: 60, mnd: 1.5, target: "ally", desc: "Restores a lot of HP." },
-  dia: { name: "Dia", jobs: { WHM: 1, RDM: 1 }, mp: 6, cast: 1.0, recast: 6, kind: "dot", element: "light", power: 5, target: "enemy", desc: "Light damage over time and lowers defense." },
-  banish: { name: "Banish", jobs: { WHM: 4 }, mp: 12, cast: 1.5, recast: 10, kind: "nuke", element: "light", power: 22, stat: "mnd", target: "enemy", desc: "Light damage. Strong against undead." },
-  stone: { name: "Stone", jobs: { BLM: 1, RDM: 4 }, mp: 4, cast: 1.0, recast: 5, kind: "nuke", element: "earth", power: 12, stat: "int", target: "enemy", desc: "Earth damage." },
-  water: { name: "Water", jobs: { BLM: 3, RDM: 6 }, mp: 5, cast: 1.25, recast: 5, kind: "nuke", element: "water", power: 15, stat: "int", target: "enemy", desc: "Water damage." },
-  aero: { name: "Aero", jobs: { BLM: 5, RDM: 8 }, mp: 6, cast: 1.5, recast: 6, kind: "nuke", element: "wind", power: 19, stat: "int", target: "enemy", desc: "Wind damage." },
-  fire: { name: "Fire", jobs: { BLM: 6, RDM: 10 }, mp: 8, cast: 1.75, recast: 6, kind: "nuke", element: "fire", power: 24, stat: "int", target: "enemy", desc: "Fire damage." },
-  blizzard: { name: "Blizzard", jobs: { BLM: 8 }, mp: 10, cast: 2.0, recast: 7, kind: "nuke", element: "ice", power: 30, stat: "int", target: "enemy", desc: "Ice damage." },
-  thunder: { name: "Thunder", jobs: { BLM: 10 }, mp: 12, cast: 2.25, recast: 8, kind: "nuke", element: "lightning", power: 37, stat: "int", target: "enemy", desc: "Lightning damage." },
-  flash: { name: "Flash", jobs: { PLD: 7 }, mp: 10, cast: 0.5, recast: 30, kind: "debuff", element: "light", buff: "flash", dur: 12, enmity: 300, target: "enemy", desc: "Blinds the target (accuracy −40%) for 12 s and draws a lot of enmity." },
-  slow: { name: "Slow", jobs: { RDM: 5 }, mp: 9, cast: 2.0, recast: 10, kind: "debuff", element: "earth", buff: "slow", dur: 60, enmity: 80, target: "enemy", desc: "The target attacks 25% slower for 60 s." },
-  paralyze: { name: "Paralyze", jobs: { RDM: 7 }, mp: 10, cast: 2.0, recast: 10, kind: "debuff", element: "ice", buff: "paralyze", dur: 45, enmity: 80, target: "enemy", desc: "The target sometimes freezes up and loses its attack for 45 s." },
-  cure3: { name: "Cure III", jobs: { WHM: 13 }, mp: 42, cast: 2.5, recast: 7, kind: "heal", power: 120, mnd: 2.0, target: "ally", desc: "Restores a great deal of HP." },
-  banish2: { name: "Banish II", jobs: { WHM: 15 }, mp: 36, cast: 2.0, recast: 14, kind: "nuke", element: "light", power: 62, stat: "mnd", target: "enemy", desc: "Heavy light damage. Strong against undead." },
-  stone2: { name: "Stone II", jobs: { BLM: 11, RDM: 15 }, mp: 22, cast: 2.0, recast: 7, kind: "nuke", element: "earth", power: 46, stat: "int", target: "enemy", desc: "Heavy earth damage." },
-  water2: { name: "Water II", jobs: { BLM: 12 }, mp: 25, cast: 2.25, recast: 7, kind: "nuke", element: "water", power: 52, stat: "int", target: "enemy", desc: "Heavy water damage." },
-  aero2: { name: "Aero II", jobs: { BLM: 13 }, mp: 28, cast: 2.25, recast: 8, kind: "nuke", element: "wind", power: 58, stat: "int", target: "enemy", desc: "Heavy wind damage." },
-  fire2: { name: "Fire II", jobs: { BLM: 14 }, mp: 32, cast: 2.5, recast: 8, kind: "nuke", element: "fire", power: 65, stat: "int", target: "enemy", desc: "Heavy fire damage." },
-  blizzard2: { name: "Blizzard II", jobs: { BLM: 15 }, mp: 36, cast: 2.75, recast: 9, kind: "nuke", element: "ice", power: 73, stat: "int", target: "enemy", desc: "Heavy ice damage." },
-  ember_sprite: { name: "Ember Sprite", jobs: { SMN: 1 }, mp: 12, cast: 3.0, recast: 10, kind: "summon", element: "fire", pet: "ember", target: "self", desc: "Calls a fire sprite to fight beside you. It slowly drains your MP." },
-  frost_sprite: { name: "Frost Sprite", jobs: { SMN: 5 }, mp: 14, cast: 3.0, recast: 10, kind: "summon", element: "ice", pet: "frost", target: "self", desc: "Calls an ice sprite to fight beside you. It slowly drains your MP." },
-  gale_sprite: { name: "Gale Sprite", jobs: { SMN: 10 }, mp: 16, cast: 3.0, recast: 10, kind: "summon", element: "wind", pet: "gale", target: "self", desc: "Calls a wind sprite to fight beside you. It slowly drains your MP." },
-  cure4: { name: "Cure IV", jobs: { WHM: 19 }, mp: 70, cast: 2.75, recast: 8, kind: "heal", power: 200, mnd: 2.5, target: "ally", desc: "Restores a huge amount of HP." },
-  thunder2: { name: "Thunder II", jobs: { BLM: 17 }, mp: 40, cast: 3.0, recast: 10, kind: "nuke", element: "lightning", power: 82, stat: "int", target: "enemy", desc: "Heavy lightning damage." },
-  fire3: { name: "Fire III", jobs: { BLM: 20 }, mp: 62, cast: 3.5, recast: 14, kind: "nuke", element: "fire", power: 120, stat: "int", target: "enemy", desc: "Massive fire damage." },
-  stone_sprite: { name: "Stone Sprite", jobs: { SMN: 15 }, mp: 18, cast: 3.0, recast: 10, kind: "summon", element: "earth", pet: "stone", target: "self", desc: "Calls a sturdy earth sprite. It slowly drains your MP." },
-  blight: { name: "Blight", jobs: { DRK: 3 }, mp: 8, cast: 1.5, recast: 8, kind: "dot", element: "dark", buff: "blight", power: 6, target: "enemy", skill: "dark", desc: "Dark damage over time and lowers the target's attack." },
-  drain: { name: "Drain", jobs: { DRK: 5 }, mp: 12, cast: 2.5, recast: 20, kind: "drain", element: "dark", power: 16, target: "enemy", skill: "dark", desc: "Steals HP from the target." },
-  mind_drain: { name: "Mind Drain", jobs: { DRK: 12 }, mp: 4, cast: 2.5, recast: 30, kind: "aspir", element: "dark", power: 10, target: "enemy", skill: "dark", desc: "Steals MP from the target." },
-  stun: { name: "Stun", jobs: { DRK: 17 }, mp: 10, cast: 0.5, recast: 30, kind: "debuff", element: "dark", buff: "stun", dur: 4, enmity: 150, target: "enemy", skill: "dark", desc: "Stuns the target for 4 s and stops a readied move." },
-  battle_minuet: { name: "Battle Minuet", jobs: { BRD: 1 }, mp: 6, cast: 2.0, recast: 8, kind: "song", song: "minuet", pow: 0.12, dur: 120, target: "self", skill: "singing", desc: "Party song: attack +12% for 2 minutes." },
-  mending_paeon: { name: "Mending Paeon", jobs: { BRD: 3 }, mp: 6, cast: 2.0, recast: 8, kind: "song", song: "paeon", pow: 1, dur: 120, target: "self", skill: "singing", desc: "Party song: restores a little HP every 3 s." },
-  drowsy_lullaby: { name: "Drowsy Lullaby", jobs: { BRD: 5 }, mp: 8, cast: 2.0, recast: 20, kind: "debuff", element: "light", buff: "sleep", dur: 30, enmity: 60, target: "enemy", skill: "singing", desc: "Puts the target to sleep for up to 30 s. Any damage wakes it. Bosses are immune." },
-  wellspring_ballad: { name: "Wellspring Ballad", jobs: { BRD: 7 }, mp: 4, cast: 2.0, recast: 8, kind: "song", song: "ballad", pow: 1, dur: 120, target: "self", skill: "singing", desc: "Party song: restores a little MP every 3 s." },
-  keen_madrigal: { name: "Keen Madrigal", jobs: { BRD: 9 }, mp: 8, cast: 2.0, recast: 8, kind: "song", song: "madrigal", pow: 15, dur: 120, target: "self", skill: "singing", desc: "Party song: accuracy +15 for 2 minutes." },
-  swift_march: { name: "Swift March", jobs: { BRD: 11 }, mp: 10, cast: 2.0, recast: 8, kind: "song", song: "march", pow: 0.12, dur: 120, target: "self", skill: "singing", desc: "Party song: attack speed +12% for 2 minutes." },
-  mending_paeon2: { name: "Mending Paeon II", jobs: { BRD: 13 }, mp: 10, cast: 2.0, recast: 8, kind: "song", song: "paeon", pow: 2, dur: 120, target: "self", skill: "singing", desc: "Party song: restores more HP every 3 s." },
-  battle_minuet2: { name: "Battle Minuet II", jobs: { BRD: 17 }, mp: 12, cast: 2.0, recast: 8, kind: "song", song: "minuet", pow: 0.2, dur: 120, target: "self", skill: "singing", desc: "Party song: attack +20% for 2 minutes." },
-  protect: { name: "Protect", jobs: { WHM: 7, PLD: 9, RDM: 9 }, mp: 9, cast: 2.0, recast: 10, kind: "buff", buff: "protect", dur: 600, target: "ally", desc: "Defense +15% for 10 minutes." }
+  cure: { name: "Cure", jobs: { WHM: 1, RDM: 3, PLD: 5 }, mp: 8, cast: 2, recast: 5, kind: "heal", cure: { min: 10, t: [[20, 4, 10, 0], [40, 1.3333, 15, 20], [125, 8.5, 30, 40], [200, 15, 40, 125], [600, 20, 40, 200], [1000000000.0, 999999, 65, 0]] }, target: "ally", desc: "Restores HP. Healing power comes from half your MND, a quarter of your VIT and your Healing Magic skill." },
+  cure2: { name: "Cure II", jobs: { WHM: 11, RDM: 14, PLD: 17 }, mp: 24, cast: 2.25, recast: 5.5, kind: "heal", cure: { min: 60, t: [[70, 1, 60, 40], [125, 5.5, 90, 70], [200, 7.5, 100, 125], [400, 10, 110, 200], [700, 20, 130, 400], [1000000000.0, 999999, 145, 0]] }, target: "ally", desc: "Restores a good amount of HP." },
+  dia: { name: "Dia", jobs: { WHM: 3, RDM: 1 }, mp: 7, cast: 1, recast: 5, kind: "dot", element: "light", power: 1, dot: { dur: 60, tick: 1 }, buff: "dia", target: "enemy", desc: "Light damage, then 1 damage every 3 s for 60 s. Lowers the target's defense by 10%. Replaces Bio." },
+  banish: { name: "Banish", jobs: { WHM: 5, PLD: 7 }, mp: 15, cast: 2, recast: 15, kind: "nuke", element: "light", power: 14, k: 1, k2: 1, stat: "mnd", target: "enemy", skill: "divine", desc: "Light damage. Undead take 50% more." },
+  protect: { name: "Protect", jobs: { WHM: 7, RDM: 7, PLD: 10 }, mp: 9, cast: 1, recast: 5, kind: "buff", buff: "protect", pow: 15, target: "ally", desc: "Defense +15 for 30 minutes.", dur: 1800 },
+  shell: { name: "Shell", jobs: { WHM: 17, RDM: 17, PLD: 20 }, mp: 18, cast: 1, recast: 5, kind: "buff", buff: "shell", pow: 0.11, target: "ally", desc: "Elemental damage taken -11% for 30 minutes.", dur: 1800 },
+  slow: { name: "Slow", jobs: { WHM: 13, RDM: 13 }, mp: 15, cast: 2, recast: 20, kind: "debuff", element: "earth", buff: "slow", stat: "mnd", enmity: 80, target: "enemy", desc: "Slows the target's attacks by 7% to 29% (more when your MND beats its MND).", dur: 180 },
+  paralyze: { name: "Paralyze", jobs: { WHM: 4, RDM: 6 }, mp: 6, cast: 3, recast: 10, kind: "debuff", element: "ice", buff: "paralyze", stat: "mnd", enmity: 80, target: "enemy", desc: "The target loses 5% to 25% of its attacks to paralysis (more when your MND beats its MND).", dur: 120 },
+  stone: { name: "Stone", jobs: { BLM: 1, RDM: 4, DRK: 5 }, mp: 4, cast: 0.5, recast: 2, kind: "nuke", power: 10, k: 2, k2: 1, stat: "int", element: "earth", target: "enemy", desc: "Earth damage. Grows with how far your INT is above the target's." },
+  water: { name: "Water", jobs: { BLM: 5, RDM: 9, DRK: 11 }, mp: 5, cast: 0.5, recast: 2, kind: "nuke", power: 25, k: 1.8, k2: 1, stat: "int", element: "water", target: "enemy", desc: "Water damage." },
+  aero: { name: "Aero", jobs: { BLM: 9, RDM: 14, DRK: 17 }, mp: 6, cast: 0.5, recast: 2, kind: "nuke", power: 40, k: 1.6, k2: 1, stat: "int", element: "wind", target: "enemy", desc: "Wind damage." },
+  fire: { name: "Fire", jobs: { BLM: 13, RDM: 19 }, mp: 7, cast: 0.5, recast: 2, kind: "nuke", power: 55, k: 1.4, k2: 1, stat: "int", element: "fire", target: "enemy", desc: "Fire damage." },
+  blizzard: { name: "Blizzard", jobs: { BLM: 17 }, mp: 8, cast: 0.5, recast: 2, kind: "nuke", power: 70, k: 1.2, k2: 1, stat: "int", element: "ice", target: "enemy", desc: "Ice damage." },
+  poison: { name: "Poison", jobs: { BLM: 3, RDM: 5, DRK: 6 }, mp: 5, cast: 1, recast: 5, kind: "dot", element: "water", power: 0, dot: { dur: 90, skill: "enfeebling", div: 25, min: 1 }, buff: "poison", target: "enemy", skill: "enfeebling", desc: "Poisons the target: damage every 3 s for 90 s, stronger with Enfeebling Magic skill." },
+  bio: { name: "Bio", jobs: { BLM: 10, RDM: 10, DRK: 15 }, mp: 15, cast: 1.5, recast: 5, kind: "dot", element: "dark", power: 10, dot: { dur: 60, skill: "dark", div: 40, ceil: true, min: 1, max: 3 }, buff: "blight", target: "enemy", skill: "dark", desc: "Dark damage, then up to 3 damage every 3 s for 60 s. Lowers the target's attack by 10%. Replaces Dia." },
+  drain: { name: "Drain", jobs: { BLM: 12, DRK: 10 }, mp: 21, cast: 3, recast: 60, kind: "drain", element: "dark", absorb: [1, 20], target: "enemy", skill: "dark", desc: "Steals HP from the target. Ineffective against undead." },
+  aspir: { name: "Aspir", jobs: { DRK: 20 }, mp: 10, cast: 3, recast: 60, kind: "aspir", element: "dark", absorb: [0.3, 20], target: "enemy", skill: "dark", desc: "Steals MP from the target. Ineffective against undead." },
+  blind: { name: "Blind", jobs: { BLM: 4, RDM: 8 }, mp: 5, cast: 2, recast: 10, kind: "debuff", element: "dark", buff: "flash", stat: "int", enmity: 60, target: "enemy", desc: "Lowers the target's accuracy by 5% to 50% (more when your INT beats its INT).", dur: 180 },
+  bind: { name: "Bind", jobs: { BLM: 7, RDM: 11, DRK: 20 }, mp: 8, cast: 2, recast: 40, kind: "debuff", element: "ice", buff: "bind", enmity: 60, target: "enemy", desc: "Holds the target in place.", dur: 60 },
+  sleep: { name: "Sleep", jobs: { BLM: 20 }, mp: 19, cast: 2.5, recast: 30, kind: "debuff", element: "dark", buff: "sleep", enmity: 60, target: "enemy", desc: "Puts the target to sleep. Any damage wakes it. Bosses are immune.", dur: 60 },
+  knights_minne: { name: "Knight's Minne", jobs: { BRD: 1 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minne", base: 8, sreq: 0, cap: 30, mult: 3, div: 10, target: "self", skill: "singing", desc: "Party song: defense +8, rising with Singing skill.", dur: 120 },
+  valor_minuet: { name: "Valor Minuet", jobs: { BRD: 3 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minuet", base: 5, sreq: 50, cap: 32, mult: 3, div: 4.3, target: "self", skill: "singing", desc: "Party song: attack +5, rising with Singing skill.", dur: 120 },
+  armys_paeon: { name: "Army's Paeon", jobs: { BRD: 5 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 1, sreq: 100, cap: 2, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 1 HP every 3 s.", dur: 120 },
+  armys_paeon2: { name: "Army's Paeon II", jobs: { BRD: 15 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 2, sreq: 150, cap: 3, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 2 HP every 3 s.", dur: 120 },
+  sword_madrigal: { name: "Sword Madrigal", jobs: { BRD: 11 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "madrigal", base: 5, sreq: 85, cap: 45, mult: 4.5, div: 18, target: "self", skill: "singing", desc: "Party song: accuracy +5, rising with Singing skill.", dur: 120 },
+  foe_lullaby: { name: "Foe Lullaby", jobs: { BRD: 16 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "light", buff: "sleep", enmity: 60, target: "enemy", skill: "singing", desc: "Lulls the target to sleep. Any damage wakes it. Bosses are immune.", dur: 45 },
+  fire_spirit: { name: "Fire Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "fire", pet: "ember", target: "self", desc: "Calls a fire spirit to fight beside you. It slowly drains your MP." },
+  ice_spirit: { name: "Ice Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "ice", pet: "frost", target: "self", desc: "Calls a ice spirit to fight beside you. It slowly drains your MP." },
+  air_spirit: { name: "Air Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "wind", pet: "gale", target: "self", desc: "Calls a air spirit to fight beside you. It slowly drains your MP." },
+  earth_spirit: { name: "Earth Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "earth", pet: "stone", target: "self", desc: "Calls a earth spirit to fight beside you. It slowly drains your MP." },
+  thunder_spirit: { name: "Thunder Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "lightning", pet: "thunder", target: "self", desc: "Calls a thunder spirit to fight beside you. It slowly drains your MP." },
+  water_spirit: { name: "Water Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "water", pet: "water", target: "self", desc: "Calls a water spirit to fight beside you. It slowly drains your MP." },
+  light_spirit: { name: "Light Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "light", pet: "light", target: "self", desc: "Calls a light spirit to fight beside you. It slowly drains your MP." },
+  dark_spirit: { name: "Dark Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "dark", pet: "dark", target: "self", desc: "Calls a dark spirit to fight beside you. It slowly drains your MP." }
 };
 
 const SKILL_NAMES = { scythe: "Scythe", dark: "Dark Magic", singing: "Singing", archery: "Archery", summoning: "Summoning Magic", dagger: "Dagger", sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
@@ -277,13 +272,43 @@ const GATHER = {
 
 const ALL_J = ALL_JOBS;
 const ITEMS = {
-  potion: { name: "Potion", kind: "use", icon: "🧪", heal: 60, price: 40, stack: 12, desc: "Restores 60 HP." },
-  potion_hq: { name: "Potion +1", kind: "use", icon: "🧪", hq: true, heal: 85, price: 60, stack: 12, desc: "Restores 85 HP." },
-  hi_potion: { name: "Hi-Potion", kind: "use", icon: "⚗️", heal: 150, price: 160, stack: 12, desc: "Restores 150 HP." },
-  ether: { name: "Ether", kind: "use", icon: "💧", mpRestore: 40, price: 100, stack: 12, desc: "Restores 40 MP." },
-  phoenix_down: { name: "Phoenix Down", kind: "use", icon: "🔥", revive: 0.5, price: 3500, stack: 12, desc: "A glowing feather that pulls someone back from the brink. Use it on a KO'd party member or hireling to revive them with half their HP. If you are KO'd yourself, use it from the item menu to get back up." },
-  ember_plume: { name: "Ember Plume", kind: "use", icon: "🪶", revive: 0.2, price: 1200, stack: 12, desc: "A warm red feather that rekindles the fallen. Use it on a KO'd party member or hireling, or on yourself when KO'd, to revive with a fifth of their HP." },
-  ether_hq: { name: "Ether +1", kind: "use", icon: "💧", hq: true, mpRestore: 55, price: 140, stack: 12, desc: "Restores 55 MP." },
+  potion: { name: "Potion", kind: "use", icon: "🧪", heal: 50, price: 40, stack: 12, desc: "Restores 50 HP." },
+  potion_hq: { name: "Potion +1", kind: "use", icon: "🧪", hq: true, heal: 60, price: 48, stack: 12, desc: "Restores 60 HP." },
+  potion_hq2: { name: "Potion +2", kind: "use", icon: "🧪", hq: true, heal: 75, price: 60, stack: 12, desc: "Restores 75 HP." },
+  potion_hq3: { name: "Potion +3", kind: "use", icon: "🧪", hq: true, heal: 100, price: 80, stack: 12, desc: "Restores 100 HP." },
+  hi_potion: { name: "Hi-Potion", kind: "use", icon: "⚗️", heal: 100, price: 77, stack: 12, desc: "Restores 100 HP." },
+  hi_potion_hq: { name: "Hi-Potion +1", kind: "use", icon: "⚗️", hq: true, heal: 110, price: 85, stack: 12, desc: "Restores 110 HP." },
+  hi_potion_hq2: { name: "Hi-Potion +2", kind: "use", icon: "⚗️", hq: true, heal: 120, price: 92, stack: 12, desc: "Restores 120 HP." },
+  hi_potion_hq3: { name: "Hi-Potion +3", kind: "use", icon: "⚗️", hq: true, heal: 130, price: 100, stack: 12, desc: "Restores 130 HP." },
+  x_potion: { name: "X-Potion", kind: "use", icon: "⚗️", heal: 150, price: 111, stack: 12, desc: "Restores 150 HP." },
+  x_potion_hq: { name: "X-Potion +1", kind: "use", icon: "⚗️", hq: true, heal: 160, price: 119, stack: 12, desc: "Restores 160 HP." },
+  x_potion_hq2: { name: "X-Potion +2", kind: "use", icon: "⚗️", hq: true, heal: 170, price: 126, stack: 12, desc: "Restores 170 HP." },
+  x_potion_hq3: { name: "X-Potion +3", kind: "use", icon: "⚗️", hq: true, heal: 180, price: 134, stack: 12, desc: "Restores 180 HP." },
+  max_potion: { name: "Max-Potion", kind: "use", icon: "⚗️", heal: 500, price: 1588, stack: 12, desc: "Restores 500 HP." },
+  max_potion_hq: { name: "Max-Potion +1", kind: "use", icon: "⚗️", hq: true, heal: 550, price: 1747, stack: 12, desc: "Restores 550 HP." },
+  max_potion_hq2: { name: "Max-Potion +2", kind: "use", icon: "⚗️", hq: true, heal: 650, price: 2065, stack: 12, desc: "Restores 650 HP." },
+  max_potion_hq3: { name: "Max-Potion +3", kind: "use", icon: "⚗️", hq: true, heal: 700, price: 2224, stack: 12, desc: "Restores 700 HP." },
+  ether: { name: "Ether", kind: "use", icon: "💧", mpRestore: 20, price: 186, stack: 12, desc: "Restores 20 MP." },
+  ether_hq: { name: "Ether +1", kind: "use", icon: "💧", hq: true, mpRestore: 25, price: 232, stack: 12, desc: "Restores 25 MP." },
+  ether_hq2: { name: "Ether +2", kind: "use", icon: "💧", hq: true, mpRestore: 30, price: 279, stack: 12, desc: "Restores 30 MP." },
+  ether_hq3: { name: "Ether +3", kind: "use", icon: "💧", hq: true, mpRestore: 40, price: 372, stack: 12, desc: "Restores 40 MP." },
+  hi_ether: { name: "Hi-Ether", kind: "use", icon: "💧", mpRestore: 50, price: 308, stack: 12, desc: "Restores 50 MP." },
+  hi_ether_hq: { name: "Hi-Ether +1", kind: "use", icon: "💧", hq: true, mpRestore: 55, price: 338, stack: 12, desc: "Restores 55 MP." },
+  hi_ether_hq2: { name: "Hi-Ether +2", kind: "use", icon: "💧", hq: true, mpRestore: 60, price: 369, stack: 12, desc: "Restores 60 MP." },
+  hi_ether_hq3: { name: "Hi-Ether +3", kind: "use", icon: "💧", hq: true, mpRestore: 70, price: 431, stack: 12, desc: "Restores 70 MP." },
+  super_ether: { name: "Super Ether", kind: "use", icon: "💧", mpRestore: 100, price: 408, stack: 12, desc: "Restores 100 MP." },
+  super_ether_hq: { name: "Super Ether +1", kind: "use", icon: "💧", hq: true, mpRestore: 105, price: 428, stack: 12, desc: "Restores 105 MP." },
+  super_ether_hq2: { name: "Super Ether +2", kind: "use", icon: "💧", hq: true, mpRestore: 110, price: 448, stack: 12, desc: "Restores 110 MP." },
+  super_ether_hq3: { name: "Super Ether +3", kind: "use", icon: "💧", hq: true, mpRestore: 120, price: 489, stack: 12, desc: "Restores 120 MP." },
+  pro_ether: { name: "Pro-Ether", kind: "use", icon: "💧", mpRestore: 250, price: 446, stack: 12, desc: "Restores 250 MP." },
+  pro_ether_hq: { name: "Pro-Ether +1", kind: "use", icon: "💧", hq: true, mpRestore: 280, price: 500, stack: 12, desc: "Restores 280 MP." },
+  pro_ether_hq2: { name: "Pro-Ether +2", kind: "use", icon: "💧", hq: true, mpRestore: 310, price: 553, stack: 12, desc: "Restores 310 MP." },
+  pro_ether_hq3: { name: "Pro-Ether +3", kind: "use", icon: "💧", hq: true, mpRestore: 350, price: 625, stack: 12, desc: "Restores 350 MP." },
+  elixir: { name: "Elixir", kind: "use", icon: "🍷", healPct: 0.25, mpPct: 0.25, price: 2154, stack: 12, desc: "Restores 25% of your HP and MP." },
+  hi_elixir: { name: "Hi-Elixir", kind: "use", icon: "🍷", healPct: 0.5, mpPct: 0.5, price: 2923, stack: 12, desc: "Restores 50% of your HP and MP." },
+  reraiser: { name: "Reraiser", kind: "use", icon: "🪽", reraise: 0.5, rrSecs: 3600, price: 400, stack: 12, desc: "Reraise for 60 minutes: if you are KO'd you stand back up with half your HP. Not sold yet." },
+  hi_reraiser: { name: "Hi-Reraiser", kind: "use", icon: "🪽", reraise: 1, rrSecs: 5400, price: 1200, stack: 12, desc: "A stronger Reraise for 90 minutes: you stand back up with full HP. Not sold yet." },
+  super_reraiser: { name: "Super Reraiser", kind: "use", icon: "🪽", reraise: 1, rrSecs: 3600, price: 3000, stack: 12, desc: "The strongest Reraise for 60 minutes. Not sold yet." },
   fire_crystal: { name: "Fire Essence", kind: "crystal", icon: "🔥", element: "fire", price: 30, stack: 12, desc: "Used in Smithing crafting." },
   wind_crystal: { name: "Wind Essence", kind: "crystal", icon: "🌪️", element: "wind", price: 30, stack: 12, desc: "Used in Woodworking crafting." },
   earth_crystal: { name: "Earth Essence", kind: "crystal", icon: "🪨", element: "earth", price: 30, stack: 12, desc: "Used in Clothcraft crafting." },
@@ -748,7 +773,7 @@ for (const id in ITEMS) {
   if ((it.jobs.includes("WHM") || it.jobs.includes("BLM")) && !it.jobs.includes("GEO")) it.jobs.push("GEO");
   if ((it.jobs.includes("PLD") || it.jobs.includes("WAR")) && !it.jobs.includes("RUN")) it.jobs.push("RUN");
 }
-const SHOP = ["ember_plume", "phoenix_down", "leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
+const SHOP = ["leather_gorget", "mage_pendant", "copper_earring", "beetle_earring", "travelers_cape", "mage_cape", "leather_belt", "buckler", "sling", "pebble_pouch", "wooden_arrows", "bronze_scythe", "iron_scythe", "steel_scythe", "shadow_plate", "minstrel_coat", "potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "bronze_sword", "ash_club", "ash_staff", "leather_vest", "linen_robe", "leather_gloves", "leather_trousers", "leather_boots", "maple_wand", "cotton_robe", "scale_mail", "kite_shield", "scarlet_tabard", "iron_sword", "holly_staff", "steel_sword", "steel_greataxe", "oak_staff", "oak_club", "chain_mail", "wizards_robe", "iron_helm", "wool_hat", "bronze_dagger", "iron_dagger", "steel_dagger", "leather_cesti", "iron_knuckles", "steel_claws", "brigand_vest", "training_gi", "fishing_rod", "bait", "grain_flour", "rock_salt", "shortbow", "yew_bow", "steel_longbow", "hunters_coat", "sprite_staff", "evoker_robe"];
 const FURNITURE_SHOP = ["wooden_chair", "potted_plant", "flowerpot", "floor_lamp", "round_rug", "wooden_table", "simple_bed", "storage_chest", "bookshelf", "wardrobe", "hearth"];
 const SEED_SHOP = ["herb_seeds", "ash_sapling", "wildgrass_seeds"];
 const GARDEN_STAGE_MS = 10 * 60 * 1000;
@@ -2274,10 +2299,14 @@ const RACE_BASE = {
 const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 
 const PETS = {
-  ember: { name: "Ember Sprite", el: "fire", col: 0xff7043, eye: 0xfff176, pact: "Flame Burst", weak: "ice" },
-  frost: { name: "Frost Sprite", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Frost Lance", weak: "fire" },
-  stone: { name: "Stone Sprite", el: "earth", col: 0xbca27a, eye: 0xffe082, pact: "Rock Throw", weak: "wind" },
-  gale: { name: "Gale Sprite", el: "wind", col: 0xaed581, eye: 0xf1f8e9, pact: "Cyclone", weak: "earth" }
+  ember: { name: "Fire Spirit", el: "fire", col: 0xff7043, eye: 0xfff176, pact: "Flame Burst", weak: "ice" },
+  frost: { name: "Ice Spirit", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Frost Lance", weak: "fire" },
+  stone: { name: "Earth Spirit", el: "earth", col: 0xbca27a, eye: 0xffe082, pact: "Rock Throw", weak: "wind" },
+  gale: { name: "Air Spirit", el: "wind", col: 0xaed581, eye: 0xf1f8e9, pact: "Cyclone", weak: "earth" },
+  thunder: { name: "Thunder Spirit", el: "lightning", col: 0xfff176, eye: 0xffffff, pact: "Lightning Strike", weak: "earth" },
+  water: { name: "Water Spirit", el: "water", col: 0x4fc3f7, eye: 0xe1f5fe, pact: "Aqua Burst", weak: "lightning" },
+  light: { name: "Light Spirit", el: "light", col: 0xfff9c4, eye: 0xffffff, pact: "Holy Ray", weak: "dark" },
+  dark: { name: "Dark Spirit", el: "dark", col: 0x7e57c2, eye: 0xd1c4e9, pact: "Shadow Bolt", weak: "light" }
 };
 
 const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["tide_crown", "abyssal_staff", "drowned_blade", "priest_mantle", "tidebreaker_bow"], gil: 1500, xp: 3000 };
@@ -2288,8 +2317,9 @@ for (const id in SPELLS) {
   if (sp.blue) continue;
   const sid = "scroll_" + id;
   ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
-  if (lv <= 10) SHOP.push(sid); else if (lv <= 17) SHOPS.vela.push(sid);
+  if (lv <= 10) SHOP.push(sid); else if (lv <= 20) SHOPS.vela.push(sid);
 }
+SHOPS.vela.push("x_potion", "hi_ether", "super_ether", "reraiser");
 function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
 function exitInner(z, e) {
   const L = e.hall || 0, cx = e.x + e.w / 2, cy = e.y + e.h / 2, sd = exitSide(z, e);

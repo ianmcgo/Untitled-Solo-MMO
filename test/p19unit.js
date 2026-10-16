@@ -17,35 +17,32 @@ ok(P().stats.wtype === 'scythe' && G.actionList(P()).some(a => a.id === 'slice' 
 ok(G.ITEMS.steel_greataxe.jobs.includes('DRK') && G.ITEMS.bronze_dagger.jobs.includes('BRD') && G.ITEMS.chain_mail.jobs.includes('DRK'), 'existing gear fits the new jobs');
 G.save.jobs.DRK.lv = 17; G.refreshPlayer(true); P().mp = P().maxMp;
 const ids = G.actionList(P()).map(a => a.id);
-ok(['blight', 'drain', 'mind_drain', 'stun', 'last_resort', 'soulfire', 'blood_blade'].every(i => ids.includes(i)), 'level 17 Dark Knights know their spells and abilities');
+ok(['bio', 'drain', 'last_resort', 'soulfire', 'blood_blade'].every(i => ids.includes(i)), 'level 17 Dark Knights know their spells and abilities');
 G.enterZone('hollow', 300, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
-const m = G.buildMob('goblin', 12, P().x + 40, P().y, 0); S.mobs.push(m);
+const m = G.buildMob('goblin', 12, P().x + 200, P().y, 0); S.mobs.push(m);
 P().target = m; P().hp = Math.floor(P().maxHp / 2); const h0 = P().hp, mh = m.hp;
 G.playerAct({ kind: 'ma', id: 'drain' }); run(3.2);
 for (let i = 0; i < 3 && P().hp <= h0; i++) { P().recasts['ma:drain'] = 0; P().mp = P().maxMp; G.playerAct({ kind: 'ma', id: 'drain' }); run(3.2); }
 ok(m.hp < mh && P().hp > h0, 'Drain takes HP and gives it to you');
 G.playerAct({ kind: 'ja', id: 'last_resort' }); run(0.1);
 ok(P().buffs.last_resort, 'Last Resort is up');
-m.readying = { t: 5, target: P(), start: S.time }; P().recasts['ma:stun'] = 0; P().mp = P().maxMp;
-for (let i = 0; i < 4 && !m.buffs.stun; i++) { P().recasts['ma:stun'] = 0; P().mp = P().maxMp; m.readying = { t: 5, target: P(), start: S.time }; G.playerAct({ kind: 'ma', id: 'stun' }); run(0.8); }
-ok(!m.readying || m.buffs.stun, 'Stun stops a readied move');
 G.save.jobsUnlocked.BRD = true; G.save.jobs.BRD.lv = 17; G.setJob('BRD', null); P().mp = P().maxMp;
 G.enterZone('hollow', 300, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 G.save.gil = 9999; G.hireMerc('kael'); run(0.5);
 const k = S.party.find(p => p.mercId === 'kael'); k.x = P().x + 20; k.y = P().y;
 const a0 = G.stat(k, 'att');
-G.playerAct({ kind: 'ma', id: 'battle_minuet2' }); run(2.3);
-ok(k.buffs.minuet && G.stat(k, 'att') > a0 * 1.15, 'Battle Minuet II lifts the whole party\'s attack');
-G.playerAct({ kind: 'ma', id: 'swift_march' }); run(2.3);
-G.playerAct({ kind: 'ma', id: 'mending_paeon2' }); run(2.3);
+G.playerAct({ kind: 'ma', id: 'valor_minuet' }); run(8.3);
+ok(k.buffs.minuet && G.stat(k, 'att') > a0, 'Valor Minuet lifts the whole party\'s attack');
+P().recasts = {}; G.playerAct({ kind: 'ma', id: 'sword_madrigal' }); run(8.3);
+P().recasts = {}; G.playerAct({ kind: 'ma', id: 'armys_paeon' }); run(8.3);
 const songs = ['minuet', 'paeon', 'ballad', 'madrigal', 'march'].filter(s => P().buffs[s]);
-ok(songs.length === 2 && P().buffs.paeon && P().buffs.march && !P().buffs.minuet, 'only two songs stay up; the oldest is replaced: ' + songs);
+ok(songs.length === 2 && P().buffs.paeon && P().buffs.madrigal && !P().buffs.minuet, 'only two songs stay up; the oldest is replaced: ' + songs);
 P().hp = 10; run(6.5);
-ok(P().hp > 12, 'Paeon restores HP over time');
+ok(P().hp > 10, 'Paeon restores HP over time');
 G.dismissMerc('kael'); run(0.2);
 const z = G.buildMob('goblin', 10, P().x + 120, P().y, 0); S.mobs.push(z); P().target = z; P().mp = P().maxMp;
-G.playerAct({ kind: 'ma', id: 'drowsy_lullaby' }); run(2.3);
-for (let i = 0; i < 6 && !z.buffs.sleep; i++) { P().recasts['ma:drowsy_lullaby'] = 0; G.playerAct({ kind: 'ma', id: 'drowsy_lullaby' }); run(2.3); }
+G.playerAct({ kind: 'ma', id: 'foe_lullaby' }); run(2.3);
+for (let i = 0; i < 6 && !z.buffs.sleep; i++) { P().recasts['ma:foe_lullaby'] = 0; G.playerAct({ kind: 'ma', id: 'foe_lullaby' }); run(2.3); }
 const zx = z.x; run(2);
 ok(z.buffs.sleep && Math.abs(z.x - zx) < 1, 'Lullaby puts a monster to sleep');
 G.applyDamage(P(), z, 5, {});

@@ -4,7 +4,7 @@ const UI = {
   prevZone: null, menuSig: "", menuSigAt: 0, sel: null, pick: null, filter: "all", cmp: null, pv: null, frameT: 0
 };
 const ACT_ICON = { last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", steal: "🫳", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", chakra: "🧘", sharpshot: "🎯", barrage: "🏹", shadowbind: "⛓️", release: "🌀", blood_pact: "🔮", siphon: "💠", provoke: "❗", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", sentinel: "🛡️", shield_bash: "💥", convert: "🔄" };
-const SPELL_ICON = { blight: "☠️", drain: "🩸", mind_drain: "🌀", stun: "💫", battle_minuet: "🎵", mending_paeon: "💚", drowsy_lullaby: "💤", wellspring_ballad: "💧", keen_madrigal: "🎯", swift_march: "🥁", mending_paeon2: "💚", battle_minuet2: "🎵", cure3: "✚", banish2: "✴", stone2: "◆", water2: "💧", aero2: "🌀", fire2: "🔥", blizzard2: "❄", ember_sprite: "🔥", frost_sprite: "❄", gale_sprite: "🌪️", cure: "✚", cure2: "✚", dia: "☀", banish: "✴", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", thunder: "⚡", flash: "✨", slow: "🐌", paralyze: "🧊", protect: "🔰" };
+const SPELL_ICON = { cure: "✚", cure2: "✚", dia: "☀", banish: "✴", protect: "🔰", shell: "🔮", slow: "🐌", paralyze: "🧊", stone: "◆", water: "💧", aero: "🌀", fire: "🔥", blizzard: "❄", poison: "☠️", bio: "☣", drain: "🩸", aspir: "🌀", blind: "🕶", bind: "⛓", sleep: "💤", knights_minne: "🛡", valor_minuet: "🎵", armys_paeon: "💚", armys_paeon2: "💚", sword_madrigal: "🎯", foe_lullaby: "💤", fire_spirit: "🔥", ice_spirit: "❄", air_spirit: "🌪️", earth_spirit: "◆", thunder_spirit: "⚡", water_spirit: "💧", light_spirit: "✨", dark_spirit: "🌑" };
 const KIND_ORDER = { use: 0, equip: 1, crystal: 2, mat: 3, tool: 4, furniture: 5 };
 const TAB_INFO = {
   character: ["Character", "👤", "C"], inventory: ["Inventory", "🎒", "I"], skills: ["Skills", "📈", "K"], actions: ["Hotkeys", "✨", "B"],
@@ -1115,7 +1115,7 @@ function updateFF() {
   const cmdL = S.ko && !S.modal && !UI.cmd && !UI.mm ? "K.O." : cmdLbl;
   if (UI.cmdLbl !== cmdL) { UI.cmdLbl = cmdL; setTxt(document.querySelector("#ffTop .ffCmd"), cmdL); }
   if (tOk || UI.cmd || UI.mm || S.modal || S.ko) {
-    setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : S.ko ? "You've been knocked out. Wait to be raised, use a Phoenix Down or Ember Plume from your items, or go back to your home point (you'll lose experience)." : ffDefaultHelp(t));
+    setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : S.ko ? "You've been knocked out. Go back to your home point (you'll lose experience)." : ffDefaultHelp(t));
     if (UI.mm && UI.mm.sub && Date.now() - (UI.stAt || 0) > 500) { UI.stAt = Date.now(); renderStatusOv(); }
     const now = Date.now();
     if (now - (UI.netAt || 0) > 1000) {
