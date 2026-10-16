@@ -283,7 +283,7 @@ const LORE = {
   worm: ["Tunnel Worms sense magic. They're slow, tough, and spin silk worth selling.", "Worms are about day and night; the hares aren't."],
   ghoul: ["Ghouls smell weakness. A party with low HP draws them from across a chamber.", "Light and fire burn the undead. Banish and Fire hit ghouls hard."],
   skeleton: ["Wandering Bones walk the Old Fort Ruins by night and the Crypt at all hours.", "Bone chips from the dead go into advanced recipes."],
-  hare: ["Meadow Hares graze by day and never start a fight. Good first targets.", "Hares carry healing herbs, which Pell and Ysolde both want."],
+  hare: ["Meadow Hares graze by day and never start a fight. Good first targets.", "Hares carry healing herbs, which the Tradesman and Ysolde both want."],
   chieftain: ["The Goblin Chieftain rules the back of the Den. His Goblin Rush is three quick strikes; keep the healer back.", "His cap is a trophy few wear."],
   grimtooth: ["Grimtooth leads the goblin camp in eastern Rocky Hollow. He appears among his gang now and then.", "Notorious monsters stay down for minutes of real time after they fall."],
   duskwing: ["Duskwing haunts the Old Fort Ruins on dark nights. Faster and far harder to hit than any bat.", "Its boots make the wearer lighter on their feet."],
@@ -294,7 +294,6 @@ const LORE = {
   royal_guard: ["Royal Guards rise at the Hollow King's call and fall when he does."],
   rhea: ["Captain Rhea commands the Outpost's garrison and pays bounties on goblins and worse.", "Rhea turns in at 22:00 and is back on the plaza at dawn."],
   tobin: ["Tobin, Job Master, teaches support jobs at level 10 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
-  pell: ["Pell buys and sells potions, ethers, arms and armour. Crystals talk.", "Pell keeps late hours for a merchant: he shuts at 21:00."],
   brann: ["Brann runs the Mercenary Hall. Five new fighters arrive every day, and a companion who falls is gone for good.", "Brann drinks till 23:00 and is up by half past seven."],
   ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 20.", "Ysolde beds down with the beasts at 19:30."],
   odette: ["Odette sells furnishings for your residence, and her cousin Pip keeps it.", "Odette closes up at 21:30."]
@@ -385,7 +384,7 @@ function invSorted() {
 }
 const KB_SEL = "#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a], #mBody .item[data-a]";
 const SLIM_TABS = { inventory: 1, shop: 1, quests: 1, magic: 1, abilities: 1 };
-function isSlim(t) { return !!SLIM_TABS[t] || (t === "storage" && !(S.zone && S.zone.residence)); }
+function isSlim(t) { return !!SLIM_TABS[t] || (t === "storage" && !(S.zoneId === "residence")); }
 function listRow(a, v, id, qty, name, right, sel, cls) {
   return '<button class="lr' + (sel ? " sel" : "") + (cls ? " " + cls : "") + '" data-a="' + a + '" data-v="' + v + '"' + (id ? ' data-hv="' + id + '"' : "") + '><span class="cur">➤</span>' + (qty != null ? '<span class="lq">' + (qty > 1 ? qty : "") + "</span>" : "") + '<span class="ic">' + (id && ITEMS[id] ? ITEMS[id].icon || "📦" : "•") + '</span><span class="nm">' + esc(name) + "</span>" + (right != null ? '<span class="rt">' + right + "</span>" : "") + "</button>";
 }
@@ -649,7 +648,7 @@ function tabSystem() {
   return h;
 }
 function tabShop() {
-  const kind = S.shopKind && SHOPS[S.shopKind] ? S.shopKind : "pell", mode = UI.shopMode === "sell" ? "sell" : "buy";
+  const kind = S.shopKind && (SHOPS[S.shopKind] || S.shopKind.startsWith("v:")) ? S.shopKind : "marn", mode = UI.shopMode === "sell" ? "sell" : "buy";
   UI.modalHelp = mode === "buy" ? "Buy merchandise." : "Sell merchandise.";
   let h = '<div class="lHead"><button data-a="shopmode" data-v="buy"' + (mode === "buy" ? ' class="on"' : "") + '>Buy</button><button data-a="shopmode" data-v="sell"' + (mode === "sell" ? ' class="on"' : "") + ">Sell</button></div><div class=\"lList\">";
   if (mode === "buy") for (const id of shopList(kind)) h += listRow("shopbuy", id, id, null, ITEMS[id].name, buyPrice(id).toLocaleString(), UI.hov === id, save.gil < buyPrice(id) ? "dim" : "");
@@ -736,7 +735,7 @@ function tabFurnishings() {
 
 function tabStorage() {
   const cap = storageCap();
-  if (!(S.zone && S.zone.residence)) {
+  if (!(S.zoneId === "residence")) {
     UI.modalHelp = "What Pip is keeping for you at your residence.";
     let h = '<div class="lHead"><button data-a="slimclose">✕ Close</button></div><div class="lList">';
     if (!save.storage.length) h += '<div class="lr empty"><span class="nm">Nothing in storage. Visit Pip at your residence to store things.</span></div>';
@@ -1636,7 +1635,7 @@ function onMenuClick(e) {
   else if (a === "water") { UI.homeMsg = waterGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
   else if (a === "feed") { const [i, id] = v.split(":"); UI.homeMsg = feedGarden(+i, id); if (UI.homeMsg) sfx("error"); renderModal(); return; }
   else if (a === "harvest") { UI.homeMsg = harvestGarden(+v); if (UI.homeMsg) sfx("error"); renderModal(); return; }
-  else if ((a === "store" || a === "retrieve") && !(S.zone && S.zone.residence)) { log("You can only move items in or out of storage at your residence.", "sys"); sfx("error"); return; }
+  else if ((a === "store" || a === "retrieve") && !(S.zoneId === "residence")) { log("You can only move items in or out of storage at your residence.", "sys"); sfx("error"); return; }
   else if (a === "store") { storeItem(+v); renderModal(); return; }
   else if (a === "retrieve") { retrieveItem(+v); renderModal(); return; }
   else if (a === "pickf") { UI.pick = UI.pick === v ? null : v; UI.furnSel = null; UI.homeMsg = ""; sfx("tab"); renderModal(); return; }
@@ -1693,6 +1692,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.44.0", date: "2026-10-16", title: "Six vendors in every town", items: [
+    "<b>Every town now has six vendors:</b> an Armorer (armor), a Weaponsmith (weapons, bows and ammo), a Tradesman (gathering tools and raw materials), a Quartermaster (potions and food), a Spellsmith (scrolls) and a Jeweler (rings and necklaces). Find them in the market of Ashenreach, south of the plaza in Saltreach and beside the shop in Ironvale.",
+    "Each vendor shows up to 10 items from their trade, all level 5 or lower, and the selection changes every day and from town to town. The Jeweler only has four things in his trade at that level.",
+    "<b>Pell is gone.</b> His shop sign is now the Market Hall, and Hale the Tradesman gives the Outpost quests Pell used to give. Gear, scrolls and recipes above level 5 that Pell used to sell are now at Vela's in Saltreach.",
+    "<b>Fixed:</b> storage at your residence let you look but not move items. You can now store and take items out again when you are in your residence."
+  ]},
   { v: "18.43.0", date: "2026-10-16", title: "Auction prices match the shops", items: [
     "<b>Auction house prices are now 1.5 times the shop price</b> for the same item (they used to be a tenth of it). Prices still drift with the daily news and with how much people buy and sell.",
     "Companion lots, town buying of your listings and the suggested sell price all follow the new level, so selling spoils at auction pays far better than selling them to a shop."
@@ -3183,28 +3188,29 @@ function tabHelp() {
   const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
   let h = '<div class="help">';
   h += sec("🌅 Getting started", ul([
-    "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, <b>Pell</b> to buy and sell, and <b>Ysolde</b> for the mount.",
+    "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, the <b>market vendors</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave through Eastgate, the east district of the city, into Rocky Hollow. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
     "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. You can rest during a fight too (it disengages you first). Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("🏙️ Cities and districts", ul([
-    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, Pell, Odette, Corvin's auction desk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
+    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, the six vendors, Odette, Corvin's auction desk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
     "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
-    "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day."
+    "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Market Hall, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day."
   ]));
   h += sec("🚶 City life", ul([
     "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
-    "Tour quests: Pell (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
+    "<b>Vendors:</b> every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. Anything higher is at Vela in Saltreach, Haldor in Ironvale, the auction house, or from crafters.",
+    "Tour quests: Hale the Tradesman (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([
     "Each district of the three cities has a warp stone (pink dot on the map). Touch one to attune it. Warps inside the same city are free; warps to a stone in another city cost " + CONFIG.warpCost + " crystals. You can't warp while fighting. Type /warp beside a stone to open the menu. Crystals still handle home points and camp warps."
   ]));
   h += sec("💀 Falling and reviving", ul([
     "A hireling who falls stays where they died for an hour. They do not follow you through gates or zone changes, and returning to your home point does not heal them. Walk back before the hour ends or they leave the party. There is no Raise spell in this version.",
-    "<b>Reraise:</b> a <b>Reraiser</b> (Pell's shop, Vela's market) puts a Reraise effect on you for an hour. If you fall while it lasts, you stand back up at once with half your HP (Hi-Reraiser and Super Reraiser: full HP) and no experience loss."
+    "<b>Reraise:</b> a <b>Reraiser</b> (Vela's market) puts a Reraise effect on you for an hour. If you fall while it lasts, you stand back up at once with half your HP (Hi-Reraiser and Super Reraiser: full HP) and no experience loss."
   ]));
   h += sec("📴 Offline play", ul([
     "Offline play asks for the email and password of your online account each time you start the game. It is checked with the server once, then remembered on that device so it works with no connection afterwards.",
@@ -3318,7 +3324,7 @@ function tabHelp() {
     ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high-quality items", "5–10%"],
     ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques and gear", "30–35%"],
     ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
-  ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, consumables and (only while you carry the <b>City Blessing</b>) elemental essences; gear comes from NMs, quests and Pell's shop.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
+  ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, consumables and (only while you carry the <b>City Blessing</b>) elemental essences; gear comes from NMs, quests and the armorer and weaponsmith.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, auction house, home point"],
     ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],
@@ -3461,10 +3467,10 @@ function tabHelp() {
     "<b>Old Friends:</b> a companion you refuse, or can't pay, goes back to Brann's Mercenary Hall and waits under Old Friends with their gear, bag and bond. To win them back you pay a bribe: their full hiring fee plus 100 crystals per level. They rejoin at your current level."
   ]));
   h += sec("🎣 Fishing", ul([
-    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait. You raise the rod in both hands, a line and red-and-white float settle on the water, and the float dips and jitters when something bites.",
+    "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from a Tradesman. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait. You raise the rod in both hands, a line and red-and-white float settle on the water, and the float dips and jitters when something bites.",
     "Wait for a bite, then press <b>Reel in!</b> (or Space, Enter or F) within about 2 seconds. Walking away, fighting or changing area pulls your line in.",
     "Catches: Outpost pond: Pond Minnow, Moat Carp. Rocky Hollow lakes: Moat Carp, Silver Shad, and the rare Lakeking Pike. Ashen Marsh ponds: Mud Eel, Bog Perch, and the rare Ghost Koi, which only bites in rain or storms.",
-    "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to Pell, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
+    "Fishing skill (up to 20) raises your catch rate against tougher fish. Fish sell well to any vendor, and the Trade Board sometimes asks for Moat Carp or Mud Eels."
   ]));
   h += sec("🕰️ Time and waiting", ul([
     "The <b>sun</b> and <b>moon</b> cross the sky with the game clock: the sun rises in the east around 06:00 and sets in the west around 18:00, turning orange near the horizon; the moon climbs after sunset and sets at dawn. Its shape follows the day of the cycle. Caves and buildings have no sky.",
@@ -3509,23 +3515,23 @@ function tabHelp() {
     "Odette's quest <i>Make It Home</i> rewards a potted plant for placing two pieces."
   ]));
   h += sec("🌙 Townsfolk", ul([
-    "People in the Outpost go home at night and come back out in the morning, each at their own hour: Ysolde 19:30–5:30, Tobin 20:00–7:00, Pell 21:00–6:30, Odette 21:30–6:00, Rhea 22:00–6:00, Brann 23:00–7:30 (game time).",
+    "People in the Outpost go home at night and come back out in the morning, each at their own hour: Ysolde 19:30–5:30, Tobin 20:00–7:00, Odette 21:30–6:00, Rhea 22:00–6:00, Brann 23:00–7:30 (game time).",
     "While someone is indoors you can't talk or trade with them. The Home Point Crystal is always there."
   ]));
   h += sec("⛏️ Gathering", ul([
     "Look for ore rocks, log piles and herb patches in Rocky Hollow and the Goblin Den (grey, brown and green dots on the compass map). Tap one to gather.",
-    "Each needs a tool from Pell: Pickaxe (mining), Hatchet (logging), Sickle (harvesting). A tool breaks 25% of the time, minus 1% per skill level (never below 5%).",
+    "Each needs a tool from a Tradesman: Pickaxe (mining), Hatchet (logging), Sickle (harvesting). A tool breaks 25% of the time, minus 1% per skill level (never below 5%).",
     "A point runs dry after 1–3 uses and a new one appears elsewhere 45 seconds later. Gathering raises its own skill, up to 20."
   ]));
   h += sec("⚒️ Crafting", ul([
-    "<b>Recipes are learned from Recipe scrolls.</b> You start knowing only the basic materials (Bronze Ingot, Ash Lumber, Silk Cloth, Potion, Grilled Minnow). Common scrolls are sold by Pell (level 10 and under) and Vela. Rare recipes for gear that can come out as the +1 version drop rarely from monsters of about the right level (notorious monsters and bosses more often) or come as quest rewards. Read a scroll with Use from Items.",
+    "<b>Recipes are learned from Recipe scrolls.</b> You start knowing only the basic materials (Bronze Ingot, Ash Lumber, Silk Cloth, Potion, Grilled Minnow). Recipe scrolls are sold by Vela in Saltreach. Rare recipes for gear that can come out as the +1 version drop rarely from monsters of about the right level (notorious monsters and bosses more often) or come as quest rewards. Read a scroll with Use from Items.",
     "Open the Crafting window (N, or /craft). Put an essence in the big slot on the left and up to 8 ingredients in the small slots by tapping them in your bag. The right side lists what that combination can make; ★ means the combination is exact. Press OK to craft, Cancel to clear. Tapping a result fills in the slots for you when you have the ingredients. Recipe notes lists every recipe you can learn. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
     "Each craft uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
     "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure uses up the essence and loses some ingredients.",
     "Skill rises on recipes near or above your level, up to " + CONFIG.craftCap + "."
   ]) + tbl(["Craft", "Essence", "Makes"], Object.keys(CRAFTS).map(k => [CRAFTS[k].icon + " " + CRAFTS[k].name, ITEMS[CRAFTS[k].crystal].name, (l => l.length > 12 ? l.slice(0, 10).join(", ") + " and " + (l.length - 10) + " more" : l.join(", "))(RECIPES.filter(r => r.craft === k).sort((x, y) => x.lv - y.lv).map(r => ITEMS[r.out].name))])));
   h += sec("🍳 Cooking and food", ul([
-    "Cooking is a craft (Crafting in the main menu) that turns fish, herbs, Grain Flour and Rock Salt (Pell sells both) into meals. Each recipe makes 2–3 servings.",
+    "Cooking is a craft (Crafting in the main menu) that turns fish, herbs, Grain Flour and Rock Salt (Tradesmen sell both) into meals. Each recipe makes 2–3 servings.",
     "Eat a meal from your bag or the Items command for " + CONFIG.foodMinutes + " minutes of play time of bonuses (it only counts down while you're playing). One meal at a time: eating another replaces it. You can't eat mid-fight.",
     "Meals: " + Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food").map(k => ITEMS[k].name + " (" + foodText(ITEMS[k].food) + ")").join(" · ") + "."
   ]));
@@ -3571,7 +3577,7 @@ function tabHelp() {
     "<b>Main:</b> one- and two-handed weapons. <b>Sub:</b> shields. <b>Range</b> and <b>Ammo:</b> bows and crossbows (a bow in Range turns your attack into a ranged shot, and the arrow or bolt in Ammo adds half its damage), plus boomerangs and instruments. <b>Neck:</b> gorgets and pendants. <b>Ear</b> and <b>Ring:</b> two of each. <b>Back:</b> capes and mantles. <b>Waist:</b> belts and sashes.",
     "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
     "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
-    "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells gear up to level 10 and Vela in Saltreach levels 11 to 20. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
+    "Item cards show the slot, every stat, the jobs and level needed, and the item level. Armorers, weaponsmiths and jewelers sell gear up to level 5, and Vela in Saltreach sells levels 6 to 20. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
     "All equipment runs from level 1 to 20, each piece with its own name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
   ]));
   h += sec("🖥️ The screen", ul([

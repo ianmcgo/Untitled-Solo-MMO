@@ -933,7 +933,7 @@ const ZONES = {
     ],
     npcs: [
       { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 18, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
-      { id: "crystal_town", x: 1000, y: 760 }, { id: "pell", x: 800, y: 650, home: 4, sleep: [21, 6.5] }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
+      { id: "crystal_town", x: 1000, y: 760 }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
       { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "corvin", x: 840, y: 900 },
       { id: "garrick", x: 820, y: 1205, home: 7, sleep: [22, 6.5] },
       { id: "ysolde", x: 1700, y: 960, home: 16, sleep: [19.5, 5.5] }, { id: "guard_east", x: 1790, y: 690 }
@@ -959,7 +959,7 @@ const ZONES = {
     ],
     houses: [
       { x: 760, y: 150, w: 220, h: 110, type: "barracks", sign: "Barracks", flag: "#c0392b" }, { x: 1000, y: 120, w: 200, h: 110, type: "cityhall", floors: 3, flag: "#c0392b" }, { x: 1240, y: 150, w: 200, h: 110, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b" }, { x: 1260, y: 370, w: 150, h: 70, type: "hall", floors: 1, sign: "Job Master" },
-      { x: 690, y: 560, w: 140, h: 100, type: "shop", sign: "Pell's Goods", awning: "#b5651d" }, { x: 1310, y: 560, w: 140, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" }, { x: 690, y: 975, w: 140, h: 90, type: "auction", sign: "Auction House" },
+      { x: 690, y: 560, w: 140, h: 100, type: "shop", sign: "Market Hall", awning: "#b5651d" }, { x: 1310, y: 560, w: 140, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" }, { x: 690, y: 975, w: 140, h: 90, type: "auction", sign: "Auction House" },
       { x: 700, y: 1370, w: 180, h: 100, type: "forge", floors: 1, sign: "Smithy", signCol: "#ff7a30" }, { x: 1000, y: 1380, w: 160, h: 100, type: "mill" }, { x: 1290, y: 1380, w: 200, h: 100, type: "warehouse", floors: 2 },
       { x: 200, y: 760, w: 110, h: 130, rot: 1, type: "home", tint: 0, floors: 2 }, { x: 180, y: 300, w: 150, h: 110, type: "home", floors: 3 }, { x: 430, y: 140, w: 130, h: 100, type: "home" }, { x: 180, y: 1100, w: 150, h: 110, type: "home" }, { x: 430, y: 1380, w: 140, h: 100, type: "home", floors: 3 }, { x: 440, y: 520, w: 110, h: 120, type: "home" },
       { x: 1700, y: 1300, w: 140, h: 110, type: "home", sign: "Stables" }, { x: 1720, y: 160, w: 160, h: 110, type: "guard", flag: "#9aa0a8" },
@@ -1288,7 +1288,6 @@ const CHEST_LOOT = {
 const NPCS = {
   rhea: { name: "Captain Rhea", model: "rhea", talk: "talkRhea" },
   tobin: { name: "Tobin, Job Master", model: "tobin", talk: "talkTobin" },
-  pell: { name: "Pell, Merchant", model: "pell", talk: "talkPell" },
   garrick: { name: "Garrick, Smith", model: "garrick", talk: "talkGarrick" },
   trade_board: { name: "Trade Board", prop: "board", talk: "talkBoard" },
   maera: { name: "Maera, Adventurers' Guild", model: "maera", talk: "talkMaera" },
@@ -1321,7 +1320,7 @@ const NPCS = {
 };
 
 const QUESTS = {
-  tour_outpost: { name: "Know Your City", giver: "Pell", npc: "pell", lv: 1, check: "tour_outpost", desc: "Walk through all five districts of Ashenreach Outpost: Market, Government, Residential, Industrial and Eastgate.", reward: { xp: 150, gil: 200 },
+  tour_outpost: { name: "Know Your City", giver: "Hale", npc: "v_trade_outpost", lv: 1, check: "tour_outpost", desc: "Walk through all five districts of Ashenreach Outpost: Market, Government, Residential, Industrial and Eastgate.", reward: { xp: 150, gil: 200 },
     intro: "Customers keep asking me where the smithy is, and I've no time to point. Do us both a favour and walk every district of the Outpost once: Market, Government, Residential, Industrial and Eastgate. Then come back and I'll pay you for your time.", progress: "Still some districts you haven't walked. Use the map (M); each district is tinted and named.", turn: "Every street walked. You'll never be lost here now. Take this for your trouble." },
   tour_harbor: { name: "Harbor Rounds", giver: "Marn", npc: "marn", lv: 2, check: "tour_harbor", desc: "Visit all four districts of Saltreach Harbor: the Fish Market, Harbor Square, Shipwrights' Row and the Docks.", reward: { xp: 200, gil: 250 },
     intro: "New to Saltreach? Then you don't know where the best catch lands. Visit the Fish Market, Harbor Square, Shipwrights' Row and the Docks, and tell me what you saw. I'll make it worth your while.", progress: "You've not seen it all yet. The Docks run along the south shore, past the gate halls.", turn: "So you've seen the whole harbor. Good. Now you know where to buy fish." },
@@ -1332,7 +1331,7 @@ const QUESTS = {
     intro: "Every adventurer needs somewhere to hang their helm. The cottage by the west wall is yours; my cousin Pip keeps it. Put two pieces of furniture in it and I'll throw in something green for the windowsill.", progress: "Two pieces placed, that's all. Chairs are cheap. Talk to Pip at the cottage to arrange them.", turn: "Two pieces placed! It's a home now. Here, a flowerpot and some herb seeds; Pip will show you how to garden." },
   greenthumb: { name: "Green Thumb", giver: "Pip", npc: "pip", lv: 1, check: "harvest", desc: "Plant a seed in a Flowerpot at your residence, water it through its three stages, and harvest it.", reward: { xp: 150, gil: 0, items: [["wildgrass_seeds", 2]] },
     intro: "You've a flowerpot? Then let's grow something! Plant a seed, water it, and feed it an elemental essence if you have one. It takes a while in real time, so come back. Harvest once and I'll give you some wildgrass seeds.", progress: "Still growing? Water it at every stage; dry plants don't grow.", turn: "A harvest! You've the knack. Wildgrass grows crystals of whichever element you feed it; try these." },
-  herbs: { name: "Herbs for the Stall", giver: "Pell", npc: "pell", lv: 1, items: { healing_herb: 3 }, desc: "Bring Pell 3 Healing Herbs for his stall. Meadow Hares and Tunnel Worms in Rocky Hollow carry them.", reward: { xp: 120, gil: 100, items: [["pickaxe", 1], ["hatchet", 1]] },
+  herbs: { name: "Herbs for the Stall", giver: "Hale", npc: "v_trade_outpost", lv: 1, items: { healing_herb: 3 }, desc: "Bring Hale 3 Healing Herbs for his stall. Meadow Hares and Tunnel Worms in Rocky Hollow carry them.", reward: { xp: 120, gil: 100, items: [["pickaxe", 1], ["hatchet", 1]] },
     intro: "My herb jars are empty and the hares won't deliver. Bring me 3 Healing Herbs and I'll pay in coin and tools. Hares and worms past the east gate carry them.", progress: "Still short on herbs. Hares graze by day; worms are about day and night.", turn: "Fresh herbs! Here's your coin, and a pickaxe and hatchet besides. Hang on to them; the hills are full of ore and timber." },
   nightwings: { name: "Night Wings", giver: "Brann", npc: "brann", lv: 2, kill: { fam: "bat", n: 4, name: "Cave Bat" }, desc: "Defeat 4 Cave Bats for Brann. Bats only come out in Rocky Hollow at night.", reward: { xp: 200, gil: 150 },
     intro: "My recruits keep coming back with bat bites. Cull 4 Cave Bats in the Hollow and I'll pay a bounty. They only fly at night, so bring a light heart.", progress: "Bats still flapping about out there. Night's the time.", turn: "Four bats down. That's a bounty well earned." },
@@ -1350,7 +1349,7 @@ const QUESTS = {
     intro: "Goblins from Mire Village keep raiding our carts on the marsh road. I can't spare sailors to guard them. Cut down five of the raiders and the harbor will owe you.", progress: "Five Mire Goblins. They roam north of here in the marsh.", turn: "The carts came through clean today. Take this ring; it was my mother's, and she'd want it on someone useful." },
   frozencargo: { name: "Frozen Cargo", giver: "Ilsa", npc: "ilsa", lv: 16, kill: { fam: "frost_goblin", n: 6, name: "Frost Goblin" }, desc: "Drive back 6 Frost Goblins raiding the caravans in Frostspire Pass, east of Saltreach.", reward: { xp: 4000, gil: 1500, item: "bone_mask", qty: 1 },
     intro: "Our ice caravans come down Frostspire Pass, east of the harbor. Goblins in fur coats have started ambushing them. Thin them out (six should do) and I'll see you warmly dressed.", progress: "Six Frost Goblins in Frostspire Pass. They see far in the snow, so pick your fights.", turn: "The caravan made it through. Here, a fur hat. You'll need it up there." },
-  silk: { name: "Silk for Sale", giver: "Pell", npc: "pell", lv: 2, kill: { fam: "grass_crawler", n: 6, name: "Grass Crawler" }, desc: "Pell wants crawler silk. Defeat 6 Grass Crawlers in Rocky Hollow.", reward: { xp: 250, gil: 300, item: "bronze_mittens", qty: 1 },
+  silk: { name: "Silk for Sale", giver: "Hale", npc: "v_trade_outpost", lv: 2, kill: { fam: "grass_crawler", n: 6, name: "Grass Crawler" }, desc: "Hale wants crawler silk. Defeat 6 Grass Crawlers in Rocky Hollow.", reward: { xp: 250, gil: 300, item: "bronze_mittens", qty: 1 },
     intro: "Every tailor in the capital wants crawler silk, and the meadow's crawling with the stuff. Literally. Put down six of those big green crawlers and I'll make it worth your while.", progress: "Six Grass Crawlers. They're slow and they won't start a fight, but mind the sticky thread.", turn: "Lovely, lovely. I'll have the cocoons spun by Firesday. Here, a pair of gloves from the first batch." },
   mire: { name: "Into the Mire", giver: "Captain Rhea", npc: "rhea", lv: 10, kill: { fam: "bog_toad", n: 6, name: "Bog Toad" }, desc: "Thin out the Bog Toads in the Ashen Marsh, south of Rocky Hollow.", reward: { xp: 1200, gil: 600, item: "bounding_boots", qty: 1 },
     intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
@@ -2266,7 +2265,6 @@ const RACE_BASE = {
   radius: 90, limit: 75, medals: [["gold", 26, 1200], ["silver", 36, 600], ["bronze", 50, 300]]
 };const RACE = (() => { const k = zsc(RACE_BASE.zone), r = Object.assign({}, RACE_BASE); r.start = { x: RACE_BASE.start.x * k, y: RACE_BASE.start.y * k }; r.checkpoints = RACE_BASE.checkpoints.map(c => Object.assign({}, c, { x: c.x * k, y: c.y * k })); r.limit = Math.round(RACE_BASE.limit * k); { const ls = p => Object.assign(p, splitLocal(RACE_BASE.zone, p.x, p.y)); ls(r.start); r.checkpoints.forEach(ls); r.zone = r.start.zone; r.zones = ZONE_SPLITS[RACE_BASE.zone] ? ZONE_SPLITS[RACE_BASE.zone].parts.map(q => q.id) : [RACE_BASE.zone]; } r.medals = RACE_BASE.medals.map(m => [m[0], Math.round(m[1] * k), m[2]]); return r; })();
 
-const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 
 const PETS = {
   carbuncle: { name: "Carbuncle", el: "light", col: 0xa5d6a7, eye: 0xff5252, pact: "Searing Light", weak: "dark" },
@@ -2311,6 +2309,38 @@ const RARE_RECIPES = RECIPES.filter(r => r.id.startsWith("g_")).sort((a, b) => a
   });
 }
 for (const id in GEAR_DATA) { const g = GEAR_DATA[id]; if (g.src !== "shop") continue; if (g.lv <= 10) SHOP.push(id); else SHOPS.vela.push(id); }
+const VENDOR_SLOTS_ARMOR = ["head", "body", "hands", "legs", "feet", "back", "waist", "sub"];
+const VENDOR_ROLES = {
+  armorer: { title: "Armorer", test: it => it.kind === "equip" && VENDOR_SLOTS_ARMOR.includes(it.slot), work: "hammer", held: "hammer", hello: "Mail, caps, boots and bucklers, all fitted for beginners. Take a look." },
+  weaponsmith: { title: "Weaponsmith", test: it => it.kind === "equip" && ["main", "ranged", "ammo"].includes(it.slot), work: "hammer", held: "hammer", hello: "Blades, bows, staves and shot. Every one honest steel. Mind the edges." },
+  tradesman: { title: "Tradesman", test: it => it.kind === "tool" || it.kind === "mat" || it.kind === "crystal" || it.kind === "seed" || !!it.fishing, work: "work", held: "basket", hello: "Picks, hatchets, sickles, rods and raw goods. Everything a gatherer needs." },
+  quartermaster: { title: "Quartermaster", test: it => it.kind === "food" || (it.kind === "use" && !it.spell && !it.recipe && !it.fishing && !it.pet), work: "count", held: "ledger", hello: "Potions, ethers and hot meals. Pack plenty before you head out." },
+  spellsmith: { title: "Spellsmith", test: it => !!it.spell && it.kind === "use", work: "read", held: "scroll", hello: "Scrolls of every school. Read one and the spell is yours for good." },
+  jeweler: { title: "Jeweler", test: it => it.kind === "equip" && (it.slot === "ring" || it.slot === "neck"), work: "count", held: "book", hello: "Rings and pendants, cut and set by hand. A little sparkle goes a long way." }
+};
+const VENDOR_STOCK = 10, VENDOR_MAXLV = 5;
+const VENDOR_SOURCE = (() => { return SHOP.concat(SHOPS.marn).filter(id => ITEMS[id] && !ITEMS[id].hq && !/^rcp_/.test(id)).filter((id, i, a) => a.indexOf(id) === i); })();
+const VENDOR_POOL = {};
+for (const r in VENDOR_ROLES) VENDOR_POOL[r] = VENDOR_SOURCE.filter(id => (ITEMS[id].lv || 0) <= VENDOR_MAXLV && VENDOR_ROLES[r].test(ITEMS[id]));
+{
+  const inPool = new Set(); for (const r in VENDOR_POOL) for (const id of VENDOR_POOL[r]) inPool.add(id);
+  for (const id of SHOP) if (!inPool.has(id) && !SHOPS.vela.includes(id)) SHOPS.vela.push(id);
+}
+const VENDOR_TOWNS = {
+  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, at: [[700, 705], [775, 705], [850, 705], [700, 770], [775, 770], [850, 770]] },
+  harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, at: [[700, 765], [780, 765], [860, 765], [940, 765], [1020, 765], [1100, 765]] },
+  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, at: [[1110, 620], [1170, 620], [1230, 620], [1110, 685], [1170, 685], [1230, 685]] }
+};
+const VENDOR_WORK = {};
+for (const town in VENDOR_TOWNS) {
+  const T = VENDOR_TOWNS[town];
+  Object.keys(VENDOR_ROLES).forEach((r, i) => {
+    const id = "v_" + (r === "tradesman" ? "trade" : r) + "_" + town;
+    NPCS[id] = { name: T.names[r] + ", " + VENDOR_ROLES[r].title, model: "vend_" + r, talk: "talkVendor", shop: r };
+    VENDOR_WORK[id] = VENDOR_ROLES[r].work;
+    ZONES[town].npcs.push({ id, x: T.at[i][0], y: T.at[i][1] });
+  });
+}
 function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
 function exitInner(z, e) {
   const L = e.hall || 0, cx = e.x + e.w / 2, cy = e.y + e.h / 2, sd = exitSide(z, e);

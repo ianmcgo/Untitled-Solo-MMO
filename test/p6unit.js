@@ -18,7 +18,7 @@ setHour(22.5); run(0.2);
 ok(npc('tobin').away || npc('tobin').heading, 'Tobin (bed at 20:00) has gone home by 22:30');
 ok(!npc('brann').away && !npc('brann').heading, 'Brann (bed at 23:00) is still out at 22:30');
 run(40);
-ok(npc('tobin').away && npc('pell').away && npc('rhea').away, 'by now Tobin, Pell and Rhea are indoors');
+ok(npc('tobin').away && npc('rhea').away, 'by now Tobin and Rhea are indoors');
 P().x = npc('tobin').x; P().y = npc('tobin').y + 30;
 ok(G.nearNpc() !== npc('tobin'), 'you cannot talk to an NPC who is indoors');
 setHour(8); run(30);

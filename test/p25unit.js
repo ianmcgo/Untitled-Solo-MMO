@@ -15,6 +15,6 @@ ok(!G.FAMILIES.bat.aggro && !G.FAMILIES.ice_bat.aggro && !G.FAMILIES.bog_leech.a
 ok(G.NM_FAMILIES.silkmother && G.NM_FAMILIES.silkmother.loot[0][1] >= 0.25 && G.NM_FAMILIES.orc_warlord, 'Silkmother and Gorruk the Warlord exist');
 G.enterZone('outpost'); run(0.2);
 G.save.jobs.WAR.lv = 3; G.refreshPlayer(true);
-G.talkTo(npc('pell')); ok(!!opt(/Silk for Sale/), 'Pell offers Silk for Sale');
+G.talkTo(npc('v_trade_outpost')); ok(!!opt(/Silk for Sale/), 'Hale offers Silk for Sale');
 ok(G.GUILD_BOUNTIES.some(b => b.fam === 'grass_crawler') && G.GUILD_BOUNTIES.some(b => b.fam === 'silkmother'), 'guild bounties for crawlers and the Silkmother');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

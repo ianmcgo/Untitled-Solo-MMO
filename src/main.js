@@ -41,7 +41,7 @@ function boot() {
   initView();
   save = loadGame();
   initParty();
-  log("Welcome to the Outpost. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, Pell to trade.", "npc");
+  log("Welcome to the Outpost. Talk to Captain Rhea for work, Brann to hire companions, Tobin to change jobs, the market vendors to trade.", "npc");
   const h = homePos();
   enterZone(h.zone, h.x, h.y);
   let last = performance.now();

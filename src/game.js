@@ -2149,13 +2149,13 @@ function nearWater(e, reach) {
 function startFishing() {
   if (!player.alive) return "You are KO'd.";
   if (S.fish) return "You're already fishing.";
-  if (invCount("fishing_rod") < 1 && invCount("sea_rod") < 1) return "You need a fishing rod. Pell and Marn sell them.";
+  if (invCount("fishing_rod") < 1 && invCount("sea_rod") < 1) return "You need a fishing rod. The tradesmen and Marn sell them.";
   if (!zkey(FISH, S.zoneId)) return "Nothing bites here.";
   const w = nearWater(player);
   if (!w) return "Stand at the water's edge to fish.";
   if (player.engaged || inCombatWith(player)) return "You can't fish during a fight.";
   if (player.mounted) return "Dismount first.";
-  if (invCount("bait") < 1) return "You're out of Fishing Bait. Pell sells it.";
+  if (invCount("bait") < 1) return "You're out of Fishing Bait. Tradesmen sell it.";
   if (player.resting) standUp(player, true);
   removeItem("bait", 1);
   player.face = Math.atan2(w.y - player.y, w.x - player.x);
@@ -4587,7 +4587,7 @@ function gatherTool(type) { return GATHER[type].tool; }
 function doGather(n) {
   if (n.gone || n.uses <= 0) return;
   const type = n.gtype, tool = gatherTool(type), G = GATHER[type];
-  if (invCount(tool) < 1) { log("You need " + an(ITEMS[tool].name) + " to " + G.verb + " here. Pell sells them.", "sys"); sfx("error"); return; }
+  if (invCount(tool) < 1) { log("You need " + an(ITEMS[tool].name) + " to " + G.verb + " here. Tradesmen sell them.", "sys"); sfx("error"); return; }
   if (player.engaged || inCombatWith(player)) { log("You can't " + G.verb + " while fighting.", "sys"); sfx("error"); return; }
   if (player.resting) standUp(player, true);
   const skill = save.gatherSkill[type] || 0;
@@ -5656,10 +5656,11 @@ const TALK = {
       { label: "Trade", fn: () => { closeDialog(); S.shopKind = "vela"; openModal("shop"); } }
     ]);
   },
-  talkPell(n) {
-    openDialog(n.name, "Potions, ethers, arms and armor. Crystals talks, friend.", [
-      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "pell"; openModal("shop"); } }
-    ].concat(questOptions("pell", n)));
+  talkVendor(n) {
+    const role = NPCS[n.id].shop, R = VENDOR_ROLES[role];
+    openDialog(n.name, R.hello, [
+      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "v:" + role; openModal("shop"); } }
+    ].concat(questOptions(n.id, n)));
   },
   talkYsolde(n) {
     const q = save.quests;
@@ -6099,8 +6100,14 @@ function setJob(main, sub) {
 
 function shopListFor(kind) { return kind === "furniture" ? FURNITURE_SHOP.slice() : shopList(); }
 
+function vendorStock(role, town) {
+  const pool = (VENDOR_POOL[role] || []).slice(), r = seeded(hashStr("vendor:" + town + ":" + role + ":" + boardDay()));
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
+  return pool.slice(0, VENDOR_STOCK).sort((a, b) => ITEMS[a].price - ITEMS[b].price);
+}
+
 function shopList(kind) {
-  const src = kind && SHOPS[kind] ? SHOPS[kind] : SHOP;
+  const src = kind && kind.startsWith("v:") ? vendorStock(kind.slice(2), S.zoneId) : kind && SHOPS[kind] ? SHOPS[kind] : SHOP;
   return src.filter(id => {
     const it = ITEMS[id];
     if (it.kind === "tool" && !FEATURES.gathering) return false;
@@ -6169,7 +6176,7 @@ function buy(id) {
 
 function sell(id) {
   const p = sellPrice(id);
-  if (p <= 0) { log("Pell won't buy that.", "sys"); sfx("error"); return; }
+  if (p <= 0) { log("The merchant won't buy that.", "sys"); sfx("error"); return; }
   if (!removeItem(id, 1)) return;
   save.gil += p;
   log("You sell " + an(ITEMS[id].name) + " for " + p + " crystals.", "loot");
