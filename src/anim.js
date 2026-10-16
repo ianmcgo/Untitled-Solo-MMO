@@ -297,7 +297,7 @@ function poseHuman(v, e, dt) {
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
     else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.95 * sw, 0, -0.5 * sw); addP(P, "foreArmL", -0.15 * sw, 0, 0); }
     else { addP(P, "upArmR", -1.2 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.4 * sw, 0, 0); addP(P, "upArmL", -0.5 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
-    if (v.weapon && v.weaponDrawn) { const wk2 = v.weaponKind; if (wk2 === "staff" || wk2 === "polearm") v.weapon.rotation.z = Math.PI * an.fight; else if (wk2 && wk2 !== "h2h" && wk2 !== "archery") addP(P, "handR", 1.45 * sw, 0, 0); }
+    if (v.weapon && v.weaponDrawn && !v.wBlend) { const wk2 = v.weaponKind; if (wk2 === "staff" || wk2 === "polearm") v.weapon.rotation.z = Math.PI * an.fight; else if (wk2 && wk2 !== "h2h" && wk2 !== "archery") addP(P, "handR", 1.45 * sw, 0, 0); }
   }
 
   if (amp > 0.01) {
@@ -319,6 +319,17 @@ function poseHuman(v, e, dt) {
     v.rootOff[1] += Math.abs(c1) * (st.hop ? 0.07 : 0.035) * amp - 0.03 * amp - 0.03 * run;
     const step = Math.floor(an.ph / Math.PI);
     if (step !== an.lastStep) { an.lastStep = step; if (run > 0.4 && e.alive !== false) fxFootstep(e, v); }
+  }
+
+  if (v.wTr) {
+    const wp = Math.min(1, Math.max(0, (S.time - v.wTr.t0) / v.wTr.dur));
+    const r = wp < 0.5 ? ease(wp / 0.5) : 1 - ease((wp - 0.5) / 0.5);
+    setP(P, "upArmR", -2.55, 0, -0.35, r);
+    setP(P, "foreArmR", -1.25, 0, 0, r);
+    setP(P, "handR", 0, 0, 0, r);
+    setP(P, "upArmL", -0.35, 0, 0.35, r);
+    setP(P, "chest", -0.08, 0.15, 0, r);
+    setP(P, "spine", -0.12, 0, 0, r);
   }
 
   const ak = (S.time - an.aStart) / 0.5;

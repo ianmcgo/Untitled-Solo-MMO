@@ -93,27 +93,71 @@ function lookTargetOf(e) {
   return e !== player && player.target === e && near(player, 500) ? player : null;
 }
 
+const WEAPON_DRAW_TIME = 2.0, WEAPON_SHEATHE_TIME = 3.0;
+
+function weaponBodyK(v) {
+  const rb = RACE_BODY[v.meta && v.meta.race];
+  if (!rb) return 1;
+  return Math.max(0.7, Math.min(1.15, Math.sqrt((rb[0].leg + rb[0].torso) / 1.38)));
+}
+
+function weaponPose(v, drawn) {
+  const k = v.weapon.userData.kind, pos = new THREE.Vector3(), rot = new THREE.Euler();
+  if (drawn) {
+    pos.set(0.016, -0.074, 0.012);
+    if (k === "staff" || k === "polearm") rot.set(0.2, 0, 0);
+    else if (k === "archery") rot.set(0, 0, 0.1);
+    else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "gsword") rot.set(Math.PI / 2 - 0.5, 0, 0);
+    else rot.set(Math.PI / 2 - 0.25, 0, 0);
+  } else {
+    const bz = v.meta.backZ || -0.15;
+    if (k === "staff") { pos.set(0, -0.1, bz - 0.045); rot.set(0, 0, 1.2); }
+    else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { pos.set(0, 0.0, bz - 0.045); rot.set(0, 0, 0.78); }
+    else { pos.set(0.04, 0.0, bz - 0.04); rot.set(0, 0, Math.PI + 0.55); }
+  }
+  return { pos, quat: new THREE.Quaternion().setFromEuler(rot), rot };
+}
+
+function snapWeapon(v, drawn) {
+  const w = v.weapon, t = weaponPose(v, drawn);
+  (drawn ? v.bones.handR : v.bones.chest).add(w);
+  w.position.copy(t.pos); w.rotation.copy(t.rot);
+  v.weaponDrawn = drawn; v.wTr = null; v.wBlend = null;
+}
+
 function placeWeapon(v, e) {
   if (!v.weapon || !v.bones.handR) return;
   const an = v.an;
   const busy = an && (S.time - an.aStart < 0.6 || S.time - an.wsStart < 1.1);
   const drawn = e.alive !== false && (v.alwaysDrawn || e.engaged || !!e.casting || busy || (isMob(e) && e.state === "combat") || isMob(e)) && !e.mounted;
-  if (drawn === v.weaponDrawn) return;
-  v.weaponDrawn = drawn;
-  const w = v.weapon, k = w.userData.kind;
-  if (drawn) {
-    v.bones.handR.add(w);
-    w.position.set(0.016, -0.074, 0.012);
-    if (k === "staff" || k === "polearm") w.rotation.set(0.2, 0, 0);
-    else if (k === "archery") w.rotation.set(0, 0, 0.1);
-    else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "gsword") w.rotation.set(Math.PI / 2 - 0.5, 0, 0);
-    else w.rotation.set(Math.PI / 2 - 0.25, 0, 0);
-  } else {
-    v.bones.chest.add(w);
-    const bz = v.meta.backZ || -0.15;
-    if (k === "staff") { w.position.set(0, -0.1, bz - 0.045); w.rotation.set(0, 0, 1.2); }
-    else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { w.position.set(0, 0.0, bz - 0.045); w.rotation.set(0, 0, 0.78); }
-    else { w.position.set(0.04, 0.0, bz - 0.04); w.rotation.set(0, 0, Math.PI + 0.55); }
+  const w = v.weapon;
+  if (v.weaponDrawn == null) { w.scale.setScalar(weaponBodyK(v)); snapWeapon(v, drawn); v.wTarget = drawn; return; }
+  if (drawn !== v.wTarget) {
+    v.wTarget = drawn;
+    if (v.wTr) snapWeapon(v, v.wTr.to);
+    const instant = e.alive === false || e.mounted || isMob(e) || (drawn && busy) || v.alwaysDrawn || !an;
+    if (instant) { snapWeapon(v, drawn); return; }
+    v.wTr = { to: drawn, t0: S.time, dur: drawn ? WEAPON_DRAW_TIME : WEAPON_SHEATHE_TIME, switched: false };
+  }
+  const tr = v.wTr;
+  if (tr && tr.to && busy && S.time - tr.t0 > 0.15) { snapWeapon(v, true); return; }
+  if (tr) {
+    const p = (S.time - tr.t0) / tr.dur;
+    if (!tr.switched && p >= 0.5) {
+      tr.switched = true;
+      w.updateWorldMatrix(true, false);
+      (tr.to ? v.bones.handR : v.bones.chest).attach(w);
+      v.weaponDrawn = tr.to;
+      v.wBlend = { t0: S.time, dur: tr.dur * 0.18, pos: w.position.clone(), quat: w.quaternion.clone() };
+    }
+    if (p >= 1) { snapWeapon(v, tr.to); return; }
+  }
+  const bl = v.wBlend;
+  if (bl) {
+    const t = weaponPose(v, v.weaponDrawn), k = Math.min(1, (S.time - bl.t0) / bl.dur), s = k * k * (3 - 2 * k);
+    w.position.lerpVectors(bl.pos, t.pos, s);
+    w.quaternion.slerpQuaternions(bl.quat, t.quat, s);
+    if (k >= 1) v.wBlend = null;
   }
 }
 

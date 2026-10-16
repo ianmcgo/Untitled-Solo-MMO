@@ -1783,3 +1783,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Pointy hat (rig.js): added cloth dome (same as cap) under brim so no skin shows between hat and head.
 - placeWeapon (models3d.js): sheathed staff uses its own pose pos (0,-0.1,bz-0.045) rot z 1.2 so it clears wide hats; other two-handers keep z 0.78.
 - Test render for hats: JOB=BLM (uppercase) with test/swingsheet2.js; absolute html path required.
+
+## 18.19.4: weapon draw animation, weapon scale, pipkin chin, hat height
+- models3d.js placeWeapon is now a state machine: v.wTarget (wanted), v.wTr {to,t0,dur,switched} (transition), v.wBlend (world-preserving reparent blend after the switch at p=0.5). Constants WEAPON_DRAW_TIME 2.0, WEAPON_SHEATHE_TIME 3.0. snapWeapon sets final parent/pose. Instant snap for first call, mobs, dead, mounted, alwaysDrawn, or attacking while drawing.
+- weaponPose(v, drawn) holds the hand and sheath poses. weaponBodyK scales weapon by sqrt((leg+torso)/1.38) clamped 0.7..1.15 (pipkin 0.7, ursan 1.12).
+- anim.js: if v.wTr, reach pose (upArmR -2.55, foreArmR -1.25, chest/spine lean) weighted by a bump r (0 to 1 to 0 across the transition). Staff z flip skipped while v.wBlend.
+- rig.js: pipkin face params jaw 0.52, chin 0, long -0.06. Pointy hat base lowered to hc+hr*0.34, dome angle 0.46pi.
+- test/drawsheet.js: MODE=draw|sheathe STEP=<seconds> JOB=BLM IDLE=1 node drawsheet.js <abs html> <png> <weaponId> <race> 0 <side|back|front|backclose>.

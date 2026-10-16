@@ -1636,6 +1636,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.4", date: "2026-10-16", title: "Weapon draw animation", items: [
+    "<b>Drawing and sheathing are animated:</b> you reach back over your shoulder and pull your weapon from your back (about 2 seconds), and put it away the same way (about 3 seconds). Attacking mid-draw finishes the draw at once.",
+    "<b>Weapons fit the wielder:</b> small races such as Pipkin now carry smaller weapons, and large races such as Ursan carry slightly bigger ones.",
+    "<b>Pipkin chins trimmed:</b> narrower, shorter jaw and no chin bulge.",
+    "<b>Pointed hats sit lower</b> and have a fuller lining, so no skin shows between the hat and the head."
+  ] },
   { v: "18.19.3", date: "2026-10-16", title: "Staff swing, hat fit", items: [
     "<b>Staff attacks are now a two-handed swing:</b> you raise the staff to your upper right, then bring it down across the front of you instead of poking with it. Polearms still thrust.",
     "<b>Pointed hats fit snugly:</b> a cloth lining now fills the gap that showed skin between the hat and your head.",
