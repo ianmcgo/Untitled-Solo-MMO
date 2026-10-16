@@ -1613,6 +1613,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.16.1", date: "2026-10-15", title: "Database mobile fit", items: [
+    "<b>Equipment entries in the Database no longer spill out of their box on phones.</b> Long job lists now wrap, and the doubled name and frame are gone."
+  ] },
   { v: "18.16.0", date: "2026-10-15", title: "Database, stats and Social button", items: [
     "<b>New Database (Y)</b> replaces the Bestiary button. Tabs for Items, Equipment, Magic, Abilities, Jobs, People, Places and the Bestiary, each with details and a picture. It only lists what you have owned, learned, leveled, talked to, visited or met.",
     "<b>Achievements has a Stats tab</b> with your play time, fights, damage, spells, crafting, gathering, fishing, trading and travel counts. Damage, spells, abilities and items used start counting from this version.",

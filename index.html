@@ -778,7 +778,7 @@
   .iCard { padding: 7px 10px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; font: 700 12.5px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; letter-spacing: .02em; }
   .iCh { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; } .iCh .ic { font-size: 24px; width: 32px; height: 32px; display: grid; place-items: center; background: linear-gradient(180deg, rgba(110,116,190,.6), rgba(50,54,120,.7)); border: 1px solid rgba(255,255,255,.4); border-radius: 3px; }
   .iCh b { font: italic 900 14px var(--ffFont); color: #fff; flex: 1; } .iCh .tg { font: 800 9px var(--ffFont); padding: 1px 5px; border-radius: 8px; background: linear-gradient(180deg, #fff, #9ab0ff); color: #1a1a50; text-shadow: none; }
-  .iCl { line-height: 1.45; } .iCl.q { color: #e4e4ff; font-weight: 600; } .iLv { text-align: right; font-size: 11.5px; color: #e8e8ff; }
+  .iCl { line-height: 1.45; overflow-wrap: anywhere; } .beast .iCard { background: none; border: none; box-shadow: none; padding: 0; margin-top: 3px; } .beast .iCh { display: none; } .beast .iLv { text-align: left; } .iCl.q { color: #e4e4ff; font-weight: 600; } .iLv { text-align: right; font-size: 11.5px; color: #e8e8ff; }
   .eqArrow { text-align: center; color: #ffb060; font-size: 16px; line-height: 1; }
   #mBody .detail .iCard { margin-bottom: 6px; }
   @media (max-width: 760px) { .eqWrap { grid-template-columns: 1fr; } }
@@ -1104,7 +1104,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.16.0 · built 2026-10-15 22:19 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.16.1 · built 2026-10-15 22:27 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -18800,8 +18800,11 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.16.0 · built 2026-10-15 22:19 PDT";
+const BUILD_INFO = "v18.16.1 · built 2026-10-15 22:27 PDT";
 const UPDATES = [
+  { v: "18.16.1", date: "2026-10-15", title: "Database mobile fit", items: [
+    "<b>Equipment entries in the Database no longer spill out of their box on phones.</b> Long job lists now wrap, and the doubled name and frame are gone."
+  ] },
   { v: "18.16.0", date: "2026-10-15", title: "Database, stats and Social button", items: [
     "<b>New Database (Y)</b> replaces the Bestiary button. Tabs for Items, Equipment, Magic, Abilities, Jobs, People, Places and the Bestiary, each with details and a picture. It only lists what you have owned, learned, leveled, talked to, visited or met.",
     "<b>Achievements has a Stats tab</b> with your play time, fights, damage, spells, crafting, gathering, fishing, trading and travel counts. Damage, spells, abilities and items used start counting from this version.",
@@ -20414,7 +20417,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "18.16.0";
+const GAME_VERSION = "18.16.1";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
