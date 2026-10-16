@@ -52,5 +52,8 @@ Goal: combat and movement that read like the original: weighty, readable, tied t
 - Phase 5 death, emotes, extras: Sonnet 5.5.
 - Phase 6 and 6b monsters: Sonnet 5.5 (Opus only if the caterpillar leg wave needs a new rig structure).
 
+## Status
+Phases 1-6b shipped in 18.19.6 to 18.19.12.
+
 ## Release rule
 Every phase: model check first, then build, tests, version bump, Updates and Help text, design notes, push to GitHub, send index.html.

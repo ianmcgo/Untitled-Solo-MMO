@@ -1838,3 +1838,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Quad attack is now crouch, leap (forward 0.45, up 0.3) and bite. Crawler adds a forward surge. Bird gained peck attack, hit flinch and death tumble. Undead humanoids (v.style.family "undead") quantize attack progress to fifths for a stiff look.
 - Not done: spawn pop-in, per-family defeat dissolve, bat/bee/fish/worm/shroom alerts. Caterpillar leg wave and rabbit rebuild are phase 6b.
 - test/mobsheet.js: WS=<attack|alert|hit|dead>:<FAMILIES key> STEP=0.06 CY=0.5 DIST=4 node mobsheet.js <abs html> <png> x human 0 side.
+
+## 18.19.12: crawler legs, rarab hare (animation plan phase 6b)
+- crawlerEntry: each leg is its own bone lL<i>/lR<i> parented to segment t<i>. poseCrawler drives a stance/swing cycle per pair with phase cyc + (5 - i) * 0.95 (head first), stance 62%, lift by z roll, slow idle shuffle when still.
+- hareEntry now builds a rarab with meta.kind "rarab": bones hips, body, head, ear/ear2 L/R, legB/footB L/R, tail; no front legs. Toad still uses kind "hare" and poseHare.
+- poseRarab: hop cycle from an.ph (air 58%, land 42%), body leans into hops, ears stream back, idle sway, nod and random ear twitches; crouch-spring attack, readying crouch, hit flinch, side flop on death. Stride 1.1. Added to SLOPE_KINDS and LOOK_KINDS; dispatch in models3d.js and menu4.js.
+- mobsheet.js gained ACT walk (treadmill via an.lx, SPD env).

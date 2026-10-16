@@ -344,6 +344,7 @@ function renderShowcase(now) {
     else if (v.kind === "bat") poseBat(v, e, dt);
     else if (v.kind === "worm") poseWorm(v, e, dt);
     else if (v.kind === "hare") poseHare(v, e, dt);
+    else if (v.kind === "rarab") poseRarab(v, e, dt);
   } catch (err) {}
   pv.r.render(pv.scene, pv.cam);
 }
@@ -1636,6 +1637,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.12", date: "2026-10-16", title: "Caterpillar legs and new hares", items: [
+    "<b>Crawler legs</b> now move one pair at a time in a wave from head to tail, each lifting, reaching and planting in turn, with the body rippling to match.",
+    "<b>Hares rebuilt:</b> no front legs, a round body standing upright on big hind feet, long two-part ears and a puff tail. They hop to move, sway and twitch their ears while idle, spring forward to attack and flop over when defeated.",
+    "Meadow, marsh and snow hares, and the hare buddy, all use the new look. Toads keep their old model."
+  ] },
   { v: "18.19.11", date: "2026-10-16", title: "Monster moves", items: [
     "<b>Aggro alert:</b> when a monster notices you it rears up, flares its arms or wings, or raises its head with a short shake before it attacks.",
     "<b>Pounces and lunges:</b> four-legged beasts crouch, leap and snap; crawlers surge forward as they bite.",
