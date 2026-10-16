@@ -35,7 +35,7 @@ ok(!m.alive && G.save.stats.kills >= 1 && G.save.bestiary.goblin && G.save.besti
 G.checkAchievements();
 ok(G.save.ach.first_blood && G.save.ach.companion, 'achievements unlock from stats');
 const hare = G.buildMob('hare', 1, P().x + 100, P().y + 100, 0); S.mobs.push(hare); run(1);
-ok(G.save.bestiary.hare && G.save.bestiary.hare.kills === 0, 'meeting a creature records it in the bestiary');
+ok(!G.save.bestiary.hare, 'meeting a creature does not record it; only a kill does');
 G.ZONES.hollow.colliders = [{ x: P().x + 20, y: P().y, r: 5 }];
 P().x = G.ZONES.hollow.colliders[0].x - 2; P().y = G.ZONES.hollow.colliders[0].y; G.keepOutOfColliders(P());
 ok(Math.hypot(P().x - G.ZONES.hollow.colliders[0].x, 0) >= 5, 'trees and poles push you out');

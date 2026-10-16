@@ -824,7 +824,7 @@ function tabMercs() {
   let h = '<div class="sub" style="margin-bottom:6px">Brann has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first day; after that each takes a daily wage.</div><h3>For hire today</h3>";
   const offers = pool.filter(id => !save.hired.includes(id));
   if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
-  for (const id of offers) h += row(id, '<button data-a="hire" data-v="' + id + '"' + (save.gil < MERCS[id].fee || full ? " disabled" : "") + ">Hire · " + MERCS[id].fee + " 💠</button>");
+  for (const id of offers) h += row(id, '<button data-a="hire" data-v="' + id + '"' + (save.gil < mercFee(id) || full ? " disabled" : "") + ">Hire · " + mercFee(id) + " 💠</button>");
   h += "<h3>Your company</h3>";
   if (!save.hired.length) h += '<div class="sub">No one has joined you yet.</div>';
   for (const id of save.hired) if (MERCS[id]) h += row(id, '<button data-a="dismiss" data-v="' + id + '">Dismiss</button>');
@@ -1078,7 +1078,7 @@ function tabStats() {
 function dbBeasts() {
   const keys = Object.keys(BESTIARY);
   const known = keys.filter(k => save.bestiary[k]);
-  let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " creatures recorded. Meet a creature to add it; defeat it to learn more.</div>";
+  let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " creatures recorded. Defeat a creature to add it; defeat more to learn more.</div>";
   for (const k of keys) {
     const b = save.bestiary[k];
     const f = FAMILIES[k] || (NM_FAMILIES[k] && Object.assign({}, FAMILIES[NM_FAMILIES[k].base], NM_FAMILIES[k], { nm: true }));
@@ -1640,6 +1640,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.28.0", date: "2026-10-16", title: "Companions sync to your level", items: [
+    "<b>Hired at your level:</b> a companion's hiring fee now follows your current level, and they join at that level.",
+    "<b>Level sync:</b> when you level up, level down or change jobs, companions sync to your new level. Gear they can no longer wear is put away in their bag as a kept item and goes back on when your level allows. Kept items are never sold.",
+    "<b>Plain starting gear:</b> companions start in plain shop gear for their level, never +1 or named pieces.",
+    "<b>Bestiary:</b> only creatures you have defeated are recorded. Entries for creatures you had only seen have been removed.",
+    "Fix: a companion's town sell-off no longer sells gear they have put away."
+  ] },
   { v: "18.27.0", date: "2026-10-16", title: "Everything goes to the treasure pool", items: [
     "<b>All drops are rolled for:</b> with anyone else in your party, every item a monster drops (materials, potions, scrolls and gear) goes into the treasure pool instead of straight into your bag. Crystals are still split and key items still go straight to you.",
     "<b>Companions roll on everything:</b> they lot on any item, except gear they can't wear. If they win, the item goes into their own bag. Better gear for their job is worn at once and the old piece goes into their bag; anything else they keep to sell.",
@@ -3254,7 +3261,8 @@ function tabHelp() {
   ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("👥 Party and companions (P)", ul([
-    "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement, and always fight at your level as you grow.",
+    "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement. You hire them at your current level and the fee follows your level.",
+    "<b>Level sync:</b> companions always match your current job level. When you level up, level down or change jobs they sync with you. Gear they can no longer wear is put away as a kept item in their bag (never sold) and goes back on when your level allows, unless they have found something better by then. Their starting gear is plain shop gear, never +1 or named pieces.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
     "<b>Hurt mercenaries:</b> when the fight is over and you stand still, a mercenary at 75% health or less sits and rests to full. In a fight, at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
@@ -3285,7 +3293,7 @@ function tabHelp() {
   h += sec("🎲 Treasure pool", ul([
     "With anyone else in the party, every item a monster drops goes into the treasure pool (the panel above the log) instead of straight into your bag. Crystals are split and key items go to you.",
     "Press <b>Lot</b> to roll 1–999 or <b>Pass</b>. Companions lot on everything except gear they can't wear, and pass when their 30-slot bag is full. Highest lot wins. A companion who wins a better piece wears it (the old one goes into their bag); anything else goes into their bag to sell.",
-    "Companions sell everything in their bag when you reach a town and the bag is at least half full; the items are gone. The Party tab shows each bag. You can still give them gear from the Party tab.",
+    "Companions sell everything they have for sale when you reach a town and the bag is at least half full; the items are gone. Kept gear (put away after a level sync) is never sold, but it does take bag slots. The Party tab shows each bag. You can still give them gear from the Party tab.",
     "If you don't choose within 45 seconds you lot automatically. If everyone passes, the item is lost."
   ]));
   h += sec("📋 Trade Board and 🔨 Forge", ul([
@@ -3296,7 +3304,7 @@ function tabHelp() {
   h += sec("📚 Database (Y)", ul([
     "The Database is your record of the world, in eight tabs: Items, Equipment, Magic, Abilities, Jobs, People, Places and Bestiary. Each entry has a picture and details.",
     "It only lists what you have found: items and gear you have owned, spells you have learned, abilities of jobs you have leveled to, jobs above level 1 (and your current ones), people you have talked to, places you have visited and creatures you have met.",
-    "<b>Bestiary:</b> a creature is recorded when you first meet it. Defeat one to learn how it hunts and its special attack; defeat five (or one notorious monster) to learn its elemental weaknesses and what it carries.",
+    "<b>Bestiary:</b> a creature is recorded the first time you defeat it; just seeing one doesn't count. Defeat one to learn how it hunts and its special attack; defeat five (or one notorious monster) to learn its elemental weaknesses and what it carries.",
     "/bestiary and /database open it too."
   ]));
   h += sec("🏆 Achievements (O) and Stats", ul([
@@ -3363,7 +3371,7 @@ function tabHelp() {
     "Invite up to " + CONFIG.partyMax + " players: tap them and choose <b>Invite</b>, use the Party window, or type <b>/invite Name</b>. The invited player gets a popup, or can type <b>/join</b> or <b>/decline</b>. Only the leader (👑, the player who has been in the party longest) can invite or remove members.",
     "Party members are listed in the Party panel at the bottom right under your companions, with HP and MP. A faded row means they're in another area; tap a row to target them.",
     "<b>Experience:</b> when anyone in the party defeats a monster, everyone in the same area within about " + Math.round(CONFIG.partyRange / 100) + " strides gets a share. The share is based on the highest level member nearby, so a big gap in levels means less experience for the lower levels. Bigger parties earn more in total (2 players: 60% each, 3: 45%, 4: 37%, 5: 32%, 6: 28%). EXP chains carry over from the player who made the kill.",
-    "<b>Loot:</b> gear from a party kill goes into a shared treasure pool. Everyone nearby can Lot or Pass; the highest lot wins once all have chosen or time runs out. Other drops go to the player who made the kill. Crystals are split evenly.",
+    "<b>Loot:</b> every drop from a party kill goes into a shared treasure pool. Everyone nearby can Lot or Pass; the highest lot wins once all have chosen or time runs out. Crystals are split evenly.",
     "Kills by a party member nearby count for your quest and guild bounty tallies too.",
     "<b>Magic on party members:</b> tap a party member and choose Magic, or target them and cast. Cure spells and Protect work on players in your party.",
     "Your companions stay with you and fight only your monsters. Party chat: <b>/p text</b>. Leave with <b>/leave</b>, remove a member with <b>/kick Name</b>."

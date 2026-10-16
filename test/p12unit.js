@@ -15,7 +15,7 @@ ok(G.invCount('herb_bread') >= 2, 'cooking makes two loaves');
 const mp0 = P().maxMp, mnd0 = P().stats.mnd;
 G.useItem('herb_bread');
 ok(P().maxMp === mp0 + 15 && P().stats.mnd === mnd0 + 2 && P().buffs.food, 'eating gives the food bonus and a Well Fed buff');
-ok(G.save.food && G.save.food.until > Date.now() + 29 * 60000, 'the meal lasts 30 real minutes and is saved');
+ok(G.save.food && G.save.food.endSec >= (G.save.playSec || 0) + 29 * 60, 'the meal lasts 30 minutes of play time and is saved');
 G.save.food.until = Date.now() - 1; G.tickFood();
 ok(!G.save.food && P().maxMp === mp0 && !P().buffs.food, 'it wears off when time runs out');
 G.enterZone('hollow', 300, 1100); run(0.2);

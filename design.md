@@ -1916,3 +1916,12 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `mercTownSell()` (called from `enterZone` after the zone is set): in a `theme: "town"` zone, a hired companion whose bag has at least half of `CONFIG.inventorySize` slots used loses the whole bag, as if sold to a shop; no crystals are paid. M5 will turn these into market listings.
 - The old rule that companions only lot on upgrades and send replaced gear to the player is gone. Tests in p10unit.js updated.
 - design/online-queue-plan.md: 20-player online cap and wait queue (not built).
+
+## 18.28.0: companion level sync, plain gear, kill-only bestiary (M2)
+- `mercFee(id, lv)`: generated mercenaries' fee is recomputed from the player's current level (same formula as `genMercDef`); fixed mercenaries keep `MERCS[id].fee`. `hireMerc` charges it, stores it on the def and records `save.mercHireLv[id]` (used by M4 wages).
+- `gearScore(id)`: item level x 1000 + damage + summed stats; used to rank kept gear.
+- `mercSync(id, lv)`: run from `syncAllies` and `rebuildParty` before `mercGearFor`. Worn pieces (`save.mercGear`) above `lv` move into the bag as `{ sale: false }` (allowed to exceed 30 slots). Kept items at or below `lv` go back on if they beat the effective slot (`mercGearFor`), the displaced own piece becomes for sale; kept items that are no longer an upgrade (or not for the job) become for sale.
+- `autoGear` was already plain (shop, not HQ); M2 only tests it.
+- `mercTownSell` sells only `sale` entries and keeps kept ones (M1 bug fix); the half-full threshold counts all bag entries.
+- Bestiary: `noteBeast(m, false)` no longer creates entries, only a kill does; `normalizeSave` drops entries with zero kills.
+- Tests: test/m2unit.js (sync down/up, kept items, fee, plain gear, balance table at 1/10/20/40/60, bestiary). p7unit and p12unit updated (bestiary rule, meals on play time).

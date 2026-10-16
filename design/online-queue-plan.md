@@ -30,9 +30,9 @@ Requested 2026-10-16: only 20 people on the server in online mode; anyone else w
 
 | Phase | Model | Work |
 |---|---|---|
-| Q1 | Opus | SQL migration (tables, functions, seat check in the load and save RPCs), client queue screen, leave/promotion/grace handling, online count display, Help and Updates, tests against a mock server. Opus because it is server-side access control on the live database. Needs your go-ahead before the migration runs. |
+| Q1 | Opus | SQL migration (tables, functions, seat check in the load and save RPCs), client queue screen, leave/promotion/grace handling, idle auto log-out with the Config setting, online count display, Help and Updates, tests against a mock server. Opus because it is server-side access control on the live database. Needs your go-ahead before the migration runs. |
 
 ## Open questions (guesses used if not answered)
-- Should idle players be removed? Guess: no AFK kick in the first version. Seats are tied to the connection only. A 20-seat server with idle players holding seats may fill up; an idle kick after 20 minutes without any input can be added later.
+- Idle players (answered 2026-10-16): auto log-out after 30 minutes without input, adjustable in Config up to 60 minutes (`save.opts.idleMin`, 5 to 60). A 60-second warning with a "Still here" button comes first. Logging out frees the seat for the next in line. Online mode only.
 - Queue wait estimate: guess "about N minutes" is not shown, only the position, because I can't predict session length.
 - Who counts toward 20: every signed-in online player, including those in the character select screen. They only get a seat after promotion, and the seat is released when they leave the screen.
