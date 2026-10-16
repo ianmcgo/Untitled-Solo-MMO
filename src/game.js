@@ -518,22 +518,58 @@ function mercGearFor(id, lv) {
   return g;
 }
 
+function mercUpgrade(id, itemId) {
+  const why = mercCanWear(id, itemId);
+  if (why) return false;
+  const it = ITEMS[itemId], cur = mercGearFor(id, player.lv)[slotKeys(it.slot)[0]];
+  return !cur || gearScore(itemId) > gearScore(cur);
+}
+
 function giveMercGear(id, itemId) {
   const why = mercCanWear(id, itemId);
+  const nm = MERCS[id].name;
   if (why) { log(why, "sys"); sfx("error"); return why; }
   const it = ITEMS[itemId];
-  if (!removeItem(itemId, 1)) return "You don't have that.";
+  if (!invCount(itemId)) return "You don't have that.";
+  if (!mercUpgrade(id, itemId)) {
+    const msg = nm + " says the " + it.name + " is no better than what they wear.";
+    log(msg, "party"); sfx("error");
+    return msg;
+  }
+  removeItem(itemId, 1);
   const own = save.mercGear[id] = save.mercGear[id] || {};
-  const sk = slotKeys(it.slot)[0];
-  if (own[sk]) giveItem(own[sk], 1, true);
+  const sk = slotKeys(it.slot)[0], eff = mercGearFor(id, player.lv)[sk];
+  if (eff && !mercBagAdd(id, eff)) giveItem(eff, 1, true);
   own[sk] = itemId;
-  log("You give " + an(it.name) + " to " + MERCS[id].name + ".", "you");
+  log("You give " + an(it.name) + " to " + nm + ". They put it on and keep the old piece to sell.", "you");
   partySay(S.party.find(p => p.mercId === id), "gift", true);
   sfx("equip");
   syncAllies(false);
   saveGame();
   return "";
 }
+
+function mercSalePrice(itemId) { return Math.max(1, Math.round(marketPrice(itemId) * 1.5)); }
+
+function buyFromMerc(id, idx) {
+  const bag = mercBag(id), e = bag[idx];
+  if (!e || !e.sale) return "They don't have that.";
+  const it = ITEMS[e.id], price = mercSalePrice(e.id);
+  if (save.gil < price) { log("You can't afford the " + it.name + " (" + price + " crystals).", "sys"); sfx("error"); return "Not enough crystals."; }
+  if (it.rare && hasItem(e.id)) { log("You already possess " + an(it.name) + ".", "sys"); sfx("error"); return "Already owned."; }
+  const stack = it.stack || 1;
+  if (save.inventory.length >= CONFIG.inventorySize && !save.inventory.some(x => x.id === e.id && x.qty < stack)) { log("Your bag is full.", "sys"); sfx("error"); return "Bag full."; }
+  save.gil -= price;
+  giveItem(e.id, 1, true);
+  e.qty--;
+  if (e.qty <= 0) bag.splice(idx, 1);
+  log("You buy " + an(it.name) + " from " + MERCS[id].name + " for " + price + " crystals.", "loot");
+  sfx("coin");
+  saveGame();
+  return "";
+}
+
+function mercForSale(id) { return (save.mercInv && save.mercInv[id] || []).reduce((a, x) => a + (x.sale ? x.qty : 0), 0); }
 
 function takeMercGear(id, slot) {
   const own = save.mercGear[id];
