@@ -21,7 +21,7 @@ function onKey(e) {
   if (S.fish && S.fish.state === "bite" && (k === " " || k === "spacebar" || k === "enter" || k === "f")) { e.preventDefault(); reelFish(); return; }
   if (UI.mm && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); mainCmdKey(k); return; }
   if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
-  if (k === "tab") { e.preventDefault(); if (!e.repeat) { UI.tabHeld = true; UI.tabUsed = false; UI.tabShift = e.shiftKey; } return; }
+  if (k === "tab") { e.preventDefault(); if (!e.repeat) { UI.tabHeld = true; if (e.shiftKey) cycleObjectTarget(); else cycleTarget(); } return; }
   if (k === "/") { e.preventDefault(); openChatInput("/"); return; }
   if (k === "l" && !S.modal) { chatToggle(); return; }
   if (k === "f") { toggleEngage(false); return; }
@@ -64,7 +64,7 @@ const TIPS = [
   "<b>Night falls.</b> Bats and restless bones come out after dark. Some rare monsters only appear at certain hours.",
   "<b>Home point.</b> Touch a crystal to set where you return after being defeated.",
   "<b>Weekdays.</b> Each day of the week favours one element. Spells of that element hit 10% harder.",
-  "<b>Support jobs.</b> At level 5, Tobin can teach you to fight with a second job at half your level.",
+  "<b>Support jobs.</b> At level 10, Tobin can teach you to fight with a second job at half your level.",
   "<b>Backups.</b> Your game saves in this browser. Save to a file from the System menu to keep a copy."
 ];
 function rotateTip() {
@@ -83,7 +83,6 @@ async function boot() {
     S.keys[e.key.toLowerCase()] = false;
     if (e.key === "Tab" && UI.tabHeld) {
       UI.tabHeld = false;
-      if (!UI.tabUsed && UI.started && !S.modal && !S.dialog && !UI.confirmOpen) { if (UI.tabShift) cycleObjectTarget(); else cycleTarget(); }
     }
   });
   window.addEventListener("blur", () => { S.keys = {}; UI.tabHeld = false; });

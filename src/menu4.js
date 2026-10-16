@@ -174,7 +174,7 @@ function tabEquipment() {
   h += '</div><div class="eqStats"><span>Attack <b>' + st.att + "</b></span><span>Defense <b>" + st.def + '</b></span></div><div class="eqRes">';
   for (const el of RES_ELEMENTS) h += '<span title="' + el + ' resistance"><i style="background:' + ELEMENT_COLORS[el] + '"></i>' + (st["res_" + el] || 0) + "</span>";
   h += "</div></div>";
-  h += '<div class="eqSide">';
+  h += '<div class="eqSide' + (q.slot ? " two" : "") + '">';
   if (!q.slot) h += '<div class="iCard"><div class="iCl">Choose an equipment box to change what goes there.</div></div>';
   else {
     const cur = save.gear[q.slot];
@@ -183,9 +183,10 @@ function tabEquipment() {
     if (cur) h += '<button class="mcR" data-a="equnq" data-v="' + q.slot + '"><span class="ic">✕</span><span class="nm">Remove ' + esc(ITEMS[cur].name) + "</span></button>";
     for (const id of fits) { const why = canEquip(id); h += '<button class="mcR' + (q.hover === id ? " hv" : "") + '" data-a="eqpick" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="nm' + (why ? " dim" : "") + '">' + esc(ITEMS[id].name) + "</span>" + (why ? '<span class="q bad">' + esc(why.replace("Requires ", "")) + "</span>" : "") + "</button>"; }
     if (!fits.length && !cur) h += '<div class="mcR empty"><span class="nm dim">Nothing in your bag fits here.</span></div>';
-    h += "</div>";
+    h += '</div><div class="eqCards">';
     if (q.hover && ITEMS[q.hover]) { h += itemCard(q.hover); if (cur) h += '<div class="eqArrow">▼</div>' + itemCard(cur); if (!canEquip(q.hover)) h += '<button class="pri" data-a="eqpick" data-v="' + q.hover + '" style="margin-top:6px">Equip</button>'; }
     else if (cur) h += itemCard(cur);
+    h += "</div>";
   }
   return h + "</div></div></div>";
 }
@@ -292,10 +293,10 @@ const LORE = {
   hollow_king: ["The Hollow King stirs the dead of Ashenreach from his throne under the Den.", "At two thirds and one third of his health he calls Royal Guards; below a fifth he enrages."],
   royal_guard: ["Royal Guards rise at the Hollow King's call and fall when he does."],
   rhea: ["Captain Rhea commands the Outpost's garrison and pays bounties on goblins and worse.", "Rhea turns in at 22:00 and is back on the plaza at dawn."],
-  tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
+  tobin: ["Tobin, Job Master, teaches support jobs at level 10 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
   pell: ["Pell buys and sells potions, ethers, arms and armour. Crystals talk.", "Pell keeps late hours for a merchant: he shuts at 21:00."],
   brann: ["Brann runs the Mercenary Hall. Five new fighters arrive every day, and a companion who falls is gone for good.", "Brann drinks till 23:00 and is up by half past seven."],
-  ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 5.", "Ysolde beds down with the beasts at 19:30."],
+  ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 20.", "Ysolde beds down with the beasts at 19:30."],
   odette: ["Odette sells furnishings for your residence, and her cousin Pip keeps it.", "Odette closes up at 21:30."]
 };
 const LORE_KEYS = Object.keys(LORE);
@@ -458,13 +459,13 @@ function tabSkills() {
 
 function tabActions() {
   const hb = hotbar();
-  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Four lines of ten: hold <b>Ctrl</b>, <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press 1–9 or 0. Plain 1–0 use the line shown on the pinned bar (Ctrl by default), which also works when your browser keeps Ctrl+number for switching tabs.</div>';
+  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Select a slot, then Hide from HUD or Show on HUD to choose whether it appears on the pinned bar (its hotkey still works; hidden slots are dimmed here). Four lines of ten: hold <b>Ctrl</b>, <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press 1–9 or 0. Plain 1–0 use the line shown on the pinned bar (Ctrl by default), which also works when your browser keeps Ctrl+number for switching tabs.</div>';
   hb.pages.forEach((pg, p) => {
     h += "<h3>" + ["Ctrl", "Shift", "Alt", "Tab"][p] + " line</h3><div class=\"barEdit\">";
-    pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
+    pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + (a && a.hud === false ? " nohud" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
     h += "</div>";
   });
-  h += '<div class="opt"><button data-a="slotclear"' + (UI.pick ? "" : " disabled") + '>Clear selected slot</button><button data-a="barreset">Reset to defaults</button></div>';
+  h += '<div class="opt"><button data-a="slotclear"' + (UI.pick ? "" : " disabled") + '>Clear selected slot</button><button data-a="slothud"' + (UI.pick && hb.pages[UI.pick[0]][UI.pick[1]] ? "" : " disabled") + '>' + (UI.pick && hb.pages[UI.pick[0]][UI.pick[1]] && hb.pages[UI.pick[0]][UI.pick[1]].hud === false ? "Show selected on HUD" : "Hide selected from HUD") + '</button><button data-a="barreset">Reset to defaults</button></div>';
   const known = actionList(player).map(a => ({ kind: a.kind, id: a.id }));
   const items = ["potion", "hi_potion", "ether", "potion_hq", "ether_hq", "fishing_rod"].concat(Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food")).filter(id => invCount(id) > 0 || id === "potion" || id === "ether").map(id => ({ kind: "item", id }));
   const groups = [["Weapon skills", known.filter(a => a.kind === "ws")], ["Abilities", known.filter(a => a.kind === "ja")], ["Spells", known.filter(a => a.kind === "ma")], ["Items", items]];
@@ -1333,6 +1334,7 @@ function onMenuClick(e) {
     } else { UI.pick = [p, i]; sfx("select"); }
     saveGame(); buildActionBar();
   }
+  else if (a === "slothud") { if (UI.pick) { const sl = hb.pages[UI.pick[0]][UI.pick[1]]; if (sl) { if (sl.hud === false) delete sl.hud; else sl.hud = false; saveGame(); buildActionBar(); sfx("click"); } } }
   else if (a === "slotclear") { if (UI.pick) { hb.pages[UI.pick[0]][UI.pick[1]] = null; UI.pick = null; saveGame(); buildActionBar(); sfx("close"); } }
   else if (a === "barreset") { delete save.hotbars[save.mainJob]; UI.slotKey = ""; UI.pick = null; syncHotbar(); saveGame(); sfx("click"); }
   else if (a === "buy") buy(v);
@@ -1488,6 +1490,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.12.0", date: "2026-10-15", title: "Tab fix, hotkey bar styling and level gates", items: [
+    "<b>Tab now targets the nearest thing first.</b> Walk up to a warp stone, signpost, crystal or person and press Tab to target it. In the field, monsters within range and objects within arm's reach are cycled together by distance.",
+    "<b>The hotkey bar looks like the other blue windows</b> and can be moved: drag the ⠿ grip at its left edge (double-click it to put it back). Its position is remembered when you reload.",
+    "<b>Choose what shows on the bar:</b> in Hotkeys, select a slot and press Hide from HUD or Show on HUD. Hidden slots still work with their keys.",
+    "<b>The equipment window no longer needs a scrollbar:</b> the list of gear that fits a slot and the item cards sit side by side.",
+    "<b>Support jobs now unlock at level 10</b> (Tobin's quest A Second Calling) and <b>the Riding License at level 20</b> (Ysolde). Characters that already have them keep them.",
+    "<b>Humanoid monsters (goblins, orcs, Reefkin, Crag birdfolk and their casters) now drop only a few crystals</b> each, 1 to 2 per level."
+  ] },
   { v: "18.11.0", date: "2026-10-15", title: "Smaller daily Auction House stock", items: [
     "<b>The market now lists only a daily random selection:</b> 10 kinds of consumables, 5 kinds of ammo, 3 spell scrolls, 10 kinds of food, 10 kinds of materials and the 10 pieces of +1 equipment.",
     "<b>Nothing is listed more than one level above yours</b>, so the market always matches where you are. The selection changes every game day (and when you level up)."
@@ -1512,7 +1522,7 @@ const UPDATES = [
   ] },
   { v: "18.6.0", date: "2026-10-15", title: "Four hotkey lines", items: [
     "<b>Hotkeys now have four lines of ten:</b> Ctrl, Shift, Alt and Tab. Hold the key and press 1–9 or 0. Set each line in Hotkeys. Plain 1–0 still use the Ctrl line.",
-    "Tab now targets when you let go of it, so you can hold Tab and press a number for the Tab line. Shift+Tab still cycles nearby objects.",
+    "Hold Tab and press a number for the Tab line. Shift+Tab cycles nearby objects.",
     "New slots from learning actions fill all four lines in order."
   ] },
   { v: "18.5.1", date: "2026-10-15", title: "Chasing monsters and object targeting", items: [
@@ -2704,7 +2714,7 @@ function tabHelp() {
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Shift+Tab cycles nearby objects (signposts, warp stones, crystals, shrines) even with monsters around · Monsters chase you until you leave the zone · Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
-    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (plain 1–0 use the line shown on the pinned bar, Ctrl by default; browsers may keep Ctrl+number for switching tabs). Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first) (plain 1–0 use the line shown on the pinned bar, Ctrl by default; browsers may keep Ctrl+number for switching tabs). Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -2768,7 +2778,7 @@ function tabHelp() {
     "<b>Beastmaster, Blue Mage and Corsair</b> unlock at level 14 through Tobin: <i>Call of the Wild</i> (2 Lizard Skins, 3 Wool Tufts), <i>The Borrowed Art</i> (2 Crab Shells, 2 Mandrake Leaves) and <i>Lady Luck</i> (2 Harbor Bream, 1 Orc Tooth). Axes are sold by Pell and Vela; Blue Mages use swords and clubs and wear red mage clothing; Corsairs use daggers and swords and wear thief gear; Beastmasters wear warrior armour.",
     "<b>Samurai, Ninja and Dragoon</b> unlock at level 12 through Tobin: <i>The Patient Blade</i> (Samurai: 1 Iron Ingot, 2 Ash Lumber), <i>Steps Without Sound</i> (Ninja: 3 Bat Wings, 2 Worm Silk) and <i>Wings of the Wyrm</i> (Dragoon: 3 Lizard Skins, 1 Crag Feather). Their weapons are sold by Pell (bronze to steel) and Vela (frostforged). Samurai and Dragoons can wear warrior armour; Ninjas can wear thief gear.",
     "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
-    "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
+    "Support jobs unlock at level 10 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per real day (24 hours). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));
   h += sec("📈 Experience", ul([
@@ -2990,7 +3000,7 @@ function tabHelp() {
     "Feed it one crystal. A matching crystal grows extra: Earth for herbs, Wind for ash, Water for moonbloom. Wildgrass grows crystals of whichever element you feed it.",
     "Seeds: Herb Seeds (3–6 Healing Herbs), Ash Sapling (2–4 Ash Logs), Wildgrass Seeds (2–4 crystals), Moonbloom Seeds (Ethers and a chance at rare materials; a rare drop)."
   ]));
-  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
+  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 20 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
     "Config → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Config → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."

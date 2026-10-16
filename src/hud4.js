@@ -217,6 +217,41 @@ function knownAct(a) {
   if (a.kind === "item" || a.kind === "cmd") return true;
   return actionList(player).some(x => x.kind === a.kind && x.id === a.id);
 }
+function barPosApply() {
+  const w = $("barWrap"), p = VIEW.settings.barPos || { x: 0, y: 0 };
+  w.style.transform = "translate(" + p.x + "px," + p.y + "px)";
+  const r = w.getBoundingClientRect();
+  if (!r.width) return;
+  let dx = 0, dy = 0;
+  if (r.left < 0) dx = -r.left; else if (r.right > innerWidth) dx = innerWidth - r.right;
+  if (r.top < 0) dy = -r.top; else if (r.bottom > innerHeight) dy = innerHeight - r.bottom;
+  if (dx || dy) w.style.transform = "translate(" + (p.x + dx) + "px," + (p.y + dy) + "px)";
+}
+
+function initBarDrag() {
+  const w = $("barWrap"), g = $("barGrip");
+  barPosApply();
+  window.addEventListener("resize", barPosApply);
+  g.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    const p0 = VIEW.settings.barPos || { x: 0, y: 0 }, sx = e.clientX, sy = e.clientY;
+    g.setPointerCapture(e.pointerId);
+    const mv = ev => { VIEW.settings.barPos = { x: Math.round(p0.x + ev.clientX - sx), y: Math.round(p0.y + ev.clientY - sy) }; barPosApply(); };
+    const up = () => {
+      g.removeEventListener("pointermove", mv);
+      g.removeEventListener("pointerup", up);
+      g.removeEventListener("pointercancel", up);
+      const m = new DOMMatrixReadOnly(getComputedStyle(w).transform);
+      VIEW.settings.barPos = { x: Math.round(m.m41), y: Math.round(m.m42) };
+      saveSettings(VIEW.settings);
+    };
+    g.addEventListener("pointermove", mv);
+    g.addEventListener("pointerup", up);
+    g.addEventListener("pointercancel", up);
+  });
+  g.addEventListener("dblclick", () => { VIEW.settings.barPos = { x: 0, y: 0 }; barPosApply(); saveSettings(VIEW.settings); });
+}
+
 function buildActionBar() {
   const el = $("actionBar");
   el.innerHTML = "";
@@ -225,7 +260,7 @@ function buildActionBar() {
   for (let i = 0; i < 10; i++) {
     const a = pg[i];
     const b = document.createElement("button");
-    b.className = "slot" + (a ? " " + a.kind : " empty");
+    b.className = "slot" + (a ? " " + a.kind : " empty") + (a && a.hud === false ? " nohud" : "");
     if (a) b.style.background = actTint(a);
     b.innerHTML = '<span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + '</span><span class="cost"></span><span class="cd"></span><span class="cdt"></span><span class="nmL">' + esc(actName(a)) + "</span>";
     b.title = a ? actName(a) + " — " + actDesc(a) : "Empty slot. Assign actions in the menu (B).";
@@ -234,6 +269,7 @@ function buildActionBar() {
     UI.slots.push({ el: b, a, cost: b.querySelector(".cost"), cd: b.querySelector(".cd"), cdt: b.querySelector(".cdt"), chip: null, last: {} });
   }
   $("pgNum").textContent = ["Ctrl", "Shft", "Alt", "Tab"][UI.page];
+  if (typeof VIEW !== "undefined" && VIEW.settings) barPosApply();
 }
 function setPage(p) { UI.page = (p + 4) % 4; buildActionBar(); sfx("tab"); }
 function activateSlot(page, i) {
@@ -902,7 +938,7 @@ function watchProgress() {
     const before = UI.actKeys || [];
     for (const a of actionList(player)) if (!before.includes(a.kind + ":" + a.id)) chips.push(actIcon(a) + " " + esc(actName(a)));
     if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("💬 Tobin wants a word");
-    if (lv === 5 && !save.mountLicense) chips.push("💬 Ysolde wants a word");
+    if (lv === CONFIG.mountLevel && !save.mountLicense) chips.push("💬 Ysolde wants a word");
     if (lv === 6 && Object.keys(ADVANCED_JOBS).some(j => !jobUnlocked(j))) chips.push("💬 Tobin can teach advanced jobs");
     if (lv >= CONFIG.levelCap) chips.push("⭐ Level cap reached");
     banner("LEVEL " + lv, JOBS[j].name, chips);
@@ -1047,6 +1083,7 @@ function initHud() {
   });
   if (window.innerWidth <= 720) { $("chat").classList.add("min"); $("chatTog").textContent = "▴"; }
   $("tracker").addEventListener("click", e => { if (e.target.closest("[data-tr]")) { UI.trackerMin = !UI.trackerMin; updateTracker(); sfx("click"); } else openMenu("quests"); });
+  initBarDrag();
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");

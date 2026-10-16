@@ -650,6 +650,13 @@
   #chatIn { font: 700 12px var(--ffFont); background: rgba(24,22,70,.85); border-color: var(--ffEdge); }
   #xpRow { display: none !important; }
   body.noHotbar #barWrap { display: none !important; }
+  #barWrap { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; box-shadow: 0 2px 8px rgba(0,0,0,.45) !important; backdrop-filter: none !important; padding: 4px 6px 4px 4px; pointer-events: auto; }
+  #barWrap #pager button { background: linear-gradient(180deg, rgba(110,116,190,.7), rgba(50,54,120,.85)); border: 1px solid rgba(220,224,255,.7); color: #fff; border-radius: 3px; }
+  #barWrap #pgNum { font: italic 900 11px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
+  #barGrip { cursor: move; font-size: 15px; line-height: 1; color: #dfe3ff; text-shadow: 1px 1px 0 #000; touch-action: none; user-select: none; padding: 0 4px; }
+  #barWrap .slot { border: 1px solid rgba(170,180,255,.65); box-shadow: inset 0 0 8px rgba(0,0,40,.6); border-radius: 4px; }
+  #actionBar .slot.nohud { display: none; }
+  .barEdit .slot.nohud { opacity: .45; border-style: dashed; }
   #bottom { bottom: calc(196px + var(--sab)); }
   #tCmd { right: auto; left: calc(28px + var(--sal)); bottom: calc(196px + var(--sab)); width: 210px; max-height: 60vh; padding: 4px 4px 6px 22px; gap: 3px; background: linear-gradient(180deg, rgba(60,64,150,.85), rgba(26,28,84,.88)); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,.55); backdrop-filter: none; }
   #tCmd .ffMHead { font: italic 800 11px var(--ffFont); color: #fff; text-align: center; letter-spacing: .06em; text-shadow: 1px 1px 0 #000; margin: 0 0 2px -18px; }
@@ -761,6 +768,9 @@
   .eqRes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px 6px; margin-top: 6px; font: italic 800 12px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
   .eqRes span { display: flex; align-items: center; gap: 5px; } .eqRes i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(255,255,255,.7); box-shadow: inset -2px -2px 3px rgba(0,0,0,.35); }
   .eqSide { display: flex; flex-direction: column; gap: 6px; }
+  .eqSide.two { display: grid; grid-template-columns: minmax(170px, 1fr) minmax(230px, 1.2fr); align-items: start; }
+  .eqCards { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .eqSide.two .eqPop { max-height: calc(100vh - 150px - var(--sat) - var(--sab)); }
   .eqPop { background: linear-gradient(180deg, rgba(14,14,34,.7), rgba(8,8,22,.85)); border: 2px solid var(--ffEdge); border-radius: 6px; padding: 4px 6px; max-height: 34vh; overflow-y: auto; }
   .eqPH { font: italic 900 12px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; border-bottom: 2px solid rgba(220,224,255,.5); margin-bottom: 3px; padding-bottom: 2px; }
   #mBody .mcR.hv { background: linear-gradient(90deg, rgba(255,190,100,.45), rgba(200,120,40,.15)); } #mBody .mcR .q.bad, .iCard .bad { color: #ff8a80; }
@@ -914,7 +924,7 @@
   @media (max-width: 760px) { .eqL { display: none; } }
   #menu .win.slim { width: 320px; max-height: calc(100vh - 330px - var(--sat) - var(--sab)); min-height: 120px; }
   #menu .win.fit { width: max-content; min-width: 320px; max-width: min(560px, calc(100vw - 232px - var(--sal) - var(--sar))); }
-  #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar))); }
+  #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar)));  max-height: calc(100vh - 70px - var(--sat) - var(--sab)); }
   #menu .win.slim #mHead { display: none; }
   #menu .win.slim #mBody { padding: 4px 6px 6px 22px; }
   #mBody .lHead { display: flex; gap: 6px; justify-content: flex-end; margin: 0 0 4px -16px; }
@@ -1093,7 +1103,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.11.0 · built 2026-10-15 21:19 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.12.0 · built 2026-10-15 21:29 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -1132,7 +1142,7 @@
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
-      <div id="barWrap" class="glass"><div id="pager"><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
+      <div id="barWrap" class="glass"><div id="pager"><span id="barGrip" title="Drag to move the hotkey bar (double-click to reset)">⠿</span><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
       <div id="xpRow"><span id="lvl"></span><div id="xpbar"><div id="xpfill"></div><div class="ticks"></div></div><span id="xpt"></span><span id="chainCt"></span><span id="crystals"></span></div>
     </div>
     <div id="big">
@@ -6687,7 +6697,8 @@ const CONFIG = {
   allyReviveAfter: 6,
   outOfCombatAfter: 3,
   maxParty: 6,
-  supportUnlockLevel: 5,
+  supportUnlockLevel: 10,
+  mountLevel: 20,
   synthTime: 3,
   craftCap: 20,
   tile: 40,
@@ -7413,7 +7424,7 @@ const MERC_LINES = {
 const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, water: true, mounts: true };
 
 const FAMILIES = {
-  goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
+  goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [1, 2], model: "goblin" },
   honey_bee: { name: "Honey Bee", color: "#f2c230", radius: 10, hpMul: 0.55, attMul: 0.85, defMul: 0.75, eva: 10, delay: 2.2, speed: 135, aggro: null, link: true, linkGroup: "bees", tpMove: { name: "Final Sting", mul: 2.2, status: ["poison", 30] }, weak: { ice: 1.2 }, loot: [["honeycomb", 0.4], ["wind_crystal", 0.2], ["potion", 0.05]], model: "bee", tint: 0xf2c230, tint2: 0x2a2218, scale: 1.15 },
   grass_crawler: { name: "Grass Crawler", color: "#7fb04a", radius: 14, hpMul: 0.9, attMul: 0.8, defMul: 1.1, eva: 2, delay: 3.4, speed: 70, aggro: null, link: false, tpMove: { name: "Sticky Thread", mul: 1.3, slow: true }, weak: { fire: 1.3 }, loot: [["crawler_cocoon", 0.3], ["worm_silk", 0.25], ["earth_crystal", 0.2], ["potion", 0.05]], model: "crawler", tint: 0x7fb04a },
   meadow_sheep: { name: "Meadow Sheep", color: "#e8e2d6", radius: 15, hpMul: 0.9, attMul: 0.8, defMul: 0.9, eva: 2, delay: 3.0, speed: 100, aggro: null, link: true, linkGroup: "sheep", tpMove: { name: "Rampant Butt", mul: 1.7 }, weak: { fire: 1.1 }, loot: [["wool_tuft", 0.45], ["earth_crystal", 0.2], ["healing_herb", 0.15]], model: "sheep", tint: 0xd8cfc0 },
@@ -7426,16 +7437,16 @@ const FAMILIES = {
   bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: null, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["egg_batling", 0.004], ["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05]], model: "bat" },
   worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60, status: ["flash", 20, 0.25] }, weak: { wind: 1.25 }, loot: [["egg_wormlet", 0.004], ["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
   ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05]], model: "ghoul" },
-  den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05]], gil: [3, 6], model: "goblin" },
-  goblin_apprentice: { name: "Goblin Apprentice", color: "#8a9a5b", radius: 14, hpMul: 0.8, attMul: 0.7, defMul: 0.8, delay: 3.4, speed: 95, aggro: { sight: 150 }, link: true, linkGroup: "goblin", range: 170, spells: [{ id: "stone", mul: 1.2 }], castGap: [7, 10], tpMove: { name: "Staff Whack", mul: 1.4 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["potion", 0.08], ["earth_crystal", 0.2]], gil: [2, 5], model: "goblin" },
-  den_conjurer: { name: "Goblin Conjurer", color: "#6f7f45", radius: 15, hpMul: 0.9, attMul: 0.75, defMul: 0.85, delay: 3.4, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", range: 180, spells: [{ id: "stone", mul: 1.4 }, { id: "poison", status: ["poison", 30] }, { id: "cure", heal: 0.3 }], castGap: [6, 9], tpMove: { name: "Staff Whack", mul: 1.5 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["ether", 0.06], ["fire_crystal", 0.2], ["scroll_stone", 0.04]], gil: [4, 8], model: "goblin" },
-  mire_hexer: { name: "Mire Hexer", color: "#58663a", radius: 15, hpMul: 0.95, attMul: 0.8, defMul: 0.9, delay: 3.2, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", range: 190, spells: [{ id: "water", mul: 1.6 }, { id: "poison", status: ["poison", 30] }, { id: "slow", status: ["slow", 25, 0.15] }, { id: "silence", status: ["silence", 15] }], castGap: [5, 8], tpMove: { name: "Hex Bolt", mul: 1.6 }, weak: { ice: 1.2, lightning: 1.2 }, loot: [["goblin_pouch", 0.3], ["mire_reed", 0.3], ["water_crystal", 0.2], ["ether", 0.08]], gil: [9, 15], model: "goblin" },
-  frost_shaman: { name: "Frost Shaman", color: "#9aa8a0", radius: 15, hpMul: 1.05, attMul: 0.85, defMul: 0.95, delay: 3.2, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", range: 200, spells: [{ id: "blizzard", mul: 2.0 }, { id: "paralyze", status: ["paralyze", 20, 0.2] }, { id: "blind", status: ["flash", 20, 0.3] }, { id: "silence", status: ["silence", 15] }, { id: "cure", heal: 0.3 }], castGap: [5, 8], tpMove: { name: "Rime Hex", mul: 1.8 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["frost_shard", 0.3], ["ether", 0.1], ["scroll_blizzard", 0.03]], gil: [11, 17], model: "goblin" },
-  orc_grunt: { name: "Orc Grunt", color: "#6f7f4f", radius: 16, hpMul: 1.3, attMul: 1.2, defMul: 1.1, delay: 3.2, speed: 95, aggro: { sight: 190 }, link: true, linkGroup: "orc", tpMove: { name: "Battle Roar", mul: 1.9, aoe: 70 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["iron_ore", 0.3], ["fire_crystal", 0.25], ["hi_potion", 0.06]], gil: [10, 16], model: "orc" },
-  orc_stonechucker: { name: "Orc Stonechucker", color: "#7f8f5f", radius: 15, hpMul: 1.05, attMul: 1.15, defMul: 0.95, delay: 3.6, speed: 100, aggro: { sight: 220 }, link: true, linkGroup: "orc", range: 200, tpMove: { name: "Boulder Toss", mul: 2.1 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["ash_log", 0.25], ["wind_crystal", 0.25], ["ether", 0.06]], gil: [10, 16], model: "orc" },
-  fishfolk: { name: "Reefkin", color: "#4a8a7a", radius: 15, hpMul: 1.1, attMul: 1.05, defMul: 1.05, eva: 6, delay: 2.9, speed: 105, aggro: { sight: 170, sound: 120 }, link: true, linkGroup: "reefkin", tpMove: { name: "Water Lance", mul: 1.8 }, weak: { lightning: 1.4 }, loot: [["reef_scale", 0.3], ["water_crystal", 0.3], ["harbor_bream", 0.2], ["potion", 0.08]], gil: [8, 14], model: "fishfolk" },
-  birdfolk: { name: "Crag Talon", color: "#c8a870", radius: 14, hpMul: 1.0, attMul: 1.1, defMul: 0.95, eva: 10, delay: 2.6, speed: 120, aggro: { sight: 200 }, link: true, linkGroup: "crag", tpMove: { name: "Talon Dive", mul: 1.9 }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["wind_crystal", 0.3], ["potion", 0.08]], gil: [9, 15], model: "birdfolk" },
-  birdfolk_priest: { name: "Crag Chanter", color: "#f0e4c8", radius: 14, hpMul: 0.95, attMul: 0.95, defMul: 0.9, eva: 8, delay: 3.0, speed: 110, int: 9, aggro: { sight: 200, magic: 150 }, link: true, linkGroup: "crag", tpMove: { name: "Shrieking Chant", mul: 1.5, aoe: 80, status: ["silence", 20] }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["ether", 0.15], ["fire_crystal", 0.25]], gil: [10, 16], model: "birdfolk" },
+  den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05]], gil: [1, 2], model: "goblin" },
+  goblin_apprentice: { name: "Goblin Apprentice", color: "#8a9a5b", radius: 14, hpMul: 0.8, attMul: 0.7, defMul: 0.8, delay: 3.4, speed: 95, aggro: { sight: 150 }, link: true, linkGroup: "goblin", range: 170, spells: [{ id: "stone", mul: 1.2 }], castGap: [7, 10], tpMove: { name: "Staff Whack", mul: 1.4 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["potion", 0.08], ["earth_crystal", 0.2]], gil: [1, 2], model: "goblin" },
+  den_conjurer: { name: "Goblin Conjurer", color: "#6f7f45", radius: 15, hpMul: 0.9, attMul: 0.75, defMul: 0.85, delay: 3.4, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", range: 180, spells: [{ id: "stone", mul: 1.4 }, { id: "poison", status: ["poison", 30] }, { id: "cure", heal: 0.3 }], castGap: [6, 9], tpMove: { name: "Staff Whack", mul: 1.5 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["ether", 0.06], ["fire_crystal", 0.2], ["scroll_stone", 0.04]], gil: [1, 2], model: "goblin" },
+  mire_hexer: { name: "Mire Hexer", color: "#58663a", radius: 15, hpMul: 0.95, attMul: 0.8, defMul: 0.9, delay: 3.2, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", range: 190, spells: [{ id: "water", mul: 1.6 }, { id: "poison", status: ["poison", 30] }, { id: "slow", status: ["slow", 25, 0.15] }, { id: "silence", status: ["silence", 15] }], castGap: [5, 8], tpMove: { name: "Hex Bolt", mul: 1.6 }, weak: { ice: 1.2, lightning: 1.2 }, loot: [["goblin_pouch", 0.3], ["mire_reed", 0.3], ["water_crystal", 0.2], ["ether", 0.08]], gil: [1, 2], model: "goblin" },
+  frost_shaman: { name: "Frost Shaman", color: "#9aa8a0", radius: 15, hpMul: 1.05, attMul: 0.85, defMul: 0.95, delay: 3.2, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", range: 200, spells: [{ id: "blizzard", mul: 2.0 }, { id: "paralyze", status: ["paralyze", 20, 0.2] }, { id: "blind", status: ["flash", 20, 0.3] }, { id: "silence", status: ["silence", 15] }, { id: "cure", heal: 0.3 }], castGap: [5, 8], tpMove: { name: "Rime Hex", mul: 1.8 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["frost_shard", 0.3], ["ether", 0.1], ["scroll_blizzard", 0.03]], gil: [1, 2], model: "goblin" },
+  orc_grunt: { name: "Orc Grunt", color: "#6f7f4f", radius: 16, hpMul: 1.3, attMul: 1.2, defMul: 1.1, delay: 3.2, speed: 95, aggro: { sight: 190 }, link: true, linkGroup: "orc", tpMove: { name: "Battle Roar", mul: 1.9, aoe: 70 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["iron_ore", 0.3], ["fire_crystal", 0.25], ["hi_potion", 0.06]], gil: [1, 2], model: "orc" },
+  orc_stonechucker: { name: "Orc Stonechucker", color: "#7f8f5f", radius: 15, hpMul: 1.05, attMul: 1.15, defMul: 0.95, delay: 3.6, speed: 100, aggro: { sight: 220 }, link: true, linkGroup: "orc", range: 200, tpMove: { name: "Boulder Toss", mul: 2.1 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["ash_log", 0.25], ["wind_crystal", 0.25], ["ether", 0.06]], gil: [1, 2], model: "orc" },
+  fishfolk: { name: "Reefkin", color: "#4a8a7a", radius: 15, hpMul: 1.1, attMul: 1.05, defMul: 1.05, eva: 6, delay: 2.9, speed: 105, aggro: { sight: 170, sound: 120 }, link: true, linkGroup: "reefkin", tpMove: { name: "Water Lance", mul: 1.8 }, weak: { lightning: 1.4 }, loot: [["reef_scale", 0.3], ["water_crystal", 0.3], ["harbor_bream", 0.2], ["potion", 0.08]], gil: [1, 2], model: "fishfolk" },
+  birdfolk: { name: "Crag Talon", color: "#c8a870", radius: 14, hpMul: 1.0, attMul: 1.1, defMul: 0.95, eva: 10, delay: 2.6, speed: 120, aggro: { sight: 200 }, link: true, linkGroup: "crag", tpMove: { name: "Talon Dive", mul: 1.9 }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["wind_crystal", 0.3], ["potion", 0.08]], gil: [1, 2], model: "birdfolk" },
+  birdfolk_priest: { name: "Crag Chanter", color: "#f0e4c8", radius: 14, hpMul: 0.95, attMul: 0.95, defMul: 0.9, eva: 8, delay: 3.0, speed: 110, int: 9, aggro: { sight: 200, magic: 150 }, link: true, linkGroup: "crag", tpMove: { name: "Shrieking Chant", mul: 1.5, aoe: 80, status: ["silence", 20] }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["ether", 0.15], ["fire_crystal", 0.25]], gil: [1, 2], model: "birdfolk" },
   sapling: { name: "Wandering Sapling", color: "#6aa84a", radius: 13, hpMul: 0.9, attMul: 0.8, defMul: 1.1, delay: 3.2, speed: 85, aggro: null, link: false, tpMove: { name: "Leaf Lash", mul: 1.5 }, weak: { fire: 1.6 }, loot: [["ash_log", 0.35], ["healing_herb", 0.25], ["earth_crystal", 0.2]], model: "treant", tint: 0x6aa84a },
   treant_elder: { name: "Elder Treant", color: "#4a3a28", radius: 20, hpMul: 2.0, attMul: 1.2, defMul: 1.4, delay: 3.8, speed: 70, aggro: { sight: 160 }, link: false, tpMove: { name: "Root Quake", mul: 2.0, aoe: 90 }, weak: { fire: 1.6 }, loot: [["heartwood", 0.3], ["ash_log", 0.5], ["earth_crystal", 0.4], ["hi_potion", 0.08]], gil: [12, 20], model: "treant", scale: 1.3 },
   cactus: { name: "Needlekin", color: "#5aa04a", radius: 12, hpMul: 0.9, attMul: 1.0, defMul: 1.2, eva: 4, delay: 3.0, speed: 90, aggro: { sight: 150 }, link: false, range: 170, tpMove: { name: "Thousand Needles", mul: 2.4 }, weak: { fire: 1.3 }, loot: [["cactus_needle", 0.35], ["earth_crystal", 0.25], ["potion", 0.08]], gil: [8, 14], model: "cactus" },
@@ -7447,13 +7458,13 @@ const FAMILIES = {
   hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["sol_cap", 0.3], ["bee_spatha", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
   bog_toad: { name: "Bog Toad", color: "#5f7a3a", radius: 14, hpMul: 1.15, attMul: 1.0, defMul: 1.0, delay: 3.0, speed: 90, aggro: { sound: 120 }, link: false, tpMove: { name: "Tongue Lash", mul: 1.8, status: ["paralyze", 20, 0.2] }, weak: { ice: 1.25 }, loot: [["toad_oil", 0.45], ["water_crystal", 0.3], ["healing_herb", 0.2], ["hi_potion", 0.05]], gil: [6, 10], model: "toad" },
   bog_leech: { name: "Bog Leech", color: "#5a2a2a", radius: 13, hpMul: 1.1, attMul: 0.95, defMul: 1.1, delay: 3.2, speed: 60, int: 4, aggro: null, link: false, tpMove: { name: "Blood Drain", mul: 1.6, drain: true }, weak: { fire: 1.3 }, loot: [["worm_silk", 0.3], ["water_crystal", 0.3], ["ether", 0.08]], model: "worm", tint: 0x4a2226 },
-  mire_goblin: { name: "Mire Goblin", color: "#58663a", radius: 15, hpMul: 1.05, attMul: 1.05, defMul: 1.05, delay: 3.0, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", tpMove: { name: "Bog Bomb", mul: 1.7, aoe: 75 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.25], ["mire_reed", 0.3], ["fire_crystal", 0.2], ["hi_potion", 0.06]], gil: [8, 14], model: "goblin" },
+  mire_goblin: { name: "Mire Goblin", color: "#58663a", radius: 15, hpMul: 1.05, attMul: 1.05, defMul: 1.05, delay: 3.0, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", tpMove: { name: "Bog Bomb", mul: 1.7, aoe: 75 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.25], ["mire_reed", 0.3], ["fire_crystal", 0.2], ["hi_potion", 0.06]], gil: [1, 2], model: "goblin" },
   drowned: { name: "Drowned One", color: "#6f9a9a", radius: 15, hpMul: 1.2, attMul: 1.1, defMul: 1.05, delay: 3.0, speed: 85, aggro: { sound: 130, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Sodden Grasp", mul: 1.9, drain: true }, weak: { light: 1.5, lightning: 1.2 }, loot: [["chapel_sigil", 0.12], ["bone_chip", 0.35], ["water_crystal", 0.35], ["ether", 0.1], ["hi_potion", 0.06]], model: "ghoul" },
   marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
   tide_priest: { name: "Tidebound Priest", color: "#4dd0e1", radius: 20, hpMul: 3.2, attMul: 1.1, defMul: 1.2, delay: 3.6, speed: 80, int: 6, aggro: { sight: 240, sound: 220 }, link: false, tpMove: { name: "Drowning Tide", mul: 1.6, aoe: 110, status: ["silence", 20] }, weak: { lightning: 1.4, light: 1.3 }, nm: true, boss: true, scale: 1.6, aura: "#4dd0e1", respawn: 30, phases: [0.65], adds: "drowned", addsText: "calls the drowned up from the water!", enrage: 0.2, pulse: { at: 0.5, every: 22, dmg: 4, r: 170, name: "Maelstrom", el: "water" }, loot: [], gil: [40, 60], model: "ghoul" },
   snow_hare: { name: "Snow Hare", color: "#e8eef2", radius: 11, hpMul: 0.75, attMul: 0.85, defMul: 0.85, eva: 10, delay: 2.6, speed: 125, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { fire: 1.2 }, loot: [["healing_herb", 0.4], ["wind_crystal", 0.2], ["potion", 0.1]], model: "hare", tint: 0xeef2f6 },
   ice_bat: { name: "Ice Bat", color: "#9fd8ff", radius: 11, hpMul: 0.85, attMul: 1.0, defMul: 0.9, eva: 12, delay: 2.4, speed: 130, aggro: null, link: true, linkGroup: "icebat", tpMove: { name: "Frost Wing", mul: 1.9 }, weak: { fire: 1.3 }, loot: [["egg_frost_wisp", 0.005], ["bat_wing", 0.4], ["frost_shard", 0.25], ["ether", 0.08]], model: "bat", tint: 0x8ab8d8 },
-  frost_goblin: { name: "Frost Goblin", color: "#9aa8a0", radius: 15, hpMul: 1.15, attMul: 1.1, defMul: 1.1, delay: 3.0, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", tpMove: { name: "Ice Bomb", mul: 1.8, aoe: 80 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.3], ["frost_shard", 0.3], ["hi_potion", 0.08]], gil: [10, 16], model: "goblin" },
+  frost_goblin: { name: "Frost Goblin", color: "#9aa8a0", radius: 15, hpMul: 1.15, attMul: 1.1, defMul: 1.1, delay: 3.0, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", tpMove: { name: "Ice Bomb", mul: 1.8, aoe: 80 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.3], ["frost_shard", 0.3], ["hi_potion", 0.08]], gil: [1, 2], model: "goblin" },
   ice_wight: { name: "Ice Wight", color: "#b8e0f0", radius: 15, hpMul: 1.25, attMul: 1.15, defMul: 1.15, delay: 3.1, speed: 85, aggro: { sound: 140, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Rime Grasp", mul: 2.0, drain: true }, weak: { fire: 1.4, light: 1.4 }, loot: [["bone_chip", 0.35], ["frost_shard", 0.35], ["ether", 0.1]], model: "skeleton" },
   glacier_worm: { name: "Glacier Worm", color: "#cfe8f2", radius: 15, hpMul: 1.35, attMul: 1.0, defMul: 1.2, delay: 3.4, speed: 60, int: 5, aggro: { magic: 150 }, link: false, tpMove: { name: "Hail Spit", mul: 1.7, aoe: 70 }, weak: { fire: 1.35 }, loot: [["worm_silk", 0.35], ["frost_shard", 0.25], ["water_crystal", 0.3]], model: "worm", tint: 0xc8e4f0 },
   chieftain: { name: "Goblin Chieftain", color: "#7d8a3a", radius: 20, hpMul: 1.8, attMul: 1.0, defMul: 1.0, delay: 3.2, speed: 100, aggro: { sight: 170 }, link: true, linkGroup: "goblin", tpMove: { name: "Goblin Rush", mul: 0.7, hits: 3 }, weak: { ice: 1.2 }, nm: true, respawn: 180, loot: [["legionnaires_cap", 0.3], ["goblin_totem", 0.3], ["lunar_cap", 0.25], ["iron_sword", 0.2], ["goblin_pouch", 1], ["ether", 0.5], ["iron_ore", 0.8]], gil: [30, 40], model: "chieftain" }
@@ -7956,8 +7967,8 @@ const QUESTS = {
     intro: "Bards fight with a dagger in one hand and a song in the other. Their songs lift the whole party: sharper blades, faster swings, wounds that close on their own. I'll teach you, but I need reeds for a pipe and bat wings for the drum skin.", progress: "3 Mire Reeds from the Ashen Marsh and 2 Bat Wings. Bats come out at night.", turn: "Listen to that. A little shaky, but it carries. Here's a coat fit for the road." },
   smn: { name: "The Calling", giver: "Tobin", npc: "tobin", lv: 6, items: { fire_crystal: 2, wind_crystal: 2, healing_herb: 2 }, desc: "Bring Tobin 2 Fire Essences, 2 Wind Essences and 2 Healing Herbs to learn to call sprites.", reward: { xp: 300, gil: 0, item: "ash_staff", qty: 1, unlock: "SMN" },
     intro: "A Summoner calls elemental sprites to fight for them. The sprites drink your MP while they're out, so mind it. To make the first calling, I'll need 2 Fire Essences, 2 Wind Essences, and 2 Healing Herbs to calm the sprite afterward.", progress: "2 Fire Essences, 2 Wind Essences and 2 Healing Herbs.", turn: "Listen... there. A spark answered. Take this staff and call it with Ember Sprite." },
-  support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 5, desc: "Reach level 5, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
-  riding: { name: "Riding License", giver: "Ysolde", npc: "ysolde", lv: 5, desc: "Reach level 5, then bring Ysolde 300 crystals and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
+  support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 10, desc: "Reach level 10, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
+  riding: { name: "Riding License", giver: "Ysolde", npc: "ysolde", lv: 20, desc: "Reach level 20, then bring Ysolde 300 crystals and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
   pld: { name: "The Oath of Steel", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Paladin's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
   rdm: { name: "Scarlet Lessons", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Worm Silk, 1 Fire Essence and 1 Water Essence to study the Red Mage's arts.", reward: { xp: 400, gil: 0, unlock: "RDM" } },
   chieftain: { name: "The Goblin Chieftain", giver: "Captain Rhea", npc: "rhea", lv: 7, pre: "bones", desc: "Defeat the Goblin Chieftain at the back of the Goblin Den, then report to Captain Rhea.", reward: { xp: 900, gil: 1500, item: "ether", qty: 3 } }
@@ -13549,28 +13560,32 @@ function tabNext(list) {
   return fresh ? list[0] : list[(list.indexOf(player.target) + 1) % list.length];
 }
 
+function npcTargets(r) {
+  return S.npcs.filter(n => !n.away && !n.gone && dist(n, player) < r);
+}
+
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && !n.warpstone && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
-  const crystals = S.npcs.filter(n => (n.crystal || n.warpstone || (n.prop && n.prop !== "nubbin")) && !n.away && !n.gone && dist(n, player) < 900).sort((a, b) => dist(a, player) - dist(b, player));
-  const list = people.concat(crystals);
+  const list = npcTargets(1200).sort((a, b) => dist(a, player) - dist(b, player));
   if (!list.length) return false;
-  player.target = tabNext(list);
+  setTarget(tabNext(list), true);
   sfx("select");
   return true;
 }
 
 function cycleObjectTarget() {
-  const list = S.npcs.filter(n => (n.crystal || n.warpstone || n.prop) && !n.away && !n.gone && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const list = npcTargets(1200).filter(n => n.crystal || n.warpstone || n.prop).sort((a, b) => dist(a, player) - dist(b, player));
   if (!list.length) { log("No objects nearby.", "sys"); return; }
-  player.target = tabNext(list);
+  setTarget(tabNext(list), true);
   sfx("select");
 }
 
 function cycleTarget() {
   if (S.zone.safe) { if (!cycleNpcTarget()) log("No one nearby.", "sys"); return; }
-  const list = S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 450).sort((a, b) => dist(a, player) - dist(b, player));
+  const mobs = S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 450);
+  const list = mobs.concat(npcTargets(260)).sort((a, b) => dist(a, player) - dist(b, player));
   if (!list.length) { if (!cycleNpcTarget()) log("No enemies nearby.", "sys"); return; }
-  setTarget(tabNext(list));
+  const t = tabNext(list);
+  setTarget(t, !isMob(t));
   sfx("select");
 }
 
@@ -13806,7 +13821,7 @@ function questMarker(n) {
   const q = save.quests, lv = player.lv;
   for (const id in QUESTS) if (QUESTS[id].npc === n.id && QUESTS[id].intro && (questOfferable(id) || questComplete(id))) return true;
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
-  if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
+  if (n.id === "ysolde") return !save.mountLicense && lv >= CONFIG.mountLevel && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
   if (n.talk === "talkGuard") return !blessed();
   { const st = storyStep(); if (st && st.type === "talk" && st.npc === n.id && storyReady()) return true; }
@@ -14223,7 +14238,7 @@ const TALK = {
       ]);
       return;
     }
-    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
+    if (player.lv < CONFIG.mountLevel) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level " + CONFIG.mountLevel + " and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
         { label: "I'll get them", fn: () => { q.riding = "active"; log("Quest accepted: " + QUESTS.riding.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }
@@ -15616,6 +15631,41 @@ function knownAct(a) {
   if (a.kind === "item" || a.kind === "cmd") return true;
   return actionList(player).some(x => x.kind === a.kind && x.id === a.id);
 }
+function barPosApply() {
+  const w = $("barWrap"), p = VIEW.settings.barPos || { x: 0, y: 0 };
+  w.style.transform = "translate(" + p.x + "px," + p.y + "px)";
+  const r = w.getBoundingClientRect();
+  if (!r.width) return;
+  let dx = 0, dy = 0;
+  if (r.left < 0) dx = -r.left; else if (r.right > innerWidth) dx = innerWidth - r.right;
+  if (r.top < 0) dy = -r.top; else if (r.bottom > innerHeight) dy = innerHeight - r.bottom;
+  if (dx || dy) w.style.transform = "translate(" + (p.x + dx) + "px," + (p.y + dy) + "px)";
+}
+
+function initBarDrag() {
+  const w = $("barWrap"), g = $("barGrip");
+  barPosApply();
+  window.addEventListener("resize", barPosApply);
+  g.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    const p0 = VIEW.settings.barPos || { x: 0, y: 0 }, sx = e.clientX, sy = e.clientY;
+    g.setPointerCapture(e.pointerId);
+    const mv = ev => { VIEW.settings.barPos = { x: Math.round(p0.x + ev.clientX - sx), y: Math.round(p0.y + ev.clientY - sy) }; barPosApply(); };
+    const up = () => {
+      g.removeEventListener("pointermove", mv);
+      g.removeEventListener("pointerup", up);
+      g.removeEventListener("pointercancel", up);
+      const m = new DOMMatrixReadOnly(getComputedStyle(w).transform);
+      VIEW.settings.barPos = { x: Math.round(m.m41), y: Math.round(m.m42) };
+      saveSettings(VIEW.settings);
+    };
+    g.addEventListener("pointermove", mv);
+    g.addEventListener("pointerup", up);
+    g.addEventListener("pointercancel", up);
+  });
+  g.addEventListener("dblclick", () => { VIEW.settings.barPos = { x: 0, y: 0 }; barPosApply(); saveSettings(VIEW.settings); });
+}
+
 function buildActionBar() {
   const el = $("actionBar");
   el.innerHTML = "";
@@ -15624,7 +15674,7 @@ function buildActionBar() {
   for (let i = 0; i < 10; i++) {
     const a = pg[i];
     const b = document.createElement("button");
-    b.className = "slot" + (a ? " " + a.kind : " empty");
+    b.className = "slot" + (a ? " " + a.kind : " empty") + (a && a.hud === false ? " nohud" : "");
     if (a) b.style.background = actTint(a);
     b.innerHTML = '<span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + '</span><span class="cost"></span><span class="cd"></span><span class="cdt"></span><span class="nmL">' + esc(actName(a)) + "</span>";
     b.title = a ? actName(a) + " — " + actDesc(a) : "Empty slot. Assign actions in the menu (B).";
@@ -15633,6 +15683,7 @@ function buildActionBar() {
     UI.slots.push({ el: b, a, cost: b.querySelector(".cost"), cd: b.querySelector(".cd"), cdt: b.querySelector(".cdt"), chip: null, last: {} });
   }
   $("pgNum").textContent = ["Ctrl", "Shft", "Alt", "Tab"][UI.page];
+  if (typeof VIEW !== "undefined" && VIEW.settings) barPosApply();
 }
 function setPage(p) { UI.page = (p + 4) % 4; buildActionBar(); sfx("tab"); }
 function activateSlot(page, i) {
@@ -16301,7 +16352,7 @@ function watchProgress() {
     const before = UI.actKeys || [];
     for (const a of actionList(player)) if (!before.includes(a.kind + ":" + a.id)) chips.push(actIcon(a) + " " + esc(actName(a)));
     if (lv === CONFIG.supportUnlockLevel && !save.supportUnlocked) chips.push("💬 Tobin wants a word");
-    if (lv === 5 && !save.mountLicense) chips.push("💬 Ysolde wants a word");
+    if (lv === CONFIG.mountLevel && !save.mountLicense) chips.push("💬 Ysolde wants a word");
     if (lv === 6 && Object.keys(ADVANCED_JOBS).some(j => !jobUnlocked(j))) chips.push("💬 Tobin can teach advanced jobs");
     if (lv >= CONFIG.levelCap) chips.push("⭐ Level cap reached");
     banner("LEVEL " + lv, JOBS[j].name, chips);
@@ -16446,6 +16497,7 @@ function initHud() {
   });
   if (window.innerWidth <= 720) { $("chat").classList.add("min"); $("chatTog").textContent = "▴"; }
   $("tracker").addEventListener("click", e => { if (e.target.closest("[data-tr]")) { UI.trackerMin = !UI.trackerMin; updateTracker(); sfx("click"); } else openMenu("quests"); });
+  initBarDrag();
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
@@ -17281,7 +17333,7 @@ function tabEquipment() {
   h += '</div><div class="eqStats"><span>Attack <b>' + st.att + "</b></span><span>Defense <b>" + st.def + '</b></span></div><div class="eqRes">';
   for (const el of RES_ELEMENTS) h += '<span title="' + el + ' resistance"><i style="background:' + ELEMENT_COLORS[el] + '"></i>' + (st["res_" + el] || 0) + "</span>";
   h += "</div></div>";
-  h += '<div class="eqSide">';
+  h += '<div class="eqSide' + (q.slot ? " two" : "") + '">';
   if (!q.slot) h += '<div class="iCard"><div class="iCl">Choose an equipment box to change what goes there.</div></div>';
   else {
     const cur = save.gear[q.slot];
@@ -17290,9 +17342,10 @@ function tabEquipment() {
     if (cur) h += '<button class="mcR" data-a="equnq" data-v="' + q.slot + '"><span class="ic">✕</span><span class="nm">Remove ' + esc(ITEMS[cur].name) + "</span></button>";
     for (const id of fits) { const why = canEquip(id); h += '<button class="mcR' + (q.hover === id ? " hv" : "") + '" data-a="eqpick" data-v="' + id + '"><span class="ic">' + (ITEMS[id].icon || "📦") + '</span><span class="nm' + (why ? " dim" : "") + '">' + esc(ITEMS[id].name) + "</span>" + (why ? '<span class="q bad">' + esc(why.replace("Requires ", "")) + "</span>" : "") + "</button>"; }
     if (!fits.length && !cur) h += '<div class="mcR empty"><span class="nm dim">Nothing in your bag fits here.</span></div>';
-    h += "</div>";
+    h += '</div><div class="eqCards">';
     if (q.hover && ITEMS[q.hover]) { h += itemCard(q.hover); if (cur) h += '<div class="eqArrow">▼</div>' + itemCard(cur); if (!canEquip(q.hover)) h += '<button class="pri" data-a="eqpick" data-v="' + q.hover + '" style="margin-top:6px">Equip</button>'; }
     else if (cur) h += itemCard(cur);
+    h += "</div>";
   }
   return h + "</div></div></div>";
 }
@@ -17399,10 +17452,10 @@ const LORE = {
   hollow_king: ["The Hollow King stirs the dead of Ashenreach from his throne under the Den.", "At two thirds and one third of his health he calls Royal Guards; below a fifth he enrages."],
   royal_guard: ["Royal Guards rise at the Hollow King's call and fall when he does."],
   rhea: ["Captain Rhea commands the Outpost's garrison and pays bounties on goblins and worse.", "Rhea turns in at 22:00 and is back on the plaza at dawn."],
-  tobin: ["Tobin, Job Master, teaches support jobs at level 5 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
+  tobin: ["Tobin, Job Master, teaches support jobs at level 10 and the advanced jobs at level 6. Change jobs with Pip at your residence.", "Tobin is early to bed, early to rise: 20:00 to 7:00."],
   pell: ["Pell buys and sells potions, ethers, arms and armour. Crystals talk.", "Pell keeps late hours for a merchant: he shuts at 21:00."],
   brann: ["Brann runs the Mercenary Hall. Five new fighters arrive every day, and a companion who falls is gone for good.", "Brann drinks till 23:00 and is up by half past seven."],
-  ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 5.", "Ysolde beds down with the beasts at 19:30."],
+  ysolde: ["Ysolde, Stablemaster, issues riding licenses for the Thornstrider at level 20.", "Ysolde beds down with the beasts at 19:30."],
   odette: ["Odette sells furnishings for your residence, and her cousin Pip keeps it.", "Odette closes up at 21:30."]
 };
 const LORE_KEYS = Object.keys(LORE);
@@ -17565,13 +17618,13 @@ function tabSkills() {
 
 function tabActions() {
   const hb = hotbar();
-  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Four lines of ten: hold <b>Ctrl</b>, <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press 1–9 or 0. Plain 1–0 use the line shown on the pinned bar (Ctrl by default), which also works when your browser keeps Ctrl+number for switching tabs.</div>';
+  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Select a slot, then Hide from HUD or Show on HUD to choose whether it appears on the pinned bar (its hotkey still works; hidden slots are dimmed here). Four lines of ten: hold <b>Ctrl</b>, <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press 1–9 or 0. Plain 1–0 use the line shown on the pinned bar (Ctrl by default), which also works when your browser keeps Ctrl+number for switching tabs.</div>';
   hb.pages.forEach((pg, p) => {
     h += "<h3>" + ["Ctrl", "Shift", "Alt", "Tab"][p] + " line</h3><div class=\"barEdit\">";
-    pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
+    pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + (a && a.hud === false ? " nohud" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
     h += "</div>";
   });
-  h += '<div class="opt"><button data-a="slotclear"' + (UI.pick ? "" : " disabled") + '>Clear selected slot</button><button data-a="barreset">Reset to defaults</button></div>';
+  h += '<div class="opt"><button data-a="slotclear"' + (UI.pick ? "" : " disabled") + '>Clear selected slot</button><button data-a="slothud"' + (UI.pick && hb.pages[UI.pick[0]][UI.pick[1]] ? "" : " disabled") + '>' + (UI.pick && hb.pages[UI.pick[0]][UI.pick[1]] && hb.pages[UI.pick[0]][UI.pick[1]].hud === false ? "Show selected on HUD" : "Hide selected from HUD") + '</button><button data-a="barreset">Reset to defaults</button></div>';
   const known = actionList(player).map(a => ({ kind: a.kind, id: a.id }));
   const items = ["potion", "hi_potion", "ether", "potion_hq", "ether_hq", "fishing_rod"].concat(Object.keys(ITEMS).filter(k => ITEMS[k].kind === "food")).filter(id => invCount(id) > 0 || id === "potion" || id === "ether").map(id => ({ kind: "item", id }));
   const groups = [["Weapon skills", known.filter(a => a.kind === "ws")], ["Abilities", known.filter(a => a.kind === "ja")], ["Spells", known.filter(a => a.kind === "ma")], ["Items", items]];
@@ -18440,6 +18493,7 @@ function onMenuClick(e) {
     } else { UI.pick = [p, i]; sfx("select"); }
     saveGame(); buildActionBar();
   }
+  else if (a === "slothud") { if (UI.pick) { const sl = hb.pages[UI.pick[0]][UI.pick[1]]; if (sl) { if (sl.hud === false) delete sl.hud; else sl.hud = false; saveGame(); buildActionBar(); sfx("click"); } } }
   else if (a === "slotclear") { if (UI.pick) { hb.pages[UI.pick[0]][UI.pick[1]] = null; UI.pick = null; saveGame(); buildActionBar(); sfx("close"); } }
   else if (a === "barreset") { delete save.hotbars[save.mainJob]; UI.slotKey = ""; UI.pick = null; syncHotbar(); saveGame(); sfx("click"); }
   else if (a === "buy") buy(v);
@@ -18593,8 +18647,16 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.11.0 · built 2026-10-15 21:19 PDT";
+const BUILD_INFO = "v18.12.0 · built 2026-10-15 21:29 PDT";
 const UPDATES = [
+  { v: "18.12.0", date: "2026-10-15", title: "Tab fix, hotkey bar styling and level gates", items: [
+    "<b>Tab now targets the nearest thing first.</b> Walk up to a warp stone, signpost, crystal or person and press Tab to target it. In the field, monsters within range and objects within arm's reach are cycled together by distance.",
+    "<b>The hotkey bar looks like the other blue windows</b> and can be moved: drag the ⠿ grip at its left edge (double-click it to put it back). Its position is remembered when you reload.",
+    "<b>Choose what shows on the bar:</b> in Hotkeys, select a slot and press Hide from HUD or Show on HUD. Hidden slots still work with their keys.",
+    "<b>The equipment window no longer needs a scrollbar:</b> the list of gear that fits a slot and the item cards sit side by side.",
+    "<b>Support jobs now unlock at level 10</b> (Tobin's quest A Second Calling) and <b>the Riding License at level 20</b> (Ysolde). Characters that already have them keep them.",
+    "<b>Humanoid monsters (goblins, orcs, Reefkin, Crag birdfolk and their casters) now drop only a few crystals</b> each, 1 to 2 per level."
+  ] },
   { v: "18.11.0", date: "2026-10-15", title: "Smaller daily Auction House stock", items: [
     "<b>The market now lists only a daily random selection:</b> 10 kinds of consumables, 5 kinds of ammo, 3 spell scrolls, 10 kinds of food, 10 kinds of materials and the 10 pieces of +1 equipment.",
     "<b>Nothing is listed more than one level above yours</b>, so the market always matches where you are. The selection changes every game day (and when you level up)."
@@ -18619,7 +18681,7 @@ const UPDATES = [
   ] },
   { v: "18.6.0", date: "2026-10-15", title: "Four hotkey lines", items: [
     "<b>Hotkeys now have four lines of ten:</b> Ctrl, Shift, Alt and Tab. Hold the key and press 1–9 or 0. Set each line in Hotkeys. Plain 1–0 still use the Ctrl line.",
-    "Tab now targets when you let go of it, so you can hold Tab and press a number for the Tab line. Shift+Tab still cycles nearby objects.",
+    "Hold Tab and press a number for the Tab line. Shift+Tab cycles nearby objects.",
     "New slots from learning actions fill all four lines in order."
   ] },
   { v: "18.5.1", date: "2026-10-15", title: "Chasing monsters and object targeting", items: [
@@ -19811,7 +19873,7 @@ function tabHelp() {
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Shift+Tab cycles nearby objects (signposts, warp stones, crystals, shrines) even with monsters around · Monsters chase you until you leave the zone · Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
-    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (plain 1–0 use the line shown on the pinned bar, Ctrl by default; browsers may keep Ctrl+number for switching tabs). Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first) (plain 1–0 use the line shown on the pinned bar, Ctrl by default; browsers may keep Ctrl+number for switching tabs). Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -19875,7 +19937,7 @@ function tabHelp() {
     "<b>Beastmaster, Blue Mage and Corsair</b> unlock at level 14 through Tobin: <i>Call of the Wild</i> (2 Lizard Skins, 3 Wool Tufts), <i>The Borrowed Art</i> (2 Crab Shells, 2 Mandrake Leaves) and <i>Lady Luck</i> (2 Harbor Bream, 1 Orc Tooth). Axes are sold by Pell and Vela; Blue Mages use swords and clubs and wear red mage clothing; Corsairs use daggers and swords and wear thief gear; Beastmasters wear warrior armour.",
     "<b>Samurai, Ninja and Dragoon</b> unlock at level 12 through Tobin: <i>The Patient Blade</i> (Samurai: 1 Iron Ingot, 2 Ash Lumber), <i>Steps Without Sound</i> (Ninja: 3 Bat Wings, 2 Worm Silk) and <i>Wings of the Wyrm</i> (Dragoon: 3 Lizard Skins, 1 Crag Feather). Their weapons are sold by Pell (bronze to steel) and Vela (frostforged). Samurai and Dragoons can wear warrior armour; Ninjas can wear thief gear.",
     "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
-    "Support jobs unlock at level 5 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
+    "Support jobs unlock at level 10 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per real day (24 hours). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));
   h += sec("📈 Experience", ul([
@@ -20097,7 +20159,7 @@ function tabHelp() {
     "Feed it one crystal. A matching crystal grows extra: Earth for herbs, Wind for ash, Water for moonbloom. Wildgrass grows crystals of whichever element you feed it.",
     "Seeds: Herb Seeds (3–6 Healing Herbs), Ash Sapling (2–4 Ash Logs), Wildgrass Seeds (2–4 crystals), Moonbloom Seeds (Ethers and a chance at rare materials; a rare drop)."
   ]));
-  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 5 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
+  h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 20 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
     "Config → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
     "Config → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
@@ -20177,7 +20239,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "18.11.0";
+const GAME_VERSION = "18.12.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -30959,7 +31021,7 @@ function onKey(e) {
   if (S.fish && S.fish.state === "bite" && (k === " " || k === "spacebar" || k === "enter" || k === "f")) { e.preventDefault(); reelFish(); return; }
   if (UI.mm && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); mainCmdKey(k); return; }
   if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
-  if (k === "tab") { e.preventDefault(); if (!e.repeat) { UI.tabHeld = true; UI.tabUsed = false; UI.tabShift = e.shiftKey; } return; }
+  if (k === "tab") { e.preventDefault(); if (!e.repeat) { UI.tabHeld = true; if (e.shiftKey) cycleObjectTarget(); else cycleTarget(); } return; }
   if (k === "/") { e.preventDefault(); openChatInput("/"); return; }
   if (k === "l" && !S.modal) { chatToggle(); return; }
   if (k === "f") { toggleEngage(false); return; }
@@ -31002,7 +31064,7 @@ const TIPS = [
   "<b>Night falls.</b> Bats and restless bones come out after dark. Some rare monsters only appear at certain hours.",
   "<b>Home point.</b> Touch a crystal to set where you return after being defeated.",
   "<b>Weekdays.</b> Each day of the week favours one element. Spells of that element hit 10% harder.",
-  "<b>Support jobs.</b> At level 5, Tobin can teach you to fight with a second job at half your level.",
+  "<b>Support jobs.</b> At level 10, Tobin can teach you to fight with a second job at half your level.",
   "<b>Backups.</b> Your game saves in this browser. Save to a file from the System menu to keep a copy."
 ];
 function rotateTip() {
@@ -31021,7 +31083,6 @@ async function boot() {
     S.keys[e.key.toLowerCase()] = false;
     if (e.key === "Tab" && UI.tabHeld) {
       UI.tabHeld = false;
-      if (!UI.tabUsed && UI.started && !S.modal && !S.dialog && !UI.confirmOpen) { if (UI.tabShift) cycleObjectTarget(); else cycleTarget(); }
     }
   });
   window.addEventListener("blur", () => { S.keys = {}; UI.tabHeld = false; });

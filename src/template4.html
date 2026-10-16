@@ -650,6 +650,13 @@
   #chatIn { font: 700 12px var(--ffFont); background: rgba(24,22,70,.85); border-color: var(--ffEdge); }
   #xpRow { display: none !important; }
   body.noHotbar #barWrap { display: none !important; }
+  #barWrap { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; box-shadow: 0 2px 8px rgba(0,0,0,.45) !important; backdrop-filter: none !important; padding: 4px 6px 4px 4px; pointer-events: auto; }
+  #barWrap #pager button { background: linear-gradient(180deg, rgba(110,116,190,.7), rgba(50,54,120,.85)); border: 1px solid rgba(220,224,255,.7); color: #fff; border-radius: 3px; }
+  #barWrap #pgNum { font: italic 900 11px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
+  #barGrip { cursor: move; font-size: 15px; line-height: 1; color: #dfe3ff; text-shadow: 1px 1px 0 #000; touch-action: none; user-select: none; padding: 0 4px; }
+  #barWrap .slot { border: 1px solid rgba(170,180,255,.65); box-shadow: inset 0 0 8px rgba(0,0,40,.6); border-radius: 4px; }
+  #actionBar .slot.nohud { display: none; }
+  .barEdit .slot.nohud { opacity: .45; border-style: dashed; }
   #bottom { bottom: calc(196px + var(--sab)); }
   #tCmd { right: auto; left: calc(28px + var(--sal)); bottom: calc(196px + var(--sab)); width: 210px; max-height: 60vh; padding: 4px 4px 6px 22px; gap: 3px; background: linear-gradient(180deg, rgba(60,64,150,.85), rgba(26,28,84,.88)); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,.55); backdrop-filter: none; }
   #tCmd .ffMHead { font: italic 800 11px var(--ffFont); color: #fff; text-align: center; letter-spacing: .06em; text-shadow: 1px 1px 0 #000; margin: 0 0 2px -18px; }
@@ -761,6 +768,9 @@
   .eqRes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px 6px; margin-top: 6px; font: italic 800 12px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
   .eqRes span { display: flex; align-items: center; gap: 5px; } .eqRes i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(255,255,255,.7); box-shadow: inset -2px -2px 3px rgba(0,0,0,.35); }
   .eqSide { display: flex; flex-direction: column; gap: 6px; }
+  .eqSide.two { display: grid; grid-template-columns: minmax(170px, 1fr) minmax(230px, 1.2fr); align-items: start; }
+  .eqCards { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .eqSide.two .eqPop { max-height: calc(100vh - 150px - var(--sat) - var(--sab)); }
   .eqPop { background: linear-gradient(180deg, rgba(14,14,34,.7), rgba(8,8,22,.85)); border: 2px solid var(--ffEdge); border-radius: 6px; padding: 4px 6px; max-height: 34vh; overflow-y: auto; }
   .eqPH { font: italic 900 12px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; border-bottom: 2px solid rgba(220,224,255,.5); margin-bottom: 3px; padding-bottom: 2px; }
   #mBody .mcR.hv { background: linear-gradient(90deg, rgba(255,190,100,.45), rgba(200,120,40,.15)); } #mBody .mcR .q.bad, .iCard .bad { color: #ff8a80; }
@@ -914,7 +924,7 @@
   @media (max-width: 760px) { .eqL { display: none; } }
   #menu .win.slim { width: 320px; max-height: calc(100vh - 330px - var(--sat) - var(--sab)); min-height: 120px; }
   #menu .win.fit { width: max-content; min-width: 320px; max-width: min(560px, calc(100vw - 232px - var(--sal) - var(--sar))); }
-  #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar))); }
+  #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar)));  max-height: calc(100vh - 70px - var(--sat) - var(--sab)); }
   #menu .win.slim #mHead { display: none; }
   #menu .win.slim #mBody { padding: 4px 6px 6px 22px; }
   #mBody .lHead { display: flex; gap: 6px; justify-content: flex-end; margin: 0 0 4px -16px; }
@@ -1132,7 +1142,7 @@
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
-      <div id="barWrap" class="glass"><div id="pager"><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
+      <div id="barWrap" class="glass"><div id="pager"><span id="barGrip" title="Drag to move the hotkey bar (double-click to reset)">⠿</span><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
       <div id="xpRow"><span id="lvl"></span><div id="xpbar"><div id="xpfill"></div><div class="ticks"></div></div><span id="xpt"></span><span id="chainCt"></span><span id="crystals"></span></div>
     </div>
     <div id="big">
