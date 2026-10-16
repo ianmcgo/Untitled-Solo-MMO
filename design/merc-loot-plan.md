@@ -29,7 +29,7 @@ Requested 2026-10-16. Builds on the existing treasure pool (`addToPool`, `lotPoo
 11. **Bags:** each mercenary has a normal bag of `CONFIG.inventorySize` slots (30 today), with stacks counting the same as the player's.
     - With a full bag they pass on every lot.
     - Kept items (gear above their synced level) take up bag slots.
-12. **Town sell-off:** when the party enters a town zone and a mercenary's bag is half full or more (15 of 30), they sell all their for-sale items. Those items leave the game, the pouch disappears and the bag frees up.
+12. **Town sell-off:** when the party enters a town zone and a mercenary's bag is half full or more (15 of 30), they sell all their for-sale items. Those items move to that town's auction house as consigned listings (see "Town auction houses"), the pouch disappears and the bag frees up.
     - Kept items are not sold; I took "all items" to mean everything they had up for sale.
     - Their earnings are not tracked.
 13. **Refuse or can't pay:** the mercenary leaves for the nearest Mercenary Hall and appears in a new hall tab, **Old Friends**. Their gear, inventory and bond are kept.
@@ -48,6 +48,29 @@ Requested 2026-10-16. Builds on the existing treasure pool (`addToPool`, `lotPoo
 | M2 Sync and plain gear | Opus | Hire at player level, sync to the job level on change, move gear above the cap to kept inventory and restore it later, plain `autoGear`. Touches combat stats, so it needs balance tests. |
 | M3 Sheet, pouch and trade | Sonnet | Pouch icon in the party list, the mercenary sheet (worn gear, for sale, kept), buying at 1.5x the auction value, giving an item with "Wear this", keyboard navigation, Help and Updates. |
 | M4 Contracts and Old Friends | Opus | Play-time contracts with save migration, a payment prompt gated on combat, zoning and menus, Refuse or can't-pay sends them to Old Friends at the nearest hall, a level-based bribe, and rehiring with gear and bond kept. |
+
+## Town auction houses (added 2026-10-16)
+Today there is one market for the whole world: `ahDaily()` picks a rotating set from a seed made from the market day and the player's level, and `ahStock(id)` sets stock per day. Every auctioneer (Corvin, Selene, Orla) shows the same goods.
+
+Target:
+1. **Separate stock per town.** Each town with an auction house has its own rotating inventory.
+   - The seed adds the town's zone id: `ahdaily:<town>:<group>:<day>`, and stock seeds `<id>:<town>:<day>`.
+   - `save.market.bought` is kept per town (`save.market.bought[town]`).
+   - `UI.ahTown` is set from the auctioneer you talk to.
+2. **Mercenary sell-off goes to that town's auction house.** When the town sell-off fires (rule 12), every for-sale item becomes a listing in `save.ahConsign[town]` (`[{ id, qty, from: mercId, at: playSec }]`).
+   - In a town with no auction house, the items go to the nearest town that has one.
+3. **Consigned listings never expire** and do not rotate. They leave only when the player buys them.
+   - They show first in Browse with a "From <mercenary>" tag.
+   - They are priced at the normal market price (`marketPrice`), not the 1.5x direct-sale markup.
+4. Buying from consigned listings uses the same `ahBuy` path. It takes from `ahConsign` first, then from the daily stock.
+
+| Phase | Model | Work |
+|---|---|---|
+| M5 Town markets | Sonnet | Per-town seeds and stock, per-town bought counts with save migration, consigned listings from mercenary sell-offs, the Browse tag, Help and Updates. Depends on M1. |
+
+Open questions (guesses used if not answered)
+- "Until a player buys it": online play has no shared auction table today, so consigned listings are per save and only you can buy them. A shared online market would need server work and is out of scope.
+- No cap on consigned listings was asked for. They could pile up over months; I suggest a soft cap of 300 per town, oldest dropped. This is not applied unless you say so.
 
 ## Decisions (answered 2026-10-16)
 1. Bribe: full hire fee plus 100 crystals per level.
