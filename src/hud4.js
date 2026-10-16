@@ -170,10 +170,18 @@ function hotbar() {
     hb.pages[1][2] = { kind: "item", id: "hi_potion" };
   }
   while (hb.pages.length < 4) hb.pages.push(new Array(10).fill(null));
-  if (!hb.petAdded && save.buddies && save.buddies.length) {
+  if (save.buddies && save.buddies.length && hb.petV2 !== true) {
+    hb.petV2 = true;
     hb.petAdded = true;
-    if (!hb.pages.some(pg => pg.some(x => x && x.kind === "cmd" && x.id === "pet"))) {
-      for (const pg of hb.pages) { const i = pg.findIndex(x => !x); if (i >= 0) { pg[i] = { kind: "cmd", id: "pet" }; break; } }
+    const first = hb.pages[0], has0 = first.some(x => x && x.kind === "cmd" && x.id === "pet");
+    if (!has0) {
+      const i = first.findIndex(x => !x);
+      if (i >= 0) {
+        for (const pg of hb.pages) { const j = pg.findIndex(x => x && x.kind === "cmd" && x.id === "pet"); if (j >= 0) pg[j] = null; }
+        first[i] = { kind: "cmd", id: "pet" };
+      } else if (!hb.pages.some(pg => pg.some(x => x && x.kind === "cmd" && x.id === "pet"))) {
+        for (const pg of hb.pages) { const i2 = pg.findIndex(x => !x); if (i2 >= 0) { pg[i2] = { kind: "cmd", id: "pet" }; break; } }
+      }
     }
   }
   if (!hb.restAdded) {

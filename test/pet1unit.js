@@ -1,0 +1,12 @@
+const H = require('./harness.js'); const { G } = H;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+G.enterZone('outpost');
+const sv = G.save;
+sv.inventory.length = 0;
+for (let i = 0; i < G.CONFIG.inventorySize; i++) sv.inventory.push({ id: 'potion', qty: 1 });
+const r = G.giveItem('egg_batling', 1, true);
+ok(r === true && sv.buddies.includes('batling') && !sv.inventory.some(x => x.id === 'egg_batling'), 'a pet item joins you at once, even with a full bag, and takes no bag slot');
+ok(sv.inventory.length === G.CONFIG.inventorySize, 'the bag count is unchanged');
+const r2 = G.giveItem('egg_batling', 1, true);
+ok(r2 === false, 'a duplicate pet item is not auto-used (bag full, so it is lost like any item)');
+console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0);

@@ -1995,3 +1995,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Client: netAhList uses ah_market, falls back to the old select when netMissing; netAhMine reads kind/merc_name; netServerOp(fn,args,apply) applies the returned merc bag before saving; netMercConsign; mercTownSell → mercTownSellOnline when netMarketOnline(), falling back (NET.market=false) to mercTownSellLocal.
 - marketLines marks town daily stock with stock:true; the Buy UI uses l.stock (not kind) to choose town-stock buying, so relisted town lots buy as lots.
 - Tested against local Postgres 16 with auth stubs (fresh install, upgrade, rerun, town tick order, relist, box payout). Tests: m5dunit.js.
+
+## 18.35.1: pet button and pets off the bag
+- hotbar() (hud4.js): characters with a pet get a one-time (hb.petV2) move of the Pet command to the first free slot of page 0 (command bar 1); if page 0 is full it falls back to any free slot. learnBuddy resets hb.petV2 for the current job so a new pet re-places the button.
+- giveItem: a kind "pet" item that is not already owned calls learnBuddy and returns true without adding to the inventory, so pet items never take a bag slot. A duplicate is handled as a normal item. Test: pet1unit.js.

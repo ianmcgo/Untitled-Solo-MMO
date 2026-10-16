@@ -1660,6 +1660,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.35.1", date: "2026-10-16", title: "Pet button on command bar 1", items: [
+    "<b>Pet button:</b> the Pet button now sits on command bar 1 (the first free slot) for any character that owns a pet, including characters that already had one. Press it, or type /pet, to summon or dismiss your pet.",
+    "<b>Pets take no bag space:</b> a pet item now joins you the moment you get it, even with a full bag, and never sits in your bag. A pet you already have is not used a second time.",
+  ]},
   { v: "18.35.0", date: "2026-10-16", title: "Online market", items: [
     "<b>Companions sell online:</b> when you play online, a companion's sell-off in town goes to the shared market under their name, visible to every player. Up to 300 companion lots per player; they never expire and are priced at each item's usual value. Items without a market value are sold to a shop as before.",
     "<b>Towns buy online:</b> every 20 minutes of real time each town buys one lot from the shared market: players' lots first, then companions', taking turns between sellers and starting with each seller's oldest lot. Only lots priced at most 1.25 times an item's usual value are bought. About a quarter go back up under the town's name at 3% more, and anyone can buy them.",
@@ -3152,8 +3156,9 @@ function tabHelp() {
   ]));
   h += sec("🐾 Pets", ul([
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
-    "Open the <b>Pets</b> window (the main menu) to equip one, rename it, and summon or dismiss it. <b>/pet</b> toggles your equipped pet. A summoned pet comes back when you log in.",
-    "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. Pet items are used from your bag.",
+    "Open the <b>Pets</b> window (the main menu) to equip one, rename it, and summon or dismiss it. The <b>Pet button</b> on command bar 1 and <b>/pet</b> both toggle your equipped pet. A summoned pet comes back when you log in.",
+    "A pet item you get joins you at once and never takes a bag slot, even when your bag is full.",
+    "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. A pet item you get joins you straight away.",
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
   h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
