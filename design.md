@@ -1888,3 +1888,6 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Measured: return visit icons ready at 1.1 s (was about 6 s), terrain painting 1.5 s down to about 40 ms read. Rig atlas (buildAtlas, several float maps) is not cached.
 - `/clearcache` empties the store.
 - Any change to terrain painting or icon drawing needs a version bump (always true by project rule), otherwise old pictures would show.
+
+## Plans index
+- design/merc-loot-plan.md: mercenary loot, sale pouch, level sync, play-time contracts, Old Friends (not built).

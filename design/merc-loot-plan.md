@@ -1,0 +1,52 @@
+# Mercenary loot, trade and contract plan (drafted 2026-10-16, not built)
+
+Requested 2026-10-16. Builds on the existing treasure pool (`addToPool`, `lotPool`, `tickPool` in game.js), `mercCanWear`, `autoGear`, `save.mercGear`, `tickWages` and `dismissMerc`.
+
+## Today (v18.23.0)
+- Only some drops go to the pool. Mercenaries lot only when the item is an upgrade for them (`poolUpgrade`); a winner equips it at once and the old piece goes to the player.
+- Wages are charged on the wall clock (`save.mercPaid` = Date.now() + dayMs) and only skip while in combat. Unpaid mercenaries are dismissed back to the hall with no way back except rehiring.
+- Gear comes from `autoGear(job, lv, role)` at hire; mercenaries do not level sync to the player's job level.
+
+## Target rules
+1. **Everything goes to the pool** while in a party (mercenaries or online party). Solo play keeps direct drops.
+2. **Mercenaries lot on every item**, except equipment they cannot wear (job, race, level after sync), which they pass. Random lot 1 to 999 as now.
+3. **A winner keeps the item in their own inventory** (`save.mercInv[id]`, list of `{ id, qty, forSale, price }`).
+   - Equipment better than what they wear: they put it on, and the replaced piece goes up for sale.
+   - Anything else they do not equip goes up for sale.
+4. **Merchant pouch:** a mercenary with items for sale shows a small pouch icon by their name in the party list (bottom right).
+5. **Mercenary sheet:** clicking a mercenary in the party list opens a sheet showing their worn gear (all slots), their for-sale list, and their kept (unsellable) items.
+6. **Buying:** for-sale items cost 1.5 times the item's auction house value. The player pays crystals and the item moves to the player's inventory.
+7. **Level sync:** mercenaries are hired at the player's current level and sync to the player's current job level whenever it changes (job change, level up or down).
+   - Gear they can no longer wear after a sync goes to their kept inventory. It is never sold, and comes back into use when the level allows.
+8. **Starting gear:** level-appropriate plain gear only, with no named items and no +1 or HQ variants. `autoGear` gets a `plain` flag.
+9. **Giving gear:** from the mercenary sheet, the player picks an item from their own bag and gives it with "Wear this".
+   - If it is wearable and better, they equip it and put the old piece up for sale.
+   - If it is not better, they say so and hand it back. Open question 3 covers whether they should keep it instead.
+10. **Contracts on play time:**
+    - The contract length counts `save.playSec`, the same as Blessing and meals. Logging out pauses it.
+    - When it runs out, the payment request waits until all of these are true: out of combat, not zoning, no menu or dialog open.
+    - The mercenary then asks for payment in a dialog: Pay (wage) or Refuse.
+11. **Refuse or can't pay:** the mercenary leaves for the nearest Mercenary Hall and appears in a new hall tab, **Old Friends**. Their gear, inventory and bond are kept.
+12. **Bribe to return:** rehiring from Old Friends costs a bribe based on level instead of the normal fee, and they rejoin at the player's level (synced).
+
+## Data
+- save.mercInv[id]: `[{ id, qty, sale: true|false }]`. Kept items have sale false.
+- save.mercContract[id]: `{ endSec }` on play time. Migrate from mercPaid on first read, like `migratePlayTimers`.
+- save.oldFriends[id]: `{ left: playSec, hall: zoneId, lv }`.
+- Mercenary sync: `mercSyncLv(m)` sets `m.lv` to the player's level, rebuilds stats, and moves gear above the level cap into kept inventory.
+
+## Phases
+| Phase | Model | Work |
+|---|---|---|
+| M1 Pool and lots | Sonnet | All party drops go to the pool. Mercenaries lot on everything and pass on gear they can't wear. Winners store items in mercInv and equip only upgrades. Pool log lines and tests. |
+| M2 Sync and plain gear | Opus | Hire at player level, sync to the job level on change, move gear above the cap to kept inventory and restore it later, plain `autoGear`. Touches combat stats, so it needs balance tests. |
+| M3 Sheet, pouch and trade | Sonnet | Pouch icon in the party list, the mercenary sheet (worn gear, for sale, kept), buying at 1.5x the auction value, giving an item with "Wear this", keyboard navigation, Help and Updates. |
+| M4 Contracts and Old Friends | Opus | Play-time contracts with save migration, a payment prompt gated on combat, zoning and menus, Refuse or can't-pay sends them to Old Friends at the nearest hall, a level-based bribe, and rehiring with gear and bond kept. |
+
+## Open questions (with my guesses, used if not answered)
+1. **Bribe size:** fee x 0.5 + level x 20 crystals. I don't know the right feel; this is a guess.
+2. **Item with no auction value** (quest items, rare drops): the price uses vendor value x 3, then x 1.5.
+3. **Given gear that isn't better:** they hand it back rather than keep it.
+4. **Online party pool:** other players' own loot rules are unchanged. Mercenaries lot only on the pool their owner sees.
+5. **Contract length:** keep the current day length, measured as about 2 hours of play time. This is a guess.
+6. **Old Friends limit:** keep up to 8, and drop the oldest after that.
