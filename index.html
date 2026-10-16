@@ -1106,7 +1106,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.18.0 · built 2026-10-15 22:50 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.19.0 · built 2026-10-16 04:54 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -16679,7 +16679,7 @@ function updateFF() {
   const tc = $("tCmd"); if (tc) tc.style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 14) + "px + var(--sab))";
   if (UI.cmd && Date.now() - (UI.mpAt || 0) > 400) { UI.mpAt = Date.now(); renderMpBox(); } else if (!UI.cmd) { const mb = $("mpBox"); if (mb) mb.classList.remove("on"); }
   const dg = $("dialog"), mw2 = S.modal && document.querySelector("#menu .win");
-  if (S.dialog && mw2) { const r = mw2.getBoundingClientRect(), fits = r.right + 6 + dg.offsetWidth <= innerWidth - 6; dg.style.top = Math.round(fits ? r.top : Math.min(r.bottom + 6, innerHeight - dg.offsetHeight - 6)) + "px"; dg.style.left = Math.round(fits ? r.right + 6 : Math.max(6, r.left)) + "px"; dg.style.bottom = "auto"; }
+  if (S.dialog && mw2) { const r = mw2.getBoundingClientRect(), fits = r.right + 6 + dg.offsetWidth <= innerWidth - 6, mc = $("mCard"), cb = mc && mc.classList.contains("on") ? mc.getBoundingClientRect().bottom : 0; dg.style.top = Math.round(fits ? r.top : Math.min(Math.max(r.bottom, cb) + 6, innerHeight - dg.offsetHeight - 6)) + "px"; dg.style.left = Math.round(fits ? r.right + 6 : Math.max(6, r.left)) + "px"; dg.style.bottom = "auto"; }
   else if (S.dialog) { dg.style.top = "auto"; dg.style.left = ""; }
   if (S.dialog && !mw2) $("dialog").style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 16) + "px + var(--sab))";
   $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);
@@ -18868,8 +18868,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.18.0 · built 2026-10-15 22:50 PDT";
+const BUILD_INFO = "v18.19.0 · built 2026-10-16 04:54 PDT";
 const UPDATES = [
+  { v: "18.19.0", date: "2026-10-16", title: "Cleaner status, forward swings", items: [
+    "<b>Status:</b> the Profile page no longer has an Adventure section. It now shows race, home point, guild rank and guild points.",
+    "<b>Phones:</b> when you choose an item, its choices (Use, Equip, Drop and so on) now appear below the item card instead of covering it, so you can read the item's details while you decide.",
+    "<b>Combat animation:</b> characters now hold their weapon out in front of them in a fight and swing it across toward the enemy, instead of raising it overhead. One-handed weapons, two-handed weapons, clubs and staves all use the new forward stance.",
+    "<b>Text cleanup:</b> Help and Updates no longer mention other games by name."
+  ] },
   { v: "18.18.0", date: "2026-10-15", title: "Recipe scrolls", items: [
     "<b>Crafting recipes are now learned from Recipe scrolls</b>, like spell scrolls. Read one (Use from Items) to learn it. You start knowing only the basic materials: Bronze Ingot, Ash Lumber, Silk Cloth, Potion and Grilled Minnow. Crafting and the recipe book only show recipes you know.",
     "<b>Common recipe scrolls are sold in shops</b> (Pell for level 10 and under, Vela after that): early gear, furniture, potions, ethers and cooking.",
@@ -18953,7 +18959,7 @@ const UPDATES = [
     "<b>Shift+Tab</b> cycles nearby objects (signposts, warp stones, crystals, shrines and tablets), even when monsters are close. Plain Tab still targets monsters first.",
     "Plain 1–0 fire the Ctrl line, because browsers often keep Ctrl+number for switching tabs."
   ] },
-  { v: "18.5.0", date: "2026-10-15", title: "Crafting classic MMO gear", items: [
+  { v: "18.5.0", date: "2026-10-15", title: "Crafting gear", items: [
     "<b>128 new recipes:</b> every shop item that has a +1 version can now be crafted, and a good synthesis can come out as the +1. Smithing makes metal weapons and armor, Woodworking makes bows, staves, clubs, wands, shields and clogs, Clothcraft makes cloth and leather pieces, and Alchemy makes bone gear.",
     "Recipes use the materials you already gather and loot: Bronze and Iron Ingots, Ash Lumber, Silk Cloth, Worm Silk, Lizard Skin, Bone Chips, and Heartwood, Wool Tufts or Crab Shells from level 10. The recipe level is the item's level.",
     "The crafting window now lists exact matches first and shows up to 30 recipes for the ingredients you put in.",
@@ -18966,20 +18972,20 @@ const UPDATES = [
     "Sell prices are still a quarter of the shop price, so gear and drops sell for less than before. XP needed per level is unchanged (about 13 hours of solo hunting to reach 20)."
   ] },
   { v: "18.3.0", date: "2026-10-15", title: "Monster balance", items: [
-    "<b>Monsters retuned for classic MMO gear:</b> from level 5 up, monsters have less HP (down to 74% at level 20) and hit a little softer (down to 85%). Level 1 to 4 monsters are unchanged.",
+    "<b>Monsters retuned for the new gear:</b> from level 5 up, monsters have less HP (down to 74% at level 20) and hit a little softer (down to 85%). Level 1 to 4 monsters are unchanged.",
     "<b>What to expect alone:</b> Easy Prey is almost always a safe kill, an Even Match is about half and half, and Tough monsters need companions. Before this, even fights from level 10 up were nearly always lost solo.",
     "Notorious monsters, bosses, Elementals and goblin casters get the same scaling, so they stay just as hard compared to normal monsters of their level.",
     "Prices, XP and drop rates come next."
   ] },
   { v: "18.2.0", date: "2026-10-15", title: "Gear balance: player power", items: [
-    "<b>Weapons retuned:</b> two-handed classic MMO weapons swing faster (a Great Axe now swings every 4.1 s instead of 5.2 s) and each weapon type's damage was matched to how strong it was before the classic MMO gear arrived. Daggers, katanas, swords and hand-to-hand hit harder; scythes a little softer. Higher-level weapons gain a little extra damage.",
+    "<b>Weapons retuned:</b> two-handed weapons swing faster (a Great Axe now swings every 4.1 s instead of 5.2 s) and each weapon type's damage was matched to how strong it was before the new gear arrived. Daggers, katanas, swords and hand-to-hand hit harder; scythes a little softer. Higher-level weapons gain a little extra damage.",
     "<b>More HP and MP:</b> every character gains 3 HP per level, and MP from your jobs is 35% higher. This replaces the HP and MP the old invented gear used to give.",
     "<b>Rangers toned down:</b> arrows and bolts now add half their damage to your bow (they added all of it).",
     "<b>Samurai and Rune Fencer quests</b> now also give a weapon you can use at level 1 (a Harpoon and a Bronze Sword), since the Tachi and Claymore need levels 8 and 10. Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner quests give level 1 gear.",
     "Monster strength, prices and drop rates come next."
   ] },
-  { v: "18.0.0", date: "2026-10-15", title: "classic MMO equipment", items: [
-    "<b>All gear is now classic MMO gear:</b> 788 weapons and armor from level 1 to 20 with their real names, levels, jobs and slots (Bronze Dagger, Brass Harness, Hunter's Longbow, Warrior's Belt and more). Every older invented piece is gone, and characters from before this update could not be kept.",
+  { v: "18.0.0", date: "2026-10-15", title: "New equipment", items: [
+    "<b>All gear was replaced:</b> 788 weapons and armor from level 1 to 20 with set names, levels, jobs and slots (Bronze Dagger, Brass Harness, Hunter's Longbow, Warrior's Belt and more). Every older invented piece is gone, and characters from before this update could not be kept.",
     "<b>Left out on purpose:</b> costumes, event outfits (Yukata, Decennial and summer sets), crafting-guild uniforms, fishing gear and novelty pieces. The Warp Ring is kept: use it from your bag to return to your home point.",
     "<b>Range and Ammo are real now:</b> a bow or crossbow in the Range slot makes your attacks ranged shots, and the arrow or bolt in Ammo adds its damage. Flutes, harps and boomerangs sit in the same slot.",
     "<b>Where to get it:</b> Pell sells plain gear to level 10 and Vela levels 11 to 20. Haldor sells +1 gear from level 14. Monsters occasionally drop gear near their own level, and bosses and notorious monsters keep their rare pieces.",
@@ -18987,7 +18993,7 @@ const UPDATES = [
     "<b>Still to come:</b> damage, defense, prices and monster strength have not been rebalanced for the new gear yet. Stats the game does not have (haste, enmity, skill bonuses) are left out for now."
   ] },
   { v: "17.3.0", date: "2026-10-15", title: "Area spells, En-spells and songs", items: [
-    "<b>Area spells (classic MMO):</b> Curaga (WHM 16), Banishga (WHM 15), Diaga (WHM 18, RDM 15), Stonega (BLM 15) and Waterga (BLM 19) hit or heal everything near the target. Hired healers cast Curaga when two or more allies are hurt.",
+    "<b>Area spells:</b> Curaga (WHM 16), Banishga (WHM 15), Diaga (WHM 18, RDM 15), Stonega (BLM 15) and Waterga (BLM 19) hit or heal everything near the target. Hired healers cast Curaga when two or more allies are hurt.",
     "<b>Spikes and En-spells:</b> Blaze Spikes (BLM 10, RDM 20) and Ice Spikes (BLM 20) damage anything that hits you in melee (Ice Spikes can paralyze it). Enthunder (RDM 16), Enstone (18) and Enaero (20) add elemental damage to your own hits.",
     "<b>Damage over time:</b> Shock (BLM 16), Rasp (18, lowers accuracy) and Choke (20, lowers defense) replace one another. Foe Requiem (BRD 7) and II (17) tick on a monster.",
     "<b>New Bard songs:</b> Herb Pastoral (9) resists Poison, Scop's Operetta (19) resists Silence, Sheepfoe Mambo (13) raises evasion, and six Threnodies (Light 10, Dark 12, Earth 14, Water 16, Wind 18, Fire 20) make a monster take 25% more of that element. A person still holds two songs at a time.",
@@ -18999,15 +19005,15 @@ const UPDATES = [
     "<b>Silence</b> (White Mage 15, Red Mage 18, 120 s) now has a use: a silenced monster cannot cast. Hired healers use it on spellcasters."
   ] },
   { v: "17.1.0", date: "2026-10-15", title: "Status magic", items: [
-    "<b>New classic MMO support spells (levels 20 and under):</b> Poisona (WHM 6), Paralyna (9), Blindna (14), Silena (19); Protectra (7) and Shellra (17) for the whole party; Aquaveil (WHM 10, RDM 12), Blink (19), Deodorize (15) and Sneak (20); Warp (BLM 17).",
+    "<b>New support spells (levels 20 and under):</b> Poisona (WHM 6), Paralyna (9), Blindna (14), Silena (19); Protectra (7) and Shellra (17) for the whole party; Aquaveil (WHM 10, RDM 12), Blink (19), Deodorize (15) and Sneak (20); Warp (BLM 17).",
     "<b>Bar spells:</b> Barstone, Barwater, Baraero and Barfire cut damage of their element; Barsleep, Barpoison, Barparalyze and Barblind halve the chance of that status. White Mages cast the party versions (Barstonra and so on), Red Mages the single-target ones. Scrolls are in the shops.",
     "<b>Monsters now inflict statuses:</b> Honey Bees and Shroomlings poison, Bog Toads paralyze, worms blind, and the Crag Chanter and Tidebound Priest silence. Silence stops you casting.",
     "Hired White Mages now cure these statuses and keep Protect and Shell up on the party during a fight. Fixed Dark Knights re-casting Bio."
   ] },
-  { v: "17.0.0", date: "2026-10-15", title: "classic MMO spells and potions", items: [
-    "<b>Spells and potions now follow classic MMO.</b> Names, levels, MP costs, cast and recast times and effects come from the real game. Cure, Cure II, Dia, Banish, Protect, Shell, Slow, Paralyze, Stone, Water, Aero, Fire, Blizzard, Poison, Bio, Drain, Aspir, Blind, Bind and Sleep replace the old list. Spells with no classic MMO match (Thunder, Flash, Stun, Blight, Raise and the rest) are gone.",
+  { v: "17.0.0", date: "2026-10-15", title: "New spells and potions", items: [
+    "<b>Spells and potions were rebuilt.</b> Names, levels, MP costs, cast and recast times and effects were all reworked. Cure, Cure II, Dia, Banish, Protect, Shell, Slow, Paralyze, Stone, Water, Aero, Fire, Blizzard, Poison, Bio, Drain, Aspir, Blind, Bind and Sleep replace the old list. Spells with no new match (Thunder, Flash, Stun, Blight, Raise and the rest) are gone.",
     "<b>Real formulas:</b> Cure heals by MND, VIT and Healing skill; nukes scale with the gap between your magic stat and the monster's; Dia and Bio are damage over time and replace each other; Drain and Aspir steal HP and MP; Poison ticks; Shell cuts elemental damage by 11%; Slow, Paralyze and Blind are stronger the more your stat beats the target's.",
-    "<b>Bard songs</b> are now Knight's Minne, Valor Minuet, Army's Paeon (I and II), Sword Madrigal and Foe Lullaby, cost no MP and use classic MMO's song-power formula. <b>Summoners</b> call the eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark).",
+    "<b>Bard songs</b> are now Knight's Minne, Valor Minuet, Army's Paeon (I and II), Sword Madrigal and Foe Lullaby, cost no MP and use a song-power formula based on your singing skill. <b>Summoners</b> call the eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark).",
     "<b>Potions:</b> Potion, Hi-Potion, X-Potion and Max Potion; Ether, Hi-Ether, Super Ether and Pro-Ether (each in three stronger +1 to +3 grades); Elixir and Hi-Elixir restore HP and MP together. Reraiser, Hi-Reraiser and Super Reraiser give a one-hour Reraise. Phoenix Down and Ember Plume are removed.",
     "<b>New characters</b> start knowing their main job's level 1 spells: Black Mage starts with Stone, White Mage with Cure, Red Mage with Dia, and so on.",
     "<b>Old saves are not compatible.</b> A character from before this version is deleted when the game finds it, and you are asked to create a new one. Online characters are cleared the same way."
@@ -20101,7 +20107,7 @@ function guideRef() {
   const keyOf = t => TAB_INFO[t] && TAB_INFO[t][2] ? TAB_INFO[t][2] : "";
   let h = "<p>Open the menu with Esc (or - or Insert, or tap yourself). It has two pages of commands, switched with ◀ ▶. Every command and what it does:</p>";
   MAIN_CMDS.forEach((pg, i) => { h += "<b>Commands, page " + (i + 1) + "</b>" + tbl(["Command", "Key", "What it does"], pg.map(it => [esc(it[0]), esc(keyOf(it[1])), esc(it[2])])); });
-  h += "<b>Status sub-menu</b>" + tbl(["Entry", "What it shows"], STATUS_CMDS.map(it => [esc(it[0]), esc(it[2] || "Your profile, title and story progress.")]));
+  h += "<b>Status sub-menu</b>" + tbl(["Entry", "What it shows"], STATUS_CMDS.map(it => [esc(it[0]), esc(it[2] || "Your race, home point and guild rank.")]));
   h += "<b>Slash commands</b> (type in the chat box)" + tbl(["Command", "What it does"], COMMANDS.map(c => ["<code>" + esc(c[0]) + "</code>", esc(c[1])]));
   return h;
 }
@@ -20123,7 +20129,7 @@ function tabHelp() {
     "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
-    "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
+    "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day."
   ]));
   h += sec("🚶 City life", ul([
     "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
@@ -20477,7 +20483,7 @@ function tabHelp() {
     "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
     "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells gear up to level 10 and Vela in Saltreach levels 11 to 20. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
-    "All equipment is real classic MMO gear from level 1 to 20, with its classic MMO name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
+    "All equipment runs from level 1 to 20, each piece with its own name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
   ]));
   h += sec("🖥️ The screen", ul([
     "<b>Main menu:</b> Esc with nothing targeted, - (or Insert), or tapping yourself and choosing Main Menu opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
@@ -20533,7 +20539,7 @@ function tabHelp() {
   return out + "</div>";
 }
 
-const GAME_VERSION = "18.18.0";
+const GAME_VERSION = "18.19.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -20672,9 +20678,7 @@ function statusPanelHTML(k) {
   if (k === "profile") {
     const rc = RACES[save.look.race] || RACES.human, gr = guildRank(), nx = GUILD_RANKS[gr + 1], tot = save.guild.total || 0;
     const pct = nx ? Math.round((tot - GUILD_RANKS[gr][1]) / (nx[1] - GUILD_RANKS[gr][1]) * 100) : 100;
-    const ch = storyChapter();
     let h = sec("Profile", kv("Race:", esc(rc.name || save.look.race)) + kv("Home Point:", esc(ZONES[save.home.zone] ? ZONES[save.home.zone].name : "—")) + kv("Guild Rank:", esc(GUILD_RANKS[gr][0])) + kv("Guild Points:", (save.guild.gp || 0).toLocaleString()) + '<div class="stBar wide"><span style="width:' + pct + '%"></span></div>');
-    h += sec("Adventure", kv("Story:", ch ? esc(ch.title || ch.name || "Chapter " + (save.story.ch + 1)) : "Complete") + kv("Achievements:", Object.keys(save.ach || {}).length + " / " + ACHIEVEMENTS.length) + kv("Defeated:", (save.stats.kills || 0).toLocaleString()));
     return h;
   }
   if (k === "jobs") {
@@ -27089,10 +27093,10 @@ function poseHuman(v, e, dt) {
     addP(P, "footL", -0.17 * sw, 0, 0); addP(P, "footR", -0.35 * sw, 0, 0);
     v.rootOff[1] -= 0.05 * sw;
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
-    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana" || v.weaponKind === "gsword") { addP(P, "upArmR", -0.7 * sw, 0, 0.25 * sw); addP(P, "foreArmR", -0.9 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, -0.35 * sw); addP(P, "foreArmL", -0.9 * sw, 0, 0); }
+    if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana" || v.weaponKind === "gsword") { addP(P, "upArmR", -1.1 * sw, 0, 0.2 * sw); addP(P, "foreArmR", -0.5 * sw, 0, 0); addP(P, "upArmL", -1.1 * sw, 0, -0.3 * sw); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
-    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.4 * sw, 0, 0); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -0.3 * sw, 0, 0); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
-    else { addP(P, "upArmR", -0.55 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.75 * sw, 0, 0); addP(P, "upArmL", -0.45 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
+    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.8 * sw, 0, 0); addP(P, "foreArmL", -0.5 * sw, 0, 0); }
+    else { addP(P, "upArmR", -1.2 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.4 * sw, 0, 0); addP(P, "upArmL", -0.5 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
   }
 
   if (amp > 0.01) {
@@ -27124,42 +27128,45 @@ function poseHuman(v, e, dt) {
     const side = an.aVar ? 1 : -1;
     if (kind === "slash" && an.aVar === 2) {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);
-      setP(P, "upArmR", -0.4 * a - 1.6 * b, 0, 0.9 * a - 0.9 * b, w);
-      setP(P, "foreArmR", -1.3 * a + 1.1 * b, 0, 0, w);
-      setP(P, "chest", 0.05, 0.55 * a - 0.8 * b, 0, w);
-      setP(P, "spine", 0.1 * b, 0, 0, w);
+      setP(P, "upArmR", -0.95 * a - 0.5 * b, 0, -0.15, w);
+      setP(P, "foreArmR", -1.4 * a + 1.3 * b, 0, 0, w);
+      setP(P, "chest", 0.05 * b, -0.25 * a + 0.3 * b, 0, w);
+      setP(P, "spine", 0.18 * b, 0, 0, w);
+      setP(P, "handR", -0.2 * a, 0, 0, w);
       addP(P, "thighL", -0.3 * b * w, 0, 0); addP(P, "shinL", 0.3 * b * w, 0, 0);
-      setP(P, "handR", -0.3 * a + 2.7 * b, 0, 0, w);
+      v.rootOff[2] += 0.16 * b * w;
     } else if (kind === "slash" && an.aVar === 1) {
       const a = ease(ak / 0.28), b = ease((ak - 0.28) / 0.2);
-      setP(P, "upArmR", -1.3 * a + 0.2 * b, 0, -1.2 * a + 1.7 * b, w);
-      setP(P, "foreArmR", -0.5 * a + 0.3 * b, 0, 0, w);
-      setP(P, "chest", 0, -0.7 * a + 1.1 * b, 0, w);
-      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
-      setP(P, "handR", 1.5 * a, 0, 0, w);
+      setP(P, "upArmR", -1.4, 0, 0.5 * a - 1.25 * b, w);
+      setP(P, "foreArmR", -0.4, 0, 0, w);
+      setP(P, "chest", 0, 0.55 * a - 0.95 * b, 0, w);
+      setP(P, "hips", 0, 0.2 * a - 0.3 * b, 0, w);
+      setP(P, "handR", 0.3, 0, 0, w);
     } else if (kind === "slash") {
       const a = ease(ak / 0.32), b = ease((ak - 0.32) / 0.22);
-      setP(P, "upArmR", -2.1 * a + 1.8 * b, 0, -0.55 * a + 1.05 * b, w);
-      setP(P, "foreArmR", -1.0 * a + 0.85 * b, 0, 0, w);
-      setP(P, "chest", 0.05, -0.5 * a + 0.95 * b, 0, w);
-      setP(P, "spine", 0.08 + 0.12 * b, 0, 0, w);
-      setP(P, "handR", 0.5 * a - 1.7 * b, 0, 0, w);
+      setP(P, "upArmR", -1.4, 0, -0.95 * a + 1.15 * b, w);
+      setP(P, "foreArmR", -0.4, 0, 0, w);
+      setP(P, "chest", 0.04, -0.55 * a + 1.0 * b, 0, w);
+      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
+      setP(P, "spine", 0.06 + 0.1 * b, 0, 0, w);
+      setP(P, "handR", 0.3, 0, 0, w);
     } else if ((kind === "smash" || kind === "cleave") && an.aVar === 1) {
       const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.22);
-      setP(P, "upArmR", -1.4, 0, -1.3 * a + 1.9 * b, w);
+      setP(P, "upArmR", -1.4, 0, 0.55 * a - 1.35 * b, w);
       setP(P, "foreArmR", -0.4, 0, 0, w);
-      if (kind === "cleave") { setP(P, "upArmL", -1.3, 0, -1.1 * a + 1.7 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
-      setP(P, "chest", 0, -0.8 * a + 1.3 * b, 0, w);
-      setP(P, "hips", 0, -0.3 * a + 0.4 * b, 0, w);
+      if (kind === "cleave") { setP(P, "upArmL", -1.4, 0, 0.35 * a - 1.0 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
+      setP(P, "chest", 0, 0.7 * a - 1.2 * b, 0, w);
+      setP(P, "hips", 0, 0.3 * a - 0.4 * b, 0, w);
       addP(P, "thighL", -0.25 * w, 0, 0); addP(P, "shinL", 0.35 * w, 0, 0);
     } else if (kind === "smash" || kind === "cleave") {
       const a = ease(ak / 0.36), b = ease((ak - 0.36) / 0.2);
-      setP(P, "upArmR", -2.7 * a + 2.4 * b, 0, -0.1, w);
-      setP(P, "foreArmR", -0.7 * a + 0.5 * b, 0, 0, w);
-      if (kind === "cleave") { setP(P, "upArmL", -2.6 * a + 2.3 * b, 0, -0.35, w); setP(P, "foreArmL", -0.8 * a + 0.6 * b, 0, 0, w); }
-      setP(P, "spine", -0.15 * a + 0.45 * b, 0, 0, w);
-      setP(P, "handR", 0.6 * a - 1.3 * b, 0, 0, w);
-      setP(P, "chest", 0, -0.15 * a, 0, w);
+      setP(P, "upArmR", -1.4, 0, -1.0 * a + 1.25 * b, w);
+      setP(P, "foreArmR", -0.4, 0, 0, w);
+      if (kind === "cleave") { setP(P, "upArmL", -1.4, 0, -0.5 * a + 0.8 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
+      setP(P, "spine", 0.08 * a + 0.1 * b, 0, 0, w);
+      setP(P, "chest", 0, -0.6 * a + 1.1 * b, 0, w);
+      setP(P, "hips", 0, -0.25 * a + 0.35 * b, 0, w);
+      v.rootOff[2] += 0.08 * b * w;
     } else if (kind === "thrust") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.18);
       setP(P, "upArmR", -0.4 * a - 1.0 * b, 0, 0, w);
@@ -31648,7 +31655,7 @@ function showCharSelect() {
   const r = loadRoster();
   r.chars.sort((a, b) => (b.played || 0) - (a.played || 0));
   let h = '';
-  if (OLD_CHARS.length) { h += '<div class="ccEmpty" style="margin-bottom:8px">Updates 17.0 and 18.0 changed the rules (classic MMO spells, potions and gear). These characters could not be kept and were deleted: ' + esc(OLD_CHARS.join(', ')) + '. Please create a new character.</div>'; OLD_CHARS.length = 0; }
+  if (OLD_CHARS.length) { h += '<div class="ccEmpty" style="margin-bottom:8px">Updates 17.0 and 18.0 changed the rules (spells, potions and gear). These characters could not be kept and were deleted: ' + esc(OLD_CHARS.join(', ')) + '. Please create a new character.</div>'; OLD_CHARS.length = 0; }
   h += '<div class="ccList">';
   for (const c of r.chars) {
     const j = JOBS[c.job] || JOBS.WAR;

@@ -1209,7 +1209,7 @@ function updateFF() {
   const tc = $("tCmd"); if (tc) tc.style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 14) + "px + var(--sab))";
   if (UI.cmd && Date.now() - (UI.mpAt || 0) > 400) { UI.mpAt = Date.now(); renderMpBox(); } else if (!UI.cmd) { const mb = $("mpBox"); if (mb) mb.classList.remove("on"); }
   const dg = $("dialog"), mw2 = S.modal && document.querySelector("#menu .win");
-  if (S.dialog && mw2) { const r = mw2.getBoundingClientRect(), fits = r.right + 6 + dg.offsetWidth <= innerWidth - 6; dg.style.top = Math.round(fits ? r.top : Math.min(r.bottom + 6, innerHeight - dg.offsetHeight - 6)) + "px"; dg.style.left = Math.round(fits ? r.right + 6 : Math.max(6, r.left)) + "px"; dg.style.bottom = "auto"; }
+  if (S.dialog && mw2) { const r = mw2.getBoundingClientRect(), fits = r.right + 6 + dg.offsetWidth <= innerWidth - 6, mc = $("mCard"), cb = mc && mc.classList.contains("on") ? mc.getBoundingClientRect().bottom : 0; dg.style.top = Math.round(fits ? r.top : Math.min(Math.max(r.bottom, cb) + 6, innerHeight - dg.offsetHeight - 6)) + "px"; dg.style.left = Math.round(fits ? r.right + 6 : Math.max(6, r.left)) + "px"; dg.style.bottom = "auto"; }
   else if (S.dialog) { dg.style.top = "auto"; dg.style.left = ""; }
   if (S.dialog && !mw2) $("dialog").style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 16) + "px + var(--sab))";
   $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);

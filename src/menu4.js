@@ -1636,6 +1636,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.0", date: "2026-10-16", title: "Cleaner status, forward swings", items: [
+    "<b>Status:</b> the Profile page no longer has an Adventure section. It now shows race, home point, guild rank and guild points.",
+    "<b>Phones:</b> when you choose an item, its choices (Use, Equip, Drop and so on) now appear below the item card instead of covering it, so you can read the item's details while you decide.",
+    "<b>Combat animation:</b> characters now hold their weapon out in front of them in a fight and swing it across toward the enemy, instead of raising it overhead. One-handed weapons, two-handed weapons, clubs and staves all use the new forward stance.",
+    "<b>Text cleanup:</b> Help and Updates no longer mention other games by name."
+  ] },
   { v: "18.18.0", date: "2026-10-15", title: "Recipe scrolls", items: [
     "<b>Crafting recipes are now learned from Recipe scrolls</b>, like spell scrolls. Read one (Use from Items) to learn it. You start knowing only the basic materials: Bronze Ingot, Ash Lumber, Silk Cloth, Potion and Grilled Minnow. Crafting and the recipe book only show recipes you know.",
     "<b>Common recipe scrolls are sold in shops</b> (Pell for level 10 and under, Vela after that): early gear, furniture, potions, ethers and cooking.",
@@ -1719,7 +1725,7 @@ const UPDATES = [
     "<b>Shift+Tab</b> cycles nearby objects (signposts, warp stones, crystals, shrines and tablets), even when monsters are close. Plain Tab still targets monsters first.",
     "Plain 1–0 fire the Ctrl line, because browsers often keep Ctrl+number for switching tabs."
   ] },
-  { v: "18.5.0", date: "2026-10-15", title: "Crafting classic MMO gear", items: [
+  { v: "18.5.0", date: "2026-10-15", title: "Crafting gear", items: [
     "<b>128 new recipes:</b> every shop item that has a +1 version can now be crafted, and a good synthesis can come out as the +1. Smithing makes metal weapons and armor, Woodworking makes bows, staves, clubs, wands, shields and clogs, Clothcraft makes cloth and leather pieces, and Alchemy makes bone gear.",
     "Recipes use the materials you already gather and loot: Bronze and Iron Ingots, Ash Lumber, Silk Cloth, Worm Silk, Lizard Skin, Bone Chips, and Heartwood, Wool Tufts or Crab Shells from level 10. The recipe level is the item's level.",
     "The crafting window now lists exact matches first and shows up to 30 recipes for the ingredients you put in.",
@@ -1732,20 +1738,20 @@ const UPDATES = [
     "Sell prices are still a quarter of the shop price, so gear and drops sell for less than before. XP needed per level is unchanged (about 13 hours of solo hunting to reach 20)."
   ] },
   { v: "18.3.0", date: "2026-10-15", title: "Monster balance", items: [
-    "<b>Monsters retuned for classic MMO gear:</b> from level 5 up, monsters have less HP (down to 74% at level 20) and hit a little softer (down to 85%). Level 1 to 4 monsters are unchanged.",
+    "<b>Monsters retuned for the new gear:</b> from level 5 up, monsters have less HP (down to 74% at level 20) and hit a little softer (down to 85%). Level 1 to 4 monsters are unchanged.",
     "<b>What to expect alone:</b> Easy Prey is almost always a safe kill, an Even Match is about half and half, and Tough monsters need companions. Before this, even fights from level 10 up were nearly always lost solo.",
     "Notorious monsters, bosses, Elementals and goblin casters get the same scaling, so they stay just as hard compared to normal monsters of their level.",
     "Prices, XP and drop rates come next."
   ] },
   { v: "18.2.0", date: "2026-10-15", title: "Gear balance: player power", items: [
-    "<b>Weapons retuned:</b> two-handed classic MMO weapons swing faster (a Great Axe now swings every 4.1 s instead of 5.2 s) and each weapon type's damage was matched to how strong it was before the classic MMO gear arrived. Daggers, katanas, swords and hand-to-hand hit harder; scythes a little softer. Higher-level weapons gain a little extra damage.",
+    "<b>Weapons retuned:</b> two-handed weapons swing faster (a Great Axe now swings every 4.1 s instead of 5.2 s) and each weapon type's damage was matched to how strong it was before the new gear arrived. Daggers, katanas, swords and hand-to-hand hit harder; scythes a little softer. Higher-level weapons gain a little extra damage.",
     "<b>More HP and MP:</b> every character gains 3 HP per level, and MP from your jobs is 35% higher. This replaces the HP and MP the old invented gear used to give.",
     "<b>Rangers toned down:</b> arrows and bolts now add half their damage to your bow (they added all of it).",
     "<b>Samurai and Rune Fencer quests</b> now also give a weapon you can use at level 1 (a Harpoon and a Bronze Sword), since the Tachi and Claymore need levels 8 and 10. Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner quests give level 1 gear.",
     "Monster strength, prices and drop rates come next."
   ] },
-  { v: "18.0.0", date: "2026-10-15", title: "classic MMO equipment", items: [
-    "<b>All gear is now classic MMO gear:</b> 788 weapons and armor from level 1 to 20 with their real names, levels, jobs and slots (Bronze Dagger, Brass Harness, Hunter's Longbow, Warrior's Belt and more). Every older invented piece is gone, and characters from before this update could not be kept.",
+  { v: "18.0.0", date: "2026-10-15", title: "New equipment", items: [
+    "<b>All gear was replaced:</b> 788 weapons and armor from level 1 to 20 with set names, levels, jobs and slots (Bronze Dagger, Brass Harness, Hunter's Longbow, Warrior's Belt and more). Every older invented piece is gone, and characters from before this update could not be kept.",
     "<b>Left out on purpose:</b> costumes, event outfits (Yukata, Decennial and summer sets), crafting-guild uniforms, fishing gear and novelty pieces. The Warp Ring is kept: use it from your bag to return to your home point.",
     "<b>Range and Ammo are real now:</b> a bow or crossbow in the Range slot makes your attacks ranged shots, and the arrow or bolt in Ammo adds its damage. Flutes, harps and boomerangs sit in the same slot.",
     "<b>Where to get it:</b> Pell sells plain gear to level 10 and Vela levels 11 to 20. Haldor sells +1 gear from level 14. Monsters occasionally drop gear near their own level, and bosses and notorious monsters keep their rare pieces.",
@@ -1753,7 +1759,7 @@ const UPDATES = [
     "<b>Still to come:</b> damage, defense, prices and monster strength have not been rebalanced for the new gear yet. Stats the game does not have (haste, enmity, skill bonuses) are left out for now."
   ] },
   { v: "17.3.0", date: "2026-10-15", title: "Area spells, En-spells and songs", items: [
-    "<b>Area spells (classic MMO):</b> Curaga (WHM 16), Banishga (WHM 15), Diaga (WHM 18, RDM 15), Stonega (BLM 15) and Waterga (BLM 19) hit or heal everything near the target. Hired healers cast Curaga when two or more allies are hurt.",
+    "<b>Area spells:</b> Curaga (WHM 16), Banishga (WHM 15), Diaga (WHM 18, RDM 15), Stonega (BLM 15) and Waterga (BLM 19) hit or heal everything near the target. Hired healers cast Curaga when two or more allies are hurt.",
     "<b>Spikes and En-spells:</b> Blaze Spikes (BLM 10, RDM 20) and Ice Spikes (BLM 20) damage anything that hits you in melee (Ice Spikes can paralyze it). Enthunder (RDM 16), Enstone (18) and Enaero (20) add elemental damage to your own hits.",
     "<b>Damage over time:</b> Shock (BLM 16), Rasp (18, lowers accuracy) and Choke (20, lowers defense) replace one another. Foe Requiem (BRD 7) and II (17) tick on a monster.",
     "<b>New Bard songs:</b> Herb Pastoral (9) resists Poison, Scop's Operetta (19) resists Silence, Sheepfoe Mambo (13) raises evasion, and six Threnodies (Light 10, Dark 12, Earth 14, Water 16, Wind 18, Fire 20) make a monster take 25% more of that element. A person still holds two songs at a time.",
@@ -1765,15 +1771,15 @@ const UPDATES = [
     "<b>Silence</b> (White Mage 15, Red Mage 18, 120 s) now has a use: a silenced monster cannot cast. Hired healers use it on spellcasters."
   ] },
   { v: "17.1.0", date: "2026-10-15", title: "Status magic", items: [
-    "<b>New classic MMO support spells (levels 20 and under):</b> Poisona (WHM 6), Paralyna (9), Blindna (14), Silena (19); Protectra (7) and Shellra (17) for the whole party; Aquaveil (WHM 10, RDM 12), Blink (19), Deodorize (15) and Sneak (20); Warp (BLM 17).",
+    "<b>New support spells (levels 20 and under):</b> Poisona (WHM 6), Paralyna (9), Blindna (14), Silena (19); Protectra (7) and Shellra (17) for the whole party; Aquaveil (WHM 10, RDM 12), Blink (19), Deodorize (15) and Sneak (20); Warp (BLM 17).",
     "<b>Bar spells:</b> Barstone, Barwater, Baraero and Barfire cut damage of their element; Barsleep, Barpoison, Barparalyze and Barblind halve the chance of that status. White Mages cast the party versions (Barstonra and so on), Red Mages the single-target ones. Scrolls are in the shops.",
     "<b>Monsters now inflict statuses:</b> Honey Bees and Shroomlings poison, Bog Toads paralyze, worms blind, and the Crag Chanter and Tidebound Priest silence. Silence stops you casting.",
     "Hired White Mages now cure these statuses and keep Protect and Shell up on the party during a fight. Fixed Dark Knights re-casting Bio."
   ] },
-  { v: "17.0.0", date: "2026-10-15", title: "classic MMO spells and potions", items: [
-    "<b>Spells and potions now follow classic MMO.</b> Names, levels, MP costs, cast and recast times and effects come from the real game. Cure, Cure II, Dia, Banish, Protect, Shell, Slow, Paralyze, Stone, Water, Aero, Fire, Blizzard, Poison, Bio, Drain, Aspir, Blind, Bind and Sleep replace the old list. Spells with no classic MMO match (Thunder, Flash, Stun, Blight, Raise and the rest) are gone.",
+  { v: "17.0.0", date: "2026-10-15", title: "New spells and potions", items: [
+    "<b>Spells and potions were rebuilt.</b> Names, levels, MP costs, cast and recast times and effects were all reworked. Cure, Cure II, Dia, Banish, Protect, Shell, Slow, Paralyze, Stone, Water, Aero, Fire, Blizzard, Poison, Bio, Drain, Aspir, Blind, Bind and Sleep replace the old list. Spells with no new match (Thunder, Flash, Stun, Blight, Raise and the rest) are gone.",
     "<b>Real formulas:</b> Cure heals by MND, VIT and Healing skill; nukes scale with the gap between your magic stat and the monster's; Dia and Bio are damage over time and replace each other; Drain and Aspir steal HP and MP; Poison ticks; Shell cuts elemental damage by 11%; Slow, Paralyze and Blind are stronger the more your stat beats the target's.",
-    "<b>Bard songs</b> are now Knight's Minne, Valor Minuet, Army's Paeon (I and II), Sword Madrigal and Foe Lullaby, cost no MP and use classic MMO's song-power formula. <b>Summoners</b> call the eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark).",
+    "<b>Bard songs</b> are now Knight's Minne, Valor Minuet, Army's Paeon (I and II), Sword Madrigal and Foe Lullaby, cost no MP and use a song-power formula based on your singing skill. <b>Summoners</b> call the eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark).",
     "<b>Potions:</b> Potion, Hi-Potion, X-Potion and Max Potion; Ether, Hi-Ether, Super Ether and Pro-Ether (each in three stronger +1 to +3 grades); Elixir and Hi-Elixir restore HP and MP together. Reraiser, Hi-Reraiser and Super Reraiser give a one-hour Reraise. Phoenix Down and Ember Plume are removed.",
     "<b>New characters</b> start knowing their main job's level 1 spells: Black Mage starts with Stone, White Mage with Cure, Red Mage with Dia, and so on.",
     "<b>Old saves are not compatible.</b> A character from before this version is deleted when the game finds it, and you are asked to create a new one. Online characters are cleared the same way."
@@ -2867,7 +2873,7 @@ function guideRef() {
   const keyOf = t => TAB_INFO[t] && TAB_INFO[t][2] ? TAB_INFO[t][2] : "";
   let h = "<p>Open the menu with Esc (or - or Insert, or tap yourself). It has two pages of commands, switched with ◀ ▶. Every command and what it does:</p>";
   MAIN_CMDS.forEach((pg, i) => { h += "<b>Commands, page " + (i + 1) + "</b>" + tbl(["Command", "Key", "What it does"], pg.map(it => [esc(it[0]), esc(keyOf(it[1])), esc(it[2])])); });
-  h += "<b>Status sub-menu</b>" + tbl(["Entry", "What it shows"], STATUS_CMDS.map(it => [esc(it[0]), esc(it[2] || "Your profile, title and story progress.")]));
+  h += "<b>Status sub-menu</b>" + tbl(["Entry", "What it shows"], STATUS_CMDS.map(it => [esc(it[0]), esc(it[2] || "Your race, home point and guild rank.")]));
   h += "<b>Slash commands</b> (type in the chat box)" + tbl(["Command", "What it does"], COMMANDS.map(c => ["<code>" + esc(c[0]) + "</code>", esc(c[1])]));
   return h;
 }
@@ -2889,7 +2895,7 @@ function tabHelp() {
     "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
-    "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Vana'diel hours, and the windmill turns all day."
+    "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Pell's Goods, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day."
   ]));
   h += sec("🚶 City life", ul([
     "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
@@ -3243,7 +3249,7 @@ function tabHelp() {
     "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
     "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Pell sells gear up to level 10 and Vela in Saltreach levels 11 to 20. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
-    "All equipment is real classic MMO gear from level 1 to 20, with its classic MMO name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
+    "All equipment runs from level 1 to 20, each piece with its own name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
   ]));
   h += sec("🖥️ The screen", ul([
     "<b>Main menu:</b> Esc with nothing targeted, - (or Insert), or tapping yourself and choosing Main Menu opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
@@ -3438,9 +3444,7 @@ function statusPanelHTML(k) {
   if (k === "profile") {
     const rc = RACES[save.look.race] || RACES.human, gr = guildRank(), nx = GUILD_RANKS[gr + 1], tot = save.guild.total || 0;
     const pct = nx ? Math.round((tot - GUILD_RANKS[gr][1]) / (nx[1] - GUILD_RANKS[gr][1]) * 100) : 100;
-    const ch = storyChapter();
     let h = sec("Profile", kv("Race:", esc(rc.name || save.look.race)) + kv("Home Point:", esc(ZONES[save.home.zone] ? ZONES[save.home.zone].name : "—")) + kv("Guild Rank:", esc(GUILD_RANKS[gr][0])) + kv("Guild Points:", (save.guild.gp || 0).toLocaleString()) + '<div class="stBar wide"><span style="width:' + pct + '%"></span></div>');
-    h += sec("Adventure", kv("Story:", ch ? esc(ch.title || ch.name || "Chapter " + (save.story.ch + 1)) : "Complete") + kv("Achievements:", Object.keys(save.ach || {}).length + " / " + ACHIEVEMENTS.length) + kv("Defeated:", (save.stats.kills || 0).toLocaleString()));
     return h;
   }
   if (k === "jobs") {

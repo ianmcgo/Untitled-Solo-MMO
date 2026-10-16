@@ -236,7 +236,7 @@ Poses are computed every frame from the game state, layered, and eased toward th
 - **Humans:**
   - Idle breathing and looking around; walk and run cycles tied to distance travelled, so feet don't slide.
   - A combat stance when engaged.
-  - Swings by weapon: diagonal sword slash, overhead club smash, two-handed axe cleave, staff thrust, alternating punches, claw swipes for ghouls.
+  - Swings by weapon (18.19): the weapon is held forward in the fight stance and swung across at the target. One-handed slash has three variants (sweep right to left, back sweep, lunge with a short step forward), club smash and two-handed cleave sweep with the chest turning, staff and polearm thrust, alternating punches, claw swipes for ghouls.
   - Weapon skill: crouch, leap, spin and slam.
   - Casting: hands raised and chanting, then a release flourish.
   - A flinch when hit, an arm-raised wind-up for monster TP moves, falling backward when KO'd, and a seated riding pose.
@@ -1761,3 +1761,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## Publishing note
 - GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.
+
+## 18.19.0: status, item choices, swings
+- Status Profile (`statusPanelHTML`, menu4.js) shows only Race, Home Point, Guild Rank, Guild Points and the guild bar. The Adventure block (story, achievements, defeated) was removed.
+- Item choices on phones: in `hud4.js` the per-frame dialog placement puts the choice box below both the menu window and `#mCard` (the item card) when the box does not fit beside the window.
+- `anim.js` melee block: fight stance raises the weapon arm forward (`upArmR` about -1.2 one-handed, -1.1 two-handed); slash, smash and cleave poses keep the arm forward at about -1.4 and sweep with arm z and chest yaw; the third slash variant lunges with `rootOff[2]`. Not yet checked in a browser screenshot: axis signs follow the old poses.
+- Text rule: Help, Updates and in-game messages must not name other games. 17.0, 18.0 and 18.5 update entries were reworded.
