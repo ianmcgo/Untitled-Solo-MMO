@@ -2054,3 +2054,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - rig.js: mobLook model "wisp" -> kind wisp (col tint, col2 eye), drawn with wispEntry (meta kind bat, uses bat pose).
 - Online: the host spawns pets; proxies see them as ordinary pet_<element> mobs named by family ("Water Spirit"), without the owner link.
 - Tests: test/h3unit.js.
+
+## 18.42.0 Know your foe (H4)
+- hud4.js: mob target window #tLv shows JOBS[job].name (not for pets); inspectText appends "It fights like a <Job>."
+- game.js: rollMobJob(avoid) rerolls up to 4 times against jobs of living same-linkGroup mobs within linkRange*1.5 (packJobs(f, x, y), read at buildMob). noteBeast and scanBeasts add m.job to save.bestiary[k].jobs; menu4 dbBeasts prints "Seen fighting as".
+- data.js MOB_JOB_STATS balance: index = sqrt((att/delay) * hp*(0.6+0.4*def)*(1+eva/400)); fighters 1.02 to 1.09, casters 0.8 to 0.92 (spells make up the rest). MNK and PLD were outliers: MNK now [1.05, 1, 0.95, 4, 0.88], PLD [1.12, 0.95, 1.15, 0, 1].
+- Tests: test/h4unit.js.

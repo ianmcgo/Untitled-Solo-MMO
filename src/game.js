@@ -1183,11 +1183,23 @@ function mobCurve(L) {
 }
 
 function mobJobOk(f) { return !!f && MOB_JOB_MODELS.includes(f.model) && !f.nm && !f.boss && !f.summoned; }
-function rollMobJob() {
+function rollMobJobOnce() {
   const js = Object.keys(JOBS), w = js.map(j => BASE_JOBS.includes(j) || j === "THF" ? 1.5 : 1);
   let r = Math.random() * w.reduce((a, b) => a + b, 0);
   for (let i = 0; i < js.length; i++) { r -= w[i]; if (r <= 0) return js[i]; }
   return js[js.length - 1];
+}
+function rollMobJob(avoid) {
+  let j = rollMobJobOnce();
+  for (let n = 0; n < 4 && avoid && avoid.includes(j); n++) j = rollMobJobOnce();
+  return j;
+}
+function packJobs(f, x, y) {
+  const grp = f.linkGroup || null;
+  if (!f.link || !grp || !S.mobs) return null;
+  const out = [];
+  for (const o of S.mobs) if (o.alive && !o.petOf && o.job && (o.fam.linkGroup || o.famKey) === grp && Math.hypot(o.x - x, o.y - y) <= CONFIG.linkRange * 1.5) out.push(o.job);
+  return out;
 }
 function mobSpellSpec(id, job) {
   const sp = SPELLS[id], jl = sp.jobs[job] || 1;
@@ -1284,7 +1296,7 @@ function petStep(m, dt) {
 
 function buildMob(famKey, L, x, y, spawnIdx, jobWant) {
   const f = famOf(famKey);
-  const job = jobWant === false ? null : jobWant && JOBS[jobWant] && mobJobOk(f) ? jobWant : mobJobOk(f) ? rollMobJob() : null;
+  const job = jobWant === false ? null : jobWant && JOBS[jobWant] && mobJobOk(f) ? jobWant : mobJobOk(f) ? rollMobJob(packJobs(f, x, y)) : null;
   const st = { str: 6 + 0.9 * L, dex: 6 + 0.8 * L, vit: 6 + 0.8 * L, agi: 6 + 0.8 * L, int: (f.int || 6) + 0.7 * L, mnd: 6 + 0.7 * L };
   for (const k of ATTRS) st[k] = Math.round(st[k]);
   const easy = f.nm || f.boss || L > 6 ? 1 : 0.55 + 0.075 * (L - 1), easyA = f.nm || f.boss || L > 6 ? 1 : 0.75 + 0.05 * (L - 1);
@@ -4825,11 +4837,12 @@ function noteBeast(m, kill) {
     uiEvent("beast", { k, name: m.name });
   }
   if (!b.zones.includes(S.zoneId)) b.zones.push(S.zoneId);
+  if (m.job && JOBS[m.job]) { if (!b.jobs) b.jobs = []; if (!b.jobs.includes(m.job)) b.jobs.push(m.job); }
   if (kill) b.kills++;
 }
 
 function scanBeasts() {
-  for (const m of S.mobs) if (m.alive && !m.despawned && dist(m, player) < 320 && !save.bestiary[m.famKey]) noteBeast(m, false);
+  for (const m of S.mobs) if (m.alive && !m.despawned && dist(m, player) < 320) { const b = save.bestiary[m.famKey]; if (!b) noteBeast(m, false); else if (m.job && !(b.jobs && b.jobs.includes(m.job))) noteBeast(m, false); }
 }
 
 function checkAchievements() {

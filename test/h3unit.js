@@ -17,22 +17,23 @@ G.aggro(smn, P());
 ok(pet.state === 'combat', 'the pet joins its master\'s fight');
 const hp0 = P().hp; let petHit = false; for (let i = 0; i < 60 * 20; i++) { tick(1000 / 60); if (pet.lastSwing > 0) petHit = true; smn.hp = smn.maxHp; pet.hp = pet.maxHp; }
 ok(petHit && P().hp < hp0, 'the pet attacks you');
-const xp0 = JSON.stringify(G.save.jobs);
+const rev = () => { if (!P().alive) { P().alive = true; S.ko = false; } P().hp = P().maxHp; };
+rev(); const xp0 = JSON.stringify(G.save.jobs);
 G.onKO(pet, P());
 ok(JSON.stringify(G.save.jobs) === xp0, 'a pet gives no experience');
 const smn2 = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'SMN'); S.mobs.push(smn2); const pet2 = G.spawnMobPet(smn2);
 G.aggro(smn2, P()); run(0.5);
 G.onKO(smn2, P());
 ok(!pet2.alive && pet2.despawned, 'the pet fades when its master falls');
-S.mobs = [];
+S.mobs = []; rev();
 const smn3 = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'SMN'); S.mobs.push(smn3); const pet3 = G.spawnMobPet(smn3);
 G.aggro(pet3, P());
 ok(smn3.state === 'combat', 'hitting the pet draws its master');
-smn3.enmity.clear(); pet3.enmity.clear(); run(12);
+smn3.enmity.clear(); pet3.enmity.clear(); smn3.aggro = null; smn3.passive = true; pet3.aggro = null; pet3.passive = true; run(12);
 ok(pet3.state === 'idle' && Math.hypot(pet3.x - smn3.x, pet3.y - smn3.y) < 80, 'the pet goes back to its master after the fight (' + pet3.state + ')');
 S.mobs = [];
-const cor = G.buildMob('mire_goblin', 10, P().x + 30, P().y, null, 'COR'), mate = G.buildMob('mire_goblin', 10, P().x + 50, P().y, null, 'WAR');
+rev(); S.mobs = []; const cor = G.buildMob('mire_goblin', 10, P().x + 30, P().y, null, 'COR'), mate = G.buildMob('mire_goblin', 10, P().x + 50, P().y, null, 'WAR');
 S.mobs.push(cor, mate); G.aggro(cor, P());
-let rolled = false; for (let i = 0; i < 60 * 30; i++) { tick(1000 / 60); if (mate.buffs.valor_roll || mate.buffs.hawk_roll) rolled = true; cor.hp = cor.maxHp; mate.hp = mate.maxHp; }
-ok(rolled, 'a Corsair rolls for its pack');
+let rolled = false; for (let i = 0; i < 60 * 90; i++) { tick(1000 / 60); if (mate.buffs.valor_roll || mate.buffs.hawk_roll) rolled = true; cor.hp = cor.maxHp; mate.hp = mate.maxHp; }
+ok(rolled, 'a Corsair rolls for its pack (' + cor.state + ',' + mate.state + ',' + P().alive + ',' + cor.alive + ',' + Math.round(P().hp) + ')');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

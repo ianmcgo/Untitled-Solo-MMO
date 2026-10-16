@@ -68,7 +68,7 @@ The family supplies skin, ears, tusks, beak and proportions; the job supplies th
 | H1 (done 18.39.0) | Opus | Data: job roll at spawn (uniform, any job); kit from job and level; generalised mob casting and abilities; weapon-skill TP moves; stat modifiers; unit tests (every job at several levels, no job picks a spell above its level, silenced/stunned mobs behave). |
 | H2 (done 18.40.0) | Opus | `JOB_LOOK` table and the new props (shield, katana, harp, claws, bow on monsters); family palettes; screenshot check of every job on every humanoid family at low, medium and high quality. |
 | H3 (done 18.41.0) | Opus | Pet jobs: `ZONE_ELEMENT` table, elemental pets for SMN, BST, PUP and GEO mobs, pet AI and cleanup, tests. |
-| H4 | Sonnet | Names and UI (target job tag, bestiary), packs mix jobs, balance pass against the 18.x balance notes, Help, Updates, tests. |
+| H4 (done 18.42.0) | Sonnet | Names and UI (target job tag, bestiary), packs mix jobs, balance pass against the 18.x balance notes, Help, Updates, tests. |
 
 Guess: H1 and H2 can ship together as one release if H1 is quick, otherwise H1 ships first with plain looks.
 

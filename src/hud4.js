@@ -453,7 +453,7 @@ function updateTarget() {
     setTxt($("tName"), t.name);
     const cs = claimState(t);
     $("tName").style.color = !t.alive ? "#a0a0a8" : cs === "other" ? "#c77dff" : cs === "mine" || ffMobAttacking(t) || (t.aggro && !t.passive) ? "#ff5a48" : "#ffffff";
-    setTxt($("tLv"), "");
+    setTxt($("tLv"), t.job && JOBS[t.job] && !t.petOf ? JOBS[t.job].name : "");
     $("tTag").style.display = t.fam.nm ? "inline-block" : "none";
     pct = 100 * t.hp / t.maxHp;
     setTxt($("tHpT"), Math.ceil(pct) + "%");
@@ -799,7 +799,8 @@ function inspectText(t) {
   const [c] = conOf(t);
   const tough = { "Too Weak": "It seems too weak to be worthwhile.", "Easy Prey": "It seems like easy prey.", "Decent Challenge": "It seems like a decent challenge.", "Even Match": "It seems like an even match.", "Tough": "It looks tough.", "Very Tough": "It looks very tough.", "Incredibly Tough": "It looks incredibly tough." }[c] || "It is hard to judge.";
   const mood = t.passive || !t.fam.aggro ? "It looks peaceful unless provoked." : "It looks hostile.";
-  return tough + " " + mood + (t.fam.nm ? " It is a notorious monster!" : "");
+  const jb = t.job && JOBS[t.job] && !t.petOf ? " It fights like a " + JOBS[t.job].name + "." : "";
+  return tough + " " + mood + jb + (t.fam.nm ? " It is a notorious monster!" : "");
 }
 
 function cmdHelpOf(a) {
