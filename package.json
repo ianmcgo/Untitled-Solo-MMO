@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.12.0",
-  "releaseTitle": "Tab fix, hotkey bar styling and level gates",
+  "version": "18.13.0",
+  "releaseTitle": "Hotkey bar close button",
   "description": "",
   "main": "index.js",
   "scripts": {

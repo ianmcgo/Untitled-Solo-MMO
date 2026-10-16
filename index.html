@@ -649,7 +649,8 @@
   #chatTabs button.on { color: #fff07a; background: rgba(60,58,150,.95); }
   #chatIn { font: 700 12px var(--ffFont); background: rgba(24,22,70,.85); border-color: var(--ffEdge); }
   #xpRow { display: none !important; }
-  body.noHotbar #barWrap { display: none !important; }
+  body.noHotbar #barWrap, body.barEmpty #barWrap { display: none !important; }
+  #barClose { align-self: flex-start; width: 18px; height: 18px; padding: 0; font-size: 10px; line-height: 1; color: #fff; border: 1px solid rgba(220,224,255,.7); border-radius: 3px; background: linear-gradient(180deg, rgba(110,116,190,.7), rgba(50,54,120,.85)); cursor: pointer; }
   #barWrap { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; box-shadow: 0 2px 8px rgba(0,0,0,.45) !important; backdrop-filter: none !important; padding: 4px 6px 4px 4px; pointer-events: auto; }
   #barWrap #pager button { background: linear-gradient(180deg, rgba(110,116,190,.7), rgba(50,54,120,.85)); border: 1px solid rgba(220,224,255,.7); color: #fff; border-radius: 3px; }
   #barWrap #pgNum { font: italic 900 11px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
@@ -1103,7 +1104,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.12.0 · built 2026-10-15 21:29 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.13.0 · built 2026-10-15 21:34 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -1142,7 +1143,7 @@
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
-      <div id="barWrap" class="glass"><div id="pager"><span id="barGrip" title="Drag to move the hotkey bar (double-click to reset)">⠿</span><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
+      <div id="barWrap" class="glass"><div id="pager"><span id="barGrip" title="Drag to move the hotkey bar (double-click to reset)">⠿</span><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div><button id="barClose" title="Close the hotkey bar (hides all its slots)">✕</button></div>
       <div id="xpRow"><span id="lvl"></span><div id="xpbar"><div id="xpfill"></div><div class="ticks"></div></div><span id="xpt"></span><span id="chainCt"></span><span id="crystals"></span></div>
     </div>
     <div id="big">
@@ -15670,7 +15671,10 @@ function buildActionBar() {
   const el = $("actionBar");
   el.innerHTML = "";
   UI.slots = [];
-  const pg = hotbar().pages[UI.page];
+  const pages = hotbar().pages;
+  document.body.classList.toggle("barEmpty", !pages.some(lineShown));
+  if (!lineShown(pages[UI.page])) { const k = pages.findIndex(lineShown); if (k >= 0) UI.page = k; }
+  const pg = pages[UI.page];
   for (let i = 0; i < 10; i++) {
     const a = pg[i];
     const b = document.createElement("button");
@@ -15685,7 +15689,25 @@ function buildActionBar() {
   $("pgNum").textContent = ["Ctrl", "Shft", "Alt", "Tab"][UI.page];
   if (typeof VIEW !== "undefined" && VIEW.settings) barPosApply();
 }
-function setPage(p) { UI.page = (p + 4) % 4; buildActionBar(); sfx("tab"); }
+function toggleFullscreen() {
+  const d = document;
+  if (d.fullscreenElement) { d.exitFullscreen(); return; }
+  const p = d.documentElement.requestFullscreen ? d.documentElement.requestFullscreen({ navigationUI: "hide" }) : null;
+  if (p) p.then(() => { if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(() => {}); log("Fullscreen on. The browser now passes Ctrl+number and other shortcuts to the game.", "sys"); }).catch(() => log("Your browser would not enter fullscreen.", "sys"));
+}
+
+function lineShown(pg) { return pg.some(a => a && a.hud !== false); }
+function setPage(p) {
+  const pages = hotbar().pages, dir = p < UI.page || (UI.page === 0 && p === -1) ? -1 : 1;
+  let n = (p + 4) % 4;
+  for (let k = 0; k < 4 && !lineShown(pages[n]); k++) n = (n + dir + 4) % 4;
+  UI.page = n; buildActionBar(); sfx("tab");
+}
+function closeHotBar() {
+  for (const pg of hotbar().pages) for (const a of pg) if (a) a.hud = false;
+  saveGame(); buildActionBar(); sfx("close");
+  log("Hotkey bar hidden. Choose which hotkeys appear on it in Hotkeys (B).", "sys");
+}
 function activateSlot(page, i) {
   const a = hotbar().pages[page][i];
   if (page === UI.page && UI.slots[i]) { const el = UI.slots[i].el; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
@@ -16498,6 +16520,7 @@ function initHud() {
   if (window.innerWidth <= 720) { $("chat").classList.add("min"); $("chatTog").textContent = "▴"; }
   $("tracker").addEventListener("click", e => { if (e.target.closest("[data-tr]")) { UI.trackerMin = !UI.trackerMin; updateTracker(); sfx("click"); } else openMenu("quests"); });
   initBarDrag();
+  $("barClose").onclick = closeHotBar;
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
@@ -17618,7 +17641,7 @@ function tabSkills() {
 
 function tabActions() {
   const hb = hotbar();
-  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Select a slot, then Hide from HUD or Show on HUD to choose whether it appears on the pinned bar (its hotkey still works; hidden slots are dimmed here). Four lines of ten: hold <b>Ctrl</b>, <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press 1–9 or 0. Plain 1–0 use the line shown on the pinned bar (Ctrl by default), which also works when your browser keeps Ctrl+number for switching tabs.</div>';
+  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Select a slot, then Hide from HUD or Show on HUD to choose whether it appears on the pinned bar (its hotkey still works; hidden slots are dimmed here). With no slot shown the bar disappears; the ✕ on the bar hides every slot. Four lines of ten: hold <b>Ctrl</b>, <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press 1–9 or 0. Plain 1–0 use the line shown on the pinned bar (Ctrl by default), which also works when your browser keeps Ctrl+number for switching tabs.</div>';
   hb.pages.forEach((pg, p) => {
     h += "<h3>" + ["Ctrl", "Shift", "Alt", "Tab"][p] + " line</h3><div class=\"barEdit\">";
     pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + (a && a.hud === false ? " nohud" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
@@ -17777,7 +17800,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + "</div>";
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -18494,6 +18517,7 @@ function onMenuClick(e) {
     saveGame(); buildActionBar();
   }
   else if (a === "slothud") { if (UI.pick) { const sl = hb.pages[UI.pick[0]][UI.pick[1]]; if (sl) { if (sl.hud === false) delete sl.hud; else sl.hud = false; saveGame(); buildActionBar(); sfx("click"); } } }
+  else if (a === "fullscreen") { toggleFullscreen(); }
   else if (a === "slotclear") { if (UI.pick) { hb.pages[UI.pick[0]][UI.pick[1]] = null; UI.pick = null; saveGame(); buildActionBar(); sfx("close"); } }
   else if (a === "barreset") { delete save.hotbars[save.mainJob]; UI.slotKey = ""; UI.pick = null; syncHotbar(); saveGame(); sfx("click"); }
   else if (a === "buy") buy(v);
@@ -18647,8 +18671,13 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.12.0 · built 2026-10-15 21:29 PDT";
+const BUILD_INFO = "v18.13.0 · built 2026-10-15 21:34 PDT";
 const UPDATES = [
+  { v: "18.13.0", date: "2026-10-15", title: "Hotkey bar close button", items: [
+    "<b>The hotkey bar has a ✕ button.</b> It hides every hotkey on the bar; pick which ones come back in Hotkeys (B) with Show on HUD.",
+    "<b>The bar only appears when at least one hotkey is set to show on it.</b> With none shown, there is no empty box, and the ▲ ▼ buttons skip lines with nothing to show.",
+    "<b>Browser shortcuts no longer steal your hotkeys:</b> Ctrl, Alt and Cmd + number are blocked from switching browser tabs while the game is open, and Ctrl+letter combinations no longer trigger game keys. Some browsers still reserve a few of these. Config > Interface > <i>Fullscreen (free keys)</i> asks the browser (Chrome and Edge) to pass every shortcut to the game."
+  ] },
   { v: "18.12.0", date: "2026-10-15", title: "Tab fix, hotkey bar styling and level gates", items: [
     "<b>Tab now targets the nearest thing first.</b> Walk up to a warp stone, signpost, crystal or person and press Tab to target it. In the field, monsters within range and objects within arm's reach are cycled together by distance.",
     "<b>The hotkey bar looks like the other blue windows</b> and can be moved: drag the ⠿ grip at its left edge (double-click it to put it back). Its position is remembered when you reload.",
@@ -19873,7 +19902,7 @@ function tabHelp() {
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Shift+Tab cycles nearby objects (signposts, warp stones, crystals, shrines) even with monsters around · Monsters chase you until you leave the zone · Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
-    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first) (plain 1–0 use the line shown on the pinned bar, Ctrl by default; browsers may keep Ctrl+number for switching tabs). Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "Browsers reserve some Ctrl+number shortcuts; the game blocks them, and Fullscreen in Config > Interface frees the rest. Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first) (plain 1–0 use the line shown on the pinned bar, Ctrl by default; browsers may keep Ctrl+number for switching tabs). Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -20239,7 +20268,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "18.12.0";
+const GAME_VERSION = "18.13.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -30998,10 +31027,16 @@ async function netLsSetRank(lsid, target, action) {
   netLsPing(lsid);
 }
 
+function guardKeys(e) {
+  if (!UI.started) return;
+  if (/^(Digit|Numpad)[0-9]$/.test(e.code || "") && (e.ctrlKey || e.altKey || e.metaKey)) e.preventDefault();
+}
+
 function onKey(e) {
   const k = e.key.toLowerCase();
   if (UI.confirmOpen) { const cb = $("confirmBox"); if (k === "escape") cb.querySelector(".no").click(); else if (k === "arrowup" || k === "arrowdown") { cb.querySelectorAll(".cbA button").forEach(b => b.classList.toggle("sel")); } else if (k === "enter" || k === " ") (cb.querySelector(".cbA button.sel") || cb.querySelector(".yes")).click(); e.preventDefault(); return; }
   if (!UI.started) return;
+  if ((e.ctrlKey || e.metaKey) && !/^(Digit|Numpad)[0-9]$/.test(e.code || "")) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
   const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
   if (S.dialog) {
@@ -31076,6 +31111,7 @@ function rotateTip() {
 async function boot() {
   window.addEventListener("contextmenu", e => { if (!(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"))) e.preventDefault(); });
   window.addEventListener("dragstart", e => e.preventDefault());
+  window.addEventListener("keydown", guardKeys, true);
   window.addEventListener("keydown", onKey);
   window.addEventListener("pagehide", () => { if (UI.started) saveGame(); });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && UI.started) saveGame(); });

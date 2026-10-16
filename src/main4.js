@@ -1,7 +1,13 @@
+function guardKeys(e) {
+  if (!UI.started) return;
+  if (/^(Digit|Numpad)[0-9]$/.test(e.code || "") && (e.ctrlKey || e.altKey || e.metaKey)) e.preventDefault();
+}
+
 function onKey(e) {
   const k = e.key.toLowerCase();
   if (UI.confirmOpen) { const cb = $("confirmBox"); if (k === "escape") cb.querySelector(".no").click(); else if (k === "arrowup" || k === "arrowdown") { cb.querySelectorAll(".cbA button").forEach(b => b.classList.toggle("sel")); } else if (k === "enter" || k === " ") (cb.querySelector(".cbA button.sel") || cb.querySelector(".yes")).click(); e.preventDefault(); return; }
   if (!UI.started) return;
+  if ((e.ctrlKey || e.metaKey) && !/^(Digit|Numpad)[0-9]$/.test(e.code || "")) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
   const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "bestiary", o: "achievements" };
   if (S.dialog) {
@@ -76,6 +82,7 @@ function rotateTip() {
 async function boot() {
   window.addEventListener("contextmenu", e => { if (!(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA"))) e.preventDefault(); });
   window.addEventListener("dragstart", e => e.preventDefault());
+  window.addEventListener("keydown", guardKeys, true);
   window.addEventListener("keydown", onKey);
   window.addEventListener("pagehide", () => { if (UI.started) saveGame(); });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && UI.started) saveGame(); });

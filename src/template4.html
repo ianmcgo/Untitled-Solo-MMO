@@ -649,7 +649,8 @@
   #chatTabs button.on { color: #fff07a; background: rgba(60,58,150,.95); }
   #chatIn { font: 700 12px var(--ffFont); background: rgba(24,22,70,.85); border-color: var(--ffEdge); }
   #xpRow { display: none !important; }
-  body.noHotbar #barWrap { display: none !important; }
+  body.noHotbar #barWrap, body.barEmpty #barWrap { display: none !important; }
+  #barClose { align-self: flex-start; width: 18px; height: 18px; padding: 0; font-size: 10px; line-height: 1; color: #fff; border: 1px solid rgba(220,224,255,.7); border-radius: 3px; background: linear-gradient(180deg, rgba(110,116,190,.7), rgba(50,54,120,.85)); cursor: pointer; }
   #barWrap { background: var(--ffStripe) !important; border: 2px solid var(--ffEdge) !important; border-radius: 6px !important; box-shadow: 0 2px 8px rgba(0,0,0,.45) !important; backdrop-filter: none !important; padding: 4px 6px 4px 4px; pointer-events: auto; }
   #barWrap #pager button { background: linear-gradient(180deg, rgba(110,116,190,.7), rgba(50,54,120,.85)); border: 1px solid rgba(220,224,255,.7); color: #fff; border-radius: 3px; }
   #barWrap #pgNum { font: italic 900 11px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
@@ -1142,7 +1143,7 @@
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>
-      <div id="barWrap" class="glass"><div id="pager"><span id="barGrip" title="Drag to move the hotkey bar (double-click to reset)">⠿</span><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div></div>
+      <div id="barWrap" class="glass"><div id="pager"><span id="barGrip" title="Drag to move the hotkey bar (double-click to reset)">⠿</span><button id="pgUp">▲</button><span id="pgNum">1</span><button id="pgDn">▼</button></div><div id="actionBar"></div><button id="barClose" title="Close the hotkey bar (hides all its slots)">✕</button></div>
       <div id="xpRow"><span id="lvl"></span><div id="xpbar"><div id="xpfill"></div><div class="ticks"></div></div><span id="xpt"></span><span id="chainCt"></span><span id="crystals"></span></div>
     </div>
     <div id="big">
