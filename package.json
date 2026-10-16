@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.27.0",
-  "releaseTitle": "Everything goes to the treasure pool",
+  "version": "18.28.0",
+  "releaseTitle": "Companions sync to your level",
   "description": "",
   "main": "index.js",
   "scripts": {

@@ -109,6 +109,7 @@ function normalizeSave(d) {
   out.skills = newSave().skills;
   if (d.skills) for (const j in out.skills) Object.assign(out.skills[j], d.skills[j] || {});
   out.quests = Object.assign(newSave().quests, d.quests || {});
+  if (out.bestiary) for (const k in out.bestiary) if (!out.bestiary[k] || !out.bestiary[k].kills) delete out.bestiary[k];
   if (!d.zv && out.loc && ZONE_SCALE[out.loc.zone]) { out.loc = Object.assign({}, out.loc, { x: Math.round(out.loc.x * ZONE_SCALE[out.loc.zone]), y: Math.round(out.loc.y * ZONE_SCALE[out.loc.zone]) }); }
   if ((d.zv || 0) < 2 && out.loc && out.loc.zone === "outpost") out.loc = { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y };
   if ((d.zv || 0) < 3 && out.loc && (out.loc.zone === "harbor" || out.loc.zone === "ironvale")) out.loc = { zone: out.loc.zone, x: ZONES[out.loc.zone].start.x, y: ZONES[out.loc.zone].start.y };
@@ -565,6 +566,46 @@ function addBond(id, n) {
   }
 }
 
+function mercFee(id, lv) {
+  const m = MERCS[id];
+  if (!m) return 0;
+  if (!m.gen) return m.fee;
+  lv = lv || player.lv;
+  const mul = { tank: 1.1, healer: 1.15, burster: 1.2, bard: 1.15, hybrid: 1.1 }[m.role] || 1;
+  return Math.round((40 + 18 * lv) * mul / 5) * 5;
+}
+
+function gearScore(id) {
+  const it = ITEMS[id];
+  if (!it) return -1;
+  return (it.lv || 0) * 1000 + (it.dmg || 0) + Object.values(it.stats || {}).reduce((a, b) => a + b, 0);
+}
+
+function mercSync(id, lv) {
+  const own = save.mercGear[id] = save.mercGear[id] || {}, bag = mercBag(id), nm = MERCS[id] ? MERCS[id].name : id;
+  let changed = false;
+  for (const sk of Object.keys(own)) {
+    const it = ITEMS[own[sk]];
+    if (!it) { delete own[sk]; continue; }
+    if ((it.lv || 0) <= lv) continue;
+    bag.push({ id: own[sk], qty: 1, sale: false });
+    log(nm + " puts away the " + it.name + " until they can wear it again.", "party");
+    delete own[sk];
+    changed = true;
+  }
+  const kept = bag.filter(x => !x.sale && ITEMS[x.id] && (ITEMS[x.id].lv || 0) <= lv).sort((a, b) => gearScore(b.id) - gearScore(a.id));
+  for (const k of kept) {
+    const it = ITEMS[k.id], sk = slotKeys(it.slot)[0], cur = mercGearFor(id, lv)[sk];
+    bag.splice(bag.indexOf(k), 1);
+    if (!it.jobs.includes(MERCS[id].job) || (cur && gearScore(cur) >= gearScore(k.id))) { bag.push({ id: k.id, qty: 1, sale: true }); continue; }
+    if (own[sk]) bag.push({ id: own[sk], qty: 1, sale: true });
+    own[sk] = k.id;
+    log(nm + " puts the " + it.name + " back on.", "party");
+    changed = true;
+  }
+  return changed;
+}
+
 function mercWage(id) { return Math.max(10, Math.ceil(MERCS[id].fee * COMPANION_CFG.wageRate)); }
 
 function tickWages() {
@@ -755,6 +796,7 @@ function syncAllies(full) {
     const hpPct = a.maxHp ? a.hp / a.maxHp : 1;
     const mpPct = a.maxMp ? a.mp / a.maxMp : 1;
     a.lv = player.lv;
+    mercSync(a.mercId, a.lv);
     a.gear = mercGearFor(a.mercId, a.lv);
     a.hp = null; a.mp = null;
     buildStats(a);
@@ -819,6 +861,7 @@ function rebuildParty() {
     if (!m) {
       m = makeMerc(id);
       m.lv = player.lv;
+      mercSync(id, m.lv);
       m.gear = mercGearFor(id, m.lv);
       buildStats(m);
       const o = followOffset(i + 1);
@@ -852,12 +895,16 @@ function hireMerc(id) {
   const m = MERCS[id];
   if (!mercAvailable(id) || save.hired.includes(id)) return;
   if (save.hired.length >= CONFIG.maxParty - 1) { log("Your party is full. Dismiss someone first.", "sys"); sfx("error"); return; }
-  if (save.gil < m.fee) { log("You can't afford " + m.name + "'s fee (" + m.fee + " crystals).", "sys"); sfx("error"); return; }
-  save.gil -= m.fee;
+  const fee = mercFee(id);
+  if (save.gil < fee) { log("You can't afford " + m.name + "'s fee (" + fee + " crystals).", "sys"); sfx("error"); return; }
+  save.gil -= fee;
+  if (m.gen) m.fee = fee;
+  save.mercHireLv = save.mercHireLv || {};
+  save.mercHireLv[id] = player.lv;
   save.hired.push(id);
   save.mercPaid[id] = Date.now() + COMPANION_CFG.dayMs;
   rebuildParty();
-  log("You hire " + m.name + " for " + m.fee + " crystals.", "loot");
+  log("You hire " + m.name + " at level " + player.lv + " for " + fee + " crystals.", "loot");
   partySay(S.party.find(p => p.mercId === id), "hire", true);
   sfx("unlock");
   saveGame();
@@ -1444,8 +1491,9 @@ function mercTownSell() {
   for (const id of save.hired) {
     const bag = save.mercInv[id];
     if (!bag || bag.length < Math.ceil(CONFIG.inventorySize / 2)) continue;
-    const n = bag.reduce((a, x) => a + x.qty, 0);
-    save.mercInv[id] = [];
+    const n = bag.filter(x => x.sale).reduce((a, x) => a + x.qty, 0);
+    if (!n) continue;
+    save.mercInv[id] = bag.filter(x => !x.sale);
     log(MERCS[id].name + " sells " + n + " item" + (n === 1 ? "" : "s") + " around " + (S.zone.city || "town") + ".", "party");
   }
 }
@@ -4243,6 +4291,7 @@ function noteBeast(m, kill) {
   const k = beastKey(m);
   if (!k) return;
   let b = save.bestiary[k];
+  if (!b && !kill) return;
   if (!b) {
     b = save.bestiary[k] = { seen: Date.now(), kills: 0, zones: [] };
     log("New bestiary entry: " + (FAMILIES[k] ? FAMILIES[k].name : NM_FAMILIES[k] && NM_FAMILIES[k].name || m.name) + ".", "sys");
