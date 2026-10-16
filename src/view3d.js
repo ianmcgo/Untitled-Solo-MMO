@@ -503,6 +503,29 @@ async function buildZoneAsync(job, p0, p1) {
   VIEW.camEff = null;
   return true;
 }
+function collectTextures(root, out) {
+  root.traverse(o => {
+    const ms = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+    for (const m of ms) for (const k of ["map", "normalMap", "roughnessMap", "emissiveMap", "alphaMap", "bumpMap"]) { const t = m[k]; if (t && t.isTexture) out.add(t); }
+  });
+  return out;
+}
+async function uploadTexturesAsync(job) {
+  const set = collectTextures(W3.scene, new Set());
+  const list = [...set].filter(t => !t.userData.uploaded);
+  let last = performance.now(), n = 0;
+  for (const t of list) {
+    try { W3.renderer.initTexture(t); t.userData.uploaded = true; } catch (e) {}
+    n++;
+    if (performance.now() - last > 6) {
+      loaderProgress(0.88 + 0.02 * n / list.length, "Warming up…");
+      await frames(1);
+      if (job !== VIEW.zoneJob) return false;
+      last = performance.now();
+    }
+  }
+  return true;
+}
 function onZoneEntered() {
   if (!W3.renderer) return;
   if (!$("loading")) { buildZoneNow(); return; }
@@ -530,9 +553,14 @@ async function loadZoneInner(job) {
   if (!(await buildZoneAsync(job, VIEW.booting ? 0.6 : 0.1, VIEW.booting ? 0.85 : 0.85))) return;
   PERF.phase("built");
   loaderProgress(0.88, "Warming up…");
+  if (W3.renderer.initTexture && !(await uploadTexturesAsync(job))) return;
+  PERF.phase("textures");
   try { if (W3.renderer.compileAsync) await Promise.race([W3.renderer.compileAsync(W3.scene, W3.camera), new Promise(r => setTimeout(r, 6000))]); } catch (e) {}
   if (job !== VIEW.zoneJob) return;
   PERF.phase("compiled");
+  await iconsReady();
+  if (job !== VIEW.zoneJob) return;
+  PERF.phase("icons");
   loaderProgress(0.9, "Gathering everyone…");
   await frames(1);
   if (job !== VIEW.zoneJob) return;

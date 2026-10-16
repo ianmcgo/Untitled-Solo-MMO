@@ -1638,6 +1638,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.22.0", date: "2026-10-16", title: "Faster start-up", items: [
+    "<b>Faster start-up:</b> the title screen now appears about 3 seconds sooner on a slow test setup (1.7 s instead of 4.8 s). Item icons are drawn in the background while you read the title, then finished before you enter the world.",
+    "<b>Smoother zone loading:</b> zone textures are sent to the graphics card in small slices while the loading screen animates, instead of all at once on the first frame. Gains depend on your device."
+  ] },
   { v: "18.21.0", date: "2026-10-16", title: "Smaller download and load timing", items: [
     "<b>Smaller download:</b> the game code is now compacted and the 3D library only includes the parts the game uses, cutting the file by about 9% (6.39 MB to 5.83 MB). Sound is unchanged.",
     "<b>Faster start:</b> the online-account library is only unpacked when you open Play Online or offline sign-in, so the title screen appears sooner.",

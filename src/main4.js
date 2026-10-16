@@ -105,8 +105,6 @@ async function boot() {
   initAudio();
   PERF.mark("audio");
   if (typeof uiHoverSounds === "function") uiHoverSounds();
-  try { buildItemIcons(); } catch (e) { reportError(e, "icons"); }
-  PERF.mark("icons");
   initViewA();
   PERF.mark("renderer");
   loaderProgress(0.35, "Weaving cloth and leather…");
@@ -147,6 +145,7 @@ async function boot() {
   requestAnimationFrame(frame);
   PERF.mark("title");
   showTitle();
+  buildItemIconsAsync();
 }
 
 function audioNag() {
