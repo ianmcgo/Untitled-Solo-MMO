@@ -3701,8 +3701,50 @@ function nukerAI(a, tgt, dt) {
   keepCasterRange(a, tgt, dt);
 }
 
+function exitEdgeAngle(ex, z) {
+  if (ex.kind === "door" || ex.ask) return null;
+  if (ex.x <= 0) return Math.PI;
+  if (ex.x + ex.w >= z.w) return 0;
+  if (ex.y <= 0) return -Math.PI / 2;
+  if (ex.y + ex.h >= z.h) return Math.PI / 2;
+  return null;
+}
+
+function startExitWalk(ex) {
+  const a = exitEdgeAngle(ex, S.zone);
+  if (a == null || typeof zoneFadeOut !== "function" || !player.alive) { enterZone(ex.to, ex.tx, ex.ty); return true; }
+  S.exitWalk = { ex, a, t: 0 };
+  S.moveTarget = null; S.chase = false; S.pendingTalk = null;
+  standUp(player, true);
+  zoneFadeOut();
+  if (typeof prefetchZone === "function") prefetchZone(ex.to);
+  return false;
+}
+
+function inwardAngle(z, x, y) {
+  const d = [[x, 0], [z.w - x, Math.PI], [y, Math.PI / 2], [z.h - y, -Math.PI / 2]].sort((p, q) => p[0] - q[0])[0];
+  return d[0] < CONFIG.walkInEdge ? d[1] : null;
+}
+
+function autoWalk(a, dt) {
+  const sp = player.speed * (player.mounted ? mountMul() : 1);
+  player.face = a;
+  player.x += Math.cos(a) * sp * dt;
+  player.y += Math.sin(a) * sp * dt;
+  touch(player);
+  if (player.casting) player.casting = null;
+}
+
 function updatePlayer(dt) {
-  if (!player.alive) return;
+  if (!player.alive) { S.exitWalk = null; S.walkIn = null; return; }
+  if (S.exitWalk) { S.exitWalk.t += dt; autoWalk(S.exitWalk.a, dt); return; }
+  if (S.walkIn) {
+    S.walkIn.t += dt;
+    autoWalk(S.walkIn.a, dt);
+    keepInZone(player);
+    if (S.walkIn.t >= CONFIG.walkInTime) S.walkIn = null;
+    return;
+  }
   const mv = inputVector();
   let moved = false;
   if (mv.x || mv.y) {
@@ -3790,8 +3832,9 @@ function partyInCombat() {
   return S.mobs.some(m => m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty));
 }
 
-function enterZone(id, x, y) {
+function enterZone(id, x, y, opt) {
   const prev = S.zoneId;
+  S.exitWalk = null; S.walkIn = null;
   S.fish = null;
   if (S.race && !RACE.zones.includes(id)) S.race = null;
   if (S.bf && id !== BATTLEFIELD.zone) { if (!S.bf.won) log("You leave the Chapel Depths. The battle is lost.", "sys"); S.bf = null; }
@@ -3809,6 +3852,7 @@ function enterZone(id, x, y) {
   player.x = x; player.y = y;
   const home = ZONES[id].npcs.find(n => NPCS[n.id] && NPCS[n.id].crystal && Math.hypot(n.x - x, n.y - y) < 120);
   player.face = home ? Math.atan2(home.y - y, home.x - x) : Math.atan2(ZONES[id].h / 2 - y, ZONES[id].w / 2 - x);
+  if (opt && opt.walkIn) { const ia = inwardAngle(ZONES[id], x, y); if (ia != null) { player.face = ia; S.walkIn = { a: ia, t: 0 }; } }
   S.party.forEach((p, i) => {
     p.engaged = false; p.target = null; p.attackTarget = null; p.casting = null;
     if (i > 0 && !(p.mercId && !p.alive)) { const o = arrivalSpot(i, x, y, player.face); p.x = o.x; p.y = o.y; keepInZone(p); keepOutOfColliders(p); }
@@ -4234,18 +4278,20 @@ function step(dt) {
   for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) separate(bodies[i], bodies[j]);
   for (const m of S.mobs) if (m.proxy && m.alive) for (const p of S.party) if (p.alive) separate(p, m, true);
   for (const n of S.npcs) if (!n.away) for (const p of S.party) separate(p, n, true);
-  for (const e of bodies) { keepOutOfWater(e); keepOutOfRects(e); keepInZone(e); }
+  for (const e of bodies) { if (e === player && S.exitWalk) continue; keepOutOfWater(e); keepOutOfRects(e); keepInZone(e); }
   for (const e of S.party.concat(S.mobs)) {
     e.moving = Math.hypot(e.x - e.px, e.y - e.py) > 0.05;
     if (e.moving && isParty(e)) e.stillSince = S.time;
   }
   for (const p of S.party) regen(p, dt);
   S.zoneCooldown = Math.max(0, S.zoneCooldown - dt);
-  if (S.zoneCooldown <= 0 && player.alive) {
+  if (S.exitWalk && S.exitWalk.t >= CONFIG.exitWalkTime) { const ex = S.exitWalk.ex; S.exitWalk = null; enterZone(ex.to, ex.tx, ex.ty, { walkIn: true }); return; }
+  if (S.zoneCooldown <= 0 && player.alive && !S.exitWalk) {
     let onAsk = null;
     for (const ex of S.zone.exits) if (circleRect(player, ex, 8) && (!ex.weather || weatherMatch(ex.weather))) {
       if (ex.ask && typeof gameConfirm === "function") { onAsk = ex; continue; }
-      enterZone(ex.to, ex.tx, ex.ty); return;
+      if (startExitWalk(ex)) return;
+      break;
     }
     if (onAsk && S.exitAsked !== onAsk) {
       S.exitAsked = onAsk;

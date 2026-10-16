@@ -1891,3 +1891,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## Plans index
 - design/merc-loot-plan.md: mercenary loot, sale pouch, level sync, play-time contracts, Old Friends (not built).
+
+## 18.24.0: walk-out and walk-in zoning (Phase 5)
+- Edge exits (rect touching the zone border, not `kind: "door"`, no `ask`) go through `startExitWalk(ex)`: `S.exitWalk = { ex, a, t }`. `updatePlayer` auto-walks along `exitEdgeAngle` (input ignored), step skips `keepInZone` for the player, and after `CONFIG.exitWalkTime` (0.75 s) step calls `enterZone(to, tx, ty, { walkIn: true })`. In builds without view3d (`zoneFadeOut` missing) it enters at once, so tests keep their old behaviour.
+- `enterZone` with `walkIn` sets `S.walkIn = { a, t }` when the target is within `CONFIG.walkInEdge` (700; exit targets sit 220 to 640 from an edge) of an edge; the player faces inward and companions are placed behind by `arrivalSpot`. Step does not run while `VIEW.loading`, so the walk-in starts when the loader hides and lasts `CONFIG.walkInTime` (0.9 s).
+- Fade: `#zfade` (fixed, z 31, created on demand). `zoneFadeOut()` fades it to black in 0.45 s and sets `VIEW.fadeIn`; `onZoneEntered` fades it off in 0.2 s to reveal the loader; `loaderHide` sets it black instantly, hides the loader and fades it out in 0.6 s.
+- `prefetchZone(id)` starts the IndexedDB terrain read for the target during the walk; `buildZoneAsync` uses `W3.terrainFetch` when the key matches.
+- Not done from the plan: building the next zone during the walk. The zone build tears down the current zone (`W3.zoneRoot`, `W3.field` are global), so it would need a second scene root. The black fade hides the stall instead.

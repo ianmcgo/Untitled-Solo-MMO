@@ -431,7 +431,29 @@ function loaderProgress(p, text) {
   f.style.width = Math.round(clamp(p, 0, 1) * 100) + "%";
   if (text != null) $("ldText").textContent = text;
 }
-function loaderHide() { const el = $("loading"); if (el) el.classList.remove("on"); if (typeof stopShowcase === "function") stopShowcase(); }
+function zoneFadeEl() {
+  let el = $("zfade");
+  if (!el) { el = document.createElement("div"); el.id = "zfade"; document.body.appendChild(el); }
+  return el;
+}
+function zoneFadeTo(op, secs) {
+  const el = zoneFadeEl();
+  el.style.transition = secs ? "opacity " + secs + "s ease" : "none";
+  if (!secs) void el.offsetWidth;
+  el.style.opacity = op;
+}
+function zoneFadeOut() { VIEW.fadeIn = true; zoneFadeTo(1, 0.45); }
+function prefetchZone(id) {
+  if (!W3.renderer || typeof cacheGet !== "function") return;
+  const key = "t|" + id + "|" + terrainSize();
+  W3.terrainFetch = { key, p: cacheGet(key).then(cacheImage).catch(() => null) };
+}
+function loaderHide() {
+  const el = $("loading");
+  if (VIEW.fadeIn) { VIEW.fadeIn = false; zoneFadeTo(1, 0); if (el) el.classList.remove("on"); zoneFadeTo(0, 0.6); }
+  else if (el) el.classList.remove("on");
+  if (typeof stopShowcase === "function") stopShowcase();
+}
 const PERF = {
   boot: [], zones: [], cur: null, t0: 0,
   mark(name) { this.boot.push([name, Math.round(performance.now() - this.t0)]); },
@@ -483,7 +505,9 @@ async function buildZoneAsync(job, p0, p1) {
   clearViews();
   W3.terrainPre = null;
   try {
-    const tk = terrainKey(), tc = performance.now(), rec = await cacheGet(tk), img = await cacheImage(rec);
+    const tk = terrainKey(), tc = performance.now(), pf = W3.terrainFetch && W3.terrainFetch.key === tk ? W3.terrainFetch.p : null;
+    W3.terrainFetch = null;
+    const img = pf ? await pf : await cacheImage(await cacheGet(tk));
     PERF.slice(img ? "cache read hit" : "cache read miss", performance.now() - tc);
     if (job !== VIEW.zoneJob) return false;
     if (img) W3.terrainPre = { key: tk, img };
@@ -539,6 +563,7 @@ function onZoneEntered() {
   const job = VIEW.zoneJob = (VIEW.zoneJob || 0) + 1;
   VIEW.loading = true;
   if (!VIEW.booting) loaderShow(S.zone.name, S.zone.theme === "house" ? "Home" : "Entering");
+  if (VIEW.fadeIn) zoneFadeTo(0, 0.2);
   if (typeof startShowcase === "function") try { startShowcase(); } catch (e) {}
   loadZoneAsync(job);
 }
