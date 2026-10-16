@@ -648,7 +648,8 @@
   #chatTabs button { font: italic 800 10px var(--ffFont); background: rgba(34,32,96,.85); border: 1px solid var(--ffEdge); border-bottom: none; color: #fff; }
   #chatTabs button.on { color: #fff07a; background: rgba(60,58,150,.95); }
   #chatIn { font: 700 12px var(--ffFont); background: rgba(24,22,70,.85); border-color: var(--ffEdge); }
-  #barWrap, #xpRow { display: none !important; }
+  #xpRow { display: none !important; }
+  body.noHotbar #barWrap { display: none !important; }
   #bottom { bottom: calc(196px + var(--sab)); }
   #tCmd { right: auto; left: calc(28px + var(--sal)); bottom: calc(196px + var(--sab)); width: 210px; max-height: 60vh; padding: 4px 4px 6px 22px; gap: 3px; background: linear-gradient(180deg, rgba(60,64,150,.85), rgba(26,28,84,.88)); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,.55); backdrop-filter: none; }
   #tCmd .ffMHead { font: italic 800 11px var(--ffFont); color: #fff; text-align: center; letter-spacing: .06em; text-shadow: 1px 1px 0 #000; margin: 0 0 2px -18px; }
@@ -908,10 +909,11 @@
   #ffTBox, #ffPBox { padding: 2px 8px 6px; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 3px 12px rgba(0,0,0,.5); }
   #ffTBox { display: none; } #ffSide.hasT #ffTBox { display: block; }
   .eqW { display: flex; gap: 8px; align-items: flex-start; } .eqL { width: 196px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px; color: #fff; } .eqW .eqWrap { flex: 1; min-width: 0; }
-  .eqL .gilB { display: flex; flex-direction: column; } .eqL .gilB em { font-size: 13px; } .eqL .gilB b { font-size: 15px; text-align: right; margin-top: 4px; }
+  .eqL .gilB { display: flex; flex-direction: row; align-items: baseline; justify-content: space-between; gap: 14px; } .eqL .gilB em { font-size: 13px; } .eqL .gilB b { font-size: 15px; text-align: right; margin-top: 0; }
   #ui:has(#menu .win.wide) #ffStat { display: none; }
   @media (max-width: 760px) { .eqL { display: none; } }
   #menu .win.slim { width: 320px; max-height: calc(100vh - 330px - var(--sat) - var(--sab)); min-height: 120px; }
+  #menu .win.fit { width: max-content; min-width: 320px; max-width: min(560px, calc(100vw - 232px - var(--sal) - var(--sar))); }
   #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar))); }
   #menu .win.slim #mHead { display: none; }
   #menu .win.slim #mBody { padding: 4px 6px 6px 22px; }
@@ -932,7 +934,7 @@
   #mCard { position: absolute; left: calc(6px + var(--sal)); display: none; gap: 6px; align-items: flex-start; pointer-events: none; z-index: 2; max-width: calc(100vw - 240px); }
   #mCard.on { display: flex; }
   #mCard > div { pointer-events: auto; background: linear-gradient(180deg, rgba(40,44,70,.94), rgba(18,20,36,.96)); border: 2px solid rgba(220,224,255,.6); border-radius: 4px; padding: 4px 10px; font-family: var(--ffFont); color: #fff; }
-  #mCard .gilBox { display: flex; flex-direction: column; min-width: 130px; } #mCard .gilBox em { font: italic 900 13px var(--ffFont); } #mCard .gilBox b { font: italic 900 15px var(--ffFont); text-align: right; margin-top: 6px; }
+  #mCard .gilBox { display: flex; flex-direction: row; align-items: baseline; justify-content: space-between; gap: 14px; min-width: 130px; } #mCard .gilBox em { font: italic 900 13px var(--ffFont); } #mCard .gilBox b { font: italic 900 15px var(--ffFont); text-align: right; margin-top: 0; }
   #mCard .cardBox { width: 360px; max-width: 100%; } #mCard .cardBox .iCard { background: none; border: none; box-shadow: none; padding: 0; margin: 0; }
   #mCard .qCard { width: 420px; max-width: 100%; } #mCard .qT { font: italic 900 15px var(--ffFont); } #mCard .qS { font: italic 800 12px var(--ffFont); color: #ffd54f; margin-bottom: 2px; } #mCard .qD { font: 700 12.5px var(--ffFont); line-height: 1.4; margin-top: 3px; color: #e8e8ff; }
   #tCmd.list { width: 300px; max-height: 46vh; padding: 4px 8px 4px 24px; gap: 0; background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 4px; }

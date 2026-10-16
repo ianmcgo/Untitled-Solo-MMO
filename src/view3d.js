@@ -245,12 +245,13 @@ function inputVector() {
 function updateCamera(dt) {
   const k = S.keys;
   const rot = VIEW.settings.camSpeed || 1;
-  if (k.arrowleft) { VIEW.yaw -= 2.2 * rot * dt; VIEW.lastManual = S.time; }
-  if (k.arrowright) { VIEW.yaw += 2.2 * rot * dt; VIEW.lastManual = S.time; }
-  if (k.arrowup) VIEW.pitch = clamp(VIEW.pitch + 1.2 * dt, -0.25, 1.25);
-  if (k.arrowdown) VIEW.pitch = clamp(VIEW.pitch - 1.2 * dt, -0.25, 1.25);
-  if (k.q) { VIEW.yaw -= 2.2 * rot * dt; VIEW.lastManual = S.time; }
-  if (k.e) { VIEW.yaw += 2.2 * rot * dt; VIEW.lastManual = S.time; }
+  const kx = VIEW.settings.keyInvertX ? -1 : 1, ky = VIEW.settings.keyInvertY ? -1 : 1;
+  if (k.arrowleft) { VIEW.yaw -= kx * 2.2 * rot * dt; VIEW.lastManual = S.time; }
+  if (k.arrowright) { VIEW.yaw += kx * 2.2 * rot * dt; VIEW.lastManual = S.time; }
+  if (k.arrowup) VIEW.pitch = clamp(VIEW.pitch + ky * 1.2 * dt, -0.25, 1.25);
+  if (k.arrowdown) VIEW.pitch = clamp(VIEW.pitch - ky * 1.2 * dt, -0.25, 1.25);
+  if (k.q) { VIEW.yaw -= kx * 2.2 * rot * dt; VIEW.lastManual = S.time; }
+  if (k.e) { VIEW.yaw += kx * 2.2 * rot * dt; VIEW.lastManual = S.time; }
   if (VIEW.settings.autoCam && player.moving && S.time - VIEW.lastManual > 1.2 && !VIEW.first) {
     const mv = inputVector();
     const backward = (k.s && !k.w) || (VIEW.joy.active && VIEW.joy.y > 0.5);
@@ -532,7 +533,7 @@ function graphicsSettingsHTML() {
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
   return "<h3>Graphics</h3><div class=\"opt\">" + btn("quality", "low", "Low", q === "low") + btn("quality", "medium", "Medium", q === "medium") + btn("quality", "high", "High", q === "high") + '</div><div class="opt">' + btn("gfx", "outline:" + (outlineOn() ? "off" : "on"), "Outlines " + (outlineOn() ? "on" : "off"), outlineOn()) + btn("gfx", "attire:" + (jobStyleOn() ? "gear" : "job"), jobStyleOn() ? "Job style" : "Show gear", jobStyleOn()) + '</div><div class="sub">Job style dresses every adventurer in their job\'s signature outfit, which grows grander at levels 5, 10 and 16. Show gear draws the armour you have equipped instead. Weapons and shields always show.</div><div class="sub">High adds colour grading that follows the time of day, smoother edges, sharper shadows and full-resolution water reflections. If the game stays slow, it turns off colour grading and then sun shadows by itself. Characters far from the camera always use simpler models (sooner on Low). Changing quality reloads the 3D scene.</div>' +
     "<h3>Performance</h3><div class=\"opt\">" + btn("draw", "near", "Draw near", s.draw === "near") + btn("draw", "normal", "Draw normal", (s.draw || "normal") === "normal") + btn("draw", "far", "Draw far", s.draw === "far") + btn("toggle", "adaptive", "Auto resolution " + (s.adaptive !== false ? "on" : "off"), s.adaptive !== false) + btn("toggle", "fps", "FPS counter " + (s.fps ? "on" : "off"), s.fps) + '</div><div class="sub">Draw distance hides far monsters and name plates. Auto resolution lowers the render scale when the frame rate drops and raises it again when there is headroom. Use Low graphics on older phones.</div>' +
-    "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertX", "Invert horizontal " + (s.invertX !== false ? "on" : "off"), s.invertX !== false) + btn("toggle", "invertY", "Invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + '</div><div class="opt">' + btn("toggle", "autoRun", "Auto-run to target " + (s.autoRun ? "on" : "off"), !!s.autoRun) + '</div><div class="sub">Off by default: attacking or engaging an enemy leaves you where you stand, so you choose when to move in. On makes you run to your target when you attack.</div>' +
+    "<h3>Camera</h3><div class=\"opt\">" + btn("toggle", "autoCam", "Auto-follow " + (s.autoCam ? "on" : "off"), s.autoCam) + btn("toggle", "invertX", "Mouse invert horizontal " + (s.invertX !== false ? "on" : "off"), s.invertX !== false) + btn("toggle", "invertY", "Mouse invert vertical " + (s.invertY ? "on" : "off"), s.invertY) + btn("toggle", "keyInvertX", "Keyboard invert horizontal " + (s.keyInvertX ? "on" : "off"), !!s.keyInvertX) + btn("toggle", "keyInvertY", "Keyboard invert vertical " + (s.keyInvertY ? "on" : "off"), !!s.keyInvertY) + btn("camspeed", "", "Sensitivity ×" + s.camSpeed, false) + btn("toggle", "first", "First person " + (VIEW.first ? "on" : "off"), VIEW.first) + '</div><div class="opt">' + btn("toggle", "autoRun", "Auto-run to target " + (s.autoRun ? "on" : "off"), !!s.autoRun) + '</div><div class="sub">Off by default: attacking or engaging an enemy leaves you where you stand, so you choose when to move in. On makes you run to your target when you attack.</div>' +
 
     appearanceHTML();
 }

@@ -21,7 +21,7 @@ function onKey(e) {
   if (S.fish && S.fish.state === "bite" && (k === " " || k === "spacebar" || k === "enter" || k === "f")) { e.preventDefault(); reelFish(); return; }
   if (UI.mm && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); mainCmdKey(k); return; }
   if (UI.cmd && ["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k)) { e.preventDefault(); tgtCmdKey(k); return; }
-  if (k === "tab") { e.preventDefault(); cycleTarget(); return; }
+  if (k === "tab") { e.preventDefault(); if (!e.repeat) { UI.tabHeld = true; UI.tabUsed = false; UI.tabShift = e.shiftKey; } return; }
   if (k === "/") { e.preventDefault(); openChatInput("/"); return; }
   if (k === "l" && !S.modal) { chatToggle(); return; }
   if (k === "f") { toggleEngage(false); return; }
@@ -46,7 +46,8 @@ function onKey(e) {
   if (digit !== null) {
     const idx = digit === "0" ? 9 : parseInt(digit, 10) - 1;
     e.preventDefault();
-    activateSlot(e.shiftKey ? 1 : 0, idx);
+    if (UI.tabHeld) UI.tabUsed = true;
+    activateSlot(UI.tabHeld ? 3 : e.altKey ? 2 : e.shiftKey ? 1 : e.ctrlKey ? 0 : UI.page, idx);
     return;
   }
   if (k === "e" && !S.keys.e && nearNpc() && dist(nearNpc(), player) <= CONFIG.talkRange) { talkNearest(); return; }
@@ -78,8 +79,14 @@ async function boot() {
   window.addEventListener("keydown", onKey);
   window.addEventListener("pagehide", () => { if (UI.started) saveGame(); });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && UI.started) saveGame(); });
-  window.addEventListener("keyup", e => { S.keys[e.key.toLowerCase()] = false; });
-  window.addEventListener("blur", () => { S.keys = {}; });
+  window.addEventListener("keyup", e => {
+    S.keys[e.key.toLowerCase()] = false;
+    if (e.key === "Tab" && UI.tabHeld) {
+      UI.tabHeld = false;
+      if (!UI.tabUsed && UI.started && !S.modal && !S.dialog && !UI.confirmOpen) { if (UI.tabShift) cycleObjectTarget(); else cycleTarget(); }
+    }
+  });
+  window.addEventListener("blur", () => { S.keys = {}; UI.tabHeld = false; });
   VIEW.booting = true;
   rotateTip();
   const tipTimer = setInterval(rotateTip, 5000);

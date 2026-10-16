@@ -51,7 +51,7 @@ function renderModal() {
   if (UI.kbBtn != null && !SLIM_TABS[S.modal] && S.modal !== "equipment") { const b = [...document.querySelectorAll("#mBody button[data-a]:not([disabled]), #mBody [data-a].mcR, #mBody a[data-a]")].filter(x => x.offsetParent)[UI.kbBtn]; if (b) b.classList.add("kb"); }
   if (UI.kbRow != null && SLIM_TABS[S.modal]) { const rows = document.querySelectorAll("#mBody .lr:not(.empty)"); if (rows[UI.kbRow]) rows[UI.kbRow].classList.add("kb"); }
   const win = document.querySelector("#menu .win");
-  if (win) win.className = "win" + (SLIM_TABS[S.modal] ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "");
+  if (win) win.className = "win" + (SLIM_TABS[S.modal] ? " slim slim-" + S.modal : "") + (S.modal === "equipment" ? " wide" : "") + (S.modal === "auction" ? " fit" : "");
   renderMCard();
   if (S.modal === "character") attachPreview();
   if (S.modal === "map") { UI.mapAt = 0; drawZoneMap(); }
@@ -166,7 +166,7 @@ function itemCard(id) {
 function tabEquipment() {
   UI.eq = UI.eq || { slot: null, hover: null };
   const q = UI.eq, st = player.stats;
-  let h = '<div class="eqW"><div class="eqL">' + statusLeftHTML(true) + '<div class="stBox gilB"><em>Current Crystals</em><b>' + save.gil.toLocaleString() + '</b></div></div><div class="eqWrap"><div class="eqBox"><div class="eqGrid">';
+  let h = '<div class="eqW"><div class="eqL">' + statusLeftHTML(true) + '<div class="stBox gilB"><em>Crystals</em><b>' + save.gil.toLocaleString() + '</b></div></div><div class="eqWrap"><div class="eqBox"><div class="eqGrid">';
   for (const sl of SLOTS) {
     const id = save.gear[sl];
     h += '<button class="eqS' + (q.slot === sl ? " sel" : "") + (id ? " on" : "") + '" data-a="eqslot" data-v="' + sl + '" title="' + (id ? esc(ITEMS[id].name) : SLOT_NAMES[sl]) + '">' + (id ? '<span class="ic">' + (ITEMS[id].icon || "📦") + "</span>" : '<span class="lbl">' + SLOT_NAMES[sl] + "</span>") + "</button>";
@@ -409,9 +409,10 @@ function renderMCard() {
   if (!el) return;
   let id = UI.hov, h = "";
   if (S.modal === "inventory") { const s = save.inventory[UI.sel]; id = id || (s && s.id); }
-  if (S.modal === "shop" || S.modal === "auction") { h += '<div class="gilBox"><em>Current Crystals</em><b>' + save.gil.toLocaleString() + "</b></div>"; }
+  if (S.modal === "auction") id = id || (UI.ahView === "players" ? UI.pmSel : UI.ahSel);
+  if (["shop", "auction", "forge", "furnishings", "stable", "mercs", "guild", "home", "job", "craft", "board", "storage"].includes(S.modal)) { h += '<div class="gilBox"><em>Crystals</em><b>' + save.gil.toLocaleString() + "</b></div>"; }
   if (S.modal === "quests" && UI.qSel && QUESTS[UI.qSel]) h += '<div class="qCard">' + questCardHTML(UI.qSel) + "</div>";
-  else if ((S.modal === "inventory" || S.modal === "shop") && id && ITEMS[id]) h += '<div class="cardBox">' + itemCard(id) + (S.modal === "inventory" && augText(id) ? '<div class="sub" style="color:#ce93d8">✨ ' + esc(augText(id)) + "</div>" : "") + "</div>";
+  else if ((S.modal === "inventory" || S.modal === "shop" || S.modal === "auction") && id && ITEMS[id]) h += '<div class="cardBox">' + itemCard(id) + (S.modal === "inventory" && augText(id) ? '<div class="sub" style="color:#ce93d8">✨ ' + esc(augText(id)) + "</div>" : "") + "</div>";
   el.innerHTML = h;
   el.classList.toggle("on", !!h);
   const win = document.querySelector("#menu .win");
@@ -457,9 +458,9 @@ function tabSkills() {
 
 function tabActions() {
   const hb = hotbar();
-  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Hold <b>Ctrl</b> and press 1–9 or 0 for the Ctrl line, or hold <b>Shift</b> for the Shift line. Plain 1–0 also use the Ctrl line, since some browsers keep Ctrl+number for switching tabs.</div>';
+  let h = '<div class="sub">Tap an action, then tap a slot to place it. Tap two slots to swap them. Four lines of ten: hold <b>Ctrl</b>, <b>Shift</b>, <b>Alt</b> or <b>Tab</b> and press 1–9 or 0. Plain 1–0 use the line shown on the pinned bar (Ctrl by default), which also works when your browser keeps Ctrl+number for switching tabs.</div>';
   hb.pages.forEach((pg, p) => {
-    h += "<h3>" + (p ? "Shift" : "Ctrl") + " line</h3><div class=\"barEdit\">";
+    h += "<h3>" + ["Ctrl", "Shift", "Alt", "Tab"][p] + " line</h3><div class=\"barEdit\">";
     pg.forEach((a, i) => { h += '<button class="slot' + (a ? " " + a.kind : " empty") + (UI.pick && UI.pick[0] === p && UI.pick[1] === i ? " pick" : "") + '" data-a="slotpick" data-v="' + p + "," + i + '"' + (a ? ' style="background:' + actTint(a) + '"' : "") + ' title="' + esc(actName(a)) + '"><span class="hk">' + ((i + 1) % 10) + '</span><span class="ic">' + actIcon(a) + "</span></button>"; });
     h += "</div>";
   });
@@ -616,7 +617,7 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
-  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + "</div>";
+  h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + "</div>";
   h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="help">❓ Help</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
@@ -1040,7 +1041,7 @@ function ahTrend(id) { const hst = priceHistory(id, 3); const d = (hst[2] - hst[
 function ahDetail(id) {
   const it = ITEMS[id], hist = priceHistory(id, 12), cur = hist[hist.length - 1], base = it.price;
   let h = '<div class="item" style="display:block;border-color:#c9a227"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + esc(itemDesc(id)) + '</div></div><div style="text-align:right"><b>' + cur + ' 💠</b><div class="sub">usual ' + base + "</div></div></div>";
-  h += '<div style="margin:8px 0 2px">' + sparkline(hist, 300, 46) + '</div><div class="sub">Price over the last three game days: low ' + Math.min(...hist) + ", high " + Math.max(...hist) + ".</div>";
+  h += '<div style="margin:8px 0 2px">' + sparkline(hist, 240, 46) + '</div><div class="sub">Price over the last three game days: low ' + Math.min(...hist) + ", high " + Math.max(...hist) + ".</div>";
   const q = UI.ahQty || 1;
   if (UI.ahView === "sell") {
     const unit = UI.ahPrice / q, chance = saleChance({ id, qty: q, price: UI.ahPrice });
@@ -1089,7 +1090,7 @@ function pmView() {
   if (!groups.size) h += '<div class="sub">Nobody has anything up in this category right now. Be the first: choose Sell, pick an item and press Offer to players.</div>';
   for (const [id, ls] of [...groups].sort((a, b) => ITEMS[a[0]].name.localeCompare(ITEMS[b[0]].name))) {
     const it = ITEMS[id], best = Math.min(...ls.map(l => l.price / l.qty));
-    h += '<div class="item ' + rarityOf(id) + '" data-a="pmsel" data-v="' + id + '" style="cursor:pointer' + (UI.pmSel === id ? ";border-color:#c9a227" : "") + '"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + ls.length + " lot" + (ls.length > 1 ? "s" : "") + " from players</div></div><span>from " + Math.round(best) + " 💠 each</span></div>";
+    h += '<div class="item ' + rarityOf(id) + '" data-a="pmsel" data-v="' + id + '" data-hv="' + id + '" style="cursor:pointer' + (UI.pmSel === id ? ";border-color:#c9a227" : "") + '"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + ls.length + " lot" + (ls.length > 1 ? "s" : "") + " from players</div></div><span>from " + Math.round(best) + " 💠 each</span></div>";
   }
   return h;
 }
@@ -1129,11 +1130,11 @@ function tabAuction() {
   }
   if (view === "buy") h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">' + Object.keys(AH_CATS).map(k => '<button data-a="ahcat" data-v="' + k + '"' + (cat === k ? ' style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + AH_CATS[k] + (news.up === k ? " ▲" : news.down === k ? " ▼" : "") + "</button>").join("") + "</div>";
   if (UI.ahSel && ITEMS[UI.ahSel]) h += ahDetail(UI.ahSel);
-  const ids = view === "buy" ? Object.keys(ITEMS).filter(id => ahTradable(id) && ahCategory(id) === cat && (ITEMS[id].kind !== "equip" || (ITEMS[id].lv || 1) <= player.lv + 5)).sort((a, b) => (ITEMS[a].lv || 0) - (ITEMS[b].lv || 0) || ITEMS[a].price - ITEMS[b].price) : [...new Set(save.inventory.map(s => s.id))].filter(ahTradable);
+  const ids = view === "buy" ? Object.keys(ITEMS).filter(id => ahTradable(id) && ahCategory(id) === cat && ahDaily().has(id)).sort((a, b) => (ITEMS[a].lv || 0) - (ITEMS[b].lv || 0) || ITEMS[a].price - ITEMS[b].price) : [...new Set(save.inventory.map(s => s.id))].filter(ahTradable);
   if (!ids.length) h += '<div class="sub">' + (view === "sell" ? "Nothing in your bag can be sold at auction. Rare and Ex items, key items and furniture can't be listed." : "Nothing here right now.") + "</div>";
   for (const id of ids) {
     const it = ITEMS[id];
-    h += '<div class="item ' + rarityOf(id) + '" data-a="ahsel" data-v="' + id + '" style="cursor:pointer' + (UI.ahSel === id ? ";border-color:#c9a227" : "") + '"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + (it.lv ? "Lv." + it.lv + " · " : "") + (view === "sell" ? "you have " + invCount(id) : ahStock(id) + " on the market") + '</div></div><span>' + marketPrice(id) + " 💠 " + ahTrend(id) + "</span></div>";
+    h += '<div class="item ' + rarityOf(id) + '" data-a="ahsel" data-v="' + id + '" data-hv="' + id + '" style="cursor:pointer' + (UI.ahSel === id ? ";border-color:#c9a227" : "") + '"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + (it.lv ? "Lv." + it.lv + " · " : "") + (view === "sell" ? "you have " + invCount(id) : ahStock(id) + " on the market") + '</div></div><span>' + marketPrice(id) + " 💠 " + ahTrend(id) + "</span></div>";
   }
   return h;
 }
@@ -1279,7 +1280,7 @@ function onMenuClick(e) {
   e.preventDefault();
   const a = t.dataset.a, v = t.dataset.v;
   if (a === "mute") { toggleMute(); renderModal(); return; }
-  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates" || v === "compass" || v === "dmgNums")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
+  if (a === "toggle" && (v === "tracker" || v === "names" || v === "plates" || v === "compass" || v === "dmgNums" || v === "hotbar")) { VIEW.settings[v] = VIEW.settings[v] === false; saveSettings(VIEW.settings); applyUiSettings(); renderModal(); sfx("click"); return; }
   if (typeof handleSettingAction === "function" && handleSettingAction(a, v)) { renderModal(); sfx("click"); return; }
   const hb = hotbar();
   if (a === "filter") { UI.filter = v; UI.sel = null; sfx("tab"); }
@@ -1462,13 +1463,14 @@ function onMenuClick(e) {
 function placeOnBar(a) {
   const hb = hotbar();
   if (hb.pages.flat().some(x => x && x.kind === a.kind && x.id === a.id)) { toast(actIcon(a), "Already on your bar", actName(a)); return; }
-  for (let p = 0; p < 2; p++) for (let i = 0; i < 10; i++) if (!hb.pages[p][i]) { hb.pages[p][i] = a; saveGame(); buildActionBar(); toast(actIcon(a), "Added to page " + (p + 1), actName(a)); sfx("equip"); return; }
+  for (let p = 0; p < hb.pages.length; p++) for (let i = 0; i < 10; i++) if (!hb.pages[p][i]) { hb.pages[p][i] = a; saveGame(); buildActionBar(); toast(actIcon(a), "Added to page " + (p + 1), actName(a)); sfx("equip"); return; }
   toast("⚠", "Action bar full", "Clear a slot in the Action Bar menu.");
   sfx("error");
 }
 function applyUiSettings() {
   const s = VIEW.settings;
   document.body.classList.toggle("noNames", s.names === false);
+  document.body.classList.toggle("noHotbar", s.hotbar === false);
 }
 function initMenu() {
   const m = $("menu");
@@ -1486,6 +1488,38 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.11.0", date: "2026-10-15", title: "Smaller daily Auction House stock", items: [
+    "<b>The market now lists only a daily random selection:</b> 10 kinds of consumables, 5 kinds of ammo, 3 spell scrolls, 10 kinds of food, 10 kinds of materials and the 10 pieces of +1 equipment.",
+    "<b>Nothing is listed more than one level above yours</b>, so the market always matches where you are. The selection changes every game day (and when you level up)."
+  ] },
+  { v: "18.10.0", date: "2026-10-15", title: "Auction House: daily gear and item cards", items: [
+    "<b>The market now sells only 10 pieces of equipment a day</b>, picked at random, and every one is a +1 piece (or better). One of each is on offer, and the list changes every game day. Materials and consumables are unchanged.",
+    "<b>Point at or pick anything in the Auction House</b> and its item card appears beside the window, the same card you get from your inventory.",
+    "The Auction House window is now only as wide as its text."
+  ] },
+  { v: "18.9.0", date: "2026-10-15", title: "Crystals on every shop window", items: [
+    "The balance box now reads <b>Crystals</b> with the number on the same line, instead of two lines headed Current Crystals.",
+    "It shows below every window where you can pay crystals: shops, the Auction House, the Forge, furnishings, the stable, mercenaries, the guild, your residence, job change, crafting, the Trade Board and storage."
+  ] },
+  { v: "18.8.0", date: "2026-10-15", title: "Separate mouse and keyboard camera inversion", items: [
+    "<b>Camera inversion is now set separately for the mouse and the keyboard</b> (Config > Camera): Mouse invert horizontal and vertical, and Keyboard invert horizontal and vertical (arrow keys, Q and E).",
+    "Your existing mouse settings are kept. Keyboard inversion starts off."
+  ] },
+  { v: "18.7.0", date: "2026-10-15", title: "Pinned hotkey bar", items: [
+    "<b>Your hotkeys are pinned to the screen</b>, centered above the event log. Tap a slot to use it, or press its number.",
+    "The ▲ ▼ buttons beside the bar (and [ and ]) switch between the Ctrl, Shift, Alt and Tab lines; the label shows which line you are viewing. Plain 1–0 fire the line shown.",
+    "Turn the bar off or on under Config > Interface > Pinned hotkeys. Place actions in Hotkeys (B)."
+  ] },
+  { v: "18.6.0", date: "2026-10-15", title: "Four hotkey lines", items: [
+    "<b>Hotkeys now have four lines of ten:</b> Ctrl, Shift, Alt and Tab. Hold the key and press 1–9 or 0. Set each line in Hotkeys. Plain 1–0 still use the Ctrl line.",
+    "Tab now targets when you let go of it, so you can hold Tab and press a number for the Tab line. Shift+Tab still cycles nearby objects.",
+    "New slots from learning actions fill all four lines in order."
+  ] },
+  { v: "18.5.1", date: "2026-10-15", title: "Chasing monsters and object targeting", items: [
+    "<b>Monsters now chase you until you leave the zone.</b> They no longer give up after a set distance from home; they only stop when you zone, defeat them, or are defeated.",
+    "<b>Shift+Tab</b> cycles nearby objects (signposts, warp stones, crystals, shrines and tablets), even when monsters are close. Plain Tab still targets monsters first.",
+    "Plain 1–0 fire the Ctrl line, because browsers often keep Ctrl+number for switching tabs."
+  ] },
   { v: "18.5.0", date: "2026-10-15", title: "Crafting FFXI gear", items: [
     "<b>128 new recipes:</b> every shop item that has a +1 version can now be crafted, and a good synthesis can come out as the +1. Smithing makes metal weapons and armor, Woodworking makes bows, staves, clubs, wands, shields and clogs, Clothcraft makes cloth and leather pieces, and Alchemy makes bone gear.",
     "Recipes use the materials you already gather and loot: Bronze and Iron Ingots, Ash Lumber, Silk Cloth, Worm Silk, Lizard Skin, Bone Chips, and Heartwood, Wool Tufts or Crab Shells from level 10. The recipe level is the item's level.",
@@ -2665,12 +2699,12 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
-    "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Change it with Invert horizontal in Config, Camera; Invert vertical does the same for up and down.",
+    "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Config, Camera has separate Mouse and Keyboard switches for inverting horizontal (left and right) and vertical (up and down); the keyboard ones affect the arrow keys and Q and E.",
     "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
-    "<b>Keyboard:</b> Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
-    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line (plain 1–0 also use the Ctrl line); set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
+    "<b>Keyboard:</b> Shift+Tab cycles nearby objects (signposts, warp stones, crystals, shrines) even with monsters around · Monsters chase you until you leave the zone · Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
+    "Hotkeys: Ctrl+1–0 use the Ctrl line and Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (plain 1–0 use the line shown on the pinned bar, Ctrl by default; browsers may keep Ctrl+number for switching tabs). Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
@@ -2822,10 +2856,11 @@ function tabHelp() {
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
   ]));
   h += sec("⚖️ Auction house", ul([
-    "A <b>Current Crystals</b> box under the window shows your balance while you shop.",
+    "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
     "Talk to <b>Corvin</b> in Ashenreach Outpost or <b>Selene</b> in Saltreach Harbor.",
     "<b>Prices move.</b> Every item drifts around its usual value through the game day (a new price every 6 game hours, about 14 real minutes). Each game day the market news lifts one category (▲) and lowers another (▼). Buying pushes a price up; your lots selling pull it down; both effects fade.",
     "Items that shops sell never fetch more than " + 95 + "% of the shop price at auction, so the auction house is for bargains, materials and other adventurers' gear.",
+    "Each game day the market stocks only a random handful: 10 pieces of +1 (high-quality) equipment (one of each), 5 kinds of ammo, 10 kinds of potions and other consumables, 3 spell scrolls, 10 kinds of food and 10 kinds of materials. Nothing is listed above your level + 1. Point at any entry to see its item card.",
     "<b>Buying:</b> pick a category and tap an item for its price chart and today's stock (stock refreshes each game day). Weapons and armor more than 5 levels above you are hidden.",
     "<b>Selling:</b> choose an item and quantity (up to one stack), adjust the price, and pay a " + Math.round(AH_CFG.fee * 100) + "% listing fee. The window tells you how quickly it's likely to sell. Up to " + AH_CFG.maxListings + " lots at once; each stays up " + AH_CFG.expireMs / 3600000 + " hours (real time) and keeps selling while you're away. Crystals from a sale go straight to you.",
     "Unsold or withdrawn lots go to your <b>delivery box</b>; collect them from the My lots view. Rare, Ex, key items and furniture can't be auctioned.",

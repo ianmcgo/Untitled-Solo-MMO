@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.5.0",
-  "releaseTitle": "Crafting FFXI gear",
+  "version": "18.11.0",
+  "releaseTitle": "Smaller daily Auction House stock",
   "description": "",
   "main": "index.js",
   "scripts": {

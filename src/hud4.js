@@ -169,6 +169,7 @@ function hotbar() {
     hb.pages[1][1] = { kind: "item", id: "ether" };
     hb.pages[1][2] = { kind: "item", id: "hi_potion" };
   }
+  while (hb.pages.length < 4) hb.pages.push(new Array(10).fill(null));
   if (!hb.petAdded && save.buddies && save.buddies.length) {
     hb.petAdded = true;
     if (!hb.pages.some(pg => pg.some(x => x && x.kind === "cmd" && x.id === "pet"))) {
@@ -232,9 +233,9 @@ function buildActionBar() {
     el.appendChild(b);
     UI.slots.push({ el: b, a, cost: b.querySelector(".cost"), cd: b.querySelector(".cd"), cdt: b.querySelector(".cdt"), chip: null, last: {} });
   }
-  $("pgNum").textContent = UI.page + 1;
+  $("pgNum").textContent = ["Ctrl", "Shft", "Alt", "Tab"][UI.page];
 }
-function setPage(p) { UI.page = (p + 2) % 2; buildActionBar(); sfx("tab"); }
+function setPage(p) { UI.page = (p + 4) % 4; buildActionBar(); sfx("tab"); }
 function activateSlot(page, i) {
   const a = hotbar().pages[page][i];
   if (page === UI.page && UI.slots[i]) { const el = UI.slots[i].el; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
