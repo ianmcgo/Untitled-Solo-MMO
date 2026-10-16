@@ -1091,7 +1091,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v17.2.0 · built 2026-10-15 17:58 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v17.3.0 · built 2026-10-15 18:07 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6040,6 +6040,8 @@ const ABILITIES = {
 
 const BUFF_NAMES = { weakened: "Weakened", boon: "Shrine's Favour", blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
 const BUFF_ICONS = { weakened: "🥀", boon: "🕯️", blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
+Object.assign(BUFF_NAMES, { enthunder: "Enthunder", enstone: "Enstone", enaero: "Enaero", blaze_spikes: "Blaze Spikes", ice_spikes: "Ice Spikes", shock: "Shock", rasp: "Rasp", choke: "Choke", requiem: "Foe Requiem", mambo: "Sheepfoe Mambo", pastoral: "Herb Pastoral", operetta: "Scop's Operetta", threnody_light: "Light Threnody", threnody_dark: "Dark Threnody", threnody_earth: "Earth Threnody", threnody_water: "Water Threnody", threnody_wind: "Wind Threnody", threnody_fire: "Fire Threnody" });
+Object.assign(BUFF_ICONS, { enthunder: "⚡", enstone: "◆", enaero: "🌀", blaze_spikes: "🔥", ice_spikes: "❄", shock: "⚡", rasp: "◆", choke: "🌀", requiem: "🎵", mambo: "🎵", pastoral: "🎵", operetta: "🎵", threnody_light: "✨", threnody_dark: "🌑", threnody_earth: "◆", threnody_water: "💧", threnody_wind: "🌀", threnody_fire: "🔥" });
 Object.assign(BUFF_NAMES, { barfire: "Barfire", barstone: "Barstone", barwater: "Barwater", baraero: "Baraero", barsleep: "Barsleep", barpoison: "Barpoison", barparalyze: "Barparalyze", barblind: "Barblind", aquaveil: "Aquaveil", sneak: "Sneak", deodorize: "Deodorize", silence: "Silence", reraise: "Reraise", poison: "Poison", shell: "Shell", minne: "Knight's Minne" });
 Object.assign(BUFF_ICONS, { barfire: "🔥", barstone: "◆", barwater: "💧", baraero: "🌀", barsleep: "💤", barpoison: "☠️", barparalyze: "🧊", barblind: "🕶", aquaveil: "🫧", sneak: "👣", deodorize: "🌿", silence: "🤐", reraise: "🪽", poison: "☠️", shell: "🔰", minne: "🎵" });
 
@@ -6092,6 +6094,30 @@ const SPELLS = {
   sneak: { name: "Sneak", jobs: { WHM: 20, RDM: 20 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "sneak", target: "ally", dur: 420, rnd: 120, desc: "Monsters that notice you by sound ignore you for about 7 to 9 minutes." },
   deodorize: { name: "Deodorize", jobs: { WHM: 15, RDM: 15 }, mp: 10, cast: 2, recast: 8, kind: "buff", buff: "deodorize", target: "ally", dur: 420, rnd: 120, desc: "Monsters that sniff out the weak ignore you for about 7 to 9 minutes." },
   warp: { name: "Warp", jobs: { BLM: 17 }, mp: 100, cast: 4, recast: 10, kind: "warp", target: "self", desc: "Teleports you to your home point." },
+  curaga: { name: "Curaga", jobs: { WHM: 16 }, mp: 60, cast: 4.5, recast: 10, kind: "heal", aoe: 300, cure: { min: 60, t: [[110.5, 2, 20, 0], [170.5, 4, 47.5, 0], [1000000000, 71.3332, 87.62, 0]] }, target: "ally", desc: "Restores HP to every ally near the target." },
+  diaga: { name: "Diaga", jobs: { WHM: 18, RDM: 15 }, mp: 12, cast: 1.5, recast: 6, kind: "dot", aoe: 170, element: "light", power: 1, dot: { dur: 60, tick: 1 }, buff: "dia", target: "enemy", desc: "Dia on every enemy near the target: light damage, then 1 damage every 3 s for 60 s." },
+  banishga: { name: "Banishga", jobs: { WHM: 15 }, mp: 41, cast: 2.75, recast: 15, kind: "nuke", aoe: 170, element: "light", power: 36, k: 1, k2: 1, stat: "mnd", target: "enemy", skill: "divine", desc: "Light damage to every enemy near the target. Undead take 50% more." },
+  stonega: { name: "Stonega", jobs: { BLM: 15 }, mp: 24, cast: 2, recast: 5, kind: "nuke", aoe: 170, element: "earth", power: 62, k: 1.4, k2: 1, stat: "int", target: "enemy", desc: "Earth damage to every enemy near the target." },
+  waterga: { name: "Waterga", jobs: { BLM: 19 }, mp: 34, cast: 2, recast: 5, kind: "nuke", aoe: 170, element: "water", power: 78, k: 1.2, k2: 1, stat: "int", target: "enemy", desc: "Water damage to every enemy near the target." },
+  blaze_spikes: { name: "Blaze Spikes", jobs: { BLM: 10, RDM: 20 }, mp: 8, cast: 3, recast: 10, kind: "buff", buff: "blaze_spikes", spikes: { el: "fire", div: 12, max: 25 }, target: "self", dur: 180, desc: "Fire damage to anything that hits you in melee, for 3 minutes. Stronger with INT." },
+  ice_spikes: { name: "Ice Spikes", jobs: { BLM: 20 }, mp: 16, cast: 3, recast: 10, kind: "buff", buff: "ice_spikes", spikes: { el: "ice", div: 20, max: 15, para: 0.3 }, target: "self", dur: 180, desc: "Ice damage to anything that hits you in melee, and it may be paralyzed, for 3 minutes." },
+  enthunder: { name: "Enthunder", jobs: { RDM: 16 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enthunder", en: "lightning", target: "self", dur: 180, desc: "Your melee hits add lightning damage for 3 minutes. Stronger with Enhancing skill." },
+  enstone: { name: "Enstone", jobs: { RDM: 18 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enstone", en: "earth", target: "self", dur: 180, desc: "Your melee hits add earth damage for 3 minutes. Stronger with Enhancing skill." },
+  enaero: { name: "Enaero", jobs: { RDM: 20 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enaero", en: "wind", target: "self", dur: 180, desc: "Your melee hits add wind damage for 3 minutes. Stronger with Enhancing skill." },
+  shock: { name: "Shock", jobs: { BLM: 16 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "lightning", power: 0, dot: { dur: 90, pot: "int" }, buff: "shock", skill: "enfeebling", target: "enemy", desc: "Lightning damage over time for 90 s. Stronger with INT. Rasp and Choke overwrite it." },
+  rasp: { name: "Rasp", jobs: { BLM: 18 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "earth", power: 0, dot: { dur: 90, pot: "int" }, buff: "rasp", replaces: ["shock"], skill: "enfeebling", target: "enemy", desc: "Earth damage over time for 90 s and lowers the target's accuracy. Replaces Shock." },
+  choke: { name: "Choke", jobs: { BLM: 20 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "wind", power: 0, dot: { dur: 90, pot: "int" }, buff: "choke", replaces: ["rasp"], skill: "enfeebling", target: "enemy", desc: "Wind damage over time for 90 s and lowers the target's defense. Replaces Rasp." },
+  foe_requiem: { name: "Foe Requiem", jobs: { BRD: 7 }, mp: 0, cast: 2, recast: 24, kind: "dot", element: "dark", power: 0, dot: { dur: 64, tick: 1 }, buff: "requiem", skill: "singing", target: "enemy", desc: "1 damage every 3 s for 64 s." },
+  foe_requiem2: { name: "Foe Requiem II", jobs: { BRD: 17 }, mp: 0, cast: 2, recast: 24, kind: "dot", element: "dark", power: 0, dot: { dur: 80, tick: 2 }, buff: "requiem", skill: "singing", target: "enemy", desc: "2 damage every 3 s for 80 s." },
+  light_threnody: { name: "Light Threnody", jobs: { BRD: 10 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "light", buff: "threnody_light", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more light damage for 60 s.", dur: 60 },
+  dark_threnody: { name: "Dark Threnody", jobs: { BRD: 12 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "dark", buff: "threnody_dark", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more dark damage for 60 s.", dur: 60 },
+  earth_threnody: { name: "Earth Threnody", jobs: { BRD: 14 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "earth", buff: "threnody_earth", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more earth damage for 60 s.", dur: 60 },
+  water_threnody: { name: "Water Threnody", jobs: { BRD: 16 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "water", buff: "threnody_water", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more water damage for 60 s.", dur: 60 },
+  wind_threnody: { name: "Wind Threnody", jobs: { BRD: 18 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "wind", buff: "threnody_wind", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more wind damage for 60 s.", dur: 60 },
+  fire_threnody: { name: "Fire Threnody", jobs: { BRD: 20 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "fire", buff: "threnody_fire", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more fire damage for 60 s.", dur: 60 },
+  sheepfoe_mambo: { name: "Sheepfoe Mambo", jobs: { BRD: 13 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "mambo", base: 5, sreq: 85, cap: 48, mult: 5, div: 18, target: "self", skill: "singing", desc: "Party song: evasion +5 and rising with Singing skill, for 2 minutes.", dur: 120 },
+  herb_pastoral: { name: "Herb Pastoral", jobs: { BRD: 9 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "pastoral", base: 20, sreq: 200, cap: 80, mult: 8, div: 10, target: "self", skill: "singing", desc: "Party song: 40% or more chance to resist Poison, for 2 minutes.", dur: 120 },
+  scops_operetta: { name: "Scop's Operetta", jobs: { BRD: 19 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "operetta", base: 20, sreq: 200, cap: 80, mult: 8, div: 10, target: "self", skill: "singing", desc: "Party song: 40% or more chance to resist Silence, for 2 minutes.", dur: 120 },
   knights_minne: { name: "Knight's Minne", jobs: { BRD: 1 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minne", base: 8, sreq: 0, cap: 30, mult: 3, div: 10, target: "self", skill: "singing", desc: "Party song: defense +8, rising with Singing skill.", dur: 120 },
   valor_minuet: { name: "Valor Minuet", jobs: { BRD: 3 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minuet", base: 5, sreq: 50, cap: 32, mult: 3, div: 4.3, target: "self", skill: "singing", desc: "Party song: attack +5, rising with Singing skill.", dur: 120 },
   armys_paeon: { name: "Army's Paeon", jobs: { BRD: 5 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 1, sreq: 100, cap: 2, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 1 HP every 3 s.", dur: 120 },
@@ -9542,6 +9568,9 @@ function stat(e, k) {
   if (k === "def" && b.minne) v += b.minne.pow;
   if (k === "att" && b.blight) v *= 0.9;
   if (k === "acc" && b.madrigal) v += b.madrigal.pow;
+  if (k === "eva" && b.mambo) v += b.mambo.pow;
+  if (k === "acc" && b.rasp) v -= b.rasp.sd;
+  if (k === "def" && b.choke) v -= b.choke.sd;
   if (k === "def" && b.berserk) v *= 0.75;
   if (k === "def" && b.dia) v *= 0.9;
   if (k === "def" && b.sentinel) v *= 1.5;
@@ -9740,6 +9769,17 @@ function swing(a, d) {
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
   applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16 });
+  if (d.alive && !bow) for (const k of EN_KEYS) if (b[k]) applyDamage(a, d, b[k].pow, { color: ELEMENT_COLORS[EN_EL[k]], size: 13, enmity: 0, el: EN_EL[k] });
+  if (a.alive && d.alive && !bow) {
+    for (const k of ["blaze_spikes", "ice_spikes"]) {
+      const sk = d.buffs && d.buffs[k];
+      if (!sk) continue;
+      const sp = SPELLS[k], el = sp.spikes.el;
+      popText(d, sp.name, ELEMENT_COLORS[el], 12, 0.9, 12);
+      applyDamage(d, a, sk.pow, { color: ELEMENT_COLORS[el], size: 13, enmity: 0, el });
+      if (sp.spikes.para && a.alive && Math.random() < sp.spikes.para && !a.buffs.paralyze) a.buffs.paralyze = { until: S.time + 10, src: d, pow: 0.15 };
+    }
+  }
   if (b.blood_blade && a.alive) { const heal = Math.min(a.maxHp - a.hp, Math.floor(dmg * 0.4)); if (heal > 0) { a.hp += heal; popText(a, "+" + heal, "#9ad06b", 13, 0.8); } }
   if (a.job === "MNK" && a.stats.wtype === "h2h" && d.alive && !a.kicking && Math.random() < 0.14) {
     a.kicking = true;
@@ -11073,17 +11113,24 @@ function healAmount(a, sp) {
 
 function castHeal(a, t, sp) {
   const amt = healAmount(a, sp);
-  const real = Math.max(0, Math.min(amt, t.maxHp - t.hp));
-  t.hp += real;
-  if (real > 0) {
-    popText(t, "+" + real, "#9ad06b", 18);
-    ring(t, "#9ad06b", 30, 0.6, "sparkle");
-    sfx("cure", t);
-    vfx("cure", { src: a, tgt: t, big: sp.power > 40 });
-  } else popText(t, "No effect", "#bbbbbb", 13, 0.9);
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + subj(t) + " " + vb(t, "recover") + " " + real + " HP.", cls(a));
+  const group = sp.aoe ? S.party.filter(p => p.alive && dist(p, t) <= sp.aoe) : [t];
+  const parts = [];
+  let total = 0;
+  for (const g of group) {
+    const real = Math.max(0, Math.min(amt, g.maxHp - g.hp));
+    g.hp += real;
+    total += real;
+    parts.push(subj(g) + " " + vb(g, "recover") + " " + real + " HP");
+    if (real > 0) {
+      popText(g, "+" + real, "#9ad06b", 18);
+      ring(g, "#9ad06b", 30, 0.6, "sparkle");
+      sfx("cure", g);
+      vfx("cure", { src: a, tgt: g, big: sp.power > 40 || !!sp.aoe });
+    } else popText(g, "No effect", "#bbbbbb", 13, 0.9);
+  }
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + parts.join(", ") + ".", cls(a));
   if (a !== player && t !== a) partySay(a, "cure");
-  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, real * 1.5);
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, total * 1.5);
 }
 
 function magicHit(a, t, sp) {
@@ -11091,12 +11138,17 @@ function magicHit(a, t, sp) {
 }
 
 function castNuke(a, t, sp) {
+  const list = sp.aoe ? S.mobs.filter(m => m.alive && (m === t || dist(m, t) <= sp.aoe)) : [t];
+  for (const m of list) if (m.alive) nukeOne(a, m, sp);
+}
+function nukeOne(a, t, sp) {
   const dStat = a.stats[sp.stat] - t.stats[sp.stat];
   let dmg = sp.k != null
     ? sp.power + sp.k * Math.max(-40, Math.min(dStat, 50)) + sp.k2 * Math.max(0, Math.min(dStat, 100) - 50)
     : (sp.power + 1.5 * Math.max(0, dStat)) * (1 + 0.08 * (a.lv - 1));
   if (sp.k != null && t.fam.undead && sp.element === "light") dmg *= 1.5;
   dmg *= (t.fam.weak && t.fam.weak[sp.element]) || 1;
+  if (t.buffs["threnody_" + sp.element]) dmg *= 1 + t.buffs["threnody_" + sp.element].pow;
   if (sp.element === dayElement()) dmg *= 1.1;
   if (sp.element && sp.element === weatherElement()) dmg *= 1.1;
   if (sp.blue && a.buffs.burst_affinity) { dmg *= 1.5; delete a.buffs.burst_affinity; }
@@ -11126,7 +11178,8 @@ function castNuke(a, t, sp) {
   applyDamage(a, t, dmg, { color: col, size: burst ? 26 : 20, enmity: 60 + dmg * 1.5 });
 }
 
-const SONG_KEYS = ["minuet", "paeon", "ballad", "madrigal", "march", "minne"];
+const SONG_KEYS = ["minuet", "paeon", "ballad", "madrigal", "march", "minne", "mambo", "pastoral", "operetta"];
+const SONG_RES = { poison: "pastoral", silence: "operetta" };
 
 function applySong(p, a, sp) {
   const have = SONG_KEYS.filter(k => p.buffs[k] && k !== sp.song).sort((x, y) => p.buffs[x].until - p.buffs[y].until);
@@ -11199,7 +11252,8 @@ function castDebuff(a, t, sp) {
   const pw = sp.buff === "slow" ? Math.max(0.073, Math.min(0.292, 0.146 + dS * 0.0018)) : sp.buff === "paralyze" ? Math.max(0.05, Math.min(0.25, 0.15 + dS * 0.0025)) : sp.buff === "flash" && sp.stat ? Math.max(0.05, Math.min(0.5, (dS + 80) / 400)) : null;
   t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
   if (pw != null) t.buffs[sp.buff].pow = pw;
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place", silence: "silenced" }[sp.buff] + ".", cls(a));
+  if (sp.thr) t.buffs[sp.buff].pow = sp.thr;
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place", silence: "silenced" }[sp.buff] || "weakened to " + sp.element + ".", cls(a));
   popText(t, sp.name, col, 14, 1.1);
   if (sp.buff === "stun" && t.readying) { t.readying = null; t.tp = Math.floor(t.tp / 2); log("The " + t.name + "'s " + t.fam.tpMove.name + " is cut short!", cls(a)); }
   if (sp.buff === "sleep") { t.swingTimer = Math.max(t.swingTimer, 1); t.readying = null; }
@@ -11207,6 +11261,8 @@ function castDebuff(a, t, sp) {
   aggro(t, a);
 }
 
+const EN_KEYS = ["enthunder", "enstone", "enaero"];
+const EN_EL = { enthunder: "lightning", enstone: "earth", enaero: "wind" };
 const BAR_EL = { fire: "barfire", earth: "barstone", water: "barwater", wind: "baraero" };
 const BAR_ST = { poison: "barpoison", paralyze: "barparalyze", flash: "barblind", sleep: "barsleep" };
 function applyBuffTo(a, t, sp) {
@@ -11215,6 +11271,8 @@ function applyBuffTo(a, t, sp) {
   if (sp.bar) b.pow = Math.min(0.35, (40 + Math.floor(skillOf(a, "enhancing") / 5)) / 400);
   if (sp.barst) b.pow = 0.5;
   if (sp.buff === "shadows") b.n = sp.n + (a.lv >= 12 && !sp.exact ? 1 : 0);
+  if (sp.spikes) b.pow = Math.max(1, Math.min(sp.spikes.max, Math.floor((a.stats.int + 50) / sp.spikes.div)));
+  if (sp.en) { const sk = skillOf(a, "enhancing"); b.pow = sk > 150 ? Math.floor(sk / 20) + 5 : Math.max(Math.floor(Math.sqrt(sk)) - 1, 1); }
   if (sp.buff === "aquaveil") b.n = sp.n + (skillOf(a, "enhancing") > 300 ? 1 : 0);
   popText(t, sp.name, "#9ad06b", 13, 1.1, 14);
   ring(t, "#9ad06b", 26, 0.5);
@@ -11243,7 +11301,8 @@ function castWarp(a, sp) {
   enterZone(h.zone, h.x, h.y);
 }
 function inflictStatus(m, tg, key, dur, pow) {
-  const bar = BAR_ST[key];
+  const bar = BAR_ST[key], song = SONG_RES[key];
+  if (song && tg.buffs[song] && Math.random() < Math.min(0.75, tg.buffs[song].pow / 50)) { popText(tg, "Resisted", "#bbbbbb", 12, 0.9, 12); return false; }
   if (bar && tg.buffs[bar] && Math.random() < tg.buffs[bar].pow) { popText(tg, "Resisted", "#bbbbbb", 12, 0.9, 12); return false; }
   const b = tg.buffs[key] = { until: S.time + dur, src: m };
   if (pow != null) b.pow = pow;
@@ -11253,11 +11312,16 @@ function inflictStatus(m, tg, key, dur, pow) {
 }
 
 function dotTick(a, d) {
+  if (d.pot) { const v = a.stats[d.pot]; return 1 + (v > 150 ? 4 : v > 100 ? 3 : v > 70 ? 2 : v > 40 ? 1 : 0); }
   if (!d.skill) return d.tick;
   const raw = skillOf(a, d.skill) / d.div;
   return Math.max(d.min || 1, Math.min(d.max || 999, d.ceil ? Math.ceil(raw) : raw));
 }
 function castDia(a, t, sp) {
+  const list = sp.aoe ? S.mobs.filter(m => m.alive && (m === t || dist(m, t) <= sp.aoe)) : [t];
+  for (const m of list) if (m.alive) diaOne(a, m, sp);
+}
+function diaOne(a, t, sp) {
   const el = sp.element || "light", key = sp.buff || "dia";
   if (sp.dot) {
     ring(t, ELEMENT_COLORS[el], 30, 0.5, "element");
@@ -11265,12 +11329,16 @@ function castDia(a, t, sp) {
     vfx("nuke", { src: a, tgt: t, el, dia: true });
     const up = key === "dia" ? t.buffs.blight : key === "blight" ? t.buffs.dia : null;
     if (up) { delete t.buffs[key === "dia" ? "blight" : "dia"]; }
+    for (const r of sp.replaces || []) delete t.buffs[r];
     if (Math.random() * 100 >= magicHit(a, t, sp) + 15) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20); aggro(t, a); return; }
     const direct = Math.round(sp.power);
     log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + (direct > 0 ? " takes " + direct + " damage and" : "") + " is afflicted with " + sp.name + ".", cls(a));
     if (direct > 0) applyDamage(a, t, direct, { color: ELEMENT_COLORS[el], size: 16, enmity: 120 });
     else { addEnmity(t, a, 120); aggro(t, a); }
-    if (t.alive) t.buffs[key] = { until: S.time + sp.dot.dur, next: S.time + 3, tick: dotTick(a, sp.dot), src: a, el };
+    if (t.alive) {
+      const tk = dotTick(a, sp.dot);
+      t.buffs[key] = { until: S.time + sp.dot.dur, next: S.time + 3, tick: tk, src: a, el, sd: (tk - 1) * 2 + 5 };
+    }
     return;
   }
   const dmg = Math.round(sp.power * (1 + 0.08 * (a.lv - 1)));
@@ -11349,7 +11417,7 @@ function useItem(id) {
 function tickBuffs(e) {
   for (const id in e.buffs) {
     const b = e.buffs[id];
-    if ((id === "dia" || id === "blight" || id === "poison") && S.time >= b.next && e.alive) {
+    if (b.tick && b.next && b.src && S.time >= b.next && e.alive) {
       b.next += 3;
       applyDamage(b.src, e, b.tick, { color: ELEMENT_COLORS[b.el || "light"], size: 13, enmity: b.tick });
     }
@@ -11980,7 +12048,7 @@ function bardAI(a, tgt, dt) {
   for (const x of songs) { const sp = SPELLS[x.id]; if (!best[sp.song] || SPELLS[best[sp.song].id].pow < sp.pow) best[sp.song] = x; }
   const fighting = !!tgt && tgt.state === "combat";
   const casterHeavy = S.party.filter(p => p.alive && p.maxMp > 0 && p.role !== "dd" && p.role !== "tank").length >= 2;
-  const order = fighting ? ["minuet", "march", "madrigal", casterHeavy ? "ballad" : "paeon", "paeon", "ballad"] : ["paeon", "ballad"];
+  const order = fighting ? ["minuet", "madrigal", "minne", "paeon"] : ["paeon"];
   const want = [];
   for (const k of order) if (best[k] && !want.includes(k) && want.length < 2) want.push(k);
   const near = S.party.filter(p => p.alive && dist(p, a) <= 260);
@@ -11992,7 +12060,7 @@ function bardAI(a, tgt, dt) {
     }
   }
   if (fighting) {
-    const lull = acts.find(x => x.id === "drowsy_lullaby");
+    const lull = acts.find(x => x.id === "foe_lullaby");
     const extra = S.mobs.find(m => m.alive && m !== tgt && m.state === "combat" && !m.buffs.sleep && !m.fam.boss && [...m.enmity.keys()].some(isParty) && dist(a, m) <= CONFIG.castRange);
     if (lull && extra && allyTry(a, lull, extra)) return true;
   }
@@ -12089,6 +12157,7 @@ function keepCasterRange(a, tgt, dt) {
 }
 
 function healEstimate(a, sp) {
+  if (sp.cure) return cureAmount(a, sp);
   return (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
 }
 
@@ -12121,6 +12190,8 @@ function healerAI(a, tgt, dt) {
     const inRange = needy.filter(p => dist(a, p) <= CONFIG.castRange - 30);
     if (inRange.length) {
       const low = inRange[0], miss = low.maxHp - low.hp;
+      const cga = acts.find(x => x.id === "curaga");
+      if (cga && inRange.filter(p => dist(p, low) <= 300).length >= 2 && allyTry(a, cga, low)) return;
       const seal = acts.find(x => x.id === "divine_seal");
       if (seal && low.hp < low.maxHp * 0.35 && !a.buffs.divine_seal && allyTry(a, seal, a)) return;
       const heals = acts.filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "heal").sort((p, q) => SPELLS[p.id].power - SPELLS[q.id].power);
@@ -17801,8 +17872,15 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v17.2.0 · built 2026-10-15 17:58 PDT";
+const BUILD_INFO = "v17.3.0 · built 2026-10-15 18:07 PDT";
 const UPDATES = [
+  { v: "17.3.0", date: "2026-10-15", title: "Area spells, En-spells and songs", items: [
+    "<b>Area spells (classic MMO):</b> Curaga (WHM 16), Banishga (WHM 15), Diaga (WHM 18, RDM 15), Stonega (BLM 15) and Waterga (BLM 19) hit or heal everything near the target. Hired healers cast Curaga when two or more allies are hurt.",
+    "<b>Spikes and En-spells:</b> Blaze Spikes (BLM 10, RDM 20) and Ice Spikes (BLM 20) damage anything that hits you in melee (Ice Spikes can paralyze it). Enthunder (RDM 16), Enstone (18) and Enaero (20) add elemental damage to your own hits.",
+    "<b>Damage over time:</b> Shock (BLM 16), Rasp (18, lowers accuracy) and Choke (20, lowers defense) replace one another. Foe Requiem (BRD 7) and II (17) tick on a monster.",
+    "<b>New Bard songs:</b> Herb Pastoral (9) resists Poison, Scop's Operetta (19) resists Silence, Sheepfoe Mambo (13) raises evasion, and six Threnodies (Light 10, Dark 12, Earth 14, Water 16, Wind 18, Fire 20) make a monster take 25% more of that element. A person still holds two songs at a time.",
+    "<b>Fixes:</b> hired healers now pick the Cure that fits the wound (they always chose the biggest), and hired Bards use Foe Lullaby and the new songs."
+  ] },
   { v: "17.2.0", date: "2026-10-15", title: "Elementals and goblin spellcasters", items: [
     "<b>Summoners now start with Carbuncle.</b> The eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark) are no longer sold. Each one's scroll drops from a rare Elemental (about a 30% drop): Fire Elemental at Cinder Peak, Ice Elemental in Frostspire Pass (night), Earth Elemental in Underdeep River, Air Elemental in the Sunscar Desert, Thunder Elemental in the Verdant Jungle (day), Water Elemental on Gull Isle, Light Elemental on the Windreach Highlands (day) and Dark Elemental in the Sunken Crypt (night). Check Notorious Monsters in the Help for hints.",
     "<b>Goblin spellcasters:</b> Goblin Apprentice (Rocky Hollow), Goblin Conjurer (Goblin Den), Mire Hexer (Ashen Marsh) and Frost Shaman (Frostspire Pass). They stand back and cast Stone, Water, Blizzard, Poison, Slow, Paralyze, Blind, Silence and Cure, can be interrupted by hits, and the healers mend their friends.",
@@ -18960,7 +19038,7 @@ function tabHelp() {
     "<b>Learning spells:</b> read a scroll from your Items. It works only if your main job is at the spell's level, or your support job is (support jobs count at half your main level). The log tells you which job and level the scroll needs.",
     "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",
     "<b>Reading a beastman:</b> each family has its own silhouette. Goblins stoop with pouches and packs, orcs are broad with spiked shoulders, Reefkin have fins, Crag Talons have feathered arms and tails, treants have branches and roots. A war banner on the back marks a boss.",
-    "<b>Debuffs:</b> Slow, Paralyze and Blind weaken a monster in proportion to how much your magic stat beats its own: Slow makes it swing slower, Paralyze makes it lose swings, Blind cuts its accuracy. Poison and Bio drain its HP over time, Bind pins it, Sleep (Black Mage 20) and Foe Lullaby put it to sleep until it is hit. They show on the target frame with the time left. <b>Monsters fight back:</b> bees and spore-clouds poison you, toads paralyze, worms blind and priests silence (silenced, you cannot cast). White Mage cures them with Poisona, Paralyna, Blindna and Silena; the Bar-status spells halve the chance of catching them. Bar-element spells (Barfire, Barstone, Barwater, Baraero and the party versions ending in -ra) cut damage of that element. Aquaveil blocks a spell interruption, Blink gives two shadow images, Sneak hides you from monsters that hear you and Deodorize from those that smell weakness. Shield Bash interrupts a readied TP move. <b>Goblin spellcasters</b> (Goblin Apprentice in Rocky Hollow, Goblin Conjurer in the Den, Mire Hexer in Ashen Marsh, Frost Shaman in Frostspire Pass) stay back and cast: Stone, Water and Blizzard, Poison, Slow, Paralyze, Blind, Silence and Cure on their friends. A hit can interrupt a cast, and a monster hit by your Silence cannot cast at all. Kill the healer first.",
+    "<b>Debuffs:</b> Slow, Paralyze and Blind weaken a monster in proportion to how much your magic stat beats its own: Slow makes it swing slower, Paralyze makes it lose swings, Blind cuts its accuracy. Poison and Bio drain its HP over time, Bind pins it, Sleep (Black Mage 20) and Foe Lullaby put it to sleep until it is hit. They show on the target frame with the time left. <b>Monsters fight back:</b> bees and spore-clouds poison you, toads paralyze, worms blind and priests silence (silenced, you cannot cast). White Mage cures them with Poisona, Paralyna, Blindna and Silena; the Bar-status spells halve the chance of catching them. <b>Area spells</b> (Curaga, Banishga, Stonega, Waterga, Diaga) affect everything near the target, so mind your pulls. <b>Spikes</b> (Blaze, Ice) hurt whoever hits you in melee; <b>En-spells</b> add elemental damage to your own hits. Shock, Rasp and Choke are damage over time that replace each other (Rasp lowers accuracy, Choke lowers defense). Bar-element spells (Barfire, Barstone, Barwater, Baraero and the party versions ending in -ra) cut damage of that element. Aquaveil blocks a spell interruption, Blink gives two shadow images, Sneak hides you from monsters that hear you and Deodorize from those that smell weakness. Shield Bash interrupts a readied TP move. <b>Goblin spellcasters</b> (Goblin Apprentice in Rocky Hollow, Goblin Conjurer in the Den, Mire Hexer in Ashen Marsh, Frost Shaman in Frostspire Pass) stay back and cast: Stone, Water and Blizzard, Poison, Slow, Paralyze, Blind, Silence and Cure on their friends. A hit can interrupt a cast, and a monster hit by your Silence cannot cast at all. Kill the healer first.",
     "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
     "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares, bats, leeches and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Sticky Thread slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",
     "<b>Ranged and dangerous:</b> Orc Stonechuckers and Needlekin attack from a distance, so close in or pull them around a corner. Ember Bombs swell up and Self-Destruct, a big area blast that also destroys the bomb; kill them fast or step away when they ready it. Elder Treants shake the ground around them.",
@@ -18984,15 +19062,15 @@ function tabHelp() {
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
     ["Warrior", "Tank or damage", "Provoke, Berserk, Warcry (level 15: +20% attack for nearby allies), great axe A, sword B"],
-    ["White Mage", "Healer", "Cure (1), Dia (3), Paralyze (4), Banish (5), Poisona (6), Protect and Protectra (7), Barstonra and Barsleepra, Barwatera and Paralyna (9), Aquaveil and Barpoisonra (10), Cure II (11), Slow (13), Baraera, Blindna (14), Deodorize and Silence (15), Shell and Shellra, Barfira (17), Blink and Silena (19), Sneak (20). Divine Seal"],
-    ["Black Mage", "Nuker", "Stone (1), Poison (3), Blind (4), Water (5), Bind (7), Aero (9), Bio (10), Drain (12), Fire (13), Blizzard (17), Warp (17: 100 MP, teleports you to your home point), Sleep (20). Elemental Seal, magic bursts"],
+    ["White Mage", "Healer", "Cure (1), Dia (3), Paralyze (4), Banish (5), Poisona (6), Protect and Protectra (7), Barstonra and Barsleepra, Barwatera and Paralyna (9), Aquaveil and Barpoisonra (10), Cure II (11), Slow (13), Baraera, Blindna (14), Deodorize, Silence and Banishga (15), Curaga (16: heals everyone near the target), Shell and Shellra, Barfira (17), Diaga, Blink and Silena (19), Sneak (20). Divine Seal"],
+    ["Black Mage", "Nuker", "Stone (1), Poison (3), Blind (4), Water (5), Bind (7), Aero (9), Bio and Blaze Spikes (10), Drain (12), Fire (13), Stonega (15: Stone on everything near the target), Shock (16), Blizzard (17), Warp (17: 100 MP, teleports you to your home point), Rasp (18), Waterga (19), Sleep, Choke and Ice Spikes (20). Elemental Seal, magic bursts"],
     ["Paladin (advanced)", "Tank", "Sword A, Cure (5), Banish (7), Protect (10), Cure II (17), Shell (20), Sentinel, Shield Bash, shields"],
-    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia (1), Cure (3), Stone (4), Poison (5), Paralyze (6), Protect, Barstone (5), Barsleep (7), Water, Blind, Bind, Bio, Barpoison (10), Aquaveil (12), Barparalyze, Slow, Cure II (14), Deodorize, Aero, Fire (19), Sneak (20), Convert"],
+    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia (1), Cure (3), Stone (4), Poison (5), Paralyze (6), Protect, Barstone (5), Barsleep (7), Water, Blind, Bind, Bio, Barpoison (10), Aquaveil (12), Barparalyze, Slow, Cure II (14), Deodorize, Diaga, Aero, Enthunder (16), Enstone (18), Fire (19), Sneak, Enaero and Blaze Spikes (20), Convert"],
     ["Thief (advanced)", "Damage", "Dagger A, Steal, Sneak Attack (sure critical), Flee; +5% critical hits; Treasure Hunter (+20% drop chance)"],
     ["Ranger (advanced)", "Ranged damage", "Archery A: shoots from 230 range, Sharpshot (+40 accuracy), Barrage (next shot fires 3 arrows), Shadowbind (pin a monster for 12 s)"],
     ["Summoner (advanced)", "Pet mage", "Summoning A: you start with Carbuncle. The eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark) are learned from scrolls dropped by rare Elementals (see below). Your summon fights beside you and drains MP every 3 s; Blood Pact (its elemental attack), Elemental Siphon (MP back), Release"],
     ["Dark Knight (advanced)", "Damage", "Scythe A (new weapon type), great axe and sword B. Last Resort (+25% attack, −15% defense), Soulfire (10: hits burn your own HP for extra damage), Blood Blade (15: hits drain HP). Dark Magic: Stone (5), Poison (6), Drain (10), Water (11), Bio (15), Aero (17), Aspir (20: steals MP), Bind (20)"],
-    ["Bard (advanced)", "Support", "Songs cost no MP, reach every ally within range and last 2 minutes; each person holds two songs and a third replaces the oldest. Knight's Minne (1: defense), Valor Minuet (3: attack), Army's Paeon (5: HP over time), Sword Madrigal (11: accuracy), Army's Paeon II (15), Foe Lullaby (16: puts monsters to sleep; bosses are immune), Encore (15: songs sing three times faster). Dagger B"],
+    ["Bard (advanced)", "Support", "Songs cost no MP, reach every ally within range and last 2 minutes; each person holds two songs and a third replaces the oldest. Knight's Minne (1: defense), Valor Minuet (3: attack), Army's Paeon (5: HP over time), Sword Madrigal (11: accuracy), Army's Paeon II (15), Foe Lullaby (16: puts monsters to sleep; bosses are immune), Foe Requiem (7) and II (17: damage over time), Herb Pastoral (9: resist Poison), Light (10), Dark (12), Earth (14), Water (16), Wind (18) and Fire (20) Threnodies (the monster takes 25% more of that element), Sheepfoe Mambo (13: evasion), Scop's Operetta (19: resist Silence), Encore (15: songs sing three times faster). Dagger B"],
     ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Boost, Focus, Chakra"],
     ["Samurai (advanced)", "Damage", "Great Katana A (new weapon type), polearm B. Meditate (gain 400 TP), Hasso (5: +12% damage, +10 accuracy for 2 min), Third Eye (15: the next melee attack on you misses). Weapon skills: Rising Edge, Crescent Cut (22), Ember Arc (40), Heaven's Divide (75)"],
     ["Ninja (advanced)", "Tank / damage", "Katana A (new weapon type), dagger B, Ninjutsu A. Shadow Veil (3: 2 shadow images, 3 from level 12; each soaks one melee hit), Flame (2), Frost (6) and Gale (10) Shuriken, Binding Thread (8: roots the target for 10 s). Smoke Step (5: halves enmity on every monster), Twin Strike (15: next three attacks hit twice)"],
@@ -19309,7 +19387,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "17.2.0";
+const GAME_VERSION = "17.3.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 

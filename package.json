@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "17.2.0",
-  "releaseTitle": "Elementals and goblin spellcasters",
+  "version": "17.3.0",
+  "releaseTitle": "Area spells, En-spells and songs",
   "description": "",
   "main": "index.js",
   "scripts": {

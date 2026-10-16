@@ -69,3 +69,4 @@ Use the real classic MMO item and spell names for now. The design notes' "names 
 - Next: 17.1 (deferred spells and statuses), equipment import (level 20 and below), phase F rules, phase G balance (Opus recommended for F and G).
 - 17.1.0 shipped: status and support spells. 17.2 next: area spells, En- spells, Spikes, Shock/Rasp/Choke, remaining songs, Silence.
 - 17.2.0 shipped: Carbuncle start, Elemental NMs, goblin casters, Silence. AoE, En- spells, Spikes, Shock/Rasp/Choke and songs now move to 17.3.
+- 17.3.0 shipped: area spells, Spikes, En-spells, DoTs, remaining songs. Equipment import (level 20 and under) and balance are next.
