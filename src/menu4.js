@@ -1636,6 +1636,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.5", date: "2026-10-16", title: "Staff combat loop", items: [
+    "<b>Staff guard stance:</b> in a fight you now hold the staff across your body in both hands, low hand at the hip, high hand at the chest, head angled up over your shoulder.",
+    "<b>Full staff swing:</b> twist away and raise the staff behind your shoulder (wind-up), pivot the hips and bring it down in a wide arc, connect at chest height in front of you, follow through, then pull it back to the guard stance before the next swing.",
+    "<b>Pipkin faces:</b> rounder cheeks with a small, soft chin and a shorter lower face."
+  ] },
   { v: "18.19.4", date: "2026-10-16", title: "Weapon draw animation", items: [
     "<b>Drawing and sheathing are animated:</b> you reach back over your shoulder and pull your weapon from your back (about 2 seconds), and put it away the same way (about 3 seconds). Attacking mid-draw finishes the draw at once.",
     "<b>Weapons fit the wielder:</b> small races such as Pipkin now carry smaller weapons, and large races such as Ursan carry slightly bigger ones.",

@@ -1790,3 +1790,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - anim.js: if v.wTr, reach pose (upArmR -2.55, foreArmR -1.25, chest/spine lean) weighted by a bump r (0 to 1 to 0 across the transition). Staff z flip skipped while v.wBlend.
 - rig.js: pipkin face params jaw 0.52, chin 0, long -0.06. Pointy hat base lowered to hc+hr*0.34, dome angle 0.46pi.
 - test/drawsheet.js: MODE=draw|sheathe STEP=<seconds> JOB=BLM IDLE=1 node drawsheet.js <abs html> <png> <weaponId> <race> 0 <side|back|front|backclose>.
+
+## 18.19.5: staff combat loop, pipkin face
+- anim.js staff stance (sw block): upArmR -0.5, foreArmR -0.8, upArmL -1.0 z -0.4, foreArmL -0.65, handR -1.15 z 0.3, spine yaw 0.12. Polearm keeps the old forward stance.
+- staffswing keyframes via kf(S,W,K): t1 wind-up 0-0.3, t2 strike 0.3-0.48, t3 recovery 0.58-0.92 back to stance. Wind-up upArmR -1.9, handR -0.5, chest yaw -0.75. Strike upArmR -1.0, handR -0.1, chest yaw +0.65, rootOff z +0.08. Positive handR pitch points the staff head down.
+- rig.js pipkin face: jaw 0.64, cheek 0.14, long -0.11, chin 0.
+- Not done: staff weapon skill leap variant; approach step uses normal movement.
+- test/swingsheet2.js with JOB=BLM renders swings; /tmp rb scripts not kept.

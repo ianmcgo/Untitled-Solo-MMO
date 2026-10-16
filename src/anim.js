@@ -295,7 +295,8 @@ function poseHuman(v, e, dt) {
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
     if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana" || v.weaponKind === "gsword") { addP(P, "upArmR", -1.1 * sw, 0, 0.2 * sw); addP(P, "foreArmR", -0.5 * sw, 0, 0); addP(P, "upArmL", -1.1 * sw, 0, -0.3 * sw); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
-    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.95 * sw, 0, -0.5 * sw); addP(P, "foreArmL", -0.15 * sw, 0, 0); }
+    else if (v.weaponKind === "staff") { addP(P, "upArmR", -0.5 * sw, 0, 0.1 * sw); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, -0.4 * sw); addP(P, "foreArmL", -0.65 * sw, 0, 0); addP(P, "handR", -1.15 * sw, 0, 0.3 * sw); addP(P, "spine", 0, 0.12 * sw, 0); }
+    else if (v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.95 * sw, 0, -0.5 * sw); addP(P, "foreArmL", -0.15 * sw, 0, 0); }
     else { addP(P, "upArmR", -1.2 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.4 * sw, 0, 0); addP(P, "upArmL", -0.5 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
     if (v.weapon && v.weaponDrawn && !v.wBlend) { const wk2 = v.weaponKind; if (wk2 === "staff" || wk2 === "polearm") v.weapon.rotation.z = Math.PI * an.fight; else if (wk2 && wk2 !== "h2h" && wk2 !== "archery") addP(P, "handR", 1.45 * sw, 0, 0); }
   }
@@ -388,15 +389,17 @@ function poseHuman(v, e, dt) {
       setP(P, "upArmL", -0.95 - 0.5 * b, 0, -0.5, w); setP(P, "foreArmL", -0.15, 0, 0, w);
       setP(P, "chest", 0, -0.35 * a + 0.6 * b, 0, w);
     } else if (kind === "staffswing") {
-      const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.2);
-      setP(P, "upArmR", -0.9 - 1.1 * a + 1.5 * b, 0, -0.3 * a + 0.5 * b, w);
-      setP(P, "foreArmR", -0.6 - 0.2 * a + 0.4 * b, 0, 0, w);
-      setP(P, "upArmL", -0.95 - 0.9 * a + 1.3 * b, 0, -0.5 - 0.2 * a + 0.3 * b, w);
-      setP(P, "foreArmL", -0.15 - 0.3 * a + 0.4 * b, 0, 0, w);
-      setP(P, "chest", 0, -0.7 * a + 0.9 * b, 0, w);
-      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
-      setP(P, "spine", -0.12 * a + 0.32 * b, 0, 0, w);
-      v.rootOff[2] += 0.06 * b * w;
+      const t1 = ease(ak / 0.3), t2 = ease((ak - 0.3) / 0.18), t3 = ease((ak - 0.58) / 0.34), sw2 = Math.min(1, ak / 0.06, (1 - ak) / 0.1);
+      const kf = (S0, W0, K0) => { const q = S0 + (W0 - S0) * t1 + (K0 - W0) * t2; return q + (S0 - q) * t3; };
+      setP(P, "upArmR", kf(-0.5, -1.9, -1.0), 0, kf(0.1, -0.3, 0.2), sw2);
+      setP(P, "foreArmR", kf(-0.8, -1.1, -0.6), 0, 0, sw2);
+      setP(P, "handR", kf(-1.15, -0.5, -0.1), 0, 0.3, sw2);
+      setP(P, "upArmL", kf(-1.0, -1.7, -1.05), 0, kf(-0.4, -0.5, -0.4), sw2);
+      setP(P, "foreArmL", kf(-0.65, -0.9, -0.55), 0, 0, sw2);
+      setP(P, "chest", 0, kf(0, -0.75, 0.65), 0, sw2);
+      setP(P, "hips", 0, kf(0, -0.25, 0.3), 0, sw2);
+      setP(P, "spine", kf(0, -0.15, 0.3), 0, 0, sw2);
+      v.rootOff[2] += 0.08 * t2 * (1 - t3) * sw2;
     } else if (kind === "claw") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);
       const arm = side > 0 ? "R" : "L", s = side > 0 ? -1 : 1;

@@ -1106,7 +1106,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.19.4 · built 2026-10-16 06:03 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v18.19.5 · built 2026-10-16 07:23 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -18868,8 +18868,13 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v18.19.4 · built 2026-10-16 06:03 PDT";
+const BUILD_INFO = "v18.19.5 · built 2026-10-16 07:23 PDT";
 const UPDATES = [
+  { v: "18.19.5", date: "2026-10-16", title: "Staff combat loop", items: [
+    "<b>Staff guard stance:</b> in a fight you now hold the staff across your body in both hands, low hand at the hip, high hand at the chest, head angled up over your shoulder.",
+    "<b>Full staff swing:</b> twist away and raise the staff behind your shoulder (wind-up), pivot the hips and bring it down in a wide arc, connect at chest height in front of you, follow through, then pull it back to the guard stance before the next swing.",
+    "<b>Pipkin faces:</b> rounder cheeks with a small, soft chin and a shorter lower face."
+  ] },
   { v: "18.19.4", date: "2026-10-16", title: "Weapon draw animation", items: [
     "<b>Drawing and sheathing are animated:</b> you reach back over your shoulder and pull your weapon from your back (about 2 seconds), and put it away the same way (about 3 seconds). Attacking mid-draw finishes the draw at once.",
     "<b>Weapons fit the wielder:</b> small races such as Pipkin now carry smaller weapons, and large races such as Ursan carry slightly bigger ones.",
@@ -20558,7 +20563,7 @@ function tabHelp() {
   return out + "</div>";
 }
 
-const GAME_VERSION = "18.19.4";
+const GAME_VERSION = "18.19.5";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
@@ -24449,7 +24454,7 @@ const HEAD_PROFILES = {
   human0: { jaw: 0.34, chin: 0.1, brow: 0.05, sock: 0.05, cheek: 0.04, nose: 0.2, lips: 1, long: 0.1 },
   human1: { jaw: 0.38, chin: 0.06, brow: 0.02, sock: 0.045, cheek: 0.05, nose: 0.15, lips: 1.3, long: 0.03 },
   elari: { jaw: 0.4, chin: 0.1, brow: 0.03, sock: 0.05, cheek: 0.06, nose: 0.17, lips: 1, long: 0.15 },
-  pipkin: { jaw: 0.52, chin: 0, brow: 0.01, sock: 0.03, cheek: 0.1, nose: 0.1, lips: 0.8, long: -0.06 },
+  pipkin: { jaw: 0.64, chin: 0, brow: 0.01, sock: 0.03, cheek: 0.14, nose: 0.1, lips: 0.8, long: -0.11 },
   ursan: { jaw: 0.24, chin: 0.1, brow: 0.16, sock: 0.07, cheek: 0.04, nose: 0.14, noseW: 1.7, lips: 0.2, long: 0, muzzle: 0 },
   nekari: { jaw: 0.38, chin: 0.06, brow: 0.02, sock: 0.045, cheek: 0.08, nose: 0.1, lips: 0.9, long: 0.08, muzzle: 0.05 },
   goblin: { jaw: 0.16, chin: 0.09, brow: 0.13, sock: 0.1, cheek: 0.08, nose: 0, lips: 0.7, long: 0, muzzle: 0.06 },
@@ -27123,7 +27128,8 @@ function poseHuman(v, e, dt) {
     addP(P, "spine", 0.1 * sw, -0.15 * sw, 0);
     if (v.weaponKind === "greataxe" || v.weaponKind === "scythe" || v.weaponKind === "gkatana" || v.weaponKind === "gsword") { addP(P, "upArmR", -1.1 * sw, 0, 0.2 * sw); addP(P, "foreArmR", -0.5 * sw, 0, 0); addP(P, "upArmL", -1.1 * sw, 0, -0.3 * sw); addP(P, "foreArmL", -0.6 * sw, 0, 0); }
     else if (v.weaponKind === "h2h" || (!v.weaponKind && v.kind === "human" && !isMob(e))) { addP(P, "upArmR", -0.85 * sw, 0, -0.25 * sw); addP(P, "foreArmR", -1.7 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, 0.25 * sw); addP(P, "foreArmL", -1.8 * sw, 0, 0); }
-    else if (v.weaponKind === "staff" || v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.95 * sw, 0, -0.5 * sw); addP(P, "foreArmL", -0.15 * sw, 0, 0); }
+    else if (v.weaponKind === "staff") { addP(P, "upArmR", -0.5 * sw, 0, 0.1 * sw); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, -0.4 * sw); addP(P, "foreArmL", -0.65 * sw, 0, 0); addP(P, "handR", -1.15 * sw, 0, 0.3 * sw); addP(P, "spine", 0, 0.12 * sw, 0); }
+    else if (v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.95 * sw, 0, -0.5 * sw); addP(P, "foreArmL", -0.15 * sw, 0, 0); }
     else { addP(P, "upArmR", -1.2 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.4 * sw, 0, 0); addP(P, "upArmL", -0.5 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
     if (v.weapon && v.weaponDrawn && !v.wBlend) { const wk2 = v.weaponKind; if (wk2 === "staff" || wk2 === "polearm") v.weapon.rotation.z = Math.PI * an.fight; else if (wk2 && wk2 !== "h2h" && wk2 !== "archery") addP(P, "handR", 1.45 * sw, 0, 0); }
   }
@@ -27216,15 +27222,17 @@ function poseHuman(v, e, dt) {
       setP(P, "upArmL", -0.95 - 0.5 * b, 0, -0.5, w); setP(P, "foreArmL", -0.15, 0, 0, w);
       setP(P, "chest", 0, -0.35 * a + 0.6 * b, 0, w);
     } else if (kind === "staffswing") {
-      const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.2);
-      setP(P, "upArmR", -0.9 - 1.1 * a + 1.5 * b, 0, -0.3 * a + 0.5 * b, w);
-      setP(P, "foreArmR", -0.6 - 0.2 * a + 0.4 * b, 0, 0, w);
-      setP(P, "upArmL", -0.95 - 0.9 * a + 1.3 * b, 0, -0.5 - 0.2 * a + 0.3 * b, w);
-      setP(P, "foreArmL", -0.15 - 0.3 * a + 0.4 * b, 0, 0, w);
-      setP(P, "chest", 0, -0.7 * a + 0.9 * b, 0, w);
-      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
-      setP(P, "spine", -0.12 * a + 0.32 * b, 0, 0, w);
-      v.rootOff[2] += 0.06 * b * w;
+      const t1 = ease(ak / 0.3), t2 = ease((ak - 0.3) / 0.18), t3 = ease((ak - 0.58) / 0.34), sw2 = Math.min(1, ak / 0.06, (1 - ak) / 0.1);
+      const kf = (S0, W0, K0) => { const q = S0 + (W0 - S0) * t1 + (K0 - W0) * t2; return q + (S0 - q) * t3; };
+      setP(P, "upArmR", kf(-0.5, -1.9, -1.0), 0, kf(0.1, -0.3, 0.2), sw2);
+      setP(P, "foreArmR", kf(-0.8, -1.1, -0.6), 0, 0, sw2);
+      setP(P, "handR", kf(-1.15, -0.5, -0.1), 0, 0.3, sw2);
+      setP(P, "upArmL", kf(-1.0, -1.7, -1.05), 0, kf(-0.4, -0.5, -0.4), sw2);
+      setP(P, "foreArmL", kf(-0.65, -0.9, -0.55), 0, 0, sw2);
+      setP(P, "chest", 0, kf(0, -0.75, 0.65), 0, sw2);
+      setP(P, "hips", 0, kf(0, -0.25, 0.3), 0, sw2);
+      setP(P, "spine", kf(0, -0.15, 0.3), 0, 0, sw2);
+      v.rootOff[2] += 0.08 * t2 * (1 - t3) * sw2;
     } else if (kind === "claw") {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);
       const arm = side > 0 ? "R" : "L", s = side > 0 ? -1 : 1;
