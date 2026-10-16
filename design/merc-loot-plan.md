@@ -29,9 +29,9 @@ Requested 2026-10-16. Builds on the existing treasure pool (`addToPool`, `lotPoo
 11. **Bags:** each mercenary has a normal bag of `CONFIG.inventorySize` slots (30 today), with stacks counting the same as the player's.
     - With a full bag they pass on every lot.
     - Kept items (gear above their synced level) take up bag slots.
-12. **Town sell-off:** when the party enters a town zone and a mercenary's bag is half full or more (15 of 30), they sell all their for-sale items. Those items move to that town's auction house as consigned listings (see "Town auction houses"), the pouch disappears and the bag frees up.
+12. **Town sell-off:** when the party enters a town zone and a mercenary's bag is half full or more (15 of 30), they sell all their for-sale items. Those items become shared market listings (see "Town auction houses"), the pouch disappears and the bag frees up.
     - Kept items are not sold; I took "all items" to mean everything they had up for sale.
-    - Their earnings are not tracked.
+    - The crystals from sales go to the owner's auction delivery box (see "Town auction houses").
 13. **Refuse or can't pay:** the mercenary leaves for the nearest Mercenary Hall and appears in a new hall tab, **Old Friends**. Their gear, inventory and bond are kept.
 14. **Bribe to return:** rehiring from Old Friends costs their full hire fee plus 100 crystals per level (their synced level at rehire), paid instead of the normal fee, and they rejoin at the player's level (synced).
 
@@ -49,34 +49,38 @@ Requested 2026-10-16. Builds on the existing treasure pool (`addToPool`, `lotPoo
 | M3 Sheet, pouch and trade | Sonnet | Pouch icon in the party list, the mercenary sheet (worn gear, for sale, kept), buying at 1.5x the auction value, giving an item with "Wear this", keyboard navigation, Help and Updates. |
 | M4 Contracts and Old Friends | Opus | Play-time contracts with save migration, a payment prompt gated on combat, zoning and menus, Refuse or can't-pay sends them to Old Friends at the nearest hall, a level-based bribe, and rehiring with gear and bond kept. |
 
-## Town auction houses (added 2026-10-16)
-Today there is one market for the whole world: `ahDaily()` picks a rotating set from a seed made from the market day and the player's level, and `ahStock(id)` sets stock per day. Every auctioneer (Corvin, Selene, Orla) shows the same goods.
+## Town auction houses (revised 2026-10-16, second pass)
+What exists today (I got this wrong in the first draft, which said there was no shared market):
+- Two markets already exist. The NPC market is local: `ahDaily()` and `ahStock()` with `marketPrice`, one rotation for the whole world, bought counts in `save.market.bought`. The player market is shared online: Supabase `public.ah_listings` (RLS: members see open lots), `ah_post`, `ah_buy`, `ah_expire`, delivery box `game_private.ah_box`, client in net.js (`netAhList`, `netAhBuy`, ...) and the Players view in the auction window. Listings last 48 hours, 10 lots per seller, 3% fee.
+- Every town zone (Ashenreach Outpost, Saltreach Harbor, Ironvale) already has an auction house and auctioneer (Corvin, Selene, Orla).
 
 Target:
-1. **Separate stock per town.** Each town with an auction house has its own rotating inventory.
-   - The seed adds the town's zone id: `ahdaily:<town>:<group>:<day>`, and stock seeds `<id>:<town>:<day>`.
-   - `save.market.bought` is kept per town (`save.market.bought[town]`).
-   - `UI.ahTown` is set from the auctioneer you talk to.
-2. **Mercenary sell-off goes to that town's auction house.** When the town sell-off fires (rule 12), every for-sale item becomes a listing in `save.ahConsign[town]` (`[{ id, qty, from: mercId, at: playSec }]`).
-   - In a town with no auction house, the items go to the nearest town that has one.
-3. **Consigned listings never expire** and do not rotate. They leave only when the player buys them.
-   - They show first in Browse with a "From <mercenary>" tag.
-   - They are priced at the normal market price (`marketPrice`), not the 1.5x direct-sale markup.
-4. Buying from consigned listings uses the same `ahBuy` path. It takes from `ahConsign` first, then from the daily stock.
+1. **Every town has an auction house.** The three towns already do. Rule for future towns: any zone with `theme: "town"` must have an auction building and auctioneer. A unit test checks this so a new town cannot ship without one.
+2. **Per-town NPC stock.** Each auction house has its own rotating NPC inventory: seeds add the zone id (`ahdaily:<town>:<group>:<day>`, stock `<id>:<town>:<day>`) and bought counts are kept per town. This is the "separate randomly rotating inventory" from the earlier request.
+3. **Mercenary sell-off goes to the shared player market.** The items a mercenary sells when you enter town become shared listings that every online player can see and buy in the Players view, tagged "<Mercenary>, hired by <player>" (and the seller shown as the owner).
+   - **No expiry:** these listings stay until someone buys them. Listings with `kind = 'merc'` skip the 48 hour expiry and the 10-lot cap.
+   - **Price:** the normal market price (`marketPrice`), no listing fee.
+   - **Proceeds:** the crystals go to the owner's delivery box (`ah_box`), as for player lots, and can be collected at any auction house. This replaces my earlier "earnings are not tracked" line.
+   - **Offline play:** with no connection (or in offline mode), the listings go to a local consignment list (`save.ahConsign`) and are posted to the shared market the next time you play online. Local listings are visible only to you until then.
+4. **Seeing other players' mercenary items:** the Players view gets a filter "Mercenary goods". No extra work beyond the shared listings.
+5. Buying uses `ah_buy` as today, so there is no new buy path.
+
+Server work needed (not done, not run): extend `ah_listings` with `kind text default 'player'` and `merc_name text`; a `public.ah_consign(my_char, items jsonb)` function that inserts merc listings (server-side check that the character is online, the items come from its mercInv and are removed from there, and a cap of 50 per call); make `ah_expire` and `ah_post` ignore `kind = 'merc'`; add the sale proceeds to the box on `ah_buy`. This is a Supabase migration; it must be applied to the live project before M5 ships, so it needs your go-ahead when we get there.
 
 | Phase | Model | Work |
 |---|---|---|
-| M5 Town markets | Sonnet | Per-town seeds and stock, per-town bought counts with save migration, consigned listings from mercenary sell-offs, the Browse tag, Help and Updates. Depends on M1. |
+| M5a Per-town NPC stock | Sonnet | Per-town seeds and stock, per-town bought counts with save migration, town auction test, Help and Updates. No dependency on M1. |
+| M5b Shared merc listings | Opus | SQL migration plus `ah_consign`, client `netAhConsign`, offline consignment queue and flush, Players view tags and filter, proceeds to the box. Depends on M1 (sell-off) and on you approving the live migration. |
 
 Open questions (guesses used if not answered)
-- "Until a player buys it": online play has no shared auction table today, so consigned listings are per save and only you can buy them. A shared online market would need server work and is out of scope.
-- No cap on consigned listings was asked for. They could pile up over months; I suggest a soft cap of 300 per town, oldest dropped. This is not applied unless you say so.
+- The previous message said "auction house should be shared". I read it as: the mercenary items are shared with other players. I kept the NPC rotation per town, as you asked before. If you meant the NPC stock should be one shared list for every town, tell me and I will drop M5a.
+- Soft cap on merc listings: 300 per player, oldest returned to the owner's box. Not applied unless you say so.
 
 ## Decisions (answered 2026-10-16)
 1. Bribe: full hire fee plus 100 crystals per level.
 2. Items with no auction value: vendor value x 3, then the 1.5x markup.
 3. Given gear that isn't better: handed back.
-4. Online parties: mercenaries lot only on the owner's pool; other players' rules are unchanged.
+4. Online parties: mercenaries lot only on the owner's pool; other players' rules are unchanged. Sold mercenary goods are visible to all online players (see "Town auction houses").
 5. Contract: 1 hour of play time; it counts down only while playing.
 6. Old Friends: up to 8, oldest dropped first.
 7. Bags: normal bag size. A full bag means they pass on everything. Half full or more on entering town means they sell all their for-sale items, which disappear.
