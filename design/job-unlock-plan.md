@@ -33,9 +33,9 @@ All requirements are the job's own level, not the main job level, and a job coun
 ## Design
 1. A table `JOB_REQ = { THF: { WAR: 5 }, ... }` in data.js. A job with an entry unlocks as soon as every listed job's level (`save.jobs[j].lv`) reaches the requirement. Level ups run the check and unlock the job with a log line and a toast ("You can now become a Thief. Change jobs with Pip at your residence.").
 2. The unlock flag stays in `save.jobsUnlocked`. It is set once and never taken back, so a player who later levels down or changes level sync keeps the job.
-3. Job list in the change-job window shows locked jobs greyed out with the missing requirement ("Needs Warrior 5, Black Mage 5") and each requirement coloured when met.
+3. **Hidden until unlocked (answered 2026-10-16):** the job change menu at the residence (Pip) lists only unlocked jobs. Locked jobs are not shown at all, with no greyed rows and no requirement text, so players find the tree by playing. The unlock toast and log line are what announce a new job. Help describes the tree in general words only.
 4. Existing saves: on load, any job whose requirements are already met is unlocked. Jobs already unlocked by quest stay unlocked.
-5. Help and Updates entries, and the job database entry shows the requirement.
+5. Help and Updates entries, and the job database shows a job only once it is unlocked (same rule as the residence menu).
 6. Mercenary Hall: a mercenary of a job is available only if that job is unlocked (as now).
 
 ## Open questions (guesses used if not answered)
@@ -46,6 +46,6 @@ All requirements are the job's own level, not the main job level, and a job coun
 
 | Phase | Model | Work |
 |---|---|---|
-| J1 | Sonnet | `JOB_REQ` table, the unlock check on level up and on load, locked list with requirement text, toast, tests, Help, Updates. Quests stay as story only. |
+| J1 | Sonnet | `JOB_REQ` table, the unlock check on level up and on load, residence list that hides locked jobs, toast, tests, Help, Updates. Quests stay as story only. |
 
 Dependencies: none. It can be built before or after M4.
