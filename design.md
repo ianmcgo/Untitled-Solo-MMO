@@ -1932,3 +1932,4 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `mercSalePrice(itemId)` = round(`marketPrice` x 1.5), min 1. `buyFromMerc(id, idx)` checks crystals, rare ownership and bag room, moves one item.
 - `mercUpgrade(id, itemId)`: wearable and `gearScore` higher than the effective piece (`mercGearFor`). `giveMercGear` hands the item back with a log line if not an upgrade; otherwise equips it and puts the old effective piece in the companion's bag for sale (or into your bag if theirs is full).
 - Tests: test/m2unit.js (buying, pouch, give rules), p7unit.js updated.
+- design/job-unlock-plan.md: job unlock tree (not built).
