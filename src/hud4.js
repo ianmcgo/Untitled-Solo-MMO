@@ -367,15 +367,18 @@ function partyRows() {
   if (typeof NET_PT === "undefined" || !NET_PT.id) return S.party;
   return S.party.concat(netPartyList().map(m => { m.kind = "netmember"; return m; }));
 }
-function companionInfo(p) {
-  const id = p.mercId, m = MERCS[id];
-  const due = save.mercPaid[id] || Date.now() + COMPANION_CFG.dayMs, left = Math.max(0, due - Date.now());
-  const h = Math.floor(left / 3600000), mn = Math.floor(left % 3600000 / 60000);
-  const q = m.name + " · " + JOBS[m.job].name + " Lv" + p.lv + ". Next wage " + mercWage(id) + " crystals in " + h + "h " + String(mn).padStart(2, "0") + "m (you have " + save.gil.toLocaleString() + ").";
-  promptChoice(q, [
-    { label: "Pay now (" + mercWage(id) + " crystals)", fn: () => { closeDialog(); const w = mercWage(id); if (save.gil < w) { log("You don't have enough crystals.", "sys"); sfx("error"); return; } save.gil -= w; save.mercPaid[id] = Math.max(Date.now(), save.mercPaid[id] || 0) + COMPANION_CFG.dayMs; log("You pay " + m.name + " another day's wage (" + w + " crystals).", "sys"); sfx("coin"); saveGame(); } },
-    { label: "Dismiss " + m.name, fn: () => { closeDialog(); gameConfirm("Dismiss " + m.name + "?", "They'll go back to the Mercenary Hall.", () => dismissMerc(id), { yes: "Dismiss" }); } }
-  ]);
+function mercPayPrompt(id) {
+  const m = MERCS[id];
+  if (!m || S.dialog) return;
+  const w = mercWage(id), can = save.gil >= w;
+  const q = m.name + ": My hour is up. Another hour with you is " + w + " crystals." + (can ? "" : " (You have " + save.gil.toLocaleString() + ".)");
+  const opts = [
+    can ? { label: "Pay " + w + " crystals", fn: () => { closeDialog(); mercPay(id, true); } } : { label: "I can't pay", fn: () => { closeDialog(); mercPay(id, true); } },
+    { label: "Refuse", fn: () => { closeDialog(); mercPay(id, false); } }
+  ];
+  promptChoice(q, opts);
+  S.dialog.all = opts;
+  renderDlgOpts();
 }
 function buildParty() {
   const el = $("party");

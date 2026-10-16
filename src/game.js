@@ -95,7 +95,7 @@ function newSave() {
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
     hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
-    stance: "assist", mercGear: {}, mercInv: {}, bond: {}, mercPaid: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
+    stance: "assist", mercGear: {}, mercInv: {}, bond: {}, mercPaid: {}, mercContract: {}, oldFriends: {}, mercWageSeen: {}, mercHireLv: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, n: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
 
@@ -596,7 +596,7 @@ function addBond(id, n) {
   if (after > before) {
     const m = S.party.find(p => p.mercId === id);
     log("Your bond with " + MERCS[id].name + " grows to level " + after + ".", "loot");
-    if (m) { log(MERCS[id].name + ": " + MERC_PERSONAL[id][after - 1], "party"); buildStats(m); }
+    if (m) { log(MERCS[id].name + ": " + (MERC_PERSONAL[id] || MERC_PERSONAL_GEN)[after - 1], "party"); buildStats(m); }
     sfx("unlock");
     uiEvent("bond", { id, lv: after });
   }
@@ -642,28 +642,133 @@ function mercSync(id, lv) {
   return changed;
 }
 
-function mercWage(id) { return Math.max(10, Math.ceil(MERCS[id].fee * COMPANION_CFG.wageRate)); }
+function mercLevelBase(id, lv) {
+  const m = MERCS[id], hl = (save.mercHireLv && save.mercHireLv[id]) || lv;
+  if (m.gen) return mercFee(id, lv);
+  return m.fee * lv / Math.max(1, hl);
+}
+
+function mercGearAdd(id, lv) {
+  const own = save.mercGear[id] || {}, m = MERCS[id], plain = autoGear(m.job, lv, m.role);
+  let add = 0;
+  for (const sk in own) {
+    const it = ITEMS[own[sk]];
+    if (!it || (it.lv || 0) > lv) continue;
+    const pl = ITEMS[plain[sk]], plv = pl ? pl.lv || 0 : it.lv || 0;
+    add += COMPANION_CFG.gearWage * Math.max(1, (it.lv || 0) - plv) + (it.hq ? COMPANION_CFG.hqWage : 0);
+  }
+  return add;
+}
+
+function mercWage(id, lv) {
+  lv = lv || player.lv;
+  return Math.max(10, Math.ceil(mercLevelBase(id, lv) * COMPANION_CFG.wageRate * (1 + mercGearAdd(id, lv))));
+}
+
+function mercContract(id) {
+  save.mercContract = save.mercContract || {};
+  if (!save.mercContract[id]) save.mercContract[id] = { endSec: (save.playSec || 0) + COMPANION_CFG.contractSec };
+  return save.mercContract[id];
+}
+
+function mercContractLeft(id) { return Math.max(0, mercContract(id).endSec - (save.playSec || 0)); }
+
+function migrateMercContracts() {
+  if (save.mercPaid && Object.keys(save.mercPaid).length) save.mercPaid = {};
+  for (const id of save.hired) mercContract(id);
+}
+
+function mercPayReady() {
+  return player.alive && !partyInCombat() && !S.exitWalk && !S.walkIn && !S.modal && !S.dialog && !S.zoneCooldown && !player.synth && !zoneLoadingOn();
+}
+
+function zoneLoadingOn() {
+  const el = typeof document !== "undefined" && document.getElementById ? document.getElementById("loading") : null;
+  return !!(el && el.classList && typeof el.classList.contains === "function" && el.classList.contains("on"));
+}
+
+function mercPayDue() {
+  for (const id of save.hired) if (MERCS[id] && mercContractLeft(id) <= 0) return id;
+  return null;
+}
+
+function mercPay(id, pay) {
+  if (!save.hired.includes(id)) return "";
+  const w = mercWage(id), nm = MERCS[id].name;
+  if (pay && save.gil >= w) {
+    save.gil -= w;
+    const c = mercContract(id);
+    c.endSec = Math.max(c.endSec, save.playSec || 0) + COMPANION_CFG.contractSec;
+    log("You pay " + nm + " " + w + " crystals for another hour.", "sys");
+    sfx("coin");
+    saveGame();
+    return "";
+  }
+  log(pay ? "You can't pay " + nm + ". " + nm + " heads back to the Mercenary Hall." : nm + " goes unpaid and heads back to the Mercenary Hall.", "foe");
+  mercLeave(id);
+  sfx("error");
+  return pay ? "Not enough crystals." : "Refused.";
+}
+
+function mercLeave(id) {
+  const m = MERCS[id];
+  save.oldFriends = save.oldFriends || {};
+  save.oldFriends[id] = { left: save.playSec || 0, hall: "outpost", lv: player.lv, fee: m.fee };
+  const i = save.hired.indexOf(id);
+  if (i >= 0) save.hired.splice(i, 1);
+  if (save.mercContract) delete save.mercContract[id];
+  if (save.mercBodies) delete save.mercBodies[id];
+  if (save.mercDown) delete save.mercDown[id];
+  rebuildParty();
+  saveGame();
+}
+
+function mercBribe(id) {
+  const of = save.oldFriends && save.oldFriends[id];
+  if (!of) return 0;
+  return (of.fee || MERCS[id].fee) + COMPANION_CFG.bribePerLv * player.lv;
+}
+
+function rehireFriend(id) {
+  const of = save.oldFriends && save.oldFriends[id], m = MERCS[id];
+  if (!of || !m) return "They aren't here.";
+  if (save.hired.length >= CONFIG.maxParty - 1) { log("Your party is full. Dismiss someone first.", "sys"); sfx("error"); return "Party full."; }
+  const b = mercBribe(id);
+  if (save.gil < b) { log(m.name + " won't come back for less than " + b + " crystals.", "sys"); sfx("error"); return "Not enough crystals."; }
+  save.gil -= b;
+  delete save.oldFriends[id];
+  save.mercHireLv = save.mercHireLv || {};
+  save.mercHireLv[id] = player.lv;
+  if (m.gen) m.fee = mercFee(id);
+  save.hired.push(id);
+  save.mercContract = save.mercContract || {};
+  save.mercContract[id] = { endSec: (save.playSec || 0) + COMPANION_CFG.contractSec };
+  save.mercWageSeen = save.mercWageSeen || {};
+  save.mercWageSeen[id] = mercWage(id);
+  rebuildParty();
+  log(m.name + " takes your " + b + " crystals and rejoins you.", "loot");
+  partySay(S.party.find(p => p.mercId === id), "hire", true);
+  sfx("unlock");
+  saveGame();
+  return "";
+}
 
 function tickWages() {
   mercDefsSync();
-  const now = Date.now();
-  for (const id of save.hired.slice()) {
-    if (!save.mercPaid[id]) save.mercPaid[id] = now + COMPANION_CFG.dayMs;
-    if (now < save.mercPaid[id]) continue;
-    if (partyInCombat()) return;
-    const w = mercWage(id);
-    if (save.gil >= w) {
-      save.gil -= w;
-      save.mercPaid[id] = now + COMPANION_CFG.dayMs;
-      log("You pay " + MERCS[id].name + " a day's wage (" + w + " crystals).", "sys");
-    } else {
-      log(MERCS[id].name + " hasn't been paid and heads back to the Mercenary Hall.", "foe");
-      delete save.mercPaid[id];
-      dismissMerc(id, true);
-      sfx("error");
-    }
-    saveGame();
+  migrateMercContracts();
+  save.mercWageSeen = save.mercWageSeen || {};
+  for (const id of save.hired) {
+    if (!MERCS[id]) continue;
+    const w = mercWage(id), was = save.mercWageSeen[id];
+    if (was && w > was) log(MERCS[id].name + ": My rate is going up to " + w + " crystals an hour.", "party");
+    save.mercWageSeen[id] = w;
   }
+  const id = mercPayDue();
+  if (!id || !mercPayReady()) return;
+  if (S.time < (S.mercAskAt || 0)) return;
+  S.mercAskAt = S.time + 20;
+  if (typeof mercPayPrompt === "function") mercPayPrompt(id);
+  else mercPay(id, true);
 }
 
 function summonPet(a, sp) {
@@ -862,7 +967,7 @@ function mercPool(dayOverride) {
   mercDefsSync();
   const day = dayOverride != null ? dayOverride : mercDayNum();
   if (!save.mercDay || save.mercDay.day !== day) {
-    for (const id of (save.mercDay && save.mercDay.ids) || []) if (!save.hired.includes(id)) { delete save.mercDefs[id]; delete MERCS[id]; }
+    for (const id of (save.mercDay && save.mercDay.ids) || []) if (!save.hired.includes(id) && !(save.oldFriends && save.oldFriends[id])) { delete save.mercDefs[id]; delete MERCS[id]; }
     const rnd = seeded(hashStr(String(save.created || 1) + ":merc:" + day));
     const ids = [];
     for (let i = 0; i < CONFIG.mercDaily; i++) { let id = "m" + day + "_" + i; while (save.mercDefs[id]) id += "x"; save.mercDefs[id] = genMercDef(rnd, id); MERCS[id] = save.mercDefs[id]; ids.push(id); }
@@ -877,7 +982,7 @@ function mercFallTick() {
     save.mercFallen[id] = Date.now();
     const i = save.hired.indexOf(id);
     if (i >= 0) save.hired.splice(i, 1);
-    delete save.mercPaid[id];
+    if (save.mercContract) delete save.mercContract[id];
     if (save.mercDefs[id] && !(save.mercDay && save.mercDay.ids.includes(id))) delete save.mercDefs[id];
     log(nm + " has fallen and will not be coming back.", "foe");
     rebuildParty();
@@ -938,8 +1043,12 @@ function hireMerc(id) {
   save.mercHireLv = save.mercHireLv || {};
   save.mercHireLv[id] = player.lv;
   save.hired.push(id);
-  save.mercPaid[id] = Date.now() + COMPANION_CFG.dayMs;
+  save.mercContract = save.mercContract || {};
+  save.mercContract[id] = { endSec: (save.playSec || 0) + COMPANION_CFG.contractSec };
+  save.mercWageSeen = save.mercWageSeen || {};
+  if (save.oldFriends) delete save.oldFriends[id];
   rebuildParty();
+  save.mercWageSeen[id] = mercWage(id);
   log("You hire " + m.name + " at level " + player.lv + " for " + fee + " crystals.", "loot");
   partySay(S.party.find(p => p.mercId === id), "hire", true);
   sfx("unlock");
@@ -950,7 +1059,7 @@ function dismissMerc(id, quiet) {
   const i = save.hired.indexOf(id);
   if (i < 0) return;
   save.hired.splice(i, 1);
-  delete save.mercPaid[id];
+  if (save.mercContract) delete save.mercContract[id];
   if (save.mercBodies) delete save.mercBodies[id];
   if (save.mercDown) delete save.mercDown[id];
   rebuildParty();
@@ -5192,7 +5301,7 @@ const TALK = {
   },
   talkBrann(n) {
     const hired = save.hired.length;
-    openDialog(n.name, hired ? "Your company's holding up, I hope. I get new faces every day, any trade you like, and they'll fight at your side as long as they draw breath. Lose one and they're gone for good, so look after them." : "Nobody walks the Hollow alone for long. Every day five new fighters come through my hall, all kinds. They match your strength and grow with you. Pay their fee, then a daily wage. And mind them: the fallen don't come back.", [
+    openDialog(n.name, hired ? "Your company's holding up, I hope. I get new faces every day, any trade you like, and they'll fight at your side as long as they draw breath. Lose one and they're gone for good, so look after them." : "Nobody walks the Hollow alone for long. Every day five new fighters come through my hall, all kinds. They match your strength and grow with you. Pay their fee for the first hour, then a wage for every hour after. And mind them: the fallen don't come back.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
     ].concat(questOptions("brann", n)));
   },
@@ -5482,7 +5591,7 @@ function koTick() {
     if (now < b.until || S.party.some(p => p.mercId === id)) continue;
     delete save.mercBodies[id];
     if (save.mercDown) delete save.mercDown[id];
-    if (CONFIG.mercPermadeath) { save.mercFallen[id] = now; const i = save.hired.indexOf(id); if (i >= 0) save.hired.splice(i, 1); delete save.mercPaid[id]; log((MERCS[id] ? MERCS[id].name : "A companion") + " has fallen and will not be coming back.", "foe"); }
+    if (CONFIG.mercPermadeath) { save.mercFallen[id] = now; const i = save.hired.indexOf(id); if (i >= 0) save.hired.splice(i, 1); if (save.mercContract) delete save.mercContract[id]; log((MERCS[id] ? MERCS[id].name : "A companion") + " has fallen and will not be coming back.", "foe"); }
     else dismissMerc(id, true);
     return;
   }

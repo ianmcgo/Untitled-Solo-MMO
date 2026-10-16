@@ -1933,3 +1933,13 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `mercUpgrade(id, itemId)`: wearable and `gearScore` higher than the effective piece (`mercGearFor`). `giveMercGear` hands the item back with a log line if not an upgrade; otherwise equips it and puts the old effective piece in the companion's bag for sale (or into your bag if theirs is full).
 - Tests: test/m2unit.js (buying, pouch, give rules), p7unit.js updated.
 - design/job-unlock-plan.md: job unlock tree (not built).
+
+## 18.30.0: contracts, rising wages, Old Friends (M4)
+- Data: `save.mercContract[id] = { endSec }` on `save.playSec`; `save.oldFriends[id] = { left, hall: "outpost", lv, fee }`; `save.mercWageSeen[id]` (last announced wage); `save.mercHireLv[id]`. `save.mercPaid` is emptied by `migrateMercContracts` (hired companions get a fresh hour). COMPANION_CFG: `contractSec 3600`, `gearWage 0.02`, `hqWage 0.05`, `bribePerLv 100`, `wageRate 1`.
+- Wage: `mercWage(id, lv) = max(10, ceil(mercLevelBase x wageRate x (1 + mercGearAdd)))`. `mercLevelBase`: daily (generated) companions use `mercFee(id, lv)`; fixed ones scale `fee x lv / hireLv`. `mercGearAdd`: per own worn piece at or below lv, 2% x max(1, item lv - plain piece lv in that slot) + 5% if HQ. Plain gear adds nothing, so a fresh hire's wage equals the fee. Guessed numbers, open for balance.
+- `tickWages` (every 2 s from the landmark timer): migrates, announces raises, then if `mercPayDue()` and `mercPayReady()` (alive, `!partyInCombat()`, no exit/walk-in, no modal or dialog, `zoneCooldown` 0, no synth, loader off via `zoneLoadingOn()`) calls `mercPayPrompt(id)` (hud4.js; Pay/I can't pay/Refuse, no Never mind). Re-asks at most every 20 s if the dialog is dismissed. Without the UI (tests) it pays automatically.
+- `mercPay(id, pay)`: pays and extends from max(end, now), or calls `mercLeave(id)`, which records the Old Friend and keeps defs, gear, bag and bond. `mercPool` day rollover and `offers` skip Old Friends.
+- `mercBribe(id)` = stored fee + 100 x player level. `rehireFriend(id)` checks party room and crystals, rehires at the current level with a new contract.
+- UI: Party tab contract line with Pay now (`mpay`), Brann window "Old Friends" section (`rehire`). `companionInfo` removed.
+- Fix: `addBond` used `MERC_PERSONAL[id]`, which daily companions don't have; now falls back to `MERC_PERSONAL_GEN`.
+- Tests: test/m4unit.js; p7unit.js updated.

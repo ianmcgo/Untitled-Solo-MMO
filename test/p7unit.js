@@ -4,12 +4,13 @@ const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 
 G.save.gil = 5000; G.enterZone('outpost'); run(0.2);
 G.hireMerc('kael');
-ok(G.save.hired.includes('kael') && G.save.mercPaid.kael > Date.now(), 'hiring sets the first paid day');
+ok(G.save.hired.includes('kael') && G.mercContractLeft('kael') > 3500, 'hiring starts a one-hour contract');
 const g0 = G.save.gil, w = G.mercWage('kael');
-G.save.mercPaid.kael = Date.now() - 1; G.tickWages();
-ok(G.save.gil === g0 - w && G.save.mercPaid.kael > Date.now(), 'a day later the wage is paid automatically (' + w + ')');
-G.save.gil = 0; G.save.mercPaid.kael = Date.now() - 1; G.tickWages();
-ok(!G.save.hired.includes('kael') && S.party.length === 1, 'an unpaid companion goes back to the hall');
+G.save.playSec = (G.save.playSec || 0) + 3601; S.mercAskAt = 0; S.zoneCooldown = 0; G.tickWages();
+ok(G.save.gil === g0 - w && G.mercContractLeft('kael') > 3500, 'when the hour is up the wage is paid (' + w + ')');
+G.save.gil = 0; G.save.playSec += 3601; S.mercAskAt = 0; S.zoneCooldown = 0; G.tickWages();
+ok(!G.save.hired.includes('kael') && S.party.length === 1 && G.save.oldFriends.kael, 'an unpaid companion goes back to the hall as an Old Friend');
+G.save.gil = 99999; G.rehireFriend('kael');
 G.save.gil = 5000; G.hireMerc('kael');
 const k = () => S.party.find(p => p.mercId === 'kael');
 const hp0 = k().maxHp;

@@ -25,7 +25,7 @@ function closeModal() {
 }
 
 function menuSig() {
-  return [typeof netPartySig === "function" ? netPartySig() : "", typeof NET_LS !== "undefined" ? NET_LS.at + ":" + !!NET_LS.invite + ":" + NET_RT.online.map(o => o && o.name + o.zone + o.lv + o.lfg).join() + save.friends.join() + save.blocked.join() + save.lfg : "", save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), UI.mercSheet, JSON.stringify(save.mercInv), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
+  return [typeof netPartySig === "function" ? netPartySig() : "", typeof NET_LS !== "undefined" ? NET_LS.at + ":" + !!NET_LS.invite + ":" + NET_RT.online.map(o => o && o.name + o.zone + o.lv + o.lfg).join() + save.friends.join() + save.blocked.join() + save.lfg : "", save.buddy, save.buddyOut, save.buddies.length, JSON.stringify(save.buddyNames), JSON.stringify(save.market.listings.length), save.market.box.length, marketTick(), JSON.stringify(save.guild), save.mountCoat, save.saddle, JSON.stringify(save.augments), save.board.done.length, save.stance, JSON.stringify(save.mercGear), JSON.stringify(save.oldFriends), Math.floor((save.playSec || 0) / 60), UI.mercSheet, JSON.stringify(save.mercInv), Object.keys(save.bestiary).length, Object.keys(save.ach).length, save.gil, save.inventory.map(s => s.id + s.qty).join(), Object.values(save.gear).join(), player.lv, save.mainJob, save.subJob, S.party.length, save.mountLicense, JSON.stringify(save.quests), S.zoneId, save.storage.length, save.furniture.length, JSON.stringify(save.gardens), JSON.stringify(save.crafts), !!player.synth].join("|");
 }
 function updateMenu(now) {
   if (S.modal === "character") renderPreview(now);
@@ -821,13 +821,18 @@ function tabMercs() {
   const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
   UI.modalHelp = "Hire a companion. They fight at your level; if they fall, they're gone for good.";
   const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc({ dd: "Damage", tank: "Tank", healer: "Healer", support: "Support", nuker: "Nuker", burster: "Burster", hybrid: "Hybrid", bard: "Bard" }[m.role] || m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
-  let h = '<div class="sub" style="margin-bottom:6px">Brann has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first day; after that each takes a daily wage.</div><h3>For hire today</h3>";
-  const offers = pool.filter(id => !save.hired.includes(id));
+  let h = '<div class="sub" style="margin-bottom:6px">Brann has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first hour of play; after that each asks for an hourly wage.</div><h3>For hire today</h3>";
+  const offers = pool.filter(id => !save.hired.includes(id) && !(save.oldFriends && save.oldFriends[id]));
   if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
   for (const id of offers) h += row(id, '<button data-a="hire" data-v="' + id + '"' + (save.gil < mercFee(id) || full ? " disabled" : "") + ">Hire · " + mercFee(id) + " 💠</button>");
   h += "<h3>Your company</h3>";
   if (!save.hired.length) h += '<div class="sub">No one has joined you yet.</div>';
   for (const id of save.hired) if (MERCS[id]) h += row(id, '<button data-a="dismiss" data-v="' + id + '">Dismiss</button>');
+  const ofs = Object.keys(save.oldFriends || {}).filter(id => MERCS[id]);
+  h += "<h3>🍺 Old Friends</h3>";
+  if (!ofs.length) h += '<div class="sub">Nobody. Companions you refuse to pay, or can\'t pay, wait here with their gear, bag and bond.</div>';
+  else h += '<div class="sub" style="margin-bottom:4px">They left when their pay ran out. To come back they want their full hiring fee plus 100 crystals per level, and they rejoin at your level with their gear, bag and bond.</div>';
+  for (const id of ofs) h += row(id, '<button data-a="rehire" data-v="' + id + '"' + (save.gil < mercBribe(id) || full ? " disabled" : "") + ">Bribe · " + mercBribe(id) + " 💠</button>");
   const fallen = Object.keys(save.mercFallen || {}).length;
   if (fallen) h += '<div class="sub" style="margin-top:8px">🕯️ ' + fallen + " companion" + (fallen > 1 ? "s have" : " has") + " fallen in your service.</div>";
   return h;
@@ -941,7 +946,7 @@ function mercSheet(id) {
 function tabParty() {
   if (UI.mercSheet && save.hired.includes(UI.mercSheet)) return mercSheet(UI.mercSheet);
   UI.mercSheet = null;
-  let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Wages are paid automatically once a real day (tap a companion in the Party box to see the countdown or pay early). If you can\'t pay, they go back to the Mercenary Hall.</div>';
+  let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Each companion works on a 1-hour contract of play time. When it runs out they ask for the next hour once the fight is over; refuse or can\'t pay and they go back to the Mercenary Hall, where you can bribe them to return under Old Friends.</div>';
   h += '<div style="display:flex;gap:6px;margin-bottom:10px">' + [["assist", "⚔ Assist", "Fight your target"], ["follow", "🚶 Follow", "Stay close, don't attack"], ["hold", "✋ Hold", "Stand ground"]].map(([k, l, d]) => '<button data-a="stance" data-v="' + k + '" title="' + d + '"' + (save.stance === k ? ' class="pri"' : "") + ">" + l + "</button>").join("") + "</div>";
   if (!save.hired.length) return h + '<div class="item"><span class="sub">No companions yet. Brann at the Mercenary Hall in the Outpost hires them out.</span></div>';
   const bagEq = save.inventory.filter(x => ITEMS[x.id].kind === "equip");
@@ -950,11 +955,10 @@ function tabParty() {
     const bl = bondLevel(id), st = COMPANION_CFG.bondSteps, b = save.bond[id] || 0;
     const next = bl < COMPANION_CFG.maxBond ? st[bl + 1] : null;
     const pct = next ? Math.round(100 * (b - st[bl]) / (next - st[bl])) : 100;
-    const paid = save.mercPaid[id] ? save.mercPaid[id] - Date.now() : 0;
     h += '<div class="item" style="display:block">';
     h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b style="color:' + m.color + '">' + esc(m.name) + "</b> <span class=\"sub\">" + JOBS[m.job].name + " · " + m.role + (a ? " · HP " + a.hp + "/" + a.maxHp : "") + '</span></div><span><button data-a="msheet" data-v="' + id + '">Sheet' + (mercForSale(id) ? " 👝" : "") + '</button> <button data-a="dismiss" data-v="' + id + '">Dismiss</button></span></div>';
     h += '<div class="sub" style="margin:4px 0">💞 Bond ' + bl + "/" + COMPANION_CFG.maxBond + " (+" + Math.round(bl * COMPANION_CFG.bondBonus * 100) + '% stats)</div><div class="bar" style="height:6px;margin-bottom:6px"><i style="width:' + pct + '%;background:#f48fb1"></i></div>';
-    h += '<div class="sub">💠 Wage ' + mercWage(id) + " crystals per day · next in " + fmtDur(paid) + "</div>";
+    h += '<div class="sub">💠 Contract: ' + fmtDur(mercContractLeft(id) * 1000) + " of play left · next hour " + mercWage(id) + ' crystals <button data-a="mpay" data-v="' + id + '" style="font-size:11px;padding:1px 6px"' + (save.gil < mercWage(id) ? " disabled" : "") + ">Pay now</button></div>";
     h += '<div class="sub">🎒 Bag ' + (save.mercInv && save.mercInv[id] ? save.mercInv[id].length : 0) + "/" + CONFIG.inventorySize + " slots · " + mercBagCount(id) + " items kept to sell. They sell everything when you reach a town with their bag at least half full.</div>";
     const own = save.mercGear[id] || {};
     const gear = a ? a.gear : mercGearFor(id, player.lv);
@@ -1577,6 +1581,8 @@ function onMenuClick(e) {
   else if (a === "gbuy") { UI.guildMsg = guildBuy(v); renderModal(); return; }
   else if (a === "trade") { UI.boardMsg = fillTrade(v); renderModal(); return; }
   else if (a === "msheet") { UI.mercSheet = v || null; renderModal(); }
+  else if (a === "mpay") { mercPay(v, true); }
+  else if (a === "rehire") { rehireFriend(v); }
   else if (a === "mbuy") { const [id, i] = v.split(":"); buyFromMerc(id, +i); }
   else if (a === "mgive") { const [id, it] = v.split(":"); giveMercGear(id, it); }
   else if (a === "mtake") { const [id, sl] = v.split(":"); takeMercGear(id, sl); }
@@ -1668,6 +1674,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.30.0", date: "2026-10-16", title: "Contracts and Old Friends", items: [
+    "<b>Hourly contracts on play time:</b> the hiring fee covers one hour of play. The clock only runs while you play. Wages are no longer paid once a real day.",
+    "<b>Payment request:</b> when the hour is up, the companion asks for the next hour once you are out of combat, done zoning and have no menus open. Pay, or refuse.",
+    "<b>Wages rise with level and gear:</b> the wage follows your level and goes up with better gear they wear. They tell you when their rate goes up. The Party tab shows the time left, the next wage and a Pay now button.",
+    "<b>Old Friends:</b> refuse, or be unable to pay, and the companion goes back to the Mercenary Hall. Brann's window has a new Old Friends section where you can bribe them back (full hiring fee plus 100 crystals per level). They keep their gear, bag and bond and rejoin at your level.",
+    "Existing companions start a fresh one-hour contract.",
+    "Fix: daily companions no longer cause an error when your bond with them grows."
+  ] },
   { v: "18.29.0", date: "2026-10-16", title: "Companion sheet and shop", items: [
     "<b>Companion sheet:</b> click a companion in the party box (bottom right) or press Sheet in the Party tab to see what they wear, what they have for sale, the gear they are keeping, and their bag.",
     "<b>Pouch:</b> a 👝 appears by a companion's name in the party box whenever they have something for sale.",
@@ -3153,7 +3167,7 @@ function tabHelp() {
     "<b>Samurai, Ninja and Dragoon</b> unlock at level 12 through Tobin: <i>The Patient Blade</i> (Samurai: 1 Iron Ingot, 2 Ash Lumber), <i>Steps Without Sound</i> (Ninja: 3 Bat Wings, 2 Worm Silk) and <i>Wings of the Wyrm</i> (Dragoon: 3 Lizard Skins, 1 Crag Feather). Their weapons are sold by Pell (bronze to steel) and Vela (frostforged). Samurai and Dragoons can wear warrior armour; Ninjas can wear thief gear.",
     "<b>Advanced jobs</b> unlock at level 6 through Tobin (then change to them with Pip at your residence): <i>The Oath of Steel</i> (Paladin: 2 Bone Chips, 1 Iron Ore) and <i>Scarlet Lessons</i> (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence), <i>Light Fingers</i> (Thief: 3 Goblin Pouches, 1 Bat Wing), <i>The Open Hand</i> (Monk: 2 Bone Chips, 3 Healing Herbs), <i>Steady Aim</i> (Ranger: 3 Bat Wings, 2 Ash Lumber) and <i>The Calling</i> (Summoner: 2 Fire Essences, 2 Wind Essences, 2 Healing Herbs). At level 10 Tobin also teaches <i>The Shadowed Path</i> (Dark Knight: 2 Crypt Dust, 3 Bone Chips) and <i>A Traveler's Song</i> (Bard: 3 Mire Reeds, 2 Bat Wings). Each job keeps its own level.",
     "Support jobs unlock at level 10 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
-    "Companions cost a hiring fee (it covers the first day) and then a daily wage, paid automatically once per real day (24 hours). If you can't pay, they go back to the Mercenary Hall. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
+    "Companions cost a hiring fee (it covers the first hour of play) and then a wage for each further hour. If you refuse or can't pay, they go back to the Mercenary Hall as Old Friends. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
   ]));
   h += sec("📈 Experience", ul([
     "XP needed per level: " + CONFIG.xpTable.slice(1).map((x, i) => "Lv" + (i + 1) + "→" + (i + 2) + " " + x).join(" · ") + ". Level cap " + CONFIG.levelCap + ".",
@@ -3305,7 +3319,9 @@ function tabHelp() {
     "<b>Buying from companions:</b> their for-sale items cost 1.5 times the auction house value. Press Buy on the sheet.",
     "<b>Gear:</b> give companions equipment from your bag with Wear this. It must suit their job and your level. If it is better than what they wear they put it on and keep the old piece to sell; if not, they say so and you keep it. Tap ↩ on a piece to take it back. Their own kit fills any empty slot.",
     "<b>Bond:</b> companions who fight beside you grow closer: 1 point per kill that gives XP, 4 per notorious monster. Each bond level (up to 5) adds 3% to their HP, MP, attack, defense and accuracy, and they'll tell you a little about themselves.",
-    "<b>Wages:</b> the hiring fee covers the first real day (24 hours); after that each companion takes the same amount each day. Wages wait until a fight ends. Tap a companion in the Party box to see how long until their next wage and how much, pay early, or dismiss them."
+    "<b>Contracts:</b> the hiring fee covers one hour of play time. The clock only runs while you play, so logging out pauses it. When the hour is up, the companion asks for the next hour's wage as soon as you are out of combat, finished zoning and have every menu closed. Pay, or refuse.",
+    "<b>Wages rise:</b> the hourly wage goes up with your level (they sync to it) and with better gear they wear, and comes down if you sync down. They tell you in the log when their rate goes up. The Party tab shows the time left and the next wage, with Pay now to add an hour early.",
+    "<b>Old Friends:</b> a companion you refuse, or can't pay, goes back to Brann's Mercenary Hall and waits under Old Friends with their gear, bag and bond. To win them back you pay a bribe: their full hiring fee plus 100 crystals per level. They rejoin at your current level."
   ]));
   h += sec("🎣 Fishing", ul([
     "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from Pell. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait. You raise the rod in both hands, a line and red-and-white float settle on the water, and the float dips and jitters when something bites.",
