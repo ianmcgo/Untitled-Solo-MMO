@@ -26,6 +26,14 @@ Requested 2026-10-16. Builds on the existing treasure pool (`addToPool`, `lotPoo
     - The contract is 1 hour of play time, counted on `save.playSec`, the same as Blessing and meals. Logging out pauses it.
     - When it runs out, the payment request waits until all of these are true: out of combat, not zoning, no menu or dialog open.
     - The mercenary then asks for payment in a dialog: Pay (wage) or Refuse.
+10b. **Wages rise with level and gear:** today `mercWage(id)` is the hire fee times `COMPANION_CFG.wageRate` (a flat amount, minimum 10). Target: wage = base wage x level factor x gear factor, recomputed each time the contract is due and shown in the payment prompt and the mercenary sheet.
+   - **Level factor:** the wage follows the synced level (rule 7): fee scaled by the mercenary's level against the level they were hired at, so a mercenary hired at level 10 who is now synced to level 20 costs about twice the base.
+   - **Gear factor:** each worn piece adds to the wage by its item level and rarity (for example +2% of base per item level above the level-appropriate plain gear, summed over worn slots). Plain starting gear adds nothing, so a fresh hire costs the same as today. Gear they carry but cannot wear adds nothing.
+   - **Level down:** when you sync to a lower job level the wage drops with it, but gear that is no longer worn stops counting.
+   - **Notice:** when a raise happens (level up or better gear equipped) the mercenary says so in the log and the party tooltip shows the new wage ("Next wage N crystals").
+   - **Bribe:** the bribe to return (rule 14) uses the full hire fee at the time of leaving plus 100 per level, not the raised wage.
+   - Open question: the exact percentages are guesses (level factor linear in level, gear +2% of base per item level above plain). I don't know the right feel; it needs a balance pass with M2 so wages don't outrun kill income.
+
 11. **Bags:** each mercenary has a normal bag of `CONFIG.inventorySize` slots (30 today), with stacks counting the same as the player's.
     - With a full bag they pass on every lot.
     - Kept items (gear above their synced level) take up bag slots.
@@ -47,7 +55,7 @@ Requested 2026-10-16. Builds on the existing treasure pool (`addToPool`, `lotPoo
 | M1 Pool, lots and bags | Sonnet | All party drops go to the pool. Mercenaries lot on everything, and pass on gear they can't wear or when their bag is full. Winners store items in mercInv and equip only upgrades. Town sell-off at half-full bags. Pool log lines and tests. |
 | M2 Sync and plain gear | Opus | Hire at player level, sync to the job level on change, move gear above the cap to kept inventory and restore it later, plain `autoGear`. Touches combat stats, so it needs balance tests. |
 | M3 Sheet, pouch and trade | Sonnet | Pouch icon in the party list, the mercenary sheet (worn gear, for sale, kept), buying at 1.5x the auction value, giving an item with "Wear this", keyboard navigation, Help and Updates. |
-| M4 Contracts and Old Friends | Opus | Play-time contracts with save migration, a payment prompt gated on combat, zoning and menus, Refuse or can't-pay sends them to Old Friends at the nearest hall, a level-based bribe, and rehiring with gear and bond kept. |
+| M4 Contracts and Old Friends | Opus | Play-time contracts with save migration, wages that rise with level and gear (rule 10b), a payment prompt gated on combat, zoning and menus, Refuse or can't-pay sends them to Old Friends at the nearest hall, a level-based bribe, and rehiring with gear and bond kept. |
 
 ## One market: town, player and mercenary listings (revised 2026-10-16, third pass)
 What exists today: two separate markets. The NPC market is local (`ahDaily()`, `ahStock()`, `marketPrice`, bought counts in `save.market.bought`, one rotation for the whole world). The player market is shared online (Supabase `public.ah_listings`, `ah_post`, `ah_buy`, `ah_expire`, delivery box `game_private.ah_box`, client in net.js, the Players view in the auction window). Listings last 48 hours, 10 lots per seller, 3% fee. All three town zones (Ashenreach Outpost, Saltreach Harbor, Ironvale) already have an auction house (Corvin, Selene, Orla).
