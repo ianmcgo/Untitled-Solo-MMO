@@ -4262,28 +4262,32 @@ function tabNext(list) {
   return fresh ? list[0] : list[(list.indexOf(player.target) + 1) % list.length];
 }
 
+function npcTargets(r) {
+  return S.npcs.filter(n => !n.away && !n.gone && dist(n, player) < r);
+}
+
 function cycleNpcTarget() {
-  const people = S.npcs.filter(n => !n.crystal && !n.away && (!n.prop || n.prop === "nubbin") && !n.warpstone && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
-  const crystals = S.npcs.filter(n => (n.crystal || n.warpstone || (n.prop && n.prop !== "nubbin")) && !n.away && !n.gone && dist(n, player) < 900).sort((a, b) => dist(a, player) - dist(b, player));
-  const list = people.concat(crystals);
+  const list = npcTargets(1200).sort((a, b) => dist(a, player) - dist(b, player));
   if (!list.length) return false;
-  player.target = tabNext(list);
+  setTarget(tabNext(list), true);
   sfx("select");
   return true;
 }
 
 function cycleObjectTarget() {
-  const list = S.npcs.filter(n => (n.crystal || n.warpstone || n.prop) && !n.away && !n.gone && dist(n, player) < 1200).sort((a, b) => dist(a, player) - dist(b, player));
+  const list = npcTargets(1200).filter(n => n.crystal || n.warpstone || n.prop).sort((a, b) => dist(a, player) - dist(b, player));
   if (!list.length) { log("No objects nearby.", "sys"); return; }
-  player.target = tabNext(list);
+  setTarget(tabNext(list), true);
   sfx("select");
 }
 
 function cycleTarget() {
   if (S.zone.safe) { if (!cycleNpcTarget()) log("No one nearby.", "sys"); return; }
-  const list = S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 450).sort((a, b) => dist(a, player) - dist(b, player));
+  const mobs = S.mobs.filter(m => m.alive && !m.despawned && dist(m, player) < 450);
+  const list = mobs.concat(npcTargets(260)).sort((a, b) => dist(a, player) - dist(b, player));
   if (!list.length) { if (!cycleNpcTarget()) log("No enemies nearby.", "sys"); return; }
-  setTarget(tabNext(list));
+  const t = tabNext(list);
+  setTarget(t, !isMob(t));
   sfx("select");
 }
 
@@ -4519,7 +4523,7 @@ function questMarker(n) {
   const q = save.quests, lv = player.lv;
   for (const id in QUESTS) if (QUESTS[id].npc === n.id && QUESTS[id].intro && (questOfferable(id) || questComplete(id))) return true;
   if (n.id === "rhea") return q.pouches === "none" || (q.pouches === "active" && invCount("goblin_pouch") >= 3) || (q.bones === "done" && q.chieftain === "none" && lv >= 7) || q.chieftain === "killed";
-  if (n.id === "ysolde") return !save.mountLicense && lv >= 5 && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
+  if (n.id === "ysolde") return !save.mountLicense && lv >= CONFIG.mountLevel && (q.riding === "none" || (q.riding === "active" && save.gil >= 300 && invCount("healing_herb") >= 3));
   if (n.id === "tobin") return (q.support === "none" && lv >= CONFIG.supportUnlockLevel) || (q.support === "active" && invCount("bat_wing") >= 2 && invCount("worm_silk") >= 1) || (lv >= 6 && ((q.pld === "none" || q.rdm === "none") || (q.pld === "active" && invCount("bone_chip") >= 2 && invCount("iron_ore") >= 1) || (q.rdm === "active" && invCount("worm_silk") >= 2 && invCount("fire_crystal") >= 1 && invCount("water_crystal") >= 1)));
   if (n.talk === "talkGuard") return !blessed();
   { const st = storyStep(); if (st && st.type === "talk" && st.npc === n.id && storyReady()) return true; }
@@ -4936,7 +4940,7 @@ const TALK = {
       ]);
       return;
     }
-    if (player.lv < 5) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level 5 and come see me about a riding license.", []); return; }
+    if (player.lv < CONFIG.mountLevel) { openDialog(n.name, "Thornstriders are proud beasts. They won't carry a greenhorn. Reach level " + CONFIG.mountLevel + " and come see me about a riding license.", []); return; }
     if (q.riding === "none") {
       openDialog(n.name, "You've got the look of someone who's walked the Hollow too many times. A riding license costs 300 crystals, plus 3 Healing Herbs for the beast's feed. Hares and worms in the Hollow carry them.", [
         { label: "I'll get them", fn: () => { q.riding = "active"; log("Quest accepted: " + QUESTS.riding.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }

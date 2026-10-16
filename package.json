@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.11.0",
-  "releaseTitle": "Smaller daily Auction House stock",
+  "version": "18.12.0",
+  "releaseTitle": "Tab fix, hotkey bar styling and level gates",
   "description": "",
   "main": "index.js",
   "scripts": {
