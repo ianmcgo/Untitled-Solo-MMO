@@ -256,7 +256,10 @@ function buildActionBar() {
   const el = $("actionBar");
   el.innerHTML = "";
   UI.slots = [];
-  const pg = hotbar().pages[UI.page];
+  const pages = hotbar().pages;
+  document.body.classList.toggle("barEmpty", !pages.some(lineShown));
+  if (!lineShown(pages[UI.page])) { const k = pages.findIndex(lineShown); if (k >= 0) UI.page = k; }
+  const pg = pages[UI.page];
   for (let i = 0; i < 10; i++) {
     const a = pg[i];
     const b = document.createElement("button");
@@ -271,7 +274,25 @@ function buildActionBar() {
   $("pgNum").textContent = ["Ctrl", "Shft", "Alt", "Tab"][UI.page];
   if (typeof VIEW !== "undefined" && VIEW.settings) barPosApply();
 }
-function setPage(p) { UI.page = (p + 4) % 4; buildActionBar(); sfx("tab"); }
+function toggleFullscreen() {
+  const d = document;
+  if (d.fullscreenElement) { d.exitFullscreen(); return; }
+  const p = d.documentElement.requestFullscreen ? d.documentElement.requestFullscreen({ navigationUI: "hide" }) : null;
+  if (p) p.then(() => { if (navigator.keyboard && navigator.keyboard.lock) navigator.keyboard.lock().catch(() => {}); log("Fullscreen on. The browser now passes Ctrl+number and other shortcuts to the game.", "sys"); }).catch(() => log("Your browser would not enter fullscreen.", "sys"));
+}
+
+function lineShown(pg) { return pg.some(a => a && a.hud !== false); }
+function setPage(p) {
+  const pages = hotbar().pages, dir = p < UI.page || (UI.page === 0 && p === -1) ? -1 : 1;
+  let n = (p + 4) % 4;
+  for (let k = 0; k < 4 && !lineShown(pages[n]); k++) n = (n + dir + 4) % 4;
+  UI.page = n; buildActionBar(); sfx("tab");
+}
+function closeHotBar() {
+  for (const pg of hotbar().pages) for (const a of pg) if (a) a.hud = false;
+  saveGame(); buildActionBar(); sfx("close");
+  log("Hotkey bar hidden. Choose which hotkeys appear on it in Hotkeys (B).", "sys");
+}
 function activateSlot(page, i) {
   const a = hotbar().pages[page][i];
   if (page === UI.page && UI.slots[i]) { const el = UI.slots[i].el; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
@@ -1084,6 +1105,7 @@ function initHud() {
   if (window.innerWidth <= 720) { $("chat").classList.add("min"); $("chatTog").textContent = "▴"; }
   $("tracker").addEventListener("click", e => { if (e.target.closest("[data-tr]")) { UI.trackerMin = !UI.trackerMin; updateTracker(); sfx("click"); } else openMenu("quests"); });
   initBarDrag();
+  $("barClose").onclick = closeHotBar;
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
