@@ -222,6 +222,7 @@ const SPELLS = {
   aero: { name: "Aero", jobs: { BLM: 9, RDM: 14, DRK: 17 }, mp: 6, cast: 0.5, recast: 2, kind: "nuke", power: 40, k: 1.6, k2: 1, stat: "int", element: "wind", target: "enemy", desc: "Wind damage." },
   fire: { name: "Fire", jobs: { BLM: 13, RDM: 19 }, mp: 7, cast: 0.5, recast: 2, kind: "nuke", power: 55, k: 1.4, k2: 1, stat: "int", element: "fire", target: "enemy", desc: "Fire damage." },
   blizzard: { name: "Blizzard", jobs: { BLM: 17 }, mp: 8, cast: 0.5, recast: 2, kind: "nuke", power: 70, k: 1.2, k2: 1, stat: "int", element: "ice", target: "enemy", desc: "Ice damage." },
+  silence: { name: "Silence", jobs: { WHM: 15, RDM: 18 }, mp: 16, cast: 3, recast: 10, kind: "debuff", element: "wind", buff: "silence", stat: "mnd", enmity: 60, target: "enemy", desc: "Stops a monster from casting spells for 2 minutes.", dur: 120 },
   poison: { name: "Poison", jobs: { BLM: 3, RDM: 5, DRK: 6 }, mp: 5, cast: 1, recast: 5, kind: "dot", element: "water", power: 0, dot: { dur: 90, skill: "enfeebling", div: 25, min: 1 }, buff: "poison", target: "enemy", skill: "enfeebling", desc: "Poisons the target: damage every 3 s for 90 s, stronger with Enfeebling Magic skill." },
   bio: { name: "Bio", jobs: { BLM: 10, RDM: 10, DRK: 15 }, mp: 15, cast: 1.5, recast: 5, kind: "dot", element: "dark", power: 10, dot: { dur: 60, skill: "dark", div: 40, ceil: true, min: 1, max: 3 }, buff: "blight", target: "enemy", skill: "dark", desc: "Dark damage, then up to 3 damage every 3 s for 60 s. Lowers the target's attack by 10%. Replaces Dia." },
   drain: { name: "Drain", jobs: { BLM: 12, DRK: 10 }, mp: 21, cast: 3, recast: 60, kind: "drain", element: "dark", absorb: [1, 20], target: "enemy", skill: "dark", desc: "Steals HP from the target. Ineffective against undead." },
@@ -262,14 +263,15 @@ const SPELLS = {
   armys_paeon2: { name: "Army's Paeon II", jobs: { BRD: 15 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 2, sreq: 150, cap: 3, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 2 HP every 3 s.", dur: 120 },
   sword_madrigal: { name: "Sword Madrigal", jobs: { BRD: 11 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "madrigal", base: 5, sreq: 85, cap: 45, mult: 4.5, div: 18, target: "self", skill: "singing", desc: "Party song: accuracy +5, rising with Singing skill.", dur: 120 },
   foe_lullaby: { name: "Foe Lullaby", jobs: { BRD: 16 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "light", buff: "sleep", enmity: 60, target: "enemy", skill: "singing", desc: "Lulls the target to sleep. Any damage wakes it. Bosses are immune.", dur: 45 },
-  fire_spirit: { name: "Fire Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "fire", pet: "ember", target: "self", desc: "Calls a fire spirit to fight beside you. It slowly drains your MP." },
-  ice_spirit: { name: "Ice Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "ice", pet: "frost", target: "self", desc: "Calls a ice spirit to fight beside you. It slowly drains your MP." },
-  air_spirit: { name: "Air Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "wind", pet: "gale", target: "self", desc: "Calls a air spirit to fight beside you. It slowly drains your MP." },
-  earth_spirit: { name: "Earth Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "earth", pet: "stone", target: "self", desc: "Calls a earth spirit to fight beside you. It slowly drains your MP." },
-  thunder_spirit: { name: "Thunder Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "lightning", pet: "thunder", target: "self", desc: "Calls a thunder spirit to fight beside you. It slowly drains your MP." },
-  water_spirit: { name: "Water Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "water", pet: "water", target: "self", desc: "Calls a water spirit to fight beside you. It slowly drains your MP." },
-  light_spirit: { name: "Light Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "light", pet: "light", target: "self", desc: "Calls a light spirit to fight beside you. It slowly drains your MP." },
-  dark_spirit: { name: "Dark Spirit", jobs: { SMN: 1 }, mp: 10, cast: 1, recast: 5, kind: "summon", element: "dark", pet: "dark", target: "self", desc: "Calls a dark spirit to fight beside you. It slowly drains your MP." }
+  carbuncle: { name: "Carbuncle", jobs: { SMN: 1 }, mp: 5, cast: 5, recast: 5, kind: "summon", element: "light", pet: "carbuncle", target: "self", desc: "Calls Carbuncle to fight beside you. It slowly drains your MP." },
+  fire_spirit: { name: "Fire Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "fire", pet: "ember", target: "self", desc: "Calls a fire spirit to fight beside you. It slowly drains your MP." },
+  ice_spirit: { name: "Ice Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "ice", pet: "frost", target: "self", desc: "Calls a ice spirit to fight beside you. It slowly drains your MP." },
+  air_spirit: { name: "Air Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "wind", pet: "gale", target: "self", desc: "Calls a air spirit to fight beside you. It slowly drains your MP." },
+  earth_spirit: { name: "Earth Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "earth", pet: "stone", target: "self", desc: "Calls a earth spirit to fight beside you. It slowly drains your MP." },
+  thunder_spirit: { name: "Thunder Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "lightning", pet: "thunder", target: "self", desc: "Calls a thunder spirit to fight beside you. It slowly drains your MP." },
+  water_spirit: { name: "Water Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "water", pet: "water", target: "self", desc: "Calls a water spirit to fight beside you. It slowly drains your MP." },
+  light_spirit: { name: "Light Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "light", pet: "light", target: "self", desc: "Calls a light spirit to fight beside you. It slowly drains your MP." },
+  dark_spirit: { name: "Dark Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "dark", pet: "dark", target: "self", desc: "Calls a dark spirit to fight beside you. It slowly drains your MP." }
 };
 
 const SKILL_NAMES = { scythe: "Scythe", dark: "Dark Magic", singing: "Singing", archery: "Archery", summoning: "Summoning Magic", dagger: "Dagger", sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
@@ -895,6 +897,10 @@ const FAMILIES = {
   worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60, status: ["flash", 20, 0.25] }, weak: { wind: 1.25 }, loot: [["egg_wormlet", 0.004], ["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
   ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05]], model: "ghoul" },
   den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05]], gil: [3, 6], model: "goblin" },
+  goblin_apprentice: { name: "Goblin Apprentice", color: "#8a9a5b", radius: 14, hpMul: 0.8, attMul: 0.7, defMul: 0.8, delay: 3.4, speed: 95, aggro: { sight: 150 }, link: true, linkGroup: "goblin", range: 170, spells: [{ id: "stone", mul: 1.2 }], castGap: [7, 10], tpMove: { name: "Staff Whack", mul: 1.4 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["potion", 0.08], ["earth_crystal", 0.2]], gil: [2, 5], model: "goblin" },
+  den_conjurer: { name: "Goblin Conjurer", color: "#6f7f45", radius: 15, hpMul: 0.9, attMul: 0.75, defMul: 0.85, delay: 3.4, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", range: 180, spells: [{ id: "stone", mul: 1.4 }, { id: "poison", status: ["poison", 30] }, { id: "cure", heal: 0.3 }], castGap: [6, 9], tpMove: { name: "Staff Whack", mul: 1.5 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["ether", 0.06], ["fire_crystal", 0.2], ["scroll_stone", 0.04]], gil: [4, 8], model: "goblin" },
+  mire_hexer: { name: "Mire Hexer", color: "#58663a", radius: 15, hpMul: 0.95, attMul: 0.8, defMul: 0.9, delay: 3.2, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", range: 190, spells: [{ id: "water", mul: 1.6 }, { id: "poison", status: ["poison", 30] }, { id: "slow", status: ["slow", 25, 0.15] }, { id: "silence", status: ["silence", 15] }], castGap: [5, 8], tpMove: { name: "Hex Bolt", mul: 1.6 }, weak: { ice: 1.2, lightning: 1.2 }, loot: [["goblin_pouch", 0.3], ["mire_reed", 0.3], ["water_crystal", 0.2], ["ether", 0.08]], gil: [9, 15], model: "goblin" },
+  frost_shaman: { name: "Frost Shaman", color: "#9aa8a0", radius: 15, hpMul: 1.05, attMul: 0.85, defMul: 0.95, delay: 3.2, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", range: 200, spells: [{ id: "blizzard", mul: 2.0 }, { id: "paralyze", status: ["paralyze", 20, 0.2] }, { id: "blind", status: ["flash", 20, 0.3] }, { id: "silence", status: ["silence", 15] }, { id: "cure", heal: 0.3 }], castGap: [5, 8], tpMove: { name: "Rime Hex", mul: 1.8 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["frost_shard", 0.3], ["ether", 0.1], ["scroll_blizzard", 0.03]], gil: [11, 17], model: "goblin" },
   orc_grunt: { name: "Orc Grunt", color: "#6f7f4f", radius: 16, hpMul: 1.3, attMul: 1.2, defMul: 1.1, delay: 3.2, speed: 95, aggro: { sight: 190 }, link: true, linkGroup: "orc", tpMove: { name: "Battle Roar", mul: 1.9, aoe: 70 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["iron_ore", 0.3], ["fire_crystal", 0.25], ["hi_potion", 0.06]], gil: [10, 16], model: "orc" },
   orc_stonechucker: { name: "Orc Stonechucker", color: "#7f8f5f", radius: 15, hpMul: 1.05, attMul: 1.15, defMul: 0.95, delay: 3.6, speed: 100, aggro: { sight: 220 }, link: true, linkGroup: "orc", range: 200, tpMove: { name: "Boulder Toss", mul: 2.1 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["ash_log", 0.25], ["wind_crystal", 0.25], ["ether", 0.06]], gil: [10, 16], model: "orc" },
   fishfolk: { name: "Reefkin", color: "#4a8a7a", radius: 15, hpMul: 1.1, attMul: 1.05, defMul: 1.05, eva: 6, delay: 2.9, speed: 105, aggro: { sight: 170, sound: 120 }, link: true, linkGroup: "reefkin", tpMove: { name: "Water Lance", mul: 1.8 }, weak: { lightning: 1.4 }, loot: [["reef_scale", 0.3], ["water_crystal", 0.3], ["harbor_bream", 0.2], ["potion", 0.08]], gil: [8, 14], model: "fishfolk" },
@@ -1070,7 +1076,7 @@ const ZONES = {
       { fam: "bat", lv: [2, 3], x: 1550, y: 500, time: "night" }, { fam: "skeleton", lv: [3, 4], x: 1800, y: 1300, time: "night" },
       { fam: "worm", lv: [3, 4], x: 1250, y: 1850 }, { fam: "worm", lv: [3, 4], x: 1650, y: 1950, nm: { id: "king_wiggles", lv: 5, chance: 0.15, time: "day" } }, { fam: "worm", lv: [3, 3], x: 1500, y: 2050 },
       { fam: "hare", lv: [3, 3], x: 1150, y: 2000, time: "day" },
-      { fam: "goblin", lv: [4, 4], x: 2450, y: 900 }, { fam: "goblin", lv: [4, 4], x: 2250, y: 650 },
+      { fam: "goblin", lv: [4, 4], x: 2450, y: 900 }, { fam: "goblin_apprentice", lv: [3, 4], x: 2350, y: 800 }, { fam: "goblin_apprentice", lv: [4, 5], x: 2700, y: 1500 }, { fam: "goblin", lv: [4, 4], x: 2250, y: 650 },
       { fam: "skeleton", lv: [4, 5], x: 2550, y: 620, time: "night" }, { fam: "skeleton", lv: [4, 5], x: 2800, y: 420, time: "night" }, { fam: "skeleton", lv: [4, 5], x: 2150, y: 450, time: "night" },
       { fam: "bat", lv: [3, 4], x: 2500, y: 700, time: "night", nm: { id: "duskwing", lv: 6, chance: 0.12 } }, { fam: "bat", lv: [3, 4], x: 2600, y: 650, time: "night" },
       { fam: "goblin", lv: [4, 5], x: 2600, y: 1400 }, { fam: "goblin", lv: [4, 5], x: 2650, y: 1480 }, { fam: "goblin", lv: [4, 5], x: 2750, y: 1420 },
@@ -1111,7 +1117,7 @@ const ZONES = {
       { fam: "den_goblin", lv: [6, 7], x: 1200, y: 560 }, { fam: "den_goblin", lv: [6, 7], x: 1260, y: 600 },
       { fam: "ghoul", lv: [7, 8], x: 1100, y: 1300 }, { fam: "ghoul", lv: [7, 8], x: 1180, y: 1360 }, { fam: "ghoul", lv: [7, 8], x: 1450, y: 1250 },
       { fam: "skeleton", lv: [7, 8], x: 1350, y: 1450 }, { fam: "ghoul", lv: [8, 9], x: 1250, y: 1050, nm: { id: "ossuary_warden", lv: 10, chance: 0.15 } },
-      { fam: "den_goblin", lv: [7, 8], x: 1950, y: 600 }, { fam: "den_goblin", lv: [7, 8], x: 1950, y: 1000 }, { fam: "den_goblin", lv: [8, 8], x: 2050, y: 800 },
+      { fam: "den_goblin", lv: [7, 8], x: 1950, y: 600 }, { fam: "den_conjurer", lv: [6, 7], x: 1100, y: 700 }, { fam: "den_conjurer", lv: [7, 8], x: 1700, y: 900 }, { fam: "den_goblin", lv: [7, 8], x: 1950, y: 1000 }, { fam: "den_goblin", lv: [8, 8], x: 2050, y: 800 },
       { fam: "chieftain", lv: [11, 11], x: 2220, y: 800 }
     ],
     water: [{ x: 1300, y: 260, r: 100 }],
@@ -1159,7 +1165,7 @@ ZONES.crypt = {
   ],
   spawns: [
     { fam: "bat", lv: [9, 9], x: 200, y: 520 }, { fam: "bat", lv: [9, 10], x: 450, y: 880 }, { fam: "skeleton", lv: [9, 9], x: 380, y: 620 }, { fam: "skeleton", lv: [9, 10], x: 500, y: 780 },
-    { fam: "skeleton", lv: [9, 10], x: 800, y: 600 }, { fam: "skeleton", lv: [9, 10], x: 1000, y: 820 }, { fam: "skeleton", lv: [10, 10], x: 900, y: 700 }, { fam: "ghoul", lv: [10, 10], x: 1000, y: 560 },
+    { fam: "skeleton", lv: [9, 10], x: 800, y: 600 }, { fam: "skeleton", lv: [9, 10], x: 1000, y: 820 }, { fam: "skeleton", lv: [10, 10], x: 900, y: 700 }, { fam: "ghoul", lv: [10, 10], x: 1000, y: 560, nm: { id: "dark_elemental", lv: 12, chance: 0.07, time: "night" } },
     { fam: "ghoul", lv: [10, 10], x: 1380, y: 620 }, { fam: "ghoul", lv: [10, 11], x: 1600, y: 780 }, { fam: "skeleton", lv: [10, 11], x: 1500, y: 520 }, { fam: "skeleton", lv: [10, 11], x: 1420, y: 860 },
     { fam: "skeleton", lv: [10, 11], x: 1400, y: 200 }, { fam: "skeleton", lv: [10, 11], x: 1600, y: 220 }, { fam: "crypt_sentinel", lv: [11, 11], x: 1500, y: 160 },
     { fam: "ghoul", lv: [10, 11], x: 1400, y: 1200 }, { fam: "ghoul", lv: [11, 11], x: 1600, y: 1220 }, { fam: "ghoul", lv: [10, 11], x: 1500, y: 1150 },
@@ -1240,13 +1246,13 @@ ZONES.frost = {
   spawns: [
     { fam: "rime_crawler", lv: [15, 17], x: 600, y: 1600 }, { fam: "rime_crawler", lv: [16, 17], x: 700, y: 1680 }, { fam: "frost_wasp", lv: [16, 17], x: 1300, y: 400, time: "day" }, { fam: "frost_wasp", lv: [16, 18], x: 1350, y: 440, time: "day" },
     { fam: "frost_lizard", lv: [16, 18], x: 1900, y: 900 }, { fam: "ice_crab", lv: [16, 17], x: 1100, y: 1100 }, { fam: "ice_crab", lv: [16, 18], x: 900, y: 1480 }, { fam: "mountain_ram", lv: [15, 16], x: 400, y: 600, time: "day" }, { fam: "mountain_ram", lv: [15, 17], x: 460, y: 650, time: "day" },
-    { fam: "ice_snapper", lv: [16, 18], x: 1000, y: 1180 }, { fam: "frost_stonechucker", lv: [17, 19], x: 1620, y: 640 }, { fam: "frost_bomb", lv: [17, 19], x: 2400, y: 1200, time: "night" }, { fam: "rime_treant", lv: [18, 19], x: 2700, y: 700 },
+    { fam: "ice_snapper", lv: [16, 18], x: 1000, y: 1180 }, { fam: "frost_stonechucker", lv: [17, 19], x: 1620, y: 640 }, { fam: "frost_bomb", lv: [17, 19], x: 2400, y: 1200, time: "night", nm: { id: "ice_elemental", lv: 20, chance: 0.07, time: "night" } }, { fam: "rime_treant", lv: [18, 19], x: 2700, y: 700 },
     { fam: "ice_wight", lv: [19, 20], x: 2700, y: 330, nm: { id: "ashen_herald", lv: 22, chance: 0 } },
     { fam: "snow_hare", lv: [15, 16], x: 400, y: 900, time: "day" }, { fam: "snow_hare", lv: [15, 16], x: 500, y: 1500, time: "day" }, { fam: "snow_hare", lv: [16, 17], x: 1300, y: 1600, time: "day" },
     { fam: "glacier_worm", lv: [15, 16], x: 650, y: 1150 }, { fam: "glacier_worm", lv: [16, 17], x: 1250, y: 1150 }, { fam: "glacier_worm", lv: [17, 18], x: 1700, y: 1250 },
     { fam: "ice_bat", lv: [15, 17], x: 900, y: 800, time: "night" }, { fam: "ice_bat", lv: [16, 17], x: 1100, y: 600, time: "night" }, { fam: "ice_bat", lv: [17, 18], x: 2000, y: 900, time: "night" },
     { fam: "frost_goblin", lv: [16, 17], x: 1350, y: 600 }, { fam: "frost_goblin", lv: [16, 17], x: 1550, y: 550 }, { fam: "frost_goblin", lv: [17, 18], x: 1650, y: 800 },
-    { fam: "frost_goblin", lv: [17, 18], x: 1450, y: 850 }, { fam: "frost_goblin", lv: [18, 19], x: 1800, y: 650, nm: { id: "rimefang", lv: 21, chance: 0.15 } },
+    { fam: "frost_goblin", lv: [17, 18], x: 1450, y: 850 }, { fam: "frost_shaman", lv: [17, 18], x: 1700, y: 760 }, { fam: "frost_shaman", lv: [18, 19], x: 2200, y: 480 }, { fam: "frost_goblin", lv: [18, 19], x: 1800, y: 650, nm: { id: "rimefang", lv: 21, chance: 0.15 } },
     { fam: "ice_wight", lv: [17, 18], x: 2300, y: 1950, time: "night" }, { fam: "ice_wight", lv: [18, 19], x: 2550, y: 2100, time: "night" }, { fam: "ice_wight", lv: [18, 20], x: 2650, y: 1800, time: "night", nm: { id: "frost_wight", lv: 21, chance: 0.12 } },
     { fam: "glacier_worm", lv: [18, 19], x: 2100, y: 1300 }, { fam: "frost_goblin", lv: [19, 20], x: 2600, y: 400 }, { fam: "frost_goblin", lv: [19, 20], x: 2750, y: 600 },
     { fam: "ice_bat", lv: [19, 20], x: 2500, y: 800, time: "night" }, { fam: "glacier_worm", lv: [19, 20], x: 2700, y: 1200 }, { fam: "snow_hare", lv: [17, 18], x: 2200, y: 1100, time: "day" }
@@ -1295,7 +1301,7 @@ ZONES.marsh = {
     { fam: "bog_leech", lv: [10, 11], x: 1500, y: 900 }, { fam: "bog_leech", lv: [10, 12], x: 1300, y: 1200 }, { fam: "bog_leech", lv: [11, 12], x: 1700, y: 1300 }, { fam: "bog_leech", lv: [12, 13], x: 2000, y: 1900 },
     { fam: "bat", lv: [10, 11], x: 1200, y: 800, time: "night" }, { fam: "bat", lv: [10, 12], x: 900, y: 1100, time: "night" }, { fam: "bat", lv: [11, 12], x: 1900, y: 1400, time: "night" },
     { fam: "mire_goblin", lv: [11, 12], x: 1850, y: 650 }, { fam: "mire_goblin", lv: [11, 12], x: 1950, y: 950 }, { fam: "mire_goblin", lv: [12, 13], x: 2250, y: 650 },
-    { fam: "mire_goblin", lv: [12, 13], x: 2400, y: 900 }, { fam: "mire_goblin", lv: [13, 14], x: 2200, y: 1100 }, { fam: "mire_goblin", lv: [13, 14], x: 2500, y: 600, nm: { id: "mirelord_gax", lv: 16, chance: 0.15 } },
+    { fam: "mire_goblin", lv: [12, 13], x: 2400, y: 900 }, { fam: "mire_hexer", lv: [12, 13], x: 2000, y: 760 }, { fam: "mire_hexer", lv: [13, 14], x: 2300, y: 1000 }, { fam: "mire_goblin", lv: [13, 14], x: 2200, y: 1100 }, { fam: "mire_goblin", lv: [13, 14], x: 2500, y: 600, nm: { id: "mirelord_gax", lv: 16, chance: 0.15 } },
     { fam: "drowned", lv: [12, 13], x: 500, y: 1800, time: "night" }, { fam: "drowned", lv: [12, 14], x: 800, y: 2000, time: "night" }, { fam: "drowned", lv: [13, 14], x: 400, y: 2150, time: "night" },
     { fam: "drowned", lv: [13, 14], x: 1300, y: 1900, time: "night" }, { fam: "bog_toad", lv: [12, 13], x: 1600, y: 2000 }, { fam: "mire_goblin", lv: [13, 14], x: 2050, y: 2150 },
     { fam: "bog_leech", lv: [13, 14], x: 2500, y: 2100 }, { fam: "bog_toad", lv: [13, 14], x: 1500, y: 1650 }
@@ -1530,7 +1536,7 @@ ZONES.sunscar = {
     { id: "spire", name: "Red Spire", x: 2600, y: 520, r: 220, xp: 90 }
   ],
   spawns: [
-    { fam: "dune_lizard", lv: [17, 18], x: 1100, y: 600 }, { fam: "dune_lizard", lv: [17, 19], x: 1800, y: 700 }, { fam: "dune_lizard", lv: [18, 19], x: 400, y: 1100 }, { fam: "dune_lizard", lv: [18, 20], x: 2700, y: 1100 },
+    { fam: "dune_lizard", lv: [17, 18], x: 1100, y: 600 }, { fam: "dune_lizard", lv: [17, 19], x: 1800, y: 700, nm: { id: "air_elemental", lv: 21, chance: 0.07 } }, { fam: "dune_lizard", lv: [18, 19], x: 400, y: 1100 }, { fam: "dune_lizard", lv: [18, 20], x: 2700, y: 1100 },
     { fam: "sand_crab", lv: [17, 18], x: 2000, y: 1300 }, { fam: "sand_crab", lv: [18, 19], x: 2450, y: 1250 }, { fam: "sand_crab", lv: [18, 19], x: 1950, y: 900 },
     { fam: "sun_wasp", lv: [17, 18], x: 1400, y: 900, time: "day" }, { fam: "sun_wasp", lv: [18, 19], x: 2300, y: 800, time: "day" }, { fam: "sun_wasp", lv: [18, 19], x: 700, y: 1400, time: "day" },
     { fam: "dune_worm", lv: [18, 19], x: 1300, y: 1250 }, { fam: "dune_worm", lv: [18, 20], x: 900, y: 1700 }, { fam: "dune_worm", lv: [19, 20], x: 500, y: 1950, nm: { id: "sandmaw", lv: 21, chance: 0.12 } },
@@ -1576,7 +1582,7 @@ ZONES.verdant = {
   ],
   spawns: [
     { fam: "vine_crawler", lv: [17, 18], x: 600, y: 900 }, { fam: "vine_crawler", lv: [18, 19], x: 1000, y: 1500 }, { fam: "vine_crawler", lv: [18, 19], x: 2700, y: 700 },
-    { fam: "jade_hornet", lv: [18, 19], x: 1300, y: 500, time: "day" }, { fam: "jade_hornet", lv: [18, 20], x: 2000, y: 900, time: "day" },
+    { fam: "jade_hornet", lv: [18, 19], x: 1300, y: 500, time: "day" }, { fam: "jade_hornet", lv: [18, 20], x: 2000, y: 900, time: "day", nm: { id: "thunder_elemental", lv: 21, chance: 0.07, time: "day" } },
     { fam: "jungle_sapling", lv: [18, 19], x: 1700, y: 1100 }, { fam: "jungle_sapling", lv: [19, 20], x: 1500, y: 1250, nm: { id: "old_mossback", lv: 21, chance: 0.12 } }, { fam: "jungle_sapling", lv: [18, 20], x: 2600, y: 2000 },
     { fam: "bloom_mandrake", lv: [17, 18], x: 500, y: 1700, time: "day" }, { fam: "bloom_mandrake", lv: [18, 19], x: 900, y: 2050, time: "day" },
     { fam: "jade_toad", lv: [18, 19], x: 1150, y: 1000 }, { fam: "jade_toad", lv: [18, 20], x: 2100, y: 1900 },
@@ -1618,7 +1624,7 @@ ZONES.cinder = {
     { id: "vent", name: "Smoking Vent", x: 1200, y: 2000, r: 220, xp: 80 }
   ],
   spawns: [
-    { fam: "magma_lizard", lv: [18, 19], x: 700, y: 1000 }, { fam: "magma_lizard", lv: [19, 20], x: 1700, y: 900 }, { fam: "magma_lizard", lv: [19, 20], x: 2400, y: 500, nm: { id: "pyreclaw", lv: 22, chance: 0.12, time: "night" } },
+    { fam: "magma_lizard", lv: [18, 19], x: 700, y: 1000, nm: { id: "fire_elemental", lv: 22, chance: 0.07 } }, { fam: "magma_lizard", lv: [19, 20], x: 1700, y: 900 }, { fam: "magma_lizard", lv: [19, 20], x: 2400, y: 500, nm: { id: "pyreclaw", lv: 22, chance: 0.12, time: "night" } },
     { fam: "obsidian_crab", lv: [18, 19], x: 1100, y: 1500 }, { fam: "obsidian_crab", lv: [19, 20], x: 1700, y: 1250 },
     { fam: "magma_worm", lv: [18, 20], x: 1000, y: 2050 }, { fam: "magma_worm", lv: [19, 20], x: 1500, y: 1900 },
     { fam: "ash_orc", lv: [19, 20], x: 2100, y: 1900 }, { fam: "ash_orc", lv: [19, 20], x: 2250, y: 1950 },
@@ -1661,7 +1667,7 @@ ZONES.gullisle = {
     { fam: "reef_crab", lv: [12, 13], x: 700, y: 1250 }, { fam: "reef_crab", lv: [13, 14], x: 1500, y: 1500 },
     { fam: "shore_lizard", lv: [12, 14], x: 1000, y: 600 }, { fam: "shore_lizard", lv: [13, 14], x: 1200, y: 1100 },
     { fam: "gale_talon", lv: [14, 15], x: 1550, y: 450 }, { fam: "gale_talon", lv: [14, 16], x: 1700, y: 650 },
-    { fam: "fishfolk", lv: [14, 15], x: 1650, y: 1150 }, { fam: "isle_snapper", lv: [14, 16], x: 1800, y: 1300, nm: { id: "old_saltjaw", lv: 17, chance: 0.12 } }
+    { fam: "fishfolk", lv: [14, 15], x: 1650, y: 1150, nm: { id: "water_elemental", lv: 17, chance: 0.07 } }, { fam: "isle_snapper", lv: [14, 16], x: 1800, y: 1300, nm: { id: "old_saltjaw", lv: 17, chance: 0.12 } }
   ],
   water: [{ x: -380, y: 900, r: 620 }, { x: 2600, y: 900, r: 640 }, { x: 1100, y: -460, r: 760 }, { x: 1100, y: 2260, r: 760 }, { x: -200, y: -200, r: 600 }, { x: 2400, y: -200, r: 600 }, { x: -200, y: 2000, r: 600 }, { x: 2400, y: 2000, r: 600 }],
   paths: [
@@ -1732,7 +1738,7 @@ ZONES.underdeep = {
   walls: [{ x: 1550, y: 0, w: 120, h: 1000 }, { x: 600, y: 120, w: 220, h: 140 }, { x: 2400, y: 150, w: 220, h: 160 }],
   spawns: [
     { fam: "glow_bat", lv: [16, 17], x: 500, y: 350 }, { fam: "pale_crab", lv: [16, 17], x: 900, y: 620 }, { fam: "lumicap", lv: [16, 18], x: 1150, y: 300 },
-    { fam: "glow_bat", lv: [18, 19], x: 2100, y: 350 }, { fam: "deep_worm", lv: [18, 20], x: 2500, y: 600 }, { fam: "lumicap", lv: [18, 19], x: 2900, y: 300, nm: { id: "lumicap_matron", lv: 21, chance: 0.12 } }
+    { fam: "glow_bat", lv: [18, 19], x: 2100, y: 350 }, { fam: "deep_worm", lv: [18, 20], x: 2500, y: 600, nm: { id: "earth_elemental", lv: 21, chance: 0.07 } }, { fam: "lumicap", lv: [18, 19], x: 2900, y: 300, nm: { id: "lumicap_matron", lv: 21, chance: 0.12 } }
   ],
   water: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => ({ x: 150 + i * 260, y: 800 + (i % 2) * 30, r: 150 })),
   paths: [{ w: 36, pts: [[-500, 450], [0, 450], [700, 480], [1360, 520]] }, { w: 36, pts: [[1860, 520], [2500, 450], [3000, 400]] }],
@@ -1775,7 +1781,7 @@ ZONES.highlands = {
   spawns: [
     { fam: "plains_hare", lv: [10, 11], x: 1500, y: 2400, time: "day" }, { fam: "plains_hare", lv: [10, 12], x: 2600, y: 2500, time: "day" },
     { fam: "plains_lizard", lv: [11, 12], x: 1200, y: 1700 }, { fam: "plains_lizard", lv: [11, 13], x: 2800, y: 1900 },
-    { fam: "wind_wasp", lv: [11, 12], x: 1500, y: 900, time: "day" }, { fam: "wind_wasp", lv: [12, 13], x: 2400, y: 600, time: "day" },
+    { fam: "wind_wasp", lv: [11, 12], x: 1500, y: 900, time: "day", nm: { id: "light_elemental", lv: 14, chance: 0.07, time: "day" } }, { fam: "wind_wasp", lv: [12, 13], x: 2400, y: 600, time: "day" },
     { fam: "highland_longneck", lv: [12, 14], x: 3000, y: 1300, nm: { id: "thunderhoof", lv: 15, chance: 0.12, time: "day" } }, { fam: "highland_longneck", lv: [12, 13], x: 3500, y: 1700, nm: { id: "gloamhorn", lv: 16, chance: 0.15, time: "night" } },
     { fam: "highland_orc", lv: [13, 14], x: 600, y: 1300 }, { fam: "highland_orc", lv: [13, 14], x: 700, y: 1400 },
     { fam: "skeleton", lv: [12, 13], x: 750, y: 2150, time: "night" }
@@ -2005,6 +2011,10 @@ const MERC_PERSONAL = {
 
 const BESTIARY = {
   goblin: { type: "Beastman", lore: "Scavengers in patched leather who roam in loose bands. They carry pouches stuffed with stolen trinkets and throw crude bombs when cornered." },
+  goblin_apprentice: { type: "Beastman", lore: "Young goblins who stole a staff and a spellbook and learned exactly one trick. It hurts anyway." },
+  den_conjurer: { type: "Beastman", lore: "Den goblins who tend the raiders' wounds and hurl stones from behind them. Take the conjurer down first." },
+  mire_hexer: { type: "Beastman", lore: "Marsh goblins who curse with bog water. They slow, poison and silence anyone who tries to cast back." },
+  frost_shaman: { type: "Beastman", lore: "Furred goblin priests of the ice caravans. They freeze, blind and silence, and mend their own." },
   den_goblin: { type: "Beastman", lore: "Hardened raiders who answer to the Chieftain. Better armed than their Hollow cousins and quick to call for help." },
   chieftain: { type: "Beastman", lore: "The warlord of the Goblin Den. He rules by out-shouting, out-eating and out-fighting everyone around him." },
   bat: { type: "Vermin", lore: "Leathery wings and keen ears. They flit about in the dark and only fight if you swing first." },
@@ -2326,6 +2336,7 @@ const RACE_BASE = {
 const SHOP_NAMES = { pell: "Pell", marn: "Marn", vela: "Vela" };
 
 const PETS = {
+  carbuncle: { name: "Carbuncle", el: "light", col: 0xa5d6a7, eye: 0xff5252, pact: "Searing Light", weak: "dark" },
   ember: { name: "Fire Spirit", el: "fire", col: 0xff7043, eye: 0xfff176, pact: "Flame Burst", weak: "ice" },
   frost: { name: "Ice Spirit", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Frost Lance", weak: "fire" },
   stone: { name: "Earth Spirit", el: "earth", col: 0xbca27a, eye: 0xffe082, pact: "Rock Throw", weak: "wind" },
@@ -2344,6 +2355,7 @@ for (const id in SPELLS) {
   if (sp.blue) continue;
   const sid = "scroll_" + id;
   ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
+  if (sp.drop) continue;
   if (lv <= 10) SHOP.push(sid); else if (lv <= 20) SHOPS.vela.push(sid);
 }
 SHOPS.vela.push("x_potion", "hi_ether", "super_ether", "reraiser");
@@ -2659,6 +2671,24 @@ Object.assign(BESTIARY, {
   ash_orc: { type: "Beastman", lore: "Orcs who forge their axes in the mountain's heat and cover themselves in ash for war." },
   cinder_bones: { type: "Undead", lore: "The scorched remains of climbers who never came back down." },
   pyreclaw: { type: "Lizard", lore: "A lizard as big as a cart, with fire in its throat. It suns itself on the Crater Rim at night." }
+});
+NM_FAMILIES.fire_elemental = { hint: "Cinder Peak · any time", base: "magma_worm", name: "Fire Elemental", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.6, aura: "#ff7043", loot: [["scroll_fire_spirit", 0.3], ["fire_crystal", 1], ["hi_potion", 0.5]], gil: [30, 50], respawn: 900 };
+NM_FAMILIES.ice_elemental = { hint: "Frostspire Pass · night", base: "glacier_worm", name: "Ice Elemental", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.6, aura: "#81d4fa", loot: [["scroll_ice_spirit", 0.3], ["frost_shard", 1], ["hi_potion", 0.5]], gil: [30, 50], respawn: 900 };
+NM_FAMILIES.earth_elemental = { hint: "Underdeep River · any time", base: "crypt_sentinel", name: "Earth Elemental", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.6, aura: "#bca27a", loot: [["scroll_earth_spirit", 0.3], ["earth_crystal", 1], ["hi_potion", 0.5]], gil: [30, 50], respawn: 900 };
+NM_FAMILIES.air_elemental = { hint: "Sunscar Desert · any time", base: "gale_talon", name: "Air Elemental", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.6, aura: "#aed581", loot: [["scroll_air_spirit", 0.3], ["wind_crystal", 1], ["hi_potion", 0.5]], gil: [30, 50], respawn: 900 };
+NM_FAMILIES.thunder_elemental = { hint: "Verdant Jungle · day", base: "jade_hornet", name: "Thunder Elemental", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.6, aura: "#fff176", loot: [["scroll_thunder_spirit", 0.3], ["wind_crystal", 1], ["hi_potion", 0.5]], gil: [30, 50], respawn: 900 };
+NM_FAMILIES.water_elemental = { hint: "Gull Isle · any time", base: "drowned", name: "Water Elemental", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.6, aura: "#4fc3f7", loot: [["scroll_water_spirit", 0.3], ["water_crystal", 1], ["hi_potion", 0.5]], gil: [30, 50], respawn: 900 };
+NM_FAMILIES.light_elemental = { hint: "Windreach Highlands · day", base: "sun_wasp", name: "Light Elemental", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.6, aura: "#fff9c4", loot: [["scroll_light_spirit", 0.3], ["hi_potion", 1], ["hi_potion", 0.5]], gil: [30, 50], respawn: 900 };
+NM_FAMILIES.dark_elemental = { hint: "Sunken Crypt · night", base: "ghoul", name: "Dark Elemental", hpMul: 3.0, attMul: 1.2, defMul: 1.15, scale: 1.6, aura: "#7e57c2", loot: [["scroll_dark_spirit", 0.3], ["bone_chip", 1], ["hi_potion", 0.5]], gil: [30, 50], respawn: 900 };
+Object.assign(BESTIARY, {
+  fire_elemental: { type: "Elemental", lore: "Crater Rim vents, where the heat gathers into a shape." },
+  ice_elemental: { type: "Elemental", lore: "A knot of cold that walks the pass after dark." },
+  earth_elemental: { type: "Elemental", lore: "Stone that remembers being a mountain, deep in the river caves." },
+  air_elemental: { type: "Elemental", lore: "A whirlwind with a will, wandering the singing dunes." },
+  thunder_elemental: { type: "Elemental", lore: "Lightning trapped in the jungle canopy, looking for the ground." },
+  water_elemental: { type: "Elemental", lore: "The sea standing up on the shore of Gull Isle." },
+  light_elemental: { type: "Elemental", lore: "Sunlight on the plateau that has learned to hunt." },
+  dark_elemental: { type: "Elemental", lore: "The crypt's darkness, gathered up and given hunger." }
 });
 Object.assign(NPCS, {
   ferry_harbor: { name: "Ferryman Coll", model: "ferryman", talk: "talkFerry", ferryTo: "gullisle" },

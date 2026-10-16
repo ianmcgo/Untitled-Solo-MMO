@@ -1487,6 +1487,7 @@ World systems:
 | 16.1.7 | Head profiles: jaw/chin/long raised for human0/1, elari, nekari, pipkin (jaw 0.3), ursan (jaw 0.24). Ursan skin 0x8e9688. Pipkin eyes rx 7.2, painted brown button nose (radial gradient + highlight) replaces the pink blob. |
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
+| 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
 | 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | classic MMO spells and potions: SPELLS/ITEMS potion family rebuilt from classic MMO data; rule version 17 wipes older saves. See "classic MMO rules (v17.0.0)". |
 | 16.24.0 | /rest works in combat; a hit while resting stands you up. |
@@ -1668,6 +1669,15 @@ World systems:
 - Protectra uses Protect's +15 (LandSandBoat lists 20; Protect itself uses 15 in the game, kept consistent).
 - Deferred to 17.2: Curaga, Diaga, Banishga, Stonega, Waterga, Spikes, En- spells, Shock/Rasp/Choke, Foe Requiem, Threnodies, Sheepfoe Mambo, Herb Pastoral, Scop's Operetta, Silence.
 - Tests: test/p56unit.js.
+
+## Elementals and mob casters (v17.2.0)
+- SPELLS flag `drop: true` marks the eight Spirit summons: excluded from `createChar` starting spells and from the shops (data.js scroll loop `continue`). Carbuncle (`PETS.carbuncle`, light, pact Searing Light) is the SMN level 1 starter (5 MP, 5 s cast from classic MMO data).
+- Eight NM_FAMILIES `<el>_elemental` with loot `scroll_<spirit>` at 0.3. Each is a rare spawn (chance 0.07) attached to an existing placeholder spawn: fire/cinder (magma_lizard), ice/frost (frost_bomb, night), earth/underdeep (deep_worm), air/sunscar (dune_lizard 1800,700), thunder/verdant (jade_hornet, day), water/gullisle (fishfolk), light/highlands (wind_wasp, day), dark/crypt (ghoul, night). Spawns past a zone's width are dropped at load, so check a new placeholder shows in `G.ZONES[z].spawns`.
+- Mob casting: family `spells: [{id, mul | status:[buffKey, secs, pow] | heal}]`, `castGap:[min,max]`, `range`. `updateMob` combat branch: `startMobCast` picks cure on a wounded ally (70%) else a random offence spell not already on the target; `finishMobCast` resolves after `max(1.5, cast+1)` s. Damage = `baseDmg * mul`, element passes through `applyDamage` so Shell and Bar spells work. Statuses go through `inflictStatus`. Hits interrupt a mob cast with 30% chance; sleep and stun cancel it; `buffs.silence` blocks starting one. Mobs never target remote players.
+- Goblin casters: goblin_apprentice (Hollow, stone), den_conjurer (Den, stone/poison/cure), mire_hexer (Marsh, water/poison/slow/silence), frost_shaman (Frostspire, blizzard/paralyze/blind/silence/cure). Look variants in rig.js `goblinLook` keyed by `m.famKey`.
+- Silence spell: WHM 15, RDM 18, 16 MP, 3 s cast, 10 s recast, 120 s (Windower). Mercenary `smartAct` casts it only at targets with `fam.spells`.
+- Test p15unit "the sprite fades when MP runs out" is flaky (also on 17.1.0).
+- Tests: test/p56unit.js (elementals, goblin casters, silence).
 
 ## Publishing note
 - GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.

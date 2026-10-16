@@ -2049,6 +2049,10 @@ function goblinLook(variant) {
   if (variant === "raider") return Object.assign(base, { skin: 0x6a7a40, top: { type: "tunic", color: 0x4a3a2a, region: "leather" }, head: { type: "cap", color: 0x55585e }, weapon: "dagger", prop: p });
   if (variant === "frost") return Object.assign(base, { skin: 0x7a8a6a, top: { type: "fur", color: 0xd8d0c0, region: "fur", sleeves: "none" }, head: { type: "hood", color: 0xc8c0b0 }, legs: 0x5a5048, boots: 0x3a3028, weapon: "dagger", prop: p });
   if (variant === "rimefang") return Object.assign(base, { skin: 0x6a7a5a, top: { type: "mail", color: 0x6a7480, region: "chain" }, cape: 0xd8d0c0, pauldrons: 0x8a94a0, head: { type: "horned", color: 0x5a6470, color2: 0xe8f4ff }, eyesGlow: 0x80d8ff, weapon: "greataxe", sack: false, prop: Object.assign({}, p, { girth: 1.2, headR: 0.17, torso: 0.47 }) });
+  if (variant === "apprentice") return Object.assign(base, { skin: 0x7f9150, top: { type: "robe", color: 0x6a5a3a }, head: { type: "cap", color: 0x6a5a3a }, weapon: "staff", sack: false, prop: p });
+  if (variant === "conjurer") return Object.assign(base, { skin: 0x6a7a40, top: { type: "robe", color: 0x7a2a22, trim: 0xd8a040 }, head: { type: "hood", color: 0x7a2a22 }, eyesGlow: 0xff8a40, weapon: "staff", sack: false, prop: p });
+  if (variant === "hexer") return Object.assign(base, { skin: 0x5f7040, top: { type: "robe", color: 0x2f4030, trim: 0x8aa070 }, head: { type: "hood", color: 0x2f4030 }, eyesGlow: 0x9ccc65, weapon: "staff", sack: false, prop: p });
+  if (variant === "shaman") return Object.assign(base, { skin: 0x7a8a6a, top: { type: "robe", color: 0x3a5a7a, trim: 0x9fe8ff, glowTrim: true }, head: { type: "hood", color: 0x2a4a6a }, eyesGlow: 0x80d8ff, weapon: "staff", sack: false, prop: p });
   if (variant === "mire") return Object.assign(base, { skin: 0x5f7040, top: { type: "tunic", color: 0x3a4a30, region: "leather" }, head: { type: "hood", color: 0x4a5a3a }, legs: 0x3a3428, weapon: "dagger", prop: p });
   if (variant === "gax") return Object.assign(base, { skin: 0x56683a, top: { type: "mail", color: 0x4a5048, region: "chain" }, head: { type: "horned", color: 0x3a3f36, color2: 0xd8cca8 }, cape: 0x2f4a2a, eyesGlow: 0xffab40, weapon: "greataxe", sack: false, prop: Object.assign({}, p, { girth: 1.2, headR: 0.17, torso: 0.47 }) });
   if (variant === "grimtooth") return Object.assign(base, { skin: 0x8a8a3a, top: { type: "vest", color: 0x5a2a20, region: "leather", under: 0x3a2a1a }, head: { type: "bandana", color: 0x2a2a2a }, eyesGlow: 0xff3a2a, weapon: "dagger", prop: p });
@@ -2850,7 +2854,7 @@ function mobLook(m) {
   if (model === "chieftain") return { kind: "human", look: goblinLook("chieftain") };
   if (key === "mirelord_gax") return { kind: "human", look: goblinLook("gax") };
   if (key === "rimefang") return { kind: "human", look: goblinLook("rimefang") };
-  if (model === "goblin") return { kind: "human", look: goblinLook(m.famKey === "den_goblin" ? "raider" : m.famKey === "mire_goblin" ? "mire" : m.famKey === "frost_goblin" ? "frost" : "goblin") };
+  if (model === "goblin") return { kind: "human", look: goblinLook({ den_goblin: "raider", mire_goblin: "mire", frost_goblin: "frost", goblin_apprentice: "apprentice", den_conjurer: "conjurer", mire_hexer: "hexer", frost_shaman: "shaman" }[m.famKey] || "goblin") };
   if (model === "toad") return { kind: "toad", col: key === "old_croaker" ? 0x6a8a30 : 0x5f7a3a };
   if (model === "skeleton") {
     if (key === "spire_warden") return { kind: "human", look: { skull: true, skin: 0x8a5a48, noFace: true, headRegion: "bone", eyesGlow: 0xff5722, top: { type: "plate", color: 0x5a2a20, region: "chain", plate: 0x8a3a24, trim: 0xffb74d, glowTrim: true }, pauldrons: 0x8a3a24, gauntlets: true, gloves: 0x5a2a20, greaves: 0x8a3a24, head: { type: "horned", color: 0x5a2a20, color2: 0xe8d8c0 }, cape: 0x3a1410, legs: 0x8a5a48, barefoot: true, weapon: "gsword", weaponId: "warden_blade", prop: { girth: 0.9 } } };

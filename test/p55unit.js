@@ -5,7 +5,7 @@ const mk = job => { const id = G.createChar({ name: 'T' + job, job, look: {} });
 ok(mk('BLM').spells.includes('stone') && !mk('BLM').spells.includes('cure'), 'a new Black Mage starts with Stone only');
 ok(mk('WHM').spells.includes('cure') && !mk('WHM').spells.includes('dia'), 'a new White Mage starts with Cure');
 ok(mk('RDM').spells.includes('dia') && mk('BRD').spells.includes('knights_minne'), 'Red Mage starts with Dia and Bard with Knight\'s Minne');
-ok(mk('SMN').spells.length === 8, 'a new Summoner starts with the eight spirits');
+ok(mk('SMN').spells.length === 1 && mk('SMN').spells[0] === 'carbuncle', 'a new Summoner starts with Carbuncle only');
 ok(mk('WAR').spells.length === 0, 'a new Warrior starts with no spells');
 const old = G.newSave(); delete old.rv; old.name = 'Oldie';
 const r0 = G.loadRoster(); const oid = 'cold1';
