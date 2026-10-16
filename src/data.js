@@ -842,7 +842,7 @@ const FAMILIES = {
   fishfolk: { name: "Reefkin", color: "#4a8a7a", radius: 15, hpMul: 1.1, attMul: 1.05, defMul: 1.05, eva: 6, delay: 2.9, speed: 105, aggro: { sight: 170, sound: 120 }, link: true, linkGroup: "reefkin", tpMove: { name: "Water Lance", mul: 1.8 }, weak: { lightning: 1.4 }, loot: [["reef_scale", 0.3], ["water_crystal", 0.3], ["harbor_bream", 0.2], ["potion", 0.08]], gil: [1, 2], model: "fishfolk" },
   birdfolk: { name: "Crag Talon", color: "#c8a870", radius: 14, hpMul: 1.0, attMul: 1.1, defMul: 0.95, eva: 10, delay: 2.6, speed: 120, aggro: { sight: 200 }, link: true, linkGroup: "crag", tpMove: { name: "Talon Dive", mul: 1.9 }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["wind_crystal", 0.3], ["potion", 0.08]], gil: [1, 2], model: "birdfolk" },
   birdfolk_priest: { name: "Crag Chanter", color: "#f0e4c8", radius: 14, hpMul: 0.95, attMul: 0.95, defMul: 0.9, eva: 8, delay: 3.0, speed: 110, int: 9, aggro: { sight: 200, magic: 150 }, link: true, linkGroup: "crag", tpMove: { name: "Shrieking Chant", mul: 1.5, aoe: 80, status: ["silence", 20] }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["ether", 0.15], ["fire_crystal", 0.25]], gil: [1, 2], model: "birdfolk" },
-  sapling: { name: "Wandering Sapling", color: "#6aa84a", radius: 13, hpMul: 0.9, attMul: 0.8, defMul: 1.1, delay: 3.2, speed: 85, aggro: null, link: false, tpMove: { name: "Leaf Lash", mul: 1.5 }, weak: { fire: 1.6 }, loot: [["ash_log", 0.35], ["healing_herb", 0.25], ["earth_crystal", 0.2]], model: "treant", tint: 0x6aa84a },
+  sapling: { name: "Wandering Sapling", color: "#6aa84a", radius: 13, hpMul: 0.9, attMul: 0.8, defMul: 1.1, delay: 3.2, speed: 85, aggro: null, link: false, tpMove: { name: "Sprout Lash", mul: 1.5 }, weak: { fire: 1.6 }, loot: [["ash_log", 0.35], ["healing_herb", 0.25], ["earth_crystal", 0.2]], model: "bulb", tint: 0x8a6238, tint2: 0x6aa84a, scale: 1.3 },
   treant_elder: { name: "Elder Treant", color: "#4a3a28", radius: 20, hpMul: 2.0, attMul: 1.2, defMul: 1.4, delay: 3.8, speed: 70, aggro: { sight: 160 }, link: false, tpMove: { name: "Root Quake", mul: 2.0, aoe: 90 }, weak: { fire: 1.6 }, loot: [["heartwood", 0.3], ["ash_log", 0.5], ["earth_crystal", 0.4], ["hi_potion", 0.08]], gil: [12, 20], model: "treant", scale: 1.3 },
   cactus: { name: "Needlekin", color: "#5aa04a", radius: 12, hpMul: 0.9, attMul: 1.0, defMul: 1.2, eva: 4, delay: 3.0, speed: 90, aggro: { sight: 150 }, link: false, range: 170, tpMove: { name: "Thousand Needles", mul: 2.4 }, weak: { fire: 1.3 }, loot: [["cactus_needle", 0.35], ["earth_crystal", 0.25], ["potion", 0.08]], gil: [8, 14], model: "cactus" },
   bomb: { name: "Ember Bomb", color: "#ff7043", radius: 14, hpMul: 0.85, attMul: 1.3, defMul: 0.8, eva: 6, delay: 3.0, speed: 100, aggro: { sight: 160 }, link: false, tpMove: { name: "Self-Destruct", mul: 3.2, aoe: 90, explode: true }, weak: { water: 1.5, ice: 1.4 }, loot: [["bomb_ash", 0.4], ["fire_crystal", 0.4], ["ether", 0.06]], gil: [8, 14], model: "bomb" },
@@ -1496,7 +1496,7 @@ ZONES.sunscar = {
 Object.assign(FAMILIES, {
   vine_crawler: tierFam("grass_crawler", { name: "Vine Crawler", color: "#3a7a2a", tint: 0x3a7a2a, tint2: 0xa8d060, hpMul: 1.2, attMul: 1.05, weak: { fire: 1.4 }, loot: [["crawler_cocoon", 0.4], ["worm_silk", 0.3], ["wind_crystal", 0.2], ["hi_potion", 0.06]] }),
   jade_hornet: tierFam("honey_bee", { name: "Jade Hornet", color: "#4caf50", tint: 0x4caf50, tint2: 0x1b3a1b, attMul: 1.12, weak: { ice: 1.3 }, loot: [["honeycomb", 0.35], ["wind_crystal", 0.25], ["hi_potion", 0.06]] }),
-  jungle_sapling: tierFam("sapling", { name: "Strangler Sapling", color: "#2e6b2e", hpMul: 1.25, attMul: 1.1, aggro: { sight: 140 }, weak: { fire: 1.5 }, loot: [["heartwood", 0.15], ["ash_log", 0.4], ["earth_crystal", 0.2], ["hi_potion", 0.06]] }),
+  jungle_sapling: tierFam("sapling", { name: "Strangler Sapling", color: "#2e6b2e", tint: 0x5e5a30, tint2: 0x2e6b2e, scale: 1.45, hpMul: 1.25, attMul: 1.1, aggro: { sight: 140 }, weak: { fire: 1.5 }, loot: [["heartwood", 0.15], ["ash_log", 0.4], ["earth_crystal", 0.2], ["hi_potion", 0.06]] }),
   bloom_mandrake: tierFam("mandrake", { name: "Bloom Mandrake", color: "#d070a0", tint: 0xd070a0, tint2: 0x2e6b2e, hpMul: 1.2, loot: [["mandrake_leaf", 0.5], ["healing_herb", 0.3], ["hi_potion", 0.06]] }),
   jade_toad: tierFam("bog_toad", { name: "Jade Toad", color: "#5aa05a", hpMul: 1.2, attMul: 1.05, loot: [["toad_oil", 0.4], ["water_crystal", 0.25], ["hi_potion", 0.06]] })
 });
@@ -1947,7 +1947,7 @@ const BESTIARY = {
   fishfolk: { type: "Beastman", lore: "Finned fish-folk of the coast and marsh who fight with coral blades. Lightning makes them shudder." },
   birdfolk: { type: "Beastman", lore: "Beaked, feathered raiders from the crags, quick on their feet and quicker with a blade." },
   birdfolk_priest: { type: "Beastman", lore: "Crag Talons who chant for the flock. Their shriek rattles everyone nearby." },
-  sapling: { type: "Plantoid", lore: "Young treants that wander the woods on root-feet. Harmless until bothered, and terribly afraid of fire." },
+  sapling: { type: "Plantoid", lore: "Walking flower bulbs with root-hair beards and stubby legs. Harmless until bothered, then they lash out with the sprout on their heads. Terribly afraid of fire." },
   treant_elder: { type: "Plantoid", lore: "An ancient walking tree. It guards its grove and shakes the earth when roused." },
   cactus: { type: "Plantoid", lore: "Needle-covered cactus folk that shuffle along and fire volleys of spines at anything that comes near." },
   bomb: { type: "Elemental", lore: "A living ball of fire with a mean little face. When cornered it swells up and explodes." },
@@ -2584,7 +2584,7 @@ Object.assign(BESTIARY, {
 Object.assign(BESTIARY, {
   vine_crawler: { type: "Vermin", lore: "Crawlers wrapped in living vines, impossible to spot until they move." },
   jade_hornet: { type: "Vermin", lore: "Green-gold hornets the size of a fist that nest in the jungle canopy." },
-  jungle_sapling: { type: "Plantoid", lore: "Young treants of the jungle. They grow fast, climb faster, and strangle what they catch." },
+  jungle_sapling: { type: "Plantoid", lore: "Thorny jungle bulbs. The sprout on their heads grows fast, climbs faster, and strangles what it catches." },
   bloom_mandrake: { type: "Plantoid", lore: "Mandrakes crowned with heavy pink blooms. Their dust smells sweet and puts you to sleep." },
   jade_toad: { type: "Amphibian", lore: "Bright green toads that sit in the jungle pools and listen." },
   old_mossback: { type: "Plantoid", lore: "The oldest tree in the jungle, and it still walks. The canopy bends wherever it goes." }

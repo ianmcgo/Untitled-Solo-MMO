@@ -2018,3 +2018,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - SQL sql/q2-logins.sql (schema 9, bundled last): game_private.login_log(player, email, char_name, started, last_seen, ended, reason), kept 30 days. login_touch(me) opens or refreshes the caller's open session and closes any not seen for 120 s as 'timed out'; it is called from queue_join on every 'play' reply (first join and the 30 s heartbeat, admin included). queue_join is redefined here (supersedes the q1 copy). queue_leave() closes with 'logged out'; overload queue_leave(why) accepts logged out / signed out / idle / idle at character screen / left. public.session_char(name) records the character played (only the caller's own). public.admin_logins(lim) is admin only.
 - Client: netQueueLeave(keepalive, why) (falls back to the no-arg call), netSessionChar in netTick, netAdminLogins; Admin tab adminLoginsHtml after Online now, refreshed by Refresh.
 - 18.37.1: #pool gets a max-width 720px rule after the desktop right-side placement (which pushed it off the left edge on phones): left-aligned above the compass, width capped to the screen, scrolls if long.
+
+
+## 18.38.0 Walking flower bulbs (H0 of design/humanoid-job-plan.md)
+- New rig kind `bulb` (rig.js `bulbEntry(col, leaf)`, poses in anim.js `poseBulb`, dispatched in models3d.js, voice `v_creak` in audio.js). Bones: root, body, sprout, sprout2, legL, legR. Body is a round brown bulb with a papery tapered top, ridges, root hairs and two eyes; no arms.
+- Families `sapling` (model bulb, tint brown 0x8a6238, tint2 leaf 0x6aa84a, scale 1.3) and `jungle_sapling` (tint 0x5e5a30, tint2 0x2e6b2e, scale 1.45) use it. Stats, loot and spawns unchanged. TP move renamed Leaf Lash to Sprout Lash.
+- Pose: waddle (legs alternate, body rolls), sprout sways, attack rears the sprout back then whips it forward, readying shakes the sprout, hit squashes the body, death topples sideways with the sprout drooping.
+- Elder Treant, Old Mossback and Rime Treant keep model treant.
