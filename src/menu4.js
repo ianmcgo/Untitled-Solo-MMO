@@ -1636,6 +1636,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.19.3", date: "2026-10-16", title: "Staff swing, hat fit", items: [
+    "<b>Staff attacks are now a two-handed swing:</b> you raise the staff to your upper right, then bring it down across the front of you instead of poking with it. Polearms still thrust.",
+    "<b>Pointed hats fit snugly:</b> a cloth lining now fills the gap that showed skin between the hat and your head.",
+    "<b>Sheathed staves clear your hat:</b> a staff on your back now rests low and slanted, so it no longer pokes through a pointed hat."
+  ] },
   { v: "18.19.2", date: "2026-10-16", title: "Two-handed staves, monster eyes", items: [
     "<b>Staves are held in both hands</b> in a fight and when you thrust: your left hand now grips the shaft beside your right.",
     "<b>Monster eyes:</b> goblins, orcs, reef folk, bird folk and other humanoid monsters now have two real eyes (white, a glowing coloured iris and a pupil). Before, only one glowing spot showed. Skeletons keep their glowing sockets and ghouls keep their glowing eyes, now on both sides."
