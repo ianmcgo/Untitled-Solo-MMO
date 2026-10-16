@@ -75,3 +75,4 @@ Use the real classic MMO item and spell names for now. The design notes' "names 
 - 18.1 (tools) and 18.2.0 (player power) done; see design.md "Balance tools (18.1)". Next: 18.3 monsters, 18.4 economy, 18.5 crafting and sources.
 - 18.3.0 (monster curve) done. Next: 18.4 economy (prices, XP, drop rate, shop regex fix), 18.5 crafting and sources.
 - 18.4.0 (economy) done. Next: 18.5 crafting recipes for +1 gear and source check.
+- 18.5.0 (gear recipes, coverage) done. Equipment import and balance plan complete. Possible follow-ups: unique ingredients per recipe, Leathercraft and Bonecraft as their own crafts, classic MMO vendor data for shops, haste and enmity as real stats.
