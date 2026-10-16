@@ -2012,3 +2012,4 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Config → Online (menu4 tabSettings, action idlemin) and the Network box #ffNetOn show NET.online.
 - Tested on local Postgres 16 as role authenticated (cap, FIFO, leave, 120 s timeout, admin exempt, RLS blocks reads/saves without a seat, cap 0) and in Playwright with a mock server (queue screen, seat, idle warning and log-out, seat loss).
 - 18.36.0 also: petToBag(id) / petItemOf(id) (game.js) and the Pets window's Unequip to bag button (action petbag): dismisses, removes from save.buddies, unequips and pushes the pet item directly into the bag (bypassing giveItem, which would re-learn it). Pets without an item (ash_sprite) can't be unequipped.
+- 18.36.1: netIdleTick uses NET_CFG.selectIdleMin (15) while !UI.started (character select/creation, seated online), else the Config setting; netIdleLogout(min, sel) words the note accordingly.
