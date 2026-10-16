@@ -44,7 +44,13 @@ def price(lv, slot, hq, dmg=0):
     return int(round(p, -1)) if p >= 100 else int(round(p))
 
 FLAGS = json.load(open(os.path.join(HERE, 'gear18-flags.json')))
-LV_OVERRIDE = {'tachi': 1, 'claymore': 1}
+LV_OVERRIDE = {}
+DMG_LV_K = float(os.environ.get('DMG_LV_K', '0.015'))
+WTYPE_MULT = {'sword': 1.15, 'dagger': 1.5, 'club': 0.95, 'staff': 1.05, 'greataxe': 1.1, 'gsword': 0.95, 'axe': 1.05, 'h2h': 1.1, 'scythe': 0.8, 'polearm': 1.0, 'katana': 1.4, 'gkatana': 1.0, 'archery': 1.0, 'throwing': 1.0}
+def gdelay(d):
+    return round(1.9 * (d / 183) ** 0.75, 1)
+def gdmg(d, lv, wt=None):
+    return max(1, round(d * WTYPE_MULT.get(wt, 1.0) * (1 + DMG_LV_K * lv)))
 items = {}
 used = {}
 for r in sorted(keep, key=lambda r: (r['level'], r['en'])):
@@ -86,11 +92,11 @@ for r in sorted(keep, key=lambda r: (r['level'], r['en'])):
             it['wtype'] = wt
             if slot == 'main':
                 if wt == 'h2h':
-                    it['dmg'] = (r['damage'] or 1) + 3
+                    it['dmg'] = gdmg((r['damage'] or 1) + 3, r['level'], wt)
                     it['delay'] = 2.6
                 else:
-                    it['dmg'] = r['damage'] or 1
-                    it['delay'] = round((r['delay'] or 240) / 96, 1)
+                    it['dmg'] = gdmg(r['damage'] or 1, r['level'], wt)
+                    it['delay'] = gdelay(r['delay'] or 240)
     elif slot == 'ammo' and r['damage']:
         it['dmg'] = r['damage']
     if 'wtype' in it and it['wtype'] is None: del it['wtype']

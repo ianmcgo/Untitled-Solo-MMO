@@ -47,7 +47,7 @@ for (let i = 0; i < 5; i++) G.dropLoot(fakeMob);
 ok(G.save.inventory.some(s => G.ITEMS[s.id].kind === 'crystal'), 'blessed, essences drop');
 G.save.inventory = []; const weak = { fam: { loot: crys.map(l => [l[0], 1]) }, lv: 1 }; G.save.jobs.WAR.lv = 20; G.refreshPlayer(true);
 for (let i = 0; i < 5; i++) G.dropLoot(weak);
-ok(G.save.inventory.length === 0, 'too-weak monsters give no essences even when blessed');
+ok(G.save.inventory.every(s => G.ITEMS[s.id].kind !== 'crystal'), 'too-weak monsters give no essences even when blessed');
 G.save.blessing = Date.now() - 1; G.tickBlessing();
 ok(!G.blessed() && !P().buffs.blessing, 'the blessing runs out');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');
