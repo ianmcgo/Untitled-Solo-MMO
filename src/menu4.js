@@ -1692,6 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.37.1", date: "2026-10-16", title: "Treasure pool fits on phones", items: [
+    "<b>Fixed:</b> on phones the treasure pool (Lot / Pass) was cut off at the left edge. It now sits fully on screen above the compass, and long item names are shortened to fit.",
+  ]},
   { v: "18.37.0", date: "2026-10-16", title: "Login log for the admin", items: [
     "<b>Admin → Logins:</b> a list of who logged in, when, which character they played, how long they stayed, and whether they are still in (🟢 still in) or how they left (logged out, signed out, idle, idle at character screen, timed out). Newest first, the last 30 days.",
     "<b>Server owners:</b> run the latest setup SQL (Admin → Copy setup SQL), server version 9.",

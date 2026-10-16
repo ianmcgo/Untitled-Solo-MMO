@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.37.0",
-  "releaseTitle": "Login log for the admin",
+  "version": "18.37.1",
+  "releaseTitle": "Treasure pool fits on phones",
   "description": "",
   "main": "index.js",
   "scripts": {
