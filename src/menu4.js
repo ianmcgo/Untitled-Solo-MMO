@@ -1658,6 +1658,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.34.3", date: "2026-10-16", title: "Thief from the start", items: [
+    "<b>Thief is open from the start</b>, alongside Warrior, White Mage and Black Mage. Jobs that needed Thief level 5 can now be reached through it, and the Thief's own job-trade quest from Tobin is available straight away.",
+  ]},
   { v: "18.34.2", date: "2026-10-16", title: "Hire only unlocked jobs, job achievements", items: [
     "<b>Job achievements:</b> one for every job you unlock, plus Bronze (6 jobs), Silver (12), Gold (18) and Every Trade (all jobs).",
     "<b>Brann's fighters for hire</b> now come only from jobs you have unlocked, and named companions whose job is still locked stay hidden. Companions you already hired are kept.",
@@ -1666,7 +1669,7 @@ const UPDATES = [
     "Help and Updates now correctly say that Warrior, White Mage and Black Mage are the three jobs open from the start.",
   ]},
   { v: "18.34.0", date: "2026-10-16", title: "Jobs unlock as you grow", items: [
-    "<b>Job unlock tree:</b> Warrior, White Mage and Black Mage start open. Every other job opens when earlier jobs reach a set level (for example, a second fighting job after Warrior level 5, the top summoning job after three mage jobs at level 10).",
+    "<b>Job unlock tree:</b> Warrior, White Mage, Black Mage and Thief start open. Every other job opens when earlier jobs reach a set level (for example, a second fighting job after Warrior level 5, the top summoning job after three mage jobs at level 10).",
     "<b>Pop-up:</b> when a level up meets a requirement, a pop-up tells you which job you can now take. Several unlocks queue up and show one after another when it is calm.",
     "<b>Hidden until unlocked:</b> Pip's job-change list at your residence and the companion lists no longer show locked jobs.",
     "<b>Ask Tobin:</b> two new questions: why jobs must be unlocked, and how you are doing, with a hint about what to train next.",
@@ -3178,7 +3181,7 @@ function tabHelp() {
     ["Geomancer (advanced)", "Support", "Club B, Geomancy A. Auras follow you and affect the party nearby: Vigor (HP over time), Fury (5: attack +10%), Focus (11: spell damage +12%). Wards plant a luopan by the target that affects monsters near it: Torpor (3: slow), Frailty (8: they take 12% more damage), Languor (15: they deal 15% less). One aura and one luopan at a time, 3 minutes each. Full Circle (5: dismiss the luopan for half its MP back), Mending Halation (15: shatter it to heal the party 20%)"],
     ["Rune Fencer (advanced)", "Tank", "Great Sword A (new weapon type), sword and great axe B. Kindle, Rime (3), Gale (5) and Stone (7) Runes: hold up to three; each cuts damage you take by 5%. Lunge (10: release every rune as elemental damage), Vallation (15: damage taken −20% for 30 s, and your hits draw extra enmity). Weapon skills: Rune Cleave, Glyph Rend (22), Ward Breaker (40), Final Verse (75)"]
   ]) + ul([
-    "<b>Jobs unlock as you grow.</b> Warrior, White Mage and Black Mage start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
+    "<b>Jobs unlock as you grow.</b> Warrior, White Mage, Black Mage and Thief start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
     "<b>Job achievements:</b> each job you unlock earns its own achievement; Bronze, Silver and Gold mark 6, 12 and 18 open jobs, and Every Trade needs them all.",
     "<b>Companions follow your jobs:</b> Brann only offers fighters whose job you have unlocked.",
     "<b>Ask Tobin</b> (Job Master) why jobs must be unlocked, or how you are doing: he gives a vague hint about what to train next without naming the job.",
