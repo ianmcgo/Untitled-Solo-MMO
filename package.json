@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "17.0.0",
-  "releaseTitle": "classic MMO spells and potions",
+  "version": "17.1.0",
+  "releaseTitle": "Status magic",
   "description": "",
   "main": "index.js",
   "scripts": {

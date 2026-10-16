@@ -1487,6 +1487,7 @@ World systems:
 | 16.1.7 | Head profiles: jaw/chin/long raised for human0/1, elari, nekari, pipkin (jaw 0.3), ursan (jaw 0.24). Ursan skin 0x8e9688. Pipkin eyes rx 7.2, painted brown button nose (radial gradient + highlight) replaces the pink blob. |
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
+| 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | classic MMO spells and potions: SPELLS/ITEMS potion family rebuilt from classic MMO data; rule version 17 wipes older saves. See "classic MMO rules (v17.0.0)". |
 | 16.24.0 | /rest works in combat; a hit while resting stands you up. |
 | 16.23.0 | Mercenaries at 75% or less rest when you stand still; rest works mid-fight; shorter flee distance. |
@@ -1654,6 +1655,19 @@ World systems:
 - Assumed, not verified: Reraise strengths 0.5 / 1 / 1.
 - Deferred to 17.1: AoE spells, status cures, Bar-/En- spells, equipment import (level 20 and below), mob and economy balance. Plan in design/item-plan.md.
 - Tests: test/p55unit.js covers starting spells, purge, cure numbers, potions, Elixir, Reraise, Stone, Fire, Bio.
+
+## Status magic (v17.1.0)
+- Spell kinds added in data.js SPELLS: `cleanse` (`cleanse: [buffKeys]`, castCleanse), `warp` (castWarp, player only, enterZone to homePos), and buff flags `party` (applies to all alive party within 300 of target), `bar` (element), `barst` (status), `n` and `exact` (shadow count; `exact` skips the level 12 bonus), `rnd` (random 0-120 s added to duration).
+- castBuff now loops over the party group and calls `applyBuffTo`. Bar-element pow = min(0.35, (40 + floor(Enhancing/5)) / 400): my approximation of classic MMO's MDEF bonus (40 + skill/5) as a damage cut. Bar-status pow = 0.5 resist chance: also my approximation.
+- `BAR_EL` maps fire/earth/water/wind to barfire/barstone/barwater/baraero and is applied in `applyDamage` when `opt.el` is set. `BAR_ST` maps poison/paralyze/flash/sleep to their Bar buffs and is used by `inflictStatus` and the Mandrake sleep.
+- Aquaveil: `n` = 1 (2 above 300 Enhancing); `applyDamage` spends one when an interruption roll succeeds.
+- Sneak ignores `aggro.sound`; Deodorize ignores `aggro.lowhp` (in `detects`).
+- Silence: buff `silence`; `checkAction` refuses all spells. No monster casts spells in this game, so the Silence spell itself is deferred.
+- Monster statuses: tpMove `status: [buffKey, seconds, pow]` applied in `execTpMove` via `inflictStatus` (poison ticks 1 + floor(lv/5) every 3 s). Assigned: Final Sting and Spore Cloud poison, Tongue Lash paralyze, Sand Spit blind, Shrieking Chant and Drowning Tide silence.
+- Mercenary healers: `healerSupport` cures statuses first, then keeps Protect and Shell (party version preferred) on the party while fighting at over 50% MP.
+- Protectra uses Protect's +15 (LandSandBoat lists 20; Protect itself uses 15 in the game, kept consistent).
+- Deferred to 17.2: Curaga, Diaga, Banishga, Stonega, Waterga, Spikes, En- spells, Shock/Rasp/Choke, Foe Requiem, Threnodies, Sheepfoe Mambo, Herb Pastoral, Scop's Operetta, Silence.
+- Tests: test/p56unit.js.
 
 ## Publishing note
 - GitHub Pages serves the repo root `index.html` and `version.json`. `node build.mjs 4` writes both (and dist/); build 1 (tests) does not touch the root files. Commit the root index.html with every release; 16.18.0 to 16.20.0 were once pushed without it, so Pages stayed on 16.17.0.

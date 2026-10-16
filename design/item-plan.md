@@ -67,3 +67,4 @@ Use the real classic MMO item and spell names for now. The design notes' "names 
 ## Status
 - 17.0.0 shipped: spells, potions, starting spells, save wipe. Details in design.md "classic MMO rules (v17.0.0)".
 - Next: 17.1 (deferred spells and statuses), equipment import (level 20 and below), phase F rules, phase G balance (Opus recommended for F and G).
+- 17.1.0 shipped: status and support spells. 17.2 next: area spells, En- spells, Spikes, Shock/Rasp/Choke, remaining songs, Silence.

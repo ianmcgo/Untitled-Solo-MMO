@@ -1091,7 +1091,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v17.0.0 · built 2026-10-15 17:31 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">v17.1.0 · built 2026-10-15 17:45 PDT</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
@@ -6040,8 +6040,8 @@ const ABILITIES = {
 
 const BUFF_NAMES = { weakened: "Weakened", boon: "Shrine's Favour", blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
 const BUFF_ICONS = { weakened: "🥀", boon: "🕯️", blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
-Object.assign(BUFF_NAMES, { reraise: "Reraise", poison: "Poison", shell: "Shell", minne: "Knight's Minne" });
-Object.assign(BUFF_ICONS, { reraise: "🪽", poison: "☠️", shell: "🔰", minne: "🎵" });
+Object.assign(BUFF_NAMES, { barfire: "Barfire", barstone: "Barstone", barwater: "Barwater", baraero: "Baraero", barsleep: "Barsleep", barpoison: "Barpoison", barparalyze: "Barparalyze", barblind: "Barblind", aquaveil: "Aquaveil", sneak: "Sneak", deodorize: "Deodorize", silence: "Silence", reraise: "Reraise", poison: "Poison", shell: "Shell", minne: "Knight's Minne" });
+Object.assign(BUFF_ICONS, { barfire: "🔥", barstone: "◆", barwater: "💧", baraero: "🌀", barsleep: "💤", barpoison: "☠️", barparalyze: "🧊", barblind: "🕶", aquaveil: "🫧", sneak: "👣", deodorize: "🌿", silence: "🤐", reraise: "🪽", poison: "☠️", shell: "🔰", minne: "🎵" });
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, RDM: 3, PLD: 5 }, mp: 8, cast: 2, recast: 5, kind: "heal", cure: { min: 10, t: [[20, 4, 10, 0], [40, 1.3333, 15, 20], [125, 8.5, 30, 40], [200, 15, 40, 125], [600, 20, 40, 200], [1000000000.0, 999999, 65, 0]] }, target: "ally", desc: "Restores HP. Healing power comes from half your MND, a quarter of your VIT and your Healing Magic skill." },
@@ -6064,6 +6064,33 @@ const SPELLS = {
   blind: { name: "Blind", jobs: { BLM: 4, RDM: 8 }, mp: 5, cast: 2, recast: 10, kind: "debuff", element: "dark", buff: "flash", stat: "int", enmity: 60, target: "enemy", desc: "Lowers the target's accuracy by 5% to 50% (more when your INT beats its INT).", dur: 180 },
   bind: { name: "Bind", jobs: { BLM: 7, RDM: 11, DRK: 20 }, mp: 8, cast: 2, recast: 40, kind: "debuff", element: "ice", buff: "bind", enmity: 60, target: "enemy", desc: "Holds the target in place.", dur: 60 },
   sleep: { name: "Sleep", jobs: { BLM: 20 }, mp: 19, cast: 2.5, recast: 30, kind: "debuff", element: "dark", buff: "sleep", enmity: 60, target: "enemy", desc: "Puts the target to sleep. Any damage wakes it. Bosses are immune.", dur: 60 },
+  poisona: { name: "Poisona", jobs: { WHM: 6 }, mp: 8, cast: 1, recast: 5, kind: "cleanse", cleanse: ["poison"], target: "ally", desc: "Removes Poison from one ally." },
+  paralyna: { name: "Paralyna", jobs: { WHM: 9 }, mp: 12, cast: 1, recast: 5, kind: "cleanse", cleanse: ["paralyze"], target: "ally", desc: "Removes Paralysis from one ally." },
+  blindna: { name: "Blindna", jobs: { WHM: 14 }, mp: 16, cast: 1, recast: 10, kind: "cleanse", cleanse: ["flash"], target: "ally", desc: "Removes Blindness from one ally." },
+  silena: { name: "Silena", jobs: { WHM: 19 }, mp: 24, cast: 1, recast: 5, kind: "cleanse", cleanse: ["silence"], target: "ally", desc: "Removes Silence from one ally." },
+  barstone: { name: "Barstone", jobs: { RDM: 5 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barstone", bar: "earth", target: "ally", dur: 480, desc: "Cuts earth damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
+  barstonra: { name: "Barstonra", jobs: { WHM: 5 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barstone", bar: "earth", party: true, target: "ally", dur: 480, desc: "Cuts earth damage taken for the whole party for 8 minutes." },
+  barwater: { name: "Barwater", jobs: { RDM: 9 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barwater", bar: "water", target: "ally", dur: 480, desc: "Cuts water damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
+  barwatera: { name: "Barwatera", jobs: { WHM: 9 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barwater", bar: "water", party: true, target: "ally", dur: 480, desc: "Cuts water damage taken for the whole party for 8 minutes." },
+  baraero: { name: "Baraero", jobs: { RDM: 13 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "baraero", bar: "wind", target: "ally", dur: 480, desc: "Cuts wind damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
+  baraera: { name: "Baraera", jobs: { WHM: 13 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "baraero", bar: "wind", party: true, target: "ally", dur: 480, desc: "Cuts wind damage taken for the whole party for 8 minutes." },
+  barfire: { name: "Barfire", jobs: { RDM: 17 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barfire", bar: "fire", target: "ally", dur: 480, desc: "Cuts fire damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
+  barfira: { name: "Barfira", jobs: { WHM: 17 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barfire", bar: "fire", party: true, target: "ally", dur: 480, desc: "Cuts fire damage taken for the whole party for 8 minutes." },
+  barsleep: { name: "Barsleep", jobs: { RDM: 7 }, mp: 7, cast: 2.5, recast: 10, kind: "buff", buff: "barsleep", barst: "sleep", target: "ally", dur: 480, desc: "Half the chance of sleep from monster attacks, for 8 minutes." },
+  barsleepra: { name: "Barsleepra", jobs: { WHM: 7 }, mp: 14, cast: 5, recast: 10, kind: "buff", buff: "barsleep", barst: "sleep", party: true, target: "ally", dur: 480, desc: "Half the chance of sleep from monster attacks for the whole party, for 8 minutes." },
+  barpoison: { name: "Barpoison", jobs: { RDM: 10 }, mp: 9, cast: 2.5, recast: 10, kind: "buff", buff: "barpoison", barst: "poison", target: "ally", dur: 480, desc: "Half the chance of poison from monster attacks, for 8 minutes." },
+  barpoisonra: { name: "Barpoisonra", jobs: { WHM: 10 }, mp: 18, cast: 5, recast: 10, kind: "buff", buff: "barpoison", barst: "poison", party: true, target: "ally", dur: 480, desc: "Half the chance of poison from monster attacks for the whole party, for 8 minutes." },
+  barparalyze: { name: "Barparalyze", jobs: { RDM: 12 }, mp: 11, cast: 2.5, recast: 10, kind: "buff", buff: "barparalyze", barst: "paralyze", target: "ally", dur: 480, desc: "Half the chance of paralyze from monster attacks, for 8 minutes." },
+  barparalyzra: { name: "Barparalyzra", jobs: { WHM: 12 }, mp: 22, cast: 5, recast: 10, kind: "buff", buff: "barparalyze", barst: "paralyze", party: true, target: "ally", dur: 480, desc: "Half the chance of paralyze from monster attacks for the whole party, for 8 minutes." },
+  barblind: { name: "Barblind", jobs: { RDM: 18 }, mp: 13, cast: 2.5, recast: 10, kind: "buff", buff: "barblind", barst: "flash", target: "ally", dur: 480, desc: "Half the chance of blind from monster attacks, for 8 minutes." },
+  barblindra: { name: "Barblindra", jobs: { WHM: 18 }, mp: 26, cast: 5, recast: 10, kind: "buff", buff: "barblind", barst: "flash", party: true, target: "ally", dur: 480, desc: "Half the chance of blind from monster attacks for the whole party, for 8 minutes." },
+  protectra: { name: "Protectra", jobs: { WHM: 7 }, mp: 9, cast: 1, recast: 15, kind: "buff", buff: "protect", pow: 15, party: true, target: "ally", dur: 1800, desc: "Defense +15 for the whole party for 30 minutes." },
+  shellra: { name: "Shellra", jobs: { WHM: 17 }, mp: 18, cast: 1, recast: 15, kind: "buff", buff: "shell", pow: 0.11, party: true, target: "ally", dur: 1800, desc: "Elemental damage taken -11% for the whole party for 30 minutes." },
+  blink: { name: "Blink", jobs: { WHM: 19 }, mp: 20, cast: 6, recast: 10, kind: "buff", buff: "shadows", n: 2, exact: true, target: "self", dur: 300, desc: "Two shadow images absorb the next two melee hits for 5 minutes." },
+  aquaveil: { name: "Aquaveil", jobs: { WHM: 10, RDM: 12 }, mp: 12, cast: 5, recast: 10, kind: "buff", buff: "aquaveil", n: 1, target: "self", dur: 600, desc: "Blocks one spell interruption from damage for 10 minutes. Two blocks above 300 Enhancing skill." },
+  sneak: { name: "Sneak", jobs: { WHM: 20, RDM: 20 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "sneak", target: "ally", dur: 420, rnd: 120, desc: "Monsters that notice you by sound ignore you for about 7 to 9 minutes." },
+  deodorize: { name: "Deodorize", jobs: { WHM: 15, RDM: 15 }, mp: 10, cast: 2, recast: 8, kind: "buff", buff: "deodorize", target: "ally", dur: 420, rnd: 120, desc: "Monsters that sniff out the weak ignore you for about 7 to 9 minutes." },
+  warp: { name: "Warp", jobs: { BLM: 17 }, mp: 100, cast: 4, recast: 10, kind: "warp", target: "self", desc: "Teleports you to your home point." },
   knights_minne: { name: "Knight's Minne", jobs: { BRD: 1 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minne", base: 8, sreq: 0, cap: 30, mult: 3, div: 10, target: "self", skill: "singing", desc: "Party song: defense +8, rising with Singing skill.", dur: 120 },
   valor_minuet: { name: "Valor Minuet", jobs: { BRD: 3 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minuet", base: 5, sreq: 50, cap: 32, mult: 3, div: 4.3, target: "self", skill: "singing", desc: "Party song: attack +5, rising with Singing skill.", dur: 120 },
   armys_paeon: { name: "Army's Paeon", jobs: { BRD: 5 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 1, sreq: 100, cap: 2, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 1 HP every 3 s.", dur: 120 },
@@ -6690,24 +6717,24 @@ const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, 
 
 const FAMILIES = {
   goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], gil: [3, 6], model: "goblin" },
-  honey_bee: { name: "Honey Bee", color: "#f2c230", radius: 10, hpMul: 0.55, attMul: 0.85, defMul: 0.75, eva: 10, delay: 2.2, speed: 135, aggro: null, link: true, linkGroup: "bees", tpMove: { name: "Final Sting", mul: 2.2 }, weak: { ice: 1.2 }, loot: [["honeycomb", 0.4], ["wind_crystal", 0.2], ["potion", 0.05]], model: "bee", tint: 0xf2c230, tint2: 0x2a2218, scale: 1.15 },
+  honey_bee: { name: "Honey Bee", color: "#f2c230", radius: 10, hpMul: 0.55, attMul: 0.85, defMul: 0.75, eva: 10, delay: 2.2, speed: 135, aggro: null, link: true, linkGroup: "bees", tpMove: { name: "Final Sting", mul: 2.2, status: ["poison", 30] }, weak: { ice: 1.2 }, loot: [["honeycomb", 0.4], ["wind_crystal", 0.2], ["potion", 0.05]], model: "bee", tint: 0xf2c230, tint2: 0x2a2218, scale: 1.15 },
   grass_crawler: { name: "Grass Crawler", color: "#7fb04a", radius: 14, hpMul: 0.9, attMul: 0.8, defMul: 1.1, eva: 2, delay: 3.4, speed: 70, aggro: null, link: false, tpMove: { name: "Sticky Thread", mul: 1.3, slow: true }, weak: { fire: 1.3 }, loot: [["crawler_cocoon", 0.3], ["worm_silk", 0.25], ["earth_crystal", 0.2], ["potion", 0.05]], model: "crawler", tint: 0x7fb04a },
   meadow_sheep: { name: "Meadow Sheep", color: "#e8e2d6", radius: 15, hpMul: 0.9, attMul: 0.8, defMul: 0.9, eva: 2, delay: 3.0, speed: 100, aggro: null, link: true, linkGroup: "sheep", tpMove: { name: "Rampant Butt", mul: 1.7 }, weak: { fire: 1.1 }, loot: [["wool_tuft", 0.45], ["earth_crystal", 0.2], ["healing_herb", 0.15]], model: "sheep", tint: 0xd8cfc0 },
   hill_lizard: { name: "Hill Lizard", color: "#8a9a4a", radius: 14, hpMul: 1.0, attMul: 1.0, defMul: 1.0, eva: 6, delay: 2.9, speed: 110, aggro: null, link: false, tpMove: { name: "Tail Whip", mul: 1.6, aoe: 60 }, weak: { ice: 1.2 }, loot: [["lizard_skin", 0.35], ["fire_crystal", 0.2], ["potion", 0.06]], model: "lizard", tint: 0x8a9a4a, tint2: 0xd8d4a0, scale: 1.3 },
   pond_crab: { name: "Pond Crab", color: "#b86a4a", radius: 14, hpMul: 1.0, attMul: 0.9, defMul: 1.3, eva: 0, delay: 3.2, speed: 80, aggro: null, link: false, tpMove: { name: "Big Pinch", mul: 1.8 }, weak: { lightning: 1.3 }, loot: [["crab_shell", 0.35], ["water_crystal", 0.25], ["potion", 0.05]], model: "crab", tint: 0xb86a4a },
   mandrake: { name: "Mandrake", color: "#d8b46a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.5, speed: 125, aggro: null, link: true, linkGroup: "mandrake", tpMove: { name: "Dream Dust", mul: 1.2, sleepy: true }, weak: { fire: 1.3 }, loot: [["mandrake_leaf", 0.4], ["healing_herb", 0.25], ["earth_crystal", 0.15]], model: "mandrake", tint: 0xd8b46a, tint2: 0x5aa84a },
-  shroomling: { name: "Shroomling", color: "#c8b8a0", radius: 13, hpMul: 1.1, attMul: 0.9, defMul: 1.0, eva: 0, delay: 3.3, speed: 60, int: 7, aggro: null, link: false, tpMove: { name: "Spore Cloud", mul: 1.1, aoe: 70 }, weak: { fire: 1.4 }, loot: [["spore_cap", 0.35], ["water_crystal", 0.2], ["ether", 0.05]], model: "shroom", tint: 0xd8c8b0, tint2: 0xb04a3a },
+  shroomling: { name: "Shroomling", color: "#c8b8a0", radius: 13, hpMul: 1.1, attMul: 0.9, defMul: 1.0, eva: 0, delay: 3.3, speed: 60, int: 7, aggro: null, link: false, tpMove: { name: "Spore Cloud", mul: 1.1, aoe: 70, status: ["poison", 30] }, weak: { fire: 1.4 }, loot: [["spore_cap", 0.35], ["water_crystal", 0.2], ["ether", 0.05]], model: "shroom", tint: 0xd8c8b0, tint2: 0xb04a3a },
   lake_snapper: { name: "Lake Snapper", color: "#5a8ab0", radius: 12, hpMul: 0.9, attMul: 1.05, defMul: 0.9, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Snapjaw", mul: 1.9 }, weak: { lightning: 1.3 }, loot: [["moat_carp", 0.3], ["water_crystal", 0.25], ["potion", 0.05]], model: "fish", tint: 0x5a8ab0 },
   longneck: { name: "Marsh Longneck", color: "#b09070", radius: 20, hpMul: 1.8, attMul: 1.1, defMul: 1.1, eva: 2, delay: 3.6, speed: 105, aggro: null, link: false, tpMove: { name: "Stomp", mul: 1.9, aoe: 80 }, weak: { lightning: 1.2 }, loot: [["longneck_hide", 0.35], ["earth_crystal", 0.3], ["hi_potion", 0.06]], model: "longneck", tint: 0xb09070 },
   bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: null, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["egg_batling", 0.004], ["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05]], model: "bat" },
-  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60 }, weak: { wind: 1.25 }, loot: [["egg_wormlet", 0.004], ["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
+  worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60, status: ["flash", 20, 0.25] }, weak: { wind: 1.25 }, loot: [["egg_wormlet", 0.004], ["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
   ghoul: { name: "Ghoul", color: "#9fbfa0", radius: 15, hpMul: 1.1, attMul: 1.1, defMul: 1.0, delay: 3.0, speed: 85, aggro: { sound: 120, lowhp: 200 }, link: true, tpMove: { name: "Vampiric Claw", mul: 1.8, drain: true }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.3], ["ether", 0.08], ["hi_potion", 0.05]], model: "ghoul" },
   den_goblin: { name: "Goblin Raider", color: "#6f7f45", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, linkGroup: "goblin", tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["fire_crystal", 0.3], ["iron_ore", 0.15], ["ash_log", 0.2], ["hi_potion", 0.05]], gil: [3, 6], model: "goblin" },
   orc_grunt: { name: "Orc Grunt", color: "#6f7f4f", radius: 16, hpMul: 1.3, attMul: 1.2, defMul: 1.1, delay: 3.2, speed: 95, aggro: { sight: 190 }, link: true, linkGroup: "orc", tpMove: { name: "Battle Roar", mul: 1.9, aoe: 70 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["iron_ore", 0.3], ["fire_crystal", 0.25], ["hi_potion", 0.06]], gil: [10, 16], model: "orc" },
   orc_stonechucker: { name: "Orc Stonechucker", color: "#7f8f5f", radius: 15, hpMul: 1.05, attMul: 1.15, defMul: 0.95, delay: 3.6, speed: 100, aggro: { sight: 220 }, link: true, linkGroup: "orc", range: 200, tpMove: { name: "Boulder Toss", mul: 2.1 }, weak: { ice: 1.2, light: 1.1 }, loot: [["orc_tooth", 0.3], ["ash_log", 0.25], ["wind_crystal", 0.25], ["ether", 0.06]], gil: [10, 16], model: "orc" },
   fishfolk: { name: "Reefkin", color: "#4a8a7a", radius: 15, hpMul: 1.1, attMul: 1.05, defMul: 1.05, eva: 6, delay: 2.9, speed: 105, aggro: { sight: 170, sound: 120 }, link: true, linkGroup: "reefkin", tpMove: { name: "Water Lance", mul: 1.8 }, weak: { lightning: 1.4 }, loot: [["reef_scale", 0.3], ["water_crystal", 0.3], ["harbor_bream", 0.2], ["potion", 0.08]], gil: [8, 14], model: "fishfolk" },
   birdfolk: { name: "Crag Talon", color: "#c8a870", radius: 14, hpMul: 1.0, attMul: 1.1, defMul: 0.95, eva: 10, delay: 2.6, speed: 120, aggro: { sight: 200 }, link: true, linkGroup: "crag", tpMove: { name: "Talon Dive", mul: 1.9 }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["wind_crystal", 0.3], ["potion", 0.08]], gil: [9, 15], model: "birdfolk" },
-  birdfolk_priest: { name: "Crag Chanter", color: "#f0e4c8", radius: 14, hpMul: 0.95, attMul: 0.95, defMul: 0.9, eva: 8, delay: 3.0, speed: 110, int: 9, aggro: { sight: 200, magic: 150 }, link: true, linkGroup: "crag", tpMove: { name: "Shrieking Chant", mul: 1.5, aoe: 80 }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["ether", 0.15], ["fire_crystal", 0.25]], gil: [10, 16], model: "birdfolk" },
+  birdfolk_priest: { name: "Crag Chanter", color: "#f0e4c8", radius: 14, hpMul: 0.95, attMul: 0.95, defMul: 0.9, eva: 8, delay: 3.0, speed: 110, int: 9, aggro: { sight: 200, magic: 150 }, link: true, linkGroup: "crag", tpMove: { name: "Shrieking Chant", mul: 1.5, aoe: 80, status: ["silence", 20] }, weak: { wind: 1.2, ice: 1.2 }, loot: [["crag_feather", 0.35], ["ether", 0.15], ["fire_crystal", 0.25]], gil: [10, 16], model: "birdfolk" },
   sapling: { name: "Wandering Sapling", color: "#6aa84a", radius: 13, hpMul: 0.9, attMul: 0.8, defMul: 1.1, delay: 3.2, speed: 85, aggro: null, link: false, tpMove: { name: "Leaf Lash", mul: 1.5 }, weak: { fire: 1.6 }, loot: [["ash_log", 0.35], ["healing_herb", 0.25], ["earth_crystal", 0.2]], model: "treant", tint: 0x6aa84a },
   treant_elder: { name: "Elder Treant", color: "#4a3a28", radius: 20, hpMul: 2.0, attMul: 1.2, defMul: 1.4, delay: 3.8, speed: 70, aggro: { sight: 160 }, link: false, tpMove: { name: "Root Quake", mul: 2.0, aoe: 90 }, weak: { fire: 1.6 }, loot: [["heartwood", 0.3], ["ash_log", 0.5], ["earth_crystal", 0.4], ["hi_potion", 0.08]], gil: [12, 20], model: "treant", scale: 1.3 },
   cactus: { name: "Needlekin", color: "#5aa04a", radius: 12, hpMul: 0.9, attMul: 1.0, defMul: 1.2, eva: 4, delay: 3.0, speed: 90, aggro: { sight: 150 }, link: false, range: 170, tpMove: { name: "Thousand Needles", mul: 2.4 }, weak: { fire: 1.3 }, loot: [["cactus_needle", 0.35], ["earth_crystal", 0.25], ["potion", 0.08]], gil: [8, 14], model: "cactus" },
@@ -6717,12 +6744,12 @@ const FAMILIES = {
   crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["sentinel_greaves", 0.3]], gil: [20, 30], model: "skeleton" },
   royal_guard: { name: "Royal Guard", color: "#c0c8d8", radius: 15, hpMul: 1.1, attMul: 1.15, defMul: 1.1, delay: 3.0, speed: 95, aggro: null, link: true, linkGroup: "undead", tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.3]], model: "skeleton", summoned: true },
   hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["hollow_crown", 0.3], ["kings_blade", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
-  bog_toad: { name: "Bog Toad", color: "#5f7a3a", radius: 14, hpMul: 1.15, attMul: 1.0, defMul: 1.0, delay: 3.0, speed: 90, aggro: { sound: 120 }, link: false, tpMove: { name: "Tongue Lash", mul: 1.8 }, weak: { ice: 1.25 }, loot: [["toad_oil", 0.45], ["water_crystal", 0.3], ["healing_herb", 0.2], ["hi_potion", 0.05]], gil: [6, 10], model: "toad" },
+  bog_toad: { name: "Bog Toad", color: "#5f7a3a", radius: 14, hpMul: 1.15, attMul: 1.0, defMul: 1.0, delay: 3.0, speed: 90, aggro: { sound: 120 }, link: false, tpMove: { name: "Tongue Lash", mul: 1.8, status: ["paralyze", 20, 0.2] }, weak: { ice: 1.25 }, loot: [["toad_oil", 0.45], ["water_crystal", 0.3], ["healing_herb", 0.2], ["hi_potion", 0.05]], gil: [6, 10], model: "toad" },
   bog_leech: { name: "Bog Leech", color: "#5a2a2a", radius: 13, hpMul: 1.1, attMul: 0.95, defMul: 1.1, delay: 3.2, speed: 60, int: 4, aggro: null, link: false, tpMove: { name: "Blood Drain", mul: 1.6, drain: true }, weak: { fire: 1.3 }, loot: [["worm_silk", 0.3], ["water_crystal", 0.3], ["ether", 0.08]], model: "worm", tint: 0x4a2226 },
   mire_goblin: { name: "Mire Goblin", color: "#58663a", radius: 15, hpMul: 1.05, attMul: 1.05, defMul: 1.05, delay: 3.0, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", tpMove: { name: "Bog Bomb", mul: 1.7, aoe: 75 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.25], ["mire_reed", 0.3], ["fire_crystal", 0.2], ["hi_potion", 0.06]], gil: [8, 14], model: "goblin" },
   drowned: { name: "Drowned One", color: "#6f9a9a", radius: 15, hpMul: 1.2, attMul: 1.1, defMul: 1.05, delay: 3.0, speed: 85, aggro: { sound: 130, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Sodden Grasp", mul: 1.9, drain: true }, weak: { light: 1.5, lightning: 1.2 }, loot: [["chapel_sigil", 0.12], ["bone_chip", 0.35], ["water_crystal", 0.35], ["ether", 0.1], ["hi_potion", 0.06]], model: "ghoul" },
   marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
-  tide_priest: { name: "Tidebound Priest", color: "#4dd0e1", radius: 20, hpMul: 3.2, attMul: 1.1, defMul: 1.2, delay: 3.6, speed: 80, int: 6, aggro: { sight: 240, sound: 220 }, link: false, tpMove: { name: "Drowning Tide", mul: 1.6, aoe: 110 }, weak: { lightning: 1.4, light: 1.3 }, nm: true, boss: true, scale: 1.6, aura: "#4dd0e1", respawn: 30, phases: [0.65], adds: "drowned", addsText: "calls the drowned up from the water!", enrage: 0.2, pulse: { at: 0.5, every: 22, dmg: 4, r: 170, name: "Maelstrom", el: "water" }, loot: [], gil: [40, 60], model: "ghoul" },
+  tide_priest: { name: "Tidebound Priest", color: "#4dd0e1", radius: 20, hpMul: 3.2, attMul: 1.1, defMul: 1.2, delay: 3.6, speed: 80, int: 6, aggro: { sight: 240, sound: 220 }, link: false, tpMove: { name: "Drowning Tide", mul: 1.6, aoe: 110, status: ["silence", 20] }, weak: { lightning: 1.4, light: 1.3 }, nm: true, boss: true, scale: 1.6, aura: "#4dd0e1", respawn: 30, phases: [0.65], adds: "drowned", addsText: "calls the drowned up from the water!", enrage: 0.2, pulse: { at: 0.5, every: 22, dmg: 4, r: 170, name: "Maelstrom", el: "water" }, loot: [], gil: [40, 60], model: "ghoul" },
   snow_hare: { name: "Snow Hare", color: "#e8eef2", radius: 11, hpMul: 0.75, attMul: 0.85, defMul: 0.85, eva: 10, delay: 2.6, speed: 125, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { fire: 1.2 }, loot: [["healing_herb", 0.4], ["wind_crystal", 0.2], ["potion", 0.1]], model: "hare", tint: 0xeef2f6 },
   ice_bat: { name: "Ice Bat", color: "#9fd8ff", radius: 11, hpMul: 0.85, attMul: 1.0, defMul: 0.9, eva: 12, delay: 2.4, speed: 130, aggro: null, link: true, linkGroup: "icebat", tpMove: { name: "Frost Wing", mul: 1.9 }, weak: { fire: 1.3 }, loot: [["egg_frost_wisp", 0.005], ["bat_wing", 0.4], ["frost_shard", 0.25], ["ether", 0.08]], model: "bat", tint: 0x8ab8d8 },
   frost_goblin: { name: "Frost Goblin", color: "#9aa8a0", radius: 15, hpMul: 1.15, attMul: 1.1, defMul: 1.1, delay: 3.0, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", tpMove: { name: "Ice Bomb", mul: 1.8, aoe: 80 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.3], ["frost_shard", 0.3], ["hi_potion", 0.08]], gil: [10, 16], model: "goblin" },
@@ -8932,7 +8959,8 @@ function reach(e) { return e && e.stats && e.stats.wtype === "archery" ? CONFIG.
 function spellSkill(sp) {
   if (sp.skill) return sp.skill;
   if (sp.kind === "summon") return "summoning";
-  if (sp.kind === "heal") return "healing";
+  if (sp.kind === "heal" || sp.kind === "cleanse") return "healing";
+  if (sp.kind === "warp") return "enhancing";
   if (sp.kind === "debuff") return "enfeebling";
   if (sp.kind === "buff") return "enhancing";
   if (sp.kind === "dot" || sp.element === "light") return "divine";
@@ -9202,7 +9230,7 @@ function tickGeo(dt) {
   }
 }
 function artsMatch(a, sp) {
-  const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot";
+  const white = sp.kind === "heal" || sp.kind === "buff" || sp.kind === "dot" || sp.kind === "cleanse";
   const black = sp.kind === "nuke" || sp.kind === "debuff" || sp.kind === "drain" || sp.kind === "aspir";
   return (a.buffs.light_arts && white) || (a.buffs.dark_arts && black);
 }
@@ -9571,6 +9599,7 @@ function applyDamage(src, tgt, amt, opt) {
   amt = Math.max(0, Math.round(amt));
   if (isMob(tgt) && src && isParty(src) && !claimOk(tgt)) return;
   if (opt.el && tgt.buffs && tgt.buffs.shell && !isMob(tgt)) amt = Math.max(0, Math.round(amt * (1 - tgt.buffs.shell.pow)));
+  if (opt.el && BAR_EL[opt.el] && tgt.buffs && tgt.buffs[BAR_EL[opt.el]] && !isMob(tgt)) amt = Math.max(0, Math.round(amt * (1 - tgt.buffs[BAR_EL[opt.el]].pow)));
   if (opt.el && !isMob(tgt) && tgt.stats && tgt.stats["res_" + opt.el]) amt = Math.max(0, Math.round(amt * (1 - Math.min(0.5, tgt.stats["res_" + opt.el] / 100))));
   if (tgt.buffs && !isMob(tgt) && src && isMob(src)) {
     if (tgt.buffs.runes && tgt.buffs.runes.list) amt = Math.round(amt * (1 - 0.05 * tgt.buffs.runes.list.length));
@@ -9601,7 +9630,7 @@ function applyDamage(src, tgt, amt, opt) {
     touch(tgt);
     if (amt > 0 && tgt.resting && src && isMob(src)) standUp(tgt, tgt !== player);
     if (tgt.mounted) dismount("You're thrown from the saddle!");
-    if (tgt.casting && Math.random() < CONFIG.interruptChance) interruptCast(tgt);
+    if (tgt.casting && Math.random() < CONFIG.interruptChance) { if (tgt.buffs.aquaveil) { tgt.buffs.aquaveil.n--; popText(tgt, "Aquaveil", "#4fc3f7", 12, 0.9, 12); if (tgt.buffs.aquaveil.n <= 0) delete tgt.buffs.aquaveil; } else interruptCast(tgt); }
   }
   if (tgt.buffs && tgt.buffs.sleep && amt > 0) { delete tgt.buffs.sleep; if (isMob(tgt)) log("The " + tgt.name + " wakes up!", "sys"); }
   if (tgt.hp <= 0) onKO(tgt, src);
@@ -10618,6 +10647,7 @@ function checkAction(a, act, t) {
   }
   if (act.kind === "ma") {
     const sp = SPELLS[act.id];
+    if (a.buffs.silence) return "You are silenced.";
     if (recastLeft(a, "ma:" + act.id) > 0) return sp.name + " is not ready.";
     if (a.mp < sp.mp) return "Not enough MP.";
     if (sp.target === "enemy" && (!t || !isMob(t) || !t.alive)) return "No valid target.";
@@ -10986,6 +11016,8 @@ function finishCast(a) {
   else if (sp.kind === "dot") castDia(a, t, sp);
   else if (sp.kind === "debuff") castDebuff(a, t, sp);
   else if (sp.kind === "buff") castBuff(a, t, sp);
+  else if (sp.kind === "cleanse") castCleanse(a, t, sp);
+  else if (sp.kind === "warp") castWarp(a, sp);
   else if (sp.kind === "summon") summonPet(a, sp);
   else if (sp.kind === "song") castSong(a, sp);
   else if (sp.kind === "drain" || sp.kind === "aspir") castDrain(a, t, sp);
@@ -11144,16 +11176,49 @@ function castDebuff(a, t, sp) {
   aggro(t, a);
 }
 
-function castBuff(a, t, sp) {
-  t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
-  if (sp.pow != null) t.buffs[sp.buff].pow = sp.pow;
-  if (sp.buff === "shadows") t.buffs.shadows.n = sp.n + (a.lv >= 12 ? 1 : 0);
-  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + obj(t) + ".", cls(a));
+const BAR_EL = { fire: "barfire", earth: "barstone", water: "barwater", wind: "baraero" };
+const BAR_ST = { poison: "barpoison", paralyze: "barparalyze", flash: "barblind", sleep: "barsleep" };
+function applyBuffTo(a, t, sp) {
+  const b = t.buffs[sp.buff] = { until: S.time + sp.dur + (sp.rnd ? 60 * Math.floor(Math.random() * 3) : 0), src: a };
+  if (sp.pow != null) b.pow = sp.pow;
+  if (sp.bar) b.pow = Math.min(0.35, (40 + Math.floor(skillOf(a, "enhancing") / 5)) / 400);
+  if (sp.barst) b.pow = 0.5;
+  if (sp.buff === "shadows") b.n = sp.n + (a.lv >= 12 && !sp.exact ? 1 : 0);
+  if (sp.buff === "aquaveil") b.n = sp.n + (skillOf(a, "enhancing") > 300 ? 1 : 0);
   popText(t, sp.name, "#9ad06b", 13, 1.1, 14);
   ring(t, "#9ad06b", 26, 0.5);
-  sfx("buff", t);
   vfx("buff", { tgt: t, id: sp.buff });
-  for (const m of S.mobs) if (m.alive && m.state === "combat" && m.enmity.has(t)) addEnmity(m, a, 30);
+}
+function castBuff(a, t, sp) {
+  const group = sp.party ? S.party.filter(p => p.alive && dist(p, t) <= 300) : [t];
+  for (const g of group) applyBuffTo(a, g, sp);
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + (sp.party ? "the party" : obj(t)) + ".", cls(a));
+  sfx("buff", t);
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && group.some(g => m.enmity.has(g))) addEnmity(m, a, 30);
+}
+function castCleanse(a, t, sp) {
+  const gone = sp.cleanse.filter(k => t.buffs[k]);
+  for (const k of sp.cleanse) delete t.buffs[k];
+  log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + obj(t) + (gone.length ? ". " + gone.map(k => BUFF_NAMES[k] || k).join(", ") + " is cured." : ", but nothing happens."), cls(a));
+  popText(t, gone.length ? "Cured" : sp.name, "#9ad06b", 13, 1.1, 14);
+  ring(t, "#fff59d", 26, 0.5, "sparkle");
+  sfx("heal", t);
+  vfx("buff", { tgt: t, id: "cleanse" });
+}
+function castWarp(a, sp) {
+  if (a !== player) return;
+  log("You are drawn back to your home point.", "sys");
+  const h = homePos();
+  enterZone(h.zone, h.x, h.y);
+}
+function inflictStatus(m, tg, key, dur, pow) {
+  const bar = BAR_ST[key];
+  if (bar && tg.buffs[bar] && Math.random() < tg.buffs[bar].pow) { popText(tg, "Resisted", "#bbbbbb", 12, 0.9, 12); return false; }
+  const b = tg.buffs[key] = { until: S.time + dur, src: m };
+  if (pow != null) b.pow = pow;
+  if (key === "poison") { b.tick = 1 + Math.floor(tg.lv / 5); b.next = S.time + 3; b.el = "dark"; }
+  popText(tg, BUFF_NAMES[key] || key, "#d7b46a", 12, 0.9, 12);
+  return true;
 }
 
 function dotTick(a, d) {
@@ -11460,9 +11525,9 @@ function detects(m, p) {
     const diff = Math.abs(normAng(Math.atan2(p.y - m.y, p.x - m.x) - m.face));
     if (diff <= Math.PI * 0.45) return true;
   }
-  if (a.sound && d <= a.sound && p.moving) return true;
+  if (a.sound && d <= a.sound && p.moving && !p.buffs.sneak) return true;
   if (a.magic && d <= a.magic && p.casting) return true;
-  if (a.lowhp && d <= a.lowhp && p.hp / p.maxHp < 0.5) return true;
+  if (a.lowhp && d <= a.lowhp && p.hp / p.maxHp < 0.5 && !p.buffs.deodorize) return true;
   return false;
 }
 
@@ -11619,7 +11684,8 @@ function execTpMove(m) {
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
     applyDamage(m, tg, total, { color: "#ff8a80", size: 22, el: mv.el });
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
-    if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
+    if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player && !(tg.buffs.barsleep && Math.random() < tg.buffs.barsleep.pow)) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
+    if (mv.status && tg.alive) inflictStatus(m, tg, mv.status[0], mv.status[1], mv.status[2]);
     if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
   }
   if (mv.explode && m.alive && !m.proxy) { m.hp = 0; onKO(m, m); }
@@ -11819,7 +11885,7 @@ function meleeAI(a, tgt, dt) {
   const stn = acts.find(x => x.id === "stun");
   if (stn && tgt.readying && allyTry(a, stn, tgt)) return;
   const blt = acts.find(x => x.id === "bio");
-  if (blt && !tgt.buffs.blight && tgt.state === "combat" && a.mp > a.maxMp * 0.4 && allyTry(a, blt, tgt)) return;
+  if (blt && !tgt.buffs.bio && tgt.state === "combat" && a.mp > a.maxMp * 0.4 && allyTry(a, blt, tgt)) return;
   for (const id of ["focus", "boost", "sneak_attack", "sharpshot", "barrage", "last_resort", "soulfire", "blood_blade"]) {
     const x = acts.find(q => q.id === id);
     if (x && !a.buffs[id] && dist(a, tgt) <= reach(a) && allyTry(a, x, a)) return;
@@ -11947,6 +12013,26 @@ function healEstimate(a, sp) {
   return (sp.power + a.stats.mnd * sp.mnd + skillOf(a, "healing") * 0.3) * (1 + 0.06 * (a.lv - 1));
 }
 
+function healerSupport(a, acts, tgt) {
+  if (S.time < (a.nextSupport || 0)) return false;
+  a.nextSupport = S.time + 2;
+  const reach = CONFIG.castRange - 30;
+  for (const x of acts) {
+    const sp = x.kind === "ma" && SPELLS[x.id];
+    if (!sp || sp.kind !== "cleanse") continue;
+    const p = S.party.find(q => q.alive && sp.cleanse.some(k => q.buffs[k]) && dist(a, q) <= reach);
+    if (p && allyTry(a, x, p)) return true;
+  }
+  if (!tgt || tgt.state !== "combat" || a.mp < a.maxMp * 0.5) return false;
+  for (const key of ["protect", "shell"]) {
+    const opts = acts.filter(x => x.kind === "ma" && SPELLS[x.id] && SPELLS[x.id].kind === "buff" && SPELLS[x.id].buff === key).sort((p, q) => (SPELLS[q.id].party ? 1 : 0) - (SPELLS[p.id].party ? 1 : 0));
+    if (!opts.length) continue;
+    const p = S.party.find(q => q.alive && !q.buffs[key] && dist(a, q) <= reach);
+    if (p && opts.some(x => allyTry(a, x, p))) return true;
+  }
+  return false;
+}
+
 function healerAI(a, tgt, dt) {
   const acts = actionList(a);
   const healAt = a.role === "healer" ? 0.75 : 0.5;
@@ -11966,6 +12052,7 @@ function healerAI(a, tgt, dt) {
       return;
     }
   }
+  if (healerSupport(a, acts, tgt)) return;
   if (tgt) {
     const dia = acts.find(x => x.id === "dia");
     const diaMp = a.role === "support" ? 0.25 : 0.5;
@@ -17635,8 +17722,14 @@ function initMenu() {
   applyUiSettings();
 }
 
-const BUILD_INFO = "v17.0.0 · built 2026-10-15 17:31 PDT";
+const BUILD_INFO = "v17.1.0 · built 2026-10-15 17:45 PDT";
 const UPDATES = [
+  { v: "17.1.0", date: "2026-10-15", title: "Status magic", items: [
+    "<b>New classic MMO support spells (levels 20 and under):</b> Poisona (WHM 6), Paralyna (9), Blindna (14), Silena (19); Protectra (7) and Shellra (17) for the whole party; Aquaveil (WHM 10, RDM 12), Blink (19), Deodorize (15) and Sneak (20); Warp (BLM 17).",
+    "<b>Bar spells:</b> Barstone, Barwater, Baraero and Barfire cut damage of their element; Barsleep, Barpoison, Barparalyze and Barblind halve the chance of that status. White Mages cast the party versions (Barstonra and so on), Red Mages the single-target ones. Scrolls are in the shops.",
+    "<b>Monsters now inflict statuses:</b> Honey Bees and Shroomlings poison, Bog Toads paralyze, worms blind, and the Crag Chanter and Tidebound Priest silence. Silence stops you casting.",
+    "Hired White Mages now cure these statuses and keep Protect and Shell up on the party during a fight. Fixed Dark Knights re-casting Bio."
+  ] },
   { v: "17.0.0", date: "2026-10-15", title: "classic MMO spells and potions", items: [
     "<b>Spells and potions now follow classic MMO.</b> Names, levels, MP costs, cast and recast times and effects come from the real game. Cure, Cure II, Dia, Banish, Protect, Shell, Slow, Paralyze, Stone, Water, Aero, Fire, Blizzard, Poison, Bio, Drain, Aspir, Blind, Bind and Sleep replace the old list. Spells with no classic MMO match (Thunder, Flash, Stun, Blight, Raise and the rest) are gone.",
     "<b>Real formulas:</b> Cure heals by MND, VIT and Healing skill; nukes scale with the gap between your magic stat and the monster's; Dia and Bio are damage over time and replace each other; Drain and Aspir steal HP and MP; Poison ticks; Shell cuts elemental damage by 11%; Slow, Paralyze and Blind are stronger the more your stat beats the target's.",
@@ -18783,7 +18876,7 @@ function tabHelp() {
     "<b>Learning spells:</b> read a scroll from your Items. It works only if your main job is at the spell's level, or your support job is (support jobs count at half your main level). The log tells you which job and level the scroll needs.",
     "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",
     "<b>Reading a beastman:</b> each family has its own silhouette. Goblins stoop with pouches and packs, orcs are broad with spiked shoulders, Reefkin have fins, Crag Talons have feathered arms and tails, treants have branches and roots. A war banner on the back marks a boss.",
-    "<b>Debuffs:</b> Slow, Paralyze and Blind weaken a monster in proportion to how much your magic stat beats its own: Slow makes it swing slower, Paralyze makes it lose swings, Blind cuts its accuracy. Poison and Bio drain its HP over time, Bind pins it, Sleep (Black Mage 20) and Foe Lullaby put it to sleep until it is hit. They show on the target frame with the time left. Shield Bash interrupts a readied TP move.",
+    "<b>Debuffs:</b> Slow, Paralyze and Blind weaken a monster in proportion to how much your magic stat beats its own: Slow makes it swing slower, Paralyze makes it lose swings, Blind cuts its accuracy. Poison and Bio drain its HP over time, Bind pins it, Sleep (Black Mage 20) and Foe Lullaby put it to sleep until it is hit. They show on the target frame with the time left. <b>Monsters fight back:</b> bees and spore-clouds poison you, toads paralyze, worms blind and priests silence (silenced, you cannot cast). White Mage cures them with Poisona, Paralyna, Blindna and Silena; the Bar-status spells halve the chance of catching them. Bar-element spells (Barfire, Barstone, Barwater, Baraero and the party versions ending in -ra) cut damage of that element. Aquaveil blocks a spell interruption, Blink gives two shadow images, Sneak hides you from monsters that hear you and Deodorize from those that smell weakness. Shield Bash interrupts a readied TP move.",
     "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
     "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares, bats, leeches and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Sticky Thread slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",
     "<b>Ranged and dangerous:</b> Orc Stonechuckers and Needlekin attack from a distance, so close in or pull them around a corner. Ember Bombs swell up and Self-Destruct, a big area blast that also destroys the bomb; kill them fast or step away when they ready it. Elder Treants shake the ground around them.",
@@ -18807,10 +18900,10 @@ function tabHelp() {
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
     ["Warrior", "Tank or damage", "Provoke, Berserk, Warcry (level 15: +20% attack for nearby allies), great axe A, sword B"],
-    ["White Mage", "Healer", "Cure (1), Dia (3), Paralyze (4), Banish (5), Protect (7), Cure II (11), Slow (13), Shell (17). Divine Seal"],
-    ["Black Mage", "Nuker", "Stone (1), Poison (3), Blind (4), Water (5), Bind (7), Aero (9), Bio (10), Drain (12), Fire (13), Blizzard (17), Sleep (20). Elemental Seal, magic bursts"],
+    ["White Mage", "Healer", "Cure (1), Dia (3), Paralyze (4), Banish (5), Poisona (6), Protect and Protectra (7), Barstonra and Barsleepra, Barwatera and Paralyna (9), Aquaveil and Barpoisonra (10), Cure II (11), Slow (13), Baraera, Blindna (14), Deodorize (15), Shell and Shellra, Barfira (17), Blink and Silena (19), Sneak (20). Divine Seal"],
+    ["Black Mage", "Nuker", "Stone (1), Poison (3), Blind (4), Water (5), Bind (7), Aero (9), Bio (10), Drain (12), Fire (13), Blizzard (17), Warp (17: 100 MP, teleports you to your home point), Sleep (20). Elemental Seal, magic bursts"],
     ["Paladin (advanced)", "Tank", "Sword A, Cure (5), Banish (7), Protect (10), Cure II (17), Shell (20), Sentinel, Shield Bash, shields"],
-    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia (1), Cure (3), Stone (4), Poison (5), Paralyze (6), Protect, Water, Blind, Bind, Bio, Slow, Cure II (14), Aero, Fire (19), Convert"],
+    ["Red Mage (advanced)", "Hybrid", "Sword B, Dia (1), Cure (3), Stone (4), Poison (5), Paralyze (6), Protect, Barstone (5), Barsleep (7), Water, Blind, Bind, Bio, Barpoison (10), Aquaveil (12), Barparalyze, Slow, Cure II (14), Deodorize, Aero, Fire (19), Sneak (20), Convert"],
     ["Thief (advanced)", "Damage", "Dagger A, Steal, Sneak Attack (sure critical), Flee; +5% critical hits; Treasure Hunter (+20% drop chance)"],
     ["Ranger (advanced)", "Ranged damage", "Archery A: shoots from 230 range, Sharpshot (+40 accuracy), Barrage (next shot fires 3 arrows), Shadowbind (pin a monster for 12 s)"],
     ["Summoner (advanced)", "Pet mage", "Summoning A: the eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark) fight beside you and drain MP every 3 s; Blood Pact (the spirit's elemental attack), Elemental Siphon (MP back), Release"],
@@ -19132,7 +19225,7 @@ function tabHelp() {
   return h + "</div>";
 }
 
-const GAME_VERSION = "17.0.0";
+const GAME_VERSION = "17.1.0";
 const LATEST_URLS = ["version.json", "https://raw.githubusercontent.com/ianmcgo/Untitled-Solo-MMO/main/version.json"];
 const PLAY_URL = "https://ianmcgo.github.io/Untitled-Solo-MMO/";
 
