@@ -97,7 +97,9 @@ function* buildFieldSteps(zone) {
       const wob = (NOISE.fbm(into * 0.0045 + seedK, seedK * 1.7, 2, 0, 521) - 0.5) * 2 * lane0 * 0.7 * bend;
       const lane = lane0 * (1 + (NOISE.fbm(into * 0.008 + seedK * 2, seedK, 2, 0, 523) - 0.5) * 0.7 * bend);
       const lat = Math.abs((horiz ? py - cy : px - cx) - wob) + (NOISE.value(px * 0.035, py * 0.035, 0, 525) - 0.5) * 46 * bend;
-      if (along > -depth) m = Math.max(m, 1 - sstep(lane - 20, lane + 105, lat));
+      const spread = 170 + NOISE.fbm(into * 0.006 + seedK * 3, (horiz ? py : px) * 0.004, 3, 0, 527) * 230;
+      const k = 1 - sstep(lane - 15, lane + spread, lat);
+      if (along > -depth) m = Math.max(m, k * k * (3 - 2 * k) * 0.35 + k * 0.65);
     }
     return m;
   };
@@ -233,14 +235,15 @@ function cliffChunkGeo(seed) {
   let y = 0;
   for (let i = 0; i < layers; i++) {
     const h = 0.18 + rnd() * 0.22, w = 1.1 - i * 0.08 + (rnd() - 0.5) * 0.25, d = 0.9 - i * 0.05 + (rnd() - 0.5) * 0.25;
-    const g = new THREE.BoxGeometry(w * 2, h, d * 2, CS, 1, CS).toNonIndexed();
+    const g = new THREE.IcosahedronGeometry(1, CS > 2 ? 2 : 1);
+    g.scale(w, h * 0.75, d);
     g.translate((rnd() - 0.5) * 0.25, y + h / 2, (rnd() - 0.5) * 0.25);
     g.rotateY((rnd() - 0.5) * 0.3);
     const p = g.attributes.position, col = new Float32Array(p.count * 3), shade = 0.78 + rnd() * 0.3, warm = (rnd() - 0.5) * 0.08;
     for (let k = 0; k < p.count; k++) {
       const vx = p.getX(k), vy = p.getY(k), vz = p.getZ(k);
       const n = NOISE.value(vx * 2.3 + seed, vy * 2.3 + i, vz * 2.3, 517) - 0.5;
-      p.setXYZ(k, vx * (1 + n * 0.32), vy + n * 0.05, vz * (1 + n * 0.32));
+      p.setXYZ(k, vx * (1 + n * 0.45), vy + n * 0.09, vz * (1 + n * 0.45));
       const lip = vy > y + h * 0.8 ? 1.12 : vy < y + h * 0.2 ? 0.82 : 1;
       col[k * 3] = shade * lip * (1 + warm); col[k * 3 + 1] = shade * lip; col[k * 3 + 2] = shade * lip * (1 - warm);
     }
@@ -382,7 +385,7 @@ function buildProps(field, root) {
       const L = Math.hypot(bx - ax, by - ay); if (L < 1) continue;
       const nx = -(by - ay) / L, ny = (bx - ax) / L, off = P.w * (0.7 + rnd() * 0.3) * (rnd() < 0.5 ? -1 : 1);
       const px = ax + (bx - ax) * t + nx * off, py = ay + (by - ay) * t + ny * off;
-      if (!placeable(field, px, py, { water: 40, npc: 80, path: 0.3, exit: 200 })) continue;
+      if (!placeable(field, px, py, { water: 40, npc: 80, path: 0.3, exit: 420 }) || field.exitMask(px, py) > 0.02 || field.outsideE(px, py) > -80) continue;
       const broken = rnd() < 0.5;
       carts.push(mtx(px * U, field.heightAt(px, py) - (broken ? 0.18 : 0), py * U, 1, 1, 1, Math.atan2(by - ay, bx - ax) + (rnd() - 0.5) * 0.6, broken ? 0.18 : 0, broken ? 0.12 : 0));
       z.colliders && z.colliders.push({ x: px, y: py, r: 24 });
@@ -617,7 +620,7 @@ function buildVegetation(field, root) {
   for (let k = 0, tries = 0; k < want.rocks && tries < want.rocks * 30; tries++) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
-    if (e < -120 || e > 600 || field.exitMask(px, py) > 0.3) continue;
+    if (e < -120 || e > 600 || field.exitMask(px, py) > 0.1) continue;
     if (!placeable(field, px, py, { water: 30 })) continue;
     const s = 0.8 + rnd() * 2.6;
     const rsx = s * (0.8 + rnd() * 0.6), rsy = s * (0.5 + rnd() * 0.5), rsz = s * (0.8 + rnd() * 0.6);
@@ -1884,8 +1887,12 @@ function buildWater(field, root) {
       const sides = [[wt.x, 0, 0, -1], [wt.y, 1, 0, -1], [z.w - wt.x, 0, 1, 1], [z.h - wt.y, 1, 1, 1]].sort((a, b) => a[0] - b[0])[0];
       const dirX = sides[1] === 0 ? sides[3] : 0, dirY = sides[1] === 1 ? sides[3] : 0;
       const fx = wt.x + dirX * (wt.r + 10), fy = wt.y + dirY * (wt.r + 10);
-      const top = field.heightAt(fx + dirX * 140, fy + dirY * 140), base = field.waterLevel;
-      if (top - base > 2.5) {
+      const top = field.heightAt(fx + dirX * 40, fy + dirY * 40), base = field.waterLevel;
+      const midH = field.heightAt(fx + dirX * 22, fy + dirY * 22);
+      let nearExit = false;
+      for (const ex of z.exits || []) if (Math.hypot(fx - (ex.x + ex.w / 2), fy - (ex.y + ex.h / 2)) < 420) nearExit = true;
+      for (let k = 0; k <= 160; k += 20) if (field.exitMask(fx + dirX * k, fy + dirY * k) > 0.05) nearExit = true;
+      if (top - base > 2.5 && midH - base > (top - base) * 0.45 && !nearExit) {
         const hgt = top - base + 0.5, wid = 5;
         const ft = fallTex();
         const fg = new THREE.PlaneGeometry(wid, hgt, 1, 6);
@@ -1893,7 +1900,7 @@ function buildWater(field, root) {
         for (let i = 0; i < pa.count; i++) { const yy = pa.getY(i) / hgt + 0.5; pa.setZ(i, -Math.pow(1 - yy, 2) * 1.8); }
         const fmat = new THREE.MeshBasicMaterial({ map: ft, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide, fog: true });
         const fall = new THREE.Mesh(fg, fmat);
-        fall.position.set((fx + dirX * 18) * U, base + hgt / 2 - 0.2, (fy + dirY * 18) * U);
+        fall.position.set((fx + dirX * 16) * U, base + hgt / 2 - 0.2, (fy + dirY * 16) * U);
         fall.rotation.y = Math.atan2(dirX, dirY);
         fall.renderOrder = 3;
         root.add(fall);
@@ -2033,7 +2040,7 @@ function initRenderer() {
   W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(0.5), transparent: true, depthWrite: false, fog: false }));
   W3.moonDisc.scale.setScalar(50);
   W3.scene.add(W3.moonDisc);
-  const hz = new THREE.CylinderGeometry(1150, 1150, 320, 48, 1, true);
+  const hz = new THREE.CylinderGeometry(1150, 1150, 400, 48, 1, true);
   W3.haze = new THREE.Mesh(hz, new THREE.MeshBasicMaterial({ map: hazeTex(), transparent: true, depthWrite: false, fog: false, side: THREE.BackSide }));
   W3.haze.renderOrder = -1;
   W3.scene.add(W3.haze);
@@ -2195,8 +2202,13 @@ function exitRidgeTex(destZone) {
 }
 function buildExitBackdrops(field, root) {
   const z = field.zone;
+  W3.hazeY = null;
   if (z.indoor || themeOf(z) === "house") return;
   W3.exitPanels = [];
+  const hs = [];
+  for (const ex of z.exits || []) if (exitEdgeAngle(ex, z) != null) hs.push(field.heightAt(ex.x + ex.w / 2, ex.y + ex.h / 2));
+  W3.hazeY = hs.length ? Math.min(...hs) : null;
+  if (!CONFIG.exitPanels) return;
   for (const ex of z.exits || []) {
     const a = typeof exitEdgeAngle === "function" ? exitEdgeAngle(ex, z) : null;
     const dest = ZONES[ex.to];
@@ -2228,15 +2240,15 @@ function buildBackdrop(field, root) {
   const lowY = es / en - 6;
   let topY = -1e9; for (const v of field.data) if (v > topY) topY = v;
   for (let L = 0; L < 3; L++) {
-    const N = 128, R = radii[L], pos = [], idx = [], col = [];
+    const N = 384, R = radii[L], pos = [], idx = [], col = [];
 
     for (let i = 0; i <= N; i++) {
       const a = i / N * Math.PI * 2;
-      let h = B.h[L] * (0.45 + 0.55 * NOISE.fbm(Math.cos(a) * 3 + L * 7, Math.sin(a) * 3 + seed % 97, 4, 0, seed + L));
+      let h = B.h[L] * (0.3 + 0.5 * NOISE.fbm(Math.cos(a) * 3 + L * 7, Math.sin(a) * 3 + seed % 97, 4, 0, seed + L) + 0.35 * NOISE.ridge(Math.cos(a) * 11 + L * 5, Math.sin(a) * 11 + seed % 89, 4, 0, seed + L + 9));
       h += Math.max(0, topY - lowY) * (R / half) * 0.9;
       if (B.sea && Math.sin(a + seed) > 0.55) h *= 0.18;
       const x = cx + Math.cos(a) * R, z = cz + Math.sin(a) * R;
-      pos.push(x, lowY, z, x, lowY + h, z);
+      pos.push(x, lowY - 400, z, x, lowY + h, z);
       const tk = B.snow && h > B.h[L] * 0.62 ? 1 : 0.88;
       col.push(0.74, 0.74, 0.74, tk, tk, tk);
       if (i < N) { const k = i * 2; idx.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); }
@@ -2322,10 +2334,10 @@ function moonTex(phase) {
   return t;
 }
 function hazeTex() {
-  const c = document.createElement("canvas"); c.width = 4; c.height = 128;
-  const g = c.getContext("2d"), gr = g.createLinearGradient(0, 0, 0, 128);
-  gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.45, "rgba(255,255,255,.25)"); gr.addColorStop(0.75, "rgba(255,255,255,.75)"); gr.addColorStop(1, "rgba(255,255,255,.95)");
-  g.fillStyle = gr; g.fillRect(0, 0, 4, 128);
+  const c = document.createElement("canvas"); c.width = 4; c.height = 1024;
+  const g = c.getContext("2d"), gr = g.createLinearGradient(0, 0, 0, 1024);
+  gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.08, "rgba(255,255,255,0)"); gr.addColorStop(0.095, "rgba(255,255,255,.35)"); gr.addColorStop(0.11, "rgba(255,255,255,.85)"); gr.addColorStop(0.13, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,1)");
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 1024);
   return new THREE.CanvasTexture(c);
 }
 function skyColors(sunY) {
@@ -2509,7 +2521,7 @@ function updateSky(force) {
   const atm = zkey(ATMOS, S.zoneId) || null;
   for (const o of [W3.clouds2, W3.sunGlow, W3.sunDisc, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
   if (W3.clouds2) { W3.clouds2.position.x = W3.camera.position.x; W3.clouds2.position.z = W3.camera.position.z; }
-  if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.camera.position.y - 20, W3.camera.position.z); }
+  if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.hazeY != null ? W3.hazeY - 160 : W3.camera.position.y - 175, W3.camera.position.z); }
   W3.stars.rotation.y = v.frac * Math.PI * 2;
   const wx = !cave && !indoor && typeof weatherNow === "function" ? weatherNow() : null;
   const snowy = wx === "snow" || wx === "blizzard";

@@ -2449,7 +2449,7 @@ const POI_LORE = {
 const POI_IDS = [];
 function poiSpot(z, cx, cy, rad) {
   const segD = (px, py, a) => { const dx = a[2] - a[0], dy = a[3] - a[1], l = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / l)); return Math.hypot(px - a[0] - dx * t, py - a[1] - dy * t); };
-  const ok = (x, y) => x > 160 && y > 160 && x < z.w - 160 && y < z.h - 160 && !(z.walls || []).some(q => x > q.x - 70 && x < q.x + q.w + 70 && y > q.y - 70 && y < q.y + q.h + 70) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 70) && !((z.ruins && z.ruins.walls) || []).some(a => segD(x, y, a) < 90) && !(z.spawns || []).some(sp => Math.hypot(sp.x - x, sp.y - y) < 110) && !(z.npcs || []).some(n => Math.hypot(n.x - x, n.y - y) < 140);
+  const ok = (x, y) => x > 260 && y > 260 && x < z.w - 260 && y < z.h - 260 && !(z.exits || []).some(e => e.kind !== "door" && Math.hypot(x - e.x - e.w / 2, y - e.y - e.h / 2) < 480) && !(z.walls || []).some(q => x > q.x - 70 && x < q.x + q.w + 70 && y > q.y - 70 && y < q.y + q.h + 70) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 70) && !((z.ruins && z.ruins.walls) || []).some(a => segD(x, y, a) < 90) && !(z.spawns || []).some(sp => Math.hypot(sp.x - x, sp.y - y) < 110) && !(z.npcs || []).some(n => Math.hypot(n.x - x, n.y - y) < 140);
   for (let k = 0; k < 64; k++) { const a = k * 2.4, r = rad * (0.5 + (k % 8) / 8); const x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r); if (ok(x, y)) return { x, y }; }
   return null;
 }
