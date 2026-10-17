@@ -1692,6 +1692,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.56.0", date: "2026-10-16", title: "Distant hills through every pass", items: [
+    "<b>Looking out through any pass you now see layered hills</b> fading into the mist, instead of a flat grey wall with a straight edge. The distant hill rings dip at each exit so their jagged skyline shows through the gap, and they shade from darker at the foot to hazier at the top.",
+    "The haze beyond each area fades in more gradually, so there is no hard line where it starts.",
+    "Every outdoor exit in all 15 outdoor areas and towns was checked for floating scenery; none was found."
+  ]},
   { v: "18.55.0", date: "2026-10-16", title: "Rugged mountain passes", items: [
     "<b>The slopes either side of every pass are rougher:</b> uneven ledges and shelves step up the hillside, the ground is lumpy instead of smooth, and boulders of different sizes sit half-buried along the slopes."
   ]},
