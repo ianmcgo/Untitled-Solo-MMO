@@ -2262,19 +2262,29 @@ function buildBackdrop(field, root) {
   for (let j = 0; j < field.rows; j++) { es += field.data[j * field.cols] + field.data[j * field.cols + field.cols - 1]; en += 2; }
   const lowY = es / en - 6;
   let topY = -1e9; for (const v of field.data) if (v > topY) topY = v;
+  const gaps = [];
+  for (const ex of S.zone.exits || []) {
+    if (typeof exitEdgeAngle !== "function" || exitEdgeAngle(ex, S.zone) == null) continue;
+    const ex0 = (ex.x + ex.w / 2) * U, ez0 = (ex.y + ex.h / 2) * U;
+    gaps.push({ a: Math.atan2(ez0 - cz, ex0 - cx), floor: field.heightAt(ex.x + ex.w / 2, ex.y + ex.h / 2), d: Math.hypot(ex0 - cx, ez0 - cz) });
+  }
   for (let L = 0; L < 3; L++) {
     const N = 384, R = radii[L], pos = [], idx = [], col = [];
 
     for (let i = 0; i <= N; i++) {
       const a = i / N * Math.PI * 2;
       let h = B.h[L] * (0.3 + 0.5 * NOISE.fbm(Math.cos(a) * 3 + L * 7, Math.sin(a) * 3 + seed % 97, 4, 0, seed + L) + 0.35 * NOISE.ridge(Math.cos(a) * 11 + L * 5, Math.sin(a) * 11 + seed % 89, 4, 0, seed + L + 9));
+      const hill = h;
       h += Math.max(0, topY - lowY) * (R / half) * 0.9;
+      let gw = 0, gf = lowY;
+      for (const gp of gaps) { const da = Math.atan2(Math.sin(a - gp.a), Math.cos(a - gp.a)), wid = Math.atan2(70, Math.max(1, R - gp.d * 0.5)) * (1 + 0.25 * L); const k = Math.exp(-(da * da) / (2 * wid * wid)); if (k > gw) { gw = k; gf = gp.floor; } }
+      if (gw > 0.01) h = h * (1 - gw) + (gf - lowY + hill * (0.35 + 0.25 * L) + 2 + L * 4) * gw;
       if (B.sea && Math.sin(a + seed) > 0.55) h *= 0.18;
-      const x = cx + Math.cos(a) * R, z = cz + Math.sin(a) * R;
-      pos.push(x, lowY - 400, z, x, lowY + h, z);
-      const tk = B.snow && h > B.h[L] * 0.62 ? 1 : 0.88;
-      col.push(0.74, 0.74, 0.74, tk, tk, tk);
-      if (i < N) { const k = i * 2; idx.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); }
+      const x = cx + Math.cos(a) * R, z = cz + Math.sin(a) * R, foot = Math.min(lowY + h * 0.35, lowY + (gf - lowY) * gw + 4);
+      pos.push(x, lowY - 400, z, x, foot, z, x, lowY + h, z);
+      const tk = B.snow && h > B.h[L] * 0.62 ? 1 : 0.95;
+      col.push(0.6, 0.6, 0.6, 0.66, 0.66, 0.66, tk, tk, tk);
+      if (i < N) { const k = i * 3; idx.push(k, k + 3, k + 1, k + 1, k + 3, k + 4, k + 1, k + 4, k + 2, k + 2, k + 4, k + 5); }
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -2359,7 +2369,7 @@ function moonTex(phase) {
 function hazeTex() {
   const c = document.createElement("canvas"); c.width = 4; c.height = 1024;
   const g = c.getContext("2d"), gr = g.createLinearGradient(0, 0, 0, 1024);
-  gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.08, "rgba(255,255,255,0)"); gr.addColorStop(0.095, "rgba(255,255,255,.35)"); gr.addColorStop(0.11, "rgba(255,255,255,.85)"); gr.addColorStop(0.13, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,1)");
+  gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.425, "rgba(255,255,255,0)"); gr.addColorStop(0.525, "rgba(255,255,255,.35)"); gr.addColorStop(0.625, "rgba(255,255,255,.85)"); gr.addColorStop(0.7, "rgba(255,255,255,1)"); gr.addColorStop(1, "rgba(255,255,255,1)");
   g.fillStyle = gr; g.fillRect(0, 0, 4, 1024);
   return new THREE.CanvasTexture(c);
 }
@@ -2544,7 +2554,7 @@ function updateSky(force) {
   const atm = zkey(ATMOS, S.zoneId) || null;
   for (const o of [W3.clouds2, W3.sunGlow, W3.sunDisc, W3.moonDisc, W3.haze]) if (o) o.visible = !cave && !indoor;
   if (W3.clouds2) { W3.clouds2.position.x = W3.camera.position.x; W3.clouds2.position.z = W3.camera.position.z; }
-  if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.hazeY != null ? W3.hazeY - 160 : W3.camera.position.y - 175, W3.camera.position.z); }
+  if (W3.haze) { W3.haze.position.set(W3.camera.position.x, W3.hazeY != null ? W3.hazeY + 40 : W3.camera.position.y - 25, W3.camera.position.z); }
   W3.stars.rotation.y = v.frac * Math.PI * 2;
   const wx = !cave && !indoor && typeof weatherNow === "function" ? weatherNow() : null;
   const snowy = wx === "snow" || wx === "blizzard";

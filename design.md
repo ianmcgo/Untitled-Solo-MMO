@@ -2101,7 +2101,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 
 ## 18.50.0 Natural exits, low haze (exit phase 1 + part of phase 2)
-- Haze cylinder (W3.haze) is world-anchored: buildExitBackdrops sets W3.hazeY = lowest ground height at edge exits; haze centre = hazeY - 160, height 400, texture 1024 tall, clear above hazeY+8, opaque by hazeY-12. Falls back to camera y - 175 when a zone has no edge exits.
+- Haze cylinder (W3.haze) is world-anchored: buildExitBackdrops sets W3.hazeY = lowest ground height at edge exits; haze centre = hazeY + 40 (since 18.56.0), height 400, texture 1024 tall, clear above hazeY+70, 0.35 at +30, 0.85 at -10, opaque by hazeY-40. Falls back to camera y - 175 when a zone has no edge exits.
 - exitMask lateral falloff widened from fixed 125 to lane-15..lane+spread, spread = 170 + fbm*230 (seed 527), with a softened curve; gives sloped, varying pass sides.
 - cliffChunkGeo uses noisy icosahedra (scaled w, h*0.75, d) instead of boxes; noise 0.45 lateral.
 - Waterfalls need steep terrain within 22-40 units behind the lake edge, no exit within 420 and exitMask < 0.05 along 160 units.
@@ -2145,3 +2145,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.55.0 Rugged mountain passes (exit plan phase 2 finish)
 - buildFieldSteps raw(): for the edge-mountain term, where 0.02 < exitMask < 0.995 a band weight sin(pi*min(1, em*1.15)) * sstep(-140, 40, outsideE) blends the height toward terraces (step = amps[2]*(0.16 + 0.1*value noise 531), soft riser via sstep(0.55, 1, frac)) at 55% and adds lumps (fbm 533 and ridge 535), only where the mountain is already over ~0.5 high. Result: ledges and bumps on pass sides, pass floor untouched.
 - buildVegetation: pass boulders, 34 per non-door exit, placed within 450 of the exit centre where 0.12 <= exitMask <= 0.88 and outsideE > -160, off paths; sunk by footY minus 0.3*size, tilted slightly, with colliders. Uses the shared rock instanced mesh.
+
+
+## 18.56.0 Distant hills through every pass (exit plan phase 3)
+- buildBackdrop: gaps[] = one entry per edge exit (angle from the backdrop centre, floor height at the exit, distance). For each ring vertex a Gaussian window (width atan2(70, R - d/2) * (1 + 0.25*layer)) lowers the ring from its full height (which clears the tallest zone mountain) to gapFloor - lowY + hill*(0.35 + 0.25*layer) + 2 + 4*layer, so each layer's jagged skyline shows through the pass and the layers step back.
+- Ring strips now have three rows (lowY-400, a foot row near the gap floor, top) with vertex colours 0.6 / 0.66 / 0.95, giving a darker foot and lighter top before the fog tint in updateBackdrop.
+- Haze gradient softened (see the 18.50.0 note).
+- Exit audit (Playwright, noon, 40 units inside each edge exit looking out): outpost, hollow, hollow_lake, hollow_ruins, harbor, frost, marsh, ironvale, sunscar, cinder, verdant, mirage, highlands, highlands_plateau, highlands_ridge. No floating props found. Caves and crypts have no outdoor haze or backdrop and were not shot. Scratch script: shots2.js in the scratchpad (args: zones, out prefix, distance back, pitch, camera distance, yaw offset); it sets S.timeShift to noon.
