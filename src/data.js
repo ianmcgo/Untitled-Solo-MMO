@@ -747,7 +747,7 @@ const TURNIP_ROWS = [
   ["turnip_sword", "Turnip Sword", "🗡️", "sword", 5, 2.28, ["WAR", "RDM", "THF", "PLD", "DRK", "BST", "BRD", "RNG", "NIN", "DRG", "BLU", "COR", "RUN"]],
   ["turnip_knife", "Turnip Knife", "🔪", "dagger", 4, 2.05, ["WAR", "THF", "PLD", "DRK", "BRD", "RNG", "SAM", "NIN", "DRG", "COR", "PUP", "DNC"]],
   ["turnip_rod", "Turnip Rod", "🏏", "club", 3, 2.88, ["WHM", "BLM", "SMN", "SCH", "GEO"]],
-  ["turnip_staff", "Turnip Staff", "🦯", "staff", 3, 2.88, ["WHM", "BLM", "SMN", "SCH", "GEO"]]
+  ["turnip_staff", "Turnip Staff", "🦯", "staff", 4, 3.66, ["WAR", "MNK", "WHM", "BLM", "RDM", "BST", "BRD", "SMN", "SCH", "GEO"]]
 ];
 for (const [id, name, icon, wtype, dmg, delay, jobs] of TURNIP_ROWS) GEAR_DATA[id] = { name, kind: "equip", icon, slot: "main", wtype, dmg, delay, jobs, lv: 1, price: 10, src: "race", starter: true };
 const STARTER_WEAPON = { WAR: "turnip_sword", THF: "turnip_knife", WHM: "turnip_rod", BLM: "turnip_staff" };

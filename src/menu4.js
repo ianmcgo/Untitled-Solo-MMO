@@ -1692,6 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.63.1", date: "2026-10-17", title: "Turnip Staff stats", items: [
+    "Turnip Staff now has DMG 4, delay 366 and can be used by War, Mnk, Whm, Blm, Rdm, Bst, Brd, Smn, Sch and Geo."
+  ]},
   { v: "18.63.0", date: "2026-10-17", title: "Turnip starters", items: [
     "<b>New starting weapons.</b> Warriors start with a Turnip Sword, Thieves with a Turnip Knife, White Mages with a Turnip Rod and Black Mages with a Turnip Staff. They cannot be bought, sold at auction, dropped or crafted.",
     "<b>No starting helmet.</b> New characters begin with no head armor.",

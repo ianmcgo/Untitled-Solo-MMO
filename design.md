@@ -2193,8 +2193,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - applyUnderwear no longer special-cases `L.doll`: all women get bikini and thong. The bandeau and brief branches in humanEntry (and the brief leg shell) are now unused by the look code.
 
 ## 18.63.0 Turnip starters
-- data.js `TURNIP_ROWS` adds turnip_sword (sword 5/2.28), turnip_knife (dagger 4/2.05), turnip_rod (club 3/2.88), turnip_staff (staff 3/2.88, stats guessed). Jobs lists copied from the reference images; rod and staff share WHM BLM SMN SCH GEO. `src: "race"` plus `starter: true` keeps them out of shops, drops, recipes and autoGear; ahTradable excludes `starter`.
+- data.js `TURNIP_ROWS` adds turnip_sword (sword 5/2.28), turnip_knife (dagger 4/2.05), turnip_rod (club 3/2.88), turnip_staff (staff 4/3.66, from reference image). Jobs lists copied from the reference images; rod and staff share WHM BLM SMN SCH GEO. `src: "race"` plus `starter: true` keeps them out of shops, drops, recipes and autoGear; ahTradable excludes `starter`.
 - `starterWeapon(job)`: WAR sword, THF knife, WHM rod, BLM staff, every other job still bronze_sword (unspecified, easy to extend via STARTER_WEAPON).
 - createChar sets `d.gear = { main }` then body and legs, so no head slot. newSave default gear drops the cap. main4 STARTER_GEAR is built from starterWeapon.
 - SETTINGS_DEFAULT.attire is now "gear" (show worn armor). Saved settings override it, so existing players keep their choice. Underwear logic applies in both attire modes.
 - test/p63unit.js covers the starters, no helmet, exclusion from shop, auction, drops and recipes.
+
+## 18.63.1 Turnip Staff stats
+- turnip_staff set to DMG 4, delay 3.66, jobs WAR MNK WHM BLM RDM BST BRD SMN SCH GEO per the reference image (was guessed).
