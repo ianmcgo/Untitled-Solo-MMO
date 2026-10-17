@@ -2316,11 +2316,11 @@ const VENDOR_ROLES = {
   jeweler: { title: "Jeweler", test: it => it.kind === "equip" && (it.slot === "ring" || it.slot === "neck"), work: "count", held: "book", hello: "Rings and pendants, cut and set by hand. A little sparkle goes a long way." }
 };
 const VENDOR_STOCK = 10, VENDOR_MAXLV = 5;
-const VENDOR_SOURCE = (() => { return SHOP.concat(SHOPS.marn, SHOPS.vela).filter(id => ITEMS[id] && !ITEMS[id].hq).filter((id, i, a) => a.indexOf(id) === i); })();
+const VENDOR_SOURCE = SHOP.concat(SHOPS.marn).filter(id => ITEMS[id] && !ITEMS[id].hq).filter((id, i, a) => a.indexOf(id) === i);
+const VENDOR_JEWEL_MAXLV = 14;
+const VENDOR_SOURCE_JEWEL = VENDOR_SOURCE.concat(SHOPS.vela.filter(id => ITEMS[id] && !ITEMS[id].hq && ITEMS[id].kind === "equip" && (ITEMS[id].slot === "ring" || ITEMS[id].slot === "neck")));
 const VENDOR_POOL = {};
-for (const r in VENDOR_ROLES) VENDOR_POOL[r] = VENDOR_SOURCE.filter(id => (ITEMS[id].lv || 0) <= VENDOR_MAXLV && VENDOR_ROLES[r].test(ITEMS[id]));
-const VENDOR_FILL = {};
-for (const r in VENDOR_ROLES) VENDOR_FILL[r] = VENDOR_SOURCE.filter(id => (ITEMS[id].lv || 0) > VENDOR_MAXLV && VENDOR_ROLES[r].test(ITEMS[id])).sort((a, b) => (ITEMS[a].lv || 0) - (ITEMS[b].lv || 0) || ITEMS[a].price - ITEMS[b].price);
+for (const r in VENDOR_ROLES) VENDOR_POOL[r] = (r === "jeweler" ? VENDOR_SOURCE_JEWEL : VENDOR_SOURCE).filter(id => (ITEMS[id].lv || 0) <= (r === "jeweler" ? VENDOR_JEWEL_MAXLV : VENDOR_MAXLV) && VENDOR_ROLES[r].test(ITEMS[id]));
 const VENDOR_TOWNS = {
   outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, at: [[700, 705], [775, 705], [850, 705], [700, 770], [775, 770], [850, 770]] },
   harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, at: [[700, 765], [780, 765], [860, 765], [940, 765], [1020, 765], [1100, 765]] },

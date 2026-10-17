@@ -2087,7 +2087,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.47.0 Treasure pool window style
 - template4.html: #pool no longer has the glass class; override rules after the phone media rule give it the FF panel look (var(--ffStripe) background, var(--ffEdge) border, ffHead-style title, italic row text, gradient pill buttons; .pri uses the bright command gradient). hud4.js header is now <div class="ph"><span>Treasure Pool</span></div>. Position rules are unchanged.
 
-## 18.48.0 Vela removed, vendor fill
-- Vela (NPC, look, talk, zone entry) removed; her building is signed Outfitters Hall. SHOPS.vela remains as a data list only, used as vendor source.
-- VENDOR_SOURCE = SHOP + SHOPS.marn + SHOPS.vela, hq excluded, recipes included (spellsmith test now spell or recipe). VENDOR_POOL = level <= 5, VENDOR_FILL = the rest sorted by level then price. vendorStock takes up to 10 from the shuffled pool, then tops up from VENDOR_FILL in order, so every vendor shows 10 (jeweler: 4 rings at level <= 5, then level 7 to 11 shop-sold rings and collars). Quartermaster pool also gets Vela's no-level consumables (X-Potion, Hi-Ether, Super Ether, Reraiser, Chapel Sigil).
-- Items with the lowest requirement above 5 are the reason the jeweler had 4: most rings are level 7 or 14 in the item data.
+## 18.48.0 Vela removed, strict vendor levels
+- Vela (NPC, look, talk, zone entry) removed; her building is signed Outfitters Hall. SHOPS.vela remains as a data list; only its rings and necklaces feed the jeweler.
+- VENDOR_SOURCE = SHOP + SHOPS.marn without hq. Every vendor pool is level <= VENDOR_MAXLV (5), except the jeweler: VENDOR_SOURCE_JEWEL (adds Vela's rings and necklaces) up to VENDOR_JEWEL_MAXLV (14), about 28 items, so his 10 are really random. Vendors with fewer than 10 at their cap show fewer. The spellsmith test is spell or recipe.
+- Level data behind this: shop rings and necklaces are level 1 (4 items), 7 (4), 10 (1), 11 (1) and 14 (18). Level 7 gives 8, level 11 gives exactly 10 (no randomness), level 14 gives 28.
+- Chapel Sigil, X-Potion, Hi-Ether, Super Ether and Reraiser are no longer sold by anyone (Chapel Sigil still drops from the Drowned).
