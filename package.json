@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.47.0",
-  "releaseTitle": "Treasure pool matches the windows",
+  "version": "18.48.0",
+  "releaseTitle": "Vela retires, vendors always have 10 items",
   "description": "",
   "main": "index.js",
   "scripts": {

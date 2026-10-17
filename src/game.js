@@ -5594,7 +5594,7 @@ const TALK = {
   },
   talkChapelDoor(n) {
     const have = invCount("chapel_sigil");
-    openDialog(n.name, "A sealed door half-sunk in black water. A socket in the stone is shaped like a sigil. Something vast breathes beyond it." + (have ? " You carry " + have + " Chapel Sigil" + (have > 1 ? "s" : "") + "." : " You need a Chapel Sigil. The Drowned sometimes carry them, and Vela in Saltreach sells them."), have ? [
+    openDialog(n.name, "A sealed door half-sunk in black water. A socket in the stone is shaped like a sigil. Something vast breathes beyond it." + (have ? " You carry " + have + " Chapel Sigil" + (have > 1 ? "s" : "") + "." : " You need a Chapel Sigil. The Drowned sometimes carry them,."), have ? [
       { label: "Use a Chapel Sigil and enter (" + BATTLEFIELD.minutes + "-minute battle)", fn: () => { closeDialog(); const why = enterBattlefield(); if (why) { log(why, "sys"); sfx("error"); } } }
     ] : []);
   },
@@ -5650,11 +5650,6 @@ const TALK = {
     openDialog(n.name, "Fresh off the boats! Rods, bait, flour and salt, and a hot meal if you're hungry. I'll buy your catch too.", [
       { label: "Trade", fn: () => { closeDialog(); S.shopKind = "marn"; openModal("shop"); } }
     ].concat(questOptions("marn", n)));
-  },
-  talkVela(n) {
-    openDialog(n.name, "Harbor-forged steel and sailcloth. Lighter than what they sell up the road, and tougher. Not cheap, mind.", [
-      { label: "Trade", fn: () => { closeDialog(); S.shopKind = "vela"; openModal("shop"); } }
-    ]);
   },
   talkVendor(n) {
     const role = NPCS[n.id].shop, R = VENDOR_ROLES[role];
@@ -6103,7 +6098,9 @@ function shopListFor(kind) { return kind === "furniture" ? FURNITURE_SHOP.slice(
 function vendorStock(role, town) {
   const pool = (VENDOR_POOL[role] || []).slice(), r = seeded(hashStr("vendor:" + town + ":" + role + ":" + boardDay()));
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
-  return pool.slice(0, VENDOR_STOCK).sort((a, b) => ITEMS[a].price - ITEMS[b].price);
+  const out = pool.slice(0, VENDOR_STOCK);
+  for (const id of VENDOR_FILL[role] || []) { if (out.length >= VENDOR_STOCK) break; if (!out.includes(id)) out.push(id); }
+  return out.sort((a, b) => ITEMS[a].price - ITEMS[b].price);
 }
 
 function shopList(kind) {

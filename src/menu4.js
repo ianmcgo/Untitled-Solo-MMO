@@ -1692,6 +1692,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.48.0", date: "2026-10-16", title: "Vela retires, vendors always have 10 items", items: [
+    "<b>Vela is gone.</b> The level 6 to 20 gear, scrolls, recipes, potions and Chapel Sigils she sold now turn up at the town vendors instead.",
+    "<b>Vendors always carry 10 items.</b> If a trade has fewer than 10 items at level 5 or lower (there are only 4 rings and necklaces that low), the lowest-level items above that fill the shelf, so the Jeweler now also stocks level 7 to 11 rings and collars.",
+    "Spellsmiths now sell recipe scrolls as well as spell scrolls, and Quartermasters can stock X-Potions, Hi-Ethers, Super Ethers, Reraisers and Chapel Sigils."
+  ]},
   { v: "18.47.0", date: "2026-10-16", title: "Treasure pool matches the game's windows", items: [
     "<b>The treasure pool panel now uses the same window style as the rest of the game</b>: striped blue background, light edge, a centred title bar, italic item names and rounded Lot and Pass buttons."
   ]},
@@ -3214,7 +3219,7 @@ function tabHelp() {
   ]));
   h += sec("🚶 City life", ul([
     "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
-    "<b>Vendors:</b> every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. Anything higher is at Vela in Saltreach, Haldor in Ironvale, the auction house, or from crafters.",
+    "<b>Vendors:</b> every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. If a vendor has fewer than 10 items at level 5 or lower, the next-lowest-level items fill the shelf. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
     "Tour quests: Hale the Tradesman (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([
@@ -3222,7 +3227,7 @@ function tabHelp() {
   ]));
   h += sec("💀 Falling and reviving", ul([
     "A hireling who falls stays where they died for an hour. They do not follow you through gates or zone changes, and returning to your home point does not heal them. Walk back before the hour ends or they leave the party. There is no Raise spell in this version.",
-    "<b>Reraise:</b> a <b>Reraiser</b> (Vela's market) puts a Reraise effect on you for an hour. If you fall while it lasts, you stand back up at once with half your HP (Hi-Reraiser and Super Reraiser: full HP) and no experience loss."
+    "<b>Reraise:</b> a <b>Reraiser</b> (a Quartermaster sometimes stocks it) puts a Reraise effect on you for an hour. If you fall while it lasts, you stand back up at once with half your HP (Hi-Reraiser and Super Reraiser: full HP) and no experience loss."
   ]));
   h += sec("📴 Offline play", ul([
     "Offline play asks for the email and password of your online account each time you start the game. It is checked with the server once, then remembered on that device so it works with no connection afterwards.",
@@ -3342,7 +3347,7 @@ function tabHelp() {
     ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
-    ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), an auction kiosk, a job master and a stablemaster, home point, trade board, docks"],
+    ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), an auction kiosk, a job master and a stablemaster, home point, trade board, docks"],
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
     ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"],
     ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the smith (high-quality +1 gear, level 14 and up), an auction kiosk, a job master and a stablemaster, home point, trade board"],
@@ -3398,7 +3403,7 @@ function tabHelp() {
     "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."
   ]));
   h += sec("🔱 Battlefield: the Chapel Depths", ul([
-    "A sealed door stands in the Drowned Chapel ruins of the Ashen Marsh. A <b>Chapel Sigil</b> opens it (the Drowned sometimes carry one; Vela in Saltreach sells them). The sigil is used up when you enter.",
+    "A sealed door stands in the Drowned Chapel ruins of the Ashen Marsh. A <b>Chapel Sigil</b> opens it (the Drowned sometimes carry one, and Quartermasters sometimes stock them). The sigil is used up when you enter.",
     "Inside, defeat the <b>Tidebound Priest</b> (level 16 boss) within " + BATTLEFIELD.minutes + " minutes. At 65% HP it raises two Drowned; below half it casts Maelstrom on everyone near it every 22 seconds; below 20% it enrages. It never leashes inside the chapel.",
     "Victory: " + BATTLEFIELD.gil + " crystals, " + BATTLEFIELD.xp + " XP and one treasure you don't own yet: Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle or Tidebreaker Bow. Leaving, wiping or running out of time ends the attempt.",
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
@@ -3440,12 +3445,12 @@ function tabHelp() {
     "<b>Snow Hares</b> are peaceful (by day). <b>Ice Bats</b> hear you and hunt in packs at night. <b>Frost Goblins</b> see a long way across the snow and call each other. <b>Glacier Worms</b> sense magic. At night <b>Ice Wights</b> rise at the cairns and smell weakness. Everything here is weak to fire.",
     "Notorious monsters: <b>Rimefang</b> (Icefall Camp, any time; drops Rimefang's Axe and the Frost Ring) and <b>The Frost Wight</b> (Whispering Cairns, at night; drops the Wight Shroud and the Frost Ring).",
     "Quest: Ilsa's <i>Frozen Cargo</i> (level 16, 6 Frost Goblins, rewards a Fur Hat).",
-    "Frost Shards drop from the pass's monsters. Vela in Saltreach now sells level 16–17 Frostforged gear and the Fur Hat."
+    "Frost Shards drop from the pass's monsters."
   ]));
   h += sec("⚓ Saltreach Harbor", ul([
     "A second town, through the south exit of the Ashen Marsh. You can set your home point at its crystal.",
     "<b>Ilsa</b>, the harbor master: <i>Catch of the Day</i> (level 6, 3 Harbor Bream → Sea Rod) and <i>Salt and Steel</i> (level 12, 5 Mire Goblins → Tide Ring).",
-    "<b>Marn</b> sells rods (the Sea Rod adds 10% to your catch rate), bait, flour, salt, ready meals and potions. <b>Vela</b> sells level 13–14 weapons and armor for every job.",
+    "<b>Marn</b> sells rods (the Sea Rod adds 10% to your catch rate), bait, flour, salt, ready meals and potions.",
     "Fish from the docks: Harbor Bream, Sea Bass and the rare Tidecaller Tuna. Sea Bass cooks into Grilled Sea Bass (Cooking 12)."
   ]));
   h += sec("🐸 The Ashen Marsh", ul([
@@ -3453,7 +3458,7 @@ function tabHelp() {
     "<b>Bog Toads</b> hear footsteps. <b>Bog Leeches</b> taste magic and blood (they come for casters and the wounded). <b>Mire Goblins</b> see far and call each other. At night the <b>Drowned</b> rise around the chapel. <b>Reed Hares</b> are peaceful.",
     "Notorious monsters: <b>Old Croaker</b> (Croaker's Pool, by day; drops the Croaker Charm) and <b>Mirelord Gax</b> (Mire Village; drops Gax's Cleaver and the Mire Mantle).",
     "Quests: Captain Rhea's <i>Into the Mire</i> (level 10, 6 Bog Toads, rewards Marsh Boots) and Brann's <i>The Mirelord</i> (level 13).",
-    "Gathering: iron-rich ore, willow logs and Mire Reeds. Vela sells plain gear for levels 11 to 20."
+    "Gathering: iron-rich ore, willow logs and Mire Reeds."
   ]));
   h += sec("🏚️ The Sunken Crypt", ul([
     "Enter from the Bone Pit at the bottom of the Goblin Den. Bring a full party of level 9 or higher.",
@@ -3536,7 +3541,7 @@ function tabHelp() {
     "A point runs dry after 1–3 uses and a new one appears elsewhere 45 seconds later. Gathering raises its own skill, up to 20."
   ]));
   h += sec("⚒️ Crafting", ul([
-    "<b>Recipes are learned from Recipe scrolls.</b> You start knowing only the basic materials (Bronze Ingot, Ash Lumber, Silk Cloth, Potion, Grilled Minnow). Recipe scrolls are sold by Vela in Saltreach. Rare recipes for gear that can come out as the +1 version drop rarely from monsters of about the right level (notorious monsters and bosses more often) or come as quest rewards. Read a scroll with Use from Items.",
+    "<b>Recipes are learned from Recipe scrolls.</b> You start knowing only the basic materials (Bronze Ingot, Ash Lumber, Silk Cloth, Potion, Grilled Minnow). Spellsmiths sell recipe scrolls along with spell scrolls. Rare recipes for gear that can come out as the +1 version drop rarely from monsters of about the right level (notorious monsters and bosses more often) or come as quest rewards. Read a scroll with Use from Items.",
     "Open the Crafting window (N, or /craft). Put an essence in the big slot on the left and up to 8 ingredients in the small slots by tapping them in your bag. The right side lists what that combination can make; ★ means the combination is exact. Press OK to craft, Cancel to clear. Tapping a result fills in the slots for you when you have the ingredients. Recipe notes lists every recipe you can learn. It takes " + CONFIG.synthTime + " seconds and works anywhere outside combat; being attacked interrupts it.",
     "Each craft uses one elemental essence: Fire for Smithing and Cooking, Wind for Woodworking, Earth for Clothcraft, Water for Alchemy.",
     "Success starts at 65% when your skill equals the recipe level and moves 7% per level (5–95%). Each level above the recipe adds 5% chance of a high-quality +1 item, up to 50%. A failure uses up the essence and loses some ingredients.",
@@ -3589,7 +3594,7 @@ function tabHelp() {
     "<b>Main:</b> one- and two-handed weapons. <b>Sub:</b> shields. <b>Range</b> and <b>Ammo:</b> bows and crossbows (a bow in Range turns your attack into a ranged shot, and the arrow or bolt in Ammo adds half its damage), plus boomerangs and instruments. <b>Neck:</b> gorgets and pendants. <b>Ear</b> and <b>Ring:</b> two of each. <b>Back:</b> capes and mantles. <b>Waist:</b> belts and sashes.",
     "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
     "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
-    "Item cards show the slot, every stat, the jobs and level needed, and the item level. Armorers, weaponsmiths and jewelers sell gear up to level 5, and Vela in Saltreach sells levels 6 to 20. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
+    "Item cards show the slot, every stat, the jobs and level needed, and the item level. Armorers, weaponsmiths and jewelers sell gear up to level 5; Haldor sells +1 gear from level 14. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
     "All equipment runs from level 1 to 20, each piece with its own name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
   ]));
   h += sec("🖥️ The screen", ul([
