@@ -718,6 +718,28 @@ for (const id in ITEMS) {
   if ((it.jobs.includes("WHM") || it.jobs.includes("BLM")) && !it.jobs.includes("GEO")) it.jobs.push("GEO");
   if ((it.jobs.includes("PLD") || it.jobs.includes("WAR")) && !it.jobs.includes("RUN")) it.jobs.push("RUN");
 }
+const RACE_GEAR_ALIAS = { hume_tunic: "human_tunic", hume_vest: "human_vest", elvaan_jerkin: "elari_jerkins", elvaan_bodice: "elari_bodice", galkan_surcoat: "ursan_surcoat", mithran_separates: "nekari_separates", tarutaru_kaftan: "pipkin_kaftan" };
+for (const id in RACE_GEAR_ALIAS) delete GEAR_DATA[id];
+const RACE_GEAR_ROWS = [
+  ["human_tunic", "Human Tunic", "human", "🧥"], ["human_vest", "Human Vest", "human", "🧥"],
+  ["elari_bodice", "Elari Bodice", "elari", "👘"], ["elari_jerkins", "Elari Jerkins", "elari", "🧥"],
+  ["ursan_tunic", "Ursan Tunic", "ursan", "🧥"], ["ursan_surcoat", "Ursan Surcoat", "ursan", "🧥"],
+  ["nekari_tunic", "Nekari Tunic", "nekari", "👘"], ["nekari_separates", "Nekari Separates", "nekari", "👘"],
+  ["pipkin_tunic", "Pipkin Tunic", "pipkin", "👘"], ["pipkin_kaftan", "Pipkin Kaftan", "pipkin", "👘"]
+];
+for (const [id, name, race, icon] of RACE_GEAR_ROWS) GEAR_DATA[id] = { name, kind: "equip", icon, slot: "body", jobs: "ALL", lv: 1, price: 70, stats: { def: 2 }, src: "race", race };
+const RACE_START_BODY = {
+  human: { war: "human_vest", mage: "human_tunic" }, elari: { war: "elari_jerkins", mage: "elari_bodice" },
+  ursan: { war: "ursan_surcoat", mage: "ursan_tunic" }, nekari: { war: "nekari_separates", mage: "nekari_tunic" },
+  pipkin: { war: "pipkin_kaftan", mage: "pipkin_tunic" }
+};
+const RACE_MAGE_JOBS = { WHM: 1, BLM: 1, RDM: 1, SMN: 1, SCH: 1, GEO: 1 };
+function starterBody(race, job) { const r = RACE_START_BODY[race] || RACE_START_BODY.human; return RACE_MAGE_JOBS[job] ? r.mage : r.war; }
+function migrateRaceGearIds(d) {
+  const txt = JSON.stringify(d);
+  if (!/"(hume_tunic|hume_vest|elvaan_jerkin|elvaan_bodice|galkan_surcoat|mithran_separates|tarutaru_kaftan)"/.test(txt)) return d;
+  return JSON.parse(txt.replace(/"(hume_tunic|hume_vest|elvaan_jerkin|elvaan_bodice|galkan_surcoat|mithran_separates|tarutaru_kaftan)"/g, (m, k) => '"' + RACE_GEAR_ALIAS[k] + '"'));
+}
 for (const id in GEAR_DATA) { const g = GEAR_DATA[id]; ITEMS[id] = Object.assign({}, g, { jobs: g.jobs === "ALL" ? ALL_J : g.jobs.slice() }); }
 const GEAR_DROP_IDS = Object.keys(GEAR_DATA).filter(id => GEAR_DATA[id].src === "drop");
 const SHOP = ["potion", "ether", "pickaxe", "hatchet", "sickle", "fire_crystal", "wind_crystal", "earth_crystal", "water_crystal", "copper_ore", "ash_log", "healing_herb", "fishing_rod", "bait", "grain_flour", "rock_salt"];

@@ -2152,3 +2152,13 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Ring strips now have three rows (lowY-400, a foot row near the gap floor, top) with vertex colours 0.6 / 0.66 / 0.95, giving a darker foot and lighter top before the fog tint in updateBackdrop.
 - Haze gradient softened (see the 18.50.0 note).
 - Exit audit (Playwright, noon, 40 units inside each edge exit looking out): outpost, hollow, hollow_lake, hollow_ruins, harbor, frost, marsh, ironvale, sunscar, cinder, verdant, mirage, highlands, highlands_plateau, highlands_ridge. No floating props found. Caves and crypts have no outdoor haze or backdrop and were not shot. Scratch script: shots2.js in the scratchpad (args: zones, out prefix, distance back, pitch, camera distance, yaw offset); it sets S.timeShift to noon.
+
+## 18.57.0 Racial starting clothes
+- data.js after the Windower gear load: `RACE_GEAR_ALIAS` (old id to new id), the seven old shop ids are deleted from GEAR_DATA, `RACE_GEAR_ROWS` adds ten body pieces (`src: "race"`, `race: <RACES key>`, lv 1, DEF 2, price 70, jobs ALL). gear.js is untouched, so regenerating it with gear18.py stays safe; the old ids come back from the generator and are deleted again here.
+- Pieces: human_vest / human_tunic, elari_jerkins / elari_bodice, ursan_surcoat / ursan_tunic, nekari_separates / nekari_tunic, pipkin_kaftan / pipkin_tunic (first = Warrior, second = mage).
+- `src: "race"` keeps them out of everything keyed on shop or drop: the SHOP and Vela loop, GEAR_DROP_IDS and gearDrop, the generated g_ recipes, and autoGear (companions). `ahTradable` also rejects any item with `race`. They can still be sold to an NPC.
+- `starterBody(race, job)` (RACE_START_BODY, RACE_MAGE_JOBS = WHM BLM RDM SMN SCH GEO count as mage) is used by createChar (overrides body after the old WHM/BLM kit) and by the character-creator preview in main4.js.
+- `canEquip` returns "Only <Race> can wear this" when `it.race` differs from save.look.race. itemCard shows "<Race> only" instead of "All Races".
+- `migrateRaceGearIds(d)` runs first in normalizeSave: if the save JSON holds an old id it rewrites every quoted old id to the new one (gear, bag, storage, merc gear, seen). A non-matching race keeps what it already wears.
+- Tests: test/p62unit.js (starter body for 5 races x WAR/WHM/BLM, not in shops/auction/recipes, race lock on equip, old-id save migration). p5bunit's companion-gear check now expects Lisette's linen_robe only (its old `&&`/`||` mix passed on that branch anyway).
+

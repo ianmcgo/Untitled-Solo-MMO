@@ -147,7 +147,7 @@ function itemCard(id) {
   if (it.ex) tags.push("Ex");
   let h = '<div class="iCard"><div class="iCh"><span class="ic">' + (it.icon || "📦") + '</span><b>' + esc(it.name) + "</b>" + tags.map(t => '<span class="tg">' + t + "</span>").join("") + "</div>";
   if (it.kind === "equip") {
-    h += '<div class="iCl">[' + (SLOT_NAMES[it.slot] || it.slot) + "] All Races</div>";
+    h += '<div class="iCl">[' + (SLOT_NAMES[it.slot] || it.slot) + "] " + (it.race ? RACES[it.race].name + " only" : "All Races") + "</div>";
     const parts = [];
     if (it.wtype) parts.push("DMG:" + it.dmg, "Delay:" + Math.round(it.delay * 100));
     const st = it.stats || {};
@@ -1692,6 +1692,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.57.0", date: "2026-10-17", title: "Racial starting clothes", items: [
+    "<b>Every race now starts in its own clothes.</b> Humans wear a Human Vest (Warrior) or Human Tunic (mages), Elari an Elari Jerkins or Elari Bodice, Ursan an Ursan Surcoat or Ursan Tunic, Nekari Nekari Separates or a Nekari Tunic, and Pipkin a Pipkin Kaftan or Pipkin Tunic.",
+    "These ten body pieces can only be worn by their own race. They are not sold in shops or at the auction house, and they can't be dropped by monsters or crafted.",
+    "Renamed: Hume Tunic and Hume Vest are now Human Tunic and Human Vest, Elvaan Jerkin and Bodice are Elari Jerkins and Elari Bodice, Galkan Surcoat is Ursan Surcoat, Mithran Separates is Nekari Separates and Tarutaru Kaftan is Pipkin Kaftan. Existing characters keep any of these they own.",
+    "Item cards now show which race can wear a piece, and the equipment list tells you when your race can't wear it."
+  ]},
   { v: "18.56.0", date: "2026-10-16", title: "Distant hills through every pass", items: [
     "<b>Looking out through any pass you now see layered hills</b> fading into the mist, instead of a flat grey wall with a straight edge. The distant hill rings dip at each exit so their jagged skyline shows through the gap, and they shade from darker at the foot to hazier at the top.",
     "The haze beyond each area fades in more gradually, so there is no hard line where it starts.",
@@ -3322,6 +3328,7 @@ function tabHelp() {
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
   h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
+    "Every race starts in its own clothes: a Warrior piece and a mage piece (Human Vest and Tunic, Elari Jerkins and Bodice, Ursan Surcoat and Tunic, Nekari Separates and Tunic, Pipkin Kaftan and Tunic) that only that race can wear.",
     "Pick a race at character creation. It's permanent, like the rest of your appearance. Race shapes your body and gives small stat bonuses and penalties that grow a little with level; your job still matters far more.",
     "Elari get extra accuracy with bows. Pipkin and Nekari move faster; Ursan a little slower. HP and MP are multiplied: Ursan +25% HP but −25% MP, Pipkin −20% HP but +30% MP."
   ]));
@@ -3634,6 +3641,7 @@ function tabHelp() {
     "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
     "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Armorers, weaponsmiths and jewelers sell gear up to level 5; Haldor sells +1 gear from level 14. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
+    "<b>Race clothes:</b> each race has two starting body pieces (a Warrior one and a mage one) that only that race can wear. Your character begins in the right one for your race and job. They can't be bought, sold at auction, dropped or crafted; the item card shows the race that can wear them.",
     "All equipment runs from level 1 to 20, each piece with its own name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
   ]));
   h += sec("🖥️ The screen", ul([

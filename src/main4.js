@@ -493,7 +493,7 @@ function showCharCreate() {
     const l = CC.look, steps = ccSteps(l);
     CC.step = Math.max(0, Math.min(CC.step, steps.length - 1));
     const st = steps[CC.step][0];
-    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; UI.pv.focus = (st === "face" || st === "hair") && !ccTouch() ? 1 : 0; }
+    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; g.body = starterBody(CC.look.race, CC.job); UI.pv.override = { job: CC.job, gear: g, look: l }; UI.pv.focus = (st === "face" || st === "hair") && !ccTouch() ? 1 : 0; }
     $("ccSteps").innerHTML = steps.map((s, i) => '<button data-goto="' + i + '" class="' + (i === CC.step ? "on" : i < CC.step ? "done" : "") + '">' + (i + 1) + '<small>' + s[1] + "</small></button>").join("");
     $("ccStepT").textContent = (CC.step + 1) + ". " + steps[CC.step][1];
     const sel = (on) => on ? " on" : "";
@@ -555,7 +555,7 @@ function showCharCreate() {
     if (!b) return;
     const l = CC.look;
     if (b.dataset.restart) { CC.look = { race: "human", build: 0, face: 0, hairColor: 1, height: 2, girth: 2 }; ccApplyFace(CC.look); CC.step = 0; CC.name = ""; sfx("close"); paint(); return; }
-    if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); box.querySelectorAll("[data-job]").forEach(x => x.classList.toggle("on", x.dataset.job === CC.job)); $("ccJobBlurb").textContent = JOB_BLURB[CC.job]; if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; UI.pv.override = { job: CC.job, gear: g, look: l }; } return; }
+    if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); box.querySelectorAll("[data-job]").forEach(x => x.classList.toggle("on", x.dataset.job === CC.job)); $("ccJobBlurb").textContent = JOB_BLURB[CC.job]; if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; g.body = starterBody(CC.look.race, CC.job); UI.pv.override = { job: CC.job, gear: g, look: l }; } return; }
     if (b.dataset.race) { l.race = b.dataset.race; const sx = RACES[l.race].sex; if (sx != null) l.build = sx; ccApplyFace(l); sfx("click"); paint(); return; }
     if (b.dataset.sex != null && b.dataset.sex !== "") { l.build = +b.dataset.sex; ccApplyFace(l); sfx("click"); paint(); return; }
     if (b.dataset.face != null && b.dataset.face !== "") { l.face = +b.dataset.face; ccApplyFace(l); sfx("click"); paint(); return; }

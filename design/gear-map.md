@@ -145,3 +145,12 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | trailblazer_boots | holly_clogs | Holly Clogs | 12 |
 | explorers_ring | amethyst_ring | Amethyst Ring | 14 |
 | pathfinder_mantle | cotton_cape | Cotton Cape | 18 |
+| hume_tunic | human_tunic | Human Tunic (race: human) | 1 |
+| hume_vest | human_vest | Human Vest (race: human) | 1 |
+| elvaan_jerkin | elari_jerkins | Elari Jerkins (race: elari) | 1 |
+| elvaan_bodice | elari_bodice | Elari Bodice (race: elari) | 1 |
+| galkan_surcoat | ursan_surcoat | Ursan Surcoat (race: ursan) | 1 |
+| mithran_separates | nekari_separates | Nekari Separates (race: nekari) | 1 |
+| tarutaru_kaftan | pipkin_kaftan | Pipkin Kaftan (race: pipkin) | 1 |
+| (new) | ursan_tunic, nekari_tunic, pipkin_tunic | race mage tunics | 1 |
+
