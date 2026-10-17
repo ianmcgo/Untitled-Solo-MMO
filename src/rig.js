@@ -1167,12 +1167,12 @@ function applyUnderwear(L, gear, on) {
   L.under = L.under ? Object.assign({}, L.under) : {};
   if (noTop) {
     L.top = { type: "bare", color: sk, region: skR, sleeves: "none" };
-    L.under.top = fem ? (L.doll ? "bandeau" : "bikini") : null;
+    L.under.top = fem ? "bikini" : null;
     delete L.pauldrons; delete L.collar; delete L.cape;
   }
   if (noLow) {
     L.legs = sk; L.legsRegion = skR;
-    L.under.low = fem ? (L.doll ? "brief" : "thong") : "boxer";
+    L.under.low = fem ? "thong" : "boxer";
     delete L.greaves;
   }
   if (noTop && noLow) delete L.belt;
