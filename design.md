@@ -2078,3 +2078,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Auction: NPCS auction_<town> (prop "kiosk", talk talkAuction, name "Auction Counter") replace corvin, selene and orla (defs, zone entries and rig looks removed). models3d.js propView builds the kiosk (counter, glass, red roof, lit gold sign, point light). Positions are the old auctioneers' spots by each auction building.
 - TOWN_SERVICES (data.js, next to VENDOR_TOWNS): harbor and ironvale get job_<town> (model tobin_b, talkTobin) and stable_<town> (model ysolde_b, talkYsolde). They reuse the Tobin and Ysolde dialog code as is; model variants are copies of the originals with other skin or hair (rig.js, after NPC_LOOK). No home or sleep fields, so they never go indoors.
 - talkTobin calls questOptions("tobin", n) with a literal id, so the extra job masters offer the same job quests as Tobin.
+
+## 18.46.0 Smaller saplings, apart rabbit ears
+- data.js: sapling scale 0.33, jungle_sapling 0.36 (was 1.3 and 1.45). buildMob radius now has a floor of 8 so the tiny bulbs stay targetable.
+- rig.js bulbEntry eyes: flat white (y 0.5), small pupil, dark-bulb-colour upper lid ball and thin lower lid for a squint.
+- Hare ears: the L bone leaned inward with positive z and the R bone with negative z, so the tips touched. anim.js hare poses (idle, hop, twitch, listen, hit) now use negative z for L and positive for R (outward). rig.js hareEntry ear geometry sits 0.01 to 0.015 further apart.
