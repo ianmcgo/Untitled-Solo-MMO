@@ -1,4 +1,4 @@
-const NET_SCHEMA = 9;
+const NET_SCHEMA = 10;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000, seatBeat: 30000, queuePoll: 5000, idleWarn: 60000, selectIdleMin: 15 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -1648,4 +1648,52 @@ async function netLsSetRank(lsid, target, action) {
   const d = await netLsCall("ls_set", { ls: lsid, target, action });
   netLsSet(d);
   netLsPing(lsid);
+}
+
+const VIEWS = { shown: null, busy: false, raf: 0 };
+function viewsToday() { const d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+function viewsHtml(n) {
+  if (n == null || !isFinite(n)) return '<span class="vz">---</span>,<span class="vz">---</span>';
+  return Math.max(0, Math.floor(n)).toLocaleString("en-US");
+}
+function viewsSet(n, state) {
+  const p = $("ldViews"), el = $("ldViewsN"), st = $("ldViewsS");
+  if (!p || !el) return;
+  p.classList.add("on");
+  p.classList.toggle("live", state === "live");
+  p.classList.toggle("off", state === "off");
+  if (st) st.textContent = state === "live" ? "Online" : state === "off" ? "Offline" : "Linking";
+  if (n == null) { el.innerHTML = viewsHtml(VIEWS.shown); return; }
+  if (VIEWS.raf) cancelAnimationFrame(VIEWS.raf);
+  const from = VIEWS.shown == null ? Math.max(0, n - Math.min(n, 60)) : VIEWS.shown, t0 = performance.now();
+  VIEWS.shown = n;
+  if (from === n) { el.innerHTML = viewsHtml(n); return; }
+  const step = t => {
+    const k = Math.min(1, (t - t0) / 1400), e = 1 - Math.pow(1 - k, 3);
+    el.innerHTML = viewsHtml(Math.round(from + (n - from) * e));
+    VIEWS.raf = k < 1 ? requestAnimationFrame(step) : 0;
+  };
+  VIEWS.raf = requestAnimationFrame(step);
+}
+async function viewsTick() {
+  if (VIEWS.busy) return;
+  let last = 0, day = "";
+  try { last = +localStorage.getItem("usr_views_last") || 0; day = localStorage.getItem("usr_views_day") || ""; } catch (e) {}
+  if (last && VIEWS.shown == null) VIEWS.shown = last;
+  viewsSet(null, "link");
+  const sb = navigator.onLine === false ? null : netInit();
+  if (!sb) { viewsSet(last || null, "off"); return; }
+  VIEWS.busy = true;
+  const today = viewsToday(), counted = day === today;
+  try {
+    const r = await sb.rpc(counted ? "get_site_views" : "bump_site_views");
+    if (r.error || r.data == null || !isFinite(+r.data)) throw r.error || new Error("no count");
+    const n = +r.data;
+    try { localStorage.setItem("usr_views_last", String(n)); if (!counted) localStorage.setItem("usr_views_day", today); } catch (e) {}
+    viewsSet(n, "live");
+  } catch (e) {
+    if (last) viewsSet(last, "off");
+    else { const p = $("ldViews"); if (p) p.classList.remove("on"); }
+  }
+  VIEWS.busy = false;
 }

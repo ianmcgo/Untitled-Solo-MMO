@@ -2111,3 +2111,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - BACKDROP hill rings now reach 400 below lowY so no sky gap shows under them through a pass (that gap made them look like floating slabs).
 - BACKDROP ring silhouettes: N=384 points, height = 0.3 + 0.5*fbm(freq 3) + 0.35*ridge(freq 11) so the skyline through a pass is jagged rather than a near-straight line.
 - Visual check tool: Playwright with test/mocklogin.js works again (scratch script teleports to each exit and screenshots).
+
+
+## 18.51.0 Visitor counter on the title screen
+- Same idea as the counter on the owner's website, but on the game's own Supabase project: sql/q3-views.sql (schema 10) adds game_private.site_views (single row) and security definer RPCs public.bump_site_views() / public.get_site_views(), executable by anon and authenticated. NET_SCHEMA = 10 so Admin shows "Server update needed" until it is run. The SQL is bundled into SETUP_SQL via build.mjs.
+- Client (src/net.js): VIEWS state, viewsTick() called from showTitle(). Bumps once per browser per day (localStorage usr_views_day), otherwise reads; caches usr_views_last for offline display. Count animates up over 1.4 s. If the RPC is missing and nothing is cached, the panel stays hidden.
+- UI: #ldViews in #loading (template4.html), bottom-right (raised to 58px above the bottom under 860px wide so it clears the centred credit line), only on the ready title screen (hidden on roster and zone loads). Uses --ffStripe / --ffEdge / --ffFont like the in-game windows; status light blue (live), grey (linking), red (offline).
