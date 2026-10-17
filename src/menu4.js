@@ -1692,9 +1692,16 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.49.0", date: "2026-10-16", title: "Retired shop goods become drops and recipes", items: [
+    "<b>X-Potion, Hi-Ether, Super Ether, Reraiser, Hi-Reraiser, Super Reraiser and Chapel Sigil are now dropped and crafted.</b> Ghouls, Ice Wights, Drowned, Royal Guards, Crypt Sentinels and the Hollow King can drop them (rarer the stronger the item). Alchemy recipes make all seven from Hi-Potions, Ethers, Bone Chips, Silk Cloth and Reef Scales, and the recipe scrolls drop and appear on the auction house like any other recipe.",
+    "<b>Quartermasters stock every ordinary cooked meal</b> (Grilled Minnow, Eel Pie and Perch Chowder were missing), so all ten potions and meals at level 5 or lower are on offer. Only ten exist at that level today; the stronger potions are now drops and crafts instead."
+  ]},
+  { v: "18.48.1", date: "2026-10-16", title: "Jeweler capped at level 11", items: [
+    "<b>The Jeweler now sells rings and necklaces up to level 11</b> (10 items), with a random 5 on his shelf each day and each town. Every other vendor stays at level 5 or lower."
+  ]},
   { v: "18.48.0", date: "2026-10-16", title: "Vela retires, strict vendor levels", items: [
     "<b>Vela is gone.</b> Her level 6 to 20 gear, scrolls, potions and Chapel Sigils are no longer sold anywhere in town. Monsters, crafters, Haldor and the auction house cover them.",
-    "<b>Vendors sell nothing above level 5, except the Jeweler</b>, whose daily 10 are picked from rings and necklaces up to level 14 (there are only 4 at level 5 or lower). Other vendors may show fewer than 10 items when their trade has fewer.",
+    "<b>Vendors sell nothing above level 5, except the Jeweler</b>, who sells rings and necklaces up to level 11 (there are only 4 at level 5 or lower) and shows a random 5 of those 10 each day. Other vendors may show fewer than 10 items when their trade has fewer.",
     "Spellsmiths now sell recipe scrolls (level 5 or lower) as well as spell scrolls."
   ]},
   { v: "18.47.0", date: "2026-10-16", title: "Treasure pool matches the game's windows", items: [
@@ -2986,7 +2993,7 @@ const UPDATES = [
   { v: "5.8.0", date: "2026-10-13", title: "Battlefield: the Chapel Depths", items: [
     "New battlefield: use a Chapel Sigil at the sealed door in the Drowned Chapel (Ashen Marsh) to fight the Tidebound Priest, a level 16 boss with summoned Drowned, a Maelstrom area attack and an enrage, against a 15-minute timer.",
     "Win one of five new level 15 treasures (Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle, Tidebreaker Bow) plus crystals and XP. New achievement: Tidebreaker.",
-    "Chapel Sigils drop from the Drowned and are sold by Vela.",
+    "Chapel Sigils drop from the Drowned.",
     "Screen changes: your XP bar now sits under your health in your party frame; on phones the chat log sits in the bottom-left corner and the action bar stacks three wide on the right.",
     "Area exits are at the end of walled halls; you arrive at the inner end of the hall.",
     "Monster spawn points are at least 3 map squares apart and never within 2 squares of an entrance or exit. Each point takes turns between the creatures that live in that part of the area.",
@@ -3219,7 +3226,8 @@ function tabHelp() {
   ]));
   h += sec("🚶 City life", ul([
     "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
-    "<b>Vendors:</b> every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. The Jeweler is the exception: his pick goes up to level 14, since so few rings and necklaces are level 5 or lower. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
+    "<b>Strong potions:</b> X-Potions, Hi-Ethers, Super Ethers, Reraisers and Chapel Sigils are not sold. Undead and ghoul-type monsters drop them, and Alchemy recipes craft them from Hi-Potions, Ethers, Bone Chips, Silk Cloth and Reef Scales.",
+    "<b>Vendors:</b> every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. The Jeweler is the exception: he sells rings and necklaces up to level 11, since so few are level 5 or lower, but only 5 of those 10 are on his shelf each day. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
     "Tour quests: Hale the Tradesman (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([
@@ -3403,7 +3411,7 @@ function tabHelp() {
     "Visit every lookout, shrine and tablet for the <b>Wayfarer</b> achievement. Deer, birds, butterflies, leaping fish and road travellers are just scenery and can't be fought."
   ]));
   h += sec("🔱 Battlefield: the Chapel Depths", ul([
-    "A sealed door stands in the Drowned Chapel ruins of the Ashen Marsh. A <b>Chapel Sigil</b> opens it (the Drowned sometimes carry one, and Quartermasters sometimes stock them). The sigil is used up when you enter.",
+    "A sealed door stands in the Drowned Chapel ruins of the Ashen Marsh. A <b>Chapel Sigil</b> opens it (the Drowned sometimes carry one, and Alchemists can craft them from Bone Chips and Reef Scales). The sigil is used up when you enter.",
     "Inside, defeat the <b>Tidebound Priest</b> (level 16 boss) within " + BATTLEFIELD.minutes + " minutes. At 65% HP it raises two Drowned; below half it casts Maelstrom on everyone near it every 22 seconds; below 20% it enrages. It never leashes inside the chapel.",
     "Victory: " + BATTLEFIELD.gil + " crystals, " + BATTLEFIELD.xp + " XP and one treasure you don't own yet: Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle or Tidebreaker Bow. Leaving, wiping or running out of time ends the attempt.",
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.48.0",
-  "releaseTitle": "Vela retires, strict vendor levels",
+  "version": "18.49.0",
+  "releaseTitle": "Retired shop goods become drops and recipes",
   "description": "",
   "main": "index.js",
   "scripts": {
