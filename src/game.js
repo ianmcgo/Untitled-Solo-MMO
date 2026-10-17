@@ -278,6 +278,7 @@ function createChar(opts) {
   if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "robe" };
   else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "robe" };
   d.gear.body = starterBody(d.look.race, d.mainJob);
+  d.gear.legs = starterLegs(d.look.race);
   d.inventory = [{ id: "potion", qty: 3 }];
   if (PLAY.offline) d.offline = true;
   const id = PLAY.offline ? "o" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36) : typeof NET !== "undefined" && NET.member && typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
