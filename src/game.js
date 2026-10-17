@@ -6098,7 +6098,7 @@ function shopListFor(kind) { return kind === "furniture" ? FURNITURE_SHOP.slice(
 function vendorStock(role, town) {
   const pool = (VENDOR_POOL[role] || []).slice(), r = seeded(hashStr("vendor:" + town + ":" + role + ":" + boardDay()));
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
-  const out = pool.slice(0, VENDOR_STOCK);
+  const out = pool.slice(0, VENDOR_ROLES[role].stock || VENDOR_STOCK);
   return out.sort((a, b) => ITEMS[a].price - ITEMS[b].price);
 }
 

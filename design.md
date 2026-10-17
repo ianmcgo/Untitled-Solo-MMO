@@ -2089,6 +2089,12 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## 18.48.0 Vela removed, strict vendor levels
 - Vela (NPC, look, talk, zone entry) removed; her building is signed Outfitters Hall. SHOPS.vela remains as a data list; only its rings and necklaces feed the jeweler.
-- VENDOR_SOURCE = SHOP + SHOPS.marn without hq. Every vendor pool is level <= VENDOR_MAXLV (5), except the jeweler: VENDOR_SOURCE_JEWEL (adds Vela's rings and necklaces) up to VENDOR_JEWEL_MAXLV (14), about 28 items, so his 10 are really random. Vendors with fewer than 10 at their cap show fewer. The spellsmith test is spell or recipe.
+- VENDOR_SOURCE = SHOP + SHOPS.marn without hq. Every vendor pool is level <= VENDOR_MAXLV (5), except the jeweler: VENDOR_SOURCE_JEWEL (adds Vela's rings and necklaces) up to VENDOR_JEWEL_MAXLV (11), exactly 10 items. VENDOR_ROLES.jeweler.stock = 5, so he shows a random 5 of those 10 per day and town (vendorStock uses the role stock, default VENDOR_STOCK 10). Vendors with fewer than 10 at their cap show fewer. The spellsmith test is spell or recipe.
 - Level data behind this: shop rings and necklaces are level 1 (4 items), 7 (4), 10 (1), 11 (1) and 14 (18). Level 7 gives 8, level 11 gives exactly 10 (no randomness), level 14 gives 28.
 - Chapel Sigil, X-Potion, Hi-Ether, Super Ether and Reraiser are no longer sold by anyone (Chapel Sigil still drops from the Drowned).
+
+
+## 18.49.0 Retired shop goods become drops and recipes
+- Quartermaster pool (VENDOR_SOURCE) now also includes every non-rare food; 10 items total at level 5 or lower, so stock is always the same 10.
+- Alchemy RECIPES added: r_x_potion (8), r_hi_ether (10), r_super_ether (13), r_chapel_sigil (12, bone_chip + reef_scale), r_reraiser (15), r_hi_reraiser (18), r_super_reraiser (22). Recipe scrolls rcp_<id> are generated automatically.
+- Loot additions in FAMILIES: skeleton, ghoul, ice_wight, drowned, orc_stonechucker, royal_guard, crypt_sentinel, hollow_king (chances 0.03 to 0.3, higher for stronger items). Reraiser descriptions no longer say "Not sold yet".
