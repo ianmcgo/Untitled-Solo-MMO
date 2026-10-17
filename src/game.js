@@ -90,7 +90,7 @@ function newSave() {
     v: 2, rv: CONFIG.ruleVer, name: "Adventurer", mainJob: "WAR", subJob: null, supportUnlocked: false,
     jobs, skills,
     gear: { main: "bronze_sword", head: "bronze_cap", body: "bronze_harness" },
-    inventory: [{ id: "potion", qty: 3 }],
+    inventory: [],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
@@ -279,7 +279,7 @@ function createChar(opts) {
   else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "robe" };
   d.gear.body = starterBody(d.look.race, d.mainJob);
   d.gear.legs = starterLegs(d.look.race);
-  d.inventory = [{ id: "potion", qty: 3 }];
+  d.inventory = [];
   if (PLAY.offline) d.offline = true;
   const id = PLAY.offline ? "o" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36) : typeof NET !== "undefined" && NET.member && typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   STORE.set(charKey(id), JSON.stringify(d));

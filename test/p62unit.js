@@ -33,4 +33,5 @@ const o2 = JSON.parse(JSON.stringify(d)); o2.inventory.push({ id: 'bastokan_harn
 ok(n2.inventory.some(s => s.id === 'city_harness') && n2.inventory.some(s => s.id === 'city_tunic'), 'old nation piece ids migrate to City ids');
 ok(['city_sword', 'city_bow', 'city_bow_2', 'city_crossbow', 'city_cesti', 'city_axe', 'city_knuckles', 'city_staff', 'city_staff_2', 'city_scythe', 'city_club'].every(id => G.ITEMS[id] && G.ITEMS[id].name.startsWith('City ')) && G.ITEMS.city_staff.rare && !G.ITEMS.bastokan_staff && !G.ITEMS.windurstian_club && !G.ITEMS.bas_crossbow, 'eleven city weapons exist under new ids');
 ok(G.BATTLEFIELD.rewards.every(id => G.ITEMS[id]) && G.BATTLEFIELD.rewards.includes('city_staff'), 'battlefield rewards point at real items');
+ok(G.loadChar(G.createChar({ name: 'Bagless', job: 'WAR', look: {} })).inventory.length === 0, 'new characters start with an empty bag');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED'); process.exit(fails ? 1 : 0);
