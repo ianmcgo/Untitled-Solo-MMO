@@ -2230,3 +2230,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - RACE_BODY.pipkin: leg 0.2, torso 0.38, arm 0.38, hip 0.1, headR 0.15; leg radius factor dk 1.05; head profile cheek 0.14 to 0.03.
 - Short bodies broke loft ring ordering (rings use absolute offsets from hipJ, spineY, chestY, shY). Fixes for L.doll only: `monoRings` drops upper-torso rings closer than 0.016 in y (upR0 to upR); the leg gets its own 8-ring list (hipJ+0.06 down to ank+0.01); the pelvis lowR rings below hipJ+0.01 are scaled rx 0.72, rz 0.85 so the crotch bulb stops intersecting the thighs (that intersection was the jagged edge at the top of the legs).
 - If another short race is added, reuse these three guards instead of tuning absolute offsets.
+
+## 18.67.0 Chibi Pipkin
+- RACE_BODY.pipkin: torso 0.26, arm 0.24, shoulder 0.125/0.118, hip 0.088, girth 1.1/1.08, waist 1.0/0.96, headR 0.16 (leg 0.2 unchanged). Doll-only factors: arm ring radius ak 0.85, hand scale 0.62 (was 1.25, replaces every `L.doll ? 1.25 : 1`), leg radius dk 0.95, hipR and waistR times hsc 0.78, HEAD_SCALE 1.12 x 1.05 (near-spherical).
+- monoRings is now direction-agnostic (abs gap 0.014) and also guards the upper-arm, forearm and wrist ring lists for L.doll. The upper torso rings above chestY are tapered for L.doll (rx times 1 - 0.38 t^2, rz times 1 - 0.25 t^2, t = height fraction from chestY to neckY) so no funnel forms at the neck.
+- Bikini band ring moved to chestY - 0.04 at 0.156 * cx0 so it hugs the torso on every build.
