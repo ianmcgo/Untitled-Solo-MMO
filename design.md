@@ -2201,3 +2201,6 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## 18.63.1 Turnip Staff stats
 - turnip_staff set to DMG 4, delay 3.66, jobs WAR MNK WHM BLM RDM BST BRD SMN SCH GEO per the reference image (was guessed).
+
+## 18.63.2 Three starting jobs
+- createChar accepts only BASE_JOBS (WAR, WHM, BLM) and falls back to WAR; the creator UI already listed only those. STARTER_WEAPON dropped THF, so turnip_knife exists but nothing grants it. setJob never grants gear: it only moves gear the new job cannot equip back to the bag.
