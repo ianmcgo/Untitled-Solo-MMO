@@ -2123,7 +2123,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Server (FreeSpace 4X project, migration leidanav_visit_origins), modelled on the xw_* set there: public.ln_visit (id, ts, country default ZZ; one row per counted visit) and public.ln_device (day, device, views). RLS on, no policies; everything goes through security definer RPCs granted to anon: leidanav_bump_views() (inserts a row with public.request_country(), the existing cf-ipcountry helper, returns the total), leidanav_get_views(), ln_bump_device(p_device), ln_country_views(), ln_country_firsts(), ln_daily_views(n), ln_country_daily(n), ln_hour_views(), ln_device_views(n), ln_my_country(). The one earlier leidanav_views count was carried over as a ZZ row; leidanav_views is no longer read.
 - Client: net.js viewsTick also calls ln_bump_device (mobile = hover:none + pointer:coarse) on the first count of the day. src/visitors.js (added to the phase-4 file list after net.js): VG_PLACES (250 codes with lat, lon and name, copied from the website for the later globe), VG state, vgFetch (all reads in parallel, cached 60 s), vgOpen/vgClose/vgRender. #vgWin overlay with tiles, 14-day chart, device bar, ranked country list (own country highlighted). A capture-phase keydown listener swallows keys while the window is open so Esc closes it instead of starting the game; showTitle's start handler also ignores input while VG.open.
 - Flags are emoji; Windows shows them as letter pairs (the website embeds a flag font, not copied to keep size down).
-- Next: phase 2 globe (done in 18.53.0), phase 3 extras.
+- Phase 2 globe done in 18.53.0, phase 3 extras in 18.54.0.
 
 
 ## 18.53.0 Visitor globe (globe plan phase 2)
@@ -2131,3 +2131,12 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Globe uses the game's THREE build with its own small WebGLRenderer inside #vgGlobe: textured sphere, additive back-side halo shader, additive glow sprites per visited country (gold for ln_my_country) that pulse. vgVec(lat, lon) matches SphereGeometry UVs: phi = lon + 180, theta = 90 - lat.
 - Controls: pointer drag (yaw/pitch, pitch clamped), wheel zoom 2..6.5, auto-spin after 2.5 s idle, tap (under 6 px of movement) raycasts the sphere UV to lat/lon and selects the nearest visited country within 12 deg. vgSelect(code) rebakes, eases the globe to face the country (vgFocus) and updates #vgSel; list rows (data-c) select too.
 - vgRender keeps the existing canvas across re-renders (moves it into the new #vgGlobe, sets G.host); the loop reads G.host size. vgClose/vgGlobeStop cancels the loop and disposes the renderer and textures. If WebGL fails the globe area hides.
+
+
+## 18.54.0 Visitor origins extras (globe plan phase 3)
+- VG_POP (population in millions per country code, copied from the website); vgPopOf, vgPer (views per million), vgReach ("1 in N people").
+- VG state adds cmp, cmpMode, arcs (default on), perCap. Toolbar buttons [data-vgt=arcs|cap] sit over the globe (.vgTools). perCap changes vgBake shading (sqrt(per)/sqrt(maxPer)) and vgRows order and the list values.
+- Arcs: in vgPins, a THREE.Line per visited country along the great circle from ln_my_country (slerp, lifted by 0.08 + 0.12*angle at the middle) plus a gold sprite that travels along it each frame. three-entry.js now exports Line.
+- vgFetch also loads ln_country_daily(30) -> D.cdaily[code][day] and turns ln_country_firsts into D.firsts. vgCard(code) shows visits, share, rank, per-1M, first/last seen, reach and an inline SVG 30-day sparkline (vgSpark). #vgSel shows one or two cards plus Compare / Clear. vgSelect: in compare mode the next pick becomes VG.cmp; picking a new main country clears cmp.
+- Busiest hours: ln_hour_views is UTC; shifted by -getTimezoneOffset() into local hours, peak bar gold.
+- #vgFind filters rows in place (no re-render, keeps focus); Enter selects the first visible row. The capture keydown guard lets keys through to #vgFind.
