@@ -1692,6 +1692,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.69.0", date: "2026-10-17", title: "Plump Pipkin", items: [
+    "<b>Smooth back:</b> the Pipkin upper body is one continuous rounded shape, so the back and shoulders no longer show flat panels or hard edges.",
+    "<b>Fuller waist, rounder female Pipkin:</b> the waist is wider, and female Pipkin are plumper through the body, hips and thighs.",
+    "<b>Slimmer wrists</b> that taper smoothly into the hands, and <b>shorter feet</b>."
+  ]},
   { v: "18.68.0", date: "2026-10-17", title: "Round Pipkin face", items: [
     "<b>Pipkin faces are fully round</b>: the jaw no longer tapers to a point.",
     "<b>Chest lowered</b> on Pipkin, <b>feet made smaller</b>, and the arms now hang slightly away from the body so <b>hands no longer clip into the legs</b>."

@@ -2240,3 +2240,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Head profile pipkin jaw 0.64 to 0.1 (headRadial narrows the lower half by jaw*x^2, so a high value gave a V-shaped chin).
 - humanEntryBase: `fl = L.doll ? 0.045 : 0` pushes the forearm, wrist, hand, finger and thumb bones and their geometry outward (`sw + offset + fl`, forearm at half), so short Pipkin arms hang clear of the thick thighs.
 - chestY factor 0.62 to 0.5 of torso for L.doll (lower chest and bone); foot scale for doll 0.8 to 0.58; bikini band radius 0.122 * cx0 for doll.
+
+## 18.69.0 Plump Pipkin
+- Doll upper torso no longer reuses the human ring list. `dollUp` is a dedicated 7-ring loft (belt, waist at 0.93 hipR, bust at 0.9 hipR, mid chest and shoulders from sw 1.05/0.95, then two neck rings) passed through monoRings, so the back is one round surface. The earlier funnel taper and the flat panel at the upper back came from squeezing the human list.
+- Doll female: hsc 0.9 (male 0.8), dk 1.02 (male 0.95), RACE_BODY.pipkin female girth 1.22, waist 1.3, hip 0.095; male waist 1.2. Waist ring radius is tied to hipR rather than the human waist taper, giving a round plump trunk.
+- Wrists: for doll the last forearm-1 ring is scaled 0.92 and the forearm-2 rings 0.92, 0.82, 0.72, 0.70 so the forearm tapers into the palm (palm ball is 0.034 * hk).
+- Feet: `fz` 0.7 shortens foot length for doll (the z positions of every foot ring and the toe ball).
