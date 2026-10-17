@@ -264,7 +264,7 @@ function showOfflineGate(err) {
 
 const CC = { job: "WAR", look: null, name: "", step: 0, thumbs: {} };
 const STARTER_GEAR = Object.fromEntries(Object.keys(JOBS).map(j => [j, { main: starterWeapon(j) }]));
-const JOB_BLURB = { PLD: "", RDM: "", THF: "", MNK: "", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
+const JOB_BLURB = { PLD: "", RDM: "", MNK: "", THF: "Fast striker. Daggers hit quickly, Sneak Attack and Trick Attack pile on damage from behind, and a Thief is hard to pin down.", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
 
 function fmtAgo(t) {
   const d = Date.now() - t;
@@ -516,7 +516,7 @@ function showCharCreate() {
       h += '<div class="ccInfo2"><div>Size is only for looks; it does not change your stats.</div></div>';
     } else {
       h = '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters" value="' + esc(CC.name) + '"></label>' +
-        '<div class="ccSec">Job</div><div class="ccJobs">' + BASE_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '"' + (CC.job === j ? ' class="on"' : "") + ">" + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb">' + esc(JOB_BLURB[CC.job]) + "</div>" +
+        '<div class="ccSec">Job</div><div class="ccJobs">' + START_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '"' + (CC.job === j ? ' class="on"' : "") + ">" + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb">' + esc(JOB_BLURB[CC.job]) + "</div>" +
         '<div class="ccSum">' + [["Race", RACES[l.race].name], ["Gender", l.build ? "Female" : "Male"], ["Face", FACE_NAMES[(l.face || 0) % FACE_NAMES.length]], ["Hair", HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || ""], ["Size", CC_SIZES[ccSizeOf(l)][0]]].map(x => "<span><em>" + x[0] + "</em>" + esc(x[1]) + "</span>").join("") + '</div>' +
         '<button class="ccRestart" data-restart="1">↺ Start over</button>' +
         '<div class="ccWarn">⚠ Appearance is permanent. It can\'t be changed after creation.</div>';
