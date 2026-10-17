@@ -167,6 +167,7 @@ function showTitle() {
   const b = $("ldStart");
   b.innerHTML = "Press Start<small>" + (matchMedia("(pointer: coarse)").matches ? "Tap to begin" : "Click or press any key") + "</small>";
   b.style.display = "";
+  if (typeof viewsTick === "function") viewsTick();
   let done = false;
   const go = e => {
     if (done) return;

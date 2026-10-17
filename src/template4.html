@@ -402,6 +402,17 @@
   #loading.zone #ldTitle { font-size: 26px; letter-spacing: .06em; }
   #ldVer { font: 11px var(--serif); color: #8f886f; letter-spacing: .12em; margin-top: -6px; }
   #loading.zone #ldVer { display: none; }
+  #ldViews { display: none; position: absolute; bottom: calc(12px + var(--sab, 0px)); right: calc(12px + var(--sar, 0px)); min-width: 138px; padding: 3px 10px 6px; font-family: var(--ffFont); background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 3px 12px rgba(0,0,0,.5); text-align: center; z-index: 2; }
+  #loading.ready:not(.zone):not(.roster) #ldViews.on { display: block; }
+  #ldViews .vh { display: flex; align-items: center; justify-content: center; gap: 6px; font: italic 800 11px var(--ffFont); letter-spacing: .06em; color: #fff; text-shadow: 1px 1px 0 #000; }
+  #ldViews .vh i { width: 7px; height: 7px; border-radius: 50%; background: #9aa4c8; box-shadow: 0 0 4px #9aa4c8; }
+  #ldViews.live .vh i { background: #6fe3ff; box-shadow: 0 0 7px #6fe3ff; animation: pulse 2s ease-in-out infinite; }
+  #ldViews.off .vh i { background: #ff8a80; box-shadow: none; }
+  #ldViews .vh em { font: italic 700 9px var(--ffFont); color: #c8d0ff; opacity: .8; letter-spacing: .08em; text-transform: uppercase; }
+  #ldViewsN { margin-top: 2px; border-top: 1px solid rgba(236,236,255,.18); padding-top: 3px; font: italic 900 20px var(--ffFont); letter-spacing: .08em; color: #fff; text-shadow: 1px 1px 0 #000, 0 0 8px rgba(120,170,255,.55); font-variant-numeric: tabular-nums; }
+  #ldViewsN .vz { opacity: .45; }
+  @media (max-width: 860px) { #ldViews { bottom: calc(58px + var(--sab, 0px)); } }
+  @media (max-width: 520px) { #ldViews { min-width: 110px; padding: 2px 8px 4px; } #ldViewsN { font-size: 16px; } }
   #ldSub { font: 13px var(--serif); color: #cfc6ad; letter-spacing: .25em; text-transform: uppercase; margin-top: -8px; }
   #ldBar { width: min(340px, 74vw); height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; border: 1px solid rgba(241,207,115,.25); }
   #ldFill { height: 100%; width: 0; background: linear-gradient(90deg, #a5822e, #f1cf73); box-shadow: 0 0 10px rgba(241,207,115,.6); transition: width .25s ease-out; }
@@ -1118,7 +1129,7 @@
 </head>
 <body>
 <div id="stage">
-  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">__VERSION__</div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
+  <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">__VERSION__</div><div id="ldViews" title="How many times the game has been opened (once per player per day)"><div class="vh"><i></i><span>Visitors</span><em id="ldViewsS">Linking</em></div><div id="ldViewsN"><span class="vz">---</span>,<span class="vz">---</span></div></div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
