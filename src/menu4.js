@@ -1692,6 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.60.0", date: "2026-10-17", title: "City weapons", items: [
+    "Eleven level 15 weapons lost their nation names: <b>City Sword, City Bow, City Bow II, City Crossbow, City Cesti, City Axe, City Knuckles, City Staff, City Staff II, City Scythe and City Club</b>. The Rare City Staff is still the Battlefield reward. Stats, jobs and drops are unchanged, and anything you own has been renamed."
+  ]},
   { v: "18.59.0", date: "2026-10-17", title: "City gear", items: [
     "Four level 15 pieces lost their nation names and are now <b>City Slops, City Vest, City Tunic and City Harness</b>. Their stats, jobs and drops are unchanged, and anything you already own has been renamed."
   ]},

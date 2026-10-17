@@ -2173,3 +2173,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - The renames are merged into `RACE_GEAR_ALIAS`, so migrateRaceGearIds rewrites old ids in saves (the regex is built from the alias keys, which is why that object now holds every id rename).
 - Left alone on purpose: Kingdom Tunic/Vest, Republic Harness, Federation Slops (the other nations' pieces) and the older design/balance-18.x.md tables, which are frozen sim output and still show bastokan_harness.
 
+## 18.60.0 City weapons
+- GEAR_RENAME gained eleven weapons: san_dorian_sword to city_sword, san_dorian_bow to city_bow, windurstian_bow to city_bow_2 ("City Bow II"), bas_crossbow to city_crossbow, san_dorian_cesti to city_cesti, bastokan_axe to city_axe, bas_knuckles to city_knuckles, windurstian_staff to city_staff_2 ("City Staff II"), bastokan_scythe to city_scythe, windurstian_club to city_club, bastokan_staff to city_staff (Rare, NM, still in BATTLEFIELD.rewards, which now lists city_staff).
+- Two pairs collapse to the same name, so the second of each pair got a "II" and a `_2` id. Rule used: San d'Orian first, then Bastokan, then Windurstian gets the plain name. Easy to change in GEAR_RENAME.
+- Saves migrate through the same alias map (migrateRaceGearIds).
+

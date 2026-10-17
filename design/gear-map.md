@@ -162,4 +162,15 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | san_dorian_vest | city_vest | City Vest | 15 |
 | san_dorian_tunic | city_tunic | City Tunic | 15 |
 | bastokan_harness | city_harness | City Harness | 15 |
+| san_dorian_sword | city_sword | City Sword | 15 |
+| san_dorian_bow | city_bow | City Bow | 15 |
+| windurstian_bow | city_bow_2 | City Bow II | 15 |
+| bas_crossbow | city_crossbow | City Crossbow | 15 |
+| san_dorian_cesti | city_cesti | City Cesti | 15 |
+| bastokan_axe | city_axe | City Axe | 15 |
+| bas_knuckles | city_knuckles | City Knuckles | 15 |
+| windurstian_staff | city_staff_2 | City Staff II | 15 |
+| bastokan_scythe | city_scythe | City Scythe | 15 |
+| windurstian_club | city_club | City Club | 15 |
+| bastokan_staff | city_staff | City Staff (Rare) | 15 |
 
