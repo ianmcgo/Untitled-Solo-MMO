@@ -2204,3 +2204,6 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## 18.63.2 Three starting jobs
 - createChar accepts only BASE_JOBS (WAR, WHM, BLM) and falls back to WAR; the creator UI already listed only those. STARTER_WEAPON dropped THF, so turnip_knife exists but nothing grants it. setJob never grants gear: it only moves gear the new job cannot equip back to the bag.
+
+## 18.63.3 Thief starts again
+- data.js `START_JOBS` = WAR, THF, WHM, BLM drives createChar and the creator job buttons (BASE_JOBS unchanged, still used elsewhere). STARTER_WEAPON has THF: turnip_knife again. Corrects 18.63.2, which wrongly limited creation to three jobs.

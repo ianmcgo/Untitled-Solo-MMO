@@ -137,6 +137,7 @@ function slotFor(id, gear, want) { const ks = slotKeys(ITEMS[id].slot); if (want
 const RES_ELEMENTS = ["fire", "ice", "wind", "earth", "lightning", "water", "light", "dark"];
 const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN", "DRK", "BRD"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
+const START_JOBS = ["WAR", "THF", "WHM", "BLM"];
 const JOB_REQ = {
   MNK: { WAR: 5 }, RDM: { WHM: 5, BLM: 5 }, RNG: { THF: 5, MNK: 5 }, SCH: { WHM: 10 }, COR: { SCH: 5, THF: 5 },
   DRK: { WAR: 5, BLM: 5 }, GEO: { MNK: 5 }, BST: { GEO: 5 }, NIN: { THF: 5, WAR: 5 }, PLD: { WAR: 5, WHM: 5 }, DNC: { THF: 5, BLM: 5 },
@@ -750,7 +751,7 @@ const TURNIP_ROWS = [
   ["turnip_staff", "Turnip Staff", "🦯", "staff", 4, 3.66, ["WAR", "MNK", "WHM", "BLM", "RDM", "BST", "BRD", "SMN", "SCH", "GEO"]]
 ];
 for (const [id, name, icon, wtype, dmg, delay, jobs] of TURNIP_ROWS) GEAR_DATA[id] = { name, kind: "equip", icon, slot: "main", wtype, dmg, delay, jobs, lv: 1, price: 10, src: "race", starter: true };
-const STARTER_WEAPON = { WAR: "turnip_sword", WHM: "turnip_rod", BLM: "turnip_staff" };
+const STARTER_WEAPON = { WAR: "turnip_sword", THF: "turnip_knife", WHM: "turnip_rod", BLM: "turnip_staff" };
 function starterWeapon(job) { return STARTER_WEAPON[job] || "bronze_sword"; }
 const RACE_START_BODY = {
   human: { war: "human_vest", mage: "human_tunic" }, elari: { war: "elari_jerkins", mage: "elari_bodice" },

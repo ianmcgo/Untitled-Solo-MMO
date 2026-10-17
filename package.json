@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.63.2",
-  "releaseTitle": "Three starting jobs",
+  "version": "18.63.3",
+  "releaseTitle": "Thief starts again",
   "description": "",
   "main": "index.js",
   "scripts": {
