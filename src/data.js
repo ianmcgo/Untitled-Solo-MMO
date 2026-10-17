@@ -1137,7 +1137,7 @@ ZONES.harbor = {
   props: [{ type: "crates", x: 420, y: 1030, r: 30 }, { type: "desk", x: 1000, y: 445, r: 22 }, { type: "barrels", x: 1120, y: 1030, r: 26 }, { type: "crates", x: 1560, y: 1035, r: 30 }],
   ambient: [{ type: "gull", x: 900, y: 1080, n: 6, r: 300 }, { type: "cat", x: 300, y: 600, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 900, y: 560, n: 1, path: [[800, 460], [1000, 460], [1000, 660], [800, 660]] }, { type: "walker", x: 900, y: 1035, n: 1, path: [[200, 1035], [1600, 1035]] }],
   npcs: [
-    { id: "ilsa", x: 820, y: 400, home: 0, sleep: [22, 6] }, { id: "marn", x: 300, y: 430, home: 7, sleep: [20.5, 4.5] }, { id: "vela", x: 1400, y: 420, home: 10, sleep: [21, 7] },
+    { id: "ilsa", x: 820, y: 400, home: 0, sleep: [22, 6] }, { id: "marn", x: 300, y: 430, home: 7, sleep: [20.5, 4.5] },
     { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "auction_harbor", x: 1000, y: 410 }, { id: "job_harbor", x: 1200, y: 560 }, { id: "stable_harbor", x: 1500, y: 640 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
   ],
   spawns: [],
@@ -1155,7 +1155,7 @@ ZONES.harbor = {
     { x: 760, y: 850, w: 160, h: 90, type: "warehouse", sign: "Customs" }, { x: 1050, y: 850, w: 160, h: 90, type: "hall", floors: 3, sign: "Sailors' Rest" },
     { x: 300, y: 320, w: 220, h: 110, type: "markethall", sign: "Fish Market", signCol: "#4fa0c8" },
     { x: 110, y: 110, w: 120, h: 90, type: "home" }, { x: 470, y: 130, w: 130, h: 100, type: "home", floors: 3 }, { x: 130, y: 700, w: 140, h: 100, type: "home" }, { x: 470, y: 720, w: 140, h: 100, type: "home" }, { x: 130, y: 890, w: 140, h: 90, type: "home" },
-    { x: 1400, y: 300, w: 150, h: 100, type: "shop", sign: "Vela Outfitters", awning: "#2a6a9a" }, { x: 1300, y: 760, w: 160, h: 100, type: "hall", sign: "Shipwright" },
+    { x: 1400, y: 300, w: 150, h: 100, type: "shop", sign: "Outfitters Hall", awning: "#2a6a9a" }, { x: 1300, y: 760, w: 160, h: 100, type: "hall", sign: "Shipwright" },
     { x: 1650, y: 200, w: 140, h: 100, type: "home", floors: 3 }, { x: 1690, y: 850, w: 120, h: 90, type: "home" }
   ],
   stalls: [{ x: 360, y: 460, color: "#0277bd" }, { x: 1470, y: 440, color: "#6a1b9a" }],
@@ -1301,7 +1301,6 @@ const NPCS = {
   chapel_door: { name: "Sealed Chapel Door", prop: "tablet", talk: "talkChapelDoor" },
   ilsa: { name: "Ilsa, Harbor Master", model: "ilsa", talk: "talkIlsa" },
   marn: { name: "Marn, Fishmonger", model: "marn", talk: "talkMarn" },
-  vela: { name: "Vela, Outfitter", model: "vela", talk: "talkVela" },
   crystal_harbor: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   crystal_hollow: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   pip: { name: "Pip the Nubbin", prop: "nubbin", talk: "talkPip" },
@@ -2313,17 +2312,15 @@ const VENDOR_ROLES = {
   weaponsmith: { title: "Weaponsmith", test: it => it.kind === "equip" && ["main", "ranged", "ammo"].includes(it.slot), work: "hammer", held: "hammer", hello: "Blades, bows, staves and shot. Every one honest steel. Mind the edges." },
   tradesman: { title: "Tradesman", test: it => it.kind === "tool" || it.kind === "mat" || it.kind === "crystal" || it.kind === "seed" || !!it.fishing, work: "work", held: "basket", hello: "Picks, hatchets, sickles, rods and raw goods. Everything a gatherer needs." },
   quartermaster: { title: "Quartermaster", test: it => it.kind === "food" || (it.kind === "use" && !it.spell && !it.recipe && !it.fishing && !it.pet), work: "count", held: "ledger", hello: "Potions, ethers and hot meals. Pack plenty before you head out." },
-  spellsmith: { title: "Spellsmith", test: it => !!it.spell && it.kind === "use", work: "read", held: "scroll", hello: "Scrolls of every school. Read one and the spell is yours for good." },
+  spellsmith: { title: "Spellsmith", test: it => it.kind === "use" && (!!it.spell || !!it.recipe), work: "read", held: "scroll", hello: "Scrolls of every school. Read one and the spell is yours for good." },
   jeweler: { title: "Jeweler", test: it => it.kind === "equip" && (it.slot === "ring" || it.slot === "neck"), work: "count", held: "book", hello: "Rings and pendants, cut and set by hand. A little sparkle goes a long way." }
 };
 const VENDOR_STOCK = 10, VENDOR_MAXLV = 5;
-const VENDOR_SOURCE = (() => { return SHOP.concat(SHOPS.marn).filter(id => ITEMS[id] && !ITEMS[id].hq && !/^rcp_/.test(id)).filter((id, i, a) => a.indexOf(id) === i); })();
+const VENDOR_SOURCE = (() => { return SHOP.concat(SHOPS.marn, SHOPS.vela).filter(id => ITEMS[id] && !ITEMS[id].hq).filter((id, i, a) => a.indexOf(id) === i); })();
 const VENDOR_POOL = {};
 for (const r in VENDOR_ROLES) VENDOR_POOL[r] = VENDOR_SOURCE.filter(id => (ITEMS[id].lv || 0) <= VENDOR_MAXLV && VENDOR_ROLES[r].test(ITEMS[id]));
-{
-  const inPool = new Set(); for (const r in VENDOR_POOL) for (const id of VENDOR_POOL[r]) inPool.add(id);
-  for (const id of SHOP) if (!inPool.has(id) && !SHOPS.vela.includes(id)) SHOPS.vela.push(id);
-}
+const VENDOR_FILL = {};
+for (const r in VENDOR_ROLES) VENDOR_FILL[r] = VENDOR_SOURCE.filter(id => (ITEMS[id].lv || 0) > VENDOR_MAXLV && VENDOR_ROLES[r].test(ITEMS[id])).sort((a, b) => (ITEMS[a].lv || 0) - (ITEMS[b].lv || 0) || ITEMS[a].price - ITEMS[b].price);
 const VENDOR_TOWNS = {
   outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, at: [[700, 705], [775, 705], [850, 705], [700, 770], [775, 770], [850, 770]] },
   harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, at: [[700, 765], [780, 765], [860, 765], [940, 765], [1020, 765], [1100, 765]] },

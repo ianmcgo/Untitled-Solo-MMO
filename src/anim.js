@@ -57,7 +57,7 @@ function mobAlert(v, e, an, P) {
 
 function normAngA(a) { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
 
-const NPC_WORK = { garrick: "hammer", marn: "work", odette: "work", tobin: "read", brann: "arms", ysolde: "work", vela: "work", maera: "read", corvin: "count", selene: "count", guard_east: "guard", guard_north: "guard", guard_pass: "guard", rhea: "arms", ilsa: "look" };
+const NPC_WORK = { garrick: "hammer", marn: "work", odette: "work", tobin: "read", brann: "arms", ysolde: "work", maera: "read", corvin: "count", selene: "count", guard_east: "guard", guard_north: "guard", guard_pass: "guard", rhea: "arms", ilsa: "look" };
 
 function poseBird(v, e, dt) {
   const an = trackEvents(v, e, dt);

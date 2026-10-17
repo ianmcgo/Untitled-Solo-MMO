@@ -2086,3 +2086,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## 18.47.0 Treasure pool window style
 - template4.html: #pool no longer has the glass class; override rules after the phone media rule give it the FF panel look (var(--ffStripe) background, var(--ffEdge) border, ffHead-style title, italic row text, gradient pill buttons; .pri uses the bright command gradient). hud4.js header is now <div class="ph"><span>Treasure Pool</span></div>. Position rules are unchanged.
+
+## 18.48.0 Vela removed, vendor fill
+- Vela (NPC, look, talk, zone entry) removed; her building is signed Outfitters Hall. SHOPS.vela remains as a data list only, used as vendor source.
+- VENDOR_SOURCE = SHOP + SHOPS.marn + SHOPS.vela, hq excluded, recipes included (spellsmith test now spell or recipe). VENDOR_POOL = level <= 5, VENDOR_FILL = the rest sorted by level then price. vendorStock takes up to 10 from the shuffled pool, then tops up from VENDOR_FILL in order, so every vendor shows 10 (jeweler: 4 rings at level <= 5, then level 7 to 11 shop-sold rings and collars). Quartermaster pool also gets Vela's no-level consumables (X-Potion, Hi-Ether, Super Ether, Reraiser, Chapel Sigil).
+- Items with the lowest requirement above 5 are the reason the jeweler had 4: most rings are level 7 or 14 in the item data.
