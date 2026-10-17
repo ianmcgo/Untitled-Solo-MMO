@@ -934,7 +934,7 @@ const ZONES = {
     npcs: [
       { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 18, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
       { id: "crystal_town", x: 1000, y: 760 }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
-      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "corvin", x: 840, y: 900 },
+      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "auction_outpost", x: 840, y: 900 },
       { id: "garrick", x: 820, y: 1205, home: 7, sleep: [22, 6.5] },
       { id: "ysolde", x: 1700, y: 960, home: 16, sleep: [19.5, 5.5] }, { id: "guard_east", x: 1790, y: 690 }
     ],
@@ -1138,7 +1138,7 @@ ZONES.harbor = {
   ambient: [{ type: "gull", x: 900, y: 1080, n: 6, r: 300 }, { type: "cat", x: 300, y: 600, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 900, y: 560, n: 1, path: [[800, 460], [1000, 460], [1000, 660], [800, 660]] }, { type: "walker", x: 900, y: 1035, n: 1, path: [[200, 1035], [1600, 1035]] }],
   npcs: [
     { id: "ilsa", x: 820, y: 400, home: 0, sleep: [22, 6] }, { id: "marn", x: 300, y: 430, home: 7, sleep: [20.5, 4.5] }, { id: "vela", x: 1400, y: 420, home: 10, sleep: [21, 7] },
-    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "selene", x: 1000, y: 410 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
+    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "auction_harbor", x: 1000, y: 410 }, { id: "job_harbor", x: 1200, y: 560 }, { id: "stable_harbor", x: 1500, y: 640 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1520, r: 430 }, { x: 900, y: 1540, r: 440 }, { x: 1500, y: 1520, r: 430 }],
@@ -1294,8 +1294,6 @@ const NPCS = {
   guard_east: { name: "Gate Guard Aldo", model: "guard", talk: "talkGuard" },
   guard_north: { name: "Harbor Guard Senna", model: "guard_f", talk: "talkGuard" },
   guard_pass: { name: "Harbor Guard Tomas", model: "guard", talk: "talkGuard" },
-  corvin: { name: "Corvin, Auction House", model: "corvin", talk: "talkAuction" },
-  selene: { name: "Selene, Auction House", model: "selene", talk: "talkAuction" },
   odette: { name: "Odette, Furnishings", model: "odette", talk: "talkOdette", shop: "furniture" },
   brann: { name: "Brann, Mercenary Hall", model: "brann", talk: "talkBrann" },
   ysolde: { name: "Ysolde, Stablemaster", model: "ysolde", talk: "talkYsolde" },
@@ -1425,7 +1423,7 @@ ZONES.ironvale = {
   props: [{ type: "crates", x: 1460, y: 860, r: 30 }, { type: "barrels", x: 1460, y: 300, r: 26 }, { type: "desk", x: 760, y: 655, r: 22 }, { type: "anvil", x: 1520, y: 590, rot: 0.3, r: 26 }],
   ambient: [{ type: "walker", x: 900, y: 680, n: 1, path: [[780, 560], [1020, 560], [1020, 800], [780, 800]] }, { type: "walker", x: 1380, y: 700, n: 1, path: [[1380, 150], [1380, 1250]] }, { type: "dog", x: 900, y: 680, n: 1, r: 120, col: 0x5a4a3a }],
   npcs: [
-    { id: "brisa", x: 1000, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "orla", x: 760, y: 620 },
+    { id: "brisa", x: 1000, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "auction_ironvale", x: 700, y: 560 }, { id: "job_ironvale", x: 820, y: 560 }, { id: "stable_ironvale", x: 1350, y: 760 },
     { id: "crystal_ironvale", x: 900, y: 680 }, { id: "trade_board", x: 1040, y: 560 }, { id: "guard_ironvale", x: 150, y: 650 }
   ],
   spawns: [],
@@ -2332,6 +2330,17 @@ const VENDOR_TOWNS = {
   ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, at: [[1110, 620], [1170, 620], [1230, 620], [1110, 685], [1170, 685], [1230, 685]] }
 };
 const VENDOR_WORK = {};
+const TOWN_SERVICES = {
+  outpost: {},
+  harbor: { job: "Maren", stable: "Fenn" },
+  ironvale: { job: "Dagny", stable: "Hild" }
+};
+for (const town in TOWN_SERVICES) {
+  NPCS["auction_" + town] = { name: "Auction Counter", prop: "kiosk", talk: "talkAuction" };
+  const T = TOWN_SERVICES[town];
+  if (T.job) { NPCS["job_" + town] = { name: T.job + ", Job Master", model: "tobin_b", talk: "talkTobin" }; VENDOR_WORK["job_" + town] = "read"; }
+  if (T.stable) { NPCS["stable_" + town] = { name: T.stable + ", Stablemaster", model: "ysolde_b", talk: "talkYsolde" }; VENDOR_WORK["stable_" + town] = "work"; }
+}
 for (const town in VENDOR_TOWNS) {
   const T = VENDOR_TOWNS[town];
   Object.keys(VENDOR_ROLES).forEach((r, i) => {
@@ -2571,7 +2580,6 @@ Object.assign(QUESTS, {
 Object.assign(NPCS, {
   brisa: { name: "Brisa, Quartermaster", model: "brisa", talk: "talkBrisa" },
   haldor: { name: "Haldor, Mythrilsmith", model: "haldor", talk: "talkHaldor" },
-  orla: { name: "Orla, Auction House", model: "orla", talk: "talkAuction" },
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
 });

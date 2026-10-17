@@ -2073,3 +2073,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Pell removed (NPCS, zone list, look, tables). His quests (tour_outpost, herbs, silk) are now given by v_trade_outpost (Hale). The old Pell's Goods building is signed Market Hall.
 - Storage bug: menu4 and hud4 tested S.zone.residence, a flag no zone has, so the residence always showed the read-only view. They now test S.zoneId === "residence".
 - Tests: test/h5unit.js; p25, p5c and p6 updated for Hale.
+
+## 18.45.0 Auction kiosks and town services
+- Auction: NPCS auction_<town> (prop "kiosk", talk talkAuction, name "Auction Counter") replace corvin, selene and orla (defs, zone entries and rig looks removed). models3d.js propView builds the kiosk (counter, glass, red roof, lit gold sign, point light). Positions are the old auctioneers' spots by each auction building.
+- TOWN_SERVICES (data.js, next to VENDOR_TOWNS): harbor and ironvale get job_<town> (model tobin_b, talkTobin) and stable_<town> (model ysolde_b, talkYsolde). They reuse the Tobin and Ysolde dialog code as is; model variants are copies of the originals with other skin or hair (rig.js, after NPC_LOOK). No home or sleep fields, so they never go indoors.
+- talkTobin calls questOptions("tobin", n) with a literal id, so the extra job masters offer the same job quests as Tobin.
