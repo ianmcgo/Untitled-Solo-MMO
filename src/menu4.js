@@ -1692,6 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.59.0", date: "2026-10-17", title: "City gear", items: [
+    "Four level 15 pieces lost their nation names and are now <b>City Slops, City Vest, City Tunic and City Harness</b>. Their stats, jobs and drops are unchanged, and anything you already own has been renamed."
+  ]},
   { v: "18.58.1", date: "2026-10-17", title: "Ursan Braguette spelling", items: [
     "The Ursan legwear is spelled <b>Ursan Braguette</b>. Characters made on 18.58.0 keep theirs under the corrected name."
   ]},

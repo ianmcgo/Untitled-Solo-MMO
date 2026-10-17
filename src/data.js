@@ -723,6 +723,16 @@ const RACE_GEAR_ALIAS = {
   elv_m_chausses: "elari_chausses", elvaan_f_chausses: "elari_chausses", galkan_braguette: "ursan_braguette", ursan_baguette: "ursan_braguette", hume_pants: "human_pants", hume_slacks: "human_pants", mithran_loincloth: "nekari_loincloth", tarutaru_braccae: "pipkin_braccae"
 };
 for (const id in RACE_GEAR_ALIAS) delete GEAR_DATA[id];
+const GEAR_RENAME = { windurstian_slops: ["city_slops", "City Slops"], san_dorian_vest: ["city_vest", "City Vest"], san_dorian_tunic: ["city_tunic", "City Tunic"], bastokan_harness: ["city_harness", "City Harness"] };
+const GEAR_RENAME_ALIAS = {};
+for (const old in GEAR_RENAME) for (const sfx of ["", "_hq"]) {
+  if (!GEAR_DATA[old + sfx]) continue;
+  const nid = GEAR_RENAME[old][0] + sfx;
+  GEAR_DATA[nid] = Object.assign({}, GEAR_DATA[old + sfx], { name: GEAR_RENAME[old][1] + (sfx ? " +1" : "") });
+  delete GEAR_DATA[old + sfx];
+  GEAR_RENAME_ALIAS[old + sfx] = nid;
+}
+Object.assign(RACE_GEAR_ALIAS, GEAR_RENAME_ALIAS);
 const RACE_GEAR_ROWS = [
   ["human_tunic", "Human Tunic", "human", "🧥", "body"], ["human_vest", "Human Vest", "human", "🧥", "body"], ["human_pants", "Human Pants", "human", "👖", "legs"],
   ["elari_bodice", "Elari Bodice", "elari", "👘", "body"], ["elari_jerkins", "Elari Jerkins", "elari", "🧥", "body"], ["elari_chausses", "Elari Chausses", "elari", "👖", "legs"],

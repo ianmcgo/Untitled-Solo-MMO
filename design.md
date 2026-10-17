@@ -2168,3 +2168,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - 18.58.1: the piece is "Ursan Braguette" (id ursan_braguette); 18.58.0 briefly had "Baguette", and ursan_baguette is aliased forward in migrateRaceGearIds. "Nekari Loincloth" is my reading of "mithran loincloth" (matches the other race renames).
 - Tests: p62unit also checks starter legs for all five races, the fifteen pieces, and the legs id migration.
 
+## 18.59.0 City gear
+- data.js `GEAR_RENAME` (old id to [new id, new name]) runs after the race-gear deletes: it copies the GEAR_DATA entry (and its _hq entry if one exists, named "... +1") under the new id and deletes the old one. Renamed: windurstian_slops to city_slops, san_dorian_vest to city_vest, san_dorian_tunic to city_tunic, bastokan_harness to city_harness. Stats, jobs, lv 15 and `src: "drop"` are untouched.
+- The renames are merged into `RACE_GEAR_ALIAS`, so migrateRaceGearIds rewrites old ids in saves (the regex is built from the alias keys, which is why that object now holds every id rename).
+- Left alone on purpose: Kingdom Tunic/Vest, Republic Harness, Federation Slops (the other nations' pieces) and the older design/balance-18.x.md tables, which are frozen sim output and still show bastokan_harness.
+
