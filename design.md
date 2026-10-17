@@ -2225,3 +2225,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Hand palm: the gBox block is replaced by a rounded gBall (0.034*hk, scale 0.5/1.05/1.15).
 - RACE_BODY.pipkin: leg 0.26 (minimum: leg ring offsets in humanEntry need knee..hip about 0.18 apart or rings cross), torso 0.46, arm 0.42, girth 1.15/1.12, waist 1.1/1.04, shoulder 0.16/0.152, hip 0.115, headR 0.165. HEAD_SCALE for doll is 1.25 x 0.97 (default 0.87 x 1.04). Leg radius factor dk 1.35. Ears follow HEAD_SCALE[0].
 - Target from the reference sheet: head ~25% of height, legs ~27%, torso+hips ~49%, arms to mid-thigh, round head wider than tall. Remaining gaps: smooth bowl hair, boot cuffs, baggy trousers, scarf.
+
+## 18.66.1 Pipkin torso and legs
+- RACE_BODY.pipkin: leg 0.2, torso 0.38, arm 0.38, hip 0.1, headR 0.15; leg radius factor dk 1.05; head profile cheek 0.14 to 0.03.
+- Short bodies broke loft ring ordering (rings use absolute offsets from hipJ, spineY, chestY, shY). Fixes for L.doll only: `monoRings` drops upper-torso rings closer than 0.016 in y (upR0 to upR); the leg gets its own 8-ring list (hipJ+0.06 down to ank+0.01); the pelvis lowR rings below hipJ+0.01 are scaled rx 0.72, rz 0.85 so the crotch bulb stops intersecting the thighs (that intersection was the jagged edge at the top of the legs).
+- If another short race is added, reuse these three guards instead of tuning absolute offsets.
