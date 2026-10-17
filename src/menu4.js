@@ -1692,6 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.46.0", date: "2026-10-16", title: "Smaller saplings, apart rabbit ears", items: [
+    "<b>Wandering and Strangler Saplings are about a quarter of their old size</b> and look sleepy: heavy lids and tiny pupils instead of wide staring eyes.",
+    "<b>Hare ears now stay apart.</b> They used to lean in and touch at the tips; they now lean slightly outward when idle, hopping, twitching or listening."
+  ]},
   { v: "18.45.0", date: "2026-10-16", title: "Auction kiosks and town services", items: [
     "<b>The auction house is now a windowed kiosk</b> with a gold sign: walk up to the Auction Counter by the auction building and press Talk. It replaces Corvin, Selene and Orla in all three towns.",
     "<b>Every town now has a Job Master and a Stablemaster.</b> Maren and Dagny teach and change jobs in Saltreach and Ironvale just like Tobin, and Fenn and Hild run the stables, riding licence, coats and saddles just like Ysolde.",

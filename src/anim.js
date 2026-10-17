@@ -1360,7 +1360,7 @@ function poseHare(v, e, dt) {
   addP(P, "legBL", c1 * 0.95 * mv, 0, 0); addP(P, "legBR", c1 * 0.95 * mv, 0, 0);
   addP(P, "legFL", -c1 * 0.6 * mv, 0, 0); addP(P, "legFR", -c1 * 0.6 * mv, 0, 0);
   const tw = Math.sin(t * 2.7) > 0.95 ? 0.25 : 0;
-  addP(P, "earL", -0.1 + 0.55 * mv + tw, 0, 0.15); addP(P, "earR", -0.1 + 0.55 * mv, 0, -0.15 - tw);
+  addP(P, "earL", -0.1 + 0.55 * mv + tw, 0, -0.15); addP(P, "earR", -0.1 + 0.55 * mv, 0, 0.15 + tw);
   addP(P, "head", Math.sin(t * 6) * 0.03 * (1 - mv) + 0.1 * mv, Math.sin(t * 0.5) * 0.4 * (1 - mv), 0);
   let sharp = false;
   const ak = (S.time - an.aStart) / 0.45;
@@ -1392,8 +1392,8 @@ function poseRarab(v, e, dt) {
   addP(P, "legBL", (0.8 * air - 0.7 * land) * mv, 0, 0); addP(P, "legBR", (0.8 * air - 0.7 * land) * mv, 0, 0);
   addP(P, "footBL", (0.5 * air + 0.75 * land) * mv, 0, 0); addP(P, "footBR", (0.5 * air + 0.75 * land) * mv, 0, 0);
   const tw = Math.sin(t * 2.3) > 0.96 ? 1 : 0, tw2 = Math.sin(t * 1.7 + 2) > 0.97 ? 1 : 0;
-  addP(P, "earL", -0.5 * air * mv - 0.08 * tw, 0, 0.12 + 0.12 * tw); addP(P, "earR", -0.5 * air * mv - 0.08 * tw2, 0, -0.12 - 0.12 * tw2);
-  addP(P, "ear2L", -0.35 * air * mv + 0.25 * tw + Math.sin(t * 2) * 0.04, 0, 0.06); addP(P, "ear2R", -0.35 * air * mv + 0.25 * tw2 + Math.sin(t * 2 + 1) * 0.04, 0, -0.06);
+  addP(P, "earL", -0.5 * air * mv - 0.08 * tw, 0, -0.12 - 0.12 * tw); addP(P, "earR", -0.5 * air * mv - 0.08 * tw2, 0, 0.12 + 0.12 * tw2);
+  addP(P, "ear2L", -0.35 * air * mv + 0.25 * tw + Math.sin(t * 2) * 0.04, 0, -0.06); addP(P, "ear2R", -0.35 * air * mv + 0.25 * tw2 + Math.sin(t * 2 + 1) * 0.04, 0, 0.06);
   addP(P, "tail", Math.sin(t * 5) * 0.08 + 0.3 * air * mv, Math.sin(t * 3) * 0.15, 0);
   let sharp = false;
   const ak = (S.time - an.aStart) / 0.55;
@@ -1408,13 +1408,13 @@ function poseRarab(v, e, dt) {
   }
   if (e.readying) { const sh = Math.sin(t * 26) * 0.05; addP(P, "legBL", -0.6, 0, 0); addP(P, "legBR", -0.6, 0, 0); addP(P, "footBL", 0.65, 0, 0); addP(P, "footBR", 0.65, 0, 0); addP(P, "body", 0.2, sh, 0); addP(P, "earL", -0.4, 0, 0); addP(P, "earR", -0.4, 0, 0); v.rootOff[1] -= 0.04; }
   const hk = (S.time - an.hitStart) / 0.35;
-  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.35 * w, 0, 0.1 * w); addP(P, "head", -0.2 * w, 0, 0); addP(P, "earL", 0.4 * w, 0, 0.3 * w); addP(P, "earR", 0.4 * w, 0, -0.3 * w); v.rootOff[1] += 0.05 * w; }
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.35 * w, 0, 0.1 * w); addP(P, "head", -0.2 * w, 0, 0); addP(P, "earL", 0.4 * w, 0, -0.3 * w); addP(P, "earR", 0.4 * w, 0, 0.3 * w); v.rootOff[1] += 0.05 * w; }
   mobAlert(v, e, an, P);
   if (an.dead != null) {
     const k = ease((S.time - an.dead) / 0.6);
     for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; }
     v.rootRot[2] = 1.45 * k; v.rootOff[1] = 0.06 * k;
-    addP(P, "earL", 0.5 * k, 0, 0.4 * k); addP(P, "earR", 0.5 * k, 0, -0.2 * k); addP(P, "ear2L", 0.6 * k, 0, 0); addP(P, "ear2R", 0.6 * k, 0, 0);
+    addP(P, "earL", 0.5 * k, 0, -0.4 * k); addP(P, "earR", 0.5 * k, 0, 0.2 * k); addP(P, "ear2L", 0.6 * k, 0, 0); addP(P, "ear2R", 0.6 * k, 0, 0);
     addP(P, "legBL", 0.6 * k, 0, 0); addP(P, "legBR", -0.3 * k, 0, 0);
   }
   applyPose(v, dt, sharp);

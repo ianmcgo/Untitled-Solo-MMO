@@ -1313,7 +1313,7 @@ function buildMob(famKey, L, x, y, spawnIdx, jobWant) {
   const kit = job ? mobKit(job, L) : null;
   return {
     id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, job, kit, spells: kit ? kit.spells : f.spells || null, castGap: kit ? kit.gap : f.castGap || [6, 9], stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
-    x, y, px: x, py: y, home: { x, y }, radius: Math.round(f.radius * (f.scale || 1)), color: f.color, speed: f.speed * CONFIG.mobSpeedMul, delay: st.delay, swingTimer: st.delay,
+    x, y, px: x, py: y, home: { x, y }, radius: Math.max(8, Math.round(f.radius * (f.scale || 1))), color: f.color, speed: f.speed * CONFIG.mobSpeedMul, delay: st.delay, swingTimer: st.delay,
     state: "idle", enmity: new Map(), face: Math.random() * Math.PI * 2, alive: true, buffs: {}, chain: null, burst: null,
     spawnIdx, wanderTimer: 0, wanderDir: { x: 0, y: 0 }, readying: null, flash: 0, casting: null, recasts: {}, deadAt: 0, target: null, moving: false,
     lastSwing: -9, lastHit: -9, lastWS: -9

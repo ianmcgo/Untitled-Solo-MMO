@@ -2417,9 +2417,10 @@ function bulbEntry(col, leaf) {
   }
   for (const s of [-1, 1]) {
     const sd = s > 0 ? "L" : "R";
-    R.add(gBall(V3(s * 0.1, Y + 0.1, 0.25), 0.085, 1, 1.15, 0.7, 10), "body", 0xf4f0e0, "plain");
-    R.add(gBall(V3(s * 0.1, Y + 0.1, 0.31), 0.045, 1, 1.1, 0.6, 8), "body", 0x1a1208, "plain");
-    R.add(gBall(V3(s * 0.11, Y + 0.12, 0.34), 0.014, 1, 1, 0.6, 5), "body", 0xffffff, "plain");
+    R.add(gBall(V3(s * 0.1, Y + 0.09, 0.25), 0.085, 1.1, 0.5, 0.7, 10), "body", 0xf4f0e0, "plain");
+    R.add(gBall(V3(s * 0.1, Y + 0.085, 0.3), 0.034, 1, 0.8, 0.6, 8), "body", 0x1a1208, "plain");
+    R.add(gBall(V3(s * 0.1, Y + 0.14, 0.255), 0.095, 1.2, 0.5, 0.78, 10), "body", dark, "skin");
+    R.add(gBall(V3(s * 0.1, Y + 0.04, 0.265), 0.08, 1.15, 0.12, 0.6, 8), "body", dark, "skin");
     R.add(gTaper(V3(s * 0.12, Y - 0.2, 0.02), V3(s * 0.13, 0.05, 0.02), 0.06, 0.05, 7), "leg" + sd, dark, "skin");
     R.add(gBall(V3(s * 0.13, 0.03, 0.09), 0.075, 1.1, 0.5, 1.5, 8), "leg" + sd, dark, "skin");
   }
@@ -2535,11 +2536,11 @@ function hareEntry(col) {
     R.add(gBall(V3(s * 0.072, 0.54, 0.148), 0.007, 1, 1, 1, 5), "head", 0xffffff, "plain");
     R.add(gBall(V3(s * 0.09, 0.46, 0.1), 0.03, 1, 0.6, 0.7, 8), "head", 0xe8b0b0, "skin");
     for (let k = 0; k < 3; k++) R.add(gTaper(V3(s * 0.03, 0.465 + k * 0.008, 0.18), V3(s * 0.14, 0.47 + (k - 1) * 0.025, 0.16 - k * 0.01), 0.002, 0.0008, 3), "head", 0xf0ece4, "plain");
-    R.add(gBall(V3(s * 0.055, 0.69, 0), 0.042, 0.75, 2.2, 0.38, 10), "ear" + sd, col, "fur");
-    R.add(gBall(V3(s * 0.055, 0.69, 0.012), 0.032, 0.6, 2.0, 0.2, 8), "ear" + sd, 0xe0a8a8, "skin");
-    R.add(gBall(V3(s * 0.057, 0.865, -0.01), 0.042, 0.72, 2.4, 0.36, 10), "ear2" + sd, col, "fur");
-    R.add(gBall(V3(s * 0.057, 0.865, 0.002), 0.031, 0.58, 2.2, 0.2, 8), "ear2" + sd, 0xe0a8a8, "skin");
-    R.add(gBall(V3(s * 0.058, 0.96, -0.012), 0.022, 1, 1, 0.8, 6), "ear2" + sd, dark, "fur");
+    R.add(gBall(V3(s * 0.066, 0.69, 0), 0.042, 0.75, 2.2, 0.38, 10), "ear" + sd, col, "fur");
+    R.add(gBall(V3(s * 0.066, 0.69, 0.012), 0.032, 0.6, 2.0, 0.2, 8), "ear" + sd, 0xe0a8a8, "skin");
+    R.add(gBall(V3(s * 0.07, 0.865, -0.01), 0.042, 0.72, 2.4, 0.36, 10), "ear2" + sd, col, "fur");
+    R.add(gBall(V3(s * 0.07, 0.865, 0.002), 0.031, 0.58, 2.2, 0.2, 8), "ear2" + sd, 0xe0a8a8, "skin");
+    R.add(gBall(V3(s * 0.072, 0.96, -0.012), 0.022, 1, 1, 0.8, 6), "ear2" + sd, dark, "fur");
     R.add(gBall(V3(s * 0.1, 0.15, -0.01), 0.09, 0.75, 1.0, 1.2, 12), "legB" + sd, col, "fur");
     R.add(gTaper(V3(s * 0.1, 0.12, -0.04), V3(s * 0.1, 0.045, -0.045), 0.04, 0.03, 8), "legB" + sd, col, "fur");
     R.add(gBall(V3(s * 0.1, 0.025, 0.04), 0.06, 0.85, 0.42, 2.0, 10), "footB" + sd, light, "fur");
