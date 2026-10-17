@@ -2181,3 +2181,10 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.61.0 An empty bag
 - newSave and createChar no longer give 3 potions: `inventory: []`. Existing saves are untouched (normalizeSave keeps what they hold). Tests that counted on starting potions give or buy their own; p5cunit's bones quest still pays potions as a reward.
 
+
+## 18.62.0 Underwear
+- rig.js `applyUnderwear(L, gear, on)` runs at the end of lookFor (both the job-style path and the early-return path). `on` is true only for the player, remote players and the Equipment preview (5th lookFor arg), so NPCs, mercs and mobs are untouched.
+- Empty `gear.body` sets `L.top` to `{type:"bare"}` in skin colour with no sleeves, drops pauldrons, collar and cape, and sets `L.under.top`. Empty `gear.legs` sets `L.legs` to skin and `L.under.low`, drops greaves. Both empty also drops the belt. Gloves, boots and weapons are unaffected.
+- `L.under.top`: bikini (women), bandeau (Pipkin women, `L.doll`), none for men. `L.under.low`: boxer (men), thong (women), brief (Pipkin women).
+- humanEntry draws them as white cloth shells: boxer and brief are `shellOf(lowR)` plus the upper rings of each leg loft (boxer reaches 0.17 below the hip joint, brief 0.06); thong is a waist string ring, a front patch ball and a back string; bikini is two cup balls, a band ring and two neck straps; bandeau is one thick band ring.
+- Job outfits (JOB_STYLE) still apply to every filled slot. Verified by screenshot only (no phase-1 test, rig is 3D-only).
