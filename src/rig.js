@@ -1649,7 +1649,7 @@ function humanEntry(L) {
       const ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi, rz: r * gi, f: f || 1, b: b || 1, p: p || 2 });
       const aw = (x, y) => y > shY - 0.03 ? [["upArm" + sd, 1 - 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)], ["chest", 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)]] : blendW(y, [[0, "foreArm" + sd, 0], [elY, "upArm" + sd, 0.035]]).map(([n, w]) => [n, w]);
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
-      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings = [tuck(ar(shY + 0.004, 0.022), 0.024), tuck(ar(shY - 0.006, 0.044), 0.016), tuck(ar(shY - 0.024, 0.055), 0.007), ar(shY - 0.045, 0.057, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
+      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings = [tuck(ar(shY + 0.012, 0.04), 0.052), tuck(ar(shY - 0.004, 0.057), 0.032), tuck(ar(shY - 0.026, 0.063), 0.014), ar(shY - 0.05, 0.06, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
       const fa1 = [ar(elY, 0.042, 1, 1.08), ar(elY - 0.03, 0.045, 1.05, 1.0), ar(elY - 0.07, 0.043), ar(mid, 0.039)];
       const WK = 1.16, fa2 = [ar(mid, 0.039), ar((mid + wrY) / 2, 0.035 * 1.06), ar(wrY + 0.018, 0.031 * WK, 1, 1, 2.4), ar(wrY - 0.004, 0.03 * WK, 1, 1, 2.4)];
       const flip = rs => rs.slice().reverse();
