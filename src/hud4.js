@@ -1051,7 +1051,7 @@ function updatePool() {
   if (sig === UI.poolSig) return;
   UI.poolSig = sig;
   el.classList.add("on");
-  el.innerHTML = '<div class="ph">🎲 TREASURE POOL</div>' + p.map(e => '<div class="pe"><span>' + (ITEMS[e.id].icon || "📦") + "</span><b>" + esc(ITEMS[e.id].name) + " <small>" + Math.max(0, Math.ceil(e.until - S.time)) + "s</small></b>" + (e.mine == null ? '<button data-lot="' + e.seq + '" class="pri">Lot</button><button data-pass="' + e.seq + '">Pass</button>' : "<small>" + (e.mine ? "Lot " + e.mine : "Passed") + "</small>") + "</div>").join("");
+  el.innerHTML = '<div class="ph"><span>Treasure Pool</span></div>' + p.map(e => '<div class="pe"><span>' + (ITEMS[e.id].icon || "📦") + "</span><b>" + esc(ITEMS[e.id].name) + " <small>" + Math.max(0, Math.ceil(e.until - S.time)) + "s</small></b>" + (e.mine == null ? '<button data-lot="' + e.seq + '" class="pri">Lot</button><button data-pass="' + e.seq + '">Pass</button>' : "<small>" + (e.mine ? "Lot " + e.mine : "Passed") + "</small>") + "</div>").join("");
 }
 
 function updateFish() {

@@ -2083,3 +2083,6 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - data.js: sapling scale 0.33, jungle_sapling 0.36 (was 1.3 and 1.45). buildMob radius now has a floor of 8 so the tiny bulbs stay targetable.
 - rig.js bulbEntry eyes: flat white (y 0.5), small pupil, dark-bulb-colour upper lid ball and thin lower lid for a squint.
 - Hare ears: the L bone leaned inward with positive z and the R bone with negative z, so the tips touched. anim.js hare poses (idle, hop, twitch, listen, hit) now use negative z for L and positive for R (outward). rig.js hareEntry ear geometry sits 0.01 to 0.015 further apart.
+
+## 18.47.0 Treasure pool window style
+- template4.html: #pool no longer has the glass class; override rules after the phone media rule give it the FF panel look (var(--ffStripe) background, var(--ffEdge) border, ffHead-style title, italic row text, gradient pill buttons; .pri uses the bright command gradient). hud4.js header is now <div class="ph"><span>Treasure Pool</span></div>. Position rules are unchanged.

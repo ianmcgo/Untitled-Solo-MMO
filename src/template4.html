@@ -677,6 +677,15 @@
   .plate.k-mob .pn { -webkit-text-stroke: .7px #1a1408; }
   #pool { left: auto; right: calc(282px + var(--sar)); bottom: calc(196px + var(--sab)); }
   @media (max-width: 720px) { #pool { left: calc(6px + var(--sal)); right: auto; bottom: calc(300px + var(--sab)); width: min(250px, calc(100vw - 150px - var(--sal) - var(--sar))); max-height: 40vh; overflow-y: auto; } #pool .pe b { min-width: 0; overflow: hidden; text-overflow: ellipsis; } }
+
+  #pool { font-family: var(--ffFont); background: var(--ffStripe); border: 2px solid var(--ffEdge); border-radius: 6px; box-shadow: 0 3px 12px rgba(0,0,0,.5); backdrop-filter: none; padding: 2px 8px 6px; }
+  #pool .ph { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 1px 0 2px; font: italic 800 11px var(--ffFont); letter-spacing: .06em; color: #fff; text-shadow: 1px 1px 0 #000; }
+  #pool .ph::before, #pool .ph::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, transparent, var(--ffEdge)); } #pool .ph::after { background: linear-gradient(90deg, var(--ffEdge), transparent); }
+  #pool .pe { border-top: 1px solid rgba(236,236,255,.18); font: italic 800 12px var(--ffFont); color: #fff; text-shadow: 1px 1px 0 #000; }
+  #pool .pe b { font-weight: 800; }
+  #pool .pe small { color: #d8d8ff; font: 700 10px var(--ffFont); font-style: normal; }
+  #pool button { height: 22px; padding: 0 10px; border-radius: 11px; border: 1px solid rgba(255,255,255,.75); background: linear-gradient(180deg, #8a90c8 0%, #5a60a0 55%, #3a4080 100%); color: #fff; font: italic 800 11px var(--ffFont); text-shadow: 1px 1px 0 #000; cursor: pointer; }
+  #pool button.pri { background: linear-gradient(180deg, #e8ecff 0%, #a8b4ff 18%, #6a76d8 55%, #4a54b0 100%); }
   #fishBox { bottom: calc(200px + var(--sab)); }
   #dialog { bottom: calc(196px + var(--sab)); }
   @media (max-width: 900px) { #ffSide { width: 210px; } #chat { right: calc(222px + var(--sar)); } #log { height: 110px; font-size: 11.5px; } #bottom { bottom: calc(160px + var(--sab)); } #tCmd { bottom: calc(160px + var(--sab)); } }
@@ -1137,7 +1146,7 @@
     <div id="tCmd" class="glass"></div>
     <div id="mCmd"></div>
     <div id="mmWrap" title="Map (M)"><div id="mmDisc"><canvas id="minimap" width="300" height="300"></canvas><div id="mmN" class="mmL n">N</div><div id="mmE" class="mmL">E</div><div id="mmS" class="mmL">S</div><div id="mmW" class="mmL">W</div></div><div id="mmTime"></div></div>
-    <div id="pool" class="glass"></div>
+    <div id="pool"></div>
     <div id="fishBox" class="glass"></div>
     <div id="raceBox" class="glass"></div>
     <div id="topRight">
