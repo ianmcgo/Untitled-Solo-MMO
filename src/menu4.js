@@ -1692,6 +1692,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.63.0", date: "2026-10-17", title: "Turnip starters", items: [
+    "<b>New starting weapons.</b> Warriors start with a Turnip Sword, Thieves with a Turnip Knife, White Mages with a Turnip Rod and Black Mages with a Turnip Staff. They cannot be bought, sold at auction, dropped or crafted.",
+    "<b>No starting helmet.</b> New characters begin with no head armor.",
+    "<b>Armor you wear is now shown by default.</b> The Settings option now defaults to Show gear instead of Job style. Anyone who already chose an option keeps it."
+  ]},
   { v: "18.62.1", date: "2026-10-17", title: "Pipkin underwear", items: [
     "Pipkin women now wear the same white string thong and bikini top as other women."
   ]},
@@ -3175,7 +3180,7 @@ const UPDATES = [
     "Title screen and Credits carry the maker's links.",
     "Loading screens show a random character or monster from the game, slowly turning, with a line about it.",
     "The Rest tip and other loading tips mention that standing still only trickles.",
-    "New characters start with only their race's clothes and their own job's gear, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
+    "New characters start with only their race's clothes, a Turnip weapon for their job (Warrior sword, Thief knife, White Mage rod, Black Mage staff; not sold, auctioned, dropped or crafted), no helmet, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
     "Take off body or leg armor and your character shows underwear: white boxers for men, a white string thong and bikini top for women. Each slot is independent."
   ] },
   { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [

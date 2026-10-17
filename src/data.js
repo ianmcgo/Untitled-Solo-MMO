@@ -743,6 +743,15 @@ const RACE_GEAR_ROWS = [
   ["pipkin_tunic", "Pipkin Tunic", "pipkin", "👘", "body"], ["pipkin_kaftan", "Pipkin Kaftan", "pipkin", "👘", "body"], ["pipkin_braccae", "Pipkin Braccae", "pipkin", "👖", "legs"]
 ];
 for (const [id, name, race, icon, slot] of RACE_GEAR_ROWS) GEAR_DATA[id] = { name, kind: "equip", icon, slot, jobs: "ALL", lv: 1, price: slot === "legs" ? 56 : 70, stats: { def: 2 }, src: "race", race };
+const TURNIP_ROWS = [
+  ["turnip_sword", "Turnip Sword", "🗡️", "sword", 5, 2.28, ["WAR", "RDM", "THF", "PLD", "DRK", "BST", "BRD", "RNG", "NIN", "DRG", "BLU", "COR", "RUN"]],
+  ["turnip_knife", "Turnip Knife", "🔪", "dagger", 4, 2.05, ["WAR", "THF", "PLD", "DRK", "BRD", "RNG", "SAM", "NIN", "DRG", "COR", "PUP", "DNC"]],
+  ["turnip_rod", "Turnip Rod", "🏏", "club", 3, 2.88, ["WHM", "BLM", "SMN", "SCH", "GEO"]],
+  ["turnip_staff", "Turnip Staff", "🦯", "staff", 3, 2.88, ["WHM", "BLM", "SMN", "SCH", "GEO"]]
+];
+for (const [id, name, icon, wtype, dmg, delay, jobs] of TURNIP_ROWS) GEAR_DATA[id] = { name, kind: "equip", icon, slot: "main", wtype, dmg, delay, jobs, lv: 1, price: 10, src: "race", starter: true };
+const STARTER_WEAPON = { WAR: "turnip_sword", THF: "turnip_knife", WHM: "turnip_rod", BLM: "turnip_staff" };
+function starterWeapon(job) { return STARTER_WEAPON[job] || "bronze_sword"; }
 const RACE_START_BODY = {
   human: { war: "human_vest", mage: "human_tunic" }, elari: { war: "elari_jerkins", mage: "elari_bodice" },
   ursan: { war: "ursan_surcoat", mage: "ursan_tunic" }, nekari: { war: "nekari_separates", mage: "nekari_tunic" },

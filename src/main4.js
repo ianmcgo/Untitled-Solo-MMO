@@ -263,7 +263,7 @@ function showOfflineGate(err) {
 }
 
 const CC = { job: "WAR", look: null, name: "", step: 0, thumbs: {} };
-const STARTER_GEAR = { WAR: { main: "bronze_sword", head: "bronze_cap", body: "bronze_harness" }, WHM: { main: "ash_club", head: "bronze_cap", body: "robe" }, BLM: { main: "ash_staff", head: "bronze_cap", body: "robe" } };
+const STARTER_GEAR = Object.fromEntries(Object.keys(JOBS).map(j => [j, { main: starterWeapon(j) }]));
 const JOB_BLURB = { PLD: "", RDM: "", THF: "", MNK: "", WAR: "Front-line fighter. Great axes and swords, Provoke to hold attention, Berserk to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Dia and Banish wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
 
 function fmtAgo(t) {
