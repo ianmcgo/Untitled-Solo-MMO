@@ -7,7 +7,7 @@ const ex = G.ZONES.frost.exits.find(e => e.to === 'ironvale');
 ok(ex && ex.x + ex.w >= G.ZONES.frost.w - 1, 'Frostspire Pass has an east exit to Ironvale');
 G.enterZone('frost', ex.x - 5, ex.y + ex.h / 2); run(1.5);
 ok(S.zoneId === 'ironvale', 'walking east out of the pass reaches Ironvale');
-ok(G.ZONES.ironvale.safe && ['brisa', 'haldor', 'orla', 'crystal_ironvale'].every(id => npc(id)), 'Ironvale is a safe town with a quartermaster, smith, auction house and crystal');
+ok(G.ZONES.ironvale.safe && ['brisa', 'haldor', 'auction_ironvale', 'crystal_ironvale'].every(id => npc(id)), 'Ironvale is a safe town with a quartermaster, smith, auction house and crystal');
 G.save.jobs.WAR.lv = 18; G.refreshPlayer(true);
 G.talkTo(npc('brisa'));
 ok(!!opt(/Smoke on the Pass/) && !!opt(/Ore Run/), 'Brisa offers work');

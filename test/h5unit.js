@@ -29,4 +29,11 @@ G.enterZone('outpost', 800, 700); for (let i = 0; i < 12; i++) tick(1000 / 60);
 ok(G.shopList('v:armorer').length === G.vendorStock('armorer', 'outpost').length, 'shop window lists the vendor stock');
 const lost = G.SHOP.filter(id => !G.VENDOR_POOL.armorer.concat(G.VENDOR_POOL.weaponsmith, G.VENDOR_POOL.tradesman, G.VENDOR_POOL.quartermaster, G.VENDOR_POOL.spellsmith, G.VENDOR_POOL.jeweler).includes(id) && !G.SHOPS.vela.includes(id));
 ok(!lost.length, 'every old shop item is still sold somewhere (' + lost.slice(0, 4) + ')');
+for (const town of ['outpost', 'harbor', 'ironvale']) {
+  const ids = G.ZONES[town].npcs.map(n => n.id);
+  ok(ids.includes('auction_' + town) && G.NPCS['auction_' + town].prop === 'kiosk', town + ' has an auction kiosk');
+  ok(!ids.some(i => ['corvin', 'selene', 'orla'].includes(i)), town + ' has no auctioneer person');
+  ok(ids.some(i => G.NPCS[i] && G.NPCS[i].talk === 'talkTobin'), town + ' has a job master');
+  ok(ids.some(i => G.NPCS[i] && G.NPCS[i].talk === 'talkYsolde'), town + ' has a stablemaster');
+}
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

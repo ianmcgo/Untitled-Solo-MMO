@@ -1692,6 +1692,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.45.0", date: "2026-10-16", title: "Auction kiosks and town services", items: [
+    "<b>The auction house is now a windowed kiosk</b> with a gold sign: walk up to the Auction Counter by the auction building and press Talk. It replaces Corvin, Selene and Orla in all three towns.",
+    "<b>Every town now has a Job Master and a Stablemaster.</b> Maren and Dagny teach and change jobs in Saltreach and Ironvale just like Tobin, and Fenn and Hild run the stables, riding licence, coats and saddles just like Ysolde.",
+    "The Job Masters and Stablemasters in Saltreach and Ironvale stay at their posts all day and night."
+  ]},
   { v: "18.44.0", date: "2026-10-16", title: "Six vendors in every town", items: [
     "<b>Every town now has six vendors:</b> an Armorer (armor), a Weaponsmith (weapons, bows and ammo), a Tradesman (gathering tools and raw materials), a Quartermaster (potions and food), a Spellsmith (scrolls) and a Jeweler (rings and necklaces). Find them in the market of Ashenreach, south of the plaza in Saltreach and beside the shop in Ironvale.",
     "Each vendor shows up to 10 items from their trade, all level 5 or lower, and the selection changes every day and from town to town. The Jeweler only has four things in his trade at that level.",
@@ -3194,7 +3199,7 @@ function tabHelp() {
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. You can rest during a fight too (it disengages you first). Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("🏙️ Cities and districts", ul([
-    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, the six vendors, Odette, Corvin's auction desk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
+    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, the six vendors, Odette, the auction kiosk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
     "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
@@ -3302,7 +3307,7 @@ function tabHelp() {
     "<b>Jobs unlock as you grow.</b> Warrior, White Mage, Black Mage and Thief start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
     "<b>Job achievements:</b> each job you unlock earns its own achievement; Bronze, Silver and Gold mark 6, 12 and 18 open jobs, and Every Trade needs them all.",
     "<b>Companions follow your jobs:</b> Brann only offers fighters whose job you have unlocked.",
-    "<b>Ask Tobin</b> (Job Master) why jobs must be unlocked, or how you are doing: he gives a vague hint about what to train next without naming the job.",
+    "<b>Ask Tobin</b> (or the Job Master in any town) why jobs must be unlocked, or how you are doing: he gives a vague hint about what to train next without naming the job.",
     "<b>Initiation quests:</b> Tobin's old job quests are offered only after the job is unlocked. They no longer unlock anything but still give the job's first weapon.",
     "Support jobs unlock at level 10 through Tobin's quest <i>A Second Calling</i> and run at half your level.",
     "Companions cost a hiring fee (it covers the first hour of play) and then a wage for each further hour. If you refuse or can't pay, they go back to the Mercenary Hall as Old Friends. They match your level and talk in party chat. Knocked-out companions get back up after 6 calm seconds. If one is left far behind, they catch up. When you /rest, they sit with you."
@@ -3330,10 +3335,10 @@ function tabHelp() {
     ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
-    ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), Selene (auction house), home point, trade board, docks"],
+    ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), Vela (level 13–17 gear), an auction kiosk, a job master and a stablemaster, home point, trade board, docks"],
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
     ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"],
-    ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the smith (high-quality +1 gear, level 14 and up), Orla's auction house, home point, trade board"],
+    ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the smith (high-quality +1 gear, level 14 and up), an auction kiosk, a job master and a stablemaster, home point, trade board"],
     ["Sunscar Desert", "17–20", "South of Ironvale. Sand, cacti and red mesas: Dune Lizards, Sand Crabs, Sun Wasps (day), Dune Worms, Needlekin, Cinder Bombs (night). Sunscar Gate, Titan's Ribs, the Glass Oasis, the Singing Dunes (NM Sandmaw) and the Red Spire"],
     ["Verdant Jungle", "17–20", "East of the Ashen Marsh. Huge trees, warm rain and green mist: Vine Crawlers, Jade Hornets (day), Strangler Saplings, Bloom Mandrakes (day), Jade Toads and a Crag Talon war band by the Overgrown Temple. Old Mossback, an ancient treant, walks the Heart of the Canopy"],
     ["Cinder Peak", "18–20", "East of the Sunscar Desert. A volcano of black rock, ash and glowing lava pools: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs, Cinder Bombs and Cinder Bones (night). The NM Pyreclaw suns itself on the Crater Rim at night. Rich mining; no fishing in lava"],
@@ -3393,7 +3398,7 @@ function tabHelp() {
   ]));
   h += sec("⚖️ Auction house", ul([
     "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
-    "Talk to <b>Corvin</b> in Ashenreach Outpost, <b>Selene</b> in Saltreach Harbor or <b>Orla</b> in Ironvale. Every town has its own auction house.",
+    "Walk up to the <b>Auction Counter</b>, a windowed kiosk near the auction building in Ashenreach, Saltreach and Ironvale, and press Talk. Every town has its own auction house.",
     "<b>One list.</b> The Buy view shows every seller together: 🏛 towns in gold, 👤 players in green and ⚔ mercenaries in violet. Use Show to filter, and open an item to see all sellers sorted by price. Hover a mercenary's name to see whose it is.",
     "<b>Towns buy too.</b> Every 20 minutes of play, each town buys one lot from the market. It buys your own lots first (paying you at once), then your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. About a quarter of what a town buys it puts back up under its own name at 3% more.",
     "<b>Online, the market is shared.</b> When you play online, your companions' sell-offs go to the shared market under their names (up to 300 lots per player, no expiry, priced at each item's usual value), and every player sees them. The towns buy on real time there: every 20 minutes each town buys one lot, players' lots first and companions' lots after, taking turns between sellers. Crystals from these sales go to your player delivery box. A town's relisted lots show under its name and anyone can buy them.",
@@ -3515,7 +3520,7 @@ function tabHelp() {
     "Odette's quest <i>Make It Home</i> rewards a potted plant for placing two pieces."
   ]));
   h += sec("🌙 Townsfolk", ul([
-    "People in the Outpost go home at night and come back out in the morning, each at their own hour: Ysolde 19:30–5:30, Tobin 20:00–7:00, Odette 21:30–6:00, Rhea 22:00–6:00, Brann 23:00–7:30 (game time).",
+    "People in the Outpost go home at night and come back out in the morning, each at their own hour: Ysolde 19:30–5:30, Tobin 20:00–7:00 (the job masters and stablemasters in Saltreach and Ironvale stay at their posts), Odette 21:30–6:00, Rhea 22:00–6:00, Brann 23:00–7:30 (game time).",
     "While someone is indoors you can't talk or trade with them. The Home Point Crystal is always there."
   ]));
   h += sec("⛏️ Gathering", ul([

@@ -391,6 +391,20 @@ function propView(n) {
     const cols = [0xf2ead8, 0xe8dcc0, 0xf8f0e0, 0xead8b8, 0xf0e4cc];
     for (let i = 0; i < 6; i++) { const note = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.42), std({ color: cols[i % cols.length], roughness: 1 })); note.position.set(-0.6 + (i % 3) * 0.6, 1.8 - Math.floor(i / 3) * 0.5, 0.09); note.rotation.z = (i * 0.37 % 0.3) - 0.15; g.add(note); }
     v.meta.headTop = 2.4;
+  } else if (n.prop === "kiosk") {
+    const wood = std({ color: 0x5a3e24, roughness: 0.85 }), trim = std({ color: 0xc9a227, metalness: 0.6, roughness: 0.4 });
+    const base = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.1, 1.3), std({ color: 0x4a3420, roughness: 0.9 })); base.position.y = 0.55; base.castShadow = true;
+    const counter = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.12, 1.5), wood); counter.position.set(0, 1.15, 0.1);
+    for (const sx of [-1.05, 1.05]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.2, 0.12), wood); post.position.set(sx, 1.8, 0.6); post.castShadow = true; g.add(post); const back = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.2, 0.12), wood); back.position.set(sx, 1.8, -0.55); g.add(back); }
+    const backWall = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.2, 0.08), std({ color: 0x3a2a1a, roughness: 0.9 })); backWall.position.set(0, 1.8, -0.55);
+    const glass = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.7), new THREE.MeshBasicMaterial({ color: 0x9ad0ff, transparent: true, opacity: 0.28, side: THREE.DoubleSide })); glass.position.set(0, 1.95, 0.62);
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.06, 0.06), trim); bar.position.set(0, 1.6, 0.62);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.14, 1.9), std({ color: 0x7a2a22, roughness: 0.8 })); roof.position.set(0, 2.5, 0.05); roof.castShadow = true;
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.36, 0.08), std({ color: 0x1e1a14, emissive: 0xc9a227, emissiveIntensity: 0.35 })); sign.position.set(0, 2.78, 0.9);
+    const coin = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.04, 14), trim); coin.rotation.x = Math.PI / 2; coin.position.set(0, 2.78, 0.96);
+    const lamp = new THREE.PointLight(0xffd890, 4, 9, 1.6); lamp.position.set(0, 2.2, 0.8);
+    g.add(base, counter, backWall, glass, bar, roof, sign, coin, lamp);
+    v.meta.headTop = 3.1;
   } else if (n.prop === "tablet") {
     const slab = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 0.3), stone); slab.position.y = 1.1; slab.castShadow = true;
     const runes = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.6), new THREE.MeshBasicMaterial({ color: 0x80cbc4, transparent: true, opacity: 0.35 })); runes.position.set(0, 1.15, 0.16);

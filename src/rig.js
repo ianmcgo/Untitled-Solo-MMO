@@ -976,8 +976,6 @@ const NPC_LOOK = {
   marn: { build: 0, skin: SKIN_TONES[2], hair: { style: "short", color: HAIR_COLORS[2] }, beard: HAIR_COLORS[2], top: { type: "apron", color: 0x5a8aa8, color2: 0xd8d0c0 }, head: { type: "bandana", color: 0x1a5a8a }, legs: 0x3a4048, boots: 0x2a2a2a, belt: 0x3a2a1a, prop: { girth: 1.15 } },
   guard: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[0] }, top: { type: "tabard", color: 0x2f4a7a, region: "chain", color2: 0xd8c070 }, head: { type: "helm", color: 0x8a90a0 }, pauldrons: 0x8a90a0, legs: 0x2a2a30, boots: 0x2a1a10, gloves: 0x4a3a28, belt: 0x3a2412, weapon: "sword", alwaysDrawn: false, prop: { girth: 1.08, shoulder: 0.21 } },
   guard_f: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[1] }, top: { type: "tabard", color: 0x2f4a7a, region: "chain", color2: 0xd8c070 }, head: { type: "cap", color: 0x8a90a0 }, pauldrons: 0x8a90a0, legs: 0x2a2a30, boots: 0x2a1a10, gloves: 0x4a3a28, belt: 0x3a2412, weapon: "sword", alwaysDrawn: false },
-  corvin: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: HAIR_COLORS[5] }, beard: HAIR_COLORS[5], top: { type: "coat", color: 0x2a4a3a, trim: 0xd8c070 }, legs: 0x2a2620, boots: 0x2a1a10, belt: 0x3a2412 },
-  selene: { build: 1, skin: SKIN_TONES[3], hair: { style: "long", color: 0x1d1d22 }, top: { type: "coat", color: 0x4a2a5a, trim: 0xd8c070 }, legs: 0x2a2030, boots: 0x2a1a10, belt: 0x3a2412 },
   maera: { build: 1, skin: SKIN_TONES[2], hair: { style: "bob", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x5a3a1e, trim: 0xc9a227 }, legs: 0x2e2a24, boots: 0x2a1a10, gloves: 0x5a3a20, belt: 0x3a2412, weapon: "sword" },
   vela: { build: 1, skin: SKIN_TONES[0], hair: { style: "bob", color: HAIR_COLORS[4] }, top: { type: "tabard", color: 0x5a2a6a, region: "cloth", color2: 0xd8c070 }, legs: 0x2a2030, boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a },
   garrick: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: HAIR_COLORS[0] }, beard: 0x8a5a2c, longBeard: true, top: { type: "apron", color: 0x3a2a20, color2: 0x6a4a30 }, legs: 0x3a3028, boots: 0x2a1e14, gloves: 0x4a3020, belt: 0x2a1e14, weapon: "club", alwaysDrawn: false, prop: { girth: 1.2, shoulder: 0.215 } },
@@ -996,7 +994,6 @@ const NPC_LOOK = {
   wend: { build: 0, skin: SKIN_TONES[1], hair: { style: "bald", color: 0xe0e0e0 }, beard: 0xe6e6e6, longBeard: true, top: { type: "robe", color: 0x8a7a5a, trim: 0x4a6a8a }, legs: 0x4a4a40, barefoot: true },
   brisa: { build: 1, skin: SKIN_TONES[2], hair: { style: "braid", color: HAIR_COLORS[4] }, top: { type: "coat", color: 0x4a3a2a, trim: 0xb0b8c0 }, collar: 0xe8e0d0, legs: 0x3a3028, boots: 0x2a1a10, gloves: 0x5a4030, belt: 0x2a1a10 },
   haldor: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x9a9a9a, longBeard: true, top: { type: "apron", color: 0x3a3430, color2: 0x5a4030 }, legs: 0x2e2a26, boots: 0x1e1610, gloves: 0x3a2a1e, belt: 0x2a1a10, prop: { girth: 1.2 } },
-  orla: { build: 1, skin: SKIN_TONES[0], hair: { style: "bob", color: HAIR_COLORS[1] }, top: { type: "coat", color: 0x2a3a4a, trim: 0xd8c070 }, legs: 0x2a2a30, boots: 0x1a1410, belt: 0x3a2412 },
   odette: { build: 1, skin: SKIN_TONES[1], hair: { style: "bun", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x7a3a5a, trim: 0xe8d0a0 }, collar: 0xf0e8e0, legs: 0x3a2a34, boots: 0x2a1a14, gloves: 0xe8e0d0, glovesRegion: "cloth", belt: 0x4a2a1a },
   ysolde: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
 };
@@ -1991,7 +1988,9 @@ function cactusBody(R, L, J) {
   return R.finish();
 }
 
-const NPC_HELD = { vend_armorer: "hammer", vend_weaponsmith: "hammer", vend_tradesman: "basket", vend_quartermaster: "ledger", vend_spellsmith: "scroll", vend_jeweler: "book", garrick: "hammer", haldor: "hammer", corvin: "ledger", selene: "ledger", orla: "ledger", vela: "ledger", tobin: "book", maera: "scroll", brisa: "scroll", marn: "basket", essa: "basket", odette: "bolt", ysolde: "brush", luna: "lantern", ilsa: "spyglass", ferryman: "oar", wend: "rod", guard: "spear", guard_f: "spear", nomad: "spear", tarqa: "staffwalk" };
+NPC_LOOK.tobin_b = Object.assign({}, NPC_LOOK.tobin, { skin: SKIN_TONES[3], hair: Object.assign({}, NPC_LOOK.tobin.hair, { color: HAIR_COLORS[4] }) });
+NPC_LOOK.ysolde_b = Object.assign({}, NPC_LOOK.ysolde, { skin: SKIN_TONES[1], hair: Object.assign({}, NPC_LOOK.ysolde.hair, { color: HAIR_COLORS[0] }) });
+const NPC_HELD = { tobin_b: "book", ysolde_b: "brush", vend_armorer: "hammer", vend_weaponsmith: "hammer", vend_tradesman: "basket", vend_quartermaster: "ledger", vend_spellsmith: "scroll", vend_jeweler: "book", garrick: "hammer", haldor: "hammer", corvin: "ledger", selene: "ledger", orla: "ledger", vela: "ledger", tobin: "book", maera: "scroll", brisa: "scroll", marn: "basket", essa: "basket", odette: "bolt", ysolde: "brush", luna: "lantern", ilsa: "spyglass", ferryman: "oar", wend: "rod", guard: "spear", guard_f: "spear", nomad: "spear", tarqa: "staffwalk" };
 function heldProp(R, kind, sd, hx, wrY, gi) {
   const hb = "hand" + sd, gy = wrY - 0.07 * gi, z = 0.012, wood = 0x7a5432, dark = 0x3a2a1a, metal = 0x9aa0a8, brass = 0xc8a040;
   if (kind === "hammer") { R.add(gTaper(V3(hx, gy + 0.05, z), V3(hx, gy - 0.32, z + 0.02), 0.012, 0.014, 6), hb, wood, "wood"); R.add(gBox(V3(hx, gy - 0.33, z + 0.02), 0.04, 0.05, 0.12), hb, 0x5a5a62, "metal"); }
