@@ -1692,6 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.68.0", date: "2026-10-17", title: "Round Pipkin face", items: [
+    "<b>Pipkin faces are fully round</b>: the jaw no longer tapers to a point.",
+    "<b>Chest lowered</b> on Pipkin, <b>feet made smaller</b>, and the arms now hang slightly away from the body so <b>hands no longer clip into the legs</b>."
+  ]},
   { v: "18.67.0", date: "2026-10-17", title: "Chibi Pipkin", items: [
     "<b>Pipkin proportions halved where it counts:</b> the torso is about half as long, the arms about half as long, and the hands about half the size. The head is rounder.",
     "The Pipkin neck and shoulders now taper into the head instead of flaring out, and the bikini top band sits flush on the chest."

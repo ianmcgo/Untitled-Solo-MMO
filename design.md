@@ -2235,3 +2235,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - RACE_BODY.pipkin: torso 0.26, arm 0.24, shoulder 0.125/0.118, hip 0.088, girth 1.1/1.08, waist 1.0/0.96, headR 0.16 (leg 0.2 unchanged). Doll-only factors: arm ring radius ak 0.85, hand scale 0.62 (was 1.25, replaces every `L.doll ? 1.25 : 1`), leg radius dk 0.95, hipR and waistR times hsc 0.78, HEAD_SCALE 1.12 x 1.05 (near-spherical).
 - monoRings is now direction-agnostic (abs gap 0.014) and also guards the upper-arm, forearm and wrist ring lists for L.doll. The upper torso rings above chestY are tapered for L.doll (rx times 1 - 0.38 t^2, rz times 1 - 0.25 t^2, t = height fraction from chestY to neckY) so no funnel forms at the neck.
 - Bikini band ring moved to chestY - 0.04 at 0.156 * cx0 so it hugs the torso on every build.
+
+## 18.68.0 Round Pipkin face
+- Head profile pipkin jaw 0.64 to 0.1 (headRadial narrows the lower half by jaw*x^2, so a high value gave a V-shaped chin).
+- humanEntryBase: `fl = L.doll ? 0.045 : 0` pushes the forearm, wrist, hand, finger and thumb bones and their geometry outward (`sw + offset + fl`, forearm at half), so short Pipkin arms hang clear of the thick thighs.
+- chestY factor 0.62 to 0.5 of torso for L.doll (lower chest and bone); foot scale for doll 0.8 to 0.58; bikini band radius 0.122 * cx0 for doll.
