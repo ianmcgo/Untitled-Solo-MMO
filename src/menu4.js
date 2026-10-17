@@ -1692,6 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.55.0", date: "2026-10-16", title: "Rugged mountain passes", items: [
+    "<b>The slopes either side of every pass are rougher:</b> uneven ledges and shelves step up the hillside, the ground is lumpy instead of smooth, and boulders of different sizes sit half-buried along the slopes."
+  ]},
   { v: "18.54.0", date: "2026-10-16", title: "Visitor origins extras", items: [
     "<b>Arcs:</b> glowing lines run from your country to every country that has visited, with a light travelling along each one. Toggle them with the Arcs button on the globe.",
     "<b>Per 1M:</b> shade the globe and rank the list by visits per million people instead of total visits.",
@@ -3018,7 +3021,7 @@ const UPDATES = [
     "Chapel Sigils drop from the Drowned.",
     "Screen changes: your XP bar now sits under your health in your party frame; on phones the chat log sits in the bottom-left corner and the action bar stacks three wide on the right.",
     "The title screen\u2019s Visitors box counts how many times the game has been opened (each player once per day). Blue light: connected. Red light: offline, showing the last count seen. Click it for Visitor Origins: a spinning globe shaded by visits (drag to spin, scroll to zoom, tap a country), Arcs from your country, a Per 1M mode, country cards with a 30-day trend and Compare, a busiest-hours chart in your time, country search, a 14-day chart and the desktop/mobile split.",
-    "Area exits are mountain passes: the slopes on either side rise unevenly, and the haze beyond the pass marks the way to the next area. You arrive at the inner end of the pass.",
+    "Area exits are mountain passes: the slopes on either side rise unevenly in rocky ledges scattered with boulders, and the haze beyond the pass marks the way to the next area. You arrive at the inner end of the pass.",
     "Monster spawn points are at least 3 map squares apart and never within 2 squares of an entrance or exit. Each point takes turns between the creatures that live in that part of the area.",
     "Monsters only show on the minimap when they're near you (or fighting your party, or targeted).",
     "Character creation now starts as male with the second-lightest skin tone."

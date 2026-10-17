@@ -2140,3 +2140,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - vgFetch also loads ln_country_daily(30) -> D.cdaily[code][day] and turns ln_country_firsts into D.firsts. vgCard(code) shows visits, share, rank, per-1M, first/last seen, reach and an inline SVG 30-day sparkline (vgSpark). #vgSel shows one or two cards plus Compare / Clear. vgSelect: in compare mode the next pick becomes VG.cmp; picking a new main country clears cmp.
 - Busiest hours: ln_hour_views is UTC; shifted by -getTimezoneOffset() into local hours, peak bar gold.
 - #vgFind filters rows in place (no re-render, keeps focus); Enter selects the first visible row. The capture keydown guard lets keys through to #vgFind.
+
+
+## 18.55.0 Rugged mountain passes (exit plan phase 2 finish)
+- buildFieldSteps raw(): for the edge-mountain term, where 0.02 < exitMask < 0.995 a band weight sin(pi*min(1, em*1.15)) * sstep(-140, 40, outsideE) blends the height toward terraces (step = amps[2]*(0.16 + 0.1*value noise 531), soft riser via sstep(0.55, 1, frac)) at 55% and adds lumps (fbm 533 and ridge 535), only where the mountain is already over ~0.5 high. Result: ledges and bumps on pass sides, pass floor untouched.
+- buildVegetation: pass boulders, 34 per non-door exit, placed within 450 of the exit centre where 0.12 <= exitMask <= 0.88 and outsideE > -160, off paths; sunk by footY minus 0.3*size, tilted slightly, with colliders. Uses the shared rock instanced mesh.

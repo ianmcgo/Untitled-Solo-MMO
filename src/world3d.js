@@ -134,9 +134,18 @@ function* buildFieldSteps(zone) {
     }
     if (amps[2] > 0 && !zone.island) {
       let t = sstep(-60, 260, e);
-      t *= 1 - exitMask(px, py) * 0.97;
+      const em = exitMask(px, py);
+      t *= 1 - em * 0.97;
       const rough = NOISE.ridge(px * 0.006, py * 0.006, 4, 0, 307);
-      hgt += t * (amps[2] * (0.7 + rough * 0.6)) + sstep(150, 600, e) * amps[2] * 0.8 * (1 - exitMask(px, py));
+      let mtn = t * (amps[2] * (0.7 + rough * 0.6)) + sstep(150, 600, e) * amps[2] * 0.8 * (1 - em);
+      if (em > 0.02 && em < 0.995) {
+        const band = Math.sin(Math.PI * Math.min(1, em * 1.15)) * sstep(-140, 40, e);
+        const step = amps[2] * (0.16 + 0.1 * NOISE.value(px * 0.01, py * 0.01, 0, 531));
+        const terr = Math.floor(mtn / step) * step + step * sstep(0.55, 1, (mtn / step) % 1);
+        const lump = (NOISE.fbm(px * 0.02, py * 0.02, 3, 0, 533) - 0.5) * amps[2] * 0.45 + (NOISE.ridge(px * 0.045, py * 0.045, 2, 0, 535) - 0.35) * amps[2] * 0.22;
+        mtn = Math.max(0, mix(mtn, terr, band * 0.55) + lump * band * sstep(0.5, 2.5, mtn));
+      }
+      hgt += mtn;
     }
     return hgt;
   };
@@ -626,6 +635,20 @@ function buildVegetation(field, root) {
     const rsx = s * (0.8 + rnd() * 0.6), rsy = s * (0.5 + rnd() * 0.5), rsz = s * (0.8 + rnd() * 0.6);
     rocks.push(mtx(px * U, footY(field, px, py, Math.max(rsx, rsz) * 0.9) - s * 0.25, py * U, rsx, rsy, rsz, rnd() * 6.28, rnd() * 0.3));
     z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.85 / U });
+    k++;
+  }
+  const passN = theme === "field" || theme === "town" ? (z.exits || []).filter(ex => ex.kind !== "door").length * 34 : 0;
+  for (let k = 0, tries = 0; k < passN && tries < passN * 40; tries++) {
+    const ex = z.exits[Math.floor(rnd() * z.exits.length)];
+    if (ex.kind === "door") continue;
+    const px = ex.x + ex.w / 2 + (rnd() - 0.5) * 900, py = ex.y + ex.h / 2 + (rnd() - 0.5) * 900;
+    const em = field.exitMask(px, py), e = field.outsideE(px, py);
+    if (em < 0.12 || em > 0.88 || e < -160 || field.pathWeight(px, py) > 0.02) continue;
+    if (!placeable(field, px, py, { water: 30, npc: 60, exit: 0, path: 0.02 })) continue;
+    const s = 0.6 + rnd() * 2.2 * (1 - em * 0.5);
+    const rsx = s * (0.8 + rnd() * 0.7), rsy = s * (0.45 + rnd() * 0.45), rsz = s * (0.8 + rnd() * 0.7);
+    rocks.push(mtx(px * U, footY(field, px, py, Math.max(rsx, rsz) * 0.9) - s * 0.3, py * U, rsx, rsy, rsz, rnd() * 6.28, (rnd() - 0.5) * 0.5, (rnd() - 0.5) * 0.4));
+    z.colliders.push({ x: px, y: py, r: Math.max(rsx, rsz) * 0.8 / U });
     k++;
   }
   for (let k = 0, tries = 0; k < want.small && tries < want.small * 20; tries++) {
