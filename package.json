@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.49.0",
-  "releaseTitle": "Retired shop goods become drops and recipes",
+  "version": "18.50.0",
+  "releaseTitle": "Natural exits, low haze",
   "description": "",
   "main": "index.js",
   "scripts": {

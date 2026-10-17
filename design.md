@@ -2098,3 +2098,16 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Quartermaster pool (VENDOR_SOURCE) now also includes every non-rare food; 10 items total at level 5 or lower, so stock is always the same 10.
 - Alchemy RECIPES added: r_x_potion (8), r_hi_ether (10), r_super_ether (13), r_chapel_sigil (12, bone_chip + reef_scale), r_reraiser (15), r_hi_reraiser (18), r_super_reraiser (22). Recipe scrolls rcp_<id> are generated automatically.
 - Loot additions in FAMILIES: skeleton, ghoul, ice_wight, drowned, orc_stonechucker, royal_guard, crypt_sentinel, hollow_king (chances 0.03 to 0.3, higher for stronger items). Reraiser descriptions no longer say "Not sold yet".
+
+
+## 18.50.0 Natural exits, low haze (exit phase 1 + part of phase 2)
+- Haze cylinder (W3.haze) is world-anchored: buildExitBackdrops sets W3.hazeY = lowest ground height at edge exits; haze centre = hazeY - 160, height 400, texture 1024 tall, clear above hazeY+8, opaque by hazeY-12. Falls back to camera y - 175 when a zone has no edge exits.
+- exitMask lateral falloff widened from fixed 125 to lane-15..lane+spread, spread = 170 + fbm*230 (seed 527), with a softened curve; gives sloped, varying pass sides.
+- cliffChunkGeo uses noisy icosahedra (scaled w, h*0.75, d) instead of boxes; noise 0.45 lateral.
+- Waterfalls need steep terrain within 22-40 units behind the lake edge, no exit within 420 and exitMask < 0.05 along 160 units.
+- Carts: exit clearance 420, exitMask <= 0.02, outsideE < -80. Big rocks: exitMask <= 0.1.
+- poiSpot (camps, lookouts, shrines, tablets, caches): 260 from zone edge and 480 from any edge exit; all 20 POIs still place.
+- Exit backdrop panels (exitRidgeTex planes 1500 out) are disabled unless CONFIG.exitPanels is set: they floated past the end of the terrain and read as floating slabs. Haze plus the BACKDROP hill rings fill exits now.
+- BACKDROP hill rings now reach 400 below lowY so no sky gap shows under them through a pass (that gap made them look like floating slabs).
+- BACKDROP ring silhouettes: N=384 points, height = 0.3 + 0.5*fbm(freq 3) + 0.35*ridge(freq 11) so the skyline through a pass is jagged rather than a near-straight line.
+- Visual check tool: Playwright with test/mocklogin.js works again (scratch script teleports to each exit and screenshots).

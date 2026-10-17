@@ -1692,6 +1692,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.50.0", date: "2026-10-16", title: "Natural exits, low haze", items: [
+    "<b>Haze only shows through exits.</b> The grey band no longer rises above the mountains around the edge of every area; it now sits just below ground level and only fills the gap you see through a pass.",
+    "<b>Gentler, uneven slopes at every exit.</b> The mountains either side of a pass now slope up at a varying angle instead of forming steep straight walls, and the cliff rocks are rounded boulders instead of stacked flat slabs.",
+    "<b>No more floating scenery at exits.</b> Waterfalls only appear against a real cliff face away from exits, wrecked wagons keep well clear of passes and the mountain edge, boulders stay off pass slopes, and camps, lookouts, shrines, tablets and caches are placed away from exits. The flat distant panels that hung in the air beyond each pass are gone, and the distant hill rings now reach down out of sight with jagged, uneven skylines."
+  ]},
   { v: "18.49.0", date: "2026-10-16", title: "Retired shop goods become drops and recipes", items: [
     "<b>X-Potion, Hi-Ether, Super Ether, Reraiser, Hi-Reraiser, Super Reraiser and Chapel Sigil are now dropped and crafted.</b> Ghouls, Ice Wights, Drowned, Royal Guards, Crypt Sentinels and the Hollow King can drop them (rarer the stronger the item). Alchemy recipes make all seven from Hi-Potions, Ethers, Bone Chips, Silk Cloth and Reef Scales, and the recipe scrolls drop and appear on the auction house like any other recipe.",
     "<b>Quartermasters stock every ordinary cooked meal</b> (Grilled Minnow, Eel Pie and Perch Chowder were missing), so all ten potions and meals at level 5 or lower are on offer. Only ten exist at that level today; the stronger potions are now drops and crafts instead."
@@ -2995,7 +3000,7 @@ const UPDATES = [
     "Win one of five new level 15 treasures (Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle, Tidebreaker Bow) plus crystals and XP. New achievement: Tidebreaker.",
     "Chapel Sigils drop from the Drowned.",
     "Screen changes: your XP bar now sits under your health in your party frame; on phones the chat log sits in the bottom-left corner and the action bar stacks three wide on the right.",
-    "Area exits are at the end of walled halls; you arrive at the inner end of the hall.",
+    "Area exits are mountain passes: the slopes on either side rise unevenly, and the haze beyond the pass marks the way to the next area. You arrive at the inner end of the pass.",
     "Monster spawn points are at least 3 map squares apart and never within 2 squares of an entrance or exit. Each point takes turns between the creatures that live in that part of the area.",
     "Monsters only show on the minimap when they're near you (or fighting your party, or targeted).",
     "Character creation now starts as male with the second-lightest skin tone."
