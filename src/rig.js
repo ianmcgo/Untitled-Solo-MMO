@@ -1159,10 +1159,30 @@ function jobStyleTier(lv) { let t = 0; for (let k = 0; k < JOB_STYLE_TIERS.lengt
 function jobStyleOn() { return !(typeof VIEW !== "undefined" && VIEW.settings && VIEW.settings.attire === "gear"); }
 const JOB_STYLE_SLOTS = ["top", "head", "gloves", "glovesRegion", "legs", "legsRegion", "boots", "pauldrons", "padK", "padSpikes", "padSpikeC", "padRegion", "padTrim", "cape", "belt", "gauntlets", "greaves", "collar", "barefoot", "hat", "shoes"];
 
-function lookFor(job, gear, base, lv) {
+function applyUnderwear(L, gear, on) {
+  if (!on || !gear || L.skull || L.cactus) return L;
+  const noTop = !gear.body, noLow = !gear.legs;
+  if (!noTop && !noLow) return L;
+  const fem = L.build === 1, sk = L.skin != null ? L.skin : 0xe8b894, skR = L.skinRegion || "skin";
+  L.under = L.under ? Object.assign({}, L.under) : {};
+  if (noTop) {
+    L.top = { type: "bare", color: sk, region: skR, sleeves: "none" };
+    L.under.top = fem ? (L.doll ? "bandeau" : "bikini") : null;
+    delete L.pauldrons; delete L.collar; delete L.cape;
+  }
+  if (noLow) {
+    L.legs = sk; L.legsRegion = skR;
+    L.under.low = fem ? (L.doll ? "brief" : "thong") : "boxer";
+    delete L.greaves;
+  }
+  if (noTop && noLow) delete L.belt;
+  return L;
+}
+
+function lookFor(job, gear, base, lv, ul) {
   const L0 = lookForGear(job, gear, base);
   const fn = JOB_STYLE[job];
-  if (!fn || !jobStyleOn() || base && (base.noJobStyle || base.skull || base.top)) return L0;
+  if (!fn || !jobStyleOn() || base && (base.noJobStyle || base.skull || base.top)) return applyUnderwear(L0, gear, ul);
   const tint = JOB_TINT[job] || JOB_TINT.WAR, st = fn(jobStyleTier(lv), tint);
   const L = Object.assign({}, L0);
   for (const k of JOB_STYLE_SLOTS) delete L[k];
@@ -1170,7 +1190,7 @@ function lookFor(job, gear, base, lv) {
   if (!L.legs) L.legs = tint.pants;
   if (!L.boots && !L.barefoot) L.shoes = 0x3a2a1e;
   if (L0.shield) L.shield = L0.shield;
-  return L;
+  return applyUnderwear(L, gear, ul);
 }
 
 function lookForGear(job, gear, base) {
@@ -1586,6 +1606,24 @@ function humanEntry(L) {
     R.addW(gLoft(lowR, 24, true, false, 0, 0.3), "hips", robe ? topC : legC, robe ? topR : legR, tw);
     R.addW(gLoft(upR, 24, false, false, 0.3, 1), "chest", topC, topR, tw);
     BODY.up = upR; BODY.tw = tw;
+    const UW = L.under || {}, wht = 0xf4f2ec;
+    if (UW.low === "boxer" || UW.low === "brief") {
+      const sh = shellOf(lowR, 0.006);
+      R.addW(gLoft(sh, 24, true, false, 0, 0.3), "hips", wht, "cloth", tw);
+      R.add(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "cloth");
+    } else if (UW.low === "thong") {
+      R.add(gRing(V3(0, beltY - 0.012, 0), hipR * hx0 + 0.004, 0.0055, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "cloth");
+      R.add(gBall(V3(0, hipJ - 0.005, hipR * hz * 0.98), 0.05, 1.1, 1.25, 0.28, 10), "hips", wht, "cloth");
+      R.add(gTaper(V3(0, beltY - 0.012, -hipR * hz * 1.02), V3(0, hipJ - 0.05, -hipR * hz * 0.96), 0.007, 0.0045, 6), "hips", wht, "cloth");
+    }
+    if (UW.top === "bikini") {
+      const cz1 = cz * 0.172 * (1.06 + bust) * 0.8;
+      for (const xs of [-1, 1]) R.add(gBall(V3(xs * 0.052 * gi, chestY + 0.025, cz1), 0.05, 0.95, 0.85, 0.55, 10), "chest", wht, "cloth");
+      R.add(gRing(V3(0, chestY - 0.012, 0), 0.172 * cx1 * 1.0 + 0.004, 0.0045, "y", 22).scale(1, 1, cz / cx1 * 1.08), "chest", wht, "cloth");
+      for (const xs of [-1, 1]) R.add(gTaper(V3(xs * 0.05 * gi, chestY + 0.065, cz1 * 0.92), V3(xs * 0.03, neckY - 0.01, -0.02), 0.0045, 0.0045, 6), "chest", wht, "cloth");
+    } else if (UW.top === "bandeau") {
+      R.add(gRing(V3(0, chestY + 0.02, 0), 0.172 * cx1 + 0.006, 0.02, "y", 22).scale(1, 1, cz / cx1 * 1.08), "chest", wht, "cloth");
+    }
   } else {
     R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.03, 0), 0.025, 0.025, 6), "neck", skin, "bone");
     for (let i = 0; i < 6; i++) R.add(gBall(V3(0, hipsY + i * (neckY - hipsY) / 6, -0.04), 0.03, 1.2, 0.7, 1, 6), i < 2 ? "spine" : "chest", skin, "bone");
@@ -1706,6 +1744,10 @@ function humanEntry(L) {
       BODY["leg" + sd] = { rings: legRings, w: legW };
     }
     const LG = BODY["leg" + sd];
+    if (LG && L.under && (L.under.low === "boxer" || L.under.low === "brief")) {
+      const ub = shellOf(LG.rings.filter(r => r.y >= hipJ - (L.under.low === "boxer" ? 0.17 : 0.06)), 0.006 * gi);
+      if (ub.length > 1) R.addW(gLoft(ub.slice().reverse(), 18, false, false, 0, 1), "thigh" + sd, 0xf4f2ec, "cloth", LG.w);
+    }
     if (L.boots != null) {
       if (LG) { const bs = shellOf(LG.rings.filter(r => r.y <= bootTop + 0.001), 0.008 * gi); bs.unshift(Object.assign({}, bs[0], { y: bootTop + 0.004, rx: bs[0].rx + 0.006, rz: bs[0].rz + 0.006 })); R.addW(gLoft(bs.slice().reverse(), 16, false, false, 0, 1), "shin" + sd, L.boots, "leather", LG.w); R.addW(gRing(V3(bs[0].x, bootTop + 0.004, bs[0].z), bs[0].rx, 0.011, "y", 16).scale(1, 1, bs[0].rz / bs[0].rx), "shin" + sd, L.boots, "leather", LG.w); }
       else { R.add(gTaper(V3(hx, bootTop, 0.012), V3(hx, ank + 0.01, 0.0), 0.062 * gi, 0.048 * gi, 12), "shin" + sd, L.boots, "leather"); R.add(gRing(V3(hx, bootTop, 0.012), 0.062 * gi, 0.012, "y", 14), "shin" + sd, L.boots, "leather"); }
@@ -3136,7 +3178,7 @@ function buildEntityRig(e) {
     make = () => batEntry(P.col, P.eye);
   } else {
     const base = e === player ? playerBase() : e.remote ? baseFromLook(e.look || {}) : (MERC_BASE[e.mercId] || (MERCS[e.mercId] && MERCS[e.mercId].look ? baseFromLook(MERCS[e.mercId].look) : MERC_BASE.kael));
-    const L = lookFor(e.job, e.gear, base, e.lv);
+    const L = lookFor(e.job, e.gear, base, e.lv, e === player || !!e.remote);
     sig = "h|" + stableKey(L);
     make = () => humanEntry(L);
     weaponKind = L.weapon; weaponId = L.weaponId;
