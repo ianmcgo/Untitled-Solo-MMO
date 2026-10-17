@@ -2178,3 +2178,6 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Two pairs collapse to the same name, so the second of each pair got a "II" and a `_2` id. Rule used: San d'Orian first, then Bastokan, then Windurstian gets the plain name. Easy to change in GEAR_RENAME.
 - Saves migrate through the same alias map (migrateRaceGearIds).
 
+## 18.61.0 An empty bag
+- newSave and createChar no longer give 3 potions: `inventory: []`. Existing saves are untouched (normalizeSave keeps what they hold). Tests that counted on starting potions give or buy their own; p5cunit's bones quest still pays potions as a reward.
+

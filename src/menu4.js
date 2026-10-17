@@ -1692,6 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.61.0", date: "2026-10-17", title: "An empty bag", items: [
+    "<b>New characters no longer start with potions.</b> Your bag begins empty; buy potions in town. Existing characters keep what they have."
+  ]},
   { v: "18.60.0", date: "2026-10-17", title: "City weapons", items: [
     "Eleven level 15 weapons lost their nation names: <b>City Sword, City Bow, City Bow II, City Crossbow, City Cesti, City Axe, City Knuckles, City Staff, City Staff II, City Scythe and City Club</b>. The Rare City Staff is still the Battlefield reward. Stats, jobs and drops are unchanged, and anything you own has been renamed."
   ]},
@@ -3164,7 +3167,7 @@ const UPDATES = [
     "Title screen and Credits carry the maker's links.",
     "Loading screens show a random character or monster from the game, slowly turning, with a line about it.",
     "The Rest tip and other loading tips mention that standing still only trickles.",
-    "New characters start with only their own job's gear and three potions. Changing jobs never hands out equipment; buy or earn it."
+    "New characters start with only their race's clothes and their own job's gear, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it."
   ] },
   { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [
     "A new dungeon under the Goblin Den's Bone Pit: entrance hall, Brazier Hall, the crossroads, the Sentinel's room to the north, the vault to the south and the throne room. Levels 9–12.",
