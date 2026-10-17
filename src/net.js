@@ -1697,6 +1697,7 @@ async function viewsTick() {
     if (r.error || r.data == null || !isFinite(+r.data)) throw r.error || new Error("no count");
     const n = +r.data;
     try { localStorage.setItem("usr_views_last", String(n)); if (!counted) localStorage.setItem("usr_views_day", today); } catch (e) {}
+    if (!counted) { try { Promise.resolve(sb.rpc("ln_bump_device", { p_device: matchMedia("(hover: none) and (pointer: coarse)").matches ? "mobile" : "desktop" })).catch(() => {}); } catch (e) {} }
     viewsSet(n, "live");
   } catch (e) {
     if (last) viewsSet(last, "off");

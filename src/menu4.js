@@ -1692,6 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.52.0", date: "2026-10-16", title: "Visitor origins window", items: [
+    "<b>Click the Visitors box</b> on the title screen to open Visitor Origins: total visits, how many countries, today's visits, your own country, a 14-day bar chart, the desktop and mobile split, and every country ranked with a flag, a bar and when it was last seen. Refresh with ⟳; close with ✕, a click outside or Esc.",
+    "Visits now record the visitor's country (from their network) and device type. Earlier visits show as Unknown. A rotating globe view comes next."
+  ]},
   { v: "18.51.1", date: "2026-10-16", title: "Visitor counter uses its own table", items: [
     "<b>Visitor counter.</b> The title screen shows how many times the game has been opened, in the game's blue window style, counting each player once per day. The light glows blue when it is connected and red when the server can't be reached (it then shows the last count seen).",
     "The count is kept in its own table on a separate server, so the game's save server and Admin setup are unchanged."
@@ -3004,7 +3008,7 @@ const UPDATES = [
     "Win one of five new level 15 treasures (Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle, Tidebreaker Bow) plus crystals and XP. New achievement: Tidebreaker.",
     "Chapel Sigils drop from the Drowned.",
     "Screen changes: your XP bar now sits under your health in your party frame; on phones the chat log sits in the bottom-left corner and the action bar stacks three wide on the right.",
-    "The title screen\u2019s Visitors box counts how many times the game has been opened (each player once per day). Blue light: connected. Red light: offline, showing the last count seen.",
+    "The title screen\u2019s Visitors box counts how many times the game has been opened (each player once per day). Blue light: connected. Red light: offline, showing the last count seen. Click it for Visitor Origins: countries ranked by visits, a 14-day chart and the desktop/mobile split.",
     "Area exits are mountain passes: the slopes on either side rise unevenly, and the haze beyond the pass marks the way to the next area. You arrive at the inner end of the pass.",
     "Monster spawn points are at least 3 map squares apart and never within 2 squares of an entrance or exit. Each point takes turns between the creatures that live in that part of the area.",
     "Monsters only show on the minimap when they're near you (or fighting your party, or targeted).",

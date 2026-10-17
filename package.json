@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.51.1",
-  "releaseTitle": "Visitor counter uses its own table",
+  "version": "18.52.0",
+  "releaseTitle": "Visitor origins window",
   "description": "",
   "main": "index.js",
   "scripts": {

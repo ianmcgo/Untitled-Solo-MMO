@@ -172,6 +172,7 @@ function showTitle() {
   const go = e => {
     if (done) return;
     if (e && e.type === "keydown" && (e.target.tagName === "INPUT" || e.key === "Tab")) return;
+    if (typeof VG !== "undefined" && VG.open) return;
     done = true;
     window.removeEventListener("keydown", go);
     b.onclick = null;
