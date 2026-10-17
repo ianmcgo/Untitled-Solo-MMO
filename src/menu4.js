@@ -1692,6 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.47.0", date: "2026-10-16", title: "Treasure pool matches the game's windows", items: [
+    "<b>The treasure pool panel now uses the same window style as the rest of the game</b>: striped blue background, light edge, a centred title bar, italic item names and rounded Lot and Pass buttons."
+  ]},
   { v: "18.46.0", date: "2026-10-16", title: "Smaller saplings, apart rabbit ears", items: [
     "<b>Wandering and Strangler Saplings are about a quarter of their old size</b> and look sleepy: heavy lids and tiny pupils instead of wide staring eyes.",
     "<b>Hare ears now stay apart.</b> They used to lean in and touch at the tips; they now lean slightly outward when idle, hopping, twitching or listening."
