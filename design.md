@@ -2210,3 +2210,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## 18.64.0 Connected shoulders
 - rig.js humanEntry upper-arm loft: the first four rings changed from radius 0.022/0.044/0.055/0.057 (tuck 0.024/0.016/0.007/0) to 0.04/0.057/0.063/0.06 (tuck 0.052/0.032/0.014/0), so the arm top overlaps the torso shoulder rings instead of ending in a small cap. Weights unchanged (armW blends upArm and chest above shY-0.03). Arm rest pose and bones untouched; the natural gap below the armpit remains.
+
+## 18.65.0 Stout Pipkin
+- RACE_BODY.pipkin now leg 0.36, torso 0.34, arm 0.33, girth 1.18 (female 1.14), waist 1.12 (1.06), shoulder 0.15 (0.142), hip 0.085 (0.087), headR 0.2, neck -0.05 (was leg 0.34, torso 0.3, arm 0.3, girth 1.0/0.96, shoulder 0.125/0.118, hip 0.072/0.074). Limb radii scale with girth, so limbs thicken with it.
+- rig.js `subdivRings(rings)` inserts one Catmull-Rom midpoint ring (fields y x z rx rz f b p) between every pair of loft rings. gLoft calls it when `RIG.loftSub` is set. humanEntry is now a wrapper that sets `RIG.loftSub = L.doll ? 1 : 0` around humanEntryBase and resets it in finally, so only Pipkin pay the extra triangles.
+- Reference was a Tarutaru-style sheet: head about a third of height, thick short limbs, wide hips, chunky hands. Not yet done: neck scarf, boot cuffs, sleeve-length tops. The flat shoulder shelf where the torso top meets the head remains.

@@ -1692,6 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.65.0", date: "2026-10-17", title: "Stout Pipkin", items: [
+    "<b>Pipkin bodies reshaped.</b> Broader shoulders, a rounder torso, wider hips and thicker, sturdier limbs give the chunky, big-headed proportions of a Pipkin adventurer.",
+    "<b>Smoother joins.</b> Pipkin shoulders, arms, torso and legs are built from extra intermediate rings, so curves flow instead of showing flat facets at the joints."
+  ]},
   { v: "18.64.0", date: "2026-10-17", title: "Connected shoulders", items: [
     "<b>Arms now join the torso.</b> The top of each upper arm is thicker and tucks into the shoulder, so arms no longer look like separate tubes floating beside the body. Applies to every humanoid, including Ursan and Pipkin."
   ]},

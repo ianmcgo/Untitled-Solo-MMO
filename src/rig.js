@@ -853,7 +853,21 @@ function warpToHead(g, P, hc, hr) {
   return g;
 }
 
+function subdivRings(rings) {
+  const keys = ["y", "x", "z", "rx", "rz", "f", "b", "p"], dv = { y: 0, x: 0, z: 0, rx: 0, rz: 0, f: 1, b: 1, p: 2.2 }, m = rings.length, out = [];
+  const val = (r, k) => r[k] == null ? dv[k] : r[k];
+  for (let j = 0; j < m - 1; j++) {
+    const p0 = rings[Math.max(0, j - 1)], p1 = rings[j], p2 = rings[j + 1], p3 = rings[Math.min(m - 1, j + 2)];
+    const mid = Object.assign({}, p1);
+    for (const k of keys) mid[k] = (-val(p0, k) + 9 * val(p1, k) + 9 * val(p2, k) - val(p3, k)) / 16;
+    out.push(p1, mid);
+  }
+  out.push(rings[m - 1]);
+  return out;
+}
+
 function gLoft(rings, seg, capBot, capTop, v0, v1) {
+  if (RIG.loftSub && rings.length >= 3) rings = subdivRings(rings);
   const n = Math.max(8, sgK(seg || 20)), m = rings.length, pos = [], uv = [], idx = [];
   for (let j = 0; j < m; j++) {
     const r = rings[j], p = r.p || 2.2;
@@ -1477,6 +1491,11 @@ function familyExtras(R, L, D) {
 }
 
 function humanEntry(L) {
+  RIG.loftSub = L.doll ? 1 : 0;
+  try { return humanEntryBase(L); } finally { RIG.loftSub = 0; }
+}
+
+function humanEntryBase(L) {
   const fem = L.build === 1;
   const pr = Object.assign({ leg: 0.86, torso: 0.52, headR: 0.138, shoulder: fem ? 0.165 : 0.195, hip: fem ? 0.1 : 0.095, arm: 0.6, girth: fem ? 0.9 : 1, neck: 0.02, waist: fem ? 0.8 : 0.92 }, L.prop || {});
   const R = new RigBuilder();
@@ -3199,7 +3218,7 @@ const BODY_HEIGHT_NAMES = ["Short", "Below average", "Average", "Tall", "Very ta
 const RACE_BODY = {
   human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.02 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.02 }],
   elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
-  pipkin: [{ leg: 0.34, torso: 0.3, arm: 0.3, girth: 1.0, waist: 1.0, shoulder: 0.125, hip: 0.072, headR: 0.2, neck: -0.05 }, { leg: 0.34, torso: 0.3, arm: 0.3, girth: 0.96, waist: 0.94, shoulder: 0.118, hip: 0.074, headR: 0.2, neck: -0.05 }],
+  pipkin: [{ leg: 0.36, torso: 0.34, arm: 0.33, girth: 1.18, waist: 1.12, shoulder: 0.15, hip: 0.085, headR: 0.2, neck: -0.05 }, { leg: 0.36, torso: 0.34, arm: 0.33, girth: 1.14, waist: 1.06, shoulder: 0.142, hip: 0.087, headR: 0.2, neck: -0.05 }],
   ursan: [{ leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }, { leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }],
   nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.02 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.02 }]
 };
