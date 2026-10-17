@@ -2219,3 +2219,9 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.65.1 Pipkin head and legs
 - humanEntry wrapper also sets HEAD_SCALE[0]=1.12 and [1]=0.96 for L.doll (default 0.87, 1.04) and restores both in finally, so Pipkin heads are wide and round; hair and ear code read the same array. Pip ears now start at hr*1.0 and end at hr*1.12+0.17 with base radius hr*0.3 (inner ear hr*0.16).
 - Leg loft radii get `dk` = 1.2 for L.doll; RACE_BODY.pipkin hip is 0.1 (both builds) so thicker legs keep a gap. Still different from the reference: hair is a spiky cap rather than a smooth bowl, no boot cuffs, no baggy trouser shape.
+
+## 18.66.0 Smooth bodies
+- humanEntry wrapper: `RIG.loftSub = !L.skull && RIG.segK >= 0.37 ? 1 : 0`, so every non-skeleton humanoid gets Catmull-Rom midpoint rings (subdivRings) and gLoft uses at least 16 radial sides instead of 8 when loftSub is set. Low quality (segK 0.38) still qualifies; LOD entries (segK <= 0.357) do not. This removes the octagonal cross-sections and flat facets at shoulders and legs.
+- Hand palm: the gBox block is replaced by a rounded gBall (0.034*hk, scale 0.5/1.05/1.15).
+- RACE_BODY.pipkin: leg 0.26 (minimum: leg ring offsets in humanEntry need knee..hip about 0.18 apart or rings cross), torso 0.46, arm 0.42, girth 1.15/1.12, waist 1.1/1.04, shoulder 0.16/0.152, hip 0.115, headR 0.165. HEAD_SCALE for doll is 1.25 x 0.97 (default 0.87 x 1.04). Leg radius factor dk 1.35. Ears follow HEAD_SCALE[0].
+- Target from the reference sheet: head ~25% of height, legs ~27%, torso+hips ~49%, arms to mid-thigh, round head wider than tall. Remaining gaps: smooth bowl hair, boot cuffs, baggy trousers, scarf.

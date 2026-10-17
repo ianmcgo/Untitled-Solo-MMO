@@ -868,7 +868,7 @@ function subdivRings(rings) {
 
 function gLoft(rings, seg, capBot, capTop, v0, v1) {
   if (RIG.loftSub && rings.length >= 3) rings = subdivRings(rings);
-  const n = Math.max(8, sgK(seg || 20)), m = rings.length, pos = [], uv = [], idx = [];
+  const n = Math.max(RIG.loftSub ? 16 : 8, sgK(seg || 20)), m = rings.length, pos = [], uv = [], idx = [];
   for (let j = 0; j < m; j++) {
     const r = rings[j], p = r.p || 2.2;
     for (let i = 0; i <= n; i++) {
@@ -1492,8 +1492,8 @@ function familyExtras(R, L, D) {
 
 function humanEntry(L) {
   const hs0 = HEAD_SCALE[0], hs1 = HEAD_SCALE[1];
-  RIG.loftSub = L.doll ? 1 : 0;
-  if (L.doll) { HEAD_SCALE[0] = 1.12; HEAD_SCALE[1] = 0.96; }
+  RIG.loftSub = !L.skull && RIG.segK >= 0.37 ? 1 : 0;
+  if (L.doll) { HEAD_SCALE[0] = 1.25; HEAD_SCALE[1] = 0.97; }
   try { return humanEntryBase(L); } finally { RIG.loftSub = 0; HEAD_SCALE[0] = hs0; HEAD_SCALE[1] = hs1; }
 }
 
@@ -1556,14 +1556,14 @@ function humanEntryBase(L) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, SKR);
     else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.8, hc - hr * 0.06, -hr * 0.06), V3(s * (hr + 0.1), hc + hr * 0.45, -hr * 0.42), hr * 0.2, 0.004, 8, 0.4), earBone(s), skin, SKR);
     else if (L.ears === "ursan") R.add(gTaper(V3(s * hr * 0.9, hc - hr * 0.05, -hr * 0.12), V3(s * (hr + 0.04), hc + hr * 0.08, -hr * 0.3), hr * 0.13, 0.006, 6, 0.4), "head", skin, SKR);
-    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 1.0, hc - hr * 0.08, -0.01), V3(s * (hr * 1.12 + 0.17), hc + hr * 0.1, -hr * 0.1), hr * 0.3, 0.008, 8, 0.42), earBone(s), skin, SKR);
+    else if (L.ears === "pip") R.add(gTaper(V3(s * hr * HEAD_SCALE[0] * 0.92, hc - hr * 0.08, -0.01), V3(s * (hr * HEAD_SCALE[0] + 0.16), hc + hr * 0.1, -hr * 0.1), hr * 0.32, 0.008, 10, 0.42), earBone(s), skin, SKR);
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned", "winged", "kabuto", "turban", "ninjahood", "jester"].includes(L.head.type))) { const eb = earBone(s); R.add(gTaper(V3(s * hr * 0.5, hc + hr * 0.7, -hr * 0.05), V3(s * hr * 0.74, hc + hr * 1.5, -hr * 0.12), hr * 0.3, 0.006, 4, 0.5), eb, L.hair.color, "hair"); R.add(gTaper(V3(s * hr * 0.52, hc + hr * 0.78, -hr * 0.01), V3(s * hr * 0.7, hc + hr * 1.32, -hr * 0.06), hr * 0.17, 0.004, 4, 0.35), eb, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
     else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.88, hc - hr * 0.08, -hr * 0.08), hr * 0.2, 0.4, 1.05, 0.7, 10), "head", skin, SKR);
     if (!L.skull && !L.doll && L.ears !== "none" && L.ears !== "cat" && L.ears !== "fin" && L.ears !== "ursan") {
       const ik = shadeHex(skin, 0.74);
       if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.04, -hr * 0.1), V3(s * (hr + 0.06), hc + hr * 0.3, -hr * 0.38), hr * 0.1, 0.003, 6, 0.4), earBone(s), ik, SKR);
-      else if (L.ears === "pip") R.add(gTaper(V3(s * hr * 1.03, hc - hr * 0.06, -hr * 0.03), V3(s * (hr * 1.12 + 0.12), hc + hr * 0.08, -hr * 0.1), hr * 0.16, 0.005, 8, 0.4), earBone(s), ik, SKR);
+      else if (L.ears === "pip") R.add(gTaper(V3(s * hr * HEAD_SCALE[0] * 0.95, hc - hr * 0.06, -hr * 0.03), V3(s * (hr * HEAD_SCALE[0] + 0.11), hc + hr * 0.08, -hr * 0.1), hr * 0.17, 0.005, 10, 0.4), earBone(s), ik, SKR);
       else if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.82, hc + hr * 0.04, -0.03), V3(s * (hr + 0.18), hc + hr * 0.6, -0.1), hr * 0.14, 0.004, 6, 0.45), "head", ik, SKR);
       else R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.08, -hr * 0.05), hr * 0.1, 0.4, 1.05, 0.7, 8), "head", ik, SKR);
     }
@@ -1695,7 +1695,7 @@ function humanEntryBase(L) {
     } else {
       const hk = gi * (L.doll ? 1.25 : 1) * 1.18, hx = s * (sw + 0.024), fb = "fingers" + sd, tb = "thumb" + sd;
       R.add(gBall(V3(hx, wrY - 0.012, 0.004), 0.026 * hk, 0.7, 0.75, 1.0, 10), "hand" + sd, handC, handR);
-      R.add(gBox(V3(hx, wrY - 0.045 * hk, 0.004), 0.022 * hk, 0.06 * hk, 0.072 * hk), "hand" + sd, handC, handR);
+      R.add(gBall(V3(hx, wrY - 0.04 * hk, 0.004), 0.034 * hk, 0.5, 1.05, 1.15, 12), "hand" + sd, handC, handR);
       R.add(gBall(V3(hx, wrY - 0.045 * hk, 0.004), 0.038 * hk, 0.36, 0.95, 1.0, 10), "hand" + sd, handC, handR);
       const ky = wrY - 0.078 * hk;
       R.add(gBall(V3(hx - s * 0.003 * hk, ky - 0.008 * hk, 0.004), 0.03 * hk, 0.44, 0.62, 0.95, 8), fb, handC, handR);
@@ -1758,7 +1758,7 @@ function humanEntryBase(L) {
       const fk = fem ? 1.06 : 1;
       const lz = y => y >= knee ? 0.012 * (hipJ - y) / (hipJ - knee) : 0.012 * (y - ank) / (knee - ank);
       const lx = y => y > hipJ - 0.06 ? hx * (0.72 + 0.28 * (hipJ + 0.06 - y) / 0.12) : hx;
-      const dk = L.doll ? 1.2 : 1, lr = (y, r, f, b) => ({ y, x: lx(y), z: lz(y), rx: r * gi * dk, rz: r * gi * dk, f: f || 1, b: b || 1, p: 2.1 });
+      const dk = L.doll ? 1.35 : 1, lr = (y, r, f, b) => ({ y, x: lx(y), z: lz(y), rx: r * gi * dk, rz: r * gi * dk, f: f || 1, b: b || 1, p: 2.1 });
       const legRings = [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.05, 0.081 * fk, 1.02, 1.04), lr((hipJ + knee) / 2, 0.071 * fk, 1.04, 1), lr(knee + 0.06, 0.06), lr(knee + 0.015, 0.055, 1.08, 0.95), lr(knee - 0.03, 0.055, 1.02, 1.12), lr(knee - 0.1, 0.055, 1, 1.22), lr(knee - 0.19, 0.047, 1, 1.12), lr(ank + 0.08, 0.038), lr(ank + 0.02, 0.037)];
       const legW = (x, y) => y > hipJ ? [["thigh" + sd, 1 - 0.35 * smoothRange(hipJ, hipJ + 0.06, y)], ["hips", 0.35 * smoothRange(hipJ, hipJ + 0.06, y)]] : y < ank + 0.03 ? [["shin" + sd, 0.7], ["foot" + sd, 0.3]] : blendW(y, [[0, "shin" + sd, 0], [knee, "thigh" + sd, 0.04]]);
       R.addW(gLoft(legRings.slice().reverse(), 18, true, false, 0, 1), "thigh" + sd, legC, legR, legW);
@@ -3220,7 +3220,7 @@ const BODY_HEIGHT_NAMES = ["Short", "Below average", "Average", "Tall", "Very ta
 const RACE_BODY = {
   human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.02 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.02 }],
   elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
-  pipkin: [{ leg: 0.36, torso: 0.34, arm: 0.33, girth: 1.18, waist: 1.12, shoulder: 0.15, hip: 0.1, headR: 0.2, neck: -0.05 }, { leg: 0.36, torso: 0.34, arm: 0.33, girth: 1.14, waist: 1.06, shoulder: 0.142, hip: 0.1, headR: 0.2, neck: -0.05 }],
+  pipkin: [{ leg: 0.26, torso: 0.46, arm: 0.42, girth: 1.15, waist: 1.1, shoulder: 0.16, hip: 0.115, headR: 0.165, neck: -0.05 }, { leg: 0.26, torso: 0.46, arm: 0.42, girth: 1.12, waist: 1.04, shoulder: 0.152, hip: 0.115, headR: 0.165, neck: -0.05 }],
   ursan: [{ leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }, { leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }],
   nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.02 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.02 }]
 };

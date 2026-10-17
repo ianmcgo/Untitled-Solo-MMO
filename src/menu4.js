@@ -1692,6 +1692,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.66.0", date: "2026-10-17", title: "Smooth bodies", items: [
+    "<b>Pipkin rebuilt to the reference sheet:</b> a big, wide, round head with large pointed ears, a shorter torso, short thick legs and stout arms.",
+    "<b>Rounder bodies for every humanoid.</b> Limbs, torso and legs now use twice the rings and at least 16 sides, so silhouettes are smooth instead of faceted. Hands have rounded palms instead of blocks.",
+    "Characters drawn at long range or on Low graphics keep the lighter, faster meshes."
+  ]},
   { v: "18.65.1", date: "2026-10-17", title: "Pipkin head and legs", items: [
     "<b>Pipkin heads are wider and rounder</b>, with larger pointed ears set on the sides of the head.",
     "<b>Pipkin legs are thicker</b> and set further apart for a sturdy, short-legged stance."
