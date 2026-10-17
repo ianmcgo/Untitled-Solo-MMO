@@ -1692,6 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.67.0", date: "2026-10-17", title: "Chibi Pipkin", items: [
+    "<b>Pipkin proportions halved where it counts:</b> the torso is about half as long, the arms about half as long, and the hands about half the size. The head is rounder.",
+    "The Pipkin neck and shoulders now taper into the head instead of flaring out, and the bikini top band sits flush on the chest."
+  ]},
   { v: "18.66.1", date: "2026-10-17", title: "Pipkin torso and legs", items: [
     "<b>Pipkin torso is shorter</b> and the legs are slimmer and shorter, with a smoother hip.",
     "<b>Softer Pipkin faces:</b> the cheekbones are no longer pronounced."
