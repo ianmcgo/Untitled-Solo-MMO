@@ -1692,6 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.65.1", date: "2026-10-17", title: "Pipkin head and legs", items: [
+    "<b>Pipkin heads are wider and rounder</b>, with larger pointed ears set on the sides of the head.",
+    "<b>Pipkin legs are thicker</b> and set further apart for a sturdy, short-legged stance."
+  ]},
   { v: "18.65.0", date: "2026-10-17", title: "Stout Pipkin", items: [
     "<b>Pipkin bodies reshaped.</b> Broader shoulders, a rounder torso, wider hips and thicker, sturdier limbs give the chunky, big-headed proportions of a Pipkin adventurer.",
     "<b>Smoother joins.</b> Pipkin shoulders, arms, torso and legs are built from extra intermediate rings, so curves flow instead of showing flat facets at the joints."
