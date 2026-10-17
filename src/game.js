@@ -89,7 +89,7 @@ function newSave() {
     spells: Object.keys(SPELLS).filter(id => Object.values(SPELLS[id].jobs).includes(1)),
     v: 2, rv: CONFIG.ruleVer, name: "Adventurer", mainJob: "WAR", subJob: null, supportUnlocked: false,
     jobs, skills,
-    gear: { main: "bronze_sword", head: "bronze_cap", body: "bronze_harness" },
+    gear: { main: "turnip_sword", body: "bronze_harness" },
     inventory: [],
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
@@ -275,8 +275,7 @@ function createChar(opts) {
   d.look = Object.assign(newSave().look, opts.look || {});
   if (!RACES[d.look.race]) d.look.race = "human";
   if (RACES[d.look.race].sex != null) d.look.build = RACES[d.look.race].sex;
-  if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "robe" };
-  else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "robe" };
+  d.gear = { main: starterWeapon(d.mainJob) };
   d.gear.body = starterBody(d.look.race, d.mainJob);
   d.gear.legs = starterLegs(d.look.race);
   d.inventory = [];
@@ -2258,7 +2257,7 @@ function winBattlefield() {
 
 function boardDay() { return Math.floor(Date.now() / 86400000); }
 
-function ahTradable(id) { const it = ITEMS[id]; return !!it && it.price > 0 && !it.race && !it.rare && !it.ex && !it.nm && it.kind !== "key" && it.kind !== "furniture"; }
+function ahTradable(id) { const it = ITEMS[id]; return !!it && it.price > 0 && !it.race && !it.starter && !it.rare && !it.ex && !it.nm && it.kind !== "key" && it.kind !== "furniture"; }
 function ahCategory(id) { const it = ITEMS[id]; if (it.kind === "equip") return it.slot === "main" ? "weapons" : "armor"; if (it.kind === "food" || it.kind === "use") return "consumables"; return "materials"; }
 function marketTick() { return Math.floor(((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000) / AH_CFG.tickMins); }
 function marketDay(tk) { return Math.floor((tk == null ? marketTick() : tk) * AH_CFG.tickMins / 1440); }
