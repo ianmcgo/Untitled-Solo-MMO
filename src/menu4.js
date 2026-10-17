@@ -1692,6 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.64.0", date: "2026-10-17", title: "Connected shoulders", items: [
+    "<b>Arms now join the torso.</b> The top of each upper arm is thicker and tucks into the shoulder, so arms no longer look like separate tubes floating beside the body. Applies to every humanoid, including Ursan and Pipkin."
+  ]},
   { v: "18.63.3", date: "2026-10-17", title: "Thief starts again", items: [
     "<b>Thief is a starting job.</b> New characters can start as a Warrior, Thief, White Mage or Black Mage, and Thieves start with the Turnip Knife. Other jobs are unlocked in play."
   ]},

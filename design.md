@@ -2207,3 +2207,6 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## 18.63.3 Thief starts again
 - data.js `START_JOBS` = WAR, THF, WHM, BLM drives createChar and the creator job buttons (BASE_JOBS unchanged, still used elsewhere). STARTER_WEAPON has THF: turnip_knife again. Corrects 18.63.2, which wrongly limited creation to three jobs.
+
+## 18.64.0 Connected shoulders
+- rig.js humanEntry upper-arm loft: the first four rings changed from radius 0.022/0.044/0.055/0.057 (tuck 0.024/0.016/0.007/0) to 0.04/0.057/0.063/0.06 (tuck 0.052/0.032/0.014/0), so the arm top overlaps the torso shoulder rings instead of ending in a small cap. Weights unchanged (armW blends upArm and chest above shY-0.03). Arm rest pose and bones untouched; the natural gap below the armpit remains.
