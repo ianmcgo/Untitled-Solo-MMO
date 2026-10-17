@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.51.0",
-  "releaseTitle": "Visitor counter on the title screen",
+  "version": "18.51.1",
+  "releaseTitle": "Visitor counter uses its own table",
   "description": "",
   "main": "index.js",
   "scripts": {

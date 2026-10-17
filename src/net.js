@@ -1,4 +1,4 @@
-const NET_SCHEMA = 10;
+const NET_SCHEMA = 9;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000, seatBeat: 30000, queuePoll: 5000, idleWarn: 60000, selectIdleMin: 15 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -1650,7 +1650,14 @@ async function netLsSetRank(lsid, target, action) {
   netLsPing(lsid);
 }
 
-const VIEWS = { shown: null, busy: false, raf: 0 };
+const VIEWS = { shown: null, busy: false, raf: 0, sb: null, url: "https://puiypjgnbqddudbfghuy.supabase.co", key: "sb_publishable_pZ8n4b_NPT8ls1L5Ot-Row_ToI6v0Be" };
+function viewsClient() {
+  if (VIEWS.sb) return VIEWS.sb;
+  supaLoad();
+  if (typeof SUPA === "undefined") return null;
+  VIEWS.sb = SUPA.createClient(VIEWS.url, VIEWS.key, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+  return VIEWS.sb;
+}
 function viewsToday() { const d = new Date(); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
 function viewsHtml(n) {
   if (n == null || !isFinite(n)) return '<span class="vz">---</span>,<span class="vz">---</span>';
@@ -1681,12 +1688,12 @@ async function viewsTick() {
   try { last = +localStorage.getItem("usr_views_last") || 0; day = localStorage.getItem("usr_views_day") || ""; } catch (e) {}
   if (last && VIEWS.shown == null) VIEWS.shown = last;
   viewsSet(null, "link");
-  const sb = navigator.onLine === false ? null : netInit();
+  const sb = navigator.onLine === false ? null : viewsClient();
   if (!sb) { viewsSet(last || null, "off"); return; }
   VIEWS.busy = true;
   const today = viewsToday(), counted = day === today;
   try {
-    const r = await sb.rpc(counted ? "get_site_views" : "bump_site_views");
+    const r = await sb.rpc(counted ? "leidanav_get_views" : "leidanav_bump_views");
     if (r.error || r.data == null || !isFinite(+r.data)) throw r.error || new Error("no count");
     const n = +r.data;
     try { localStorage.setItem("usr_views_last", String(n)); if (!counted) localStorage.setItem("usr_views_day", today); } catch (e) {}

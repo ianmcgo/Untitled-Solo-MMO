@@ -1692,9 +1692,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
-  { v: "18.51.0", date: "2026-10-16", title: "Visitor counter on the title screen", items: [
+  { v: "18.51.1", date: "2026-10-16", title: "Visitor counter uses its own table", items: [
     "<b>Visitor counter.</b> The title screen shows how many times the game has been opened, in the game's blue window style, counting each player once per day. The light glows blue when it is connected and red when the server can't be reached (it then shows the last count seen).",
-    "<b>Admin:</b> the counter needs server setup version 10. Open Admin, copy the setup SQL and run it in the database once; until then the counter stays hidden."
+    "The count is kept in its own table on a separate server, so the game's save server and Admin setup are unchanged."
   ]},
   { v: "18.50.0", date: "2026-10-16", title: "Natural exits, low haze", items: [
     "<b>Haze only shows through exits.</b> The grey band no longer rises above the mountains around the edge of every area; it now sits just below ground level and only fills the gap you see through a pass.",
