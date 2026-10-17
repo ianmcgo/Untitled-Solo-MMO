@@ -720,13 +720,13 @@ for (const id in ITEMS) {
 }
 const RACE_GEAR_ALIAS = {
   hume_tunic: "human_tunic", hume_vest: "human_vest", elvaan_jerkin: "elari_jerkins", elvaan_bodice: "elari_bodice", galkan_surcoat: "ursan_surcoat", mithran_separates: "nekari_separates", tarutaru_kaftan: "pipkin_kaftan",
-  elv_m_chausses: "elari_chausses", elvaan_f_chausses: "elari_chausses", galkan_braguette: "ursan_baguette", hume_pants: "human_pants", hume_slacks: "human_pants", mithran_loincloth: "nekari_loincloth", tarutaru_braccae: "pipkin_braccae"
+  elv_m_chausses: "elari_chausses", elvaan_f_chausses: "elari_chausses", galkan_braguette: "ursan_braguette", ursan_baguette: "ursan_braguette", hume_pants: "human_pants", hume_slacks: "human_pants", mithran_loincloth: "nekari_loincloth", tarutaru_braccae: "pipkin_braccae"
 };
 for (const id in RACE_GEAR_ALIAS) delete GEAR_DATA[id];
 const RACE_GEAR_ROWS = [
   ["human_tunic", "Human Tunic", "human", "🧥", "body"], ["human_vest", "Human Vest", "human", "🧥", "body"], ["human_pants", "Human Pants", "human", "👖", "legs"],
   ["elari_bodice", "Elari Bodice", "elari", "👘", "body"], ["elari_jerkins", "Elari Jerkins", "elari", "🧥", "body"], ["elari_chausses", "Elari Chausses", "elari", "👖", "legs"],
-  ["ursan_tunic", "Ursan Tunic", "ursan", "🧥", "body"], ["ursan_surcoat", "Ursan Surcoat", "ursan", "🧥", "body"], ["ursan_baguette", "Ursan Baguette", "ursan", "👖", "legs"],
+  ["ursan_tunic", "Ursan Tunic", "ursan", "🧥", "body"], ["ursan_surcoat", "Ursan Surcoat", "ursan", "🧥", "body"], ["ursan_braguette", "Ursan Braguette", "ursan", "👖", "legs"],
   ["nekari_tunic", "Nekari Tunic", "nekari", "👘", "body"], ["nekari_separates", "Nekari Separates", "nekari", "👘", "body"], ["nekari_loincloth", "Nekari Loincloth", "nekari", "👖", "legs"],
   ["pipkin_tunic", "Pipkin Tunic", "pipkin", "👘", "body"], ["pipkin_kaftan", "Pipkin Kaftan", "pipkin", "👘", "body"], ["pipkin_braccae", "Pipkin Braccae", "pipkin", "👖", "legs"]
 ];
@@ -736,7 +736,7 @@ const RACE_START_BODY = {
   ursan: { war: "ursan_surcoat", mage: "ursan_tunic" }, nekari: { war: "nekari_separates", mage: "nekari_tunic" },
   pipkin: { war: "pipkin_kaftan", mage: "pipkin_tunic" }
 };
-const RACE_START_LEGS = { human: "human_pants", elari: "elari_chausses", ursan: "ursan_baguette", nekari: "nekari_loincloth", pipkin: "pipkin_braccae" };
+const RACE_START_LEGS = { human: "human_pants", elari: "elari_chausses", ursan: "ursan_braguette", nekari: "nekari_loincloth", pipkin: "pipkin_braccae" };
 const RACE_MAGE_JOBS = { WHM: 1, BLM: 1, RDM: 1, SMN: 1, SCH: 1, GEO: 1 };
 function starterBody(race, job) { const r = RACE_START_BODY[race] || RACE_START_BODY.human; return RACE_MAGE_JOBS[job] ? r.mage : r.war; }
 function starterLegs(race) { return RACE_START_LEGS[race] || RACE_START_LEGS.human; }

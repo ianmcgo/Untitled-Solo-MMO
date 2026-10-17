@@ -154,7 +154,7 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | tarutaru_kaftan | pipkin_kaftan | Pipkin Kaftan (race: pipkin) | 1 |
 | (new) | ursan_tunic, nekari_tunic, pipkin_tunic | race mage tunics | 1 |
 | elv_m_chausses, elvaan_f_chausses | elari_chausses | Elari Chausses (race: elari) | 1 |
-| galkan_braguette | ursan_baguette | Ursan Baguette (race: ursan) | 1 |
+| galkan_braguette, ursan_baguette | ursan_braguette | Ursan Braguette (race: ursan) | 1 |
 | hume_pants, hume_slacks | human_pants | Human Pants (race: human) | 1 |
 | mithran_loincloth | nekari_loincloth | Nekari Loincloth (race: nekari) | 1 |
 | tarutaru_braccae | pipkin_braccae | Pipkin Braccae (race: pipkin) | 1 |
