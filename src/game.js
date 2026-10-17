@@ -102,6 +102,7 @@ function newSave() {
 function normalizeSave(d) {
   if (!d || typeof d !== "object" || !d.jobs || !d.gear || !Array.isArray(d.inventory)) return null;
   if (d.rv !== CONFIG.ruleVer) return null;
+  d = migrateRaceGearIds(d);
   const b = newSave();
   const out = Object.assign(b, d);
   out.jobs = Object.assign(newSave().jobs, d.jobs);
@@ -276,6 +277,7 @@ function createChar(opts) {
   if (RACES[d.look.race].sex != null) d.look.build = RACES[d.look.race].sex;
   if (d.mainJob === "WHM") d.gear = { main: "ash_club", head: "bronze_cap", body: "robe" };
   else if (d.mainJob === "BLM") d.gear = { main: "ash_staff", head: "bronze_cap", body: "robe" };
+  d.gear.body = starterBody(d.look.race, d.mainJob);
   d.inventory = [{ id: "potion", qty: 3 }];
   if (PLAY.offline) d.offline = true;
   const id = PLAY.offline ? "o" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36) : typeof NET !== "undefined" && NET.member && typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "c" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
@@ -2255,7 +2257,7 @@ function winBattlefield() {
 
 function boardDay() { return Math.floor(Date.now() / 86400000); }
 
-function ahTradable(id) { const it = ITEMS[id]; return !!it && it.price > 0 && !it.rare && !it.ex && !it.nm && it.kind !== "key" && it.kind !== "furniture"; }
+function ahTradable(id) { const it = ITEMS[id]; return !!it && it.price > 0 && !it.race && !it.rare && !it.ex && !it.nm && it.kind !== "key" && it.kind !== "furniture"; }
 function ahCategory(id) { const it = ITEMS[id]; if (it.kind === "equip") return it.slot === "main" ? "weapons" : "armor"; if (it.kind === "food" || it.kind === "use") return "consumables"; return "materials"; }
 function marketTick() { return Math.floor(((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000) / AH_CFG.tickMins); }
 function marketDay(tk) { return Math.floor((tk == null ? marketTick() : tk) * AH_CFG.tickMins / 1440); }
@@ -6040,6 +6042,7 @@ function returnHome() {
 function canEquip(id) {
   const it = ITEMS[id];
   if (!it.jobs.includes(save.mainJob)) return "Not usable by " + save.mainJob;
+  if (it.race && (save.look && save.look.race || "human") !== it.race) return "Only " + RACES[it.race].name + " can wear this";
   if (it.lv > save.jobs[save.mainJob].lv) return "Requires Lv." + it.lv;
   return "";
 }

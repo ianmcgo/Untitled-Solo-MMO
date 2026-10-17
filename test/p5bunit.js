@@ -67,7 +67,7 @@ ok(P().mp === Math.min(P().maxMp, hp0) && P().hp === 3, 'Convert swaps HP and MP
 G.save.gil = 5000; G.hireMerc('dorn'); G.hireMerc('lisette');
 const dorn = S.party.find(p => p.mercId === 'dorn'), lis = S.party.find(p => p.mercId === 'lisette');
 ok(dorn && dorn.job === 'PLD' && dorn.role === 'tank' && lis && lis.job === 'RDM', 'Dorn and Lisette hired with their jobs');
-ok(dorn.gear.sub === 'lauan_shield' && lis.gear.body === 'hume_tunic' || lis.gear.body === 'linen_robe', 'companions get job gear');
+ok(lis.gear.body === 'linen_robe', 'companions get job gear');
 S.mobs = []; const m2 = G.buildMob('goblin', 6, P().x + 40, P().y, 0); S.mobs.push(m2); m2.state = 'combat'; m2.enmity.set(P(), 10);
 P().engaged = true; P().attackTarget = m2; P().target = m2;
 run(12);
