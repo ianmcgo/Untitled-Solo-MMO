@@ -1692,10 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
-  { v: "18.48.0", date: "2026-10-16", title: "Vela retires, vendors always have 10 items", items: [
-    "<b>Vela is gone.</b> The level 6 to 20 gear, scrolls, recipes, potions and Chapel Sigils she sold now turn up at the town vendors instead.",
-    "<b>Vendors always carry 10 items.</b> If a trade has fewer than 10 items at level 5 or lower (there are only 4 rings and necklaces that low), the lowest-level items above that fill the shelf, so the Jeweler now also stocks level 7 to 11 rings and collars.",
-    "Spellsmiths now sell recipe scrolls as well as spell scrolls, and Quartermasters can stock X-Potions, Hi-Ethers, Super Ethers, Reraisers and Chapel Sigils."
+  { v: "18.48.0", date: "2026-10-16", title: "Vela retires, strict vendor levels", items: [
+    "<b>Vela is gone.</b> Her level 6 to 20 gear, scrolls, potions and Chapel Sigils are no longer sold anywhere in town. Monsters, crafters, Haldor and the auction house cover them.",
+    "<b>Vendors sell nothing above level 5, except the Jeweler</b>, whose daily 10 are picked from rings and necklaces up to level 14 (there are only 4 at level 5 or lower). Other vendors may show fewer than 10 items when their trade has fewer.",
+    "Spellsmiths now sell recipe scrolls (level 5 or lower) as well as spell scrolls."
   ]},
   { v: "18.47.0", date: "2026-10-16", title: "Treasure pool matches the game's windows", items: [
     "<b>The treasure pool panel now uses the same window style as the rest of the game</b>: striped blue background, light edge, a centred title bar, italic item names and rounded Lot and Pass buttons."
@@ -3219,7 +3219,7 @@ function tabHelp() {
   ]));
   h += sec("🚶 City life", ul([
     "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
-    "<b>Vendors:</b> every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. If a vendor has fewer than 10 items at level 5 or lower, the next-lowest-level items fill the shelf. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
+    "<b>Vendors:</b> every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. The Jeweler is the exception: his pick goes up to level 14, since so few rings and necklaces are level 5 or lower. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
     "Tour quests: Hale the Tradesman (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([

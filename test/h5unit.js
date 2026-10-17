@@ -15,8 +15,8 @@ for (const town of ['outpost', 'harbor', 'ironvale']) {
 ok(!G.NPCS.pell, 'Pell is gone');
 for (const r of roles) {
   const st = G.vendorStock(r, 'outpost'), pool = G.VENDOR_POOL[r];
-  ok(st.length === 10, r + ' stocks ' + st.length + ' (pool of ' + pool.length + ' at level 5 or lower)');
-  ok(pool.length >= 10 ? st.every(id => (G.ITEMS[id].lv || 0) <= 5) : pool.every(id => st.includes(id)), r + ' sells level 5 or lower first, then the next lowest');
+  ok(st.length === Math.min(10, pool.length), r + ' stocks ' + st.length + ' (pool of ' + pool.length + ')');
+  ok(st.every(id => (G.ITEMS[id].lv || 0) <= (r === 'jeweler' ? 14 : 5)), r + ' stays within its level cap');
   ok(JSON.stringify(st) === JSON.stringify(G.vendorStock(r, 'outpost')), r + ' stock is steady within a day');
 }
 ok(G.VENDOR_POOL.armorer.every(id => ['head', 'body', 'hands', 'legs', 'feet', 'back', 'waist', 'sub'].includes(G.ITEMS[id].slot)), 'armorer sells armor only');
@@ -28,5 +28,6 @@ const a = G.vendorStock('armorer', 'outpost').join(), b = G.vendorStock('armorer
 G.enterZone('outpost', 800, 700); for (let i = 0; i < 12; i++) tick(1000 / 60);
 ok(G.shopList('v:armorer').length === G.vendorStock('armorer', 'outpost').length, 'shop window lists the vendor stock');
 ok(!G.NPCS.vela && !G.ZONES.harbor.npcs.some(n => n.id === 'vela'), 'Vela is gone');
-ok(G.vendorStock('jeweler', 'outpost').length === 10, 'the jeweler always has 10 items');
+ok(G.vendorStock('jeweler', 'outpost').length === 10 && G.VENDOR_POOL.jeweler.length > 20, 'the jeweler picks 10 from a pool of ' + G.VENDOR_POOL.jeweler.length);
+ok(G.vendorStock('jeweler', 'outpost').join() !== G.vendorStock('jeweler', 'ironvale').join(), 'jeweler stock differs by town');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

@@ -6099,7 +6099,6 @@ function vendorStock(role, town) {
   const pool = (VENDOR_POOL[role] || []).slice(), r = seeded(hashStr("vendor:" + town + ":" + role + ":" + boardDay()));
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
   const out = pool.slice(0, VENDOR_STOCK);
-  for (const id of VENDOR_FILL[role] || []) { if (out.length >= VENDOR_STOCK) break; if (!out.includes(id)) out.push(id); }
   return out.sort((a, b) => ITEMS[a].price - ITEMS[b].price);
 }
 
