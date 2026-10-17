@@ -158,4 +158,8 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | hume_pants, hume_slacks | human_pants | Human Pants (race: human) | 1 |
 | mithran_loincloth | nekari_loincloth | Nekari Loincloth (race: nekari) | 1 |
 | tarutaru_braccae | pipkin_braccae | Pipkin Braccae (race: pipkin) | 1 |
+| windurstian_slops | city_slops | City Slops | 15 |
+| san_dorian_vest | city_vest | City Vest | 15 |
+| san_dorian_tunic | city_tunic | City Tunic | 15 |
+| bastokan_harness | city_harness | City Harness | 15 |
 

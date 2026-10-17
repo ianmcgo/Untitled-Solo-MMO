@@ -28,4 +28,7 @@ ok(G.save.gear.body === 'human_tunic', 'a human can wear a Human piece');
 const old = JSON.parse(JSON.stringify(d)); old.gear.body = 'hume_vest'; old.inventory.push({ id: 'elvaan_bodice', qty: 1 }); old.gear.legs = 'hume_slacks';
 const nd = G.normalizeSave(old);
 ok(nd.gear.body === 'human_vest' && nd.inventory.some(s => s.id === 'elari_bodice') && nd.gear.legs === 'human_pants', 'old saves are migrated to the new ids');
+ok(['city_slops', 'city_vest', 'city_tunic', 'city_harness'].every(id => G.ITEMS[id] && G.ITEMS[id].name.startsWith('City ') && G.ITEMS[id].lv === 15) && !G.ITEMS.bastokan_harness && !G.ITEMS.san_dorian_vest && !G.ITEMS.san_dorian_tunic && !G.ITEMS.windurstian_slops, 'four nation pieces renamed to City');
+const o2 = JSON.parse(JSON.stringify(d)); o2.inventory.push({ id: 'bastokan_harness', qty: 1 }, { id: 'san_dorian_tunic', qty: 1 }); const n2 = G.normalizeSave(o2);
+ok(n2.inventory.some(s => s.id === 'city_harness') && n2.inventory.some(s => s.id === 'city_tunic'), 'old nation piece ids migrate to City ids');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED'); process.exit(fails ? 1 : 0);
