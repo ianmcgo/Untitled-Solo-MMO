@@ -1692,10 +1692,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.58.1", date: "2026-10-17", title: "Ursan Braguette spelling", items: [
+    "The Ursan legwear is spelled <b>Ursan Braguette</b>. Characters made on 18.58.0 keep theirs under the corrected name."
+  ]},
   { v: "18.58.0", date: "2026-10-17", title: "Racial trousers", items: [
-    "<b>Every race now also starts in its own legwear:</b> Human Pants, Elari Chausses, Ursan Baguette, Nekari Loincloth and Pipkin Braccae. Only that race can wear its pair, and every new character begins wearing it.",
+    "<b>Every race now also starts in its own legwear:</b> Human Pants, Elari Chausses, Ursan Braguette, Nekari Loincloth and Pipkin Braccae. Only that race can wear its pair, and every new character begins wearing it.",
     "Like the race body pieces, they are not sold in shops or at the auction house, and they can't be dropped by monsters or crafted.",
-    "Renamed: Hume Pants are now Human Pants, Elv. M Chausses are Elari Chausses, Galkan Braguette is Ursan Baguette, Mithran Loincloth is Nekari Loincloth and Tarutaru Braccae is Pipkin Braccae. Elvaan F Chausses and Hume Slacks are gone; anything you owned of them was turned into Elari Chausses and Human Pants."
+    "Renamed: Hume Pants are now Human Pants, Elv. M Chausses are Elari Chausses, Galkan Braguette is Ursan Braguette, Mithran Loincloth is Nekari Loincloth and Tarutaru Braccae is Pipkin Braccae. Elvaan F Chausses and Hume Slacks are gone; anything you owned of them was turned into Elari Chausses and Human Pants."
   ]},
   { v: "18.57.0", date: "2026-10-17", title: "Racial starting clothes", items: [
     "<b>Every race now starts in its own clothes.</b> Humans wear a Human Vest (Warrior) or Human Tunic (mages), Elari an Elari Jerkins or Elari Bodice, Ursan an Ursan Surcoat or Ursan Tunic, Nekari Nekari Separates or a Nekari Tunic, and Pipkin a Pipkin Kaftan or Pipkin Tunic.",
@@ -3333,7 +3336,7 @@ function tabHelp() {
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
   h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
-    "Every race starts in its own clothes: a Warrior piece and a mage piece for the body (Human Vest and Tunic, Elari Jerkins and Bodice, Ursan Surcoat and Tunic, Nekari Separates and Tunic, Pipkin Kaftan and Tunic) plus legwear (Human Pants, Elari Chausses, Ursan Baguette, Nekari Loincloth, Pipkin Braccae) that only that race can wear.",
+    "Every race starts in its own clothes: a Warrior piece and a mage piece for the body (Human Vest and Tunic, Elari Jerkins and Bodice, Ursan Surcoat and Tunic, Nekari Separates and Tunic, Pipkin Kaftan and Tunic) plus legwear (Human Pants, Elari Chausses, Ursan Braguette, Nekari Loincloth, Pipkin Braccae) that only that race can wear.",
     "Pick a race at character creation. It's permanent, like the rest of your appearance. Race shapes your body and gives small stat bonuses and penalties that grow a little with level; your job still matters far more.",
     "Elari get extra accuracy with bows. Pipkin and Nekari move faster; Ursan a little slower. HP and MP are multiplied: Ursan +25% HP but −25% MP, Pipkin −20% HP but +30% MP."
   ]));

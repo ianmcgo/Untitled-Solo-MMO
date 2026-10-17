@@ -6,7 +6,7 @@ for (const race in want) for (const [job, i] of [['WAR', 0], ['WHM', 1], ['BLM',
   const d = G.loadChar(G.createChar({ name: 'R' + (n++) + 'x', job, look: { race } }));
   ok(d.gear.body === want[race][i], race + ' ' + job + ' starts in ' + want[race][i]);
 }
-const legs = { human: 'human_pants', elari: 'elari_chausses', ursan: 'ursan_baguette', nekari: 'nekari_loincloth', pipkin: 'pipkin_braccae' };
+const legs = { human: 'human_pants', elari: 'elari_chausses', ursan: 'ursan_braguette', nekari: 'nekari_loincloth', pipkin: 'pipkin_braccae' };
 for (const race in legs) { const d = G.loadChar(G.createChar({ name: 'L' + race, job: 'WHM', look: { race } })); ok(d.gear.legs === legs[race], race + ' starts in ' + legs[race]); }
 const ids = [].concat(...Object.values(want), Object.values(legs));
 const shopIds = new Set([].concat(G.SHOP, ...Object.values(G.SHOPS).map(s => Array.isArray(s) ? s : s.items || [])));

@@ -2163,8 +2163,8 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Tests: test/p62unit.js (starter body for 5 races x WAR/WHM/BLM, not in shops/auction/recipes, race lock on equip, old-id save migration). p5bunit's companion-gear check now expects Lisette's linen_robe only (its old `&&`/`||` mix passed on that branch anyway).
 
 ## 18.58.0 Racial trousers
-- Same mechanism as 18.57.0 (`RACE_GEAR_ROWS` now carries a slot): five legs pieces, `src: "race"`, DEF 2, price 56: human_pants, elari_chausses, ursan_baguette, nekari_loincloth, pipkin_braccae. `RACE_START_LEGS` and `starterLegs(race)` (every race, every job) set `gear.legs` in createChar and in the creator preview.
+- Same mechanism as 18.57.0 (`RACE_GEAR_ROWS` now carries a slot): five legs pieces, `src: "race"`, DEF 2, price 56: human_pants, elari_chausses, ursan_braguette, nekari_loincloth, pipkin_braccae. `RACE_START_LEGS` and `starterLegs(race)` (every race, every job) set `gear.legs` in createChar and in the creator preview.
 - Removed from GEAR_DATA: elvaan_f_chausses, hume_slacks. `RACE_GEAR_ALIAS` maps them (and the renamed elv_m_chausses, galkan_braguette, hume_pants, mithran_loincloth, tarutaru_braccae) to the new ids; migrateRaceGearIds builds its regex from the alias keys.
-- Spelling taken literally from the request: "Ursan Baguette". "Nekari Loincloth" is my reading of "mithran loincloth" (matches the other race renames).
+- 18.58.1: the piece is "Ursan Braguette" (id ursan_braguette); 18.58.0 briefly had "Baguette", and ursan_baguette is aliased forward in migrateRaceGearIds. "Nekari Loincloth" is my reading of "mithran loincloth" (matches the other race renames).
 - Tests: p62unit also checks starter legs for all five races, the fifteen pieces, and the legs id migration.
 
