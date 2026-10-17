@@ -723,7 +723,9 @@ const RACE_GEAR_ALIAS = {
   elv_m_chausses: "elari_chausses", elvaan_f_chausses: "elari_chausses", galkan_braguette: "ursan_braguette", ursan_baguette: "ursan_braguette", hume_pants: "human_pants", hume_slacks: "human_pants", mithran_loincloth: "nekari_loincloth", tarutaru_braccae: "pipkin_braccae"
 };
 for (const id in RACE_GEAR_ALIAS) delete GEAR_DATA[id];
-const GEAR_RENAME = { windurstian_slops: ["city_slops", "City Slops"], san_dorian_vest: ["city_vest", "City Vest"], san_dorian_tunic: ["city_tunic", "City Tunic"], bastokan_harness: ["city_harness", "City Harness"] };
+const GEAR_RENAME = { windurstian_slops: ["city_slops", "City Slops"], san_dorian_vest: ["city_vest", "City Vest"], san_dorian_tunic: ["city_tunic", "City Tunic"], bastokan_harness: ["city_harness", "City Harness"],
+  san_dorian_sword: ["city_sword", "City Sword"], san_dorian_bow: ["city_bow", "City Bow"], windurstian_bow: ["city_bow_2", "City Bow II"], bas_crossbow: ["city_crossbow", "City Crossbow"], san_dorian_cesti: ["city_cesti", "City Cesti"],
+  bastokan_axe: ["city_axe", "City Axe"], bas_knuckles: ["city_knuckles", "City Knuckles"], windurstian_staff: ["city_staff_2", "City Staff II"], bastokan_scythe: ["city_scythe", "City Scythe"], windurstian_club: ["city_club", "City Club"], bastokan_staff: ["city_staff", "City Staff"] };
 const GEAR_RENAME_ALIAS = {};
 for (const old in GEAR_RENAME) for (const sfx of ["", "_hq"]) {
   if (!GEAR_DATA[old + sfx]) continue;
@@ -2322,7 +2324,7 @@ const PETS = {
   dark: { name: "Dark Spirit", el: "dark", col: 0x7e57c2, eye: 0xd1c4e9, pact: "Shadow Bolt", weak: "light" }
 };
 
-const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["anus_tiara", "bastokan_staff", "kingdom_sword", "anus_doublet", "rogetsurin"], gil: 1500, xp: 3000 };
+const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["anus_tiara", "city_staff", "kingdom_sword", "anus_doublet", "rogetsurin"], gil: 1500, xp: 3000 };
 
 for (const id in SPELLS) {
   const sp = SPELLS[id], lv = Math.min(...Object.values(sp.jobs));

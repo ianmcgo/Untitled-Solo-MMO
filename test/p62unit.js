@@ -31,4 +31,6 @@ ok(nd.gear.body === 'human_vest' && nd.inventory.some(s => s.id === 'elari_bodic
 ok(['city_slops', 'city_vest', 'city_tunic', 'city_harness'].every(id => G.ITEMS[id] && G.ITEMS[id].name.startsWith('City ') && G.ITEMS[id].lv === 15) && !G.ITEMS.bastokan_harness && !G.ITEMS.san_dorian_vest && !G.ITEMS.san_dorian_tunic && !G.ITEMS.windurstian_slops, 'four nation pieces renamed to City');
 const o2 = JSON.parse(JSON.stringify(d)); o2.inventory.push({ id: 'bastokan_harness', qty: 1 }, { id: 'san_dorian_tunic', qty: 1 }); const n2 = G.normalizeSave(o2);
 ok(n2.inventory.some(s => s.id === 'city_harness') && n2.inventory.some(s => s.id === 'city_tunic'), 'old nation piece ids migrate to City ids');
+ok(['city_sword', 'city_bow', 'city_bow_2', 'city_crossbow', 'city_cesti', 'city_axe', 'city_knuckles', 'city_staff', 'city_staff_2', 'city_scythe', 'city_club'].every(id => G.ITEMS[id] && G.ITEMS[id].name.startsWith('City ')) && G.ITEMS.city_staff.rare && !G.ITEMS.bastokan_staff && !G.ITEMS.windurstian_club && !G.ITEMS.bas_crossbow, 'eleven city weapons exist under new ids');
+ok(G.BATTLEFIELD.rewards.every(id => G.ITEMS[id]) && G.BATTLEFIELD.rewards.includes('city_staff'), 'battlefield rewards point at real items');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED'); process.exit(fails ? 1 : 0);
