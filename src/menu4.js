@@ -1692,6 +1692,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.63.2", date: "2026-10-17", title: "Three starting jobs", items: [
+    "New characters can only start as a Warrior, White Mage or Black Mage; other jobs are unlocked in play. Changing jobs never gives you new armor or items.",
+    "Thieves no longer start with the Turnip Knife; it remains in the game but nothing hands it out yet."
+  ]},
   { v: "18.63.1", date: "2026-10-17", title: "Turnip Staff stats", items: [
     "Turnip Staff now has DMG 4, delay 366 and can be used by War, Mnk, Whm, Blm, Rdm, Bst, Brd, Smn, Sch and Geo."
   ]},
@@ -3183,7 +3187,7 @@ const UPDATES = [
     "Title screen and Credits carry the maker's links.",
     "Loading screens show a random character or monster from the game, slowly turning, with a line about it.",
     "The Rest tip and other loading tips mention that standing still only trickles.",
-    "New characters start with only their race's clothes, a Turnip weapon for their job (Warrior sword, Thief knife, White Mage rod, Black Mage staff; not sold, auctioned, dropped or crafted), no helmet, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
+    "New characters start with only their race's clothes, a Turnip weapon for their job (Warrior sword, White Mage rod, Black Mage staff; not sold, auctioned, dropped or crafted), no helmet, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
     "Take off body or leg armor and your character shows underwear: white boxers for men, a white string thong and bikini top for women. Each slot is independent."
   ] },
   { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.63.1",
-  "releaseTitle": "Turnip Staff stats",
+  "version": "18.63.2",
+  "releaseTitle": "Three starting jobs",
   "description": "",
   "main": "index.js",
   "scripts": {

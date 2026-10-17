@@ -270,7 +270,7 @@ function createChar(opts) {
   const r = loadRoster();
   const d = newSave();
   d.name = opts.name;
-  d.mainJob = JOBS[opts.job] ? opts.job : "WAR";
+  d.mainJob = BASE_JOBS.includes(opts.job) ? opts.job : "WAR";
   d.spells = Object.keys(SPELLS).filter(id => SPELLS[id].jobs[d.mainJob] === 1 && !SPELLS[id].drop);
   d.look = Object.assign(newSave().look, opts.look || {});
   if (!RACES[d.look.race]) d.look.race = "human";

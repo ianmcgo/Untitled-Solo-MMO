@@ -750,7 +750,7 @@ const TURNIP_ROWS = [
   ["turnip_staff", "Turnip Staff", "🦯", "staff", 4, 3.66, ["WAR", "MNK", "WHM", "BLM", "RDM", "BST", "BRD", "SMN", "SCH", "GEO"]]
 ];
 for (const [id, name, icon, wtype, dmg, delay, jobs] of TURNIP_ROWS) GEAR_DATA[id] = { name, kind: "equip", icon, slot: "main", wtype, dmg, delay, jobs, lv: 1, price: 10, src: "race", starter: true };
-const STARTER_WEAPON = { WAR: "turnip_sword", THF: "turnip_knife", WHM: "turnip_rod", BLM: "turnip_staff" };
+const STARTER_WEAPON = { WAR: "turnip_sword", WHM: "turnip_rod", BLM: "turnip_staff" };
 function starterWeapon(job) { return STARTER_WEAPON[job] || "bronze_sword"; }
 const RACE_START_BODY = {
   human: { war: "human_vest", mage: "human_tunic" }, elari: { war: "elari_jerkins", mage: "elari_bodice" },
