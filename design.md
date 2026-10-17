@@ -2188,3 +2188,6 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - `L.under.top`: bikini (women), bandeau (Pipkin women, `L.doll`), none for men. `L.under.low`: boxer (men), thong (women), brief (Pipkin women).
 - humanEntry draws them as white cloth shells: boxer and brief are `shellOf(lowR)` plus the upper rings of each leg loft (boxer reaches 0.17 below the hip joint, brief 0.06); thong is a waist string ring, a front patch ball and a back string; bikini is two cup balls, a band ring and two neck straps; bandeau is one thick band ring.
 - Job outfits (JOB_STYLE) still apply to every filled slot. Verified by screenshot only (no phase-1 test, rig is 3D-only).
+
+## 18.62.1 Pipkin underwear
+- applyUnderwear no longer special-cases `L.doll`: all women get bikini and thong. The bandeau and brief branches in humanEntry (and the brief leg shell) are now unused by the look code.

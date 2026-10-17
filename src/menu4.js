@@ -1692,9 +1692,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.62.1", date: "2026-10-17", title: "Pipkin underwear", items: [
+    "Pipkin women now wear the same white string thong and bikini top as other women."
+  ]},
   { v: "18.62.0", date: "2026-10-17", title: "Underwear", items: [
     "<b>Empty body or leg slots now show underwear.</b> With no body armor equipped, the chest is bare; with no leg armor, you wear underwear. Each slot is handled separately, so a shirt with no pants (or the reverse) works.",
-    "Men wear plain white boxers. Women wear a skimpy white string thong and a white string bikini top. Pipkin women wear a modest white bandeau and briefs instead, to suit their doll-like build.",
+    "Men wear plain white boxers. Women wear a skimpy white string thong and a white string bikini top. Pipkin women wear the same string set, scaled to their build.",
     "Applies to your character in game, the Equipment preview and other players. Job outfits only show when the slot is filled."
   ]},
   { v: "18.61.0", date: "2026-10-17", title: "An empty bag", items: [
@@ -3173,7 +3176,7 @@ const UPDATES = [
     "Loading screens show a random character or monster from the game, slowly turning, with a line about it.",
     "The Rest tip and other loading tips mention that standing still only trickles.",
     "New characters start with only their race's clothes and their own job's gear, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
-    "Take off body or leg armor and your character shows underwear: white boxers for men, a white string thong and bikini top for women (a modest bandeau and briefs for Pipkin women). Each slot is independent."
+    "Take off body or leg armor and your character shows underwear: white boxers for men, a white string thong and bikini top for women. Each slot is independent."
   ] },
   { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [
     "A new dungeon under the Goblin Den's Bone Pit: entrance hall, Brazier Hall, the crossroads, the Sentinel's room to the north, the vault to the south and the throne room. Levels 9–12.",
