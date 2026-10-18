@@ -12,6 +12,34 @@ const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald",
 const HAIR_BY_SEX = [["short", "sidepart", "spiky", "curly", "long", "ponytail", "dreads", "bald", "mohawk", "topknot", "braid", "pixie"], ["long", "wavy", "ponytail", "bob", "bun", "pixie", "curly", "short", "sidepart", "braid", "twintails", "dreads", "topknot"]];
 const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" , braid: "Braid", mohawk: "Crest", twintails: "Twin tails", topknot: "Topknot", wavy: "Wavy", pixie: "Pixie", sidepart: "Side part", dreads: "Locs", curly: "Curly" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
+const HAIR_TONES = { blond: 0xd8b070, brown: 0x5a3a22, teal: 0x2f8f8a, black: 0x1d1d22, gold: 0xe0b84a, pink: 0xe58fb0, copper: 0xb0642e, silver: 0xc8ccd6, auburn: 0x7a3320, sandy: 0xb89868, moss: 0x5f7f3f, red: 0xb03a2e, grey: 0x8a8a92, dark: 0x2a1d14, ginger: 0xc8662a, orange: 0xe08a2a, rose: 0xd45a6a, tan: 0x8a5a2c, green: 0x3f9a4f, navy: 0x1f2a5a, blue: 0x3a6ab0, white: 0xf0f0f4, maroon: 0x6a1f2a, cream: 0xf0e4c0, wine: 0x6a2040, plum: 0x5a2a6a, peri: 0x8a90e0, sage: 0x8aa88a, aqua: 0x5ac8c8, mint: 0x9ae0c0, peach: 0xf0b890, lavender: 0xb8a0e0, olive: 0x7a7a3a, pale: 0xa8d8a0, slate: 0x5a6a7a, lilac: 0xb090d0, salmon: 0xe8907a, purple: 0x7a3aa0, charcoal: 0x3a3a42, rust: 0x9a4a22, platinum: 0xe8e8f0 };
+const RACE_FACE_HAIR = {
+  human: [
+    ["long:blond,brown,teal", "short:black,gold,pink", "spiky:blond,copper,silver", "sidepart:auburn,sandy,moss", "bald:blue,black,red", "short:dark,brown,tan", "sidepart:brown,blond,grey", "topknot:black,blond,copper", "mohawk:red,black,blond"],
+    ["bob:ginger,orange,rose", "long:blond,black,pink", "sidepart:brown,auburn,blue", "bob:black,tan,green", "bun:blond,copper,navy", "ponytail:black,brown,red", "pixie:brown,blond,black", "wavy:auburn,red,wine", "wavy:brown,blond,black"]
+  ],
+  elari: [
+    ["long:silver,black,teal", "wavy:silver,black,red", "short:black,platinum,navy", "ponytail:white,black,maroon", "braid:orange,white,brown", "spiky:cream,orange,moss", "sidepart:cream,orange,wine", "short:white,black,plum", "long:silver,white,black"],
+    ["bob:cream,orange,pink", "braid:cream,black,pink", "sidepart:cream,orange,brown", "bob:cream,orange,peri", "bun:silver,red,brown", "long:silver,black,sage", "long:white,black,gold", "bob:black,grey,plum", "bob:cream,silver,black"]
+  ],
+  pipkin: [
+    ["bob:brown,peach,pale", "curly:orange,gold,aqua", "topknot:brown,olive,maroon", "bob:silver,lavender,aqua", "bob:brown,blue,white", "spiky:orange,blue,green", "bun:navy,gold,pink", "bob:blond,gold,teal", "bald:brown,black,grey"],
+    ["curly:red,gold,mint", "bob:grey,olive,teal", "twintails:brown,red,green", "twintails:blond,orange,peri", "bun:slate,brown,pink", "bob:grey,silver,orange", "twintails:olive,blond,rose", "bob:orange,olive,red", "twintails:pink,blond,aqua"]
+  ],
+  nekari: [
+    null,
+    ["bob:orange,brown,red", "long:white,pink,mint", "bob:lilac,orange,cream", "bob:blond,orange,blue", "ponytail:salmon,brown,purple", "spiky:white,orange,pink", "bob:blond,brown,purple", "pixie:brown,gold,salmon", "wavy:navy,blue,black"]
+  ],
+  ursan: [
+    ["long:black,brown,navy", "spiky:charcoal,white,brown", "short:white,brown,maroon", "short:charcoal,brown,green", "curly:rust,black,grey", "bald:rust,black,navy", "mohawk:brown,black,maroon", "long:black,white,blond", "bald:brown,black,grey"],
+    null
+  ]
+};
+function faceHairEntry(race, build, face) {
+  const t = RACE_FACE_HAIR[race] || RACE_FACE_HAIR.human, row = t[build ? 1 : 0] || t[build ? 0 : 1] || RACE_FACE_HAIR.human[build ? 1 : 0];
+  const s = row[Math.max(0, Math.min(row.length - 1, face | 0))].split(":");
+  return { style: s[0], colors: s[1].split(",").map(k => HAIR_TONES[k]) };
+}
 
 
 function paintFace(g, ox, oy, v, fem) {
@@ -3330,7 +3358,7 @@ const RACE_SKINCOL = { ursan: 0x8e9688, pipkin: 0xf2c9aa };
 function raceSkinColor(race) { return RACE_SKINCOL[race] != null ? RACE_SKINCOL[race] : SKIN_TONES[RACE_SKIN[race] || 0]; }
 function baseFromLook(look) {
   const l = look || {};
-  const b = { build: l.build || 0, skin: raceSkinColor(raceOfLook(l)), hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
+  const b = { build: l.build || 0, skin: raceSkinColor(raceOfLook(l)), hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: typeof l.hairCol === "number" ? l.hairCol : HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
   const p = bodyProp(l);
   if (p) b.prop = p;
   const race = raceOfLook(l);

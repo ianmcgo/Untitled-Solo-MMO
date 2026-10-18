@@ -1699,6 +1699,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.76.0", date: "2026-10-18", title: "Hair table for every race", items: [
+    "<b>Every race now has its own eight faces and hairstyles</b> in character creation: Human, Elari, Pipkin, Nekari and Ursan each pick from their own face-to-hair list.",
+    "<b>Three hair colours per face:</b> the Hair colour step shows the colours that suit your face first, then a <b>More colours</b> palette.",
+    "Existing characters keep the look they already have. Some new hairstyles use the nearest current style for now; the new styles arrive in the next updates."
+  ] },
   { v: "18.75.0", date: "2026-10-18", title: "New visitor globe", items: [
     "<b>Visitor counter rebuilt on the standard Visitor Log design</b>, in the game's blue window colors. All earlier visit history is kept.",
     "<b>Bigger globe:</b> full-screen with pins, arcs, a night side, Per 1M shading, a Replay of how visits grew, a moon for unknown origins, and country flags on every platform.",
@@ -3403,7 +3408,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, race, gender, face, hair colour and size. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each face comes with its own hairstyle; skin comes from your race) → <b>Hair colour</b> → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b> (with a summary of your choices and a <b>Start over</b> button). Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
+    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each race has its own set, and each face comes with its own hairstyle and three hair colours; skin comes from your race) → <b>Hair colour</b> (the three colours for your face, then a <b>More colours</b> palette) → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b> (with a summary of your choices and a <b>Start over</b> button). Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));

@@ -2287,3 +2287,9 @@ Backend unchanged (FreeSpace 4X project): the adapter maps the standard RPC name
 Counting follows the package: once per tab session per local day (sessionStorage leidanav_vc_day), last count in localStorage leidanav_vc_last. Refresh every minute while the title is showing (isActive). Title start ignores clicks on #ldViews and input while #vg-overlay is open.
 Removed: src/visitors.js, #vgWin CSS, old #ldViews inner markup and CSS, net.js viewsSet/viewsTick/viewsHtml/viewsToday (viewsClient and VIEWS url/key kept for the adapter). Page size +195 KB (flag font 105 KB).
 Test: scratch Playwright script routes *.supabase.co and mocks the ln_ RPCs; desktop and 390 px phone checked, no page errors.
+
+## 18.76.0 Per-race face and hair table
+rig.js: HAIR_TONES (named hex colours) and RACE_FACE_HAIR[race][build] = array of 9 strings "style:colorA,colorB,colorC" (faces 1-8 plus barber-only face 9); null row for the missing sex of Nekari (female only) and Ursan (male only). faceHairEntry(race, build, face) returns { style, colors }. Styles are existing HAIR_STYLES names used as stand-ins until phases 2-4 add the new ones (plan in design/hair-race-plan.md).
+Look fields: hairStyle (HAIR_STYLES index, stored), hairColor (palette index), hairCol (optional exact colour number, wins when present; absent on old saves). baseFromLook reads hairCol first.
+main4.js: ccApplyFace(l, keepCol) sets hairStyle and, unless keepCol, hairCol = first face colour; ccFaceColors(l); Hair colour step shows data-hv swatches (face colours) then data-hc palette; choosing a palette swatch deletes hairCol. randomLook picks a face colour 70% of the time, otherwise a palette colour. CC_FACE_HAIR removed.
+Old characters are untouched (no migration); companions and NPCs keep hairStyle and hairColor.
