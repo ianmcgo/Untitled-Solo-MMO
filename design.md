@@ -2302,3 +2302,11 @@ hairExtras(R, HP, st, hc, hr, c, TB, covered) builds x pieces: slick/slicklong (
 Head-covered check: all 15 build under a cap with no errors; buns, crown and feathered spikes hide under hats.
 RACE_FACE_HAIR now uses the new styles for Human and Elari (and Nekari 8/9, Pipkin female 5). Still stand-ins: Pipkin, Nekari and Ursan shapes (phase 3), beards, goatee, headbands, clips and paints (phase 4).
 Tools: scratch hero.js mode head (front 1.5708, three 0.8, side 0.02, back -1.5708; camera H*0.95) for contact sheets; deletes look.hairCol so the palette index shows.
+
+## 18.78.0 Pipkin, Nekari and Ursan hairstyles (hair plan phase 3)
+HAIR_STYLES 31-46: bowl, bowlpeak, tuft, pineapple, poof, odango, puffs, twinspike, fringe, wildmane, mane_flare, mane_horn, mane_slick, mane_lion, mane_side, mane_crest.
+New HAIR_DEF key crown: thMin for the bare shell (mane_side leaves the crown bald).
+New extras: peak (cone on top), antenna (curl), pineapple (top bun with tie and 6 leaves), poof (front ball plus up-swept back tail), odango (two top buns with ties), puffs (low side balls with ribbon bows, shown under hats), twinspike (4 spikes per side, sway bone), wild (14 outward spikes), flare (2 rows of 7 per side), horn (2 horn tufts, back fringe), maneback (heavy back lobe plus 7 long strands), lion (3 rings of 16, top ring hidden under hats), crest (7 midline spikes plus back fringe). Flare, horn, lion and crest also add a back fur lobe.
+Positions use hairPoint where possible so they follow each race's head scale (Pipkin heads are much larger; positions in hc/hr offsets alone sank inside the shell).
+Ursan beards (all faces) are phase 4.
+Tools: scratch hero.js mode phead (camera H*2.0, centre H*0.78) for Pipkin framing.

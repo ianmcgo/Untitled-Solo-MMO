@@ -109,7 +109,7 @@ Style variants on existing styles: long (centre part, swept back, heavy), bob (b
 ## Phases
 1. Data and UI (Sonnet): done in 18.76.0.
 2. Human and Elari hair (Opus): done in 18.77.0 (15 styles; variants folded into new styles; extras still phase 4).
-3. Pipkin, Nekari and Ursan hair (Opus): 13 new styles and the mane family; contact sheet.
+3. Pipkin, Nekari and Ursan hair (Opus): done in 18.78.0 (16 styles incl. the mane family).
 4. Extras (Opus): headbands, circlets, clips, beads, ribbons, goatee, face paint, tattoos and stripes.
 5. Barber in every town (Sonnet).
    - One barber NPC per town (Ashenreach market district, Saltreach, Ironvale), placed facing a road with a shop sign, like the auction clerk. Talk opens "Change your look? 1000 crystals."

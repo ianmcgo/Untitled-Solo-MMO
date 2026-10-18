@@ -8,9 +8,9 @@ let ATLAS_CELL = 256, ATLAS_W = 2048, ATLAS_H = 1024;
 const RIG = { segK: 1, atlas: null, cache: new Map(), weaponCache: new Map(), glowMat: null, weaponMat: null, hook: null };
 
 const SKIN_TONES = [0xf3d2b8, 0xe8b894, 0xc98d64, 0x6b4128];
-const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot", "wavy", "pixie", "sidepart", "dreads", "curly", "shaggy", "tousled", "slickback", "sweptlong", "asymbob", "slickbun", "sidetail", "layered", "longshag", "feathered", "messy", "crownbraid", "flipbob", "highbun", "hime"];
+const HAIR_STYLES = ["short", "spiky", "long", "ponytail", "bob", "bun", "bald", "braid", "mohawk", "twintails", "topknot", "wavy", "pixie", "sidepart", "dreads", "curly", "shaggy", "tousled", "slickback", "sweptlong", "asymbob", "slickbun", "sidetail", "layered", "longshag", "feathered", "messy", "crownbraid", "flipbob", "highbun", "hime", "bowl", "bowlpeak", "tuft", "pineapple", "poof", "odango", "puffs", "twinspike", "fringe", "wildmane", "mane_flare", "mane_horn", "mane_slick", "mane_lion", "mane_side", "mane_crest"];
 const HAIR_BY_SEX = [["short", "sidepart", "spiky", "curly", "long", "ponytail", "dreads", "bald", "mohawk", "topknot", "braid", "pixie"], ["long", "wavy", "ponytail", "bob", "bun", "pixie", "curly", "short", "sidepart", "braid", "twintails", "dreads", "topknot"]];
-const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" , braid: "Braid", mohawk: "Crest", twintails: "Twin tails", topknot: "Topknot", wavy: "Wavy", pixie: "Pixie", sidepart: "Side part", dreads: "Locs", curly: "Curly", shaggy: "Shaggy", tousled: "Tousled", slickback: "Slicked back", sweptlong: "Long swept back", asymbob: "Uneven bob", slickbun: "Low bun", sidetail: "Side tail", layered: "Layered", longshag: "Long shag", feathered: "Feathered", messy: "Messy", crownbraid: "Crown braid", flipbob: "Flipped bob", highbun: "High bun", hime: "Long with bangs" };
+const HAIR_STYLE_NAMES = { short: "Short", spiky: "Spiky", long: "Long", ponytail: "Ponytail", bob: "Bob", bun: "Bun", bald: "Shaved" , braid: "Braid", mohawk: "Crest", twintails: "Twin tails", topknot: "Topknot", wavy: "Wavy", pixie: "Pixie", sidepart: "Side part", dreads: "Locs", curly: "Curly", shaggy: "Shaggy", tousled: "Tousled", slickback: "Slicked back", sweptlong: "Long swept back", asymbob: "Uneven bob", slickbun: "Low bun", sidetail: "Side tail", layered: "Layered", longshag: "Long shag", feathered: "Feathered", messy: "Messy", crownbraid: "Crown braid", flipbob: "Flipped bob", highbun: "High bun", hime: "Long with bangs", bowl: "Bowl", bowlpeak: "Peaked bowl", tuft: "Tuft", pineapple: "Pineapple", poof: "Poof", odango: "Twin buns", puffs: "Side puffs", twinspike: "Spiky tails", fringe: "Long fringe", wildmane: "Wild mane", mane_flare: "Flared mane", mane_horn: "Horned mane", mane_slick: "Slick mane", mane_lion: "Lion mane", mane_side: "Side mane", mane_crest: "Crest mane" };
 const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22, 0xe0e0f0, 0x3a5a8a];
 const HAIR_TONES = { blond: 0xd8b070, brown: 0x5a3a22, teal: 0x2f8f8a, black: 0x1d1d22, gold: 0xe0b84a, pink: 0xe58fb0, copper: 0xb0642e, silver: 0xc8ccd6, auburn: 0x7a3320, sandy: 0xb89868, moss: 0x5f7f3f, red: 0xb03a2e, grey: 0x8a8a92, dark: 0x2a1d14, ginger: 0xc8662a, orange: 0xe08a2a, rose: 0xd45a6a, tan: 0x8a5a2c, green: 0x3f9a4f, navy: 0x1f2a5a, blue: 0x3a6ab0, white: 0xf0f0f4, maroon: 0x6a1f2a, cream: 0xf0e4c0, wine: 0x6a2040, plum: 0x5a2a6a, peri: 0x8a90e0, sage: 0x8aa88a, aqua: 0x5ac8c8, mint: 0x9ae0c0, peach: 0xf0b890, lavender: 0xb8a0e0, olive: 0x7a7a3a, pale: 0xa8d8a0, slate: 0x5a6a7a, lilac: 0xb090d0, salmon: 0xe8907a, purple: 0x7a3aa0, charcoal: 0x3a3a42, rust: 0x9a4a22, platinum: 0xe8e8f0 };
 const RACE_FACE_HAIR = {
@@ -23,15 +23,15 @@ const RACE_FACE_HAIR = {
     ["layered:cream,orange,pink", "crownbraid:cream,black,pink", "sidepart:cream,orange,brown", "flipbob:cream,orange,peri", "highbun:silver,red,brown", "long:silver,black,sage", "sweptlong:white,black,gold", "hime:black,grey,plum", "bob:cream,silver,black"]
   ],
   pipkin: [
-    ["bob:brown,peach,pale", "curly:orange,gold,aqua", "topknot:brown,olive,maroon", "bob:silver,lavender,aqua", "bob:brown,blue,white", "spiky:orange,blue,green", "bun:navy,gold,pink", "bob:blond,gold,teal", "bald:brown,black,grey"],
-    ["curly:red,gold,mint", "bob:grey,olive,teal", "twintails:brown,red,green", "twintails:blond,orange,peri", "highbun:slate,brown,pink", "bob:grey,silver,orange", "twintails:olive,blond,rose", "bob:orange,olive,red", "twintails:pink,blond,aqua"]
+    ["bowlpeak:brown,peach,pale", "tuft:orange,gold,aqua", "topknot:brown,olive,maroon", "bowl:silver,lavender,aqua", "bowlpeak:brown,blue,white", "spiky:orange,blue,green", "pineapple:navy,gold,pink", "bowl:blond,gold,teal", "bald:brown,black,grey"],
+    ["poof:red,gold,mint", "bob:grey,olive,teal", "odango:brown,red,green", "puffs:blond,orange,peri", "highbun:slate,brown,pink", "bob:grey,silver,orange", "odango:olive,blond,rose", "bob:orange,olive,red", "twinspike:pink,blond,aqua"]
   ],
   nekari: [
     null,
-    ["bob:orange,brown,red", "long:white,pink,mint", "bob:lilac,orange,cream", "bob:blond,orange,blue", "ponytail:salmon,brown,purple", "spiky:white,orange,pink", "bob:blond,brown,purple", "slickback:brown,gold,salmon", "layered:navy,blue,black"]
+    ["bob:orange,brown,red", "long:white,pink,mint", "fringe:lilac,orange,cream", "bob:blond,orange,blue", "ponytail:salmon,brown,purple", "wildmane:white,orange,pink", "bob:blond,brown,purple", "slickback:brown,gold,salmon", "layered:navy,blue,black"]
   ],
   ursan: [
-    ["long:black,brown,navy", "spiky:charcoal,white,brown", "short:white,brown,maroon", "short:charcoal,brown,green", "curly:rust,black,grey", "bald:rust,black,navy", "mohawk:brown,black,maroon", "long:black,white,blond", "bald:brown,black,grey"],
+    ["mane_flare:black,brown,navy", "mane_horn:charcoal,white,brown", "mane_slick:white,brown,maroon", "mane_slick:charcoal,brown,green", "mane_lion:rust,black,grey", "mane_side:rust,black,navy", "mane_crest:brown,black,maroon", "long:black,white,blond", "bald:brown,black,grey"],
     null
   ]
 };
@@ -1354,7 +1354,23 @@ const HAIR_DEF = {
   crownbraid: { k: [-0.6, -0.44, -0.06, 0.16, 0.24], vol: 0.05, fl: 0.4, bl: 0.6, back: 0.4, x: "crown" },
   flipbob: { k: [-0.48, -0.42, 0.3, 0.4, 0.44], fringe: true, vol: 0.11, x: "flip" },
   highbun: { k: [-0.6, -0.42, -0.04, 0.18, 0.26], vol: 0.05, fl: 0.4, bl: 0.6, back: 0.45, x: "highbun" },
-  hime: { k: [-0.36, -0.36, 0.3, 0.42, 0.45], fringe: true, blunt: true, vol: 0.08, fl: 1.1, tail: true, x: "hime" }
+  hime: { k: [-0.36, -0.36, 0.3, 0.42, 0.45], fringe: true, blunt: true, vol: 0.08, fl: 1.1, tail: true, x: "hime" },
+  bowl: { k: [-0.34, -0.32, 0.12, 0.3, 0.36], fringe: true, blunt: true, vol: 0.13, fl: 1.55, rough: 0.2, n: 16 },
+  bowlpeak: { k: [-0.42, -0.34, 0.08, 0.28, 0.34], fringe: true, blunt: true, vol: 0.13, fl: 1.2, rough: 0.25, x: "peak" },
+  tuft: { k: [-0.42, -0.34, 0.08, 0.3, 0.4], fringe: true, vol: 0.15, rough: 0.6, mess: 0.15, n: 15, x: "antenna" },
+  pineapple: { k: [-0.62, -0.44, -0.04, 0.18, 0.26], vol: 0.05, fl: 0.4, bl: 0.6, back: 0.45, x: "pineapple" },
+  poof: { k: [-0.68, -0.44, 0.0, 0.2, 0.28], vol: 0.06, back: 0.45, x: "poof" },
+  odango: { k: [-0.48, -0.42, 0.06, 0.26, 0.32], fringe: true, vol: 0.09, x: "odango" },
+  puffs: { k: [-0.48, -0.42, 0.06, 0.24, 0.3], fringe: true, vol: 0.09, x: "puffs" },
+  twinspike: { k: [-0.5, -0.42, 0.05, 0.25, 0.32], fringe: true, vol: 0.09, rough: 0.6, tail: true, x: "twinspike" },
+  fringe: { k: [-0.24, -0.36, 0.34, 0.44, 0.48], fringe: true, vol: 0.1, fl: 1.75, rough: 0.5, mess: 0.06, n: 15 },
+  wildmane: { k: [-0.44, -0.4, 0.3, 0.52, 0.62], fringe: true, vol: 0.15, fl: 1.2, bl: 1.4, rough: 1, mess: 0.25, n: 18, x: "wild" },
+  mane_flare: { k: [-0.5, -0.38, 0.1, 0.34, 0.46], vol: 0.12, rough: 0.6, x: "flare" },
+  mane_horn: { k: [-0.5, -0.38, 0.1, 0.34, 0.46], vol: 0.11, rough: 0.6, x: "horn" },
+  mane_slick: { k: [-0.78, -0.5, 0.1, 0.36, 0.5], vol: 0.07, back: 0.5, tail: true, x: "maneback" },
+  mane_lion: { k: [-0.48, -0.36, 0.2, 0.42, 0.52], vol: 0.16, rough: 0.8, mess: 0.15, n: 16, x: "lion" },
+  mane_side: { k: [-0.5, -0.38, 0.12, 0.36, 0.48], vol: 0.1, crown: 1.05, back: 0.3, rough: 0.6, x: "flare" },
+  mane_crest: { k: [-0.5, -0.38, 0.06, 0.34, 0.46], vol: 0.09, rough: 0.6, x: "crest" }
 };
 function hairFringe(st) { return HAIR_FRINGE.has(st) || !!(HAIR_DEF[st] && HAIR_DEF[st].fringe); }
 function hairEdgeFn(st) {
@@ -1519,6 +1535,65 @@ function hairExtras(R, HP, st, hc, hr, c, TB, covered) {
     const p1 = p0.clone().add(V3(out.x * hr * 0.1, -hr * 0.55, out.z * hr * 0.1 + hr * 0.04)), p2 = p1.clone().add(V3(out.x * hr * 0.02 - hr * 0.04, -hr * (0.38 - k * 0.04), hr * 0.06));
     hairStrip(R, HP, hc, hr, c, "head", [p0, p1, p2], hr * 0.27, hr * 0.06, 0.38);
   }
+  if (X === "peak" && !covered) R.add(gTaper(V3(0, hc + hr * 0.88, -hr * 0.08), V3(0, hc + hr * 1.55, -hr * 0.28), hr * 0.42, 0.01, 10, 0.85), "head", c, "hair");
+  if (X === "antenna" && !covered) {
+    const pts = [V3(0, hc + hr * 0.95, -hr * 0.05), V3(hr * 0.04, hc + hr * 1.35, hr * 0.02), V3(hr * 0.02, hc + hr * 1.62, hr * 0.22), V3(-hr * 0.02, hc + hr * 1.58, hr * 0.42)];
+    hairStrip(R, HP, hc, hr, c, "head", pts, hr * 0.14, hr * 0.03, 0.6);
+  }
+  if (X === "pineapple" && !covered) {
+    const tp = P(-Math.PI / 2, 0.22, 0.12), bc = tp.clone().add(V3(0, hr * 0.32, 0));
+    R.add(gBall(bc, hr * 0.36, 1, 1.2, 1, 10), "head", c, "hair");
+    R.add(gRing(tp.clone().add(V3(0, hr * 0.06, 0)), hr * 0.24, hr * 0.05, "y", 10), "head", 0x8a2a3a, "cloth");
+    for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2, d = V3(Math.cos(a) * 0.45, 1, Math.sin(a) * 0.45).normalize(), b0 = bc.clone().add(V3(0, hr * 0.32, 0)); R.add(gTaper(b0, b0.clone().addScaledVector(d, hr * 0.55), hr * 0.14, 0.006, 6, 0.4), "head", c, "hair"); }
+  }
+  if (X === "poof") {
+    const fp = P(Math.PI / 2, 0.62, 0.22), bp = P(-Math.PI / 2, 0.55, 0.1);
+    if (!covered) R.add(gBall(fp, hr * 0.4, 1.2, 0.85, 0.95, 12), "head", c, "hair");
+    const pts = [bp, bp.clone().add(V3(0, hr * 0.4, -hr * 0.35)), bp.clone().add(V3(0, hr * 0.55, -hr * 0.8))];
+    if (!covered) hairStrip(R, HP, hc, hr, c, "head", pts, hr * 0.3, hr * 0.06, 0.8);
+  }
+  if (X === "odango" && !covered) for (const s of [-1, 1]) {
+    const bp = P(Math.PI / 2 + s * 1.35, 0.55, 0.1), out = bp.clone().sub(V3(0, hc, 0)).normalize();
+    R.add(gBall(bp.clone().addScaledVector(out, hr * 0.24), hr * 0.34, 1, 1, 1, 10), "head", c, "hair");
+    R.add(gRing(bp.clone().addScaledVector(out, hr * 0.02), hr * 0.2, hr * 0.045, "y", 8, null, [0, 0, -s * 0.6]), "head", 0xd84a6a, "cloth");
+  }
+  if (X === "puffs") for (const s of [-1, 1]) {
+    R.add(gBall(V3(s * hr * 1.0, hc - hr * 0.5, -hr * 0.35), hr * 0.36, 0.9, 1.05, 1, 10), "head", c, "hair");
+    R.add(gBall(V3(s * hr * 0.92, hc - hr * 0.12, -hr * 0.4), hr * 0.13, 1.6, 0.8, 0.8, 8), "head", 0x8a90e0, "cloth");
+    for (const t of [-1, 1]) R.add(gTaper(V3(s * hr * 0.93, hc - hr * 0.12, -hr * 0.4), V3(s * hr * 0.98 + t * hr * 0.12, hc - hr * 0.35, -hr * 0.42), hr * 0.07, hr * 0.03, 5, 0.3), "head", 0x8a90e0, "cloth");
+  }
+  if (X === "twinspike") for (const s of [-1, 1]) {
+    const root = V3(s * hr * 0.85, hc + hr * 0.25, -hr * 0.45);
+    R.add(gBall(root, hr * 0.26, 1, 1, 1, 8), "head", c, "hair");
+    for (let k = 0; k < 4; k++) { const d = V3(s * (0.5 + 0.15 * k), 0.35 - 0.38 * k, -0.4 - 0.05 * k).normalize(); R.add(gTaper(root, root.clone().addScaledVector(d, hr * (1.25 - Math.abs(k - 1.5) * 0.2)), hr * 0.27, 0.008, 7, 0.6), TB, c, "hair"); }
+  }
+  if (X === "wild") for (let k = 0; k < 14; k++) {
+    const a = Math.PI * (0.25 + 1.5 * k / 13), ph = a + Math.PI / 2, p0 = P(ph, 1.25 + 0.12 * Math.sin(k * 1.9), 0.12), out = V3(p0.x, 0, p0.z).normalize();
+    R.add(gTaper(p0, p0.clone().add(V3(out.x * hr * 0.45, -hr * (0.3 + 0.12 * Math.sin(k * 2.3)), out.z * hr * 0.45)), hr * 0.18, 0.006, 6, 0.5), "head", c, "hair");
+  }
+  if (X === "flare") for (const s of [-1, 1]) for (let r2 = 0; r2 < 2; r2++) for (let k = 0; k < 7; k++) {
+    const ph = Math.PI / 2 + s * (1.15 + k * 0.27 + r2 * 0.13), th = 1.05 + 0.1 * k + r2 * 0.32, p0 = P(ph, th, 0.1), out = V3(p0.x, 0, p0.z).normalize();
+    R.add(gTaper(p0, p0.clone().add(V3(out.x * hr * (0.8 - k * 0.05 - r2 * 0.15), -hr * (0.3 + 0.08 * k + r2 * 0.15), out.z * hr * 0.4)), hr * 0.36, 0.01, 7, 0.55), "head", c, "hair");
+  }
+  if (X === "horn") {
+    for (const s of [-1, 1]) if (!covered) { const a = P(Math.PI / 2 + s * 0.9, 0.55, 0.08); R.add(gTaper(a, a.clone().add(V3(s * hr * 0.42, hr * 0.62, -hr * 0.22)), hr * 0.24, 0.008, 8, 0.7), "head", c, "hair"); }
+    for (let k = 0; k < 9; k++) { const ph = -Math.PI / 2 + (k - 4) * 0.32, p0 = P(ph, 1.3, 0.1), out = V3(p0.x, 0, p0.z).normalize(); R.add(gTaper(p0, p0.clone().add(V3(out.x * hr * 0.25, -hr * 0.55, out.z * hr * 0.35)), hr * 0.24, 0.008, 6, 0.45), "head", c, "hair"); }
+  }
+  if (X === "flare" || X === "horn" || X === "lion" || X === "crest") R.add(gBall(V3(0, hc - hr * 0.5, -hr * 0.62), hr * 0.8, 1.15, 1.05, 0.55, 12), "head", c, "hair");
+  if (X === "maneback") {
+    R.add(gBall(V3(0, hc - hr * 0.55, -hr * 0.82), hr * 0.8, 1.05, 1.1, 0.45, 12), TB, c, "hair");
+    for (let k = 0; k < 7; k++) { const f = k / 6 - 0.5; R.add(gTaper(V3(f * hr * 1.5, hc, -hr * 0.92), V3(f * hr * 1.75, hc - hr * 1.45, -hr * (0.98 + 0.1 * Math.abs(f))), hr * 0.28, 0.01, 5, 0.35), TB, c, "hair"); }
+  }
+  if (X === "lion") for (let r2 = 0; r2 < 3; r2++) for (let k = 0; k < 16; k++) {
+    const a = Math.PI * (0.3 + 1.4 * (k + r2 * 0.5) / 16), ph = a + Math.PI / 2, th = [0.75, 1.15, 1.6][r2] + 0.08 * Math.sin(k * 2.3);
+    if (r2 === 0 && (covered || Math.abs(Math.cos(a)) < 0.35)) continue;
+    const p0 = P(ph, th, 0.12), out = p0.clone().sub(V3(0, hc, 0)).normalize();
+    R.add(gTaper(p0, p0.clone().addScaledVector(out, hr * (0.5 + r2 * 0.08)).add(V3(0, -hr * 0.15, -hr * 0.1)), hr * 0.36, 0.01, 7, 0.6), "head", c, "hair");
+  }
+  if (X === "crest") {
+    if (!covered) for (let k = 0; k < 7; k++) { const a = -0.15 + k * 0.38, d = V3(0, Math.cos(a), -Math.sin(a)), p0 = V3(0, hc, 0).addScaledVector(d, hr * 0.94); R.add(gTaper(p0, p0.clone().addScaledVector(d, hr * (0.55 + (k < 3 ? 0.12 * k : 0.12 * (6 - k)))).add(V3(0, 0, -hr * 0.15)), hr * 0.2, 0.008, 6, 0.4), "head", c, "hair"); }
+    for (let k = 0; k < 7; k++) { const ph = -Math.PI / 2 + (k - 3) * 0.36, p0 = P(ph, 1.3, 0.1), out = V3(p0.x, 0, p0.z).normalize(); R.add(gTaper(p0, p0.clone().add(V3(out.x * hr * 0.2, -hr * 0.5, out.z * hr * 0.3)), hr * 0.24, 0.008, 6, 0.45), "head", c, "hair"); }
+  }
   if (X === "feather" && !covered) {
     const sp = [[0, 1, 0.25], [0.35, 0.92, 0.1], [-0.35, 0.92, 0.1], [0.62, 0.62, 0.05], [-0.62, 0.62, 0.05], [0.2, 0.8, -0.45], [-0.2, 0.8, -0.45], [0.5, 0.45, -0.6], [-0.5, 0.45, -0.6], [0, 0.6, -0.75], [0.7, 0.2, -0.4], [-0.7, 0.2, -0.4]];
     for (const [x, y, z] of sp) {
@@ -1577,7 +1652,7 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
     for (const lk of gHairLocks(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
   } else if (covered && (st === "spiky" || st === "curly")) R.add(gHairShell(HP, hc, hr, "short", Math.PI * 0.4), "head", c, "hair");
   if (!covered) {
-    R.add(gHairShell(HP, hc, hr, st), "head", c, "hair");
+    R.add(gHairShell(HP, hc, hr, st, HAIR_DEF[st] && HAIR_DEF[st].crown), "head", c, "hair");
     for (const lk of gHairClumps(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
     if (st === "spiky") {
       const spikes = [[0, 1, 0.1], [0.5, 0.85, -0.25], [-0.5, 0.85, -0.25], [0.25, 0.6, -0.8], [-0.25, 0.6, -0.8], [0, 0.75, -0.6], [0.6, 0.5, 0.3], [-0.6, 0.5, 0.3], [0.2, 0.7, 0.55], [-0.2, 0.7, 0.55]];
