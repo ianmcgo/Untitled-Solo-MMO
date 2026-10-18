@@ -167,12 +167,12 @@ function showTitle() {
   const b = $("ldStart");
   b.innerHTML = "Press Start<small>" + (matchMedia("(pointer: coarse)").matches ? "Tap to begin" : "Click or press any key") + "</small>";
   b.style.display = "";
-  if (typeof viewsTick === "function") viewsTick();
+  if (typeof VisitorTracker !== "undefined") { const vb = $("ldViews"); if (vb) vb.classList.add("on"); VisitorTracker.start(); }
   let done = false;
   const go = e => {
     if (done) return;
     if (e && e.type === "keydown" && (e.target.tagName === "INPUT" || e.key === "Tab")) return;
-    if (typeof VG !== "undefined" && VG.open) return;
+    if (document.querySelector("#vg-overlay.open") || (e && e.target && e.target.closest && e.target.closest("#ldViews, #vg-overlay"))) return;
     done = true;
     window.removeEventListener("keydown", go);
     b.onclick = null;

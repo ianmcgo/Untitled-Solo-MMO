@@ -1,0 +1,131 @@
+        <div id="vc-panel" class="vc-panel vc-btn" role="button" tabindex="0" aria-label="Visitor Log: open the map of where visitors come from" title="Visitor Log: how many times the game has been opened. Click to see where visitors come from on a globe.">
+            <div class="vc-head"><span class="vc-dot"></span><span class="vc-label">VISITOR LOG</span><span class="vc-state" id="vc-state">LINKING</span></div>
+            <div class="vc-num" id="vc-num" aria-live="polite"><span class="vc-z">---</span><span class="vc-sep">,</span><span class="vc-z">---</span><span class="vc-sep">,</span><span class="vc-z">---</span></div>
+            <div class="vc-foot"><span class="vc-open">▸ OPEN ORIGIN MAP</span><span class="vc-bars"><i></i><i></i><i></i><i></i><i></i></span></div>
+        </div>
+
+    <div id="vg-overlay" class="vg-overlay" role="dialog" aria-modal="true" aria-label="Visitor origins globe" aria-hidden="true">
+        <div class="vg-stage" id="vg-stage">
+            <canvas id="vg-bg"></canvas>
+            <canvas id="vg-gl"></canvas>
+            <canvas id="vg-fx"></canvas>
+            <div class="vg-frame"><i></i><i></i><i></i><i></i></div>
+            <div class="vg-title"><b>VISITOR ORIGINS</b><span>TERRA · LONG-RANGE TRAFFIC SCAN</span></div>
+            <div class="vg-msg" id="vg-msg"></div>
+            <div class="vg-card" id="vg-card"></div>
+            <div class="vg-toggles">
+                <button type="button" id="vg-t-arcs" aria-pressed="true" title="Show lines from your country to each visiting country">ARCS</button>
+                <button type="button" id="vg-t-night" aria-pressed="true" title="Shade the night side of Earth">NIGHT</button>
+                <button type="button" id="vg-t-replay" aria-pressed="false" title="Replay how visits grew, day by day">REPLAY</button>
+                <button type="button" id="vg-t-cap" aria-pressed="false" title="Shade countries by visits per million people instead of total visits">PER 1M</button>
+                <button type="button" id="vg-t-sound" aria-pressed="true" title="Globe sounds on or off">SOUND</button>
+            </div>
+            <div class="vg-replay" id="vg-replay">
+                <button type="button" id="vg-rp-play" aria-label="Play or pause">▶</button>
+                <input type="range" id="vg-rp-range" min="0" max="1" step="1" value="0" aria-label="Replay day">
+                <span id="vg-rp-label"></span>
+            </div>
+            <div class="vg-flash" id="vg-flash" aria-live="polite"></div>
+            <div class="vg-hint" id="vg-hint">DRAG TO ROTATE · SCROLL OR PINCH TO ZOOM · TAP A PIN</div>
+        </div>
+        <aside class="vg-side">
+            <div class="vg-stats">
+                <div class="vg-stat"><b id="vg-total">---</b><span>TOTAL VISITS</span></div>
+                <div class="vg-stat"><b id="vg-nations">--</b><span>COUNTRIES</span></div>
+            </div>
+            <div class="vg-stats vg-stats2">
+                <div class="vg-stat"><b id="vg-today">---</b><span>TODAY</span></div>
+                <div class="vg-stat"><b id="vg-week">---</b><span>LAST 7 DAYS</span></div>
+            </div>
+            <div class="vg-tabs" id="vg-tabs" role="tablist" aria-label="Visitor panel sections">
+                <button type="button" class="vg-tab" role="tab" data-tab="overview" id="vg-tab-overview" aria-controls="vg-pane-overview">OVERVIEW</button>
+                <button type="button" class="vg-tab" role="tab" data-tab="trends" id="vg-tab-trends" aria-controls="vg-pane-trends">TRENDS</button>
+                <button type="button" class="vg-tab" role="tab" data-tab="origins" id="vg-tab-origins" aria-controls="vg-pane-origins">ORIGINS</button>
+            </div>
+            <div class="vg-pane" id="vg-pane-trends" data-pane="trends" role="tabpanel" aria-labelledby="vg-tab-trends">
+            <div class="vg-trend" id="vg-trend">
+                <div class="vg-trend-head"><span>LAST 30 DAYS</span><span id="vg-trend-note"></span></div>
+                <svg id="vg-spark" viewBox="0 0 300 40" preserveAspectRatio="none" role="img" aria-label="Visits per day for the last 30 days"></svg>
+            </div>
+            <div class="vg-trend" id="vg-hours">
+                <div class="vg-trend-head"><span>ARRIVAL HOUR · LOCAL</span><span id="vg-hours-note"></span></div>
+                <svg id="vg-hsvg" viewBox="0 0 300 40" preserveAspectRatio="none" role="img" aria-label="Visits by hour of day in your local time"></svg>
+            </div>
+            <div class="vg-trend" id="vg-wk">
+                <div class="vg-trend-head"><span>WEEKDAY AVG</span><span id="vg-wk-note"></span></div>
+                <svg id="vg-wksvg" viewBox="0 0 300 40" preserveAspectRatio="none" role="img" aria-label="Average visits for each day of the week"></svg>
+            </div>
+            <div class="vg-trend" id="vg-cal">
+                <div class="vg-trend-head"><span id="vg-cal-title">CALENDAR</span><span id="vg-cal-note"></span></div>
+                <svg id="vg-calsvg" role="img" aria-label="Visits per day as a calendar grid"></svg>
+            </div>
+            <div class="vg-trend" id="vg-dev">
+                <div class="vg-trend-head"><span>DEVICES</span><span id="vg-dev-note"></span></div>
+                <div class="vg-conts vg-devbar" id="vg-devbar"></div>
+                <div class="vg-legend" id="vg-devleg"></div>
+                <svg id="vg-devsvg" viewBox="0 0 300 40" preserveAspectRatio="none" role="img" aria-label="Visits per day split by desktop and mobile"></svg>
+            </div>
+            <div class="vg-trend" id="vg-disc">
+                <div class="vg-trend-head"><span>DISCOVERY TIMELINE</span><span id="vg-disc-note"></span></div>
+                <div class="vg-disc" id="vg-disc-list"></div>
+            </div>
+                <div class="vg-pane-empty" id="vg-tr-empty">No daily history yet. Charts appear after the first visits are counted.</div>
+            </div>
+            <div class="vg-pane" id="vg-pane-overview" data-pane="overview" role="tabpanel" aria-labelledby="vg-tab-overview">
+            <div class="vg-intel off" id="vg-intel">
+                <div class="vg-fly" id="vg-fly">
+                    <button type="button" class="vg-flybtn" id="vg-fly-me">FIND ME</button>
+                    <button type="button" class="vg-flybtn" id="vg-fly-latest">LATEST</button>
+                    <button type="button" class="vg-flybtn" id="vg-fly-top">TOP</button>
+                </div>
+                <div class="vg-intel-row" id="vg-i-top"><span>TOP ORIGIN</span><b></b></div>
+                <div class="vg-intel-row" id="vg-i-latest"><span>LATEST CONTACT</span><b></b></div>
+                <div class="vg-intel-row" id="vg-i-rank"><span>YOUR RANK</span><b></b></div>
+                <div class="vg-intel-row" id="vg-i-far"><span>FARTHEST</span><b></b></div>
+                <div class="vg-intel-row" id="vg-i-streak"><span>VISIT STREAK</span><b></b></div>
+                <div class="vg-miles" id="vg-miles"></div>
+                <div class="vg-intel-row" id="vg-i-reach"><span>WORLD REACH</span><b></b></div>
+                <div class="vg-cover" id="vg-cover">
+                    <div class="vg-cover-head"><span id="vg-cover-txt"></span><button type="button" class="vg-flybtn" id="vg-cover-btn">VIEW MISSING</button></div>
+                    <div class="vg-cover-bar"><i id="vg-cover-fill"></i></div>
+                </div>
+                <div class="vg-conts" id="vg-conts"></div>
+                <div class="vg-legend" id="vg-legend"></div>
+                <div class="vg-badges-head" id="vg-badges-head"></div>
+                <div class="vg-badges" id="vg-badges"></div>
+                <button type="button" class="vg-flybtn vg-share" id="vg-share">SAVE SHARE CARD (PNG)</button>
+            </div>
+                <div class="vg-pane-empty" id="vg-ov-empty">No visits with a location yet.</div>
+            </div>
+            <div class="vg-pane" id="vg-pane-origins" data-pane="origins" role="tabpanel" aria-labelledby="vg-tab-origins">
+                <div class="vg-modes" id="vg-modes">
+                    <button type="button" class="vg-flybtn on" id="vg-mode-visited">CONTACTED</button>
+                    <button type="button" class="vg-flybtn" id="vg-mode-missing">MISSING</button>
+                    <button type="button" class="vg-flybtn" id="vg-mode-compare" aria-pressed="false" title="Pick two countries to compare side by side">COMPARE</button>
+                </div>
+                <div class="vg-chips" id="vg-chips" role="group" aria-label="Filter by continent">
+                    <button type="button" class="vg-flybtn on" data-cont="">ALL</button>
+                    <button type="button" class="vg-flybtn" data-cont="NA" title="North America">NA</button>
+                    <button type="button" class="vg-flybtn" data-cont="SA" title="South America">SA</button>
+                    <button type="button" class="vg-flybtn" data-cont="EU" title="Europe">EU</button>
+                    <button type="button" class="vg-flybtn" data-cont="AF" title="Africa">AF</button>
+                    <button type="button" class="vg-flybtn" data-cont="AS" title="Asia">AS</button>
+                    <button type="button" class="vg-flybtn" data-cont="OC" title="Oceania">OC</button>
+                </div>
+                <select class="vg-sort" id="vg-sort" aria-label="Sort the country list">
+                    <option value="visits">SORT: MOST VISITS</option>
+                    <option value="newest">SORT: NEWEST CONTACT</option>
+                    <option value="recent">SORT: MOST RECENT VISIT</option>
+                    <option value="az">SORT: A TO Z</option>
+                </select>
+            <div class="vg-search">
+                <input type="text" id="vg-search" placeholder="SEARCH COUNTRY…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Search for a country">
+                <ol class="vg-suggest" id="vg-suggest"></ol>
+            </div>
+            <div class="vg-list-head" id="vg-list-head">TOP ORIGINS</div>
+            <ol class="vg-list" id="vg-list"></ol>
+            </div>
+            <button type="button" class="vg-close" id="vg-close">CLOSE</button>
+        </aside>
+        <button type="button" class="vg-x" id="vg-x" aria-label="Close" title="Close">&times;</button>
+    </div>

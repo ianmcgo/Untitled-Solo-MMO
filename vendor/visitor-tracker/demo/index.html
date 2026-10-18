@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visitor Tracker Demo</title>
+<link rel="stylesheet" href="../src/flag-font.css">
+<link rel="stylesheet" href="../src/visitor-tracker.css">
+<style>
+html, body { margin: 0; height: 100%; background: #05050f; color: #b9fdff; font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace; }
+main { padding: 32px; max-width: 640px; line-height: 1.6; }
+h1 { color: #da70d6; letter-spacing: 0.2em; }
+code { color: #ffd24a; }
+</style>
+</head>
+<body>
+<main>
+<h1>VISITOR TRACKER DEMO</h1>
+<p>This page uses a fake in-memory backend, so no Supabase is needed. The panel at the bottom right counts this page load; click it to open the globe.</p>
+<p>To use your real Supabase project, delete the <code>mock</code> block below and set <code>getClient</code> to return your Supabase client (see README.md).</p>
+</main>
+
+<!-- PASTE src/visitor-tracker.html CONTENTS HERE (loaded below for the demo) -->
+<div id="vt-mount"></div>
+
+<script>
+const mock = (function () {
+  const codes = ['US','BR','GB','DE','JP','FR','AU','CA','IN','MX','ES','IT','NL','SE','PL','TR','ZA','AR','KR','NG','EG','ID','TH','NZ','CL','PH','VN','NO','CH','KE'];
+  const day = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
+  const views = {}, firsts = {}, daily = [], hours = new Array(24).fill(0), dev = [], cd = [];
+  codes.forEach((c, i) => {
+    views[c] = Math.round(900 / (i + 1.5)) + 3;
+    firsts[c] = new Date(Date.now() - (i * 9 + 1) * 864e5 - 36e5).toISOString();
+  });
+  for (let i = 364; i >= 0; i--) {
+    const v = Math.max(0, Math.round(8 + (365 - i) * 0.05 + Math.sin(i / 3) * 5 + (i % 7 === 0 ? -4 : 0)));
+    daily.push({ day: day(i), views: v });
+    if (i < 90) codes.slice(0, 12).forEach((c, k) => cd.push({ day: day(i), country: c, views: Math.max(0, Math.round(v / (k + 2) + (i + k) % 3 - 1)) }));
+    if (i < 40) { dev.push({ day: day(i), device: 'desktop', views: Math.round(v * 0.6) }); dev.push({ day: day(i), device: 'mobile', views: Math.round(v * 0.4) }); }
+  }
+  for (let h = 0; h < 24; h++) hours[h] = Math.round(30 + 25 * Math.sin((h - 14) / 24 * Math.PI * 2) + h % 3);
+  let total = daily.reduce((a, r) => a + r.views, 0);
+  return {
+    rpc: async function (name) {
+      if (name === 'bump_site_views') { total++; views.US++; return { data: total }; }
+      if (name === 'get_site_views') return { data: total };
+      if (name === 'get_country_views') return { data: Object.keys(views).map(c => ({ country: c, views: views[c], last_seen: new Date().toISOString() })).sort((a, b) => b.views - a.views) };
+      if (name === 'get_country_firsts') return { data: Object.keys(firsts).map(c => ({ country: c, first_seen: firsts[c] })) };
+      if (name === 'get_daily_views') return { data: daily };
+      if (name === 'get_country_daily') return { data: cd };
+      if (name === 'get_hour_views') return { data: hours.map((v, h) => ({ hour: h, views: v })) };
+      if (name === 'get_device_views') return { data: dev };
+      if (name === 'my_country') return { data: 'US' };
+      return { data: null };
+    }
+  };
+})();
+window.VisitorTrackerConfig = {
+  getClient: function () { return mock; },
+  storagePrefix: 'demo',
+  autoStart: true,
+  brand: { line1: 'YOUR SITE', line2: 'NAME', tagline: 'YOUR TAGLINE', url: 'example.com', note: 'Visit us today', file: 'my-site' }
+};
+fetch('../src/visitor-tracker.html').then(r => r.text()).then(html => {
+  document.getElementById('vt-mount').outerHTML = html;
+  const s = document.createElement('script');
+  s.src = '../src/visitor-tracker.js';
+  document.body.appendChild(s);
+});
+</script>
+</body>
+</html>

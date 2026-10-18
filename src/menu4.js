@@ -1699,6 +1699,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.75.0", date: "2026-10-18", title: "New visitor globe", items: [
+    "<b>Visitor counter rebuilt on the standard Visitor Log design</b>, in the game's blue window colors. All earlier visit history is kept.",
+    "<b>Bigger globe:</b> full-screen with pins, arcs, a night side, Per 1M shading, a Replay of how visits grew, a moon for unknown origins, and country flags on every platform.",
+    "<b>Three panels:</b> Overview (goals, streak, reach, badges, share card), Trends (30 days, arrival hour, weekday, 365-day calendar, devices, discovery timeline) and Origins (search, sort, continents, compare, country cards).",
+    "Visits now count once per browser tab per day."
+  ] },
   { v: "18.74.0", date: "2026-10-18", title: "Towns resell what they buy", items: [
     "<b>Towns relist your goods:</b> whenever a town buys one of your auction lots (or a companion's), there is now a 50% chance it puts the item back up for sale under the town's name at a small markup. You and other shoppers can buy it back from the Buy list.",
     "Each town can hold up to 40 of these resale lots at once."
@@ -3143,7 +3149,8 @@ const UPDATES = [
     "Win one of five new level 15 treasures (Tide Crown, Abyssal Staff, Drowned Blade, Priest's Mantle, Tidebreaker Bow) plus crystals and XP. New achievement: Tidebreaker.",
     "Chapel Sigils drop from the Drowned.",
     "Screen changes: your XP bar now sits under your health in your party frame; on phones the chat log sits in the bottom-left corner and the action bar stacks three wide on the right.",
-    "The title screen\u2019s Visitors box counts how many times the game has been opened (each player once per day). Blue light: connected. Red light: offline, showing the last count seen. Click it for Visitor Origins: a spinning globe shaded by visits (drag to spin, scroll to zoom, tap a country), Arcs from your country, a Per 1M mode, country cards with a 30-day trend and Compare, a busiest-hours chart in your time, country search, a 14-day chart and the desktop/mobile split.",
+    "The title screen\u2019s Visitors box counts how many times the game has been opened (once per browser tab per day). UPLINK: connected. OFFLINE: showing the last count seen. Click it (or press Enter on it) for Visitor Origins: a globe you can drag, scroll or pinch to zoom, with pins and arcs from your country, a Night shade, Per 1M shading, a Replay of how visits grew and a Sound toggle. Unknown visits sit on the moon.",
+    "Visitor Origins side panel: <b>Overview</b> (top origin, latest contact, your country's rank, farthest origin, visit streak, next visit and country goals, world reach, countries reached out of 195 with a Missing list, a continent bar you can tap to filter, badges and Save Share Card), <b>Trends</b> (last 30 days, arrival hour in your time, weekday average, a 365-day calendar, desktop vs mobile, and the order countries first arrived) and <b>Origins</b> (search, sort, continent filter, Compare two countries and a country card you can share). Close with ✕, Close or Esc.",
     "Area exits are mountain passes: the slopes on either side rise unevenly in rocky ledges scattered with boulders, and the haze beyond the pass marks the way to the next area. You arrive at the inner end of the pass.",
     "Monster spawn points are at least 3 map squares apart and never within 2 squares of an entrance or exit. Each point takes turns between the creatures that live in that part of the area.",
     "Monsters only show on the minimap when they're near you (or fighting your party, or targeted).",
