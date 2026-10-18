@@ -1699,6 +1699,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.73.0", date: "2026-10-18", title: "Smoother heroes and softer faces", items: [
+    "<b>Arms attach properly:</b> each arm is now one smooth piece from shoulder to wrist (no band or seam at the elbow), and a rounded shoulder blends the arm into the torso so it no longer looks like a stick pinned to the side.",
+    "<b>Seamless shading:</b> where body parts meet (neck, shoulders, wrists, hips) the lighting now flows across the join instead of showing a hard line. The ring at the base of long necks is gone.",
+    "<b>Sharper faces:</b> eyes, brows and mouths are painted at much higher detail and no longer look blocky up close, and heads are rounder and smoother.",
+    "<b>Prettier female faces and figures:</b> a softer oval face with a smaller chin, fuller cheeks, a shapelier bust, and a slimmer chest on male bodies.",
+    "<b>Fuller arms and hands</b> on all non-Pipkin heroes, and matte cotton underwear instead of shiny grey."
+  ] },
   { v: "18.72.0", date: "2026-10-18", title: "Calmer small legs, better dogs and cats", items: [
     "<b>Small characters stop scurrying:</b> Pipkin and other short-legged bodies take about the same number of steps per second as a Human instead of four times as many. Their steps are shorter, their feet lift less, and they lean into a run less at normal speed.",
     "<b>Dogs and cats rebuilt:</b> real animal legs with a backward-bending hock on the hind legs, thicker upper legs that blend into the shoulders and haunches, and rounded paws with toes, instead of thin sticks.",

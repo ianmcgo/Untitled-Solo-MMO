@@ -303,13 +303,13 @@ function buildAtlas() {
     const rn = REGIONS[Math.floor(y / ATLAS_CELL) * ATLAS_COLS + Math.floor(x / ATLAS_CELL)] || "";
     im.data[p] = rn === "skin" || rn.startsWith("face") ? 40 : 255; im.data[p + 1] = clamp(rgh[k], 0.05, 1) * 255; im.data[p + 2] = clamp(mtl[k], 0, 1) * 255; im.data[p + 3] = 255;
   }
+  for (let f = 0; f < FACE_PAINTS * 2; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFaceWarped(ia, N, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, tg => paintFace(tg, 0, 0, f % FACE_PAINTS, f >= FACE_PAINTS)); }
+  for (let f = 0; f < 16; f++) { const i = REGIONS.indexOf("face" + (17 + f)); paintFaceWarped(ia, N, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, tg => paintFaceFor(f < 8 ? "ursan" : "pipkin", tg, 0, 0, f % 8, false)); }
   ga.putImageData(ia, 0, 0);
-  for (let f = 0; f < FACE_PAINTS * 2; f++) { const i = REGIONS.indexOf(f ? "face" + (f + 1) : "face"); paintFace(ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % FACE_PAINTS, f >= FACE_PAINTS); }
-  for (let f = 0; f < 16; f++) { const i = REGIONS.indexOf("face" + (17 + f)); paintFaceFor(f < 8 ? "ursan" : "pipkin", ga, (i % ATLAS_COLS) * ATLAS_CELL, Math.floor(i / ATLAS_COLS) * ATLAS_CELL, f % 8, false); }
   gm.putImageData(im, 0, 0);
   const mk = (c, srgb) => { const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = TEXLIB.anisotropy; t.needsUpdate = true; return t; };
   RIG.atlas = { map: mk(ca, true), mr: mk(cm, false) };
-  RIG.atlas.map.magFilter = THREE.NearestFilter; RIG.atlas.map.needsUpdate = true;
+  RIG.atlas.map.magFilter = THREE.LinearFilter; RIG.atlas.map.needsUpdate = true;
   RIG.glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: THREE.DoubleSide });
   RIG.weaponMat = charMaterial();
 }
@@ -571,6 +571,30 @@ class RigBuilder {
       }
     }
   }
+  weldNormals() {
+    const q = 2e-4, map = new Map();
+    this.pieces.forEach((g, gi) => {
+      const p = g.attributes.position, n = g.attributes.normal;
+      if (!n) return;
+      for (let i = 0; i < p.count; i++) {
+        const k = Math.round(p.getX(i) / q) + "," + Math.round(p.getY(i) / q) + "," + Math.round(p.getZ(i) / q);
+        let L = map.get(k); if (!L) map.set(k, L = []);
+        L.push(gi, i);
+      }
+    });
+    const a = new THREE.Vector3(), b = new THREE.Vector3(), acc = new THREE.Vector3();
+    for (const L of map.values()) {
+      if (L.length < 4) continue;
+      for (let s0 = 0; s0 < L.length; s0 += 2) {
+        const n0 = this.pieces[L[s0]].attributes.normal;
+        a.fromBufferAttribute(n0, L[s0 + 1]);
+        acc.set(0, 0, 0);
+        for (let s1 = 0; s1 < L.length; s1 += 2) { b.fromBufferAttribute(this.pieces[L[s1]].attributes.normal, L[s1 + 1]); if (a.dot(b) > 0.45) acc.add(b); }
+        L[s0 + 1 + 0.5] = acc.clone();
+      }
+      for (let s0 = 0; s0 < L.length; s0 += 2) { const v = L[s0 + 1 + 0.5]; if (v && v.lengthSq() > 1e-8) { v.normalize(); this.pieces[L[s0]].attributes.normal.setXYZ(L[s0 + 1], v.x, v.y, v.z); } }
+    }
+  }
   bakeShade() {
     if (this.noBake) return;
     let lo = Infinity, hi = -Infinity;
@@ -613,6 +637,7 @@ class RigBuilder {
     if (RIG.hook) { const h = RIG.hook; RIG.hook = null; h(this); }
     this.attachIslands();
     if (this.defs.length > 1) { this.bridgeGaps(); this.smoothJoints(); }
+    this.weldNormals();
     this.bakeShade();
     if (typeof window !== "undefined" && window.RIG_CHECK) this.meta.islands = this.findIslands();
     const main = this.pieces.length ? THREE.mergeGeometries(this.pieces) : null;
@@ -702,11 +727,11 @@ function gMembrane(ptsXZ, y) {
 
 const HEAD_PROFILES = {
   human0: { jaw: 0.34, chin: 0.1, brow: 0.05, sock: 0.05, cheek: 0.04, nose: 0.2, lips: 1, long: 0.1 },
-  human1: { jaw: 0.38, chin: 0.06, brow: 0.02, sock: 0.045, cheek: 0.05, nose: 0.15, lips: 1.3, long: 0.03 },
+  human1: { jaw: 0.47, chin: 0.02, brow: 0.02, sock: 0.045, cheek: 0.07, nose: 0.13, lips: 1.3, long: -0.02 },
   elari: { jaw: 0.4, chin: 0.1, brow: 0.03, sock: 0.05, cheek: 0.06, nose: 0.17, lips: 1, long: 0.15 },
   pipkin: { jaw: 0.1, chin: 0, brow: 0.01, sock: 0.03, cheek: 0.03, nose: 0.1, lips: 0.8, long: -0.11 },
   ursan: { jaw: 0.24, chin: 0.1, brow: 0.16, sock: 0.07, cheek: 0.04, nose: 0.14, noseW: 1.7, lips: 0.2, long: 0, muzzle: 0 },
-  nekari: { jaw: 0.38, chin: 0.06, brow: 0.02, sock: 0.045, cheek: 0.08, nose: 0.1, lips: 0.9, long: 0.08, muzzle: 0.05 },
+  nekari: { jaw: 0.44, chin: 0.04, brow: 0.02, sock: 0.045, cheek: 0.08, nose: 0.1, lips: 0.9, long: 0.08, muzzle: 0.05 },
   goblin: { jaw: 0.16, chin: 0.09, brow: 0.13, sock: 0.1, cheek: 0.08, nose: 0, lips: 0.7, long: 0, muzzle: 0.06 },
   orc: { jaw: -0.06, chin: 0.15, brow: 0.15, sock: 0.08, cheek: 0.05, nose: 0.12, noseW: 1.9, lips: 1.6, long: 0.05, muzzle: 0.1 },
   skull: { jaw: 0.3, chin: 0.07, brow: 0.08, sock: 0.2, cheek: 0.08, nose: -0.11, lips: 0, long: 0.05 },
@@ -734,7 +759,7 @@ function headProfile(L) {
     else k = L.build === 1 ? "human1" : "human0";
   }
   const P = Object.assign({}, HEAD_PROFILES[k] || HEAD_PROFILES.human0);
-  if (L.build === 1 && !/human|skull|plain/.test(k)) { P.brow *= 0.5; P.jaw += 0.04; P.nose *= 0.85; P.lips *= 1.2; }
+  if (L.build === 1 && !/human|skull|plain/.test(k)) { P.brow *= 0.5; P.jaw += 0.06; P.chin *= 0.4; P.long -= 0.04; P.cheek += 0.02; P.nose *= 0.85; P.lips *= 1.2; }
   if (!L.noFace && /human|elari|pipkin|nekari/.test(k)) { P.nose *= 0.3; P.sock *= 0.2; P.brow *= 0.3; P.lips *= 0.25; P.cheek *= 0.4; P.anime = true; }
   P.key = k;
   return P;
@@ -797,7 +822,38 @@ function densityMap(n, d0, d1, dens) {
 }
 
 const HEAD_SCALE = [0.87, 1.04, 1.0];
-function headUV(phi, th) { return [(phi / (Math.PI * 2) - 0.03) / 0.94, (1 - th / Math.PI - 0.03) / 0.94]; }
+function warpLut(c, sg, k) {
+  const N = 1024, cum = new Float32Array(N + 1);
+  for (let i = 1; i <= N; i++) { const t = (i - 0.5) / N; cum[i] = cum[i - 1] + 1 + k * Math.exp(-(((t - c) / sg) ** 2)); }
+  for (let i = 0; i <= N; i++) cum[i] /= cum[N];
+  return {
+    fwd: t => { const f = clamp(t, 0, 1) * N, i = Math.min(N - 1, Math.floor(f)); return cum[i] + (cum[i + 1] - cum[i]) * (f - i); },
+    inv: q => { let lo = 0, hi = N; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cum[m] < q) lo = m; else hi = m; } const d = cum[hi] - cum[lo]; return (lo + (d > 0 ? (q - cum[lo]) / d : 0)) / N; }
+  };
+}
+const FACE_WARP = { x: warpLut(0.25, 0.1, 2.6), y: warpLut(0.53, 0.15, 1.8) };
+function headUV(phi, th) { const gx = FACE_WARP.x.fwd(phi / (Math.PI * 2)), gy = FACE_WARP.y.fwd(th / Math.PI); return [(gx - 0.03) / 0.94, (1 - gy - 0.03) / 0.94]; }
+function paintFaceWarped(ia, N, ox, oy, paint) {
+  const C = ATLAS_CELL, S = 4, B = C * S;
+  if (!RIG.faceTmp || RIG.faceTmp.width !== B) RIG.faceTmp = makeCanvas(B, B);
+  const tg = RIG.faceTmp.getContext("2d", { willReadFrequently: true });
+  tg.setTransform(1, 0, 0, 1, 0, 0); tg.clearRect(0, 0, B, B);
+  tg.save(); tg.scale(S, S); paint(tg); tg.restore();
+  const src = tg.getImageData(0, 0, B, B).data, od = ia.data;
+  if (!FACE_WARP.ix || FACE_WARP.ix.length !== C) { FACE_WARP.ix = new Float32Array(C); FACE_WARP.iy = new Float32Array(C); for (let k = 0; k < C; k++) { FACE_WARP.ix[k] = FACE_WARP.x.inv((k + 0.5) / C) * B - 0.5; FACE_WARP.iy[k] = FACE_WARP.y.inv((k + 0.5) / C) * B - 0.5; } }
+  const ix = FACE_WARP.ix, iy = FACE_WARP.iy;
+  for (let y = 0; y < C; y++) {
+    const sy = clamp(iy[y], 0, B - 1.001), y0 = sy | 0, fy = sy - y0;
+    for (let x = 0; x < C; x++) {
+      const sx = clamp(ix[x], 0, B - 1.001), x0 = sx | 0, fx = sx - x0, a = (y0 * B + x0) * 4, b = a + 4, c = a + B * 4, d = c + 4;
+      const w0 = (1 - fx) * (1 - fy), w1 = fx * (1 - fy), w2 = (1 - fx) * fy, w3 = fx * fy;
+      const al = (src[a + 3] * w0 + src[b + 3] * w1 + src[c + 3] * w2 + src[d + 3] * w3) / 255;
+      if (al <= 0.002) continue;
+      const o = ((oy + y) * N + ox + x) * 4;
+      for (let ch = 0; ch < 3; ch++) { const pm = src[a + ch] * src[a + 3] * w0 + src[b + ch] * src[b + 3] * w1 + src[c + ch] * src[c + 3] * w2 + src[d + ch] * src[d + 3] * w3; od[o + ch] = pm / 255 + od[o + ch] * (1 - al); }
+    }
+  }
+}
 function gHeadPatch(P, hc, hr, phis, ths, off, feat) {
   const nu = phis.length - 1, nv = ths.length - 1;
   const pos = [], uv = [], idx = [];
@@ -821,7 +877,7 @@ function gHeadPatch(P, hc, hr, phis, ths, off, feat) {
   return g;
 }
 function gHead(P, hc, hr, seg) {
-  const nu = Math.max(14, sgK(seg || 44)), nv = Math.max(10, sgK(Math.round((seg || 44) * 0.68)));
+  const nu = Math.max(30, sgK(seg || 44)), nv = Math.max(22, sgK(Math.round((seg || 44) * 0.68)));
   const phis = densityMap(nu, 0, Math.PI * 2, p => { let d = p - Math.PI / 2; d = Math.atan2(Math.sin(d), Math.cos(d)); return 1 + 2.4 * Math.exp(-((d / 0.75) ** 2)); });
   const ths = densityMap(nv, 0, Math.PI, t => 1 + 2 * Math.exp(-(((t - 1.75) / 0.55) ** 2)));
   const g = gHeadPatch(P, hc, hr, phis, ths, 0, true);
@@ -1632,31 +1688,32 @@ function humanEntryBase(L) {
     const ring = (y, r, xs, zs, f, b, z, p) => ({ y, rx: r * xs, rz: r * zs, f, b, z: z || 0, p: p || 2.1 });
     const lowR0 = [ring(hipJ - 0.078, 0.045, hx0, hz, 1, 1), ring(hipJ - 0.06, 0.11, hx0, hz, 0.95, 1.08, -0.004), ring(hipJ - 0.02, hipR * 0.95, hx0, hz, 0.95, 1.16, -0.006), ring(hipJ + 0.015, hipR * 0.99, hx0, hz, 0.97, 1.12, -0.004), ring(beltY, hipR, hx0, hz, 1, 1.04)];
     const lowR = L.doll ? lowR0.map(r => r.y < hipJ + 0.01 ? Object.assign({}, r, { rx: r.rx * 0.72, rz: r.rz * 0.85 }) : r) : lowR0;
-    const bust = fem ? 0.16 : 0.08;
-    const upR0 = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.95, (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring((spineY + chestY) / 2, waistR * 0.93, cx0 * 0.95, cz, 1.06, 0.92), ring(chestY - 0.04, 0.155, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.172, cx1 * 1.03, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.18, cx1 * 1.06, cz, 1.0 + bust * 0.3, 1.05), ring(shY - 0.025, 0.17, cx1 * 1.04, cz * 0.95, 0.97, 1.03, 0, 2.1), ring(shY - 0.002, 0.148, cx1 * 1.0, cz * 0.9, 0.94, 1.02, -0.004, 2.0), ring(shY + 0.022, 0.112, cx1 * 0.94, cz * 0.88, 0.92, 1.0, -0.006, 2.0), ring(neckY - 0.024, 0.084, cx1 * 0.86, cz * 0.92, 0.9, 0.95, -0.006, 2.0), ring(neckY + 0.012, 0.066, gi * (fem ? 0.86 : 1), gi * 0.95, 1, 1, -0.006, 2)];
+    const bust = fem ? 0.09 : 0.03;
+    const upR0 = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.95, (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring((spineY + chestY) / 2, waistR * 0.93, cx0 * 0.95, cz, 1.06, 0.92), ring(chestY - 0.04, 0.155, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.172, cx1 * 1.03, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.18, cx1 * 1.06, cz, 1.0 + bust * 0.3, 1.05), ring(shY - 0.025, 0.17, cx1 * 1.04, cz * 0.95, 0.97, 1.03, 0, 2.1), ring(shY - 0.002, 0.148, cx1 * 1.0, cz * 0.9, 0.94, 1.02, -0.004, 2.0), ring(shY + 0.022, 0.112, cx1 * 0.94, cz * 0.88, 0.92, 1.0, -0.006, 2.0), ring(neckY - 0.024, 0.084, cx1 * 0.86, cz * 0.92, 0.9, 0.95, -0.006, 2.0), ring(neckY + 0.012, 0.058, gi * (fem ? 0.86 : 1), gi * 0.95, 1, 1, -0.006, 2)];
     const dollUp = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.93, hx0, hz * 0.97, 1.03, 1.0), ring(chestY - 0.01, hipR * 0.9, hx0 * 0.97, hz * 0.95, 1.04 + bust * 0.5, 1.0), ring(chestY + 0.45 * (neckY - chestY), sw * 1.05, 1, 0.85, 1.0, 1.0, 0, 2.0), ring(shY, sw * 0.95, 1, 0.82, 0.98, 1.0, 0, 2.0), ring(neckY - 0.012, 0.078 * gi, 1, 0.95, 1, 1, -0.004, 2), ring(neckY + 0.012, 0.066 * gi, 1, 0.95, 1, 1, -0.006, 2)];
     const upR = L.doll ? monoRings(dollUp) : upR0;
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     R.addW(gLoft(lowR, 24, true, false, 0, 0.3), "hips", robe ? topC : legC, robe ? topR : legR, tw);
     R.addW(gLoft(upR, 24, false, false, 0.3, 1), "chest", topC, topR, tw);
+    if (fem && !L.doll && !robe) for (const xs of [-1, 1]) R.add(gBall(V3(xs * 0.05 * gi, chestY + 0.018, cz * 0.172 * 0.78), 0.05 * gi, 0.95, 0.9, 0.7, 14), "chest", topC, topR);
     BODY.up = upR; BODY.tw = tw;
-    const UW = L.under || {}, wht = 0xf4f2ec;
+    const UW = L.under || {}, wht = 0xe6ded2;
     if (UW.low === "boxer" || UW.low === "brief") {
       const sh = shellOf(lowR, 0.006);
-      R.addW(gLoft(sh, 24, true, false, 0, 0.3), "hips", wht, "cloth", tw);
-      R.add(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "cloth");
+      R.addW(gLoft(sh, 24, true, false, 0, 0.3), "hips", wht, "plain", tw);
+      R.add(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "plain");
     } else if (UW.low === "thong") {
-      R.add(gRing(V3(0, beltY - 0.012, 0), hipR * hx0 + 0.004, 0.0055, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "cloth");
-      R.add(gBall(V3(0, hipJ - 0.005, hipR * hz * 0.98), 0.05, 1.1, 1.25, 0.28, 10), "hips", wht, "cloth");
-      R.add(gTaper(V3(0, beltY - 0.012, -hipR * hz * 1.02), V3(0, hipJ - 0.05, -hipR * hz * 0.96), 0.007, 0.0045, 6), "hips", wht, "cloth");
+      R.add(gRing(V3(0, beltY - 0.012, 0), hipR * hx0 + 0.004, 0.0055, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "plain");
+      R.add(gBall(V3(0, hipJ - 0.005, hipR * hz * 0.96), 0.05, 1.15, 1.2, 0.22, 16), "hips", wht, "plain");
+      R.add(gTaper(V3(0, beltY - 0.012, -hipR * hz * 1.02), V3(0, hipJ - 0.05, -hipR * hz * 0.96), 0.007, 0.0045, 6), "hips", wht, "plain");
     }
     if (UW.top === "bikini") {
       const cz1 = cz * 0.172 * (1.06 + bust) * 0.8;
-      for (const xs of [-1, 1]) R.add(gBall(V3(xs * 0.052 * gi, chestY + 0.025, cz1), 0.05, 0.95, 0.85, 0.55, 10), "chest", wht, "cloth");
-      R.add(gRing(V3(0, chestY - 0.04, 0), (L.doll ? 0.122 : 0.156) * cx0 + 0.003, 0.0045, "y", 22).scale(1, 1, cz / cx0 * (L.doll ? 0.95 : 1.02)), "chest", wht, "cloth");
-      for (const xs of [-1, 1]) R.add(gTaper(V3(xs * 0.05 * gi, chestY + 0.065, cz1 * 0.92), V3(xs * 0.03, neckY - 0.01, -0.02), 0.0045, 0.0045, 6), "chest", wht, "cloth");
+      for (const xs of [-1, 1]) R.add(gBall(V3(xs * 0.051 * gi, chestY + 0.02, cz1 * 0.97), 0.054 * gi, 0.98, 0.9, 0.62, 18), "chest", wht, "plain");
+      R.add(gRing(V3(0, chestY - 0.04, 0), (L.doll ? 0.122 : 0.156) * cx0 + 0.003, 0.0045, "y", 22).scale(1, 1, cz / cx0 * (L.doll ? 0.95 : 1.02)), "chest", wht, "plain");
+      for (const xs of [-1, 1]) R.add(gTaper(V3(xs * 0.05 * gi, chestY + 0.065, cz1 * 0.92), V3(xs * 0.03, neckY - 0.01, -0.02), 0.0045, 0.0045, 6), "chest", wht, "plain");
     } else if (UW.top === "bandeau") {
-      R.add(gRing(V3(0, chestY + 0.02, 0), 0.172 * cx1 + 0.006, 0.02, "y", 22).scale(1, 1, cz / cx1 * 1.08), "chest", wht, "cloth");
+      R.add(gRing(V3(0, chestY + 0.02, 0), 0.172 * cx1 + 0.006, 0.02, "y", 22).scale(1, 1, cz / cx1 * 1.08), "chest", wht, "plain");
     }
   } else {
     R.add(gTaper(V3(0, neckY - 0.05, 0), V3(0, headY + 0.03, 0), 0.025, 0.025, 6), "neck", skin, "bone");
@@ -1680,7 +1737,7 @@ function humanEntryBase(L) {
       R.add(gTaper(V3(ex, mid, 0), V3(wx, wrY + 0.01, 0), 0.02, 0.018, 10), "foreArm" + sd, fa2C, fa2R);
     } else {
       const axX = y => y >= elY ? ax + (ex - ax) * (shY - y) / (shY - elY) : ex + (wx - ex) * (elY - y) / (elY - wrY);
-      const ak = L.doll ? 0.85 : 1, ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi * ak, rz: r * gi * ak, f: f || 1, b: b || 1, p: p || 2 });
+      const ak = L.doll ? 0.85 : 1.08, ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi * ak, rz: r * gi * ak, f: f || 1, b: b || 1, p: p || 2 });
       const aw = (x, y) => y > shY - 0.03 ? [["upArm" + sd, 1 - 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)], ["chest", 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)]] : blendW(y, [[0, "foreArm" + sd, 0], [elY, "upArm" + sd, 0.035]]).map(([n, w]) => [n, w]);
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
       const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings0 = [tuck(ar(shY + 0.012, 0.04), 0.052), tuck(ar(shY - 0.004, 0.057), 0.032), tuck(ar(shY - 0.026, 0.063), 0.014), ar(shY - 0.05, 0.06, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
@@ -1691,9 +1748,16 @@ function humanEntryBase(L) {
       const fa2 = L.doll ? monoRings(fa20).map((r, i) => { const k = [0.92, 0.82, 0.72, 0.7][Math.min(i, 3)]; return Object.assign({}, r, { rx: r.rx * k, rz: r.rz * k }); }) : fa20;
       const flip = rs => rs.slice().reverse();
       const armW = (x, y, z) => y < elY - 0.035 ? [["foreArm" + sd, 1]] : awFix(x, y, z);
+      const wrW = (x, y, z) => y < wrY + 0.004 ? [["foreArm" + sd, 0.6], ["hand" + sd, 0.4]] : armW(x, y, z);
+      const same1 = upC === fa1C && upR === fa1R, same2 = same1 && fa1C === fa2C && fa1R === fa2R;
+      if (same2) R.addW(gLoft(flip(upRings.concat(fa1.slice(1), fa2.slice(1))), 16, true, false, 0, 1), "upArm" + sd, upC, upR, wrW);
+      else if (same1) { R.addW(gLoft(flip(upRings.concat(fa1.slice(1))), 16, true, false, 0, 0.75), "upArm" + sd, upC, upR, armW); R.addW(gLoft(flip(fa2), 16, false, false, 0.75, 1), "foreArm" + sd, fa2C, fa2R, wrW); }
+      else {
       R.addW(gLoft(flip(upRings), 16, true, false, 0, 0.5), "upArm" + sd, upC, upR, armW);
       R.addW(gLoft(flip(fa1), 16, false, false, 0.5, 0.75), "foreArm" + sd, fa1C, fa1R, armW);
-      R.addW(gLoft(flip(fa2), 16, false, false, 0.75, 1), "foreArm" + sd, fa2C, fa2R, (x, y, z) => y < wrY + 0.004 ? [["foreArm" + sd, 0.6], ["hand" + sd, 0.4]] : [["foreArm" + sd, 1]]);
+      R.addW(gLoft(flip(fa2), 16, false, false, 0.75, 1), "foreArm" + sd, fa2C, fa2R, wrW);
+      }
+      if (!L.doll) R.addW(gBall(V3(ax - s * 0.004, shY - 0.058, 0), 0.056 * gi, 1.0, 1.15, 1.0, 14), "upArm" + sd, upC, upR, (x, y, z) => { const k = smoothRange(shY - 0.07, shY + 0.01, y) * smoothRange(-0.02, 0.04, -s * (x - ax)); return [["upArm" + sd, 1 - 0.55 * k], ["chest", 0.55 * k]]; });
       BODY["arm" + sd] = { up: upRings, fa1, fa2, w: armW };
     }
     if (sleeves === "wide" && !bare) {
@@ -1709,7 +1773,7 @@ function humanEntryBase(L) {
       R.add(gBall(V3(s * (sw + 0.025), wrY - 0.055, 0.005), 0.03, 0.75, 1.15, 0.55, 10), "hand" + sd, handC, handR);
       R.add(gBall(V3(s * (sw + 0.005), wrY - 0.035, 0.035), 0.018, 1, 1.6, 1, 6), "hand" + sd, handC, handR);
     } else {
-      const hk = gi * (L.doll ? 0.62 : 1) * 1.18, hx = s * (sw + 0.024 + fl), fb = "fingers" + sd, tb = "thumb" + sd;
+      const hk = gi * (L.doll ? 0.62 : 1.1) * 1.18, hx = s * (sw + 0.024 + fl), fb = "fingers" + sd, tb = "thumb" + sd;
       R.add(gBall(V3(hx, wrY - 0.012, 0.004), 0.026 * hk, 0.7, 0.75, 1.0, 10), "hand" + sd, handC, handR);
       R.add(gBall(V3(hx, wrY - 0.04 * hk, 0.004), 0.034 * hk, 0.5, 1.05, 1.15, 12), "hand" + sd, handC, handR);
       R.add(gBall(V3(hx, wrY - 0.045 * hk, 0.004), 0.038 * hk, 0.36, 0.95, 1.0, 10), "hand" + sd, handC, handR);
