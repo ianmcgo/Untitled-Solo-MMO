@@ -103,7 +103,7 @@ Style variants on existing styles: long (centre part, swept back, heavy), bob (b
 - rig.js: RACE_FACE_HAIR[race][build][face] = { style, variant, colors: [a, b, c], extras } and per-race face paints (FACE_PAINTS grows for tattoo, paint and stripes).
 - Character creation: Face step shows that race's 8 faces; Hair colour step shows that face's 3 colours first, then the shared palette as "More colours".
 - Saves: keep a stored hairStyle when it exists (old characters do not change); new characters use the table. Companion and NPC looks are untouched.
-- Face 9: unlock through a barber NPC later (optional phase).
+- Face 9: only at the barber (phase 5).
 - Help, Updates and design notes follow each phase as usual.
 
 ## Phases
@@ -111,4 +111,9 @@ Style variants on existing styles: long (centre part, swept back, heavy), bob (b
 2. Human and Elari hair (Opus): 12 new styles plus variants and extras; contact sheet for approval.
 3. Pipkin, Nekari and Ursan hair (Opus): 13 new styles and the mane family; contact sheet.
 4. Extras (Opus): headbands, circlets, clips, beads, ribbons, goatee, face paint, tattoos and stripes.
-5. Barber and face 9 (Sonnet, optional).
+5. Barber in every town (Sonnet).
+   - One barber NPC per town (Ashenreach market district, Saltreach, Ironvale), placed facing a road with a shop sign, like the auction clerk. Talk opens "Change your look? 1000 crystals."
+   - Paying opens the character creation screen in edit mode: race, gender and name are shown but locked; job is not part of it. Face, hairstyle (that race's 8 faces plus the barber-only face 9), hair colour (the face's 3 colours plus the full palette) and size can change. A live preview uses the current gear.
+   - Confirm charges 1000 crystals and saves; Cancel or closing charges nothing. Not enough crystals: the barber says so and the screen does not open.
+   - Code: reuse the creation steps with a lock list (ccSteps filters out race, gender and the name and job step); apply to save.look, rebuild the player view; online saves sync like any look change. Companions keep their looks.
+   - Help (Town services and Character sections) and Updates entries; a unit test for the charge, the cancel path and the locked fields.
