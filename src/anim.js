@@ -6,12 +6,19 @@ function animState(v) {
   return v.an;
 }
 
-function strideEff(v, spd) {
-  const run = clamp((spd - 1.2) / 4, 0, 1), S = (v.stride || 1.7) * (1 + 0.9 * run), B = v.bones;
-  if (v.kind === "quad" && v.meta && v.meta.quad && v.meta.quad.leg) { const g = v.an && v.an.gait; return Math.min(S * 1.6, v.meta.quad.leg * 0.7 * (v.scale || 1) / (g ? g.duty : 0.66)); }
+function strideEff(v, spd, ik) {
+  const run = runOf(v, spd), S = (v.stride || 1.7) * (1 + 0.9 * run), B = v.bones;
+  if (v.kind === "quad" && v.meta && v.meta.quad && v.meta.quad.leg) { const g = v.an && v.an.gait, Sq = Math.min(S * 1.6, v.meta.quad.leg * 0.7 * (v.scale || 1) / (g ? g.duty : 0.66)); return ik ? Sq : Math.max(Sq, S * 0.55); }
   if (v.kind !== "human" || !B || !B.shinL || !B.footL) return S;
-  const L = (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1);
-  return Math.min(S, 1.25 * L / (0.62 - 0.28 * run));
+  const L = (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1), rel = Math.min(1, L / 0.86);
+  const Sl = Math.min(S, 1.25 * L / (0.62 - 0.28 * run));
+  return ik ? Sl * (0.55 + 0.45 * rel) : Math.max(Sl, S * (0.8 + 0.2 * rel));
+}
+function runOf(v, spd) { return clamp((spd * (0.6 + 0.4 * legRel(v)) - 1.2) / 4, 0, 1); }
+function legRel(v) {
+  const B = v.bones;
+  if (v.kind !== "human" || !B || !B.shinL || !B.footL) return 1;
+  return Math.min(1, (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1) / 0.86);
 }
 function trackEvents(v, e, dt) {
   const an = animState(v);
@@ -380,7 +387,7 @@ function poseHuman(v, e, dt) {
   const P = newPose(v);
   const st = v.style || {};
   const t = S.time + an.t0;
-  const run = clamp((an.spd - 1.2) / 4, 0, 1), walk = clamp(an.spd / 1.2, 0, 1) * (1 - run);
+  const run = runOf(v, an.spd), walk = clamp(an.spd / 1.2, 0, 1) * (1 - run);
   const amp = run + walk * 0.45;
   const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
   const fightT = (e.engaged || (isMob(e) && e.state === "combat")) && e.alive !== false ? 1 : 0;
@@ -968,7 +975,7 @@ function poseHuman(v, e, dt) {
     v.bones.mouth.scale.set(1, 0.04 + an.mouth, 1);
     if (v.bones.jaw) v.bones.jaw.rotation.x = an.mouth * 0.16;
   }
-  if (an.ikW > 0.01) humanLegIK(v, an, an.ikW, clamp((an.spd - 1.2) / 4, 0, 1));
+  if (an.ikW > 0.01) humanLegIK(v, an, an.ikW, runOf(v, an.spd));
 }
 
 const IKQ = { h: null, inv: null, q: null, x: null, v: null };
@@ -1008,8 +1015,8 @@ function humanLegIK(v, an, w, run) {
   if (!B.thighL || !B.shinL || !B.footL || !B.root || !B.hips) return;
   if (!IKQ.h) { IKQ.h = new THREE.Quaternion(); IKQ.inv = new THREE.Quaternion(); IKQ.q = new THREE.Quaternion(); IKQ.x = new THREE.Quaternion(); IKQ.v = new THREE.Vector3(); }
   const Lt = B.shinL.position.length(), Ls = B.footL.position.length(), L = Lt + Ls;
-  const sc = v.scale || 1, S = strideEff(v, an.spd);
-  const beta = 0.62 - 0.28 * run, D = beta * S / sc, lift = (0.06 + 0.1 * run) / sc;
+  const sc = v.scale || 1, S = strideEff(v, an.spd, true), rl = legRel(v);
+  const beta = 0.62 - 0.28 * run, D = beta * S / sc, lift = (0.06 + 0.1 * run) * (0.45 + 0.55 * rl) / sc;
   const rest = B.root.userData.rest;
   const restHip = B.hips.position.y - (B.root.position.y - rest.y) + B.thighL.position.y, ank0 = restHip - L;
   IKQ.h.setFromEuler(B.hips.rotation); IKQ.inv.copy(IKQ.h).invert();
@@ -1187,7 +1194,7 @@ function quadGait(v, an, dt) {
 }
 function quadLegIK(v, an, G, w, wF) {
   const B = v.bones, q = v.meta.quad || {}, sc = v.scale || 1;
-  const strideLocal = strideEff(v, an.spd) / sc;
+  const strideLocal = strideEff(v, an.spd, true) / sc;
   for (const [n, fore] of [["FL", 1], ["FR", 1], ["BL", 0], ["BR", 0]]) {
     const th = B["leg" + n], sh = B["shin" + n];
     if (!th || !sh) continue;
@@ -1196,10 +1203,10 @@ function quadLegIK(v, an, G, w, wF) {
     const Lt = sh.position.length(), Ls = (q.leg || 0.5) * 0.5;
     const reach = (Lt + Ls) * 0.99, dRest = (Lt + Ls) * 0.9;
     let p = (G.ph + G.off[n]) % 1; if (p < 0) p += 1;
-    const duty = G.duty, D = Math.min(strideLocal * duty, (Lt + Ls) * 0.76) * G.mv;
+    const duty = G.duty, D = Math.min(strideLocal * duty, (Lt + Ls) * (q.digi ? 0.55 : 0.76)) * G.mv;
     let z, y = 0;
     if (p < duty) z = D / 2 - D * (p / duty);
-    else { const u = (p - duty) / (1 - duty), e = u * u * (3 - 2 * u); z = -D / 2 + D * e; y = Math.sin(Math.PI * u) * Math.min(0.35 * (Lt + Ls), 0.04 + D * 0.3) * G.mv; }
+    else { const u = (p - duty) / (1 - duty), e = u * u * (3 - 2 * u); z = -D / 2 + D * e; y = Math.sin(Math.PI * u) * (q.digi ? Math.min(0.2 * (Lt + Ls), 0.02 + D * 0.22) : Math.min(0.35 * (Lt + Ls), 0.04 + D * 0.3)) * G.mv; }
     const depth = dRest - y;
     const r = clamp(Math.hypot(z, depth), Math.abs(Lt - Ls) + 1e-3, reach);
     const a = Math.atan2(z, depth);

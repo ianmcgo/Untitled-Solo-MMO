@@ -2095,7 +2095,7 @@ function tickAmbient(dt) {
       continue;
     }
     if (a.wait > 0) { a.wait -= dt; continue; }
-    if (a.tx == null) { a.tx = a.home.x + (Math.random() - 0.5) * a.roam * 2; a.ty = a.home.y + (Math.random() - 0.5) * a.roam * 2; }
+    if (a.tx == null) { a.tx = a.home.x + (Math.random() - 0.5) * a.roam * 2; a.ty = a.home.y + (Math.random() - 0.5) * a.roam * 2; if (!a.flee && (a.type === "dog" || a.type === "cat")) { const k = Math.random(), dog = a.type === "dog"; a.speed = k < 0.7 ? (dog ? 26 : 18) : k < 0.93 ? (dog ? 48 : 32) : (dog ? 90 : 60); } }
     if (moveToward(a, a.tx, a.ty, dt, 4)) { a.tx = null; a.wait = a.fly ? 0 : 1.5 + Math.random() * 5; if (a.flee) { a.flee = false; a.speed = a.speedBase; a.home = { x: a.x, y: a.y }; } }
     keepOutOfColliders(a);
   }

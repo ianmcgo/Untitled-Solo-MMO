@@ -2260,3 +2260,10 @@ Outpost auction building moved to (860,565) facing the market plaza (front y 610
 Auction type: CITY_TYPES.auction has flag true and data rects carry flag #c9a227; front sign scale up to 2.1 and side sign 1.6 for type auction (world3d buildCityBuildings).
 Auction tab: .ahBar filter rows, .ahBox with .ahHead and .ahRow (name, Lv, source counts, price), listing rows .ahLine (seller, amount, each, controls); My lots rows reuse .ahLine. Mobile (max 720 px) drops the source and each columns.
 Target command list (#tCmd.list): menu window gradient with stripe, rows like inventory cells, selection is the blue highlight with white outline.
+
+## 18.72.0 Calmer small legs, dogs and cats
+anim.js: legRel(v) = human leg length (shin+foot bone lengths times scale) / 0.86, capped 1. runOf(v, spd) scales speed by 0.6 + 0.4 legRel before the run blend (used by strideEff, poseHuman, humanLegIK). strideEff(v, spd, ik): phase stride = max(leg-limited stride, nominal stride times 0.8 + 0.2 legRel), so short legs cycle near human cadence; ik true returns the leg-limited stride times 0.55 + 0.45 legRel for foot excursion (feet glide a little on Pipkin, accepted). Lift times 0.45 + 0.55 legRel. Humans, Elari, Ursan, Nekari unchanged (legRel 1).
+Quads: phase stride floor S * 0.55; quadLegIK uses strideEff(..., true). meta.quad.digi (dog, cat): stride excursion cap 0.55 L (others 0.76), lift min(0.2 L, 0.02 + 0.22 D).
+rig.js quadEntry o.digi (slim only): thick tapered upper leg plus shoulder or haunch ball, knee ball, shin as two tapers through a mid joint (hind: hock at y 0.3 L, z minus 0.1 L; fore: wrist at y 0.14 L), paw ball lighter than coat with three toe balls. Shin still ends at the IK foot point.
+game.js tickAmbient: dog and cat pick a pace per trip: 70% walk (dog 26, cat 18 px/s), 23% trot (48, 32), 7% run (90, 60). Spawn speed was dog 90 (always gallop).
+Tools: test sheet script for ambient animals lives only in scratch; gaitsheet.js uses THREE.GridHelper which the custom THREE build lacks, so use a textured plane.

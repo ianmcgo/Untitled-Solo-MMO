@@ -1699,6 +1699,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.72.0", date: "2026-10-18", title: "Calmer small legs, better dogs and cats", items: [
+    "<b>Small characters stop scurrying:</b> Pipkin and other short-legged bodies take about the same number of steps per second as a Human instead of four times as many. Their steps are shorter, their feet lift less, and they lean into a run less at normal speed.",
+    "<b>Dogs and cats rebuilt:</b> real animal legs with a backward-bending hock on the hind legs, thicker upper legs that blend into the shoulders and haunches, and rounded paws with toes, instead of thin sticks.",
+    "<b>Dogs and cats stroll:</b> they mostly walk around town, sometimes trot, and only rarely break into a run. Their stride and paw lift are smaller, so the legs no longer fling out behind them."
+  ] },
   { v: "18.71.0", date: "2026-10-18", title: "Auction house and menu tidy", items: [
     "<b>Ashenreach auction house moved onto the market plaza:</b> it now faces the home point crystal, reached by a path from the main road, instead of facing the city wall. The clerk stands at its door.",
     "<b>Easier to spot:</b> the Auction House sign is larger, with a gold banner on the roof, in all three towns.",
