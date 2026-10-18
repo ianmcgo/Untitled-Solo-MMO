@@ -1069,7 +1069,7 @@ const CITY_TYPES = {
   barracks: { ground: "stone", upper: "stone", flag: true, sign: true },
   guard: { ground: "stone", upper: "stone", flag: true },
   cityhall: { ground: "stone", upper: "stone", clock: true, flag: true },
-  auction: { ground: "stone", upper: "plaster", portico: true, sign: true },
+  auction: { ground: "stone", upper: "plaster", portico: true, sign: true, flag: true },
   forge: { ground: "stone", upper: "stone", forge: true, sign: true },
   mill: { ground: "stone", upper: "planks", sails: true },
   warehouse: { ground: "planks", upper: "planks", bigdoor: true, crane: true },
@@ -1226,8 +1226,8 @@ function buildCityBuildings(field, root) {
       bt.add(M.iron, box(0.06, 0.06, 0.6), B, sx + 0.95, PL + dh + 0.6, fz + 0.28);
       if (label) {
         const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.56), new THREE.MeshStandardMaterial({ map: texSign(label, hs.signCol || "#d4a840"), side: THREE.DoubleSide, roughness: 0.8 }));
-        sg.position.set(sx + 0.1, PL + dh + 0.25, fz + 0.55); sg.rotation.y = Math.PI / 2; sg.applyMatrix4(B); root.add(sg);
-        const sg2 = sg.clone(); sg2.position.set(sx + 0.1, PL + dh + 0.25, fz + 0.55); sg2.rotation.set(0, 0, 0); sg2.position.set(0, PL + dh + 0.48, fz + 0.16); sg2.scale.setScalar(Math.min(1.27, bw / 3)); sg2.applyMatrix4(B); root.add(sg2);
+        sg.position.set(sx + 0.1, PL + dh + 0.25, fz + 0.55); sg.rotation.y = Math.PI / 2; if (hs.type === "auction") sg.scale.setScalar(1.6); sg.applyMatrix4(B); root.add(sg);
+        const sg2 = sg.clone(); sg2.position.set(sx + 0.1, PL + dh + 0.25, fz + 0.55); sg2.rotation.set(0, 0, 0); sg2.position.set(0, PL + dh + 0.48, fz + 0.16); sg2.scale.setScalar(hs.type === "auction" ? Math.min(2.1, bw / 2.2) : Math.min(1.27, bw / 3)); sg2.applyMatrix4(B); root.add(sg2);
       }
     }
     if (T.flag || hs.flag) {

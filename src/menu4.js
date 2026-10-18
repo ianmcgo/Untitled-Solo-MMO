@@ -1229,11 +1229,14 @@ function ahDetail(id) {
     const P = typeof pmLoad === "function" && typeof netAhList === "function" && NET.member ? pmLoad(false) : null;
     const lines = marketLines(id, P && P.at ? P.list : []).filter(l => !UI.ahSrc || UI.ahSrc === "all" || l.kind === UI.ahSrc);
     if (!lines.length) h += '<div class="sub" style="margin-top:8px">Nobody is selling this' + (UI.ahSrc && UI.ahSrc !== "all" ? " in this filter" : " right now") + ".</div>";
+    if (lines.length) h += '<div class="ahBox" style="margin-top:8px"><div class="ahLine" style="color:#c8d0ff;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid rgba(220,224,255,.5)"><span>Seller</span><span>Amount</span><span class="un">Price</span><span class="ctl"></span></div>';
     for (const l of lines) {
       const k = AH_KINDS[l.kind], q1 = Math.min(q, l.qty), cost = l.stock ? l.unit * q1 : l.price, poor = save.gil < cost;
-      const btn = l.own ? '<span class="sub">Yours</span>' : l.stock ? '<span style="display:flex;gap:4px;align-items:center"><button data-a="ahqty" data-v="-1">−</button><b>' + q1 + '</b><button data-a="ahqty" data-v="1">+</button><button data-a="ahbuy" data-v="' + l.town + '"' + (poor ? " disabled" : "") + ">Buy · " + cost + " 💠</button></span>" : '<button data-a="' + (l.lot != null ? "pmbuy" : "ahbuylocal") + '" data-v="' + (l.lot != null ? l.lot : l.local) + '"' + (poor || UI.pmBusy ? " disabled" : "") + ">Buy · " + cost + " 💠</button>";
-      h += '<div class="item" style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-left:3px solid ' + k.color + '"><div><b style="color:' + k.color + '" title="' + esc(l.owner ? "Sold for " + l.owner : k.label) + '">' + k.icon + " " + esc(l.seller) + "</b> <span class=\"sub\">" + (l.stock ? l.qty + " in stock" : (l.qty > 1 ? l.qty + " × " + Math.round(l.unit) + " each" : l.price + " 💠")) + "</span></div>" + btn + "</div>";
+      const buyBtn = '<button data-a="' + (l.lot != null ? "pmbuy" : "ahbuylocal") + '" data-v="' + (l.lot != null ? l.lot : l.local) + '"' + (poor || UI.pmBusy ? " disabled" : "") + ">Buy · " + cost + " 💠</button>";
+      const stockBtn = '<button data-a="ahqty" data-v="-1">−</button><b>' + q1 + '</b><button data-a="ahqty" data-v="1">+</button><button data-a="ahbuy" data-v="' + l.town + '"' + (poor ? " disabled" : "") + ">Buy · " + cost + " 💠</button>";
+      h += '<div class="ahLine" style="border-left:3px solid ' + k.color + '"><span style="color:' + k.color + '" title="' + esc(l.owner ? "Sold for " + l.owner : k.label) + '">' + k.icon + " " + esc(l.seller) + "</span><span>" + (l.stock ? l.qty + " in stock" : "× " + l.qty) + '</span><span class="un">' + Math.round(l.unit) + ' each</span><span class="ctl">' + (l.own ? '<span class="sub">Yours</span>' : l.stock ? stockBtn : buyBtn) + "</span></div>";
     }
+    if (lines.length) h += "</div>";
   }
   return h + "</div>";
 }
@@ -1256,7 +1259,7 @@ function pmAct(p, ok) {
 function tabAuction() {
   const view = UI.ahView || "buy", cat = UI.ahCat || "materials", news = marketNews(marketDay());
   let h = '<div class="sub" style="margin-bottom:6px">📰 ' + esc(news.text[0]) + " " + esc(news.text[1]) + "</div>";
-  h += '<div style="display:flex;gap:6px;margin-bottom:8px">' + [["buy", "Buy"]].concat([["sell", "Sell"], ["lots", "My lots (" + save.market.listings.length + ")" + (save.market.box.length ? " · 📦" : "")]]).map(([k, l]) => '<button data-a="ahview" data-v="' + k + '"' + (view === k ? ' class="on" style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + l + "</button>").join("") + "</div>";
+  h += '<div class="ahBar"><span class="lbl">View</span>' + [["buy", "Buy"]].concat([["sell", "Sell"], ["lots", "My lots (" + save.market.listings.length + ")" + (save.market.box.length ? " · 📦" : "")]]).map(([k, l]) => '<button data-a="ahview" data-v="' + k + '"' + (view === k ? ' class="on" style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + l + "</button>").join("") + "</div>";
   if (UI.ahMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.ahMsg) + "</div>";
   if (UI.pmBusy) h += '<div class="sub" style="color:#ffd54f;margin-bottom:6px">Talking to the game server…</div>';
   if (view === "lots" && typeof netAhList === "function" && NET.member) {
@@ -1268,7 +1271,7 @@ function tabAuction() {
       if ((P.box || []).length) h += '<div class="item"><div><b>📦 Player delivery box</b><div class="sub">' + P.box.map(b => b.kind === "sold" ? "💠 " + b.gil + " (sold " + (ITEMS[b.item] ? ITEMS[b.item].name : "?") + " to " + esc(b.note || "") + ")" : (ITEMS[b.item] ? ITEMS[b.item].name : "?") + (b.qty > 1 ? " ×" + b.qty : "") + (b.kind === "returned" ? " (returned)" : "")).join(", ") + '</div></div><button data-a="pmcollect"' + (UI.pmBusy ? " disabled" : "") + ">Collect</button></div>";
       const pmine = (P.mine || []).filter(l => l.kind !== "merc");
       if (!pmine.length) h += '<div class="sub">You have nothing up for other players. Lots stay up for 48 hours; unsold items come back to the box.</div>';
-      for (const l of pmine) h += '<div class="item"><div><b>' + (ITEMS[l.item] ? (ITEMS[l.item].icon || "") + " " + esc(ITEMS[l.item].name) : "?") + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">Asking ' + l.price + " 💠 · " + pmLeft(l.expires_at) + ' left</div></div><button data-a="pmcancel" data-v="' + l.id + '"' + (UI.pmBusy ? " disabled" : "") + ">Withdraw</button></div>";
+      for (const l of pmine) h += '<div class="ahLine"><span>' + (ITEMS[l.item] ? (ITEMS[l.item].icon || "") + " " + esc(ITEMS[l.item].name) : "?") + (l.qty > 1 ? " ×" + l.qty : "") + "</span><span>" + l.price + ' 💠</span><span class="un">' + pmLeft(l.expires_at) + ' left</span><span class="ctl"><button data-a="pmcancel" data-v="' + l.id + '"' + (UI.pmBusy ? " disabled" : "") + ">Withdraw</button></span></div>";
     }
     h += "<h3>🏛️ With the market</h3>";
   }
@@ -1277,28 +1280,31 @@ function tabAuction() {
     if (!save.market.listings.length) h += '<div class="sub">You have nothing up for auction. Lots stay up for ' + AH_CFG.expireMs / 3600000 + " hours (real time) and keep selling while you're away.</div>";
     save.market.listings.forEach((l, i) => {
       const left = Math.max(0, Math.ceil((l.exp - Date.now()) / 60000));
-      h += '<div class="item"><div><b>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">Asking ' + l.price + " 💠 · market " + marketPrice(l.id) * l.qty + " 💠 · " + (left >= 60 ? Math.floor(left / 60) + "h " : "") + (left % 60) + 'm left</div></div><button data-a="ahcancel" data-v="' + i + '">Withdraw</button></div>';
+      h += '<div class="ahLine"><span>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + "</span><span>" + l.price + ' 💠</span><span class="un">' + (left >= 60 ? Math.floor(left / 60) + "h " : "") + (left % 60) + 'm left</span><span class="ctl"><button data-a="ahcancel" data-v="' + i + '">Withdraw</button></span></div>';
     });
     const om = UI.pm && UI.pm.at && Array.isArray(UI.pm.mine) && typeof netAhList === "function" && NET.member ? UI.pm.mine.filter(l => l.kind === "merc" && ITEMS[l.item]).map(l => ({ id: l.item, qty: l.qty, price: l.price, seller: l.merc_name || "Companion", online: true })) : [];
     const ml = marketLocalLots().filter(l => l.kind === "merc").concat(om);
     h += '<h3 style="color:' + AH_KINDS.merc.color + '">⚔ Your companions\' lots (' + ml.length + " / " + AH_CFG.mercLotCap + ")</h3>";
     if (!ml.length) h += '<div class="sub">None. When you reach a town with a companion\'s bag at least half full, they list what they carry here. Towns buy these slowly, after any lots of yours; the crystals go to your delivery box.</div>';
-    for (const l of ml) h += '<div class="item" style="border-left:3px solid ' + AH_KINDS.merc.color + '"><div><b>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + '</b><div class="sub">' + esc(l.seller) + " · " + l.price + " 💠" + (l.online ? " · 🌐 online" : "") + "</div></div></div>";
+    for (const l of ml) h += '<div class="ahLine" style="border-left:3px solid ' + AH_KINDS.merc.color + '"><span>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + "</span><span>" + l.price + ' 💠</span><span class="un">' + esc(l.seller) + '</span><span class="ctl">' + (l.online ? "🌐" : "") + "</span></div>";
     return h;
   }
   const online = view === "buy" && typeof pmLoad === "function" && typeof netAhList === "function" && NET.member ? pmLoad(false) : null;
   const olist = online && online.at ? online.list : [];
-  if (view === "buy") h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;align-items:center"><span class="sub">Show</span>' + [["all", "All", "#c9a227"]].concat(Object.keys(AH_KINDS).map(k => [k, AH_KINDS[k].icon + " " + AH_KINDS[k].label, AH_KINDS[k].color])).map(([k, l, c]) => '<button data-a="ahsrc" data-v="' + k + '"' + ((UI.ahSrc || "all") === k ? ' style="border-color:' + c + ";color:" + c + '"' : "") + ">" + l + "</button>").join("") + (online ? '<button data-a="pmrefresh" style="padding:0 8px" title="Refresh player lots">🔄</button>' : "") + (online && online.err ? '<span class="sub" style="color:#ff8a80">' + esc(online.err) + "</span>" : "") + "</div>";
-  if (view === "buy") h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">' + Object.keys(AH_CATS).map(k => '<button data-a="ahcat" data-v="' + k + '"' + (cat === k ? ' style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + AH_CATS[k] + (news.up === k ? " ▲" : news.down === k ? " ▼" : "") + "</button>").join("") + "</div>";
+  if (view === "buy") h += '<div class="ahBar"><span class="lbl">Source</span>' + [["all", "All", "#c9a227"]].concat(Object.keys(AH_KINDS).map(k => [k, AH_KINDS[k].icon + " " + AH_KINDS[k].label, AH_KINDS[k].color])).map(([k, l, c]) => '<button data-a="ahsrc" data-v="' + k + '"' + ((UI.ahSrc || "all") === k ? ' style="border-color:' + c + ";color:" + c + '"' : "") + ">" + l + "</button>").join("") + (online ? '<button data-a="pmrefresh" style="padding:0 8px" title="Refresh player lots">🔄</button>' : "") + (online && online.err ? '<span class="sub" style="color:#ff8a80">' + esc(online.err) + "</span>" : "") + "</div>";
+  if (view === "buy") h += '<div class="ahBar"><span class="lbl">Type</span>' + Object.keys(AH_CATS).map(k => '<button data-a="ahcat" data-v="' + k + '"' + (cat === k ? ' style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + AH_CATS[k] + (news.up === k ? " ▲" : news.down === k ? " ▼" : "") + "</button>").join("") + "</div>";
   if (UI.ahSel && ITEMS[UI.ahSel]) h += ahDetail(UI.ahSel);
   const src = UI.ahSrc || "all", lineCache = {};
   const linesOf = id => lineCache[id] || (lineCache[id] = marketLines(id, olist).filter(l => src === "all" || l.kind === src));
   const ids = view === "buy" ? Object.keys(ITEMS).filter(id => ahTradable(id) && ahCategory(id) === cat && marketItems(olist).has(id) && linesOf(id).length).sort((a, b) => (ITEMS[a].lv || 0) - (ITEMS[b].lv || 0) || ITEMS[a].price - ITEMS[b].price) : [...new Set(save.inventory.map(s => s.id))].filter(ahTradable);
   if (!ids.length) h += '<div class="sub">' + (view === "sell" ? "Nothing in your bag can be sold at auction. Rare and Ex items, key items and furniture can't be listed." : "Nothing here right now.") + "</div>";
+  let rows = "";
   for (const id of ids) {
     const it = ITEMS[id];
-    h += '<div class="item ' + rarityOf(id) + '" data-a="ahsel" data-v="' + id + '" data-hv="' + id + '" style="cursor:pointer' + (UI.ahSel === id ? ";border-color:#c9a227" : "") + '"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + (it.lv ? "Lv." + it.lv + " · " : "") + (view === "sell" ? "you have " + invCount(id) : Object.keys(AH_KINDS).map(k => { const n = linesOf(id).filter(l => l.kind === k).reduce((x, l) => x + l.qty, 0); return n ? '<span style="color:' + AH_KINDS[k].color + '">' + AH_KINDS[k].icon + " " + n + "</span>" : ""; }).filter(Boolean).join(" · ")) + '</div></div><span>' + (view === "sell" ? marketPrice(id) : Math.round(linesOf(id)[0].unit)) + " 💠 " + ahTrend(id) + "</span></div>";
+    const srcTxt = view === "sell" ? "you have " + invCount(id) : Object.keys(AH_KINDS).map(k => { const n = linesOf(id).filter(l => l.kind === k).reduce((x, l) => x + l.qty, 0); return n ? '<span style="color:' + AH_KINDS[k].color + '">' + AH_KINDS[k].icon + " " + n + "</span>" : ""; }).filter(Boolean).join(" ");
+    rows += '<div class="ahRow ' + rarityOf(id) + (UI.ahSel === id ? " on" : "") + '" data-a="ahsel" data-v="' + id + '" data-hv="' + id + '"><span class="nm">' + (it.icon || "") + " <b>" + esc(it.name) + '</b></span><span class="lv">' + (it.lv || "–") + '</span><span class="sr src">' + srcTxt + '</span><span class="pr">' + (view === "sell" ? marketPrice(id) : Math.round(linesOf(id)[0].unit)) + " 💠 " + ahTrend(id) + "</span></div>";
   }
+  if (rows) h += '<div class="ahBox"><div class="ahHead"><span>Item</span><span class="lv">Lv</span><span class="sr">' + (view === "sell" ? "Bag" : "For sale") + '</span><span class="pr" style="text-align:right">Price</span></div>' + rows + "</div>";
   return h;
 }
 
@@ -1693,6 +1699,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.71.0", date: "2026-10-18", title: "Auction house and menu tidy", items: [
+    "<b>Ashenreach auction house moved onto the market plaza:</b> it now faces the home point crystal, reached by a path from the main road, instead of facing the city wall. The clerk stands at its door.",
+    "<b>Easier to spot:</b> the Auction House sign is larger, with a gold banner on the roof, in all three towns.",
+    "<b>Auction menu on one line per row:</b> every item and every listing is one row (name, level, stock, price) under a column header, with View, Source and Type filter bars.",
+    "<b>My lots</b> rows are one line each too: item, price, time left, Withdraw.",
+    "<b>Spell, ability and item lists</b> opened from a target now use the same blue window and highlight as the main menu lists."
+  ] },
   { v: "18.70.0", date: "2026-10-18", title: "Tidy town and slower fights", items: [
     "<b>Whole numbers:</b> heals, drains, potions and other restored amounts are rounded to whole numbers.",
     "<b>Slightly slower combat:</b> everyone swings about 15% less often, so fights last a little longer. Damage per hit is unchanged.",
@@ -3540,7 +3553,7 @@ function tabHelp() {
   ]));
   h += sec("⚖️ Auction house", ul([
     "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
-    "Walk up to the <b>Auction Clerk</b>, who stands against the front wall of the auction building in Ashenreach, Saltreach and Ironvale, and press Talk. Every town has its own auction house.",
+    "Walk up to the <b>Auction Clerk</b>, who stands at the door of the Auction House (a pillared building with a gold banner) in Ashenreach, Saltreach and Ironvale, and press Talk. In Ashenreach it is on the market plaza next to the home point crystal. Every town has its own auction house.",
     "<b>One list.</b> The Buy view shows every seller together: 🏛 towns in gold, 👤 players in green and ⚔ mercenaries in violet. Use Show to filter, and open an item to see all sellers sorted by price. Hover a mercenary's name to see whose it is.",
     "<b>Towns buy too.</b> Every 20 minutes of play, each town buys one lot from the market. It buys your own lots first (paying you at once), then your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. About a quarter of what a town buys it puts back up under its own name at 3% more.",
     "<b>Online, the market is shared.</b> When you play online, your companions' sell-offs go to the shared market under their names (up to 300 lots per player, no expiry, priced at each item's usual value), and every player sees them. The towns buy on real time there: every 20 minutes each town buys one lot, players' lots first and companions' lots after, taking turns between sellers. Crystals from these sales go to your player delivery box. A town's relisted lots show under its name and anyone can buy them.",

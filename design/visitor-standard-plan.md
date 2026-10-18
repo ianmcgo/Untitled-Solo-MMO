@@ -10,4 +10,4 @@ Plan:
 3. Look: keep the game's blue window theme. Override package colors in the vg- and vc- CSS (cyan 7ff9ff, magenta da70d6, gold ffd24a, near black 05050f) with the game's variables; panel stays where the Visitors box is now (hide .vc-panel, call open from the box).
 4. Size: package JS is 168 KB, CSS 27 KB, flag font 105 KB optional; check npm run check budget, lazy-load on first click if the budget is tight.
 5. Remove old code (visitors.js, ln_* client calls); update Help, Updates, design.md; tests; version bump.
-Open questions: lazy-load vs bundled; include flag font (flags otherwise show as letters on Windows).
+Decided: include the flag font and all package features.

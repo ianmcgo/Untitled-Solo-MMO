@@ -2254,3 +2254,9 @@ Auction: auction_<town> is an NPC (model auction_clerk, talk talkAuction, work p
 Vendors: VENDOR_TOWNS.at order armorer, weaponsmith, tradesman, quartermaster, spellsmith, jeweler, spread by district.
 Party UI: Party tab removed (TAB_ALIAS party to social). tabSocial prepends tabParty (companion sheet, stance, wages) and works offline. Party row click: setTarget plus tgtCmdOpen; allies (kind ally in S.party) get root items Magic, Companion (key details opens Social with mercSheet), Check, Cancel.
 Swipe: document touchstart/touchend in hud4 init; from right 36 px edge, dx at least 70 left within 700 ms opens mainCmdOpen; swipe right closes root menu.
+
+## 18.71.0 Auction house and menu tidy
+Outpost auction building moved to (860,565) facing the market plaza (front y 610, clerk auction_outpost at 894,626); lamp (880,640) moved to (945,650); path (880,732)-(894,640) links it to the main road. Earlier spot (690,975) faced the y=1060 district wall: never place a south-facing front within a wall's 120 px.
+Auction type: CITY_TYPES.auction has flag true and data rects carry flag #c9a227; front sign scale up to 2.1 and side sign 1.6 for type auction (world3d buildCityBuildings).
+Auction tab: .ahBar filter rows, .ahBox with .ahHead and .ahRow (name, Lv, source counts, price), listing rows .ahLine (seller, amount, each, controls); My lots rows reuse .ahLine. Mobile (max 720 px) drops the source and each columns.
+Target command list (#tCmd.list): menu window gradient with stripe, rows like inventory cells, selection is the blue highlight with white outline.
