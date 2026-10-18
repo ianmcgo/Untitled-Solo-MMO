@@ -13,8 +13,8 @@ const TAB_INFO = {
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
   party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], database: ["Database", "📚", "Y"], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], achievements: ["Achievements", "🏆", "O"]
 };
-const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "party", "social", "craft", "quests", "database", "achievements", "map", "settings"];
-const TAB_ALIAS = { items: "inventory", status: "character", equip: "character" };
+const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "social", "craft", "quests", "database", "achievements", "map", "settings"];
+const TAB_ALIAS = { party: "social", items: "inventory", status: "character", equip: "character" };
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -400,8 +400,7 @@ function buildParty() {
     if (p.kind === "netmember") row.classList.add("net");
     row.onclick = () => {
       sfx("select");
-      if (p.mercId && MERCS[p.mercId]) { setTarget(p); UI.mercSheet = p.mercId; openMenu("party"); return; }
-      if (p.kind !== "netmember") { setTarget(p); return; }
+      if (p.kind !== "netmember") { setTarget(p); tgtCmdOpen(p); return; }
       const o = S.others && S.others.get(p.id);
       if (o) { setTarget(o); tgtCmdOpen(o); } else log(p.name + " is in " + (ZONES[p.zone] ? ZONES[p.zone].name : "another area") + ".", "sys");
     };
@@ -783,7 +782,7 @@ function tgtActPress() {
 }
 
 function tgtCmdOpen(t) {
-  if (!t || (!isMob(t) && t.kind !== "remote" && t !== player) || (isMob(t) && !t.alive)) { tgtCmdClose(); return; }
+  if (!t || (!isMob(t) && t.kind !== "remote" && t !== player && !(t.kind === "ally" && S.party.includes(t))) || (isMob(t) && !t.alive)) { tgtCmdClose(); return; }
   UI.cmd = { t, page: "root", info: "", sel: 0 };
   renderTgtCmd();
 }
@@ -811,7 +810,7 @@ function cmdHelpOf(a) {
 }
 
 function cmdItems(c) {
-  const t = c.t, mob = isMob(t), self = t === player, mate = t.kind === "remote" && isMate(t);
+  const t = c.t, mob = isMob(t), self = t === player, mate = t.kind === "remote" && isMate(t), ally = !mob && !self && t.kind === "ally";
   const it = (key, label, help, o) => Object.assign({ key, label, help }, o || {});
   if (c.page === "root") {
     if (mob) {
@@ -819,6 +818,7 @@ function cmdItems(c) {
       return [eng ? it("disengage", "Disengage", "Stop auto-attack and let go of the target.") : it("attack", "Attack", "Start auto-attack."), it("switch", "Switch Target", "Target the next enemy nearby."), it("ma", "Magic", "Cast a spell on the target.", { arrow: true }), it("ja", "Abilities", "Use a job ability or weapon skill.", { arrow: true }), it("items", "Items", "Use an item from your bag.", { arrow: true }), it("check", "Check", "Size up how strong the target is.")];
     }
     if (self) return [it("ma", "Magic", "Cast a spell on yourself or your party.", { arrow: true }), it("ja", "Abilities", "Use a job ability.", { arrow: true }), it("items", "Items", "Use an item from your bag.", { arrow: true }), it("rest", player.resting ? "Stand" : "Heal", player.resting ? "Stand up." : "Sit and recover HP and MP quickly."), it("menu", "Main Menu", "Open the main menu."), it("chat", "Chat", "Show the event log and type a message."), it("close", "Cancel", "Close this menu.")];
+    if (ally) return [it("ma", "Magic", "Cast a spell on your companion.", { arrow: true }), it("details", "Companion", "Open this companion's stance, gear, contract and bag in the Social menu."), it("check", "Check", "See this companion's job and level."), it("close", "Cancel", "Close this menu.")];
     return [mate ? it("ma", "Magic", "Cast a spell on your party member.", { arrow: true }) : it("invite", "Invite", "Invite this player to your party."), it("trade", "Trade", "Ask this player to trade."), it("tell", "Tell", "Send this player a private message."), it("check", "Check", "See this player's job and level."), it("close", "Cancel", "Close this menu.")];
   }
   let acts = [];
@@ -903,6 +903,7 @@ function onTgtCmd(idx) {
   if (key === "close" || key === "none") { tgtCmdClose(); return; }
   if (key === "back") { c.page = "root"; c.sel = 0; renderTgtCmd(); return; }
   if (key === "ma" || key === "ja" || key === "items") { c.page = key; c.sel = 0; renderTgtCmd(); return; }
+  if (key === "check" && t.kind === "ally") { log(t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + ".", "sys"); tgtCmdClose(); return; }
   if (key === "check") { const info = t.kind === "remote" ? t.name + " · " + (JOBS[t.job] ? JOBS[t.job].name : "?") + " " + t.lv + (t.sub && JOBS[t.sub] ? " / " + JOBS[t.sub].name : "") + "." : inspectText(t); log((t.kind === "remote" ? "" : "The " + t.name + ": ") + info, "sys"); c.info = null; renderTgtCmd(); return; }
   if (key === "attack") { player.target = t; toggleEngage(true); tgtCmdClose(); return; }
   if (key === "disengage") { if (player.engaged) toggleEngage(false); player.engaged = false; player.attackTarget = null; S.chase = false; player.target = null; tgtCmdClose(); return; }
@@ -910,6 +911,7 @@ function onTgtCmd(idx) {
   if (key === "rest") { tgtCmdClose(); toggleRest(); return; }
   if (key === "menu") { tgtCmdClose(); mainCmdOpen(); return; }
   if (key === "chat") { tgtCmdClose(); openChatInput(""); return; }
+  if (key === "details") { tgtCmdClose(); if (t.mercId) UI.mercSheet = t.mercId; openMenu("social"); return; }
   if (key === "invite") { netPartyInvite(t.name); tgtCmdClose(); return; }
   if (key === "trade") { netTradeAsk(t.name); tgtCmdClose(); return; }
   if (key === "tell") { tgtCmdClose(); const inp = $("chatIn"); if (inp) { inp.value = "/t " + t.name + " "; inp.focus(); } return; }
@@ -1129,6 +1131,19 @@ function initHud() {
     if (S.modal && !t.closest("#menu .win, #mCard, #mCmd, #timeBox")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
     if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv, #timeBox")) mainCmdClose();
   }, true);
+  let sw = null;
+  document.addEventListener("touchstart", e => {
+    const t = e.touches[0];
+    sw = e.touches.length === 1 && UI.started ? { x: t.clientX, y: t.clientY, at: performance.now(), edge: t.clientX >= window.innerWidth - 36, onMenu: !!e.target.closest("#mCmd") } : null;
+  }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if (!sw) return;
+    const t = e.changedTouches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y, s0 = sw;
+    sw = null;
+    if (performance.now() - s0.at > 700 || Math.abs(dy) > 70 || Math.abs(dx) < 70 || S.dialog || UI.confirmOpen) return;
+    if (dx < 0 && s0.edge && !S.modal && !UI.mm) mainCmdOpen();
+    else if (dx > 0 && UI.mm && !UI.mm.sub && (s0.onMenu || s0.x > window.innerWidth * 0.5)) mainCmdClose();
+  }, { passive: true });
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
   $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
   const tapType = e => { if (!matchMedia("(pointer: coarse)").matches || S.modal || e.target.closest("#chatTabs, #chatIn")) return; e.preventDefault(); e.stopPropagation(); openChatInput(""); };
@@ -1325,7 +1340,7 @@ function chatToggle(force) {
 }
 
 const MAIN_CMDS = [
-  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Social", "social", "Who is online, friends, linkshells, party search and the blacklist."], ["Map", "map", "View the map of this area."], ["Pets", "pets", "Summon, dismiss, choose and name your pets."]],
+  [["Status", "character", "View your job, levels, HP/MP/TP, attributes and experience."], ["Equipment", "equipment", "Equip weapons and armor."], ["Magic", "magic", "View the spells you know by type and cast them."], ["Items", "inventory", "View, use and sort the items in your bag."], ["Crafting", "craft", "Combine an essence and ingredients to craft something."], ["Abilities", "abilities", "View and use job abilities and weapon skills."], ["Social", "social", "Your party and companions, who is online, friends, linkshells, party search and the blacklist."], ["Map", "map", "View the map of this area."], ["Pets", "pets", "Summon, dismiss, choose and name your pets."]],
   [["Quests", "quests", "Your story chapter and current and finished quests."], ["View House", "storage", "Look at what's kept in your residence storage."], ["Database", "database", "Everything you've owned, learned, met and visited: items, gear, magic, abilities, jobs, people, places and creatures."], ["Achievements", "achievements", "Your achievements."], ["Hotkeys", "actions", "Set what the number keys do."], ["Config", "settings", "Change the game's options."], ["Guide", "help", "A guide to every function in the game."], ["Updates", "updates", "What's new in each version."], ["Time", "@time", "Check the time, or wait in town for hours to pass."], ["Log Out", "@logout", "Return to the character selection screen."]]
 ];
 

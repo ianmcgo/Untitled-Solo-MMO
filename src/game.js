@@ -1267,7 +1267,7 @@ function mobUseAbility(m) {
     sfx("buff", m);
     return true;
   }
-  if (MOB_ABIL_HEALS[id]) { const amt = Math.min(m.maxHp - m.hp, Math.round(m.maxHp * MOB_ABIL_HEALS[id])); m.hp += amt; popText(m, "+" + amt, "#9ad06b", 16); sfx("cure", m); }
+  if (MOB_ABIL_HEALS[id]) { const amt = Math.round(Math.min(m.maxHp - m.hp, m.maxHp * MOB_ABIL_HEALS[id])); m.hp += amt; popText(m, "+" + amt, "#9ad06b", 16); sfx("cure", m); }
   else { m.buffs[ab.buff] = { until: S.time + (ab.dur || 30), src: m }; sfx("buff", m); }
   return true;
 }
@@ -1376,7 +1376,7 @@ function addEnmity(m, e, amt) {
   m.enmity.set(e, (m.enmity.get(e) || 0) + amt);
 }
 
-function swingDelay(e) { return e.delay * (e.buffs && e.buffs.slow ? 1 + (e.buffs.slow.pow != null ? e.buffs.slow.pow : 0.25) : 1) * (e.buffs && e.buffs.march ? 1 - e.buffs.march.pow : 1); }
+function swingDelay(e) { return CONFIG.combatPace * e.delay * (e.buffs && e.buffs.slow ? 1 + (e.buffs.slow.pow != null ? e.buffs.slow.pow : 0.25) : 1) * (e.buffs && e.buffs.march ? 1 - e.buffs.march.pow : 1); }
 
 function topEnmity(m) {
   let best = null, bv = -1;
@@ -1550,7 +1550,7 @@ function swing(a, d) {
       if (sp.spikes.para && a.alive && Math.random() < sp.spikes.para && !a.buffs.paralyze) a.buffs.paralyze = { until: S.time + 10, src: d, pow: 0.15 };
     }
   }
-  if (b.blood_blade && a.alive) { const heal = Math.min(a.maxHp - a.hp, Math.floor(dmg * 0.4)); if (heal > 0) { a.hp += heal; popText(a, "+" + heal, "#9ad06b", 13, 0.8); } }
+  if (b.blood_blade && a.alive) { const heal = Math.round(Math.min(a.maxHp - a.hp, dmg * 0.4)); if (heal > 0) { a.hp += heal; popText(a, "+" + heal, "#9ad06b", 13, 0.8); } }
   if (a.job === "MNK" && a.stats.wtype === "h2h" && d.alive && !a.kicking && Math.random() < 0.14) {
     a.kicking = true;
     log(subj(a) + " " + vb(a, "follow") + " up with a kick!", cls(a));
@@ -2910,7 +2910,7 @@ function doAbility(a, id, t) {
   }
   if (id === "siphon") {
     if (!S.pet || !S.pet.alive) { log("You need a sprite out to siphon from.", "sys"); a.recasts["ja:" + id] = 0; sfx("error"); return; }
-    const gain = Math.min(a.maxMp - a.mp, 20 + a.lv * 3);
+    const gain = Math.round(Math.min(a.maxMp - a.mp, 20 + a.lv * 3));
     a.mp += gain;
     log(subj(a) + " " + vb(a, "draw") + " " + gain + " MP from the " + S.pet.name + ".", cls(a));
     popText(a, "+" + gain + " MP", "#64b5f6", 14, 1);
@@ -2940,7 +2940,7 @@ function doAbility(a, id, t) {
     return;
   }
   if (id === "chakra") {
-    const heal = Math.min(a.maxHp - a.hp, Math.round(a.stats.vit * 3 + a.lv * 8));
+    const heal = Math.round(Math.min(a.maxHp - a.hp, a.stats.vit * 3 + a.lv * 8));
     a.hp += heal;
     log(subj(a) + " " + vb(a, "use") + " Chakra and " + vb(a, "recover", "recovers") + " " + heal + " HP.", cls(a));
     popText(a, heal > 0 ? "+" + heal : "No effect", heal > 0 ? "#9ad06b" : "#bbbbbb", 16, 1.2, 14);
@@ -2955,7 +2955,7 @@ function doAbility(a, id, t) {
   if (id === "full_circle" || id === "mending_halation") {
     if (!a.luopan) { log("You have no luopan out.", "sys"); a.recasts["ja:" + id] = 0; return; }
     if (id === "full_circle") { const back = Math.floor(a.luopan.mp / 2); a.mp = Math.min(a.maxMp, a.mp + back); log(subj(a) + " " + vb(a, "dismiss", "dismisses") + " the luopan and " + vb(a, "recover", "recovers") + " " + back + " MP.", cls(a)); }
-    else { for (const p of S.party) if (p.alive && dist(p, a) < 300) { const h = Math.min(p.maxHp - p.hp, Math.round(p.maxHp * 0.2)); p.hp += h; popText(p, "+" + h, "#9ad06b", 14, 1); vfx("cure", { tgt: p }); } log(subj(a) + " " + vb(a, "shatter") + " the luopan in a wave of healing light.", cls(a)); sfx("cure", a); }
+    else { for (const p of S.party) if (p.alive && dist(p, a) < 300) { const h = Math.round(Math.min(p.maxHp - p.hp, p.maxHp * 0.2)); p.hp += h; popText(p, "+" + h, "#9ad06b", 14, 1); vfx("cure", { tgt: p }); } log(subj(a) + " " + vb(a, "shatter") + " the luopan in a wave of healing light.", cls(a)); sfx("cure", a); }
     a.luopan = null;
     return;
   }
@@ -2985,7 +2985,7 @@ function doAbility(a, id, t) {
   if (id === "repair" || id === "tune_up") {
     const pet = S.pet;
     if (!pet || !pet.automaton || !pet.alive) { log("You have no automaton out.", "sys"); a.recasts["ja:" + id] = 0; return; }
-    if (id === "repair") { const heal = Math.min(pet.maxHp - pet.hp, Math.round(pet.maxHp * 0.5)); pet.hp += heal; log("You repair your automaton. It recovers " + heal + " HP.", "you"); popText(pet, "+" + heal, "#9ad06b", 15, 1.1); sfx("equip", pet); }
+    if (id === "repair") { const heal = Math.round(Math.min(pet.maxHp - pet.hp, pet.maxHp * 0.5)); pet.hp += heal; log("You repair your automaton. It recovers " + heal + " HP.", "you"); popText(pet, "+" + heal, "#9ad06b", 15, 1.1); sfx("equip", pet); }
     else { pet.buffs.warcry = { until: S.time + 60 }; log("You tune up your automaton. Its attack rises!", "you"); popText(pet, "Tune Up", "#ab47bc", 14, 1.1); ring(pet, "#ab47bc", 26, 0.5); sfx("buff", pet); }
     return;
   }
@@ -2993,7 +2993,7 @@ function doAbility(a, id, t) {
     const near = S.party.filter(p => p.alive && dist(p, a) < 300);
     const tgts = id === "group_waltz" ? near : [near.slice().sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0] || a];
     const amt = Math.round(a.lv * 9 + a.stats.mnd * 2 + a.stats.agi);
-    for (const p of tgts) { const h = Math.min(p.maxHp - p.hp, id === "group_waltz" ? Math.round(amt * 0.7) : amt); p.hp += h; popText(p, "+" + h, "#9ad06b", 15, 1.1); vfx("cure", { tgt: p }); }
+    for (const p of tgts) { const h = Math.round(Math.min(p.maxHp - p.hp, id === "group_waltz" ? amt * 0.7 : amt)); p.hp += h; popText(p, "+" + h, "#9ad06b", 15, 1.1); vfx("cure", { tgt: p }); }
     log(subj(a) + " " + vb(a, "dance", "dances") + " " + ab.name + (tgts.length === 1 && tgts[0] !== a ? " for " + tgts[0].name : "") + ".", cls(a));
     sfx("cure", a);
     return;
@@ -3026,7 +3026,7 @@ function doAbility(a, id, t) {
   if (id === "reward") {
     const pet = S.pet;
     if (!pet || !pet.beast || !pet.alive) { log("You have no beast to reward.", "sys"); a.recasts["ja:" + id] = 0; return; }
-    const heal = Math.min(pet.maxHp - pet.hp, Math.round(pet.maxHp * 0.4));
+    const heal = Math.round(Math.min(pet.maxHp - pet.hp, pet.maxHp * 0.4));
     pet.hp += heal;
     log("You give your " + pet.name + " a treat. It recovers " + heal + " HP.", "you");
     popText(pet, "+" + heal, "#9ad06b", 15, 1.1); vfx("cure", { tgt: pet }); sfx("cure", pet);
@@ -3171,12 +3171,12 @@ function healAmount(a, sp) {
 }
 
 function castHeal(a, t, sp) {
-  const amt = healAmount(a, sp);
+  const amt = Math.round(healAmount(a, sp));
   const group = sp.aoe ? S.party.filter(p => p.alive && dist(p, t) <= sp.aoe) : [t];
   const parts = [];
   let total = 0;
   for (const g of group) {
-    const real = Math.max(0, Math.min(amt, g.maxHp - g.hp));
+    const real = Math.max(0, Math.round(Math.min(amt, g.maxHp - g.hp)));
     g.hp += real;
     total += real;
     parts.push(subj(g) + " " + vb(g, "recover") + " " + real + " HP");
@@ -3284,7 +3284,7 @@ function castDrain(a, t, sp) {
   sfx("cast", t);
   vfx("nuke", { src: t, tgt: a, el: "dark", dia: true });
   if (mp) {
-    const real = Math.min(amt, a.maxMp - a.mp);
+    const real = Math.round(Math.min(amt, a.maxMp - a.mp));
     a.mp += real;
     log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " and " + vb(a, "draw") + " " + real + " MP from the " + t.name + ".", cls(a));
     popText(a, "+" + real + " MP", "#64b5f6", 14, 1);
@@ -3295,7 +3295,7 @@ function castDrain(a, t, sp) {
   const dealt = Math.min(amt, t.hp);
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " loses " + dealt + " HP" + (resist < 1 ? " (resisted)" : "") + ".", cls(a));
   applyDamage(a, t, amt, { color: ELEMENT_COLORS.dark, size: 18, enmity: 80 + amt });
-  const heal = Math.min(dealt, a.maxHp - a.hp);
+  const heal = Math.round(Math.min(dealt, a.maxHp - a.hp));
   if (heal > 0) { a.hp += heal; popText(a, "+" + heal, "#9ad06b", 16); }
 }
 
@@ -3458,13 +3458,13 @@ function useItem(id) {
   if (!hpGain && !mpGain) return;
   if ((!hpGain || player.hp >= player.maxHp) && (!mpGain || player.mp >= player.maxMp)) { log(hpGain && mpGain ? "Your HP and MP are already full." : hpGain ? "Your HP is already full." : "Your MP is already full.", "sys"); sfx("error"); return; }
   if (hpGain) {
-    const real = Math.min(hpGain, player.maxHp - player.hp);
+    const real = Math.round(Math.min(hpGain, player.maxHp - player.hp));
     player.hp += real;
     popText(player, "+" + real, "#9ad06b", 18);
     log("You use " + an(it.name) + " and recover " + real + " HP.", "you");
   }
   if (mpGain) {
-    const real = Math.min(mpGain, player.maxMp - player.mp);
+    const real = Math.round(Math.min(mpGain, player.maxMp - player.mp));
     player.mp += real;
     popText(player, "+" + real + " MP", "#64b5f6", 16, 1, hpGain ? 20 : 0);
     log("You use " + an(it.name) + " and recover " + real + " MP.", "you");
@@ -3486,7 +3486,7 @@ function tickBuffs(e) {
     if ((id === "paeon" || id === "ballad") && S.time >= b.next && e.alive) {
       b.next += 3;
       const amt = b.flat ? Math.round(b.pow) : Math.round(b.pow * (1 + e.lv / 5));
-      if (id === "paeon") { const r = Math.min(amt, e.maxHp - e.hp); e.hp += r; }
+      if (id === "paeon") { e.hp += Math.min(amt, e.maxHp - e.hp); }
       else { const r = Math.min(Math.ceil(amt / 2), e.maxMp - e.mp); e.mp += r; }
     }
     if (S.time >= b.until) {
@@ -3885,7 +3885,7 @@ function finishMobCast(m) {
   const dmg = Math.floor(baseDmg(m, t) * spec.mul * rand(0.9, 1.1));
   log(subj(t) + " " + vb(t, "take") + " " + dmg + " damage.", "foe");
   applyDamage(m, t, dmg, { color: ELEMENT_COLORS[sp.element], size: 20, el: sp.element });
-  if (spec.drain && m.alive) { const heal = Math.min(dmg, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
+  if (spec.drain && m.alive) { const heal = Math.round(Math.min(dmg, m.maxHp - m.hp)); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
 }
 
 function execTpMove(m) {
@@ -3911,7 +3911,7 @@ function execTpMove(m) {
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
     if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player && !(tg.buffs.barsleep && Math.random() < tg.buffs.barsleep.pow)) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
     if (mv.status && tg.alive) inflictStatus(m, tg, mv.status[0], mv.status[1], mv.status[2]);
-    if (mv.drain && m.alive) { const heal = Math.min(total, m.maxHp - m.hp); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
+    if (mv.drain && m.alive) { const heal = Math.round(Math.min(total, m.maxHp - m.hp)); m.hp += heal; if (heal > 0) popText(m, "+" + heal, "#9ad06b", 16); }
   }
   if (mv.explode && m.alive && !m.proxy) { m.hp = 0; onKO(m, m); }
   S.shake = Math.max(S.shake, 0.2);

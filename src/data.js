@@ -22,6 +22,7 @@ const CONFIG = {
   meleeRange: 42,
   tpMax: 3000,
   tpPerDelay: 40,
+  combatPace: 1.15,
   hitCap: 95,
   hitFloor: 20,
   critPct: 5,
@@ -993,11 +994,11 @@ const ZONES = {
     npcs: [
       { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 18, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
       { id: "crystal_town", x: 1000, y: 760 }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
-      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "auction_outpost", x: 840, y: 900 },
+      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "auction_outpost", x: 724, y: 1036 },
       { id: "garrick", x: 820, y: 1205, home: 7, sleep: [22, 6.5] },
       { id: "ysolde", x: 1700, y: 960, home: 16, sleep: [19.5, 5.5] }, { id: "guard_east", x: 1790, y: 690 }
     ],
-    props: [{ type: "anvil", x: 750, y: 1190, rot: 0.2, r: 26 }, { type: "desk", x: 930, y: 336, r: 22 }, { type: "desk", x: 840, y: 936, r: 22 }, { type: "barrels", x: 900, y: 1150, rot: 1.2, r: 26 }, { type: "crates", x: 920, y: 1215, rot: 0.4, r: 26 }, { type: "barrels", x: 1820, y: 1120, rot: 0.3, r: 26 }],
+    props: [{ type: "anvil", x: 750, y: 1190, rot: 0.2, r: 26 }, { type: "desk", x: 930, y: 336, r: 22 }, { type: "barrels", x: 900, y: 1150, rot: 1.2, r: 26 }, { type: "crates", x: 920, y: 1215, rot: 0.4, r: 26 }, { type: "barrels", x: 1820, y: 1120, rot: 0.3, r: 26 }],
     ambient: [{ type: "chicken", x: 160, y: 1300, n: 4, r: 70 }, { type: "dog", x: 1000, y: 760, n: 1, r: 140, col: 0x8a6a4a }, { type: "cat", x: 420, y: 300, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 1000, y: 760, n: 1, path: [[860, 640], [1140, 640], [1140, 880], [860, 880]] }],
     spawns: [],
     water: [{ x: 440, y: 1180, r: 70 }],
@@ -1193,11 +1194,11 @@ ZONES.harbor = {
   cityWalls: [[620, 24, 620, 980], [1180, 24, 1180, 980], [24, 980, 1776, 980]],
   gates: [{ x: 620, y: 500, a: "fish", b: "square" }, { x: 1180, y: 500, a: "square", b: "yard" }, { x: 320, y: 980, a: "fish", b: "docks", horiz: true }, { x: 900, y: 980, a: "square", b: "docks", horiz: true }, { x: 1480, y: 980, a: "yard", b: "docks", horiz: true }],
   exits: [{ x: 850, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }, { x: 1776, y: 450, w: 24, h: 100, to: "frost", tx: 110, ty: 1200, label: "Frostspire Pass" }],
-  props: [{ type: "crates", x: 420, y: 1030, r: 30 }, { type: "desk", x: 1000, y: 445, r: 22 }, { type: "barrels", x: 1120, y: 1030, r: 26 }, { type: "crates", x: 1560, y: 1035, r: 30 }],
+  props: [{ type: "crates", x: 420, y: 1030, r: 30 }, { type: "barrels", x: 1120, y: 1030, r: 26 }, { type: "crates", x: 1560, y: 1035, r: 30 }],
   ambient: [{ type: "gull", x: 900, y: 1080, n: 6, r: 300 }, { type: "cat", x: 300, y: 600, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 900, y: 560, n: 1, path: [[800, 460], [1000, 460], [1000, 660], [800, 660]] }, { type: "walker", x: 900, y: 1035, n: 1, path: [[200, 1035], [1600, 1035]] }],
   npcs: [
     { id: "ilsa", x: 820, y: 400, home: 0, sleep: [22, 6] }, { id: "marn", x: 300, y: 430, home: 7, sleep: [20.5, 4.5] },
-    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "auction_harbor", x: 1000, y: 410 }, { id: "job_harbor", x: 1200, y: 560 }, { id: "stable_harbor", x: 1500, y: 640 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
+    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "auction_harbor", x: 1088, y: 366 }, { id: "job_harbor", x: 1200, y: 560 }, { id: "stable_harbor", x: 1500, y: 640 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1520, r: 430 }, { x: 900, y: 1540, r: 440 }, { x: 1500, y: 1520, r: 430 }],
@@ -1478,10 +1479,10 @@ ZONES.ironvale = {
     { x: 900, y: 360, a: "keep", b: "market", horiz: true }, { x: 900, y: 1000, a: "market", b: "south", horiz: true }
   ],
   exits: [{ x: 0, y: 650, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }, { x: 850, y: 1376, w: 100, h: 24, to: "sunscar", tx: 1500, ty: 120, label: "Sunscar Desert" }],
-  props: [{ type: "crates", x: 1460, y: 860, r: 30 }, { type: "barrels", x: 1460, y: 300, r: 26 }, { type: "desk", x: 760, y: 655, r: 22 }, { type: "anvil", x: 1520, y: 590, rot: 0.3, r: 26 }],
+  props: [{ type: "crates", x: 1460, y: 860, r: 30 }, { type: "barrels", x: 1460, y: 300, r: 26 }, { type: "anvil", x: 1520, y: 590, rot: 0.3, r: 26 }],
   ambient: [{ type: "walker", x: 900, y: 680, n: 1, path: [[780, 560], [1020, 560], [1020, 800], [780, 800]] }, { type: "walker", x: 1380, y: 700, n: 1, path: [[1380, 150], [1380, 1250]] }, { type: "dog", x: 900, y: 680, n: 1, r: 120, col: 0x5a4a3a }],
   npcs: [
-    { id: "brisa", x: 1000, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "auction_ironvale", x: 700, y: 560 }, { id: "job_ironvale", x: 820, y: 560 }, { id: "stable_ironvale", x: 1350, y: 760 },
+    { id: "brisa", x: 1000, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "auction_ironvale", x: 726, y: 531 }, { id: "job_ironvale", x: 820, y: 560 }, { id: "stable_ironvale", x: 1350, y: 760 },
     { id: "crystal_ironvale", x: 900, y: 680 }, { id: "trade_board", x: 1040, y: 560 }, { id: "guard_ironvale", x: 150, y: 650 }
   ],
   spawns: [],
@@ -2381,9 +2382,9 @@ const VENDOR_SOURCE_JEWEL = VENDOR_SOURCE.concat(SHOPS.vela.filter(id => ITEMS[i
 const VENDOR_POOL = {};
 for (const r in VENDOR_ROLES) VENDOR_POOL[r] = (r === "jeweler" ? VENDOR_SOURCE_JEWEL : VENDOR_SOURCE).filter(id => (ITEMS[id].lv || 0) <= (r === "jeweler" ? VENDOR_JEWEL_MAXLV : VENDOR_MAXLV) && VENDOR_ROLES[r].test(ITEMS[id]));
 const VENDOR_TOWNS = {
-  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, at: [[700, 705], [775, 705], [850, 705], [700, 770], [775, 770], [850, 770]] },
-  harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, at: [[700, 765], [780, 765], [860, 765], [940, 765], [1020, 765], [1100, 765]] },
-  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, at: [[1110, 620], [1170, 620], [1230, 620], [1110, 685], [1170, 685], [1230, 685]] }
+  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, at: [[880, 1010], [1340, 1010], [800, 840], [1340, 850], [880, 520], [1090, 1010]] },
+  harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, at: [[1330, 560], [1620, 520], [430, 600], [230, 620], [700, 700], [1100, 470]] },
+  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, at: [[1380, 540], [1360, 960], [1170, 760], [960, 430], [700, 860], [950, 1090]] }
 };
 const VENDOR_WORK = {};
 const TOWN_SERVICES = {
@@ -2392,7 +2393,7 @@ const TOWN_SERVICES = {
   ironvale: { job: "Dagny", stable: "Hild" }
 };
 for (const town in TOWN_SERVICES) {
-  NPCS["auction_" + town] = { name: "Auction Counter", prop: "kiosk", talk: "talkAuction" };
+  NPCS["auction_" + town] = { name: "Auction Clerk", model: "auction_clerk", talk: "talkAuction" }; VENDOR_WORK["auction_" + town] = "count";
   const T = TOWN_SERVICES[town];
   if (T.job) { NPCS["job_" + town] = { name: T.job + ", Job Master", model: "tobin_b", talk: "talkTobin" }; VENDOR_WORK["job_" + town] = "read"; }
   if (T.stable) { NPCS["stable_" + town] = { name: T.stable + ", Stablemaster", model: "ysolde_b", talk: "talkYsolde" }; VENDOR_WORK["stable_" + town] = "work"; }

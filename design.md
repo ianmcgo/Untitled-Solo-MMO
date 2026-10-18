@@ -2246,3 +2246,11 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Doll female: hsc 0.9 (male 0.8), dk 1.02 (male 0.95), RACE_BODY.pipkin female girth 1.22, waist 1.3, hip 0.095; male waist 1.2. Waist ring radius is tied to hipR rather than the human waist taper, giving a round plump trunk.
 - Wrists: for doll the last forearm-1 ring is scaled 0.92 and the forearm-2 rings 0.92, 0.82, 0.72, 0.70 so the forearm tapers into the palm (palm ball is 0.034 * hk).
 - Feet: `fz` 0.7 shortens foot length for doll (the z positions of every foot ring and the toe ball).
+
+## 18.70.0 Tidy town and slower fights
+Rounding: every heal, drain, potion and restore amount passes through Math.round before it is applied or shown; cureAmount already integer.
+Pace: CONFIG.combatPace 1.15 multiplies swingDelay for players, allies and mobs; TP per swing unchanged, so TP per second falls too; damage not changed.
+Auction: auction_<town> is an NPC (model auction_clerk, talk talkAuction, work pose count) placed flush to the building front wall between the portico columns; desks removed. Positions outpost 724,1036; harbor 1088,366; ironvale 726,531.
+Vendors: VENDOR_TOWNS.at order armorer, weaponsmith, tradesman, quartermaster, spellsmith, jeweler, spread by district.
+Party UI: Party tab removed (TAB_ALIAS party to social). tabSocial prepends tabParty (companion sheet, stance, wages) and works offline. Party row click: setTarget plus tgtCmdOpen; allies (kind ally in S.party) get root items Magic, Companion (key details opens Social with mercSheet), Check, Cancel.
+Swipe: document touchstart/touchend in hud4 init; from right 36 px edge, dx at least 70 left within 700 ms opens mainCmdOpen; swipe right closes root menu.

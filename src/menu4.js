@@ -887,9 +887,10 @@ function tabTrade() {
 }
 
 function tabSocial() {
-  if (typeof NET_LS === "undefined" || !NET.member) return '<div class="sub">Social features need the game server.</div>';
+  const party = '<h3>👥 Party and companions</h3>' + tabParty();
+  if (typeof NET_LS === "undefined" || !NET.member) return party + '<h3>🌐 Online</h3><div class="sub">Online features need the game server.</div>';
   if (!NET_LS.at && !NET_LS.loading) netLsRefresh().then(() => { if (S.modal === "social") renderModal(); });
-  let h = UI.socMsg ? '<div class="sub" style="color:#ffd54f;margin-bottom:6px">' + esc(UI.socMsg) + "</div>" : "";
+  let h = party + (UI.socMsg ? '<div class="sub" style="color:#ffd54f;margin-bottom:6px">' + esc(UI.socMsg) + "</div>" : "");
   h += '<h3>🔎 Looking for a party</h3><div class="item"><div><b>' + (save.lfg ? "On" : "Off") + '</b><div class="sub">' + (save.lfg ? esc(save.seekMsg || "No message") + " · others see 🔎 next to your name in search" : "Turn on to let others know you want a party.") + '</div></div><div style="display:flex;gap:6px"><button data-a="socseekmsg">Message</button><button class="' + (save.lfg ? "" : "pri") + '" data-a="socseek">' + (save.lfg ? "Stop" : "Start") + "</button></div></div>";
   const q = UI.socQ || "";
   const res = netSearch(q).slice(0, 40);
@@ -1692,6 +1693,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.70.0", date: "2026-10-18", title: "Tidy town and slower fights", items: [
+    "<b>Whole numbers:</b> heals, drains, potions and other restored amounts are rounded to whole numbers.",
+    "<b>Slightly slower combat:</b> everyone swings about 15% less often, so fights last a little longer. Damage per hit is unchanged.",
+    "<b>Auction clerk:</b> the auction counter is now a clerk standing against the front wall of the auction building, facing out, with no table in front.",
+    "<b>Vendors spread out:</b> the six vendors in each town now stand in different districts instead of one cluster.",
+    "<b>Party in the Social menu:</b> companion stance, gear, wages, bag and contracts moved into the Social menu (P). The separate Party tab is gone.",
+    "<b>Tap a party member:</b> tapping a party or companion box selects them and opens a command window (Magic, Companion sheet, Check).",
+    "<b>Phone swipe:</b> swipe left from the right screen edge to open the commands menu, and swipe right to close it."
+  ] },
   { v: "18.69.0", date: "2026-10-17", title: "Plump Pipkin", items: [
     "<b>Smooth back:</b> the Pipkin upper body is one continuous rounded shape, so the back and shoulders no longer show flat panels or hard edges.",
     "<b>Fuller waist, rounder female Pipkin:</b> the waist is wider, and female Pipkin are plumper through the body, hips and thighs.",
@@ -1947,7 +1957,7 @@ const UPDATES = [
     "Fix: daily companions no longer cause an error when your bond with them grows."
   ] },
   { v: "18.29.0", date: "2026-10-16", title: "Companion sheet and shop", items: [
-    "<b>Companion sheet:</b> click a companion in the party box (bottom right) or press Sheet in the Party tab to see what they wear, what they have for sale, the gear they are keeping, and their bag.",
+    "<b>Companion sheet:</b> click a companion in the party box (bottom right) or press Sheet in the Social menu to see what they wear, what they have for sale, the gear they are keeping, and their bag.",
     "<b>Pouch:</b> a 👝 appears by a companion's name in the party box whenever they have something for sale.",
     "<b>Buying:</b> items a companion has for sale cost 1.5 times the auction house value. Press Buy on the sheet to pay and take one.",
     "<b>Wear this:</b> give a companion a piece of gear from your bag. If it is better than what they wear they put it on and keep the old piece to sell. If it is not better they say so and you keep it.",
@@ -1964,7 +1974,7 @@ const UPDATES = [
     "<b>All drops are rolled for:</b> with anyone else in your party, every item a monster drops (materials, potions, scrolls and gear) goes into the treasure pool instead of straight into your bag. Crystals are still split and key items still go straight to you.",
     "<b>Companions roll on everything:</b> they lot on any item, except gear they can't wear. If they win, the item goes into their own bag. Better gear for their job is worn at once and the old piece goes into their bag; anything else they keep to sell.",
     "<b>Companion bags:</b> each companion has a normal 30-slot bag. With a full bag they pass on every roll. When you enter a town and a companion's bag is half full or more, they sell all the items they carry and the items are gone. Their old gear no longer comes back to your bag.",
-    "The Party tab shows each companion's bag."
+    "The Social menu shows each companion's bag."
   ] },
   { v: "18.26.0", date: "2026-10-16", title: "Load timings in Config", items: [
     "<b>Load timings:</b> Config > Interface has a new Load timings button that shows how long start-up and your recent zone loads took, step by step. The same list is available with /perf.",
@@ -2997,8 +3007,8 @@ const UPDATES = [
     "/who now shows which player is running the area's monsters. Battlefields stay private."
   ] },
   { v: "8.2.0", date: "2026-10-13", title: "Parties and trading", items: [
-    "Party up with other players: invite up to 6 with /invite, the Party tab, or by tapping a player. Accept with the popup or /join.",
-    "Party members show in your party frame with HP, MP and TP, and in the Party tab with their area.",
+    "Party up with other players: invite up to 6 with /invite, the Social menu, or by tapping a player. Accept with the popup or /join.",
+    "Party members show in your party frame with HP, MP and TP, and in the Social menu with their area.",
     "Shared experience: kills share XP with party members nearby, based on the highest level member. Bigger parties earn more in total.",
     "Shared loot: every drop goes into a treasure pool everyone nearby can lot on, and crystals are split.",
     "Party kills count toward quests and guild bounties for everyone nearby.",
@@ -3172,7 +3182,7 @@ const UPDATES = [
     "Bestiary gains 7 entries; two new achievements (Veteran, Into the Mire)."
   ] },
   { v: "4.9.0", date: "2026-10-13", title: "Companions 2.0, bestiary and achievements", items: [
-    "Party tab (P): set your companions' stance (Assist, Follow, Hold), give them gear from your bag and see bond and wages. /stance works too.",
+    "Social menu (P), Party section: set your companions' stance (Assist, Follow, Hold), give them gear from your bag and see bond and wages. /stance works too.",
     "Bond: companions grow closer as you fight together. Each bond level up to 5 adds 3% to their stats and unlocks a personal line.",
     "Wages: hiring fee covers the first game day, then each companion takes a daily wage. If you can't pay, they head back to the Mercenary Hall.",
     "Bestiary (Y): creatures are recorded when you meet them, with more detail as you defeat them.",
@@ -3329,7 +3339,7 @@ function tabHelp() {
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. You can rest during a fight too (it disengages you first). Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("🏙️ Cities and districts", ul([
-    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, the six vendors, Odette, the auction kiosk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
+    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, the six vendors (spread across the districts), Odette, the auction clerk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
     "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
@@ -3467,10 +3477,10 @@ function tabHelp() {
     ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
     ["Sunken Crypt", "9–12", "Brazier puzzle, the Crypt Sentinel and its key, the vault, the Hollow King"],
-    ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), an auction kiosk, a job master and a stablemaster, home point, trade board, docks"],
+    ["Saltreach Harbor", "Safe", "South of the Ashen Marsh. Harbor master Ilsa (quests), Marn (fishing, food), an auction clerk, a job master and a stablemaster, home point, trade board, docks"],
     ["Frostspire Pass", "15–20", "East of Saltreach Harbor. Snow and blizzards, Frost Gate, Icefall Camp, Frozen Lake, Whispering Cairns, Summit Overlook, 2 NMs"],
     ["Ashen Marsh", "9–16 (orc camp, Reefkin shore, Crag Talon roost)", "South of Rocky Hollow. Misty ponds, Sunken Causeway, Croaker's Pool, Mire Village, Drowned Chapel, 2 NMs"],
-    ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the smith (high-quality +1 gear, level 14 and up), an auction kiosk, a job master and a stablemaster, home point, trade board"],
+    ["Ironvale", "Safe", "East of Frostspire Pass. A stone mountain city: Brisa the quartermaster (quests), Haldor the smith (high-quality +1 gear, level 14 and up), an auction clerk, a job master and a stablemaster, home point, trade board"],
     ["Sunscar Desert", "17–20", "South of Ironvale. Sand, cacti and red mesas: Dune Lizards, Sand Crabs, Sun Wasps (day), Dune Worms, Needlekin, Cinder Bombs (night). Sunscar Gate, Titan's Ribs, the Glass Oasis, the Singing Dunes (NM Sandmaw) and the Red Spire"],
     ["Verdant Jungle", "17–20", "East of the Ashen Marsh. Huge trees, warm rain and green mist: Vine Crawlers, Jade Hornets (day), Strangler Saplings, Bloom Mandrakes (day), Jade Toads and a Crag Talon war band by the Overgrown Temple. Old Mossback, an ancient treant, walks the Heart of the Canopy"],
     ["Cinder Peak", "18–20", "East of the Sunscar Desert. A volcano of black rock, ash and glowing lava pools: Magma Lizards, Obsidian Crabs, Magma Worms, Ashen Orcs, Cinder Bombs and Cinder Bones (night). The NM Pyreclaw suns itself on the Crater Rim at night. Rich mining; no fishing in lava"],
@@ -3530,7 +3540,7 @@ function tabHelp() {
   ]));
   h += sec("⚖️ Auction house", ul([
     "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
-    "Walk up to the <b>Auction Counter</b>, a windowed kiosk near the auction building in Ashenreach, Saltreach and Ironvale, and press Talk. Every town has its own auction house.",
+    "Walk up to the <b>Auction Clerk</b>, who stands against the front wall of the auction building in Ashenreach, Saltreach and Ironvale, and press Talk. Every town has its own auction house.",
     "<b>One list.</b> The Buy view shows every seller together: 🏛 towns in gold, 👤 players in green and ⚔ mercenaries in violet. Use Show to filter, and open an item to see all sellers sorted by price. Hover a mercenary's name to see whose it is.",
     "<b>Towns buy too.</b> Every 20 minutes of play, each town buys one lot from the market. It buys your own lots first (paying you at once), then your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. About a quarter of what a town buys it puts back up under its own name at 3% more.",
     "<b>Online, the market is shared.</b> When you play online, your companions' sell-offs go to the shared market under their names (up to 300 lots per player, no expiry, priced at each item's usual value), and every player sees them. The towns buy on real time there: every 20 minutes each town buys one lot, players' lots first and companions' lots after, taking turns between sellers. Crystals from these sales go to your player delivery box. A town's relisted lots show under its name and anyone can buy them.",
@@ -3589,7 +3599,7 @@ function tabHelp() {
     "Chests refill 20 real minutes after you open them. Key items and crypt progress are saved with your character."
   ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
-  h += sec("👥 Party and companions (P)", ul([
+  h += sec("👥 Party and companions (P, in the Social menu)", ul([
     "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement. You hire them at your current level and the fee follows your level.",
     "<b>Level sync:</b> companions always match your current job level. When you level up, level down or change jobs they sync with you. Gear they can no longer wear is put away as a kept item in their bag (never sold) and goes back on when your level allows, unless they have found something better by then. Their starting gear is plain shop gear, never +1 or named pieces.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
