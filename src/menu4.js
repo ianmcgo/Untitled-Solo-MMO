@@ -1699,6 +1699,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.74.0", date: "2026-10-18", title: "Towns resell what they buy", items: [
+    "<b>Towns relist your goods:</b> whenever a town buys one of your auction lots (or a companion's), there is now a 50% chance it puts the item back up for sale under the town's name at a small markup. You and other shoppers can buy it back from the Buy list.",
+    "Each town can hold up to 40 of these resale lots at once."
+  ] },
   { v: "18.73.0", date: "2026-10-18", title: "Smoother heroes and softer faces", items: [
     "<b>Arms attach properly:</b> each arm is now one smooth piece from shoulder to wrist (no band or seam at the elbow), and a rounded shoulder blends the arm into the torso so it no longer looks like a stick pinned to the side.",
     "<b>Seamless shading:</b> where body parts meet (neck, shoulders, wrists, hips) the lighting now flows across the join instead of showing a hard line. The ring at the base of long necks is gone.",
@@ -3567,7 +3571,7 @@ function tabHelp() {
     "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
     "Walk up to the <b>Auction Clerk</b>, who stands at the door of the Auction House (a pillared building with a gold banner) in Ashenreach, Saltreach and Ironvale, and press Talk. In Ashenreach it is on the market plaza next to the home point crystal. Every town has its own auction house.",
     "<b>One list.</b> The Buy view shows every seller together: 🏛 towns in gold, 👤 players in green and ⚔ mercenaries in violet. Use Show to filter, and open an item to see all sellers sorted by price. Hover a mercenary's name to see whose it is.",
-    "<b>Towns buy too.</b> Every 20 minutes of play, each town buys one lot from the market. It buys your own lots first (paying you at once), then your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. About a quarter of what a town buys it puts back up under its own name at 3% more.",
+    "<b>Towns buy too.</b> Every 20 minutes of play, each town buys one lot from the market. It buys your own lots first (paying you at once), then your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. Half the time, a town puts what it buys (including lots that sell while you are away) back up under its own name (🏛, gold) at 3% more, up to 40 resale lots. These never expire.",
     "<b>Online, the market is shared.</b> When you play online, your companions' sell-offs go to the shared market under their names (up to 300 lots per player, no expiry, priced at each item's usual value), and every player sees them. The towns buy on real time there: every 20 minutes each town buys one lot, players' lots first and companions' lots after, taking turns between sellers. Crystals from these sales go to your player delivery box. A town's relisted lots show under its name and anyone can buy them.",
     "<b>Offline</b> the market is your own: your lots, your companions' lots and the towns, with town buying counted on play time. Offline lots are never copied online.",
     "<b>Each town stocks differently.</b> Every town's auction house has its own daily stock and its own sold-out counts, so something that has run out in one town may still be in another. The list shows everything on the market, and the item card shows how many each town has. Buying takes from the town you are in first, then the others.",

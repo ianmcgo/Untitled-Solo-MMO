@@ -2277,3 +2277,6 @@ Face texture: FACE_WARP (warpLut density bumps, x centre 0.25 sigma 0.1 gain 2.6
 Underwear uses region plain and color e6ded2 (cloth region read as shiny metal).
 Note: some gear names (Elvaan, Hume, Galkan, Mithran items in gear.js) use another game's race names; rename pending user decision.
 Tools: hero sheets are rendered by a scratch script (studio scene, exposure 1, skinTone 1); modellab player check showed no new islands and gaps within 0.003 m of before.
+
+## 18.74.0 Towns resell what they buy
+AH_CFG.relistChance 0.5 (was 0.25), relistCap 40 town-kind local lots. game.js townRelist(l, town) pushes a kind "town" lot at price times relistMarkup (1.03); called from townBuyOnce (player and companion lots) and from tickAuction real-time sales (town ahHere()).

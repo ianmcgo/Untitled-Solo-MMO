@@ -2423,8 +2423,15 @@ function townBuyOnce(town) {
     log("Auction: " + tn + " bought " + l.seller + "'s " + ITEMS[l.id].name + (l.qty > 1 ? " ×" + l.qty : "") + ". " + l.price + " crystals are in your delivery box.", "loot");
     bought = l;
   }
-  if (bought && Math.random() < AH_CFG.relistChance) L.lots.push({ id: bought.id, qty: bought.qty, price: Math.ceil(bought.price * AH_CFG.relistMarkup), kind: "town", seller: tn, owner: "", town, t: save.playSec || 0, seq: (L.seq = (L.seq || 0) + 1) });
+  if (bought) townRelist(bought, town);
   return bought;
+}
+
+function townRelist(l, town) {
+  const L = marketLocal();
+  if (Math.random() >= AH_CFG.relistChance || L.lots.filter(x => x.kind === "town").length >= AH_CFG.relistCap) return false;
+  L.lots.push({ id: l.id, qty: l.qty, price: Math.ceil(l.price * AH_CFG.relistMarkup), kind: "town", seller: ahTownName(town), owner: "", town, t: save.playSec || 0, seq: (L.seq = (L.seq || 0) + 1) });
+  return true;
 }
 
 function tickTownBuying() {
@@ -2557,6 +2564,7 @@ function tickAuction() {
       save.stats.ahSold = (save.stats.ahSold || 0) + 1;
       addPress(l.id, -0.02 * l.qty);
       log("Auction: your " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : ITEMS[l.id].name) + " sold for " + l.price + " crystals!", "loot");
+      townRelist(l, ahHere());
       sfx("coin");
       uiEvent("ahsold", { id: l.id, price: l.price });
       changed = true;
