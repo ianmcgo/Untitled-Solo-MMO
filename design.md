@@ -2310,3 +2310,11 @@ New extras: peak (cone on top), antenna (curl), pineapple (top bun with tie and 
 Positions use hairPoint where possible so they follow each race's head scale (Pipkin heads are much larger; positions in hc/hr offsets alone sank inside the shell).
 Ursan beards (all faces) are phase 4.
 Tools: scratch hero.js mode phead (camera H*2.0, centre H*0.78) for Pipkin framing.
+
+## 18.79.0 Face extras (hair plan phase 4)
+RACE_FACE_HAIR strings take an optional third field: "style:colors:extra1,extra2". faceHairEntry returns extras (array). ccApplyFace copies them to look.extras (deleted when none), so old saves (no extras) never change.
+baseFromLook: look.extras -> base.extras (minus beard); "beard" sets base.beard = hair colour, plus longBeard for Ursan.
+rig.js faceExtras(R, L, HP, hc, hr, covered), called after hairPieces when L.extras exists. Keys: goatee (chin ball plus moustache), tattoo (forehead lines, hair colour), paint (red bands under eyes), markings (blue vertical lines), stripes (3 dark cheek stripes per side), headband (red cloth ring plus knot tails), band (blue hairband over the crown), circlet (gold ring plus blue glow gem), clips (2 gold bars per side), clip (one bar with gem, +x side), beads (side locks with 3 beads), ribbons (bows on both sides), ornament (gold pin through the high bun with red bead), toptuft (3 spikes on top). Hidden under hats: headband, band, circlet, clips, clip, ornament, toptuft.
+Face marks are thin plain-region tapers lying 1.2-1.4% off the head surface (hairPoint), not atlas paint, so no new face textures were needed. Head angles: forehead th about 1.05-1.2, cheeks 1.7-1.9, mouth 1.95 (moustache), chin 2.3; front ph = PI/2.
+Assigned: Human M 5 tattoo+goatee, 6 headband+paint, 7 beard, 9 beard+markings; Elari M 8 beard; Elari F 3 clip, 5 ornament; Pipkin F 2 and 8 clips, 6 beads; Nekari 2 headband+stripes, 4 beads, 6 headband, 7 band, 8 circlet; Ursan all beard, 9 toptuft.
+Test: h6unit checks extras parsing.

@@ -437,6 +437,7 @@ const CC_STEPS = [["race", "Race"], ["gender", "Gender"], ["face", "Face"], ["ha
 function ccApplyFace(l, keepCol) {
   const e = faceHairEntry(l.race || "human", l.build, l.face || 0);
   l.hairStyle = Math.max(0, HAIR_STYLES.indexOf(e.style));
+  if (e.extras.length) l.extras = e.extras.slice(); else delete l.extras;
   if (!keepCol) { l.hairCol = e.colors[0]; l.hairColor = 0; }
 }
 function ccFaceColors(l) { return faceHairEntry(l.race || "human", l.build, l.face || 0).colors; }

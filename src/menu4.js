@@ -1699,6 +1699,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.79.0", date: "2026-10-18", title: "Beards, headbands and face marks", items: [
+    "<b>Faces now come with their own extras:</b> beards and a goatee, headbands, a hairband, a gold circlet with a gem, hair clips, beaded side locks, ribbons and a bun pin.",
+    "<b>Face marks:</b> a forehead tattoo, war paint under the eyes, cheek stripes for Nekari and blue markings for the crested Human face.",
+    "Every Ursan face is bearded (a long beard), and the barber-only Ursan face has a small top tuft.",
+    "Hats hide headbands, circlets, clips, pins and tufts; beads, ribbons, beards and face marks always show. Existing characters keep their current look."
+  ] },
   { v: "18.78.0", date: "2026-10-18", title: "Pipkin, Nekari and Ursan hair", items: [
     "<b>16 new hairstyles</b>: for Pipkin, Bowl, Peaked bowl, Tuft (with an antenna curl), Pineapple, Poof, Twin buns, Side puffs with ribbons and Spiky tails; for Nekari, Long fringe and Wild mane.",
     "<b>Ursan manes:</b> Flared, Horned, Slick, Lion, Side (bare crown) and Crest manes replace the borrowed human styles, with a heavy fur ruff at the back.",
@@ -3418,7 +3424,7 @@ function tabHelp() {
   h += sec("👥 Characters", ul([
     "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, race, gender, face, hair colour and size. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
-    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each race has its own set, and each face comes with its own hairstyle (47 styles in all, from Shaggy and Crown braid to Pipkin twin buns and Ursan lion manes) and three hair colours; skin comes from your race) → <b>Hair colour</b> (the three colours for your face, then a <b>More colours</b> palette) → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b> (with a summary of your choices and a <b>Start over</b> button). Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
+    "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each race has its own set, and each face comes with its own hairstyle (47 styles in all, from Shaggy and Crown braid to Pipkin twin buns and Ursan lion manes), any extras that suit it (beards, headbands, circlets, clips, beads, ribbons, tattoos, war paint or cheek stripes) and three hair colours; skin comes from your race) → <b>Hair colour</b> (the three colours for your face, then a <b>More colours</b> palette) → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b> (with a summary of your choices and a <b>Start over</b> button). Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
     "Deleting a character on the select screen is permanent."
   ]));

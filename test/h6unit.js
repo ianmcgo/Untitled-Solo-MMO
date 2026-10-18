@@ -13,5 +13,7 @@ for (const race of ['human', 'elari', 'pipkin', 'nekari', 'ursan']) {
   }
 }
 const sw = G.faceHairEntry('human', 0, 2);
+const ex = G.faceHairEntry('human', 0, 4), ur = G.faceHairEntry('ursan', 0, 0), plain = G.faceHairEntry('human', 1, 0);
+ok(ex.extras.includes('tattoo') && ex.extras.includes('goatee') && ur.extras.includes('beard') && plain.extras.length === 0, 'face extras parse (tattoo and goatee, Ursan beard, none on plain faces)');
 ok(sw.style === 'spiky' && sw.colors[1] === G.HAIR_TONES.copper, 'human male face 3 is spiky with copper second colour');
 process.exit(fails ? 1 : 0);

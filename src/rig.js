@@ -15,30 +15,30 @@ const HAIR_COLORS = [0x2a1d14, 0x5a3a22, 0x8a5a2c, 0xd8b070, 0xb03a2e, 0x1d1d22,
 const HAIR_TONES = { blond: 0xd8b070, brown: 0x5a3a22, teal: 0x2f8f8a, black: 0x1d1d22, gold: 0xe0b84a, pink: 0xe58fb0, copper: 0xb0642e, silver: 0xc8ccd6, auburn: 0x7a3320, sandy: 0xb89868, moss: 0x5f7f3f, red: 0xb03a2e, grey: 0x8a8a92, dark: 0x2a1d14, ginger: 0xc8662a, orange: 0xe08a2a, rose: 0xd45a6a, tan: 0x8a5a2c, green: 0x3f9a4f, navy: 0x1f2a5a, blue: 0x3a6ab0, white: 0xf0f0f4, maroon: 0x6a1f2a, cream: 0xf0e4c0, wine: 0x6a2040, plum: 0x5a2a6a, peri: 0x8a90e0, sage: 0x8aa88a, aqua: 0x5ac8c8, mint: 0x9ae0c0, peach: 0xf0b890, lavender: 0xb8a0e0, olive: 0x7a7a3a, pale: 0xa8d8a0, slate: 0x5a6a7a, lilac: 0xb090d0, salmon: 0xe8907a, purple: 0x7a3aa0, charcoal: 0x3a3a42, rust: 0x9a4a22, platinum: 0xe8e8f0 };
 const RACE_FACE_HAIR = {
   human: [
-    ["long:blond,brown,teal", "shaggy:black,gold,pink", "spiky:blond,copper,silver", "tousled:auburn,sandy,moss", "bald:blue,black,red", "short:dark,brown,tan", "slickback:brown,blond,grey", "topknot:black,blond,copper", "mohawk:red,black,blond"],
+    ["long:blond,brown,teal", "shaggy:black,gold,pink", "spiky:blond,copper,silver", "tousled:auburn,sandy,moss", "bald:blue,black,red:tattoo,goatee", "short:dark,brown,tan:headband,paint", "slickback:brown,blond,grey:beard", "topknot:black,blond,copper", "mohawk:red,black,blond:beard,markings"],
     ["bob:ginger,orange,rose", "long:blond,black,pink", "sidepart:brown,auburn,blue", "asymbob:black,tan,green", "slickbun:blond,copper,navy", "sidetail:black,brown,red", "pixie:brown,blond,black", "layered:auburn,red,wine", "layered:brown,blond,black"]
   ],
   elari: [
-    ["long:silver,black,teal", "longshag:silver,black,red", "slickback:black,platinum,navy", "ponytail:white,black,maroon", "braid:orange,white,brown", "feathered:cream,orange,moss", "messy:cream,orange,wine", "slickback:white,black,plum", "sweptlong:silver,white,black"],
-    ["layered:cream,orange,pink", "crownbraid:cream,black,pink", "sidepart:cream,orange,brown", "flipbob:cream,orange,peri", "highbun:silver,red,brown", "long:silver,black,sage", "sweptlong:white,black,gold", "hime:black,grey,plum", "bob:cream,silver,black"]
+    ["long:silver,black,teal", "longshag:silver,black,red", "slickback:black,platinum,navy", "ponytail:white,black,maroon", "braid:orange,white,brown", "feathered:cream,orange,moss", "messy:cream,orange,wine", "slickback:white,black,plum:beard", "sweptlong:silver,white,black"],
+    ["layered:cream,orange,pink", "crownbraid:cream,black,pink", "sidepart:cream,orange,brown:clip", "flipbob:cream,orange,peri", "highbun:silver,red,brown:ornament", "long:silver,black,sage", "sweptlong:white,black,gold", "hime:black,grey,plum", "bob:cream,silver,black"]
   ],
   pipkin: [
     ["bowlpeak:brown,peach,pale", "tuft:orange,gold,aqua", "topknot:brown,olive,maroon", "bowl:silver,lavender,aqua", "bowlpeak:brown,blue,white", "spiky:orange,blue,green", "pineapple:navy,gold,pink", "bowl:blond,gold,teal", "bald:brown,black,grey"],
-    ["poof:red,gold,mint", "bob:grey,olive,teal", "odango:brown,red,green", "puffs:blond,orange,peri", "highbun:slate,brown,pink", "bob:grey,silver,orange", "odango:olive,blond,rose", "bob:orange,olive,red", "twinspike:pink,blond,aqua"]
+    ["poof:red,gold,mint", "bob:grey,olive,teal:clips", "odango:brown,red,green", "puffs:blond,orange,peri", "highbun:slate,brown,pink", "bob:grey,silver,orange:beads", "odango:olive,blond,rose", "bob:orange,olive,red:clips", "twinspike:pink,blond,aqua"]
   ],
   nekari: [
     null,
-    ["bob:orange,brown,red", "long:white,pink,mint", "fringe:lilac,orange,cream", "bob:blond,orange,blue", "ponytail:salmon,brown,purple", "wildmane:white,orange,pink", "bob:blond,brown,purple", "slickback:brown,gold,salmon", "layered:navy,blue,black"]
+    ["bob:orange,brown,red", "long:white,pink,mint:headband,stripes", "fringe:lilac,orange,cream", "bob:blond,orange,blue:beads", "ponytail:salmon,brown,purple", "wildmane:white,orange,pink:headband", "bob:blond,brown,purple:band", "slickback:brown,gold,salmon:circlet", "layered:navy,blue,black"]
   ],
   ursan: [
-    ["mane_flare:black,brown,navy", "mane_horn:charcoal,white,brown", "mane_slick:white,brown,maroon", "mane_slick:charcoal,brown,green", "mane_lion:rust,black,grey", "mane_side:rust,black,navy", "mane_crest:brown,black,maroon", "long:black,white,blond", "bald:brown,black,grey"],
+    ["mane_flare:black,brown,navy:beard", "mane_horn:charcoal,white,brown:beard", "mane_slick:white,brown,maroon:beard", "mane_slick:charcoal,brown,green:beard", "mane_lion:rust,black,grey:beard", "mane_side:rust,black,navy:beard", "mane_crest:brown,black,maroon:beard", "long:black,white,blond:beard", "bald:brown,black,grey:beard,toptuft"],
     null
   ]
 };
 function faceHairEntry(race, build, face) {
   const t = RACE_FACE_HAIR[race] || RACE_FACE_HAIR.human, row = t[build ? 1 : 0] || t[build ? 0 : 1] || RACE_FACE_HAIR.human[build ? 1 : 0];
   const s = row[Math.max(0, Math.min(row.length - 1, face | 0))].split(":");
-  return { style: s[0], colors: s[1].split(",").map(k => HAIR_TONES[k]) };
+  return { style: s[0], colors: s[1].split(",").map(k => HAIR_TONES[k]), extras: s[2] ? s[2].split(",") : [] };
 }
 
 
@@ -1634,6 +1634,54 @@ function hairExtras(R, HP, st, hc, hr, c, TB, covered) {
     }
   }
 }
+function faceExtras(R, L, HP, hc, hr, covered) {
+  const X = new Set(L.extras || []), c = L.hair ? L.hair.color : 0x2a1d14, P = (ph, th, off) => hairPoint(HP, hc, hr, ph, th, off), F = Math.PI / 2;
+  const mark = (pts, w, col) => { for (let i = 0; i < pts.length - 1; i++) R.add(gTaper(pts[i], pts[i + 1], w, w * 0.8, 4, 0.25), "head", col, "plain"); };
+  if (X.has("goatee")) {
+    R.add(gBall(P(F, 2.3, 0.03), hr * 0.16, 1, 1.3, 0.75, 8), "head", c, "hair");
+    for (const s of [-1, 1]) R.add(gTaper(P(F + s * 0.04, 1.93, 0.05), P(F + s * 0.26, 2.04, 0.04), hr * 0.06, hr * 0.02, 6), "head", c, "hair");
+  }
+  if (X.has("tattoo")) {
+    const tc = c;
+    mark([P(F, 1.02, 0.012), P(F, 1.22, 0.012)], hr * 0.035, tc);
+    for (const s of [-1, 1]) mark([P(F + s * 0.05, 1.12, 0.012), P(F + s * 0.28, 1.05, 0.012), P(F + s * 0.42, 1.18, 0.012)], hr * 0.028, tc);
+  }
+  if (X.has("paint")) for (const s of [-1, 1]) mark([P(F + s * 0.26, 1.76, 0.014), P(F + s * 0.66, 1.7, 0.014)], hr * 0.085, 0x9a2a1e);
+  if (X.has("markings")) for (const s of [-1, 1]) { mark([P(F + s * 0.2, 1.3, 0.012), P(F + s * 0.3, 1.62, 0.012), P(F + s * 0.36, 1.92, 0.012)], hr * 0.03, 0x2a3a8a); }
+  if (X.has("stripes")) for (const s of [-1, 1]) for (let k = 0; k < 3; k++) mark([P(F + s * 0.4, 1.74 + k * 0.1, 0.014), P(F + s * 0.74, 1.68 + k * 0.13, 0.014)], hr * 0.04, 0x2a1a1a);
+  if (X.has("headband") && !covered) {
+    const pts = []; for (let k = 0; k <= 24; k++) pts.push(P(k / 24 * Math.PI * 2, 1.12 + 0.14 * Math.max(0, -Math.sin(k / 24 * Math.PI * 2)), 0.13));
+    for (let i = 0; i < 24; i++) R.add(gTaper(pts[i], pts[i + 1], hr * 0.075, hr * 0.075, 5, 0.35), "head", 0xa03a2a, "cloth");
+    const kn = P(-F + 0.25, 1.2, 0.16); for (const s of [-1, 1]) R.add(gTaper(kn, kn.clone().add(V3(s * hr * 0.12, -hr * 0.45, -hr * 0.12)), hr * 0.07, hr * 0.04, 4, 0.3), "head", 0xa03a2a, "cloth");
+  }
+  if (X.has("band") && !covered) {
+    const pts = []; for (let k = 0; k <= 16; k++) pts.push(P(F - 1.5 + k / 16 * 3, 0.78 + 0.06 * Math.abs(k / 8 - 1), 0.16));
+    for (let i = 0; i < 16; i++) R.add(gTaper(pts[i], pts[i + 1], hr * 0.05, hr * 0.05, 5, 0.6), "head", 0x3a6aa0, "cloth");
+  }
+  if (X.has("circlet") && !covered) {
+    const pts = []; for (let k = 0; k <= 24; k++) pts.push(P(k / 24 * Math.PI * 2, 1.08 + 0.2 * Math.max(0, -Math.sin(k / 24 * Math.PI * 2)), 0.14));
+    for (let i = 0; i < 24; i++) R.add(gTaper(pts[i], pts[i + 1], hr * 0.03, hr * 0.03, 5), "head", 0xd8b050, "metal");
+    R.add(gBall(P(F, 1.1, 0.17), hr * 0.07, 1, 1.3, 0.6, 8), "head", 0x3a8ad8, "glow");
+  }
+  if (X.has("clips") && !covered) for (const s of [-1, 1]) for (let k = 0; k < 2; k++) {
+    const a = P(F + s * (0.85 + k * 0.08), 0.95 + k * 0.16, 0.17); R.add(gTaper(a, a.clone().add(V3(0, -hr * 0.12, hr * 0.2)), hr * 0.055, hr * 0.055, 4, 0.5), "head", 0xd8c070, "metal");
+  }
+  if (X.has("clip") && !covered) { const a = P(F + 0.9, 0.9, 0.17); R.add(gTaper(a, a.clone().add(V3(hr * 0.02, -hr * 0.1, hr * 0.3)), hr * 0.07, hr * 0.07, 4, 0.5), "head", 0xd8c070, "metal"); R.add(gBall(a.clone().add(V3(hr * 0.02, -hr * 0.05, hr * 0.15)), hr * 0.09, 1, 1, 1, 8), "head", 0x5ab0e0, "glow"); }
+  if (X.has("beads")) for (const s of [-1, 1]) {
+    const p0 = P(F + s * 1.05, 1.3, 0.12), p1 = V3(p0.x + s * hr * 0.06, hc - hr * 0.75, p0.z + hr * 0.05);
+    R.add(gTaper(p0, p1, hr * 0.07, hr * 0.05, 5, 0.6), "head", c, "hair");
+    for (let k = 1; k <= 3; k++) R.add(gBall(p0.clone().lerp(p1, 0.35 + k * 0.2), hr * 0.075, 1, 0.9, 1, 7), "head", k % 2 ? 0xe0d0a0 : 0x3a8ac0, "bone");
+  }
+  if (X.has("ribbons")) for (const s of [-1, 1]) {
+    const k0 = P(F + s * 1.3, 1.0, 0.16);
+    for (const t of [-1, 1]) R.add(gBall(k0.clone().add(V3(0, t * hr * 0.09, -hr * 0.05)), hr * 0.09, 0.6, 1, 1.4, 7), "head", 0xd84a6a, "cloth");
+  }
+  if (X.has("ornament") && !covered) {
+    const b = V3(0, hc + hr * 0.92, -hr * 0.42); R.add(gTaper(b.clone().add(V3(-hr * 0.55, -hr * 0.05, 0)), b.clone().add(V3(hr * 0.55, hr * 0.12, 0)), hr * 0.04, hr * 0.03, 5), "head", 0xd8b050, "metal");
+    R.add(gBall(b.clone().add(V3(-hr * 0.6, -hr * 0.06, 0)), hr * 0.11, 1, 1, 1, 8), "head", 0xc0303a, "glow");
+  }
+  if (X.has("toptuft") && !covered) for (let k = 0; k < 3; k++) { const a = P(F + (k - 1) * 0.3, 0.12, 0.05); R.add(gTaper(a, a.clone().add(V3((k - 1) * hr * 0.14, hr * 0.4, hr * 0.08)), hr * 0.17, 0.008, 7, 0.6), "head", c, "hair"); }
+}
 function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
   HP = HP || HEAD_PROFILES.human0;
   const TB = tailBone || "head";
@@ -1895,6 +1943,7 @@ function humanEntryBase(L) {
   const tailed = L.hair && (["long", "ponytail", "braid", "twintails", "wavy", "dreads"].includes(L.hair.style) || !!(HAIR_DEF[L.hair.style] && HAIR_DEF[L.hair.style].tail));
   if (tailed) R.bone("hairTail", "head", 0, hc + hr * 0.15, -hr * 0.95);
   hairPieces(R, L.hair, hc, hr, headCovers, tailed ? "hairTail" : null, HP);
+  if (L.extras && L.extras.length) faceExtras(R, L, HP, hc, hr, headCovers);
   if (!L.noFace) {
     R.bone("lids", "head", 0, hc, 0.005);
     for (const s of [-1, 1]) {
@@ -3558,6 +3607,7 @@ function baseFromLook(look) {
   const b = { build: l.build || 0, skin: raceSkinColor(raceOfLook(l)), hair: { style: HAIR_STYLES[l.hairStyle || 0] || "short", color: typeof l.hairCol === "number" ? l.hairCol : HAIR_COLORS[l.hairColor || 0] }, face: l.face || 0 };
   const p = bodyProp(l);
   if (p) b.prop = p;
+  if (Array.isArray(l.extras) && l.extras.length) { b.extras = l.extras.filter(x => x !== "beard"); if (l.extras.includes("beard")) { b.beard = b.hair.color; if (raceOfLook(l) === "ursan") b.longBeard = true; } }
   const race = raceOfLook(l);
   if (race === "elari") b.ears = "elf";
   if (race === "pipkin") { b.ears = "pip"; b.doll = true; }
