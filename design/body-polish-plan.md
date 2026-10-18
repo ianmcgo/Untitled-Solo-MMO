@@ -1,6 +1,6 @@
 # Body polish plan
 
-Status: phases 1 to 3 done (18.81.0 to 18.83.0); phase 4 awaiting go-ahead.
+Status: complete (18.81.0 to 18.84.0).
 
 ## Requests
 1. Nekari tails: rounder at the curve, sway gently left and right at all times (idle, walk, run).
@@ -17,7 +17,7 @@ Status: phases 1 to 3 done (18.81.0 to 18.83.0); phase 4 awaiting go-ahead.
 - Phase 2 (Sonnet, done 18.82.0): tails and Nekari ears. Curved tapered chains with smooth joints for Ursan and Nekari; Nekari continuous sway driven by time, blended with existing motion.
 - Phase 3 (Opus, done 18.83.0): weapon attachment. Audit every weapon type in held, sheathed and back positions per race and build; fix offsets and add clearance so no mesh intersects the body or goes off body.
 
-- Phase 4 (Opus): female hip shape and jiggle. Rounder glute volumes on the hips loft (two lobes, dark crease seam drawn as a thin inset strip on the back of the hips, hidden under robes, skirts and leg armour). Jiggle: small spring bones (bustL/R, gluteL/R) parented to chest and hips, driven by a damped spring on the parent's velocity and the walk/run/jump/land cycle; amplitude capped, softer under plate, off for Pipkin and male builds; a setting to turn it off.
+- Phase 4 (Opus, done 18.84.0): female hip shape and jiggle. Rounder glute volumes on the hips loft (two lobes, dark crease seam drawn as a thin inset strip on the back of the hips, hidden under robes, skirts and leg armour). Jiggle: small spring bones (bustL/R, gluteL/R) parented to chest and hips, driven by a damped spring on the parent's velocity and the walk/run/jump/land cycle; amplitude capped, softer under plate, off for Pipkin and male builds; a setting to turn it off.
 
 ## Checks
 - test/h6unit.js, race and gear render contact sheets, npm run check.

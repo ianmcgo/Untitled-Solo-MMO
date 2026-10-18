@@ -963,6 +963,7 @@ function poseHuman(v, e, dt) {
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;
   an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
   clothSprings(v, e, an, dt, t);
+  bodyJiggle(v, an, dt);
   if (v.bones.mouth) {
     const em = e.emote && S.time - e.emote.at < emoteLen(e.emote.id) ? e.emote.id : null;
     let m = 0;
@@ -989,6 +990,37 @@ function sprAx(st, k, target, dt, kS, kD) {
   for (let i = 0; i < n; i++) { const acc = kS * (target - o.x) - kD * o.v; o.v += acc * h; o.x += o.v * h; }
   if (!isFinite(o.x)) { o.x = target; o.v = 0; }
   return o.x;
+}
+const JIG = { p: null, q: null, a: null };
+function bodyJiggle(v, an, dt) {
+  const m = v.meta && v.meta.jig, B = v.bones;
+  if (!m || !dt) return;
+  const off = typeof VIEW !== "undefined" && VIEW.settings && VIEW.settings.noJiggle;
+  if (!JIG.p) { JIG.p = new THREE.Vector3(); JIG.q = new THREE.Quaternion(); JIG.a = new THREE.Vector3(); }
+  const st = an.jig || (an.jig = {}), h = Math.min(dt, 0.05);
+  for (const [g, pn, amp, lim, k, c] of [["b", "chest", m.bust, 0.011, 170, 5.2], ["g", "hips", m.glute, 0.008, 210, 6.4]]) {
+    const L = B[g === "b" ? "bustL" : "gluteL"], R = B[g === "b" ? "bustR" : "gluteR"], P = B[pn];
+    if (!L || !R || !P) continue;
+    if (off || !amp) { L.position.copy(L.userData.rest); R.position.copy(R.userData.rest); continue; }
+    P.updateWorldMatrix(true, false);
+    JIG.p.setFromMatrixPosition(P.matrixWorld);
+    const s0 = st[g] || (st[g] = { p: JIG.p.clone(), v: new THREE.Vector3() });
+    const vx = (JIG.p.x - s0.p.x) / h, vy = (JIG.p.y - s0.p.y) / h, vz = (JIG.p.z - s0.p.z) / h;
+    JIG.a.set((vx - s0.v.x) / h, (vy - s0.v.y) / h, (vz - s0.v.z) / h);
+    s0.v.set(vx, vy, vz); s0.p.copy(JIG.p);
+    if (JIG.a.lengthSq() > 3600) JIG.a.setLength(60);
+    P.getWorldQuaternion(JIG.q).invert(); JIG.a.applyQuaternion(JIG.q);
+    const sc = (v.scale || 1) * (v.group ? v.group.scale.x : 1) || 1, gain = 0.55 * amp / sc;
+    const ax = ["x", "y", "z"], lm = [lim * 0.35 * amp, lim * amp, lim * 0.6 * amp], o = [];
+    for (let i = 0; i < 3; i++) {
+      const key = g + ax[i], ob = st[key] || (st[key] = { x: 0, v: 0 });
+      ob.v -= JIG.a[ax[i]] * gain * h;
+      o.push(clamp(sprAx(st, key, 0, dt, k, c), -lm[i], lm[i]));
+      if (Math.abs(ob.x) > lm[i] * 1.5) { ob.x = Math.sign(ob.x) * lm[i] * 1.5; ob.v *= 0.5; }
+    }
+    L.position.set(L.userData.rest.x + o[0], L.userData.rest.y + o[1], L.userData.rest.z + o[2]);
+    R.position.set(R.userData.rest.x + o[0], R.userData.rest.y + o[1], R.userData.rest.z + o[2] * (g === "g" ? 1 : 1));
+  }
 }
 function clothSprings(v, e, an, dt, t) {
   const B = v.bones;

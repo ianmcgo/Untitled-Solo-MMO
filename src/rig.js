@@ -1985,8 +1985,24 @@ function humanEntryBase(L) {
     R.addW(gLoft(lowR, 24, true, false, 0, 0.3), "hips", robe ? topC : legC, robe ? topR : legR, tw);
     R.addW(gLoft(upR, 24, false, false, 0.3, 1), "chest", topC, topR, tw);
     const bR = 0.056 * gi, bY = chestY + 0.004, bZ = cz * 0.172 * 0.92, bX = 0.057 * gi;
-    if (fem && !L.doll && !robe) for (const xs of [-1, 1]) R.add(gBall(V3(xs * bX, bY, bZ), bR, 0.98, 0.94, 0.96, 18), "chest", topC, topR);
+    if (fem && !L.doll && !robe) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) { R.bone("bust" + sd, "chest", xs * bX, bY, bZ); R.add(gBall(V3(xs * bX, bY, bZ), bR, 0.98, 0.94, 0.96, 18), "bust" + sd, topC, topR); }
     BODY.up = upR; BODY.tw = tw; BODY.bust = fem && !L.doll && !robe ? { y: bY, front: bZ + bR * 0.96, r: bR } : null;
+    const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), UW0 = L.under || {}, brief = UW0.low === "boxer" || UW0.low === "brief";
+    const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
+    BODY.glute = null;
+    if (fem && !L.doll && !robe && !skirt) {
+      const gR = 0.072 * gi, gy = hipJ - 0.006, gx = 0.05 * gi, gz = -(backAt(gy) - gR * 0.8 + 0.017);
+      for (const [xs, sd] of [[1, "L"], [-1, "R"]]) {
+        R.bone("glute" + sd, "hips", xs * gx, gy, gz);
+        const gw = () => [["glute" + sd, 0.72], ["thigh" + sd, 0.28]];
+        R.addW(gBall(V3(xs * gx, gy, gz), gR, 0.94, 1.12, 0.8, 20), "glute" + sd, legC, legR, gw);
+        if (brief) R.addW(gBall(V3(xs * gx, gy, gz), gR + 0.006, 0.94, 1.12, 0.8, 20), "glute" + sd, 0xe6ded2, "plain", gw);
+      }
+      const cy0 = beltY - 0.045, cy1 = hipJ - 0.058, off = brief ? 0.0075 : 0.0016, cp = [];
+      for (let i = 0; i <= 4; i++) { const y = cy0 + (cy1 - cy0) * i / 4; cp.push(V3(0, y, -(backAt(y) + off))); }
+      for (let i = 0; i < 4; i++) R.add(gTaper(cp[i], cp[i + 1], 0.0034 - i * 0.0003, 0.0031 - i * 0.0003, 6, 0.55), "hips", 0x1a0f0c, "plain");
+      BODY.glute = { y: gy, r: gR };
+    }
     const UW = L.under || {}, wht = 0xe6ded2;
     if (UW.low === "boxer" || UW.low === "brief") {
       const sh = shellOf(lowR, 0.006);
@@ -1995,11 +2011,12 @@ function humanEntryBase(L) {
     } else if (UW.low === "thong") {
       R.add(gRing(V3(0, beltY - 0.012, 0), hipR * hx0 + 0.004, 0.0055, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "plain");
       R.add(gBall(V3(0, hipJ - 0.005, hipR * hz * 0.96), 0.05, 1.15, 1.2, 0.22, 16), "hips", wht, "plain");
-      R.add(gTaper(V3(0, beltY - 0.012, -hipR * hz * 1.02), V3(0, hipJ - 0.05, -hipR * hz * 0.96), 0.007, 0.0045, 6), "hips", wht, "plain");
+      if (BODY.glute) { const ty = [beltY - 0.012, (beltY + hipJ) / 2 - 0.02, hipJ - 0.05]; for (let i = 0; i < 2; i++) R.add(gTaper(V3(0, ty[i], -(backAt(ty[i]) + 0.004)), V3(0, ty[i + 1], -(backAt(ty[i + 1]) + 0.004)), 0.007 - i * 0.0015, 0.0055 - i * 0.001, 6), "hips", wht, "plain"); }
+      else R.add(gTaper(V3(0, beltY - 0.012, -hipR * hz * 1.02), V3(0, hipJ - 0.05, -hipR * hz * 0.96), 0.007, 0.0045, 6), "hips", wht, "plain");
     }
     if (UW.top === "bikini") {
       const cz1 = cz * 0.172 * (1.06 + bust) * 0.8;
-      for (const xs of [-1, 1]) R.add(BODY.bust ? gBall(V3(xs * bX, bY + 0.004, bZ + 0.004), bR * 1.03, 0.98, 0.9, 0.96, 18) : gBall(V3(xs * 0.051 * gi, chestY + 0.02, cz1 * 0.97), 0.054 * gi, 0.98, 0.9, 0.62, 18), "chest", wht, "plain");
+      for (const [xs, sd] of [[1, "L"], [-1, "R"]]) R.add(BODY.bust ? gBall(V3(xs * bX, bY + 0.004, bZ + 0.004), bR * 1.03, 0.98, 0.9, 0.96, 18) : gBall(V3(xs * 0.051 * gi, chestY + 0.02, cz1 * 0.97), 0.054 * gi, 0.98, 0.9, 0.62, 18), BODY.bust ? "bust" + sd : "chest", wht, "plain");
       R.add(gRing(V3(0, chestY - 0.04, 0), (L.doll ? 0.122 : 0.156) * cx0 + 0.003, 0.0045, "y", 22).scale(1, 1, cz / cx0 * (L.doll ? 0.95 : 1.02)), "chest", wht, "plain");
       for (const xs of [-1, 1]) R.add(gTaper(V3(xs * 0.05 * gi, chestY + 0.065, cz1 * 0.92), V3(xs * 0.03, neckY - 0.01, -0.02), 0.0045, 0.0045, 6), "chest", wht, "plain");
     } else if (UW.top === "bandeau") {
@@ -2357,7 +2374,7 @@ function humanEntryBase(L) {
     R.add(gBall(pp[pp.length - 1], pts[pts.length - 1][2] * 1.05, 1, 1, 1.15, 8), bn[2], tc, tr);
   }
   if (L.family || L.boss) familyExtras(R, L, { hx: pr.hip, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid: (elY + wrY) / 2 });
-  R.meta = { kind: "human", headC: hc, headR: hr, race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: backZOf(BODY, L, gi, sw, chestY), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 * (L.head.tallK || 1) : L.head && (L.head.type === "horned" || L.head.type === "winged" || L.head.type === "jester" || L.head.type === "kabuto") ? 2.1 : 1.2), hand: "handR", wrY, hunch: L.hunch || 0 };
+  R.meta = { kind: "human", headC: hc, headR: hr, race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: backZOf(BODY, L, gi, sw, chestY), jig: BODY.bust || BODY.glute ? { bust: BODY.bust ? (top.type === "plate" ? 0 : top.type === "mail" ? 0.5 : 1) : 0, glute: BODY.glute ? 1 : 0 } : null, headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 * (L.head.tallK || 1) : L.head && (L.head.type === "horned" || L.head.type === "winged" || L.head.type === "jester" || L.head.type === "kabuto") ? 2.1 : 1.2), hand: "handR", wrY, hunch: L.hunch || 0 };
   return R.finish();
 }
 
