@@ -375,7 +375,7 @@ function outlineMaterial() {
   if (OUTLINE_MAT) return OUTLINE_MAT;
   const m = new THREE.MeshBasicMaterial({ color: 0x140c1c, side: THREE.BackSide });
   m.onBeforeCompile = sh => {
-    sh.vertexShader = sh.vertexShader.replace("#include <skinning_vertex>", "#include <skinning_vertex>\n{ float od = length((modelViewMatrix * vec4(transformed, 1.0)).xyz); transformed += normalize(objectNormal) * (0.004 + od * 0.0009); }");
+    sh.vertexShader = sh.vertexShader.replace("#include <skinning_vertex>", "#include <skinning_vertex>\n#if defined(USE_SKINNING) || defined(USE_ENVMAP)\nvec3 olN = objectNormal;\n#else\nvec3 olN = normal;\n#endif\n{ float od = length((modelViewMatrix * vec4(transformed, 1.0)).xyz); transformed += normalize(olN) * (0.004 + od * 0.0009); }");
   };
   m.customProgramCacheKey = () => "classicOutline";
   OUTLINE_MAT = m;
@@ -1837,6 +1837,14 @@ function humanEntry(L) {
   try { return humanEntryBase(L); } finally { RIG.loftSub = 0; HEAD_SCALE[0] = hs0; HEAD_SCALE[1] = hs1; }
 }
 
+function backZOf(BODY, L, gi, sw, chestY) {
+  if (!BODY.up) return -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03);
+  let m = 0;
+  for (const r of BODY.up) if (r.y > chestY - 0.12 && r.y < chestY + 0.14) m = Math.max(m, r.rz * (r.b || 1) - (r.z || 0));
+  if (L.top && L.top.type === "plate") m += 0.016 * gi;
+  if (L.cape) m = Math.max(m, 0.15 * gi + 0.02);
+  return -(m + 0.008);
+}
 function humanEntryBase(L) {
   const fem = L.build === 1;
   const pr = Object.assign({ leg: 0.86, torso: 0.52, headR: 0.138, shoulder: fem ? 0.165 : 0.195, hip: fem ? 0.1 : 0.095, arm: 0.6, girth: fem ? 0.9 : 1, neck: 0.02, waist: fem ? 0.8 : 0.92 }, L.prop || {});
@@ -2349,7 +2357,7 @@ function humanEntryBase(L) {
     R.add(gBall(pp[pp.length - 1], pts[pts.length - 1][2] * 1.05, 1, 1, 1.15, 8), bn[2], tc, tr);
   }
   if (L.family || L.boss) familyExtras(R, L, { hx: pr.hip, hipsY, chestY, spineY, shY, neckY, elY, wrY, knee, ank, sw, gi, hc, hr, skin, SKR, mid: (elY + wrY) / 2 });
-  R.meta = { kind: "human", headC: hc, headR: hr, race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: -(0.176 * 0.66 * gi * (sw / 0.195) * 1.04 + 0.03), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 * (L.head.tallK || 1) : L.head && (L.head.type === "horned" || L.head.type === "winged" || L.head.type === "jester" || L.head.type === "kabuto") ? 2.1 : 1.2), hand: "handR", wrY, hunch: L.hunch || 0 };
+  R.meta = { kind: "human", headC: hc, headR: hr, race: L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human", hipsY, chestY, backZ: backZOf(BODY, L, gi, sw, chestY), headTop: hc + hr * (L.head && L.head.type === "pointy" ? 4.2 * (L.head.tallK || 1) : L.head && (L.head.type === "horned" || L.head.type === "winged" || L.head.type === "jester" || L.head.type === "kabuto") ? 2.1 : 1.2), hand: "handR", wrY, hunch: L.hunch || 0 };
   return R.finish();
 }
 

@@ -2338,3 +2338,10 @@ rig.js tail block: one chain for every tail type. pts lists [dy, dz, radius] per
 anim.js humanoid tail block: when P.tail3 exists it adds idle-independent sway (sin t*1.5, phase lagged per bone) on tail, tail2 and tail3 yaw on top of the existing wag; addP ignores missing bones so other rigs are unaffected.
 Nekari ears: local ear() builds a 3-sided cylinder (triangle cross section) scaled thin in z, base 0.52 hr tapering to 0.11 hr over about 0.9 hr, outward tilt 0.8 hr, rounded tip ball, pink inner (0xd89a9a) slightly forward. Still skipped when a helm, hood, horned, winged, kabuto, turban, ninjahood or jester head piece is worn.
 Remaining body plan phases: 3 weapon attachment, 4 female hips and jiggle.
+
+## 18.83.0 Weapons on the body (body polish plan phase 3)
+rig.js backZOf(BODY, L, gi, sw, chestY): meta.backZ is now the real back surface of the torso loft, max of rz*b - z over BODY.up rings within chestY -0.12..+0.14, plus 0.016 gi for plate, at least 0.15 gi + 0.02 with a cape, plus 0.008. Falls back to the old formula when there is no loft (skull rigs). The old formula overshot by about 4 cm on humans and 13 cm on Ursan.
+models3d.js weaponPose stowed: z = backZ - WEAPON_HALF_T[kind] (half thickness of the weapon's grip and head: dagger and katana 0.014, sword 0.018, staff, scythe and archery 0.02, axe, club and great axe 0.022 to 0.024). Rotations unchanged (one-handers hang blade down across the back, two-handers diagonal, staff low diagonal). Drawn pose in hand unchanged; checked visually.
+rig.js outlineMaterial: objectNormal only exists in MeshBasic shaders with skinning or envmap, so the outline shell on weapons (plain meshes) failed to compile; it now uses objectNormal when defined and the normal attribute otherwise.
+Test harness note: /tmp hero.js must hide v.lo and show v.mesh before each render, otherwise the far LOD mesh is drawn and weapons (children of hi-LOD bones) vanish.
+Remaining body plan phase: 4 female hips and jiggle.

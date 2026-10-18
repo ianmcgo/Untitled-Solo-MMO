@@ -101,6 +101,7 @@ function weaponBodyK(v) {
   return Math.max(0.7, Math.min(1.15, Math.sqrt((rb[0].leg + rb[0].torso) / 1.38)));
 }
 
+const WEAPON_HALF_T = { staff: 0.02, polearm: 0.018, greataxe: 0.024, scythe: 0.02, gsword: 0.022, gkatana: 0.016, sword: 0.018, katana: 0.014, dagger: 0.014, axe: 0.022, club: 0.022, archery: 0.02 };
 function weaponPose(v, drawn) {
   const k = v.weapon.userData.kind, pos = new THREE.Vector3(), rot = new THREE.Euler();
   if (drawn) {
@@ -111,9 +112,10 @@ function weaponPose(v, drawn) {
     else rot.set(Math.PI / 2 - 0.25, 0, 0);
   } else {
     const bz = v.meta.backZ || -0.15;
-    if (k === "staff") { pos.set(0, -0.1, bz - 0.045); rot.set(0, 0, 1.2); }
-    else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { pos.set(0, 0.0, bz - 0.045); rot.set(0, 0, 0.78); }
-    else { pos.set(0.04, 0.0, bz - 0.04); rot.set(0, 0, Math.PI + 0.55); }
+    const th = WEAPON_HALF_T[k] || 0.02;
+    if (k === "staff") { pos.set(0, -0.1, bz - th); rot.set(0, 0, 1.2); }
+    else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { pos.set(0, 0.0, bz - th); rot.set(0, 0, 0.78); }
+    else { pos.set(0.04, 0.0, bz - th); rot.set(0, 0, Math.PI + 0.55); }
   }
   return { pos, quat: new THREE.Quaternion().setFromEuler(rot), rot };
 }
