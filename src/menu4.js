@@ -1699,6 +1699,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.80.0", date: "2026-10-18", title: "Town barbers", items: [
+    "<b>A barber in every town</b> (Corrin in Ashenreach Outpost, Maelle in the harbor town, Sunniva in Ironvale), at a red-and-white striped stall with a Barber sign, beside the main road.",
+    "<b>Change your look for 1000 crystals:</b> talk to the barber and the creation screen opens with your race, gender and name locked. You can change face (including a ninth, barber-only face), hair, hair colour and size, with a live preview in your own gear (without a hat).",
+    "Nothing is charged until you press Pay. Cancel or Back from the first step costs nothing. If you have under 1000 crystals the barber says so and the screen does not open.",
+    "Your companions' looks are not affected."
+  ] },
   { v: "18.79.0", date: "2026-10-18", title: "Beards, headbands and face marks", items: [
     "<b>Faces now come with their own extras:</b> beards and a goatee, headbands, a hairband, a gold circlet with a gem, hair clips, beaded side locks, ribbons and a bun pin.",
     "<b>Face marks:</b> a forehead tattoo, war paint under the eyes, cheek stripes for Nekari and blue markings for the crested Human face.",
@@ -3321,7 +3327,7 @@ const UPDATES = [
     "Either advanced job can also be set as a support job once unlocked."
   ] },
   { v: "4.2.0", date: "2026-10-13", title: "Phase 5a: a bigger world", items: [
-    "Character creation: choose a name, job and appearance before you start. Appearance is permanent. Keep up to 8 characters and pick one on the character select screen each time you play, like an MMO. System → Change character logs out to that screen.",
+    "Character creation: choose a name, job and appearance before you start. Race, gender and name are permanent, but the town barber can change your face, hair, hair colour and size later. Keep up to 8 characters and pick one on the character select screen each time you play, like an MMO. System → Change character logs out to that screen.",
     "Chat commands: type in the box under the chat log (or press /). /rest sits you down to recover HP and MP quickly; standing still now only recovers a little. /help lists everything, including /target, /check, /cast, /ws, /item and emotes (/wave, /bow, /cheer, /dance, /laugh, /nod, /clap, /point, /salute, /panic, /cry, /thumbsup, /shrug, /think, /beckon, /stretch, /kneel, /flex), which play a short animation that others nearby can see.",
     "A Rest action is on page 2 of the action bar.",
     "Real loading screens: every area change shows a progress bar that moves while the land is shaped, instead of freezing.",
@@ -3422,7 +3428,7 @@ function tabHelp() {
     "Offline characters can never be moved online, uploaded or loaded into an online character. Use System → Save to file to back one up on the same or another device's offline list."
   ]));
   h += sec("👥 Characters", ul([
-    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, race, gender, face, hair colour and size. <b>Randomize all</b> rolls a whole new look. <b>Appearance is permanent</b>, so take your time.",
+    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, race, gender, face, hair colour and size. <b>Randomize all</b> rolls a whole new look. <b>Race, gender and name are permanent</b>; the barber in each town can restyle the rest later.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
     "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each race has its own set, and each face comes with its own hairstyle (47 styles in all, from Shaggy and Crown braid to Pipkin twin buns and Ursan lion manes), any extras that suit it (beards, headbands, circlets, clips, beads, ribbons, tattoos, war paint or cheek stripes) and three hair colours; skin comes from your race) → <b>Hair colour</b> (the three colours for your face, then a <b>More colours</b> palette) → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b> (with a summary of your choices and a <b>Start over</b> button). Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",

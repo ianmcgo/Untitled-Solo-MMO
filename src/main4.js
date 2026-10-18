@@ -434,17 +434,18 @@ function showCharSelect() {
 
 const CC_SIZES = [["Small", 0, 1], ["Medium", 2, 2], ["Large", 4, 3]];
 const CC_STEPS = [["race", "Race"], ["gender", "Gender"], ["face", "Face"], ["hair", "Hair colour"], ["size", "Size"], ["name", "Name & job"]];
+function ccFaceIdx(l) { return l.special ? 8 : (l.face || 0); }
 function ccApplyFace(l, keepCol) {
-  const e = faceHairEntry(l.race || "human", l.build, l.face || 0);
+  const e = faceHairEntry(l.race || "human", l.build, ccFaceIdx(l));
   l.hairStyle = Math.max(0, HAIR_STYLES.indexOf(e.style));
   if (e.extras.length) l.extras = e.extras.slice(); else delete l.extras;
   if (!keepCol) { l.hairCol = e.colors[0]; l.hairColor = 0; }
 }
-function ccFaceColors(l) { return faceHairEntry(l.race || "human", l.build, l.face || 0).colors; }
+function ccFaceColors(l) { return faceHairEntry(l.race || "human", l.build, ccFaceIdx(l)).colors; }
 function ccHex(c) { return "#" + c.toString(16).padStart(6, "0"); }
 function ccTouch() { try { return window.innerWidth <= 720 || window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0; } catch (e) { return false; } }
 function ccSizeOf(l) { const i = CC_SIZES.findIndex(s => s[1] === l.height && s[2] === l.girth); return i < 0 ? 1 : i; }
-function ccSteps(l) { return CC_STEPS.filter(s => s[0] !== "gender" || RACES[l.race].sex == null); }
+function ccSteps(l) { if (CC.edit) return CC_STEPS.filter(s => s[0] === "face" || s[0] === "hair" || s[0] === "size").concat([["confirm", "Confirm"]]); return CC_STEPS.filter(s => s[0] !== "gender" || RACES[l.race].sex == null); }
 function ccFaceThumb(v, fem, race) {
   const k = ATLAS_CELL / 256, c = document.createElement("canvas"), g = c.getContext("2d");
   c.width = ATLAS_CELL; c.height = ATLAS_CELL;
@@ -464,10 +465,47 @@ function ccRaceStats(rc) {
   return out.length ? out.join(" · ") : "No bonuses or penalties";
 }
 
-function showCharCreate() {
-  const r = loadRoster();
-  CC.job = "WAR";
+function barberOpen() {
+  if (UI.creating) return;
+  if (save.gil < BARBER_FEE) { log("A new look costs " + BARBER_FEE + " crystals.", "sys"); sfx("error"); return; }
+  showCharCreate(true);
+}
+function barberClose() {
+  UI.creating = false;
+  CC.edit = false;
+  releasePreview();
+  const ld = $("loading");
+  ld.classList.remove("on", "ready", "roster");
+  $("charSel").style.display = "none";
+  $("charSel").innerHTML = "";
+}
+function barberConfirm() {
+  const l = CC.look;
+  if (save.gil < BARBER_FEE) { $("ccErr").textContent = "You need " + BARBER_FEE + " crystals."; sfx("error"); return; }
+  save.gil -= BARBER_FEE;
+  const nl = Object.assign({}, save.look, { face: l.face, special: l.special ? 1 : 0, hairStyle: l.hairStyle, hairColor: l.hairColor, height: l.height, girth: l.girth });
+  if (typeof l.hairCol === "number") nl.hairCol = l.hairCol; else delete nl.hairCol;
+  if (l.extras && l.extras.length) nl.extras = l.extras.slice(); else delete nl.extras;
+  if (!nl.special) delete nl.special;
+  save.look = nl;
+  barberClose();
+  log("The barber finishes up and holds up a mirror. You pay " + BARBER_FEE + " crystals for your new look.", "loot");
+  sfx("coin");
+  saveGame();
+}
+function showCharCreate(edit) {
+  const r = edit ? null : loadRoster();
+  CC.edit = !!edit;
+  CC.job = edit ? player.job : "WAR";
   CC.step = 0;
+  const randomEdit = () => {
+    const l = CC.look, f = Math.floor(Math.random() * 9);
+    l.special = f === 8 ? 1 : 0; l.face = f === 8 ? 0 : f;
+    ccApplyFace(l);
+    if (Math.random() < 0.7) l.hairCol = ccFaceColors(l)[Math.floor(Math.random() * 3)];
+    else { l.hairColor = Math.floor(Math.random() * HAIR_COLORS.length); delete l.hairCol; }
+    const sz = CC_SIZES[Math.floor(Math.random() * 3)]; l.height = sz[1]; l.girth = sz[2];
+  };
   const randomLook = () => {
     const race = RACE_ORDER[Math.floor(Math.random() * RACE_ORDER.length)];
     const l = { race, build: RACES[race].sex != null ? RACES[race].sex : Math.floor(Math.random() * 2), face: Math.floor(Math.random() * FACE_COUNT) };
@@ -481,8 +519,18 @@ function showCharCreate() {
   ccApplyFace(CC.look);
   CC.name = "";
   CC.thumbs = {};
-  $("ldSub").textContent = "Create your character";
+  if (edit) {
+    CC.look = Object.assign({ height: 2, girth: 2 }, save.look, { race: raceOfLook(save.look) });
+    CC.name = save.name;
+    const ld = $("loading");
+    ld.classList.add("on", "ready", "roster");
+    ld.classList.remove("zone");
+    $("ldTitle").textContent = "BARBER";
+    $("ldStart").style.display = "none";
+  }
+  $("ldSub").textContent = edit ? "Choose your new look" : "Create your character";
   const box = $("charSel");
+  box.style.display = "block";
   box.innerHTML = '<div class="ccForm"><div id="ccPv"><div class="lbl" id="ccLbl"></div></div><div class="ccOpts">' +
     '<div class="ccSteps" id="ccSteps"></div><div class="ccStepT" id="ccStepT"></div><div class="ccBody" id="ccBody"></div>' +
     '<div class="ccErr" id="ccErr"></div>' +
@@ -498,7 +546,7 @@ function showCharCreate() {
     const l = CC.look, steps = ccSteps(l);
     CC.step = Math.max(0, Math.min(CC.step, steps.length - 1));
     const st = steps[CC.step][0];
-    if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; g.body = starterBody(CC.look.race, CC.job); g.legs = starterLegs(CC.look.race); UI.pv.override = { job: CC.job, gear: g, look: l }; UI.pv.focus = (st === "face" || st === "hair") && !ccTouch() ? 1 : 0; }
+    if (UI.pv) { const g = CC.edit ? Object.assign({}, save.gear) : Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; if (!CC.edit) { g.body = starterBody(CC.look.race, CC.job); g.legs = starterLegs(CC.look.race); } UI.pv.override = { job: CC.job, gear: g, look: l, lv: CC.edit ? player.lv : undefined }; UI.pv.focus = (st === "face" || st === "hair") && !ccTouch() ? 1 : 0; }
     $("ccSteps").innerHTML = steps.map((s, i) => '<button data-goto="' + i + '" class="' + (i === CC.step ? "on" : i < CC.step ? "done" : "") + '">' + (i + 1) + '<small>' + s[1] + "</small></button>").join("");
     $("ccStepT").textContent = (CC.step + 1) + ". " + steps[CC.step][1];
     const sel = (on) => on ? " on" : "";
@@ -511,7 +559,7 @@ function showCharCreate() {
       h = '<div class="ccGrid ccTwo">' + [["0", "♂ Male"], ["1", "♀ Female"]].map(([v, n]) => '<button data-sex="' + v + '" class="ccCard2' + sel(String(l.build) === v) + '"><b>' + n + "</b></button>").join("") + "</div>";
     } else if (st === "face") {
       const fem = l.build === 1;
-      h = '<div class="ccGrid ccFaces">' + FACE_NAMES.map((n, i) => { const src = thumb(i, fem); return '<button data-face="' + i + '" class="ccFaceB' + sel((l.face || 0) === i) + '">' + (src ? '<img alt="" src="' + src + '">' : "") + "<small>" + (i + 1) + ". " + n + "</small></button>"; }).join("") + "</div>";
+      h = '<div class="ccGrid ccFaces">' + FACE_NAMES.map((n, i) => { const src = thumb(i, fem); return '<button data-face="' + i + '" class="ccFaceB' + sel(!l.special && (l.face || 0) === i) + '">' + (src ? '<img alt="" src="' + src + '">' : "") + "<small>" + (i + 1) + ". " + n + "</small></button>"; }).join("") + (CC.edit ? '<button data-special="1" class="ccFaceB' + sel(!!l.special) + '">' + (thumb(0, fem) ? '<img alt="" src="' + thumb(0, fem) + '">' : "") + "<small>9. Barber's cut</small></button>" : "") + "</div>";
       h += '<div class="ccInfo2"><div>Each face comes with its own hairstyle and three hair colours: ' + esc(HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || "") + ".</div></div>";
     } else if (st === "hair") {
       const fc = ccFaceColors(l), cur = typeof l.hairCol === "number" ? l.hairCol : null;
@@ -521,6 +569,9 @@ function showCharCreate() {
       const cur = ccSizeOf(l);
       h = '<div class="ccGrid ccSizes">' + CC_SIZES.map((s, i) => '<button data-size="' + i + '" class="ccCard2' + sel(cur === i) + '"><b>' + s[0] + "</b><small>" + BODY_HEIGHT_NAMES[s[1]] + ", " + BODY_GIRTH_NAMES[s[2]].toLowerCase() + "</small></button>").join("") + "</div>";
       h += '<div class="ccInfo2"><div>Size is only for looks; it does not change your stats.</div></div>';
+    } else if (st === "confirm") {
+      h = '<div class="ccSum">' + [["Face", l.special ? "Barber's cut" : FACE_NAMES[(l.face || 0) % FACE_NAMES.length]], ["Hair", HAIR_STYLE_NAMES[HAIR_STYLES[l.hairStyle]] || ""], ["Size", CC_SIZES[ccSizeOf(l)][0]], ["Cost", BARBER_FEE + " crystals"], ["You have", save.gil + " crystals"]].map(x => "<span><em>" + x[0] + "</em>" + esc(x[1]) + "</span>").join("") + "</div>" +
+        '<div class="ccWarn">Race, gender and name stay the same. The preview shows you without a hat.</div>';
     } else {
       h = '<label>Name<input id="ccName" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="2–12 letters" value="' + esc(CC.name) + '"></label>' +
         '<div class="ccSec">Job</div><div class="ccJobs">' + START_JOBS.map(j => '<button data-job="' + j + '" style="--jc:' + JOBS[j].color + '"' + (CC.job === j ? ' class="on"' : "") + ">" + JOBS[j].icon + " " + JOBS[j].name + "</button>").join("") + '</div><div class="sub" id="ccJobBlurb">' + esc(JOB_BLURB[CC.job]) + "</div>" +
@@ -531,11 +582,11 @@ function showCharCreate() {
     $("ccBody").innerHTML = h;
     const last = CC.step === steps.length - 1;
     const nx = box.querySelector("[data-next]");
-    nx.textContent = last ? "Begin your journey" : "Next ▸";
+    nx.textContent = last ? (CC.edit ? "Pay " + BARBER_FEE + " crystals" : "Begin your journey") : "Next ▸";
     nx.dataset.create = last ? "1" : "";
-    box.querySelector("[data-prev]").textContent = CC.step ? "◂ Back" : "◂ Characters";
+    box.querySelector("[data-prev]").textContent = CC.step ? "◂ Back" : CC.edit ? "✕ Cancel" : "◂ Characters";
     label();
-    if (last) {
+    if (last && !CC.edit) {
       const nm = $("ccName");
       nm.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") create(); });
       nm.addEventListener("input", () => { CC.name = nm.value.replace(/[^A-Za-z' -]/g, "").slice(0, 12); if (nm.value !== CC.name) nm.value = CC.name; $("ccErr").textContent = ""; label(); });
@@ -544,6 +595,7 @@ function showCharCreate() {
   };
   paint();
   const create = async () => {
+    if (CC.edit) { barberConfirm(); return; }
     const name = CC.name.trim().replace(/^./, c => c.toUpperCase());
     const why = validCharName(name, r);
     const nm = $("ccName");
@@ -565,13 +617,14 @@ function showCharCreate() {
     if (b.dataset.job) { CC.job = b.dataset.job; sfx("tab"); box.querySelectorAll("[data-job]").forEach(x => x.classList.toggle("on", x.dataset.job === CC.job)); $("ccJobBlurb").textContent = JOB_BLURB[CC.job]; if (UI.pv) { const g = Object.assign({}, STARTER_GEAR[CC.job]); delete g.head; g.body = starterBody(CC.look.race, CC.job); g.legs = starterLegs(CC.look.race); UI.pv.override = { job: CC.job, gear: g, look: l }; } return; }
     if (b.dataset.race) { l.race = b.dataset.race; const sx = RACES[l.race].sex; if (sx != null) l.build = sx; ccApplyFace(l); sfx("click"); paint(); return; }
     if (b.dataset.sex != null && b.dataset.sex !== "") { l.build = +b.dataset.sex; ccApplyFace(l); sfx("click"); paint(); return; }
-    if (b.dataset.face != null && b.dataset.face !== "") { l.face = +b.dataset.face; ccApplyFace(l); sfx("click"); paint(); return; }
+    if (b.dataset.face != null && b.dataset.face !== "") { l.face = +b.dataset.face; l.special = 0; ccApplyFace(l); sfx("click"); paint(); return; }
+    if (b.dataset.special) { l.special = 1; l.face = 0; ccApplyFace(l); sfx("click"); paint(); return; }
     if (b.dataset.hv != null && b.dataset.hv !== "") { l.hairCol = ccFaceColors(l)[+b.dataset.hv]; sfx("click"); paint(); return; }
     if (b.dataset.hc != null && b.dataset.hc !== "") { l.hairColor = +b.dataset.hc; delete l.hairCol; sfx("click"); paint(); return; }
     if (b.dataset.size != null && b.dataset.size !== "") { const s = CC_SIZES[+b.dataset.size]; l.height = s[1]; l.girth = s[2]; sfx("click"); paint(); return; }
     if (b.dataset.goto != null && b.dataset.goto !== "") { const i = +b.dataset.goto; if (i <= CC.step || i <= ccSteps(l).length - 1) { CC.step = i; sfx("tab"); paint(); } return; }
-    if (b.dataset.rand) { const keep = CC.step; CC.look = randomLook(); CC.step = keep; sfx("click"); paint(); return; }
-    if (b.dataset.prev) { if (CC.step > 0) { CC.step--; sfx("close"); paint(); return; } UI.creating = false; releasePreview(); sfx("close"); showCharSelect(); return; }
+    if (b.dataset.rand) { const keep = CC.step; if (CC.edit) randomEdit(); else CC.look = randomLook(); CC.step = keep; sfx("click"); paint(); return; }
+    if (b.dataset.prev) { if (CC.step > 0) { CC.step--; sfx("close"); paint(); return; } if (CC.edit) { barberClose(); sfx("close"); return; } UI.creating = false; releasePreview(); sfx("close"); showCharSelect(); return; }
     if (b.dataset.next) { if (b.dataset.create) { create(); return; } CC.step++; sfx("click"); paint(); return; }
   };
 }

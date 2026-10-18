@@ -5583,6 +5583,12 @@ const TALK = {
       { label: left ? "Renew the City Blessing (" + mins + " min)" : "Receive the City Blessing (" + mins + " min)", fn: () => { closeDialog(); giveBlessing(); } }
     ]);
   },
+  talkBarber(n) {
+    const has = save.gil >= BARBER_FEE;
+    openDialog(n.name, has ? "Fancy a new look? For " + BARBER_FEE + " crystals I can restyle your face, hair, hair colour and build. You'll keep your race, gender and name. You can look it over before you pay: nothing is charged until you confirm." : "A new look costs " + BARBER_FEE + " crystals, and your purse is a little light. Come back when you have them.", has ? [
+      { label: "Change my look (" + BARBER_FEE + " crystals)", fn: () => { closeDialog(); barberOpen(); } }
+    ] : []);
+  },
   talkAuction(n) {
     const box = save.market.box.length, lots = save.market.listings.length, news = marketNews(marketDay());
     openDialog(n.name, "Welcome to the auction house. Buy from other adventurers, or put your own goods up and let the market find a buyer. " + news.text[0] + (lots ? " You have " + lots + " lot" + (lots > 1 ? "s" : "") + " up." : "") + (box ? " There's something waiting in your delivery box." : ""), [

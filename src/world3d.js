@@ -949,6 +949,8 @@ function buildTown(field, root) {
     const counter = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.9, 0.6), wallMat);
     counter.position.set(0, 0.45, 0.65);
     g.add(canopy, counter);
+    if (st.sign) { const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.6), new THREE.MeshStandardMaterial({ map: texSign(st.sign, "#f1cf73"), side: THREE.DoubleSide, roughness: 0.8 })); sg.position.set(0, 2.9, 0.78); g.add(sg); for (const sx of [-0.8, 0.8]) { const ch = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.45, 4), wallMat); ch.position.set(sx, 2.68, 0.78); g.add(ch); } }
+    if (st.pole) { const red = new THREE.MeshStandardMaterial({ color: 0xc0392b }), wht = new THREE.MeshStandardMaterial({ color: 0xf2ece0 }); for (let k = 0; k < 6; k++) { const sgm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.3, 10), k % 2 ? wht : red); sgm.position.set(1.65, 0.45 + k * 0.3, 0.75); g.add(sgm); } const cap = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), new THREE.MeshStandardMaterial({ color: 0xd8b050, metalness: 0.6, roughness: 0.4 })); cap.position.set(1.65, 2.34, 0.75); g.add(cap); }
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     g.position.set(st.x * U, field.heightAt(st.x, st.y), st.y * U);
     root.add(g);

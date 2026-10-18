@@ -111,7 +111,7 @@ Style variants on existing styles: long (centre part, swept back, heavy), bob (b
 2. Human and Elari hair (Opus): done in 18.77.0 (15 styles; variants folded into new styles; extras still phase 4).
 3. Pipkin, Nekari and Ursan hair (Opus): done in 18.78.0 (16 styles incl. the mane family).
 4. Extras (Opus): done in 18.79.0 (geometry marks instead of atlas paints).
-5. Barber in every town (Sonnet).
+5. Barber in every town (Sonnet): done in 18.80.0.
    - One barber NPC per town (Ashenreach market district, Saltreach, Ironvale), placed facing a road with a shop sign, like the auction clerk. Talk opens "Change your look? 1000 crystals."
    - Paying opens the character creation screen in edit mode: race, gender and name are shown but locked; job is not part of it. Face, hairstyle (that race's 8 faces plus the barber-only face 9), hair colour (the face's 3 colours plus the full palette) and size can change. A live preview uses the current gear.
    - Confirm charges 1000 crystals and saves; Cancel or closing charges nothing. Not enough crystals: the barber says so and the screen does not open.

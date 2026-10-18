@@ -139,6 +139,8 @@ const RES_ELEMENTS = ["fire", "ice", "wind", "earth", "lightning", "water", "lig
 const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN", "DRK", "BRD"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
 const START_JOBS = ["WAR", "THF", "WHM", "BLM"];
+const BARBER_FEE = 1000;
+const BARBER_NAMES = { outpost: "Corrin", harbor: "Maelle", ironvale: "Sunniva" };
 const JOB_REQ = {
   MNK: { WAR: 5 }, RDM: { WHM: 5, BLM: 5 }, RNG: { THF: 5, MNK: 5 }, SCH: { WHM: 10 }, COR: { SCH: 5, THF: 5 },
   DRK: { WAR: 5, BLM: 5 }, GEO: { MNK: 5 }, BST: { GEO: 5 }, NIN: { THF: 5, WAR: 5 }, PLD: { WAR: 5, WHM: 5 }, DNC: { THF: 5, BLM: 5 },
@@ -994,7 +996,7 @@ const ZONES = {
     npcs: [
       { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 18, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
       { id: "crystal_town", x: 1000, y: 760 }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
-      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "auction_outpost", x: 894, y: 626 },
+      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "auction_outpost", x: 894, y: 626 }, { id: "barber_outpost", x: 1085, y: 681 },
       { id: "garrick", x: 820, y: 1205, home: 7, sleep: [22, 6.5] },
       { id: "ysolde", x: 1700, y: 960, home: 16, sleep: [19.5, 5.5] }, { id: "guard_east", x: 1790, y: 690 }
     ],
@@ -1026,7 +1028,7 @@ const ZONES = {
       { x: 1700, y: 1300, w: 140, h: 110, type: "home", sign: "Stables" }, { x: 1720, y: 160, w: 160, h: 110, type: "guard", flag: "#9aa0a8" },
       { x: 800, y: 390, w: 180, h: 70, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" }, { x: 1130, y: 1150, w: 160, h: 90, type: "hall", sign: "Woodworkers" }, { x: 1340, y: 1150, w: 140, h: 90, type: "hall", sign: "Alchemists", signCol: "#7ae0a0" }
     ],
-    stalls: [{ x: 800, y: 690, color: "#b5651d" }, { x: 1200, y: 690, color: "#7b1fa2" }, { x: 1180, y: 960, color: "#2e7d32" }],
+    stalls: [{ x: 800, y: 690, color: "#b5651d" }, { x: 1200, y: 690, color: "#7b1fa2" }, { x: 1180, y: 960, color: "#2e7d32" }, { x: 1085, y: 690, color: "#c0392b", sign: "Barber", pole: true }],
     lamps: [[945, 650], [1120, 640], [880, 880], [1120, 880], [1600, 700], [1600, 820], [400, 700], [1000, 1180]],
     stable: { x: 1820, y: 1000, rot: -Math.PI / 2 },
     start: { x: 1000, y: 860 }
@@ -1199,7 +1201,7 @@ ZONES.harbor = {
   ambient: [{ type: "gull", x: 900, y: 1080, n: 6, r: 300 }, { type: "cat", x: 300, y: 600, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 900, y: 560, n: 1, path: [[800, 460], [1000, 460], [1000, 660], [800, 660]] }, { type: "walker", x: 900, y: 1035, n: 1, path: [[200, 1035], [1600, 1035]] }],
   npcs: [
     { id: "ilsa", x: 820, y: 400, home: 0, sleep: [22, 6] }, { id: "marn", x: 300, y: 430, home: 7, sleep: [20.5, 4.5] },
-    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "auction_harbor", x: 1088, y: 366 }, { id: "job_harbor", x: 1200, y: 560 }, { id: "stable_harbor", x: 1500, y: 640 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
+    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "auction_harbor", x: 1088, y: 366 }, { id: "barber_harbor", x: 1240, y: 431 }, { id: "job_harbor", x: 1200, y: 560 }, { id: "stable_harbor", x: 1500, y: 640 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1520, r: 430 }, { x: 900, y: 1540, r: 440 }, { x: 1500, y: 1520, r: 430 }],
@@ -1219,7 +1221,7 @@ ZONES.harbor = {
     { x: 1400, y: 300, w: 150, h: 100, type: "shop", sign: "Outfitters Hall", awning: "#2a6a9a" }, { x: 1300, y: 760, w: 160, h: 100, type: "hall", sign: "Shipwright" },
     { x: 1650, y: 200, w: 140, h: 100, type: "home", floors: 3 }, { x: 1690, y: 850, w: 120, h: 90, type: "home" }
   ],
-  stalls: [{ x: 360, y: 460, color: "#0277bd" }, { x: 1470, y: 440, color: "#6a1b9a" }],
+  stalls: [{ x: 360, y: 460, color: "#0277bd" }, { x: 1470, y: 440, color: "#6a1b9a" }, { x: 1240, y: 440, color: "#c0392b", sign: "Barber", pole: true }],
   docks: [[560, 1070, 60, 230], [870, 1090, 60, 210], [1240, 1070, 60, 230]],
   boats: [[680, 1240, 0.2], [1080, 1250, -0.3], [1420, 1230, 0.1]],
   lighthouses: [[1700, 1060]],
@@ -1483,7 +1485,7 @@ ZONES.ironvale = {
   props: [{ type: "crates", x: 1460, y: 860, r: 30 }, { type: "barrels", x: 1460, y: 300, r: 26 }, { type: "anvil", x: 1520, y: 590, rot: 0.3, r: 26 }],
   ambient: [{ type: "walker", x: 900, y: 680, n: 1, path: [[780, 560], [1020, 560], [1020, 800], [780, 800]] }, { type: "walker", x: 1380, y: 700, n: 1, path: [[1380, 150], [1380, 1250]] }, { type: "dog", x: 900, y: 680, n: 1, r: 120, col: 0x5a4a3a }],
   npcs: [
-    { id: "brisa", x: 1000, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "auction_ironvale", x: 726, y: 531 }, { id: "job_ironvale", x: 820, y: 560 }, { id: "stable_ironvale", x: 1350, y: 760 },
+    { id: "brisa", x: 1000, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "auction_ironvale", x: 726, y: 531 }, { id: "barber_ironvale", x: 1200, y: 631 }, { id: "job_ironvale", x: 820, y: 560 }, { id: "stable_ironvale", x: 1350, y: 760 },
     { id: "crystal_ironvale", x: 900, y: 680 }, { id: "trade_board", x: 1040, y: 560 }, { id: "guard_ironvale", x: 150, y: 650 }
   ],
   spawns: [],
@@ -1505,7 +1507,7 @@ ZONES.ironvale = {
     { x: 250, y: 200, w: 150, h: 110, type: "home" }, { x: 250, y: 400, w: 140, h: 100, type: "home", floors: 3 }, { x: 250, y: 560, w: 140, h: 90, type: "guard", flag: "#90a4ae" }, { x: 250, y: 880, w: 140, h: 100, type: "home" }, { x: 250, y: 1100, w: 150, h: 110, type: "home" }, { x: 250, y: 1290, w: 150, h: 90, type: "home" },
     { x: 720, y: 1300, w: 160, h: 100, type: "home", floors: 3 }, { x: 1090, y: 1300, w: 160, h: 100, type: "warehouse", floors: 2 }, { x: 1600, y: 820, w: 180, h: 90, type: "warehouse", floors: 1 }
   ],
-  stalls: [{ x: 1000, y: 820, color: "#5d4037" }, { x: 800, y: 820, color: "#37474f" }],
+  stalls: [{ x: 1000, y: 820, color: "#5d4037" }, { x: 800, y: 820, color: "#37474f" }, { x: 1200, y: 640, color: "#c0392b", sign: "Barber", pole: true }],
   mines: [[1690, 1250, -Math.PI / 2]],
   benches: [[760, 760, 1.57], [1040, 760, -1.57]],
   lamps: [[780, 560], [1020, 560], [780, 800], [1020, 800], [450, 700], [1380, 700], [900, 1100], [900, 300]],
@@ -2394,6 +2396,7 @@ const TOWN_SERVICES = {
   ironvale: { job: "Dagny", stable: "Hild" }
 };
 for (const town in TOWN_SERVICES) {
+  NPCS["barber_" + town] = { name: BARBER_NAMES[town] + ", Barber", model: "barber", talk: "talkBarber" }; VENDOR_WORK["barber_" + town] = "work";
   NPCS["auction_" + town] = { name: "Auction Clerk", model: "auction_clerk", talk: "talkAuction" }; VENDOR_WORK["auction_" + town] = "count";
   const T = TOWN_SERVICES[town];
   if (T.job) { NPCS["job_" + town] = { name: T.job + ", Job Master", model: "tobin_b", talk: "talkTobin" }; VENDOR_WORK["job_" + town] = "read"; }
