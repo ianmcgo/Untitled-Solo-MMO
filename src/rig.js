@@ -1963,20 +1963,23 @@ function humanEntryBase(L) {
     const ring = (y, r, xs, zs, f, b, z, p) => ({ y, rx: r * xs, rz: r * zs, f, b, z: z || 0, p: p || 2.1 });
     const lowR0 = [ring(hipJ - 0.078, 0.045, hx0, hz, 1, 1), ring(hipJ - 0.06, 0.11, hx0, hz, 0.95, 1.08, -0.004), ring(hipJ - 0.02, hipR * 0.95, hx0, hz, 0.95, 1.16, -0.006), ring(hipJ + 0.015, hipR * 0.99, hx0, hz, 0.97, 1.12, -0.004), ring(beltY, hipR, hx0, hz, 1, 1.04)];
     const lowR = L.doll ? lowR0.map(r => r.y < hipJ + 0.01 ? Object.assign({}, r, { rx: r.rx * 0.72, rz: r.rz * 0.85 }) : r) : lowR0;
-    const bust = fem ? 0.09 : 0.03;
-    const upR0 = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.95, (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring((spineY + chestY) / 2, waistR * 0.93, cx0 * 0.95, cz, 1.06, 0.92), ring(chestY - 0.04, 0.155, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.172, cx1 * 1.03, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.18, cx1 * 1.06, cz, 1.0 + bust * 0.3, 1.05), ring(shY - 0.025, 0.17, cx1 * 1.04, cz * 0.95, 0.97, 1.03, 0, 2.1), ring(shY - 0.002, 0.148, cx1 * 1.0, cz * 0.9, 0.94, 1.02, -0.004, 2.0), ring(shY + 0.022, 0.112, cx1 * 0.94, cz * 0.88, 0.92, 1.0, -0.006, 2.0), ring(neckY - 0.024, 0.084, cx1 * 0.86, cz * 0.92, 0.9, 0.95, -0.006, 2.0), ring(neckY + 0.012, 0.058, gi * (fem ? 0.86 : 1), gi * 0.95, 1, 1, -0.006, 2)];
+    const bust = fem ? (robe ? 0.2 : 0.09) : 0.03, urs = L.ears === "ursan", lowW = !L.doll && !urs;
+    const spY = lowW ? beltY + (spineY - beltY) * 0.55 : spineY, wsY = lowW ? spineY + (chestY - spineY) * 0.24 : (spineY + chestY) / 2;
+    const upR0 = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spY, hipR * (lowW ? 0.94 : 0.95), (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring(wsY, waistR * 0.93, cx0 * 0.95, cz, 1.06, 0.92), ring(chestY - 0.04, 0.155, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.172, cx1 * 1.03, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.18, cx1 * 1.06, cz, 1.0 + bust * 0.3, 1.05), ring(shY - 0.025, 0.17, cx1 * 1.04, cz * 0.95, 0.97, 1.03, 0, 2.1), ring(shY - 0.002, 0.148, cx1 * 1.0, cz * 0.9, 0.94, 1.02, -0.004, 2.0), ring(shY + 0.022, 0.112, cx1 * 0.94, cz * 0.88, 0.92, 1.0, -0.006, 2.0), ring(neckY - 0.024, 0.084, cx1 * 0.86, cz * 0.92, 0.9, 0.95, -0.006, 2.0), ring(neckY + 0.012, 0.058, gi * (fem ? 0.86 : 1), gi * 0.95, 1, 1, -0.006, 2)];
     const dollUp = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.93, hx0, hz * 0.97, 1.03, 1.0), ring(chestY - 0.01, hipR * 0.9, hx0 * 0.97, hz * 0.95, 1.04 + bust * 0.5, 1.0), ring(chestY + 0.45 * (neckY - chestY), sw * 1.05, 1, 0.85, 1.0, 1.0, 0, 2.0), ring(shY, sw * 0.95, 1, 0.82, 0.98, 1.0, 0, 2.0), ring(neckY - 0.012, 0.078 * gi, 1, 0.95, 1, 1, -0.004, 2), ring(neckY + 0.012, 0.066 * gi, 1, 0.95, 1, 1, -0.006, 2)];
+    if (urs) upR0.forEach((r, i) => { if (i >= 2 && i <= 8) { const k = i <= 5 ? 1 : (9 - i) / 4; r.rz *= 1 + 0.16 * k; r.rx *= 1 - 0.05 * k; r.p = 1.95; } r.rx *= [1, 1, 1, 1, 1, 1, 1.03, 1.12, 1.22, 1.14, 1.06][i] || 1; });
     const upR = L.doll ? monoRings(dollUp) : upR0;
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     R.addW(gLoft(lowR, 24, true, false, 0, 0.3), "hips", robe ? topC : legC, robe ? topR : legR, tw);
     R.addW(gLoft(upR, 24, false, false, 0.3, 1), "chest", topC, topR, tw);
-    if (fem && !L.doll && !robe) for (const xs of [-1, 1]) R.add(gBall(V3(xs * 0.05 * gi, chestY + 0.018, cz * 0.172 * 0.78), 0.05 * gi, 0.95, 0.9, 0.7, 14), "chest", topC, topR);
-    BODY.up = upR; BODY.tw = tw;
+    const bR = 0.056 * gi, bY = chestY + 0.004, bZ = cz * 0.172 * 0.92, bX = 0.057 * gi;
+    if (fem && !L.doll && !robe) for (const xs of [-1, 1]) R.add(gBall(V3(xs * bX, bY, bZ), bR, 0.98, 0.94, 0.96, 18), "chest", topC, topR);
+    BODY.up = upR; BODY.tw = tw; BODY.bust = fem && !L.doll && !robe ? { y: bY, front: bZ + bR * 0.96, r: bR } : null;
     const UW = L.under || {}, wht = 0xe6ded2;
     if (UW.low === "boxer" || UW.low === "brief") {
       const sh = shellOf(lowR, 0.006);
       R.addW(gLoft(sh, 24, true, false, 0, 0.3), "hips", wht, "plain", tw);
-      R.add(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "plain");
+      if (!urs) R.add(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "plain");
     } else if (UW.low === "thong") {
       R.add(gRing(V3(0, beltY - 0.012, 0), hipR * hx0 + 0.004, 0.0055, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "plain");
       R.add(gBall(V3(0, hipJ - 0.005, hipR * hz * 0.96), 0.05, 1.15, 1.2, 0.22, 16), "hips", wht, "plain");
@@ -1984,7 +1987,7 @@ function humanEntryBase(L) {
     }
     if (UW.top === "bikini") {
       const cz1 = cz * 0.172 * (1.06 + bust) * 0.8;
-      for (const xs of [-1, 1]) R.add(gBall(V3(xs * 0.051 * gi, chestY + 0.02, cz1 * 0.97), 0.054 * gi, 0.98, 0.9, 0.62, 18), "chest", wht, "plain");
+      for (const xs of [-1, 1]) R.add(BODY.bust ? gBall(V3(xs * bX, bY + 0.004, bZ + 0.004), bR * 1.03, 0.98, 0.9, 0.96, 18) : gBall(V3(xs * 0.051 * gi, chestY + 0.02, cz1 * 0.97), 0.054 * gi, 0.98, 0.9, 0.62, 18), "chest", wht, "plain");
       R.add(gRing(V3(0, chestY - 0.04, 0), (L.doll ? 0.122 : 0.156) * cx0 + 0.003, 0.0045, "y", 22).scale(1, 1, cz / cx0 * (L.doll ? 0.95 : 1.02)), "chest", wht, "plain");
       for (const xs of [-1, 1]) R.add(gTaper(V3(xs * 0.05 * gi, chestY + 0.065, cz1 * 0.92), V3(xs * 0.03, neckY - 0.01, -0.02), 0.0045, 0.0045, 6), "chest", wht, "plain");
     } else if (UW.top === "bandeau") {
@@ -2015,7 +2018,7 @@ function humanEntryBase(L) {
       const ak = L.doll ? 0.85 : 1.08, ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi * ak, rz: r * gi * ak, f: f || 1, b: b || 1, p: p || 2 });
       const aw = (x, y) => y > shY - 0.03 ? [["upArm" + sd, 1 - 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)], ["chest", 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)]] : blendW(y, [[0, "foreArm" + sd, 0], [elY, "upArm" + sd, 0.035]]).map(([n, w]) => [n, w]);
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
-      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }); const upRings0 = [tuck(ar(shY + 0.012, 0.04), 0.052), tuck(ar(shY - 0.004, 0.057), 0.032), tuck(ar(shY - 0.026, 0.063), 0.014), ar(shY - 0.05, 0.06, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
+      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }), uA = L.ears === "ursan"; const upRings0 = [...(uA ? [tuck(ar(shY - 0.006, 0.032), 0.085), tuck(ar(shY - 0.02, 0.048), 0.055), tuck(ar(shY - 0.038, 0.058), 0.026)] : [tuck(ar(shY + 0.012, 0.04), 0.052), tuck(ar(shY - 0.004, 0.057), 0.032), tuck(ar(shY - 0.026, 0.063), 0.014)]), ar(shY - 0.05, 0.06, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
       const upRings = L.doll ? monoRings(upRings0) : upRings0;
       const fa10 = [ar(elY, 0.042, 1, 1.08), ar(elY - 0.03, 0.045, 1.05, 1.0), ar(elY - 0.07, 0.043), ar(mid, 0.039)];
       const fa1 = L.doll ? monoRings(fa10).map((r, i, a) => i === a.length - 1 ? Object.assign({}, r, { rx: r.rx * 0.92, rz: r.rz * 0.92 }) : r) : fa10;
@@ -2032,7 +2035,7 @@ function humanEntryBase(L) {
       R.addW(gLoft(flip(fa1), 16, false, false, 0.5, 0.75), "foreArm" + sd, fa1C, fa1R, armW);
       R.addW(gLoft(flip(fa2), 16, false, false, 0.75, 1), "foreArm" + sd, fa2C, fa2R, wrW);
       }
-      if (!L.doll) R.addW(gBall(V3(ax - s * 0.004, shY - 0.058, 0), 0.056 * gi, 1.0, 1.15, 1.0, 14), "upArm" + sd, upC, upR, (x, y, z) => { const k = smoothRange(shY - 0.07, shY + 0.01, y) * smoothRange(-0.02, 0.04, -s * (x - ax)); return [["upArm" + sd, 1 - 0.55 * k], ["chest", 0.55 * k]]; });
+      if (!L.doll && !uA) R.addW(gBall(V3(ax - s * (uA ? 0.012 : 0.004), shY - (uA ? 0.075 : 0.058), 0), (uA ? 0.05 : 0.056) * gi, 1.0, 1.15, 1.0, 14), "upArm" + sd, upC, upR, (x, y, z) => { const k = smoothRange(shY - 0.07, shY + 0.01, y) * smoothRange(-0.02, 0.04, -s * (x - ax)); return [["upArm" + sd, 1 - 0.55 * k], ["chest", 0.55 * k]]; });
       BODY["arm" + sd] = { up: upRings, fa1, fa2, w: armW };
     }
     if (sleeves === "wide" && !bare) {
@@ -2179,6 +2182,7 @@ function humanEntryBase(L) {
     const W2 = sw / 0.195, pc = top.plate || 0x9aa0a8;
     if (BODY.up) {
       const pl = shellOf(BODY.up.slice(1, 7), 0.016 * gi);
+      if (BODY.bust) for (const r of pl) { const k = smoothRange(BODY.bust.r * 1.6, BODY.bust.r * 0.4, Math.abs(r.y - BODY.bust.y)), need = (BODY.bust.front + 0.014 - (r.z || 0)) / r.rz; if (need > (r.f || 1)) r.f = (r.f || 1) + (need - (r.f || 1)) * k; }
       R.addW(gLoft(pl, 24, false, false, 0, 1), "chest", pc, "metal", BODY.tw);
       const mid = BODY.up[4];
       R.addW(gBox(V3(0, (BODY.up[2].y + BODY.up[6].y) / 2, mid.rz * (mid.f || 1) + 0.02 * gi), 0.012, BODY.up[6].y - BODY.up[2].y, 0.01), "chest", top.trim || 0xc8a040, "metal", BODY.tw);
@@ -3587,7 +3591,7 @@ const RACE_BODY = {
   human: [{ leg: 0.86, torso: 0.52, arm: 0.6, girth: 1, waist: 0.92, shoulder: 0.195, hip: 0.095, headR: 0.138, neck: 0.02 }, { leg: 0.86, torso: 0.52, arm: 0.6, girth: 0.9, waist: 0.8, shoulder: 0.165, hip: 0.1, headR: 0.138, neck: 0.02 }],
   elari: [{ leg: 0.99, torso: 0.57, arm: 0.67, girth: 0.88, waist: 0.84, shoulder: 0.19, hip: 0.09, headR: 0.13, neck: 0.088 }, { leg: 0.97, torso: 0.55, arm: 0.65, girth: 0.82, waist: 0.74, shoulder: 0.158, hip: 0.098, headR: 0.128, neck: 0.088 }],
   pipkin: [{ leg: 0.2, torso: 0.26, arm: 0.24, girth: 1.1, waist: 1.2, shoulder: 0.125, hip: 0.088, headR: 0.16, neck: -0.05 }, { leg: 0.2, torso: 0.26, arm: 0.24, girth: 1.22, waist: 1.3, shoulder: 0.125, hip: 0.095, headR: 0.16, neck: -0.05 }],
-  ursan: [{ leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }, { leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.3, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }],
+  ursan: [{ leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.02, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }, { leg: 0.94, torso: 0.8, arm: 0.88, girth: 1.5, waist: 1.02, shoulder: 0.32, hip: 0.14, headR: 0.19, neck: -0.04 }],
   nekari: [{ leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.86, waist: 0.76, shoulder: 0.16, hip: 0.098, headR: 0.134, neck: 0.02 }, { leg: 0.88, torso: 0.5, arm: 0.58, girth: 0.84, waist: 0.74, shoulder: 0.155, hip: 0.1, headR: 0.134, neck: 0.02 }]
 };
 

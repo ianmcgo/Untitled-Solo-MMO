@@ -4,7 +4,9 @@ Rule (user request): equipment, weapons and spell scrolls drop only from
 1. NMs and bosses, and
 2. humanoid monsters that could use the item: the monster's job and level meet the item's job and level requirement (a monster that could not equip or cast it never carries it).
 
-Everything else (beasts, plants, insects, undead without a job, and so on) drops only materials, food, potions and crystals.
+Everything else (beasts, plants, insects, undead without a job, and so on) drops only materials, food, potions and crafting essences.
+
+Crystals (currency): only humanoid mobs drop crystals. Non-humanoid mobs drop none (today every mob falls back to CONFIG.mobGil in dropLoot; the fallback becomes humanoid-only and any gil field on a non-humanoid family is removed). Crafting essences (fire_crystal and the rest) are items, not currency, and are unaffected. Expect a crystal income drop; Phase 2 checks economy-18.4.md numbers and may raise humanoid gil or material sell prices to compensate.
 
 ## Scope
 - Audit every drop table in data.js (mob families, NM tables, boss tables) and list entries of type gear, weapon or scroll on non-qualifying mobs.
@@ -22,5 +24,5 @@ Everything else (beasts, plants, insects, undead without a job, and so on) drops
 Help (Loot section) and Updates entries; design.md drops and rarity section.
 
 ## Phases
-1. Audit and rule check in dropLoot plus the table-wide unit test (Sonnet).
+1. Audit and rule check in dropLoot plus the table-wide unit test, humanoid-only crystal drops (Sonnet).
 2. Rebalance tables: material replacements for beasts, job-matched drops for humanoids (Opus, needs judgement on values).
