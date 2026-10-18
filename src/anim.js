@@ -919,6 +919,10 @@ function poseHuman(v, e, dt) {
     const wag = Math.sin(t * (1.6 + run * 3 + an.fight * 2)) * (0.3 + run * 0.15 + an.fight * 0.2);
     addP(P, "tail", 0.2 - run * 0.35 - lash * 0.6, wag * 0.6, 0);
     addP(P, "tail2", -0.25 - run * 0.2 - lash * 0.5, wag, 0);
+    if (P.tail3) {
+      const sw = Math.sin(t * 1.5 + 0.4) * (0.1 + run * 0.05), sw2 = Math.sin(t * 1.5 - 0.5) * (0.13 + run * 0.06);
+      addP(P, "tail", 0, sw, 0); addP(P, "tail2", 0, sw2, 0); addP(P, "tail3", -0.15, wag * 0.5 + Math.sin(t * 1.5 - 1.1) * 0.18, 0);
+    }
   }
   if (isMob(e)) mobAlert(v, e, an, P);
   if (an.dead != null) {

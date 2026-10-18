@@ -2332,3 +2332,9 @@ rig.js humanEntryBase torso: bust = fem ? (robe ? 0.2 : 0.09) : 0.03 front facto
 Female bust balls (non-doll, non-robe): r 0.056 gi at x ±0.057 gi, y chestY + 0.004, z cz 0.172 0.92, scale 0.98/0.94/0.96, coloured as the top. BODY.bust {y, front, r} is recorded; bikini cups use it (doll keeps the old flat cups). Plate shell rings within 1.6 r of bust y raise front factor f so the shell clears bust front + 0.014.
 Ursan: bodyProp waist 1.3 -> 1.02 (removed the mid-torso bulge); torso rings 2..8 rz up to +16%, rx up to -5%, p 1.95; shoulder rings 6..10 rx x [1.03, 1.12, 1.22, 1.14, 1.06] for a sloping trapezius; upper arm top rings domed (smaller radius, more tuck); deltoid ball skipped (it made the sharp shoulder corner); boxer waistband ring skipped.
 Remaining body plan phases: 2 tails and Nekari ears, 3 weapon attachment, 4 female hips and jiggle.
+
+## 18.82.0 Tails and Nekari ears (body polish plan phase 2)
+rig.js tail block: one chain for every tail type. pts lists [dy, dz, radius] per joint (cat 7 points S curve, ursan 7 points thicker, generic 6 points); each segment is a gTaper with a ball joint at every interior point so the bend is round; segments 0-1 skin to bone tail, 2-3 to tail2, 4-5 to tail3 (new bone chained under tail2; bones sit at points 0, 2 and 4). Tip ball closes the end.
+anim.js humanoid tail block: when P.tail3 exists it adds idle-independent sway (sin t*1.5, phase lagged per bone) on tail, tail2 and tail3 yaw on top of the existing wag; addP ignores missing bones so other rigs are unaffected.
+Nekari ears: local ear() builds a 3-sided cylinder (triangle cross section) scaled thin in z, base 0.52 hr tapering to 0.11 hr over about 0.9 hr, outward tilt 0.8 hr, rounded tip ball, pink inner (0xd89a9a) slightly forward. Still skipped when a helm, hood, horned, winged, kabuto, turban, ninjahood or jester head piece is worn.
+Remaining body plan phases: 3 weapon attachment, 4 female hips and jiggle.

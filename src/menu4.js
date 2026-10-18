@@ -1699,6 +1699,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.82.0", date: "2026-10-18", title: "Tails and cat ears", items: [
+    "<b>Nekari ears are now cat ears:</b> wide triangular ears with a rounded tip and a pink inner, instead of thin horn-like spikes.",
+    "<b>Nekari tails are rounder</b> and curve smoothly in an S shape, and they now sway gently left and right all the time, whether you stand still, walk or run.",
+    "<b>Ursan tails are connected and rounded</b> at the curve. The blocky, separated pieces are replaced by one smooth tapered tail."
+  ] },
   { v: "18.81.0", date: "2026-10-18", title: "Body shapes", items: [
     "<b>Rounder bust on female bodies</b> (Human, Elari, Nekari): the chest now has a full, rounded profile instead of a flat one. Shirts, vests and mail follow it, plate breastplates bulge to fit over it, and robes show a softer curve.",
     "<b>Lower waistline</b> on Human, Elari and Nekari bodies, both builds: the narrowest point of the torso sits lower, closer to the hips.",
@@ -3434,7 +3439,7 @@ function tabHelp() {
     "Offline characters can never be moved online, uploaded or loaded into an online character. Use System → Save to file to back one up on the same or another device's offline list."
   ]));
   h += sec("👥 Characters", ul([
-    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, race, gender, face, hair colour and size. <b>Randomize all</b> rolls a whole new look. <b>Race, gender and name are permanent</b>; the barber in each town can restyle the rest later. Body shapes differ by race and build: female bodies have a rounded bust that armour and robes shape around, Human, Elari and Nekari have a natural lower waist, and Ursan have a broad barrel chest with sloping shoulders.",
+    "The game opens on the title screen; press Start (or tap) to see your characters. There you pick a character or create a new one: name (2–12 letters), job, race, gender, face, hair colour and size. <b>Randomize all</b> rolls a whole new look. <b>Race, gender and name are permanent</b>; the barber in each town can restyle the rest later. Body shapes differ by race and build: female bodies have a rounded bust that armour and robes shape around, Human, Elari and Nekari have a natural lower waist, and Ursan have a broad barrel chest with sloping shoulders. Nekari have cat ears and a swaying tail; Ursan have a thick rounded tail.",
     "Logging in puts you back where you were: your location saves every 15 seconds and when the tab closes.",
     "Creating a character takes six short steps, in the spirit of classic online RPGs: <b>Race</b> (Human, Elari, Pipkin, Ursan or Nekari, with their stat bonuses) → <b>Gender</b> (skipped for Ursan, always male, and Nekari, always female) → <b>Face</b> (eight anime-style faces: Bright, Calm, Keen, Freckled, Gentle, Fierce, Sleepy and Proud; each race has its own set, and each face comes with its own hairstyle (47 styles in all, from Shaggy and Crown braid to Pipkin twin buns and Ursan lion manes), any extras that suit it (beards, headbands, circlets, clips, beads, ribbons, tattoos, war paint or cheek stripes) and three hair colours; skin comes from your race) → <b>Hair colour</b> (the three colours for your face, then a <b>More colours</b> palette) → <b>Size</b> (Small, Medium or Large; looks only, no effect on stats) → <b>Name and job</b> (with a summary of your choices and a <b>Start over</b> button). Back returns to the previous step, the numbered tabs jump between steps you have seen, and 🎲 picks a random look. The preview zooms in on the face for the Face and Hair colour steps; drag it to turn the model. Set Graphics to High for the sharpest faces.",
     "You can keep up to " + MAX_CHARS + " characters. Each has its own levels, gear, crystals, quests and companions. System → Change character goes back to the select screen.",
