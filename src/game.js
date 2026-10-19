@@ -94,7 +94,7 @@ function newSave() {
     gil: CONFIG.startGil,
     quests: Object.fromEntries(Object.keys(QUESTS).map(k => [k, "none"])),
     mountCoat: "teal", coats: ["teal"], saddle: false, blessing: 0, buddies: [], buddyNames: {}, friends: [], blocked: [], lsActive: null, lfg: false, seekMsg: "", buddy: null, buddyOut: false, race: { best: null, medals: {} }, mountLicense: false, jobsUnlocked: { PLD: false, RDM: false, THF: false, MNK: false, RNG: false, SMN: false, DRK: false, BRD: false }, look: { build: 0, hairStyle: 0, hairColor: 1 },
-    hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
+    hired: [], zsplit: Object.fromEntries(Object.keys(ZONE_SPLITS).map(k => [k, 1])), home: { zone: "outpost", npc: "crystal_town" }, keyItems: [], timers: {}, landmarks: {}, districts: {}, zv: 3, tl: Object.assign({}, TOWN_LAYOUT), qprog: {}, crypt: { solved: false, lit: [] }, storage: [], furniture: [], crafts: { smithing: 0, woodworking: 0, clothcraft: 0, alchemy: 0, cooking: 0 }, food: null, gatherSkill: { mining: 0, logging: 0, harvesting: 0, fishing: 0 }, gardens: {}, harvests: 0, created: Date.now(),
     stance: "assist", mercGear: {}, mercInv: {}, bond: {}, mercPaid: {}, mercContract: {}, oldFriends: {}, mercWageSeen: {}, mercHireLv: {}, bestiary: {}, recipes: Object.fromEntries(RECIPE_START.map(id => [id, 1])), seen: { items: {}, npcs: {} }, ach: {}, nmKilled: {}, discovered: [], stats: { kills: 0, nm: 0, sc: 0, mb: 0, crafts: 0, hq: 0, gathers: 0, kos: 0, jumps: 0, trades: 0, ahSold: 0, ahBought: 0, bounties: 0, lotsWon: 0, fish: 0, bigFish: 0, meals: 0, ride: 0, summons: 0, rngKills: 0, bfWins: 0, dmgDealt: 0, dmgTaken: 0, bigHit: 0, spellsCast: 0, abilitiesUsed: 0, itemsUsed: 0, killGil: 0, walk: 0 }, board: { day: 0, done: [] }, story: { ch: 0, step: 0, prog: 0, done: false }, market: { press: {}, bought: { day: -1, t: {} }, listings: [], box: [] }, guild: { gp: 0, total: 0, active: {}, day: 0, done: [] }, augments: {}
   };
 }
@@ -119,6 +119,8 @@ function normalizeSave(d) {
   out.zv = 3;
   out.zsplit = Object.assign({}, d.zsplit && typeof d.zsplit === "object" ? d.zsplit : {}, reset);
   migrateSplits(out);
+  if (out.loc && ZONES[out.loc.zone]) { const a = areaOf(out.loc.zone); if (TOWN_LAYOUT[a] && ((d.tl || {})[a] || 1) < TOWN_LAYOUT[a]) out.loc = { zone: a, x: ZONES[a].start.x, y: ZONES[a].start.y }; }
+  out.tl = Object.assign({}, TOWN_LAYOUT);
   if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
   out.stats = Object.assign(newSave().stats, d.stats || {});
@@ -5865,12 +5867,13 @@ const TALK = {
     openDialog(n.name, save.timers["nm:hollow_king"] > Date.now() ? "The throne stands empty. For now." : "A throne of black stone, cold as the grave. Its king is never far.", []);
   },
   talkSign(n) {
-    const lines = (S.zone.exits || []).filter(e => ZONES[e.to] && e.kind !== "door").map(e => {
+    const to = NPCS[n.id] && NPCS[n.id].signTo, lead = to && ZONES[to] ? "This way to " + ZONES[to].name + ". " : "";
+    const lines = (S.zone.exits || []).filter(e => ZONES[e.to] && e.kind !== "door" && e.to !== to).map(e => {
       const cx = e.x + e.w / 2, cy = e.y + e.h / 2, dx = cx - player.x, dy = cy - player.y;
       const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "east" : "west") : (dy > 0 ? "south" : "north");
       return ZONES[e.to].name + ": " + dir + ", about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms";
     });
-    openDialog("Signpost", "Carved arrows point the way. " + lines.join(". ") + ".", []);
+    openDialog(n.name || "Signpost", lead + (lines.length ? "Other arrows point the way. " + lines.join(". ") + "." : ""), []);
   },
   talkCamp(n) {
     openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Crystals stand only in towns, so rest here and press on.", []);

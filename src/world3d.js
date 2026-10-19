@@ -39,16 +39,17 @@ function* buildFieldSteps(zone) {
   const x0 = -M, y0 = -M, w = zone.w + 2 * M, h = zone.h + 2 * M;
   const cols = Math.ceil(w / cs) + 1, rows = Math.ceil(h / cs) + 1;
   const amps = { town: [0.7, 0.12, 6], field: [2.6, 0.35, 11], cave: [0.8, 0.45, 13], crypt: [0.25, 0.1, 12], house: [0, 0, 0] }[theme];
-  const paths = zone.paths || [];
+  const paths = (zone.paths || []).concat((zone.ghost && zone.ghost.paths) || []);
   const waters = zone.water || [];
+  const pathSegs = [];
+  for (const p of paths) for (let i = 0; i < p.pts.length - 1; i++) { const a = p.pts[i], b = p.pts[i + 1], m = p.w * 0.8; pathSegs.push({ ax: a[0], ay: a[1], bx: b[0], by: b[1], w: p.w, x0: Math.min(a[0], b[0]) - m, x1: Math.max(a[0], b[0]) + m, y0: Math.min(a[1], b[1]) - m, y1: Math.max(a[1], b[1]) + m }); }
   const pathW = (px, py) => {
     let best = 0;
-    for (const p of paths) {
-      for (let i = 0; i < p.pts.length - 1; i++) {
-        const d = distToSeg(px, py, p.pts[i][0], p.pts[i][1], p.pts[i + 1][0], p.pts[i + 1][1]);
-        const wgt = 1 - sstep(p.w * 0.32, p.w * 0.62, d + (NOISE.value(px * 0.05, py * 0.05, 0, 401) - 0.5) * p.w * 0.3);
-        if (wgt > best) best = wgt;
-      }
+    for (const s of pathSegs) {
+      if (px < s.x0 || px > s.x1 || py < s.y0 || py > s.y1) continue;
+      const d = distToSeg(px, py, s.ax, s.ay, s.bx, s.by);
+      const wgt = 1 - sstep(s.w * 0.32, s.w * 0.62, d + (NOISE.value(px * 0.05, py * 0.05, 0, 401) - 0.5) * s.w * 0.3);
+      if (wgt > best) best = wgt;
     }
     for (const q of (zone.plaza ? [zone.plaza] : []).concat(zone.plazas || [])) best = Math.max(best, 1 - sstep(q.r - 12, q.r + 12, Math.hypot(px - q.x, py - q.y)));
     return best;
@@ -68,10 +69,19 @@ function* buildFieldSteps(zone) {
   const plazaList = (zone.plaza ? [zone.plaza] : []).concat(zone.plazas || []);
   const plazaW = (px, py) => { let b = 0; for (const q of plazaList) b = Math.max(b, 1 - sstep(q.r - 12, q.r + 12, Math.hypot(px - q.x, py - q.y))); return b; };
   const walls = zone.walls || [];
+  const gs = { w: false, e: false, n: false, s: false };
+  for (const r of (zone.ghost && zone.ghost.rects) || []) {
+    const sideY = r.y < zone.h && r.y + r.h > 0, sideX = r.x < zone.w && r.x + r.w > 0;
+    if (sideY && Math.abs(r.x + r.w) < 2) gs.w = true;
+    if (sideY && Math.abs(r.x - zone.w) < 2) gs.e = true;
+    if (sideX && Math.abs(r.y + r.h) < 2) gs.n = true;
+    if (sideX && Math.abs(r.y - zone.h) < 2) gs.s = true;
+  }
   const edgeE = (px, py) => {
-    const ix = Math.max(24 - px, px - (zone.w - 24), 0), iy = Math.max(24 - py, py - (zone.h - 24), 0);
+    const L = gs.w ? -1e6 : 24 - px, R = gs.e ? -1e6 : px - (zone.w - 24), T = gs.n ? -1e6 : 24 - py, Bm = gs.s ? -1e6 : py - (zone.h - 24);
+    const ix = Math.max(L, R, 0), iy = Math.max(T, Bm, 0);
     if (ix > 0 || iy > 0) return Math.hypot(ix, iy);
-    return -Math.min(px - 24, zone.w - 24 - px, py - 24, zone.h - 24 - py);
+    return Math.max(L, R, T, Bm);
   };
   const wallE = (px, py) => {
     let e = -1e9;
@@ -1213,7 +1223,8 @@ function buildCityBuildings(field, root) {
     ore: std({ color: 0x3a3634, roughness: 0.8, metalness: 0.3 }),
     fish: std({ color: 0xb8c4cc, roughness: 0.35, metalness: 0.5 }),
     white: std({ color: 0xf2efe8, roughness: 0.8 }),
-    red: std({ color: 0xb03a30, roughness: 0.8 })
+    red: std({ color: 0xb03a30, roughness: 0.8 }),
+    hay: std({ color: 0xd8b860, roughness: 1 })
   };
   const win = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
   const lampMat = std({ color: 0x3a2a14, emissive: 0xffc070, emissiveIntensity: 0 });
@@ -1457,6 +1468,42 @@ function buildCityBuildings(field, root) {
     for (const [ax, az, bx2, bz, l] of [[0, -d / 2, 0, 0, w], [0, d / 2, 0, 0, w]]) bt.add(M.trim, box(l, 0.06, 0.04), B, ax, 0.55, az);
     for (const sx of [-1, 1]) bt.add(M.trim, box(0.04, 0.06, d), B, sx * w / 2, 0.55, 0);
   }
+  const cartG = (z.dressing || []).some(o => o.t === "cart") ? cartGeo() : null;
+  for (const o of z.dressing || []) {
+    const B = new THREE.Matrix4().makeRotationY(o.rot || 0).setPosition(o.x * U, field.heightAt(o.x, o.y), o.y * U), s = o.s || 1, r3 = seeded(hashStr("dr" + o.x + "," + o.y));
+    if (o.t === "tree") {
+      col(o.x, o.y, 9 * s);
+      bt.add(M.beam, cyl(0.16 * s, 0.26 * s, 2.8 * s, 7), B, 0, 1.4 * s, 0);
+      for (let k = 0; k < 5; k++) bt.add(M.leaf, new THREE.IcosahedronGeometry((0.85 + r3() * 0.55) * s, 1), B, (r3() - 0.5) * 1.4 * s, (2.9 + r3() * 1.3) * s, (r3() - 0.5) * 1.4 * s);
+    } else if (o.t === "well") {
+      col(o.x, o.y, 26);
+      bt.add(M.stone, cyl(1.0, 1.1, 0.9, 14), B, 0, 0.45, 0);
+      bt.add(M.water, cyl(0.8, 0.8, 0.05, 12), B, 0, 0.82, 0);
+      for (const sx of [-1, 1]) bt.add(M.beam, box(0.14, 2.3, 0.14), B, sx * 0.88, 1.4, 0);
+      bt.add(M.roof[0], roofGeo(2.1, 1.3, 0.8), B, 0, 2.5, 0, Math.PI / 2);
+      bt.add(M.beam, cyl(0.08, 0.08, 1.8, 6), B, 0, 1.9, 0, 0, 0, Math.PI / 2);
+    } else if (o.t === "cart") {
+      col(o.x, o.y, 24);
+      bt.add(M.planks, cartG, B, 0, 0, 0, 0, 0, 0, 1.3, 1.3, 1.3);
+      if (r3() < 0.6) for (let k = 0; k < 3; k++) bt.add(M.hay, cyl(0.25, 0.25, 0.7, 8), B, -0.5 + k * 0.5, 1.1, 0, 0, 0, Math.PI / 2);
+    } else if (o.t === "planter") {
+      col(o.x, o.y, 16);
+      bt.add(M.planks, box(1.5, 0.5, 0.7), B, 0, 0.25, 0);
+      bt.add(M.soil, box(1.4, 0.06, 0.6), B, 0, 0.5, 0);
+      for (let k = 0; k < 6; k++) bt.add(k % 2 ? M.leaf : M.red, new THREE.IcosahedronGeometry(0.2 + r3() * 0.08, 0), B, -0.6 + k * 0.24, 0.65, (r3() - 0.5) * 0.3);
+    } else if (o.t === "hay") {
+      col(o.x, o.y, 18);
+      bt.add(M.hay, cyl(0.6, 0.6, 1.3, 12), B, 0, 0.6, 0, 0, 0, Math.PI / 2);
+    } else if (o.t === "statue") {
+      col(o.x, o.y, 24);
+      bt.add(M.stone, box(1.5, 1.3, 1.5), B, 0, 0.65, 0);
+      bt.add(M.trim, box(1.7, 0.2, 1.7), B, 0, 1.35, 0);
+      bt.add(M.trim, cyl(0.26, 0.36, 1.9, 8), B, 0, 2.4, 0);
+      bt.add(M.trim, new THREE.SphereGeometry(0.3, 10, 8), B, 0, 3.6, 0);
+      bt.add(M.trim, box(0.12, 2.0, 0.12), B, 0.45, 2.7, 0, 0, 0, -0.18);
+      bt.add(M.gold, box(0.5, 0.14, 0.14), B, 0.53, 3.75, 0);
+    }
+  }
   for (const [x, y, rot] of z.dummies || []) {
     col(x, y, 12);
     const B = new THREE.Matrix4().makeRotationY(rot || 0).setPosition(x * U, field.heightAt(x, y), y * U);
@@ -1513,9 +1560,36 @@ function buildCityBuildings(field, root) {
       const gx = vert ? ex : g.c, gyy = vert ? g.c : ey, gy = field.heightAt(gx, gyy), span = (g.half * 2 + 60) * U;
       bt.add(stone, uvBox(vert ? 2.6 : span, 2.0, vert ? span : 2.6, 2.4), new THREE.Matrix4(), gx * U, gy + 8.0, gyy * U);
       bt.add(M.trim, box(vert ? 3.0 : span + 0.4, 0.3, vert ? span + 0.4 : 3.0), new THREE.Matrix4(), gx * U, gy + 9.1, gyy * U);
-      const ban = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.0), new THREE.MeshStandardMaterial({ map: texSign(z.city || z.name, "#d4a840"), side: THREE.DoubleSide }));
+      const dz = g.e.gate && ZONES[g.e.to], dd = dz && (dz.districts || [])[0];
+      const ban = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.0), new THREE.MeshStandardMaterial({ map: texSign(dd ? dd.name : z.city || z.name, dd ? dd.color : "#d4a840"), side: THREE.DoubleSide }));
+      if (dd) for (const sd of [-1, 1]) {
+        const bx = vert ? ex + (g.side === "e" ? -36 : 36) : g.c + sd * (g.half + 30), by = vert ? g.c + sd * (g.half + 30) : ey + (g.side === "s" ? -36 : 36);
+        const bm = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 3.0), std({ color: new THREE.Color(dd.color), roughness: 0.95, side: THREE.DoubleSide }));
+        bm.position.set(bx * U, field.heightAt(bx, by) + 5.2, by * U); bm.rotation.y = vert ? Math.PI / 2 : 0; bm.userData.banner = true; root.add(bm);
+      }
       ban.position.set(gx * U + (vert ? (g.side === "e" ? -1.33 : 1.33) : 0), gy + 8.0, gyy * U + (vert ? 0 : g.side === "s" ? -1.33 : 1.33)); ban.rotation.y = vert ? (g.side === "e" ? -Math.PI / 2 : Math.PI / 2) : g.side === "s" ? Math.PI : 0; root.add(ban);
     }
+  }
+  bt.flush(root);
+}
+function buildSkyline(field, root) {
+  const z = field.zone, G = z.ghost;
+  if (!G || !G.houses.length) return;
+  const ST = CITY_STYLES[z.cityStyle] || CITY_STYLES.default;
+  const wallM = ST.plaster.map(c => std({ color: c, roughness: 0.95 })), roofM = ST.roof.map(c => std({ color: c, roughness: 0.85 })), stoneM = std({ color: 0xbcb4a6, roughness: 0.95 }), winM = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
+  W3.windowMats.push(winM);
+  const bt = cityBatch(), box = (a, b, c) => new THREE.BoxGeometry(a, b, c);
+  for (const h of G.houses) {
+    if (h.x > -60 && h.y > -60 && h.x < z.w + 60 && h.y < z.h + 60) continue;
+    if (h.x < -620 || h.y < -620 || h.x > z.w + 620 || h.y > z.h + 620) continue;
+    const L = houseLocal(h), bw = L.w * U, bd = L.d * U, n = h.floors || 2, hh = 0.6 + n * 3.0, gy = field.heightAt(h.x, h.y) - 0.2, r = seeded(hashStr("sk" + h.x + "," + h.y));
+    const B = new THREE.Matrix4().makeRotationY(houseAng(h)).setPosition(h.x * U, gy, h.y * U);
+    const stone = ["hall", "barracks", "guard", "cityhall", "keep", "forge", "smelter", "auction"].includes(h.type);
+    bt.add(stone ? stoneM : wallM[(h.tint != null ? h.tint : Math.floor(r() * 4)) % 4], box(bw, hh, bd), B, 0, hh / 2, 0);
+    for (let f = 0; f < n; f++) for (const sx of [-0.3, 0.3]) for (const fz of [1, -1]) bt.add(winM, box(0.8, 0.9, 0.06), B, sx * bw, 0.6 + f * 3 + 1.7, fz * (bd / 2 + 0.03));
+    if (h.type === "markethall") continue;
+    if (h.type === "keep") { bt.add(stoneM, box(bw + 0.5, 0.4, bd + 0.5), B, 0, hh + 0.2, 0); continue; }
+    bt.add(roofM[Math.floor(r() * 4)], roofGeo(bw, bd, Math.min(ST.pitch > 0.4 ? 4.6 : 3.4, bw * ST.pitch)), B, 0, hh, 0);
   }
   bt.flush(root);
 }
@@ -2273,7 +2347,7 @@ function* buildZone3DSteps() {
   buildPathEdges(field, root);
   buildProps(field, root);
   yield { p: 0.88, t: "Raising buildings…" };
-  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); buildCityBuildings(field, root); }
+  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); buildCityBuildings(field, root); buildSkyline(field, root); }
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
   buildDungeon(field, root);

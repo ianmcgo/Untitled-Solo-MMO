@@ -26,6 +26,18 @@ for (const zid of towns) {
       ok(Math.abs(n.face - Math.atan2(dy, dx)) < 0.01, zid + ' ' + n.id + ' faces the street');
     }
   }
+  const folk = z.npcs.filter(n => { const d = G.NPCS[n.id]; return d && !d.prop && !d.crystal && !d.warpstone; });
+  for (const n of folk) {
+    const near = folk.filter(o => o !== n && Math.hypot(o.x - n.x, o.y - n.y) < 60).map(o => o.id);
+    ok(!near.length, zid + ' ' + n.id + ' has room around them ' + near.join(','));
+    if (n.id.startsWith('v_')) continue;
+    if ((z.stalls || []).some(s => Math.hypot(s.x - n.x, s.y - n.y) < 45) || (z.props || []).some(p => p.type === 'desk' && Math.hypot(p.x - n.x, p.y - n.y) < 50)) continue;
+    let bd = 1e9, ang = 0;
+    for (const p of z.paths || []) { if (p.lane) continue; for (let i = 0; i < p.pts.length - 1; i++) { const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1, tt = Math.max(0, Math.min(1, ((n.x - a[0]) * dx + (n.y - a[1]) * dy) / L)), qx = a[0] + dx * tt, qy = a[1] + dy * tt, dd = Math.hypot(n.x - qx, n.y - qy); if (dd < bd) { bd = dd; ang = Math.atan2(qy - n.y, qx - n.x); } } }
+    const f = n.face == null ? Math.PI / 2 : n.face, diff = Math.abs(Math.atan2(Math.sin(f - ang), Math.cos(f - ang)));
+    ok(bd > 1e8 || diff < 0.35, zid + ' ' + n.id + ' faces the street (off by ' + diff.toFixed(2) + ')');
+  }
+  for (const e of (z.exits || []).filter(e => e.kind !== 'door' && G.ZONES[e.to])) ok(z.npcs.some(n => G.NPCS[n.id] && G.NPCS[n.id].signTo === e.to && Math.hypot(n.x - e.x - e.w / 2, n.y - e.y - e.h / 2) < 400 && /^To /.test(G.NPCS[n.id].name)), zid + ' exit to ' + e.to + ' has a signpost naming it');
   for (const n of z.npcs) if (n.sleep) ok(n.home != null && !!(z.houses || [])[n.home], zid + ' ' + n.id + ' sleeps in a house in the same district');
   for (const s of z.stalls || []) ok(G.roadGap(z, s.x, s.y, true) >= 14, zid + ' stall@' + s.x + ',' + s.y + ' is off the road');
   const sides = typeof z.outerWall === 'string' ? z.outerWall : z.outerWall ? 'nesw' : '';

@@ -32,7 +32,7 @@ G.cycleTarget();
 ok(P().target !== near && P().target && P().target.kind === 'npc', 'Tab again cycles to the next person');
 run(3); G.cycleTarget();
 ok(P().target === near, 'after a pause, Tab goes back to the closest');
-P().x = 900; P().y = 480; run(3); G.cycleTarget();
+{ const od = S.npcs.find(n => n.id === 'odette'); P().x = od.x + 25; P().y = od.y + 25; } run(3); G.cycleTarget();
 const near2 = S.npcs.filter(n => !n.crystal && !n.away && !n.prop).sort((a, b) => G.dist(a, P()) - G.dist(b, P()))[0];
 ok(P().target === near2, 'after moving, Tab picks the new closest (' + near2.name + ')');
 

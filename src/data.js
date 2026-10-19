@@ -989,68 +989,10 @@ const DAY_NAMES = ["Emberday", "Stoneday", "Tideday", "Galeday", "Frostday", "St
 const DAY_ELEMENTS = ["fire", "earth", "water", "wind", "ice", "lightning", "light", "dark"];
 
 const ZONES = {
-  outpost: {
-    name: "Ashenreach Outpost", w: 2000, h: 1500, safe: true, theme: "town", city: "Ashenreach",
-    districts: [
-      { id: "res", name: "Residential District", x: 24, y: 24, w: 536, h: 1452, color: "#6fae5a", icon: "🏡" },
-      { id: "gov", name: "Government District", x: 560, y: 24, w: 880, h: 446, color: "#5a86c8", icon: "🏛️" },
-      { id: "market", name: "Market District", x: 560, y: 470, w: 880, h: 590, color: "#d8a838", icon: "⚖️" },
-      { id: "ind", name: "Industrial District", x: 560, y: 1060, w: 880, h: 416, color: "#c4703a", icon: "⚒️" },
-      { id: "gate", name: "Eastgate", x: 1440, y: 24, w: 536, h: 1452, color: "#a8a8a0", icon: "🛡️" }
-    ],
-    cityWalls: [[560, 24, 560, 1476], [1440, 24, 1440, 1476], [560, 470, 1440, 470], [560, 1060, 1440, 1060]],
-    gates: [
-      { x: 560, y: 760, a: "res", b: "market" }, { x: 560, y: 250, a: "res", b: "gov" }, { x: 560, y: 1270, a: "res", b: "ind" },
-      { x: 1440, y: 760, a: "market", b: "gate" }, { x: 1440, y: 250, a: "gov", b: "gate" }, { x: 1440, y: 1270, a: "ind", b: "gate" },
-      { x: 1000, y: 470, a: "gov", b: "market", horiz: true }, { x: 1000, y: 1060, a: "market", b: "ind", horiz: true }
-    ],
-    exits: [
-      { x: 1976, y: 710, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" },
-      { x: 262, y: 740, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }
-    ],
-    npcs: [
-      { id: "rhea", x: 860, y: 290, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 18, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
-      { id: "crystal_town", x: 1000, y: 760 }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
-      { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "auction_outpost", x: 894, y: 626 }, { id: "barber_outpost", x: 1085, y: 681 },
-      { id: "garrick", x: 795, y: 1250, home: 7, sleep: [22, 6.5] },
-      { id: "ysolde", x: 1700, y: 960, home: 16, sleep: [19.5, 5.5] }, { id: "guard_east", x: 1790, y: 690 }
-    ],
-    props: [{ type: "anvil", x: 750, y: 1190, rot: 0.2, r: 26 }, { type: "desk", x: 930, y: 336, r: 22 }, { type: "barrels", x: 900, y: 1150, rot: 1.2, r: 26 }, { type: "crates", x: 920, y: 1215, rot: 0.4, r: 26 }, { type: "barrels", x: 1820, y: 1120, rot: 0.3, r: 26 }],
-    ambient: [{ type: "chicken", x: 160, y: 1300, n: 4, r: 70 }, { type: "dog", x: 1000, y: 760, n: 1, r: 140, col: 0x8a6a4a }, { type: "cat", x: 420, y: 300, n: 1, r: 50, col: 0x5a5a5a }, { type: "walker", x: 1000, y: 760, n: 1, path: [[860, 640], [1140, 640], [1140, 880], [860, 880]] }],
-    spawns: [],
-    water: [{ x: 440, y: 1180, r: 70 }],
-    plaza: { x: 1000, y: 760, r: 170 },
-    plazas: [{ x: 1000, y: 320, r: 95 }],
-    paved: true, outerWall: true,
-    fountains: [{ x: 1000, y: 320 }],
-    gardens: [{ x: 180, y: 430, w: 140, h: 80 }, { x: 170, y: 1250, w: 140, h: 80 }, { x: 440, y: 1050, w: 120, h: 60 }],
-    dummies: [[640, 210, 0.3], [640, 300, -0.2]], racks: [[690, 330, 0]],
-    benches: [[880, 760, 1.57], [1120, 760, -1.57], [1000, 420, 0], [300, 640, 1.57]],
-    paths: [
-      { w: 56, pts: [[300, 760], [1000, 760], [2000, 760], [2400, 760]] },
-      { w: 44, pts: [[1000, 190], [1000, 1310]] },
-      { w: 36, pts: [[880, 732], [894, 640]] },
-      { w: 36, pts: [[300, 80], [300, 1440]] },
-      { w: 36, pts: [[1700, 250], [1700, 1270]] },
-      { w: 36, pts: [[300, 250], [1700, 250]] },
-      { w: 36, pts: [[300, 1270], [1880, 1270]] }
-    ],
-    houses: [
-      { x: 760, y: 150, w: 220, h: 110, type: "barracks", sign: "Barracks", flag: "#c0392b" }, { x: 1000, y: 120, w: 200, h: 110, type: "cityhall", floors: 3, flag: "#c0392b" }, { x: 1240, y: 150, w: 200, h: 110, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b" }, { x: 1260, y: 370, w: 150, h: 70, type: "hall", floors: 1, sign: "Job Master" },
-      { x: 690, y: 560, w: 140, h: 100, type: "shop", sign: "Market Hall", awning: "#b5651d" }, { x: 1310, y: 560, w: 140, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" }, { x: 845, y: 565, w: 140, h: 90, type: "auction", sign: "Auction House", flag: "#c9a227" },
-      { x: 700, y: 1370, w: 180, h: 100, type: "forge", floors: 1, sign: "Smithy", signCol: "#ff7a30" }, { x: 1000, y: 1380, w: 160, h: 100, type: "mill" }, { x: 1290, y: 1380, w: 200, h: 100, type: "warehouse", floors: 2 },
-      { x: 200, y: 760, w: 110, h: 130, rot: 1, type: "home", tint: 0, floors: 2 }, { x: 180, y: 300, w: 150, h: 110, type: "home", floors: 3 }, { x: 430, y: 140, w: 130, h: 100, type: "home" }, { x: 180, y: 1100, w: 150, h: 110, type: "home" }, { x: 430, y: 1380, w: 140, h: 100, type: "home", floors: 3 }, { x: 440, y: 520, w: 110, h: 120, type: "home" },
-      { x: 1820, y: 1360, w: 140, h: 110, type: "home", sign: "Stables" }, { x: 1700, y: 160, w: 160, h: 110, type: "guard", flag: "#9aa0a8" },
-      { x: 800, y: 390, w: 180, h: 70, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" }, { x: 1150, y: 1150, w: 130, h: 90, type: "hall", sign: "Woodworkers" }, { x: 1290, y: 1145, w: 120, h: 76, type: "hall", sign: "Alchemists", signCol: "#7ae0a0" }
-    ],
-    stalls: [{ x: 800, y: 690, color: "#b5651d" }, { x: 1200, y: 690, color: "#7b1fa2" }, { x: 1180, y: 960, color: "#2e7d32" }, { x: 1085, y: 690, color: "#c0392b", sign: "Barber", pole: true }],
-    lamps: [[945, 650], [1120, 640], [880, 880], [1120, 880], [1600, 700], [1600, 820], [400, 700], [1000, 1180]],
-    stable: { x: 1820, y: 1000, rot: -Math.PI / 2 },
-    start: { x: 1000, y: 860 }
-  },
+  outpost: {},
   residence: {
     name: "Your Residence", w: 400, h: 320, safe: true, theme: "house", indoor: true,
-    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 320, ty: 760, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
+    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 2050, ty: 2750, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
     npcs: [{ id: "pip", x: 60, y: 60 }],
     spawns: [],
     start: { x: 200, y: 250 },
@@ -1059,7 +1001,7 @@ const ZONES = {
   hollow: {
     name: "Rocky Hollow", w: 3200, h: 2200, theme: "field",
     exits: [
-      { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 1890, ty: 760, label: "Outpost" },
+      { x: 0, y: 1050, w: 24, h: 100, to: "outpost", tx: 7070, ty: 2700, label: "Outpost" },
       { x: 3176, y: 1030, w: 24, h: 100, to: "den", tx: 120, ty: 800, label: "Goblin Den" },
       { x: 1550, y: 2176, w: 100, h: 24, to: "marsh", tx: 1400, ty: 95, label: "Ashen Marsh" },
       { x: 1250, y: 0, w: 100, h: 24, to: "highlands", tx: 2000, ty: 2880, label: "Windreach Highlands" }
@@ -1200,6 +1142,180 @@ ZONES.crypt = {
   torches: [[150, 480], [150, 920], [640, 330], [1160, 330], [640, 1070], [1160, 1070], [1330, 480], [1670, 480], [1330, 920], [1670, 920], [1330, 90], [1670, 90], [1330, 1310], [1670, 1310], [1780, 380], [1780, 1020], [2560, 380], [2560, 1020], [2300, 400], [2300, 1000]],
   start: { x: 70, y: 700 }
 };
+const OUT_DW = 2400, OUT_DH = 1800;
+const OUT_SIGNS = ["Bakery", "Tailor", "Cobbler", "Herbalist", "Candlemaker", "Cartographer", "Teahouse", "Fishmonger", "Butcher", "Potter", "Weaver", "Bookbinder", "Spice Merchant", "Glassworks", "Hatter", "Apothecary", "Cheesemonger", "Tinker", "Chandler", "Cooper", "Saddler", "Brewer", "Lacemaker", "Scribe"];
+const OUT_AWNINGS = ["#b5651d", "#2e7d32", "#c0392b", "#1565c0", "#6a1b9a", "#ef8f00", "#00838f", "#5d4037"];
+const OUT_FILL = {
+  market: [["shop", 0.6, [100, 150], [80, 104], [2, 3]], ["home", 0.4, [96, 140], [84, 110], [2, 3]]],
+  gov: [["hall", 0.45, [150, 210], [90, 120], [2, 3]], ["home", 0.55, [120, 170], [90, 120], [2, 3]]],
+  res: [["home", 1, [90, 140], [80, 110], [1, 3]]],
+  ind: [["warehouse", 0.4, [150, 220], [90, 120], [1, 2]], ["hall", 0.25, [130, 180], [80, 110], [1, 2]], ["home", 0.35, [90, 130], [80, 100], [1, 2]]],
+  gate: [["home", 0.5, [100, 150], [84, 110], [1, 3]], ["hall", 0.3, [140, 190], [90, 110], [2, 2]], ["warehouse", 0.2, [150, 200], [90, 110], [1, 1]]]
+};
+const OUTPOST_PLAN = {
+  gov: {
+    off: [2400, 0], name: "Government District", color: "#5a86c8", icon: "🏛️", trees: true,
+    streets: [{ w: 56, pts: [[1200, 1800], [1200, 330]], trees: true }, { w: 44, pts: [[200, 1050], [2200, 1050]], trees: true }, { w: 40, pts: [[450, 250], [450, 1600]] }, { w: 40, pts: [[1950, 250], [1950, 1600]] }, { w: 40, pts: [[450, 250], [1950, 250]] }, { w: 36, pts: [[450, 1550], [1950, 1550]] }],
+    plazas: [{ x: 1200, y: 420, r: 150 }], fountains: [{ x: 1200, y: 420 }],
+    reserve: [{ x: 520, y: 560, w: 420, h: 280 }],
+    houses: [
+      { key: "cityhall", x: 1200, y: 130, w: 320, h: 150, type: "cityhall", floors: 3, flag: "#c0392b" },
+      { key: "barracks", x: 720, y: 360, w: 260, h: 120, type: "barracks", sign: "Barracks", flag: "#c0392b" },
+      { key: "mercs", x: 1680, y: 360, w: 240, h: 120, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b" },
+      { key: "records", x: 720, y: 930, w: 200, h: 100, type: "hall", floors: 2, sign: "Hall of Records", signCol: "#c9a227" },
+      { key: "chapel", x: 1680, y: 930, w: 180, h: 110, type: "hall", floors: 2, sign: "Chapel of the Dawn", signCol: "#f0e0a0" },
+      { key: "guild", x: 720, y: 1180, w: 220, h: 100, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" },
+      { key: "jobs", x: 1680, y: 1170, w: 180, h: 90, type: "hall", floors: 1, sign: "Job Master" }
+    ],
+    npcs: [{ id: "rhea", x: 900, y: 300, home: "barracks", sleep: [22, 6] }, { id: "maera", x: 900, y: 1290, home: "guild", sleep: [22.5, 6.5] }, { id: "brann", x: 1860, y: 300, home: "mercs", sleep: [23, 7.5] }, { id: "tobin", x: 1850, y: 1290, home: "jobs", sleep: [20, 7] }],
+    props: [{ type: "desk", x: 900, y: 1320, r: 22 }],
+    dummies: [[600, 640, 0.3], [690, 650, -0.2], [780, 640, 0.1], [870, 650, -0.3]], racks: [[600, 760, 0], [860, 760, 0]],
+    benches: [[1060, 420, 1.57], [1340, 420, -1.57], [1200, 580, 0]],
+    dressing: [{ t: "statue", x: 1080, y: 1680 }, { t: "statue", x: 1320, y: 1680 }, { t: "planter", x: 1060, y: 300 }, { t: "planter", x: 1340, y: 300 }, { t: "well", x: 1500, y: 700 }]
+  },
+  res: {
+    off: [0, 1800], name: "Residential District", color: "#6fae5a", icon: "🏡", trees: true,
+    streets: [{ w: 56, pts: [[2400, 900], [200, 900]], trees: true }, { w: 36, pts: [[600, 200], [600, 1600]] }, { w: 36, pts: [[1200, 200], [1200, 1600]] }, { w: 36, pts: [[1800, 200], [1800, 1600]] }, { w: 36, pts: [[200, 380], [2200, 380]] }, { w: 36, pts: [[200, 1420], [2200, 1420]] }],
+    reserve: [{ x: 1240, y: 950, w: 520, h: 430 }],
+    houses: [{ key: "residence", x: 2050, y: 1060, w: 140, h: 110, type: "home", tint: 0, floors: 2, rot: 2, fixed: true }],
+    exits: [{ x: 2030, y: 970, w: 40, h: 26, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }],
+    water: [{ x: 1500, y: 1180, r: 90 }],
+    gardens: [{ x: 900, y: 650, w: 160, h: 90 }, { x: 330, y: 650, w: 140, h: 80 }, { x: 900, y: 1160, w: 160, h: 90 }, { x: 330, y: 1160, w: 140, h: 80 }, { x: 2100, y: 650, w: 140, h: 80 }],
+    benches: [[1350, 1040, 0.8], [1650, 1040, -0.8], [1350, 1320, 2.3], [1650, 1320, -2.3]],
+    dressing: [{ t: "tree", x: 1300, y: 1000 }, { t: "tree", x: 1700, y: 1000 }, { t: "tree", x: 1290, y: 1340 }, { t: "tree", x: 1710, y: 1340 }, { t: "tree", x: 1500, y: 1010 }, { t: "tree", x: 1380, y: 1170 }, { t: "well", x: 900, y: 520 }, { t: "well", x: 330, y: 1290 }, { t: "planter", x: 2140, y: 990 }],
+    ambient: [{ type: "chicken", x: 900, y: 1160, n: 4, r: 70 }, { type: "chicken", x: 330, y: 650, n: 3, r: 60 }, { type: "cat", x: 1500, y: 1300, n: 1, r: 60, col: 0x5a5a5a }]
+  },
+  market: {
+    off: [2400, 1800], name: "Market District", color: "#d8a838", icon: "⚖️",
+    streets: [{ w: 64, pts: [[0, 900], [2400, 900]] }, { w: 56, pts: [[1200, 0], [1200, 1800]] }, { w: 40, pts: [[300, 430], [2100, 430]] }, { w: 40, pts: [[300, 1370], [2100, 1370]] }, { w: 40, pts: [[300, 430], [300, 1370]] }, { w: 40, pts: [[2100, 430], [2100, 1370]] }, { w: 34, pts: [[700, 140], [700, 430]] }, { w: 34, pts: [[1700, 140], [1700, 430]] }, { w: 34, pts: [[700, 1370], [700, 1660]] }, { w: 34, pts: [[1700, 1370], [1700, 1660]] }],
+    plaza: { x: 1200, y: 900, r: 240 },
+    houses: [
+      { key: "markethall", x: 780, y: 770, w: 230, h: 120, type: "shop", sign: "Market Hall", awning: "#b5651d" },
+      { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227" },
+      { key: "furnish", x: 1620, y: 1040, w: 150, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" },
+      { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "The Ember Mug", signCol: "#ff9a40" }
+    ],
+    npcs: [{ id: "crystal_town", x: 1200, y: 900 }, { id: "odette", x: 1520, y: 970, home: "furnish", sleep: [21.5, 6] }, { id: "luna", x: 1390, y: 1110 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_outpost", x: 1480, y: 840 }, { id: "barber_outpost", x: 1359, y: 817 }],
+    stalls: [{ x: 1359, y: 826, color: "#c0392b", sign: "Barber", pole: true }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1100, y: 757, color: "#1565c0" }, { x: 1300, y: 757, color: "#ef8f00" }],
+    benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
+    dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }, { t: "cart", x: 1880, y: 600, rot: -0.3 }],
+    ambient: [{ type: "dog", x: 1200, y: 1150, n: 1, r: 140, col: 0x8a6a4a }]
+  },
+  ind: {
+    off: [2400, 3600], name: "Industrial District", color: "#c4703a", icon: "⚒️",
+    streets: [{ w: 56, pts: [[1200, 0], [1200, 1650]] }, { w: 44, pts: [[150, 520], [2250, 520]] }, { w: 44, pts: [[150, 1250], [2250, 1250]] }, { w: 40, pts: [[450, 520], [450, 1650]] }, { w: 40, pts: [[1950, 520], [1950, 1650]] }],
+    houses: [
+      { key: "smithy", x: 750, y: 380, w: 200, h: 110, type: "forge", floors: 1, sign: "Smithy", signCol: "#ff7a30" },
+      { key: "wood", x: 750, y: 620, w: 160, h: 100, type: "hall", sign: "Woodworkers" },
+      { key: "alch", x: 1650, y: 615, w: 150, h: 90, type: "hall", sign: "Alchemists", signCol: "#7ae0a0" },
+      { key: "tannery", x: 334, y: 880, w: 140, h: 100, type: "hall", floors: 1, sign: "Tannery" },
+      { key: "mill", x: 750, y: 1350, w: 170, h: 110, type: "mill" },
+      { key: "warehouse", x: 1650, y: 1355, w: 220, h: 110, type: "warehouse", floors: 2 }
+    ],
+    npcs: [{ id: "garrick", x: 930, y: 470, home: "smithy", sleep: [22, 6.5] }],
+    props: [{ type: "anvil", x: 900, y: 450, rot: 0.2, r: 26 }, { type: "barrels", x: 980, y: 760, rot: 1.2, r: 26 }, { type: "crates", x: 560, y: 760, rot: 0.4, r: 26 }, { type: "crates", x: 1850, y: 1380, rot: 0.2, r: 26 }, { type: "barrels", x: 1450, y: 1380, rot: 0.6, r: 26 }],
+    dressing: [{ t: "cart", x: 1000, y: 1080, rot: 1.2 }, { t: "cart", x: 1450, y: 700, rot: -0.4 }, { t: "hay", x: 560, y: 1080 }, { t: "hay", x: 600, y: 1110 }],
+    ambient: []
+  },
+  gate: {
+    off: [4800, 1800], name: "Eastgate", color: "#a8a8a0", icon: "🛡️",
+    streets: [{ w: 64, pts: [[0, 900], [2500, 900]] }, { w: 40, pts: [[800, 250], [800, 1600]] }, { w: 40, pts: [[1700, 250], [1700, 1600]] }, { w: 36, pts: [[800, 400], [1700, 400]] }, { w: 36, pts: [[800, 1400], [1700, 1400]] }],
+    reserve: [{ x: 200, y: 1100, w: 480, h: 450 }],
+    houses: [
+      { key: "guard", x: 1900, y: 780, w: 180, h: 120, type: "guard", flag: "#9aa0a8" },
+      { key: "watch", x: 1900, y: 1015, w: 220, h: 110, type: "barracks", sign: "Gate Watch", flag: "#9aa0a8" },
+      { key: "stables", x: 1250, y: 1300, w: 220, h: 120, type: "home", sign: "Stables" },
+      { key: "inn", x: 420, y: 780, w: 200, h: 110, type: "hall", floors: 3, sign: "Wayfarer's Inn", signCol: "#e0a050" }
+    ],
+    exits: [{ x: 2376, y: 850, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" }],
+    npcs: [{ id: "ysolde", x: 1450, y: 1080, home: "stables", sleep: [19.5, 5.5] }, { id: "guard_east", x: 2180, y: 800 }],
+    stable: { x: 1450, y: 1200, rot: -Math.PI / 2 },
+    props: [{ type: "barrels", x: 300, y: 1200, rot: 0.3, r: 26 }, { type: "crates", x: 560, y: 1450, rot: 0.8, r: 26 }],
+    dressing: [{ t: "cart", x: 420, y: 1320, rot: 0.2 }, { t: "cart", x: 600, y: 1260, rot: -0.6 }, { t: "hay", x: 300, y: 1450 }, { t: "hay", x: 340, y: 1480 }, { t: "hay", x: 1500, y: 1450 }, { t: "well", x: 1250, y: 650 }]
+  }
+};
+const OUTPOST_GATES = [{ x: 2400, y: 2700, a: "res", b: "market" }, { x: 4800, y: 2700, a: "market", b: "gate" }, { x: 3600, y: 1800, a: "gov", b: "market", horiz: true }, { x: 3600, y: 3600, a: "market", b: "ind", horiz: true }];
+function buildOutpostCity() {
+  const rnd = seeded(hashStr("ashenreach-city-1"));
+  const pick = a => a[Math.floor(rnd() * a.length)], range = r => r[0] + Math.round(rnd() * (r[1] - r[0]));
+  const z = { name: "Ashenreach Outpost", w: OUT_DW * 3, h: OUT_DH * 3, safe: true, theme: "town", city: "Ashenreach", paved: true, outerWall: true, districts: [], cityWalls: [[2400, 1800, 2400, 3600], [4800, 1800, 4800, 3600], [2400, 1800, 4800, 1800], [2400, 3600, 4800, 3600]], gates: OUTPOST_GATES.map(g => Object.assign({}, g)), exits: [], npcs: [], props: [], ambient: [], spawns: [], water: [], plazas: [], fountains: [], gardens: [], dummies: [], racks: [], benches: [], paths: [], houses: [], stalls: [], lamps: [], dressing: [] };
+  const keys = {}, homes = [];
+  const G = (d, x, y) => [OUTPOST_PLAN[d].off[0] + x, OUTPOST_PLAN[d].off[1] + y];
+  for (const did in OUTPOST_PLAN) {
+    const P = OUTPOST_PLAN[did], [ox, oy] = P.off, mv = o => Object.assign({}, o, { x: o.x + ox, y: o.y + oy }), pt = q => [q[0] + ox, q[1] + oy].concat(q.slice(2));
+    z.districts.push({ id: did, name: P.name, x: ox, y: oy, w: OUT_DW, h: OUT_DH, color: P.color, icon: P.icon });
+    for (const s of P.streets) z.paths.push({ w: s.w, pts: s.pts.map(pt), trees: !!s.trees, district: did });
+    for (const h of P.houses || []) { const c = mv(h); delete c.key; c.district = did; if (h.key) keys[h.key] = c; z.houses.push(c); }
+    for (const k of ["npcs", "props", "water", "gardens", "stalls", "fountains", "plazas", "ambient", "dressing", "exits"]) for (const o of P[k] || []) { const c = mv(o); if (k === "npcs" && typeof c.home === "string") homes.push(c); z[k].push(c); }
+    for (const k of ["dummies", "racks", "benches"]) for (const q of P[k] || []) z[k].push(pt(q));
+    if (P.plaza) z.plaza = mv(P.plaza);
+    if (P.stable) z.stable = mv(P.stable);
+  }
+  const signPool = {};
+  for (const did in OUTPOST_PLAN) signPool[did] = OUT_SIGNS.slice().sort(() => rnd() - 0.5);
+  const reserve = [];
+  for (const did in OUTPOST_PLAN) for (const r of OUTPOST_PLAN[did].reserve || []) reserve.push({ x: r.x + OUTPOST_PLAN[did].off[0], y: r.y + OUTPOST_PLAN[did].off[1], w: r.w, h: r.h });
+  const gateBox = g => g.horiz ? { x: g.x - 100, y: g.y - 160, w: 200, h: 320 } : { x: g.x - 160, y: g.y - 100, w: 320, h: 200 };
+  const exitBox = e => e.kind === "door" ? { x: e.x - 30, y: e.y - 30, w: e.w + 60, h: e.h + 60 } : { x: e.x - 320, y: e.y - 90, w: 344, h: e.h + 180 };
+  const circles = () => [].concat(z.plaza ? [z.plaza] : [], z.plazas, z.water.map(w => ({ x: w.x, y: w.y, r: w.r + 20 })), z.fountains.map(f => ({ x: f.x, y: f.y, r: 70 })));
+  const hitCirc = (r, c) => Math.hypot(Math.max(r.x - c.x, 0, c.x - r.x - r.w), Math.max(r.y - c.y, 0, c.y - r.y - r.h)) < c.r + 12;
+  const roadHit = (r, pad) => z.paths.some(p => p.pts.some((q, i) => i > 0 && segRect(p.pts[i - 1][0], p.pts[i - 1][1], q[0], q[1], r, p.w / 2 + pad)));
+  const free = (r, did) => {
+    const d = z.districts.find(q => q.id === did);
+    if (r.x < d.x + 60 || r.y < d.y + 60 || r.x + r.w > d.x + d.w - 60 || r.y + r.h > d.y + d.h - 60) return false;
+    if (z.houses.some(h => rectsHit(r, { x: h.x - h.w / 2, y: h.y - h.h / 2, w: h.w, h: h.h }, 22))) return false;
+    if (reserve.some(q => rectsHit(r, q, 10)) || z.gates.some(g => rectsHit(r, gateBox(g), 0)) || z.exits.some(e => rectsHit(r, exitBox(e), 0))) return false;
+    if (z.gardens.some(g => rectsHit(r, { x: g.x - g.w / 2, y: g.y - g.h / 2, w: g.w, h: g.h }, 14)) || z.stalls.some(s => rectsHit(r, { x: s.x - 26, y: s.y - 16, w: 52, h: 32 }, 14))) return false;
+    if (circles().some(c => hitCirc(r, c))) return false;
+    if ([].concat(z.npcs, z.props, z.dressing).some(o => inRect(o.x, o.y, r, 24))) return false;
+    return !roadHit(r, 6);
+  };
+  for (const p of z.paths) {
+    const did = p.district, fill = OUT_FILL[did];
+    for (let i = 1; i < p.pts.length; i++) {
+      const [ax, ay] = p.pts[i - 1], [bx, by] = p.pts[i], L = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / L, uy = (by - ay) / L, vert = Math.abs(ux) < 0.5;
+      for (const side of [-1, 1]) {
+        const nx = -uy * side, ny = ux * side;
+        for (let t = 50; t < L - 50;) {
+          let w0 = 0, r0 = rnd(), kind = fill[fill.length - 1];
+          for (const f of fill) { if (r0 < f[1]) { kind = f; break; } r0 -= f[1]; }
+          const fw = range(kind[2]), fd = range(kind[3]), back = (kind[0] === "shop" ? 58 : 26) + rnd() * 10;
+          const along = vert ? fw : fw, bw = vert ? fd : fw, bh = vert ? fw : fd, off = p.w / 2 + back + (vert ? bw : bh) / 2;
+          const cx = ax + ux * (t + along / 2) + nx * off, cy = ay + uy * (t + along / 2) + ny * off;
+          const r = { x: cx - bw / 2, y: cy - bh / 2, w: bw, h: bh };
+          if (free(r, did)) {
+            const rot = vert ? (nx > 0 ? 3 : 1) : (ny > 0 ? 2 : 0), h = { x: Math.round(cx), y: Math.round(cy), w: bw, h: bh, type: kind[0], floors: range(kind[4]), rot, district: did };
+            if (kind[0] === "shop") { const sg = signPool[did].pop(); if (sg) h.sign = sg; h.awning = pick(OUT_AWNINGS); }
+            if (kind[0] === "hall" && rnd() < 0.3) h.sign = pick(["Guildhouse", "Counting House", "Lodge", "Assay Office", "Notary", "Bathhouse"]);
+            z.houses.push(h); w0 = along;
+            if ((did === "ind" || did === "gate") && rnd() < 0.5) { const sx = vert ? cx + nx * (bw / 2 + 26) : cx + ux * (bw / 2 + 24), sy = vert ? cy + uy * (bh / 2 + 24) : cy + ny * (bh / 2 + 26); z.props.push({ type: rnd() < 0.5 ? "barrels" : "crates", x: Math.round(sx), y: Math.round(sy), rot: rnd() * 6, r: 22 }); }
+          }
+          t += (w0 || 40) + 24 + Math.round(rnd() * 22);
+        }
+      }
+    }
+  }
+  const nearRoad = (x, y, extra) => z.paths.some(p => p.pts.some((q, i) => i > 0 && distToSegPt(x, y, p.pts[i - 1], q) < p.w / 2 + extra));
+  const blocked = (x, y, pad) => z.houses.some(h => Math.abs(x - h.x) < h.w / 2 + pad && Math.abs(y - h.y) < h.h / 2 + pad) || circles().some(c => Math.hypot(x - c.x, y - c.y) < c.r) || z.gates.some(g => inRect(x, y, gateBox(g), 0)) || z.exits.some(e => inRect(x, y, exitBox(e), 0)) || z.stalls.some(s => Math.hypot(x - s.x, y - s.y) < 50);
+  for (const p of z.paths) for (let i = 1; i < p.pts.length; i++) {
+    const [ax, ay] = p.pts[i - 1], [bx, by] = p.pts[i], L = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / L, uy = (by - ay) / L;
+    let k = 0;
+    for (let t = 120; t < L - 60; t += 230, k++) {
+      const sd = k % 2 ? 1 : -1, x = Math.round(ax + ux * t - uy * sd * (p.w / 2 + 16)), y = Math.round(ay + uy * t + ux * sd * (p.w / 2 + 16));
+      if (!nearRoad(x, y, 4) && !blocked(x, y, 18)) z.lamps.push([x, y]);
+    }
+    if (!p.trees) continue;
+    for (let t = 200; t < L - 100; t += 170) for (const sd of [-1, 1]) {
+      const x = Math.round(ax + ux * t - uy * sd * (p.w / 2 + 34)), y = Math.round(ay + uy * t + ux * sd * (p.w / 2 + 34));
+      if (!nearRoad(x, y, 12) && !blocked(x, y, 26) && !z.lamps.some(q => Math.hypot(q[0] - x, q[1] - y) < 50)) z.dressing.push({ t: "tree", x, y, s: 0.8 + rnd() * 0.3 });
+    }
+  }
+  for (const n of homes) n.home = z.houses.indexOf(keys[n.home]);
+  z.start = { x: G("market", 1200, 1030)[0], y: G("market", 1200, 1030)[1] };
+  return z;
+}
+function distToSegPt(x, y, a, b) { const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L)); return Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t); }
+ZONES.outpost = buildOutpostCity();
 ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
 ZONES.harbor = {
   name: "Saltreach Harbor", w: 1800, h: 1300, safe: true, theme: "town", city: "Saltreach", cityStyle: "harbor", paved: true, outerWall: "new",
@@ -2401,7 +2517,7 @@ const VENDOR_POOL = {};
 for (const r in VENDOR_ROLES) VENDOR_POOL[r] = (r === "jeweler" ? VENDOR_SOURCE_JEWEL : VENDOR_SOURCE).filter(id => (ITEMS[id].lv || 0) <= (r === "jeweler" ? VENDOR_JEWEL_MAXLV : VENDOR_MAXLV) && VENDOR_ROLES[r].test(ITEMS[id]));
 const VENDOR_SHOP_LOOK = { armorer: { type: "forge", signCol: "#9aa4b0" }, weaponsmith: { type: "forge", signCol: "#ff7a30" }, tradesman: { type: "shop", awning: "#2e7d32" }, quartermaster: { type: "shop", awning: "#c0392b" }, spellsmith: { type: "shop", awning: "#7b1fa2", signCol: "#b388ff" }, jeweler: { type: "shop", awning: "#0277bd", signCol: "#7ad0ff" } };
 const VENDOR_TOWNS = {
-  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 700, y: 1176, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 890, y: 1186, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 1560, y: 690, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 720, y: 850, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1350, y: 870, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 1238, y: 846, w: 96, h: 72, sign: "Jewels", district: "market" } } },
+  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 3950, y: 4006, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 4220, y: 4006, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 6050, y: 2310, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 3300, y: 3058, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 3900, y: 3058, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 3900, y: 2342, w: 96, h: 72, sign: "Jewels", district: "market" } } },
   harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, shops: { armorer: { x: 1620, y: 640, w: 120, h: 72, sign: "Armory", district: "yard" }, weaponsmith: { x: 1576, y: 430, w: 112, h: 72, sign: "Arms", district: "yard" }, tradesman: { x: 450, y: 590, w: 120, h: 72, sign: "Supplies", district: "fish" }, quartermaster: { x: 1076, y: 430, w: 112, h: 72, sign: "Provisions", district: "square" }, spellsmith: { x: 1100, y: 660, w: 100, h: 72, sign: "Scrolls", district: "square" }, jeweler: { x: 700, y: 600, w: 96, h: 72, sign: "Jewels", district: "square" } } },
   ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: { armorer: { x: 1490, y: 1280, w: 120, h: 72, sign: "Armory", district: "forge" }, weaponsmith: { x: 1470, y: 1120, w: 112, h: 72, sign: "Arms", district: "forge" }, tradesman: { x: 100, y: 420, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 686, y: 626, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1065, y: 285, w: 90, h: 72, sign: "Scrolls", district: "keep" }, jeweler: { x: 700, y: 830, w: 96, h: 72, sign: "Jewels", district: "market" } } }
 };
@@ -2565,7 +2681,7 @@ for (const zid in ZONES) {
   });
 }
 const WARP_STONES = {
-  outpost: { res: [344, 744], gov: [1020, 264], market: [1000, 850], ind: [1240, 1228], gate: [1700, 744] },
+  outpost: { res: [2150, 2560], gov: [3460, 1600], market: [3380, 2980], ind: [3440, 3800], gate: [5180, 2840] },
   harbor: { fish: [324, 564], square: [900, 464], yard: [1400, 600], docks: [904, 1120] },
   ironvale: { gate: [284, 704], keep: [660, 184], market: [900, 580], south: [900, 1180], forge: [1520, 704] }
 };
@@ -3008,7 +3124,7 @@ for (const el in MOB_PET_EL) {
   const [nm, pk, opp] = MOB_PET_EL[el], P = PETS[pk];
   FAMILIES["pet_" + el] = { name: nm + " Spirit", color: "#" + P.col.toString(16).padStart(6, "0"), radius: 11, hpMul: 0.55, attMul: 0.75, defMul: 0.8, eva: 6, delay: 3.0, speed: 120, aggro: null, link: false, tpMove: { name: P.pact, mul: 1.6, el }, weak: { [opp]: 1.3 }, loot: [], model: "wisp", tint: P.col, tint2: P.eye, summoned: true, mobPet: true };
 }
-const TOWN_OBJ_KEYS = ["npcs", "props", "ambient", "water", "fountains", "gardens", "stalls", "spawns", "plazas"];
+const TOWN_OBJ_KEYS = ["npcs", "props", "ambient", "water", "fountains", "gardens", "stalls", "spawns", "plazas", "dressing"];
 const TOWN_PT_KEYS = ["lamps", "benches", "dummies", "racks", "torches", "lighthouses", "slipways", "mines", "boats"];
 const TOWN_COPY_KEYS = ["theme", "safe", "paved", "city", "cityStyle", "palette", "mist", "cs", "music"];
 function splitTown(src) {
@@ -3066,4 +3182,71 @@ function splitTown(src) {
   for (const id in out) ZONES[id] = out[id];
   return out;
 }
+const TOWN_LAYOUT = { outpost: 2 };
+function settleTownFolk(z) {
+  const isFolk = n => { const d = NPCS[n.id]; return d && !d.prop && !d.crystal && !d.warpstone; };
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y), GAP = 70;
+  const dOf = (x, y) => districtAt(z, x, y);
+  const atStall = n => (z.stalls || []).some(s => Math.hypot(s.x - n.x, s.y - n.y) < 45);
+  const settled = z.npcs.filter(n => !isFolk(n) || n.shopFront || atStall(n));
+  for (const n of z.npcs.filter(n => isFolk(n) && !n.shopFront && !atStall(n))) {
+    if (settled.some(o => dist(o, n) < GAP)) {
+      const home = dOf(n.x, n.y);
+      let best = null;
+      for (let r = 12; r <= 360 && !best; r += 12) for (let k = 0; k < 24; k++) {
+        const a = k / 24 * Math.PI * 2, x = Math.round(n.x + Math.cos(a) * r), y = Math.round(n.y + Math.sin(a) * r);
+        if (dOf(x, y) === home && clearOfRoads(z, x, y, 16) && !settled.some(o => Math.hypot(o.x - x, o.y - y) < GAP)) { best = { x, y }; break; }
+      }
+      if (best) { n.x = best.x; n.y = best.y; }
+    }
+    settled.push(n);
+  }
+  for (const n of z.npcs) {
+    if (!isFolk(n) || n.shopFront) continue;
+    const st = (z.stalls || []).find(s => Math.hypot(s.x - n.x, s.y - n.y) < 45) || (z.props || []).find(p => p.type === "desk" && Math.hypot(p.x - n.x, p.y - n.y) < 50);
+    if (st) { n.face = Math.atan2(st.y - n.y, st.x - n.x); continue; }
+    let bd = 1e9, bx = 0, by = 0;
+    for (const p of z.paths || []) {
+      if (p.lane) continue;
+      for (let i = 0; i < p.pts.length - 1; i++) {
+        const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((n.x - a[0]) * dx + (n.y - a[1]) * dy) / L)), qx = a[0] + dx * t, qy = a[1] + dy * t, dd = Math.hypot(n.x - qx, n.y - qy);
+        if (dd < bd) { bd = dd; bx = qx; by = qy; }
+      }
+    }
+    if (bd < 1e9 && bd > 1) n.face = Math.atan2(by - n.y, bx - n.x);
+  }
+}
+for (const t of ["outpost", "harbor", "ironvale"]) settleTownFolk(ZONES[t]);
 for (const t of ["outpost", "harbor", "ironvale"]) splitTown(t);
+for (const t of ["outpost", "harbor", "ironvale"]) for (const p of ZONE_SPLITS[t].parts) {
+  const z = ZONES[p.id];
+  z.ghost = { rects: [], paths: [], houses: [] };
+  for (const q of ZONE_SPLITS[t].parts) {
+    if (q === p) continue;
+    const ox = q.x0 - p.x0, oy = q.y0 - p.y0, R = { x: ox, y: oy, w: q.x1 - q.x0, h: q.y1 - q.y0 };
+    if (!rectsHit(R, { x: 0, y: 0, w: z.w, h: z.h }, 900)) continue;
+    z.ghost.rects.push(R);
+    const Q = ZONES[q.id];
+    for (const pa of Q.paths || []) if (!pa.lane) z.ghost.paths.push({ w: pa.w, pts: pa.pts.map(c => [c[0] + ox, c[1] + oy]) });
+    for (const h of Q.houses || []) { const x = h.x + ox, y = h.y + oy; if (x > -900 && y > -900 && x < z.w + 900 && y < z.h + 900) z.ghost.houses.push({ x, y, w: h.w, h: h.h, type: h.type, floors: h.floors, rot: h.rot || 0, tint: h.tint }); }
+  }
+  z.exits.forEach((e, i) => {
+    if (!e.gate) return;
+    const sd = exitSide(z, e), id = "gsign_" + p.id + "_" + i, horiz = sd === "e" || sd === "w", inX = sd === "w" ? 1 : sd === "e" ? -1 : 0, inY = sd === "n" ? 1 : sd === "s" ? -1 : 0;
+    const cx = e.x + e.w / 2, cy = e.y + e.h / 2;
+    NPCS[id] = { name: "To " + ZONES[e.to].name, prop: "sign", talk: "talkSign", signTo: e.to };
+    let at = null;
+    for (const lat of [e.lane + 40, e.lane + 80, e.lane + 130]) for (const sd of [1, -1]) for (const dep of [70, 110, 160]) {
+      if (at) break;
+      const x = Math.round(cx + inX * dep + (horiz ? 0 : sd * lat)), y = Math.round(cy + inY * dep + (horiz ? sd * lat : 0));
+      if (clearOfRoads(z, x, y, 10) && !z.npcs.some(n => Math.hypot(n.x - x, n.y - y) < 60)) at = { x, y };
+    }
+    at = at || { x: Math.round(cx + inX * 70 + (horiz ? 0 : e.lane + 40)), y: Math.round(cy + inY * 70 + (horiz ? e.lane + 40 : 0)) };
+    z.npcs.push({ id, x: at.x, y: at.y });
+  });
+}
+for (const zid in ZONES) for (const n of ZONES[zid].npcs || []) {
+  if (!n.id.startsWith("sign_") || !NPCS[n.id]) continue;
+  const z = ZONES[zid], e = (z.exits || []).filter(x => x.kind !== "door" && !x.gate && ZONES[x.to]).sort((a, b) => Math.hypot(a.x + a.w / 2 - n.x, a.y + a.h / 2 - n.y) - Math.hypot(b.x + b.w / 2 - n.x, b.y + b.h / 2 - n.y))[0];
+  if (e) { NPCS[n.id].signTo = e.to; NPCS[n.id].name = "To " + ZONES[e.to].name; }
+}
