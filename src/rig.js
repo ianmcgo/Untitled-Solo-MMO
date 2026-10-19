@@ -3800,3 +3800,4 @@ function buildMount(coatId) {
   const entry = entryFor("thornstrider|" + id, () => thornstriderEntry(MOUNT_COATS[id]));
   return instantiate(entry);
 }
+NPC_LOOK.v_jeweler_outpost = Object.assign(baseFromLook({ race: "pipkin", build: 1, face: 3 }), { hair: { style: "puffs", color: 0xe0b84a }, top: { type: "coat", color: 0x2a3a5a, trim: 0xe0d090 }, legs: 0x1e2434, boots: 0x2a2030, gloves: 0xd8d0b0, belt: 0x4a3a1a });
