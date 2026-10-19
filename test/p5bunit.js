@@ -55,7 +55,7 @@ G.setJob('PLD', null); G.refreshPlayer(true); P().mp = 100; P().hp = P().maxHp; 
 const dBefore = G.stat(P(), 'def');
 G.playerAct({ kind: 'ja', id: 'sentinel' });
 ok(P().buffs.sentinel && G.stat(P(), 'def') > dBefore * 1.4, 'Sentinel raises defense by 50%');
-m.enmity.set(P(), 100); P().mp = 100; P().target = m; const mh0 = m.hp; G.playerAct({ kind: 'ma', id: 'banish' }); run(2.6);
+m.enmity.set(P(), 100); P().mp = 100; P().target = m; m.swingTimer = 99; m.readying = null; m.tp = 0; const mh0 = m.hp; G.playerAct({ kind: 'ma', id: 'banish' }); run(2.6);
 ok(m.hp < mh0, 'Banish hurts the monster');
 P().recasts = {}; m.readying = { t: 1, target: P(), start: S.time }; m.x = P().x + 20;
 G.playerAct({ kind: 'ja', id: 'shield_bash' });
