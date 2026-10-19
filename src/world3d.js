@@ -988,6 +988,7 @@ function buildTown(field, root) {
   for (let i = 0; i < 26; i++) {
     const hs = (z.houses || [])[i % (z.houses || [1]).length];
     if (!hs) break;
+    if (hs.shop) continue;
     const px = hs.x + (rnd() - 0.5) * hs.w * 1.3, py = hs.y + hs.h / 2 + 18 + rnd() * 24;
     if (!placeable(field, px, py, { npc: 45, path: 0.5 })) continue;
     const s = 0.5 + rnd() * 0.3;
@@ -1033,6 +1034,112 @@ function texSign(text, col) {
   g.fillText(text, 128, 50);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   return TEXLIB.cache[key] = t;
+}
+function texTradeIcon(trade) {
+  const key = "tradeicon_" + trade;
+  if (TEXLIB.cache[key]) return TEXLIB.cache[key];
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const g = c.getContext("2d");
+  g.fillStyle = "#4a3220"; g.beginPath(); g.arc(64, 64, 60, 0, 7); g.fill();
+  g.strokeStyle = "#d4a840"; g.lineWidth = 7; g.stroke();
+  g.lineCap = "round"; g.lineJoin = "round";
+  const P = (pts, fill, stroke, lw) => { g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath(); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw || 4; g.stroke(); } };
+  if (trade === "armorer") {
+    P([[64, 24], [98, 36], [94, 72], [64, 104], [34, 72], [30, 36]], "#b8c0c8", "#2a2a30", 5);
+    P([[64, 32], [90, 41], [87, 70], [64, 95]], "#8a929a");
+  } else if (trade === "weaponsmith") {
+    g.strokeStyle = "#d8dde2"; g.lineWidth = 9; g.beginPath(); g.moveTo(40, 92); g.lineTo(92, 30); g.stroke();
+    g.strokeStyle = "#d4a840"; g.lineWidth = 7; g.beginPath(); g.moveTo(34, 74); g.lineTo(58, 98); g.stroke();
+    g.strokeStyle = "#6a4a2a"; g.lineWidth = 8; g.beginPath(); g.moveTo(44, 88); g.lineTo(30, 104); g.stroke();
+  } else if (trade === "tradesman") {
+    g.strokeStyle = "#8a6038"; g.lineWidth = 9; g.beginPath(); g.moveTo(40, 100); g.lineTo(84, 42); g.stroke();
+    g.strokeStyle = "#c8ccd0"; g.lineWidth = 10; g.beginPath(); g.moveTo(54, 30); g.quadraticCurveTo(84, 30, 104, 56); g.stroke();
+  } else if (trade === "quartermaster") {
+    P([[54, 26], [74, 26], [74, 48], [96, 84], [90, 100], [38, 100], [32, 84], [54, 48]], "#c0392b", "#f0e2b8", 4);
+    g.fillStyle = "#f0e2b8"; g.fillRect(52, 20, 24, 8);
+  } else if (trade === "spellsmith") {
+    g.fillStyle = "#e8dcc0"; g.fillRect(36, 34, 56, 60);
+    g.fillStyle = "#c8b890"; g.beginPath(); g.arc(36, 40, 10, 0, 7); g.arc(92, 88, 10, 0, 7); g.fill();
+    g.strokeStyle = "#7b1fa2"; g.lineWidth = 4; for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(46, 50 + k * 11); g.lineTo(82, 50 + k * 11); g.stroke(); }
+  } else {
+    P([[64, 26], [96, 54], [64, 104], [32, 54]], "#5ac8f0", "#e8f8ff", 4);
+    P([[32, 54], [96, 54]], null, "#e8f8ff", 3); P([[50, 30], [64, 54], [78, 30]], null, "#e8f8ff", 3);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  return TEXLIB.cache[key] = t;
+}
+function shopFront(bt, M, B, hs, bw, fz, PL, dh, dw, z, root, rnd) {
+  const box = (w, h, d) => new THREE.BoxGeometry(w, h, d), cyl = (a, b, h, n) => new THREE.CylinderGeometry(a, b, h, n || 8), ball = (r, a, b) => new THREE.SphereGeometry(r, a || 10, b || 8);
+  const v = new THREE.Vector3();
+  const col = (lx, lz, r) => { v.set(lx, 0, lz).applyMatrix4(B); if (z.colliders) z.colliders.push({ x: v.x / U, y: v.z / U, r }); };
+  const W = bw / 2, Lx = -(W - 0.75), Rx = W - 0.75, Fz = fz + 0.55;
+  const icon = new THREE.Mesh(new THREE.CircleGeometry(0.42, 24), new THREE.MeshStandardMaterial({ map: texTradeIcon(hs.trade), side: THREE.DoubleSide, roughness: 0.8 }));
+  icon.position.set(-(dw / 2 + 0.9), PL + dh - 0.42, fz + 0.55); icon.rotation.y = Math.PI / 2; icon.applyMatrix4(B); root.add(icon);
+  bt.add(M.iron, box(0.04, 0.3, 0.04), B, -(dw / 2 + 0.9), PL + dh - 0.02, fz + 0.55);
+  const t = hs.trade;
+  if (t === "armorer") {
+    const steel = M.steel || (M.steel = std({ color: 0xb4bcc4, roughness: 0.35, metalness: 0.75 }));
+    bt.add(M.frame, cyl(0.05, 0.06, 1.0, 6), B, Rx, 0.5, Fz);
+    bt.add(M.frame, cyl(0.26, 0.3, 0.06, 10), B, Rx, 0.03, Fz);
+    bt.add(steel, cyl(0.27, 0.2, 0.5, 12).scale(1, 1, 0.62), B, Rx, 1.25, Fz);
+    bt.add(steel, cyl(0.2, 0.24, 0.2, 12).scale(1, 1, 0.62), B, Rx, 0.92, Fz);
+    bt.add(M.red, cyl(0.25, 0.27, 0.22, 12).scale(1, 1, 0.64), B, Rx, 0.72, Fz);
+    for (const sx of [-1, 1]) bt.add(steel, new THREE.SphereGeometry(0.13, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(1.3, 0.7, 1), B, Rx + sx * 0.3, 1.47, Fz);
+    bt.add(M.frame, cyl(0.04, 0.04, 0.12, 5), B, Rx, 1.56, Fz);
+    bt.add(steel, new THREE.SphereGeometry(0.15, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.55), B, Rx, 1.64, Fz);
+    bt.add(steel, cyl(0.16, 0.16, 0.05, 12), B, Rx, 1.64, Fz);
+    bt.add(M.red, cyl(0.42, 0.42, 0.07, 18).rotateX(Math.PI / 2), B, Lx, 0.55, fz + 0.12, 0, -0.18);
+    bt.add(M.gold, cyl(0.1, 0.1, 0.09, 10).rotateX(Math.PI / 2), B, Lx, 0.55, fz + 0.16, 0, -0.18);
+    bt.add(M.iron, box(0.5, 0.36, 0.4), B, Lx + 0.1, 0.18, fz + 0.75, rnd() * 0.4);
+    col(Rx, Fz, 12); col(Lx, fz + 0.6, 12);
+  } else if (t === "weaponsmith") {
+    for (const sx of [-1, 1]) bt.add(M.frame, box(0.08, 1.3, 0.08), B, Lx + sx * 0.55, 0.65, Fz);
+    bt.add(M.frame, box(1.3, 0.07, 0.1), B, Lx, 1.15, Fz); bt.add(M.frame, box(1.3, 0.07, 0.1), B, Lx, 0.3, Fz);
+    for (let k = 0; k < 4; k++) { bt.add(M.iron, box(0.05, 1.15, 0.025), B, Lx - 0.42 + k * 0.28, 0.82, Fz + 0.06, 0, 0.1); bt.add(M.gold, box(0.2, 0.04, 0.05), B, Lx - 0.42 + k * 0.28, 0.38, Fz + 0.06); }
+    bt.add(M.frame, cyl(0.24, 0.3, 0.5, 8), B, Rx, 0.25, Fz);
+    bt.add(M.iron, box(0.62, 0.2, 0.28), B, Rx, 0.6, Fz);
+    bt.add(M.iron, new THREE.ConeGeometry(0.1, 0.34, 8).rotateZ(-Math.PI / 2), B, Rx + 0.46, 0.62, Fz);
+    bt.add(M.iron, box(0.07, 0.07, 0.36), B, Rx - 0.12, 0.74, Fz, 0.5); bt.add(M.frame, cyl(0.03, 0.03, 0.34, 5).rotateZ(Math.PI / 2), B, Rx + 0.06, 0.74, Fz + 0.1, 0.5);
+    col(Lx, Fz, 14); col(Rx, Fz, 12);
+  } else if (t === "tradesman") {
+    for (let k = 0; k < 3; k++) bt.add(k % 2 ? M.planks : M.frame, box(0.55, 0.48, 0.55), B, Lx - 0.3 + (k % 2) * 0.6, 0.24 + (k > 1 ? 0.48 : 0), Fz - 0.05, rnd() * 0.3);
+    bt.add(M.planks, cyl(0.28, 0.3, 0.72, 10), B, Rx, 0.36, Fz);
+    for (let k = 0; k < 2; k++) bt.add(M.white, ball(0.26, 10, 8).scale(1, 1.2, 0.9), B, Rx - 0.55 - k * 0.05, 0.28 + k * 0.32, Fz + 0.1 - k * 0.1, rnd());
+    bt.add(M.frame, cyl(0.035, 0.035, 1.2, 5), B, Rx + 0.45, 0.6, fz + 0.12, 0, 0, 0.28);
+    bt.add(M.iron, box(0.6, 0.07, 0.06), B, Rx + 0.62, 1.15, fz + 0.12, 0, 0, 0.28 - 0.25);
+    bt.add(M.frame, cyl(0.035, 0.035, 1.0, 5), B, Lx - 0.75, 0.5, fz + 0.12, 0, 0, -0.25);
+    bt.add(M.iron, box(0.22, 0.16, 0.05), B, Lx - 0.86, 0.98, fz + 0.12, 0, 0, -0.25);
+    col(Lx, Fz, 16); col(Rx, Fz, 12);
+  } else if (t === "quartermaster") {
+    for (let k = 0; k < 2; k++) bt.add(M.planks, cyl(0.3, 0.3, 0.78, 10), B, Lx - 0.32 + k * 0.62, 0.39, Fz, rnd());
+    bt.add(M.frame, box(0.95, 0.06, 0.55), B, Rx, 0.8, Fz);
+    for (const [dx, dz] of [[-0.4, -0.2], [0.4, -0.2], [-0.4, 0.2], [0.4, 0.2]]) bt.add(M.frame, box(0.06, 0.78, 0.06), B, Rx + dx, 0.39, Fz + dz);
+    for (let k = 0; k < 3; k++) bt.add(M.planks, ball(0.11, 8, 6).scale(1.6, 0.8, 1), B, Rx - 0.3 + k * 0.2, 0.88, Fz - 0.1, rnd());
+    const pot = [0xc0392b, 0x2a6ac8, 0x3aa858];
+    for (let k = 0; k < 3; k++) { const m = std({ color: pot[k], roughness: 0.25, emissive: pot[k], emissiveIntensity: 0.25 }); const g2 = cyl(0.06, 0.08, 0.18, 8); const mm = new THREE.Mesh(g2, m); v.set(Rx + 0.1 + k * 0.13, 0.92, Fz + 0.12); mm.position.copy(v.applyMatrix4(B)); root.add(mm); }
+    col(Lx, Fz, 14); col(Rx, Fz, 12);
+  } else if (t === "spellsmith") {
+    bt.add(M.frame, cyl(0.07, 0.12, 0.95, 6), B, Rx, 0.48, Fz);
+    bt.add(M.frame, box(0.6, 0.05, 0.45), B, Rx, 1.0, Fz, 0, -0.35);
+    bt.add(M.white, box(0.52, 0.03, 0.36), B, Rx, 1.04, Fz + 0.02, 0, -0.35);
+    const orbM = std({ color: 0x9a5ae0, roughness: 0.15, emissive: 0x7a3ad0, emissiveIntensity: 0.8 });
+    bt.add(M.iron, cyl(0.05, 0.14, 0.9, 6), B, Lx, 0.45, Fz);
+    const orb = new THREE.Mesh(ball(0.2, 14, 10), orbM); v.set(Lx, 1.1, Fz); orb.position.copy(v.applyMatrix4(B)); root.add(orb);
+    const cnd = std({ color: 0xfff0c0, emissive: 0xffb050, emissiveIntensity: 1.2 });
+    for (const sx of [-1, 1]) { bt.add(M.white, cyl(0.035, 0.035, 0.16, 6), B, Rx + sx * 0.22, 1.12, Fz - 0.12); const fl = new THREE.Mesh(ball(0.03, 6, 4).scale(1, 1.8, 1), cnd); v.set(Rx + sx * 0.22, 1.23, Fz - 0.12); fl.position.copy(v.applyMatrix4(B)); root.add(fl); }
+    col(Lx, Fz, 10); col(Rx, Fz, 12);
+  } else if (t === "jeweler") {
+    bt.add(M.frame, box(0.9, 0.75, 0.5), B, Rx, 0.38, Fz);
+    bt.add(M.gold, box(0.94, 0.04, 0.54), B, Rx, 0.77, Fz);
+    const glass = new THREE.Mesh(box(0.86, 0.32, 0.46), new THREE.MeshStandardMaterial({ color: 0xd8f0ff, transparent: true, opacity: 0.28, roughness: 0.05, metalness: 0.1, depthWrite: false }));
+    v.set(Rx, 0.95, Fz); glass.position.copy(v.applyMatrix4(B)); root.add(glass);
+    const gemC = [0x5ac8f0, 0xe04060, 0x50d070, 0xf0c040];
+    for (let k = 0; k < 4; k++) { const gm = new THREE.Mesh(new THREE.OctahedronGeometry(0.06), std({ color: gemC[k], roughness: 0.1, metalness: 0.3, emissive: gemC[k], emissiveIntensity: 0.5 })); v.set(Rx - 0.3 + k * 0.2, 0.86, Fz + (k % 2) * 0.1 - 0.05); gm.position.copy(v.applyMatrix4(B)); root.add(gm); }
+    bt.add(M.frame, box(0.55, 0.35, 0.38), B, Lx, 0.18, Fz);
+    bt.add(M.gold, box(0.58, 0.05, 0.4), B, Lx, 0.37, Fz);
+    bt.add(M.gold, box(0.08, 0.1, 0.03), B, Lx, 0.28, Fz + 0.2);
+    col(Rx, Fz, 12); col(Lx, Fz, 10);
+  }
 }
 function texClock() {
   if (TEXLIB.cache.clock) return TEXLIB.cache.clock;
@@ -1232,6 +1339,7 @@ function buildCityBuildings(field, root) {
         const sg2 = sg.clone(); sg2.position.set(sx + 0.1, PL + dh + 0.25, fz + 0.55); sg2.rotation.set(0, 0, 0); sg2.position.set(0, PL + dh + 0.48, fz + 0.16); sg2.scale.setScalar(hs.type === "auction" ? Math.min(2.1, bw / 2.2) : Math.min(1.27, bw / 3)); sg2.applyMatrix4(B); root.add(sg2);
       }
     }
+    if (hs.trade) shopFront(bt, M, B, hs, bw, fz, PL, dh, dw, z, root, rnd);
     if (T.flag || hs.flag) {
       const px = bw / 2 - 0.4, py = topY + rh * 0.3;
       bt.add(M.iron, cyl(0.05, 0.06, 4, 6), B, px, py + 2, depth / 2 - 0.4);
@@ -1251,7 +1359,7 @@ function buildCityBuildings(field, root) {
       const hearth = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.0, 0.1), new THREE.MeshBasicMaterial({ color: 0xff7a30 }));
       hearth.position.set(bw * 0.28, PL + 0.8, fz + 0.06); hearth.applyMatrix4(B); root.add(hearth);
       bt.add(M.stone, box(2.2, 2.2, 0.3), B, bw * 0.28, PL + 1.0, fz + 0.18);
-      const L = new THREE.PointLight(0xff8a3a, 12, 14, 1.6); L.position.set(bw * 0.28, PL + 1.2, fz + 1.2).applyMatrix4(B); L.userData.phase = idx; root.add(L); W3.torchLights.push(L);
+      if (!hs.shop || W3.quality !== "low") { const L = new THREE.PointLight(0xff8a3a, 12, 14, 1.6); L.position.set(bw * 0.28, PL + 1.2, fz + 1.2).applyMatrix4(B); L.userData.phase = idx; root.add(L); W3.torchLights.push(L); }
     }
     if (T.sails) {
       const hub = new THREE.Group(), sm = std({ color: 0xe8dcc4, side: THREE.DoubleSide, roughness: 1 }), am = std({ color: 0x5a3e26 });
