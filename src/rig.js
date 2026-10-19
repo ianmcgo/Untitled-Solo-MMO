@@ -2070,7 +2070,7 @@ function humanEntryBase(L) {
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
     const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
-    const gA = 0.064 * gi, gcx = 0.086 * gi, gcy = hipJ - 0.02, gax = 0.097 * gi, gay = 0.064, gayU = 0.13, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
+    const gA = 0.064 * gi, gcx = 0.086 * gi, gcy = hipJ - 0.03, gax = 0.097 * gi, gay = 0.05, gayU = 0.14, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
     const zMod = (x, y, z) => {
       if (!gOn || z >= 0) return z;
       let dep = 0;
@@ -2079,7 +2079,7 @@ function humanEntryBase(L) {
         if (sxk <= 0) continue;
         const up = y > gcy, ty = up ? (y - gcy) / gayU : (gcy - y) / gay;
         if (ty >= 1) continue;
-        const fy = up ? Math.pow(smoothRange(1, 0, ty), 0.55) : Math.sqrt(1 - Math.pow(ty, 2.6));
+        const fy = up ? Math.pow(smoothRange(1, 0, ty), 0.55) : Math.sqrt(Math.max(0, 1 - ty * ty));
         dep = Math.max(dep, gA * Math.pow(sxk, 0.85) * fy);
       }
       return z - dep;
@@ -2088,7 +2088,8 @@ function humanEntryBase(L) {
     const dens = rs => { if (!gOn) return rs; const out = []; for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; out.push(a); for (const f of [0.2, 0.4, 0.6, 0.8]) { const m = Object.assign({}, a); for (const k of ["y", "x", "z", "rx", "rz", "f", "b", "p"]) if (a[k] != null || b[k] != null) m[k] = (a[k] == null ? (k === "f" || k === "b" ? 1 : k === "p" ? 2.2 : 0) : a[k]) * (1 - f) + (b[k] == null ? (k === "f" || k === "b" ? 1 : k === "p" ? 2.2 : 0) : b[k]) * f; out.push(m); } } out.push(rs[rs.length - 1]); return out; };
     const sculpt = (g, kz, ex) => { if (!gOn) return g; const P = g.attributes.position; for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i); if (z >= 0) continue; const q = clamp((-z / Math.max(1e-5, Math.hypot(x * 0.7, z)) - 0.25) / 0.55, 0, 1), k = q * q * (3 - 2 * q), zm = zMod(x, y, z); P.setZ(i, z + (zm - z - (ex && zm < z - 0.0005 ? ex * Math.min(1, (z - zm) / 0.004) : 0)) * k); } g.computeVertexNormals(); return g; };
     const gW = (x, y, z) => { const base = tw(x, y); if (!gOn || z >= 0) return base; const k = clamp(bump(x, y) / gA, 0, 1) * 0.75; if (k < 0.02) return base; return base.map(([n, w]) => [n, w * (1 - k)]).concat([["glute" + (x >= 0 ? "L" : "R"), k]]); };
-    BODY.sculptLeg = null;
+    const foldY = gcy - gay * 0.94;
+    BODY.sculptLeg = gOn ? (g => { const P = g.attributes.position; for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i); if (z >= 0) continue; const k = smoothRange(foldY - 0.05, foldY - 0.006, y) * smoothRange(foldY + 0.03, foldY + 0.004, y); if (k <= 0) continue; const c = -z / Math.max(1e-5, Math.hypot(x - Math.sign(x) * pr.hip, z)), w = clamp((c - 0.3) / 0.5, 0, 1); P.setZ(i, z + 0.013 * gi * k * w); } g.computeVertexNormals(); return g; }) : null;
     if (gOn) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) R.bone("glute" + sd, "hips", xs * gcx, gcy, gcz);
     const allR = lowR.concat(upR.slice(1)), nLo = lowR.length, lowL = gOn ? densCR(allR, 0, nLo - 1) : lowR, upL = gOn ? densCR(allR, nLo - 1, nLo + 1).concat(upR.slice(3)) : upR, sg = gOn ? 64 : 24;
     R.addW(sculpt(gLoft(lowL, sg, true, false, 0, 0.3)), "hips", robe ? topC : legC, robe ? topR : legR, gW);
