@@ -2121,7 +2121,7 @@ function humanEntryBase(L) {
       for (const [a, b] of [[tri[0], tri[2]], [tri[1], tri[2]]]) uwStrand(R, uwPath(a, b, 6, (x, y) => fz(x, y) + 0.0015), 0.0022, "hips", UWK);
       const yb = hipJ - 0.08, bz = (y, x) => { const z = -uwFront(rsA, x || 0, y, true) - 0.004; return gOn ? zMod(x || 0, y, z) - 0.004 : z; };
       const yV = yBk - vDip, ty = []; for (let i = 0; i <= 14; i++) ty.push(yV + (hipJ - 0.072 - yV) * i / 14);
-      const back = ty.map(y => V3(0, y, BODY.glute ? -(backAt(y) + bumpC(y) + 0.0035) : bz(y)));
+      const back = ty.map(y => V3(0, y, BODY.glute ? -(backAt(y) + Math.max(bumpC(y), 0.62 * bump(0.028 * gi, y)) + 0.0035) : bz(y)));
       uwStrand(R, [V3(0, ay, fz(0, ay)), V3(0, yb - 0.012, 0)].concat(back.slice().reverse()), 0.0032, "hips", 0x060507);
       for (const sx of [1, -1]) { const q = band.reduce((m, p) => sx * p.x > sx * m.x ? p : m, band[0]); uwBow(R, V3(q.x + sx * 0.002, q.y, q.z), V3(sx, 0, 0), 0.9 * gi, "hips", UWK); }
     }
