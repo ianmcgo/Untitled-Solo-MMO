@@ -1831,6 +1831,63 @@ function familyExtras(R, L, D) {
   }
 }
 
+function uwFront(rs, x, y, back) {
+  let a = rs[0], b = rs[0], f = 0;
+  if (y <= rs[0].y) { a = b = rs[0]; } else if (y >= rs[rs.length - 1].y) { a = b = rs[rs.length - 1]; }
+  else for (let i = 0; i < rs.length - 1; i++) if (y >= rs[i].y && y <= rs[i + 1].y) { a = rs[i]; b = rs[i + 1]; f = (y - a.y) / Math.max(1e-6, b.y - a.y); break; }
+  const L = (k, d) => ((a[k] == null ? d : a[k]) * (1 - f) + (b[k] == null ? d : b[k]) * f);
+  const rx = L("rx", 0.1), rz = L("rz", 0.1) * (back ? L("b", 1) : L("f", 1)), z0 = L("z", 0), p = L("p", 2.2);
+  const u = Math.min(0.995, Math.abs(x) / rx), zz = rz * Math.pow(1 - Math.pow(u, p), 1 / p);
+  return back ? zz - z0 : z0 + zz;
+}
+function uwRing(rs, y0, off, n, yBack) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const t = i / n * Math.PI * 2, c = Math.cos(t), sn = Math.sin(t), k = yBack == null ? 0 : smoothRange(0, 1, (1 - sn) / 2), y = y0 + ((yBack == null ? y0 : yBack) - y0) * k;
+    let a = rs[0], b = rs[0], f = 0;
+    for (let j = 0; j < rs.length - 1; j++) if (y >= rs[j].y && y <= rs[j + 1].y) { a = rs[j]; b = rs[j + 1]; f = (y - a.y) / Math.max(1e-6, b.y - a.y); break; }
+    const L = (q, d) => ((a[q] == null ? d : a[q]) * (1 - f) + (b[q] == null ? d : b[q]) * f);
+    const rx = L("rx", 0.1) + off, rz = L("rz", 0.1), fr = L("f", 1), br = L("b", 1), z0 = L("z", 0), p = L("p", 2.2);
+    const ex = Math.sign(c) * Math.pow(Math.abs(c), 2 / p), ez = Math.sign(sn) * Math.pow(Math.abs(sn), 2 / p);
+    out.push(V3(ex * rx, y, z0 + ez * (rz * (ez >= 0 ? fr : br) + off)));
+  }
+  return out;
+}
+function uwPath(a, b, n, zAt) { const out = []; for (let i = 0; i <= n; i++) { const t = i / n, x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t; out.push(V3(x, y, zAt(x, y))); } return out; }
+function uwStrand(R, pts, r, bone, col) {
+  for (let i = 0; i < pts.length - 1; i++) { if (pts[i].distanceTo(pts[i + 1]) < 1e-5) continue; R.add(gTaper(pts[i], pts[i + 1], r, r, 5), bone, col, "plain"); if (i > 0) R.add(gBall(pts[i], r * 1.05, 1, 1, 1, 5), bone, col, "plain"); }
+}
+function uwBow(R, p, nrm, s, bone, col) {
+  const up = V3(0, 1, 0), side = new THREE.Vector3().crossVectors(up, nrm).normalize(), out = nrm.clone().normalize();
+  for (const k of [-1, 1]) {
+    const lp = [];
+    for (let i = 0; i <= 10; i++) { const th = i / 10 * Math.PI * 2; lp.push(p.clone().addScaledVector(side, k * 0.0085 * s * (1 - Math.cos(th))).addScaledVector(up, 0.0055 * s * Math.sin(th) * (1 - 0.3 * k)).addScaledVector(out, 0.0015 * s * (1 - Math.cos(th)))); }
+    uwStrand(R, lp, 0.0019 * s, bone, col);
+    uwStrand(R, [p.clone(), p.clone().addScaledVector(side, k * 0.005 * s).addScaledVector(up, -0.013 * s).addScaledVector(out, 0.002 * s), p.clone().addScaledVector(side, k * 0.007 * s).addScaledVector(up, -0.026 * s).addScaledVector(out, 0.001 * s)], 0.0018 * s, bone, col);
+  }
+  R.add(gBall(p.clone().addScaledVector(out, 0.0015 * s), 0.0034 * s, 1, 1, 0.8, 6), bone, col, "plain");
+}
+function gWrapTri(P, n, zAt) {
+  const pos = [], uv = [], idx = [], id = {};
+  let k = 0;
+  for (let i = 0; i <= n; i++) for (let j = 0; j <= n - i; j++) {
+    const a = 1 - (i + j) / n, b = i / n, c = j / n, x = P[0][0] * a + P[1][0] * b + P[2][0] * c, y = P[0][1] * a + P[1][1] * b + P[2][1] * c;
+    pos.push(x, y, zAt(x, y)); uv.push(b + c * 0.5, c); id[i + "," + j] = k++;
+  }
+  for (let i = 0; i < n; i++) for (let j = 0; j < n - i; j++) {
+    idx.push(id[i + "," + j], id[(i + 1) + "," + j], id[i + "," + (j + 1)]);
+    if (j < n - i - 1) idx.push(id[(i + 1) + "," + j], id[(i + 1) + "," + (j + 1)], id[i + "," + (j + 1)]);
+  }
+  const ax = pos[3] - pos[0], ay = pos[4] - pos[1], bx = pos[(n + 1) * 3] - pos[0], by = pos[(n + 1) * 3 + 1] - pos[1];
+  if (ax * by - ay * bx > 0) for (let t = 0; t < idx.length; t += 3) { const q = idx[t + 1]; idx[t + 1] = idx[t + 2]; idx[t + 2] = q; }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
 function humanEntry(L) {
   const hs0 = HEAD_SCALE[0], hs1 = HEAD_SCALE[1];
   RIG.loftSub = !L.skull && RIG.segK >= 0.37 ? 1 : 0;
@@ -1853,7 +1910,7 @@ function humanEntryBase(L) {
   const ank = 0.08, knee = ank + pr.leg * 0.5, hipJ = ank + pr.leg;
   const hipsY = hipJ + 0.03, spineY = hipsY + pr.torso * 0.28, chestY = hipsY + pr.torso * (L.doll ? 0.5 : 0.62), neckY = hipsY + pr.torso, headY = neckY + pr.neck;
   const shY = neckY - 0.05, elY = shY - pr.arm * 0.47, wrY = shY - pr.arm * 0.9;
-  const sw = pr.shoulder, gi = pr.girth, fl = L.doll ? 0.045 : 0;
+  const sw0 = pr.shoulder, sw = sw0 * (fem && !L.skull ? (L.doll ? 0.95 : 0.9) : 1), gi = pr.girth, fl = L.doll ? 0.045 : 0;
   R.bone("root", null, 0, 0, 0);
   R.bone("hips", "root", 0, hipsY, 0);
   R.bone("spine", "hips", 0, spineY, 0);
@@ -1969,7 +2026,7 @@ function humanEntryBase(L) {
   const shellOf = (rs, off) => rs.map(r => Object.assign({}, r, { rx: r.rx + off, rz: r.rz + off }));
   if (!L.skull) {
     R.add(gTaper(V3(0, neckY - 0.06, -0.006), V3(0, headY + 0.03, 0.008), (fem ? 0.056 : 0.064) * gi, (fem ? 0.046 : 0.054) * gi, 14), "neck", skin, SKR);
-    const W = sw / 0.195;
+    const W = sw0 / 0.195;
     const robe = top.type === "robe" || top.type === "coat";
     const hsc = L.doll ? (fem ? 0.9 : 0.8) : 1, hipR = (fem ? 0.165 : 0.152) * hsc, waistR = 0.15 * pr.waist * hsc, beltY = hipsY + 0.03;
     const hx0 = gi * (fem ? 1.08 : 1.0), cx0 = Math.min(gi, 1.04) * W, cx1 = Math.min(gi, 1.1) * W * 1.04, hz = 0.7 * gi, cz = 0.67 * gi;
@@ -1981,6 +2038,7 @@ function humanEntryBase(L) {
     const upR0 = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spY, hipR * (lowW ? 0.94 : 0.95), (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring(wsY, waistR * 0.93, cx0 * 0.95, cz, 1.06, 0.92), ring(chestY - 0.04, 0.155, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.172, cx1 * 1.03, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.18, cx1 * 1.06, cz, 1.0 + bust * 0.3, 1.05), ring(shY - 0.025, 0.17, cx1 * 1.04, cz * 0.95, 0.97, 1.03, 0, 2.1), ring(shY - 0.002, 0.148, cx1 * 1.0, cz * 0.9, 0.94, 1.02, -0.004, 2.0), ring(shY + 0.022, 0.112, cx1 * 0.94, cz * 0.88, 0.92, 1.0, -0.006, 2.0), ring(neckY - 0.024, 0.084, cx1 * 0.86, cz * 0.92, 0.9, 0.95, -0.006, 2.0), ring(neckY + 0.012, 0.058, gi * (fem ? 0.86 : 1), gi * 0.95, 1, 1, -0.006, 2)];
     const dollUp = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.93, hx0, hz * 0.97, 1.03, 1.0), ring(chestY - 0.01, hipR * 0.9, hx0 * 0.97, hz * 0.95, 1.04 + bust * 0.5, 1.0), ring(chestY + 0.45 * (neckY - chestY), sw * 1.05, 1, 0.85, 1.0, 1.0, 0, 2.0), ring(shY, sw * 0.95, 1, 0.82, 0.98, 1.0, 0, 2.0), ring(neckY - 0.012, 0.078 * gi, 1, 0.95, 1, 1, -0.004, 2), ring(neckY + 0.012, 0.066 * gi, 1, 0.95, 1, 1, -0.006, 2)];
     if (urs) upR0.forEach((r, i) => { if (i >= 2 && i <= 8) { const k = i <= 5 ? 1 : (9 - i) / 4; r.rz *= 1 + 0.16 * k; r.rx *= 1 - 0.05 * k; r.p = 1.95; } r.rx *= [1, 1, 1, 1, 1, 1, 1.03, 1.12, 1.22, 1.14, 1.06][i] || 1; });
+    if (fem && !L.skull) upR0.forEach(r => { r.rx *= 1 - 0.1 * smoothRange(chestY + 0.01, chestY + 0.09, r.y); });
     const upR = L.doll ? monoRings(dollUp) : upR0;
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
@@ -2018,22 +2076,47 @@ function humanEntryBase(L) {
       for (let i = 0; i < 6; i++) R.add(gTaper(cp[i], cp[i + 1], 0.0042 - i * 0.0002, 0.004 - i * 0.0002, 6, 0.6), "hips", 0x140a08, "plain");
       BODY.glute = { y: gcy, r: gA };
     }
-    const UW = L.under || {}, wht = 0xe6ded2;
+    const UW = L.under || {}, wht = 0xe6ded2, UWK = 0x121014, UWC = new THREE.Color(skin).lerp(new THREE.Color(UWK), 0.68).getHex();
     if (UW.low === "boxer" || UW.low === "brief") {
       const sh = shellOf(lowL, 0.006);
       R.addW(sculpt(gLoft(sh, sg, true, false, 0, 0.3)), "hips", wht, "plain", gW);
       if (!urs) R.add(sculpt(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 44).scale(1, 1, hz / hx0 * 1.02), 0, 0.012), "hips", wht, "plain");
     } else if (UW.low === "thong") {
-      R.add(sculpt(gRing(V3(0, beltY - 0.012, 0), hipR * hx0 + 0.004, 0.0055, "y", 44).scale(1, 1, hz / hx0 * 1.02), 0, 0.01), "hips", wht, "plain");
-      R.add(gBall(V3(0, hipJ - 0.005, hipR * hz * 0.96), 0.05, 1.15, 1.2, 0.22, 16), "hips", wht, "plain");
-      if (BODY.glute) { const ty = [beltY - 0.012, beltY - 0.04, hipJ - 0.01, hipJ - 0.05]; for (let i = 0; i < 3; i++) R.add(gTaper(V3(0, ty[i], -(backAt(ty[i]) + bump(0, ty[i]) + 0.008)), V3(0, ty[i + 1], -(backAt(ty[i + 1]) + bump(0, ty[i + 1]) + 0.008)), 0.007 - i * 0.001, 0.006 - i * 0.001, 6), "hips", wht, "plain"); }
-      else R.add(gTaper(V3(0, beltY - 0.012, -hipR * hz * 1.02), V3(0, hipJ - 0.05, -hipR * hz * 0.96), 0.007, 0.0045, 6), "hips", wht, "plain");
+      const ys = beltY - 0.02, yBk = gOn ? Math.max(beltY + 0.012, gcy + gayU + 0.004) : beltY + 0.012, rsA = lowR.concat(upR.slice(1));
+      const band = uwRing(rsA, ys, 0.004, 36, yBk).map(q => q.z < 0 && gOn ? V3(q.x, q.y, zMod(q.x, q.y, q.z) - 0.003) : q);
+      uwStrand(R, band.concat([band[0]]), 0.0026, "hips", UWK);
+      const fz = (x, y) => uwFront(rsA, x, y) + 0.0035, tx = 0.07 * gi * hx0, ay = hipJ - 0.068;
+      const tri = [[-tx, ys], [tx, ys], [0, ay]];
+      R.add(gWrapTri(tri, 9, fz), "hips", UWC, "cloth");
+      for (const [a, b] of [[tri[0], tri[2]], [tri[1], tri[2]]]) uwStrand(R, uwPath(a, b, 6, (x, y) => fz(x, y) + 0.0015), 0.0022, "hips", UWK);
+      const yb = hipJ - 0.08, bz = (y, x) => { const z = -uwFront(rsA, x || 0, y, true) - 0.004; return gOn ? zMod(x || 0, y, z) - 0.004 : z; };
+      const ty = [yBk, (yBk + hipJ) / 2 + 0.01, hipJ - 0.01, hipJ - 0.05, hipJ - 0.072];
+      const back = ty.map(y => V3(0, y, BODY.glute ? -(backAt(y) + bump(0, y) + 0.007) : bz(y)));
+      uwStrand(R, [V3(0, ay, fz(0, ay))].concat([V3(0, yb - 0.012, 0)], back.slice().reverse()), 0.0024, "hips", UWK);
+      for (const sx of [1, -1]) { const q = band.reduce((m, p) => sx * p.x > sx * m.x ? p : m, band[0]); uwBow(R, V3(q.x + sx * 0.002, q.y, q.z), V3(sx, 0, 0), 0.9 * gi, "hips", UWK); }
     }
     if (UW.top === "bikini") {
-      const cz1 = cz * 0.172 * (1.06 + bust) * 0.8;
-      for (const [xs, sd] of [[1, "L"], [-1, "R"]]) R.add(BODY.bust ? gBall(V3(xs * bX, bY + 0.004, bZ + 0.004), bR * 1.03, 0.98, 0.9, 0.96, 18) : gBall(V3(xs * 0.051 * gi, chestY + 0.02, cz1 * 0.97), 0.054 * gi, 0.98, 0.9, 0.62, 18), BODY.bust ? "bust" + sd : "chest", wht, "plain");
-      R.add(gRing(V3(0, chestY - 0.04, 0), (L.doll ? 0.122 : 0.156) * cx0 + 0.003, 0.0045, "y", 22).scale(1, 1, cz / cx0 * (L.doll ? 0.95 : 1.02)), "chest", wht, "plain");
-      for (const xs of [-1, 1]) R.add(gTaper(V3(xs * 0.05 * gi, chestY + 0.065, cz1 * 0.92), V3(xs * 0.03, neckY - 0.01, -0.02), 0.0045, 0.0045, 6), "chest", wht, "plain");
+      const rsA = lowR.concat(upR.slice(1)), dollC = L.doll || !BODY.bust;
+      const cR = dollC ? 0.054 * gi : bR, cX = dollC ? 0.051 * gi : bX, cY = dollC ? chestY + 0.02 : bY, cZ = dollC ? uwFront(rsA, 0.051 * gi, chestY + 0.02) - 0.054 * gi * 0.5 : bZ;
+      const bustZ = (x, y) => { let m = -9; for (const sx of [1, -1]) { const dx = (x - sx * cX) / (cR * 0.98), dy = (y - cY) / (cR * 0.94), d = dx * dx + dy * dy; if (d < 1) m = Math.max(m, cZ + cR * 0.96 * Math.sqrt(1 - d)); } return m; };
+      const zAt = (x, y) => Math.max(uwFront(rsA, x, y) + 0.0035, bustZ(x, y) + 0.0045);
+      const yb = cY - 0.76 * cR;
+      for (const [xs, sd] of [[1, "L"], [-1, "R"]]) {
+        const cx = xs * cX, A = [cx - xs * 1.0 * cR, cY - 0.8 * cR], B = [cx + xs * 1.12 * cR, cY - 0.7 * cR], T = [cx + xs * 0.02 * cR, cY + 1.08 * cR];
+        const bn = dollC ? "chest" : "bust" + sd, wf = (x, y) => { const d = Math.hypot((x - cx) / 0.98, (y - cY) / 0.94) / cR, w = smoothRange(1.2, 0.85, d); return [[bn, w], ["chest", 1 - w]]; };
+        R.addW(gWrapTri([A, B, T], 10, zAt), "chest", UWC, "cloth", dollC ? (() => [["chest", 1]]) : wf);
+        for (const [a, b] of [[A, T], [B, T]]) uwStrand(R, uwPath(a, b, 7, (x, y) => zAt(x, y) + 0.0012), 0.0021, "chest", UWK);
+        const ta = V3(T[0], T[1], zAt(T[0], T[1]) + 0.001), nr = (0.052 * gi + 0.0035) * (L.doll ? 1.1 : 1);
+        const p1 = V3(xs * cX * 0.8, cY + 1.7 * cR, uwFront(rsA, xs * cX * 0.8, cY + 1.7 * cR) + 0.004);
+        const p2 = V3(xs * 0.048 * gi, shY - 0.012, uwFront(rsA, xs * 0.048 * gi, shY - 0.012) + 0.004);
+        const hal = [ta, p1, p2, V3(xs * nr, neckY - 0.016, 0.004), V3(xs * nr * 0.72, neckY - 0.013, -nr * 0.72), V3(0, neckY - 0.011, -nr)];
+        for (let k = 0; k < hal.length - 1; k++) uwStrand(R, [hal[k], hal[k + 1]], 0.0022, hal[k + 1].y > neckY - 0.03 ? "neck" : "chest", UWK);
+      }
+      uwBow(R, V3(0, neckY - 0.011, -(0.052 * gi + 0.0055) * (L.doll ? 1.1 : 1)), V3(0, 0, -1), 0.85 * gi, "neck", UWK);
+      const ub = uwRing(rsA, yb, 0.0035, 36).map(q => q.z > 0 ? V3(q.x, q.y, Math.max(q.z, bustZ(q.x, q.y) + 0.003)) : q);
+      uwStrand(R, ub.concat([ub[0]]), 0.0024, "chest", UWK);
+      const qb = ub.reduce((m, p) => p.z < m.z ? p : m, ub[0]);
+      uwBow(R, V3(0, qb.y, qb.z - 0.002), V3(0, 0, -1), 0.85 * gi, "chest", UWK);
     } else if (UW.top === "bandeau") {
       R.add(gRing(V3(0, chestY + 0.02, 0), 0.172 * cx1 + 0.006, 0.02, "y", 22).scale(1, 1, cz / cx1 * 1.08), "chest", wht, "plain");
     }
@@ -2223,7 +2306,7 @@ function humanEntryBase(L) {
     R.add(gCyl(V3(0, hipsY - 0.09, 0), 0.155 * gi * (fem ? 1.08 : 1), 0.19 * gi, 0.2, 14, true).scale(1, 1, 0.76), "hips", c, t === "mail" || t === "plate" ? "metal" : topR);
   }
   if (t === "plate" && !L.skull) {
-    const W2 = sw / 0.195, pc = top.plate || 0x9aa0a8;
+    const W2 = sw0 / 0.195, pc = top.plate || 0x9aa0a8;
     if (BODY.up) {
       const pl = shellOf(BODY.up.slice(1, 7), 0.016 * gi);
       if (BODY.bust) for (const r of pl) { const k = smoothRange(BODY.bust.r * 1.6, BODY.bust.r * 0.4, Math.abs(r.y - BODY.bust.y)), need = (BODY.bust.front + 0.014 - (r.z || 0)) / r.rz; if (need > (r.f || 1)) r.f = (r.f || 1) + (need - (r.f || 1)) * k; }
@@ -2372,7 +2455,7 @@ function humanEntryBase(L) {
   if (H) headDecor(R, H, hc, hr);
 
   if (L.tail) {
-    const cat = L.tail === "cat", tz = -(0.12 * gi * (sw / 0.195) + 0.02), tc = cat ? L.hair.color : L.tail === "ursan" ? skin : (L.hair && L.hair.color) || skin;
+    const cat = L.tail === "cat", tz = -(0.12 * gi * (sw0 / 0.195) + 0.02), tc = cat ? L.hair.color : L.tail === "ursan" ? skin : (L.hair && L.hair.color) || skin;
     const lz = L.tail === "ursan", tr = lz || cat ? (lz ? "scale" : "hair") : "hair";
     const pts = cat ? [[-0.04, 0, 0.032], [-0.14, -0.07, 0.03], [-0.24, -0.16, 0.028], [-0.31, -0.27, 0.025], [-0.32, -0.38, 0.021], [-0.27, -0.47, 0.016], [-0.2, -0.52, 0.011]]
       : lz ? [[-0.04, 0, 0.06], [-0.11, -0.05, 0.057], [-0.19, -0.11, 0.053], [-0.27, -0.19, 0.047], [-0.33, -0.29, 0.04], [-0.35, -0.4, 0.03], [-0.32, -0.48, 0.018]]
