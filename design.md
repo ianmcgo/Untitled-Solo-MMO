@@ -2417,3 +2417,10 @@ Gait fix: the lateral root shift made planted feet slide sideways (walk planted 
 Glute params: gA 0.064 gi, gcx 0.086 gi, gax 0.097 gi (more lobe separation; midline depth about a quarter of the peak), gcy hipJ - 0.03, gay 0.056, gayU 0.155; upper profile (1 - ty^2)^1.35, lower sqrt(1 - ty^2.6).
 bumpC(y) = max(bump(0, y), 0.9 * bump(0.009 gi, y)) gives the visible cleft surface (the loft chords across the valley sit outside the analytic midline); the crease line and the thong back strap use it.
 Thong: uwRing takes a dip (0.03 with glutes) that lowers the back of the waist string in a V within |cos t| < 0.34; the back strap is 15 points from the V bottom down the cleft to hipJ - 0.072, then under the crotch to the front triangle, radius 0.0032, colour 0x060507.
+
+## 18.92.2 Anvils, zone runs, Maris, round glutes
+models3d.js addAnvil(group, meta): NPCs whose work is "hammer" (NPC_WORK or VENDOR_WORK) and kind human get a static anvil set in the view group (stump scaled to top at 0.74 hipsY, base, waist, face, horn cone, glowing bar MeshBasicMaterial, tongs), shared geometry in VIEW.anvil, placed at (-0.13, 0, 0.4) * hipsY/0.97, rotated -0.25. v.anvilGlow is the bar material; anim.js hammer work brightens it after the strike (c 0.7 to 0.9). destroyView disposes it.
+Zone exits: CONFIG.exitWalkTime 1.05, zoneFadeOut fades over 1.0 s. startExitWalk uses player.face when the exit is not on a zone edge (doors, ask exits), skipped when mounted; ask exits call startExitWalk after the confirm.
+Maris: NPC_LOOK.v_jeweler_outpost (end of rig.js, after RACE_BODY) is a Pipkin woman (baseFromLook race pipkin, build 1, face 3, puffs hair) in the jeweler coat.
+Boots: humanEntryBase boot shell needs at least one leg ring below bootTop (Pipkin legs have none), else the taper fallback.
+Glutes: upper profile fy = smoothstep(1 - ty)^0.55 (round dome, eases into the back), gcy hipJ - 0.02, gay 0.064, gayU 0.13.

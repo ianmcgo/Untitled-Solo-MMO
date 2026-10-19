@@ -2284,7 +2284,7 @@ function humanEntryBase(L) {
       if (ub.length > 1) R.addW(BODY.sculptLeg ? BODY.sculptLeg(gLoft(ub.slice().reverse(), 32, false, false, 0, 1)) : gLoft(ub.slice().reverse(), 18, false, false, 0, 1), "thigh" + sd, 0xf4f2ec, "cloth", LG.w);
     }
     if (L.boots != null) {
-      if (LG) { const bs = shellOf(LG.rings.filter(r => r.y <= bootTop + 0.001), 0.008 * gi); bs.unshift(Object.assign({}, bs[0], { y: bootTop + 0.004, rx: bs[0].rx + 0.006, rz: bs[0].rz + 0.006 })); R.addW(gLoft(bs.slice().reverse(), 16, false, false, 0, 1), "shin" + sd, L.boots, "leather", LG.w); R.addW(gRing(V3(bs[0].x, bootTop + 0.004, bs[0].z), bs[0].rx, 0.011, "y", 16).scale(1, 1, bs[0].rz / bs[0].rx), "shin" + sd, L.boots, "leather", LG.w); }
+      if (LG && LG.rings.some(r => r.y <= bootTop + 0.001)) { const bs = shellOf(LG.rings.filter(r => r.y <= bootTop + 0.001), 0.008 * gi); bs.unshift(Object.assign({}, bs[0], { y: bootTop + 0.004, rx: bs[0].rx + 0.006, rz: bs[0].rz + 0.006 })); R.addW(gLoft(bs.slice().reverse(), 16, false, false, 0, 1), "shin" + sd, L.boots, "leather", LG.w); R.addW(gRing(V3(bs[0].x, bootTop + 0.004, bs[0].z), bs[0].rx, 0.011, "y", 16).scale(1, 1, bs[0].rz / bs[0].rx), "shin" + sd, L.boots, "leather", LG.w); }
       else { R.add(gTaper(V3(hx, bootTop, 0.012), V3(hx, ank + 0.01, 0.0), 0.062 * gi, 0.048 * gi, 12), "shin" + sd, L.boots, "leather"); R.add(gRing(V3(hx, bootTop, 0.012), 0.062 * gi, 0.012, "y", 14), "shin" + sd, L.boots, "leather"); }
     }
     if (L.boots != null && !L.skull) R.add(gCyl(V3(hx, bootTop + 0.012, 0.012), 0.086 * gi, 0.066 * gi, 0.06, 12, true), "shin" + sd, L.boots, "leather");

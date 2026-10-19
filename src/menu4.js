@@ -1701,6 +1701,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.92.2", date: "2026-10-19", title: "Anvils and zone runs", items: [
+    "<b>Smiths have something to hammer:</b> every Armorer, Weaponsmith and Garrick now works at an anvil on a wooden stump with a glowing bar of metal and tongs, and the metal flares brighter each time the hammer lands.",
+    "<b>Maris</b>, the Outpost jeweler, is now a Pipkin.",
+    "<b>Zone lines:</b> touching a zone line now has you run forward for about a second while the screen fades fully to black, then the next area fades in. Doorways and exits that ask first now do the same run instead of cutting straight to the loading screen.",
+    "<b>Rounder hips:</b> in profile the buttocks are now a full round dome that eases into the lower back, not a point.",
+    "Fixed a model error for Pipkin townsfolk wearing boots."
+  ] },
   { v: "18.92.1", date: "2026-10-19", title: "Fuller hips", items: [
     "<b>Women's buttocks are fuller and rounder</b>: two clearly separate lobes that rise smoothly out of the lower back, stay round all the way down in profile and tuck under into a clean fold above the thigh.",
     "<b>Thong:</b> the waist string now dips in a small V at the centre of the back, and a solid black string runs from the V all the way down between the buttocks and under, instead of disappearing partway."
