@@ -3,12 +3,12 @@ let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' 
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 G.enterZone('outpost'); run(0.5);
 G.save.jobs[G.save.mainJob].lv = 20; G.refreshPlayer(true);
-const towns = Object.keys(G.ZONES).filter(z => G.ZONES[z].theme === 'town');
+const towns = [...new Set(Object.keys(G.ZONES).filter(z => G.ZONES[z].theme === 'town').map(G.areaOf))];
 ok(towns.length >= 3, 'there are ' + towns.length + ' towns');
 for (const t of towns) {
-  const Z = G.ZONES[t];
-  const hasHouse = (Z.houses || []).some(b => b.type === 'auction');
-  const hasMaster = (Z.npcs || []).some(n => G.NPCS[n.id] && G.NPCS[n.id].talk === 'talkAuction');
+  const zs = G.areaZones(t).map(id => G.ZONES[id]);
+  const hasHouse = zs.some(Z => (Z.houses || []).some(b => b.type === 'auction'));
+  const hasMaster = zs.some(Z => (Z.npcs || []).some(n => G.NPCS[n.id] && G.NPCS[n.id].talk === 'talkAuction'));
   ok(hasHouse && hasMaster, t + ' has an auction house building and an auctioneer');
 }
 ok(G.ahTowns().length === towns.length, 'every town is on the auction list');

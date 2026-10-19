@@ -1037,11 +1037,11 @@ const ZONES = {
     ],
     houses: [
       { x: 760, y: 150, w: 220, h: 110, type: "barracks", sign: "Barracks", flag: "#c0392b" }, { x: 1000, y: 120, w: 200, h: 110, type: "cityhall", floors: 3, flag: "#c0392b" }, { x: 1240, y: 150, w: 200, h: 110, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b" }, { x: 1260, y: 370, w: 150, h: 70, type: "hall", floors: 1, sign: "Job Master" },
-      { x: 690, y: 560, w: 140, h: 100, type: "shop", sign: "Market Hall", awning: "#b5651d" }, { x: 1310, y: 560, w: 140, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" }, { x: 860, y: 565, w: 140, h: 90, type: "auction", sign: "Auction House", flag: "#c9a227" },
+      { x: 690, y: 560, w: 140, h: 100, type: "shop", sign: "Market Hall", awning: "#b5651d" }, { x: 1310, y: 560, w: 140, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" }, { x: 845, y: 565, w: 140, h: 90, type: "auction", sign: "Auction House", flag: "#c9a227" },
       { x: 700, y: 1370, w: 180, h: 100, type: "forge", floors: 1, sign: "Smithy", signCol: "#ff7a30" }, { x: 1000, y: 1380, w: 160, h: 100, type: "mill" }, { x: 1290, y: 1380, w: 200, h: 100, type: "warehouse", floors: 2 },
       { x: 200, y: 760, w: 110, h: 130, rot: 1, type: "home", tint: 0, floors: 2 }, { x: 180, y: 300, w: 150, h: 110, type: "home", floors: 3 }, { x: 430, y: 140, w: 130, h: 100, type: "home" }, { x: 180, y: 1100, w: 150, h: 110, type: "home" }, { x: 430, y: 1380, w: 140, h: 100, type: "home", floors: 3 }, { x: 440, y: 520, w: 110, h: 120, type: "home" },
       { x: 1820, y: 1360, w: 140, h: 110, type: "home", sign: "Stables" }, { x: 1700, y: 160, w: 160, h: 110, type: "guard", flag: "#9aa0a8" },
-      { x: 800, y: 390, w: 180, h: 70, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" }, { x: 1130, y: 1150, w: 160, h: 90, type: "hall", sign: "Woodworkers" }, { x: 1340, y: 1150, w: 140, h: 90, type: "hall", sign: "Alchemists", signCol: "#7ae0a0" }
+      { x: 800, y: 390, w: 180, h: 70, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" }, { x: 1150, y: 1150, w: 130, h: 90, type: "hall", sign: "Woodworkers" }, { x: 1290, y: 1145, w: 120, h: 76, type: "hall", sign: "Alchemists", signCol: "#7ae0a0" }
     ],
     stalls: [{ x: 800, y: 690, color: "#b5651d" }, { x: 1200, y: 690, color: "#7b1fa2" }, { x: 1180, y: 960, color: "#2e7d32" }, { x: 1085, y: 690, color: "#c0392b", sign: "Barber", pole: true }],
     lamps: [[945, 650], [1120, 640], [880, 880], [1120, 880], [1600, 700], [1600, 820], [400, 700], [1000, 1180]],
@@ -1229,7 +1229,7 @@ ZONES.harbor = {
     { w: 40, pts: [[100, 1040], [1700, 1040]] }
   ],
   houses: [
-    { x: 760, y: 300, w: 160, h: 100, type: "hall", sign: "Harbor Master", signCol: "#2f7f8f" }, { x: 1050, y: 300, w: 160, h: 100, type: "auction", sign: "Auction House", flag: "#c9a227" },
+    { x: 760, y: 300, w: 160, h: 100, type: "hall", sign: "Harbor Master", signCol: "#2f7f8f" }, { x: 1065, y: 300, w: 150, h: 100, type: "auction", sign: "Auction House", flag: "#c9a227" },
     { x: 760, y: 850, w: 160, h: 90, type: "warehouse", sign: "Customs" }, { x: 1050, y: 850, w: 160, h: 90, type: "hall", floors: 3, sign: "Sailors' Rest" },
     { x: 300, y: 320, w: 220, h: 110, type: "markethall", sign: "Fish Market", signCol: "#4fa0c8" },
     { x: 110, y: 110, w: 120, h: 90, type: "home" }, { x: 470, y: 130, w: 130, h: 100, type: "home", floors: 3 }, { x: 130, y: 700, w: 140, h: 100, type: "home" }, { x: 470, y: 720, w: 140, h: 100, type: "home" }, { x: 130, y: 890, w: 140, h: 90, type: "home" },
@@ -1500,8 +1500,8 @@ ZONES.ironvale = {
   props: [{ type: "crates", x: 1460, y: 860, r: 30 }, { type: "barrels", x: 1460, y: 300, r: 26 }, { type: "anvil", x: 1520, y: 590, rot: 0.3, r: 26 }],
   ambient: [{ type: "walker", x: 900, y: 680, n: 1, path: [[780, 560], [1020, 560], [1020, 800], [780, 800]] }, { type: "walker", x: 1380, y: 700, n: 1, path: [[1380, 150], [1380, 1250]] }, { type: "dog", x: 900, y: 680, n: 1, r: 120, col: 0x5a4a3a }],
   npcs: [
-    { id: "brisa", x: 1000, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "auction_ironvale", x: 726, y: 531 }, { id: "barber_ironvale", x: 1200, y: 631 }, { id: "job_ironvale", x: 820, y: 560 }, { id: "stable_ironvale", x: 1350, y: 760 },
-    { id: "crystal_ironvale", x: 900, y: 680 }, { id: "trade_board", x: 1040, y: 560 }, { id: "guard_ironvale", x: 150, y: 650 }
+    { id: "brisa", x: 1150, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "auction_ironvale", x: 726, y: 531 }, { id: "barber_ironvale", x: 1200, y: 631 }, { id: "job_ironvale", x: 820, y: 560 }, { id: "stable_ironvale", x: 1350, y: 760 },
+    { id: "crystal_ironvale", x: 900, y: 680 }, { id: "trade_board", x: 1040, y: 560 }, { id: "guard_ironvale", x: 200, y: 620 }
   ],
   spawns: [],
   water: [],
@@ -1520,7 +1520,7 @@ ZONES.ironvale = {
     { x: 1600, y: 260, w: 220, h: 120, type: "smelter" }, { x: 1600, y: 1000, w: 220, h: 120, type: "smelter" },
     { x: 690, y: 470, w: 150, h: 90, type: "auction", sign: "Auction House", flag: "#c9a227" }, { x: 1110, y: 470, w: 150, h: 90, type: "shop", sign: "General Store", awning: "#37474f" }, { x: 1110, y: 900, w: 150, h: 90, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" },
     { x: 250, y: 200, w: 150, h: 110, type: "home" }, { x: 250, y: 400, w: 140, h: 100, type: "home", floors: 3 }, { x: 250, y: 560, w: 140, h: 90, type: "guard", flag: "#90a4ae" }, { x: 250, y: 880, w: 140, h: 100, type: "home" }, { x: 250, y: 1100, w: 150, h: 110, type: "home" }, { x: 250, y: 1290, w: 150, h: 90, type: "home" },
-    { x: 720, y: 1300, w: 160, h: 100, type: "home", floors: 3 }, { x: 1090, y: 1300, w: 160, h: 100, type: "warehouse", floors: 2 }, { x: 1600, y: 820, w: 180, h: 90, type: "warehouse", floors: 1 }
+    { x: 750, y: 1300, w: 120, h: 100, type: "home", floors: 3 }, { x: 1050, y: 1300, w: 110, h: 100, type: "warehouse", floors: 2 }, { x: 1600, y: 820, w: 180, h: 90, type: "warehouse", floors: 1 }
   ],
   stalls: [{ x: 1000, y: 820, color: "#5d4037" }, { x: 800, y: 820, color: "#37474f" }, { x: 1200, y: 640, color: "#c0392b", sign: "Barber", pole: true }],
   mines: [[1690, 1250, -Math.PI / 2]],
@@ -1966,9 +1966,9 @@ function migrateSplits(out) {
     if (typeof ex === "string") {
       const cols = Math.ceil(S0.w / 50), rows = Math.ceil(S0.h / 50);
       if (ex.length === cols * rows) for (const p of P) {
-        const pc = Math.ceil((p.x1 - p.x0) / 50), pr = Math.ceil((p.y1 - p.y0) / 50), c0 = p.x0 / 50, r0 = p.y0 / 50;
+        const pc = Math.ceil((p.x1 - p.x0) / 50), pr = Math.ceil((p.y1 - p.y0) / 50);
         let s = "";
-        for (let r = 0; r < pr; r++) for (let c = 0; c < pc; c++) { const rr = r0 + r, cc = c0 + c; s += rr < rows && cc < cols ? ex[rr * cols + cc] : "0"; }
+        for (let r = 0; r < pr; r++) for (let c = 0; c < pc; c++) { const rr = Math.floor((p.y0 + r * 50 + 25) / 50), cc = Math.floor((p.x0 + c * 50 + 25) / 50); s += rr < rows && cc < cols ? ex[rr * cols + cc] : "0"; }
         out.explored[p.id] = s;
       }
       if (!P.some(p => p.id === src)) delete out.explored[src];
@@ -2403,7 +2403,7 @@ const VENDOR_SHOP_LOOK = { armorer: { type: "forge", signCol: "#9aa4b0" }, weapo
 const VENDOR_TOWNS = {
   outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 700, y: 1176, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 890, y: 1186, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 1560, y: 690, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 720, y: 850, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1350, y: 870, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 1238, y: 846, w: 96, h: 72, sign: "Jewels", district: "market" } } },
   harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, shops: { armorer: { x: 1620, y: 640, w: 120, h: 72, sign: "Armory", district: "yard" }, weaponsmith: { x: 1576, y: 430, w: 112, h: 72, sign: "Arms", district: "yard" }, tradesman: { x: 450, y: 590, w: 120, h: 72, sign: "Supplies", district: "fish" }, quartermaster: { x: 1076, y: 430, w: 112, h: 72, sign: "Provisions", district: "square" }, spellsmith: { x: 1100, y: 660, w: 100, h: 72, sign: "Scrolls", district: "square" }, jeweler: { x: 700, y: 600, w: 96, h: 72, sign: "Jewels", district: "square" } } },
-  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: { armorer: { x: 1490, y: 1280, w: 120, h: 72, sign: "Armory", district: "forge" }, weaponsmith: { x: 1470, y: 1120, w: 112, h: 72, sign: "Arms", district: "forge" }, tradesman: { x: 94, y: 420, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 686, y: 626, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 760, y: 290, w: 100, h: 72, sign: "Scrolls", district: "keep" }, jeweler: { x: 708, y: 786, w: 96, h: 72, sign: "Jewels", district: "market" } } }
+  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: { armorer: { x: 1490, y: 1280, w: 120, h: 72, sign: "Armory", district: "forge" }, weaponsmith: { x: 1470, y: 1120, w: 112, h: 72, sign: "Arms", district: "forge" }, tradesman: { x: 100, y: 420, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 686, y: 626, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1065, y: 285, w: 90, h: 72, sign: "Scrolls", district: "keep" }, jeweler: { x: 700, y: 830, w: 96, h: 72, sign: "Jewels", district: "market" } } }
 };
 const VENDOR_WORK = {};
 const TOWN_SERVICES = {
@@ -2656,11 +2656,29 @@ function doorRay(z, h, rot, maxT) {
   }
   return null;
 }
-function lotFree(z, h, x, y) {
+function gateZones(z) {
+  if (z._gz) return z._gz;
+  const out = [], A = GATE_HALF + 30;
+  for (const g of z.gates || []) out.push(g.horiz ? { x: g.x - A, y: g.y - 130, w: A * 2, h: 260 } : { x: g.x - 130, y: g.y - A, w: 260, h: A * 2 });
+  for (const e of z.exits || []) {
+    if (e.kind === "door") continue;
+    const sd = exitSide(z, e), D = (e.hall || 0) + 110;
+    if (sd === "w") out.push({ x: 0, y: e.y - 60, w: D, h: e.h + 120 });
+    if (sd === "e") out.push({ x: z.w - D, y: e.y - 60, w: D, h: e.h + 120 });
+    if (sd === "n") out.push({ x: e.x - 60, y: 0, w: e.w + 120, h: D });
+    if (sd === "s") out.push({ x: e.x - 60, y: z.h - D, w: e.w + 120, h: D });
+  }
+  return z._gz = out;
+}
+function lotFree(z, h, x, y, hard) {
   const r = houseRect(h, x, y);
   if (r.x < 40 || r.y < 40 || r.x + r.w > z.w - 40 || r.y + r.h > z.h - 40) return false;
-  if ((z.houses || []).some(o => o !== h && rectsHit(r, houseRect(o), 14))) return false;
-  if (cityWallRects(z).some(w => rectsHit(r, w, 12))) return false;
+  const dd = h.district && (z.districts || []).find(q => q.id === h.district);
+  if (dd && (r.x < dd.x || r.y < dd.y || r.x + r.w > dd.x + dd.w || r.y + r.h > dd.y + dd.h)) return false;
+  if ((z.houses || []).some(o => o !== h && rectsHit(r, houseRect(o), hard ? 4 : 14))) return false;
+  if (cityWallRects(z).some(w => rectsHit(r, w, 24))) return false;
+  if (gateZones(z).some(g => rectsHit(r, g, 0))) return false;
+  if (hard) return true;
   if ((z.stalls || []).some(s => rectsHit(r, { x: s.x - 26, y: s.y - 16, w: 52, h: 32 }, 8))) return false;
   if ((z.gardens || []).some(g => rectsHit(r, { x: g.x - g.w / 2, y: g.y - g.h / 2, w: g.w, h: g.h }, 6))) return false;
   const circ = (cx, cy, rad) => Math.hypot(Math.max(r.x - cx, 0, cx - r.x - r.w), Math.max(r.y - cy, 0, cy - r.y - r.h)) < rad;
@@ -2672,6 +2690,16 @@ function lotFree(z, h, x, y) {
 const SHOP_FRONT = { lo: 46, hi: 80, tgt: 56 }, HOME_FRONT = { lo: 8, hi: 60, tgt: 24 };
 function frontage(z) {
   const doorTied = h => (z.exits || []).some(e => e.kind === "door" && inRect(e.x + e.w / 2, e.y + e.h / 2, houseRect(h), 40));
+  for (const h of z.houses || []) { const dd = (z.districts || []).find(q => h.x >= q.x && h.x < q.x + q.w && h.y >= q.y && h.y < q.y + q.h); if (dd) h.district = dd.id; }
+  for (const h of z.houses || []) {
+    if (h.fixed || doorTied(h) || lotFree(z, h, h.x, h.y, true)) continue;
+    let best = null;
+    for (let rr = 8; rr <= 480 && !best; rr += 8) for (let k = 0; k < 32; k++) {
+      const a = k / 32 * Math.PI * 2, x = Math.round(h.x + Math.cos(a) * rr), y = Math.round(h.y + Math.sin(a) * rr);
+      if (lotFree(z, h, x, y)) { best = { x, y }; break; }
+    }
+    if (best) { h.x = best.x; h.y = best.y; }
+  }
   for (const h of (z.houses || []).slice().sort((a, b) => (b.shop ? 1 : 0) - (a.shop ? 1 : 0))) {
     if (h.fixed || doorTied(h)) { h.fixed = true; continue; }
     let best = null;
@@ -2721,6 +2749,7 @@ function clearOfRoads(z, x, y, extra, plaza) {
   if (plaza) for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) if ((x - q.x) * (x - q.x) + (y - q.y) * (y - q.y) < (q.r + extra) * (q.r + extra)) return false;
   for (const h of z.houses || []) if (Math.abs(x - h.x) < h.w / 2 + 28 && Math.abs(y - h.y) < h.h / 2 + 28) return false;
   if (z.cityWalls) for (const r of cityWallRects(z)) if (x > r.x - 20 && x < r.x + r.w + 20 && y > r.y - 20 && y < r.y + r.h + 20) return false;
+  for (const g of z.gates || []) if (Math.abs(g.horiz ? x - g.x : y - g.y) < GATE_HALF + 30 && Math.abs(g.horiz ? y - g.y : x - g.x) < 140) return false;
   for (const [ox, oy, fx, fy, hw] of z._fronts || (z._fronts = (z.houses || []).filter(h => h.trade).map(h => { const fd = houseDoor(h), [fx, fy] = houseDir(h); return [fd.x, fd.y, fx, fy, ((h.rot || 0) % 2 ? h.h : h.w) / 2 + 24]; }))) {
     const al = (x - ox) * fx + (y - oy) * fy;
     if (al > -4 && al < 124 && Math.abs((x - ox) * -fy + (y - oy) * fx) < hw) return false;
@@ -2729,7 +2758,8 @@ function clearOfRoads(z, x, y, extra, plaza) {
   return true;
 }
 function offRoadGroup(z, items, extra, plaza) {
-  const ok = (dx, dy) => items.every(q => clearOfRoads(z, q.x + dx, q.y + dy, extra, plaza));
+  const home = items.map(q => z.districts ? districtAt(z, q.x, q.y) : null);
+  const ok = (dx, dy) => items.every((q, i) => clearOfRoads(z, q.x + dx, q.y + dy, extra, plaza) && (!z.districts || districtAt(z, q.x + dx, q.y + dy) === home[i]));
   if (ok(0, 0)) return;
   for (let r = 12; r <= 480; r += 12) for (let k = 0; k < 24; k++) {
     const a = k / 24 * Math.PI * 2, dx = Math.round(Math.cos(a) * r), dy = Math.round(Math.sin(a) * r);
@@ -2978,3 +3008,62 @@ for (const el in MOB_PET_EL) {
   const [nm, pk, opp] = MOB_PET_EL[el], P = PETS[pk];
   FAMILIES["pet_" + el] = { name: nm + " Spirit", color: "#" + P.col.toString(16).padStart(6, "0"), radius: 11, hpMul: 0.55, attMul: 0.75, defMul: 0.8, eva: 6, delay: 3.0, speed: 120, aggro: null, link: false, tpMove: { name: P.pact, mul: 1.6, el }, weak: { [opp]: 1.3 }, loot: [], model: "wisp", tint: P.col, tint2: P.eye, summoned: true, mobPet: true };
 }
+const TOWN_OBJ_KEYS = ["npcs", "props", "ambient", "water", "fountains", "gardens", "stalls", "spawns", "plazas"];
+const TOWN_PT_KEYS = ["lamps", "benches", "dummies", "racks", "torches", "lighthouses", "slipways", "mines", "boats"];
+const TOWN_COPY_KEYS = ["theme", "safe", "paved", "city", "cityStyle", "palette", "mist", "cs", "music"];
+function splitTown(src) {
+  const Z = ZONES[src], W = Z.w, H = Z.h;
+  const P = Z.districts.map(d => ({ d, x0: d.x <= 30 ? 0 : d.x, y0: d.y <= 30 ? 0 : d.y, x1: d.x + d.w >= W - 30 ? W : d.x + d.w, y1: d.y + d.h >= H - 30 ? H : d.y + d.h }));
+  const inP = (p, x, y) => x >= p.x0 && x < p.x1 && y >= p.y0 && y < p.y1;
+  const partAt = (x, y) => P.find(p => inP(p, x, y)) || P.reduce((a, p) => { const d = Math.hypot(Math.max(p.x0 - x, 0, x - p.x1), Math.max(p.y0 - y, 0, y - p.y1)); return !a || d < a.d ? { p, d } : a; }, null).p;
+  const crystal = Z.npcs.find(n => NPCS[n.id] && NPCS[n.id].crystal), keep = crystal ? partAt(crystal.x, crystal.y) : P[0];
+  for (const p of P) p.id = p === keep ? src : src + "_" + p.d.id;
+  const sideOn = s => typeof Z.outerWall === "string" ? Z.outerWall.includes(s) : !!Z.outerWall;
+  const out = {};
+  for (const p of P) {
+    const ox = p.x0, oy = p.y0, mine = (x, y) => partAt(x, y) === p, mv = o => Object.assign({}, o, { x: o.x - ox, y: o.y - oy }), pt = q => [q[0] - ox, q[1] - oy].concat(q.slice(2));
+    const nz = { name: Z.city + " " + p.d.name.replace(/^The /, ""), w: p.x1 - p.x0, h: p.y1 - p.y0, area: src, id: p.id, splitFrom: src, town: src, off: [ox, oy], band: null };
+    for (const k of TOWN_COPY_KEYS) if (Z[k] != null) nz[k] = Z[k];
+    nz.outerWall = [["n", p.y0 === 0], ["e", p.x1 === W], ["s", p.y1 === H], ["w", p.x0 === 0]].filter(([s, edge]) => !edge || sideOn(s)).map(q => q[0]).join("");
+    nz.districts = [Object.assign({}, p.d, { x: 0, y: 0, w: nz.w, h: nz.h })];
+    const hk = [];
+    nz.houses = (Z.houses || []).map((h, i) => [h, i]).filter(([h]) => mine(h.x, h.y)).map(([h, i]) => { hk.push(i); return mv(h); });
+    for (const k of TOWN_OBJ_KEYS) if (Z[k]) nz[k] = Z[k].filter(o => mine(o.x, o.y)).map(o => { const c = mv(o); if (o.path) c.path = o.path.map(pt); return c; });
+    for (const n of nz.npcs) if (n.home != null) { const ni = hk.indexOf(n.home); if (ni < 0) { delete n.home; delete n.sleep; } else n.home = ni; }
+    for (const k of TOWN_PT_KEYS) if (Z[k]) nz[k] = Z[k].filter(q => mine(q[0], q[1])).map(pt);
+    if (Z.docks) nz.docks = Z.docks.filter(q => mine(q[0] + q[2] / 2, q[1] + q[3] / 2)).map(pt);
+    nz.walls = (Z.walls || []).filter(w => mine(w.x + w.w / 2, w.y + w.h / 2)).map(mv);
+    for (const k of ["plaza", "stable"]) if (Z[k] && mine(Z[k].x, Z[k].y)) nz[k] = mv(Z[k]);
+    const R = { x: p.x0, y: p.y0, w: nz.w, h: nz.h };
+    nz.paths = (Z.paths || []).filter(pa => pa.pts.some((q, i) => i > 0 && segRect(pa.pts[i - 1][0], pa.pts[i - 1][1], q[0], q[1], R, pa.w / 2))).map(pa => Object.assign({}, pa, { pts: pa.pts.map(pt) }));
+    nz.exits = (Z.exits || []).filter(e => mine(e.x + e.w / 2, e.y + e.h / 2)).map(e => { const n = mv(e); n.x = Math.max(0, Math.min(nz.w - n.w, n.x)); n.y = Math.max(0, Math.min(nz.h - n.h, n.y)); return n; });
+    const ws = nz.npcs.find(n => NPCS[n.id] && NPCS[n.id].warpstone);
+    nz.start = inP(p, Z.start.x, Z.start.y) ? mv(Z.start) : ws ? { x: ws.x, y: ws.y + 70 } : { x: Math.round(nz.w / 2), y: Math.round(nz.h / 2) };
+    for (const n of nz.npcs) if (NPCS[n.id] && NPCS[n.id].warpstone) NPCS[n.id].warpZone = p.id;
+    out[p.id] = nz;
+  }
+  const T = 24, IN = 96;
+  for (const g of Z.gates || []) {
+    const A = g.horiz ? partAt(g.x, g.y - 20) : partAt(g.x - 20, g.y), B = g.horiz ? partAt(g.x, g.y + 20) : partAt(g.x + 20, g.y), a = out[A.id], b = out[B.id];
+    if (A === B) continue;
+    const lane = GATE_HALF + 20, L = GATE_HALF * 2;
+    if (g.horiz) {
+      a.exits.push({ x: g.x - A.x0 - GATE_HALF, y: a.h - T, w: L, h: T, to: B.id, tx: g.x - B.x0, ty: IN, label: b.name, gate: true, lane });
+      b.exits.push({ x: g.x - B.x0 - GATE_HALF, y: 0, w: L, h: T, to: A.id, tx: g.x - A.x0, ty: a.h - IN, label: a.name, gate: true, lane });
+    } else {
+      a.exits.push({ x: a.w - T, y: g.y - A.y0 - GATE_HALF, w: T, h: L, to: B.id, tx: IN, ty: g.y - B.y0, label: b.name, gate: true, lane });
+      b.exits.push({ x: 0, y: g.y - B.y0 - GATE_HALF, w: T, h: L, to: A.id, tx: a.w - IN, ty: g.y - A.y0, label: a.name, gate: true, lane });
+    }
+  }
+  for (const zid in ZONES) {
+    if (zid === src) continue;
+    for (const e of ZONES[zid].exits || []) if (e.to === src) { const p = partAt(e.tx, e.ty); e.to = p.id; e.tx -= p.x0; e.ty -= p.y0; }
+  }
+  for (const id in NPCS) if (NPCS[id].ferryTo === src) { const p = P.find(q => out[q.id].npcs.some(n => NPCS[n.id] && NPCS[n.id].ferryTo && NPCS[n.id].ferryTo !== src)); if (p) NPCS[id].ferryTo = p.id; }
+  AREA_NAMES[src] = Z.name;
+  ZONE_SPLITS[src] = { w: W, h: H, town: true, parts: P.map(p => ({ id: p.id, x0: p.x0, y0: p.y0, x1: p.x1, y1: p.y1 })) };
+  delete ZONES[src];
+  for (const id in out) ZONES[id] = out[id];
+  return out;
+}
+for (const t of ["outpost", "harbor", "ironvale"]) splitTown(t);

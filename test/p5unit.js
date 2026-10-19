@@ -24,7 +24,7 @@ for (const zid of ['hollow', 'hollow_lake', 'hollow_ruins', 'den']) {
 ok(G.ZONES.hollow.w + G.ZONES.hollow_lake.w + G.ZONES.hollow_ruins.w === 4800 && G.ZONES.hollow.h === 3300 && G.ZONES.den.w === 2400 && G.ZONES.den.h === 1600, 'zone sizes match the plan');
 
 { const v = G.vana(); let d = 10 - v.hour - v.minute / 60; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; }
-G.enterZone('outpost', 610, 440);
+{ const mj = G.ZONES.outpost.npcs.find(n => n.id === 'v_jeweler_outpost'); G.enterZone('outpost', mj.x + 30, mj.y - 30); }
 G.cycleTarget();
 const near = S.npcs.filter(n => !n.crystal && !n.away && !n.prop).sort((a, b) => G.dist(a, P()) - G.dist(b, P()))[0];
 ok(P().target === near, 'Tab in town targets the closest person (' + near.name + ')');

@@ -1,7 +1,7 @@
 const H = require('./harness.js'); const { G, tick, alllog } = H; const S = G.S; const P = () => G.player;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-const npc = id => S.npcs.find(n => n.id === id);
+const npc = id => S.npcs.find(n => n.id === id) || G.meet(id);
 const setHour = h => { S.timeShift = 0; for (let k = 0; k < 2000 && G.vana().hour !== h; k++) S.timeShift += 60 * 1000 * 2.4 / 4; };
 
 ok(S.party.length === 1, 'start solo');

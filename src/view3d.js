@@ -450,8 +450,7 @@ function prefetchZone(id) {
 }
 function loaderHide() {
   const el = $("loading");
-  if (VIEW.fadeIn) { VIEW.fadeIn = false; zoneFadeTo(1, 0); if (el) el.classList.remove("on"); zoneFadeTo(0, 0.6); }
-  else if (el) el.classList.remove("on");
+  VIEW.fadeIn = false; zoneFadeTo(1, 0); if (el) el.classList.remove("on"); zoneFadeTo(0, 0.8);
   if (typeof stopShowcase === "function") stopShowcase();
 }
 const PERF = {

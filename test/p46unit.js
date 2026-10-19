@@ -1,7 +1,7 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-const npc = id => S.npcs.find(n => n.id === id);
+const npc = id => S.npcs.find(n => n.id === id) || G.meet(id);
 const setHour = h => { const v = G.vana(); let d = h - v.hour; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; };
 const findWx = (z, w) => { for (let k = 0; k < 400; k++) { S.timeShift = k * 3 * 3600000 / 25; if (G.weatherNow(z) === w) return true; } return false; };
 G.enterZone('outpost'); setHour(12); run(0.5);

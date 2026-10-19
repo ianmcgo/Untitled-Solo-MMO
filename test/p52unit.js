@@ -14,6 +14,6 @@ ok(/Market District/.test(H.els.dialog._html + H.els.dialog._t + JSON.stringify(
 ok(G.QUESTS.tour_outpost && G.QUESTS.tour_harbor && G.QUESTS.tour_ironvale, 'three district tour quests exist');
 G.save.districts = {}; G.acceptQuest('tour_outpost');
 ok(!G.questComplete('tour_outpost'), 'tour quest is not complete before walking');
-for (const d of G.ZONES.outpost.districts) G.save.districts['outpost:' + d.id] = 1;
+for (const z of G.areaZones('outpost')) for (const d of G.ZONES[z].districts) G.save.districts['outpost:' + d.id] = 1;
 ok(G.questComplete('tour_outpost'), 'tour quest completes once every district is visited');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

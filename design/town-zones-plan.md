@@ -1,6 +1,6 @@
 # Town zones plan (street-first towns, districts as zones)
 
-Status: D0 done (audit, no release). D1 done in 18.93.0. D2 next.
+Status: D0 done (audit, no release). D1 done in 18.93.0. D2 done in 18.94.0. D3 next.
 
 ## Request
 Vendors stood in the road; some vendors and buildings did not face the road. Split every district of a town into its own zone, much bigger and more detailed. Added later: loading into a zone should fade in, the same way leaving a zone fades out.
@@ -15,8 +15,8 @@ Vendors stood in the road; some vendors and buildings did not face the road. Spl
 |---|---|---|
 | D0 | Sonnet | Audit (done). |
 | D1 | Opus | Four-way facing, frontage pass (auto-face, setback, footpaths), vendors in doorways, folk off roads, validator test/townlayout.js. Done 18.93.0. |
-| D2 | Opus | District-to-zone split engine: each district becomes its own zone (ids `<town>_<district>`, Market keeps `outpost`), gate halls become zone lines, warp stones become free in-town warps, `zv` save migration, map/minimap per district with a city overview, gateHop removed for split towns. Includes zone fade-in after the loading screen (mirror of the leave fade). |
-| D3 | Opus | Outpost districts enlarged to about 2400x1800 each and re-detailed street-first: street graph, lots with frontage, more homes, alleys, props. Frontage pass and townlayout test must pass. |
+| D2 | Opus | Done 18.94.0: splitTown (data.js tail), gate exits, area-aware warps/AH/vendors/tour, save migration through migrateSplits, city overview map, fade-in on every zone load. |
+| D3 | Opus | Author the Outpost districts as their own zone data (replace splitTown for outpost, keep ids and npc ids), add a skyline/backdrop beyond inner walls; districts enlarged to about 2400x1800 each and re-detailed street-first: street graph, lots with frontage, more homes, alleys, props. Frontage pass and townlayout test must pass. |
 | D4 | Sonnet | Saltreach Harbor same treatment. |
 | D5 | Sonnet | Ironvale same treatment. |
 | D6 | Sonnet | Help, Updates, docs, full test sweep, travel-time tuning, quest/NPC references to old coordinates. |
@@ -27,3 +27,7 @@ Vendors stood in the road; some vendors and buildings did not face the road. Spl
 - Vendors stand at houseDoor(shop, 34), facing the street (zone npc `face`, game npc `idleFace`); trade props flank the door.
 - clearOfRoads also keeps things out of city walls and out of each vendor shop's front corridor (124 px deep, shop width + 48).
 - NPCs defined in NPCS after the offRoad pass (e.g. ferry_harbor) are not nudged: place them by hand.
+
+## Notes from D2
+- Town zone data is still written as one big zone and split at load. D3 can either keep that (enlarge the source zone) or author each district zone directly; if authored directly, set area/town/off/outerWall/districts the way splitTown does and register ZONE_SPLITS so old saves migrate.
+- gateZones, the 24 px wall pad and district containment in lotFree are what keep buildings out of gates and off the new walls; keep them when enlarging.

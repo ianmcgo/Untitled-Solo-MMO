@@ -5,7 +5,7 @@ const segD = (x, y, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = dx 
 for (const town of ['outpost', 'harbor', 'ironvale']) {
   const z = G.ZONES[town], T = G.VENDOR_TOWNS[town], roles = Object.keys(G.VENDOR_ROLES), dists = new Set();
   for (const r of roles) {
-    const id = 'v_' + (r === 'tradesman' ? 'trade' : r) + '_' + town, n = z.npcs.find(q => q.id === id), sh = z.houses.find(h => h.shop === id);
+    const id = 'v_' + (r === 'tradesman' ? 'trade' : r) + '_' + town, z = G.ZONES[G.zoneOfNpc(id)] || G.ZONES[town], n = z.npcs.find(q => q.id === id), sh = z.houses.find(h => h.shop === id);
     ok(!!n && !!sh, town + ' ' + r + ' has a shop and stands at it');
     if (!n || !sh) continue;
     ok(G.dist(n, G.houseDoor(sh, 30)) <= 50, town + ' ' + r + ' stands at the door');
@@ -24,12 +24,12 @@ for (const town of ['outpost', 'harbor', 'ironvale']) {
     const near = z.npcs.filter(q => q !== n && !/^(sign_)/.test(q.id) && Math.hypot(q.x - n.x, q.y - n.y) < 60).map(q => q.id);
     ok(near.length === 0, town + ' ' + r + ' vendor has room around them ' + near.join(','));
     ok(!(z.stalls || []).some(s => Math.abs(s.x - sh.x) < sh.w / 2 + 40 && Math.abs(s.y - sh.y) < sh.h / 2 + 30), town + ' ' + r + ' shop clear of stalls');
-    for (const e of z.exits || []) ok(!(sh.x + sh.w / 2 + 50 > e.x && sh.x - sh.w / 2 - 50 < e.x + e.w && sh.y + sh.h / 2 + 50 > e.y && sh.y - sh.h / 2 - 50 < e.y + e.h), town + ' ' + r + ' shop clear of exit ' + e.label);
+    for (const e of z.exits || []) { const m = e.gate ? 30 : 50; ok(!(sh.x + sh.w / 2 + m > e.x && sh.x - sh.w / 2 - m < e.x + e.w && sh.y + sh.h / 2 + m > e.y && sh.y - sh.h / 2 - m < e.y + e.h), town + ' ' + r + ' shop clear of exit ' + e.label); }
   }
   ok(dists.size >= 3, town + ' vendors spread over at least three districts (' + [...dists].join(',') + ')');
   const trade = ['armorer', 'weaponsmith', 'tradesman'].filter(r => ['ind', 'forge', 'yard', 'fish', 'gate'].includes(T.shops[r].district));
   ok(trade.length === 3, town + ' smiths and tradesman are in working districts');
-  for (const n of z.npcs) { if (/^(v_|warpstone_|dsign_|sign_)/.test(n.id)) continue; const sh = z.houses.find(h => h.shop && inR(h, n.x, n.y, 4)); ok(!sh, town + ' ' + n.id + ' is not inside a shop'); }
+  for (const zz of G.areaZones(town).map(q => G.ZONES[q])) for (const n of zz.npcs) { if (/^(v_|warpstone_|dsign_|sign_)/.test(n.id)) continue; const sh = zz.houses.find(h => h.shop && inR(h, n.x, n.y, 4)); ok(!sh, town + ' ' + n.id + ' is not inside a shop'); }
 }
 ok(G.VENDOR_TOWNS.outpost.shops.armorer.district === 'ind', 'outpost armorer works in the industrial district');
 process.exit(fails ? 1 : 0);

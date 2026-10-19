@@ -26,8 +26,22 @@ for (const zid of towns) {
       ok(Math.abs(n.face - Math.atan2(dy, dx)) < 0.01, zid + ' ' + n.id + ' faces the street');
     }
   }
+  for (const n of z.npcs) if (n.sleep) ok(n.home != null && !!(z.houses || [])[n.home], zid + ' ' + n.id + ' sleeps in a house in the same district');
   for (const s of z.stalls || []) ok(G.roadGap(z, s.x, s.y, true) >= 14, zid + ' stall@' + s.x + ',' + s.y + ' is off the road');
-  if (G.VENDOR_TOWNS[zid]) ok(z.npcs.filter(n => n.id.startsWith('v_')).length === 6, zid + ' has six vendors');
+  const sides = typeof z.outerWall === 'string' ? z.outerWall : z.outerWall ? 'nesw' : '';
+  for (const h of z.houses || []) {
+    const r = G.houseRect(h), nm = zid + ' ' + (h.sign || h.type || 'house') + '@' + Math.round(h.x) + ',' + Math.round(h.y);
+    ok(!(sides.includes('n') && r.y < 36 || sides.includes('s') && r.y + r.h > z.h - 36 || sides.includes('w') && r.x < 36 || sides.includes('e') && r.x + r.w > z.w - 36), nm + ' stays clear of the district walls');
+  }
+  for (const e of (z.exits || []).filter(e => e.gate)) {
+    const to = G.ZONES[e.to], back = to && (to.exits || []).find(q => q.gate && q.to === zid);
+    ok(!!back, zid + ' gate to ' + e.to + ' has a gate back');
+    if (!to) continue;
+    ok(!(to.houses || []).some(h => G.inRect(e.tx, e.ty, G.houseRect(h), 30)), zid + ' gate to ' + e.to + ' arrives clear of buildings');
+    ok(!(to.npcs || []).some(n => Math.hypot(n.x - e.tx, n.y - e.ty) < 40), zid + ' gate to ' + e.to + ' arrives clear of people');
+    ok(!(z.houses || []).some(h => G.rectsHit(G.houseRect(h), { x: e.x - 30, y: e.y - 30, w: e.w + 60, h: e.h + 60 }, 0)), zid + ' gate to ' + e.to + ' is not blocked by a building');
+  }
 }
+for (const t of Object.keys(G.VENDOR_TOWNS)) ok(Object.keys(G.ZONES).filter(k => G.areaOf(k) === t).reduce((s, k) => s + G.ZONES[k].npcs.filter(n => n.id.startsWith('v_')).length, 0) === 6, t + ' has six vendors');
 console.log(fails ? fails + ' FAILED' : 'townlayout: all passed (' + towns.join(', ') + ')');
 process.exit(fails ? 1 : 0);

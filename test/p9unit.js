@@ -1,7 +1,7 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-const npc = id => S.npcs.find(n => n.id === id);
+const npc = id => S.npcs.find(n => n.id === id) || G.meet(id);
 const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
 
 G.enterZone('outpost'); run(0.2);

@@ -1,13 +1,13 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-const npc = id => S.npcs.find(n => n.id === id);
+const npc = id => S.npcs.find(n => n.id === id) || G.meet(id);
 const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
-const ex = G.ZONES.frost.exits.find(e => e.to === 'ironvale');
+const ex = G.ZONES.frost.exits.find(e => G.areaOf(e.to) === 'ironvale');
 ok(ex && ex.x + ex.w >= G.ZONES.frost.w - 1, 'Frostspire Pass has an east exit to Ironvale');
 G.enterZone('frost', ex.x - 5, ex.y + ex.h / 2); run(1.5);
-ok(S.zoneId === 'ironvale', 'walking east out of the pass reaches Ironvale');
-ok(G.ZONES.ironvale.safe && ['brisa', 'haldor', 'auction_ironvale', 'crystal_ironvale'].every(id => npc(id)), 'Ironvale is a safe town with a quartermaster, smith, auction house and crystal');
+ok(G.areaOf(S.zoneId) === 'ironvale', 'walking east out of the pass reaches Ironvale');
+ok(G.areaZones('ironvale').every(z => G.ZONES[z].safe) && ['brisa', 'haldor', 'auction_ironvale', 'crystal_ironvale'].every(id => npc(id)), 'Ironvale is a safe town with a quartermaster, smith, auction house and crystal');
 G.save.jobs.WAR.lv = 18; G.refreshPlayer(true);
 G.talkTo(npc('brisa'));
 ok(!!opt(/Smoke on the Pass/) && !!opt(/Ore Run/), 'Brisa offers work');

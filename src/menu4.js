@@ -537,8 +537,27 @@ function tabMap() {
     const found = lms.filter(l => save.landmarks[S.zoneId + ":" + l.id]);
     h += '<div class="sub" style="margin-top:4px">🧭 Landmarks ' + found.length + "/" + lms.length + (found.length ? ": " + found.map(l => esc(l.name)).join(" · ") : " · explore to find them for bonus XP") + "</div>";
   }
+  const cs = citySVG();
+  if (cs) h += "<h3>" + esc(areaName(areaOf(S.zoneId))) + "</h3>" + cs;
   h += "<h3>Atlas</h3>" + worldMapSVG();
   return h;
+}
+function citySVG() {
+  const a = areaOf(S.zoneId), sp = ZONE_SPLITS[a];
+  if (!sp || !sp.town) return "";
+  let s = '<svg viewBox="-10 -10 ' + (sp.w + 20) + " " + (sp.h + 20) + '" style="width:100%;max-width:520px;display:block;background:#15170f;border-radius:12px;border:1px solid var(--edge)">';
+  const gates = [];
+  for (const p of sp.parts) {
+    const z = ZONES[p.id], d = (z.districts || [])[0] || { color: "#888", name: z.name, icon: "" }, here = p.id === S.zoneId, seen = (save.districts || {})[a + ":" + d.id] || here;
+    s += '<rect x="' + p.x0 + '" y="' + p.y0 + '" width="' + (p.x1 - p.x0) + '" height="' + (p.y1 - p.y0) + '" fill="' + d.color + '" fill-opacity="' + (here ? 0.55 : seen ? 0.3 : 0.1) + '" stroke="' + (here ? "#fff" : "#000") + '" stroke-width="' + (here ? 10 : 6) + '"/>';
+    s += '<text x="' + (p.x0 + p.x1) / 2 + '" y="' + (p.y0 + p.y1) / 2 + '" text-anchor="middle" font-size="' + Math.min(64, (p.x1 - p.x0) / 7) + '" font-weight="700" fill="#f4ead0" stroke="#000" stroke-width="6" paint-order="stroke">' + esc((d.icon || "") + " " + (seen ? d.name : "???")) + "</text>";
+    for (const e of z.exits || []) if (e.gate && p.id < e.to) gates.push([p.x0 + e.x + e.w / 2, p.y0 + e.y + e.h / 2]);
+    for (const e of z.exits || []) if (!e.gate && e.kind !== "door" && ZONES[e.to] && areaOf(e.to) !== a) { const ex = p.x0 + e.x + e.w / 2, an = ex < sp.w * 0.2 ? "start" : ex > sp.w * 0.8 ? "end" : "middle"; s += '<text x="' + Math.min(sp.w - 10, Math.max(10, ex)) + '" y="' + Math.min(sp.h - 20, Math.max(40, p.y0 + e.y + e.h / 2 - 30)) + '" text-anchor="' + an + '" font-size="40" fill="#f1cf73" stroke="#000" stroke-width="5" paint-order="stroke">→ ' + esc(e.label) + "</text>"; }
+  }
+  for (const [x, y] of gates) s += '<circle cx="' + x + '" cy="' + y + '" r="22" fill="#e8dcb8" stroke="#000" stroke-width="5"/>';
+  const o = S.zone.off || [0, 0];
+  s += '<circle cx="' + (player.x + o[0]) + '" cy="' + (player.y + o[1]) + '" r="26" fill="#fff" stroke="#000" stroke-width="6"/>';
+  return s + "</svg>";
 }
 function drawZoneMap() {
   const cv = $("mapCanvas");
@@ -566,7 +585,7 @@ function drawZoneMap() {
   g.drawImage(fc, -50, -50, fc.width * 50, fc.height * 50);
   const lbl = (t, x, y, col) => { g.font = "bold " + (12 / s).toFixed(1) + "px system-ui"; g.textAlign = "center"; g.lineWidth = 3 / s; g.strokeStyle = "#000"; g.strokeText(t, x, y); g.fillStyle = col; g.fillText(t, x, y); };
   const seen = (x, y) => { const cx = Math.floor(x / 50), cy = Math.floor(y / 50); return f.s[cy * f.cols + cx] === "1"; };
-  for (const d of z.districts || []) if (seen(d.x + d.w / 2, d.y + d.h / 2) || (save.districts || {})[S.zoneId + ":" + d.id]) { g.globalAlpha = 0.85; lbl(d.name.toUpperCase(), d.x + d.w / 2, d.y + 30 / s, d.color); g.globalAlpha = 1; }
+  for (const d of z.districts || []) if (seen(d.x + d.w / 2, d.y + d.h / 2) || (save.districts || {})[areaOf(S.zoneId) + ":" + d.id]) { g.globalAlpha = 0.85; lbl(d.name.toUpperCase(), d.x + d.w / 2, d.y + 30 / s, d.color); g.globalAlpha = 1; }
   for (const e of z.exits || []) if (seen(e.x + e.w / 2, e.y + e.h / 2)) lbl("→ " + e.label, clamp(e.x + e.w / 2, 70 / s, z.w - 70 / s), e.y + e.h / 2, "#f1cf73");
   for (const n of S.npcs) {
     if (!seen(n.x, n.y)) continue;
@@ -1701,6 +1720,18 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.94.0", date: "2026-10-19", title: "Districts become zones", items: [
+    "<b>Every city district is now its own zone.</b> Ashenreach Outpost (5 districts), Saltreach Harbor (4) and Ironvale (5) are split along their walls. Walking through a gate hall zones you into the next district with a short loading screen, the same way roads between areas work.",
+    "District zones have city names: Ashenreach Market District, Ashenreach Eastgate, Saltreach Docks, Ironvale Keep and so on. The zone banner shows the district with the city underneath.",
+    "Each district is walled on every side that faces another district, with a gate between two towers wherever a gate hall used to be.",
+    "<b>Fade in:</b> every zone now fades in from black when it finishes loading, including warps, doors, your home point and logging in, not only after zone lines.",
+    "<b>City overview on the map:</b> the Map window shows every district of the city you are in, the gates between them, the roads out of town and where you stand.",
+    "Warp stones still warp you between districts of the same city for free (now a quick zone change). Home points, crystals, the auction house, vendor stock and the district tour quests work across the whole city.",
+    "The Gull Isle ferry sails from Saltreach Docks. Rocky Hollow leads into Ashenreach Eastgate, your residence opens onto the Residential District, Frostspire Pass into Ironvale Gate Ward or Saltreach Shipwrights' Row, and the Sunscar road into Ironvale South Ward.",
+    "Saves are moved automatically: if you logged out in a city, you load into the district you were standing in.",
+    "Buildings and people no longer stand in gate passages or against the district walls. A few buildings moved a little to make room, and Ironvale's Scrolls shop moved beside the Keep road.",
+    "Signposts list the other districts with directions."
+  ] },
   { v: "18.93.0", date: "2026-10-19", title: "Street fronts", items: [
     "<b>Every door faces a street.</b> Buildings in Ashenreach Outpost, Saltreach Harbor and Ironvale can now face north, south, east or west, and each one turns to face its nearest street instead of a wall or a back garden.",
     "<b>Vendors are out of the road.</b> All eighteen vendors now stand just beside their shop door, facing the street, with room to walk past. Shops that sat on or against a road were moved back to give them a proper storefront.",
@@ -3498,10 +3529,12 @@ function tabHelp() {
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. You can rest during a fight too (it disengages you first). Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("🏙️ Cities and districts", ul([
-    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, the Quartermaster, Spellsmith and Jeweler (each in their own shop), Odette, the auction clerk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge, and the Armorer's and Weaponsmith's shops. <b>Eastgate</b> (east): Ysolde's stables, the Tradesman's shop, the gate guard and the road to Rocky Hollow.",
-    "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
-    "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
-    "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
+    "<b>Every city district is its own zone.</b> Each city is a ring of walled districts, and walking through a gate hall between two districts zones you into the next one: you walk out, the screen fades, a short loading screen shows the district's name, and you walk in through the matching gate on the other side. The banner shows the district (for example <b>Ashenreach Eastgate</b>) with the city underneath.",
+    "Ashenreach Outpost has five districts. <b>Ashenreach Market District</b> (centre): home point crystal, the Quartermaster, Spellsmith and Jeweler (each in their own shop), Odette, the auction clerk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge, and the Armorer's and Weaponsmith's shops. <b>Eastgate</b> (east): Ysolde's stables, the Tradesman's shop, the gate guard and the road to Rocky Hollow.",
+    "Saltreach Harbor has four: <b>Fish Market</b> (west), <b>Harbor Square</b> (centre, home point crystal and auction house), <b>Shipwrights' Row</b> (east, road to Frostspire Pass) and <b>The Docks</b> (south, the Gull Isle ferry). Ironvale has five: <b>Gate Ward</b> (west, road to Frostspire Pass), <b>The Keep</b> (north), <b>Market Square</b> (centre, home point crystal and auction house), <b>South Ward</b> (road to the Sunscar Desert) and <b>Smelters' Row</b> (east).",
+    "Each district is walled on every side that faces another district. Gates sit between two towers under an arch that carries the city's banner.",
+    "Your first visit to each district counts as a discovery, and the district tour quests count them across the whole city. The map (M) shows the district you are in, and under it a <b>city overview</b>: every district of the city in its colour, the gates between them as round markers, roads out of the city, and a white dot where you stand. Districts you have not visited show as ???.",
+    "Click-to-move stays inside your district: to reach another district, walk to its gate (or use a warp stone). Your companions zone with you.",
     "Every building faces a street: doors can point north, south, east or west, whichever way the nearest street lies. A door set back from the street has a short footpath out to it, and the map marks each door with a gold tick.",
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Market Hall, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day."
   ]));
@@ -3512,7 +3545,7 @@ function tabHelp() {
     "Tour quests: Hale the Tradesman (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([
-    "Each district of the three cities has a warp stone (pink dot on the map). Touch one to attune it. Warps inside the same city are free; warps to a stone in another city cost " + CONFIG.warpCost + " crystals. You can't warp while fighting. Type /warp beside a stone to open the menu. Crystals still handle home points and camp warps."
+    "Each district of the three cities has a warp stone (pink dot on the map). Touch one to attune it. Warps inside the same city are free and take you to that district's zone; warps to a stone in another city cost " + CONFIG.warpCost + " crystals. You can't warp while fighting. Type /warp beside a stone to open the menu. Crystals still handle home points and camp warps."
   ]));
   h += sec("💀 Falling and reviving", ul([
     "A hireling who falls stays where they died for an hour. They do not follow you through gates or zone changes, and returning to your home point does not heal them. Walk back before the hour ends or they leave the party. There is no Raise spell in this version.",
@@ -3853,7 +3886,7 @@ function tabHelp() {
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 20 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
     "Zone exits wind and widen, rocks sit on the ground rather than hovering over slopes, and the end of an outside exit shows hazy hills tinted like the zone beyond.",
-    "Walking off the edge of a zone hands control to the game for about a second: you walk out, the screen fades to the loading screen, and you walk in on the other side. Doors and warps fade straight away.",
+    "Walking off the edge of a zone hands control to the game for about a second: you walk out, the screen fades to the loading screen, and you walk in on the other side. Doors and warps go straight to the loading screen. Every time a zone finishes loading (zone lines, doors, warps, home point, logging in) the world fades in from black.",
     "The game keeps painted ground textures and the item icon sheet in your browser so return visits load faster. They reset on every update; <b>/clearcache</b> removes them if anything looks wrong.",
     "Config > Interface > <b>Load timings</b> shows the same start-up and zone-load list as <b>/perf</b> without typing.",
     "Type <b>/perf</b> in chat to list how long start-up and your last few zone loads took, step by step, plus any props floating above the ground.",

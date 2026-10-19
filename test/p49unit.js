@@ -1,32 +1,33 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-const Z = G.ZONES.outpost;
-ok(Z.districts.length === 5 && Z.gates.length === 8, 'the Outpost has five districts joined by eight gate halls');
-ok(['market', 'gov', 'res', 'ind', 'gate'].every(id => Z.districts.some(d => d.id === id)), 'Market, Government, Residential, Industrial and Eastgate districts');
-G.enterZone('outpost', Z.start.x, Z.start.y); run(0.6);
-ok(S.district === 'market', 'you arrive in the Market District');
-ok(G.districtAt(Z, 790, 262).id === 'gov' && G.districtAt(Z, 780, 1210).id === 'ind' && G.districtAt(Z, 200, 760).id === 'res', 'Rhea is in Government, Garrick in Industrial, your residence in Residential');
-const rects = G.cityWallRects(Z);
-ok(rects.length > 8 && !rects.some(r => !r.tower && 1000 > r.x && 1000 < r.x + r.w && 470 > r.y && 470 < r.y + r.h), 'the walls leave a gap at each gate hall');
-P().x = 1000; P().y = 520; for (let i = 0; i < 90; i++) { P().y -= 2; G.keepOutOfRects(P()); }
-ok(P().y < 440, 'you can walk north through the Government gate (' + Math.round(P().y) + ')');
-P().x = 800; P().y = 520; for (let i = 0; i < 90; i++) { P().y -= 2; G.keepOutOfRects(P()); }
-ok(P().y > 470, 'the wall stops you away from the gate (' + Math.round(P().y) + ')');
-G.enterZone('outpost', Z.start.x, Z.start.y); run(0.2);
-S.moveTarget = { x: 790, y: 300 };
-run(25);
-ok(G.dist(P(), { x: 790, y: 300 }) < 10, 'click-to-move routes through the gate hall into another district (' + Math.round(P().x) + ',' + Math.round(P().y) + ')');
-ok(S.district === 'gov' && G.save.districts['outpost:gov'], 'entering the Government District is recorded');
-const al = S.party[1];
-if (al) { ok(G.dist(al, P()) < 160, 'your party follows you through the gate (' + Math.round(G.dist(al, P())) + ' px)'); }
-G.enterZone('outpost', 300, 1100); run(0.2);
-S.moveTarget = { x: 860, y: 1240 }; run(30);
-ok(G.dist(P(), { x: 860, y: 1240 }) < 12, 'routes from Residential to Industrial (' + Math.round(P().x) + ',' + Math.round(P().y) + ')');
-S.moveTarget = { x: 1700, y: 300 }; run(40);
-ok(G.dist(P(), { x: 1700, y: 300 }) < 10, 'routes from Industrial to Eastgate (' + Math.round(P().x) + ',' + Math.round(P().y) + ')');
-const sv = G.normalizeSave(Object.assign({}, G.save, { zv: 1, loc: { zone: 'outpost', x: 610, y: 440 } }));
-ok(sv.loc.x === Z.start.x && sv.loc.y === Z.start.y && sv.zv === 3, 'old saves standing in the old Outpost are moved to the Market plaza');
-{ const hx = G.ZONES.hollow.exits.find(e => e.to === 'outpost'); ok(G.districtAt(Z, hx.tx, hx.ty).id === 'gate', 'Rocky Hollow leads into Eastgate'); }
-ok(G.districtName('outpost', 1000, 760) === 'Market District', 'districtName names the district');
+const parts = G.areaZones('outpost');
+ok(parts.length === 5 && ['outpost', 'outpost_gov', 'outpost_res', 'outpost_ind', 'outpost_gate'].every(id => parts.includes(id)), 'the Outpost is five district zones');
+ok(parts.every(id => G.ZONES[id].districts.length === 1 && G.ZONES[id].town === 'outpost' && G.ZONES[id].safe), 'each zone is one safe district of the Outpost');
+ok(G.ZONES.outpost.districts[0].id === 'market' && G.ZONES.outpost_gov.districts[0].id === 'gov', 'the Market keeps the outpost id; Government is outpost_gov');
+const gates = parts.flatMap(id => G.ZONES[id].exits.filter(e => e.gate).map(e => [id, e]));
+ok(gates.length === 16 && gates.every(([id, e]) => G.ZONES[e.to].exits.some(b => b.gate && b.to === id)), 'eight gate halls become sixteen paired zone lines');
+ok(parts.every(id => !G.ZONES[id].cityWalls && typeof G.ZONES[id].outerWall === 'string' && G.ZONES[id].outerWall.length >= 3), 'each district is walled on its own edges');
+ok(G.ZONES.outpost.outerWall === 'nesw' && G.ZONES.harbor_docks.outerWall.indexOf('s') < 0, 'inner sides are walled; the harbor stays open to the sea');
+G.enterZone('outpost'); run(0.6);
+ok(S.zoneId === 'outpost' && S.district === 'market', 'you arrive in the Market District');
+const east = G.ZONES.outpost.exits.find(e => e.gate && e.to === 'outpost_gate');
+P().x = east.x - 40; P().y = east.y + east.h / 2; S.moveTarget = { x: east.x + 30, y: east.y + east.h / 2 }; run(4);
+ok(S.zoneId === 'outpost_gate' && S.district === 'gate', 'walking through the east gate hall zones you into Eastgate (' + S.zoneId + ')');
+ok(G.save.districts['outpost:gate'], 'entering Eastgate is recorded');
+ok(P().x < 200, 'you arrive just inside the west gate of Eastgate (' + Math.round(P().x) + ')');
+const back = G.ZONES.outpost_gate.exits.find(e => e.gate && e.to === 'outpost');
+P().x = back.x + 50; P().y = back.y + back.h / 2; S.moveTarget = { x: back.x - 30, y: back.y + back.h / 2 }; run(4);
+ok(S.zoneId === 'outpost', 'and back into the Market');
+const sv = G.normalizeSave(Object.assign({}, G.save, { zv: 3, zsplit: { hollow: 1, highlands: 1 }, loc: { zone: 'outpost', x: 790, y: 300 } }));
+ok(sv.loc.zone === 'outpost_gov' && sv.loc.x === 230 && sv.loc.y === 300, 'a save standing in the old Government District moves into its zone (' + JSON.stringify(sv.loc) + ')');
+const sv2 = G.normalizeSave(Object.assign({}, G.save, { zv: 3, zsplit: { hollow: 1, highlands: 1 }, loc: { zone: 'harbor', x: 900, y: 1100 } }));
+ok(sv2.loc.zone === 'harbor_docks' && sv2.loc.y === 120, 'a save on the old docks moves into The Docks');
+const sv3 = G.normalizeSave(Object.assign({}, G.save, { zv: 1, loc: { zone: 'outpost', x: 610, y: 440 } }));
+ok(sv3.loc.zone === 'outpost' && sv3.loc.x === G.ZONES.outpost.start.x && sv3.loc.y === G.ZONES.outpost.start.y, 'very old saves still land on the Market plaza');
+{ const hx = G.ZONES.hollow.exits.find(e => G.areaOf(e.to) === 'outpost'); ok(hx && hx.to === 'outpost_gate' && hx.tx > 300 && hx.tx < G.ZONES.outpost_gate.w, 'Rocky Hollow leads into Eastgate'); }
+{ const rx = G.ZONES.residence.exits[0]; ok(rx.to === 'outpost_res' && G.ZONES.outpost_res.exits.some(e => e.to === 'residence'), 'your residence opens onto the Residential District'); }
+ok(G.districtName('outpost', 400, 300) === 'Market District', 'districtName names the district');
+ok(G.warpStoneCost('warpstone_outpost_gov') === 0, 'warps between Outpost districts are free');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');
+process.exit(fails ? 1 : 0);

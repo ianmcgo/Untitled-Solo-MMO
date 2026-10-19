@@ -113,10 +113,11 @@ function normalizeSave(d) {
   if (out.bestiary) for (const k in out.bestiary) if (!out.bestiary[k] || !out.bestiary[k].kills) delete out.bestiary[k];
   if (out.bestiary) for (const o in MOB_RENAMED) if (out.bestiary[o]) { const n = MOB_RENAMED[o], b = out.bestiary[o]; if (out.bestiary[n]) out.bestiary[n].kills = (out.bestiary[n].kills || 0) + (b.kills || 0); else out.bestiary[n] = b; delete out.bestiary[o]; }
   if (!d.zv && out.loc && ZONE_SCALE[out.loc.zone]) { out.loc = Object.assign({}, out.loc, { x: Math.round(out.loc.x * ZONE_SCALE[out.loc.zone]), y: Math.round(out.loc.y * ZONE_SCALE[out.loc.zone]) }); }
-  if ((d.zv || 0) < 2 && out.loc && out.loc.zone === "outpost") out.loc = { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y };
-  if ((d.zv || 0) < 3 && out.loc && (out.loc.zone === "harbor" || out.loc.zone === "ironvale")) out.loc = { zone: out.loc.zone, x: ZONES[out.loc.zone].start.x, y: ZONES[out.loc.zone].start.y };
+  const reset = {};
+  if ((d.zv || 0) < 2 && out.loc && out.loc.zone === "outpost") { out.loc = { zone: "outpost", x: ZONES.outpost.start.x, y: ZONES.outpost.start.y }; reset.outpost = 1; }
+  if ((d.zv || 0) < 3 && out.loc && (out.loc.zone === "harbor" || out.loc.zone === "ironvale")) { reset[out.loc.zone] = 1; out.loc = { zone: out.loc.zone, x: ZONES[out.loc.zone].start.x, y: ZONES[out.loc.zone].start.y }; }
   out.zv = 3;
-  out.zsplit = d.zsplit;
+  out.zsplit = Object.assign({}, d.zsplit && typeof d.zsplit === "object" ? d.zsplit : {}, reset);
   migrateSplits(out);
   if (!out.districts || typeof out.districts !== "object") out.districts = {};
   out.look = Object.assign(newSave().look, d.look || {});
@@ -2359,10 +2360,10 @@ function ahGroup(id) {
 
 function ahTowns() {
   if (S.ahTownList) return S.ahTownList;
-  return S.ahTownList = Object.keys(ZONES).filter(z => ZONES[z].theme === "town" && (ZONES[z].houses || []).some(b => b.type === "auction"));
+  return S.ahTownList = [...new Set(Object.keys(ZONES).filter(z => ZONES[z].theme === "town" && (ZONES[z].houses || []).some(b => b.type === "auction")).map(areaOf))];
 }
 
-function ahHere() { return ahTowns().includes(S.zoneId) ? S.zoneId : ahTowns()[0]; }
+function ahHere() { const a = areaOf(S.zoneId); return ahTowns().find(t => areaOf(t) === a) || ahTowns()[0]; }
 
 function ahTownName(z) { return ZONES[z] ? ZONES[z].city || ZONES[z].name : z; }
 
@@ -3667,7 +3668,7 @@ function districtName(zid, x, y) { const d = districtAt(ZONES[zid], x, y); retur
 function markDistrict(d) {
   if (!d) return false;
   if (!save.districts) save.districts = {};
-  const key = S.zoneId + ":" + d.id, fresh = !save.districts[key];
+  const key = areaOf(S.zoneId) + ":" + d.id, fresh = !save.districts[key];
   if (fresh) save.districts[key] = Date.now();
   return fresh;
 }
@@ -4526,6 +4527,7 @@ function partyInCombat() {
 }
 
 function enterZone(id, x, y, opt) {
+  if (x == null || y == null || isNaN(x) || isNaN(y)) { const st = ZONES[id].start || { x: ZONES[id].w / 2, y: ZONES[id].h / 2 }; x = st.x; y = st.y; }
   const prev = S.zoneId;
   S.exitWalk = null; S.walkIn = null;
   S.fish = null;
@@ -5344,7 +5346,7 @@ function questOfferable(id) {
   const q = QUESTS[id];
   return save.quests[id] === "none" && player.lv >= (q.lv || 1) && (!q.pre || save.quests[q.pre] === "done") && (!(q.reward && q.reward.unlock) || jobUnlocked(q.reward.unlock));
 }
-const tourDone = zid => ZONES[zid].districts.every(d => save.districts && save.districts[zid + ":" + d.id]);
+const tourDone = a => areaZones(a).every(z => (ZONES[z].districts || []).every(d => save.districts && save.districts[a + ":" + d.id]));
 const QUEST_CHECKS = { tour_outpost: () => tourDone("outpost"), tour_harbor: () => tourDone("harbor"), tour_ironvale: () => tourDone("ironvale"), furniture: () => save.furniture.length >= 2, harvest: () => save.harvests >= 1 };
 function questComplete(id) {
   const q = QUESTS[id];
@@ -5874,9 +5876,10 @@ const TALK = {
     openDialog(n.name, "A sheltered camp with a tent and a smouldering fire. Crystals stand only in towns, so rest here and press on.", []);
   },
   talkDistrictSign(n) {
-    const z = S.zone, here = districtAt(z, n.x, n.y);
-    const lines = z.districts.filter(d => !here || d.id !== here.id).map(d => {
-      const cx = d.x + d.w / 2, cy = d.y + d.h / 2, dx = cx - n.x, dy = cy - n.y;
+    const z = S.zone, here = districtAt(z, n.x, n.y), o = z.off || [0, 0], gx = n.x + o[0], gy = n.y + o[1];
+    const all = areaZones(areaOf(S.zoneId)).flatMap(id => (ZONES[id].districts || []).map(d => { const q = ZONES[id].off || [0, 0]; return Object.assign({}, d, { x: d.x + q[0], y: d.y + q[1] }); }));
+    const lines = all.filter(d => !here || d.id !== here.id).map(d => {
+      const cx = d.x + d.w / 2, cy = d.y + d.h / 2, dx = cx - gx, dy = cy - gy;
       const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "east" : "west") : (dy > 0 ? "south" : "north");
       return d.icon + " " + d.name + ": " + dir + ", about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms";
     });
@@ -5908,7 +5911,7 @@ function warpStoneList() {
   for (const id in NPCS) if (NPCS[id].warpstone && save.warps && save.warps[id]) out.push(id);
   return out;
 }
-function warpStoneCost(id) { return NPCS[id].warpZone === S.zoneId ? 0 : CONFIG.warpCost; }
+function warpStoneCost(id) { return areaOf(NPCS[id].warpZone) === areaOf(S.zoneId) ? 0 : CONFIG.warpCost; }
 function warpToStone(id) {
   const def = NPCS[id], z = def && ZONES[def.warpZone], c = z && z.npcs.find(q => q.id === id);
   if (!c) return;
@@ -5931,7 +5934,7 @@ function openWarpStone(n) {
   if (!save.warps[n.id]) { save.warps[n.id] = true; log("You attune to the " + NPCS[n.id].name + ".", "loot"); saveGame(); }
   const dests = warpStoneList().filter(id => id !== n.id);
   if (!dests.length) { openDialog(NPCS[n.id].name, "A waist-high stone humming with pale light. Touch other warp stones to travel between them. Stones in the same city are free; stones in other cities cost " + CONFIG.warpCost + " crystals.", []); return; }
-  const near = dests.filter(id => NPCS[id].warpZone === S.zoneId), far = dests.filter(id => NPCS[id].warpZone !== S.zoneId);
+  const near = dests.filter(id => !warpStoneCost(id)), far = dests.filter(id => warpStoneCost(id));
   const opts = [];
   if (near.length) opts.push({ label: "Warp within " + (S.zone.city || S.zone.name) + " (free)", fn: () => { closeDialog(); promptChoice("Warp to which district?", near.map(id => ({ label: NPCS[id].name.replace("Warp Stone: ", ""), fn: () => warpToStone(id) }))); } });
   if (far.length) opts.push({ label: "Warp to another city (" + CONFIG.warpCost + " crystals)", fn: () => { closeDialog(); promptChoice("Warp to which stone?", far.map(id => ({ label: NPCS[id].name.replace("Warp Stone: ", "") + " (" + ZONES[NPCS[id].warpZone].name + ")", fn: () => warpToStone(id) }))); } });
@@ -6183,7 +6186,7 @@ function vendorStock(role, town) {
 }
 
 function shopList(kind) {
-  const src = kind && kind.startsWith("v:") ? vendorStock(kind.slice(2), S.zoneId) : kind && SHOPS[kind] ? SHOPS[kind] : SHOP;
+  const src = kind && kind.startsWith("v:") ? vendorStock(kind.slice(2), areaOf(S.zoneId)) : kind && SHOPS[kind] ? SHOPS[kind] : SHOP;
   return src.filter(id => {
     const it = ITEMS[id];
     if (it.kind === "tool" && !FEATURES.gathering) return false;

@@ -430,7 +430,7 @@ function ambxTick() {
   AMBX.layers.wind.f.frequency.setTargetAtTime(windy ? 650 : 380, now, 2);
   const dm = S.district || "";
   const surfMul = dm === "docks" ? 1.4 : dm === "fish" ? 1 : dm === "square" ? 0.6 : 0.35;
-  set("surf", S.zoneId === "harbor" ? 0.16 * surfMul * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
+  set("surf", areaOf(S.zoneId) === "harbor" ? 0.16 * surfMul * (0.6 + 0.4 * Math.sin(now * 0.7)) : 0);
   const night0 = typeof isNight === "function" && isNight();
   const crowdMul = { market: 1.7, square: 1.7, fish: 1.5, docks: 1.1, res: 0.55, south: 0.55, gov: 0.7, keep: 0.5, ind: 0.8, yard: 0.8, gate: 0.9, forge: 0.8, gov_: 1 }[dm] || 1;
   set("crowd", th === "town" ? crowdMul * (night0 ? 0.025 : 0.07) * (0.7 + 0.3 * Math.sin(now * 0.23) * Math.sin(now * 0.61)) : 0);

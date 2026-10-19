@@ -2,7 +2,7 @@ const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P
 G.CONFIG.scrollDrop = 0;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-const npc = id => S.npcs.find(n => n.id === id);
+const npc = id => S.npcs.find(n => n.id === id) || G.meet(id);
 G.save.story.done = true;
 G.enterZone('outpost'); run(0.2);
 ok(G.RACE_ORDER.length === 5 && G.RACE_ORDER.every(r => G.RACES[r]), 'five playable races');
@@ -28,7 +28,7 @@ ok(ro.find(c => c.id === id1).look.build === 0 && ro.find(c => c.id === id2).loo
 
 G.save.look.race = 'human'; G.save.mainJob = 'WAR'; G.save.jobs.WAR.lv = 5; G.refreshPlayer(true);
 G.enterZone('outpost'); run(0.2);
-ok(!!npc('guard_east') && npc('guard_east').x > 900, 'a gate guard stands at the Outpost east gate');
+ok(!!npc('guard_east') && G.zoneOfNpc('guard_east') === 'outpost_gate', 'a gate guard stands at the Outpost east gate');
 G.enterZone('harbor', 600, 420); run(0.2);
 ok(!!npc('guard_north') && !!npc('guard_pass'), 'Saltreach has guards at both exits');
 ok(!G.blessed() && G.blessingMinutes() === 60, 'you start unblessed; Copper rank gets 60 minutes');

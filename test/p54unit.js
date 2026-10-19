@@ -15,7 +15,7 @@ ok(edge('highlands', 'highlands_plateau') && edge('highlands_plateau', 'highland
 const inside = (z, x, y) => x > 0 && y > 0 && x < Z[z].w && y < Z[z].h;
 ok(Object.keys(Z).every(id => Z[id].exits.every(e => Z[e.to] && inside(e.to, e.tx, e.ty))), 'every exit in the world lands inside its destination');
 ok(Object.keys(Z).every(id => Z[id].exits.every(e => e.kind === 'door' || e.edge || id === 'depths' || Z[e.to].exits.some(b => b.to === id))), 'every road has a way back');
-ok(Z.outpost.exits.find(e => e.label === 'Rocky Hollow').to === 'hollow' && Z.den.exits.find(e => e.label === 'Rocky Hollow').to === 'hollow_ruins', 'Outpost leads to West Meadows, Den to Eastern Ruins');
+ok(G.areaZones('outpost').some(z => Z[z].exits.some(e => e.label === 'Rocky Hollow' && e.to === 'hollow')) && Z.den.exits.find(e => e.label === 'Rocky Hollow').to === 'hollow_ruins', 'Outpost leads to West Meadows, Den to Eastern Ruins');
 ok(Z.marsh.exits.some(e => e.to === 'hollow_lake') && Z.highlands.exits.some(e => e.to === 'hollow_lake') && Z.hollow_lake.exits.some(e => e.to === 'marsh') && Z.hollow_lake.exits.some(e => e.to === 'highlands'), 'Marsh and Highlands meet Mirror Lake');
 const sign = id => Z[id].npcs.filter(n => n.id.startsWith('sign_' + id));
 ok(HP.concat(WP).every(p => sign(p).length === Z[p].exits.filter(e => e.hall && e.kind !== 'door').length && sign(p).length > 0), 'signposts stand at every way in and out of each part');

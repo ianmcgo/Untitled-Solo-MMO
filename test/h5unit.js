@@ -6,10 +6,10 @@ ok(!G.ZONES.residence.residence, 'zone data has no residence flag (so checks mus
 const roles = Object.keys(G.VENDOR_ROLES);
 ok(roles.length === 6, 'six vendor roles');
 for (const town of ['outpost', 'harbor', 'ironvale']) {
-  const Z = G.ZONES[town]; const vs = Z.npcs.filter(n => /^v_/.test(n.id));
+  const zs = G.areaZones(town).map(id => G.ZONES[id]), vs = zs.flatMap(Z => Z.npcs.filter(n => /^v_/.test(n.id)).map(n => Object.assign({ Z }, n)));
   ok(vs.length === 6 && new Set(vs.map(n => n.id)).size === 6, town + ' has six vendors');
-  ok(!Z.npcs.some(n => n.id === 'pell'), town + ' has no Pell');
-  const bad = vs.filter(n => (Z.houses || []).some(b => Math.abs(n.x - b.x) < b.w / 2 + 12 && Math.abs(n.y - b.y) < b.h / 2 + 12));
+  ok(!zs.some(Z => Z.npcs.some(n => n.id === 'pell')), town + ' has no Pell');
+  const bad = vs.filter(n => (n.Z.houses || []).some(b => Math.abs(n.x - b.x) < b.w / 2 + 12 && Math.abs(n.y - b.y) < b.h / 2 + 12));
   ok(!bad.length, town + ' vendors stand clear of buildings (' + bad.map(n => n.id) + ')');
 }
 ok(!G.NPCS.pell, 'Pell is gone');

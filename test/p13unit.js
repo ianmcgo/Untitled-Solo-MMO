@@ -1,7 +1,7 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-const npc = id => S.npcs.find(n => n.id === id);
+const npc = id => S.npcs.find(n => n.id === id) || G.meet(id);
 const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
 const ex = G.ZONES.marsh.exits.find(e => e.to === 'harbor');
 G.enterZone('marsh', ex.x + ex.w / 2, ex.y - 40); S.mobs = []; S.zoneCooldown = 0; P().y = ex.y + 4; run(0.5);
@@ -18,6 +18,6 @@ G.giveItem('harbor_bream', 3, true); G.talkTo(npc('ilsa')); opt(/Catch of the Da
 ok(G.save.quests.catchday === 'done' && G.invCount('sea_rod') === 1, 'bringing 3 Harbor Bream earns a Sea Rod');
 ok(G.FISH.harbor && G.WEATHER.harbor, 'the harbor has fish and weather');
 G.giveItem('bait', 3, true); S.npcs.forEach(n => n.away = true);
-P().x = 900; P().y = 1090;
+{ const d = G.splitLocal('harbor', 900, 1090); G.enterZone(d.zone, d.x, d.y); for (let i = 0; i < 12; i++) tick(1000 / 60); S.npcs.forEach(n => n.away = true); P().x = d.x; P().y = d.y; }
 ok(G.startFishing() === '', 'you can fish from the harbor docks with the Sea Rod');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

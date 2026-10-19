@@ -1,14 +1,14 @@
 const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
-const npc = id => S.npcs.find(n => n.id === id);
+const npc = id => S.npcs.find(n => n.id === id) || G.meet(id);
 const opt = re => S.dialog.all.find(o => re.test(o.label));
 const setHour = h => { const v = G.vana(); let d = h - v.hour - v.minute / 60; if (d < 0) d += 24; S.timeShift += d * 3600000 / 25; };
 
 setHour(10);
-G.enterZone('outpost', 610, 440); run(0.2);
-ok(S.zone.exits.some(e => e.to === 'residence' && e.kind === 'door'), 'the Outpost has a door to your residence');
-ok(npc('odette') && G.ZONES.outpost.npcs.filter(n => n.sleep).length >= 7, 'Odette is in town and the townsfolk have bed times');
+G.enterZone('outpost_gov'); run(0.2);
+ok(G.ZONES.outpost_res.exits.some(e => e.to === 'residence' && e.kind === 'door'), 'the Outpost has a door to your residence');
+ok(npc('odette') && G.areaZones('outpost').reduce((s, z) => s + G.ZONES[z].npcs.filter(n => n.sleep).length, 0) >= 7, 'Odette is in town and the townsfolk have bed times');
 ok(S.npcs.filter(n => n.sleep).every(n => !n.away), 'everyone is out at 10:00');
 G.TALK.talkOdette(npc('odette')); ok(opt(/Make It Home/), 'Odette offers Make It Home'); opt(/Make It Home/).fn(); opt(/Accept/).fn();
 G.closeModal();
