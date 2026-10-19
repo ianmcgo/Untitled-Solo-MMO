@@ -588,6 +588,7 @@ function zoneMapCanvas(zoneId) {
     const w = h.rot ? h.h : h.w, hh = h.rot ? h.w : h.h;
     g.fillStyle = "#4a2f22"; g.fillRect(h.x - w / 2, h.y - hh / 2, w, hh);
     g.strokeStyle = "#2a1a12"; g.lineWidth = 4; g.strokeRect(h.x - w / 2, h.y - hh / 2, w, hh);
+    if (h.shop && h.sign) { g.save(); g.fillStyle = "#f2e2b0"; g.font = "bold 24px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(h.sign, h.x, h.y); g.restore(); }
   }
   for (const s of z.stalls || []) { g.fillStyle = s.color; g.fillRect(s.x - 26, s.y - 14, 52, 28); }
   for (const [x, y] of z.lamps || []) { g.fillStyle = "#ffd77a"; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); }

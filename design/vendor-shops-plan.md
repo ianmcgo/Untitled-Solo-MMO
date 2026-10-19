@@ -1,6 +1,6 @@
 # Vendor shops plan
 
-Status: planned, awaiting go-ahead.
+Status: phase 1 done in 18.88.0 (placement and shops, test/v1unit.js). Phase 2 art pass open.
 
 ## Request
 Every vendor stands outside their own shop building instead of all vendors sharing market stalls. Spread them around town: some in the industrial district (district key "ind"; smiths, ore and lumber sellers, crafting suppliers, guild masters), not only the market.

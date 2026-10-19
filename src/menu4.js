@@ -1701,6 +1701,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.88.0", date: "2026-10-19", title: "Vendor shops", items: [
+    "<b>Every vendor now stands outside their own shop</b> in all three towns, with a signed storefront (Armory, Arms, Supplies, Provisions, Scrolls, Jewels). They no longer share open market stalls.",
+    "<b>Vendors are spread over the districts:</b> the Armorer and Weaponsmith work in the industrial districts (the Shipwrights' Row at the harbor, Smelters' Row in Ironvale), the Tradesman in a gatherer's spot (Eastgate, Fish Market, Smelters' Row), and the Quartermaster, Spellsmith and Jeweler in the markets and squares.",
+    "Shop names appear on the town map. The market keeps its open stalls and barbers for flavour.",
+    "Next step: a storefront art pass with trade props and a look at every town."
+  ] },
   { v: "18.87.0", date: "2026-10-19", title: "Trade goods", items: [
     "<b>Beasts now drop trade goods</b>: hides, chitin, fibre, scales or elemental cores depending on the creature, in four grades by level (Coarse, Fine, Choice, Prime). Sell them to any shop or on the auction house. This replaces the crystals beasts used to pay.",
     "<b>Humanoid monsters pay more crystals</b> and drop job-matched gear a little more often, so they are now the best source of money and equipment.",
@@ -3440,7 +3446,7 @@ function tabHelp() {
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. You can rest during a fight too (it disengages you first). Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("🏙️ Cities and districts", ul([
-    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, the six vendors (spread across the districts), Odette, the auction clerk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge. <b>Eastgate</b> (east): Ysolde's stables, the gate guard and the road to Rocky Hollow.",
+    "Ashenreach Outpost is split into five walled districts. <b>Market</b> (centre): home point crystal, the Quartermaster, Spellsmith and Jeweler (each in their own shop), Odette, the auction clerk, the Trade Board and Luna at night. <b>Government</b> (north): Captain Rhea, Maera's Adventurers' Guild, Brann's Mercenary Hall and Tobin. <b>Residential</b> (west): your residence and the townsfolk's houses. <b>Industrial</b> (south): Garrick's forge, and the Armorer's and Weaponsmith's shops. <b>Eastgate</b> (east): Ysolde's stables, the Tradesman's shop, the gate guard and the road to Rocky Hollow.",
     "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
@@ -3449,7 +3455,7 @@ function tabHelp() {
   h += sec("🚶 City life", ul([
     "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
     "<b>Strong potions:</b> X-Potions, Hi-Ethers, Super Ethers, Reraisers and Chapel Sigils are not sold. Undead and ghoul-type monsters drop them, and Alchemy recipes craft them from Hi-Potions, Ethers, Bone Chips, Silk Cloth and Reef Scales.",
-    "<b>Vendors:</b> every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. The Jeweler is the exception: he sells rings and necklaces up to level 11, since so few are level 5 or lower, but only 5 of those 10 are on his shelf each day. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
+    "<b>Vendors:</b> every vendor stands at the door of their own small shop, spread across the districts: smiths and tradesmen in the working districts, food, scrolls and jewellery near the markets. Shop names show on their signs and on the map. Every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. The Jeweler is the exception: he sells rings and necklaces up to level 11, since so few are level 5 or lower, but only 5 of those 10 are on his shelf each day. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
     "Tour quests: Hale the Tradesman (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([

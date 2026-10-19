@@ -2395,10 +2395,11 @@ const VENDOR_JEWEL_MAXLV = 11;
 const VENDOR_SOURCE_JEWEL = VENDOR_SOURCE.concat(SHOPS.vela.filter(id => ITEMS[id] && !ITEMS[id].hq && ITEMS[id].kind === "equip" && (ITEMS[id].slot === "ring" || ITEMS[id].slot === "neck")));
 const VENDOR_POOL = {};
 for (const r in VENDOR_ROLES) VENDOR_POOL[r] = (r === "jeweler" ? VENDOR_SOURCE_JEWEL : VENDOR_SOURCE).filter(id => (ITEMS[id].lv || 0) <= (r === "jeweler" ? VENDOR_JEWEL_MAXLV : VENDOR_MAXLV) && VENDOR_ROLES[r].test(ITEMS[id]));
+const VENDOR_SHOP_LOOK = { armorer: { type: "forge", signCol: "#9aa4b0" }, weaponsmith: { type: "forge", signCol: "#ff7a30" }, tradesman: { type: "shop", awning: "#2e7d32" }, quartermaster: { type: "shop", awning: "#c0392b" }, spellsmith: { type: "shop", awning: "#7b1fa2", signCol: "#b388ff" }, jeweler: { type: "shop", awning: "#0277bd", signCol: "#7ad0ff" } };
 const VENDOR_TOWNS = {
-  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, at: [[880, 1010], [1340, 1010], [800, 840], [1340, 850], [880, 520], [1090, 1010]] },
-  harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, at: [[1330, 560], [1620, 520], [430, 600], [230, 620], [700, 700], [1100, 470]] },
-  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, at: [[1380, 540], [1360, 960], [1170, 760], [960, 430], [700, 860], [950, 1090]] }
+  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 700, y: 1186, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 916, y: 1196, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 1560, y: 900, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 696, y: 896, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1320, y: 896, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 1298, y: 676, w: 96, h: 72, sign: "Jewels", district: "market" } } },
+  harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, shops: { armorer: { x: 1360, y: 410, w: 120, h: 72, sign: "Armory", district: "yard" }, weaponsmith: { x: 1396, y: 600, w: 112, h: 72, sign: "Arms", district: "yard" }, tradesman: { x: 394, y: 830, w: 120, h: 72, sign: "Supplies", district: "fish" }, quartermaster: { x: 756, y: 140, w: 112, h: 72, sign: "Provisions", district: "square" }, spellsmith: { x: 1070, y: 430, w: 100, h: 72, sign: "Scrolls", district: "square" }, jeweler: { x: 738, y: 690, w: 96, h: 72, sign: "Jewels", district: "square" } } },
+  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: { armorer: { x: 1500, y: 90, w: 120, h: 72, sign: "Armory", district: "forge" }, weaponsmith: { x: 1646, y: 90, w: 112, h: 72, sign: "Arms", district: "forge" }, tradesman: { x: 1500, y: 1120, w: 120, h: 72, sign: "Supplies", district: "forge" }, quartermaster: { x: 696, y: 866, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 104, y: 320, w: 100, h: 72, sign: "Scrolls", district: "gate" }, jeweler: { x: 708, y: 596, w: 96, h: 72, sign: "Jewels", district: "market" } } }
 };
 const VENDOR_WORK = {};
 const TOWN_SERVICES = {
@@ -2419,7 +2420,9 @@ for (const town in VENDOR_TOWNS) {
     const id = "v_" + (r === "tradesman" ? "trade" : r) + "_" + town;
     NPCS[id] = { name: T.names[r] + ", " + VENDOR_ROLES[r].title, model: "vend_" + r, talk: "talkVendor", shop: r };
     VENDOR_WORK[id] = VENDOR_ROLES[r].work;
-    ZONES[town].npcs.push({ id, x: T.at[i][0], y: T.at[i][1] });
+    const sp = T.shops[r], L = VENDOR_SHOP_LOOK[r];
+    ZONES[town].houses.push({ x: sp.x, y: sp.y, w: sp.w, h: sp.h, type: L.type, floors: 1, sign: sp.sign, signCol: L.signCol, awning: L.awning, shop: id, roof: i % 4 });
+    ZONES[town].npcs.push({ id, x: sp.x, y: sp.y + sp.h / 2 + 34 });
   });
 }
 function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
