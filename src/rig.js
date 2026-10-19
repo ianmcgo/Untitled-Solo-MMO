@@ -1927,7 +1927,7 @@ function humanEntryBase(L) {
   const ank = 0.08, knee = ank + pr.leg * 0.5, hipJ = ank + pr.leg;
   const hipsY = hipJ + 0.03, spineY = hipsY + pr.torso * 0.28, chestY = hipsY + pr.torso * (L.doll ? 0.5 : 0.62), neckY = hipsY + pr.torso, headY = neckY + pr.neck;
   const shY = neckY - 0.05, elY = shY - pr.arm * 0.47, wrY = shY - pr.arm * 0.9;
-  const sw0 = pr.shoulder, sw = sw0 * (fem && !L.skull ? (L.doll ? 0.95 : 0.9) : 1), gi = pr.girth, fl = L.doll ? 0.045 : 0;
+  const sw0 = pr.shoulder, sw = sw0 * (fem && !L.skull ? (L.doll ? 0.95 : 0.87) : 1), gi = pr.girth, fl = L.doll ? 0.045 : 0;
   R.bone("root", null, 0, 0, 0);
   R.bone("hips", "root", 0, hipsY, 0);
   R.bone("spine", "hips", 0, spineY, 0);
@@ -2055,7 +2055,7 @@ function humanEntryBase(L) {
     const upR0 = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spY, hipR * (lowW ? 0.94 : 0.95), (hx0 + cx0) / 2, (hz + cz) / 2, 1.04, 0.95), ring(wsY, waistR * 0.93, cx0 * 0.95, cz, 1.06, 0.92), ring(chestY - 0.04, 0.155, cx0, cz, 1.06 + bust * 0.4, 0.97), ring(chestY + 0.03, 0.172, cx1 * 1.03, cz, 1.06 + bust, 1.02), ring(chestY + 0.08, 0.18, cx1 * 1.06, cz, 1.0 + bust * 0.3, 1.05), ring(shY - 0.025, 0.17, cx1 * 1.04, cz * 0.95, 0.97, 1.03, 0, 2.1), ring(shY - 0.002, 0.148, cx1 * 1.0, cz * 0.9, 0.94, 1.02, -0.004, 2.0), ring(shY + 0.022, 0.112, cx1 * 0.94, cz * 0.88, 0.92, 1.0, -0.006, 2.0), ring(neckY - 0.024, 0.084, cx1 * 0.86, cz * 0.92, 0.9, 0.95, -0.006, 2.0), ring(neckY + 0.012, 0.058, gi * (fem ? 0.86 : 1), gi * 0.95, 1, 1, -0.006, 2)];
     const dollUp = [ring(beltY, hipR, hx0, hz, 1, 1.04), ring(spineY, hipR * 0.93, hx0, hz * 0.97, 1.03, 1.0), ring(chestY - 0.01, hipR * 0.9, hx0 * 0.97, hz * 0.95, 1.04 + bust * 0.5, 1.0), ring(chestY + 0.45 * (neckY - chestY), sw * 1.05, 1, 0.85, 1.0, 1.0, 0, 2.0), ring(shY, sw * 0.95, 1, 0.82, 0.98, 1.0, 0, 2.0), ring(neckY - 0.012, 0.078 * gi, 1, 0.95, 1, 1, -0.004, 2), ring(neckY + 0.012, 0.066 * gi, 1, 0.95, 1, 1, -0.006, 2)];
     if (urs) upR0.forEach((r, i) => { if (i >= 2 && i <= 8) { const k = i <= 5 ? 1 : (9 - i) / 4; r.rz *= 1 + 0.16 * k; r.rx *= 1 - 0.05 * k; r.p = 1.95; } r.rx *= [1, 1, 1, 1, 1, 1, 1.03, 1.12, 1.22, 1.14, 1.06][i] || 1; });
-    if (fem && !L.skull) upR0.forEach(r => { r.rx *= 1 - 0.1 * smoothRange(chestY + 0.01, chestY + 0.09, r.y); });
+    if (fem && !L.skull) upR0.forEach(r => { r.rx *= 1 - 0.13 * smoothRange(chestY + 0.01, chestY + 0.09, r.y); });
     const upR = L.doll ? monoRings(dollUp) : upR0;
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
@@ -2117,9 +2117,9 @@ function humanEntryBase(L) {
       const cR = dollC ? 0.054 * gi : bR, cX = dollC ? 0.051 * gi : bX, cY = dollC ? chestY + 0.02 : bY, cZ = dollC ? uwFront(rsA, 0.051 * gi, chestY + 0.02) - 0.054 * gi * 0.5 : bZ;
       const bustZ = (x, y) => { let m = -9; for (const sx of [1, -1]) { const dx = (x - sx * cX) / (cR * 0.98), dy = (y - cY) / (cR * 0.94), d = dx * dx + dy * dy; if (d < 1) m = Math.max(m, cZ + cR * 0.96 * Math.sqrt(1 - d)); } return m; };
       const zAt = (x, y) => Math.max(uwFront(rsA, x, y) + 0.0035, bustZ(x, y) + 0.0045);
-      const yb = cY - 0.76 * cR;
+      const yb = cY - 0.8 * cR;
       for (const [xs, sd] of [[1, "L"], [-1, "R"]]) {
-        const cx = xs * cX, A = [cx - xs * 1.0 * cR, cY - 0.8 * cR], B = [cx + xs * 1.12 * cR, cY - 0.7 * cR], T = [cx + xs * 0.02 * cR, cY + 1.08 * cR];
+        const cx = xs * cX, A = [cx - xs * 1.1 * cR, cY - 0.86 * cR], B = [cx + xs * 1.3 * cR, cY - 0.74 * cR], T = [cx - xs * 0.1 * cR, cY + 1.32 * cR];
         const bn = dollC ? "chest" : "bust" + sd, wf = (x, y) => { const d = Math.hypot((x - cx) / 0.98, (y - cY) / 0.94) / cR, w = smoothRange(1.2, 0.85, d); return [[bn, w], ["chest", 1 - w]]; };
         R.addW(gWrapTri([A, B, T], 10, zAt), "chest", UWC, "cloth", dollC ? (() => [["chest", 1]]) : wf);
         for (const [a, b] of [[A, T], [B, T]]) uwStrand(R, uwPath(a, b, 7, (x, y) => zAt(x, y) + 0.0012), 0.0021, "chest", UWK);
