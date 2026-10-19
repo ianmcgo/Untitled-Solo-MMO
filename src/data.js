@@ -1009,7 +1009,7 @@ const ZONES = {
       { x: 262, y: 740, w: 26, h: 40, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }
     ],
     npcs: [
-      { id: "rhea", x: 790, y: 262, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 18, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
+      { id: "rhea", x: 860, y: 290, home: 0, sleep: [22, 6] }, { id: "maera", x: 930, y: 300, home: 18, sleep: [22.5, 6.5] }, { id: "brann", x: 1240, y: 262, home: 2, sleep: [23, 7.5] }, { id: "tobin", x: 1150, y: 320, home: 3, sleep: [20, 7] },
       { id: "crystal_town", x: 1000, y: 760 }, { id: "odette", x: 1200, y: 650, home: 5, sleep: [21.5, 6] },
       { id: "luna", x: 1150, y: 880 }, { id: "trade_board", x: 1120, y: 560 }, { id: "auction_outpost", x: 894, y: 626 }, { id: "barber_outpost", x: 1085, y: 681 },
       { id: "garrick", x: 795, y: 1250, home: 7, sleep: [22, 6.5] },
@@ -1027,20 +1027,20 @@ const ZONES = {
     dummies: [[640, 210, 0.3], [640, 300, -0.2]], racks: [[690, 330, 0]],
     benches: [[880, 760, 1.57], [1120, 760, -1.57], [1000, 420, 0], [300, 640, 1.57]],
     paths: [
-      { w: 56, pts: [[100, 760], [1000, 760], [2000, 760], [2400, 760]] },
+      { w: 56, pts: [[300, 760], [1000, 760], [2000, 760], [2400, 760]] },
       { w: 44, pts: [[1000, 190], [1000, 1310]] },
       { w: 36, pts: [[880, 732], [894, 640]] },
       { w: 36, pts: [[300, 80], [300, 1440]] },
-      { w: 36, pts: [[1700, 120], [1700, 1400]] },
+      { w: 36, pts: [[1700, 250], [1700, 1270]] },
       { w: 36, pts: [[300, 250], [1700, 250]] },
-      { w: 36, pts: [[300, 1270], [1700, 1270]] }
+      { w: 36, pts: [[300, 1270], [1880, 1270]] }
     ],
     houses: [
       { x: 760, y: 150, w: 220, h: 110, type: "barracks", sign: "Barracks", flag: "#c0392b" }, { x: 1000, y: 120, w: 200, h: 110, type: "cityhall", floors: 3, flag: "#c0392b" }, { x: 1240, y: 150, w: 200, h: 110, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b" }, { x: 1260, y: 370, w: 150, h: 70, type: "hall", floors: 1, sign: "Job Master" },
       { x: 690, y: 560, w: 140, h: 100, type: "shop", sign: "Market Hall", awning: "#b5651d" }, { x: 1310, y: 560, w: 140, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" }, { x: 860, y: 565, w: 140, h: 90, type: "auction", sign: "Auction House", flag: "#c9a227" },
       { x: 700, y: 1370, w: 180, h: 100, type: "forge", floors: 1, sign: "Smithy", signCol: "#ff7a30" }, { x: 1000, y: 1380, w: 160, h: 100, type: "mill" }, { x: 1290, y: 1380, w: 200, h: 100, type: "warehouse", floors: 2 },
       { x: 200, y: 760, w: 110, h: 130, rot: 1, type: "home", tint: 0, floors: 2 }, { x: 180, y: 300, w: 150, h: 110, type: "home", floors: 3 }, { x: 430, y: 140, w: 130, h: 100, type: "home" }, { x: 180, y: 1100, w: 150, h: 110, type: "home" }, { x: 430, y: 1380, w: 140, h: 100, type: "home", floors: 3 }, { x: 440, y: 520, w: 110, h: 120, type: "home" },
-      { x: 1700, y: 1300, w: 140, h: 110, type: "home", sign: "Stables" }, { x: 1720, y: 160, w: 160, h: 110, type: "guard", flag: "#9aa0a8" },
+      { x: 1820, y: 1360, w: 140, h: 110, type: "home", sign: "Stables" }, { x: 1700, y: 160, w: 160, h: 110, type: "guard", flag: "#9aa0a8" },
       { x: 800, y: 390, w: 180, h: 70, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" }, { x: 1130, y: 1150, w: 160, h: 90, type: "hall", sign: "Woodworkers" }, { x: 1340, y: 1150, w: 140, h: 90, type: "hall", sign: "Alchemists", signCol: "#7ae0a0" }
     ],
     stalls: [{ x: 800, y: 690, color: "#b5651d" }, { x: 1200, y: 690, color: "#7b1fa2" }, { x: 1180, y: 960, color: "#2e7d32" }, { x: 1085, y: 690, color: "#c0392b", sign: "Barber", pole: true }],
@@ -1216,7 +1216,7 @@ ZONES.harbor = {
   ambient: [{ type: "gull", x: 900, y: 1080, n: 6, r: 300 }, { type: "cat", x: 300, y: 600, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 900, y: 560, n: 1, path: [[800, 460], [1000, 460], [1000, 660], [800, 660]] }, { type: "walker", x: 900, y: 1035, n: 1, path: [[200, 1035], [1600, 1035]] }],
   npcs: [
     { id: "ilsa", x: 820, y: 400, home: 0, sleep: [22, 6] }, { id: "marn", x: 300, y: 430, home: 7, sleep: [20.5, 4.5] },
-    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 990, y: 1050 }, { id: "trade_board", x: 760, y: 450 }, { id: "auction_harbor", x: 1088, y: 366 }, { id: "barber_harbor", x: 1240, y: 431 }, { id: "job_harbor", x: 1200, y: 560 }, { id: "stable_harbor", x: 1500, y: 640 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
+    { id: "crystal_harbor", x: 900, y: 560 }, { id: "ferry_harbor", x: 960, y: 1092 }, { id: "trade_board", x: 760, y: 450 }, { id: "auction_harbor", x: 1088, y: 366 }, { id: "barber_harbor", x: 1240, y: 431 }, { id: "job_harbor", x: 1200, y: 560 }, { id: "stable_harbor", x: 1420, y: 620 }, { id: "guard_north", x: 900, y: 120 }, { id: "guard_pass", x: 1700, y: 460 }
   ],
   spawns: [],
   water: [{ x: 300, y: 1520, r: 430 }, { x: 900, y: 1540, r: 440 }, { x: 1500, y: 1520, r: 430 }],
@@ -2401,9 +2401,9 @@ const VENDOR_POOL = {};
 for (const r in VENDOR_ROLES) VENDOR_POOL[r] = (r === "jeweler" ? VENDOR_SOURCE_JEWEL : VENDOR_SOURCE).filter(id => (ITEMS[id].lv || 0) <= (r === "jeweler" ? VENDOR_JEWEL_MAXLV : VENDOR_MAXLV) && VENDOR_ROLES[r].test(ITEMS[id]));
 const VENDOR_SHOP_LOOK = { armorer: { type: "forge", signCol: "#9aa4b0" }, weaponsmith: { type: "forge", signCol: "#ff7a30" }, tradesman: { type: "shop", awning: "#2e7d32" }, quartermaster: { type: "shop", awning: "#c0392b" }, spellsmith: { type: "shop", awning: "#7b1fa2", signCol: "#b388ff" }, jeweler: { type: "shop", awning: "#0277bd", signCol: "#7ad0ff" } };
 const VENDOR_TOWNS = {
-  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 700, y: 1176, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 890, y: 1186, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 1560, y: 690, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 696, y: 686, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1320, y: 686, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 1238, y: 846, w: 96, h: 72, sign: "Jewels", district: "market" } } },
-  harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, shops: { armorer: { x: 1360, y: 410, w: 120, h: 72, sign: "Armory", district: "yard" }, weaponsmith: { x: 1576, y: 430, w: 112, h: 72, sign: "Arms", district: "yard" }, tradesman: { x: 204, y: 430, w: 120, h: 72, sign: "Supplies", district: "fish" }, quartermaster: { x: 1076, y: 430, w: 112, h: 72, sign: "Provisions", district: "square" }, spellsmith: { x: 1100, y: 660, w: 100, h: 72, sign: "Scrolls", district: "square" }, jeweler: { x: 708, y: 590, w: 96, h: 72, sign: "Jewels", district: "square" } } },
-  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: { armorer: { x: 1610, y: 1120, w: 120, h: 72, sign: "Armory", district: "forge" }, weaponsmith: { x: 1470, y: 1120, w: 112, h: 72, sign: "Arms", district: "forge" }, tradesman: { x: 94, y: 420, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 686, y: 626, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1160, y: 110, w: 100, h: 72, sign: "Scrolls", district: "keep" }, jeweler: { x: 708, y: 786, w: 96, h: 72, sign: "Jewels", district: "market" } } }
+  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 700, y: 1176, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 890, y: 1186, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 1560, y: 690, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 720, y: 850, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1350, y: 870, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 1238, y: 846, w: 96, h: 72, sign: "Jewels", district: "market" } } },
+  harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, shops: { armorer: { x: 1620, y: 640, w: 120, h: 72, sign: "Armory", district: "yard" }, weaponsmith: { x: 1576, y: 430, w: 112, h: 72, sign: "Arms", district: "yard" }, tradesman: { x: 450, y: 590, w: 120, h: 72, sign: "Supplies", district: "fish" }, quartermaster: { x: 1076, y: 430, w: 112, h: 72, sign: "Provisions", district: "square" }, spellsmith: { x: 1100, y: 660, w: 100, h: 72, sign: "Scrolls", district: "square" }, jeweler: { x: 700, y: 600, w: 96, h: 72, sign: "Jewels", district: "square" } } },
+  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: { armorer: { x: 1490, y: 1280, w: 120, h: 72, sign: "Armory", district: "forge" }, weaponsmith: { x: 1470, y: 1120, w: 112, h: 72, sign: "Arms", district: "forge" }, tradesman: { x: 94, y: 420, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 686, y: 626, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 760, y: 290, w: 100, h: 72, sign: "Scrolls", district: "keep" }, jeweler: { x: 708, y: 786, w: 96, h: 72, sign: "Jewels", district: "market" } } }
 };
 const VENDOR_WORK = {};
 const TOWN_SERVICES = {
@@ -2577,20 +2577,156 @@ for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
   NPCS[sid] = { name: "District Signpost", prop: "sign", talk: "talkDistrictSign" };
   ZONES[zid].npcs.push({ id: sid, x: WARP_STONES[zid][did][0] + 60, y: WARP_STONES[zid][did][1] + 6 });
 }
+const GATE_HALF = 55;
+function cityWallRects(z) {
+  if (z._cwr) return z._cwr;
+  const out = [], T = 15;
+  for (const [x1, y1, x2, y2] of z.cityWalls || []) {
+    const horiz = y1 === y2, a = horiz ? Math.min(x1, x2) : Math.min(y1, y2), b = horiz ? Math.max(x1, x2) : Math.max(y1, y2);
+    const cuts = (z.gates || []).filter(g => !!g.horiz === horiz && (horiz ? Math.abs(g.y - y1) < 2 && g.x > a && g.x < b : Math.abs(g.x - x1) < 2 && g.y > a && g.y < b)).map(g => horiz ? g.x : g.y).sort((p, q) => p - q);
+    let st = a;
+    for (const c of cuts.concat([b + GATE_HALF])) {
+      const en = Math.min(b, c - GATE_HALF);
+      if (en - st > 4) out.push(horiz ? { x: st, y: y1 - T, w: en - st, h: T * 2 } : { x: x1 - T, y: st, w: T * 2, h: en - st });
+      st = c + GATE_HALF;
+    }
+  }
+  for (const g of z.gates || []) for (const sd of [-1, 1]) {
+    const cx = g.horiz ? g.x + sd * (GATE_HALF + 18) : g.x, cy = g.horiz ? g.y : g.y + sd * (GATE_HALF + 18);
+    out.push({ x: cx - 22, y: cy - 22, w: 44, h: 44, tower: true });
+  }
+  return z._cwr = out;
+}
+function segRect(x1, y1, x2, y2, r, pad) {
+  const dx = x2 - x1, dy = y2 - y1;
+  let t0 = 0, t1 = 1;
+  const p = [-dx, dx, -dy, dy], q = [x1 - (r.x - pad), r.x + r.w + pad - x1, y1 - (r.y - pad), r.y + r.h + pad - y1];
+  for (let i = 0; i < 4; i++) {
+    if (p[i] === 0) { if (q[i] < 0) return false; continue; }
+    const t = q[i] / p[i];
+    if (p[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
+  }
+  return true;
+}
+const HOUSE_DIRS = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+function houseDir(h) { return HOUSE_DIRS[(h.rot || 0) & 3]; }
+function houseAng(h) { return ((h.rot || 0) & 3) * Math.PI / 2; }
+function houseLocal(h) { return (h.rot || 0) % 2 ? { w: h.h, d: h.w } : { w: h.w, d: h.h }; }
+function houseDoor(h, off) { const [dx, dy] = houseDir(h); return { x: h.x + dx * (h.w / 2 + (off || 0)), y: h.y + dy * (h.h / 2 + (off || 0)) }; }
+function houseRect(h, x, y) { return { x: (x == null ? h.x : x) - h.w / 2, y: (y == null ? h.y : y) - h.h / 2, w: h.w, h: h.h }; }
+function inRect(x, y, r, pad) { return x > r.x - pad && x < r.x + r.w + pad && y > r.y - pad && y < r.y + r.h + pad; }
+function rectsHit(a, b, pad) { return a.x < b.x + b.w + pad && b.x < a.x + a.w + pad && a.y < b.y + b.h + pad && b.y < a.y + a.h + pad; }
+function roadGap(z, x, y, noLanes) {
+  let g = 1e9;
+  for (const p of z.paths || []) {
+    if (noLanes && p.lane) continue;
+    for (let i = 0; i < p.pts.length - 1; i++) {
+      const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L));
+      g = Math.min(g, Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t) - p.w / 2);
+    }
+  }
+  return g;
+}
+function rectOnRoad(z, r, pad, skip) {
+  for (const p of z.paths || []) {
+    if (p === skip) continue;
+    for (let i = 0; i < p.pts.length - 1; i++) if (segRect(p.pts[i][0], p.pts[i][1], p.pts[i + 1][0], p.pts[i + 1][1], r, p.w / 2 + pad)) return p;
+  }
+  return null;
+}
+function doorRay(z, h, rot, maxT) {
+  const [dx, dy] = HOUSE_DIRS[rot], fx = h.x + dx * h.w / 2, fy = h.y + dy * h.h / 2, T = maxT || 420;
+  const ex = fx + dx * T, ey = fy + dy * T, bx0 = Math.min(fx, ex), bx1 = Math.max(fx, ex), by0 = Math.min(fy, ey), by1 = Math.max(fy, ey);
+  const box = (x0, y0, x1, y1, p) => x1 + p >= bx0 && x0 - p <= bx1 && y1 + p >= by0 && y0 - p <= by1;
+  const segs = [];
+  for (const p of z.paths || []) for (let i = 0; i < p.pts.length - 1; i++) {
+    const a = p.pts[i], b = p.pts[i + 1];
+    if (box(Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1]), p.w / 2)) segs.push([a, b, p.w / 2]);
+  }
+  const rects = (z.houses || []).filter(o => o !== h).map(o => [houseRect(o), 2]).concat(cityWallRects(z).map(r => [r, 4])).filter(([r]) => box(r.x, r.y, r.x + r.w, r.y + r.h, 4));
+  for (let t = 2; t <= T; t += 4) {
+    const x = fx + dx * t, y = fy + dy * t;
+    for (const [a, b, r] of segs) {
+      const sx = b[0] - a[0], sy = b[1] - a[1], L = sx * sx + sy * sy || 1, u = Math.max(0, Math.min(1, ((x - a[0]) * sx + (y - a[1]) * sy) / L)), ex = x - a[0] - sx * u, ey = y - a[1] - sy * u;
+      if (ex * ex + ey * ey <= r * r) return { t, x, y };
+    }
+    if (x < 30 || y < 30 || x > z.w - 30 || y > z.h - 30) return null;
+    for (const [r, pad] of rects) if (inRect(x, y, r, pad)) return null;
+  }
+  return null;
+}
+function lotFree(z, h, x, y) {
+  const r = houseRect(h, x, y);
+  if (r.x < 40 || r.y < 40 || r.x + r.w > z.w - 40 || r.y + r.h > z.h - 40) return false;
+  if ((z.houses || []).some(o => o !== h && rectsHit(r, houseRect(o), 14))) return false;
+  if (cityWallRects(z).some(w => rectsHit(r, w, 12))) return false;
+  if ((z.stalls || []).some(s => rectsHit(r, { x: s.x - 26, y: s.y - 16, w: 52, h: 32 }, 8))) return false;
+  if ((z.gardens || []).some(g => rectsHit(r, { x: g.x - g.w / 2, y: g.y - g.h / 2, w: g.w, h: g.h }, 6))) return false;
+  const circ = (cx, cy, rad) => Math.hypot(Math.max(r.x - cx, 0, cx - r.x - r.w), Math.max(r.y - cy, 0, cy - r.y - r.h)) < rad;
+  for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) if (circ(q.x, q.y, q.r + 6)) return false;
+  for (const q of z.fountains || []) if (circ(q.x, q.y, 60)) return false;
+  for (const q of z.water || []) if (circ(q.x, q.y, q.r + 10)) return false;
+  return !rectOnRoad(z, r, 2);
+}
+const SHOP_FRONT = { lo: 46, hi: 80, tgt: 56 }, HOME_FRONT = { lo: 8, hi: 60, tgt: 24 };
+function frontage(z) {
+  const doorTied = h => (z.exits || []).some(e => e.kind === "door" && inRect(e.x + e.w / 2, e.y + e.h / 2, houseRect(h), 40));
+  for (const h of (z.houses || []).slice().sort((a, b) => (b.shop ? 1 : 0) - (a.shop ? 1 : 0))) {
+    if (h.fixed || doorTied(h)) { h.fixed = true; continue; }
+    let best = null;
+    for (let s = 0; s < 4; s++) {
+      const r = doorRay(z, h, s);
+      if (!r) continue;
+      const sc = r.t - (s === (h.rot || 0) ? 20 : 0);
+      if (!best || sc < best.sc) best = { s, sc };
+    }
+    if (best) h.rot = best.s;
+    const F = h.shop ? SHOP_FRONT : HOME_FRONT, r0 = doorRay(z, h, h.rot || 0);
+    if (!r0 || (r0.t >= F.lo && r0.t <= F.hi)) continue;
+    const [dx, dy] = houseDir(h), want = r0.t - F.tgt, sg = Math.sign(want);
+    for (let d = want; Math.abs(d) >= 4 && Math.sign(d) === sg; d -= sg * 4) {
+      if (lotFree(z, h, h.x + dx * d, h.y + dy * d)) { h.x += dx * d; h.y += dy * d; break; }
+    }
+  }
+  for (const h of z.houses || []) {
+    if (h.fixed) continue;
+    const r = doorRay(z, h, h.rot || 0), F = h.shop ? SHOP_FRONT : HOME_FRONT;
+    if (!r || r.t <= F.hi + 6) continue;
+    const [dx, dy] = houseDir(h), d0 = houseDoor(h);
+    z.paths.push({ w: 30, lane: true, pts: [[Math.round(d0.x), Math.round(d0.y)], [Math.round(r.x + dx * 10), Math.round(r.y + dy * 10)]] });
+  }
+  for (const h of z.houses || []) {
+    if (!h.shop) continue;
+    const n = z.npcs.find(q => q.id === h.shop);
+    if (!n) continue;
+    const [dx, dy] = houseDir(h), d0 = houseDoor(h, 34), lane = (z.paths || []).some(p => p.lane && Math.hypot(p.pts[0][0] - h.x - dx * h.w / 2, p.pts[0][1] - h.y - dy * h.h / 2) < 2);
+    const spots = (lane ? [26, -26, 0] : [0, 26, -26]).map(o => ({ x: Math.round(d0.x - dy * o), y: Math.round(d0.y + dx * o) }));
+    const at = spots.find(p => roadGap(z, p.x, p.y, !lane) >= 14 && !(z.stalls || []).some(s => Math.hypot(p.x - s.x, p.y - s.y) < 40)) || spots[0];
+    n.x = at.x; n.y = at.y; n.face = Math.atan2(dy, dx); n.shopFront = true;
+  }
+}
+for (const zid in ZONES) if (ZONES[zid].theme === "town" && !ZONES[zid].indoor && (ZONES[zid].houses || []).length) frontage(ZONES[zid]);
 const OFFROAD_PROPS = { sign: 1, board: 1, tablet: 1, brazier: 1, shrine: 1, lookout: 1, statue: 1 };
 function clearOfRoads(z, x, y, extra, plaza) {
-  for (const p of z.paths || []) for (let i = 0; i < p.pts.length - 1; i++) {
-    const a = p.pts[i], b = p.pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1;
-    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L));
-    if (Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t) < p.w / 2 + extra) return false;
+  if (x <= 60 || y <= 60 || x >= z.w - 60 || y >= z.h - 60) return false;
+  for (const p of z.paths || []) {
+    const rr = (p.w / 2 + extra) * (p.w / 2 + extra), pts = p.pts;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L)), ex = x - a[0] - dx * t, ey = y - a[1] - dy * t;
+      if (ex * ex + ey * ey < rr) return false;
+    }
   }
-  if (plaza) for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) if (Math.hypot(x - q.x, y - q.y) < q.r + extra) return false;
-  for (const h of z.houses || []) {
-    const sw = (h.rot || 0) % 2 ? h.h : h.w, sh = (h.rot || 0) % 2 ? h.w : h.h;
-    if (Math.abs(x - h.x) < sw / 2 + 28 && Math.abs(y - h.y) < sh / 2 + 28) return false;
+  if (plaza) for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) if ((x - q.x) * (x - q.x) + (y - q.y) * (y - q.y) < (q.r + extra) * (q.r + extra)) return false;
+  for (const h of z.houses || []) if (Math.abs(x - h.x) < h.w / 2 + 28 && Math.abs(y - h.y) < h.h / 2 + 28) return false;
+  if (z.cityWalls) for (const r of cityWallRects(z)) if (x > r.x - 20 && x < r.x + r.w + 20 && y > r.y - 20 && y < r.y + r.h + 20) return false;
+  for (const [ox, oy, fx, fy, hw] of z._fronts || (z._fronts = (z.houses || []).filter(h => h.trade).map(h => { const fd = houseDoor(h), [fx, fy] = houseDir(h); return [fd.x, fd.y, fx, fy, ((h.rot || 0) % 2 ? h.h : h.w) / 2 + 24]; }))) {
+    const al = (x - ox) * fx + (y - oy) * fy;
+    if (al > -4 && al < 124 && Math.abs((x - ox) * -fy + (y - oy) * fx) < hw) return false;
   }
-  for (const f of z.fountains || []) if (Math.hypot(x - f.x, y - f.y) < 90) return false;
-  return x > 60 && y > 60 && x < z.w - 60 && y < z.h - 60;
+  for (const f of z.fountains || []) if ((x - f.x) * (x - f.x) + (y - f.y) * (y - f.y) < 8100) return false;
+  return true;
 }
 function offRoadGroup(z, items, extra, plaza) {
   const ok = (dx, dy) => items.every(q => clearOfRoads(z, q.x + dx, q.y + dy, extra, plaza));
@@ -2607,7 +2743,8 @@ for (const zid in ZONES) {
   const grid = a => (a || []).forEach(q => { const at = { x: q[0], y: q[1] }; one(at, 24); q[0] = at.x; q[1] = at.y; });
   const folk = n => { const d = NPCS[n.id]; return d && !d.prop && !d.crystal && !d.warpstone; };
   const tables = (z.stalls || []).concat((z.props || []).filter(p => p.type === "desk"));
-  for (const t of tables) offRoadGroup(z, [t].concat(z.npcs.filter(n => folk(n) && Math.hypot(n.x - t.x, n.y - t.y) < 110)), 24);
+  for (const t of tables) offRoadGroup(z, [t].concat(z.npcs.filter(n => folk(n) && !n.shopFront && Math.hypot(n.x - t.x, n.y - t.y) < 110)), 24);
+  for (const n of z.npcs) if (folk(n) && !n.shopFront) one(n, 16);
   for (const n of z.npcs) if (NPCS[n.id] && NPCS[n.id].warpstone) one(n, 30, true);
   for (const n of z.npcs) {
     const d = NPCS[n.id];

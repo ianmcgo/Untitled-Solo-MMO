@@ -854,7 +854,7 @@ function buildTown(field, root) {
     if (hs.type) continue;
     const style = (hashStr(z.name + hi) % 3);
     const tg = new THREE.Group();
-    const tw = hs.w * U, td = hs.h * U, tH = 3.2, bwq = hs.rot ? td : tw, bdq = hs.rot ? tw : td;
+    const tH = 3.2, bwq = houseLocal(hs).w * U, bdq = houseLocal(hs).d * U;
     if (style !== 0) {
       const up = new THREE.Mesh(new THREE.BoxGeometry(bwq + 0.05, tH * 0.48, bdq + 0.05), plasterMat);
       up.position.y = 0.8 + tH * 0.76;
@@ -876,7 +876,7 @@ function buildTown(field, root) {
     const ch = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.6, 0.6), stoneMat); ch.position.set(bwq * 0.28, 0.8 + tH + 1.4, -bdq * 0.15); tg.add(ch);
     tg.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     tg.position.set(hs.x * U, field.heightAt(hs.x, hs.y) - 0.2, hs.y * U);
-    tg.rotation.y = hs.rot ? Math.PI / 2 : 0;
+    tg.rotation.y = houseAng(hs);
     root.add(tg);
     const rnd2 = seeded(hashStr(z.name + "props" + hi));
     for (let k = 0; k < 2 + Math.floor(rnd2() * 3); k++) {
@@ -892,9 +892,7 @@ function buildTown(field, root) {
   for (const hs of z.houses || []) {
     if (hs.type) continue;
     const g = new THREE.Group();
-    const w = hs.w * U, d = hs.h * U, wallH = 3.2;
-    const rot = hs.rot ? Math.PI / 2 : 0;
-    const bw = hs.rot ? d : w, bd = hs.rot ? w : d;
+    const wallH = 3.2, rot = houseAng(hs), bw = houseLocal(hs).w * U, bd = houseLocal(hs).d * U;
     const base = new THREE.Mesh(new THREE.BoxGeometry(bw, 0.8, bd), stoneMat);
     base.position.y = 0.4;
     const body = new THREE.Mesh(new THREE.BoxGeometry(bw - 0.1, wallH, bd - 0.1), wallMat);
@@ -1227,9 +1225,9 @@ function buildCityBuildings(field, root) {
   (z.houses || []).forEach((hs, idx) => {
     if (!hs.type) return;
     const T = CITY_TYPES[hs.type] || CITY_TYPES.home, rnd = seeded(hashStr(z.name + "cb" + idx));
-    const n = hs.floors || 2, bw = (hs.rot ? hs.h : hs.w) * U, bd = (hs.rot ? hs.w : hs.h) * U;
+    const n = hs.floors || 2, bw = houseLocal(hs).w * U, bd = houseLocal(hs).d * U;
     const gy = field.heightAt(hs.x, hs.y) - 0.2;
-    const B = new THREE.Matrix4().makeRotationY(hs.rot ? Math.PI / 2 : 0).setPosition(hs.x * U, gy, hs.y * U);
+    const B = new THREE.Matrix4().makeRotationY(houseAng(hs)).setPosition(hs.x * U, gy, hs.y * U);
     const tint = hs.tint != null ? hs.tint : Math.floor(rnd() * 4);
     const matOf = k => k === "stone" ? M.stone : k === "planks" ? M.planks : M.plaster[tint % 4];
     if (T.open) {

@@ -585,9 +585,10 @@ function zoneMapCanvas(zoneId) {
     g.strokeStyle = "rgba(190,230,255,.5)"; g.lineWidth = 3; g.stroke();
   }
   for (const h of z.houses || []) {
-    const w = h.rot ? h.h : h.w, hh = h.rot ? h.w : h.h;
+    const w = h.w, hh = h.h;
     g.fillStyle = "#4a2f22"; g.fillRect(h.x - w / 2, h.y - hh / 2, w, hh);
     g.strokeStyle = "#2a1a12"; g.lineWidth = 4; g.strokeRect(h.x - w / 2, h.y - hh / 2, w, hh);
+    if (h.type && !h.fixed) { const dr = houseDoor(h, 0), [dx, dy] = houseDir(h); g.fillStyle = "#e8c070"; g.fillRect(dr.x - (dy ? 14 : 4) + dx * 2, dr.y - (dx ? 14 : 4) + dy * 2, dy ? 28 : 8, dx ? 28 : 8); }
     if (h.shop && h.sign) { g.save(); g.fillStyle = "#f2e2b0"; g.font = "bold 24px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(h.sign, h.x, h.y); g.restore(); }
   }
   for (const s of z.stalls || []) { g.fillStyle = s.color; g.fillRect(s.x - 26, s.y - 14, 52, 28); }

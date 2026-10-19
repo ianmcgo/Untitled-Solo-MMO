@@ -1701,6 +1701,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.93.0", date: "2026-10-19", title: "Street fronts", items: [
+    "<b>Every door faces a street.</b> Buildings in Ashenreach Outpost, Saltreach Harbor and Ironvale can now face north, south, east or west, and each one turns to face its nearest street instead of a wall or a back garden.",
+    "<b>Vendors are out of the road.</b> All eighteen vendors now stand just beside their shop door, facing the street, with room to walk past. Shops that sat on or against a road were moved back to give them a proper storefront.",
+    "Buildings that sat on a road (the Outpost stables, guardhouse and city hall) were moved or the road trimmed. Doors set back from the street get a short footpath to it.",
+    "Several shops moved to better lots: Outpost Provisions and Scrolls (south side of the Market), Harbor Armory (east of the Shipwrights' road), Supplies and Jewels; Ironvale Armory (south of the Arms shop) and Scrolls (beside the Keep road).",
+    "Townsfolk, signposts, boards and warp stones no longer stand in the road, inside a building, against a city wall or in front of a shop window. Captain Rhea now waits beside the Barracks rather than on the street.",
+    "Vendors and other townsfolk turn back to face the street after you finish talking to them.",
+    "<b>Map:</b> each building's door is marked with a gold tick, and buildings turned east or west are now drawn the right shape."
+  ] },
   { v: "18.92.3", date: "2026-10-19", title: "Glute profile", items: [
     "<b>Buttocks reshaped in profile</b>: they now slope out from the waist to a full curve that sits lower, round under at the bottom and meet the back of the thigh in a soft fold, instead of tapering into the leg.",
     "The black back strap now stays visible all the way down the crease."
@@ -3493,12 +3502,13 @@ function tabHelp() {
     "Districts are joined by gate halls, arched passages between two towers. Each side flies banners in that district's colour: gold for the Market, blue for Government, green for Residential, rust for Industrial and grey for Eastgate.",
     "Walking into a district shows its name. Your first visit to each one counts as a discovery. The map (M) tints and labels each district and draws the walls and gates.",
     "When you click to walk somewhere in another district, you (and your companions) take the nearest gate hall automatically.",
+    "Every building faces a street: doors can point north, south, east or west, whichever way the nearest street lies. A door set back from the street has a short footpath out to it, and the map marks each door with a gold tick.",
     "Buildings carry signs: Barracks, Mercenary Hall, Job Master, Adventurers' Guild, Market Hall, Furnishings, Auction House, Smithy, Woodworkers, Alchemists and Stables. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day."
   ]));
   h += sec("🚶 City life", ul([
     "Every person in the cities and fields now stands at a fixed spot: no one wanders, spawns at random or patrols. Signposts beside the warp stones still point the way between districts. Only animals roam.",
     "<b>Strong potions:</b> X-Potions, Hi-Ethers, Super Ethers, Reraisers and Chapel Sigils are not sold. Undead and ghoul-type monsters drop them, and Alchemy recipes craft them from Hi-Potions, Ethers, Bone Chips, Silk Cloth and Reef Scales.",
-    "<b>Vendors:</b> every vendor stands at the door of their own small shop, facing the street, spread across the districts: smiths and tradesmen in the working districts, food, scrolls and jewellery near the markets. Each shop has a name board, a round hanging sign with its trade emblem (shield, sword, pick, flask, scroll, gem) and its wares outside: an armour stand and shield at the Armory, a weapon rack and anvil at the Arms shop, crates, sacks and tools at Supplies, barrels and a food table at Provisions, a lectern and glowing orb at Scrolls, a glass case of gems at Jewels. Shop names also show on the map. Every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. The Jeweler is the exception: he sells rings and necklaces up to level 11, since so few are level 5 or lower, but only 5 of those 10 are on his shelf each day. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
+    "<b>Vendors:</b> every vendor stands just beside the door of their own small shop, facing the street and clear of the road, spread across the districts: smiths and tradesmen in the working districts, food, scrolls and jewellery near the markets. Each shop has a name board, a round hanging sign with its trade emblem (shield, sword, pick, flask, scroll, gem) and its wares outside: an armour stand and shield at the Armory, a weapon rack and anvil at the Arms shop, crates, sacks and tools at Supplies, barrels and a food table at Provisions, a lectern and glowing orb at Scrolls, a glass case of gems at Jewels. Shop names also show on the map. Every town has six: an <b>Armorer</b>, a <b>Weaponsmith</b>, a <b>Tradesman</b> (gathering tools and raw materials), a <b>Quartermaster</b> (potions and food), a <b>Spellsmith</b> (scrolls) and a <b>Jeweler</b> (rings and necklaces). Each sells up to 10 items of level 5 or lower, which change every day and differ from town to town. The Jeweler is the exception: he sells rings and necklaces up to level 11, since so few are level 5 or lower, but only 5 of those 10 are on his shelf each day. Anything higher is at Haldor in Ironvale, the auction house, or from crafters and monsters.",
     "Tour quests: Hale the Tradesman (Outpost), Marn (Saltreach) and Brisa (Ironvale) pay you for walking through every district of their city."
   ]));
   h += sec("🌀 Warp stones", ul([

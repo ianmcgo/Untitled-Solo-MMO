@@ -3642,37 +3642,6 @@ function zoneRects(z) {
   return rects;
 }
 
-const GATE_HALF = 55;
-function cityWallRects(z) {
-  if (z._cwr) return z._cwr;
-  const out = [], T = 15;
-  for (const [x1, y1, x2, y2] of z.cityWalls || []) {
-    const horiz = y1 === y2, a = horiz ? Math.min(x1, x2) : Math.min(y1, y2), b = horiz ? Math.max(x1, x2) : Math.max(y1, y2);
-    const cuts = (z.gates || []).filter(g => !!g.horiz === horiz && (horiz ? Math.abs(g.y - y1) < 2 && g.x > a && g.x < b : Math.abs(g.x - x1) < 2 && g.y > a && g.y < b)).map(g => horiz ? g.x : g.y).sort((p, q) => p - q);
-    let st = a;
-    for (const c of cuts.concat([b + GATE_HALF])) {
-      const en = Math.min(b, c - GATE_HALF);
-      if (en - st > 4) out.push(horiz ? { x: st, y: y1 - T, w: en - st, h: T * 2 } : { x: x1 - T, y: st, w: T * 2, h: en - st });
-      st = c + GATE_HALF;
-    }
-  }
-  for (const g of z.gates || []) for (const sd of [-1, 1]) {
-    const cx = g.horiz ? g.x + sd * (GATE_HALF + 18) : g.x, cy = g.horiz ? g.y : g.y + sd * (GATE_HALF + 18);
-    out.push({ x: cx - 22, y: cy - 22, w: 44, h: 44, tower: true });
-  }
-  return z._cwr = out;
-}
-function segRect(x1, y1, x2, y2, r, pad) {
-  const dx = x2 - x1, dy = y2 - y1;
-  let t0 = 0, t1 = 1;
-  const p = [-dx, dx, -dy, dy], q = [x1 - (r.x - pad), r.x + r.w + pad - x1, y1 - (r.y - pad), r.y + r.h + pad - y1];
-  for (let i = 0; i < 4; i++) {
-    if (p[i] === 0) { if (q[i] < 0) return false; continue; }
-    const t = q[i] / p[i];
-    if (p[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
-  }
-  return true;
-}
 function gateHop(e, tx, ty) {
   const z = S.zone;
   if (!z || !z.gates || !z.cityWalls) return null;
@@ -4590,7 +4559,7 @@ function enterZone(id, x, y, opt) {
     if (fixed && fixed > Date.now()) { S.spawnAt[i] = S.time + (fixed - Date.now()) / 1000; return; }
     spawnMob(i);
   });
-  S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
+  S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: n.face != null ? n.face : Math.PI / 2, idleFace: n.face != null ? n.face : Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
   S.gatherAt = [];
   if (FEATURES.gathering && S.zone.gather) for (const type in S.zone.gather) {
     const g = S.zone.gather[type];
@@ -4625,7 +4594,7 @@ function enterZone(id, x, y, opt) {
 function npcDoor(n) {
   const hs = (S.zone.houses || [])[n.home];
   if (!hs) return null;
-  return hs.rot ? { x: hs.x + hs.w / 2 + 22, y: hs.y } : { x: hs.x, y: hs.y + hs.h / 2 + 22 };
+  return houseDoor(hs, 22);
 }
 function npcAsleep(n) {
   if (!n.sleep) return false;
@@ -4642,7 +4611,7 @@ function updateNpcs(dt) {
       if (n.away === on) { n.away = !on; if (on && n.only === "night" && dist(n, player) < 900) log(n.name.split(",")[0] + " sets up shop by lantern light.", "sys"); if (on && n.only === "sandstorm" && dist(n, player) < 1500) log("Something shimmers in the sandstorm to the south-west...", "sys"); if (!on && player.target === n) player.target = null; }
       continue;
     }
-    if (!n.sleep) continue;
+    if (!n.sleep) { if (!n.prop && !n.moving && n.idleFace != null && !(player.target === n && dist(n, player) < CONFIG.talkRange)) n.face += normAng(n.idleFace - n.face) * Math.min(1, dt * 4); continue; }
     const door = npcDoor(n);
     if (!door) continue;
     const asleep = npcAsleep(n);
@@ -4655,7 +4624,7 @@ function updateNpcs(dt) {
       if (n.away) { n.away = false; n.x = door.x; n.y = door.y; if (dist(n, player) < 700) log(n.name.split(",")[0] + " steps out for the day.", "sys"); }
       n.heading = false;
       if (dist(n, n.post) > 6) { n.moving = true; moveToward(n, n.post.x, n.post.y, dt, 4, 1); }
-      else { n.moving = false; if (Math.abs(normAng(n.face - Math.PI / 2)) > 0.05 && !(player.target === n && dist(n, player) < CONFIG.talkRange)) n.face += normAng(Math.PI / 2 - n.face) * Math.min(1, dt * 4); }
+      else { n.moving = false; if (Math.abs(normAng(n.face - n.idleFace)) > 0.05 && !(player.target === n && dist(n, player) < CONFIG.talkRange)) n.face += normAng(n.idleFace - n.face) * Math.min(1, dt * 4); }
     }
   }
 }

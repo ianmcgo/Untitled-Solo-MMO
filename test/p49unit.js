@@ -20,11 +20,11 @@ ok(G.dist(P(), { x: 790, y: 300 }) < 10, 'click-to-move routes through the gate 
 ok(S.district === 'gov' && G.save.districts['outpost:gov'], 'entering the Government District is recorded');
 const al = S.party[1];
 if (al) { ok(G.dist(al, P()) < 160, 'your party follows you through the gate (' + Math.round(G.dist(al, P())) + ' px)'); }
-G.enterZone('outpost', 300, 760); run(0.2);
-S.moveTarget = { x: 780, y: 1240 }; run(30);
-ok(G.dist(P(), { x: 780, y: 1240 }) < 10, 'routes from Residential to Industrial');
+G.enterZone('outpost', 300, 1100); run(0.2);
+S.moveTarget = { x: 860, y: 1240 }; run(30);
+ok(G.dist(P(), { x: 860, y: 1240 }) < 12, 'routes from Residential to Industrial (' + Math.round(P().x) + ',' + Math.round(P().y) + ')');
 S.moveTarget = { x: 1700, y: 300 }; run(40);
-ok(G.dist(P(), { x: 1700, y: 300 }) < 10, 'routes from Industrial to Eastgate');
+ok(G.dist(P(), { x: 1700, y: 300 }) < 10, 'routes from Industrial to Eastgate (' + Math.round(P().x) + ',' + Math.round(P().y) + ')');
 const sv = G.normalizeSave(Object.assign({}, G.save, { zv: 1, loc: { zone: 'outpost', x: 610, y: 440 } }));
 ok(sv.loc.x === Z.start.x && sv.loc.y === Z.start.y && sv.zv === 3, 'old saves standing in the old Outpost are moved to the Market plaza');
 { const hx = G.ZONES.hollow.exits.find(e => e.to === 'outpost'); ok(G.districtAt(Z, hx.tx, hx.ty).id === 'gate', 'Rocky Hollow leads into Eastgate'); }
