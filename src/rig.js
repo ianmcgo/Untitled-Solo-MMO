@@ -2070,7 +2070,7 @@ function humanEntryBase(L) {
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
     const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
-    const gA = 0.064 * gi, gcx = 0.079 * gi, gcy = hipJ - 0.03, gax = 0.1 * gi, gay = 0.056, gayU = 0.155, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
+    const gA = 0.064 * gi, gcx = 0.086 * gi, gcy = hipJ - 0.03, gax = 0.097 * gi, gay = 0.056, gayU = 0.155, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
     const zMod = (x, y, z) => {
       if (!gOn || z >= 0) return z;
       let dep = 0;
@@ -2084,7 +2084,7 @@ function humanEntryBase(L) {
       }
       return z - dep;
     };
-    const bump = (x, y) => { const z0 = -backAt(y); return z0 - zMod(x, y, z0); };
+    const bump = (x, y) => { const z0 = -backAt(y); return z0 - zMod(x, y, z0); }, bumpC = y => Math.max(bump(0, y), bump(0.009 * gi, y) * 0.9);
     const dens = rs => { if (!gOn) return rs; const out = []; for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; out.push(a); for (const f of [0.2, 0.4, 0.6, 0.8]) { const m = Object.assign({}, a); for (const k of ["y", "x", "z", "rx", "rz", "f", "b", "p"]) if (a[k] != null || b[k] != null) m[k] = (a[k] == null ? (k === "f" || k === "b" ? 1 : k === "p" ? 2.2 : 0) : a[k]) * (1 - f) + (b[k] == null ? (k === "f" || k === "b" ? 1 : k === "p" ? 2.2 : 0) : b[k]) * f; out.push(m); } } out.push(rs[rs.length - 1]); return out; };
     const sculpt = (g, kz, ex) => { if (!gOn) return g; const P = g.attributes.position; for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i); if (z >= 0) continue; const q = clamp((-z / Math.max(1e-5, Math.hypot(x * 0.7, z)) - 0.25) / 0.55, 0, 1), k = q * q * (3 - 2 * q), zm = zMod(x, y, z); P.setZ(i, z + (zm - z - (ex && zm < z - 0.0005 ? ex * Math.min(1, (z - zm) / 0.004) : 0)) * k); } g.computeVertexNormals(); return g; };
     const gW = (x, y, z) => { const base = tw(x, y); if (!gOn || z >= 0) return base; const k = clamp(bump(x, y) / gA, 0, 1) * 0.75; if (k < 0.02) return base; return base.map(([n, w]) => [n, w * (1 - k)]).concat([["glute" + (x >= 0 ? "L" : "R"), k]]); };
@@ -2101,7 +2101,7 @@ function humanEntryBase(L) {
     BODY.glute = null;
     if (gOn) {
       const cy0 = beltY - 0.035, cy1 = hipJ - 0.066, off = brief ? 0.011 : 0.006, cp = [];
-      for (let i = 0; i <= 6; i++) { const y = cy0 + (cy1 - cy0) * i / 6; cp.push(V3(0, y, -(backAt(y) + bump(0, y) + off))); }
+      for (let i = 0; i <= 6; i++) { const y = cy0 + (cy1 - cy0) * i / 6; cp.push(V3(0, y, -(backAt(y) + bumpC(y) + off))); }
       for (let i = 0; i < 6; i++) R.add(gTaper(cp[i], cp[i + 1], 0.0042 - i * 0.0002, 0.004 - i * 0.0002, 6, 0.6), "hips", 0x140a08, "plain");
       BODY.glute = { y: gcy, r: gA };
     }
@@ -2120,7 +2120,7 @@ function humanEntryBase(L) {
       for (const [a, b] of [[tri[0], tri[2]], [tri[1], tri[2]]]) uwStrand(R, uwPath(a, b, 6, (x, y) => fz(x, y) + 0.0015), 0.0022, "hips", UWK);
       const yb = hipJ - 0.08, bz = (y, x) => { const z = -uwFront(rsA, x || 0, y, true) - 0.004; return gOn ? zMod(x || 0, y, z) - 0.004 : z; };
       const yV = yBk - vDip, ty = []; for (let i = 0; i <= 14; i++) ty.push(yV + (hipJ - 0.072 - yV) * i / 14);
-      const back = ty.map(y => V3(0, y, BODY.glute ? -(backAt(y) + bump(0, y) + 0.0042) : bz(y)));
+      const back = ty.map(y => V3(0, y, BODY.glute ? -(backAt(y) + bumpC(y) + 0.0035) : bz(y)));
       uwStrand(R, [V3(0, ay, fz(0, ay)), V3(0, yb - 0.012, 0)].concat(back.slice().reverse()), 0.0032, "hips", 0x060507);
       for (const sx of [1, -1]) { const q = band.reduce((m, p) => sx * p.x > sx * m.x ? p : m, band[0]); uwBow(R, V3(q.x + sx * 0.002, q.y, q.z), V3(sx, 0, 0), 0.9 * gi, "hips", UWK); }
     }
