@@ -2424,3 +2424,7 @@ Zone exits: CONFIG.exitWalkTime 1.05, zoneFadeOut fades over 1.0 s. startExitWal
 Maris: NPC_LOOK.v_jeweler_outpost (end of rig.js, after RACE_BODY) is a Pipkin woman (baseFromLook race pipkin, build 1, face 3, puffs hair) in the jeweler coat.
 Boots: humanEntryBase boot shell needs at least one leg ring below bootTop (Pipkin legs have none), else the taper fallback.
 Glutes: upper profile fy = smoothstep(1 - ty)^0.55 (round dome, eases into the back), gcy hipJ - 0.02, gay 0.064, gayU 0.13.
+
+## 18.92.3 Glute profile (user reference: side outline should round under into a fold)
+rig.js: gcy hipJ - 0.03 (was - 0.02), gay 0.05, gayU 0.14; below centre fy = sqrt(1 - ty^2) (circular underside). BODY.sculptLeg (was null) insets the back of each thigh (+0.013 gi toward the front, weighted by back-facing angle around the leg centre at +-pr.hip) in a band peaking at foldY = gcy - 0.94 gay, so the buttock overhangs the thigh and leaves a fold.
+Back strap: rides at max(bumpC, 0.62 * bump(0.028 gi, y)) so it bridges partly out of the cleft and stays visible from behind.

@@ -1701,6 +1701,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.92.3", date: "2026-10-19", title: "Glute profile", items: [
+    "<b>Buttocks reshaped in profile</b>: they now slope out from the waist to a full curve that sits lower, round under at the bottom and meet the back of the thigh in a soft fold, instead of tapering into the leg.",
+    "The black back strap now stays visible all the way down the crease."
+  ] },
   { v: "18.92.2", date: "2026-10-19", title: "Anvils and zone runs", items: [
     "<b>Smiths have something to hammer:</b> every Armorer, Weaponsmith and Garrick now works at an anvil on a wooden stump with a glowing bar of metal and tongs, and the metal flares brighter each time the hammer lands.",
     "<b>Maris</b>, the Outpost jeweler, is now a Pipkin.",
