@@ -1699,6 +1699,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.85.0", date: "2026-10-19", title: "Fuller hips", items: [
+    "<b>Hips are about twice as wide and twice as tall</b> on female Human, Elari and Nekari bodies, and they are now shaped directly into the body surface, so they blend seamlessly into the lower back, sides and thighs with no visible join.",
+    "The dark crease line, thong strap, briefs and waistbands follow the new shape. Body physics still applies (Settings, Graphics, Body physics)."
+  ] },
   { v: "18.84.0", date: "2026-10-18", title: "Hips and body physics", items: [
     "<b>Rounder, fuller hips</b> on female Human, Elari and Nekari bodies, with a dark crease line down the middle. Underwear and legwear follow the new shape (the thong strap now sits in the crease). Hidden under robes, coats and armour skirts.",
     "<b>Body physics:</b> the bust and hips now bounce and settle softly as you walk, run, jump, land and swing. It is subtle, damped quickly when you stop, toned down under mail and off under plate.",

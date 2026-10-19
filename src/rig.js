@@ -556,7 +556,7 @@ class RigBuilder {
   }
   smoothJoints() {
     const J = { foreArm: [0.06, 0.5, 0.1], hand: [0.04, 0.5, 0.08], shin: [0.07, 0.5, 0.12], foot: [0.04, 0.45, 0.1], upArm: [0.07, 0.4, 0.11], thigh: [0.07, 0.4, 0.16], chest: [0.08, 0.45, 0.32], spine: [0.08, 0.5, 0.32], neck: [0.04, 0.4, 0.12], head: [0.045, 0.4, 0.14], tail: [0.06, 0.5, 0.1], cape: [0.06, 0.5, 0.3] };
-    const rigid = new Set(["lids", "saddle", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB", "hairTail2"].concat(this.rigidBones || []));
+    const rigid = new Set(["lids", "saddle", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB", "hairTail2", "gluteL", "gluteR", "bustL", "bustR"].concat(this.rigidBones || []));
     const kidsAll = this.defs.map(() => []);
     this.defs.forEach(d => { if (d.parent != null) kidsAll[d.parent].push(d.index); });
     const info = this.defs.map(d => {
@@ -636,7 +636,7 @@ class RigBuilder {
         let k = 0.87 + 0.18 * (0.5 + 0.5 * ny);
         k *= 0.86 + 0.14 * Math.min(1, h / 0.18);
         const bw = w.getY(i);
-        if (bw > 0.05) k *= 1 - 0.12 * Math.min(1, bw * 2);
+        if (bw > 0.05 && !(this.softBones && this.softBones.has(g.attributes.skinIndex.getY(i)))) k *= 1 - 0.12 * Math.min(1, bw * 2);
         c.setXYZ(i, c.getX(i) * k, c.getY(i) * k, c.getZ(i) * k);
       }
     }
@@ -666,6 +666,7 @@ class RigBuilder {
     this.attachIslands();
     if (this.defs.length > 1) { this.bridgeGaps(); this.smoothJoints(); }
     this.weldNormals();
+    this.softBones = new Set(this.defs.filter(d => /^(glute|bust)[LR]$/.test(d.name)).map(d => d.index));
     this.bakeShade();
     if (typeof window !== "undefined" && window.RIG_CHECK) this.meta.islands = this.findIslands();
     const main = this.pieces.length ? THREE.mergeGeometries(this.pieces) : null;
@@ -1982,36 +1983,50 @@ function humanEntryBase(L) {
     if (urs) upR0.forEach((r, i) => { if (i >= 2 && i <= 8) { const k = i <= 5 ? 1 : (9 - i) / 4; r.rz *= 1 + 0.16 * k; r.rx *= 1 - 0.05 * k; r.p = 1.95; } r.rx *= [1, 1, 1, 1, 1, 1, 1.03, 1.12, 1.22, 1.14, 1.06][i] || 1; });
     const upR = L.doll ? monoRings(dollUp) : upR0;
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
-    R.addW(gLoft(lowR, 24, true, false, 0, 0.3), "hips", robe ? topC : legC, robe ? topR : legR, tw);
-    R.addW(gLoft(upR, 24, false, false, 0.3, 1), "chest", topC, topR, tw);
+    const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
+    const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
+    const gA = 0.035 * gi, gcx = 0.075 * gi, gcy = hipJ - 0.012, gax = 0.088 * gi, gay = 0.058, gayU = 0.112, gaz = 0.07 * gi, gcz = -(backAt(gcy) + gA - gaz), gkb = 0.034;
+    const zMod = (x, y, z) => {
+      if (!gOn || z >= 0) return z;
+      let out = z;
+      for (const sx of [1, -1]) {
+        const u = Math.pow((x - sx * gcx) / gax, 2) + Math.pow((y - gcy) / (y > gcy ? gayU : gay), 2);
+        if (u >= 1) continue;
+        const zb = gcz - gaz * Math.sqrt(1 - u), h = clamp(0.5 + 0.5 * (zb - z) / gkb, 0, 1), sm = Math.min(z, zb * (1 - h) + z * h - gkb * h * (1 - h));
+        const f = clamp((1 - u) / 0.3, 0, 1), fe = f * f * (3 - 2 * f);
+        out = Math.min(out, z + (sm - z) * fe);
+      }
+      return out;
+    };
+    const bump = (x, y) => { const z0 = -backAt(y); return z0 - zMod(x, y, z0); };
+    const dens = rs => { if (!gOn) return rs; const out = []; for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; out.push(a); for (const f of [0.2, 0.4, 0.6, 0.8]) { const m = Object.assign({}, a); for (const k of ["y", "x", "z", "rx", "rz", "f", "b", "p"]) if (a[k] != null || b[k] != null) m[k] = (a[k] == null ? (k === "f" || k === "b" ? 1 : k === "p" ? 2.2 : 0) : a[k]) * (1 - f) + (b[k] == null ? (k === "f" || k === "b" ? 1 : k === "p" ? 2.2 : 0) : b[k]) * f; out.push(m); } } out.push(rs[rs.length - 1]); return out; };
+    const sculpt = (g, kz, ex) => { if (!gOn) return g; const P = g.attributes.position; for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i), z = P.getZ(i); if (z >= 0) continue; const q = clamp((-z / Math.max(1e-5, Math.hypot(x * 0.7, z)) - 0.25) / 0.55, 0, 1), k = q * q * (3 - 2 * q), zm = zMod(x, y, z); P.setZ(i, z + (zm - z - (ex && zm < z - 0.0005 ? ex * Math.min(1, (z - zm) / 0.004) : 0)) * k); } g.computeVertexNormals(); return g; };
+    const gW = (x, y, z) => { const base = tw(x, y); if (!gOn || z >= 0) return base; const k = clamp(bump(x, y) / gA, 0, 1) * 0.75; if (k < 0.02) return base; return base.map(([n, w]) => [n, w * (1 - k)]).concat([["glute" + (x >= 0 ? "L" : "R"), k]]); };
+    BODY.sculptLeg = null;
+    if (gOn) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) R.bone("glute" + sd, "hips", xs * gcx, gcy, gcz);
+    const lowL = dens(lowR), upL = gOn ? dens(upR.slice(0, 3)).slice(0, -1).concat(upR.slice(2)) : upR, sg = gOn ? 64 : 24;
+    R.addW(sculpt(gLoft(lowL, sg, true, false, 0, 0.3)), "hips", robe ? topC : legC, robe ? topR : legR, gW);
+    R.addW(sculpt(gLoft(upL, sg, false, false, 0.3, 1)), "chest", topC, topR, gW);
     const bR = 0.056 * gi, bY = chestY + 0.004, bZ = cz * 0.172 * 0.92, bX = 0.057 * gi;
     if (fem && !L.doll && !robe) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) { R.bone("bust" + sd, "chest", xs * bX, bY, bZ); R.add(gBall(V3(xs * bX, bY, bZ), bR, 0.98, 0.94, 0.96, 18), "bust" + sd, topC, topR); }
     BODY.up = upR; BODY.tw = tw; BODY.bust = fem && !L.doll && !robe ? { y: bY, front: bZ + bR * 0.96, r: bR } : null;
-    const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), UW0 = L.under || {}, brief = UW0.low === "boxer" || UW0.low === "brief";
-    const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
+    const UW0 = L.under || {}, brief = UW0.low === "boxer" || UW0.low === "brief";
     BODY.glute = null;
-    if (fem && !L.doll && !robe && !skirt) {
-      const gR = 0.072 * gi, gy = hipJ - 0.006, gx = 0.05 * gi, gz = -(backAt(gy) - gR * 0.8 + 0.017);
-      for (const [xs, sd] of [[1, "L"], [-1, "R"]]) {
-        R.bone("glute" + sd, "hips", xs * gx, gy, gz);
-        const gw = () => [["glute" + sd, 0.72], ["thigh" + sd, 0.28]];
-        R.addW(gBall(V3(xs * gx, gy, gz), gR, 0.94, 1.12, 0.8, 20), "glute" + sd, legC, legR, gw);
-        if (brief) R.addW(gBall(V3(xs * gx, gy, gz), gR + 0.006, 0.94, 1.12, 0.8, 20), "glute" + sd, 0xe6ded2, "plain", gw);
-      }
-      const cy0 = beltY - 0.045, cy1 = hipJ - 0.058, off = brief ? 0.0075 : 0.0016, cp = [];
-      for (let i = 0; i <= 4; i++) { const y = cy0 + (cy1 - cy0) * i / 4; cp.push(V3(0, y, -(backAt(y) + off))); }
-      for (let i = 0; i < 4; i++) R.add(gTaper(cp[i], cp[i + 1], 0.0034 - i * 0.0003, 0.0031 - i * 0.0003, 6, 0.55), "hips", 0x1a0f0c, "plain");
-      BODY.glute = { y: gy, r: gR };
+    if (gOn) {
+      const cy0 = beltY - 0.035, cy1 = hipJ - 0.066, off = brief ? 0.011 : 0.006, cp = [];
+      for (let i = 0; i <= 6; i++) { const y = cy0 + (cy1 - cy0) * i / 6; cp.push(V3(0, y, -(backAt(y) + bump(0, y) + off))); }
+      for (let i = 0; i < 6; i++) R.add(gTaper(cp[i], cp[i + 1], 0.0042 - i * 0.0002, 0.004 - i * 0.0002, 6, 0.6), "hips", 0x140a08, "plain");
+      BODY.glute = { y: gcy, r: gA };
     }
     const UW = L.under || {}, wht = 0xe6ded2;
     if (UW.low === "boxer" || UW.low === "brief") {
-      const sh = shellOf(lowR, 0.006);
-      R.addW(gLoft(sh, 24, true, false, 0, 0.3), "hips", wht, "plain", tw);
-      if (!urs) R.add(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "plain");
+      const sh = shellOf(lowL, 0.006);
+      R.addW(sculpt(gLoft(sh, sg, true, false, 0, 0.3)), "hips", wht, "plain", gW);
+      if (!urs) R.add(sculpt(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 44).scale(1, 1, hz / hx0 * 1.02), 0, 0.012), "hips", wht, "plain");
     } else if (UW.low === "thong") {
-      R.add(gRing(V3(0, beltY - 0.012, 0), hipR * hx0 + 0.004, 0.0055, "y", 22).scale(1, 1, hz / hx0 * 1.02), "hips", wht, "plain");
+      R.add(sculpt(gRing(V3(0, beltY - 0.012, 0), hipR * hx0 + 0.004, 0.0055, "y", 44).scale(1, 1, hz / hx0 * 1.02), 0, 0.01), "hips", wht, "plain");
       R.add(gBall(V3(0, hipJ - 0.005, hipR * hz * 0.96), 0.05, 1.15, 1.2, 0.22, 16), "hips", wht, "plain");
-      if (BODY.glute) { const ty = [beltY - 0.012, (beltY + hipJ) / 2 - 0.02, hipJ - 0.05]; for (let i = 0; i < 2; i++) R.add(gTaper(V3(0, ty[i], -(backAt(ty[i]) + 0.004)), V3(0, ty[i + 1], -(backAt(ty[i + 1]) + 0.004)), 0.007 - i * 0.0015, 0.0055 - i * 0.001, 6), "hips", wht, "plain"); }
+      if (BODY.glute) { const ty = [beltY - 0.012, beltY - 0.04, hipJ - 0.01, hipJ - 0.05]; for (let i = 0; i < 3; i++) R.add(gTaper(V3(0, ty[i], -(backAt(ty[i]) + bump(0, ty[i]) + 0.008)), V3(0, ty[i + 1], -(backAt(ty[i + 1]) + bump(0, ty[i + 1]) + 0.008)), 0.007 - i * 0.001, 0.006 - i * 0.001, 6), "hips", wht, "plain"); }
       else R.add(gTaper(V3(0, beltY - 0.012, -hipR * hz * 1.02), V3(0, hipJ - 0.05, -hipR * hz * 0.96), 0.007, 0.0045, 6), "hips", wht, "plain");
     }
     if (UW.top === "bikini") {
@@ -2148,13 +2163,13 @@ function humanEntryBase(L) {
       const dk = L.doll ? (fem ? 1.02 : 0.95) : 1, lr = (y, r, f, b) => ({ y, x: lx(y), z: lz(y), rx: r * gi * dk, rz: r * gi * dk, f: f || 1, b: b || 1, p: 2.1 });
       const legRings = L.doll ? [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.04, 0.081 * fk, 1.02, 1.04), lr(knee + 0.03, 0.068, 1.04, 1), lr(knee, 0.06, 1.08, 0.95), lr(knee - 0.035, 0.056, 1.02, 1.1), lr(ank + 0.045, 0.047, 1, 1.12), lr(ank + 0.01, 0.04)] : [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.05, 0.081 * fk, 1.02, 1.04), lr((hipJ + knee) / 2, 0.071 * fk, 1.04, 1), lr(knee + 0.06, 0.06), lr(knee + 0.015, 0.055, 1.08, 0.95), lr(knee - 0.03, 0.055, 1.02, 1.12), lr(knee - 0.1, 0.055, 1, 1.22), lr(knee - 0.19, 0.047, 1, 1.12), lr(ank + 0.08, 0.038), lr(ank + 0.02, 0.037)];
       const legW = (x, y) => y > hipJ ? [["thigh" + sd, 1 - 0.35 * smoothRange(hipJ, hipJ + 0.06, y)], ["hips", 0.35 * smoothRange(hipJ, hipJ + 0.06, y)]] : y < ank + 0.03 ? [["shin" + sd, 0.7], ["foot" + sd, 0.3]] : blendW(y, [[0, "shin" + sd, 0], [knee, "thigh" + sd, 0.04]]);
-      R.addW(gLoft(legRings.slice().reverse(), 18, true, false, 0, 1), "thigh" + sd, legC, legR, legW);
+      R.addW(BODY.sculptLeg ? BODY.sculptLeg(gLoft(legRings.slice().reverse(), 32, true, false, 0, 1)) : gLoft(legRings.slice().reverse(), 18, true, false, 0, 1), "thigh" + sd, legC, legR, legW);
       BODY["leg" + sd] = { rings: legRings, w: legW };
     }
     const LG = BODY["leg" + sd];
     if (LG && L.under && (L.under.low === "boxer" || L.under.low === "brief")) {
       const ub = shellOf(LG.rings.filter(r => r.y >= hipJ - (L.under.low === "boxer" ? 0.17 : 0.06)), 0.006 * gi);
-      if (ub.length > 1) R.addW(gLoft(ub.slice().reverse(), 18, false, false, 0, 1), "thigh" + sd, 0xf4f2ec, "cloth", LG.w);
+      if (ub.length > 1) R.addW(BODY.sculptLeg ? BODY.sculptLeg(gLoft(ub.slice().reverse(), 32, false, false, 0, 1)) : gLoft(ub.slice().reverse(), 18, false, false, 0, 1), "thigh" + sd, 0xf4f2ec, "cloth", LG.w);
     }
     if (L.boots != null) {
       if (LG) { const bs = shellOf(LG.rings.filter(r => r.y <= bootTop + 0.001), 0.008 * gi); bs.unshift(Object.assign({}, bs[0], { y: bootTop + 0.004, rx: bs[0].rx + 0.006, rz: bs[0].rz + 0.006 })); R.addW(gLoft(bs.slice().reverse(), 16, false, false, 0, 1), "shin" + sd, L.boots, "leather", LG.w); R.addW(gRing(V3(bs[0].x, bootTop + 0.004, bs[0].z), bs[0].rx, 0.011, "y", 16).scale(1, 1, bs[0].rz / bs[0].rx), "shin" + sd, L.boots, "leather", LG.w); }
