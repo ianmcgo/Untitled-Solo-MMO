@@ -2412,6 +2412,7 @@ function humanEntryBase(L) {
       }
     } else if (H.type === "hood") {
       R.add(gPartSphere(hp, hr * 1.2, 2.2, Math.PI * 0.75, 1, 1.05, 1.05, 18), "head", H.color, "cloth");
+      R.add(gPartSphere(hp, hr * 1.19, 0, Math.PI * 0.32, 1, 1.05, 1.05, 18), "head", H.color, "cloth");
       if (H.color2) R.add(gRing(V3(0, hc + hr * 0.05, hr * 0.66), hr * 1.0, 0.018, "z", 16, Math.PI * 1.24, [0, 0, -Math.PI * 0.12]), "head", H.color2, "trim");
       R.add(gBall(V3(0, neckY + 0.02, -0.08), 0.13, 1.2, 1.0, 0.6, 12), "head", H.color, "cloth");
     } else if (H.type === "pointy") {

@@ -1706,7 +1706,10 @@ const UPDATES = [
     "<b>Walking:</b> the hips rise and sway over the standing leg and drop on the swinging side, the shoulders roll the other way, and the arms swing properly from the shoulder.",
     "<b>Running:</b> elbows bend and pump, knees drive higher, the body leans further forward, and you dip on each landing and rise between strides instead of bobbing like a walk.",
     "<b>Starts, stops and turns:</b> you lean into setting off, rock back and settle when you stop, bank into curves while running, and the head turns into the turn first.",
-    "Applies to every race (each keeps its own style) and to townsfolk and humanoid monsters."
+    "Applies to every race (each keeps its own style) and to townsfolk and humanoid monsters.",
+    "<b>Townsfolk use the new face and hair choices</b> from character creation: every NPC and passer-by now gets one of the creation presets for their race (face, hairstyle and face details), keeping their own hair colour. Bald, hooded and helmeted NPCs keep their look.",
+    "<b>Hoods now cover the top of the head</b>, so hooded NPCs and players no longer show a bare scalp and stray fringe under the hood.",
+    "<b>Women's bodies:</b> a fuller bust (about 10% larger) set closer together with natural cleavage, and buttocks that curve out smoothly from the lower back, round fully from top to bottom in profile and tuck under at the fold instead of looking flat."
   ] },
   { v: "18.91.0", date: "2026-10-19", title: "New underwear and slimmer shoulders", items: [
     "<b>New women's underwear set</b>: a smoky black triangle bikini top with fine edge binding, a halter that ties in a bow behind the neck and a thin band that ties in a bow across the back, plus a matching string thong with a small front triangle, a bow on each hip and a waist string that rises to sit on the waist above the buttocks. Every race wears it, scaled to their build, including Pipkins.",
