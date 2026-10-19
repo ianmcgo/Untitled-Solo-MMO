@@ -2070,7 +2070,7 @@ function humanEntryBase(L) {
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
     const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
-    const gA = 0.064 * gi, gcx = 0.086 * gi, gcy = hipJ - 0.03, gax = 0.097 * gi, gay = 0.056, gayU = 0.155, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
+    const gA = 0.064 * gi, gcx = 0.086 * gi, gcy = hipJ - 0.02, gax = 0.097 * gi, gay = 0.064, gayU = 0.13, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
     const zMod = (x, y, z) => {
       if (!gOn || z >= 0) return z;
       let dep = 0;
@@ -2079,7 +2079,7 @@ function humanEntryBase(L) {
         if (sxk <= 0) continue;
         const up = y > gcy, ty = up ? (y - gcy) / gayU : (gcy - y) / gay;
         if (ty >= 1) continue;
-        const fy = up ? Math.pow(1 - ty * ty, 1.35) : Math.sqrt(1 - Math.pow(ty, 2.6));
+        const fy = up ? Math.pow(smoothRange(1, 0, ty), 0.55) : Math.sqrt(1 - Math.pow(ty, 2.6));
         dep = Math.max(dep, gA * Math.pow(sxk, 0.85) * fy);
       }
       return z - dep;
