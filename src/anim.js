@@ -360,6 +360,22 @@ function attackKind(v, e) {
   return "slash";
 }
 
+function gaitDynamics(v, e, an, P, amp, run, dt) {
+  if (!dt || e.alive === false || e.mounted || e.resting) { an.gAcc = 0; an.gBank = 0; return; }
+  const ry = v.group.rotation.y, dr = an.gRy == null ? 0 : normAngA(ry - an.gRy); an.gRy = ry;
+  const acc = clamp((an.spd - (an.gSpd == null ? an.spd : an.gSpd)) / Math.max(dt, 0.001), -30, 30); an.gSpd = an.spd;
+  const st = an.gst || (an.gst = {});
+  const lean = sprAx(st, "acc", clamp(acc * 0.022, -0.22, 0.2), dt, 70, 9);
+  const yr = Math.abs(dr) < 1 ? dr / Math.max(dt, 0.001) : 0;
+  const bank = sprAx(st, "bank", clamp(an.spd * yr / 9.8 * 0.5, -0.2, 0.2) * Math.min(1, amp * 2), dt, 60, 12);
+  an.gAcc = lean; an.gBank = bank;
+  addP(P, "spine", lean * 0.6, 0, 0); addP(P, "chest", lean * 0.3, 0, 0); addP(P, "head", -lean * 0.5, 0, 0);
+  addP(P, "upArmL", lean * 0.5 * (1 - an.fight), 0, 0); addP(P, "upArmR", lean * 0.5 * (1 - an.fight), 0, 0);
+  addP(P, "hips", 0, 0, -bank); addP(P, "spine", 0, 0, -bank * 0.35); addP(P, "head", 0, 0, bank * 0.6);
+  addP(P, "hips", 0, -clamp(yr * 0.05, -0.12, 0.12) * Math.min(1, amp * 2), 0); addP(P, "head", 0, clamp(yr * 0.09, -0.25, 0.25) * Math.min(1, amp * 2), 0);
+  if (lean < -0.02) v.rootOff[1] += lean * 0.06;
+}
+
 function turnInPlace(v, e, an, P, amp, dt) {
   const gy = v.group.rotation.y;
   if (an.tYaw == null) { an.tYaw = gy; an.tD = 0; an.tStep = -1; an.tQuiet = 0; }
@@ -392,6 +408,7 @@ function poseHuman(v, e, dt) {
   const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
   const fightT = (e.engaged || (isMob(e) && e.state === "combat")) && e.alive !== false ? 1 : 0;
   turnInPlace(v, e, an, P, amp, dt);
+  gaitDynamics(v, e, an, P, amp, run, dt);
   const hu = (v.meta && v.meta.hunch) || 0;
   if (hu && e.alive !== false) { addP(P, "spine", hu * 0.55, 0, 0); addP(P, "chest", hu * 0.45, 0, 0); addP(P, "neck", -hu * 0.45, 0, 0); addP(P, "head", -hu * 0.4, 0, 0); addP(P, "upArmL", hu * 0.3, 0, 0); addP(P, "upArmR", hu * 0.3, 0, 0); v.rootOff[1] -= hu * 0.08; }
   an.fight += (fightT - an.fight) * Math.min(1, dt * 6);
@@ -536,22 +553,28 @@ function poseHuman(v, e, dt) {
     addP(P, "thighL", s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp); addP(P, "thighR", -s1 * 0.78 * amp * legK, 0, s1 * 0.3 * side * amp);
     if (side > 0.05) { addP(P, "hips", 0, ms * 0.55 * side * amp, 0); addP(P, "chest", 0, -ms * 0.45 * side * amp, 0); }
     if (RG.roll) addP(P, "hips", 0, 0, s1 * RG.roll * amp);
+    const wk = walk * (1 - run), stK = 1 - 0.6 * side;
+    addP(P, "hips", 0, 0, c1 * 0.055 * wk * stK); addP(P, "chest", 0, 0, -c1 * 0.04 * wk * stK); addP(P, "head", 0, 0, -c1 * 0.015 * wk);
+    v.rootOff[0] += c1 * 0.012 * wk * stK;
     if (RG.arm !== 1) { addP(P, "upArmL", -s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); addP(P, "upArmR", s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); }
-    v.rootOff[1] += Math.abs(c1) * 0.035 * (RG.bob - 1) * amp;
     const kn = 1.0 + 0.35 * run;
     addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp * kneeK, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp * kneeK, 0, 0);
     addP(P, "footL", (-s1 * 0.22 + 0.3 * Math.max(0, -c1) * Math.max(0, s1)) * amp, 0, 0); addP(P, "footR", (s1 * 0.22 + 0.3 * Math.max(0, c1) * Math.max(0, -s1)) * amp, 0, 0);
-    const aa = Math.min(1, amp), armSwing = (an.fight > 0.5 ? 0.16 : 0.3 + 0.12 * run) * aa;
+    const aa = Math.min(1, amp), armSwing = an.fight > 0.5 ? 0.16 * aa : 0.4 * walk * (1 - run) + 0.55 * run;
     addP(P, "upArmL", -s1 * armSwing, 0, 0); addP(P, "upArmR", s1 * armSwing, 0, 0);
     const el = aa * (1 - an.fight * 0.6);
-    addP(P, "foreArmL", -0.4 * run - (0.12 + 0.2 * Math.max(0, s1)) * el, 0, 0); addP(P, "foreArmR", -0.4 * run - (0.12 + 0.2 * Math.max(0, -s1)) * el, 0, 0);
+    addP(P, "foreArmL", -0.95 * run * (1 - an.fight * 0.5) - (0.12 + 0.2 * Math.max(0, s1)) * el, 0, 0); addP(P, "foreArmR", -0.95 * run * (1 - an.fight * 0.5) - (0.12 + 0.2 * Math.max(0, -s1)) * el, 0, 0);
+    if (run > 0.01 && an.fight < 0.5) { addP(P, "upArmL", 0, s1 * 0.12 * run, -0.04 * run); addP(P, "upArmR", 0, s1 * 0.12 * run, 0.04 * run); }
     addP(P, "upArmL", 0, 0, 0.05 * amp); addP(P, "upArmR", 0, 0, -0.05 * amp);
     addP(P, "spine", lean * run + 0.05 * Math.abs(c1) * amp, s1 * 0.05 * amp, -s1 * 0.06 * amp);
     addP(P, "chest", -0.03 * Math.abs(c1) * amp, s1 * 0.08 * amp, s1 * 0.03 * amp);
     addP(P, "hips", 0, -s1 * 0.1 * amp, s1 * 0.07 * amp);
     addP(P, "neck", 0.04 * Math.abs(s1) * amp, -s1 * 0.06 * amp, 0);
     addP(P, "head", (0.07 * Math.abs(c1) - 0.04) * amp, -s1 * 0.09 * amp, -s1 * 0.04 * amp);
-    v.rootOff[1] += Math.abs(c1) * (st.hop ? 0.07 : 0.035) * amp - 0.03 * amp - 0.03 * run;
+    const ac = Math.abs(c1), bobK = (st.hop ? 2 : 1) * RG.bob;
+    v.rootOff[1] += (ac * 0.035 * walk * (1 - run) + (1 - ac) * 0.05 * run) * bobK - 0.03 * amp - 0.045 * run;
+    addP(P, "hips", 0.07 * run, 0, 0);
+    addP(P, "head", (ac * 0.03 * walk * (1 - run) - (1 - ac) * 0.04 * run) * bobK, 0, 0);
     const step = Math.floor(an.ph / Math.PI);
     if (step !== an.lastStep) { an.lastStep = step; if (run > 0.4 && e.alive !== false) fxFootstep(e, v); }
   }
@@ -1052,7 +1075,7 @@ function humanLegIK(v, an, w, run) {
   if (!IKQ.h) { IKQ.h = new THREE.Quaternion(); IKQ.inv = new THREE.Quaternion(); IKQ.q = new THREE.Quaternion(); IKQ.x = new THREE.Quaternion(); IKQ.v = new THREE.Vector3(); }
   const Lt = B.shinL.position.length(), Ls = B.footL.position.length(), L = Lt + Ls;
   const sc = v.scale || 1, S = strideEff(v, an.spd, true), rl = legRel(v);
-  const beta = 0.62 - 0.28 * run, D = beta * S / sc, lift = (0.06 + 0.1 * run) * (0.45 + 0.55 * rl) / sc;
+  const beta = 0.62 - 0.28 * run, D = beta * S / sc, lift = (0.06 + 0.17 * run) * (0.45 + 0.55 * rl) / sc, fl = 0.1 * (0.5 + 0.5 * rl) / sc, wk = 1 - run;
   const rest = B.root.userData.rest;
   const restHip = B.hips.position.y - (B.root.position.y - rest.y) + B.thighL.position.y, ank0 = restHip - L;
   IKQ.h.setFromEuler(B.hips.rotation); IKQ.inv.copy(IKQ.h).invert();
@@ -1061,8 +1084,9 @@ function humanLegIK(v, an, w, run) {
     const bp = beta * Math.PI;
     let z, y = 0, toe = 0;
     const zf = D * 0.42, zb = zf - D;
-    if (Math.abs(q) <= bp) { const st = (q + bp) / (2 * bp); z = zf - D * st; }
-    else { let u = (q - bp) / (2 * Math.PI - 2 * bp); if (u < 0) u += Math.PI / (Math.PI - bp); u = clamp(u, 0, 1); const e = u * u * (3 - 2 * u); z = zb + D * e; y = lift * Math.sin(Math.PI * u); toe = -0.25 * Math.sin(Math.PI * u); }
+    const off0 = 0.5 + 0.2 * run;
+    if (Math.abs(q) <= bp) { const st = (q + bp) / (2 * bp); z = zf - D * st; const hs = (0.3 * wk + 0.06) * (1 - smoothRange(0, 0.2, st)), ho = off0 * smoothRange(0.62 - 0.12 * run, 1, st); toe = -hs + ho; y = fl * Math.sin(ho); }
+    else { let u = (q - bp) / (2 * Math.PI - 2 * bp); if (u < 0) u += Math.PI / (Math.PI - bp); u = clamp(u, 0, 1); const e = u * u * (3 - 2 * u); z = zb + D * e; const rel = 1 - smoothRange(0, 0.35, u); y = Math.max(lift * Math.sin(Math.PI * u), fl * Math.sin(off0) * rel); toe = off0 * rel - 0.22 * Math.sin(Math.PI * u) * (1 - rel) - (0.3 * wk + 0.06) * smoothRange(0.65, 1, u); }
     const t = B["thigh" + sd], k = B["shin" + sd], f = B["foot" + sd];
     const hj = IKQ.v.copy(t.position).applyQuaternion(IKQ.h).add(B.hips.position).add(B.root.position).sub(rest);
     const dz = z - hj.z;
