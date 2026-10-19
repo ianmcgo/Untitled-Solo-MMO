@@ -1751,8 +1751,23 @@ function giveKeyItem(id) {
 }
 
 let GEAR_RESERVED = null;
+function lootJobOk(job, lv, id) {
+  const it = ITEMS[id];
+  if (!it || !job) return false;
+  if (/^scroll_/.test(id)) { const sp = SPELLS[id.slice(7)], need = sp && sp.jobs && sp.jobs[job]; return !!need && need <= lv; }
+  if (it.kind !== "equip") return true;
+  return (it.jobs === "ALL" || (it.jobs || []).includes(job)) && (it.lv || 1) <= lv;
+}
+function lootRestricted(id) { const it = ITEMS[id]; return !!it && (it.kind === "equip" || /^scroll_/.test(id)); }
+function lootAllowed(m, id) {
+  if (!lootRestricted(id)) return true;
+  if (m.fam.nm || m.fam.boss) return true;
+  return mobJobOk(m.fam) && lootJobOk(m.job, m.lv, id);
+}
+function mobDropsCrystals(m) { return !!m.fam.nm || !!m.fam.boss || mobJobOk(m.fam); }
+
 function gearDrop(m, mates) {
-  if (m.fam.boss || m.fam.nm || Math.random() >= 0.06) return;
+  if (m.fam.boss || m.fam.nm || !mobJobOk(m.fam) || !m.job || Math.random() >= 0.06) return;
   if (!GEAR_RESERVED) {
     GEAR_RESERVED = new Set();
     const scan = o => { if (typeof o === "string") GEAR_RESERVED.add(o); else if (Array.isArray(o)) o.forEach(scan); else if (o && typeof o === "object") for (const k in o) scan(o[k]); };
@@ -1760,7 +1775,7 @@ function gearDrop(m, mates) {
     for (const k in QUESTS) scan(QUESTS[k].reward);
     scan(BATTLEFIELD.rewards); scan(GUILD_SHOP);
   }
-  const c = GEAR_DROP_IDS.filter(id => !GEAR_RESERVED.has(id) && ITEMS[id].lv >= m.lv - 3 && ITEMS[id].lv <= m.lv + 1);
+  const c = GEAR_DROP_IDS.filter(id => !GEAR_RESERVED.has(id) && ITEMS[id].lv >= m.lv - 3 && ITEMS[id].lv <= m.lv + 1 && lootJobOk(m.job, m.lv, id));
   if (!c.length) return;
   lootGive(c[Math.floor(Math.random() * c.length)], mates);
 }
@@ -1774,6 +1789,7 @@ function dropLoot(m, mates) {
   mates = mates || [];
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
+    if (!lootAllowed(m, id)) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
     if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) continue;
@@ -1781,11 +1797,11 @@ function dropLoot(m, mates) {
     lootGive(id, mates);
   }
   gearDrop(m, mates);
-  if (Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
-    const pool = Object.values(SPELLS).filter(sp => ITEMS["scroll_" + sp.id] && sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3);
+  if (mobJobOk(m.fam) && m.job && Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
+    const pool = Object.values(SPELLS).filter(sp => ITEMS["scroll_" + sp.id] && sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3 && lootJobOk(m.job, m.lv, "scroll_" + sp.id));
     if (pool.length) lootGive("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, mates);
   }
-  const gr = m.fam.gil || (!m.fam.nm && !m.fam.boss && xpFor(m.lv, player.lv) > 0 ? CONFIG.mobGil : null);
+  const gr = !mobDropsCrystals(m) ? null : m.fam.gil || (!m.fam.nm && !m.fam.boss && xpFor(m.lv, player.lv) > 0 ? CONFIG.mobGil : null);
   if (gr) {
     const total = Math.round(rand(gr[0], gr[1]) * m.lv);
     const g = mates.length ? Math.floor(total / (1 + mates.length)) : total;

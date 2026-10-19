@@ -1699,6 +1699,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.86.0", date: "2026-10-19", title: "Drop rules", items: [
+    "<b>Gear, weapons and spell scrolls now drop only from notorious monsters, bosses and humanoid monsters</b> whose job and level could use the item. A monster never carries gear for another job or above its level.",
+    "<b>Crystals (money) drop only from humanoids, notorious monsters and bosses.</b> Beasts, plants, insects and bombs no longer pay crystals; essences and materials still drop as before.",
+    "Next step: rebalance the loot tables so beasts drop more materials and humanoids get job-themed gear."
+  ] },
   { v: "18.85.0", date: "2026-10-19", title: "Fuller hips", items: [
     "<b>Hips are about twice as wide and twice as tall</b> on female Human, Elari and Nekari bodies, and they are now shaped directly into the body surface, so they blend seamlessly into the lower back, sides and thighs with no visible join.",
     "The dark crease line, thong strap, briefs and waistbands follow the new shape. Body physics still applies (Settings, Graphics, Body physics)."
@@ -3559,7 +3564,7 @@ function tabHelp() {
     ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high-quality items", "5–10%"],
     ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques and gear", "30–35%"],
     ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
-  ]) + ul(["<b>Only notorious monsters drop equipment.</b> Regular monsters drop materials, consumables and (only while you carry the <b>City Blessing</b>) elemental essences; gear comes from NMs, quests and the armorer and weaponsmith.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
+  ]) + ul(["<b>Who drops what:</b> equipment, weapons and spell scrolls drop only from notorious monsters, bosses, and humanoid monsters (goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls) whose job and level could actually use the item. A goblin Black Mage can carry black magic and robes, a warrior orc axes and armour; none carries anything above its level. Beasts, plants, insects and the like drop only materials, food, potions and (only while you carry the <b>City Blessing</b>) elemental essences. <b>Crystals</b> (money) come only from humanoids, notorious monsters and bosses, so beasts pay nothing.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, auction house, home point"],
     ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],

@@ -1,5 +1,7 @@
 # Plan: who may drop gear, weapons and spell scrolls
 
+Status: phase 1 done in 18.86.0 (rule in dropLoot via lootAllowed, humanoid-only crystals, test/d1unit.js). Phase 2 open.
+
 Rule (user request): equipment, weapons and spell scrolls drop only from
 1. NMs and bosses, and
 2. humanoid monsters that could use the item: the monster's job and level meet the item's job and level requirement (a monster that could not equip or cast it never carries it).
