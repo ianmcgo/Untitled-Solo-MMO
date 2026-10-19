@@ -1701,6 +1701,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.92.1", date: "2026-10-19", title: "Fuller hips", items: [
+    "<b>Women's buttocks are fuller and rounder</b>: two clearly separate lobes that rise smoothly out of the lower back, stay round all the way down in profile and tuck under into a clean fold above the thigh.",
+    "<b>Thong:</b> the waist string now dips in a small V at the centre of the back, and a solid black string runs from the V all the way down between the buttocks and under, instead of disappearing partway."
+  ] },
   { v: "18.92.0", date: "2026-10-19", title: "Natural movement", items: [
     "<b>Heel to toe:</b> every step now lands on the heel, rolls flat and pushes off from the toes, so the back foot peels up off the ground instead of sliding flat.",
     "<b>Walking:</b> the hips rise and sway over the standing leg and drop on the swinging side, the shoulders roll the other way, and the arms swing properly from the shoulder.",
@@ -3369,7 +3373,7 @@ const UPDATES = [
     "Loading screens show a random character or monster from the game, slowly turning, with a line about it.",
     "The Rest tip and other loading tips mention that standing still only trickles.",
     "New characters start with only their race's clothes, a Turnip weapon for their job (Warrior sword, Thief knife, White Mage rod, Black Mage staff; not sold, auctioned, dropped or crafted), no helmet, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
-    "Take off body or leg armor and your character shows underwear: white boxers for men; for women a smoky black triangle bikini top that ties behind the neck and across the back, and a matching string thong with a small front triangle, bows on each hip and a waist string that sits on the waist above the buttocks. Each slot is independent."
+    "Take off body or leg armor and your character shows underwear: white boxers for men; for women a smoky black triangle bikini top that ties behind the neck and across the back, and a matching string thong with a small front triangle, bows on each hip, a waist string that sits on the waist above the buttocks and dips in a V at the back, and a black string running down between the buttocks. Each slot is independent."
   ] },
   { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [
     "A new dungeon under the Goblin Den's Bone Pit: entrance hall, Brazier Hall, the crossroads, the Sentinel's room to the north, the vault to the south and the throne room. Levels 9–12.",
