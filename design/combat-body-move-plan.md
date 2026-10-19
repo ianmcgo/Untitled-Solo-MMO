@@ -1,6 +1,6 @@
 # Combat interrupts, body and movement plan
 
-Status: planned (not started).
+Status: complete (18.90.0 to 18.92.0).
 
 ## Requests
 1. Fix the failing goblin tests.
@@ -49,3 +49,4 @@ Status: planned (not started).
 
 Phase 1 complete (18.90.0). Weapon skill TP-loss rule: default kept (lost only when the hit lands in the final quarter).
 Phase 2 complete (18.91.0). User change during phase 2: the back waist string sits on the waist above the buttocks.
+Phase 3 complete (18.92.0).

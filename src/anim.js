@@ -563,8 +563,8 @@ function poseHuman(v, e, dt) {
     const aa = Math.min(1, amp), armSwing = an.fight > 0.5 ? 0.16 * aa : 0.4 * walk * (1 - run) + 0.55 * run;
     addP(P, "upArmL", -s1 * armSwing, 0, 0); addP(P, "upArmR", s1 * armSwing, 0, 0);
     const el = aa * (1 - an.fight * 0.6);
-    addP(P, "foreArmL", -0.95 * run * (1 - an.fight * 0.5) - (0.12 + 0.2 * Math.max(0, s1)) * el, 0, 0); addP(P, "foreArmR", -0.95 * run * (1 - an.fight * 0.5) - (0.12 + 0.2 * Math.max(0, -s1)) * el, 0, 0);
-    if (run > 0.01 && an.fight < 0.5) { addP(P, "upArmL", 0, s1 * 0.12 * run, -0.04 * run); addP(P, "upArmR", 0, s1 * 0.12 * run, 0.04 * run); }
+    addP(P, "foreArmL", -0.85 * run * (1 - an.fight * 0.5) - (0.12 + 0.2 * Math.max(0, s1)) * el, 0, 0); addP(P, "foreArmR", -0.85 * run * (1 - an.fight * 0.5) - (0.12 + 0.2 * Math.max(0, -s1)) * el, 0, 0);
+    if (run > 0.01 && an.fight < 0.5) { addP(P, "upArmL", 0.2 * run, s1 * 0.12 * run, -0.04 * run); addP(P, "upArmR", 0.2 * run, s1 * 0.12 * run, 0.04 * run); }
     addP(P, "upArmL", 0, 0, 0.05 * amp); addP(P, "upArmR", 0, 0, -0.05 * amp);
     addP(P, "spine", lean * run + 0.05 * Math.abs(c1) * amp, s1 * 0.05 * amp, -s1 * 0.06 * amp);
     addP(P, "chest", -0.03 * Math.abs(c1) * amp, s1 * 0.08 * amp, s1 * 0.03 * amp);

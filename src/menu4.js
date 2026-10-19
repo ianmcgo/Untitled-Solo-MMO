@@ -1701,6 +1701,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.92.0", date: "2026-10-19", title: "Natural movement", items: [
+    "<b>Heel to toe:</b> every step now lands on the heel, rolls flat and pushes off from the toes, so the back foot peels up off the ground instead of sliding flat.",
+    "<b>Walking:</b> the hips rise and sway over the standing leg and drop on the swinging side, the shoulders roll the other way, and the arms swing properly from the shoulder.",
+    "<b>Running:</b> elbows bend and pump, knees drive higher, the body leans further forward, and you dip on each landing and rise between strides instead of bobbing like a walk.",
+    "<b>Starts, stops and turns:</b> you lean into setting off, rock back and settle when you stop, bank into curves while running, and the head turns into the turn first.",
+    "Applies to every race (each keeps its own style) and to townsfolk and humanoid monsters."
+  ] },
   { v: "18.91.0", date: "2026-10-19", title: "New underwear and slimmer shoulders", items: [
     "<b>New women's underwear set</b>: a smoky black triangle bikini top with fine edge binding, a halter that ties in a bow behind the neck and a thin band that ties in a bow across the back, plus a matching string thong with a small front triangle, a bow on each hip and a waist string that rises to sit on the waist above the buttocks. Every race wears it, scaled to their build, including Pipkins.",
     "<b>Women's shoulders are narrower</b> (about 13% on Humans, Elari and Nekari, 5% on Pipkins), with the upper chest tapering in to match. The waist, hips and bust are unchanged, and armour, robes and shoulder guards follow the new shoulder line.",
@@ -3500,7 +3507,7 @@ function tabHelp() {
   h += sec("🎮 Controls", ul([
     "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Config, Camera has separate Mouse and Keyboard switches for inverting horizontal (left and right) and vertical (up and down); the keyboard ones affect the arrow keys and Q and E.",
     "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
-    "Movement: you run at about 5 metres a second (more on roads and much more mounted). <b>Hold Shift to sprint</b> about 45% faster on foot; letting go returns you to a normal run. Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early.",
+    "Movement: you run at about 5 metres a second (more on roads and much more mounted). <b>Hold Shift to sprint</b> about 45% faster on foot; letting go returns you to a normal run. Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early. Characters move with a natural gait: feet stay planted, roll from heel to toe and push off, hips sway over the standing leg, arms swing (and pump with bent elbows at a run), the body leans forward as you set off, rocks back as you stop, and banks into turns.",
     "<b>Phone:</b> left thumb moves · drag elsewhere to look · pinch to zoom · tap a monster to target it and open its command menu on the left above the log (Attack/Disengage, Switch Target, Magic, Abilities, Items, Check); tap a person to talk; tap yourself for your own Magic, Abilities, Items and Heal.",
     "<b>Keyboard:</b> Shift+Tab cycles nearby objects (signposts, warp stones, crystals, shrines) even with monsters around · Monsters chase you until you leave the zone · Tab or clicking a monster targets it and opens its command menu; ↑ ↓ choose, Enter or → confirm, ← back, Esc close · Enter with a monster targeted opens the menu, with a person targeted talks, with nothing targeted starts typing in the log · WASD move · arrows or Q/E turn · V first person · <b>Tab</b> targets the nearest enemy (or the nearest person in town); press again within 2 s to cycle · F attack · Enter or E talk · Shift+Space jump · Space or Enter (nothing targeted) type in the log · R mount.",
     "<b>Menus:</b> in the auction house, shops, forge, guild, storage and other windows, ↑ ↓ ← → move the highlight over every row and button, the side card shows the highlighted item, and Enter picks it. Esc closes.",
