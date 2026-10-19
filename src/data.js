@@ -84,7 +84,7 @@ const CONFIG = {
   runSpeed: 100,
   sprintMul: 1.45,
   arriveGap: 95,
-  exitWalkTime: 0.75,
+  exitWalkTime: 1.05,
   walkInTime: 0.9,
   walkInEdge: 600,
   mobSpeedMul: 0.72,

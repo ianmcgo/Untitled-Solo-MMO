@@ -17,6 +17,34 @@ function destroyView(v) {
   if (v.pick) { v.pick.geometry.dispose(); v.pick.material.dispose(); }
   if (v.trail) { W3.fxRoot.remove(v.trail.mesh); v.trail.mesh.geometry.dispose(); v.trail.mesh.material.dispose(); }
   if (v.mount) { W3.scene.remove(v.mount.group); v.mount.mat.dispose(); }
+  if (v.anvilGlow) v.anvilGlow.dispose();
+}
+
+function anvilParts() {
+  if (VIEW.anvil) return VIEW.anvil;
+  const L = c => new THREE.MeshLambertMaterial({ color: c });
+  const horn = new THREE.ConeGeometry(0.045, 0.15, 10); horn.rotateZ(-Math.PI / 2);
+  return (VIEW.anvil = {
+    stump: new THREE.CylinderGeometry(0.13, 0.155, 1, 12), base: new THREE.BoxGeometry(0.26, 0.06, 0.16), waist: new THREE.BoxGeometry(0.13, 0.07, 0.09), face: new THREE.BoxGeometry(0.32, 0.055, 0.14), horn,
+    bar: new THREE.BoxGeometry(0.15, 0.022, 0.034), tongs: new THREE.BoxGeometry(0.2, 0.012, 0.012),
+    wood: L(0x5a3e28), iron: L(0x3c3e44), dark: L(0x26282c)
+  });
+}
+function addAnvil(group, meta) {
+  const P = anvilParts(), g = new THREE.Group(), top = Math.max(0.22, (meta.hipsY || 0.97) * 0.74), sh = top - 0.18;
+  const st = new THREE.Mesh(P.stump, P.wood); st.scale.y = sh; st.position.y = sh / 2; g.add(st);
+  const b = new THREE.Mesh(P.base, P.iron); b.position.y = sh + 0.03; g.add(b);
+  const w = new THREE.Mesh(P.waist, P.dark); w.position.y = sh + 0.095; g.add(w);
+  const f = new THREE.Mesh(P.face, P.iron); f.position.y = sh + 0.157; g.add(f);
+  const h = new THREE.Mesh(P.horn, P.iron); h.position.set(0.23, sh + 0.16, 0); g.add(h);
+  const gm = new THREE.MeshBasicMaterial({ color: 0xff7a20 });
+  const bar = new THREE.Mesh(P.bar, gm); bar.position.set(-0.02, sh + 0.196, 0.01); bar.rotation.y = 0.25; g.add(bar);
+  const tg = new THREE.Mesh(P.tongs, P.dark); tg.position.set(-0.17, sh + 0.2, 0.03); tg.rotation.y = 0.25; g.add(tg);
+  const k = (meta.hipsY || 0.97) / 0.97;
+  g.position.set(-0.13 * k, 0, 0.4 * k);
+  g.rotation.y = -0.25;
+  group.add(g);
+  return gm;
 }
 
 function blobGeo() { return VIEW.blobGeo || (VIEW.blobGeo = new THREE.PlaneGeometry(2, 2)); }
@@ -64,6 +92,7 @@ function viewFor(e) {
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
     style: styleFor(e), stride: inst.meta.race === "pipkin" ? 1.3 : inst.meta.race === "ursan" ? 1.65 : inst.meta.race === "elari" ? 1.55 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "rarab" ? 1.1 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.4, scale: s, mount: null, sink: 0
   };
+  if (e.kind === "npc" && (NPC_WORK[e.id] || VENDOR_WORK[e.id]) === "hammer" && kind === "human") v.anvilGlow = addAnvil(group, inst.meta);
   if (isMob(e) || e.buddy) v.an = null;
   if (e.buddy || e.ambient) { v.pick.visible = false; v.pick.userData.entity = null; }
   W3.scene.add(group);

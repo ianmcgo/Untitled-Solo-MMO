@@ -4432,7 +4432,7 @@ function exitEdgeAngle(ex, z) {
 }
 
 function startExitWalk(ex) {
-  const a = exitEdgeAngle(ex, S.zone);
+  const a0 = exitEdgeAngle(ex, S.zone), a = a0 != null ? a0 : player.mounted ? null : player.face || 0;
   if (a == null || typeof zoneFadeOut !== "function" || !player.alive) { enterZone(ex.to, ex.tx, ex.ty); return true; }
   S.exitWalk = { ex, a, t: 0 };
   S.moveTarget = null; S.chase = false; S.pendingTalk = null;
@@ -5024,7 +5024,7 @@ function step(dt) {
     if (onAsk && S.exitAsked !== onAsk) {
       S.exitAsked = onAsk;
       const ex = onAsk;
-      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; enterZone(ex.to, ex.tx, ex.ty); }, { yes: ex.yes || "Enter", no: "Not now", tag: "exit" });
+      gameConfirm(ex.label, ex.ask, () => { S.exitAsked = null; startExitWalk(ex); }, { yes: ex.yes || "Enter", no: "Not now", tag: "exit" });
     } else if (!onAsk && S.exitAsked && !circleRect(player, S.exitAsked, 40)) { S.exitAsked = null; if (typeof gameConfirmClose === "function") gameConfirmClose("exit"); }
   }
   S.lmTimer -= dt;

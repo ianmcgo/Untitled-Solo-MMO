@@ -442,7 +442,7 @@ function zoneFadeTo(op, secs) {
   if (!secs) void el.offsetWidth;
   el.style.opacity = op;
 }
-function zoneFadeOut() { VIEW.fadeIn = true; zoneFadeTo(1, 0.45); }
+function zoneFadeOut() { VIEW.fadeIn = true; zoneFadeTo(1, 1.0); }
 function prefetchZone(id) {
   if (!W3.renderer || typeof cacheGet !== "function") return;
   const key = "t|" + id + "|" + terrainSize();
