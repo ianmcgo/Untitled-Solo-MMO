@@ -947,6 +947,23 @@ function monoRings(rings) {
   return out;
 }
 
+function densCR(rs, a, b) {
+  const keys = ["y", "x", "z", "rx", "rz", "f", "b", "p"], dv = { y: 0, x: 0, z: 0, rx: 0, rz: 0, f: 1, b: 1, p: 2.2 }, m = rs.length, out = [];
+  const val = (r, k) => r[k] == null ? dv[k] : r[k];
+  for (let j = a; j < b; j++) {
+    const p0 = rs[Math.max(0, j - 1)], p1 = rs[j], p2 = rs[j + 1], p3 = rs[Math.min(m - 1, j + 2)];
+    out.push(p1);
+    for (const t of [0.2, 0.4, 0.6, 0.8]) {
+      const q = Object.assign({}, p1), t2 = t * t, t3 = t2 * t;
+      for (const k of keys) { const v0 = val(p0, k), v1 = val(p1, k), v2 = val(p2, k), v3 = val(p3, k); q[k] = 0.5 * (2 * v1 + (v2 - v0) * t + (2 * v0 - 5 * v1 + 4 * v2 - v3) * t2 + (3 * v1 - v0 - 3 * v2 + v3) * t3); }
+      if (ringYOut(q, p1, p2)) q.y = p1.y + (p2.y - p1.y) * t;
+      out.push(q);
+    }
+  }
+  out.push(rs[b]);
+  return out;
+}
+function ringYOut(q, a, b) { return (q.y - a.y) * (q.y - b.y) > 0; }
 function subdivRings(rings) {
   const keys = ["y", "x", "z", "rx", "rz", "f", "b", "p"], dv = { y: 0, x: 0, z: 0, rx: 0, rz: 0, f: 1, b: 1, p: 2.2 }, m = rings.length, out = [];
   const val = (r, k) => r[k] == null ? dv[k] : r[k];
@@ -2062,7 +2079,7 @@ function humanEntryBase(L) {
     const gW = (x, y, z) => { const base = tw(x, y); if (!gOn || z >= 0) return base; const k = clamp(bump(x, y) / gA, 0, 1) * 0.75; if (k < 0.02) return base; return base.map(([n, w]) => [n, w * (1 - k)]).concat([["glute" + (x >= 0 ? "L" : "R"), k]]); };
     BODY.sculptLeg = null;
     if (gOn) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) R.bone("glute" + sd, "hips", xs * gcx, gcy, gcz);
-    const lowL = dens(lowR), upL = gOn ? dens(upR.slice(0, 3)).slice(0, -1).concat(upR.slice(2)) : upR, sg = gOn ? 64 : 24;
+    const allR = lowR.concat(upR.slice(1)), nLo = lowR.length, lowL = gOn ? densCR(allR, 0, nLo - 1) : lowR, upL = gOn ? densCR(allR, nLo - 1, nLo + 1).concat(upR.slice(3)) : upR, sg = gOn ? 64 : 24;
     R.addW(sculpt(gLoft(lowL, sg, true, false, 0, 0.3)), "hips", robe ? topC : legC, robe ? topR : legR, gW);
     R.addW(sculpt(gLoft(upL, sg, false, false, 0.3, 1)), "chest", topC, topR, gW);
     const bR = 0.056 * gi, bY = chestY + 0.004, bZ = cz * 0.172 * 0.92, bX = 0.057 * gi;

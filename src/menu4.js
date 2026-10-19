@@ -3353,7 +3353,7 @@ const UPDATES = [
     "Loading screens show a random character or monster from the game, slowly turning, with a line about it.",
     "The Rest tip and other loading tips mention that standing still only trickles.",
     "New characters start with only their race's clothes, a Turnip weapon for their job (Warrior sword, Thief knife, White Mage rod, Black Mage staff; not sold, auctioned, dropped or crafted), no helmet, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
-    "Take off body or leg armor and your character shows underwear: white boxers for men, a white string thong and bikini top for women. Each slot is independent."
+    "Take off body or leg armor and your character shows underwear: white boxers for men; for women a smoky black triangle bikini top that ties behind the neck and across the back, and a matching string thong with a small front triangle, bows on each hip and a waist string that sits on the waist above the buttocks. Each slot is independent."
   ] },
   { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [
     "A new dungeon under the Goblin Den's Bone Pit: entrance hall, Brazier Hall, the crossroads, the Sentinel's room to the north, the vault to the south and the throne room. Levels 9–12.",
