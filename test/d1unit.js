@@ -28,11 +28,17 @@ ok(!G.lootAllowed(mk('goblin', 30, 'BLM'), sword), 'wrong job cannot');
 const nm = { fam: { nm: true, loot: [] }, lv: 1, job: null };
 ok(G.lootAllowed(nm, sword) && G.mobDropsCrystals(nm), 'named monsters can carry anything and drop crystals');
 G.enterZone('outpost');
-G.save.jobs.WAR.lv = 99; G.refreshPlayer(true);
+G.save.jobs.WAR.lv = 15; G.refreshPlayer(true);
 const stats = (m, n) => { let items = 0, gil = 0; for (let i = 0; i < n; i++) { G.save.inventory = []; const g0 = G.save.gil; G.dropLoot(m, []); items += G.save.inventory.filter(s => restricted(s.id)).length; gil += G.save.gil - g0; } return { items, gil }; };
 G.CONFIG.scrollDrop = 1;
 const sb = stats(beast, 400);
 ok(sb.items === 0 && sb.gil === 0, 'four hundred beast kills: no gear, scrolls or crystals (' + sb.items + ',' + sb.gil + ')');
+let tro = 0; for (let i = 0; i < 400; i++) { G.save.inventory = []; G.dropLoot(beast, []); tro += G.save.inventory.filter(x => /^trophy_/.test(x.id)).length; }
+ok(tro > 100 && tro < 300, 'beasts drop trade goods instead (' + tro + ' in 400)');
+ok(G.trophyFor(beast).id === 'trophy_hide_3' && G.trophyFor(mk('hill_lizard', 5, null)).id === 'trophy_hide_1' && G.trophyFor(mk('bomb', 12, null)).id === 'trophy_core_2', 'trade goods match the beast and its level');
+ok(!G.trophyFor(mk('goblin', 20, 'WAR')) && !G.trophyFor(nm), 'humanoids and named monsters drop no trade goods');
+ok(Object.keys(G.ITEMS).filter(id => /^trophy_/.test(id)).every(id => G.sellPrice(id) > 0 && G.ahTradable(id)), 'trade goods sell to shops and the auction house');
+for (const [k, f] of Object.entries(FAM)) if (!f.nm && !f.boss && !f.summoned && !G.mobJobOk(f) && f.model && !G.TROPHY_KIND[f.model]) ok(false, 'trade good kind for ' + k + ' model ' + f.model);
 const sh = stats(mk('orc_grunt', 20, 'WAR'), 400);
 ok(sh.gil > 0, 'humanoid kills pay crystals');
 let bad = 0, got = 0;

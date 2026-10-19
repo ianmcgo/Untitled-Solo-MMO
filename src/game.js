@@ -1765,9 +1765,17 @@ function lootAllowed(m, id) {
   return mobJobOk(m.fam) && lootJobOk(m.job, m.lv, id);
 }
 function mobDropsCrystals(m) { return !!m.fam.nm || !!m.fam.boss || mobJobOk(m.fam); }
+function trophyFor(m) {
+  const f = m.fam;
+  if (f.nm || f.boss || f.summoned || m.petOf || mobJobOk(f)) return null;
+  const kind = TROPHY_KIND[f.model] || "hide", ti = TROPHY_TIERS.findIndex(t => m.lv >= t.lo && m.lv <= t.hi);
+  if (ti < 0) return null;
+  const t = TROPHY_TIERS[ti], u = t.hi > t.lo ? Math.min(1, (m.lv - t.lo) / (t.hi - t.lo)) : 1;
+  return { id: "trophy_" + kind + "_" + (ti + 1), chance: t.c[0] + (t.c[1] - t.c[0]) * u };
+}
 
 function gearDrop(m, mates) {
-  if (m.fam.boss || m.fam.nm || !mobJobOk(m.fam) || !m.job || Math.random() >= 0.06) return;
+  if (m.fam.boss || m.fam.nm || !mobJobOk(m.fam) || !m.job || Math.random() >= CONFIG.gearDropHum) return;
   if (!GEAR_RESERVED) {
     GEAR_RESERVED = new Set();
     const scan = o => { if (typeof o === "string") GEAR_RESERVED.add(o); else if (Array.isArray(o)) o.forEach(scan); else if (o && typeof o === "object") for (const k in o) scan(o[k]); };
@@ -1797,6 +1805,8 @@ function dropLoot(m, mates) {
     lootGive(id, mates);
   }
   gearDrop(m, mates);
+  const tr = trophyFor(m);
+  if (tr && xpFor(m.lv, player.lv) > 0 && Math.random() < tr.chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) lootGive(tr.id, mates);
   if (mobJobOk(m.fam) && m.job && Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
     const pool = Object.values(SPELLS).filter(sp => ITEMS["scroll_" + sp.id] && sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3 && lootJobOk(m.job, m.lv, "scroll_" + sp.id));
     if (pool.length) lootGive("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, mates);

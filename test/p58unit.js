@@ -13,7 +13,7 @@ ok(G.GEAR_DATA.lgn_staff.src === 'drop' && G.GEAR_DATA.ryl_ftm_tunic.src === 'dr
 const c = G.mobCurve(20), c1 = G.mobCurve(1);
 ok(c.hp < 0.8 && c.att < 0.9 && c1.hp === 1, 'the monster curve weakens high-level monsters and leaves level 1 alone');
 G.save.gil = 0; const m = G.buildMob('hill_lizard', P().lv, P().x + 20, P().y, null); m.alive = false; G.dropLoot(m, []);
-ok(G.save.gil > 0, 'a non-beastman monster that gives XP drops crystals');
+ok(G.save.gil === 0, 'a beast that gives XP drops no crystals (drop rules)');
 const ag = G.autoGear('RNG', 12, 'dd');
 ok(ag.ranged && G.ITEMS[ag.ranged].wtype === 'archery' && ag.ammo && ag.main, 'companion rangers get a bow, ammo and a melee weapon');
 G.save.jobsUnlocked.RNG = true; G.save.jobs.RNG.lv = 12; G.setJob('RNG', null);

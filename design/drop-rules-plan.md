@@ -1,6 +1,6 @@
 # Plan: who may drop gear, weapons and spell scrolls
 
-Status: phase 1 done in 18.86.0 (rule in dropLoot via lootAllowed, humanoid-only crystals, test/d1unit.js). Phase 2 open.
+Status: complete. Phase 1 in 18.86.0 (rule in dropLoot via lootAllowed, humanoid-only crystals, test/d1unit.js). Phase 2 in 18.87.0 (beast trade goods, humanoid crystal and gear rates; numbers in design.md).
 
 Rule (user request): equipment, weapons and spell scrolls drop only from
 1. NMs and bosses, and

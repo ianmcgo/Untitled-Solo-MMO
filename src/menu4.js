@@ -1129,6 +1129,8 @@ function dbBeasts() {
     if (b.kills >= need) {
       const weak = Object.keys(f.weak || {});
       const loot = (f.loot || []).map(([id]) => ITEMS[id] ? ITEMS[id].name : id);
+      if (!f.nm && !f.boss && mobJobOk(f)) loot.push("crystals", "gear and scrolls its job can use");
+      else if (!f.nm && !f.boss && !f.summoned) loot.push("trade " + ({ hide: "hides", chitin: "chitin", fibre: "fibre", scale: "scales", core: "cores" }[TROPHY_KIND[f.model] || "hide"]));
       body += '<div class="sub">Weak to: ' + (weak.length ? weak.join(", ") : "nothing in particular") + "</div>";
       body += '<div class="sub">Known to carry: ' + esc(loot.join(", ")) + "</div>";
     } else if (b.kills >= 1) body += '<div class="sub">Defeat ' + (need - b.kills) + " more to learn its weaknesses and spoils.</div>";
@@ -1699,6 +1701,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.87.0", date: "2026-10-19", title: "Trade goods", items: [
+    "<b>Beasts now drop trade goods</b>: hides, chitin, fibre, scales or elemental cores depending on the creature, in four grades by level (Coarse, Fine, Choice, Prime). Sell them to any shop or on the auction house. This replaces the crystals beasts used to pay.",
+    "<b>Humanoid monsters pay more crystals</b> and drop job-matched gear a little more often, so they are now the best source of money and equipment.",
+    "Overall income per kill is about the same at low levels and around a quarter lower at levels 15 to 20; humanoid camps pay about what they did before.",
+    "The bestiary now lists trade goods for beasts, and crystals plus job gear for humanoids."
+  ] },
   { v: "18.86.0", date: "2026-10-19", title: "Drop rules", items: [
     "<b>Gear, weapons and spell scrolls now drop only from notorious monsters, bosses and humanoid monsters</b> whose job and level could use the item. A monster never carries gear for another job or above its level.",
     "<b>Crystals (money) drop only from humanoids, notorious monsters and bosses.</b> Beasts, plants, insects and bombs no longer pay crystals; essences and materials still drop as before.",
@@ -3564,7 +3572,7 @@ function tabHelp() {
     ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high-quality items", "5–10%"],
     ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques and gear", "30–35%"],
     ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
-  ]) + ul(["<b>Who drops what:</b> equipment, weapons and spell scrolls drop only from notorious monsters, bosses, and humanoid monsters (goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls) whose job and level could actually use the item. A goblin Black Mage can carry black magic and robes, a warrior orc axes and armour; none carries anything above its level. Beasts, plants, insects and the like drop only materials, food, potions and (only while you carry the <b>City Blessing</b>) elemental essences. <b>Crystals</b> (money) come only from humanoids, notorious monsters and bosses, so beasts pay nothing.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
+  ]) + ul(["<b>Who drops what:</b> equipment, weapons and spell scrolls drop only from notorious monsters, bosses, and humanoid monsters (goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls) whose job and level could actually use the item. A goblin Black Mage can carry black magic and robes, a warrior orc axes and armour; none carries anything above its level. Beasts, plants, insects and the like drop only materials, food, potions, <b>trade goods</b> and (only while you carry the <b>City Blessing</b>) elemental essences. <b>Crystals</b> (money) come only from humanoids, notorious monsters and bosses.", "<b>Trade goods:</b> beasts drop hides, chitin, fibre, scales or elemental cores, depending on the creature. They come in four grades by the monster's level (Coarse, Fine, Choice, Prime; cores go Dim, Glowing, Bright, Radiant). Tougher monsters within a grade drop them more often. They exist to be sold to any shop or on the auction house, and are how beast hunting pays. Monsters too weak to give experience drop none.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, auction house, home point"],
     ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],
