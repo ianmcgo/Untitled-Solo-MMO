@@ -65,7 +65,7 @@ ok(ph.state === 'combat', 'but fights back when attacked');
 G.enterZone('hollow_lake', 600, 1800); run(0.5);
 const gw = S.mobs.find(m => !m.passive && m.famKey === 'goblin');
 for (const m of S.mobs) if (m !== gw) m.alive = false;
-gw.state = 'idle'; gw.face = 0; P().x = gw.x + 120; P().y = gw.y + 40; run(0.3);
+gw.state = 'idle'; gw.face = 0; P().x = gw.x + 45; P().y = gw.y + 20; run(0.3);
 ok(gw.state === 'combat', 'a goblin aggroes on sight');
 let minD = 1e9; for (let i = 0; i < S.mobs.length; i++) for (let j = i + 1; j < S.mobs.length; j++) { const d = Math.hypot(S.mobs[i].home.x - S.mobs[j].home.x, S.mobs[i].home.y - S.mobs[j].home.y); if (d < minD) minD = d; }
 ok(minD >= 150, 'spawn points are at least 150 px apart (' + Math.round(minD) + ')');

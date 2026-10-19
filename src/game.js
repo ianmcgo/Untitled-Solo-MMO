@@ -1420,6 +1420,32 @@ function aggro(m, t) {
 
 function touch(e) { if (isParty(e)) e.stillSince = S.time; }
 
+function classicInterrupt() { return typeof VIEW !== "undefined" && VIEW.settings && !!VIEW.settings.classicInterrupt; }
+function physRule(opt) { return !!(opt && opt.phys) && !classicInterrupt(); }
+
+function aquaveilAbsorbs(e) {
+  if (!e.buffs || !e.buffs.aquaveil) return false;
+  e.buffs.aquaveil.n--;
+  popText(e, "Aquaveil", "#4fc3f7", 12, 0.9, 12);
+  if (e.buffs.aquaveil.n <= 0) delete e.buffs.aquaveil;
+  return true;
+}
+
+function physInterrupt(e) {
+  if (e.proxy) return;
+  if (e.casting) {
+    if (isMob(e) ? Math.random() < CONFIG.mobPhysInterrupt : !aquaveilAbsorbs(e)) interruptCast(e);
+  }
+  if (e.winding) interruptWind(e);
+  if (isMob(e) && e.readying && Math.random() < CONFIG.readyInterrupt) {
+    const mn = mobMoveName(e);
+    e.readying = null;
+    log("The " + e.name + "'s " + mn + " is interrupted!", "you");
+    popText(e, "Interrupted", "#bbbbbb", 12, 0.9, 14);
+    sfx("interrupt", e);
+  }
+}
+
 function applyDamage(src, tgt, amt, opt) {
   opt = opt || {};
   if (!tgt.alive) return;
@@ -1459,9 +1485,10 @@ function applyDamage(src, tgt, amt, opt) {
     touch(tgt);
     if (amt > 0 && tgt.resting && src && isMob(src)) standUp(tgt, tgt !== player);
     if (tgt.mounted) dismount("You're thrown from the saddle!");
-    if (tgt.casting && Math.random() < CONFIG.interruptChance) { if (tgt.buffs.aquaveil) { tgt.buffs.aquaveil.n--; popText(tgt, "Aquaveil", "#4fc3f7", 12, 0.9, 12); if (tgt.buffs.aquaveil.n <= 0) delete tgt.buffs.aquaveil; } else interruptCast(tgt); }
+    if (tgt.casting && !physRule(opt) && Math.random() < CONFIG.interruptChance) { if (tgt.buffs.aquaveil) { tgt.buffs.aquaveil.n--; popText(tgt, "Aquaveil", "#4fc3f7", 12, 0.9, 12); if (tgt.buffs.aquaveil.n <= 0) delete tgt.buffs.aquaveil; } else interruptCast(tgt); }
   }
-  if (isMob(tgt) && tgt.casting && amt > 0 && Math.random() < 0.3) interruptCast(tgt);
+  if (isMob(tgt) && tgt.casting && amt > 0 && !physRule(opt) && Math.random() < 0.3) interruptCast(tgt);
+  if (amt > 0 && physRule(opt) && tgt.hp > 0) physInterrupt(tgt);
   if (tgt.buffs && tgt.buffs.sleep && amt > 0) { delete tgt.buffs.sleep; if (isMob(tgt)) log("The " + tgt.name + " wakes up!", "sys"); }
   if (tgt.hp <= 0) onKO(tgt, src);
 }
@@ -1538,7 +1565,7 @@ function swing(a, d) {
   sfx(crit ? "crit" : wt === "slash" ? "slash" : "blunt", a);
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
-  applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16 });
+  applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16, phys: true });
   if (d.alive && !bow) for (const k of EN_KEYS) if (b[k]) applyDamage(a, d, b[k].pow, { color: ELEMENT_COLORS[EN_EL[k]], size: 13, enmity: 0, el: EN_EL[k] });
   if (a.alive && d.alive && !bow) {
     for (const k of ["blaze_spikes", "ice_spikes"]) {
@@ -1597,7 +1624,7 @@ function onKO(e, src) {
     if (e === player) for (const p of S.party) p.mounted = false;
     for (const m of S.mobs) m.enmity.delete(e);
     if (e !== player) partySay(e, "ko", true);
-    e.koUntil = Date.now() + CONFIG.koMinutes * 60000; e.koAt = S.time; e.casting = null; e.engaged = false; e.attackTarget = null; e.buffs = {};
+    e.koUntil = Date.now() + CONFIG.koMinutes * 60000; e.koAt = S.time; e.casting = null; e.winding = null; e.engaged = false; e.attackTarget = null; e.buffs = {};
     if (e.mercId) { save.mercDown = save.mercDown || {}; save.mercDown[e.mercId] = e.koUntil; save.mercBodies = save.mercBodies || {}; save.mercBodies[e.mercId] = { zone: S.zoneId, x: e.x, y: e.y, until: e.koUntil }; log(e.name + " is down. Raise them or use an Ember Plume before an hour passes.", "foe"); }
     if (e === player) { save.stats.kos++; S.ko = true; S.chase = false; S.moveTarget = null; player.engaged = false; player.attackTarget = null; save.ko = { until: e.koUntil }; player.target = null; if (typeof tgtCmdClose === "function") tgtCmdClose(); if (typeof mainCmdClose === "function" && UI.mm) mainCmdClose(); showKO(true); saveGame(); }
   }
@@ -2790,6 +2817,7 @@ function actionList(ch) {
 function checkAction(a, act, t) {
   if (!a.alive) return "You are KO'd.";
   if (a.casting) return "You are casting.";
+  if (a.winding) return "You are readying a weapon skill.";
   if (act.kind === "ws") {
     if (a.tp < 1000) return "Not enough TP.";
     if (!a.engaged || !t || !isMob(t) || !t.alive) return "You must be engaged to use a weapon skill.";
@@ -2822,9 +2850,46 @@ function checkAction(a, act, t) {
 function perform(a, act, t) {
   if (a.resting) standUp(a, a !== player);
   touch(a);
-  if (act.kind === "ws") doWS(a, act.id, t);
+  if (act.kind === "ws") startWind(a, act.id, t);
   else if (act.kind === "ja") doAbility(a, act.id, t);
   else if (act.kind === "ma") startCast(a, act.id, t);
+}
+
+function startWind(a, id, t) {
+  const ws = WEAPON_SKILLS[id];
+  if (classicInterrupt()) { doWS(a, id, t); return; }
+  a.face = Math.atan2(t.y - a.y, t.x - a.x);
+  a.winding = { id, t, name: ws.name, start: S.time, end: S.time + CONFIG.wsWind };
+  if (a === player) { S.moveTarget = null; S.chase = false; }
+  log(subj(a) + " " + vb(a, "ready") + " " + ws.name + ".", cls(a));
+}
+
+function interruptWind(e) {
+  const w = e.winding;
+  if (!w) return;
+  e.winding = null;
+  e.lastIntr = S.time;
+  const late = (S.time - w.start) / (w.end - w.start) >= CONFIG.wsLoseTpAt;
+  if (late) e.tp = 0;
+  log(e === player ? "Your " + w.name + " is interrupted." + (late ? " The TP is lost." : "") : e.name + "'s " + w.name + " is interrupted.", cls(e));
+  popText(e, "Interrupted", "#bbbbbb", 12, 0.9, 14);
+  sfx("interrupt", e);
+  vfx("interrupt", { tgt: e });
+}
+
+function cancelWind(e) {
+  if (!e.winding) return;
+  e.winding = null;
+  if (e === player) log("You move and cancel your weapon skill.", "you");
+}
+
+function tickWinding(e) {
+  const w = e.winding;
+  if (!w || S.time < w.end) return;
+  e.winding = null;
+  if (!e.alive || !w.t || !w.t.alive || !e.engaged || e.tp < 1000) return;
+  if (dist(e, w.t) > reach(e) + 20) { log(w.name + " fizzles: the target moved out of range.", cls(e)); return; }
+  doWS(e, w.id, w.t);
 }
 
 function doWS(a, id, t) {
@@ -2852,7 +2917,7 @@ function doWS(a, id, t) {
   S.shake = Math.max(S.shake, 0.2);
   log("The " + t.name + " takes " + dmg + " damage.", cls(a));
   vfx("wsHit", { src: a, tgt: t, ws });
-  applyDamage(a, t, dmg, { color: "#ffd54f", size: 26, life: 1.3, enmity: 80 + dmg * 2 });
+  applyDamage(a, t, dmg, { color: "#ffd54f", size: 26, life: 1.3, enmity: 80 + dmg * 2, phys: true });
   resolveChain(a, t, ws, dmg);
 }
 
@@ -3460,7 +3525,7 @@ function learnSpell(itemId) {
 function useItem(id) {
   const it = ITEMS[id];
   if (!it || (!player.alive && !it.revive)) return;
-  if (player.casting) { log("You cannot use items while casting.", "sys"); return; }
+  if (player.casting || player.winding) { log("You cannot use items while casting.", "sys"); return; }
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
   save.stats.itemsUsed++;
@@ -3702,7 +3767,7 @@ function autoAttack(a, dt) {
   if (!a.engaged || !t) return;
   if (!t.alive) { a.engaged = false; a.attackTarget = null; return; }
   if (isMob(t) && !claimOk(t)) { a.engaged = false; a.attackTarget = null; if (a === player) log("The " + t.name + " is claimed by " + claimName(t) + ".", "sys"); return; }
-  if (a.casting) return;
+  if (a.casting || a.winding) return;
   a.swingTimer -= dt;
   if (a.swingTimer <= 0) {
     if (dist(a, t) <= reach(a)) { a.face = Math.atan2(t.y - a.y, t.x - a.x); swing(a, t); a.swingTimer = swingDelay(a); }
@@ -3941,7 +4006,7 @@ function execTpMove(m) {
     for (let h = 0; h < (mv.hits || 1); h++) total += Math.floor(baseDmg(m, tg) * mv.mul * (mv.spell ? rand(0.9, 1.1) : pDIF(m, tg)));
     ring(tg, "#ff7043", mv.aoe || 30, 0.6, "burst");
     log(subj(tg) + " " + vb(tg, "take") + " " + total + " damage.", "foe");
-    applyDamage(m, tg, total, { color: "#ff8a80", size: 22, el: mv.el });
+    applyDamage(m, tg, total, { color: "#ff8a80", size: 22, el: mv.el, phys: !mv.el });
     if (mv.slow && tg.alive) { tg.buffs.slow = { until: S.time + 20, src: m }; popText(tg, "Slowed", "#d7b46a", 12, 0.9, 12); }
     if (mv.sleepy && tg.alive && !tg.buffs.sleep && Math.random() < 0.5 && tg !== player && !(tg.buffs.barsleep && Math.random() < tg.buffs.barsleep.pow)) { tg.buffs.sleep = { until: S.time + 6, src: m }; popText(tg, "Asleep", "#b39ddb", 12, 0.9, 12); }
     if (mv.status && tg.alive) inflictStatus(m, tg, mv.status[0], mv.status[1], mv.status[2]);
@@ -4066,7 +4131,7 @@ function raiseAI(a, dt, still) {
 
 function updateAlly(a, dt) {
   if (!a.alive) { a.retreat = null; a.kiting = false; return; }
-  if (a.casting) return;
+  if (a.casting || a.winding) return;
   if (a.mounted) { a.engaged = false; a.attackTarget = null; follow(a, dt); return; }
   const stance = save.stance || "assist";
   const tgt = stance === "follow" ? null : partyBattleTarget();
@@ -4389,6 +4454,7 @@ function autoWalk(a, dt) {
   player.y += Math.sin(a) * sp * dt;
   touch(player);
   if (player.casting) player.casting = null;
+  if (player.winding) cancelWind(player);
 }
 
 function updatePlayer(dt) {
@@ -4421,6 +4487,7 @@ function updatePlayer(dt) {
   if (moved) {
     touch(player);
     if (player.casting) { log("You move and interrupt your casting.", "you"); player.casting = null; sfx("interrupt", player); }
+    if (player.winding) cancelWind(player);
   }
   keepInZone(player);
   if (moved && S.time - (S.barrierMsgAt || -9) > 6) for (const r of closedBarrierRects(S.zone)) {
@@ -4436,7 +4503,7 @@ function updatePlayer(dt) {
   autoAttack(player, dt);
 }
 
-function canRest(p) { return p.alive && !p.engaged && !p.casting && !p.mounted; }
+function canRest(p) { return p.alive && !p.engaged && !p.casting && !p.winding && !p.mounted; }
 
 function startRest(p) {
   if (p.resting) return;
@@ -4461,7 +4528,7 @@ function toggleRest() {
   if (!player.alive) return;
   if (player.mounted) { log("You can't rest while riding.", "sys"); sfx("error"); return; }
   if (player.engaged) { player.engaged = false; player.attackTarget = null; }
-  if (player.casting) { log("You can't rest while casting.", "sys"); sfx("error"); return; }
+  if (player.casting || player.winding) { log("You can't rest while casting.", "sys"); sfx("error"); return; }
   S.moveTarget = null; S.chase = false; S.pendingTalk = null;
   startRest(player);
   log("You sit down and rest.", "you");
@@ -4481,6 +4548,7 @@ function regen(p, dt) {
 }
 
 function tickCasting(e) {
+  if (e.winding) tickWinding(e);
   if (e.casting && S.time >= e.casting.end) finishCast(e);
 }
 

@@ -33,6 +33,6 @@ const h2 = m2.hp; G.playerAct({ kind: 'ja', id: 'blood_pact' });
 ok(m2.hp < h2, 'Blood Pact deals damage through the sprite');
 G.playerAct({ kind: 'ja', id: 'release' });
 ok(!S.pet && !S.party.some(p => p.pet), 'Release sends the sprite home');
-G.playerAct({ kind: 'ma', id: 'fire_spirit' }); run(4); P().mp = 0; run(4);
+for (const x of S.mobs) x.swingTimer = 99; G.playerAct({ kind: 'ma', id: 'fire_spirit' }); run(4); for (let i = 0; i < 480; i++) { P().mp = 0; tick(1000 / 60); }
 ok(!S.pet, 'the sprite fades when MP runs out');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

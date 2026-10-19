@@ -40,6 +40,7 @@ function onKey(e) {
   if (k === "escape" && UI.cmd) { tgtCmdClose(); return; }
   if (k === "escape") {
     if (player.casting) { player.casting = null; log("You stop casting.", "sys"); }
+    else if (player.winding) { player.winding = null; log("You stop readying.", "sys"); }
     else if (player.target && !player.engaged) player.target = null;
     else if (logEsc()) {}
     else mainCmdOpen();

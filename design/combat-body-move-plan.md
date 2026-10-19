@@ -46,3 +46,5 @@ Status: planned (not started).
 ## Checks
 - test/h6unit.js, race and gear contact sheets, new interrupt tests, npm run check.
 - One version bump and release per phase, pushed to GitHub.
+
+Phase 1 complete (18.90.0). Weapon skill TP-loss rule: default kept (lost only when the hit lands in the final quarter).

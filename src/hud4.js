@@ -1026,6 +1026,11 @@ function updateBottom() {
     const c = player.casting;
     setTxt($("castName"), (c.sp ? c.sp.name : "Casting") + (c.t && c.t !== player ? " → " + (c.t.name || "") : "") + "…");
     setW($("castFill"), 100 * (S.time - c.start) / (c.end - c.start));
+  } else if (player.winding) {
+    cb.style.display = "block";
+    const c = player.winding;
+    setTxt($("castName"), c.name + "…");
+    setW($("castFill"), 100 * (S.time - c.start) / (c.end - c.start));
   } else if (player.synth) {
     cb.style.display = "block";
     const c = player.synth;
