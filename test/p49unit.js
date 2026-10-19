@@ -23,8 +23,8 @@ const sv = G.normalizeSave(Object.assign({}, G.save, { zv: 3, tl: {}, zsplit: { 
 ok(sv.loc.zone === 'outpost' && sv.loc.x === G.ZONES.outpost.start.x && sv.loc.y === G.ZONES.outpost.start.y && sv.tl.outpost === 2, 'a save from before the rebuilt Outpost lands on the Market plaza (' + JSON.stringify(sv.loc) + ')');
 const sv4 = G.normalizeSave(Object.assign({}, G.save, { zv: 3, tl: { outpost: 2 }, loc: { zone: 'outpost_gov', x: 300, y: 500 } }));
 ok(sv4.loc.zone === 'outpost_gov' && sv4.loc.x === 300, 'a current save keeps its spot');
-const sv2 = G.normalizeSave(Object.assign({}, G.save, { zv: 3, zsplit: { hollow: 1, highlands: 1 }, loc: { zone: 'harbor', x: 900, y: 1100 } }));
-ok(sv2.loc.zone === 'harbor_docks' && sv2.loc.y === 120, 'a save on the old docks moves into The Docks');
+const sv2 = G.normalizeSave(Object.assign({}, G.save, { zv: 3, tl: { outpost: 2 }, zsplit: { hollow: 1, highlands: 1 }, loc: { zone: 'harbor', x: 900, y: 1100 } }));
+ok(sv2.loc.zone === 'harbor' && sv2.loc.x === G.ZONES.harbor.start.x && sv2.loc.y === G.ZONES.harbor.start.y && sv2.tl.harbor === 2, 'a save from before the rebuilt Saltreach lands on Harbor Square (' + JSON.stringify(sv2.loc) + ')');
 const sv3 = G.normalizeSave(Object.assign({}, G.save, { zv: 1, loc: { zone: 'outpost', x: 610, y: 440 } }));
 ok(sv3.loc.zone === 'outpost' && sv3.loc.x === G.ZONES.outpost.start.x && sv3.loc.y === G.ZONES.outpost.start.y, 'very old saves still land on the Market plaza');
 { const hx = G.ZONES.hollow.exits.find(e => G.areaOf(e.to) === 'outpost'); ok(hx && hx.to === 'outpost_gate' && hx.tx > 300 && hx.tx < G.ZONES.outpost_gate.w, 'Rocky Hollow leads into Eastgate'); }

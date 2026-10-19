@@ -1,6 +1,6 @@
 # Town zones plan (street-first towns, districts as zones)
 
-Status: D0 done (audit, no release). D1 done in 18.93.0. D2 done in 18.94.0. D3 done in 18.95.0. D4 (Harbor) next.
+Status: D0 done (audit, no release). D1 done in 18.93.0. D2 done in 18.94.0. D3 done in 18.95.0. D4 done in 18.96.0. D5 (Ironvale) next.
 
 ## Request
 Vendors stood in the road; some vendors and buildings did not face the road. Split every district of a town into its own zone, much bigger and more detailed. Added later: loading into a zone should fade in, the same way leaving a zone fades out.
@@ -17,7 +17,7 @@ Vendors stood in the road; some vendors and buildings did not face the road. Spl
 | D1 | Opus | Four-way facing, frontage pass (auto-face, setback, footpaths), vendors in doorways, folk off roads, validator test/townlayout.js. Done 18.93.0. |
 | D2 | Opus | Done 18.94.0: splitTown (data.js tail), gate exits, area-aware warps/AH/vendors/tour, save migration through migrateSplits, city overview map, fade-in on every zone load. |
 | D3 | Opus | Done 18.95.0 (buildOutpostCity, ghost skyline, gate signs, settleTownFolk). Was: author the Outpost districts as their own zone data (replace splitTown for outpost, keep ids and npc ids), add a skyline/backdrop beyond inner walls; districts enlarged to about 2400x1800 each and re-detailed street-first: street graph, lots with frontage, more homes, alleys, props. Frontage pass and townlayout test must pass. |
-| D4 | Sonnet | Saltreach Harbor: write a HARBOR_PLAN for buildOutpostCity's generator (generalise it to buildCity(plan, seed)), districts ~2400x1800, docks along the sea side with piers, keep ids and NPC ids, bump TOWN_LAYOUT.harbor. |
+| D4 | Sonnet | Done 18.96.0 (buildCity(C), HARBOR_PLAN, cross-less layout with Docks under the square). Was: Saltreach Harbor: write a HARBOR_PLAN for buildOutpostCity's generator (generalise it to buildCity(plan, seed)), districts ~2400x1800, docks along the sea side with piers, keep ids and NPC ids, bump TOWN_LAYOUT.harbor. |
 | D5 | Sonnet | Ironvale: same with an IRONVALE_PLAN (mountain style, keep on high ground), bump TOWN_LAYOUT.ironvale. |
 | D6 | Sonnet | Help, Updates, docs, full test sweep, travel-time tuning, quest/NPC references to old coordinates. |
 
@@ -35,3 +35,8 @@ Vendors stood in the road; some vendors and buildings did not face the road. Spl
 ## Notes from D3
 - User feedback folded into D3: every town exit has a "To ..." signpost; NPCs face the street and keep 70 px apart (validator: 60); inner gates show the next district (ghost skyline and paths, no hills) with district-colour banners.
 - The generator is Outpost-specific in name (buildOutpostCity, OUTPOST_PLAN); D4 should generalise it before writing the Harbor plan.
+
+## Notes from D4
+- buildCity(C) is generic now (see design.md 18.96.0). D5: write IRONVALE_PLAN + IRONVALE_GATES and call buildCity with cityStyle "mountain", palette "snow" (copy via zone extras: buildCity only sets name/city/cityStyle/outerWall, so add palette to C if needed), keep ids ironvale, ironvale_gate/keep/south/forge, bump TOWN_LAYOUT.ironvale.
+- Water circles must not reach into another district; vendor shop points are passed as reserve so lots leave them free.
+- Plans without corner districts work: the source zone just has empty space (fish and yard get open "s").
