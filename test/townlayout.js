@@ -55,5 +55,14 @@ for (const zid of towns) {
   }
 }
 for (const t of Object.keys(G.VENDOR_TOWNS)) ok(Object.keys(G.ZONES).filter(k => G.areaOf(k) === t).reduce((s, k) => s + G.ZONES[k].npcs.filter(n => n.id.startsWith('v_')).length, 0) === 6, t + ' has six vendors');
+for (const zid of towns) {
+  const z = G.ZONES[zid];
+  for (const a of z.ambient || []) {
+    if (!a.path) continue;
+    let hit = false;
+    for (let i = 0; i < a.path.length && !hit; i++) { const q = a.path[i], r = a.path[(i + 1) % a.path.length]; for (let k = 0; k <= 1; k += 0.05) { const x = q[0] + (r[0] - q[0]) * k, y = q[1] + (r[1] - q[1]) * k; if ((z.houses || []).some(h => G.inRect(x, y, G.houseRect(h), 6)) || (z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r)) { hit = true; break; } } }
+    ok(!hit, zid + ' walker route stays off buildings and water');
+  }
+}
 console.log(fails ? fails + ' FAILED' : 'townlayout: all passed (' + towns.join(', ') + ')');
 process.exit(fails ? 1 : 0);

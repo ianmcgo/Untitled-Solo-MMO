@@ -3317,7 +3317,30 @@ function settleTownFolk(z) {
     if (bd < 1e9 && bd > 1) n.face = Math.atan2(by - n.y, bx - n.x);
   }
 }
+function fixWalkers(z) {
+  for (const a of z.ambient) {
+    if (!a.path) continue;
+    const bad = (x, y) => z.houses.some(h => inRect(x, y, houseRect(h), 6));
+    let hit = false;
+    for (let i = 0; i < a.path.length && !hit; i++) { const q = a.path[i], r = a.path[(i + 1) % a.path.length]; for (let t = 0; t <= 1; t += 0.05) if (bad(q[0] + (r[0] - q[0]) * t, q[1] + (r[1] - q[1]) * t)) { hit = true; break; } }
+    if (!hit) continue;
+    const dd = districtAt(z, a.x, a.y), did = dd && dd.id;
+    let best = null;
+    for (const p of z.paths) {
+      if (p.district !== did) continue;
+      for (let i = 1; i < p.pts.length; i++) {
+        const A = p.pts[i - 1], B = p.pts[i], L = Math.hypot(B[0] - A[0], B[1] - A[1]), d = distToSegPt(a.x, a.y, A, B);
+        if (L > 600 && (!best || d - L * 0.2 < best.d - best.L * 0.2)) best = { A, B, L, d };
+      }
+    }
+    if (!best) continue;
+    const ux = (best.B[0] - best.A[0]) / best.L, uy = (best.B[1] - best.A[1]) / best.L, m = Math.min(300, best.L / 4);
+    a.path = [[Math.round(best.A[0] + ux * m), Math.round(best.A[1] + uy * m)], [Math.round(best.B[0] - ux * m), Math.round(best.B[1] - uy * m)]];
+    a.x = a.path[0][0]; a.y = a.path[0][1];
+  }
+}
 for (const t of ["outpost", "harbor", "ironvale"]) settleTownFolk(ZONES[t]);
+for (const t of ["outpost", "harbor", "ironvale"]) fixWalkers(ZONES[t]);
 for (const t of ["outpost", "harbor", "ironvale"]) splitTown(t);
 for (const t of ["outpost", "harbor", "ironvale"]) for (const p of ZONE_SPLITS[t].parts) {
   const z = ZONES[p.id];
