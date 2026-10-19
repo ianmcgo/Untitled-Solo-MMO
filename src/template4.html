@@ -1034,6 +1034,9 @@
   #confirmBox .cbA button { position: relative; text-align: left; padding: 1px 6px; border: none; border-radius: 2px; background: transparent !important; box-shadow: none; font: italic 800 14px var(--ffFont); color: #fff !important; text-shadow: 1px 1px 0 #000; }
   #confirmBox .cbA button::before { content: "➤"; position: absolute; left: -20px; color: #e8c8a8; opacity: 0; }
   #confirmBox .cbA button.sel::before { opacity: 1; } #confirmBox .cbA button.sel { background: rgba(255,255,255,.08) !important; }
+  #confirmBox.mid.on { inset: 0; display: flex; align-items: center; justify-content: center; }
+  #confirmBox.narrow .cb { width: 250px !important; max-width: calc(100vw - 20px); }
+  #confirmBox.narrow .cbB { white-space: normal; }
   #dialog { z-index: 9; left: calc(8px + var(--sal)); transform: none; width: max-content !important; min-width: 150px; max-width: calc(100vw - 20px); padding: 4px 10px 6px 26px; bottom: calc(170px + var(--sab)); background: linear-gradient(180deg, rgba(40,44,70,.92), rgba(18,20,36,.94)); border: 2px solid rgba(220,224,255,.6); border-radius: 4px; }
   #dlgWho:empty { display: none; }
   #dlgText:empty { display: none; } #dlgText { margin: 0 0 2px -16px; font: italic 800 14px var(--ffFont); color: #fff; letter-spacing: .04em; text-shadow: 1px 1px 0 #000; white-space: normal; }

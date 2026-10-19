@@ -147,7 +147,7 @@ function itemCard(id) {
   if (it.ex) tags.push("Ex");
   let h = '<div class="iCard"><div class="iCh"><span class="ic">' + (it.icon || "📦") + '</span><b>' + esc(it.name) + "</b>" + tags.map(t => '<span class="tg">' + t + "</span>").join("") + "</div>";
   if (it.kind === "equip") {
-    h += '<div class="iCl">[' + (SLOT_NAMES[it.slot] || it.slot) + "] " + (it.race ? RACES[it.race].name + " only" : "All Races") + "</div>";
+    h += '<div class="iCl">[' + (SLOT_NAMES[it.slot] || it.slot) + "] " + (it.race ? RACES[it.race].name + " only" : "") + "</div>";
     const parts = [];
     if (it.wtype) parts.push("DMG:" + it.dmg, "Delay:" + Math.round(it.delay * 100));
     const st = it.stats || {};
@@ -1720,6 +1720,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.99.0", date: "2026-10-19", title: "Menu fixes", items: [
+    "<b>C now opens the command menu with your Status showing</b> (the same as choosing Status from the main menu). Press C again to close it, or Esc to step back to the command list.",
+    "<b>The defeat prompt is much narrower</b> and wraps its text instead of stretching across the screen.",
+    "<b>The Log Out prompt now appears in the middle of the screen.</b>",
+    "<b>Item cards only mention races when there is a restriction.</b> Gear anyone can wear no longer says All Races; race-locked gear still shows the race it needs."
+  ] },
   { v: "18.98.0", date: "2026-10-19", title: "City sweep", items: [
     "Final pass over the rebuilt cities: every walking route (the townsfolk and animals that stroll the streets) now stays on the road and clear of buildings and water; several routes in Saltreach and Ironvale used to clip through houses.",
     "Help now describes each city as a hub around its central square, lists the new Saltreach and Ironvale buildings, and has a short Getting around tip with walking, sprinting and warp-stone times.",
@@ -3956,7 +3962,7 @@ function tabHelp() {
     "All equipment runs from level 1 to 20, each piece with its own name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
   ]));
   h += sec("🖥️ The screen", ul([
-    "<b>Main menu:</b> Esc with nothing targeted, - (or Insert), or tapping yourself and choosing Main Menu opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right.",
+    "<b>Main menu:</b> Esc with nothing targeted, - (or Insert), or tapping yourself and choosing Main Menu opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right. Press <b>C</b> to open the menu straight on Status (press C again to close it, Esc to step back).",
     "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
     "<b>Spells</b> are learned by reading scrolls (from shops and monster drops) once one of your jobs is high enough level.",
     "<b>Keyboard in windows:</b> arrows move, Enter chooses, Esc goes back or closes.",

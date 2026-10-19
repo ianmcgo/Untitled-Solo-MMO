@@ -9,7 +9,7 @@ function onKey(e) {
   if (!UI.started) return;
   if ((e.ctrlKey || e.metaKey) && !/^(Digit|Numpad)[0-9]$/.test(e.code || "")) return;
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") && e.target.type !== "range") return;
-  const menuKeys = { g: "equipment", i: "inventory", c: "character", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "database", o: "achievements" };
+  const menuKeys = { g: "equipment", i: "inventory", k: "skills", b: "actions", j: "quests", m: "map", h: "help", n: "craft", p: "party", y: "database", o: "achievements" };
   if (S.dialog) {
     if (k === "escape") closeDialog();
     if (["arrowup", "arrowdown", "enter", " "].includes(k)) { e.preventDefault(); dlgKey(k); return; }
@@ -21,6 +21,7 @@ function onKey(e) {
     if (["arrowup", "arrowdown", "arrowleft", "arrowright", "enter", "escape", "backspace"].includes(k) && modalKey(k)) { e.preventDefault(); return; }
     if (k === "escape" && S.modal === "quests" && UI.qCat) { UI.qCat = null; UI.qSel = null; renderModal(); sfx("close"); }
     else if (k === "escape") { closeModal(); if (UI.menuFromMain) mainCmdOpen(); }
+    else if (k === "c") statusToggle();
     else if (menuKeys[k]) { if (S.modal === menuKeys[k]) closeModal(); else openMenu(menuKeys[k]); }
     return;
   }
@@ -32,6 +33,7 @@ function onKey(e) {
   if (k === "l" && !S.modal) { chatToggle(); return; }
   if (k === "f") { toggleEngage(false); return; }
   if (k === "enter") { const t = player.target; if (t && (isMob(t) && t.alive || t.kind === "remote")) tgtCmdOpen(t); else if (t && t.kind === "npc") talkNearest(); else if (t === player) tgtCmdOpen(player); else { e.preventDefault(); openChatInput(""); } return; }
+  if (k === "c") { statusToggle(); return; }
   if (menuKeys[k]) { openMenu(menuKeys[k]); return; }
   if (k === "r") { toggleMount(); return; }
   if (k === " " || k === "spacebar") { e.preventDefault(); if (e.shiftKey) tryJump(); else openChatInput(""); return; }

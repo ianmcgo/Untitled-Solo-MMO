@@ -6106,7 +6106,7 @@ function restoreKO() {
 
 function giveUpKO() {
   if (!S.ko) return;
-  gameConfirm ? gameConfirm("Back to Home Point", "Return to your home point now? You'll lose experience. Anyone could still raise you if you wait.", () => returnHome(), { yes: "Return", no: "Wait" }) : returnHome();
+  gameConfirm ? gameConfirm("Back to Home Point", "Return to your home point now? You'll lose experience. Anyone could still raise you if you wait.", () => returnHome(), { yes: "Return", no: "Wait", narrow: true }) : returnHome();
 }
 
 function returnHome() {

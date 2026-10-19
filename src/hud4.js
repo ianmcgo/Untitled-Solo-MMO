@@ -732,7 +732,9 @@ function gameConfirm(title, text, onYes, opts) {
   yes.onmouseenter = () => { yes.classList.add("sel"); no.classList.remove("sel"); };
   no.onmouseenter = () => { no.classList.add("sel"); yes.classList.remove("sel"); };
   const ch = $("chat");
-  box.style.bottom = "calc(" + ((ch && !ch.classList.contains("gone") ? ch.offsetHeight : 0) + 16) + "px + var(--sab))";
+  box.classList.toggle("mid", !!opts.center);
+  box.classList.toggle("narrow", !!opts.narrow);
+  box.style.bottom = opts.center ? "" : "calc(" + ((ch && !ch.classList.contains("gone") ? ch.offsetHeight : 0) + 16) + "px + var(--sab))";
   box.querySelector(".cbB").textContent = text || title;
   box.classList.add("on");
   S.keys = {};
@@ -1374,6 +1376,12 @@ function mainCmdOpen() {
   renderMainCmd();
   sfx("open");
 }
+function statusToggle() {
+  if (UI.mm && UI.mm.sub === "status") { mainCmdClose(); sfx("close"); return; }
+  mainCmdOpen();
+  UI.mm.page = 0; UI.mm.back = 0; UI.mm.sub = "status"; UI.mm.sel = 0;
+  renderMainCmd();
+}
 function mainCmdClose() { UI.mm = null; const el = $("mCmd"); if (el) { el.classList.remove("on"); el.innerHTML = ""; } UI.ffHelp = ""; renderStatusOv(); }
 function renderMainCmd() {
   const el = $("mCmd"), m = UI.mm;
@@ -1397,7 +1405,7 @@ function mainCmdDo(i) {
   UI.mm.sel = i; renderMainCmd();
   if (k === "@logout") mainCmdClose();
   if (k === "@time") { openTimeBox(); return; }
-  if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out" }); return; }
+  if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out", center: true }); return; }
   openMenu(k);
 }
 function mainCmdKey(k) {

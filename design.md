@@ -2472,3 +2472,9 @@ data.js: fixWalkers(z) runs on the three big town zones right after settleTownFo
 Travel times (runSpeed 100 px/s, sprintMul 1.45): district edge to crystal about 888 to 1188 px (9 to 12 s), a 2400 px district about 24 s (16 s sprinting). Left as is; warp stones are free inside a city.
 Help: hub wording, new building names for Saltreach and Ironvale, Getting around tip. Quest and NPC text checked: no stale coordinates (tour quests list district names only).
 Plan complete (D0 to D6). Known: the empty corner squares of the Ashenreach and Ironvale crosses and the empty corners of the Saltreach source zone are not drawn.
+
+## 18.99.0 Menu fixes (Phase 1 of the layout request)
+hud4.js `statusToggle()`: if UI.mm.sub is "status" it closes the main command menu, else `mainCmdOpen()` then page 0, back 0, sub "status", sel 0. main4.js onKey: "c" removed from `menuKeys`; handled before `menuKeys` in both the modal branch and the free branch. Old key opened S.modal "character" directly.
+`gameConfirm` opts: `center` toggles class `mid` on #confirmBox (inline bottom cleared; CSS `#confirmBox.mid.on` centres it) and `narrow` toggles class `narrow` (`.cb` 250 px, text wraps). Log Out (hud4 mainCmdDo) uses center; the defeat prompt in game.js giveUpKO uses narrow.
+itemCard (menu4.js): the race tag is empty unless `it.race` is set; then "<Race> only".
+Help (screen section, main menu line) and the Updates list carry the new C behaviour. Remaining phases: 2 signs (one per real store, text fitted), 3 layout (nothing on roads, residential barber and furnishing, small gate halls, auction clerk inside, warp stones by roads, gates placed where each city's quests are, and a Government district clerk who changes your character name for 10000 crystals).
