@@ -1240,6 +1240,7 @@ function buildCity(C) {
   const pick = a => a[Math.floor(rnd() * a.length)], range = r => r[0] + Math.round(rnd() * (r[1] - r[0]));
   const z = { name: C.name, w: C.w, h: C.h, safe: true, theme: "town", city: C.city, paved: true, outerWall: C.outerWall == null ? true : C.outerWall, districts: [], cityWalls: C.walls.map(q => q.slice()), gates: C.gates.map(g => Object.assign({}, g)), exits: [], npcs: [], props: [], ambient: [], spawns: [], water: [], plazas: [], fountains: [], gardens: [], dummies: [], racks: [], benches: [], paths: [], houses: [], stalls: [], lamps: [], dressing: [] };
   if (C.cityStyle) z.cityStyle = C.cityStyle;
+  if (C.palette) z.palette = C.palette;
   const keys = {}, homes = [];
   const G = (d, x, y) => [PLAN[d].off[0] + x, PLAN[d].off[1] + y];
   for (const did in PLAN) {
@@ -1248,7 +1249,7 @@ function buildCity(C) {
     for (const s of P.streets) z.paths.push({ w: s.w, pts: s.pts.map(pt), trees: !!s.trees, district: did });
     for (const h of P.houses || []) { const c = mv(h); delete c.key; c.district = did; if (h.key) keys[h.key] = c; z.houses.push(c); }
     for (const k of ["npcs", "props", "water", "gardens", "stalls", "fountains", "plazas", "ambient", "dressing", "exits"]) for (const o of P[k] || []) { const c = mv(o); if (k === "npcs" && typeof c.home === "string") homes.push(c); z[k].push(c); }
-    for (const k of ["dummies", "racks", "benches", "lamps", "docks", "boats", "lighthouses", "slipways"]) for (const q of P[k] || []) (z[k] = z[k] || []).push(pt(q));
+    for (const k of ["dummies", "racks", "benches", "lamps", "docks", "boats", "lighthouses", "slipways", "mines", "torches"]) for (const q of P[k] || []) (z[k] = z[k] || []).push(pt(q));
     if (P.plaza) z.plaza = mv(P.plaza);
     if (P.stable) z.stable = mv(P.stable);
   }
@@ -1421,7 +1422,7 @@ ZONES.harbor = buildCity({ id: "harbor", seed: "saltreach-city-1", name: "Saltre
 
 ZONES.frost = {
   name: "Frostspire Pass", w: 3000, h: 2400, theme: "field", palette: "snow",
-  exits: [{ x: 0, y: 1150, w: 24, h: 100, to: "harbor", tx: 7000, ty: 900, label: "Saltreach Harbor" }, { x: 2976, y: 1080, w: 24, h: 100, to: "ironvale", tx: 120, ty: 550, label: "Ironvale" }],
+  exits: [{ x: 0, y: 1150, w: 24, h: 100, to: "harbor", tx: 7000, ty: 900, label: "Saltreach Harbor" }, { x: 2976, y: 1080, w: 24, h: 100, to: "ironvale", tx: 120, ty: 2700, label: "Ironvale" }],
   npcs: [],
   walls: [{ x: 700, y: 300, w: 300, h: 260 }, { x: 1800, y: 1500, w: 360, h: 220 }, { x: 2300, y: 400, w: 220, h: 400 }, { x: 1100, y: 1900, w: 420, h: 160 }],
   ruins: {
@@ -1653,53 +1654,97 @@ function spreadSpawns(zone, minD) {
     if (!moved) break;
   }
 }
-ZONES.ironvale = {
-  name: "Ironvale", w: 1800, h: 1400, safe: true, theme: "town", palette: "snow", city: "Ironvale", cityStyle: "mountain", paved: true, outerWall: true,
-  districts: [
-    { id: "gate", name: "Gate Ward", x: 24, y: 24, w: 536, h: 1352, color: "#9aa4ac", icon: "🛡️" },
-    { id: "keep", name: "The Keep", x: 560, y: 24, w: 680, h: 336, color: "#5a7090", icon: "🏰" },
-    { id: "market", name: "Market Square", x: 560, y: 360, w: 680, h: 640, color: "#d8a838", icon: "⚖️" },
-    { id: "south", name: "South Ward", x: 560, y: 1000, w: 680, h: 376, color: "#6fae5a", icon: "🏡" },
-    { id: "forge", name: "Smelters' Row", x: 1240, y: 24, w: 536, h: 1352, color: "#c4703a", icon: "⚒️" }
-  ],
-  cityWalls: [[560, 24, 560, 1376], [1240, 24, 1240, 1376], [560, 360, 1240, 360], [560, 1000, 1240, 1000]],
-  gates: [
-    { x: 560, y: 200, a: "gate", b: "keep" }, { x: 560, y: 700, a: "gate", b: "market" }, { x: 560, y: 1200, a: "gate", b: "south" },
-    { x: 1240, y: 200, a: "keep", b: "forge" }, { x: 1240, y: 700, a: "market", b: "forge" }, { x: 1240, y: 1200, a: "south", b: "forge" },
-    { x: 900, y: 360, a: "keep", b: "market", horiz: true }, { x: 900, y: 1000, a: "market", b: "south", horiz: true }
-  ],
-  exits: [{ x: 0, y: 650, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }, { x: 850, y: 1376, w: 100, h: 24, to: "sunscar", tx: 1500, ty: 120, label: "Sunscar Desert" }],
-  props: [{ type: "crates", x: 1460, y: 860, r: 30 }, { type: "barrels", x: 1460, y: 300, r: 26 }, { type: "anvil", x: 1520, y: 590, rot: 0.3, r: 26 }],
-  ambient: [{ type: "walker", x: 900, y: 680, n: 1, path: [[780, 560], [1020, 560], [1020, 800], [780, 800]] }, { type: "walker", x: 1380, y: 700, n: 1, path: [[1380, 150], [1380, 1250]] }, { type: "dog", x: 900, y: 680, n: 1, r: 120, col: 0x5a4a3a }],
-  npcs: [
-    { id: "brisa", x: 1150, y: 300, home: 0, sleep: [22, 6] }, { id: "haldor", x: 1480, y: 620, home: 1, sleep: [21, 5] }, { id: "auction_ironvale", x: 726, y: 531 }, { id: "barber_ironvale", x: 1200, y: 631 }, { id: "job_ironvale", x: 820, y: 560 }, { id: "stable_ironvale", x: 1350, y: 760 },
-    { id: "crystal_ironvale", x: 900, y: 680 }, { id: "trade_board", x: 1040, y: 560 }, { id: "guard_ironvale", x: 200, y: 620 }
-  ],
-  spawns: [],
-  water: [],
-  plaza: { x: 900, y: 680, r: 150 },
-  paths: [
-    { w: 50, pts: [[-500, 700], [0, 700], [1700, 700]] },
-    { w: 40, pts: [[900, 270], [900, 1400], [900, 1900]] },
-    { w: 36, pts: [[450, 100], [450, 1300]] },
-    { w: 36, pts: [[450, 200], [560, 200]] },
-    { w: 36, pts: [[450, 1200], [1380, 1200]] },
-    { w: 36, pts: [[1240, 200], [1380, 200]] },
-    { w: 36, pts: [[1380, 100], [1380, 1300]] }
-  ],
-  houses: [
-    { x: 900, y: 160, w: 320, h: 150, type: "keep", floors: 3, flag: "#90a4ae" }, { x: 1600, y: 540, w: 200, h: 110, type: "forge", floors: 1, sign: "Mythrilsmith", signCol: "#7ad0ff" },
-    { x: 1600, y: 260, w: 220, h: 120, type: "smelter" }, { x: 1600, y: 1000, w: 220, h: 120, type: "smelter" },
-    { x: 690, y: 470, w: 150, h: 90, type: "auction", sign: "Auction House", flag: "#c9a227" }, { x: 1110, y: 470, w: 150, h: 90, type: "shop", sign: "General Store", awning: "#37474f" }, { x: 1110, y: 900, w: 150, h: 90, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" },
-    { x: 250, y: 200, w: 150, h: 110, type: "home" }, { x: 250, y: 400, w: 140, h: 100, type: "home", floors: 3 }, { x: 250, y: 560, w: 140, h: 90, type: "guard", flag: "#90a4ae" }, { x: 250, y: 880, w: 140, h: 100, type: "home" }, { x: 250, y: 1100, w: 150, h: 110, type: "home" }, { x: 250, y: 1290, w: 150, h: 90, type: "home" },
-    { x: 750, y: 1300, w: 120, h: 100, type: "home", floors: 3 }, { x: 1050, y: 1300, w: 110, h: 100, type: "warehouse", floors: 2 }, { x: 1600, y: 820, w: 180, h: 90, type: "warehouse", floors: 1 }
-  ],
-  stalls: [{ x: 1000, y: 820, color: "#5d4037" }, { x: 800, y: 820, color: "#37474f" }, { x: 1200, y: 640, color: "#c0392b", sign: "Barber", pole: true }],
-  mines: [[1690, 1250, -Math.PI / 2]],
-  benches: [[760, 760, 1.57], [1040, 760, -1.57]],
-  lamps: [[780, 560], [1020, 560], [780, 800], [1020, 800], [450, 700], [1380, 700], [900, 1100], [900, 300]],
-  start: { x: 900, y: 800 }
+const IRN_SIGNS = ["Nail Maker", "Furrier", "Coal & Kindling", "Cooper", "Pickmaker", "Rope & Chain", "Bootmaker", "Stonecutter", "Tinsmith", "Lantern Maker", "Woolens", "Hearth Goods", "Smokehouse", "Bellfounder", "Cutler", "Miner's Supply", "Whetstones", "Mead Hall", "Baker", "Fletcher", "Glovemaker", "Charcoal", "Sledwright", "Rune Carver"];
+const IRN_FILL = {
+  gate: [["home", 0.55, [90, 140], [80, 110], [1, 3]], ["hall", 0.2, [130, 180], [90, 110], [1, 2]], ["warehouse", 0.25, [150, 200], [90, 110], [1, 2]]],
+  keep: [["hall", 0.4, [140, 200], [90, 120], [2, 3]], ["home", 0.6, [100, 150], [84, 110], [1, 3]]],
+  market: [["shop", 0.6, [100, 150], [80, 104], [1, 3]], ["home", 0.4, [96, 140], [84, 110], [1, 3]]],
+  south: [["home", 0.8, [90, 140], [80, 110], [1, 3]], ["hall", 0.1, [130, 170], [90, 110], [1, 2]], ["warehouse", 0.1, [150, 190], [90, 110], [1, 1]]],
+  forge: [["smelter", 0.25, [170, 230], [100, 130], [1, 1]], ["warehouse", 0.3, [150, 220], [90, 120], [1, 2]], ["hall", 0.15, [130, 180], [80, 110], [1, 2]], ["home", 0.3, [90, 130], [80, 100], [1, 2]]]
 };
+const IRONVALE_SHOPS = {
+  armorer: { x: 5900, y: 2573, w: 120, h: 72, sign: "Armory", district: "forge" },
+  weaponsmith: { x: 6200, y: 2573, w: 112, h: 72, sign: "Arms", district: "forge" },
+  tradesman: { x: 1250, y: 2573, w: 120, h: 72, sign: "Supplies", district: "gate" },
+  quartermaster: { x: 2900, y: 3050, w: 112, h: 72, sign: "Provisions", district: "market" },
+  spellsmith: { x: 3100, y: 869, w: 100, h: 72, sign: "Scrolls", district: "keep" },
+  jeweler: { x: 3900, y: 2349, w: 96, h: 72, sign: "Jewels", district: "market" }
+};
+const IRONVALE_PLAN = {
+  keep: {
+    off: [2400, 0], name: "The Keep", color: "#5a7090", icon: "🏰",
+    streets: [{ w: 56, pts: [[1200, 1800], [1200, 330]] }, { w: 44, pts: [[200, 1000], [2200, 1000]] }, { w: 40, pts: [[450, 250], [450, 1600]] }, { w: 40, pts: [[1950, 250], [1950, 1600]] }, { w: 40, pts: [[450, 250], [1950, 250]] }, { w: 36, pts: [[450, 1550], [1950, 1550]] }],
+    plazas: [{ x: 1200, y: 480, r: 150 }],
+    houses: [
+      { key: "keep", x: 1200, y: 140, w: 320, h: 150, type: "keep", floors: 3, flag: "#90a4ae" },
+      { key: "barracks", x: 720, y: 400, w: 240, h: 120, type: "barracks", sign: "Frost Guard", flag: "#90a4ae" },
+      { key: "council", x: 1680, y: 400, w: 220, h: 110, type: "hall", floors: 2, sign: "Council Hall", signCol: "#c9a227" },
+      { key: "chapel", x: 1680, y: 1230, w: 190, h: 110, type: "hall", floors: 2, sign: "Hearth Chapel", signCol: "#f0e0a0" }
+    ],
+    npcs: [{ id: "brisa", x: 1100, y: 300, home: "keep", sleep: [22, 6] }],
+    benches: [[1060, 480, 1.57], [1340, 480, -1.57]],
+    dressing: [{ t: "statue", x: 1080, y: 1680 }, { t: "statue", x: 1320, y: 1680 }, { t: "planter", x: 1060, y: 300 }, { t: "planter", x: 1340, y: 300 }, { t: "well", x: 1500, y: 700 }]
+  },
+  gate: {
+    off: [0, 1800], name: "Gate Ward", color: "#9aa4ac", icon: "🛡️",
+    streets: [{ w: 64, pts: [[2400, 900], [-100, 900]] }, { w: 40, pts: [[800, 250], [800, 1600]] }, { w: 40, pts: [[1700, 250], [1700, 1600]] }, { w: 36, pts: [[800, 400], [1700, 400]] }, { w: 36, pts: [[800, 1400], [1700, 1400]] }],
+    reserve: [{ x: 120, y: 1000, w: 500, h: 450 }],
+    houses: [
+      { key: "guard", x: 450, y: 780, w: 180, h: 110, type: "guard", flag: "#90a4ae" },
+      { key: "lodge", x: 1250, y: 1070, w: 200, h: 110, type: "hall", floors: 3, sign: "Frostgate Lodge", signCol: "#e0a050" }
+    ],
+    exits: [{ x: 0, y: 850, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }],
+    npcs: [{ id: "guard_ironvale", x: 300, y: 790 }],
+    props: [{ type: "barrels", x: 300, y: 1200, rot: 0.3, r: 26 }, { type: "crates", x: 560, y: 1450, rot: 0.8, r: 26 }],
+    dressing: [{ t: "cart", x: 420, y: 1320, rot: 0.2 }, { t: "hay", x: 300, y: 1450 }, { t: "well", x: 1250, y: 650 }]
+  },
+  market: {
+    off: [2400, 1800], name: "Market Square", color: "#d8a838", icon: "⚖️",
+    streets: [{ w: 64, pts: [[0, 900], [2400, 900]] }, { w: 56, pts: [[1200, 0], [1200, 1800]] }, { w: 40, pts: [[300, 430], [2100, 430]] }, { w: 40, pts: [[300, 1370], [2100, 1370]] }, { w: 40, pts: [[300, 430], [300, 1370]] }, { w: 40, pts: [[2100, 430], [2100, 1370]] }, { w: 34, pts: [[700, 140], [700, 430]] }, { w: 34, pts: [[1700, 140], [1700, 430]] }, { w: 34, pts: [[700, 1370], [700, 1660]] }, { w: 34, pts: [[1700, 1370], [1700, 1660]] }],
+    plaza: { x: 1200, y: 900, r: 240 },
+    houses: [
+      { key: "store", x: 780, y: 770, w: 200, h: 110, type: "shop", sign: "General Store", awning: "#37474f" },
+      { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227" },
+      { key: "jobs", x: 1620, y: 1040, w: 170, h: 90, type: "hall", floors: 1, sign: "Job Master" },
+      { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" },
+      { key: "stables", x: 1660, y: 1230, w: 200, h: 100, type: "home", sign: "Stables" }
+    ],
+    npcs: [{ id: "crystal_ironvale", x: 1200, y: 900 }, { id: "auction_ironvale", x: 1480, y: 840 }, { id: "barber_ironvale", x: 1359, y: 817 }, { id: "job_ironvale", x: 1620, y: 1140 }, { id: "stable_ironvale", x: 1660, y: 1310 }, { id: "trade_board", x: 1010, y: 1100 }],
+    stalls: [{ x: 1359, y: 826, color: "#c0392b", sign: "Barber", pole: true }, { x: 1041, y: 826, color: "#37474f" }, { x: 1300, y: 1043, color: "#5d4037" }, { x: 1100, y: 1043, color: "#37474f" }],
+    benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
+    dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }],
+    ambient: [{ type: "dog", x: 1200, y: 1150, n: 1, r: 140, col: 0x5a4a3a }, { type: "walker", x: 1200, y: 560, n: 1, path: [[1000, 520], [1400, 520], [1400, 640], [1000, 640]] }]
+  },
+  south: {
+    off: [2400, 3600], name: "South Ward", color: "#6fae5a", icon: "🏡",
+    streets: [{ w: 56, pts: [[1200, 0], [1200, 1900]] }, { w: 44, pts: [[150, 520], [2250, 520]] }, { w: 44, pts: [[150, 1250], [2250, 1250]] }, { w: 40, pts: [[450, 520], [450, 1650]] }, { w: 40, pts: [[1950, 520], [1950, 1650]] }],
+    exits: [{ x: 1150, y: 1776, w: 100, h: 24, to: "sunscar", tx: 1500, ty: 120, label: "Sunscar Desert" }],
+    houses: [
+      { key: "hearth", x: 750, y: 700, w: 200, h: 110, type: "hall", floors: 2, sign: "Hearthstone Inn", signCol: "#e0a050" },
+      { key: "grain", x: 1650, y: 1400, w: 220, h: 110, type: "warehouse", floors: 2, sign: "Grain Store" }
+    ],
+    props: [{ type: "barrels", x: 560, y: 760, rot: 0.4, r: 26 }, { type: "crates", x: 1850, y: 1380, rot: 0.2, r: 26 }],
+    dressing: [{ t: "well", x: 900, y: 1000 }, { t: "cart", x: 1450, y: 700, rot: -0.4 }, { t: "hay", x: 560, y: 1080 }, { t: "hay", x: 600, y: 1110 }],
+    ambient: [{ type: "dog", x: 900, y: 1000, n: 1, r: 120, col: 0x5a4a3a }]
+  },
+  forge: {
+    off: [4800, 1800], name: "Smelters' Row", color: "#c4703a", icon: "⚒️",
+    streets: [{ w: 64, pts: [[0, 900], [2200, 900]] }, { w: 40, pts: [[800, 250], [800, 1600]] }, { w: 40, pts: [[1600, 250], [1600, 1600]] }, { w: 36, pts: [[800, 400], [1600, 400]] }, { w: 36, pts: [[800, 1400], [1600, 1400]] }],
+    reserve: [{ x: 1850, y: 1300, w: 380, h: 340 }],
+    houses: [
+      { key: "mythril", x: 1250, y: 1070, w: 200, h: 110, type: "forge", floors: 1, sign: "Mythrilsmith", signCol: "#7ad0ff" },
+      { key: "smelter1", x: 1250, y: 600, w: 220, h: 120, type: "smelter" },
+      { key: "smelter2", x: 1790, y: 620, w: 220, h: 120, type: "smelter" }
+    ],
+    npcs: [{ id: "haldor", x: 1250, y: 1160, home: "mythril", sleep: [21, 5] }],
+    mines: [[2050, 1480, -Math.PI / 2]],
+    props: [{ type: "anvil", x: 1420, y: 1160, rot: 0.3, r: 26 }, { type: "crates", x: 2000, y: 1100, r: 30 }, { type: "barrels", x: 400, y: 700, r: 26 }],
+    dressing: [{ t: "cart", x: 500, y: 1100, rot: 0.5 }, { t: "hay", x: 450, y: 1400 }],
+    ambient: []
+  }
+};
+const IRONVALE_GATES = [{ x: 2400, y: 2700, a: "gate", b: "market" }, { x: 4800, y: 2700, a: "market", b: "forge" }, { x: 3600, y: 1800, a: "keep", b: "market", horiz: true }, { x: 3600, y: 3600, a: "market", b: "south", horiz: true }];
+ZONES.ironvale = buildCity({ id: "ironvale", seed: "ironvale-city-1", name: "Ironvale", city: "Ironvale", cityStyle: "mountain", palette: "snow", plan: IRONVALE_PLAN, fill: IRN_FILL, gates: IRONVALE_GATES, signs: IRN_SIGNS, cargo: ["forge", "gate"], w: OUT_DW * 3, h: OUT_DH * 3, walls: [[2400, 1800, 2400, 3600], [4800, 1800, 4800, 3600], [2400, 1800, 4800, 1800], [2400, 3600, 4800, 3600]], start: ["market", 1200, 1030], reserve: Object.values(IRONVALE_SHOPS).map(s => ({ x: s.x - s.w / 2 - 40, y: s.y - s.h / 2 - 20, w: s.w + 80, h: s.h + 130 })) });
 
 Object.assign(FAMILIES, {
   dune_lizard: tierFam("hill_lizard", { name: "Dune Lizard", color: "#c8a070", tint: 0xc8a070, tint2: 0xf0dcb0, hpMul: 1.15, attMul: 1.05, weak: { ice: 1.35, water: 1.2 }, loot: [["lizard_skin", 0.4], ["fire_crystal", 0.25], ["hi_potion", 0.06]] }),
@@ -1711,7 +1756,7 @@ Object.assign(FAMILIES, {
 NM_FAMILIES.sandmaw = { hint: "Singing Dunes, Sunscar Desert · any time", base: "worm", name: "Sandmaw", hpMul: 3.0, attMul: 1.15, scale: 1.8, aura: "#ffb74d", loot: [["garrison_boots", 0.35], ["worm_silk", 1], ["earth_crystal", 1], ["hi_potion", 0.5]], respawn: 480 };
 ZONES.sunscar = {
   name: "Sunscar Desert", w: 3000, h: 2200, theme: "field", palette: "desert",
-  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 750, ty: 980, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }, { x: 2600, y: 600, w: 40, h: 30, to: "spire1", tx: 110, ty: 400, label: "Red Spire", kind: "door", ask: "Climb into the Red Spire?" }, { x: 380, y: 1480, w: 40, h: 40, to: "mirage", tx: 110, ty: 500, label: "Mirage", kind: "door", weather: "sandstorm", ask: "Step into the shimmering mirage?" }],
+  exits: [{ x: 1450, y: 0, w: 100, h: 24, to: "ironvale", tx: 3600, ty: 5100, label: "Ironvale" }, { x: 2976, y: 950, w: 24, h: 100, to: "cinder", tx: 120, ty: 1200, label: "Cinder Peak" }, { x: 2600, y: 600, w: 40, h: 30, to: "spire1", tx: 110, ty: 400, label: "Red Spire", kind: "door", ask: "Climb into the Red Spire?" }, { x: 380, y: 1480, w: 40, h: 40, to: "mirage", tx: 110, ty: 500, label: "Mirage", kind: "door", weather: "sandstorm", ask: "Step into the shimmering mirage?" }],
   npcs: [],
   walls: [{ x: 600, y: 480, w: 300, h: 220 }, { x: 2000, y: 380, w: 260, h: 300 }, { x: 1250, y: 1500, w: 380, h: 200 }, { x: 2400, y: 1600, w: 240, h: 260 }],
   ruins: { walls: [[2520, 420, 2680, 420, 2.4], [2520, 420, 2520, 560, 1.6]], pillars: [[860, 1050, 3.6], [910, 1000, 4.4], [960, 1050, 4.0], [1010, 1100, 3.0], [820, 1120, 2.2]] },
@@ -2575,7 +2620,7 @@ const VENDOR_SHOP_LOOK = { armorer: { type: "forge", signCol: "#9aa4b0" }, weapo
 const VENDOR_TOWNS = {
   outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 3950, y: 4006, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 4220, y: 4006, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 6050, y: 2310, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 3300, y: 3058, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 3900, y: 3058, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 3900, y: 2342, w: 96, h: 72, sign: "Jewels", district: "market" } } },
   harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, shops: HARBOR_SHOPS },
-  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: { armorer: { x: 1490, y: 1280, w: 120, h: 72, sign: "Armory", district: "forge" }, weaponsmith: { x: 1470, y: 1120, w: 112, h: 72, sign: "Arms", district: "forge" }, tradesman: { x: 100, y: 420, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 686, y: 626, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 1065, y: 285, w: 90, h: 72, sign: "Scrolls", district: "keep" }, jeweler: { x: 700, y: 830, w: 96, h: 72, sign: "Jewels", district: "market" } } }
+  ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: IRONVALE_SHOPS }
 };
 const VENDOR_WORK = {};
 const TOWN_SERVICES = {
@@ -2739,7 +2784,7 @@ for (const zid in ZONES) {
 const WARP_STONES = {
   outpost: { res: [2150, 2560], gov: [3460, 1600], market: [3380, 2980], ind: [3440, 3800], gate: [5180, 2840] },
   harbor: { fish: [900, 1250], square: [3380, 1180], yard: [5800, 1180], docks: [3300, 2650] },
-  ironvale: { gate: [284, 704], keep: [660, 184], market: [900, 580], south: [900, 1180], forge: [1520, 704] }
+  ironvale: { gate: [1300, 3050], keep: [3400, 1300], market: [3380, 2980], south: [3300, 4500], forge: [5800, 2980] }
 };
 for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
   const id = "warpstone_" + zid + "_" + did, d = ZONES[zid].districts.find(q => q.id === did);
@@ -3238,7 +3283,7 @@ function splitTown(src) {
   for (const id in out) ZONES[id] = out[id];
   return out;
 }
-const TOWN_LAYOUT = { outpost: 2, harbor: 2 };
+const TOWN_LAYOUT = { outpost: 2, harbor: 2, ironvale: 2 };
 function settleTownFolk(z) {
   const isFolk = n => { const d = NPCS[n.id]; return d && !d.prop && !d.crystal && !d.warpstone; };
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y), GAP = 70;
