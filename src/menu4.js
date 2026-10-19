@@ -1720,6 +1720,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.0.0", date: "2026-10-19", title: "One sign per shop", items: [
+    "<b>Every shop and hall now has exactly one sign,</b> on its front. The extra side sign and the hanging trade icon are gone.",
+    "<b>Signs for shops that don't exist are gone.</b> The filler buildings along the streets (Bakery, Tailor, Net Maker and the like) are now plain houses with no sign or awning; only buildings you can actually visit are named.",
+    "<b>Sign text always fits its board.</b> Long names such as Adventurers' Guild and Chapel of the Dawn shrink to fit, and very long ones wrap onto two lines."
+  ] },
   { v: "18.99.0", date: "2026-10-19", title: "Menu fixes", items: [
     "<b>C now opens the command menu with your Status showing</b> (the same as choosing Status from the main menu). Press C again to close it, or Esc to step back to the command list.",
     "<b>The defeat prompt is much narrower</b> and wraps its text instead of stretching across the screen.",
@@ -3969,6 +3974,7 @@ function tabHelp() {
     "<b>Phones:</b> Target and Menu buttons sit above the bottom-right boxes; tap the event log to type.",
     "<b>Lists:</b> Items, Shop, Quests, Magic and Abilities are slim lists in the top left. Point at an entry for its card (under the list) and description (Help bar); choose it for a small box of actions. In a command menu, Magic shows MP Cost and Next (recast) above the target frame.",
     "<b>Bottom right:</b> separate Target and Party boxes.",
+    "<b>Signs:</b> every shop and hall you can visit has one sign on its front. Buildings without a sign are ordinary homes.",
     "<b>Windows:</b> menus open in the top left of the screen while the world keeps going. The Commands box shows the window's name and the Help bar explains it. Esc closes it.",
     "<b>Talking:</b> what people say goes into the event log. If there's a choice to make, a small box appears above the log: ↑ ↓ choose, Enter confirm, Esc back out. Yes/no questions use the same box.",
     "<b>Top:</b> the Commands box and the Help bar appear while something is targeted or a menu is open; the Help bar explains the highlighted command. The Network box beside it shows connection strength and messages sent (S) and received (R).",

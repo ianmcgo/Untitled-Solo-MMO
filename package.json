@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "18.99.0",
-  "releaseTitle": "Menu Fixes",
+  "version": "19.0.0",
+  "releaseTitle": "One Sign Per Shop",
   "description": "",
   "main": "index.js",
   "scripts": {

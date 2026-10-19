@@ -1038,8 +1038,23 @@ function texSign(text, col) {
   const g = c.getContext("2d");
   g.fillStyle = "#4a3220"; g.fillRect(0, 0, 256, 96);
   g.strokeStyle = col; g.lineWidth = 8; g.strokeRect(6, 6, 244, 84);
-  g.fillStyle = "#f0e2b8"; g.font = "bold " + (text.length > 14 ? 24 : 30) + "px Georgia, serif"; g.textAlign = "center"; g.textBaseline = "middle";
-  g.fillText(text, 128, 50);
+  g.fillStyle = "#f0e2b8"; g.textAlign = "center"; g.textBaseline = "middle";
+  const maxW = 212, setF = n => { g.font = "bold " + n + "px Georgia, serif"; };
+  let size = 30, lines = [text];
+  setF(size);
+  while (size > 18 && g.measureText(text).width > maxW) { size--; setF(size); }
+  if (g.measureText(text).width > maxW && text.indexOf(" ") > 0) {
+    const sp = [];
+    for (let i = 0; i < text.length; i++) if (text[i] === " ") sp.push(i);
+    const mid = sp.reduce((a, b) => Math.abs(b - text.length / 2) < Math.abs(a - text.length / 2) ? b : a);
+    lines = [text.slice(0, mid), text.slice(mid + 1)];
+    size = 26; setF(size);
+    while (size > 12 && Math.max(g.measureText(lines[0]).width, g.measureText(lines[1]).width) > maxW) { size--; setF(size); }
+  } else if (g.measureText(text).width > maxW) {
+    while (size > 10 && g.measureText(text).width > maxW) { size--; setF(size); }
+  }
+  if (lines.length === 1) g.fillText(text, 128, 50);
+  else { g.fillText(lines[0], 128, 50 - size * 0.55); g.fillText(lines[1], 128, 50 + size * 0.55); }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   return TEXLIB.cache[key] = t;
 }
@@ -1081,9 +1096,6 @@ function shopFront(bt, M, B, hs, bw, fz, PL, dh, dw, z, root, rnd) {
   const v = new THREE.Vector3();
   const col = (lx, lz, r) => { v.set(lx, 0, lz).applyMatrix4(B); if (z.colliders) z.colliders.push({ x: v.x / U, y: v.z / U, r }); };
   const W = bw / 2, Lx = -(W - 0.75), Rx = W - 0.75, Fz = fz + 0.55;
-  const icon = new THREE.Mesh(new THREE.CircleGeometry(0.42, 24), new THREE.MeshStandardMaterial({ map: texTradeIcon(hs.trade), side: THREE.DoubleSide, roughness: 0.8 }));
-  icon.position.set(-(dw / 2 + 0.9), PL + dh - 0.42, fz + 0.55); icon.rotation.y = Math.PI / 2; icon.applyMatrix4(B); root.add(icon);
-  bt.add(M.iron, box(0.04, 0.3, 0.04), B, -(dw / 2 + 0.9), PL + dh - 0.02, fz + 0.55);
   const t = hs.trade;
   if (t === "armorer") {
     const steel = M.steel || (M.steel = std({ color: 0xb4bcc4, roughness: 0.35, metalness: 0.75 }));
@@ -1338,15 +1350,9 @@ function buildCityBuildings(field, root) {
       am.position.set(0, PL + dh + 0.55, fz + 0.75); am.rotation.x = 0.32; am.applyMatrix4(B); am.castShadow = true; root.add(am);
       for (const sx of [-1, 1]) bt.add(M.frame, cyl(0.04, 0.04, 1.6, 5), B, sx * bw * 0.38, PL + dh + 0.3, fz + 1.0, 0, 1.2);
     }
-    if (hs.sign || T.sign) {
-      const label = hs.sign || "", sx = -(dw / 2 + 1.0);
-      bt.add(M.iron, box(1.1, 0.06, 0.06), B, sx + 0.45, PL + dh + 0.6, fz + 0.55, 0, 0, 0);
-      bt.add(M.iron, box(0.06, 0.06, 0.6), B, sx + 0.95, PL + dh + 0.6, fz + 0.28);
-      if (label) {
-        const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.56), new THREE.MeshStandardMaterial({ map: texSign(label, hs.signCol || "#d4a840"), side: THREE.DoubleSide, roughness: 0.8 }));
-        sg.position.set(sx + 0.1, PL + dh + 0.25, fz + 0.55); sg.rotation.y = Math.PI / 2; if (hs.type === "auction") sg.scale.setScalar(1.6); sg.applyMatrix4(B); root.add(sg);
-        const sg2 = sg.clone(); sg2.position.set(sx + 0.1, PL + dh + 0.25, fz + 0.55); sg2.rotation.set(0, 0, 0); sg2.position.set(0, PL + dh + 0.48, fz + 0.16); sg2.scale.setScalar(hs.type === "auction" ? Math.min(2.1, bw / 2.2) : Math.min(1.27, bw / 3)); sg2.applyMatrix4(B); root.add(sg2);
-      }
+    if (hs.sign) {
+      const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.56), new THREE.MeshStandardMaterial({ map: texSign(hs.sign, hs.signCol || "#d4a840"), side: THREE.DoubleSide, roughness: 0.8 }));
+      sg.position.set(0, PL + dh + 0.48, fz + 0.16); sg.scale.setScalar(hs.type === "auction" ? Math.min(2.1, bw / 2.2) : Math.min(1.27, bw / 3)); sg.applyMatrix4(B); root.add(sg);
     }
     if (hs.trade) shopFront(bt, M, B, hs, bw, fz, PL, dh, dw, z, root, rnd);
     if (T.flag || hs.flag) {

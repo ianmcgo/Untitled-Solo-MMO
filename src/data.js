@@ -1288,8 +1288,8 @@ function buildCity(C) {
           const r = { x: cx - bw / 2, y: cy - bh / 2, w: bw, h: bh };
           if (free(r, did)) {
             const rot = vert ? (nx > 0 ? 3 : 1) : (ny > 0 ? 2 : 0), h = { x: Math.round(cx), y: Math.round(cy), w: bw, h: bh, type: kind[0], floors: range(kind[4]), rot, district: did };
-            if (kind[0] === "shop") { const sg = signPool[did].pop(); if (sg) h.sign = sg; h.awning = pick(OUT_AWNINGS); }
-            if (kind[0] === "hall" && rnd() < 0.3) h.sign = pick(["Guildhouse", "Counting House", "Lodge", "Assay Office", "Notary", "Bathhouse"]);
+            if (kind[0] === "shop") { pick(OUT_AWNINGS); h.type = "home"; }
+            if (kind[0] === "hall" && rnd() < 0.3) pick(["Guildhouse", "Counting House", "Lodge", "Assay Office", "Notary", "Bathhouse"]);
             z.houses.push(h); w0 = along;
             if ((C.cargo || ["ind", "gate"]).includes(did) && rnd() < 0.5) { const sx = vert ? cx + nx * (bw / 2 + 26) : cx + ux * (bw / 2 + 24), sy = vert ? cy + uy * (bh / 2 + 24) : cy + ny * (bh / 2 + 26); z.props.push({ type: rnd() < 0.5 ? "barrels" : "crates", x: Math.round(sx), y: Math.round(sy), rot: rnd() * 6, r: 22 }); }
           }
