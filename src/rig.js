@@ -2070,18 +2070,19 @@ function humanEntryBase(L) {
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
     const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
-    const gA = 0.046 * gi, gcx = 0.075 * gi, gcy = hipJ - 0.016, gax = 0.09 * gi, gay = 0.05, gayU = 0.118, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA - gaz), gkb = 0.034;
+    const gA = 0.05 * gi, gcx = 0.072 * gi, gcy = hipJ - 0.022, gax = 0.092 * gi, gay = 0.048, gayU = 0.15, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
     const zMod = (x, y, z) => {
       if (!gOn || z >= 0) return z;
-      let out = z;
+      let dep = 0;
       for (const sx of [1, -1]) {
-        const u = Math.pow((x - sx * gcx) / gax, 2) + Math.pow((y - gcy) / (y > gcy ? gayU : gay), 2);
-        if (u >= 1) continue;
-        const zb = gcz - gaz * Math.sqrt(1 - u), h = clamp(0.5 + 0.5 * (zb - z) / gkb, 0, 1), sm = Math.min(z, zb * (1 - h) + z * h - gkb * h * (1 - h));
-        const f = clamp((1 - u) / 0.42, 0, 1), fe = f * f * (3 - 2 * f);
-        out = Math.min(out, z + (sm - z) * fe);
+        const qx = (x - sx * gcx) / gax, sxk = 1 - qx * qx;
+        if (sxk <= 0) continue;
+        const up = y > gcy, ty = up ? (y - gcy) / gayU : (gcy - y) / gay;
+        if (ty >= 1) continue;
+        const fy = up ? Math.pow(1 - ty * ty, 1.7) : Math.sqrt(1 - Math.pow(ty, 2.4));
+        dep = Math.max(dep, gA * Math.pow(sxk, 0.85) * fy);
       }
-      return out;
+      return z - dep;
     };
     const bump = (x, y) => { const z0 = -backAt(y); return z0 - zMod(x, y, z0); };
     const dens = rs => { if (!gOn) return rs; const out = []; for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; out.push(a); for (const f of [0.2, 0.4, 0.6, 0.8]) { const m = Object.assign({}, a); for (const k of ["y", "x", "z", "rx", "rz", "f", "b", "p"]) if (a[k] != null || b[k] != null) m[k] = (a[k] == null ? (k === "f" || k === "b" ? 1 : k === "p" ? 2.2 : 0) : a[k]) * (1 - f) + (b[k] == null ? (k === "f" || k === "b" ? 1 : k === "p" ? 2.2 : 0) : b[k]) * f; out.push(m); } } out.push(rs[rs.length - 1]); return out; };
@@ -2110,7 +2111,7 @@ function humanEntryBase(L) {
       R.addW(sculpt(gLoft(sh, sg, true, false, 0, 0.3)), "hips", wht, "plain", gW);
       if (!urs) R.add(sculpt(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 44).scale(1, 1, hz / hx0 * 1.02), 0, 0.012), "hips", wht, "plain");
     } else if (UW.low === "thong") {
-      const ys = beltY - 0.02, yBk = gOn ? Math.max(beltY + 0.012, gcy + gayU + 0.004) : beltY + 0.012, rsA = lowR.concat(upR.slice(1));
+      const ys = beltY - 0.02, yBk = gOn ? Math.max(beltY + 0.012, gcy + gayU * 0.82) : beltY + 0.012, rsA = lowR.concat(upR.slice(1));
       const band = uwRing(rsA, ys, 0.004, 36, yBk).map(q => q.z < 0 && gOn ? V3(q.x, q.y, zMod(q.x, q.y, q.z) - 0.003) : q);
       uwStrand(R, band.concat([band[0]]), 0.0026, "hips", UWK);
       const fz = (x, y) => uwFront(rsA, x, y) + 0.0035, tx = 0.07 * gi * hx0, ay = hipJ - 0.068;
