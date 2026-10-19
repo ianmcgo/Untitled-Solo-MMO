@@ -35,6 +35,16 @@ const RACE_FACE_HAIR = {
     null
   ]
 };
+function npcFace(L, seed) {
+  if (!L || L.noFace || L.skull || L.cactus || L.family || L.boss || L.tusks || L.beak) return L;
+  const race = L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human";
+  const n = ((RACE_FACE_HAIR[race] || RACE_FACE_HAIR.human)[L.build ? 1 : 0] || RACE_FACE_HAIR.human[L.build ? 1 : 0]).length;
+  const f = L.face != null ? L.face : (seed >>> 0) % Math.max(1, n - 1), e = faceHairEntry(race, L.build, f), out = Object.assign({}, L, { face: f });
+  const hs = L.hair && L.hair.style, covered = L.head && L.head.type && L.head.type !== "none";
+  if (hs !== "bald" && !covered && !L.keepHair) out.hair = Object.assign({}, L.hair || {}, { style: e.style, color: L.hair && L.hair.color != null ? L.hair.color : e.colors[(seed >>> 3) % e.colors.length] });
+  if (!L.extras && e.extras.length) { const ex = e.extras.filter(x => x !== "beard"); if (ex.length) out.extras = ex; }
+  return out;
+}
 function faceHairEntry(race, build, face) {
   const t = RACE_FACE_HAIR[race] || RACE_FACE_HAIR.human, row = t[build ? 1 : 0] || t[build ? 0 : 1] || RACE_FACE_HAIR.human[build ? 1 : 0];
   const s = row[Math.max(0, Math.min(row.length - 1, face | 0))].split(":");
@@ -2060,7 +2070,7 @@ function humanEntryBase(L) {
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
     const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
-    const gA = 0.035 * gi, gcx = 0.075 * gi, gcy = hipJ - 0.012, gax = 0.088 * gi, gay = 0.058, gayU = 0.112, gaz = 0.07 * gi, gcz = -(backAt(gcy) + gA - gaz), gkb = 0.034;
+    const gA = 0.046 * gi, gcx = 0.075 * gi, gcy = hipJ - 0.016, gax = 0.09 * gi, gay = 0.05, gayU = 0.118, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA - gaz), gkb = 0.034;
     const zMod = (x, y, z) => {
       if (!gOn || z >= 0) return z;
       let out = z;
@@ -2068,7 +2078,7 @@ function humanEntryBase(L) {
         const u = Math.pow((x - sx * gcx) / gax, 2) + Math.pow((y - gcy) / (y > gcy ? gayU : gay), 2);
         if (u >= 1) continue;
         const zb = gcz - gaz * Math.sqrt(1 - u), h = clamp(0.5 + 0.5 * (zb - z) / gkb, 0, 1), sm = Math.min(z, zb * (1 - h) + z * h - gkb * h * (1 - h));
-        const f = clamp((1 - u) / 0.3, 0, 1), fe = f * f * (3 - 2 * f);
+        const f = clamp((1 - u) / 0.42, 0, 1), fe = f * f * (3 - 2 * f);
         out = Math.min(out, z + (sm - z) * fe);
       }
       return out;
@@ -2082,9 +2092,10 @@ function humanEntryBase(L) {
     const allR = lowR.concat(upR.slice(1)), nLo = lowR.length, lowL = gOn ? densCR(allR, 0, nLo - 1) : lowR, upL = gOn ? densCR(allR, nLo - 1, nLo + 1).concat(upR.slice(3)) : upR, sg = gOn ? 64 : 24;
     R.addW(sculpt(gLoft(lowL, sg, true, false, 0, 0.3)), "hips", robe ? topC : legC, robe ? topR : legR, gW);
     R.addW(sculpt(gLoft(upL, sg, false, false, 0.3, 1)), "chest", topC, topR, gW);
-    const bR = 0.056 * gi, bY = chestY + 0.004, bZ = cz * 0.172 * 0.92, bX = 0.057 * gi;
-    if (fem && !L.doll && !robe) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) { R.bone("bust" + sd, "chest", xs * bX, bY, bZ); R.add(gBall(V3(xs * bX, bY, bZ), bR, 0.98, 0.94, 0.96, 18), "bust" + sd, topC, topR); }
-    BODY.up = upR; BODY.tw = tw; BODY.bust = fem && !L.doll && !robe ? { y: bY, front: bZ + bR * 0.96, r: bR } : null;
+    const bR = 0.062 * gi, bY = chestY - 0.002, bZ = cz * 0.172 * 0.92, bX = 0.054 * gi;
+    if (fem && !L.doll && !robe) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) { R.bone("bust" + sd, "chest", xs * bX, bY, bZ); R.add(gBall(V3(xs * bX, bY, bZ), bR, 1, 0.95, 1, 20), "bust" + sd, topC, topR); }
+    if (fem && !L.doll && !robe && top.type === "bare") { const cp = []; for (let i = 0; i <= 6; i++) { const y = bY + bR * (0.5 - 0.85 * i / 6), dy = (y - bY) / (bR * 0.95), q = 1 - Math.pow(bX / bR, 2) - dy * dy; if (q > 0.002) cp.push(V3(0, y, bZ + bR * Math.sqrt(q) - 0.0012)); } for (let i = 0; i < cp.length - 1; i++) R.add(gTaper(cp[i], cp[i + 1], 0.0022, 0.0022, 5), "chest", new THREE.Color(skin).multiplyScalar(0.62).getHex(), SKR); }
+    BODY.up = upR; BODY.tw = tw; BODY.bust = fem && !L.doll && !robe ? { y: bY, front: bZ + bR, r: bR } : null;
     const UW0 = L.under || {}, brief = UW0.low === "boxer" || UW0.low === "brief";
     BODY.glute = null;
     if (gOn) {
@@ -2115,12 +2126,12 @@ function humanEntryBase(L) {
     if (UW.top === "bikini") {
       const rsA = lowR.concat(upR.slice(1)), dollC = L.doll || !BODY.bust;
       const cR = dollC ? 0.054 * gi : bR, cX = dollC ? 0.051 * gi : bX, cY = dollC ? chestY + 0.02 : bY, cZ = dollC ? uwFront(rsA, 0.051 * gi, chestY + 0.02) - 0.054 * gi * 0.5 : bZ;
-      const bustZ = (x, y) => { let m = -9; for (const sx of [1, -1]) { const dx = (x - sx * cX) / (cR * 0.98), dy = (y - cY) / (cR * 0.94), d = dx * dx + dy * dy; if (d < 1) m = Math.max(m, cZ + cR * 0.96 * Math.sqrt(1 - d)); } return m; };
+      const bustZ = (x, y) => { let m = -9; for (const sx of [1, -1]) { const dx = (x - sx * cX) / cR, dy = (y - cY) / (cR * 0.95), d = dx * dx + dy * dy; if (d < 1) m = Math.max(m, cZ + cR * Math.sqrt(1 - d)); } return m; };
       const zAt = (x, y) => Math.max(uwFront(rsA, x, y) + 0.0035, bustZ(x, y) + 0.006);
       const yb = cY - 0.8 * cR;
       for (const [xs, sd] of [[1, "L"], [-1, "R"]]) {
-        const cx = xs * cX, A = [cx - xs * 1.1 * cR, cY - 0.86 * cR], B = [cx + xs * 1.3 * cR, cY - 0.74 * cR], T = [cx - xs * 0.1 * cR, cY + 1.32 * cR];
-        const bn = dollC ? "chest" : "bust" + sd, wf = (x, y) => { const d = Math.hypot((x - cx) / 0.98, (y - cY) / 0.94) / cR, w = smoothRange(1.2, 0.85, d); return [[bn, w], ["chest", 1 - w]]; };
+        const cx = xs * cX, A = [cx - xs * (dollC ? 1.1 : 0.9) * cR, cY - 0.86 * cR], B = [cx + xs * 1.3 * cR, cY - 0.74 * cR], T = [cx - xs * (dollC ? 0.1 : 0.02) * cR, cY + 1.32 * cR];
+        const bn = dollC ? "chest" : "bust" + sd, wf = (x, y) => { const d = Math.hypot(x - cx, (y - cY) / 0.95) / cR, w = smoothRange(1.2, 0.85, d); return [[bn, w], ["chest", 1 - w]]; };
         R.addW(gWrapTri([A, B, T], 10, zAt), "chest", UWC, "cloth", dollC ? (() => [["chest", 1]]) : wf);
         for (const [a, b] of [[A, T], [B, T]]) uwStrand(R, uwPath(a, b, 7, (x, y) => zAt(x, y) + 0.0012), 0.0021, "chest", UWK);
         const ta = V3(T[0], T[1], zAt(T[0], T[1]) + 0.001), nr = (0.052 * gi + 0.0035) * (L.doll ? 1.1 : 1);
@@ -3681,12 +3692,12 @@ function buildEntityRig(e) {
     if (!L) return null;
     sig = "n|" + e.id;
     const held = L.held !== undefined ? L.held : NPC_HELD[e.id] || (nd && NPC_HELD[nd.model]) || null;
-    const LF = Object.assign(L.face == null && !L.noFace ? { face: hashStr(e.id) % FACE_COUNT } : {}, L, { held });
+    const LF = Object.assign({}, npcFace(L, hashStr(e.id)), { held });
     make = () => humanEntry(LF);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {
     sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "") + (e.district ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
-    if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0, e.district, e.time === "night"); make = () => humanEntry(L); }
+    if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0, e.district, e.time === "night"), LW = npcFace(L, hashStr("w" + (e.seed || 0) + (e.look || ""))); make = () => humanEntry(LW); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
     else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);

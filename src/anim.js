@@ -555,7 +555,7 @@ function poseHuman(v, e, dt) {
     if (RG.roll) addP(P, "hips", 0, 0, s1 * RG.roll * amp);
     const wk = walk * (1 - run), stK = 1 - 0.6 * side;
     addP(P, "hips", 0, 0, c1 * 0.055 * wk * stK); addP(P, "chest", 0, 0, -c1 * 0.04 * wk * stK); addP(P, "head", 0, 0, -c1 * 0.015 * wk);
-    v.rootOff[0] += c1 * 0.012 * wk * stK;
+    addP(P, "spine", 0, 0, c1 * 0.025 * wk * stK);
     if (RG.arm !== 1) { addP(P, "upArmL", -s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); addP(P, "upArmR", s1 * 0.3 * (RG.arm - 1) * amp, 0, 0); }
     const kn = 1.0 + 0.35 * run;
     addP(P, "shinL", (0.16 + kn * Math.max(0, -c1) + 0.12 * Math.max(0, s1)) * amp * kneeK, 0, 0); addP(P, "shinR", (0.16 + kn * Math.max(0, c1) + 0.12 * Math.max(0, -s1)) * amp * kneeK, 0, 0);
