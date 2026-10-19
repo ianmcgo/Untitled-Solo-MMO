@@ -1867,10 +1867,10 @@ function uwFront(rs, x, y, back) {
   const u = Math.min(0.995, Math.abs(x) / rx), zz = rz * Math.pow(1 - Math.pow(u, p), 1 / p);
   return back ? zz - z0 : z0 + zz;
 }
-function uwRing(rs, y0, off, n, yBack) {
+function uwRing(rs, y0, off, n, yBack, dip) {
   const out = [];
   for (let i = 0; i < n; i++) {
-    const t = i / n * Math.PI * 2, c = Math.cos(t), sn = Math.sin(t), k = yBack == null ? 0 : smoothRange(0, 1, (1 - sn) / 2), y = y0 + ((yBack == null ? y0 : yBack) - y0) * k;
+    const t = i / n * Math.PI * 2, c = Math.cos(t), sn = Math.sin(t), k = yBack == null ? 0 : smoothRange(0, 1, (1 - sn) / 2), dk = dip && sn < 0 ? smoothRange(0.34, 0, Math.abs(c)) : 0, y = y0 + ((yBack == null ? y0 : yBack) - y0) * k - (dip || 0) * dk;
     let a = rs[0], b = rs[0], f = 0;
     for (let j = 0; j < rs.length - 1; j++) if (y >= rs[j].y && y <= rs[j + 1].y) { a = rs[j]; b = rs[j + 1]; f = (y - a.y) / Math.max(1e-6, b.y - a.y); break; }
     const L = (q, d) => ((a[q] == null ? d : a[q]) * (1 - f) + (b[q] == null ? d : b[q]) * f);
@@ -2070,7 +2070,7 @@ function humanEntryBase(L) {
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
     const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
-    const gA = 0.05 * gi, gcx = 0.072 * gi, gcy = hipJ - 0.022, gax = 0.092 * gi, gay = 0.048, gayU = 0.15, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
+    const gA = 0.064 * gi, gcx = 0.079 * gi, gcy = hipJ - 0.03, gax = 0.1 * gi, gay = 0.056, gayU = 0.155, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
     const zMod = (x, y, z) => {
       if (!gOn || z >= 0) return z;
       let dep = 0;
@@ -2079,7 +2079,7 @@ function humanEntryBase(L) {
         if (sxk <= 0) continue;
         const up = y > gcy, ty = up ? (y - gcy) / gayU : (gcy - y) / gay;
         if (ty >= 1) continue;
-        const fy = up ? Math.pow(1 - ty * ty, 1.7) : Math.sqrt(1 - Math.pow(ty, 2.4));
+        const fy = up ? Math.pow(1 - ty * ty, 1.35) : Math.sqrt(1 - Math.pow(ty, 2.6));
         dep = Math.max(dep, gA * Math.pow(sxk, 0.85) * fy);
       }
       return z - dep;
@@ -2112,16 +2112,16 @@ function humanEntryBase(L) {
       if (!urs) R.add(sculpt(gRing(V3(0, beltY + 0.004, 0), hipR * hx0 + 0.008, 0.008, "y", 44).scale(1, 1, hz / hx0 * 1.02), 0, 0.012), "hips", wht, "plain");
     } else if (UW.low === "thong") {
       const ys = beltY - 0.02, yBk = gOn ? Math.max(beltY + 0.012, gcy + gayU * 0.82) : beltY + 0.012, rsA = lowR.concat(upR.slice(1));
-      const band = uwRing(rsA, ys, 0.004, 36, yBk).map(q => q.z < 0 && gOn ? V3(q.x, q.y, zMod(q.x, q.y, q.z) - 0.003) : q);
+      const vDip = gOn ? 0.03 : 0.012, band = uwRing(rsA, ys, 0.004, 40, yBk, vDip).map(q => q.z < 0 && gOn ? V3(q.x, q.y, zMod(q.x, q.y, q.z) - 0.003) : q);
       uwStrand(R, band.concat([band[0]]), 0.0026, "hips", UWK);
       const fz = (x, y) => uwFront(rsA, x, y) + 0.0035, tx = 0.07 * gi * hx0, ay = hipJ - 0.068;
       const tri = [[-tx, ys], [tx, ys], [0, ay]];
       R.add(gWrapTri(tri, 9, fz), "hips", UWC, "cloth");
       for (const [a, b] of [[tri[0], tri[2]], [tri[1], tri[2]]]) uwStrand(R, uwPath(a, b, 6, (x, y) => fz(x, y) + 0.0015), 0.0022, "hips", UWK);
       const yb = hipJ - 0.08, bz = (y, x) => { const z = -uwFront(rsA, x || 0, y, true) - 0.004; return gOn ? zMod(x || 0, y, z) - 0.004 : z; };
-      const ty = [yBk, (yBk + hipJ) / 2 + 0.01, hipJ - 0.01, hipJ - 0.05, hipJ - 0.072];
-      const back = ty.map(y => V3(0, y, BODY.glute ? -(backAt(y) + bump(0, y) + 0.007) : bz(y)));
-      uwStrand(R, [V3(0, ay, fz(0, ay))].concat([V3(0, yb - 0.012, 0)], back.slice().reverse()), 0.0024, "hips", UWK);
+      const yV = yBk - vDip, ty = []; for (let i = 0; i <= 14; i++) ty.push(yV + (hipJ - 0.072 - yV) * i / 14);
+      const back = ty.map(y => V3(0, y, BODY.glute ? -(backAt(y) + bump(0, y) + 0.0042) : bz(y)));
+      uwStrand(R, [V3(0, ay, fz(0, ay)), V3(0, yb - 0.012, 0)].concat(back.slice().reverse()), 0.0032, "hips", 0x060507);
       for (const sx of [1, -1]) { const q = band.reduce((m, p) => sx * p.x > sx * m.x ? p : m, band[0]); uwBow(R, V3(q.x + sx * 0.002, q.y, q.z), V3(sx, 0, 0), 0.9 * gi, "hips", UWK); }
     }
     if (UW.top === "bikini") {
