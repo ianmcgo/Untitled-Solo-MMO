@@ -2116,7 +2116,7 @@ function humanEntryBase(L) {
       const rsA = lowR.concat(upR.slice(1)), dollC = L.doll || !BODY.bust;
       const cR = dollC ? 0.054 * gi : bR, cX = dollC ? 0.051 * gi : bX, cY = dollC ? chestY + 0.02 : bY, cZ = dollC ? uwFront(rsA, 0.051 * gi, chestY + 0.02) - 0.054 * gi * 0.5 : bZ;
       const bustZ = (x, y) => { let m = -9; for (const sx of [1, -1]) { const dx = (x - sx * cX) / (cR * 0.98), dy = (y - cY) / (cR * 0.94), d = dx * dx + dy * dy; if (d < 1) m = Math.max(m, cZ + cR * 0.96 * Math.sqrt(1 - d)); } return m; };
-      const zAt = (x, y) => Math.max(uwFront(rsA, x, y) + 0.0035, bustZ(x, y) + 0.0045);
+      const zAt = (x, y) => Math.max(uwFront(rsA, x, y) + 0.0035, bustZ(x, y) + 0.006);
       const yb = cY - 0.8 * cR;
       for (const [xs, sd] of [[1, "L"], [-1, "R"]]) {
         const cx = xs * cX, A = [cx - xs * 1.1 * cR, cY - 0.86 * cR], B = [cx + xs * 1.3 * cR, cY - 0.74 * cR], T = [cx - xs * 0.1 * cR, cY + 1.32 * cR];

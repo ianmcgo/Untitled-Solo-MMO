@@ -1701,6 +1701,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "18.91.0", date: "2026-10-19", title: "New underwear and slimmer shoulders", items: [
+    "<b>New women's underwear set</b>: a smoky black triangle bikini top with fine edge binding, a halter that ties in a bow behind the neck and a thin band that ties in a bow across the back, plus a matching string thong with a small front triangle, a bow on each hip and a waist string that rises to sit on the waist above the buttocks. Every race wears it, scaled to their build, including Pipkins.",
+    "<b>Women's shoulders are narrower</b> (about 13% on Humans, Elari and Nekari, 5% on Pipkins), with the upper chest tapering in to match. The waist, hips and bust are unchanged, and armour, robes and shoulder guards follow the new shoulder line.",
+    "<b>Smoother waist:</b> the hard ridge where the hips met the waist is gone; the torso now curves smoothly from waist to hips on all women.",
+    "Men's boxers are unchanged."
+  ] },
   { v: "18.90.0", date: "2026-10-19", title: "Interrupts", items: [
     "<b>Physical hits interrupt casting.</b> Any melee hit, arrow, weapon skill or physical monster move that lands on a caster ends the cast at once. Aquaveil absorbs one interrupt. Monsters that cast are thrown off 75% of the time. Magic hits keep the old 40% chance.",
     "<b>Weapon skills have a short wind-up</b> (about 0.8 s, shown on the cast bar). Moving or Escape cancels it and keeps the TP; a physical hit cancels it too, and the TP is lost if it lands in the last quarter. Party members follow the same rules.",

@@ -48,3 +48,4 @@ Status: planned (not started).
 - One version bump and release per phase, pushed to GitHub.
 
 Phase 1 complete (18.90.0). Weapon skill TP-loss rule: default kept (lost only when the hit lands in the final quarter).
+Phase 2 complete (18.91.0). User change during phase 2: the back waist string sits on the waist above the buttocks.
