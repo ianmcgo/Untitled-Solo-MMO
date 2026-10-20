@@ -95,7 +95,7 @@ Goal: towns that are fun to explore, easy to read, and feel deep. Fewer empty ho
 - The first visit to a city plays a short title sequence naming the districts and what each is for.
 - Guards point you to the nearest vendor of a given kind when asked ("Where is the armourer?").
 
-### T4: Field variety (later)
+### T4: Field variety - DONE in 19.16.0
 - Same floating and sign audit for the field zones; more varied clearings, overlooks and ruins; POIs visible from paths.
 
 Order: T1 first (it is mostly cleanup and can ship alone), then T2 and T3 together, T4 after the monster phases. Model: Sonnet for T1 and T3, Opus for T2 (layout and terrain work).
