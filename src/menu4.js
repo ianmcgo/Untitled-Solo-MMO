@@ -1749,6 +1749,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.15.0", date: "2026-10-20", title: "Quick draw", items: [
+    "<b>Drawing and sheathing are quick.</b> Your hand goes to the hip (or over the shoulder for back-carried weapons), closes on the weapon, and it comes away with the hand. A draw takes about a third of a second and a sheathe about half a second, and a swing cuts either short.",
+    "<b>No more floating weapon.</b> The weapon is always held by your hand or sits on your hip or back, never drifting through the air between them."
+  ] },
   { v: "19.14.0", date: "2026-10-20", title: "Weapons at the hip", items: [
     "<b>Hip carry.</b> Swords, katanas, daggers, axes and clubs now hang at your left hip, blade angled back, instead of on your back. Drawing one is a reach across to the hip; staves, polearms, great weapons and bows stay on your back.",
     "<b>Waiting a day fixed.</b> A full day waited in the Time menu now always counts, so the guild board and daily supplies refresh (a wait that ended a hair under 24 hours used to be lost)."
@@ -2455,7 +2459,7 @@ const UPDATES = [
     "<b>Pipkin faces:</b> rounder cheeks with a small, soft chin and a shorter lower face."
   ] },
   { v: "18.19.4", date: "2026-10-16", title: "Weapon draw animation", items: [
-    "<b>Drawing and sheathing are animated:</b> you reach back over your shoulder and pull your weapon from your back (about 2 seconds), and put it away the same way (about 3 seconds). Attacking mid-draw finishes the draw at once.",
+    "<b>Drawing and sheathing are animated:</b> you reach for your weapon and pull it free (about a third of a second), and put it away the same way (about half a second). Attacking mid-draw finishes the draw at once.",
     "<b>Weapons fit the wielder:</b> small races such as Pipkin now carry smaller weapons, and large races such as Ursan carry slightly bigger ones.",
     "<b>Pipkin chins trimmed:</b> narrower, shorter jaw and no chin bulge.",
     "<b>Pointed hats sit lower</b> and have a fuller lining, so no skin shows between the hat and the head."

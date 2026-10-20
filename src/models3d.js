@@ -122,7 +122,7 @@ function lookTargetOf(e) {
   return e !== player && player.target === e && near(player, 500) ? player : null;
 }
 
-const WEAPON_DRAW_TIME = 2.0, WEAPON_SHEATHE_TIME = 3.0;
+const WEAPON_DRAW_TIME = 0.35, WEAPON_SHEATHE_TIME = 0.45;
 
 function weaponBodyK(v) {
   const rb = RACE_BODY[v.meta && v.meta.race];
@@ -157,7 +157,7 @@ function snapWeapon(v, drawn) {
   (drawn ? v.bones.handR : carryBone(v)).add(w);
   w.position.copy(t.pos); w.rotation.copy(t.rot);
   v.wBaseRot = t.rot.clone();
-  v.weaponDrawn = drawn; v.wTr = null; v.wBlend = null;
+  v.weaponDrawn = drawn; v.wTr = null; v.wEase = null;
 }
 
 function placeWeapon(v, e) {
@@ -175,7 +175,7 @@ function placeWeapon(v, e) {
     v.wTr = { to: drawn, t0: S.time, dur: drawn ? WEAPON_DRAW_TIME : WEAPON_SHEATHE_TIME, switched: false };
   }
   const tr = v.wTr;
-  if (tr && tr.to && busy && S.time - tr.t0 > 0.15) { snapWeapon(v, true); return; }
+  if (tr && tr.to && busy && S.time - tr.t0 > 0.05) { snapWeapon(v, true); return; }
   if (tr) {
     const p = (S.time - tr.t0) / tr.dur;
     if (!tr.switched && p >= 0.5) {
@@ -183,16 +183,16 @@ function placeWeapon(v, e) {
       w.updateWorldMatrix(true, false);
       (tr.to ? v.bones.handR : carryBone(v)).attach(w);
       v.weaponDrawn = tr.to;
-      v.wBlend = { t0: S.time, dur: tr.dur * 0.18, pos: w.position.clone(), quat: w.quaternion.clone() };
+      v.wEase = { t0: S.time, dur: tr.dur * 0.35, pos: w.position.clone(), quat: w.quaternion.clone() };
     }
     if (p >= 1) { snapWeapon(v, tr.to); return; }
   }
-  const bl = v.wBlend;
+  const bl = v.wEase;
   if (bl) {
     const t = weaponPose(v, v.weaponDrawn), k = Math.min(1, (S.time - bl.t0) / bl.dur), s = k * k * (3 - 2 * k);
     w.position.lerpVectors(bl.pos, t.pos, s);
     w.quaternion.slerpQuaternions(bl.quat, t.quat, s);
-    if (k >= 1) v.wBlend = null;
+    if (k >= 1) v.wEase = null;
   }
 }
 

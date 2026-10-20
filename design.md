@@ -2653,3 +2653,7 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - Carry: `HIP_KINDS` in models3d.js (sword, katana, dagger, axe, club; value = backward tilt) mount the weapon on the `hips` bone at the left hip (`thighL.x + 0.07`), blade down, tilted back, tip flared out; `carryBone(v)` picks hips or chest everywhere the weapon is parented. Others keep the back pose.
 - Draw/sheathe arm pose: `HIP_DRAW` in anim.js reaches the right arm across to the left hip for the same kinds; others keep the over-shoulder reach. Timings unchanged (W2 will rework draw timing and remove `wBlend`).
 - Scratch pose test: a script forcing `v.wTr.t0` every frame to freeze a draw phase, screenshot from behind and front.
+
+## 19.15.0 Quick draw (W2)
+- `WEAPON_DRAW_TIME` 0.35 s, `WEAPON_SHEATHE_TIME` 0.45 s (were 2 and 3). The weapon swaps parent (carry bone <-> `handR`) at half the transition with `attach` so world position is unchanged, then `v.wEase` (renamed from `wBlend`, 35% of the transition) eases only its local pose in the new parent, so it never travels freely. A swing during a draw snaps it to the hand after 0.05 s.
+- Arm poses in anim.js (`v.wTr` block) scale with `wTr.dur`, so they speed up automatically.

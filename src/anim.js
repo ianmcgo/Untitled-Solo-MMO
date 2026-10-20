@@ -562,7 +562,7 @@ function poseHuman(v, e, dt) {
     else if (v.weaponKind === "staff") { addP(P, "upArmR", -0.5 * sw, 0, 0.1 * sw); addP(P, "foreArmR", -0.8 * sw, 0, 0); addP(P, "upArmL", -1.0 * sw, 0, -0.4 * sw); addP(P, "foreArmL", -0.65 * sw, 0, 0); addP(P, "handR", -1.15 * sw, 0, 0.3 * sw); addP(P, "spine", 0, 0.12 * sw, 0); }
     else if (v.weaponKind === "polearm") { addP(P, "upArmR", -0.9 * sw, 0, 0); addP(P, "foreArmR", -0.6 * sw, 0, 0); addP(P, "upArmL", -0.95 * sw, 0, -0.5 * sw); addP(P, "foreArmL", -0.15 * sw, 0, 0); }
     else { addP(P, "upArmR", -1.2 * sw, 0, -0.1 * sw); addP(P, "foreArmR", -0.4 * sw, 0, 0); addP(P, "upArmL", -0.5 * sw, 0, 0.05 * sw); addP(P, "foreArmL", -1.0 * sw, 0, 0); }
-    if (v.weapon && v.weaponDrawn && !v.wBlend) { const wk2 = v.weaponKind; if (wk2 === "staff" || wk2 === "polearm") v.weapon.rotation.z = Math.PI * an.fight; else if (wk2 && wk2 !== "h2h" && wk2 !== "archery") addP(P, "handR", 1.45 * sw, 0, 0); }
+    if (v.weapon && v.weaponDrawn && !v.wEase) { const wk2 = v.weaponKind; if (wk2 === "staff" || wk2 === "polearm") v.weapon.rotation.z = Math.PI * an.fight; else if (wk2 && wk2 !== "h2h" && wk2 !== "archery") addP(P, "handR", 1.45 * sw, 0, 0); }
   }
 
   if (amp > 0.01) {
@@ -599,7 +599,7 @@ function poseHuman(v, e, dt) {
     if (step !== an.lastStep) { an.lastStep = step; if (run > 0.4 && e.alive !== false) fxFootstep(e, v); }
   }
 
-  if (v.weapon && !v.weaponDrawn && !v.wTr && !v.wBlend && v.wBaseRot) { v.weapon.rotation.x = v.wBaseRot.x + Math.sin(an.ph * 2) * 0.05 * amp; v.weapon.rotation.y = v.wBaseRot.y + Math.cos(an.ph) * 0.04 * amp; }
+  if (v.weapon && !v.weaponDrawn && !v.wTr && !v.wEase && v.wBaseRot) { v.weapon.rotation.x = v.wBaseRot.x + Math.sin(an.ph * 2) * 0.05 * amp; v.weapon.rotation.y = v.wBaseRot.y + Math.cos(an.ph) * 0.04 * amp; }
   { const eng = Math.sin(Math.PI * Math.min(1, Math.max(0, an.fight))); if (eng > 0.01) { addP(P, "spine", 0.1 * eng, 0, 0); addP(P, "thighL", -0.12 * eng, 0, 0); addP(P, "thighR", -0.08 * eng, 0, 0); addP(P, "shinL", 0.15 * eng, 0, 0); addP(P, "shinR", 0.1 * eng, 0, 0); v.rootOff[1] -= 0.025 * eng; } }
   if (v.wTr) {
     const wp = Math.min(1, Math.max(0, (S.time - v.wTr.t0) / v.wTr.dur));
