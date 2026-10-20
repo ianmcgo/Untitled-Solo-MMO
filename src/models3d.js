@@ -131,6 +131,8 @@ function weaponBodyK(v) {
 }
 
 const WEAPON_HALF_T = { staff: 0.02, polearm: 0.018, greataxe: 0.024, scythe: 0.02, gsword: 0.022, gkatana: 0.016, sword: 0.018, katana: 0.014, dagger: 0.014, axe: 0.022, club: 0.022, archery: 0.02 };
+const HIP_KINDS = { sword: 0.5, katana: 0.55, dagger: 0.3, axe: 0.35, club: 0.35 };
+function carryBone(v) { return HIP_KINDS[v.weapon.userData.kind] != null && v.bones.hips ? v.bones.hips : v.bones.chest; }
 function weaponPose(v, drawn) {
   const k = v.weapon.userData.kind, pos = new THREE.Vector3(), rot = new THREE.Euler();
   if (drawn) {
@@ -144,6 +146,7 @@ function weaponPose(v, drawn) {
     const th = WEAPON_HALF_T[k] || 0.02;
     if (k === "staff") { pos.set(0, -0.1, bz - th); rot.set(0, 0, 1.2); }
     else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { pos.set(0, 0.0, bz - th); rot.set(0, 0, 0.78); }
+    else if (HIP_KINDS[k] != null && v.bones.hips) { const hx = v.bones.thighL ? v.bones.thighL.position.x : 0.1; pos.set(hx + 0.07, -0.03, 0.0); rot.set(HIP_KINDS[k], 0, Math.PI + 0.14); }
     else { pos.set(0.04, 0.0, bz - th); rot.set(0, 0, Math.PI + 0.55); }
   }
   return { pos, quat: new THREE.Quaternion().setFromEuler(rot), rot };
@@ -151,7 +154,7 @@ function weaponPose(v, drawn) {
 
 function snapWeapon(v, drawn) {
   const w = v.weapon, t = weaponPose(v, drawn);
-  (drawn ? v.bones.handR : v.bones.chest).add(w);
+  (drawn ? v.bones.handR : carryBone(v)).add(w);
   w.position.copy(t.pos); w.rotation.copy(t.rot);
   v.wBaseRot = t.rot.clone();
   v.weaponDrawn = drawn; v.wTr = null; v.wBlend = null;
@@ -178,7 +181,7 @@ function placeWeapon(v, e) {
     if (!tr.switched && p >= 0.5) {
       tr.switched = true;
       w.updateWorldMatrix(true, false);
-      (tr.to ? v.bones.handR : v.bones.chest).attach(w);
+      (tr.to ? v.bones.handR : carryBone(v)).attach(w);
       v.weaponDrawn = tr.to;
       v.wBlend = { t0: S.time, dur: tr.dur * 0.18, pos: w.position.clone(), quat: w.quaternion.clone() };
     }

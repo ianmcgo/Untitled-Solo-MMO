@@ -16,4 +16,5 @@ G.save.inventory = []; G.giveItem('fire_crystal', 6); G.giveItem('water_crystal'
 const id = G.ITEMS.iron_sword ? 'iron_sword' : null;
 G.save.gil = 5000; const r = G.ahList(id, 1, 100, 'fire_crystal');
 ok(r === '' && G.invCount('fire_crystal') === 6 - G.ahEssenceFee(id) && G.invCount('water_crystal') === 3, 'listing spends the chosen Essence ' + r);
+G.save.waitHours = 23.9999; ok(G.guildDay() === d0 + 1, 'a wait a hair under 24 hours still counts');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

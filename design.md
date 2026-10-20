@@ -2647,3 +2647,9 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 
 ## 19.13.3 Guild tidy-up
 - GUILD_SHOP emptied and its list section hidden; GUILD_PERKS (incl. random daily finds) restored after a wrong removal in 19.13.2.
+
+## 19.14.0 Weapon grip and carry (W1) and wait fix
+- Wait fix: a wait that finishes now adds exactly its hours to `save.waitHours` (it used to add `done/msPerHour`, which finished a hair under 24 so the guild day never advanced); `guildDay` adds 0.002 before flooring.
+- Carry: `HIP_KINDS` in models3d.js (sword, katana, dagger, axe, club; value = backward tilt) mount the weapon on the `hips` bone at the left hip (`thighL.x + 0.07`), blade down, tilted back, tip flared out; `carryBone(v)` picks hips or chest everywhere the weapon is parented. Others keep the back pose.
+- Draw/sheathe arm pose: `HIP_DRAW` in anim.js reaches the right arm across to the left hip for the same kinds; others keep the over-shoulder reach. Timings unchanged (W2 will rework draw timing and remove `wBlend`).
+- Scratch pose test: a script forcing `v.wTr.t0` every frame to freeze a draw phase, screenshot from behind and front.

@@ -1600,7 +1600,7 @@ function tickWait(dt) {
 function stopWait(byPlayer, finished) {
   const w = S.wait; if (!w) return;
   S.wait = null;
-  save.waitHours = (save.waitHours || 0) + w.done / WAIT_CFG.msPerHour;
+  save.waitHours = (save.waitHours || 0) + (finished ? w.hours : w.done / WAIT_CFG.msPerHour);
   save.timeShift = S.timeShift;
   saveGame();
   const v = vana(), h = Math.round(w.done / WAIT_CFG.msPerHour * 10) / 10;

@@ -127,6 +127,7 @@ function newPose(v) {
 
 function setZ(P, b, z) { const p = P[b]; if (p) p[2] = z; }
 
+const HIP_DRAW = { sword: 1, katana: 1, dagger: 1, axe: 1, club: 1 };
 function addP(P, b, x, y, z) { const p = P[b]; if (!p) return; p[0] += x; p[1] += y; p[2] += z; }
 function setP(P, b, x, y, z, w) { const p = P[b]; if (!p || w <= 0) return; p[0] += (x - p[0]) * w; p[1] += (y - p[1]) * w; p[2] += (z - p[2]) * w; }
 
@@ -603,12 +604,21 @@ function poseHuman(v, e, dt) {
   if (v.wTr) {
     const wp = Math.min(1, Math.max(0, (S.time - v.wTr.t0) / v.wTr.dur));
     const r = wp < 0.5 ? ease(wp / 0.5) : 1 - ease((wp - 0.5) / 0.5);
+    if (HIP_DRAW[v.weaponKind]) {
+      setP(P, "upArmR", -0.35, 0.5, 0.55, r);
+      setP(P, "foreArmR", -0.9, 0, 0, r);
+      setP(P, "handR", 0, 0, 0, r);
+      setP(P, "upArmL", -0.2, 0, 0.3, r);
+      setP(P, "chest", 0.05, 0.3, 0, r);
+      setP(P, "spine", 0.05, 0, 0, r);
+    } else {
     setP(P, "upArmR", -2.55, 0, -0.35, r);
     setP(P, "foreArmR", -1.25, 0, 0, r);
     setP(P, "handR", 0, 0, 0, r);
     setP(P, "upArmL", -0.35, 0, 0.35, r);
     setP(P, "chest", -0.08, 0.15, 0, r);
     setP(P, "spine", -0.12, 0, 0, r);
+    }
   }
 
   const ak0 = (S.time - an.aStart) / 0.5, ak = st.family === "undead" && ak0 >= 0 && ak0 <= 1 ? Math.round(ak0 * 5) / 5 : ak0;

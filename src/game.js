@@ -2740,7 +2740,7 @@ function guildRank(total) {
 }
 
 function guildDay() {
-  const day = boardDay() + Math.floor((save.waitHours || 0) / 24);
+  const day = boardDay() + Math.floor((save.waitHours || 0) / 24 + 0.002);
   if (save.guild.day !== day) { save.guild.day = day; save.guild.done = []; save.guild.bought = []; }
   return day;
 }
