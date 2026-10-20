@@ -15,7 +15,7 @@ ok(G.ahTowns().length === towns.length, 'every town is on the auction list');
 const sets = G.ahTowns().map(t => [...G.ahDaily(t)].sort().join(','));
 ok(new Set(sets).size === sets.length, 'each town rotates its own stock');
 const union = G.ahMarketSet();
-ok(G.ahTowns().every(t => [...G.ahDaily(t)].every(id => union.has(id))), 'the whole market is the union of the towns');
+ok([...G.ahDaily(G.ahHere())].every(id => union.has(id)) && union.size === G.ahDaily(G.ahHere()).size, 'the market is the stock of the city you are in');
 ok(G.ahHere() === 'outpost', 'the auction house you use is the town you stand in');
 const id = [...G.ahDaily('outpost')].find(i => G.ahStockAt(i, 'outpost') > 0 && G.ITEMS[i].kind !== 'equip');
 const total0 = G.ahStock(id), here0 = G.ahStockAt(id, 'outpost'), other0 = G.ahTowns().filter(t => t !== 'outpost').map(t => G.ahStockAt(id, t));

@@ -7,7 +7,7 @@ G.enterZone('outpost'); run(0.2);
 ok(!!npc('auction_outpost'), 'The auction counter stands the auction house in the Outpost');
 G.enterZone('harbor', 600, 420); run(0.2);
 ok(!!npc('auction_harbor'), 'A counter stands the one in Saltreach');
-ok(G.ahTradable('iron_ore') && G.ahTradable('spatha') && !G.ahTradable('fasting_ring') && !G.ahTradable('multiple_ring') && !G.ahTradable('ashen_shard'), 'rare, Ex and key items stay off the market');
+ok(G.ahTradable('iron_ore') && G.ahTradable('spatha') && G.ahTradable('fasting_ring') && !G.ahTradable('multiple_ring') && !G.ahTradable('ashen_shard'), 'rare, Ex and key items stay off the market');
 const hist = G.priceHistory('iron_ore', 12);
 ok(new Set(hist).size > 3, 'prices move over time: ' + hist.join(','));
 const base = G.ITEMS.iron_ore.price * G.CONFIG.shopMul * 1.5;

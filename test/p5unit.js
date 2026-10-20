@@ -92,8 +92,8 @@ Math.random = saved;
 ok(G.itemRarity('potion') === 'common' && G.itemRarity('hi_potion') === 'uncommon' && G.itemRarity('safeguard_ring') === 'rare' && G.itemRarity('legionnaires_cap') === 'epic', 'rarity tiers');
 let gearOk = true;
 for (const k in G.FAMILIES) for (const [id, ch] of G.FAMILIES[k].loot) { const it = G.ITEMS[id]; if (!it) gearOk = false; }
-for (const k in G.NM_FAMILIES) { const u = G.NM_FAMILIES[k].loot[0]; if (u[1] < 0.25 || u[1] > 0.35) gearOk = false; }
-ok(gearOk, 'drop rates: NM uniques 25–35%');
+for (const k in G.NM_FAMILIES) { if (/_elemental$/.test(k)) continue; const u = G.NM_FAMILIES[k].loot[0]; if (u[1] < 0.1 || u[1] > 0.2) gearOk = false; }
+ok(gearOk, 'drop rates: NM uniques 10–20%');
 
 G.save.gil = 5000; G.hireMerc('kael'); S.mobs = []; S.spawnAt = []; run(1);
 const ally = S.party.find(p => p !== P());

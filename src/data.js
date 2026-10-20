@@ -77,6 +77,10 @@ const CONFIG = {
   mpMul: 1.35,
   mobGil: [3, 5],
   shopMul: 10,
+  vendorBuy: 0.5,
+  hqMul: 2,
+  hqPlusMul: 3,
+  nmMul: 3,
   mobCurve: { lv: [1, 5, 10, 15, 20], hp: [1, 0.85, 0.8, 0.78, 0.74], att: [1, 0.9, 0.9, 0.87, 0.85], dmg: [1, 0.9, 0.9, 0.87, 0.85] },
   settingsKey: "ashenreach_settings_v1",
   startGil: 100,
@@ -2356,7 +2360,7 @@ const RACE_ORDER = ["human", "elari", "pipkin", "ursan", "nekari"];
 
 const AH_KINDS = { town: { label: "Town", icon: "🏛", color: "#f1cf73" }, player: { label: "Players", icon: "👤", color: "#81c784" }, merc: { label: "Mercenaries", icon: "⚔", color: "#b39ddb" } };
 const AH_CATS = { materials: "Materials", consumables: "Consumables", weapons: "Weapons", armor: "Armor" };
-const AH_CFG = { shopRatio: 1.5, fee: 0.03, maxListings: 7, checkMs: 60000, expireMs: 3 * 3600000, tickMins: 360, townBuySec: 1200, townBuyCeil: 1.25, relistChance: 0.5, relistCap: 40, relistMarkup: 1.03, mercLotCap: 300, townBuyMaxSteps: 36 };
+const AH_CFG = { shopRatio: 1.5, fee: 0.03, maxListings: 7, checkMs: 60000, expireMs: 3 * 3600000, tickMins: 360, townBuySec: 1200, townBuyCeil: 1, relistChance: 0.5, relistCap: 40, relistMarkup: 1.03, mercLotCap: 300, townBuyMaxSteps: 36 };
 const AH_NEWS = {
   materials: ["The smiths of the capital are buying up ore and timber.", "A caravan of raw goods just flooded the market."],
   consumables: ["A fever in the villages has everyone buying medicine and food.", "Healers have overstocked their potions and are selling cheap."],
@@ -3474,3 +3478,46 @@ function keepOffRoads(z) {
 for (const zid in ZONES) if (ZONES[zid].town) placeWarpStone(ZONES[zid]);
 for (const zid in ZONES) if (!ZONES[zid].indoor && ZONES[zid].theme !== "house") keepOffRoads(ZONES[zid]);
 
+
+function dropTier(c) {
+  if (c >= 1) return c;
+  if (c >= 0.2) return 0.1 + Math.min(1, (c - 0.2) / 0.3) * 0.05;
+  if (c >= 0.05) return 0.01 + (c - 0.05) / 0.15 * 0.04;
+  if (c >= 0.01) return 0.002 + (c - 0.01) / 0.04 * 0.006;
+  return c;
+}
+function nmGearTier(c) { return 0.1 + Math.min(1, c / 0.5) * 0.1; }
+function applyDropRates() {
+  const lists = [];
+  for (const k in FAMILIES) lists.push([FAMILIES[k], !!(FAMILIES[k].nm || FAMILIES[k].boss)]);
+  for (const k in NM_FAMILIES) lists.push([NM_FAMILIES[k], true]);
+  for (const [f, special] of lists) {
+    for (const e of f.loot || []) {
+      const it = ITEMS[e[0]];
+      if (!it || it.kind === "key" || e[1] <= 0) continue;
+      if (special) { if (it.kind === "equip" && it.slot !== "ammo") e[1] = nmGearTier(e[1]); continue; }
+      if (it.kind === "equip" || it.spell || /^scroll_/.test(e[0])) continue;
+      e[1] = Math.round(dropTier(e[1]) * 10000) / 10000;
+    }
+  }
+}
+function median(a) { const b = a.slice().sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; }
+function applyGearPrices() {
+  for (const id in ITEMS) {
+    const it = ITEMS[id], m = /^(.*)_hq(\d*)$/.exec(id);
+    if (!it.hq || !m || !ITEMS[m[1]] || !(ITEMS[m[1]].price > 0)) continue;
+    it.price = Math.round(ITEMS[m[1]].price * (m[2] ? CONFIG.hqPlusMul : CONFIG.hqMul));
+  }
+  const pool = Object.keys(ITEMS).filter(id => { const it = ITEMS[id]; return it.kind === "equip" && it.slot !== "ammo" && !it.nm && !it.hq && !it.rare && !it.ex && !it.race && !it.starter && it.price > 0; });
+  for (const id in ITEMS) {
+    const it = ITEMS[id];
+    if (it.kind !== "equip" || !it.nm || it.ex) continue;
+    const near = w => pool.filter(o => ITEMS[o].slot === it.slot && Math.abs((ITEMS[o].lv || 1) - (it.lv || 1)) <= w && (it.slot !== "main" || ITEMS[o].wtype === it.wtype));
+    let c = near(2);
+    if (c.length < 2) c = near(5);
+    if (c.length < 2) c = pool.filter(o => ITEMS[o].slot === it.slot && Math.abs((ITEMS[o].lv || 1) - (it.lv || 1)) <= 5);
+    if (c.length) it.price = Math.round(median(c.map(o => ITEMS[o].price)) * CONFIG.nmMul);
+  }
+}
+applyDropRates();
+applyGearPrices();

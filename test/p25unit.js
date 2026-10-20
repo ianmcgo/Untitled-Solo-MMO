@@ -12,7 +12,7 @@ const near = G.ZONES.hollow.spawns.filter(s => s.x < 800 && s.y > 700 && !s.nm);
 const aggrNear = near.filter(s => G.FAMILIES[s.fam].aggro);
 ok(aggrNear.length === 0, 'nothing aggressive near the Hollow gate (' + aggrNear.map(s => s.fam).join(',') + ')');
 ok(!G.FAMILIES.bat.aggro && !G.FAMILIES.ice_bat.aggro && !G.FAMILIES.bog_leech.aggro, 'bats and leeches are critters now (passive)');
-ok(G.NM_FAMILIES.silkmother && G.NM_FAMILIES.silkmother.loot[0][1] >= 0.25 && G.NM_FAMILIES.orc_warlord, 'Silkmother and Gorruk the Warlord exist');
+ok(G.NM_FAMILIES.silkmother && G.NM_FAMILIES.silkmother.loot[0][1] >= 0.1 && G.NM_FAMILIES.orc_warlord, 'Silkmother and Gorruk the Warlord exist');
 G.enterZone('outpost'); run(0.2);
 G.save.jobs.WAR.lv = 3; G.refreshPlayer(true);
 G.talkTo(npc('v_trade_outpost')); ok(!!opt(/Silk for Sale/), 'Hale offers Silk for Sale');

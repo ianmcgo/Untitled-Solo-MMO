@@ -1,4 +1,4 @@
-const NET_SCHEMA = 10;
+const NET_SCHEMA = 11;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000, seatBeat: 30000, queuePoll: 5000, idleWarn: 60000, selectIdleMin: 15 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -1385,7 +1385,9 @@ async function netAhPost(id, qty, price) {
 }
 
 async function netAhBuy(lot) {
-  const d = await netServerOp("ah_buy", { lot });
+  let d;
+  try { d = await netServerOp("ah_buy", { lot, here: ahHere() }); }
+  catch (e) { if (!netMissing(e)) throw e; d = await netServerOp("ah_buy", { lot }); }
   log("You buy " + (d.qty > 1 ? d.qty + " " + ITEMS[d.item].name + "s" : an(ITEMS[d.item].name)) + " from another player for " + d.price + " crystals.", "loot");
   sfx("coin");
   save.stats.ahBought = (save.stats.ahBought || 0) + d.qty;
@@ -1396,9 +1398,13 @@ async function netAhBuy(lot) {
 function netMarketOnline() { return !!(NET.member && NET.sb && S.charId && NET.market !== false); }
 
 async function netMercConsign(id) {
-  const d = await netServerOp("ah_consign", { merc: id, merc_name: MERCS[id] ? MERCS[id].name : "Companion" }, r => {
+  const nm = MERCS[id] ? MERCS[id].name : "Companion";
+  const cb = r => {
     if (Array.isArray(r.bag) && save.mercInv) save.mercInv[id] = r.bag.filter(x => x && ITEMS[x.id] && +x.qty > 0).map(x => Object.assign({}, x, { qty: Math.floor(+x.qty) }));
-  });
+  };
+  let d;
+  try { d = await netServerOp("ah_consign", { merc: id, merc_name: nm, town: ahHere() }, cb); }
+  catch (e) { if (!netMissing(e)) throw e; d = await netServerOp("ah_consign", { merc: id, merc_name: nm }, cb); }
   if (UI.pm) UI.pm.at = 0;
   return d;
 }

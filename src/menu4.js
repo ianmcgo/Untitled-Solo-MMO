@@ -1250,7 +1250,7 @@ function ahDetail(id) {
   const q = UI.ahQty || 1;
   if (UI.ahView === "sell") {
     const unit = UI.ahPrice / q, tn = ahTownName(ahHere()), mins = Math.round(AH_CFG.townBuySec / 60);
-    const speed = townEligible(UI.ahPrice, q, id) ? "can be bought by " + tn + " (it buys one lot every " + mins + " real minutes, from lots up at least " + mins + " minutes)" : "is too high for " + tn + " to buy (it pays up to " + Math.floor(marketPrice(id) * AH_CFG.townBuyCeil) + " each)";
+    const speed = townEligible(UI.ahPrice, q, id) ? "can be bought by " + tn + " (it buys one lot every " + mins + " real minutes, from lots up at least " + mins + " minutes)" : "is too high for " + tn + " to buy (it pays up to " + townCeil(id) + " each)";
     h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">Qty</span><button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><span class="sub" style="margin-left:10px">Price</span><button data-a="ahprice" data-v="-0.1">−10%</button><b>' + UI.ahPrice + ' 💠</b><button data-a="ahprice" data-v="0.1">+10%</button></div>';
     h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) · at this price it " + speed + '.</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The town buys at most one of your lots every 20 real minutes. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
   } else {
@@ -1325,7 +1325,7 @@ function tabAuction() {
   const src = UI.ahSrc || "all", lineCache = {};
   const linesOf = id => lineCache[id] || (lineCache[id] = marketLines(id, olist).filter(l => src === "all" || l.kind === src));
   const ids = view === "buy" ? Object.keys(ITEMS).filter(id => ahTradable(id) && ahCategory(id) === cat && marketItems(olist).has(id) && linesOf(id).length).sort((a, b) => (ITEMS[a].lv || 0) - (ITEMS[b].lv || 0) || ITEMS[a].price - ITEMS[b].price) : [...new Set(save.inventory.map(s => s.id))].filter(ahTradable);
-  if (!ids.length) h += '<div class="sub">' + (view === "sell" ? "Nothing in your bag can be sold at auction. Rare and Ex items, key items and furniture can't be listed." : "Nothing here right now.") + "</div>";
+  if (!ids.length) h += '<div class="sub">' + (view === "sell" ? "Nothing in your bag can be sold at auction. Ex items, key items and furniture can't be listed." : "Nothing here right now.") + "</div>";
   let rows = "";
   for (const id of ids) {
     const it = ITEMS[id];
@@ -1622,7 +1622,7 @@ function onMenuClick(e) {
   else if (a === "pmrefresh") { pmLoad(true); renderModal(); return; }
   else if (a === "ahsrc") { UI.ahSrc = v; UI.ahSel = null; renderModal(); return; }
   else if (a === "ahbuylocal") { UI.ahMsg = ahBuyLocal(+v); renderModal(); return; }
-  else if (a === "pmbuy") { pmAct(netAhBuy(+v)); return; }
+  else if (a === "pmbuy") { const pl = UI.pm && UI.pm.list ? UI.pm.list.find(x => x.id === +v) : null; if (pl && ITEMS[pl.item] && ITEMS[pl.item].rare && hasItem(pl.item)) { UI.ahMsg = "You already possess " + an(ITEMS[pl.item].name) + "."; renderModal(); return; } pmAct(netAhBuy(+v)); return; }
   else if (a === "pmcancel") { pmAct(netAhCancel(+v)); return; }
   else if (a === "pmcollect") { pmAct(netAhCollect()); return; }
   else if (a === "pmpost") { const id = UI.ahSel, q = UI.ahQty || 1, pr = UI.ahPrice; pmAct(netAhPost(id, q, pr).then(() => { UI.ahSel = null; }), "Your lot is up for other players."); return; }
@@ -1728,6 +1728,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.2.0", date: "2026-10-20", title: "Fair drops and local markets", items: [
+    "<b>Drop rates changed:</b> ordinary monster drops are now common (10-15%), uncommon (1-5%) or rare (under 1%), and Notorious Monster gear drops at 10-20%. Gear and spell scroll drops are unchanged. Trade goods (hides, chitin and so on) follow the same tiers.",
+    "<b>Merchants buy at half the shop price</b> (it was a fortieth), so the crystals you get for gear and materials are much higher than before.",
+    "<b>The auction house pays up to 1.5 times the shop price</b> for lots in its own city.",
+    "<b>+1 gear costs twice the plain version, +2 and +3 three times.</b> Notorious Monster gear is no longer Rare: it can be traded at the auction house and sold to merchants, at about three times the price of similar gear.",
+    "<b>Auction lots only sell in their own city.</b> You can only see and buy shop stock, player lots, companion lots and relisted goods from the city you are standing in. Lots sent to the server also carry their city.",
+    "<b>Server setup:</b> run the latest setup SQL (Settings, Admin) so online lots are limited to their city and towns use the new price ceiling."
+  ] },
   { v: "19.1.0", date: "2026-10-20", title: "Gates, homes and roads", items: [
     "<b>Every city exit is now a small gate zone</b> with just a guard post, the gate guard (City Blessing) and a stablemaster. Ashenreach Eastgate shrank to a single short street. Saltreach gains a North Gate (to the Ashen Marsh) and an East Gate (to Frostspire Pass), and Ironvale's Gate Ward shrank and gains a South Gate (to the Sunscar Desert).",
     "<b>City quests are at the gates:</b> Captain Rhea waits in Eastgate, Ilsa in Saltreach North Gate and Brisa in Ironvale Gate Ward.",
@@ -3809,7 +3817,10 @@ function tabHelp() {
     "<b>Towns buy too.</b> Every 20 minutes of real time (it keeps counting while you are offline), each town buys one lot. It only buys your lots that were listed in that town and have been up for at least 20 minutes, paying you at once; if you have none ready it buys one of your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. Half the time, a town puts what it buys (including lots that sell while you are away) back up under its own name (🏛, gold) at 3% more, up to 40 resale lots. These never expire.",
     "<b>Online, the market is shared.</b> When you play online, your companions' sell-offs go to the shared market under their names (up to 300 lots per player, no expiry, priced at each item's usual value), and every player sees them. The towns buy on real time there: every 20 minutes each town buys one lot, players' lots first and companions' lots after, taking turns between sellers. Crystals from these sales go to your player delivery box. A town's relisted lots show under its name and anyone can buy them.",
     "<b>Offline</b> the market is your own: your lots, your companions' lots and the towns, with town buying counted in real time. Offline lots are never copied online.",
-    "<b>Each town stocks differently.</b> Every town's auction house has its own daily stock and its own sold-out counts, so something that has run out in one town may still be in another. The list shows everything on the market, and the item card shows how many each town has. Buying takes from the town you are in first, then the others.",
+    "<b>Each city is its own market.</b> Every city's auction house has its own daily stock and sold-out counts, and you can only buy lots listed in the city you are standing in (shop stock, other players' lots, companions' lots and the city's relisted goods). To buy something from another city, go there.",
+    "<b>Auction and merchant pay:</b> a city's auction house buys your lots at up to 1.5 times the shop price of the item (one lot every 20 real minutes, only lots listed in that city). Merchants buy anything sellable at half the shop price. Notorious Monster gear can now be sold to merchants and traded at the auction house.",
+    "<b>Drop rates:</b> ordinary monster drops are common (10-15%), uncommon (1-5%) or rare (under 1%). Notorious Monster gear drops at 10-20%. Gear and scroll drops from ordinary monsters have not changed.",
+    "<b>Gear prices:</b> +1 gear is worth twice the plain version, +2 and +3 three times, and Notorious Monster gear about three times similar gear for its slot and level.",
     "<b>Prices move.</b> Every item drifts around its usual value through the game day (a new price every 6 game hours, about 14 real minutes). Each game day the market news lifts one category (▲) and lowers another (▼). Buying pushes a price up; your lots selling pull it down; both effects fade.",
     "<b>Auction prices follow the shops:</b> the going rate for an item is " + AH_CFG.shopRatio + " times what a shop charges for it, and it still drifts up and down with the daily news and with how much people buy and sell.",
     "Each game day the market stocks only a random handful: 10 pieces of +1 (high-quality) equipment (one of each), 5 kinds of ammo, 10 kinds of potions and other consumables, 3 spell scrolls, 10 kinds of food and 10 kinds of materials. Nothing is listed above your level + 1. Point at any entry to see its item card.",

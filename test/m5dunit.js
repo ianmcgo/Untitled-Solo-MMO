@@ -25,7 +25,7 @@ G.enterZone('outpost'); run(0.5);
   G.enterZone('hollow'); run(0.2); G.enterZone('outpost'); run(0.2);
   ok(!calls.length && G.mercLotCount() === 32, 'after a fallback it stays offline for the session');
   const L = G.marketLocal(); L.lots.push({ id: 'bat_wing', qty: 1, price: 50, kind: 'town', seller: 'Ashenreach', owner: '', town: 'outpost', seq: 999 });
-  const lines = G.marketLines('bat_wing', [{ id: 77, item: 'bat_wing', qty: 2, price: 60, kind: 'town', seller: null, seller_name: 'Saltreach', town: 'harbor' }, { id: 78, item: 'bat_wing', qty: 1, price: 30, kind: 'merc', seller: 'me', seller_name: 'Tessa', merc_name: 'Dorn' }]);
+  const lines = G.marketLines('bat_wing', [{ id: 77, item: 'bat_wing', qty: 2, price: 60, kind: 'town', seller: null, seller_name: 'Saltreach', town: G.ahHere() }, { id: 78, item: 'bat_wing', qty: 1, price: 30, kind: 'merc', seller: 'me', seller_name: 'Tessa', merc_name: 'Dorn' }]);
   const rel = lines.find(l => l.kind === 'town' && l.local != null), on = lines.find(l => l.lot === 77), stock = lines.find(l => l.stock);
   ok(rel && !rel.stock && on && !on.stock && on.seller === 'Saltreach', 'relisted town lots are bought as lots, not from the town stock');
   ok(!stock || stock.kind === 'town', 'town stock lines are marked as stock');

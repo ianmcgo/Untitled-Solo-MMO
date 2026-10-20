@@ -2501,3 +2501,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - TOWN_LAYOUT 3 for all three towns (saved positions in a town reset to its centre once). Tour quests count the new gate zones.
 - Tests: test/offroad.js (every zone: npcs, stalls, props, dressing, benches, racks, dummies, lamps, gardens, stable, gather points vs road edges), test/p59unit.js (rename, gate zones, NPC homes, auction clerks, residence distance, warp stones). Updated p5, p13, p49, p51, v1. Harness exports renameChar, closeDialog.
 
+
+## 19.2.0 Fair drops and local markets (Phase 4)
+- data.js (end of file): `applyDropRates()` runs once after all families exist. Ordinary families: non-gear, non-scroll, non-key entries map through `dropTier` (c>=0.2 -> 10-15%, 0.05-0.2 -> 1-5%, 0.01-0.05 -> 0.2-0.8%, below 0.01 and 1.0 unchanged). NM/boss families: equipment (not ammo) maps through `nmGearTier` to 10-20%. Gear and scroll entries in ordinary families keep their chance. `trophyFor` chance goes through `dropTier`. `gearDrop` and `scrollDrop` untouched.
+- `applyGearPrices()`: items with `hq` and id `<base>_hq` cost `CONFIG.hqMul` (2) times base; `<base>_hqN` cost `CONFIG.hqPlusMul` (3) times. NM equipment (`nm`, not `ex`) is priced at `CONFIG.nmMul` (3) times the median price of plain gear in the same slot (same wtype for main) within 2 levels (widening to 5).
+- `sellPrice` = floor(price * shopMul * `CONFIG.vendorBuy` (0.5)); only `ex` and non-NM `rare` items refuse. `ahTradable` allows NM rare gear; buying a rare you hold is refused (ahBuy, ahBuyLocal, pmbuy).
+- Town buying: `AH_CFG.townBuyCeil` 1; `townCeil(id)` = round(price * shopMul * shopRatio * ceil) with no drift; `townEligible` uses it.
+- Local markets: `ahMarketSet` = `ahDaily(ahHere())`; `ahStock` = here only; `lotHere(town)` (no town = visible anywhere) filters `marketLines`, `marketItems`, `ahBuyLocal`; `ahBuy` refuses another city's stock; merc lots carry `town`.
+- Server: sql/q4-economy.sql (schema 11): `ah_buy(my_char, lot, here)` rejects other cities' lots, `ah_consign(..., town)` stores the city, `ah_town_pick` ceiling 1.0 of the item reference price. sql/m5d-item-ref.sql regenerated (price * shopMul * shopRatio) by test/genrefs.js. net.js falls back to the old signatures if the new ones are missing.
+- Tests: test/p60unit.js; m5a, m5c, m5d, p5, p21, p25 updated for the new rules.

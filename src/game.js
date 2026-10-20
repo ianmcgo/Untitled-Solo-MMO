@@ -1832,7 +1832,7 @@ function trophyFor(m) {
   const kind = TROPHY_KIND[f.model] || "hide", ti = TROPHY_TIERS.findIndex(t => m.lv >= t.lo && m.lv <= t.hi);
   if (ti < 0) return null;
   const t = TROPHY_TIERS[ti], u = t.hi > t.lo ? Math.min(1, (m.lv - t.lo) / (t.hi - t.lo)) : 1;
-  return { id: "trophy_" + kind + "_" + (ti + 1), chance: t.c[0] + (t.c[1] - t.c[0]) * u };
+  return { id: "trophy_" + kind + "_" + (ti + 1), chance: dropTier(t.c[0] + (t.c[1] - t.c[0]) * u) };
 }
 
 function gearDrop(m, mates) {
@@ -2344,7 +2344,7 @@ function winBattlefield() {
 
 function boardDay() { return Math.floor(Date.now() / 86400000); }
 
-function ahTradable(id) { const it = ITEMS[id]; return !!it && it.price > 0 && !it.race && !it.starter && !it.rare && !it.ex && !it.nm && it.kind !== "key" && it.kind !== "furniture"; }
+function ahTradable(id) { const it = ITEMS[id]; return !!it && it.price > 0 && !it.race && !it.starter && (!it.rare || it.nm) && !it.ex && it.kind !== "key" && it.kind !== "furniture"; }
 function ahCategory(id) { const it = ITEMS[id]; if (it.kind === "equip") return it.slot === "main" ? "weapons" : "armor"; if (it.kind === "food" || it.kind === "use") return "consumables"; return "materials"; }
 function marketTick() { return Math.floor(((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000) / AH_CFG.tickMins); }
 function marketDay(tk) { return Math.floor((tk == null ? marketTick() : tk) * AH_CFG.tickMins / 1440); }
@@ -2423,11 +2423,9 @@ function ahDaily(town) {
   return set;
 }
 
-function ahMarketSet() {
-  const u = new Set();
-  for (const t of ahTowns()) for (const id of ahDaily(t)) u.add(id);
-  return u;
-}
+function ahMarketSet() { return new Set(ahDaily(ahHere())); }
+
+function lotHere(town) { return !town || town === ahHere(); }
 
 function ahBoughtOf(town) {
   const day = marketDay();
@@ -2445,7 +2443,7 @@ function ahStockAt(id, town) {
   return Math.max(0, n - (bought[id] || 0));
 }
 
-function ahStock(id) { return ahTowns().reduce((a, t) => a + ahStockAt(id, t), 0); }
+function ahStock(id) { return ahStockAt(id, ahHere()); }
 
 function ahStockLines(id) { return ahTowns().map(t => ({ town: t, name: ahTownName(t), n: ahStockAt(id, t), here: t === ahHere() })); }
 
@@ -2464,7 +2462,7 @@ function mercLotCount() { return marketLocalLots().filter(l => l.kind === "merc"
 function mercConsign(id, entry) {
   const L = marketLocal();
   if (!ahTradable(entry.id) || mercLotCount() >= AH_CFG.mercLotCap) return false;
-  L.lots.push({ id: entry.id, qty: entry.qty, price: marketPrice(entry.id) * entry.qty, kind: "merc", seller: MERCS[id] ? MERCS[id].name : "?", owner: save.name || "", merc: id, t: save.playSec || 0, seq: (L.seq = (L.seq || 0) + 1) });
+  L.lots.push({ id: entry.id, qty: entry.qty, price: marketPrice(entry.id) * entry.qty, kind: "merc", seller: MERCS[id] ? MERCS[id].name : "?", owner: save.name || "", merc: id, town: ahHere(), t: save.playSec || 0, seq: (L.seq = (L.seq || 0) + 1) });
   return true;
 }
 
@@ -2472,7 +2470,9 @@ function townPayBox(gil, note) {
   save.market.box.push({ gil, note });
 }
 
-function townEligible(price, qty, id) { return price / qty <= marketPrice(id) * AH_CFG.townBuyCeil; }
+function townCeil(id) { return Math.round(ITEMS[id].price * CONFIG.shopMul * AH_CFG.shopRatio * AH_CFG.townBuyCeil); }
+
+function townEligible(price, qty, id) { return price / qty <= townCeil(id); }
 
 function townPick(cands, sellerOf, ageOf) {
   const L = marketLocal(), by = new Map();
@@ -2542,10 +2542,10 @@ function townBuyIn(town) { const L = marketLocal(), t = (L.townNext || {})[town]
 
 function marketLines(id, online) {
   const out = [];
-  for (const t of ahTowns()) { const n = ahStockAt(id, t); if (n > 0) out.push({ kind: "town", stock: true, seller: ahTownName(t), owner: "", town: t, qty: n, unit: marketPrice(id), price: marketPrice(id) * n }); }
-  marketLocalLots().forEach((l, i) => { if (l.id === id) out.push({ kind: l.kind || "player", seller: l.seller || "", owner: l.owner || "", qty: l.qty, unit: l.price / l.qty, price: l.price, local: i }); });
+  for (const t of [ahHere()]) { const n = ahStockAt(id, t); if (n > 0) out.push({ kind: "town", stock: true, seller: ahTownName(t), owner: "", town: t, qty: n, unit: marketPrice(id), price: marketPrice(id) * n }); }
+  marketLocalLots().forEach((l, i) => { if (l.id === id && lotHere(l.town)) out.push({ kind: l.kind || "player", seller: l.seller || "", owner: l.owner || "", qty: l.qty, unit: l.price / l.qty, price: l.price, local: i }); });
   for (const l of online || []) {
-    if (l.item !== id) continue;
+    if (l.item !== id || !lotHere(l.town)) continue;
     const kind = l.kind === "merc" ? "merc" : l.kind === "town" ? "town" : "player";
     out.push({ kind, seller: kind === "merc" ? l.merc_name || l.seller_name : l.seller_name, owner: l.seller_name, qty: l.qty, unit: l.price / l.qty, price: l.price, lot: l.id, own: l.seller === S.charId });
   }
@@ -2554,14 +2554,16 @@ function marketLines(id, online) {
 
 function marketItems(online) {
   const u = ahMarketSet();
-  for (const l of marketLocalLots()) if (ITEMS[l.id]) u.add(l.id);
-  for (const l of online || []) if (ITEMS[l.item]) u.add(l.item);
+  for (const l of marketLocalLots()) if (ITEMS[l.id] && lotHere(l.town)) u.add(l.id);
+  for (const l of online || []) if (ITEMS[l.item] && lotHere(l.town)) u.add(l.item);
   return u;
 }
 
 function ahBuyLocal(i) {
   const l = marketLocalLots()[i];
   if (!l || !ITEMS[l.id]) return "That lot is gone.";
+  if (!lotHere(l.town)) return "That lot is in " + ahTownName(l.town) + ". Auction lots can only be bought in the city they are listed in.";
+  if (ITEMS[l.id].rare && hasItem(l.id)) return "You already possess " + an(ITEMS[l.id].name) + ".";
   if (save.gil < l.price) return "You need " + l.price + " crystals.";
   if (!giveItem(l.id, l.qty, true)) return "Your bag is full.";
   save.gil -= l.price;
@@ -2577,13 +2579,15 @@ function ahBuyLocal(i) {
 function ahBuy(id, qty, town) {
   qty = Math.max(1, qty || 1);
   if (!ahTradable(id)) return "That isn't sold here.";
-  if ((town ? ahStockAt(id, town) : ahStock(id)) < qty) return "Not enough on the market today.";
+  if (town && town !== ahHere()) return "Auction lots can only be bought in the city they are listed in.";
+  town = ahHere();
+  if (ahStockAt(id, town) < qty) return "Not enough on the market today.";
   const cost = marketPrice(id) * qty;
   if (save.gil < cost) return "You need " + cost + " crystals.";
   if (!giveItem(id, qty, true)) return "Your bag is full.";
   save.gil -= cost;
   let need = qty;
-  for (const t of town ? [town] : [ahHere()].concat(ahTowns().filter(x => x !== ahHere()))) {
+  for (const t of [town]) {
     const take = Math.min(need, ahStockAt(id, t));
     if (take > 0) { const b = ahBoughtOf(t); b[id] = (b[id] || 0) + take; need -= take; }
     if (need <= 0) break;
@@ -6272,7 +6276,7 @@ function pledge(side) {
   log("You pledge yourself to the " + CONQUEST.nations[side].name + ". Your victories in the wilds now count toward its hold on each region.", "loot");
   sfx("unlock"); saveGame();
 }
-function sellPrice(id) { const it = ITEMS[id]; return it.rare || it.ex ? 0 : Math.floor(it.price / 4 * (1 + buddyPerk("sell"))); }
+function sellPrice(id) { const it = ITEMS[id]; return (it.rare && !it.nm) || it.ex ? 0 : Math.floor(it.price * CONFIG.shopMul * CONFIG.vendorBuy * (1 + buddyPerk("sell"))); }
 
 function buy(id) {
   const it = ITEMS[id], price = buyPrice(id);

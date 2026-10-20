@@ -19,7 +19,7 @@ fill('kael', 'bat_wing', 16);
 G.enterZone('hollow'); run(0.2); G.enterZone('outpost'); run(0.2);
 ok(G.mercLotCount() === 300 && G.mercBag('kael').length === 0, 'the 300-lot cap: the rest are sold to a shop and leave the bag');
 L.lots.length = 0; L.lastSale = {};
-const mp = id => G.marketPrice(id);
+const mp = id => G.townCeil(id);
 L.lots.push({ id: 'bat_wing', qty: 1, price: mp('bat_wing'), kind: 'merc', seller: 'A', merc: 'a', seq: 1 }, { id: 'bat_wing', qty: 1, price: mp('bat_wing'), kind: 'merc', seller: 'A', merc: 'a', seq: 2 }, { id: 'bat_wing', qty: 1, price: mp('bat_wing'), kind: 'merc', seller: 'B', merc: 'b', seq: 3 }, { id: 'bat_wing', qty: 1, price: mp('bat_wing') * 3, kind: 'merc', seller: 'C', merc: 'c', seq: 4 });
 G.save.market.listings = [{ id: 'healing_herb', qty: 1, price: mp('healing_herb'), t: Date.now() - 1201000, town: 'outpost', next: Date.now() + 1e9, exp: Date.now() + 1e9 }];
 const r = Math.random; Math.random = () => 0.99;
