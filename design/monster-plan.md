@@ -99,3 +99,19 @@ Goal: towns that are fun to explore, easy to read, and feel deep. Fewer empty ho
 - Same floating and sign audit for the field zones; more varied clearings, overlooks and ruins; POIs visible from paths.
 
 Order: T1 first (it is mostly cleanup and can ship alone), then T2 and T3 together, T4 after the monster phases. Model: Sonnet for T1 and T3, Opus for T2 (layout and terrain work).
+
+## Added: Weapon handling (W1–W2), requested 2026-10-20
+
+Goal: weapons sit in the hand correctly, are carried at the hip (not the back) except bows and long staff-type weapons, and drawing a weapon is a hand-to-hip motion rather than the weapon floating to the hand.
+
+### W1: Grip and carry
+- Per weapon kind a grip frame: where the hand closes on the handle (offset along the handle, roll of the blade in the palm), so swords, daggers, axes, clubs, katanas and great weapons all sit between thumb and fingers rather than through the palm. Verified with close-up hand sheets front, side and top for every kind at rest, fight stance and mid-swing.
+- Carry positions: one-handed swords, daggers, axes, clubs, katanas and great katanas hang at the left hip (angled back, hilt forward); scythes, great axes, great swords and polearms across the back; bows and staffs on the back as now. Shields stay on the left forearm or back.
+- Fingers close around the handle (the curl values already exist); the thumb wraps the far side.
+
+### W2: Draw and sheathe
+- Draw: the right hand goes to the hip (or over the shoulder for back-carried weapons), closes, and the weapon leaves the carry point attached to the hand from that instant; a short arc brings it to the ready. Sheathe is the reverse. Two-handed weapons add the left hand joining the grip at the end of the draw.
+- The old blend (`v.wBlend`, weapon lerping through space) is removed; the weapon is always parented either to the carry bone or the hand.
+- Timing: 0.35 s draw, 0.45 s sheathe; interruptible by a swing (snap to hand).
+
+Order: W1 then W2, one release each; Sonnet for both, Opus only if the grip frames fight the swing poses.
