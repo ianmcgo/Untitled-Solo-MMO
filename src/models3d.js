@@ -90,7 +90,7 @@ function viewFor(e) {
     group, mesh: inst.mesh, bones: inst.bones, mat: inst.mat, meta: inst.meta, sig, pick, kind,
     lodEntry: inst.lodEntry, lo: null,
     weapon: inst.weapon, weaponKind: inst.weaponKind, alwaysDrawn: inst.alwaysDrawn, weaponDrawn: null,
-    style: styleFor(e), stride: inst.meta.race === "pipkin" ? 1.3 : inst.meta.race === "ursan" ? 1.65 : inst.meta.race === "elari" ? 1.55 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "rarab" ? 1.1 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.4, scale: s, mount: null, sink: 0
+    style: styleFor(e), stride: inst.meta.race === "pipkin" ? 1.3 : inst.meta.race === "ursan" ? 1.65 : inst.meta.race === "elari" ? 1.55 : kind === "bird" ? 0.4 : kind === "hare" ? 1.2 : kind === "rarab" ? 1.1 : kind === "quad" ? (inst.meta.quad.stride || 1.2) : kind === "crawler" || kind === "crab" ? 0.9 : 1.4, scale: s, mount: null, sink: 0, mob: isMob(e)
   };
   if (e.kind === "npc" && (NPC_WORK[e.id] || VENDOR_WORK[e.id]) === "hammer" && kind === "human") v.anvilGlow = addAnvil(group, inst.meta);
   if (isMob(e) || e.buddy) v.an = null;

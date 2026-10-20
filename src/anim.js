@@ -1,6 +1,8 @@
 const ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
 const env = (k, a, b) => k < 0 || k > 1 ? 0 : Math.min(1, k / a, (1 - k) / b);
 
+const MOB_IDLES = { goblin: [1, 3, 4, 6], chieftain: [1, 3, 4], orc: [1, 2, 3], fishfolk: [1, 3, 6], birdfolk: [1, 6, 1], treant: [1, 3], ghoul: [1, 3, 6], skeleton: [1, 6], cactus: [1, 3], other: [1, 3] };
+
 function animState(v) {
   if (!v.an) v.an = { ph: Math.random() * 6, spd: 0, lx: null, ly: null, swing: null, aStart: -9, aVar: 0, ws: null, wsStart: -9, hit: null, hitStart: -9, casting: false, relStart: -9, dead: null, t0: Math.random() * 10, fight: 0, lastStep: 0, readyStart: -9, wasReady: false };
   return v.an;
@@ -12,9 +14,10 @@ function strideEff(v, spd, ik) {
   if (v.kind !== "human" || !B || !B.shinL || !B.footL) return S;
   const L = (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1), rel = Math.min(1, L / 0.86);
   const Sl = Math.min(S, 1.25 * L / (0.62 - 0.28 * run));
+  if (v.mob) return Sl * (0.55 + 0.45 * rel);
   return ik ? Sl * (0.55 + 0.45 * rel) : Math.max(Sl, S * (0.8 + 0.2 * rel));
 }
-function runOf(v, spd) { return clamp((spd * (0.6 + 0.4 * legRel(v)) - 1.2) / 4, 0, 1); }
+function runOf(v, spd) { const r = legRel(v); return clamp(((v.mob ? spd / Math.sqrt(r) : spd * (0.6 + 0.4 * r)) - 1.2) / 4, 0, 1); }
 function legRel(v) {
   const B = v.bones;
   if (v.kind !== "human" || !B || !B.shinL || !B.footL) return 1;
@@ -30,6 +33,10 @@ function trackEvents(v, e, dt) {
   if (d > 0.0005) { const rel = Math.atan2(mdy, mdx) - (e.face || 0), k = Math.min(1, dt * 8); an.mf = (an.mf == null ? 1 : an.mf) + (Math.cos(rel) - (an.mf == null ? 1 : an.mf)) * k; an.ms = (an.ms || 0) + (Math.sin(rel) - (an.ms || 0)) * k; }
   else if (an.spd < 0.2) { const m0 = an.mf == null ? 1 : an.mf; an.mf = m0 + (1 - m0) * Math.min(1, dt * 4); an.ms = (an.ms || 0) * (1 - Math.min(1, dt * 4)); }
   an.ph += (an.mf != null && an.mf < -0.3 ? -1 : 1) * d * (Math.PI * 2) / strideEff(v, an.spd);
+  if (v.mob && v.kind === "human") {
+    if (an.spd > 0.8) an.stepping = 1;
+    else if (an.stepping) { const r = Math.PI - (((an.ph % Math.PI) + Math.PI) % Math.PI), adv = Math.min(r, dt * Math.PI * 3); an.ph += adv; if (r - adv < 0.03 || e.alive === false) an.stepping = 0; }
+  }
   if (e.lastSwing !== an.swing) { if (an.swing !== null && S.time - e.lastSwing < 0.3) { an.aStart = e.lastSwing; an.aVar = (an.aVar + 1) % 3; } an.swing = e.lastSwing; }
   if (e.lastWS !== an.ws) { if (an.ws !== null && S.time - e.lastWS < 0.3) { an.wsStart = e.lastWS; an.wsStyle = wsStyle(e.lastWSId); } an.ws = e.lastWS; }
   if (e.lastHit !== an.hit) { if (an.hit !== null && S.time - e.lastHit < 0.3) an.hitStart = e.lastHit; an.hit = e.lastHit; }
@@ -409,6 +416,12 @@ function poseHuman(v, e, dt) {
   const fightT = (e.engaged || (isMob(e) && e.state === "combat")) && e.alive !== false ? 1 : 0;
   turnInPlace(v, e, an, P, amp, dt);
   gaitDynamics(v, e, an, P, amp, run, dt);
+  if (v.mob && e.alive !== false) {
+    if ((an.pAmp || 0) > 0.3 && amp < 0.12) an.settle = S.time;
+    an.pAmp = amp;
+    const sk = (S.time - (an.settle == null ? -9 : an.settle)) / 0.45;
+    if (sk >= 0 && sk <= 1) { const sw = Math.sin(Math.PI * sk) * (1 - sk * 0.4); v.rootOff[1] -= 0.032 * sw; addP(P, "spine", 0.13 * sw, 0, 0); addP(P, "chest", 0.05 * sw, 0, 0); addP(P, "head", -0.1 * sw, 0, 0); addP(P, "upArmL", -0.22 * sw, 0, 0.06 * sw); addP(P, "upArmR", -0.22 * sw, 0, -0.06 * sw); addP(P, "thighL", -0.12 * sw, 0, 0); addP(P, "thighR", -0.12 * sw, 0, 0); addP(P, "shinL", 0.24 * sw, 0, 0); addP(P, "shinR", 0.24 * sw, 0, 0); addP(P, "footL", -0.12 * sw, 0, 0); addP(P, "footR", -0.12 * sw, 0, 0); }
+  }
   const hu = (v.meta && v.meta.hunch) || 0;
   if (hu && e.alive !== false) { addP(P, "spine", hu * 0.55, 0, 0); addP(P, "chest", hu * 0.45, 0, 0); addP(P, "neck", -hu * 0.45, 0, 0); addP(P, "head", -hu * 0.4, 0, 0); addP(P, "upArmL", hu * 0.3, 0, 0); addP(P, "upArmR", hu * 0.3, 0, 0); v.rootOff[1] -= hu * 0.08; }
   an.fight += (fightT - an.fight) * Math.min(1, dt * 6);
@@ -418,10 +431,11 @@ function poseHuman(v, e, dt) {
   addP(P, "upArmL", 0, 0, 0.09); addP(P, "upArmR", 0, 0, -0.09);
   addP(P, "foreArmL", -0.12, 0, 0); addP(P, "foreArmR", -0.12, 0, 0);
   addP(P, "head", Math.sin(t * 0.37) * 0.05, Math.sin(t * 0.23) * 0.3 * (1 - amp) * (1 - an.fight), 0);
-  const idleOk = amp < 0.05 && an.fight < 0.1 && !e.casting && !e.resting && !e.mounted && e.alive !== false && e.kind !== "mob";
+  const mobIdle = e.kind === "mob" ? (e.state === "idle" && !e.casting && !e.readying ? (MOB_IDLES[e.fam && e.fam.model] || MOB_IDLES.other) : null) : undefined;
+  const idleOk = amp < 0.05 && an.fight < 0.1 && !e.casting && !e.resting && !e.mounted && e.alive !== false && mobIdle !== null;
   if (idleOk) {
-    if (!an.idleNext) an.idleNext = S.time + 6 + Math.random() * 8;
-    if (S.time > an.idleNext && !an.idleAct) { an.idleAct = 1 + Math.floor(Math.random() * 6); an.idleStart = S.time; an.idleNext = S.time + 9 + Math.random() * 10; }
+    if (!an.idleNext) an.idleNext = S.time + (mobIdle ? 1.5 + Math.random() * 4 : 6 + Math.random() * 8);
+    if (S.time > an.idleNext && !an.idleAct) { an.idleAct = mobIdle ? mobIdle[Math.floor(Math.random() * mobIdle.length)] : 1 + Math.floor(Math.random() * 6); an.idleStart = S.time; an.idleNext = S.time + (mobIdle ? 4 + Math.random() * 7 : 9 + Math.random() * 10); }
   } else { an.idleAct = 0; an.idleNext = S.time + 5 + Math.random() * 6; }
   if (an.idleAct) {
     const ik = (S.time - an.idleStart) / 2.6;
@@ -983,6 +997,7 @@ function poseHuman(v, e, dt) {
   }
   applyPose(v, dt, sharp);
   let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
+  if (v.mob && an.stepping) w = 1;
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;
   an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
   clothSprings(v, e, an, dt, t);

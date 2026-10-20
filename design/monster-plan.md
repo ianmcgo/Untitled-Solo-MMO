@@ -24,7 +24,7 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 - Arms: lofted shoulder, elbow and wrist; hands sized to the weapon or claw; weight hangs forward on hunched families.
 - Proportions per family from the existing `FAMILY_SHAPE` table so silhouettes stay readable.
 
-### M2: Walking and running that match the body
+### M2: Walking and running that match the body (humanoid part DONE in 19.4.0)
 - Stride length from leg length and actual speed (monster speed is family speed x `mobSpeedMul`), so feet stop sliding.
 - Reuse `humanLegIK` for humanoid monsters; add hip sway, counter-swinging arms, a settle step when they stop.
 - Idle variety, aggro alert pose, a lunge on attack and a recoil on hit, scaled by monster size.

@@ -27,7 +27,7 @@ const mockLogin = require('./mocklogin');
           const ps = feet.map(b => b.getWorldPosition(new THREE.Vector3()).clone());
           if (prev && i > 30) {
             const sps = ps.map((p, k) => Math.hypot(p.x - prev[k].x, p.z - prev[k].z) / dt);
-            const an = v.an, run = Math.min(1, Math.max(0, (an.spd - 1.2) / 4)), bp = (0.62 - 0.28 * run) * Math.PI;
+            const an = v.an, run = typeof runOf === 'function' ? runOf(v, an.spd) : Math.min(1, Math.max(0, (an.spd - 1.2) / 4)), bp = (0.62 - 0.28 * run) * Math.PI;
             const stq = k => { let q = an.ph + (k ? Math.PI : 0); q = Math.atan2(Math.sin(q), Math.cos(q)); return Math.abs(q) < bp * 0.8; };
             frames.push([ps[0].y, ps[1].y, sps[0], sps[1], stq(0), stq(1)]);
             minY = Math.min(minY, ps[0].y, ps[1].y);
@@ -38,7 +38,7 @@ const mockLogin = require('./mocklogin');
         }
         for (const f of frames) for (const k of [0, 1]) if (f[4 + k]) planted.push(f[2 + k]);
         planted.sort((a, b) => a - b);
-        res.push({ dump: process_dump ? frames.slice(0, 40).map(f => f.map(x => +x.toFixed(3))) : undefined, spec, pxs: sp, ms: +(sp * 0.05).toFixed(2), plantedMedian: +planted[planted.length >> 1].toFixed(3), planted90: +planted[(planted.length * 0.9) | 0].toFixed(3), plantedFrac: +(planted.length / frames.length / 2).toFixed(2), stepsPerSec: +(steps / (119 * dt)).toFixed(2) });
+        res.push({ dump: process_dump ? frames.slice(0, 40).map(f => f.map(x => typeof x === 'number' ? +x.toFixed(3) : (x ? 1 : 0))) : undefined, spec, pxs: sp, ms: +(sp * 0.05).toFixed(2), plantedMedian: +planted[planted.length >> 1].toFixed(3), planted90: +planted[(planted.length * 0.9) | 0].toFixed(3), plantedFrac: +(planted.length / frames.length / 2).toFixed(2), stepsPerSec: +(steps / (119 * dt)).toFixed(2) });
         W3.scene.remove(v.group); destroyView(v); VIEW.views.delete(e);
       }
     }
