@@ -1265,7 +1265,7 @@ function ahDetail(id) {
     const unit = UI.ahPrice / q, tn = ahTownName(ahHere()), mins = Math.round(AH_CFG.townBuySec / 60);
     const speed = townEligible(UI.ahPrice, q, id) ? "can be bought by " + tn + " (it buys one lot every " + mins + " real minutes, from lots up at least " + mins + " minutes)" : "is too high for " + tn + " to buy (it pays up to " + townCeil(id) + " each)";
     h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">Qty</span><button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><span class="sub" style="margin-left:10px">Price</span><button data-a="ahprice" data-v="-0.1">−10%</button><b>' + UI.ahPrice + ' 💠</b><button data-a="ahprice" data-v="0.1">+10%</button></div>';
-    h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) + " + ahEssenceFee(UI.ahSel) + " Essence (you have " + essenceHeld() + ") · at this price it " + speed + '.</div>' + ahEssRow() + '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The town buys at most one of your lots every 20 real minutes. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
+    h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) + " + ahEssenceFee(UI.ahSel) + " Essence (you have " + essenceHeld() + ") · at this price it " + speed + '.</div>' + ahEssRow() + '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The town buys at most one of your lots every 20 real minutes. Players can buy your lot at exactly your price, with no time limit (same 3% fee).</div>';
   } else {
     const P = typeof pmLoad === "function" && typeof netAhList === "function" && NET.member ? pmLoad(false) : null;
     const lines = marketLines(id, P && P.at ? P.list : []).filter(l => !UI.ahSrc || UI.ahSrc === "all" || l.kind === UI.ahSrc);
@@ -1290,7 +1290,7 @@ function pmLoad(force) {
   return P;
 }
 
-function pmLeft(t) { const m = Math.max(0, Math.round((Date.parse(t) - Date.now()) / 60000)); return m >= 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m + "m"; }
+function pmLeft(t) { const ms = Date.parse(t) - Date.now(); if (!(ms < 3e11)) return "no time limit"; const m = Math.max(0, Math.round(ms / 60000)); return (m >= 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m + "m") + " left"; }
 
 function pmAct(p, ok) {
   UI.pmBusy = true; UI.ahMsg = ""; renderModal();
@@ -1311,8 +1311,8 @@ function tabAuction() {
     else {
       if ((P.box || []).length) h += '<div class="item"><div><b>📦 Player delivery box</b><div class="sub">' + P.box.map(b => b.kind === "sold" ? "💠 " + b.gil + " (sold " + (ITEMS[b.item] ? ITEMS[b.item].name : "?") + " to " + esc(b.note || "") + ")" : (ITEMS[b.item] ? ITEMS[b.item].name : "?") + (b.qty > 1 ? " ×" + b.qty : "") + (b.kind === "returned" ? " (returned)" : "")).join(", ") + '</div></div><span class="sub">Collect at your residence</span></div>';
       const pmine = (P.mine || []).filter(l => l.kind !== "merc");
-      if (!pmine.length) h += '<div class="sub">You have nothing up for other players. Lots stay up for 48 hours; unsold items come back to the box.</div>';
-      for (const l of pmine) h += '<div class="ahLine"><span>' + (ITEMS[l.item] ? (ITEMS[l.item].icon || "") + " " + esc(ITEMS[l.item].name) : "?") + (l.qty > 1 ? " ×" + l.qty : "") + "</span><span>" + l.price + ' 💠</span><span class="un">' + pmLeft(l.expires_at) + ' left</span><span class="ctl"><button data-a="pmcancel" data-v="' + l.id + '"' + (UI.pmBusy ? " disabled" : "") + ">Withdraw</button></span></div>";
+      if (!pmine.length) h += '<div class="sub">You have nothing up for other players. Listings have no time limit and stay up until they sell or you withdraw them.</div>';
+      for (const l of pmine) h += '<div class="ahLine"><span>' + (ITEMS[l.item] ? (ITEMS[l.item].icon || "") + " " + esc(ITEMS[l.item].name) : "?") + (l.qty > 1 ? " ×" + l.qty : "") + "</span><span>" + l.price + ' 💠</span><span class="un">' + pmLeft(l.expires_at) + '</span><span class="ctl"><button data-a="pmcancel" data-v="' + l.id + '"' + (UI.pmBusy ? " disabled" : "") + ">Withdraw</button></span></div>";
     }
     h += "<h3>🏛️ With the market</h3>";
   }
@@ -1749,6 +1749,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.13.1", date: "2026-10-20", title: "Listings that stay", items: [
+    "<b>Offers to other players no longer expire.</b> The listing shows no time limit and stays up until it sells or you withdraw it. (The online market needs a one-line database update for this; see sql/r1-no-expiry.sql.)"
+  ] },
   { v: "19.13.0", date: "2026-10-20", title: "Finding your way", items: [
     "<b>District signposts list the shops.</b> Talk to a district signpost to see which shops and services are in the district you are in, and what each other district has, with directions.",
     "<b>Guards know every shop.</b> Ask a gate guard \"Where can I find...?\" and pick a shop or service. They give the nearest one, its district and direction, and mark it on your map if it is in the same district.",
@@ -3353,7 +3356,7 @@ const UPDATES = [
   ] },
   { v: "8.6.0", date: "2026-10-13", title: "Player auction house", items: [
     "New 🌐 Players section at the auction house: buy lots that other adventurers have put up, at their prices, with seller names, time left and recent sale prices.",
-    "Offer to players: put an item up for other players for 48 hours (3% fee, up to 10 lots).",
+    "Offer to players: put an item up for other players (3% fee, up to 10 lots).",
     "Sales, purchases and returns go through the game server and a player delivery box, so nothing can be duplicated.",
     "You're told when another player buys your lot, even if you're out in the field.",
     "My listings shows your player lots and market lots separately. The simulated market is unchanged."
@@ -3958,8 +3961,8 @@ function tabHelp() {
     "<b>Selling:</b> choose an item and quantity (up to one stack), adjust the price, and pay a " + Math.round(AH_CFG.fee * 100) + "% listing fee. The window tells you how quickly it's likely to sell. Up to " + AH_CFG.maxListings + " lots at once; there is no time limit: a listing stays up until it sells or you withdraw it, and keeps selling while you're away. Crystals from a sale go straight to you.",
     "Everything you sell, withdraw or have delivered goes to the <b>Delivery Box in your residence</b> (the chest near the door); walk home and use Collect everything. The My listings view shows what is waiting. Rare, Ex, key items and furniture can't be auctioned.",
     "<b>🌐 Players:</b> lots put up by other adventurers. Pick a category and an item to see every lot, its seller, time left and recent player sale prices, then Buy. Purchases go straight to your bag (or your delivery box if it's full). Everything is handled by the game server, so a sale can't be duplicated.",
-    "<b>Offer to players:</b> in Sell, choose the item, quantity and price, then press <b>🌐 Offer to players</b> instead of Sell to the market. Players see it for 48 hours and pay exactly your price. The same 3% fee applies. Up to 10 player lots at once.",
-    "When a player buys your lot you get a message wherever you are; the crystals wait in your <b>Delivery Box at your residence</b> until you collect them there. Unsold lots come back to the box after 48 hours."
+    "<b>Offer to players:</b> in Sell, choose the item, quantity and price, then press <b>🌐 Offer to players</b> instead of Sell to the market. Players see it until it sells or you withdraw it, and pay exactly your price. The same 3% fee applies. Up to 10 player lots at once.",
+    "When a player buys your lot you get a message wherever you are; the crystals wait in your <b>Delivery Box at your residence</b> until you collect them there. Offers have no time limit; withdraw one and it goes back to the box."
   ]));
   h += sec("🕯️ Main story: Embers of Ashenreach", ul([
     "Eight chapters. Talk to <b>Captain Rhea</b> at level 3 to begin. Your current chapter and goal are always at the top of the Quests window, and a ❗ marks the person with your next story scene.",

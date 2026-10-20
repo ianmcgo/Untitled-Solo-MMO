@@ -2630,3 +2630,8 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - Barber: `renderPreview` is now called from the in-game frame branch in main4.js while `UI.creating`, which was why the preview was blank in game. `.ccFaces` uses `minmax(0, 1fr)`, face images fill the tile.
 - Hotbar: `#bottom #actionBar .slot` uses `contain: size` and `min-height: 0` so image icons cannot stretch a slot.
 - Tests: t3unit.js (services, signpost, guard, menu size).
+
+
+## 19.13.1 Listings that stay
+- Online player lots: `ah_listings.expires_at` defaulted to now + 48 hours (sql/setup.sql). sql/r1-no-expiry.sql sets the column default to `infinity` and sets open player lots to `infinity`. It must be run in the game's Supabase SQL editor (project mztqrqgtlvviwwftrqhs; the connected Supabase tools only see FreeSpace 4X and Void Drift). Existing queries (`expires_at > now()`) keep working with infinity.
+- Client: `pmLeft` shows "no time limit" when the date is not finite or more than ~10 years away; help text no longer mentions 48 hours.
