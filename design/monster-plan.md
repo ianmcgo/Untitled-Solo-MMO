@@ -72,3 +72,30 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 - Rigid skinned shapes limit how smooth a bend can look; keep triangle counts inside the per-tier budgets (monsters 1,000 to 5,000).
 - Hate numbers need playtesting: a bot sim (tools/balance/sim.js) should be rerun after H1 to make sure tanks still hold monsters.
 - Shared-zone monsters are host-run, so hate profile changes must stay deterministic on the host.
+
+## Added: Town environment track (T1–T4), requested 2026-10-20
+
+Goal: towns that are fun to explore, easy to read, and feel deep. Fewer empty houses, nothing floating, no signs to things that do nothing, vendors reachable, your own house obvious.
+
+### T1: Prune and place (audit first)
+- Count the houses per city with no NPC, no door exit and no shop; remove about half of them, keeping the ones that frame streets and squares. Replace some with varied fillers: a well, a market cart, a garden plot, a shrine, stacked crates, a courtyard with a tree, a watchtower stub, an open-air forge, a laundry line, a boat ramp (Saltreach), a mine cart siding (Ironvale).
+- Floating check: an automated pass that samples every placed object's footprint against the terrain and reports anything whose base is more than a few cm above ground or sunk; fix by re-seating or adding a plinth.
+- Sign audit: every sign is tied to an NPC, shop, door, warp stone or district that exists; signs for nothing are removed; shop signs face the street and match the vendor's trade.
+- Vendor access: each vendor's talk spot has a clear walk-up (no stall, fence or wall between the street and the NPC); verified with the path tool used for spawns.
+- Residence: a sign ("Home" with the character's name) over the door, a map and minimap marker, and a one-time title card plus log line on first entry to the Residential district.
+
+### T2: Variety and depth per city
+- Each city gets 3–4 distinct set pieces that are visible from a distance (clock tower, lighthouse, mine head, great hall, bridge, aqueduct arch) and a landmark at each gate.
+- Height: terraces, steps and low walls so districts sit at different levels; a raised square or a sunken market.
+- Street dressing with per-district palettes: Residential (gardens, washing, benches), Market (awnings, crates, hanging goods), Industrial (smoke, barrels, racks), Government (banners, lamps, statues), Docks (ropes, nets, barrels, gulls), Keep (torches, armour stands).
+- Ambient life stays off (per the earlier request) except animals; add a few static "scenes" (two NPC props talking, a cart being loaded) that need no walkers.
+
+### T3: Wayfinding
+- District signposts list the shops in that district, not just directions; a "You are here" dot on the Map; shops get icons on the minimap when within range.
+- The first visit to a city plays a short title sequence naming the districts and what each is for.
+- Guards point you to the nearest vendor of a given kind when asked ("Where is the armourer?").
+
+### T4: Field variety (later)
+- Same floating and sign audit for the field zones; more varied clearings, overlooks and ruins; POIs visible from paths.
+
+Order: T1 first (it is mostly cleanup and can ship alone), then T2 and T3 together, T4 after the monster phases. Model: Sonnet for T1 and T3, Opus for T2 (layout and terrain work).
