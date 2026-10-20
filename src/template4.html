@@ -517,7 +517,7 @@
   .ccGrid { display: grid; gap: 5px; }
   .ccRaces { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
   .ccTwo, .ccSizes { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
-  .ccFaces { grid-template-columns: repeat(4, 1fr); }
+  .ccFaces { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .ccHair { grid-template-columns: repeat(8, 1fr); }
   .ccCard2 { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 9px 4px; }
   .ccCard2 b { font-size: 13px; }
@@ -525,8 +525,9 @@
   .ccCard2 .lock { color: #ffcc80; }
   .ccCard2.on, .ccFaceB.on, .ccSw.on { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold), 0 0 8px rgba(241,207,115,.35); color: #fff; }
   .ccFaceB { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; }
-  .ccFaceB img { width: 100%; max-width: 72px; aspect-ratio: 72/60; border-radius: 6px; display: block; }
-  .ccFaceB small { font-size: 10px; white-space: nowrap; }
+  .ccFaceB { min-width: 0; align-self: stretch; justify-content: flex-start; }
+  .ccFaceB img { width: 100%; max-width: 96px; aspect-ratio: 72/60; object-fit: cover; border-radius: 6px; display: block; }
+  .ccFaceB small { font-size: 10px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
   .ccSw { padding: 4px; aspect-ratio: 1; display: grid; place-items: center; }
   .ccSw span { width: 100%; height: 100%; border-radius: 50%; background: var(--c); border: 1px solid #000; box-shadow: inset 0 3px 4px rgba(255,255,255,.25); }
   .ccInfo2 { font-size: 12px; color: #dcdcff; line-height: 1.35; }
@@ -1070,7 +1071,8 @@
   #bottom #barWrap { width: 100%; box-sizing: border-box; flex-direction: row; align-items: center; gap: 5px; padding: 4px 6px 4px 4px; }
   #bottom #pager { flex-direction: column; flex: 0 0 auto; }
   #bottom #actionBar { flex: 1 1 auto; min-width: 0; max-width: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px 3px; align-content: start; min-height: 0; }
-  #bottom #actionBar .slot { width: 100%; height: auto; aspect-ratio: 1; min-width: 0; }
+  #bottom #actionBar .slot { width: 100%; height: auto; aspect-ratio: 1 / 1; min-width: 0; min-height: 0; contain: size; align-self: start; }
+  #bottom #actionBar .slot .ic { display: grid; place-items: center; width: 100%; height: 100%; }
   #bottom #actionBar { row-gap: 14px; padding-bottom: 12px; }
   #bottom #actionBar .slot .ic { font-size: clamp(14px, 3.4vw, 22px); }
 

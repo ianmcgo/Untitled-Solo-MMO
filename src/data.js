@@ -1034,7 +1034,7 @@ const ZONES = {
   residence: {
     name: "Your Residence", w: 400, h: 320, safe: true, theme: "house", indoor: true,
     exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 2050, ty: 2750, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
-    npcs: [{ id: "pip", x: 60, y: 60 }],
+    npcs: [{ id: "pip", x: 60, y: 60 }, { id: "delivery_box", x: 340, y: 70 }],
     spawns: [],
     start: { x: 200, y: 250 },
     grid: { cols: 10, rows: 8, blocked: [[0, 0], [1, 0], [0, 1], [1, 1], [4, 7], [5, 7], [4, 6], [5, 6]] }
@@ -1635,6 +1635,7 @@ const NPCS = {
   crystal_harbor: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   crystal_hollow: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   pip: { name: "Pip the Nubbin", prop: "nubbin", talk: "talkPip" },
+  delivery_box: { name: "Delivery Box", prop: "chest", chest: "vault", talk: "talkDeliveryBox" },
   brazier_fire: { name: "Brazier of Flame", prop: "brazier", element: "fire", talk: "talkBrazier" },
   brazier_wind: { name: "Brazier of Wind", prop: "brazier", element: "wind", talk: "talkBrazier" },
   brazier_earth: { name: "Brazier of Earth", prop: "brazier", element: "earth", talk: "talkBrazier" },

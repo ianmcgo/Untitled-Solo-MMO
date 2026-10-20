@@ -2618,3 +2618,15 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - Audio: `victoryDef` lead and bell an octave lower.
 - Tests: g1unit.js (guild perks, scroll, essence choice), c1unit.js (cache), p1unit.js slot gating; p7/p10/p29/p50 set `mercSlotFloorLv`.
 - Known: d1unit trade-goods check is random-sensitive; marsh camp sunk 0.37 m.
+
+
+## 19.13.0 Finding your way (town plan T3) plus requests
+- Services (game.js, before `boardToday`): `SERVICE_BY_SHOP` (vendor roles) and `SERVICE_BY_TALK` (talk handler to icon and label), `serviceOf(def)`, `townServices(area)` (per NPC: label, icon, zone, local x/y, area x/y, district name/id), `compassWord`, `serviceDirections`, `guardWhere(n, kind)` (nearest by area coordinates; sets `S.guide` only when the target is in the current zone), `guardMenu(n, more)` (shop kinds first, "Other services..." second page). `TALK.talkGuard` gets a "Where can I find...?" option.
+- Signpost: `TALK.talkDistrictSign` lists the current district shops and, per other district, direction plus its shop kinds.
+- UI: minimap draws `serviceOf` icons (counter-rotated emoji) and the `S.guide` diamond (cleared within 70 units); the zone map prefixes icons and draws the guide star; `citySVG` has a ring and "You are here" text; `cityIntro()` (hud4, called on zone change) shows a banner with district chips once per city (`save.cityIntro[area]`).
+- Residence: `delivery_box` NPC (chest prop, `talkDeliveryBox`) collects `save.market.box` via `ahCollect` and the online box via `netAhCollect`; the auction window no longer has Collect buttons.
+- Auction: listings never expire (`tickAuction` no longer returns lots; `exp` removed; `townPick` uses `l.t`); tab renamed My listings. Online player lots still expire server side (48 h, not changeable in the client).
+- Warp stone first touch: ring, vfx, sound, popText and the "attuned" log line.
+- Barber: `renderPreview` is now called from the in-game frame branch in main4.js while `UI.creating`, which was why the preview was blank in game. `.ccFaces` uses `minmax(0, 1fr)`, face images fill the tile.
+- Hotbar: `#bottom #actionBar .slot` uses `contain: size` and `min-height: 0` so image icons cannot stretch a slot.
+- Tests: t3unit.js (services, signpost, guard, menu size).

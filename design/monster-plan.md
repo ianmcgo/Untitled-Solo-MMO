@@ -90,7 +90,7 @@ Goal: towns that are fun to explore, easy to read, and feel deep. Fewer empty ho
 - Street dressing with per-district palettes: Residential (gardens, washing, benches), Market (awnings, crates, hanging goods), Industrial (smoke, barrels, racks), Government (banners, lamps, statues), Docks (ropes, nets, barrels, gulls), Keep (torches, armour stands).
 - Ambient life stays off (per the earlier request) except animals; add a few static "scenes" (two NPC props talking, a cart being loaded) that need no walkers.
 
-### T3: Wayfinding
+### T3: Wayfinding - DONE in 19.13.0
 - District signposts list the shops in that district, not just directions; a "You are here" dot on the Map; shops get icons on the minimap when within range.
 - The first visit to a city plays a short title sequence naming the districts and what each is for.
 - Guards point you to the nearest vendor of a given kind when asked ("Where is the armourer?").

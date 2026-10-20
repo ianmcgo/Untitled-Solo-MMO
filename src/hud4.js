@@ -696,7 +696,14 @@ function drawMinimap() {
   const dot = (x, y, r, col) => { g.beginPath(); g.arc(x, y, r / sc, 0, 7); g.fillStyle = col; g.fill(); g.lineWidth = 1.5 / sc; g.strokeStyle = "rgba(0,0,0,.6)"; g.stroke(); };
   for (const n of S.npcs) {
     if (n.away || (n.prop && n.prop !== "gather" && n.prop !== "chest" && !n.poi)) continue;
-    if (NPCS[n.id] && NPCS[n.id].crystal) dot(n.x, n.y, 6, "#7ff3ff");
+    const sv = serviceOf(NPCS[n.id]);
+    if (sv && !(NPCS[n.id] && NPCS[n.id].crystal)) {
+      dot(n.x, n.y, 3, "#ead9ae");
+      g.save(); g.translate(n.x, n.y); g.rotate(Math.PI / 2 + yaw); g.scale(1 / sc, 1 / sc);
+      g.font = "13px system-ui"; g.textAlign = "center"; g.textBaseline = "middle"; g.lineWidth = 3; g.strokeStyle = "rgba(0,0,0,.75)"; g.strokeText(sv.icon, 0, -10); g.fillText(sv.icon, 0, -10);
+      g.restore();
+    }
+    else if (NPCS[n.id] && NPCS[n.id].crystal) dot(n.x, n.y, 6, "#7ff3ff");
     else if (NPCS[n.id] && NPCS[n.id].warpstone) dot(n.x, n.y, 6, "#ff9ff3");
     else if (n.poi) dot(n.x, n.y, 5, n.poi === "cache" ? "#ffd54f" : "#b39ddb");
     else if (n.prop) dot(n.x, n.y, 5, n.prop === "chest" ? "#ffd54f" : "#c8e6a0");
@@ -709,6 +716,10 @@ function drawMinimap() {
   }
   if (S.race && RACE.checkpoints[S.race.next] && RACE.checkpoints[S.race.next].zone === S.zoneId) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 10, "rgba(255,213,79,.9)"); }
   for (const p of S.party) if (p !== player) dot(p.x, p.y, 6, p.alive ? "#62b6ff" : "#555");
+  if (S.guide && S.guide.zone === S.zoneId) {
+    if (dist(S.guide, player) < 70) S.guide = null;
+    else { const r = 9 / sc; g.save(); g.translate(S.guide.x, S.guide.y); g.rotate(Math.PI / 4); g.fillStyle = "#ffd54f"; g.fillRect(-r * 0.7, -r * 0.7, r * 1.4, r * 1.4); g.lineWidth = 1.5 / sc; g.strokeStyle = "#000"; g.strokeRect(-r * 0.7, -r * 0.7, r * 1.4, r * 1.4); g.restore(); }
+  }
   for (const e of (S.zone.exits || []).filter(e => e.to === "residence")) {
     const hx = e.x + e.w / 2, hy = e.y + e.h / 2, r = 9 / sc;
     g.save(); g.translate(hx, hy); g.rotate(Math.PI / 2 + yaw);
@@ -1054,6 +1065,7 @@ function watchProgress() {
     if (!save.discovered) save.discovered = [];
     if (first) { save.discovered.push(S.zoneId); toast("🧭", "Discovered", S.zone.name); }
     zoneTitle(S.zone.name, first ? ["Discovered", zoneSubtitle(S.zoneId)].filter(Boolean).join(" · ") : districtName(S.zoneId, player.x, player.y) || zoneSubtitle(S.zoneId));
+    cityIntro();
     if ((S.zone.exits || []).some(e => e.to === "residence") && !save.homeShown) {
       save.homeShown = true;
       setTimeout(() => { banner("YOUR RESIDENCE", "The house with your name over the door · 🏠 on the map", []); toast("🏠", "Your residence", "Follow the 🏠 marker on the minimap. Pip keeps house for you."); }, 1600);
@@ -1061,6 +1073,19 @@ function watchProgress() {
     }
   }
   Object.assign(w, { job: j, lv, quests: Object.assign({}, save.quests), maxHp: player.maxHp, maxMp: player.maxMp, zone: S.zoneId, mount: save.mountLicense, sup: save.supportUnlocked });
+}
+function cityIntro() {
+  const area = areaOf(S.zoneId), z = S.zone;
+  if (!z.city || !ZONE_SPLITS[area] || !ZONE_SPLITS[area].town) return;
+  save.cityIntro = save.cityIntro || {};
+  if (save.cityIntro[area]) return;
+  save.cityIntro[area] = Date.now();
+  const svc = townServices(area), dists = areaZones(area).flatMap(id => ZONES[id].districts || []);
+  const chips = dists.map(d => { const l = []; for (const v of svc) if (v.did === d.id && !l.includes(v.label)) l.push(v.label); return d.icon + " " + esc(d.name) + (l.length ? ": " + esc(l.slice(0, 3).join(", ")) : ""); });
+  setTimeout(() => {
+    banner("WELCOME TO " + areaName(area).toUpperCase(), dists.length + " districts to explore · read the district signposts", chips);
+    log("Welcome to " + areaName(area) + ". Its districts: " + dists.map(d => d.name).join(", ") + ". Guards at the gates can tell you where to find any shop or service.", "npc");
+  }, 3200);
 }
 function rewardChips(r) {
   const out = [];

@@ -556,7 +556,7 @@ function citySVG() {
   }
   for (const [x, y] of gates) s += '<circle cx="' + x + '" cy="' + y + '" r="22" fill="#e8dcb8" stroke="#000" stroke-width="5"/>';
   const o = S.zone.off || [0, 0];
-  s += '<circle cx="' + (player.x + o[0]) + '" cy="' + (player.y + o[1]) + '" r="26" fill="#fff" stroke="#000" stroke-width="6"/>';
+  s += '<circle cx="' + (player.x + o[0]) + '" cy="' + (player.y + o[1]) + '" r="44" fill="none" stroke="#ff6ad5" stroke-width="6"/><circle cx="' + (player.x + o[0]) + '" cy="' + (player.y + o[1]) + '" r="26" fill="#fff" stroke="#000" stroke-width="6"/><text x="' + Math.min(sp.w - 140, Math.max(140, player.x + o[0])) + '" y="' + (player.y + o[1] - 62) + '" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" stroke="#000" stroke-width="7" paint-order="stroke">You are here</text>';
   return s + "</svg>";
 }
 function drawZoneMap() {
@@ -591,8 +591,10 @@ function drawZoneMap() {
     if (!seen(n.x, n.y)) continue;
     const cr = NPCS[n.id] && NPCS[n.id].crystal;
     g.beginPath(); g.arc(n.x, n.y, 6 / s, 0, 7); g.fillStyle = cr ? "#7ff3ff" : questMarker(n) ? "#ffd54f" : "#ead9ae"; g.fill();
-    lbl((questMarker(n) ? "❗ " : "") + n.name.split(",")[0], n.x, n.y - 10 / s, cr ? "#7ff3ff" : "#ead9ae");
+    const sv = serviceOf(NPCS[n.id]);
+    lbl((questMarker(n) ? "❗ " : "") + (sv ? sv.icon + " " : "") + n.name.split(",")[0], n.x, n.y - 10 / s, cr ? "#7ff3ff" : "#ead9ae");
   }
+  if (S.guide && S.guide.zone === S.zoneId) { g.beginPath(); g.arc(S.guide.x, S.guide.y, 9 / s, 0, 7); g.fillStyle = "#ffd54f"; g.fill(); g.lineWidth = 2 / s; g.strokeStyle = "#000"; g.stroke(); lbl("★ " + S.guide.label, S.guide.x, S.guide.y - 14 / s, "#ffd54f"); }
   for (const p of S.party) if (p !== player) { g.beginPath(); g.arc(p.x, p.y, 5 / s, 0, 7); g.fillStyle = "#62b6ff"; g.fill(); }
   for (const l of z.landmarks || []) if (save.landmarks[S.zoneId + ":" + l.id]) lbl("🧭 " + l.name, l.x, l.y, "#e9dcb4");
   g.save(); g.translate(player.x, player.y); g.rotate(player.face || 0); g.scale(1 / s, 1 / s);
@@ -1298,7 +1300,7 @@ function pmAct(p, ok) {
 function tabAuction() {
   const view = UI.ahView || "buy", cat = UI.ahCat || "materials", news = marketNews(marketDay());
   let h = '<div class="sub" style="margin-bottom:6px">📰 ' + esc(news.text[0]) + " " + esc(news.text[1]) + "</div>";
-  h += '<div class="ahBar"><span class="lbl">View</span>' + [["buy", "Buy"]].concat([["sell", "Sell"], ["lots", "My lots (" + save.market.listings.length + ")" + (save.market.box.length ? " · 📦" : "")]]).map(([k, l]) => '<button data-a="ahview" data-v="' + k + '"' + (view === k ? ' class="on" style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + l + "</button>").join("") + "</div>";
+  h += '<div class="ahBar"><span class="lbl">View</span>' + [["buy", "Buy"]].concat([["sell", "Sell"], ["lots", "My listings (" + save.market.listings.length + ")" + (save.market.box.length ? " · 📦" : "")]]).map(([k, l]) => '<button data-a="ahview" data-v="' + k + '"' + (view === k ? ' class="on" style="border-color:#c9a227;color:#f1cf73"' : "") + ">" + l + "</button>").join("") + "</div>";
   if (UI.ahMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.ahMsg) + "</div>";
   if (UI.pmBusy) h += '<div class="sub" style="color:#ffd54f;margin-bottom:6px">Talking to the game server…</div>';
   if (view === "lots" && typeof netAhList === "function" && NET.member) {
@@ -1307,7 +1309,7 @@ function tabAuction() {
     if (P.err) h += '<div class="sub">' + esc(P.err) + "</div>";
     else if (!P.at) h += '<div class="sub">Loading…</div>';
     else {
-      if ((P.box || []).length) h += '<div class="item"><div><b>📦 Player delivery box</b><div class="sub">' + P.box.map(b => b.kind === "sold" ? "💠 " + b.gil + " (sold " + (ITEMS[b.item] ? ITEMS[b.item].name : "?") + " to " + esc(b.note || "") + ")" : (ITEMS[b.item] ? ITEMS[b.item].name : "?") + (b.qty > 1 ? " ×" + b.qty : "") + (b.kind === "returned" ? " (returned)" : "")).join(", ") + '</div></div><button data-a="pmcollect"' + (UI.pmBusy ? " disabled" : "") + ">Collect</button></div>";
+      if ((P.box || []).length) h += '<div class="item"><div><b>📦 Player delivery box</b><div class="sub">' + P.box.map(b => b.kind === "sold" ? "💠 " + b.gil + " (sold " + (ITEMS[b.item] ? ITEMS[b.item].name : "?") + " to " + esc(b.note || "") + ")" : (ITEMS[b.item] ? ITEMS[b.item].name : "?") + (b.qty > 1 ? " ×" + b.qty : "") + (b.kind === "returned" ? " (returned)" : "")).join(", ") + '</div></div><span class="sub">Collect at your residence</span></div>';
       const pmine = (P.mine || []).filter(l => l.kind !== "merc");
       if (!pmine.length) h += '<div class="sub">You have nothing up for other players. Lots stay up for 48 hours; unsold items come back to the box.</div>';
       for (const l of pmine) h += '<div class="ahLine"><span>' + (ITEMS[l.item] ? (ITEMS[l.item].icon || "") + " " + esc(ITEMS[l.item].name) : "?") + (l.qty > 1 ? " ×" + l.qty : "") + "</span><span>" + l.price + ' 💠</span><span class="un">' + pmLeft(l.expires_at) + ' left</span><span class="ctl"><button data-a="pmcancel" data-v="' + l.id + '"' + (UI.pmBusy ? " disabled" : "") + ">Withdraw</button></span></div>";
@@ -1315,11 +1317,11 @@ function tabAuction() {
     h += "<h3>🏛️ With the market</h3>";
   }
   if (view === "lots") {
-    if (save.market.box.length) h += '<div class="item"><div><b>📦 Delivery box</b><div class="sub">' + save.market.box.map(b => b.gil ? "💠 " + b.gil + (b.note ? " (" + esc(b.note) + ")" : "") : ITEMS[b.id].name + (b.qty > 1 ? " ×" + b.qty : "")).join(", ") + '</div></div><button data-a="ahcollect">Collect</button></div>';
-    if (!save.market.listings.length) h += '<div class="sub">You have nothing up for auction. Lots stay up for ' + AH_CFG.expireMs / 3600000 + " hours (real time) and keep selling while you're away.</div>";
+    if (save.market.box.length) h += '<div class="item"><div><b>📦 Delivery box</b><div class="sub">' + save.market.box.map(b => b.gil ? "💠 " + b.gil + (b.note ? " (" + esc(b.note) + ")" : "") : ITEMS[b.id].name + (b.qty > 1 ? " ×" + b.qty : "")).join(", ") + '</div></div><span class="sub">Collect at your residence</span></div>';
+    if (!save.market.listings.length) h += '<div class="sub">You have nothing up for auction. Listings have no time limit: they stay up until they sell or you withdraw them, and keep selling while you are away.</div>';
     save.market.listings.forEach((l, i) => {
-      const left = Math.max(0, Math.ceil((l.exp - Date.now()) / 60000));
-      h += '<div class="ahLine"><span>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + "</span><span>" + l.price + ' 💠</span><span class="un">' + (left >= 60 ? Math.floor(left / 60) + "h " : "") + (left % 60) + 'm left</span><span class="ctl"><button data-a="ahcancel" data-v="' + i + '">Withdraw</button></span></div>';
+      const up = Math.max(0, Math.floor((Date.now() - (l.t || Date.now())) / 60000));
+      h += '<div class="ahLine"><span>' + (ITEMS[l.id].icon || "") + " " + esc(ITEMS[l.id].name) + (l.qty > 1 ? " ×" + l.qty : "") + "</span><span>" + l.price + ' 💠</span><span class="un">' + (up >= 1440 ? Math.floor(up / 1440) + "d " : "") + (up >= 60 ? Math.floor(up % 1440 / 60) + "h " : "") + (up % 60) + 'm listed</span><span class="ctl"><button data-a="ahcancel" data-v="' + i + '">Withdraw</button></span></div>';
     });
     const om = UI.pm && UI.pm.at && Array.isArray(UI.pm.mine) && typeof netAhList === "function" && NET.member ? UI.pm.mine.filter(l => l.kind === "merc" && ITEMS[l.item]).map(l => ({ id: l.item, qty: l.qty, price: l.price, seller: l.merc_name || "Companion", online: true })) : [];
     const ml = marketLocalLots().filter(l => l.kind === "merc").concat(om);
@@ -1747,6 +1749,17 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.13.0", date: "2026-10-20", title: "Finding your way", items: [
+    "<b>District signposts list the shops.</b> Talk to a district signpost to see which shops and services are in the district you are in, and what each other district has, with directions.",
+    "<b>Guards know every shop.</b> Ask a gate guard \"Where can I find...?\" and pick a shop or service. They give the nearest one, its district and direction, and mark it on your map if it is in the same district.",
+    "<b>Map and minimap.</b> The city map shows a ringed \"You are here\" dot, and shops and services show their icons on the minimap and the district map.",
+    "<b>First visit to a city</b> shows a title card naming its districts and what each is for.",
+    "<b>Delivery Box at your residence.</b> Everything you sell at the auction house, and everything your companions sell, is collected from the Delivery Box in your residence. The auction house only shows what is waiting.",
+    "<b>No time limit on auction listings.</b> They stay up until they sell or you withdraw them. The My lots view is now called My listings. Offers to other players are still limited by the online market.",
+    "<b>Warp stones.</b> Touching one for the first time now plays a magic effect and tells you that you have attuned to it.",
+    "<b>Barber.</b> The 3D preview now appears while you choose a look, and the face tiles are an even size.",
+    "<b>Hotkey bar.</b> Every slot is now the same square size."
+  ] },
   { v: "19.12.0", date: "2026-10-20", title: "Skylines and Steps", items: [
     "<b>City set pieces.</b> Every district now has landmarks you can spot from a distance: clock and bell towers, slender spires, tall chimneys with drifting smoke, harbour cranes, and a flaming beacon post at each gate. Neighbouring districts show their tall landmarks on the skyline.",
     "<b>Height in the cities.</b> The Government plaza, the Saltreach Hall square and the Ironvale Keep square stand on low terraces with stone retaining walls and steps where the roads meet them.",
@@ -2267,7 +2280,7 @@ const UPDATES = [
   { v: "18.35.0", date: "2026-10-16", title: "Online market", items: [
     "<b>Companions sell online:</b> when you play online, a companion's sell-off in town goes to the shared market under their name, visible to every player. Up to 300 companion lots per player; they never expire and are priced at each item's usual value. Items without a market value are sold to a shop as before.",
     "<b>Towns buy online:</b> every 20 minutes of real time each town buys one lot from the shared market: players' lots first, then companions', taking turns between sellers and starting with each seller's oldest lot. Only lots priced at most 1.25 times an item's usual value are bought. About a quarter go back up under the town's name at 3% more, and anyone can buy them.",
-    "<b>Crystals</b> from these sales arrive in your player delivery box (My lots → With other players). Your companions' online lots show under Your companions' lots, marked 🌐.",
+    "<b>Crystals</b> from these sales arrive in your player delivery box (My listings → With other players). Your companions' online lots show under Your companions' lots, marked 🌐.",
     "<b>Fixed:</b> buying a lot a town had relisted took the item from the town's daily stock instead of buying that lot.",
     "<b>Server owners:</b> run the latest setup SQL (Admin → Copy setup SQL), server version 7. Until then companions keep using the offline market list.",
   ]},
@@ -2324,6 +2337,7 @@ const UPDATES = [
   ] },
   { v: "18.28.0", date: "2026-10-16", title: "Companions sync to your level", items: [
     "<b>Hired at your level:</b> a companion's hiring fee now follows your current level, and they join at that level.",
+    "<b>Wayfinding:</b> district signposts list the shops in each district, gate guards answer \"Where can I find...?\" and mark the shop on your map, shops show icons on the minimap, and the city map has a You are here dot. The first visit to a city names its districts.",
     "<b>Monster jobs:</b> a monster with a job carries it in its name, such as Goblin White Mage.",
     "<b>Level sync:</b> when you level up, level down or change jobs, companions sync to your new level. Gear they can no longer wear is put away in their bag as a kept item and goes back on when your level allows. Kept items are never sold.",
     "<b>Plain starting gear:</b> companions start in plain shop gear for their level, never +1 or named pieces.",
@@ -3342,7 +3356,7 @@ const UPDATES = [
     "Offer to players: put an item up for other players for 48 hours (3% fee, up to 10 lots).",
     "Sales, purchases and returns go through the game server and a player delivery box, so nothing can be duplicated.",
     "You're told when another player buys your lot, even if you're out in the field.",
-    "My lots shows your player lots and market lots separately. The simulated market is unchanged."
+    "My listings shows your player lots and market lots separately. The simulated market is unchanged."
   ] },
   { v: "8.5.0", date: "2026-10-13", title: "Server checks", items: [
     "Trades now happen on the game server in one step, so items can't be duplicated or lost if someone disconnects halfway.",
@@ -3437,7 +3451,7 @@ const UPDATES = [
     "Auction houses open in Ashenreach Outpost (Corvin, west of the crystal) and Saltreach Harbor (Selene, by the crystal).",
     "Prices move all the time. Each item drifts up and down over the game day, daily market news pushes one category up and another down, and your own buying and selling nudges prices too.",
     "Buy: browse Materials, Consumables, Weapons and Armor. Each item has a limited stock that refreshes every game day, a price chart for the last three game days and a trend arrow.",
-    "Sell: put up to " + 7 + " lots up for auction at your own price (3% listing fee). Cheaper lots sell faster. Lots keep selling while you're away; unsold lots come back to your delivery box after 3 hours.",
+    "Sell: put up to " + 7 + " lots up for auction at your own price (3% listing fee). Cheaper lots sell faster. Lots keep selling while you're away; listings never expire; withdraw one and it goes to your delivery box.",
     "Items sold in shops never fetch more than the shop price, and Rare, Ex and key items can't be auctioned. New achievement: Market Savvy."
   ] },
   { v: "6.2.0", date: "2026-10-13", title: "The Main Story: Embers of Ashenreach", items: [
@@ -3941,11 +3955,11 @@ function tabHelp() {
     "<b>Auction prices follow the shops:</b> the going rate for an item is " + AH_CFG.shopRatio + " times what a shop charges for it, and it still drifts up and down with the daily news and with how much people buy and sell.",
     "Each game day the market stocks only a random handful: 10 pieces of +1 (high-quality) equipment (one of each), 5 kinds of ammo, 10 kinds of potions and other consumables, 3 spell scrolls, 10 kinds of food and 10 kinds of materials. Nothing is listed above your level + 1. Point at any entry to see its item card.",
     "<b>Buying:</b> pick a category and tap an item for its price chart and today's stock (stock refreshes each game day). Weapons and armor more than 5 levels above you are hidden.",
-    "<b>Selling:</b> choose an item and quantity (up to one stack), adjust the price, and pay a " + Math.round(AH_CFG.fee * 100) + "% listing fee. The window tells you how quickly it's likely to sell. Up to " + AH_CFG.maxListings + " lots at once; each stays up " + AH_CFG.expireMs / 3600000 + " hours (real time) and keeps selling while you're away. Crystals from a sale go straight to you.",
-    "Unsold or withdrawn lots go to your <b>delivery box</b>; collect them from the My lots view. Rare, Ex, key items and furniture can't be auctioned.",
+    "<b>Selling:</b> choose an item and quantity (up to one stack), adjust the price, and pay a " + Math.round(AH_CFG.fee * 100) + "% listing fee. The window tells you how quickly it's likely to sell. Up to " + AH_CFG.maxListings + " lots at once; there is no time limit: a listing stays up until it sells or you withdraw it, and keeps selling while you're away. Crystals from a sale go straight to you.",
+    "Everything you sell, withdraw or have delivered goes to the <b>Delivery Box in your residence</b> (the chest near the door); walk home and use Collect everything. The My listings view shows what is waiting. Rare, Ex, key items and furniture can't be auctioned.",
     "<b>🌐 Players:</b> lots put up by other adventurers. Pick a category and an item to see every lot, its seller, time left and recent player sale prices, then Buy. Purchases go straight to your bag (or your delivery box if it's full). Everything is handled by the game server, so a sale can't be duplicated.",
     "<b>Offer to players:</b> in Sell, choose the item, quantity and price, then press <b>🌐 Offer to players</b> instead of Sell to the market. Players see it for 48 hours and pay exactly your price. The same 3% fee applies. Up to 10 player lots at once.",
-    "When a player buys your lot you get a message wherever you are; the crystals wait in your <b>player delivery box</b> (My lots) until you collect them at any auction house. Unsold lots come back to the box after 48 hours."
+    "When a player buys your lot you get a message wherever you are; the crystals wait in your <b>Delivery Box at your residence</b> until you collect them there. Unsold lots come back to the box after 48 hours."
   ]));
   h += sec("🕯️ Main story: Embers of Ashenreach", ul([
     "Eight chapters. Talk to <b>Captain Rhea</b> at level 3 to begin. Your current chapter and goal are always at the top of the Quests window, and a ❗ marks the person with your next story scene.",

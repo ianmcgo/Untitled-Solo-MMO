@@ -2564,7 +2564,7 @@ function townBuyOnce(town) {
   const now = Date.now(), wait = AH_CFG.townBuySec * 1000;
   const pl = save.market.listings.filter(l => (l.town || ahTowns()[0]) === town && now - (l.t || 0) >= wait && townEligible(l.price, l.qty, l.id));
   if (pl.length) {
-    const p = townPick(pl, () => "player:" + (save.name || "you"), l => l.exp - AH_CFG.expireMs);
+    const p = townPick(pl, () => "player:" + (save.name || "you"), l => l.t || 0);
     const l = p.item, i = save.market.listings.indexOf(l);
     save.market.listings.splice(i, 1);
     save.gil += l.price;
@@ -2697,7 +2697,7 @@ function ahList(id, qty, price, essId) {
   if (essId && essenceIds().includes(essId)) removeItem(essId, ess); else spendEssence(ess);
   removeItem(id, qty);
   const now = Date.now();
-  save.market.listings.push({ id, qty, price, t: now, next: now + AH_CFG.checkMs, exp: now + AH_CFG.expireMs, town: ahHere() });
+  save.market.listings.push({ id, qty, price, t: now, next: now + AH_CFG.checkMs, town: ahHere() });
   log("You put " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " up for auction at " + price + " crystals (fee " + fee + " and " + ess + " Essence).", "sys");
   sfx("coin");
   saveGame();
@@ -2731,14 +2731,6 @@ function saleChance(l) {
 function tickAuction() {
   const now = Date.now();
   let changed = false;
-  for (let i = save.market.listings.length - 1; i >= 0; i--) {
-    const l = save.market.listings[i];
-    if (now < l.exp) continue;
-    save.market.listings.splice(i, 1);
-    save.market.box.push({ id: l.id, qty: l.qty });
-    log("Auction: your " + ITEMS[l.id].name + " didn't sell and is back in your delivery box.", "sys");
-    changed = true;
-  }
   if (changed) saveGame();
 }
 
@@ -2878,6 +2870,51 @@ function guildBuy(id) {
   sfx("coin");
   saveGame();
   return "";
+}
+
+const SERVICE_BY_SHOP = { armorer: ["🛡️", "Armorer"], weaponsmith: ["⚔️", "Weaponsmith"], tradesman: ["🧰", "Tradesman"], quartermaster: ["🧪", "Quartermaster"], spellsmith: ["📜", "Spellsmith"], jeweler: ["💍", "Jeweler"] };
+const SERVICE_BY_TALK = { talkAuction: ["🏛️", "Auction House"], talkBrann: ["🗡️", "Mercenary Hall"], talkTobin: ["🎓", "Job Master"], talkMaera: ["🎖️", "Adventurers' Guild"], talkGarrick: ["🔨", "Smith (augments)"], talkHaldor: ["🔨", "Mythrilsmith"], talkBarber: ["✂️", "Barber"], talkYsolde: ["🦖", "Stablemaster"], talkMarn: ["🐟", "Fishmonger"], talkFerry: ["⛴️", "Ferry"], talkBoard: ["📋", "Trade Board"], talkCrystal: ["💠", "Home Point"], talkOdette: ["🪑", "Furnishings"], talkRegistrar: ["📖", "Registrar"] };
+function serviceOf(def) {
+  if (!def) return null;
+  const v = def.shop && SERVICE_BY_SHOP[def.shop] || SERVICE_BY_TALK[def.talk];
+  return v ? { icon: v[0], label: v[1] } : null;
+}
+function townServices(area) {
+  const out = [];
+  for (const zid of areaZones(area)) {
+    const z = ZONES[zid], off = z.off || [0, 0];
+    for (const n of z.npcs || []) {
+      const sv = serviceOf(NPCS[n.id]);
+      if (!sv) continue;
+      const d = districtAt(z, n.x, n.y) || (z.districts || [])[0] || null;
+      out.push({ icon: sv.icon, label: sv.label, name: NPCS[n.id].name, zone: zid, x: n.x, y: n.y, ax: n.x + off[0], ay: n.y + off[1], district: d ? d.name : z.name, did: d ? d.id : zid });
+    }
+  }
+  return out;
+}
+function compassWord(dx, dy) {
+  const a = Math.atan2(dy, dx) * 180 / Math.PI, names = ["east", "south-east", "south", "south-west", "west", "north-west", "north", "north-east"];
+  return names[((Math.round(a / 45) % 8) + 8) % 8];
+}
+function serviceDirections(sv) {
+  const o = S.zone.off || [0, 0], dx = sv.ax - (player.x + o[0]), dy = sv.ay - (player.y + o[1]);
+  return sv.name.split(",")[0] + " (" + sv.label + ") is in the " + sv.district + ", " + compassWord(dx, dy) + " of here, about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms.";
+}
+function guardWhere(n, kind) {
+  const list = townServices(areaOf(S.zoneId)).filter(v => v.label === kind);
+  const o = S.zone.off || [0, 0], px = player.x + o[0], py = player.y + o[1];
+  list.sort((a, b) => Math.hypot(a.ax - px, a.ay - py) - Math.hypot(b.ax - px, b.ay - py));
+  if (!list.length) { openDialog(n.name, "I know of no " + kind.toLowerCase() + " in this town.", []); return; }
+  const best = list[0];
+  S.guide = best.zone === S.zoneId ? { zone: best.zone, x: best.x, y: best.y, label: best.label, icon: best.icon } : null;
+  openDialog(n.name, serviceDirections(best) + (S.guide ? " I've marked it on your map." : " Follow the district signposts."), [{ label: "Ask about something else", fn: () => guardMenu(n) }]);
+}
+function guardMenu(n, more) {
+  const shopLabels = Object.values(SERVICE_BY_SHOP).map(v => v[1]), kinds = [];
+  for (const v of townServices(areaOf(S.zoneId))) if (!kinds.some(k => k.label === v.label) && (shopLabels.includes(v.label) === !more)) kinds.push(v);
+  const opts = kinds.map(v => ({ label: v.icon + " " + v.label, fn: () => guardWhere(n, v.label) }));
+  opts.push(more ? { label: "Back to shops", fn: () => guardMenu(n, false) } : { label: "Other services...", fn: () => guardMenu(n, true) });
+  openDialog(n.name, more ? "Looking for a service? Ask and I'll point the way." : "Looking for a shop? Ask and I'll point the way.", opts);
 }
 
 function boardToday() {
@@ -5850,11 +5887,19 @@ const TALK = {
       { label: "Augment gear", fn: () => { closeDialog(); openModal("forge"); } }
     ]);
   },
+  talkDeliveryBox(n) {
+    const box = save.market.box, on = typeof netAhCollect === "function" && typeof NET !== "undefined" && NET.member;
+    const list = box.map(b => b.gil ? b.gil + " crystals" + (b.note ? " (" + b.note + ")" : "") : ITEMS[b.id].name + (b.qty > 1 ? " x" + b.qty : ""));
+    const text = list.length ? "Waiting for you: " + list.join(", ") + "." : "Nothing is waiting in your delivery box.";
+    const go = () => { closeDialog(); const m = ahCollect(); if (m) log(m, "sys"); if (on) netAhCollect().catch(() => {}); ring(n, "#ffd54f", 40, 0.7, "sparkle"); };
+    openDialog(n.name, text + (on ? " Anything players bought from you online is collected as well." : "") + " Everything you sell at the auction house, and everything your companions sell, is delivered here.", list.length || on ? [{ label: "Collect everything", fn: go }] : []);
+  },
   talkGuard(n) {
     const mins = blessingMinutes(), left = blessed() ? Math.ceil(blessLeft() / 60) : 0;
     const rank = GUILD_RANKS[guildRank()][0];
     openDialog(n.name, (left ? "Your City Blessing holds for another " + left + " minute" + (left > 1 ? "s" : "") + ". " : "Heading out? Monsters only yield essences to those who carry the City Blessing, and it fades after a while. ") + "At " + rank + " rank the blessing lasts " + mins + " minutes. Shall I renew it?", [
-      { label: left ? "Renew the City Blessing (" + mins + " min)" : "Receive the City Blessing (" + mins + " min)", fn: () => { closeDialog(); giveBlessing(); } }
+      { label: left ? "Renew the City Blessing (" + mins + " min)" : "Receive the City Blessing (" + mins + " min)", fn: () => { closeDialog(); giveBlessing(); } },
+      { label: "Where can I find...?", fn: () => guardMenu(n) }
     ]);
   },
   talkRegistrar(n) {
@@ -6093,13 +6138,16 @@ const TALK = {
   },
   talkDistrictSign(n) {
     const z = S.zone, here = districtAt(z, n.x, n.y), o = z.off || [0, 0], gx = n.x + o[0], gy = n.y + o[1];
-    const all = areaZones(areaOf(S.zoneId)).flatMap(id => (ZONES[id].districts || []).map(d => { const q = ZONES[id].off || [0, 0]; return Object.assign({}, d, { x: d.x + q[0], y: d.y + q[1] }); }));
+    const area = areaOf(S.zoneId), svc = townServices(area);
+    const shopsOf = did => { const l = []; for (const v of svc) if (v.did === did && !l.includes(v.icon + " " + v.label)) l.push(v.icon + " " + v.label); return l; };
+    const all = areaZones(area).flatMap(id => (ZONES[id].districts || []).map(d => { const q = ZONES[id].off || [0, 0]; return Object.assign({}, d, { x: d.x + q[0], y: d.y + q[1] }); }));
     const lines = all.filter(d => !here || d.id !== here.id).map(d => {
       const cx = d.x + d.w / 2, cy = d.y + d.h / 2, dx = cx - gx, dy = cy - gy;
-      const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "east" : "west") : (dy > 0 ? "south" : "north");
-      return d.icon + " " + d.name + ": " + dir + ", about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms";
+      const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "east" : "west") : (dy > 0 ? "south" : "north"), sh = shopsOf(d.id);
+      return d.icon + " " + d.name + ": " + dir + ", about " + Math.max(1, Math.round(Math.hypot(dx, dy) / 100)) * 10 + " yalms" + (sh.length ? "\n    " + sh.join(", ") : "");
     });
-    openDialog("District Signpost", (here ? "You are in the " + here.name + ". " : "") + lines.join(". ") + ".", []);
+    const mine = here ? shopsOf(here.id) : [];
+    openDialog("District Signpost", (here ? "You are in the " + here.name + "." + (mine.length ? " Here: " + mine.join(", ") + "." : "") + "\n" : "") + lines.join("\n"), []);
   },
   talkWarpStone(n) { openWarpStone(n); },
   talkCrystal(n) {
@@ -6148,7 +6196,13 @@ function warpToStone(id) {
 }
 function openWarpStone(n) {
   save.warps = save.warps || {};
-  if (!save.warps[n.id]) { save.warps[n.id] = true; log("You attune to the " + NPCS[n.id].name + ".", "loot"); saveGame(); }
+  if (!save.warps[n.id]) {
+    save.warps[n.id] = true;
+    log("You have attuned to this warp stone. " + NPCS[n.id].name + " is now a place you can warp to.", "loot");
+    ring(n, "#ff9ff3", 70, 1.1, "sparkle"); vfx("crystal", { at: n }); vfx("levelup", { tgt: n }); sfx("unlock");
+    popText(n, "Attuned", "#ff9ff3", 16, 2, 40);
+    saveGame();
+  }
   const dests = warpStoneList().filter(id => id !== n.id);
   if (!dests.length) { openDialog(NPCS[n.id].name, "A waist-high stone humming with pale light. Touch other warp stones to travel between them. Stones in the same city are free; stones in other cities cost " + CONFIG.warpCost + " crystals.", []); return; }
   const near = dests.filter(id => !warpStoneCost(id)), far = dests.filter(id => warpStoneCost(id));

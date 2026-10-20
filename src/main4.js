@@ -141,6 +141,7 @@ async function boot() {
       try { if (typeof tickRemotes === "function") { tickRemotes(dt); netRtTick(); } } catch (e) { reportError(e, "net"); }
       try { age(dt); } catch (e) { reportError(e, "age"); }
       try { draw(dt); } catch (e) { reportError(e, "draw"); }
+      try { if (UI.creating && UI.pv) renderPreview(now); } catch (e) { reportError(e, "preview"); }
       try { updateHud(dt); } catch (e) { reportError(e, "hud"); }
       try { updateAudio(); audioNag(); } catch (e) { reportError(e, "audio"); }
     } else {
