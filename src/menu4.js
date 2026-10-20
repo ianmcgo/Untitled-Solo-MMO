@@ -1211,7 +1211,7 @@ function tabBoard() {
     const done = save.board.done.includes(r.id);
     const need = Object.keys(r.items).map(it => ITEMS[it].name + " " + Math.min(invCount(it), r.items[it]) + "/" + r.items[it]).join(", ");
     const ready = Object.keys(r.items).every(it => invCount(it) >= r.items[it]);
-    h += '<div class="item"' + (done ? ' style="opacity:.5"' : "") + "><div><b>" + esc(r.who) + '</b><div class="sub">Wants: ' + esc(need) + " · Pays " + r.gil + " 💠 + " + r.xp + " XP</div></div>" + (done ? '<span class="sub">Filled ✓</span>' : '<button data-a="trade" data-v="' + r.id + '"' + (ready ? "" : " disabled") + ">Hand over</button>") + "</div>";
+    h += '<div class="item"' + (done ? ' style="opacity:.5"' : "") + "><div><b>" + esc(r.who) + '</b><div class="sub">Wants: ' + esc(need) + " · Pays " + r.gil + " 💠</div></div>" + (done ? '<span class="sub">Filled ✓</span>' : '<button data-a="trade" data-v="' + r.id + '"' + (ready ? "" : " disabled") + ">Hand over</button>") + "</div>";
   }
   return h;
 }
@@ -1253,7 +1253,7 @@ function ahDetail(id) {
     const unit = UI.ahPrice / q, tn = ahTownName(ahHere()), mins = Math.round(AH_CFG.townBuySec / 60);
     const speed = townEligible(UI.ahPrice, q, id) ? "can be bought by " + tn + " (it buys one lot every " + mins + " real minutes, from lots up at least " + mins + " minutes)" : "is too high for " + tn + " to buy (it pays up to " + townCeil(id) + " each)";
     h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">Qty</span><button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><span class="sub" style="margin-left:10px">Price</span><button data-a="ahprice" data-v="-0.1">−10%</button><b>' + UI.ahPrice + ' 💠</b><button data-a="ahprice" data-v="0.1">+10%</button></div>';
-    h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) · at this price it " + speed + '.</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The town buys at most one of your lots every 20 real minutes. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
+    h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) + " + ahEssenceFee(UI.ahSel) + " Essence (any element, you have " + essenceHeld() + ") · at this price it " + speed + '.</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The town buys at most one of your lots every 20 real minutes. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
   } else {
     const P = typeof pmLoad === "function" && typeof netAhList === "function" && NET.member ? pmLoad(false) : null;
     const lines = marketLines(id, P && P.at ? P.list : []).filter(l => !UI.ahSrc || UI.ahSrc === "all" || l.kind === UI.ahSrc);
@@ -1427,7 +1427,7 @@ function tabGuild() {
   if (UI.guildMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.guildMsg) + "</div>";
   const row = (b, btn, extra) => {
     const r = bountyReward(b);
-    return '<div class="item"><div><b>' + (b.nm ? "★ " : "") + esc(bountyName(b)) + '</b><div class="sub">' + esc(b.where) + " · suggested level " + b.lv + "+" + (extra || "") + " · " + r.gp + " 🎖️ · " + r.gil + " 💠 · " + r.xp + " XP</div></div>" + btn + "</div>";
+    return '<div class="item"><div><b>' + (b.nm ? "★ " : "") + esc(bountyName(b)) + '</b><div class="sub">' + esc(b.where) + " · suggested level " + b.lv + "+" + (extra || "") + " · " + r.gp + " 🎖️ · " + r.gil + " 💠</div></div>" + btn + "</div>";
   };
   const act = Object.keys(g.active);
   h += "<h3>Your bounties (" + act.length + "/" + GUILD_ACTIVE + ")</h3>";
@@ -1729,6 +1729,16 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.11.0", date: "2026-10-20", title: "House rules", items: [
+    "<b>Hotkey bar.</b> It now sits directly above the Target box, exactly as wide as the boxes under it (two rows of five), and always draws on top of them instead of hiding behind. Your old dragged position is reset once; you can still drag it by the grip.",
+    "<b>Event log history.</b> Click the event log to open it and scroll back through up to 500 old lines. Click the world or press Esc to close it.",
+    "<b>Quest tracker.</b> Accepted quests, your current story step and accepted bounties now show at the top left of the screen with their progress. It hides itself while a window, menu or dialog is open, and you can switch it off under Settings (Quest tracker).",
+    "<b>No XP from errands.</b> Quests, bounties, Trade Board requests and story steps now pay crystals, items and guild points only. Kills are the only way to level.",
+    "<b>Groups level slower.</b> Each extra party member cuts your share of kill XP by 25% (minimum 20%): 75% with one companion, 50% with two, 25% with three.",
+    "<b>Three mercenaries at most.</b> A full party is you plus three. Saves that had more keep their first three.",
+    "<b>Auction house.</b> Listing a lot now also costs Essence crystals of any element: 1 per 1,000 of the item's base price, rounded up. Towns never put Essence in their daily listings, but Essence that players or mercenaries sell to a town is relisted like anything else. Bows, instruments, throwing weapons and ammunition are now filed under Weapons, and flutes, horns, harps and boomerangs have their own icons instead of looking like bows.",
+    "<b>Floating rocks fixed.</b> Rocks scattered near zone exits could be placed past the edge of the ground and hang in the air. Nothing is placed off the terrain any more, and every placed object in every zone was checked against the real ground mesh."
+  ] },
   { v: "19.10.0", date: "2026-10-20", title: "Room to breathe", items: [
     "<b>Fewer empty houses.</b> About half of the houses with nobody home, no door and no shop are gone (Ashenreach 228 to 122, Saltreach 178 to 93, Ironvale 225 to 108, counting every district). The ones that frame streets and squares stay.",
     "<b>Little scenes in the gaps.</b> Gardens, courtyards with a tree and benches, wells, shrines, market carts, crates and barrels, laundry lines, an open-air forge and watchtower stubs; Saltreach adds net racks and boat ramps, Ironvale mine carts and woodpiles. They block like furniture, so walk around them.",
@@ -3656,7 +3666,7 @@ function tabHelp() {
   h += sec("🌅 Getting started", ul([
     "You start alone in Ashenreach Outpost with 100 crystals. Talk to <b>Captain Rhea</b> for work, <b>Brann</b> to hire companions, <b>Pip</b> (in your residence) to change jobs, the <b>market vendors</b> to buy and sell, and <b>Ysolde</b> for the mount.",
     "Leave through Eastgate, the small gate zone east of the Market, into Rocky Hollow. Captain Rhea, the gate guard (City Blessing) and Ysolde the stablemaster all wait there. Hares, worms and small goblins a short walk from the gate are good first targets (monsters keep away from entrances and exits).",
-    "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus five. Fallen companions are gone for good.",
+    "Your first hire is a big boost: Brann's Mercenary Hall has five new fighters every day, at your level. A healer and a tank make a strong start. A full party is you plus three. Fallen companions are gone for good.",
     "Standing still out of combat recovers HP and MP slowly. To heal properly, type <b>/rest</b> (or tap yourself and choose Heal) to sit down. Resting is about six times faster. You can rest during a fight too (it disengages you first). Moving, attacking or getting hit stands you up."
   ]), true);
   h += sec("🏙️ Cities and districts", ul([
@@ -3703,6 +3713,8 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
+    "<b>Event log history:</b> click the event log to open it, then scroll with the wheel or drag to read up to 500 old lines. Click anywhere in the world, or press Esc, to close it again.",
+    "<b>Hotkey bar:</b> it sits directly above the Target box and is as wide as the boxes under it, in two rows of five, and always draws on top of them. You can still drag it by the ⠿ grip (double-click to put it back).",
     "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Config, Camera has separate Mouse and Keyboard switches for inverting horizontal (left and right) and vertical (up and down); the keyboard ones affect the arrow keys and Q and E.",
     "<b>Target button (touch):</b> a button sits above the Target panel (in the same blue and gold style as the command menu): Talk (people), Use or Inspect (objects), Harvest (gathering points) or Fight (monsters; engages and opens the command box). Attacking never makes you run to the monster unless you turn on Auto-run to target in Config, Camera.",
     "Movement: you run at about 5 metres a second (more on roads and much more mounted). <b>Hold Shift to sprint</b> about 45% faster on foot; letting go returns you to a normal run. Most monsters chase at around two-thirds of that, so you can usually get away on foot if you start early. Characters move with a natural gait: feet stay planted, roll from heel to toe and push off, hips sway over the standing leg, arms swing (and pump with bent elbows at a run), the body leans forward as you set off, rocks back as you stop, and banks into turns.",
@@ -3803,7 +3815,8 @@ function tabHelp() {
     "Fighting alone in shop gear, an Easy Prey monster is almost always a safe kill, an Even Match is about a coin flip (much safer with companions), and a Tough one usually needs help.",
     "<b>EXP chains:</b> defeat another monster within " + CONFIG.chainWindow + " s of your last XP kill for +" + Math.round(CONFIG.chainStep * 100) + "% per chain, up to +" + Math.round(CONFIG.chainMax * CONFIG.chainStep * 100) + "%. The ⛓ counter by the XP bar shows the bonus and time left.",
     "<b>Discovery:</b> landmarks are logged the first time you reach them (🧭 in the event log); they give no experience. The Map shows how many you've found in each zone.",
-    "Quests give big XP rewards.",
+    "Quests, bounties, Trade Board requests and story steps never give experience. They pay crystals, items and guild points. Fighting is how you level.",
+    "<b>Groups:</b> every extra party member (mercenaries and other players) cuts your share of each kill's experience by 25%, down to a minimum of 20%. Two in the party is 75%, three is 50%, four is 25%. A bigger party is safer, not faster.",
     "When you are knocked out you fall and stay down for up to an hour. A Reraise effect (from a Reraiser) stands you straight back up with no loss. Otherwise press Back to Home Point: you return home and lose 10% of your current level's XP requirement (you never lose a level). After returning home you are Weakened for three minutes (attack, defence and accuracy -15%).", "Companions who fall stay down too, and there is no Raise to bring them back, so walk to them before the hour ends or they go back to the Mercenary Hall (hall recruits are lost for good)."
   ]));
   const nmRows = Object.keys(NM_FAMILIES).map(k => { const n = NM_FAMILIES[k], u = ITEMS[n.loot[0][0]]; return ["☠ " + n.name, n.hint || "", (FAMILIES[n.base] || {}).name || "", u ? u.name : ""]; });
@@ -3881,6 +3894,9 @@ function tabHelp() {
     "Bring a full party of level 15s, food, and potions. The timer shows at the top of the screen."
   ]));
   h += sec("⚖️ Auction house", ul([
+    "<b>Listing needs Essence.</b> On top of the " + Math.round(AH_CFG.fee * 100) + "% crystal fee, every lot you list costs Essence crystals of any element (Fire, Wind, Earth or Water): 1 for an item with a base price up to 1,000, 2 up to 2,000, 3 up to 3,000, and so on. It is spent when you list and not refunded.",
+    "<b>Categories:</b> bows, crossbows, instruments, throwing weapons and ammunition are all listed under Weapons.",
+    "<b>No Essence on the shelves.</b> A town's daily listings never include Essence crystals. Essence only turns up on the Buy view when a player or a mercenary sold it to a town, and then towns relist it like anything else.",
     "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
     "Walk up to the <b>Auction Clerk</b>, who stands at the door of the Auction House (a pillared building with a gold banner) in Ashenreach, Saltreach and Ironvale, and press Talk. In Ashenreach it is on the market plaza next to the home point crystal. Every town has its own auction house.",
     "<b>One list.</b> The Buy view shows every seller together: 🏛 towns in gold, 👤 players in green and ⚔ mercenaries in violet. Use Show to filter, and open an item to see all sellers sorted by price. Hover a mercenary's name to see whose it is.",
@@ -3911,7 +3927,7 @@ function tabHelp() {
   h += sec("⚔️ The Adventurers' Guild", ul([
     "Talk to <b>Maera</b> in Ashenreach Outpost (west of Captain Rhea) to open the guild window.",
     "<b>Bounties:</b> " + GUILD_DAILY + " are posted each day (new ones at midnight UTC). Accept up to " + GUILD_ACTIVE + " at once. Kills count anywhere, with or without companions. Each bounty can be finished once per day; you can abandon one to free a slot.",
-    "Rewards per bounty: guild points 🎖️, eight crystals per point, and experience scaled to the bounty's suggested level. ★ bounties are notorious monster hunts and pay the most.",
+    "Rewards per bounty: guild points 🎖️ and eight crystals per point (no experience). ★ bounties are notorious monster hunts and pay the most.",
     "<b>Ranks</b> (by total points earned; spending doesn't lower your rank): " + GUILD_RANKS.map(r => r[0] + " " + r[1]).join(" · ") + ". Each rank posts harder bounties.",
     "<b>Guild rewards</b> (spend points): " + GUILD_SHOP.map(e => ITEMS[e.id].name + " " + e.gp + " (" + GUILD_RANKS[e.rank][0] + ")").join(", ") + ". Guild gear is Ex: one of each, and it can't be sold."
   ]));
@@ -3943,9 +3959,9 @@ function tabHelp() {
     "<b>Throne room:</b> the Hollow King, level 12. At 66% and 33% HP he calls two Royal Guards: kill them or hold them, and keep healing. Below 20% he enrages (hits harder and faster). He returns every 10 real minutes. The Royal Coffer opens while he's down.",
     "Chests refill 20 real minutes after you open them. Key items and crypt progress are saved with your character."
   ]));
-  h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
+  h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p><p><b>Tracker:</b> your accepted quests, current story step and accepted bounties are listed at the top left of the screen with their progress. Click it to open the journal, click its title to fold it, and it hides itself while a window, menu or dialog is open. Turn it off in Settings (Quest tracker).</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("👥 Party and companions (P, in the Social menu)", ul([
-    "<b>Hiring:</b> Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement. You hire them at your current level and the fee follows your level.",
+    "<b>Hiring:</b> you can have up to <b>three</b> mercenaries with you at once. Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement. You hire them at your current level and the fee follows your level.",
     "<b>Level sync:</b> companions always match your current job level. When you level up, level down or change jobs they sync with you. Gear they can no longer wear is put away as a kept item in their bag (never sold) and goes back on when your level allows, unless they have found something better by then. Their starting gear is plain shop gear, never +1 or named pieces.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
     "<b>Hurt mercenaries:</b> when the fight is over and you stand still, a mercenary at 75% health or less sits and rests to full. In a fight, at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
@@ -3985,7 +4001,7 @@ function tabHelp() {
     "If you don't choose within 45 seconds you lot automatically. If everyone passes, the item is lost."
   ]));
   h += sec("📋 Trade Board and 🔨 Forge", ul([
-    "The <b>Trade Board</b> by the north path of the Outpost posts three requests a day (new ones at midnight UTC): hand over the materials for crystals and XP.",
+    "The <b>Trade Board</b> by the north path of the Outpost posts three requests a day (new ones at midnight UTC): hand over the materials for crystals.",
     "<b>Garrick the smith</b>, by the stalls, augments equipment: each augment adds a random bonus (STR, DEX, VIT, AGI, INT, MND, Attack, Defense, Accuracy, Evasion, HP or MP). Up to 2 per piece. Cost: 60 crystals per item level, 1 Iron Ore and 1 Fire Essence. Reforging rerolls all of a piece's augments for 40 crystals per level plus the same materials.",
     "Augments belong to the item type: every copy of that item you own shares them. They only apply to you, not to companions wearing the same piece."
   ]));

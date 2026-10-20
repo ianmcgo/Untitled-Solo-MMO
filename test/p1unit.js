@@ -10,9 +10,9 @@ G.TALK.talkBrann(npc('brann')); S.dialog.all[0].fn(); ok(S.modal === 'mercs', 'B
 G.hireMerc('kael'); ok(S.party.length === 1, 'cannot hire Kael with 100 gil');
 G.save.gil = 2000;
 G.hireMerc('kael'); G.hireMerc('mira'); G.hireMerc('sable'); G.hireMerc('rook'); G.hireMerc('fen');
-ok(S.party.length === 6 && G.save.gil === 2000 - 120 - 150 - 180 - 140 - 150, 'hire five for a party of six, gil ' + G.save.gil);
-G.hireMerc('vesper'); ok(S.party.length === 6, 'Vesper locked and party full');
-G.dismissMerc('fen'); ok(S.party.length === 5 && !G.save.hired.includes('fen'), 'dismiss Fen');
+ok(S.party.length === 4 && G.save.gil === 2000 - 120 - 150 - 180, 'hire three for a party of four, gil ' + G.save.gil);
+G.hireMerc('vesper'); ok(S.party.length === 4, 'Vesper locked and party full');
+G.dismissMerc('sable'); ok(S.party.length === 3 && !G.save.hired.includes('sable'), 'dismiss Sable');
 ok(!G.MERCS.dorn || !require('assert') || true, 'Dorn data present');
 G.renderModal && (S.modal = 'mercs', G.renderModal(), G.closeModal());
 

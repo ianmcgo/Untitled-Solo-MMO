@@ -13,6 +13,7 @@ function footY(field, px, py, rw) {
   for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7], [-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7]]) m = Math.min(m, field.heightAt(px + dx * r, py + dy * r));
   return m;
 }
+function onTerrain(field, px, py) { const m = field.cs * 2; return px > field.x0 + m && px < field.x0 + (field.cols - 1) * field.cs - m && py > field.y0 + m && py < field.y0 + (field.rows - 1) * field.cs - m; }
 function groundY(px, py) { return W3.field ? W3.field.heightAt(px, py) : 0; }
 
 function themeOf(z) { return z.theme || "field"; }
@@ -554,6 +555,7 @@ function rngFor(z, salt) { return seeded(hashStr(z.name + salt)); }
 
 function placeable(field, px, py, opts) {
   const z = field.zone;
+  if (!onTerrain(field, px, py)) return false;
   if (field.pathWeight(px, py) > (opts.path || 0.15)) return false;
   if ((opts.path || 0.15) < 1 && field.roadGap && field.roadGap(px, py) < (opts.clr != null ? opts.clr : 16)) return false;
   for (const wt of z.water || []) if (Math.hypot(px - wt.x, py - wt.y) < wt.r + (opts.water || 40)) return false;
@@ -654,6 +656,7 @@ function buildVegetation(field, root) {
     const ex = z.exits[Math.floor(rnd() * z.exits.length)];
     if (ex.kind === "door") continue;
     const px = ex.x + ex.w / 2 + (rnd() - 0.5) * 900, py = ex.y + ex.h / 2 + (rnd() - 0.5) * 900;
+    if (!onTerrain(field, px, py)) continue;
     const em = field.exitMask(px, py), e = field.outsideE(px, py);
     if (em < 0.12 || em > 0.88 || e < -160 || field.pathWeight(px, py) > 0.02) continue;
     if (!placeable(field, px, py, { water: 30, npc: 60, exit: 0, path: 0.02 })) continue;

@@ -137,7 +137,8 @@
   #clock .el { font-size: 11px; padding: 0 5px; border-radius: 6px; margin-left: 4px; border: 1px solid rgba(255,255,255,.25); }
   #trBtns { display: flex; gap: 5px; }
   #trBtns button { width: 36px; height: 34px; padding: 0; font-size: 16px; }
-  #tracker { width: 220px; padding: 7px 9px; font-size: 11px; display: none; }
+  #tracker { position: absolute; left: calc(8px + var(--sal)); top: calc(46px + var(--sat)); width: 230px; max-height: 40vh; overflow-y: auto; scrollbar-width: none; padding: 7px 9px; font-size: 11px; display: none; z-index: 4; pointer-events: auto; cursor: pointer; }
+  #tracker .tg { font-size: 9px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; margin-left: 4px; }
   #tracker h4 { margin: 0 0 3px; font: 700 12px var(--serif); color: var(--gold); display: flex; justify-content: space-between; cursor: pointer; }
   #tracker .q { margin-top: 5px; }
   #tracker .q b { color: #f5e7c1; font-weight: 600; }
@@ -562,7 +563,7 @@
     #clock { font-size: 10px; }
     #clock .el { display: none; }
     #trBtns button { width: 28px; height: 28px; font-size: 13px; }
-    #tracker { position: absolute; right: 0; top: 100%; margin-top: 4px; width: 150px; font-size: 10px; }
+    #tracker { width: 170px; font-size: 10px; }
     #chat { width: calc(100vw - 3 * var(--slot) - 60px); max-width: 60vw; bottom: calc(8px + var(--sab)); left: calc(6px + var(--sal)); }
     #pool { bottom: calc(420px + var(--sab)); width: 210px; }
     #chat:not(.min) #log { height: 160px; }
@@ -608,7 +609,6 @@
     #log { height: 70px; }
     .bb { width: 44px; height: 44px; }
     .bb.main { width: 58px; height: 58px; }
-    #tracker { display: none !important; }
   }
 
   :root { --ffFont: "Verdana", "Tahoma", "Segoe UI", sans-serif; --ffStripe: repeating-linear-gradient(180deg, rgba(52,52,128,.80) 0 2px, rgba(34,32,96,.80) 2px 4px); --ffEdge: rgba(236,236,255,.88); }
@@ -1063,6 +1063,16 @@
   @media (max-width: 760px) { #menu .win { width: calc(100vw - 12px - var(--sal) - var(--sar)); max-height: calc(100vh - 200px - var(--sat) - var(--sab)); } }
   #chat.lite #chatTabs, #chat.lite #chatIn { display: none; }
   #chat.lite #log { overflow: hidden; scrollbar-width: none; }
+  #chat.lite #log { cursor: pointer; pointer-events: auto; }
+  #chat:not(.lite) #log { overflow-y: auto; scrollbar-width: thin; pointer-events: auto; }
+  #bottom { left: auto; right: calc(6px + var(--sar)); transform: none; width: var(--sideW, 268px); align-items: stretch; z-index: 5; }
+  #bottom #castBar, #bottom #xpRow { width: 100%; box-sizing: border-box; }
+  #bottom #barWrap { width: 100%; box-sizing: border-box; flex-direction: row; align-items: center; gap: 5px; padding: 4px 6px 4px 4px; }
+  #bottom #pager { flex-direction: column; flex: 0 0 auto; }
+  #bottom #actionBar { flex: 1 1 auto; min-width: 0; max-width: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px 3px; align-content: start; min-height: 0; }
+  #bottom #actionBar .slot { width: 100%; height: auto; aspect-ratio: 1; min-width: 0; }
+  #bottom #actionBar { row-gap: 14px; padding-bottom: 12px; }
+  #bottom #actionBar .slot .ic { font-size: clamp(14px, 3.4vw, 22px); }
 
   #ffTop { top: calc(13px + var(--sat)) !important; }
   #ui.hasTop #ffStat { top: calc(54px + var(--sat)) !important; }
@@ -1219,8 +1229,8 @@
     <div id="topRight">
       <div id="clockBox"><div id="zoneName"></div><div id="clock"></div></div>
       <div id="trBtns"><button id="btnChat" title="Show the log (/)">💬</button><button id="btnMenu" title="Menu (Esc)">☰</button></div>
-      <div id="tracker" class="glass"></div>
     </div>
+    <div id="tracker" class="glass"></div>
     <div id="chat"><div id="chatTabs"><button data-f="all" class="on">All</button><button data-f="combat">Combat</button><button data-f="loot">Loot</button><button data-f="system">System</button><button data-f="chat">Chat</button><button class="tog" id="chatTog">▾</button></div><div id="log" class="glass"></div><input id="chatIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" maxlength="120" placeholder="Type /rest or /help…"></div>
     <div id="bottom">
       <div id="castBar" class="glass"><span id="castName"></span><div class="bar cast"><i id="castFill"></i></div></div>

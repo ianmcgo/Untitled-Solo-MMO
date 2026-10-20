@@ -36,7 +36,7 @@ function log(msg, c) {
   d.textContent = msg;
   if (typeof S !== "undefined") { UI.logRows = logFull(); UI.logAt = S.time || 0; }
   el.appendChild(d);
-  while (el.children.length > 250) el.removeChild(el.firstChild);
+  while (el.children.length > 500) el.removeChild(el.firstChild);
   if (near || $("chat").classList.contains("min")) el.scrollTop = el.scrollHeight;
 }
 function logTone(msg, c) {
@@ -238,6 +238,7 @@ function barPosApply() {
 
 function initBarDrag() {
   const w = $("barWrap"), g = $("barGrip");
+  if (VIEW.settings && !VIEW.settings.barDocked) { VIEW.settings.barPos = { x: 0, y: 0 }; VIEW.settings.barDocked = true; saveSettings(VIEW.settings); }
   barPosApply();
   window.addEventListener("resize", barPosApply);
   g.addEventListener("pointerdown", e => {
@@ -550,14 +551,40 @@ function questProgress(id) {
   if (q.items) return Object.keys(q.items).map(it => ITEMS[it].name + " " + ok(invCount(it), q.items[it]));
   return [];
 }
+function trackerEntries() {
+  const out = [];
+  if (save.story && !save.story.done && typeof storyChapter === "function") {
+    const c = storyChapter(), st = storyStep();
+    if (c && st) {
+      const ready = storyReady();
+      const prog = st.type === "kill" ? ' <span class="' + (save.story.prog >= st.n ? "ok" : "") + '">' + Math.min(save.story.prog, st.n) + "/" + st.n + "</span>" : "";
+      out.push({ tag: "Story", name: "Chapter " + (save.story.ch + 1) + ": " + c.name, lines: [ready ? esc(st.goal) + prog : "Reach level " + c.lv] });
+    }
+  }
+  for (const id of Object.keys(QUESTS)) if (save.quests[id] === "active" || save.quests[id] === "killed") out.push({ tag: "Quest", name: QUESTS[id].name, lines: questProgress(id) });
+  if (save.guild && save.guild.active) for (const id of Object.keys(save.guild.active)) {
+    const b = GUILD_BOUNTIES.find(x => x.id === id);
+    if (!b) continue;
+    const n = save.guild.active[id] || 0;
+    out.push({ tag: "Bounty", name: bountyName(b), lines: [n >= b.n ? "Report to the Guild" : '<span class="' + (n >= b.n ? "ok" : "") + '">' + n + "/" + b.n + "</span>"] });
+  }
+  return out;
+}
+function trackerBlocked() {
+  const ui = $("ui");
+  return !!(S.modal || S.dialog || UI.confirmOpen || UI.cmd || (ui && ui.classList.contains("stOn")));
+}
 function updateTracker() {
-  const act = Object.keys(QUESTS).filter(id => save.quests[id] === "active" || save.quests[id] === "killed");
   const el = $("tracker");
-  if (!act.length || (VIEW.settings && VIEW.settings.tracker === false)) { el.style.display = "none"; return; }
-  el.style.display = "block";
+  const off = VIEW.settings && VIEW.settings.tracker === false;
+  const ents = off ? [] : trackerEntries();
+  if (!ents.length) { el.style.display = "none"; return; }
+  el.style.display = trackerBlocked() ? "none" : "block";
   el.classList.toggle("min", UI.trackerMin);
-  let h = '<h4 data-tr="1"><span>Quests (' + act.length + ")</span><span>" + (UI.trackerMin ? "▸" : "▾") + "</span></h4>";
-  for (const id of act) h += '<div class="q"><b>' + esc(QUESTS[id].name) + "</b>" + questProgress(id).map(l => "<div>· " + l + "</div>").join("") + "</div>";
+  const sd = $("ffStat"), top = sd && sd.offsetHeight > 4 ? 42 + sd.offsetHeight + 6 : 46;
+  el.style.top = "calc(" + top + "px + var(--sat))";
+  let h = '<h4 data-tr="1"><span>Objectives (' + ents.length + ")</span><span>" + (UI.trackerMin ? "▸" : "▾") + "</span></h4>";
+  for (const q of ents) h += '<div class="q"><b>' + esc(q.name) + '</b> <small class="tg">' + q.tag + "</small>" + q.lines.map(l => "<div>· " + l + "</div>").join("") + "</div>";
   setHtml(el, h);
 }
 
@@ -1038,7 +1065,6 @@ function watchProgress() {
 function rewardChips(r) {
   const out = [];
   if (!r) return out;
-  if (r.xp) out.push("✨ " + r.xp + " XP");
   if (r.gil) out.push("💠 " + r.gil + " crystals");
   if (r.item) out.push((ITEMS[r.item].icon || "📦") + " " + esc(ITEMS[r.item].name) + (r.qty > 1 ? " ×" + r.qty : ""));
   if (r.items) for (const [id, n] of r.items) out.push((ITEMS[id].icon || "📦") + " " + esc(ITEMS[id].name) + (n > 1 ? " ×" + n : ""));
@@ -1165,12 +1191,14 @@ function initHud() {
   $("tracker").addEventListener("click", e => { if (e.target.closest("[data-tr]")) { UI.trackerMin = !UI.trackerMin; updateTracker(); sfx("click"); } else openMenu("quests"); });
   initBarDrag();
   $("barClose").onclick = closeHotBar;
+  $("log").addEventListener("pointerdown", () => { if (!UI.chatPin) { UI.chatPin = true; UI.logClick = true; UI.chatTyping = false; UI.logRows = logFull() * 2; UI.logAt = S.time; } });
   $("pgUp").onclick = () => setPage(UI.page - 1);
   $("pgDn").onclick = () => setPage(UI.page + 1);
   $("mmWrap").onclick = () => openMenu("map");
   document.addEventListener("pointerdown", e => {
     const t = e.target;
     if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose();
+    if (UI.logClick && UI.chatPin && !UI.chatTyping && !t.closest("#chat, #btnChat, #logTap")) chatToggle(false);
     if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox, #logTap")) return;
     if (S.modal && !t.closest("#menu .win, #mCard, #mCmd, #timeBox")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
     if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv, #timeBox")) mainCmdClose();
@@ -1267,7 +1295,7 @@ function updateFF() {
     }
   }
   const ci = $("chatIn"), typing = document.activeElement === ci;
-  const full = logFull(), force = typing || UI.chatPin || !!S.dialog;
+  const full = logFull() * (UI.chatPin ? 2 : 1), force = typing || UI.chatPin || !!S.dialog;
   if (UI.logRows == null) { UI.logRows = 3; UI.logAt = S.time; }
   if (force) { UI.logRows = full; UI.logAt = S.time; }
   else if (UI.logRows > 3 && S.time - (UI.logAt || 0) > 8 && S.time - (UI.logShrinkAt || 0) > 1.2) { UI.logRows--; UI.logShrinkAt = S.time; }
@@ -1279,6 +1307,13 @@ function updateFF() {
   const mw = $("mmWrap");
   if (mw) { mw.style.bottom = rows > 0 ? "calc(" + (chat.offsetHeight + 16) + "px + var(--sab))" : ""; mw.style.visibility = S.dialog || S.modal || UI.cmd || UI.confirmOpen ? "hidden" : ""; }
   const mb = $("mobBar"), sd = $("ffSide"); if (mb && sd) { const mp = $("mpBox"); mb.style.bottom = "calc(" + (sd.offsetHeight + 12 + (mp && mp.classList.contains("on") ? mp.offsetHeight + 6 : 0)) + "px + var(--sab))"; }
+  const bt = $("bottom");
+  if (bt && sd && sd.offsetHeight) {
+    const mp2 = $("mpBox"), mbOn = mb && mb.offsetHeight > 0;
+    const up = sd.offsetHeight + 10 + (mp2 && mp2.classList.contains("on") ? mp2.offsetHeight + 6 : 0) + (mbOn ? mb.offsetHeight + 6 : 0);
+    bt.style.bottom = "calc(" + up + "px + var(--sab))";
+    bt.style.width = sd.offsetWidth + "px";
+  }
   const tc = $("tCmd"); if (tc) tc.style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 14) + "px + var(--sab))";
   if (UI.cmd && Date.now() - (UI.mpAt || 0) > 400) { UI.mpAt = Date.now(); renderMpBox(); } else if (!UI.cmd) { const mb = $("mpBox"); if (mb) mb.classList.remove("on"); }
   const dg = $("dialog"), mw2 = S.modal && document.querySelector("#menu .win");
@@ -1372,12 +1407,13 @@ function openChatInput(pre) {
 function logFull() { return innerWidth < 900 ? 6 : 8; }
 function logEsc() {
   if (!UI.logRows || UI.logRows <= 0) return false;
-  UI.chatPin = false;
+  UI.chatPin = false; UI.logClick = false;
   const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur();
   UI.logRows = Math.min(UI.logRows, logFull()) - 1; UI.logAt = -999;
   return true;
 }
 function chatToggle(force) {
+  UI.logClick = false;
   UI.chatPin = force == null ? !UI.chatPin : force;
   if (!UI.chatPin) { const ci = $("chatIn"); if (ci && document.activeElement === ci) ci.blur(); UI.logRows = 3; UI.logAt = -999; }
   if (typeof sfx === "function") sfx("click");

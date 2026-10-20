@@ -20,7 +20,7 @@ if (st > 0) {
   ok(G.ahBuy('iron_ore', 1) === '' && G.invCount('iron_ore') >= 1 && G.ahStock('iron_ore') === st - 1, 'buying takes one from today\'s stock');
   ok(G.marketPrice('iron_ore') >= p0, 'buying pushes the price up');
 } else ok(G.ahBuy('iron_ore', 1) !== '', 'no stock, no sale');
-G.giveItem('spatha', 1, true);
+G.giveItem('spatha', 1, true); G.giveItem('fire_crystal', 6);
 const g0 = G.save.gil, mp = G.marketPrice('spatha');
 ok(G.ahList('spatha', 1, mp) === '' && G.save.gil === g0 - Math.max(1, Math.ceil(mp * 0.03)) && G.invCount('spatha') === 0, 'listing takes the item and a 3% fee');
 ok(G.ahList('fasting_ring', 1, 10) !== '', 'rare items cannot be listed');
@@ -35,7 +35,7 @@ const l2 = G.save.market.listings[0]; l2.next = Date.now() - 10; l2.exp = Date.n
 ok(G.save.market.listings.length === 0 && G.save.market.box.some(b => b.id === 'iron_ore' && b.qty === 3), 'an unsold lot comes back to the delivery box');
 const before = G.invCount('iron_ore'); G.ahCollect();
 ok(G.invCount('iron_ore') === before + 3 && !G.save.market.box.length, 'collecting the box returns the items');
-G.giveItem('potion', 1, true); G.ahList('potion', 1, 50); G.ahCancel(0);
+G.giveItem('fire_crystal', 12); G.giveItem('potion', 1, true); G.ahList('potion', 1, 50); G.ahCancel(0);
 ok(G.save.market.box.some(b => b.id === 'potion'), 'withdrawing a lot sends it to the box');
 for (let i = 0; i < 8; i++) { G.giveItem('bait', 1, true); G.ahList('bait', 1, 99999); }
 ok(G.save.market.listings.length === G.AH_CFG.maxListings, 'at most ' + G.AH_CFG.maxListings + ' lots at once');

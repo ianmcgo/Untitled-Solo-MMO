@@ -126,6 +126,36 @@ function icoWeapon(g, it, id) {
       g.strokeStyle = "#8a6a4a"; g.lineWidth = 1.2; g.beginPath(); g.moveTo(-14, 0); g.lineTo(10, 0); g.stroke();
       icoPoly(g, [[12, 0], [8, -2.2], [8, 2.2]], c[1], c[2], 0.6);
     });
+  } else if (k === "instrument") {
+    const nm = (it.name || "").toLowerCase();
+    icoRot(g, Math.PI / 4, () => {
+      if (/harp/.test(nm)) {
+        g.strokeStyle = icoGrad(g, -14, -22, 14, 22, ICO_WOOD); g.lineWidth = 3.2; g.lineCap = "round";
+        g.beginPath(); g.moveTo(-12, 22); g.lineTo(-12, -14); g.quadraticCurveTo(-4, -26, 12, -12); g.lineTo(12, 22); g.stroke();
+        g.strokeStyle = "#f0ece0"; g.lineWidth = 0.9;
+        for (let q = 0; q < 5; q++) { const x = -7 + q * 4.5; g.beginPath(); g.moveTo(x, -16 + Math.abs(q - 1.5) * 1.2 + q * 1.6); g.lineTo(x, 20); g.stroke(); }
+        g.lineCap = "butt";
+      } else if (/horn|cornette/.test(nm)) {
+        icoPoly(g, [[-2.6, 24], [2.6, 24], [3.2, 2], [11, -20], [-11, -20], [-3.2, 2]], icoGrad(g, -11, 0, 11, 0, c), c[2], 1);
+        g.fillStyle = "rgba(0,0,0,.45)"; g.beginPath(); g.ellipse(0, -20, 11, 3, 0, 0, 7); g.fill();
+        g.fillStyle = icoGrad(g, -3, 0, 3, 0, c); g.fillRect(-3.6, 21, 7.2, 3.4);
+        if (it.lv >= 8 || it.rare) { g.fillStyle = "#c8982a"; g.fillRect(-3.6, -2, 7.2, 2.4); }
+      } else {
+        g.fillStyle = icoGrad(g, -3, 0, 3, 0, c); g.fillRect(-2.8, -25, 5.6, 50);
+        g.strokeStyle = c[2]; g.lineWidth = 0.8; g.strokeRect(-2.8, -25, 5.6, 50);
+        g.fillStyle = "#1a1410"; for (let q = 0; q < 5; q++) { g.beginPath(); g.arc(0, -12 + q * 6, 1.3, 0, 7); g.fill(); }
+        g.fillStyle = it.lv >= 8 ? "#c8982a" : c[1]; g.fillRect(-3.4, 18, 6.8, 2.6); g.fillRect(-3.4, -22, 6.8, 2.6);
+      }
+    });
+  } else if (k === "throwing") {
+    icoRot(g, Math.PI / 4, () => {
+      g.lineCap = "round"; g.lineJoin = "round";
+      g.strokeStyle = icoGrad(g, -16, -16, 16, 16, ICO_WOOD); g.lineWidth = 6;
+      g.beginPath(); g.moveTo(-16, 14); g.quadraticCurveTo(-18, -14, 14, -16); g.stroke();
+      g.strokeStyle = "rgba(255,255,255,.35)"; g.lineWidth = 1.4;
+      g.beginPath(); g.moveTo(-15, 12); g.quadraticCurveTo(-16, -12, 12, -14.5); g.stroke();
+      g.lineCap = "butt"; g.lineJoin = "miter";
+    });
   } else return false;
   return true;
 }
@@ -181,7 +211,7 @@ function icoArmour(g, it, id) {
     g.fillStyle = "#d8b850"; g.fillRect(22.5, 12, 3, 22); g.fillRect(15, 18, 18, 3);
   } else if (sl === "ammo") {
     for (let k = 0; k < 3; k++) icoRot(g, Math.PI / 4 + (k - 1) * 0.18, () => { g.strokeStyle = "#a07a4a"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, 18); g.lineTo(0, -16); g.stroke(); icoPoly(g, [[0, -21], [2.8, -15], [-2.8, -15]], c[1], c[2], 0.6); icoPoly(g, [[0, 12], [3.5, 19], [0, 17], [-3.5, 19]], "#e8e0d0", "#7a7468", 0.5); });
-  } else if (sl === "ranged") return icoWeapon(g, Object.assign({}, it, { wtype: "archery" }), id);
+  } else if (sl === "ranged") return icoWeapon(g, it.wtype === "instrument" || it.wtype === "throwing" ? it : Object.assign({}, it, { wtype: "archery" }), id);
   else return false;
   return true;
 }

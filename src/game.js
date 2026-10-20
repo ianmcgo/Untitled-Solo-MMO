@@ -1731,7 +1731,8 @@ function killRewards(e) {
   for (const id of save.hired) if (S.party.some(p => p.mercId === id)) addBond(id, e.fam.nm ? 4 : xpFor(e.lv, player.lv) > 0 ? 1 : 0);
   const mates = typeof netPartyNear === "function" ? netPartyNear(e.x, e.y) : [];
   const pn = 1 + mates.length, top = Math.max(player.lv, ...mates.map(m => m.lv || 1));
-  const xp = pn > 1 ? Math.round(xpFor(e.lv, top) * partyShare(pn) * player.lv / top) : xpFor(e.lv, player.lv);
+  const share = partyShare(pn + mercsWith());
+  const xp = pn > 1 ? Math.round(xpFor(e.lv, top) * share * player.lv / top) : Math.round(xpFor(e.lv, player.lv) * share);
   let ch = 0;
   if (xp > 0) { ch = advanceChain(); gainXp(Math.round(xp * (1 + CONFIG.chainStep * ch)), ch); } else log("No experience gained (too weak).", "sys");
   const gilShare = dropLoot(e, mates);
@@ -1768,7 +1769,8 @@ function chainInfo() {
   return { n: c.n, left: c.until - S.time, frac: (c.until - S.time) / CONFIG.chainWindow, next: Math.min(c.n + 1, CONFIG.chainMax) };
 }
 
-function partyShare(n) { return CONFIG.partyShare[Math.min(n, CONFIG.partyShare.length - 1)]; }
+function partyShare(n) { return clamp(1 - CONFIG.partyXpCut * (Math.max(1, n) - 1), CONFIG.partyXpFloor, 1); }
+function mercsWith() { return S.party.filter(p => p !== player && p.mercId).length; }
 
 function questKillCredit(fam) {
   for (const id in QUESTS) {
@@ -2402,7 +2404,7 @@ function winBattlefield() {
 function boardDay() { return Math.floor(Date.now() / 86400000); }
 
 function ahTradable(id) { const it = ITEMS[id]; return !!it && it.price > 0 && !it.race && !it.starter && (!it.rare || it.nm) && !it.ex && it.kind !== "key" && it.kind !== "furniture"; }
-function ahCategory(id) { const it = ITEMS[id]; if (it.kind === "equip") return it.slot === "main" ? "weapons" : "armor"; if (it.kind === "food" || it.kind === "use") return "consumables"; return "materials"; }
+function ahCategory(id) { const it = ITEMS[id]; if (it.kind === "equip") return it.slot === "main" || it.slot === "ranged" || it.slot === "ammo" ? "weapons" : "armor"; if (it.kind === "food" || it.kind === "use") return "consumables"; return "materials"; }
 function marketTick() { return Math.floor(((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000) / AH_CFG.tickMins); }
 function marketDay(tk) { return Math.floor((tk == null ? marketTick() : tk) * AH_CFG.tickMins / 1440); }
 
@@ -2465,7 +2467,7 @@ function ahDaily(town) {
   if (c && c.day === day && c.lv === lv) return c.set;
   const pools = {};
   for (const id of Object.keys(ITEMS).sort()) {
-    if (!ahTradable(id)) continue;
+    if (!ahTradable(id) || ITEMS[id].kind === "crystal") continue;
     const g = ahGroup(id);
     if (!g || (ITEMS[id].lv || 0) > lv + 1) continue;
     (pools[g] = pools[g] || []).push(id);
@@ -2658,6 +2660,10 @@ function ahBuy(id, qty, town) {
 }
 
 function ahFee(price) { return Math.max(1, Math.ceil(price * AH_CFG.fee)); }
+function ahEssenceFee(id) { return Math.max(1, Math.ceil(((ITEMS[id] && ITEMS[id].price) || 0) / 1000)); }
+function essenceIds() { return Object.keys(ITEMS).filter(k => ITEMS[k].kind === "crystal"); }
+function essenceHeld() { let n = 0; for (const k of essenceIds()) n += invCount(k); return n; }
+function spendEssence(n) { const ids = essenceIds().sort((a, b) => invCount(b) - invCount(a)); for (const k of ids) { if (n <= 0) break; const t = Math.min(n, invCount(k)); if (t > 0) { removeItem(k, t); n -= t; } } }
 
 function ahList(id, qty, price) {
   qty = Math.max(1, Math.floor(qty || 1)); price = Math.floor(price || 0);
@@ -2666,13 +2672,15 @@ function ahList(id, qty, price) {
   if (qty > (ITEMS[id].stack || 1)) return "You can list one stack at a time.";
   if (price < 1) return "Set a price.";
   if (save.market.listings.length >= AH_CFG.maxListings) return "You can have " + AH_CFG.maxListings + " lots up at once.";
-  const fee = ahFee(price);
+  const fee = ahFee(price), ess = ahEssenceFee(id), own = ITEMS[id].kind === "crystal" ? qty : 0;
   if (save.gil < fee) return "The listing fee is " + fee + " crystals.";
+  if (essenceHeld() < ess + own) return "Listing this needs " + ess + " Essence crystal" + (ess > 1 ? "s" : "") + " of any element" + (own ? " besides the ones you list" : "") + ".";
   save.gil -= fee;
+  spendEssence(ess);
   removeItem(id, qty);
   const now = Date.now();
   save.market.listings.push({ id, qty, price, t: now, next: now + AH_CFG.checkMs, exp: now + AH_CFG.expireMs, town: ahHere() });
-  log("You put " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " up for auction at " + price + " crystals (fee " + fee + ").", "sys");
+  log("You put " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " up for auction at " + price + " crystals (fee " + fee + " and " + ess + " Essence).", "sys");
   sfx("coin");
   saveGame();
   return "";
@@ -2741,7 +2749,7 @@ function guildToday() {
   return out;
 }
 
-function bountyReward(b) { return { gp: b.gp, gil: b.gp * 8, xp: b.gp * (b.lv + 2) * 2 }; }
+function bountyReward(b) { return { gp: b.gp, gil: b.gp * 8 }; }
 
 function takeBounty(id) {
   const b = guildToday().find(x => x.id === id);
@@ -2790,7 +2798,6 @@ function turnInBounty(id) {
   save.stats.bounties = (save.stats.bounties || 0) + 1;
   log("Bounty complete: +" + r.gp + " guild points, +" + r.gil + " crystals.", "loot");
   sfx("coin");
-  gainXp(r.xp);
   const after = guildRank();
   if (after > before) { log("Guild rank up! You are now " + GUILD_RANKS[after][0] + " rank.", "lvl"); sfx("levelup"); uiEvent("guildrank", { rank: after }); }
   checkAchievements();
@@ -2833,7 +2840,6 @@ function fillTrade(id) {
   save.gil += r.gil;
   log("Trade filled for " + r.who + ": +" + r.gil + " crystals.", "loot");
   sfx("coin");
-  gainXp(r.xp);
   saveGame();
   return "";
 }
@@ -5462,7 +5468,6 @@ function questMarker(n) {
 }
 
 function giveReward(r) {
-  if (r.xp) gainXp(r.xp);
   if (r.gil) { save.gil += r.gil; log("You receive " + r.gil + " crystals.", "loot"); sfx("coin"); }
   if (r.item) giveItem(r.item, r.qty || 1);
   if (r.items) for (const [id, n] of r.items) giveItem(id, n);
