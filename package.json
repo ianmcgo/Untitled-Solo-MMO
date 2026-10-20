@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.0.0",
-  "releaseTitle": "One Sign Per Shop",
+  "version": "19.0.1",
+  "releaseTitle": "Auction Timing Fix",
   "description": "",
   "main": "index.js",
   "scripts": {

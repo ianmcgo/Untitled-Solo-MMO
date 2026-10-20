@@ -2455,7 +2455,8 @@ function townPick(cands, sellerOf, ageOf) {
 function townBuyOnce(town) {
   const L = marketLocal(), tn = ahTownName(town);
   let bought = null;
-  const pl = save.market.listings.filter(l => townEligible(l.price, l.qty, l.id));
+  const now = Date.now(), wait = AH_CFG.townBuySec * 1000;
+  const pl = save.market.listings.filter(l => (l.town || ahTowns()[0]) === town && now - (l.t || 0) >= wait && townEligible(l.price, l.qty, l.id));
   if (pl.length) {
     const p = townPick(pl, () => "player:" + (save.name || "you"), l => l.exp - AH_CFG.expireMs);
     const l = p.item, i = save.market.listings.indexOf(l);
@@ -2491,16 +2492,22 @@ function townRelist(l, town) {
 }
 
 function tickTownBuying() {
-  const L = marketLocal(), now = save.playSec || 0;
-  let steps = Math.floor((now - L.lastTick) / AH_CFG.townBuySec);
-  if (steps <= 0) return 0;
-  L.lastTick += steps * AH_CFG.townBuySec;
-  steps = Math.min(steps, AH_CFG.townBuyMaxSteps);
+  const L = marketLocal(), now = Date.now(), ms = AH_CFG.townBuySec * 1000;
+  L.townNext = L.townNext || {};
   let n = 0;
-  for (let s = 0; s < steps; s++) for (const t of ahTowns()) if (townBuyOnce(t)) n++;
+  for (const t of ahTowns()) {
+    if (!L.townNext[t]) L.townNext[t] = now + ms;
+    if (now < L.townNext[t]) continue;
+    let steps = Math.floor((now - L.townNext[t]) / ms) + 1;
+    L.townNext[t] += steps * ms;
+    steps = Math.min(steps, AH_CFG.townBuyMaxSteps);
+    for (let s = 0; s < steps; s++) if (townBuyOnce(t)) n++;
+  }
   if (n) { checkAchievements(); saveGame(); }
   return n;
 }
+
+function townBuyIn(town) { const L = marketLocal(), t = (L.townNext || {})[town]; return t ? Math.max(0, t - Date.now()) : AH_CFG.townBuySec * 1000; }
 
 function marketLines(id, online) {
   const out = [];
@@ -2572,7 +2579,7 @@ function ahList(id, qty, price) {
   save.gil -= fee;
   removeItem(id, qty);
   const now = Date.now();
-  save.market.listings.push({ id, qty, price, t: now, next: now + AH_CFG.checkMs, exp: now + AH_CFG.expireMs });
+  save.market.listings.push({ id, qty, price, t: now, next: now + AH_CFG.checkMs, exp: now + AH_CFG.expireMs, town: ahHere() });
   log("You put " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " up for auction at " + price + " crystals (fee " + fee + ").", "sys");
   sfx("coin");
   saveGame();
@@ -2608,30 +2615,13 @@ function tickAuction() {
   let changed = false;
   for (let i = save.market.listings.length - 1; i >= 0; i--) {
     const l = save.market.listings[i];
-    let sold = false, n = 0;
-    while (!sold && now >= l.next && l.next < l.exp && n++ < 300) {
-      l.next += AH_CFG.checkMs;
-      if (Math.random() < saleChance(l)) sold = true;
-    }
-    if (now >= l.next && !sold) l.next = Math.max(l.next, now - AH_CFG.checkMs);
-    if (sold) {
-      save.market.listings.splice(i, 1);
-      save.gil += l.price;
-      save.stats.ahSold = (save.stats.ahSold || 0) + 1;
-      addPress(l.id, -0.02 * l.qty);
-      log("Auction: your " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : ITEMS[l.id].name) + " sold for " + l.price + " crystals!", "loot");
-      townRelist(l, ahHere());
-      sfx("coin");
-      uiEvent("ahsold", { id: l.id, price: l.price });
-      changed = true;
-    } else if (now >= l.exp) {
-      save.market.listings.splice(i, 1);
-      save.market.box.push({ id: l.id, qty: l.qty });
-      log("Auction: your " + ITEMS[l.id].name + " didn't sell and is back in your delivery box.", "sys");
-      changed = true;
-    }
+    if (now < l.exp) continue;
+    save.market.listings.splice(i, 1);
+    save.market.box.push({ id: l.id, qty: l.qty });
+    log("Auction: your " + ITEMS[l.id].name + " didn't sell and is back in your delivery box.", "sys");
+    changed = true;
   }
-  if (changed) { checkAchievements(); saveGame(); }
+  if (changed) saveGame();
 }
 
 function guildRank(total) {

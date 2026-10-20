@@ -1242,8 +1242,8 @@ function ahDetail(id) {
   h += '<div style="margin:8px 0 2px">' + sparkline(hist, 240, 46) + '</div><div class="sub">Price over the last three game days: low ' + Math.min(...hist) + ", high " + Math.max(...hist) + ".</div>";
   const q = UI.ahQty || 1;
   if (UI.ahView === "sell") {
-    const unit = UI.ahPrice / q, chance = saleChance({ id, qty: q, price: UI.ahPrice });
-    const speed = chance > 0.5 ? "sells fast" : chance > 0.2 ? "should sell soon" : chance > 0.06 ? "may take a while" : "unlikely to sell";
+    const unit = UI.ahPrice / q, tn = ahTownName(ahHere()), mins = Math.round(AH_CFG.townBuySec / 60);
+    const speed = townEligible(UI.ahPrice, q, id) ? "can be bought by " + tn + " (it buys one lot every " + mins + " real minutes, from lots up at least " + mins + " minutes)" : "is too high for " + tn + " to buy (it pays up to " + Math.floor(marketPrice(id) * AH_CFG.townBuyCeil) + " each)";
     h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">Qty</span><button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><span class="sub" style="margin-left:10px">Price</span><button data-a="ahprice" data-v="-0.1">−10%</button><b>' + UI.ahPrice + ' 💠</b><button data-a="ahprice" data-v="0.1">+10%</button></div>';
     h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) · at this price it " + speed + '.</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The market buys over a few hours at its own prices. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
   } else {
@@ -1720,6 +1720,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.0.1", date: "2026-10-19", title: "Auction timing fix", items: [
+    "<b>Towns now buy your auction lots on a real 20-minute clock.</b> An old rule was still selling lots by chance every minute, so several could go at once. That rule is gone.",
+    "Each town buys at most one of your lots every 20 real minutes, only lots you listed in that town, and only once a lot has been up for 20 minutes. The clock keeps running while you are offline.",
+    "The Sell view now says whether your price is low enough for the town to buy (it pays up to 1.25 times the market price)."
+  ] },
   { v: "19.0.0", date: "2026-10-19", title: "One sign per shop", items: [
     "<b>Every shop and hall now has exactly one sign,</b> on its front. The extra side sign and the hanging trade icon are gone.",
     "<b>Signs for shops that don't exist are gone.</b> The filler buildings along the streets (Bakery, Tailor, Net Maker and the like) are now plain houses with no sign or awning; only buildings you can actually visit are named.",
@@ -2161,7 +2166,7 @@ const UPDATES = [
   ]},
   { v: "18.33.0", date: "2026-10-16", title: "Companions sell at the auction house", items: [
     "<b>Companion lots:</b> when a companion with a half-full bag reaches town, their goods go up at the auction house under their name (⚔, violet) at the market price, with no fee, instead of disappearing. My lots shows them, up to 300.",
-    "<b>Towns buy from the market:</b> every 20 minutes of play each town buys one lot: yours first, then your companions', taking turns between sellers. Lots priced above 1.25 times the market price are left alone.",
+    "<b>Towns buy from the market:</b> every 20 minutes of real time each town buys one lot: yours first (only lots listed in that town and up for 20 minutes), then your companions', taking turns between sellers. Lots priced above 1.25 times the market price are left alone.",
     "<b>Crystals in the box:</b> what your companions' lots earn goes to your delivery box; Collect adds it to your crystals. Buying one of their lots yourself also pays them through the box.",
     "<b>Town relistings:</b> about a quarter of what a town buys goes back up under the town's name (🏛, gold) at 3% more. These never expire.",
     "Over the 300-lot cap, extra items are sold to a shop and you get nothing for them."
@@ -3780,9 +3785,9 @@ function tabHelp() {
     "A <b>Crystals</b> box under the window shows your balance on the same line as the number, in every shop, the Auction House, Forge, stable, guild, mercenary hall, crafting and other windows where you pay.",
     "Walk up to the <b>Auction Clerk</b>, who stands at the door of the Auction House (a pillared building with a gold banner) in Ashenreach, Saltreach and Ironvale, and press Talk. In Ashenreach it is on the market plaza next to the home point crystal. Every town has its own auction house.",
     "<b>One list.</b> The Buy view shows every seller together: 🏛 towns in gold, 👤 players in green and ⚔ mercenaries in violet. Use Show to filter, and open an item to see all sellers sorted by price. Hover a mercenary's name to see whose it is.",
-    "<b>Towns buy too.</b> Every 20 minutes of play, each town buys one lot from the market. It buys your own lots first (paying you at once), then your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. Half the time, a town puts what it buys (including lots that sell while you are away) back up under its own name (🏛, gold) at 3% more, up to 40 resale lots. These never expire.",
+    "<b>Towns buy too.</b> Every 20 minutes of real time (it keeps counting while you are offline), each town buys one lot. It only buys your lots that were listed in that town and have been up for at least 20 minutes, paying you at once; if you have none ready it buys one of your companions' lots, taking turns between sellers and starting with each seller's oldest lot. A town only buys a lot priced at no more than 1.25 times the market price. Half the time, a town puts what it buys (including lots that sell while you are away) back up under its own name (🏛, gold) at 3% more, up to 40 resale lots. These never expire.",
     "<b>Online, the market is shared.</b> When you play online, your companions' sell-offs go to the shared market under their names (up to 300 lots per player, no expiry, priced at each item's usual value), and every player sees them. The towns buy on real time there: every 20 minutes each town buys one lot, players' lots first and companions' lots after, taking turns between sellers. Crystals from these sales go to your player delivery box. A town's relisted lots show under its name and anyone can buy them.",
-    "<b>Offline</b> the market is your own: your lots, your companions' lots and the towns, with town buying counted on play time. Offline lots are never copied online.",
+    "<b>Offline</b> the market is your own: your lots, your companions' lots and the towns, with town buying counted in real time. Offline lots are never copied online.",
     "<b>Each town stocks differently.</b> Every town's auction house has its own daily stock and its own sold-out counts, so something that has run out in one town may still be in another. The list shows everything on the market, and the item card shows how many each town has. Buying takes from the town you are in first, then the others.",
     "<b>Prices move.</b> Every item drifts around its usual value through the game day (a new price every 6 game hours, about 14 real minutes). Each game day the market news lifts one category (▲) and lowers another (▼). Buying pushes a price up; your lots selling pull it down; both effects fade.",
     "<b>Auction prices follow the shops:</b> the going rate for an item is " + AH_CFG.shopRatio + " times what a shop charges for it, and it still drifts up and down with the daily news and with how much people buy and sell.",
