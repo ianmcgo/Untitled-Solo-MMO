@@ -26,6 +26,29 @@ for (const zid of towns) {
       ok(Math.abs(n.face - Math.atan2(dy, dx)) < 0.01, zid + ' ' + n.id + ' faces the street');
     }
   }
+  for (const n of z.npcs.filter(n => n.id.startsWith('v_') || n.shopFront)) {
+    const own = z.houses.find(q => q.shop === n.id), fx = Math.cos(n.face || 0), fy = Math.sin(n.face || 0);
+    let bad = null, reached = false;
+    for (let t = 0; t <= 200 && !bad; t += 6) {
+      const x = n.x + fx * t, y = n.y + fy * t;
+      if (G.roadGap(z, x, y, true) <= 0) { reached = true; break; }
+      const hh = z.houses.find(q => q !== own && G.inRect(x, y, G.houseRect(q), 6));
+      if (hh) bad = 'building ' + (hh.sign || hh.type);
+      else if ((z.stalls || []).some(s => Math.hypot(s.x - x, s.y - y) < 30)) bad = 'stall';
+      else if ((z.dressing || []).some(o => Math.hypot(o.x - x, o.y - y) < 22)) bad = 'dressing ' + (z.dressing.find(o => Math.hypot(o.x - x, o.y - y) < 22) || {}).t;
+      else if ((z.props || []).some(o => Math.hypot(o.x - x, o.y - y) < (o.r || 20) + 4)) bad = 'prop';
+      else if ((z.gardens || []).some(gd => G.inRect(x, y, { x: gd.x - gd.w / 2, y: gd.y - gd.h / 2, w: gd.w, h: gd.h }, 4))) bad = 'garden';
+      else if ((z.water || []).some(w => Math.hypot(w.x - x, w.y - y) < w.r)) bad = 'water';
+      else if (G.cityWallRects(z).some(w => G.inRect(x, y, w, 2))) bad = 'wall';
+    }
+    ok(!bad && reached, zid + ' ' + n.id + ' has a clear walk-up from the street' + (bad ? ' (blocked by ' + bad + ')' : reached ? '' : ' (no street within 200)'));
+  }
+  const homes = new Set(z.npcs.filter(n => typeof n.home === 'number').map(n => n.home));
+  z.houses.forEach((h, i) => {
+    if (!h.sign) return;
+    const d = G.houseDoor(h, 34), tied = h.shop || h.home || homes.has(i) || (z.exits || []).some(e => e.kind === 'door' && G.inRect(e.x + e.w / 2, e.y + e.h / 2, G.houseRect(h), 40)) || z.npcs.some(n => Math.hypot(n.x - d.x, n.y - d.y) < 60);
+    ok(tied, zid + ' sign "' + h.sign + '" belongs to a building with an NPC, shop or door');
+  });
   const folk = z.npcs.filter(n => { const d = G.NPCS[n.id]; return d && !d.prop && !d.crystal && !d.warpstone; });
   for (const n of folk) {
     const near = folk.filter(o => o !== n && Math.hypot(o.x - n.x, o.y - n.y) < 60).map(o => o.id);

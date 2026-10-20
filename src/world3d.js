@@ -962,7 +962,7 @@ function buildTown(field, root) {
     if (st.sign) { const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.6), new THREE.MeshStandardMaterial({ map: texSign(st.sign, "#f1cf73"), side: THREE.DoubleSide, roughness: 0.8 })); sg.position.set(0, 2.9, 0.78); g.add(sg); for (const sx of [-0.8, 0.8]) { const ch = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.45, 4), wallMat); ch.position.set(sx, 2.68, 0.78); g.add(ch); } }
     if (st.pole) { const red = new THREE.MeshStandardMaterial({ color: 0xc0392b }), wht = new THREE.MeshStandardMaterial({ color: 0xf2ece0 }); for (let k = 0; k < 6; k++) { const sgm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.3, 10), k % 2 ? wht : red); sgm.position.set(1.65, 0.45 + k * 0.3, 0.75); g.add(sgm); } const cap = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), new THREE.MeshStandardMaterial({ color: 0xd8b050, metalness: 0.6, roughness: 0.4 })); cap.position.set(1.65, 2.34, 0.75); g.add(cap); }
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-    g.position.set(st.x * U, field.heightAt(st.x, st.y), st.y * U);
+    g.position.set(st.x * U, footY(field, st.x, st.y, 1.3), st.y * U);
     root.add(g);
   }
   for (const pr of z.props || []) {
@@ -988,7 +988,7 @@ function buildTown(field, root) {
       for (let k = 0; k < 3; k++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.75, 10), wood); b.position.set(k * 0.65 - 0.65, 0.37, (k % 2) * 0.3); g.add(b); }
     }
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-    g.position.set(pr.x * U, field.heightAt(pr.x, pr.y), pr.y * U);
+    g.position.set(pr.x * U, footY(field, pr.x, pr.y, (pr.r || 20) * U * 0.8), pr.y * U);
     g.rotation.y = pr.rot || 0;
     root.add(g);
     z.colliders.push({ x: pr.x, y: pr.y, r: pr.r || 24 });
@@ -1033,6 +1033,13 @@ function uvBox(w, h, d, k) {
   for (let i = 0; i < uv.count; i++) { const ax = Math.abs(nr.getX(i)), ay = Math.abs(nr.getY(i)); const su = ax > 0.5 ? d : w, sv = ay > 0.5 ? d : h; uv.setXY(i, uv.getX(i) * su / k, uv.getY(i) * sv / k); }
   return g;
 }
+function homeSignText() { return "Home of " + ((typeof save !== "undefined" && save && save.name) || "You"); }
+function refreshHomeSign() {
+  const sg = W3.homeSign;
+  if (!sg || !sg.parent) return;
+  sg.material.map = texSign(homeSignText(), sg.userData.col); sg.material.needsUpdate = true;
+}
+const DRESS_R = { tree: 0.25, well: 1.1, cart: 1.0, planter: 0.7, hay: 0.6, statue: 0.8, shrine: 0.9, tower: 1.5, forge: 1.3, laundry: 1.1, netrack: 1.1, minecart: 1.5, boatramp: 2.0, woodpile: 0.7 };
 function texSign(text, col) {
   const key = "sign_" + text + col;
   if (TEXLIB.cache[key]) return TEXLIB.cache[key];
@@ -1352,9 +1359,10 @@ function buildCityBuildings(field, root) {
       am.position.set(0, PL + dh + 0.55, fz + 0.75); am.rotation.x = 0.32; am.applyMatrix4(B); am.castShadow = true; root.add(am);
       for (const sx of [-1, 1]) bt.add(M.frame, cyl(0.04, 0.04, 1.6, 5), B, sx * bw * 0.38, PL + dh + 0.3, fz + 1.0, 0, 1.2);
     }
-    if (hs.sign) {
-      const sg = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.56), new THREE.MeshStandardMaterial({ map: texSign(hs.sign, hs.signCol || "#d4a840"), side: THREE.DoubleSide, roughness: 0.8 }));
-      sg.position.set(0, PL + dh + 0.48, fz + 0.16); sg.scale.setScalar(hs.type === "auction" ? Math.min(2.1, bw / 2.2) : Math.min(1.27, bw / 3)); sg.applyMatrix4(B); root.add(sg);
+    if (hs.sign || hs.home) {
+      const txt = hs.home ? homeSignText() : hs.sign, sg = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.56), new THREE.MeshStandardMaterial({ map: texSign(txt, hs.signCol || "#d4a840"), side: THREE.DoubleSide, roughness: 0.8 }));
+      sg.position.set(0, PL + dh + 0.48, fz + 0.16); sg.scale.setScalar(hs.type === "auction" ? Math.min(2.1, bw / 2.2) : hs.home ? Math.min(1.6, bw / 2.6) : Math.min(1.27, bw / 3)); sg.applyMatrix4(B); root.add(sg);
+      if (hs.home) { W3.homeSign = sg; sg.userData.col = hs.signCol || "#d4a840"; }
     }
     if (hs.trade) shopFront(bt, M, B, hs, bw, fz, PL, dh, dw, z, root, rnd);
     if (T.flag || hs.flag) {
@@ -1478,7 +1486,7 @@ function buildCityBuildings(field, root) {
   }
   const cartG = (z.dressing || []).some(o => o.t === "cart") ? cartGeo() : null;
   for (const o of z.dressing || []) {
-    const B = new THREE.Matrix4().makeRotationY(o.rot || 0).setPosition(o.x * U, field.heightAt(o.x, o.y), o.y * U), s = o.s || 1, r3 = seeded(hashStr("dr" + o.x + "," + o.y));
+    const B = new THREE.Matrix4().makeRotationY(o.rot || 0).setPosition(o.x * U, footY(field, o.x, o.y, (DRESS_R[o.t] || 0.8) * (o.s || 1)), o.y * U), s = o.s || 1, r3 = seeded(hashStr("dr" + o.x + "," + o.y));
     if (o.t === "tree") {
       col(o.x, o.y, 9 * s);
       bt.add(M.beam, cyl(0.16 * s, 0.26 * s, 2.8 * s, 7), B, 0, 1.4 * s, 0);
@@ -1510,6 +1518,66 @@ function buildCityBuildings(field, root) {
       bt.add(M.trim, new THREE.SphereGeometry(0.3, 10, 8), B, 0, 3.6, 0);
       bt.add(M.trim, box(0.12, 2.0, 0.12), B, 0.45, 2.7, 0, 0, 0, -0.18);
       bt.add(M.gold, box(0.5, 0.14, 0.14), B, 0.53, 3.75, 0);
+    } else if (o.t === "shrine") {
+      col(o.x, o.y, 20);
+      bt.add(M.stone, box(2.0, 0.3, 2.0), B, 0, 0.15, 0);
+      bt.add(M.stone, box(1.2, 1.1, 0.9), B, 0, 0.85, 0);
+      for (const sx of [-1, 1]) bt.add(M.beam, box(0.12, 1.5, 0.12), B, sx * 0.7, 2.1, 0.35);
+      bt.add(M.roof[1], roofGeo(1.9, 1.5, 0.7), B, 0, 2.85, 0.05, Math.PI / 2);
+      bt.add(M.gold, new THREE.OctahedronGeometry(0.22, 0), B, 0, 1.65, 0);
+      for (const sx of [-0.35, 0.35]) { bt.add(lampMat, cyl(0.05, 0.05, 0.18, 6), B, sx, 1.5, 0.3); glowAt(B, sx, 1.62, 0.3, 1.1); }
+      for (let k = 0; k < 4; k++) bt.add(k % 2 ? M.leaf : M.red, new THREE.IcosahedronGeometry(0.14, 0), B, -0.5 + k * 0.33, 0.38, 0.75);
+    } else if (o.t === "tower") {
+      col(o.x, o.y, 30);
+      bt.add(M.stone, cyl(1.7, 1.9, 0.5, 12), B, 0, 0.25, 0);
+      bt.add(M.stone, cyl(1.35, 1.5, 4.6, 12), B, 0, 2.8, 0);
+      bt.add(M.trim, cyl(1.6, 1.4, 0.4, 12), B, 0, 5.3, 0);
+      for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; bt.add(M.stone, box(0.42, 0.5, 0.3), B, Math.cos(a) * 1.4, 5.75, Math.sin(a) * 1.4, -a); }
+      bt.add(M.beam, box(0.5, 0.9, 0.08), B, 0, 1.1, 1.42);
+      bt.add(lampMat, box(0.2, 0.3, 0.2), B, 0.6, 4.6, 1.45); glowAt(B, 0.6, 4.6, 1.5, 1.8);
+    } else if (o.t === "forge") {
+      col(o.x, o.y, 24);
+      bt.add(M.stone, box(2.2, 0.25, 1.6), B, 0, 0.12, 0);
+      bt.add(M.stone, box(1.4, 1.0, 1.0), B, -0.3, 0.75, -0.2);
+      bt.add(M.stone, cyl(0.3, 0.45, 2.4, 8), B, -0.3, 2.4, -0.45);
+      bt.add(M.red, box(0.9, 0.12, 0.6), B, -0.3, 1.3, 0.1);
+      bt.add(lampMat, box(0.6, 0.08, 0.4), B, -0.3, 1.33, 0.1); glowAt(B, -0.3, 1.5, 0.1, 2.4);
+      bt.add(M.planks, box(0.8, 0.9, 0.5), B, 0.8, 0.6, 0.4);
+      bt.add(M.iron, box(0.1, 0.9, 0.1), B, 0.95, 1.4, 0.2, 0, 0, 0.4);
+      for (const sx of [-1, 1]) bt.add(M.beam, box(0.14, 3.2, 0.14), B, sx * 1.2, 1.6, 0.9);
+      bt.add(M.roof[2], roofGeo(3.0, 2.4, 0.7), B, 0, 3.3, 0.1, Math.PI / 2);
+    } else if (o.t === "laundry") {
+      col(o.x - 1.6 * Math.cos(o.rot || 0), o.y - 1.6 * Math.sin(o.rot || 0), 5); col(o.x + 1.6 * Math.cos(o.rot || 0), o.y + 1.6 * Math.sin(o.rot || 0), 5);
+      for (const sx of [-1, 1]) bt.add(M.beam, cyl(0.06, 0.08, 2.1, 6), B, sx * 1.7, 1.05, 0);
+      bt.add(M.iron, cyl(0.015, 0.015, 3.4, 4), B, 0, 1.95, 0, 0, 0, Math.PI / 2);
+      for (let k = 0; k < 4; k++) bt.add(k % 2 ? M.plaster[(k + 1) % 4] : [M.red, M.leaf, M.trim][k % 3], box(0.55, 0.7 + r3() * 0.3, 0.04), B, -1.2 + k * 0.8, 1.5, 0.02, 0, 0, (r3() - 0.5) * 0.12);
+      bt.add(M.planks, box(0.6, 0.4, 0.4), B, 1.3, 0.2, 0.6);
+    } else if (o.t === "netrack") {
+      col(o.x, o.y, 18);
+      for (const sx of [-1, 1]) bt.add(M.beam, box(0.1, 1.9, 0.1), B, sx * 1.4, 0.95, 0);
+      bt.add(M.beam, box(3.0, 0.08, 0.08), B, 0, 1.85, 0);
+      bt.add(M.beam, box(3.0, 0.06, 0.06), B, 0, 1.0, 0);
+      bt.add(M.fish, box(2.6, 1.4, 0.03), B, 0, 1.3, 0.05, 0, 0, 0.03);
+      bt.add(M.planks, cyl(0.2, 0.2, 0.5, 8), B, -1.0, 0.25, 0.6, 0, 0, Math.PI / 2);
+      bt.add(M.iron, new THREE.TorusGeometry(0.18, 0.04, 6, 10), B, 1.0, 0.18, 0.6, 0, Math.PI / 2);
+    } else if (o.t === "minecart") {
+      col(o.x, o.y, 26);
+      for (const sx of [-0.4, 0.4]) bt.add(M.iron, box(0.07, 0.08, 4.4), B, sx, 0.06, 0);
+      for (let k = 0; k < 6; k++) bt.add(M.beam, box(1.2, 0.08, 0.2), B, 0, 0.03, -1.9 + k * 0.76);
+      bt.add(M.iron, box(1.0, 0.7, 1.3), B, 0, 0.6, -0.6);
+      bt.add(M.ore, new THREE.ConeGeometry(0.42, 0.4, 7), B, 0, 1.05, -0.6);
+      for (const sz of [-1.1, -0.1]) for (const sx of [-0.52, 0.52]) bt.add(M.iron, cyl(0.16, 0.16, 0.08, 10), B, sx, 0.2, sz, 0, 0, Math.PI / 2);
+      bt.add(M.ore, new THREE.DodecahedronGeometry(0.35, 0), B, 0.3, 0.3, 1.5);
+    } else if (o.t === "woodpile") {
+      col(o.x, o.y, 16);
+      for (let row = 0; row < 3; row++) for (let k = 0; k < 4 - row; k++) bt.add(M.beam, cyl(0.17, 0.17, 1.4, 7), B, -0.55 + k * 0.37 + row * 0.18, 0.17 + row * 0.3, 0, 0, 0, Math.PI / 2, 1, 1, 1);
+      bt.add(M.iron, box(0.06, 0.5, 0.16), B, 0.9, 0.55, 0.3, 0, 0, 0.5);
+    } else if (o.t === "boatramp") {
+      col(o.x, o.y, 30);
+      bt.add(M.planks, box(3.0, 0.16, 6.0), B, 0, 0.0, 0, 0, 0.1);
+      for (let k = 0; k < 7; k++) bt.add(M.beam, box(3.1, 0.08, 0.12), B, 0, 0.1 + 0.27 - k * 0.09, -2.7 + k * 0.9, 0, 0.1);
+      for (const sx of [-1, 1]) bt.add(M.beam, cyl(0.1, 0.1, 1.2, 6), B, sx * 1.4, 0.4, 2.6);
+      bt.add(M.planks, new THREE.SphereGeometry(0.5, 10, 8).scale(1.3, 0.55, 3.2), B, 2.6, 0.3, 0.3); bt.add(M.beam, box(0.12, 0.12, 5.6), B, 2.6, 0.62, 0.3);
     }
   }
   for (const [x, y, rot] of z.dummies || []) {

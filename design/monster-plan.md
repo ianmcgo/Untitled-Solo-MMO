@@ -77,7 +77,7 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 
 Goal: towns that are fun to explore, easy to read, and feel deep. Fewer empty houses, nothing floating, no signs to things that do nothing, vendors reachable, your own house obvious.
 
-### T1: Prune and place (audit first)
+### T1: Prune and place (audit first) - DONE in 19.10.0
 - Count the houses per city with no NPC, no door exit and no shop; remove about half of them, keeping the ones that frame streets and squares. Replace some with varied fillers: a well, a market cart, a garden plot, a shrine, stacked crates, a courtyard with a tree, a watchtower stub, an open-air forge, a laundry line, a boat ramp (Saltreach), a mine cart siding (Ironvale).
 - Floating check: an automated pass that samples every placed object's footprint against the terrain and reports anything whose base is more than a few cm above ground or sunk; fix by re-seating or adding a plinth.
 - Sign audit: every sign is tied to an NPC, shop, door, warp stone or district that exists; signs for nothing are removed; shop signs face the street and match the vendor's trade.

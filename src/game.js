@@ -333,6 +333,7 @@ function applyRename(n) {
   const old = save.name;
   save.name = n;
   if (player) player.name = n;
+  if (typeof refreshHomeSign === "function") refreshHomeSign();
   log(old + " is now known as " + n + ".", "loot");
   sfx("unlock");
   saveGame();

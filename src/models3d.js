@@ -275,6 +275,11 @@ function placeTool(v, e) {
 
 const SLOPE_KINDS = { crawler: 1, worm: 1, quad: 1, crab: 1, fish: 1, hare: 1, rarab: 1 };
 function footGround(e) {
+  if (e.prop && e.kind === "npc") {
+    let m = groundY(e.x, e.y);
+    for (let k = 0; k < 8; k++) m = Math.min(m, groundY(e.x + Math.cos(k * Math.PI / 4) * 14, e.y + Math.sin(k * Math.PI / 4) * 14));
+    return m;
+  }
   const r = Math.max(4, (e.radius || 14) * 0.55);
   let g = groundY(e.x, e.y);
   for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r]]) { const h = groundY(e.x + dx, e.y + dy); if (h > g) g = h; }

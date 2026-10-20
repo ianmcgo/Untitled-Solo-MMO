@@ -625,6 +625,13 @@ function zoneMapCanvas(zoneId) {
   if (z.theme === "town") { g.strokeStyle = "#3b2a1c"; g.lineWidth = 10; g.strokeRect(20, 20, z.w - 40, z.h - 40); }
   else { g.strokeStyle = "rgba(0,0,0,.6)"; g.lineWidth = 30; g.strokeRect(0, 0, z.w, z.h); }
   for (const e of z.exits || []) { g.fillStyle = "rgba(241,207,115,.85)"; g.fillRect(e.x, e.y, e.w, e.h); }
+  for (const e of (z.exits || []).filter(e => e.to === "residence")) {
+    const hx = e.x + e.w / 2, hy = e.y + e.h / 2 - 70;
+    g.fillStyle = "#f1cf73"; g.strokeStyle = "#3a2a10"; g.lineWidth = 5;
+    g.beginPath(); g.moveTo(hx, hy - 46); g.lineTo(hx + 44, hy - 4); g.lineTo(hx + 28, hy - 4); g.lineTo(hx + 28, hy + 34); g.lineTo(hx - 28, hy + 34); g.lineTo(hx - 28, hy - 4); g.lineTo(hx - 44, hy - 4); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = "#3a2a10"; g.fillRect(hx - 9, hy + 8, 18, 26);
+    g.font = "bold 30px sans-serif"; g.textAlign = "center"; g.textBaseline = "top"; g.lineWidth = 6; g.strokeText("Home", hx, hy + 42); g.fillStyle = "#f1cf73"; g.fillText("Home", hx, hy + 42);
+  }
   UI.mapCache = { id: zoneId, c, k, z };
   return UI.mapCache;
 }
@@ -675,6 +682,13 @@ function drawMinimap() {
   }
   if (S.race && RACE.checkpoints[S.race.next] && RACE.checkpoints[S.race.next].zone === S.zoneId) { const cp = RACE.checkpoints[S.race.next]; dot(cp.x, cp.y, 10, "rgba(255,213,79,.9)"); }
   for (const p of S.party) if (p !== player) dot(p.x, p.y, 6, p.alive ? "#62b6ff" : "#555");
+  for (const e of (S.zone.exits || []).filter(e => e.to === "residence")) {
+    const hx = e.x + e.w / 2, hy = e.y + e.h / 2, r = 9 / sc;
+    g.save(); g.translate(hx, hy); g.rotate(Math.PI / 2 + yaw);
+    g.beginPath(); g.moveTo(0, -r * 1.2); g.lineTo(r, -r * 0.1); g.lineTo(r * 0.65, -r * 0.1); g.lineTo(r * 0.65, r); g.lineTo(-r * 0.65, r); g.lineTo(-r * 0.65, -r * 0.1); g.lineTo(-r, -r * 0.1); g.closePath();
+    g.fillStyle = "#f1cf73"; g.fill(); g.lineWidth = 1.5 / sc; g.strokeStyle = "rgba(0,0,0,.7)"; g.stroke();
+    g.restore();
+  }
   g.restore();
   g.beginPath(); g.arc(R, R, 8, 0, 7); g.fillStyle = "#ff6ad5"; g.fill(); g.lineWidth = 2; g.strokeStyle = "#fff"; g.stroke();
   const rx = wrap.clientWidth / 2 - 6, ry = rx * 0.42;
@@ -1013,6 +1027,11 @@ function watchProgress() {
     if (!save.discovered) save.discovered = [];
     if (first) { save.discovered.push(S.zoneId); toast("🧭", "Discovered", S.zone.name); }
     zoneTitle(S.zone.name, first ? ["Discovered", zoneSubtitle(S.zoneId)].filter(Boolean).join(" · ") : districtName(S.zoneId, player.x, player.y) || zoneSubtitle(S.zoneId));
+    if ((S.zone.exits || []).some(e => e.to === "residence") && !save.homeShown) {
+      save.homeShown = true;
+      setTimeout(() => { banner("YOUR RESIDENCE", "The house with your name over the door · 🏠 on the map", []); toast("🏠", "Your residence", "Follow the 🏠 marker on the minimap. Pip keeps house for you."); }, 1600);
+      log("Your residence is in this district: look for the sign with your name over the door, or the 🏠 marker on the map.", "npc");
+    }
   }
   Object.assign(w, { job: j, lv, quests: Object.assign({}, save.quests), maxHp: player.maxHp, maxMp: player.maxMp, zone: S.zoneId, mount: save.mountLicense, sup: save.supportUnlocked });
 }

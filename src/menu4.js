@@ -1729,6 +1729,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.10.0", date: "2026-10-20", title: "Room to breathe", items: [
+    "<b>Fewer empty houses.</b> About half of the houses with nobody home, no door and no shop are gone (Ashenreach 228 to 122, Saltreach 178 to 93, Ironvale 225 to 108, counting every district). The ones that frame streets and squares stay.",
+    "<b>Little scenes in the gaps.</b> Gardens, courtyards with a tree and benches, wells, shrines, market carts, crates and barrels, laundry lines, an open-air forge and watchtower stubs; Saltreach adds net racks and boat ramps, Ironvale mine carts and woodpiles. They block like furniture, so walk around them.",
+    "<b>Signs that mean something.</b> 25 signs on buildings that did nothing (Barracks, Chapel, Market Hall, taverns, workshops, the Fish Market row and so on) are gone. Every sign left belongs to a shop, an NPC or a door, faces the street and matches the trade.",
+    "<b>Your residence stands out.</b> A sign over the door reads Home of and your name (it follows a rename), a gold house shows on the map and the minimap, and the first time you enter the Residential District a title card and a log line point it out.",
+    "<b>Nothing floats.</b> Every placed object in every town and field zone was checked against the ground; camps and other prop NPCs now sit on the lowest point of their footing.",
+    "<b>Updates tab bold text fixed.</b> Bold in this list used to show as literal tags.",
+    "<b>Help</b> covers the residence marker, the first-visit card and the open spaces."
+  ] },
   { v: "19.9.0", date: "2026-10-20", title: "Reading the room", items: [
     "<b>Hate bar.</b> Target a monster that is fighting and the target frame shows who it is on and a bar for your share of the top hate. Red: it is on you (below full means someone is about to take it). Gold: it is on someone else and the bar is how close you are to pulling it.",
     "<b>Swap alert.</b> When a monster turns on someone new, a ! flashes over it with a ring and the log says who it turned on. A red ‼ means it just turned on you.",
@@ -3616,7 +3625,7 @@ function verNum(v) { return String(v).split(".").reduce((n, x) => n * 1000 + (pa
 function updatesSorted() { return UPDATES.slice().sort((a, b) => verNum(b.v) - verNum(a.v)); }
 function tabUpdates() {
   let h = '<div class="sub" style="margin-bottom:8px">' + BUILD_INFO + "</div>";
-  for (const u of updatesSorted()) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i) + "</li>").join("") + "</ul></div>";
+  for (const u of updatesSorted()) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i).replace(/&lt;(\/?)b&gt;/g, "<$1b>") + "</li>").join("") + "</ul></div>";
   return h;
 }
 
@@ -3658,8 +3667,10 @@ function tabHelp() {
     "Your first visit to each district counts as a discovery, and the district tour quests count them across the whole city. The map (M) shows the district you are in, and under it a <b>city overview</b>: every district of the city in its colour, the gates between them as round markers, roads out of the city, and a white dot where you stand. Districts you have not visited show as ???.",
     "Click-to-move stays inside your district: to reach another district, walk to its gate (or use a warp stone). Your companions zone with you.",
     "Every building faces a street: doors can point north, south, east or west, whichever way the nearest street lies. A door set back from the street has a short footpath out to it, and the map marks each door with a gold tick.",
-    "Buildings you can visit carry one sign each: Barracks, Mercenary Hall, Hall of Records, Chapel of the Dawn, Job Master, Adventurers' Guild, Market Hall, Furnishings, Auction House, The Ember Mug, Smithy, Woodworkers, Alchemists, Tannery and Stables, plus the vendor shops. Unsigned buildings are homes. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day. Streets have lamps, trees, planters, wells, carts and hay.",
-    "Saltreach adds the Fish Market, Smokehouse, Net Loft, Chandlery, Harbor Master, Outfitters Hall, Sailors' Rest, Shipwright, Sawmill, Ropewalk, Customs and Pilots' Hall. Ironvale adds the Frost Guard, Council Hall, Hearth Chapel, General Store, Anvil & Ale, Hearthstone Inn, Grain Store and Mythrilsmith. Every gate zone has a guard post and stables.",
+    "Only buildings that do something carry a sign: Mercenary Hall, Hall of Records, Adventurers' Guild, Job Master, Furnishings, Auction House, Smithy, Mythrilsmith, Council Hall and Stables, plus the vendor shops (Provisions, Scrolls, Jewels, Armory, Arms, Supplies). A sign always faces the street and names what the vendor sells. Unsigned buildings are homes. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day. Streets have lamps, trees, planters, wells, carts and hay.",
+    "Saltreach adds a Mercenary Hall and Job Master of its own and Ironvale a Council Hall; every gate zone has a Stables. Buildings that used to wear a sign for nothing (Barracks, Chapel, Market Hall, tavern, Woodworkers, Fish Market, Customs and the like) are now plain houses.",
+    "<b>Open spaces:</b> about half of the empty houses were cleared and the gaps hold little scenes: gardens, courtyards with a tree and benches, wells, shrines, market carts, stacked crates and barrels, laundry lines, an open-air forge and a watchtower stub; Saltreach adds net racks and a boat ramp, Ironvale mine carts and woodpiles. You can walk between them but not through them.",
+    "<b>Your residence:</b> the house in the Residential District has a sign reading Home of and your name (it changes if you rename), a gold house marker on the map and the minimap, and the first time you enter the district a title card and log line point it out.",
     "<b>Nothing stands in the roads.</b> Trees, people, stalls, benches, lamps, carts and every other object are kept off the streets and footpaths, in the cities and in the wilds.",
     "<b>Changing your name:</b> the Registrar in the Hall of Records (Ashenreach Government District) or the Council Hall (Ironvale Keep) enters a new name for " + RENAME_COST.toLocaleString() + " crystals: 2 to 12 letters, not already taken. Online, the game server checks the name and takes the crystals.",
     "<b>Getting around:</b> a district is about 240 yalms wide, so crossing one on foot takes roughly 24 seconds (about 16 sprinting with Shift), and a gate to the central square is about 12. Every district has a warp stone near its middle, standing beside a street and facing it; touching one makes the trip instant inside a city (you arrive on the street in front of the stone), and your companions follow through the gates.",

@@ -1232,7 +1232,7 @@ const OUTPOST_PLAN = {
     off: [0, 1800], name: "Residential District", color: "#6fae5a", icon: "🏡", trees: true,
     streets: [{ w: 56, pts: [[2400, 900], [200, 900]], trees: true }, { w: 36, pts: [[600, 200], [600, 1600]] }, { w: 36, pts: [[1200, 200], [1200, 1600]] }, { w: 36, pts: [[1800, 200], [1800, 1600]] }, { w: 36, pts: [[200, 380], [2200, 380]] }, { w: 36, pts: [[200, 1420], [2200, 1420]] }],
     reserve: [{ x: 1240, y: 950, w: 520, h: 430 }],
-    houses: [{ key: "residence", x: 2050, y: 1060, w: 140, h: 110, type: "home", tint: 0, floors: 2, rot: 2, fixed: true }, { key: "furnish", x: 2100, y: 760, w: 150, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2", shop: "odette" }],
+    houses: [{ key: "residence", x: 2050, y: 1060, w: 140, h: 110, type: "home", tint: 0, floors: 2, rot: 2, fixed: true, home: true, signCol: "#f1cf73" }, { key: "furnish", x: 2100, y: 760, w: 150, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2", shop: "odette" }],
     npcs: [{ id: "odette", x: 2100, y: 846, home: "furnish", sleep: [21.5, 6] }, { id: "barber_outpost", x: 1880, y: 817 }],
     stalls: [{ x: 1880, y: 826, color: "#c0392b", sign: "Barber", pole: true }],
     exits: [{ x: 2030, y: 970, w: 40, h: 26, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }],
@@ -1276,6 +1276,38 @@ const OUTPOST_PLAN = {
   gate: gateDistrict({ off: [4800, 2300], side: "e", name: "Eastgate", guard: "guard_east", stable: "ysolde", quest: "rhea", exit: { to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" } })
 };
 const OUTPOST_GATES = [{ x: 2400, y: 2700, a: "res", b: "market" }, { x: 4800, y: 2700, a: "market", b: "gate" }, { x: 3600, y: 1800, a: "gov", b: "market", horiz: true }, { x: 3600, y: 3600, a: "market", b: "ind", horiz: true }];
+const FILLER_MENUS = {
+  res: ["garden", "garden", "garden", "laundry", "laundry", "courtyard", "courtyard", "crates", "well", "shrine"],
+  market: ["cart", "cart", "cart", "crates", "crates", "courtyard", "courtyard", "laundry", "well", "shrine"],
+  civic: ["courtyard", "courtyard", "courtyard", "garden", "garden", "shrine", "shrine", "statue", "well", "tower"],
+  work: ["crates", "crates", "crates", "barrels", "barrels", "cart", "cart", "forge", "laundry", "tower"]
+};
+function fillerMenu(C, did, fill) {
+  const wt = k => fill.filter(f => k.includes(f[0])).reduce((a, f) => a + f[1], 0);
+  const role = wt(["warehouse", "smelter", "mill"]) >= 0.3 ? "work" : wt(["hall"]) >= 0.4 ? "civic" : wt(["shop"]) >= 0.4 ? "market" : "res";
+  const menu = FILLER_MENUS[role].slice();
+  if (C.cityStyle === "harbor" && role !== "res") menu.push("netrack", "netrack");
+  if (C.cityStyle === "mountain" && role === "work") menu.push("minecart", "minecart");
+  if (C.cityStyle === "mountain" && role !== "work") menu.push("woodpile");
+  return menu;
+}
+function placeFiller(z, C, did, fill, cx, cy, bw, bh, vert, rnd, pick) {
+  const t = pick(fillerMenu(C, did, fill)), rot = vert ? Math.PI / 2 : 0;
+  if (t === "garden") { z.gardens.push({ x: cx, y: cy, w: Math.min(bw, 170) - 20, h: Math.min(bh, 110) - 20 }); return; }
+  if (t === "crates" || t === "barrels") { z.props.push({ type: t, x: cx, y: cy, rot: rnd() * 6, r: 24 }); if (bw > 120 && rnd() < 0.6) z.props.push({ type: t === "crates" ? "barrels" : "crates", x: cx + (vert ? 0 : 40), y: cy + (vert ? 40 : 0), rot: rnd() * 6, r: 22 }); return; }
+  if (t === "courtyard") { z.dressing.push({ t: "tree", x: cx, y: cy, s: 1.25 + rnd() * 0.3 }); z.benches.push([cx + (vert ? 0 : -34), cy + (vert ? -34 : 0), vert ? 0 : Math.PI / 2], [cx + (vert ? 0 : 34), cy + (vert ? 34 : 0), vert ? Math.PI : -Math.PI / 2]); return; }
+  if (t === "forge") { z.dressing.push({ t: "forge", x: cx, y: cy, rot }); z.props.push({ type: "anvil", x: cx + (vert ? 0 : 36), y: cy + (vert ? 36 : 0), rot: rot + 0.3, r: 22 }); return; }
+  if (t === "cart") { z.dressing.push({ t: "cart", x: cx, y: cy, rot: rot + (rnd() - 0.5) * 0.6 }); return; }
+  z.dressing.push({ t, x: cx, y: cy, rot });
+}
+function auditSigns(z) {
+  const homes = new Set();
+  for (const n of z.npcs) if (typeof n.home === "number") homes.add(n.home);
+  const doorAt = h => (z.exits || []).some(e => e.kind === "door" && inRect(e.x + e.w / 2, e.y + e.h / 2, houseRect(h), 40));
+  const kept = h => { const d = houseDoor(h, 34); return z.npcs.some(n => Math.hypot(n.x - d.x, n.y - d.y) < 60); };
+  z.houses.forEach((h, i) => { if (h.sign && !h.shop && !homes.has(i) && !doorAt(h) && !h.home && !kept(h)) { h.hadSign = h.sign; delete h.sign; } });
+  for (const s of z.stalls || []) if (s.sign && !z.npcs.some(n => Math.hypot(n.x - s.x, n.y - s.y) < 40)) delete s.sign;
+}
 function buildCity(C) {
   const PLAN = C.plan, FILL = C.fill, rnd = seeded(hashStr(C.seed));
   const pick = a => a[Math.floor(rnd() * a.length)], range = r => r[0] + Math.round(rnd() * (r[1] - r[0]));
@@ -1288,8 +1320,8 @@ function buildCity(C) {
     const P = PLAN[did], [ox, oy] = P.off, mv = o => { const c = Object.assign({}, o, { x: o.x + ox, y: o.y + oy }); if (o.path) c.path = o.path.map(q => [q[0] + ox, q[1] + oy]); return c; }, pt = q => [q[0] + ox, q[1] + oy].concat(q.slice(2));
     z.districts.push({ id: did, name: P.name, open: P.open, x: ox, y: oy, w: P.w || OUT_DW, h: P.h || OUT_DH, color: P.color, icon: P.icon });
     for (const s of P.streets) z.paths.push({ w: s.w, pts: s.pts.map(pt), trees: !!s.trees, district: did });
-    for (const h of P.houses || []) { const c = mv(h); delete c.key; c.district = did; if (h.key) keys[h.key] = c; z.houses.push(c); }
-    for (const k of ["npcs", "props", "water", "gardens", "stalls", "fountains", "plazas", "ambient", "dressing", "exits"]) for (const o of P[k] || []) { const c = mv(o); if (k === "npcs" && typeof c.home === "string") homes.push(c); z[k].push(c); }
+    for (const h of P.houses || []) { const c = mv(h); delete c.key; c.district = did; if (h.key) keys[did + ":" + h.key] = c; z.houses.push(c); }
+    for (const k of ["npcs", "props", "water", "gardens", "stalls", "fountains", "plazas", "ambient", "dressing", "exits"]) for (const o of P[k] || []) { const c = mv(o); if (k === "npcs" && typeof c.home === "string") { c.home = did + ":" + c.home; homes.push(c); } z[k].push(c); }
     for (const k of ["dummies", "racks", "benches", "lamps", "docks", "boats", "lighthouses", "slipways", "mines", "torches"]) for (const q of P[k] || []) (z[k] = z[k] || []).push(pt(q));
     if (P.plaza) z.plaza = mv(P.plaza);
     if (P.stable) (z.stables = z.stables || []).push(mv(P.stable));
@@ -1329,7 +1361,14 @@ function buildCity(C) {
           const cx = ax + ux * (t + along / 2) + nx * off, cy = ay + uy * (t + along / 2) + ny * off;
           const r = { x: cx - bw / 2, y: cy - bh / 2, w: bw, h: bh };
           if (free(r, did)) {
-            const rot = vert ? (nx > 0 ? 3 : 1) : (ny > 0 ? 2 : 0), h = { x: Math.round(cx), y: Math.round(cy), w: bw, h: bh, type: kind[0], floors: range(kind[4]), rot, district: did };
+            const rot = vert ? (nx > 0 ? 3 : 1) : (ny > 0 ? 2 : 0), keepP = p.w >= 56 ? 0.6 : 0.36, roll = rnd();
+            if (roll >= keepP) {
+              w0 = along;
+              if (roll < keepP + (1 - keepP) * 0.6) { placeFiller(z, C, did, fill, Math.round(cx), Math.round(cy), bw, bh, vert, rnd, pick); reserve.push({ x: r.x - 10, y: r.y - 10, w: r.w + 20, h: r.h + 20 }); }
+              t += w0 + 24 + Math.round(rnd() * 22);
+              continue;
+            }
+            const h = { x: Math.round(cx), y: Math.round(cy), w: bw, h: bh, type: kind[0], floors: range(kind[4]), rot, district: did };
             if (kind[0] === "shop") { pick(OUT_AWNINGS); h.type = "home"; }
             if (kind[0] === "hall" && rnd() < 0.3) pick(["Guildhouse", "Counting House", "Lodge", "Assay Office", "Notary", "Bathhouse"]);
             z.houses.push(h); w0 = along;
@@ -1398,7 +1437,7 @@ const HARBOR_PLAN = {
     boats: [[300, 1720, 0.2], [880, 1760, -0.3], [1480, 1720, 0.1], [2050, 1760, 0.3]],
     water: HBR_SEA(1900, 420, [150, 600, 1050, 1500, 1950]),
     benches: [[1100, 900, 0], [1500, 900, 0]],
-    dressing: [{ t: "well", x: 330, y: 560 }, { t: "planter", x: 1160, y: 760 }, { t: "planter", x: 1440, y: 760 }, { t: "cart", x: 900, y: 1320, rot: 0.3 }, { t: "cart", x: 1850, y: 780, rot: -0.4 }],
+    dressing: [{ t: "well", x: 330, y: 560 }, { t: "planter", x: 1160, y: 760 }, { t: "planter", x: 1440, y: 760 }, { t: "cart", x: 900, y: 1320, rot: 0.3 }, { t: "cart", x: 1850, y: 780, rot: -0.4 }, { t: "boatramp", x: 1420, y: 1470 }],
     ambient: [{ type: "gull", x: 1200, y: 1500, n: 6, r: 320 }, { type: "cat", x: 330, y: 1200, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 1200, y: 1330, n: 1, path: [[300, 1330], [2100, 1330]] }]
   },
   square: {
@@ -1450,7 +1489,7 @@ const HARBOR_PLAN = {
     lighthouses: [[2250, 1120]],
     props: [{ type: "crates", x: 400, y: 1110, rot: 0.4, r: 26 }, { type: "barrels", x: 900, y: 1110, rot: 1.2, r: 26 }, { type: "crates", x: 1500, y: 1110, rot: 0.2, r: 26 }, { type: "barrels", x: 1990, y: 1110, rot: 0.6, r: 26 }],
     water: HBR_SEA(1620, 430, [100, 550, 1000, 1450, 1900, 2350]),
-    dressing: [{ t: "cart", x: 600, y: 1100, rot: 0.3 }, { t: "cart", x: 1760, y: 1100, rot: -0.4 }, { t: "planter", x: 1130, y: 120 }, { t: "planter", x: 1270, y: 120 }],
+    dressing: [{ t: "cart", x: 600, y: 1100, rot: 0.3 }, { t: "cart", x: 1760, y: 1100, rot: -0.4 }, { t: "planter", x: 1130, y: 120 }, { t: "planter", x: 1270, y: 120 }, { t: "boatramp", x: 1420, y: 1180 }],
     ambient: [{ type: "gull", x: 1200, y: 1200, n: 7, r: 400 }, { type: "walker", x: 1200, y: 1080, n: 1, path: [[250, 1090], [2150, 1090]] }]
   },
   ngate: gateDistrict({ off: [3200, 0], side: "n", name: "North Gate", color: "#8aa0b0", guard: "guard_north", stable: "stable_harbor", quest: "ilsa", exit: { to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" } }),
@@ -1733,7 +1772,7 @@ const IRONVALE_PLAN = {
     houses: [
       { key: "store", x: 780, y: 770, w: 200, h: 110, type: "shop", sign: "General Store", awning: "#37474f" },
       { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227", shop: "auction_ironvale" },
-      { key: "jobs", x: 1620, y: 1040, w: 170, h: 90, type: "hall", floors: 1, sign: "Job Master" },
+      { key: "jobs", x: 1620, y: 1040, w: 170, h: 90, type: "hall", floors: 1, sign: "Job Master", shop: "job_ironvale" },
       { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" }
     ],
     npcs: [{ id: "crystal_ironvale", x: 1200, y: 900 }, { id: "auction_ironvale", x: 1600, y: 870 }, { id: "job_ironvale", x: 1620, y: 1140 }, { id: "trade_board", x: 1010, y: 1100 }],
@@ -3391,7 +3430,7 @@ function fixWalkers(z) {
     a.x = a.path[0][0]; a.y = a.path[0][1];
   }
 }
-for (const t of ["outpost", "harbor", "ironvale"]) settleTownFolk(ZONES[t]);
+for (const t of ["outpost", "harbor", "ironvale"]) { settleTownFolk(ZONES[t]); auditSigns(ZONES[t]); }
 for (const t of ["outpost", "harbor", "ironvale"]) fixWalkers(ZONES[t]);
 for (const t of ["outpost", "harbor", "ironvale"]) splitTown(t);
 for (const t of ["outpost", "harbor", "ironvale"]) for (const p of ZONE_SPLITS[t].parts) {
