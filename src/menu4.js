@@ -1728,6 +1728,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.3.0", date: "2026-10-20", title: "Music for every mood", items: [
+    "<b>Battle music now matches the monster:</b> four themes for weak or easy, fair, tough or very tough, and incredibly tough monsters. Notorious Monsters and bosses keep their own theme.",
+    "<b>Victory stops the battle music at once.</b> One of three victory fanfares plays at random, then the area music fades back in.",
+    "<b>Area music changes with the time and weather:</b> towns, fields and homes have night, rain and snow versions, fields also have storm and fog versions, and storms in town use the rain music."
+  ] },
   { v: "19.2.1", date: "2026-10-20", title: "A Mercenary Hall in every city", items: [
     "<b>Saltreach and Ironvale now have a Mercenary Hall.</b> Dorrin keeps the one on Harbor Square (south-west corner, beside Sailors' Rest) and Hild keeps the one in the Keep (south-west, across from the Hearth Chapel). They hire out the same fighters as Brann in Ashenreach, so you can hire or dismiss companions in any city.",
     "Brann is still the only one with quests."
@@ -4030,6 +4035,7 @@ function tabHelp() {
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
+    "<b>Music changes with the fight and the sky:</b> battles have four themes depending on how tough the monster is (easy or weak, fair, tough or very tough, incredibly tough), and Notorious Monsters and bosses have their own. When the last enemy falls the battle music stops at once and one of three victory fanfares plays, picked at random, before the area music returns. Towns, fields and homes also have their own music for night, rain, storms and snow (fields have a foggy theme too).",
     "<b>Interface sounds:</b> the Interface slider in Config controls menu sounds (cursor tick, confirm, cancel, window open and close, errors, target, equip, coins, tell and party chimes). Turn it down to keep music and combat but silence the menus.",
     "<b>Listening:</b> monsters call out when they notice you, so a jabber or a growl behind you is worth turning around for. Footsteps tell you what you're walking on."
   ]));

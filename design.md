@@ -2513,3 +2513,9 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 
 ## 19.2.1 Mercenary Hall in every city
 - data.js: houses `mercs` in Harbor Square (780,1240, `shop: "merc_harbor"`) and the Keep (720,1240, `shop: "merc_ironvale"`); NPCs `merc_harbor` (Dorrin) and `merc_ironvale` (Hild) use `talkBrann`, which only adds quests when `n.id === "brann"`. Models `brann_h` and `brann_i` in rig.js NPC_LOOK. The hire modal text no longer names Brann.
+
+## 19.3.0 Music for every mood
+- audio/gen.py: `fight()` builds three battle themes (`battle_easy`, `battle_tough`, `battle_deadly`); `mood(base, kind)` derives night/rain/storm/snow/fog versions of the outpost, hollow and residence themes (retime + circular reverb/lowpass, storm adds taiko and a drone, snow adds bells). Run `python3 audio/gen.py <name>` then delete the .wav files; build.mjs bundles every mp3 in audio/out.
+- audio.js: `victoryDef(1|2|3)` give synth sounds `victory`, `victory2`, `victory3`; game.js picks one at random. Playing any of them sets `AUDIO.victoryUntil` (now + 4.2 s) and clears combat state; `desiredMusic` returns null until then and `updateAudio` fades the battle loop out in 0.15 s.
+- `desiredMusic` tracks `AUDIO.tier` (max of `conOf` over enemies fighting the party and the engaged target: 1 weak/easy, 2 fair, 3 tough/very tough, 4 incredibly tough), latched while combat lasts. Boss/NM keeps `music_boss`.
+- `areaMusic(theme)` + `MUSIC_MOOD`: weather (storm, rain, snow/blizzard, fog) beats night beats the base theme; caves and crypts have one track.

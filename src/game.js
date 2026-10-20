@@ -1689,7 +1689,7 @@ function killRewards(e) {
   }
   const talker = S.party.filter(p => p !== player && p.alive);
   if (talker.length && Math.random() < 0.3) partySay(pick(talker), "victory");
-  if (xp > 0 && !S.mobs.some(m => m !== e && m.alive && m.state === "combat" && S.party.some(p => m.enmity && m.enmity.has(p)))) sfx("victory");
+  if (xp > 0 && !S.mobs.some(m => m !== e && m.alive && m.state === "combat" && S.party.some(p => m.enmity && m.enmity.has(p)))) sfx(pick(["victory", "victory2", "victory3"]));
 }
 
 function xpFor(mobLv, plLv) {

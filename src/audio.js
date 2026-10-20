@@ -21,6 +21,17 @@ const SFX_FILES = {
 const SFX_GAIN = { step_grass: 0.45, step_stone: 0.4, step_wood: 0.45, step_snow: 0.45, step_sand: 0.4, swing_light: 0.7, swing_heavy: 0.75, swing_claw: 0.6, drip: 0.5, step: 0.35, hoof: 0.5, miss: 0.6, slash: 0.8, blunt: 0.8, xp: 0.5, click: 0.7, select: 0.7, tab: 0.6, toast: 0.6, aggro: 0.7, cast: 0.7, fanfare: 0.9, levelup: 0.9 };
 const UI_SOUNDS = new Set(["xp", "unlock", "error", "notify", "coin", "click", "select", "tab", "open", "close", "toast", "equip", "loot", "quest", "cursor", "tell", "pchat", "target", "page", "buy"]);
 const MUSIC_FOR = { town: "music_outpost", house: "music_residence", field: "music_hollow", cave: "music_den", crypt: "music_crypt" };
+const MUSIC_MOOD = {
+  music_outpost: { night: "music_outpost_night", rain: "music_outpost_rain", storm: "music_outpost_rain", snow: "music_outpost_snow", blizzard: "music_outpost_snow" },
+  music_hollow: { night: "music_hollow_night", rain: "music_hollow_rain", storm: "music_hollow_storm", snow: "music_hollow_snow", blizzard: "music_hollow_snow", fog: "music_hollow_fog" },
+  music_residence: { night: "music_residence_night", rain: "music_residence_rain", storm: "music_residence_rain" }
+};
+function areaMusic(theme) {
+  const base = MUSIC_FOR[theme], tbl = base && MUSIC_MOOD[base];
+  if (!tbl) return base || null;
+  const wx = typeof weatherNow === "function" ? weatherNow() : null;
+  return (wx && tbl[wx]) || (isNight() && tbl.night) || base;
+}
 
 function loadAudioSettings() {
   try { return Object.assign({}, AUDIO_DEFAULTS, JSON.parse(localStorage.getItem("ashenreach_audio_v1") || "{}")); } catch (e) { return Object.assign({}, AUDIO_DEFAULTS); }
@@ -123,11 +134,33 @@ function sfxGainFor(name, e) {
   return { v, pan };
 }
 
-function victoryDef() {
+function victoryDef(v) {
   const d = [], B = 0.12;
   const N = { C3: 130.8, C4: 261.6, D4: 293.7, E4: 329.6, F4: 349.2, G4: 392, A4: 440, B4: 493.9, C5: 523.3, D5: 587.3, E5: 659.3, F5: 698.5, G5: 784, A5: 880, B5: 987.8, C6: 1046.5 };
   const lead = (f, at, dur, g) => { d.push(["brass", f, f, at, dur, g, 2800]); d.push(["brass", f * 2, f * 2, at, dur, g * 0.35, 3600]); d.push(["sine", f, f, at, dur * 0.9, g * 0.5]); };
   const chord = (fs, at, dur, g) => { for (const f of fs) d.push(["brass", f, f, at, dur, g, 1800]); };
+  if (v === 2) {
+    N.D5 = 587.3; N.Fs5 = 740; N.Fs4 = 370; N.D6 = 1174.7; N.E6 = 1318.5; N.A3 = 220; N.D3 = 146.8;
+    lead(N.D5, 0, 0.14, 0.2); lead(N.Fs5, 0.14, 0.14, 0.2); lead(N.A5, 0.28, 0.14, 0.22); lead(N.D6, 0.42, 0.5, 0.28);
+    chord([N.D4, N.Fs4, N.A4], 0.42, 0.5, 0.07); d.push(["brass", N.D3, N.D3, 0.42, 0.5, 0.12, 700]);
+    lead(N.E5, 1.0, 0.14, 0.2); lead(N.G5, 1.14, 0.14, 0.2); lead(N.B5, 1.28, 0.14, 0.22); lead(N.E6, 1.42, 0.5, 0.28);
+    chord([N.E4, N.G4, N.B4], 1.42, 0.5, 0.07); d.push(["brass", N.A3, N.A3, 1.42, 0.5, 0.12, 700]);
+    lead(N.A5, 2.0, 0.2, 0.22); lead(N.D6, 2.2, 0.2, 0.24); lead(N.Fs5 * 2, 2.4, 1.6, 0.3);
+    chord([N.D4, N.Fs4, N.A4, N.D5], 2.0, 1.9, 0.08); d.push(["brass", N.D3, N.D3, 2.0, 1.9, 0.14, 700]);
+    d.push(["bell", N.D6 * 2, N.D6 * 2, 2.45, 1.3, 0.1]);
+    return d;
+  }
+  if (v === 3) {
+    N.Bb4 = 466.2; N.Bb5 = 932.3; N.G3 = 196; N.D6 = 1174.7; N.Eb5 = 622.3;
+    lead(N.G5, 0, 0.3, 0.24); lead(N.G5, 0.3, 0.14, 0.2); lead(N.Bb5, 0.44, 0.5, 0.27);
+    chord([N.G4, N.Bb4, N.D5], 0, 0.95, 0.07); d.push(["brass", N.G3, N.G3, 0, 0.95, 0.12, 700]);
+    lead(N.A5, 1.0, 0.3, 0.24); lead(N.A5, 1.3, 0.14, 0.2); lead(N.C6, 1.44, 0.5, 0.27);
+    chord([N.F4, N.A4, N.C5], 1.0, 0.95, 0.07); d.push(["brass", N.C3, N.C3, 1.0, 0.95, 0.12, 700]);
+    lead(N.G5, 2.0, 0.14, 0.22); lead(N.Bb5, 2.14, 0.14, 0.22); lead(N.D6, 2.28, 0.14, 0.24);
+    lead(N.G5 * 2, 2.42, 1.6, 0.3); chord([N.G4, N.Bb4, N.D5, N.G4 * 2], 2.0, 2.0, 0.08); d.push(["brass", N.G3, N.G3, 2.0, 2.0, 0.14, 700]);
+    d.push(["bell", N.G5 * 4, N.G5 * 4, 2.45, 1.3, 0.1]);
+    return d;
+  }
   lead(N.E5, 0, B, 0.2); lead(N.E5, B, B, 0.2); lead(N.E5, B * 2, B, 0.2); lead(N.G5, B * 3, 0.62, 0.26);
   chord([N.C4, N.E4, N.G4], B * 3, 0.62, 0.07); d.push(["brass", N.C3, N.C3, B * 3, 0.62, 0.12, 700]);
   lead(N.F5, 0.98, B, 0.2); lead(N.F5, 0.98 + B, B, 0.2); lead(N.F5, 0.98 + B * 2, B, 0.2); lead(N.A5, 0.98 + B * 3, 0.62, 0.26);
@@ -139,7 +172,9 @@ function victoryDef() {
   return d;
 }
 const UI_SYNTH = {
-  victory: victoryDef(),
+  victory: victoryDef(1),
+  victory2: victoryDef(2),
+  victory3: victoryDef(3),
   cursor: [["sine", 2350, 2250, 0, 0.032, 0.32], ["square", 1175, 1175, 0, 0.018, 0.05]],
   tab: [["sine", 1975, 1865, 0, 0.04, 0.28], ["noise", 4200, 0, 0, 0.012, 0.1]],
   select: [["sine", 1568, 1568, 0, 0.16, 0.34], ["sine", 2349, 2349, 0.018, 0.2, 0.26], ["sine", 3136, 3136, 0.03, 0.12, 0.08]],
@@ -267,8 +302,10 @@ function sfx(name, e, o) {
   AUDIO.lastAt[file] = now;
   const { v, pan } = sfxGainFor(name, e);
   if (v <= 0.01) return;
+  const win = name === "victory" || name === "victory2" || name === "victory3";
+  if (win) { AUDIO.victoryUntil = now + 4200; AUDIO.combatUntil = 0; AUDIO.boss = false; AUDIO.tier = 0; updateAudio(); }
+  else if (name === "levelup" || name === "fanfare") duckMusic(name === "fanfare" ? 4.2 : 2.4);
   if ((UI_SYNTH[name] || WORLD_SYNTH[name]) && !AUDIO.fallback && AUDIO.ctx && uiSynth(name, v * ((o && o.vol) || 1), Object.assign({ pan }, o || {}, o && o.mul ? { mul: o.mul * (0.96 + Math.random() * 0.08) } : name.startsWith("step_") || name.startsWith("swing_") ? { mul: 0.92 + Math.random() * 0.16 } : {}))) return;
-  if (name === "levelup" || name === "fanfare" || name === "victory") duckMusic(name === "fanfare" || name === "victory" ? 4.2 : 2.4);
   if (AUDIO.fallback) { playHtml(file, v); return; }
   const buf = AUDIO.buffers[file];
   if (!buf) { decodeClip(file); return; }
@@ -373,18 +410,19 @@ function fadeHtml(el, to, ms, done) {
 function desiredMusic() {
   if (!S.zone) return null;
   const theme = S.zone.theme;
-  let fight = false, boss = false;
+  let fight = false, boss = false, tier = 0;
+  const tierOf = m => { const c = conOf(m)[0]; return c === "Too Weak" || c === "Easy Prey" ? 1 : c === "Decent Challenge" || c === "Even Match" ? 2 : c === "Tough" || c === "Very Tough" ? 3 : 4; };
   for (const m of S.mobs) {
     if (!m.alive || m.state !== "combat") continue;
-    if ([...m.enmity.keys()].some(isParty)) { fight = true; if (m.fam.nm || m.fam.boss) boss = true; }
+    if ([...m.enmity.keys()].some(isParty)) { fight = true; tier = Math.max(tier, tierOf(m)); if (m.fam.nm || m.fam.boss) boss = true; }
   }
-  if (player && player.engaged && player.attackTarget && player.attackTarget.alive) fight = true;
+  if (player && player.engaged && player.attackTarget && player.attackTarget.alive) { fight = true; tier = Math.max(tier, tierOf(player.attackTarget)); }
   const now = performance.now();
-  if (fight) { AUDIO.combatUntil = now + 4000; AUDIO.boss = boss || (AUDIO.boss && now < AUDIO.combatUntil); }
-  if (now < AUDIO.combatUntil && !S.zone.safe) return AUDIO.boss ? "music_boss" : "music_battle";
-  AUDIO.boss = false;
-  if (theme === "field" && isNight()) return "music_hollow_night";
-  return MUSIC_FOR[theme] || null;
+  if (AUDIO.victoryUntil && now < AUDIO.victoryUntil) return null;
+  if (fight) { AUDIO.combatUntil = now + 4000; AUDIO.boss = boss || (AUDIO.boss && now < AUDIO.combatUntil); AUDIO.tier = Math.max(now < (AUDIO.tierUntil || 0) ? AUDIO.tier || 0 : 0, tier); AUDIO.tierUntil = now + 4000; }
+  if (now < AUDIO.combatUntil && !S.zone.safe) return AUDIO.boss ? "music_boss" : ["music_battle_easy", "music_battle", "music_battle_tough", "music_battle_deadly"][Math.max(1, AUDIO.tier || 2) - 1];
+  AUDIO.boss = false; AUDIO.tier = 0;
+  return areaMusic(theme);
 }
 
 function desiredAmb() {
@@ -453,7 +491,7 @@ function updateAudio() {
   const cur = AUDIO.music && AUDIO.music.name;
   if (m !== cur) {
     const toBattle = m && (m.includes("battle") || m.includes("boss"));
-    startLoop("music", m, AUDIO.bus.duck, toBattle ? 0.6 : 2.0);
+    startLoop("music", m, AUDIO.bus.duck, toBattle ? 0.6 : AUDIO.victoryUntil && performance.now() < AUDIO.victoryUntil ? 0.15 : 2.0);
   }
   if (a !== (AUDIO.amb && AUDIO.amb.name)) startLoop("amb", a, AUDIO.bus.amb, 2.5);
 }

@@ -344,6 +344,63 @@ def battle():
     return T.render(1.6, 0.18)
 
 
+def fight(bpm, prog, ost, style, seed):
+    import random
+    rng = random.Random(seed)
+    beat = 60 / bpm
+    bar = 4 * beat
+    T = Track(len(prog) * bar)
+    rhythms = style["rhythms"]
+    for b, (root, kind) in enumerate(prog):
+        t0 = b * bar
+        ch = chord_notes(root, kind, 2)
+        for i, o in enumerate(ost):
+            T.add(t0 + i * beat / 2, bass(hz(ch[0] + o), beat * 0.45), style["bass"])
+        for i in range(4):
+            if style["kick"] == "four" or i % 2 == 0:
+                T.add(t0 + i * beat, kick(), 0.5 if i % 2 == 0 else 0.3)
+            if i % 2 == 1:
+                T.add(t0 + i * beat, snare(), style["snare"])
+        for i in range(style["hats"]):
+            T.add(t0 + i * 4 * beat / style["hats"], hat(), 0.1)
+        if style["taiko"]:
+            T.add(t0, taiko(0.9), 0.35)
+            T.add(t0 + 2.5 * beat, taiko(0.6), 0.22)
+        for nt in ch:
+            T.add(t0, brass(hz(nt + 12), beat * 0.6, 1.0), style["pad"])
+            T.add(t0 + 2.5 * beat, brass(hz(nt + 12), beat * 0.5, 0.9), style["pad"] * 0.7)
+        for i in range(16):
+            nt = ch[i % len(ch)] + 24
+            T.add(t0 + i * beat / 4, strings(hz(nt), beat * 0.22, 0.005, style["cut"]), 0.025)
+        rh = rhythms[b % len(rhythms)]
+        tt = t0
+        tones = [n + 12 * k for n in ch for k in (2, 3)]
+        last = tones[len(tones) // 2]
+        for ln in rh:
+            nt = min(tones, key=lambda x: abs(x - last - rng.choice([-2, -1, 0, 1, 2, 3])))
+            last = nt
+            T.add(tt, brass(hz(nt), ln * beat * 0.92, 1.2), style["lead"])
+            tt += ln * beat
+    return T.render(1.6, 0.18)
+
+
+def battle_easy():
+    prog = [("G", "maj"), ("E", "min"), ("C", "maj"), ("D", "maj")] * 4
+    return fight(126, prog, [0, 0, 12, 0, 7, 0, 12, 7], {"rhythms": [[1, 1, 1, 1], [2, 1, 1], [1, 0.5, 0.5, 2], [1.5, 0.5, 2]], "bass": 0.22, "kick": "two", "snare": 0.2, "hats": 8, "taiko": False, "pad": 0.05, "cut": 5000, "lead": 0.17}, 11)
+
+
+def battle_tough():
+    prog = [("D", "min"), ("D", "min"), ("Bb", "maj"), ("A", "maj"), ("D", "min"), ("D", "min"), ("G", "min"), ("A", "dom7"),
+            ("F", "maj"), ("C", "maj"), ("G", "min"), ("A", "maj"), ("D", "min"), ("Bb", "maj"), ("A", "sus"), ("A", "dom7")]
+    return fight(164, prog, [0, 0, 12, 0, 7, 0, 10, 12], {"rhythms": [[1, 0.5, 0.5, 1, 1], [0.5, 0.5, 1, 2], [1, 1, 0.5, 0.5, 1], [2, 1, 1]], "bass": 0.32, "kick": "four", "snare": 0.34, "hats": 16, "taiko": False, "pad": 0.08, "cut": 3600, "lead": 0.21}, 23)
+
+
+def battle_deadly():
+    prog = [("F#", "min"), ("F#", "min"), ("D", "maj"), ("C", "maj"), ("F#", "min"), ("F#", "min"), ("E", "maj"), ("C", "dom7"),
+            ("B", "min"), ("D", "maj"), ("A", "maj"), ("C", "maj"), ("B", "min"), ("G", "maj"), ("C", "sus"), ("C", "dom7")]
+    return fight(178, prog, [0, 12, 0, 13, 0, 12, 7, 6], {"rhythms": [[0.5, 0.5, 0.5, 0.5, 1, 1], [1, 1, 0.5, 0.5, 1], [0.5, 0.5, 1, 0.5, 0.5, 1], [1.5, 0.5, 2]], "bass": 0.36, "kick": "four", "snare": 0.4, "hats": 16, "taiko": True, "pad": 0.09, "cut": 3000, "lead": 0.22}, 37)
+
+
 def fanfare():
     beat = 60 / 120
     T = Track(4.0)
@@ -909,6 +966,72 @@ def sfx_jump():
     return norm(y, 0.45)
 
 
+def retime(y, factor):
+    n = int(len(y) / factor)
+    return np.interp(np.arange(n) * factor, np.arange(len(y)), y)
+
+
+def circ(y, fn):
+    z = fn(np.tile(y, 3))
+    return z[len(y):2 * len(y)]
+
+
+def finish(y):
+    y = np.tanh(y / (np.max(np.abs(y)) + 1e-9) * 1.3) * 0.9
+    return y
+
+
+def mood(base, kind):
+    import random
+    rng = random.Random(sum(ord(c) for c in kind))
+    y = base()
+    if kind == "night":
+        y = retime(y, 0.86)
+        y = circ(y, lambda z: reverb(lp(z, 2400), 3.2, 0.38, 2200)[:len(z)])
+    elif kind == "rain":
+        y = retime(y, 0.93)
+        y = circ(y, lambda z: reverb(lp(z, 1500), 2.8, 0.34, 1800)[:len(z)])
+        t = t_arr(len(y) / SR)
+        y = y + bp(noise(len(y)), 2500, 7000) * 0.05
+    elif kind == "storm":
+        y = retime(y, 1.1)
+        y = circ(y, lambda z: lp(z, 2200))
+        n = len(y) / SR
+        T = Track(n)
+        beat = 60 / 132
+        for i in range(int(n / beat)):
+            T.add(i * beat, taiko(0.8), 0.32 if i % 4 == 0 else 0.16)
+        drone = np.zeros(len(y))
+        t = np.arange(len(y)) / SR
+        drone = (np.sin(2 * np.pi * 55 * t) + 0.5 * np.sin(2 * np.pi * 58 * t) + 0.3 * np.sin(2 * np.pi * 110 * t)) * 0.12
+        y = y * 0.7 + T.buf[:len(y)] * 0.6 + drone + bp(noise(len(y)), 400, 3000) * 0.06
+    elif kind == "snow":
+        y = retime(y, 0.9)
+        y = circ(y, lambda z: reverb(lp(z, 3500), 3.5, 0.4, 3000)[:len(z)])
+        T = Track(len(y) / SR)
+        scale = ["E6", "G6", "A6", "B6", "D7", "E7"]
+        for i in range(int(len(y) / SR / 0.9)):
+            if rng.random() < 0.55:
+                T.add(i * 0.9 + rng.random() * 0.3, bell(hz(rng.choice(scale)), 1.6, 3.5, 1.5), 0.05)
+        y = y * 0.9 + T.buf[:len(y)]
+    elif kind == "fog":
+        y = retime(y, 0.8)
+        y = circ(y, lambda z: reverb(lp(z, 1100), 4.0, 0.5, 1500)[:len(z)])
+        y = y * 0.8
+    return finish(y)
+
+
+def outpost_night(): return mood(outpost, "night")
+def outpost_rain(): return mood(outpost, "rain")
+def outpost_snow(): return mood(outpost, "snow")
+def hollow_rain(): return mood(hollow, "rain")
+def hollow_storm(): return mood(hollow, "storm")
+def hollow_snow(): return mood(hollow, "snow")
+def hollow_fog(): return mood(hollow, "fog")
+def residence_night(): return mood(residence, "night")
+def residence_rain(): return mood(residence, "rain")
+
+
 SFX = {
     "hit_slash": sfx_hit_slash, "hit_blunt": sfx_hit_blunt, "hit_crit": sfx_hit_crit, "miss": sfx_miss,
     "ws": sfx_ws, "skillchain": sfx_skillchain, "magic_burst": sfx_magic_burst, "cast": sfx_cast, "cure": sfx_cure,
@@ -919,7 +1042,7 @@ SFX = {
     "whistle": sfx_whistle, "hoof": sfx_hoof, "levelup": sfx_levelup, "quest": sfx_quest, "loot": sfx_loot, "equip": sfx_equip, "jump": sfx_jump,
 }
 
-MUSIC = {"outpost": outpost, "hollow": hollow, "den": den, "battle": battle, "hollow_night": hollow_night, "boss": boss, "crypt": crypt, "residence": residence}
+MUSIC = {"outpost": outpost, "hollow": hollow, "den": den, "battle": battle, "battle_easy": battle_easy, "battle_tough": battle_tough, "battle_deadly": battle_deadly, "hollow_night": hollow_night, "boss": boss, "crypt": crypt, "residence": residence, "outpost_night": outpost_night, "outpost_rain": outpost_rain, "outpost_snow": outpost_snow, "hollow_rain": hollow_rain, "hollow_storm": hollow_storm, "hollow_snow": hollow_snow, "hollow_fog": hollow_fog, "residence_night": residence_night, "residence_rain": residence_rain}
 
 AMB = {"day": amb_day, "night": amb_night, "cave": amb_cave}
 
