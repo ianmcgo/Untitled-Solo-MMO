@@ -1144,6 +1144,7 @@ function dbBeasts() {
       const ag = f.aggro ? Object.keys(f.aggro).map(x => ({ sight: "hunts by sight", sound: "hears footsteps", magic: "senses magic", lowhp: "smells weakness" }[x])).join(", ") : "peaceful unless provoked";
       body += '<div class="sub">Behaviour: ' + ag + (f.link ? " · calls for help" : "") + (f.tpMove ? " · special: " + esc(f.tpMove.name) : "") + "</div>";
     } else body += '<div class="sub">Defeat one to learn its habits.</div>';
+    body += '<div class="sub">' + esc(temperLine(f, b)) + "</div>";
     const need = f.nm ? 1 : 5;
     if (b.kills >= need) {
       const weak = Object.keys(f.weak || {});
@@ -1728,6 +1729,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.9.0", date: "2026-10-20", title: "Reading the room", items: [
+    "<b>Hate bar.</b> Target a monster that is fighting and the target frame shows who it is on and a bar for your share of the top hate. Red: it is on you (below full means someone is about to take it). Gold: it is on someone else and the bar is how close you are to pulling it.",
+    "<b>Swap alert.</b> When a monster turns on someone new, a ! flashes over it with a ring and the log says who it turned on. A red ‼ means it just turned on you.",
+    "<b>Temper.</b> Inspect and the Database now tell you what a family resents most and what it shrugs off, once you have defeated five of them (one for a notorious monster). Before that they tell you how many more to fight.",
+    "<b>Help</b> explains how to read the hate bar, the swap alert and tempers."
+  ] },
   { v: "19.8.0", date: "2026-10-20", title: "Hate that remembers", items: [
     "<b>Two kinds of hate.</b> Every monster now keeps two scores for each of you: a lasting grudge that builds with every hit, spell and cure and fades slowly, and a hot flash of anger that fades within about a minute. The monster attacks whoever has the highest total.",
     "<b>Criticals sting.</b> A critical hit draws half again as much hate as a normal hit of the same size. Notorious monsters and bosses are too proud to care about criticals.",
@@ -3704,6 +3711,9 @@ function tabHelp() {
     "<b>Criticals</b> draw 1.5x the hate of a normal hit of the same size. Notorious monsters ignore that bonus.",
     "<b>Family tastes:</b> skeletons, orcs and lizards resent steel; worms, bats, crabs, treants, Reefkin and mandrakes resent spells; Crag Talons, bees and hares resent job abilities; Crag Talons, ghouls, mandrakes and longnecks resent healers. A resented action is worth up to 40% more hate, a tolerated one 10–20% less.",
     "<b>Why a monster turns:</b> it switches to someone new only when they lead the current target by 10% or more, and then holds the new target for a second before it will change again. Provoke (600, half of it hot) grabs a monster at once; Flash (Paladin 7) and Sentinel keep it; Smoke Step and High Jump halve what a monster holds against you.",
+    "<b>Reading hate:</b> while a monster you target is fighting, the target frame shows who it is on (\"On you\" or a companion's name) and a hate bar: your hate as a share of whoever holds the most. Red means it is on you; gold means it is on someone else. A red bar below full means someone is close to pulling it off you; a gold bar near full means you are about to pull it.",
+    "<b>Swap alert:</b> when a monster turns on someone new a ! flashes over it with a ring and the log says who it turned on. A double ‼ in red means it turned on you; shed hate, or get ready to take hits.",
+    "<b>Temper:</b> Inspect and the Database tell you what a family resents most and shrugs off once you have defeated five of them (one for a notorious monster). Until then they say how many more to fight.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Learning spells:</b> read a scroll from your Items. It works only if your main job is at the spell's level, or your support job is (support jobs count at half your main level). The log tells you which job and level the scroll needs.",
     "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",

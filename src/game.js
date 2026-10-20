@@ -3880,7 +3880,7 @@ function updateMob(m, dt) {
       m.claim = null;
       return;
     }
-    if (m.target && m.target !== t && m.target.alive) { m.swapAt = S.time; m.swapFrom = m.target; }
+    if (m.target && m.target !== t && m.target.alive) hateSwap(m, m.target, t);
     m.target = t;
     if (m.buffs.sleep || m.buffs.stun) { m.readying = null; if (m.casting) m.casting = null; return; }
     bossPhases(m, t);
@@ -4411,6 +4411,33 @@ function healerSupport(a, acts, tgt) {
     if (p && opts.some(x => allyTry(a, x, p))) return true;
   }
   return false;
+}
+
+const HATE_WORDS = { phys: "steel", magic: "spells", ability: "job abilities", heal: "healers", crit: "critical hits" };
+function hateTemper(f) {
+  const m = { fam: f };
+  const v = {}; for (const k of HATE_KINDS) v[k] = hateBias(m, k);
+  const hi = HATE_KINDS.filter(k => v[k] > 1).sort((a, b) => v[b] - v[a]);
+  const lo = HATE_KINDS.filter(k => v[k] < 1).sort((a, b) => v[a] - v[b]);
+  if (!hi.length && !lo.length) return "No particular grudge; it fights whoever hurts it most.";
+  let s = hi.length ? "Resents " + HATE_WORDS[hi[0]] + (hi[1] ? " and " + HATE_WORDS[hi[1]] : "") + " most" : "";
+  if (lo.length) s += (s ? "; " : "") + "shrugs off " + HATE_WORDS[lo[0]];
+  return s + ".";
+}
+function temperLine(f, b) {
+  const need = f.nm ? 1 : 5, kills = b ? b.kills || 0 : 0;
+  return kills >= need ? "Temper: " + hateTemper(f) : "Fight it more to learn its temper (" + (need - kills) + " more).";
+}
+
+function hateSwap(m, from, to) {
+  m.swapAt = S.time; m.swapFrom = from;
+  if (m.proxy || !to) return;
+  const me = to === player, inParty = isParty(to);
+  if (!inParty && !me) return;
+  if (me) log(m.name + " turns on you!", "foe");
+  else if (!(S.time - (m.swapLog || -9) < 2)) { m.swapLog = S.time; log(m.name + " turns on " + to.name + "!", "sys"); }
+  popText(m, me ? "‼" : "!", me ? "#ff5a48" : "#ffd84a", me ? 28 : 22, 0.8, 8);
+  ring(m, me ? "#ff5a48" : "#ffd84a", 26, 0.8);
 }
 
 function hateLead(m, a) {

@@ -46,7 +46,7 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 - Companion tank AI and healer AI read the same numbers; proxies in shared zones keep sending amounts to the host.
 - Tests: new unit test for each bias, crit bonus, decay and switching.
 
-### H2: Hate readability
+### H2: Hate readability (DONE in 19.9.0)
 - Target box shows who the monster is attacking and a small hate bar for you; monsters flash an alert icon when they swap target; Inspect and the Database tell you what a family dislikes most once you have fought it enough.
 - Help and Updates explain the system.
 

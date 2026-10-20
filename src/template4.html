@@ -111,6 +111,14 @@
   #tRow2 .bar { height: 5px; }
   #target.npc .bar, #target.npc #tRow2 { display: none; }
   #tInfo { font-size: 11px; color: var(--muted); margin-top: 4px; min-height: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #tHate { display: none; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+  #tHate .bar.hate { flex: 1; height: 5px; background: rgba(10,10,30,.7); border: 1px solid rgba(255,255,255,.18); border-radius: 3px; overflow: hidden; }
+  #tHate .bar.hate > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffb347, #ffd84a); transition: width .25s; }
+  #tHate.top .bar.hate > i { background: linear-gradient(90deg, #ff5a48, #ff8a70); }
+  #tHate.top #tHateT { color: #ff8a70; }
+  #tHateT { min-width: 34px; text-align: right; font-weight: 700; }
+  #ffSide #tHate { font: 700 10px var(--ffFont); color: #d8d8ff; margin-top: 2px; gap: 5px; }
+  #ffSide #tHate .bar.hate { height: 4px; }
   #tWarn { display: none; margin-top: 4px; font-weight: 800; color: #ffb199; text-shadow: 0 0 6px #ff4d1a; animation: pulse .5s ease-in-out infinite alternate; }
   #tChain { margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; }
   #mBody .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 10px; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.12); }
@@ -1193,6 +1201,7 @@
       <div class="tn"><span id="tName"></span><span id="tTag">NOTORIOUS</span><span id="tLv"></span><span id="tToT"></span></div>
       <div class="bar hp"><i class="ghost" id="tHpG"></i><i id="tHp"></i><b id="tHpT"></b></div>
       <div id="tRow2"><div class="bar tp"><i id="tTp"></i></div><div class="bar cast"><i id="tSwing"></i></div></div>
+      <div id="tHate"><span id="tHateWho"></span><div class="bar hate"><i id="tHateI"></i></div><span id="tHateT"></span></div>
       <div id="tWarn"></div>
       <div id="tInfo"></div>
       <div id="tChain"></div>

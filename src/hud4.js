@@ -445,6 +445,7 @@ function updateTarget() {
   if (!t || !(isMob(t) || isParty(t) || t.kind === "npc" || t.kind === "remote") || (isMob(t) && t.despawned)) { if (box.style.display !== "none") box.style.display = "none"; UI.ghostTarget = null; return; }
   if (box.style.display !== "block") box.style.display = "block";
   box.classList.remove("npc");
+  if (!isMob(t) && $("tHate")) $("tHate").style.display = "none";
   let pct = 0;
   if (t !== UI.ghostTarget) { UI.ghostTarget = t; UI.hpGhost = isMob(t) || isParty(t) || t.kind === "remote" ? t.hp / t.maxHp : 0; }
   if (isMob(t)) {
@@ -459,6 +460,19 @@ function updateTarget() {
     setW($("tTp"), 100 * t.tp / CONFIG.tpMax);
     setW($("tSwing"), t.state === "combat" && t.alive ? 100 * clamp(1 - t.swingTimer / t.delay, 0, 1) : 0);
     setTxt($("tToT"), t.target && t.alive && t.state === "combat" ? "→ " + (t.target === player ? "You" : t.target.name || "") : "");
+    const hr = $("tHate");
+    if (hr) {
+      const top = t.alive && t.state === "combat" && t.enmity && t.enmity.size ? topEnmity(t) : null;
+      if (top) {
+        const best = hateOf(t, top), mine = hateOf(t, player), holder = t.target && t.target.alive ? t.target : top;
+        const share = best > 0 ? clamp(100 * mine / best, 0, 100) : 0;
+        hr.style.display = "flex";
+        hr.classList.toggle("top", holder === player);
+        setTxt($("tHateWho"), holder === player ? "On you" : "On " + (holder.name || "?"));
+        setW($("tHateI"), share);
+        setTxt($("tHateT"), mine > 0 ? Math.round(share) + "%" : "—");
+      } else hr.style.display = "none";
+    }
     const w = $("tWarn");
     if (t.readying && t.alive) { w.style.display = "block"; setTxt(w, "⚠ Readying " + mobMoveName(t) + "!"); } else w.style.display = "none";
     let info = !t.alive ? "Defeated" : t.state === "combat" ? "In combat" : t.state === "return" ? "Returning" : "Idle";
@@ -803,7 +817,9 @@ function inspectText(t) {
   const tough = { "Too Weak": "It seems too weak to be worthwhile.", "Easy Prey": "It seems like easy prey.", "Decent Challenge": "It seems like a decent challenge.", "Even Match": "It seems like an even match.", "Tough": "It looks tough.", "Very Tough": "It looks very tough.", "Incredibly Tough": "It looks incredibly tough." }[c] || "It is hard to judge.";
   const mood = t.passive || !t.fam.aggro ? "It looks peaceful unless provoked." : "It looks hostile.";
   const jb = t.job && JOBS[t.job] && !t.petOf ? " It fights like a " + JOBS[t.job].name + "." : "";
-  return tough + " " + mood + jb + (t.fam.nm ? " It is a notorious monster!" : "");
+  const tb = save.bestiary && beastKey(t) ? save.bestiary[beastKey(t)] : null;
+  const tm = t.petOf ? "" : " " + temperLine(t.fam, tb);
+  return tough + " " + mood + jb + (t.fam.nm ? " It is a notorious monster!" : "") + tm;
 }
 
 function cmdHelpOf(a) {
