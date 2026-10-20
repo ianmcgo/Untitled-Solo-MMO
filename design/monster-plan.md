@@ -29,7 +29,7 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 - Reuse `humanLegIK` for humanoid monsters; add hip sway, counter-swinging arms, a settle step when they stop.
 - Idle variety, aggro alert pose, a lunge on attack and a recoil on hit, scaled by monster size.
 
-### M3: Four-legged animals
+### M3: Four-legged animals (DONE in 19.6.0)
 - Shaped legs (shoulder and haunch masses, carpus and hock, tapered shins, hooves or paws) for sheep, lizards, longnecks, deer, dogs and cats.
 - Tune `QUAD_GAITS` per animal; lizard sprawl gets a body wave; check slopes with the grounding probe.
 

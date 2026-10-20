@@ -1728,6 +1728,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.6.0", date: "2026-10-20", title: "Beasts on four feet", items: [
+    "<b>Sheep, rams and longnecks have real legs:</b> a haunch and shoulder mass, a knee, a tapered shin and a hoof, in place of the stick legs. Sheep also got a bigger head.",
+    "<b>Four-legged feet stay planted.</b> Walks, trots and gallops now move each foot with the ground; the hooves no longer skate.",
+    "<b>Lizards no longer sink.</b> Hill, bog, dune, frost, plains, magma and shore lizards and Pyreclaw keep their belly, legs and tail above ground when they rear, strike, flinch or are alerted, flex side to side as they sprawl along, and carry a ridge of spines down a tail that moves with the body."
+  ] },
   { v: "19.5.0", date: "2026-10-20", title: "Heavier orcs, rooted treants, real robes", items: [
     "<b>Orcs are built like orcs:</b> thick thighs and calves, heavy upper arms, a broad chest and shoulders set forward.",
     "<b>Treants stand like trees:</b> a short, thick trunk of a leg with splayed root feet, branch arms hanging low, and a slow sway while they wait.",
@@ -3683,6 +3688,7 @@ function tabHelp() {
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Learning spells:</b> read a scroll from your Items. It works only if your main job is at the spell's level, or your support job is (support jobs count at half your main level). The log tells you which job and level the scroll needs.",
     "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",
+    "<b>Four-legged beasts:</b> sheep, rams and longnecks have haunches, knees and hooves, and their feet stay planted as they walk, trot and gallop. Lizards keep their belly off the ground, flex their spine side to side as they sprawl along, and carry a ridged tail that follows the body.",
     "<b>Builds:</b> orcs are thick through the thigh and arm with a broad, forward-set chest; treants stand splay-footed on a stumpy trunk with their branch arms hanging low and sway as they stand; ghouls and the drowned are wasted and thin. Robes on casters hang as one garment that swings with the stride rather than flapping open.",
     "<b>Body language:</b> beastmen and undead pause on their rounds to look around, shift their weight, scratch or scuff a foot, so a monster standing still is not always asleep. When one stops running it takes a last step and settles before turning. Short-legged goblins scurry with quick steps and break into a crouched run when they chase you.",
     "<b>Reading a beastman:</b> each family has its own silhouette. Goblins stoop with pouches and packs, orcs are broad with spiked shoulders, Reefkin have fins, Crag Talons have feathered arms and tails, treants have branches and roots. A war banner on the back marks a boss.",

@@ -10,7 +10,7 @@ function animState(v) {
 
 function strideEff(v, spd, ik) {
   const run = runOf(v, spd), S = (v.stride || 1.7) * (1 + 0.9 * run), B = v.bones;
-  if (v.kind === "quad" && v.meta && v.meta.quad && v.meta.quad.leg) { const g = v.an && v.an.gait, Sq = Math.min(S * 1.6, v.meta.quad.leg * 0.7 * (v.scale || 1) / (g ? g.duty : 0.66)); return ik ? Sq : Math.max(Sq, S * 0.55); }
+  if (v.kind === "quad" && v.meta && v.meta.quad && v.meta.quad.leg) { const g = v.an && v.an.gait, q = v.meta.quad, reach = (q.Lt && q.Ls ? q.Lt + q.Ls : q.leg) * (q.digi ? 0.55 : q.sprawl ? 0.9 : 0.76) * (v.scale || 1); return Math.min(S * 1.6, reach / (g ? g.duty : 0.66)); }
   if (v.kind !== "human" || !B || !B.shinL || !B.footL) return S;
   const L = (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1), rel = Math.min(1, L / 0.86);
   const Sl = Math.min(S, (1.25 + 0.9 * run * (1 - rel)) * L / (0.62 - 0.28 * run));
@@ -57,9 +57,12 @@ function mobAlert(v, e, an, P) {
   const k = (S.time - (an.alertStart == null ? -9 : an.alertStart)) / 0.9;
   if (k < 0 || k > 1 || e.alive === false) return;
   const w = env(k, 0.2, 0.4), sh = Math.sin(S.time * 32) * 0.05 * w, B = v.bones;
-  if (B.body) addP(P, "body", -0.3 * w, sh, 0);
+  const spr = v.meta && v.meta.quad && v.meta.quad.sprawl, tl = spr ? 0.45 : 1;
+  if (B.body) addP(P, "body", -0.3 * w * tl, sh, 0);
   if (B.neck) addP(P, "neck", -0.4 * w, 0, 0);
-  if (B.legFL) { addP(P, "legFL", -0.7 * w, 0, 0); addP(P, "legFR", -0.7 * w, 0, 0); }
+  if (B.tail && B.body) { addP(P, "tail", 0.28 * w * tl, 0, 0); if (B.tail2) addP(P, "tail2", 0.1 * w * tl, 0, 0); }
+  if (spr) v.rootOff[1] += 0.05 * w;
+  if (B.legFL) { addP(P, "legFL", -0.7 * w * tl, 0, 0); addP(P, "legFR", -0.7 * w * tl, 0, 0); }
   if (B.armL && B.armR && !B.upArmL) { addP(P, "armL", -1.1 * w, 0, 0.5 * w); addP(P, "armR", -1.1 * w, 0, -0.5 * w); }
   if (B.wingL) { addP(P, "wingL", 0, 0, 0.8 * w); addP(P, "wingR", 0, 0, -0.8 * w); }
   if (B.t3) { addP(P, "t3", -0.6 * w, sh, 0); addP(P, "t4", -0.55 * w, -sh, 0); addP(P, "t5", -0.4 * w, sh, 0); }
@@ -1221,7 +1224,8 @@ function poseQuad(v, e, dt) {
   const s1 = Math.sin(an.ph), c1 = Math.cos(an.ph);
   const G = quadGait(v, an, dt);
   addP(P, "body", Math.sin(t * 1.6) * 0.02 + G.pitch, G.roll * 0.5, G.roll);
-  v.rootOff[1] = G.bob - ((v.meta.quad && v.meta.quad.leg) || 0.5) * 0.098 * (an.qikW == null ? 1 : an.qikW);
+  if (q.sprawl) { const yw = Math.sin(an.ph) * 0.05 * G.mv; addP(P, "body", 0, yw, 0); addP(P, "neck", 0, -yw * 1.6, 0); addP(P, "head", 0, -yw * 0.5, 0); addP(P, "tail", 0, -yw * 1.4, 0); addP(P, "tail2", 0, -yw * 1.2, 0); }
+  v.rootOff[1] = G.bob - (q.sprawl ? 0 : (q.leg || 0.5) * 0.06) * (an.qikW == null ? 1 : an.qikW);
   const graze = (1 - mv) * (Math.sin(t * 0.35) > 0.6 ? 1 : 0);
   addP(P, "neck", graze * 0.9 + Math.sin(t * 1.1) * 0.04, Math.sin(t * 0.5) * 0.25 * (1 - mv), 0);
   addP(P, "head", graze * 0.5 + Math.sin(t * 2.3) * 0.03, Math.sin(t * 0.7) * 0.2 * (1 - mv), 0);
@@ -1232,15 +1236,17 @@ function poseQuad(v, e, dt) {
   if (ak >= 0 && ak <= 1) {
     sharp = true;
     const cr = ak < 0.3 ? ease(ak / 0.3) : 0, lp = ak >= 0.3 && ak < 0.75 ? Math.sin((ak - 0.3) / 0.45 * Math.PI) : 0, bite = ak > 0.45 && ak < 0.8 ? env((ak - 0.45) / 0.35, 0.3, 0.5) : 0;
-    addP(P, "body", 0.12 * cr - 0.3 * lp, 0, 0); addP(P, "neck", 0.25 * cr - 0.5 * lp, 0, 0); addP(P, "head", 0.8 * bite, 0, 0);
+    const tl = q.sprawl ? 0.55 : 1, pk = 0.12 * cr - 0.3 * lp;
+    addP(P, "body", pk * tl, 0, 0); addP(P, "neck", 0.25 * cr - 0.5 * lp, 0, 0); addP(P, "head", 0.8 * bite, 0, 0);
+    addP(P, "tail", -pk * tl * 0.9, 0, 0); addP(P, "tail2", -pk * tl * 0.5, 0, 0);
     addP(P, "legFL", 0.3 * cr - 0.5 * lp, 0, 0); addP(P, "legFR", 0.3 * cr - 0.5 * lp, 0, 0);
-    v.rootOff[1] += -0.08 * cr + 0.3 * lp; v.rootOff[2] += 0.45 * (ak > 0.3 ? Math.min(1, (ak - 0.3) / 0.35) * (1 - ease((ak - 0.7) / 0.3)) : 0);
+    v.rootOff[1] += (q.sprawl ? 0.02 * cr : -0.08 * cr) + 0.3 * lp * tl + (q.sprawl ? 0.06 * lp : 0); v.rootOff[2] += 0.45 * tl * (ak > 0.3 ? Math.min(1, (ak - 0.3) / 0.35) * (1 - ease((ak - 0.7) / 0.3)) : 0);
   }
   mobAlert(v, e, an, P);
-  if (e.readying) { addP(P, "neck", -0.4, 0, 0); addP(P, "head", -0.3, Math.sin(t * 20) * 0.08, 0); addP(P, "legFL", -0.5, 0, 0); addP(P, "legFR", -0.5, 0, 0); v.rootOff[1] += 0.06; }
+  if (e.readying) { addP(P, "neck", -0.4, 0, 0); addP(P, "head", -0.3, Math.sin(t * 20) * 0.08, 0); addP(P, "legFL", -0.5, 0, 0); addP(P, "legFR", -0.5, 0, 0); if (q.sprawl) { addP(P, "body", -0.12, 0, 0); addP(P, "tail", 0.12, 0, 0); } v.rootOff[1] += 0.06; }
   const hk = (S.time - an.hitStart) / 0.3;
-  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.15 * w, 0, 0.2 * w); addP(P, "head", -0.3 * w, 0, 0); }
-  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = 1.5 * k; v.rootOff[1] = 0.12 * k; for (const n of ["legFL", "legFR", "legBL", "legBR"]) addP(P, n, 0, 0, 0.6 * k); }
+  if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8), tl = q.sprawl ? 0.5 : 1; addP(P, "body", -0.15 * w * tl, 0, 0.2 * w * tl); addP(P, "tail", 0.12 * w * tl, 0, -0.1 * w * tl); addP(P, "head", -0.3 * w, 0, 0); if (q.sprawl) v.rootOff[1] += 0.03 * w; }
+  if (an.dead != null) { const k = ease((S.time - an.dead) / 0.6); for (const n in P) { const p = P[n]; p[0] *= 1 - k; p[1] *= 1 - k; p[2] *= 1 - k; } v.rootRot[2] = (q.sprawl ? 0.9 : 1.5) * k; v.rootOff[1] = (q.sprawl ? 0.04 : 0.12) * k; for (const n of ["legFL", "legFR", "legBL", "legBR"]) addP(P, n, 0, 0, 0.6 * k); }
   applyPose(v, dt, sharp);
   an.qikW = (an.qikW == null ? 1 : an.qikW) + ((an.dead != null ? 0 : 1) - (an.qikW == null ? 1 : an.qikW)) * Math.min(1, dt * 8);
   an.qikF = (an.qikF == null ? 1 : an.qikF) + ((e.readying ? 0 : 1) - (an.qikF == null ? 1 : an.qikF)) * Math.min(1, dt * 8);
@@ -1249,14 +1255,14 @@ function poseQuad(v, e, dt) {
 
 const QUAD_GAITS = {
   walk: { duty: 0.66, off: { BL: 0, FL: 0.25, FR: 0.75, BR: 0.5 } },
-  sprawl: { duty: 0.8, off: { BL: 0, FL: 0.45, FR: 0.95, BR: 0.5 } },
+  sprawl: { duty: 0.7, off: { BL: 0, FL: 0.45, FR: 0.95, BR: 0.5 } },
   trot: { duty: 0.45, off: { BL: 0, FL: 0.5, FR: 0, BR: 0.5 } },
   gallop: { duty: 0.35, off: { BL: 0.13, FL: 0.37, FR: 0.63, BR: 0.87 } }
 };
 function quadGait(v, an, dt) {
   const q = v.meta.quad || {}, sc = v.scale || 1, L = (q.leg || 0.5) * sc;
   const Fr = an.spd * an.spd / (9.81 * Math.max(0.05, L));
-  const want = q.sprawl ? (Fr < 2.2 ? "sprawl" : "trot") : Fr < 0.45 ? "walk" : Fr < 2.4 ? "trot" : "gallop";
+  const want = q.sprawl ? (Fr < 6 ? "sprawl" : "trot") : Fr < 0.45 ? "walk" : Fr < 2.4 ? "trot" : "gallop";
   if (!an.gait) an.gait = { duty: QUAD_GAITS[want].duty, off: Object.assign({}, QUAD_GAITS[want].off) };
   const T = QUAD_GAITS[want], k = Math.min(1, dt / 0.3);
   an.gait.duty += (T.duty - an.gait.duty) * k;
@@ -1277,14 +1283,14 @@ function quadLegIK(v, an, G, w, wF) {
     if (!th || !sh) continue;
     const ww = w * (fore ? wF : 1);
     if (ww < 0.01) continue;
-    const Lt = sh.position.length(), Ls = (q.leg || 0.5) * 0.5;
-    const reach = (Lt + Ls) * 0.99, dRest = (Lt + Ls) * 0.9;
+    const Lt = q.Lt || sh.position.length(), Ls = q.Ls || (q.leg || 0.5) * 0.5;
+    const reach = (Lt + Ls) * 0.995, dRest = q.hipY != null ? q.hipY + v.rootOff[1] - 0.004 : (Lt + Ls) * 0.9;
     let p = (G.ph + G.off[n]) % 1; if (p < 0) p += 1;
-    const duty = G.duty, D = Math.min(strideLocal * duty, (Lt + Ls) * (q.digi ? 0.55 : 0.76)) * G.mv;
+    const duty = G.duty, D = strideLocal * duty * G.mv;
     let z, y = 0;
     if (p < duty) z = D / 2 - D * (p / duty);
     else { const u = (p - duty) / (1 - duty), e = u * u * (3 - 2 * u); z = -D / 2 + D * e; y = Math.sin(Math.PI * u) * (q.digi ? Math.min(0.2 * (Lt + Ls), 0.02 + D * 0.22) : Math.min(0.35 * (Lt + Ls), 0.04 + D * 0.3)) * G.mv; }
-    const depth = dRest - y;
+    const depth = Math.max(Math.abs(Lt - Ls) + 0.01, dRest - y);
     const r = clamp(Math.hypot(z, depth), Math.abs(Lt - Ls) + 1e-3, reach);
     const a = Math.atan2(z, depth);
     const b = Math.acos(clamp((Lt * Lt + r * r - Ls * Ls) / (2 * Lt * r), -1, 1));

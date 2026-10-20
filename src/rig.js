@@ -442,6 +442,12 @@ class RigBuilder {
     }
     g.userData.rig.pre = true;
   }
+  lowestOnBone(name) {
+    const bi = this.byName[name] ? this.byName[name].index : -1;
+    let y = Infinity;
+    for (const g of this.pieces) { if (g.userData.rig.bone !== bi) continue; const p = g.attributes.position; for (let i = 0; i < p.count; i++) y = Math.min(y, p.getY(i)); }
+    return y === Infinity ? 0 : y;
+  }
   partPoints() {
     const by = this.defs.map(() => []);
     for (const g of this.pieces) {
@@ -2895,7 +2901,8 @@ function quadEntry(o) {
   else R.add(gBall(V3(0, B, 0), o.bodyR, 1, o.bodyH || 0.95, bl / o.bodyR * 0.5, 16), "body", col, reg);
   if (o.wool) for (let k = 0; k < 10; k++) { const a = k * 2.4; R.add(gBall(V3(Math.sin(a) * o.bodyR * 0.7, B + o.bodyR * 0.45 + (k % 2) * 0.05, Math.cos(a) * bl * 0.4), o.bodyR * 0.45, 1, 0.9, 1, 8), "body", light, "fur"); }
   if (SL) R.add(gBall(V3(0, B - rr * 0.5, 0), rr * 0.62, bw * 0.7, 0.55, bl / (rr * 0.62) * 0.4, 12), "body", light, reg); else R.add(gBall(V3(0, B - o.bodyR * 0.25, 0), o.bodyR * 0.85, 0.95, 0.7, bl / o.bodyR * 0.45, 12), "body", light, reg);
-  R.add(gTaper(V3(0, B + o.neckUp * 0.2, bl * 0.42), V3(0, B + o.neckUp, bl * 0.45 + o.neckFwd), o.neckR, o.neckR * 0.8, 8), "neck", col, reg);
+  R.add(gBall(V3(0, B + o.neckUp * 0.3, bl * 0.45), o.neckR * 1.08, 1, 1, 1, 8), "body", col, reg);
+  R.add(gTaper(V3(0, B + o.neckUp * 0.3, bl * 0.45 - o.neckR * 0.3), V3(0, B + o.neckUp, bl * 0.45 + o.neckFwd), o.neckR, o.neckR * 0.8, 8), "neck", col, reg);
   const hy = B + o.neckUp, hz = bl * 0.45 + o.neckFwd;
   animalHead(R, "head", { r: o.headR, y: hy, z: hz, snout: o.snout != null ? o.snout : 0.6, mw: o.mw, flat: o.flat, col, light, region: reg, eye: o.eye, eyeGlow: o.eyeGlow, mouthLine: o.mouthLine, nose: o.nose || (reg === "scale" ? dark : 0x2a1e1a), noseRegion: reg === "scale" ? "scale" : "skin" });
   for (const s of [-1, 1]) {
@@ -2922,24 +2929,36 @@ function quadEntry(o) {
         R.add(gBall(V3(s * hx * 1.02, B - L * 0.5, zz), lr * 0.78, 1, 1, 1, 7), "shin" + p + sd, col, reg);
         R.add(gBall(V3(s * hx * 1.02, 0.025, zz + 0.02), lr * 0.72, 1, 0.55, 1.35, 7), "shin" + p + sd, dark, o.hoof ? "bone" : reg);
       } else {
-      R.add(gTaper(V3(s * o.hip, B - 0.02, zz), V3(s * o.hip * 1.05, B - L * 0.5, zz), o.legR, o.legR * 0.8, 7), "leg" + p + sd, col, reg);
-      R.add(gTaper(V3(s * o.hip * 1.05, B - L * 0.5, zz), V3(s * o.hip * 1.05, 0.03, zz + 0.02), o.legR * 0.8, o.legR * 0.6, 7), "shin" + p + sd, col, reg);
-      R.add(gBall(V3(s * o.hip * 1.05, 0.03, zz + 0.03), o.legR * 0.95, 1.1, 0.5, 1.3, 7), "shin" + p + sd, dark, o.hoof ? "bone" : reg);
+      const lr = o.legR, back = p === "B", kx = s * o.hip * 1.05, ky = B - L * 0.5, lizard = reg === "scale", mass = o.legMass != null ? o.legMass : (lizard ? 0.55 : 0.62);
+      const haunch = V3(s * o.hip * 0.9, B - rr * (lizard ? 0.05 : 0.12), zz + (back ? -0.03 : 0.02));
+      R.addW(gBall(haunch, rr * mass * (back ? 1 : 0.84), lizard ? 1.15 : 0.72, lizard ? 0.75 : 1.0, lizard ? 0.9 : 0.9, 10), "leg" + p + sd, col, reg, (x, y) => { const k = smoothRange(B + rr * 0.3, B - rr * 0.5, y); return [["body", 1 - k * 0.6], ["leg" + p + sd, k * 0.6]]; });
+      const kneeZ = lizard ? zz + (back ? 0.02 : -0.02) : zz + (back ? 0.035 : -0.025);
+      R.add(gTaper(V3(s * o.hip, B - 0.02, zz), V3(kx, ky, kneeZ), lr * (back ? 1.7 : 1.45), lr * 0.85, 9), "leg" + p + sd, col, reg);
+      R.add(gBall(V3(kx, ky, kneeZ), lr * 0.9, 1, 1, 1, 8), "shin" + p + sd, col, reg);
+      R.add(gTaper(V3(kx, ky, kneeZ), V3(kx, 0.03 + lr * 0.3, zz + 0.01), lr * 0.82, lr * 0.58, 8), "shin" + p + sd, col, reg);
+      if (o.hoof) { R.add(gTaper(V3(kx, 0.03 + lr * 0.3, zz + 0.01), V3(kx, 0.02, zz + 0.025), lr * 0.6, lr * 0.78, 8), "shin" + p + sd, dark, "bone"); R.add(gBall(V3(kx, 0.018, zz + 0.03), lr * 0.84, 1.05, 0.42, 1.25, 8), "shin" + p + sd, dark, "bone"); }
+      else { R.add(gBall(V3(kx, 0.025, zz + 0.03), lr * 0.95, 1.15, 0.5, 1.4, 8), "shin" + p + sd, lizard ? col : dark, reg); if (lizard) for (const tx of [-1, 0, 1]) R.add(gTaper(V3(kx + tx * lr * 0.5, 0.025, zz + 0.03 + lr * 0.6), V3(kx + tx * lr * 0.85, 0.012, zz + 0.03 + lr * 1.5 - Math.abs(tx) * lr * 0.3), lr * 0.28, lr * 0.08, 5), "shin" + p + sd, col, reg); }
       }
     }
   }
   if (o.tailLen > 0) {
-    R.add(gTaper(V3(0, B, -bl * 0.5), V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), o.tailR, o.tailR * 0.7, 7), "tail", col, reg);
+    R.add(gBall(V3(0, B, -bl * 0.5 + o.tailR * 0.4), o.tailR * 1.05, 1, 1, 1, 8), "tail", col, reg);
+    R.add(gTaper(V3(0, B, -bl * 0.5 + o.tailR * 0.4), V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), o.tailR, o.tailR * 0.7, 7), "tail", col, reg);
+    R.add(gBall(V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), o.tailR * 0.72, 1, 1, 1, 7), "tail2", col, reg);
     R.add(gTaper(V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), V3(0, B - o.tailDrop, -bl * 0.5 - o.tailLen), o.tailR * 0.7, o.tailR * 0.2, 7), "tail2", col, reg);
   }
-  if (o.spines) for (let k = 0; k < o.spines; k++) R.add(gTaper(V3(0, B + o.bodyR * 0.85, bl * 0.35 - k * (bl * 0.7 / o.spines)), V3(0, B + o.bodyR * 0.85 + 0.12, bl * 0.35 - k * (bl * 0.7 / o.spines) - 0.04), 0.03, 0.004, 5), "body", dark, "bone");
+  if (o.spines) {
+    for (let k = 0; k < o.spines; k++) R.add(gTaper(V3(0, B + o.bodyR * 0.85, bl * 0.35 - k * (bl * 0.7 / o.spines)), V3(0, B + o.bodyR * 0.85 + 0.12, bl * 0.35 - k * (bl * 0.7 / o.spines) - 0.04), 0.03, 0.004, 5), "body", dark, "bone");
+    if (o.tailLen > 0) for (let k = 0; k < 4; k++) { const f = (k + 0.5) / 4, z = -bl * 0.5 - o.tailLen * f * 0.9, y = B - o.tailDrop * f + o.tailR * (1 - f * 0.6) * 0.85, h = 0.09 * (1 - f * 0.7); R.add(gTaper(V3(0, y, z), V3(0, y + h, z - h * 0.3), 0.024 * (1 - f * 0.5), 0.003, 5), f < 0.5 ? "tail" : "tail2", dark, "bone"); }
+  }
   R.meta = { kind: "quad", headTop: hy + o.headR * 1.4, quad: { stride: o.stride || 1.2, hop: !!o.hop, leg: L, bodyY: B, sprawl: o.region === "scale", digi: !!o.digi } };
+  R.meta.quad.hipY = B - 0.02; R.meta.quad.Lt = L * 0.5 - 0.02; R.meta.quad.Ls = B - L * 0.5 - R.lowestOnBone("shinFL");
   return R.finish();
 }
 
-function sheepEntry(col) { return quadEntry({ col, belly: 0xf4f0e6, bodyY: 0.55, bodyR: 0.3, bodyLen: 0.74, leg: 0.47, hip: 0.14, legR: 0.045, neckUp: 0.1, neckFwd: 0.18, neckR: 0.09, headR: 0.12, ears: 0.9, droop: true, snout: 0.75, mw: 0.8, hoof: true, wool: true, tailLen: 0.1, tailDrop: 0.05, tailR: 0.05, stride: 1.1 }); }
+function sheepEntry(col) { return quadEntry({ col, belly: 0xf4f0e6, bodyY: 0.55, bodyR: 0.3, bodyLen: 0.74, leg: 0.47, hip: 0.15, legR: 0.05, neckUp: 0.1, neckFwd: 0.2, neckR: 0.1, headR: 0.145, ears: 0.9, droop: true, snout: 0.75, mw: 0.8, hoof: true, wool: true, tailLen: 0.1, tailDrop: 0.05, tailR: 0.05, stride: 1.1 }); }
 function lizardEntry(col, belly) { return quadEntry({ col, belly, region: "scale", bodyY: 0.22, bodyR: 0.18, bodyLen: 0.7, leg: 0.2, hip: 0.22, legR: 0.045, neckUp: 0.04, neckFwd: 0.22, neckR: 0.1, headR: 0.12, snout: 0.9, mw: 1.1, flat: 0.62, mouthLine: true, eye: 0xffd54f, eyeGlow: true, tailLen: 0.7, tailDrop: 0.1, tailR: 0.1, spines: 5, stride: 0.9 }); }
-function longneckEntry(col) { return quadEntry({ col, bodyY: 1.3, bodyR: 0.45, bodyLen: 1.5, leg: 1.1, hip: 0.22, legR: 0.08, neckUp: 1.0, neckFwd: 0.5, neckR: 0.13, headR: 0.15, ears: 1.0, snout: 1.0, mw: 0.75, hoof: true, tailLen: 0.5, tailDrop: 0.3, tailR: 0.08, stride: 2.4 }); }
+function longneckEntry(col) { return quadEntry({ col, bodyY: 1.3, bodyR: 0.45, bodyLen: 1.5, leg: 1.1, hip: 0.24, legR: 0.095, legMass: 0.7, neckUp: 1.0, neckFwd: 0.5, neckR: 0.13, headR: 0.15, ears: 1.0, snout: 1.0, mw: 0.75, hoof: true, tailLen: 0.5, tailDrop: 0.3, tailR: 0.08, stride: 2.4 }); }
 
 function crabEntry(col, col2) {
   const R = new RigBuilder();
