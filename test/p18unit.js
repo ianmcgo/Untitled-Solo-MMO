@@ -22,9 +22,7 @@ const b2 = today[1]; G.takeBounty(b2.id); G.save.guild.active[b2.id] = b2.n; G.t
 ok(G.guildRank() === 1, 'crossing 100 points reaches Bronze');
 ok(G.guildToday().some(x => x.tier === 1), 'Bronze rank brings Bronze bounties');
 G.save.guild.gp = 1000;
-ok(G.guildBuy('leaping_boots') !== '' , 'Iron rewards are locked at Bronze');
-ok(G.guildBuy('desperado_ring') === '' && G.invCount('desperado_ring') === 1 && G.save.guild.gp === 940, 'the Guild Ring costs 60 points');
-ok(G.guildBuy('desperado_ring') !== '', 'only one Guild Ring');
+ok(G.GUILD_SHOP.length === 0, 'the fixed gear list is gone')
 G.save.guild.total = 3000;
 ok(G.guildRank() === 5 && G.guildToday().some(x => x.tier >= 4), 'Mythril rank sees the hardest hunts');
 G.save.guild.active = {}; const nm = G.GUILD_BOUNTIES.find(x => x.id === 'b_rimefang');

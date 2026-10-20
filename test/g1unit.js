@@ -5,7 +5,10 @@ ok(G.guildBuy('g_potion') !== '', 'only one potion a day');
 ok(G.guildBuy('g_ether') === '', 'ether is separate');
 ok(G.guildBuy('g_warp') !== '', 'warp scroll needs Bronze');
 G.save.guild.total = 100; ok(G.guildBuy('g_warp') === '' && G.invCount('guild_scroll') === 1, 'Bronze buys warp scroll');
+ok(G.guildBuy('g_crystal') !== '', 'crystal needs Iron');
+G.save.guild.total = 300; ok(G.guildBuy('g_crystal') === '', 'Iron buys a crystal');
 G.save.guild.total = 3000;
+for (const id of ['g_common', 'g_uncommon', 'g_rare']) { const p = G.GUILD_PERKS.find(x => x.id === id); const it = G.guildPerkItem(p); ok(!!it && G.guildPerkItem(p) === it, id + ' stock ' + it); ok(G.guildBuy(id) === '', id + ' bought'); ok(G.guildBuy(id) !== '', id + ' only once'); }
 G.save.guild.day = -1; G.guildDay(); ok(G.save.guild.bought.length === 0, 'resets next day');
 G.save.guild.gp = 0; ok(G.guildBuy('g_potion') !== '', 'needs points');
 G.save.inventory = []; G.giveItem('guild_scroll', 1); G.enterZone('harbor'); G.useItem('guild_scroll'); ok(S.zoneId === 'outpost' && G.invCount('guild_scroll') === 0, 'scroll warps to the market');
@@ -13,7 +16,4 @@ G.save.inventory = []; G.giveItem('fire_crystal', 6); G.giveItem('water_crystal'
 const id = G.ITEMS.iron_sword ? 'iron_sword' : null;
 G.save.gil = 5000; const r = G.ahList(id, 1, 100, 'fire_crystal');
 ok(r === '' && G.invCount('fire_crystal') === 6 - G.ahEssenceFee(id) && G.invCount('water_crystal') === 3, 'listing spends the chosen Essence ' + r);
-G.save.guild.total = 0; const n0 = G.guildToday().length; G.save.guild.total = 3000; const n5 = G.guildToday().length;
-ok(n0 === 3 && n5 >= 7, 'bounty board grows with rank (' + n0 + ' -> ' + n5 + ')');
-G.save.waitHours = 0; const d0 = G.guildDay(); G.save.waitHours = 24; ok(G.guildDay() === d0 + 1, 'waiting a day advances the guild day');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

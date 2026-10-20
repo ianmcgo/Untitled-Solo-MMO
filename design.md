@@ -2641,6 +2641,9 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - `guildDay()` = `boardDay()` + floor(`save.waitHours` / 24); `stopWait` adds the hours waited to `save.waitHours`. Only the guild board and guild daily supplies use it (market, caches and trade board stay on the real day).
 - `guildToday()`: the old three, then for each rank r in 1..rank one extra bounty of tier r (not already chosen).
 - Phone CSS (template4.html, end of the dock block): pager on top, 4 slot columns, `.ic` absolutely centred, target name ellipsised inside `#ffSide #target`.
-- GUILD_PERKS now only g_potion, g_ether, g_warp (random crystal/common/uncommon/rare perks and guildPool removed); GUILD_SHOP no longer duplicates Potion/Ether.
+- GUILD_SHOP (fixed gear: Guild Ring, boots, sigil, rings, harness) emptied and its section hidden; GUILD_PERKS (potion, ether, warp, random crystal/finds) unchanged.
 - Merc lot sales (town buys, or you buying one) no longer call townPayBox: proceeds vanish. Delivery Box talk text updated.
 - Backdrop `mark: "tree"` removed from hollow/marsh/verdant (it drew a giant gray floating tree silhouette on the horizon).
+
+## 19.13.3 Guild tidy-up
+- GUILD_SHOP emptied and its list section hidden; GUILD_PERKS (incl. random daily finds) restored after a wrong removal in 19.13.2.

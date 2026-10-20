@@ -2490,12 +2490,13 @@ const GUILD_BOUNTIES = [
 const GUILD_PERKS = [
   { id: "g_potion", item: "potion", gp: 4, rank: 0, label: "Daily supplies" },
   { id: "g_ether", item: "ether", gp: 8, rank: 0, label: "Daily supplies" },
-  { id: "g_warp", item: "guild_scroll", gp: 30, rank: 1, label: "Market return" }
+  { id: "g_warp", item: "guild_scroll", gp: 30, rank: 1, label: "Market return" },
+  { id: "g_crystal", pick: "crystal", gp: 90, rank: 2, label: "Crystal of the day" },
+  { id: "g_common", pick: "common", gp: 250, rank: 3, label: "Common find of the day" },
+  { id: "g_uncommon", pick: "uncommon", gp: 700, rank: 4, label: "Uncommon find of the day" },
+  { id: "g_rare", pick: "rare", gp: 1800, rank: 5, label: "Rare find of the day" }
 ];
-const GUILD_SHOP = [
-  { id: "desperado_ring", gp: 60, rank: 1 }, { id: "leaping_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
-  { id: "armored_ring", gp: 220, rank: 3 }, { id: "healing_harness", gp: 400, rank: 4 }, { id: "variable_ring", gp: 600, rank: 5 }
-];
+const GUILD_SHOP = [];
 
 const ACHIEVEMENTS = [
   { id: "first_blood", icon: "⚔️", name: "First Blood", desc: "Defeat a monster.", test: s => s.stats.kills >= 1 },

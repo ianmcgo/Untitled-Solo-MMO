@@ -2817,8 +2817,29 @@ function turnInBounty(id) {
   return "";
 }
 
+let GUILD_POOLS = null;
+function guildPool(kind) {
+  if (!GUILD_POOLS) {
+    GUILD_POOLS = { crystal: [], common: [], uncommon: [], rare: [] };
+    for (const id in ITEMS) {
+      const it = ITEMS[id];
+      if (it.kind === "crystal") { GUILD_POOLS.crystal.push(id); continue; }
+      if (!(it.price > 0) || it.ex || it.race || it.starter || it.nm || it.hq) continue;
+      const isScroll = it.kind === "use" && (it.spell || it.recipe);
+      if (!(it.kind === "mat" || it.kind === "equip" || isScroll)) continue;
+      const r = isScroll ? (it.price < 150 ? "common" : it.price < 500 ? "uncommon" : "rare") : itemRarity(id);
+      if (GUILD_POOLS[r]) GUILD_POOLS[r].push(id);
+    }
+  }
+  return GUILD_POOLS[kind] || [];
+}
+
 function guildPerkItem(p) {
-  return p.item || null;
+  if (p.item) return p.item;
+  const pool = guildPool(p.pick);
+  if (!pool.length) return null;
+  const rnd = seeded(hashStr(String(save.created || 1) + ":gperk:" + guildDay() + ":" + p.id));
+  return pool[Math.floor(rnd() * pool.length)];
 }
 
 function guildBuyPerk(pid) {

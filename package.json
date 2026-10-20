@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.13.2",
-  "releaseTitle": "Fresh Bounties",
+  "version": "19.13.3",
+  "releaseTitle": "Guild Tidy-up",
   "description": "",
   "main": "index.js",
   "scripts": {

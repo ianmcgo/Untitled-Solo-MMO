@@ -1463,7 +1463,7 @@ function tabGuild() {
     if (!it) continue;
     h += '<div class="item ' + rarityOf(id) + '"' + (lock ? ' style="opacity:.5"' : "") + "><div><b>" + (it.icon || "") + " " + esc(lock && p.pick ? "???" : it.name) + '</b><div class="sub">' + esc(p.label) + (lock ? "" : " · " + esc(itemDesc(id))) + "</div></div>" + (lock ? '<span class="sub">🔒 ' + GUILD_RANKS[p.rank][0] + "</span>" : got ? '<span class="sub">Bought today ✓</span>' : '<button data-a="gbuy" data-v="' + p.id + '"' + (g.gp < p.gp ? " disabled" : "") + ">" + p.gp + " 🎖️</button>") + "</div>";
   }
-  h += "<h3>Guild rewards</h3>";
+  if (GUILD_SHOP.length) h += "<h3>Guild rewards</h3>";
   for (const e of GUILD_SHOP) {
     const it = ITEMS[e.id], lock = rk < e.rank;
     h += '<div class="item ' + rarityOf(e.id) + '"' + (lock ? ' style="opacity:.5"' : "") + '><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + esc(itemDesc(e.id)) + "</div></div>" + (lock ? '<span class="sub">🔒 ' + GUILD_RANKS[e.rank][0] + "</span>" : '<button data-a="gbuy" data-v="' + e.id + '"' + (g.gp < e.gp ? " disabled" : "") + ">" + e.gp + " 🎖️</button>") + "</div>";
@@ -1749,12 +1749,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.13.3", date: "2026-10-20", title: "Guild tidy-up", items: [
+    "<b>Gear list removed.</b> The fixed Guild rewards gear list (rings, boots, sigil, harness) no longer appears under the daily supplies. The daily random finds (crystal, common, uncommon, rare) are back as before."
+  ] },
   { v: "19.13.2", date: "2026-10-20", title: "Fresh bounties", items: [
     "<b>New bounties after waiting.</b> Waiting a full day in town (the Time menu) now brings a fresh guild board and daily supplies, as well as midnight UTC.",
     "<b>Harder bounties with rank.</b> Each guild rank you earn adds one more, harder bounty to the daily board on top of the usual three.",
     "<b>Distant tree removed.</b> The giant gray tree seen floating on the horizon outside Ashenreach is gone.",
     "<b>Companion sales fizzle.</b> Crystals from lots your companions sell are no longer sent to your delivery box.",
-    "<b>Guild shop trimmed.</b> The random daily crystal and material rewards are gone; the guild sells Potion, Ether and the Guild Warp Scroll, plus the point-priced gear.",
     "<b>Phone layout.</b> The hotkey bar has its pager on top and bigger slots so icons stay inside them, and a long target name is cut off inside its box."
   ] },
   { v: "19.13.1", date: "2026-10-20", title: "Listings that stay", items: [
@@ -1776,7 +1778,7 @@ const UPDATES = [
     "<b>Height in the cities.</b> The Government plaza, the Saltreach Hall square and the Ironvale Keep square stand on low terraces with stone retaining walls and steps where the roads meet them.",
     "<b>Street dressing by district.</b> Markets get goods racks and barrel stacks, civic districts banners and armour stands, workshops woodpiles, docks rope coils and net racks, gates banners and armour stands. Some squares have a cart being loaded.",
     "<b>Mercenary slots follow your jobs.</b> You can hire <b>one</b> mercenary once any job reaches Lv5, <b>two</b> at Lv10 and <b>three</b> at Lv15 or higher. Anyone already hired stays.",
-    "<b>Adventurers' Guild daily shop.</b> Spend guild points on a Potion and an Ether from the start, a Guild Warp Scroll (carries you to the Ashenreach market) at Bronze. One of each per day. The random crystal and material rewards were removed. Hi-Potions are no longer sold there.",
+    "<b>Adventurers' Guild daily shop.</b> Spend guild points on a Potion and an Ether from the start, a Guild Warp Scroll (carries you to the Ashenreach market) at Bronze, a random crystal at Iron, a random common find at Silver, uncommon at Gold and rare at Mythril. One of each per day, and prices climb steeply with rank. Hi-Potions are no longer sold there.",
     "<b>Auction Essence choice.</b> When you list a lot you now pick which element of Essence pays the listing cost.",
     "<b>Hidden Caches are rare.</b> A cache now appears on only some days (about one in four) in the zones that have them, at a different random spot each day, and it crumbles away once you open it.",
     "<b>Monster jobs in their names.</b> A monster with a job is named for it, such as Goblin White Mage.",
@@ -3984,8 +3986,7 @@ function tabHelp() {
     "<b>Bounties:</b> " + GUILD_DAILY + " are posted each day (new ones at midnight UTC, or after you wait a full day in town), plus one extra, harder bounty for every rank you have earned. Accept up to " + GUILD_ACTIVE + " at once. Kills count anywhere, with or without companions. Each bounty can be finished once per day; you can abandon one to free a slot.",
     "Rewards per bounty: guild points 🎖️ and eight crystals per point (no experience). ★ bounties are notorious monster hunts and pay the most.",
     "<b>Ranks</b> (by total points earned; spending doesn't lower your rank): " + GUILD_RANKS.map(r => r[0] + " " + r[1]).join(" · ") + ". Each rank posts harder bounties.",
-    "<b>Daily supplies</b> (one of each per day; resets at midnight UTC or after you wait a full day in town): Potion and Ether from the start, Guild Warp Scroll (carries you to the Ashenreach market) at Bronze. The random crystal and material rewards were removed.",
-    "<b>Guild rewards</b> (spend points): " + GUILD_SHOP.map(e => ITEMS[e.id].name + " " + e.gp + " (" + GUILD_RANKS[e.rank][0] + ")").join(", ") + ". Guild gear is Ex: one of each, and it can't be sold."
+    "<b>Daily supplies</b> (one of each per day; resets at midnight UTC or after you wait a full day in town): Potion and Ether from the start, Guild Warp Scroll (carries you to the Ashenreach market) at Bronze, one random crystal at Iron, one random common find at Silver, uncommon at Gold, rare at Mythril. A find is a material, piece of equipment, spell scroll or recipe. Prices climb steeply with each rank.",
   ]));
   h += sec("❄️ Frostspire Pass", ul([
     "Through the east exit of Saltreach Harbor. The highest area so far (levels 15–20). It snows most of the time; blizzards thicken the air and cut how far you can see.",
