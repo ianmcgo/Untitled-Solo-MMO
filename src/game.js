@@ -5804,7 +5804,7 @@ const TALK = {
     const hired = save.hired.length;
     openDialog(n.name, hired ? "Your company's holding up, I hope. I get new faces every day, any trade you like, and they'll fight at your side as long as they draw breath. Lose one and they're gone for good, so look after them." : "Nobody walks the Hollow alone for long. Every day five new fighters come through my hall, all kinds. They match your strength and grow with you. Pay their fee for the first hour, then a wage for every hour after. And mind them: the fallen don't come back.", [
       { label: "Hire or dismiss companions", fn: () => { closeDialog(); openModal("mercs"); } }
-    ].concat(questOptions("brann", n)));
+    ].concat(n.id === "brann" ? questOptions("brann", n) : []));
   },
   talkPip(n) {
     const placed = save.furniture.length;

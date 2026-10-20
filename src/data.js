@@ -1375,9 +1375,10 @@ const HARBOR_PLAN = {
       { key: "auction", x: 1620, y: 740, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227", shop: "auction_harbor" },
       { key: "outfit", x: 1620, y: 1060, w: 150, h: 100, type: "shop", sign: "Outfitters Hall", awning: "#2a6a9a" },
       { key: "sailors", x: 780, y: 1060, w: 190, h: 110, type: "hall", floors: 3, sign: "Sailors' Rest", signCol: "#ff9a40" },
-      { key: "jobs", x: 1660, y: 1230, w: 180, h: 90, type: "hall", floors: 1, sign: "Job Master" }
+      { key: "jobs", x: 1660, y: 1230, w: 180, h: 90, type: "hall", floors: 1, sign: "Job Master" },
+      { key: "mercs", x: 780, y: 1240, w: 220, h: 100, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b", shop: "merc_harbor" }
     ],
-    npcs: [{ id: "crystal_harbor", x: 1200, y: 900 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_harbor", x: 1620, y: 840 }, { id: "barber_harbor", x: 1359, y: 817 }, { id: "job_harbor", x: 1660, y: 1310 }],
+    npcs: [{ id: "crystal_harbor", x: 1200, y: 900 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_harbor", x: 1620, y: 840 }, { id: "barber_harbor", x: 1359, y: 817 }, { id: "job_harbor", x: 1660, y: 1310 }, { id: "merc_harbor", x: 780, y: 1320 }],
     stalls: [{ x: 1359, y: 826, color: "#c0392b", sign: "Barber", pole: true }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "statue", x: 1200, y: 1560 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }],
@@ -1682,9 +1683,10 @@ const IRONVALE_PLAN = {
       { key: "keep", x: 1200, y: 140, w: 320, h: 150, type: "keep", floors: 3, flag: "#90a4ae" },
       { key: "barracks", x: 720, y: 400, w: 240, h: 120, type: "barracks", sign: "Frost Guard", flag: "#90a4ae" },
       { key: "council", x: 1680, y: 400, w: 220, h: 110, type: "hall", floors: 2, sign: "Council Hall", signCol: "#c9a227", shop: "registrar_ironvale" },
-      { key: "chapel", x: 1680, y: 1230, w: 190, h: 110, type: "hall", floors: 2, sign: "Hearth Chapel", signCol: "#f0e0a0" }
+      { key: "chapel", x: 1680, y: 1230, w: 190, h: 110, type: "hall", floors: 2, sign: "Hearth Chapel", signCol: "#f0e0a0" },
+      { key: "mercs", x: 720, y: 1240, w: 240, h: 120, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b", shop: "merc_ironvale" }
     ],
-    npcs: [{ id: "registrar_ironvale", x: 1680, y: 470 }],
+    npcs: [{ id: "registrar_ironvale", x: 1680, y: 470 }, { id: "merc_ironvale", x: 720, y: 1320 }],
     benches: [[1060, 480, 1.57], [1340, 480, -1.57]],
     dressing: [{ t: "statue", x: 1080, y: 1680 }, { t: "statue", x: 1320, y: 1680 }, { t: "planter", x: 1060, y: 300 }, { t: "planter", x: 1340, y: 300 }, { t: "well", x: 1500, y: 700 }]
   },
@@ -3052,10 +3054,12 @@ Object.assign(NPCS, {
   stable_ironvale_s: { name: "Torvald, Stablemaster", model: "ysolde_b", talk: "talkYsolde" },
   stable_harbor_e: { name: "Bryn, Stablemaster", model: "ysolde_b", talk: "talkYsolde" },
   registrar_outpost: { name: "Aurel, Registrar", model: "registrar", talk: "talkRegistrar" },
-  registrar_ironvale: { name: "Ingrid, Registrar", model: "registrar", talk: "talkRegistrar" }
+  registrar_ironvale: { name: "Ingrid, Registrar", model: "registrar", talk: "talkRegistrar" },
+  merc_harbor: { name: "Dorrin, Mercenary Hall", model: "brann_h", talk: "talkBrann" },
+  merc_ironvale: { name: "Hild, Mercenary Hall", model: "brann_i", talk: "talkBrann" }
 });
 const RENAME_COST = 10000;
-VENDOR_WORK.stable_ironvale_s = "work"; VENDOR_WORK.stable_harbor_e = "work"; VENDOR_WORK.registrar_outpost = "read"; VENDOR_WORK.registrar_ironvale = "read";
+VENDOR_WORK.stable_ironvale_s = "work"; VENDOR_WORK.stable_harbor_e = "work"; VENDOR_WORK.registrar_outpost = "read"; VENDOR_WORK.registrar_ironvale = "read"; VENDOR_WORK.merc_harbor = "read"; VENDOR_WORK.merc_ironvale = "read";
 ACHIEVEMENTS.push({ id: "spire", icon: "🗼", name: "Top of the Spire", desc: "Defeat the Spire Warden at the summit of the Red Spire.", test: s => !!(s.nmKilled && s.nmKilled.spire_warden) });
 WEATHER.highlands = [["clear", 5], ["wind", 4], ["cloudy", 3], ["rain", 1.5], ["storm", 1]];
 SHOPS.essa = ["potion", "hi_potion", "ether", "herb_bread", "carp_stew", "bait", "fishing_rod"].filter(id => ITEMS[id]);

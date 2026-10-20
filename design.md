@@ -2510,3 +2510,6 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - Local markets: `ahMarketSet` = `ahDaily(ahHere())`; `ahStock` = here only; `lotHere(town)` (no town = visible anywhere) filters `marketLines`, `marketItems`, `ahBuyLocal`; `ahBuy` refuses another city's stock; merc lots carry `town`.
 - Server: sql/q4-economy.sql (schema 11): `ah_buy(my_char, lot, here)` rejects other cities' lots, `ah_consign(..., town)` stores the city, `ah_town_pick` ceiling 1.0 of the item reference price. sql/m5d-item-ref.sql regenerated (price * shopMul * shopRatio) by test/genrefs.js. net.js falls back to the old signatures if the new ones are missing.
 - Tests: test/p60unit.js; m5a, m5c, m5d, p5, p21, p25 updated for the new rules.
+
+## 19.2.1 Mercenary Hall in every city
+- data.js: houses `mercs` in Harbor Square (780,1240, `shop: "merc_harbor"`) and the Keep (720,1240, `shop: "merc_ironvale"`); NPCs `merc_harbor` (Dorrin) and `merc_ironvale` (Hild) use `talkBrann`, which only adds quests when `n.id === "brann"`. Models `brann_h` and `brann_i` in rig.js NPC_LOOK. The hire modal text no longer names Brann.

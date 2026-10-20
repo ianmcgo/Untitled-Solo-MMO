@@ -843,7 +843,7 @@ function tabMercs() {
   const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
   UI.modalHelp = "Hire a companion. They fight at your level; if they fall, they're gone for good.";
   const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc({ dd: "Damage", tank: "Tank", healer: "Healer", support: "Support", nuker: "Nuker", burster: "Burster", hybrid: "Hybrid", bard: "Bard" }[m.role] || m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
-  let h = '<div class="sub" style="margin-bottom:6px">Brann has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first hour of play; after that each asks for an hourly wage.</div><h3>For hire today</h3>";
+  let h = '<div class="sub" style="margin-bottom:6px">The Mercenary Hall has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first hour of play; after that each asks for an hourly wage.</div><h3>For hire today</h3>";
   const offers = pool.filter(id => !save.hired.includes(id) && !(save.oldFriends && save.oldFriends[id]));
   if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
   for (const id of offers) h += row(id, '<button data-a="hire" data-v="' + id + '"' + (save.gil < mercFee(id) || full ? " disabled" : "") + ">Hire · " + mercFee(id) + " 💠</button>");
@@ -971,7 +971,7 @@ function tabParty() {
   UI.mercSheet = null;
   let h = partyPlayersHtml() + '<div class="sub" style="margin-bottom:8px">Stance: how your companions fight. Each companion works on a 1-hour contract of play time. When it runs out they ask for the next hour once the fight is over; refuse or can\'t pay and they go back to the Mercenary Hall, where you can bribe them to return under Old Friends.</div>';
   h += '<div style="display:flex;gap:6px;margin-bottom:10px">' + [["assist", "⚔ Assist", "Fight your target"], ["follow", "🚶 Follow", "Stay close, don't attack"], ["hold", "✋ Hold", "Stand ground"]].map(([k, l, d]) => '<button data-a="stance" data-v="' + k + '" title="' + d + '"' + (save.stance === k ? ' class="pri"' : "") + ">" + l + "</button>").join("") + "</div>";
-  if (!save.hired.length) return h + '<div class="item"><span class="sub">No companions yet. Brann at the Mercenary Hall in the Outpost hires them out.</span></div>';
+  if (!save.hired.length) return h + '<div class="item"><span class="sub">No companions yet. Brann at the Mercenary Hall in the Outpost (or Dorrin in Saltreach, Hild in Ironvale) hires them out.</span></div>';
   const bagEq = save.inventory.filter(x => ITEMS[x.id].kind === "equip");
   for (const id of save.hired) {
     const m = MERCS[id], a = S.party.find(p => p.mercId === id);
@@ -1728,6 +1728,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.2.1", date: "2026-10-20", title: "A Mercenary Hall in every city", items: [
+    "<b>Saltreach and Ironvale now have a Mercenary Hall.</b> Dorrin keeps the one on Harbor Square (south-west corner, beside Sailors' Rest) and Hild keeps the one in the Keep (south-west, across from the Hearth Chapel). They hire out the same fighters as Brann in Ashenreach, so you can hire or dismiss companions in any city.",
+    "Brann is still the only one with quests."
+  ] },
   { v: "19.2.0", date: "2026-10-20", title: "Fair drops and local markets", items: [
     "<b>Drop rates changed:</b> ordinary monster drops are now common (10-15%), uncommon (1-5%) or rare (under 1%), and Notorious Monster gear drops at 10-20%. Gear and spell scroll drops are unchanged. Trade goods (hides, chitin and so on) follow the same tiers.",
     "<b>Merchants buy at half the shop price</b> (it was a fortieth), so the crystals you get for gear and materials are much higher than before.",
