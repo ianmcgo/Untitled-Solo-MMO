@@ -2648,6 +2648,7 @@ function batEntry(col, eye) {
     const mem2 = [[0.45, 0.09], [0.92, 0.03], [0.8, -0.12], [0.68, -0.09], [0.58, -0.22], [0.45, -0.24]].map(([x, z]) => [s * x, z]);
     R.add(gMembrane(mem1, Y + 0.02), "wing" + (s > 0 ? "L" : "R"), dark, "skin");
     R.add(gMembrane(mem2, Y + 0.03), "wing2" + (s > 0 ? "L" : "R"), dark, "skin");
+    R.add(gBall(V3(s * 0.09, Y + 0.02, 0.02), 0.09, 1, 0.85, 1.05, 8), "wing" + (s > 0 ? "L" : "R"), fur, "fur");
     R.add(gTaper(V3(s * 0.08, Y + 0.02, 0.07), V3(s * 0.45, Y + 0.03, 0.08), 0.014, 0.01, 6), "wing" + (s > 0 ? "L" : "R"), fur, "fur");
     R.add(gTaper(V3(s * 0.45, Y + 0.03, 0.08), V3(s * 0.92, Y + 0.035, 0.03), 0.01, 0.004, 6), "wing2" + (s > 0 ? "L" : "R"), fur, "fur");
     R.add(gTaper(V3(s * 0.05, Y - 0.1, -0.05), V3(s * 0.06, Y - 0.22, -0.08), 0.012, 0.006, 5), "body", dark, "skin");
@@ -2789,6 +2790,7 @@ function beeEntry(col, col2) {
   for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("wing" + sd, "body", s * 0.06, Y + 0.12, 0.02); R.bone("wing2" + sd, "body", s * 0.05, Y + 0.11, -0.08); }
   const dark = 0x2a2218, light = new THREE.Color(col).lerp(new THREE.Color(0xffffff), 0.3).getHex();
   R.add(gBall(V3(0, Y, 0.02), 0.16, 1, 0.9, 1.1, 14), "body", col, "fur");
+  R.add(gBall(V3(0, Y - 0.02, -0.17), 0.15, 1.02, 0.85, 0.9, 12), "tail", col, "fur");
   R.add(gBall(V3(0, Y - 0.03, -0.27), 0.19, 1, 0.9, 1.7, 14), "tail", col2 || dark, "fur");
   for (let i = 0; i < 4; i++) R.add(gRing(V3(0, Y - 0.03, -0.12 - i * 0.1), 0.18 - i * 0.025, 0.022, "z", 16), "tail", i % 2 ? col : dark, "fur");
   R.add(gTaper(V3(0, Y - 0.06, -0.56), V3(0, Y - 0.1, -0.74), 0.035, 0.003, 6), "tail", dark, "bone");
@@ -2822,7 +2824,9 @@ function crawlerEntry(col, col2) {
     R.add(gBall(V3(0, Y + 0.02, zs[i]), r, 1.05, 0.9, 1.0, 12), "t" + i, col, "scale");
     R.add(gBall(V3(0, Y - 0.05, zs[i]), r * 0.8, 1, 0.55, 0.9, 10), "t" + i, belly, "skin");
     R.add(gRing(V3(0, Y + 0.02, zs[i] + 0.14), r * 0.95, 0.018, "z", 16), "t" + i, dark, "scale");
-    for (const s of [-1, 1]) { const ln = (s > 0 ? "lL" : "lR") + i; R.add(gTaper(V3(s * 0.14, Y - 0.06, zs[i]), V3(s * 0.26, Y0 - 0.24, zs[i] + 0.02), 0.035, 0.014, 5), ln, dark, "skin"); R.add(gBall(V3(s * 0.26, Y0 - 0.25, zs[i] + 0.02), 0.032, 1, 0.6, 1, 6), ln, dark, "skin"); }
+    if (i < n - 1) { const r2 = 0.205 + 0.025 * Math.sin((i + 1) / (n - 1) * Math.PI); R.add(gBall(V3(0, Y0 + lift(i + 1) + 0.02, zs[i + 1]), r2, 1.07, 0.85, 0.8, 10), "t" + i, col, "scale"); }
+    else R.add(gBall(V3(0, Y0 + lift(n) + 0.02, zs[n - 1] + 0.22), 0.2, 1.12, 0.9, 0.8, 10), "t" + i, dark, "scale");
+    for (const s of [-1, 1]) { const ln = (s > 0 ? "lL" : "lR") + i; R.add(gBall(V3(s * 0.14, Y - 0.06, zs[i]), 0.04, 1, 1, 1, 6), "t" + i, dark, "skin"); R.add(gTaper(V3(s * 0.14, Y - 0.06, zs[i]), V3(s * 0.26, Y0 - 0.24, zs[i] + 0.02), 0.035, 0.014, 5), ln, dark, "skin"); R.add(gBall(V3(s * 0.26, Y0 - 0.25, zs[i] + 0.02), 0.032, 1, 0.6, 1, 6), ln, dark, "skin"); }
     if (i % 2) R.add(gTaper(V3(0, Y + 0.17, zs[i]), V3(0, Y + 0.3, zs[i] - 0.04), 0.03, 0.004, 5), "t" + i, dark, "bone");
   }
   const hz = zs[n - 1] + 0.22, Y = Y0 + lift(n);
@@ -2968,7 +2972,7 @@ function crabEntry(col, col2) {
   for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
     R.bone("arm" + sd, "body", s * 0.25, Y, 0.18);
     R.bone("claw" + sd, "arm" + sd, s * 0.42, Y + 0.02, 0.32);
-    for (let k = 0; k < 4; k++) R.bone("leg" + sd + k, "body", s * 0.28, Y - 0.02, 0.1 - k * 0.1);
+    for (let k = 0; k < 4; k++) R.bone("leg" + sd + k, "body", s * 0.22, Y - 0.02, 0.1 - k * 0.1);
   }
   const dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), under = col2 || new THREE.Color(col).lerp(new THREE.Color(0xf0dcc0), 0.5).getHex();
   R.add(gBall(V3(0, Y, 0), 0.34, 1, 0.5, 0.8, 16), "body", col, "scale");
@@ -2978,14 +2982,20 @@ function crabEntry(col, col2) {
     const sd = s > 0 ? "L" : "R";
     R.add(gTaper(V3(s * 0.06, Y + 0.1, 0.24), V3(s * 0.07, Y + 0.24, 0.26), 0.02, 0.03, 6), "body", dark, "bone");
     R.add(gBall(V3(s * 0.07, Y + 0.25, 0.26), 0.04, 1, 1, 1, 6), "body", 0x111111, "plain");
+    R.add(gBall(V3(s * 0.25, Y, 0.18), 0.065, 1, 0.9, 1, 8), "body", col, "scale");
     R.add(gTaper(V3(s * 0.25, Y, 0.18), V3(s * 0.42, Y + 0.02, 0.32), 0.055, 0.05, 7), "arm" + sd, col, "scale");
+    R.add(gBall(V3(s * 0.42, Y + 0.02, 0.32), 0.058, 1, 1, 1, 8), "arm" + sd, col, "scale");
     R.add(gBall(V3(s * 0.48, Y + 0.02, 0.38), 0.11, 1.4, 0.7, 1.1, 10), "claw" + sd, col, "scale");
     R.add(gTaper(V3(s * 0.52, Y + 0.06, 0.44), V3(s * 0.58, Y + 0.08, 0.62), 0.045, 0.006, 6), "claw" + sd, dark, "bone");
     R.add(gTaper(V3(s * 0.52, Y - 0.02, 0.44), V3(s * 0.56, Y - 0.04, 0.6), 0.04, 0.006, 6), "claw" + sd, dark, "bone");
     for (let k = 0; k < 4; k++) {
-      const z = 0.1 - k * 0.1;
-      R.add(gTaper(V3(s * 0.28, Y - 0.02, z), V3(s * 0.5, Y + 0.08, z - 0.03), 0.03, 0.022, 6), "leg" + sd + k, col, "scale");
-      R.add(gTaper(V3(s * 0.5, Y + 0.08, z - 0.03), V3(s * 0.6, 0.02, z - 0.06), 0.022, 0.006, 6), "leg" + sd + k, dark, "scale");
+      const z = 0.1 - k * 0.1, kn = "knee" + sd + k;
+      R.bone(kn, "leg" + sd + k, s * 0.5, Y + 0.08, z - 0.03);
+      R.add(gBall(V3(s * 0.22, Y - 0.02, z), 0.046, 1, 0.85, 1, 6), "body", col, "scale");
+      R.add(gBall(V3(s * 0.22, Y - 0.02, z), 0.04, 1.1, 1, 1.1, 6), "leg" + sd + k, col, "scale");
+      R.add(gTaper(V3(s * 0.22, Y - 0.02, z), V3(s * 0.5, Y + 0.08, z - 0.03), 0.032, 0.024, 6), "leg" + sd + k, col, "scale");
+      R.add(gBall(V3(s * 0.5, Y + 0.08, z - 0.03), 0.03, 1, 1, 1, 6), "leg" + sd + k, col, "scale");
+      R.add(gTaper(V3(s * 0.5, Y + 0.08, z - 0.03), V3(s * 0.6, 0.015, z - 0.06), 0.024, 0.007, 6), kn, dark, "scale");
     }
   }
   R.meta = { kind: "crab", headTop: 0.5 };
@@ -3007,7 +3017,9 @@ function mandrakeEntry(col, leaf) {
     const sd = s > 0 ? "L" : "R";
     R.add(gBall(V3(s * 0.08, Y + 0.33, 0.17), 0.04, 1, 1.1, 0.6, 8), "head", 0x111111, "plain");
     R.add(gBall(V3(s * 0.08, Y + 0.34, 0.19), 0.012, 1, 1, 0.6, 5), "head", 0xffffff, "plain");
+    R.add(gBall(V3(s * 0.17, Y + 0.08, 0.02), 0.065, 1, 1, 1, 8), "arm" + sd, dark, "skin");
     R.add(gTaper(V3(s * 0.17, Y + 0.08, 0.02), V3(s * 0.3, Y - 0.06, 0.08), 0.045, 0.02, 6), "arm" + sd, dark, "skin");
+    R.add(gBall(V3(s * 0.09, Y - 0.14, 0), 0.075, 1, 1, 1, 8), "leg" + sd, dark, "skin");
     R.add(gTaper(V3(s * 0.09, Y - 0.14, 0), V3(s * 0.1, 0.02, 0.03), 0.055, 0.045, 6), "leg" + sd, dark, "skin");
     R.add(gBall(V3(s * 0.1, 0.02, 0.06), 0.06, 1.1, 0.5, 1.4, 7), "leg" + sd, dark, "skin");
   }
@@ -3097,7 +3109,8 @@ function fishEntry(col, belly) {
   for (const s of [-1, 1]) {
     R.add(gBall(V3(s * 0.11, Y + 0.05, 0.25), 0.04, 1, 1.1, 0.6, 8), "body", 0xffe082, "glow", true);
     R.add(gBall(V3(s * 0.11, Y + 0.05, 0.27), 0.02, 1, 1, 0.6, 5), "body", 0x111111, "plain");
-    R.add(gBall(V3(s * 0.25, Y - 0.04, 0.04), 0.16, 0.18, 0.55, 1.15, 8), "fin" + (s > 0 ? "L" : "R"), dark, "skin");
+    R.add(gBall(V3(s * 0.14, Y - 0.04, 0.08), 0.055, 1, 1, 1, 8), "fin" + (s > 0 ? "L" : "R"), dark, "skin");
+    R.add(gBall(V3(s * 0.21, Y - 0.04, 0.04), 0.16, 0.18, 0.55, 1.15, 8), "fin" + (s > 0 ? "L" : "R"), dark, "skin");
   }
   R.add(gTaper(V3(0, Y, -0.3), V3(0, Y, -0.5), 0.1, 0.05, 8), "tail", col, "scale");
   R.add(gBall(V3(0, Y, -0.62), 0.17, 0.2, 1.3, 0.9, 8), "tail2", dark, "skin");
@@ -3107,20 +3120,22 @@ function fishEntry(col, belly) {
 
 function wormEntry(col) {
   const R = new RigBuilder();
-  const Y = 0.32, n = 8;
+  const n = 8;
   const zs = []; for (let i = 0; i < n; i++) zs.push(-1.5 + i * 0.29);
+  const rad = i => 0.11 + 0.17 * (i / (n - 1)), yc = i => rad(i) * 0.92 + 0.02;
   R.bone("root", null, 0, 0, 0);
-  for (let i = 0; i < n; i++) R.bone("t" + i, i ? "t" + (i - 1) : "root", 0, Y, zs[i]);
+  for (let i = 0; i < n; i++) R.bone("t" + i, i ? "t" + (i - 1) : "root", 0, yc(i), zs[i]);
   const c = new THREE.Color(col), dark = c.clone().multiplyScalar(0.6).getHex(), belly = c.clone().lerp(new THREE.Color(0xf0d0b0), 0.35).getHex();
   for (let i = 0; i < n; i++) {
-    const r = 0.11 + 0.17 * (i / (n - 1));
-    R.add(gBall(V3(0, Y + (r - 0.28) * 0.5, zs[i]), r, 1, 0.92, 1.15, 14), "t" + i, col, "scale");
-    R.add(gBall(V3(0, Y + (r - 0.28) * 0.5 - r * 0.35, zs[i]), r * 0.85, 0.95, 0.6, 1.1, 10), "t" + i, belly, "skin");
-    if (i < n - 1) R.add(gRing(V3(0, Y + (r - 0.28) * 0.5, zs[i] + 0.13), r * 0.92, 0.022, "z", 18), "t" + i, dark, "scale");
-    if (i < n - 1) R.add(gRing(V3(0, Y + (r - 0.28) * 0.5, zs[i] + 0.04), r * 0.99, 0.012, "z", 18), "t" + i, dark, "scale");
-    for (let k = 0; k < 6; k++) { const a = Math.PI * (0.15 + k * 0.14), yc = Y + (r - 0.28) * 0.5, p0 = V3(Math.cos(a) * r * 0.95, yc - Math.sin(a) * r * 0.55, zs[i] + 0.06); R.add(gTaper(p0, p0.clone().add(V3(Math.cos(a) * 0.04, -0.03, -0.03)), 0.005, 0.001, 3), "t" + i, 0x3a2a20, "bone"); }
+    const r = rad(i), y = yc(i);
+    R.add(gBall(V3(0, y, zs[i]), r, 1, 0.92, 1.15, 14), "t" + i, col, "scale");
+    R.add(gBall(V3(0, y - r * 0.3, zs[i]), r * 0.85, 0.95, 0.65, 1.1, 10), "t" + i, belly, "skin");
+    if (i < n - 1) R.add(gRing(V3(0, y, zs[i] + 0.13), r * 0.92, 0.022, "z", 18), "t" + i, dark, "scale");
+    if (i < n - 1) R.add(gRing(V3(0, y, zs[i] + 0.04), r * 0.99, 0.012, "z", 18), "t" + i, dark, "scale");
+    if (i < n - 1) R.add(gBall(V3(0, yc(i + 1), zs[i + 1]), rad(i + 1), 1.03, 0.86, 0.85, 12), "t" + i, col, "scale");
+    for (let k = 0; k < 6; k++) { const a = Math.PI * (0.15 + k * 0.14), p0 = V3(Math.cos(a) * r * 0.95, y - Math.sin(a) * r * 0.55, zs[i] + 0.06); R.add(gTaper(p0, p0.clone().add(V3(Math.cos(a) * 0.04, -0.03, -0.03)), 0.005, 0.001, 3), "t" + i, 0x3a2a20, "bone"); }
   }
-  const hz = zs[n - 1] + 0.2;
+  const hz = zs[n - 1] + 0.2, Y = yc(n - 1);
   R.add(gRing(V3(0, Y, hz), 0.15, 0.045, "z", 18), "t" + (n - 1), 0x6a2a2a, "skin");
   R.add(gBall(V3(0, Y, hz - 0.02), 0.14, 1, 1, 0.3, 12), "t" + (n - 1), 0x1a0a0a, "plain");
   for (let k = 0; k < 8; k++) {
@@ -3458,6 +3473,7 @@ function toadEntry(col) {
   R.add(gBall(V3(0, 0.26, -0.02), 0.27, 1.05, 0.72, 1.15, 16), "body", col, "skin");
   R.add(gBall(V3(0, 0.2, 0.06), 0.22, 0.95, 0.55, 1.0, 14), "body", belly, "skin");
   R.add(gBall(V3(0, 0.33, 0.22), 0.17, 1.25, 0.65, 1.0, 14), "head", col, "skin");
+  R.add(gBall(V3(0, 0.34, 0.2), 0.13, 1.1, 0.7, 0.9, 10), "head", col, "skin");
   R.add(gBall(V3(0, 0.29, 0.32), 0.12, 1.4, 0.32, 0.6, 10), "head", belly, "skin");
   for (let k = 0; k < 7; k++) { const a = k * 1.7; R.add(gBall(V3(Math.sin(a) * 0.16, 0.36 + (k % 3) * 0.03, -0.05 + Math.cos(a) * 0.15), 0.03, 1, 0.7, 1, 6), "body", dark, "skin"); }
   for (const s of [-1, 1]) {
@@ -3465,6 +3481,8 @@ function toadEntry(col) {
     R.add(gBall(V3(s * 0.09, 0.44, 0.22), 0.06, 1, 1, 1, 10), "ear" + sd, col, "skin");
     R.add(gBall(V3(s * 0.1, 0.46, 0.26), 0.038, 1, 1, 0.8, 8), "ear" + sd, 0xe8c040, "plain");
     R.add(gBall(V3(s * 0.105, 0.462, 0.29), 0.018, 1, 1.4, 0.6, 6), "ear" + sd, 0x111111, "plain");
+    R.add(gBall(V3(s * 0.13, 0.2, 0.16), 0.055, 1, 1, 1, 8), "legF" + sd, col, "skin");
+    R.add(gBall(V3(s * 0.17, 0.2, -0.12), 0.08, 1, 0.9, 1, 8), "legB" + sd, col, "skin");
     R.add(gTaper(V3(s * 0.13, 0.2, 0.16), V3(s * 0.15, 0.03, 0.24), 0.04, 0.03, 8), "legF" + sd, col, "skin");
     R.add(gBall(V3(s * 0.16, 0.02, 0.27), 0.05, 1.2, 0.35, 1.2, 8), "legF" + sd, dark, "skin");
     for (let k = 0; k < 4; k++) { const a = (k - 1.5) * 0.45; R.add(gTaper(V3(s * 0.16, 0.02, 0.27), V3(s * 0.16 + Math.sin(a) * 0.07, 0.012, 0.27 + Math.cos(a) * 0.07), 0.012, 0.007, 4), "legF" + sd, col, "skin"); R.add(gBall(V3(s * 0.16 + Math.sin(a) * 0.072, 0.012, 0.27 + Math.cos(a) * 0.072), 0.011, 1, 0.7, 1, 5), "legF" + sd, belly, "skin"); }

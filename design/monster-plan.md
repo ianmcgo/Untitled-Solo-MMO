@@ -33,7 +33,7 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 - Shaped legs (shoulder and haunch masses, carpus and hock, tapered shins, hooves or paws) for sheep, lizards, longnecks, deer, dogs and cats.
 - Tune `QUAD_GAITS` per animal; lizard sprawl gets a body wave; check slopes with the grounding probe.
 
-### M4: Many-legged, winged and legless monsters
+### M4: Many-legged, winged and legless monsters (DONE in 19.7.0)
 - Crawler: each leg lifts, reaches and plants in a travelling wave with the body ripple.
 - Crab sideways scuttle, bee and bat wing beats with body bob, worm undulation, hare hop with ear and tail follow-through, toad hop.
 

@@ -1728,6 +1728,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.7.0", date: "2026-10-20", title: "Crawlers, crabs and worms", items: [
+    "<b>Crabs scuttle.</b> Crabs turn half-side-on when they move and step their eight legs in two alternating sets, with a knee in each leg so the feet lift clear of the ground. Their strikes no longer drive the far claw and legs into the dirt.",
+    "<b>Crawlers walk on their legs.</b> Each pair of legs lifts, reaches and plants in a wave that runs down the body, and the segments are sealed at the joints so nothing opens up when a crawler rears.",
+    "<b>Worms lie on the ground.</b> Every segment now rests on the soil instead of the tail floating a hand's width above it, worms wind side to side as they move, and rearing, striking and flinching keep the head above ground.",
+    "<b>Toads hop.</b> Bog and jade toads and Old Croaker push off with their hind legs, tuck the front legs in the air and land on all four, instead of walking on sunken feet.",
+    "<b>Joints closed</b> on bats (wing root), bees, wasps and hornets (tail), mandrakes (shoulders and hips) and snappers (fin roots)."
+  ] },
   { v: "19.6.0", date: "2026-10-20", title: "Beasts on four feet", items: [
     "<b>Sheep, rams and longnecks have real legs:</b> a haunch and shoulder mass, a knee, a tapered shin and a hoof, in place of the stick legs. Sheep also got a bigger head.",
     "<b>Four-legged feet stay planted.</b> Walks, trots and gallops now move each foot with the ground; the hooves no longer skate.",
@@ -3688,6 +3695,7 @@ function tabHelp() {
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Learning spells:</b> read a scroll from your Items. It works only if your main job is at the spell's level, or your support job is (support jobs count at half your main level). The log tells you which job and level the scroll needs.",
     "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",
+    "<b>Crawlers, crabs, worms and toads:</b> crawlers walk their leg pairs in a wave down the body; crabs go half-side-on and step their legs in two alternating sets; worms lie flat and wind side to side; toads hop and land on all four feet. Watch a worm or crawler rear up: that is the wind-up for a strike.",
     "<b>Four-legged beasts:</b> sheep, rams and longnecks have haunches, knees and hooves, and their feet stay planted as they walk, trot and gallop. Lizards keep their belly off the ground, flex their spine side to side as they sprawl along, and carry a ridged tail that follows the body.",
     "<b>Builds:</b> orcs are thick through the thigh and arm with a broad, forward-set chest; treants stand splay-footed on a stumpy trunk with their branch arms hanging low and sway as they stand; ghouls and the drowned are wasted and thin. Robes on casters hang as one garment that swings with the stride rather than flapping open.",
     "<b>Body language:</b> beastmen and undead pause on their rounds to look around, shift their weight, scratch or scuff a foot, so a monster standing still is not always asleep. When one stops running it takes a last step and settles before turning. Short-legged goblins scurry with quick steps and break into a crouched run when they chase you.",
