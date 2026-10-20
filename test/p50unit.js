@@ -4,6 +4,7 @@ const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 G.enterZone('outpost', G.ZONES.outpost.start.x, G.ZONES.outpost.start.y); run(0.3);
 const id = G.mercPool ? null : null;
 const mid = Object.keys(G.MERCS).find(k => G.mercAvailable(k));
+G.CONFIG.mercSlotFloorLv = 15;
 G.save.gil = 99999; G.hireMerc(mid); run(0.3);
 const m = S.party.find(p => p.mercId === mid);
 ok(!!m, 'a hireling joined the party');

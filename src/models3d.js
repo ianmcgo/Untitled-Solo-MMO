@@ -452,9 +452,10 @@ function propView(n) {
     const metal = std({ color: n.chest === "king" ? 0xd8b040 : 0x8a8a90, metalness: 0.7, roughness: 0.4 });
     const box = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.7, 0.8), wood); box.position.y = 0.35; box.castShadow = true;
     const lid = new THREE.Group();
-    const lidM = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.3, 10, 1, false, 0, Math.PI), wood); lidM.rotation.z = Math.PI / 2; lidM.position.set(0, 0, 0.4);
-    const band = new THREE.Mesh(new THREE.TorusGeometry(0.41, 0.03, 6, 14, Math.PI), metal); band.rotation.y = Math.PI / 2; band.position.set(0, 0, 0.4);
-    lid.add(lidM, band);
+    const lidM = new THREE.Mesh(new THREE.BoxGeometry(1.34, 0.2, 0.84), wood); lidM.position.set(0, 0.1, 0.4);
+    const lidTop = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.14, 0.7), wood); lidTop.position.set(0, 0.27, 0.4);
+    lid.add(lidM, lidTop);
+    for (const sgn of [-1, 1]) { const ls = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.36, 0.88), metal); ls.position.set(sgn * 0.45, 0.18, 0.4); lid.add(ls); }
     lid.position.set(0, 0.7, -0.4);
     const lock = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.22, 0.08), metal); lock.position.set(0, 0.55, 0.42);
     for (const sgn of [-1, 1]) { const strap = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.72, 0.84), metal); strap.position.set(sgn * 0.45, 0.35, 0); g.add(strap); }

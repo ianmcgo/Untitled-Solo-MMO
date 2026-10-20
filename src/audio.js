@@ -137,7 +137,7 @@ function sfxGainFor(name, e) {
 function victoryDef(v) {
   const d = [], B = 0.12;
   const N = { C3: 130.8, C4: 261.6, D4: 293.7, E4: 329.6, F4: 349.2, G4: 392, A4: 440, B4: 493.9, C5: 523.3, D5: 587.3, E5: 659.3, F5: 698.5, G5: 784, A5: 880, B5: 987.8, C6: 1046.5 };
-  const lead = (f, at, dur, g) => { d.push(["brass", f, f, at, dur, g, 2800]); d.push(["brass", f * 2, f * 2, at, dur, g * 0.35, 3600]); d.push(["sine", f, f, at, dur * 0.9, g * 0.5]); };
+  const lead = (f, at, dur, g) => { f *= 0.5; d.push(["brass", f, f, at, dur, g, 2800]); d.push(["brass", f * 2, f * 2, at, dur, g * 0.35, 3600]); d.push(["sine", f, f, at, dur * 0.9, g * 0.5]); };
   const chord = (fs, at, dur, g) => { for (const f of fs) d.push(["brass", f, f, at, dur, g, 1800]); };
   if (v === 2) {
     N.D5 = 587.3; N.Fs5 = 740; N.Fs4 = 370; N.D6 = 1174.7; N.E6 = 1318.5; N.A3 = 220; N.D3 = 146.8;
@@ -147,7 +147,7 @@ function victoryDef(v) {
     chord([N.E4, N.G4, N.B4], 1.42, 0.5, 0.07); d.push(["brass", N.A3, N.A3, 1.42, 0.5, 0.12, 700]);
     lead(N.A5, 2.0, 0.2, 0.22); lead(N.D6, 2.2, 0.2, 0.24); lead(N.Fs5 * 2, 2.4, 1.6, 0.3);
     chord([N.D4, N.Fs4, N.A4, N.D5], 2.0, 1.9, 0.08); d.push(["brass", N.D3, N.D3, 2.0, 1.9, 0.14, 700]);
-    d.push(["bell", N.D6 * 2, N.D6 * 2, 2.45, 1.3, 0.1]);
+    d.push(["bell", N.D6 * 2 * 0.5, N.D6 * 2 * 0.5, 2.45, 1.3, 0.1]);
     return d;
   }
   if (v === 3) {
@@ -158,7 +158,7 @@ function victoryDef(v) {
     chord([N.F4, N.A4, N.C5], 1.0, 0.95, 0.07); d.push(["brass", N.C3, N.C3, 1.0, 0.95, 0.12, 700]);
     lead(N.G5, 2.0, 0.14, 0.22); lead(N.Bb5, 2.14, 0.14, 0.22); lead(N.D6, 2.28, 0.14, 0.24);
     lead(N.G5 * 2, 2.42, 1.6, 0.3); chord([N.G4, N.Bb4, N.D5, N.G4 * 2], 2.0, 2.0, 0.08); d.push(["brass", N.G3, N.G3, 2.0, 2.0, 0.14, 700]);
-    d.push(["bell", N.G5 * 4, N.G5 * 4, 2.45, 1.3, 0.1]);
+    d.push(["bell", N.G5 * 4 * 0.5, N.G5 * 4 * 0.5, 2.45, 1.3, 0.1]);
     return d;
   }
   lead(N.E5, 0, B, 0.2); lead(N.E5, B, B, 0.2); lead(N.E5, B * 2, B, 0.2); lead(N.G5, B * 3, 0.62, 0.26);
@@ -168,7 +168,7 @@ function victoryDef(v) {
   lead(N.G5, 1.96, 0.16, 0.22); lead(N.A5, 2.12, 0.16, 0.22); lead(N.B5, 2.28, 0.16, 0.24);
   chord([N.G4, N.B4, N.D5], 1.96, 0.48, 0.07);
   lead(N.C6, 2.44, 1.5, 0.3); chord([N.C4, N.E4, N.G4, N.C5], 2.44, 1.5, 0.08); d.push(["brass", N.C3, N.C3, 2.44, 1.5, 0.14, 700]);
-  d.push(["bell", N.C6 * 2, N.C6 * 2, 2.5, 1.3, 0.1]);
+  d.push(["bell", N.C6 * 2 * 0.5, N.C6 * 2 * 0.5, 2.5, 1.3, 0.1]);
   return d;
 }
 const UI_SYNTH = {

@@ -158,7 +158,7 @@ function renderModal() {
       let btn;
       if (hired) btn = '<button data-a="dismiss" data-v="' + id + '">Dismiss</button>';
       else if (!avail) btn = '<span class="d">' + esc(mercLockedReason(id)) + "</span>";
-      else btn = '<button data-a="hire" data-v="' + id + '"' + (save.gil < mercFee(id) || save.hired.length >= CONFIG.maxParty - 1 ? " disabled" : "") + ">Hire · " + mercFee(id) + " gil</button>";
+      else btn = '<button data-a="hire" data-v="' + id + '"' + (save.gil < mercFee(id) || mercFull() ? " disabled" : "") + ">Hire · " + mercFee(id) + " gil</button>";
       h += '<div class="item"><div><div>' + esc(m.name) + ' <span class="sub">' + (JOBS[m.job] ? JOBS[m.job].name : m.job) + " · " + m.role + '</span></div><div class="d">' + esc(m.desc) + "</div></div>" + btn + "</div>";
     }
   }

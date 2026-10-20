@@ -7,6 +7,7 @@ ok(pool.length === 5 && pool.every(id => G.MERCS[id] && G.MERCS[id].gen), 'the g
 ok(new Set(pool.map(id => G.MERCS[id].name)).size >= 3 && pool.every(id => G.MERCS[id].fee > 0 && G.JOBS[G.MERCS[id].job]), 'hires have names, jobs and fees');
 ok(G.mercPool().join() === pool.join(), 'the same day gives the same hires');
 const id = pool[0];
+G.CONFIG.mercSlotFloorLv = 15;
 G.hireMerc(id);
 const m = S.party.find(p => p.mercId === id);
 ok(m && m.lv === P().lv, 'a hire joins at your level');

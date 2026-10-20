@@ -125,6 +125,8 @@ function newPose(v) {
   return v.pose;
 }
 
+function setZ(P, b, z) { const p = P[b]; if (p) p[2] = z; }
+
 function addP(P, b, x, y, z) { const p = P[b]; if (!p) return; p[0] += x; p[1] += y; p[2] += z; }
 function setP(P, b, x, y, z, w) { const p = P[b]; if (!p || w <= 0) return; p[0] += (x - p[0]) * w; p[1] += (y - p[1]) * w; p[2] += (z - p[2]) * w; }
 
@@ -1150,13 +1152,14 @@ function poseBat(v, e, dt) {
     addP(P, "body", 0.6 * w, 0, 0);
     v.rootOff[2] += 0.4 * w; v.rootOff[1] -= 0.35 * w;
   }
-  if (e.readying) { addP(P, "body", -0.5, 0, 0); P.wingL[2] = 1.1 + f * 0.3; P.wingR[2] = -1.1 - f * 0.3; v.rootOff[1] += 0.25; }
+  if (e.readying) { addP(P, "body", -0.5, 0, 0); setZ(P, "wingL", 1.1 + f * 0.3); setZ(P, "wingR", -1.1 - f * 0.3); v.rootOff[1] += 0.25; }
   const hk = (S.time - an.hitStart) / 0.3;
   if (hk >= 0 && hk <= 1) { const w = env(hk, 0.1, 0.8); addP(P, "body", -0.4 * w, 0, 0.3 * w); v.rootOff[1] += 0.15 * w; }
   if (an.dead != null) {
     const k = ease((S.time - an.dead) / 0.55);
-    P.wingL[2] = -0.6 * k + P.wingL[2] * (1 - k); P.wingR[2] = 0.6 * k + P.wingR[2] * (1 - k);
-    P.wing2L[2] = -1.2 * k; P.wing2R[2] = 1.2 * k;
+    if (P.wingL) P.wingL[2] = -0.6 * k + P.wingL[2] * (1 - k);
+    if (P.wingR) P.wingR[2] = 0.6 * k + P.wingR[2] * (1 - k);
+    setZ(P, "wing2L", -1.2 * k); setZ(P, "wing2R", 1.2 * k);
     v.rootOff[1] = -1.22 * k; v.rootRot[2] = 1.4 * k; v.rootOff[2] = 0;
   }
   applyPose(v, dt, sharp);

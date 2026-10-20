@@ -71,6 +71,7 @@ const CONFIG = {
   allyReviveAfter: 6,
   outOfCombatAfter: 3,
   maxParty: 4,
+  cacheChance: 0.25,
   supportUnlockLevel: 10,
   mountLevel: 20,
   synthTime: 3,
@@ -390,6 +391,7 @@ const ITEMS = {
   potion_hq: { name: "Potion +1", kind: "use", icon: "🧪", hq: true, heal: 60, price: 48, stack: 12, desc: "Restores 60 HP." },
   potion_hq2: { name: "Potion +2", kind: "use", icon: "🧪", hq: true, heal: 75, price: 60, stack: 12, desc: "Restores 75 HP." },
   potion_hq3: { name: "Potion +3", kind: "use", icon: "🧪", hq: true, heal: 100, price: 80, stack: 12, desc: "Restores 100 HP." },
+  guild_scroll: { name: "Guild Warp Scroll", kind: "use", icon: "📜", guildWarp: true, price: 120, stack: 12, desc: "Read it to be carried straight to the Ashenreach market." },
   hi_potion: { name: "Hi-Potion", kind: "use", icon: "⚗️", heal: 100, price: 77, stack: 12, desc: "Restores 100 HP." },
   hi_potion_hq: { name: "Hi-Potion +1", kind: "use", icon: "⚗️", hq: true, heal: 110, price: 85, stack: 12, desc: "Restores 110 HP." },
   hi_potion_hq2: { name: "Hi-Potion +2", kind: "use", icon: "⚗️", hq: true, heal: 120, price: 92, stack: 12, desc: "Restores 120 HP." },
@@ -2484,8 +2486,17 @@ const GUILD_BOUNTIES = [
   { id: "b_rimefang", fam: "rimefang", n: 1, where: "Icefall Camp, Frostspire Pass", lv: 19, gp: 100, tier: 4, nm: true },
   { id: "b_frostwight", fam: "frost_wight", n: 1, where: "Whispering Cairns (night)", lv: 19, gp: 100, tier: 4, nm: true }
 ];
+const GUILD_PERKS = [
+  { id: "g_potion", item: "potion", gp: 4, rank: 0, label: "Daily supplies" },
+  { id: "g_ether", item: "ether", gp: 8, rank: 0, label: "Daily supplies" },
+  { id: "g_warp", item: "guild_scroll", gp: 30, rank: 1, label: "Market return" },
+  { id: "g_crystal", pick: "crystal", gp: 90, rank: 2, label: "Crystal of the day" },
+  { id: "g_common", pick: "common", gp: 250, rank: 3, label: "Common find of the day" },
+  { id: "g_uncommon", pick: "uncommon", gp: 700, rank: 4, label: "Uncommon find of the day" },
+  { id: "g_rare", pick: "rare", gp: 1800, rank: 5, label: "Rare find of the day" }
+];
 const GUILD_SHOP = [
-  { id: "hi_potion", gp: 6, rank: 0 }, { id: "ether", gp: 8, rank: 0 },
+  { id: "potion", gp: 4, rank: 0 }, { id: "ether", gp: 8, rank: 0 },
   { id: "desperado_ring", gp: 60, rank: 1 }, { id: "leaping_boots", gp: 120, rank: 2 }, { id: "chapel_sigil", gp: 40, rank: 2 },
   { id: "armored_ring", gp: 220, rank: 3 }, { id: "healing_harness", gp: 400, rank: 4 }, { id: "variable_ring", gp: 600, rank: 5 }
 ];
@@ -2825,8 +2836,9 @@ for (const zid in POI_PLAN) {
     const id = k + "_" + areaOf(zid), at = poiSpot(z, lm.x, lm.y, (lm.r || 200) + 140 + 110 * salt++);
     if (!at) continue;
     NPCS[id] = Object.assign({ name, prop, talk, poi: k }, prop === "chest" ? { chest: "vault" } : {});
+    if (k === "cache") { z.cacheId = id; continue; }
     z.npcs.push({ id, x: at.x, y: at.y });
-    if (k !== "cache") POI_IDS.push(id);
+    POI_IDS.push(id);
   }
 }
 ACHIEVEMENTS.push({ id: "wayfarer", icon: "🧭", name: "Wayfarer", desc: "Visit every lookout tower, wayside shrine and weathered tablet in the wilds.", test: s => POI_IDS.every(id => (s.poi || {})[id]) });
@@ -3464,6 +3476,165 @@ for (const zid in ZONES) for (const n of ZONES[zid].npcs || []) {
   if (!n.id.startsWith("sign_") || !NPCS[n.id]) continue;
   const z = ZONES[zid], e = (z.exits || []).filter(x => x.kind !== "door" && !x.gate && ZONES[x.to]).sort((a, b) => Math.hypot(a.x + a.w / 2 - n.x, a.y + a.h / 2 - n.y) - Math.hypot(b.x + b.w / 2 - n.x, b.y + b.h / 2 - n.y))[0];
   if (e) { NPCS[n.id].signTo = e.to; NPCS[n.id].name = "To " + ZONES[e.to].name; }
+}
+const DEPTH_ZONES = {
+  outpost: { role: "market", pieces: ["belltower"], scene: true },
+  outpost_gov: { role: "civic", terrace: 1.0 },
+  outpost_res: { role: "res", pieces: ["spire"] },
+  outpost_ind: { role: "work", pieces: ["chimney", "chimney"] },
+  outpost_gate: { role: "gate", pieces: ["beacon"] },
+  harbor: { role: "market", pieces: ["belltower"], terrace: 0.8 },
+  harbor_fish: { role: "docks", pieces: ["spire"] },
+  harbor_yard: { role: "work", pieces: ["crane"] },
+  harbor_docks: { role: "docks", pieces: ["crane", "crane"], scene: true },
+  harbor_ngate: { role: "gate", pieces: ["beacon"] },
+  harbor_egate: { role: "gate", pieces: ["beacon"] },
+  ironvale_keep: { role: "civic", terrace: 1.2 },
+  ironvale: { role: "market", pieces: ["belltower"], scene: true },
+  ironvale_south: { role: "res", pieces: ["spire"] },
+  ironvale_forge: { role: "work", pieces: ["chimney", "chimney"] },
+  ironvale_gate: { role: "gate", pieces: ["beacon"] },
+  ironvale_sgate: { role: "gate", pieces: ["beacon"] }
+};
+const PIECE_R = { belltower: 72, spire: 66, chimney: 40, crane: 70, beacon: 34, loading: 62, banner: 9, barrelstack: 16, ropecoil: 14, goodsrack: 24, armorstand: 12, planter: 16, woodpile: 16, netrack: 24 };
+const PIECE_TALL = { belltower: 1, spire: 1, chimney: 1, crane: 1, beacon: 1 };
+const STREET_KIT = { market: ["goodsrack", "barrelstack", "banner", "goodsrack"], civic: ["banner", "armorstand", "banner", "planter"], res: ["planter", "banner", "planter"], work: ["barrelstack", "woodpile", "barrelstack", "banner"], docks: ["ropecoil", "barrelstack", "netrack", "ropecoil"], gate: ["banner", "armorstand", "barrelstack"] };
+function depthClear(z, x, y, skip) {
+  let c = Math.min(x - 120, y - 120, z.w - 120 - x, z.h - 120 - y);
+  const pt = (qx, qy, r) => { c = Math.min(c, Math.hypot(x - qx, y - qy) - r); };
+  const rc = (rx, ry, rw, rh) => { c = Math.min(c, Math.hypot(Math.max(rx - x, 0, x - rx - rw), Math.max(ry - y, 0, y - ry - rh))); };
+  for (const h of z.houses || []) rc(h.x - h.w / 2, h.y - h.h / 2, h.w, h.h);
+  for (const pa of z.paths || []) for (let i = 1; i < pa.pts.length; i++) { if (pa === skip) continue; c = Math.min(c, distToSegPt(x, y, pa.pts[i - 1], pa.pts[i]) - pa.w / 2); }
+  for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) pt(q.x, q.y, q.r);
+  for (const q of z.fountains || []) pt(q.x, q.y, 70);
+  for (const q of z.water || []) pt(q.x, q.y, q.r + 30);
+  for (const n of z.npcs || []) pt(n.x, n.y, 34);
+  for (const q of z.props || []) pt(q.x, q.y, (q.r || 20) + 4);
+  for (const q of z.dressing || []) pt(q.x, q.y, PIECE_R[q.t] || ((({ well: 1.1, cart: 1.0, hay: 0.6, statue: 0.8, shrine: 0.9, tower: 1.5, forge: 1.3, laundry: 1.1, minecart: 1.5, boatramp: 2.0, tree: 0.4 })[q.t] || 0.8) * 20 * (q.s || 1)));
+  for (const q of z.stalls || []) rc(q.x - 30, q.y - 20, 60, 40);
+  for (const q of z.gardens || []) rc(q.x - q.w / 2, q.y - q.h / 2, q.w, q.h);
+  for (const q of z.lamps || []) pt(q[0], q[1], 10);
+  for (const q of z.benches || []) pt(q[0], q[1], 18);
+  for (const k of ["docks", "boats"]) for (const q of z[k] || []) pt(q[0], q[1], 60);
+  for (const k of ["slipways", "mines", "lighthouses"]) for (const q of z[k] || []) pt(q[0], q[1], 80);
+  for (const e of z.exits || []) rc(e.x - 70, e.y - 70, e.w + 140, e.h + 140);
+  for (const g of z.gates || []) pt(g.x, g.y, 170);
+  if (z.cityWalls) for (const r of cityWallRects(z)) rc(r.x - 24, r.y - 24, r.w + 48, r.h + 48);
+  if (z.terrace) { const T = z.terrace, m = T.ramp + 30; const dx = Math.abs(x - T.x) - T.hw, dy = Math.abs(y - T.y) - T.hh; if (dx < m && dy < m && (dx > -30 || dy > -30)) c = Math.min(c, 0); }
+  return c;
+}
+function depthSpot(z, R, px, py) {
+  let best = null, bs = -1e9;
+  for (let y = 150; y < z.h - 150; y += 30) for (let x = 150; x < z.w - 150; x += 30) {
+    const c = depthClear(z, x, y);
+    if (c < R) continue;
+    const sc = Math.min(c, R * 1.8) * 2 - Math.hypot(x - px, y - py) * 0.2;
+    if (sc > bs) { bs = sc; best = { x, y }; }
+  }
+  return best;
+}
+function depthTerrace(z, lift) {
+  const ramp = 32, SR = { tree: 8, planter: 16, banner: 9, statue: 22, well: 24, shrine: 20 }, SOFT = { tree: 1, planter: 1, banner: 1, hay: 1, woodpile: 1, laundry: 1 };
+  const hard = [], soft = [];
+  for (const h of z.houses || []) hard.push({ x: h.x - h.w / 2, y: h.y - h.h / 2, w: h.w, h: h.h });
+  for (const q of z.stalls || []) hard.push({ x: q.x - 30, y: q.y - 20, w: 60, h: 40 });
+  for (const q of z.gardens || []) hard.push({ x: q.x - q.w / 2, y: q.y - q.h / 2, w: q.w, h: q.h });
+  const sq = (x, y, r, o) => ({ x: x - r, y: y - r, w: 2 * r, h: 2 * r, o });
+  for (const q of z.dressing || []) (SOFT[q.t] ? soft : hard).push(sq(q.x, q.y, SR[q.t] || PIECE_R[q.t] || 24, { k: "dressing", v: q }));
+  for (const q of z.props || []) hard.push(sq(q.x, q.y, q.r || 20));
+  for (const n of z.npcs || []) hard.push(sq(n.x, n.y, 18));
+  for (const q of z.fountains || []) hard.push(sq(q.x, q.y, 52));
+  for (const q of z.lamps || []) soft.push(sq(q[0], q[1], 8, { k: "lamps", v: q }));
+  for (const q of z.benches || []) soft.push(sq(q[0], q[1], 16, { k: "benches", v: q }));
+  const cands = [];
+  const P = z.plaza || (z.plazas || [])[0];
+  if (P) for (let m = 120; m >= -10; m -= 4) cands.push({ x: P.x, y: P.y, hw: P.r + m, hh: P.r + m });
+  for (const h of (z.houses || []).filter(h => ["keep", "cityhall", "markethall", "auction", "hall"].includes(h.type)).sort((a, b) => b.w * b.h - a.w * a.h).slice(0, 6)) for (let m = 120; m >= 24; m -= 4) cands.push({ x: h.x, y: h.y, hw: h.w / 2 + m, hh: h.h / 2 + m });
+  const within = (o, r) => o.x >= r.x && o.y >= r.y && o.x + o.w <= r.x + r.w && o.y + o.h <= r.y + r.h;
+  for (const c of cands) {
+    const inner = { x: c.x - c.hw, y: c.y - c.hh, w: c.hw * 2, h: c.hh * 2 }, outer = { x: inner.x - ramp - 6, y: inner.y - ramp - 6, w: inner.w + 2 * ramp + 12, h: inner.h + 2 * ramp + 12 };
+    const inn = { x: inner.x + 6, y: inner.y + 6, w: inner.w - 12, h: inner.h - 12 };
+    if (outer.x < 70 || outer.y < 70 || outer.x + outer.w > z.w - 70 || outer.y + outer.h > z.h - 70) continue;
+    if (z.cityWalls && cityWallRects(z).some(r => rectsHit(r, outer, 10))) continue;
+    if ((z.exits || []).some(e => rectsHit({ x: e.x, y: e.y, w: e.w, h: e.h }, outer, 40))) continue;
+    if (hard.some(o => rectsHit(o, outer, 0) && !within(o, inn))) continue;
+    if (!(z.paths || []).some(pa => pa.pts.some((q, i) => i > 0 && segRect(pa.pts[i - 1][0], pa.pts[i - 1][1], q[0], q[1], inner, 0)))) continue;
+    for (const o of soft) if (rectsHit(o, outer, 0) && !within(o, inn)) { const L = z[o.o.k]; const k = L.indexOf(o.o.v); if (k >= 0) L.splice(k, 1); }
+    const T = { x: c.x, y: c.y, hw: c.hw, hh: c.hh, lift, ramp };
+    z.terrace = T;
+    (z.features = z.features || []).push(Object.assign({ t: "terrace" }, T));
+    const walls = [], steps = [], Ex = c.hw + ramp / 2, Ey = c.hh + ramp / 2;
+    const sides = [[[-1, -1], [1, -1], [0, -1]], [[1, -1], [1, 1], [1, 0]], [[1, 1], [-1, 1], [0, 1]], [[-1, 1], [-1, -1], [-1, 0]]];
+    for (const [a, b, n] of sides) {
+      const ax = c.x + a[0] * Ex, ay = c.y + a[1] * Ey, bx = c.x + b[0] * Ex, by = c.y + b[1] * Ey, L = Math.hypot(bx - ax, by - ay), N = Math.max(2, Math.ceil(L / 12));
+      let run = null, gap = null;
+      const flush = () => { if (run) walls.push({ x1: run.x1, y1: run.y1, x2: run.x2, y2: run.y2, nx: n[0], ny: n[1] }); run = null; };
+      const flushGap = () => { if (gap) steps.push({ x: (gap.x1 + gap.x2) / 2, y: (gap.y1 + gap.y2) / 2, len: Math.hypot(gap.x2 - gap.x1, gap.y2 - gap.y1) + 12, nx: n[0], ny: n[1] }); gap = null; };
+      for (let k = 0; k <= N; k++) {
+        const t = k / N, x = ax + (bx - ax) * t, y = ay + (by - ay) * t;
+        const onRoad = (z.paths || []).some(pa => pa.pts.some((q, i) => i > 0 && distToSegPt(x, y, pa.pts[i - 1], q) < pa.w / 2 + 6));
+        if (onRoad) { flush(); if (!gap) gap = { x1: x, y1: y, x2: x, y2: y }; else { gap.x2 = x; gap.y2 = y; } }
+        else { flushGap(); if (!run) run = { x1: x, y1: y, x2: x, y2: y }; else { run.x2 = x; run.y2 = y; } }
+      }
+      flush(); flushGap();
+    }
+    z.terraceWalls = walls.filter(w => Math.hypot(w.x2 - w.x1, w.y2 - w.y1) > 6).map(w => ({ x1: Math.round(w.x1), y1: Math.round(w.y1), x2: Math.round(w.x2), y2: Math.round(w.y2), nx: w.nx, ny: w.ny }));
+    z.terraceSteps = steps.map(q => ({ x: Math.round(q.x), y: Math.round(q.y), len: Math.round(q.len), nx: q.nx, ny: q.ny }));
+    return;
+  }
+}
+function depthPrefer(z, t) {
+  const cen = (a) => a.length ? [a.reduce((s, q) => s + q[0], 0) / a.length, a.reduce((s, q) => s + q[1], 0) / a.length] : [z.w / 2, z.h / 2];
+  if (t === "chimney") return cen((z.houses || []).filter(h => h.type === "smelter" || h.type === "forge" || h.type === "warehouse").map(h => [h.x, h.y]));
+  if (t === "crane") return cen([].concat(z.docks || [], z.slipways || []).map(q => [q[0], q[1]]));
+  if (t === "beacon") { const e = (z.exits || []).find(x => x.kind !== "door" && ZONES[x.to] && ZONES[x.to].theme !== "town"); return e ? [e.x + e.w / 2, e.y + e.h / 2] : [z.w / 2, z.h / 2]; }
+  if (t === "belltower") return cen((z.stalls || []).map(q => [q.x, q.y]));
+  if (t === "loading") return cen((z.houses || []).filter(h => h.type === "warehouse" || h.type === "markethall" || h.type === "shop").map(h => [h.x, h.y]));
+  return [z.w / 2, z.h / 2];
+}
+function cityDepth(zid) {
+  const D = DEPTH_ZONES[zid], z = ZONES[zid];
+  if (!D || !z) return;
+  z.dressing = z.dressing || [];
+  const rnd = seeded(hashStr("depth:" + zid));
+  if (D.terrace) depthTerrace(z, D.terrace);
+  for (const t of D.pieces || []) {
+    const [px, py] = depthPrefer(z, t), at = depthSpot(z, PIECE_R[t], px, py);
+    if (at) z.dressing.push({ t, x: at.x, y: at.y, rot: Math.round(rnd() * 4) * Math.PI / 2, piece: 1 });
+  }
+  if (D.scene) { const [px, py] = depthPrefer(z, "loading"), at = depthSpot(z, PIECE_R.loading, px, py); if (at) z.dressing.push({ t: "loading", x: at.x, y: at.y, rot: rnd() * Math.PI * 2 }); }
+  const kit = STREET_KIT[D.role] || STREET_KIT.res;
+  let n = 0;
+  for (const pa of z.paths || []) {
+    if (pa.lane) continue;
+    for (let i = 1; i < pa.pts.length && n < 30; i++) {
+      const [ax, ay] = pa.pts[i - 1], [bx, by] = pa.pts[i], L = Math.hypot(bx - ax, by - ay);
+      if (L < 260) continue;
+      const ux = (bx - ax) / L, uy = (by - ay) / L;
+      for (let t = 140 + rnd() * 80, k = 0; t < L - 120 && n < 30; t += 170 + rnd() * 90, k++) {
+        if (rnd() > 0.55) continue;
+        const ty = kit[Math.floor(rnd() * kit.length)], R = PIECE_R[ty] || 16, sd = k % 2 ? 1 : -1, off = pa.w / 2 + R + 10;
+        const x = Math.round(ax + ux * t - uy * sd * off), y = Math.round(ay + uy * t + ux * sd * off);
+        if (depthClear(z, x, y, pa) < R + 4 || distToSegPt(x, y, pa.pts[i - 1], pa.pts[i]) < pa.w / 2 + R) continue;
+        z.dressing.push({ t: ty, x, y, rot: Math.atan2(-uy, ux) + (sd > 0 ? Math.PI : 0), street: 1 });
+        n++;
+      }
+    }
+  }
+}
+for (const zid in DEPTH_ZONES) cityDepth(zid);
+for (const t of ["outpost", "harbor", "ironvale"]) for (const p of ZONE_SPLITS[t].parts) {
+  const z = ZONES[p.id];
+  if (!z.ghost) continue;
+  z.ghost.marks = [];
+  for (const q of ZONE_SPLITS[t].parts) {
+    if (q === p) continue;
+    const ox = q.x0 - p.x0, oy = q.y0 - p.y0, Q = ZONES[q.id];
+    const add = (tp, x, y) => { x += ox; y += oy; if (x > -2400 && y > -2400 && x < z.w + 2400 && y < z.h + 2400 && (x < -40 || y < -40 || x > z.w + 40 || y > z.h + 40)) z.ghost.marks.push({ t: tp, x, y }); };
+    for (const d of Q.dressing || []) if (PIECE_TALL[d.t]) add(d.t, d.x, d.y);
+    for (const L of Q.lighthouses || []) add("lighthouse", L[0], L[1]);
+    for (const h of Q.houses || []) if (h.type === "keep" || h.type === "cityhall") add(h.type, h.x, h.y);
+  }
 }
 function roadPts(z) {
   const out = [];

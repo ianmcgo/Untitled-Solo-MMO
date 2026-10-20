@@ -25,7 +25,7 @@ const mockLogin = require('./mocklogin');
       };
       let n = 0;
       for (const h of z.houses || []) { n++; check((h.sign || h.type || 'house'), h.x, h.y, rect(h.x, h.y, h.w + 6, h.h + 6), 0.6, 0.3); }
-      const DR = { tree: 5, well: 22, cart: 20, planter: 14, hay: 12, statue: 16, shrine: 18, tower: 30, forge: 26, laundry: 22, netrack: 22, minecart: 30, boatramp: 40, woodpile: 14 };
+      const DR = { tree: 5, well: 22, cart: 20, planter: 14, hay: 12, statue: 16, shrine: 18, tower: 30, forge: 26, laundry: 22, netrack: 22, minecart: 30, boatramp: 40, woodpile: 14, belltower: 26, spire: 24, chimney: 16, crane: 20, beacon: 14, loading: 20, banner: 3, barrelstack: 8, ropecoil: 7, goodsrack: 12, armorstand: 6 };
       for (const o of z.dressing || []) { n++; check('dressing:' + o.t, o.x, o.y, ring(o.x, o.y, (DR[o.t] || 16) * (o.s || 1)), 0.02, 0.35, true); }
       for (const p of z.props || []) { n++; check('prop:' + p.type, p.x, p.y, ring(p.x, p.y, (p.r || 20) * 0.8), 0.02, 0.35, true); }
       for (const s of z.stalls || []) { n++; check('stall', s.x, s.y, rect(s.x, s.y, 52, 28), 0.02, 0.35, true); }

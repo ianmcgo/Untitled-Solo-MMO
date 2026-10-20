@@ -84,7 +84,7 @@ Goal: towns that are fun to explore, easy to read, and feel deep. Fewer empty ho
 - Vendor access: each vendor's talk spot has a clear walk-up (no stall, fence or wall between the street and the NPC); verified with the path tool used for spawns.
 - Residence: a sign ("Home" with the character's name) over the door, a map and minimap marker, and a one-time title card plus log line on first entry to the Residential district.
 
-### T2: Variety and depth per city
+### T2: Variety and depth per city - DONE in 19.12.0
 - Each city gets 3–4 distinct set pieces that are visible from a distance (clock tower, lighthouse, mine head, great hall, bridge, aqueduct arch) and a landmark at each gate.
 - Height: terraces, steps and low walls so districts sit at different levels; a raised square or a sunken market.
 - Street dressing with per-district palettes: Residential (gardens, washing, benches), Market (awnings, crates, hanging goods), Industrial (smoke, barrels, racks), Government (banners, lamps, statues), Docks (ropes, nets, barrels, gulls), Keep (torches, armour stands).

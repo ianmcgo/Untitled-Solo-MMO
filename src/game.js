@@ -182,6 +182,7 @@ function normalizeSave(d) {
   out.guild = Object.assign(newSave().guild, d.guild && typeof d.guild === "object" ? d.guild : {});
   if (!out.guild.active || typeof out.guild.active !== "object") out.guild.active = {};
   if (!Array.isArray(out.guild.done)) out.guild.done = [];
+  if (!Array.isArray(out.guild.bought)) out.guild.bought = [];
   if (!Array.isArray(out.crypt.lit)) out.crypt.lit = [];
   if (!Array.isArray(d.spells)) out.spells = Object.keys(SPELLS).filter(id => Object.entries(SPELLS[id].jobs).some(([j, l]) => out.jobs[j] && out.jobs[j].lv >= l));
   out.spells = out.spells.filter(id => SPELLS[id]);
@@ -840,7 +841,7 @@ function mercBribe(id) {
 function rehireFriend(id) {
   const of = save.oldFriends && save.oldFriends[id], m = MERCS[id];
   if (!of || !m) return "They aren't here.";
-  if (save.hired.length >= CONFIG.maxParty - 1) { log("Your party is full. Dismiss someone first.", "sys"); sfx("error"); return "Party full."; }
+  if (mercFull()) { log(mercFullMsg(), "sys"); sfx("error"); return "Party full."; }
   const b = mercBribe(id);
   if (save.gil < b) { log(m.name + " won't come back for less than " + b + " crystals.", "sys"); sfx("error"); return "Not enough crystals."; }
   save.gil -= b;
@@ -1141,10 +1142,25 @@ function mercLockedReason(id) {
   return "";
 }
 
+function mercSlots() {
+  let top = 0;
+  for (const k in save.jobs) top = Math.max(top, (save.jobs[k] && save.jobs[k].lv) || 0);
+  top = Math.max(top, CONFIG.mercSlotFloorLv || 0);
+  return top >= 15 ? 3 : top >= 10 ? 2 : top >= 5 ? 1 : 0;
+}
+
+function mercFull() {
+  return save.hired.length >= Math.min(CONFIG.maxParty - 1, mercSlots());
+}
+
+function mercFullMsg() {
+  return mercSlots() >= CONFIG.maxParty - 1 || save.hired.length < mercSlots() ? "Your party is full. Dismiss someone first." : save.hired.length >= mercSlots() && mercSlots() > 0 ? "You can only lead " + mercSlots() + " mercenar" + (mercSlots() > 1 ? "ies" : "y") + " until a job reaches Lv" + (mercSlots() < 2 ? 10 : 15) + "." : "Reach Lv5 in any job before you can hire a mercenary.";
+}
+
 function hireMerc(id) {
   const m = MERCS[id];
   if (!mercAvailable(id) || save.hired.includes(id)) return;
-  if (save.hired.length >= CONFIG.maxParty - 1) { log("Your party is full. Dismiss someone first.", "sys"); sfx("error"); return; }
+  if (mercFull()) { log(mercFullMsg(), "sys"); sfx("error"); return; }
   const fee = mercFee(id);
   if (save.gil < fee) { log("You can't afford " + m.name + "'s fee (" + fee + " crystals).", "sys"); sfx("error"); return; }
   save.gil -= fee;
@@ -1349,7 +1365,7 @@ function buildMob(famKey, L, x, y, spawnIdx, jobWant) {
   if (js) { st.maxHp = Math.round(st.maxHp * js[0]); st.att = Math.round(st.att * js[1]); st.def = Math.round(st.def * js[2]); st.eva += js[3]; st.delay = +(f.delay * js[4]).toFixed(2); }
   const kit = job ? mobKit(job, L) : null;
   return {
-    id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: f.name, lv: L, job, kit, spells: kit ? kit.spells : f.spells || null, castGap: kit ? kit.gap : f.castGap || [6, 9], stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
+    id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: job && JOBS[job] ? f.name + " " + JOBS[job].name : f.name, lv: L, job, kit, spells: kit ? kit.spells : f.spells || null, castGap: kit ? kit.gap : f.castGap || [6, 9], stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
     x, y, px: x, py: y, home: { x, y }, radius: Math.max(8, Math.round(f.radius * (f.scale || 1))), color: f.color, speed: f.speed * CONFIG.mobSpeedMul, delay: st.delay, swingTimer: st.delay,
     state: "idle", enmity: new Map(), face: Math.random() * Math.PI * 2, alive: true, buffs: {}, chain: null, burst: null,
     spawnIdx, wanderTimer: 0, wanderDir: { x: 0, y: 0 }, readying: null, flash: 0, casting: null, recasts: {}, deadAt: 0, target: null, moving: false,
@@ -2665,7 +2681,7 @@ function essenceIds() { return Object.keys(ITEMS).filter(k => ITEMS[k].kind === 
 function essenceHeld() { let n = 0; for (const k of essenceIds()) n += invCount(k); return n; }
 function spendEssence(n) { const ids = essenceIds().sort((a, b) => invCount(b) - invCount(a)); for (const k of ids) { if (n <= 0) break; const t = Math.min(n, invCount(k)); if (t > 0) { removeItem(k, t); n -= t; } } }
 
-function ahList(id, qty, price) {
+function ahList(id, qty, price, essId) {
   qty = Math.max(1, Math.floor(qty || 1)); price = Math.floor(price || 0);
   if (!ahTradable(id)) return "You can't sell that at auction.";
   if (invCount(id) < qty) return "You don't have that many.";
@@ -2674,9 +2690,11 @@ function ahList(id, qty, price) {
   if (save.market.listings.length >= AH_CFG.maxListings) return "You can have " + AH_CFG.maxListings + " lots up at once.";
   const fee = ahFee(price), ess = ahEssenceFee(id), own = ITEMS[id].kind === "crystal" ? qty : 0;
   if (save.gil < fee) return "The listing fee is " + fee + " crystals.";
-  if (essenceHeld() < ess + own) return "Listing this needs " + ess + " Essence crystal" + (ess > 1 ? "s" : "") + " of any element" + (own ? " besides the ones you list" : "") + ".";
+  if (essId && essenceIds().includes(essId) && invCount(essId) >= ess + (essId === id ? qty : 0)) { /* chosen element */ }
+  else if (essId && essenceIds().includes(essId)) return "You need " + ess + " " + ITEMS[essId].name + (ess > 1 ? "s" : "") + " for this listing" + (essId === id ? " besides the ones you list" : "") + ". Pick another element.";
+  else if (essenceHeld() < ess + own) return "Listing this needs " + ess + " Essence crystal" + (ess > 1 ? "s" : "") + " of any element" + (own ? " besides the ones you list" : "") + ".";
   save.gil -= fee;
-  spendEssence(ess);
+  if (essId && essenceIds().includes(essId)) removeItem(essId, ess); else spendEssence(ess);
   removeItem(id, qty);
   const now = Date.now();
   save.market.listings.push({ id, qty, price, t: now, next: now + AH_CFG.checkMs, exp: now + AH_CFG.expireMs, town: ahHere() });
@@ -2733,7 +2751,7 @@ function guildRank(total) {
 
 function guildDay() {
   const day = boardDay();
-  if (save.guild.day !== day) { save.guild.day = day; save.guild.done = []; }
+  if (save.guild.day !== day) { save.guild.day = day; save.guild.done = []; save.guild.bought = []; }
   return day;
 }
 
@@ -2805,7 +2823,50 @@ function turnInBounty(id) {
   return "";
 }
 
+let GUILD_POOLS = null;
+function guildPool(kind) {
+  if (!GUILD_POOLS) {
+    GUILD_POOLS = { crystal: [], common: [], uncommon: [], rare: [] };
+    for (const id in ITEMS) {
+      const it = ITEMS[id];
+      if (it.kind === "crystal") { GUILD_POOLS.crystal.push(id); continue; }
+      if (!(it.price > 0) || it.ex || it.race || it.starter || it.nm || it.hq) continue;
+      const isScroll = it.kind === "use" && (it.spell || it.recipe);
+      if (!(it.kind === "mat" || it.kind === "equip" || isScroll)) continue;
+      const r = isScroll ? (it.price < 150 ? "common" : it.price < 500 ? "uncommon" : "rare") : itemRarity(id);
+      if (GUILD_POOLS[r]) GUILD_POOLS[r].push(id);
+    }
+  }
+  return GUILD_POOLS[kind] || [];
+}
+
+function guildPerkItem(p) {
+  if (p.item) return p.item;
+  const pool = guildPool(p.pick);
+  if (!pool.length) return null;
+  const rnd = seeded(hashStr(String(save.created || 1) + ":gperk:" + guildDay() + ":" + p.id));
+  return pool[Math.floor(rnd() * pool.length)];
+}
+
+function guildBuyPerk(pid) {
+  const p = GUILD_PERKS.find(x => x.id === pid);
+  if (!p) return "Not for sale.";
+  guildDay();
+  if (guildRank() < p.rank) return "You need " + GUILD_RANKS[p.rank][0] + " rank for that.";
+  if (save.guild.bought.includes(pid)) return "You already bought that today. Come back after midnight.";
+  if (save.guild.gp < p.gp) return "You need " + p.gp + " guild points.";
+  const id = guildPerkItem(p);
+  if (!id) return "Nothing to offer today.";
+  if (!giveItem(id, 1)) return "Your bag is full.";
+  save.guild.gp -= p.gp;
+  save.guild.bought.push(pid);
+  sfx("coin");
+  saveGame();
+  return "";
+}
+
 function guildBuy(id) {
+  if (id.startsWith("g_")) return guildBuyPerk(id);
   const e = GUILD_SHOP.find(x => x.id === id);
   if (!e) return "Not for sale.";
   if (guildRank() < e.rank) return "You need " + GUILD_RANKS[e.rank][0] + " rank for that.";
@@ -3621,6 +3682,7 @@ function useItem(id) {
   if (S.time < S.itemReadyAt) { log("You must wait " + fmt(S.itemReadyAt - S.time) + "s to use another item.", "sys"); return; }
   if (invCount(id) < 1) return;
   save.stats.itemsUsed++;
+  if (it.guildWarp) { removeItem(id, 1); S.itemReadyAt = S.time + 5; log("The scroll flares and carries you to the Ashenreach market.", "sys"); enterZone("outpost"); return; }
   if (it.enchant === "warp") { S.itemReadyAt = S.time + 5; castWarp(player); return; }
   if (it.kind === "food") { eatFood(id); return; }
   if (it.spell) { learnSpell(id); return; }
@@ -4694,7 +4756,8 @@ function enterZone(id, x, y, opt) {
     if (fixed && fixed > Date.now()) { S.spawnAt[i] = S.time + (fixed - Date.now()) / 1000; return; }
     spawnMob(i);
   });
-  S.npcs = S.zone.npcs.map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: n.face != null ? n.face : Math.PI / 2, idleFace: n.face != null ? n.face : Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
+  const cacheNpc = dailyCache(S.zone);
+  S.npcs = S.zone.npcs.concat(cacheNpc ? [cacheNpc] : []).map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: n.face != null ? n.face : Math.PI / 2, idleFace: n.face != null ? n.face : Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
   S.gatherAt = [];
   if (FEATURES.gathering && S.zone.gather) for (const type in S.zone.gather) {
     const g = S.zone.gather[type];
@@ -5530,6 +5593,19 @@ function brazierOrder() {
   return els;
 }
 function brazierLit(el) { return save.crypt.solved || save.crypt.lit.includes(el); }
+function dailyCache(z) {
+  if (!z || !z.cacheId) return null;
+  const day = boardDay();
+  save.cacheDone = save.cacheDone || {};
+  if (save.cacheDone[z.cacheId] === day) return null;
+  const rnd = seeded(hashStr(String(save.created || 1) + ":cache:" + z.cacheId + ":" + day));
+  if (rnd() > CONFIG.cacheChance) return null;
+  for (let k = 0; k < 24; k++) {
+    const at = poiSpot(z, 300 + rnd() * (z.w - 600), 300 + rnd() * (z.h - 600), 80);
+    if (at) return { id: z.cacheId, x: at.x, y: at.y };
+  }
+  return null;
+}
 function chestOpenUntil(n) { return save.timers["chest:" + n.id] || 0; }
 function chestState(n) {
   if (n.needsKill && !(save.timers["nm:" + n.needsKill] > Date.now())) return "sealed";
@@ -5549,7 +5625,8 @@ function openChest(n) {
   save.gil += g;
   log("You find " + g + " crystals in the " + n.name.toLowerCase() + ".", "loot");
   sfx("coin");
-  save.timers["chest:" + n.id] = Date.now() + 20 * 60 * 1000;
+  if (n.poi === "cache") { save.cacheDone = save.cacheDone || {}; save.cacheDone[n.id] = boardDay(); n.gone = true; log("The cache crumbles away once emptied.", "sys"); }
+  else save.timers["chest:" + n.id] = Date.now() + 20 * 60 * 1000;
   ring(n, "#ffd54f", 40, 0.7, "sparkle");
   vfx("levelup", { tgt: n });
   saveGame();

@@ -839,11 +839,11 @@ function tabJob() {
   return h;
 }
 function tabMercs() {
-  const pool = mercPool(), full = save.hired.length >= CONFIG.maxParty - 1;
+  const pool = mercPool(), full = mercFull();
   const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
   UI.modalHelp = "Hire a companion. They fight at your level; if they fall, they're gone for good.";
   const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc({ dd: "Damage", tank: "Tank", healer: "Healer", support: "Support", nuker: "Nuker", burster: "Burster", hybrid: "Hybrid", bard: "Bard" }[m.role] || m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
-  let h = '<div class="sub" style="margin-bottom:6px">The Mercenary Hall has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". The fee covers the first hour of play; after that each asks for an hourly wage.</div><h3>For hire today</h3>";
+  let h = '<div class="sub" style="margin-bottom:6px">The Mercenary Hall has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". Mercenary slots: " + save.hired.length + " / " + mercSlots() + (mercSlots() < 3 ? " (" + (mercSlots() < 1 ? "Lv5" : mercSlots() < 2 ? "Lv10" : "Lv15") + " in any job opens the next)" : "") + ". The fee covers the first hour of play; after that each asks for an hourly wage.</div><h3>For hire today</h3>";
   const offers = pool.filter(id => !save.hired.includes(id) && !(save.oldFriends && save.oldFriends[id]));
   if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
   for (const id of offers) h += row(id, '<button data-a="hire" data-v="' + id + '"' + (save.gil < mercFee(id) || full ? " disabled" : "") + ">Hire · " + mercFee(id) + " 💠</button>");
@@ -1244,6 +1244,16 @@ function sparkline(vals, w, h) {
 
 function ahTrend(id) { const hst = priceHistory(id, 3); const d = (hst[2] - hst[0]) / Math.max(1, hst[0]); return d > 0.03 ? '<span style="color:#8fd66a">▲</span>' : d < -0.03 ? '<span style="color:#ff8a80">▼</span>' : '<span class="sub">▬</span>'; }
 
+function ahEssPick() {
+  const have = essenceIds().filter(k => invCount(k) > 0);
+  if (UI.ahEss && have.includes(UI.ahEss)) return UI.ahEss;
+  return have.sort((a, b) => invCount(b) - invCount(a))[0] || null;
+}
+function ahEssRow() {
+  const pick = ahEssPick(), ids = essenceIds().filter(k => invCount(k) > 0);
+  if (!ids.length) return '<div class="sub" style="margin-top:4px">You hold no Essence crystals.</div>';
+  return '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px"><span class="sub">Pay Essence with</span>' + ids.map(k => '<button data-a="ahess" data-v="' + k + '"' + (k === pick ? ' class="pri"' : "") + ">" + (ITEMS[k].icon || "") + " " + esc(ITEMS[k].name) + " ×" + invCount(k) + "</button>").join("") + "</div>";
+}
 function ahDetail(id) {
   const it = ITEMS[id], hist = priceHistory(id, 12), cur = hist[hist.length - 1], base = it.price;
   let h = '<div class="item" style="display:block;border-color:#c9a227"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><b>' + (it.icon || "") + " " + esc(it.name) + '</b><div class="sub">' + esc(itemDesc(id)) + '</div></div><div style="text-align:right"><b>' + cur + ' 💠</b><div class="sub">usual ' + base + "</div></div></div>";
@@ -1253,7 +1263,7 @@ function ahDetail(id) {
     const unit = UI.ahPrice / q, tn = ahTownName(ahHere()), mins = Math.round(AH_CFG.townBuySec / 60);
     const speed = townEligible(UI.ahPrice, q, id) ? "can be bought by " + tn + " (it buys one lot every " + mins + " real minutes, from lots up at least " + mins + " minutes)" : "is too high for " + tn + " to buy (it pays up to " + townCeil(id) + " each)";
     h += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px"><span class="sub">Qty</span><button data-a="ahqty" data-v="-1">−</button><b>' + q + '</b><button data-a="ahqty" data-v="1">+</button><span class="sub" style="margin-left:10px">Price</span><button data-a="ahprice" data-v="-0.1">−10%</button><b>' + UI.ahPrice + ' 💠</b><button data-a="ahprice" data-v="0.1">+10%</button></div>';
-    h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) + " + ahEssenceFee(UI.ahSel) + " Essence (any element, you have " + essenceHeld() + ") · at this price it " + speed + '.</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The town buys at most one of your lots every 20 real minutes. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
+    h += '<div class="sub" style="margin-top:6px">' + Math.round(unit) + " each · fee " + ahFee(UI.ahPrice) + " 💠 (" + Math.round(AH_CFG.fee * 100) + "%, not refunded) + " + ahEssenceFee(UI.ahSel) + " Essence (you have " + essenceHeld() + ") · at this price it " + speed + '.</div>' + ahEssRow() + '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button data-a="ahlist">Sell to the market</button>' + (typeof netAhPost === "function" && NET.member ? '<button data-a="pmpost"' + (UI.pmBusy ? " disabled" : "") + '>🌐 Offer to players</button>' : "") + '</div><div class="sub" style="margin-top:4px">The town buys at most one of your lots every 20 real minutes. Players can buy your lot for 48 hours at exactly your price (same 3% fee).</div>';
   } else {
     const P = typeof pmLoad === "function" && typeof netAhList === "function" && NET.member ? pmLoad(false) : null;
     const lines = marketLines(id, P && P.at ? P.list : []).filter(l => !UI.ahSrc || UI.ahSrc === "all" || l.kind === UI.ahSrc);
@@ -1444,6 +1454,13 @@ function tabGuild() {
     h += row(b, fin ? '<span class="sub">Done ✓</span>' : have ? '<span class="sub">Taken</span>' : '<button data-a="btake" data-v="' + b.id + '">Accept</button>');
   }
   h += '<div class="sub" style="margin:4px 0 8px">New bounties go up at midnight (UTC). Higher ranks unlock harder bounties and notorious monster hunts.</div>';
+  h += "<h3>Daily supplies</h3><div class=\"sub\" style=\"margin-bottom:4px\">One of each per day. Prices climb steeply with each rank; stock changes at midnight (UTC).</div>";
+  guildDay();
+  for (const p of GUILD_PERKS) {
+    const id = guildPerkItem(p), it = id && ITEMS[id], lock = rk < p.rank, got = g.bought.includes(p.id);
+    if (!it) continue;
+    h += '<div class="item ' + rarityOf(id) + '"' + (lock ? ' style="opacity:.5"' : "") + "><div><b>" + (it.icon || "") + " " + esc(lock && p.pick ? "???" : it.name) + '</b><div class="sub">' + esc(p.label) + (lock ? "" : " · " + esc(itemDesc(id))) + "</div></div>" + (lock ? '<span class="sub">🔒 ' + GUILD_RANKS[p.rank][0] + "</span>" : got ? '<span class="sub">Bought today ✓</span>' : '<button data-a="gbuy" data-v="' + p.id + '"' + (g.gp < p.gp ? " disabled" : "") + ">" + p.gp + " 🎖️</button>") + "</div>";
+  }
   h += "<h3>Guild rewards</h3>";
   for (const e of GUILD_SHOP) {
     const it = ITEMS[e.id], lock = rk < e.rank;
@@ -1593,9 +1610,10 @@ function onMenuClick(e) {
   else if (a === "ahcat") { UI.ahCat = v; UI.ahSel = null; renderModal(); return; }
   else if (a === "ahsel") { UI.ahSel = v; UI.ahMsg = ""; const it = ITEMS[v]; UI.ahQty = UI.ahView === "sell" ? Math.min(invCount(v), it.stack || 1) : 1; UI.ahPrice = marketPrice(v) * UI.ahQty; renderModal(); return; }
   else if (a === "ahqty") { const it = ITEMS[UI.ahSel]; const max = UI.ahView === "sell" ? Math.min(invCount(UI.ahSel), it.stack || 1) : Math.min(ahStock(UI.ahSel), it.stack || 1); UI.ahQty = clamp((UI.ahQty || 1) + (+v), 1, Math.max(1, max)); UI.ahPrice = marketPrice(UI.ahSel) * UI.ahQty; renderModal(); return; }
+  else if (a === "ahess") { UI.ahEss = v; renderModal(); return; }
   else if (a === "ahprice") { UI.ahPrice = Math.max(1, Math.round(UI.ahPrice * (1 + (+v)))); renderModal(); return; }
   else if (a === "ahbuy") { UI.ahMsg = ahBuy(UI.ahSel, UI.ahQty || 1, v || undefined); UI.ahQty = 1; renderModal(); return; }
-  else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
+  else if (a === "ahlist") { UI.ahMsg = ahList(UI.ahSel, UI.ahQty || 1, UI.ahPrice, ahEssPick()); if (!UI.ahMsg) UI.ahSel = null; renderModal(); return; }
   else if (a === "ahcancel") { ahCancel(+v); renderModal(); return; }
   else if (a === "dropsel") { if (UI.sel != null) onMenuClick({ target: { closest: () => ({ dataset: { a: "drop", v: String(UI.sel) } }) }, preventDefault() {} }); return; }
   else if (a === "invview") { UI.invView = v; UI.sel = null; renderModal(); return; }
@@ -1729,6 +1747,17 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.12.0", date: "2026-10-20", title: "Skylines and Steps", items: [
+    "<b>City set pieces.</b> Every district now has landmarks you can spot from a distance: clock and bell towers, slender spires, tall chimneys with drifting smoke, harbour cranes, and a flaming beacon post at each gate. Neighbouring districts show their tall landmarks on the skyline.",
+    "<b>Height in the cities.</b> The Government plaza, the Saltreach Hall square and the Ironvale Keep square stand on low terraces with stone retaining walls and steps where the roads meet them.",
+    "<b>Street dressing by district.</b> Markets get goods racks and barrel stacks, civic districts banners and armour stands, workshops woodpiles, docks rope coils and net racks, gates banners and armour stands. Some squares have a cart being loaded.",
+    "<b>Mercenary slots follow your jobs.</b> You can hire <b>one</b> mercenary once any job reaches Lv5, <b>two</b> at Lv10 and <b>three</b> at Lv15 or higher. Anyone already hired stays.",
+    "<b>Adventurers' Guild daily shop.</b> Spend guild points on a Potion and an Ether from the start, a Guild Warp Scroll (carries you to the Ashenreach market) at Bronze, a random crystal at Iron, a random common find at Silver, uncommon at Gold and rare at Mythril. One of each per day, and prices climb steeply with rank. Hi-Potions are no longer sold there.",
+    "<b>Auction Essence choice.</b> When you list a lot you now pick which element of Essence pays the listing cost.",
+    "<b>Hidden Caches are rare.</b> A cache now appears on only some days (about one in four) in the zones that have them, at a different random spot each day, and it crumbles away once you open it.",
+    "<b>Monster jobs in their names.</b> A monster with a job is named for it, such as Goblin White Mage.",
+    "<b>Fixes.</b> The treasure chest lid now draws properly. A bat animation crash is fixed. Victory music is an octave lower and no longer shrill."
+  ] },
   { v: "19.11.0", date: "2026-10-20", title: "House rules", items: [
     "<b>Hotkey bar.</b> It now sits directly above the Target box, exactly as wide as the boxes under it (two rows of five), and always draws on top of them instead of hiding behind. Your old dragged position is reset once; you can still drag it by the grip.",
     "<b>Event log history.</b> Click the event log to open it and scroll back through up to 500 old lines. Click the world or press Esc to close it.",
@@ -2295,6 +2324,7 @@ const UPDATES = [
   ] },
   { v: "18.28.0", date: "2026-10-16", title: "Companions sync to your level", items: [
     "<b>Hired at your level:</b> a companion's hiring fee now follows your current level, and they join at that level.",
+    "<b>Monster jobs:</b> a monster with a job carries it in its name, such as Goblin White Mage.",
     "<b>Level sync:</b> when you level up, level down or change jobs, companions sync to your new level. Gear they can no longer wear is put away in their bag as a kept item and goes back on when your level allows. Kept items are never sold.",
     "<b>Plain starting gear:</b> companions start in plain shop gear for their level, never +1 or named pieces.",
     "<b>Bestiary:</b> only creatures you have defeated are recorded. Entries for creatures you had only seen have been removed.",
@@ -3428,7 +3458,7 @@ const UPDATES = [
     "Maera has opened the Adventurers' Guild in Ashenreach Outpost, just west of Captain Rhea.",
     "Three bounties go up every day (midnight UTC). Accept up to three at a time, defeat the monsters anywhere in the world, and turn them in to Maera for guild points, crystals and experience.",
     "Six guild ranks: Copper, Bronze, Iron, Silver, Gold and Mythril. Each rank brings harder bounties, including hunts for notorious monsters.",
-    "Spend guild points on guild rewards: Hi-Potions, Ethers, Chapel Sigils, and five pieces of guild gear (Guild Ring, Pathfinder Boots, Silver Insignia, Guild Greatcoat, Mythril Crest).",
+    "Spend guild points on guild rewards: Potions, Ethers, Chapel Sigils, and five pieces of guild gear (Guild Ring, Pathfinder Boots, Silver Insignia, Guild Greatcoat, Mythril Crest).",
     "Three new achievements: On the Books, Silver Standing and Mythril Legend."
   ] },
   { v: "5.9.0", date: "2026-10-13", title: "Level 20 and Frostspire Pass", items: [
@@ -3881,7 +3911,7 @@ function tabHelp() {
     "<b>Lookout Tower</b>: climb it to see the whole area. Every landmark there is marked as discovered, and your first climb gives 60 EXP.",
     "<b>Wayside Shrine</b>: leave 10 crystals to pray and receive Shrine's Favour (🕯️), +10% experience for 30 minutes. Each shrine can be used once an hour. Your first prayer at each gives 40 EXP.",
     "<b>Weathered Tablet</b>: a piece of the area's history. Reading one for the first time gives 50 EXP.",
-    "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It refills about 20 minutes after you open it.",
+    "<b>Hidden Cache</b>: a vault chest with crystals and treasure. It shows up only on some days, somewhere different in its zone each day, and it vanishes once opened.",
     "<b>Camps</b>: Rocky Hollow (one in each of its three zones), Frostspire Pass and the Ashen Marsh each have a camp with a tent and a fire. Crystals stand only in towns, and touching one restores your party and attunes you to it. From any crystal you can <b>warp</b> to another one you've attuned to for " + CONFIG.warpCost + " crystals (not during a fight). Home points can still only be set in towns.",
     "<b>Signposts</b> stand at every way in and out of an outdoor area; read one for the direction and rough distance to each neighbouring area.",
     "<b>Roads</b>: riding along a road outside town is " + Math.round((CONFIG.roadBonus - 1) * 100) + "% faster than riding cross-country. On the open plateau of the Windreach Highlands you get that speed everywhere.",
@@ -3929,6 +3959,7 @@ function tabHelp() {
     "<b>Bounties:</b> " + GUILD_DAILY + " are posted each day (new ones at midnight UTC). Accept up to " + GUILD_ACTIVE + " at once. Kills count anywhere, with or without companions. Each bounty can be finished once per day; you can abandon one to free a slot.",
     "Rewards per bounty: guild points 🎖️ and eight crystals per point (no experience). ★ bounties are notorious monster hunts and pay the most.",
     "<b>Ranks</b> (by total points earned; spending doesn't lower your rank): " + GUILD_RANKS.map(r => r[0] + " " + r[1]).join(" · ") + ". Each rank posts harder bounties.",
+    "<b>Daily supplies</b> (one of each per day, midnight UTC reset): Potion and Ether from the start, Guild Warp Scroll (carries you to the Ashenreach market) at Bronze, one random crystal at Iron, one random common find at Silver, uncommon at Gold, rare at Mythril. A find is a material, piece of equipment, spell scroll or recipe. Prices climb steeply with each rank.",
     "<b>Guild rewards</b> (spend points): " + GUILD_SHOP.map(e => ITEMS[e.id].name + " " + e.gp + " (" + GUILD_RANKS[e.rank][0] + ")").join(", ") + ". Guild gear is Ex: one of each, and it can't be sold."
   ]));
   h += sec("❄️ Frostspire Pass", ul([
@@ -3961,7 +3992,7 @@ function tabHelp() {
   ]));
   h += sec("📜 Quests", "<p>Nobody hands you quests at the start: talk to people. A ❗ over someone means they have work for you, or you're ready to report back. Kill quests count in the log and the tracker. The journal (J) lists what you've accepted.</p><p><b>Tracker:</b> your accepted quests, current story step and accepted bounties are listed at the top left of the screen with their progress. Click it to open the journal, click its title to fold it, and it hides itself while a window, menu or dialog is open. Turn it off in Settings (Quest tracker).</p>" + tbl(["Quest", "Giver", "Level", "Task"], Object.keys(QUESTS).map(id => [esc(QUESTS[id].name), esc(QUESTS[id].giver), String(QUESTS[id].lv || 1), esc(QUESTS[id].desc)])));
   h += sec("👥 Party and companions (P, in the Social menu)", ul([
-    "<b>Hiring:</b> you can have up to <b>three</b> mercenaries with you at once. Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement. You hire them at your current level and the fee follows your level.",
+    "<b>Hiring:</b> you can lead <b>one</b> mercenary once any job reaches Lv5, <b>two</b> at Lv10 and <b>three</b> at Lv15 or higher. Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement. You hire them at your current level and the fee follows your level.",
     "<b>Level sync:</b> companions always match your current job level. When you level up, level down or change jobs they sync with you. Gear they can no longer wear is put away as a kept item in their bag (never sold) and goes back on when your level allows, unless they have found something better by then. Their starting gear is plain shop gear, never +1 or named pieces.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
     "<b>Hurt mercenaries:</b> when the fight is over and you stand still, a mercenary at 75% health or less sits and rests to full. In a fight, at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",

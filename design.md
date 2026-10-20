@@ -2604,3 +2604,17 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - Floating rocks: `placeable()` (and the exit-pass rock loop, which was the real culprit) now rejects points within two cells of the field edge or outside it. The exit-pass loop picked points up to 450 units from an exit with no bounds check, and `heightAt` clamps to the grid edge, so rocks off the mesh hung at the edge height. Verified with a raycast probe (scratch `rockray.js`): for every instanced object, ray down onto the terrain mesh and compare, instead of comparing against `heightAt` as test/floatcheck.js does. Before: West Meadows 58 of 807 rocks had no ground below them; after: 0 of 2,826 instances.
 - Tests: new test/q1unit.js (party share, no quest XP, Essence fee tiers, no Essence in daily stock, listing spends Essence); test/p1unit.js now hires three; test/harness.js exports `partyShare`, `mercsWith`, `ahEssenceFee`, `essenceHeld`, `giveReward`, `bountyReward`, `ahDaily`.
 - New test/meshcheck.js `<abs html> '["zone",…]'` prints, per zone, how many instanced objects float more than 0.35 m above (rocks) or sit off the terrain mesh (everything), with the worst five.
+
+
+## 19.12.0 Skylines and Steps (town plan T2) plus requests
+- T2 data (data.js, before `roadPts`): `DEPTH_ZONES` per district zone (pieces: belltower, spire, chimney, crane, beacon; optional terrace lift; optional loading scene), `STREET_KIT` per district role, `depthSpot` (30-unit grid search), `depthTerrace(z, lift)` (plaza or big-hall plinth, ramp 32, removes soft objects inside, builds `z.terrace`, `z.terraceWalls`, `z.terraceSteps` and a `terrace` feature), `cityDepth(zid)`, then `z.ghost.marks` for skyline silhouettes of neighbouring districts.
+- Render (world3d.js): `terrace` feature lifts heights in `buildFieldSteps`; `setPiece` models for the new dressing types and `fxAdd` smoke/flame via `W3.cityFx`, animated in `updateCityAnim`; terrace walls get colliders; `buildSkyline` draws `G.marks`. `DRESS_R` has radii for the new types; test/floatcheck.js DR table too.
+- Mercenary slots: `mercSlots()` = 1/2/3 at highest job level 5/10/15 (0 below 5); `mercFull()`; `CONFIG.mercSlotFloorLv` is a test-only floor. Hire and rehire both check it.
+- Guild: `GUILD_PERKS` (data.js): potion 4, ether 8, `guild_scroll` 30 (Bronze), crystal 90 (Iron), common 250 (Silver), uncommon 700 (Gold), rare 1800 (Mythril). `guildPerkItem` seeds by created+day+perk; pools in `guildPool` (mat, equip, spell scrolls, recipes; scroll/recipe rarity by price <150/<500/else); `save.guild.bought` resets with the day; `guildBuy("g_...")` routes to `guildBuyPerk`. `guild_scroll` (`guildWarp`) enters `outpost` start.
+- Auction: `ahList(id, qty, price, essId)` spends the chosen Essence; menu4 `ahEssPick`/`ahEssRow`, `UI.ahEss`.
+- Hidden Cache: `z.cacheId` instead of a fixed npc; `dailyCache(z)` (seeded by created+id+day, `CONFIG.cacheChance` 0.25, `poiSpot`) appended in `enterZone`; `openChest` on a `poi: "cache"` sets `save.cacheDone[id] = day` and `n.gone`. Chest lid is now box geometry (the half-cylinder rendered inside out).
+- Mob names: `buildMob` name = family name + job name when a job is rolled.
+- Bat: `poseBat` guards missing wing bones (`setZ`).
+- Audio: `victoryDef` lead and bell an octave lower.
+- Tests: g1unit.js (guild perks, scroll, essence choice), c1unit.js (cache), p1unit.js slot gating; p7/p10/p29/p50 set `mercSlotFloorLv`.
+- Known: d1unit trade-goods check is random-sensitive; marsh camp sunk 0.37 m.

@@ -25,6 +25,7 @@ for (const it in r.items) G.giveItem(it, r.items[it], true);
 const g0 = G.save.gil;
 ok(G.fillTrade(r.id) === '' && G.save.gil === g0 + r.gil && G.save.board.done.includes(r.id), 'filling a request pays crystals');
 ok(G.fillTrade(r.id) !== '', 'each request can only be filled once a day');
+G.CONFIG.mercSlotFloorLv = 15;
 G.hireMerc('kael'); G.hireMerc('mira');
 G.save.jobs.WAR.lv = 20; G.refreshPlayer(true);
 G.addToPool('neckchopper');

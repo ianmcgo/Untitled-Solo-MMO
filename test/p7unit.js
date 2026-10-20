@@ -3,6 +3,7 @@ let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' 
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 
 G.save.gil = 5000; G.enterZone('outpost'); run(0.2);
+G.CONFIG.mercSlotFloorLv = 15;
 G.hireMerc('kael');
 ok(G.save.hired.includes('kael') && G.mercContractLeft('kael') > 3500, 'hiring starts a one-hour contract');
 const g0 = G.save.gil, w = G.mercWage('kael');
