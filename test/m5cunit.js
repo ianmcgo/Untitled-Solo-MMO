@@ -32,7 +32,7 @@ const b4 = G.townBuyOnce('ironvale');
 ok(b4.seller === 'A' && b4.seq === 2, 'the turn comes back round to the first seller');
 ok(!G.townBuyOnce('outpost') && L.lots.length === 1 && L.lots[0].seller === 'C', 'an overpriced lot is never bought');
 const boxGil = G.save.market.box.filter(b => b.gil).reduce((a, b) => a + b.gil, 0);
-ok(boxGil === mp('bat_wing') * 3, 'mercenary sale crystals go to the delivery box');
+ok(boxGil === 0, 'mercenary sale crystals fizzle and are not paid');
 const g1 = G.save.gil; G.ahCollect();
 ok(G.save.gil === g1 + boxGil && !G.save.market.box.length, 'collecting the box adds the crystals');
 Math.random = () => 0.01;

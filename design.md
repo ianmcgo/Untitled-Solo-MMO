@@ -2635,3 +2635,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 ## 19.13.1 Listings that stay
 - Online player lots: `ah_listings.expires_at` defaulted to now + 48 hours (sql/setup.sql). sql/r1-no-expiry.sql sets the column default to `infinity` and sets open player lots to `infinity`. It must be run in the game's Supabase SQL editor (project mztqrqgtlvviwwftrqhs; the connected Supabase tools only see FreeSpace 4X and Void Drift). Existing queries (`expires_at > now()`) keep working with infinity.
 - Client: `pmLeft` shows "no time limit" when the date is not finite or more than ~10 years away; help text no longer mentions 48 hours.
+
+
+## 19.13.2 Fresh bounties
+- `guildDay()` = `boardDay()` + floor(`save.waitHours` / 24); `stopWait` adds the hours waited to `save.waitHours`. Only the guild board and guild daily supplies use it (market, caches and trade board stay on the real day).
+- `guildToday()`: the old three, then for each rank r in 1..rank one extra bounty of tier r (not already chosen).
+- Phone CSS (template4.html, end of the dock block): pager on top, 4 slot columns, `.ic` absolutely centred, target name ellipsised inside `#ffSide #target`.
+- GUILD_PERKS now only g_potion, g_ether, g_warp (random crystal/common/uncommon/rare perks and guildPool removed); GUILD_SHOP no longer duplicates Potion/Ether.
+- Merc lot sales (town buys, or you buying one) no longer call townPayBox: proceeds vanish. Delivery Box talk text updated.
+- Backdrop `mark: "tree"` removed from hollow/marsh/verdant (it drew a giant gray floating tree silhouette on the horizon).

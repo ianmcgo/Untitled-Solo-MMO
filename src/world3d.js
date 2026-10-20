@@ -2589,14 +2589,14 @@ function* buildZone3DSteps() {
 
 const BACKDROP = {
   outpost: { h: [22, 48, 85], col: [0x5a6a48, 0x6a7a68, 0x8090a0], mark: "tower" },
-  hollow: { h: [30, 60, 110], col: [0x4a5a3a, 0x60705a, 0x8a96a4], mark: "tree" },
+  hollow: { h: [30, 60, 110], col: [0x4a5a3a, 0x60705a, 0x8a96a4] },
   frost: { h: [55, 110, 190], col: [0x8a9aa8, 0xb8c8d4, 0xe4eef6], snow: true, mark: "peak" },
-  marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70], mark: "tree" },
+  marsh: { h: [14, 30, 60], col: [0x3a4a34, 0x4a5a48, 0x6a7a70] },
   harbor: { h: [16, 34, 70], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
   highlands: { h: [30, 70, 140], col: [0x6a7a50, 0x7a8a70, 0x9aa8b0], mark: "tower" },
   gullisle: { h: [8, 20, 50], col: [0x5a6a50, 0x6a7a74, 0x8a9aaa], sea: true, mark: "light" },
   cinder: { h: [60, 130, 230], col: [0x3a2a26, 0x5a443e, 0x8a7a74], mark: "peak" },
-  verdant: { h: [40, 80, 140], col: [0x2e5a2a, 0x4a7050, 0x7a9488], mark: "tree" },
+  verdant: { h: [40, 80, 140], col: [0x2e5a2a, 0x4a7050, 0x7a9488] },
   sunscar: { h: [40, 85, 150], col: [0x9a6a48, 0xb48a68, 0xd8b896], mark: "peak" },
   ironvale: { h: [60, 120, 210], col: [0x7a8a96, 0xa8b8c4, 0xe0eaf2], snow: true, mark: "peak" }
 };

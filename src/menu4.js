@@ -1455,8 +1455,8 @@ function tabGuild() {
     const fin = g.done.includes(b.id), have = g.active[b.id] != null;
     h += row(b, fin ? '<span class="sub">Done ✓</span>' : have ? '<span class="sub">Taken</span>' : '<button data-a="btake" data-v="' + b.id + '">Accept</button>');
   }
-  h += '<div class="sub" style="margin:4px 0 8px">New bounties go up at midnight (UTC). Higher ranks unlock harder bounties and notorious monster hunts.</div>';
-  h += "<h3>Daily supplies</h3><div class=\"sub\" style=\"margin-bottom:4px\">One of each per day. Prices climb steeply with each rank; stock changes at midnight (UTC).</div>";
+  h += '<div class="sub" style="margin:4px 0 8px">New bounties go up at midnight (UTC), or when you have waited a full day in town. Each rank you earn adds one more, harder bounty to the board.</div>';
+  h += "<h3>Daily supplies</h3><div class=\"sub\" style=\"margin-bottom:4px\">One of each per day. Prices climb steeply with each rank; stock changes at midnight (UTC) or after you wait a full day.</div>";
   guildDay();
   for (const p of GUILD_PERKS) {
     const id = guildPerkItem(p), it = id && ITEMS[id], lock = rk < p.rank, got = g.bought.includes(p.id);
@@ -1749,6 +1749,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.13.2", date: "2026-10-20", title: "Fresh bounties", items: [
+    "<b>New bounties after waiting.</b> Waiting a full day in town (the Time menu) now brings a fresh guild board and daily supplies, as well as midnight UTC.",
+    "<b>Harder bounties with rank.</b> Each guild rank you earn adds one more, harder bounty to the daily board on top of the usual three.",
+    "<b>Distant tree removed.</b> The giant gray tree seen floating on the horizon outside Ashenreach is gone.",
+    "<b>Companion sales fizzle.</b> Crystals from lots your companions sell are no longer sent to your delivery box.",
+    "<b>Guild shop trimmed.</b> The random daily crystal and material rewards are gone; the guild sells Potion, Ether and the Guild Warp Scroll, plus the point-priced gear.",
+    "<b>Phone layout.</b> The hotkey bar has its pager on top and bigger slots so icons stay inside them, and a long target name is cut off inside its box."
+  ] },
   { v: "19.13.1", date: "2026-10-20", title: "Listings that stay", items: [
     "<b>Offers to other players no longer expire.</b> The listing shows no time limit and stays up until it sells or you withdraw it. (The online market needs a one-line database update for this; see sql/r1-no-expiry.sql.)"
   ] },
@@ -1757,7 +1765,7 @@ const UPDATES = [
     "<b>Guards know every shop.</b> Ask a gate guard \"Where can I find...?\" and pick a shop or service. They give the nearest one, its district and direction, and mark it on your map if it is in the same district.",
     "<b>Map and minimap.</b> The city map shows a ringed \"You are here\" dot, and shops and services show their icons on the minimap and the district map.",
     "<b>First visit to a city</b> shows a title card naming its districts and what each is for.",
-    "<b>Delivery Box at your residence.</b> Everything you sell at the auction house, and everything your companions sell, is collected from the Delivery Box in your residence. The auction house only shows what is waiting.",
+    "<b>Delivery Box at your residence.</b> Everything you sell at the auction house is collected from the Delivery Box in your residence. The auction house only shows what is waiting.",
     "<b>No time limit on auction listings.</b> They stay up until they sell or you withdraw them. The My lots view is now called My listings. Offers to other players are still limited by the online market.",
     "<b>Warp stones.</b> Touching one for the first time now plays a magic effect and tells you that you have attuned to it.",
     "<b>Barber.</b> The 3D preview now appears while you choose a look, and the face tiles are an even size.",
@@ -1768,7 +1776,7 @@ const UPDATES = [
     "<b>Height in the cities.</b> The Government plaza, the Saltreach Hall square and the Ironvale Keep square stand on low terraces with stone retaining walls and steps where the roads meet them.",
     "<b>Street dressing by district.</b> Markets get goods racks and barrel stacks, civic districts banners and armour stands, workshops woodpiles, docks rope coils and net racks, gates banners and armour stands. Some squares have a cart being loaded.",
     "<b>Mercenary slots follow your jobs.</b> You can hire <b>one</b> mercenary once any job reaches Lv5, <b>two</b> at Lv10 and <b>three</b> at Lv15 or higher. Anyone already hired stays.",
-    "<b>Adventurers' Guild daily shop.</b> Spend guild points on a Potion and an Ether from the start, a Guild Warp Scroll (carries you to the Ashenreach market) at Bronze, a random crystal at Iron, a random common find at Silver, uncommon at Gold and rare at Mythril. One of each per day, and prices climb steeply with rank. Hi-Potions are no longer sold there.",
+    "<b>Adventurers' Guild daily shop.</b> Spend guild points on a Potion and an Ether from the start, a Guild Warp Scroll (carries you to the Ashenreach market) at Bronze. One of each per day. The random crystal and material rewards were removed. Hi-Potions are no longer sold there.",
     "<b>Auction Essence choice.</b> When you list a lot you now pick which element of Essence pays the listing cost.",
     "<b>Hidden Caches are rare.</b> A cache now appears on only some days (about one in four) in the zones that have them, at a different random spot each day, and it crumbles away once you open it.",
     "<b>Monster jobs in their names.</b> A monster with a job is named for it, such as Goblin White Mage.",
@@ -2307,7 +2315,7 @@ const UPDATES = [
   { v: "18.33.0", date: "2026-10-16", title: "Companions sell at the auction house", items: [
     "<b>Companion lots:</b> when a companion with a half-full bag reaches town, their goods go up at the auction house under their name (⚔, violet) at the market price, with no fee, instead of disappearing. My lots shows them, up to 300.",
     "<b>Towns buy from the market:</b> every 20 minutes of real time each town buys one lot: yours first (only lots listed in that town and up for 20 minutes), then your companions', taking turns between sellers. Lots priced above 1.25 times the market price are left alone.",
-    "<b>Crystals in the box:</b> what your companions' lots earn goes to your delivery box; Collect adds it to your crystals. Buying one of their lots yourself also pays them through the box.",
+    "<b>Crystals in the box:</b> what your companions' lots earn is not paid to you; the crystals simply fizzle away.",
     "<b>Town relistings:</b> about a quarter of what a town buys goes back up under the town's name (🏛, gold) at 3% more. These never expire.",
     "Over the 300-lot cap, extra items are sold to a shop and you get nothing for them."
   ] },
@@ -3973,10 +3981,10 @@ function tabHelp() {
   ]));
   h += sec("⚔️ The Adventurers' Guild", ul([
     "Talk to <b>Maera</b> in Ashenreach Outpost (west of Captain Rhea) to open the guild window.",
-    "<b>Bounties:</b> " + GUILD_DAILY + " are posted each day (new ones at midnight UTC). Accept up to " + GUILD_ACTIVE + " at once. Kills count anywhere, with or without companions. Each bounty can be finished once per day; you can abandon one to free a slot.",
+    "<b>Bounties:</b> " + GUILD_DAILY + " are posted each day (new ones at midnight UTC, or after you wait a full day in town), plus one extra, harder bounty for every rank you have earned. Accept up to " + GUILD_ACTIVE + " at once. Kills count anywhere, with or without companions. Each bounty can be finished once per day; you can abandon one to free a slot.",
     "Rewards per bounty: guild points 🎖️ and eight crystals per point (no experience). ★ bounties are notorious monster hunts and pay the most.",
     "<b>Ranks</b> (by total points earned; spending doesn't lower your rank): " + GUILD_RANKS.map(r => r[0] + " " + r[1]).join(" · ") + ". Each rank posts harder bounties.",
-    "<b>Daily supplies</b> (one of each per day, midnight UTC reset): Potion and Ether from the start, Guild Warp Scroll (carries you to the Ashenreach market) at Bronze, one random crystal at Iron, one random common find at Silver, uncommon at Gold, rare at Mythril. A find is a material, piece of equipment, spell scroll or recipe. Prices climb steeply with each rank.",
+    "<b>Daily supplies</b> (one of each per day; resets at midnight UTC or after you wait a full day in town): Potion and Ether from the start, Guild Warp Scroll (carries you to the Ashenreach market) at Bronze. The random crystal and material rewards were removed.",
     "<b>Guild rewards</b> (spend points): " + GUILD_SHOP.map(e => ITEMS[e.id].name + " " + e.gp + " (" + GUILD_RANKS[e.rank][0] + ")").join(", ") + ". Guild gear is Ex: one of each, and it can't be sold."
   ]));
   h += sec("❄️ Frostspire Pass", ul([

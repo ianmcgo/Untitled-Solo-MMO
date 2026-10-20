@@ -1072,9 +1072,20 @@
   #bottom #pager { flex-direction: column; flex: 0 0 auto; }
   #bottom #actionBar { flex: 1 1 auto; min-width: 0; max-width: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px 3px; align-content: start; min-height: 0; }
   #bottom #actionBar .slot { width: 100%; height: auto; aspect-ratio: 1 / 1; min-width: 0; min-height: 0; contain: size; align-self: start; }
-  #bottom #actionBar .slot .ic { display: grid; place-items: center; width: 100%; height: 100%; }
+  #bottom #actionBar .slot .ic { position: absolute; inset: 0; display: grid; place-items: center; line-height: 1; }
   #bottom #actionBar { row-gap: 14px; padding-bottom: 12px; }
   #bottom #actionBar .slot .ic { font-size: clamp(14px, 3.4vw, 22px); }
+  #ffSide #target { overflow: hidden; box-sizing: border-box; }
+  #ffSide #target .tn { display: flex; min-width: 0; max-width: 100%; }
+  #ffSide #tName { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (max-width: 720px) {
+    #bottom #barWrap { flex-direction: column; align-items: stretch; gap: 2px; padding: 3px 4px 4px; position: relative; }
+    #bottom #pager { flex-direction: row; align-items: center; justify-content: flex-start; gap: 5px; padding-right: 30px; }
+    #bottom #pager button { width: 26px; height: 20px; padding: 0; font-size: 11px; }
+    #bottom #barClose { position: absolute; top: 3px; right: 4px; }
+    #bottom #actionBar { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 4px; padding-bottom: 2px; }
+    #bottom #actionBar .slot .ic { font-size: 18px; }
+  }
 
   #ffTop { top: calc(13px + var(--sat)) !important; }
   #ui.hasTop #ffStat { top: calc(54px + var(--sat)) !important; }

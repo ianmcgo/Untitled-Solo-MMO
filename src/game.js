@@ -2582,8 +2582,7 @@ function townBuyOnce(town) {
     const l = p.item;
     L.lots.splice(L.lots.indexOf(l), 1);
     L.lastSale[p.seller] = save.playSec || 0;
-    townPayBox(l.price, l.seller + " sold " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : ITEMS[l.id].name) + " to " + tn);
-    log("Auction: " + tn + " bought " + l.seller + "'s " + ITEMS[l.id].name + (l.qty > 1 ? " ×" + l.qty : "") + ". " + l.price + " crystals are in your delivery box.", "loot");
+    log("Auction: " + tn + " bought " + l.seller + "'s " + ITEMS[l.id].name + (l.qty > 1 ? " ×" + l.qty : "") + ".", "loot");
     bought = l;
   }
   if (bought) townRelist(bought, town);
@@ -2643,7 +2642,6 @@ function ahBuyLocal(i) {
   if (!giveItem(l.id, l.qty, true)) return "Your bag is full.";
   save.gil -= l.price;
   save.market.local.lots.splice(i, 1);
-  if (l.kind === "merc") townPayBox(l.price, l.seller + " sold " + ITEMS[l.id].name + " to you");
   save.stats.ahBought = (save.stats.ahBought || 0) + l.qty;
   log("You buy " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : an(ITEMS[l.id].name)) + " from " + (l.seller || "the market") + " for " + l.price + " crystals.", "loot");
   sfx("coin");
@@ -2742,7 +2740,7 @@ function guildRank(total) {
 }
 
 function guildDay() {
-  const day = boardDay();
+  const day = boardDay() + Math.floor((save.waitHours || 0) / 24);
   if (save.guild.day !== day) { save.guild.day = day; save.guild.done = []; save.guild.bought = []; }
   return day;
 }
@@ -2756,6 +2754,10 @@ function guildToday() {
   if (top.length) out.push(top[Math.floor(rnd() * top.length)]);
   const rest = pool.filter(b => !out.includes(b));
   while (out.length < GUILD_DAILY && rest.length) out.push(rest.splice(Math.floor(rnd() * rest.length), 1)[0]);
+  for (let r = 1; r <= rank; r++) {
+    const tier = GUILD_BOUNTIES.filter(b => b.tier === r && !out.includes(b));
+    if (tier.length) out.push(tier[Math.floor(rnd() * tier.length)]);
+  }
   return out;
 }
 
@@ -2815,29 +2817,8 @@ function turnInBounty(id) {
   return "";
 }
 
-let GUILD_POOLS = null;
-function guildPool(kind) {
-  if (!GUILD_POOLS) {
-    GUILD_POOLS = { crystal: [], common: [], uncommon: [], rare: [] };
-    for (const id in ITEMS) {
-      const it = ITEMS[id];
-      if (it.kind === "crystal") { GUILD_POOLS.crystal.push(id); continue; }
-      if (!(it.price > 0) || it.ex || it.race || it.starter || it.nm || it.hq) continue;
-      const isScroll = it.kind === "use" && (it.spell || it.recipe);
-      if (!(it.kind === "mat" || it.kind === "equip" || isScroll)) continue;
-      const r = isScroll ? (it.price < 150 ? "common" : it.price < 500 ? "uncommon" : "rare") : itemRarity(id);
-      if (GUILD_POOLS[r]) GUILD_POOLS[r].push(id);
-    }
-  }
-  return GUILD_POOLS[kind] || [];
-}
-
 function guildPerkItem(p) {
-  if (p.item) return p.item;
-  const pool = guildPool(p.pick);
-  if (!pool.length) return null;
-  const rnd = seeded(hashStr(String(save.created || 1) + ":gperk:" + guildDay() + ":" + p.id));
-  return pool[Math.floor(rnd() * pool.length)];
+  return p.item || null;
 }
 
 function guildBuyPerk(pid) {
@@ -5892,7 +5873,7 @@ const TALK = {
     const list = box.map(b => b.gil ? b.gil + " crystals" + (b.note ? " (" + b.note + ")" : "") : ITEMS[b.id].name + (b.qty > 1 ? " x" + b.qty : ""));
     const text = list.length ? "Waiting for you: " + list.join(", ") + "." : "Nothing is waiting in your delivery box.";
     const go = () => { closeDialog(); const m = ahCollect(); if (m) log(m, "sys"); if (on) netAhCollect().catch(() => {}); ring(n, "#ffd54f", 40, 0.7, "sparkle"); };
-    openDialog(n.name, text + (on ? " Anything players bought from you online is collected as well." : "") + " Everything you sell at the auction house, and everything your companions sell, is delivered here.", list.length || on ? [{ label: "Collect everything", fn: go }] : []);
+    openDialog(n.name, text + (on ? " Anything players bought from you online is collected as well." : "") + " Everything you sell at the auction house, is delivered here. What your companions sell is theirs and never reaches you.", list.length || on ? [{ label: "Collect everything", fn: go }] : []);
   },
   talkGuard(n) {
     const mins = blessingMinutes(), left = blessed() ? Math.ceil(blessLeft() / 60) : 0;
