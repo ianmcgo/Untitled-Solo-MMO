@@ -1152,6 +1152,22 @@ const OUT_FILL = {
   ind: [["warehouse", 0.4, [150, 220], [90, 120], [1, 2]], ["hall", 0.25, [130, 180], [80, 110], [1, 2]], ["home", 0.35, [90, 130], [80, 100], [1, 2]]],
   gate: [["home", 0.5, [100, 150], [84, 110], [1, 3]], ["hall", 0.3, [140, 190], [90, 110], [2, 2]], ["warehouse", 0.2, [150, 200], [90, 110], [1, 1]]]
 };
+function gateDistrict(o) {
+  const W = 1000, H = 800, sd = o.side, vert = sd === "n" || sd === "s";
+  const T = (x, y) => sd === "e" ? [x, y] : sd === "w" ? [W - x, y] : sd === "s" ? [y, x] : [y, W - x];
+  const R = (x, y, w, h) => { const [ax, ay] = T(x - w / 2, y - h / 2), [bx, by] = T(x + w / 2, y + h / 2); return { x: Math.round((ax + bx) / 2), y: Math.round((ay + by) / 2), w: Math.abs(bx - ax), h: Math.abs(by - ay) }; };
+  const P = (x, y) => { const [a, b] = T(x, y); return { x: Math.round(a), y: Math.round(b) }; };
+  const ex = R(W - 12, H / 2, 24, 100);
+  return {
+    off: o.off, w: vert ? H : W, h: vert ? W : H, name: o.name, color: o.color || "#a8a8a0", icon: "🛡️", noFill: true,
+    streets: [{ w: 60, pts: [T(0, H / 2), T(W + 100, H / 2)] }],
+    houses: [Object.assign({ key: "guard", type: "guard", flag: o.flag || "#9aa0a8" }, R(560, 200, 170, 110)), Object.assign({ key: "stables", type: "home", sign: "Stables" }, R(380, 610, 200, 110))],
+    exits: [Object.assign({ x: ex.x - ex.w / 2, y: ex.y - ex.h / 2, w: ex.w, h: ex.h }, o.exit)],
+    npcs: [Object.assign({ id: o.guard }, P(720, 320)), Object.assign({ id: o.stable, home: "stables", sleep: [19.5, 5.5] }, P(520, 500))].concat(o.quest ? [Object.assign({ id: o.quest, home: "guard", sleep: [22, 6] }, P(340, 300))] : []),
+    stable: Object.assign(P(640, 600), { rot: { e: -Math.PI / 2, w: Math.PI / 2, s: 0, n: Math.PI }[sd] }),
+    dressing: [Object.assign({ t: "hay" }, P(700, 690)), Object.assign({ t: "hay" }, P(735, 715))]
+  };
+}
 const OUTPOST_PLAN = {
   gov: {
     off: [2400, 0], name: "Government District", color: "#5a86c8", icon: "🏛️", trees: true,
@@ -1162,12 +1178,12 @@ const OUTPOST_PLAN = {
       { key: "cityhall", x: 1200, y: 130, w: 320, h: 150, type: "cityhall", floors: 3, flag: "#c0392b" },
       { key: "barracks", x: 720, y: 360, w: 260, h: 120, type: "barracks", sign: "Barracks", flag: "#c0392b" },
       { key: "mercs", x: 1680, y: 360, w: 240, h: 120, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b" },
-      { key: "records", x: 720, y: 930, w: 200, h: 100, type: "hall", floors: 2, sign: "Hall of Records", signCol: "#c9a227" },
+      { key: "records", x: 720, y: 930, w: 200, h: 100, type: "hall", floors: 2, sign: "Hall of Records", signCol: "#c9a227", shop: "registrar_outpost" },
       { key: "chapel", x: 1680, y: 930, w: 180, h: 110, type: "hall", floors: 2, sign: "Chapel of the Dawn", signCol: "#f0e0a0" },
       { key: "guild", x: 720, y: 1180, w: 220, h: 100, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" },
       { key: "jobs", x: 1680, y: 1170, w: 180, h: 90, type: "hall", floors: 1, sign: "Job Master" }
     ],
-    npcs: [{ id: "rhea", x: 900, y: 300, home: "barracks", sleep: [22, 6] }, { id: "maera", x: 900, y: 1290, home: "guild", sleep: [22.5, 6.5] }, { id: "brann", x: 1860, y: 300, home: "mercs", sleep: [23, 7.5] }, { id: "tobin", x: 1850, y: 1290, home: "jobs", sleep: [20, 7] }],
+    npcs: [{ id: "registrar_outpost", x: 720, y: 1000 }, { id: "maera", x: 900, y: 1290, home: "guild", sleep: [22.5, 6.5] }, { id: "brann", x: 1860, y: 300, home: "mercs", sleep: [23, 7.5] }, { id: "tobin", x: 1850, y: 1290, home: "jobs", sleep: [20, 7] }],
     props: [{ type: "desk", x: 900, y: 1320, r: 22 }],
     dummies: [[600, 640, 0.3], [690, 650, -0.2], [780, 640, 0.1], [870, 650, -0.3]], racks: [[600, 760, 0], [860, 760, 0]],
     benches: [[1060, 420, 1.57], [1340, 420, -1.57], [1200, 580, 0]],
@@ -1177,7 +1193,9 @@ const OUTPOST_PLAN = {
     off: [0, 1800], name: "Residential District", color: "#6fae5a", icon: "🏡", trees: true,
     streets: [{ w: 56, pts: [[2400, 900], [200, 900]], trees: true }, { w: 36, pts: [[600, 200], [600, 1600]] }, { w: 36, pts: [[1200, 200], [1200, 1600]] }, { w: 36, pts: [[1800, 200], [1800, 1600]] }, { w: 36, pts: [[200, 380], [2200, 380]] }, { w: 36, pts: [[200, 1420], [2200, 1420]] }],
     reserve: [{ x: 1240, y: 950, w: 520, h: 430 }],
-    houses: [{ key: "residence", x: 2050, y: 1060, w: 140, h: 110, type: "home", tint: 0, floors: 2, rot: 2, fixed: true }],
+    houses: [{ key: "residence", x: 2050, y: 1060, w: 140, h: 110, type: "home", tint: 0, floors: 2, rot: 2, fixed: true }, { key: "furnish", x: 2100, y: 760, w: 150, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2", shop: "odette" }],
+    npcs: [{ id: "odette", x: 2100, y: 846, home: "furnish", sleep: [21.5, 6] }, { id: "barber_outpost", x: 1880, y: 817 }],
+    stalls: [{ x: 1880, y: 826, color: "#c0392b", sign: "Barber", pole: true }],
     exits: [{ x: 2030, y: 970, w: 40, h: 26, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }],
     water: [{ x: 1500, y: 1180, r: 90 }],
     gardens: [{ x: 900, y: 650, w: 160, h: 90 }, { x: 330, y: 650, w: 140, h: 80 }, { x: 900, y: 1160, w: 160, h: 90 }, { x: 330, y: 1160, w: 140, h: 80 }, { x: 2100, y: 650, w: 140, h: 80 }],
@@ -1191,12 +1209,11 @@ const OUTPOST_PLAN = {
     plaza: { x: 1200, y: 900, r: 240 },
     houses: [
       { key: "markethall", x: 780, y: 770, w: 230, h: 120, type: "shop", sign: "Market Hall", awning: "#b5651d" },
-      { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227" },
-      { key: "furnish", x: 1620, y: 1040, w: 150, h: 100, type: "shop", sign: "Furnishings", awning: "#7b1fa2" },
+      { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227", shop: "auction_outpost" },
       { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "The Ember Mug", signCol: "#ff9a40" }
     ],
-    npcs: [{ id: "crystal_town", x: 1200, y: 900 }, { id: "odette", x: 1520, y: 970, home: "furnish", sleep: [21.5, 6] }, { id: "luna", x: 1390, y: 1110 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_outpost", x: 1480, y: 840 }, { id: "barber_outpost", x: 1359, y: 817 }],
-    stalls: [{ x: 1359, y: 826, color: "#c0392b", sign: "Barber", pole: true }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1100, y: 757, color: "#1565c0" }, { x: 1300, y: 757, color: "#ef8f00" }],
+    npcs: [{ id: "crystal_town", x: 1200, y: 900 }, { id: "luna", x: 1390, y: 1110 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_outpost", x: 1600, y: 870 }],
+    stalls: [{ x: 1359, y: 826, color: "#7b1fa2" }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1100, y: 757, color: "#1565c0" }, { x: 1300, y: 757, color: "#ef8f00" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }, { t: "cart", x: 1880, y: 600, rot: -0.3 }],
     ambient: [{ type: "dog", x: 1200, y: 1150, n: 1, r: 140, col: 0x8a6a4a }]
@@ -1217,22 +1234,7 @@ const OUTPOST_PLAN = {
     dressing: [{ t: "cart", x: 1000, y: 1080, rot: 1.2 }, { t: "cart", x: 1450, y: 700, rot: -0.4 }, { t: "hay", x: 560, y: 1080 }, { t: "hay", x: 600, y: 1110 }],
     ambient: []
   },
-  gate: {
-    off: [4800, 1800], name: "Eastgate", color: "#a8a8a0", icon: "🛡️",
-    streets: [{ w: 64, pts: [[0, 900], [2500, 900]] }, { w: 40, pts: [[800, 250], [800, 1600]] }, { w: 40, pts: [[1700, 250], [1700, 1600]] }, { w: 36, pts: [[800, 400], [1700, 400]] }, { w: 36, pts: [[800, 1400], [1700, 1400]] }],
-    reserve: [{ x: 200, y: 1100, w: 480, h: 450 }],
-    houses: [
-      { key: "guard", x: 1900, y: 780, w: 180, h: 120, type: "guard", flag: "#9aa0a8" },
-      { key: "watch", x: 1900, y: 1015, w: 220, h: 110, type: "barracks", sign: "Gate Watch", flag: "#9aa0a8" },
-      { key: "stables", x: 1250, y: 1300, w: 220, h: 120, type: "home", sign: "Stables" },
-      { key: "inn", x: 420, y: 780, w: 200, h: 110, type: "hall", floors: 3, sign: "Wayfarer's Inn", signCol: "#e0a050" }
-    ],
-    exits: [{ x: 2376, y: 850, w: 24, h: 100, to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" }],
-    npcs: [{ id: "ysolde", x: 1450, y: 1080, home: "stables", sleep: [19.5, 5.5] }, { id: "guard_east", x: 2180, y: 800 }],
-    stable: { x: 1450, y: 1200, rot: -Math.PI / 2 },
-    props: [{ type: "barrels", x: 300, y: 1200, rot: 0.3, r: 26 }, { type: "crates", x: 560, y: 1450, rot: 0.8, r: 26 }],
-    dressing: [{ t: "cart", x: 420, y: 1320, rot: 0.2 }, { t: "cart", x: 600, y: 1260, rot: -0.6 }, { t: "hay", x: 300, y: 1450 }, { t: "hay", x: 340, y: 1480 }, { t: "hay", x: 1500, y: 1450 }, { t: "well", x: 1250, y: 650 }]
-  }
+  gate: gateDistrict({ off: [4800, 2300], side: "e", name: "Eastgate", guard: "guard_east", stable: "ysolde", quest: "rhea", exit: { to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" } })
 };
 const OUTPOST_GATES = [{ x: 2400, y: 2700, a: "res", b: "market" }, { x: 4800, y: 2700, a: "market", b: "gate" }, { x: 3600, y: 1800, a: "gov", b: "market", horiz: true }, { x: 3600, y: 3600, a: "market", b: "ind", horiz: true }];
 function buildCity(C) {
@@ -1251,7 +1253,7 @@ function buildCity(C) {
     for (const k of ["npcs", "props", "water", "gardens", "stalls", "fountains", "plazas", "ambient", "dressing", "exits"]) for (const o of P[k] || []) { const c = mv(o); if (k === "npcs" && typeof c.home === "string") homes.push(c); z[k].push(c); }
     for (const k of ["dummies", "racks", "benches", "lamps", "docks", "boats", "lighthouses", "slipways", "mines", "torches"]) for (const q of P[k] || []) (z[k] = z[k] || []).push(pt(q));
     if (P.plaza) z.plaza = mv(P.plaza);
-    if (P.stable) z.stable = mv(P.stable);
+    if (P.stable) (z.stables = z.stables || []).push(mv(P.stable));
   }
   const signPool = {};
   for (const did in PLAN) signPool[did] = C.signs.slice().sort(() => rnd() - 0.5);
@@ -1275,6 +1277,7 @@ function buildCity(C) {
   };
   for (const p of z.paths) {
     const did = p.district, fill = FILL[did];
+    if (PLAN[did].noFill) continue;
     for (let i = 1; i < p.pts.length; i++) {
       const [ax, ay] = p.pts[i - 1], [bx, by] = p.pts[i], L = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / L, uy = (by - ay) / L, vert = Math.abs(ux) < 0.5;
       for (const side of [-1, 1]) {
@@ -1318,7 +1321,7 @@ function buildCity(C) {
   return z;
 }
 function distToSegPt(x, y, a, b) { const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L)); return Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t); }
-ZONES.outpost = buildCity({ id: "outpost", seed: "ashenreach-city-1", name: "Ashenreach Outpost", city: "Ashenreach", plan: OUTPOST_PLAN, fill: OUT_FILL, gates: OUTPOST_GATES, signs: OUT_SIGNS, w: OUT_DW * 3, h: OUT_DH * 3, walls: [[2400, 1800, 2400, 3600], [4800, 1800, 4800, 3600], [2400, 1800, 4800, 1800], [2400, 3600, 4800, 3600]], start: ["market", 1200, 1030] });
+ZONES.outpost = buildCity({ id: "outpost", seed: "ashenreach-city-1", name: "Ashenreach Outpost", city: "Ashenreach", plan: OUTPOST_PLAN, fill: OUT_FILL, gates: OUTPOST_GATES, signs: OUT_SIGNS, w: OUT_DW * 2 + 1000, h: OUT_DH * 3, walls: [[2400, 1800, 2400, 3600], [4800, 1800, 4800, 3600], [2400, 1800, 4800, 1800], [2400, 3600, 4800, 3600]], start: ["market", 1200, 1030] });
 ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
 const HBR_SIGNS = ["Net Maker", "Sailmaker", "Chandler", "Smokehouse", "Ropewalk", "Salter", "Cooper", "Pilot's Office", "Oilskins", "Ship's Biscuit", "Brine & Barrel", "Lamp Oil", "Compass Maker", "Tackle Shop", "Shell Curios", "Tar & Pitch", "Rigger", "Fishwife", "Oyster Bar", "Chart Seller", "Anchor Smith", "Sea Chest", "Tide Tables", "Salt Cellar"];
 const HBR_FILL = {
@@ -1329,16 +1332,16 @@ const HBR_FILL = {
 };
 const HBR_SEA = (y, r, xs) => xs.map((x, i) => ({ x, y: y + (i % 2 ? 20 : 0), r }));
 const HARBOR_SHOPS = {
-  armorer: { x: 5500, y: 773, w: 120, h: 72, sign: "Armory", district: "yard" },
-  weaponsmith: { x: 5950, y: 773, w: 112, h: 72, sign: "Arms", district: "yard" },
-  tradesman: { x: 1000, y: 773, w: 120, h: 72, sign: "Supplies", district: "fish" },
-  quartermaster: { x: 2900, y: 1250, w: 112, h: 72, sign: "Provisions", district: "square" },
-  spellsmith: { x: 3300, y: 549, w: 100, h: 72, sign: "Scrolls", district: "square" },
-  jeweler: { x: 3900, y: 549, w: 96, h: 72, sign: "Jewels", district: "square" }
+  armorer: { x: 5500, y: 1773, w: 120, h: 72, sign: "Armory", district: "yard" },
+  weaponsmith: { x: 5950, y: 1773, w: 112, h: 72, sign: "Arms", district: "yard" },
+  tradesman: { x: 1000, y: 1773, w: 120, h: 72, sign: "Supplies", district: "fish" },
+  quartermaster: { x: 2900, y: 2250, w: 112, h: 72, sign: "Provisions", district: "square" },
+  spellsmith: { x: 3300, y: 1549, w: 100, h: 72, sign: "Scrolls", district: "square" },
+  jeweler: { x: 3900, y: 1549, w: 96, h: 72, sign: "Jewels", district: "square" }
 };
 const HARBOR_PLAN = {
   fish: {
-    off: [0, 0], name: "Fish Market", color: "#4fa0c8", icon: "🐟", open: "s",
+    off: [0, 1000], name: "Fish Market", color: "#4fa0c8", icon: "🐟", open: "s",
     streets: [{ w: 56, pts: [[2400, 900], [200, 900]] }, { w: 40, pts: [[650, 380], [650, 1380]] }, { w: 40, pts: [[1300, 380], [1300, 1380]] }, { w: 36, pts: [[1950, 380], [1950, 1380]] }, { w: 36, pts: [[200, 380], [2200, 380]] }, { w: 44, pts: [[200, 1380], [2200, 1380]] }],
     plazas: [{ x: 1300, y: 900, r: 170 }],
     reserve: [{ x: 200, y: 1430, w: 2000, h: 300 }],
@@ -1360,37 +1363,31 @@ const HARBOR_PLAN = {
     ambient: [{ type: "gull", x: 1200, y: 1500, n: 6, r: 320 }, { type: "cat", x: 330, y: 1200, n: 1, r: 60, col: 0xd08a40 }, { type: "walker", x: 1200, y: 1330, n: 1, path: [[300, 1330], [2100, 1330]] }]
   },
   square: {
-    off: [2400, 0], name: "Harbor Square", color: "#e0c060", icon: "⚓",
+    off: [2400, 1000], name: "Harbor Square", color: "#e0c060", icon: "⚓",
     streets: [{ w: 64, pts: [[0, 900], [2400, 900]] }, { w: 56, pts: [[1200, 0], [1200, 1800]] }, { w: 40, pts: [[300, 430], [2100, 430]] }, { w: 40, pts: [[300, 1370], [2100, 1370]] }, { w: 40, pts: [[300, 430], [300, 1370]] }, { w: 40, pts: [[2100, 430], [2100, 1370]] }, { w: 34, pts: [[700, 140], [700, 430]] }, { w: 34, pts: [[1700, 140], [1700, 430]] }, { w: 34, pts: [[700, 1370], [700, 1660]] }, { w: 34, pts: [[1700, 1370], [1700, 1660]] }],
     plaza: { x: 1200, y: 900, r: 240 },
     houses: [
       { key: "harbormaster", x: 790, y: 730, w: 230, h: 120, type: "hall", floors: 2, sign: "Harbor Master", signCol: "#2f7f8f" },
-      { key: "auction", x: 1620, y: 740, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227" },
+      { key: "auction", x: 1620, y: 740, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227", shop: "auction_harbor" },
       { key: "outfit", x: 1620, y: 1060, w: 150, h: 100, type: "shop", sign: "Outfitters Hall", awning: "#2a6a9a" },
       { key: "sailors", x: 780, y: 1060, w: 190, h: 110, type: "hall", floors: 3, sign: "Sailors' Rest", signCol: "#ff9a40" },
       { key: "jobs", x: 1660, y: 1230, w: 180, h: 90, type: "hall", floors: 1, sign: "Job Master" }
     ],
-    exits: [{ x: 1150, y: 0, w: 100, h: 24, to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" }],
-    npcs: [{ id: "crystal_harbor", x: 1200, y: 900 }, { id: "ilsa", x: 940, y: 680, home: "harbormaster", sleep: [22, 6] }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_harbor", x: 1480, y: 840 }, { id: "barber_harbor", x: 1359, y: 817 }, { id: "job_harbor", x: 1660, y: 1310 }, { id: "guard_north", x: 1290, y: 170 }],
+    npcs: [{ id: "crystal_harbor", x: 1200, y: 900 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_harbor", x: 1620, y: 840 }, { id: "barber_harbor", x: 1359, y: 817 }, { id: "job_harbor", x: 1660, y: 1310 }],
     stalls: [{ x: 1359, y: 826, color: "#c0392b", sign: "Barber", pole: true }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "statue", x: 1200, y: 1560 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }],
     ambient: [{ type: "walker", x: 1200, y: 560, n: 1, path: [[1000, 520], [1400, 520], [1400, 640], [1000, 640]] }, { type: "gull", x: 1200, y: 900, n: 4, r: 300 }]
   },
   yard: {
-    off: [4800, 0], name: "Shipwrights' Row", color: "#a87850", icon: "🛠️", open: "s",
+    off: [4800, 1000], name: "Shipwrights' Row", color: "#a87850", icon: "🛠️", open: "s",
     streets: [{ w: 64, pts: [[0, 900], [2400, 900]] }, { w: 40, pts: [[900, 250], [900, 1380]] }, { w: 40, pts: [[1700, 250], [1700, 1380]] }, { w: 36, pts: [[900, 380], [1700, 380]] }, { w: 36, pts: [[300, 380], [300, 1380]] }, { w: 44, pts: [[200, 1380], [2200, 1380]] }],
     reserve: [{ x: 360, y: 1430, w: 300, h: 260 }, { x: 1120, y: 1430, w: 320, h: 260 }, { x: 1900, y: 1430, w: 300, h: 260 }],
     houses: [
       { key: "shipwright", x: 1300, y: 1070, w: 260, h: 120, type: "hall", floors: 2, sign: "Shipwright", signCol: "#c9a227" },
       { key: "sawmill", x: 500, y: 1130, w: 190, h: 110, type: "mill", sign: "Sawmill" },
-      { key: "ropewalk", x: 1900, y: 650, w: 300, h: 90, type: "warehouse", sign: "Ropewalk" },
-      { key: "guardpost", x: 2080, y: 1110, w: 150, h: 100, type: "guard", flag: "#9aa0a8" },
-      { key: "stables", x: 1250, y: 650, w: 220, h: 120, type: "home", sign: "Stables" }
+      { key: "ropewalk", x: 1900, y: 650, w: 300, h: 90, type: "warehouse", sign: "Ropewalk" }
     ],
-    exits: [{ x: 2376, y: 850, w: 24, h: 100, to: "frost", tx: 7000, ty: 900, label: "Frostspire Pass" }],
-    npcs: [{ id: "guard_pass", x: 2250, y: 790 }, { id: "stable_harbor", x: 1250, y: 760 }],
-    stable: { x: 1450, y: 760, rot: -Math.PI / 2 },
     props: [{ type: "crates", x: 520, y: 1300, rot: 0.4, r: 26 }, { type: "barrels", x: 1000, y: 1300, rot: 0.8, r: 26 }, { type: "crates", x: 1850, y: 1320, rot: 0.2, r: 26 }, { type: "anvil", x: 1500, y: 1330, rot: 0.5, r: 26 }],
     docks: [[360, 1410, 54, 220], [1790, 1410, 54, 220]],
     boats: [[420, 1780, 0.2], [1250, 1790, -0.2], [2000, 1770, 0.3]],
@@ -1400,7 +1397,7 @@ const HARBOR_PLAN = {
     ambient: [{ type: "gull", x: 1200, y: 1500, n: 5, r: 300 }]
   },
   docks: {
-    off: [2400, 1800], name: "The Docks", color: "#3a7ab0", icon: "⛵",
+    off: [2400, 2800], name: "The Docks", color: "#3a7ab0", icon: "⛵",
     streets: [{ w: 56, pts: [[1200, 0], [1200, 1000]] }, { w: 56, pts: [[150, 1000], [2250, 1000]] }, { w: 44, pts: [[150, 520], [2250, 520]] }, { w: 40, pts: [[450, 520], [450, 1000]] }, { w: 40, pts: [[1950, 520], [1950, 1000]] }],
     reserve: [{ x: 150, y: 1040, w: 2100, h: 330 }],
     houses: [
@@ -1415,10 +1412,12 @@ const HARBOR_PLAN = {
     water: HBR_SEA(1620, 430, [100, 550, 1000, 1450, 1900, 2350]),
     dressing: [{ t: "cart", x: 600, y: 1100, rot: 0.3 }, { t: "cart", x: 1760, y: 1100, rot: -0.4 }, { t: "planter", x: 1130, y: 120 }, { t: "planter", x: 1270, y: 120 }],
     ambient: [{ type: "gull", x: 1200, y: 1200, n: 7, r: 400 }, { type: "walker", x: 1200, y: 1080, n: 1, path: [[250, 1090], [2150, 1090]] }]
-  }
+  },
+  ngate: gateDistrict({ off: [3200, 0], side: "n", name: "North Gate", color: "#8aa0b0", guard: "guard_north", stable: "stable_harbor", quest: "ilsa", exit: { to: "marsh", tx: 2250, ty: 2290, label: "Ashen Marsh" } }),
+  egate: gateDistrict({ off: [7200, 1500], side: "e", name: "East Gate", color: "#8aa0b0", guard: "guard_pass", stable: "stable_harbor_e", exit: { to: "frost", tx: 7000, ty: 900, label: "Frostspire Pass" } })
 };
-const HARBOR_GATES = [{ x: 2400, y: 900, a: "fish", b: "square" }, { x: 4800, y: 900, a: "square", b: "yard" }, { x: 3600, y: 1800, a: "square", b: "docks", horiz: true }];
-ZONES.harbor = buildCity({ id: "harbor", seed: "saltreach-city-1", name: "Saltreach Harbor", city: "Saltreach", cityStyle: "harbor", outerWall: "new", plan: HARBOR_PLAN, fill: HBR_FILL, gates: HARBOR_GATES, signs: HBR_SIGNS, cargo: ["yard", "docks"], w: OUT_DW * 3, h: OUT_DH * 2, walls: [[2400, 0, 2400, 1800], [4800, 0, 4800, 1800], [2400, 1800, 4800, 1800]], start: ["square", 1200, 1030], reserve: Object.values(HARBOR_SHOPS).map(s => ({ x: s.x - s.w / 2 - 40, y: s.y - s.h / 2 - 20, w: s.w + 80, h: s.h + 130 })) });
+const HARBOR_GATES = [{ x: 2400, y: 1900, a: "fish", b: "square" }, { x: 4800, y: 1900, a: "square", b: "yard" }, { x: 3600, y: 2800, a: "square", b: "docks", horiz: true }, { x: 3600, y: 1000, a: "ngate", b: "square", horiz: true }, { x: 7200, y: 1900, a: "yard", b: "egate" }];
+ZONES.harbor = buildCity({ id: "harbor", seed: "saltreach-city-1", name: "Saltreach Harbor", city: "Saltreach", cityStyle: "harbor", outerWall: "new", plan: HARBOR_PLAN, fill: HBR_FILL, gates: HARBOR_GATES, signs: HBR_SIGNS, cargo: ["yard", "docks"], w: OUT_DW * 3 + 1000, h: OUT_DH * 2 + 1000, walls: [[2400, 1000, 2400, 2800], [4800, 1000, 4800, 2800], [2400, 2800, 4800, 2800], [2400, 1000, 4800, 1000], [7200, 1000, 7200, 2800]], start: ["square", 1200, 1030], reserve: Object.values(HARBOR_SHOPS).map(s => ({ x: s.x - s.w / 2 - 40, y: s.y - s.h / 2 - 20, w: s.w + 80, h: s.h + 130 })) });
 
 ZONES.frost = {
   name: "Frostspire Pass", w: 3000, h: 2400, theme: "field", palette: "snow",
@@ -1570,12 +1569,12 @@ const NPCS = {
 const QUESTS = {
   tour_outpost: { name: "Know Your City", giver: "Hale", npc: "v_trade_outpost", lv: 1, check: "tour_outpost", desc: "Walk through all five districts of Ashenreach Outpost: Market, Government, Residential, Industrial and Eastgate.", reward: { xp: 150, gil: 200 },
     intro: "Customers keep asking me where the smithy is, and I've no time to point. Do us both a favour and walk every district of the Outpost once: Market, Government, Residential, Industrial and Eastgate. Then come back and I'll pay you for your time.", progress: "Still some districts you haven't walked. Use the map (M); each district is tinted and named.", turn: "Every street walked. You'll never be lost here now. Take this for your trouble." },
-  tour_harbor: { name: "Harbor Rounds", giver: "Marn", npc: "marn", lv: 2, check: "tour_harbor", desc: "Visit all four districts of Saltreach Harbor: the Fish Market, Harbor Square, Shipwrights' Row and the Docks.", reward: { xp: 200, gil: 250 },
-    intro: "New to Saltreach? Then you don't know where the best catch lands. Visit the Fish Market, Harbor Square, Shipwrights' Row and the Docks, and tell me what you saw. I'll make it worth your while.", progress: "You've not seen it all yet. The Docks run along the south shore, past the gate halls.", turn: "So you've seen the whole harbor. Good. Now you know where to buy fish." },
-  tour_ironvale: { name: "The Ironvale Circuit", giver: "Brisa", npc: "brisa", lv: 3, check: "tour_ironvale", desc: "Visit all five districts of Ironvale: Gate Ward, the Keep, Market Square, South Ward and Smelters' Row.", reward: { xp: 250, gil: 300 },
-    intro: "Quartermasters hate being asked for directions. Save us both the trouble: walk the Gate Ward, the Keep, Market Square, the South Ward and Smelters' Row, then report back.", progress: "Not all five yet. Smelters' Row is east, past the gate hall; the Keep is north.", turn: "The whole circuit. Now you know your way around Ironvale." },
+  tour_harbor: { name: "Harbor Rounds", giver: "Marn", npc: "marn", lv: 2, check: "tour_harbor", desc: "Visit all six districts of Saltreach Harbor: the Fish Market, Harbor Square, Shipwrights' Row, the Docks, the North Gate and the East Gate.", reward: { xp: 200, gil: 250 },
+    intro: "New to Saltreach? Then you don't know where the best catch lands. Visit the Fish Market, Harbor Square, Shipwrights' Row, the Docks and both gates, and tell me what you saw. I'll make it worth your while.", progress: "You've not seen it all yet. The Docks run along the south shore, past the gate halls.", turn: "So you've seen the whole harbor. Good. Now you know where to buy fish." },
+  tour_ironvale: { name: "The Ironvale Circuit", giver: "Brisa", npc: "brisa", lv: 3, check: "tour_ironvale", desc: "Visit all six districts of Ironvale: Gate Ward, the Keep, Market Square, South Ward, South Gate and Smelters' Row.", reward: { xp: 250, gil: 300 },
+    intro: "Quartermasters hate being asked for directions. Save us both the trouble: walk the Gate Ward, the Keep, Market Square, the South Ward, the South Gate and Smelters' Row, then report back.", progress: "Not all six yet. Smelters' Row is east, past the gate hall; the Keep is north.", turn: "The whole circuit. Now you know your way around Ironvale." },
   pouches: { name: "Pouches for the Captain", giver: "Captain Rhea", npc: "rhea", lv: 1, desc: "Bring Captain Rhea 3 Goblin Pouches. Goblins in Rocky Hollow carry them.", reward: { xp: 300, gil: 300, item: "multiple_ring" } },
-  home: { name: "Make It Home", giver: "Odette", npc: "odette", lv: 1, check: "furniture", desc: "Buy or craft two pieces of furniture and have Pip place them in your residence (the door is on the west house of the Outpost).", reward: { xp: 100, gil: 0, items: [["flowerpot", 1], ["herb_seeds", 2]] },
+  home: { name: "Make It Home", giver: "Odette", npc: "odette", lv: 1, check: "furniture", desc: "Buy or craft two pieces of furniture and have Pip place them in your residence (your residence is in the Residential District, just inside the gate from the Market).", reward: { xp: 100, gil: 0, items: [["flowerpot", 1], ["herb_seeds", 2]] },
     intro: "Every adventurer needs somewhere to hang their helm. The cottage by the west wall is yours; my cousin Pip keeps it. Put two pieces of furniture in it and I'll throw in something green for the windowsill.", progress: "Two pieces placed, that's all. Chairs are cheap. Talk to Pip at the cottage to arrange them.", turn: "Two pieces placed! It's a home now. Here, a flowerpot and some herb seeds; Pip will show you how to garden." },
   greenthumb: { name: "Green Thumb", giver: "Pip", npc: "pip", lv: 1, check: "harvest", desc: "Plant a seed in a Flowerpot at your residence, water it through its three stages, and harvest it.", reward: { xp: 150, gil: 0, items: [["wildgrass_seeds", 2]] },
     intro: "You've a flowerpot? Then let's grow something! Plant a seed, water it, and feed it an elemental essence if you have one. It takes a while in real time, so come back. Harvest once and I'll give you some wildgrass seeds.", progress: "Still growing? Water it at every stage; dry plants don't grow.", turn: "A harvest! You've the knack. Wildgrass grows crystals of whichever element you feed it; try these." },
@@ -1663,62 +1662,50 @@ const IRN_FILL = {
   forge: [["smelter", 0.25, [170, 230], [100, 130], [1, 1]], ["warehouse", 0.3, [150, 220], [90, 120], [1, 2]], ["hall", 0.15, [130, 180], [80, 110], [1, 2]], ["home", 0.3, [90, 130], [80, 100], [1, 2]]]
 };
 const IRONVALE_SHOPS = {
-  armorer: { x: 5900, y: 2573, w: 120, h: 72, sign: "Armory", district: "forge" },
-  weaponsmith: { x: 6200, y: 2573, w: 112, h: 72, sign: "Arms", district: "forge" },
-  tradesman: { x: 1250, y: 2573, w: 120, h: 72, sign: "Supplies", district: "gate" },
-  quartermaster: { x: 2900, y: 3050, w: 112, h: 72, sign: "Provisions", district: "market" },
-  spellsmith: { x: 3100, y: 869, w: 100, h: 72, sign: "Scrolls", district: "keep" },
-  jeweler: { x: 3900, y: 2349, w: 96, h: 72, sign: "Jewels", district: "market" }
+  armorer: { x: 4500, y: 2573, w: 120, h: 72, sign: "Armory", district: "forge" },
+  weaponsmith: { x: 4800, y: 2573, w: 112, h: 72, sign: "Arms", district: "forge" },
+  tradesman: { x: 2650, y: 4300, w: 120, h: 72, sign: "Supplies", district: "south" },
+  quartermaster: { x: 1500, y: 3050, w: 112, h: 72, sign: "Provisions", district: "market" },
+  spellsmith: { x: 1700, y: 869, w: 100, h: 72, sign: "Scrolls", district: "keep" },
+  jeweler: { x: 2500, y: 2349, w: 96, h: 72, sign: "Jewels", district: "market" }
 };
 const IRONVALE_PLAN = {
   keep: {
-    off: [2400, 0], name: "The Keep", color: "#5a7090", icon: "🏰",
+    off: [1000, 0], name: "The Keep", color: "#5a7090", icon: "🏰",
     streets: [{ w: 56, pts: [[1200, 1800], [1200, 330]] }, { w: 44, pts: [[200, 1000], [2200, 1000]] }, { w: 40, pts: [[450, 250], [450, 1600]] }, { w: 40, pts: [[1950, 250], [1950, 1600]] }, { w: 40, pts: [[450, 250], [1950, 250]] }, { w: 36, pts: [[450, 1550], [1950, 1550]] }],
     plazas: [{ x: 1200, y: 480, r: 150 }],
     houses: [
       { key: "keep", x: 1200, y: 140, w: 320, h: 150, type: "keep", floors: 3, flag: "#90a4ae" },
       { key: "barracks", x: 720, y: 400, w: 240, h: 120, type: "barracks", sign: "Frost Guard", flag: "#90a4ae" },
-      { key: "council", x: 1680, y: 400, w: 220, h: 110, type: "hall", floors: 2, sign: "Council Hall", signCol: "#c9a227" },
+      { key: "council", x: 1680, y: 400, w: 220, h: 110, type: "hall", floors: 2, sign: "Council Hall", signCol: "#c9a227", shop: "registrar_ironvale" },
       { key: "chapel", x: 1680, y: 1230, w: 190, h: 110, type: "hall", floors: 2, sign: "Hearth Chapel", signCol: "#f0e0a0" }
     ],
-    npcs: [{ id: "brisa", x: 1100, y: 300, home: "keep", sleep: [22, 6] }],
+    npcs: [{ id: "registrar_ironvale", x: 1680, y: 470 }],
     benches: [[1060, 480, 1.57], [1340, 480, -1.57]],
     dressing: [{ t: "statue", x: 1080, y: 1680 }, { t: "statue", x: 1320, y: 1680 }, { t: "planter", x: 1060, y: 300 }, { t: "planter", x: 1340, y: 300 }, { t: "well", x: 1500, y: 700 }]
   },
-  gate: {
-    off: [0, 1800], name: "Gate Ward", color: "#9aa4ac", icon: "🛡️",
-    streets: [{ w: 64, pts: [[2400, 900], [-100, 900]] }, { w: 40, pts: [[800, 250], [800, 1600]] }, { w: 40, pts: [[1700, 250], [1700, 1600]] }, { w: 36, pts: [[800, 400], [1700, 400]] }, { w: 36, pts: [[800, 1400], [1700, 1400]] }],
-    reserve: [{ x: 120, y: 1000, w: 500, h: 450 }],
-    houses: [
-      { key: "guard", x: 450, y: 780, w: 180, h: 110, type: "guard", flag: "#90a4ae" },
-      { key: "lodge", x: 1250, y: 1070, w: 200, h: 110, type: "hall", floors: 3, sign: "Frostgate Lodge", signCol: "#e0a050" }
-    ],
-    exits: [{ x: 0, y: 850, w: 24, h: 100, to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" }],
-    npcs: [{ id: "guard_ironvale", x: 300, y: 790 }],
-    props: [{ type: "barrels", x: 300, y: 1200, rot: 0.3, r: 26 }, { type: "crates", x: 560, y: 1450, rot: 0.8, r: 26 }],
-    dressing: [{ t: "cart", x: 420, y: 1320, rot: 0.2 }, { t: "hay", x: 300, y: 1450 }, { t: "well", x: 1250, y: 650 }]
-  },
+  gate: gateDistrict({ off: [0, 2300], side: "w", name: "Gate Ward", color: "#9aa4ac", guard: "guard_ironvale", stable: "stable_ironvale", quest: "brisa", flag: "#90a4ae", exit: { to: "frost", tx: 2900, ty: 1130, label: "Frostspire Pass" } }),
   market: {
-    off: [2400, 1800], name: "Market Square", color: "#d8a838", icon: "⚖️",
+    off: [1000, 1800], name: "Market Square", color: "#d8a838", icon: "⚖️",
     streets: [{ w: 64, pts: [[0, 900], [2400, 900]] }, { w: 56, pts: [[1200, 0], [1200, 1800]] }, { w: 40, pts: [[300, 430], [2100, 430]] }, { w: 40, pts: [[300, 1370], [2100, 1370]] }, { w: 40, pts: [[300, 430], [300, 1370]] }, { w: 40, pts: [[2100, 430], [2100, 1370]] }, { w: 34, pts: [[700, 140], [700, 430]] }, { w: 34, pts: [[1700, 140], [1700, 430]] }, { w: 34, pts: [[700, 1370], [700, 1660]] }, { w: 34, pts: [[1700, 1370], [1700, 1660]] }],
     plaza: { x: 1200, y: 900, r: 240 },
     houses: [
       { key: "store", x: 780, y: 770, w: 200, h: 110, type: "shop", sign: "General Store", awning: "#37474f" },
-      { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227" },
+      { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227", shop: "auction_ironvale" },
       { key: "jobs", x: 1620, y: 1040, w: 170, h: 90, type: "hall", floors: 1, sign: "Job Master" },
-      { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" },
-      { key: "stables", x: 1660, y: 1230, w: 200, h: 100, type: "home", sign: "Stables" }
+      { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" }
     ],
-    npcs: [{ id: "crystal_ironvale", x: 1200, y: 900 }, { id: "auction_ironvale", x: 1480, y: 840 }, { id: "barber_ironvale", x: 1359, y: 817 }, { id: "job_ironvale", x: 1620, y: 1140 }, { id: "stable_ironvale", x: 1660, y: 1310 }, { id: "trade_board", x: 1010, y: 1100 }],
-    stalls: [{ x: 1359, y: 826, color: "#c0392b", sign: "Barber", pole: true }, { x: 1041, y: 826, color: "#37474f" }, { x: 1300, y: 1043, color: "#5d4037" }, { x: 1100, y: 1043, color: "#37474f" }],
+    npcs: [{ id: "crystal_ironvale", x: 1200, y: 900 }, { id: "auction_ironvale", x: 1600, y: 870 }, { id: "job_ironvale", x: 1620, y: 1140 }, { id: "trade_board", x: 1010, y: 1100 }],
+    stalls: [{ x: 1359, y: 826, color: "#5d4037" }, { x: 1041, y: 826, color: "#37474f" }, { x: 1300, y: 1043, color: "#5d4037" }, { x: 1100, y: 1043, color: "#37474f" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }],
     ambient: [{ type: "dog", x: 1200, y: 1150, n: 1, r: 140, col: 0x5a4a3a }, { type: "walker", x: 1200, y: 560, n: 1, path: [[1000, 520], [1400, 520], [1400, 640], [1000, 640]] }]
   },
   south: {
-    off: [2400, 3600], name: "South Ward", color: "#6fae5a", icon: "🏡",
-    streets: [{ w: 56, pts: [[1200, 0], [1200, 1900]] }, { w: 44, pts: [[150, 520], [2250, 520]] }, { w: 44, pts: [[150, 1250], [2250, 1250]] }, { w: 40, pts: [[450, 520], [450, 1650]] }, { w: 40, pts: [[1950, 520], [1950, 1650]] }],
-    exits: [{ x: 1150, y: 1776, w: 100, h: 24, to: "sunscar", tx: 1500, ty: 120, label: "Sunscar Desert" }],
+    off: [1000, 3600], name: "South Ward", color: "#6fae5a", icon: "🏡",
+    streets: [{ w: 56, pts: [[1200, 0], [1200, 1800]] }, { w: 44, pts: [[150, 520], [2250, 520]] }, { w: 44, pts: [[150, 1250], [2250, 1250]] }, { w: 40, pts: [[450, 520], [450, 1650]] }, { w: 40, pts: [[1950, 520], [1950, 1650]] }],
+    npcs: [{ id: "barber_ironvale", x: 1330, y: 291 }],
+    stalls: [{ x: 1330, y: 300, color: "#c0392b", sign: "Barber", pole: true }],
     houses: [
       { key: "hearth", x: 750, y: 700, w: 200, h: 110, type: "hall", floors: 2, sign: "Hearthstone Inn", signCol: "#e0a050" },
       { key: "grain", x: 1650, y: 1400, w: 220, h: 110, type: "warehouse", floors: 2, sign: "Grain Store" }
@@ -1728,7 +1715,7 @@ const IRONVALE_PLAN = {
     ambient: [{ type: "dog", x: 900, y: 1000, n: 1, r: 120, col: 0x5a4a3a }]
   },
   forge: {
-    off: [4800, 1800], name: "Smelters' Row", color: "#c4703a", icon: "⚒️",
+    off: [3400, 1800], name: "Smelters' Row", color: "#c4703a", icon: "⚒️",
     streets: [{ w: 64, pts: [[0, 900], [2200, 900]] }, { w: 40, pts: [[800, 250], [800, 1600]] }, { w: 40, pts: [[1600, 250], [1600, 1600]] }, { w: 36, pts: [[800, 400], [1600, 400]] }, { w: 36, pts: [[800, 1400], [1600, 1400]] }],
     reserve: [{ x: 1850, y: 1300, w: 380, h: 340 }],
     houses: [
@@ -1741,10 +1728,11 @@ const IRONVALE_PLAN = {
     props: [{ type: "anvil", x: 1420, y: 1160, rot: 0.3, r: 26 }, { type: "crates", x: 2000, y: 1100, r: 30 }, { type: "barrels", x: 400, y: 700, r: 26 }],
     dressing: [{ t: "cart", x: 500, y: 1100, rot: 0.5 }, { t: "hay", x: 450, y: 1400 }],
     ambient: []
-  }
+  },
+  sgate: gateDistrict({ off: [1800, 5400], side: "s", name: "South Gate", color: "#9aa4ac", guard: "guard_ironvale_s", stable: "stable_ironvale_s", flag: "#90a4ae", exit: { to: "sunscar", tx: 1500, ty: 120, label: "Sunscar Desert" } })
 };
-const IRONVALE_GATES = [{ x: 2400, y: 2700, a: "gate", b: "market" }, { x: 4800, y: 2700, a: "market", b: "forge" }, { x: 3600, y: 1800, a: "keep", b: "market", horiz: true }, { x: 3600, y: 3600, a: "market", b: "south", horiz: true }];
-ZONES.ironvale = buildCity({ id: "ironvale", seed: "ironvale-city-1", name: "Ironvale", city: "Ironvale", cityStyle: "mountain", palette: "snow", plan: IRONVALE_PLAN, fill: IRN_FILL, gates: IRONVALE_GATES, signs: IRN_SIGNS, cargo: ["forge", "gate"], w: OUT_DW * 3, h: OUT_DH * 3, walls: [[2400, 1800, 2400, 3600], [4800, 1800, 4800, 3600], [2400, 1800, 4800, 1800], [2400, 3600, 4800, 3600]], start: ["market", 1200, 1030], reserve: Object.values(IRONVALE_SHOPS).map(s => ({ x: s.x - s.w / 2 - 40, y: s.y - s.h / 2 - 20, w: s.w + 80, h: s.h + 130 })) });
+const IRONVALE_GATES = [{ x: 1000, y: 2700, a: "gate", b: "market" }, { x: 3400, y: 2700, a: "market", b: "forge" }, { x: 2200, y: 1800, a: "keep", b: "market", horiz: true }, { x: 2200, y: 3600, a: "market", b: "south", horiz: true }, { x: 2200, y: 5400, a: "south", b: "sgate", horiz: true }];
+ZONES.ironvale = buildCity({ id: "ironvale", seed: "ironvale-city-1", name: "Ironvale", city: "Ironvale", cityStyle: "mountain", palette: "snow", plan: IRONVALE_PLAN, fill: IRN_FILL, gates: IRONVALE_GATES, signs: IRN_SIGNS, cargo: ["forge"], w: OUT_DW * 2 + 1000, h: OUT_DH * 3 + 1000, walls: [[1000, 1800, 1000, 3600], [3400, 1800, 3400, 3600], [1000, 1800, 3400, 1800], [1000, 3600, 3400, 3600], [1000, 5400, 3400, 5400]], start: ["market", 1200, 1030], reserve: Object.values(IRONVALE_SHOPS).map(s => ({ x: s.x - s.w / 2 - 40, y: s.y - s.h / 2 - 20, w: s.w + 80, h: s.h + 130 })) });
 
 Object.assign(FAMILIES, {
   dune_lizard: tierFam("hill_lizard", { name: "Dune Lizard", color: "#c8a070", tint: 0xc8a070, tint2: 0xf0dcb0, hpMul: 1.15, attMul: 1.05, weak: { ice: 1.35, water: 1.2 }, loot: [["lizard_skin", 0.4], ["fire_crystal", 0.25], ["hi_potion", 0.06]] }),
@@ -2618,7 +2606,7 @@ const VENDOR_POOL = {};
 for (const r in VENDOR_ROLES) VENDOR_POOL[r] = (r === "jeweler" ? VENDOR_SOURCE_JEWEL : VENDOR_SOURCE).filter(id => (ITEMS[id].lv || 0) <= (r === "jeweler" ? VENDOR_JEWEL_MAXLV : VENDOR_MAXLV) && VENDOR_ROLES[r].test(ITEMS[id]));
 const VENDOR_SHOP_LOOK = { armorer: { type: "forge", signCol: "#9aa4b0" }, weaponsmith: { type: "forge", signCol: "#ff7a30" }, tradesman: { type: "shop", awning: "#2e7d32" }, quartermaster: { type: "shop", awning: "#c0392b" }, spellsmith: { type: "shop", awning: "#7b1fa2", signCol: "#b388ff" }, jeweler: { type: "shop", awning: "#0277bd", signCol: "#7ad0ff" } };
 const VENDOR_TOWNS = {
-  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 3950, y: 4006, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 4220, y: 4006, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 6050, y: 2310, w: 120, h: 72, sign: "Supplies", district: "gate" }, quartermaster: { x: 3300, y: 3058, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 3900, y: 3058, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 3900, y: 2342, w: 96, h: 72, sign: "Jewels", district: "market" } } },
+  outpost: { names: { armorer: "Dorrin", weaponsmith: "Kessa", tradesman: "Hale", quartermaster: "Perrin", spellsmith: "Vesper", jeweler: "Maris" }, shops: { armorer: { x: 3950, y: 4006, w: 120, h: 72, sign: "Armory", district: "ind" }, weaponsmith: { x: 4220, y: 4006, w: 112, h: 72, sign: "Arms", district: "ind" }, tradesman: { x: 1600, y: 2580, w: 120, h: 72, sign: "Supplies", district: "res" }, quartermaster: { x: 3300, y: 3058, w: 112, h: 72, sign: "Provisions", district: "market" }, spellsmith: { x: 3900, y: 3058, w: 100, h: 72, sign: "Scrolls", district: "market" }, jeweler: { x: 3900, y: 2342, w: 96, h: 72, sign: "Jewels", district: "market" } } },
   harbor: { names: { armorer: "Brek", weaponsmith: "Tamsin", tradesman: "Orrin", quartermaster: "Nell", spellsmith: "Corwen", jeweler: "Lysa" }, shops: HARBOR_SHOPS },
   ironvale: { names: { armorer: "Gunnar", weaponsmith: "Sigrid", tradesman: "Bjorn", quartermaster: "Edda", spellsmith: "Runa", jeweler: "Thora" }, shops: IRONVALE_SHOPS }
 };
@@ -2781,11 +2769,8 @@ for (const zid in ZONES) {
     z.npcs.push({ id, x: Math.round(inner.x + (horiz ? 0 : off)), y: Math.round(inner.y + (horiz ? off : 0)) });
   });
 }
-const WARP_STONES = {
-  outpost: { res: [2150, 2560], gov: [3460, 1600], market: [3380, 2980], ind: [3440, 3800], gate: [5180, 2840] },
-  harbor: { fish: [900, 1250], square: [3380, 1180], yard: [5800, 1180], docks: [3300, 2650] },
-  ironvale: { gate: [1300, 3050], keep: [3400, 1300], market: [3380, 2980], south: [3300, 4500], forge: [5800, 2980] }
-};
+const WARP_STONES = {};
+for (const zid of ["outpost", "harbor", "ironvale"]) { WARP_STONES[zid] = {}; for (const d of ZONES[zid].districts) WARP_STONES[zid][d.id] = [Math.round(d.x + d.w / 2), Math.round(d.y + d.h / 2)]; }
 for (const zid in WARP_STONES) for (const did in WARP_STONES[zid]) {
   const id = "warpstone_" + zid + "_" + did, d = ZONES[zid].districts.find(q => q.id === did);
   NPCS[id] = { name: "Warp Stone: " + d.name, prop: "statue", warpstone: true, talk: "talkWarpStone", warpZone: zid, warpDistrict: did };
@@ -2937,9 +2922,23 @@ function frontage(z) {
   for (const h of z.houses || []) {
     if (h.fixed) continue;
     const r = doorRay(z, h, h.rot || 0), F = h.shop ? SHOP_FRONT : HOME_FRONT;
-    if (!r || r.t <= F.hi + 6) continue;
-    const [dx, dy] = houseDir(h), d0 = houseDoor(h);
-    z.paths.push({ w: 30, lane: true, pts: [[Math.round(d0.x), Math.round(d0.y)], [Math.round(r.x + dx * 10), Math.round(r.y + dy * 10)]] });
+    if (!r) { if (!h.sign && !h.shop && !h.trade) h.drop = true; continue; }
+    if (r.t <= F.hi + 6) continue;
+    const [dx, dy] = houseDir(h), d0 = houseDoor(h), half = ((h.rot || 0) % 2 ? h.h : h.w) / 2 - 16;
+    for (const o of [0, -20, 20, -40, 40, -60, 60]) {
+      if (Math.abs(o) > half) continue;
+      const a = [Math.round(d0.x - dy * o), Math.round(d0.y + dx * o)], b = [Math.round(r.x + dx * 10 - dy * o), Math.round(r.y + dy * 10 + dx * o)];
+      if ((z.houses || []).some(q => q !== h && segRect(a[0], a[1], b[0], b[1], houseRect(q), 17))) continue;
+      z.paths.push({ w: 30, lane: true, pts: o ? [[Math.round(d0.x), Math.round(d0.y)], a, b] : [a, b] });
+      h.laned = true;
+      break;
+    }
+    if (!h.laned && !h.sign && !h.shop && !h.trade) h.drop = true;
+  }
+  if ((z.houses || []).some(h => h.drop)) {
+    const refs = z.npcs.map(n => typeof n.home === "number" ? z.houses[n.home] : null);
+    z.houses = z.houses.filter(h => !h.drop);
+    z.npcs.forEach((n, i) => { if (refs[i]) { const k = z.houses.indexOf(refs[i]); if (k >= 0) n.home = k; else { delete n.home; delete n.sleep; } } });
   }
   for (const h of z.houses || []) {
     if (!h.shop) continue;
@@ -3044,8 +3043,15 @@ Object.assign(NPCS, {
   brisa: { name: "Brisa, Quartermaster", model: "brisa", talk: "talkBrisa" },
   haldor: { name: "Haldor, Mythrilsmith", model: "haldor", talk: "talkHaldor" },
   crystal_ironvale: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
-  guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" }
+  guard_ironvale: { name: "Ironvale Guard Bram", model: "guard", talk: "talkGuard" },
+  guard_ironvale_s: { name: "Ironvale Guard Ulla", model: "guard_f", talk: "talkGuard" },
+  stable_ironvale_s: { name: "Torvald, Stablemaster", model: "ysolde_b", talk: "talkYsolde" },
+  stable_harbor_e: { name: "Bryn, Stablemaster", model: "ysolde_b", talk: "talkYsolde" },
+  registrar_outpost: { name: "Aurel, Registrar", model: "registrar", talk: "talkRegistrar" },
+  registrar_ironvale: { name: "Ingrid, Registrar", model: "registrar", talk: "talkRegistrar" }
 });
+const RENAME_COST = 10000;
+VENDOR_WORK.stable_ironvale_s = "work"; VENDOR_WORK.stable_harbor_e = "work"; VENDOR_WORK.registrar_outpost = "read"; VENDOR_WORK.registrar_ironvale = "read";
 ACHIEVEMENTS.push({ id: "spire", icon: "🗼", name: "Top of the Spire", desc: "Defeat the Spire Warden at the summit of the Red Spire.", test: s => !!(s.nmKilled && s.nmKilled.spire_warden) });
 WEATHER.highlands = [["clear", 5], ["wind", 4], ["cloudy", 3], ["rain", 1.5], ["storm", 1]];
 SHOPS.essa = ["potion", "hi_potion", "ether", "herb_bread", "carp_stew", "bait", "fishing_rod"].filter(id => ITEMS[id]);
@@ -3250,12 +3256,15 @@ function splitTown(src) {
     for (const k of TOWN_PT_KEYS) if (Z[k]) nz[k] = Z[k].filter(q => mine(q[0], q[1])).map(pt);
     if (Z.docks) nz.docks = Z.docks.filter(q => mine(q[0] + q[2] / 2, q[1] + q[3] / 2)).map(pt);
     nz.walls = (Z.walls || []).filter(w => mine(w.x + w.w / 2, w.y + w.h / 2)).map(mv);
-    for (const k of ["plaza", "stable"]) if (Z[k] && mine(Z[k].x, Z[k].y)) nz[k] = mv(Z[k]);
+    if (Z.plaza && mine(Z.plaza.x, Z.plaza.y)) nz.plaza = mv(Z.plaza);
+    const st = (Z.stables || []).find(q => mine(q.x, q.y));
+    if (st) nz.stable = mv(st);
     const R = { x: p.x0, y: p.y0, w: nz.w, h: nz.h };
     nz.paths = (Z.paths || []).filter(pa => pa.pts.some((q, i) => i > 0 && segRect(pa.pts[i - 1][0], pa.pts[i - 1][1], q[0], q[1], R, pa.w / 2))).map(pa => Object.assign({}, pa, { pts: pa.pts.map(pt) }));
     nz.exits = (Z.exits || []).filter(e => mine(e.x + e.w / 2, e.y + e.h / 2)).map(e => { const n = mv(e); n.x = Math.max(0, Math.min(nz.w - n.w, n.x)); n.y = Math.max(0, Math.min(nz.h - n.h, n.y)); return n; });
     const ws = nz.npcs.find(n => NPCS[n.id] && NPCS[n.id].warpstone);
     nz.start = inP(p, Z.start.x, Z.start.y) ? mv(Z.start) : ws ? { x: ws.x, y: ws.y + 70 } : { x: Math.round(nz.w / 2), y: Math.round(nz.h / 2) };
+    if (!inP(p, Z.start.x, Z.start.y)) nz.startWs = true;
     for (const n of nz.npcs) if (NPCS[n.id] && NPCS[n.id].warpstone) NPCS[n.id].warpZone = p.id;
     out[p.id] = nz;
   }
@@ -3283,7 +3292,7 @@ function splitTown(src) {
   for (const id in out) ZONES[id] = out[id];
   return out;
 }
-const TOWN_LAYOUT = { outpost: 2, harbor: 2, ironvale: 2 };
+const TOWN_LAYOUT = { outpost: 3, harbor: 3, ironvale: 3 };
 function settleTownFolk(z) {
   const isFolk = n => { const d = NPCS[n.id]; return d && !d.prop && !d.crystal && !d.warpstone; };
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y), GAP = 70;
@@ -3374,3 +3383,94 @@ for (const zid in ZONES) for (const n of ZONES[zid].npcs || []) {
   const z = ZONES[zid], e = (z.exits || []).filter(x => x.kind !== "door" && !x.gate && ZONES[x.to]).sort((a, b) => Math.hypot(a.x + a.w / 2 - n.x, a.y + a.h / 2 - n.y) - Math.hypot(b.x + b.w / 2 - n.x, b.y + b.h / 2 - n.y))[0];
   if (e) { NPCS[n.id].signTo = e.to; NPCS[n.id].name = "To " + ZONES[e.to].name; }
 }
+function roadPts(z) {
+  const out = [];
+  for (const p of z.paths || []) {
+    if (p.lane) continue;
+    for (let i = 0; i < p.pts.length - 1; i++) {
+      const a = p.pts[i], b = p.pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (L < 1) continue;
+      const ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L;
+      for (let t = 0; t <= L; t += 24) out.push({ x: a[0] + ux * t, y: a[1] + uy * t, ux, uy, w: p.w });
+    }
+  }
+  return out;
+}
+function spotFree(z, x, y, r, skip, lax) {
+  const m = lax ? 90 : 120;
+  if (x < m || y < m || x > z.w - m || y > z.h - m) return false;
+  if (roadGap(z, x, y) < r) return false;
+  if ((z.houses || []).some(h => inRect(x, y, houseRect(h), 30))) return false;
+  if ((z.walls || []).some(q => inRect(x, y, q, 24))) return false;
+  if ((z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 30)) return false;
+  if ((z.plaza ? [z.plaza] : []).concat(z.plazas || []).some(q => Math.hypot(x - q.x, y - q.y) < q.r + 10)) return false;
+  if ((z.fountains || []).some(f => Math.hypot(x - f.x, y - f.y) < 90)) return false;
+  if ((z.exits || []).some(e => e.kind !== "door" && Math.hypot(x - e.x - e.w / 2, y - e.y - e.h / 2) < (e.hall || 0) + (lax ? 40 : 120))) return false;
+  if ((z.npcs || []).some(n => !(skip || []).includes(n) && Math.hypot(n.x - x, n.y - y) < (lax ? 50 : 60))) return false;
+  if ((z.stalls || []).some(q => Math.hypot(q.x - x, q.y - y) < 60)) return false;
+  if ((z.props || []).concat(z.dressing || []).some(q => Math.hypot(q.x - x, q.y - y) < 40)) return false;
+  if ((z.benches || []).concat(z.lamps || [], z.racks || [], z.dummies || []).some(q => Math.hypot(q[0] - x, q[1] - y) < 32)) return false;
+  if ((z.gardens || []).some(g => inRect(x, y, { x: g.x - g.w / 2, y: g.y - g.h / 2, w: g.w, h: g.h }, 24))) return false;
+  if (z.stable && Math.hypot(z.stable.x - x, z.stable.y - y) < (lax ? 60 : 80)) return false;
+  for (const h of z.houses || []) if (h.shop) { const d = houseDoor(h), [fx, fy] = houseDir(h), al = (x - d.x) * fx + (y - d.y) * fy, hw = ((h.rot || 0) % 2 ? h.h : h.w) / 2 + 24; if (al > -4 && al < 124 && Math.abs((x - d.x) * -fy + (y - d.y) * fx) < hw) return false; }
+  return true;
+}
+function placeWarpStone(z) {
+  const st = (z.npcs || []).find(n => NPCS[n.id] && NPCS[n.id].warpstone);
+  if (!st) return;
+  const sg = z.npcs.find(n => n.id === "dsign_" + st.id.slice(10));
+  const cx = z.w / 2, cy = z.h / 2;
+  let best = null;
+  for (const lax of [false, true]) for (const q of roadPts(z)) for (const sd of [-1, 1]) {
+    if (lax && best) break;
+    const nx = -q.uy * sd, ny = q.ux * sd, off = q.w / 2 + 44, x = q.x + nx * off, y = q.y + ny * off;
+    const d = Math.hypot(x - cx, y - cy);
+    if (best && d >= best.d) continue;
+    if (!spotFree(z, x, y, 34, [st, sg], lax)) continue;
+    let sx = null;
+    for (const [k, b] of [[70, 0], [-70, 0], [100, 0], [-100, 0], [60, 50], [-60, 50], [0, 70]]) { const ax = x + q.ux * k + nx * b, ay = y + q.uy * k + ny * b; if (spotFree(z, ax, ay, 24, [st, sg], lax)) { sx = { x: ax, y: ay }; break; } }
+    if (!sx) continue;
+    best = { d, x, y, rx: q.x + nx * (q.w / 2 - 8), ry: q.y + ny * (q.w / 2 - 8), face: Math.atan2(-ny, -nx), sx };
+  }
+  if (!best) return;
+  st.x = Math.round(best.x); st.y = Math.round(best.y); st.face = best.face; st.ax = Math.round(best.rx); st.ay = Math.round(best.ry);
+  if (sg) { sg.x = Math.round(best.sx.x); sg.y = Math.round(best.sx.y); sg.face = best.face; }
+  if (z.startWs) z.start = { x: st.ax, y: st.ay };
+}
+const ROAD_CLEAR = { tree: 24, planter: 20, statue: 26, well: 28, cart: 36, hay: 20 };
+function nudgeOffRoad(z, o, r, isArr) {
+  const gx = () => isArr ? o[0] : o.x, gy = () => isArr ? o[1] : o.y;
+  const plz = (x, y) => (z.plaza ? [z.plaza] : []).concat(z.plazas || []).some(q => Math.hypot(x - q.x, y - q.y) < 40);
+  const inHouse = (x, y) => (z.houses || []).some(h => inRect(x, y, houseRect(h), isArr ? 0 : 6));
+  if (plz(gx(), gy()) || (roadGap(z, gx(), gy()) >= r && !inHouse(gx(), gy()))) return false;
+  const ok = (x, y) => x > 60 && y > 60 && x < z.w - 60 && y < z.h - 60 && roadGap(z, x, y) >= r && !(z.houses || []).some(h => inRect(x, y, houseRect(h), r)) && !(z.walls || []).some(q => inRect(x, y, q, r)) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + r) && !(z.npcs || []).some(n => n !== o && Math.hypot(n.x - x, n.y - y) < 40);
+  for (let rr = 8; rr <= 300; rr += 8) for (let k = 0; k < 24; k++) {
+    const a = k / 24 * Math.PI * 2, x = Math.round(gx() + Math.cos(a) * rr), y = Math.round(gy() + Math.sin(a) * rr);
+    if (ok(x, y)) { if (isArr) { o[0] = x; o[1] = y; } else { o.x = x; o.y = y; } return true; }
+  }
+  return false;
+}
+function keepOffRoads(z) {
+  if (!(z.paths || []).length) return;
+  for (const n of z.npcs || []) {
+    const d = NPCS[n.id];
+    if (!d || d.crystal) continue;
+    const folk = !d.prop && !d.warpstone;
+    if (nudgeOffRoad(z, n, folk ? 16 : 26) && folk && !n.shopFront) {
+      let bd = 1e9, bx = 0, by = 0;
+      for (const q of roadPts(z)) { const dd = Math.hypot(q.x - n.x, q.y - n.y); if (dd < bd) { bd = dd; bx = q.x; by = q.y; } }
+      if (bd < 1e9) n.face = Math.atan2(by - n.y, bx - n.x);
+    }
+  }
+  for (const q of z.stalls || []) nudgeOffRoad(z, q, 32);
+  for (const q of z.props || []) nudgeOffRoad(z, q, (q.r || 22) + 2);
+  for (const q of z.dressing || []) nudgeOffRoad(z, q, (ROAD_CLEAR[q.t] || 22) * (q.s || 1));
+  for (const q of z.benches || []) nudgeOffRoad(z, q, 20, true);
+  for (const q of z.racks || []) nudgeOffRoad(z, q, 22, true);
+  for (const q of z.dummies || []) nudgeOffRoad(z, q, 16, true);
+  for (const q of z.lamps || []) nudgeOffRoad(z, q, 8, true);
+  if (z.stable) nudgeOffRoad(z, z.stable, 42);
+}
+for (const zid in ZONES) if (ZONES[zid].town) placeWarpStone(ZONES[zid]);
+for (const zid in ZONES) if (!ZONES[zid].indoor && ZONES[zid].theme !== "house") keepOffRoads(ZONES[zid]);
+

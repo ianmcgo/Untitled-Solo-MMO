@@ -27,7 +27,7 @@ for (const town of ['outpost', 'harbor', 'ironvale']) {
     for (const e of z.exits || []) { const m = e.gate ? 30 : 50; ok(!(sh.x + sh.w / 2 + m > e.x && sh.x - sh.w / 2 - m < e.x + e.w && sh.y + sh.h / 2 + m > e.y && sh.y - sh.h / 2 - m < e.y + e.h), town + ' ' + r + ' shop clear of exit ' + e.label); }
   }
   ok(dists.size >= 3, town + ' vendors spread over at least three districts (' + [...dists].join(',') + ')');
-  const trade = ['armorer', 'weaponsmith', 'tradesman'].filter(r => ['ind', 'forge', 'yard', 'fish', 'gate'].includes(T.shops[r].district));
+  const trade = ['armorer', 'weaponsmith', 'tradesman'].filter(r => ['ind', 'forge', 'yard', 'fish', 'res', 'south'].includes(T.shops[r].district));
   ok(trade.length === 3, town + ' smiths and tradesman are in working districts');
   for (const zz of G.areaZones(town).map(q => G.ZONES[q])) for (const n of zz.npcs) { if (/^(v_|warpstone_|dsign_|sign_)/.test(n.id)) continue; const sh = zz.houses.find(h => h.shop && inR(h, n.x, n.y, 4)); ok(!sh, town + ' ' + n.id + ' is not inside a shop'); }
 }

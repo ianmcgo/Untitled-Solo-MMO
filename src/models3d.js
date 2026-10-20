@@ -572,6 +572,7 @@ function syncNpc(n, dt) {
       VIEW.views.set(n, v);
     }
     v.group.position.set(n.x * U, groundY(n.x, n.y), n.y * U);
+    if (!v.bob && n.idleFace != null) v.group.rotation.y = Math.PI / 2 - n.idleFace;
     if (v.flame) {
       const lit = brazierLit(n.element);
       const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.1 + Math.sin(S.time * 23) * 0.05;

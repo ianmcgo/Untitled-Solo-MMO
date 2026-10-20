@@ -11,7 +11,7 @@ const TAB_INFO = {
   quests: ["Quests", "📜", "J"], map: ["Map", "🗺️", "M"], settings: ["Config", "⚙️", ""], system: ["System", "💾", ""],
   shop: ["Shop", "💠", ""], job: ["Jobs", "🎓", ""], mercs: ["Mercenaries", "🛡️", ""], help: ["Guide", "📖", "H"], updates: ["Updates", "📰", ""],
   craft: ["Crafting", "⚒️", "N"], storage: ["Storage", "📦", ""], home: ["Arrange", "🏠", ""], furnishings: ["Furnishings", "🪑", ""], credits: ["Credits", "🎬", ""],
-  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], database: ["Database", "📚", "Y"], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], achievements: ["Achievements", "🏆", "O"]
+  party: ["Party", "👥", "P"], forge: ["Forge", "🔨", ""], stable: ["Stable", "🦖", ""], rename: ["Registrar", "📜", ""], board: ["Trade Board", "📋", ""], admin: ["Admin", "🛡️", ""], trade: ["Trade", "🤝", ""], equipment: ["Equipment", "🛡️", "G"], magic: ["Magic", "✦", ""], abilities: ["Abilities", "⚡", ""], keyitems: ["Key Items", "🗝️", ""], social: ["Social", "💬", ""], database: ["Database", "📚", "Y"], pets: ["Pets", "🐾", ""], auction: ["Auction House", "⚖️", ""], guild: ["Adventurers' Guild", "⚔️", ""], achievements: ["Achievements", "🏆", "O"]
 };
 const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "social", "craft", "quests", "database", "achievements", "map", "settings"];
 const TAB_ALIAS = { party: "social", items: "inventory", status: "character", equip: "character" };
@@ -1357,7 +1357,7 @@ const STATUS_CMDS = [["Profile", "profile", ""], ["Job Levels", "jobs", "View th
 function mainCmdHelp(it) { return UI.mm && UI.mm.sub === "status" && it[1] === "profile" ? "Title: " + playerTitle() : it[2]; }
 function tabHelpLine(tab) {
   for (const pg of MAIN_CMDS) for (const it of pg) if (it[1] === tab) return it[2];
-  const x = { shop: "Buy and sell merchandise.", storage: "Move items between your bag and your residence.", job: "Change your job.", mercs: "Hire companions.", board: "Take on work from the board.", guild: "Adventurers' Guild bounties and shop.", auction: "Buy and sell with other adventurers.", home: "Arrange your residence.", furnishings: "Buy furniture.", forge: "Improve your gear.", pets: "Your pets.", stable: "Your mount.", trade: "Trade with another player.", system: "Save, characters and account.", admin: "Server tools." };
+  const x = { shop: "Buy and sell merchandise.", storage: "Move items between your bag and your residence.", job: "Change your job.", mercs: "Hire companions.", board: "Take on work from the board.", guild: "Adventurers' Guild bounties and shop.", auction: "Buy and sell with other adventurers.", home: "Arrange your residence.", furnishings: "Buy furniture.", forge: "Improve your gear.", pets: "Your pets.", stable: "Your mount.", rename: "Change your character's name.", trade: "Trade with another player.", system: "Save, characters and account.", admin: "Server tools." };
   return x[tab] || "";
 }
 function mainCmdItems() {

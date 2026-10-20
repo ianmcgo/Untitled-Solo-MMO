@@ -320,6 +320,37 @@ function selectChar(id) {
   return true;
 }
 
+function renameCheck(name) {
+  const n = String(name || "").trim();
+  if (n.length < 2 || n.length > 12) return "Names are 2 to 12 letters.";
+  if (!/^[A-Za-z]+$/.test(n)) return "Letters only, please.";
+  if (n.toLowerCase() === String(save.name || "").toLowerCase()) return "That's already your name.";
+  if (loadRoster().chars.some(c => c.id !== S.charId && c.name.toLowerCase() === n.toLowerCase())) return "You already have a character called " + n + ".";
+  if (save.gil < RENAME_COST) return "You need " + RENAME_COST.toLocaleString() + " crystals.";
+  return "";
+}
+function applyRename(n) {
+  const old = save.name;
+  save.name = n;
+  if (player) player.name = n;
+  log(old + " is now known as " + n + ".", "loot");
+  sfx("unlock");
+  saveGame();
+}
+async function renameChar(name) {
+  const n = String(name || "").trim(), nm = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase(), err = renameCheck(nm);
+  if (err) return err;
+  if (!PLAY.offline && typeof netServerOp === "function" && typeof NET !== "undefined" && NET.member) {
+    try { await netServerOp("rename_character", { new_name: nm }, d => { if (d && d.name) applyRename(d.name); }); }
+    catch (e) { return typeof netAhErr === "function" ? netAhErr(e).replace("The player market isn't", "Name changes aren't") : String(e && e.message || e); }
+    if (typeof netTrack === "function") netTrack();
+    return "";
+  }
+  save.gil -= RENAME_COST;
+  applyRename(nm);
+  return "";
+}
+
 function saveGame() {
   try {
     if (player && player.alive && !S.ko && S.zoneId && ZONES[S.zoneId]) save.loc = { zone: S.zoneId, x: Math.round(player.x), y: Math.round(player.y), face: +(player.face || 0).toFixed(2) };
@@ -5640,6 +5671,12 @@ const TALK = {
       { label: left ? "Renew the City Blessing (" + mins + " min)" : "Receive the City Blessing (" + mins + " min)", fn: () => { closeDialog(); giveBlessing(); } }
     ]);
   },
+  talkRegistrar(n) {
+    openDialog(n.name, "The registry of citizens. If you want to go by another name, I can enter it in the rolls for " + RENAME_COST.toLocaleString() + " crystals. You'll keep everything else.", [
+      { label: "Change my name (" + RENAME_COST.toLocaleString() + " crystals)", fn: () => { closeDialog(); UI.renMsg = ""; openMenu("rename"); } },
+      { label: "Never mind", fn: () => closeDialog() }
+    ]);
+  },
   talkBarber(n) {
     const has = save.gil >= BARBER_FEE;
     openDialog(n.name, has ? "Fancy a new look? For " + BARBER_FEE + " crystals I can restyle your face, hair, hair colour and build. You'll keep your race, gender and name. You can look it over before you pay: nothing is charged until you confirm." : "A new look costs " + BARBER_FEE + " crystals, and your purse is a little light. Come back when you have them.", has ? [
@@ -5915,8 +5952,9 @@ function warpToStone(id) {
   log(cost ? "The stone flares, and the world folds around you." : "The stone hums and you step through to " + def.name.replace("Warp Stone: ", "") + ".", "loot");
   vfx("crystal", { at: player });
   closeDialog();
-  if (def.warpZone !== S.zoneId) { enterZone(def.warpZone, c.x, c.y + 70); return; }
-  player.x = c.x; player.y = c.y + 70; S.moveTarget = null; S.chase = false;
+  const ax = c.ax != null ? c.ax : c.x, ay = c.ay != null ? c.ay : c.y + 70;
+  if (def.warpZone !== S.zoneId) { enterZone(def.warpZone, ax, ay); return; }
+  player.x = ax; player.y = ay; S.moveTarget = null; S.chase = false;
   S.party.forEach((p, i) => { if (i > 0 && !(p.mercId && !p.alive)) { const o = arrivalSpot(i, player.x, player.y, player.face); p.x = o.x; p.y = o.y; keepInZone(p); keepOutOfColliders(p); p.px = p.x; p.py = p.y; } });
   player.px = player.x; player.py = player.y;
   sfx("unlock");

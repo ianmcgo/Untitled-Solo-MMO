@@ -170,6 +170,7 @@ function* buildFieldSteps(zone) {
   return {
     zone, x0, y0, w, h, cs, cols, rows, data, heightAt, waterLevel,
     pathWeight: pathW, plazaWeight: plazaW, cobbleHeight, rutWeight: rutW,
+    roadGap: (px, py) => { let g = 1e9; for (const s of pathSegs) { if (px < s.x0 - 40 || px > s.x1 + 40 || py < s.y0 - 40 || py > s.y1 + 40) continue; g = Math.min(g, distToSeg(px, py, s.ax, s.ay, s.bx, s.by) - s.w / 2); } return g; },
     shoreWeight: (px, py) => { let s = 0; for (const wt of waters) { const d = Math.hypot(px - wt.x, py - wt.y); s = Math.max(s, sstep(wt.r + 45, wt.r + 4, d)); } return s; },
     outside: (px, py) => sstep(0, 120, outsideE(px, py)) * (1 - exitMask(px, py)),
     outsideE, exitMask
@@ -320,7 +321,7 @@ function buildPathEdges(field, root) {
     const [ax, ay] = p.pts[i], [bx, by] = p.pts[i + 1], L = Math.hypot(bx - ax, by - ay), dx = (bx - ax) / L, dy = (by - ay) / L;
     for (let t = 0; t < L; t += 22 + rnd() * 30) {
       if (rnd() < 0.35) continue;
-      const side = rnd() < 0.5 ? -1 : 1, off = p.w * (0.42 + rnd() * 0.12);
+      const side = rnd() < 0.5 ? -1 : 1, off = p.w * 0.5 + 6 + rnd() * 8;
       const px = ax + dx * t - dy * off * side, py = ay + dy * t + dx * off * side;
       if (!placeable(field, px, py, { path: 1.1, water: 10, npc: 30, exit: 60 })) continue;
       const s = 0.12 + rnd() * 0.16;
@@ -554,6 +555,7 @@ function rngFor(z, salt) { return seeded(hashStr(z.name + salt)); }
 function placeable(field, px, py, opts) {
   const z = field.zone;
   if (field.pathWeight(px, py) > (opts.path || 0.15)) return false;
+  if ((opts.path || 0.15) < 1 && field.roadGap && field.roadGap(px, py) < (opts.clr != null ? opts.clr : 16)) return false;
   for (const wt of z.water || []) if (Math.hypot(px - wt.x, py - wt.y) < wt.r + (opts.water || 40)) return false;
   for (const n of z.npcs || []) if (Math.hypot(px - n.x, py - n.y) < (opts.npc || 70)) return false;
   for (const r of z.houses || []) if (Math.abs(px - r.x) < r.w / 2 + 40 && Math.abs(py - r.y) < r.h / 2 + 40) return false;

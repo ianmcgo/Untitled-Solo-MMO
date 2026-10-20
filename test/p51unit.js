@@ -2,7 +2,7 @@ const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const stones = Object.keys(G.NPCS).filter(k => G.NPCS[k].warpstone);
-ok(stones.length === 14, 'fourteen warp stones across the three cities (' + stones.length + ')');
+ok(stones.length === 17, 'seventeen warp stones across the three cities (' + stones.length + ')');
 for (const zid of ['outpost', 'harbor', 'ironvale']) { ok(G.areaZones(zid).every(id => { const Z = G.ZONES[id]; return Z.districts.every(d => stones.some(k => G.NPCS[k].warpZone === id && G.NPCS[k].warpDistrict === d.id && Z.npcs.some(n => n.id === k && G.districtAt(Z, n.x, n.y).id === d.id))); }), zid + ': every district has a stone inside it'); }
 G.enterZone('outpost'); run(0.3);
 G.save.gil = 500;

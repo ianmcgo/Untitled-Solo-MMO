@@ -1,4 +1,4 @@
-const NET_SCHEMA = 9;
+const NET_SCHEMA = 10;
 const NET_CFG = { url: "https://mztqrqgtlvviwwftrqhs.supabase.co", key: "sb_publishable_wldVf5Bla7j_1_7m_2b3nQ_6df091Ad", admin: "ianmcgon@gmail.com", saveEvery: 15000, beat: 60000, seatBeat: 30000, queuePoll: 5000, idleWarn: 60000, selectIdleMin: 15 };
 const NET = { sb: null, user: null, session: null, member: false, ready: false, dirty: {}, saving: false, lastSave: 0, lastErr: "", beatAt: 0 };
 const NET_PENDING = "usr_pending_code";
@@ -1376,7 +1376,9 @@ async function netAhHistory(item) {
 async function netAhPost(id, qty, price) {
   if (!ahTradable(id)) throw new Error("You can't sell that at auction.");
   if (invCount(id) < qty) throw new Error("You don't have that many.");
-  const d = await netServerOp("ah_post", { item: id, qty, price, st: ITEMS[id].stack || 1 });
+  let d;
+  try { d = await netServerOp("ah_post", { item: id, qty, price, st: ITEMS[id].stack || 1, town: ahHere() }); }
+  catch (e) { if (!netMissing(e)) throw e; d = await netServerOp("ah_post", { item: id, qty, price, st: ITEMS[id].stack || 1 }); }
   log("You offer " + (qty > 1 ? qty + " " + ITEMS[id].name + "s" : an(ITEMS[id].name)) + " to other players for " + price + " crystals (fee " + d.fee + ").", "sys");
   sfx("coin");
   return d;

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.0.1",
-  "releaseTitle": "Auction Timing Fix",
+  "version": "19.1.0",
+  "releaseTitle": "Gates, Homes and Roads",
   "description": "",
   "main": "index.js",
   "scripts": {
