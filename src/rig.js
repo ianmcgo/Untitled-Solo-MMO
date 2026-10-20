@@ -458,7 +458,7 @@ class RigBuilder {
     let lo = Infinity, hi = -Infinity;
     for (const L of by) for (const p of L) { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; }
     const H = Math.max(0.15, hi - lo), tol = 0.012 * H;
-    const skip = new Set(["lids", "saddle", "hairTail", "hairTail2", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB"].concat(this.noBridgeBones || []));
+    const skip = new Set(["lids", "saddle", "hairTail", "hairTail2", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB", "robeF", "robeB"].concat(this.noBridgeBones || []));
     for (const d of this.defs) {
       if (d.parent == null || skip.has(d.name)) continue;
       let pi = d.parent;
@@ -566,7 +566,7 @@ class RigBuilder {
   }
   smoothJoints() {
     const J = { foreArm: [0.06, 0.5, 0.1], hand: [0.04, 0.5, 0.08], shin: [0.07, 0.5, 0.12], foot: [0.04, 0.45, 0.1], upArm: [0.07, 0.4, 0.11], thigh: [0.07, 0.4, 0.16], chest: [0.08, 0.45, 0.32], spine: [0.08, 0.5, 0.32], neck: [0.04, 0.4, 0.12], head: [0.045, 0.4, 0.14], tail: [0.06, 0.5, 0.1], cape: [0.06, 0.5, 0.3] };
-    const rigid = new Set(["lids", "saddle", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB", "hairTail2", "gluteL", "gluteR", "bustL", "bustR"].concat(this.rigidBones || []));
+    const rigid = new Set(["lids", "saddle", "mouth", "jaw", "cape2", "cape3", "tabF", "tabB", "robeF", "robeB", "hairTail2", "gluteL", "gluteR", "bustL", "bustR"].concat(this.rigidBones || []));
     const kidsAll = this.defs.map(() => []);
     this.defs.forEach(d => { if (d.parent != null) kidsAll[d.parent].push(d.index); });
     const info = this.defs.map(d => {
@@ -2175,7 +2175,7 @@ function humanEntryBase(L) {
       R.add(gTaper(V3(ex, mid, 0), V3(wx, wrY + 0.01, 0), 0.02, 0.018, 10), "foreArm" + sd, fa2C, fa2R);
     } else {
       const axX = y => y >= elY ? ax + (ex - ax) * (shY - y) / (shY - elY) : ex + (wx - ex) * (elY - y) / (elY - wrY);
-      const ak = L.doll ? 0.85 : 1.08, ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi * ak, rz: r * gi * ak, f: f || 1, b: b || 1, p: p || 2 });
+      const LB = L.limb || {}, ak = L.doll ? 0.85 : 1.08, akY = y => ak * (y > elY ? (LB.upArm || 1) : (LB.foreArm || 1)), ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi * akY(y), rz: r * gi * akY(y), f: f || 1, b: b || 1, p: p || 2 });
       const aw = (x, y) => y > shY - 0.03 ? [["upArm" + sd, 1 - 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)], ["chest", 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)]] : blendW(y, [[0, "foreArm" + sd, 0], [elY, "upArm" + sd, 0.035]]).map(([n, w]) => [n, w]);
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
       const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }), uA = L.ears === "ursan"; const upRings0 = [...(uA ? [tuck(ar(shY - 0.006, 0.032), 0.085), tuck(ar(shY - 0.02, 0.048), 0.055), tuck(ar(shY - 0.038, 0.058), 0.026)] : [tuck(ar(shY + 0.012, 0.04), 0.052), tuck(ar(shY - 0.004, 0.057), 0.032), tuck(ar(shY - 0.026, 0.063), 0.014)]), ar(shY - 0.05, 0.06, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
@@ -2276,7 +2276,7 @@ function humanEntryBase(L) {
       const fk = fem ? 1.06 : 1;
       const lz = y => y >= knee ? 0.012 * (hipJ - y) / (hipJ - knee) : 0.012 * (y - ank) / (knee - ank);
       const lx = y => y > hipJ - 0.06 ? hx * (0.72 + 0.28 * (hipJ + 0.06 - y) / 0.12) : hx;
-      const dk = L.doll ? (fem ? 1.02 : 0.95) : 1, lr = (y, r, f, b) => ({ y, x: lx(y), z: lz(y), rx: r * gi * dk, rz: r * gi * dk, f: f || 1, b: b || 1, p: 2.1 });
+      const LB = L.limb || {}, dk = L.doll ? (fem ? 1.02 : 0.95) : 1, dkY = y => dk * (y > knee ? (LB.thigh || 1) : (LB.calf || 1)), lr = (y, r, f, b) => ({ y, x: lx(y), z: lz(y), rx: r * gi * dkY(y), rz: r * gi * dkY(y), f: f || 1, b: b || 1, p: 2.1 });
       const legRings = L.doll ? [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.04, 0.081 * fk, 1.02, 1.04), lr(knee + 0.03, 0.068, 1.04, 1), lr(knee, 0.06, 1.08, 0.95), lr(knee - 0.035, 0.056, 1.02, 1.1), lr(ank + 0.045, 0.047, 1, 1.12), lr(ank + 0.01, 0.04)] : [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.05, 0.081 * fk, 1.02, 1.04), lr((hipJ + knee) / 2, 0.071 * fk, 1.04, 1), lr(knee + 0.06, 0.06), lr(knee + 0.015, 0.055, 1.08, 0.95), lr(knee - 0.03, 0.055, 1.02, 1.12), lr(knee - 0.1, 0.055, 1, 1.22), lr(knee - 0.19, 0.047, 1, 1.12), lr(ank + 0.08, 0.038), lr(ank + 0.02, 0.037)];
       const legW = (x, y) => y > hipJ ? [["thigh" + sd, 1 - 0.35 * smoothRange(hipJ, hipJ + 0.06, y)], ["hips", 0.35 * smoothRange(hipJ, hipJ + 0.06, y)]] : y < ank + 0.03 ? [["shin" + sd, 0.7], ["foot" + sd, 0.3]] : blendW(y, [[0, "shin" + sd, 0], [knee, "thigh" + sd, 0.04]]);
       R.addW(BODY.sculptLeg ? BODY.sculptLeg(gLoft(legRings.slice().reverse(), 32, true, false, 0, 1)) : gLoft(legRings.slice().reverse(), 18, true, false, 0, 1), "thigh" + sd, legC, legR, legW);
@@ -2325,11 +2325,18 @@ function humanEntryBase(L) {
   if ((t === "robe" || t === "coat") && !L.skull) {
     const bottom = t === "robe" ? 0.1 : knee - 0.08;
     const h = hipJ + 0.05 - bottom;
-    for (const [s, sd] of [[1, "L"], [-1, "R"]]) {
-      const skTop = 0.158 * gi * (fem ? 1.08 : 1);
-      R.add(gCyl(V3(0, bottom + h / 2, 0), skTop, 0.23 * gi, h, 12, true, s > 0 ? 0 : Math.PI, Math.PI).scale(1, 1, 0.78), "thigh" + sd, topC, topR);
-      if (top.trim) R.add(gCyl(V3(0, bottom + 0.035, 0), 0.228 * gi, 0.232 * gi, 0.07, 12, true, s > 0 ? 0 : Math.PI, Math.PI).scale(1, 1, 0.78), "thigh" + sd, top.trim, "trim", !!top.glowTrim);
-    }
+    const skTop = 0.158 * gi * (fem ? 1.08 : 1), skBot = 0.23 * gi, skY0 = hipJ + 0.05;
+    R.bone("robeF", "hips", 0, hipJ - 0.02, 0.1 * gi); R.bone("robeB", "hips", 0, hipJ - 0.02, -0.1 * gi);
+    const robeW = (x, y, z) => {
+      const a = Math.atan2(x, z), f = Math.abs(a) < 0.5 ? 1 : Math.abs(a) < 1.0 ? (1.0 - Math.abs(a)) / 0.5 : 0, b = Math.abs(a) > Math.PI - 0.5 ? 1 : Math.abs(a) > Math.PI - 1.0 ? (Math.abs(a) - (Math.PI - 1.0)) / 0.5 : 0;
+      const panel = f > 0 ? ["robeF", f] : ["robeB", b], side = ["thigh" + (x >= 0 ? "L" : "R"), 1 - Math.max(f, b)];
+      const hk = smoothRange(skY0, skY0 - 0.12, y);
+      if (hk < 0.999) { const main = f + b > 0.5 ? panel : side; return [["hips", 1 - hk], [main[0], hk]]; }
+      return panel[1] > 0 && side[1] > 0 ? [panel, side] : panel[1] > 0 ? [panel] : [side];
+    };
+    const skRings = []; for (let i = 0; i <= 6; i++) { const k = i / 6, y = skY0 - k * h, r = skTop + (skBot - skTop) * (k < 0.3 ? k * 0.6 : 0.18 + (k - 0.3) * 1.17); skRings.push({ y, rx: r, rz: r * 0.78, f: 1, b: 1, p: 2.1 }); }
+    R.addW(gLoft(skRings, 24, false, false, 0, 1), "hips", topC, topR, robeW);
+    if (top.trim) { const tr = [{ y: bottom + 0.07, rx: skBot - 0.004, rz: (skBot - 0.004) * 0.78, p: 2.1 }, { y: bottom, rx: skBot + 0.002, rz: (skBot + 0.002) * 0.78, p: 2.1 }]; if (top.glowTrim) R.add(gLoft(tr, 24, false, false, 0, 1), "hips", top.trim, "trim", true); else R.addW(gLoft(tr, 24, false, false, 0, 1), "hips", top.trim, "trim", robeW); }
     if (top.trim) R.add(gRing(V3(0, neckY - 0.02, 0.01), 0.075 * gi, 0.016, "y", 18), "chest", top.trim, "trim", !!top.glowTrim);
     R.add(gRing(V3(0, hipsY + 0.03, 0), (fem ? 0.165 : 0.152) * gi * (fem ? 1.08 : 1) + 0.006, 0.02, "y", 18).scale(1, 1, 0.72), "hips", top.trim || 0x4a3020, "cloth");
     if (t === "robe") R.add(gBox(V3(0.05, hipsY - 0.12, 0.13), 0.05, 0.22, 0.015), "hips", top.trim || 0x4a3020, "cloth");
@@ -3453,11 +3460,11 @@ function toadEntry(col) {
 const FAMILY_SHAPE = {
   goblin: { family: "goblin", hunch: 0.2 },
   chieftain: { family: "goblin", hunch: 0.14 },
-  orc: { family: "orc", hunch: 0.1 },
+  orc: { family: "orc", hunch: 0.1, prop: { girth: 1.15, shoulder: 0.225, leg: 0.8, arm: 0.66, waist: 1.02 }, limb: { thigh: 1.3, calf: 1.2, upArm: 1.35, foreArm: 1.25 } },
   fishfolk: { family: "reef", hunch: 0.24, prop: { arm: 0.7, neck: 0.035 } },
   birdfolk: { family: "talon", hunch: 0.12 },
-  treant: { family: "treant", hunch: 0.07, prop: { girth: 1.4, waist: 1.3, shoulder: 0.24, arm: 0.72, leg: 0.78, hip: 0.13, neck: 0.03, torso: 0.6 } },
-  ghoul: { family: "ghoul", hunch: 0.32 },
+  treant: { family: "treant", hunch: 0.07, prop: { girth: 1.4, waist: 1.3, shoulder: 0.24, arm: 0.72, leg: 0.66, hip: 0.13, neck: 0.03, torso: 0.6 }, limb: { thigh: 1.45, calf: 1.55, upArm: 1.2, foreArm: 1.05 } },
+  ghoul: { family: "ghoul", hunch: 0.32, limb: { thigh: 0.88, calf: 0.82, upArm: 0.85, foreArm: 0.8 } },
   skeleton: { family: "undead", hunch: 0.04 }
 };
 const BOSS_BANNER = { chieftain: 0x8a1f1f, orc_warlord: 0x6a1a1a, mirelord_gax: 0x2f4a2a, rimefang: 0x3a5a7a };
@@ -3467,6 +3474,7 @@ function familyLook(L, m) {
   if (!sh) return L;
   const out = Object.assign({}, L, { family: sh.family, hunch: sh.hunch });
   if (sh.prop) out.prop = Object.assign({}, L.prop || {}, sh.prop);
+  if (sh.limb) out.limb = Object.assign({}, L.limb || {}, sh.limb);
   const key = f.key || m.famKey;
   if (f.boss || f.nm || (f.scale || 1) >= 1.3) { out.boss = true; if (BOSS_BANNER[key]) out.banner = BOSS_BANNER[key]; }
   if (key === "tide_priest" || key === "drowned") out.family = "ghoul";

@@ -3,7 +3,7 @@ function styleFor(e) {
     const m = e.fam.model;
     if (m === "goblin" || m === "chieftain") return { hunch: true, hop: true };
     if (m === "ghoul") return { hunch: true, prowl: true, claws: true };
-    if (m === "treant") return { hunch: true, prowl: true, claws: true };
+    if (m === "treant") return { hunch: true, heavy: true, claws: true };
     if (m === "fishfolk") return { hunch: true };
     if (m === "orc") return { hunch: true, hop: false };
   }

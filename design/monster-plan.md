@@ -19,7 +19,7 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 - Output: design/monster-audit.md, a ranked list of the worst offenders. Everything below is ordered by that list.
 - Result: goblin gait is the largest measurable defect (planted foot slides up to 1.5 m/s); quadruped slide needs a new foot probe before M3; most non-humanoid gaps are in attack poses. test/gaitsheet.js was fixed (it failed on the release build because GridHelper is not bundled; other sheet scripts have the same problem).
 
-### M1: Natural legs and arms for humanoid monsters
+### M1: Natural legs and arms for humanoid monsters (DONE in 19.5.0: orc, treant, ghoul builds; robe skirt)
 - Legs: tapered lofted thigh, knee, calf and ankle with the body-fitted rings used for players; bent-knee hunched stance for goblins, orcs and reefkin; digitigrade hind legs for crag talons; root-bound legs for treants.
 - Arms: lofted shoulder, elbow and wrist; hands sized to the weapon or claw; weight hangs forward on hunched families.
 - Proportions per family from the existing `FAMILY_SHAPE` table so silhouettes stay readable.

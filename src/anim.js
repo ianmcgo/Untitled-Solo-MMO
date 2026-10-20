@@ -13,11 +13,10 @@ function strideEff(v, spd, ik) {
   if (v.kind === "quad" && v.meta && v.meta.quad && v.meta.quad.leg) { const g = v.an && v.an.gait, Sq = Math.min(S * 1.6, v.meta.quad.leg * 0.7 * (v.scale || 1) / (g ? g.duty : 0.66)); return ik ? Sq : Math.max(Sq, S * 0.55); }
   if (v.kind !== "human" || !B || !B.shinL || !B.footL) return S;
   const L = (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1), rel = Math.min(1, L / 0.86);
-  const Sl = Math.min(S, 1.25 * L / (0.62 - 0.28 * run));
-  if (v.mob) return Sl * (0.55 + 0.45 * rel);
-  return ik ? Sl * (0.55 + 0.45 * rel) : Math.max(Sl, S * (0.8 + 0.2 * rel));
+  const Sl = Math.min(S, (1.25 + 0.9 * run * (1 - rel)) * L / (0.62 - 0.28 * run));
+  return Sl * (0.55 + 0.45 * rel);
 }
-function runOf(v, spd) { const r = legRel(v); return clamp(((v.mob ? spd / Math.sqrt(r) : spd * (0.6 + 0.4 * r)) - 1.2) / 4, 0, 1); }
+function runOf(v, spd) { return clamp((spd / Math.sqrt(legRel(v)) - 1.2) / 4, 0, 1); }
 function legRel(v) {
   const B = v.bones;
   if (v.kind !== "human" || !B || !B.shinL || !B.footL) return 1;
@@ -33,7 +32,7 @@ function trackEvents(v, e, dt) {
   if (d > 0.0005) { const rel = Math.atan2(mdy, mdx) - (e.face || 0), k = Math.min(1, dt * 8); an.mf = (an.mf == null ? 1 : an.mf) + (Math.cos(rel) - (an.mf == null ? 1 : an.mf)) * k; an.ms = (an.ms || 0) + (Math.sin(rel) - (an.ms || 0)) * k; }
   else if (an.spd < 0.2) { const m0 = an.mf == null ? 1 : an.mf; an.mf = m0 + (1 - m0) * Math.min(1, dt * 4); an.ms = (an.ms || 0) * (1 - Math.min(1, dt * 4)); }
   an.ph += (an.mf != null && an.mf < -0.3 ? -1 : 1) * d * (Math.PI * 2) / strideEff(v, an.spd);
-  if (v.mob && v.kind === "human") {
+  if (v.kind === "human" && (v.mob || e === player || e.kind === "remote" || e.mercId)) {
     if (an.spd > 0.8) an.stepping = 1;
     else if (an.stepping) { const r = Math.PI - (((an.ph % Math.PI) + Math.PI) % Math.PI), adv = Math.min(r, dt * Math.PI * 3); an.ph += adv; if (r - adv < 0.03 || e.alive === false) an.stepping = 0; }
   }
@@ -542,7 +541,8 @@ function poseHuman(v, e, dt) {
     }
   }
   if (st.hunch) { addP(P, "spine", 0.22, 0, 0); addP(P, "chest", 0.12, 0, 0); addP(P, "head", -0.3, 0, 0); addP(P, "upArmL", -0.25, 0, 0.1); addP(P, "upArmR", -0.25, 0, -0.1); }
-  if (st.prowl) { addP(P, "upArmL", -0.6, 0, 0.15); addP(P, "upArmR", -0.6, 0, -0.15); addP(P, "foreArmL", -0.3, 0, 0); addP(P, "foreArmR", -0.3, 0, 0); }
+  if (st.prowl && !st.heavy) { addP(P, "upArmL", -0.6, 0, 0.15); addP(P, "upArmR", -0.6, 0, -0.15); addP(P, "foreArmL", -0.3, 0, 0); addP(P, "foreArmR", -0.3, 0, 0); }
+  if (st.heavy) { const sw = Math.sin(t * 0.9) * 0.04, rk = 1 - an.fight * 0.5; addP(P, "upArmL", -0.15 * rk, 0, 0.28 + sw); addP(P, "upArmR", -0.15 * rk, 0, -0.28 + sw); addP(P, "foreArmL", -0.2, 0, 0); addP(P, "foreArmR", -0.2, 0, 0); addP(P, "spine", 0, 0, Math.sin(t * 0.7) * 0.03 + s1 * 0.05 * amp); addP(P, "chest", 0, Math.sin(t * 0.55) * 0.04, 0); addP(P, "thighL", 0, 0, 0.12); addP(P, "thighR", 0, 0, -0.12); addP(P, "footL", 0, -0.2, 0); addP(P, "footR", 0, 0.2, 0); }
 
   const sw = an.fight * (1 - amp);
   if (sw > 0.01) {
@@ -997,7 +997,7 @@ function poseHuman(v, e, dt) {
   }
   applyPose(v, dt, sharp);
   let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
-  if (v.mob && an.stepping) w = 1;
+  if (an.stepping) w = 1;
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;
   an.ikW = (an.ikW || 0) + (w - (an.ikW || 0)) * Math.min(1, dt * 8);
   clothSprings(v, e, an, dt, t);
@@ -1062,7 +1062,7 @@ function bodyJiggle(v, an, dt) {
 }
 function clothSprings(v, e, an, dt, t) {
   const B = v.bones;
-  if (!B.cape && !B.hairTail && !B.tabF) return;
+  if (!B.cape && !B.hairTail && !B.tabF && !B.robeF) return;
   const st = an.spr || (an.spr = {}), run = clamp((an.spd - 1.2) / 4, 0, 1), walk = clamp(an.spd / 1.2, 0, 1);
   const acc = clamp(((an.spd - (an.prevSpd || 0)) / Math.max(dt, 0.001)) * 0.06, -0.6, 0.6); an.prevSpd = an.spd;
   const yaw = e.face || 0, dy = Math.atan2(Math.sin(yaw - (an.sprYaw == null ? yaw : an.sprYaw)), Math.cos(yaw - (an.sprYaw == null ? yaw : an.sprYaw))); an.sprYaw = yaw;
@@ -1082,6 +1082,8 @@ function clothSprings(v, e, an, dt, t) {
   const thF = Math.max(0, -(B.thighL ? B.thighL.rotation.x : 0), -(B.thighR ? B.thighR.rotation.x : 0)), thB = Math.max(0, B.thighL ? B.thighL.rotation.x : 0, B.thighR ? B.thighR.rotation.x : 0);
   if (B.tabF) B.tabF.rotation.set(sprAx(st, "tf", -thF * 0.9 - 0.15 * run - acc * 0.4, dt, 70, 8), 0, sprAx(st, "tfz", -turn * 0.3, dt, 50, 6));
   if (B.tabB) B.tabB.rotation.set(sprAx(st, "tb", thB * 0.9 + 0.3 * run + bob, dt, 60, 7), 0, sprAx(st, "tbz", -turn * 0.3, dt, 50, 6));
+  if (B.robeF) { const hd = v.mob && v.meta && v.meta.hunch ? v.meta.hunch * 0.6 : 0; B.robeF.rotation.set(sprAx(st, "rf", -thF * 0.55 - 0.12 * run - acc * 0.3 - hd, dt, 60, 8), 0, sprAx(st, "rfz", -turn * 0.25, dt, 45, 6)); }
+  if (B.robeB) B.robeB.rotation.set(sprAx(st, "rb", thB * 0.55 + 0.22 * run + bob * 0.8, dt, 55, 7), 0, sprAx(st, "rbz", -turn * 0.25, dt, 45, 6));
 }
 
 function humanLegIK(v, an, w, run) {
