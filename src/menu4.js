@@ -1749,6 +1749,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.16.0", date: "2026-10-20", title: "Off the beaten path", items: [
+    "<b>Field sites.</b> Landmarks in the wilds now have something to find just off the road: stone circles in clearings, overlooks on small rises with a bench and cairn, and the broken walls of small ruins.",
+    "<b>Points of interest everywhere.</b> Sunscar Desert, Verdant Jungle and Cinder Peak each gain a Lookout Tower, Wayside Shrine, Weathered Tablet and Hidden Cache; Gull Isle gains a shrine, tablet and cache; the Windreach Highlands a shrine, lookout, tablet and cache across their three zones. New tablets tell each area's story.",
+    "<b>Within sight of the road.</b> Lookouts, shrines and tablets now stand a short walk from a path, so you can spot them while travelling."
+  ] },
   { v: "19.15.0", date: "2026-10-20", title: "Quick draw", items: [
     "<b>Drawing and sheathing are quick.</b> Your hand goes to the hip (or over the shoulder for back-carried weapons), closes on the weapon, and it comes away with the hand. A draw takes about a third of a second and a sheathe about half a second, and a swing cuts either short.",
     "<b>No more floating weapon.</b> The weapon is always held by your hand or sits on your hip or back, never drifting through the air between them."
@@ -3943,7 +3948,8 @@ function tabHelp() {
     "Type /conquest to see who holds each region and your nation's points today. Entering an area tells you who holds it."
   ]));
   h += sec("🧭 Exploring the wilds", ul([
-    "Rocky Hollow (spread over its three zones), Frostspire Pass and the Ashen Marsh each hide four points of interest, shown as purple (and gold for caches) dots on the compass map.",
+    "Every outdoor area hides points of interest: Rocky Hollow (spread over its three zones), Frostspire Pass, the Ashen Marsh, Sunscar Desert, Verdant Jungle and Cinder Peak have four each; Gull Isle three; the Windreach Highlands (over their three zones) four. They are shown as purple (and gold for caches) dots on the compass map and stand within sight of a path.",
+    "<b>Field sites</b>: many landmarks also have something to see just off the road: a <b>stone circle</b> in a clearing, an <b>overlook</b> on a small rise with a bench, a low wall and a cairn, or the <b>broken walls of an old ruin</b>. Trees and rocks keep clear of them.",
     "<b>Lookout Tower</b>: climb it to see the whole area. Every landmark there is marked as discovered, and your first climb gives 60 EXP.",
     "<b>Wayside Shrine</b>: leave 10 crystals to pray and receive Shrine's Favour (🕯️), +10% experience for 30 minutes. Each shrine can be used once an hour. Your first prayer at each gives 40 EXP.",
     "<b>Weathered Tablet</b>: a piece of the area's history. Reading one for the first time gives 50 EXP.",

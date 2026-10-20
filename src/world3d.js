@@ -395,7 +395,7 @@ function buildProps(field, root) {
   const scatter = (n, test, push) => { for (let k = 0, tr = 0; k < n && tr < n * 25; tr++) { const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h; if (test(px, py)) { push(px, py); k++; } } };
   const inPlay = (px, py, e0, e1) => { const e = field.outsideE(px, py); return e > e0 && e < e1 && field.exitMask(px, py) < 0.2; };
   if (!desert && !volcanic && !snowy && th === "field") scatter(Math.round((jungle ? 420 : 220) * K), (px, py) => inPlay(px, py, -260, 120) && placeable(field, px, py, { water: 20, npc: 50, path: 0.05 }) && NOISE.value(px * 0.004, py * 0.004, 0, 611) > 0.45, (px, py) => { const s = (0.7 + rnd() * 0.8) * (jungle ? 1.7 : 1); ferns.push(mtx(px * U, field.heightAt(px, py) - 0.03, py * U, s, s, s, rnd() * 6.28)); });
-  for (const wt of z.water || []) { const n = Math.round(Math.min(160, wt.r * 0.9) * K * (marsh ? 1.6 : 1)); for (let k = 0; k < n; k++) { const a = rnd() * 6.28, r = wt.r + (rnd() - 0.35) * 26, px = wt.x + Math.cos(a) * r, py = wt.y + Math.sin(a) * r; if (field.pathWeight(px, py) > 0.1) continue; const s = 0.8 + rnd() * 0.7; reeds.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.8 + rnd() * 0.5), s, rnd() * 6.28)); } }
+  for (const wt of z.water || []) { const n = Math.round(Math.min(160, wt.r * 0.9) * K * (marsh ? 1.6 : 1)); for (let k = 0; k < n; k++) { const a = rnd() * 6.28, r = wt.r + (rnd() - 0.35) * 26, px = wt.x + Math.cos(a) * r, py = wt.y + Math.sin(a) * r; if (field.pathWeight(px, py) > 0.1 || !onTerrain(field, px, py)) continue; const s = 0.8 + rnd() * 0.7; reeds.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.8 + rnd() * 0.5), s, rnd() * 6.28)); } }
   if (marsh && th === "field") scatter(Math.round(200 * K), (px, py) => inPlay(px, py, -300, 60) && field.shoreWeight(px, py) < 0.2 && placeable(field, px, py, { water: 5, npc: 40, path: 0.1 }) && NOISE.value(px * 0.006, py * 0.006, 0, 613) > 0.55, (px, py) => { const s = 0.7 + rnd() * 0.6; reeds.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s, s, rnd() * 6.28)); });
   if (!desert && !volcanic && th === "field") scatter(Math.round(70 * K), (px, py) => inPlay(px, py, -280, 80) && placeable(field, px, py, { water: 20, npc: 40, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 1.0; shrooms.push(mtx(px * U, field.heightAt(px, py) - 0.02, py * U, s, s, s, rnd() * 6.28)); });
   if (th === "field") scatter(Math.round((desert || volcanic || snowy ? 30 : 14) * K), (px, py) => inPlay(px, py, -260, 100) && placeable(field, px, py, { water: 30, npc: 60, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 0.8; stumps.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.7 + rnd() * 0.6), s, rnd() * 6.28)); });
@@ -570,6 +570,7 @@ function placeable(field, px, py, opts) {
   if (z.cityWalls) for (const r of cityWallRects(z)) if (px > r.x - 40 && px < r.x + r.w + 40 && py > r.y - 40 && py < r.y + r.h + 40) return false;
   for (const g of z.gates || []) if (Math.hypot(px - g.x, py - g.y) < 120) return false;
   for (const lm of z.landmarks || []) if (lm.clear && Math.hypot(px - lm.x, py - lm.y) < lm.clear) return false;
+  for (const f of z.sites || []) if (Math.hypot(px - f.x, py - f.y) < f.r + 25) return false;
   return true;
 }
 
@@ -589,7 +590,9 @@ function noisyGeo(geo, amt, seed) {
 function instanced(geo, mat, list, castShadow) {
   const m = new THREE.InstancedMesh(geo, mat, Math.max(1, list.length));
   m.count = list.length;
-  list.forEach((mx, i) => m.setMatrixAt(i, mx));
+  const f = W3.field, hide = new THREE.Matrix4().makeScale(0, 0, 0);
+  const off = mx => { if (!f || !f.cols) return false; const x = mx.elements[12] / U, y = mx.elements[14] / U; return x < f.x0 || y < f.y0 || x > f.x0 + (f.cols - 1) * f.cs || y > f.y0 + (f.rows - 1) * f.cs; };
+  list.forEach((mx, i) => m.setMatrixAt(i, off(mx) ? hide : mx));
   m.instanceMatrix.needsUpdate = true;
   m.castShadow = !!castShadow;
   m.receiveShadow = true;
@@ -2011,6 +2014,48 @@ function buildRuins(field, root) {
   root.add(g);
 }
 
+function buildSites(field, root) {
+  const z = field.zone;
+  if (!(z.sites || []).length) return;
+  const rock = texRock(), bark = texBark(), rnd = rngFor(z, "sites");
+  const pal = z.palette || "";
+  const stoneC = pal === "desert" ? 0xd0b48c : pal === "volcanic" ? 0x5a4a46 : pal === "snow" ? 0xe0e4ea : 0xd4cec0;
+  const stoneMat = std({ map: rock.map, normalMap: rock.normalMap, color: stoneC, roughness: 0.95 });
+  const woodMat = std({ map: bark.map, normalMap: bark.normalMap, color: 0xb08a68 });
+  const g = new THREE.Group(), cols = z.colliders || (z.colliders = []);
+  const put = (geo, mat, px, py, lift, ry, rx, rz) => { const m = new THREE.Mesh(geo, mat); m.position.set(px * U, footY(field, px, py, 0.8) + lift, py * U); m.rotation.set(rx || 0, ry || 0, rz || 0); m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
+  for (const f of z.sites) {
+    if (f.kind === "clearing") {
+      const n = 7 + (f.seed % 3);
+      for (let k = 0; k < n; k++) {
+        const a = k / n * Math.PI * 2 + (f.seed % 10) * 0.1, r = 62 + rnd() * 10, px = f.x + Math.cos(a) * r, py = f.y + Math.sin(a) * r, h = 1.5 + rnd() * 1.1;
+        put(new THREE.BoxGeometry(0.75, h, 0.45).translate(0, h / 2, 0), stoneMat, px, py, -0.25, -a + Math.PI / 2, (rnd() - 0.5) * 0.12, (rnd() - 0.5) * 0.12);
+        cols.push({ x: px, y: py, r: 9 });
+      }
+      put(new THREE.BoxGeometry(1.6, 0.55, 1.0).translate(0, 0.27, 0), stoneMat, f.x, f.y, -0.1, rnd() * 3);
+      cols.push({ x: f.x, y: f.y, r: 14 });
+    } else if (f.kind === "overlook") {
+      let ang = 0, best = -1;
+      for (const [dx, dy, d] of [[-1, 0, f.x], [1, 0, z.w - f.x], [0, -1, f.y], [0, 1, z.h - f.y]]) if (best < 0 || d < best) { best = d; ang = Math.atan2(dy, dx); }
+      for (let k = -2; k <= 2; k++) {
+        const a = ang + k * 0.32, px = f.x + Math.cos(a) * 58, py = f.y + Math.sin(a) * 58;
+        put(new THREE.BoxGeometry(1.0, 0.7 + rnd() * 0.25, 2.3).translate(0, 0.35, 0), stoneMat, px, py, -0.15, -a);
+        cols.push({ x: px, y: py, r: 12 });
+      }
+      const bx = f.x + Math.cos(ang) * 20, by = f.y + Math.sin(ang) * 20, bench = new THREE.Group();
+      bench.add(new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.12, 0.5).translate(0, 0.5, 0), woodMat), new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.5, 0.4).translate(-0.8, 0.25, 0), woodMat), new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.5, 0.4).translate(0.8, 0.25, 0), woodMat));
+      bench.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+      bench.position.set(bx * U, footY(field, bx, by, 0.6), by * U); bench.rotation.y = -ang + Math.PI / 2;
+      g.add(bench);
+      cols.push({ x: bx, y: by, r: 10 });
+      const cx = f.x - Math.cos(ang) * 30, cy = f.y - Math.sin(ang) * 30;
+      for (let k = 0; k < 4; k++) { const s = 0.75 - k * 0.15; put(new THREE.IcosahedronGeometry(s, 0), stoneMat, cx + (rnd() - 0.5) * 2, cy + (rnd() - 0.5) * 2, 0.3 + k * 0.62, rnd() * 3); }
+      cols.push({ x: cx, y: cy, r: 12 });
+    }
+  }
+  root.add(g);
+}
+
 function buildHouse(field, root) {
   const z = field.zone;
   const planks = texPlanks(), bricks = texBricks();
@@ -2576,6 +2621,7 @@ function* buildZone3DSteps() {
   if (z.glow) buildGlow(field, root);
   if (themeOf(z) === "house") buildHouse(field, root);
   buildRuins(field, root);
+  buildSites(field, root);
   buildExits(field, root);
   buildWater(field, root);
   buildBackdrop(field, root);

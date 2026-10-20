@@ -20,7 +20,7 @@ const mockLogin = require('./mocklogin');
       for (const im of rocks) {
         im.geometry.computeBoundingBox(); const minY = im.geometry.type === 'IcosahedronGeometry' ? im.geometry.boundingBox.min.y : 0;
         for (let i = 0; i < im.count; i++) {
-          im.getMatrixAt(i, m); m.decompose(p, q, s);
+          im.getMatrixAt(i, m); if (!m.elements[0] && !m.elements[5] && !m.elements[10]) continue; m.decompose(p, q, s);
           const bottom = p.y + minY * s.y;
           rc.set(new THREE.Vector3(p.x, p.y + 80, p.z), down);
           const hit = rc.intersectObject(terrain, false)[0];

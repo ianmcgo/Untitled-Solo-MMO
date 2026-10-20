@@ -2809,19 +2809,70 @@ for (const zid in ZONES) {
   const critter = o => FAMILIES[o.fam] && !FAMILIES[o.fam].aggro && !FAMILIES[o.fam].nm;
   for (const sp of z.spawns) { if (critter(sp) && sp.time === "day") delete sp.time; for (const a of sp.alts || []) if (critter(a) && a.time === "day") delete a.time; }
 }
+const FEATURE_SKIP = { fort: 1, temple: 1, chapel: 1, ribs: 1, stones: 1, gate: 1, egate: 1, foggate: 1, steps: 1, spire: 1, dock: 1, mouth: 1, camp: 1, horsecamp: 1, mirevillage: 1, glass: 1, lookout: 1 };
+const FEATURE_KINDS = ["clearing", "overlook", "ruin"];
+function pathGap(z, x, y) {
+  let best = 1e9;
+  for (const P of z.paths || []) for (let i = 0; i + 1 < P.pts.length; i++) {
+    const [ax, ay] = P.pts[i], [bx, by] = P.pts[i + 1], dx = bx - ax, dy = by - ay, l = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / l));
+    best = Math.min(best, Math.hypot(x - ax - dx * t, y - ay - dy * t) - (P.w || 40) / 2);
+  }
+  return best;
+}
+function featureSpot(z, lm, rad) {
+  const ok = (x, y) => x > 300 && y > 300 && x < z.w - 300 && y < z.h - 300 && pathGap(z, x, y) > rad + 30 && pathGap(z, x, y) < rad + 340
+    && !(z.exits || []).some(e => Math.hypot(x - e.x - e.w / 2, y - e.y - e.h / 2) < 460)
+    && !(z.walls || []).some(q => x > q.x - rad - 40 && x < q.x + q.w + rad + 40 && y > q.y - rad - 40 && y < q.y + q.h + rad + 40)
+    && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + rad + 50)
+    && !(z.npcs || []).some(n => Math.hypot(x - n.x, y - n.y) < rad + 120)
+    && !(z.spawns || []).some(sp => Math.hypot(x - sp.x, y - sp.y) < rad + 120)
+    && !(z.sites || []).some(f => Math.hypot(x - f.x, y - f.y) < rad + f.r + 200)
+    && !(z.ruins ? z.ruins.walls.some(([x1, y1, x2, y2]) => x > Math.min(x1, x2) - rad - 80 && x < Math.max(x1, x2) + rad + 80 && y > Math.min(y1, y2) - rad - 80 && y < Math.max(y1, y2) + rad + 80) || z.ruins.pillars.some(([px, py]) => Math.hypot(x - px, y - py) < rad + 80) : false);
+  for (let k = 0; k < 96; k++) { const a = k * 2.4, r = (lm.r || 200) * (0.15 + (k % 12) / 12); const x = Math.round(lm.x + Math.cos(a) * r), y = Math.round(lm.y + Math.sin(a) * r); if (ok(x, y)) return { x, y }; }
+  return null;
+}
+function addFieldFeatures(zid) {
+  const z = ZONES[zid];
+  if (!z || (z.theme || "field") !== "field" || z.safe) return;
+  z.sites = [];
+  let i = hashStr(zid) % 3;
+  for (const lm of z.landmarks || []) {
+    if (FEATURE_SKIP[lm.id]) continue;
+    const kind = FEATURE_KINDS[i++ % 3], rad = kind === "clearing" ? 95 : kind === "overlook" ? 70 : 90;
+    const at = featureSpot(z, lm, rad);
+    if (!at) continue;
+    const f = { kind, x: at.x, y: at.y, r: rad, lm: lm.id, seed: hashStr(zid + lm.id) };
+    if (kind === "ruin") {
+      const S = 150, h = 1 + (f.seed % 7) / 5, x0 = at.x - S / 2, y0 = at.y - S / 2;
+      z.ruins = z.ruins || { walls: [], pillars: [] };
+      z.ruins.walls.push([x0, y0, x0 + S - 50, y0, h + 0.6], [x0 + S, y0 + 30, x0 + S, y0 + S, h], [x0, y0 + S, x0 + 60, y0 + S, h * 0.6]);
+      z.ruins.pillars.push([x0 + 10, y0 + S - 30, 1.6 + h], [at.x + 10, at.y + 5, 0.9]);
+    }
+    if (kind === "overlook") (z.features = z.features || []).push({ t: "plateau", x: at.x, y: at.y, r: 170, h: 2.4, site: true });
+    z.sites.push(f);
+  }
+}
+for (const zid in ZONES) addFieldFeatures(zid);
 const POI_LORE = {
   hollow: "Before the Outpost there was the Fort, and before the Fort there was only the Hollow and the people who herded in it. They cut these words so their children would know the safe paths: keep to the old road, drink from the mirror lake, and never sleep where the goblins dig.",
   frost: "Here the first climbers turned back. Above this stone the air grows thin and the black rock bleeds cold. Whoever reads this: the summit is not empty. Something stands there and waits for the ash to fall.",
-  marsh: "The chapel bell rang for a hundred years before the water took it. They say it still rings for those who drown in the mire. Count the tolls; if you hear thirteen, turn back."
+  marsh: "The chapel bell rang for a hundred years before the water took it. They say it still rings for those who drown in the mire. Count the tolls; if you hear thirteen, turn back.",
+  sunscar: "Water is owed, not owned. The caravans that kept this rule crossed the Sunscar a thousand times. The ones that broke it are the white ribs in the sand.",
+  verdant: "The temple was built by people who spoke to the trees. When they left, the trees kept talking. Walk softly under the canopy; something is still listening.",
+  cinder: "The mountain breathes once a generation. Our grandparents carved these steps so we could climb up and listen. When the vents fall silent, leave the slopes before nightfall.",
+  gullisle: "Fishers of the isle: the gulls know the weather first. When they all turn inland and fall quiet, tie down your boats and do not sail until they sing again.",
+  highlands: "Stand where the wind is loudest and say your name. The riders who raised these stones believed the wind carries it to everyone you have ever lost."
 };
 const POI_IDS = [];
 function poiSpot(z, cx, cy, rad) {
   const segD = (px, py, a) => { const dx = a[2] - a[0], dy = a[3] - a[1], l = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / l)); return Math.hypot(px - a[0] - dx * t, py - a[1] - dy * t); };
-  const ok = (x, y) => x > 260 && y > 260 && x < z.w - 260 && y < z.h - 260 && !(z.exits || []).some(e => e.kind !== "door" && Math.hypot(x - e.x - e.w / 2, y - e.y - e.h / 2) < 480) && !(z.walls || []).some(q => x > q.x - 70 && x < q.x + q.w + 70 && y > q.y - 70 && y < q.y + q.h + 70) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 70) && !((z.ruins && z.ruins.walls) || []).some(a => segD(x, y, a) < 90) && !(z.spawns || []).some(sp => Math.hypot(sp.x - x, sp.y - y) < 110) && !(z.npcs || []).some(n => Math.hypot(n.x - x, n.y - y) < 140);
+  const ok = (x, y) => !(z.sites || []).some(f => Math.hypot(x - f.x, y - f.y) < f.r + 170) && x > 260 && y > 260 && x < z.w - 260 && y < z.h - 260 && !(z.exits || []).some(e => e.kind !== "door" && Math.hypot(x - e.x - e.w / 2, y - e.y - e.h / 2) < 480) && !(z.walls || []).some(q => x > q.x - 70 && x < q.x + q.w + 70 && y > q.y - 70 && y < q.y + q.h + 70) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 70) && !((z.ruins && z.ruins.walls) || []).some(a => segD(x, y, a) < 90) && !(z.spawns || []).some(sp => Math.hypot(sp.x - x, sp.y - y) < 110) && !(z.npcs || []).some(n => Math.hypot(n.x - x, n.y - y) < 140);
+  const seen = (x, y) => { const g = pathGap(z, x, y); return g > 40 && g < 230; };
+  for (let k = 0; k < 160; k++) { const a = k * 2.4, r = rad * (0.3 + (k % 16) / 10); const x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r); if (ok(x, y) && seen(x, y)) return { x, y }; }
   for (let k = 0; k < 64; k++) { const a = k * 2.4, r = rad * (0.5 + (k % 8) / 8); const x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r); if (ok(x, y)) return { x, y }; }
   return null;
 }
-const POI_PLAN = { hollow: ["shrine"], hollow_lake: ["lookout"], hollow_ruins: ["tablet", "cache"], frost: ["lookout", "shrine", "tablet", "cache"], marsh: ["lookout", "shrine", "tablet", "cache"] };
+const POI_PLAN = { hollow: ["shrine"], hollow_lake: ["lookout"], hollow_ruins: ["tablet", "cache"], frost: ["lookout", "shrine", "tablet", "cache"], marsh: ["lookout", "shrine", "tablet", "cache"], sunscar: ["lookout", "shrine", "tablet", "cache"], verdant: ["lookout", "shrine", "tablet", "cache"], cinder: ["lookout", "shrine", "tablet", "cache"], gullisle: ["shrine", "tablet", "cache"], highlands: ["shrine"], highlands_plateau: ["lookout", "tablet"], highlands_ridge: ["cache"] };
 for (const zid in POI_PLAN) {
   const z = ZONES[zid], L = z.landmarks || [];
   if (!L.length) continue;
