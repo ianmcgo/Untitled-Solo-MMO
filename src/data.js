@@ -28,6 +28,12 @@ const CONFIG = {
   hitFloor: 20,
   critPct: 5,
   critMult: 1.5,
+  critHate: 1.5,
+  hateLead: 0.1,
+  hateHold: 1,
+  hateDecayC: 0.01,
+  hateDecayV: 0.04,
+  hateDrainV: 5,
   wsAccBonus: 20,
   chainDelay: 1.0,
   chainWindow: 6.0,
@@ -267,6 +273,7 @@ const SPELLS = {
   cure2: { name: "Cure II", jobs: { WHM: 11, RDM: 14, PLD: 17 }, mp: 24, cast: 2.25, recast: 5.5, kind: "heal", cure: { min: 60, t: [[70, 1, 60, 40], [125, 5.5, 90, 70], [200, 7.5, 100, 125], [400, 10, 110, 200], [700, 20, 130, 400], [1000000000.0, 999999, 145, 0]] }, target: "ally", desc: "Restores a good amount of HP." },
   dia: { name: "Dia", jobs: { WHM: 3, RDM: 1 }, mp: 7, cast: 1, recast: 5, kind: "dot", element: "light", power: 1, dot: { dur: 60, tick: 1 }, buff: "dia", target: "enemy", desc: "Light damage, then 1 damage every 3 s for 60 s. Lowers the target's defense by 10%. Replaces Bio." },
   banish: { name: "Banish", jobs: { WHM: 5, PLD: 7 }, mp: 15, cast: 2, recast: 15, kind: "nuke", element: "light", power: 14, k: 1, k2: 1, stat: "mnd", target: "enemy", skill: "divine", desc: "Light damage. Undead take 50% more." },
+  flash: { name: "Flash", jobs: { PLD: 7 }, mp: 25, cast: 0.5, recast: 45, kind: "debuff", element: "light", buff: "flash", pow: 0.3, enmity: 180, target: "enemy", skill: "divine", desc: "A blinding light: the target loses 30% accuracy for 12 s and its anger turns hard on you for a short while.", dur: 12 },
   protect: { name: "Protect", jobs: { WHM: 7, RDM: 7, PLD: 10 }, mp: 9, cast: 1, recast: 5, kind: "buff", buff: "protect", pow: 15, target: "ally", desc: "Defense +15 for 30 minutes.", dur: 1800 },
   shell: { name: "Shell", jobs: { WHM: 17, RDM: 17, PLD: 20 }, mp: 18, cast: 1, recast: 5, kind: "buff", buff: "shell", pow: 0.11, target: "ally", desc: "Elemental damage taken -11% for 30 minutes.", dur: 1800 },
   slow: { name: "Slow", jobs: { WHM: 13, RDM: 13 }, mp: 15, cast: 2, recast: 20, kind: "debuff", element: "earth", buff: "slow", stat: "mnd", enmity: 80, target: "enemy", desc: "Slows the target's attacks by 7% to 29% (more when your MND beats its MND).", dur: 180 },
@@ -973,6 +980,34 @@ const TROPHY_NAMES = {
 };
 for (const k in TROPHY_NAMES) TROPHY_TIERS.forEach((t, i) => { ITEMS["trophy_" + k + "_" + (i + 1)] = { name: TROPHY_NAMES[k].names[i], kind: "mat", icon: TROPHY_NAMES[k].icon, price: t.price, stack: 12, trophy: true, desc: TROPHY_NAMES[k].desc }; });
 
+const HATE_KINDS = ["phys", "magic", "ability", "heal", "crit"];
+const HATE_SPLIT = { phys: 0.6, magic: 0.5, ability: 0.5, heal: 0.7, volatile: 0.5 };
+const HATE_PROFILES = {
+  skeleton: { phys: 1.3, magic: 0.8, crit: 1.3 },
+  orc: { phys: 1.3, ability: 1.1, magic: 0.8 },
+  chieftain: { phys: 1.2, ability: 1.2 },
+  ghoul: { phys: 1.15, heal: 1.3 },
+  goblin: { ability: 1.15, phys: 1.05 },
+  worm: { magic: 1.4, phys: 0.8 },
+  bat: { magic: 1.35, phys: 0.85 },
+  bee: { ability: 1.2, crit: 1.2 },
+  crawler: { magic: 1.2 },
+  crab: { magic: 1.25, phys: 0.9 },
+  fishfolk: { magic: 1.3, heal: 1.2 },
+  birdfolk: { ability: 1.35, heal: 1.3, phys: 0.9 },
+  treant: { magic: 1.3, phys: 0.85 },
+  cactus: { magic: 1.2 },
+  lizard: { phys: 1.1, crit: 1.3 },
+  sheep: { phys: 1.1 },
+  longneck: { heal: 1.2 },
+  hare: { ability: 1.2 },
+  toad: { magic: 1.2 },
+  mandrake: { heal: 1.3, magic: 1.1 },
+  shroom: { magic: 1.2 },
+  bomb: { magic: 1.3, crit: 0.8 },
+  fish: { magic: 1.2 },
+  bulb: { magic: 1.2 }
+};
 const NM_FAMILIES = {
   silkmother: { hint: "Burrow Flats, Rocky Hollow · any time", base: "grass_crawler", name: "Silkmother", hpMul: 2.6, attMul: 1.1, defMul: 1.3, scale: 1.7, aura: "#c5e1a5", loot: [["rabbit_mantle_hq", 0.3], ["asbestos_mitts", 0.35], ["crawler_cocoon", 1], ["potion", 0.6]], gil: [20, 30], respawn: 480 },
   orc_warlord: { hint: "Orc camp, Ashen Marsh · any time", base: "orc_grunt", name: "Gorruk the Warlord", hpMul: 3.4, attMul: 1.3, defMul: 1.2, scale: 1.35, aura: "#ff7043", loot: [["hellfire_axe", 0.3], ["poisona_ring", 0.35], ["orc_tooth", 1], ["hi_potion", 0.6]], gil: [40, 60], respawn: 600 },

@@ -37,7 +37,7 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 - Crawler: each leg lifts, reaches and plants in a travelling wave with the body ripple.
 - Crab sideways scuttle, bee and bat wing beats with body bob, worm undulation, hare hop with ear and tail follow-through, toad hop.
 
-### H1: Hate core (rules only)
+### H1: Hate core (DONE in 19.8.0)
 - Each monster's list holds two numbers per player or companion: cumulative hate (stays) and volatile hate (fades fast). Highest total is the target. Provoke, Flash and similar abilities add mostly volatile hate.
 - Hitting builds hate: every hit adds hate that grows with damage, so steady hitting wins over time.
 - Criticals add extra hate (`CONFIG.critHate`, starting guess 1.5x).

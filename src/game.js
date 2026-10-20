@@ -997,7 +997,7 @@ function castBluePhys(a, t, sp) {
   if (a.buffs.burst_affinity) { dmg = Math.floor(dmg * 1.5); delete a.buffs.burst_affinity; }
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " takes " + dmg + " damage.", cls(a));
   sfx("crit", t); vfx("hit", { src: a, tgt: t, crit: true, slash: false });
-  applyDamage(a, t, dmg, { color: "#42a5f5", size: 20, enmity: 60 + dmg });
+  applyDamage(a, t, dmg, { color: "#42a5f5", size: 20, enmity: 60 + dmg, kind: "magic" });
 }
 function releasePet(msg) {
   const pet = S.pet;
@@ -1403,19 +1403,65 @@ function findChain(openProps, closeProps) {
 
 function recastLeft(e, key) { return Math.max(0, (e.recasts[key] || 0) - S.time); }
 
-function addEnmity(m, e, amt) {
-  if (!e || !e.alive || !isSide(e) || !m.alive) return;
-  if (e.buffs && e.buffs.sentinel) amt *= 2;
-  if (m.proxy) { if (isParty(e)) netMobEnmity(m, amt); return; }
-  m.enmity.set(e, (m.enmity.get(e) || 0) + amt);
+function hateBias(m, k) {
+  const f = m.fam || {};
+  if (k === "crit" && (f.nm || f.boss)) return 1;
+  const pr = HATE_PROFILES[f.model];
+  const v = f.hate && f.hate[k] != null ? f.hate[k] : pr && pr[k];
+  return v != null ? v : 1;
+}
+
+function hateEntry(m, e) {
+  let h = m.enmity.get(e);
+  if (typeof h === "number") { h = { c: h, v: 0 }; m.enmity.set(e, h); }
+  return h;
+}
+
+function hateOf(m, e) { const h = m.enmity && m.enmity.has(e) ? hateEntry(m, e) : null; return h ? h.c + h.v : 0; }
+
+function hateScale(m, e, mul) { const h = m.enmity && m.enmity.has(e) ? hateEntry(m, e) : null; if (h) { h.c = Math.floor(h.c * mul); h.v = Math.floor(h.v * mul); } }
+
+function addEnmity(m, e, amt, opt) {
+  if (!e || !e.alive || !isSide(e) || !m.alive || !(amt > 0)) return;
+  opt = opt || {};
+  const kind = HATE_SPLIT[opt.kind] != null ? opt.kind : "phys";
+  if (!opt.raw) {
+    amt *= hateBias(m, kind === "volatile" ? "ability" : kind);
+    if (opt.crit) amt *= CONFIG.critHate * hateBias(m, "crit");
+    if (e.buffs && e.buffs.sentinel) amt *= 2;
+  }
+  if (m.proxy) { if (isParty(e)) netMobEnmity(m, amt, kind); return; }
+  const share = HATE_SPLIT[kind];
+  const h = m.enmity.has(e) ? hateEntry(m, e) : { c: 0, v: 0 };
+  h.c += amt * share; h.v += amt * (1 - share);
+  m.enmity.set(e, h);
+}
+
+function decayHate(m, dt) {
+  for (const e of m.enmity.keys()) {
+    const h = hateEntry(m, e);
+    h.c = Math.max(1, h.c * (1 - CONFIG.hateDecayC * dt));
+    h.v = Math.max(0, h.v * (1 - CONFIG.hateDecayV * dt) - CONFIG.hateDrainV * dt);
+  }
+}
+
+function pickHateTarget(m) {
+  const top = topEnmity(m);
+  const cur = m.target;
+  if (!top) return null;
+  if (!cur || !cur.alive || !m.enmity.has(cur) || cur === top) return top;
+  if (S.time - (m.swapAt || -9) < CONFIG.hateHold) return cur;
+  if (hateOf(m, top) > hateOf(m, cur) * (1 + CONFIG.hateLead) + 1) return top;
+  return cur;
 }
 
 function swingDelay(e) { return CONFIG.combatPace * e.delay * (e.buffs && e.buffs.slow ? 1 + (e.buffs.slow.pow != null ? e.buffs.slow.pow : 0.25) : 1) * (e.buffs && e.buffs.march ? 1 - e.buffs.march.pow : 1); }
 
 function topEnmity(m) {
   let best = null, bv = -1;
-  for (const [e, v] of m.enmity) {
+  for (const e of [...m.enmity.keys()]) {
     if (!e.alive) { m.enmity.delete(e); continue; }
+    const h = hateEntry(m, e), v = h.c + h.v;
     if (v > bv) { bv = v; best = e; }
   }
   return best;
@@ -1429,7 +1475,7 @@ function aggro(m, t) {
   if (!m.alive || !t || !t.alive || !isSide(t)) return;
   if (m.proxy) { if (isParty(t)) netMobEnmity(m, 1); return; }
   if (!m.claim) m.claim = claimId(t);
-  if (!m.enmity.has(t)) m.enmity.set(t, 1);
+  if (!m.enmity.has(t)) m.enmity.set(t, { c: 1, v: 0 });
   if (m.state === "combat") return;
   m.state = "combat";
   m.swingTimer = Math.max(m.swingTimer, 1.2);
@@ -1445,7 +1491,7 @@ function aggro(m, t) {
     if (o === m || !o.alive || o.state === "combat" || !o.fam.link) continue;
     if ((o.fam.linkGroup || o.famKey) !== grp || dist(o, m) > CONFIG.linkRange) continue;
     o.state = "combat";
-    o.enmity.set(t, 1);
+    o.enmity.set(t, { c: 1, v: 0 });
     o.swingTimer = 1.5;
     log("The " + o.name + " links!", "foe");
     popText(o, "!", "#ff5252", 22, 0.8);
@@ -1480,6 +1526,16 @@ function physInterrupt(e) {
   }
 }
 
+function hateAmount(m, src, opt, amt) {
+  let en = opt.enmity != null ? opt.enmity : 40 + amt * 2;
+  if (!src || opt.raw) return en;
+  const kind = HATE_SPLIT[opt.kind] != null ? opt.kind : "phys";
+  en *= hateBias(m, kind === "volatile" ? "ability" : kind);
+  if (opt.crit) en *= CONFIG.critHate * hateBias(m, "crit");
+  if (src.buffs && src.buffs.sentinel) en *= 2;
+  return en;
+}
+
 function applyDamage(src, tgt, amt, opt) {
   opt = opt || {};
   if (!tgt.alive) return;
@@ -1496,7 +1552,7 @@ function applyDamage(src, tgt, amt, opt) {
   }
   if (isMob(tgt) && tgt.buffs && tgt.buffs.geo_frail) amt = Math.round(amt * 1.12);
   if (tgt.proxy) {
-    netMobHit(tgt, amt, opt.enmity != null ? opt.enmity : 40 + amt * 2);
+    netMobHit(tgt, amt, hateAmount(tgt, src, opt, amt), opt.kind || "phys");
     tgt.flash = 0.15;
     tgt.lastHit = S.time;
     if (src && src !== tgt) tgt.lastHitAng = Math.atan2(src.y - tgt.y, src.x - tgt.x);
@@ -1512,7 +1568,7 @@ function applyDamage(src, tgt, amt, opt) {
   if (isMob(tgt)) {
     if (src && isSide(src)) {
       if (!tgt.claim) tgt.claim = claimId(src);
-      addEnmity(tgt, src, opt.enmity != null ? opt.enmity : 40 + amt * 2);
+      addEnmity(tgt, src, opt.enmity != null ? opt.enmity : 40 + amt * 2, opt);
       aggro(tgt, src);
     }
   } else {
@@ -1599,7 +1655,7 @@ function swing(a, d) {
   sfx(crit ? "crit" : wt === "slash" ? "slash" : "blunt", a);
   vfx("hit", { src: a, tgt: d, crit, slash: wt === "slash" });
   log(subj(a) + " " + vb(a, "hit") + " " + obj(d) + " for " + dmg + (crit ? " (critical)" : "") + ".", cls(a));
-  applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16, phys: true });
+  applyDamage(a, d, dmg, { text: crit ? dmg + "!" : dmg, color: crit ? "#ffeb3b" : undefined, size: crit ? 21 : 16, phys: true, crit });
   if (d.alive && !bow) for (const k of EN_KEYS) if (b[k]) applyDamage(a, d, b[k].pow, { color: ELEMENT_COLORS[EN_EL[k]], size: 13, enmity: 0, el: EN_EL[k] });
   if (a.alive && d.alive && !bow) {
     for (const k of ["blaze_spikes", "ice_spikes"]) {
@@ -2989,7 +3045,7 @@ function doAbility(a, id, t) {
     popText(t, "Provoke", "#ff8a80", 13, 1);
     sfx("provoke", a);
     vfx("provoke", { src: a, tgt: t });
-    addEnmity(t, a, ab.enmity);
+    addEnmity(t, a, ab.enmity, { kind: "volatile" });
     aggro(t, a);
     if (a !== player) partySay(a, "provoke");
     return;
@@ -3001,7 +3057,7 @@ function doAbility(a, id, t) {
     vfx("hit", { src: a, tgt: t, crit: true, slash: false });
     if (t.readying) { const mn = mobMoveName(t); t.readying = null; log("The " + t.name + "'s " + mn + " is interrupted!", cls(a)); popText(t, "Interrupted", "#bbbbbb", 12, 0.9, 14); sfx("interrupt", t); }
     if (t.casting) interruptCast(t);
-    applyDamage(a, t, dmg, { enmity: ab.enmity });
+    applyDamage(a, t, dmg, { enmity: ab.enmity, kind: "volatile" });
     if (t.alive) aggro(t, a);
     return;
   }
@@ -3011,7 +3067,7 @@ function doAbility(a, id, t) {
     popText(t, "Bound", "#b39ddb", 13, 1);
     ring(t, "#7e57c2", 30, 0.8);
     sfx("buff", a);
-    addEnmity(t, a, ab.enmity);
+    addEnmity(t, a, ab.enmity, { kind: "ability" });
     aggro(t, a);
     return;
   }
@@ -3032,7 +3088,7 @@ function doAbility(a, id, t) {
     vfx("nuke", { src: pet, tgt: t, el: P.el });
     sfx(P.el, t);
     if (a === player) trySkillUp("summoning", t.lv);
-    applyDamage(pet, t, dmg, { color: ELEMENT_COLORS[P.el], size: 22, enmity: ab.enmity + dmg });
+    applyDamage(pet, t, dmg, { color: ELEMENT_COLORS[P.el], size: 22, enmity: ab.enmity + dmg, kind: "ability" });
     return;
   }
   if (id === "siphon") {
@@ -3049,7 +3105,7 @@ function doAbility(a, id, t) {
     const pool = (t.fam.loot || []).filter(([it]) => ITEMS[it] && ITEMS[it].kind !== "equip" && ITEMS[it].kind !== "key");
     const chance = clamp(45 + (a.stats.dex - t.stats.agi) * 2 + (a.lv - t.lv) * 3, 10, 85);
     aggro(t, a);
-    addEnmity(t, a, ab.enmity);
+    addEnmity(t, a, ab.enmity, { kind: "ability" });
     if (t.stolen || !pool.length || Math.random() * 100 >= chance) { log(subj(a) + " " + vb(a, "fail") + " to steal anything from the " + t.name + ".", cls(a)); popText(t, "Steal failed", "#bbbbbb", 12, 0.9); sfx("miss", a); t.stolen = true; return; }
     t.stolen = true;
     const it = pick(pool)[0];
@@ -3106,7 +3162,7 @@ function doAbility(a, id, t) {
     delete a.buffs.runes;
     log(subj(a) + " " + vb(a, "lunge") + " and " + vb(a, "release") + " " + (a === player ? "your" : "their") + " runes! The " + t.name + " takes " + dmg + " damage.", cls(a));
     vfx("nuke", { src: a, tgt: t, el: el0 }); sfx(el0, t);
-    applyDamage(a, t, dmg, { color: ELEMENT_COLORS[el0], size: 22, enmity: ab.enmity + dmg });
+    applyDamage(a, t, dmg, { color: ELEMENT_COLORS[el0], size: 22, enmity: ab.enmity + dmg, kind: "ability" });
     return;
   }
   if (id === "repair" || id === "tune_up") {
@@ -3129,7 +3185,7 @@ function doAbility(a, id, t) {
     const st = t.buffs.stepped;
     t.buffs.stepped = { until: S.time + 60, n: Math.min(5, (st ? st.n : 0) + 1), src: a };
     log(subj(a) + " " + vb(a, "use") + " Quick Step. The " + t.name + " is off balance (" + t.buffs.stepped.n + ").", cls(a));
-    popText(t, "Step " + t.buffs.stepped.n, "#f06292", 13, 0.9); addEnmity(t, a, ab.enmity); aggro(t, a); sfx("miss", a);
+    popText(t, "Step " + t.buffs.stepped.n, "#f06292", 13, 0.9); addEnmity(t, a, ab.enmity, { kind: "ability" }); aggro(t, a); sfx("miss", a);
     return;
   }
   if (id === "rising_flourish") {
@@ -3139,7 +3195,7 @@ function doAbility(a, id, t) {
     const dmg = Math.max(1, Math.floor(baseDmg(a, t) * pDIF(a, t) * (1 + 0.5 * n)));
     log(subj(a) + " " + vb(a, "use") + " Rising Flourish! The " + t.name + " takes " + dmg + " damage.", cls(a));
     popText(a, "Rising Flourish", "#f06292", 14, 1.1, 14); sfx("crit", t); vfx("hit", { src: a, tgt: t, crit: true, slash: true });
-    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg, size: 20 });
+    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg, size: 20, kind: "ability" });
     return;
   }
   if (id === "light_arts" || id === "dark_arts") {
@@ -3163,7 +3219,7 @@ function doAbility(a, id, t) {
     t.buffs.weaken = { until: S.time + 30 };
     log(subj(a) + " " + vb(a, "let") + " out a Feral Howl. The " + t.name + " cowers!", cls(a));
     popText(t, "Cowed", "#8d6e63", 13, 1); ring(a, "#8d6e63", 40, 0.6); sfx("provoke", a);
-    addEnmity(t, a, ab.enmity); aggro(t, a);
+    addEnmity(t, a, ab.enmity, { kind: "ability" }); aggro(t, a);
     return;
   }
   if (id === "phantom_roll") { rollDice(a, "valor_roll", false); return; }
@@ -3177,7 +3233,7 @@ function doAbility(a, id, t) {
     a.face = Math.atan2(t.y - a.y, t.x - a.x);
     log(subj(a) + " " + vb(a, "fire") + " a Quick Shot! The " + t.name + " takes " + dmg + " damage.", cls(a));
     vfx("arrow", { src: a, tgt: t }); sfx("blunt", t);
-    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg });
+    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg, kind: "ability" });
     if (t.alive) aggro(t, a);
     return;
   }
@@ -3189,7 +3245,7 @@ function doAbility(a, id, t) {
     return;
   }
   if (id === "smoke_step") {
-    for (const m of S.mobs) if (m.alive && m.enmity && m.enmity.has(a)) m.enmity.set(a, Math.floor(m.enmity.get(a) / 2));
+    for (const m of S.mobs) if (m.alive && m.enmity && m.enmity.has(a)) hateScale(m, a, 0.5);
     log(subj(a) + " " + vb(a, "vanish", "vanishes") + " in a puff of smoke. Enemies lose track of " + (a === player ? "you" : "them") + ".", cls(a));
     popText(a, "Smoke Step", "#78909c", 14, 1.2, 14);
     vfx("interrupt", { tgt: a }); sfx("buff", a);
@@ -3205,8 +3261,8 @@ function doAbility(a, id, t) {
     log(subj(a) + " " + vb(a, "use") + " " + ab.name + "! The " + t.name + " takes " + dmg + " damage.", cls(a));
     popText(a, ab.name, "#5c8adb", 14, 1.1, 18);
     sfx("crit", t); vfx("hit", { src: a, tgt: t, crit: true, slash: false });
-    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg, size: 20 });
-    if (high && t.alive && t.enmity && t.enmity.has(a)) t.enmity.set(a, Math.floor(t.enmity.get(a) / 2));
+    applyDamage(a, t, dmg, { enmity: ab.enmity + dmg, size: 20, kind: "ability" });
+    if (high && t.alive && t.enmity && t.enmity.has(a)) hateScale(t, a, 0.5);
     if (t.alive) aggro(t, a);
     return;
   }
@@ -3316,7 +3372,7 @@ function castHeal(a, t, sp) {
   }
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + parts.join(", ") + ".", cls(a));
   if (a !== player && t !== a) partySay(a, "cure");
-  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, total * 1.5);
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, total * 1.5, { kind: "heal" });
 }
 
 function magicHit(a, t, sp) {
@@ -3361,7 +3417,7 @@ function nukeOne(a, t, sp) {
     if (a !== player) partySay(a, "burst", true);
   }
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". " + (burst ? "Magic Burst! " : "") + "The " + t.name + " takes " + dmg + " damage" + (resist < 1 ? " (resisted)" : "") + ".", burst ? "sc" : cls(a));
-  applyDamage(a, t, dmg, { color: col, size: burst ? 26 : 20, enmity: 60 + dmg * 1.5 });
+  applyDamage(a, t, dmg, { color: col, size: burst ? 26 : 20, enmity: 60 + dmg * 1.5, kind: "magic" });
 }
 
 const SONG_KEYS = ["minuet", "paeon", "ballad", "madrigal", "march", "minne", "mambo", "pastoral", "operetta"];
@@ -3390,7 +3446,7 @@ function castSong(a, sp) {
   popText(a, "♪ " + sp.name, "#ffd54f", 13, 1.2, 14);
   sfx("buff", a);
   vfx("buff", { tgt: a, id: "song" });
-  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, 20 + hit.length * 8);
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && [...m.enmity.keys()].some(isParty)) addEnmity(m, a, 20 + hit.length * 8, { kind: "magic" });
 }
 
 function castDrain(a, t, sp) {
@@ -3415,13 +3471,13 @@ function castDrain(a, t, sp) {
     a.mp += real;
     log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " and " + vb(a, "draw") + " " + real + " MP from the " + t.name + ".", cls(a));
     popText(a, "+" + real + " MP", "#64b5f6", 14, 1);
-    addEnmity(t, a, 60);
+    addEnmity(t, a, 60, { kind: "magic" });
     aggro(t, a);
     return;
   }
   const dealt = Math.min(amt, t.hp);
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " loses " + dealt + " HP" + (resist < 1 ? " (resisted)" : "") + ".", cls(a));
-  applyDamage(a, t, amt, { color: ELEMENT_COLORS.dark, size: 18, enmity: 80 + amt });
+  applyDamage(a, t, amt, { color: ELEMENT_COLORS.dark, size: 18, enmity: 80 + amt, kind: "magic" });
   const heal = Math.round(Math.min(dealt, a.maxHp - a.hp));
   if (heal > 0) { a.hp += heal; popText(a, "+" + heal, "#9ad06b", 16); }
 }
@@ -3433,17 +3489,18 @@ function castDebuff(a, t, sp) {
   ring(t, col, 30, 0.5, "element");
   sfx(sp.element === "light" ? "light" : "cast", t);
   vfx("nuke", { src: a, tgt: t, el: sp.element, dia: true });
-  if (!landed) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20); aggro(t, a); return; }
+  if (!landed) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20, { kind: "magic" }); aggro(t, a); return; }
   const dS = sp.stat ? Math.max(-40, Math.min(40, a.stats[sp.stat] - t.stats[sp.stat])) : 0;
   const pw = sp.buff === "slow" ? Math.max(0.073, Math.min(0.292, 0.146 + dS * 0.0018)) : sp.buff === "paralyze" ? Math.max(0.05, Math.min(0.25, 0.15 + dS * 0.0025)) : sp.buff === "flash" && sp.stat ? Math.max(0.05, Math.min(0.5, (dS + 80) / 400)) : null;
   t.buffs[sp.buff] = { until: S.time + sp.dur, src: a };
   if (pw != null) t.buffs[sp.buff].pow = pw;
+  if (sp.pow != null) t.buffs[sp.buff].pow = sp.pow;
   if (sp.thr) t.buffs[sp.buff].pow = sp.thr;
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " is " + { flash: "blinded", slow: "slowed", paralyze: "paralyzed", sleep: "lulled to sleep", stun: "stunned", bind: "bound in place", silence: "silenced" }[sp.buff] || "weakened to " + sp.element + ".", cls(a));
   popText(t, sp.name, col, 14, 1.1);
   if (sp.buff === "stun" && t.readying) { const mn = mobMoveName(t); t.readying = null; t.tp = Math.floor(t.tp / 2); log("The " + t.name + "'s " + mn + " is cut short!", cls(a)); }
   if (sp.buff === "sleep") { t.swingTimer = Math.max(t.swingTimer, 1); t.readying = null; }
-  addEnmity(t, a, sp.enmity || 60);
+  addEnmity(t, a, sp.enmity || 60, { kind: sp.enmity >= 150 ? "volatile" : "magic" });
   aggro(t, a);
 }
 
@@ -3469,7 +3526,7 @@ function castBuff(a, t, sp) {
   for (const g of group) applyBuffTo(a, g, sp);
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + " on " + (sp.party ? "the party" : obj(t)) + ".", cls(a));
   sfx("buff", t);
-  for (const m of S.mobs) if (m.alive && m.state === "combat" && group.some(g => m.enmity.has(g))) addEnmity(m, a, 30);
+  for (const m of S.mobs) if (m.alive && m.state === "combat" && group.some(g => m.enmity.has(g))) addEnmity(m, a, 30, { kind: "magic" });
 }
 function castCleanse(a, t, sp) {
   const gone = sp.cleanse.filter(k => t.buffs[k]);
@@ -3516,11 +3573,11 @@ function diaOne(a, t, sp) {
     const up = key === "dia" ? t.buffs.blight : key === "blight" ? t.buffs.dia : null;
     if (up) { delete t.buffs[key === "dia" ? "blight" : "dia"]; }
     for (const r of sp.replaces || []) delete t.buffs[r];
-    if (Math.random() * 100 >= magicHit(a, t, sp) + 15) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20); aggro(t, a); return; }
+    if (Math.random() * 100 >= magicHit(a, t, sp) + 15) { log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ", but the " + t.name + " resists.", cls(a)); popText(t, "Resist", "#bbbbbb", 13, 0.9); addEnmity(t, a, 20, { kind: "magic" }); aggro(t, a); return; }
     const direct = Math.round(sp.power);
     log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + (direct > 0 ? " takes " + direct + " damage and" : "") + " is afflicted with " + sp.name + ".", cls(a));
-    if (direct > 0) applyDamage(a, t, direct, { color: ELEMENT_COLORS[el], size: 16, enmity: 120 });
-    else { addEnmity(t, a, 120); aggro(t, a); }
+    if (direct > 0) applyDamage(a, t, direct, { color: ELEMENT_COLORS[el], size: 16, enmity: 120, kind: "magic" });
+    else { addEnmity(t, a, 120, { kind: "magic" }); aggro(t, a); }
     if (t.alive) {
       const tk = dotTick(a, sp.dot);
       t.buffs[key] = { until: S.time + sp.dot.dur, next: S.time + 3, tick: tk, src: a, el, sd: (tk - 1) * 2 + 5 };
@@ -3532,7 +3589,7 @@ function diaOne(a, t, sp) {
   sfx(el === "light" ? "light" : "cast", t);
   vfx("nuke", { src: a, tgt: t, el, dia: true });
   log(subj(a) + " " + vb(a, "cast") + " " + sp.name + ". The " + t.name + " takes " + dmg + " damage and is afflicted with " + sp.name + ".", cls(a));
-  applyDamage(a, t, dmg, { color: ELEMENT_COLORS[el], size: 16, enmity: 120 });
+  applyDamage(a, t, dmg, { color: ELEMENT_COLORS[el], size: 16, enmity: 120, kind: "magic" });
   if (t.alive) t.buffs[key] = { until: S.time + 30, next: S.time + 3, tick: Math.max(1, Math.round(1 + a.lv * 0.4)), src: a, el };
 }
 
@@ -3813,10 +3870,9 @@ function updateMob(m, dt) {
     return;
   }
   if (m.state === "combat") {
-    for (const [e, v] of m.enmity) m.enmity.set(e, Math.max(1, v * (1 - 0.04 * dt)));
-    const t = topEnmity(m);
+    decayHate(m, dt);
+    const t = pickHateTarget(m);
     if (!t) {
-      if (t) log("The " + m.name + " loses interest.", "sys");
       m.state = "return";
       m.enmity.clear();
       m.readying = null;
@@ -3824,6 +3880,7 @@ function updateMob(m, dt) {
       m.claim = null;
       return;
     }
+    if (m.target && m.target !== t && m.target.alive) { m.swapAt = S.time; m.swapFrom = m.target; }
     m.target = t;
     if (m.buffs.sleep || m.buffs.stun) { m.readying = null; if (m.casting) m.casting = null; return; }
     bossPhases(m, t);
@@ -4183,11 +4240,12 @@ function meleeAI(a, tgt, dt) {
   const acts = actionList(a);
   if (a.role === "tank") {
     const prov = acts.find(x => x.id === "provoke");
-    if (prov && !a.kiting && tgt.state === "combat" && topEnmity(tgt) !== a && allyTry(a, prov, tgt)) return;
+    const lead = tgt.state === "combat" ? hateLead(tgt, a) : 9;
+    if (prov && !a.kiting && tgt.state === "combat" && (tgt.target !== a || lead < 1.25) && allyTry(a, prov, tgt)) return;
     const flash = acts.find(x => x.id === "flash");
-    if (flash && !a.kiting && tgt.state === "combat" && (topEnmity(tgt) !== a || !tgt.buffs.flash) && allyTry(a, flash, tgt)) return;
+    if (flash && !a.kiting && tgt.state === "combat" && (tgt.target !== a || lead < 1.5) && allyTry(a, flash, tgt)) return;
     const sent = acts.find(x => x.id === "sentinel");
-    if (sent && !a.kiting && tgt.state === "combat" && (a.hp < a.maxHp * 0.5 || topEnmity(tgt) !== a) && allyTry(a, sent, a)) return;
+    if (sent && !a.kiting && tgt.state === "combat" && (a.hp < a.maxHp * 0.5 || tgt.target !== a || lead < 1.1) && allyTry(a, sent, a)) return;
     const bash = acts.find(x => x.id === "shield_bash");
     if (bash && !a.kiting && tgt.readying && allyTry(a, bash, tgt)) return;
     const cure = acts.find(x => x.id === "cure");
@@ -4355,6 +4413,19 @@ function healerSupport(a, acts, tgt) {
   return false;
 }
 
+function hateLead(m, a) {
+  let other = 0;
+  for (const e of m.enmity.keys()) if (e !== a && e.alive) other = Math.max(other, hateOf(m, e));
+  return hateOf(m, a) / Math.max(1, other);
+}
+
+function hateRisk(a, m) {
+  if (!m || m.state !== "combat" || !m.enmity.size) return false;
+  const guard = S.party.some(p => p !== a && p.alive && (p.role === "tank" || p.role === "dd" || p.role === "hybrid" || p === player));
+  if (!guard) return false;
+  return m.target === a || hateLead(m, a) >= 0.85;
+}
+
 function healerAI(a, tgt, dt) {
   const acts = actionList(a);
   const healAt = a.role === "healer" ? 0.75 : 0.5;
@@ -4378,6 +4449,7 @@ function healerAI(a, tgt, dt) {
   }
   if (healerSupport(a, acts, tgt)) return;
   if (tgt) {
+    if (hateRisk(a, tgt)) { keepCasterRange(a, tgt, dt); return; }
     const dia = acts.find(x => x.id === "dia");
     const diaMp = a.role === "support" ? 0.25 : 0.5;
     if (dia && !tgt.buffs.dia && a.mp > a.maxMp * diaMp && dist(a, tgt) <= CONFIG.castRange && allyTry(a, dia, tgt)) return;
@@ -4405,7 +4477,7 @@ function nukerAI(a, tgt, dt) {
     }
   }
   const reserve = a.role === "burster" && tgt.chain ? 0.2 : CONFIG.allyMpReserve;
-  if (S.time >= a.nextNuke && a.mp > a.maxMp * reserve && tgt.state === "combat" && tgt.hp > tgt.maxHp * 0.1) {
+  if (S.time >= a.nextNuke && a.mp > a.maxMp * reserve && tgt.state === "combat" && tgt.hp > tgt.maxHp * 0.1 && !hateRisk(a, tgt)) {
     const ranked = nukes.slice().sort((p, q) => {
       const wp = (tgt.fam.weak || {})[SPELLS[p.id].element] || 1, wq = (tgt.fam.weak || {})[SPELLS[q.id].element] || 1;
       return SPELLS[q.id].power * wq - SPELLS[p.id].power * wp;

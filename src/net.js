@@ -1057,7 +1057,7 @@ function netPromote() {
     const sp = m.spawnIdx != null ? S.zone.spawns[m.spawnIdx] : null;
     m.home = sp ? { x: sp.x, y: sp.y } : { x: m.x, y: m.y };
     m.enmity = new Map();
-    if (m.target && m.target.alive) m.enmity.set(m.target, 10);
+    if (m.target && m.target.alive) m.enmity.set(m.target, { c: 10, v: 0 });
     if (m.state === "combat" && !m.enmity.size) m.state = "return";
     m.aggro = m.passive ? null : m.fam.aggro;
     m.swingTimer = m.delay; m.readying = null;
@@ -1084,7 +1084,7 @@ function netShTick() {
   if (NET_SH.host) { netSnap(now); return; }
   if (now - NET_SH.lastFlush >= 250) {
     NET_SH.lastFlush = now;
-    for (const [nid, en] of NET_SH.enQ) netZoneSend("hit", { id: S.charId, nid, d: 0, en: Math.round(en) });
+    for (const [key, en] of NET_SH.enQ) { const [nid, k] = key.split("|"); netZoneSend("hit", { id: S.charId, nid: +nid, d: 0, en: Math.round(en), k }); }
     NET_SH.enQ = new Map();
     for (const m of NET_SH.map.values()) {
       if (!m.alive) continue;
@@ -1161,7 +1161,7 @@ function netOnMs(p) {
     m.tp = +tp || 0;
     const te = tgt ? (tgt === S.charId ? player : S.others && S.others.get(tgt)) : null;
     m.target = te || null;
-    if (te === player) { if (!m.enmity.has(player)) m.enmity = new Map([[player, 1]]); } else if (m.enmity.size) m.enmity = new Map();
+    if (te === player) { if (!m.enmity.has(player)) m.enmity = new Map([[player, { c: 1, v: 0 }]]); } else if (m.enmity.size) m.enmity = new Map();
     if (fl & 2) {
       if (!m.readying && m.alive && m.fam.tpMove) { const mv = mobBigMove(m, typeof mvc === "string" ? mvc : ""); m.readying = { t: 1, target: te, start: S.time, move: mv }; if (dist(m, player) < 900) { log("The " + m.name + " readies " + mv.name + ".", "foe"); popText(m, mv.name, mv.spell ? "#ba68c8" : "#ff8a65", 13, 1.2, 14); sfx("tpready", m); } }
     } else m.readying = null;
@@ -1186,13 +1186,13 @@ function netProxyStep(m, dt) {
   m.face += normAng(m.tf - m.face) * Math.min(1, dt * 10);
 }
 
-function netMobHit(m, amt, en) {
+function netMobHit(m, amt, en, k) {
   const base = S.time < (m.predUntil || 0) ? m.predHp : m.hp;
   m.predHp = Math.max(0, base - amt); m.predUntil = S.time + 0.9; m.hp = m.predHp;
-  netZoneSend("hit", { id: S.charId, nid: m.nid, d: amt, en: Math.round(en) });
+  netZoneSend("hit", { id: S.charId, nid: m.nid, d: amt, en: Math.round(en), k: k || "phys" });
 }
 
-function netMobEnmity(m, en) { NET_SH.enQ.set(m.nid, (NET_SH.enQ.get(m.nid) || 0) + en); }
+function netMobEnmity(m, en, k) { const key = m.nid + "|" + (k || "phys"); NET_SH.enQ.set(key, (NET_SH.enQ.get(key) || 0) + en); }
 
 function netHostMob(nid) { return S.mobs.find(x => x.nid === nid && x.alive && !x.proxy); }
 
@@ -1201,9 +1201,9 @@ function netOnHit(p) {
   const m = netHostMob(p.nid), src = S.others && S.others.get(p.id);
   if (!m || !src || !src.alive) return;
   if (!claimOk(m, src)) return;
-  const d = clamp(Math.round(+p.d || 0), 0, 99999), en = clamp(+p.en || 0, 0, 100000);
-  if (d > 0) applyDamage(src, m, d, { enmity: en, color: "#b3d9ff", size: 15 });
-  else { addEnmity(m, src, en); aggro(m, src); }
+  const d = clamp(Math.round(+p.d || 0), 0, 99999), en = clamp(+p.en || 0, 0, 100000), k = HATE_SPLIT[p.k] != null ? p.k : "phys";
+  if (d > 0) applyDamage(src, m, d, { enmity: en, kind: k, raw: true, color: "#b3d9ff", size: 15 });
+  else { addEnmity(m, src, en, { kind: k, raw: true }); aggro(m, src); }
 }
 
 function netOnDeb(p) {

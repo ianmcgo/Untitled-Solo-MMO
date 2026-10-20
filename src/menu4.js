@@ -1728,6 +1728,15 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.8.0", date: "2026-10-20", title: "Hate that remembers", items: [
+    "<b>Two kinds of hate.</b> Every monster now keeps two scores for each of you: a lasting grudge that builds with every hit, spell and cure and fades slowly, and a hot flash of anger that fades within about a minute. The monster attacks whoever has the highest total.",
+    "<b>Criticals sting.</b> A critical hit draws half again as much hate as a normal hit of the same size. Notorious monsters and bosses are too proud to care about criticals.",
+    "<b>Monsters have tastes.</b> Skeletons, orcs and lizards hold a grudge against steel; worms, bats, crabs, treants and Reefkin against spells; Crag Talons against job abilities and healers; ghouls and mandrakes against whoever keeps curing. The same action can be worth up to 40% more or 20% less depending on who you hit.",
+    "<b>No more ping-pong.</b> A monster only turns on someone new once they lead the current target's hate by 10%, and it then sticks with the new target for at least a second.",
+    "<b>Flash.</b> Paladins learn Flash at level 7: a half-second cast that blinds the target for 12 s and lands a heavy burst of hot hate. Provoke is half lasting grudge, half hot anger, so it both grabs a monster and keeps it.",
+    "<b>Smarter companions.</b> Tank companions Provoke, Flash and Sentinel when their lead slips rather than only after they lose the monster; healers and nukers stop throwing extra spells when they are about to steal it.",
+    "<b>Shared zones.</b> Hate sent to the zone host now carries its kind so the host applies the same family tastes everyone sees locally."
+  ] },
   { v: "19.7.0", date: "2026-10-20", title: "Crawlers, crabs and worms", items: [
     "<b>Crabs scuttle.</b> Crabs turn half-side-on when they move and step their eight legs in two alternating sets, with a knee in each leg so the feet lift clear of the ground. Their strikes no longer drive the far claw and legs into the dirt.",
     "<b>Crawlers walk on their legs.</b> Each pair of legs lifts, reaches and plants in a wave that runs down the body, and the segments are sealed at the joints so nothing opens up when a crawler rears.",
@@ -3691,7 +3700,10 @@ function tabHelp() {
     "Auto-attack swings on your weapon's delay. Each hit builds <b>TP</b>; at 1000 TP you can use a weapon skill (more TP makes it stronger).",
     "<b>Skillchains:</b> a weapon skill opens a chain; a matching weapon skill within about 6 s closes it for bonus damage. The target frame shows the open chain and its element.",
     "<b>Magic bursts:</b> cast a spell of the skillchain's element while the burst window is open for +35–50% damage.",
-    "<b>Enmity:</b> monsters attack whoever has the most hate. Cures and big hits draw hate; Provoke steals it.",
+    "<b>Hate:</b> every monster keeps a score for each person fighting it and attacks the highest. Each score has a lasting part (builds with every hit, spell, ability and cure; fades about 1% a second) and a hot part (fades within a minute). Bigger hits draw more hate, so steady damage wins over time; a cure draws hate from every monster fighting your party.",
+    "<b>Criticals</b> draw 1.5x the hate of a normal hit of the same size. Notorious monsters ignore that bonus.",
+    "<b>Family tastes:</b> skeletons, orcs and lizards resent steel; worms, bats, crabs, treants, Reefkin and mandrakes resent spells; Crag Talons, bees and hares resent job abilities; Crag Talons, ghouls, mandrakes and longnecks resent healers. A resented action is worth up to 40% more hate, a tolerated one 10–20% less.",
+    "<b>Why a monster turns:</b> it switches to someone new only when they lead the current target by 10% or more, and then holds the new target for a second before it will change again. Provoke (600, half of it hot) grabs a monster at once; Flash (Paladin 7) and Sentinel keep it; Smoke Step and High Jump halve what a monster holds against you.",
     "<b>Inspect readings</b>, weakest to strongest: " + [["Too Weak", "#9e9e9e"], ["Easy Prey", "#64b5f6"], ["Decent Challenge", "#81c784"], ["Even Match", "#fff"], ["Tough", "#ffd54f"], ["Very Tough", "#ff8a65"], ["Incredibly Tough", "#e53935"]].map(([n, c]) => '<span style="color:' + c + '">' + n + "</span>").join(" · ") + ". Too Weak gives no XP. Name plates no longer give this away; only Inspect does.",
     "<b>Learning spells:</b> read a scroll from your Items. It works only if your main job is at the spell's level, or your support job is (support jobs count at half your main level). The log tells you which job and level the scroll needs.",
     "<b>Graphics quality:</b> High adds fur and feather layers on creatures and sharper textures. If your device struggles, Normal or Low keeps every model but drops those extras.",
