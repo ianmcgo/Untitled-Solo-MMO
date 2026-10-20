@@ -13,10 +13,11 @@ Goal: monsters that look and move like believable creatures (natural legs and ar
 
 Each phase ships as one version, with a build, rules tests, render sheets, version bump, Help and Updates text, design notes and a push.
 
-### M0: Audit (no version bump)
+### M0: Audit (DONE, no version bump)
 - Render contact sheets (walk, run, idle, attack) for every family with test/modellab.js, test/studio.js and test/gaitsheet.js.
 - Measure stance slide, ground penetration, joint gaps and stride versus speed per family with test/gaitprobe.js.
 - Output: design/monster-audit.md, a ranked list of the worst offenders. Everything below is ordered by that list.
+- Result: goblin gait is the largest measurable defect (planted foot slides up to 1.5 m/s); quadruped slide needs a new foot probe before M3; most non-humanoid gaps are in attack poses. test/gaitsheet.js was fixed (it failed on the release build because GridHelper is not bundled; other sheet scripts have the same problem).
 
 ### M1: Natural legs and arms for humanoid monsters
 - Legs: tapered lofted thigh, knee, calf and ankle with the body-fitted rings used for players; bent-knee hunched stance for goblins, orcs and reefkin; digitigrade hind legs for crag talons; root-bound legs for treants.

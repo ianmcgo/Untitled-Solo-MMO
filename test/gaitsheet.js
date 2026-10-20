@@ -12,7 +12,7 @@ const mockLogin = require('./mocklogin');
     const g2 = sheet.getContext('2d');
     const studio = new THREE.Scene(); studio.background = new THREE.Color(0x8a96a8);
     studio.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6)); const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 6, 4); studio.add(sun);
-    const grid = new THREE.GridHelper(400, 800, 0x333333, 0x556655); studio.add(grid);
+    const grid = new THREE.Mesh(new THREE.PlaneGeometry(400, 400).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x5a6a52 })); grid.position.y = -0.01; studio.add(grid);
     const cam = new THREE.PerspectiveCamera(30, 1, 0.05, 100);
     const R = W3.renderer, rt = new THREE.WebGLRenderTarget(T, T, { samples: 4 }), buf = new Uint8Array(T * T * 4), img = g2.createImageData(T, T);
     const [type, id] = spec.split(':');
