@@ -2680,6 +2680,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.25.0 Interface colour
+- template4.html: about 316 blue/indigo colour literals (hue 222 to 258, saturation 15% or more) became `hsl(calc(var(--uh) + offset) calc(S% * var(--us)) L% / a)`. `:root` defaults `--uh: 240; --us: 0` give gray; Classic is `--us: 1` (rounded values, so within a point or two of the old blues). Meaning colours (HP, MP, TP bars, element colours, red/green text) were left alone, as were `--mp*`, `--hp*`, `--tp*`.
+- menu4 `applyUiColor()` reads `VIEW.settings.uiColor` ("gray", "classic" or "#rrggbb"); custom hue comes from the picked colour and `--us` from its saturation (0.2 to 1). Called from `applyUiSettings`. Config UI: `tabSettings` Interface colour row, `uicolor` click action and an `input` listener for `[data-uic]` (no modal re-render, so the picker stays open).
+- Two inline JS colours (target menu popup in hud4, ahLine in menu4) use the same hsl form.
+- Canvas drawn UI (minimap etc.) is not themed.
+
 ## 19.24.0 New job names
 - JOBS[x].name changed; ids (WAR, WHM, ...) stay as internal keys. New display codes live in data.js `JOB_CODE` with helper `JC(id)`; used wherever a code is shown (hud level chips, party bars, target frame, item cards, spell job lists, scroll text, social lists, "Not usable by"). Prose in Help uses codes directly.
 - Mapping: WAR Knight KNT, MNK Brawler BRW, WHM Light Mage LGM, BLM Dark Mage DKM, RDM Gray Mage GRM, THF Rogue ROG, PLD Holy Knight HLK, DRK Shadow Knight SHK, BST Tamer TMR, BRD Musician MUS, RNG Yeoman YEO, SAM Blade Sworn BSW, NIN Hidden Blade HDB, DRG Lancer LNC, SMN Conjurer CNJ, BLU Mimic MIM, COR Gambler GMB, PUP Artificer ART, DNC Performer PRF, SCH Lore Master LRM, GEO Earthwarden EWD, RUN Rune Blade RNB.

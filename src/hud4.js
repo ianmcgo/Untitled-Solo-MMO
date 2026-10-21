@@ -1451,7 +1451,7 @@ function statusPopTick() {
   if (!UI.stInit) {
     UI.stInit = true;
     pop = document.createElement("div"); pop.id = "stPop";
-    pop.style.cssText = "position:fixed;z-index:60;display:none;max-width:240px;padding:8px 10px;border-radius:8px;background:rgba(14,22,54,.94);border:1px solid rgba(255,255,255,.6);color:#fff;font:600 13px var(--ffFont,sans-serif);box-shadow:0 4px 14px rgba(0,0,0,.6);pointer-events:none;line-height:1.35";
+    pop.style.cssText = "position:fixed;z-index:60;display:none;max-width:240px;padding:8px 10px;border-radius:8px;background:hsl(calc(var(--uh) - 12) calc(59% * var(--us)) 13% / .94);border:1px solid rgba(255,255,255,.6);color:#fff;font:600 13px var(--ffFont,sans-serif);box-shadow:0 4px 14px rgba(0,0,0,.6);pointer-events:none;line-height:1.35";
     document.body.appendChild(pop);
     document.addEventListener("click", ev => {
       const t = ev.target && ev.target.closest ? ev.target.closest("#ffIcons .ffIc") : null;

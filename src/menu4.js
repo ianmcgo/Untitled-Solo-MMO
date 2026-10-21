@@ -648,6 +648,8 @@ function tabSettings() {
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
   const btn = (a, v, label, on) => '<button data-a="' + a + '" data-v="' + v + '"' + (on ? ' class="on"' : "") + ">" + label + "</button>";
+  const uc = s.uiColor || "gray", ucCustom = /^#[0-9a-f]{6}$/i.test(uc);
+  h += '<h3>Interface colour</h3><div class="opt">' + btn("uicolor", "gray", "Gray", uc === "gray") + btn("uicolor", "classic", "Classic blue", uc === "classic") + '<label class="sub" style="display:inline-flex;align-items:center;gap:6px;margin-left:6px">Custom <input type="color" data-uic="1" value="' + (ucCustom ? uc : "#5a78c8") + '"></label></div>';
   h += "<h3>Interface</h3><div class=\"opt\">" + btn("toggle", "tracker", "Quest tracker " + (s.tracker !== false ? "on" : "off"), s.tracker !== false) + btn("toggle", "plates", "Name plates " + (s.plates !== false ? "on" : "off"), s.plates !== false) + btn("toggle", "compass", "Compass map " + (s.compass !== false ? "on" : "off"), s.compass !== false) + btn("toggle", "dmgNums", "Damage numbers " + (s.dmgNums !== false ? "on" : "off"), s.dmgNums !== false) + btn("toggle", "hotbar", "Pinned hotkeys " + (s.hotbar !== false ? "on" : "off"), s.hotbar !== false) + btn("fullscreen", "", document.fullscreenElement ? "Fullscreen on (free keys)" : "Fullscreen (free keys)", !!document.fullscreenElement) + btn("toggle", "autoFull", "Fullscreen on start " + (s.autoFull ? "on" : "off"), !!s.autoFull) + btn("perfshow", "", "Load timings " + (UI.perfShow ? "shown" : "hidden"), !!UI.perfShow) + "</div>" + (UI.perfShow && typeof PERF !== "undefined" ? '<div class="sub" style="white-space:pre-wrap;font-size:11px;max-height:180px;overflow:auto">' + esc(PERF.table().join("\n")) + "</div>" : "");
   if (typeof NET !== "undefined" && NET.user && !PLAY.offline) {
     const im = Math.max(5, Math.min(60, +VIEW.settings.idleMin || 30));
@@ -1285,7 +1287,7 @@ function ahDetail(id) {
     const P = typeof pmLoad === "function" && typeof netAhList === "function" && NET.member ? pmLoad(false) : null;
     const lines = marketLines(id, P && P.at ? P.list : []).filter(l => !UI.ahSrc || UI.ahSrc === "all" || l.kind === UI.ahSrc);
     if (!lines.length) h += '<div class="sub" style="margin-top:8px">Nobody is selling this' + (UI.ahSrc && UI.ahSrc !== "all" ? " in this filter" : " right now") + ".</div>";
-    if (lines.length) h += '<div class="ahBox" style="margin-top:8px"><div class="ahLine" style="color:#c8d0ff;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid rgba(220,224,255,.5)"><span>Seller</span><span>Amount</span><span class="un">Price</span><span class="ctl"></span></div>';
+    if (lines.length) h += '<div class="ahBox" style="margin-top:8px"><div class="ahLine" style="color:hsl(calc(var(--uh) - 9) calc(100% * var(--us)) 89%);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid hsl(calc(var(--uh) - 7) calc(100% * var(--us)) 93% / .5)"><span>Seller</span><span>Amount</span><span class="un">Price</span><span class="ctl"></span></div>';
     for (const l of lines) {
       const k = AH_KINDS[l.kind], q1 = Math.min(q, l.qty), cost = l.stock ? l.unit * q1 : l.price, poor = save.gil < cost;
       const buyBtn = '<button data-a="' + (l.lot != null ? "pmbuy" : "ahbuylocal") + '" data-v="' + (l.lot != null ? l.lot : l.local) + '"' + (poor || UI.pmBusy ? " disabled" : "") + ">Buy · " + cost + " 💠</button>";
@@ -1723,6 +1725,7 @@ function onMenuClick(e) {
   else if (a === "rotf") { UI.homeMsg = rotateFurniture(+v); if (UI.homeMsg) sfx("error"); else sfx("click"); renderModal(); return; }
   else if (a === "packf") { UI.homeMsg = removeFurniture(+v); if (UI.homeMsg) sfx("error"); else UI.furnSel = null; renderModal(); return; }
   else if (a === "savefile") { downloadSave(); return; }
+  else if (a === "uicolor") { VIEW.settings.uiColor = v; saveSettings(VIEW.settings); applyUiColor(); sfx("click"); renderModal(); return; }
   else if (a === "tutorial") { tutStart(); return; }
   else if (a === "fold") { const f = VIEW.settings.fold = VIEW.settings.fold || {}; if (f[v]) delete f[v]; else f[v] = 1; saveSettings(VIEW.settings); sfx("click"); renderModal(); return; }
   else if (a === "checkupd") { checkForUpdate(true); return; }
@@ -1745,8 +1748,25 @@ function placeOnBar(a) {
   toast("⚠", "Action bar full", "Clear a slot in the Action Bar menu.");
   sfx("error");
 }
+function applyUiColor() {
+  const c = (VIEW.settings && VIEW.settings.uiColor) || "gray";
+  let h = 240, sat = 0;
+  if (c === "classic") sat = 1;
+  else if (/^#[0-9a-f]{6}$/i.test(c)) {
+    const r = parseInt(c.slice(1, 3), 16) / 255, g = parseInt(c.slice(3, 5), 16) / 255, b = parseInt(c.slice(5, 7), 16) / 255;
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2;
+    if (d > 0.001) {
+      h = (mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4) * 60;
+      sat = Math.min(1, Math.max(0.2, d / (1 - Math.abs(2 * l - 1) || 1)));
+    }
+  }
+  const st = document.documentElement.style;
+  st.setProperty("--uh", String(Math.round(h)));
+  st.setProperty("--us", String(Math.round(sat * 100) / 100));
+}
 function applyUiSettings() {
   const s = VIEW.settings;
+  applyUiColor();
   document.body.classList.toggle("noNames", s.names === false);
   document.body.classList.toggle("noHotbar", s.hotbar === false);
 }
@@ -1754,6 +1774,7 @@ function initMenu() {
   const m = $("menu");
   m.addEventListener("click", onMenuClick);
   m.addEventListener("input", e => {
+    if (e.target.dataset && e.target.dataset.uic) { VIEW.settings.uiColor = e.target.value; saveSettings(VIEW.settings); applyUiColor(); return; }
     const k = e.target.dataset && e.target.dataset.vol;
     if (!k) return;
     setVolume(k, e.target.value / 100);
@@ -1766,6 +1787,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.25.0", date: "2026-10-21", title: "Interface colour", items: [
+    "<b>Gray interface by default.</b> Windows, bars, the event log and menus now use a neutral gray instead of blue.",
+    "<b>Choose your own colour.</b> Config, Interface colour: pick Gray, Classic blue (the previous look), or any colour with the Custom picker. The choice is saved with your settings and applies at once.",
+    "<b>Help updated.</b> The Guide describes the new option."
+  ] },
   { v: "19.24.0", date: "2026-10-21", title: "New job names", items: [
     "<b>All 22 jobs have new names.</b> Knight, Brawler, Light Mage, Dark Mage, Gray Mage, Rogue, Holy Knight, Shadow Knight, Tamer, Musician, Yeoman, Blade Sworn, Hidden Blade, Lancer, Conjurer, Mimic, Gambler, Artificer, Performer, Lore Master, Earthwarden and Rune Blade. Monsters that roll jobs use the same names.",
     "<b>New three-letter codes.</b> Levels, party bars, item cards and spell lists show the new codes (for example KNT, LGM, SHK). /search and the player filter accept the new codes too.",
@@ -3886,6 +3912,7 @@ function tabHelp() {
     "<b>Names:</b> spells, songs, summons, abilities and weapon skills each have their own name, and a Scroll of (spell) carries the same name as the spell it teaches.",
     "<b>Gear names:</b> sets share a prefix (Ironvale, League, Squad, Vanguard and so on); pieces from the same set are usually sold together or dropped by the same kind of monster.",
     "<b>Item cards:</b> every piece of gear lists the level you need and its stats, so compare before you buy or craft; different monsters drop different things at different chances, and rare drops are rare on purpose.",
+    "<b>Interface colour:</b> open Config and look under Interface colour. Gray is the default, Classic blue brings back the earlier look, and the Custom picker tints windows, bars and the event log with any colour you like. Health, magic and other meaning colours do not change.",
     "<b>Debuffs:</b> Slow, Paralyze and Blind weaken a monster in proportion to how much your magic stat beats its own: Slow makes it swing slower, Paralyze makes it lose swings, Blind cuts its accuracy. Poison and Blight drain its HP over time, Bind pins it, Sleep (Dark Mage 20) and Drowsy Lullaby put it to sleep until it is hit. They show on the target frame with the time left. <b>Monsters fight back:</b> bees and spore-clouds poison you, toads paralyze, worms blind and priests silence (silenced, you cannot cast). Light Mage cures them with Cleanse Venom, Cleanse Stiffness, Cleanse Sight and Cleanse Hush; the Bar-status spells halve the chance of catching them. <b>Area spells</b> (Healing Rain, Smitefall, Rockfall, Floodwave, Gleamfall) affect everything near the target, so mind your pulls. <b>Spikes</b> (Blaze, Ice) hurt whoever hits you in melee; <b>En-spells</b> add elemental damage to your own hits. Arc Burn, Grinding Blight and Throttle are damage over time that replace each other (Grinding Blight lowers accuracy, Throttle lowers defense). Bar-element spells (Flame Ward, Stone Ward, Water Ward, Gale Ward and the party versions ending in -ra) cut damage of that element. Tideward blocks a spell interruption, Blink gives two shadow images, Hush Step hides you from monsters that hear you and Scent Mask from those that smell weakness. Shield Bash interrupts a readied TP move. <b>Monster casters:</b> any beastman or undead can be a mage (see Monster jobs). A hit can interrupt a cast, and a monster hit by your Silence cannot cast at all. Kill the healer first.",
     "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
     "<b>Monster jobs:</b> goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls and the drowned each have a job, just like you, and it can be any job in the game. A monster knows the spells and abilities of its job up to its own level: a level 5 goblin Light Mage casts Cure and Gleam, a level 15 orc Knight uses Frenzy and Battle Shout, a Dark Mage hurls Stone or Aero, a Gray Mage paralyzes and Protects itself, a Musician sings Minne and Minuet. Fighters lean on job abilities (Frenzy, Surge, Shadow Strike, Open Stance, Desperate Oath, Inner Mend...). Each monster carries a short list (a heal, a nuke, a status spell and a self buff at most), so watch the cast bar and interrupt or silence it. Tough jobs (Holy Knight, Rune Blade, Brawler) have more HP; mages are softer. Notorious monsters and critters keep their own kit. <b>The target window and Check tell you the job, and the Bestiary remembers every job you have seen a creature use.</b> Neighbours in a pack avoid sharing a job. <b>You can tell the job by the outfit:</b> each monster wears its job's clothes (the same styles adventurers wear, darker or paler to suit its home: frosty for snow goblins, swampy in the marsh, sandy for Crag Talons, faded on the undead) and carries its job's weapon (Knights great axes, Holy Knights sword and shield, Shadow Knights scythes, Blade Sworn great katanas, Hidden Blades katanas, Lancers spears, Yeomen bows, mages staves and clubs). Better gear shows on higher levels. Brawlers and Artificers fight bare-handed. Throwers and archers keep their own bows and rocks. The looks are cosmetic only.",
