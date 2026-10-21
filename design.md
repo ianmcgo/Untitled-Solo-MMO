@@ -62,11 +62,11 @@ The game is written as separate source files and assembled into one `index.html`
 | Name | Job | Role | Fee | AI |
 |---|---|---|---|---|
 | Kael | WAR | tank | 120 | Engages your target, Provokes whenever he isn't top of enmity, closes skillchains |
-| Rook | WAR (sword) | damage | 140 | Berserk on cooldown, weapon skills at 1000 TP to open chains |
-| Mira | WHM | healer | 150 | Cures the lowest member under 65%, Divine Seal under 35%, Dia when MP allows |
-| Fen | WHM | support | 150 | Dia, Banish on undead, backup Cures under 50% |
+| Rook | WAR (sword) | damage | 140 | Frenzy on cooldown, weapon skills at 1000 TP to open chains |
+| Mira | WHM | healer | 150 | Cures the lowest member under 65%, Holy Vow under 35%, Gleam when MP allows |
+| Fen | WHM | support | 150 | Gleam, Smite on undead, backup Cures under 50% |
 | Sable | BLM | nuker | 180 | Magic-bursts open chains with a matching element, otherwise nukes the target's weakness every 7–10 s while MP is above 45% |
-| Vesper | BLM | burster | 400 | Unlocks after The Goblin Chieftain; holds MP for bursts and uses Elemental Seal on each |
+| Vesper | BLM | burster | 400 | Unlocks after The Goblin Chieftain; holds MP for bursts and uses Arcane Vow on each |
 | Dorn, Lisette | PLD, RDM | — | 260 | Unlock with those advanced jobs (Phase 5) |
 
 - Companions speak in party chat (blue italics) when they open or close chains, burst, cure or fall.
@@ -268,11 +268,11 @@ Poses are computed every frame from the game state, layered, and eased toward th
 | Aero | Swirling wind column |
 | Water | Rising water column with splash |
 | Thunder | Jagged lightning bolts from the sky with a violet flash |
-| Dia, Banish | Beam of light with falling motes |
+| Gleam, Smite | Beam of light with falling motes |
 | Cure | Green pillar with rising sparkles |
 | Casting | A rotating rune circle under the caster in the spell's colour, motes rising from the circle and hands |
-| Buffs | Rising rings: red for Berserk, gold or violet for seals |
-| Provoke | Red streak to the target |
+| Buffs | Rising rings: red for Frenzy, gold or violet for seals |
+| Goad | Red streak to the target |
 
 - **Monster TP moves:**
   - Bomb Toss: a lobbed bomb that explodes.
@@ -324,7 +324,7 @@ The 3D view now fills the whole screen and the interface floats on top of it, li
 | Area | Contents |
 |---|---|
 | Top left | Party frames: job icon portrait with level badge, name, job, HP/MP numbers, a thin TP bar, buff icons, a cast bar. Tap to target. |
-| Top centre | Target frame: name in its difficulty colour, level and difficulty word, NOTORIOUS tag, HP with a trailing "damage ghost", TP and swing bars, who it is attacking, a pulsing warning when it readies a TP move, chips for the open skillchain (with a draining window bar), the magic-burst element and Dia. NPC targets show only their name. |
+| Top centre | Target frame: name in its difficulty colour, level and difficulty word, NOTORIOUS tag, HP with a trailing "damage ghost", TP and swing bars, who it is attacking, a pulsing warning when it readies a TP move, chips for the open skillchain (with a draining window bar), the magic-burst element and Gleam. NPC targets show only their name. |
 | Top right | Round minimap that turns with the camera (an N marker rides the rim), then zone name, clock with weekday in its element colour, quest/sound/menu buttons, and the quest tracker. Tapping the minimap opens the Map. |
 | Bottom left | Chat log with All / Combat / Loot / System tabs and a collapse arrow. |
 | Bottom centre | Cast bar, the action bar (2 pages × 10 slots), and the XP bar with level, XP numbers and gil. |
@@ -473,12 +473,12 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 
 - `JOBS.PLD` and `JOBS.RDM` carry `advanced: true`. `ADVANCED_JOBS` maps each to its Tobin quest (`pld`, `rdm`) and unlock level (6). `BASE_JOBS` is what character creation offers. `save.jobsUnlocked` records unlocks; `normalizeSave` also derives them from completed quests and resets a locked main or support job to WAR / none. `jobUnlocked(j)` gates `setJob`, the Jobs tab, support-job choice and `mercAvailable` (Dorn requires PLD, Lisette RDM).
 - Tobin's dialogue builds an `adv` option list at level 6+ (ask / accept / turn in for each job) and appends it to every branch, so the support-job conversation never hides it. `giveReward` handles `reward.unlock`.
-- New spell kinds: `debuff` (`castDebuff`: Flash always lands and draws `enmity`; Slow/Paralyze roll `magicHit` + 10) and `buff` (`castBuff`, Protect). Skills `enfeebling` and `enhancing` were added to `newSkillSet`, `MAGIC_SKILLS` and `SPELL_SKILL`. Effects: `stat()` applies Sentinel (def ×1.5), Protect (def ×1.15), Flash (acc ×0.6); `swingDelay(e)` applies Slow (×1.25) in `autoAttack` and `updateMob`; `swing` skips 25% of a paralyzed attacker's swings; `addEnmity` doubles under Sentinel.
-- Abilities: Sentinel (buff), Shield Bash (`doAbility`: light damage, clears `readying`, interrupts casting, 350 enmity), Convert (swap HP and MP, clamped to maxima).
-- Companion AI: tanks also use Flash when not on top or when it has worn off, Sentinel under 50% HP or when losing hate, Shield Bash on a readied TP move, and a self-Cure under 40% with no healer in the party. `hybridMagic` (role `hybrid`, Lisette) runs before melee: emergency Cure, Convert at low MP, keeps Dia/Slow/Paralyze on the target, bursts open skillchains, and nukes every 9–13 s above 60% MP. `mercGear` has PLD and RDM sets.
+- New spell kinds: `debuff` (`castDebuff`: Flash always lands and draws `enmity`; Slow/Paralyze roll `magicHit` + 10) and `buff` (`castBuff`, Protect). Skills `enfeebling` and `enhancing` were added to `newSkillSet`, `MAGIC_SKILLS` and `SPELL_SKILL`. Effects: `stat()` applies Bulwark (def ×1.5), Protect (def ×1.15), Flash (acc ×0.6); `swingDelay(e)` applies Slow (×1.25) in `autoAttack` and `updateMob`; `swing` skips 25% of a paralyzed attacker's swings; `addEnmity` doubles under Bulwark.
+- Abilities: Bulwark (buff), Shield Bash (`doAbility`: light damage, clears `readying`, interrupts casting, 350 enmity), Mana Swap (swap HP and MP, clamped to maxima).
+- Companion AI: tanks also use Flash when not on top or when it has worn off, Bulwark under 50% HP or when losing hate, Shield Bash on a readied TP move, and a self-Cure under 40% with no healer in the party. `hybridMagic` (role `hybrid`, Lisette) runs before melee: emergency Cure, Mana Swap at low MP, keeps Gleam/Slow/Paralyze on the target, bursts open skillchains, and nukes every 9–13 s above 60% MP. `mercGear` has PLD and RDM sets.
 - Gear: swords, Ash Club, Scale Mail, robes and the NM pieces list PLD/RDM where the genre usually would. New items Kite Shield (accessory slot, `shield: true`) and Scarlet Tabard (RDM). `rig.js` draws a shield on the left forearm (`L.shield`), a cloth tabard with the job colour, a feathered hat (`L.hat` → `head.type "feathered"`), and the 5a drop gear.
 - HUD: target chips for Flash/Slow/Paralyze with seconds left; icons for the new actions; level-6 banner hint.
-- Tests: `test/p5bunit.js` (locks, Tobin flow for both quests, action lists, shield slot, Slow/Paralyze/Flash/Sentinel/Shield Bash/Convert effects, companions casting, save-file round trip). `p1bot.js` accepts PLD and RDM (unlocking them and hiring Lisette/Dorn).
+- Tests: `test/p5bunit.js` (locks, Tobin flow for both quests, action lists, shield slot, Slow/Paralyze/Flash/Bulwark/Shield Bash/Mana Swap effects, companions casting, save-file round trip). `p1bot.js` accepts PLD and RDM (unlocking them and hiring Lisette/Dorn).
 
 ## Phase 5c: quests (v4.4.0)
 
@@ -499,7 +499,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Chests: `chestState` (sealed / empty / closed), `openChest` rolls `CHEST_LOOT[table]` (guarantees Crypt Dust), gives gil and sets `save.timers["chest:<id>"]` for 20 real minutes.
 - Boss: `FAMILIES.hollow_king` (`boss: true`, `phases: [0.66, 0.33]`, `enrage: 0.2`). `bossPhases` runs each combat tick: summons two `royal_guard` per phase (`summonedBy`), enrage raises attack ×1.5, delay ×0.7 and sets `auraOverride` (red motes). `bossReset` on leash/return despawns guards and clears the enrage. `crypt_sentinel` is a fixed NM (600 s real-time cooldown) with the key in its loot. Names: `Hollow King` (the log adds "The").
 - Quest `hollowking` (Rhea, lv 9, after Warden) is a generic kill quest; reward includes the Ashen Medallion (Ex).
-- Rig: looks for the King (crown, cape, tabard), Sentinel (helm, mail, great axe) and Royal Guards.
+- Rig: looks for the King (crown, cape, tabard), Bulwark (helm, mail, great axe) and Royal Guards.
 - Tests: `test/p5dunit.js` (layout, exit, gate solid, brazier order/wrong/right, key drop, door, phases, enrage, coffer sealing, chest loot and refill, save round trip, cooldown). `p5shots.js` has crypt scenes.
 
 ## Phase 6a: residence, Pip, storage and the rest of the batch (v4.6.0)
@@ -1066,23 +1066,23 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - game.js: doAbility meditate (+400 TP), smoke_step (halve enmity on all mobs), jump/high_jump (×1.45/×1.9 base dmg, +100/150 TP, high halves enmity; sets `a.jumpAt/jumpHigh`). swing(): defender `third_eye` or `shadows` (count n) negate non-ranged hits first; hasso +10 acc ×1.12 dmg; dragon_spirit ×1.15; new wtypes count as slash. castBuff sets shadows.n. castDebuff text for bind. Merc gear and MERC_ROLES for new jobs.
 - twin_strike: swing() recurses once per attack while the buff has `left` (3) charges; `a.twinning` guards recursion.
 - rig: JOB_TINT for new jobs; weaponEntry `gkatana`/`katana` (curved extruded blade, wrapped grip, round guard, edge strip/glow) and `polearm` (long shaft, two grips, spearhead + side prongs). anim: gkatana = cleave/two-hand stance; polearm = thrust/staff stance; jump arc pose (rootOff up to 2.2/3.2). models3d attach/sheathe rules include new kinds.
-- Tests: p31unit (quests, abilities, shadows, Third Eye, Jump). harness exports `aggro`.
+- Tests: p31unit (quests, abilities, shadows, Foresight, Jump). harness exports `aggro`.
 
 ## Phase 72: Beastmaster, Blue Mage, Corsair (v11.1.0)
 - data.js block before `const SHOP`: jobs BST/BLU/COR (lv 14 quests bst/blu/cor appended at file end), skill `axe` + magic `blue`, 4 axe WS, abilities call_beast/reward/feral_howl (BST), burst_affinity (BLU), phantom_roll ("Valor Roll")/quick_shot/hawk_roll/double_down (COR). 10 blue spells `blu_*` (`blue: true`, skill "blue", kinds bluephys/debuff/drain/nuke) and `BLUE_LEARN` move-name → id; scroll generator skips `sp.blue`. `BEASTS` tiers (hill_lizard 1, pond_crab 8, mountain_ram 14). Axes bronze–steel at SHOP, frost at vela. Equip rules: COR on daggers/swords, BLU on swords/clubs; armour WAR→BST, RDM→BLU, THF→COR.
-- game.js: `callBeast` (ally pet with `beast`, `fam`, job WAR; tickPet releases on job change/death, no upkeep), Reward, Feral Howl (`weaken` ×0.85 attacker dmg), `rollDice(a, kind, add)` (d6; Double Down adds; >7 busts; tables valor [..,14 at 5,..16 at 7], hawk [..,10 at 4,..12 at 7]; party within 300 px, 3 min; `a.lastRoll`), Quick Shot, `castBluePhys` (baseDmg × pDIF × mul × (1+blue skill×0.004)), Burst Affinity also boosts blue nukes, `blueLearnFrom(m, mv)` in execTpMove (BLU within 400 px, 50%, level gate). swing: valor_roll damage, hawk_roll accuracy, weaken.
+- game.js: `callBeast` (ally pet with `beast`, `fam`, job WAR; tickPet releases on job change/death, no upkeep), Reward, Savage Howl (`weaken` ×0.85 attacker dmg), `rollDice(a, kind, add)` (d6; Double Down adds; >7 busts; tables valor [..,14 at 5,..16 at 7], hawk [..,10 at 4,..12 at 7]; party within 300 px, 3 min; `a.lastRoll`), Quick Shot, `castBluePhys` (baseDmg × pDIF × mul × (1+blue skill×0.004)), Surge Affinity also boosts blue nukes, `blueLearnFrom(m, mv)` in execTpMove (BLU within 400 px, 50%, level gate). swing: valor_roll damage, hawk_roll accuracy, weaken.
 - rig: beast pets render via mobLook → lizard/crab/sheep entries (`beast|fam` sig); JOB_TINT for BST/BLU/COR; weaponEntry `axe`.
 - Tests: p32unit.
 
 ## Phase 73: Puppetmaster, Dancer, Scholar (v11.2.0)
 - data.js block before `const SHOP`: jobs PUP/DNC/SCH (lv 16 quests pup/dnc/sch at file end). Abilities: activate/repair/tune_up (PUP); healing_waltz (tp 200), quick_step (tp 100), rising_flourish, group_waltz (tp 400) (DNC); light_arts/dark_arts/penury/ebullience (SCH). SCH gets every non-song, non-summon, non-blue spell with WHM/BLM level ≤ 18 at that level +2 (max 20). `AUTOMATON_LOOK`. Equip rules: h2h→PUP, dagger→DNC, staff/club→SCH; MNK armour→PUP, THF→DNC, BLM/WHM→SCH.
-- game.js: doAbility charges `ab.tp` first (refunds recast if short). `activateAutomaton` (ally pet `automaton`, job WAR; tickPet releases on job change/break). Repair 50%, Tune Up = pet `warcry` 60 s. Waltzes heal (lv×9 + mnd×2 + agi; group ×0.7). Quick Step `stepped` {n≤5} → +5 acc per step for any attacker (swing hitChance). Rising Flourish ×(1+0.5n). `artsMatch(a, sp)`: light = heal/buff/dot, dark = nuke/debuff/drain/aspir → cast ×0.8 (startCast) and MP ×0.9 (finishCast). Penury: white spell free. Ebullience: non-blue nuke ×1.3.
+- game.js: doAbility charges `ab.tp` first (refunds recast if short). `activateAutomaton` (ally pet `automaton`, job WAR; tickPet releases on job change/break). Mend Puppet 50%, Tune Up = pet `warcry` 60 s. Waltzes heal (lv×9 + mnd×2 + agi; group ×0.7). Light Step `stepped` {n≤5} → +5 acc per step for any attacker (swing hitChance). Rising Flourish ×(1+0.5n). `artsMatch(a, sp)`: light = heal/buff/dot, dark = nuke/debuff/drain/aspir → cast ×0.8 (startCast) and MP ×0.9 (finishCast). Thrift: white spell free. Zeal: non-blue nuke ×1.3.
 - rig: automaton pet = humanEntry(AUTOMATON_LOOK); JOB_TINT for PUP/DNC/SCH.
 - Tests: p33unit.
 
 ## Phase 74: Geomancer, Rune Fencer (v11.3.0)
 - data.js block before `const SHOP`: jobs GEO/RUN (lv 18 quests geo/run at file end), skill `gsword`, magic `geomancy`, 4 gsword WS. `GEO_AURAS` (indi_vigor/indi_fury/indi_focus self auras; geo_torpor/geo_frailty/geo_languor luopans) → SPELLS kind "geo". Abilities full_circle, mending_halation (GEO); kindle/rime/gale/stone_rune, lunge, vallation (RUN). Great swords bronze–steel at SHOP, frost at vela. Equip: club→GEO; WHM/BLM armour→GEO; WAR/PLD armour→RUN.
-- game.js: `castGeo` sets `a.indi {id, until}` or `a.luopan {id, x, y, until, mp}`; `tickGeo(dt)` (each 1 s from step) refreshes aura buffs on party within 300 px (vigor heals 3% every 3 s) and luopan debuffs on mobs within 140 px (slow / geo_frail / weaken). geo_fury ×1.10 melee, geo_focus ×1.12 nukes, geo_frail ×1.12 damage taken by mobs (applyDamage). Runes: `buffs.runes {list ≤3, until 300 s}`; applyDamage from mobs ×(1−0.05·runes) and ×0.8 with vallation; Lunge sums (lv×6+int×1.2)×weakness per rune. Vallation hits add 30 enmity.
+- game.js: `castGeo` sets `a.indi {id, until}` or `a.luopan {id, x, y, until, mp}`; `tickGeo(dt)` (each 1 s from step) refreshes aura buffs on party within 300 px (vigor heals 3% every 3 s) and luopan debuffs on mobs within 140 px (slow / geo_frail / weaken). geo_fury ×1.10 melee, geo_focus ×1.12 nukes, geo_frail ×1.12 damage taken by mobs (applyDamage). Runes: `buffs.runes {list ≤3, until 300 s}`; applyDamage from mobs ×(1−0.05·runes) and ×0.8 with vallation; Spear Surge sums (lv×6+int×1.2)×weakness per rune. Rune Guard hits add 30 enmity.
 - effects3d `updateGeoFx`: ring decal around an aura caster (300 px) and luopan ring + spinning gem (140 px).
 - rig: weaponEntry handles `gsword` via the sword path (longer, wider, long grip, wide guard); anim/models3d treat gsword as two-handed.
 - Tests: p34unit; harness exports applyDamage.
@@ -1400,7 +1400,7 @@ Full notes and the remaining plan are in design/mmo-look-plan.md. Summary:
 - `restAI`: deletes the companion from `m.enmity` of mobs that are not targeting it, or are over `allyRestDist` away, so `canRest` (which fails while `inCombatWith`) can pass; keeps fleeing while chased or a threat is within `allyKiteDist`; then `startRest`. `regen` already stands a unit up if it can't rest.
 - Kiting behaviour per role: `meleeAI` skips approach and autoAttack for non-archers (archers keep bow range and shoot) and skips provoke, flash, sentinel and shield bash; `hybridMagic` and `smartAct` nuke above 10% MP with 3 to 6 s gaps; `meleeIfSafe` is false; `follow` does not step toward a formation point within `allyKiteDist` of a threat; `keepCasterRange` approaches only beyond `castRange - 5`.
 - Ranged roles (`nukerAI`): nuke reserve is `allyMpReserve` (0.2 for a burster while a chain is open), `nextNuke` gap 1.2 to 2.4 s, stop nuking only under 10% target HP, debuffs above 15% MP, melee only at 10% MP or less when not kiting, otherwise `keepCasterRange` (approach beyond 200 to 170, back off under 110).
-- `healerAI`: `needy` = living party members under healAt (healer 0.75; support 0.5, or under 0.35 when another healer exists) sorted by HP% ascending. Heals the lowest one within `castRange - 30`; if none is in range it walks toward the lowest unless kiting. Spell choice from every heal-kind spell sorted by power: the smallest whose `healEstimate` covers the missing HP, else the largest; Divine Seal under 35%.
+- `healerAI`: `needy` = living party members under healAt (healer 0.75; support 0.5, or under 0.35 when another healer exists) sorted by HP% ascending. Heals the lowest one within `castRange - 30`; if none is in range it walks toward the lowest unless kiting. Spell choice from every heal-kind spell sorted by power: the smallest whose `healEstimate` covers the missing HP, else the largest; Holy Vow under 35%.
 - `enterZone` clears `retreat` and `kiting` on the party.
 - Check by hand: a mercenary at about 45% HP backs off to about 200 px and still casts or shoots; under 25% it runs, mobs lose it beyond 420 px, it sits (`resting`) and stands at full HP and MP.
 - v16.23.0: new mode "sit" in `allyMode(a, threatened, still)`: no threat, player still (not moving, not engaged, 1 s), HP at or below `allySitHp` 0.75 and player within 450 px; ends at full HP and MP, when a threat appears, the player moves, or the player is over 600 px away. Handled by `restAI` like rest. `restAI` now drops a companion from a mob's enmity at once when another living party member also holds enmity (so resting works mid-fight); otherwise it flees until the mob is over `allyRestDist` (now 300) away.
@@ -1488,7 +1488,7 @@ World systems:
 | 16.1.7 | Head profiles: jaw/chin/long raised for human0/1, elari, nekari, pipkin (jaw 0.3), ursan (jaw 0.24). Ursan skin 0x8e9688. Pipkin eyes rx 7.2, painted brown button nose (radial gradient + highlight) replaces the pink blob. |
 | 16.1.8 | Pipkin RACE_BODY neck -0.05 (head drops onto the shoulders). |
 | 16.1.9 | Ursan RACE_BODY neck -0.04; ursan tail radii 0.055/0.045/0.012 and length about 0.36 below hips. |
-| 17.3.0 | Area spells, Spikes, En-spells, Shock/Rasp/Choke, Requiem, Threnodies, Mambo, Pastoral, Operetta. See "Area spells and songs (v17.3.0)". |
+| 17.3.0 | Area spells, Spikes, En-spells, Arc Burn/Grinding Blight/Throttle, Requiem, Threnodies, Mambo, Pastoral, Operetta. See "Area spells and songs (v17.3.0)". |
 | 18.0.0 | classic MMO equipment: 788 pieces at level 20 and below replace every old item. See "Equipment (v18.0.0)". |
 | 18.1 | Tools only: tools/balance/sim.js, runsim.sh, report.js (fight simulator). Baseline in design/balance-18.1.md. |
 | 18.2.0 | Player power: delay curve, WTYPE_MULT, DMG_LV_K, ammoDmgMul, hpLvBonus, mpMul. Results in design/balance-18.2.md. |
@@ -1510,8 +1510,8 @@ World systems:
 | 18.16.1 | CSS: .iCl overflow-wrap anywhere (unbroken WAR/MNK/... job lists); inside .beast cards .iCard loses frame/padding and .iCh is hidden, so Database equipment entries do not repeat the name. |
 | 18.17.0 | Help became the Guide: tabHelp collects sec(title, body) into secs and renders one HELP_CATS topic at a time (UI.helpCat, handler helpcat); first match of the category regexes wins, unmatched sections land in Getting started. New 'Every menu and key' section from guideRef() is generated from MAIN_CMDS, STATUS_CMDS, TAB_INFO keys and COMMANDS. MAIN_CMDS entry renamed Guide, TAB_INFO.help = Guide. Help button removed from Config More row. Fixed missing comma in tabHelp World table (Help threw before). Slim windows (isSlim: inventory, shop, quests, magic, abilities, storage-view) get lHead with data-a slimclose (closeModal then mainCmdOpen if UI.menuFromMain); slim-abilities/magic/inventory/quests/storage width max-content. Inventory has Items/Key Items view (UI.invView); Key Items and Trade removed from MAIN_CMDS (Trade stays in the player target menu). Mobile (<=760px) equipment: .eqL hidden with !important, single column. Achievements window gets class fit; tabStats expanded (job levels, craft/gather skills, creatures, NMs, bag use; stats.walk counted next to ride). @time no longer calls mainCmdClose and #timeBox is excluded from the outside-click closers. |
 | 18.18.0 | Recipe scrolls: data.js RECIPE_START (lv0 base recipes, known at start) and items rcp_<recipeId> (kind use, recipe field; r_ ones sold in SHOP/SHOPS.vela, g_ ones are RARE_RECIPES: rare drops via rareRecipeDrop(e) in killRewards (0.015, nm 0.25, boss 0.5, recipe lv within mob lv -5..+3) and added to every other quest reward with lv>=3 as reward.items). save.recipes {id:1}; normalizeSave grandfathers recipes with lv <= craft skill. recipeKnown gates canSynth, csMatches, craft book, usable bag list; learnRecipe via useItem. Inventory list auto-sorted in invSorted (Sort removed), Drop button in lHead (dropsel), tap prompt only when there is Use/Equip/Add to bar; coarse-pointer #dialog sits at the bottom while a window is open. anim.js idle 4 hand no longer crosses the head (upArmR z -0.7); models3d placeWeapon sheathed weapons farther back (bz - 0.04/0.045, staff lean 0.78). |
-| 17.2.0 | Carbuncle start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
-| 17.1.0 | Status magic: cure, Bar, party buff, Aquaveil, Blink, Sneak, Deodorize and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
+| 17.2.0 | Lantern Sprite start, Spirit scrolls from rare Elementals, goblin spellcaster monsters (mob casting), Silence spell. See "Elementals and mob casters (v17.2.0)". |
+| 17.1.0 | Status magic: cure, Bar, party buff, Tideward, Blink, Hush Step, Scent Mask and Warp spells; monster-inflicted statuses. See "Status magic (v17.1.0)". |
 | 17.0.0 | classic MMO spells and potions: SPELLS/ITEMS potion family rebuilt from classic MMO data; rule version 17 wipes older saves. See "classic MMO rules (v17.0.0)". |
 | 16.24.0 | /rest works in combat; a hit while resting stands you up. |
 | 16.23.0 | Mercenaries at 75% or less rest when you stand still; rest works mid-fight; shorter flee distance. |
@@ -1628,7 +1628,7 @@ World systems:
 | 6.2.0 | Phase 21: eight-chapter main story, Ashen Herald, Ember of Ashenreach. |
 | 6.1.0 | Phase 20: Dark Knight and Bard, scythes, songs, Mordrin and Lyra. |
 | 6.0.0 | Phase 19: Adventurers' Guild, daily bounties, ranks, guild point shop. |
-| 5.9.0 | Phase 18: level 20, Frostspire Pass, snow weather, Warcry, tier-4 weapon skills. |
+| 5.9.0 | Phase 18: level 20, Frostspire Pass, snow weather, Battle Shout, tier-4 weapon skills. |
 | 5.8.0 | Phase 17: Chapel Depths battlefield; XP bar in party frame, phone chat bottom-left, minimap range, creation defaults. |
 | 5.7.0 | Phase 16: Ranger and Summoner jobs, sprites, bows, Corin. |
 | 5.6.0 | Phase 15: Thornstrider coats, Swift Saddle, Hollow Run time trial; gear fit fixes. |
@@ -1670,31 +1670,31 @@ World systems:
 - Data in data.js SPELLS (generated by `tools/items-import/gen17.py` from Windower `spells.lua`): 26 specs plus 8 spirits. Songs cost 0 MP.
 - Cure: `cure {min, t:[[powerLimit, divisor, constant, basepower]]}`; power = floor(MND/2)+floor(VIT/4)+Healing skill (`cureAmount`, `healAmount`).
 - Nukes: `power`, `k` (slope per stat difference up to 50), `k2` (50 to 100), `stat`; no level multiplier; undead take 1.5x from light.
-- DoT (Dia, Bio, Poison): `dot {dur, tick|skill, div, ceil, min, max}`; Dia and Bio replace each other (`castDia`, `tickBuffs`).
-- Drain and Aspir: `absorb [mult, const]`, max = skill*mult+const, minimum half.
+- DoT (Gleam, Blight, Poison): `dot {dur, tick|skill, div, ceil, min, max}`; Gleam and Blight replace each other (`castDia`, `tickBuffs`).
+- Life Leech and Mana Leech: `absorb [mult, const]`, max = skill*mult+const, minimum half.
 - Songs: `base, sreq, cap, mult, div`; power = floor(base + (skill-sreq)/div), capped; buffs stored `flat: true`. `SONG_KEYS` includes minne.
 - Debuffs: potency from stat difference. Slow `pow` 0.073-0.292, Paralyze 0.05-0.25, Blind 0.05-0.5 via buff `flash`.
 - Buffs added: poison, shell (-11% elemental damage via `opt.el` in `applyDamage`), minne (flat defense), reraise (`{until, pct}`; consumed in `onKO`).
 - Items: generated by `tools/items-import/potions17.py`; `healPct`/`mpPct` (Elixirs), `reraise` + `rrSecs`. Prices = classic MMO BaseSell x 40/130. Raise, Phoenix Down and Ember Plume are removed; Raise-kind code paths in game.js and net.js remain but no spell uses them.
 - Assumed, not verified: Reraise strengths 0.5 / 1 / 1.
 - Deferred to 17.1: AoE spells, status cures, Bar-/En- spells, equipment import (level 20 and below), mob and economy balance. Plan in design/item-plan.md.
-- Tests: test/p55unit.js covers starting spells, purge, cure numbers, potions, Elixir, Reraise, Stone, Fire, Bio.
+- Tests: test/p55unit.js covers starting spells, purge, cure numbers, potions, Elixir, Reraise, Stone, Fire, Blight.
 
 ## Status magic (v17.1.0)
 - Spell kinds added in data.js SPELLS: `cleanse` (`cleanse: [buffKeys]`, castCleanse), `warp` (castWarp, player only, enterZone to homePos), and buff flags `party` (applies to all alive party within 300 of target), `bar` (element), `barst` (status), `n` and `exact` (shadow count; `exact` skips the level 12 bonus), `rnd` (random 0-120 s added to duration).
 - castBuff now loops over the party group and calls `applyBuffTo`. Bar-element pow = min(0.35, (40 + floor(Enhancing/5)) / 400): my approximation of classic MMO's MDEF bonus (40 + skill/5) as a damage cut. Bar-status pow = 0.5 resist chance: also my approximation.
 - `BAR_EL` maps fire/earth/water/wind to barfire/barstone/barwater/baraero and is applied in `applyDamage` when `opt.el` is set. `BAR_ST` maps poison/paralyze/flash/sleep to their Bar buffs and is used by `inflictStatus` and the Mandrake sleep.
-- Aquaveil: `n` = 1 (2 above 300 Enhancing); `applyDamage` spends one when an interruption roll succeeds.
-- Sneak ignores `aggro.sound`; Deodorize ignores `aggro.lowhp` (in `detects`).
+- Tideward: `n` = 1 (2 above 300 Enhancing); `applyDamage` spends one when an interruption roll succeeds.
+- Hush Step ignores `aggro.sound`; Scent Mask ignores `aggro.lowhp` (in `detects`).
 - Silence: buff `silence`; `checkAction` refuses all spells. No monster casts spells in this game, so the Silence spell itself is deferred.
 - Monster statuses: tpMove `status: [buffKey, seconds, pow]` applied in `execTpMove` via `inflictStatus` (poison ticks 1 + floor(lv/5) every 3 s). Assigned: Final Sting and Spore Cloud poison, Tongue Lash paralyze, Sand Spit blind, Shrieking Chant and Drowning Tide silence.
 - Mercenary healers: `healerSupport` cures statuses first, then keeps Protect and Shell (party version preferred) on the party while fighting at over 50% MP.
-- Protectra uses Protect's +15 (LandSandBoat lists 20; Protect itself uses 15 in the game, kept consistent).
-- Deferred to 17.2: Curaga, Diaga, Banishga, Stonega, Waterga, Spikes, En- spells, Shock/Rasp/Choke, Foe Requiem, Threnodies, Sheepfoe Mambo, Herb Pastoral, Scop's Operetta, Silence.
+- Mass Protect uses Protect's +15 (LandSandBoat lists 20; Protect itself uses 15 in the game, kept consistent).
+- Deferred to 17.2: Healing Rain, Gleamfall, Smitefall, Rockfall, Floodwave, Spikes, En- spells, Arc Burn/Grinding Blight/Throttle, Hunter's Dirge, Threnodies, Skipping Reel, Greenwood Air, Minstrel's Ballad, Silence.
 - Tests: test/p56unit.js.
 
 ## Elementals and mob casters (v17.2.0)
-- SPELLS flag `drop: true` marks the eight Spirit summons: excluded from `createChar` starting spells and from the shops (data.js scroll loop `continue`). Carbuncle (`PETS.carbuncle`, light, pact Searing Light) is the SMN level 1 starter (5 MP, 5 s cast from classic MMO data).
+- SPELLS flag `drop: true` marks the eight Spirit summons: excluded from `createChar` starting spells and from the shops (data.js scroll loop `continue`). Lantern Sprite (`PETS.carbuncle`, light, pact Searing Light) is the SMN level 1 starter (5 MP, 5 s cast from classic MMO data).
 - Eight NM_FAMILIES `<el>_elemental` with loot `scroll_<spirit>` at 0.3. Each is a rare spawn (chance 0.07) attached to an existing placeholder spawn: fire/cinder (magma_lizard), ice/frost (frost_bomb, night), earth/underdeep (deep_worm), air/sunscar (dune_lizard 1800,700), thunder/verdant (jade_hornet, day), water/gullisle (fishfolk), light/highlands (wind_wasp, day), dark/crypt (ghoul, night). Spawns past a zone's width are dropped at load, so check a new placeholder shows in `G.ZONES[z].spawns`.
 - Mob casting: family `spells: [{id, mul | status:[buffKey, secs, pow] | heal}]`, `castGap:[min,max]`, `range`. `updateMob` combat branch: `startMobCast` picks cure on a wounded ally (70%) else a random offence spell not already on the target; `finishMobCast` resolves after `max(1.5, cast+1)` s. Damage = `baseDmg * mul`, element passes through `applyDamage` so Shell and Bar spells work. Statuses go through `inflictStatus`. Hits interrupt a mob cast with 30% chance; sleep and stun cancel it; `buffs.silence` blocks starting one. Mobs never target remote players.
 - Goblin casters: goblin_apprentice (Hollow, stone), den_conjurer (Den, stone/poison/cure), mire_hexer (Marsh, water/poison/slow/silence), frost_shaman (Frostspire, blizzard/paralyze/blind/silence/cure). Look variants in rig.js `goblinLook` keyed by `m.famKey`.
@@ -1703,14 +1703,14 @@ World systems:
 - Tests: test/p56unit.js (elementals, goblin casters, silence).
 
 ## Area spells and songs (v17.3.0)
-- `aoe: radius` on a spell: `castHeal` heals party members within it of the target (Curaga 300); `castNuke` and `castDia` loop mobs within it (`nukeOne`, `diaOne`; Banishga, Stonega, Waterga, Diaga use 170). Single-target spells are unchanged.
-- Curaga uses the old classic MMO formula mapped onto the `cure.t` table (divisor doubled because the old formula halves power first).
-- Nuke powers for the -ga spells and Shock/Rasp/Choke tick are mine, interpolated between neighbouring tiers; LandSandBoat has no per-spell damage constants. Level, MP, cast and recast are Windower values.
-- DoT ticks are generic: `tickBuffs` damages any buff with `tick`, `next` and `src`. `dot.pot: "int"` gives tick 1 to 5 by caster INT (>40, >70, >100, >150, as `getElementalDebuffPotency`). `sd` = (tick-1)*2+5 is stored for Rasp (accuracy) and Choke (defense) in `stat()`. `replaces: [...]` deletes other DoTs on cast. Shock's MND loss is not modelled.
-- Spikes: buff `blaze_spikes`/`ice_spikes` with `pow` = clamp(floor((INT+50)/div), 1, max) (div 12 max 25; div 20 max 15), applied in `swing` against non-ranged attackers; Ice Spikes paralyzes 30% for 10 s (my guess). En-spells: `enthunder/enstone/enaero`, `pow` from Enhancing skill (floor(sqrt)-1 up to 150, then skill/20+5), added after each melee hit as elemental damage.
+- `aoe: radius` on a spell: `castHeal` heals party members within it of the target (Healing Rain 300); `castNuke` and `castDia` loop mobs within it (`nukeOne`, `diaOne`; Smitefall, Rockfall, Floodwave, Gleamfall use 170). Single-target spells are unchanged.
+- Healing Rain uses the old classic MMO formula mapped onto the `cure.t` table (divisor doubled because the old formula halves power first).
+- Nuke powers for the -ga spells and Arc Burn/Grinding Blight/Throttle tick are mine, interpolated between neighbouring tiers; LandSandBoat has no per-spell damage constants. Level, MP, cast and recast are Windower values.
+- DoT ticks are generic: `tickBuffs` damages any buff with `tick`, `next` and `src`. `dot.pot: "int"` gives tick 1 to 5 by caster INT (>40, >70, >100, >150, as `getElementalDebuffPotency`). `sd` = (tick-1)*2+5 is stored for Grinding Blight (accuracy) and Throttle (defense) in `stat()`. `replaces: [...]` deletes other DoTs on cast. Arc Burn's MND loss is not modelled.
+- Spikes: buff `blaze_spikes`/`ice_spikes` with `pow` = clamp(floor((INT+50)/div), 1, max) (div 12 max 25; div 20 max 15), applied in `swing` against non-ranged attackers; Frost Thorns paralyzes 30% for 10 s (my guess). En-spells: `enthunder/enstone/enaero`, `pow` from Enhancing skill (floor(sqrt)-1 up to 150, then skill/20+5), added after each melee hit as elemental damage.
 - Threnody: debuff `threnody_<element>` with `pow` 0.25; read in `nukeOne` only. classic MMO lowers elemental resistance by 50: my 25% is an approximation.
-- Mambo (`mambo`, evasion), Pastoral and Operetta (`pastoral`, `operetta`: resist Poison and Silence via `SONG_RES`, chance min(0.75, pow/50): my approximation) join `SONG_KEYS` (two-song limit). Foe Requiem I/II are `dot` spells with buff `requiem`.
-- Mercenary fixes: `healEstimate` now uses `cureAmount` for table cures; `healerAI` casts Curaga when two or more allies within 300 are hurt; `bardAI` uses `foe_lullaby` and the current song keys.
+- Mambo (`mambo`, evasion), Pastoral and Operetta (`pastoral`, `operetta`: resist Poison and Silence via `SONG_RES`, chance min(0.75, pow/50): my approximation) join `SONG_KEYS` (two-song limit). Hunter's Dirge I/II are `dot` spells with buff `requiem`.
+- Mercenary fixes: `healEstimate` now uses `cureAmount` for table cures; `healerAI` casts Healing Rain when two or more allies within 300 are hurt; `bardAI` uses `foe_lullaby` and the current song keys.
 - Tests: test/p57unit.js.
 
 ## Equipment (v18.0.0)
@@ -2052,7 +2052,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - aggro() also aggroes owner.pet and pet.petOf. onKO: owner KO despawns its pet ("fades away"); pets never call killRewards.
 - mobUseAbility: COR rolls d6 and gives the buff (90 s) to itself, its pet and fighting packmates of the same link group within 220. swing() already reads valor_roll and hawk_roll pow.
 - rig.js: mobLook model "wisp" -> kind wisp (col tint, col2 eye), drawn with wispEntry (meta kind bat, uses bat pose).
-- Online: the host spawns pets; proxies see them as ordinary pet_<element> mobs named by family ("Water Spirit"), without the owner link.
+- Online: the host spawns pets; proxies see them as ordinary pet_<element> mobs named by family ("Brook Wisp"), without the owner link.
 - Tests: test/h3unit.js.
 
 ## 18.42.0 Know your foe (H4)
@@ -2387,7 +2387,7 @@ Visual check: every storefront rendered with a fixed camera (render hook sets W3
 
 ## 18.90.0 Interrupts (combat polish phase 1)
 CONFIG: mobPhysInterrupt 0.75, readyInterrupt 0.35, wsWind 0.8, wsLoseTpAt 0.75. Setting VIEW.settings.classicInterrupt (Settings, Combat) restores the old chance-only rule everywhere (classicInterrupt()).
-applyDamage opt.phys marks physical damage: melee and bow swing, weapon skill, physical monster move (phys: !mv.el). With phys and the rule on, the old per-hit chance rolls are skipped and physInterrupt(tgt) runs instead: party and player casts always interrupt (Aquaveil absorbs one via aquaveilAbsorbs), monster casts 75%, a player or party winding is interrupted, a monster readying is cut 35%. Zero-damage hits do nothing.
+applyDamage opt.phys marks physical damage: melee and bow swing, weapon skill, physical monster move (phys: !mv.el). With phys and the rule on, the old per-hit chance rolls are skipped and physInterrupt(tgt) runs instead: party and player casts always interrupt (Tideward absorbs one via aquaveilAbsorbs), monster casts 75%, a player or party winding is interrupted, a monster readying is cut 35%. Zero-damage hits do nothing.
 Weapon skill wind-up: perform() calls startWind (e.winding = { id, t, name, start, end }); tickWinding in tickCasting fires doWS when the time is up and the target is alive, in range and TP is still 1000 or more. interruptWind keeps TP unless the hit lands in the last 25 percent. Moving (moveToward, click move), Escape (main4.js) and KO clear it. Items, rest, auto-attack, party AI and checkAction treat winding like casting. Cast bar (hud4.js) shows it. Abilities (doAbility) stay instant.
 Tests: test/i1unit.js (16 checks). p6unit goblin aggro moved to 45 px (always seen, ignoring weather); p55unit start-job checks match START_JOBS (RDM, BRD and SMN are advanced jobs); p34unit and p15unit stop mob swings during casts; p15 sprite-fade test holds MP at 0 (regen made it flaky).
 Next: phase 2 (Opus), see design/combat-body-move-plan.md.
@@ -2558,15 +2558,15 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - Known: crab legs slide above ~1.6 m/s and crawler legs above ~0.3 m/s (phase caps); the lab's gap metric is noisy below about 3% on coarse low-quality spheres; hares were already fine and were not changed.
 
 ## 19.8.0 Hate that remembers (monster plan H1)
-- Storage: `m.enmity` is still a Map keyed by attacker, but each value is `{ c, v }` (cumulative, volatile); `hateEntry(m, e)` upgrades a bare number in place so older code and tests that `set(e, 50)` still work. `hateOf(m, e)` is the total, `hateScale(m, e, mul)` halves both parts (Smoke Step, High Jump). Proxies keep no local table; `addEnmity` on a proxy queues `(amount, kind)` per `nid|kind` and `netShTick` sends `{ nid, d: 0, en, k }`; `netMobHit` carries `k` too and the host applies it with `raw: true` (the sender already applied bias, crit and Sentinel, so the host stays deterministic for everyone).
-- `addEnmity(m, e, amt, opt)`: `opt.kind` is one of `HATE_SPLIT` keys (phys 60% cumulative, magic 50%, ability 50%, heal 70%, volatile 50%); the amount is multiplied by `hateBias(m, kind)` (volatile reads the ability bias), by `CONFIG.critHate` (1.5) × `hateBias(m, "crit")` when `opt.crit`, and by 2 under Sentinel. `applyDamage` passes its `opt` through, so damage call sites tag `kind`/`crit` once; `swing` passes `crit`. `hateAmount` does the same maths for the proxy path. Every ability and spell call site is tagged: weapon skills and swings phys, Provoke and Shield Bash volatile, other abilities ability, cures heal, songs, buffs, nukes, debuffs, drains and resists magic; a debuff whose `enmity` is 150 or more (Flash) is volatile.
+- Storage: `m.enmity` is still a Map keyed by attacker, but each value is `{ c, v }` (cumulative, volatile); `hateEntry(m, e)` upgrades a bare number in place so older code and tests that `set(e, 50)` still work. `hateOf(m, e)` is the total, `hateScale(m, e, mul)` halves both parts (Smoke Step, Sky Leap). Proxies keep no local table; `addEnmity` on a proxy queues `(amount, kind)` per `nid|kind` and `netShTick` sends `{ nid, d: 0, en, k }`; `netMobHit` carries `k` too and the host applies it with `raw: true` (the sender already applied bias, crit and Bulwark, so the host stays deterministic for everyone).
+- `addEnmity(m, e, amt, opt)`: `opt.kind` is one of `HATE_SPLIT` keys (phys 60% cumulative, magic 50%, ability 50%, heal 70%, volatile 50%); the amount is multiplied by `hateBias(m, kind)` (volatile reads the ability bias), by `CONFIG.critHate` (1.5) × `hateBias(m, "crit")` when `opt.crit`, and by 2 under Bulwark. `applyDamage` passes its `opt` through, so damage call sites tag `kind`/`crit` once; `swing` passes `crit`. `hateAmount` does the same maths for the proxy path. Every ability and spell call site is tagged: weapon skills and swings phys, Goad and Shield Bash volatile, other abilities ability, cures heal, songs, buffs, nukes, debuffs, drains and resists magic; a debuff whose `enmity` is 150 or more (Flash) is volatile.
 - `hateBias(m, k)`: `fam.hate[k]` override, else `HATE_PROFILES[fam.model][k]`, else 1; `crit` is 1 for `fam.nm` or `fam.boss`. Profiles (data.js): skeleton phys 1.3 / magic 0.8 / crit 1.3; orc phys 1.3; worm magic 1.4 / phys 0.8; bat magic 1.35; crab magic 1.25; fishfolk magic 1.3 / heal 1.2; birdfolk ability 1.35 / heal 1.3 / phys 0.9; treant magic 1.3; ghoul heal 1.3; mandrake heal 1.3; lizard crit 1.3; bee ability 1.2 / crit 1.2; hare ability 1.2; goblin ability 1.15; bomb crit 0.8.
-- Decay (`decayHate`, combat only): cumulative `× (1 − 0.01·dt)` floored at 1, volatile `× (1 − 0.04·dt) − 5·dt` floored at 0 (CONFIG hateDecayC, hateDecayV, hateDrainV). The first cut (volatile 8%/s + 25/s drain, Provoke 95% volatile) let a 30%-harder hitter take a goblin off a Provoking tank 72% of the time; at a 1%/s cumulative decay the pool is ~100 s of income, so Provoke only matters at steady state if half of it is cumulative. With 50/50 and the slower volatile fade the same scenario holds 100%.
+- Decay (`decayHate`, combat only): cumulative `× (1 − 0.01·dt)` floored at 1, volatile `× (1 − 0.04·dt) − 5·dt` floored at 0 (CONFIG hateDecayC, hateDecayV, hateDrainV). The first cut (volatile 8%/s + 25/s drain, Goad 95% volatile) let a 30%-harder hitter take a goblin off a Provoking tank 72% of the time; at a 1%/s cumulative decay the pool is ~100 s of income, so Goad only matters at steady state if half of it is cumulative. With 50/50 and the slower volatile fade the same scenario holds 100%.
 - Switching (`pickHateTarget`): keeps `m.target` unless it is dead or gone from the table; a challenger needs `hate > current × (1 + CONFIG.hateLead 0.1) + 1`, and no swap happens within `CONFIG.hateHold` 1 s of the last (`m.swapAt`; `m.swapFrom` is kept for the H2 alert). `updateMob` logs nothing on a swap yet.
 - Flash now exists (SPELLS.flash: PLD 7, 25 MP, 0.5 s cast, 45 s recast, blind pow 0.3 for 12 s, enmity 180 volatile). Help, Dorn's blurb and the tank AI referenced it but no spell was defined, so `acts.find(x => x.id === "flash")` was always empty. `castDebuff` honours a fixed `sp.pow`.
-- Companion AI: `hateLead(m, a)` = a's hate ÷ the highest other party member's; tanks Provoke when they are not the target or lead < 1.25, Flash when not the target or lead < 1.5, Sentinel at < 50% HP, not the target, or lead < 1.1. `hateRisk(a, m)` is true when another fighter is alive and `a` is the target or within 85% of the leader: healers skip Dia, Banish and melee and just keep range; nukers skip free nukes (bursts still fire).
+- Companion AI: `hateLead(m, a)` = a's hate ÷ the highest other party member's; tanks Goad when they are not the target or lead < 1.25, Flash when not the target or lead < 1.5, Bulwark at < 50% HP, not the target, or lead < 1.1. `hateRisk(a, m)` is true when another fighter is alive and `a` is the target or within 85% of the leader: healers skip Gleam, Smite and melee and just keep range; nukers skip free nukes (bursts still fire).
 - Hold sim (scratchpad h1/holdsim.js: level 10 player + Kael + Mira vs level 10 monster, 6 fights each, target share of combat time): WAR vs goblin tank 100% (old 100%); BLM vs goblin tank 71 / player 25 / Mira 4, 3.7 swaps per fight (old 64 / 30 / 6, 5 swaps); WHM vs goblin tank 100%; BLM vs worm (magic 1.4) player 67 / tank 23 — the bias is visible; BLM vs skeleton (magic 0.8) tank 66; WAR vs worm tank 94, vs skeleton 98.
-- Tests: test/h8unit.js (bias per kind, NM crit, crit 1.5×, split and decay, lead and hold rules, dead target, Provoke, Sentinel, cure hate on every engaged monster only, 90 s hold sim). Known pre-existing failure untouched: test/d1unit.js "beasts drop trade goods instead (54 in 400)".
+- Tests: test/h8unit.js (bias per kind, NM crit, crit 1.5×, split and decay, lead and hold rules, dead target, Goad, Bulwark, cure hate on every engaged monster only, 90 s hold sim). Known pre-existing failure untouched: test/d1unit.js "beasts drop trade goods instead (54 in 400)".
 - Saves never stored enmity (mobs respawn on load), so nothing migrates; `netPromote` and proxy snapshots build `{ c, v }` entries.
 
 ## 19.9.0 Reading the room (monster plan H2)
@@ -2679,6 +2679,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - menu4.js: Config, More row gets `data-a="tutorial"` handled in the action chain; Help Controls gets a Tutorial line; Updates 19.18.0.
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
+
+## 19.20.0 New names
+- Display-name rename only (SPELLS, abilities, weapon skills, BUFF_NAMES, avatar names, scroll items generated from spells, JOB descriptions, Help, old Updates text, design docs, tests). Ids (`dia`, `provoke`, `fast_blade`, pet id `carbuncle`, …) unchanged so saves stay valid.
+- Blue magic: `BLUE_LEARN` keys and monster `tpMove.name` must match (Gummed Strand, Crimson Siphon).
+- Kept on purpose: equipment names that embed old spell words (phase 2), Crypt Sentinel and Sentinel's Rest, Aura of Focus, Mind Drain, the player's Jump button and `/jump`, quest "Reward:" labels.
+- Rename map: scratchpad rename-plan; phase 2 equipment and phase 3 numbers still open.
 
 ## 19.19.0 Wilder lands
 - world3d `bendGeo(geo, kx, kz, seed)` curves geometry by height (x += kx*y², small sine wobble); used on tree trunks, pine tiers, leafy canopies (same constants per tree type so canopy follows trunk) and logs. `pineTiers()` builds five open cones (14 segments) whose bottom rings are jagged and droop; pine material is DoubleSide. Trees get small random rx/rz lean, 22% are young (0.55–0.8 scale), pines get `tintInst`.

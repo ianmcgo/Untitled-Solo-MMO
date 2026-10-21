@@ -47,7 +47,7 @@ function logTone(msg, c) {
   if (/\(critical\)|critical hit|Magic Burst|Skillchain|\(\d+ TP\)|learn the weapon skill/i.test(m)) return "ws";
   if (/\b(recover|recovers|restore|restores|regain|regains)\b[^.]*\b\d+ MP\b|\bMP\b[^.]*\brestored/i.test(m)) return "mpc";
   if (/\b(recover|recovers|restore|restores|heal|heals)\b[^.]*\b\d+ HP\b/i.test(m)) return "heal";
-  if (/gains? the effect|is protected|feels? (stronger|faster|steadier|sharper)|\b(Protect|Shell|Haste|Regen|Refresh|Berserk|Warcry|Sentinel|Focus|Boost|Hasso|Valor Roll)\b.*\b(gain|gains|cast|casts|use|uses)\b/i.test(m) && c !== "foe") return "buff";
+  if (/gains? the effect|is protected|feels? (stronger|faster|steadier|sharper)|\b(Protect|Shell|Haste|Regen|Refresh|Frenzy|Battle Shout|Bulwark|Hone|Surge|Open Stance|Valor Roll)\b.*\b(gain|gains|cast|casts|use|uses)\b/i.test(m) && c !== "foe") return "buff";
   if (/\bmiss(es)?\b|resists?\b|no effect/i.test(m)) return "missc";
   if (c === "foe") return "hurt";
   if (c === "you" || c === "ally" || c === "party" || c === "cast" || c === "skill") return c === "party" ? "party" : "dmg";
@@ -487,7 +487,7 @@ function updateTarget() {
       ch += '<span class="chip">⛓ ' + esc(t.chain.props.join("/")) + (open ? '<span class="w"><i style="width:' + (left * 100).toFixed(0) + '%"></i></span>' : " …") + "</span>";
     }
     if (t.burst && S.time <= t.burst.until) ch += '<span class="chip" style="color:' + ELEMENT_COLORS[t.burst.el[0]] + ";border-color:" + ELEMENT_COLORS[t.burst.el[0]] + '">✦ Burst ' + t.burst.el.join("/") + " " + fmt(t.burst.until - S.time) + "s</span>";
-    if (t.buffs && t.buffs.dia) ch += '<span class="chip" style="color:#fff59d;border-color:#fff59d">☀ Dia</span>';
+    if (t.buffs && t.buffs.dia) ch += '<span class="chip" style="color:#fff59d;border-color:#fff59d">☀ Gleam</span>';
     for (const [k, col] of [["flash", "#fff59d"], ["slow", "#d7b46a"], ["paralyze", "#81d4fa"]]) if (t.buffs && t.buffs[k]) ch += '<span class="chip" style="color:' + col + ';border-color:' + col + '">' + BUFF_ICONS[k] + " " + BUFF_NAMES[k] + " " + Math.ceil(t.buffs[k].until - S.time) + "s</span>";
     setHtml($("tChain"), ch);
   } else if (isParty(t)) {

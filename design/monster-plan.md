@@ -4,7 +4,7 @@ Goal: monsters that look and move like believable creatures (natural legs and ar
 
 ## Where things stand (checked 19.3.0)
 
-- Hate already exists as enmity: `addEnmity(m, e, amt)` in game.js. Every hit adds `40 + 2 x damage`, abilities and spells add fixed values from data.js, Sentinel doubles it, enmity decays 4% per second, and `updateMob` always attacks `topEnmity(m)`.
+- Hate already exists as enmity: `addEnmity(m, e, amt)` in game.js. Every hit adds `40 + 2 x damage`, abilities and spells add fixed values from data.js, Bulwark doubles it, enmity decays 4% per second, and `updateMob` always attacks `topEnmity(m)`.
 - Missing: any difference between physical, magic and ability hate; any crit bonus; any per-family bias; any switching delay (a mob flips the moment another number is higher).
 - Humanoid monsters (goblin, orc, reefkin, crag talon, treant, skeleton, ghoul) are built by `humanEntry` in rig.js with `familyLook` and `familyExtras`, and moved by `poseHuman` in anim.js. Quadrupeds use `quadEntry`, `poseQuad`, `quadGait`, `quadLegIK`. Others have their own entries: crawler, crab, bee, bat, worm, hare, toad, fish, mandrake, shroom.
 - Unknown until measured: how much of the human foot planting (`humanLegIK`) reaches monsters, and whether `applyDamage` knows a hit was a critical. Phase M0 and H1 settle both.
@@ -38,7 +38,7 @@ Each phase ships as one version, with a build, rules tests, render sheets, versi
 - Crab sideways scuttle, bee and bat wing beats with body bob, worm undulation, hare hop with ear and tail follow-through, toad hop.
 
 ### H1: Hate core (DONE in 19.8.0)
-- Each monster's list holds two numbers per player or companion: cumulative hate (stays) and volatile hate (fades fast). Highest total is the target. Provoke, Flash and similar abilities add mostly volatile hate.
+- Each monster's list holds two numbers per player or companion: cumulative hate (stays) and volatile hate (fades fast). Highest total is the target. Goad, Flash and similar abilities add mostly volatile hate.
 - Hitting builds hate: every hit adds hate that grows with damage, so steady hitting wins over time.
 - Criticals add extra hate (`CONFIG.critHate`, starting guess 1.5x).
 - Family bias in data.js, `hate: { phys, magic, ability, heal, crit }`, each defaulting to 1. Starting profiles (guesses, tuned later): skeletons and orcs favour physical, worms, bats and casters favour magic, birds favour abilities and heals, bosses ignore the crit bonus.

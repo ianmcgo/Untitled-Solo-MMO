@@ -8,7 +8,7 @@ ok(P().lv === 20 && G.actionList(P()).some(a => a.id === 'cure2'), 'White Mages 
 G.save.jobs.BLM.lv = 19; G.setJob('BLM', null); G.gainXp(1e7);
 ok(G.actionList(P()).some(a => a.id === 'fire') && G.actionList(P()).some(a => a.id === 'blizzard'), 'Black Mages learn Fire and Blizzard');
 G.save.jobs.SMN = G.save.jobs.SMN || { lv: 1, xp: 0 }; G.save.jobs.SMN.lv = 15; G.save.unlocked = G.save.unlocked || []; G.setJob('SMN', null);
-ok(G.actionList(P()).some(a => a.id === 'earth_spirit') || P().job !== 'SMN', 'Summoners know the Earth Spirit');
+ok(G.actionList(P()).some(a => a.id === 'earth_spirit') || P().job !== 'SMN', 'Summoners know the Stone Wisp');
 const hz = G.ZONES.frost.exits.find(e => G.areaOf(e.to) === 'harbor'), ex = hz && G.ZONES[hz.to].exits.find(e => e.to === 'frost');
 ok(ex && hz, 'Saltreach Harbor and Frostspire Pass connect both ways');
 G.enterZone('frost', 900, 1200); run(1);
@@ -19,9 +19,9 @@ ok(seen.has('snow') && seen.has('blizzard') && !seen.has('rain'), 'it snows in t
 S.timeShift = 0;
 G.save.jobs.WAR.lv = 15; G.setJob('WAR', null); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 const a0 = G.stat(P(), 'att');
-ok(G.actionList(P()).some(a => a.id === 'warcry'), 'Warriors learn Warcry at 15');
+ok(G.actionList(P()).some(a => a.id === 'warcry'), 'Warriors learn Battle Shout at 15');
 G.playerAct({ kind: 'ja', id: 'warcry' }); run(0.1);
-ok(P().buffs.warcry && G.stat(P(), 'att') > a0, 'Warcry raises attack');
+ok(P().buffs.warcry && G.stat(P(), 'att') > a0, 'Battle Shout raises attack');
 ok(['vorpal_arc', 'shadow_fang', 'moonfall', 'earthshaker', 'ruinous_cleave', 'thousand_palms', 'starfall_arrow'].every(k => G.WEAPON_SKILLS[k]), 'tier-four weapon skills exist');
 ok(G.QUESTS.frozencargo && G.ITEMS.bone_mask && G.ITEMS.fire_sword && G.ITEMS.platoon_cutter, 'frost quest and gear exist');
 G.acceptQuest('frozencargo');

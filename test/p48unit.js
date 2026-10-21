@@ -12,7 +12,7 @@ read('scroll_banish');
 ok(!G.save.spells.includes('banish'), 'support job counts at half level (4 < 5)');
 G.save.jobs.WAR.lv = 12; G.setJob('WAR', 'WHM');
 read('scroll_banish');
-ok(G.save.spells.includes('banish'), 'support job at half level 6 can learn Banish');
+ok(G.save.spells.includes('banish'), 'support job at half level 6 can learn Smite');
 G.save.spells = G.save.spells.filter(i => i !== 'banish');
 G.save.jobs.WHM.lv = 4; G.setJob('WHM', null);
 read('scroll_banish');

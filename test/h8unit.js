@@ -59,11 +59,11 @@ mage.alive = true;
 const pv = mk('goblin');
 G.addEnmity(pv, tank, 600, { kind: 'volatile' });
 const h = pv.enmity.get(tank);
-ok(h.v >= h.c && h.v > 250, 'at least half of Provoke is volatile');
-ok(G.hateOf(pv, tank) >= 600, 'Provoke lands its full 600 on a plain goblin');
+ok(h.v >= h.c && h.v > 250, 'at least half of Goad is volatile');
+ok(G.hateOf(pv, tank) >= 600, 'Goad lands its full 600 on a plain goblin');
 tank.buffs.sentinel = { until: 999 };
 const sv = mk('goblin'); G.addEnmity(sv, tank, 100, { kind: 'phys' });
-ok(Math.abs(G.hateOf(sv, tank) - 200 * G.hateBias(sv, 'phys')) < 0.01, 'Sentinel doubles hate');
+ok(Math.abs(G.hateOf(sv, tank) - 200 * G.hateBias(sv, 'phys')) < 0.01, 'Bulwark doubles hate');
 delete tank.buffs.sentinel;
 
 const h1 = mk('goblin'), h2 = mk('hill_lizard'), idle = mk('goblin');

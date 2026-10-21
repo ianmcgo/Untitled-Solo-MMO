@@ -43,9 +43,9 @@ G.save.jobs.WAR.lv = 3; G.refreshPlayer(true);
 const cap = G.skillCap(p, 'sword');
 ok(cap === Math.floor(3 + 5 * 3), 'WAR sword cap at level 3 is ' + cap);
 G.save.skills.WAR.sword = 0; G.refreshPlayer(true);
-ok(!G.actionList(p).some(a => a.id === 'fast_blade'), 'no Fast Blade at sword skill 0');
+ok(!G.actionList(p).some(a => a.id === 'fast_blade'), 'no Quick Slash at sword skill 0');
 G.save.skills.WAR.sword = 5; G.refreshPlayer(true);
-ok(G.actionList(p).some(a => a.id === 'fast_blade') && !G.actionList(p).some(a => a.id === 'burning_blade'), 'Fast Blade unlocks at skill 5');
+ok(G.actionList(p).some(a => a.id === 'fast_blade') && !G.actionList(p).some(a => a.id === 'burning_blade'), 'Quick Slash unlocks at skill 5');
 
 G.enterZone('outpost', 610, 440);
 G.save.jobs.WAR.lv = 10; G.refreshPlayer(true);

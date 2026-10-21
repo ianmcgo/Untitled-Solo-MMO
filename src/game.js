@@ -1523,7 +1523,7 @@ function physRule(opt) { return !!(opt && opt.phys) && !classicInterrupt(); }
 function aquaveilAbsorbs(e) {
   if (!e.buffs || !e.buffs.aquaveil) return false;
   e.buffs.aquaveil.n--;
-  popText(e, "Aquaveil", "#4fc3f7", 12, 0.9, 12);
+  popText(e, "Tideward", "#4fc3f7", 12, 0.9, 12);
   if (e.buffs.aquaveil.n <= 0) delete e.buffs.aquaveil;
   return true;
 }
@@ -1592,7 +1592,7 @@ function applyDamage(src, tgt, amt, opt) {
     touch(tgt);
     if (amt > 0 && tgt.resting && src && isMob(src)) standUp(tgt, tgt !== player);
     if (tgt.mounted) dismount("You're thrown from the saddle!");
-    if (tgt.casting && !physRule(opt) && Math.random() < CONFIG.interruptChance) { if (tgt.buffs.aquaveil) { tgt.buffs.aquaveil.n--; popText(tgt, "Aquaveil", "#4fc3f7", 12, 0.9, 12); if (tgt.buffs.aquaveil.n <= 0) delete tgt.buffs.aquaveil; } else interruptCast(tgt); }
+    if (tgt.casting && !physRule(opt) && Math.random() < CONFIG.interruptChance) { if (tgt.buffs.aquaveil) { tgt.buffs.aquaveil.n--; popText(tgt, "Tideward", "#4fc3f7", 12, 0.9, 12); if (tgt.buffs.aquaveil.n <= 0) delete tgt.buffs.aquaveil; } else interruptCast(tgt); }
   }
   if (isMob(tgt) && tgt.casting && amt > 0 && !physRule(opt) && Math.random() < 0.3) interruptCast(tgt);
   if (amt > 0 && physRule(opt) && tgt.hp > 0) physInterrupt(tgt);
@@ -1617,7 +1617,7 @@ function swing(a, d) {
     return;
   }
   if (d.buffs && (d.buffs.third_eye || d.buffs.shadows) && !isMob(d) && !(isMob(a) && a.fam.range)) {
-    if (d.buffs.third_eye) { delete d.buffs.third_eye; log(subj(d) + " " + vb(d, "anticipate", "anticipates") + " the attack and " + vb(d, "step", "steps") + " aside.", cls(d)); popText(d, "Third Eye", "#e0a060", 13, 0.9); }
+    if (d.buffs.third_eye) { delete d.buffs.third_eye; log(subj(d) + " " + vb(d, "anticipate", "anticipates") + " the attack and " + vb(d, "step", "steps") + " aside.", cls(d)); popText(d, "Foresight", "#e0a060", 13, 0.9); }
     else { const sh = d.buffs.shadows; sh.n--; if (sh.n <= 0) delete d.buffs.shadows; log("A shadow image takes the blow for " + obj(d) + (sh.n > 0 ? " (" + sh.n + " left)." : ". The last image is gone."), cls(d)); popText(d, "Shadow", "#b0bec5", 13, 0.9); }
     sfx("miss", a); vfx("miss", { src: a, tgt: d });
     if (isMob(a)) a.tp = Math.min(CONFIG.tpMax, a.tp + Math.round(CONFIG.tpPerDelay * a.delay));
@@ -1640,7 +1640,7 @@ function swing(a, d) {
   if (bow && b.barrage && !a.volley) {
     delete b.barrage;
     a.volley = true;
-    log(subj(a) + " " + vb(a, "loose") + " a Barrage!", cls(a));
+    log(subj(a) + " " + vb(a, "loose") + " an Arrow Storm!", cls(a));
     for (let k = 0; k < 3 && d.alive; k++) swing(a, d);
     a.volley = false;
     return;
@@ -1656,7 +1656,7 @@ function swing(a, d) {
   const critPct = CONFIG.critPct + (a.job === "THF" ? 5 : 0) + (b.focus ? 10 : 0);
   const crit = sneak || Math.random() * 100 < critPct;
   let dmg = Math.floor(baseDmg(a, d) * pDIF(a, d) * (crit ? CONFIG.critMult : 1));
-  if (sneak) { dmg += Math.floor(a.stats.dex * 0.8); popText(a, "Sneak Attack", "#a1887f", 12, 1, 14); }
+  if (sneak) { dmg += Math.floor(a.stats.dex * 0.8); popText(a, "Shadow Strike", "#a1887f", 12, 1, 14); }
   if (boost) dmg = Math.floor(dmg * 1.5);
   if (b.hasso) dmg = Math.floor(dmg * 1.12);
   if (b.dragon_spirit) dmg = Math.floor(dmg * 1.15);
@@ -3147,9 +3147,9 @@ function doAbility(a, id, t) {
   if (a === player) save.stats.abilitiesUsed++;
   a.recasts["ja:" + id] = S.time + ab.recast;
   if (id === "provoke") {
-    log(subj(a) + " " + vb(a, "use") + " Provoke on the " + t.name + ".", cls(a));
+    log(subj(a) + " " + vb(a, "use") + " Goad on the " + t.name + ".", cls(a));
     ring(t, "#ff5252", 30, 0.5);
-    popText(t, "Provoke", "#ff8a80", 13, 1);
+    popText(t, "Goad", "#ff8a80", 13, 1);
     sfx("provoke", a);
     vfx("provoke", { src: a, tgt: t });
     addEnmity(t, a, ab.enmity, { kind: "volatile" });
@@ -3170,7 +3170,7 @@ function doAbility(a, id, t) {
   }
   if (id === "shadowbind") {
     t.buffs.bind = { until: S.time + 12 };
-    log(subj(a) + " " + vb(a, "use") + " Shadowbind. The " + t.name + " is pinned in place!", cls(a));
+    log(subj(a) + " " + vb(a, "use") + " Pin Down. The " + t.name + " is pinned in place!", cls(a));
     popText(t, "Bound", "#b39ddb", 13, 1);
     ring(t, "#7e57c2", 30, 0.8);
     sfx("buff", a);
@@ -3185,7 +3185,7 @@ function doAbility(a, id, t) {
   }
   if (id === "blood_pact") {
     const pet = S.pet;
-    if (!pet || !pet.alive) { log("You need a sprite out for a Blood Pact.", "sys"); a.recasts["ja:" + id] = 0; sfx("error"); return; }
+    if (!pet || !pet.alive) { log("You need a sprite out for a Spirit Pact.", "sys"); a.recasts["ja:" + id] = 0; sfx("error"); return; }
     const P = PETS[pet.petKey];
     let dmg = Math.round((24 + a.lv * 7 + a.stats.int * 1.2 + skillOf(a, "summoning") * 0.8) * rand(0.9, 1.1));
     if (t.fam.weak && t.fam.weak[P.el]) dmg = Math.round(dmg * t.fam.weak[P.el]);
@@ -3213,7 +3213,7 @@ function doAbility(a, id, t) {
     const chance = clamp(45 + (a.stats.dex - t.stats.agi) * 2 + (a.lv - t.lv) * 3, 10, 85);
     aggro(t, a);
     addEnmity(t, a, ab.enmity, { kind: "ability" });
-    if (t.stolen || !pool.length || Math.random() * 100 >= chance) { log(subj(a) + " " + vb(a, "fail") + " to steal anything from the " + t.name + ".", cls(a)); popText(t, "Steal failed", "#bbbbbb", 12, 0.9); sfx("miss", a); t.stolen = true; return; }
+    if (t.stolen || !pool.length || Math.random() * 100 >= chance) { log(subj(a) + " " + vb(a, "fail") + " to steal anything from the " + t.name + ".", cls(a)); popText(t, "Pilfer failed", "#bbbbbb", 12, 0.9); sfx("miss", a); t.stolen = true; return; }
     t.stolen = true;
     const it = pick(pool)[0];
     log(subj(a) + " " + vb(a, "steal") + " " + an(ITEMS[it].name) + " from the " + t.name + "!", cls(a));
@@ -3224,15 +3224,15 @@ function doAbility(a, id, t) {
   }
   if (id === "warcry") {
     for (const p of S.party) if (p.alive && dist(p, a) < 300) { p.buffs.warcry = { until: S.time + ab.dur }; ring(p, "#ff8a65", 24, 0.5); }
-    log(subj(a) + " " + vb(a, "let") + " out a Warcry! The party's attack rises.", cls(a));
-    popText(a, "Warcry!", "#ff8a65", 15, 1.2, 14);
+    log(subj(a) + " " + vb(a, "let") + " out a Battle Shout! The party's attack rises.", cls(a));
+    popText(a, "Battle Shout!", "#ff8a65", 15, 1.2, 14);
     sfx("provoke", a);
     return;
   }
   if (id === "chakra") {
     const heal = Math.round(Math.min(a.maxHp - a.hp, a.stats.vit * 3 + a.lv * 8));
     a.hp += heal;
-    log(subj(a) + " " + vb(a, "use") + " Chakra and " + vb(a, "recover", "recovers") + " " + heal + " HP.", cls(a));
+    log(subj(a) + " " + vb(a, "use") + " Inner Mend and " + vb(a, "recover", "recovers") + " " + heal + " HP.", cls(a));
     popText(a, heal > 0 ? "+" + heal : "No effect", heal > 0 ? "#9ad06b" : "#bbbbbb", 16, 1.2, 14);
     if (heal > 0) { ring(a, "#ffb74d", 30, 0.6); sfx("cure", a); vfx("cure", { tgt: a }); }
     return;
@@ -3291,13 +3291,13 @@ function doAbility(a, id, t) {
   if (id === "quick_step") {
     const st = t.buffs.stepped;
     t.buffs.stepped = { until: S.time + 60, n: Math.min(5, (st ? st.n : 0) + 1), src: a };
-    log(subj(a) + " " + vb(a, "use") + " Quick Step. The " + t.name + " is off balance (" + t.buffs.stepped.n + ").", cls(a));
+    log(subj(a) + " " + vb(a, "use") + " Light Step. The " + t.name + " is off balance (" + t.buffs.stepped.n + ").", cls(a));
     popText(t, "Step " + t.buffs.stepped.n, "#f06292", 13, 0.9); addEnmity(t, a, ab.enmity, { kind: "ability" }); aggro(t, a); sfx("miss", a);
     return;
   }
   if (id === "rising_flourish") {
     const n = t.buffs.stepped ? t.buffs.stepped.n : 0;
-    if (!n) { log("The " + t.name + " isn't off balance. Use Quick Step first.", "sys"); a.recasts["ja:" + id] = 0; return; }
+    if (!n) { log("The " + t.name + " isn't off balance. Use Light Step first.", "sys"); a.recasts["ja:" + id] = 0; return; }
     delete t.buffs.stepped;
     const dmg = Math.max(1, Math.floor(baseDmg(a, t) * pDIF(a, t) * (1 + 0.5 * n)));
     log(subj(a) + " " + vb(a, "use") + " Rising Flourish! The " + t.name + " takes " + dmg + " damage.", cls(a));
@@ -3324,7 +3324,7 @@ function doAbility(a, id, t) {
   }
   if (id === "feral_howl") {
     t.buffs.weaken = { until: S.time + 30 };
-    log(subj(a) + " " + vb(a, "let") + " out a Feral Howl. The " + t.name + " cowers!", cls(a));
+    log(subj(a) + " " + vb(a, "let") + " out a Savage Howl. The " + t.name + " cowers!", cls(a));
     popText(t, "Cowed", "#8d6e63", 13, 1); ring(a, "#8d6e63", 40, 0.6); sfx("provoke", a);
     addEnmity(t, a, ab.enmity, { kind: "ability" }); aggro(t, a);
     return;
@@ -3347,7 +3347,7 @@ function doAbility(a, id, t) {
   if (id === "meditate") {
     a.tp = Math.min(CONFIG.tpMax, a.tp + 400);
     log(subj(a) + " " + vb(a, "meditate", "meditates") + " and " + vb(a, "gain", "gains") + " 400 TP.", cls(a));
-    popText(a, "Meditate", "#e0a060", 14, 1.2, 14);
+    popText(a, "Still Mind", "#e0a060", 14, 1.2, 14);
     ring(a, "#e0a060", 30, 0.6); sfx("buff", a); vfx("buff", { tgt: a, id: "meditate" });
     return;
   }
@@ -3377,8 +3377,8 @@ function doAbility(a, id, t) {
     const hp = a.hp, mp = a.mp;
     a.hp = Math.max(1, Math.min(a.maxHp, mp));
     a.mp = Math.min(a.maxMp, hp);
-    log(subj(a) + " " + vb(a, "use") + " Convert. HP " + hp + " → " + a.hp + ", MP " + mp + " → " + a.mp + ".", cls(a));
-    popText(a, "Convert", "#f48fb1", 14, 1.2, 14);
+    log(subj(a) + " " + vb(a, "use") + " Mana Swap. HP " + hp + " → " + a.hp + ", MP " + mp + " → " + a.mp + ".", cls(a));
+    popText(a, "Mana Swap", "#f48fb1", 14, 1.2, 14);
     ring(a, "#f48fb1", 30, 0.6);
     sfx("buff", a);
     vfx("buff", { tgt: a, id: "convert" });

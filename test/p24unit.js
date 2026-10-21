@@ -14,6 +14,6 @@ const bm = G.buildMob('bomb', 5, P().x + 30, P().y, 0); S.mobs.push(bm); bm.enmi
 run(0.1); bm.readying = { t: 0.01, target: P(), start: S.time }; const h1 = P().hp; run(0.5);
 ok(!bm.alive && P().hp < h1, 'a bomb\'s Self-Destruct kills it and hurts you');
 const cr = G.buildMob('grass_crawler', 3, P().x + 30, P().y, 0); S.mobs.push(cr); cr.enmity.set(P(), 10); cr.state = 'combat'; cr.readying = { t: 0.01, target: P(), start: S.time }; run(0.5);
-ok(P().buffs.slow, 'Sticky Thread slows you');
+ok(P().buffs.slow, 'Gummed Strand slows you');
 for (const id of ['orc_tooth', 'reef_scale', 'crag_feather', 'heartwood', 'cactus_needle', 'bomb_ash', 'honeycomb', 'crawler_cocoon']) ok(!!G.ITEMS[id] && G.BESTIARY.orc_grunt && G.BESTIARY.bomb, id + ' exists');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

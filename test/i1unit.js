@@ -21,7 +21,7 @@ ok(!!P().casting, 'a magic hit keeps the chance rule (no interrupt on a high rol
 P().casting = { id: 'stone', sp: G.SPELLS.stone, t: mob, start: S.time, end: S.time + 5 };
 P().buffs.aquaveil = { n: 1, until: S.time + 60 };
 withRandom(0.99, () => G.applyDamage(mob, P(), 10, { phys: true }));
-ok(!!P().casting && !P().buffs.aquaveil, 'Aquaveil absorbs one physical interrupt');
+ok(!!P().casting && !P().buffs.aquaveil, 'Tideward absorbs one physical interrupt');
 P().casting = null;
 
 P().casting = { id: 'stone', sp: G.SPELLS.stone, t: mob, start: S.time, end: S.time + 5 };

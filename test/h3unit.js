@@ -8,7 +8,7 @@ const zk = Object.keys(G.ZONES); ok(zk.every(k => G.FAMILIES['pet_' + ze(k)]), '
 G.enterZone('marsh', 1900, 700); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 P().hp = P().maxHp = 99999;
 const smn = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'SMN'); S.mobs.push(smn); const pet = G.spawnMobPet(smn);
-ok(pet && pet.name === 'Water Spirit' && pet.petOf === smn && smn.pet === pet && !pet.job, 'a Summoner in the marsh calls a Water Spirit (' + (pet && pet.name) + ')');
+ok(pet && pet.name === 'Brook Wisp' && pet.petOf === smn && smn.pet === pet && !pet.job, 'a Summoner in the marsh calls a Brook Wisp (' + (pet && pet.name) + ')');
 ok(pet.lv === 12 && pet.maxHp < smn.maxHp, 'the pet is a level lower and weaker');
 const war = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'WAR'); ok(!G.spawnMobPet(war), 'a Warrior has no pet');
 const bst = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'BST'); ok(G.spawnMobPet(bst).name === 'Water Familiar', 'a Beastmaster pet is a Familiar');

@@ -22,12 +22,12 @@ for (const r of ['kindle_rune', 'rime_rune', 'gale_rune', 'stone_rune']) { P().r
 ok(P().buffs.runes && P().buffs.runes.list.length === 3, 'runes stack to three');
 const hp0 = P().hp; G.applyDamage(m, P(), 100); ok(hp0 - P().hp === 85, 'three runes cut damage taken by 15%');
 const mh = m.hp; G.playerAct({ kind: 'ja', id: 'lunge' }); run(0.1);
-ok(m.hp < mh && !P().buffs.runes, 'Lunge spends the runes for damage');
+ok(m.hp < mh && !P().buffs.runes, 'Spear Surge spends the runes for damage');
 G.save.jobsUnlocked.GEO = true; G.save.jobs.GEO.lv = 15; G.giveItem('ash_club', 1, true); G.setJob('GEO', null); G.equip('ash_club'); G.refreshPlayer(true); P().mp = P().maxMp;
 P().target = P(); G.playerAct({ kind: 'ma', id: 'indi_fury' }); run(3.5);
 ok(P().indi && P().buffs.geo_fury, 'Aura of Fury surrounds you and buffs you');
 P().target = m; P().mp = P().maxMp; for (const x of S.mobs) x.swingTimer = 99; G.playerAct({ kind: 'ma', id: 'geo_frailty' }); run(3.5);
 ok(P().luopan && m.buffs.geo_frail, 'Ward of Frailty plants a luopan that weakens nearby monsters');
 const mp1 = P().mp; G.playerAct({ kind: 'ja', id: 'full_circle' }); run(0.1);
-ok(!P().luopan && P().mp > mp1, 'Full Circle dismisses the luopan and refunds MP');
+ok(!P().luopan && P().mp > mp1, 'Close the Circle dismisses the luopan and refunds MP');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

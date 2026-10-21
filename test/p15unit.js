@@ -21,16 +21,16 @@ ok(m.hp < hp0 && Math.hypot(P().x - 300, P().y - 1100) < 70, 'the Ranger hits fr
 G.save.jobs.RNG.lv = 10; G.refreshPlayer(true);
 m.hp = m.maxHp; P().target = m; G.playerAct({ kind: 'ja', id: 'shadowbind' });
 const mx = m.x; run(2);
-ok(m.buffs.bind && Math.abs(m.x - mx) < 2, 'Shadowbind pins a monster in place');
+ok(m.buffs.bind && Math.abs(m.x - mx) < 2, 'Pin Down pins a monster in place');
 G.save.jobsUnlocked.SMN = true; G.save.jobs.SMN.lv = 10; G.setJob('SMN', null); P().mp = P().maxMp;
 G.enterZone('hollow', 300, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 G.playerAct({ kind: 'ma', id: 'fire_spirit' }); run(4);
-ok(S.pet && S.party.includes(S.pet) && S.pet.name === 'Fire Spirit', 'casting Fire Spirit summons a sprite into the party');
+ok(S.pet && S.party.includes(S.pet) && S.pet.name === 'Cinder Wisp', 'casting Cinder Wisp summons a sprite into the party');
 const mp1 = P().mp; run(4);
 ok(P().mp < mp1, 'the sprite slowly drains MP');
 const m2 = G.buildMob('goblin', 6, P().x + 60, P().y, 0); S.mobs.push(m2); P().target = m2;
 const h2 = m2.hp; G.playerAct({ kind: 'ja', id: 'blood_pact' });
-ok(m2.hp < h2, 'Blood Pact deals damage through the sprite');
+ok(m2.hp < h2, 'Spirit Pact deals damage through the sprite');
 G.playerAct({ kind: 'ja', id: 'release' });
 ok(!S.pet && !S.party.some(p => p.pet), 'Release sends the sprite home');
 for (const x of S.mobs) x.swingTimer = 99; G.playerAct({ kind: 'ma', id: 'fire_spirit' }); run(4); for (let i = 0; i < 480; i++) { P().mp = 0; tick(1000 / 60); }

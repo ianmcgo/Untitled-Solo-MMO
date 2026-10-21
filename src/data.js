@@ -208,75 +208,75 @@ const WEAPON_SKILLS = {
   nightreap: { name: "Nightreap", wtype: "scythe", skill: 22, props: ["Induration", "Reverberation"], ftp: [1.9, 2.6, 3.3] },
   spiral_reap: { name: "Spiral Reap", wtype: "scythe", skill: 40, props: ["Gravitation", "Scission"], ftp: [2.3, 3.1, 3.9] },
   grim_harvest: { name: "Grim Harvest", wtype: "scythe", skill: 75, props: ["Gravitation", "Distortion"], ftp: [2.7, 3.5, 4.5] },
-  fast_blade: { name: "Fast Blade", wtype: "sword", skill: 5, props: ["Scission", "Detonation"], ftp: [1.5, 2.0, 2.5] },
-  burning_blade: { name: "Burning Blade", wtype: "sword", skill: 22, props: ["Liquefaction"], ftp: [1.8, 2.6, 3.4] },
-  red_lotus_blade: { name: "Red Lotus Blade", wtype: "sword", skill: 40, props: ["Liquefaction", "Detonation"], ftp: [2.2, 3.0, 3.8] },
-  shining_strike: { name: "Shining Strike", wtype: "club", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
-  seraph_strike: { name: "Seraph Strike", wtype: "club", skill: 27, props: ["Impaction"], ftp: [2.0, 2.8, 3.6] },
-  brainshaker: { name: "Brainshaker", wtype: "club", skill: 40, props: ["Reverberation"], ftp: [1.8, 2.4, 3.0] },
-  heavy_swing: { name: "Heavy Swing", wtype: "staff", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.5] },
-  rock_crusher: { name: "Rock Crusher", wtype: "staff", skill: 22, props: ["Impaction"], ftp: [1.8, 2.5, 3.2] },
-  earth_crusher: { name: "Earth Crusher", wtype: "staff", skill: 40, props: ["Detonation", "Impaction"], ftp: [2.1, 2.9, 3.7] },
+  fast_blade: { name: "Quick Slash", wtype: "sword", skill: 5, props: ["Scission", "Detonation"], ftp: [1.5, 2.0, 2.5] },
+  burning_blade: { name: "Searing Slash", wtype: "sword", skill: 22, props: ["Liquefaction"], ftp: [1.8, 2.6, 3.4] },
+  red_lotus_blade: { name: "Crimson Blossom", wtype: "sword", skill: 40, props: ["Liquefaction", "Detonation"], ftp: [2.2, 3.0, 3.8] },
+  shining_strike: { name: "Gleaming Blow", wtype: "club", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
+  seraph_strike: { name: "Halo Strike", wtype: "club", skill: 27, props: ["Impaction"], ftp: [2.0, 2.8, 3.6] },
+  brainshaker: { name: "Skull Rattle", wtype: "club", skill: 40, props: ["Reverberation"], ftp: [1.8, 2.4, 3.0] },
+  heavy_swing: { name: "Crushing Swing", wtype: "staff", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.5] },
+  rock_crusher: { name: "Boulder Smash", wtype: "staff", skill: 22, props: ["Impaction"], ftp: [1.8, 2.5, 3.2] },
+  earth_crusher: { name: "Quake Smash", wtype: "staff", skill: 40, props: ["Detonation", "Impaction"], ftp: [2.1, 2.9, 3.7] },
   quick_sting: { name: "Quick Sting", wtype: "dagger", skill: 5, props: ["Scission"], ftp: [1.4, 1.9, 2.4] },
   venom_bite: { name: "Venom Bite", wtype: "dagger", skill: 22, props: ["Scission", "Impaction"], ftp: [1.8, 2.5, 3.2] },
   gale_edge: { name: "Gale Edge", wtype: "dagger", skill: 40, props: ["Detonation"], ftp: [2.1, 2.9, 3.7] },
-  piercing_arrow: { name: "Piercing Arrow", wtype: "archery", skill: 5, props: ["Transfixion"], ftp: [1.6, 2.2, 2.8], ranged: true },
+  piercing_arrow: { name: "Needle Shot", wtype: "archery", skill: 5, props: ["Transfixion"], ftp: [1.6, 2.2, 2.8], ranged: true },
   flaming_volley: { name: "Flaming Volley", wtype: "archery", skill: 22, props: ["Liquefaction", "Transfixion"], ftp: [1.9, 2.6, 3.4], ranged: true },
   gale_arrow: { name: "Gale Arrow", wtype: "archery", skill: 40, props: ["Detonation", "Transfixion"], ftp: [2.3, 3.1, 4.0], ranged: true },
   twin_fist: { name: "Twin Fist", wtype: "h2h", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.6] },
   rising_knee: { name: "Rising Knee", wtype: "h2h", skill: 22, props: ["Detonation", "Impaction"], ftp: [1.9, 2.6, 3.3] },
   iron_palm: { name: "Iron Palm", wtype: "h2h", skill: 40, props: ["Reverberation", "Impaction"], ftp: [2.2, 3.0, 3.8] },
-  vorpal_arc: { name: "Vorpal Arc", wtype: "sword", skill: 75, props: ["Fragmentation", "Scission"], ftp: [2.6, 3.4, 4.4] },
+  vorpal_arc: { name: "Cutting Arc", wtype: "sword", skill: 75, props: ["Fragmentation", "Scission"], ftp: [2.6, 3.4, 4.4] },
   shadow_fang: { name: "Shadow Fang", wtype: "dagger", skill: 75, props: ["Gravitation", "Transfixion"], ftp: [2.5, 3.3, 4.2] },
   moonfall: { name: "Moonfall", wtype: "club", skill: 75, props: ["Fusion", "Impaction"], ftp: [2.4, 3.2, 4.0] },
   earthshaker: { name: "Earthshaker", wtype: "staff", skill: 75, props: ["Gravitation", "Reverberation"], ftp: [2.5, 3.3, 4.2] },
   ruinous_cleave: { name: "Ruinous Cleave", wtype: "greataxe", skill: 75, props: ["Distortion", "Scission"], ftp: [2.7, 3.6, 4.6] },
   thousand_palms: { name: "Thousand Palms", wtype: "h2h", skill: 75, props: ["Fusion", "Detonation"], ftp: [2.5, 3.3, 4.3] },
   starfall_arrow: { name: "Starfall Arrow", wtype: "archery", skill: 75, props: ["Fragmentation", "Transfixion"], ftp: [2.6, 3.5, 4.5], ranged: true },
-  shield_break: { name: "Shield Break", wtype: "greataxe", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
-  iron_tempest: { name: "Iron Tempest", wtype: "greataxe", skill: 22, props: ["Scission"], ftp: [1.9, 2.7, 3.5] },
-  sturmwind: { name: "Sturmwind", wtype: "greataxe", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.8] }
+  shield_break: { name: "Guard Crack", wtype: "greataxe", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
+  iron_tempest: { name: "Steel Storm", wtype: "greataxe", skill: 22, props: ["Scission"], ftp: [1.9, 2.7, 3.5] },
+  sturmwind: { name: "Whirl Gale", wtype: "greataxe", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.8] }
 };
 
 const ABILITIES = {
-  provoke: { name: "Provoke", job: "WAR", lv: 1, recast: 30, target: "enemy", enmity: 600, desc: "Draws the target's attention to you." },
-  last_resort: { name: "Last Resort", job: "DRK", lv: 1, recast: 120, target: "self", buff: "last_resort", dur: 30, desc: "Attack +25%, Defense −15% for 30 s." },
+  provoke: { name: "Goad", job: "WAR", lv: 1, recast: 30, target: "enemy", enmity: 600, desc: "Draws the target's attention to you." },
+  last_resort: { name: "Desperate Oath", job: "DRK", lv: 1, recast: 120, target: "self", buff: "last_resort", dur: 30, desc: "Attack +25%, Defense −15% for 30 s." },
   soulfire: { name: "Soulfire", job: "DRK", lv: 10, recast: 300, target: "self", buff: "soulfire", dur: 30, desc: "For 30 s, each hit burns some of your own HP to deal extra damage." },
   blood_blade: { name: "Blood Blade", job: "DRK", lv: 15, recast: 600, target: "self", buff: "blood_blade", dur: 30, desc: "For 30 s, your hits drain HP from the target." },
   encore: { name: "Encore", job: "BRD", lv: 15, recast: 300, target: "self", buff: "encore", dur: 60, desc: "Your songs take a third of the time to sing for 60 s." },
-  berserk: { name: "Berserk", job: "WAR", lv: 3, recast: 60, target: "self", buff: "berserk", dur: 30, desc: "Attack +25%, Defense −25% for 30 s." },
-  divine_seal: { name: "Divine Seal", job: "WHM", lv: 3, recast: 60, target: "self", buff: "divine_seal", dur: 60, desc: "Your next Cure heals twice as much." },
-  elemental_seal: { name: "Elemental Seal", job: "BLM", lv: 3, recast: 60, target: "self", buff: "elemental_seal", dur: 60, desc: "Your next nuke deals 50% more damage." },
-  sentinel: { name: "Sentinel", job: "PLD", lv: 3, recast: 90, target: "self", buff: "sentinel", dur: 30, desc: "Defense +50% and every action draws double enmity for 30 s." },
+  berserk: { name: "Frenzy", job: "WAR", lv: 3, recast: 60, target: "self", buff: "berserk", dur: 30, desc: "Attack +25%, Defense −25% for 30 s." },
+  divine_seal: { name: "Holy Vow", job: "WHM", lv: 3, recast: 60, target: "self", buff: "divine_seal", dur: 60, desc: "Your next Cure heals twice as much." },
+  elemental_seal: { name: "Arcane Vow", job: "BLM", lv: 3, recast: 60, target: "self", buff: "elemental_seal", dur: 60, desc: "Your next nuke deals 50% more damage." },
+  sentinel: { name: "Bulwark", job: "PLD", lv: 3, recast: 90, target: "self", buff: "sentinel", dur: 30, desc: "Defense +50% and every action draws double enmity for 30 s." },
   shield_bash: { name: "Shield Bash", job: "PLD", lv: 6, recast: 60, target: "enemy", enmity: 350, desc: "Bashes the target for light damage and interrupts its casting or TP move." },
-  steal: { name: "Steal", job: "THF", lv: 1, recast: 90, target: "enemy", enmity: 60, desc: "Try to steal an item the monster is carrying. One theft per monster." },
-  sneak_attack: { name: "Sneak Attack", job: "THF", lv: 5, recast: 60, target: "self", buff: "sneak_attack", dur: 30, desc: "Your next hit lands as a critical hit with extra damage from DEX." },
-  flee: { name: "Flee", job: "THF", lv: 10, recast: 240, target: "self", buff: "flee", dur: 20, desc: "Run 80% faster for 20 s." },
-  sharpshot: { name: "Sharpshot", job: "RNG", lv: 1, recast: 90, target: "self", buff: "sharpshot", dur: 30, desc: "Ranged accuracy +40 for 30 s." },
-  barrage: { name: "Barrage", job: "RNG", lv: 5, recast: 120, target: "self", buff: "barrage", dur: 30, desc: "Your next shot looses three arrows." },
-  shadowbind: { name: "Shadowbind", job: "RNG", lv: 10, recast: 180, target: "enemy", enmity: 120, desc: "Pins the target's shadow: it can't move for 12 s." },
+  steal: { name: "Pilfer", job: "THF", lv: 1, recast: 90, target: "enemy", enmity: 60, desc: "Try to steal an item the monster is carrying. One theft per monster." },
+  sneak_attack: { name: "Shadow Strike", job: "THF", lv: 5, recast: 60, target: "self", buff: "sneak_attack", dur: 30, desc: "Your next hit lands as a critical hit with extra damage from DEX." },
+  flee: { name: "Fleet Foot", job: "THF", lv: 10, recast: 240, target: "self", buff: "flee", dur: 20, desc: "Run 80% faster for 20 s." },
+  sharpshot: { name: "Dead Aim", job: "RNG", lv: 1, recast: 90, target: "self", buff: "sharpshot", dur: 30, desc: "Ranged accuracy +40 for 30 s." },
+  barrage: { name: "Arrow Storm", job: "RNG", lv: 5, recast: 120, target: "self", buff: "barrage", dur: 30, desc: "Your next shot looses three arrows." },
+  shadowbind: { name: "Pin Down", job: "RNG", lv: 10, recast: 180, target: "enemy", enmity: 120, desc: "Pins the target's shadow: it can't move for 12 s." },
   release: { name: "Release", job: "SMN", lv: 1, recast: 5, target: "self", desc: "Sends your sprite home." },
-  blood_pact: { name: "Blood Pact", job: "SMN", lv: 1, recast: 45, target: "enemy", enmity: 150, desc: "Your sprite unleashes its element on the target. Needs a sprite out." },
-  siphon: { name: "Elemental Siphon", job: "SMN", lv: 10, recast: 240, target: "self", desc: "Draws MP from your sprite (it must be out)." },
-  warcry: { name: "Warcry", job: "WAR", lv: 15, recast: 180, target: "self", buff: "warcry", dur: 30, desc: "Raises the whole party's attack by 20% for 30 s." },
-  boost: { name: "Boost", job: "MNK", lv: 1, recast: 15, target: "self", buff: "boost", dur: 60, desc: "Your next hit deals 50% more damage and builds extra TP." },
-  focus: { name: "Focus", job: "MNK", lv: 5, recast: 120, target: "self", buff: "focus", dur: 30, desc: "Accuracy +25 and critical hit rate +10% for 30 s." },
-  chakra: { name: "Chakra", job: "MNK", lv: 10, recast: 300, target: "self", desc: "Restores HP based on your VIT and level." },
-  convert: { name: "Convert", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
+  blood_pact: { name: "Spirit Pact", job: "SMN", lv: 1, recast: 45, target: "enemy", enmity: 150, desc: "Your sprite unleashes its element on the target. Needs a sprite out." },
+  siphon: { name: "Mana Tithe", job: "SMN", lv: 10, recast: 240, target: "self", desc: "Draws MP from your sprite (it must be out)." },
+  warcry: { name: "Battle Shout", job: "WAR", lv: 15, recast: 180, target: "self", buff: "warcry", dur: 30, desc: "Raises the whole party's attack by 20% for 30 s." },
+  boost: { name: "Surge", job: "MNK", lv: 1, recast: 15, target: "self", buff: "boost", dur: 60, desc: "Your next hit deals 50% more damage and builds extra TP." },
+  focus: { name: "Hone", job: "MNK", lv: 5, recast: 120, target: "self", buff: "focus", dur: 30, desc: "Accuracy +25 and critical hit rate +10% for 30 s." },
+  chakra: { name: "Inner Mend", job: "MNK", lv: 10, recast: 300, target: "self", desc: "Restores HP based on your VIT and level." },
+  convert: { name: "Mana Swap", job: "RDM", lv: 8, recast: 120, target: "self", desc: "Swaps your current HP and MP." }
 };
 
-const BUFF_NAMES = { weakened: "Weakened", boon: "Shrine's Favour", blessing: "City Blessing", last_resort: "Last Resort", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Warcry", sharpshot: "Sharpshot", barrage: "Barrage", bind: "Bound", food: "Well Fed", sneak_attack: "Sneak Attack", flee: "Flee", boost: "Boost", focus: "Focus", berserk: "Berserk", divine_seal: "Divine Seal", elemental_seal: "Elemental Seal", dia: "Dia", sentinel: "Sentinel", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
+const BUFF_NAMES = { weakened: "Weakened", boon: "Shrine's Favour", blessing: "City Blessing", last_resort: "Desperate Oath", soulfire: "Soulfire", blood_blade: "Blood Blade", encore: "Encore", minuet: "Minuet", paeon: "Paeon", ballad: "Ballad", madrigal: "Madrigal", march: "March", blight: "Blight", sleep: "Asleep", stun: "Stunned", warcry: "Battle Shout", sharpshot: "Dead Aim", barrage: "Arrow Storm", bind: "Bound", food: "Well Fed", sneak_attack: "Shadow Strike", flee: "Fleet Foot", boost: "Surge", focus: "Hone", berserk: "Frenzy", divine_seal: "Holy Vow", elemental_seal: "Arcane Vow", dia: "Gleam", sentinel: "Bulwark", flash: "Flash", slow: "Slow", paralyze: "Paralyze", protect: "Protect" };
 const BUFF_ICONS = { weakened: "🥀", boon: "🕯️", blessing: "🏰", last_resort: "🩸", soulfire: "🔥", blood_blade: "🗡️", encore: "🎶", minuet: "🎵", paeon: "💚", ballad: "💧", madrigal: "🎯", march: "🥁", blight: "☠️", sleep: "💤", stun: "💫", warcry: "📣", sharpshot: "🎯", barrage: "🏹", bind: "⛓️", food: "🍲", sneak_attack: "🗡️", flee: "💨", boost: "👊", focus: "🎯", berserk: "💢", divine_seal: "✚", elemental_seal: "✦", dia: "☀", sentinel: "🛡️", flash: "✨", slow: "🐌", paralyze: "⚡", protect: "🔰" };
-Object.assign(BUFF_NAMES, { enthunder: "Enthunder", enstone: "Enstone", enaero: "Enaero", blaze_spikes: "Blaze Spikes", ice_spikes: "Ice Spikes", shock: "Shock", rasp: "Rasp", choke: "Choke", requiem: "Foe Requiem", mambo: "Sheepfoe Mambo", pastoral: "Herb Pastoral", operetta: "Scop's Operetta", threnody_light: "Light Threnody", threnody_dark: "Dark Threnody", threnody_earth: "Earth Threnody", threnody_water: "Water Threnody", threnody_wind: "Wind Threnody", threnody_fire: "Fire Threnody" });
+Object.assign(BUFF_NAMES, { enthunder: "Storm Edge", enstone: "Stone Edge", enaero: "Zephyr Edge", blaze_spikes: "Ember Thorns", ice_spikes: "Frost Thorns", shock: "Arc Burn", rasp: "Grinding Blight", choke: "Throttle", requiem: "Hunter's Dirge", mambo: "Skipping Reel", pastoral: "Greenwood Air", operetta: "Minstrel's Ballad", threnody_light: "Light Lament", threnody_dark: "Dark Lament", threnody_earth: "Earth Lament", threnody_water: "Water Lament", threnody_wind: "Wind Lament", threnody_fire: "Fire Lament" });
 Object.assign(BUFF_ICONS, { enthunder: "⚡", enstone: "◆", enaero: "🌀", blaze_spikes: "🔥", ice_spikes: "❄", shock: "⚡", rasp: "◆", choke: "🌀", requiem: "🎵", mambo: "🎵", pastoral: "🎵", operetta: "🎵", threnody_light: "✨", threnody_dark: "🌑", threnody_earth: "◆", threnody_water: "💧", threnody_wind: "🌀", threnody_fire: "🔥" });
-Object.assign(BUFF_NAMES, { barfire: "Barfire", barstone: "Barstone", barwater: "Barwater", baraero: "Baraero", barsleep: "Barsleep", barpoison: "Barpoison", barparalyze: "Barparalyze", barblind: "Barblind", aquaveil: "Aquaveil", sneak: "Sneak", deodorize: "Deodorize", silence: "Silence", reraise: "Reraise", poison: "Poison", shell: "Shell", minne: "Knight's Minne" });
+Object.assign(BUFF_NAMES, { barfire: "Flame Ward", barstone: "Stone Ward", barwater: "Water Ward", baraero: "Gale Ward", barsleep: "Slumber Ward", barpoison: "Venom Ward", barparalyze: "Numb Ward", barblind: "Sight Ward", aquaveil: "Tideward", sneak: "Hush Step", deodorize: "Scent Mask", silence: "Silence", reraise: "Reraise", poison: "Poison", shell: "Shell", minne: "Squire's Anthem" });
 Object.assign(BUFF_ICONS, { barfire: "🔥", barstone: "◆", barwater: "💧", baraero: "🌀", barsleep: "💤", barpoison: "☠️", barparalyze: "🧊", barblind: "🕶", aquaveil: "🫧", sneak: "👣", deodorize: "🌿", silence: "🤐", reraise: "🪽", poison: "☠️", shell: "🔰", minne: "🎵" });
 
 const SPELLS = {
   cure: { name: "Cure", jobs: { WHM: 1, RDM: 3, PLD: 5 }, mp: 8, cast: 2, recast: 5, kind: "heal", cure: { min: 10, t: [[20, 4, 10, 0], [40, 1.3333, 15, 20], [125, 8.5, 30, 40], [200, 15, 40, 125], [600, 20, 40, 200], [1000000000.0, 999999, 65, 0]] }, target: "ally", desc: "Restores HP. Healing power comes from half your MND, a quarter of your VIT and your Healing Magic skill." },
   cure2: { name: "Cure II", jobs: { WHM: 11, RDM: 14, PLD: 17 }, mp: 24, cast: 2.25, recast: 5.5, kind: "heal", cure: { min: 60, t: [[70, 1, 60, 40], [125, 5.5, 90, 70], [200, 7.5, 100, 125], [400, 10, 110, 200], [700, 20, 130, 400], [1000000000.0, 999999, 145, 0]] }, target: "ally", desc: "Restores a good amount of HP." },
-  dia: { name: "Dia", jobs: { WHM: 3, RDM: 1 }, mp: 7, cast: 1, recast: 5, kind: "dot", element: "light", power: 1, dot: { dur: 60, tick: 1 }, buff: "dia", target: "enemy", desc: "Light damage, then 1 damage every 3 s for 60 s. Lowers the target's defense by 10%. Replaces Bio." },
-  banish: { name: "Banish", jobs: { WHM: 5, PLD: 7 }, mp: 15, cast: 2, recast: 15, kind: "nuke", element: "light", power: 14, k: 1, k2: 1, stat: "mnd", target: "enemy", skill: "divine", desc: "Light damage. Undead take 50% more." },
+  dia: { name: "Gleam", jobs: { WHM: 3, RDM: 1 }, mp: 7, cast: 1, recast: 5, kind: "dot", element: "light", power: 1, dot: { dur: 60, tick: 1 }, buff: "dia", target: "enemy", desc: "Light damage, then 1 damage every 3 s for 60 s. Lowers the target's defense by 10%. Replaces Blight." },
+  banish: { name: "Smite", jobs: { WHM: 5, PLD: 7 }, mp: 15, cast: 2, recast: 15, kind: "nuke", element: "light", power: 14, k: 1, k2: 1, stat: "mnd", target: "enemy", skill: "divine", desc: "Light damage. Undead take 50% more." },
   flash: { name: "Flash", jobs: { PLD: 7 }, mp: 25, cast: 0.5, recast: 45, kind: "debuff", element: "light", buff: "flash", pow: 0.3, enmity: 180, target: "enemy", skill: "divine", desc: "A blinding light: the target loses 30% accuracy for 12 s and its anger turns hard on you for a short while.", dur: 12 },
   protect: { name: "Protect", jobs: { WHM: 7, RDM: 7, PLD: 10 }, mp: 9, cast: 1, recast: 5, kind: "buff", buff: "protect", pow: 15, target: "ally", desc: "Defense +15 for 30 minutes.", dur: 1800 },
   shell: { name: "Shell", jobs: { WHM: 17, RDM: 17, PLD: 20 }, mp: 18, cast: 1, recast: 5, kind: "buff", buff: "shell", pow: 0.11, target: "ally", desc: "Elemental damage taken -11% for 30 minutes.", dur: 1800 },
@@ -289,78 +289,78 @@ const SPELLS = {
   blizzard: { name: "Blizzard", jobs: { BLM: 17 }, mp: 8, cast: 0.5, recast: 2, kind: "nuke", power: 70, k: 1.2, k2: 1, stat: "int", element: "ice", target: "enemy", desc: "Ice damage." },
   silence: { name: "Silence", jobs: { WHM: 15, RDM: 18 }, mp: 16, cast: 3, recast: 10, kind: "debuff", element: "wind", buff: "silence", stat: "mnd", enmity: 60, target: "enemy", desc: "Stops a monster from casting spells for 2 minutes.", dur: 120 },
   poison: { name: "Poison", jobs: { BLM: 3, RDM: 5, DRK: 6 }, mp: 5, cast: 1, recast: 5, kind: "dot", element: "water", power: 0, dot: { dur: 90, skill: "enfeebling", div: 25, min: 1 }, buff: "poison", target: "enemy", skill: "enfeebling", desc: "Poisons the target: damage every 3 s for 90 s, stronger with Enfeebling Magic skill." },
-  bio: { name: "Bio", jobs: { BLM: 10, RDM: 10, DRK: 15 }, mp: 15, cast: 1.5, recast: 5, kind: "dot", element: "dark", power: 10, dot: { dur: 60, skill: "dark", div: 40, ceil: true, min: 1, max: 3 }, buff: "blight", target: "enemy", skill: "dark", desc: "Dark damage, then up to 3 damage every 3 s for 60 s. Lowers the target's attack by 10%. Replaces Dia." },
-  drain: { name: "Drain", jobs: { BLM: 12, DRK: 10 }, mp: 21, cast: 3, recast: 60, kind: "drain", element: "dark", absorb: [1, 20], target: "enemy", skill: "dark", desc: "Steals HP from the target. Ineffective against undead." },
-  aspir: { name: "Aspir", jobs: { DRK: 20 }, mp: 10, cast: 3, recast: 60, kind: "aspir", element: "dark", absorb: [0.3, 20], target: "enemy", skill: "dark", desc: "Steals MP from the target. Ineffective against undead." },
+  bio: { name: "Blight", jobs: { BLM: 10, RDM: 10, DRK: 15 }, mp: 15, cast: 1.5, recast: 5, kind: "dot", element: "dark", power: 10, dot: { dur: 60, skill: "dark", div: 40, ceil: true, min: 1, max: 3 }, buff: "blight", target: "enemy", skill: "dark", desc: "Dark damage, then up to 3 damage every 3 s for 60 s. Lowers the target's attack by 10%. Replaces Gleam." },
+  drain: { name: "Life Leech", jobs: { BLM: 12, DRK: 10 }, mp: 21, cast: 3, recast: 60, kind: "drain", element: "dark", absorb: [1, 20], target: "enemy", skill: "dark", desc: "Steals HP from the target. Ineffective against undead." },
+  aspir: { name: "Mana Leech", jobs: { DRK: 20 }, mp: 10, cast: 3, recast: 60, kind: "aspir", element: "dark", absorb: [0.3, 20], target: "enemy", skill: "dark", desc: "Steals MP from the target. Ineffective against undead." },
   blind: { name: "Blind", jobs: { BLM: 4, RDM: 8 }, mp: 5, cast: 2, recast: 10, kind: "debuff", element: "dark", buff: "flash", stat: "int", enmity: 60, target: "enemy", desc: "Lowers the target's accuracy by 5% to 50% (more when your INT beats its INT).", dur: 180 },
   bind: { name: "Bind", jobs: { BLM: 7, RDM: 11, DRK: 20 }, mp: 8, cast: 2, recast: 40, kind: "debuff", element: "ice", buff: "bind", enmity: 60, target: "enemy", desc: "Holds the target in place.", dur: 60 },
   sleep: { name: "Sleep", jobs: { BLM: 20 }, mp: 19, cast: 2.5, recast: 30, kind: "debuff", element: "dark", buff: "sleep", enmity: 60, target: "enemy", desc: "Puts the target to sleep. Any damage wakes it. Bosses are immune.", dur: 60 },
-  poisona: { name: "Poisona", jobs: { WHM: 6 }, mp: 8, cast: 1, recast: 5, kind: "cleanse", cleanse: ["poison"], target: "ally", desc: "Removes Poison from one ally." },
-  paralyna: { name: "Paralyna", jobs: { WHM: 9 }, mp: 12, cast: 1, recast: 5, kind: "cleanse", cleanse: ["paralyze"], target: "ally", desc: "Removes Paralysis from one ally." },
-  blindna: { name: "Blindna", jobs: { WHM: 14 }, mp: 16, cast: 1, recast: 10, kind: "cleanse", cleanse: ["flash"], target: "ally", desc: "Removes Blindness from one ally." },
-  silena: { name: "Silena", jobs: { WHM: 19 }, mp: 24, cast: 1, recast: 5, kind: "cleanse", cleanse: ["silence"], target: "ally", desc: "Removes Silence from one ally." },
-  barstone: { name: "Barstone", jobs: { RDM: 5 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barstone", bar: "earth", target: "ally", dur: 480, desc: "Cuts earth damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
-  barstonra: { name: "Barstonra", jobs: { WHM: 5 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barstone", bar: "earth", party: true, target: "ally", dur: 480, desc: "Cuts earth damage taken for the whole party for 8 minutes." },
-  barwater: { name: "Barwater", jobs: { RDM: 9 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barwater", bar: "water", target: "ally", dur: 480, desc: "Cuts water damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
-  barwatera: { name: "Barwatera", jobs: { WHM: 9 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barwater", bar: "water", party: true, target: "ally", dur: 480, desc: "Cuts water damage taken for the whole party for 8 minutes." },
-  baraero: { name: "Baraero", jobs: { RDM: 13 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "baraero", bar: "wind", target: "ally", dur: 480, desc: "Cuts wind damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
-  baraera: { name: "Baraera", jobs: { WHM: 13 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "baraero", bar: "wind", party: true, target: "ally", dur: 480, desc: "Cuts wind damage taken for the whole party for 8 minutes." },
-  barfire: { name: "Barfire", jobs: { RDM: 17 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barfire", bar: "fire", target: "ally", dur: 480, desc: "Cuts fire damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
-  barfira: { name: "Barfira", jobs: { WHM: 17 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barfire", bar: "fire", party: true, target: "ally", dur: 480, desc: "Cuts fire damage taken for the whole party for 8 minutes." },
-  barsleep: { name: "Barsleep", jobs: { RDM: 7 }, mp: 7, cast: 2.5, recast: 10, kind: "buff", buff: "barsleep", barst: "sleep", target: "ally", dur: 480, desc: "Half the chance of sleep from monster attacks, for 8 minutes." },
-  barsleepra: { name: "Barsleepra", jobs: { WHM: 7 }, mp: 14, cast: 5, recast: 10, kind: "buff", buff: "barsleep", barst: "sleep", party: true, target: "ally", dur: 480, desc: "Half the chance of sleep from monster attacks for the whole party, for 8 minutes." },
-  barpoison: { name: "Barpoison", jobs: { RDM: 10 }, mp: 9, cast: 2.5, recast: 10, kind: "buff", buff: "barpoison", barst: "poison", target: "ally", dur: 480, desc: "Half the chance of poison from monster attacks, for 8 minutes." },
-  barpoisonra: { name: "Barpoisonra", jobs: { WHM: 10 }, mp: 18, cast: 5, recast: 10, kind: "buff", buff: "barpoison", barst: "poison", party: true, target: "ally", dur: 480, desc: "Half the chance of poison from monster attacks for the whole party, for 8 minutes." },
-  barparalyze: { name: "Barparalyze", jobs: { RDM: 12 }, mp: 11, cast: 2.5, recast: 10, kind: "buff", buff: "barparalyze", barst: "paralyze", target: "ally", dur: 480, desc: "Half the chance of paralyze from monster attacks, for 8 minutes." },
-  barparalyzra: { name: "Barparalyzra", jobs: { WHM: 12 }, mp: 22, cast: 5, recast: 10, kind: "buff", buff: "barparalyze", barst: "paralyze", party: true, target: "ally", dur: 480, desc: "Half the chance of paralyze from monster attacks for the whole party, for 8 minutes." },
-  barblind: { name: "Barblind", jobs: { RDM: 18 }, mp: 13, cast: 2.5, recast: 10, kind: "buff", buff: "barblind", barst: "flash", target: "ally", dur: 480, desc: "Half the chance of blind from monster attacks, for 8 minutes." },
-  barblindra: { name: "Barblindra", jobs: { WHM: 18 }, mp: 26, cast: 5, recast: 10, kind: "buff", buff: "barblind", barst: "flash", party: true, target: "ally", dur: 480, desc: "Half the chance of blind from monster attacks for the whole party, for 8 minutes." },
-  protectra: { name: "Protectra", jobs: { WHM: 7 }, mp: 9, cast: 1, recast: 15, kind: "buff", buff: "protect", pow: 15, party: true, target: "ally", dur: 1800, desc: "Defense +15 for the whole party for 30 minutes." },
-  shellra: { name: "Shellra", jobs: { WHM: 17 }, mp: 18, cast: 1, recast: 15, kind: "buff", buff: "shell", pow: 0.11, party: true, target: "ally", dur: 1800, desc: "Elemental damage taken -11% for the whole party for 30 minutes." },
+  poisona: { name: "Cleanse Venom", jobs: { WHM: 6 }, mp: 8, cast: 1, recast: 5, kind: "cleanse", cleanse: ["poison"], target: "ally", desc: "Removes Poison from one ally." },
+  paralyna: { name: "Cleanse Stiffness", jobs: { WHM: 9 }, mp: 12, cast: 1, recast: 5, kind: "cleanse", cleanse: ["paralyze"], target: "ally", desc: "Removes Paralysis from one ally." },
+  blindna: { name: "Cleanse Sight", jobs: { WHM: 14 }, mp: 16, cast: 1, recast: 10, kind: "cleanse", cleanse: ["flash"], target: "ally", desc: "Removes Blindness from one ally." },
+  silena: { name: "Cleanse Hush", jobs: { WHM: 19 }, mp: 24, cast: 1, recast: 5, kind: "cleanse", cleanse: ["silence"], target: "ally", desc: "Removes Silence from one ally." },
+  barstone: { name: "Stone Ward", jobs: { RDM: 5 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barstone", bar: "earth", target: "ally", dur: 480, desc: "Cuts earth damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
+  barstonra: { name: "Stone Aegis", jobs: { WHM: 5 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barstone", bar: "earth", party: true, target: "ally", dur: 480, desc: "Cuts earth damage taken for the whole party for 8 minutes." },
+  barwater: { name: "Water Ward", jobs: { RDM: 9 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barwater", bar: "water", target: "ally", dur: 480, desc: "Cuts water damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
+  barwatera: { name: "Water Aegis", jobs: { WHM: 9 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barwater", bar: "water", party: true, target: "ally", dur: 480, desc: "Cuts water damage taken for the whole party for 8 minutes." },
+  baraero: { name: "Gale Ward", jobs: { RDM: 13 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "baraero", bar: "wind", target: "ally", dur: 480, desc: "Cuts wind damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
+  baraera: { name: "Gale Aegis", jobs: { WHM: 13 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "baraero", bar: "wind", party: true, target: "ally", dur: 480, desc: "Cuts wind damage taken for the whole party for 8 minutes." },
+  barfire: { name: "Flame Ward", jobs: { RDM: 17 }, mp: 6, cast: 0.5, recast: 10, kind: "buff", buff: "barfire", bar: "fire", target: "ally", dur: 480, desc: "Cuts fire damage taken for 8 minutes. The bonus grows with your Enhancing skill." },
+  barfira: { name: "Flame Aegis", jobs: { WHM: 17 }, mp: 12, cast: 0.5, recast: 10, kind: "buff", buff: "barfire", bar: "fire", party: true, target: "ally", dur: 480, desc: "Cuts fire damage taken for the whole party for 8 minutes." },
+  barsleep: { name: "Slumber Ward", jobs: { RDM: 7 }, mp: 7, cast: 2.5, recast: 10, kind: "buff", buff: "barsleep", barst: "sleep", target: "ally", dur: 480, desc: "Half the chance of sleep from monster attacks, for 8 minutes." },
+  barsleepra: { name: "Slumber Aegis", jobs: { WHM: 7 }, mp: 14, cast: 5, recast: 10, kind: "buff", buff: "barsleep", barst: "sleep", party: true, target: "ally", dur: 480, desc: "Half the chance of sleep from monster attacks for the whole party, for 8 minutes." },
+  barpoison: { name: "Venom Ward", jobs: { RDM: 10 }, mp: 9, cast: 2.5, recast: 10, kind: "buff", buff: "barpoison", barst: "poison", target: "ally", dur: 480, desc: "Half the chance of poison from monster attacks, for 8 minutes." },
+  barpoisonra: { name: "Venom Aegis", jobs: { WHM: 10 }, mp: 18, cast: 5, recast: 10, kind: "buff", buff: "barpoison", barst: "poison", party: true, target: "ally", dur: 480, desc: "Half the chance of poison from monster attacks for the whole party, for 8 minutes." },
+  barparalyze: { name: "Numb Ward", jobs: { RDM: 12 }, mp: 11, cast: 2.5, recast: 10, kind: "buff", buff: "barparalyze", barst: "paralyze", target: "ally", dur: 480, desc: "Half the chance of paralyze from monster attacks, for 8 minutes." },
+  barparalyzra: { name: "Numb Aegis", jobs: { WHM: 12 }, mp: 22, cast: 5, recast: 10, kind: "buff", buff: "barparalyze", barst: "paralyze", party: true, target: "ally", dur: 480, desc: "Half the chance of paralyze from monster attacks for the whole party, for 8 minutes." },
+  barblind: { name: "Sight Ward", jobs: { RDM: 18 }, mp: 13, cast: 2.5, recast: 10, kind: "buff", buff: "barblind", barst: "flash", target: "ally", dur: 480, desc: "Half the chance of blind from monster attacks, for 8 minutes." },
+  barblindra: { name: "Sight Aegis", jobs: { WHM: 18 }, mp: 26, cast: 5, recast: 10, kind: "buff", buff: "barblind", barst: "flash", party: true, target: "ally", dur: 480, desc: "Half the chance of blind from monster attacks for the whole party, for 8 minutes." },
+  protectra: { name: "Mass Protect", jobs: { WHM: 7 }, mp: 9, cast: 1, recast: 15, kind: "buff", buff: "protect", pow: 15, party: true, target: "ally", dur: 1800, desc: "Defense +15 for the whole party for 30 minutes." },
+  shellra: { name: "Mass Shell", jobs: { WHM: 17 }, mp: 18, cast: 1, recast: 15, kind: "buff", buff: "shell", pow: 0.11, party: true, target: "ally", dur: 1800, desc: "Elemental damage taken -11% for the whole party for 30 minutes." },
   blink: { name: "Blink", jobs: { WHM: 19 }, mp: 20, cast: 6, recast: 10, kind: "buff", buff: "shadows", n: 2, exact: true, target: "self", dur: 300, desc: "Two shadow images absorb the next two melee hits for 5 minutes." },
-  aquaveil: { name: "Aquaveil", jobs: { WHM: 10, RDM: 12 }, mp: 12, cast: 5, recast: 10, kind: "buff", buff: "aquaveil", n: 1, target: "self", dur: 600, desc: "Blocks one spell interruption from damage for 10 minutes. Two blocks above 300 Enhancing skill." },
-  sneak: { name: "Sneak", jobs: { WHM: 20, RDM: 20 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "sneak", target: "ally", dur: 420, rnd: 120, desc: "Monsters that notice you by sound ignore you for about 7 to 9 minutes." },
-  deodorize: { name: "Deodorize", jobs: { WHM: 15, RDM: 15 }, mp: 10, cast: 2, recast: 8, kind: "buff", buff: "deodorize", target: "ally", dur: 420, rnd: 120, desc: "Monsters that sniff out the weak ignore you for about 7 to 9 minutes." },
+  aquaveil: { name: "Tideward", jobs: { WHM: 10, RDM: 12 }, mp: 12, cast: 5, recast: 10, kind: "buff", buff: "aquaveil", n: 1, target: "self", dur: 600, desc: "Blocks one spell interruption from damage for 10 minutes. Two blocks above 300 Enhancing skill." },
+  sneak: { name: "Hush Step", jobs: { WHM: 20, RDM: 20 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "sneak", target: "ally", dur: 420, rnd: 120, desc: "Monsters that notice you by sound ignore you for about 7 to 9 minutes." },
+  deodorize: { name: "Scent Mask", jobs: { WHM: 15, RDM: 15 }, mp: 10, cast: 2, recast: 8, kind: "buff", buff: "deodorize", target: "ally", dur: 420, rnd: 120, desc: "Monsters that sniff out the weak ignore you for about 7 to 9 minutes." },
   warp: { name: "Warp", jobs: { BLM: 17 }, mp: 100, cast: 4, recast: 10, kind: "warp", target: "self", desc: "Teleports you to your home point." },
-  curaga: { name: "Curaga", jobs: { WHM: 16 }, mp: 60, cast: 4.5, recast: 10, kind: "heal", aoe: 300, cure: { min: 60, t: [[110.5, 2, 20, 0], [170.5, 4, 47.5, 0], [1000000000, 71.3332, 87.62, 0]] }, target: "ally", desc: "Restores HP to every ally near the target." },
-  diaga: { name: "Diaga", jobs: { WHM: 18, RDM: 15 }, mp: 12, cast: 1.5, recast: 6, kind: "dot", aoe: 170, element: "light", power: 1, dot: { dur: 60, tick: 1 }, buff: "dia", target: "enemy", desc: "Dia on every enemy near the target: light damage, then 1 damage every 3 s for 60 s." },
-  banishga: { name: "Banishga", jobs: { WHM: 15 }, mp: 41, cast: 2.75, recast: 15, kind: "nuke", aoe: 170, element: "light", power: 36, k: 1, k2: 1, stat: "mnd", target: "enemy", skill: "divine", desc: "Light damage to every enemy near the target. Undead take 50% more." },
-  stonega: { name: "Stonega", jobs: { BLM: 15 }, mp: 24, cast: 2, recast: 5, kind: "nuke", aoe: 170, element: "earth", power: 62, k: 1.4, k2: 1, stat: "int", target: "enemy", desc: "Earth damage to every enemy near the target." },
-  waterga: { name: "Waterga", jobs: { BLM: 19 }, mp: 34, cast: 2, recast: 5, kind: "nuke", aoe: 170, element: "water", power: 78, k: 1.2, k2: 1, stat: "int", target: "enemy", desc: "Water damage to every enemy near the target." },
-  blaze_spikes: { name: "Blaze Spikes", jobs: { BLM: 10, RDM: 20 }, mp: 8, cast: 3, recast: 10, kind: "buff", buff: "blaze_spikes", spikes: { el: "fire", div: 12, max: 25 }, target: "self", dur: 180, desc: "Fire damage to anything that hits you in melee, for 3 minutes. Stronger with INT." },
-  ice_spikes: { name: "Ice Spikes", jobs: { BLM: 20 }, mp: 16, cast: 3, recast: 10, kind: "buff", buff: "ice_spikes", spikes: { el: "ice", div: 20, max: 15, para: 0.3 }, target: "self", dur: 180, desc: "Ice damage to anything that hits you in melee, and it may be paralyzed, for 3 minutes." },
-  enthunder: { name: "Enthunder", jobs: { RDM: 16 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enthunder", en: "lightning", target: "self", dur: 180, desc: "Your melee hits add lightning damage for 3 minutes. Stronger with Enhancing skill." },
-  enstone: { name: "Enstone", jobs: { RDM: 18 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enstone", en: "earth", target: "self", dur: 180, desc: "Your melee hits add earth damage for 3 minutes. Stronger with Enhancing skill." },
-  enaero: { name: "Enaero", jobs: { RDM: 20 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enaero", en: "wind", target: "self", dur: 180, desc: "Your melee hits add wind damage for 3 minutes. Stronger with Enhancing skill." },
-  shock: { name: "Shock", jobs: { BLM: 16 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "lightning", power: 0, dot: { dur: 90, pot: "int" }, buff: "shock", skill: "enfeebling", target: "enemy", desc: "Lightning damage over time for 90 s. Stronger with INT. Rasp and Choke overwrite it." },
-  rasp: { name: "Rasp", jobs: { BLM: 18 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "earth", power: 0, dot: { dur: 90, pot: "int" }, buff: "rasp", replaces: ["shock"], skill: "enfeebling", target: "enemy", desc: "Earth damage over time for 90 s and lowers the target's accuracy. Replaces Shock." },
-  choke: { name: "Choke", jobs: { BLM: 20 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "wind", power: 0, dot: { dur: 90, pot: "int" }, buff: "choke", replaces: ["rasp"], skill: "enfeebling", target: "enemy", desc: "Wind damage over time for 90 s and lowers the target's defense. Replaces Rasp." },
-  foe_requiem: { name: "Foe Requiem", jobs: { BRD: 7 }, mp: 0, cast: 2, recast: 24, kind: "dot", element: "dark", power: 0, dot: { dur: 64, tick: 1 }, buff: "requiem", skill: "singing", target: "enemy", desc: "1 damage every 3 s for 64 s." },
-  foe_requiem2: { name: "Foe Requiem II", jobs: { BRD: 17 }, mp: 0, cast: 2, recast: 24, kind: "dot", element: "dark", power: 0, dot: { dur: 80, tick: 2 }, buff: "requiem", skill: "singing", target: "enemy", desc: "2 damage every 3 s for 80 s." },
-  light_threnody: { name: "Light Threnody", jobs: { BRD: 10 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "light", buff: "threnody_light", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more light damage for 60 s.", dur: 60 },
-  dark_threnody: { name: "Dark Threnody", jobs: { BRD: 12 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "dark", buff: "threnody_dark", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more dark damage for 60 s.", dur: 60 },
-  earth_threnody: { name: "Earth Threnody", jobs: { BRD: 14 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "earth", buff: "threnody_earth", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more earth damage for 60 s.", dur: 60 },
-  water_threnody: { name: "Water Threnody", jobs: { BRD: 16 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "water", buff: "threnody_water", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more water damage for 60 s.", dur: 60 },
-  wind_threnody: { name: "Wind Threnody", jobs: { BRD: 18 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "wind", buff: "threnody_wind", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more wind damage for 60 s.", dur: 60 },
-  fire_threnody: { name: "Fire Threnody", jobs: { BRD: 20 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "fire", buff: "threnody_fire", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more fire damage for 60 s.", dur: 60 },
-  sheepfoe_mambo: { name: "Sheepfoe Mambo", jobs: { BRD: 13 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "mambo", base: 5, sreq: 85, cap: 48, mult: 5, div: 18, target: "self", skill: "singing", desc: "Party song: evasion +5 and rising with Singing skill, for 2 minutes.", dur: 120 },
-  herb_pastoral: { name: "Herb Pastoral", jobs: { BRD: 9 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "pastoral", base: 20, sreq: 200, cap: 80, mult: 8, div: 10, target: "self", skill: "singing", desc: "Party song: 40% or more chance to resist Poison, for 2 minutes.", dur: 120 },
-  scops_operetta: { name: "Scop's Operetta", jobs: { BRD: 19 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "operetta", base: 20, sreq: 200, cap: 80, mult: 8, div: 10, target: "self", skill: "singing", desc: "Party song: 40% or more chance to resist Silence, for 2 minutes.", dur: 120 },
-  knights_minne: { name: "Knight's Minne", jobs: { BRD: 1 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minne", base: 8, sreq: 0, cap: 30, mult: 3, div: 10, target: "self", skill: "singing", desc: "Party song: defense +8, rising with Singing skill.", dur: 120 },
-  valor_minuet: { name: "Valor Minuet", jobs: { BRD: 3 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minuet", base: 5, sreq: 50, cap: 32, mult: 3, div: 4.3, target: "self", skill: "singing", desc: "Party song: attack +5, rising with Singing skill.", dur: 120 },
-  armys_paeon: { name: "Army's Paeon", jobs: { BRD: 5 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 1, sreq: 100, cap: 2, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 1 HP every 3 s.", dur: 120 },
-  armys_paeon2: { name: "Army's Paeon II", jobs: { BRD: 15 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 2, sreq: 150, cap: 3, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 2 HP every 3 s.", dur: 120 },
-  sword_madrigal: { name: "Sword Madrigal", jobs: { BRD: 11 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "madrigal", base: 5, sreq: 85, cap: 45, mult: 4.5, div: 18, target: "self", skill: "singing", desc: "Party song: accuracy +5, rising with Singing skill.", dur: 120 },
-  foe_lullaby: { name: "Foe Lullaby", jobs: { BRD: 16 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "light", buff: "sleep", enmity: 60, target: "enemy", skill: "singing", desc: "Lulls the target to sleep. Any damage wakes it. Bosses are immune.", dur: 45 },
-  carbuncle: { name: "Carbuncle", jobs: { SMN: 1 }, mp: 5, cast: 5, recast: 5, kind: "summon", element: "light", pet: "carbuncle", target: "self", desc: "Calls Carbuncle to fight beside you. It slowly drains your MP." },
-  fire_spirit: { name: "Fire Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "fire", pet: "ember", target: "self", desc: "Calls a fire spirit to fight beside you. It slowly drains your MP." },
-  ice_spirit: { name: "Ice Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "ice", pet: "frost", target: "self", desc: "Calls a ice spirit to fight beside you. It slowly drains your MP." },
-  air_spirit: { name: "Air Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "wind", pet: "gale", target: "self", desc: "Calls a air spirit to fight beside you. It slowly drains your MP." },
-  earth_spirit: { name: "Earth Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "earth", pet: "stone", target: "self", desc: "Calls a earth spirit to fight beside you. It slowly drains your MP." },
-  thunder_spirit: { name: "Thunder Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "lightning", pet: "thunder", target: "self", desc: "Calls a thunder spirit to fight beside you. It slowly drains your MP." },
-  water_spirit: { name: "Water Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "water", pet: "water", target: "self", desc: "Calls a water spirit to fight beside you. It slowly drains your MP." },
-  light_spirit: { name: "Light Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "light", pet: "light", target: "self", desc: "Calls a light spirit to fight beside you. It slowly drains your MP." },
-  dark_spirit: { name: "Dark Spirit", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "dark", pet: "dark", target: "self", desc: "Calls a dark spirit to fight beside you. It slowly drains your MP." }
+  curaga: { name: "Healing Rain", jobs: { WHM: 16 }, mp: 60, cast: 4.5, recast: 10, kind: "heal", aoe: 300, cure: { min: 60, t: [[110.5, 2, 20, 0], [170.5, 4, 47.5, 0], [1000000000, 71.3332, 87.62, 0]] }, target: "ally", desc: "Restores HP to every ally near the target." },
+  diaga: { name: "Gleamfall", jobs: { WHM: 18, RDM: 15 }, mp: 12, cast: 1.5, recast: 6, kind: "dot", aoe: 170, element: "light", power: 1, dot: { dur: 60, tick: 1 }, buff: "dia", target: "enemy", desc: "Gleam on every enemy near the target: light damage, then 1 damage every 3 s for 60 s." },
+  banishga: { name: "Smitefall", jobs: { WHM: 15 }, mp: 41, cast: 2.75, recast: 15, kind: "nuke", aoe: 170, element: "light", power: 36, k: 1, k2: 1, stat: "mnd", target: "enemy", skill: "divine", desc: "Light damage to every enemy near the target. Undead take 50% more." },
+  stonega: { name: "Rockfall", jobs: { BLM: 15 }, mp: 24, cast: 2, recast: 5, kind: "nuke", aoe: 170, element: "earth", power: 62, k: 1.4, k2: 1, stat: "int", target: "enemy", desc: "Earth damage to every enemy near the target." },
+  waterga: { name: "Floodwave", jobs: { BLM: 19 }, mp: 34, cast: 2, recast: 5, kind: "nuke", aoe: 170, element: "water", power: 78, k: 1.2, k2: 1, stat: "int", target: "enemy", desc: "Water damage to every enemy near the target." },
+  blaze_spikes: { name: "Ember Thorns", jobs: { BLM: 10, RDM: 20 }, mp: 8, cast: 3, recast: 10, kind: "buff", buff: "blaze_spikes", spikes: { el: "fire", div: 12, max: 25 }, target: "self", dur: 180, desc: "Fire damage to anything that hits you in melee, for 3 minutes. Stronger with INT." },
+  ice_spikes: { name: "Frost Thorns", jobs: { BLM: 20 }, mp: 16, cast: 3, recast: 10, kind: "buff", buff: "ice_spikes", spikes: { el: "ice", div: 20, max: 15, para: 0.3 }, target: "self", dur: 180, desc: "Ice damage to anything that hits you in melee, and it may be paralyzed, for 3 minutes." },
+  enthunder: { name: "Storm Edge", jobs: { RDM: 16 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enthunder", en: "lightning", target: "self", dur: 180, desc: "Your melee hits add lightning damage for 3 minutes. Stronger with Enhancing skill." },
+  enstone: { name: "Stone Edge", jobs: { RDM: 18 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enstone", en: "earth", target: "self", dur: 180, desc: "Your melee hits add earth damage for 3 minutes. Stronger with Enhancing skill." },
+  enaero: { name: "Zephyr Edge", jobs: { RDM: 20 }, mp: 12, cast: 3, recast: 10, kind: "buff", buff: "enaero", en: "wind", target: "self", dur: 180, desc: "Your melee hits add wind damage for 3 minutes. Stronger with Enhancing skill." },
+  shock: { name: "Arc Burn", jobs: { BLM: 16 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "lightning", power: 0, dot: { dur: 90, pot: "int" }, buff: "shock", skill: "enfeebling", target: "enemy", desc: "Lightning damage over time for 90 s. Stronger with INT. Grinding Blight and Throttle overwrite it." },
+  rasp: { name: "Grinding Blight", jobs: { BLM: 18 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "earth", power: 0, dot: { dur: 90, pot: "int" }, buff: "rasp", replaces: ["shock"], skill: "enfeebling", target: "enemy", desc: "Earth damage over time for 90 s and lowers the target's accuracy. Replaces Arc Burn." },
+  choke: { name: "Throttle", jobs: { BLM: 20 }, mp: 25, cast: 2.5, recast: 10, kind: "dot", element: "wind", power: 0, dot: { dur: 90, pot: "int" }, buff: "choke", replaces: ["rasp"], skill: "enfeebling", target: "enemy", desc: "Wind damage over time for 90 s and lowers the target's defense. Replaces Grinding Blight." },
+  foe_requiem: { name: "Hunter's Dirge", jobs: { BRD: 7 }, mp: 0, cast: 2, recast: 24, kind: "dot", element: "dark", power: 0, dot: { dur: 64, tick: 1 }, buff: "requiem", skill: "singing", target: "enemy", desc: "1 damage every 3 s for 64 s." },
+  foe_requiem2: { name: "Hunter's Dirge II", jobs: { BRD: 17 }, mp: 0, cast: 2, recast: 24, kind: "dot", element: "dark", power: 0, dot: { dur: 80, tick: 2 }, buff: "requiem", skill: "singing", target: "enemy", desc: "2 damage every 3 s for 80 s." },
+  light_threnody: { name: "Light Lament", jobs: { BRD: 10 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "light", buff: "threnody_light", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more light damage for 60 s.", dur: 60 },
+  dark_threnody: { name: "Dark Lament", jobs: { BRD: 12 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "dark", buff: "threnody_dark", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more dark damage for 60 s.", dur: 60 },
+  earth_threnody: { name: "Earth Lament", jobs: { BRD: 14 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "earth", buff: "threnody_earth", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more earth damage for 60 s.", dur: 60 },
+  water_threnody: { name: "Water Lament", jobs: { BRD: 16 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "water", buff: "threnody_water", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more water damage for 60 s.", dur: 60 },
+  wind_threnody: { name: "Wind Lament", jobs: { BRD: 18 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "wind", buff: "threnody_wind", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more wind damage for 60 s.", dur: 60 },
+  fire_threnody: { name: "Fire Lament", jobs: { BRD: 20 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "fire", buff: "threnody_fire", thr: 0.25, enmity: 60, skill: "singing", target: "enemy", desc: "The target takes 25% more fire damage for 60 s.", dur: 60 },
+  sheepfoe_mambo: { name: "Skipping Reel", jobs: { BRD: 13 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "mambo", base: 5, sreq: 85, cap: 48, mult: 5, div: 18, target: "self", skill: "singing", desc: "Party song: evasion +5 and rising with Singing skill, for 2 minutes.", dur: 120 },
+  herb_pastoral: { name: "Greenwood Air", jobs: { BRD: 9 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "pastoral", base: 20, sreq: 200, cap: 80, mult: 8, div: 10, target: "self", skill: "singing", desc: "Party song: 40% or more chance to resist Poison, for 2 minutes.", dur: 120 },
+  scops_operetta: { name: "Minstrel's Ballad", jobs: { BRD: 19 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "operetta", base: 20, sreq: 200, cap: 80, mult: 8, div: 10, target: "self", skill: "singing", desc: "Party song: 40% or more chance to resist Silence, for 2 minutes.", dur: 120 },
+  knights_minne: { name: "Squire's Anthem", jobs: { BRD: 1 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minne", base: 8, sreq: 0, cap: 30, mult: 3, div: 10, target: "self", skill: "singing", desc: "Party song: defense +8, rising with Singing skill.", dur: 120 },
+  valor_minuet: { name: "Valiant Reel", jobs: { BRD: 3 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "minuet", base: 5, sreq: 50, cap: 32, mult: 3, div: 4.3, target: "self", skill: "singing", desc: "Party song: attack +5, rising with Singing skill.", dur: 120 },
+  armys_paeon: { name: "Marching Hymn", jobs: { BRD: 5 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 1, sreq: 100, cap: 2, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 1 HP every 3 s.", dur: 120 },
+  armys_paeon2: { name: "Marching Hymn II", jobs: { BRD: 15 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "paeon", base: 2, sreq: 150, cap: 3, mult: 1, div: 0, target: "self", skill: "singing", desc: "Party song: restores 2 HP every 3 s.", dur: 120 },
+  sword_madrigal: { name: "Blade Chorale", jobs: { BRD: 11 }, mp: 0, cast: 8, recast: 24, kind: "song", song: "madrigal", base: 5, sreq: 85, cap: 45, mult: 4.5, div: 18, target: "self", skill: "singing", desc: "Party song: accuracy +5, rising with Singing skill.", dur: 120 },
+  foe_lullaby: { name: "Drowsy Lullaby", jobs: { BRD: 16 }, mp: 0, cast: 2, recast: 24, kind: "debuff", element: "light", buff: "sleep", enmity: 60, target: "enemy", skill: "singing", desc: "Lulls the target to sleep. Any damage wakes it. Bosses are immune.", dur: 45 },
+  carbuncle: { name: "Lantern Sprite", jobs: { SMN: 1 }, mp: 5, cast: 5, recast: 5, kind: "summon", element: "light", pet: "carbuncle", target: "self", desc: "Calls Lantern Sprite to fight beside you. It slowly drains your MP." },
+  fire_spirit: { name: "Cinder Wisp", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "fire", pet: "ember", target: "self", desc: "Calls a fire spirit to fight beside you. It slowly drains your MP." },
+  ice_spirit: { name: "Rime Wisp", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "ice", pet: "frost", target: "self", desc: "Calls a ice spirit to fight beside you. It slowly drains your MP." },
+  air_spirit: { name: "Gale Wisp", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "wind", pet: "gale", target: "self", desc: "Calls a air spirit to fight beside you. It slowly drains your MP." },
+  earth_spirit: { name: "Stone Wisp", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "earth", pet: "stone", target: "self", desc: "Calls a earth spirit to fight beside you. It slowly drains your MP." },
+  thunder_spirit: { name: "Storm Wisp", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "lightning", pet: "thunder", target: "self", desc: "Calls a thunder spirit to fight beside you. It slowly drains your MP." },
+  water_spirit: { name: "Brook Wisp", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "water", pet: "water", target: "self", desc: "Calls a water spirit to fight beside you. It slowly drains your MP." },
+  light_spirit: { name: "Dawn Wisp", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "light", pet: "light", target: "self", desc: "Calls a light spirit to fight beside you. It slowly drains your MP." },
+  dark_spirit: { name: "Dusk Wisp", jobs: { SMN: 1 }, drop: true, mp: 10, cast: 1, recast: 5, kind: "summon", element: "dark", pet: "dark", target: "self", desc: "Calls a dark spirit to fight beside you. It slowly drains your MP." }
 };
 
 const SKILL_NAMES = { scythe: "Scythe", dark: "Dark Magic", singing: "Singing", archery: "Archery", summoning: "Summoning Magic", dagger: "Dagger", sword: "Sword", club: "Club", staff: "Staff", greataxe: "Great Axe", h2h: "Hand-to-Hand", healing: "Healing Magic", divine: "Divine Magic", elemental: "Elemental Magic", enfeebling: "Enfeebling Magic", enhancing: "Enhancing Magic" };
@@ -557,13 +557,13 @@ Object.assign(WEAPON_SKILLS, {
   sky_rend: { name: "Sky Rend", wtype: "polearm", skill: 75, props: ["Fusion", "Transfixion"], ftp: [2.6, 3.5, 4.5] }
 });
 Object.assign(ABILITIES, {
-  meditate: { name: "Meditate", job: "SAM", lv: 1, recast: 150, target: "self", desc: "Clear your mind and gain 400 TP." },
-  hasso: { name: "Hasso", job: "SAM", lv: 5, recast: 60, target: "self", buff: "hasso", dur: 120, desc: "A high two-handed stance: damage +12% and accuracy +10 for 2 minutes." },
-  third_eye: { name: "Third Eye", job: "SAM", lv: 15, recast: 45, target: "self", buff: "third_eye", dur: 30, desc: "Read your foe: the next melee attack against you within 30 s misses." },
+  meditate: { name: "Still Mind", job: "SAM", lv: 1, recast: 150, target: "self", desc: "Clear your mind and gain 400 TP." },
+  hasso: { name: "Open Stance", job: "SAM", lv: 5, recast: 60, target: "self", buff: "hasso", dur: 120, desc: "A high two-handed stance: damage +12% and accuracy +10 for 2 minutes." },
+  third_eye: { name: "Foresight", job: "SAM", lv: 15, recast: 45, target: "self", buff: "third_eye", dur: 30, desc: "Read your foe: the next melee attack against you within 30 s misses." },
   smoke_step: { name: "Smoke Step", job: "NIN", lv: 5, recast: 120, target: "self", desc: "Vanish in a puff of smoke, halving the enmity every monster has toward you." },
   twin_strike: { name: "Twin Strike", job: "NIN", lv: 15, recast: 90, target: "self", buff: "twin_strike", dur: 30, desc: "Your next three attacks each strike twice." },
-  jump: { name: "Jump", job: "DRG", lv: 1, recast: 60, target: "enemy", enmity: 80, desc: "Leap into the air and drive your weapon down for heavy damage and extra TP." },
-  high_jump: { name: "High Jump", job: "DRG", lv: 10, recast: 120, target: "enemy", enmity: 0, desc: "A higher leap: even more damage, and the target forgets half its anger toward you." },
+  jump: { name: "Leap", job: "DRG", lv: 1, recast: 60, target: "enemy", enmity: 80, desc: "Leap into the air and drive your weapon down for heavy damage and extra TP." },
+  high_jump: { name: "Sky Leap", job: "DRG", lv: 10, recast: 120, target: "enemy", enmity: 0, desc: "A higher leap: even more damage, and the target forgets half its anger toward you." },
   dragon_spirit: { name: "Dragon Spirit", job: "DRG", lv: 15, recast: 300, target: "self", buff: "dragon_spirit", dur: 60, desc: "Call on the spirit of the wyrm: damage +15% for 60 s." }
 });
 Object.assign(SPELLS, {
@@ -573,7 +573,7 @@ Object.assign(SPELLS, {
   binding_thread: { name: "Binding Thread", jobs: { NIN: 8 }, mp: 8, cast: 1.2, recast: 30, kind: "debuff", element: "ice", buff: "bind", dur: 10, enmity: 60, skill: "ninjutsu", target: "enemy", desc: "Snares the target so it can't move for 10 s." },
   gale_shuriken: { name: "Gale Shuriken", jobs: { NIN: 10 }, mp: 9, cast: 1.0, recast: 12, kind: "nuke", element: "wind", power: 28, stat: "int", skill: "ninjutsu", target: "enemy", desc: "Hurls a whirling star of wind. Wind damage." }
 });
-Object.assign(BUFF_NAMES, { hasso: "Hasso", third_eye: "Third Eye", twin_strike: "Twin Strike", dragon_spirit: "Dragon Spirit", shadows: "Shadow Veil", bind: "Bound" });
+Object.assign(BUFF_NAMES, { hasso: "Open Stance", third_eye: "Foresight", twin_strike: "Twin Strike", dragon_spirit: "Dragon Spirit", shadows: "Shadow Veil", bind: "Bound" });
 Object.assign(BUFF_ICONS, { hasso: "🎌", third_eye: "👁️", twin_strike: "⚔️", dragon_spirit: "🐉", shadows: "👥" });
 Object.assign(ITEMS, {
 });
@@ -605,10 +605,10 @@ Object.assign(WEAPON_SKILLS, {
   primal_fury: { name: "Primal Fury", wtype: "axe", skill: 75, props: ["Fusion", "Fragmentation"], ftp: [2.5, 3.3, 4.3] }
 });
 Object.assign(ABILITIES, {
-  call_beast: { name: "Call Beast", job: "BST", lv: 1, recast: 60, target: "self", desc: "Whistle up a loyal beast to fight at your side: a scaleback lizard, a pincher crab from level 8, or a great ram from level 14." },
-  reward: { name: "Reward", job: "BST", lv: 5, recast: 60, target: "self", desc: "Feed your beast a treat, restoring 40% of its HP." },
-  feral_howl: { name: "Feral Howl", job: "BST", lv: 15, recast: 90, target: "enemy", enmity: 100, desc: "A savage howl that cows the target: its attack drops 15% for 30 s." },
-  burst_affinity: { name: "Burst Affinity", job: "BLU", lv: 5, recast: 90, target: "self", buff: "burst_affinity", dur: 30, desc: "Your next blue magic spell hits 50% harder." },
+  call_beast: { name: "Call Wild", job: "BST", lv: 1, recast: 60, target: "self", desc: "Whistle up a loyal beast to fight at your side: a scaleback lizard, a pincher crab from level 8, or a great ram from level 14." },
+  reward: { name: "Treat", job: "BST", lv: 5, recast: 60, target: "self", desc: "Feed your beast a treat, restoring 40% of its HP." },
+  feral_howl: { name: "Savage Howl", job: "BST", lv: 15, recast: 90, target: "enemy", enmity: 100, desc: "A savage howl that cows the target: its attack drops 15% for 30 s." },
+  burst_affinity: { name: "Surge Affinity", job: "BLU", lv: 5, recast: 90, target: "self", buff: "burst_affinity", dur: 30, desc: "Your next blue magic spell hits 50% harder." },
   phantom_roll: { name: "Valor Roll", job: "COR", lv: 1, recast: 60, target: "self", desc: "Roll a die for the whole party: attack rises by an amount set by the roll (5 is lucky) for 3 minutes." },
   quick_shot: { name: "Quick Shot", job: "COR", lv: 5, recast: 45, target: "enemy", enmity: 60, desc: "A fast pistol shot for moderate damage." },
   hawk_roll: { name: "Hawk Roll", job: "COR", lv: 8, recast: 60, target: "self", desc: "Roll a die for the party: accuracy rises by an amount set by the roll (4 is lucky) for 3 minutes." },
@@ -617,12 +617,12 @@ Object.assign(ABILITIES, {
 const BLUE_LEARN = {};
 for (const [id, name, lv, def] of [
   ["blu_hind_kick", "Hind Kick", 1, { kind: "bluephys", mul: 1.6, mp: 6 }],
-  ["blu_sticky_thread", "Sticky Thread", 2, { kind: "debuff", element: "earth", buff: "slow", dur: 45, enmity: 60, mp: 8 }],
+  ["blu_sticky_thread", "Gummed Strand", 2, { kind: "debuff", element: "earth", buff: "slow", dur: 45, enmity: 60, mp: 8 }],
   ["blu_dream_dust", "Dream Dust", 4, { kind: "debuff", element: "light", buff: "sleep", dur: 30, enmity: 40, mp: 10 }],
   ["blu_snapjaw", "Snapjaw", 5, { kind: "bluephys", mul: 1.9, mp: 9 }],
   ["blu_big_pinch", "Big Pinch", 6, { kind: "bluephys", mul: 1.8, mp: 10 }],
   ["blu_tail_whip", "Tail Whip", 8, { kind: "bluephys", mul: 1.7, mp: 11 }],
-  ["blu_blood_drain", "Blood Drain", 10, { kind: "drain", element: "dark", power: 18, mp: 12 }],
+  ["blu_blood_drain", "Crimson Siphon", 10, { kind: "drain", element: "dark", power: 18, mp: 12 }],
   ["blu_water_lance", "Water Lance", 13, { kind: "nuke", element: "water", power: 40, stat: "int", mp: 14 }],
   ["blu_battle_roar", "Battle Roar", 14, { kind: "bluephys", mul: 2.0, mp: 16 }],
   ["blu_boulder_toss", "Boulder Toss", 16, { kind: "bluephys", mul: 2.1, mp: 18 }]
@@ -631,7 +631,7 @@ for (const [id, name, lv, def] of [
   BLUE_LEARN[name] = id;
 }
 const BEASTS = [{ lv: 1, fam: "hill_lizard", name: "Scaleback" }, { lv: 8, fam: "pond_crab", name: "Pincher" }, { lv: 14, fam: "mountain_ram", name: "Great Ram" }];
-Object.assign(BUFF_NAMES, { weaken: "Cowed", burst_affinity: "Burst Affinity", valor_roll: "Valor Roll", hawk_roll: "Hawk Roll" });
+Object.assign(BUFF_NAMES, { weaken: "Cowed", burst_affinity: "Surge Affinity", valor_roll: "Valor Roll", hawk_roll: "Hawk Roll" });
 Object.assign(BUFF_ICONS, { weaken: "😨", burst_affinity: "🔷", valor_roll: "🎲", hawk_roll: "🦅" });
 Object.assign(ITEMS, {
 });
@@ -660,17 +660,17 @@ Object.assign(SKILL_RATINGS, {
   SCH: { staff: "C", club: "C", dagger: "D", healing: "C", enhancing: "C", elemental: "B", enfeebling: "D", dark: "D", divine: "D" }
 });
 Object.assign(ABILITIES, {
-  activate: { name: "Activate", job: "PUP", lv: 1, recast: 60, target: "self", desc: "Wind up your automaton and set it fighting. It stays out until it breaks or you change job." },
-  repair: { name: "Repair", job: "PUP", lv: 5, recast: 90, target: "self", desc: "Patch up your automaton, restoring half its HP." },
+  activate: { name: "Wind Up", job: "PUP", lv: 1, recast: 60, target: "self", desc: "Wind up your automaton and set it fighting. It stays out until it breaks or you change job." },
+  repair: { name: "Mend Puppet", job: "PUP", lv: 5, recast: 90, target: "self", desc: "Patch up your automaton, restoring half its HP." },
   tune_up: { name: "Tune Up", job: "PUP", lv: 15, recast: 120, target: "self", desc: "Tighten every spring: your automaton's attack rises 20% for 60 s." },
-  healing_waltz: { name: "Healing Waltz", job: "DNC", lv: 1, recast: 12, tp: 200, target: "self", desc: "Spend 200 TP to dance a waltz that heals the most hurt party member nearby." },
-  quick_step: { name: "Quick Step", job: "DNC", lv: 5, recast: 10, tp: 100, target: "enemy", enmity: 40, desc: "Spend 100 TP on a step that throws the target off balance: everyone's accuracy against it rises 5 per step (up to 5)." },
+  healing_waltz: { name: "Mending Waltz", job: "DNC", lv: 1, recast: 12, tp: 200, target: "self", desc: "Spend 200 TP to dance a waltz that heals the most hurt party member nearby." },
+  quick_step: { name: "Light Step", job: "DNC", lv: 5, recast: 10, tp: 100, target: "enemy", enmity: 40, desc: "Spend 100 TP on a step that throws the target off balance: everyone's accuracy against it rises 5 per step (up to 5)." },
   rising_flourish: { name: "Rising Flourish", job: "DNC", lv: 10, recast: 20, target: "enemy", enmity: 80, desc: "Spend all the steps on the target in one rising strike that deals more damage per step." },
   group_waltz: { name: "Group Waltz", job: "DNC", lv: 15, recast: 60, tp: 400, target: "self", desc: "Spend 400 TP to heal everyone in the party nearby." },
-  light_arts: { name: "Light Arts", job: "SCH", lv: 1, recast: 30, target: "self", desc: "Study white magic: healing, divine and enhancing spells cast 20% faster and cost 10% less MP. Replaces Dark Arts." },
-  dark_arts: { name: "Dark Arts", job: "SCH", lv: 1, recast: 30, target: "self", desc: "Study black magic: elemental, enfeebling and dark spells cast 20% faster and cost 10% less MP. Replaces Light Arts." },
-  penury: { name: "Penury", job: "SCH", lv: 10, recast: 60, target: "self", buff: "penury", dur: 60, desc: "Your next white magic spell costs no MP." },
-  ebullience: { name: "Ebullience", job: "SCH", lv: 15, recast: 90, target: "self", buff: "ebullience", dur: 60, desc: "Your next elemental spell deals 30% more damage." }
+  light_arts: { name: "Bright Study", job: "SCH", lv: 1, recast: 30, target: "self", desc: "Study white magic: healing, divine and enhancing spells cast 20% faster and cost 10% less MP. Replaces Shadow Study." },
+  dark_arts: { name: "Shadow Study", job: "SCH", lv: 1, recast: 30, target: "self", desc: "Study black magic: elemental, enfeebling and dark spells cast 20% faster and cost 10% less MP. Replaces Bright Study." },
+  penury: { name: "Thrift", job: "SCH", lv: 10, recast: 60, target: "self", buff: "penury", dur: 60, desc: "Your next white magic spell costs no MP." },
+  ebullience: { name: "Zeal", job: "SCH", lv: 15, recast: 90, target: "self", buff: "ebullience", dur: 60, desc: "Your next elemental spell deals 30% more damage." }
 });
 for (const id in SPELLS) {
   const sp = SPELLS[id];
@@ -679,7 +679,7 @@ for (const id in SPELLS) {
   if (base < 99 && base <= 18) sp.jobs.SCH = Math.min(20, base + 2);
 }
 const AUTOMATON_LOOK = { skin: 0xc8a070, skinRegion: "wood", noFace: true, eyesGlow: 0x80deea, ears: "none", top: { type: "tunic", color: 0x7a4a8a, region: "cloth" }, legs: 0x5a3a6a, boots: 0x4a3020, gloves: 0x8a6a3a, glovesRegion: "wood", head: { type: "cap", color: 0x6a4a7a }, prop: { girth: 0.9 } };
-Object.assign(BUFF_NAMES, { light_arts: "Light Arts", dark_arts: "Dark Arts", penury: "Penury", ebullience: "Ebullience", stepped: "Off Balance" });
+Object.assign(BUFF_NAMES, { light_arts: "Bright Study", dark_arts: "Shadow Study", penury: "Thrift", ebullience: "Zeal", stepped: "Off Balance" });
 Object.assign(BUFF_ICONS, { light_arts: "📖", dark_arts: "📕", penury: "🪶", ebullience: "✒️", stepped: "💃" });
 for (const id in ITEMS) {
   const it = ITEMS[id];
@@ -723,16 +723,16 @@ const GEO_AURAS = {
 };
 for (const id in GEO_AURAS) { const g = GEO_AURAS[id]; SPELLS[id] = { name: g.name, jobs: { GEO: g.lv }, mp: g.mp, cast: 2.0, recast: 20, kind: "geo", skill: "geomancy", target: g.self ? "self" : "enemy", desc: g.desc + " Lasts 3 minutes. One aura and one luopan at a time." }; }
 Object.assign(ABILITIES, {
-  full_circle: { name: "Full Circle", job: "GEO", lv: 5, recast: 30, target: "self", desc: "Dismiss your luopan and recover half the MP it cost." },
-  mending_halation: { name: "Mending Halation", job: "GEO", lv: 15, recast: 180, target: "self", desc: "Shatter your luopan to heal everyone near you for 20% of their HP." },
+  full_circle: { name: "Close the Circle", job: "GEO", lv: 5, recast: 30, target: "self", desc: "Dismiss your luopan and recover half the MP it cost." },
+  mending_halation: { name: "Radiant Mending", job: "GEO", lv: 15, recast: 180, target: "self", desc: "Shatter your luopan to heal everyone near you for 20% of their HP." },
   kindle_rune: { name: "Kindle Rune", job: "RUN", lv: 1, recast: 5, target: "self", desc: "Carve a fire rune (up to 3 runes). Each rune cuts damage you take by 5%." },
   rime_rune: { name: "Rime Rune", job: "RUN", lv: 3, recast: 5, target: "self", desc: "Carve an ice rune (up to 3 runes). Each rune cuts damage you take by 5%." },
   gale_rune: { name: "Gale Rune", job: "RUN", lv: 5, recast: 5, target: "self", desc: "Carve a wind rune (up to 3 runes). Each rune cuts damage you take by 5%." },
   stone_rune: { name: "Stone Rune", job: "RUN", lv: 7, recast: 5, target: "self", desc: "Carve an earth rune (up to 3 runes). Each rune cuts damage you take by 5%." },
-  lunge: { name: "Lunge", job: "RUN", lv: 10, recast: 45, target: "enemy", enmity: 200, desc: "Release every rune you hold as a burst of elemental damage." },
-  vallation: { name: "Vallation", job: "RUN", lv: 15, recast: 120, target: "self", buff: "vallation", dur: 30, desc: "Brace behind your runes: damage taken −20% for 30 s, and every blow you land draws more attention." }
+  lunge: { name: "Spear Surge", job: "RUN", lv: 10, recast: 45, target: "enemy", enmity: 200, desc: "Release every rune you hold as a burst of elemental damage." },
+  vallation: { name: "Rune Guard", job: "RUN", lv: 15, recast: 120, target: "self", buff: "vallation", dur: 30, desc: "Brace behind your runes: damage taken −20% for 30 s, and every blow you land draws more attention." }
 });
-Object.assign(BUFF_NAMES, { geo_vigor: "Aura of Vigor", geo_fury: "Aura of Fury", geo_focus: "Aura of Focus", geo_frail: "Frailty", vallation: "Vallation", runes: "Runes" });
+Object.assign(BUFF_NAMES, { geo_vigor: "Aura of Vigor", geo_fury: "Aura of Fury", geo_focus: "Aura of Focus", geo_frail: "Frailty", vallation: "Rune Guard", runes: "Runes" });
 Object.assign(BUFF_ICONS, { geo_vigor: "🌿", geo_fury: "🔥", geo_focus: "🔷", geo_frail: "💔", vallation: "🛡️", runes: "🔺" });
 Object.assign(ITEMS, {
 });
@@ -870,19 +870,19 @@ for (const id in GEAR_DATA) {
 }
 
 const MERCS = {
-  kael: { name: "Kael", job: "WAR", role: "tank", fee: 120, color: "#ef9a9a", desc: "A steady Warrior. Holds enemy attention with Provoke and closes skillchains." },
-  rook: { name: "Rook", job: "WAR", role: "dd", fee: 140, color: "#ffab91", desc: "A reckless Warrior. Hits hard with Berserk and opens skillchains for others to close." },
-  mira: { name: "Mira", job: "WHM", role: "healer", fee: 150, color: "#f5f5f5", desc: "A calm White Mage. Cures whoever is hurt most and saves Divine Seal for emergencies." },
-  fen: { name: "Fen", job: "WHM", role: "support", fee: 150, color: "#e0f2f1", desc: "A cheerful White Mage. Keeps Dia up, Banishes the undead and backs up the healer." },
+  kael: { name: "Kael", job: "WAR", role: "tank", fee: 120, color: "#ef9a9a", desc: "A steady Warrior. Holds enemy attention with Goad and closes skillchains." },
+  rook: { name: "Rook", job: "WAR", role: "dd", fee: 140, color: "#ffab91", desc: "A reckless Warrior. Hits hard with Frenzy and opens skillchains for others to close." },
+  mira: { name: "Mira", job: "WHM", role: "healer", fee: 150, color: "#f5f5f5", desc: "A calm White Mage. Cures whoever is hurt most and saves Holy Vow for emergencies." },
+  fen: { name: "Fen", job: "WHM", role: "support", fee: 150, color: "#e0f2f1", desc: "A cheerful White Mage. Keeps Gleam up, Smites the undead and backs up the healer." },
   sable: { name: "Sable", job: "BLM", role: "nuker", fee: 180, color: "#b39ddb", desc: "A sharp Black Mage. Nukes weaknesses and holds MP to magic-burst your skillchains." },
-  dorn: { name: "Dorn", job: "PLD", role: "tank", fee: 260, color: "#90caf9", requires: { job: "PLD" }, desc: "A stalwart Paladin. Flash and Sentinel hold attention, Cures keep him standing, Shield Bash stops TP moves." },
-  lisette: { name: "Lisette", job: "RDM", role: "hybrid", fee: 260, color: "#f48fb1", requires: { job: "RDM" }, desc: "A quick Red Mage. Fights in melee, keeps Dia, Slow and Paralyze on the target, nukes when MP allows and backs up the healer." },
-  vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Elemental Seal on every one." },
-  wren: { name: "Wren", job: "THF", role: "dd", fee: 240, color: "#a1887f", requires: { job: "THF" }, desc: "A quick-fingered Thief. Steals from everything, opens with Sneak Attack and chains dagger skills." },
-  corin: { name: "Corin", job: "RNG", role: "dd", fee: 250, color: "#9ccc65", requires: { job: "RNG" }, desc: "A quiet Ranger. Shoots from range, uses Sharpshot and Barrage, and binds runners in place." },
-  mordrin: { name: "Mordrin", job: "DRK", role: "dd", fee: 300, color: "#8e6bbf", requires: { job: "DRK" }, desc: "A grim Dark Knight. Swings a scythe with Last Resort and Soulfire, drains life back when he's hurt, and stuns dangerous moves." },
+  dorn: { name: "Dorn", job: "PLD", role: "tank", fee: 260, color: "#90caf9", requires: { job: "PLD" }, desc: "A stalwart Paladin. Flash and Bulwark hold attention, Cures keep him standing, Shield Bash stops TP moves." },
+  lisette: { name: "Lisette", job: "RDM", role: "hybrid", fee: 260, color: "#f48fb1", requires: { job: "RDM" }, desc: "A quick Red Mage. Fights in melee, keeps Gleam, Slow and Paralyze on the target, nukes when MP allows and backs up the healer." },
+  vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Arcane Vow on every one." },
+  wren: { name: "Wren", job: "THF", role: "dd", fee: 240, color: "#a1887f", requires: { job: "THF" }, desc: "A quick-fingered Thief. Steals from everything, opens with Shadow Strike and chains dagger skills." },
+  corin: { name: "Corin", job: "RNG", role: "dd", fee: 250, color: "#9ccc65", requires: { job: "RNG" }, desc: "A quiet Ranger. Shoots from range, uses Dead Aim and Arrow Storm, and binds runners in place." },
+  mordrin: { name: "Mordrin", job: "DRK", role: "dd", fee: 300, color: "#8e6bbf", requires: { job: "DRK" }, desc: "A grim Dark Knight. Swings a scythe with Desperate Oath and Soulfire, drains life back when he's hurt, and stuns dangerous moves." },
   lyra: { name: "Lyra", job: "BRD", role: "bard", fee: 300, color: "#ffd54f", requires: { job: "BRD" }, desc: "A bright Bard. Keeps two songs on the party, lulls extra monsters to sleep, and fights with a dagger in between." },
-  tamsin: { name: "Tamsin", job: "MNK", role: "dd", fee: 260, color: "#ffb74d", requires: { job: "MNK" }, desc: "A cheerful Monk. Boosts, focuses and pummels, and mends herself with Chakra." }
+  tamsin: { name: "Tamsin", job: "MNK", role: "dd", fee: 260, color: "#ffb74d", requires: { job: "MNK" }, desc: "A cheerful Monk. Boosts, focuses and pummels, and mends herself with Inner Mend." }
 };
 
 const MERC_LINES = {
@@ -915,7 +915,7 @@ const FEATURES = { crafting: true, gathering: true, residence: true, nms: true, 
 const FAMILIES = {
   goblin: { name: "Goblin", color: "#8a9a5b", radius: 15, hpMul: 1, attMul: 1, defMul: 1, delay: 3.0, speed: 95, aggro: { sight: 165 }, link: true, tpMove: { name: "Bomb Toss", mul: 1.6, aoe: 70 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.4], ["fire_crystal", 0.3], ["copper_ore", 0.25], ["potion", 0.08]], model: "goblin" },
   honey_bee: { name: "Honey Bee", color: "#f2c230", radius: 10, hpMul: 0.55, attMul: 0.85, defMul: 0.75, eva: 10, delay: 2.2, speed: 135, aggro: null, link: true, linkGroup: "bees", tpMove: { name: "Final Sting", mul: 2.2, status: ["poison", 30] }, weak: { ice: 1.2 }, loot: [["honeycomb", 0.4], ["wind_crystal", 0.2], ["potion", 0.05]], model: "bee", tint: 0xf2c230, tint2: 0x2a2218, scale: 1.15 },
-  grass_crawler: { name: "Grass Crawler", color: "#7fb04a", radius: 14, hpMul: 0.9, attMul: 0.8, defMul: 1.1, eva: 2, delay: 3.4, speed: 70, aggro: null, link: false, tpMove: { name: "Sticky Thread", mul: 1.3, slow: true }, weak: { fire: 1.3 }, loot: [["crawler_cocoon", 0.3], ["worm_silk", 0.25], ["earth_crystal", 0.2], ["potion", 0.05]], model: "crawler", tint: 0x7fb04a },
+  grass_crawler: { name: "Grass Crawler", color: "#7fb04a", radius: 14, hpMul: 0.9, attMul: 0.8, defMul: 1.1, eva: 2, delay: 3.4, speed: 70, aggro: null, link: false, tpMove: { name: "Gummed Strand", mul: 1.3, slow: true }, weak: { fire: 1.3 }, loot: [["crawler_cocoon", 0.3], ["worm_silk", 0.25], ["earth_crystal", 0.2], ["potion", 0.05]], model: "crawler", tint: 0x7fb04a },
   meadow_sheep: { name: "Meadow Sheep", color: "#e8e2d6", radius: 15, hpMul: 0.9, attMul: 0.8, defMul: 0.9, eva: 2, delay: 3.0, speed: 100, aggro: null, link: true, linkGroup: "sheep", tpMove: { name: "Rampant Butt", mul: 1.7 }, weak: { fire: 1.1 }, loot: [["wool_tuft", 0.45], ["earth_crystal", 0.2], ["healing_herb", 0.15]], model: "sheep", tint: 0xd8cfc0 },
   hill_lizard: { name: "Hill Lizard", color: "#8a9a4a", radius: 14, hpMul: 1.0, attMul: 1.0, defMul: 1.0, eva: 6, delay: 2.9, speed: 110, aggro: null, link: false, tpMove: { name: "Tail Whip", mul: 1.6, aoe: 60 }, weak: { ice: 1.2 }, loot: [["lizard_skin", 0.35], ["fire_crystal", 0.2], ["potion", 0.06]], model: "lizard", tint: 0x8a9a4a, tint2: 0xd8d4a0, scale: 1.3 },
   pond_crab: { name: "Pond Crab", color: "#b86a4a", radius: 14, hpMul: 1.0, attMul: 0.9, defMul: 1.3, eva: 0, delay: 3.2, speed: 80, aggro: null, link: false, tpMove: { name: "Big Pinch", mul: 1.8 }, weak: { lightning: 1.3 }, loot: [["crab_shell", 0.35], ["water_crystal", 0.25], ["potion", 0.05]], model: "crab", tint: 0xb86a4a },
@@ -941,7 +941,7 @@ const FAMILIES = {
   royal_guard: { name: "Royal Guard", color: "#c0c8d8", radius: 15, hpMul: 1.1, attMul: 1.15, defMul: 1.1, delay: 3.0, speed: 95, aggro: null, link: true, linkGroup: "undead", tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.3], ["reraiser", 0.04], ["x_potion", 0.04], ["super_ether", 0.03]], model: "skeleton", summoned: true },
   hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["sol_cap", 0.3], ["bee_spatha", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8], ["super_ether", 0.3], ["hi_reraiser", 0.25], ["super_reraiser", 0.1]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
   bog_toad: { name: "Bog Toad", color: "#5f7a3a", radius: 14, hpMul: 1.15, attMul: 1.0, defMul: 1.0, delay: 3.0, speed: 90, aggro: { sound: 120 }, link: false, tpMove: { name: "Tongue Lash", mul: 1.8, status: ["paralyze", 20, 0.2] }, weak: { ice: 1.25 }, loot: [["toad_oil", 0.45], ["water_crystal", 0.3], ["healing_herb", 0.2], ["hi_potion", 0.05]], model: "toad" },
-  bog_leech: { name: "Bog Leech", color: "#5a2a2a", radius: 13, hpMul: 1.1, attMul: 0.95, defMul: 1.1, delay: 3.2, speed: 60, int: 4, aggro: null, link: false, tpMove: { name: "Blood Drain", mul: 1.6, drain: true }, weak: { fire: 1.3 }, loot: [["worm_silk", 0.3], ["water_crystal", 0.3], ["ether", 0.08]], model: "worm", tint: 0x4a2226 },
+  bog_leech: { name: "Bog Leech", color: "#5a2a2a", radius: 13, hpMul: 1.1, attMul: 0.95, defMul: 1.1, delay: 3.2, speed: 60, int: 4, aggro: null, link: false, tpMove: { name: "Crimson Siphon", mul: 1.6, drain: true }, weak: { fire: 1.3 }, loot: [["worm_silk", 0.3], ["water_crystal", 0.3], ["ether", 0.08]], model: "worm", tint: 0x4a2226 },
   mire_goblin: { name: "Mire Goblin", color: "#58663a", radius: 15, hpMul: 1.05, attMul: 1.05, defMul: 1.05, delay: 3.0, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", tpMove: { name: "Bog Bomb", mul: 1.7, aoe: 75 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.25], ["mire_reed", 0.3], ["fire_crystal", 0.2], ["hi_potion", 0.06]], model: "goblin" },
   drowned: { name: "Drowned One", color: "#6f9a9a", radius: 15, hpMul: 1.2, attMul: 1.1, defMul: 1.05, delay: 3.0, speed: 85, aggro: { sound: 130, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Sodden Grasp", mul: 1.9, drain: true }, weak: { light: 1.5, lightning: 1.2 }, loot: [["chapel_sigil", 0.12], ["bone_chip", 0.35], ["water_crystal", 0.35], ["ether", 0.1], ["hi_potion", 0.06], ["x_potion", 0.04], ["reraiser", 0.03], ["hi_ether", 0.03]], model: "ghoul" },
   marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
@@ -1688,13 +1688,13 @@ const QUESTS = {
   mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
     intro: "Two of my people went into the marsh and came back with stories of a goblin who calls himself the Mirelord. Gax. He's taxing the reed cutters. I'd take it personally if you put an end to that.", progress: "Gax keeps to Mire Village, east of the causeway. He shows himself now and then among his goblins.", turn: "The Mirelord's done? My people will drink to you tonight. Here, you've earned this." },
   thf: { name: "Light Fingers", giver: "Tobin", npc: "tobin", lv: 6, items: { goblin_pouch: 3, bat_wing: 1 }, desc: "Bring Tobin 3 Goblin Pouches and 1 Bat Wing to learn the Thief's trade.", reward: { xp: 300, gil: 0, item: "bronze_dagger", qty: 1, unlock: "THF" },
-    intro: "A Thief lives by quick hands and quicker feet: daggers, Steal, Sneak Attack, and a nose for treasure. Prove your hands are light. Lift 3 Goblin Pouches off their owners and bring me a Bat Wing besides.", progress: "3 Goblin Pouches and a Bat Wing. Goblins carry the pouches; bats come out at night.", turn: "Not bad at all. Here's a dagger to start with. Ask me to change jobs whenever you like." },
+    intro: "A Thief lives by quick hands and quicker feet: daggers, Pilfer, Shadow Strike, and a nose for treasure. Prove your hands are light. Lift 3 Goblin Pouches off their owners and bring me a Bat Wing besides.", progress: "3 Goblin Pouches and a Bat Wing. Goblins carry the pouches; bats come out at night.", turn: "Not bad at all. Here's a dagger to start with. Ask me to change jobs whenever you like." },
   mnk: { name: "The Open Hand", giver: "Tobin", npc: "tobin", lv: 6, items: { bone_chip: 2, healing_herb: 3 }, desc: "Bring Tobin 2 Bone Chips and 3 Healing Herbs to begin training as a Monk.", reward: { xp: 300, gil: 0, item: "cesti", qty: 1, unlock: "MNK" },
-    intro: "A Monk needs no blade. Fists, Boost and Focus, and Chakra to mend their own wounds. Training starts with a poultice: 3 Healing Herbs, and 2 Bone Chips ground into it. Don't ask why. It works.", progress: "2 Bone Chips from the undead and 3 Healing Herbs.", turn: "Good. Wrap your hands in these and hit things. That's most of it, honestly." },
+    intro: "A Monk needs no blade. Fists, Surge and Hone, and Inner Mend to mend their own wounds. Training starts with a poultice: 3 Healing Herbs, and 2 Bone Chips ground into it. Don't ask why. It works.", progress: "2 Bone Chips from the undead and 3 Healing Herbs.", turn: "Good. Wrap your hands in these and hit things. That's most of it, honestly." },
   rng: { name: "Steady Aim", giver: "Tobin", npc: "tobin", lv: 6, items: { bat_wing: 3, ash_lumber: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Ash Lumber to learn the Ranger's craft.", reward: { xp: 300, gil: 0, item: "shortbow", qty: 1, unlock: "RNG" },
-    intro: "A Ranger fights from afar: bow and arrow, Sharpshot and Barrage, and Shadowbind to pin a foe in place. Fletching starts with good wood and good feathers. Bring me 3 Bat Wings for the fletching and 2 Ash Lumber for the bow.", progress: "3 Bat Wings and 2 Ash Lumber. Woodworkers make lumber from Ash Logs.", turn: "Good wood, fair feathers. Here's your first bow. Keep your distance and let the arrows do the work." },
+    intro: "A Ranger fights from afar: bow and arrow, Dead Aim and Arrow Storm, and Pin Down to pin a foe in place. Fletching starts with good wood and good feathers. Bring me 3 Bat Wings for the fletching and 2 Ash Lumber for the bow.", progress: "3 Bat Wings and 2 Ash Lumber. Woodworkers make lumber from Ash Logs.", turn: "Good wood, fair feathers. Here's your first bow. Keep your distance and let the arrows do the work." },
   drk: { name: "The Shadowed Path", giver: "Tobin", npc: "tobin", lv: 10, items: { crypt_dust: 2, bone_chip: 3 }, desc: "Bring Tobin 2 Crypt Dust and 3 Bone Chips to walk the Dark Knight's path.", reward: { xp: 600, gil: 0, item: "bronze_zaghnal", qty: 1, unlock: "DRK" },
-    intro: "A Dark Knight trades a little of their own life for power: scythes, Drain, Blight, and Last Resort. It isn't a path for the careful. Bring me dust from the Sunken Crypt and bones from the restless dead, and I'll show you how it's done.", progress: "2 Crypt Dust and 3 Bone Chips. The Crypt has both; the Wandering Bones carry chips at night.", turn: "You carry the crypt's chill with you now. Take this scythe, and don't let it take you." },
+    intro: "A Dark Knight trades a little of their own life for power: scythes, Life Leech, Blight, and Desperate Oath. It isn't a path for the careful. Bring me dust from the Sunken Crypt and bones from the restless dead, and I'll show you how it's done.", progress: "2 Crypt Dust and 3 Bone Chips. The Crypt has both; the Wandering Bones carry chips at night.", turn: "You carry the crypt's chill with you now. Take this scythe, and don't let it take you." },
   brd: { name: "A Traveler's Song", giver: "Tobin", npc: "tobin", lv: 10, items: { mire_reed: 3, bat_wing: 2 }, desc: "Bring Tobin 3 Mire Reeds and 2 Bat Wings so he can teach you the Bard's songs.", reward: { xp: 600, gil: 0, item: "robe", qty: 1, unlock: "BRD" },
     intro: "Bards fight with a dagger in one hand and a song in the other. Their songs lift the whole party: sharper blades, faster swings, wounds that close on their own. I'll teach you, but I need reeds for a pipe and bat wings for the drum skin.", progress: "3 Mire Reeds from the Ashen Marsh and 2 Bat Wings. Bats come out at night.", turn: "Listen to that. A little shaky, but it carries. Here's a coat fit for the road." },
   smn: { name: "The Calling", giver: "Tobin", npc: "tobin", lv: 6, items: { fire_crystal: 2, wind_crystal: 2, healing_herb: 2 }, desc: "Bring Tobin 2 Fire Essences, 2 Wind Essences and 2 Healing Herbs to learn to call sprites.", reward: { xp: 300, gil: 0, item: "ash_staff", qty: 1, unlock: "SMN" },
@@ -2291,7 +2291,7 @@ const MERC_PERSONAL = {
   kael: ["You fight like someone who means it. I like that.", "My old captain used to say a shield is a promise. I'm starting to remember why.", "I grew up two valleys past the Hollow. Goblins burned the mill. That's why I took up the axe.", "If I go down, don't stop to grieve. Finish the fight first.", "Wherever you go next, I'm coming. No fee needed for that, but I'll still take it."],
   rook: ["You keep up. Most don't.", "I count every swing. Old habit from the arena.", "The arena paid better, but nobody there watched my back.", "I've stopped counting the swings. I count the fights we walk away from now.", "Partner. That's the word, isn't it?"],
   mira: ["You're reckless, but you come back. That's something.", "I learned healing at the shrine in the west hills. The old priestess was stricter than any goblin.", "I don't mind the blood. I mind the ones I'm too slow to reach.", "When you stand in front of me, I'm never too slow.", "I'll keep you standing. That's my vow, not my job."],
-  fen: ["Ooh, a fight! Let's do this!", "Did you know undead hate Banish? I say it to them. They don't laugh.", "My sister's a Black Mage. She says I'm too loud. She's right!", "You're the first person who laughs at my jokes during a fight.", "Best party ever. I'm writing it in my journal."],
+  fen: ["Ooh, a fight! Let's do this!", "Did you know undead hate Smite? I say it to them. They don't laugh.", "My sister's a Black Mage. She says I'm too loud. She's right!", "You're the first person who laughs at my jokes during a fight.", "Best party ever. I'm writing it in my journal."],
   sable: ["Your timing is adequate.", "Your timing is good.", "I studied in the academy's tower for nine years. Nine years, and none of it felt as real as this.", "When you open a chain, I'm already counting. It feels like music.", "I'd follow your chains anywhere."],
   dorn: ["Stand behind me.", "I took my oath at sixteen. I've broken it once. I won't again.", "There's a chapel in the Outpost cellar. I pray there for the ones I couldn't shield.", "You make it easy to keep the oath.", "My shield is yours, until the end."],
   lisette: ["Sword, spell, cure. Pick one? Why would I?", "Red Mages get called jacks of all trades. I prefer 'useful'.", "I left the mage court because they wanted me to choose a school. I chose all of them.", "You never ask me to be less than everything. Thank you.", "Whatever comes next, we'll handle it with style."],
@@ -2638,15 +2638,15 @@ const RACE_BASE = {
 
 
 const PETS = {
-  carbuncle: { name: "Carbuncle", el: "light", col: 0xa5d6a7, eye: 0xff5252, pact: "Searing Light", weak: "dark" },
-  ember: { name: "Fire Spirit", el: "fire", col: 0xff7043, eye: 0xfff176, pact: "Flame Burst", weak: "ice" },
-  frost: { name: "Ice Spirit", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Frost Lance", weak: "fire" },
-  stone: { name: "Earth Spirit", el: "earth", col: 0xbca27a, eye: 0xffe082, pact: "Rock Throw", weak: "wind" },
-  gale: { name: "Air Spirit", el: "wind", col: 0xaed581, eye: 0xf1f8e9, pact: "Cyclone", weak: "earth" },
-  thunder: { name: "Thunder Spirit", el: "lightning", col: 0xfff176, eye: 0xffffff, pact: "Lightning Strike", weak: "earth" },
-  water: { name: "Water Spirit", el: "water", col: 0x4fc3f7, eye: 0xe1f5fe, pact: "Aqua Burst", weak: "lightning" },
-  light: { name: "Light Spirit", el: "light", col: 0xfff9c4, eye: 0xffffff, pact: "Holy Ray", weak: "dark" },
-  dark: { name: "Dark Spirit", el: "dark", col: 0x7e57c2, eye: 0xd1c4e9, pact: "Shadow Bolt", weak: "light" }
+  carbuncle: { name: "Lantern Sprite", el: "light", col: 0xa5d6a7, eye: 0xff5252, pact: "Searing Light", weak: "dark" },
+  ember: { name: "Cinder Wisp", el: "fire", col: 0xff7043, eye: 0xfff176, pact: "Flame Burst", weak: "ice" },
+  frost: { name: "Rime Wisp", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Frost Lance", weak: "fire" },
+  stone: { name: "Stone Wisp", el: "earth", col: 0xbca27a, eye: 0xffe082, pact: "Rock Throw", weak: "wind" },
+  gale: { name: "Gale Wisp", el: "wind", col: 0xaed581, eye: 0xf1f8e9, pact: "Cyclone", weak: "earth" },
+  thunder: { name: "Storm Wisp", el: "lightning", col: 0xfff176, eye: 0xffffff, pact: "Lightning Strike", weak: "earth" },
+  water: { name: "Brook Wisp", el: "water", col: 0x4fc3f7, eye: 0xe1f5fe, pact: "Aqua Burst", weak: "lightning" },
+  light: { name: "Dawn Wisp", el: "light", col: 0xfff9c4, eye: 0xffffff, pact: "Holy Ray", weak: "dark" },
+  dark: { name: "Dusk Wisp", el: "dark", col: 0x7e57c2, eye: 0xd1c4e9, pact: "Shadow Bolt", weak: "light" }
 };
 
 const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["anus_tiara", "city_staff", "kingdom_sword", "anus_doublet", "rogetsurin"], gil: 1500, xp: 3000 };
@@ -3211,7 +3211,7 @@ Object.assign(QUESTS, {
   dnc: { name: "The First Step", giver: "Tobin", npc: "tobin", lv: 16, items: { silk_cloth: 2, honeycomb: 2 }, desc: "Bring Tobin 2 Silk Cloth and 2 Honeycombs to learn the Dancer's steps.", reward: { xp: 900, gil: 0, item: "bronze_dagger", qty: 1, unlock: "DNC" },
     intro: "A Dancer turns the rhythm of battle into healing and openings. Steps throw a foe off balance, flourishes spend those openings, and waltzes mend your friends. Bring me silk for a costume and honey for the throat.", progress: "2 Silk Cloth and 2 Honeycombs.", turn: "Lovely. Feel the beat: every swing builds the energy you spend on a waltz." },
   sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Scholar's studies.", reward: { xp: 900, gil: 0, item: "ash_staff", qty: 1, unlock: "SCH" },
-    intro: "A Scholar studies both white and black magic, and leans into one at a time. Light Arts for healing, Dark Arts for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
+    intro: "A Scholar studies both white and black magic, and leans into one at a time. Bright Study for healing, Shadow Study for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
 });
 Object.assign(QUESTS, {
   geo: { name: "The Shape of the Land", giver: "Tobin", npc: "tobin", lv: 18, items: { crag_feather: 2, frost_shard: 2 }, desc: "Bring Tobin 2 Crag Feathers and 2 Frost Shards to learn geomancy.", reward: { xp: 1000, gil: 0, item: "maple_wand", qty: 1, unlock: "GEO" },

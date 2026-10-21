@@ -14,7 +14,7 @@ ok(!bad.length, 'every job at every level gets a legal kit (' + bad.slice(0, 5).
 ok(G.mobKit('BLM', 10).big.startsWith('sp:'), 'a Black Mage big move is a spell');
 ok(G.mobKit('WAR', 10).big.startsWith('ws:'), 'a Warrior big move is a weapon skill');
 ok(G.mobKit('WHM', 1).spells.some(s => s.heal) && !G.mobKit('WHM', 1).spells.some(s => s.id === 'cure2'), 'a level 1 White Mage knows Cure but not Cure II');
-ok(G.mobKit('WAR', 5).abil.includes('berserk') && !G.mobKit('WAR', 5).abil.includes('warcry'), 'a level 5 Warrior has Berserk but not Warcry');
+ok(G.mobKit('WAR', 5).abil.includes('berserk') && !G.mobKit('WAR', 5).abil.includes('warcry'), 'a level 5 Warrior has Frenzy but not Battle Shout');
 const x = P().x + 100, y = P().y;
 const gob = G.buildMob('goblin', 5, x, y, null);
 ok(gob.job && G.JOBS[gob.job] && gob.kit, 'a goblin rolls a job');
@@ -34,7 +34,7 @@ const war = G.buildMob('goblin', 10, x, y, null, 'WAR');
 let fam = 0, ws = 0; for (let i = 0; i < 400; i++) { G.mobReady(war, P()); if (war.readying.move === war.fam.tpMove) fam++; else if (war.readying.move.code && war.readying.move.code.startsWith('ws:')) ws++; }
 ok(fam > 140 && ws > 140 && fam + ws === 400, 'big moves split about 50/50 (' + fam + ' family, ' + ws + ' weapon skill)');
 ok(G.mobMoveName(war) === war.readying.move.name, 'the readied move name is shown');
-ok(G.mobBigMove(war, 'ws:fast_blade').name === 'Fast Blade' && G.mobBigMove(war, 'zz:nope') === war.fam.tpMove, 'move codes from the server resolve');
+ok(G.mobBigMove(war, 'ws:fast_blade').name === 'Quick Slash' && G.mobBigMove(war, 'zz:nope') === war.fam.tpMove, 'move codes from the server resolve');
 S.mobs = []; P().buffs = {}; P().hp = P().maxHp;
 G.enterZone('hollow', 1200, 900); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 const blm = G.buildMob('goblin', 10, P().x + 120, P().y, null, 'BLM'); S.mobs.push(blm); blm.readying = { t: 0, target: P(), start: S.time, move: G.mobBigMove(blm, blm.kit.big) };
@@ -47,7 +47,7 @@ ok(Object.keys(cast).length >= 2, 'a Black Mage goblin casts different spells ('
 S.mobs = []; P().buffs = {};
 const fighter = G.buildMob('goblin', 8, P().x + 30, P().y, null, 'WAR'); S.mobs.push(fighter); G.aggro(fighter, P());
 let used = false; for (let i = 0; i < 60 * 25 && P().alive; i++) { tick(1000 / 60); if (fighter.buffs.berserk) used = true; fighter.hp = fighter.maxHp; P().hp = P().maxHp; }
-ok(used, 'a Warrior goblin uses Berserk');
+ok(used, 'a Warrior goblin uses Frenzy');
 S.mobs = [];
 const healer = G.buildMob('goblin', 12, P().x + 150, P().y, null, 'WHM'), hurt = G.buildMob('goblin', 12, P().x + 160, P().y + 20, null, 'WAR');
 S.mobs.push(healer, hurt); G.aggro(healer, P()); G.aggro(hurt, P()); healer.nextCast = 0;

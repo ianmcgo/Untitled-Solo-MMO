@@ -44,6 +44,6 @@ ok(g.hp < g0 - 1, 'Fire hurts too');
 G.save.jobsUnlocked.DRK = true; G.save.jobs.DRK.lv = 15; G.setJob('DRK', null); G.refreshPlayer(true); if (!G.save.spells.includes('bio')) G.save.spells.push('bio');
 S.mobs = []; const g2 = G.buildMob('goblin', 8, P().x + 150, P().y, 0); S.mobs.push(g2); P().target = g2; P().mp = P().maxMp; P().recasts = {};
 const sv = Math.random; Math.random = () => 0.01; G.playerAct({ kind: 'ma', id: 'bio' }); run(2.2); Math.random = sv;
-ok(g2.buffs.blight && g2.buffs.blight.tick >= 1 && g2.buffs.blight.tick <= 3, 'Bio puts a 1 to 3 damage DoT on the target');
-ok(G.stat(g2, 'att') < g2.stats.att, 'Bio lowers the target\'s attack');
+ok(g2.buffs.blight && g2.buffs.blight.tick >= 1 && g2.buffs.blight.tick <= 3, 'Blight puts a 1 to 3 damage DoT on the target');
+ok(G.stat(g2, 'att') < g2.stats.att, 'Blight lowers the target\'s attack');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

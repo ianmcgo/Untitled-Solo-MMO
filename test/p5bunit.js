@@ -29,11 +29,11 @@ G.closeModal();
 G.setJob('PLD', null); ok(G.save.mainJob === 'PLD' && P().job === 'PLD', 'switched to Paladin');
 G.save.jobs.PLD.lv = 7; G.refreshPlayer(true);
 const acts = G.actionList(P()).map(a => a.id);
-ok(acts.includes('sentinel') && acts.includes('shield_bash') && acts.includes('cure') && acts.includes('banish') && !acts.includes('provoke'), 'Paladin 7 knows Sentinel, Shield Bash, Cure, Banish (' + acts.join(',') + ')');
+ok(acts.includes('sentinel') && acts.includes('shield_bash') && acts.includes('cure') && acts.includes('banish') && !acts.includes('provoke'), 'Paladin 7 knows Bulwark, Shield Bash, Cure, Smite (' + acts.join(',') + ')');
 G.save.gil = 5000; G.giveItem('lauan_shield', 1, true); G.equip('lauan_shield'); ok(G.save.gear.sub === 'lauan_shield', 'kite shield equips in the sub slot');
 G.setJob('RDM', null); G.save.jobs.RDM.lv = 8; G.refreshPlayer(true);
 const racts = G.actionList(P()).map(a => a.id);
-ok(['dia', 'cure', 'stone', 'poison', 'paralyze', 'protect', 'blind', 'convert'].every(x => racts.includes(x)), 'Red Mage 8 knows Dia, Cure, Stone, Poison, Paralyze, Protect, Blind, Convert');
+ok(['dia', 'cure', 'stone', 'poison', 'paralyze', 'protect', 'blind', 'convert'].every(x => racts.includes(x)), 'Red Mage 8 knows Gleam, Cure, Stone, Poison, Paralyze, Protect, Blind, Mana Swap');
 ok(G.skillCap(P(), 'enfeebling') > 0 && G.skillCap(P(), 'sword') > G.skillCap(P(), 'club'), 'RDM skill caps: enfeebling exists, sword B over club D');
 
 G.enterZone('hollow', 200, 1100); run(1); S.mobs = []; S.spawnAt = [];
@@ -54,15 +54,15 @@ ok(H.alllog.slice(n0).some(l => /paralyzed/.test(l)), 'a paralyzed monster can l
 G.setJob('PLD', null); G.refreshPlayer(true); P().mp = 100; P().hp = P().maxHp; P().recasts = {};
 const dBefore = G.stat(P(), 'def');
 G.playerAct({ kind: 'ja', id: 'sentinel' });
-ok(P().buffs.sentinel && G.stat(P(), 'def') > dBefore * 1.4, 'Sentinel raises defense by 50%');
+ok(P().buffs.sentinel && G.stat(P(), 'def') > dBefore * 1.4, 'Bulwark raises defense by 50%');
 m.enmity.set(P(), 100); P().mp = 100; P().target = m; m.swingTimer = 99; m.readying = null; m.tp = 0; const mh0 = m.hp; G.playerAct({ kind: 'ma', id: 'banish' }); run(2.6);
-ok(m.hp < mh0, 'Banish hurts the monster');
+ok(m.hp < mh0, 'Smite hurts the monster');
 P().recasts = {}; m.readying = { t: 1, target: P(), start: S.time }; m.x = P().x + 20;
 G.playerAct({ kind: 'ja', id: 'shield_bash' });
 ok(!m.readying, 'Shield Bash interrupts a readied TP move');
 G.setJob('RDM', null); G.refreshPlayer(true); P().hp = Math.round(P().maxHp * 0.9); P().mp = 3; P().recasts = {};
 const hp0 = P().hp; G.playerAct({ kind: 'ja', id: 'convert' });
-ok(P().mp === Math.min(P().maxMp, hp0) && P().hp === 3, 'Convert swaps HP and MP (capped at max MP)');
+ok(P().mp === Math.min(P().maxMp, hp0) && P().hp === 3, 'Mana Swap swaps HP and MP (capped at max MP)');
 
 G.save.gil = 5000; G.hireMerc('dorn'); G.hireMerc('lisette');
 const dorn = S.party.find(p => p.mercId === 'dorn'), lis = S.party.find(p => p.mercId === 'lisette');

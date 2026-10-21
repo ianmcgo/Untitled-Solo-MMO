@@ -9,7 +9,7 @@ ok(G.CONFIG.levelCap >= 15 && G.CONFIG.xpTable.length === G.CONFIG.levelCap, 'le
 G.save.jobs.BLM.lv = 10; G.setJob('BLM', null); G.gainXp(4450);
 ok(P().lv === 11, 'a Black Mage gains level 11');
 G.gainXp(1e6);
-ok(P().lv === G.CONFIG.levelCap && G.actionList(P()).some(a => a.id === 'sleep') && G.actionList(P()).some(a => a.id === 'drain'), 'XP stops at the level cap, with Drain and Sleep learned');
+ok(P().lv === G.CONFIG.levelCap && G.actionList(P()).some(a => a.id === 'sleep') && G.actionList(P()).some(a => a.id === 'drain'), 'XP stops at the level cap, with Life Leech and Sleep learned');
 const ex = G.ZONES.hollow_lake.exits.find(e => e.to === 'marsh');
 ok(ex && G.ZONES.marsh.exits.some(e => e.to === 'hollow_lake'), 'Rocky Hollow and the Ashen Marsh connect both ways');
 G.enterZone('hollow_lake', ex.x + ex.w / 2, ex.y - 40); S.zoneCooldown = 0; P().y = ex.y + 4; run(0.5);

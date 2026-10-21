@@ -16,14 +16,14 @@ G.setJob('BST', null); G.equip('bronze_axe'); G.save.jobs.BST.lv = 15; G.refresh
 G.enterZone('hollow', 300, 1100); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 G.playerAct({ kind: 'ja', id: 'call_beast' }); run(0.3);
 const pet = S.pet;
-ok(pet && pet.beast === 'mountain_ram' && S.party.includes(pet), 'Call Beast brings a great ram at level 15');
+ok(pet && pet.beast === 'mountain_ram' && S.party.includes(pet), 'Call Wild brings a great ram at level 15');
 const m = G.buildMob('goblin', 10, P().x + 40, P().y, 0); m.hp = m.maxHp = 99999; S.mobs.push(m);
 P().target = m; G.toggleEngage(false); const mh = m.hp; run(14);
 ok(m.hp < mh - 50 && pet.alive, 'the beast and its master wear the monster down');
 pet.hp = 1; G.playerAct({ kind: 'ja', id: 'reward' }); run(0.1);
 ok(pet.hp > pet.maxHp * 0.3, 'Reward heals the beast');
 G.playerAct({ kind: 'ja', id: 'feral_howl' }); run(0.1);
-ok(!!m.buffs.weaken, 'Feral Howl cows the target');
+ok(!!m.buffs.weaken, 'Savage Howl cows the target');
 G.save.jobsUnlocked.COR = true; G.save.jobs.COR.lv = 12; G.giveItem('bronze_dagger', 1, true); G.setJob('COR', null); G.equip('bronze_dagger'); G.refreshPlayer(true); run(0.2);
 ok(!S.pet, 'the beast leaves when you change job');
 G.playerAct({ kind: 'ja', id: 'phantom_roll' }); run(0.1);

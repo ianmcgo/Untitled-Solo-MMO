@@ -345,7 +345,7 @@ function updateHud() {
         ch += '<span style="color:#f6a5ff">⛓ ' + esc(t.chain.props.join("/")) + "</span> " + (open ? "window " + fmt(t.chain.closeAt - S.time) + "s" : "opening…");
       }
       if (t.burst && S.time <= t.burst.until) ch += (ch ? " · " : "") + '<span style="color:' + ELEMENT_COLORS[t.burst.el[0]] + '">✦ Burst: ' + t.burst.el.join("/") + " " + fmt(t.burst.until - S.time) + "s</span>";
-      if (t.buffs.dia) ch += (ch ? " · " : "") + '<span style="color:#fff59d">Dia</span>';
+      if (t.buffs.dia) ch += (ch ? " · " : "") + '<span style="color:#fff59d">Gleam</span>';
       if ($("chainInfo").innerHTML !== ch) $("chainInfo").innerHTML = ch;
     } else {
       $("tName").textContent = t === player ? "You" : t.name;

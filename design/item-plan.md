@@ -37,13 +37,13 @@ Sizes: 1,912 equipment pieces (level 20 and below), 113 spell scrolls (110 spell
 
 Current game facts the plan builds on
 - SPELLS in data.js has about 60 hand-made spells with mp, cast, recast, power and per-job levels; scrolls are generated from it (scroll_<id>, shop for level 10 and below, Vela for 17 and below).
-- newSave gives every spell whose job table has a level 1 entry (game.js line 89), so BLM already starts with Stone and WHM with Cure and Dia. After the change a new character gets only the starting spells of the chosen main job.
+- newSave gives every spell whose job table has a level 1 entry (game.js line 89), so BLM already starts with Stone and WHM with Cure and Gleam. After the change a new character gets only the starting spells of the chosen main job.
 - ITEMS has 11 use-items; levelCap is 20.
 
 Phases
 A. Data tables (no game change). Extend parse.py to emit scrolls (spell, school, every job and level, effect text) and potions with effect text. Hand-write the classic MMO numbers the files lack: MP cost, cast time, recast, and base power per spell, taken from classic MMO values. Review the tables before use.
-B. Spells. Replace SPELLS with the 44 early spells plus the other scroll types in the 113 (ninjutsu, summoning, geomancy, songs, rolls, threnodys, bar-ra, en- spells). Use classic MMO job levels exactly (WHM Cure 1, Cure II 11, Dia 3, Banish 5, and so on). Remove game-only spells that have no classic MMO match, or keep them clearly marked as extras if you prefer. Keep scroll items one per spell; duplicate items (Cure, Dia, Stone) merge into one id and keep both ids as aliases so old saves still load.
-C. Starting spells. New character gets: BLM Stone; WHM Cure (and Dia at its level, 3); RDM Dia (RDM 1) and the level 1 spells of its job table; BRD Knight's Minne; other jobs get their level 1 entries. Saves that already exist keep their learned list and gain missing spells at level-up as now.
+B. Spells. Replace SPELLS with the 44 early spells plus the other scroll types in the 113 (ninjutsu, summoning, geomancy, songs, rolls, threnodys, bar-ra, en- spells). Use classic MMO job levels exactly (WHM Cure 1, Cure II 11, Gleam 3, Smite 5, and so on). Remove game-only spells that have no classic MMO match, or keep them clearly marked as extras if you prefer. Keep scroll items one per spell; duplicate items (Cure, Gleam, Stone) merge into one id and keep both ids as aliases so old saves still load.
+C. Starting spells. New character gets: BLM Stone; WHM Cure (and Gleam at its level, 3); RDM Gleam (RDM 1) and the level 1 spells of its job table; BRD Squire's Anthem; other jobs get their level 1 entries. Saves that already exist keep their learned list and gain missing spells at level-up as now.
 D. Potions. Replace the 11 use-items with the 94 (stack, effect, price, shop and drop tables). Items without a level are tiered by hand: Potion, Hi-Potion, Ether, Hi-Ether, Antidote, Eye Drops, Echo Drops, Panacea, Remedy, Reraiser and stat potions are buyable at level 20 and below; Elixirs and the rest are drops or locked. Food stays as it is.
 E. Equipment. Import the 1,912 pieces with classic MMO level, jobs, slot, race, weapon skill, damage, delay and parsed stats. Map weapon skill ids and slot bitmasks to the game's slots; stats the game lacks are converted to the nearest stat or dropped (a list is kept in design.md). Rename to original names only if you choose; otherwise use the classic MMO names. Old gear stays for existing saves until a conversion is agreed.
 F. classic MMO rules. Audit and change: damage formula (fSTR, pDIF, delay and TP), hit rate, evasion, defense, MP and HP growth, regen and refresh, cast time and recast, interruption, enmity, TP gain, weapon skill levels, skill caps by job and level, resting and heal-per-tick. Each rule is a small change with a unit test; none is done by eye.
@@ -67,8 +67,8 @@ Use the real classic MMO item and spell names for now. The design notes' "names 
 ## Status
 - 17.0.0 shipped: spells, potions, starting spells, save wipe. Details in design.md "classic MMO rules (v17.0.0)".
 - Next: 17.1 (deferred spells and statuses), equipment import (level 20 and below), phase F rules, phase G balance (Opus recommended for F and G).
-- 17.1.0 shipped: status and support spells. 17.2 next: area spells, En- spells, Spikes, Shock/Rasp/Choke, remaining songs, Silence.
-- 17.2.0 shipped: Carbuncle start, Elemental NMs, goblin casters, Silence. AoE, En- spells, Spikes, Shock/Rasp/Choke and songs now move to 17.3.
+- 17.1.0 shipped: status and support spells. 17.2 next: area spells, En- spells, Spikes, Arc Burn/Grinding Blight/Throttle, remaining songs, Silence.
+- 17.2.0 shipped: Lantern Sprite start, Elemental NMs, goblin casters, Silence. AoE, En- spells, Spikes, Arc Burn/Grinding Blight/Throttle and songs now move to 17.3.
 - 17.3.0 shipped: area spells, Spikes, En-spells, DoTs, remaining songs. Equipment import (level 20 and under) and balance are next.
 
 - 18.0.0 shipped: equipment import (788 pieces, level 20 and below) replaces all old gear. Details in design.md "Equipment (v18.0.0)". Next: balance (monsters, XP, prices, damage) against the new gear and spells; Opus recommended.
