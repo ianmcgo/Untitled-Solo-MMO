@@ -4292,7 +4292,7 @@ function raiseAI(a, dt, still) {
 }
 
 function updateAlly(a, dt) {
-  if (!a.alive) { a.retreat = null; a.kiting = false; return; }
+  if (!a.alive) { a.retreat = null; a.kiting = false; a.standUntil = 0; a.chaseT = 0; return; }
   if (a.casting || a.winding) return;
   if (a.mounted) { a.engaged = false; a.attackTarget = null; follow(a, dt); return; }
   const stance = save.stance || "assist";
@@ -4305,7 +4305,8 @@ function updateAlly(a, dt) {
     const threats = allyThreats();
     const still = !player.moving && !player.engaged && S.time - (player.stillSince || 0) >= 1;
     const mode = allyMode(a, threats.length > 0, still);
-    a.kiting = mode === "kite" && stance !== "hold";
+    allyStandTick(a, dt, threats, mode);
+    a.kiting = mode === "kite" && stance !== "hold" && !allyStanding(a);
     if (a.resting && !mode && !player.resting) standUp(a, true);
     if (mode === "rest" || mode === "sit") {
       restAI(a, dt, threats, stance === "hold");
@@ -4314,7 +4315,7 @@ function updateAlly(a, dt) {
     }
     if (a.kiting) {
       const near = closestOf(a, threats);
-      if (near && dist(a, near) < CONFIG.allyKiteDist - 15 && fleeFrom(a, threats, dt, 1)) { a.engaged = false; a.attackTarget = null; a.target = null; return; }
+      if (near && dist(a, near) < CONFIG.allyKiteDist - 15 && fleeFrom(a, threats, dt, 1)) { noteBackoff(a); a.engaged = false; a.attackTarget = null; a.target = null; return; }
     }
   } else a.kiting = false;
   if (raiseAI(a, dt, a.kiting)) return;
@@ -4490,10 +4491,30 @@ function meleeIfSafe(a, tgt, dt, acts) {
   return true;
 }
 
+function allyRanged(a) {
+  return a.role === "nuker" || a.role === "burster" || a.role === "healer" || a.role === "support" || a.role === "hybrid" || a.role === "bard" || (a.stats && a.stats.wtype === "archery");
+}
+
+function allyStanding(a) { return !!a.mercId && S.time < (a.standUntil || 0); }
+
+function noteBackoff(a) { a.backAt = S.time; }
+
+function allyStandTick(a, dt, threats, mode) {
+  if (!a.mercId || !allyRanged(a)) { a.chaseT = 0; a.standUntil = 0; return; }
+  if (mode === "rest" || mode === "sit") { a.chaseT = 0; a.standUntil = 0; return; }
+  if (S.time < (a.standUntil || 0)) return;
+  const chased = threats.some(m => m.target === a && dist(a, m) < CONFIG.allyKiteDist);
+  if (chased && a.backAt && S.time - a.backAt < 0.5) {
+    a.chaseT = (a.chaseT || 0) + dt;
+    if (a.chaseT >= CONFIG.allyChaseSecs) { a.standUntil = S.time + CONFIG.allyStandSecs; a.chaseT = 0; }
+  } else if (!chased) a.chaseT = 0;
+}
+
 function keepCasterRange(a, tgt, dt) {
   const d = dist(a, tgt);
+  const standing = allyStanding(a);
   if (d > (a.kiting ? CONFIG.castRange - 5 : 200)) moveToward(a, tgt.x, tgt.y, dt, a.kiting ? CONFIG.allyKiteDist : 170);
-  else if (d < 110) { const ang = Math.atan2(a.y - tgt.y, a.x - tgt.x); a.x += Math.cos(ang) * a.speed * 0.6 * dt; a.y += Math.sin(ang) * a.speed * 0.6 * dt; a.face = ang + Math.PI; }
+  else if (d < 110 && !standing) { noteBackoff(a); const ang = Math.atan2(a.y - tgt.y, a.x - tgt.x); a.x += Math.cos(ang) * a.speed * 0.6 * dt; a.y += Math.sin(ang) * a.speed * 0.6 * dt; a.face = ang + Math.PI; }
 }
 
 function healEstimate(a, sp) {
@@ -4772,7 +4793,7 @@ function enterZone(id, x, y, opt) {
   if (S.party.some(p => p.mercId) || (save.mercBodies && Object.keys(save.mercBodies).length)) rebuildParty();
   if (!canRideHere()) for (const p of S.party) p.mounted = false;
   S.mobs = [];
-  for (const p of S.party) { p.retreat = null; p.kiting = false; }
+  for (const p of S.party) { p.retreat = null; p.kiting = false; p.standUntil = 0; p.chaseT = 0; }
   S.effects = [];
   S.floaters = [];
   S.spawnAt = [];

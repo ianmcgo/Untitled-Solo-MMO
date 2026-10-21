@@ -1530,7 +1530,7 @@ function timeBoxEl() {
   el.style.display = "block";
   return el;
 }
-function closeTimeBox() { const el = $("timeBox"); if (el) el.style.display = "none"; if (UI.timeBox) UI.timeBox = null; }
+function closeTimeBox() { const el = $("timeBox"); if (el) { el.style.display = "none"; el.dataset.mode = ""; } if (UI.timeBox) UI.timeBox = null; }
 function timeNowHTML() {
   const v = vana();
   return '<div class="tbClock">' + (isNight() ? "🌙 " : "☀️ ") + hhmm(v) + '</div><div class="tbSub">' + gameDate() + " · " + DAY_NAMES[v.dayIndex] + " (" + dayElement() + ")</div>";
@@ -1544,6 +1544,7 @@ function openTimeBox(view) {
 function renderTimeBox(msg) {
   const tb = UI.timeBox; if (!tb) return;
   const el = timeBoxEl();
+  el.dataset.mode = tb.view;
   if (tb.view === "menu") {
     el.innerHTML = '<div class="vpT">Time</div><div class="vpB">' + timeNowHTML() + '</div><div class="vpA"><button data-t="now" class="pri">Current time</button><button data-t="wait">Wait</button><button data-t="close">Close</button></div>';
   } else if (tb.view === "wait") {
@@ -1583,8 +1584,14 @@ function startWait(h) {
 function drawWait() {
   const w = S.wait; if (!w) return;
   const el = timeBoxEl(), h = w.done / WAIT_CFG.msPerHour;
-  el.innerHTML = '<div class="vpT">Waiting…</div><div class="vpB">' + timeNowHTML() + '<div class="tbBar"><i style="width:' + (w.done / w.total * 100).toFixed(1) + '%"></i></div><div class="tbSub">' + Math.floor(h) + " of " + w.hours + ' h</div></div><div class="vpA"><button data-t="stop">Stop</button></div>';
-  el.onclick = e => { const b = e.target.closest("button"); if (b && b.dataset.t === "stop") stopWait(true); };
+  if (el.dataset.mode !== "run") {
+    el.dataset.mode = "run";
+    el.innerHTML = '<div class="vpT">Waiting…</div><div class="vpB"><div class="tbNow"></div><div class="tbBar"><i></i></div><div class="tbSub tbProg"></div></div><div class="vpA"><button data-t="stop">Stop</button></div>';
+    el.onclick = e => { const b = e.target.closest("button"); if (b && b.dataset.t === "stop") stopWait(true); };
+  }
+  setHtml(el.querySelector(".tbNow"), timeNowHTML());
+  el.querySelector(".tbBar i").style.width = (w.done / w.total * 100).toFixed(1) + "%";
+  setTxt(el.querySelector(".tbProg"), Math.floor(h) + " of " + w.hours + " h");
 }
 function tickWait(dt) {
   const w = S.wait; if (!w) return;

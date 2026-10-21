@@ -1749,6 +1749,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.17.0", date: "2026-10-21", title: "Stand your ground", items: [
+    "<b>Stop works while waiting.</b> The Stop button in the Time box now responds the moment you press it; the box no longer redraws under your finger.",
+    "<b>Ranged companions stand and fight.</b> A caster or archer companion who keeps backing away but is still chased now turns, stands and fights for 30 seconds before trying to run again. A companion who is running because they are badly hurt keeps running."
+  ] },
   { v: "19.16.0", date: "2026-10-20", title: "Off the beaten path", items: [
     "<b>Field sites.</b> Landmarks in the wilds now have something to find just off the road: stone circles in clearings, overlooks on small rises with a bench and cairn, and the broken walls of small ruins.",
     "<b>Points of interest everywhere.</b> Sunscar Desert, Verdant Jungle and Cinder Peak each gain a Lookout Tower, Wayside Shrine, Weathered Tablet and Hidden Cache; Gull Isle gains a shrine, tablet and cache; the Windreach Highlands a shrine, lookout, tablet and cache across their three zones. New tablets tell each area's story.",
@@ -4036,6 +4040,7 @@ function tabHelp() {
     "<b>Hiring:</b> you can lead <b>one</b> mercenary once any job reaches Lv5, <b>two</b> at Lv10 and <b>three</b> at Lv15 or higher. Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement. You hire them at your current level and the fee follows your level.",
     "<b>Level sync:</b> companions always match your current job level. When you level up, level down or change jobs they sync with you. Gear they can no longer wear is put away as a kept item in their bag (never sold) and goes back on when your level allows, unless they have found something better by then. Their starting gear is plain shop gear, never +1 or named pieces.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
+    "<b>Ranged companions stand their ground:</b> a caster or archer who keeps backing away but is still being chased turns and fights in place for 30 seconds before trying to run again. One who is running because they are badly hurt keeps running.",
     "<b>Hurt mercenaries:</b> when the fight is over and you stand still, a mercenary at 75% health or less sits and rests to full. In a fight, at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
     "<b>Companion sheet:</b> click a companion in the party box, or press Sheet in the Party window. It shows what they wear, what they have for sale (👝 shows by their name when there is something), what they are keeping, and their bag.",
@@ -4055,7 +4060,7 @@ function tabHelp() {
   h += sec("🕰️ Time and waiting", ul([
     "The <b>sun</b> and <b>moon</b> cross the sky with the game clock: the sun rises in the east around 06:00 and sets in the west around 18:00, turning orange near the horizon; the moon climbs after sunset and sets at dawn. Its shape follows the day of the cycle. Caves and buildings have no sky.",
     "A game day passes in about 58 real minutes (one game hour is about 2.4 real minutes). Night runs from 18:00 to 06:00 and brings different monsters.",
-    "Main menu → Time opens a box: <b>Current time</b> writes the Leid'anav date, time and day element plus your own date and time to the log; <b>Wait</b> lets you pick 1 to 24 hours with − / + or the slider.",
+    "Main menu → Time opens a box: <b>Current time</b> writes the Leid'anav date, time and day element plus your own date and time to the log; <b>Wait</b> lets you pick 1 to 24 hours with − / + or the slider. While waiting, the <b>Stop</b> button ends the wait at once.",
     "Waiting only works in a town (enemies are near anywhere else) and only when no other adventurer is online, because everyone online shares one clock. The clock then races ahead, one game hour every 5 seconds, and the sky, weather, shops and night monsters follow. Stop ends it early. Leaving town, a fight or another player coming online interrupts it.",
     "Time you skip is saved with your character. If another adventurer comes online later, your clock rejoins the world's time."
   ]));

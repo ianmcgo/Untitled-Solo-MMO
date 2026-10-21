@@ -15,6 +15,8 @@ const CONFIG = {
   allyKiteExit: 0.7,
   allyRestHp: 0.25,
   allyKiteDist: 200,
+  allyStandSecs: 30,
+  allyChaseSecs: 1.5,
   allyRestDist: 300,
   allySitHp: 0.75,
   allyMpReserve: 0.04,

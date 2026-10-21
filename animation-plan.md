@@ -1,6 +1,6 @@
 # Animation Plan: classic MMO-style feel
 
-Goal: combat and movement that read like the original: weighty, readable, tied to weapon type and stance. Each phase ships as one version, is checked with render sheets (test/swingsheet2.js, test/drawsheet.js), and updates the Updates and Help text.
+Goal: combat and movement that feel weighty, readable, tied to weapon type and stance. Each phase ships as one version, is checked with render sheets (test/swingsheet2.js, test/drawsheet.js), and updates the Updates and Help text.
 
 ## Phase 1: Combat core (next)
 - Engage/disengage: step into stance on Fight, relax on disengage (blend already exists via an.fight; add a short settle).

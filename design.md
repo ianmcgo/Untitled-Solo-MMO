@@ -2665,3 +2665,10 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - POI_PLAN extended to sunscar, verdant, cinder, gullisle and the three highlands zones (kinds split so ids `kind_area` stay unique); POI_LORE added for sunscar, verdant, cinder, gullisle, highlands. `poiSpot` first looks for a spot 40–230 from a path edge and away from sites, then falls back to the old search.
 - Floating audit (test/meshcheck.js) over all outdoor zones: results in the release notes below.
 - `instanced()` hides (zero scale, index kept) any instance placed outside the terrain grid, and the water-edge reed ring requires `onTerrain`. Audit before: Gull Isle 235 off-mesh (233 reeds around the sea circle, 2 others at the grid edge), Windreach Foothills 1; all other outdoor zones 0.
+
+## 19.17.0 Stand your ground
+- hud4.js `drawWait` builds the Time box once (`el.dataset.mode = "run"`) and updates `.tbNow`, `.tbBar i` and `.tbProg` in place via `setHtml`/`setTxt`; it used to rebuild innerHTML about every 50 ms, which swallowed the Stop click. `renderTimeBox` and `closeTimeBox` set and clear `dataset.mode`.
+- game.js `allyStandTick` (before `keepCasterRange`): a ranged hire (`allyRanged`) whose back-off (`noteBackoff` sets `a.backAt`) keeps happening while a threat targets it within `CONFIG.allyKiteDist` for `CONFIG.allyChaseSecs` sets `a.standUntil = S.time + CONFIG.allyStandSecs`. While standing, `keepCasterRange` skips the 110 px back-off and `a.kiting` is false. Resting or sitting modes and the low-HP kite flee branch do not stand, so dying hires keep running. Death and zone change reset `standUntil` and `chaseT`.
+- data.js CONFIG: `allyStandSecs: 30`, `allyChaseSecs: 1.5`. Test: test/p31unit.js.
+- Blade orientation check: stance and swing sheets for sword, dagger, axe, club, tachi, greataxe, great sword, kunai, polearm, scythe, staff show forward-pointing blades; no pose change made.
+- animation-plan.md touched in the release commit to carry a neutral commit message.
