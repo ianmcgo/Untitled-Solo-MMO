@@ -829,17 +829,17 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Results: worst posed separation 8.5% → under 1.2% of height for humanoids and quadrupeds; remaining flags are overlapping-sphere chains (crawler/worm). Open: feet dipping into ground in some poses (humans ~4%, small folk ~13%), crawlers/worms sinking when rearing, slopes.
 
 ## Phase 39: classic interface (v8.9.0)
-- Theme tokens in template4.html: --ffFont (Verdana/Tahoma bold), --ffStripe (blue-purple horizontal stripes), --ffEdge (white rule). Applied to HUD panels, all menu windows (#menu .win, nav pills with orange selected state, h2/h3 italic outlined), dialog, confirm box and buttons (glossy blue pills; .pri/.on orange; .danger red).
-- New HUD markup: #ffTop (Commands label, #ffHelp text, Help label, #ffNet with %, S/R counters), shown via #ui.hasTop when anything is targeted or the command menu is open (minimap shifts down). #ffStat (top left): #ffBars HP/MP/TP shown only with class .combat (engaged or inCombatWith(player)); MP row always shown; #ffIcons always shown (blessing = CSS crystal, food, buffs with bad-status tint, resting). #ffSide (bottom right) wraps #target (restyled; #tLock "◀ Locked ▶" when engaged on it; mob name green calm / red when ffMobAttacking / purple claimed by others) and #party (rows restyled; XP bar removed) under a Party/Solo head.
-- Removed from view: #barWrap (action bar), #xpRow. Hotkeys 1–0 still work through the saved hotbar (tab renamed Hotkeys). #bottom (cast bar), #dialog, #fishBox, #pool moved above the log; #chat spans left to #ffSide; log restyled (bold white outlined text; casting lines are class cast → yellow; tells pink, party cyan, linkshell green).
-- updateFF() in hud4.js runs each HUD tick: help text (UI.ffHelp from the highlighted menu item, else ffDefaultHelp), network (NET.ping from touch_player timing, channel state; NET_RT.sent/recv counted in netZoneSend/netWorldSend/mv send and netOnMove/netOnMs), stat panel, icon strip (signature-cached), side panel classes. ffMobAttacking(m) = in combat targeting me, my party or a party mate.
+- Theme tokens in template4.html: --uiFont (Verdana/Tahoma bold), --uiStripe (blue-purple horizontal stripes), --uiEdge (white rule). Applied to HUD panels, all menu windows (#menu .win, nav pills with orange selected state, h2/h3 italic outlined), dialog, confirm box and buttons (glossy blue pills; .pri/.on orange; .danger red).
+- New HUD markup: #uiTop (Commands label, #uiHelp text, Help label, #uiNet with %, S/R counters), shown via #ui.hasTop when anything is targeted or the command menu is open (minimap shifts down). #uiStat (top left): #uiBars HP/MP/TP shown only with class .combat (engaged or inCombatWith(player)); MP row always shown; #uiIcons always shown (blessing = CSS crystal, food, buffs with bad-status tint, resting). #uiSide (bottom right) wraps #target (restyled; #tLock "◀ Locked ▶" when engaged on it; mob name green calm / red when uiMobAttacking / purple claimed by others) and #party (rows restyled; XP bar removed) under a Party/Solo head.
+- Removed from view: #barWrap (action bar), #xpRow. Hotkeys 1–0 still work through the saved hotbar (tab renamed Hotkeys). #bottom (cast bar), #dialog, #fishBox, #pool moved above the log; #chat spans left to #uiSide; log restyled (bold white outlined text; casting lines are class cast → yellow; tells pink, party cyan, linkshell green).
+- updateFF() in hud4.js runs each HUD tick: help text (UI.uiHelp from the highlighted menu item, else uiDefaultHelp), network (NET.ping from touch_player timing, channel state; NET_RT.sent/recv counted in netZoneSend/netWorldSend/mv send and netOnMove/netOnMs), stat panel, icon strip (signature-cached), side panel classes. uiMobAttacking(m) = in combat targeting me, my party or a party mate.
 - Command menu rewrite (hud4): cmdItems(c) builds pages per target type — mob root: Attack|Disengage, Switch Target, Magic▶, Abilities▶, Items▶, Check; self (tgtCmdOpen(player)): Magic (non-enemy spells), Abilities (non-enemy JAs), Items, Heal/Stand, Cancel; remote player: Magic (mates)/Invite, Trade, Tell, Check, Cancel. Submenus list actions with help text from desc; Items = usable/food items. Disengage also clears the target. UI.cmd.sel highlighted (orange pill + ➤ cursor), hover updates help; keyboard via tgtCmdKey from main4 onKey (↑↓ select, Enter/→ confirm, ←/Backspace back, Esc close). Enter with a monster/player targeted opens its menu; near an NPC talks; otherwise opens the self menu. Tapping yourself opens the self menu. Menu sits left above the log.
 - Name plates (view3d updateLabels): setting plates (Settings → Interface, default on) shows names for everyone in range; classes k-pc (white, cyan edge), k-npc (green glow), k-mob (pale gold; red when attacking you; purple claimed by others; orange NM). Off = target only.
 - Target cursor (makeCursor): group of octahedron gem + flattened cone tip + dark notch, VIEW.cursor.material shared; colour copper by default, for monsters (or players while choosing magic) blue ≤ 85% of range, yellow ≤ 108%, red beyond; range = reach(player) or CONFIG.castRange on the Magic page. Ground ring green/red by attacking state.
-- Character tab: ffStatusBlock (name, main/sub job levels, Ilv = average lv of equipped gear, Su placeholder, HP/MP/TP, STR…CHR, Level/EXP/NEXT LEVEL) and ffJobLevels (two-column; base jobs + unlocked advanced; main yellow, sub pink). New derived stat chr in buildStats (6 + 0.65/lv, BRD bonus, gear chr); songs scale by 1 + chr/500.
+- Character tab: uiStatusBlock (name, main/sub job levels, Ilv = average lv of equipped gear, Su placeholder, HP/MP/TP, STR…CHR, Level/EXP/NEXT LEVEL) and uiJobLevels (two-column; base jobs + unlocked advanced; main yellow, sub pink). New derived stat chr in buildStats (6 + 0.65/lv, BRD bonus, gear chr); songs scale by 1 + chr/500.
 - Skills tab: only panels — Combat Skills, Magic Skills (skills of spells you actually know), Craft Skills (rank names CRAFT_RANKS: Amateur…Veteran per 10 levels, plus Fishing), Gathering Skills. No progress bars.
 - Crafting tab (tabCrafting): UI.cs {crystal, mats[≤8], hover}; essence slot + 8 slots + OK/Cancel; "Craft this combination of" lists recipes whose essence matches and that contain the chosen mats (★ exact); tapping a result fills the slots if you have the ingredients; description box; bag list of essences/materials with remaining counts; craft rank line; "Recipe notes" toggles the old list (tabCraftBook). Wording "synthesis" → "crafting" everywhere visible.
-- Inventory: compact list cells (icon, name, count; rarity colours); storage lists use .ffList rows.
+- Inventory: compact list cells (icon, name, count; rarity colours); storage lists use .uiList rows.
 - Tests: test/hudshot.js (HUD in combat with menu, Character, Crafting, Inventory, Skills screenshots).
 
 ## Phase 40: equipment and classic windows (v9.0.0)
@@ -847,24 +847,24 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - normalizeSave re-homes old gear (ring → ring1, shields → sub, medallion/charm → neck). equip(id, want) uses slotFor. Mercenary gear and pool upgrades use slotKeys(type)[0]; PLD kit uses sub. buildStats only takes weapon dmg/delay from main; copies res_<element> (RES_ELEMENTS) into stats; applyDamage reduces damage taken by res% (cap 50%) when opt.el is given (boss pulse, TP moves with mv.el).
 - Item changes: kite_shield → sub; ashen_medallion, croaker_charm → neck. New items: leather_gorget, mage_pendant, spirit_torque (neck); copper/beetle/silver/ember earrings (ear); travelers_cape, wolf_mantle, mage_cape (back); leather_belt, warriors_belt, silk_sash (waist); buckler (sub); sling (ranged); pebble_pouch, wooden_arrows (ammo). Pell's SHOP gets the starter pieces, Vela the better ones. ITEM_LOOK: capes → L.cape, belts → L.belt, buckler → shield.
 - UI (menu4): tabEquipment (4×4 eqGrid of boxes, Attack/Defense, 8 resist dots; selecting a box opens eqPop with Remove + fitting items, greyed with canEquip reason; first tap previews (itemCard + ▼ + equipped card), second tap equips into that box). itemCard(id): icon, name, Rare/Ex tags, [Slot] All Races, DMG/Delay/DEF/stats/resists/augments, desc, Lv + jobs (All Jobs when every job), <Item Level>. Inventory detail uses itemCard. Equipment tab key G.
-- Character tab = ffStatusBlock + ffJobLevels (+ appearance options); removed preview, attributes table and progress list. Storage tab = mcBox two-column transfer list (Storage n/cap | Bag). Bestiary hides unmet creatures.
+- Character tab = uiStatusBlock + uiJobLevels (+ appearance options); removed preview, attributes table and progress list. Storage tab = mcBox two-column transfer list (Storage n/cap | Bag). Bestiary hides unmet creatures.
 - Tests: p5bunit shield assertions now check gear.sub. hudshot adds storage and equipment screenshots.
 
 ## Phase 40b: tidier screen (v9.0.1)
 - #chat gets class gone (fade/slide, no pointer events) unless: a valid target, command menu open, chat input focused, UI.chatPin (💬 #btnChat in #trBtns, key L, chatToggle()), a dialog, or S.time < UI.chatFlashUntil (log() sets +6 s for tell/pchat/ls/say/shout/loot/npc lines). Esc (game or chat input) unpins/blur when nothing is targeted.
-- Network moved out of #ffTop into its own #ffNetBox (top right, 140 px); #ffTop ends 150 px from the right. Both show with #ui.hasTop.
+- Network moved out of #uiTop into its own #uiNetBox (top right, 140 px); #uiTop ends 150 px from the right. Both show with #ui.hasTop.
 
 ## Phase 41: main menu window and Status screen (v9.1.0)
 - hud4 MAIN_CMDS (2 pages) → #mCmd. UI.mm = {page, sel, sub, back}. mainCmdOpen/Close/render/Do/Key; main4 routes arrows/enter/esc/backspace when UI.mm. Esc with nothing targeted, "-"/Insert and ☰ open it.
 - Status (key "character") sets UI.mm.sub="status": list = STATUS_CMDS (profile/jobs/combat/magic/craft/cur/time). Esc/backspace returns to menu at UI.mm.back. ←/→ ignored in sub.
-- renderStatusOv (menu4) fills #stOv (#stL left sheet + level box, #stM centre page via statusPanelHTML(key)); #ui.stOn hides #ffStat. updateFF refreshes it every 500 ms. mainCmdHelp: profile help = "Title: " + playerTitle() (latest achievement).
+- renderStatusOv (menu4) fills #stOv (#stL left sheet + level box, #stM centre page via statusPanelHTML(key)); #ui.stOn hides #uiStat. updateFF refreshes it every 500 ms. mainCmdHelp: profile help = "Title: " + playerTitle() (latest achievement).
 - gearBonus() sums gear+augment stats for green "+n"; base shown = stats - bonus. save.playSec accumulates in step(dt). fmtPlay formats.
-- #ffTop: .ffCmd and .ffBar are separate boxes (transparent container).
+- #uiTop: .uiCmd and .uiBar are separate boxes (transparent container).
 - #mmWrap lives in #ui bottom-left; hidden by CSS while #chat is visible.
 - menu4 tabMagic/tabAbilities/tabKeyItems with mcast/mact.
 
 ## Phase 42: windows in the world (v9.2.0)
-- #menu is transparent, pointer-events none; .win is a top-left panel (no #mNav, no h2). updateFF sets #ffTop .ffCmd to TAB_INFO[S.modal][0] and help via tabHelpLine(tab) (MAIN_CMDS help or a small map). openMenu closes any dialog.
+- #menu is transparent, pointer-events none; .win is a top-left panel (no #mNav, no h2). updateFF sets #uiTop .uiCmd to TAB_INFO[S.modal][0] and help via tabHelpLine(tab) (MAIN_CMDS help or a small map). openMenu closes any dialog.
 - openDialog (hud4): logs "Who : text" (class npc) per paragraph; no opts → nothing shown; single Trade/Shop/Buy option → runs it at once; otherwise S.dialog {sel} and #dialog becomes a small prompt above the log (renderDlgOpts, dlgKey ↑↓ Enter). Story pages (single Next/Continue) show no question and no back-out option.
 - gameConfirm keeps #confirmBox but CSS makes it the same small prompt above the log; .yes/.no rows with .sel, main4 arrows toggle, Enter clicks .sel.
 - Event log rows: UI.logRows (logFull() = 8, 6 under 900px). log() resets to full + UI.logAt. updateFF shrinks one row per 1.2 s after 8 s idle down to 3; logEsc() removes one row (Esc order: casting → unengaged target → log row → main menu). rows 0 → #chat.gone. #chat.lite hides tabs/input unless typing or pinned (L / self menu Chat).
@@ -872,7 +872,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - #clockBox/#trBtns hidden. Self command menu gained Main Menu and Chat (phones).
 - Rest pose: anim.js sitPlan(v) from bone lengths (thighL.y, |shinL|, |footL|): thigh -1.85, shin solved so the seat sits ~0.1H above ankle height; root drop = hipJ - seat; tail lifted. Probe: test/sitlab.js.
 - /clock: gameDate() (360-day years from 880) + Earth time.
-- #ffNetBox matches #ffTop (top +4px, 34px).
+- #uiNetBox matches #uiTop (top +4px, 34px).
 
 ## Phase 43: classic lists (v9.3.0)
 - menu4 SLIM_TABS {inventory, shop, quests, magic, abilities} → .win.slim (320px, no #mHead); equipment → .win.wide. listRow()/orbRow() build .lr rows (data-hv = item id for hover card, data-hs = help text).
@@ -880,8 +880,8 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - promptChoice(q, opts) (hud4) = S.dialog prompt without logging. When a window is open the prompt sits beside it (updateFF sets top/left); otherwise above the log. main4 handles S.dialog keys before S.modal.
 - Items: isel → invActions(i). Shop: UI.shopMode buy/sell; shopbuy/shopsell prompts (1/3/12 for stackables; sell 1/all). Quests: UI.qCat (story/cur/done/guild) → UI.qSel → questCardHTML; Esc goes back a level.
 - Equipment: .eqW = .eqL (statusLeftHTML(true) + crystals) + existing .eqWrap. CSS for #stL also applies to .eqL via :is().
-- Target command lists: #tCmd.list for pages ma/ja/items (orbs by element); Commands label Magic/Ability/Item List; renderMpBox → #mpBox above #ffSide (MP Cost, Next recast).
-- #ffSide split into #ffTBox and #ffPBox. Unified box style: dialog, confirm, mCard, tCmd, mCmd, menu .win, tracker, mpBox use --ffStripe.
+- Target command lists: #tCmd.list for pages ma/ja/items (orbs by element); Commands label Magic/Ability/Item List; renderMpBox → #mpBox above #uiSide (MP Cost, Next recast).
+- #uiSide split into #uiTBox and #uiPBox. Unified box style: dialog, confirm, mCard, tCmd, mCmd, menu .win, tracker, mpBox use --uiStripe.
 - Compass hidden while UI.cmd/S.dialog/S.modal/confirm. Enter with no target focuses #chatIn.
 - Mob regen: idle/return mobs gain CONFIG.mobRegen (4%) max HP per second after 5 s without a hit.
 
@@ -909,7 +909,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Tests updated for sparse spawns (p1, p5, p5d, p6, p17, p24, p25).
 
 ## Phase 46: classic windows everywhere (v9.6.0)
-- template4 CSS: #mBody h3 → pale gradient title bar; #mBody .item → flat rows with separators; details/summary → classic headings; range sliders accent blue; .sub/.d use --ffFont.
+- template4 CSS: #mBody h3 → pale gradient title bar; #mBody .item → flat rows with separators; details/summary → classic headings; range sliders accent blue; .sub/.d use --uiFont.
 - Help text updated (first hire via daily hall, Heal via self menu, Config names, compass map, Party window, Pip job changes); intro log line points to Pip; mercenary role labels.
 
 ## Phase 47: offline play (v9.7.0)
@@ -922,7 +922,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 
 ## Phase 48: G1 sky and light (v9.8.0)
 - world3d.js: W3.clouds2 (higher, slower, scaled layer), W3.sunGlow (additive sprite at sun dir, warmer/larger in golden hour), W3.moonDisc (moonTex(phase) canvas, phase from game day % 24), W3.haze (open cylinder, hazeTex vertical alpha, coloured with fog), ATMOS per zone {tint, haze, far, clouds} blended into fog/hemi colour, fog distance and cloud opacity. Cloud colour picks up golden-hour tint. Stars rotate with time of day.
-- Mobile: #mobBar (Target → cycleTarget, Menu → toggle main menu/close window) above #ffSide (and above #mpBox when shown); jump hidden on coarse pointers; tapping #log on touch opens openChatInput.
+- Mobile: #mobBar (Target → cycleTarget, Menu → toggle main menu/close window) above #uiSide (and above #mpBox when shown); jump hidden on coarse pointers; tapping #log on touch opens openChatInput.
 - Toasts and #verPop: blue stripe style, top centre. showWhatsNew uses the entry for GAME_VERSION (was UPDATES[0], which is the misplaced 6.5.0 Pets entry); tabUpdates sorts newest first (verNum).
 
 ## Companion AI pass (v9.8.1)
@@ -936,16 +936,16 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Phone CSS (≤600px): narrower #mCmd, compact #stM rows (KV grid max-content/1fr, craft grid 1fr auto 30px), windows full width, #ui.modalOn hides #mCmd. Status list header has ◀ back (data-mc="back"). mobMenu steps back. Slim windows show #mHead ✕ on touch. fmtPlay → h:mm:ss.
 - test/mocklogin clicks Play Online when the mode choice appears.
 - normalizeSave keeps hired ids found in d.mercDefs (generated companions were dropped on load). COMPANION_CFG.dayMs = 24 h real, wageRate 1. companionInfo(p) (party row tap): countdown, wage, Pay now, Dismiss. Paths ending near a hall exit are rerouted via exitInner then the exit centre.
-- Capture-phase pointerdown outside #tCmd (and its companions: mobBar, dialog, confirm, ffSide, mpBox) closes the target command box.
+- Capture-phase pointerdown outside #tCmd (and its companions: mobBar, dialog, confirm, uiSide, mpBox) closes the target command box.
 
 ## v9.8.3
-- #ui.modalOn hides #mCmd at ≤1020px. tabStorage outside S.zone.residence is a read-only slim list; store/retrieve actions refuse outside the residence. #log always uses --ffStripe (overrides .min/.lite phone styles). Capture pointerdown outside #menu .win/#mCard/#mCmd closes the window (desktop returns to main menu; narrow closes both); outside #mCmd/#stOv closes the main menu; ignored while a dialog/confirm is open or when tapping the log/top bars/mobile buttons.
+- #ui.modalOn hides #mCmd at ≤1020px. tabStorage outside S.zone.residence is a read-only slim list; store/retrieve actions refuse outside the residence. #log always uses --uiStripe (overrides .min/.lite phone styles). Capture pointerdown outside #menu .win/#mCard/#mCmd closes the window (desktop returns to main menu; narrow closes both); outside #mCmd/#stOv closes the main menu; ignored while a dialog/confirm is open or when tapping the log/top bars/mobile buttons.
 
 ## v9.8.4
 - MAX_CHARS 5 (client); setup.sql chars_insert policy count < 5, schema 6 (NET_SCHEMA 6). Local-upload offer removed from the character list.
 
 ## v9.8.5
-- #mobBar width matches #ffSide per breakpoint (210/168px), buttons flex. #logTap: invisible bottom-left zone on touch shown only while #chat.gone; tap → openChatInput. Phone #chat.min made #log pointer-events none, so taps never arrived; now forced auto on coarse pointers, touchend + click handlers, and openChatInput focuses synchronously (inside the gesture) so the phone keyboard opens.
+- #mobBar width matches #uiSide per breakpoint (210/168px), buttons flex. #logTap: invisible bottom-left zone on touch shown only while #chat.gone; tap → openChatInput. Phone #chat.min made #log pointer-events none, so taps never arrived; now forced auto on coarse pointers, touchend + click handlers, and openChatInput focuses synchronously (inside the gesture) so the phone keyboard opens.
 
 ## Phase 49: G2 terrain detail (v9.9.0)
 - textures.js texGray(key,S,fn) → mean-centred grayscale tiling detail; texGrassDetail, texDirtDetail, texRockDetail.
@@ -1185,8 +1185,8 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Known limits: IK is sagittal only (no terrain slope or step-up IK yet); monsters with non-human rigs keep their old cycles (phase 98).
 
 ## v13.6.1: classic command menu
-- template4 tail CSS: #ffTop/#ffNetBox at top 13px so the on-border labels (-9px) are on screen; .ffLbl 12px italic outlined. #mCmd: navy panel, light border with inset rules, overflow visible (so the pointer can stick out), `.ffMLeg` legend ("Commands", or "Status" in the Status list) centred on the top border, page arrows small under it; `.ffb` lavender pills, `.sel` brown-orange with orange text, `.cur` an inline SVG silver pointer at left -58px (-42px on phones).
-- hud4: main menu header markup gains `.ffMLeg`; NPC/object targets show no "NPC" tag or talk hint (only the ❗ line), name green for props/crystals; empty #tInfo/#tToT/#tChain hidden; npc target box hides bars.
+- template4 tail CSS: #uiTop/#uiNetBox at top 13px so the on-border labels (-9px) are on screen; .uiLbl 12px italic outlined. #mCmd: navy panel, light border with inset rules, overflow visible (so the pointer can stick out), `.uiMLeg` legend ("Commands", or "Status" in the Status list) centred on the top border, page arrows small under it; `.ffb` lavender pills, `.sel` brown-orange with orange text, `.cur` an inline SVG silver pointer at left -58px (-42px on phones).
+- hud4: main menu header markup gains `.uiMLeg`; NPC/object targets show no "NPC" tag or talk hint (only the ❗ line), name green for props/crystals; empty #tInfo/#tToT/#tChain hidden; npc target box hides bars.
 
 ## Phase 90: hands, feet, animal heads, knock-outs and raising (v13.7.0) — plan Q3
 - Hands (rig.js humanEntry, non-skull): wrist ball, palm box + flattened ball, four two-segment fingers on new bone `fingersL/R` (knuckle line at wrY − 0.078·hk), two-segment thumb on `thumbL/R`. anim.js poseHuman sets curl on those bones every frame: relaxed 0.35 (+ slow breathing wobble), 1.3 right hand when a weapon is drawn, 1.2 left for two-handed weapons, 1.55 fists when barehanded and fighting (curl is a z rotation, sign by side; thumb x/z).
@@ -1229,7 +1229,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Look-at: models3d `lookTargetOf(e)` sets `v.lookTgt` (player → its target ≤900; NPC → player when targeted/talking ≤700 or within 130; mob → its fight target ≤1200 or player when targeted ≤600; allies → attack target). anim `headLook(v, dt)` runs inside applyPose for kinds human/quad/hare/mandrake/bird: target head (or ground +1.0/1.3) in group-local space, yaw minus hips+spine+chest twist, clamp ±1.25 (ignored past 2.1), pitch −0.55..0.5, split 62% head / 38% neck, weight lookW eases at 4/s, angles at 7/s. The old NPC head-turn add was removed (chest twist kept). Never name a view field `look` (collides); it is `lookTgt`. Headless rAF barely ticks: probes must step syncEntity manually.
 - Damage numbers: popText gains `dmg` flag (numeric applyDamage pops), colour DMG_RED #ff2a20 (#ff5a48 on party), size +6, life 1.25. updateFloaters: dmg pops from 1.25 m, scale 0.4→1.5→1 in 0.2 of life, rises, drifts sideways, last 38% fizzles (blur up to 2.6 px, letter-spacing, squash, flicker). `VIEW.settings.dmgNums` (Config → Interface) hides them.
 - Torso: ring superellipse default p 2.1 (was 2.3); chest width capped by shoulders (`cx0 = min(gi,1.04)·W`, `cx1 = min(gi,1.1)·W·1.04`), waist 0.93/0.95, shoulder rings step down from shY−0.025 to neck so the trapezius slopes; arm caps start at shY+0.004. Neck taper 0.064/0.054 (male) or 0.056/0.046 (female) × girth, slight forward lean. Pipkin foot scale 0.8 (was 1.15). Skin/face albedo 0.8/0.82, face roughness 0.64.
-- HUD: `#ui.hasTop #ffStat` top 54 px and `#stOv` 56 px so status icons clear the Commands bar.
+- HUD: `#ui.hasTop #uiStat` top 54 px and `#stOv` 56 px so status icons clear the Commands bar.
 - Audio: unlock on any pointer/key/touch calls startAudio, resumes the context and plays one silent buffer; main4 runs step/view/audio in separate try/catch; `audioNag()` toasts if the context isn't running 2.5 s after starting.
 
 ## Phase 96: beastmen and bosses (v14.3.0) — plan Q9
@@ -1468,7 +1468,7 @@ World systems:
 | 16.15.0 | Nameplate range per kind in updateLabels (npc 260, mob 450, other 700; target and party always). build.mjs now also writes root version.json (it was stale at 16.10.0, so the update popup never fired); update check every 5 min plus on tab focus. |
 | 16.14.1 | renderMCard shows the Current Crystals gilBox for modal "auction" as well as "shop". |
 | 16.14.0 | Drag-yaw inverted by default (settings.invertX, default true); Tab (cycleNpcTarget) includes warp stones in the crystal group. |
-| 16.13.1 | #tgtAct moved to first child of #ffSide (above #ffTBox), FF .ffb pill style; no per-frame world projection. |
+| 16.13.1 | #tgtAct moved to first child of #uiSide (above #uiTBox), FF .ffb pill style; no per-frame world projection. |
 | 16.13.0 | Offline play gate (showOfflineGate/verifyOfflinePassword in main4.js): account email+password verified with a throwaway non-persistent Supabase client; salted SHA-256 cached in localStorage ashenreach_offline_gate for no-network checks. Client-side only, so it deters casual use rather than being real security. |
 | 16.12.0 | Mobile target button (#tgtAct, tgtActFor/updateTgtAct/tgtActPress in hud4.js): Talk/Use/Inspect/Harvest/Fight above the target; Fight engages without chase and opens the command box. S.chase now only set when settings.autoRun (autoRunOn in game.js, Config > Camera). |
 | 16.11.0 | Warp stones are statues (propView "statue", prop+warpstone flag); offRoad pass in data.js moves benches, racks, dummies, props, stalls, lamps, signposts and statues clear of z.paths and houses. Ambient walkers removed (cityLife no longer called, zone walker ambients and road travellers skipped); only animals roam. |
@@ -1502,7 +1502,7 @@ World systems:
 | 18.9.0 | gilBox (renderMCard) is a one-line "Crystals  N" row (flex row), shown for shop, auction, forge, furnishings, stable, mercs, guild, home, job, craft, board, storage; equipment .gilB matches. |
 | 18.10.0 | Market equipment (superseded by 18.11.0): 10 seeded-random hq (+1) tradable equip per market day (S.ahEq cache); ahStock for equip = 1 if listed today else 0; buy list shows only those. Auction rows carry data-hv; renderMCard shows itemCard for modal "auction" (hover, else UI.ahSel / UI.pmSel). Auction window class "fit" (max-content width). |
 | 18.11.0 | Market stock: ahDaily() (replaces ahEquipToday) = seeded daily picks per ahGroup (equip hq 10, ammo 5, use 10, scroll 3, food 10, mat 10; AH_DAILY), only items with lv <= player lv + 1; cached in S.ahDay by day and level. ahStock is 0 for unlisted ids; buy list = ahDaily set. |
-| 18.12.0 | Tab: cycleTarget lists mobs (450 px) and NPCs/objects (260 px, whole zone range in safe zones) together by distance and targets on keydown (cycleNpcTarget/cycleObjectTarget in game.js). Hotbar: slot.hud === false hides a slot from the HUD bar (Hotkeys tab button slothud); #barWrap uses the ffStripe style, #barGrip drags it (translate offset in settings.barPos, clamped by barPosApply, double-click resets). Equipment: .eqSide.two puts the fit list and .eqCards side by side. CONFIG.supportUnlockLevel 10, CONFIG.mountLevel 20 (quests support/riding lv, Ysolde, hud chips). Humanoid families (goblin, orc, fishfolk, birdfolk and casters; not NMs) gil [1, 2] per level. |
+| 18.12.0 | Tab: cycleTarget lists mobs (450 px) and NPCs/objects (260 px, whole zone range in safe zones) together by distance and targets on keydown (cycleNpcTarget/cycleObjectTarget in game.js). Hotbar: slot.hud === false hides a slot from the HUD bar (Hotkeys tab button slothud); #barWrap uses the uiStripe style, #barGrip drags it (translate offset in settings.barPos, clamped by barPosApply, double-click resets). Equipment: .eqSide.two puts the fit list and .eqCards side by side. CONFIG.supportUnlockLevel 10, CONFIG.mountLevel 20 (quests support/riding lv, Ysolde, hud chips). Humanoid families (goblin, orc, fishfolk, birdfolk and casters; not NMs) gil [1, 2] per level. |
 | 18.13.0 | Hotbar: body.barEmpty (set in buildActionBar when no slot has hud !== false) hides #barWrap; #barClose calls closeHotBar (sets hud = false on every slot); setPage skips lines with nothing shown (lineShown). main4 guardKeys (capture listener) preventDefaults Ctrl/Alt/Meta + digit; onKey ignores Ctrl/Meta + non-digit; toggleFullscreen (hud4) requests fullscreen and navigator.keyboard.lock(), Config > Interface button data-a="fullscreen". |
 | 18.14.0 | CONFIG.shopMul 10 multiplies buyPrice (store buy prices only; sell prices, mercenary fees, auction and stable unchanged). Camp crystals removed (data.js camp loop only adds the camp prop). Old saves may still hold campcrystal_* attunements; the warp list ignores ids without an NPC.. Empty hotkey slots do nothing (activateSlot). settings.autoFull requests fullscreen + keyboard lock on the first pointerdown after start (main4). |
 | 18.15.0 | Ctrl hotkey line removed: page 0 is now the Main line (plain digits and Ctrl+digit use UI.page), labels Main/Shft/Alt/Tab in hud4 pgNum and menu4 tabActions. Saved hotbar data unchanged. |
@@ -2009,7 +2009,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - public.has_seat(): admin, cap 0 or a fresh seat. Added to characters RLS (select/insert/update/delete) and to game_private.my_char, so loading, saving and every market/trade/linkshell RPC need a place.
 - Client net.js: netQueueJoin (missing function or non-object reply = no queue, NET.queueOff), netQueueLeave(keepalive), netSeatStart (5 s timer, netSeatTick every NET_CFG.seatBeat 30 s; a 'wait' reply = netSeatLost: sessionStorage usr_requeue + reload, which skips the mode screen back into the line), netIdleTick (VIEW.settings.idleMin 5..60, default 30; warning gameConfirm tag idle at 60 s left; netIdleLogout saves, flushes, leaves the queue, sets sessionStorage usr_idle and reloads to the mode screen with the note). UI.lastInput is set by capture listeners in main4.js.
 - main4.js: openRoster → queueGate (polls every 5 s, showQueue screen with #position and Leave the line) before loading characters.
-- Config → Online (menu4 tabSettings, action idlemin) and the Network box #ffNetOn show NET.online.
+- Config → Online (menu4 tabSettings, action idlemin) and the Network box #uiNetOn show NET.online.
 - Tested on local Postgres 16 as role authenticated (cap, FIFO, leave, 120 s timeout, admin exempt, RLS blocks reads/saves without a seat, cap 0) and in Playwright with a mock server (queue screen, seat, idle warning and log-out, seat loss).
 - 18.36.0 also: petToBag(id) / petItemOf(id) (game.js) and the Pets window's Unequip to bag button (action petbag): dismisses, removes from save.buddies, unequips and pushes the pet item directly into the bag (bypassing giveItem, which would re-learn it). Pets without an item (ash_sprite) can't be unequipped.
 - 18.36.1: netIdleTick uses NET_CFG.selectIdleMin (15) while !UI.started (character select/creation, seated online), else the Config setting; netIdleLogout(min, sel) words the note accordingly.
@@ -2085,7 +2085,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Hare ears: the L bone leaned inward with positive z and the R bone with negative z, so the tips touched. anim.js hare poses (idle, hop, twitch, listen, hit) now use negative z for L and positive for R (outward). rig.js hareEntry ear geometry sits 0.01 to 0.015 further apart.
 
 ## 18.47.0 Treasure pool window style
-- template4.html: #pool no longer has the glass class; override rules after the phone media rule give it the FF panel look (var(--ffStripe) background, var(--ffEdge) border, ffHead-style title, italic row text, gradient pill buttons; .pri uses the bright command gradient). hud4.js header is now <div class="ph"><span>Treasure Pool</span></div>. Position rules are unchanged.
+- template4.html: #pool no longer has the glass class; override rules after the phone media rule give it the FF panel look (var(--uiStripe) background, var(--uiEdge) border, uiHead-style title, italic row text, gradient pill buttons; .pri uses the bright command gradient). hud4.js header is now <div class="ph"><span>Treasure Pool</span></div>. Position rules are unchanged.
 
 ## 18.48.0 Vela removed, strict vendor levels
 - Vela (NPC, look, talk, zone entry) removed; her building is signed Outfitters Hall. SHOPS.vela remains as a data list; only its rings and necklaces feed the jeweler.
@@ -2116,7 +2116,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.51.0 Visitor counter on the title screen
 - Counter lives in the FreeSpace 4X Supabase project (puiypjgnbqddudbfghuy), table public.leidanav_views (single row, RLS on, no policies) with security definer RPCs leidanav_bump_views() / leidanav_get_views() executable by anon. Migration name leidanav_views_counter. The game's own database and NET_SCHEMA (9) are untouched.
 - Client (src/net.js): VIEWS state with its own anonymous client (viewsClient, no session persistence) using that project's publishable key; viewsTick() runs from showTitle(). Bumps once per browser per day (localStorage usr_views_day), otherwise reads; caches usr_views_last for offline display. Count animates up over 1.4 s. If the RPC fails and nothing is cached the panel stays hidden.
-- UI: #ldViews in #loading (template4.html), bottom-right (raised to 58px above the bottom under 860px wide so it clears the centred credit line), only on the ready title screen. Uses --ffStripe / --ffEdge / --ffFont; light blue live, grey linking, red offline.
+- UI: #ldViews in #loading (template4.html), bottom-right (raised to 58px above the bottom under 860px wide so it clears the centred credit line), only on the ready title screen. Uses --uiStripe / --uiEdge / --uiFont; light blue live, grey linking, red offline.
 
 
 ## 18.52.0 Visitor origins (globe plan phase 1)
@@ -2282,7 +2282,7 @@ Tools: hero sheets are rendered by a scratch script (studio scene, exposure 1, s
 AH_CFG.relistChance 0.5 (was 0.25), relistCap 40 town-kind local lots. game.js townRelist(l, town) pushes a kind "town" lot at price times relistMarkup (1.03); called from townBuyOnce (player and companion lots) and from tickAuction real-time sales (town ahHere()).
 
 ## 18.75.0 Visitor tracker on the standard package
-Source of truth: vendor/visitor-tracker (the user's standard package, unchanged). tools/vtrack-gen.mjs generates src/vtrack.js: recolors CSS and JS (cyan to #9fd0ff, light cyan to #c8d0ff, magenta to gold #f1cf73, purples to game blues, near-black backgrounds to navy, green to #6fe3ff), swaps the monospace font for --ffFont (flag font first), appends overrides that make #vc-panel sit inside #ldViews with the old box look, injects flag font plus CSS as a style tag, puts the panel markup in #ldViews and the overlay at the end of body, and adds VisitorTracker.start (once) so counting starts from showTitle (autoStart false keeps supaLoad off the load path). Rerun node tools/vtrack-gen.mjs after any package or theme change; never hand-edit src/vtrack.js.
+Source of truth: vendor/visitor-tracker (the user's standard package, unchanged). tools/vtrack-gen.mjs generates src/vtrack.js: recolors CSS and JS (cyan to #9fd0ff, light cyan to #c8d0ff, magenta to gold #f1cf73, purples to game blues, near-black backgrounds to navy, green to #6fe3ff), swaps the monospace font for --uiFont (flag font first), appends overrides that make #vc-panel sit inside #ldViews with the old box look, injects flag font plus CSS as a style tag, puts the panel markup in #ldViews and the overlay at the end of body, and adds VisitorTracker.start (once) so counting starts from showTitle (autoStart false keeps supaLoad off the load path). Rerun node tools/vtrack-gen.mjs after any package or theme change; never hand-edit src/vtrack.js.
 Backend unchanged (FreeSpace 4X project): the adapter maps the standard RPC names to the game's own set (bump_site_views to leidanav_bump_views, get_site_views to leidanav_get_views, get_country_views, get_country_firsts, my_country, get_daily_views, get_country_daily, get_hour_views, bump_site_view_device, get_device_views to the ln_ versions). ln_daily_views and ln_hour_views are sparse, so the adapter fills missing days (UTC, n up to 365) and hours with zeros. The site_ tables in that project belong to FreeSpace 4X; do not point the game at them.
 Counting follows the package: once per tab session per local day (sessionStorage leidanav_vc_day), last count in localStorage leidanav_vc_last. Refresh every minute while the title is showing (isActive). Title start ignores clicks on #ldViews and input while #vg-overlay is open.
 Removed: src/visitors.js, #vgWin CSS, old #ldViews inner markup and CSS, net.js viewsSet/viewsTick/viewsHtml/viewsToday (viewsClient and VIEWS url/key kept for the adapter). Page size +195 KB (flag font 105 KB).
@@ -2570,11 +2570,11 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - Saves never stored enmity (mobs respawn on load), so nothing migrates; `netPromote` and proxy snapshots build `{ c, v }` entries.
 
 ## 19.9.0 Reading the room (monster plan H2)
-- Target frame: new `#tHate` row (template4.html, hud4.js `updateTarget`): shown only for a living monster in combat with a non-empty hate table. Label "On you" / "On <name>" from `m.target` (falls back to `topEnmity`), bar width = `hateOf(m, player) / hateOf(m, top)` clamped to 100, percent text, `.top` class (red gradient) when the holder is the player, gold otherwise. So red-below-full = someone is about to pull, gold-near-full = you are about to pull. Visible in both the glass and the ffSide layout (ffSide hides the other info rows; this one is kept at 10px).
+- Target frame: new `#tHate` row (template4.html, hud4.js `updateTarget`): shown only for a living monster in combat with a non-empty hate table. Label "On you" / "On <name>" from `m.target` (falls back to `topEnmity`), bar width = `hateOf(m, player) / hateOf(m, top)` clamped to 100, percent text, `.top` class (red gradient) when the holder is the player, gold otherwise. So red-below-full = someone is about to pull, gold-near-full = you are about to pull. Visible in both the glass and the uiSide layout (uiSide hides the other info rows; this one is kept at 10px).
 - Swap alert: `hateSwap(m, from, to)` in game.js replaces the inline `swapAt/swapFrom` assignment in `updateMob`. Proxies and non-party targets return early. Onto the player: log "<Monster> turns on you!" (foe colour) every time, `popText` "‼" 28px red, red `ring`. Onto a companion: log "<Monster> turns on <name>!" (sys) throttled to one per 2 s per monster via `m.swapLog`, "!" 22px gold, gold ring. The floaters/effects already render in 3D, so no new sprite code.
 - Temper text: `HATE_WORDS` (phys steel, magic spells, ability job abilities, heal healers, crit critical hits), `hateTemper(fam)` builds "Resents X [and Y] most; shrugs off Z." from `hateBias` (so `fam.hate` overrides and the NM crit rule apply), or "No particular grudge; it fights whoever hurts it most." when every bias is 1. `temperLine(fam, bestiaryEntry)` gates it on kills ≥ 5 (NM 1), else "Fight it more to learn its temper (N more)." Used in `inspectText` (hud4.js, skipped for monster pets) and `dbBeasts` (menu4.js, after the behaviour line).
 - Help: three bullets in Combat (reading hate, swap alert, temper). Updates entry 19.9.0.
-- Tests: test/h9unit.js (16 checks: temper wording per family, flat profile, kill thresholds incl. NM, swap fields, log text, floater glyphs, ring, throttle). harness exports `hateTemper`, `temperLine`, `hateSwap`. Screenshot check in the scratchpad (h2/hateshot.js) confirmed the row in the ffSide layout at 1280×720 and the Database lines.
+- Tests: test/h9unit.js (16 checks: temper wording per family, flat profile, kill thresholds incl. NM, swap fields, log text, floater glyphs, ring, throttle). harness exports `hateTemper`, `temperLine`, `hateSwap`. Screenshot check in the scratchpad (h2/hateshot.js) confirmed the row in the uiSide layout at 1280×720 and the Database lines.
 - Known: the bar reads the hate table once per HUD frame via `topEnmity`, which also prunes dead entries; harmless but it means the HUD does a little rules work. Remote (shared-zone) monsters only show the row when the proxy has a local hate table, which it usually does not.
 
 ## 19.10.0 Room to breathe (town plan T1)
@@ -2593,9 +2593,9 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 
 
 ## 19.11.0 House rules
-- Hotkey bar: `#bottom` is now docked right, `width = #ffSide.offsetWidth` and `bottom = ffSide height + 10 (+ mpBox / mobBar heights when shown)`, set every frame in the HUD update (hud4.js, next to the mobBar line); z-index 5 so it draws over `#ffSide` (4). `#actionBar` is a 5-column grid, square slots, `row-gap 14px` for the labels. The first load of this version resets `settings.barPos` once (`settings.barDocked`). The grip drag still adds a translate on top of the dock.
+- Hotkey bar: `#bottom` is now docked right, `width = #uiSide.offsetWidth` and `bottom = uiSide height + 10 (+ mpBox / mobBar heights when shown)`, set every frame in the HUD update (hud4.js, next to the mobBar line); z-index 5 so it draws over `#uiSide` (4). `#actionBar` is a 5-column grid, square slots, `row-gap 14px` for the labels. The first load of this version resets `settings.barPos` once (`settings.barDocked`). The grip drag still adds a translate on top of the dock.
 - Event log: `#chat.lite #log` is clickable; a pointerdown on `#log` sets `UI.chatPin` and `UI.logClick`; while pinned the log shows `logFull() * 2` rows with `overflow-y:auto`, history cap 500 lines (was 250). A pointerdown outside `#chat, #btnChat, #logTap` unpins only click-pinned logs; Esc and the chat button still work as before.
-- Quest tracker: `#tracker` moved out of `#topRight` to `#ui`, top-left under the top bar (`top = 46px`, or below `#ffStat` while the combat bars show). `trackerEntries()` builds Story (`storyChapter/storyStep`), Quests (`questProgress`) and Bounties (`save.guild.active`) rows. `trackerBlocked()` hides it while `S.modal`, `S.dialog`, `UI.confirmOpen`, `UI.cmd` or the status overlay (`#ui.stOn`) are open. The Settings toggle `settings.tracker` already existed and now covers all rows. The old `display:none` at the smallest width was removed.
+- Quest tracker: `#tracker` moved out of `#topRight` to `#ui`, top-left under the top bar (`top = 46px`, or below `#uiStat` while the combat bars show). `trackerEntries()` builds Story (`storyChapter/storyStep`), Quests (`questProgress`) and Bounties (`save.guild.active`) rows. `trackerBlocked()` hides it while `S.modal`, `S.dialog`, `UI.confirmOpen`, `UI.cmd` or the status overlay (`#ui.stOn`) are open. The Settings toggle `settings.tracker` already existed and now covers all rows. The old `display:none` at the smallest width was removed.
 - XP: `giveReward` and `rewardChips` ignore `xp`, `bountyReward` has no `xp`, `fillTrade` gives none. Landmark discovery, battlefields and kills still give XP.
 - Group XP: `partyShare(n) = clamp(1 - CONFIG.partyXpCut * (n - 1), CONFIG.partyXpFloor, 1)` with cut 0.25, floor 0.2; the old `CONFIG.partyShare` table is gone. `killRewards` uses `n = 1 + network mates + mercsWith()` (mercenaries have `mercId`; pets do not count). Solo kills with mercenaries now also use the share; network mates receive `partyShare(n)` of their own party size.
 - Mercenaries: `CONFIG.maxParty` 6 → 4 (player + 3). `normalizeSave` still slices `hired` to `maxParty - 1`, so older saves keep their first three. Achievement "Full Party" now needs 3.
@@ -2640,7 +2640,7 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 ## 19.13.2 Fresh bounties
 - `guildDay()` = `boardDay()` + floor(`save.waitHours` / 24); `stopWait` adds the hours waited to `save.waitHours`. Only the guild board and guild daily supplies use it (market, caches and trade board stay on the real day).
 - `guildToday()`: the old three, then for each rank r in 1..rank one extra bounty of tier r (not already chosen).
-- Phone CSS (template4.html, end of the dock block): pager on top, 4 slot columns, `.ic` absolutely centred, target name ellipsised inside `#ffSide #target`.
+- Phone CSS (template4.html, end of the dock block): pager on top, 4 slot columns, `.ic` absolutely centred, target name ellipsised inside `#uiSide #target`.
 - GUILD_SHOP (fixed gear: Guild Ring, boots, sigil, rings, harness) emptied and its section hidden; GUILD_PERKS (potion, ether, warp, random crystal/finds) unchanged.
 - Merc lot sales (town buys, or you buying one) no longer call townPayBox: proceeds vanish. Delivery Box talk text updated.
 - Backdrop `mark: "tree"` removed from hollow/marsh/verdant (it drew a giant gray floating tree silhouette on the horizon).
@@ -2679,6 +2679,9 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - menu4.js: Config, More row gets `data-a="tutorial"` handled in the action chain; Help Controls gets a Tutorial line; Updates 19.18.0.
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
+
+## 19.26.0 Tidy-up
+- CSS and DOM names that started with a two-letter prefix (ffTop, ffSide, --ffFont and so on) now start with ui (uiTop, uiSide, --uiFont). No collisions were found before renaming. Earlier sections of this file were updated to the new names.
 
 ## 19.25.0 Interface colour
 - template4.html: about 316 blue/indigo colour literals (hue 222 to 258, saturation 15% or more) became `hsl(calc(var(--uh) + offset) calc(S% * var(--us)) L% / a)`. `:root` defaults `--uh: 240; --us: 0` give gray; Classic is `--us: 1` (rounded values, so within a point or two of the old blues). Meaning colours (HP, MP, TP bars, element colours, red/green text) were left alone, as were `--mp*`, `--hp*`, `--tp*`.

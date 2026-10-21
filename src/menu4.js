@@ -76,12 +76,12 @@ function statDeltaHTML(base, next, compact) {
   return out.length ? out.join(compact ? " " : "") : '<span class="sub">No stat change</span>';
 }
 
-function ffStatusBlock() {
+function uiStatusBlock() {
   const p = player, j = save.jobs[save.mainJob], need = xpNeed(j.lv);
   const gear = SLOTS.map(sl => save.gear[sl]).filter(id => id && ITEMS[id] && ITEMS[id].kind === "equip");
   const ilv = gear.length ? Math.round(gear.reduce((n, id) => n + (ITEMS[id].lv || 1), 0) / gear.length) : 0;
   const row = (l, v, cls) => '<div class="ffr' + (cls ? " " + cls : "") + '"><em>' + l + "</em><b>" + v + "</b></div>";
-  let h = '<div class="ffStatus">';
+  let h = '<div class="uiStatus">';
   h += '<div class="ffr nm"><b>' + esc(save.name || "Adventurer") + "</b></div>";
   h += row("Lv" + p.lv, esc(JOBS[p.job].name));
   if (p.sub && JOBS[p.sub]) h += row("Lv" + Math.floor(p.lv / 2), esc(JOBS[p.sub].name));
@@ -93,9 +93,9 @@ function ffStatusBlock() {
   return h + "</div>";
 }
 
-function ffJobLevels() {
+function uiJobLevels() {
   const known = Object.keys(JOBS).filter(j => !JOBS[j].advanced || (save.jobsUnlocked && save.jobsUnlocked[j]));
-  let h = '<div class="ffStatus ffJobs"><div class="ffHead"><span>Job Levels</span></div><div class="ffJG">';
+  let h = '<div class="uiStatus uiJobs"><div class="uiHead"><span>Job Levels</span></div><div class="uiJG">';
   for (const j of known) {
     const lv = save.jobs[j] ? save.jobs[j].lv : 1;
     h += '<div class="ffr' + (j === save.mainJob ? " main" : j === save.subJob ? " sub" : "") + '"><em>' + esc(JOBS[j].name) + "</em><b>" + lv + "</b></div>";
@@ -126,14 +126,14 @@ function tabAbilities() {
 
 function tabKeyItems() {
   const ks = (save.keyItems || []).filter(id => ITEMS[id]);
-  let h = '<div class="ffStatus ffSk" style="max-width:520px"><div class="ffHead"><span>Key Items</span></div>';
+  let h = '<div class="uiStatus uiSk" style="max-width:520px"><div class="uiHead"><span>Key Items</span></div>';
   if (!ks.length) h += '<div class="mcR empty"><span class="nm dim">No key items yet.</span></div>';
   for (const id of ks) h += '<div class="mcR"><span class="ic">' + (ITEMS[id].icon || "🗝️") + '</span><span class="nm" title="' + esc(ITEMS[id].desc || "") + '">' + esc(ITEMS[id].name) + "</span></div>";
   return h + "</div>";
 }
 
 function tabCharacter() {
-  let h = '<div class="ffPanels">' + ffStatusBlock() + ffJobLevels() + "</div>";
+  let h = '<div class="uiPanels">' + uiStatusBlock() + uiJobLevels() + "</div>";
   if (typeof appearanceHTML === "function") h += appearanceHTML();
   return h;
 }
@@ -442,27 +442,27 @@ function questCardHTML(id) {
 
 const CRAFT_RANKS = [[0, "Amateur"], [10, "Recruit"], [20, "Initiate"], [30, "Novice"], [40, "Apprentice"], [50, "Journeyman"], [60, "Craftsman"], [70, "Artisan"], [80, "Adept"], [90, "Veteran"]];
 function craftRank(v) { let r = CRAFT_RANKS[0][1]; for (const [lv, n] of CRAFT_RANKS) if (v >= lv) r = n; return r; }
-function ffSkillPanels() {
+function uiSkillPanels() {
   const cur = sk => Math.floor(Math.min((save.skills[player.job] || {})[sk] || 0, skillCap(player, sk)));
-  const panel = (title, rows, two) => '<div class="ffStatus ffSk' + (two ? " two" : "") + '"><div class="ffHead"><span>' + title + '</span></div><div class="ffJG">' + rows.join("") + "</div></div>";
+  const panel = (title, rows, two) => '<div class="uiStatus uiSk' + (two ? " two" : "") + '"><div class="uiHead"><span>' + title + '</span></div><div class="uiJG">' + rows.join("") + "</div></div>";
   const r = (n, v, extra) => '<div class="ffr"><em>' + esc(n) + '</em><b class="bl">' + v + (extra ? ' <span class="cap">' + extra + "</span>" : "") + "</b></div>";
   const comb = COMBAT_SKILLS.filter(sk => skillCap(player, sk) > 0).map(sk => r(SKILL_NAMES[sk], cur(sk)));
   const known = MAGIC_SKILLS.filter(sk => skillCap(player, sk) > 0 && actionList(player).some(a => a.kind === "ma" && spellSkill(SPELLS[a.id]) === sk));
   const magic = known.map(sk => r(SKILL_NAMES[sk].replace(" Magic", ""), cur(sk)));
-  let h = '<div class="ffPanels">';
+  let h = '<div class="uiPanels">';
   if (comb.length) h += panel("Combat Skills", comb, true);
   if (magic.length) h += panel("Magic Skills", magic, true);
   const crafts = Object.keys(CRAFTS).map(c => { const v = Math.floor(craftSkill(c)); return '<div class="ffr cr"><em>' + esc(CRAFTS[c].name) + '</em><b class="bl">' + craftRank(v) + '</b><b class="lv">(' + v + ")</b></div>"; });
   crafts.unshift('<div class="ffr cr"><em>Fishing</em><b class="bl">' + craftRank(save.gatherSkill.fishing || 0) + '</b><b class="lv">(' + (save.gatherSkill.fishing || 0) + ")</b></div>");
-  h += '<div class="ffStatus ffSk craft"><div class="ffHead"><span>Craft Skills</span></div>' + crafts.join("") + "</div>";
+  h += '<div class="uiStatus uiSk craft"><div class="uiHead"><span>Craft Skills</span></div>' + crafts.join("") + "</div>";
   return h + "</div>";
 }
 
 function tabSkills() {
   let h = '<div class="sub" style="margin-bottom:10px">Skills rise as you use them, up to a cap set by your job and level. Each job keeps its own skills. Weapon skills unlock at weapon skill 5, 22, 40 and 75.</div>';
-  h += ffSkillPanels();
+  h += uiSkillPanels();
   const g = [["mining", "Mining"], ["logging", "Logging"], ["harvesting", "Harvesting"]].map(([k, l]) => '<div class="ffr cr"><em>' + l + '</em><b class="bl">' + craftRank(save.gatherSkill[k] || 0) + '</b><b class="lv">(' + (save.gatherSkill[k] || 0) + ")</b></div>");
-  h += '<div class="ffPanels"><div class="ffStatus ffSk craft"><div class="ffHead"><span>Gathering Skills</span></div>' + g.join("") + "</div></div>";
+  h += '<div class="uiPanels"><div class="uiStatus uiSk craft"><div class="uiHead"><span>Gathering Skills</span></div>' + g.join("") + "</div></div>";
   return h;
 }
 
@@ -1787,6 +1787,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.26.0", date: "2026-10-21", title: "Tidy-up", items: [
+    "<b>Behind the scenes:</b> interface style and element names were renamed for consistency. Nothing looks or plays differently, and your settings and saves are untouched."
+  ] },
   { v: "19.25.0", date: "2026-10-21", title: "Interface colour", items: [
     "<b>Gray interface by default.</b> Windows, bars, the event log and menus now use a neutral gray instead of blue.",
     "<b>Choose your own colour.</b> Config, Interface colour: pick Gray, Classic blue (the previous look), or any colour with the Custom picker. The choice is saved with your settings and applies at once.",
@@ -4436,7 +4439,7 @@ function statusLeftHTML(noLv) {
   const p = player, j = save.jobs[save.mainJob], need = xpNeed(j.lv), g = gearBonus();
   const gear = SLOTS.map(sl => save.gear[sl]).filter(id => id && ITEMS[id] && ITEMS[id].kind === "equip");
   const ilv = gear.length ? Math.round(gear.reduce((n, id) => n + (ITEMS[id].lv || 1), 0) / gear.length) : 0;
-  let h = '<div class="stBox"><div class="ffHead"><span>Status</span></div>';
+  let h = '<div class="stBox"><div class="uiHead"><span>Status</span></div>';
   h += '<div class="stNm">' + esc(save.name || "Adventurer") + "</div>";
   h += '<div class="stJob main">Lv' + p.lv + " " + esc(JOBS[p.job].name) + "</div>";
   { const lk = save.look || {}; h += '<div class="stJob">' + esc((RACES[lk.race] || RACES.human).name) + " " + (lk.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(lk)][0] + "</div>"; }

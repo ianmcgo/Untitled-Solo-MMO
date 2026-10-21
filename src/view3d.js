@@ -82,7 +82,7 @@ function updateLabels() {
     const isT = player.target === e;
     const plates = VIEW.settings.plates !== false;
     let name = e === player ? save.name : e.name, col = "#ffffff", kind = "pc";
-    if (isMob(e)) { kind = "mob"; const cs = claimState(e); col = ffMobAttacking(e) || (e.aggro && !e.passive) ? "#ff5a48" : cs === "other" ? "#c77dff" : "#ffffff"; }
+    if (isMob(e)) { kind = "mob"; const cs = claimState(e); col = uiMobAttacking(e) || (e.aggro && !e.passive) ? "#ff5a48" : cs === "other" ? "#c77dff" : "#ffffff"; }
     if (e.kind === "npc") { kind = "npc"; col = "#8cff98"; if (questMarker(e)) name = "❗ " + name; }
     if (e.buddy || e.pet || (e.kind === "ally" && e.mercId)) { kind = "ally"; col = "#ffe45c"; }
     if (e.remote) { kind = "pc"; name = e.name; col = typeof isMate === "function" && isMate(e) ? "#7ee8ff" : "#ffffff"; if (isMate && isMate(e)) kind = "party"; }
@@ -179,7 +179,7 @@ function updateCursor() {
       col = d <= range * 0.85 ? 0x7a8cff : d <= range * 1.08 ? 0xffe050 : 0xff4a3a;
     }
     VIEW.cursor.material.color.setHex(col);
-    VIEW.groundRing.material.color.setHex(isMob(t) ? (ffMobAttacking(t) ? 0xff4a3a : 0x7dff8a) : col);
+    VIEW.groundRing.material.color.setHex(isMob(t) ? (uiMobAttacking(t) ? 0xff4a3a : 0x7dff8a) : col);
     const base = groundY(t.x, t.y);
     VIEW.cursor.position.set(t.x * U, base + entityHeight(t) + 0.55 + Math.sin(S.time * 4) * 0.08, t.y * U);
     VIEW.cursor.rotation.y += 0.04;

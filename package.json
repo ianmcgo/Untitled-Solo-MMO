@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.25.0",
-  "releaseTitle": "Interface Colour",
+  "version": "19.26.0",
+  "releaseTitle": "Tidy-up",
   "description": "",
   "main": "index.js",
   "scripts": {

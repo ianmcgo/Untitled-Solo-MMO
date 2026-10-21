@@ -453,7 +453,7 @@ function updateTarget() {
     const [c, col] = conOf(t);
     setTxt($("tName"), t.name);
     const cs = claimState(t);
-    $("tName").style.color = !t.alive ? "#a0a0a8" : cs === "other" ? "#c77dff" : cs === "mine" || ffMobAttacking(t) || (t.aggro && !t.passive) ? "#ff5a48" : "#ffffff";
+    $("tName").style.color = !t.alive ? "#a0a0a8" : cs === "other" ? "#c77dff" : cs === "mine" || uiMobAttacking(t) || (t.aggro && !t.passive) ? "#ff5a48" : "#ffffff";
     setTxt($("tLv"), t.job && JOBS[t.job] && !t.petOf ? JOBS[t.job].name : "");
     $("tTag").style.display = t.fam.nm ? "inline-block" : "none";
     pct = 100 * t.hp / t.maxHp;
@@ -581,7 +581,7 @@ function updateTracker() {
   if (!ents.length) { el.style.display = "none"; return; }
   el.style.display = trackerBlocked() ? "none" : "block";
   el.classList.toggle("min", UI.trackerMin);
-  const sd = $("ffStat"), top = sd && sd.offsetHeight > 4 ? 42 + sd.offsetHeight + 6 : 46;
+  const sd = $("uiStat"), top = sd && sd.offsetHeight > 4 ? 42 + sd.offsetHeight + 6 : 46;
   el.style.top = "calc(" + top + "px + var(--sat))";
   let h = '<h4 data-tr="1"><span>Objectives (' + ents.length + ")</span><span>" + (UI.trackerMin ? "▸" : "▾") + "</span></h4>";
   for (const q of ents) h += '<div class="q"><b>' + esc(q.name) + '</b> <small class="tg">' + q.tag + "</small>" + q.lines.map(l => "<div>· " + l + "</div>").join("") + "</div>";
@@ -909,7 +909,7 @@ function tgtCmdOpen(t) {
 
 function tgtCmdClose() {
   UI.cmd = null;
-  UI.ffHelp = "";
+  UI.uiHelp = "";
   const el = $("tCmd");
   if (el) { el.classList.remove("on"); el.innerHTML = ""; }
 }
@@ -967,7 +967,7 @@ function renderTgtCmd() {
   const title = c.page === "root" ? (t === player ? save.name : t.name) : c.page === "ma" ? "Magic" : c.page === "ja" ? "Abilities" : "Items";
   const list = c.page !== "root";
   el.classList.toggle("list", list);
-  let h = list ? "" : '<div class="ffMHead">' + esc(title) + "</div>";
+  let h = list ? "" : '<div class="uiMHead">' + esc(title) + "</div>";
   items.forEach((it, i) => {
     const a = list && c.acts && it.key && it.key.startsWith("act") ? c.acts[+it.key.slice(3)] : null;
     const orb = a ? (a.kind === "ma" ? '<span class="orb" style="--oc:' + (ELEMENT_COLORS[SPELLS[a.id].element] || "#9fe8ff") + '"></span>' : a.kind === "item" ? '<span class="ico">' + (ITEMS[a.id].icon || "📦") + "</span>" : '<span class="orb" style="--oc:' + (a.kind === "ws" ? "#ffb070" : "#b0ffb0") + '"></span>') : "";
@@ -977,7 +977,7 @@ function renderTgtCmd() {
   if (c.info) h += '<div class="tcInfo">' + esc(c.info) + "</div>";
   el.innerHTML = h;
   el.classList.add("on");
-  UI.ffHelp = items[c.sel] ? items[c.sel].help : "";
+  UI.uiHelp = items[c.sel] ? items[c.sel].help : "";
   renderMpBox();
 }
 function renderMpBox() {
@@ -990,7 +990,7 @@ function renderMpBox() {
   const nx = rc > 0 ? Math.floor(rc / 60) + ":" + String(Math.ceil(rc % 60)).padStart(2, "0") : "0:00";
   box.innerHTML = '<div class="r"><em>' + (a.kind === "ma" ? "MP Cost" : "Cost") + "</em><b>" + cost + '</b></div><div class="r"><em>Next</em><b>' + nx + "</b></div>";
   box.classList.add("on");
-  const side = $("ffSide");
+  const side = $("uiSide");
   box.style.bottom = "calc(" + ((side ? side.offsetHeight : 0) + 12) + "px + var(--sab))";
 }
 
@@ -1000,7 +1000,7 @@ function tgtCmdHover(i) {
   c.sel = i;
   const el = $("tCmd");
   el.querySelectorAll(".ffb").forEach((b, k) => b.classList.toggle("sel", k === i));
-  UI.ffHelp = c.items[i] ? c.items[i].help : "";
+  UI.uiHelp = c.items[i] ? c.items[i].help : "";
 }
 
 function tgtCmdKey(k) {
@@ -1053,7 +1053,7 @@ function uiHoverSounds() {
   let last = null;
   document.addEventListener("pointerover", ev => {
     if (ev.pointerType && ev.pointerType !== "mouse") return;
-    const el = ev.target && ev.target.closest && ev.target.closest("button, .item, [data-a], [data-mc], [data-tc], [data-o], .ffMI, .opt > *");
+    const el = ev.target && ev.target.closest && ev.target.closest("button, .item, [data-a], [data-mc], [data-tc], [data-o], .uiMI, .opt > *");
     if (!el || el === last) return;
     last = el;
     if (el.disabled || el.classList.contains("off")) return;
@@ -1272,10 +1272,10 @@ function initHud() {
   $("mmWrap").onclick = () => openMenu("map");
   document.addEventListener("pointerdown", e => {
     const t = e.target;
-    if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose();
+    if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #uiSide, #mpBox")) tgtCmdClose();
     if (UI.logClick && UI.chatPin && !UI.chatTyping && !t.closest("#chat, #btnChat, #logTap")) chatToggle(false);
     else if (isTouchUI() && UI.chatPin && !t.closest("#chat, #btnChat, #logTap")) { UI.chatTyping = false; chatToggle(false); }
-    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox, #logTap")) return;
+    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #uiTop, #uiNetBox, #logTap")) return;
     if (S.modal && !t.closest("#menu .win, #mCard, #mCmd, #timeBox")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
     if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv, #timeBox")) mainCmdClose();
   }, true);
@@ -1303,7 +1303,7 @@ function initHud() {
   $("btnMenu").onclick = () => S.modal ? closeModal() : UI.mm ? mainCmdClose() : mainCmdOpen();
   $("mCmd").addEventListener("click", e => { const b = e.target.closest("[data-mc]"); if (!b) return; e.stopPropagation(); const v = b.dataset.mc; if (v === "back") { mainCmdKey("escape"); return; } if ((v === "prev" || v === "next") && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); } else mainCmdDo(+v); });
   $("mBody").addEventListener("mouseover", e => { const hs = e.target.closest("[data-hs]"); if (hs && S.modal) { UI.modalHelp = hs.dataset.hs; return; } const b = e.target.closest("[data-hv]"); if (!b || !S.modal || UI.hov === b.dataset.hv) return; UI.hov = b.dataset.hv; const it = ITEMS[UI.hov]; if (it) UI.modalHelp = it.desc || it.name; renderMCard(); });
-  $("mCmd").addEventListener("mouseover", e => { const b = e.target.closest("[data-mc]"); if (!b || !UI.mm || isNaN(+b.dataset.mc)) return; const i = +b.dataset.mc; if (UI.mm.sel !== i) { UI.mm.sel = i; $("mCmd").querySelectorAll(".ffb").forEach((x, k) => x.classList.toggle("sel", k === i)); UI.ffHelp = mainCmdHelp(mainCmdItems()[i]); if (UI.mm.sub) renderStatusOv(); } });
+  $("mCmd").addEventListener("mouseover", e => { const b = e.target.closest("[data-mc]"); if (!b || !UI.mm || isNaN(+b.dataset.mc)) return; const i = +b.dataset.mc; if (UI.mm.sel !== i) { UI.mm.sel = i; $("mCmd").querySelectorAll(".ffb").forEach((x, k) => x.classList.toggle("sel", k === i)); UI.uiHelp = mainCmdHelp(mainCmdItems()[i]); if (UI.mm.sub) renderStatusOv(); } });
   $("btnChat").onclick = () => chatToggle();
   const ci = $("chatIn");
   UI.cmdHist = []; UI.cmdIdx = 0;
@@ -1327,7 +1327,7 @@ function initHud() {
   initMenu();
 }
 
-function ffDefaultHelp(t) {
+function uiDefaultHelp(t) {
   if (!t) return "";
   if (t === player) return "Choose a command for yourself.";
   if (isMob(t)) return player.engaged && player.attackTarget === t ? "Auto-attack is on. Press F or choose Disengage to stop." : claimOk(t) ? "Start auto-attack." : "This monster is claimed by " + claimName(t) + ".";
@@ -1337,7 +1337,7 @@ function ffDefaultHelp(t) {
   return "";
 }
 
-function ffMobAttacking(m) { return m && m.alive && m.state === "combat" && m.target && (m.target === player || isParty(m.target) || (m.target.kind === "remote" && isMate(m.target))); }
+function uiMobAttacking(m) { return m && m.alive && m.state === "combat" && m.target && (m.target === player || isParty(m.target) || (m.target.kind === "remote" && isMate(m.target))); }
 
 function updateFF() {
   const ui = $("ui"), t = player.target;
@@ -1350,9 +1350,9 @@ function updateFF() {
   ui.classList.toggle("hasTop", tOk || !!UI.cmd || !!UI.mm || !!S.modal || !!S.ko);
   const cmdLbl = S.modal && TAB_INFO[S.modal] ? (S.modal === "inventory" ? "Items " + save.inventory.length + "/" + CONFIG.inventorySize : TAB_INFO[S.modal][0]) : UI.mm && UI.mm.sub === "status" ? "Status" : UI.cmd && UI.cmd.page === "ma" ? "Magic List" : UI.cmd && UI.cmd.page === "ja" ? "Ability List" : UI.cmd && UI.cmd.page === "items" ? "Item List" : "Commands";
   const cmdL = S.ko && !S.modal && !UI.cmd && !UI.mm ? "K.O." : cmdLbl;
-  if (UI.cmdLbl !== cmdL) { UI.cmdLbl = cmdL; setTxt(document.querySelector("#ffTop .ffCmd"), cmdL); }
+  if (UI.cmdLbl !== cmdL) { UI.cmdLbl = cmdL; setTxt(document.querySelector("#uiTop .uiCmd"), cmdL); }
   if (tOk || UI.cmd || UI.mm || S.modal || S.ko) {
-    setTxt($("ffHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.ffHelp || "" : S.ko ? "You've been knocked out. Go back to your home point (you'll lose experience)." : ffDefaultHelp(t));
+    setTxt($("uiHelp"), S.modal ? UI.modalHelp || tabHelpLine(S.modal) : UI.cmd || UI.mm ? UI.uiHelp || "" : S.ko ? "You've been knocked out. Go back to your home point (you'll lose experience)." : uiDefaultHelp(t));
     if (UI.mm && UI.mm.sub && Date.now() - (UI.stAt || 0) > 500) { UI.stAt = Date.now(); renderStatusOv(); }
     const now = Date.now();
     if (now - (UI.netAt || 0) > 1000) {
@@ -1365,10 +1365,10 @@ function updateFF() {
         pct = live ? clamp(Math.round(100 - Math.max(0, lag - 150) / 12), 5, 100) + "%" : NET.lastErr ? "0%" : "50%";
       }
       if (PLAY.offline) pct = "Offline";
-      setTxt($("ffNetPct"), pct);
-      setTxt($("ffNetS"), "S " + (typeof NET_RT !== "undefined" ? (NET_RT.sent || 0) % 1000 : 0));
-      setTxt($("ffNetR"), "R " + (typeof NET_RT !== "undefined" ? (NET_RT.recv || 0) % 1000 : 0));
-      setTxt($("ffNetOn"), !PLAY.offline && typeof NET !== "undefined" && NET.online && NET.online.max > 0 ? "👥 " + NET.online.n + "/" + NET.online.max : "");
+      setTxt($("uiNetPct"), pct);
+      setTxt($("uiNetS"), "S " + (typeof NET_RT !== "undefined" ? (NET_RT.sent || 0) % 1000 : 0));
+      setTxt($("uiNetR"), "R " + (typeof NET_RT !== "undefined" ? (NET_RT.recv || 0) % 1000 : 0));
+      setTxt($("uiNetOn"), !PLAY.offline && typeof NET !== "undefined" && NET.online && NET.online.max > 0 ? "👥 " + NET.online.n + "/" + NET.online.max : "");
     }
   }
   const ci = $("chatIn"), typing = document.activeElement === ci;
@@ -1383,7 +1383,7 @@ function updateFF() {
   if (rows <= 0) UI.logShown = 0;
   const mw = $("mmWrap");
   if (mw) { mw.style.bottom = rows > 0 ? "calc(" + (chat.offsetHeight + 16) + "px + var(--sab))" : ""; mw.style.visibility = S.dialog || S.modal || UI.cmd || UI.confirmOpen ? "hidden" : ""; }
-  const mb = $("mobBar"), sd = $("ffSide"); if (mb && sd) { const mp = $("mpBox"); mb.style.bottom = "calc(" + (sd.offsetHeight + 12 + (mp && mp.classList.contains("on") ? mp.offsetHeight + 6 : 0)) + "px + var(--sab))"; }
+  const mb = $("mobBar"), sd = $("uiSide"); if (mb && sd) { const mp = $("mpBox"); mb.style.bottom = "calc(" + (sd.offsetHeight + 12 + (mp && mp.classList.contains("on") ? mp.offsetHeight + 6 : 0)) + "px + var(--sab))"; }
   const bt = $("bottom");
   if (bt && sd && sd.offsetHeight) {
     const mp2 = $("mpBox"), mbOn = mb && mb.offsetHeight > 0;
@@ -1399,33 +1399,33 @@ function updateFF() {
   if (S.dialog && !mw2) $("dialog").style.bottom = "calc(" + ((rows > 0 ? chat.offsetHeight : 0) + 16) + "px + var(--sab))";
   $("btnChat") && $("btnChat").classList.toggle("on", !!UI.chatPin);
   const combat = player.engaged || inCombatWith(player);
-  $("ffStat").classList.toggle("combat", !!combat && player.alive);
+  $("uiStat").classList.toggle("combat", !!combat && player.alive);
   if (combat) {
-    const rows = $("ffBars").children;
+    const rows = $("uiBars").children;
     const set = (r, v, max) => { setW(r.querySelector("i"), max ? 100 * v / max : 0); setTxt(r.querySelector("b"), String(Math.floor(v))); };
     set(rows[0], Math.ceil(player.hp), player.maxHp); set(rows[1], player.mp, player.maxMp); set(rows[2], player.tp, CONFIG.tpMax);
   }
   const icons = [];
-  const ic = (cls, key, inner) => '<div class="ffIc' + cls + '" data-st="' + esc(key) + '">' + inner + "</div>";
+  const ic = (cls, key, inner) => '<div class="uiIc' + cls + '" data-st="' + esc(key) + '">' + inner + "</div>";
   if (blessed()) icons.push([ic(" crys", "bless", ""), "bless"]);
   if (save.food && foodLeft() > 0 && ITEMS[save.food.id]) icons.push([ic("", "food", ITEMS[save.food.id].icon || "🍖"), "food" + save.food.id]);
   const BAD = { slow: 1, paralyze: 1, poison: 1, sleep: 1, bind: 1, blind: 1, silence: 1, weight: 1, dia: 1, bio: 1, stun: 1, blight: 1, flash: 1 };
   for (const k of Object.keys(player.buffs || {})) { if (k === "blessing" || k === "food") continue; icons.push([ic(BAD[k] ? " bad" : "", "b:" + k, BUFF_ICONS[k] || "•"), k]); }
   if (player.resting) icons.push([ic("", "rest", "💤"), "rest"]);
   const sig = icons.map(i => i[1]).join(",");
-  if (sig !== UI.ffIconSig) { UI.ffIconSig = sig; $("ffIcons").innerHTML = icons.map(i => i[0]).join(""); }
+  if (sig !== UI.uiIconSig) { UI.uiIconSig = sig; $("uiIcons").innerHTML = icons.map(i => i[0]).join(""); }
   statusPopTick();
-  const side = $("ffSide");
+  const side = $("uiSide");
   const showT = tOk && t !== player;
   side.classList.toggle("hasT", showT);
   $("target").style.display = showT ? "block" : "none";
   if (showT && isMob(t)) {
-    const atk = ffMobAttacking(t), cs = claimState(t);
+    const atk = uiMobAttacking(t), cs = claimState(t);
     $("tName").style.color = !t.alive ? "#a0a0a8" : atk || cs === "mine" || (t.aggro && !t.passive) ? "#ff5a48" : cs === "other" ? "#c77dff" : "#ffffff";
   }
   $("target").classList.toggle("locked", showT && isMob(t) && player.engaged && player.attackTarget === t);
   const solo = S.party.length <= 1 && !(typeof NET_PT !== "undefined" && NET_PT.id);
-  setTxt($("ffPHead").firstChild, solo ? "Solo" : "Party");
+  setTxt($("uiPHead").firstChild, solo ? "Solo" : "Party");
 }
 
 function fmtSecs(sec) {
@@ -1451,10 +1451,10 @@ function statusPopTick() {
   if (!UI.stInit) {
     UI.stInit = true;
     pop = document.createElement("div"); pop.id = "stPop";
-    pop.style.cssText = "position:fixed;z-index:60;display:none;max-width:240px;padding:8px 10px;border-radius:8px;background:hsl(calc(var(--uh) - 12) calc(59% * var(--us)) 13% / .94);border:1px solid rgba(255,255,255,.6);color:#fff;font:600 13px var(--ffFont,sans-serif);box-shadow:0 4px 14px rgba(0,0,0,.6);pointer-events:none;line-height:1.35";
+    pop.style.cssText = "position:fixed;z-index:60;display:none;max-width:240px;padding:8px 10px;border-radius:8px;background:hsl(calc(var(--uh) - 12) calc(59% * var(--us)) 13% / .94);border:1px solid rgba(255,255,255,.6);color:#fff;font:600 13px var(--uiFont,sans-serif);box-shadow:0 4px 14px rgba(0,0,0,.6);pointer-events:none;line-height:1.35";
     document.body.appendChild(pop);
     document.addEventListener("click", ev => {
-      const t = ev.target && ev.target.closest ? ev.target.closest("#ffIcons .ffIc") : null;
+      const t = ev.target && ev.target.closest ? ev.target.closest("#uiIcons .uiIc") : null;
       UI.stKey = t && t.dataset.st && t.dataset.st !== UI.stKey ? t.dataset.st : null;
       UI.stEl = UI.stKey ? t : null;
     }, true);
@@ -1463,7 +1463,7 @@ function statusPopTick() {
   if (!UI.stKey) { pop.style.display = "none"; return; }
   const info = statusInfo(UI.stKey);
   if (!info) { UI.stKey = null; pop.style.display = "none"; return; }
-  const el = $("ffIcons").querySelector('[data-st="' + UI.stKey + '"]') || UI.stEl;
+  const el = $("uiIcons").querySelector('[data-st="' + UI.stKey + '"]') || UI.stEl;
   if (!el) { pop.style.display = "none"; return; }
   pop.innerHTML = "<b>" + esc(info.name) + "</b>" + (info.left != null ? "<div>" + fmtSecs(info.left) + " remaining</div>" : "") + (info.desc ? '<div style="font-weight:400;opacity:.85;margin-top:2px">' + esc(info.desc) + "</div>" : "");
   const r = el.getBoundingClientRect();
@@ -1530,17 +1530,17 @@ function statusToggle() {
   UI.mm.page = 0; UI.mm.back = 0; UI.mm.sub = "status"; UI.mm.sel = 0;
   renderMainCmd();
 }
-function mainCmdClose() { UI.mm = null; const el = $("mCmd"); if (el) { el.classList.remove("on"); el.innerHTML = ""; } UI.ffHelp = ""; renderStatusOv(); }
+function mainCmdClose() { UI.mm = null; const el = $("mCmd"); if (el) { el.classList.remove("on"); el.innerHTML = ""; } UI.uiHelp = ""; renderStatusOv(); }
 function renderMainCmd() {
   const el = $("mCmd"), m = UI.mm;
   if (!el || !m) return;
   const items = mainCmdItems();
   m.sel = clamp(m.sel, 0, items.length - 1);
-  let h = m.sub === "status" ? '<div class="ffMLeg">Status</div><div class="ffMHead sub"><button class="pg" data-mc="back">◀</button><span>Status</span><span style="width:26px"></span></div>' : '<div class="ffMLeg">Commands</div><div class="ffMHead"><button class="pg" data-mc="prev">◀</button><span>' + (m.page + 1) + " / 2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
+  let h = m.sub === "status" ? '<div class="uiMLeg">Status</div><div class="uiMHead sub"><button class="pg" data-mc="back">◀</button><span>Status</span><span style="width:26px"></span></div>' : '<div class="uiMLeg">Commands</div><div class="uiMHead"><button class="pg" data-mc="prev">◀</button><span>' + (m.page + 1) + " / 2</span><button class=\"pg\" data-mc=\"next\">▶</button></div>";
   items.forEach((it, i) => { h += '<button data-mc="' + i + '" class="ffb' + (i === m.sel ? " sel" : "") + (it[1] === "home" ? " gold" : "") + '"><span class="cur">➤</span><span class="lb">' + esc(it[0]) + "</span></button>"; });
   el.innerHTML = h;
   el.classList.add("on");
-  UI.ffHelp = mainCmdHelp(items[m.sel]);
+  UI.uiHelp = mainCmdHelp(items[m.sel]);
   renderStatusOv();
 }
 function mainCmdDo(i) {
