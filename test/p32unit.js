@@ -36,8 +36,8 @@ ok(!G.ITEMS.scroll_blu_hind_kick, 'blue magic has no scrolls');
 const hare = G.buildMob('hare', 5, P().x + 30, P().y, 0); S.mobs.push(hare);
 let learned = false;
 for (let i = 0; i < 20 && !learned; i++) { hare.readying = { t: 0.01, target: P(), start: S.time }; P().hp = P().maxHp; run(0.1); learned = G.save.spells.includes('blu_hind_kick'); }
-ok(learned, 'Blue Mages learn Hind Kick by watching a hare use it');
+ok(learned, 'Blue Mages learn Rear Kick by watching a hare use it');
 P().mp = P().maxMp; P().target = m; const h1 = m.hp;
 hare.alive = false; S.mobs = S.mobs.filter(x => x !== hare); m.buffs.stun = { until: G.S.time + 6 }; const lg = H.alllog.length; G.playerAct({ kind: 'ma', id: 'blu_hind_kick' }); run(2); if (m.hp >= h1) console.log(H.alllog.slice(lg).join(' | '));
-ok(m.hp < h1, 'Hind Kick hits as blue magic');
+ok(m.hp < h1, 'Rear Kick hits as blue magic');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

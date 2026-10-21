@@ -108,44 +108,44 @@ const CONFIG = {
 const ELEMENT_COLORS = { fire: "#ff7043", ice: "#81d4fa", wind: "#9ccc65", earth: "#d7b46a", lightning: "#ce93d8", water: "#4fc3f7", light: "#fff59d", dark: "#9575cd" };
 
 const SC_PROPS = {
-  Liquefaction: { lv: 1, el: ["fire"] },
-  Scission: { lv: 1, el: ["earth"] },
-  Reverberation: { lv: 1, el: ["water"] },
-  Detonation: { lv: 1, el: ["wind"] },
-  Impaction: { lv: 1, el: ["lightning"] },
-  Induration: { lv: 1, el: ["ice"] },
-  Compression: { lv: 1, el: ["dark"] },
-  Transfixion: { lv: 1, el: ["light"] },
-  Fusion: { lv: 2, el: ["fire", "light"] },
-  Fragmentation: { lv: 2, el: ["wind", "lightning"] },
-  Gravitation: { lv: 2, el: ["earth", "dark"] },
-  Distortion: { lv: 2, el: ["water", "ice"] }
+  Meltdown: { lv: 1, el: ["fire"] },
+  Rending: { lv: 1, el: ["earth"] },
+  Resonance: { lv: 1, el: ["water"] },
+  Burst: { lv: 1, el: ["wind"] },
+  Crushing: { lv: 1, el: ["lightning"] },
+  Frostbind: { lv: 1, el: ["ice"] },
+  Pressure: { lv: 1, el: ["dark"] },
+  Skewer: { lv: 1, el: ["light"] },
+  Blaze: { lv: 2, el: ["fire", "light"] },
+  Shardstorm: { lv: 2, el: ["wind", "lightning"] },
+  Collapse: { lv: 2, el: ["earth", "dark"] },
+  Ripple: { lv: 2, el: ["water", "ice"] }
 };
 
 const SC_TABLE = [
-  ["Liquefaction", "Impaction", "Fusion"],
-  ["Distortion", "Fusion", "Fusion"],
-  ["Induration", "Reverberation", "Fragmentation"],
-  ["Gravitation", "Fragmentation", "Fragmentation"],
-  ["Detonation", "Compression", "Gravitation"],
-  ["Fusion", "Gravitation", "Gravitation"],
-  ["Transfixion", "Scission", "Distortion"],
-  ["Fragmentation", "Distortion", "Distortion"],
-  ["Impaction", "Liquefaction", "Liquefaction"],
-  ["Scission", "Liquefaction", "Liquefaction"],
-  ["Liquefaction", "Scission", "Scission"],
-  ["Detonation", "Scission", "Scission"],
-  ["Transfixion", "Reverberation", "Reverberation"],
-  ["Scission", "Reverberation", "Reverberation"],
-  ["Scission", "Detonation", "Detonation"],
-  ["Compression", "Detonation", "Detonation"],
-  ["Impaction", "Detonation", "Detonation"],
-  ["Reverberation", "Impaction", "Impaction"],
-  ["Induration", "Impaction", "Impaction"],
-  ["Reverberation", "Induration", "Induration"],
-  ["Induration", "Compression", "Compression"],
-  ["Transfixion", "Compression", "Compression"],
-  ["Compression", "Transfixion", "Transfixion"]
+  ["Meltdown", "Crushing", "Shardstorm"],
+  ["Ripple", "Blaze", "Blaze"],
+  ["Frostbind", "Resonance", "Ripple"],
+  ["Collapse", "Shardstorm", "Shardstorm"],
+  ["Burst", "Pressure", "Shardstorm"],
+  ["Blaze", "Collapse", "Collapse"],
+  ["Skewer", "Rending", "Blaze"],
+  ["Shardstorm", "Ripple", "Ripple"],
+  ["Crushing", "Meltdown", "Meltdown"],
+  ["Rending", "Meltdown", "Meltdown"],
+  ["Meltdown", "Rending", "Rending"],
+  ["Burst", "Rending", "Rending"],
+  ["Skewer", "Resonance", "Resonance"],
+  ["Rending", "Resonance", "Resonance"],
+  ["Rending", "Burst", "Burst"],
+  ["Pressure", "Burst", "Burst"],
+  ["Crushing", "Burst", "Burst"],
+  ["Resonance", "Crushing", "Crushing"],
+  ["Frostbind", "Crushing", "Crushing"],
+  ["Resonance", "Frostbind", "Frostbind"],
+  ["Frostbind", "Pressure", "Pressure"],
+  ["Skewer", "Pressure", "Pressure"],
+  ["Pressure", "Skewer", "Skewer"]
 ];
 
 const ATTRS = ["str", "dex", "vit", "agi", "int", "mnd"];
@@ -204,38 +204,38 @@ const JOBS = {
 };
 
 const WEAPON_SKILLS = {
-  slice: { name: "Slice", wtype: "scythe", skill: 5, props: ["Scission"], ftp: [1.6, 2.1, 2.7] },
-  nightreap: { name: "Nightreap", wtype: "scythe", skill: 22, props: ["Induration", "Reverberation"], ftp: [1.9, 2.6, 3.3] },
-  spiral_reap: { name: "Spiral Reap", wtype: "scythe", skill: 40, props: ["Gravitation", "Scission"], ftp: [2.3, 3.1, 3.9] },
-  grim_harvest: { name: "Grim Harvest", wtype: "scythe", skill: 75, props: ["Gravitation", "Distortion"], ftp: [2.7, 3.5, 4.5] },
-  fast_blade: { name: "Quick Slash", wtype: "sword", skill: 5, props: ["Scission", "Detonation"], ftp: [1.5, 2.0, 2.5] },
-  burning_blade: { name: "Searing Slash", wtype: "sword", skill: 22, props: ["Liquefaction"], ftp: [1.8, 2.6, 3.4] },
-  red_lotus_blade: { name: "Crimson Blossom", wtype: "sword", skill: 40, props: ["Liquefaction", "Detonation"], ftp: [2.2, 3.0, 3.8] },
-  shining_strike: { name: "Gleaming Blow", wtype: "club", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
-  seraph_strike: { name: "Halo Strike", wtype: "club", skill: 27, props: ["Impaction"], ftp: [2.0, 2.8, 3.6] },
-  brainshaker: { name: "Skull Rattle", wtype: "club", skill: 40, props: ["Reverberation"], ftp: [1.8, 2.4, 3.0] },
-  heavy_swing: { name: "Crushing Swing", wtype: "staff", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.5] },
-  rock_crusher: { name: "Boulder Smash", wtype: "staff", skill: 22, props: ["Impaction"], ftp: [1.8, 2.5, 3.2] },
-  earth_crusher: { name: "Quake Smash", wtype: "staff", skill: 40, props: ["Detonation", "Impaction"], ftp: [2.1, 2.9, 3.7] },
-  quick_sting: { name: "Quick Sting", wtype: "dagger", skill: 5, props: ["Scission"], ftp: [1.4, 1.9, 2.4] },
-  venom_bite: { name: "Venom Bite", wtype: "dagger", skill: 22, props: ["Scission", "Impaction"], ftp: [1.8, 2.5, 3.2] },
-  gale_edge: { name: "Gale Edge", wtype: "dagger", skill: 40, props: ["Detonation"], ftp: [2.1, 2.9, 3.7] },
-  piercing_arrow: { name: "Needle Shot", wtype: "archery", skill: 5, props: ["Transfixion"], ftp: [1.6, 2.2, 2.8], ranged: true },
-  flaming_volley: { name: "Flaming Volley", wtype: "archery", skill: 22, props: ["Liquefaction", "Transfixion"], ftp: [1.9, 2.6, 3.4], ranged: true },
-  gale_arrow: { name: "Gale Arrow", wtype: "archery", skill: 40, props: ["Detonation", "Transfixion"], ftp: [2.3, 3.1, 4.0], ranged: true },
-  twin_fist: { name: "Twin Fist", wtype: "h2h", skill: 5, props: ["Impaction"], ftp: [1.5, 2.0, 2.6] },
-  rising_knee: { name: "Rising Knee", wtype: "h2h", skill: 22, props: ["Detonation", "Impaction"], ftp: [1.9, 2.6, 3.3] },
-  iron_palm: { name: "Iron Palm", wtype: "h2h", skill: 40, props: ["Reverberation", "Impaction"], ftp: [2.2, 3.0, 3.8] },
-  vorpal_arc: { name: "Cutting Arc", wtype: "sword", skill: 75, props: ["Fragmentation", "Scission"], ftp: [2.6, 3.4, 4.4] },
-  shadow_fang: { name: "Shadow Fang", wtype: "dagger", skill: 75, props: ["Gravitation", "Transfixion"], ftp: [2.5, 3.3, 4.2] },
-  moonfall: { name: "Moonfall", wtype: "club", skill: 75, props: ["Fusion", "Impaction"], ftp: [2.4, 3.2, 4.0] },
-  earthshaker: { name: "Earthshaker", wtype: "staff", skill: 75, props: ["Gravitation", "Reverberation"], ftp: [2.5, 3.3, 4.2] },
-  ruinous_cleave: { name: "Ruinous Cleave", wtype: "greataxe", skill: 75, props: ["Distortion", "Scission"], ftp: [2.7, 3.6, 4.6] },
-  thousand_palms: { name: "Thousand Palms", wtype: "h2h", skill: 75, props: ["Fusion", "Detonation"], ftp: [2.5, 3.3, 4.3] },
-  starfall_arrow: { name: "Starfall Arrow", wtype: "archery", skill: 75, props: ["Fragmentation", "Transfixion"], ftp: [2.6, 3.5, 4.5], ranged: true },
-  shield_break: { name: "Guard Crack", wtype: "greataxe", skill: 5, props: ["Impaction"], ftp: [1.6, 2.2, 2.8] },
-  iron_tempest: { name: "Steel Storm", wtype: "greataxe", skill: 22, props: ["Scission"], ftp: [1.9, 2.7, 3.5] },
-  sturmwind: { name: "Whirl Gale", wtype: "greataxe", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.8] }
+  slice: { name: "Slice", wtype: "scythe", skill: 5, props: ["Rending"], ftp: [1.6, 2.1, 2.7] },
+  nightreap: { name: "Nightreap", wtype: "scythe", skill: 22, props: ["Frostbind", "Resonance"], ftp: [1.9, 2.6, 3.3] },
+  spiral_reap: { name: "Spiral Reap", wtype: "scythe", skill: 40, props: ["Collapse", "Rending"], ftp: [2.3, 3.1, 3.9] },
+  grim_harvest: { name: "Grim Harvest", wtype: "scythe", skill: 75, props: ["Collapse", "Ripple"], ftp: [2.7, 3.5, 4.5] },
+  fast_blade: { name: "Quick Slash", wtype: "sword", skill: 5, props: ["Rending", "Burst"], ftp: [1.5, 2.0, 2.5] },
+  burning_blade: { name: "Searing Slash", wtype: "sword", skill: 22, props: ["Meltdown"], ftp: [1.8, 2.6, 3.4] },
+  red_lotus_blade: { name: "Crimson Blossom", wtype: "sword", skill: 40, props: ["Meltdown", "Burst"], ftp: [2.2, 3.0, 3.8] },
+  shining_strike: { name: "Gleaming Blow", wtype: "club", skill: 5, props: ["Crushing"], ftp: [1.6, 2.2, 2.8] },
+  seraph_strike: { name: "Halo Strike", wtype: "club", skill: 27, props: ["Crushing"], ftp: [2.0, 2.8, 3.6] },
+  brainshaker: { name: "Skull Rattle", wtype: "club", skill: 40, props: ["Resonance"], ftp: [1.8, 2.4, 3.0] },
+  heavy_swing: { name: "Crushing Swing", wtype: "staff", skill: 5, props: ["Crushing"], ftp: [1.5, 2.0, 2.5] },
+  rock_crusher: { name: "Boulder Smash", wtype: "staff", skill: 22, props: ["Crushing"], ftp: [1.8, 2.5, 3.2] },
+  earth_crusher: { name: "Quake Smash", wtype: "staff", skill: 40, props: ["Burst", "Crushing"], ftp: [2.1, 2.9, 3.7] },
+  quick_sting: { name: "Quick Sting", wtype: "dagger", skill: 5, props: ["Rending"], ftp: [1.4, 1.9, 2.4] },
+  venom_bite: { name: "Venom Bite", wtype: "dagger", skill: 22, props: ["Rending", "Crushing"], ftp: [1.8, 2.5, 3.2] },
+  gale_edge: { name: "Gale Edge", wtype: "dagger", skill: 40, props: ["Burst"], ftp: [2.1, 2.9, 3.7] },
+  piercing_arrow: { name: "Needle Shot", wtype: "archery", skill: 5, props: ["Skewer"], ftp: [1.6, 2.2, 2.8], ranged: true },
+  flaming_volley: { name: "Flaming Volley", wtype: "archery", skill: 22, props: ["Meltdown", "Skewer"], ftp: [1.9, 2.6, 3.4], ranged: true },
+  gale_arrow: { name: "Gale Arrow", wtype: "archery", skill: 40, props: ["Burst", "Skewer"], ftp: [2.3, 3.1, 4.0], ranged: true },
+  twin_fist: { name: "Twin Fist", wtype: "h2h", skill: 5, props: ["Crushing"], ftp: [1.5, 2.0, 2.6] },
+  rising_knee: { name: "Rising Knee", wtype: "h2h", skill: 22, props: ["Burst", "Crushing"], ftp: [1.9, 2.6, 3.3] },
+  iron_palm: { name: "Iron Palm", wtype: "h2h", skill: 40, props: ["Resonance", "Crushing"], ftp: [2.2, 3.0, 3.8] },
+  vorpal_arc: { name: "Cutting Arc", wtype: "sword", skill: 75, props: ["Shardstorm", "Rending"], ftp: [2.6, 3.4, 4.4] },
+  shadow_fang: { name: "Shadow Fang", wtype: "dagger", skill: 75, props: ["Collapse", "Skewer"], ftp: [2.5, 3.3, 4.2] },
+  moonfall: { name: "Moonfall", wtype: "club", skill: 75, props: ["Blaze", "Crushing"], ftp: [2.4, 3.2, 4.0] },
+  earthshaker: { name: "Earthshaker", wtype: "staff", skill: 75, props: ["Collapse", "Resonance"], ftp: [2.5, 3.3, 4.2] },
+  ruinous_cleave: { name: "Ruinous Cleave", wtype: "greataxe", skill: 75, props: ["Ripple", "Rending"], ftp: [2.7, 3.6, 4.6] },
+  thousand_palms: { name: "Thousand Palms", wtype: "h2h", skill: 75, props: ["Blaze", "Burst"], ftp: [2.5, 3.3, 4.3] },
+  starfall_arrow: { name: "Starfall Arrow", wtype: "archery", skill: 75, props: ["Shardstorm", "Skewer"], ftp: [2.6, 3.5, 4.5], ranged: true },
+  shield_break: { name: "Guard Crack", wtype: "greataxe", skill: 5, props: ["Crushing"], ftp: [1.6, 2.2, 2.8] },
+  iron_tempest: { name: "Steel Storm", wtype: "greataxe", skill: 22, props: ["Rending"], ftp: [1.9, 2.7, 3.5] },
+  sturmwind: { name: "Whirl Gale", wtype: "greataxe", skill: 40, props: ["Resonance", "Rending"], ftp: [2.2, 3.0, 3.8] }
 };
 
 const ABILITIES = {
@@ -543,18 +543,18 @@ Object.assign(SKILL_RATINGS, {
   DRG: { polearm: "A", staff: "B", sword: "C", dagger: "D", club: "D" }
 });
 Object.assign(WEAPON_SKILLS, {
-  rising_edge: { name: "Rising Edge", wtype: "gkatana", skill: 5, props: ["Transfixion", "Scission"], ftp: [1.6, 2.2, 2.8] },
-  crescent_cut: { name: "Crescent Cut", wtype: "gkatana", skill: 22, props: ["Scission", "Detonation"], ftp: [1.9, 2.7, 3.5] },
-  ember_arc: { name: "Ember Arc", wtype: "gkatana", skill: 40, props: ["Liquefaction", "Impaction"], ftp: [2.2, 3.0, 3.9] },
-  heavens_divide: { name: "Heaven's Divide", wtype: "gkatana", skill: 75, props: ["Fragmentation", "Scission"], ftp: [2.7, 3.6, 4.6] },
-  silent_cut: { name: "Silent Cut", wtype: "katana", skill: 5, props: ["Scission"], ftp: [1.5, 2.0, 2.6] },
-  veil_strike: { name: "Veil Strike", wtype: "katana", skill: 22, props: ["Induration", "Detonation"], ftp: [1.8, 2.5, 3.2] },
-  mist_fang: { name: "Mist Fang", wtype: "katana", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.1, 2.9, 3.7] },
-  night_lotus: { name: "Night Lotus", wtype: "katana", skill: 75, props: ["Gravitation", "Fragmentation"], ftp: [2.5, 3.3, 4.3] },
-  piercing_thrust: { name: "Piercing Thrust", wtype: "polearm", skill: 5, props: ["Transfixion"], ftp: [1.6, 2.2, 2.8] },
-  wind_lance: { name: "Wind Lance", wtype: "polearm", skill: 22, props: ["Detonation"], ftp: [1.9, 2.6, 3.4] },
-  drake_dive: { name: "Drake Dive", wtype: "polearm", skill: 40, props: ["Impaction", "Transfixion"], ftp: [2.2, 3.0, 3.9] },
-  sky_rend: { name: "Sky Rend", wtype: "polearm", skill: 75, props: ["Fusion", "Transfixion"], ftp: [2.6, 3.5, 4.5] }
+  rising_edge: { name: "Rising Edge", wtype: "gkatana", skill: 5, props: ["Skewer", "Rending"], ftp: [1.6, 2.2, 2.8] },
+  crescent_cut: { name: "Crescent Cut", wtype: "gkatana", skill: 22, props: ["Rending", "Burst"], ftp: [1.9, 2.7, 3.5] },
+  ember_arc: { name: "Ember Arc", wtype: "gkatana", skill: 40, props: ["Meltdown", "Crushing"], ftp: [2.2, 3.0, 3.9] },
+  heavens_divide: { name: "Heaven's Divide", wtype: "gkatana", skill: 75, props: ["Shardstorm", "Rending"], ftp: [2.7, 3.6, 4.6] },
+  silent_cut: { name: "Silent Cut", wtype: "katana", skill: 5, props: ["Rending"], ftp: [1.5, 2.0, 2.6] },
+  veil_strike: { name: "Veil Strike", wtype: "katana", skill: 22, props: ["Frostbind", "Burst"], ftp: [1.8, 2.5, 3.2] },
+  mist_fang: { name: "Mist Fang", wtype: "katana", skill: 40, props: ["Resonance", "Rending"], ftp: [2.1, 2.9, 3.7] },
+  night_lotus: { name: "Night Lotus", wtype: "katana", skill: 75, props: ["Collapse", "Shardstorm"], ftp: [2.5, 3.3, 4.3] },
+  piercing_thrust: { name: "Piercing Thrust", wtype: "polearm", skill: 5, props: ["Skewer"], ftp: [1.6, 2.2, 2.8] },
+  wind_lance: { name: "Wind Lance", wtype: "polearm", skill: 22, props: ["Burst"], ftp: [1.9, 2.6, 3.4] },
+  drake_dive: { name: "Drake Dive", wtype: "polearm", skill: 40, props: ["Crushing", "Skewer"], ftp: [2.2, 3.0, 3.9] },
+  sky_rend: { name: "Sky Rend", wtype: "polearm", skill: 75, props: ["Blaze", "Skewer"], ftp: [2.6, 3.5, 4.5] }
 });
 Object.assign(ABILITIES, {
   meditate: { name: "Still Mind", job: "SAM", lv: 1, recast: 150, target: "self", desc: "Clear your mind and gain 400 TP." },
@@ -599,10 +599,10 @@ Object.assign(SKILL_RATINGS, {
   COR: { dagger: "A", sword: "B", archery: "C", h2h: "E" }
 });
 Object.assign(WEAPON_SKILLS, {
-  cleaving_chop: { name: "Cleaving Chop", wtype: "axe", skill: 5, props: ["Detonation", "Impaction"], ftp: [1.5, 2.1, 2.7] },
-  wild_hack: { name: "Wild Hack", wtype: "axe", skill: 22, props: ["Scission"], ftp: [1.8, 2.5, 3.3] },
-  feral_rend: { name: "Feral Rend", wtype: "axe", skill: 40, props: ["Induration", "Scission"], ftp: [2.1, 2.9, 3.7] },
-  primal_fury: { name: "Primal Fury", wtype: "axe", skill: 75, props: ["Fusion", "Fragmentation"], ftp: [2.5, 3.3, 4.3] }
+  cleaving_chop: { name: "Cleaving Chop", wtype: "axe", skill: 5, props: ["Burst", "Crushing"], ftp: [1.5, 2.1, 2.7] },
+  wild_hack: { name: "Wild Hack", wtype: "axe", skill: 22, props: ["Rending"], ftp: [1.8, 2.5, 3.3] },
+  feral_rend: { name: "Feral Rend", wtype: "axe", skill: 40, props: ["Frostbind", "Rending"], ftp: [2.1, 2.9, 3.7] },
+  primal_fury: { name: "Primal Fury", wtype: "axe", skill: 75, props: ["Blaze", "Shardstorm"], ftp: [2.5, 3.3, 4.3] }
 });
 Object.assign(ABILITIES, {
   call_beast: { name: "Call Wild", job: "BST", lv: 1, recast: 60, target: "self", desc: "Whistle up a loyal beast to fight at your side: a scaleback lizard, a pincher crab from level 8, or a great ram from level 14." },
@@ -616,10 +616,10 @@ Object.assign(ABILITIES, {
 });
 const BLUE_LEARN = {};
 for (const [id, name, lv, def] of [
-  ["blu_hind_kick", "Hind Kick", 1, { kind: "bluephys", mul: 1.6, mp: 6 }],
+  ["blu_hind_kick", "Rear Kick", 1, { kind: "bluephys", mul: 1.6, mp: 6 }],
   ["blu_sticky_thread", "Gummed Strand", 2, { kind: "debuff", element: "earth", buff: "slow", dur: 45, enmity: 60, mp: 8 }],
   ["blu_dream_dust", "Dream Dust", 4, { kind: "debuff", element: "light", buff: "sleep", dur: 30, enmity: 40, mp: 10 }],
-  ["blu_snapjaw", "Snapjaw", 5, { kind: "bluephys", mul: 1.9, mp: 9 }],
+  ["blu_snapjaw", "Chomp", 5, { kind: "bluephys", mul: 1.9, mp: 9 }],
   ["blu_big_pinch", "Big Pinch", 6, { kind: "bluephys", mul: 1.8, mp: 10 }],
   ["blu_tail_whip", "Tail Whip", 8, { kind: "bluephys", mul: 1.7, mp: 11 }],
   ["blu_blood_drain", "Crimson Siphon", 10, { kind: "drain", element: "dark", power: 18, mp: 12 }],
@@ -708,10 +708,10 @@ Object.assign(SKILL_RATINGS, {
   RUN: { gsword: "A", sword: "B", greataxe: "B", club: "D", enhancing: "C", divine: "D" }
 });
 Object.assign(WEAPON_SKILLS, {
-  rune_cleave: { name: "Rune Cleave", wtype: "gsword", skill: 5, props: ["Scission"], ftp: [1.6, 2.2, 2.9] },
-  glyph_rend: { name: "Glyph Rend", wtype: "gsword", skill: 22, props: ["Liquefaction", "Impaction"], ftp: [1.9, 2.7, 3.5] },
-  ward_breaker: { name: "Ward Breaker", wtype: "gsword", skill: 40, props: ["Reverberation", "Scission"], ftp: [2.2, 3.0, 3.9] },
-  final_verse: { name: "Final Verse", wtype: "gsword", skill: 75, props: ["Fragmentation", "Distortion"], ftp: [2.7, 3.6, 4.6] }
+  rune_cleave: { name: "Rune Cleave", wtype: "gsword", skill: 5, props: ["Rending"], ftp: [1.6, 2.2, 2.9] },
+  glyph_rend: { name: "Glyph Rend", wtype: "gsword", skill: 22, props: ["Meltdown", "Crushing"], ftp: [1.9, 2.7, 3.5] },
+  ward_breaker: { name: "Ward Breaker", wtype: "gsword", skill: 40, props: ["Resonance", "Rending"], ftp: [2.2, 3.0, 3.9] },
+  final_verse: { name: "Final Verse", wtype: "gsword", skill: 75, props: ["Shardstorm", "Ripple"], ftp: [2.7, 3.6, 4.6] }
 });
 const GEO_AURAS = {
   indi_vigor: { name: "Aura of Vigor", lv: 1, mp: 14, self: true, buff: "geo_vigor", col: 0x9ccc65, desc: "An aura around you: party members within reach recover HP every 3 s." },
@@ -921,7 +921,7 @@ const FAMILIES = {
   pond_crab: { name: "Pond Crab", color: "#b86a4a", radius: 14, hpMul: 1.0, attMul: 0.9, defMul: 1.3, eva: 0, delay: 3.2, speed: 80, aggro: null, link: false, tpMove: { name: "Big Pinch", mul: 1.8 }, weak: { lightning: 1.3 }, loot: [["crab_shell", 0.35], ["water_crystal", 0.25], ["potion", 0.05]], model: "crab", tint: 0xb86a4a },
   mandrake: { name: "Mandrake", color: "#d8b46a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.5, speed: 125, aggro: null, link: true, linkGroup: "mandrake", tpMove: { name: "Dream Dust", mul: 1.2, sleepy: true }, weak: { fire: 1.3 }, loot: [["mandrake_leaf", 0.4], ["healing_herb", 0.25], ["earth_crystal", 0.15]], model: "mandrake", tint: 0xd8b46a, tint2: 0x5aa84a },
   shroomling: { name: "Shroomling", color: "#c8b8a0", radius: 13, hpMul: 1.1, attMul: 0.9, defMul: 1.0, eva: 0, delay: 3.3, speed: 60, int: 7, aggro: null, link: false, tpMove: { name: "Spore Cloud", mul: 1.1, aoe: 70, status: ["poison", 30] }, weak: { fire: 1.4 }, loot: [["spore_cap", 0.35], ["water_crystal", 0.2], ["ether", 0.05]], model: "shroom", tint: 0xd8c8b0, tint2: 0xb04a3a },
-  lake_snapper: { name: "Lake Snapper", color: "#5a8ab0", radius: 12, hpMul: 0.9, attMul: 1.05, defMul: 0.9, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Snapjaw", mul: 1.9 }, weak: { lightning: 1.3 }, loot: [["moat_carp", 0.3], ["water_crystal", 0.25], ["potion", 0.05]], model: "fish", tint: 0x5a8ab0 },
+  lake_snapper: { name: "Lake Snapper", color: "#5a8ab0", radius: 12, hpMul: 0.9, attMul: 1.05, defMul: 0.9, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Chomp", mul: 1.9 }, weak: { lightning: 1.3 }, loot: [["moat_carp", 0.3], ["water_crystal", 0.25], ["potion", 0.05]], model: "fish", tint: 0x5a8ab0 },
   longneck: { name: "Marsh Longneck", color: "#b09070", radius: 20, hpMul: 1.8, attMul: 1.1, defMul: 1.1, eva: 2, delay: 3.6, speed: 105, aggro: null, link: false, tpMove: { name: "Stomp", mul: 1.9, aoe: 80 }, weak: { lightning: 1.2 }, loot: [["longneck_hide", 0.35], ["earth_crystal", 0.3], ["hi_potion", 0.06]], model: "longneck", tint: 0xb09070 },
   bat: { name: "Cave Bat", color: "#6d5a8a", radius: 11, hpMul: 0.7, attMul: 0.9, defMul: 0.8, eva: 10, delay: 2.4, speed: 125, aggro: null, link: false, tpMove: { name: "Wing Slap", mul: 1.9 }, weak: { ice: 1.25 }, loot: [["egg_batling", 0.004], ["bat_wing", 0.4], ["wind_crystal", 0.3], ["ether", 0.05]], model: "bat" },
   worm: { name: "Tunnel Worm", color: "#b8866a", radius: 14, hpMul: 1.2, attMul: 0.85, defMul: 1.1, delay: 3.4, speed: 55, int: 4, aggro: { magic: 130, sound: 90 }, link: false, tpMove: { name: "Sand Spit", mul: 1.5, aoe: 60, status: ["flash", 20, 0.25] }, weak: { wind: 1.25 }, loot: [["egg_wormlet", 0.004], ["worm_silk", 0.35], ["earth_crystal", 0.3], ["healing_herb", 0.25], ["ether", 0.06]], model: "worm" },
@@ -936,7 +936,7 @@ const FAMILIES = {
   cactus: { name: "Needlekin", color: "#5aa04a", radius: 12, hpMul: 0.9, attMul: 1.0, defMul: 1.2, eva: 4, delay: 3.0, speed: 90, aggro: { sight: 150 }, link: false, range: 170, tpMove: { name: "Thousand Needles", mul: 2.4 }, weak: { fire: 1.3 }, loot: [["cactus_needle", 0.35], ["earth_crystal", 0.25], ["potion", 0.08]], model: "cactus" },
   bomb: { name: "Ember Bomb", color: "#ff7043", radius: 14, hpMul: 0.85, attMul: 1.3, defMul: 0.8, eva: 6, delay: 3.0, speed: 100, aggro: { sight: 160 }, link: false, tpMove: { name: "Self-Destruct", mul: 3.2, aoe: 90, explode: true }, weak: { water: 1.5, ice: 1.4 }, loot: [["bomb_ash", 0.4], ["fire_crystal", 0.4], ["ether", 0.06]], model: "bomb" },
   skeleton: { name: "Wandering Bones", color: "#e8e2cf", radius: 15, hpMul: 1.0, attMul: 1.05, defMul: 1.1, delay: 3.0, speed: 80, aggro: { sound: 120, lowhp: 180 }, link: true, tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.35], ["water_crystal", 0.25], ["ether", 0.06], ["x_potion", 0.03]], model: "skeleton" },
-  hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["egg_meadow_kit", 0.004], ["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06]], model: "hare" },
+  hare: { name: "Meadow Hare", color: "#c8a27a", radius: 11, hpMul: 0.6, attMul: 0.8, defMul: 0.8, eva: 6, delay: 2.6, speed: 115, aggro: null, link: false, tpMove: { name: "Rear Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["egg_meadow_kit", 0.004], ["healing_herb", 0.35], ["earth_crystal", 0.2], ["potion", 0.06]], model: "hare" },
   crypt_sentinel: { name: "Crypt Sentinel", color: "#80cbc4", radius: 17, hpMul: 3.0, attMul: 1.25, defMul: 1.3, delay: 3.2, speed: 85, aggro: { sight: 170, sound: 150 }, link: true, linkGroup: "undead", tpMove: { name: "Grave Sweep", mul: 1.7, aoe: 80 }, weak: { light: 1.5, fire: 1.2 }, nm: true, scale: 1.5, aura: "#80cbc4", respawn: 600, loot: [["crypt_key", 1], ["bone_chip", 1], ["ether", 0.6], ["freeswords_slops", 0.3], ["super_ether", 0.15], ["reraiser", 0.2]], gil: [20, 30], model: "skeleton" },
   royal_guard: { name: "Royal Guard", color: "#c0c8d8", radius: 15, hpMul: 1.1, attMul: 1.15, defMul: 1.1, delay: 3.0, speed: 95, aggro: null, link: true, linkGroup: "undead", tpMove: { name: "Bone Crunch", mul: 1.8 }, weak: { light: 1.5, fire: 1.2 }, loot: [["bone_chip", 0.5], ["water_crystal", 0.3], ["reraiser", 0.04], ["x_potion", 0.04], ["super_ether", 0.03]], model: "skeleton", summoned: true },
   hollow_king: { name: "Hollow King", color: "#ffd54f", radius: 20, hpMul: 3.8, attMul: 1.3, defMul: 1.25, delay: 3.4, speed: 90, aggro: { sight: 200 }, link: false, tpMove: { name: "Sovereign's Wrath", mul: 2.1, aoe: 100 }, weak: { light: 1.4, fire: 1.15 }, nm: true, boss: true, scale: 1.75, aura: "#ffd54f", respawn: 600, loot: [["sol_cap", 0.3], ["bee_spatha", 0.3], ["bone_chip", 1], ["hi_potion", 0.8], ["ether", 0.8], ["super_ether", 0.3], ["hi_reraiser", 0.25], ["super_reraiser", 0.1]], gil: [60, 80], model: "skeleton", phases: [0.66, 0.33], enrage: 0.2 },
@@ -944,9 +944,9 @@ const FAMILIES = {
   bog_leech: { name: "Bog Leech", color: "#5a2a2a", radius: 13, hpMul: 1.1, attMul: 0.95, defMul: 1.1, delay: 3.2, speed: 60, int: 4, aggro: null, link: false, tpMove: { name: "Crimson Siphon", mul: 1.6, drain: true }, weak: { fire: 1.3 }, loot: [["worm_silk", 0.3], ["water_crystal", 0.3], ["ether", 0.08]], model: "worm", tint: 0x4a2226 },
   mire_goblin: { name: "Mire Goblin", color: "#58663a", radius: 15, hpMul: 1.05, attMul: 1.05, defMul: 1.05, delay: 3.0, speed: 95, aggro: { sight: 175 }, link: true, linkGroup: "mire", tpMove: { name: "Bog Bomb", mul: 1.7, aoe: 75 }, weak: { ice: 1.2 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.25], ["mire_reed", 0.3], ["fire_crystal", 0.2], ["hi_potion", 0.06]], model: "goblin" },
   drowned: { name: "Drowned One", color: "#6f9a9a", radius: 15, hpMul: 1.2, attMul: 1.1, defMul: 1.05, delay: 3.0, speed: 85, aggro: { sound: 130, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Sodden Grasp", mul: 1.9, drain: true }, weak: { light: 1.5, lightning: 1.2 }, loot: [["chapel_sigil", 0.12], ["bone_chip", 0.35], ["water_crystal", 0.35], ["ether", 0.1], ["hi_potion", 0.06], ["x_potion", 0.04], ["reraiser", 0.03], ["hi_ether", 0.03]], model: "ghoul" },
-  marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
+  marsh_hare: { name: "Reed Hare", color: "#8a7a5a", radius: 11, hpMul: 0.7, attMul: 0.85, defMul: 0.85, eva: 8, delay: 2.6, speed: 120, aggro: null, link: false, tpMove: { name: "Rear Kick", mul: 1.6 }, weak: { ice: 1.1 }, loot: [["healing_herb", 0.4], ["mire_reed", 0.2], ["potion", 0.08]], model: "hare", tint: 0x8a7a5a },
   tide_priest: { name: "Tidebound Priest", color: "#4dd0e1", radius: 20, hpMul: 3.2, attMul: 1.1, defMul: 1.2, delay: 3.6, speed: 80, int: 6, aggro: { sight: 240, sound: 220 }, link: false, tpMove: { name: "Drowning Tide", mul: 1.6, aoe: 110, status: ["silence", 20] }, weak: { lightning: 1.4, light: 1.3 }, nm: true, boss: true, scale: 1.6, aura: "#4dd0e1", respawn: 30, phases: [0.65], adds: "drowned", addsText: "calls the drowned up from the water!", enrage: 0.2, pulse: { at: 0.5, every: 22, dmg: 4, r: 170, name: "Maelstrom", el: "water" }, loot: [], gil: [40, 60], model: "ghoul" },
-  snow_hare: { name: "Snow Hare", color: "#e8eef2", radius: 11, hpMul: 0.75, attMul: 0.85, defMul: 0.85, eva: 10, delay: 2.6, speed: 125, aggro: null, link: false, tpMove: { name: "Hind Kick", mul: 1.6 }, weak: { fire: 1.2 }, loot: [["healing_herb", 0.4], ["wind_crystal", 0.2], ["potion", 0.1]], model: "hare", tint: 0xeef2f6 },
+  snow_hare: { name: "Snow Hare", color: "#e8eef2", radius: 11, hpMul: 0.75, attMul: 0.85, defMul: 0.85, eva: 10, delay: 2.6, speed: 125, aggro: null, link: false, tpMove: { name: "Rear Kick", mul: 1.6 }, weak: { fire: 1.2 }, loot: [["healing_herb", 0.4], ["wind_crystal", 0.2], ["potion", 0.1]], model: "hare", tint: 0xeef2f6 },
   ice_bat: { name: "Ice Bat", color: "#9fd8ff", radius: 11, hpMul: 0.85, attMul: 1.0, defMul: 0.9, eva: 12, delay: 2.4, speed: 130, aggro: null, link: true, linkGroup: "icebat", tpMove: { name: "Frost Wing", mul: 1.9 }, weak: { fire: 1.3 }, loot: [["egg_frost_wisp", 0.005], ["bat_wing", 0.4], ["frost_shard", 0.25], ["ether", 0.08]], model: "bat", tint: 0x8ab8d8 },
   frost_goblin: { name: "Frost Goblin", color: "#9aa8a0", radius: 15, hpMul: 1.15, attMul: 1.1, defMul: 1.1, delay: 3.0, speed: 95, aggro: { sight: 185 }, link: true, linkGroup: "frostgob", tpMove: { name: "Ice Bomb", mul: 1.8, aoe: 80 }, weak: { fire: 1.3 }, loot: [["goblin_pouch", 0.3], ["iron_ore", 0.3], ["frost_shard", 0.3], ["hi_potion", 0.08], ["scroll_blizzard", 0.015]], model: "goblin" },
   ice_wight: { name: "Ice Wight", color: "#b8e0f0", radius: 15, hpMul: 1.25, attMul: 1.15, defMul: 1.15, delay: 3.1, speed: 85, aggro: { sound: 140, lowhp: 220 }, link: true, linkGroup: "undead", tpMove: { name: "Rime Grasp", mul: 2.0, drain: true }, weak: { fire: 1.4, light: 1.4 }, loot: [["bone_chip", 0.35], ["frost_shard", 0.35], ["ether", 0.1], ["x_potion", 0.04], ["hi_ether", 0.04]], model: "skeleton" },
@@ -2638,15 +2638,15 @@ const RACE_BASE = {
 
 
 const PETS = {
-  carbuncle: { name: "Lantern Sprite", el: "light", col: 0xa5d6a7, eye: 0xff5252, pact: "Searing Light", weak: "dark" },
-  ember: { name: "Cinder Wisp", el: "fire", col: 0xff7043, eye: 0xfff176, pact: "Flame Burst", weak: "ice" },
-  frost: { name: "Rime Wisp", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Frost Lance", weak: "fire" },
-  stone: { name: "Stone Wisp", el: "earth", col: 0xbca27a, eye: 0xffe082, pact: "Rock Throw", weak: "wind" },
-  gale: { name: "Gale Wisp", el: "wind", col: 0xaed581, eye: 0xf1f8e9, pact: "Cyclone", weak: "earth" },
-  thunder: { name: "Storm Wisp", el: "lightning", col: 0xfff176, eye: 0xffffff, pact: "Lightning Strike", weak: "earth" },
-  water: { name: "Brook Wisp", el: "water", col: 0x4fc3f7, eye: 0xe1f5fe, pact: "Aqua Burst", weak: "lightning" },
-  light: { name: "Dawn Wisp", el: "light", col: 0xfff9c4, eye: 0xffffff, pact: "Holy Ray", weak: "dark" },
-  dark: { name: "Dusk Wisp", el: "dark", col: 0x7e57c2, eye: 0xd1c4e9, pact: "Shadow Bolt", weak: "light" }
+  carbuncle: { name: "Lantern Sprite", el: "light", col: 0xa5d6a7, eye: 0xff5252, pact: "Dawnbeam", weak: "dark" },
+  ember: { name: "Cinder Wisp", el: "fire", col: 0xff7043, eye: 0xfff176, pact: "Cinder Burst", weak: "ice" },
+  frost: { name: "Rime Wisp", el: "ice", col: 0x81d4fa, eye: 0xffffff, pact: "Rime Spike", weak: "fire" },
+  stone: { name: "Stone Wisp", el: "earth", col: 0xbca27a, eye: 0xffe082, pact: "Stone Hurl", weak: "wind" },
+  gale: { name: "Gale Wisp", el: "wind", col: 0xaed581, eye: 0xf1f8e9, pact: "Gale Spiral", weak: "earth" },
+  thunder: { name: "Storm Wisp", el: "lightning", col: 0xfff176, eye: 0xffffff, pact: "Storm Lash", weak: "earth" },
+  water: { name: "Brook Wisp", el: "water", col: 0x4fc3f7, eye: 0xe1f5fe, pact: "Brook Rush", weak: "lightning" },
+  light: { name: "Dawn Wisp", el: "light", col: 0xfff9c4, eye: 0xffffff, pact: "Halo Ray", weak: "dark" },
+  dark: { name: "Dusk Wisp", el: "dark", col: 0x7e57c2, eye: 0xd1c4e9, pact: "Dusk Bolt", weak: "light" }
 };
 
 const BATTLEFIELD = { zone: "depths", minutes: 15, rewards: ["anus_tiara", "city_staff", "kingdom_sword", "anus_doublet", "rogetsurin"], gil: 1500, xp: 3000 };
