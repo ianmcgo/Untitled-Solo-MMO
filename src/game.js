@@ -541,7 +541,7 @@ function buildStats(ch) {
   const rc = ch.kind === "pc" && typeof save !== "undefined" && save.look ? RACES[save.look.race] || RACES.human : null;
   if (rc) for (const k in rc.attrs) s[k] = Math.max(1, Math.round(s[k] + rc.attrs[k] * (1 + lv / 20)));
   s.maxHp = Math.round((hp + g.hp + CONFIG.hpLvBonus * (lv - 1)) * (rc ? rc.hp : 1));
-  s.maxMp = Math.round((mp * CONFIG.mpMul + g.mp) * (rc && mp > 0 ? rc.mp : 1) * (ch.kind === "pc" && mp > 0 ? 1 + buddyPerk("mp") : 1));
+  s.maxMp = Math.max(0, Math.round((mp * CONFIG.mpMul + g.mp) * (rc && mp > 0 ? rc.mp : 1) * (ch.kind === "pc" && mp > 0 ? 1 + buddyPerk("mp") : 1)));
   s.acc = Math.round(58 + s.dex * 0.5 + 0.6 * wsk + lv + g.acc);
   s.att = Math.round((10 + s.str + 4 * lv + g.att) * (rc && rc.attMul ? rc.attMul : 1));
   if (rc && rc.rangedAcc && wtype === "archery") s.acc += rc.rangedAcc;
@@ -556,7 +556,7 @@ function buildStats(ch) {
   ch.delay = delay;
   if (ch.kind === "pc") ch.speed = CONFIG.runSpeed * (rc ? rc.speed : 1);
   ch.hp = ch.hp == null ? s.maxHp : Math.min(ch.hp, s.maxHp);
-  ch.mp = ch.mp == null ? s.maxMp : Math.min(ch.mp, s.maxMp);
+  ch.mp = ch.mp == null ? s.maxMp : Math.max(0, Math.min(ch.mp, s.maxMp));
   ch.color = ch.mercId ? MERCS[ch.mercId].color : ch.pet ? (ch.color || "#4dd0e1") : JOBS[ch.job].color;
 }
 
@@ -2306,7 +2306,7 @@ function tickFood() {
 }
 
 function nearWater(e, reach) {
-  for (const w of S.zone.water || []) if (Math.hypot(e.x - w.x, e.y - w.y) < w.r + (reach || FISH_CFG.reach)) return w;
+  for (const w of S.zone.water || []) if (Math.min(pondDist(w, e.x, e.y), Math.hypot(e.x - w.x, e.y - w.y)) < w.r + (reach || FISH_CFG.reach)) return w;
   return null;
 }
 
@@ -3810,15 +3810,21 @@ function keepInZone(e) {
   e.y = clamp(e.y, w + e.radius, z.h - w - e.radius);
 }
 
+function pondLobe(w, a) {
+  const s = ((w.x * 0.013 + w.y * 0.029) % 6.283) + 1.7;
+  return 1 + 0.085 * Math.sin(2 * a + s) + 0.055 * Math.sin(3 * a + s * 2.3) + 0.03 * Math.sin(5 * a + s * 3.1);
+}
+function pondDist(w, x, y) { const dx = x - w.x, dy = y - w.y; return Math.hypot(dx, dy) - w.r * (pondLobe(w, Math.atan2(dy, dx)) - 1); }
+
 function keepOutOfWater(e) {
   if (!FEATURES.water || !S.zone.water) return;
   for (const w of S.zone.water) {
-    const d = Math.hypot(e.x - w.x, e.y - w.y);
+    const d = pondDist(w, e.x, e.y);
     const min = w.r + e.radius * 0.6;
     if (d < min) {
-      const nx = d > 0.001 ? (e.x - w.x) / d : 1, ny = d > 0.001 ? (e.y - w.y) / d : 0;
-      e.x = w.x + nx * min;
-      e.y = w.y + ny * min;
+      const a = Math.atan2(e.y - w.y, e.x - w.x), rr = min + w.r * (pondLobe(w, a) - 1);
+      e.x = w.x + Math.cos(a) * rr;
+      e.y = w.y + Math.sin(a) * rr;
     }
   }
 }
@@ -4251,7 +4257,7 @@ function allyMode(a, threatened, still) {
   } else if (f < CONFIG.allyRestHp && (threatened || pd <= 450)) a.retreat = "rest";
   else if (a.retreat === "sit") {
     if (full || threatened || !still || pd > 600) a.retreat = null;
-  } else if (!threatened && still && f <= CONFIG.allySitHp && pd <= 450) a.retreat = "sit";
+  } else if (!threatened && still && (f <= CONFIG.allySitHp || (a.maxMp > 0 && a.mp <= a.maxMp * CONFIG.allySitMp)) && pd <= 450) a.retreat = "sit";
   else if (a.retreat === "kite") { if (f > CONFIG.allyKiteExit) a.retreat = null; }
   else if (f <= CONFIG.allyKiteHp) a.retreat = "kite";
   if (!a.retreat) { a.fleeTurnUntil = 0; a.fleeChk = null; }

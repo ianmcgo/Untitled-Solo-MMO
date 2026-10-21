@@ -129,7 +129,7 @@ function* buildFieldSteps(zone) {
     hgt = mix(hgt, 0.05, plazaW(px, py));
     if (theme === "town") hgt *= 0.6;
     for (const wt of waters) {
-      const d = Math.hypot(px - wt.x, py - wt.y);
+      const d = pondDist(wt, px, py);
       const flat = sstep(wt.r + 110, wt.r + 10, d);
       hgt = mix(hgt, waterLevel + 0.35, flat);
       hgt -= (1 - sstep(wt.r * 0.45, wt.r + 22, d)) * 1.7;
@@ -173,7 +173,7 @@ function* buildFieldSteps(zone) {
     zone, x0, y0, w, h, cs, cols, rows, data, heightAt, waterLevel,
     pathWeight: pathW, plazaWeight: plazaW, cobbleHeight, rutWeight: rutW,
     roadGap: (px, py) => { let g = 1e9; for (const s of pathSegs) { if (px < s.x0 - 40 || px > s.x1 + 40 || py < s.y0 - 40 || py > s.y1 + 40) continue; g = Math.min(g, distToSeg(px, py, s.ax, s.ay, s.bx, s.by) - s.w / 2); } return g; },
-    shoreWeight: (px, py) => { let s = 0; for (const wt of waters) { const d = Math.hypot(px - wt.x, py - wt.y); s = Math.max(s, sstep(wt.r + 45, wt.r + 4, d)); } return s; },
+    shoreWeight: (px, py) => { let s = 0; for (const wt of waters) { const d = pondDist(wt, px, py); s = Math.max(s, sstep(wt.r + 45, wt.r + 4, d)); } return s; },
     outside: (px, py) => sstep(0, 120, outsideE(px, py)) * (1 - exitMask(px, py)),
     outsideE, exitMask
   };
@@ -237,6 +237,8 @@ function terrainDetail(mat, field) {
   float far = smoothstep(30.0, 90.0, distance(vWP, cameraPosition));
   float k = mix(1.0, 0.35, far);
   diffuseColor.rgb *= 1.0 + (det - 0.5) * 1.1 * k;
+  float mac = texture2D(tRockD, vWP.xz * 0.006).r + texture2D(tGrass, vWP.xz * 0.017).r * 0.5 - 0.75;
+  diffuseColor.rgb *= mix(vec3(1.0), vec3(1.0 + mac * 0.22, 1.0 + mac * 0.1, 1.0 - mac * 0.12), (1.0 - rockW) * (1.0 - uCave) * green);
   float lum = dot(diffuseColor.rgb, vec3(0.3, 0.55, 0.15));
   diffuseColor.rgb = mix(diffuseColor.rgb, vec3(lum) * vec3(1.02, 0.98, 0.92), rockW * 0.45 * (1.0 - uCave * 0.5));
   float sw = texture2D(tRockD, vWP.xz * 0.035).r;
@@ -395,7 +397,7 @@ function buildProps(field, root) {
   const scatter = (n, test, push) => { for (let k = 0, tr = 0; k < n && tr < n * 25; tr++) { const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h; if (test(px, py)) { push(px, py); k++; } } };
   const inPlay = (px, py, e0, e1) => { const e = field.outsideE(px, py); return e > e0 && e < e1 && field.exitMask(px, py) < 0.2; };
   if (!desert && !volcanic && !snowy && th === "field") scatter(Math.round((jungle ? 420 : 220) * K), (px, py) => inPlay(px, py, -260, 120) && placeable(field, px, py, { water: 20, npc: 50, path: 0.05 }) && NOISE.value(px * 0.004, py * 0.004, 0, 611) > 0.45, (px, py) => { const s = (0.7 + rnd() * 0.8) * (jungle ? 1.7 : 1); ferns.push(mtx(px * U, field.heightAt(px, py) - 0.03, py * U, s, s, s, rnd() * 6.28)); });
-  for (const wt of z.water || []) { const n = Math.round(Math.min(160, wt.r * 0.9) * K * (marsh ? 1.6 : 1)); for (let k = 0; k < n; k++) { const a = rnd() * 6.28, r = wt.r + (rnd() - 0.35) * 26, px = wt.x + Math.cos(a) * r, py = wt.y + Math.sin(a) * r; if (field.pathWeight(px, py) > 0.1 || !onTerrain(field, px, py)) continue; const s = 0.8 + rnd() * 0.7; reeds.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.8 + rnd() * 0.5), s, rnd() * 6.28)); } }
+  for (const wt of z.water || []) { const n = Math.round(Math.min(160, wt.r * 0.9) * K * (marsh ? 1.6 : 1)); for (let k = 0; k < n; k++) { const a = rnd() * 6.28, r = wt.r * pondLobe(wt, a) + (rnd() - 0.35) * 26, px = wt.x + Math.cos(a) * r, py = wt.y + Math.sin(a) * r; if (field.pathWeight(px, py) > 0.1 || !onTerrain(field, px, py)) continue; const s = 0.8 + rnd() * 0.7; reeds.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.8 + rnd() * 0.5), s, rnd() * 6.28)); } }
   if (marsh && th === "field") scatter(Math.round(200 * K), (px, py) => inPlay(px, py, -300, 60) && field.shoreWeight(px, py) < 0.2 && placeable(field, px, py, { water: 5, npc: 40, path: 0.1 }) && NOISE.value(px * 0.006, py * 0.006, 0, 613) > 0.55, (px, py) => { const s = 0.7 + rnd() * 0.6; reeds.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s, s, rnd() * 6.28)); });
   if (!desert && !volcanic && th === "field") scatter(Math.round(70 * K), (px, py) => inPlay(px, py, -280, 80) && placeable(field, px, py, { water: 20, npc: 40, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 1.0; shrooms.push(mtx(px * U, field.heightAt(px, py) - 0.02, py * U, s, s, s, rnd() * 6.28)); });
   if (th === "field") scatter(Math.round((desert || volcanic || snowy ? 30 : 14) * K), (px, py) => inPlay(px, py, -260, 100) && placeable(field, px, py, { water: 30, npc: 60, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 0.8; stumps.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.7 + rnd() * 0.6), s, rnd() * 6.28)); });
@@ -559,7 +561,7 @@ function placeable(field, px, py, opts) {
   if (!onTerrain(field, px, py)) return false;
   if (field.pathWeight(px, py) > (opts.path || 0.15)) return false;
   if ((opts.path || 0.15) < 1 && field.roadGap && field.roadGap(px, py) < (opts.clr != null ? opts.clr : 16)) return false;
-  for (const wt of z.water || []) if (Math.hypot(px - wt.x, py - wt.y) < wt.r + (opts.water || 40)) return false;
+  for (const wt of z.water || []) if (pondDist(wt, px, py) < wt.r + (opts.water || 40)) return false;
   for (const n of z.npcs || []) if (Math.hypot(px - n.x, py - n.y) < (opts.npc || 70)) return false;
   for (const r of z.houses || []) if (Math.abs(px - r.x) < r.w / 2 + 40 && Math.abs(py - r.y) < r.h / 2 + 40) return false;
   for (const ex of z.exits) if (Math.hypot(px - (ex.x + ex.w / 2), py - (ex.y + ex.h / 2)) < (opts.exit || 140)) return false;
@@ -572,6 +574,34 @@ function placeable(field, px, py, opts) {
   for (const lm of z.landmarks || []) if (lm.clear && Math.hypot(px - lm.x, py - lm.y) < lm.clear) return false;
   for (const f of z.sites || []) if (Math.hypot(px - f.x, py - f.y) < f.r + 25) return false;
   return true;
+}
+
+function bendGeo(geo, kx, kz, seed) {
+  const p = geo.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const y = Math.max(0, p.getY(i)), w = Math.sin(y * 1.3 + seed) * 0.035 * Math.min(1, y);
+    p.setX(i, p.getX(i) + kx * y * y + w);
+    p.setZ(i, p.getZ(i) + kz * y * y + w * 0.6);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function pineTiers() {
+  const tiers = [[1.7, 2.0, 1.75], [1.42, 1.8, 2.55], [1.15, 1.6, 3.3], [0.88, 1.4, 4.0], [0.55, 1.2, 4.7]], parts = [];
+  tiers.forEach(([r, h, y], t) => {
+    const g = new THREE.ConeGeometry(r, h, 14, 2, true);
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), yy = p.getY(i), z = p.getZ(i);
+      if (yy > -h / 2 + 0.01) continue;
+      const a = Math.atan2(z, x), j = 1 + 0.16 * Math.sin(a * 7 + t * 1.9) + 0.09 * Math.sin(a * 11 + t * 3.7);
+      p.setXYZ(i, x * j, yy - 0.12 * (j - 0.85), z * j);
+    }
+    g.translate(Math.sin(t * 2.1) * 0.06, y, Math.cos(t * 1.7) * 0.06);
+    parts.push(g);
+  });
+  return noisyGeo(THREE.mergeGeometries(parts), 0.05, 2);
 }
 
 function noisyGeo(geo, amt, seed) {
@@ -638,8 +668,11 @@ function buildVegetation(field, root) {
     if (e > 560) continue;
     if (field.exitMask(px, py) > 0.2) continue;
     if (!placeable(field, px, py, { water: 50, exit: 180 })) continue;
-    const y = field.heightAt(px, py), s = (0.8 + rnd() * 0.7) * (jungle ? 1.35 : 1);
-    const m = mtx(px * U, y - 0.2, py * U, s, s * (0.9 + rnd() * 0.4), s, rnd() * 6.28);
+    const grove = theme === "town" ? 1 : NOISE.fbm(px * 0.0022, py * 0.0022, 2, 0, 611);
+    if (theme !== "town" && e < 40 && rnd() > 0.06 + sstep(0.36, 0.6, grove) * 0.94) continue;
+    const young = rnd() < 0.22 ? 0.55 + rnd() * 0.25 : 1;
+    const y = field.heightAt(px, py), s = (0.75 + Math.pow(rnd(), 1.4) * 0.85) * young * (jungle ? 1.35 : 1);
+    const m = mtx(px * U, y - 0.2, py * U, s, s * (0.85 + rnd() * 0.45), s, rnd() * 6.28, (rnd() - 0.5) * 0.09, (rnd() - 0.5) * 0.09);
     (desert ? (rnd() < 0.85 ? cacti : leafy2) : jungle ? (rnd() < 0.6 ? leafy2 : leafy) : rnd() < (theme === "town" ? 0.4 : z.palette === "snow" ? 0.85 : 0.6) ? pines : rnd() < 0.45 ? leafy2 : leafy).push(m);
     z.colliders.push({ x: px, y: py, r: 4.6 * s });
     k++;
@@ -725,35 +758,32 @@ function buildVegetation(field, root) {
     if (field.pathWeight(px, py) > 0.05 || field.shoreWeight(px, py) > 0.3) continue;
     if (z.plaza && Math.hypot(px - z.plaza.x, py - z.plaza.y) < z.plaza.r + 20) continue;
     let bad = false;
-    for (const wt of z.water || []) if (Math.hypot(px - wt.x, py - wt.y) < wt.r + 15) bad = true;
+    for (const wt of z.water || []) if (pondDist(wt, px, py) < wt.r + 15) bad = true;
     for (const r of z.houses || []) if (Math.abs(px - r.x) < r.w / 2 + 6 && Math.abs(py - r.y) < r.h / 2 + 6) bad = true;
     if (bad) continue;
-    const s = 0.5 + rnd() * 0.6;
-    tufts.push(mtx(px * U, field.heightAt(px, py) - 0.02, py * U, s, s * (0.7 + rnd() * 0.6), s, rnd() * 6.28));
+    const patch = NOISE.fbm(px * 0.008, py * 0.008, 2, 0, 613);
+    if (rnd() > 0.25 + sstep(0.38, 0.62, patch) * 0.75) continue;
+    const s = (0.45 + rnd() * 0.5) * (0.75 + patch * 0.6);
+    const m = mtx(px * U, field.heightAt(px, py) - 0.02, py * U, s, s * (0.6 + rnd() * 0.7), s, rnd() * 6.28);
+    m.dry = NOISE.value(px * 0.004, py * 0.004, 0, 617);
+    tufts.push(m);
     k++;
   }
-  const trunkGeo = new THREE.CylinderGeometry(0.12, 0.22, 2.4, 7);
-  trunkGeo.translate(0, 1.2, 0);
-  const pineGeo = THREE.mergeGeometries([
-    new THREE.ConeGeometry(1.6, 2.6, 9).translate(0, 2.3, 0),
-    new THREE.ConeGeometry(1.25, 2.2, 9).translate(0, 3.5, 0),
-    new THREE.ConeGeometry(0.85, 1.8, 9).translate(0, 4.6, 0)
-  ]);
-  noisyGeo(pineGeo, 0.06, 2);
-  const leafGeo = THREE.mergeGeometries([
+  const trunkGeo = bendGeo(new THREE.CylinderGeometry(0.12, 0.22, 2.4, 7, 5).translate(0, 1.2, 0), 0.028, 0.012, 21);
+  const pineGeo = bendGeo(pineTiers(), 0.028, 0.012, 21);
+  const leafGeo = bendGeo(noisyGeo(THREE.mergeGeometries([
     new THREE.IcosahedronGeometry(1.5, 1).translate(0, 3.2, 0),
     new THREE.IcosahedronGeometry(1.1, 1).translate(0.8, 2.8, 0.4),
     new THREE.IcosahedronGeometry(1.0, 1).translate(-0.7, 3.0, -0.5)
-  ]);
-  noisyGeo(leafGeo, 0.18, 7);
+  ]), 0.18, 7), 0.028, 0.012, 21);
   const barkMat = std({ map: bark.map, normalMap: bark.normalMap });
   const snowy = z.palette === "snow";
-  const pineMat = std({ map: pineTex.map, normalMap: pineTex.normalMap, color: snowy ? 0xf2f6fa : 0xd8e8d0 });
+  const pineMat = std({ map: pineTex.map, normalMap: pineTex.normalMap, color: snowy ? 0xf2f6fa : 0xd8e8d0, side: THREE.DoubleSide });
   const leafMat = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0xffffff });
   if (snowy) { pineMat.emissive = new THREE.Color(0x3a4a50); leafMat.emissive = new THREE.Color(0x30383a); }
   addWind(pineMat, 0.02);
   addWind(leafMat, 0.03);
-  if (pines.length) { root.add(instanced(trunkGeo, barkMat, pines, true)); root.add(instanced(pineGeo, pineMat, pines, true)); }
+  if (pines.length) { root.add(instanced(trunkGeo, barkMat, pines, true)); root.add(tintInst(instanced(pineGeo, pineMat, pines, true), rnd, 0.2)); }
   if (cacti.length) {
     const parts = [new THREE.CylinderGeometry(0.32, 0.38, 3.2, 10).translate(0, 1.6, 0), new THREE.SphereGeometry(0.32, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 3.2, 0)];
     for (const [sx, h0, len] of [[1, 1.3, 1.1], [-1, 1.9, 0.9]]) { parts.push(new THREE.CylinderGeometry(0.17, 0.17, 0.6, 8).rotateZ(Math.PI / 2).translate(sx * 0.55, h0, 0)); parts.push(new THREE.CylinderGeometry(0.18, 0.2, len, 8).translate(sx * 0.82, h0 + len / 2, 0)); }
@@ -762,12 +792,13 @@ function buildVegetation(field, root) {
   }
   if (leafy.length) { root.add(instanced(trunkGeo, barkMat, leafy, true)); root.add(tintInst(instanced(leafGeo, leafMat, leafy, true), rnd, 0.14)); }
   if (leafy2.length) {
-    const trunk2 = THREE.mergeGeometries([new THREE.CylinderGeometry(0.1, 0.2, 3.4, 7).translate(0, 1.7, 0), new THREE.CylinderGeometry(0.05, 0.08, 1.4, 5).rotateZ(0.8).translate(0.55, 2.6, 0), new THREE.CylinderGeometry(0.05, 0.08, 1.2, 5).rotateZ(-0.9).translate(-0.5, 2.9, 0.1)]);
+    const trunk2 = THREE.mergeGeometries([bendGeo(new THREE.CylinderGeometry(0.1, 0.2, 3.4, 7, 6).translate(0, 1.7, 0), -0.02, 0.016, 33), new THREE.CylinderGeometry(0.05, 0.08, 1.4, 5).rotateZ(0.8).translate(0.55, 2.6, 0), new THREE.CylinderGeometry(0.05, 0.08, 1.2, 5).rotateZ(-0.9).translate(-0.5, 2.9, 0.1)]);
     const canopy = THREE.mergeGeometries([
       new THREE.IcosahedronGeometry(1.25, 1).translate(0, 4.3, 0), new THREE.IcosahedronGeometry(1.0, 1).translate(1.0, 3.8, 0.3), new THREE.IcosahedronGeometry(0.95, 1).translate(-0.9, 3.9, -0.3),
       new THREE.IcosahedronGeometry(0.85, 1).translate(0.2, 3.5, 0.95), new THREE.IcosahedronGeometry(0.8, 1).translate(-0.3, 3.4, -0.95), new THREE.IcosahedronGeometry(0.7, 1).translate(0.1, 5.1, 0.1)
     ]);
     noisyGeo(canopy, 0.2, 13);
+    bendGeo(canopy, -0.02, 0.016, 33);
     root.add(instanced(trunk2, barkMat, leafy2, true));
     root.add(tintInst(instanced(canopy, leafMat, leafy2, true), rnd, 0.18));
   }
@@ -790,7 +821,7 @@ function buildVegetation(field, root) {
     root.add(im);
   }
   if (logs.length) {
-    const lg = THREE.mergeGeometries([new THREE.CylinderGeometry(0.28, 0.32, 2.6, 9), new THREE.CylinderGeometry(0.07, 0.09, 0.6, 5).rotateZ(Math.PI / 2).translate(0.3, 0.4, 0)]);
+    const lg = THREE.mergeGeometries([bendGeo(new THREE.CylinderGeometry(0.28, 0.32, 2.6, 9, 6).translate(0, 1.3, 0), 0.05, 0.02, 41).translate(0, -1.3, 0), new THREE.CylinderGeometry(0.07, 0.09, 0.6, 5).rotateZ(Math.PI / 2).translate(0.3, 0.4, 0)]);
     root.add(instanced(lg, barkMat, logs, true));
   }
   const rockGeo = noisyGeo(new THREE.IcosahedronGeometry(1, 2), 0.22, 3);
@@ -811,10 +842,11 @@ function buildVegetation(field, root) {
     const tg = THREE.mergeGeometries([g1, g2, g3]);
     const nrm = tg.attributes.normal;
     for (let i = 0; i < nrm.count; i++) nrm.setXYZ(i, 0, 1, 0);
-    const tint = theme === "town" ? 0xb8d8a0 : 0xd6dca0;
+    const tint = theme === "town" ? 0xc8e4b0 : 0xe8ecb0;
     const gm = new THREE.MeshStandardMaterial({ map: blade, alphaTest: 0.45, side: THREE.DoubleSide, roughness: 1, color: tint });
     addWind(gm, 0.12);
     const tm = instanced(tg, gm, tufts, false);
+    { const lush = new THREE.Color(0.92, 1.05, 0.86), dry = new THREE.Color(1.18, 1.1, 0.78), c = new THREE.Color(); tufts.forEach((m, i) => { c.copy(lush).lerp(dry, sstep(0.35, 0.75, m.dry)).multiplyScalar(0.92 + rnd() * 0.18); tm.setColorAt(i, c); }); if (tm.instanceColor) tm.instanceColor.needsUpdate = true; }
     tm.receiveShadow = true;
     root.add(tm);
   }
@@ -1768,13 +1800,16 @@ function buildCityBuildings(field, root) {
       bt.add(stone, uvBox(vert ? 2.6 : span, 2.0, vert ? span : 2.6, 2.4), new THREE.Matrix4(), gx * U, gy + 8.0, gyy * U);
       bt.add(M.trim, box(vert ? 3.0 : span + 0.4, 0.3, vert ? span + 0.4 : 3.0), new THREE.Matrix4(), gx * U, gy + 9.1, gyy * U);
       const dz = g.e.gate && ZONES[g.e.to], dd = dz && (dz.districts || [])[0];
-      const ban = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.0), new THREE.MeshStandardMaterial({ map: texSign(dd ? dd.name : z.city || z.name, dd ? dd.color : "#d4a840"), side: THREE.DoubleSide }));
+      const toZ = ZONES[g.e.to], toName = dd ? dd.name : toZ ? (toZ.city || toZ.name) : z.city || z.name;
+      const ban = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.0), new THREE.MeshStandardMaterial({ map: texSign(toName, dd ? dd.color : "#d4a840") }));
+      const ban2 = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.0), new THREE.MeshStandardMaterial({ map: texSign(z.city || z.name, "#d4a840") }));
       if (dd) for (const sd of [-1, 1]) {
         const bx = vert ? ex + (g.side === "e" ? -36 : 36) : g.c + sd * (g.half + 30), by = vert ? g.c + sd * (g.half + 30) : ey + (g.side === "s" ? -36 : 36);
         const bm = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 3.0), std({ color: new THREE.Color(dd.color), roughness: 0.95, side: THREE.DoubleSide }));
         bm.position.set(bx * U, field.heightAt(bx, by) + 5.2, by * U); bm.rotation.y = vert ? Math.PI / 2 : 0; bm.userData.banner = true; root.add(bm);
       }
       ban.position.set(gx * U + (vert ? (g.side === "e" ? -1.33 : 1.33) : 0), gy + 8.0, gyy * U + (vert ? 0 : g.side === "s" ? -1.33 : 1.33)); ban.rotation.y = vert ? (g.side === "e" ? -Math.PI / 2 : Math.PI / 2) : g.side === "s" ? Math.PI : 0; root.add(ban);
+      ban2.position.set(gx * U - (vert ? (g.side === "e" ? -1.33 : 1.33) : 0), gy + 8.0, gyy * U - (vert ? 0 : g.side === "s" ? -1.33 : 1.33)); ban2.rotation.y = ban.rotation.y + Math.PI; root.add(ban2);
     }
   }
   bt.flush(root);
@@ -2292,7 +2327,7 @@ function buildWater(field, root) {
   const z = field.zone;
   if (!z.water || !z.water.length) { W3.water = null; W3.waterFx = []; return; }
   const geos = z.water.map(w => {
-    const g = new THREE.CircleGeometry((w.r + 26) * U, 64);
+    const g = new THREE.CircleGeometry((w.r + 26) * 1.2 * U, 64);
     g.translate(w.x * U, -w.y * U, 0);
     return g;
   });
@@ -2324,6 +2359,8 @@ function buildWater(field, root) {
       waterColor: cave ? 0x0a2228 : 0x1e5a68, distortionScale: 1.6, fog: true, alpha: 0.92
     });
     water.material.uniforms.size.value = 3.5;
+    water.material.fragmentShader = water.material.fragmentShader.replace("reflectionSample + specularLight", "mix(reflectionSample, waterColor * 1.6, 0.4) * 0.55 + specularLight * 0.8");
+    water.material.needsUpdate = true;
   }
   water.rotation.x = -Math.PI / 2;
   water.position.y = field.waterLevel;
@@ -2336,7 +2373,8 @@ function buildWater(field, root) {
   const foamT = foamTex();
   for (const wt of z.water) {
     const r0 = (wt.r + 26) * U;
-    const rg = new THREE.RingGeometry(r0 - 1.6, r0 + 0.4, 72, 1);
+    const rg = new THREE.RingGeometry(r0 - 1.6, r0 + 0.4, 96, 1);
+    { const rp = rg.attributes.position; for (let i = 0; i < rp.count; i++) { const x = rp.getX(i), y = rp.getY(i), L = Math.hypot(x, y) || 1, k = (L + wt.r * U * (pondLobe(wt, Math.atan2(-y, x)) - 1)) / L; rp.setXY(i, x * k, y * k); } }
     const fm = new THREE.MeshBasicMaterial({ map: foamT.clone(), transparent: true, depthWrite: false, opacity: cave ? 0.3 : 0.7, fog: true, side: THREE.DoubleSide });
     fm.map.needsUpdate = true; fm.map.repeat.set(10, 1);
     const ring = new THREE.Mesh(rg, fm);

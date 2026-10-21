@@ -2669,7 +2669,7 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 ## 19.17.0 Stand your ground
 - hud4.js `drawWait` builds the Time box once (`el.dataset.mode = "run"`) and updates `.tbNow`, `.tbBar i` and `.tbProg` in place via `setHtml`/`setTxt`; it used to rebuild innerHTML about every 50 ms, which swallowed the Stop click. `renderTimeBox` and `closeTimeBox` set and clear `dataset.mode`.
 - game.js `allyStandTick` (before `keepCasterRange`): a ranged hire (`allyRanged`) whose back-off (`noteBackoff` sets `a.backAt`) keeps happening while a threat targets it within `CONFIG.allyKiteDist` for `CONFIG.allyChaseSecs` sets `a.standUntil = S.time + CONFIG.allyStandSecs`. While standing, `keepCasterRange` skips the 110 px back-off and `a.kiting` is false. Resting or sitting modes and the low-HP kite flee branch do not stand, so dying hires keep running. Death and zone change reset `standUntil` and `chaseT`.
-- data.js CONFIG: `allyStandSecs: 30`, `allyChaseSecs: 1.5`. Test: test/p31unit.js.
+- data.js CONFIG: `allyStandSecs: 30`, `allyChaseSecs: 1.5`. Test: test/p64unit.js.
 - Blade orientation check: stance and swing sheets for sword, dagger, axe, club, tachi, greataxe, great sword, kunai, polearm, scythe, staff show forward-pointing blades; no pose change made.
 - animation-plan.md touched in the release commit to carry a neutral commit message.
 
@@ -2679,3 +2679,20 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - menu4.js: Config, More row gets `data-a="tutorial"` handled in the action chain; Help Controls gets a Tutorial line; Updates 19.18.0.
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
+
+## 19.19.0 Wilder lands
+- world3d `bendGeo(geo, kx, kz, seed)` curves geometry by height (x += kx*y², small sine wobble); used on tree trunks, pine tiers, leafy canopies (same constants per tree type so canopy follows trunk) and logs. `pineTiers()` builds five open cones (14 segments) whose bottom rings are jagged and droop; pine material is DoubleSide. Trees get small random rx/rz lean, 22% are young (0.55–0.8 scale), pines get `tintInst`.
+- Tree placement: outside towns, inside play area (e < 40) a tree is kept with probability 0.06 + 0.94 * sstep(0.36, 0.6, fbm(px*0.0022, py*0.0022, seed 611)), giving groves and clearings. Border forest (e >= 40) is unchanged.
+- Grass tufts: patch mask fbm(px*0.008, seed 613) and size tied to it; per-instance colour lerps lush to dry by NOISE.value(px*0.004, seed 617). Tuft material tint brightened.
+- Terrain shader (`terrainDetail`): macro colour variation `mac` from tRockD at 0.006 and tGrass at 0.017, only on grassy, non-rock, non-cave ground.
+- Ponds: game.js `pondLobe(w, a)` (1 ± ~0.17, three sine harmonics, phase from pond position) and `pondDist(w, x, y)` = hypot − r*(lobe−1), so all w.r-based thresholds follow the lobed shore. Used by terrain height, shoreWeight, placeable, tufts, reeds, the foam ring (vertices pushed by r*(lobe−1)), `keepOutOfWater`, and fishing (`nearWater` takes the min of pond and circle distance so old fishing spots still work). Water plane radius is (r+26)*1.2.
+- Water (THREE.Water, medium/high): fragment shader string patched to `mix(reflectionSample, waterColor*1.6, 0.4)*0.55 + specularLight*0.8` to cut sky glare.
+- Roads: data.js `smoothFieldPaths(zid)` runs before `addFieldFeatures` on outdoor non-safe field zones: subdivides each segment every ~120 px with a sine meander (≤22 px, ≤5% of length), then two rounds of corner cutting (≤45 px per side). Vertices that are any path's endpoint are kept, so junctions and exits stay joined. Game `onRoad` uses the same points.
+- Town gate signs (`buildCityWalls`): two single-sided signs; the inner face shows the destination (district name or zone name), the outer face the town name.
+- Companions: `allyMode` sit condition also triggers when `a.maxMp > 0 && a.mp <= a.maxMp * CONFIG.allySitMp` (0.6). Test: p64unit.js.
+- Stats: `maxMp` clamped at 0, `ch.mp` clamped at 0; status shows max(0, …).
+- menu4 `foldSections(html, key)` splits a tab's HTML on `<h3>`, drops empty sections, and makes each heading a `data-a="fold"` toggle; state in `VIEW.settings.fold` (saved with settings). Applied to `tabSocial` ("soc") and `tabPets` ("pet") via *Raw functions.
+- `fitStatusOv(el)` scales `#stOv` (origin top left, min 0.55) so its bottom clears `#barWrap`, `#mobBar` or `#target` when they overlap horizontally.
+- hud4 `isTouchUI()` (pointer: coarse). Touch: pointerdown outside #chat closes a pinned log even while typing; `openTimeBox` closes the command box; swipe on #mCmd flips its page, swipe elsewhere closes it.
+- Equipped items: equipping removes the item from the bag (`equip` → `removeItem`), so vendor, storage and auction lists (all built from `save.inventory`) cannot show worn gear. No change made; asked the user for a repro.
+- Screens: scratch Playwright env.js (zone centres of hollow, marsh, verdant, highlands at 10:00, medium) before and after.

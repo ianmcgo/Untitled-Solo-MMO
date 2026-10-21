@@ -1274,6 +1274,7 @@ function initHud() {
     const t = e.target;
     if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #ffSide, #mpBox")) tgtCmdClose();
     if (UI.logClick && UI.chatPin && !UI.chatTyping && !t.closest("#chat, #btnChat, #logTap")) chatToggle(false);
+    else if (isTouchUI() && UI.chatPin && !t.closest("#chat, #btnChat, #logTap")) { UI.chatTyping = false; chatToggle(false); }
     if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #ffTop, #ffNetBox, #logTap")) return;
     if (S.modal && !t.closest("#menu .win, #mCard, #mCmd, #timeBox")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
     if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv, #timeBox")) mainCmdClose();
@@ -1289,7 +1290,8 @@ function initHud() {
     sw = null;
     if (performance.now() - s0.at > 700 || Math.abs(dy) > 70 || Math.abs(dx) < 70 || S.dialog || UI.confirmOpen) return;
     if (dx < 0 && s0.edge && !S.modal && !UI.mm) mainCmdOpen();
-    else if (dx > 0 && UI.mm && !UI.mm.sub && (s0.onMenu || s0.x > window.innerWidth * 0.5)) mainCmdClose();
+    else if (UI.mm && s0.onMenu && !UI.mm.sub) { UI.mm.page = 1 - UI.mm.page; UI.mm.sel = 0; sfx("tab"); renderMainCmd(); }
+    else if (UI.mm && !s0.onMenu && !S.modal) mainCmdClose();
   }, { passive: true });
   $("mobTarget").onclick = e => { e.stopPropagation(); cycleTarget(); sfx("select"); };
   $("mobMenu").onclick = e => { e.stopPropagation(); if (S.modal) { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); } else if (UI.mm && UI.mm.sub) mainCmdKey("escape"); else if (UI.mm) mainCmdClose(); else mainCmdOpen(); };
@@ -1585,8 +1587,10 @@ function timeNowHTML() {
   const v = vana();
   return '<div class="tbClock">' + (isNight() ? "🌙 " : "☀️ ") + hhmm(v) + '</div><div class="tbSub">' + gameDate() + " · " + DAY_NAMES[v.dayIndex] + " (" + dayElement() + ")</div>";
 }
+function isTouchUI() { return !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches); }
 function openTimeBox(view) {
   if (S.wait) return;
+  if (isTouchUI() && UI.mm) mainCmdClose();
   UI.timeBox = { view: view || "menu", hours: (UI.timeBox && UI.timeBox.hours) || 8 };
   renderTimeBox();
   sfx("open");

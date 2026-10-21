@@ -1,0 +1,22 @@
+const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P = () => G.player; G.save.story.done = true;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
+G.save.gil = 99999; G.CONFIG.mercSlotFloorLv = 15;
+const pool = G.mercPool();
+let id = pool.find(i => { const j = G.MERCS[i].job; return ['BLM', 'WHM', 'RDM', 'RNG'].includes(j); }) || pool[0];
+G.hireMerc(id);
+const a = S.party.find(p => p.mercId === id);
+run(2);
+S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
+const mob = G.buildMob('orc_grunt', 3, a.x + 40, a.y, 0, 'WAR'); S.mobs.push(mob); mob.enmity.set(a, 10); mob.state = 'combat';
+a.hp = a.maxHp * 0.8;
+let stood = false;
+for (let i = 0; i < 600; i++) { tick(1000 / 60); if (mob.alive !== false) { mob.target = a; mob.enmity.set(a, 10); if (Math.hypot(mob.x - a.x, mob.y - a.y) > 60) { mob.x = a.x + 40; mob.y = a.y; } } if (a.standUntil > S.time) { stood = true; break; } }
+ok(stood, 'a ranged hire that keeps being chased stops to fight');
+if (stood) ok(a.standUntil - S.time > 25, 'the stand lasts about 30 seconds');
+a.hp = a.maxHp * 0.3; a.standUntil = 0;
+run(1);
+ok(!(a.standUntil > S.time), 'a dying hire keeps running instead of standing');
+S.mobs = []; a.hp = a.maxHp; a.retreat = null; P().moving = false; P().engaged = false; P().stillSince = 0; a.x = P().x + 40; a.y = P().y;
+if (a.maxMp > 0) { a.mp = a.maxMp * 0.2; run(2); ok(a.retreat === 'sit', 'a caster low on MP sits down to rest when the fight is over'); }
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

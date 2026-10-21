@@ -907,7 +907,8 @@ function tabTrade() {
   return h;
 }
 
-function tabSocial() {
+function tabSocial() { return foldSections(tabSocialRaw(), "soc"); }
+function tabSocialRaw() {
   const party = '<h3>👥 Party and companions</h3>' + tabParty();
   if (typeof NET_LS === "undefined" || !NET.member) return party + '<h3>🌐 Online</h3><div class="sub">Online features need the game server.</div>';
   if (!NET_LS.at && !NET_LS.loading) netLsRefresh().then(() => { if (S.modal === "social") renderModal(); });
@@ -940,6 +941,19 @@ function tabSocial() {
   if (NET_LS.at && !NET_LS.err && NET_LS.list.length < 3) h += '<div style="margin:6px 0"><button data-a="lsnew">➕ New linkshell (500 💠)</button></div>';
   h += "<h3>🚫 Blacklist</h3>" + ((save.blocked || []).length ? save.blocked.map(b => '<span class="chip" style="font-size:11px">' + esc(b) + ' <button data-a="socbdel" data-v="' + esc(b) + '" style="padding:0 4px">✕</button></span>').join(" ") : '<div class="sub">Nobody. Use /blacklist add Name to hide someone.</div>');
   return h;
+}
+
+function foldSections(html, key) {
+  const parts = html.split("<h3>"), fold = VIEW.settings.fold || {};
+  let out = parts[0];
+  for (let i = 1; i < parts.length; i++) {
+    const k = parts[i].indexOf("</h3>"), title = parts[i].slice(0, k), body = parts[i].slice(k + 5);
+    if (!body.trim()) continue;
+    const id = key + ":" + title.replace(/<[^>]*>/g, "").replace(/\([^)]*\)/g, "").replace(/[^A-Za-z ]/g, "").trim();
+    const shut = !!fold[id];
+    out += '<h3 class="fold' + (shut ? " shut" : "") + '" data-a="fold" data-v="' + esc(id) + '"><span class="fArr">' + (shut ? "▸" : "▾") + "</span>" + title + "</h3>" + (shut ? "" : '<div class="foldB">' + body + "</div>");
+  }
+  return out;
 }
 
 function socAct(p, ok) { p.then(() => { UI.socMsg = ok || ""; renderModal(); }, e => { UI.socMsg = netAhErr(e); renderModal(); }); }
@@ -1218,7 +1232,8 @@ function tabBoard() {
   return h;
 }
 
-function tabPets() {
+function tabPets() { return foldSections(tabPetsRaw(), "pet"); }
+function tabPetsRaw() {
   const have = save.buddies, cur = save.buddy;
   let h = '<div class="sub" style="margin-bottom:8px">Pets follow you around for company. They never fight, can\'t be attacked and give no bonuses. Equip one, then summon it here or with /pet. Unequip to bag turns the equipped pet back into its item.</div>';
   if (UI.petMsg) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">' + esc(UI.petMsg) + "</div>";
@@ -1709,6 +1724,7 @@ function onMenuClick(e) {
   else if (a === "packf") { UI.homeMsg = removeFurniture(+v); if (UI.homeMsg) sfx("error"); else UI.furnSel = null; renderModal(); return; }
   else if (a === "savefile") { downloadSave(); return; }
   else if (a === "tutorial") { tutStart(); return; }
+  else if (a === "fold") { const f = VIEW.settings.fold = VIEW.settings.fold || {}; if (f[v]) delete f[v]; else f[v] = 1; saveSettings(VIEW.settings); sfx("click"); renderModal(); return; }
   else if (a === "checkupd") { checkForUpdate(true); return; }
   else if (a === "loadfile") { return; }
   else if (a === "syncnow") { saveGame(); netFlush().then(() => renderModal()); return; }
@@ -1750,6 +1766,17 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.19.0", date: "2026-10-21", title: "Wilder lands", items: [
+    "<b>Natural trees.</b> Trunks now curve and lean, pines have five uneven, drooping tiers with ragged edges, and every tree has its own shade. Trees grow in groves with open clearings between them, and some are young and small.",
+    "<b>Winding roads.</b> Country roads curve gently and round their corners instead of running in straight lines.",
+    "<b>Ponds with real shores.</b> Ponds and lakes have irregular, lobed shorelines instead of perfect circles. The shore you see is the shore you walk on, and fishing still works from anywhere at the water's edge.",
+    "<b>Grass and ground.</b> Grass grows in patches that shift from lush green to dry gold, and the ground itself varies in colour across a field. Pond water reflects less glare and shows more of its own colour.",
+    "<b>Gate signs point the way.</b> The sign over a town gate now names where it leads on the inside, and the town's own name on the outside.",
+    "<b>Casters rest for MP.</b> A companion who uses magic now sits down to rest when the fight is over and their MP is at 60% or less, as long as you stand still nearby.",
+    "<b>Foldable sections.</b> Tap a section heading in the Social and Pets windows to fold it away or open it again. Your choice is remembered.",
+    "<b>Phone fixes.</b> Status shrinks to fit above the hotkey bar; tapping outside the event log returns it to normal; swiping on the command box switches its page and swiping anywhere else closes it; opening Time closes the command box.",
+    "<b>Fixed:</b> jobs without magic no longer show negative MP when gear lowers MP."
+  ] },
   { v: "19.18.0", date: "2026-10-21", title: "Welcome tour", items: [
     "<b>Popup tutorial.</b> On first login a short tour explains controls, menus and buttons, quests, guild bounties, battles, finding the map, crystals and warp stones, what happens when you fall, the auction house, companions, crafting and scrolls.",
     "<b>Skip and replay.</b> Skip it at any time with the Skip button or Esc. Replay it from Config, More, Tutorial. Characters you already had see it once on their next login."
@@ -3792,6 +3819,8 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
+    "<b>Phone:</b> swipe left from the right edge to open the command box; swipe on it to switch between its two pages; swipe or tap anywhere else to close it. Tap the event log to open it with the chat line, and tap outside it to return to normal. Status shrinks itself to stay clear of the hotkey bar.",
+    "<b>Folding sections:</b> in the Social and Pets windows, tap a heading (▾) to fold that section away (▸) and tap again to open it. The game remembers which sections you folded.",
     "<b>Tutorial:</b> a popup tour of the whole game opens on your first login. Use Next and Back (or Enter and the arrow keys), Skip tutorial or Esc to leave, and replay it from Config, More, Tutorial.",
     "<b>Event log history:</b> click the event log to open it, then scroll with the wheel or drag to read up to 500 old lines. Click anywhere in the world, or press Esc, to close it again.",
     "<b>Hotkey bar:</b> it sits directly above the Target box and is as wide as the boxes under it, in two rows of five, and always draws on top of them. You can still drag it by the ⠿ grip (double-click to put it back).",
@@ -4046,6 +4075,7 @@ function tabHelp() {
     "<b>Hiring:</b> you can lead <b>one</b> mercenary once any job reaches Lv5, <b>two</b> at Lv10 and <b>three</b> at Lv15 or higher. Brann's Mercenary Hall has 5 new fighters every day (the list changes at midnight). They can be any job, with no level requirement. You hire them at your current level and the fee follows your level.",
     "<b>Level sync:</b> companions always match your current job level. When you level up, level down or change jobs they sync with you. Gear they can no longer wear is put away as a kept item in their bag (never sold) and goes back on when your level allows, unless they have found something better by then. Their starting gear is plain shop gear, never +1 or named pieces.",
     "<b>Fallen companions are gone for good.</b> If a companion is knocked out, they leave your company a few seconds later and can never be hired again. Keep them healed, and pull back when a fight turns.",
+    "<b>Casters rest for MP:</b> when the fight is over and you stand still nearby, a companion who uses magic sits down to rest once their MP is at 60% or less, and stands up when HP and MP are full or you move on.",
     "<b>Ranged companions stand their ground:</b> a caster or archer who keeps backing away but is still being chased turns and fights in place for 30 seconds before trying to run again. One who is running because they are badly hurt keeps running.",
     "<b>Hurt mercenaries:</b> when the fight is over and you stand still, a mercenary at 75% health or less sits and rests to full. In a fight, at 50% health or less they run to a safe distance and fight from range (spells, bows, abilities) until they are above 70%. Under 25% they run clear and /rest until HP and MP are full. On Hold stance they stay put and rest where they are. Casters spend nearly all their MP and stay at range; healers always heal the lowest-health member first.",
     "<b>Stance:</b> Assist (fight your target), Follow (stay close and never attack; healers still heal) or Hold (stand where they are and only fight what comes to them). Set it in the Party window or with /stance.",
@@ -4353,7 +4383,7 @@ function statusLeftHTML(noLv) {
   { const lk = save.look || {}; h += '<div class="stJob">' + esc((RACES[lk.race] || RACES.human).name) + " " + (lk.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(lk)][0] + "</div>"; }
   if (p.sub && JOBS[p.sub]) h += '<div class="stJob">Lv' + Math.floor(p.lv / 2) + " " + esc(JOBS[p.sub].name) + "</div>";
   h += '<div class="stRow"><em>ILv</em><b>' + ilv + ' <small>Su —</small></b></div>';
-  h += '<div class="stRow gap"><em>HP</em><b>' + Math.ceil(p.hp) + " / " + p.maxHp + '</b></div><div class="stRow"><em>MP</em><b>' + Math.floor(p.mp) + " / " + p.maxMp + '</b></div><div class="stRow"><em>TP</em><b>' + Math.floor(p.tp) + "</b></div>";
+  h += '<div class="stRow gap"><em>HP</em><b>' + Math.ceil(p.hp) + " / " + p.maxHp + '</b></div><div class="stRow"><em>MP</em><b>' + Math.max(0, Math.floor(p.mp)) + " / " + Math.max(0, p.maxMp) + '</b></div><div class="stRow"><em>TP</em><b>' + Math.floor(p.tp) + "</b></div>";
   h += '<div class="stAt">';
   for (const [k, l] of [["str", "STR"], ["dex", "DEX"], ["vit", "VIT"], ["agi", "AGI"], ["int", "INT"], ["mnd", "MND"], ["chr", "CHR"]]) {
     const tot = p.stats[k] || 0, b = Math.round(g[k] || 0);
@@ -4403,6 +4433,21 @@ function renderStatusOv() {
   el.innerHTML = '<div id="stL">' + statusLeftHTML() + '</div><div id="stM" class="stBox">' + statusPanelHTML(it[1]) + "</div>";
   el.classList.add("on");
   $("ui").classList.add("stOn");
+  fitStatusOv(el);
+}
+function fitStatusOv(el) {
+  el.style.transform = "";
+  const r = el.getBoundingClientRect();
+  if (!r.height) return;
+  let s = 1;
+  for (const id of ["barWrap", "mobBar", "target"]) {
+    const o = $(id);
+    if (!o || !o.offsetParent) continue;
+    const q = o.getBoundingClientRect();
+    if (!q.height || q.left >= r.right - 2 || q.right <= r.left || q.top <= r.top + 40) continue;
+    if (r.bottom > q.top - 6) s = Math.min(s, (q.top - 6 - r.top) / r.height);
+  }
+  if (s < 1) { el.style.transformOrigin = "0 0"; el.style.transform = "scale(" + Math.max(0.55, s).toFixed(3) + ")"; }
 }
 
 function eqFits(sl) { return [...new Set(save.inventory.map(x => x.id))].filter(id => ITEMS[id].kind === "equip" && slotKeys(ITEMS[id].slot).includes(sl)); }

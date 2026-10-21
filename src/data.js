@@ -19,6 +19,7 @@ const CONFIG = {
   allyChaseSecs: 1.5,
   allyRestDist: 300,
   allySitHp: 0.75,
+  allySitMp: 0.6,
   allyMpReserve: 0.04,
   foodMinutes: 30, warpCost: 50, roadBonus: 1.15,
   poolTime: 45, partyMax: 6, partyRange: 900, partyXpCut: 0.25, partyXpFloor: 0.2, tradeRange: 250, tradeSlots: 8,
@@ -2833,6 +2834,43 @@ function featureSpot(z, lm, rad) {
   for (let k = 0; k < 96; k++) { const a = k * 2.4, r = (lm.r || 200) * (0.15 + (k % 12) / 12); const x = Math.round(lm.x + Math.cos(a) * r), y = Math.round(lm.y + Math.sin(a) * r); if (ok(x, y)) return { x, y }; }
   return null;
 }
+function smoothPathPts(pts, keep, seed) {
+  if (pts.length < 2) return pts;
+  let out = [pts[0]];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.round(L / 120));
+    const nx = -(b[1] - a[1]) / (L || 1), ny = (b[0] - a[0]) / (L || 1), amp = Math.min(22, L * 0.05);
+    for (let k = 1; k <= n; k++) {
+      const t = k / n;
+      if (k === n) { out.push(b); break; }
+      const o = Math.sin(t * Math.PI) * Math.sin(seed + i * 1.7 + t * 2.4) * amp;
+      out.push([a[0] + (b[0] - a[0]) * t + nx * o, a[1] + (b[1] - a[1]) * t + ny * o]);
+    }
+  }
+  for (let it = 0; it < 2; it++) {
+    const nxt = [out[0]];
+    for (let i = 1; i < out.length - 1; i++) {
+      const p = out[i];
+      if (keep(p)) { nxt.push(p); continue; }
+      const a = out[i - 1], b = out[i + 1];
+      const ca = Math.min(0.25, 45 / (Math.hypot(p[0] - a[0], p[1] - a[1]) || 1)), cb = Math.min(0.25, 45 / (Math.hypot(b[0] - p[0], b[1] - p[1]) || 1));
+      nxt.push([p[0] + (a[0] - p[0]) * ca, p[1] + (a[1] - p[1]) * ca], [p[0] + (b[0] - p[0]) * cb, p[1] + (b[1] - p[1]) * cb]);
+    }
+    nxt.push(out[out.length - 1]);
+    out = nxt;
+  }
+  return out.map(p => [Math.round(p[0]), Math.round(p[1])]);
+}
+function smoothFieldPaths(zid) {
+  const z = ZONES[zid];
+  if (!z || (z.theme || "field") !== "field" || z.safe || !z.paths || z.pathsSmooth) return;
+  const ends = [];
+  for (const p of z.paths) ends.push(p.pts[0], p.pts[p.pts.length - 1]);
+  const keep = q => ends.some(e => Math.hypot(e[0] - q[0], e[1] - q[1]) < 6);
+  z.paths.forEach((p, i) => { p.pts = smoothPathPts(p.pts, keep, (hashStr(zid) % 97) * 0.37 + i * 2.1); });
+  z.pathsSmooth = true;
+}
+for (const zid in ZONES) smoothFieldPaths(zid);
 function addFieldFeatures(zid) {
   const z = ZONES[zid];
   if (!z || (z.theme || "field") !== "field" || z.safe) return;
