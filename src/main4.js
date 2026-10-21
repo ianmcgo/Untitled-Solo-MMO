@@ -671,6 +671,7 @@ async function enterWorld(id, fresh) {
   loaderHide();
   zoneTitle(S.zone.name, fresh ? "Your story begins" : "");
   initVersionCheck();
+  if (!save.tutSeen) setTimeout(() => { if (UI.started && !save.tutSeen) tutOpen(0); }, 2200);
 }
 
 async function logoutToSelect() {
@@ -682,4 +683,5 @@ async function logoutToSelect() {
   location.reload();
 }
 
+tutInit();
 boot();

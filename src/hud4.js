@@ -777,6 +777,56 @@ function banner(big, small, chips) {
   b.innerHTML = '<div class="big">' + esc(big) + '</div><div class="sm">' + esc(small || "") + "</div>" + (chips && chips.length ? '<div class="un">' + chips.map(c => "<span>" + c + "</span>").join("") + "</div>" : "");
   b.classList.remove("show"); void b.offsetWidth; b.classList.add("show");
 }
+
+const TUT_STEPS = [
+  ["🧭", "Welcome to Leid'anav", "A short tour of how everything works. You can skip at any time, and replay it from Config, More, Tutorial."],
+  ["🎮", "Moving and controls", "<ul><li><b>Keyboard:</b> WASD move, Q/E or arrows turn, Shift sprint, Shift+Space jump, V first person, R mount.</li><li><b>Phone:</b> left thumb moves, drag elsewhere to look, pinch to zoom.</li><li><b>Mouse:</b> drag to turn the camera, wheel to zoom, click a person or monster to target it.</li></ul>"],
+  ["📋", "Menus and buttons", "<ul><li>The main menu holds Items, Equipment, Magic, Abilities, Quests, Map, Social, Guide, Config and more.</li><li>The round icons at the top left are your blessings, meals and effects; click one for its timer.</li><li>The hotkey bar above the Target box runs spells, abilities and items: keys 1 to 0, with Shift, Alt and Tab lines.</li><li>Arrow keys and Enter work in every window; Esc closes it.</li></ul>"],
+  ["💬", "Talking and quests", "Target a person and press Enter, E or the Target button to talk. Captain Rhea has your first work. Quests and story steps give gil, items and fame but <b>no XP</b>, so you still need to fight to level. The quest tracker on screen shows what to do next, and the Quests menu lists everything."],
+  ["📜", "Guild bounties", "At the Adventurers' Guild take bounties on monsters, gathering and crafting. New bounties arrive at midnight UTC or after you wait a full day in town. Bounties pay gil and guild points, never XP, and your guild rank unlocks the daily shop."],
+  ["⚔️", "Battles", "<ul><li>Tab or a click targets the nearest monster and opens its command menu: Attack, Magic, Abilities, Items, Check.</li><li>Use <b>Check</b> first: it tells you how dangerous a monster is for your level.</li><li>Fighting builds TP; use weapon skills with your companions to chain skillchains, then cast into them for magic bursts.</li><li>Each extra party member cuts kill XP by 25%.</li><li>Rest with /rest between fights to recover HP and MP.</li></ul>"],
+  ["🗺️", "Finding your way", "Open <b>Map</b> from the main menu to see the zone, yourself, your party, towns and points of interest. Signposts name nearby places, and the zone name shows as you enter. Roads connect most landmarks; warp stones and gates link districts and zones."],
+  ["💎", "Crystals and warp stones", "Home point crystals and warp stones stand in every town. Touch a crystal to set your home point and to travel between districts. Warp stones carry you between districts of the same city for free."],
+  ["💀", "If you fall", "When you are knocked out you stay down for up to an hour. A Reraise effect stands you straight back up with no loss. Otherwise choose <b>Back to Home Point</b>: you return home and lose some XP. A white mage companion or a friend can also raise you."],
+  ["🏛️", "The auction house", "Sell and buy from other adventurers at the auction house on the market plaza. List an item with a price; buyers see it, and when it sells the gil waits in the Delivery Box at your residence. Watch the price history before you set your price."],
+  ["🤝", "Companions", "Hire up to <b>3 mercenaries</b> from Brann at the Mercenary Hall. They fight at your level, take a daily wage and can be given gear from your bag. Set their stance in Social, Party: Assist, Follow or Hold. If they fall they can be raised; if they fall again they may leave for good."],
+  ["🔨", "Crafting and gathering", "Harvest at gathering points, fish and mine, then craft at a forge or workbench from the Crafting menu. Each craft has its own skill that rises as you make things, and a chance of high quality items. Crystals fuel recipes."],
+  ["📖", "Scrolls", "<ul><li><b>Recipe scrolls</b> teach new crafting recipes.</li><li><b>Spell scrolls</b> teach spells to jobs that can use them; check the job in the item text.</li><li><b>Warp and recall scrolls</b> carry you home or to a town. Scroll shops sit in every town.</li></ul>"],
+  ["✅", "You're ready", "The Guide (H, or the second page of the main menu) explains everything in detail, and Updates lists what's new. Replay this tour any time from Config, More, Tutorial. Good luck out there."]
+];
+const TUT = { i: 0, on: false };
+function tutOpen(i) {
+  const box = $("tutBox"); if (!box) return;
+  TUT.i = Math.max(0, Math.min(TUT_STEPS.length - 1, i)); TUT.on = true;
+  const s = TUT_STEPS[TUT.i], last = TUT.i === TUT_STEPS.length - 1;
+  box.querySelector(".tIc").textContent = s[0];
+  box.querySelector(".tT").textContent = s[1];
+  box.querySelector(".tB").innerHTML = s[2];
+  box.querySelector(".tDots").innerHTML = TUT_STEPS.map((x, n) => "<i" + (n === TUT.i ? ' class="on"' : "") + "></i>").join("");
+  box.querySelector(".back").style.visibility = TUT.i ? "visible" : "hidden";
+  box.querySelector(".skip").style.display = last ? "none" : "";
+  box.querySelector(".next").textContent = last ? "Finish" : "Next";
+  box.classList.add("on");
+}
+function tutClose() {
+  const box = $("tutBox"); if (box) box.classList.remove("on");
+  TUT.on = false;
+  if (save && !save.tutSeen) { save.tutSeen = 1; saveGame(); }
+}
+function tutStart() { closeModal(); tutOpen(0); }
+function tutInit() {
+  const box = $("tutBox"); if (!box) return;
+  box.querySelector(".next").onclick = () => { sfx("click"); if (TUT.i >= TUT_STEPS.length - 1) tutClose(); else tutOpen(TUT.i + 1); };
+  box.querySelector(".back").onclick = () => { sfx("click"); tutOpen(TUT.i - 1); };
+  box.querySelector(".skip").onclick = () => { sfx("close"); tutClose(); };
+  window.addEventListener("keydown", e => {
+    if (!TUT.on) return;
+    if (e.key === "Escape") { tutClose(); e.preventDefault(); e.stopPropagation(); }
+    else if (e.key === "Enter" || e.key === "ArrowRight") { box.querySelector(".next").click(); e.preventDefault(); e.stopPropagation(); }
+    else if (e.key === "ArrowLeft") { box.querySelector(".back").click(); e.preventDefault(); e.stopPropagation(); }
+  }, true);
+}
+
 function zoneTitle(name, sub) {
   const z = $("zoneTitle");
   z.innerHTML = (sub ? "<small>" + esc(sub) + "</small>" : "") + esc(name);

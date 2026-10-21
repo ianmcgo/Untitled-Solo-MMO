@@ -653,7 +653,7 @@ function tabSettings() {
     const im = Math.max(5, Math.min(60, +VIEW.settings.idleMin || 30));
     h += '<h3>Online</h3><div class="sub" style="margin-bottom:6px">' + (NET.online && NET.online.max > 0 ? NET.online.n + " of " + NET.online.max + " players online" + (NET.online.queue ? ", " + NET.online.queue + " waiting" : "") + ". " : "") + "If you don't touch anything for this long you are logged out, so your place can go to someone waiting. You get a one-minute warning first.</div><div class=\"opt\">" + [5, 15, 30, 45, 60].map(m => '<button data-a="idlemin" data-v="' + m + '"' + (im === m ? ' class="on"' : "") + ">" + m + " min</button>").join("") + "</div>";
   }
-  h += '<h3>More</h3><div class="opt"><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
+  h += '<h3>More</h3><div class="opt"><button data-a="tutorial">🎓 Tutorial</button><button data-a="open" data-v="updates">📰 Updates</button><button data-a="open" data-v="system">💾 System</button><button data-a="open" data-v="credits">🎬 Credits</button>' + (typeof netIsAdmin === "function" && netIsAdmin() ? '<button data-a="open" data-v="admin">🛡️ Admin</button>' : "") + '</div><div class="sub">Help also opens with H. Saving, loading, changing character and checking for updates are under System.</div>';
   return h;
 }
 function tabSystem() {
@@ -1708,6 +1708,7 @@ function onMenuClick(e) {
   else if (a === "rotf") { UI.homeMsg = rotateFurniture(+v); if (UI.homeMsg) sfx("error"); else sfx("click"); renderModal(); return; }
   else if (a === "packf") { UI.homeMsg = removeFurniture(+v); if (UI.homeMsg) sfx("error"); else UI.furnSel = null; renderModal(); return; }
   else if (a === "savefile") { downloadSave(); return; }
+  else if (a === "tutorial") { tutStart(); return; }
   else if (a === "checkupd") { checkForUpdate(true); return; }
   else if (a === "loadfile") { return; }
   else if (a === "syncnow") { saveGame(); netFlush().then(() => renderModal()); return; }
@@ -1749,6 +1750,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.18.0", date: "2026-10-21", title: "Welcome tour", items: [
+    "<b>Popup tutorial.</b> On first login a short tour explains controls, menus and buttons, quests, guild bounties, battles, finding the map, crystals and warp stones, what happens when you fall, the auction house, companions, crafting and scrolls.",
+    "<b>Skip and replay.</b> Skip it at any time with the Skip button or Esc. Replay it from Config, More, Tutorial. Characters you already had see it once on their next login."
+  ] },
   { v: "19.17.0", date: "2026-10-21", title: "Stand your ground", items: [
     "<b>Stop works while waiting.</b> The Stop button in the Time box now responds the moment you press it; the box no longer redraws under your finger.",
     "<b>Ranged companions stand and fight.</b> A caster or archer companion who keeps backing away but is still chased now turns, stands and fights for 30 seconds before trying to run again. A companion who is running because they are badly hurt keeps running."
@@ -3787,6 +3792,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Chat commands", "<p>Type in the box under the chat log, or press <b>/</b> to start a command. Plain text is said out loud.</p>" + tbl(["Command", "What it does"], COMMANDS.map(([c, d]) => [esc(c), esc(d)])));
   h += sec("🎮 Controls", ul([
+    "<b>Tutorial:</b> a popup tour of the whole game opens on your first login. Use Next and Back (or Enter and the arrow keys), Skip tutorial or Esc to leave, and replay it from Config, More, Tutorial.",
     "<b>Event log history:</b> click the event log to open it, then scroll with the wheel or drag to read up to 500 old lines. Click anywhere in the world, or press Esc, to close it again.",
     "<b>Hotkey bar:</b> it sits directly above the Target box and is as wide as the boxes under it, in two rows of five, and always draws on top of them. You can still drag it by the ⠿ grip (double-click to put it back).",
     "<b>Camera drag:</b> dragging left or right turns the camera the opposite way (inverted). Config, Camera has separate Mouse and Keyboard switches for inverting horizontal (left and right) and vertical (up and down); the keyboard ones affect the arrow keys and Q and E.",

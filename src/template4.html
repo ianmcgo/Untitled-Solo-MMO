@@ -170,6 +170,19 @@
   #confirmBox .cbA button { padding: 8px 16px; }
   #confirmBox .cbA .pri { border-color: var(--gold); color: var(--gold); }
   #confirmBox .cbA .danger { border-color: #ff8a80; color: #ff8a80; }
+  #tutBox { position: absolute; inset: 0; z-index: 62; display: none; align-items: center; justify-content: center; background: rgba(4,5,9,.5); pointer-events: auto; }
+  #tutBox.on { display: flex; }
+  #tutBox .tb { width: min(440px, 92vw); max-height: 86vh; overflow: auto; padding: 16px 18px; border-color: var(--gold); box-shadow: 0 0 28px rgba(0,0,0,.6); animation: tin .2s ease-out; }
+  #tutBox .tIc { font-size: 30px; line-height: 1; }
+  #tutBox .tT { font: 700 17px var(--serif); color: var(--gold); margin: 4px 0 6px; }
+  #tutBox .tB { font-size: 13px; line-height: 1.6; color: #e2dfd6; }
+  #tutBox .tB ul { margin: 6px 0 0 18px; padding: 0; }
+  #tutBox .tDots { display: flex; gap: 5px; margin-top: 12px; flex-wrap: wrap; }
+  #tutBox .tDots i { width: 8px; height: 8px; border-radius: 50%; background: #444b5c; display: block; }
+  #tutBox .tDots i.on { background: var(--gold); }
+  #tutBox .tA { display: flex; gap: 8px; justify-content: space-between; margin-top: 12px; }
+  #tutBox .tA button { padding: 8px 14px; }
+  #tutBox .tA .pri { border-color: var(--gold); color: var(--gold); }
   #verPop { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); z-index: 25; width: min(380px, 90vw); padding: 14px 16px; display: none; pointer-events: auto; border-color: var(--gold); box-shadow: 0 0 28px rgba(241,207,115,.3); animation: tin .3s ease-out; }
   #verPop .vpT { font: 700 16px var(--serif); color: var(--gold); margin-bottom: 6px; }
   #verPop .vpB { font-size: 12.5px; line-height: 1.55; color: #e2dfd6; }
@@ -1209,6 +1222,7 @@
 <div id="stage">
   <div id="loading" class="on"><div class="crest">⚜</div><div id="ldTitle">LEID'ANAV REBORN</div><div id="ldSub">A frontier tale</div><div id="ldVer">__VERSION__</div><div id="ldViews"></div><div id="ldBar"><div id="ldFill"></div></div><div id="ldText">Loading…</div><div id="ldPv"><div class="lbl"><b id="ldPvName"></b><span id="ldPvText"></span></div></div><button id="ldStart">Begin</button><div id="charSel"></div><div id="ldTip"></div><div id="ldCred">A game made by <b>Ian McGonigal</b> · <a href="https://www.patreon.com/c/ianmcg" target="_blank" rel="noopener">💛 Patreon</a> · <a href="https://ianmcgo.github.io/website/" target="_blank" rel="noopener">🌐 Other works</a></div></div>
   <div id="fpsBox"></div>
+  <div id="tutBox"><div class="tb glass"><div class="tIc"></div><div class="tT"></div><div class="tB"></div><div class="tDots"></div><div class="tA"><button class="skip">Skip tutorial</button><span style="display:flex;gap:8px"><button class="back">Back</button><button class="next pri">Next</button></span></div></div></div>
   <div id="confirmBox"><div class="cb glass"><div class="cbT"></div><div class="cbB"></div><div class="cbA"><button class="no">Cancel</button><button class="yes pri">OK</button></div></div></div>
   <canvas id="game"></canvas>
   <div id="overlay"></div>

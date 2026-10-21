@@ -2672,3 +2672,10 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - data.js CONFIG: `allyStandSecs: 30`, `allyChaseSecs: 1.5`. Test: test/p31unit.js.
 - Blade orientation check: stance and swing sheets for sword, dagger, axe, club, tachi, greataxe, great sword, kunai, polearm, scythe, staff show forward-pointing blades; no pose change made.
 - animation-plan.md touched in the release commit to carry a neutral commit message.
+
+## 19.18.0 Welcome tour
+- hud4.js `TUT_STEPS` (icon, title, html) holds the 14 tutorial pages; `tutOpen(i)` renders into `#tutBox` (template4.html, z-index 62 above the confirm box), `tutClose()` sets `save.tutSeen = 1` and saves, `tutStart()` closes any menu and opens page 0, `tutInit()` (called before `boot()` in main4.js) wires Next, Back and Skip and a capture-phase keydown (Esc closes, Enter or right arrow next, left arrow back) active only while `TUT.on`.
+- main4.js `enterWorld` end: if `!save.tutSeen`, opens the tour after 2.2 s. Existing characters have no flag, so they see it once. The flag is part of the character save.
+- menu4.js: Config, More row gets `data-a="tutorial"` handled in the action chain; Help Controls gets a Tutorial line; Updates 19.18.0.
+- The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
+- Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
