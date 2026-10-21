@@ -2223,7 +2223,7 @@ const UPDATES = [
   { v: "18.57.0", date: "2026-10-17", title: "Racial starting clothes", items: [
     "<b>Every race now starts in its own clothes.</b> Humans wear a Human Vest (Warrior) or Human Tunic (mages), Elari an Elari Jerkins or Elari Bodice, Ursan an Ursan Surcoat or Ursan Tunic, Nekari Nekari Separates or a Nekari Tunic, and Pipkin a Pipkin Kaftan or Pipkin Tunic.",
     "These ten body pieces can only be worn by their own race. They are not sold in shops or at the auction house, and they can't be dropped by monsters or crafted.",
-    "Renamed: the racial body pieces now carry their own race name: Human Tunic and Vest, Elari Jerkins and Bodice, Ursan Surcoat, Nekari Separates and Pipkin Kaftan. Existing characters keep any of these they own."
+    "Renamed: the racial body pieces now carry their own race name: Human Tunic and Vest, Elari Jerkins and Bodice, Ursan Surcoat, Nekari Separates and Pipkin Kaftan. Existing characters keep any of these they own.",
     "Item cards now show which race can wear a piece, and the equipment list tells you when your race can't wear it."
   ]},
   { v: "18.56.0", date: "2026-10-16", title: "Distant hills through every pass", items: [
