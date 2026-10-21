@@ -157,7 +157,7 @@ function itemCard(id) {
     if (augText(id)) parts.push(augText(id));
     if (parts.length) h += '<div class="iCl">' + esc(parts.join(" ")) + "</div>";
     if (it.desc) h += '<div class="iCl q">"' + esc(it.desc) + '"</div>';
-    const jobs = it.jobs.length >= ALL_JOBS.length ? "All Jobs" : it.jobs.join("/");
+    const jobs = it.jobs.length >= ALL_JOBS.length ? "All Jobs" : it.jobs.map(JC).join("/");
     h += '<div class="iCl"><span class="' + (it.lv > player.lv ? "bad" : "") + '">Lv.' + (it.lv || 1) + "</span> " + esc(jobs) + '</div><div class="iLv">&lt;Item Level:' + (it.lv || 1) + "&gt;</div>";
   } else h += '<div class="iCl">' + esc(itemDesc(id)) + "</div>";
   return h + "</div>";
@@ -844,7 +844,7 @@ function tabMercs() {
   const pool = mercPool(), full = mercFull();
   const d = new Date(), mid = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
   UI.modalHelp = "Hire a companion. They fight at your level; if they fall, they're gone for good.";
-  const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc({ dd: "Damage", tank: "Tank", healer: "Healer", support: "Support", nuker: "Nuker", burster: "Burster", hybrid: "Hybrid", bard: "Bard" }[m.role] || m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
+  const row = (id, btn) => { const m = MERCS[id]; return '<div class="mRow"><span class="por" style="border-color:' + m.color + '">' + (JOBS[m.job] ? JOBS[m.job].icon : "⚔") + '</span><div class="mInfo"><b>' + esc(m.name) + '</b> <span class="sub">' + esc(JOBS[m.job].name) + " · Lv" + player.lv + " · " + esc({ dd: "Damage", tank: "Tank", healer: "Healer", support: "Support", nuker: "Nuker", burster: "Burster", hybrid: "Hybrid", bard: "Musician" }[m.role] || m.role) + '</span><div class="d">' + esc(m.desc || "") + "</div></div>" + btn + "</div>"; };
   let h = '<div class="sub" style="margin-bottom:6px">The Mercenary Hall has ' + pool.length + " fighters for hire today. New faces arrive in " + fmtDur(mid - d) + ". Party " + S.party.length + " / " + CONFIG.maxParty + " · 💠 " + save.gil.toLocaleString() + ". Mercenary slots: " + save.hired.length + " / " + mercSlots() + (mercSlots() < 3 ? " (" + (mercSlots() < 1 ? "Lv5" : mercSlots() < 2 ? "Lv10" : "Lv15") + " in any job opens the next)" : "") + ". The fee covers the first hour of play; after that each asks for an hourly wage.</div><h3>For hire today</h3>";
   const offers = pool.filter(id => !save.hired.includes(id) && !(save.oldFriends && save.oldFriends[id]));
   if (!offers.length) h += '<div class="sub">Everyone available today has already joined you. Come back tomorrow.</div>';
@@ -920,7 +920,7 @@ function tabSocialRaw() {
   if (!res.length) h += '<div class="sub">Nobody matches.</div>';
   for (const o of res) {
     const me = netLc(o.name) === netLc(save.name), fr = (save.friends || []).some(f => netLc(f) === netLc(o.name));
-    h += '<div class="item"><div><b>' + (o.lfg ? "🔎 " : "") + esc(o.name) + (fr ? " ⭐" : "") + '</b> <span class="sub">' + (JOBS[o.job] ? o.job : "?") + o.lv + (o.sub ? "/" + esc(o.sub) : "") + " · " + esc(ZONES[o.zone] ? ZONES[o.zone].name : "?") + (o.ls ? " · 🔗 " + esc(o.ls) : "") + "</span>" + (o.cmt ? '<div class="sub">"' + esc(o.cmt) + '"</div>' : "") + "</div>" + (me ? '<span class="sub">You</span>' : '<div style="display:flex;gap:4px;flex-wrap:wrap"><button data-a="soctell" data-v="' + esc(o.name) + '">Tell</button><button data-a="socinv" data-v="' + esc(o.name) + '">Invite</button>' + (fr ? "" : '<button data-a="socfadd" data-v="' + esc(o.name) + '">+ Friend</button>') + "</div>") + "</div>";
+    h += '<div class="item"><div><b>' + (o.lfg ? "🔎 " : "") + esc(o.name) + (fr ? " ⭐" : "") + '</b> <span class="sub">' + (JOBS[o.job] ? JC(o.job) : "?") + o.lv + (o.sub ? "/" + esc(JC(o.sub)) : "") + " · " + esc(ZONES[o.zone] ? ZONES[o.zone].name : "?") + (o.ls ? " · 🔗 " + esc(o.ls) : "") + "</span>" + (o.cmt ? '<div class="sub">"' + esc(o.cmt) + '"</div>' : "") + "</div>" + (me ? '<span class="sub">You</span>' : '<div style="display:flex;gap:4px;flex-wrap:wrap"><button data-a="soctell" data-v="' + esc(o.name) + '">Tell</button><button data-a="socinv" data-v="' + esc(o.name) + '">Invite</button>' + (fr ? "" : '<button data-a="socfadd" data-v="' + esc(o.name) + '">+ Friend</button>') + "</div>") + "</div>";
   }
   h += "<h3>⭐ Friends (" + (save.friends || []).length + ")</h3>";
   if (!(save.friends || []).length) h += '<div class="sub">No friends yet. Use + Friend above or /friend add Name. You\'re told when they come online.</div>';
@@ -1053,7 +1053,7 @@ function dbMagic() {
   const ids = Object.keys(SPELLS), have = ids.filter(id => save.spells.includes(id));
   let h = dbCount(have.length, ids.length, "spells");
   for (const id of have) {
-    const sp = SPELLS[id], jb = Object.keys(sp.jobs).map(j => j + " " + sp.jobs[j]).join(", ");
+    const sp = SPELLS[id], jb = Object.keys(sp.jobs).map(j => JC(j) + " " + sp.jobs[j]).join(", ");
     const el = sp.el || sp.element, col = el && ELEMENT_COLORS[el] ? ELEMENT_COLORS[el] : "#b39ddb";
     h += dbCard(dbPic(sp.kind === "heal" ? "💚" : sp.kind === "buff" ? "✨" : "🔮", null, col), esc(sp.name), [esc(sp.desc || ""), "MP " + sp.mp + " · Cast " + sp.cast + "s · Recast " + sp.recast + "s" + (el ? " · " + esc(el) : ""), "Learned by: " + esc(jb)]);
   }
@@ -1075,7 +1075,7 @@ function dbJobs() {
     const jb = JOBS[j], lv = save.jobs[j].lv;
     const abil = Object.keys(ABILITIES).filter(id => ABILITIES[id].job === j && ABILITIES[id].lv <= lv).map(id => ABILITIES[id].name);
     const spl = Object.keys(SPELLS).filter(id => SPELLS[id].jobs[j] && SPELLS[id].jobs[j] <= lv).map(id => SPELLS[id].name);
-    h += dbCard(dbPic(jb.icon, null, jb.color), esc(jb.name) + " (" + j + ")" + (j === save.mainJob ? " · main" : j === save.subJob ? " · support" : ""), ["Level " + lv + " · Experience " + (save.jobs[j].xp || 0), "Base HP " + jb.hp[0] + " · MP " + jb.mp[0], "Abilities: " + (abil.length ? esc(abil.join(", ")) : "none yet"), "Magic: " + (spl.length ? esc(spl.join(", ")) : "none yet")]);
+    h += dbCard(dbPic(jb.icon, null, jb.color), esc(jb.name) + " (" + JC(j) + ")" + (j === save.mainJob ? " · main" : j === save.subJob ? " · support" : ""), ["Level " + lv + " · Experience " + (save.jobs[j].xp || 0), "Base HP " + jb.hp[0] + " · MP " + jb.mp[0], "Abilities: " + (abil.length ? esc(abil.join(", ")) : "none yet"), "Magic: " + (spl.length ? esc(spl.join(", ")) : "none yet")]);
   }
   return h;
 }
@@ -1117,7 +1117,7 @@ function tabDatabase() {
 }
 
 const STAT_GROUPS = [
-  ["Combat", [["Monsters defeated", "kills"], ["Notorious monsters", "nm"], ["Times KO'd", "kos"], ["Damage dealt", "dmgDealt"], ["Damage taken", "dmgTaken"], ["Biggest hit", "bigHit"], ["Spells cast", "spellsCast"], ["Abilities used", "abilitiesUsed"], ["Skillchains", "sc"], ["Magic bursts", "mb"], ["Ranger kills", "rngKills"], ["Battlefields won", "bfWins"], ["Summons", "summons"]]],
+  ["Combat", [["Monsters defeated", "kills"], ["Notorious monsters", "nm"], ["Times KO'd", "kos"], ["Damage dealt", "dmgDealt"], ["Damage taken", "dmgTaken"], ["Biggest hit", "bigHit"], ["Spells cast", "spellsCast"], ["Abilities used", "abilitiesUsed"], ["Skillchains", "sc"], ["Magic bursts", "mb"], ["Yeoman kills", "rngKills"], ["Battlefields won", "bfWins"], ["Summons", "summons"]]],
   ["Crafting and gathering", [["Items crafted", "crafts"], ["High-quality results", "hq"], ["Gathered", "gathers"], ["Fish caught", "fish"], ["Big fish", "bigFish"], ["Meals eaten", "meals"], ["Items used", "itemsUsed"]]],
   ["Economy", [["Crystals from monsters", "killGil"], ["Trades", "trades"], ["Auction purchases", "ahBought"], ["Auction sales", "ahSold"], ["Bounties", "bounties"], ["Lots won", "lotsWon"]]],
   ["Travel", [["Distance walked", "walk"], ["Distance ridden", "ride"], ["Jumps", "jumps"], ["Boat rides", "boatRides"], ["Blessings", "blessings"]]]
@@ -1392,7 +1392,7 @@ function adminLiveHtml() {
   const kv = (k, v) => '<div class="item" style="display:block;text-align:center;min-width:110px"><div class="sub">' + k + '</div><b style="font-size:16px">' + esc(String(v)) + "</b></div>";
   let h = '<h3>This session</h3><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">' + kv("Ping", NET.ping ? NET.ping + " ms" : "–") + kv("Last save", NET.lastSave ? fmtAgo(NET.lastSave) : "never") + kv("Unsaved changes", Object.keys(NET.dirty).length) + kv("Sent / received", (NET_RT.sent || 0) + " / " + (NET_RT.recv || 0)) + kv("Players online", on.length) + kv("Players in zone", S.others ? S.others.size : 0) + kv("Monster host", host) + kv("Zone", S.zone ? S.zone.name : "–") + kv("Game version", GAME_VERSION) + "</div>";
   if (NET.lastErr) h += '<div class="sub" style="color:#ff8a80;margin-bottom:6px">Last save error: ' + esc(NET.lastErr) + "</div>";
-  h += "<h3>Players online now (" + on.length + ")</h3>" + (on.length ? on.map(o => '<div class="sub">' + esc(o.name || "?") + " · " + esc(o.job || "") + (o.sub ? "/" + esc(o.sub) : "") + " Lv." + esc(o.lv || "") + " · " + esc(o.zone || "") + (o.lfg ? " · looking for party" : "") + (o.ls ? " · " + esc(o.ls) : "") + "</div>").join("") : '<div class="sub">Nobody online.</div>');
+  h += "<h3>Players online now (" + on.length + ")</h3>" + (on.length ? on.map(o => '<div class="sub">' + esc(o.name || "?") + " · " + esc(JC(o.job || "")) + (o.sub ? "/" + esc(JC(o.sub)) : "") + " Lv." + esc(o.lv || "") + " · " + esc(o.zone || "") + (o.lfg ? " · looking for party" : "") + (o.ls ? " · " + esc(o.ls) : "") + "</div>").join("") : '<div class="sub">Nobody online.</div>');
   return h;
 }
 
@@ -1439,7 +1439,7 @@ function tabAdmin() {
     h += adminLoginsHtml();
     h += "<h3>Suspicious saves</h3>" + (st.audit && st.audit.length ? st.audit.map(a => '<div class="sub">⚠ ' + esc(a.char_name || "?") + " (" + esc(a.email || "?") + ") · " + esc(a.kind) + ": " + esc(a.detail || "") + " · " + fmtAgo(Date.parse(a.at)) + "</div>").join("") : '<div class="sub">Nothing flagged.</div>');
     h += "<h3>Banned accounts</h3>" + (st.banned_list && st.banned_list.length ? st.banned_list.map(b => '<div class="sub">' + esc(b.email) + "</div>").join("") : '<div class="sub">None.</div>');
-    h += "<h3>Recently saved characters</h3>" + (st.recent || []).map(c => '<div class="sub">' + esc(c.name) + " · " + esc(c.job || "") + " Lv." + esc(c.lv || "") + " · " + esc(c.zone || "") + " · " + esc(c.email || "") + " · " + fmtAgo(Date.parse(c.updated_at)) + "</div>").join("");
+    h += "<h3>Recently saved characters</h3>" + (st.recent || []).map(c => '<div class="sub">' + esc(c.name) + " · " + esc(JC(c.job || "")) + " Lv." + esc(c.lv || "") + " · " + esc(c.zone || "") + " · " + esc(c.email || "") + " · " + fmtAgo(Date.parse(c.updated_at)) + "</div>").join("");
   }
   h += '<h3>Sign-up password</h3><div class="sub" style="margin-bottom:6px">New players need this to create an account. It\'s stored on the server, never in the game\'s code.</div><div class="opt"><input id="adCode" type="text" placeholder="New sign-up password" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid var(--edge2);background:rgba(10,12,20,.8);color:#f2efe6"><button data-a="admincode">Change</button></div>';
   h += '<h3>Ban or unban</h3><div class="sub" style="margin-bottom:6px">Enter an email address or a character name. A banned account can\'t sign in to play or save. Your own account can\'t be banned.</div><div class="opt"><input id="adBan" type="text" placeholder="Email or character name" style="height:32px;padding:0 8px;border-radius:6px;border:1px solid var(--edge2);background:rgba(10,12,20,.8);color:#f2efe6"><button data-a="adminban" data-v="1" class="danger">Ban</button><button data-a="adminban" data-v="0">Unban</button></div>';
@@ -1640,7 +1640,7 @@ function onMenuClick(e) {
   else if (a === "achview") { UI.achView = v; renderModal(); return; }
   else if (a === "socseek") { netSeek(!save.lfg, null); renderModal(); return; }
   else if (a === "socseekmsg") { const m = prompt("Looking-for-party message (up to 40 characters):", save.seekMsg || ""); if (m !== null) netSeek(true, m); renderModal(); return; }
-  else if (a === "socq") { const m = prompt("Filter: job (WHM), level (12) or range (10-15), area, name, lfg, here", UI.socQ || ""); if (m !== null) UI.socQ = m; renderModal(); return; }
+  else if (a === "socq") { const m = prompt("Filter: job (LGM), level (12) or range (10-15), area, name, lfg, here", UI.socQ || ""); if (m !== null) UI.socQ = m; renderModal(); return; }
   else if (a === "socqclear") { UI.socQ = ""; renderModal(); return; }
   else if (a === "socqlfg") { UI.socQ = "lfg"; renderModal(); return; }
   else if (a === "socqhere") { UI.socQ = "here"; renderModal(); return; }
@@ -1766,6 +1766,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.24.0", date: "2026-10-21", title: "New job names", items: [
+    "<b>All 22 jobs have new names.</b> Knight, Brawler, Light Mage, Dark Mage, Gray Mage, Rogue, Holy Knight, Shadow Knight, Tamer, Musician, Yeoman, Blade Sworn, Hidden Blade, Lancer, Conjurer, Mimic, Gambler, Artificer, Performer, Lore Master, Earthwarden and Rune Blade. Monsters that roll jobs use the same names.",
+    "<b>New three-letter codes.</b> Levels, party bars, item cards and spell lists show the new codes (for example KNT, LGM, SHK). /search and the player filter accept the new codes too.",
+    "<b>Nothing else changed.</b> Each job keeps its level, gear, spells and abilities, and your saves load as before.",
+    "<b>Help updated.</b> The Guide, job table and unlock notes use the new names and codes."
+  ] },
   { v: "19.23.0", date: "2026-10-21", title: "Fresh numbers", items: [
     "<b>Gear rebalanced.</b> Around a quarter of weapons and many armour and accessory pieces have a point more or less of damage or one stat, and some pieces need a level more or less to wear. Always check the item card before you buy or craft.",
     "<b>Recipes adjusted.</b> A handful of crafting recipes need one more or one fewer of a material, and a few unlock a level earlier or later.",
@@ -1775,7 +1781,7 @@ const UPDATES = [
   { v: "19.22.0", date: "2026-10-21", title: "Chains and pacts", items: [
     "<b>Skillchain properties renamed.</b> Rending, Crushing, Burst, Skewer, Resonance, Pressure, Meltdown, Frostbind, Blaze, Shardstorm, Collapse and Ripple. A few chain pairings now lead to different results, so check the target frame before you close a chain.",
     "<b>Summon pacts renamed.</b> Dawnbeam, Cinder Burst, Rime Spike, Stone Hurl, Gale Spiral, Storm Lash, Brook Rush, Halo Ray and Dusk Bolt.",
-    "<b>Monster moves.</b> Hind Kick is now Rear Kick and Snapjaw is now Chomp; Blue Mages learn them under the new names.",
+    "<b>Monster moves.</b> Hind Kick is now Rear Kick and Snapjaw is now Chomp; Mimics learn them under the new names.",
     "<b>Help updated.</b> The Guide lists the new chain properties."
   ] },
   { v: "19.21.0", date: "2026-10-21", title: "New gear names", items: [
@@ -1853,7 +1859,7 @@ const UPDATES = [
     "<b>Adventurers' Guild daily shop.</b> Spend guild points on a Potion and an Ether from the start, a Guild Warp Scroll (carries you to the Ashenreach market) at Bronze, a random crystal at Iron, a random common find at Silver, uncommon at Gold and rare at Mythril. One of each per day, and prices climb steeply with rank. Hi-Potions are no longer sold there.",
     "<b>Auction Essence choice.</b> When you list a lot you now pick which element of Essence pays the listing cost.",
     "<b>Hidden Caches are rare.</b> A cache now appears on only some days (about one in four) in the zones that have them, at a different random spot each day, and it crumbles away once you open it.",
-    "<b>Monster jobs in their names.</b> A monster with a job is named for it, such as Goblin White Mage.",
+    "<b>Monster jobs in their names.</b> A monster with a job is named for it, such as Goblin Light Mage.",
     "<b>Fixes.</b> The treasure chest lid now draws properly. A bat animation crash is fixed. Victory music is an octave lower and no longer shrill."
   ] },
   { v: "19.11.0", date: "2026-10-20", title: "House rules", items: [
@@ -1886,7 +1892,7 @@ const UPDATES = [
     "<b>Criticals sting.</b> A critical hit draws half again as much hate as a normal hit of the same size. Notorious monsters and bosses are too proud to care about criticals.",
     "<b>Monsters have tastes.</b> Skeletons, orcs and lizards hold a grudge against steel; worms, bats, crabs, treants and Reefkin against spells; Crag Talons against job abilities and healers; ghouls and mandrakes against whoever keeps curing. The same action can be worth up to 40% more or 20% less depending on who you hit.",
     "<b>No more ping-pong.</b> A monster only turns on someone new once they lead the current target's hate by 10%, and it then sticks with the new target for at least a second.",
-    "<b>Flash.</b> Paladins learn Flash at level 7: a half-second cast that blinds the target for 12 s and lands a heavy burst of hot hate. Goad is half lasting grudge, half hot anger, so it both grabs a monster and keeps it.",
+    "<b>Flash.</b> Holy Knights learn Flash at level 7: a half-second cast that blinds the target for 12 s and lands a heavy burst of hot hate. Goad is half lasting grudge, half hot anger, so it both grabs a monster and keeps it.",
     "<b>Smarter companions.</b> Tank companions Goad, Flash and Bulwark when their lead slips rather than only after they lose the monster; healers and nukers stop throwing extra spells when they are about to steal it.",
     "<b>Shared zones.</b> Hate sent to the zone host now carries its kind so the host applies the same family tastes everyone sees locally."
   ] },
@@ -2192,18 +2198,18 @@ const UPDATES = [
   { v: "18.64.0", date: "2026-10-17", title: "Connected shoulders", items: [
     "<b>Arms now join the torso.</b> The top of each upper arm is thicker and tucks into the shoulder, so arms no longer look like separate tubes floating beside the body. Applies to every humanoid, including Ursan and Pipkin."
   ]},
-  { v: "18.63.3", date: "2026-10-17", title: "Thief starts again", items: [
-    "<b>Thief is a starting job.</b> New characters can start as a Warrior, Thief, White Mage or Black Mage, and Thieves start with the Turnip Knife. Other jobs are unlocked in play."
+  { v: "18.63.3", date: "2026-10-17", title: "Rogue starts again", items: [
+    "<b>Rogue is a starting job.</b> New characters can start as a Knight, Rogue, Light Mage or Dark Mage, and Rogues start with the Turnip Knife. Other jobs are unlocked in play."
   ]},
   { v: "18.63.2", date: "2026-10-17", title: "Three starting jobs", items: [
-    "New characters can only start as a Warrior, White Mage or Black Mage; other jobs are unlocked in play. Changing jobs never gives you new armor or items.",
-    "Thieves no longer start with the Turnip Knife; it remains in the game but nothing hands it out yet."
+    "New characters can only start as a Knight, Light Mage or Dark Mage; other jobs are unlocked in play. Changing jobs never gives you new armor or items.",
+    "Rogues no longer start with the Turnip Knife; it remains in the game but nothing hands it out yet."
   ]},
   { v: "18.63.1", date: "2026-10-17", title: "Turnip Staff stats", items: [
     "Turnip Staff now has DMG 4, delay 366 and can be used by War, Mnk, Whm, Blm, Rdm, Bst, Brd, Smn, Sch and Geo."
   ]},
   { v: "18.63.0", date: "2026-10-17", title: "Turnip starters", items: [
-    "<b>New starting weapons.</b> Warriors start with a Turnip Sword, Thieves with a Turnip Knife, White Mages with a Turnip Rod and Black Mages with a Turnip Staff. They cannot be bought, sold at auction, dropped or crafted.",
+    "<b>New starting weapons.</b> Knights start with a Turnip Sword, Rogues with a Turnip Knife, Light Mages with a Turnip Rod and Dark Mages with a Turnip Staff. They cannot be bought, sold at auction, dropped or crafted.",
     "<b>No starting helmet.</b> New characters begin with no head armor.",
     "<b>Armor you wear is now shown by default.</b> The Settings option now defaults to Show gear instead of Job style. Anyone who already chose an option keeps it."
   ]},
@@ -2233,7 +2239,7 @@ const UPDATES = [
     "Renamed: the five racial legwear pieces now carry their own race name: Human Pants, Elari Chausses, Ursan Braguette, Nekari Loincloth and Pipkin Braccae. Anything you owned of the old pieces was turned into the matching one."
   ]},
   { v: "18.57.0", date: "2026-10-17", title: "Racial starting clothes", items: [
-    "<b>Every race now starts in its own clothes.</b> Humans wear a Human Vest (Warrior) or Human Tunic (mages), Elari an Elari Jerkins or Elari Bodice, Ursan an Ursan Surcoat or Ursan Tunic, Nekari Nekari Separates or a Nekari Tunic, and Pipkin a Pipkin Kaftan or Pipkin Tunic.",
+    "<b>Every race now starts in its own clothes.</b> Humans wear a Human Vest (Knight) or Human Tunic (mages), Elari an Elari Jerkins or Elari Bodice, Ursan an Ursan Surcoat or Ursan Tunic, Nekari Nekari Separates or a Nekari Tunic, and Pipkin a Pipkin Kaftan or Pipkin Tunic.",
     "These ten body pieces can only be worn by their own race. They are not sold in shops or at the auction house, and they can't be dropped by monsters or crafted.",
     "Renamed: the racial body pieces now carry their own race name: Human Tunic and Vest, Elari Jerkins and Bodice, Ursan Surcoat, Nekari Separates and Pipkin Kaftan. Existing characters keep any of these they own.",
     "Item cards now show which race can wear a piece, and the equipment list tells you when your race can't wear it."
@@ -2303,27 +2309,27 @@ const UPDATES = [
     "Companion lots, town buying of your listings and the suggested sell price all follow the new level, so selling spoils at auction pays far better than selling them to a shop."
   ]},
   { v: "18.42.0", date: "2026-10-16", title: "Know your foe", items: [
-    "<b>The target window shows a monster's job</b> (Thief, White Mage, Paladin...) next to its name, and <b>Check</b> now says how it fights.",
+    "<b>The target window shows a monster's job</b> (Rogue, Light Mage, Holy Knight...) next to its name, and <b>Check</b> now says how it fights.",
     "<b>The Bestiary lists the jobs you have seen</b> each creature fighting as.",
     "<b>Packs mix their roles:</b> neighbours in a goblin, orc, Reefkin or Crag Talon pack avoid rolling the same job, so a group is more likely a fighter, a healer and a caster than three copies.",
-    "<b>Balance:</b> monsters that roll Monk hit a little softer and monsters that roll Paladin are a little less sturdy, so no job outclasses the rest."
+    "<b>Balance:</b> monsters that roll Brawler hit a little softer and monsters that roll Holy Knight are a little less sturdy, so no job outclasses the rest."
   ]},
   { v: "18.41.0", date: "2026-10-16", title: "Monster pets", items: [
-    "<b>Pet jobs for monsters:</b> a beastman Summoner, Beastmaster, Puppetmaster or Geomancer now brings a little elemental pet (a Spirit, Familiar, Puppet or Luopan) that follows it around and fights with it.",
+    "<b>Pet jobs for monsters:</b> a beastman Conjurer, Tamer, Artificer or Earthwarden now brings a little elemental pet (a Spirit, Familiar, Puppet or Luopan) that follows it around and fights with it.",
     "<b>The pet's element comes from the map:</b> earth in Rocky Hollow, caves and the jungle; water in the marsh and on the coast; ice in the snow; fire in the desert and on Cinder Peak; wind in the highlands; lightning in the Mirage; dark in crypts and the Red Spire.",
     "Hit the pet and its master joins in, and the other way round. The pet uses its element's pact as a big move and is weak to the opposite element. It fades when its master is defeated and gives no experience or drops.",
-    "<b>Corsair</b> monsters now roll Valor Roll and Hawk Roll, raising their pack's attack or accuracy for 90 seconds."
+    "<b>Gambler</b> monsters now roll Valor Roll and Hawk Roll, raising their pack's attack or accuracy for 90 seconds."
   ]},
   { v: "18.40.0", date: "2026-10-16", title: "Monsters dress for their job", items: [
-    "<b>You can now see a monster's job.</b> Goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls and the drowned wear their job's outfit: White Mages in white robes, Black Mages in pointed hats, Red Mages in feathered caps, Warriors and Paladins in mail and plate, Samurai in red lamellar, Ninjas in dark wraps and so on, using the same styles adventurers wear. Higher-level monsters wear the better tiers.",
-    "Each one carries its job's weapon: great axes, sword and shield, scythes, great katanas, katanas, spears, bows, daggers, staves and clubs. Monks and Puppetmasters fight bare-handed.",
+    "<b>You can now see a monster's job.</b> Goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls and the drowned wear their job's outfit: Light Mages in white robes, Dark Mages in pointed hats, Gray Mages in feathered caps, Knights and Holy Knights in mail and plate, Blade Sworn in red lamellar, Hidden Blades in dark wraps and so on, using the same styles adventurers wear. Higher-level monsters wear the better tiers.",
+    "Each one carries its job's weapon: great axes, sword and shield, scythes, great katanas, katanas, spears, bows, daggers, staves and clubs. Brawlers and Artificers fight bare-handed.",
     "Colours suit where they live: pale and frosty in the snow, swampy green in the marsh, sandy for Crag Talons, sea-dark for Reefkin and the drowned, faded on skeletons and ghouls.",
     "Orc Stonechuckers and other throwers and archers keep their own bow or rocks. Notorious monsters keep their own look. It is all cosmetic: stats and drops are unchanged."
   ]},
   { v: "18.39.0", date: "2026-10-16", title: "Monsters have jobs", items: [
-    "<b>Beastmen and undead now have jobs.</b> Every goblin, orc, Reefkin, Crag Talon, skeleton, ghoul and drowned one rolls a job when it appears, and it can be any of the 22 jobs. It knows that job's spells and abilities up to its own level: healers cure their friends, Black Mages nuke, Red Mages slow and paralyze, Bards sing, Warriors fly into a Frenzy, Thieves use Shadow Strike, Monks use Surge and Inner Mend, Samurai Open Stance and more.",
+    "<b>Beastmen and undead now have jobs.</b> Every goblin, orc, Reefkin, Crag Talon, skeleton, ghoul and drowned one rolls a job when it appears, and it can be any of the 22 jobs. It knows that job's spells and abilities up to its own level: healers cure their friends, Dark Mages nuke, Gray Mages slow and paralyze, Musicians sing, Knights fly into a Frenzy, Rogues use Shadow Strike, Brawlers use Surge and Inner Mend, Blade Sworn Open Stance and more.",
     "<b>Big moves are now 50/50:</b> a beastman's TP move is either its own monster move (Bomb Toss, Battle Roar, Talon Dive...) or a move from its job: a big instant spell for mage jobs, a weapon skill for fighting jobs.",
-    "Jobs change toughness a little: Paladins and Rune Fencers have more HP and defence, Monks and Thieves are quicker or harder to hit, mages are softer. Overall strength, experience and drops are unchanged.",
+    "Jobs change toughness a little: Holy Knights and Rune Blades have more HP and defence, Brawlers and Rogues are quicker or harder to hit, mages are softer. Overall strength, experience and drops are unchanged.",
     "<b>Removed:</b> Goblin Apprentice, Goblin Conjurer, Mire Hexer, Frost Shaman and Crag Chanter. Their places are now taken by ordinary goblins and Crag Talons, which can roll any caster job themselves. The Stone and Blizzard scrolls now drop (rarely) from Goblin Raiders and Frost Goblins. Old bestiary kills move to the ordinary entry.",
     "Online: the host's monsters share their job and readied move with everyone in the zone.",
     "Coming next: job armour and weapons on each monster, then pet jobs with elemental pets."
@@ -2369,18 +2375,18 @@ const UPDATES = [
     "<b>Fixed:</b> buying a lot a town had relisted took the item from the town's daily stock instead of buying that lot.",
     "<b>Server owners:</b> run the latest setup SQL (Admin → Copy setup SQL), server version 7. Until then companions keep using the offline market list.",
   ]},
-  { v: "18.34.3", date: "2026-10-16", title: "Thief from the start", items: [
-    "<b>Thief is open from the start</b>, alongside Warrior, White Mage and Black Mage. Jobs that needed Thief level 5 can now be reached through it, and the Thief's own job-trade quest from Tobin is available straight away.",
+  { v: "18.34.3", date: "2026-10-16", title: "Rogue from the start", items: [
+    "<b>Rogue is open from the start</b>, alongside Knight, Light Mage and Dark Mage. Jobs that needed Rogue level 5 can now be reached through it, and the Rogue's own job-trade quest from Tobin is available straight away.",
   ]},
   { v: "18.34.2", date: "2026-10-16", title: "Hire only unlocked jobs, job achievements", items: [
     "<b>Job achievements:</b> one for every job you unlock, plus Bronze (6 jobs), Silver (12), Gold (18) and Every Trade (all jobs).",
     "<b>Brann's fighters for hire</b> now come only from jobs you have unlocked, and named companions whose job is still locked stay hidden. Companions you already hired are kept.",
   ]},
   { v: "18.34.1", date: "2026-10-16", title: "Jobs unlock as you grow (text fix)", items: [
-    "Help and Updates now correctly say that Warrior, White Mage and Black Mage are the three jobs open from the start.",
+    "Help and Updates now correctly say that Knight, Light Mage and Dark Mage are the three jobs open from the start.",
   ]},
   { v: "18.34.0", date: "2026-10-16", title: "Jobs unlock as you grow", items: [
-    "<b>Job unlock tree:</b> Warrior, White Mage, Black Mage and Thief start open. Every other job opens when earlier jobs reach a set level (for example, a second fighting job after Warrior level 5, the top summoning job after three mage jobs at level 10).",
+    "<b>Job unlock tree:</b> Knight, Light Mage, Dark Mage and Rogue start open. Every other job opens when earlier jobs reach a set level (for example, a second fighting job after Knight level 5, the top summoning job after three mage jobs at level 10).",
     "<b>Pop-up:</b> when a level up meets a requirement, a pop-up tells you which job you can now take. Several unlocks queue up and show one after another when it is calm.",
     "<b>Hidden until unlocked:</b> Pip's job-change list at your residence and the companion lists no longer show locked jobs.",
     "<b>Ask Tobin:</b> two new questions: why jobs must be unlocked, and how you are doing, with a hint about what to train next.",
@@ -2423,7 +2429,7 @@ const UPDATES = [
   { v: "18.28.0", date: "2026-10-16", title: "Companions sync to your level", items: [
     "<b>Hired at your level:</b> a companion's hiring fee now follows your current level, and they join at that level.",
     "<b>Wayfinding:</b> district signposts list the shops in each district, gate guards answer \"Where can I find...?\" and mark the shop on your map, shops show icons on the minimap, and the city map has a You are here dot. The first visit to a city names its districts.",
-    "<b>Monster jobs:</b> a monster with a job carries it in its name, such as Goblin White Mage.",
+    "<b>Monster jobs:</b> a monster with a job carries it in its name, such as Goblin Light Mage.",
     "<b>Level sync:</b> when you level up, level down or change jobs, companions sync to your new level. Gear they can no longer wear is put away in their bag as a kept item and goes back on when your level allows. Kept items are never sold.",
     "<b>Plain starting gear:</b> companions start in plain shop gear for their level, never +1 or named pieces.",
     "<b>Bestiary:</b> only creatures you have defeated are recorded. Entries for creatures you had only seen have been removed.",
@@ -2651,12 +2657,12 @@ const UPDATES = [
   { v: "18.2.0", date: "2026-10-15", title: "Gear balance: player power", items: [
     "<b>Weapons retuned:</b> two-handed weapons swing faster (a Great Axe now swings every 4.1 s instead of 5.2 s) and each weapon type's damage was matched to how strong it was before the new gear arrived. Daggers, katanas, swords and hand-to-hand hit harder; scythes a little softer. Higher-level weapons gain a little extra damage.",
     "<b>More HP and MP:</b> every character gains 3 HP per level, and MP from your jobs is 35% higher. This replaces the HP and MP the old invented gear used to give.",
-    "<b>Rangers toned down:</b> arrows and bolts now add half their damage to your bow (they added all of it).",
-    "<b>Samurai and Rune Fencer quests</b> now also give a weapon you can use at level 1 (a Harpoon and a Bronze Sword), since the Tachi and Claymore need levels 8 and 10. Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner quests give level 1 gear.",
+    "<b>Yeomen toned down:</b> arrows and bolts now add half their damage to your bow (they added all of it).",
+    "<b>Blade Sworn and Rune Blade quests</b> now also give a weapon you can use at level 1 (a Harpoon and a Bronze Sword), since the Tachi and Claymore need levels 8 and 10. Mimic, Gambler, Performer, Lore Master, Musician and Conjurer quests give level 1 gear.",
     "Monster strength, prices and drop rates come next."
   ] },
   { v: "18.0.0", date: "2026-10-15", title: "New equipment", items: [
-    "<b>All gear was replaced:</b> 788 weapons and armor from level 1 to 20 with set names, levels, jobs and slots (Bronze Dagger, Brass Harness, Hunter's Longbow, Warrior's Belt and more). Every older invented piece is gone, and characters from before this update could not be kept.",
+    "<b>All gear was replaced:</b> 788 weapons and armor from level 1 to 20 with set names, levels, jobs and slots (Bronze Dagger, Brass Harness, Hunter's Longbow, Knight's Belt and more). Every older invented piece is gone, and characters from before this update could not be kept.",
     "<b>Left out on purpose:</b> costumes, event outfits (Yukata, Decennial and summer sets), crafting-guild uniforms, fishing gear and novelty pieces. The Warp Ring is kept: use it from your bag to return to your home point.",
     "<b>Range and Ammo are real now:</b> a bow or crossbow in the Range slot makes your attacks ranged shots, and the arrow or bolt in Ammo adds its damage. Flutes, harps and boomerangs sit in the same slot.",
     "<b>Where to get it:</b> Pell sells plain gear to level 10 and Vela levels 11 to 20. Haldor sells +1 gear from level 14. Monsters occasionally drop gear near their own level, and bosses and notorious monsters keep their rare pieces.",
@@ -2664,29 +2670,29 @@ const UPDATES = [
     "<b>Still to come:</b> damage, defense, prices and monster strength have not been rebalanced for the new gear yet. Stats the game does not have (haste, enmity, skill bonuses) are left out for now."
   ] },
   { v: "17.3.0", date: "2026-10-15", title: "Area spells, En-spells and songs", items: [
-    "<b>Area spells:</b> Healing Rain (WHM 16), Smitefall (WHM 15), Gleamfall (WHM 18, RDM 15), Rockfall (BLM 15) and Floodwave (BLM 19) hit or heal everything near the target. Hired healers cast Healing Rain when two or more allies are hurt.",
-    "<b>Spikes and En-spells:</b> Ember Thorns (BLM 10, RDM 20) and Frost Thorns (BLM 20) damage anything that hits you in melee (Frost Thorns can paralyze it). Storm Edge (RDM 16), Stone Edge (18) and Zephyr Edge (20) add elemental damage to your own hits.",
-    "<b>Damage over time:</b> Arc Burn (BLM 16), Grinding Blight (18, lowers accuracy) and Throttle (20, lowers defense) replace one another. Hunter's Dirge (BRD 7) and II (17) tick on a monster.",
-    "<b>New Bard songs:</b> Greenwood Air (9) resists Poison, Minstrel's Ballad (19) resists Silence, Skipping Reel (13) raises evasion, and six Threnodies (Light 10, Dark 12, Earth 14, Water 16, Wind 18, Fire 20) make a monster take 25% more of that element. A person still holds two songs at a time.",
-    "<b>Fixes:</b> hired healers now pick the Cure that fits the wound (they always chose the biggest), and hired Bards use Drowsy Lullaby and the new songs."
+    "<b>Area spells:</b> Healing Rain (LGM 16), Smitefall (LGM 15), Gleamfall (LGM 18, GRM 15), Rockfall (DKM 15) and Floodwave (DKM 19) hit or heal everything near the target. Hired healers cast Healing Rain when two or more allies are hurt.",
+    "<b>Spikes and En-spells:</b> Ember Thorns (DKM 10, GRM 20) and Frost Thorns (DKM 20) damage anything that hits you in melee (Frost Thorns can paralyze it). Storm Edge (GRM 16), Stone Edge (18) and Zephyr Edge (20) add elemental damage to your own hits.",
+    "<b>Damage over time:</b> Arc Burn (DKM 16), Grinding Blight (18, lowers accuracy) and Throttle (20, lowers defense) replace one another. Hunter's Dirge (MUS 7) and II (17) tick on a monster.",
+    "<b>New Musician songs:</b> Greenwood Air (9) resists Poison, Minstrel's Ballad (19) resists Silence, Skipping Reel (13) raises evasion, and six Threnodies (Light 10, Dark 12, Earth 14, Water 16, Wind 18, Fire 20) make a monster take 25% more of that element. A person still holds two songs at a time.",
+    "<b>Fixes:</b> hired healers now pick the Cure that fits the wound (they always chose the biggest), and hired Musicians use Drowsy Lullaby and the new songs."
   ] },
   { v: "17.2.0", date: "2026-10-15", title: "Elementals and goblin spellcasters", items: [
-    "<b>Summoners now start with Lantern Sprite.</b> The eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark) are no longer sold. Each one's scroll drops from a rare Elemental (about a 30% drop): Fire Elemental at Cinder Peak, Ice Elemental in Frostspire Pass (night), Earth Elemental in Underdeep River, Air Elemental in the Sunscar Desert, Thunder Elemental in the Verdant Jungle (day), Water Elemental on Gull Isle, Light Elemental on the Windreach Highlands (day) and Dark Elemental in the Sunken Crypt (night). Check Notorious Monsters in the Help for hints.",
+    "<b>Conjurers now start with Lantern Sprite.</b> The eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark) are no longer sold. Each one's scroll drops from a rare Elemental (about a 30% drop): Fire Elemental at Cinder Peak, Ice Elemental in Frostspire Pass (night), Earth Elemental in Underdeep River, Air Elemental in the Sunscar Desert, Thunder Elemental in the Verdant Jungle (day), Water Elemental on Gull Isle, Light Elemental on the Windreach Highlands (day) and Dark Elemental in the Sunken Crypt (night). Check Notorious Monsters in the Help for hints.",
     "<b>Goblin spellcasters:</b> Goblin Apprentice (Rocky Hollow), Goblin Conjurer (Goblin Den), Mire Hexer (Ashen Marsh) and Frost Shaman (Frostspire Pass). They stand back and cast Stone, Water, Blizzard, Poison, Slow, Paralyze, Blind, Silence and Cure, can be interrupted by hits, and the healers mend their friends.",
-    "<b>Silence</b> (White Mage 15, Red Mage 18, 120 s) now has a use: a silenced monster cannot cast. Hired healers use it on spellcasters."
+    "<b>Silence</b> (Light Mage 15, Gray Mage 18, 120 s) now has a use: a silenced monster cannot cast. Hired healers use it on spellcasters."
   ] },
   { v: "17.1.0", date: "2026-10-15", title: "Status magic", items: [
-    "<b>New support spells (levels 20 and under):</b> Cleanse Venom (WHM 6), Cleanse Stiffness (9), Cleanse Sight (14), Cleanse Hush (19); Mass Protect (7) and Mass Shell (17) for the whole party; Tideward (WHM 10, RDM 12), Blink (19), Scent Mask (15) and Hush Step (20); Warp (BLM 17).",
-    "<b>Bar spells:</b> Stone Ward, Water Ward, Gale Ward and Flame Ward cut damage of their element; Slumber Ward, Venom Ward, Numb Ward and Sight Ward halve the chance of that status. White Mages cast the party versions (Stone Aegis and so on), Red Mages the single-target ones. Scrolls are in the shops.",
+    "<b>New support spells (levels 20 and under):</b> Cleanse Venom (LGM 6), Cleanse Stiffness (9), Cleanse Sight (14), Cleanse Hush (19); Mass Protect (7) and Mass Shell (17) for the whole party; Tideward (LGM 10, GRM 12), Blink (19), Scent Mask (15) and Hush Step (20); Warp (DKM 17).",
+    "<b>Bar spells:</b> Stone Ward, Water Ward, Gale Ward and Flame Ward cut damage of their element; Slumber Ward, Venom Ward, Numb Ward and Sight Ward halve the chance of that status. Light Mages cast the party versions (Stone Aegis and so on), Gray Mages the single-target ones. Scrolls are in the shops.",
     "<b>Monsters now inflict statuses:</b> Honey Bees and Shroomlings poison, Bog Toads paralyze, worms blind, and the Crag Chanter and Tidebound Priest silence. Silence stops you casting.",
-    "Hired White Mages now cure these statuses and keep Protect and Shell up on the party during a fight. Fixed Dark Knights re-casting Blight."
+    "Hired Light Mages now cure these statuses and keep Protect and Shell up on the party during a fight. Fixed Shadow Knights re-casting Blight."
   ] },
   { v: "17.0.0", date: "2026-10-15", title: "New spells and potions", items: [
     "<b>Spells and potions were rebuilt.</b> Names, levels, MP costs, cast and recast times and effects were all reworked. Cure, Cure II, Gleam, Smite, Protect, Shell, Slow, Paralyze, Stone, Water, Aero, Fire, Blizzard, Poison, Blight, Life Leech, Mana Leech, Blind, Bind and Sleep replace the old list. Spells with no new match (Thunder, Flash, Stun, Blight, Raise and the rest) are gone.",
     "<b>Real formulas:</b> Cure heals by MND, VIT and Healing skill; nukes scale with the gap between your magic stat and the monster's; Gleam and Blight are damage over time and replace each other; Life Leech and Mana Leech steal HP and MP; Poison ticks; Shell cuts elemental damage by 11%; Slow, Paralyze and Blind are stronger the more your stat beats the target's.",
-    "<b>Bard songs</b> are now Squire's Anthem, Valiant Reel, Marching Hymn (I and II), Blade Chorale and Drowsy Lullaby, cost no MP and use a song-power formula based on your singing skill. <b>Summoners</b> call the eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark).",
+    "<b>Musician songs</b> are now Squire's Anthem, Valiant Reel, Marching Hymn (I and II), Blade Chorale and Drowsy Lullaby, cost no MP and use a song-power formula based on your singing skill. <b>Conjurers</b> call the eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark).",
     "<b>Potions:</b> Potion, Hi-Potion, X-Potion and Max Potion; Ether, Hi-Ether, Super Ether and Pro-Ether (each in three stronger +1 to +3 grades); Elixir and Hi-Elixir restore HP and MP together. Reraiser, Hi-Reraiser and Super Reraiser give a one-hour Reraise. Phoenix Down and Ember Plume are removed.",
-    "<b>New characters</b> start knowing their main job's level 1 spells: Black Mage starts with Stone, White Mage with Cure, Red Mage with Gleam, and so on.",
+    "<b>New characters</b> start knowing their main job's level 1 spells: Dark Mage starts with Stone, Light Mage with Cure, Gray Mage with Gleam, and so on.",
     "<b>Old saves are not compatible.</b> A character from before this version is deleted when the game finds it, and you are asked to create a new one. Online characters are cleared the same way."
   ] },
   { v: "16.24.0", date: "2026-10-15", title: "Rest in combat", items: [
@@ -2779,7 +2785,7 @@ const UPDATES = [
   ] },
   { v: "16.7.0", date: "2026-10-15", title: "Job style", items: [
     "New in the Classic look: Job style. Every adventurer now wears their job's signature outfit, and it gets grander at levels 5, 10 and 16, so you can tell a job at a glance.",
-    "All 22 jobs have four looks each, for example horned helms for Warriors, tall pointed hats for Black Mages, hoods with red trim for White Mages, feathered hats for Red Mages, winged helms for Dragoons, kabuto for Samurai, hoods for Ninjas, tricornes for Corsairs, jester hats for Puppetmasters, circlets for Dancers and mortarboards for Scholars.",
+    "All 22 jobs have four looks each, for example horned helms for Knights, tall pointed hats for Dark Mages, hoods with red trim for Light Mages, feathered hats for Gray Mages, winged helms for Lancers, kabuto for Blade Sworn, hoods for Hidden Blades, tricornes for Gamblers, jester hats for Artificers, circlets for Performers and mortarboards for Lore Masters.",
     "Higher tiers add oversized shoulder guards (some with spikes), capes, collars, gauntlets and greaves.",
     "Weapons and shields always show. To see the armour you have equipped instead, choose Show gear in Config → Graphics.",
     "Mercenaries with their own outfits keep them."
@@ -2977,7 +2983,7 @@ const UPDATES = [
     "Feet stay planted when people and monsters turn on the spot: the hips hold still while the upper body turns, then they take a quick shuffle step to catch up, instead of their feet sliding left and right.",
     "Four-legged creatures (sheep, longnecks, lizards, dogs, deer, cats and the rest) now walk with real gaits chosen by their size and speed: a four-beat walk, a diagonal trot, and a gallop when they run flat out. Lizards use a low sprawling walk.",
     "Each leg plants its foot and holds it on the ground while the body passes over, then lifts and swings forward in an arc, so the feet no longer slide. Legs stand slightly bent and the body bobs with the gait.",
-    "Spells can only be learned while your main job, or your support job at half your level, is high enough for that spell. A Warrior with a level 20 White Mage on the shelf can't read a Cure II scroll until White Mage is set as main or support.",
+    "Spells can only be learned while your main job, or your support job at half your level, is high enough for that spell. A Knight with a level 20 Light Mage on the shelf can't read a Cure II scroll until Light Mage is set as main or support.",
     "Spell scrolls no longer offer \"Add to action bar\"."
   ] },
   { v: "14.4.0", date: "2026-10-14", title: "Critters", items: [
@@ -3040,7 +3046,7 @@ const UPDATES = [
     "Hands now have five fingers and a thumb. They relax at your sides, close around a drawn weapon and make fists when you fight barehanded.",
     "Feet are shaped with a heel, arch and toes; boots get a darker sole and toe cap, and bare feet show toes.",
     "Animals have real heads: sheep, deer, dogs, cats, lizards and longnecks get a skull, brow, eyes with highlights, a muzzle with nostrils, a lower jaw and shaped ears (droopy for sheep, pointed for deer and dogs, a wide flat mouth for lizards).",
-    "Knock-outs work like a classic MMO: you fall and stay down for up to an hour while a Time Left box counts down. Raise (White Mage 12, Red Mage 17, Paladin 18), Raise II (White Mage 18) or an Ember Plume (Pell's shop) bring you back with no experience lost. Back to Home Point gives up early and costs experience as before.",
+    "Knock-outs work like a classic MMO: you fall and stay down for up to an hour while a Time Left box counts down. Raise (Light Mage 12, Gray Mage 17, Holy Knight 18), Raise II (Light Mage 18) or an Ember Plume (Pell's shop) bring you back with no experience lost. Back to Home Point gives up early and costs experience as before.",
     "Companions stay down when they fall instead of getting back up on their own. Healing companions walk over and raise anyone who is down. A companion left down for an hour returns to the Mercenary Hall.",
     "Text colours follow the classic scheme: green names for townsfolk, white for players and calm monsters, red for aggressive monsters or anything attacking your party, cyan for party members, yellow for companions and pets, grey for the fallen or far away. In the log: white for say and normal hits, cyan party chat, yellow tells, green linkshell, orange shouts, gold for weapon skills and criticals, green healing, blue MP and buffs, pink damage taken, purple misses, red warnings.",
     "The target box is simpler when you attack: name, a slim HP bar and the Locked arrows, with no timers."
@@ -3105,7 +3111,7 @@ const UPDATES = [
   { v: "12.5.0", date: "2026-10-14", title: "The Red Spire", items: [
     "A tower dungeon has opened in the Sunscar Desert: walk up to the door at the Red Spire landmark to climb inside.",
     "Four floors of scorched undead, Ashen Orcs, Magma Lizards, Obsidian Crabs and Cinder Bombs, each floor tougher than the last. Take the stairs on the east side to climb, the west side to go back down.",
-    "The Spire Warden, a level 23 boss, waits at the summit. It may drop the Warden's Greatsword (for Rune Fencers) or the Spire Mantle. New achievement: Top of the Spire."
+    "The Spire Warden, a level 23 boss, waits at the summit. It may drop the Warden's Greatsword (for Rune Blades) or the Spire Mantle. New achievement: Top of the Spire."
   ] },
   { v: "12.4.0", date: "2026-10-14", title: "Gull Isle", items: [
     "A ferry now sails from the Saltreach Harbor docks to Gull Isle and back. Talk to Ferryman Coll; the crossing costs " + CONFIG.ferryCost + " crystals and takes a few seconds at sea.",
@@ -3123,7 +3129,7 @@ const UPDATES = [
     "A new area east of the Ashen Marsh: the Verdant Jungle, for levels 17–20. Giant trees, warm rain most days and a green mist between the trunks.",
     "New monsters: Vine Crawlers, Jade Hornets, Strangler Saplings, Bloom Mandrakes and Jade Toads, with Crag Talon raiders camped by the Overgrown Temple. Old Mossback, the oldest walking tree, may drop the Canopy Cloak.",
     "Five landmarks, logging and harvesting spots, and a new achievement: Into the Green.",
-    "Fixed: killing monsters could sometimes fail to give loot after Blue Mage magic was added, because a random scroll drop could pick a blue spell that has no scroll."
+    "Fixed: killing monsters could sometimes fail to give loot after Mimic magic was added, because a random scroll drop could pick a blue spell that has no scroll."
   ] },
   { v: "12.1.0", date: "2026-10-14", title: "Sunscar Desert", items: [
     "A new area south of Ironvale: the Sunscar Desert, for levels 17–20. Golden dunes, red rock mesas, stands of cactus, and a lone oasis.",
@@ -3136,27 +3142,27 @@ const UPDATES = [
     "Brisa the quartermaster has two new quests: Smoke on the Pass (rewarding the Ironvale Ring) and The Ore Run.",
     "New achievement: Mountain Welcome."
   ] },
-  { v: "11.3.0", date: "2026-10-14", title: "Geomancer and Rune Fencer", items: [
-    "Geomancer: wrap the party in auras of Vigor, Fury or Focus, and plant a glowing luopan by your foes that slows them, makes them frail or saps their strength. Close the Circle and Radiant Mending turn the luopan back into MP or healing.",
-    "Rune Fencer: a great-sword tank who carves fire, ice, wind and earth runes to blunt incoming blows, then hurls them all at once with Spear Surge. Rune Guard braces for the worst.",
+  { v: "11.3.0", date: "2026-10-14", title: "Earthwarden and Rune Blade", items: [
+    "Earthwarden: wrap the party in auras of Vigor, Fury or Focus, and plant a glowing luopan by your foes that slows them, makes them frail or saps their strength. Close the Circle and Radiant Mending turn the luopan back into MP or healing.",
+    "Rune Blade: a great-sword tank who carves fire, ice, wind and earth runes to blunt incoming blows, then hurls them all at once with Spear Surge. Rune Guard braces for the worst.",
     "Both are taught by Tobin from level 18. With these, all twenty-two jobs are in the game, and mercenaries can be any of them."
   ] },
-  { v: "11.2.0", date: "2026-10-14", title: "Puppetmaster, Dancer and Scholar", items: [
-    "Puppetmaster: fight with your fists alongside a wind-up automaton. Use Mend Puppet when it's battered and Tune Up its punches.",
-    "Dancer: build TP with your daggers and spend it on waltzes that heal the party, steps that leave a monster off balance, and a Rising Flourish that cashes the steps in.",
-    "Scholar: a student of both white and black magic. Switch between Bright Study and Shadow Study for faster, cheaper spells of that school, with Thrift and Zeal for a free cure or a harder nuke.",
+  { v: "11.2.0", date: "2026-10-14", title: "Artificer, Performer and Lore Master", items: [
+    "Artificer: fight with your fists alongside a wind-up automaton. Use Mend Puppet when it's battered and Tune Up its punches.",
+    "Performer: build TP with your daggers and spend it on waltzes that heal the party, steps that leave a monster off balance, and a Rising Flourish that cashes the steps in.",
+    "Lore Master: a student of both white and black magic. Switch between Bright Study and Shadow Study for faster, cheaper spells of that school, with Thrift and Zeal for a free cure or a harder nuke.",
     "All three are taught by Tobin from level 16. Mercenaries can be any of them."
   ] },
-  { v: "11.1.0", date: "2026-10-14", title: "Beastmaster, Blue Mage and Corsair", items: [
-    "Beastmaster: whistle up a lizard, crab or great ram to fight beside you, reward it with treats and cow your foes with a Savage Howl. Wields the new axe weapon type.",
-    "Blue Mage: learn magic by watching monsters. Stand close when a hare kicks, a crab pinches or an orc roars, and you may learn to do it yourself. Ten blue spells to collect, plus Surge Affinity.",
-    "Corsair: roll the dice for the party. Valor Roll raises attack, Hawk Roll raises accuracy, and Double Down risks a bust for a bigger bonus. Quick Shot fires a pistol.",
+  { v: "11.1.0", date: "2026-10-14", title: "Tamer, Mimic and Gambler", items: [
+    "Tamer: whistle up a lizard, crab or great ram to fight beside you, reward it with treats and cow your foes with a Savage Howl. Wields the new axe weapon type.",
+    "Mimic: learn magic by watching monsters. Stand close when a hare kicks, a crab pinches or an orc roars, and you may learn to do it yourself. Ten blue spells to collect, plus Surge Affinity.",
+    "Gambler: roll the dice for the party. Valor Roll raises attack, Hawk Roll raises accuracy, and Double Down risks a bust for a bigger bonus. Quick Shot fires a pistol.",
     "All three are taught by Tobin from level 14. Mercenaries can now be any of them too."
   ] },
-  { v: "11.0.0", date: "2026-10-14", title: "Samurai, Ninja and Dragoon", items: [
-    "Three new advanced jobs, taught by Tobin from level 12. Samurai: a two-handed tachi, Still Mind for a burst of TP, the Open Stance stance and Foresight to slip the next blow. Ninja: a quick katana, Shadow Veil images that soak up hits, fire, frost and wind shuriken, Binding Thread, Smoke Step and Twin Strike. Dragoon: the lance, Leap and Sky Leap leap attacks and Dragon Spirit.",
+  { v: "11.0.0", date: "2026-10-14", title: "Blade Sworn, Hidden Blade and Lancer", items: [
+    "Three new advanced jobs, taught by Tobin from level 12. Blade Sworn: a two-handed tachi, Still Mind for a burst of TP, the Open Stance stance and Foresight to slip the next blow. Hidden Blade: a quick katana, Shadow Veil images that soak up hits, fire, frost and wind shuriken, Binding Thread, Smoke Step and Twin Strike. Lancer: the lance, Leap and Sky Leap leap attacks and Dragon Spirit.",
     "Three new weapon types (great katana, katana and polearm) with four weapon skills each, new weapon models, and bronze to frostforged weapons from Pell and Vela. Ninjutsu scrolls can be bought or found like other spells.",
-    "Mercenaries can now be Samurai, Ninja or Dragoons too."
+    "Mercenaries can now be Blade Sworn, Hidden Blade or Lancers too."
   ] },
   { v: "10.10.0", date: "2026-10-14", title: "Travel", items: [
     "Camps in Rocky Hollow, Frostspire Pass and the Ashen Marsh, each with a tent, campfire and camp crystal that restores your party.",
@@ -3302,8 +3308,8 @@ const UPDATES = [
   ] },
   { v: "9.8.1", date: "2026-10-14", title: "Smarter companions", items: [
     "Companions now use any of their job's abilities and spells sensibly: self-boosts when a fight starts, debuffs like Gleam, Slow, Paralyze and Blight on the target while they have MP, nukes picked for the target's weakness, and emergency cures when someone is in trouble and no healer is free.",
-    "Support companions (such as a support White Mage) now join the fight in melee when nobody needs healing. Healers stay back and keep casting.",
-    "Black Mages nuke more often instead of holding most of their MP, while burst specialists still save MP when a skillchain is coming.",
+    "Support companions (such as a support Light Mage) now join the fight in melee when nobody needs healing. Healers stay back and keep casting.",
+    "Dark Mages nuke more often instead of holding most of their MP, while burst specialists still save MP when a skillchain is coming.",
     "If something goes wrong with one companion, the others keep fighting instead of all stopping."
   ] },
   { v: "9.8.0", date: "2026-10-14", title: "Sky and light", items: [
@@ -3546,12 +3552,12 @@ const UPDATES = [
     "Story foes: Rimefang shows himself when the story brings you to Icefall Camp, and a new boss, the Ashen Herald, waits at the Summit Overlook. It drops the Cinderweave Mantle.",
     "Finishing the story earns the Ember of Ashenreach ring and the Keeper of the Embers achievement."
   ] },
-  { v: "6.1.0", date: "2026-10-13", title: "Dark Knight and Bard", items: [
-    "New advanced job: Dark Knight (Tobin's The Shadowed Path, level 10). Scythes, Desperate Oath, Soulfire and Blood Blade, plus dark magic: Blight, Life Leech, Mind Drain and Stun.",
-    "New advanced job: Bard (Tobin's A Traveler's Song, level 10). Party songs for attack, accuracy, attack speed, HP and MP over time; Drowsy Lullaby puts a monster to sleep; Encore speeds up your singing.",
+  { v: "6.1.0", date: "2026-10-13", title: "Shadow Knight and Musician", items: [
+    "New advanced job: Shadow Knight (Tobin's The Shadowed Path, level 10). Scythes, Desperate Oath, Soulfire and Blood Blade, plus dark magic: Blight, Life Leech, Mind Drain and Stun.",
+    "New advanced job: Musician (Tobin's A Traveler's Song, level 10). Party songs for attack, accuracy, attack speed, HP and MP over time; Drowsy Lullaby puts a monster to sleep; Encore speeds up your singing.",
     "New weapon type: scythes, with four weapon skills (Slice, Nightreap, Spiral Reap, Grim Harvest). Bronze, Iron and Steel Scythes at Pell's, the Rimefrost Scythe at Vela's.",
-    "New gear: Shadow Plate, Minstrel's Coat (Pell) and Troubadour's Coat (Vela). Dark Knights can wear warrior armor and use swords and great axes; Bards can wear red mage clothing and use daggers.",
-    "New companions at the Mercenary Hall: Mordrin, a Dark Knight, and Lyra, a Bard who keeps two songs on the party and lulls extra monsters to sleep. Each joins once you've unlocked their job."
+    "New gear: Shadow Plate, Minstrel's Coat (Pell) and Troubadour's Coat (Vela). Shadow Knights can wear warrior armor and use swords and great axes; Musicians can wear red mage clothing and use daggers.",
+    "New companions at the Mercenary Hall: Mordrin, a Shadow Knight, and Lyra, a Musician who keeps two songs on the party and lulls extra monsters to sleep. Each joins once you've unlocked their job."
   ] },
   { v: "6.0.0", date: "2026-10-13", title: "The Adventurers' Guild", items: [
     "Maera has opened the Adventurers' Guild in Ashenreach Outpost, just west of Captain Rhea.",
@@ -3564,7 +3570,7 @@ const UPDATES = [
     "Level cap raised to 20.",
     "New area: Frostspire Pass (levels 15–20), through the east exit of Saltreach Harbor, with five landmarks and falling snow. Blizzards thicken the air.",
     "New monsters: Snow Hare, Ice Bat, Frost Goblin, Ice Wight and Glacier Worm. New notorious monsters: Rimefang and The Frost Wight, with the Frost Ring, Rimefang's Axe and the Wight Shroud.",
-    "New spells and abilities: Cure IV (WHM 19), Thunder II (BLM 17), Fire III (BLM 20), Stone Sprite (SMN 15) and Battle Shout (WAR 15, +20% attack for nearby allies).",
+    "New spells and abilities: Cure IV (LGM 19), Thunder II (DKM 17), Fire III (DKM 20), Stone Sprite (CNJ 15) and Battle Shout (KNT 15, +20% attack for nearby allies).",
     "Tier-four weapon skills at skill 75: Cutting Arc, Shadow Fang, Moonfall, Earthshaker, Ruinous Cleave, Thousand Palms and Starfall Arrow.",
     "Frostforged gear (level 16–17) and the Fur Hat at Vela's in Saltreach. New quest: Ilsa's Frozen Cargo. New achievements for reaching level 20 and entering the pass."
   ] },
@@ -3580,11 +3586,11 @@ const UPDATES = [
     "Monsters only show on the minimap when they're near you (or fighting your party, or targeted).",
     "Character creation now starts as male with the second-lightest skin tone."
   ] },
-  { v: "5.7.0", date: "2026-10-13", title: "Ranger and Summoner", items: [
-    "New advanced job: Ranger. Bows (Shortbow, Yew Bow, Steel Longbow) fire from range, so you can stay back while the monster comes to you. Dead Aim, Arrow Storm and Pin Down; weapon skills Needle Shot, Flaming Volley and Gale Arrow. Arrows streak across to the target.",
-    "New advanced job: Summoner. Call an Ember, Frost or Gale Sprite to fight beside you (it joins your party frame and drains a little MP every 3 seconds). Spirit Pact makes it unleash its element; Mana Tithe pulls MP back; Release sends it home.",
+  { v: "5.7.0", date: "2026-10-13", title: "Yeoman and Conjurer", items: [
+    "New advanced job: Yeoman. Bows (Shortbow, Yew Bow, Steel Longbow) fire from range, so you can stay back while the monster comes to you. Dead Aim, Arrow Storm and Pin Down; weapon skills Needle Shot, Flaming Volley and Gale Arrow. Arrows streak across to the target.",
+    "New advanced job: Conjurer. Call an Ember, Frost or Gale Sprite to fight beside you (it joins your party frame and drains a little MP every 3 seconds). Spirit Pact makes it unleash its element; Mana Tithe pulls MP back; Release sends it home.",
     "Unlock both from Tobin at level 6: Steady Aim and The Calling. New gear: bows, Hunter's Coat, Sprite Staff, Evoker's Robe.",
-    "New companion: Corin the Ranger (unlocked with the job). New achievements: First Calling and Sharp Eye.",
+    "New companion: Corin the Yeoman (unlocked with the job). New achievements: First Calling and Sharp Eye.",
     "The target frame's in-range check now knows about bow range. New icons for every job ability and tier II spell."
   ] },
   { v: "5.6.0", date: "2026-10-13", title: "Mounts: stable, saddle and the Hollow Run", items: [
@@ -3624,19 +3630,19 @@ const UPDATES = [
     "Three new achievements: Odd Jobs, Tinkerer and Lucky Roll.",
     "Tab in town skips signs and boards and goes straight to people."
   ] },
-  { v: "5.1.0", date: "2026-10-13", title: "Thief and Monk", items: [
-    "New advanced job: Thief. Daggers (A), Pilfer (lift an item off a monster), Shadow Strike (next hit is a sure critical with bonus damage), Fleet Foot (run 80% faster). Thieves crit 5% more often, and Treasure Hunter raises drop chances by 20% while you're a Thief.",
-    "New advanced job: Monk. Hand-to-Hand (A) with Martial Arts (faster, harder fists), a 14% chance to follow up with a kick, Surge (next hit +50% and extra TP), Hone (accuracy and crits) and Inner Mend (heal yourself). Monks raise their fists in a boxing guard.",
+  { v: "5.1.0", date: "2026-10-13", title: "Rogue and Brawler", items: [
+    "New advanced job: Rogue. Daggers (A), Pilfer (lift an item off a monster), Shadow Strike (next hit is a sure critical with bonus damage), Fleet Foot (run 80% faster). Rogues crit 5% more often, and Treasure Hunter raises drop chances by 20% while you're a Rogue.",
+    "New advanced job: Brawler. Hand-to-Hand (A) with Martial Arts (faster, harder fists), a 14% chance to follow up with a kick, Surge (next hit +50% and extra TP), Hone (accuracy and crits) and Inner Mend (heal yourself). Brawlers raise their fists in a boxing guard.",
     "Unlock both from Tobin at level 6: Light Fingers (3 Goblin Pouches, 1 Bat Wing) and The Open Hand (2 Bone Chips, 3 Healing Herbs).",
     "New weapon skills: Quick Sting, Venom Bite, Gale Edge (dagger) and Twin Fist, Rising Knee, Iron Palm (hand-to-hand).",
-    "New gear: Bronze, Iron and Steel Daggers; Leather Cesti, Iron Knuckles and Steel Claws; Brigand Vest and Training Gi. Warriors, Red Mages and Black Mages can use daggers too.",
-    "New companions: Wren the Thief and Tamsin the Monk (unlocked with their jobs)."
+    "New gear: Bronze, Iron and Steel Daggers; Leather Cesti, Iron Knuckles and Steel Claws; Brigand Vest and Training Gi. Knights, Gray Mages and Dark Mages can use daggers too.",
+    "New companions: Wren the Rogue and Tamsin the Brawler (unlocked with their jobs)."
   ] },
   { v: "5.0.0", date: "2026-10-13", title: "Level 15 and the Ashen Marsh", items: [
     "Level cap raised to 15 for every job. XP for levels 11–15: 4,450 · 5,400 · 6,450 · 7,600 · 8,850.",
     "New area: the Ashen Marsh, south of Rocky Hollow (levels 9–16). Misty ponds, a sunken causeway, a goblin stilt village and a drowned chapel.",
     "New monsters: Bog Toad (a brand-new model), Bog Leech, Mire Goblin, the Drowned and Reed Hares. Two notorious monsters: Old Croaker and Mirelord Gax.",
-    "New spells: Cure III (WHM 13), Smite II (WHM 15), Stone II, Water II, Aero II, Fire II and Blizzard II (BLM 11–15; Stone II for RDM at 15). Paladins learn Cure II at 11, Red Mages at 14.",
+    "New spells: Cure III (LGM 13), Smite II (LGM 15), Stone II, Water II, Aero II, Fire II and Blizzard II (DKM 11–15; Stone II for GRM at 15). Holy Knights learn Cure II at 11, Gray Mages at 14.",
     "New gear at level 10–14: Steel Sword, Steel Greataxe, Oak Staff, Oak Club, Chain Mail, Wizard's Robe, Iron Helm and Wool Hat in Pell's shop; Croaker Charm, Gax's Cleaver and Mire Mantle from the new NMs.",
     "New quests: Into the Mire (Captain Rhea) and The Mirelord (Brann). Captain Rhea now lists her other jobs alongside her first one.",
     "Bestiary gains 7 entries; two new achievements (Veteran, Into the Mire)."
@@ -3693,7 +3699,7 @@ const UPDATES = [
     "Title screen and Credits carry the maker's links.",
     "Loading screens show a random character or monster from the game, slowly turning, with a line about it.",
     "The Rest tip and other loading tips mention that standing still only trickles.",
-    "New characters start with only their race's clothes, a Turnip weapon for their job (Warrior sword, Thief knife, White Mage rod, Black Mage staff; not sold, auctioned, dropped or crafted), no helmet, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
+    "New characters start with only their race's clothes, a Turnip weapon for their job (Knight sword, Rogue knife, Light Mage rod, Dark Mage staff; not sold, auctioned, dropped or crafted), no helmet, and an empty bag (no potions). Changing jobs never hands out equipment; buy or earn it.",
     "Take off body or leg armor and your character shows underwear: white boxers for men; for women a smoky black triangle bikini top that ties behind the neck and across the back, and a matching string thong with a small front triangle, bows on each hip, a waist string that sits on the waist above the buttocks and dips in a V at the back, and a black string running down between the buttocks. Each slot is independent."
   ] },
   { v: "4.5.0", date: "2026-10-13", title: "Phase 5d: the Sunken Crypt", items: [
@@ -3714,12 +3720,12 @@ const UPDATES = [
     "Quest givers show every job they have for you in one conversation; progress lines tell you what's left.",
     "A few more low-level monsters near the west gate of Rocky Hollow, so the first levels go quicker."
   ] },
-  { v: "4.3.0", date: "2026-10-13", title: "Phase 5b: Paladin and Red Mage", items: [
-    "Two advanced jobs. At level 6, Tobin offers The Oath of Steel (Paladin: 2 Bone Chips, 1 Iron Ore) and Scarlet Lessons (Red Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence).",
-    "Paladin: sword A, Cure at 5, Flash at 7 (blinds and draws heavy enmity), Protect at 9; abilities Bulwark (Defense +50%, double enmity) and Shield Bash (damage, interrupts TP moves and spells). Kite Shield in the accessory slot.",
-    "Red Mage: Gleam, Cure, Stone, Water, Aero, Fire plus Slow (attacks 25% slower) and Paralyze (lost swings); Mana Swap at 8 swaps HP and MP. Scarlet Tabard with a feathered hat.",
-    "Dorn (Paladin tank) and Lisette (Red Mage hybrid) can be hired from Brann once their job is unlocked. Dorn uses Flash, Bulwark, Shield Bash and self-Cures; Lisette fights in melee, keeps Gleam, Slow and Paralyze up, nukes and backs up the healer.",
-    "New skills: Enfeebling and Enhancing Magic. White Mages learn Protect at 7.",
+  { v: "4.3.0", date: "2026-10-13", title: "Phase 5b: Holy Knight and Gray Mage", items: [
+    "Two advanced jobs. At level 6, Tobin offers The Oath of Steel (Holy Knight: 2 Bone Chips, 1 Iron Ore) and Scarlet Lessons (Gray Mage: 2 Worm Silk, 1 Fire Essence, 1 Water Essence).",
+    "Holy Knight: sword A, Cure at 5, Flash at 7 (blinds and draws heavy enmity), Protect at 9; abilities Bulwark (Defense +50%, double enmity) and Shield Bash (damage, interrupts TP moves and spells). Kite Shield in the accessory slot.",
+    "Gray Mage: Gleam, Cure, Stone, Water, Aero, Fire plus Slow (attacks 25% slower) and Paralyze (lost swings); Mana Swap at 8 swaps HP and MP. Scarlet Tabard with a feathered hat.",
+    "Dorn (Holy Knight tank) and Lisette (Gray Mage hybrid) can be hired from Brann once their job is unlocked. Dorn uses Flash, Bulwark, Shield Bash and self-Cures; Lisette fights in melee, keeps Gleam, Slow and Paralyze up, nukes and backs up the healer.",
+    "New skills: Enfeebling and Enhancing Magic. Light Mages learn Protect at 7.",
     "Monster debuffs show as chips on the target frame with their time left.",
     "Either advanced job can also be set as a support job once unlocked."
   ] },
@@ -3865,7 +3871,7 @@ function tabHelp() {
     "<b>Hate:</b> every monster keeps a score for each person fighting it and attacks the highest. Each score has a lasting part (builds with every hit, spell, ability and cure; fades about 1% a second) and a hot part (fades within a minute). Bigger hits draw more hate, so steady damage wins over time; a cure draws hate from every monster fighting your party.",
     "<b>Criticals</b> draw 1.5x the hate of a normal hit of the same size. Notorious monsters ignore that bonus.",
     "<b>Family tastes:</b> skeletons, orcs and lizards resent steel; worms, bats, crabs, treants, Reefkin and mandrakes resent spells; Crag Talons, bees and hares resent job abilities; Crag Talons, ghouls, mandrakes and longnecks resent healers. A resented action is worth up to 40% more hate, a tolerated one 10–20% less.",
-    "<b>Why a monster turns:</b> it switches to someone new only when they lead the current target by 10% or more, and then holds the new target for a second before it will change again. Goad (600, half of it hot) grabs a monster at once; Flash (Paladin 7) and Bulwark keep it; Smoke Step and Sky Leap halve what a monster holds against you.",
+    "<b>Why a monster turns:</b> it switches to someone new only when they lead the current target by 10% or more, and then holds the new target for a second before it will change again. Goad (600, half of it hot) grabs a monster at once; Flash (Holy Knight 7) and Bulwark keep it; Smoke Step and Sky Leap halve what a monster holds against you.",
     "<b>Reading hate:</b> while a monster you target is fighting, the target frame shows who it is on (\"On you\" or a companion's name) and a hate bar: your hate as a share of whoever holds the most. Red means it is on you; gold means it is on someone else. A red bar below full means someone is close to pulling it off you; a gold bar near full means you are about to pull it.",
     "<b>Swap alert:</b> when a monster turns on someone new a ! flashes over it with a ring and the log says who it turned on. A double ‼ in red means it turned on you; shed hate, or get ready to take hits.",
     "<b>Temper:</b> Inspect and the Database tell you what a family resents most and shrugs off once you have defeated five of them (one for a notorious monster). Until then they say how many more to fight.",
@@ -3880,10 +3886,10 @@ function tabHelp() {
     "<b>Names:</b> spells, songs, summons, abilities and weapon skills each have their own name, and a Scroll of (spell) carries the same name as the spell it teaches.",
     "<b>Gear names:</b> sets share a prefix (Ironvale, League, Squad, Vanguard and so on); pieces from the same set are usually sold together or dropped by the same kind of monster.",
     "<b>Item cards:</b> every piece of gear lists the level you need and its stats, so compare before you buy or craft; different monsters drop different things at different chances, and rare drops are rare on purpose.",
-    "<b>Debuffs:</b> Slow, Paralyze and Blind weaken a monster in proportion to how much your magic stat beats its own: Slow makes it swing slower, Paralyze makes it lose swings, Blind cuts its accuracy. Poison and Blight drain its HP over time, Bind pins it, Sleep (Black Mage 20) and Drowsy Lullaby put it to sleep until it is hit. They show on the target frame with the time left. <b>Monsters fight back:</b> bees and spore-clouds poison you, toads paralyze, worms blind and priests silence (silenced, you cannot cast). White Mage cures them with Cleanse Venom, Cleanse Stiffness, Cleanse Sight and Cleanse Hush; the Bar-status spells halve the chance of catching them. <b>Area spells</b> (Healing Rain, Smitefall, Rockfall, Floodwave, Gleamfall) affect everything near the target, so mind your pulls. <b>Spikes</b> (Blaze, Ice) hurt whoever hits you in melee; <b>En-spells</b> add elemental damage to your own hits. Arc Burn, Grinding Blight and Throttle are damage over time that replace each other (Grinding Blight lowers accuracy, Throttle lowers defense). Bar-element spells (Flame Ward, Stone Ward, Water Ward, Gale Ward and the party versions ending in -ra) cut damage of that element. Tideward blocks a spell interruption, Blink gives two shadow images, Hush Step hides you from monsters that hear you and Scent Mask from those that smell weakness. Shield Bash interrupts a readied TP move. <b>Monster casters:</b> any beastman or undead can be a mage (see Monster jobs). A hit can interrupt a cast, and a monster hit by your Silence cannot cast at all. Kill the healer first.",
+    "<b>Debuffs:</b> Slow, Paralyze and Blind weaken a monster in proportion to how much your magic stat beats its own: Slow makes it swing slower, Paralyze makes it lose swings, Blind cuts its accuracy. Poison and Blight drain its HP over time, Bind pins it, Sleep (Dark Mage 20) and Drowsy Lullaby put it to sleep until it is hit. They show on the target frame with the time left. <b>Monsters fight back:</b> bees and spore-clouds poison you, toads paralyze, worms blind and priests silence (silenced, you cannot cast). Light Mage cures them with Cleanse Venom, Cleanse Stiffness, Cleanse Sight and Cleanse Hush; the Bar-status spells halve the chance of catching them. <b>Area spells</b> (Healing Rain, Smitefall, Rockfall, Floodwave, Gleamfall) affect everything near the target, so mind your pulls. <b>Spikes</b> (Blaze, Ice) hurt whoever hits you in melee; <b>En-spells</b> add elemental damage to your own hits. Arc Burn, Grinding Blight and Throttle are damage over time that replace each other (Grinding Blight lowers accuracy, Throttle lowers defense). Bar-element spells (Flame Ward, Stone Ward, Water Ward, Gale Ward and the party versions ending in -ra) cut damage of that element. Tideward blocks a spell interruption, Blink gives two shadow images, Hush Step hides you from monsters that hear you and Scent Mask from those that smell weakness. Shield Bash interrupts a readied TP move. <b>Monster casters:</b> any beastman or undead can be a mage (see Monster jobs). A hit can interrupt a cast, and a monster hit by your Silence cannot cast at all. Kill the healer first.",
     "<b>Where danger lives:</b> monsters are placed by difficulty. Peaceful critters crowd the areas near towns; aggressive beastmen, undead and big monsters live deeper in. The same kind of monster changes name and colour as it gets stronger further out (Grass → Bog → Rime Crawler, Honey Bee → Marsh Hornet → Frost Wasp, and so on).",
-    "<b>Monster jobs:</b> goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls and the drowned each have a job, just like you, and it can be any job in the game. A monster knows the spells and abilities of its job up to its own level: a level 5 goblin White Mage casts Cure and Gleam, a level 15 orc Warrior uses Frenzy and Battle Shout, a Black Mage hurls Stone or Aero, a Red Mage paralyzes and Protects itself, a Bard sings Minne and Minuet. Fighters lean on job abilities (Frenzy, Surge, Shadow Strike, Open Stance, Desperate Oath, Inner Mend...). Each monster carries a short list (a heal, a nuke, a status spell and a self buff at most), so watch the cast bar and interrupt or silence it. Tough jobs (Paladin, Rune Fencer, Monk) have more HP; mages are softer. Notorious monsters and critters keep their own kit. <b>The target window and Check tell you the job, and the Bestiary remembers every job you have seen a creature use.</b> Neighbours in a pack avoid sharing a job. <b>You can tell the job by the outfit:</b> each monster wears its job's clothes (the same styles adventurers wear, darker or paler to suit its home: frosty for snow goblins, swampy in the marsh, sandy for Crag Talons, faded on the undead) and carries its job's weapon (Warriors great axes, Paladins sword and shield, Dark Knights scythes, Samurai great katanas, Ninjas katanas, Dragoons spears, Rangers bows, mages staves and clubs). Better gear shows on higher levels. Monks and Puppetmasters fight bare-handed. Throwers and archers keep their own bows and rocks. The looks are cosmetic only.",
-    "<b>Monster pets:</b> beastmen who roll Summoner, Beastmaster, Puppetmaster or Geomancer bring a small elemental pet that floats beside them: a Spirit (Summoner), Familiar (Beastmaster), Puppet (Puppetmaster) or Luopan (Geomancer). Its element comes from the land: earth in Rocky Hollow, the caves and the jungle, water in the marsh and on the coast, ice in the snow, fire in the desert and Cinder Peak, wind in the highlands, lightning in the Mirage, dark in crypts and the Red Spire. The pet joins any fight its master starts, and hitting the pet draws the master too. Its big move is its element's pact (Brook Rush, Cinder Burst, Stone Hurl...), and it is weak to the opposing element. It vanishes when its master falls and gives no experience or drops, so take down the master first. <b>Corsairs</b> roll dice (Valor Roll, Hawk Roll) that raise the attack or accuracy of their whole pack for a minute and a half.",
+    "<b>Monster jobs:</b> goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls and the drowned each have a job, just like you, and it can be any job in the game. A monster knows the spells and abilities of its job up to its own level: a level 5 goblin Light Mage casts Cure and Gleam, a level 15 orc Knight uses Frenzy and Battle Shout, a Dark Mage hurls Stone or Aero, a Gray Mage paralyzes and Protects itself, a Musician sings Minne and Minuet. Fighters lean on job abilities (Frenzy, Surge, Shadow Strike, Open Stance, Desperate Oath, Inner Mend...). Each monster carries a short list (a heal, a nuke, a status spell and a self buff at most), so watch the cast bar and interrupt or silence it. Tough jobs (Holy Knight, Rune Blade, Brawler) have more HP; mages are softer. Notorious monsters and critters keep their own kit. <b>The target window and Check tell you the job, and the Bestiary remembers every job you have seen a creature use.</b> Neighbours in a pack avoid sharing a job. <b>You can tell the job by the outfit:</b> each monster wears its job's clothes (the same styles adventurers wear, darker or paler to suit its home: frosty for snow goblins, swampy in the marsh, sandy for Crag Talons, faded on the undead) and carries its job's weapon (Knights great axes, Holy Knights sword and shield, Shadow Knights scythes, Blade Sworn great katanas, Hidden Blades katanas, Lancers spears, Yeomen bows, mages staves and clubs). Better gear shows on higher levels. Brawlers and Artificers fight bare-handed. Throwers and archers keep their own bows and rocks. The looks are cosmetic only.",
+    "<b>Monster pets:</b> beastmen who roll Conjurer, Tamer, Artificer or Earthwarden bring a small elemental pet that floats beside them: a Spirit (Conjurer), Familiar (Tamer), Puppet (Artificer) or Luopan (Earthwarden). Its element comes from the land: earth in Rocky Hollow, the caves and the jungle, water in the marsh and on the coast, ice in the snow, fire in the desert and Cinder Peak, wind in the highlands, lightning in the Mirage, dark in crypts and the Red Spire. The pet joins any fight its master starts, and hitting the pet draws the master too. Its big move is its element's pact (Brook Rush, Cinder Burst, Stone Hurl...), and it is weak to the opposing element. It vanishes when its master falls and gives no experience or drops, so take down the master first. <b>Gamblers</b> roll dice (Valor Roll, Hawk Roll) that raise the attack or accuracy of their whole pack for a minute and a half.",
     "<b>Interrupts:</b> any physical hit (melee, arrows, weapon skills, physical monster moves) interrupts a spell the moment it lands, for you, your party and monsters alike (a monster has a 75% chance to be thrown off). Tideward still absorbs one interrupt. Magic damage keeps the old 40% chance. Stand clear of melee before casting, or let the tank hold the monster. Settings, Combat, Old interrupt rule on restores the chance-only rule.",
     "<b>Where weapons are carried:</b> swords, katanas, daggers, axes and clubs hang at your left hip and you draw them with your right hand from there. Staves, polearms, great weapons and bows ride on your back, as before.",
     "<b>Weapon skill wind-up:</b> a weapon skill now takes about 0.8 seconds to ready, shown on the cast bar. Moving, or Escape, cancels it and keeps your TP. A physical hit cancels it too, and if the hit lands in the last quarter of the wind-up the TP is lost. Abilities are still instant. A physical hit has a 35% chance to cut a monster's TP move short while it readies.",
@@ -3902,7 +3908,7 @@ function tabHelp() {
     "Pets stay out of battlefields and vanish when you're knocked out; summon them again afterwards. Achievement: Pet Keeper (five pets)."
   ]));
   h += sec("🧬 Races", tbl(["Race", "Sex", "Traits"], RACE_ORDER.map(r => [RACES[r].icon + " " + RACES[r].name, RACES[r].sex == null ? "Either" : RACES[r].sex ? "Female only" : "Male only", RACES[r].blurb])) + ul([
-    "Every race starts in its own clothes: a Warrior piece and a mage piece for the body (Human Vest and Tunic, Elari Jerkins and Bodice, Ursan Surcoat and Tunic, Nekari Separates and Tunic, Pipkin Kaftan and Tunic) plus legwear (Human Pants, Elari Chausses, Ursan Braguette, Nekari Loincloth, Pipkin Braccae) that only that race can wear.",
+    "Every race starts in its own clothes: a Knight piece and a mage piece for the body (Human Vest and Tunic, Elari Jerkins and Bodice, Ursan Surcoat and Tunic, Nekari Separates and Tunic, Pipkin Kaftan and Tunic) plus legwear (Human Pants, Elari Chausses, Ursan Braguette, Nekari Loincloth, Pipkin Braccae) that only that race can wear.",
     "Pick a race at character creation. It's permanent, like the rest of your appearance. Race shapes your body and gives small stat bonuses and penalties that grow a little with level; your job still matters far more.",
     "Elari get extra accuracy with bows. Pipkin and Nekari move faster; Ursan a little slower. HP and MP are multiplied: Ursan +25% HP but −25% MP, Pipkin −20% HP but +30% MP."
   ]));
@@ -3913,30 +3919,30 @@ function tabHelp() {
     "You can renew it any time; renewing restarts the timer."
   ]));
   h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
-    ["Warrior", "Tank or damage", "Goad, Frenzy, Battle Shout (level 15: +20% attack for nearby allies), great axe A, sword B"],
-    ["White Mage", "Healer", "Cure (1), Gleam (3), Paralyze (4), Smite (5), Cleanse Venom (6), Protect and Mass Protect (7), Stone Aegis and Slumber Aegis, Water Aegis and Cleanse Stiffness (9), Tideward and Venom Aegis (10), Cure II (11), Slow (13), Gale Aegis, Cleanse Sight (14), Scent Mask, Silence and Smitefall (15), Healing Rain (16: heals everyone near the target), Shell and Mass Shell, Flame Aegis (17), Gleamfall, Blink and Cleanse Hush (19), Hush Step (20). Holy Vow"],
-    ["Black Mage", "Nuker", "Stone (1), Poison (3), Blind (4), Water (5), Bind (7), Aero (9), Blight and Ember Thorns (10), Life Leech (12), Fire (13), Rockfall (15: Stone on everything near the target), Arc Burn (16), Blizzard (17), Warp (17: 100 MP, teleports you to your home point), Grinding Blight (18), Floodwave (19), Sleep, Throttle and Frost Thorns (20). Arcane Vow, magic bursts"],
-    ["Paladin (advanced)", "Tank", "Sword A, Cure (5), Smite (7), Protect (10), Cure II (17), Shell (20), Bulwark, Shield Bash, shields"],
-    ["Red Mage (advanced)", "Hybrid", "Sword B, Gleam (1), Cure (3), Stone (4), Poison (5), Paralyze (6), Protect, Stone Ward (5), Slumber Ward (7), Water, Blind, Bind, Blight, Venom Ward (10), Tideward (12), Numb Ward, Slow, Cure II (14), Scent Mask, Gleamfall, Aero, Storm Edge (16), Stone Edge (18), Fire (19), Hush Step, Zephyr Edge and Ember Thorns (20), Mana Swap"],
-    ["Thief (advanced)", "Damage", "Dagger A, Pilfer, Shadow Strike (sure critical), Fleet Foot; +5% critical hits; Treasure Hunter (+20% drop chance)"],
-    ["Ranger (advanced)", "Ranged damage", "Archery A: shoots from 230 range, Dead Aim (+40 accuracy), Arrow Storm (next shot fires 3 arrows), Pin Down (pin a monster for 12 s)"],
-    ["Summoner (advanced)", "Pet mage", "Summoning A: you start with Lantern Sprite. The eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark) are learned from scrolls dropped by rare Elementals (see below). Your summon fights beside you and drains MP every 3 s; Spirit Pact (its elemental attack), Mana Tithe (MP back), Release"],
-    ["Dark Knight (advanced)", "Damage", "Scythe A (new weapon type), great axe and sword B. Desperate Oath (+25% attack, −15% defense), Soulfire (10: hits burn your own HP for extra damage), Blood Blade (15: hits drain HP). Dark Magic: Stone (5), Poison (6), Life Leech (10), Water (11), Blight (15), Aero (17), Mana Leech (20: steals MP), Bind (20)"],
-    ["Bard (advanced)", "Support", "Songs cost no MP, reach every ally within range and last 2 minutes; each person holds two songs and a third replaces the oldest. Squire's Anthem (1: defense), Valiant Reel (3: attack), Marching Hymn (5: HP over time), Blade Chorale (11: accuracy), Marching Hymn II (15), Drowsy Lullaby (16: puts monsters to sleep; bosses are immune), Hunter's Dirge (7) and II (17: damage over time), Greenwood Air (9: resist Poison), Light (10), Dark (12), Earth (14), Water (16), Wind (18) and Fire (20) Threnodies (the monster takes 25% more of that element), Skipping Reel (13: evasion), Minstrel's Ballad (19: resist Silence), Encore (15: songs sing three times faster). Dagger B"],
-    ["Monk (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Surge, Hone, Inner Mend"],
-    ["Samurai (advanced)", "Damage", "Great Katana A (new weapon type), polearm B. Still Mind (gain 400 TP), Open Stance (5: +12% damage, +10 accuracy for 2 min), Foresight (15: the next melee attack on you misses). Weapon skills: Rising Edge, Crescent Cut (22), Ember Arc (40), Heaven's Divide (75)"],
-    ["Ninja (advanced)", "Tank / damage", "Katana A (new weapon type), dagger B, Ninjutsu A. Shadow Veil (3: 2 shadow images, 3 from level 12; each soaks one melee hit), Flame (2), Frost (6) and Gale (10) Shuriken, Binding Thread (8: roots the target for 10 s). Smoke Step (5: halves enmity on every monster), Twin Strike (15: next three attacks hit twice)"],
-    ["Dragoon (advanced)", "Damage", "Polearm A (new weapon type), staff B. Leap (leap attack, +100 TP), Sky Leap (10: harder leap, halves the target's enmity toward you), Dragon Spirit (15: +15% damage for 60 s). Weapon skills: Piercing Thrust, Wind Lance (22), Drake Dive (40), Sky Rend (75)"],
-    ["Beastmaster (advanced)", "Damage / pet", "Axe A (new weapon type), scythe B. Call Wild (a Scaleback lizard; a Pincher crab from 8; a Great Ram from 14) that fights beside you and stays until you change job or it falls. Treat (5: heals the beast 40%), Savage Howl (15: target's attack −15% for 30 s). Weapon skills: Cleaving Chop, Wild Hack (22), Feral Rend (40), Primal Fury (75)"],
-    ["Blue Mage (advanced)", "Damage / magic", "Sword A, club B, Blue Magic A. Learns spells by standing within reach when a monster uses its special move (about half the time, if your level is high enough): Rear Kick (hares), Gummed Strand (crawlers, slows), Dream Dust (mandrakes, sleep), Chomp (snappers), Big Pinch (crabs), Tail Whip (lizards), Crimson Siphon (leeches), Water Lance (Reefkin), Battle Roar (orc grunts), Boulder Toss (orc stonechuckers). Surge Affinity (5: next blue spell +50%). Blue magic can't be bought as scrolls"],
-    ["Corsair (advanced)", "Damage / support", "Dagger A, sword B. Valor Roll (party attack +4–16% for 3 min; 5 is lucky), Hawk Roll (8: party accuracy +3–12; 4 is lucky), Double Down (10: roll again and add it; over 7 busts and the roll is lost), Quick Shot (5: pistol shot)"],
-    ["Puppetmaster (advanced)", "Damage / pet", "Hand-to-Hand A. Wind Up (an automaton that fights beside you until it breaks or you change job), Mend Puppet (5: heals it 50%), Tune Up (15: its attack +20% for 60 s)"],
-    ["Dancer (advanced)", "Damage / healing", "Dagger A. Abilities spend TP: Mending Waltz (200 TP: heals the most hurt party member nearby), Light Step (5, 100 TP: target off balance, +5 accuracy against it per step, up to 5), Rising Flourish (10: spends all steps on one bigger hit), Group Waltz (15, 400 TP: heals the party)"],
-    ["Scholar (advanced)", "Magic", "Learns most white and black magic two levels after the mages (up to level 20 spells). Bright Study (healing, divine and enhancing spells 20% faster, 10% cheaper) or Shadow Study (elemental, enfeebling and dark); Thrift (10: next white spell free), Zeal (15: next elemental spell +30%)"],
-    ["Geomancer (advanced)", "Support", "Club B, Geomancy A. Auras follow you and affect the party nearby: Vigor (HP over time), Fury (5: attack +10%), Focus (11: spell damage +12%). Wards plant a luopan by the target that affects monsters near it: Torpor (3: slow), Frailty (8: they take 12% more damage), Languor (15: they deal 15% less). One aura and one luopan at a time, 3 minutes each. Close the Circle (5: dismiss the luopan for half its MP back), Radiant Mending (15: shatter it to heal the party 20%)"],
-    ["Rune Fencer (advanced)", "Tank", "Great Sword A (new weapon type), sword and great axe B. Kindle, Rime (3), Gale (5) and Stone (7) Runes: hold up to three; each cuts damage you take by 5%. Spear Surge (10: release every rune as elemental damage), Rune Guard (15: damage taken −20% for 30 s, and your hits draw extra enmity). Weapon skills: Rune Cleave, Glyph Rend (22), Ward Breaker (40), Final Verse (75)"]
+    ["Knight", "Tank or damage", "Goad, Frenzy, Battle Shout (level 15: +20% attack for nearby allies), great axe A, sword B"],
+    ["Light Mage", "Healer", "Cure (1), Gleam (3), Paralyze (4), Smite (5), Cleanse Venom (6), Protect and Mass Protect (7), Stone Aegis and Slumber Aegis, Water Aegis and Cleanse Stiffness (9), Tideward and Venom Aegis (10), Cure II (11), Slow (13), Gale Aegis, Cleanse Sight (14), Scent Mask, Silence and Smitefall (15), Healing Rain (16: heals everyone near the target), Shell and Mass Shell, Flame Aegis (17), Gleamfall, Blink and Cleanse Hush (19), Hush Step (20). Holy Vow"],
+    ["Dark Mage", "Nuker", "Stone (1), Poison (3), Blind (4), Water (5), Bind (7), Aero (9), Blight and Ember Thorns (10), Life Leech (12), Fire (13), Rockfall (15: Stone on everything near the target), Arc Burn (16), Blizzard (17), Warp (17: 100 MP, teleports you to your home point), Grinding Blight (18), Floodwave (19), Sleep, Throttle and Frost Thorns (20). Arcane Vow, magic bursts"],
+    ["Holy Knight (advanced)", "Tank", "Sword A, Cure (5), Smite (7), Protect (10), Cure II (17), Shell (20), Bulwark, Shield Bash, shields"],
+    ["Gray Mage (advanced)", "Hybrid", "Sword B, Gleam (1), Cure (3), Stone (4), Poison (5), Paralyze (6), Protect, Stone Ward (5), Slumber Ward (7), Water, Blind, Bind, Blight, Venom Ward (10), Tideward (12), Numb Ward, Slow, Cure II (14), Scent Mask, Gleamfall, Aero, Storm Edge (16), Stone Edge (18), Fire (19), Hush Step, Zephyr Edge and Ember Thorns (20), Mana Swap"],
+    ["Rogue (advanced)", "Damage", "Dagger A, Pilfer, Shadow Strike (sure critical), Fleet Foot; +5% critical hits; Treasure Hunter (+20% drop chance)"],
+    ["Yeoman (advanced)", "Ranged damage", "Archery A: shoots from 230 range, Dead Aim (+40 accuracy), Arrow Storm (next shot fires 3 arrows), Pin Down (pin a monster for 12 s)"],
+    ["Conjurer (advanced)", "Pet mage", "Summoning A: you start with Lantern Sprite. The eight Spirits (Fire, Ice, Air, Earth, Thunder, Water, Light, Dark) are learned from scrolls dropped by rare Elementals (see below). Your summon fights beside you and drains MP every 3 s; Spirit Pact (its elemental attack), Mana Tithe (MP back), Release"],
+    ["Shadow Knight (advanced)", "Damage", "Scythe A (new weapon type), great axe and sword B. Desperate Oath (+25% attack, −15% defense), Soulfire (10: hits burn your own HP for extra damage), Blood Blade (15: hits drain HP). Dark Magic: Stone (5), Poison (6), Life Leech (10), Water (11), Blight (15), Aero (17), Mana Leech (20: steals MP), Bind (20)"],
+    ["Musician (advanced)", "Support", "Songs cost no MP, reach every ally within range and last 2 minutes; each person holds two songs and a third replaces the oldest. Squire's Anthem (1: defense), Valiant Reel (3: attack), Marching Hymn (5: HP over time), Blade Chorale (11: accuracy), Marching Hymn II (15), Drowsy Lullaby (16: puts monsters to sleep; bosses are immune), Hunter's Dirge (7) and II (17: damage over time), Greenwood Air (9: resist Poison), Light (10), Dark (12), Earth (14), Water (16), Wind (18) and Fire (20) Threnodies (the monster takes 25% more of that element), Skipping Reel (13: evasion), Minstrel's Ballad (19: resist Silence), Encore (15: songs sing three times faster). Dagger B"],
+    ["Brawler (advanced)", "Damage", "Hand-to-Hand A, Martial Arts (faster, stronger fists), kick attacks, Surge, Hone, Inner Mend"],
+    ["Blade Sworn (advanced)", "Damage", "Great Katana A (new weapon type), polearm B. Still Mind (gain 400 TP), Open Stance (5: +12% damage, +10 accuracy for 2 min), Foresight (15: the next melee attack on you misses). Weapon skills: Rising Edge, Crescent Cut (22), Ember Arc (40), Heaven's Divide (75)"],
+    ["Hidden Blade (advanced)", "Tank / damage", "Katana A (new weapon type), dagger B, Ninjutsu A. Shadow Veil (3: 2 shadow images, 3 from level 12; each soaks one melee hit), Flame (2), Frost (6) and Gale (10) Shuriken, Binding Thread (8: roots the target for 10 s). Smoke Step (5: halves enmity on every monster), Twin Strike (15: next three attacks hit twice)"],
+    ["Lancer (advanced)", "Damage", "Polearm A (new weapon type), staff B. Leap (leap attack, +100 TP), Sky Leap (10: harder leap, halves the target's enmity toward you), Dragon Spirit (15: +15% damage for 60 s). Weapon skills: Piercing Thrust, Wind Lance (22), Drake Dive (40), Sky Rend (75)"],
+    ["Tamer (advanced)", "Damage / pet", "Axe A (new weapon type), scythe B. Call Wild (a Scaleback lizard; a Pincher crab from 8; a Great Ram from 14) that fights beside you and stays until you change job or it falls. Treat (5: heals the beast 40%), Savage Howl (15: target's attack −15% for 30 s). Weapon skills: Cleaving Chop, Wild Hack (22), Feral Rend (40), Primal Fury (75)"],
+    ["Mimic (advanced)", "Damage / magic", "Sword A, club B, Blue Magic A. Learns spells by standing within reach when a monster uses its special move (about half the time, if your level is high enough): Rear Kick (hares), Gummed Strand (crawlers, slows), Dream Dust (mandrakes, sleep), Chomp (snappers), Big Pinch (crabs), Tail Whip (lizards), Crimson Siphon (leeches), Water Lance (Reefkin), Battle Roar (orc grunts), Boulder Toss (orc stonechuckers). Surge Affinity (5: next blue spell +50%). Blue magic can't be bought as scrolls"],
+    ["Gambler (advanced)", "Damage / support", "Dagger A, sword B. Valor Roll (party attack +4–16% for 3 min; 5 is lucky), Hawk Roll (8: party accuracy +3–12; 4 is lucky), Double Down (10: roll again and add it; over 7 busts and the roll is lost), Quick Shot (5: pistol shot)"],
+    ["Artificer (advanced)", "Damage / pet", "Hand-to-Hand A. Wind Up (an automaton that fights beside you until it breaks or you change job), Mend Puppet (5: heals it 50%), Tune Up (15: its attack +20% for 60 s)"],
+    ["Performer (advanced)", "Damage / healing", "Dagger A. Abilities spend TP: Mending Waltz (200 TP: heals the most hurt party member nearby), Light Step (5, 100 TP: target off balance, +5 accuracy against it per step, up to 5), Rising Flourish (10: spends all steps on one bigger hit), Group Waltz (15, 400 TP: heals the party)"],
+    ["Lore Master (advanced)", "Magic", "Learns most white and black magic two levels after the mages (up to level 20 spells). Bright Study (healing, divine and enhancing spells 20% faster, 10% cheaper) or Shadow Study (elemental, enfeebling and dark); Thrift (10: next white spell free), Zeal (15: next elemental spell +30%)"],
+    ["Earthwarden (advanced)", "Support", "Club B, Geomancy A. Auras follow you and affect the party nearby: Vigor (HP over time), Fury (5: attack +10%), Focus (11: spell damage +12%). Wards plant a luopan by the target that affects monsters near it: Torpor (3: slow), Frailty (8: they take 12% more damage), Languor (15: they deal 15% less). One aura and one luopan at a time, 3 minutes each. Close the Circle (5: dismiss the luopan for half its MP back), Radiant Mending (15: shatter it to heal the party 20%)"],
+    ["Rune Blade (advanced)", "Tank", "Great Sword A (new weapon type), sword and great axe B. Kindle, Rime (3), Gale (5) and Stone (7) Runes: hold up to three; each cuts damage you take by 5%. Spear Surge (10: release every rune as elemental damage), Rune Guard (15: damage taken −20% for 30 s, and your hits draw extra enmity). Weapon skills: Rune Cleave, Glyph Rend (22), Ward Breaker (40), Final Verse (75)"]
   ]) + ul([
-    "<b>Jobs unlock as you grow.</b> Warrior, White Mage, Black Mage and Thief start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
+    "<b>Jobs unlock as you grow.</b> Knight, Light Mage, Dark Mage and Rogue start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
     "<b>Job achievements:</b> each job you unlock earns its own achievement; Bronze, Silver and Gold mark 6, 12 and 18 open jobs, and Every Trade needs them all.",
     "<b>Companions follow your jobs:</b> Brann only offers fighters whose job you have unlocked.",
     "<b>Ask Tobin</b> (or the Job Master in any town) why jobs must be unlocked, or how you are doing: he gives a vague hint about what to train next without naming the job.",
@@ -3962,7 +3968,7 @@ function tabHelp() {
     ['<span style="color:' + RARITY.uncommon[1] + '">Uncommon</span>', "Ether, Hi-Potion, high-quality items", "5–10%"],
     ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques and gear", "30–35%"],
     ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
-  ]) + ul(["<b>Who drops what:</b> equipment, weapons and spell scrolls drop only from notorious monsters, bosses, and humanoid monsters (goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls) whose job and level could actually use the item. A goblin Black Mage can carry black magic and robes, a warrior orc axes and armour; none carries anything above its level. Beasts, plants, insects and the like drop only materials, food, potions, <b>trade goods</b> and (only while you carry the <b>City Blessing</b>) elemental essences. <b>Crystals</b> (money) come only from humanoids, notorious monsters and bosses.", "<b>Trade goods:</b> beasts drop hides, chitin, fibre, scales or elemental cores, depending on the creature. They come in four grades by the monster's level (Coarse, Fine, Choice, Prime; cores go Dim, Glowing, Bright, Radiant). Tougher monsters within a grade drop them more often. They exist to be sold to any shop or on the auction house, and are how beast hunting pays. Monsters too weak to give experience drop none.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
+  ]) + ul(["<b>Who drops what:</b> equipment, weapons and spell scrolls drop only from notorious monsters, bosses, and humanoid monsters (goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls) whose job and level could actually use the item. A goblin Dark Mage can carry black magic and robes, a warrior orc axes and armour; none carries anything above its level. Beasts, plants, insects and the like drop only materials, food, potions, <b>trade goods</b> and (only while you carry the <b>City Blessing</b>) elemental essences. <b>Crystals</b> (money) come only from humanoids, notorious monsters and bosses.", "<b>Trade goods:</b> beasts drop hides, chitin, fibre, scales or elemental cores, depending on the creature. They come in four grades by the monster's level (Coarse, Fine, Choice, Prime; cores go Dim, Glowing, Bright, Radiant). Tougher monsters within a grade drop them more often. They exist to be sold to any shop or on the auction house, and are how beast hunting pays. Monsters too weak to give experience drop none.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
   h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, auction house, home point"],
     ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],
@@ -4225,7 +4231,7 @@ function tabHelp() {
     "Tap a box to list everything in your bag that fits it; tap an item to see its card (with what you're wearing now underneath for comparison) and tap it again, or press Equip, to put it on. Remove takes the piece off. Items you can't use yet are greyed with the reason.",
     "Under the boxes: your Attack and Defense, and your resistance to the eight elements. Resistance lowers elemental damage from monster special moves and spells, up to half.",
     "Item cards show the slot, every stat, the jobs and level needed, and the item level. Armorers, weaponsmiths and jewelers sell gear up to level 5; Haldor sells +1 gear from level 14. The +1 versions are made by crafters or found; Haldor sells them from level 14.",
-    "<b>Race clothes:</b> each race has two starting body pieces (a Warrior one and a mage one) and one pair of legwear that only that race can wear. Your character begins in the right ones for your race and job. They can't be bought, sold at auction, dropped or crafted; the item card shows the race that can wear them.",
+    "<b>Race clothes:</b> each race has two starting body pieces (a Knight one and a mage one) and one pair of legwear that only that race can wear. Your character begins in the right ones for your race and job. They can't be bought, sold at auction, dropped or crafted; the item card shows the race that can wear them.",
     "All equipment runs from level 1 to 20, each piece with its own name, level, jobs and slot. Monsters rarely drop gear close to their own level, and bosses and notorious monsters carry rare pieces. The Warp Ring (Use from your bag) takes you home."
   ]));
   h += sec("🖥️ The screen", ul([
@@ -4257,7 +4263,7 @@ function tabHelp() {
   ]));
   h += sec("💬 Social: friends, linkshells and search", ul([
     "Open <b>Social</b> from the first page of the main menu (or /social); it replaces the old Party, Search, Linkshell and Friend List buttons. Party is also on P. It shows who's online, your friends, your linkshells and your blacklist.",
-    "<b>Search:</b> filter the online list by job (WHM), level (12) or range (10-15), area, name, <b>lfg</b> or <b>here</b>. /search does the same in chat.",
+    "<b>Search:</b> filter the online list by job (LGM), level (12) or range (10-15), area, name, <b>lfg</b> or <b>here</b>. /search does the same in chat.",
     "<b>Looking for a party:</b> turn it on (or /seek message) and others see 🔎 and your short message next to your name. Turn it off the same way.",
     "<b>Friends:</b> add up to 50 with + Friend or /friend add Name. You're told when they come online or go offline, and can Tell or Invite them from the list. Your friend list belongs to this character.",
     "<b>Linkshells</b> are chat groups that stay together across areas, like a guild. Make one for 500 crystals; the founder is the leader (👑) and can promote sack holders (🎒) who can also invite and remove members. You can be in up to 3; talk to the active one with <b>/l</b>, or a specific one with /l1, /l2, /l3. Members' linkshell names show in search.",

@@ -1522,7 +1522,7 @@ function netSearch(arg) {
     else if (/^\d+$/.test(w)) list = list.filter(o => o.lv === +w);
     else if (w === "lfg" || w === "seek") list = list.filter(o => o.lfg);
     else if (w === "here") list = list.filter(o => o.zone === S.zoneId);
-    else if (JOBS[w.toUpperCase()]) list = list.filter(o => o.job === w.toUpperCase());
+    else if (JOBS[w.toUpperCase()] || Object.keys(JOB_CODE).some(k => JOB_CODE[k] === w.toUpperCase())) { const u = w.toUpperCase(), id = JOBS[u] ? u : Object.keys(JOB_CODE).find(k => JOB_CODE[k] === u); list = list.filter(o => o.job === id); }
     else list = list.filter(o => netLc(o.name).includes(w) || (ZONES[o.zone] && netLc(ZONES[o.zone].name).includes(w)) || netLc(o.ls).includes(w));
   }
   return list;

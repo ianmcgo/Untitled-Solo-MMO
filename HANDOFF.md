@@ -23,7 +23,7 @@ Paste this into the project's custom instructions:
 | P3 Characters, animation, effects, mount | Done |
 | P4 HUD, system menu, map, music and sound, loading screens, jumping | Done |
 | P5a Bigger zones, NMs live, drop tables, XP chains, discovery XP, character roster, chat commands, /rest, loading bars, update popup | Done (v4.2.0) |
-| P5b Paladin and Red Mage with Dorn and Lisette | Done (v4.3.0) |
+| P5b Holy Knight and Gray Mage with Dorn and Lisette | Done (v4.3.0) |
 | P5c Quests (11) | Done (v4.4.0) |
 | P5d Sunken Crypt | Done (v4.5.0) |
 | P6a Residence, Pip, storage, furniture, NPC schedules | Done (v4.6.0) |

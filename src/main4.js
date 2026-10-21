@@ -268,7 +268,7 @@ function showOfflineGate(err) {
 
 const CC = { job: "WAR", look: null, name: "", step: 0, thumbs: {} };
 const STARTER_GEAR = Object.fromEntries(Object.keys(JOBS).map(j => [j, { main: starterWeapon(j) }]));
-const JOB_BLURB = { PLD: "", RDM: "", MNK: "", THF: "Fast striker. Daggers hit quickly, Shadow Strike piles on damage from behind, and a Thief is hard to pin down.", WAR: "Front-line fighter. Great axes and swords, Goad to hold attention, Frenzy to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Gleam and Smite wear enemies down. Hire a Warrior early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
+const JOB_BLURB = { PLD: "", RDM: "", MNK: "", THF: "Fast striker. Daggers hit quickly, Shadow Strike piles on damage from behind, and a Rogue is hard to pin down.", WAR: "Front-line fighter. Great axes and swords, Goad to hold attention, Frenzy to hit harder. The simplest start.", WHM: "Healer. Cures keep the party alive, Gleam and Smite wear enemies down. Hire a Knight early.", BLM: "Nuker. Elemental spells hit hard and magic-burst skillchains. Fragile; hire a tank first." };
 
 function fmtAgo(t) {
   const d = Date.now() - t;

@@ -47,7 +47,7 @@ function itemDesc(id) {
   const parts = [SLOT_NAMES[it.slot]];
   if (it.wtype) parts.push(SKILL_NAMES[it.wtype] + " DMG " + it.dmg + " Delay " + it.delay);
   if (it.stats) for (const k in it.stats) parts.push(k.toUpperCase() + "+" + it.stats[k]);
-  parts.push("Lv." + it.lv + " " + it.jobs.join("/"));
+  parts.push("Lv." + it.lv + " " + it.jobs.map(JC).join("/"));
   return tags + parts.join(" · ");
 }
 
@@ -308,14 +308,14 @@ function updateHud() {
   const j = save.jobs[save.mainJob];
   $("zoneName").textContent = S.zone.name;
   $("clock").textContent = (isNight() ? "☾ " : "☀ ") + clockText();
-  $("lvl").textContent = player.job + player.lv + (player.sub ? "/" + player.sub + Math.floor(player.lv / 2) : "");
+  $("lvl").textContent = JC(player.job) + player.lv + (player.sub ? "/" + JC(player.sub) + Math.floor(player.lv / 2) : "");
   const need = xpNeed(j.lv);
   $("xpfill").style.width = (need ? 100 * j.xp / need : 100) + "%";
   $("xpt").textContent = need ? j.xp + "/" + need + " XP" : "Level cap";
   $("crystals").textContent = save.gil + " crystals";
   S.party.forEach((p, i) => {
     $("pm" + i + "n").textContent = (p === player ? "★ You" : p.name);
-    $("pm" + i + "j").textContent = p.job + p.lv + (p.sub ? "/" + p.sub + Math.floor(p.lv / 2) : "") + (p.casting ? " · casting" : p.regenerating ? " · regen" : p.engaged ? " · ⚔" : "");
+    $("pm" + i + "j").textContent = JC(p.job) + p.lv + (p.sub ? "/" + JC(p.sub) + Math.floor(p.lv / 2) : "") + (p.casting ? " · casting" : p.regenerating ? " · regen" : p.engaged ? " · ⚔" : "");
     setBar("pm" + i + "hp", p.hp, p.maxHp, "pm" + i + "hpt", Math.ceil(p.hp));
     setBar("pm" + i + "mp", p.mp, p.maxMp, "pm" + i + "mpt", p.maxMp ? Math.floor(p.mp) : "");
     setBar("pm" + i + "tp", p.tp, CONFIG.tpMax, "pm" + i + "tpt", p.tp);
@@ -350,7 +350,7 @@ function updateHud() {
     } else {
       $("tName").textContent = t === player ? "You" : t.name;
       $("tName").style.color = "#8ec5ff";
-      $("tCon").textContent = t.job + t.lv + " · Party";
+      $("tCon").textContent = JC(t.job) + t.lv + " · Party";
       setBar("tHp", t.hp, t.maxHp, "tHpT", Math.ceil(t.hp) + " / " + t.maxHp);
       setBar("tTp", t.mp, t.maxMp, "tTpT", t.maxMp ? "MP " + Math.floor(t.mp) : "");
       $("tSwing").style.width = "0%";

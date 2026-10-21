@@ -15,7 +15,7 @@ Crystals (currency): only humanoid mobs drop crystals. Non-humanoid mobs drop no
 - Add a family flag for humanoid (or reuse the existing family list) and a monster job per humanoid family (the humanoid job plan in design/humanoid-job-plan.md already gives jobs).
 - dropLoot (game.js): before rolling a gear, weapon or scroll entry, check the source: NM or boss passes; otherwise it must be humanoid and the mob's job and level must satisfy the item's job list and level. Failing entries are skipped, not rerolled.
 - Replace removed gear drops on beasts with materials of similar value so total loot value stays near the same (economy notes in design/economy-18.4.md).
-- Humanoid tables: add job-matched gear and scrolls (a Black Mage type can drop black magic scrolls and robes, a Warrior type axes and heavy armour).
+- Humanoid tables: add job-matched gear and scrolls (a Dark Mage type can drop black magic scrolls and robes, a Knight type axes and heavy armour).
 - Mercenary loot (design/merc-loot-plan.md) and auction stock are unaffected.
 
 ## Tests

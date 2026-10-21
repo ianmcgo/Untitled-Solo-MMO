@@ -27,8 +27,8 @@ Humanoid families only: goblins (all variants), orcs, Reefkin, Crag Talons, skel
 - Big moves (when TP is full): 50% the family's own monster ability (Bomb Toss, Battle Roar, Water Lance, Talon Dive...), 50% a job move. A job move is a spell for a caster job (the best nuke, debuff or heal-aoe it knows, cast as an instant TP-style move with the spell's element and effect) or a weapon skill for a fighting job (from `WEAPON_SKILLS` for its weapon type and level). If the job has no job move at that level, it uses the family ability. Ordinary casting between TP moves still uses the trimmed spell list.
 - Stats: small multipliers per job on HP, attack, defence, evasion and magic (WAR/PLD/DRK hit harder and tougher, MNK fast, THF evasive, BLM/WHM/RDM soft). Total strength stays near the family baseline so level bands, XP and loot do not change.
 - Casting code: extend `startMobCast`/`finishMobCast` to handle buffs (Protect, Haste, enspells), damage-over-time (Gleam, Poison), debuffs from `SPELLS` directly (no hand-written `status` arrays) and ability use. Mobs follow the same silence, stun and sleep rules as now.
-- Pet jobs (SMN, BST, PUP, GEO) are allowed. A pet job mob brings a pet, always an elemental pet matched to the map type: forest and jungle earth, marsh and coast water, desert and volcano fire, snow and glacier ice, high crags and plains wind, ruins and crypts dark, holy ground light (the zone's element; table lives in data.js as `ZONE_ELEMENT`). The pet is a small elemental sprite of that element (reuse the player summoner sprites and the existing `summoned` mob support, as the Hollow King adds do). Summoner: the pet is out from the start and uses its blood pact. Beastmaster, Puppetmaster, Geomancer: same pet, different name and look (a tame spirit, a clockwork elemental, a luopan sprite). The pet dies with its owner, fights beside it, never counts for XP or loot, and does not link outside its pack.
-- Corsair and Bard have no pet. Bard mobs use damage and debuff songs and a simple buff song; Corsair uses its dice rolls as party-wide buffs on its pack (guess).
+- Pet jobs (SMN, BST, PUP, GEO) are allowed. A pet job mob brings a pet, always an elemental pet matched to the map type: forest and jungle earth, marsh and coast water, desert and volcano fire, snow and glacier ice, high crags and plains wind, ruins and crypts dark, holy ground light (the zone's element; table lives in data.js as `ZONE_ELEMENT`). The pet is a small elemental sprite of that element (reuse the player summoner sprites and the existing `summoned` mob support, as the Hollow King adds do). Conjurer: the pet is out from the start and uses its blood pact. Tamer, Artificer, Earthwarden: same pet, different name and look (a tame spirit, a clockwork elemental, a luopan sprite). The pet dies with its owner, fights beside it, never counts for XP or loot, and does not link outside its pack.
+- Gambler and Musician have no pet. Musician mobs use damage and debuff songs and a simple buff song; Gambler uses its dice rolls as party-wide buffs on its pack (guess).
 
 ### 4. Cosmetic gear per job
 A `JOB_LOOK` table in rig.js gives each job its top, head, pauldrons, cape, belt and weapon (type and id) using the pieces the rig already draws:
@@ -51,7 +51,7 @@ A `JOB_LOOK` table in rig.js gives each job its top, head, pauldrons, cape, belt
 The family supplies skin, ears, tusks, beak and proportions; the job supplies the clothes. Family palettes tint the job pieces (Frost = pale blue-white, Mire = swamp green, Crag = feathered trims). Everything is cosmetic: gear never changes stats or drops.
 
 ### 5. Names and UI
-- Target window and `/check` show the job and level ("Goblin Thief Lv5"); name in the log stays the family name. Guess: a short job tag, not a new name per job.
+- Target window and `/check` show the job and level ("Goblin Rogue Lv5"); name in the log stays the family name. Guess: a short job tag, not a new name per job.
 - Bestiary: lists the jobs you have seen for the family.
 - Help and Updates: a "Monster jobs" section in Help (general words: some monsters fight like fighters, heal, curse or sneak); an Updates entry per release.
 
@@ -75,7 +75,7 @@ Guess: H1 and H2 can ship together as one release if H1 is quick, otherwise H1 s
 ## Open questions (guesses used if not answered)
 - Roll odds: uniform over all jobs with a small bonus to WAR, WHM, BLM and THF. Guess: yes.
 - Does each mob give exactly the player's kit, or the trimmed four spells? Guess: trimmed, so fights do not turn into a spell storm.
-- Job tag in the name ("Goblin Thief") or only in the target window? Guess: target window and check only.
+- Job tag in the name ("Goblin Rogue") or only in the target window? Guess: target window and check only.
 - Strangler Sapling (jungle) also becomes a bulb? Guess: yes, same model with a green and thorny tint.
 - Named monsters and bosses: keep their hand-made kit, no random job. Guess: yes.
 - Pets of one mob: exactly one elemental pet, level equal to the owner's minus 1. Guess: yes.

@@ -8,10 +8,10 @@ const zk = Object.keys(G.ZONES); ok(zk.every(k => G.FAMILIES['pet_' + ze(k)]), '
 G.enterZone('marsh', 1900, 700); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 P().hp = P().maxHp = 99999;
 const smn = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'SMN'); S.mobs.push(smn); const pet = G.spawnMobPet(smn);
-ok(pet && pet.name === 'Brook Wisp' && pet.petOf === smn && smn.pet === pet && !pet.job, 'a Summoner in the marsh calls a Brook Wisp (' + (pet && pet.name) + ')');
+ok(pet && pet.name === 'Brook Wisp' && pet.petOf === smn && smn.pet === pet && !pet.job, 'a Conjurer in the marsh calls a Brook Wisp (' + (pet && pet.name) + ')');
 ok(pet.lv === 12 && pet.maxHp < smn.maxHp, 'the pet is a level lower and weaker');
-const war = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'WAR'); ok(!G.spawnMobPet(war), 'a Warrior has no pet');
-const bst = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'BST'); ok(G.spawnMobPet(bst).name === 'Water Familiar', 'a Beastmaster pet is a Familiar');
+const war = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'WAR'); ok(!G.spawnMobPet(war), 'a Knight has no pet');
+const bst = G.buildMob('mire_goblin', 13, P().x + 160, P().y, null, 'BST'); ok(G.spawnMobPet(bst).name === 'Water Familiar', 'a Tamer pet is a Familiar');
 S.mobs = [smn, pet];
 G.aggro(smn, P());
 ok(pet.state === 'combat', 'the pet joins its master\'s fight');
@@ -35,5 +35,5 @@ S.mobs = [];
 rev(); S.mobs = []; const cor = G.buildMob('mire_goblin', 10, P().x + 30, P().y, null, 'COR'), mate = G.buildMob('mire_goblin', 10, P().x + 50, P().y, null, 'WAR');
 S.mobs.push(cor, mate); G.aggro(cor, P());
 let rolled = false; for (let i = 0; i < 60 * 90; i++) { tick(1000 / 60); if (mate.buffs.valor_roll || mate.buffs.hawk_roll) rolled = true; cor.hp = cor.maxHp; mate.hp = mate.maxHp; }
-ok(rolled, 'a Corsair rolls for its pack (' + cor.state + ',' + mate.state + ',' + P().alive + ',' + cor.alive + ',' + Math.round(P().hp) + ')');
+ok(rolled, 'a Gambler rolls for its pack (' + cor.state + ',' + mate.state + ',' + P().alive + ',' + cor.alive + ',' + Math.round(P().hp) + ')');
 console.log(fails ? fails + ' FAILED' : 'ALL PASSED');

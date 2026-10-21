@@ -12,7 +12,7 @@ Status: complete (18.90.0 to 18.92.0).
 
 ## Findings
 - p6unit "a goblin aggroes on sight": passes on a quiet run, fails when weather fog or the rolled job and facing shorten sight. Test is not deterministic (it relies on the random mob job, weather and face 0). Fix the test by pinning weather, job and facing; confirm the game rule itself with an extra check at several angles.
-- p55unit "Red Mage starts with Gleam and Bard with Squire's Anthem" and "Summoner starts with Lantern Sprite only": the second job-start rule was changed after 17.0; check which side is stale (test or newSave spell grant at game.js line 89) before changing either.
+- p55unit "Gray Mage starts with Gleam and Musician with Squire's Anthem" and "Conjurer starts with Lantern Sprite only": the second job-start rule was changed after 17.0; check which side is stale (test or newSave spell grant at game.js line 89) before changing either.
 - Casting interrupt today: damage to a caster rolls CONFIG.interruptChance (0.4) for the player and a flat 0.3 for mobs; Tideward absorbs. Magic hits only count in the same branch; physical melee is not singled out.
 - Mob special moves ("readying", 1.0 s wind-up) can only be cut by the player stun or sleep effects, or the interrupt ability path at game.js 2909.
 - Player abilities (doAbility) and weapon skills (doWS) fire instantly, so nothing exists to interrupt.

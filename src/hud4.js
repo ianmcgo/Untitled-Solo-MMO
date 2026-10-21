@@ -122,7 +122,7 @@ function itemDesc(id) {
   const parts = [SLOT_NAMES[it.slot]];
   if (it.wtype) parts.push(SKILL_NAMES[it.wtype] + " DMG " + it.dmg + " Delay " + it.delay);
   if (it.stats) for (const k in it.stats) parts.push(k.toUpperCase() + "+" + it.stats[k]);
-  parts.push("Lv." + it.lv + " " + it.jobs.join("/"));
+  parts.push("Lv." + it.lv + " " + it.jobs.map(JC).join("/"));
   return tags + parts.join(" · ");
 }
 
@@ -371,7 +371,7 @@ function updateActionBar() {
   });
 }
 
-function jobTag(p) { if (p.pet) return "Sprite"; return p.job + p.lv + (p.sub ? "/" + p.sub + Math.floor(p.lv / 2) : ""); }
+function jobTag(p) { if (p.pet) return "Sprite"; return JC(p.job) + p.lv + (p.sub ? "/" + JC(p.sub) + Math.floor(p.lv / 2) : ""); }
 function partyRows() {
   if (typeof NET_PT === "undefined" || !NET_PT.id) return S.party;
   return S.party.concat(netPartyList().map(m => { m.kind = "netmember"; return m; }));
@@ -508,7 +508,7 @@ function updateTarget() {
     const mate = isMate(t);
     setTxt($("tName"), t.name);
     $("tName").style.color = mate ? "#7ee8ff" : "#ffffff";
-    setTxt($("tLv"), (t.job ? t.job + t.lv + (t.sub ? "/" + t.sub : "") : "") + (mate ? " · Party" : " · Player"));
+    setTxt($("tLv"), (t.job ? JC(t.job) + t.lv + (t.sub ? "/" + JC(t.sub) : "") : "") + (mate ? " · Party" : " · Player"));
     $("tTag").style.display = "none";
     pct = 100 * t.hp / Math.max(1, t.maxHp);
     setTxt($("tHpT"), mate ? Math.ceil(t.hp) + " / " + t.maxHp : Math.ceil(pct) + "%");
@@ -1149,7 +1149,7 @@ function rewardChips(r) {
 
 function updateBottom() {
   const j = save.jobs[save.mainJob];
-  setTxt($("lvl"), "Lv " + player.lv + " " + player.job + (player.sub ? "/" + player.sub + Math.floor(player.lv / 2) : ""));
+  setTxt($("lvl"), "Lv " + player.lv + " " + JC(player.job) + (player.sub ? "/" + JC(player.sub) + Math.floor(player.lv / 2) : ""));
   const need = xpNeed(j.lv);
   setW($("xpfill"), need ? 100 * j.xp / need : 100);
   if ($("pfXp")) setW($("pfXp"), need ? 100 * j.xp / need : 100);

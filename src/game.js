@@ -5856,7 +5856,7 @@ const TALK = {
     }
     if (q.chieftain === "active") { openDialog(n.name, "The Chieftain still lives. He's at the far end of the Goblin Den.", g); return; }
     if (q.chieftain === "killed") {
-      openDialog(n.name, "You actually did it. The Outpost owes you. Here's your bounty. And word's spread: a Black Mage named Vesper wants to fight beside you. Ask Brann.", [
+      openDialog(n.name, "You actually did it. The Outpost owes you. Here's your bounty. And word's spread: a Dark Mage named Vesper wants to fight beside you. Ask Brann.", [
         { label: "Collect the bounty", fn: () => { q.chieftain = "done"; log("Quest complete: " + QUESTS.chieftain.name + ".", "npc"); giveReward(QUESTS.chieftain.reward); log("Vesper is now available at the Mercenary Hall.", "npc"); saveGame(); closeDialog(); } }
       ].concat(g));
       return;
@@ -5875,9 +5875,9 @@ const TALK = {
       const turnIn = (id, mats, label) => {
         if (mats.every(([it, k]) => invCount(it) >= k)) adv.push({ label, fn: () => { mats.forEach(([it, k]) => removeItem(it, k)); q[id] = "done"; log("Quest complete: " + QUESTS[id].name + ".", "npc"); giveReward(QUESTS[id].reward); refreshPlayer(false); saveGame(); closeDialog(); openModal("job"); } });
       };
-      if (q.pld === "none" && jobUnlocked("PLD")) adv.push({ label: "Ask about the Paladin's oath", fn: () => openDialog(n.name, "A Paladin stands between the party and harm: sword and shield, Cures for the wounded, Flash to blind the foe. Bring me 2 Bone Chips from the undead and 1 Iron Ore from the Den's raiders, and I'll hear your oath.", [{ label: "Accept", fn: () => { q.pld = "active"; log("Quest accepted: " + QUESTS.pld.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
-      else if (q.pld === "active") turnIn("pld", [["bone_chip", 2], ["iron_ore", 1]], "Take the Paladin's oath");
-      if (q.rdm === "none" && jobUnlocked("RDM")) adv.push({ label: "Ask about the Red Mage's arts", fn: () => openDialog(n.name, "A Red Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Essence and 1 Water Essence for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      if (q.pld === "none" && jobUnlocked("PLD")) adv.push({ label: "Ask about the Holy Knight's oath", fn: () => openDialog(n.name, "A Holy Knight stands between the party and harm: sword and shield, Cures for the wounded, Flash to blind the foe. Bring me 2 Bone Chips from the undead and 1 Iron Ore from the Den's raiders, and I'll hear your oath.", [{ label: "Accept", fn: () => { q.pld = "active"; log("Quest accepted: " + QUESTS.pld.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
+      else if (q.pld === "active") turnIn("pld", [["bone_chip", 2], ["iron_ore", 1]], "Take the Holy Knight's oath");
+      if (q.rdm === "none" && jobUnlocked("RDM")) adv.push({ label: "Ask about the Gray Mage's arts", fn: () => openDialog(n.name, "A Gray Mage does a little of everything well: blade in hand, Slow and Paralyze on the enemy, a nuke when it counts, a Cure in a pinch. Bring me 2 Worm Silk, 1 Fire Essence and 1 Water Essence for the scarlet dye, and we'll begin.", [{ label: "Accept", fn: () => { q.rdm = "active"; log("Quest accepted: " + QUESTS.rdm.name + ".", "npc"); sfx("notify"); saveGame(); closeDialog(); } }]) });
       else if (q.rdm === "active") turnIn("rdm", [["worm_silk", 2], ["fire_crystal", 1], ["water_crystal", 1]], "Present the dye materials");
       adv.push(...questOptions("tobin", n));
     }
@@ -5909,7 +5909,7 @@ const TALK = {
       }
     }
     if (adv.length) { openDialog(n.name, "Level " + player.lv + ". You've outgrown the basic callings. I can teach the advanced jobs to those who prove themselves." + advNote, opts.concat(adv)); return; }
-    openDialog(n.name, "Your support job runs at half your main job's level. A Warrior with White Mage support can cure; a White Mage with Black Mage support can nuke." + (player.lv < 6 ? " Reach level 6 and I'll tell you about the advanced jobs." : ""), opts);
+    openDialog(n.name, "Your support job runs at half your main job's level. A Knight with Light Mage support can cure; a Light Mage with Dark Mage support can nuke." + (player.lv < 6 ? " Reach level 6 and I'll tell you about the advanced jobs." : ""), opts);
   },
   talkGarrick(n) {
     openDialog(n.name, "Gear's only as good as the hands that finish it. Bring me iron ore, a fire essence and some crystals, and I'll work a little extra into any piece you own: up to two augments each. Don't like what you got? I can reforge it.", [
@@ -6421,7 +6421,7 @@ function returnHome() {
 
 function canEquip(id) {
   const it = ITEMS[id];
-  if (!it.jobs.includes(save.mainJob)) return "Not usable by " + save.mainJob;
+  if (!it.jobs.includes(save.mainJob)) return "Not usable by " + JC(save.mainJob);
   if (it.race && (save.look && save.look.race || "human") !== it.race) return "Only " + RACES[it.race].name + " can wear this";
   if (it.lv > save.jobs[save.mainJob].lv) return "Requires Lv." + it.lv;
   return "";
@@ -6617,7 +6617,7 @@ const COMMANDS = [
   ["/trade Name", "Ask a nearby player to trade items and crystals."],
   ["/l text", "Talk to your active linkshell. /l1, /l2, /l3 pick a linkshell by its place in the Social window. /lsjoin accepts an invitation."],
   ["/friend add|remove Name", "Manage your friend list. /friend on its own lists who's online. You're told when friends come online."],
-  ["/search [words]", "Find adventurers online. Words can be a job (WHM), a level (12) or range (10-15), an area, a name, 'lfg' or 'here'. Also /sea."],
+  ["/search [words]", "Find adventurers online. Words can be a job (LGM), a level (12) or range (10-15), an area, a name, 'lfg' or 'here'. Also /sea."],
   ["/seek [message]", "Toggle looking for a party, with an optional short message others see in /search. Also /lfg."],
   ["/blacklist add|remove Name", "Hide messages, invitations and trade requests from a player. Also /bl."],
   ["/social", "Open the Social window: search, friends, linkshells and blacklist."],

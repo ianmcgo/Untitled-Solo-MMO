@@ -155,6 +155,8 @@ const SLOT_PAIRS = { ring: ["ring1", "ring2"], ear: ["ear1", "ear2"] };
 function slotKeys(type) { return SLOT_PAIRS[type] || [type]; }
 function slotFor(id, gear, want) { const ks = slotKeys(ITEMS[id].slot); if (want && ks.includes(want)) return want; return ks.find(k => !gear[k]) || ks[0]; }
 const RES_ELEMENTS = ["fire", "ice", "wind", "earth", "lightning", "water", "light", "dark"];
+const JOB_CODE = {WAR: "KNT", MNK: "BRW", WHM: "LGM", BLM: "DKM", RDM: "GRM", THF: "ROG", PLD: "HLK", DRK: "SHK", BST: "TMR", BRD: "MUS", RNG: "YEO", SAM: "BSW", NIN: "HDB", DRG: "LNC", SMN: "CNJ", BLU: "MIM", COR: "GMB", PUP: "ART", DNC: "PRF", SCH: "LRM", GEO: "EWD", RUN: "RNB"};
+const JC = j => JOB_CODE[j] || j;
 const ALL_JOBS = ["WAR", "WHM", "BLM", "PLD", "RDM", "THF", "MNK", "RNG", "SMN", "DRK", "BRD"];
 const BASE_JOBS = ["WAR", "WHM", "BLM"];
 const START_JOBS = ["WAR", "THF", "WHM", "BLM"];
@@ -190,17 +192,17 @@ const JOB_FLAVOUR = {
 const ADVANCED_JOBS = { PLD: { quest: "pld", lv: 6 }, RDM: { quest: "rdm", lv: 6 }, THF: { quest: "thf", lv: 6 }, MNK: { quest: "mnk", lv: 6 }, RNG: { quest: "rng", lv: 6 }, SMN: { quest: "smn", lv: 6 }, DRK: { quest: "drk", lv: 10 }, BRD: { quest: "brd", lv: 10 } };
 
 const JOBS = {
-  WAR: { name: "Warrior", color: "#e57373", icon: "⚔️", hp: [70, 14], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [6, 0.5] },
-  WHM: { name: "White Mage", color: "#eeeeee", icon: "✚", hp: [52, 10], mp: [22, 7], str: [7, 0.6], dex: [7, 0.6], vit: [7, 0.7], agi: [7, 0.6], int: [7, 0.7], mnd: [10, 1.0] },
-  BLM: { name: "Black Mage", color: "#9575cd", icon: "✦", hp: [46, 9], mp: [26, 8], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.5], agi: [7, 0.7], int: [10, 1.0], mnd: [7, 0.6] },
-  PLD: { name: "Paladin", color: "#90caf9", icon: "🛡️", hp: [68, 13], mp: [12, 4], str: [8, 0.8], dex: [7, 0.7], vit: [10, 1.0], agi: [6, 0.6], int: [5, 0.4], mnd: [8, 0.8], advanced: true },
-  RDM: { name: "Red Mage", color: "#f48fb1", icon: "🎩", hp: [56, 11], mp: [20, 6], str: [7, 0.7], dex: [8, 0.8], vit: [7, 0.6], agi: [7, 0.7], int: [8, 0.8], mnd: [8, 0.8], advanced: true },
-  THF: { name: "Thief", color: "#a1887f", icon: "🗝️", hp: [58, 11], mp: [0, 0], str: [7, 0.7], dex: [10, 1.0], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.6], mnd: [6, 0.5] },
-  MNK: { name: "Monk", color: "#ffb74d", icon: "👊", hp: [76, 15], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [10, 1.0], agi: [7, 0.7], int: [5, 0.4], mnd: [6, 0.6], advanced: true },
-  RNG: { name: "Ranger", color: "#9ccc65", icon: "🏹", hp: [56, 11], mp: [0, 0], str: [7, 0.7], dex: [9, 0.9], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.5], mnd: [6, 0.5], advanced: true },
-  DRK: { name: "Dark Knight", color: "#8e6bbf", icon: "🌑", hp: [64, 13], mp: [10, 3], str: [10, 1.0], dex: [8, 0.8], vit: [8, 0.7], agi: [7, 0.6], int: [8, 0.7], mnd: [5, 0.4], advanced: true },
-  BRD: { name: "Bard", color: "#ffd54f", icon: "🎵", hp: [54, 10], mp: [16, 5], str: [7, 0.6], dex: [8, 0.7], vit: [7, 0.6], agi: [7, 0.7], int: [7, 0.6], mnd: [8, 0.8], advanced: true },
-  SMN: { name: "Summoner", color: "#4dd0e1", icon: "🔮", hp: [44, 8], mp: [30, 9], str: [5, 0.4], dex: [6, 0.5], vit: [6, 0.5], agi: [6, 0.6], int: [9, 0.9], mnd: [10, 1.0], advanced: true }
+  WAR: { name: "Knight", color: "#e57373", icon: "⚔️", hp: [70, 14], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [6, 0.5] },
+  WHM: { name: "Light Mage", color: "#eeeeee", icon: "✚", hp: [52, 10], mp: [22, 7], str: [7, 0.6], dex: [7, 0.6], vit: [7, 0.7], agi: [7, 0.6], int: [7, 0.7], mnd: [10, 1.0] },
+  BLM: { name: "Dark Mage", color: "#9575cd", icon: "✦", hp: [46, 9], mp: [26, 8], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.5], agi: [7, 0.7], int: [10, 1.0], mnd: [7, 0.6] },
+  PLD: { name: "Holy Knight", color: "#90caf9", icon: "🛡️", hp: [68, 13], mp: [12, 4], str: [8, 0.8], dex: [7, 0.7], vit: [10, 1.0], agi: [6, 0.6], int: [5, 0.4], mnd: [8, 0.8], advanced: true },
+  RDM: { name: "Gray Mage", color: "#f48fb1", icon: "🎩", hp: [56, 11], mp: [20, 6], str: [7, 0.7], dex: [8, 0.8], vit: [7, 0.6], agi: [7, 0.7], int: [8, 0.8], mnd: [8, 0.8], advanced: true },
+  THF: { name: "Rogue", color: "#a1887f", icon: "🗝️", hp: [58, 11], mp: [0, 0], str: [7, 0.7], dex: [10, 1.0], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.6], mnd: [6, 0.5] },
+  MNK: { name: "Brawler", color: "#ffb74d", icon: "👊", hp: [76, 15], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [10, 1.0], agi: [7, 0.7], int: [5, 0.4], mnd: [6, 0.6], advanced: true },
+  RNG: { name: "Yeoman", color: "#9ccc65", icon: "🏹", hp: [56, 11], mp: [0, 0], str: [7, 0.7], dex: [9, 0.9], vit: [7, 0.6], agi: [10, 1.0], int: [6, 0.5], mnd: [6, 0.5], advanced: true },
+  DRK: { name: "Shadow Knight", color: "#8e6bbf", icon: "🌑", hp: [64, 13], mp: [10, 3], str: [10, 1.0], dex: [8, 0.8], vit: [8, 0.7], agi: [7, 0.6], int: [8, 0.7], mnd: [5, 0.4], advanced: true },
+  BRD: { name: "Musician", color: "#ffd54f", icon: "🎵", hp: [54, 10], mp: [16, 5], str: [7, 0.6], dex: [8, 0.7], vit: [7, 0.6], agi: [7, 0.7], int: [7, 0.6], mnd: [8, 0.8], advanced: true },
+  SMN: { name: "Conjurer", color: "#4dd0e1", icon: "🔮", hp: [44, 8], mp: [30, 9], str: [5, 0.4], dex: [6, 0.5], vit: [6, 0.5], agi: [6, 0.6], int: [9, 0.9], mnd: [10, 1.0], advanced: true }
 };
 
 const WEAPON_SKILLS = {
@@ -530,9 +532,9 @@ for (const id in ITEMS) {
 ALL_JOBS.push("SAM", "NIN", "DRG");
 Object.assign(ADVANCED_JOBS, { SAM: { quest: "sam", lv: 12 }, NIN: { quest: "nin", lv: 12 }, DRG: { quest: "drg", lv: 12 } });
 Object.assign(JOBS, {
-  SAM: { name: "Samurai", color: "#e0a060", icon: "🎌", hp: [66, 13], mp: [0, 0], str: [9, 0.95], dex: [9, 0.85], vit: [8, 0.75], agi: [7, 0.7], int: [6, 0.5], mnd: [7, 0.6], advanced: true },
-  NIN: { name: "Ninja", color: "#78909c", icon: "🌀", hp: [60, 12], mp: [8, 3], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [10, 1.0], int: [7, 0.7], mnd: [5, 0.4], advanced: true },
-  DRG: { name: "Dragoon", color: "#5c8adb", icon: "🐉", hp: [66, 13], mp: [0, 0], str: [10, 0.95], dex: [8, 0.8], vit: [8, 0.8], agi: [8, 0.75], int: [5, 0.4], mnd: [6, 0.5], advanced: true }
+  SAM: { name: "Blade Sworn", color: "#e0a060", icon: "🎌", hp: [66, 13], mp: [0, 0], str: [9, 0.95], dex: [9, 0.85], vit: [8, 0.75], agi: [7, 0.7], int: [6, 0.5], mnd: [7, 0.6], advanced: true },
+  NIN: { name: "Hidden Blade", color: "#78909c", icon: "🌀", hp: [60, 12], mp: [8, 3], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [10, 1.0], int: [7, 0.7], mnd: [5, 0.4], advanced: true },
+  DRG: { name: "Lancer", color: "#5c8adb", icon: "🐉", hp: [66, 13], mp: [0, 0], str: [10, 0.95], dex: [8, 0.8], vit: [8, 0.8], agi: [8, 0.75], int: [5, 0.4], mnd: [6, 0.5], advanced: true }
 });
 COMBAT_SKILLS.push("gkatana", "katana", "polearm");
 MAGIC_SKILLS.push("ninjutsu");
@@ -586,9 +588,9 @@ for (const id in ITEMS) {
 ALL_JOBS.push("BST", "BLU", "COR");
 Object.assign(ADVANCED_JOBS, { BST: { quest: "bst", lv: 14 }, BLU: { quest: "blu", lv: 14 }, COR: { quest: "cor", lv: 14 } });
 Object.assign(JOBS, {
-  BST: { name: "Beastmaster", color: "#8d6e63", icon: "🐾", hp: [62, 12], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [8, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [7, 0.7], advanced: true },
-  BLU: { name: "Blue Mage", color: "#42a5f5", icon: "🔷", hp: [58, 11], mp: [18, 5], str: [8, 0.8], dex: [8, 0.8], vit: [7, 0.7], agi: [7, 0.7], int: [8, 0.8], mnd: [7, 0.6], advanced: true },
-  COR: { name: "Corsair", color: "#c62828", icon: "🎲", hp: [58, 11], mp: [6, 2], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [9, 0.9], int: [7, 0.7], mnd: [6, 0.5], advanced: true }
+  BST: { name: "Tamer", color: "#8d6e63", icon: "🐾", hp: [62, 12], mp: [0, 0], str: [9, 0.9], dex: [8, 0.8], vit: [8, 0.8], agi: [7, 0.7], int: [6, 0.5], mnd: [7, 0.7], advanced: true },
+  BLU: { name: "Mimic", color: "#42a5f5", icon: "🔷", hp: [58, 11], mp: [18, 5], str: [8, 0.8], dex: [8, 0.8], vit: [7, 0.7], agi: [7, 0.7], int: [8, 0.8], mnd: [7, 0.6], advanced: true },
+  COR: { name: "Gambler", color: "#c62828", icon: "🎲", hp: [58, 11], mp: [6, 2], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [9, 0.9], int: [7, 0.7], mnd: [6, 0.5], advanced: true }
 });
 COMBAT_SKILLS.push("axe");
 MAGIC_SKILLS.push("blue");
@@ -650,9 +652,9 @@ for (const id in ITEMS) {
 ALL_JOBS.push("PUP", "DNC", "SCH");
 Object.assign(ADVANCED_JOBS, { PUP: { quest: "pup", lv: 16 }, DNC: { quest: "dnc", lv: 16 }, SCH: { quest: "sch", lv: 16 } });
 Object.assign(JOBS, {
-  PUP: { name: "Puppetmaster", color: "#ab47bc", icon: "🎭", hp: [60, 12], mp: [0, 0], str: [8, 0.8], dex: [9, 0.9], vit: [8, 0.8], agi: [8, 0.8], int: [7, 0.7], mnd: [6, 0.6], advanced: true },
-  DNC: { name: "Dancer", color: "#f06292", icon: "💃", hp: [58, 11], mp: [0, 0], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [10, 1.0], int: [6, 0.5], mnd: [8, 0.7], advanced: true },
-  SCH: { name: "Scholar", color: "#bcaaa4", icon: "📖", hp: [48, 9], mp: [24, 7], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.6], agi: [7, 0.6], int: [9, 0.9], mnd: [9, 0.9], advanced: true }
+  PUP: { name: "Artificer", color: "#ab47bc", icon: "🎭", hp: [60, 12], mp: [0, 0], str: [8, 0.8], dex: [9, 0.9], vit: [8, 0.8], agi: [8, 0.8], int: [7, 0.7], mnd: [6, 0.6], advanced: true },
+  DNC: { name: "Performer", color: "#f06292", icon: "💃", hp: [58, 11], mp: [0, 0], str: [8, 0.8], dex: [9, 0.9], vit: [7, 0.7], agi: [10, 1.0], int: [6, 0.5], mnd: [8, 0.7], advanced: true },
+  SCH: { name: "Lore Master", color: "#bcaaa4", icon: "📖", hp: [48, 9], mp: [24, 7], str: [6, 0.5], dex: [7, 0.6], vit: [6, 0.6], agi: [7, 0.6], int: [9, 0.9], mnd: [9, 0.9], advanced: true }
 });
 Object.assign(SKILL_RATINGS, {
   PUP: { h2h: "A", club: "C", dagger: "D" },
@@ -697,8 +699,8 @@ for (const id in ITEMS) {
 ALL_JOBS.push("GEO", "RUN");
 Object.assign(ADVANCED_JOBS, { GEO: { quest: "geo", lv: 18 }, RUN: { quest: "run", lv: 18 } });
 Object.assign(JOBS, {
-  GEO: { name: "Geomancer", color: "#66bb6a", icon: "🔔", hp: [50, 10], mp: [24, 7], str: [6, 0.5], dex: [7, 0.6], vit: [7, 0.6], agi: [7, 0.6], int: [9, 0.9], mnd: [9, 0.9], advanced: true },
-  RUN: { name: "Rune Fencer", color: "#ef5350", icon: "🔺", hp: [70, 14], mp: [10, 3], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.9], agi: [8, 0.8], int: [7, 0.6], mnd: [7, 0.6], advanced: true }
+  GEO: { name: "Earthwarden", color: "#66bb6a", icon: "🔔", hp: [50, 10], mp: [24, 7], str: [6, 0.5], dex: [7, 0.6], vit: [7, 0.6], agi: [7, 0.6], int: [9, 0.9], mnd: [9, 0.9], advanced: true },
+  RUN: { name: "Rune Blade", color: "#ef5350", icon: "🔺", hp: [70, 14], mp: [10, 3], str: [9, 0.9], dex: [8, 0.8], vit: [9, 0.9], agi: [8, 0.8], int: [7, 0.6], mnd: [7, 0.6], advanced: true }
 });
 COMBAT_SKILLS.push("gsword");
 MAGIC_SKILLS.push("geomancy");
@@ -870,19 +872,19 @@ for (const id in GEAR_DATA) {
 }
 
 const MERCS = {
-  kael: { name: "Kael", job: "WAR", role: "tank", fee: 120, color: "#ef9a9a", desc: "A steady Warrior. Holds enemy attention with Goad and closes skillchains." },
-  rook: { name: "Rook", job: "WAR", role: "dd", fee: 140, color: "#ffab91", desc: "A reckless Warrior. Hits hard with Frenzy and opens skillchains for others to close." },
-  mira: { name: "Mira", job: "WHM", role: "healer", fee: 150, color: "#f5f5f5", desc: "A calm White Mage. Cures whoever is hurt most and saves Holy Vow for emergencies." },
-  fen: { name: "Fen", job: "WHM", role: "support", fee: 150, color: "#e0f2f1", desc: "A cheerful White Mage. Keeps Gleam up, Smites the undead and backs up the healer." },
-  sable: { name: "Sable", job: "BLM", role: "nuker", fee: 180, color: "#b39ddb", desc: "A sharp Black Mage. Nukes weaknesses and holds MP to magic-burst your skillchains." },
-  dorn: { name: "Dorn", job: "PLD", role: "tank", fee: 260, color: "#90caf9", requires: { job: "PLD" }, desc: "A stalwart Paladin. Flash and Bulwark hold attention, Cures keep him standing, Shield Bash stops TP moves." },
-  lisette: { name: "Lisette", job: "RDM", role: "hybrid", fee: 260, color: "#f48fb1", requires: { job: "RDM" }, desc: "A quick Red Mage. Fights in melee, keeps Gleam, Slow and Paralyze on the target, nukes when MP allows and backs up the healer." },
-  vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Black Mage who lives for the magic burst. Arcane Vow on every one." },
-  wren: { name: "Wren", job: "THF", role: "dd", fee: 240, color: "#a1887f", requires: { job: "THF" }, desc: "A quick-fingered Thief. Steals from everything, opens with Shadow Strike and chains dagger skills." },
-  corin: { name: "Corin", job: "RNG", role: "dd", fee: 250, color: "#9ccc65", requires: { job: "RNG" }, desc: "A quiet Ranger. Shoots from range, uses Dead Aim and Arrow Storm, and binds runners in place." },
-  mordrin: { name: "Mordrin", job: "DRK", role: "dd", fee: 300, color: "#8e6bbf", requires: { job: "DRK" }, desc: "A grim Dark Knight. Swings a scythe with Desperate Oath and Soulfire, drains life back when he's hurt, and stuns dangerous moves." },
-  lyra: { name: "Lyra", job: "BRD", role: "bard", fee: 300, color: "#ffd54f", requires: { job: "BRD" }, desc: "A bright Bard. Keeps two songs on the party, lulls extra monsters to sleep, and fights with a dagger in between." },
-  tamsin: { name: "Tamsin", job: "MNK", role: "dd", fee: 260, color: "#ffb74d", requires: { job: "MNK" }, desc: "A cheerful Monk. Boosts, focuses and pummels, and mends herself with Inner Mend." }
+  kael: { name: "Kael", job: "WAR", role: "tank", fee: 120, color: "#ef9a9a", desc: "A steady Knight. Holds enemy attention with Goad and closes skillchains." },
+  rook: { name: "Rook", job: "WAR", role: "dd", fee: 140, color: "#ffab91", desc: "A reckless Knight. Hits hard with Frenzy and opens skillchains for others to close." },
+  mira: { name: "Mira", job: "WHM", role: "healer", fee: 150, color: "#f5f5f5", desc: "A calm Light Mage. Cures whoever is hurt most and saves Holy Vow for emergencies." },
+  fen: { name: "Fen", job: "WHM", role: "support", fee: 150, color: "#e0f2f1", desc: "A cheerful Light Mage. Keeps Gleam up, Smites the undead and backs up the healer." },
+  sable: { name: "Sable", job: "BLM", role: "nuker", fee: 180, color: "#b39ddb", desc: "A sharp Dark Mage. Nukes weaknesses and holds MP to magic-burst your skillchains." },
+  dorn: { name: "Dorn", job: "PLD", role: "tank", fee: 260, color: "#90caf9", requires: { job: "PLD" }, desc: "A stalwart Holy Knight. Flash and Bulwark hold attention, Cures keep him standing, Shield Bash stops TP moves." },
+  lisette: { name: "Lisette", job: "RDM", role: "hybrid", fee: 260, color: "#f48fb1", requires: { job: "RDM" }, desc: "A quick Gray Mage. Fights in melee, keeps Gleam, Slow and Paralyze on the target, nukes when MP allows and backs up the healer." },
+  vesper: { name: "Vesper", job: "BLM", role: "burster", fee: 400, color: "#7e57c2", requires: { quest: "chieftain" }, desc: "A Dark Mage who lives for the magic burst. Arcane Vow on every one." },
+  wren: { name: "Wren", job: "THF", role: "dd", fee: 240, color: "#a1887f", requires: { job: "THF" }, desc: "A quick-fingered Rogue. Steals from everything, opens with Shadow Strike and chains dagger skills." },
+  corin: { name: "Corin", job: "RNG", role: "dd", fee: 250, color: "#9ccc65", requires: { job: "RNG" }, desc: "A quiet Yeoman. Shoots from range, uses Dead Aim and Arrow Storm, and binds runners in place." },
+  mordrin: { name: "Mordrin", job: "DRK", role: "dd", fee: 300, color: "#8e6bbf", requires: { job: "DRK" }, desc: "A grim Shadow Knight. Swings a scythe with Desperate Oath and Soulfire, drains life back when he's hurt, and stuns dangerous moves." },
+  lyra: { name: "Lyra", job: "BRD", role: "bard", fee: 300, color: "#ffd54f", requires: { job: "BRD" }, desc: "A bright Musician. Keeps two songs on the party, lulls extra monsters to sleep, and fights with a dagger in between." },
+  tamsin: { name: "Tamsin", job: "MNK", role: "dd", fee: 260, color: "#ffb74d", requires: { job: "MNK" }, desc: "A cheerful Brawler. Boosts, focuses and pummels, and mends herself with Inner Mend." }
 };
 
 const MERC_LINES = {
@@ -1687,22 +1689,22 @@ const QUESTS = {
     intro: "Scouts found a road south of the Hollow, sunk into a marsh nobody's mapped. The toads there are big enough to swallow a goblin, and loud enough to wake the dead. Cull six of them so my scouts can work.", progress: "Six Bog Toads. They hunt by sound, so tread lightly until you're ready.", turn: "Quieter already. Take these boots; they're oiled against the bog water." },
   mirelord: { name: "The Mirelord", giver: "Brann", npc: "brann", lv: 13, pre: "mire", kill: { fam: "mirelord_gax", n: 1, name: "Mirelord Gax" }, desc: "Defeat Mirelord Gax, who rules the goblins of Mire Village in the Ashen Marsh.", reward: { xp: 2000, gil: 1200, item: "ether", qty: 3 },
     intro: "Two of my people went into the marsh and came back with stories of a goblin who calls himself the Mirelord. Gax. He's taxing the reed cutters. I'd take it personally if you put an end to that.", progress: "Gax keeps to Mire Village, east of the causeway. He shows himself now and then among his goblins.", turn: "The Mirelord's done? My people will drink to you tonight. Here, you've earned this." },
-  thf: { name: "Light Fingers", giver: "Tobin", npc: "tobin", lv: 6, items: { goblin_pouch: 3, bat_wing: 1 }, desc: "Bring Tobin 3 Goblin Pouches and 1 Bat Wing to learn the Thief's trade.", reward: { xp: 300, gil: 0, item: "bronze_dagger", qty: 1, unlock: "THF" },
-    intro: "A Thief lives by quick hands and quicker feet: daggers, Pilfer, Shadow Strike, and a nose for treasure. Prove your hands are light. Lift 3 Goblin Pouches off their owners and bring me a Bat Wing besides.", progress: "3 Goblin Pouches and a Bat Wing. Goblins carry the pouches; bats come out at night.", turn: "Not bad at all. Here's a dagger to start with. Ask me to change jobs whenever you like." },
-  mnk: { name: "The Open Hand", giver: "Tobin", npc: "tobin", lv: 6, items: { bone_chip: 2, healing_herb: 3 }, desc: "Bring Tobin 2 Bone Chips and 3 Healing Herbs to begin training as a Monk.", reward: { xp: 300, gil: 0, item: "cesti", qty: 1, unlock: "MNK" },
-    intro: "A Monk needs no blade. Fists, Surge and Hone, and Inner Mend to mend their own wounds. Training starts with a poultice: 3 Healing Herbs, and 2 Bone Chips ground into it. Don't ask why. It works.", progress: "2 Bone Chips from the undead and 3 Healing Herbs.", turn: "Good. Wrap your hands in these and hit things. That's most of it, honestly." },
-  rng: { name: "Steady Aim", giver: "Tobin", npc: "tobin", lv: 6, items: { bat_wing: 3, ash_lumber: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Ash Lumber to learn the Ranger's craft.", reward: { xp: 300, gil: 0, item: "shortbow", qty: 1, unlock: "RNG" },
-    intro: "A Ranger fights from afar: bow and arrow, Dead Aim and Arrow Storm, and Pin Down to pin a foe in place. Fletching starts with good wood and good feathers. Bring me 3 Bat Wings for the fletching and 2 Ash Lumber for the bow.", progress: "3 Bat Wings and 2 Ash Lumber. Woodworkers make lumber from Ash Logs.", turn: "Good wood, fair feathers. Here's your first bow. Keep your distance and let the arrows do the work." },
-  drk: { name: "The Shadowed Path", giver: "Tobin", npc: "tobin", lv: 10, items: { crypt_dust: 2, bone_chip: 3 }, desc: "Bring Tobin 2 Crypt Dust and 3 Bone Chips to walk the Dark Knight's path.", reward: { xp: 600, gil: 0, item: "bronze_zaghnal", qty: 1, unlock: "DRK" },
-    intro: "A Dark Knight trades a little of their own life for power: scythes, Life Leech, Blight, and Desperate Oath. It isn't a path for the careful. Bring me dust from the Sunken Crypt and bones from the restless dead, and I'll show you how it's done.", progress: "2 Crypt Dust and 3 Bone Chips. The Crypt has both; the Wandering Bones carry chips at night.", turn: "You carry the crypt's chill with you now. Take this scythe, and don't let it take you." },
-  brd: { name: "A Traveler's Song", giver: "Tobin", npc: "tobin", lv: 10, items: { mire_reed: 3, bat_wing: 2 }, desc: "Bring Tobin 3 Mire Reeds and 2 Bat Wings so he can teach you the Bard's songs.", reward: { xp: 600, gil: 0, item: "robe", qty: 1, unlock: "BRD" },
-    intro: "Bards fight with a dagger in one hand and a song in the other. Their songs lift the whole party: sharper blades, faster swings, wounds that close on their own. I'll teach you, but I need reeds for a pipe and bat wings for the drum skin.", progress: "3 Mire Reeds from the Ashen Marsh and 2 Bat Wings. Bats come out at night.", turn: "Listen to that. A little shaky, but it carries. Here's a coat fit for the road." },
+  thf: { name: "Light Fingers", giver: "Tobin", npc: "tobin", lv: 6, items: { goblin_pouch: 3, bat_wing: 1 }, desc: "Bring Tobin 3 Goblin Pouches and 1 Bat Wing to learn the Rogue's trade.", reward: { xp: 300, gil: 0, item: "bronze_dagger", qty: 1, unlock: "THF" },
+    intro: "A Rogue lives by quick hands and quicker feet: daggers, Pilfer, Shadow Strike, and a nose for treasure. Prove your hands are light. Lift 3 Goblin Pouches off their owners and bring me a Bat Wing besides.", progress: "3 Goblin Pouches and a Bat Wing. Goblins carry the pouches; bats come out at night.", turn: "Not bad at all. Here's a dagger to start with. Ask me to change jobs whenever you like." },
+  mnk: { name: "The Open Hand", giver: "Tobin", npc: "tobin", lv: 6, items: { bone_chip: 2, healing_herb: 3 }, desc: "Bring Tobin 2 Bone Chips and 3 Healing Herbs to begin training as a Brawler.", reward: { xp: 300, gil: 0, item: "cesti", qty: 1, unlock: "MNK" },
+    intro: "A Brawler needs no blade. Fists, Surge and Hone, and Inner Mend to mend their own wounds. Training starts with a poultice: 3 Healing Herbs, and 2 Bone Chips ground into it. Don't ask why. It works.", progress: "2 Bone Chips from the undead and 3 Healing Herbs.", turn: "Good. Wrap your hands in these and hit things. That's most of it, honestly." },
+  rng: { name: "Steady Aim", giver: "Tobin", npc: "tobin", lv: 6, items: { bat_wing: 3, ash_lumber: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Ash Lumber to learn the Yeoman's craft.", reward: { xp: 300, gil: 0, item: "shortbow", qty: 1, unlock: "RNG" },
+    intro: "A Yeoman fights from afar: bow and arrow, Dead Aim and Arrow Storm, and Pin Down to pin a foe in place. Fletching starts with good wood and good feathers. Bring me 3 Bat Wings for the fletching and 2 Ash Lumber for the bow.", progress: "3 Bat Wings and 2 Ash Lumber. Woodworkers make lumber from Ash Logs.", turn: "Good wood, fair feathers. Here's your first bow. Keep your distance and let the arrows do the work." },
+  drk: { name: "The Shadowed Path", giver: "Tobin", npc: "tobin", lv: 10, items: { crypt_dust: 2, bone_chip: 3 }, desc: "Bring Tobin 2 Crypt Dust and 3 Bone Chips to walk the Shadow Knight's path.", reward: { xp: 600, gil: 0, item: "bronze_zaghnal", qty: 1, unlock: "DRK" },
+    intro: "A Shadow Knight trades a little of their own life for power: scythes, Life Leech, Blight, and Desperate Oath. It isn't a path for the careful. Bring me dust from the Sunken Crypt and bones from the restless dead, and I'll show you how it's done.", progress: "2 Crypt Dust and 3 Bone Chips. The Crypt has both; the Wandering Bones carry chips at night.", turn: "You carry the crypt's chill with you now. Take this scythe, and don't let it take you." },
+  brd: { name: "A Traveler's Song", giver: "Tobin", npc: "tobin", lv: 10, items: { mire_reed: 3, bat_wing: 2 }, desc: "Bring Tobin 3 Mire Reeds and 2 Bat Wings so he can teach you the Musician's songs.", reward: { xp: 600, gil: 0, item: "robe", qty: 1, unlock: "BRD" },
+    intro: "Musicians fight with a dagger in one hand and a song in the other. Their songs lift the whole party: sharper blades, faster swings, wounds that close on their own. I'll teach you, but I need reeds for a pipe and bat wings for the drum skin.", progress: "3 Mire Reeds from the Ashen Marsh and 2 Bat Wings. Bats come out at night.", turn: "Listen to that. A little shaky, but it carries. Here's a coat fit for the road." },
   smn: { name: "The Calling", giver: "Tobin", npc: "tobin", lv: 6, items: { fire_crystal: 2, wind_crystal: 2, healing_herb: 2 }, desc: "Bring Tobin 2 Fire Essences, 2 Wind Essences and 2 Healing Herbs to learn to call sprites.", reward: { xp: 300, gil: 0, item: "ash_staff", qty: 1, unlock: "SMN" },
-    intro: "A Summoner calls elemental sprites to fight for them. The sprites drink your MP while they're out, so mind it. To make the first calling, I'll need 2 Fire Essences, 2 Wind Essences, and 2 Healing Herbs to calm the sprite afterward.", progress: "2 Fire Essences, 2 Wind Essences and 2 Healing Herbs.", turn: "Listen... there. A spark answered. Take this staff and call it with Ember Sprite." },
+    intro: "A Conjurer calls elemental sprites to fight for them. The sprites drink your MP while they're out, so mind it. To make the first calling, I'll need 2 Fire Essences, 2 Wind Essences, and 2 Healing Herbs to calm the sprite afterward.", progress: "2 Fire Essences, 2 Wind Essences and 2 Healing Herbs.", turn: "Listen... there. A spark answered. Take this staff and call it with Ember Sprite." },
   support: { name: "A Second Calling", giver: "Tobin", npc: "tobin", lv: 10, desc: "Reach level 10, then bring Tobin 2 Bat Wings and 1 Worm Silk. Bats only come out at night.", reward: { xp: 300, gil: 0 } },
   riding: { name: "Riding License", giver: "Ysolde", npc: "ysolde", lv: 20, desc: "Reach level 20, then bring Ysolde 300 crystals and 3 Healing Herbs. Hares and worms in Rocky Hollow drop herbs.", reward: { xp: 200, gil: 0 } },
-  pld: { name: "The Oath of Steel", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Paladin's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
-  rdm: { name: "Scarlet Lessons", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Worm Silk, 1 Fire Essence and 1 Water Essence to study the Red Mage's arts.", reward: { xp: 400, gil: 0, unlock: "RDM" } },
+  pld: { name: "The Oath of Steel", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Bone Chips and 1 Iron Ore to take the Holy Knight's oath. Undead drop bone; goblin raiders in the Den carry iron.", reward: { xp: 400, gil: 0, unlock: "PLD" } },
+  rdm: { name: "Scarlet Lessons", giver: "Tobin", npc: "tobin", lv: 6, desc: "Reach level 6, then bring Tobin 2 Worm Silk, 1 Fire Essence and 1 Water Essence to study the Gray Mage's arts.", reward: { xp: 400, gil: 0, unlock: "RDM" } },
   chieftain: { name: "The Goblin Chieftain", giver: "Captain Rhea", npc: "rhea", lv: 7, pre: "bones", desc: "Defeat the Goblin Chieftain at the back of the Goblin Den, then report to Captain Rhea.", reward: { xp: 900, gil: 1500, item: "ether", qty: 3 } }
 };
 
@@ -2291,10 +2293,10 @@ const MERC_PERSONAL = {
   kael: ["You fight like someone who means it. I like that.", "My old captain used to say a shield is a promise. I'm starting to remember why.", "I grew up two valleys past the Hollow. Goblins burned the mill. That's why I took up the axe.", "If I go down, don't stop to grieve. Finish the fight first.", "Wherever you go next, I'm coming. No fee needed for that, but I'll still take it."],
   rook: ["You keep up. Most don't.", "I count every swing. Old habit from the arena.", "The arena paid better, but nobody there watched my back.", "I've stopped counting the swings. I count the fights we walk away from now.", "Partner. That's the word, isn't it?"],
   mira: ["You're reckless, but you come back. That's something.", "I learned healing at the shrine in the west hills. The old priestess was stricter than any goblin.", "I don't mind the blood. I mind the ones I'm too slow to reach.", "When you stand in front of me, I'm never too slow.", "I'll keep you standing. That's my vow, not my job."],
-  fen: ["Ooh, a fight! Let's do this!", "Did you know undead hate Smite? I say it to them. They don't laugh.", "My sister's a Black Mage. She says I'm too loud. She's right!", "You're the first person who laughs at my jokes during a fight.", "Best party ever. I'm writing it in my journal."],
+  fen: ["Ooh, a fight! Let's do this!", "Did you know undead hate Smite? I say it to them. They don't laugh.", "My sister's a Dark Mage. She says I'm too loud. She's right!", "You're the first person who laughs at my jokes during a fight.", "Best party ever. I'm writing it in my journal."],
   sable: ["Your timing is adequate.", "Your timing is good.", "I studied in the academy's tower for nine years. Nine years, and none of it felt as real as this.", "When you open a chain, I'm already counting. It feels like music.", "I'd follow your chains anywhere."],
   dorn: ["Stand behind me.", "I took my oath at sixteen. I've broken it once. I won't again.", "There's a chapel in the Outpost cellar. I pray there for the ones I couldn't shield.", "You make it easy to keep the oath.", "My shield is yours, until the end."],
-  lisette: ["Sword, spell, cure. Pick one? Why would I?", "Red Mages get called jacks of all trades. I prefer 'useful'.", "I left the mage court because they wanted me to choose a school. I chose all of them.", "You never ask me to be less than everything. Thank you.", "Whatever comes next, we'll handle it with style."],
+  lisette: ["Sword, spell, cure. Pick one? Why would I?", "Gray Mages get called jacks of all trades. I prefer 'useful'.", "I left the mage court because they wanted me to choose a school. I chose all of them.", "You never ask me to be less than everything. Thank you.", "Whatever comes next, we'll handle it with style."],
   wren: ["Nice pickings today.", "I only steal from monsters now. Mostly.", "My mum ran a pawn shop in the capital. I learned to tell real silver by the smell.", "You never check your pockets around me. I like that you trust me.", "Whatever we find, half's yours. I mean it."],
   corin: ["...Clean shot.", "I grew up hunting the ridges above the Hollow. Quiet work.", "My father made bows. I still use his knife to carve the arrows.", "You give me room to shoot. Not everyone does.", "I'll keep watching your back. Always."],
   tamsin: ["Ha! Good fight!", "Breathe in, punch out. That's the whole secret.", "I trained at a temple up in the cliffs. Three hundred steps every morning, carrying water.", "You hit harder than you did when we met. I noticed.", "Fists together, always."],
@@ -2542,7 +2544,7 @@ const ACHIEVEMENTS = [
   { id: "racer", icon: "🏁", name: "Thornstrider Racer", desc: "Win gold on the Hollow Run.", test: s => s.race && s.race.medals && s.race.medals.gold },
   { id: "rider", icon: "🦖", name: "Saddle Sore", desc: "Ride 20,000 steps on your Thornstrider.", test: s => (s.stats.ride || 0) >= 20000 },
   { id: "summoner", icon: "🔮", name: "First Calling", desc: "Summon a sprite.", test: s => (s.stats.summons || 0) >= 1 },
-  { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Ranger.", test: s => (s.stats.rngKills || 0) >= 25 },
+  { id: "sniper", icon: "🏹", name: "Sharp Eye", desc: "Defeat 25 monsters as a Yeoman.", test: s => (s.stats.rngKills || 0) >= 25 },
   { id: "story", icon: "🕯️", name: "Keeper of the Embers", desc: "Complete the main story.", test: s => !!(s.story && s.story.done) },
   { id: "petkeeper", icon: "🐾", name: "Pet Keeper", desc: "Own five pets.", test: s => (s.buddies || []).length >= 5 },
   { id: "auction", icon: "⚖️", name: "Market Savvy", desc: "Sell 10 lots at the auction house.", test: s => (s.stats.ahSold || 0) >= 10 },
@@ -2560,7 +2562,7 @@ const jobsOpenCount = s => Object.keys(JOBS).filter(j => !JOBS[j].advanced || (s
 for (const j of Object.keys(JOB_REQ)) if (JOBS[j]) ACHIEVEMENTS.push({ id: "unlock_" + j, icon: JOBS[j].icon, name: JOBS[j].name + " Unlocked", desc: "Unlock the " + JOBS[j].name + " job.", test: s => !!(s.jobsUnlocked && s.jobsUnlocked[j]) });
 ACHIEVEMENTS.push(
   { id: "jobs_bronze", icon: "🥉", name: "Bronze Student", desc: "Have 6 jobs unlocked.", test: s => jobsOpenCount(s) >= 6 },
-  { id: "jobs_silver", icon: "🥈", name: "Silver Scholar", desc: "Have 12 jobs unlocked.", test: s => jobsOpenCount(s) >= 12 },
+  { id: "jobs_silver", icon: "🥈", name: "Silver Lore Master", desc: "Have 12 jobs unlocked.", test: s => jobsOpenCount(s) >= 12 },
   { id: "jobs_gold", icon: "🥇", name: "Gold Master", desc: "Have 18 jobs unlocked.", test: s => jobsOpenCount(s) >= 18 },
   { id: "jobs_all", icon: "👑", name: "Every Trade", desc: "Have every job unlocked.", test: s => jobsOpenCount(s) >= Object.keys(JOBS).length }
 );
@@ -2656,7 +2658,7 @@ for (const id in SPELLS) {
   sp.id = id; sp.minLv = lv;
   if (sp.blue) continue;
   const sid = "scroll_" + id;
-  ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => j + " Lv." + l).join(", ") + "." };
+  ITEMS[sid] = { name: "Scroll of " + sp.name, kind: "use", icon: "📜", spell: id, lv, price: Math.round(30 + lv * lv * 14), desc: "Read it to learn " + sp.name + ". Can be learned by " + Object.entries(sp.jobs).map(([j, l]) => JC(j) + " Lv." + l).join(", ") + "." };
   if (sp.drop) continue;
   if (lv <= 10) SHOP.push(sid); else if (lv <= 20) SHOPS.vela.push(sid);
 }
@@ -3190,34 +3192,34 @@ const CITY_LIFE = {
   market: [6, 1], square: [6, 1], fish: [4, 1], docks: [4, 1], gov: [2, 2], keep: [1, 2], res: [3, 1], south: [3, 1], ind: [3, 1], yard: [3, 1], gate: [2, 2], forge: [3, 1]
 };
 Object.assign(QUESTS, {
-  sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Samurai's way.", reward: { xp: 700, gil: 0, item: "tachi", items: [["harpoon", 1]], qty: 1, unlock: "SAM" },
-    intro: "A Samurai fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },
-  nin: { name: "Steps Without Sound", giver: "Tobin", npc: "tobin", lv: 12, items: { bat_wing: 3, worm_silk: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Worm Silk to learn the Ninja's arts.", reward: { xp: 700, gil: 0, item: "kunai", qty: 1, unlock: "NIN" },
-    intro: "A Ninja hides behind shadow images, throws stars of fire and frost, and slips away when the fight turns. Quick hands, quick feet. Bring me bat wings for the shadows and worm silk for the threads.", progress: "3 Bat Wings and 2 Worm Silk. Bats fly at night; worms dig through the Hollow.", turn: "Light, quiet and sharp. Take this katana, and remember: the shadows only take a few hits each." },
-  drg: { name: "Wings of the Wyrm", giver: "Tobin", npc: "tobin", lv: 12, items: { lizard_skin: 3, crag_feather: 1 }, desc: "Bring Tobin 3 Lizard Skins and 1 Crag Feather to take up the Dragoon's lance.", reward: { xp: 700, gil: 0, item: "harpoon", qty: 1, unlock: "DRG" },
-    intro: "Dragoons fight with the lance and the leap. They spring high into the air and come down point first, and the spirit of the old wyrms lends them strength. Bring me lizard skins for a grip and a feather from the Crag Talons for luck.", progress: "3 Lizard Skins from the Hollow's hill lizards and 1 Crag Feather from the marsh roost.", turn: "Scale and feather. Here is your spear. Jump high, land hard." }
+  sam: { name: "The Patient Blade", giver: "Tobin", npc: "tobin", lv: 12, items: { iron_ingot: 1, ash_lumber: 2 }, desc: "Bring Tobin 1 Iron Ingot and 2 Ash Lumber to learn the Blade Sworn's way.", reward: { xp: 700, gil: 0, item: "tachi", items: [["harpoon", 1]], qty: 1, unlock: "SAM" },
+    intro: "A Blade Sworn fights with one great blade held in both hands and a mind kept very still. They meditate in the middle of a fight to gather strength and read a foe's next blow before it lands. Bring me an iron ingot and good ash lumber, and we'll fit you a tachi.", progress: "1 Iron Ingot and 2 Ash Lumber. The smith and the carpenters' benches can make both.", turn: "Good steel, good wood. Hold the tachi high and breathe slowly; the blade will do the rest." },
+  nin: { name: "Steps Without Sound", giver: "Tobin", npc: "tobin", lv: 12, items: { bat_wing: 3, worm_silk: 2 }, desc: "Bring Tobin 3 Bat Wings and 2 Worm Silk to learn the Hidden Blade's arts.", reward: { xp: 700, gil: 0, item: "kunai", qty: 1, unlock: "NIN" },
+    intro: "A Hidden Blade hides behind shadow images, throws stars of fire and frost, and slips away when the fight turns. Quick hands, quick feet. Bring me bat wings for the shadows and worm silk for the threads.", progress: "3 Bat Wings and 2 Worm Silk. Bats fly at night; worms dig through the Hollow.", turn: "Light, quiet and sharp. Take this katana, and remember: the shadows only take a few hits each." },
+  drg: { name: "Wings of the Wyrm", giver: "Tobin", npc: "tobin", lv: 12, items: { lizard_skin: 3, crag_feather: 1 }, desc: "Bring Tobin 3 Lizard Skins and 1 Crag Feather to take up the Lancer's lance.", reward: { xp: 700, gil: 0, item: "harpoon", qty: 1, unlock: "DRG" },
+    intro: "Lancers fight with the lance and the leap. They spring high into the air and come down point first, and the spirit of the old wyrms lends them strength. Bring me lizard skins for a grip and a feather from the Crag Talons for luck.", progress: "3 Lizard Skins from the Hollow's hill lizards and 1 Crag Feather from the marsh roost.", turn: "Scale and feather. Here is your spear. Jump high, land hard." }
 });
 Object.assign(QUESTS, {
-  bst: { name: "Call of the Wild", giver: "Tobin", npc: "tobin", lv: 14, items: { lizard_skin: 2, wool_tuft: 3 }, desc: "Bring Tobin 2 Lizard Skins and 3 Wool Tufts to learn the Beastmaster's ways.", reward: { xp: 800, gil: 0, item: "bronze_axe", qty: 1, unlock: "BST" },
-    intro: "A Beastmaster never fights alone. They whistle up a beast of the wilds, feed it, and set it on their foes, then wade in after it with an axe. Bring me a lizard's skin and some sheep's wool for a beast's harness, and I'll teach you the call.", progress: "2 Lizard Skins and 3 Wool Tufts. The Hollow has both.", turn: "A good harness. Take this axe, and whistle; something will answer." },
-  blu: { name: "The Borrowed Art", giver: "Tobin", npc: "tobin", lv: 14, items: { crab_shell: 2, mandrake_leaf: 2 }, desc: "Bring Tobin 2 Crab Shells and 2 Mandrake Leaves to begin the Blue Mage's study.", reward: { xp: 800, gil: 0, item: "bronze_sword", qty: 1, unlock: "BLU" },
-    intro: "A Blue Mage learns magic from monsters. Watch a beast use its special move up close and survive it, and you can learn to do the same. A dangerous way to study. Bring me crab shells and mandrake leaves and I'll open your eyes to it.", progress: "2 Crab Shells and 2 Mandrake Leaves. Crabs live by the water; mandrakes come out by day.", turn: "Now stand close when the monsters strike. As a Blue Mage, every move you see might become your own." },
-  cor: { name: "Lady Luck", giver: "Tobin", npc: "tobin", lv: 14, items: { harbor_bream: 2, orc_tooth: 1 }, desc: "Bring Tobin 2 Harbor Bream and 1 Orc Tooth to roll with the Corsairs.", reward: { xp: 800, gil: 0, item: "bronze_dagger", qty: 1, unlock: "COR" },
-    intro: "Corsairs trust the dice. A good roll lifts the whole crew's blade or aim; a greedy one can bust. They carry daggers and a pistol for a quick shot. Bring me fresh bream from Saltreach and an orc's tooth for a lucky die, and I'll show you the game.", progress: "2 Harbor Bream from the Saltreach docks and 1 Orc Tooth from the marsh orcs.", turn: "Here's a dagger and a pair of dice. Roll well." }
+  bst: { name: "Call of the Wild", giver: "Tobin", npc: "tobin", lv: 14, items: { lizard_skin: 2, wool_tuft: 3 }, desc: "Bring Tobin 2 Lizard Skins and 3 Wool Tufts to learn the Tamer's ways.", reward: { xp: 800, gil: 0, item: "bronze_axe", qty: 1, unlock: "BST" },
+    intro: "A Tamer never fights alone. They whistle up a beast of the wilds, feed it, and set it on their foes, then wade in after it with an axe. Bring me a lizard's skin and some sheep's wool for a beast's harness, and I'll teach you the call.", progress: "2 Lizard Skins and 3 Wool Tufts. The Hollow has both.", turn: "A good harness. Take this axe, and whistle; something will answer." },
+  blu: { name: "The Borrowed Art", giver: "Tobin", npc: "tobin", lv: 14, items: { crab_shell: 2, mandrake_leaf: 2 }, desc: "Bring Tobin 2 Crab Shells and 2 Mandrake Leaves to begin the Mimic's study.", reward: { xp: 800, gil: 0, item: "bronze_sword", qty: 1, unlock: "BLU" },
+    intro: "A Mimic learns magic from monsters. Watch a beast use its special move up close and survive it, and you can learn to do the same. A dangerous way to study. Bring me crab shells and mandrake leaves and I'll open your eyes to it.", progress: "2 Crab Shells and 2 Mandrake Leaves. Crabs live by the water; mandrakes come out by day.", turn: "Now stand close when the monsters strike. As a Mimic, every move you see might become your own." },
+  cor: { name: "Lady Luck", giver: "Tobin", npc: "tobin", lv: 14, items: { harbor_bream: 2, orc_tooth: 1 }, desc: "Bring Tobin 2 Harbor Bream and 1 Orc Tooth to roll with the Gamblers.", reward: { xp: 800, gil: 0, item: "bronze_dagger", qty: 1, unlock: "COR" },
+    intro: "Gamblers trust the dice. A good roll lifts the whole crew's blade or aim; a greedy one can bust. They carry daggers and a pistol for a quick shot. Bring me fresh bream from Saltreach and an orc's tooth for a lucky die, and I'll show you the game.", progress: "2 Harbor Bream from the Saltreach docks and 1 Orc Tooth from the marsh orcs.", turn: "Here's a dagger and a pair of dice. Roll well." }
 });
 Object.assign(QUESTS, {
   pup: { name: "Strings and Springs", giver: "Tobin", npc: "tobin", lv: 16, items: { ash_lumber: 3, bronze_ingot: 2 }, desc: "Bring Tobin 3 Ash Lumber and 2 Bronze Ingots to build your first automaton.", reward: { xp: 900, gil: 0, item: "cesti", qty: 1, unlock: "PUP" },
-    intro: "A Puppetmaster fights with fists and a friend made of wood and wire. The automaton takes blows and hits back while you weave in and out. I'll need good lumber for its frame and bronze for its springs.", progress: "3 Ash Lumber and 2 Bronze Ingots.", turn: "There. Wind the key, and it'll follow you anywhere. Mind you keep it in repair." },
-  dnc: { name: "The First Step", giver: "Tobin", npc: "tobin", lv: 16, items: { silk_cloth: 2, honeycomb: 2 }, desc: "Bring Tobin 2 Silk Cloth and 2 Honeycombs to learn the Dancer's steps.", reward: { xp: 900, gil: 0, item: "bronze_dagger", qty: 1, unlock: "DNC" },
-    intro: "A Dancer turns the rhythm of battle into healing and openings. Steps throw a foe off balance, flourishes spend those openings, and waltzes mend your friends. Bring me silk for a costume and honey for the throat.", progress: "2 Silk Cloth and 2 Honeycombs.", turn: "Lovely. Feel the beat: every swing builds the energy you spend on a waltz." },
-  sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Scholar's studies.", reward: { xp: 900, gil: 0, item: "ash_staff", qty: 1, unlock: "SCH" },
-    intro: "A Scholar studies both white and black magic, and leans into one at a time. Bright Study for healing, Shadow Study for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
+    intro: "An Artificer fights with fists and a friend made of wood and wire. The automaton takes blows and hits back while you weave in and out. I'll need good lumber for its frame and bronze for its springs.", progress: "3 Ash Lumber and 2 Bronze Ingots.", turn: "There. Wind the key, and it'll follow you anywhere. Mind you keep it in repair." },
+  dnc: { name: "The First Step", giver: "Tobin", npc: "tobin", lv: 16, items: { silk_cloth: 2, honeycomb: 2 }, desc: "Bring Tobin 2 Silk Cloth and 2 Honeycombs to learn the Performer's steps.", reward: { xp: 900, gil: 0, item: "bronze_dagger", qty: 1, unlock: "DNC" },
+    intro: "A Performer turns the rhythm of battle into healing and openings. Steps throw a foe off balance, flourishes spend those openings, and waltzes mend your friends. Bring me silk for a costume and honey for the throat.", progress: "2 Silk Cloth and 2 Honeycombs.", turn: "Lovely. Feel the beat: every swing builds the energy you spend on a waltz." },
+  sch: { name: "Ink and Insight", giver: "Tobin", npc: "tobin", lv: 16, items: { heartwood: 1, crypt_dust: 2 }, desc: "Bring Tobin 1 Heartwood and 2 Crypt Dust to begin a Lore Master's studies.", reward: { xp: 900, gil: 0, item: "ash_staff", qty: 1, unlock: "SCH" },
+    intro: "A Lore Master studies both white and black magic, and leans into one at a time. Bright Study for healing, Shadow Study for destruction. Bring me heartwood for a quill case and crypt dust to mix the ink.", progress: "1 Heartwood (from the elder treants) and 2 Crypt Dust.", turn: "Your first grimoire. Read it twice; then read it again." }
 });
 Object.assign(QUESTS, {
   geo: { name: "The Shape of the Land", giver: "Tobin", npc: "tobin", lv: 18, items: { crag_feather: 2, frost_shard: 2 }, desc: "Bring Tobin 2 Crag Feathers and 2 Frost Shards to learn geomancy.", reward: { xp: 1000, gil: 0, item: "maple_wand", qty: 1, unlock: "GEO" },
-    intro: "A Geomancer bends the land's own currents into auras that follow them, and plants a luopan to curse the ground under their foes. Bring me feathers from the high roost and shards of the pass's ice; they hold the currents well.", progress: "2 Crag Feathers and 2 Frost Shards.", turn: "Ring the bell and listen. The land will answer." },
-  run: { name: "Carved in Steel", giver: "Tobin", npc: "tobin", lv: 18, items: { orc_tooth: 2, iron_ingot: 2 }, desc: "Bring Tobin 2 Orc Teeth and 2 Iron Ingots to become a Rune Fencer.", reward: { xp: 1000, gil: 0, item: "claymore", items: [["bronze_sword", 1]], qty: 1, unlock: "RUN" },
-    intro: "A Rune Fencer carves runes into the air to turn blows aside, then hurls them at the enemy all at once. They wield the great sword and hold the line. Bring me iron for a blade and orc teeth to carve the first runes.", progress: "2 Orc Teeth and 2 Iron Ingots.", turn: "Hold the sword like a wall, and the runes like a promise." }
+    intro: "An Earthwarden bends the land's own currents into auras that follow them, and plants a luopan to curse the ground under their foes. Bring me feathers from the high roost and shards of the pass's ice; they hold the currents well.", progress: "2 Crag Feathers and 2 Frost Shards.", turn: "Ring the bell and listen. The land will answer." },
+  run: { name: "Carved in Steel", giver: "Tobin", npc: "tobin", lv: 18, items: { orc_tooth: 2, iron_ingot: 2 }, desc: "Bring Tobin 2 Orc Teeth and 2 Iron Ingots to become a Rune Blade.", reward: { xp: 1000, gil: 0, item: "claymore", items: [["bronze_sword", 1]], qty: 1, unlock: "RUN" },
+    intro: "A Rune Blade carves runes into the air to turn blows aside, then hurls them at the enemy all at once. They wield the great sword and hold the line. Bring me iron for a blade and orc teeth to carve the first runes.", progress: "2 Orc Teeth and 2 Iron Ingots.", turn: "Hold the sword like a wall, and the runes like a promise." }
 });
 Object.assign(NPCS, {
   brisa: { name: "Brisa, Quartermaster", model: "brisa", talk: "talkBrisa" },

@@ -60,7 +60,7 @@ S.mobs = []; P().buffs = {}; P().hp = P().maxHp; P().mp = P().maxMp;
 G.enterZone('marsh', 1900, 700); run(0.2); S.mobs = []; S.spawnAt = S.spawnAt.map(() => null);
 const hx = G.buildMob('mire_goblin', 12, P().x + 150, P().y, 0, 'BLM'); S.mobs.push(hx); hx.nextCast = 0; G.aggro(hx, P());
 const seen = {}; const origSay = sv; for (let i = 0; i < 60 * 40 && P().alive; i++) { tick(1000 / 60); if (hx.casting) seen[hx.casting.id] = 1; hx.hp = hx.maxHp; }
-ok(Object.keys(seen).length >= 2, 'a Black Mage Mire Goblin casts several different spells (' + Object.keys(seen).join(',') + ')');
+ok(Object.keys(seen).length >= 2, 'a Dark Mage Mire Goblin casts several different spells (' + Object.keys(seen).join(',') + ')');
 ok(P().hp < P().maxHp || P().buffs.poison || P().buffs.slow || P().buffs.silence, 'its spells affect you');
 P().buffs = {}; hx.buffs.silence = { until: S.time + 60 }; hx.casting = null; hx.nextCast = 0; let c2 = false;
 for (let i = 0; i < 60 * 8; i++) { tick(1000 / 60); if (hx.casting) c2 = true; }

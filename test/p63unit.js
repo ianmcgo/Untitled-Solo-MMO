@@ -2,7 +2,7 @@ const H = require('./harness.js'); const { G } = H;
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const want = { WAR: 'turnip_sword', THF: 'turnip_knife', WHM: 'turnip_rod', BLM: 'turnip_staff' };
 const rd = G.loadChar(G.createChar({ name: 'Rdmx', job: 'RDM', look: { race: 'human' } }));
-ok(rd.mainJob === 'WAR', 'only War, Thief, White Mage and Black Mage can be chosen at creation');
+ok(rd.mainJob === 'WAR', 'only War, Rogue, Light Mage and Dark Mage can be chosen at creation');
 let n = 0;
 for (const job in want) {
   const d = G.loadChar(G.createChar({ name: 'T' + (n++) + 'x', job, look: { race: 'human' } }));

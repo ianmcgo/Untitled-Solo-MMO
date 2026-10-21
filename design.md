@@ -11,7 +11,7 @@
 | P3 Characters and effects | Done |
 | P4 Interface, audio, loading screens, jumping | Done |
 | P5a Bigger zones, NMs live, drop tables, XP chains, discovery XP, characters, chat commands | Done (v4.2.0) |
-| P5b Paladin and Red Mage | Done (v4.3.0) |
+| P5b Holy Knight and Gray Mage | Done (v4.3.0) |
 | P5c Quests (11) | Done (v4.4.0) |
 | P5d Sunken Crypt | Done (v4.5.0) |
 | P6a Residence, Pip, storage, furniture | Done (v4.6.0) |
@@ -145,7 +145,7 @@ Every texture is painted in code at load time, as a colour map plus a normal map
 - Water is impassable in the rules (`keepOutOfWater`).
 
 ### Characters and monsters (Phase 2 placeholders, replaced in Phase 3)
-- People are simple jointed figures (capsule limbs, head, hair, eyes) dressed by job: Warrior in red with steel pauldrons and a helm, White Mage in a white robe and hood, Black Mage in a dark robe and pointed hat. They hold their equipped weapon type.
+- People are simple jointed figures (capsule limbs, head, hair, eyes) dressed by job: Knight in red with steel pauldrons and a helm, Light Mage in a white robe and hood, Dark Mage in a dark robe and pointed hat. They hold their equipped weapon type.
 - Monsters have their own shapes: goblins (small, pointed ears, sack, dagger), Wandering Bones (pale, glowing eyes, sword), ghouls (hunched), bats (flapping wings, hovering), worms (undulating segments), hares, and the Chieftain (bigger, horned helm, red cape, great axe). Notorious monsters get a pulsing coloured aura.
 - Animation: walking with arm and leg swing, a weapon swing on each attack, an overhead weapon-skill swing, arms raised while casting, a flinch and white flash when hit, toppling over when defeated.
 - Phase 3 replaces these with fuller models and animation.
@@ -469,7 +469,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - `test/p5unit.js`: zone layout checks, Tab targeting, chains, landmarks, solid walls and pillars, NM cooldowns and pops, Rare duplicates, level-gated drops, rarity tiers, drop-rate bounds, companions catching up, Chieftain cooldown, resting vs standing, companions sitting, standing up on move, command aliases, /target, /check, unknown commands and plain speech.
 - `test/p5shots.js <index.html> <out> <w> <h> <mobile> [scenes]`: drives character creation, logs in, screenshots jump frames, the town, resting, the version popup, the ruins, chains with an NM, the Den, the map, Help, Updates and the inventory, logs out and logs back in.
 
-## Phase 5b: Paladin and Red Mage (v4.3.0)
+## Phase 5b: Holy Knight and Gray Mage (v4.3.0)
 
 - `JOBS.PLD` and `JOBS.RDM` carry `advanced: true`. `ADVANCED_JOBS` maps each to its Tobin quest (`pld`, `rdm`) and unlock level (6). `BASE_JOBS` is what character creation offers. `save.jobsUnlocked` records unlocks; `normalizeSave` also derives them from completed quests and resets a locked main or support job to WAR / none. `jobUnlocked(j)` gates `setJob`, the Jobs tab, support-job choice and `mercAvailable` (Dorn requires PLD, Lisette RDM).
 - Tobin's dialogue builds an `adv` option list at level 6+ (ask / accept / turn in for each job) and appends it to every branch, so the support-job conversation never hides it. `giveReward` handles `reward.unlock`.
@@ -570,7 +570,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Bestiary +7 entries; achievements lv15 and marsh.
 - Tests: test/p8unit.js (cap, spells at 11/15, exit link, marsh spawns, spacing, gather points, toad aggro, hare peaceful, quest flow). p1bot takes BOT_ZONE and BOT_LV (level 10 WAR in the marsh: lv 11 in 15 min, 2 defeats). p5shots scenes marsh, toad, marsh-night.
 
-## Phase 10: Thief and Monk (v5.1.0)
+## Phase 10: Rogue and Brawler (v5.1.0)
 - JOBS THF (dex/agi, no MP) and MNK (hp 76+15/lv, vit/str), both `advanced`. ALL_JOBS (and so ALL_J gear) includes them. ADVANCED_JOBS THF {quest thf, lv 6}, MNK {quest mnk, lv 6}. jobsUnlocked default has THF/MNK.
 - Skills: new `dagger` combat skill (SKILL_NAMES, COMBAT_SKILLS). Ratings THF dagger A, MNK h2h A / staff B / club C; WAR and RDM dagger B, BLM dagger D.
 - Weapon skills: quick_sting, venom_bite, gale_edge (dagger 5/22/40); twin_fist, rising_knee, iron_palm (h2h 5/22/40).
@@ -623,10 +623,10 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - HUD: #btnMount shows only on coarse pointers when licensed (class "has"); minimap mob dots no longer use con colors.
 - Tests: test/p14unit.js; p5shots scenes stable, race, race2, lineup, lineup2, fitBLM, fitBLMside, fitWAR, fitWARfight.
 
-## Phase 16: Ranger and Summoner (v5.7.0)
+## Phase 16: Yeoman and Conjurer (v5.7.0)
 - JOBS RNG, SMN (advanced; ADVANCED_JOBS quests rng/smn at lv 6 through Tobin's generic questOptions). ALL_JOBS includes both. Skills: COMBAT archery, MAGIC summoning; ratings RNG archery A, SMN summoning A; WAR archery D, THF archery C.
 - Ranged: `reach(e)` = CONFIG.bowRange 230 for wtype archery, else meleeRange; used by autoAttack, player chase, meleeAI approach, ally WS and WS checks. Mobs are unchanged (they still need melee range). swing(): archery fires vfx("arrow") (particle streak in effects3d) and consumes the `barrage` buff to loose 3 swings (guarded by a.volley). `sharpshot` adds +40 acc in stat(). `shadowbind` sets mob buffs.bind (12 s); updateMob skips moveToward while bound. WS piercing_arrow / flaming_volley / gale_arrow (archery 5/22/40). Bow weapon model kind "archery" (curved limbs, grip, string; steel/yew tints).
-- Summoner: spells ember_sprite / frost_sprite / gale_sprite (kind "summon", target "self"; resolveTarget returns the player). `summonPet` builds an ally `{ pet: true, petKey, job "MNK" stats, role "pet" }` in S.pet and S.party (meleeAI fights). `PETS[key] { name, el, col, eye, pact, weak }`. `tickPet` drains 1 + lv/6 MP every 3 s and releases on 0 MP, death, job change or not SMN; mounting or starting a race releases it. rebuildParty keeps S.pet; syncAllies rebuilds pet stats at your level. Abilities release, blood_pact (24 + 7·lv + 1.2·INT + 0.8·summoning skill, x element weakness, dealt by the pet), siphon (MP 20 + 3·lv). Pet model = batEntry(col, eye) via rigSigFor "pet|key"; party frame tag "Sprite".
+- Conjurer: spells ember_sprite / frost_sprite / gale_sprite (kind "summon", target "self"; resolveTarget returns the player). `summonPet` builds an ally `{ pet: true, petKey, job "MNK" stats, role "pet" }` in S.pet and S.party (meleeAI fights). `PETS[key] { name, el, col, eye, pact, weak }`. `tickPet` drains 1 + lv/6 MP every 3 s and releases on 0 MP, death, job change or not SMN; mounting or starting a race releases it. rebuildParty keeps S.pet; syncAllies rebuilds pet stats at your level. Abilities release, blood_pact (24 + 7·lv + 1.2·INT + 0.8·summoning skill, x element weakness, dealt by the pet), siphon (MP 20 + 3·lv). Pet model = batEntry(col, eye) via rigSigFor "pet|key"; party frame tag "Sprite".
 - Gear is classic MMO gear since 18.0.0. Companion corin (RNG dd) gets gear from autoGear with a bow in Range and arrows in Ammo, plus MERC_PERSONAL. Achievements summoner, sniper (stats.summons, stats.rngKills).
 - Tests: test/p15unit.js; p5shots scenes ranger, summoner.
 
@@ -657,7 +657,7 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - Guild rewards are classic MMO pieces since 18.0.0 (desperado_ring, leaping_boots, armored_ring, healing_harness, variable_ring in GUILD_SHOP). Achievements bounty, silver, mythril.
 - Tests: test/p18unit.js; p6unit townsfolk bed count now >= 7. p5shots scenes maera, guild.
 
-## Phase 20: Dark Knight and Bard (v6.1.0)
+## Phase 20: Shadow Knight and Musician (v6.1.0)
 - Jobs DRK, BRD (ADVANCED_JOBS lv 10; quests drk "The Shadowed Path" (2 crypt_dust, 3 bone_chip → bronze_scythe) and brd "A Traveler's Song" (3 mire_reed, 2 bat_wing → minstrel_coat), both from Tobin). jobsUnlocked gains DRK/BRD.
 - New weapon type `scythe` (COMBAT_SKILLS, SKILL_NAMES): WS slice 5, nightreap 22, spiral_reap 40, grim_harvest 75. Items are classic MMO Zaghnals and Scythes since 18.0.0. Rig weapon kind "scythe" (pole + curved extruded blade), held/stowed like the greataxe and uses the cleave animation.
 - New magic skills `dark` and `singing`. Spells may carry `skill` which spellSkill() returns first.
@@ -1061,26 +1061,26 @@ Total audio is about 2.3 MB of MP3 (3.1 MB as embedded text). The whole game fil
 - models3d propView: `sign` (post + two arms), `camp` (tent cone, stone ring, fire, logs, light); syncNpc flickers `v.campFire`.
 - Ferry deferred to phase 79 (Gull Isle) since it needs the island zone.
 
-## Phase 71: Samurai, Ninja, Dragoon (v11.0.0)
+## Phase 71: Blade Sworn, Hidden Blade, Lancer (v11.0.0)
 - data.js block before `const SHOP`: ALL_JOBS += SAM/NIN/DRG; ADVANCED_JOBS lv 12 (quests sam/nin/drg); JOBS stats; COMBAT_SKILLS += gkatana/katana/polearm; MAGIC_SKILLS += ninjutsu; SKILL_NAMES; SKILL_RATINGS; 12 WEAPON_SKILLS; ABILITIES meditate/hasso/third_eye (SAM), smoke_step/twin_strike (NIN), jump/high_jump/dragon_spirit (DRG); SPELLS shadow_veil (buff "shadows", n 2 +1 at lv12), flame/frost/gale_shuriken (nukes, skill ninjutsu), binding_thread (debuff bind); 12 weapons (bronze/iron/steel in SHOP, frost tier at vela); WAR armour also fits SAM/DRG, THF armour fits NIN. Quests appended at file end.
 - game.js: doAbility meditate (+400 TP), smoke_step (halve enmity on all mobs), jump/high_jump (×1.45/×1.9 base dmg, +100/150 TP, high halves enmity; sets `a.jumpAt/jumpHigh`). swing(): defender `third_eye` or `shadows` (count n) negate non-ranged hits first; hasso +10 acc ×1.12 dmg; dragon_spirit ×1.15; new wtypes count as slash. castBuff sets shadows.n. castDebuff text for bind. Merc gear and MERC_ROLES for new jobs.
 - twin_strike: swing() recurses once per attack while the buff has `left` (3) charges; `a.twinning` guards recursion.
 - rig: JOB_TINT for new jobs; weaponEntry `gkatana`/`katana` (curved extruded blade, wrapped grip, round guard, edge strip/glow) and `polearm` (long shaft, two grips, spearhead + side prongs). anim: gkatana = cleave/two-hand stance; polearm = thrust/staff stance; jump arc pose (rootOff up to 2.2/3.2). models3d attach/sheathe rules include new kinds.
 - Tests: p31unit (quests, abilities, shadows, Foresight, Jump). harness exports `aggro`.
 
-## Phase 72: Beastmaster, Blue Mage, Corsair (v11.1.0)
+## Phase 72: Tamer, Mimic, Gambler (v11.1.0)
 - data.js block before `const SHOP`: jobs BST/BLU/COR (lv 14 quests bst/blu/cor appended at file end), skill `axe` + magic `blue`, 4 axe WS, abilities call_beast/reward/feral_howl (BST), burst_affinity (BLU), phantom_roll ("Valor Roll")/quick_shot/hawk_roll/double_down (COR). 10 blue spells `blu_*` (`blue: true`, skill "blue", kinds bluephys/debuff/drain/nuke) and `BLUE_LEARN` move-name → id; scroll generator skips `sp.blue`. `BEASTS` tiers (hill_lizard 1, pond_crab 8, mountain_ram 14). Axes bronze–steel at SHOP, frost at vela. Equip rules: COR on daggers/swords, BLU on swords/clubs; armour WAR→BST, RDM→BLU, THF→COR.
 - game.js: `callBeast` (ally pet with `beast`, `fam`, job WAR; tickPet releases on job change/death, no upkeep), Reward, Savage Howl (`weaken` ×0.85 attacker dmg), `rollDice(a, kind, add)` (d6; Double Down adds; >7 busts; tables valor [..,14 at 5,..16 at 7], hawk [..,10 at 4,..12 at 7]; party within 300 px, 3 min; `a.lastRoll`), Quick Shot, `castBluePhys` (baseDmg × pDIF × mul × (1+blue skill×0.004)), Surge Affinity also boosts blue nukes, `blueLearnFrom(m, mv)` in execTpMove (BLU within 400 px, 50%, level gate). swing: valor_roll damage, hawk_roll accuracy, weaken.
 - rig: beast pets render via mobLook → lizard/crab/sheep entries (`beast|fam` sig); JOB_TINT for BST/BLU/COR; weaponEntry `axe`.
 - Tests: p32unit.
 
-## Phase 73: Puppetmaster, Dancer, Scholar (v11.2.0)
+## Phase 73: Artificer, Performer, Lore Master (v11.2.0)
 - data.js block before `const SHOP`: jobs PUP/DNC/SCH (lv 16 quests pup/dnc/sch at file end). Abilities: activate/repair/tune_up (PUP); healing_waltz (tp 200), quick_step (tp 100), rising_flourish, group_waltz (tp 400) (DNC); light_arts/dark_arts/penury/ebullience (SCH). SCH gets every non-song, non-summon, non-blue spell with WHM/BLM level ≤ 18 at that level +2 (max 20). `AUTOMATON_LOOK`. Equip rules: h2h→PUP, dagger→DNC, staff/club→SCH; MNK armour→PUP, THF→DNC, BLM/WHM→SCH.
 - game.js: doAbility charges `ab.tp` first (refunds recast if short). `activateAutomaton` (ally pet `automaton`, job WAR; tickPet releases on job change/break). Mend Puppet 50%, Tune Up = pet `warcry` 60 s. Waltzes heal (lv×9 + mnd×2 + agi; group ×0.7). Light Step `stepped` {n≤5} → +5 acc per step for any attacker (swing hitChance). Rising Flourish ×(1+0.5n). `artsMatch(a, sp)`: light = heal/buff/dot, dark = nuke/debuff/drain/aspir → cast ×0.8 (startCast) and MP ×0.9 (finishCast). Thrift: white spell free. Zeal: non-blue nuke ×1.3.
 - rig: automaton pet = humanEntry(AUTOMATON_LOOK); JOB_TINT for PUP/DNC/SCH.
 - Tests: p33unit.
 
-## Phase 74: Geomancer, Rune Fencer (v11.3.0)
+## Phase 74: Earthwarden, Rune Blade (v11.3.0)
 - data.js block before `const SHOP`: jobs GEO/RUN (lv 18 quests geo/run at file end), skill `gsword`, magic `geomancy`, 4 gsword WS. `GEO_AURAS` (indi_vigor/indi_fury/indi_focus self auras; geo_torpor/geo_frailty/geo_languor luopans) → SPELLS kind "geo". Abilities full_circle, mending_halation (GEO); kindle/rime/gale/stone_rune, lunge, vallation (RUN). Great swords bronze–steel at SHOP, frost at vela. Equip: club→GEO; WHM/BLM armour→GEO; WAR/PLD armour→RUN.
 - game.js: `castGeo` sets `a.indi {id, until}` or `a.luopan {id, x, y, until, mp}`; `tickGeo(dt)` (each 1 s from step) refreshes aura buffs on party within 300 px (vigor heals 3% every 3 s) and luopan debuffs on mobs within 140 px (slow / geo_frail / weaken). geo_fury ×1.10 melee, geo_focus ×1.12 nukes, geo_frail ×1.12 damage taken by mobs (applyDamage). Runes: `buffs.runes {list ≤3, until 300 s}`; applyDamage from mobs ×(1−0.05·runes) and ×0.8 with vallation; Spear Surge sums (lv×6+int×1.2)×weakness per rune. Rune Guard hits add 30 enmity.
 - effects3d `updateGeoFx`: ring decal around an aura caster (300 px) and luopan ring + spinning gem (140 px).
@@ -1567,10 +1567,10 @@ World systems:
 | 10.8.0 | Phase 68: wildlife, travellers, butterflies, fish, procedural ambience. |
 | 10.9.0 | Phase 69: lookouts, shrines, lore tablets, hidden caches, Wayfarer. |
 | 10.10.0 | Phase 70: camps, crystal warps, signposts, road riding bonus. |
-| 11.0.0 | Phase 71: Samurai, Ninja, Dragoon jobs, three weapon types. |
-| 11.1.0 | Phase 72: Beastmaster, Blue Mage, Corsair. |
-| 11.2.0 | Phase 73: Puppetmaster, Dancer, Scholar. |
-| 11.3.0 | Phase 74: Geomancer, Rune Fencer. |
+| 11.0.0 | Phase 71: Blade Sworn, Hidden Blade, Lancer jobs, three weapon types. |
+| 11.1.0 | Phase 72: Tamer, Mimic, Gambler. |
+| 11.2.0 | Phase 73: Artificer, Performer, Lore Master. |
+| 11.3.0 | Phase 74: Earthwarden, Rune Blade. |
 | 12.0.0 | Phase 75: Ironvale, mythril gear, Brisa quests. |
 | 12.1.0 | Phase 76: Sunscar Desert. |
 | 12.2.0 | Phase 77: Verdant Jungle; scroll drop fix. |
@@ -1626,18 +1626,18 @@ World systems:
 | 6.4.0 | Phase 23: five playable races, gate guards and the City Blessing (essences need it). |
 | 6.3.0 | Phase 22: auction houses with moving prices, stock, listings and delivery box. |
 | 6.2.0 | Phase 21: eight-chapter main story, Ashen Herald, Ember of Ashenreach. |
-| 6.1.0 | Phase 20: Dark Knight and Bard, scythes, songs, Mordrin and Lyra. |
+| 6.1.0 | Phase 20: Shadow Knight and Musician, scythes, songs, Mordrin and Lyra. |
 | 6.0.0 | Phase 19: Adventurers' Guild, daily bounties, ranks, guild point shop. |
 | 5.9.0 | Phase 18: level 20, Frostspire Pass, snow weather, Battle Shout, tier-4 weapon skills. |
 | 5.8.0 | Phase 17: Chapel Depths battlefield; XP bar in party frame, phone chat bottom-left, minimap range, creation defaults. |
-| 5.7.0 | Phase 16: Ranger and Summoner jobs, sprites, bows, Corin. |
+| 5.7.0 | Phase 16: Yeoman and Conjurer jobs, sprites, bows, Corin. |
 | 5.6.0 | Phase 15: Thornstrider coats, Swift Saddle, Hollow Run time trial; gear fit fixes. |
 | 5.5.0 | Phase 14: Saltreach Harbor town, Ilsa/Marn/Vela, sea fishing, level 13-14 gear. |
 | 5.4.0 | Phase 13: cooking craft, meals with timed buffs; action bar hides empty slots; removed solo tip and Quests/Sound buttons. |
 | 5.3.1 | Hotfix: storage-full fallback (phone character start), title screen. |
 | 5.3.0 | Phase 12: fishing, weather (visuals and element bonuses). |
 | 5.2.0 | Phase 11: treasure pool, Trade Board, Garrick augments. |
-| 5.1.0 | Phase 10: Thief and Monk jobs, dagger/h2h weapon skills and gear, Wren and Tamsin. |
+| 5.1.0 | Phase 10: Rogue and Brawler jobs, dagger/h2h weapon skills and gear, Wren and Tamsin. |
 | 5.0.0 | Phase 9: level cap 15, Ashen Marsh, tier II spells, level 11 gear, 2 NMs, 2 quests. |
 | 4.9.0 | Phase 8: companions 2.0, bestiary, achievements, smoother limbs, colliders, essences. |
 | 4.8.1 | Hotfix: aggro restored, target command box, hidden levels, residence fixes, location save, body sliders. |
@@ -1646,7 +1646,7 @@ World systems:
 | 4.6.0 | Phase 6a: residence, Pip, storage, NPC schedules, passive monsters, NM-only gear, crystals, menu rework, in-game confirms, loading showcase (above). |
 | 4.5.0 | Phase 5d: the Sunken Crypt (above). Creation labels sex instead of build. |
 | 4.4.0 | Phase 5c: quests (above). |
-| 4.3.0 | Phase 5b: Paladin and Red Mage (above). |
+| 4.3.0 | Phase 5b: Holy Knight and Gray Mage (above). |
 | 4.2.0 | Phase 5a (above). |
 | 4.1.0 | Renamed the game to Untitled Solo RPG. Title screen shows version and build date/time (`package.json` version, stamped by `build.mjs`). Save keys unchanged. Source pushed to GitHub. |
 | 4.0 | Phase 4 build: interface, audio, loading screens, jumping. |
@@ -1728,7 +1728,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Melee `dmg` = classic MMO DMG x WTYPE_MULT[type] x (1 + 0.015 x item level), rounded (h2h uses DMG + 3). WTYPE_MULT (fitted in 18.2 so each weapon type keeps its 17.3 damage per second): sword 1.15, dagger 1.5, club 0.95, staff 1.05, greataxe 1.1, gsword 0.95, axe 1.05, h2h 1.1, scythe 0.8, polearm 1.0, katana 1.4, gkatana 1.0, archery and throwing 1.0. Melee `delay` = 1.9 x (classic MMO delay / 183)^0.75 seconds (dagger 1.9, sword 2.3, staff 3.2, great axe 4.1); h2h 2.6. Ranged `delay` is delay / 120. Ammo keeps `dmg`.
 - Stats: DEF def, HP hp, MP mp, STR DEX VIT AGI INT MND CHR, Attack att, Accuracy acc, Evasion eva. Ranged Accuracy and Ranged Attack become acc and att only on Range and Ammo items. Dropped: Haste, Enmity, HP%, MP%, skill bonuses, latent and special effects.
 - Prices (18.4): `30 + 40 * lv^1.5` times a slot factor (main and body 1, ranged 0.9, legs and sub 0.8, head, hands and feet 0.7, neck, ear, ring, back and waist 0.6; ammo price / 6, at least 2), x1.4 for +1. Sell price stays price / 4.
-- Job quests whose classic MMO weapon is above level 1 also give a level 1 weapon: Samurai gets Tachi (Lv8) plus Harpoon, Rune Fencer gets Claymore (Lv10) plus Bronze Sword (`reward.items`). Blue Mage, Corsair, Dancer, Scholar, Bard and Summoner rewards are level 1 pieces. The Warp Ring has `enchant: "warp"`; Use in the bag casts Warp (5 s item delay).
+- Job quests whose classic MMO weapon is above level 1 also give a level 1 weapon: Blade Sworn gets Tachi (Lv8) plus Harpoon, Rune Blade gets Claymore (Lv10) plus Bronze Sword (`reward.items`). Mimic, Gambler, Performer, Lore Master, Musician and Conjurer rewards are level 1 pieces. The Warp Ring has `enchant: "warp"`; Use in the bag casts Warp (5 s item delay).
 
 ### Engine
 - `gearStats` (game.js): a bow in `ranged` sets wtype archery, dmg = bow dmg + ammo dmg x CONFIG.ammoDmgMul (0.5), delay = bow delay; the main hand then only adds stats.
@@ -1972,7 +1972,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Tests: test/m5cunit.js.
 
 ## 18.34.0: job unlock tree (J1)
-- Starting jobs: Warrior, White Mage, Black Mage, Thief (from 18.34.3) (the non-advanced ones).
+- Starting jobs: Knight, Light Mage, Dark Mage, Rogue (from 18.34.3) (the non-advanced ones).
 - JOB_REQ (data.js) maps each of the 19 non-starting jobs to required job levels; JOB_FLAVOUR holds Tobin's lines. jobReqMet(sv,j) checks levels reached.
 - checkJobUnlocksIn(sv) sets sv.jobsUnlocked and returns the new ones; used silently in normalizeSave (no popups on load). checkJobUnlocks() runs after level up and every 4th landmark tick, logs a line and queues save.jobPopups.
 - jobPopupTick shows queued popups via gameConfirm (tag jobpop, no No button) only when calmNow() and no confirm is open.
@@ -1982,7 +1982,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 - Tests: j1unit.js; older tests pre-unlock jobs.
 - 18.34.2: mercenary hiring follows jobs. genMercDef picks only unlocked jobs, mercAvailable requires jobUnlocked(MERCS[id].job) for generated and named companions, mercPool hides locked-job offers unless hired, the old hall list skips locked non-hired companions.
 - Achievements: unlock_<JOB> for each JOB_REQ job, jobs_bronze/silver/gold (6/12/18 open jobs) and jobs_all, via jobsOpenCount (data.js after ACHIEVEMENTS).
-- 18.34.3: Thief is no longer advanced and has no JOB_REQ entry, so it starts open (WAR, WHM, BLM, THF); no unlock_THF achievement.
+- 18.34.3: Rogue is no longer advanced and has no JOB_REQ entry, so it starts open (WAR, WHM, BLM, THF); no unlock_THF achievement.
 
 ## 18.35.0: online market (M5d)
 - SQL: sql/m5d-market.sql (schema 7) and sql/m5d-item-ref.sql (generated by `cd test && node genrefs.js`, also writes sql/m5d-run.sql). build.mjs bundles setup.sql + both into SETUP_SQL for Admin → Copy setup SQL. NET_SCHEMA = 7.
@@ -2155,7 +2155,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 
 ## 18.57.0 Racial starting clothes
 - data.js after the Windower gear load: `RACE_GEAR_ALIAS` (old id to new id), the seven old shop ids are deleted from GEAR_DATA, `RACE_GEAR_ROWS` adds ten body pieces (`src: "race"`, `race: <RACES key>`, lv 1, DEF 2, price 70, jobs ALL). gear.js is untouched, so regenerating it with gear18.py stays safe; the old ids come back from the generator and are deleted again here.
-- Pieces: human_vest / human_tunic, elari_jerkins / elari_bodice, ursan_surcoat / ursan_tunic, nekari_separates / nekari_tunic, pipkin_kaftan / pipkin_tunic (first = Warrior, second = mage).
+- Pieces: human_vest / human_tunic, elari_jerkins / elari_bodice, ursan_surcoat / ursan_tunic, nekari_separates / nekari_tunic, pipkin_kaftan / pipkin_tunic (first = Knight, second = mage).
 - `src: "race"` keeps them out of everything keyed on shop or drop: the SHOP and Vela loop, GEAR_DROP_IDS and gearDrop, the generated g_ recipes, and autoGear (companions). `ahTradable` also rejects any item with `race`. They can still be sold to an NPC.
 - `starterBody(race, job)` (RACE_START_BODY, RACE_MAGE_JOBS = WHM BLM RDM SMN SCH GEO count as mage) is used by createChar (overrides body after the old WHM/BLM kit) and by the character-creator preview in main4.js.
 - `canEquip` returns "Only <Race> can wear this" when `it.race` differs from save.look.race. itemCard shows "<Race> only" instead of "All Races".
@@ -2205,7 +2205,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.63.2 Three starting jobs
 - createChar accepts only BASE_JOBS (WAR, WHM, BLM) and falls back to WAR; the creator UI already listed only those. STARTER_WEAPON dropped THF, so turnip_knife exists but nothing grants it. setJob never grants gear: it only moves gear the new job cannot equip back to the bag.
 
-## 18.63.3 Thief starts again
+## 18.63.3 Rogue starts again
 - data.js `START_JOBS` = WAR, THF, WHM, BLM drives createChar and the creator job buttons (BASE_JOBS unchanged, still used elsewhere). STARTER_WEAPON has THF: turnip_knife again. Corrects 18.63.2, which wrongly limited creation to three jobs.
 
 ## 18.64.0 Connected shoulders
@@ -2680,6 +2680,11 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.24.0 New job names
+- JOBS[x].name changed; ids (WAR, WHM, ...) stay as internal keys. New display codes live in data.js `JOB_CODE` with helper `JC(id)`; used wherever a code is shown (hud level chips, party bars, target frame, item cards, spell job lists, scroll text, social lists, "Not usable by"). Prose in Help uses codes directly.
+- Mapping: WAR Knight KNT, MNK Brawler BRW, WHM Light Mage LGM, BLM Dark Mage DKM, RDM Gray Mage GRM, THF Rogue ROG, PLD Holy Knight HLK, DRK Shadow Knight SHK, BST Tamer TMR, BRD Musician MUS, RNG Yeoman YEO, SAM Blade Sworn BSW, NIN Hidden Blade HDB, DRG Lancer LNC, SMN Conjurer CNJ, BLU Mimic MIM, COR Gambler GMB, PUP Artificer ART, DNC Performer PRF, SCH Lore Master LRM, GEO Earthwarden EWD, RUN Rune Blade RNB.
+- net.js /search job filter accepts both an old id and a new code.
+
 ## 19.23.0 Fresh numbers
 - Deterministic nudge scripts (seeded FNV hash on item/recipe id, so reruns give the same output): gear.js weapons dmg +-1 (about 40% of lv 3+ main-hand pieces), one stat +-1 on about half of stat pieces (hp/mp only when 8+, others 3+), lv +-1 on about 12% of lv 6+ pieces; the +1 (hq) twin gets the same change. Racial starter pieces and ammo are untouched.
 - data.js: about a third of non-intermediate craft recipes get one material count +-1, about a fifth shift recipe lv by 1 (lv 4+); about 40% of non-key monster drop chances scaled by 0.85 to 1.15 (capped 0.9; entries at 0.9 or more untouched).
@@ -2687,7 +2692,7 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 
 ## 19.22.0 Chains and pacts
 - SC_PROPS keys, SC_TABLE and weapon skill `props` use the new property names; four SC_TABLE results changed (Meltdown+Crushing, Burst+Pressure, Skewer+Rending, Frostbind+Resonance) while keeping a shared element with one input.
-- AVATARS `pact:` names, tpMove / BLUE_LEARN names (Rear Kick, Chomp) renamed together. Trick Attack text removed from the Thief blurb (not an ability).
+- AVATARS `pact:` names, tpMove / BLUE_LEARN names (Rear Kick, Chomp) renamed together. Trick Attack text removed from the Rogue blurb (not an ability).
 - Phase 3 steps: this release is step A; step B (stat and level nudges) and step C (recipes, drops, balance check) follow.
 
 ## 19.21.0 New gear names

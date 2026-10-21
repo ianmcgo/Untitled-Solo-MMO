@@ -2,11 +2,11 @@ const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const mk = job => { const id = G.createChar({ name: 'T' + job, job, look: {} }); return G.loadChar(id); };
-ok(mk('BLM').spells.includes('stone') && !mk('BLM').spells.includes('cure'), 'a new Black Mage starts with Stone only');
-ok(mk('WHM').spells.includes('cure') && !mk('WHM').spells.includes('dia'), 'a new White Mage starts with Cure');
-ok(mk('RDM').mainJob === 'WAR' && mk('BRD').mainJob === 'WAR', 'Red Mage and Bard are advanced jobs, so a new character cannot start as one');
-ok(mk('SMN').mainJob === 'WAR' && mk('SMN').spells.length === 0, 'Summoner is an advanced job and starts as a Warrior with no spells');
-ok(mk('WAR').spells.length === 0, 'a new Warrior starts with no spells');
+ok(mk('BLM').spells.includes('stone') && !mk('BLM').spells.includes('cure'), 'a new Dark Mage starts with Stone only');
+ok(mk('WHM').spells.includes('cure') && !mk('WHM').spells.includes('dia'), 'a new Light Mage starts with Cure');
+ok(mk('RDM').mainJob === 'WAR' && mk('BRD').mainJob === 'WAR', 'Gray Mage and Musician are advanced jobs, so a new character cannot start as one');
+ok(mk('SMN').mainJob === 'WAR' && mk('SMN').spells.length === 0, 'Conjurer is an advanced job and starts as a Knight with no spells');
+ok(mk('WAR').spells.length === 0, 'a new Knight starts with no spells');
 const old = G.newSave(); delete old.rv; old.name = 'Oldie';
 const r0 = G.loadRoster(); const oid = 'cold1';
 G.STORE.set(G.charKey(oid), JSON.stringify(old)); r0.chars.push({ id: oid, name: 'Oldie', job: 'WAR', lv: 1, zone: 'x', look: {} }); G.STORE.set('ashenreach_roster', JSON.stringify(r0));

@@ -7,7 +7,7 @@ const opt = re => S.dialog && S.dialog.all.find(o => re.test(o.label));
 
 ok(G.CONFIG.levelCap >= 15 && G.CONFIG.xpTable.length === G.CONFIG.levelCap, 'level cap has an XP table to match');
 G.save.jobs.BLM.lv = 10; G.setJob('BLM', null); G.gainXp(4450);
-ok(P().lv === 11, 'a Black Mage gains level 11');
+ok(P().lv === 11, 'a Dark Mage gains level 11');
 G.gainXp(1e6);
 ok(P().lv === G.CONFIG.levelCap && G.actionList(P()).some(a => a.id === 'sleep') && G.actionList(P()).some(a => a.id === 'drain'), 'XP stops at the level cap, with Life Leech and Sleep learned');
 const ex = G.ZONES.hollow_lake.exits.find(e => e.to === 'marsh');
