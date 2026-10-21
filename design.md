@@ -2680,6 +2680,11 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.23.0 Fresh numbers
+- Deterministic nudge scripts (seeded FNV hash on item/recipe id, so reruns give the same output): gear.js weapons dmg +-1 (about 40% of lv 3+ main-hand pieces), one stat +-1 on about half of stat pieces (hp/mp only when 8+, others 3+), lv +-1 on about 12% of lv 6+ pieces; the +1 (hq) twin gets the same change. Racial starter pieces and ammo are untouched.
+- data.js: about a third of non-intermediate craft recipes get one material count +-1, about a fifth shift recipe lv by 1 (lv 4+); about 40% of non-key monster drop chances scaled by 0.85 to 1.15 (capped 0.9; entries at 0.9 or more untouched).
+- Balance check: tools/balance/runsim.sh on 8 jobs, 2 trials, before and after; medians matched within noise (e.g. Lv20 even: 50% win before, 75% after; Lv10 even: 100% before, 75% after; easy fights unchanged). Entries with probability 0.02 or less or a dummy id are skipped because later code filters them by id.
+
 ## 19.22.0 Chains and pacts
 - SC_PROPS keys, SC_TABLE and weapon skill `props` use the new property names; four SC_TABLE results changed (Meltdown+Crushing, Burst+Pressure, Skewer+Rending, Frostbind+Resonance) while keeping a shared element with one input.
 - AVATARS `pact:` names, tpMove / BLUE_LEARN names (Rear Kick, Chomp) renamed together. Trick Attack text removed from the Thief blurb (not an ability).
