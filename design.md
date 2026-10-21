@@ -2171,7 +2171,7 @@ Source of truth for gear. Everything old (167 pieces) is gone; saves reset (CONF
 ## 18.59.0 City gear
 - data.js `GEAR_RENAME` (old id to [new id, new name]) runs after the race-gear deletes: it copies the GEAR_DATA entry (and its _hq entry if one exists, named "... +1") under the new id and deletes the old one. Renamed: windurstian_slops to city_slops, san_dorian_vest to city_vest, san_dorian_tunic to city_tunic, bastokan_harness to city_harness. Stats, jobs, lv 15 and `src: "drop"` are untouched.
 - The renames are merged into `RACE_GEAR_ALIAS`, so migrateRaceGearIds rewrites old ids in saves (the regex is built from the alias keys, which is why that object now holds every id rename).
-- Left alone on purpose: Kingdom Tunic/Vest, Republic Harness, Federation Slops (the other nations' pieces) and the older design/balance-18.x.md tables, which are frozen sim output and still show bastokan_harness.
+- Left alone on purpose: League Tunic/Vest, Compact Harness, Harbor Guild Slops (the other nations' pieces) and the older design/balance-18.x.md tables, which are frozen sim output and still show bastokan_harness.
 
 ## 18.60.0 City weapons
 - GEAR_RENAME gained eleven weapons: san_dorian_sword to city_sword, san_dorian_bow to city_bow, windurstian_bow to city_bow_2 ("City Bow II"), bas_crossbow to city_crossbow, san_dorian_cesti to city_cesti, bastokan_axe to city_axe, bas_knuckles to city_knuckles, windurstian_staff to city_staff_2 ("City Staff II"), bastokan_scythe to city_scythe, windurstian_club to city_club, bastokan_staff to city_staff (Rare, NM, still in BATTLEFIELD.rewards, which now lists city_staff).
@@ -2679,6 +2679,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - menu4.js: Config, More row gets `data-a="tutorial"` handled in the action chain; Help Controls gets a Tutorial line; Updates 19.18.0.
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
+
+## 19.21.0 New gear names
+- gear.js display names only (ids such as `hume_tunic`, `butterfly_axe` unchanged). Map built from name prefixes plus an explicit unique-item table; applied as whole-name replacement across src, design docs and tests so partial words elsewhere (races, towns) are untouched.
+- Leftover racial gear ids keep their old id stems; old Updates text about earlier racial renames was reworded to avoid the old names.
+- Ledelsens became Boots; Clomps became Clogs; Brstplate spelled out. Butterfly Axe became Wingblade Axe because Moth Axe already exists.
+- Spell-word gear (Aspir Knife, Poisona Ring, Focus Collar, Carbuncle Mitts) became Leech Knife, Antidote Ring, Steady Collar, Lantern Mitts.
 
 ## 19.20.0 New names
 - Display-name rename only (SPELLS, abilities, weapon skills, BUFF_NAMES, avatar names, scroll items generated from spells, JOB descriptions, Help, old Updates text, design docs, tests). Ids (`dia`, `provoke`, `fast_blade`, pet id `carbuncle`, …) unchanged so saves stay valid.

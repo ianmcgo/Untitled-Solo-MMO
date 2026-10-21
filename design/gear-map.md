@@ -24,7 +24,7 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | training_gi | kenpogi | Kenpogi | 8 |
 | steel_sword | spatha | Spatha | 9 |
 | steel_greataxe | great_axe | Great Axe | 12 |
-| oak_staff | gelong_staff | Gelong Staff | 10 |
+| oak_staff | gelong_staff | Hermit Staff | 10 |
 | oak_club | wild_cudgel | Wild Cudgel | 11 |
 | chain_mail | brass_harness | Brass Harness | 11 |
 | wizards_robe | robe_hq | Robe +1 | 1 |
@@ -40,24 +40,24 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | tidesteel_dagger | knife | Knife | 13 |
 | shark_claws | bas_knuckles | Bas. Knuckles | 15 |
 | harbor_mail | doublet | Doublet | 11 |
-| sailcloth_robe | lgn_harness | Lgn. Harness | 10 |
-| corsair_jerkin | ryl_ftm_tunic | Ryl.Ftm. Tunic | 10 |
+| sailcloth_robe | lgn_harness | Vanguard Harness | 10 |
+| corsair_jerkin | ryl_ftm_tunic | Crown Footman Tunic | 10 |
 | gull_hat | cotton_headband | Cotton Headband | 14 |
 | tide_ring | eremites_ring | Eremite's Ring | 10 |
-| cinder_mantle | garrison_tunica | Garrison Tunica | 18 |
+| cinder_mantle | garrison_tunica | Watchman's Tunica | 18 |
 | ember_ring | protean_ring | Protean Ring | 20 |
-| guild_ring | desperado_ring | Desperado Ring | 9 |
+| guild_ring | desperado_ring | Outlaw Ring | 9 |
 | pathfinder_boots | leaping_boots | Leaping Boots | 7 |
 | silver_insignia | armored_ring | Armored Ring | 14 |
 | guild_greatcoat | healing_harness | Healing Harness | 16 |
 | mythril_crest | variable_ring | Variable Ring | 20 |
-| tide_crown | anus_tiara | Anu's Tiara | 15 |
-| abyssal_staff | bastokan_staff | Bastokan Staff | 15 |
-| drowned_blade | kingdom_sword | Kingdom Sword | 15 |
-| priest_mantle | anus_doublet | Anu's Doublet | 15 |
-| tidebreaker_bow | rogetsurin | Rogetsurin | 15 |
+| tide_crown | anus_tiara | Hearthguard Tiara | 15 |
+| abyssal_staff | bastokan_staff | Ironvale Staff | 15 |
+| drowned_blade | kingdom_sword | League Sword | 15 |
+| priest_mantle | anus_doublet | Hearthguard Doublet | 15 |
+| tidebreaker_bow | rogetsurin | Moonblossom Tachi | 15 |
 | frost_sword | fire_sword | Fire Sword | 18 |
-| frost_greataxe | neckchopper | Neckchopper | 20 |
+| frost_greataxe | neckchopper | Headsman Axe | 20 |
 | glacier_staff | holly_pole | Holly Pole | 16 |
 | rime_dagger | baselard | Baselard | 18 |
 | frost_claws | metal_knuckles | Metal Knuckles | 20 |
@@ -66,18 +66,18 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | snowfur_coat | lizard_jerkin | Lizard Jerkin | 17 |
 | frost_robe | bone_harness | Bone Harness | 16 |
 | fur_hat | bone_mask | Bone Mask | 16 |
-| rimefang_axe | platoon_cutter | Platoon Cutter | 20 |
+| rimefang_axe | platoon_cutter | Squad Cutter | 20 |
 | frost_ring | fasting_ring | Fasting Ring | 15 |
-| wight_shroud | barons_saio | Baron's Saio | 20 |
+| wight_shroud | barons_saio | Seneschal's Saio | 20 |
 | silkweave_mantle | rabbit_mantle_hq | Rabbit Mantle +1 | 4 |
 | silk_gloves_q | bronze_mittens | Bronze Mittens | 1 |
 | silk_gloves | asbestos_mitts | Asbestos Mitts | 6 |
-| warlord_cleaver | hellfire_axe | Hellfire Axe | 8 |
-| warlord_band | poisona_ring | Poisona Ring | 14 |
-| bronze_greataxe | butterfly_axe | Butterfly Axe | 5 |
-| chieftain_cap | legionnaires_cap | Legionnaire's Cap | 10 |
+| warlord_cleaver | hellfire_axe | Ember Axe | 8 |
+| warlord_band | poisona_ring | Antidote Ring | 14 |
+| bronze_greataxe | butterfly_axe | Wingblade Axe | 5 |
+| chieftain_cap | legionnaires_cap | Vanguard Cap | 10 |
 | kite_shield | lauan_shield | Lauan Shield | 1 |
-| scarlet_tabard | hume_tunic | Hume Tunic | 1 |
+| scarlet_tabard | hume_tunic | Human Tunic | 1 |
 | cotton_robe | robe | Robe | 1 |
 | mage_pendant | feather_collar | Feather Collar | 7 |
 | spirit_torque | scale_gorget | Scale Gorget | 11 |
@@ -97,29 +97,29 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | raiders_ring | safeguard_ring | Safeguard Ring | 10 |
 | duskwing_boots | anglers_boots | Angler's Boots | 15 |
 | silkworm_gloves | zealots_mitts | Zealot's Mitts | 11 |
-| scavenger_cap | destrier_beret | Destrier Beret | 1 |
+| scavenger_cap | destrier_beret | Rider's Beret | 1 |
 | nightwing_gloves | guerilla_gloves | Guerilla Gloves | 13 |
 | burrower_trousers | anglers_hose | Angler's Hose | 15 |
 | hare_charm | saintly_ring | Saintly Ring | 10 |
-| bonecharm_ring | bastokan_ring | Bastokan Ring | 1 |
-| gravedigger_boots | anus_gaiters | Anu's Gaiters | 15 |
+| bonecharm_ring | bastokan_ring | Ironvale Ring | 1 |
+| gravedigger_boots | anus_gaiters | Hearthguard Gaiters | 15 |
 | raider_helm | lunar_cap | Lunar Cap | 10 |
 | sentinel_greaves | freeswords_slops | Freesword's Slops | 10 |
 | hollow_crown | sol_cap | Sol Cap | 10 |
 | kings_blade | bee_spatha | Bee Spatha | 11 |
-| ashen_medallion | armigers_lace | Armiger's Lace | 9 |
+| ashen_medallion | armigers_lace | Squire's Lacing | 9 |
 | wardens_robe | priests_robe | Priest's Robe | 19 |
 | bronze_tachi | tachi | Tachi | 1 |
 | iron_tachi | uchigatana | Uchigatana | 12 |
 | steel_tachi | nodachi | Nodachi | 16 |
-| frost_tachi | gunromaru | Gunromaru | 20 |
+| frost_tachi | gunromaru | Greymoon Blade | 20 |
 | bronze_katana | kunai | Kunai | 1 |
 | iron_katana | wakizashi | Wakizashi | 7 |
 | steel_katana | shinobi_gatana | Shinobi-Gatana | 13 |
-| rime_katana | suzume | Suzume | 19 |
-| iron_lance | gimlet_spear | Gimlet Spear | 7 |
+| rime_katana | suzume | Wren Blade | 19 |
+| iron_lance | gimlet_spear | Auger Spear | 7 |
 | steel_halberd | pike | Pike | 11 |
-| frost_lance | ryl_spr_spear | Ryl.Spr. Spear | 18 |
+| frost_lance | ryl_spr_spear | Crown Lancer Spear | 18 |
 | iron_axe | brass_axe | Brass Axe | 8 |
 | steel_axe | light_axe | Light Axe | 11 |
 | frost_axe | battleaxe | Battleaxe | 20 |
@@ -127,7 +127,7 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | iron_greatsword | burning_claymore | Burning Claymore | 13 |
 | steel_greatsword | flame_claymore | Flame Claymore | 13 |
 | frost_greatsword | two_hand_sword | Two-Hand. Sword | 20 |
-| dunestrider_boots | garrison_boots | Garrison Boots | 18 |
+| dunestrider_boots | garrison_boots | Watchman's Boots | 18 |
 | canopy_cloak | breath_mantle | Breath Mantle | 18 |
 | pyre_ring | bone_ring | Bone Ring | 16 |
 | saltjaw_earring | valor_earring | Valor Earring | 17 |
@@ -135,7 +135,7 @@ Every removed id and its classic MMO replacement. Ids that kept their name are n
 | warden_blade | lucent_sword | Lucent Sword | 20 |
 | spire_mantle | variable_cape | Variable Cape | 20 |
 | lumen_earring | mecurial_earring | Mecurial Earring | 20 |
-| windrunner_boots | enyos_leggings | Enyo's Leggings | 15 |
+| windrunner_boots | enyos_leggings | Warbringer's Leggings | 15 |
 | nomad_sash | plate_belt | Plate Belt | 12 |
 | nomad_cloak | travelers_mantle | Traveler's Mantle | 12 |
 | gloam_ring | amber_ring | Amber Ring | 14 |
