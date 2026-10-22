@@ -741,6 +741,7 @@ function updateFX(dt) {
   updateAuras(dt);
   try { updateWeatherFx(dt); } catch (err) {}
   try { updateGeoFx(dt); } catch (err) {}
+  try { updateSkyLife(dt); } catch (err) { if (typeof reportError === "function") reportError(err, "sky"); }
   FX.add.update(dt);
   FX.smoke.update(dt);
 }
@@ -813,18 +814,18 @@ function spawnShootingStar() {
   geo.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(12), 3));
   geo.setAttribute("uv", new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 1], 2));
   geo.setIndex([0, 1, 2, 0, 2, 3]);
-  const mat = new THREE.MeshBasicMaterial({ map: streakTex(), transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, fog: false, side: THREE.DoubleSide, opacity: 0 });
+  const mat = new THREE.MeshBasicMaterial({ map: streakTex(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, side: THREE.DoubleSide, opacity: 0 });
   const m = new THREE.Mesh(geo, mat);
-  m.frustumCulled = false; m.renderOrder = -5;
+  m.frustumCulled = false; m.renderOrder = 4;
   W3.scene.add(m);
-  SKYL.list.push({ kind: "star", m, p0, p1, t: 0, dur: rnd(0.7, 1.5), R, w: rnd(1.6, 2.6) });
+  SKYL.list.push({ kind: "star", m, p0, p1, t: 0, dur: rnd(0.7, 1.5), R, w: rnd(2.4, 3.6) });
   if (Math.random() < 0.5 && typeof sfx === "function") setTimeout(() => sfx("shooting_star"), 120);
 }
 function tickShootingStar(s, dt) {
   s.t += dt;
   const k = Math.min(1, s.t / s.dur), cam = W3.camera.position;
   const head = new THREE.Vector3().lerpVectors(s.p0, s.p1, k).normalize().multiplyScalar(s.R).add(cam);
-  const tail = new THREE.Vector3().lerpVectors(s.p0, s.p1, Math.max(0, k - 0.35)).normalize().multiplyScalar(s.R).add(cam);
+  const tail = new THREE.Vector3().lerpVectors(s.p0, s.p1, Math.max(0, k - 0.5)).normalize().multiplyScalar(s.R).add(cam);
   const along = head.clone().sub(tail), view = head.clone().sub(cam);
   const side = new THREE.Vector3().crossVectors(along, view).normalize().multiplyScalar(s.w * (0.5 + 0.5 * Math.sin(Math.PI * k)));
   const a = s.m.geometry.attributes.position;

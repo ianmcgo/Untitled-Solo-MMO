@@ -2680,6 +2680,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.29.0 Living skies (polish plan phase 3)
+- effects3d tail, `SKYL { star, flock, list }`, `updateSkyLife(dt)` called from `updateFX` (try/catch, `reportError(err, "sky")`). Off in cave, crypt and house themes.
+- Shooting stars: when `W3.stars` is visible with opacity > 0.6 and weather is not rain/storm/snow/blizzard/fog/sandstorm. First 5–30 s, then every 20–90 s (game seconds). `spawnShootingStar` picks a sky direction (elevation 0.5–1.1 rad) and an end direction 0.18–0.45 rad sideways and 0.12–0.32 rad lower; `tickShootingStar` builds a camera-facing quad between head and tail (tail = 50% of the path behind) at 700 m from the camera, additive, `streakTex()` gradient, renderOrder 4, opacity sin-shaped × star opacity, 0.7–1.5 s. Half play `sfx("shooting_star")`.
+- Bird flocks: day (`W3.daylight > 0.55`) and dry. First 8–25 s, then every 35–110 s. `spawnFlock`: 4–9 birds (`birdGeo()`: body, head, tail plus a wing triangle pair mirrored by scale.x −1) in a V, 16–34 m above the camera, crossing 340 m at 8–12.5 m/s, passing within 35 m sideways. `tickFlock`: wings flap (rotation.z ± 0.75 at 9–12 rad/s), random 0.8–2 s glides, gentle bob. `sfx("bird_chirp")` on spawn.
+- audio.js `WORLD_SYNTH`: `shooting_star` (bell 2400→1500 Hz + sine), `bird_chirp` (three short rising sines).
+
 ## 19.28.0 Still waters (polish plan phase 2)
 - Cause of "floating water": the water mesh was a circle of (r + 26) × 1.2 at one water level for the whole zone; where ground beyond the pond sat below that level the disc and foam ring hung in the air (measured up to 2.4 m in the Ashen Marsh).
 - data.js tail: field-theme, non-island ponds with r < 400 get `w.irr = 1` (sea circles, city water, caves and islands keep the old shape).

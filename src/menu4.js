@@ -1787,6 +1787,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.29.0", date: "2026-10-22", title: "Living skies", items: [
+    "<b>Shooting stars.</b> On clear nights a shooting star now streaks across the sky every minute or so, sometimes with a faint chime.",
+    "<b>Birds overhead.</b> On dry days small flocks of birds fly across the sky in loose V formations, flapping and gliding, with a little birdsong as they pass.",
+    "Neither appears in caves, buildings, rain, snow, fog or sandstorms. <b>Guide updated</b> (Night and weather secrets)."
+  ] },
   { v: "19.28.0", date: "2026-10-22", title: "Still waters", items: [
     "<b>No more floating water.</b> Ponds used to be drawn as a round sheet that could hang in the air over lower ground nearby, with a white foam line floating along its edge. Every pond now has a real bank that rises above the water, and the water only fills the pond itself.",
     "<b>Ponds have natural shapes.</b> Field ponds now have bays, points and uneven shores instead of near-perfect circles. The sand, reeds, foam and the edge you can walk to all follow the new shoreline.",
@@ -4035,6 +4040,7 @@ function tabHelp() {
   ]));
   h += sec("🌙 Night and weather secrets", ul([
     "Some things only happen at certain times or in certain weather.",
+    "<b>Shooting stars</b> streak across clear night skies every so often, out in the open (not in caves, buildings or bad weather). <b>Flocks of birds</b> fly overhead on dry days. Both are just for the view.",
     "<b>Luna, the Moonlit Peddler</b>, sets up in the Ashenreach plaza only at night (18:00–6:00) and sells Moon Tonics and the Nightglass Earring.",
     "<b>The Mirage</b>: during a sandstorm, the air shimmers in the south-west of the Sunscar Desert. Walk into it to enter a hidden glass garden with level 20 monsters, a treasure cache and the Sandglass Wisp (NM). When the storm ends, the way in closes.",
     "<b>Gloamhorn</b>, a dusk-coloured longneck, only grazes the eastern Windreach Highlands at night.",
