@@ -1844,6 +1844,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.48.0", date: "2026-10-22", title: "Townsfolk and new faces", items: [
+    "<b>Townsfolk.</b> Every city now has people going about their day. Workers haul, saw and hammer in the industrial districts, residents and officials stroll the residential and government streets, and shoppers browse beside the market stalls without selling anything. Now and then they wander to a bench and sit down for a break.",
+    "<b>Ask the locals.</b> Talk to any townsperson and they'll tell you something about their town: its history, its people, its odd customs. Each city has its own stories, and they don't all say the same thing.",
+    "<b>Every NPC redone.</b> All vendors, guards, quest givers and story characters now use the same heads and body sizes as character creation, with an even mix of the five races and both sexes. Their names were changed to fit their new looks (Rhea is now Captain Hazelnut, for example), and quest text, dialog and the log use the new names.",
+    "<b>Known gap:</b> some older story lines may still use a he or she that doesn't match a character's new look. These will be cleaned up over time.",
+  ] },
   { v: "19.47.0", date: "2026-10-22", title: "Gatehouses, hills and livelier houses", items: [
     "<b>Covered gateways.</b> Every town gate now has a proper gatehouse: a vaulted stone tunnel with ribbed arches, solid stonework filling the space around the arch, a half-raised iron portcullis, heavy wooden doors swung open against the walls, and lanterns inside that light up at night. Gates between city districts also get a pitched roof with battlements.",
     "<b>Terrace stairs.</b> The raised terrace in the Government District has stairs on every side, including the left and right, so you can walk down any way. A road that runs right along an edge no longer turns the whole edge into one long ramp: it gets a wall with a proper flight of stairs in the middle.",
@@ -4563,6 +4569,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>Townsfolk:</b> ordinary people work, walk, shop and rest on benches around each city. Select one and talk to hear something about the town. They don't trade or give quests.",
     "<b>Skywatchers:</b> in the Government District, Harbor Square and the Keep, pay 50 crystals for a reading of any place you've discovered: its weather now, its land's element and today's element.",
     "<b>Rare forms:</b> dark and albino monsters are rare and carry better spoils. Each one you defeat gets its own Bestiary entry.",
     "<b>Seasons:</b> each game year has 90-day Spring, Summer, Autumn and Winter. Trees leaf out and blossom in spring, darken in summer, turn and drop in autumn and stand bare in winter; grass grows, yellows and dies back the same way. Check System → Time.",

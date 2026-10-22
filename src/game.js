@@ -4858,6 +4858,7 @@ function enterZone(id, x, y, opt) {
   const cacheNpc = dailyCache(S.zone);
   S.npcs = S.zone.npcs.concat(cacheNpc ? [cacheNpc] : []).map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: n.face != null ? n.face : Math.PI / 2, idleFace: n.face != null ? n.face : Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
   for (const n of S.npcs) if ((n.prop === "board" || n.prop === "sign") && (S.zone.paths || []).length) faceRoad(n, S.zone);
+  spawnTownsfolk();
   S.gatherAt = [];
   if (FEATURES.gathering && S.zone.gather) for (const type in S.zone.gather) {
     const g = S.zone.gather[type];
@@ -4902,8 +4903,76 @@ function npcAsleep(n) {
   return bed > wake ? (h >= bed || h < wake) : (h >= bed && h < wake);
 }
 function npcOn(n) { return n.only === "night" ? isNight() : n.only === "day" ? !isNight() : weatherMatch(n.only); }
+const TF_ROLE = { ind: "work", forge: "work", yard: "work", docks: "work", res: "walk", gov: "walk", keep: "walk", south: "walk", gate: "walk", market: "loiter", square: "loiter", fish: "loiter" };
+const TF_TITLES = { work: ["Apprentice", "Carter", "Stonemason", "Labourer", "Cooper", "Dockhand", "Porter", "Wheelwright"], walk: ["Townsfolk", "Scribe", "Courier", "Lamplighter", "Clerk", "Errand-runner", "Pensioner", "Herbalist"], loiter: ["Shopper", "Haggler", "Market-goer", "Housekeeper", "Cook", "Browser"] };
+const TF_WORK = { work: ["hammer", "work", "work", "count"], walk: ["read", "look"], loiter: ["count", "look", "work"] };
+const TOWN_TALK = {
+  Ashenreach: ["They say the Outpost was built on the ashes of an older town. Dig deep enough in the Residential District and you'll find charcoal.", "The Captain keeps the gates manned day and night ever since the ash started falling.", "Best bread is from the Market. Best ale is the Ember Mug, if you can stand the smoke.", "Ever notice the crystal hums louder at dawn? My gran swore it sings to the sun.", "The Hollow past Eastgate is gentle enough for new blood, but don't wander into the goblin den.", "Smiths in the Industrial District work right through the night when the forges are hot.", "The phoenix on our banners? From ash, we rise. Every child here learns it before they can spell.", "Skywatcher in the Government District will tell you what the weather's doing anywhere, for a coin or fifty."],
+  Saltreach: ["Tide and toil, that's the Saltreach way. Nets out at dawn, mended by dusk.", "Ferry to Gull Isle runs whenever Coll's sober. Most days, anyway.", "Never whistle on the piers. Calls the wind, and the wind here doesn't take kindly to company.", "The fish market's loudest an hour after sunrise. Bring a strong stomach.", "Shipwrights' Row builds the best hulls on this coast. Slow, but they float.", "Harbor Master keeps a ledger of every boat that's ever sunk. Thick as a door, it is.", "When the fog rolls in thick, the lighthouse keeper rings the bell every minute. You'll hear it in your sleep.", "That anchor on our flags? Means we stay put, whatever the sea throws at us."],
+  Ironvale: ["Struck true, that's our word. You'll hear it from every anvil in the Forge Quarter.", "The mountain gives iron and takes fingers. Mind yourself near the presses.", "Snow comes early up here. Keep a fur close, even in summer.", "The Keep's walls have never been breached. Not once, not by beast or man.", "Mythril? Haldor's the only one who can work it proper. Costs a fortune, worth every crystal.", "Down south the desert starts. Hot as a forge mouth by noon, cold as a grave by night.", "Our bread's dark and heavy. Keeps you going through a mining shift.", "The frost guard drills at dawn. You can set your clock by the shouting."]
+};
+function tfIdentity(zid, i) {
+  const off = hashStr("tf" + zid) % 10, c = (i + off) % 10, race = NPC_RACE_ORDER[c % 5], build = Math.floor(c / 5), h = hashStr("tfl" + zid + i), sz = [[0, 1], [1, 2], [2, 2], [3, 3], [4, 3], [2, 1], [2, 3]][h % 7];
+  const pool = NPC_NAME_POOLS[race][build], taken = new Set(Object.values(NPCS).flatMap(n => String(n.name || "").split(/[ ,']+/)).concat(NPC_NAME_SWAP.flatMap(q => [q[0], String(q[1]).split(/[ ,]+/).pop()])));
+  let k = (h >>> 6) % pool.length; for (let t = 0; t < pool.length && taken.has(pool[k]); t++) k = (k + 1) % pool.length;
+  return { race, build, height: sz[0], girth: sz[1], face: (h >>> 3) % 8, first: pool[k] };
+}
+function tfRoadPoint(z, rnd) {
+  const P = z.paths || []; if (!P.length) return null;
+  for (let t = 0; t < 20; t++) {
+    const p = P[Math.floor(rnd() * P.length)], i = 1 + Math.floor(rnd() * (p.pts.length - 1)), a = p.pts[i - 1], b = p.pts[i], f = 0.1 + rnd() * 0.8, side = (rnd() - 0.5) * (p.w - 14);
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, x = a[0] + dx * f - dy / L * side, y = a[1] + dy * f + dx / L * side;
+    if (x > 60 && y > 60 && x < z.w - 60 && y < z.h - 60) return { x, y, ux: dx / L, uy: dy / L };
+  }
+  return null;
+}
+function spawnTownsfolk() {
+  const z = S.zone;
+  if (!z || z.theme !== "town" || !(z.districts || []).length || !(z.paths || []).length) return;
+  const role = TF_ROLE[z.districts[0].id] || "walk", rnd = seeded(hashStr("tfspawn" + S.zoneId)), N = role === "loiter" ? Math.min(9, (z.stalls || []).length + 4) : 7;
+  for (let i = 0; i < N; i++) {
+    const id = "tf_" + S.zoneId + "_" + i;
+    if (!NPCS[id]) { const ident = tfIdentity(S.zoneId, i), title = TF_TITLES[role][(hashStr(id) >>> 4) % TF_TITLES[role].length]; NPCS[id] = { name: ident.first + ", " + title, talk: "talkTownsfolk", townsfolk: true }; NPC_IDENTITY[id] = ident; }
+    const p = tfRoadPoint(z, rnd); if (!p) continue;
+    const face = Math.atan2(p.uy, p.ux);
+    S.npcs.push(Object.assign({ id, x: p.x, y: p.y, radius: 12, kind: "npc", face, idleFace: face, post: { x: p.x, y: p.y }, away: false, speed: CONFIG.npcSpeed * (0.7 + rnd() * 0.25), tf: { role, state: "idle", until: S.time + rnd() * 6, rnd: seeded(hashStr(id + Date.now())) } }, NPCS[id]));
+  }
+}
+function tfPickSpot(n, z) {
+  const r = n.tf.rnd, role = n.tf.role;
+  const benches = (z.benches || []).filter(b => !S.npcs.some(o => o !== n && o.tf && o.tf.bench === b));
+  if (benches.length && r() < 0.14) { const b = benches[Math.floor(r() * benches.length)]; n.tf.bench = b; const rot = b[2] || 0; return { x: b[0], y: b[1], face: Math.PI / 2 - rot + Math.PI, sit: true }; }
+  n.tf.bench = null;
+  if (role === "loiter" && (z.stalls || []).length && r() < 0.75) { const st = z.stalls[Math.floor(r() * z.stalls.length)], rot = st.rot || 0, fx = Math.sin(rot), fy = Math.cos(rot), x = st.x + fx * 46 + (r() - 0.5) * 30, y = st.y + fy * 46 + (r() - 0.5) * 30; return { x, y, face: Math.atan2(st.y - y, st.x - x), work: TF_WORK.loiter[Math.floor(r() * 3)] }; }
+  if (role === "work" && (z.houses || []).length && r() < 0.7) { const h = z.houses[Math.floor(r() * z.houses.length)], d = typeof houseDoor === "function" ? houseDoor(h, 26) : null; if (d) { const x = d.x + (r() - 0.5) * 40, y = d.y + (r() - 0.5) * 40; return { x, y, face: Math.atan2(h.y - y, h.x - x), work: TF_WORK.work[Math.floor(r() * TF_WORK.work.length)] }; } }
+  const p = tfRoadPoint(z, r); if (!p) return null;
+  return { x: p.x, y: p.y, face: Math.atan2(p.uy, p.ux) + (r() < 0.5 ? Math.PI : 0), work: role === "walk" && r() < 0.3 ? TF_WORK.walk[Math.floor(r() * 2)] : null };
+}
+function tfUpdate(n, dt) {
+  const tf = n.tf, h = vana().hour, night = h >= 22 || h < 6;
+  if (night !== !!n.away) { n.away = night; if (night && player.target === n) player.target = null; if (!night) { n.x = n.post.x; n.y = n.post.y; } }
+  if (n.away) return;
+  if (player.target === n && dist(n, player) < CONFIG.talkRange * 1.5) { n.moving = false; n.face += normAng(Math.atan2(player.y - n.y, player.x - n.x) - n.face) * Math.min(1, dt * 4); return; }
+  if (tf.state === "go") {
+    n.moving = true;
+    if (moveToward(n, tf.spot.x, tf.spot.y, dt, 5, 0.8) || S.time > tf.giveUp) {
+      n.moving = false; tf.state = "idle"; n.idleFace = tf.spot.face;
+      const r = tf.rnd;
+      if (tf.spot.sit) { n.resting = true; n.benchSit = true; n.x = tf.spot.x; n.y = tf.spot.y; tf.until = S.time + 20 + r() * 25; }
+      else { tf.work = tf.spot.work || null; tf.until = S.time + (tf.work ? 10 + r() * 16 : 2 + r() * 6); }
+    }
+    return;
+  }
+  n.face += normAng(n.idleFace - n.face) * Math.min(1, dt * 4);
+  if (S.time < tf.until) return;
+  n.resting = false; n.benchSit = false; tf.work = null;
+  const spot = tfPickSpot(n, S.zone);
+  if (!spot) { tf.until = S.time + 5; return; }
+  tf.spot = spot; tf.state = "go"; tf.giveUp = S.time + 40;
+}
 function updateNpcs(dt) {
   for (const n of S.npcs) {
+    if (n.tf) { tfUpdate(n, dt); continue; }
     if (n.only) {
       const on = npcOn(n);
       if (n.away === on) { n.away = !on; if (on && n.only === "night" && dist(n, player) < 900) log(n.name.split(",")[0] + " sets up shop by lantern light.", "sys"); if (on && n.only === "sandstorm" && dist(n, player) < 1500) log("Something shimmers in the sandstorm to the south-west...", "sys"); if (!on && player.target === n) player.target = null; }
@@ -6024,6 +6093,10 @@ const TALK = {
     const line = !g.total && !Object.keys(g.active).length ? "Welcome to the Adventurers' Guild. Every day I post bounties on monsters that are giving folk trouble. Finish them for crystals and guild points; points raise your rank and buy things you won't find in any shop." : ready ? "Back already? Let's see what you've brought in." : "You're " + GUILD_RANKS[rk][0] + " rank with " + g.gp + " guild points to spend. Today's bounties are on the board behind me.";
     const st = expStep();
     openDialog(n.name, line + (st && !st.final ? " " + expReport() : ""), [{ label: "Guild bounties and shop", fn: () => { closeDialog(); openModal("guild"); } }].concat(expOptions()));
+  },
+  talkTownsfolk(n) {
+    const lines = TOWN_TALK[S.zone.city] || TOWN_TALK.Ashenreach, k = (n.talkN = (n.talkN || (hashStr(n.id) % lines.length)) + 1) % lines.length;
+    openDialog(n.name, lines[k], []);
   },
   talkWeather(n) {
     const areas = [...new Set((save.discovered || []).concat(S.zoneId).map(areaOf))].filter(a => WEATHER[a] && ZONES[a]);

@@ -3919,3 +3919,48 @@ function applyGearPrices() {
 applyDropRates();
 applyGearPrices();
 for (const zid of Object.keys(ZONES)) { const z = ZONES[zid]; if (z.theme !== "field" || z.island) continue; for (const w of z.water || []) if (w.r < 400) w.irr = 1; }
+const NPC_NAME_POOLS = {
+  human: [["Aldric", "Benedek", "Cormac", "Davin", "Evander", "Faolan", "Gareth", "Harlan", "Ivor", "Jory", "Kellan", "Lorne", "Merric", "Niall", "Osric", "Pell", "Quill", "Roderic", "Stellan", "Tobias", "Ulric", "Varrick", "Wystan"], ["Adela", "Brienne", "Cassia", "Delphine", "Elowen", "Fiora", "Gwenna", "Helise", "Isolde", "Joanna", "Katrine", "Linnea", "Marisol", "Nerys", "Odessa", "Perrine", "Rosalind", "Saoirse", "Tamsyn", "Una", "Verity", "Wynne", "Yseult"]],
+  elari: [["Aelion", "Caelir", "Elandor", "Faelar", "Galinor", "Ilvaris", "Lirien", "Mirethil", "Naerion", "Oriel", "Saelith", "Thalion", "Vaelis", "Yllander", "Erevan", "Sylvar", "Aerendil", "Cyrion", "Nimlas", "Taurion"], ["Aelyth", "Caelia", "Elanwe", "Faewyn", "Iliana", "Lirael", "Miravel", "Naeris", "Oriana", "Saelwen", "Thalia", "Vaelora", "Ysolwen", "Elanor", "Sylwen", "Aerin", "Celebwen", "Nimriel", "Tauriel", "Ithilwen"]],
+  pipkin: [["Bumble", "Clem", "Dabble", "Fennick", "Gobbin", "Hob", "Jinks", "Kip", "Lumpkin", "Mossy", "Nubbs", "Pockett", "Quibble", "Rolly", "Scrump", "Tibbet", "Wimble", "Bodkin", "Pudge", "Fidget"], ["Bettie", "Clover", "Dimple", "Fizzy", "Ginny", "Hazelnut", "Jilly", "Kettle", "Lolly", "Muffin", "Nibs", "Pippa", "Quince", "Rosie", "Sprig", "Tilly", "Wren", "Buttons", "Peony", "Dot"]],
+  ursan: [["Bjarn", "Brakka", "Dorgun", "Grommar", "Harnek", "Jorund", "Korvak", "Marrok", "Orsk", "Ragnor", "Stormund", "Thorgar", "Urmak", "Varnok", "Bruldar", "Gunnolf", "Haakor", "Torvek", "Ulfgar", "Krom"], ["Brenna", "Dagmar", "Gudrun", "Hjordis", "Ingrun", "Kjarra", "Marga", "Ragna", "Sigrun", "Thyra", "Ulfhild", "Valka", "Astrid", "Borghild", "Freyja", "Gerda", "Halla", "Jorunn", "Ketta", "Runhild"]],
+  nekari: [["Ashkar", "Kael", "Mirro", "Nashi", "Purrin", "Rhazi", "Shen", "Taji", "Vashti", "Zarek", "Kasimir", "Jharo", "Ombri", "Sikar", "Tarek", "Yusha", "Rakhan", "Mezzo", "Sable", "Khazi"], ["Amaru", "Kiri", "Mira", "Nala", "Purra", "Rhea", "Sasha", "Tamsa", "Yuki", "Zira", "Kasha", "Leska", "Meowra", "Selka", "Tiana", "Velka", "Raya", "Shiri", "Inari", "Saffi"]]
+};
+const NPC_RACE_ORDER = ["human", "elari", "pipkin", "ursan", "nekari"];
+const NPC_IDENTITY = {}, NPC_NAME_SWAP = [];
+function npcPersonal(name) {
+  const m1 = /^([A-Z][a-z]+)(, .+)$/.exec(name); if (m1) return { pre: "", first: m1[1], post: m1[2] };
+  const m2 = /^(Captain|Gate Guard|Harbor Guard|Ironvale Guard|Ferryman|Boatman|Nomad Rider|Old) ([A-Z][a-z]+)(.*)$/.exec(name); if (m2) return { pre: m2[1] + " ", first: m2[2], post: m2[3] };
+  return null;
+}
+function assignNpcIdentities() {
+  const ids = Object.keys(NPCS).filter(k => !NPCS[k].prop && !NPCS[k].crystal && !NPCS[k].hidden && NPCS[k].name && !NPCS[k].noRelook);
+  const order = ids.slice().sort((a, b) => (hashStr("npcid" + a) % 100000) - (hashStr("npcid" + b) % 100000));
+  const used = new Set(ids.map(id => npcPersonal(NPCS[id].name)).filter(Boolean).map(p => p.first)), byOld = {};
+  const derived = id => /^'s /.test((npcPersonal(NPCS[id].name) || {}).post || "");
+  order.sort((a, b) => derived(a) - derived(b));
+  order.forEach((id, i) => {
+    const race = NPC_RACE_ORDER[i % 5], build = Math.floor(i / 5) % 2, h = hashStr("npclook" + id), sz = [[0, 1], [1, 2], [2, 2], [3, 3], [4, 3], [2, 1], [2, 3]][h % 7];
+    const ident = { race, build, height: sz[0], girth: sz[1], face: (h >>> 5) % 8 };
+    const p = npcPersonal(NPCS[id].name);
+    if (p) {
+      let nm = byOld[p.first + "|" + race + build] || (derived(id) ? (NPC_NAME_SWAP.find(q => q[0] === p.first) || [])[1] : null);
+      if (!nm) { const pool = NPC_NAME_POOLS[race][build]; let k = (h >>> 9) % pool.length; for (let t = 0; t < pool.length && used.has(pool[k]); t++) k = (k + 1) % pool.length; nm = pool[k]; used.add(nm); byOld[p.first + "|" + race + build] = nm; }
+      ident.oldFirst = p.first; ident.first = nm;
+      NPCS[id].name = p.pre + nm + p.post;
+      if (!NPC_NAME_SWAP.some(q => q[0] === p.first)) NPC_NAME_SWAP.push([p.first, nm]);
+    }
+    NPC_IDENTITY[id] = ident;
+  });
+  NPC_NAME_SWAP.sort((a, b) => b[0].length - a[0].length);
+}
+assignNpcIdentities();
+let NPC_SWAP_RE = null;
+function renameText(s) {
+  if (s == null || !NPC_NAME_SWAP.length) return s;
+  s = String(s);
+  if (!NPC_SWAP_RE) NPC_SWAP_RE = new RegExp("\\b(" + NPC_NAME_SWAP.map(q => q[0]).join("|") + ")\\b", "g");
+  const map = Object.fromEntries(NPC_NAME_SWAP);
+  return s.replace(NPC_SWAP_RE, w => map[w] || w);
+}
+for (const q of Object.values(QUESTS)) { if (q.giver) q.giver = renameText(q.giver); if (q.desc) q.desc = renameText(q.desc); if (q.name) q.name = renameText(q.name); }

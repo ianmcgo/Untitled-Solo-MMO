@@ -16,7 +16,7 @@ const TAB_INFO = {
 const MAIN_TABS = ["character", "equipment", "inventory", "skills", "actions", "social", "craft", "quests", "database", "achievements", "map", "settings"];
 const TAB_ALIAS = { party: "social", items: "inventory", status: "character", equip: "character" };
 
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const esc = s => String(typeof renameText === "function" ? renameText(s) : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function reportError(e, where) {
   console.error(where, e);
@@ -28,6 +28,7 @@ function reportError(e, where) {
   try { log("⚠ Game error (" + where + "): " + (e && e.message) + " " + at.trim().slice(0, 120) + ". The game kept running; please tell the developer.", "foe"); } catch (e2) {}
 }
 function log(msg, c) {
+  if (typeof renameText === "function" && c !== "chat" && c !== "tell" && c !== "ls" && c !== "party") msg = renameText(msg);
   const el = $("log");
   if (!el) return;
   const near = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
@@ -58,6 +59,7 @@ function showKO(on) { $("ko").style.display = on ? "flex" : "none"; }
 
 function openDialog(who, text, opts) {
   opts = opts || [];
+  if (typeof renameText === "function") { who = renameText(who); text = renameText(text); for (const o of opts) if (o && o.label) o.label = renameText(o.label); }
   const offer = opts.some(o => /^(Accept|I'll handle him|I'll get them)$/.test(o.label));
   const paras = String(text || "").split(/\n+/).filter(Boolean);
   { const sp = S.npcs && S.npcs.find(n => n.name === who || (n.name && who && n.name.split(",")[0] === who.split(",")[0])); if (sp) sp.talkUntil = S.time + Math.min(6, 0.6 + String(text || "").length * 0.035); }

@@ -35,6 +35,26 @@ const RACE_FACE_HAIR = {
     null
   ]
 };
+function identityLook(L0, id) {
+  if (L0.skull || L0.family || L0.boss || L0.cactus || L0.noRelook) return L0;
+  const L = Object.assign({}, L0), race = id.race, look = { race, build: id.build, height: id.height, girth: id.girth };
+  L.build = id.build;
+  L.skin = raceSkinColor(race);
+  delete L.ears; delete L.tail; delete L.doll;
+  if (race === "elari") L.ears = "elf";
+  if (race === "pipkin") { L.ears = "pip"; L.doll = true; }
+  if (race === "nekari") { L.ears = "cat"; L.tail = "cat"; }
+  if (race === "ursan") { L.ears = "ursan"; L.tail = "ursan"; }
+  const bp = bodyProp(look) || Object.assign({}, RACE_BODY.human[id.build]), op = L0.prop || {};
+  L.prop = Object.assign({}, bp);
+  if (op.girth) L.prop.girth *= op.girth / (L0.build === 1 ? 0.9 : 1);
+  L.face = id.face;
+  if (id.build === 1 || race === "pipkin" || race === "elari") { delete L.beard; delete L.longBeard; }
+  else if (race === "ursan" && L.beard != null) L.longBeard = true;
+  if (L.hair) L.hair = { style: L.hair.style === "bald" && id.build === 1 ? "long" : L.hair.style, color: null };
+  delete L.keepHair;
+  return L;
+}
 function npcFace(L, seed) {
   if (!L || L.noFace || L.skull || L.cactus || L.family || L.boss || L.tusks || L.beak) return L;
   const race = L.doll ? "pipkin" : L.ears === "ursan" ? "ursan" : L.ears === "cat" ? "nekari" : L.ears === "elf" ? "elari" : "human";
@@ -3741,8 +3761,9 @@ function buildEntityRig(e) {
   } else if (e.kind === "npc") {
     const nd = typeof NPCS !== "undefined" ? NPCS[e.id] : null;
     if (nd && (nd.prop || nd.crystal || nd.hidden)) return null;
-    const L = NPC_LOOK[e.id] || (nd && NPC_LOOK[nd.model]) || (nd ? walkerLook(hashStr(e.id) % 997) : null);
-    if (!L) return null;
+    const L0 = NPC_LOOK[e.id] || (nd && NPC_LOOK[nd.model]) || (nd ? walkerLook(hashStr(e.id) % 997) : null);
+    if (!L0) return null;
+    const L = typeof NPC_IDENTITY !== "undefined" && NPC_IDENTITY[e.id] ? identityLook(L0, NPC_IDENTITY[e.id]) : L0;
     sig = "n|" + e.id;
     const held = L.held !== undefined ? L.held : NPC_HELD[e.id] || (nd && NPC_HELD[nd.model]) || null;
     const LF = Object.assign({}, npcFace(L, hashStr(e.id)), { held });

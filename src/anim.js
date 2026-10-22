@@ -598,7 +598,7 @@ function poseHuman(v, e, dt) {
     addP(P, "lids", -0.7 * (1 - shut), 0, 0);
   }
   if (e.kind === "npc" && player && e.alive !== false) {
-    const d = dist(e, player), work = NPC_WORK[e.id] || VENDOR_WORK[e.id];
+    const d = dist(e, player), work = e.benchSit ? null : (e.tf && e.tf.work) || NPC_WORK[e.id] || VENDOR_WORK[e.id];
     const near = d < 160 && player.target === e ? 1 : d < 130 ? 1 : 0;
     an.look = (an.look || 0) + (near - (an.look || 0)) * Math.min(1, dt * 3);
     if (an.look > 0.01) {
@@ -955,7 +955,12 @@ function poseHuman(v, e, dt) {
 
   const sitT = e.resting && e.alive !== false && !e.mounted ? 1 : 0;
   an.sit = (an.sit || 0) + (sitT - (an.sit || 0)) * Math.min(1, dt * 5);
-  if (an.sit > 0.01) {
+  if (an.sit > 0.01 && e.benchSit) {
+    const k = an.sit, H = (v.meta && v.meta.hipsY) || 0.9;
+    for (const s of ["L", "R"]) { const sg = s === "L" ? 1 : -1; setP(P, "thigh" + s, -1.5, 0, sg * 0.08, k); setP(P, "shin" + s, 1.45, 0, 0, k); setP(P, "foot" + s, 0.05, 0, 0, k); setP(P, "upArm" + s, -0.35, 0, sg * 0.12, k); setP(P, "foreArm" + s, -0.9, 0, 0, k); }
+    setP(P, "spine", 0.05 + Math.sin(t * 1.1) * 0.02, 0, 0, k); setP(P, "head", Math.sin(t * 0.3) * 0.1, Math.sin(t * 0.2) * 0.3, 0, k);
+    v.rootOff[1] -= Math.max(0, H - 0.5) * k; v.rootOff[2] -= 0.12 * k;
+  } else if (an.sit > 0.01) {
     const k = an.sit, sp = sitPlan(v);
     for (const s of ["L", "R"]) {
       const sg = s === "L" ? 1 : -1;
