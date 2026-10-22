@@ -671,6 +671,46 @@ function tintInst(im, rnd, amt) {
 
 function rngFor(z, salt) { return seeded(hashStr(z.name + salt)); }
 
+function hedgeGeo(v) {
+  return propGeo("hedge" + v, () => {
+    const L = [], r = seeded(77 + v * 13);
+    if (v === 0) {
+      L.push(new THREE.BoxGeometry(2.1, 0.95, 0.78, 8, 4, 3).translate(0, 0.52, 0));
+      for (let k = 0; k < 7; k++) L.push(new THREE.IcosahedronGeometry(0.2 + r() * 0.1, 1).translate(-0.9 + k * 0.3, 0.98 + r() * 0.05, (r() - 0.5) * 0.3));
+      for (let k = 0; k < 10; k++) L.push(new THREE.IcosahedronGeometry(0.16 + r() * 0.08, 0).translate(-0.95 + r() * 1.9, 0.25 + r() * 0.6, (r() < 0.5 ? -1 : 1) * 0.37));
+    } else if (v === 1) {
+      L.push(new THREE.CylinderGeometry(0.42, 0.42, 2.1, 10, 1).rotateZ(Math.PI / 2).scale(1, 1.2, 0.95).translate(0, 0.6, 0));
+      L.push(new THREE.BoxGeometry(2.1, 0.6, 0.8, 6, 2, 2).translate(0, 0.3, 0));
+      for (let k = 0; k < 5; k++) L.push(new THREE.SphereGeometry(0.28 + r() * 0.08, 8, 6).translate(-0.85 + k * 0.42, 1.0 + r() * 0.06, 0));
+    } else {
+      for (let k = 0; k < 9; k++) L.push(new THREE.IcosahedronGeometry(0.38 + r() * 0.22, 1).translate(-0.95 + k * 0.24 + (r() - 0.5) * 0.1, 0.45 + r() * 0.55, (r() - 0.5) * 0.35));
+      for (let k = 0; k < 4; k++) L.push(new THREE.CylinderGeometry(0.03, 0.05, 0.6, 4).translate(-0.8 + k * 0.53, 0.3, (r() - 0.5) * 0.2));
+    }
+    return noisyGeo(mergeNI(L), v === 1 ? 0.06 : 0.12, 23 + v);
+  });
+}
+function buildHedges(field, root) {
+  const z = field.zone, theme = themeOf(z), pal = z.palette;
+  if (!(theme === "field" || theme === "town") || pal === "volcanic" || pal === "desert" || !z.colliders) return;
+  const rnd = rngFor(z, "hedge"), list = hedgeRuns(field, z, rnd, W3.quality);
+  if (!list.length) return;
+  const leafTex = texFoliage("leaf", [74, 110, 48]), snowy = pal === "snow";
+  const cols = [0x7c9a68, 0x6a9058, 0x8aa070];
+  for (let v = 0; v < 3; v++) {
+    const L = list.filter(m => m.hv === v);
+    if (!L.length) continue;
+    const hm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : cols[v] });
+    addWind(hm, 0.01);
+    addSeason(hm, "shrub");
+    root.add(tintInst(instanced(hedgeGeo(v), hm, L, true), rnd, 0.12));
+    if (v === 2 && !snowy) {
+      const bm = std({ color: 0xb02a3a, roughness: 0.5 }); addSeason(bm, "flower");
+      const berries = [];
+      for (const m of L) { const p = new THREE.Vector3(), qq = new THREE.Quaternion(), sc = new THREE.Vector3(); m.decompose(p, qq, sc); for (let k = 0; k < 3; k++) { const o = new THREE.Vector3((rnd() - 0.5) * 1.8, 0.5 + rnd() * 0.6, (rnd() < 0.5 ? -1 : 1) * 0.42).applyQuaternion(qq); berries.push(mtx(p.x + o.x, p.y + o.y * sc.y, p.z + o.z, 1, 1, 1, 0)); } }
+      root.add(instanced(new THREE.IcosahedronGeometry(0.06, 0), bm, berries, false));
+    }
+  }
+}
 function hedgeRuns(field, z, rnd, q) {
   const out = [], segs = [];
   for (const p of z.paths || []) for (let i = 1; i < p.pts.length; i++) segs.push({ a: p.pts[i - 1], b: p.pts[i], w: p.w });
@@ -701,11 +741,11 @@ function hedgeRuns(field, z, rnd, q) {
       const off = p.w / 2 + 24;
       let t = 90 + rnd() * 80;
       while (t < L - 90 && out.length < cap) {
-        const run = 3 + Math.floor(rnd() * 6);
+        const run = 3 + Math.floor(rnd() * 6), runV = Math.floor(rnd() * 3);
         for (let k = 0; k < run && t < L - 90; k++, t += 40) {
           const c = at(t), x = c.x - c.uy * off * sd, y = c.y + c.ux * off * sd;
           if (!clearOf(x, y)) continue;
-          out.push(mtx(x * U, footY(field, x, y, 1.05), y * U, 1 + rnd() * 0.06, 0.85 + rnd() * 0.3, 1 + rnd() * 0.15, Math.atan2(c.ux, c.uy) + Math.PI / 2 + (rnd() - 0.5) * 0.06));
+          const mm = mtx(x * U, footY(field, x, y, 1.05), y * U, 1 + rnd() * 0.06, 0.85 + rnd() * 0.3, 1 + rnd() * 0.15, Math.atan2(c.ux, c.uy) + Math.PI / 2 + (rnd() - 0.5) * 0.06); mm.hv = runV; out.push(mm);
           for (const f of [-0.8, 0, 0.8]) z.colliders.push({ x: x + c.ux * f * 20, y: y + c.uy * f * 20, r: 10 });
         }
         t += 40 * (2 + Math.floor(rnd() * 4));
@@ -967,7 +1007,7 @@ function buildVegetation(field, root) {
     z.colliders.push({ x: px, y: py, r: s * 0.8 / U });
     k++;
   }
-  const hedges = outdoors && !volcanic && !desert ? hedgeRuns(field, z, rnd, q) : [];
+  const hedges = [];
   for (let k = 0, tries = 0; k < flowerN && tries < flowerN * 10; tries++) {
     const cx = 40 + rnd() * (z.w - 80), cy = 40 + rnd() * (z.h - 80);
     if (field.outsideE(cx, cy) > -30 || !placeable(field, cx, cy, { water: 20, npc: 40, path: 0.06 })) continue;
@@ -1037,13 +1077,6 @@ function buildVegetation(field, root) {
     bendGeo(canopy, -0.02, 0.016, 33);
     root.add(instanced(trunk2, barkMat, leafy2, true));
     root.add(tintInst(instanced(canopy, leafMat, leafy2, true), rnd, 0.18));
-  }
-  if (hedges.length) {
-    const hg = noisyGeo(THREE.mergeGeometries([new THREE.BoxGeometry(2.1, 1.0, 0.8, 6, 3, 2).translate(0, 0.5, 0), new THREE.IcosahedronGeometry(0.42, 1).translate(-0.6, 1.0, 0), new THREE.IcosahedronGeometry(0.45, 1).translate(0.15, 1.02, 0.05), new THREE.IcosahedronGeometry(0.4, 1).translate(0.8, 0.98, -0.05)].map(g => g.index ? g.toNonIndexed() : g)), 0.12, 23);
-    const hm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0x7c9a68 });
-    addWind(hm, 0.01);
-    addSeason(hm, "shrub");
-    root.add(tintInst(instanced(hg, hm, hedges, true), rnd, 0.12));
   }
   if (bushes.length) {
     const bg = noisyGeo(THREE.mergeGeometries([new THREE.IcosahedronGeometry(0.7, 1).translate(0, 0.45, 0), new THREE.IcosahedronGeometry(0.55, 1).translate(0.5, 0.35, 0.2), new THREE.IcosahedronGeometry(0.5, 1).translate(-0.45, 0.35, -0.2)]), 0.2, 17);
@@ -1179,7 +1212,7 @@ function buildTown(field, root) {
     for (let k = 0; k < 2 + Math.floor(rnd2() * 3); k++) {
       const side = rnd2() < 0.5 ? -1 : 1, along = (rnd2() - 0.5) * hs.h * 0.8;
       const px = hs.x + side * (hs.w / 2 + 18 + rnd2() * 10), py = hs.y + along;
-      if (!placeable(field, px, py, { npc: 40, path: 0.6, water: 20 })) continue;
+      if (!placeable(field, px, py, { npc: 40, path: 0.04, water: 20, clr: 20 })) continue;
       (rnd2() < 0.5 ? barrels : hcrates).push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, 1, 1, 1, rnd2() * 6.28));
     }
   }
@@ -1663,7 +1696,11 @@ function buildCityBuildings(field, root) {
       if (f > 0) bt.add(T.timber ? M.beam : M.trim, box(bw + 0.14, 0.2, d + 0.14), B, 0, y0, 0);
       if (T.timber && (f > 0 || T.ground !== "stone")) {
         for (const sx of [-1, 1]) for (const sz of [-1, 1]) bt.add(M.beam, box(0.18, FH, 0.18), B, sx * (bw / 2 + 0.02), y0 + FH / 2, sz * (d / 2 + 0.02));
-        for (const sx of [-1, 1]) bt.add(M.beam, box(0.12, FH * 0.9, 0.06), B, sx * bw * 0.36, y0 + FH / 2, d / 2 + 0.04, 0, 0, sx * 0.55);
+        { const nwb = Math.max(1, Math.floor((bw - 0.8) / 2.3)), gap = bw / (2 * nwb) - 0.55;
+          for (const sx of [-1, 1]) {
+            if (gap >= 1.5) bt.add(M.beam, box(0.12, FH * 0.9, 0.06), B, sx * (bw / 2 - gap / 2), y0 + FH / 2, d / 2 + 0.04, 0, 0, sx * Math.min(0.55, Math.atan2(gap - 0.3, FH * 0.9)));
+            else if (gap >= 0.35) bt.add(M.beam, box(0.12, 0.8, 0.06), B, sx * (bw / 2 - gap / 2), y0 + FH - 0.45, d / 2 + 0.04, 0, 0, sx * Math.min(0.5, Math.atan2(gap - 0.15, 0.8)));
+          } }
       }
       const nw = Math.max(1, Math.floor((bw - 0.8) / 2.3));
       for (let i = 0; i < nw; i++) {
@@ -3159,6 +3196,7 @@ function* buildZone3DSteps() {
   if (themeOf(z) === "house") buildHouse(field, root);
   buildRuins(field, root);
   buildSites(field, root);
+  buildHedges(field, root);
   buildExits(field, root);
   buildWater(field, root);
   buildBackdrop(field, root);

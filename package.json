@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.45.0",
-  "releaseTitle": "A bestiary entry for every form",
+  "version": "19.46.0",
+  "releaseTitle": "Tidier streets and rare albinos",
   "description": "",
   "main": "index.js",
   "scripts": {

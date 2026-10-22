@@ -1192,8 +1192,8 @@ function beastFormEnt(k, fk) {
 function dbBeasts() {
   const keys = Object.keys(BESTIARY);
   const known = keys.filter(k => save.bestiary[k]);
-  const nForms = known.reduce((n, k) => n + Object.keys(beastForms(k)).length, 0);
-  let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " kinds of creature recorded, " + nForms + " forms in all. Defeat a creature to add it; each colouring and each job a monster fights as gets its own entry once you see it.</div>";
+  const nForms = known.reduce((n, k) => n + Math.max(save.bestiary[k].kills ? 1 : 0, Object.values(beastForms(k)).filter(f => f.kills > 0).length), 0);
+  let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " kinds of creature recorded, " + nForms + " forms in all. Defeat a creature to add it; each job a monster fights as, and each rare dark or albino colouring, gets its own entry once you defeat one.</div>";
   if (known.some(k => NM_FAMILIES[k])) { const nm = helpDbCache().secs[Object.keys(helpDbCache().secs).find(t => /Notorious/.test(t))] || ""; const p1 = nm.split("</p>")[0]; if (p1) h += '<details class="dbNote"><summary>About notorious monsters</summary>' + p1 + "</p></details>"; }
   for (const k of keys) {
     const b = save.bestiary[k];
@@ -1217,7 +1217,9 @@ function dbBeasts() {
       body += '<div class="sub">Weak to: ' + (weak.length ? weak.join(", ") : "nothing in particular") + "</div>";
       body += '<div class="sub">Known to carry: ' + esc(loot.join(", ")) + "</div>";
     } else if (b.kills >= 1) body += '<div class="sub">Defeat ' + (need - b.kills) + " more to learn its weaknesses and spoils.</div>";
-    const forms = beastForms(k), fks = Object.keys(forms).sort();
+    const forms = beastForms(k);
+    let fks = Object.keys(forms).filter(fk => (forms[fk].kills || 0) > 0).sort();
+    if (!fks.length) { if (!b.kills) continue; fks = [NM_FAMILIES[k] ? "base" : "v0"]; forms[fks[0]] = forms[fks[0]] || { seen: b.seen || Date.now(), kills: b.kills }; }
     for (const fk of fks) {
       const tk = fk === "v0" || fk === "base" ? k : k + "|" + fk;
       const pic = typeof beastThumb === "function" ? beastThumb(tk, () => { if (S.modal === "database") renderModal(); }, tk === k ? undefined : beastFormEnt(k, fk)) : null;
@@ -1842,8 +1844,18 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.46.0", date: "2026-10-22", title: "Tidier streets and rare albinos", items: [
+    "<b>Street lamps:</b> each crossroads in town has one lamp on a corner, and the long stretches between have a lamp only every 21 yalms or so. Lamps keep well clear of buildings, so lanterns no longer poke into walls.",
+    "<b>Timber frames:</b> the diagonal timber braces on half-timbered houses now sit in the gaps between windows (or as short corner braces when the gap is narrow) instead of crossing the windows.",
+    "<b>Nothing in the roads:</b> crates and barrels by houses and in the wilds stay off roads and paths.",
+    "<b>Trade Board moved</b> to the Government District in Ashenreach and the Keep in Ironvale, beside the main crossroads. Every trade board and signpost now turns to face the nearest road, and one set too far back is moved up to it.",
+    "<b>Skywatchers:</b> Orrin (Ashenreach Government District), Wenna (Saltreach Harbor Square) and Bodvar (Ironvale Keep) read the sky for 50 crystals: pick any place you've discovered to hear its weather right now, the element of the land there, and today's element.",
+    "<b>Hedges, three ways:</b> neatly trimmed hedges with clipped tops, rounded hedges with domed tops, and wild hedgerows with lumpy growth, bare stems and red berries. Each run along a road uses one style. Hedges are now laid out after every other prop, so they don't grow through carts, wagons, rocks, camps or ruins.",
+    "<b>Rare dark and albino monsters:</b> colour variants are now rare: about 1 in 16 creatures is a dark form and 1 in 33 an albino (nearly white, with pale pink markings). They drop better: dark forms roll their drops at 1.6× and albinos at 2.5×, with extra chances at gear and spell scrolls and more crystals.",
+    "<b>Bestiary only lists what you've beaten.</b> A form (job or colouring) gets its entry when you defeat one, not when you first see it."
+  ] },
   { v: "19.45.0", date: "2026-10-22", title: "A bestiary entry for every form", items: [
-    "<b>Every colouring has its own entry.</b> Creatures come in a normal, a dark and a pale colouring. Each one you meet gets its own Bestiary entry with its own picture, for example Meadow Hare, Meadow Hare (dark) and Meadow Hare (pale).",
+    "<b>Every colouring has its own entry.</b> Creatures come in a normal, a dark and an albino colouring. Each one you meet gets its own Bestiary entry with its own picture, for example Meadow Hare, Meadow Hare (dark) and Meadow Hare (pale).",
     "<b>Every job has its own entry.</b> Beastmen and other armed monsters get an entry for each job you've seen them fight as. If you've only met a Goblin Knight you'll see just Goblin Knight; meet a Goblin Dark Mage and a Goblin Rogue and they get entries too, each showing that job's gear in its picture and in the 3D viewer.",
     "Each form counts its own defeats. The family's habits, weaknesses and spoils are shown on its first entry. The count at the top shows how many kinds and how many forms you've recorded.",
     "Your existing bestiary carries over: kinds you'd already recorded start with the jobs you'd seen them as, or their normal colouring."
@@ -4541,6 +4553,8 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>Skywatchers:</b> in the Government District, Harbor Square and the Keep, pay 50 crystals for a reading of any place you've discovered: its weather now, its land's element and today's element.",
+    "<b>Rare forms:</b> dark and albino monsters are rare and carry better spoils. Each one you defeat gets its own Bestiary entry.",
     "<b>Seasons:</b> each game year has 90-day Spring, Summer, Autumn and Winter. Trees leaf out and blossom in spring, darken in summer, turn and drop in autumn and stand bare in winter; grass grows, yellows and dies back the same way. Check System → Time.",
     "<b>The night sky:</b> twelve constellations circle the sky; one rides the midnight sky each game month. Planets Ember, Verdis, Aster and Gild (ringed) drift through them at different speeds, and a different coloured comet crosses the sky each game month. Check System → Time for tonight's sky. The moon's phase follows the 30-day game month.",
     "<b>Treasure pool:</b> lot or pass within the time limit. If you change areas first, you lot automatically on everything left and the pool is settled before you arrive.",

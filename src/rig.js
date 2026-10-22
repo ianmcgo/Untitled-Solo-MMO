@@ -3633,17 +3633,19 @@ function nmDecor(R, key) {
   R.add(gRing(V3((all.min.x + all.max.x) / 2, 0.02, (all.min.z + all.max.z) / 2), ar, 0.012, "y", 24), root, D.aura || D.gem || 0xff5252, "glow", true);
 }
 
-function mobVariant(m) { return m.fam && m.fam.nm ? 0 : hashStr((m.famKey || "") + ":" + m.id) % 3; }
+function mobVariant(m) { if (m.fam && (m.fam.nm || m.fam.boss)) return 0; const h = hashStr((m.famKey || "") + ":" + m.id) % 100; return h < 3 ? 2 : h < 9 ? 1 : 0; }
 function shadeHex(c, k) { const q = new THREE.Color(c); q.multiplyScalar(k); return q.getHex(); }
 function varyMobLook(ml, vr) {
   if (!vr) return ml;
   if (ml.kind !== "human") {
     const out = Object.assign({}, ml);
-    if (out.col != null) out.col = vr === 1 ? shadeHex(out.col, 0.84) : new THREE.Color(out.col).lerp(new THREE.Color(0xd8b080), 0.14).getHex();
+    if (out.col != null) out.col = vr === 1 ? shadeHex(out.col, 0.62) : new THREE.Color(out.col).lerp(new THREE.Color(0xf4f0ea), 0.78).getHex();
+    if (out.col2 != null) out.col2 = vr === 1 ? shadeHex(out.col2, 0.62) : new THREE.Color(out.col2).lerp(new THREE.Color(0xffd8d8), 0.7).getHex();
     return out;
   }
   const L = Object.assign({}, ml.look);
-  if (L.top) L.top = Object.assign({}, L.top, { color: shadeHex(L.top.color || 0x6a5a4a, vr === 1 ? 0.8 : 1.15) });
+  if (L.top) L.top = Object.assign({}, L.top, { color: vr === 1 ? shadeHex(L.top.color || 0x6a5a4a, 0.62) : new THREE.Color(L.top.color || 0x6a5a4a).lerp(new THREE.Color(0xf0ece4), 0.7).getHex() });
+  if (L.skin != null) L.skin = vr === 1 ? shadeHex(L.skin, 0.7) : new THREE.Color(L.skin).lerp(new THREE.Color(0xf6f0ec), 0.75).getHex();
   if (vr === 1 && !L.head && !L.leafHead && !L.crest) L.head = { type: L.skull ? "helm" : "cap", color: L.skull ? 0x6a6a64 : 0x5a4a3a };
   if (vr === 2 && !L.pauldrons && L.top && L.top.sleeves !== "none") L.pauldrons = L.skull ? 0x6a6a64 : 0x5a5048;
   if (vr === 2 && L.belt == null) L.belt = 0x3a2a1a;
@@ -3696,7 +3698,8 @@ function jobMobLook(L, e) {
     if (!L.skull && out.legs != null) out.legs = tintHex(out.legs, pal, k);
   }
   const vr = mobVariant(e);
-  if (vr && out.top && out.top.color != null) out.top = Object.assign({}, out.top, { color: shadeHex(out.top.color, vr === 1 ? 0.85 : 1.12) });
+  if (vr && out.top && out.top.color != null) out.top = Object.assign({}, out.top, { color: vr === 1 ? shadeHex(out.top.color, 0.62) : new THREE.Color(out.top.color).lerp(new THREE.Color(0xf0ece4), 0.7).getHex() });
+  if (vr && out.skin != null) out.skin = vr === 1 ? shadeHex(out.skin, 0.7) : new THREE.Color(out.skin).lerp(new THREE.Color(0xf6f0ec), 0.75).getHex();
   if (!(e.fam && e.fam.range)) {
     const g = mobGearFor(e.job, e.lv || 1);
     out.weapon = g.weapon; out.weaponId = g.weaponId;

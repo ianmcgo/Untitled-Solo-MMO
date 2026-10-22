@@ -1229,7 +1229,7 @@ const OUTPOST_PLAN = {
       { key: "guild", x: 720, y: 1180, w: 220, h: 100, type: "hall", sign: "Adventurers' Guild", signCol: "#5a86c8" },
       { key: "jobs", x: 1680, y: 1170, w: 180, h: 90, type: "hall", floors: 1, sign: "Job Master" }
     ],
-    npcs: [{ id: "registrar_outpost", x: 720, y: 1000 }, { id: "maera", x: 900, y: 1290, home: "guild", sleep: [22.5, 6.5] }, { id: "brann", x: 1860, y: 300, home: "mercs", sleep: [23, 7.5] }, { id: "tobin", x: 1850, y: 1290, home: "jobs", sleep: [20, 7] }],
+    npcs: [{ id: "trade_board", x: 1268, y: 1150 }, { id: "weather_outpost", x: 1500, y: 800, face: Math.PI }, { id: "registrar_outpost", x: 720, y: 1000 }, { id: "maera", x: 900, y: 1290, home: "guild", sleep: [22.5, 6.5] }, { id: "brann", x: 1860, y: 300, home: "mercs", sleep: [23, 7.5] }, { id: "tobin", x: 1850, y: 1290, home: "jobs", sleep: [20, 7] }],
     props: [{ type: "desk", x: 900, y: 1320, r: 22 }],
     dummies: [[600, 640, 0.3], [690, 650, -0.2], [780, 640, 0.1], [870, 650, -0.3]], racks: [[600, 760, 0], [860, 760, 0]],
     benches: [[1060, 420, 1.57], [1340, 420, -1.57], [1200, 580, 0]],
@@ -1258,7 +1258,7 @@ const OUTPOST_PLAN = {
       { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227", shop: "auction_outpost" },
       { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "The Ember Mug", signCol: "#ff9a40" }
     ],
-    npcs: [{ id: "crystal_town", x: 1200, y: 900 }, { id: "luna", x: 1390, y: 1110 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_outpost", x: 1600, y: 885 }],
+    npcs: [{ id: "crystal_town", x: 1200, y: 900 }, { id: "luna", x: 1390, y: 1110 }, { id: "auction_outpost", x: 1600, y: 885 }],
     stalls: [{ x: 1359, y: 826, color: "#7b1fa2" }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1100, y: 757, color: "#1565c0" }, { x: 1300, y: 757, color: "#ef8f00" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }, { t: "cart", x: 1880, y: 600, rot: -0.3 }],
@@ -1408,12 +1408,37 @@ function buildCity(C) {
   }
   const nearRoad = (x, y, extra) => z.paths.some(p => p.pts.some((q, i) => i > 0 && distToSegPt(x, y, p.pts[i - 1], q) < p.w / 2 + extra));
   const blocked = (x, y, pad) => z.houses.some(h => Math.abs(x - h.x) < h.w / 2 + pad && Math.abs(y - h.y) < h.h / 2 + pad) || circles().some(c => Math.hypot(x - c.x, y - c.y) < c.r) || z.gates.some(g => inRect(x, y, gateBox(g), 0)) || z.exits.some(e => inRect(x, y, exitBox(e), 0)) || z.stalls.some(s => Math.hypot(x - s.x, y - s.y) < 50);
+  z.lamps = z.lamps.filter(([x, y]) => !blocked(x, y, 34) && !nearRoad(x, y, 4));
+  const segs = [];
+  z.paths.forEach((p, pi) => { for (let i = 1; i < p.pts.length; i++) segs.push({ a: p.pts[i - 1], b: p.pts[i], w: p.w, pi }); });
+  const cand = [];
+  for (const s1 of segs) for (const q of [s1.a, s1.b]) cand.push(q);
+  for (let i = 0; i < segs.length; i++) for (let j = i + 1; j < segs.length; j++) {
+    const A = segs[i], B = segs[j]; if (A.pi === B.pi) continue;
+    const d1x = A.b[0] - A.a[0], d1y = A.b[1] - A.a[1], d2x = B.b[0] - B.a[0], d2y = B.b[1] - B.a[1], den = d1x * d2y - d1y * d2x;
+    if (Math.abs(den) < 1e-6) continue;
+    const t = ((B.a[0] - A.a[0]) * d2y - (B.a[1] - A.a[1]) * d2x) / den, u = ((B.a[0] - A.a[0]) * d1y - (B.a[1] - A.a[1]) * d1x) / den;
+    if (t >= -0.02 && t <= 1.02 && u >= -0.02 && u <= 1.02) cand.push([A.a[0] + d1x * t, A.a[1] + d1y * t]);
+  }
+  const cross = [];
+  for (const q of cand) {
+    const near = segs.filter(sg => distToSegPt(q[0], q[1], sg.a, sg.b) < sg.w / 2 + 6);
+    if (new Set(near.map(sg => sg.pi)).size < 2 || cross.some(c => Math.hypot(c.x - q[0], c.y - q[1]) < 90)) continue;
+    cross.push({ x: q[0], y: q[1], w: Math.max(...near.map(sg => sg.w)) });
+  }
+  for (const c of cross) {
+    if (z.lamps.some(l => Math.hypot(l[0] - c.x, l[1] - c.y) < 110)) continue;
+    for (const [dx, dy] of [[1, 1], [-1, -1], [1, -1], [-1, 1]]) {
+      const o = c.w / 2 + 22, x = Math.round(c.x + dx * o), y = Math.round(c.y + dy * o);
+      if (!nearRoad(x, y, 4) && !blocked(x, y, 34)) { z.lamps.push([x, y]); break; }
+    }
+  }
   for (const p of z.paths) for (let i = 1; i < p.pts.length; i++) {
     const [ax, ay] = p.pts[i - 1], [bx, by] = p.pts[i], L = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / L, uy = (by - ay) / L;
     let k = 0;
-    for (let t = 120; t < L - 60; t += 230, k++) {
+    for (let t = 210; t < L - 150; t += 420, k++) {
       const sd = k % 2 ? 1 : -1, x = Math.round(ax + ux * t - uy * sd * (p.w / 2 + 16)), y = Math.round(ay + uy * t + ux * sd * (p.w / 2 + 16));
-      if (!nearRoad(x, y, 4) && !blocked(x, y, 18)) z.lamps.push([x, y]);
+      if (!nearRoad(x, y, 4) && !blocked(x, y, 34) && !z.lamps.some(l => Math.hypot(l[0] - x, l[1] - y) < 260)) z.lamps.push([x, y]);
     }
     if (!p.trees) continue;
     for (let t = 200; t < L - 100; t += 170) for (const sd of [-1, 1]) {
@@ -1479,7 +1504,7 @@ const HARBOR_PLAN = {
       { key: "jobs", x: 1660, y: 1230, w: 180, h: 90, type: "hall", floors: 1, sign: "Job Master" },
       { key: "mercs", x: 780, y: 1240, w: 220, h: 100, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b", shop: "merc_harbor" }
     ],
-    npcs: [{ id: "crystal_harbor", x: 1200, y: 900 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_harbor", x: 1620, y: 855 }, { id: "barber_harbor", x: 1359, y: 817 }, { id: "job_harbor", x: 1660, y: 1310 }, { id: "merc_harbor", x: 780, y: 1320 }],
+    npcs: [{ id: "crystal_harbor", x: 1200, y: 900 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "weather_harbor", x: 1430, y: 1110, face: -Math.PI / 2 }, { id: "auction_harbor", x: 1620, y: 855 }, { id: "barber_harbor", x: 1359, y: 817 }, { id: "job_harbor", x: 1660, y: 1310 }, { id: "merc_harbor", x: 780, y: 1320 }],
     stalls: [{ x: 1359, y: 826, color: "#c0392b", sign: "Barber", pole: true }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "statue", x: 1200, y: 1560 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }],
@@ -1788,7 +1813,7 @@ const IRONVALE_PLAN = {
       { key: "chapel", x: 1680, y: 1230, w: 190, h: 110, type: "hall", floors: 2, sign: "Hearth Chapel", signCol: "#f0e0a0" },
       { key: "mercs", x: 720, y: 1240, w: 240, h: 120, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b", shop: "merc_ironvale" }
     ],
-    npcs: [{ id: "registrar_ironvale", x: 1680, y: 470 }, { id: "merc_ironvale", x: 720, y: 1320 }],
+    npcs: [{ id: "trade_board", x: 1268, y: 1100 }, { id: "weather_ironvale", x: 1500, y: 820, face: Math.PI }, { id: "registrar_ironvale", x: 1680, y: 470 }, { id: "merc_ironvale", x: 720, y: 1320 }],
     benches: [[1060, 480, 1.57], [1340, 480, -1.57]],
     dressing: [{ t: "statue", x: 1080, y: 1680 }, { t: "statue", x: 1320, y: 1680 }, { t: "planter", x: 1060, y: 300 }, { t: "planter", x: 1340, y: 300 }, { t: "well", x: 1500, y: 700 }]
   },
@@ -1803,7 +1828,7 @@ const IRONVALE_PLAN = {
       { key: "jobs", x: 1620, y: 1040, w: 170, h: 90, type: "hall", floors: 1, sign: "Job Master", shop: "job_ironvale" },
       { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" }
     ],
-    npcs: [{ id: "crystal_ironvale", x: 1200, y: 900 }, { id: "auction_ironvale", x: 1600, y: 885 }, { id: "job_ironvale", x: 1620, y: 1140 }, { id: "trade_board", x: 1010, y: 1100 }],
+    npcs: [{ id: "crystal_ironvale", x: 1200, y: 900 }, { id: "auction_ironvale", x: 1600, y: 885 }, { id: "job_ironvale", x: 1620, y: 1140 }],
     stalls: [{ x: 1359, y: 826, color: "#5d4037" }, { x: 1041, y: 826, color: "#37474f" }, { x: 1300, y: 1043, color: "#5d4037" }, { x: 1100, y: 1043, color: "#37474f" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }],
@@ -2736,6 +2761,7 @@ for (const town in TOWN_SERVICES) {
   if (T.job) { NPCS["job_" + town] = { name: T.job + ", Job Master", model: "tobin_b", talk: "talkTobin" }; VENDOR_WORK["job_" + town] = "read"; }
   if (T.stable) { NPCS["stable_" + town] = { name: T.stable + ", Stablemaster", model: "ysolde_b", talk: "talkYsolde" }; VENDOR_WORK["stable_" + town] = "work"; }
 }
+for (const [town, nm] of [["outpost", "Orrin"], ["harbor", "Wenna"], ["ironvale", "Bodvar"]]) { NPCS["weather_" + town] = { name: nm + ", Skywatcher", model: "tobin_b", talk: "talkWeather" }; VENDOR_WORK["weather_" + town] = "read"; }
 for (const town in VENDOR_TOWNS) {
   const T = VENDOR_TOWNS[town];
   Object.keys(VENDOR_ROLES).forEach((r, i) => {
@@ -2743,6 +2769,9 @@ for (const town in VENDOR_TOWNS) {
     NPCS[id] = { name: T.names[r] + ", " + VENDOR_ROLES[r].title, model: "vend_" + r, talk: "talkVendor", shop: r };
     VENDOR_WORK[id] = VENDOR_ROLES[r].work;
     const sp = T.shops[r], L = VENDOR_SHOP_LOOK[r];
+    { const Z = ZONES[town], refs = Z.npcs.map(n => typeof n.home === "number" ? Z.houses[n.home] : null);
+      Z.houses = Z.houses.filter(o => o.sign || o.shop || o.fixed || o.home || !(Math.abs(o.x - sp.x) < (o.w + sp.w) / 2 + 12 && Math.abs(o.y - sp.y) < (o.h + sp.h) / 2 + 12));
+      Z.npcs.forEach((n, i) => { if (refs[i]) n.home = Z.houses.indexOf(refs[i]); }); }
     ZONES[town].houses.push({ x: sp.x, y: sp.y, w: sp.w, h: sp.h, type: L.type, floors: 1, sign: sp.sign, signCol: L.signCol, awning: L.awning, shop: id, trade: r, roof: i % 4 });
     ZONES[town].npcs.push({ id, x: sp.x, y: sp.y + sp.h / 2 + 34 });
   });

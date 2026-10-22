@@ -1929,27 +1929,31 @@ function lootGive(id, mates) {
   giveItem(id, 1);
 }
 
+function formBoost(m) { return typeof mobVariant === "function" ? [1, 1.6, 2.5][mobVariant(m)] || 1 : 1; }
 function dropLoot(m, mates) {
   mates = mates || [];
+  const fb = formBoost(m);
+  if (fb > 1) log("A rare " + (fb > 2 ? "albino" : "dark") + " " + m.name + "! It carried better spoils.", "loot");
   for (const [id, chance, minLv] of m.fam.loot || []) {
     if (minLv && m.lv < minLv) continue;
     if (!lootAllowed(m, id)) continue;
     if (ITEMS[id].kind === "key") { giveKeyItem(id); continue; }
     if (ITEMS[id].kind === "crystal" && (!blessed() || xpFor(m.lv, player.lv) <= 0)) continue;
-    if (Math.random() >= chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) continue;
+    if (Math.random() >= Math.min(0.95, chance * fb) * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) continue;
     if (ITEMS[id].rare && hasItem(id)) { log("You already possess " + an(ITEMS[id].name) + ". It is lost.", "sys"); continue; }
     lootGive(id, mates);
   }
   gearDrop(m, mates);
+  if (fb > 1 && Math.random() < (fb - 1) * 0.4) gearDrop(m, mates);
   const tr = trophyFor(m);
   if (tr && xpFor(m.lv, player.lv) > 0 && Math.random() < tr.chance * (player.job === "THF" ? 1.2 : 1) + buddyPerk("drop")) lootGive(tr.id, mates);
-  if (mobJobOk(m.fam) && m.job && Math.random() < CONFIG.scrollDrop && xpFor(m.lv, player.lv) > 0) {
+  if (mobJobOk(m.fam) && m.job && Math.random() < CONFIG.scrollDrop * fb && xpFor(m.lv, player.lv) > 0) {
     const pool = Object.values(SPELLS).filter(sp => ITEMS["scroll_" + sp.id] && sp.minLv >= m.lv - 4 && sp.minLv <= m.lv + 3 && lootJobOk(m.job, m.lv, "scroll_" + sp.id));
     if (pool.length) lootGive("scroll_" + pool[Math.floor(Math.random() * pool.length)].id, mates);
   }
   const gr = !mobDropsCrystals(m) ? null : m.fam.gil || (!m.fam.nm && !m.fam.boss && xpFor(m.lv, player.lv) > 0 ? CONFIG.mobGil : null);
   if (gr) {
-    const total = Math.round(rand(gr[0], gr[1]) * m.lv);
+    const total = Math.round(rand(gr[0], gr[1]) * m.lv * (fb > 1 ? 1 + (fb - 1) * 0.6 : 1));
     const g = mates.length ? Math.floor(total / (1 + mates.length)) : total;
     save.gil += g; save.stats.killGil += g;
     log("You obtain " + g + " crystals" + (mates.length ? " (party share)" : "") + ".", "loot");
@@ -4853,6 +4857,7 @@ function enterZone(id, x, y, opt) {
   });
   const cacheNpc = dailyCache(S.zone);
   S.npcs = S.zone.npcs.concat(cacheNpc ? [cacheNpc] : []).map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: n.face != null ? n.face : Math.PI / 2, idleFace: n.face != null ? n.face : Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
+  for (const n of S.npcs) if ((n.prop === "board" || n.prop === "sign") && (S.zone.paths || []).length) faceRoad(n, S.zone);
   S.gatherAt = [];
   if (FEATURES.gathering && S.zone.gather) for (const type in S.zone.gather) {
     const g = S.zone.gather[type];
@@ -5184,6 +5189,18 @@ function spawnMob(i, wantNm) {
   S.spawnAt[i] = null;
 }
 
+function faceRoad(n, z) {
+  let best = null;
+  for (const p of z.paths) for (let i = 1; i < p.pts.length; i++) {
+    const a = p.pts[i - 1], b = p.pts[i], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((n.x - a[0]) * dx + (n.y - a[1]) * dy) / L));
+    const qx = a[0] + dx * t, qy = a[1] + dy * t, d = Math.hypot(n.x - qx, n.y - qy) - p.w / 2;
+    if (!best || d < best.d) best = { d, qx, qy, w: p.w };
+  }
+  if (!best) return;
+  const ang = Math.atan2(best.qy - n.y, best.qx - n.x);
+  if (best.d > 70) { const k = (best.d - 34) / (best.d + best.w / 2); n.x += (best.qx - n.x) * k; n.y += (best.qy - n.y) * k; n.post = { x: n.x, y: n.y }; }
+  n.face = n.idleFace = ang;
+}
 function beastKey(m) { return BESTIARY[m.famKey] ? m.famKey : null; }
 
 function beastForm(m) {
@@ -5193,7 +5210,7 @@ function beastForm(m) {
   if (hum && m.job && JOBS[m.job]) return "job:" + m.job;
   return "v" + (typeof mobVariant === "function" ? mobVariant(m) : 0);
 }
-const BEAST_VARIANT_NAMES = { v0: "", v1: "dark", v2: "pale" };
+const BEAST_VARIANT_NAMES = { v0: "", v1: "dark", v2: "albino" };
 function beastFormName(k, fk) {
   const base = FAMILIES[k] ? FAMILIES[k].name : NM_FAMILIES[k] ? NM_FAMILIES[k].name : k;
   if (fk && fk.startsWith("job:")) { const j = JOBS[fk.slice(4)]; return base + " " + (j ? j.name : fk.slice(4)); }
@@ -5216,8 +5233,8 @@ function noteBeast(m, kill) {
     uiEvent("beast", { k, name: m.name });
   }
   const forms = beastForms(k);
-  if (!forms[fk]) { forms[fk] = { seen: Date.now(), kills: 0 }; log("New bestiary entry: " + beastFormName(k, fk) + ".", "sys"); }
-  if (kill) forms[fk].kills++;
+  if (!forms[fk]) forms[fk] = { seen: Date.now(), kills: 0 };
+  if (kill) { forms[fk].kills++; if (forms[fk].kills === 1) log("New bestiary entry: " + beastFormName(k, fk) + ".", "sys"); }
   if (!b.zones.includes(S.zoneId)) b.zones.push(S.zoneId);
   if (m.job && JOBS[m.job]) { if (!b.jobs) b.jobs = []; if (!b.jobs.includes(m.job)) b.jobs.push(m.job); }
   if (kill) b.kills++;
@@ -6007,6 +6024,18 @@ const TALK = {
     const line = !g.total && !Object.keys(g.active).length ? "Welcome to the Adventurers' Guild. Every day I post bounties on monsters that are giving folk trouble. Finish them for crystals and guild points; points raise your rank and buy things you won't find in any shop." : ready ? "Back already? Let's see what you've brought in." : "You're " + GUILD_RANKS[rk][0] + " rank with " + g.gp + " guild points to spend. Today's bounties are on the board behind me.";
     const st = expStep();
     openDialog(n.name, line + (st && !st.final ? " " + expReport() : ""), [{ label: "Guild bounties and shop", fn: () => { closeDialog(); openModal("guild"); } }].concat(expOptions()));
+  },
+  talkWeather(n) {
+    const areas = [...new Set((save.discovered || []).concat(S.zoneId).map(areaOf))].filter(a => WEATHER[a] && ZONES[a]);
+    if (!areas.length) { openDialog(n.name, "I read the winds and the old stones. Once you've seen a few wild places, I can tell you what the sky and the land are doing there, for 50 crystals a reading.", []); return; }
+    const read = a => {
+      closeDialog();
+      if (save.gil < 50) { log("A reading costs 50 crystals.", "sys"); sfx("error"); return; }
+      save.gil -= 50; sfx("coin");
+      const w = weatherNow(a), wi = w && WEATHER_INFO[w], el = zoneElement(ZONES[a]), we = wi && wi.el;
+      openDialog(n.name, "Over " + ZONES[a].name + " right now: " + (wi ? wi.name.toLowerCase() : "fair skies") + ". The land there leans toward " + el + (we ? ", and the weather adds " + we + " on top" : "") + ". Today the world itself favours " + dayElement() + ".", [{ label: "Another reading", fn: () => this.talkWeather(n) }]);
+    };
+    openDialog(n.name, "Which place shall I read? Each reading is 50 crystals: the weather there now, the element of the land, and today's element.", areas.slice(0, 12).map(a => ({ label: ZONES[a].name + " (50)", fn: () => read(a) })));
   },
   talkBoard(n) {
     const left = boardToday().filter(r => !save.board.done.includes(r.id)).length;
