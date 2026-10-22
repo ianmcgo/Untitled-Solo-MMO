@@ -667,7 +667,7 @@ function tabSystem() {
   h += "<h3>Character</h3><div class=\"sub\" style=\"margin-bottom:8px\">" + esc(save.name) + " · " + JOBS[save.mainJob].name + " Lv." + player.lv + " · " + loadRoster().chars.length + " of " + MAX_CHARS + " characters.</div>";
   h += '<div class="opt"><button data-a="logout">👥 Change character</button></div>';
   h += '<input type="file" id="loadInput" accept=".json,application/json" style="display:none">';
-  h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes." + (typeof skyTonight === "function" ? " Tonight " + skyTonight().high + " rides the midnight sky; " + skyTonight().planets.join(", ") + ". This month " + skyTonight().comet + " crosses the sky." : "") + "</div>";
+  h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes." + (typeof seasonNow === "function" ? " Season: " + seasonNow().name + " (day " + (Math.floor(seasonNow().day % 90) + 1) + " of 90)." : "") + (typeof skyTonight === "function" ? " Tonight " + skyTonight().high + " rides the midnight sky; " + skyTonight().planets.join(", ") + ". This month " + skyTonight().comet + " crosses the sky." : "") + "</div>";
   h += '<h3>Updates</h3><div class="sub" style="margin-bottom:6px">' + BUILD_INFO + '</div><div class="opt"><button data-a="checkupd">🔄 Check for updates</button><button data-a="open" data-v="updates">📰 What changed</button></div>';
   return h;
 }
@@ -1829,6 +1829,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.44.0", date: "2026-10-22", title: "Four seasons", items: [
+    "<b>The world follows the seasons.</b> A game year is 360 game days (about two weeks of real time): Spring, Summer, Autumn and Winter, 90 days each. System → Time shows the season and the day.",
+    "<b>Spring:</b> bare trees slowly leaf out over the first half of spring, then blossom in pink and white; hedges and bushes fill back in and flower; grass grows from short tufts back to full height and turns fresh green; wildflowers come up.",
+    "<b>Summer:</b> leaves and grass deepen to a darker green.",
+    "<b>Autumn:</b> leaves turn gold, then orange and red, and start dropping in the second half; hedges and bushes go russet and thin a little; grass and meadows turn yellow; flowers fade away.",
+    "<b>Winter:</b> broadleaf trees lose almost every leaf, hedges go thin and brown, grass dies back short and straw-coloured, and the flowers are gone until spring. Pines stay green all year.",
+    "Snowfields, deserts, the volcano and the jungle keep their own look all year, as do caves and indoor places."
+  ] },
   { v: "19.43.0", date: "2026-10-22", title: "A Database that grows with you", items: [
     "<b>The Help guide is about how to play.</b> Write-ups of specific places, jobs, notorious monsters, quests, expeditions and the main story have moved out of Help and into the Database, where each one appears only once you've discovered it. The Pets section of Help shows only once you own a pet.",
     "<b>Database → Quests</b> (new): every quest you've started, with who gave it, its level and whether it's in progress, ready to report or complete; each main story chapter you've reached, with the steps done so far; and your expeditions. A short How quests work note opens once you have one.",
@@ -4504,6 +4512,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>Seasons:</b> each game year has 90-day Spring, Summer, Autumn and Winter. Trees leaf out and blossom in spring, darken in summer, turn and drop in autumn and stand bare in winter; grass grows, yellows and dies back the same way. Check System → Time.",
     "<b>The night sky:</b> twelve constellations circle the sky; one rides the midnight sky each game month. Planets Ember, Verdis, Aster and Gild (ringed) drift through them at different speeds, and a different coloured comet crosses the sky each game month. Check System → Time for tonight's sky. The moon's phase follows the 30-day game month.",
     "<b>Treasure pool:</b> lot or pass within the time limit. If you change areas first, you lot automatically on everything left and the pool is settled before you arrive.",
     "<b>Updates window:</b> type in the search box to find any change by word or version number. Tap a version to open or fold it.",

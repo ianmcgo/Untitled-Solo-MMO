@@ -308,6 +308,7 @@ function* buildTerrainSteps(field) {
   nm.repeat.set(field.w * U / 3, field.h * U / 3);
   const mat = std({ map, normalMap: nm, normalScale: new THREE.Vector2(0.8, 0.8), roughness: 0.95 });
   if (W3.quality !== "low" || CONFIG.terrainDetailLow) terrainDetail(mat, field);
+  if (!field.zone.indoor) addSeason(mat, "ground");
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = true;
   mesh.name = "terrain";
@@ -545,7 +546,7 @@ function buildProps(field, root) {
     }
   }
   const leaf = texFoliage("leaf", [74, 110, 48]), bark = texBark();
-  const plantMat = (c, w, gb) => { const m = std({ map: leaf.map, color: c, side: THREE.DoubleSide, roughness: 0.9 }); addWind(m, w, gb); return m; };
+  const plantMat = (c, w, gb) => { const m = std({ map: leaf.map, color: c, side: THREE.DoubleSide, roughness: 0.9 }); addWind(m, w, gb); addSeason(m, "grass"); return m; };
   const woodMat = std({ map: bark.map, normalMap: bark.normalMap, color: 0xc8a888 });
   if (ferns.length) root.add(tintInst(instanced(fernGeo(), plantMat(jungle ? 0x7ab060 : 0x8ab870, 0.06, { base: 0.75, tip: 0.1, h: 0.7 }), ferns, false), rnd, 0.25));
   if (reeds.length) root.add(tintInst(instanced(reedGeo(), plantMat(marsh ? 0xa8b070 : 0x98b46c, 0.09, { base: 0.8, tip: 0.15, h: 1.3 }), reeds, false), rnd, 0.2));
@@ -812,6 +813,69 @@ function addWind(mat, strength, gb) {
   W3.grassMats.push(mat);
 }
 
+const SEASON_NAMES = ["Spring", "Summer", "Autumn", "Winter"];
+function seasonU() {
+  if (W3.seasonU) return W3.seasonU;
+  const mk = () => ({ uSCol: { value: new THREE.Color(1, 1, 1) }, uSDrop: { value: 0 }, uSBloom: { value: 0 }, uSBloomCol: { value: new THREE.Color(1, 0.8, 0.9) }, uSGrow: { value: 1 }, uSHue: { value: new THREE.Color(1, 0.5, 0.1) }, uSHueK: { value: 0 } });
+  W3.seasonU = { leaf: mk(), shrub: mk(), grass: mk(), flower: mk(), ground: mk(), at: -1 };
+  return W3.seasonU;
+}
+function seasonNow() {
+  const day = ((((Date.now() + (S.timeShift || 0) - VANA_EPOCH) * 25 / 60000 / 1440) % 360) + 360) % 360, q = Math.floor(day / 90), t = (day % 90) / 90;
+  return { day, q, t, name: SEASON_NAMES[q] };
+}
+function seasonOff(z) { const p = z && z.palette; return !z || p === "snow" || p === "desert" || p === "volcanic" || p === "jungle" || z.theme === "cave" || z.theme === "crypt" || z.theme === "house"; }
+function seasonState(sn) {
+  const { q, t } = sn, C = (r, g, b) => new THREE.Color(r, g, b), L = (a, b, k) => a.clone().lerp(b, Math.max(0, Math.min(1, k)));
+  const spring = C(1.0, 1.18, 0.86), summer = C(0.72, 0.9, 0.68), autumnA = C(1.25, 0.9, 0.42), autumnB = C(1.15, 0.5, 0.24), winterL = C(0.6, 0.45, 0.3);
+  const o = { leaf: {}, shrub: {}, grass: {}, flower: {} };
+  if (q === 0) {
+    o.leaf = { col: L(C(0.85, 1.05, 0.7), spring, t * 2), drop: 1 - sstep(0.0, 0.6, t) * 0.97 - 0.03, bloom: Math.max(0, Math.sin(Math.PI * Math.min(1, Math.max(0, (t - 0.25) / 0.6)))), grow: 1 };
+    o.shrub = { col: L(C(0.75, 0.85, 0.65), spring, t * 1.5), drop: 0.45 * (1 - sstep(0, 0.5, t)), bloom: 0.35 * Math.max(0, Math.sin(Math.PI * Math.min(1, Math.max(0, (t - 0.35) / 0.55)))), grow: 1 };
+    o.grass = { col: L(C(0.95, 0.9, 0.6), C(0.95, 1.12, 0.82), t * 1.6), drop: 0, bloom: 0, grow: 0.35 + 0.65 * sstep(0, 0.8, t), hue: C(0.7, 0.6, 0.42), hk: 0.8 * (1 - sstep(0, 0.6, t)) };
+    o.flower = { col: C(1, 1, 1), drop: 1 - sstep(0.2, 0.7, t), bloom: 0, grow: 0.4 + 0.6 * sstep(0.2, 0.7, t) };
+  } else if (q === 1) {
+    o.leaf = { col: L(spring, summer, t * 1.4), drop: 0, bloom: 0, grow: 1 };
+    o.shrub = { col: L(spring, summer, t * 1.4), drop: 0, bloom: 0, grow: 1 };
+    o.grass = { col: L(C(0.95, 1.12, 0.82), C(0.85, 0.98, 0.7), t), drop: 0, bloom: 0, grow: 1 };
+    o.flower = { col: C(1, 1, 1), drop: 0, bloom: 0, grow: 1 };
+  } else if (q === 2) {
+    o.leaf = { col: summer, drop: sstep(0.35, 1, t) * 0.8, bloom: 0, grow: 1, hue: L(C(1.0, 0.7, 0.15), C(0.95, 0.32, 0.08), t), hk: sstep(0, 0.45, t) * 0.92 };
+    o.shrub = { col: summer, drop: sstep(0.5, 1, t) * 0.3, bloom: 0, grow: 1, hue: C(1.0, 0.55, 0.18), hk: sstep(0.1, 0.8, t) * 0.8 };
+    o.grass = { col: L(C(0.85, 0.98, 0.7), C(1.1, 1.0, 0.6), t), drop: 0, bloom: 0, grow: 1 - 0.2 * t, hue: C(0.95, 0.8, 0.35), hk: sstep(0.2, 1, t) * 0.55 };
+    o.flower = { col: C(1, 1, 1), drop: sstep(0.2, 0.9, t), bloom: 0, grow: 1 - 0.5 * t };
+  } else {
+    o.leaf = { col: winterL, drop: 0.8 + 0.19 * sstep(0, 0.4, t), bloom: 0, grow: 1, hue: C(0.6, 0.35, 0.18), hk: 0.9 };
+    o.shrub = { col: C(0.7, 0.72, 0.6), drop: 0.3 + 0.2 * sstep(0, 0.5, t), bloom: 0, grow: 1, hue: L(C(1.0, 0.55, 0.18), C(0.55, 0.45, 0.3), t * 2), hk: 0.8 - 0.3 * t };
+    o.grass = { col: C(0.85, 0.78, 0.6), drop: 0, bloom: 0, grow: 0.8 - 0.45 * sstep(0, 0.6, t), hue: L(C(0.95, 0.8, 0.35), C(0.7, 0.6, 0.42), t * 2), hk: 0.55 + 0.25 * sstep(0, 0.5, t) };
+    o.flower = { col: C(1, 1, 1), drop: 1, bloom: 0, grow: 0.4 };
+  }
+  return o;
+}
+function updateSeason() {
+  const U2 = seasonU(), now = performance.now();
+  if (now - U2.at < 1000) return;
+  U2.at = now;
+  const off = seasonOff(S.zone), st = off ? null : seasonState(seasonNow());
+  if (st) st.ground = { col: new THREE.Color(1, 1, 1).lerp(st.grass.col, 0.8), drop: 0, bloom: 0, grow: 1, hue: st.grass.hue, hk: (st.grass.hk || 0) * 0.9 };
+  for (const k of ["leaf", "shrub", "grass", "flower", "ground"]) {
+    const u = U2[k], v = st ? st[k] : { col: new THREE.Color(1, 1, 1), drop: 0, bloom: 0, grow: 1 };
+    u.uSCol.value.copy(v.col); u.uSDrop.value = v.drop; u.uSBloom.value = v.bloom; u.uSGrow.value = v.grow; u.uSHueK.value = v.hk || 0; if (v.hue) u.uSHue.value.copy(v.hue);
+  }
+}
+function addSeason(mat, kind) {
+  const prev = mat.onBeforeCompile, U2 = seasonU()[kind];
+  mat.onBeforeCompile = (sh, r) => {
+    if (prev) prev.call(mat, sh, r);
+    Object.assign(sh.uniforms, U2);
+    sh.vertexShader = "uniform float uSGrow;\nvarying vec3 vSWP;\n" + sh.vertexShader.replace("#include <project_vertex>", "transformed.y *= uSGrow;\n#ifdef USE_INSTANCING\nvSWP = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;\n#else\nvSWP = (modelMatrix * vec4(transformed, 1.0)).xyz;\n#endif\n#include <project_vertex>");
+    sh.fragmentShader = (kind === "ground" ? "#define S_GROUND\n" : "") + "uniform vec3 uSCol;\nuniform float uSDrop;\nuniform float uSBloom;\nuniform vec3 uSBloomCol;\nuniform vec3 uSHue;\nuniform float uSHueK;\nvarying vec3 vSWP;\n" + sh.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\nfloat sN = fract(sin(dot(floor(vSWP * 5.0), vec3(12.9898, 78.233, 37.719))) * 43758.5453);\nif (sN < uSDrop) discard;").replace("#include <lights_physical_fragment>", "#ifdef S_GROUND\nfloat sGr = clamp((diffuseColor.g - diffuseColor.b - 0.05) * 5.0, 0.0, 1.0) * clamp((diffuseColor.g - diffuseColor.r * 0.85) * 8.0, 0.0, 1.0);\nfloat sL = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11));\ndiffuseColor.rgb = mix(diffuseColor.rgb, mix(diffuseColor.rgb * uSCol, vec3(sL) * uSHue * 2.4, uSHueK), sGr);\n#else\nfloat sL = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11));\nfloat sV = fract(sin(dot(floor(vSWP * 2.0), vec3(7.13, 3.71, 5.17))) * 9137.31);\ndiffuseColor.rgb = mix(diffuseColor.rgb * uSCol, vec3(sL) * uSHue * (2.0 + sV * 0.9) * mix(vec3(1.0), vec3(1.0, 0.75 + sV * 0.5, 1.0), 0.5), uSHueK * (0.75 + sV * 0.25));\n#endif\nfloat sB = fract(sin(dot(floor(vSWP * 9.0), vec3(39.3, 11.7, 83.1))) * 24634.6345);\nif (sB > 1.0 - uSBloom * 0.3) diffuseColor.rgb = mix(uSBloomCol, vec3(1.0), fract(sB * 7.0) * 0.5);\n#include <lights_physical_fragment>");
+  };
+  const pk = Object.prototype.hasOwnProperty.call(mat, "customProgramCacheKey") ? mat.customProgramCacheKey.bind(mat) : () => "";
+  mat.customProgramCacheKey = () => pk() + "|season:" + kind;
+  mat.needsUpdate = true;
+}
+
 function buildVegetation(field, root) {
   const z = field.zone, theme = themeOf(z);
   z.colliders = [];
@@ -954,6 +1018,7 @@ function buildVegetation(field, root) {
   if (snowy) { pineMat.emissive = new THREE.Color(0x3a4a50); leafMat.emissive = new THREE.Color(0x30383a); }
   addWind(pineMat, 0.02);
   addWind(leafMat, 0.03);
+  addSeason(leafMat, "leaf");
   if (pines.length) { root.add(instanced(trunkGeo, barkMat, pines, true)); root.add(tintInst(instanced(pineGeo, pineMat, pines, true), rnd, 0.2)); }
   if (cacti.length) {
     const parts = [new THREE.CylinderGeometry(0.32, 0.38, 3.2, 10).translate(0, 1.6, 0), new THREE.SphereGeometry(0.32, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).translate(0, 3.2, 0)];
@@ -977,12 +1042,14 @@ function buildVegetation(field, root) {
     const hg = noisyGeo(THREE.mergeGeometries([new THREE.BoxGeometry(2.1, 1.0, 0.8, 6, 3, 2).translate(0, 0.5, 0), new THREE.IcosahedronGeometry(0.42, 1).translate(-0.6, 1.0, 0), new THREE.IcosahedronGeometry(0.45, 1).translate(0.15, 1.02, 0.05), new THREE.IcosahedronGeometry(0.4, 1).translate(0.8, 0.98, -0.05)].map(g => g.index ? g.toNonIndexed() : g)), 0.12, 23);
     const hm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0x7c9a68 });
     addWind(hm, 0.01);
+    addSeason(hm, "shrub");
     root.add(tintInst(instanced(hg, hm, hedges, true), rnd, 0.12));
   }
   if (bushes.length) {
     const bg = noisyGeo(THREE.mergeGeometries([new THREE.IcosahedronGeometry(0.7, 1).translate(0, 0.45, 0), new THREE.IcosahedronGeometry(0.55, 1).translate(0.5, 0.35, 0.2), new THREE.IcosahedronGeometry(0.5, 1).translate(-0.45, 0.35, -0.2)]), 0.2, 17);
     const bm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0x9aae86 });
     addWind(bm, 0.02);
+    addSeason(bm, "shrub");
     root.add(tintInst(instanced(bg, bm, bushes, true), rnd, 0.2));
   }
   if (flowers.length) {
@@ -991,6 +1058,7 @@ function buildVegetation(field, root) {
     const fg = THREE.mergeGeometries([stem, head.clone().translate(0.08, -0.04, 0.02), head, head.clone().translate(-0.07, -0.06, -0.05)]);
     const fm = std({ color: 0xffffff, roughness: 0.8 });
     addWind(fm, 0.06);
+    addSeason(fm, "flower");
     const im = instanced(fg, fm, flowers, false);
     const pal = [0xf2d24a, 0xe8e8ff, 0xc890e8, 0xf08a8a, 0x8ac8f0];
     flowers.forEach((m, i) => im.setColorAt(i, new THREE.Color(pal[m.hue])));
@@ -1022,6 +1090,7 @@ function buildVegetation(field, root) {
     const tint = theme === "town" ? 0xc8e4b0 : 0xe8ecb0;
     const gm = new THREE.MeshStandardMaterial({ map: blade, alphaTest: 0.45, side: THREE.DoubleSide, roughness: 1, color: tint });
     addWind(gm, 0.12, { base: 0.95, tip: 0.35, h: 0.8, fade: q === "high" ? 70 : 52 });
+    addSeason(gm, "grass");
     const tm = instanced(tg, gm, tufts, false);
     { const lush = new THREE.Color(0.92, 1.05, 0.86), dry = new THREE.Color(1.18, 1.1, 0.78), c = new THREE.Color(); tufts.forEach((m, i) => { c.copy(lush).lerp(dry, sstep(0.35, 0.75, m.dry)).multiplyScalar(0.92 + rnd() * 0.18); tm.setColorAt(i, c); }); if (tm.instanceColor) tm.instanceColor.needsUpdate = true; }
     tm.receiveShadow = true;
@@ -1539,7 +1608,7 @@ function buildCityBuildings(field, root) {
     door: std({ color: 0x4a2e18, roughness: 0.8 }),
     iron: std({ color: 0x2e2e32, roughness: 0.5, metalness: 0.7 }),
     gold: std({ color: 0xd4a840, roughness: 0.4, metalness: 0.6 }),
-    leaf: std({ color: 0x4a8a3a, roughness: 0.9 }),
+    leaf: (() => { const m = std({ color: 0x4a8a3a, roughness: 0.9 }); addSeason(m, "leaf"); return m; })(),
     soil: std({ color: 0x4a3626, roughness: 1 }),
     water: std({ color: 0x3a7ab0, roughness: 0.15, metalness: 0.2, emissive: 0x0a2030 }),
     shutter: ST.shutter.map(c => std({ color: c, roughness: 0.8 })),
@@ -3585,6 +3654,7 @@ function updateSky(force) {
     W3.water.userData.lowNormal.offset.set(S.time * 0.01, S.time * 0.007);
   }
   for (const m of W3.grassMats) if (m.userData.shader) m.userData.shader.uniforms.uTime.value = S.time;
+  updateSeason();
   updateAtmosFx(dir, dayAmt, gloom, cave, indoor, golden, fogC);
   updateWaterFx(1 / 60);
   W3.envTimer -= 1 / 60;
