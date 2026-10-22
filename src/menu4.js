@@ -1794,8 +1794,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
-  { v: "19.42.2", date: "2026-10-22", title: "Hedges off the paving, bigger anvils", items: [
+  { v: "19.42.3", date: "2026-10-22", title: "Hedges off the paving, bigger anvils", items: [
     "<b>No hedges on paving.</b> Hedges no longer grow on plazas, stone paving, around fountains, or on or around the crystal gazebo and its stairs.",
+    "<b>Hedges keep their distance.</b> Hedges leave room around trees (including their crowns), lamp posts, torches, signs, statues, wells, market racks and other props, so nothing pokes through them.",
     "<b>Bigger anvils.</b> Smiths' anvils are about half again as wide and long, with a taller iron body, and the hammer still lands on the face."
   ] },
   { v: "19.42.1", date: "2026-10-22", title: "Safer character deletion", items: [

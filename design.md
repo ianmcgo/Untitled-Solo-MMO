@@ -2882,3 +2882,4 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 ## 19.42.2 Hedges off paving, bigger anvils
 - `hedgeRuns` clearOf also rejects plazas (r+30), fountains (90), the crystal dais (r+ramp+30) and any point with pathWeight > 0.04 (paving).
 - `addAnvil`: group scale (1.55, 1, 1.55); iron base/waist/face/horn scale.y 1.35 with the face top kept at the same height, so `HAMMER_POSE` still lands (rechecked in the studio sheet).
+- 19.42.3 (same notes): hedges also keep clear of lamps (36), torches (30), dressing (40 + DRESS_R/U), props (55), landmarks (70), and colliders at max(r+18, 2.4r+10) so tree crowns don't poke through.

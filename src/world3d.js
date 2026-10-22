@@ -675,13 +675,18 @@ function hedgeRuns(field, z, rnd, q) {
   for (const p of z.paths || []) for (let i = 1; i < p.pts.length; i++) segs.push({ a: p.pts[i - 1], b: p.pts[i], w: p.w });
   const clearOf = (x, y) => {
     for (const s of segs) if (distToSegPt(x, y, s.a, s.b) < s.w / 2 + 16) return false;
-    for (const c of z.colliders || []) if (Math.hypot(x - c.x, y - c.y) < c.r + 14) return false;
+    for (const c of z.colliders || []) if (Math.hypot(x - c.x, y - c.y) < Math.max(c.r + 18, c.r * 2.4 + 10)) return false;
     for (const st of z.stalls || []) if (Math.hypot(x - st.x, y - st.y) < 50) return false;
     for (const b of z.benches || []) if (Math.hypot(x - b[0], y - b[1]) < 40) return false;
     for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) if (Math.hypot(x - q.x, y - q.y) < q.r + 30) return false;
     for (const f of z.fountains || []) if (Math.hypot(x - f.x, y - f.y) < 90) return false;
     if (z._dais && Math.hypot(x - z._dais.x, y - z._dais.y) < z._dais.r + z._dais.ramp + 30) return false;
     if (field.pathWeight(x, y) > 0.04) return false;
+    for (const l of z.lamps || []) if (Math.hypot(x - l[0], y - l[1]) < 36) return false;
+    for (const t of z.torches || []) if (Math.hypot(x - t[0], y - t[1]) < 30) return false;
+    for (const o of z.dressing || []) if (Math.hypot(x - o.x, y - o.y) < 40 + (DRESS_R[o.t] || 1) * (o.s || 1) / U) return false;
+    for (const o of z.props || []) if (Math.hypot(x - o.x, y - o.y) < 55) return false;
+    for (const o of z.landmarks || []) if (Math.hypot(x - o.x, y - o.y) < 70) return false;
     return placeable(field, x, y, { path: 1, clr: 0, npc: 50, water: 25, exit: 130 });
   };
   const cap = { low: 120, medium: 260, high: 420 }[q] || 260;
