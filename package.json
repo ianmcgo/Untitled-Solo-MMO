@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.42.1",
-  "releaseTitle": "Safer character deletion",
+  "version": "19.42.2",
+  "releaseTitle": "Hedges off the paving, bigger anvils",
   "description": "",
   "main": "index.js",
   "scripts": {

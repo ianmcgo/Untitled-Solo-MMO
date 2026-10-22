@@ -678,6 +678,10 @@ function hedgeRuns(field, z, rnd, q) {
     for (const c of z.colliders || []) if (Math.hypot(x - c.x, y - c.y) < c.r + 14) return false;
     for (const st of z.stalls || []) if (Math.hypot(x - st.x, y - st.y) < 50) return false;
     for (const b of z.benches || []) if (Math.hypot(x - b[0], y - b[1]) < 40) return false;
+    for (const q of (z.plaza ? [z.plaza] : []).concat(z.plazas || [])) if (Math.hypot(x - q.x, y - q.y) < q.r + 30) return false;
+    for (const f of z.fountains || []) if (Math.hypot(x - f.x, y - f.y) < 90) return false;
+    if (z._dais && Math.hypot(x - z._dais.x, y - z._dais.y) < z._dais.r + z._dais.ramp + 30) return false;
+    if (field.pathWeight(x, y) > 0.04) return false;
     return placeable(field, x, y, { path: 1, clr: 0, npc: 50, water: 25, exit: 130 });
   };
   const cap = { low: 120, medium: 260, high: 420 }[q] || 260;

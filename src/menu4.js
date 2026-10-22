@@ -1794,6 +1794,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.42.2", date: "2026-10-22", title: "Hedges off the paving, bigger anvils", items: [
+    "<b>No hedges on paving.</b> Hedges no longer grow on plazas, stone paving, around fountains, or on or around the crystal gazebo and its stairs.",
+    "<b>Bigger anvils.</b> Smiths' anvils are about half again as wide and long, with a taller iron body, and the hammer still lands on the face."
+  ] },
   { v: "19.42.1", date: "2026-10-22", title: "Safer character deletion", items: [
     "<b>Type the name to delete.</b> Deleting a character now asks you to type that character's name. The Delete button stays greyed out until the name matches (capitals don't matter), so one stray tap can't delete anyone.",
     "<b>Smaller pop-ups.</b> The Log out box is narrow instead of stretching across the screen, and on phones the other confirmation boxes are a little narrower too."

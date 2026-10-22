@@ -2878,3 +2878,7 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - `gameConfirm(..., { typeName })` adds a reused `.cbIn` input before the buttons. Yes stays disabled until the trimmed, lowercased input equals the name. `yes.onclick` ignores clicks while disabled, which also covers Enter from the keyboard handler. main4 `onKey` returns early (no preventDefault) for keys typed into `.cbIn` other than Enter and Escape.
 - Character delete (main4 roster) passes `typeName: c.name`.
 - Log out uses `narrow`. `#confirmBox.narrow .cb` is min(260px, 100vw − 32/40px); phone confirm boxes are min(340px, 100vw − 24px).
+
+## 19.42.2 Hedges off paving, bigger anvils
+- `hedgeRuns` clearOf also rejects plazas (r+30), fountains (90), the crystal dais (r+ramp+30) and any point with pathWeight > 0.04 (paving).
+- `addAnvil`: group scale (1.55, 1, 1.55); iron base/waist/face/horn scale.y 1.35 with the face top kept at the same height, so `HAMMER_POSE` still lands (rechecked in the studio sheet).

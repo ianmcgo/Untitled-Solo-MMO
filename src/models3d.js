@@ -43,6 +43,9 @@ function addAnvil(group, meta) {
   const k = (meta.hipsY || 0.97) / 0.97;
   g.position.set(-0.13 * k, 0, 0.4 * k);
   g.rotation.y = -0.25;
+  g.scale.set(1.55, 1, 1.55);
+  for (const m of [b, w, f, h]) { m.scale.y = 1.35; }
+  b.position.y = sh + 0.03 * 1.35 - 0.08; w.position.y = sh + 0.095 * 1.35 - 0.08 * 0.6; f.position.y = sh + 0.157; h.position.y = sh + 0.16;
   group.add(g);
   return gm;
 }
