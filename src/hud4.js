@@ -1370,7 +1370,7 @@ function updateFF() {
       setTxt($("uiNetPct"), pct);
       setTxt($("uiNetS"), "S " + (typeof NET_RT !== "undefined" ? (NET_RT.sent || 0) % 1000 : 0));
       setTxt($("uiNetR"), "R " + (typeof NET_RT !== "undefined" ? (NET_RT.recv || 0) % 1000 : 0));
-      setTxt($("uiNetOn"), !PLAY.offline && typeof NET !== "undefined" && NET.online && NET.online.max > 0 ? "👥 " + NET.online.n + "/" + NET.online.max : "");
+      setTxt($("uiNetOn"), !PLAY.offline && typeof NET !== "undefined" && NET.online && NET.online.max > 0 ? "👥 " + netSeatsUsed() + "/" + NET.online.max : "");
     }
   }
   const ci = $("chatIn"), typing = document.activeElement === ci;
@@ -1427,7 +1427,7 @@ function updateFF() {
   }
   $("target").classList.toggle("locked", showT && isMob(t) && player.engaged && player.attackTarget === t);
   const solo = S.party.length <= 1 && !(typeof NET_PT !== "undefined" && NET_PT.id);
-  setTxt($("uiPHead").firstChild, solo ? "Solo" : "Party");
+  setTxt($("uiPHead").firstChild, solo ? "Solo" : "Party · " + S.party.length);
 }
 
 function fmtSecs(sec) {

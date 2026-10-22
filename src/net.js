@@ -82,6 +82,8 @@ async function netQueueJoin() {
   return d;
 }
 
+function netSeatsUsed() { const live = typeof NET_RT !== "undefined" && NET_RT.online ? NET_RT.online.length : 0; return Math.max(NET.online ? NET.online.n || 0 : 0, live, NET.seated || NET.user ? 1 : 0); }
+
 async function netQueueLeave(keepalive, why) {
   NET.seated = false;
   if (!NET.sb || NET.queueOff) return;

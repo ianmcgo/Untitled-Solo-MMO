@@ -1245,6 +1245,10 @@
   #uiSide .pf .bar.hp::before, #uiSide .pf .bar.mp::before { position: absolute; left: -24px; top: 50%; transform: translateY(-50%); font: italic 900 11px var(--uiFont); letter-spacing: .04em; color: #ffd8a8; text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000; }
   #uiSide .pf .bar.hp::before { content: "HP"; } #uiSide .pf .bar.mp::before { content: "MP"; color: #ffc8f0; }
   #uiSide .pf .bar.hp > b, #uiSide .pf .bar.mp > b { left: auto !important; padding: 0 !important; line-height: 1 !important; right: -38px !important; bottom: auto !important; top: 50%; transform: translateY(-50%); width: 34px; text-align: right; font: italic 900 13px var(--uiFont) !important; color: #fff; text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000 !important; }
+  #uiSide .uiHead { justify-content: flex-start; gap: 7px; margin: 0 0 3px -2px; }
+  #uiSide .uiHead::before { content: ""; flex: none; width: 9px; height: 9px; transform: rotate(45deg); background: linear-gradient(135deg, #fff4c8, #e0a040 55%, #8a4a10); border: 1px solid rgba(0,0,0,.6); box-shadow: 0 0 6px rgba(255,200,90,.8); }
+  #uiSide .uiHead::after { flex: 1; height: 1px; margin-top: 1px; background: linear-gradient(90deg, rgba(255,215,140,.9), rgba(255,215,140,0)); }
+  #uiSide .uiHead span { font: 900 10.5px var(--uiFont); font-style: normal; letter-spacing: .22em; text-transform: uppercase; color: #ffe6b0; text-shadow: 0 1px 0 #000, 0 0 4px rgba(0,0,0,.9); padding: 1px 7px 1px 6px; border-radius: 3px 10px 3px 10px; background: linear-gradient(90deg, rgba(120,70,20,.55), rgba(120,70,20,0)); }
 </style>
 </head>
 <body>
