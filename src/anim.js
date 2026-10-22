@@ -13,8 +13,8 @@ function strideEff(v, spd, ik) {
   if (v.kind === "quad" && v.meta && v.meta.quad && v.meta.quad.leg) { const g = v.an && v.an.gait, q = v.meta.quad, reach = (q.Lt && q.Ls ? q.Lt + q.Ls : q.leg) * (q.digi ? 0.55 : q.sprawl ? 0.9 : 0.76) * (v.scale || 1); return Math.min(S * 1.6, reach / (g ? g.duty : 0.66)); }
   if (v.kind !== "human" || !B || !B.shinL || !B.footL) return S;
   const L = (B.shinL.position.length() + B.footL.position.length()) * (v.scale || 1), rel = Math.min(1, L / 0.86);
-  const Sl = Math.min(S, (1.25 + 0.9 * run * (1 - rel)) * L / (0.62 - 0.28 * run));
-  return Sl * (0.55 + 0.45 * rel);
+  const sm = 1 - rel, Sl = Math.min(S, (1.25 + 0.6 * sm * (1 - run) + 3.4 * run * sm) * L / (0.62 - 0.28 * run - 0.14 * run * sm));
+  return Sl * (sm > 0 ? (0.7 + 0.3 * rel) + (0.95 - 0.7 - 0.3 * rel) * run : 1);
 }
 function runOf(v, spd) { return clamp((spd / Math.sqrt(legRel(v)) - 1.2) / 4, 0, 1); }
 function legRel(v) {
@@ -1143,7 +1143,7 @@ function humanLegIK(v, an, w, run) {
   if (!IKQ.h) { IKQ.h = new THREE.Quaternion(); IKQ.inv = new THREE.Quaternion(); IKQ.q = new THREE.Quaternion(); IKQ.x = new THREE.Quaternion(); IKQ.v = new THREE.Vector3(); }
   const Lt = B.shinL.position.length(), Ls = B.footL.position.length(), L = Lt + Ls;
   const sc = v.scale || 1, S = strideEff(v, an.spd, true), rl = legRel(v);
-  const beta = 0.62 - 0.28 * run, D = beta * S / sc, lift = (0.06 + 0.17 * run) * (0.45 + 0.55 * rl) / sc, fl = 0.1 * (0.5 + 0.5 * rl) / sc, wk = 1 - run;
+  const beta = 0.62 - 0.28 * run - 0.14 * run * (1 - rl), D = beta * S / sc, lift = (0.06 + 0.17 * run) * (0.45 + 0.55 * rl) / sc, fl = 0.1 * (0.5 + 0.5 * rl) / sc, wk = 1 - run;
   const rest = B.root.userData.rest;
   const restHip = B.hips.position.y - (B.root.position.y - rest.y) + B.thighL.position.y, ank0 = restHip - L;
   IKQ.h.setFromEuler(B.hips.rotation); IKQ.inv.copy(IKQ.h).invert();

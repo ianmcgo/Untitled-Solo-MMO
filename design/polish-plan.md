@@ -12,7 +12,7 @@ Goal: closer to the look and feel of the classic MMO the game is modelled on (lo
 | 6 | 19.32.0 | Bodies: continuous limbs, more segments, proportions | Done |
 | 7 | 19.33.0 | Painted detail on gear, skin, fur and scales | Done |
 | 8 | 19.34.0 | Softer painted scenery, window glass, night grass | Done |
-| 9 | 19.35.0 | Motion (Pipkin cadence) and final polish | |
+| 9 | 19.35.0 | Pipkin cadence | Done |
 
 ## Causes found
 - Floating water (v19.26.0): each pond's water mesh was a circle of radius (r + 26) × 1.2 at one water level shared by the whole zone. Where the ground around a pond fell below that level (ponds lower than the zone average, slopes beyond r + 110), the disc and its foam ring showed in mid-air as a curved sheet.

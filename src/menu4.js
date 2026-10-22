@@ -1787,6 +1787,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.35.0", date: "2026-10-22", title: "Pipkin pace", items: [
+    "<b>Pipkin take calmer steps.</b> Pipkin used to churn their short legs at about 13 steps a second when running and 7 when walking. They now walk with longer strides (about 3 steps a second) and run in springy bounds with a longer flight between steps (about 4 a second, close to the other races).",
+    "<b>Polish plan complete.</b> This finishes the run of updates from 19.27.0: a cleaner objectives list, real pond banks and shapes, shooting stars and birds, grass that blends in, real sword swings, smoother bodies, richer painted gear and softer painted scenery."
+  ] },
   { v: "19.34.0", date: "2026-10-22", title: "Painted world", items: [
     "<b>Softer scenery.</b> Rock, bark, leaves, walls, roofs and clouds are no longer squashed into a few flat tones, so cliffs lose their black blotches, plaster walls look painted rather than stained, and clouds are soft instead of blocky, especially at night.",
     "<b>Smoother light.</b> Sunlight and shade on the world blend gently instead of in hard steps.",

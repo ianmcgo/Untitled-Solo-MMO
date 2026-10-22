@@ -2680,6 +2680,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.35.0 Pipkin pace (polish plan phase 9)
+- anim.js `strideEff` (human branch), with rel = legRel (leg length / 0.86 m) and sm = 1 − rel: cap = (1.25 + 0.6·sm·(1 − run) + 3.4·run·sm) · L / (0.62 − 0.28·run − 0.14·run·sm), then × (0.7 + 0.3·rel) blended to 0.95 by run for short legs (humans and other rel = 1 races unchanged).
+- `humanLegIK` duty matches: beta = 0.62 − 0.28·run − 0.14·run·(1 − rel).
+- Measured (in-game `strideEff`, steps/s = 2v / stride): Pipkin 1.3 m/s 7.1 → 2.9, 5 m/s 13.4 → 4.3; human 1.8 / 3.1 / 3.9 at 1.3 / 3 / 5 m/s (unchanged). Known limit: at full run a Pipkin's stance is longer than its legs can sweep, so planted feet still slip (median ~0.7 m/s versus 1.3 before); hidden by speed and the bounce.
+- test/gaitsheet.js no longer uses GridHelper.
+
 ## 19.34.0 Painted world (polish plan phase 8)
 - textures.js `toTexture`: `posterCanvas(canvas, 18, 12)` (was 7 tones, 5 alpha steps); texGray detail maps 12 tones (was 5). Removes blotchy cliffs, stained plaster and blocky clouds.
 - world3d `classicWorldChunk`: band blend 0.15 (was 0.45).
