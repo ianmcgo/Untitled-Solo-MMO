@@ -1001,7 +1001,7 @@
   #mBody .eqPop.kbl { outline: 2px solid #ffb060; outline-offset: 2px; }
   #mHead .meta { display: none; }
   #uiSide { background: none; border: none; box-shadow: none; padding: 0; gap: 6px; }
-  #dialog, #confirmBox .cb, #mCard > div, #tCmd, #mCmd, #menu .win, #tracker, #mpBox { background: var(--uiStripe) !important; border: 2px solid var(--uiEdge) !important; border-radius: 6px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; backdrop-filter: none !important; }
+  #dialog, #confirmBox .cb, #mCard > div, #tCmd, #mCmd, #menu .win, #mpBox { background: var(--uiStripe) !important; border: 2px solid var(--uiEdge) !important; border-radius: 6px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; backdrop-filter: none !important; }
   #tracker, #tracker * { font-family: var(--uiFont); color: #fff; }
   #uiTBox, #uiPBox { padding: 2px 8px 6px; background: var(--uiStripe); border: 2px solid var(--uiEdge); border-radius: 6px; box-shadow: 0 3px 12px rgba(0,0,0,.5); }
   #uiTBox { display: none; } #uiSide.hasT #uiTBox { display: block; }
@@ -1218,6 +1218,15 @@
     .ccHair { grid-template-columns: repeat(4, 1fr); }
     .ccInfo2 { font-size: 11px; }
   }
+
+  #tracker { background: none !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; padding: 0 4px !important; width: min(300px, 62vw) !important; max-height: 34vh; font-family: var(--uiFont); }
+  #tracker h4 { font: italic 800 11px var(--uiFont) !important; color: #fff !important; letter-spacing: .06em; justify-content: flex-start; opacity: .85; margin: 0 0 1px; }
+  #tracker .q { margin-top: 3px; }
+  #tracker .q b { font: italic 800 12.5px var(--uiFont) !important; color: #fff07a !important; letter-spacing: .03em; }
+  #tracker .q div { font: 700 11.5px var(--uiFont); color: #fff !important; }
+  #tracker .q .ok { color: #8cff98 !important; }
+  #tracker .tg { color: #c8e0ff; opacity: .9; }
+  #tracker, #tracker * { text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000, 1px 0 0 #000, 0 0 4px rgba(0,0,0,.8); }
 </style>
 </head>
 <body>

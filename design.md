@@ -2680,6 +2680,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.27.0 Cleaner screen (polish plan phase 1, design/polish-plan.md)
+- hud4 `updateTracker`: top = `#uiStat` bounding rect bottom (relative to `#ui`) + 10 px, else 46 px. Header is "▾ Objectives (n)"; tap folds (`UI.trackerMin`).
+- template4 tail CSS: `#tracker` has no background, border or shadow; outlined text (yellow quest names, white lines, green when done). Removed `#tracker` from the shared striped-panel rule.
+- hud4 `mainCmdItems` drops the `pets` entry unless `save.buddies` has an entry. The pet hotbar command was already added only once a pet is owned.
+- test/polishshot.js `<html> <outPrefix> <scenes.json> [w] [h] [quality]`: logs in with the mock server, skips the tutorial, then for each scene runs `js`, waits (`wait` ms or `wf` condition) and screenshots `<outPrefix>-<name>.png`.
+
 ## 19.26.0 Tidy-up
 - CSS and DOM names that started with a two-letter prefix (ffTop, ffSide, --ffFont and so on) now start with ui (uiTop, uiSide, --uiFont). No collisions were found before renaming. Earlier sections of this file were updated to the new names.
 

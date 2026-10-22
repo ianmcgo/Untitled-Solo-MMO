@@ -581,9 +581,9 @@ function updateTracker() {
   if (!ents.length) { el.style.display = "none"; return; }
   el.style.display = trackerBlocked() ? "none" : "block";
   el.classList.toggle("min", UI.trackerMin);
-  const sd = $("uiStat"), top = sd && sd.offsetHeight > 4 ? 42 + sd.offsetHeight + 6 : 46;
-  el.style.top = "calc(" + top + "px + var(--sat))";
-  let h = '<h4 data-tr="1"><span>Objectives (' + ents.length + ")</span><span>" + (UI.trackerMin ? "▸" : "▾") + "</span></h4>";
+  const sd = $("uiStat"), ir = sd && sd.offsetHeight > 4 ? sd.getBoundingClientRect() : null, ur = $("ui").getBoundingClientRect();
+  el.style.top = (ir ? Math.round(ir.bottom - ur.top + 10) : 46) + "px";
+  let h = '<h4 data-tr="1"><span>' + (UI.trackerMin ? "▸" : "▾") + " Objectives (" + ents.length + ")</span></h4>";
   for (const q of ents) h += '<div class="q"><b>' + esc(q.name) + '</b> <small class="tg">' + q.tag + "</small>" + q.lines.map(l => "<div>· " + l + "</div>").join("") + "</div>";
   setHtml(el, h);
 }
@@ -1512,6 +1512,7 @@ function mainCmdItems() {
   if (UI.mm.sub === "status") return STATUS_CMDS;
   let pg = MAIN_CMDS[UI.mm.page].slice();
   if (PLAY.offline) pg = pg.filter(it => !["social"].includes(it[1]));
+  if (!(save.buddies && save.buddies.length)) pg = pg.filter(it => it[1] !== "pets");
   const mi = pg.findIndex(it => it[1] === "map");
   if (mi >= 0 && S.zoneId === "residence") pg[mi] = ["Residence", "home", "Arrange furniture and use your residence."];
   return pg;

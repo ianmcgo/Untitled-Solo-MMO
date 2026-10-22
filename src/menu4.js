@@ -1787,6 +1787,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.27.0", date: "2026-10-22", title: "Cleaner screen", items: [
+    "<b>Objectives without the box.</b> Your story step, quests and bounties now show as plain outlined text right under the status icons at the top left, instead of in a box further down the screen. Tap Objectives to fold or unfold it.",
+    "<b>Pets menu only when you have a pet.</b> The Pets entry in the Commands menu stays hidden until you own your first pet.",
+    "<b>Guide updated</b> for both changes."
+  ] },
   { v: "19.26.0", date: "2026-10-21", title: "Tidy-up", items: [
     "<b>Behind the scenes:</b> interface style and element names were renamed for consistency. Nothing looks or plays differently, and your settings and saves are untouched."
   ] },
@@ -3931,7 +3936,7 @@ function tabHelp() {
   ]));
   h += sec("🐾 Pets", ul([
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
-    "Open <b>Pets</b> on page 1 of the Commands menu to equip one, rename it, and summon or dismiss it. The <b>Pet button</b> on command bar 1 and <b>/pet</b> both toggle your equipped pet. A summoned pet comes back when you log in.",
+    "The <b>Pets</b> entry on page 1 of the Commands menu appears once you own your first pet. Open it to equip one, rename it, and summon or dismiss it. The <b>Pet button</b> on command bar 1 and <b>/pet</b> both toggle your equipped pet. A summoned pet comes back when you log in.",
     "A pet item you get joins you at once and never takes a bag slot, even when your bag is full.",
     "<b>Unequip to bag</b> in the Pets window turns the equipped pet back into its item (needs a free bag slot), for example to trade it. Use the item again to get the pet back. The Ash Sprite has no item form.",
     "Pets are <b>very rare</b>. Hares, bats, worms and ice bats drop their kits about once in 250 kills; Duskwing, Mirelord Gax, Rimefang and the Ashen Herald drop theirs a few percent of the time; the Tide Wisp is a one-in-a-few-hundred catch in Saltreach; the Ash Sprite joins you when you finish the main story. A pet item you get joins you straight away.",
@@ -4266,6 +4271,7 @@ function tabHelp() {
   ]));
   h += sec("🖥️ The screen", ul([
     "<b>Main menu:</b> Esc with nothing targeted, - (or Insert), or tapping yourself and choosing Main Menu opens the main menu window in the top right. ↑ ↓ choose, Enter confirms, ← → switch between its two pages, Esc closes. <b>Status</b> opens the in-world status screen: your sheet on the left (green numbers are bonuses from gear), the chosen page in the middle and the Status list on the right. Press <b>C</b> to open the menu straight on Status (press C again to close it, Esc to step back).",
+    "<b>Objectives:</b> your story step, active quests and guild bounties are listed as plain text just under the status icons at the top left. Tap the Objectives line to fold or unfold the list; tap a quest to open the Quests window. Turn it off in Config → Interface.",
     "<b>Compass map:</b> sits above the event log (or at the bottom when the log is hidden). The tilted dish turns with your view and shows N/E/S/W, people (green), quest givers (gold), monsters (orange, red when fighting) and your party (blue). Under it are the time and your map square. Tap it for the full map; turn it off in Config → Interface.",
     "<b>Spells</b> are learned by reading scrolls (from shops and monster drops) once one of your jobs is high enough level.",
     "<b>Keyboard in windows:</b> arrows move, Enter chooses, Esc goes back or closes.",

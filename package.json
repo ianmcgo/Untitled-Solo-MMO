@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.26.0",
-  "releaseTitle": "Tidy-up",
+  "version": "19.27.0",
+  "releaseTitle": "Cleaner screen",
   "description": "",
   "main": "index.js",
   "scripts": {
