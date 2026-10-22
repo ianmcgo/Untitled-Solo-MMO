@@ -25,14 +25,14 @@ G.save.market.listings = [{ id: 'healing_herb', qty: 1, price: mp('healing_herb'
 const r = Math.random; Math.random = () => 0.99;
 const g0 = G.save.gil;
 const hp0 = mp('healing_herb'); const b1 = G.townBuyOnce('outpost');
-ok(b1 && b1.id === 'healing_herb' && G.save.gil === g0 + hp0 && !G.save.market.listings.length, 'a town buys your own lot first and pays you');
+ok(b1 && b1.id === 'healing_herb' && G.save.gil === g0 && G.save.market.box.some(b => b.gil === hp0) && !G.save.market.listings.length, 'a town buys your own lot first and the crystals wait in your delivery box');
 const b2 = G.townBuyOnce('outpost'), b3 = G.townBuyOnce('harbor');
 ok(b2.seller === 'A' && b2.seq === 1 && b3.seller === 'B', 'then mercenary lots, taking turns between sellers, oldest lot first');
 const b4 = G.townBuyOnce('ironvale');
 ok(b4.seller === 'A' && b4.seq === 2, 'the turn comes back round to the first seller');
 ok(!G.townBuyOnce('outpost') && L.lots.length === 1 && L.lots[0].seller === 'C', 'an overpriced lot is never bought');
 const boxGil = G.save.market.box.filter(b => b.gil).reduce((a, b) => a + b.gil, 0);
-ok(boxGil === 0, 'mercenary sale crystals fizzle and are not paid');
+ok(boxGil === hp0, 'mercenary sale crystals fizzle and are not paid');
 const g1 = G.save.gil; G.ahCollect();
 ok(G.save.gil === g1 + boxGil && !G.save.market.box.length, 'collecting the box adds the crystals');
 Math.random = () => 0.01;

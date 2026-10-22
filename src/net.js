@@ -1418,6 +1418,7 @@ async function netAhCancel(lot) {
 
 async function netAhCollect() {
   const d = await netServerOp("ah_collect", {});
+  NET.ahBoxN = d.left || 0;
   if (d.got) { log("You collect " + d.got + " deliver" + (d.got > 1 ? "ies" : "y") + " from the auction house.", "loot"); sfx("loot"); }
   if (d.left) log("Your bag is full; " + d.left + " deliver" + (d.left > 1 ? "ies are" : "y is") + " still waiting.", "sys");
   return d;
@@ -1434,7 +1435,7 @@ async function netAhWatch() {
       if (NET.ahSeen.has(b.id)) continue;
       NET.ahSeen.add(b.id);
       if (first || b.kind !== "sold" || !ITEMS[b.item]) continue;
-      log("Auction: " + cleanChat(b.note).slice(0, 12) + " bought your " + (b.qty > 1 ? b.qty + " " + ITEMS[b.item].name + "s" : ITEMS[b.item].name) + " for " + b.gil + " crystals. Collect it at an auction house.", "loot");
+      log("Auction: " + cleanChat(b.note).slice(0, 12) + " bought your " + (b.qty > 1 ? b.qty + " " + ITEMS[b.item].name + "s" : ITEMS[b.item].name) + " for " + b.gil + " crystals. Collect them at your delivery box or an auction house.", "loot");
       if (typeof uiEvent === "function") uiEvent("ahsold", { id: b.item, price: b.gil });
       sfx("coin");
     }

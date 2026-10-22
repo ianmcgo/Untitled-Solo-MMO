@@ -2567,11 +2567,11 @@ function townBuyOnce(town) {
     const p = townPick(pl, () => "player:" + (save.name || "you"), l => l.t || 0);
     const l = p.item, i = save.market.listings.indexOf(l);
     save.market.listings.splice(i, 1);
-    save.gil += l.price;
+    save.market.box.push({ gil: l.price, note: "sold " + ITEMS[l.id].name });
     save.stats.ahSold = (save.stats.ahSold || 0) + 1;
     addPress(l.id, -0.02 * l.qty);
     L.lastSale[p.seller] = save.playSec || 0;
-    log("Auction: " + tn + " bought your " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : ITEMS[l.id].name) + " for " + l.price + " crystals!", "loot");
+    log("Auction: " + tn + " bought your " + (l.qty > 1 ? l.qty + " " + ITEMS[l.id].name + "s" : ITEMS[l.id].name) + " for " + l.price + " crystals! Collect them at your delivery box or an auction house.", "loot");
     sfx("coin");
     uiEvent("ahsold", { id: l.id, price: l.price });
     bought = l;
@@ -2710,6 +2710,8 @@ function ahCancel(i) {
   log("You withdraw your " + ITEMS[l.id].name + ". It's waiting in your delivery box.", "sys");
   saveGame();
 }
+
+function deliveryWaiting() { return !!((save && save.market && save.market.box.length) || (typeof NET !== "undefined" && NET.member && NET.ahBoxN)); }
 
 function ahCollect() {
   const left = [];
@@ -5935,9 +5937,10 @@ const TALK = {
   talkDeliveryBox(n) {
     const box = save.market.box, on = typeof netAhCollect === "function" && typeof NET !== "undefined" && NET.member;
     const list = box.map(b => b.gil ? b.gil + " crystals" + (b.note ? " (" + b.note + ")" : "") : ITEMS[b.id].name + (b.qty > 1 ? " x" + b.qty : ""));
-    const text = list.length ? "Waiting for you: " + list.join(", ") + "." : "Nothing is waiting in your delivery box.";
+    const netN = on ? NET.ahBoxN || 0 : 0;
+    const text = list.length || netN ? "Waiting for you: " + list.concat(netN ? [netN + " online deliver" + (netN > 1 ? "ies" : "y")] : []).join(", ") + "." : "Nothing to collect.";
     const go = () => { closeDialog(); const m = ahCollect(); if (m) log(m, "sys"); if (on) netAhCollect().catch(() => {}); ring(n, "#ffd54f", 40, 0.7, "sparkle"); };
-    openDialog(n.name, text + (on ? " Anything players bought from you online is collected as well." : "") + " Everything you sell at the auction house, is delivered here. What your companions sell is theirs and never reaches you.", list.length || on ? [{ label: "Collect everything", fn: go }] : []);
+    openDialog(n.name, text, list.length || netN ? [{ label: "Collect everything", fn: go }] : []);
   },
   talkGuard(n) {
     const mins = blessingMinutes(), left = blessed() ? Math.ceil(blessLeft() / 60) : 0;

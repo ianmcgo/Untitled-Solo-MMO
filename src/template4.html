@@ -187,7 +187,7 @@
   #tutBox .tA { display: flex; gap: 8px; justify-content: space-between; margin-top: 12px; }
   #tutBox .tA button { padding: 8px 14px; }
   #tutBox .tA .pri { border-color: var(--gold); color: var(--gold); }
-  #verPop { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); z-index: 25; width: min(380px, 90vw); padding: 14px 16px; display: none; pointer-events: auto; border-color: var(--gold); box-shadow: 0 0 28px rgba(241,207,115,.3); animation: tin .3s ease-out; }
+  #verPop { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); z-index: 60; width: min(380px, 90vw); padding: 14px 16px; display: none; pointer-events: auto; border-color: var(--gold); box-shadow: 0 0 28px rgba(241,207,115,.3); animation: tin .3s ease-out; }
   #verPop .vpT { font: 700 16px var(--serif); color: var(--gold); margin-bottom: 6px; }
   #verPop .vpB { font-size: 12.5px; line-height: 1.55; color: #e2dfd6; }
   #verPop .vpB ul { margin: 6px 0 0 18px; padding: 0; }
@@ -943,6 +943,10 @@
     #mBody .lr { font-size: 13px; height: 22px; }
     #dialog, #confirmBox .cb { width: calc(100vw - 24px); }
     #mCard .cardBox, #mCard .qCard { width: calc(100vw - 150px); }
+    #menu .win.slim-shop { width: max-content !important; min-width: 220px; max-width: calc(100vw - 16px - var(--sal) - var(--sar)) !important; }
+    #mCard { flex-direction: column; max-width: min(340px, calc(100vw - 12px)); }
+    #mCard .cardBox, #mCard .qCard { width: auto; min-width: 230px; max-width: 100%; }
+    #mCard .gilBox { min-width: 0; }
   }
   #toasts { top: calc(48px + var(--sat)) !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; align-items: center !important; }
   .toast { background: var(--uiStripe) !important; border: 2px solid var(--uiEdge) !important; border-radius: 6px !important; box-shadow: 0 3px 12px rgba(0,0,0,.5) !important; backdrop-filter: none !important; font-family: var(--uiFont); color: #fff; min-width: 240px; max-width: min(420px, 90vw) !important; }
@@ -1014,7 +1018,7 @@
   #menu .win.slim { width: 320px; max-height: calc(100vh - 330px - var(--sat) - var(--sab)); min-height: 120px; }
   #menu .win.fit { width: max-content; min-width: 320px; max-width: min(560px, calc(100vw - 232px - var(--sal) - var(--sar))); }
   #menu .win.wide { width: min(1000px, calc(100vw - 232px - var(--sal) - var(--sar)));  max-height: calc(100vh - 70px - var(--sat) - var(--sab)); }
-  #menu .win.slim-abilities, #menu .win.slim-magic, #menu .win.slim-inventory, #menu .win.slim-quests, #menu .win.slim-storage { width: max-content; min-width: 220px; max-width: min(420px, calc(100vw - 16px)); }
+  #menu .win.slim-abilities, #menu .win.slim-magic, #menu .win.slim-inventory, #menu .win.slim-quests, #menu .win.slim-storage, #menu .win.slim-shop { width: max-content; min-width: 220px; max-width: min(420px, calc(100vw - 16px)); }
   @media (pointer: coarse) { #ui.modalOn #dialog { bottom: calc(8px + var(--sab)) !important; } }
   #menu .win.slim #mHead { display: none; }
   #menu .win.slim #mBody { padding: 4px 6px 6px 22px; }
@@ -1028,7 +1032,7 @@
   #mBody .lr .lq { width: 18px; font-size: 11px; text-align: right; color: #fff; }
   #mBody .lr .ic { width: 18px; font-style: normal; font-size: 14px; text-align: center; }
   #mBody .lr .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #mBody .lr .rt { color: hsl(calc(var(--uh) - 12) calc(100% * var(--us)) 92%); font-size: 13px; }
+  #mBody .lr .rt { margin-left: 18px; color: hsl(calc(var(--uh) - 12) calc(100% * var(--us)) 92%); font-size: 13px; }
   #mBody .lr.dim .nm { opacity: .55; } #mBody .lr.rdy .rt { color: #ffd54f; } #mBody .lr.back .nm { color: hsl(calc(var(--uh) - 9) calc(100% * var(--us)) 89%); }
   #mBody .lr.empty { cursor: default; } #mBody .lr.empty .nm { white-space: normal; font-size: 12.5px; color: hsl(var(--uh) calc(100% * var(--us)) 93%); }
   #mBody .lr.r-rare .nm { color: #9ff0a0; } #mBody .lr.r-epic .nm { color: #ffd070; } #mBody .lr.r-uncommon .nm { color: #c8e8ff; }

@@ -464,6 +464,13 @@ function propView(n) {
     for (const sgn of [-1, 1]) { const strap = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.72, 0.84), metal); strap.position.set(sgn * 0.45, 0.35, 0); g.add(strap); }
     g.add(box, lid, lock);
     v.lid = lid; v.meta.headTop = 1.4;
+    if (n.talk === "talkDeliveryBox") {
+      const halo = new THREE.Mesh(new THREE.SphereGeometry(1.1, 16, 10), new THREE.MeshBasicMaterial({ color: 0xffd54f, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+      halo.position.y = 0.5; halo.scale.set(1.2, 0.8, 1);
+      const L = new THREE.PointLight(0xffd070, 0, 7, 1.6); L.position.set(0, 1.2, 0.6);
+      g.add(halo, L);
+      v.delivGlow = { halo, L, metal };
+    }
     if (n.chest === "king") { const chain = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.04, 6, 20), std({ color: 0xcfd8dc, emissive: 0x80cbc4, emissiveIntensity: 0.4 })); chain.rotation.x = Math.PI / 2; chain.position.y = 0.8; chain.scale.set(1.1, 1, 0.7); g.add(chain); v.chain = chain; }
   } else if (n.prop === "lookout") {
     const wood = std({ color: 0x6a4a2a, roughness: 0.9 });
@@ -589,6 +596,7 @@ function syncNpc(n, dt) {
       v.flame[0].scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.12, k);
       v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
     }
+    if (v.delivGlow) { const on = deliveryWaiting(), k = on ? 0.6 + Math.sin(S.time * 3) * 0.4 : 0; v.delivGlow.halo.material.opacity = 0.22 * k; v.delivGlow.L.intensity = 6 * k; v.delivGlow.metal.emissive.setHex(on ? 0xffb030 : 0); v.delivGlow.metal.emissiveIntensity = 0.6 * k; }
     if (v.orb) { v.orb.rotation.y += dt * 0.9; v.orb.position.y = 2.78 + Math.sin(S.time * 1.5 + n.x) * 0.08; }
     if (v.campFire) { const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.12; v.campFire.scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.15, k); v.light.intensity = 5 + Math.sin(S.time * 11) * 1.5; }
     if (v.bob) {

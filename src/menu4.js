@@ -1793,6 +1793,16 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.38.0", date: "2026-10-22", title: "Town crests, real props and tidy shops", items: [
+    "<b>Town crests.</b> Each town has its own coat of arms: Ashenreach a gold phoenix on red (From ash, we rise), Saltreach a white anchor on blue (Tide and toil), Ironvale a gold anvil on iron grey (Struck true). Town banners, gate towers and district gates fly swallow-tailed flags with the crest and motto, and the loading screen shows the crest of the town you're entering.",
+    "<b>Props that look like things.</b> Market racks hang folded cloth and bolts of fabric, with wicker baskets of apples and pears (with stems). Barrels bulge and have iron hoops. Crates have corner posts and cross braces. Wells have a stone ring, a roofed windlass with a crank, a rope and a bucket, with a spare bucket by the side. Shrines get a fruit basket, an offering bowl and flowers. Street lamps are iron posts with a hanging lantern.",
+    "<b>Town trees</b> have a flared trunk with roots, real branches and leafy clumps at the branch tips, in a stone-ringed bed.",
+    "<b>Tidier shops on phones.</b> The shop list only takes the width it needs, on the left. The item card sits under your crystals instead of being squeezed beside them, so its text doesn't wrap word by word.",
+    "<b>Tap outside to close.</b> Tapping anywhere outside a shop (or any menu) closes it, even while the Buy 1 / Buy 3 box is open.",
+    "<b>Update notices on top.</b> The New version available box now shows above open menus instead of behind them.",
+    "<b>Auction money goes to your delivery box.</b> When a town buys one of your lots, the crystals wait in your delivery box (or at an auction house) until you collect them.",
+    "<b>Glowing delivery box.</b> The delivery box at your residence glows gold while something is waiting. With nothing to collect, it just says Nothing to collect."
+  ] },
   { v: "19.37.0", date: "2026-10-22", title: "Solid ground clutter", items: [
     "<b>No more walking through scenery.</b> Tree stumps, knee-high rocks, wooden fences and desert skulls are now solid, like trees, boulders and carts already were. You, your companions and monsters walk around them.",
     "<b>Faster collision checks.</b> Solid objects are sorted into a grid, so adding all this clutter doesn't slow the game down.",
@@ -3641,7 +3651,7 @@ const UPDATES = [
     "Auction houses open in Ashenreach Outpost (Corvin, west of the crystal) and Saltreach Harbor (Selene, by the crystal).",
     "Prices move all the time. Each item drifts up and down over the game day, daily market news pushes one category up and another down, and your own buying and selling nudges prices too.",
     "Buy: browse Materials, Consumables, Weapons and Armor. Each item has a limited stock that refreshes every game day, a price chart for the last three game days and a trend arrow.",
-    "Sell: put up to " + 7 + " lots up for auction at your own price (3% listing fee). Cheaper lots sell faster. Lots keep selling while you're away; listings never expire; withdraw one and it goes to your delivery box.",
+    "Sell: put up to " + 7 + " lots up for auction at your own price (3% listing fee). Cheaper lots sell faster. Lots keep selling while you're away; listings never expire. When one sells, the crystals wait in your delivery box; withdraw one and the item goes there too.",
     "Items sold in shops never fetch more than the shop price, and Rare, Ex and key items can't be auctioned. New achievement: Market Savvy."
   ] },
   { v: "6.2.0", date: "2026-10-13", title: "The Main Story: Embers of Ashenreach", items: [
@@ -4360,6 +4370,9 @@ function tabHelp() {
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
     "<b>Look and outlines:</b> The game has one look, painted in the style of early online RPGs: hand-painted ground, bark, leaves and stonework with soft shading, gentle distance haze and soft clouds; models with smooth, connected limbs and soft shading, big hands, flared cuffs and collars, thick clumped hair and hand-painted textures: woven cloth, grained and scuffed leather, brushed and dented metal, strand-lined hair, soft wool and fur. Config → Graphics has Outlines (a dark line around characters and monsters; off unless you turn it on) and Job style / Show gear. Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); Show gear draws equipped armour instead, and weapons and shields always show. If the game feels slow on a phone, set Quality to Low or Medium. Townsfolk are a mix of the five races and dress by district (clerks, merchants, smiths, sailors, travellers); night walkers carry lanterns. Monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Weapons and shields are chunky with crest-painted shields. Faces use a few flat shading tones, an ink eyelid line and darker inner ears. Changing a graphics option reloads the game.",
+    "<b>Town crests:</b> each town's banners show its coat of arms and motto. Ashenreach: gold phoenix on red. Saltreach: white anchor on blue. Ironvale: gold anvil on grey.",
+    "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
+    "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
@@ -4451,7 +4464,7 @@ async function checkForUpdate(manual) {
 
 function versionPop(html) {
   let el = $("verPop");
-  if (!el) { el = document.createElement("div"); el.id = "verPop"; el.className = "glass"; $("ui").appendChild(el); }
+  if (!el) { el = document.createElement("div"); el.id = "verPop"; el.className = "glass"; document.body.appendChild(el); }
   el.innerHTML = html;
   el.style.display = "block";
   return el;

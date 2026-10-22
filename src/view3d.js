@@ -424,6 +424,8 @@ function loaderShow(title, sub) {
   el.classList.toggle("zone", !VIEW.booting);
   $("ldTitle").textContent = title;
   $("ldSub").textContent = sub || "";
+  const cr = $("loading").querySelector(".crest"), tc = !VIEW.booting && typeof crestOf === "function" && S.zone ? crestOf(S.zone) : null;
+  if (cr) { if (tc) { cr.textContent = ""; cr.style.background = "url(" + crestCanvas(tc, 128).toDataURL() + ") center / 78% no-repeat, var(--uiStripe)"; } else { cr.textContent = "⚜"; cr.style.background = ""; } }
   loaderProgress(0.05, "");
 }
 function loaderProgress(p, text) {

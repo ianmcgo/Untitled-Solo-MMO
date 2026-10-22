@@ -552,7 +552,7 @@ function buildDungeon(field, root) {
       if (rnd() < 0.45) continue;
       for (let k = 0; k < 1 + Math.floor(rnd() * 3); k++) { const a = rnd() * 6.28, r = 26 + rnd() * 30, px = tx + Math.cos(a) * r, py = ty + Math.sin(a) * r; if (!placeable(field, px, py, { npc: 40, exit: 100, path: 0.6 })) continue; (rnd() < 0.5 ? crates : barrels).push(mtx(px * U, field.heightAt(px, py), py * U, 0.8 + rnd() * 0.4, 0.8 + rnd() * 0.4, 0.8 + rnd() * 0.4, rnd() * 6.28)); }
     }
-    if (crates.length) root.add(tintInst(instanced(new THREE.BoxGeometry(0.9, 0.9, 0.9).translate(0, 0.45, 0), wood, crates, true), rnd, 0.2));
+    if (crates.length) root.add(tintInst(instanced(crateGeo().clone().translate(0, 0.45, 0), wood, crates, true), rnd, 0.2));
     if (barrels.length) root.add(tintInst(instanced(THREE.mergeGeometries([new THREE.CylinderGeometry(0.42, 0.42, 1.0, 12).translate(0, 0.5, 0).toNonIndexed(), new THREE.TorusGeometry(0.43, 0.03, 4, 14).rotateX(Math.PI / 2).translate(0, 0.2, 0).toNonIndexed(), new THREE.TorusGeometry(0.43, 0.03, 4, 14).rotateX(Math.PI / 2).translate(0, 0.8, 0).toNonIndexed()]), wood, barrels, true), rnd, 0.2));
   }
 }
@@ -929,7 +929,7 @@ function buildTown(field, root) {
   const frameMat = std({ color: 0x5a3e26, roughness: 0.85 });
   const lampMat = std({ color: 0x3a2a14, emissive: 0xffc070, emissiveIntensity: 0 });
   W3.windowMats.push(lampMat);
-  const barrelGeo = new THREE.CylinderGeometry(0.34, 0.3, 0.9, 10).translate(0, 0.45, 0), crateGeo = new THREE.BoxGeometry(0.7, 0.7, 0.7).translate(0, 0.35, 0);
+  const hBarrelGeo = mergeNI([barrelGeo(), hoopGeo()]), hCrateGeo = crateGeo().clone().scale(0.75, 0.75, 0.75).translate(0, 0.35, 0);
   const barrels = [], hcrates = [];
   W3.lampGlows = W3.lampGlows || [];
   let hi = 0;
@@ -970,8 +970,8 @@ function buildTown(field, root) {
       (rnd2() < 0.5 ? barrels : hcrates).push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, 1, 1, 1, rnd2() * 6.28));
     }
   }
-  if (barrels.length) root.add(instanced(barrelGeo, std({ map: planks.map, normalMap: planks.normalMap, color: 0xb08a60 }), barrels, true));
-  if (hcrates.length) root.add(instanced(crateGeo, wallMat, hcrates, true));
+  if (barrels.length) root.add(instanced(hBarrelGeo, std({ map: planks.map, normalMap: planks.normalMap, color: 0xb08a60 }), barrels, true));
+  if (hcrates.length) root.add(instanced(hCrateGeo, wallMat, hcrates, true));
   roofMat.map = shingle.map; roofMat.normalMap = shingle.normalMap; roofMat.color.set(0xffffff); roofMat.needsUpdate = true;
   for (const hs of z.houses || []) {
     if (hs.type) continue;
@@ -1076,22 +1076,23 @@ function buildTown(field, root) {
     const s = 0.5 + rnd() * 0.3;
     crates.push(mtx(px * U, field.heightAt(px, py) + s / 2, py * U, s, s, s, rnd() * 6));
   }
-  root.add(instanced(new THREE.BoxGeometry(1, 1, 1), wallMat, crates, true));
+  root.add(instanced(crateGeo(), wallMat, crates, true));
   const lampPostMat = std({ color: 0x2b2b2b, metalness: 0.6, roughness: 0.5 });
   const lampGlass = new THREE.MeshStandardMaterial({ color: 0xffe0a0, emissive: 0xffc070, emissiveIntensity: 0 });
   W3.windowMats.push(lampGlass);
   (z.lamps || []).forEach(([lx, ly], i) => {
     if (z.colliders) z.colliders.push({ x: lx, y: ly, r: 4 });
     const g = new THREE.Group();
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 3, 6), lampPostMat);
-    pole.position.y = 1.5;
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.35), lampGlass);
-    head.position.y = 3.15;
-    g.add(pole, head);
+    const pole = new THREE.Mesh(lampPostGeo(), lampPostMat);
+    const frame = new THREE.Mesh(lanternGeo(), lampPostMat);
+    frame.position.set(0.38, 2.62, 0);
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.26, 6), lampGlass);
+    head.position.set(0.38, 2.82, 0);
+    g.add(pole, frame, head);
     g.position.set(lx * U, field.heightAt(lx, ly), ly * U);
     if (i < 4) {
       const L = new THREE.PointLight(0xffc070, 0, 14, 1.6);
-      L.position.y = 3.1;
+      L.position.set(0.38, 2.8, 0);
       g.add(L);
       W3.lampLights.push(L);
     }
@@ -1112,6 +1113,76 @@ function refreshHomeSign() {
   sg.material.map = texSign(homeSignText(), sg.userData.col); sg.material.needsUpdate = true;
 }
 const DRESS_R = { belltower: 2.2, spire: 2.0, chimney: 1.3, crane: 1.6, beacon: 1.2, loading: 1.6, banner: 0.2, barrelstack: 0.7, ropecoil: 0.6, goodsrack: 1.0, armorstand: 0.5, tree: 0.25, well: 1.1, cart: 1.0, planter: 0.7, hay: 0.6, statue: 0.8, shrine: 0.9, tower: 1.5, forge: 1.3, laundry: 1.1, netrack: 1.1, minecart: 1.5, boatramp: 2.0, woodpile: 0.7 };
+const TOWN_CRESTS = {
+  Ashenreach: { field: "#7a1f1a", charge: "#f2c860", kind: "phoenix", motto: "From ash, we rise" },
+  Saltreach: { field: "#1d4a78", charge: "#e8eef4", kind: "anchor", motto: "Tide and toil" },
+  Ironvale: { field: "#3a3a44", charge: "#e8b85c", kind: "anvil", motto: "Struck true" }
+};
+function crestOf(z) { return z && TOWN_CRESTS[z.city || ""] || null; }
+function drawCrest(g, c, cx, cy, s) {
+  g.save(); g.translate(cx, cy); g.scale(s, s);
+  const shield = () => { g.beginPath(); g.moveTo(-40, -44); g.lineTo(40, -44); g.lineTo(40, 6); g.quadraticCurveTo(38, 36, 0, 52); g.quadraticCurveTo(-38, 36, -40, 6); g.closePath(); };
+  shield(); g.fillStyle = c.field; g.fill();
+  g.save(); shield(); g.clip();
+  g.fillStyle = "rgba(255,255,255,.08)"; g.fillRect(-40, -44, 40, 100);
+  g.fillStyle = "rgba(0,0,0,.18)"; g.fillRect(0, -44, 40, 100);
+  g.restore();
+  g.lineWidth = 5; g.strokeStyle = "#d8b048"; shield(); g.stroke();
+  g.lineWidth = 1.5; g.strokeStyle = "#5a3a10"; shield(); g.stroke();
+  g.fillStyle = c.charge; g.strokeStyle = c.charge; g.lineCap = "round"; g.lineJoin = "round";
+  if (c.kind === "phoenix") {
+    g.beginPath(); g.moveTo(0, -30); g.bezierCurveTo(-6, -22, -6, -14, 0, -10); g.bezierCurveTo(6, -14, 6, -22, 0, -30); g.fill();
+    for (const sd of [-1, 1]) { g.beginPath(); g.moveTo(sd * 2, -6); g.bezierCurveTo(sd * 14, -26, sd * 30, -26, sd * 34, -36); g.bezierCurveTo(sd * 30, -18, sd * 24, -10, sd * 30, -6); g.bezierCurveTo(sd * 22, -6, sd * 16, 0, sd * 26, 4); g.bezierCurveTo(sd * 14, 6, sd * 8, 4, sd * 2, 6); g.closePath(); g.fill(); }
+    g.beginPath(); g.ellipse(0, -2, 6, 12, 0, 0, Math.PI * 2); g.fill();
+    for (const k of [-1, 0, 1]) { g.beginPath(); g.moveTo(k * 4, 8); g.quadraticCurveTo(k * 12, 22, k * 6, 34); g.quadraticCurveTo(k * 3, 24, k * 1, 8); g.fill(); }
+    g.fillStyle = "#ff8a3a"; for (const [x, y, r] of [[-20, 28, 2.5], [18, 24, 2], [-12, 38, 1.8], [24, 36, 1.6]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+  } else if (c.kind === "anchor") {
+    g.lineWidth = 6; g.beginPath(); g.moveTo(0, -28); g.lineTo(0, 26); g.stroke();
+    g.beginPath(); g.arc(0, -32, 6, 0, Math.PI * 2); g.lineWidth = 4; g.stroke();
+    g.lineWidth = 5; g.beginPath(); g.moveTo(-16, -16); g.lineTo(16, -16); g.stroke();
+    g.lineWidth = 6; g.beginPath(); g.arc(0, 8, 22, Math.PI * 0.15, Math.PI * 0.85); g.stroke();
+    for (const sd of [-1, 1]) { g.beginPath(); g.moveTo(sd * 21, 13); g.lineTo(sd * 27, 4); g.lineTo(sd * 15, 8); g.closePath(); g.fill(); }
+    g.lineWidth = 3; g.strokeStyle = "#8fc4e8";
+    for (const y of [36, 43]) { g.beginPath(); for (let x = -30; x <= 30; x += 10) g.quadraticCurveTo(x + 2.5, y - 4, x + 5, y), g.quadraticCurveTo(x + 7.5, y + 4, x + 10, y); g.stroke(); }
+  } else if (c.kind === "anvil") {
+    g.fillStyle = "#c8ccd8"; g.beginPath(); g.moveTo(-40, -6); g.lineTo(-24, -34); g.lineTo(-12, -20); g.lineTo(2, -40); g.lineTo(18, -18); g.lineTo(28, -30); g.lineTo(40, -6); g.closePath(); g.fill();
+    g.fillStyle = "#ffffff"; g.beginPath(); g.moveTo(-6, -32); g.lineTo(2, -40); g.lineTo(10, -30); g.lineTo(4, -32); g.lineTo(0, -28); g.closePath(); g.fill();
+    g.fillStyle = c.charge;
+    g.beginPath(); g.moveTo(-30, 4); g.lineTo(22, 4); g.quadraticCurveTo(34, 4, 36, 10); g.lineTo(22, 12); g.lineTo(12, 14); g.lineTo(10, 24); g.lineTo(18, 34); g.lineTo(-18, 34); g.lineTo(-10, 24); g.lineTo(-12, 14); g.lineTo(-24, 12); g.closePath(); g.fill();
+    g.save(); g.translate(14, -14); g.rotate(-0.7); g.fillRect(-3, -2, 6, 30); g.fillRect(-12, -10, 24, 10); g.restore();
+    g.fillStyle = "#ffd070"; for (const [x, y] of [[-4, -4], [4, -10], [-10, -12]]) { g.beginPath(); g.arc(x, y, 2, 0, Math.PI * 2); g.fill(); }
+  }
+  g.restore();
+}
+function crestCanvas(c, px) {
+  const cv = document.createElement("canvas"); cv.width = cv.height = px || 128;
+  const g = cv.getContext("2d"); drawCrest(g, c, cv.width / 2, cv.height / 2 + cv.width * 0.02, cv.width / 112);
+  return cv;
+}
+function texCrestBanner(c, bg) {
+  const key = "crestban_" + c.kind + bg;
+  if (TEXLIB.cache[key]) return TEXLIB.cache[key];
+  const cv = document.createElement("canvas"); cv.width = 128; cv.height = 320;
+  const g = cv.getContext("2d");
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(128, 0); g.lineTo(128, 300); g.lineTo(64, 262); g.lineTo(0, 300); g.closePath();
+  g.fillStyle = bg; g.fill();
+  g.save(); g.clip();
+  for (let x = 0; x < 128; x += 16) { g.fillStyle = x % 32 ? "rgba(0,0,0,.08)" : "rgba(255,255,255,.05)"; g.fillRect(x, 0, 16, 320); }
+  g.fillStyle = "#d8b048"; g.fillRect(0, 0, 128, 14); g.fillRect(0, 14, 6, 300); g.fillRect(122, 14, 6, 300);
+  g.strokeStyle = "#d8b048"; g.lineWidth = 6; g.beginPath(); g.moveTo(0, 296); g.lineTo(64, 258); g.lineTo(128, 296); g.stroke();
+  g.restore();
+  drawCrest(g, c, 64, 118, 1.0);
+  g.fillStyle = "#f6e6b8"; g.font = "italic bold 13px Georgia, serif"; g.textAlign = "center";
+  const words = c.motto.split(" "), half = Math.ceil(words.length / 2);
+  g.fillText(words.slice(0, half).join(" "), 64, 200); g.fillText(words.slice(half).join(" "), 64, 218);
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return TEXLIB.cache[key] = t;
+}
+function crestBannerMat(z, bg, extra) {
+  const c = crestOf(z);
+  if (!c) return std(Object.assign({ color: new THREE.Color(bg), roughness: 0.95, side: THREE.DoubleSide }, extra || {}));
+  return std(Object.assign({ map: texCrestBanner(c, bg), transparent: true, alphaTest: 0.5, roughness: 0.95, side: THREE.DoubleSide }, extra || {}));
+}
 function texSign(text, col) {
   const key = "sign_" + text + col;
   if (TEXLIB.cache[key]) return TEXLIB.cache[key];
@@ -1253,6 +1324,21 @@ function texClock() {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   return TEXLIB.cache.clock = t;
 }
+const PROPG = {};
+function propGeo(k, fn) { return PROPG[k] || (PROPG[k] = fn()); }
+function mergeNI(list) { return THREE.mergeGeometries(list.map(g => { const n = g.index ? g.toNonIndexed() : g; for (const a of Object.keys(n.attributes)) if (!["position", "normal", "uv"].includes(a)) n.deleteAttribute(a); if (!n.attributes.uv) n.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(n.attributes.position.count * 2), 2)); return n; })); }
+function appleGeo() { return propGeo("apple", () => { const pts = []; for (let i = 0; i <= 10; i++) { const t = i / 10, a = t * Math.PI; pts.push(new THREE.Vector2(Math.sin(a) * (1 - 0.18 * Math.pow(Math.cos(a), 8)) * 0.1, -Math.cos(a) * 0.09 + (t > 0.9 ? -0.02 : t < 0.1 ? 0.015 : 0))); } return mergeNI([new THREE.LatheGeometry(pts, 10), new THREE.CylinderGeometry(0.006, 0.008, 0.05, 4).translate(0.004, 0.1, 0).rotateZ(0.2)]); }); }
+function pearGeo() { return propGeo("pear", () => { const pts = [[0, -0.1], [0.07, -0.085], [0.09, -0.04], [0.07, 0.01], [0.045, 0.05], [0.035, 0.08], [0.012, 0.1], [0, 0.105]].map(([x, y]) => new THREE.Vector2(x, y)); return mergeNI([new THREE.LatheGeometry(pts, 10), new THREE.CylinderGeometry(0.005, 0.007, 0.05, 4).translate(0, 0.125, 0).rotateZ(-0.25)]); }); }
+function basketGeo() { return propGeo("basket", () => { const pts = [[0, 0], [0.2, 0.01], [0.27, 0.08], [0.3, 0.16], [0.28, 0.165], [0.25, 0.09], [0.18, 0.03], [0, 0.03]].map(([x, y]) => new THREE.Vector2(x, y)); const rim = new THREE.TorusGeometry(0.295, 0.02, 5, 18).rotateX(Math.PI / 2).translate(0, 0.165, 0); return mergeNI([new THREE.LatheGeometry(pts, 14), rim]); }); }
+function clothGeo(w, h) { return propGeo("cloth" + w + h, () => { const g = new THREE.BoxGeometry(w, h, 0.025, 8, 6, 1), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), f = (0.5 - y / h) * 0.6 + 0.4; p.setZ(i, p.getZ(i) + Math.sin(x / w * Math.PI * 3) * 0.035 * f); p.setX(i, x * (1 + (0.5 - y / h) * 0.12)); } g.computeVertexNormals(); return g; }); }
+function boltGeo() { return propGeo("bolt", () => mergeNI([new THREE.CylinderGeometry(0.11, 0.11, 0.62, 12).rotateZ(Math.PI / 2), new THREE.CylinderGeometry(0.03, 0.03, 0.7, 6).rotateZ(Math.PI / 2)])); }
+function barrelGeo() { return propGeo("barrel", () => { const pts = []; for (let i = 0; i <= 8; i++) { const t = i / 8; pts.push(new THREE.Vector2(0.27 + Math.sin(t * Math.PI) * 0.06, t * 0.82)); } pts.push(new THREE.Vector2(0.24, 0.82), new THREE.Vector2(0, 0.8)); return new THREE.LatheGeometry(pts, 14); }); }
+function hoopGeo() { return propGeo("hoop", () => mergeNI([0.1, 0.28, 0.54, 0.72].map(y => new THREE.TorusGeometry(0.29 + Math.sin(y / 0.82 * Math.PI) * 0.06, 0.018, 4, 16).rotateX(Math.PI / 2).translate(0, y, 0)))); }
+function crateGeo() { return propGeo("crate", () => { const L = []; L.push(new THREE.BoxGeometry(0.9, 0.9, 0.9)); for (const [a, b] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) { L.push(new THREE.BoxGeometry(0.1, 0.96, 0.1).translate(a * 0.45, 0, b * 0.45)); L.push(new THREE.BoxGeometry(0.96, 0.1, 0.1).translate(0, a * 0.45, b * 0.45)); L.push(new THREE.BoxGeometry(0.1, 0.1, 0.96).translate(a * 0.45, b * 0.45, 0)); } for (const sd of [-1, 1]) { L.push(new THREE.BoxGeometry(1.15, 0.09, 0.04).rotateZ(Math.PI / 4).translate(0, 0, sd * 0.47)); L.push(new THREE.BoxGeometry(0.04, 0.09, 1.15).rotateX(Math.PI / 4).translate(sd * 0.47, 0, 0)); } return mergeNI(L); }); }
+function bucketGeo() { return propGeo("bucket", () => { const pts = [[0, 0], [0.13, 0], [0.15, 0.24], [0.13, 0.24], [0.115, 0.02], [0, 0.02]].map(([x, y]) => new THREE.Vector2(x, y)); return mergeNI([new THREE.LatheGeometry(pts, 12), new THREE.TorusGeometry(0.143, 0.01, 4, 14).rotateX(Math.PI / 2).translate(0, 0.06, 0), new THREE.TorusGeometry(0.15, 0.01, 4, 14).rotateX(Math.PI / 2).translate(0, 0.2, 0)]); }); }
+function handleGeo() { return propGeo("bhandle", () => new THREE.TorusGeometry(0.15, 0.008, 4, 12, Math.PI).translate(0, 0.24, 0)); }
+function lanternGeo() { return propGeo("lantern", () => { const L = [new THREE.CylinderGeometry(0.16, 0.18, 0.06, 4, 1).rotateY(Math.PI / 4), new THREE.ConeGeometry(0.22, 0.2, 4).rotateY(Math.PI / 4).translate(0, 0.42, 0), new THREE.CylinderGeometry(0.04, 0.04, 0.06, 6).translate(0, 0.55, 0), new THREE.TorusGeometry(0.05, 0.012, 4, 10).translate(0, 0.61, 0)]; for (const [a, b] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) L.push(new THREE.BoxGeometry(0.03, 0.34, 0.03).translate(a * 0.12, 0.2, b * 0.12)); L.push(new THREE.CylinderGeometry(0.14, 0.14, 0.04, 4).rotateY(Math.PI / 4).translate(0, 0.32, 0)); return mergeNI(L); }); }
+function lampPostGeo() { return propGeo("lamppost", () => mergeNI([new THREE.CylinderGeometry(0.22, 0.28, 0.25, 8).translate(0, 0.12, 0), new THREE.CylinderGeometry(0.1, 0.16, 0.35, 8).translate(0, 0.42, 0), new THREE.CylinderGeometry(0.055, 0.075, 2.7, 8).translate(0, 1.9, 0), new THREE.TorusGeometry(0.08, 0.02, 4, 10).rotateX(Math.PI / 2).translate(0, 1.2, 0), new THREE.TorusGeometry(0.07, 0.02, 4, 10).rotateX(Math.PI / 2).translate(0, 3.1, 0), new THREE.BoxGeometry(0.5, 0.05, 0.05).translate(0.22, 3.2, 0), new THREE.TorusGeometry(0.16, 0.018, 4, 10, Math.PI / 2).rotateZ(Math.PI).translate(0.16, 3.2, 0), new THREE.ConeGeometry(0.06, 0.14, 6).translate(0, 3.3, 0)])); }
 function cityBatch() {
   const parts = new Map(), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler();
   return {
@@ -1633,11 +1719,12 @@ function buildCityBuildings(field, root) {
       col(o.x, o.y, 5);
       bt.add(M.iron, cyl(0.05, 0.07, 3.6, 6), B, 0, 1.8, 0);
       bt.add(M.iron, box(1.0, 0.06, 0.06), B, 0.45, 3.45, 0);
-      bt.add(r3() < 0.5 ? M.red : M.shutter[Math.floor(r3() * M.shutter.length)], box(0.85, 1.6, 0.03), B, 0.45, 2.6, 0);
-      bt.add(M.gold, box(0.85, 0.08, 0.04), B, 0.45, 1.8, 0);
+      bt.add(M.gold, box(0.9, 0.06, 0.05), B, 0.45, 3.4, 0);
+      if (crestOf(z)) { const bp = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 2.1), crestBannerMat(z, crestOf(z).field)); bp.applyMatrix4(new THREE.Matrix4().makeTranslation(0.45, 2.35, 0).premultiply(B)); bp.userData.banner = true; root.add(bp); }
+      else { bt.add(r3() < 0.5 ? M.red : M.shutter[Math.floor(r3() * M.shutter.length)], box(0.85, 1.6, 0.03), B, 0.45, 2.6, 0); bt.add(M.gold, box(0.85, 0.08, 0.04), B, 0.45, 1.8, 0); }
     } else if (o.t === "barrelstack") {
       col(o.x, o.y, 14);
-      for (const [dx, dz] of [[-0.42, 0], [0.42, 0], [0, 0.6]]) bt.add(M.planks, cyl(0.38, 0.34, 0.9, 10), B, dx, 0.45, dz);
+      for (const [dx, dz] of [[-0.42, 0], [0.42, 0], [0, 0.6]]) { bt.add(M.planks, barrelGeo(), B, dx, 0, dz, r3() * 6, 0, 0, 1.25, 1.1, 1.25); bt.add(M.iron, hoopGeo(), B, dx, 0, dz, 0, 0, 0, 1.25, 1.1, 1.25); }
       bt.add(M.planks, cyl(0.36, 0.32, 0.85, 10), B, 0, 1.33, 0.2, Math.PI / 2, 0, 0);
       for (const [dx, dz] of [[-0.42, 0], [0.42, 0], [0, 0.6]]) bt.add(M.iron, cyl(0.39, 0.39, 0.06, 10), B, dx, 0.72, dz);
     } else if (o.t === "ropecoil") {
@@ -1647,11 +1734,16 @@ function buildCityBuildings(field, root) {
       bt.add(M.iron, new THREE.TorusGeometry(0.2, 0.05, 5, 10), B, 0.9, 0.62, 0.2, 0, Math.PI / 2);
     } else if (o.t === "goodsrack") {
       col(o.x, o.y, 20);
-      for (const sx of [-1, 1]) bt.add(M.beam, box(0.12, 2.2, 0.12), B, sx * 1.1, 1.1, 0);
-      bt.add(M.beam, box(2.4, 0.1, 0.1), B, 0, 2.15, 0);
-      for (let k = 0; k < 5; k++) { const m = [M.red, M.hay, M.leaf, M.plaster[1], M.shutter[0]][k % 5]; bt.add(m, box(0.28, 0.5 + r3() * 0.3, 0.12), B, -0.85 + k * 0.42, 1.65, 0, 0, 0, (r3() - 0.5) * 0.2); }
-      bt.add(M.planks, box(2.2, 0.5, 0.7), B, 0, 0.25, 0.3);
-      for (let k = 0; k < 4; k++) bt.add(k % 2 ? M.red : M.hay, new THREE.SphereGeometry(0.16, 8, 6), B, -0.7 + k * 0.45, 0.62, 0.3);
+      for (const sx of [-1, 1]) { bt.add(M.beam, box(0.12, 2.2, 0.12), B, sx * 1.1, 1.1, 0); bt.add(M.beam, box(0.08, 0.5, 0.08), B, sx * 0.95, 1.95, 0, 0, 0, sx * 0.8); }
+      bt.add(M.beam, cyl(0.04, 0.04, 2.4, 6), B, 0, 2.12, 0, 0, 0, Math.PI / 2);
+      for (let k = 0; k < 5; k++) { const m = [M.red, M.hay, M.leaf, M.plaster[1], M.shutter[0]][k % 5], h = 0.55 + r3() * 0.3; bt.add(m, clothGeo(0.34, 0.8), B, -0.84 + k * 0.42, 2.1 - h / 2 - 0.02, 0, (r3() - 0.5) * 0.2, 0, 0, 1, h / 0.8, 1); bt.add(m, cyl(0.035, 0.035, 0.36, 8), B, -0.84 + k * 0.42, 2.12, 0, 0, 0, Math.PI / 2); }
+      bt.add(M.planks, box(2.2, 0.08, 0.75), B, 0, 0.72, 0.3); bt.add(M.planks, box(2.2, 0.62, 0.06), B, 0, 0.38, 0.66);
+      for (const sx of [-1, 1]) bt.add(M.beam, box(0.08, 0.72, 0.7), B, sx * 1.06, 0.36, 0.3);
+      for (const [bx, fruit, mt] of [[-0.62, appleGeo, M.red], [0, pearGeo, M.hay], [0.62, appleGeo, M.leaf]]) {
+        bt.add(M.planks, basketGeo(), B, bx, 0.76, 0.3, 0, 0, 0, 1, 0.9, 1);
+        for (let k = 0; k < 7; k++) { const a = k / 6 * Math.PI * 2, rr = k === 6 ? 0 : 0.13; bt.add(mt, fruit(), B, bx + Math.cos(a) * rr, 0.9 + (k === 6 ? 0.05 : 0), 0.3 + Math.sin(a) * rr, r3() * 6, (r3() - 0.5) * 0.5, 0, 1.15, 1.15, 1.15); }
+      }
+      for (let k = 0; k < 3; k++) bt.add([M.plaster[2], M.red, M.shutter[1]][k], boltGeo(), B, -0.7 + k * 0.7, 0.13, -0.25, (r3() - 0.5) * 0.3);
     } else if (o.t === "armorstand") {
       col(o.x, o.y, 9);
       bt.add(M.frame, cyl(0.25, 0.3, 0.12, 8), B, 0, 0.06, 0);
@@ -1666,15 +1758,40 @@ function buildCityBuildings(field, root) {
     const B = new THREE.Matrix4().makeRotationY(o.rot || 0).setPosition(o.x * U, footY(field, o.x, o.y, (DRESS_R[o.t] || 0.8) * (o.s || 1)), o.y * U), s = o.s || 1, r3 = seeded(hashStr("dr" + o.x + "," + o.y));
     if (o.t === "tree") {
       col(o.x, o.y, 9 * s);
-      bt.add(M.beam, cyl(0.16 * s, 0.26 * s, 2.8 * s, 7), B, 0, 1.4 * s, 0);
-      for (let k = 0; k < 5; k++) bt.add(M.leaf, new THREE.IcosahedronGeometry((0.85 + r3() * 0.55) * s, 1), B, (r3() - 0.5) * 1.4 * s, (2.9 + r3() * 1.3) * s, (r3() - 0.5) * 1.4 * s);
+      bt.add(M.beam, cyl(0.15 * s, 0.24 * s, 2.4 * s, 8), B, 0, 1.2 * s, 0);
+      for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + r3(); bt.add(M.beam, cyl(0.03 * s, 0.11 * s, 0.6 * s, 5), B, Math.cos(a) * 0.2 * s, 0.12 * s, Math.sin(a) * 0.2 * s, -a, 0, 1.25, 1, 1, 1); }
+      bt.add(M.stone, new THREE.TorusGeometry(0.9 * s, 0.12, 5, 16), B, 0, 0.1, 0, 0, Math.PI / 2);
+      bt.add(M.soil, cyl(0.85 * s, 0.85 * s, 0.06, 14), B, 0, 0.05, 0);
+      const nb = 4 + Math.floor(r3() * 2), tips = [[0, 4.1 * s, 0, 1.15]];
+      for (let k = 0; k < nb; k++) {
+        const a = k / nb * Math.PI * 2 + r3() * 0.6, tilt = 0.55 + r3() * 0.35, len = (1.3 + r3() * 0.6) * s, by = (2.0 + r3() * 0.7) * s;
+        const dx = Math.cos(a) * Math.sin(tilt), dz = Math.sin(a) * Math.sin(tilt), dy = Math.cos(tilt);
+        const g = cyl(0.04 * s, 0.1 * s, len, 5); g.translate(0, len / 2, 0);
+        const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(dx, dy, dz)); g.applyQuaternion(q);
+        bt.add(M.beam, g, B, 0, by, 0);
+        tips.push([dx * len, by + dy * len, dz * len, 0.8 + r3() * 0.25]);
+      }
+      for (const [tx, ty, tz, rr] of tips) for (let c = 0; c < 4; c++) {
+        const g = new THREE.IcosahedronGeometry(rr * (0.55 + r3() * 0.25) * s, 1), p2 = g.attributes.position;
+        for (let i = 0; i < p2.count; i++) { const n = 1 + (Math.sin(p2.getX(i) * 7.3 + c) * Math.cos(p2.getZ(i) * 6.1) * 0.18); p2.setXYZ(i, p2.getX(i) * n, p2.getY(i) * n * 0.72, p2.getZ(i) * n); }
+        g.computeVertexNormals();
+        bt.add(c === 3 ? M.leaf : M.leaf, g, B, tx + (r3() - 0.5) * 0.9 * s, ty + (r3() - 0.3) * 0.5 * s, tz + (r3() - 0.5) * 0.9 * s, r3() * 6);
+      }
     } else if (o.t === "well") {
       col(o.x, o.y, 26);
-      bt.add(M.stone, cyl(1.0, 1.1, 0.9, 14), B, 0, 0.45, 0);
-      bt.add(M.water, cyl(0.8, 0.8, 0.05, 12), B, 0, 0.82, 0);
-      for (const sx of [-1, 1]) bt.add(M.beam, box(0.14, 2.3, 0.14), B, sx * 0.88, 1.4, 0);
-      bt.add(M.roof[0], roofGeo(2.1, 1.3, 0.8), B, 0, 2.5, 0, Math.PI / 2);
-      bt.add(M.beam, cyl(0.08, 0.08, 1.8, 6), B, 0, 1.9, 0, 0, 0, Math.PI / 2);
+      for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2; for (let r = 0; r < 3; r++) { const aa = a + (r % 2) * Math.PI / 14; bt.add(M.stone, box(0.46, 0.3, 0.24), B, Math.cos(aa) * 0.98, 0.15 + r * 0.29, Math.sin(aa) * 0.98, -aa + Math.PI / 2, 0, (r3() - 0.5) * 0.06, 1, 1, 1); } }
+      bt.add(M.trim, new THREE.TorusGeometry(0.98, 0.13, 6, 24), B, 0, 0.9, 0, 0, Math.PI / 2, 0, 1, 1, 0.6);
+      bt.add(M.soil, cyl(0.86, 0.86, 0.04, 16), B, 0, 0.2, 0);
+      bt.add(M.water, cyl(0.84, 0.84, 0.03, 16), B, 0, 0.42, 0);
+      for (const sx of [-1, 1]) { bt.add(M.beam, box(0.16, 2.4, 0.16), B, sx * 1.02, 1.3, 0); bt.add(M.beam, box(0.1, 0.7, 0.1), B, sx * 0.82, 2.15, 0, 0, 0, sx * 0.7); }
+      bt.add(M.roof[0], roofGeo(2.5, 1.6, 0.85), B, 0, 2.5, 0, Math.PI / 2);
+      bt.add(M.beam, box(2.7, 0.12, 0.12), B, 0, 2.48, 0.78); bt.add(M.beam, box(2.7, 0.12, 0.12), B, 0, 2.48, -0.78);
+      bt.add(M.planks, cyl(0.12, 0.12, 1.9, 10), B, 0, 1.85, 0, 0, 0, Math.PI / 2);
+      bt.add(M.hay, cyl(0.14, 0.14, 0.4, 10), B, 0.15, 1.85, 0, 0, 0, Math.PI / 2);
+      bt.add(M.iron, box(0.05, 0.36, 0.05), B, 1.18, 1.7, 0); bt.add(M.iron, box(0.05, 0.05, 0.28), B, 1.18, 1.52, 0.12); bt.add(M.planks, cyl(0.03, 0.03, 0.2, 6), B, 1.18, 1.52, 0.28, 0, Math.PI / 2, 0);
+      bt.add(M.hay, cyl(0.012, 0.012, 0.75, 4), B, 0.15, 1.45, 0);
+      bt.add(M.planks, bucketGeo(), B, 0.15, 0.82, 0); bt.add(M.iron, handleGeo(), B, 0.15, 0.82, 0);
+      bt.add(M.planks, bucketGeo(), B, 1.35, 0, 0.5, 0.4); bt.add(M.water, cyl(0.12, 0.12, 0.01, 10), B, 1.35, 0.2, 0.5);
     } else if (o.t === "cart") {
       col(o.x, o.y, 24);
       bt.add(M.planks, cartG, B, 0, 0, 0, 0, 0, 0, 1.3, 1.3, 1.3);
@@ -1703,7 +1820,11 @@ function buildCityBuildings(field, root) {
       bt.add(M.roof[1], roofGeo(1.9, 1.5, 0.7), B, 0, 2.85, 0.05, Math.PI / 2);
       bt.add(M.gold, new THREE.OctahedronGeometry(0.22, 0), B, 0, 1.65, 0);
       for (const sx of [-0.35, 0.35]) { bt.add(lampMat, cyl(0.05, 0.05, 0.18, 6), B, sx, 1.5, 0.3); glowAt(B, sx, 1.62, 0.3, 1.1); }
-      for (let k = 0; k < 4; k++) bt.add(k % 2 ? M.leaf : M.red, new THREE.IcosahedronGeometry(0.14, 0), B, -0.5 + k * 0.33, 0.38, 0.75);
+      bt.add(M.stone, box(2.3, 0.15, 2.3), B, 0, 0.05, 0); bt.add(M.trim, box(1.3, 0.08, 1.0), B, 0, 1.43, 0);
+      bt.add(M.planks, basketGeo(), B, -0.45, 0.3, 0.72); bt.add(M.gold, cyl(0.2, 0.13, 0.1, 12), B, 0.45, 0.35, 0.72);
+      for (let k = 0; k < 4; k++) bt.add(k % 2 ? M.leaf : M.red, appleGeo(), B, -0.55 + (k % 2) * 0.18, 0.42, 0.66 + Math.floor(k / 2) * 0.13, r3() * 3, 0, 0, 1.3, 1.3, 1.3);
+      for (let k = 0; k < 3; k++) bt.add(M.hay, pearGeo(), B, 0.38 + k * 0.08, 0.5, 0.7 + (k % 2) * 0.06, r3() * 3, 0.3, 0, 1.2, 1.2, 1.2);
+      for (const sx of [-0.85, 0.85]) { bt.add(M.leaf, cyl(0.015, 0.015, 0.4, 4), B, sx, 0.5, 0.85, 0, 0.1); for (let p = 0; p < 5; p++) { const a = p / 5 * Math.PI * 2; bt.add(p % 2 ? M.white : M.red, new THREE.SphereGeometry(0.05, 5, 4).scale(1, 0.4, 1.6), B, sx + Math.cos(a) * 0.05, 0.72, 0.85 + Math.sin(a) * 0.05, -a); } }
     } else if (o.t === "tower") {
       col(o.x, o.y, 30);
       bt.add(M.stone, cyl(1.7, 1.9, 0.5, 12), B, 0, 0.25, 0);
@@ -1838,7 +1959,7 @@ function buildCityBuildings(field, root) {
       const ban2 = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.0), new THREE.MeshStandardMaterial({ map: texSign(z.city || z.name, "#d4a840") }));
       if (dd) for (const sd of [-1, 1]) {
         const bx = vert ? ex + (g.side === "e" ? -36 : 36) : g.c + sd * (g.half + 30), by = vert ? g.c + sd * (g.half + 30) : ey + (g.side === "s" ? -36 : 36);
-        const bm = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 3.0), std({ color: new THREE.Color(dd.color), roughness: 0.95, side: THREE.DoubleSide }));
+        const bm = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 3.0), crestBannerMat(z, dd.color));
         bm.position.set(bx * U, field.heightAt(bx, by) + 5.2, by * U); bm.rotation.y = vert ? Math.PI / 2 : 0; bm.userData.banner = true; root.add(bm);
       }
       ban.position.set(gx * U + (vert ? (g.side === "e" ? -1.33 : 1.33) : 0), gy + 8.0, gyy * U + (vert ? 0 : g.side === "s" ? -1.33 : 1.33)); ban.rotation.y = vert ? (g.side === "e" ? -Math.PI / 2 : Math.PI / 2) : g.side === "s" ? Math.PI : 0; root.add(ban);
@@ -1934,7 +2055,7 @@ function buildCityWalls(field, root) {
         const dz = districtAt(z, gt.horiz ? gt.x : gt.x + face * 60, gt.horiz ? gt.y + face * 60 : gt.y);
         if (!dz) continue;
         const col = new THREE.Color(dz.color);
-        const bm = new THREE.Mesh(bannerGeo, std({ color: col, roughness: 0.95, side: THREE.DoubleSide }));
+        const bm = new THREE.Mesh(bannerGeo, crestBannerMat(z, dz.color));
         const trim = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.18), std({ color: 0xe8c860, metalness: 0.4, roughness: 0.5, side: THREE.DoubleSide }));
         const off = 1.24;
         if (gt.horiz) { bm.position.set(cx * U, gy + 4.4, cy * U + face * off); trim.position.set(cx * U, gy + 5.6, cy * U + face * (off + 0.01)); if (face < 0) { bm.rotation.y = Math.PI; trim.rotation.y = Math.PI; } }
