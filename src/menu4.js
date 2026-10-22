@@ -1787,6 +1787,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.28.0", date: "2026-10-22", title: "Still waters", items: [
+    "<b>No more floating water.</b> Ponds used to be drawn as a round sheet that could hang in the air over lower ground nearby, with a white foam line floating along its edge. Every pond now has a real bank that rises above the water, and the water only fills the pond itself.",
+    "<b>Ponds have natural shapes.</b> Field ponds now have bays, points and uneven shores instead of near-perfect circles. The sand, reeds, foam and the edge you can walk to all follow the new shoreline.",
+    "<b>Foam where the water meets the land.</b> The shore foam now traces the actual waterline."
+  ] },
   { v: "19.27.0", date: "2026-10-22", title: "Cleaner screen", items: [
     "<b>Objectives without the box.</b> Your story step, quests and bounties now show as plain outlined text right under the status icons at the top left, instead of in a box further down the screen. Tap Objectives to fold or unfold it.",
     "<b>Pets menu only when you have a pet.</b> The Pets entry in the Commands menu stays hidden until you own your first pet.",
@@ -4155,6 +4160,7 @@ function tabHelp() {
     "<b>Old Friends:</b> a companion you refuse, or can't pay, goes back to Brann's Mercenary Hall and waits under Old Friends with their gear, bag and bond. To win them back you pay a bribe: their full hiring fee plus 100 crystals per level. They rejoin at your current level."
   ]));
   h += sec("🎣 Fishing", ul([
+    "Ponds in the fields have uneven shores with bays and points. Stand anywhere along the water's edge to fish; the reach is measured to the shoreline, not the pond's centre.",
     "Buy a <b>Willow Rod</b> and <b>Fishing Bait</b> from a Tradesman. Stand at the edge of a pond or lake and use the rod (from your bag or the Items command) or type <b>/fish</b>. Each cast uses one bait. You raise the rod in both hands, a line and red-and-white float settle on the water, and the float dips and jitters when something bites.",
     "Wait for a bite, then press <b>Reel in!</b> (or Space, Enter or F) within about 2 seconds. Walking away, fighting or changing area pulls your line in.",
     "Catches: Outpost pond: Pond Minnow, Moat Carp. Rocky Hollow lakes: Moat Carp, Silver Shad, and the rare Lakeking Pike. Ashen Marsh ponds: Mud Eel, Bog Perch, and the rare Ghost Koi, which only bites in rain or storms.",

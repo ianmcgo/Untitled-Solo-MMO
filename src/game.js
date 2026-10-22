@@ -3812,6 +3812,7 @@ function keepInZone(e) {
 
 function pondLobe(w, a) {
   const s = ((w.x * 0.013 + w.y * 0.029) % 6.283) + 1.7;
+  if (w.irr) return 0.86 + 0.6 * (0.17 * Math.sin(2 * a + s) + 0.11 * Math.sin(3 * a + s * 2.3) + 0.07 * Math.sin(5 * a + s * 3.1) + 0.04 * Math.sin(7 * a + s * 4.7));
   return 1 + 0.085 * Math.sin(2 * a + s) + 0.055 * Math.sin(3 * a + s * 2.3) + 0.03 * Math.sin(5 * a + s * 3.1);
 }
 function pondDist(w, x, y) { const dx = x - w.x, dy = y - w.y; return Math.hypot(dx, dy) - w.r * (pondLobe(w, Math.atan2(dy, dx)) - 1); }

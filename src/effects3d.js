@@ -786,3 +786,125 @@ function updateTrail(v, e, dt) {
   }
   pos.needsUpdate = true; col.needsUpdate = true;
 }
+
+const SKYL = { star: 0, flock: 0, list: [] };
+function skyClear(wx) { return !/rain|storm|snow|blizzard|fog|sandstorm/.test(wx || ""); }
+function streakTex() {
+  if (TEXLIB.cache.streak) return TEXLIB.cache.streak;
+  const c = document.createElement("canvas"); c.width = 128; c.height = 16;
+  const g = c.getContext("2d");
+  const lg = g.createLinearGradient(0, 0, 128, 0);
+  lg.addColorStop(0, "rgba(160,190,255,0)"); lg.addColorStop(0.7, "rgba(200,220,255,0.55)"); lg.addColorStop(0.97, "rgba(255,255,255,1)"); lg.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = lg; g.fillRect(0, 0, 128, 16);
+  const v = g.createLinearGradient(0, 0, 0, 16);
+  v.addColorStop(0, "rgba(0,0,0,1)"); v.addColorStop(0.5, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,1)");
+  g.globalCompositeOperation = "destination-out"; g.fillStyle = v; g.fillRect(0, 0, 128, 16);
+  const t = new THREE.CanvasTexture(c);
+  TEXLIB.cache.streak = t;
+  return t;
+}
+function spawnShootingStar() {
+  const cam = W3.camera.position, R = 700;
+  const az = Math.random() * Math.PI * 2, el = rnd(0.5, 1.1);
+  const p0 = new THREE.Vector3(Math.cos(az) * Math.cos(el), Math.sin(el), Math.sin(az) * Math.cos(el));
+  const az2 = az + (Math.random() < 0.5 ? -1 : 1) * rnd(0.18, 0.45), el2 = el - rnd(0.12, 0.32);
+  const p1 = new THREE.Vector3(Math.cos(az2) * Math.cos(el2), Math.sin(el2), Math.sin(az2) * Math.cos(el2));
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(new Float32Array(12), 3));
+  geo.setAttribute("uv", new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 1], 2));
+  geo.setIndex([0, 1, 2, 0, 2, 3]);
+  const mat = new THREE.MeshBasicMaterial({ map: streakTex(), transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, fog: false, side: THREE.DoubleSide, opacity: 0 });
+  const m = new THREE.Mesh(geo, mat);
+  m.frustumCulled = false; m.renderOrder = -5;
+  W3.scene.add(m);
+  SKYL.list.push({ kind: "star", m, p0, p1, t: 0, dur: rnd(0.7, 1.5), R, w: rnd(1.6, 2.6) });
+  if (Math.random() < 0.5 && typeof sfx === "function") setTimeout(() => sfx("shooting_star"), 120);
+}
+function tickShootingStar(s, dt) {
+  s.t += dt;
+  const k = Math.min(1, s.t / s.dur), cam = W3.camera.position;
+  const head = new THREE.Vector3().lerpVectors(s.p0, s.p1, k).normalize().multiplyScalar(s.R).add(cam);
+  const tail = new THREE.Vector3().lerpVectors(s.p0, s.p1, Math.max(0, k - 0.35)).normalize().multiplyScalar(s.R).add(cam);
+  const along = head.clone().sub(tail), view = head.clone().sub(cam);
+  const side = new THREE.Vector3().crossVectors(along, view).normalize().multiplyScalar(s.w * (0.5 + 0.5 * Math.sin(Math.PI * k)));
+  const a = s.m.geometry.attributes.position;
+  a.setXYZ(0, tail.x - side.x * 0.3, tail.y - side.y * 0.3, tail.z - side.z * 0.3);
+  a.setXYZ(1, head.x - side.x, head.y - side.y, head.z - side.z);
+  a.setXYZ(2, head.x + side.x, head.y + side.y, head.z + side.z);
+  a.setXYZ(3, tail.x + side.x * 0.3, tail.y + side.y * 0.3, tail.z + side.z * 0.3);
+  a.needsUpdate = true;
+  s.m.material.opacity = Math.sin(Math.PI * Math.min(1, k * 1.15)) * W3.stars.material.opacity;
+  return k >= 1;
+}
+function birdGeo() {
+  if (TEXLIB.cache.birdGeo) return TEXLIB.cache.birdGeo;
+  const body = new THREE.SphereGeometry(0.11, 6, 4); body.scale(0.7, 0.6, 2.1);
+  const head = new THREE.SphereGeometry(0.07, 6, 4); head.translate(0, 0.03, 0.24);
+  const tail = new THREE.ConeGeometry(0.09, 0.22, 4); tail.rotateX(-Math.PI / 2); tail.scale(1.4, 0.3, 1); tail.translate(0, 0, -0.3);
+  const g = THREE.mergeGeometries([body, head, tail].map(q => q.index ? q.toNonIndexed() : q));
+  const w = new THREE.BufferGeometry();
+  w.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0.1, 0, 0, -0.08, 0.34, 0.02, -0.12, 0, 0, 0.1, 0.34, 0.02, -0.12, 0.62, 0.0, -0.2, 0.34, 0.02, 0.06, 0, 0, 0.1, 0.62, 0, -0.2], 3));
+  w.computeVertexNormals();
+  TEXLIB.cache.birdGeo = { body: g, wing: w };
+  return TEXLIB.cache.birdGeo;
+}
+function spawnFlock() {
+  const cam = W3.camera.position, G = birdGeo();
+  const mat = new THREE.MeshBasicMaterial({ color: 0x2c2620, side: THREE.DoubleSide, fog: true });
+  const ang = Math.random() * Math.PI * 2, dir = new THREE.Vector3(Math.cos(ang), 0, Math.sin(ang));
+  const off = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar(rnd(-35, 35));
+  const h = cam.y + rnd(16, 34), dist0 = 170, speed = rnd(8, 12.5);
+  const start = new THREE.Vector3(cam.x, h, cam.z).add(off).addScaledVector(dir, -dist0);
+  const n = 4 + Math.floor(Math.random() * 6), birds = [], grp = new THREE.Group();
+  for (let i = 0; i < n; i++) {
+    const b = new THREE.Group();
+    b.add(new THREE.Mesh(G.body, mat));
+    const wl = new THREE.Mesh(G.wing, mat), wr = new THREE.Mesh(G.wing, mat);
+    wr.scale.x = -1; b.add(wl); b.add(wr);
+    const row = Math.ceil(i / 2), sideK = i === 0 ? 0 : (i % 2 ? 1 : -1);
+    b.position.set(sideK * row * rnd(1.6, 2.4), rnd(-0.6, 0.6), -row * rnd(1.6, 2.4));
+    b.scale.setScalar(rnd(1.5, 2.1));
+    grp.add(b);
+    birds.push({ b, wl, wr, ph: Math.random() * 6, rate: rnd(9, 12), glide: 0 });
+  }
+  grp.position.copy(start);
+  grp.rotation.y = Math.atan2(dir.x, dir.z);
+  W3.scene.add(grp);
+  SKYL.list.push({ kind: "flock", grp, mat, birds, dir, speed, t: 0, life: dist0 * 2 / speed, wob: Math.random() * 6 });
+  if (typeof sfx === "function") sfx("bird_chirp");
+}
+function tickFlock(f, dt) {
+  f.t += dt;
+  f.grp.position.addScaledVector(f.dir, f.speed * dt);
+  f.grp.position.y += Math.sin(f.t * 0.6 + f.wob) * dt * 0.8;
+  for (const b of f.birds) {
+    if (b.glide > 0) b.glide -= dt; else if (Math.random() < dt * 0.15) b.glide = rnd(0.8, 2);
+    b.ph += dt * (b.glide > 0 ? 1.2 : b.rate);
+    const flap = b.glide > 0 ? 0.08 + Math.sin(b.ph) * 0.05 : Math.sin(b.ph) * 0.75;
+    b.wl.rotation.z = flap; b.wr.rotation.z = -flap;
+    b.b.position.y += Math.cos(b.ph) * dt * (b.glide > 0 ? 0 : 0.15);
+  }
+  return f.t >= f.life;
+}
+function updateSkyLife(dt) {
+  const th = S.zone && themeOf(S.zone);
+  const open = !!player && th !== "cave" && th !== "crypt" && th !== "house" && W3.stars;
+  const wx = typeof weatherNow === "function" ? weatherNow() : null;
+  if (open && W3.stars.visible && W3.stars.material.opacity > 0.6 && skyClear(wx)) {
+    if (!SKYL.star) SKYL.star = S.time + rnd(5, 30);
+    if (S.time > SKYL.star) { SKYL.star = S.time + rnd(20, 90); spawnShootingStar(); }
+  } else SKYL.star = 0;
+  if (open && (W3.daylight || 0) > 0.55 && !/rain|storm|snow|blizzard|sandstorm/.test(wx || "")) {
+    if (!SKYL.flock) SKYL.flock = S.time + rnd(8, 25);
+    if (S.time > SKYL.flock) { SKYL.flock = S.time + rnd(35, 110); spawnFlock(); }
+  } else SKYL.flock = 0;
+  for (let i = SKYL.list.length - 1; i >= 0; i--) {
+    const s = SKYL.list[i];
+    const done = s.kind === "star" ? tickShootingStar(s, dt) : tickFlock(s, dt);
+    if (done || !open) {
+      if (s.kind === "star") { W3.scene.remove(s.m); s.m.geometry.dispose(); s.m.material.dispose(); }
+      else { W3.scene.remove(s.grp); s.mat.dispose(); }
+      SKYL.list.splice(i, 1);
+    }
+  }
+}

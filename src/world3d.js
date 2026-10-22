@@ -159,6 +159,15 @@ function* buildFieldSteps(zone) {
       }
       hgt += mtn;
     }
+    for (const wt of waters) {
+      if (!wt.irr) continue;
+      const d = pondDist(wt, px, py);
+      if (d > wt.r + 320 || d < wt.r - 24) continue;
+      if (d < wt.r - 2) { hgt = Math.max(hgt, waterLevel - 0.8); continue; }
+      const need = waterLevel + 0.32 - Math.max(0, d - wt.r - 46) * 0.011;
+      const k = 0.35, hh = Math.max(0, k - Math.abs(hgt - need)) / k;
+      hgt = Math.max(hgt, need) + hh * hh * k * 0.25;
+    }
     return hgt;
   };
   const data = new Float32Array(cols * rows);
@@ -2327,9 +2336,16 @@ function buildWater(field, root) {
   const z = field.zone;
   if (!z.water || !z.water.length) { W3.water = null; W3.waterFx = []; return; }
   const geos = z.water.map(w => {
+    if (w.irr) {
+      const sh = new THREE.Shape();
+      for (let i = 0; i < 96; i++) { const a = i / 96 * Math.PI * 2, rr = w.r * pondLobe(w, a) + 30, x = (w.x + Math.cos(a) * rr) * U, y = -(w.y + Math.sin(a) * rr) * U; if (i) sh.lineTo(x, y); else sh.moveTo(x, y); }
+      sh.closePath();
+      const g = new THREE.ShapeGeometry(sh, 1);
+      return g.index ? g.toNonIndexed() : g;
+    }
     const g = new THREE.CircleGeometry((w.r + 26) * 1.2 * U, 64);
     g.translate(w.x * U, -w.y * U, 0);
-    return g;
+    return g.index ? g.toNonIndexed() : g;
   });
   const geo = THREE.mergeGeometries(geos);
   const normals = texWaterNormals();
@@ -2374,7 +2390,8 @@ function buildWater(field, root) {
   for (const wt of z.water) {
     const r0 = (wt.r + 26) * U;
     const rg = new THREE.RingGeometry(r0 - 1.6, r0 + 0.4, 96, 1);
-    { const rp = rg.attributes.position; for (let i = 0; i < rp.count; i++) { const x = rp.getX(i), y = rp.getY(i), L = Math.hypot(x, y) || 1, k = (L + wt.r * U * (pondLobe(wt, Math.atan2(-y, x)) - 1)) / L; rp.setXY(i, x * k, y * k); } }
+    if (wt.irr) { const rp = rg.attributes.position; for (let i = 0; i < rp.count; i++) { const x = rp.getX(i), y = rp.getY(i), L = Math.hypot(x, y) || 1, a = Math.atan2(-y, x), sd = pondShore(field, wt, a) * U, nl = L < r0 - 0.6 ? sd - 1.3 : sd + 0.35; rp.setXY(i, x / L * nl, y / L * nl); } }
+    else { const rp = rg.attributes.position; for (let i = 0; i < rp.count; i++) { const x = rp.getX(i), y = rp.getY(i), L = Math.hypot(x, y) || 1, k = (L + wt.r * U * (pondLobe(wt, Math.atan2(-y, x)) - 1)) / L; rp.setXY(i, x * k, y * k); } }
     const fm = new THREE.MeshBasicMaterial({ map: foamT.clone(), transparent: true, depthWrite: false, opacity: cave ? 0.3 : 0.7, fog: true, side: THREE.DoubleSide });
     fm.map.needsUpdate = true; fm.map.repeat.set(10, 1);
     const ring = new THREE.Mesh(rg, fm);
@@ -2389,7 +2406,7 @@ function buildWater(field, root) {
       pm.rotation.x = -Math.PI / 2;
       pm.renderOrder = 2;
       root.add(pm);
-      rip.push({ m: pm, t: Math.random() * 3, cx: wt.x, cy: wt.y, r: wt.r * 0.8 });
+      rip.push({ m: pm, t: Math.random() * 3, cx: wt.x, cy: wt.y, r: wt.r * (wt.irr ? 0.5 : 0.8) });
     }
     W3.waterFx.push({ kind: "ripples", list: rip, lvl: field.waterLevel });
     const edge = Math.min(wt.x, wt.y, z.w - wt.x, z.h - wt.y);
@@ -2422,6 +2439,12 @@ function buildWater(field, root) {
       }
     }
   }
+}
+
+function pondShore(field, w, a) {
+  const L = w.r * pondLobe(w, a), c = Math.cos(a), sn = Math.sin(a);
+  for (let d = L * 0.55; d < L + 60; d += 3) if (field.heightAt(w.x + c * d, w.y + sn * d) >= field.waterLevel + 0.02) return d;
+  return L;
 }
 
 function foamTex() {

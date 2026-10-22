@@ -2680,6 +2680,14 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.28.0 Still waters (polish plan phase 2)
+- Cause of "floating water": the water mesh was a circle of (r + 26) × 1.2 at one water level for the whole zone; where ground beyond the pond sat below that level the disc and foam ring hung in the air (measured up to 2.4 m in the Ashen Marsh).
+- data.js tail: field-theme, non-island ponds with r < 400 get `w.irr = 1` (sea circles, city water, caves and islands keep the old shape).
+- game.js `pondLobe(w, a)`: for `irr` ponds 0.86 + 0.6 × (0.17 sin 2a + 0.11 sin 3a + 0.07 sin 5a + 0.04 sin 7a), range about 0.63–1.09 of r. Shore always within ~1.1 r, so every older `w.r + margin` exclusion still holds.
+- world3d `buildFieldSteps` raw(): last step for `irr` ponds. pondDist d in [r − 24, r − 2): floor at waterLevel − 0.8 (shallow lip so terrain interpolation can't dip at the shore). d in [r − 2, r + 320]: bank `need = wl + 0.32 − max(0, d − r − 46) × 0.011`, hgt = max(hgt, need) plus a small smooth bump where they meet.
+- `buildWater`: `irr` ponds use a 96-point ShapeGeometry at r·lobe + 30 px (hidden under the bank); all water geometries are made non-indexed before merging. Foam ring vertices are moved to `pondShore(field, w, a)` (march outward from 0.55·L to the first point at waterLevel + 0.02), inner −1.3 m, outer +0.35 m. Ripples spawn within 0.5 r.
+- Check: scratch script samples r·lobe + 6 … + 30 px around every field pond; water above ground now 0–0.9% of samples (≤ 0.15 m) versus up to 46% (2.4 m) before.
+
 ## 19.27.0 Cleaner screen (polish plan phase 1, design/polish-plan.md)
 - hud4 `updateTracker`: top = `#uiStat` bounding rect bottom (relative to `#ui`) + 10 px, else 46 px. Header is "▾ Objectives (n)"; tap folds (`UI.trackerMin`).
 - template4 tail CSS: `#tracker` has no background, border or shadow; outlined text (yellow quest names, white lines, green when done). Removed `#tracker` from the shared striped-panel rule.

@@ -3860,3 +3860,4 @@ function applyGearPrices() {
 }
 applyDropRates();
 applyGearPrices();
+for (const zid of Object.keys(ZONES)) { const z = ZONES[zid]; if (z.theme !== "field" || z.island) continue; for (const w of z.water || []) if (w.r < 400) w.irr = 1; }

@@ -11,7 +11,7 @@ const fs = require('fs');
   page.on('console', m => { if (m.type() === 'error' && !/WebSocket|ERR_TUNNEL|ERR_PROXY|Failed to load resource/.test(m.text())) errs.push('console: ' + m.text().slice(0, 200)); });
   await page.addInitScript(qq => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: qq || 'medium', tutorialDone: true })); } catch (e) {} }, q);
   await mockLogin(page, html);
-  await page.evaluate(() => { document.querySelectorAll('.toast').forEach(x => x.remove()); const sk = document.querySelector('#tutBox .skip'); if (sk && document.getElementById('tutBox').classList.contains('on')) sk.click(); });
+  await page.evaluate(() => { document.querySelectorAll('.toast').forEach(x => x.remove()); save.tutSeen = 1; if (typeof tutClose === 'function') tutClose(); });
   for (const s of scenes) {
     if (s.js) { try { const r = await page.evaluate(s.js); if (r !== undefined && r !== null) console.log(s.name, '->', typeof r === 'string' ? r : JSON.stringify(r)); } catch (e) { errs.push(s.name + ' eval: ' + e.message.slice(0, 300)); } }
     if (s.wait !== undefined) await page.waitForTimeout(s.wait);
