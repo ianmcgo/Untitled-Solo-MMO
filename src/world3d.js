@@ -2771,7 +2771,7 @@ const PLANETS = [
   { name: "Ember", col: 0xff7a50, period: 48, size: 5.5, ph: 0.1 },
   { name: "Verdis", col: 0x8affa0, period: 96, size: 4.5, ph: 0.55 },
   { name: "Aster", col: 0xc8e0ff, period: 150, size: 6.5, ph: 0.3 },
-  { name: "Gild", col: 0xffd870, period: 300, size: 5.0, ph: 0.8 }
+  { name: "Gild", col: 0xffd870, period: 300, size: 5.0, ph: 0.8, ring: true }
 ];
 function skyDayAbs() { return (Date.now() + (S.timeShift || 0) - VANA_EPOCH) * 25 / 60000 / 1440; }
 function skyPoint(az, el, r) { const ce = Math.cos(el); return new THREE.Vector3(Math.cos(az) * ce * r, Math.sin(el) * r, Math.sin(az) * ce * r); }
@@ -2779,7 +2779,7 @@ function eclipticEl(az) { return (42 + 14 * Math.sin(az * 2 + 0.6)) * Math.PI / 
 function makeConstellations() {
   const grp = new THREE.Group(), lines = [], pts = [], R = 880;
   CONSTELLATIONS.forEach((C, i) => {
-    const az0 = i / CONSTELLATIONS.length * Math.PI * 2, el0 = eclipticEl(az0), D = Math.PI / 180 * 1.6;
+    const az0 = i / CONSTELLATIONS.length * Math.PI * 2, el0 = eclipticEl(az0), D = Math.PI / 180 * 0.75;
     const P = C.s.map(([dx, dy]) => skyPoint(az0 + dx * D / Math.cos(el0), el0 + dy * D, R));
     for (const p of P) pts.push(p.x, p.y, p.z);
     for (const [a, b] of C.e) lines.push(P[a].x, P[a].y, P[a].z, P[b].x, P[b].y, P[b].z);
@@ -2788,18 +2788,54 @@ function makeConstellations() {
   const lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.Float32BufferAttribute(lines, 3));
   const lm = new THREE.LineBasicMaterial({ color: 0x9ab8ff, transparent: true, opacity: 0, depthWrite: false, fog: false });
   const pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-  const pm = new THREE.PointsMaterial({ size: 3.2, sizeAttenuation: false, color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, map: texGlow() });
+  const pm = new THREE.PointsMaterial({ size: 2.6, sizeAttenuation: false, color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, map: texGlow() });
   grp.add(new THREE.LineSegments(lg, lm), new THREE.Points(pg, pm));
   grp.userData.mats = [lm, pm];
-  W3.planets = PLANETS.map(P => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: P.col, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending })); sp.scale.setScalar(P.size * 6); sp.userData.p = P; grp.add(sp); return sp; });
+  W3.planets = PLANETS.map((P, i) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: planetTex(P, i), transparent: true, opacity: 0, depthWrite: false, fog: false }));
+    sp.scale.setScalar(P.size * (P.ring ? 9 : 6)); sp.userData.p = P;
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: P.col, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
+    halo.scale.setScalar(P.size * 10); sp.userData.halo = halo; grp.add(halo, sp); return sp;
+  });
+  W3.comet = { head: new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending })), tail: [] };
+  W3.comet.head.scale.setScalar(18); grp.add(W3.comet.head);
+  for (let k = 0; k < 16; k++) { const t = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending })); grp.add(t); W3.comet.tail.push(t); }
   return grp;
+}
+const COMET_COLS = [0x8ae0ff, 0xff9ad8, 0xa8ff9a, 0xffd27a, 0xc8a8ff, 0xff8a6a, 0x7affe0, 0xf8f8ff, 0xffb0ff, 0x9ac8ff, 0xfff08a, 0x8affb8];
+const COMET_NAMES = ["Azure", "Rose", "Verdant", "Amber", "Violet", "Ember", "Jade", "Pale", "Orchid", "Frost", "Gold", "Mint"];
+function cometNow(day) {
+  const m = Math.floor(day / 30), t = (day / 30) - m, h = hashStr("comet" + m);
+  const az0 = (h % 360) * Math.PI / 180, dir = h & 1 ? 1 : -1, sweep = 0.9 + (h >> 3) % 50 / 100;
+  const az = az0 + dir * sweep * t, el = (24 + 30 * Math.sin(t * Math.PI) + (h >> 5) % 10) * Math.PI / 180;
+  const az2 = az0 + dir * sweep * (t - 0.02), el2 = (24 + 30 * Math.sin((t - 0.02) * Math.PI) + (h >> 5) % 10) * Math.PI / 180;
+  return { m, col: COMET_COLS[((m % 12) + 12) % 12], name: COMET_NAMES[((m % 12) + 12) % 12], az, el, az2, el2 };
+}
+function planetTex(P, i) {
+  const key = "planet" + P.name; if (TEXLIB.cache[key]) return TEXLIB.cache[key];
+  const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d"), col = new THREE.Color(P.col);
+  const rgb = (k, a) => "rgba(" + Math.round(Math.min(255, col.r * 255 * k)) + "," + Math.round(Math.min(255, col.g * 255 * k)) + "," + Math.round(Math.min(255, col.b * 255 * k)) + "," + a + ")";
+  const r = P.ring ? 30 : 46;
+  if (P.ring) { g.save(); g.translate(64, 64); g.rotate(-0.35); g.scale(1, 0.32); g.strokeStyle = rgb(1.1, 0.85); g.lineWidth = 7; g.beginPath(); g.arc(0, 0, 54, Math.PI, Math.PI * 2); g.stroke(); g.restore(); }
+  g.save(); g.beginPath(); g.arc(64, 64, r, 0, Math.PI * 2); g.clip();
+  g.fillStyle = rgb(0.75, 1); g.fillRect(0, 0, 128, 128);
+  let sd = i * 97 + 13; const rn = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+  for (let k = 0; k < 7; k++) { g.fillStyle = rgb(0.5 + rn() * 0.7, 0.5); g.fillRect(0, 64 - r + rn() * r * 2, 128, 3 + rn() * 8); }
+  for (let k = 0; k < 5; k++) { g.fillStyle = rgb(0.4 + rn() * 0.4, 0.45); g.beginPath(); g.ellipse(64 - r + rn() * r * 2, 64 - r + rn() * r * 2, 3 + rn() * 9, 2 + rn() * 5, 0, 0, Math.PI * 2); g.fill(); }
+  const sh = g.createRadialGradient(64 - r * 0.4, 64 - r * 0.45, r * 0.1, 64, 64, r * 1.05);
+  sh.addColorStop(0, "rgba(255,255,255,.55)"); sh.addColorStop(0.35, "rgba(255,255,255,0)"); sh.addColorStop(0.75, "rgba(0,0,20,.35)"); sh.addColorStop(1, "rgba(0,0,20,.85)");
+  g.fillStyle = sh; g.fillRect(0, 0, 128, 128); g.restore();
+  g.strokeStyle = rgb(1.3, 0.35); g.lineWidth = 2; g.beginPath(); g.arc(64, 64, r + 1, Math.PI * 0.9, Math.PI * 1.6); g.stroke();
+  if (P.ring) { g.save(); g.translate(64, 64); g.rotate(-0.35); g.scale(1, 0.32); g.strokeStyle = rgb(1.1, 0.9); g.lineWidth = 7; g.beginPath(); g.arc(0, 0, 54, 0, Math.PI); g.stroke(); g.restore(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; TEXLIB.cache[key] = t; return t;
 }
 function planetAz(P, day) { return (P.ph + day / P.period) * Math.PI * 2; }
 function skyTonight() {
   const day = skyDayAbs(), yr = ((day % 360) + 360) % 360 / 360, n = CONSTELLATIONS.length;
   const high = CONSTELLATIONS[((Math.round((1 - yr) * n) % n) + n) % n].name;
   const inC = P => { const a = ((planetAz(P, day) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2); return CONSTELLATIONS[Math.round(a / (Math.PI * 2) * n) % n].name; };
-  return { high, planets: PLANETS.map(P => P.name + " in " + inC(P)) };
+  const cm = cometNow(day);
+  return { high, planets: PLANETS.map(P => P.name + " in " + inC(P)), comet: "the " + cm.name + " Comet" };
 }
 function makeStars() {
   const n = 1800;
@@ -3408,7 +3444,12 @@ function updateSky(force) {
   if (W3.constel) {
     const so = W3.stars.material.opacity;
     W3.constel.userData.mats[0].opacity = so * 0.32; W3.constel.userData.mats[1].opacity = so;
-    for (const sp of W3.planets || []) { const P = sp.userData.p, az = planetAz(P, sday); sp.position.copy(skyPoint(az, eclipticEl(az) - 0.05, 870)); sp.material.opacity = so * (0.8 + 0.2 * Math.sin(S.time * 2 + P.period)); }
+    for (const sp of W3.planets || []) { const P = sp.userData.p, az = planetAz(P, sday); sp.position.copy(skyPoint(az, eclipticEl(az) - 0.05, 870)); sp.material.opacity = so; sp.userData.halo.position.copy(sp.position); sp.userData.halo.material.opacity = so * 0.35; }
+    if (W3.comet) {
+      const cm = cometNow(sday), hp = skyPoint(cm.az, cm.el, 860), bp = skyPoint(cm.az2, cm.el2, 860), dv = hp.clone().sub(bp).normalize();
+      W3.comet.head.position.copy(hp); W3.comet.head.material.color.setHex(0xffffff).lerp(new THREE.Color(cm.col), 0.4); W3.comet.head.material.opacity = so;
+      W3.comet.tail.forEach((t, k) => { const f = (k + 1) / W3.comet.tail.length; t.position.copy(hp).addScaledVector(dv, -f * 170); t.scale.setScalar(12 + f * 30); t.material.color.setHex(cm.col); t.material.opacity = so * 0.7 * (1 - f) * (1 - f * 0.5); });
+    }
   }
   const wx = !cave && !indoor && typeof weatherNow === "function" ? weatherNow() : null;
   const snowy = wx === "snow" || wx === "blizzard";

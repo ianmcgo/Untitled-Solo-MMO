@@ -667,7 +667,7 @@ function tabSystem() {
   h += "<h3>Character</h3><div class=\"sub\" style=\"margin-bottom:8px\">" + esc(save.name) + " · " + JOBS[save.mainJob].name + " Lv." + player.lv + " · " + loadRoster().chars.length + " of " + MAX_CHARS + " characters.</div>";
   h += '<div class="opt"><button data-a="logout">👥 Change character</button></div>';
   h += '<input type="file" id="loadInput" accept=".json,application/json" style="display:none">';
-  h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes." + (typeof skyTonight === "function" ? " Tonight " + skyTonight().high + " rides the midnight sky; " + skyTonight().planets.join(", ") + "." : "") + "</div>";
+  h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes." + (typeof skyTonight === "function" ? " Tonight " + skyTonight().high + " rides the midnight sky; " + skyTonight().planets.join(", ") + ". This month " + skyTonight().comet + " crosses the sky." : "") + "</div>";
   h += '<h3>Updates</h3><div class="sub" style="margin-bottom:6px">' + BUILD_INFO + '</div><div class="opt"><button data-a="checkupd">🔄 Check for updates</button><button data-a="open" data-v="updates">📰 What changed</button></div>';
   return h;
 }
@@ -1793,6 +1793,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.41.2", date: "2026-10-22", title: "Globes and comets", items: [
+    "<b>Smaller constellations.</b> The star pictures are about half their old size, so they read as constellations rather than huge shapes across the sky.",
+    "<b>Planets are globes.</b> Ember, Verdis, Aster and Gild are now shaded spheres with cloud bands and spots, lit from one side, with a soft coloured halo. Gild has a tilted golden ring.",
+    "<b>A comet every month.</b> Each game month a new comet appears in a different part of the sky and slowly crosses it over the month, rising higher in mid-month, with a long tail that fades out behind it. Each month's comet has its own colour (Azure, Rose, Verdant, Amber, Violet, Ember, Jade, Pale, Orchid, Frost, Gold and Mint). System → Time names this month's comet."
+  ] },
   { v: "19.41.1", date: "2026-10-22", title: "True seat count and real hammer blows", items: [
     "<b>Seat count includes you.</b> The 👥 count in the top-right box (and in Config → Online) now uses the live list of who is online, so it shows at least 1/20 while you're playing online instead of 0/20.",
     "<b>New panel headers.</b> The Target and Party boxes have their own look: a small glowing gold gem, spaced-out capitals on a bronze tab, and a fading gold rule. The party header shows how many are in your party (Party · 3).",
@@ -4405,7 +4410,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
-    "<b>The night sky:</b> twelve constellations circle the sky; one rides the midnight sky each game month. Planets Ember, Verdis, Aster and Gild drift through them at different speeds. Check System → Time for tonight's sky. The moon's phase follows the 30-day game month.",
+    "<b>The night sky:</b> twelve constellations circle the sky; one rides the midnight sky each game month. Planets Ember, Verdis, Aster and Gild (ringed) drift through them at different speeds, and a different coloured comet crosses the sky each game month. Check System → Time for tonight's sky. The moon's phase follows the 30-day game month.",
     "<b>Treasure pool:</b> lot or pass within the time limit. If you change areas first, you lot automatically on everything left and the pool is settled before you arrive.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
