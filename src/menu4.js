@@ -1020,7 +1020,7 @@ function beastHabitat(k) {
   return out;
 }
 
-const DB_CATS = [["items", "🧪", "Items"], ["equipment", "🛡️", "Equipment"], ["magic", "✦", "Magic"], ["abilities", "⚡", "Abilities"], ["jobs", "🎓", "Jobs"], ["people", "👥", "People"], ["places", "🗺️", "Places"], ["beasts", "📖", "Bestiary"]];
+const DB_CATS = [["items", "🧪", "Items"], ["equipment", "🛡️", "Equipment"], ["magic", "✦", "Magic"], ["abilities", "⚡", "Abilities"], ["jobs", "🎓", "Jobs"], ["people", "👥", "People"], ["places", "🗺️", "Places"], ["quests", "📜", "Quests"], ["beasts", "📖", "Bestiary"]];
 
 function dbSyncSeen() {
   if (!save.seen) save.seen = { items: {}, npcs: {} };
@@ -1080,7 +1080,8 @@ function dbJobs() {
     const jb = JOBS[j], lv = save.jobs[j].lv;
     const abil = Object.keys(ABILITIES).filter(id => ABILITIES[id].job === j && ABILITIES[id].lv <= lv).map(id => ABILITIES[id].name);
     const spl = Object.keys(SPELLS).filter(id => SPELLS[id].jobs[j] && SPELLS[id].jobs[j] <= lv).map(id => SPELLS[id].name);
-    h += dbCard(dbPic(jb.icon, null, jb.color), esc(jb.name) + " (" + JC(j) + ")" + (j === save.mainJob ? " · main" : j === save.subJob ? " · support" : ""), ["Level " + lv + " · Experience " + (save.jobs[j].xp || 0), "Base HP " + jb.hp[0] + " · MP " + jb.mp[0], "Abilities: " + (abil.length ? esc(abil.join(", ")) : "none yet"), "Magic: " + (spl.length ? esc(spl.join(", ")) : "none yet")]);
+    const gr = (helpDbCache().jobRows || []).find(r => String(r[0]).replace(/ \(advanced\)$/, "") === jb.name);
+    h += dbCard(dbPic(jb.icon, null, jb.color), esc(jb.name) + " (" + JC(j) + ")" + (j === save.mainJob ? " · main" : j === save.subJob ? " · support" : ""), [gr ? "<b>" + gr[1] + "</b> · " + gr[2] : "", "Level " + lv + " · Experience " + (save.jobs[j].xp || 0), "Base HP " + jb.hp[0] + " · MP " + jb.mp[0], "Abilities: " + (abil.length ? esc(abil.join(", ")) : "none yet"), "Magic: " + (spl.length ? esc(spl.join(", ")) : "none yet")]);
   }
   return h;
 }
@@ -1096,7 +1097,7 @@ function dbPeople() {
     const n = NPCS[id], key = "npc:" + id;
     const pic = typeof beastThumb === "function" ? beastThumb(key, dbThumbReady, Object.assign({ id, kind: "npc", x: 0, y: 0, face: 0, radius: 14 }, n)) : null;
     const where = dbWhere(id);
-    h += dbCard(dbPic("👤", pic, "#a5d6a7"), esc(n.name), ["Found in: " + esc(where.join(", ") || "various places")]);
+    h += dbCard(dbPic("👤", pic, "#a5d6a7").replace('<div class="bpic"', '<div class="bpic ex" data-a="exam" data-v="npc:' + id + '"'), esc(n.name) + ' <span class="exHint">🔍</span>', ["Found in: " + esc(where.join(", ") || "various places")]);
   }
   return h;
 }
@@ -1108,7 +1109,39 @@ function dbPlaces() {
     const folk = (zn.npcs || []).filter(n => save.seen.npcs[n.id] && NPCS[n.id]).map(n => NPCS[n.id].name);
     const beasts = Object.keys(BESTIARY).filter(k => save.bestiary[k] && beastHabitat(k).includes(zn.name)).map(k => (FAMILIES[k] || NM_FAMILIES[k] || { name: k }).name || k);
     const ico = zn.safe ? "🏘️" : zn.theme === "town" ? "🏘️" : zn.theme === "field" ? "🌾" : "🗺️";
-    h += dbCard(dbPic(ico, null, "#d8a838"), esc(zn.name) + (zn.safe ? " · safe" : ""), [esc(zn.city ? "City of " + zn.city : "Theme: " + (zn.theme || "field")), "Leads to: " + esc(ex.join(", ") || "nowhere"), "People you know here: " + esc(folk.join(", ") || "none yet"), "Creatures met here: " + esc(beasts.join(", ") || "none yet")]);
+    const ar = (helpDbCache().areaRows || []).find(r => r[0] === zn.name || (zn.city && String(r[0]).startsWith(zn.city)) || (zn.area && ZONES[zn.area] && r[0] === ZONES[zn.area].name) || (zn.splitFrom && ZONES[zn.splitFrom] && r[0] === ZONES[zn.splitFrom].name));
+    const notes = Object.keys(helpDbCache().secs).filter(t => (DB_PLACE_NOTES[t.replace(/^\S+\s/, "")] || /$^/).test(zn.name + " " + (zn.city || ""))).map(t => '<details class="dbNote"><summary>Field notes: ' + t.replace(/^\S+\s/, "") + "</summary>" + helpDbCache().secs[t] + "</details>").join("");
+    h += dbCard(dbPic(ico, null, "#d8a838"), esc(zn.name) + (zn.safe ? " · safe" : ""), [ar ? "<b>Levels " + ar[1] + "</b> · " + ar[2] : "", notes, esc(zn.city ? "City of " + zn.city : "Theme: " + (zn.theme || "field")), "Leads to: " + esc(ex.join(", ") || "nowhere"), "People you know here: " + esc(folk.join(", ") || "none yet"), "Creatures met here: " + esc(beasts.join(", ") || "none yet")]);
+  }
+  return h;
+}
+
+let HELP_DB_AT = 0;
+function helpDbCache() { if (performance.now() - HELP_DB_AT > 2000) { helpDb(); HELP_DB_AT = performance.now(); } return HELP_DB; }
+const DB_PLACE_NOTES = { "Frostspire Pass": /Frostspire/, "Saltreach Harbor": /Saltreach|Harbor/, "The Ashen Marsh": /Ashen Marsh|Marsh/, "The Sunken Crypt": /Sunken Crypt/, "Battlefield: the Chapel Depths": /Chapel/ };
+function dbQuests() {
+  const D = helpDbCache(), qs = Object.keys(QUESTS).filter(q => save.quests[q] && save.quests[q] !== "none");
+  const chMax = save.story.done ? STORY.length : save.story.ch + (storyReady() ? 1 : 0);
+  const exps = Object.keys(EXPEDITIONS).filter(id => (save.expDone || {})[id] || (save.exped && save.exped.id === id));
+  let h = dbCount(qs.length, Object.keys(QUESTS).length, "quests") + '<div class="sub" style="margin-bottom:8px">Quests, story chapters and expeditions are recorded here once you have started them.</div>';
+  if (qs.length || chMax) {
+    const how = Object.keys(D.secs).filter(t => /Quests|Main story|Expeditions/.test(t) && (!/Main story/.test(t) || chMax) && (!/Expeditions/.test(t) || exps.length));
+    h += how.map(t => '<details class="dbNote"><summary>' + t + "</summary>" + D.secs[t] + "</details>").join("");
+  }
+  if (chMax) {
+    h += "<h3>Main story</h3>";
+    STORY.slice(0, chMax).forEach((c, i) => {
+      const done = save.story.done || i < save.story.ch, steps = c.steps.slice(0, done ? c.steps.length : save.story.step + 1).map(st => (done || c.steps.indexOf(st) < save.story.step ? "✔ " : "▸ ") + esc(st.goal || ""));
+      h += dbCard(dbPic("🕯️", null, "#ff9a40"), "Chapter " + (i + 1) + ": " + esc(c.name) + (done ? " · complete" : " · in progress"), steps);
+    });
+  }
+  if (exps.length) {
+    h += "<h3>Expeditions</h3>";
+    for (const id of exps) { const X = EXPEDITIONS[id], done = (save.expDone || {})[id]; h += dbCard(dbPic("🧭", null, "#80cbc4"), esc(X.name) + (done ? " · complete" : " · in progress"), [esc(X.intro || "")]); }
+  }
+  if (qs.length) {
+    h += "<h3>Quests</h3>";
+    for (const q of qs) { const Q = QUESTS[q], st = save.quests[q]; h += dbCard(dbPic(st === "done" ? "✔" : "❗", null, st === "done" ? "#9ccc65" : "#ffd54f"), esc(Q.name) + " · " + ({ active: "in progress", killed: "ready to report", done: "complete" }[st] || st), [esc(Q.desc || ""), Q.giver ? "From " + esc(Q.giver) + (Q.lv ? " · level " + Q.lv : "") : ""]); }
   }
   return h;
 }
@@ -1117,7 +1150,7 @@ function tabDatabase() {
   dbSyncSeen();
   if (!DB_CATS.some(c => c[0] === UI.dbCat)) UI.dbCat = "items";
   let h = '<div class="opt" style="flex-wrap:wrap;margin-bottom:8px">' + DB_CATS.map(c => '<button data-a="dbcat" data-v="' + c[0] + '"' + (c[0] === UI.dbCat ? ' class="pri"' : "") + ">" + c[1] + " " + c[2] + "</button>").join("") + "</div>";
-  const fn = { items: () => dbItems(false), equipment: () => dbItems(true), magic: dbMagic, abilities: dbAbilities, jobs: dbJobs, people: dbPeople, places: dbPlaces, beasts: dbBeasts }[UI.dbCat];
+  const fn = { items: () => dbItems(false), equipment: () => dbItems(true), magic: dbMagic, abilities: dbAbilities, jobs: dbJobs, people: dbPeople, places: dbPlaces, quests: dbQuests, beasts: dbBeasts }[UI.dbCat];
   return h + fn();
 }
 
@@ -1153,6 +1186,7 @@ function dbBeasts() {
   const keys = Object.keys(BESTIARY);
   const known = keys.filter(k => save.bestiary[k]);
   let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " creatures recorded. Defeat a creature to add it; defeat more to learn more.</div>";
+  if (known.some(k => NM_FAMILIES[k])) { const nm = helpDbCache().secs[Object.keys(helpDbCache().secs).find(t => /Notorious/.test(t))] || ""; const p1 = nm.split("</p>")[0]; if (p1) h += '<details class="dbNote"><summary>About notorious monsters</summary>' + p1 + "</p></details>"; }
   for (const k of keys) {
     const b = save.bestiary[k];
     const f = FAMILIES[k] || (NM_FAMILIES[k] && Object.assign({}, FAMILIES[NM_FAMILIES[k].base], NM_FAMILIES[k], { nm: true }));
@@ -1176,7 +1210,7 @@ function dbBeasts() {
       body += '<div class="sub">Known to carry: ' + esc(loot.join(", ")) + "</div>";
     } else if (b.kills >= 1) body += '<div class="sub">Defeat ' + (need - b.kills) + " more to learn its weaknesses and spoils.</div>";
     const pic = typeof beastThumb === "function" ? beastThumb(k, () => { if (S.modal === "database") renderModal(); }) : null;
-    h += '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start"><div class="bpic">' + (pic ? '<img src="' + pic + '" alt="">' : '<span>' + (typeof THUMBS !== "undefined" && THUMBS.cache.has(k) ? "?" : "…") + "</span>") + '</div><div style="flex:1;min-width:0"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div></div>";
+    h += '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start"><div class="bpic ex" data-a="exam" data-v="beast:' + k + '">' + (pic ? '<img src="' + pic + '" alt="">' : '<span>' + (typeof THUMBS !== "undefined" && THUMBS.cache.has(k) ? "?" : "…") + "</span>") + '</div><div style="flex:1;min-width:0"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div></div>";
   }
   return h;
 }
@@ -1644,6 +1678,7 @@ function onMenuClick(e) {
   else if (a === "slimclose") { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); return; }
   else if (a === "helpcat") { UI.helpCat = v; renderModal(); return; }
   else if (a === "dbcat") { UI.dbCat = v; renderModal(); return; }
+  else if (a === "exam") { const i = v.indexOf(":"), t = v.slice(0, i), id = v.slice(i + 1); if (t === "npc" && NPCS[id]) examineOpen("npc:" + id, Object.assign({ id, kind: "npc", x: 0, y: 0, face: 0, radius: 14 }, NPCS[id]), NPCS[id].name); else if (t === "beast") { const f = FAMILIES[id] || NM_FAMILIES[id] || {}; examineOpen(id, null, f.name || id); } return; }
   else if (a === "achview") { UI.achView = v; renderModal(); return; }
   else if (a === "socseek") { netSeek(!save.lfg, null); renderModal(); return; }
   else if (a === "socseekmsg") { const m = prompt("Looking-for-party message (up to 40 characters):", save.seekMsg || ""); if (m !== null) netSeek(true, m); renderModal(); return; }
@@ -1794,6 +1829,16 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.43.0", date: "2026-10-22", title: "A Database that grows with you", items: [
+    "<b>The Help guide is about how to play.</b> Write-ups of specific places, jobs, notorious monsters, quests, expeditions and the main story have moved out of Help and into the Database, where each one appears only once you've discovered it. The Pets section of Help shows only once you own a pet.",
+    "<b>Database → Quests</b> (new): every quest you've started, with who gave it, its level and whether it's in progress, ready to report or complete; each main story chapter you've reached, with the steps done so far; and your expeditions. A short How quests work note opens once you have one.",
+    "<b>Database → Places</b> now shows each discovered area's level range and highlights, plus field notes for places like Frostspire Pass, Saltreach Harbor, the Ashen Marsh, the Sunken Crypt and the Chapel Depths once you've been there.",
+    "<b>Database → Jobs</b> shows each job's role and kit (weapons, spells and abilities) once you've played it. <b>Bestiary</b> explains notorious monsters once you've beaten one.",
+    "<b>Examine in 3D.</b> Tap a creature in the Bestiary or a person in People to open a 3D viewer: drag to spin them, scroll or pinch to zoom. It turns slowly on its own until you touch it.",
+    "<b>Tidier status window.</b> The Status window is a single compact card: your name with item level, job and race chips, HP, MP and TP as small bars, attributes in two columns with gear bonuses in green, and the EXP bar underneath. The right-hand panel (currencies, play time, skills) shrinks to fit its text, with labels and numbers in neat columns.",
+    "<b>Neon constellations.</b> Each constellation is drawn in its own faint glowing neon colour that gently pulses.",
+    "<b>What's new from the title screen.</b> Tap the version number at the bottom of the title screen for a pop-up list of every update, with search."
+  ] },
   { v: "19.42.3", date: "2026-10-22", title: "Hedges off the paving, bigger anvils", items: [
     "<b>No hedges on paving.</b> Hedges no longer grow on plazas, stone paving, around fountains, or on or around the crystal gazebo and its stairs.",
     "<b>Hedges keep their distance.</b> Hedges leave room around trees (including their crowns), lamp posts, torches, signs, statues, wells, market racks and other props, so nothing pokes through them.",
@@ -3938,12 +3983,27 @@ function tabUpdates() {
   });
   return h;
 }
-function updFilter(v) {
+function updFilter(v, root) {
   UI.updQ = v;
-  const q = v.trim().toLowerCase(), list = document.querySelectorAll("#mBody details.upd");
+  root = root || $("mBody");
+  const q = v.trim().toLowerCase(), list = root.querySelectorAll("details.upd");
   let n = 0;
   list.forEach((d, i) => { const hit = !q || d.dataset.ut.includes(q); d.style.display = hit ? "" : "none"; d.open = q ? hit : i === 0; if (hit) n++; });
-  const c = document.querySelector("#mBody .updN"); if (c) c.textContent = q ? n + " found" : "";
+  const c = root.querySelector(".updN"); if (c) c.textContent = q ? n + " found" : "";
+}
+function showUpdatesPopup() {
+  let el = $("updPop");
+  if (!el) {
+    el = document.createElement("div"); el.id = "updPop";
+    el.innerHTML = '<div class="upW"><div class="upH"><b>What\'s new</b><button class="upX">✕</button></div><div class="upB" id="upB"></div></div>';
+    document.body.appendChild(el);
+    el.addEventListener("click", e => { if (e.target === el || e.target.closest(".upX")) { el.classList.remove("on"); if (typeof sfx === "function") sfx("close"); } });
+    el.addEventListener("input", e => { if (e.target.dataset && e.target.dataset.updq) updFilter(e.target.value, $("upB")); });
+  }
+  UI.updQ = "";
+  $("upB").innerHTML = tabUpdates();
+  el.classList.add("on");
+  if (typeof sfx === "function") sfx("open");
 }
 
 const HELP_CATS = [
@@ -3964,9 +4024,12 @@ function guideRef() {
   return h;
 }
 
+const HELP_DB = { secs: {}, jobRows: [], areaRows: [] };
+const HELP_DBSEC = /^(☠ Notorious|🗺️ Expeditions|🔱 Battlefield|🕯️ Main story|❄️ Frostspire|⚓ Saltreach|🐸 The Ashen Marsh|🏚️ The Sunken Crypt|📜 Quests)/;
+function helpDb() { tabHelp(); return HELP_DB; }
 function tabHelp() {
   const secs = [];
-  const sec = (title, body) => { secs.push([title, body]); return ""; };
+  const sec = (title, body) => { if (HELP_DBSEC.test(title)) { HELP_DB.secs[title] = body; return ""; } if (/^🐾 Pets/.test(title) && !(save.buddies && save.buddies.length)) return ""; secs.push([title, body]); return ""; };
   const ul = arr => "<ul>" + arr.map(x => "<li>" + x + "</li>").join("") + "</ul>";
   const tbl = (head, rows) => "<table><tr>" + head.map(x => "<th>" + x + "</th>").join("") + "</tr>" + rows.map(r => "<tr>" + r.map(x => "<td>" + x + "</td>").join("") + "</tr>").join("") + "</table>";
   let h = '<div class="help">';
@@ -4092,7 +4155,7 @@ function tabHelp() {
     "The blessing lasts " + BLESSING.baseMin + " minutes at Copper guild rank, " + BLESSING.perRankMin + " minutes more per Adventurers' Guild rank, up to " + BLESSING.maxMin + " minutes at Mythril. It counts down only while you are playing, so logging out pauses it. The 🏰 icon at the top left shows it's active (tap it to see the time left), and a guard with a ❗ means you've no blessing.",
     "You can renew it any time; renewing restarts the timer."
   ]));
-  h += sec("🛡️ Jobs and companions", tbl(["Job", "Role", "Highlights"], [
+  HELP_DB.jobRows = [
     ["Knight", "Tank or damage", "Goad, Frenzy, Battle Shout (level 15: +20% attack for nearby allies), great axe A, sword B"],
     ["Light Mage", "Healer", "Cure (1), Gleam (3), Paralyze (4), Smite (5), Cleanse Venom (6), Protect and Mass Protect (7), Stone Aegis and Slumber Aegis, Water Aegis and Cleanse Stiffness (9), Tideward and Venom Aegis (10), Cure II (11), Slow (13), Gale Aegis, Cleanse Sight (14), Scent Mask, Silence and Smitefall (15), Healing Rain (16: heals everyone near the target), Shell and Mass Shell, Flame Aegis (17), Gleamfall, Blink and Cleanse Hush (19), Hush Step (20). Holy Vow"],
     ["Dark Mage", "Nuker", "Stone (1), Poison (3), Blind (4), Water (5), Bind (7), Aero (9), Blight and Ember Thorns (10), Life Leech (12), Fire (13), Rockfall (15: Stone on everything near the target), Arc Burn (16), Blizzard (17), Warp (17: 100 MP, teleports you to your home point), Grinding Blight (18), Floodwave (19), Sleep, Throttle and Frost Thorns (20). Arcane Vow, magic bursts"],
@@ -4115,7 +4178,9 @@ function tabHelp() {
     ["Lore Master (advanced)", "Magic", "Learns most white and black magic two levels after the mages (up to level 20 spells). Bright Study (healing, divine and enhancing spells 20% faster, 10% cheaper) or Shadow Study (elemental, enfeebling and dark); Thrift (10: next white spell free), Zeal (15: next elemental spell +30%)"],
     ["Earthwarden (advanced)", "Support", "Club B, Geomancy A. Auras follow you and affect the party nearby: Vigor (HP over time), Fury (5: attack +10%), Focus (11: spell damage +12%). Wards plant a luopan by the target that affects monsters near it: Torpor (3: slow), Frailty (8: they take 12% more damage), Languor (15: they deal 15% less). One aura and one luopan at a time, 3 minutes each. Close the Circle (5: dismiss the luopan for half its MP back), Radiant Mending (15: shatter it to heal the party 20%)"],
     ["Rune Blade (advanced)", "Tank", "Great Sword A (new weapon type), sword and great axe B. Kindle, Rime (3), Gale (5) and Stone (7) Runes: hold up to three; each cuts damage you take by 5%. Spear Surge (10: release every rune as elemental damage), Rune Guard (15: damage taken −20% for 30 s, and your hits draw extra enmity). Weapon skills: Rune Cleave, Glyph Rend (22), Ward Breaker (40), Final Verse (75)"]
-  ]) + ul([
+  ];
+  h += sec("🛡️ Jobs and companions", ul([
+    "Each job's role, weapons, spells and abilities are written up in the Database (Jobs) as you unlock and play it.",
     "<b>Jobs unlock as you grow.</b> Knight, Light Mage, Dark Mage and Rogue start open. Every other job opens once you have trained earlier jobs to a set level; a message and a pop-up tell you when you qualify, and Pip at your residence then lets you change to it. Locked jobs are hidden from the job menu.",
     "<b>Job achievements:</b> each job you unlock earns its own achievement; Bronze, Silver and Gold mark 6, 12 and 18 open jobs, and Every Trade needs them all.",
     "<b>Companions follow your jobs:</b> Brann only offers fighters whose job you have unlocked.",
@@ -4143,7 +4208,7 @@ function tabHelp() {
     ['<span style="color:' + RARITY.rare[1] + '">Rare</span>', "Notorious monster uniques and gear", "30–35%"],
     ['<span style="color:' + RARITY.epic[1] + '">Epic</span>', "Boss trophies", "about 30%"]
   ]) + ul(["<b>Who drops what:</b> equipment, weapons and spell scrolls drop only from notorious monsters, bosses, and humanoid monsters (goblins, orcs, Reefkin, Crag Talons, skeletons, ghouls) whose job and level could actually use the item. A goblin Dark Mage can carry black magic and robes, a warrior orc axes and armour; none carries anything above its level. Beasts, plants, insects and the like drop only materials, food, potions, <b>trade goods</b> and (only while you carry the <b>City Blessing</b>) elemental essences. <b>Crystals</b> (money) come only from humanoids, notorious monsters and bosses.", "<b>Trade goods:</b> beasts drop hides, chitin, fibre, scales or elemental cores, depending on the creature. They come in four grades by the monster's level (Coarse, Fine, Choice, Prime; cores go Dim, Glowing, Bright, Radiant). Tougher monsters within a grade drop them more often. They exist to be sold to any shop or on the auction house, and are how beast hunting pays. Monsters too weak to give experience drop none.", "<b>Rare</b> items can only be held once. If one drops while you already have it, it's lost.", "<b>Ex</b> items (quest rewards, boss trophies) can't be sold."]));
-  h += sec("🗺️ World", tbl(["Area", "Levels", "Highlights"], [
+  HELP_DB.areaRows = [
     ["Ashenreach Outpost", "Safe", "Shops, jobs, companions, stables, Adventurers' Guild, auction house, home point"],
     ["Rocky Hollow", "1–6", "Peaceful bees, crawlers, sheep and mandrakes near the gate; lizards, crabs, snappers and saplings further in; goblins, worms, undead (night), orcs and bombs (night) deep in. Old Fort Ruins, Goblin Camp, Burrow Flats, 4 NMs"],
     ["Goblin Den", "5–11", "Four chambers: Den Mouth, Underground Pool, Bone Pit (exit to the Crypt), Chieftain's Throne"],
@@ -4159,7 +4224,8 @@ function tabHelp() {
     ["Red Spire", "17–23", "A tower dungeon entered by a door at the Red Spire in the Sunscar Desert. Four floors, each harder than the last (17–18 up to 20–21), climbed by the stairs on the east side; the Spire Warden (level 23 boss) holds the summit and may drop the Warden's Greatsword or the Spire Mantle. Bring a full party"],
     ["Underdeep River", "16–20", "A glowing cavern under the Verdant Jungle (door near the jungle's south-east). A rock wall splits it in two: Boatman Ferro rows you across the river for free. Glow Bats, Pale Crabs, Lumicaps and Deep Worms; the Lumicap Matron (NM) lights the Glimmer Grotto. Fish for Glowfin and the rare Blind Eel"],
     ["Windreach Highlands", "10–15", "North of Rocky Hollow. A wide golden plateau: ride anywhere at road speed. The nomad camp (Tarqa the chief with two quests, Essa the trader) and Rider's Rest are camps. Plains Hares, Plains Lizards, Wind Wasps, Highland Longnecks and Highland Orcs; Thunderhoof (NM) roams the Stormgrass Flats by day"],
-  ]) + ul(["The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
+  ];
+  h += sec("🗺️ World", ul(["Each place you discover gets a write-up in the Database (Places): its level range, what lives there and anything notable.", "The clock runs 25× real time (one game day is 57.6 minutes) and keeps going while you're away. Day is 6:00–18:00.", "Hares graze by day; bats and Wandering Bones come out at night. Goblins, worms and ghouls are always around.", "Eight weekdays each boost one element's spells by 10%.", "Home Point Crystals are found only in towns. They restore your party and can be set as your return point."]));
   h += sec("🗺️ Expeditions", ul([
     "Maera at the Adventurers' Guild hands out long journeys across several areas. Each has a list of legs; the next one is shown when you talk to her or type /expedition.",
     "<i>Across the Wilds</i> (level 12): reach Ironvale, speak to Brisa, find Titan's Ribs in the Sunscar Desert, then report back. Reward: Trailblazer Boots.",
@@ -4442,6 +4508,7 @@ function tabHelp() {
     "<b>Treasure pool:</b> lot or pass within the time limit. If you change areas first, you lot automatically on everything left and the pool is settled before you arrive.",
     "<b>Updates window:</b> type in the search box to find any change by word or version number. Tap a version to open or fold it.",
     "<b>Deleting a character:</b> on the character screen, choose Delete and type the character's name to confirm. Deleted characters can't be brought back.",
+    "<b>Database:</b> places, people, jobs, quests and creatures appear as you discover them. Tap a creature or person's picture to examine their 3D model.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",
@@ -4600,26 +4667,25 @@ function statusLeftHTML(noLv) {
   const p = player, j = save.jobs[save.mainJob], need = xpNeed(j.lv), g = gearBonus();
   const gear = SLOTS.map(sl => save.gear[sl]).filter(id => id && ITEMS[id] && ITEMS[id].kind === "equip");
   const ilv = gear.length ? Math.round(gear.reduce((n, id) => n + (ITEMS[id].lv || 1), 0) / gear.length) : 0;
-  let h = '<div class="stBox"><div class="uiHead"><span>Status</span></div>';
-  h += '<div class="stNm">' + esc(save.name || "Adventurer") + "</div>";
-  h += '<div class="stJob main">Lv' + p.lv + " " + esc(JOBS[p.job].name) + "</div>";
-  { const lk = save.look || {}; h += '<div class="stJob">' + esc((RACES[lk.race] || RACES.human).name) + " " + (lk.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(lk)][0] + "</div>"; }
-  if (p.sub && JOBS[p.sub]) h += '<div class="stJob">Lv' + Math.floor(p.lv / 2) + " " + esc(JOBS[p.sub].name) + "</div>";
-  h += '<div class="stRow"><em>ILv</em><b>' + ilv + ' <small>Su —</small></b></div>';
-  h += '<div class="stRow gap"><em>HP</em><b>' + Math.ceil(p.hp) + " / " + p.maxHp + '</b></div><div class="stRow"><em>MP</em><b>' + Math.max(0, Math.floor(p.mp)) + " / " + Math.max(0, p.maxMp) + '</b></div><div class="stRow"><em>TP</em><b>' + Math.floor(p.tp) + "</b></div>";
-  h += '<div class="stAt">';
+  const lk = save.look || {};
+  const bar = (cls, v, m) => '<div class="scBar ' + cls + '"><span style="width:' + (m > 0 ? Math.max(0, Math.min(100, v / m * 100)) : 0) + '%"></span></div>';
+  let h = '<div class="stBox scCard"><div class="scTop"><div class="scNm">' + esc(save.name || "Adventurer") + '</div><div class="scIlv">iLv ' + ilv + "</div></div>";
+  h += '<div class="scChips"><span class="scChip job">Lv' + p.lv + " " + esc(JOBS[p.job].name) + "</span>" + (p.sub && JOBS[p.sub] ? '<span class="scChip sub">Lv' + Math.floor(p.lv / 2) + " " + esc(JOBS[p.sub].name) + "</span>" : "") + '<span class="scChip">' + esc((RACES[lk.race] || RACES.human).name) + " " + (lk.build ? "♀" : "♂") + " · " + CC_SIZES[ccSizeOf(lk)][0] + "</span></div>";
+  h += '<div class="scVit"><em>HP</em>' + bar("hp", p.hp, p.maxHp) + "<b>" + Math.ceil(p.hp) + "/" + p.maxHp + "</b><em>MP</em>" + bar("mp", p.mp, p.maxMp) + "<b>" + Math.max(0, Math.floor(p.mp)) + "/" + Math.max(0, p.maxMp) + "</b><em>TP</em>" + bar("tp", p.tp, 3000) + "<b>" + Math.floor(p.tp) + "</b></div>";
+  h += '<div class="scAt">';
   for (const [k, l] of [["str", "STR"], ["dex", "DEX"], ["vit", "VIT"], ["agi", "AGI"], ["int", "INT"], ["mnd", "MND"], ["chr", "CHR"]]) {
     const tot = p.stats[k] || 0, b = Math.round(g[k] || 0);
-    h += "<em>" + l + "</em><b>" + (tot - b) + "</b><i>" + (b ? (b > 0 ? "+" : "") + b : "") + "</i>";
+    h += '<div class="scA"><em>' + l + "</em><b>" + (tot - b) + "</b>" + (b ? "<i>" + (b > 0 ? "+" : "") + b + "</i>" : "<i></i>") + "</div>";
   }
-  h += "</div></div>";
-  if (noLv) return h;
-  const pct = need ? Math.max(0, Math.min(100, j.xp / need * 100)) : 100;
-  h += '<div class="stBox stLv"><div class="stJob main">Level ' + j.lv + '</div><div class="stK">EXP</div><div class="stV">' + (need ? j.xp.toLocaleString() : "—") + '</div><div class="stK">NEXT Level</div><div class="stV">' + (need ? need.toLocaleString() : "MAX") + '</div><div class="stBar"><span style="width:' + pct + '%"></span></div></div>';
-  return h;
+  h += "</div>";
+  if (!noLv) {
+    const pct = need ? Math.max(0, Math.min(100, j.xp / need * 100)) : 100;
+    h += '<div class="scXp"><em>EXP</em><b>' + (need ? j.xp.toLocaleString() + " / " + need.toLocaleString() : "MAX") + "</b></div>" + bar("xp", pct, 100);
+  }
+  return h + "</div>";
 }
 function statusPanelHTML(k) {
-  const sec = (t, body) => '<div class="stTitle">' + t + "</div>" + body;
+  const sec = (t, body) => '<div class="stTitle">' + t + "</div>" + (/stKV/.test(body) ? '<div class="stKVs">' + body + "</div>" : body);
   const kv = (l, v) => '<div class="stKV"><em>' + l + "</em><b>" + v + "</b></div>";
   const cur = sk => Math.floor(Math.min((save.skills[player.job] || {})[sk] || 0, Math.max(0, skillCap(player, sk))));
   const grid = rows => '<div class="stGrid">' + rows.join("") + "</div>";

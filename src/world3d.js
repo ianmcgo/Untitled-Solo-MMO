@@ -2828,19 +2828,23 @@ function skyDayAbs() { return (Date.now() + (S.timeShift || 0) - VANA_EPOCH) * 2
 function skyPoint(az, el, r) { const ce = Math.cos(el); return new THREE.Vector3(Math.cos(az) * ce * r, Math.sin(el) * r, Math.sin(az) * ce * r); }
 function eclipticEl(az) { return (42 + 14 * Math.sin(az * 2 + 0.6)) * Math.PI / 180; }
 function makeConstellations() {
-  const grp = new THREE.Group(), lines = [], pts = [], R = 880;
+  const grp = new THREE.Group(), lines = [], lcol = [], pts = [], R = 880;
+  const NEON = [0x40f0ff, 0xff4fd8, 0x9dff4a, 0xffb43a, 0xa070ff, 0x3affb0, 0xff6a6a, 0x4aa8ff, 0xfff04a, 0xff7ae8, 0x6affea, 0xc8ff5a];
   CONSTELLATIONS.forEach((C, i) => {
     const az0 = i / CONSTELLATIONS.length * Math.PI * 2, el0 = eclipticEl(az0), D = Math.PI / 180 * 0.75;
     const P = C.s.map(([dx, dy]) => skyPoint(az0 + dx * D / Math.cos(el0), el0 + dy * D, R));
     for (const p of P) pts.push(p.x, p.y, p.z);
-    for (const [a, b] of C.e) lines.push(P[a].x, P[a].y, P[a].z, P[b].x, P[b].y, P[b].z);
+    const nc = new THREE.Color(NEON[i % NEON.length]);
+    for (const [a, b] of C.e) { lines.push(P[a].x, P[a].y, P[a].z, P[b].x, P[b].y, P[b].z); lcol.push(nc.r, nc.g, nc.b, nc.r, nc.g, nc.b); }
     C.az = az0;
   });
-  const lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.Float32BufferAttribute(lines, 3));
-  const lm = new THREE.LineBasicMaterial({ color: 0x9ab8ff, transparent: true, opacity: 0, depthWrite: false, fog: false });
+  const lg = new THREE.BufferGeometry(); lg.setAttribute("position", new THREE.Float32BufferAttribute(lines, 3)); lg.setAttribute("color", new THREE.Float32BufferAttribute(lcol, 3));
+  const lm = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending });
   const pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
   const pm = new THREE.PointsMaterial({ size: 2.6, sizeAttenuation: false, color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, map: texGlow() });
-  grp.add(new THREE.LineSegments(lg, lm), new THREE.Points(pg, pm));
+  const glowL = [];
+  for (const sc of [1.0012, 0.9988]) { const l2 = new THREE.LineSegments(lg, lm); l2.scale.setScalar(sc); glowL.push(l2); }
+  grp.add(new THREE.LineSegments(lg, lm), ...glowL, new THREE.Points(pg, pm));
   grp.userData.mats = [lm, pm];
   W3.planets = PLANETS.map((P, i) => {
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: planetTex(P, i), transparent: true, opacity: 0, depthWrite: false, fog: false }));
@@ -3494,7 +3498,7 @@ function updateSky(force) {
   W3.stars.rotation.y = v.frac * Math.PI * 2 - yrA;
   if (W3.constel) {
     const so = W3.stars.material.opacity;
-    W3.constel.userData.mats[0].opacity = so * 0.32; W3.constel.userData.mats[1].opacity = so;
+    W3.constel.userData.mats[0].opacity = so * (0.3 + 0.06 * Math.sin(S.time * 1.3)); W3.constel.userData.mats[1].opacity = so;
     for (const sp of W3.planets || []) { const P = sp.userData.p, az = planetAz(P, sday); sp.position.copy(skyPoint(az, eclipticEl(az) - 0.05, 870)); sp.material.opacity = so; sp.userData.halo.position.copy(sp.position); sp.userData.halo.material.opacity = so * 0.35; }
     if (W3.comet) {
       const cm = cometNow(sday), hp = skyPoint(cm.az, cm.el, 860), bp = skyPoint(cm.az2, cm.el2, 860), dv = hp.clone().sub(bp).normalize();

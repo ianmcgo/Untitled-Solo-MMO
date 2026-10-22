@@ -748,6 +748,63 @@ function renderThumb(famKey, ent) {
   return cv.toDataURL("image/png");
 }
 
+function examineOpen(famKey, ent, title) {
+  examineClose();
+  const ov = document.createElement("div"); ov.id = "exam";
+  ov.innerHTML = '<div class="exW"><div class="exH"><b></b><button class="exX">✕</button></div><canvas></canvas><div class="exT">Drag to spin · scroll or pinch to zoom</div></div>';
+  ov.querySelector(".exH b").textContent = title || "";
+  document.body.appendChild(ov);
+  const cv = ov.querySelector("canvas"), R2 = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+  R2.outputColorSpace = THREE.SRGBColorSpace; R2.toneMapping = W3.renderer.toneMapping; R2.toneMappingExposure = 1.25; R2.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+  const sc = new THREE.Scene();
+  sc.add(new THREE.HemisphereLight(0xfff4e0, 0x3a4058, 1.7));
+  const key = new THREE.DirectionalLight(0xffffff, 2.4); key.position.set(3, 5, 4); sc.add(key);
+  const rim = new THREE.DirectionalLight(0x9fd0ff, 1.2); rim.position.set(-4, 3, -3); sc.add(rim);
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(1, 40), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 })); floor.rotation.x = -Math.PI / 2; sc.add(floor);
+  const m = ent || buildMob(famKey, 5, 0, 0, null), inst = buildEntityRig(m);
+  if (!inst) { ov.remove(); R2.dispose(); return; }
+  const g = new THREE.Group(); g.add(inst.mesh); if (inst.weapon) inst.mesh.add(inst.weapon); sc.add(g);
+  g.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(inst.mesh, true), c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
+  const rad = Math.max(sz.x, sz.y, sz.z) * 0.6 + 0.05;
+  floor.scale.setScalar(Math.max(sz.x, sz.z) * 0.8 + 0.2); floor.position.y = box.min.y + 0.005;
+  const cam = new THREE.PerspectiveCamera(30, 1, 0.02, 200);
+  const E = { yaw: 0.6, pitch: 0.18, dist: rad / Math.tan(15 * Math.PI / 180), min: rad * 0.9, max: rad / Math.tan(15 * Math.PI / 180) * 2.2, auto: true, drag: null, pinch: null, raf: 0, last: performance.now() };
+  const size = () => { const w = cv.clientWidth, h = cv.clientHeight; if (w && h) { R2.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); } };
+  const pts = new Map();
+  cv.addEventListener("pointerdown", e => { cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); E.auto = false; });
+  cv.addEventListener("pointermove", e => {
+    if (!pts.has(e.pointerId)) return;
+    const p0 = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pts.size === 1) { E.yaw -= (e.clientX - p0[0]) * 0.01; E.pitch = Math.max(-0.5, Math.min(1.2, E.pitch + (e.clientY - p0[1]) * 0.006)); }
+    else if (pts.size === 2) { const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (E.pinch) E.dist = Math.max(E.min, Math.min(E.max, E.dist * E.pinch / d)); E.pinch = d; }
+  });
+  const up = e => { pts.delete(e.pointerId); if (pts.size < 2) E.pinch = null; };
+  cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+  cv.addEventListener("wheel", e => { e.preventDefault(); E.dist = Math.max(E.min, Math.min(E.max, E.dist * (1 + Math.sign(e.deltaY) * 0.1))); }, { passive: false });
+  ov.addEventListener("click", e => { if (e.target === ov || e.target.closest(".exX")) examineClose(); });
+  const loop = () => {
+    const now = performance.now(), dt = Math.min(0.05, (now - E.last) / 1000); E.last = now;
+    if (E.auto) E.yaw += dt * 0.5;
+    size();
+    const cp = Math.cos(E.pitch);
+    cam.position.set(c.x + Math.sin(E.yaw) * cp * E.dist, c.y + Math.sin(E.pitch) * E.dist, c.z + Math.cos(E.yaw) * cp * E.dist);
+    cam.lookAt(c);
+    R2.render(sc, cam);
+    E.raf = requestAnimationFrame(loop);
+  };
+  VIEW.exam = { ov, R2, inst, E };
+  loop();
+  if (typeof sfx === "function") sfx("open");
+}
+function examineClose() {
+  const X = VIEW.exam; if (!X) return;
+  cancelAnimationFrame(X.E.raf);
+  try { X.inst.mat.dispose(); } catch (e) {}
+  X.R2.dispose(); try { X.R2.forceContextLoss(); } catch (e) {}
+  X.ov.remove(); VIEW.exam = null;
+}
+
 function beastThumb(famKey, onReady, ent) {
   if (THUMBS.cache.has(famKey)) return THUMBS.cache.get(famKey);
   if (ent) (THUMBS.ent = THUMBS.ent || {})[famKey] = ent;

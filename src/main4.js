@@ -685,4 +685,5 @@ async function logoutToSelect() {
 }
 
 tutInit();
+{ const lv = $("ldVer"); if (lv) lv.addEventListener("click", e => { e.stopPropagation(); showUpdatesPopup(); }); }
 boot();

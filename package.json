@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.42.3",
-  "releaseTitle": "Hedges off the paving, bigger anvils",
+  "version": "19.43.0",
+  "releaseTitle": "A Database that grows with you",
   "description": "",
   "main": "index.js",
   "scripts": {
