@@ -1,0 +1,12 @@
+const H = require('./harness.js'); const { G } = H; const S = G.S; G.save.story.done = true;
+let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
+S.pool = [];
+const id = Object.keys(G.ITEMS).find(k => G.ITEMS[k].kind === 'equip');
+G.addToPool(id);
+const before = G.invCount(id), here = S.zoneId;
+ok(S.pool.length === 1 && S.pool[0].mine == null, 'an item waits in the treasure pool');
+const to = Object.keys(G.ZONES).find(k => k !== here && !G.ZONES[k].indoor);
+G.enterZone(to);
+ok(!S.pool.length, 'zoning settles the pool');
+ok(G.invCount(id) === before + 1 || G.save.inventory.length >= G.CONFIG.inventorySize, 'with nobody else lotting, you get the item');
+console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0);

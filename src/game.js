@@ -2041,6 +2041,16 @@ function lotPool(seq, pass) {
   tickPool(true);
 }
 
+function settlePool() {
+  if (!S.pool || !S.pool.length) return;
+  for (const e of S.pool) {
+    if (e.mine == null) { e.mine = 1 + Math.floor(Math.random() * 999); log("Leaving the area: you lot " + e.mine + " on the " + ITEMS[e.id].name + ".", "loot"); if (e.net && typeof netLotOut === "function") netLotOut(e); }
+    if (!e.net || e.net.owner) e.until = Math.min(e.until, S.time - 5);
+  }
+  tickPool(true);
+  if (S.pool && S.pool.length) S.pool = S.pool.filter(e => e.net && !e.net.owner);
+}
+
 function tickPool(force) {
   if (!S.pool || !S.pool.length) return;
   for (const e of S.pool.slice()) {
@@ -4807,6 +4817,7 @@ function partyInCombat() {
 
 function enterZone(id, x, y, opt) {
   if (x == null || y == null || isNaN(x) || isNaN(y)) { const st = ZONES[id].start || { x: ZONES[id].w / 2, y: ZONES[id].h / 2 }; x = st.x; y = st.y; }
+  if (S.zoneId && S.zoneId !== id) settlePool();
   const prev = S.zoneId;
   S.exitWalk = null; S.walkIn = null;
   S.fish = null;

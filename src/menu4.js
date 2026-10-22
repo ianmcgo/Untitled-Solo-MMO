@@ -1793,6 +1793,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.40.1", date: "2026-10-22", title: "Lots settle when you zone", items: [
+    "<b>No more leftover treasure lots after zoning.</b> When you leave an area while items are still in the treasure pool, you automatically lot on anything you haven't, your companions lot, and the pool is settled before the next area loads. Online party pools you don't own still finish on the owner's side."
+  ] },
   { v: "19.40.0", date: "2026-10-22", title: "Cleaner screen", items: [
     "<b>Tidier top bar.</b> The Help and Network labels are gone. The network box now fits everything inside it on two lines: the signal arrows, your connection percentage and players online on top, sent and received underneath.",
     "<b>Readable HP and MP.</b> Each party member's HP and MP now has its own row with an HP or MP tag on the left, a thicker bar, and the number in large outlined type to the right of the bar instead of on top of it.",
@@ -4391,6 +4394,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>Treasure pool:</b> lot or pass within the time limit. If you change areas first, you lot automatically on everything left and the pool is settled before you arrive.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",

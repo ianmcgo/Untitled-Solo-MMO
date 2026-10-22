@@ -2846,3 +2846,7 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - Target arrow: `updateCursor` projects the nameplate anchor (entityHeight + 0.25), moves it up by the label's offsetHeight + 16 px (+ a 3 px bob) in NDC, and unprojects to place the cursor, so it always sits above the name plate. Falls back to height + 1.0 when the point is behind the camera.
 - Fog: effects3d `fogBanks(dt, amt, g, low)` replaces the round smoke puffs. amt is 1 in fog weather, 0.6 in mist zones, eased at 0.5/s. Up to 22 (10 on low) sprites with one of 4 canvas wisp textures (`fogWispTex`, 256×96, 70 faint radial blobs with fading ends), 12–24 m wide, 2.6–4.6 m tall, 0.3–1.7 m above the ground, drifting slowly. Each lives 18–38 s with 4 s fades and fades near 34 m; opacity 0.85 × amount. Sprites are recycled when expired or farther than 36 m.
 - Tracker top = max(uiStat bottom + 10, uiTop bottom + 12) so Objectives never touch the Commands bar.
+
+## 19.40.1 Lots settle when you zone
+- game.js `settlePool()` runs at the start of `enterZone` when the zone id changes: every entry with no own lot gets a random lot (sent with `netLotOut` for shared pools); local and owned-online entries get `until = S.time − 5` so `tickPool(true)` resolves them at once (companions lot because their delay has passed). Afterwards only online entries owned by someone else stay in `S.pool`.
+- Test: test/p66unit.js.
