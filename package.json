@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.44.1",
-  "releaseTitle": "Clearer skies and a better 3D viewer",
+  "version": "19.45.0",
+  "releaseTitle": "A bestiary entry for every form",
   "description": "",
   "main": "index.js",
   "scripts": {

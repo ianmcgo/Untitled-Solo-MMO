@@ -1182,10 +1182,18 @@ function tabStats() {
   return h;
 }
 
+function beastFormEnt(k, fk) {
+  const m = buildMob(k, 5, 0, 0, null);
+  if (!m) return null;
+  if (fk.startsWith("job:")) m.job = fk.slice(4);
+  else if (/^v\d$/.test(fk) && typeof mobVariant === "function") { const want = +fk.slice(1); for (let i = 0; i < 60; i++) { m.id = "form" + i; if (mobVariant(m) === want) break; } }
+  return m;
+}
 function dbBeasts() {
   const keys = Object.keys(BESTIARY);
   const known = keys.filter(k => save.bestiary[k]);
-  let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " creatures recorded. Defeat a creature to add it; defeat more to learn more.</div>";
+  const nForms = known.reduce((n, k) => n + Object.keys(beastForms(k)).length, 0);
+  let h = '<div class="sub" style="margin-bottom:8px">' + known.length + " / " + keys.length + " kinds of creature recorded, " + nForms + " forms in all. Defeat a creature to add it; each colouring and each job a monster fights as gets its own entry once you see it.</div>";
   if (known.some(k => NM_FAMILIES[k])) { const nm = helpDbCache().secs[Object.keys(helpDbCache().secs).find(t => /Notorious/.test(t))] || ""; const p1 = nm.split("</p>")[0]; if (p1) h += '<details class="dbNote"><summary>About notorious monsters</summary>' + p1 + "</p></details>"; }
   for (const k of keys) {
     const b = save.bestiary[k];
@@ -1209,8 +1217,13 @@ function dbBeasts() {
       body += '<div class="sub">Weak to: ' + (weak.length ? weak.join(", ") : "nothing in particular") + "</div>";
       body += '<div class="sub">Known to carry: ' + esc(loot.join(", ")) + "</div>";
     } else if (b.kills >= 1) body += '<div class="sub">Defeat ' + (need - b.kills) + " more to learn its weaknesses and spoils.</div>";
-    const pic = typeof beastThumb === "function" ? beastThumb(k, () => { if (S.modal === "database") renderModal(); }) : null;
-    h += '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start"><div class="bpic ex" data-a="exam" data-v="beast:' + k + '">' + (pic ? '<img src="' + pic + '" alt="">' : '<span>' + (typeof THUMBS !== "undefined" && THUMBS.cache.has(k) ? "?" : "…") + "</span>") + '</div><div style="flex:1;min-width:0"><b>' + (f.nm ? "☠ " : "") + esc(f.name) + "</b>" + body + "</div></div>";
+    const forms = beastForms(k), fks = Object.keys(forms).sort();
+    for (const fk of fks) {
+      const tk = fk === "v0" || fk === "base" ? k : k + "|" + fk;
+      const pic = typeof beastThumb === "function" ? beastThumb(tk, () => { if (S.modal === "database") renderModal(); }, tk === k ? undefined : beastFormEnt(k, fk)) : null;
+      const fo = forms[fk], extra = fks.length > 1 ? '<div class="sub">This form: defeated ' + (fo.kills || 0) + (fk.startsWith("job:") ? " · fights as a " + esc((JOBS[fk.slice(4)] || {}).name || "") : "") + "</div>" : "";
+      h += '<div class="item beast" style="display:flex;gap:10px;align-items:flex-start"><div class="bpic ex" data-a="exam" data-v="beast:' + k + "|" + fk + '">' + (pic ? '<img src="' + pic + '" alt="">' : '<span>' + (typeof THUMBS !== "undefined" && THUMBS.cache.has(tk) ? "?" : "…") + "</span>") + '</div><div style="flex:1;min-width:0"><b>' + (f.nm ? "☠ " : "") + esc(beastFormName(k, fk)) + "</b>" + extra + (fk === fks[0] ? body : '<div class="sub">Same habits as the other ' + esc(f.name) + " entries above.</div>") + "</div></div>";
+    }
   }
   return h;
 }
@@ -1678,7 +1691,7 @@ function onMenuClick(e) {
   else if (a === "slimclose") { const back = UI.menuFromMain; closeModal(); if (back) mainCmdOpen(); return; }
   else if (a === "helpcat") { UI.helpCat = v; renderModal(); return; }
   else if (a === "dbcat") { UI.dbCat = v; renderModal(); return; }
-  else if (a === "exam") { const i = v.indexOf(":"), t = v.slice(0, i), id = v.slice(i + 1); if (t === "npc" && NPCS[id]) examineOpen("npc:" + id, Object.assign({ id, kind: "npc", x: 0, y: 0, face: 0, radius: 14 }, NPCS[id]), NPCS[id].name); else if (t === "beast") { const f = FAMILIES[id] || NM_FAMILIES[id] || {}; examineOpen(id, null, f.name || id); } return; }
+  else if (a === "exam") { const i = v.indexOf(":"), t = v.slice(0, i), id = v.slice(i + 1); if (t === "npc" && NPCS[id]) examineOpen("npc:" + id, Object.assign({ id, kind: "npc", x: 0, y: 0, face: 0, radius: 14 }, NPCS[id]), NPCS[id].name); else if (t === "beast") { const [k, fk] = id.split("|"); examineOpen(k, fk && fk !== "v0" && fk !== "base" ? beastFormEnt(k, fk) : null, beastFormName(k, fk || "v0")); } return; }
   else if (a === "achview") { UI.achView = v; renderModal(); return; }
   else if (a === "socseek") { netSeek(!save.lfg, null); renderModal(); return; }
   else if (a === "socseekmsg") { const m = prompt("Looking-for-party message (up to 40 characters):", save.seekMsg || ""); if (m !== null) netSeek(true, m); renderModal(); return; }
@@ -1829,6 +1842,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.45.0", date: "2026-10-22", title: "A bestiary entry for every form", items: [
+    "<b>Every colouring has its own entry.</b> Creatures come in a normal, a dark and a pale colouring. Each one you meet gets its own Bestiary entry with its own picture, for example Meadow Hare, Meadow Hare (dark) and Meadow Hare (pale).",
+    "<b>Every job has its own entry.</b> Beastmen and other armed monsters get an entry for each job you've seen them fight as. If you've only met a Goblin Knight you'll see just Goblin Knight; meet a Goblin Dark Mage and a Goblin Rogue and they get entries too, each showing that job's gear in its picture and in the 3D viewer.",
+    "Each form counts its own defeats. The family's habits, weaknesses and spoils are shown on its first entry. The count at the top shows how many kinds and how many forms you've recorded.",
+    "Your existing bestiary carries over: kinds you'd already recorded start with the jobs you'd seen them as, or their normal colouring."
+  ] },
   { v: "19.44.1", date: "2026-10-22", title: "Clearer skies and a better 3D viewer", items: [
     "<b>The 3D viewer keeps the Database open.</b> Closing it (✕, tapping outside it or Escape) returns you to the same Database page so you can examine the next one.",
     "<b>Weapons in hand.</b> People and creatures in the 3D viewer and in Database pictures now hold their weapon in their hand instead of having it stuck through their body.",

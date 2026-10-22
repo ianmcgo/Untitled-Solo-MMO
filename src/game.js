@@ -5186,23 +5186,45 @@ function spawnMob(i, wantNm) {
 
 function beastKey(m) { return BESTIARY[m.famKey] ? m.famKey : null; }
 
+function beastForm(m) {
+  const f = m.fam || FAMILIES[m.famKey] || NM_FAMILIES[m.famKey];
+  if (!f || f.nm || f.boss || NM_FAMILIES[m.famKey]) return "base";
+  const hum = typeof mobLook === "function" ? mobLook(m).kind === "human" : !!m.job;
+  if (hum && m.job && JOBS[m.job]) return "job:" + m.job;
+  return "v" + (typeof mobVariant === "function" ? mobVariant(m) : 0);
+}
+const BEAST_VARIANT_NAMES = { v0: "", v1: "dark", v2: "pale" };
+function beastFormName(k, fk) {
+  const base = FAMILIES[k] ? FAMILIES[k].name : NM_FAMILIES[k] ? NM_FAMILIES[k].name : k;
+  if (fk && fk.startsWith("job:")) { const j = JOBS[fk.slice(4)]; return base + " " + (j ? j.name : fk.slice(4)); }
+  return base + (BEAST_VARIANT_NAMES[fk] ? " (" + BEAST_VARIANT_NAMES[fk] + ")" : "");
+}
+function beastForms(k) {
+  const b = save.bestiary[k];
+  if (!b) return {};
+  if (!b.forms) { b.forms = {}; if (b.jobs && b.jobs.length && !NM_FAMILIES[k]) for (const j of b.jobs) b.forms["job:" + j] = { seen: b.seen || Date.now(), kills: 0 }; else b.forms[NM_FAMILIES[k] ? "base" : "v0"] = { seen: b.seen || Date.now(), kills: b.kills || 0 }; }
+  return b.forms;
+}
 function noteBeast(m, kill) {
   const k = beastKey(m);
   if (!k) return;
   let b = save.bestiary[k];
   if (!b && !kill) return;
+  const fk = beastForm(m);
   if (!b) {
-    b = save.bestiary[k] = { seen: Date.now(), kills: 0, zones: [] };
-    log("New bestiary entry: " + (FAMILIES[k] ? FAMILIES[k].name : NM_FAMILIES[k] && NM_FAMILIES[k].name || m.name) + ".", "sys");
+    b = save.bestiary[k] = { seen: Date.now(), kills: 0, zones: [], forms: {} };
     uiEvent("beast", { k, name: m.name });
   }
+  const forms = beastForms(k);
+  if (!forms[fk]) { forms[fk] = { seen: Date.now(), kills: 0 }; log("New bestiary entry: " + beastFormName(k, fk) + ".", "sys"); }
+  if (kill) forms[fk].kills++;
   if (!b.zones.includes(S.zoneId)) b.zones.push(S.zoneId);
   if (m.job && JOBS[m.job]) { if (!b.jobs) b.jobs = []; if (!b.jobs.includes(m.job)) b.jobs.push(m.job); }
   if (kill) b.kills++;
 }
 
 function scanBeasts() {
-  for (const m of S.mobs) if (m.alive && !m.despawned && dist(m, player) < 320) { const b = save.bestiary[m.famKey]; if (!b) noteBeast(m, false); else if (m.job && !(b.jobs && b.jobs.includes(m.job))) noteBeast(m, false); }
+  for (const m of S.mobs) if (m.alive && !m.despawned && dist(m, player) < 320) { const b = save.bestiary[m.famKey]; if (!b) noteBeast(m, false); else if ((m.job && !(b.jobs && b.jobs.includes(m.job))) || !(b.forms && b.forms[beastForm(m)])) noteBeast(m, false); }
 }
 
 function checkAchievements() {
