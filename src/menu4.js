@@ -1793,6 +1793,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.40.0", date: "2026-10-22", title: "Cleaner screen", items: [
+    "<b>Tidier top bar.</b> The Help and Network labels are gone. The network box now fits everything inside it on two lines: the signal arrows, your connection percentage and players online on top, sent and received underneath.",
+    "<b>Readable HP and MP.</b> Each party member's HP and MP now has its own row with an HP or MP tag on the left, a thicker bar, and the number in large outlined type to the right of the bar instead of on top of it.",
+    "<b>Target arrow above the name.</b> The spinning arrow over your target now floats just above its name plate, so it never covers the name.",
+    "<b>Objectives spaced out.</b> The Objectives list now always starts a little below the Commands bar instead of touching it.",
+    "<b>Better fog.</b> Fog no longer shows up as round puffs. It rolls in as wide, soft, wispy banks at knee to head height that drift slowly and fade in and out around you."
+  ] },
   { v: "19.39.0", date: "2026-10-22", title: "Crystal gazebos and grounded buildings", items: [
     "<b>Crystal gazebos.</b> The Home Point Crystal in each town plaza now stands on a raised round platform with a white-columned gazebo and a pointed roof. Stone stairs with handrails lead up from every road that meets the plaza, and a low railing runs round the edge between them.",
     "<b>Stalls moved out of the plaza.</b> The market stalls that crowded the crystal now line the roads just outside the plaza, facing the road. Stallkeepers like the barber moved with their stalls.",
@@ -4382,6 +4389,8 @@ function tabHelp() {
     "<b>Home Point Crystals:</b> in towns the crystal sits on a raised gazebo in the main plaza; take the stairs from any road. Each crystal has its own shape and glows in its area's element colour.",
     "<b>Town crests:</b> each town's banners show its coat of arms and motto. Ashenreach: gold phoenix on red. Saltreach: white anchor on blue. Ironvale: gold anvil on grey.",
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
+    "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
+    "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",

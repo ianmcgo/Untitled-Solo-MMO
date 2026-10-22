@@ -582,7 +582,8 @@ function updateTracker() {
   el.style.display = trackerBlocked() ? "none" : "block";
   el.classList.toggle("min", UI.trackerMin);
   const sd = $("uiStat"), ir = sd && sd.offsetHeight > 4 ? sd.getBoundingClientRect() : null, ur = $("ui").getBoundingClientRect();
-  el.style.top = (ir ? Math.round(ir.bottom - ur.top + 10) : 46) + "px";
+  const tb = $("uiTop"), tr = tb && tb.offsetHeight > 4 ? tb.getBoundingClientRect() : null;
+  el.style.top = Math.max(ir ? Math.round(ir.bottom - ur.top + 10) : 46, tr ? Math.round(tr.bottom - ur.top + 12) : 0) + "px";
   let h = '<h4 data-tr="1"><span>' + (UI.trackerMin ? "▸" : "▾") + " Objectives (" + ents.length + ")</span></h4>";
   for (const q of ents) h += '<div class="q"><b>' + esc(q.name) + '</b> <small class="tg">' + q.tag + "</small>" + q.lines.map(l => "<div>· " + l + "</div>").join("") + "</div>";
   setHtml(el, h);

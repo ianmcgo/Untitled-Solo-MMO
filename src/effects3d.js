@@ -247,9 +247,7 @@ function updateWeatherFx(dt) {
       else { const leaf = Math.random() < 0.6; FX.smoke.spawn(q.x, q.y, q.z, rnd(3, 5.5), rnd(-0.3, 0.6), rnd(0.5, 2), rnd(1.4, 2.4), leaf ? 0.12 : 0.4, leaf ? 0.1 : 0.9, C(leaf ? 0x7a9a40 : 0xb8a888), C(leaf ? 0x8a6a30 : 0xa89878), 0.3, 0.2, leaf ? 0.9 : 0.25); }
     }
   }
-  if (wx === "fog" || S.zone.mist) {
-    if (Math.random() < dt * (low ? 2 : 5)) { const q = near(); q.y += rnd(0.2, 1); FX.smoke.spawn(q.x, q.y, q.z, rnd(0.2, 0.6), rnd(0, 0.1), rnd(-0.2, 0.2), rnd(4, 6), 2.5, 4.5, C(0xdfe6e8), C(0xc8d0d4), 0, 0, 0.18); }
-  }
+  fogBanks(dt, wx === "fog" ? 1 : S.zone.mist ? 0.6 : 0, g, low);
   if (S.zone.palette === "volcanic") {
     for (let i = 0, m = Math.floor((low ? 6 : 16) * dt + Math.random()); i < m; i++) { const q = near(); FX.add.spawn(q.x, q.y + rnd(0, 0.5), q.z, rnd(-0.3, 0.3), rnd(0.8, 2), rnd(-0.3, 0.3), rnd(1.5, 3), 0.08, 0.02, C(0xffd080), C(0xff4010), -0.2, 0.2, 1); }
     for (let i = 0, m = Math.floor((low ? 4 : 10) * dt + Math.random()); i < m; i++) { const q = near(); q.y += rnd(4, 9); FX.smoke.spawn(q.x, q.y, q.z, rnd(-0.4, 0.4), rnd(-0.8, -0.4), rnd(-0.4, 0.4), rnd(4, 7), 0.12, 0.1, C(0x8a8480), C(0x5a5450), 0.05, 0, 0.6); }
@@ -907,5 +905,40 @@ function updateSkyLife(dt) {
       else { W3.scene.remove(s.grp); s.mat.dispose(); }
       SKYL.list.splice(i, 1);
     }
+  }
+}
+
+function fogWispTex(seed) {
+  const c = document.createElement("canvas"); c.width = 256; c.height = 96;
+  const x = c.getContext("2d"); let r = seed * 9301 + 49297;
+  const R = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < 70; i++) {
+    const px = 30 + R() * 196, py = 30 + R() * 36, rad = 14 + R() * 26, ex = Math.min(1, Math.min(px, 256 - px) / 60), a = 0.07 * ex * (1 - Math.abs(py - 48) / 48);
+    const gr = x.createRadialGradient(px, py, 0, px, py, rad); gr.addColorStop(0, "rgba(255,255,255," + a.toFixed(3) + ")"); gr.addColorStop(1, "rgba(255,255,255,0)");
+    x.fillStyle = gr; x.fillRect(px - rad, py - rad, rad * 2, rad * 2);
+  }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+function fogBanks(dt, amt, g, low) {
+  const F = WFX.fog || (WFX.fog = { list: [], k: 0, tex: null });
+  F.k += (amt - F.k) * Math.min(1, dt * 0.5);
+  if (F.k < 0.01 && !F.list.length) return;
+  if (!F.tex) F.tex = [0, 1, 2, 3].map(fogWispTex);
+  const want = F.k < 0.01 ? 0 : low ? 10 : 22;
+  while (F.list.length < want) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: F.tex[F.list.length % 4], color: 0xe4eaee, transparent: true, opacity: 0, depthWrite: false }));
+    const a = Math.random() * Math.PI * 2, d = 4 + Math.random() * 26;
+    sp.position.set(g.x + Math.cos(a) * d, 0, g.z + Math.sin(a) * d);
+    sp.userData = { w: 12 + Math.random() * 12, h: 2.6 + Math.random() * 2, y: 0.3 + Math.random() * 1.4, v: (Math.random() - 0.5) * 0.6, life: 0, max: 18 + Math.random() * 20 };
+    sp.scale.set(sp.userData.w, sp.userData.h, 1); sp.renderOrder = 2;
+    W3.scene.add(sp); F.list.push(sp);
+  }
+  for (let i = F.list.length - 1; i >= 0; i--) {
+    const sp = F.list[i], u = sp.userData;
+    u.life += dt; sp.position.x += u.v * dt; sp.position.z += u.v * 0.4 * dt;
+    sp.position.y = groundY(sp.position.x / U, sp.position.z / U) + u.y;
+    const far = Math.hypot(sp.position.x - g.x, sp.position.z - g.z), edge = Math.min(1, u.life / 4, (u.max - u.life) / 4, (34 - far) / 6);
+    sp.material.opacity = Math.max(0, edge) * 0.85 * F.k;
+    if (u.life > u.max || far > 36 || (F.k < 0.01)) { if (F.list.length > want || u.life > u.max || far > 36) { W3.scene.remove(sp); sp.material.dispose(); F.list.splice(i, 1); } }
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.39.0",
-  "releaseTitle": "Crystal gazebos and grounded buildings",
+  "version": "19.40.0",
+  "releaseTitle": "Cleaner screen",
   "description": "",
   "main": "index.js",
   "scripts": {

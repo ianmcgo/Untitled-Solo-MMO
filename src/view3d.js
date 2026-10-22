@@ -181,8 +181,11 @@ function updateCursor() {
     }
     VIEW.cursor.material.color.setHex(col);
     VIEW.groundRing.material.color.setHex(isMob(t) ? (uiMobAttacking(t) ? 0xff4a3a : 0x7dff8a) : col);
-    const base = groundY(t.x, t.y);
-    VIEW.cursor.position.set(t.x * U, base + entityHeight(t) + 0.38 + Math.sin(S.time * 4) * 0.05, t.y * U);
+    const base = groundY(t.x, t.y), cam = W3.camera;
+    const p = new THREE.Vector3(t.x * U, base + entityHeight(t) + 0.25, t.y * U).project(cam);
+    const lab = VIEW.labels && VIEW.labels.get ? VIEW.labels.get(t) : null, ph = lab && lab.offsetHeight ? lab.offsetHeight : 22;
+    p.y += (ph + 16 + Math.sin(S.time * 4) * 3) * 2 / innerHeight;
+    if (p.z < 1) { p.unproject(cam); VIEW.cursor.position.copy(p); } else VIEW.cursor.position.set(t.x * U, base + entityHeight(t) + 1.0, t.y * U);
     VIEW.cursor.rotation.y += 0.04;
     const rr = Math.max(0.6, (t.radius || 14) * U * 1.4);
     VIEW.groundRing.scale.setScalar(rr);
