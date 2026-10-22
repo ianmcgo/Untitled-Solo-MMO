@@ -2680,6 +2680,13 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.30.0 Softer meadows (polish plan phase 4)
+- world3d `buildTerrainSteps` stores `W3.terrainMap` (baked albedo) and `W3.terrainBox` [x0, y0, w, h] in px.
+- `addWind(mat, strength, gb)`: optional `gb { base, tip, h, fade }`. Vertex: instance origin `wp0` → `vGUV` into the terrain map, `vGH` = position.y / h; with `fade` the whole instance scales to 0 between 0.65·fade and fade metres from the camera. Fragment (after color_fragment): mix toward the ground colour by mix(base, tip, vGH), ground colour brightened 0.95→1.25 up the blade. `customProgramCacheKey` per gb.
+- Tufts: gb { 0.95, 0.35, 0.8 m, fade 52 m medium / 70 m high }. Ferns { 0.75, 0.1, 0.7 }. Reeds { 0.8, 0.15, 1.3 } with new `reedGeo`: 11 tapered curved leaf strips (normals mostly up) and a cattail on every fourth; colour 0x98b46c (marsh 0xa8b070).
+- three-entry.js now exports Vector4.
+- `terrainDetail`: grass detail contrast 0.55 (rock and dirt keep 1.1); extra low-frequency `mac2` warm/cool drift; `clover` darkening (0.86) from tGrass at 0.045.
+
 ## 19.29.0 Living skies (polish plan phase 3)
 - effects3d tail, `SKYL { star, flock, list }`, `updateSkyLife(dt)` called from `updateFX` (try/catch, `reportError(err, "sky")`). Off in cave, crypt and house themes.
 - Shooting stars: when `W3.stars` is visible with opacity > 0.6 and weather is not rain/storm/snow/blizzard/fog/sandstorm. First 5–30 s, then every 20–90 s (game seconds). `spawnShootingStar` picks a sky direction (elevation 0.5–1.1 rad) and an end direction 0.18–0.45 rad sideways and 0.12–0.32 rad lower; `tickShootingStar` builds a camera-facing quad between head and tail (tail = 50% of the path behind) at 700 m from the camera, additive, `streakTex()` gradient, renderOrder 4, opacity sin-shaped × star opacity, 0.7–1.5 s. Half play `sfx("shooting_star")`.

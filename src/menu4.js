@@ -1787,6 +1787,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.30.0", date: "2026-10-22", title: "Softer meadows", items: [
+    "<b>Grass that belongs to the ground.</b> Grass tufts now take their colour from the ground they grow in: dark and earthy at the roots, lighter at the tips, so meadows read as one surface instead of loose clumps.",
+    "<b>No grass popping.</b> Distant grass sinks gently into the ground instead of vanishing all at once.",
+    "<b>New reeds.</b> Pond reeds are leafy green blades with the odd cattail instead of dark sticks, and they blend into the shore too. Ferns also pick up the ground colour at their base.",
+    "<b>Painted ground.</b> The fine speckle on grassland is softer, with broad warm and cool colour drifts and darker clover patches, for a more hand-painted look."
+  ] },
   { v: "19.29.0", date: "2026-10-22", title: "Living skies", items: [
     "<b>Shooting stars.</b> On clear nights a shooting star now streaks across the sky every minute or so, sometimes with a faint chime.",
     "<b>Birds overhead.</b> On dry days small flocks of birds fly across the sky in loose V formations, flapping and gliding, with a little birdsong as they pass.",
@@ -4243,6 +4249,7 @@ function tabHelp() {
   ]));
   h += sec("🦖 Mount", ul(["Earn the Riding License from Ysolde at level 20 (300 crystals and 3 Healing Herbs).", "Press R (or the Mount button on phones) in open country. You move 2.2× faster and monsters ignore you. Your companions ride too. Engaging, being hit or entering town or a cave dismounts you.", "<b>Stable</b> (talk to Ysolde): dye your Thornstrider Marsh Teal, Ember Crimson, Night Sable, Dune Gold or Frost Ivory (pay once, switch freely), and buy the Swift Saddle for 15% more speed.", "<b>The Hollow Run</b>: Ysolde times you through 5 checkpoints across Rocky Hollow (a gold column and a yellow minimap dot mark the next one). Gold under 26 s, silver under 36 s, bronze under 50 s; each medal pays out the first time. Dismounting, leaving or going over 75 s ends the run."]));
   h += sec("📱 Performance", ul([
+    "Grass is only drawn on Medium and High quality. It fades into the ground about 50 m away (70 m on High).",
     "Zone exits wind and widen, rocks sit on the ground rather than hovering over slopes, and the end of an outside exit shows hazy hills tinted like the zone beyond.",
     "Walking off the edge of a zone hands control to the game for about a second: you walk out, the screen fades to the loading screen, and you walk in on the other side. Doors and warps go straight to the loading screen. Every time a zone finishes loading (zone lines, doors, warps, home point, logging in) the world fades in from black.",
     "The game keeps painted ground textures and the item icon sheet in your browser so return visits load faster. They reset on every update; <b>/clearcache</b> removes them if anything looks wrong.",

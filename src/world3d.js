@@ -208,6 +208,7 @@ function* buildTerrainSteps(field) {
   geo.computeVertexNormals();
   const size = terrainSize();
   const map = yield* bakeTerrainAlbedoSteps(field, size);
+  W3.terrainMap = map; W3.terrainBox = [field.x0, field.y0, (field.cols - 1) * field.cs, (field.rows - 1) * field.cs];
   const detail = texDetailNormal();
   const nm = detail.clone();
   nm.needsUpdate = true;
@@ -245,9 +246,13 @@ function terrainDetail(mat, field) {
   det = mix(det, r, rockW);
   float far = smoothstep(30.0, 90.0, distance(vWP, cameraPosition));
   float k = mix(1.0, 0.35, far);
-  diffuseColor.rgb *= 1.0 + (det - 0.5) * 1.1 * k;
+  diffuseColor.rgb *= 1.0 + (det - 0.5) * mix(0.55, 1.1, max(rockW, 1.0 - green)) * k;
   float mac = texture2D(tRockD, vWP.xz * 0.006).r + texture2D(tGrass, vWP.xz * 0.017).r * 0.5 - 0.75;
-  diffuseColor.rgb *= mix(vec3(1.0), vec3(1.0 + mac * 0.22, 1.0 + mac * 0.1, 1.0 - mac * 0.12), (1.0 - rockW) * (1.0 - uCave) * green);
+  float mac2 = texture2D(tRockD, vWP.zx * 0.0023 + 0.37).r - 0.5;
+  float gw = (1.0 - rockW) * (1.0 - uCave) * green;
+  diffuseColor.rgb *= mix(vec3(1.0), vec3(1.0 + mac * 0.3 + mac2 * 0.18, 1.0 + mac * 0.14 + mac2 * 0.05, 1.0 - mac * 0.16 - mac2 * 0.2), gw);
+  float clover = smoothstep(0.58, 0.72, texture2D(tGrass, vWP.xz * 0.045 + 0.21).r);
+  diffuseColor.rgb *= mix(1.0, 0.86, clover * gw * k);
   float lum = dot(diffuseColor.rgb, vec3(0.3, 0.55, 0.15));
   diffuseColor.rgb = mix(diffuseColor.rgb, vec3(lum) * vec3(1.02, 0.98, 0.92), rockW * 0.45 * (1.0 - uCave * 0.5));
   float sw = texture2D(tRockD, vWP.xz * 0.035).r;
@@ -364,12 +369,18 @@ function fernGeo() {
 }
 function reedGeo() {
   const parts = [];
-  for (let k = 0; k < 9; k++) {
-    const a = k * 2.4, r = 0.05 + (k % 3) * 0.06, h = 0.8 + (k % 4) * 0.25;
-    parts.push(new THREE.CylinderGeometry(0.008, 0.016, h, 3).translate(Math.cos(a) * r, h / 2, Math.sin(a) * r).rotateZ((k % 3 - 1) * 0.08).toNonIndexed());
-    if (k % 3 === 0) parts.push(new THREE.CylinderGeometry(0.028, 0.028, 0.16, 5).translate(Math.cos(a) * r, h - 0.08, Math.sin(a) * r).toNonIndexed());
+  for (let k = 0; k < 11; k++) {
+    const a = k * 2.4, r = 0.03 + (k % 3) * 0.05, h = 0.7 + (k % 4) * 0.22, lean = 0.08 + (k % 5) * 0.06;
+    const g = new THREE.PlaneGeometry(0.07, h, 1, 4).toNonIndexed();
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) { const y = p.getY(i) + h / 2, t = y / h; p.setXYZ(i, p.getX(i) * (1 - t * 0.9), y, t * t * lean); }
+    g.rotateY(a).translate(Math.cos(a) * r, 0, Math.sin(a) * r);
+    parts.push(g);
+    if (k % 4 === 0) parts.push(new THREE.CylinderGeometry(0.024, 0.024, 0.14, 5).translate(Math.cos(a) * r, h * 0.95, Math.sin(a) * r + lean * 0.85).toNonIndexed());
   }
-  return THREE.mergeGeometries(parts);
+  const geo = THREE.mergeGeometries(parts);
+  const n = geo.attributes.normal; for (let i = 0; i < n.count; i++) n.setXYZ(i, n.getX(i) * 0.3, 0.95, n.getZ(i) * 0.3);
+  return geo;
 }
 function shroomClusterGeo() {
   const parts = [];
@@ -440,10 +451,10 @@ function buildProps(field, root) {
     }
   }
   const leaf = texFoliage("leaf", [74, 110, 48]), bark = texBark();
-  const plantMat = (c, w) => { const m = std({ map: leaf.map, color: c, side: THREE.DoubleSide, roughness: 0.9 }); addWind(m, w); return m; };
+  const plantMat = (c, w, gb) => { const m = std({ map: leaf.map, color: c, side: THREE.DoubleSide, roughness: 0.9 }); addWind(m, w, gb); return m; };
   const woodMat = std({ map: bark.map, normalMap: bark.normalMap, color: 0xc8a888 });
-  if (ferns.length) root.add(tintInst(instanced(fernGeo(), plantMat(jungle ? 0x7ab060 : 0x8ab870, 0.06), ferns, false), rnd, 0.25));
-  if (reeds.length) root.add(tintInst(instanced(reedGeo(), plantMat(marsh ? 0xb0a868 : 0x9ab070, 0.09), reeds, false), rnd, 0.2));
+  if (ferns.length) root.add(tintInst(instanced(fernGeo(), plantMat(jungle ? 0x7ab060 : 0x8ab870, 0.06, { base: 0.75, tip: 0.1, h: 0.7 }), ferns, false), rnd, 0.25));
+  if (reeds.length) root.add(tintInst(instanced(reedGeo(), plantMat(marsh ? 0xa8b070 : 0x98b46c, 0.09, { base: 0.8, tip: 0.15, h: 1.3 }), reeds, false), rnd, 0.2));
   if (shrooms.length) { const im = instanced(shroomClusterGeo(), std({ color: 0xffffff, roughness: 0.7 }), shrooms, false); const pc = [0xc84a3a, 0xe8d8b8, 0xb88a5a, 0xd8a040]; shrooms.forEach((m, i) => im.setColorAt(i, new THREE.Color(pc[Math.floor(rnd() * pc.length)]))); im.instanceColor.needsUpdate = true; root.add(im); }
   if (stumps.length) root.add(tintInst(instanced(stumpGeo(), std({ map: bark.map, normalMap: bark.normalMap, color: volcanic ? 0x3a3030 : snowy ? 0xd8dce0 : desert ? 0xd8c0a0 : 0xffffff }), stumps, true), rnd, 0.2));
   if (skulls.length) root.add(tintInst(instanced(skullGeo(), std({ color: 0xf0e6d0, roughness: 0.8 }), skulls, true), rnd, 0.1));
@@ -644,12 +655,23 @@ function mtx(x, y, z, sx, sy, sz, ry, rx, rz) {
   return m;
 }
 
-function addWind(mat, strength) {
+function addWind(mat, strength, gb) {
+  const tb = W3.terrainBox, gm = gb && W3.terrainMap && tb;
   mat.onBeforeCompile = sh => {
     sh.uniforms.uTime = { value: 0 };
     mat.userData.shader = sh;
-    sh.vertexShader = "uniform float uTime;\n" + sh.vertexShader.replace("#include <begin_vertex>", "#include <begin_vertex>\nvec4 wp0 = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);\nfloat sway = sin(uTime * 1.7 + wp0.x * 0.35 + wp0.z * 0.27) * " + strength.toFixed(3) + " * max(position.y, 0.0);\ntransformed.x += sway;\ntransformed.z += sway * 0.6;");
+    let pre = "uniform float uTime;\n", body = "#include <begin_vertex>\nvec4 wp0 = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);\nfloat sway = sin(uTime * 1.7 + wp0.x * 0.35 + wp0.z * 0.27) * " + strength.toFixed(3) + " * max(position.y, 0.0);\ntransformed.x += sway;\ntransformed.z += sway * 0.6;";
+    if (gm) {
+      sh.uniforms.uGMap = { value: W3.terrainMap };
+      sh.uniforms.uGBox = { value: new THREE.Vector4(tb[0] * U, tb[1] * U, tb[2] * U, tb[3] * U) };
+      sh.uniforms.uGK = { value: new THREE.Vector4(gb.base, gb.tip, gb.h, gb.fade || 0) };
+      pre += "uniform vec4 uGBox;\nuniform vec4 uGK;\nvarying vec2 vGUV;\nvarying float vGH;\n";
+      body += "\nvGUV = vec2((wp0.x - uGBox.x) / uGBox.z, 1.0 - (wp0.z - uGBox.y) / uGBox.w);\nvGH = clamp(position.y / uGK.z, 0.0, 1.0);\nif (uGK.w > 0.0) { float gfd = distance(wp0.xyz, cameraPosition); transformed *= 1.0 - smoothstep(uGK.w * 0.65, uGK.w, gfd); }";
+      sh.fragmentShader = "uniform sampler2D uGMap;\nuniform vec4 uGK;\nvarying vec2 vGUV;\nvarying float vGH;\n" + sh.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nvec3 gcol = texture2D(uGMap, vGUV).rgb;\nfloat gk = mix(uGK.x, uGK.y, smoothstep(0.0, 1.0, vGH));\ndiffuseColor.rgb = mix(diffuseColor.rgb, gcol * mix(0.95, 1.25, vGH), gk);");
+    }
+    sh.vertexShader = pre + sh.vertexShader.replace("#include <begin_vertex>", body);
   };
+  if (gm) mat.customProgramCacheKey = () => "gb" + gb.base + gb.tip + gb.h + (gb.fade || 0);
   W3.grassMats.push(mat);
 }
 
@@ -853,7 +875,7 @@ function buildVegetation(field, root) {
     for (let i = 0; i < nrm.count; i++) nrm.setXYZ(i, 0, 1, 0);
     const tint = theme === "town" ? 0xc8e4b0 : 0xe8ecb0;
     const gm = new THREE.MeshStandardMaterial({ map: blade, alphaTest: 0.45, side: THREE.DoubleSide, roughness: 1, color: tint });
-    addWind(gm, 0.12);
+    addWind(gm, 0.12, { base: 0.95, tip: 0.35, h: 0.8, fade: q === "high" ? 70 : 52 });
     const tm = instanced(tg, gm, tufts, false);
     { const lush = new THREE.Color(0.92, 1.05, 0.86), dry = new THREE.Color(1.18, 1.1, 0.78), c = new THREE.Color(); tufts.forEach((m, i) => { c.copy(lush).lerp(dry, sstep(0.35, 0.75, m.dry)).multiplyScalar(0.92 + rnd() * 0.18); tm.setColorAt(i, c); }); if (tm.instanceColor) tm.instanceColor.needsUpdate = true; }
     tm.receiveShadow = true;
