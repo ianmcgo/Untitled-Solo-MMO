@@ -1763,8 +1763,9 @@ function buildCityBuildings(field, root) {
     bt.add(M.iron, box(0.08, 0.08, 0.12), B, dw * 0.32, PL + dh * 0.45, fz + 0.14);
     {
       const sg = Math.min(gAt(0, fz + 0.4), gAt(0, fz + 1.2), gAt(-(dw + 0.8) / 2, fz + 0.7), gAt((dw + 0.8) / 2, fz + 0.7));
-      const drop = Math.max(0, PL - sg), ns = Math.max(1, Math.min(6, Math.round(drop / 0.22)));
-      for (let k = 0; k < ns; k++) { const top = PL - k * drop / ns, bot = Math.min(top - 0.22, sg - 0.25); bt.add(M.stone, box(dw + 0.8, top - bot, 0.5), B, 0, (top + bot) / 2, fz + 0.25 + k * 0.4); }
+      const z0 = T.portico ? 1.45 : 0, sg2 = T.portico ? Math.min(gAt(0, fz + z0 + 0.4), gAt(0, fz + z0 + 1.2)) : sg;
+      const drop = Math.max(0, PL - sg2), ns = Math.max(1, Math.min(6, Math.round(drop / 0.22)));
+      for (let k = 0; k < ns; k++) { const top = PL - (k + (T.portico ? 1 : 0)) * drop / (ns + (T.portico ? 1 : 0)), bot = Math.min(top - 0.22, sg2 - 0.25); bt.add(M.stone, box(T.portico ? bw * 0.7 : dw + 0.8, top - bot, 0.42), B, 0, (top + bot) / 2, fz + z0 + 0.21 + k * 0.36); }
     }
     bt.add(lampMat, box(0.24, 0.34, 0.24), B, dw / 2 + 0.45, PL + dh + 0.1, fz + 0.28);
     bt.add(M.iron, box(0.05, 0.05, 0.3), B, dw / 2 + 0.45, PL + dh + 0.3, fz + 0.14);
@@ -1789,10 +1790,10 @@ function buildCityBuildings(field, root) {
       fl.position.set(px + 0.82, py + 3.4, depth / 2 - 0.4); fl.applyMatrix4(B); fl.userData.flag = true; root.add(fl); W3.spinners.push(fl);
     }
     if (T.portico) {
-      for (let k = 0; k < 4; k++) bt.add(M.trim, cyl(0.22, 0.26, dh + 1.4, 10), B, -bw * 0.36 + k * bw * 0.24, PL + (dh + 1.4) / 2, fz + 1.3);
+      for (let k = 0; k < 4; k++) bt.add(M.trim, cyl(0.22, 0.26, dh + 1.4, 10), B, -bw * 0.36 + k * bw * 0.24, PL + (dh + 1.4) / 2, fz + 1.15);
       bt.add(M.trim, box(bw * 0.92, 0.35, 1.7), B, 0, PL + dh + 1.55, fz + 0.9);
       bt.add(M.trim, roofGeo(bw * 0.86, 1.1, 0.9), B, 0, PL + dh + 1.72, fz + 0.9);
-      { const pg = Math.min(gAt(-bw * 0.47, fz + 2), gAt(bw * 0.47, fz + 2), gAt(0, fz + 2), gAt(-bw * 0.47, fz + 0.2), gAt(bw * 0.47, fz + 0.2)), th = Math.max(0.25, PL - pg + 0.3); bt.add(M.stone, box(bw * 0.95, th, 2.0), B, 0, PL - th / 2, fz + 1.0); }
+      { const pg = Math.min(gAt(-bw * 0.47, fz + 1.45), gAt(bw * 0.47, fz + 1.45), gAt(0, fz + 1.45), gAt(-bw * 0.47, fz + 0.2), gAt(bw * 0.47, fz + 0.2)), th = Math.max(0.25, PL - pg + 0.3); bt.add(M.stone, box(bw * 0.95, th, 1.45), B, 0, PL - th / 2, fz + 0.72); }
     }
     if (T.forge) {
       bt.add(M.stone, box(1.4, 4.2, 1.4), B, -bw * 0.32, topY + 1.4, 0);

@@ -702,7 +702,13 @@ function initViewB() {
   c.addEventListener("pointercancel", onPointerUp);
   c.addEventListener("contextmenu", e => e.preventDefault());
   c.addEventListener("wheel", e => { e.preventDefault(); VIEW.dist = clamp(VIEW.dist * (e.deltaY > 0 ? 1.1 : 0.9), 2.5, 16); }, { passive: false });
-  window.addEventListener("keydown", e => { if (e.key.toLowerCase() === "v" && !S.modal && !S.dialog) VIEW.first = !VIEW.first; });
+  window.addEventListener("keydown", e => {
+    const tg = e.target && e.target.tagName;
+    if (tg === "INPUT" || tg === "TEXTAREA" || UI.chatTyping) return;
+    const k = e.key.toLowerCase();
+    if ((k === "v" || k === "\\" || e.code === "Backslash") && !S.modal && !S.dialog) { VIEW.first = !VIEW.first; e.preventDefault(); }
+    else if ((k === "=" || k === "+" || e.code === "Equal" || e.code === "NumpadAdd") && typeof toggleFullscreen === "function") { toggleFullscreen(); e.preventDefault(); }
+  });
 }
 function initView() {
   initViewA();

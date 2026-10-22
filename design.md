@@ -2923,3 +2923,7 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - Vendor shops: before adding each vendor shop, generated houses without sign/shop/fixed/home that overlap it (+12) are removed, and NPC `home` indexes are remapped by object reference.
 - Rare forms: rig `mobVariant` = hash % 100: <3 albino (2), <9 dark (1), else normal. Albino non-human col lerps 78% to 0xf4f0ea and col2 to pinkish; human top and skin lerp to near white; dark shades ×0.62/0.7. game `formBoost(m)` = 1/1.6/2.5: loot chance × boost (cap 0.95), a chance at an extra `gearDrop` of (boost − 1)·0.4, scroll chance × boost, crystals × (1 + (boost − 1)·0.6), and a log line. `BEAST_VARIANT_NAMES.v2` = "albino".
 - Bestiary: a form is listed only when its kills > 0 ("New bestiary entry" is logged on its first kill). Families with kills but no killed forms (migrated saves) show a single base entry.
+
+## 19.46.1 Quick keys, shallower portico
+- view3d keydown (skipped in inputs or while chat is typing): V or Backslash toggles `VIEW.first`; = / + / NumpadAdd calls `toggleFullscreen()`.
+- Portico: slab depth 1.45 m (centre fz+0.72), columns at fz+1.15, and the door steps start at fz+1.45 using the ground sampled there. Portico steps are 0.7·bw wide and 0.42 deep at 0.36 spacing.
