@@ -11,7 +11,7 @@ const mockLogin = require('/home/claude/untitled-solo-mmo/test/mocklogin');
     const sheet = document.createElement('canvas'); sheet.width = cols * T; sheet.height = Math.ceil(N / cols) * T; const g2 = sheet.getContext('2d');
     const studio = new THREE.Scene(); studio.background = new THREE.Color(0x8a96a8);
     studio.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6)); const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 6, 4); studio.add(sun);
-    studio.add(new THREE.GridHelper(40, 80, 0x333333, 0x556655));
+    { const fl = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshBasicMaterial({ color: 0x5a6a5a })); fl.rotation.x = -Math.PI / 2; studio.add(fl); }
     const cam = new THREE.PerspectiveCamera(30, 1, 0.05, 100);
     const R = W3.renderer, rt = new THREE.WebGLRenderTarget(T, T, { samples: 4 }), buf = new Uint8Array(T * T * 4), img = g2.createImageData(T, T);
     const e = { kind: 'remote', remote: true, id: 'gsx', name: 'G', job: (ENV.JOB||'warrior'), lv: 10, look: Object.assign({}, save.look, { race: race || 'human', build: 0 }, ENV.LOOK ? JSON.parse(ENV.LOOK) : {}), gear: { main: wpn }, x: 0, y: 0, face: 0, radius: 14, buffs: {}, alive: true, lastSwing: -9, lastHit: -9, lastWS: -9, hp: 1, maxHp: 1, tp: 0, recasts: {}, engaged: !ENV.IDLE, state: ENV.IDLE?'idle':'combat' };

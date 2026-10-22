@@ -358,6 +358,73 @@ function kfMaker(ak, a, b, c0, c1) {
   return (S0, W0, K0) => { const q = S0 + (W0 - S0) * t1 + (K0 - W0) * t2; return q + (S0 - q) * t3; };
 }
 
+function swingKeys(ak, tw, ts, tf) {
+  const w = ease(ak / tw), x = (ak - tw) / (ts - tw), st = x <= 0 ? 0 : x >= 1 ? 1 : x * x * (2.2 - 1.2 * x), f = ease((ak - ts) / (tf - ts)), r = ease((ak - tf) / (1 - tf));
+  return (S0, W0, K0, F0) => { let q = S0 + (W0 - S0) * w; q += (K0 - W0) * st; q += (F0 - K0) * f; return q + (S0 - q) * r; };
+}
+const SWING_KEYS = [
+  { upArmR: [[-1.2, 0, -0.1], [-2.45, 0, -0.55], [-0.85, 0, 0.75], [-0.55, 0, 1.0]], foreArmR: [[-0.4, 0, 0], [-1.7, 0, 0], [-0.2, 0, 0], [-0.3, 0, 0]], handR: [[1.45, 0, 0], [0.15, 0, 0.2], [1.25, 0, -0.2], [1.55, 0, -0.3]],
+    chest: [[0, 0, 0], [-0.05, -0.65, 0.08], [0.12, 0.7, -0.06], [0.18, 0.95, -0.08]], spine: [[0.06, 0, 0], [-0.1, -0.15, 0], [0.24, 0.2, 0], [0.32, 0.28, 0]], hips: [[0, 0, 0], [0, -0.28, 0], [0, 0.32, 0], [0, 0.4, 0]],
+    upArmL: [[-0.5, 0, 0.05], [-0.95, 0, 0.35], [-0.35, 0, -0.1], [-0.25, 0, -0.2]], foreArmL: [[-0.6, 0, 0], [-1.1, 0, 0], [-0.4, 0, 0], [-0.3, 0, 0]], neck: [[0, 0, 0], [0, 0.25, 0], [0.05, -0.3, 0], [0.08, -0.4, 0]] },
+  { upArmR: [[-1.2, 0, -0.1], [-1.35, 0, 0.95], [-1.45, 0, -0.75], [-1.3, 0, -1.15]], foreArmR: [[-0.4, 0, 0], [-1.45, 0, 0], [-0.15, 0, 0], [-0.25, 0, 0]], handR: [[1.45, 0, 0], [0.7, 0, 0.6], [1.5, 0, -0.1], [1.4, 0, -0.35]],
+    chest: [[0, 0, 0], [0, 0.85, 0], [0.04, -0.75, 0], [0.06, -1.0, 0]], spine: [[0.06, 0, 0], [0.04, 0.2, 0], [0.12, -0.2, 0], [0.16, -0.28, 0]], hips: [[0, 0, 0], [0, 0.32, 0], [0, -0.32, 0], [0, -0.42, 0]],
+    upArmL: [[-0.5, 0, 0.05], [-0.3, 0, -0.15], [-0.9, 0, 0.45], [-1.0, 0, 0.55]], foreArmL: [[-0.6, 0, 0], [-0.4, 0, 0], [-1.0, 0, 0], [-1.1, 0, 0]], neck: [[0, 0, 0], [0, -0.3, 0], [0, 0.3, 0], [0, 0.4, 0]] },
+  { upArmR: [[-1.2, 0, -0.1], [-2.95, 0, -0.15], [-0.85, 0, 0.05], [-0.6, 0, 0.1]], foreArmR: [[-0.4, 0, 0], [-1.95, 0, 0], [-0.08, 0, 0], [-0.15, 0, 0]], handR: [[1.45, 0, 0], [-0.1, 0, 0], [1.3, 0, 0], [1.7, 0, 0]],
+    chest: [[0, 0, 0], [-0.18, -0.15, 0], [0.22, 0.05, 0], [0.3, 0.08, 0]], spine: [[0.06, 0, 0], [-0.2, 0, 0], [0.32, 0, 0], [0.4, 0, 0]], hips: [[0, 0, 0], [0, -0.08, 0], [0, 0.1, 0], [0, 0.12, 0]],
+    upArmL: [[-0.5, 0, 0.05], [-2.2, 0, -0.1], [-0.6, 0, 0.1], [-0.4, 0, 0.15]], foreArmL: [[-0.6, 0, 0], [-1.6, 0, 0], [-0.3, 0, 0], [-0.25, 0, 0]], neck: [[0, 0, 0], [-0.15, 0, 0], [0.12, 0, 0], [0.15, 0, 0]] }
+];
+const SWING_TWO = [
+  { upArmL: [[-1.0, 0, 0.3], [-2.3, 0, -0.35], [-0.95, 0, 0.85], [-0.7, 0, 1.05]], foreArmL: [[-0.9, 0, 0], [-1.6, 0, 0], [-0.5, 0, 0], [-0.5, 0, 0]] },
+  { upArmL: [[-1.0, 0, 0.3], [-1.3, 0, 1.15], [-1.45, 0, -0.45], [-1.35, 0, -0.8]], foreArmL: [[-0.9, 0, 0], [-1.3, 0, 0], [-0.55, 0, 0], [-0.5, 0, 0]] },
+  { upArmL: [[-1.0, 0, 0.3], [-2.9, 0, 0.2], [-0.8, 0, 0.35], [-0.55, 0, 0.35]], foreArmL: [[-0.9, 0, 0], [-1.9, 0, 0], [-0.35, 0, 0], [-0.35, 0, 0]] }
+];
+
+const BLADE_KEYS = [
+  [[-0.45, 0.45, -0.75], [0.3, 0.12, 0.95], [0.8, -0.4, 0.45]],
+  [[0.65, 0.5, -0.55], [-0.45, 0.08, 0.9], [-0.92, -0.05, 0.38]],
+  [[0, -0.35, -0.95], [0, 0.08, 1], [0, -0.6, 0.8]]
+];
+const BAQ = { a: null, b: null, c: null, d: null, v: null, x: null };
+function bladeAim(v, e, an) {
+  const w = v.weapon, h = v.bones.handR;
+  if (!w || !h || !v.weaponDrawn || w.parent !== h) return;
+  const kind = attackKind(v, e);
+  if (kind !== "slash" && kind !== "smash" && kind !== "cleave") return;
+  if (!BAQ.a) { BAQ.a = new THREE.Quaternion(); BAQ.b = new THREE.Quaternion(); BAQ.c = new THREE.Quaternion(); BAQ.d = new THREE.Quaternion(); BAQ.v = new THREE.Vector3(); BAQ.x = new THREE.Vector3(); }
+  const ak = (S.time - an.aStart) / 0.5;
+  if (ak < 0 || ak > 1) {
+    const free = !v.wTr && !v.wEase && S.time - an.wsStart > 1.1 && !e.casting && e.alive !== false;
+    an.rdyW = (an.rdyW || 0) + ((free ? 0.9 : 0) - (an.rdyW || 0)) * 0.2;
+    if (an.rdyW < 0.02) return;
+    const R = kind === "cleave" ? [0.1, 0.8, 0.55] : [-0.12, 0.62, 0.78];
+    v.group.getWorldQuaternion(BAQ.a);
+    const d = BAQ.v.set(R[0], R[1], R[2]).normalize().applyQuaternion(BAQ.a);
+    h.updateWorldMatrix(true, false);
+    h.getWorldQuaternion(BAQ.b);
+    const cur = BAQ.x.set(0, 1, 0).applyQuaternion(w.quaternion).applyQuaternion(BAQ.b).normalize();
+    BAQ.c.setFromUnitVectors(cur, d).multiply(BAQ.b);
+    BAQ.b.slerp(BAQ.c, an.rdyW);
+    h.parent.getWorldQuaternion(BAQ.d);
+    h.quaternion.copy(BAQ.d.invert().multiply(BAQ.b));
+    return;
+  }
+  const T = kind === "cleave" ? [0.36, 0.5, 0.64] : [0.3, 0.43, 0.57], k4 = swingKeys(ak, T[0], T[1], T[2]);
+  const V = an.aVar === 2 ? 2 : an.aVar === 1 ? 1 : 0, D = BLADE_KEYS[V];
+  v.group.getWorldQuaternion(BAQ.a);
+  h.updateWorldMatrix(true, false);
+  h.getWorldQuaternion(BAQ.b);
+  const cur = BAQ.x.set(0, 1, 0).applyQuaternion(w.quaternion).applyQuaternion(BAQ.b).normalize();
+  if (an.bSat !== an.aStart) { an.bSat = an.aStart; const q = BAQ.a.clone().invert(), c = cur.clone().applyQuaternion(q); an.bS = [c.x, c.y, c.z]; }
+  const B = an.bS, aw = Math.min(1, ak / 0.06, (1 - ak) / 0.06);
+  if (aw < 0.01) return;
+  const d = BAQ.v.set(k4(B[0], D[0][0], D[1][0], D[2][0]), k4(B[1], D[0][1], D[1][1], D[2][1]), k4(B[2], D[0][2], D[1][2], D[2][2])).normalize();
+  d.applyQuaternion(BAQ.a);
+  BAQ.c.setFromUnitVectors(cur, d).multiply(BAQ.b);
+  BAQ.b.slerp(BAQ.c, aw);
+  h.parent.getWorldQuaternion(BAQ.d);
+  h.quaternion.copy(BAQ.d.invert().multiply(BAQ.b));
+}
+
 function attackKind(v, e) {
   const w = v.weaponKind;
   if (v.style && v.style.claws) return "claw";
@@ -627,49 +694,17 @@ function poseHuman(v, e, dt) {
     const kind = attackKind(v, e);
     const w = Math.min(1, ak / 0.08, (1 - ak) / 0.3);
     const side = an.aVar ? 1 : -1;
-    if (kind === "slash" && an.aVar === 2) {
-      const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.2);
-      setP(P, "upArmR", -0.95 * a - 0.5 * b, 0, -0.15, w);
-      setP(P, "foreArmR", -1.4 * a + 1.3 * b, 0, 0, w);
-      setP(P, "chest", 0.05 * b, -0.25 * a + 0.3 * b, 0, w);
-      setP(P, "spine", 0.18 * b, 0, 0, w);
-      setP(P, "handR", 1.45, 0, 0, w);
-      addP(P, "thighL", -0.3 * b * w, 0, 0); addP(P, "shinL", 0.3 * b * w, 0, 0);
-      v.rootOff[2] += 0.16 * b * w;
-    } else if (kind === "slash" && an.aVar === 1) {
-      const a = ease(ak / 0.28), b = ease((ak - 0.28) / 0.2);
-      setP(P, "upArmR", -1.4, 0, 0.3 * a - 0.9 * b, w);
-      setP(P, "foreArmR", -0.4, 0, 0, w);
-      setP(P, "chest", 0, 0.75 * a - 1.05 * b, 0, w);
-      setP(P, "hips", 0, 0.2 * a - 0.3 * b, 0, w);
-      setP(P, "handR", 1.45, 0, 0, w);
-    } else if (kind === "slash") {
-      const a = ease(ak / 0.32), b = ease((ak - 0.32) / 0.22);
-      setP(P, "upArmR", -1.4, 0, -0.5 * a + 0.9 * b, w);
-      setP(P, "foreArmR", -0.4, 0, 0, w);
-      setP(P, "chest", 0.04, -0.75 * a + 1.1 * b, 0, w);
-      setP(P, "hips", 0, -0.2 * a + 0.3 * b, 0, w);
-      setP(P, "spine", 0.06 + 0.1 * b, 0, 0, w);
-      setP(P, "handR", 1.45, 0, 0, w);
-    } else if ((kind === "smash" || kind === "cleave") && an.aVar === 1) {
-      const a = ease(ak / 0.34), b = ease((ak - 0.34) / 0.22);
-      setP(P, "upArmR", -1.4, 0, 0.3 * a - 1.0 * b, w);
-      setP(P, "foreArmR", -0.4, 0, 0, w);
-      if (kind === "cleave") { setP(P, "upArmL", -1.4, 0, 0.35 * a - 1.0 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
-      setP(P, "chest", 0, 0.7 * a - 1.2 * b, 0, w);
-      setP(P, "hips", 0, 0.3 * a - 0.4 * b, 0, w);
-      setP(P, "handR", 1.45, 0, 0, w);
-      addP(P, "thighL", -0.25 * w, 0, 0); addP(P, "shinL", 0.35 * w, 0, 0);
-    } else if (kind === "smash" || kind === "cleave") {
-      const a = ease(ak / 0.36), b = ease((ak - 0.36) / 0.2);
-      setP(P, "upArmR", -1.4, 0, -0.6 * a + 0.95 * b, w);
-      setP(P, "foreArmR", -0.4, 0, 0, w);
-      if (kind === "cleave") { setP(P, "upArmL", -1.4, 0, -0.5 * a + 0.8 * b, w); setP(P, "foreArmL", -0.5, 0, 0, w); }
-      setP(P, "spine", 0.08 * a + 0.1 * b, 0, 0, w);
-      setP(P, "chest", 0, -0.6 * a + 1.1 * b, 0, w);
-      setP(P, "hips", 0, -0.25 * a + 0.35 * b, 0, w);
-      setP(P, "handR", 1.45, 0, 0, w);
-      v.rootOff[2] += 0.08 * b * w;
+    if (kind === "slash" || kind === "smash" || kind === "cleave") {
+      const two = kind === "cleave", hv = kind === "slash" ? 0 : two ? 1 : 0.5;
+      const T = two ? [0.36, 0.5, 0.64] : [0.3, 0.43, 0.57], k4 = swingKeys(ak, T[0], T[1], T[2]), sw3 = Math.min(1, ak / 0.05, (1 - ak) / 0.12);
+      const V = an.aVar === 2 ? 2 : an.aVar === 1 ? 1 : 0, Y = SWING_KEYS[V];
+      for (const bn in Y) setP(P, bn, k4(Y[bn][0][0], Y[bn][1][0], Y[bn][2][0], Y[bn][3][0]), k4(Y[bn][0][1], Y[bn][1][1], Y[bn][2][1], Y[bn][3][1]), k4(Y[bn][0][2], Y[bn][1][2], Y[bn][2][2], Y[bn][3][2]), sw3);
+      if (two) { const L = SWING_TWO[V]; for (const bn in L) setP(P, bn, k4(L[bn][0][0], L[bn][1][0], L[bn][2][0], L[bn][3][0]), k4(L[bn][0][1], L[bn][1][1], L[bn][2][1], L[bn][3][1]), k4(L[bn][0][2], L[bn][1][2], L[bn][2][2], L[bn][3][2]), sw3); }
+      const lunge = ease((ak - T[0]) / (T[1] - T[0])) * (1 - ease((ak - T[2]) / (1 - T[2]))), back = ease(ak / T[0]) * (1 - ease((ak - T[0]) / (T[1] - T[0])));
+      addP(P, "thighL", -(0.34 + 0.12 * hv) * lunge * sw3, 0, 0); addP(P, "shinL", (0.4 + 0.15 * hv) * lunge * sw3, 0, 0);
+      addP(P, "thighR", 0.12 * lunge * sw3 - 0.1 * back * sw3, 0, 0); addP(P, "shinR", 0.18 * back * sw3, 0, 0);
+      v.rootOff[2] += ((0.15 + 0.06 * hv) * lunge - 0.05 * back) * sw3;
+      v.rootOff[1] += (-0.045 * lunge + 0.015 * back * (V === 2 ? 1 : 0)) * sw3;
     } else if (kind === "thrust" && an.aVar !== 1) {
       const a = ease(ak / 0.3), b = ease((ak - 0.3) / 0.18);
       setP(P, "upArmR", -0.4 * a - 1.0 * b, 0, 0, w);
@@ -1011,6 +1046,7 @@ function poseHuman(v, e, dt) {
     setP(P, "thumbR", 0.3 * cR, 0, 0.4 * cR, 1); setP(P, "thumbL", 0.3 * cL, 0, -0.4 * cL, 1);
   }
   applyPose(v, dt, sharp);
+  bladeAim(v, e, an);
   let w = clamp((an.spd - 0.15) / 0.45, 0, 1);
   if (an.stepping) w = 1;
   if (e.mounted || e.resting || e.alive === false || (an.sit || 0) > 0.05 || (typeof jumpPhase === "function" && jumpPhase(e)) || S.time - an.wsStart < 0.9) w = 0;

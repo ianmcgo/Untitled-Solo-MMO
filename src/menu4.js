@@ -1787,6 +1787,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.31.0", date: "2026-10-22", title: "Real swings", items: [
+    "<b>Blades point the right way.</b> A drawn sword, axe or club is now held point-forward and up in your guard, while walking, running and between swings. No more blades trailing backwards or hanging point-down.",
+    "<b>New sword, club and two-handed swings.</b> Every swing now has a wind-up, a fast strike, a follow-through and a recovery: a diagonal cut from over the right shoulder, a backhand sweep from the left, and an overhead chop. The blade travels in an arc, the hips and chest turn into the blow, the front foot steps in, and the weapon settles back to guard.",
+    "Monsters and companions with swords, clubs and big two-handers swing the same way."
+  ] },
   { v: "19.30.0", date: "2026-10-22", title: "Softer meadows", items: [
     "<b>Grass that belongs to the ground.</b> Grass tufts now take their colour from the ground they grow in: dark and earthy at the roots, lighter at the tips, so meadows read as one surface instead of loose clumps.",
     "<b>No grass popping.</b> Distant grass sinks gently into the ground instead of vanishing all at once.",
@@ -3913,6 +3918,7 @@ function tabHelp() {
     "Hotkeys: plain 1–0 use the line shown on the pinned bar (Main by default), Shift+1–0 the Shift line, Alt+1–0 the Alt line and Tab held + 1–0 the Tab line (Tab targets the nearest person, monster or object first). There is no Ctrl line, because browsers keep Ctrl+number for switching tabs. Tab targets when you release it; set them in Hotkeys · Esc closes the command menu; with nothing open it opens the main menu (- or Insert too) · C character · I inventory · K skills · B hotkeys · P party · J quests · Y bestiary · O achievements · M map · H help."
   ]));
   h += sec("⚔️ Combat", ul([
+    "Melee attacks cycle through three swings (with swords, clubs and two-handed weapons: a diagonal cut, a backhand sweep and an overhead chop). They're only for show; damage is worked out when the swing starts.",
     "<b>Targeting:</b> when you target a monster a command box opens under the target frame: Attack, Magic (spells you can cast on it), Abilities (job abilities and weapon skills) and Inspect. Names over monsters and townsfolk only appear when targeted. Esc or ✕ closes the box.",
     "<b>Inspect</b> (or /check) tells you how tough a monster looks and whether it is hostile. Monster levels are never shown, so learn by inspecting.",
     "Auto-attack swings on your weapon's delay. Each hit builds <b>TP</b>; at 1000 TP you can use a weapon skill (more TP makes it stronger).",

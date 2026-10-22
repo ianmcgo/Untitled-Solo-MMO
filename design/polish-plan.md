@@ -8,7 +8,7 @@ Goal: closer to the look and feel of the classic MMO the game is modelled on (lo
 | 2 | 19.28.0 | Water: no floating sheets, irregular pond shapes, real shorelines | Done |
 | 3 | 19.29.0 | Shooting stars at night, birds by day | Done |
 | 4 | 19.30.0 | Grass blends with ground; richer painted terrain | Done |
-| 5 | 19.31.0 | Weapon grips (blades forward) and keyed swings | |
+| 5 | 19.31.0 | Weapon grips (blades forward) and keyed swings | Done |
 | 6 | 19.32.0 | Bodies: continuous limbs, more segments, proportions | |
 | 7 | 19.33.0 | Gear layers and monster detail | |
 | 8 | 19.34.0 | Towns and scenery detail | |
