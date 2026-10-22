@@ -420,8 +420,8 @@ function buildProps(field, root) {
   for (const wt of z.water || []) { const n = Math.round(Math.min(160, wt.r * 0.9) * K * (marsh ? 1.6 : 1)); for (let k = 0; k < n; k++) { const a = rnd() * 6.28, r = wt.r * pondLobe(wt, a) + (rnd() - 0.35) * 26, px = wt.x + Math.cos(a) * r, py = wt.y + Math.sin(a) * r; if (field.pathWeight(px, py) > 0.1 || !onTerrain(field, px, py)) continue; const s = 0.8 + rnd() * 0.7; reeds.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.8 + rnd() * 0.5), s, rnd() * 6.28)); } }
   if (marsh && th === "field") scatter(Math.round(200 * K), (px, py) => inPlay(px, py, -300, 60) && field.shoreWeight(px, py) < 0.2 && placeable(field, px, py, { water: 5, npc: 40, path: 0.1 }) && NOISE.value(px * 0.006, py * 0.006, 0, 613) > 0.55, (px, py) => { const s = 0.7 + rnd() * 0.6; reeds.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s, s, rnd() * 6.28)); });
   if (!desert && !volcanic && th === "field") scatter(Math.round(70 * K), (px, py) => inPlay(px, py, -280, 80) && placeable(field, px, py, { water: 20, npc: 40, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 1.0; shrooms.push(mtx(px * U, field.heightAt(px, py) - 0.02, py * U, s, s, s, rnd() * 6.28)); });
-  if (th === "field") scatter(Math.round((desert || volcanic || snowy ? 30 : 14) * K), (px, py) => inPlay(px, py, -260, 100) && placeable(field, px, py, { water: 30, npc: 60, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 0.8; stumps.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.7 + rnd() * 0.6), s, rnd() * 6.28)); });
-  if (desert) scatter(Math.round(18 * K), (px, py) => inPlay(px, py, -300, 60) && placeable(field, px, py, { water: 30, npc: 60, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 1.6; skulls.push(mtx(px * U, field.heightAt(px, py) - 0.08 * s, py * U, s, s, s, rnd() * 6.28, (rnd() - 0.5) * 0.4)); });
+  if (th === "field") scatter(Math.round((desert || volcanic || snowy ? 30 : 14) * K), (px, py) => inPlay(px, py, -260, 100) && placeable(field, px, py, { water: 30, npc: 60, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 0.8; stumps.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.7 + rnd() * 0.6), s, rnd() * 6.28)); z.colliders && z.colliders.push({ x: px, y: py, r: 0.42 * s / U }); });
+  if (desert) scatter(Math.round(18 * K), (px, py) => inPlay(px, py, -300, 60) && placeable(field, px, py, { water: 30, npc: 60, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 1.6; skulls.push(mtx(px * U, field.heightAt(px, py) - 0.08 * s, py * U, s, s, s, rnd() * 6.28, (rnd() - 0.5) * 0.4)); z.colliders && z.colliders.push({ x: px, y: py, r: 0.35 * s / U }); });
   if (th === "field" && (z.paths || []).length) {
     const P = z.paths[Math.floor(rnd() * z.paths.length)];
     for (let tries = 0, made = 0; tries < 30 && made < 2; tries++) {
@@ -445,6 +445,7 @@ function buildProps(field, root) {
         if (!placeable(field, mx, my, { water: 30, npc: 60, path: 0.05, exit: 160 }) || field.outsideE(mx, my) > -40) break;
         const y0 = field.heightAt(px, py), y1 = field.heightAt(nx, ny);
         fences.push(mtx(mx * U, (y0 + y1) / 2 - 0.05, my * U, 1, 1, 1, -a, 0, Math.atan2(y1 - y0, 49 * U) * 0.9 * (k % 2 ? 1 : 1)));
+        if (z.colliders) for (let t = 0; t <= 6; t++) z.colliders.push({ x: px + (nx - px) * t / 6, y: py + (ny - py) * t / 6, r: 4, fence: 1 });
         px = nx; py = ny; a += (rnd() - 0.5) * 0.5;
         if (rnd() < 0.15) k++;
       }
@@ -739,6 +740,7 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 10, npc: 40, path: 0.5 })) continue;
     const s = 0.15 + rnd() * 0.35;
     smallRocks.push(mtx(px * U, footY(field, px, py, s * 0.8) - s * 0.2, py * U, s, s * 0.6, s, rnd() * 6.28));
+    if (s >= 0.28) z.colliders.push({ x: px, y: py, r: s * 0.8 / U });
     k++;
   }
   for (let k = 0, tries = 0; k < want.stal && tries < want.stal * 30; tries++) {
@@ -2608,8 +2610,8 @@ function initRenderer() {
   W3.sunDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: sunTex(), color: 0xfff4d8, transparent: true, depthWrite: false, fog: false }));
   W3.sunDisc.scale.setScalar(48);
   W3.scene.add(W3.sunDisc);
-  W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(0.5), transparent: true, depthWrite: false, fog: false }));
-  W3.moonDisc.scale.setScalar(50);
+  W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(moonPhaseNow()), transparent: true, depthWrite: false, fog: false }));
+  W3.moonDisc.scale.setScalar(66);
   W3.scene.add(W3.moonDisc);
   const hz = new THREE.CylinderGeometry(1150, 1150, 400, 48, 1, true);
   W3.haze = new THREE.Mesh(hz, new THREE.MeshBasicMaterial({ map: hazeTex(), transparent: true, depthWrite: false, fog: false, side: THREE.BackSide }));
@@ -2898,18 +2900,33 @@ function sunTex() {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
+function moonPhaseNow() {
+  const t = (Date.now() + (S.timeShift || 0) - VANA_EPOCH) * 25 / 60000 / 1440;
+  return ((t % 30) + 30) % 30 / 30;
+}
 function moonTex(phase) {
-  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const c = document.createElement("canvas"); c.width = c.height = 128;
   const g = c.getContext("2d");
-  g.fillStyle = "#e8eeff"; g.beginPath(); g.arc(32, 32, 28, 0, Math.PI * 2); g.fill();
-  g.fillStyle = "rgba(170,180,210,.35)";
-  for (const [x, y, r] of [[22, 24, 6], [38, 40, 8], [40, 20, 4], [26, 42, 3]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+  const rg = g.createRadialGradient(54, 52, 8, 64, 64, 58);
+  rg.addColorStop(0, "#fbfcff"); rg.addColorStop(0.75, "#e2e8fa"); rg.addColorStop(1, "#c4cce4");
+  g.fillStyle = rg; g.beginPath(); g.arc(64, 64, 56, 0, Math.PI * 2); g.fill();
+  g.fillStyle = "rgba(160,170,205,.28)";
+  for (const [x, y, r] of [[30, 40, 9], [94, 34, 7], [98, 88, 10], [36, 96, 6], [64, 22, 5]]) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+  g.fillStyle = "rgba(255,170,190,.22)";
+  for (const x of [40, 88]) { g.beginPath(); g.ellipse(x, 74, 10, 6, 0, 0, Math.PI * 2); g.fill(); }
+  g.strokeStyle = "rgba(70,78,120,.75)"; g.lineCap = "round"; g.lineWidth = 3.4;
+  for (const x of [48, 80]) { g.beginPath(); g.arc(x, 58, 7, Math.PI * 1.1, Math.PI * 1.9); g.stroke(); }
+  g.lineWidth = 2.4; g.strokeStyle = "rgba(90,96,140,.55)";
+  for (const x of [46, 82]) { g.beginPath(); g.moveTo(x - 7, 45 - (x < 64 ? 1 : 3)); g.lineTo(x + 7, 45 - (x < 64 ? 3 : 1)); g.stroke(); }
+  g.beginPath(); g.moveTo(64, 60); g.quadraticCurveTo(60, 70, 65, 72); g.stroke();
+  g.lineWidth = 3; g.strokeStyle = "rgba(70,78,120,.7)";
+  g.beginPath(); g.arc(64, 78, 11, Math.PI * 0.2, Math.PI * 0.8); g.stroke();
   const k = Math.cos(phase * Math.PI * 2);
   g.globalCompositeOperation = "destination-out";
-  g.fillStyle = "rgba(0,0,0,.92)";
+  g.fillStyle = "rgba(0,0,0,.9)";
   g.beginPath();
-  if (phase < 0.5) { g.arc(32, 32, 29, Math.PI / 2, -Math.PI / 2, false); g.ellipse(32, 32, Math.abs(k) * 29, 29, 0, -Math.PI / 2, Math.PI / 2, k < 0); }
-  else { g.arc(32, 32, 29, -Math.PI / 2, Math.PI / 2, false); g.ellipse(32, 32, Math.abs(k) * 29, 29, 0, Math.PI / 2, -Math.PI / 2, k < 0); }
+  if (phase < 0.5) { g.arc(64, 64, 58, Math.PI / 2, -Math.PI / 2, false); g.ellipse(64, 64, Math.abs(k) * 58, 58, 0, -Math.PI / 2, Math.PI / 2, k < 0); }
+  else { g.arc(64, 64, 58, -Math.PI / 2, Math.PI / 2, false); g.ellipse(64, 64, Math.abs(k) * 58, 58, 0, Math.PI / 2, -Math.PI / 2, k < 0); }
   g.fill();
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -3125,8 +3142,8 @@ function updateSky(force) {
   if (W3.sunGlow) { W3.sunGlow.position.copy(W3.camera.position).addScaledVector(dir, 900); W3.sunGlow.material.opacity = sstep(-0.08, 0.05, sunY) * (1 - gloom * 0.85) * 0.9; W3.sunGlow.material.color.setRGB(1, mix(0.94, 0.62, golden), mix(0.82, 0.4, golden)); W3.sunGlow.scale.setScalar(mix(200, 320, golden)); }
   if (W3.sunDisc) { W3.sunDisc.position.copy(W3.camera.position).addScaledVector(dir, 880); W3.sunDisc.material.opacity = sstep(-0.06, 0.04, sunY) * (1 - gloom * 0.9); W3.sunDisc.material.color.setRGB(1, mix(0.97, 0.62, golden), mix(0.88, 0.35, golden)); W3.sunDisc.scale.setScalar(mix(46, 64, golden)); }
   if (W3.moonDisc) {
-    const day = Math.floor((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000 / 1440), ph = ((day % 24) + 24) % 24 / 24;
-    if (W3.moonPhase !== day) { W3.moonPhase = day; W3.moonDisc.material.map.dispose(); W3.moonDisc.material.map = moonTex(ph); W3.moonDisc.material.needsUpdate = true; }
+    const ph = Math.round(moonPhaseNow() * 60) / 60;
+    if (W3.moonPhase !== ph) { W3.moonPhase = ph; W3.moonDisc.material.map.dispose(); W3.moonDisc.material.map = moonTex(ph); W3.moonDisc.material.needsUpdate = true; }
   }
   W3.fog.color.copy(fogC);
   updateBackdrop(fogC, dayAmt);

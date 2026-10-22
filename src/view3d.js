@@ -148,11 +148,12 @@ function makeCursor() {
   const mat = new THREE.MeshBasicMaterial({ color: 0xd8a070, depthTest: false, transparent: true });
   const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.1, 0), mat);
   gem.scale.set(0.75, 1.25, 0.75); gem.position.y = 0.2; gem.renderOrder = 10;
-  const tip = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.34, 4), mat);
-  tip.rotation.x = Math.PI; tip.scale.set(1, 1, 0.45); tip.position.y = -0.08; tip.renderOrder = 10;
-  const notch = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.18, 4), new THREE.MeshBasicMaterial({ color: 0x2a1a10, depthTest: false, transparent: true }));
-  notch.rotation.x = Math.PI; notch.scale.set(1, 1, 0.5); notch.position.set(0, 0.03, 0.02); notch.renderOrder = 11;
-  c.add(gem, tip, notch);
+  const sh = new THREE.Shape([new THREE.Vector2(-0.2, 0.09), new THREE.Vector2(-0.085, 0.09), new THREE.Vector2(0, -0.05), new THREE.Vector2(0.085, 0.09), new THREE.Vector2(0.2, 0.09), new THREE.Vector2(0, -0.25)]);
+  const tg = new THREE.ExtrudeGeometry(sh, { depth: 0.07, bevelEnabled: false });
+  tg.translate(0, 0, -0.035);
+  for (const ry of [0, Math.PI / 2]) { const tip = new THREE.Mesh(tg, mat); tip.rotation.y = ry; tip.renderOrder = 10; c.add(tip); }
+  c.add(gem);
+  c.scale.setScalar(0.5);
   c.material = mat;
   W3.scene.add(c);
   VIEW.cursor = c;
@@ -181,7 +182,7 @@ function updateCursor() {
     VIEW.cursor.material.color.setHex(col);
     VIEW.groundRing.material.color.setHex(isMob(t) ? (uiMobAttacking(t) ? 0xff4a3a : 0x7dff8a) : col);
     const base = groundY(t.x, t.y);
-    VIEW.cursor.position.set(t.x * U, base + entityHeight(t) + 0.55 + Math.sin(S.time * 4) * 0.08, t.y * U);
+    VIEW.cursor.position.set(t.x * U, base + entityHeight(t) + 0.38 + Math.sin(S.time * 4) * 0.05, t.y * U);
     VIEW.cursor.rotation.y += 0.04;
     const rr = Math.max(0.6, (t.radius || 14) * U * 1.4);
     VIEW.groundRing.scale.setScalar(rr);

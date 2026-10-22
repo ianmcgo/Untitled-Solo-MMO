@@ -2793,3 +2793,27 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - hud4 `isTouchUI()` (pointer: coarse). Touch: pointerdown outside #chat closes a pinned log even while typing; `openTimeBox` closes the command box; swipe on #mCmd flips its page, swipe elsewhere closes it.
 - Equipped items: equipping removes the item from the bag (`equip` → `removeItem`), so vendor, storage and auction lists (all built from `save.inventory`) cannot show worn gear. No change made; asked the user for a repro.
 - Screens: scratch Playwright env.js (zone centres of hollow, marsh, verdant, highlands at 10:00, medium) before and after.
+
+## 19.36.0 Folding menus and a real moon
+- menu4 `foldSections(html, key)`: every `<h3>` section starts folded. Open state lives in `VIEW.settings.foldOpen[id]` (id = key + ":" + heading letters); the old `VIEW.settings.fold` map is no longer read. Action `fold` toggles one id; `foldall` (`key:0` open all, `key:1` fold all) uses `foldIds(raw, key)` on the raw tab HTML.
+- Keys: `cfg` (Config, `tabSettings` = `foldBar` + folded `tabSettingsRaw`), `adm` (Admin, `tabAdmin` keeps the server line and session block before the first `<h3>` unfolded, then `foldBar` + folded rest of `tabAdminRaw`), `soc`, `pet`. `foldBar(key)` = Open all / Fold all buttons (CSS `#mBody .foldBar`).
+- A folded section's inputs are not in the DOM, so admin actions reading `#adCode`/`#adBan` only work with that section open (their buttons are hidden too).
+- Moon: world3d `moonPhaseNow()` = real synodic phase from the 2000-01-06 18:14 UTC new moon, period 29.530588853 days (0 new, 0.5 full). `updateSky` rebuilds the disc texture when the phase rounded to 1/60 changes. `moonTex(phase)` is 128 px: shaded disc, craters, closed-eye face with brows, nose, smile and blush, then the phase shadow cut with destination-out. Disc sprite scale 66 (was 50). The game-day 24-day cycle is gone.
+- Checked: Config on a 412×860 phone screen folds and opens sections; moon texture rendered at today's phase (waxing gibbous, about 0.38).
+
+## 19.36.1 Tidy buttons
+- template4: `#mBody .item > button, #mBody .item > span.sub { flex: none; white-space: nowrap; }`. Row buttons in `.item` lists (guild bounties, shops, mercs) were shrinking when the left text was long, so "Turn in" broke onto two lines. The text column now wraps instead.
+- Moon (supersedes the 19.36.0 real-moon note): `moonPhaseNow()` = fractional game day (same clock as `gameDate`, including `S.timeShift`) modulo 30, over 30. One cycle per 30-day game month (about 28.8 real hours): new on day 1, full around day 16. Texture still rebuilt per 1/60 of a phase.
+
+## 19.36.2 Foldable guild
+- `tabGuild` = rank block (before the first `<h3>`) + `foldBar("gld")` + `foldSections(rest of tabGuildRaw(), "gld")`; `foldall` maps key `gld` to `tabGuildRaw`. Sections start closed like every other fold key.
+
+## 19.36.3 Smaller target arrow (shipped in 19.37.0)
+- view3d `makeCursor`: the cone tip and dark notch cone are replaced by two crossed extrusions (0 and 90 degrees, depth 0.07) of a downward triangle with a V cut out of its top edge, so the notch is see-through from every angle while the cursor spins. Gem unchanged. Group scale 0.5. `updateCursor` height offset 0.38 (was 0.55), bob 0.05 (was 0.08).
+
+## 19.37.0 Solid ground clutter
+- world3d colliders added: stumps in `buildProps` (r = 0.42·s/U), desert skulls (0.35·s/U), fence runs (7 circles r 4 along each 49 px segment, flagged `fence: 1`), small rocks in `buildVegetation` with s >= 0.28 (r = 0.8·s/U; smaller pebbles stay walk-through). Already solid before: trees, boulders, pass rocks, outer stalagmites, logs, carts, props, sites, lamps, torches, ruins, houses.
+- game.js `colliderGrid(z)`: 64 px buckets built lazily, cached on `z._cg`, rebuilt when `z.colliders` is replaced or its length changes. `keepOutOfColliders` only checks the buckets under the entity. Measured: 20,000 checks against 20,000 colliders in about 130 ms (rules build, node).
+- Fence circles resolve one after another, so an entity hitting a post can drift a few px along the fence in one call; it never crosses (test p65unit walks straight into one).
+- Followers do not path around fence runs; they slide along them, and the existing 700 px catch-up teleport covers the rare snag.
+- Test: test/p65unit.js (fence, stump, no pass-through, grid rebuild, speed).

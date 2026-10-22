@@ -3891,17 +3891,32 @@ function closedBarrierRects(z) {
   return (z.barriers || []).filter(b => !barrierOpen(b)).map(b => ({ x: b.x, y: b.y, w: b.w, h: b.h, barrier: b }));
 }
 
+function colliderGrid(z) {
+  const cs = z.colliders, g = z._cg;
+  if (g && g.arr === cs && g.n === cs.length) return g;
+  const C = 64, m = new Map();
+  for (const c of cs) {
+    const x0 = Math.floor((c.x - c.r) / C), x1 = Math.floor((c.x + c.r) / C), y0 = Math.floor((c.y - c.r) / C), y1 = Math.floor((c.y + c.r) / C);
+    for (let gx = x0; gx <= x1; gx++) for (let gy = y0; gy <= y1; gy++) { const k = gx * 100003 + gy; let a = m.get(k); if (!a) m.set(k, a = []); a.push(c); }
+  }
+  return z._cg = { arr: cs, n: cs.length, C, m };
+}
 function keepOutOfColliders(e) {
   const cs = S.zone.colliders;
   if (!cs || !cs.length) return;
-  const er = e.radius * 0.55;
-  for (const c of cs) {
-    const m = c.r + er, dx = e.x - c.x, dy = e.y - c.y;
-    if (dx > m || dx < -m || dy > m || dy < -m) continue;
-    const d = Math.hypot(dx, dy);
-    if (d >= m) continue;
-    if (d < 0.001) { e.x = c.x + m; continue; }
-    e.x = c.x + dx / d * m; e.y = c.y + dy / d * m;
+  const er = e.radius * 0.55, g = colliderGrid(S.zone), C = g.C;
+  const x0 = Math.floor((e.x - er) / C), x1 = Math.floor((e.x + er) / C), y0 = Math.floor((e.y - er) / C), y1 = Math.floor((e.y + er) / C);
+  for (let gx = x0; gx <= x1; gx++) for (let gy = y0; gy <= y1; gy++) {
+    const list = g.m.get(gx * 100003 + gy);
+    if (!list) continue;
+    for (const c of list) {
+      const m = c.r + er, dx = e.x - c.x, dy = e.y - c.y;
+      if (dx > m || dx < -m || dy > m || dy < -m) continue;
+      const d = Math.hypot(dx, dy);
+      if (d >= m) continue;
+      if (d < 0.001) { e.x = c.x + m; continue; }
+      e.x = c.x + dx / d * m; e.y = c.y + dy / d * m;
+    }
   }
 }
 

@@ -643,7 +643,8 @@ function worldMapSVG() {
   return s;
 }
 
-function tabSettings() {
+function tabSettings() { return foldBar("cfg") + foldSections(tabSettingsRaw(), "cfg"); }
+function tabSettingsRaw() {
   let h = typeof audioSettingsHTML === "function" ? audioSettingsHTML() : "";
   if (typeof graphicsSettingsHTML === "function") h += graphicsSettingsHTML();
   const s = VIEW.settings;
@@ -945,14 +946,16 @@ function tabSocialRaw() {
   return h;
 }
 
+function foldBar(key) { return '<div class="opt foldBar"><button data-a="foldall" data-v="' + key + ':0">▾ Open all</button><button data-a="foldall" data-v="' + key + ':1">▸ Fold all</button></div>'; }
+function foldIds(html, key) { return html.split("<h3>").slice(1).map(p => key + ":" + p.slice(0, p.indexOf("</h3>")).replace(/<[^>]*>/g, "").replace(/\([^)]*\)/g, "").replace(/[^A-Za-z ]/g, "").trim()); }
 function foldSections(html, key) {
-  const parts = html.split("<h3>"), fold = VIEW.settings.fold || {};
+  const parts = html.split("<h3>"), open = VIEW.settings.foldOpen || {};
   let out = parts[0];
   for (let i = 1; i < parts.length; i++) {
     const k = parts[i].indexOf("</h3>"), title = parts[i].slice(0, k), body = parts[i].slice(k + 5);
     if (!body.trim()) continue;
     const id = key + ":" + title.replace(/<[^>]*>/g, "").replace(/\([^)]*\)/g, "").replace(/[^A-Za-z ]/g, "").trim();
-    const shut = !!fold[id];
+    const shut = !open[id];
     out += '<h3 class="fold' + (shut ? " shut" : "") + '" data-a="fold" data-v="' + esc(id) + '"><span class="fArr">' + (shut ? "▸" : "▾") + "</span>" + title + "</h3>" + (shut ? "" : '<div class="foldB">' + body + "</div>");
   }
   return out;
@@ -1423,7 +1426,8 @@ function adminLoginsHtml() {
   return h;
 }
 
-function tabAdmin() {
+function tabAdmin() { const h = tabAdminRaw(); const k = h.indexOf("<h3>"); return k < 0 ? h : h.slice(0, k) + foldBar("adm") + foldSections(h.slice(k), "adm"); }
+function tabAdminRaw() {
   if (typeof netIsAdmin !== "function" || !netIsAdmin()) return '<div class="sub">Admins only.</div>';
   if (!UI.adminStats && !UI.adminErr && !UI.adminLoading) { UI.adminLoading = true; netAdminStats().then(s => { UI.adminStats = s; UI.adminLoading = false; if (S.modal === "admin") renderModal(); }, e => { UI.adminErr = netErr(e); UI.adminLoading = false; if (S.modal === "admin") renderModal(); }); }
   const st = UI.adminStats;
@@ -1449,7 +1453,8 @@ function tabAdmin() {
   return h;
 }
 
-function tabGuild() {
+function tabGuild() { const h = tabGuildRaw(); const k = h.indexOf("<h3>"); return k < 0 ? h : h.slice(0, k) + foldBar("gld") + foldSections(h.slice(k), "gld"); }
+function tabGuildRaw() {
   const g = save.guild, rk = guildRank(), R0 = GUILD_RANKS[rk], nx = GUILD_RANKS[rk + 1];
   let h = '<div class="item"><div><b style="color:' + R0[2] + '">' + R0[0] + ' rank</b><div class="sub">' + g.total + " guild points earned" + (nx ? " · " + (nx[1] - g.total) + " more for " + nx[0] : " · highest rank") + '</div></div><span class="sub">🎖️ ' + g.gp + " to spend</span></div>";
   if (nx) h += '<div style="height:6px;background:#0004;border-radius:3px;margin:4px 0 10px"><div style="height:6px;border-radius:3px;background:' + nx[2] + ";width:" + Math.round((g.total - R0[1]) / (nx[1] - R0[1]) * 100) + '%"></div></div>';
@@ -1727,7 +1732,8 @@ function onMenuClick(e) {
   else if (a === "savefile") { downloadSave(); return; }
   else if (a === "uicolor") { VIEW.settings.uiColor = v; saveSettings(VIEW.settings); applyUiColor(); sfx("click"); renderModal(); return; }
   else if (a === "tutorial") { tutStart(); return; }
-  else if (a === "fold") { const f = VIEW.settings.fold = VIEW.settings.fold || {}; if (f[v]) delete f[v]; else f[v] = 1; saveSettings(VIEW.settings); sfx("click"); renderModal(); return; }
+  else if (a === "foldall") { const [k, shut] = v.split(":"), f = VIEW.settings.foldOpen = VIEW.settings.foldOpen || {}, raw = k === "cfg" ? tabSettingsRaw() : k === "adm" ? tabAdminRaw() : k === "soc" ? tabSocialRaw() : k === "pet" ? tabPetsRaw() : k === "gld" ? tabGuildRaw() : ""; for (const id of foldIds(raw, k)) { if (shut === "1") delete f[id]; else f[id] = 1; } saveSettings(VIEW.settings); sfx("click"); renderModal(); return; }
+  else if (a === "fold") { const f = VIEW.settings.foldOpen = VIEW.settings.foldOpen || {}; if (f[v]) delete f[v]; else f[v] = 1; saveSettings(VIEW.settings); sfx("click"); renderModal(); return; }
   else if (a === "checkupd") { checkForUpdate(true); return; }
   else if (a === "loadfile") { return; }
   else if (a === "syncnow") { saveGame(); netFlush().then(() => renderModal()); return; }
@@ -1787,6 +1793,24 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.37.0", date: "2026-10-22", title: "Solid ground clutter", items: [
+    "<b>No more walking through scenery.</b> Tree stumps, knee-high rocks, wooden fences and desert skulls are now solid, like trees, boulders and carts already were. You, your companions and monsters walk around them.",
+    "<b>Faster collision checks.</b> Solid objects are sorted into a grid, so adding all this clutter doesn't slow the game down.",
+    "<b>Smaller target arrow.</b> The spinning arrow over your target is half its old size and sits a little lower. The dark wedge at the top of the point is now a real gap you can see through."
+  ] },
+  { v: "19.36.2", date: "2026-10-22", title: "Foldable guild", items: [
+    "<b>Foldable Adventurers' Guild window.</b> Your bounties, Today's bounties, Daily supplies and Guild rewards now fold like Config. They start closed; your rank and points stay visible at the top, with Open all and Fold all buttons."
+  ] },
+  { v: "19.36.1", date: "2026-10-22", title: "Tidy buttons and a game-month moon", items: [
+    "<b>Moon follows the game calendar.</b> The moon now waxes and wanes over each 30-day game month instead of the real moon: new on the 1st, full around the 16th, shrinking again toward the 30th. Waiting in town moves it along too.",
+    "<b>Buttons stay on one line.</b> Buttons beside list rows (Turn in, Accept, Buy and the like) no longer squash onto two lines when the text next to them is long; the text wraps instead."
+  ] },
+  { v: "19.36.0", date: "2026-10-22", title: "Folding menus and a real moon", items: [
+    "<b>Foldable Config.</b> Every Config heading (Sound, Graphics, Combat, Performance, Camera, Interface colour, Interface, Online, More) now folds and unfolds when you tap it, so the window is short enough to use on a phone.",
+    "<b>Foldable Admin.</b> The Admin window's sections (session, players online, logins, server stats, bans, tools) fold the same way.",
+    "<b>Folded by default.</b> Every foldable section (Config, Admin, Social, Pets) now starts closed; open the ones you use and the game remembers them on this device. Open all and Fold all buttons sit at the top of Config and Admin.",
+    "<b>A real moon.</b> The moon's phase now follows the real moon for today's date, and the moon has a face."
+  ] },
   { v: "19.35.0", date: "2026-10-22", title: "Pipkin pace", items: [
     "<b>Pipkin take calmer steps.</b> Pipkin used to churn their short legs at about 13 steps a second when running and 7 when walking. They now walk with longer strides (about 3 steps a second) and run in springy bounds with a longer flight between steps (about 4 a second, close to the other races).",
     "<b>Polish plan complete.</b> This finishes the run of updates from 19.27.0: a cleaner objectives list, real pond banks and shapes, shooting stars and birds, grass that blends in, real sword swings, smoother bodies, richer painted gear and softer painted scenery."
@@ -4282,6 +4306,7 @@ function tabHelp() {
     "Config > Interface > <b>Load timings</b> shows the same start-up and zone-load list as <b>/perf</b> without typing.",
     "Type <b>/perf</b> in chat to list how long start-up and your last few zone loads took, step by step, plus any props floating above the ground.",
     "Config → Performance: <b>Draw distance</b> (near hides monsters beyond about 50 m, far shows them out to 130 m), <b>Auto resolution</b> (lowers the render scale when the frame rate drops, raises it when it recovers) and an <b>FPS counter</b> (or type /fps).",
+    "<b>Folding sections:</b> every heading in Config (Sound, Graphics, Combat, Performance, Camera, Interface colour, Interface, Online, More), the Adventurers' Guild window (Your bounties, Today's bounties, Daily supplies, Guild rewards) and the Admin window can be tapped to fold or unfold it. ▾ means open, ▸ means folded. Open all and Fold all at the top do every section at once. Every section starts folded; the game remembers which ones you opened, per device.",
     "Config → Graphics: Low turns off shadows, water reflections and grass and is best for older phones. Phones with little memory start on Low."
   ]));
   h += sec("👥 Other players and chat", ul([
@@ -4335,6 +4360,8 @@ function tabHelp() {
     "<b>Target cursor:</b> the small crystal arrow over your target is blue in range, yellow near the edge of range and red out of range (melee reach, or spell range while you're choosing magic). Some commands can still fail when it's yellow.",
     "<b>Name plates</b> (Config → Interface): players in white with blue edges, people in green, monsters in pale gold (red while attacking you).",
     "<b>Look and outlines:</b> The game has one look, painted in the style of early online RPGs: hand-painted ground, bark, leaves and stonework with soft shading, gentle distance haze and soft clouds; models with smooth, connected limbs and soft shading, big hands, flared cuffs and collars, thick clumped hair and hand-painted textures: woven cloth, grained and scuffed leather, brushed and dented metal, strand-lined hair, soft wool and fur. Config → Graphics has Outlines (a dark line around characters and monsters; off unless you turn it on) and Job style / Show gear. Job style dresses everyone in their job's signature outfit (new looks at levels 5, 10 and 16); Show gear draws equipped armour instead, and weapons and shields always show. If the game feels slow on a phone, set Quality to Low or Medium. Townsfolk are a mix of the five races and dress by district (clerks, merchants, smiths, sailors, travellers); night walkers carry lanterns. Monsters change colour with level (new shades at 6, 11 and 16), and notorious monsters wear crowns, horns or spikes with a glowing ring at their feet. Weapons and shields are chunky with crest-painted shields. Faces use a few flat shading tones, an ink eyelid line and darker inner ears. Changing a graphics option reloads the game.",
+    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
+    "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
     "<b>No sound?</b> Browsers only allow sound after you tap, click or press a key. If you still hear nothing, check the volume sliders in Config and your device's mute switch.",
