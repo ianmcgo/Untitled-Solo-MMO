@@ -218,9 +218,9 @@ function paintFaceFor(race, g, ox, oy, v, fem) {
   else paintFace(g, ox, oy, v, fem);
 }
 
-const PST = (x, n) => Math.floor(clamp(x, 0, 0.9999) * n) / (n - 1);
+const PST = (x, n) => { const m = n * 2 + 1; return Math.floor(clamp(x, 0, 0.9999) * m) / (m - 1); };
 const CLASSIC_PAINT = {
-  skin(u, v, o) { const n = NOISE.fbm(u * 3, v * 3, 2, 3, 11); o[0] = 0.84 + 0.05 * PST(n, 3); o[1] = 0; o[2] = 0.9; o[3] = 0; },
+  skin(u, v, o) { const n = NOISE.fbm(u * 3, v * 3, 2, 3, 11); o[0] = 0.84 + 0.05 * n + 0.012 * (NOISE.value(u * 40, v * 40, 40, 13) - 0.5); o[1] = 0; o[2] = 0.9; o[3] = 0; },
   face(u, v, o) { o[0] = 0.86; o[1] = 0; o[2] = 0.9; o[3] = 0; },
   cloth(u, v, o, X) {
     const ev = Math.min(v, 1 - v), w = NOISE.fbm(u * 3, v * 2, 2, 3, 23);
@@ -229,6 +229,7 @@ const CLASSIC_PAINT = {
     if (ev < 0.06) a = 0.66 + 0.06 * PST(f * 0.5 + 0.5, 2);
     if (ev >= 0.06 && ev < 0.072) a = 0.42;
     if (ev > 0.085 && ev < 0.095 && (X % 8) < 4.5) a = 0.5;
+    if (ev >= 0.1) a += 0.035 * Math.sin(u * Math.PI * 180) * Math.sin(v * Math.PI * 120) + 0.05 * (NOISE.value(u * 24, v * 18, 24, 25) - 0.5) - 0.06 * Math.max(0, 0.18 - ev) / 0.08;
     o[0] = a; o[1] = 0; o[2] = 0.95; o[3] = 0;
   },
   leather(u, v, o, X) {
@@ -237,12 +238,14 @@ const CLASSIC_PAINT = {
     if (ev < 0.05) a = 0.88;
     else if (ev < 0.062) a = 0.4;
     else if (ev > 0.075 && ev < 0.086 && (X % 9) < 5) a = 0.46;
+    if (ev >= 0.086) { a += 0.07 * (NOISE.value(u * 70, v * 70, 70, 33) - 0.5); if (NOISE.ridge(u * 6, v * 9, 2, 6, 35) > 0.96) a -= 0.12; }
     o[0] = a; o[1] = 0; o[2] = 0.7; o[3] = 0;
   },
   metal(u, v, o) {
     const ev = Math.min(v, 1 - v);
     const g = 0.5 + 0.5 * Math.cos((v * 1.6 - 0.45) * Math.PI * 2);
-    let a = 0.58 + 0.34 * PST(g, 4);
+    let a = 0.58 + 0.34 * PST(g, 4) + 0.06 * (NOISE.value(u * 6, v * 140, 6, 41) - 0.5);
+    if (NOISE.value(u * 18, v * 18, 18, 43) > 0.86) a -= 0.08;
     const sv = v - 0.3 - 0.02 * Math.sin(u * Math.PI * 12);
     if (Math.abs(sv) < 0.018) a = 1;
     if (Math.abs(v - 0.74) < 0.012) a = 0.46;
@@ -258,6 +261,7 @@ const CLASSIC_PAINT = {
     const sv = v - 0.3 - 0.025 * Math.sin(u * Math.PI * 22) - 0.03 * (fc - 0.5);
     if (Math.abs(sv) < 0.026 && fc > 0.1) a = 0.96;
     if (v < 0.06) a *= 0.85;
+    a += 0.06 * (NOISE.value(u * 90, v * 6, 90, 53) - 0.5);
     o[0] = a; o[1] = 0; o[2] = 0.8; o[3] = 0;
   },
   trim(u, v, o) {
@@ -268,18 +272,14 @@ const CLASSIC_PAINT = {
     o[0] = a; o[1] = 0; o[2] = 0.5; o[3] = on ? 0.65 : 0;
   },
   fur(u, v, o) {
-    const rows = 9, ry = v * rows, row = Math.floor(ry), fy = ry - row;
-    const t = (u * 13 + (row % 2) * 0.5) % 1, sh = Math.abs(t - 0.5) * 2;
-    const inT = fy > sh * 0.85;
-    let a = inT ? 0.62 + 0.3 * PST(fy, 3) : 0.7;
-    if (Math.abs(fy - sh * 0.85) < 0.06) a = 0.42;
-    o[0] = a; o[1] = 0; o[2] = 0.95; o[3] = 0;
+    const n = NOISE.fbm(u * 8, v * 8, 3, 8, 61), st = NOISE.value(u * 72, v * 12, 72, 63), cl = NOISE.value(u * 20, v * 20, 20, 65);
+    o[0] = 0.62 + 0.24 * n + 0.08 * (st - 0.5) - (cl > 0.78 ? 0.08 : 0); o[1] = 0; o[2] = 0.95; o[3] = 0;
   },
   bone(u, v, o) { const n = NOISE.fbm(u * 4, v * 4, 2, 4, 71), cr = NOISE.ridge(u * 5, v * 5, 3, 5, 73); o[0] = cr > 0.94 ? 0.42 : 0.82 + 0.1 * PST(n, 3); o[1] = 0; o[2] = 0.8; o[3] = 0; },
   scale(u, v, o) {
     const rows = 12, cols = 10, ry = v * rows, row = Math.floor(ry), off = row % 2 ? 0.5 : 0;
     const cx = u * cols + off, col = Math.floor(cx), d = Math.min(1, Math.hypot(cx - col - 0.5, (ry - row - 0.15) * 1.1) * 1.6);
-    o[0] = d > 0.82 ? 0.38 : d > 0.55 ? 0.72 : d > 0.25 ? 0.86 : 1; o[1] = 0; o[2] = 0.6; o[3] = 0.05;
+    o[0] = (d > 0.86 ? 0.55 : 0.66 + 0.28 * (1 - d) * (1 - d)) + 0.04 * (NOISE.value(u * 40, v * 40, 40, 67) - 0.5); o[1] = 0; o[2] = 0.6; o[3] = 0.05;
   },
   feather(u, v, o) {
     const ax = Math.abs(u - 0.5), b = ((ax * 2.2 + v * 1.4) * 14) % 1;

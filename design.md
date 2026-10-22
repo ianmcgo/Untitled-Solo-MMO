@@ -2680,6 +2680,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.33.0 Painted detail (polish plan phase 7)
+- rig.js `PST(x, n)` now gives 2n + 1 tones (was n), so every painter that posterises has finer steps.
+- Painters (`CLASSIC_PAINT`): skin = smooth fbm + faint 40-frequency value noise (no posterising); cloth adds a weave (sin 180u × sin 120v, ±0.035), low-frequency mottling and darker wear toward the hems (ev < 0.18); leather adds 70-frequency grain and ridge scuffs (ridge > 0.96 → −0.12); metal adds brushed streaks (value noise 6u × 140v) and dents (value > 0.86 → −0.08); hair adds 90-frequency strand noise.
+- `fur` rewritten: fbm 8 + streak noise 72×12 + darker clumps (no triangle rows or ink lines). `scale`: soft cells 0.66 + 0.28(1 − d)² with a 0.55 rim and faint noise (was 0.38/0.72/0.86/1 steps).
+- test/studio.js hemisphere light 3.2 for readable sheets.
+
 ## 19.32.0 Smoother bodies (polish plan phase 6)
 - Cause of "disconnected sausage limbs": low segment counts (segK 0.38–0.55), a black back-face outline that also traced every place one lofted part overlaps another (shoulder caps, armpits, boot tops), and 50% three-band light quantisation, which made each limb read as a separate shaded tube.
 - rig.js: `RIG.segK` high 0.8, medium 0.68, low 0.5 (was 0.55/0.45/0.38). LOD entries still use min(0.5, 0.65 × segK).
