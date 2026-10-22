@@ -6,7 +6,7 @@ const mockLogin = require('./mocklogin');
   const page = await (await browser.newContext({ viewport: { width: 1000, height: 700 } })).newPage();
   const errs = [];
   page.on('pageerror', e => errs.push('pageerror: ' + e.message));
-  await page.addInitScript(() => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: 'low' })); } catch (e) {} });
+  await page.addInitScript(QQ => { try { localStorage.setItem('ashenreach_settings_v1', JSON.stringify({ quality: QQ || 'low' })); } catch (e) {} }, process.env.QUALITY || 'low');
   await mockLogin(page, html);
   const list = JSON.parse(listArg), poses = (posesArg || 'idle,walk,swing').split(','), cols = +(colsArg || 6);
   const url = await page.evaluate(async ({ list, poses, cols, TS }) => {
@@ -17,12 +17,12 @@ const mockLogin = require('./mocklogin');
     const g2 = sheet.getContext('2d');
     g2.fillStyle = '#20242c'; g2.fillRect(0, 0, sheet.width, sheet.height);
     const studio = new THREE.Scene();
-    studio.background = new THREE.Color(0x8a96a8); studio.environment = W3.scene.environment || null;
+    studio.background = new THREE.Color(0x8a96a8); studio.environment = null;
     studio.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6));
     const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(3, 6, 4); studio.add(sun);
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshStandardMaterial({ color: 0x6a7a5a }));
     floor.rotation.x = -Math.PI / 2; studio.add(floor);
-    const grid = new THREE.GridHelper(40, 160, 0x4a5a3a, 0x5a6a4a); grid.position.y = 0.002; studio.add(grid);
+
     const cam = new THREE.PerspectiveCamera(30, 1, 0.05, 100);
     const R = W3.renderer;
     const rt = new THREE.WebGLRenderTarget(T, T, { samples: 4 });

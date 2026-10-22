@@ -2680,6 +2680,14 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.32.0 Smoother bodies (polish plan phase 6)
+- Cause of "disconnected sausage limbs": low segment counts (segK 0.38–0.55), a black back-face outline that also traced every place one lofted part overlaps another (shoulder caps, armpits, boot tops), and 50% three-band light quantisation, which made each limb read as a separate shaded tube.
+- rig.js: `RIG.segK` high 0.8, medium 0.68, low 0.5 (was 0.55/0.45/0.38). LOD entries still use min(0.5, 0.65 × segK).
+- `outlineOn()` is true only when `VIEW.settings.outline === true` (automatic used to mean on unless Low).
+- `classicCharMaterial`: band blend 0.2 (was 0.5) on the regions that use bands.
+- Body lofts (human, non-doll): shoulder cap rings 0.036/0.052/0.059 tucked 0.06/0.04/0.02 (were 0.04/0.057/0.063, 0.052/0.032/0.014); upper arm 0.061/0.055/0.053 (front 1.14); forearm 0.043/0.048 (front 1.08)/0.045; mid-thigh 0.075 (front 1.08), above knee 0.062, calf 0.056 (back 1.14) and 0.058 (back 1.26).
+- test/studio.js: QUALITY env sets the quality; no GridHelper; studio has no environment map (the scene's map over-exposed it).
+
 ## 19.31.0 Real swings (polish plan phase 5)
 Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36), strike 0.30–0.43 (0.50), follow-through 0.43–0.57 (0.64), recovery to guard. Weight goes back during wind-up (rootOff z −0.05, back knee bends) and forward on the strike (front thigh −0.34, shin +0.4, rootOff z +0.15, hips drop 4.5 cm); two-handers lunge more.
 - anim.js `swingKeys(ak, tw, ts, tf)` returns `k4(S, W, K, F)`: smoothstep wind-up, accelerating strike (x²(2.2 − 1.2x)), smoothstep follow-through, smoothstep recovery to S.

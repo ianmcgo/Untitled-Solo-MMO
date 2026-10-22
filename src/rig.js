@@ -309,7 +309,7 @@ const CLASSIC_PAINT = {
 
 function buildAtlas() {
   const PAINT = CLASSIC_PAINT;
-  RIG.segK = { high: 0.55, medium: 0.45, low: 0.38 }[typeof W3 !== "undefined" && W3.quality] || 0.45;
+  RIG.segK = { high: 0.8, medium: 0.68, low: 0.5 }[typeof W3 !== "undefined" && W3.quality] || 0.45;
   ATLAS_CELL = 256;
   RIG.shellLayers = typeof W3 !== "undefined" && W3.quality === "high" ? 5 : 0; RIG.shellMat = null;
   ATLAS_W = ATLAS_CELL * ATLAS_COLS; ATLAS_H = ATLAS_CELL * ATLAS_ROWS;
@@ -368,14 +368,13 @@ function shellMaterial() {
 const CLASSIC = { lift: { value: 0.24 }, metal: { value: 0.32 } };
 function outlineOn() {
   const st = typeof VIEW !== "undefined" && VIEW.settings ? VIEW.settings.outline : null;
-  if (st === true || st === false) return st;
-  return !(W3 && W3.quality === "low");
+  return st === true;
 }
 function classicCharMaterial() {
   const m = new THREE.MeshLambertMaterial({ map: RIG.atlas.map, vertexColors: true, side: THREE.DoubleSide, envMapIntensity: 1.0 });
   m.onBeforeCompile = sh => {
     sh.uniforms.clLift = CLASSIC.lift; sh.uniforms.clMetal = CLASSIC.metal; sh.uniforms.clMR = { value: RIG.atlas.mr };
-    sh.fragmentShader = "uniform float clLift;\nuniform float clMetal;\nuniform sampler2D clMR;\n" + sh.fragmentShader.replace("#include <opaque_fragment>", "{ float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; float qn = floor(r * 3.0 + 0.5) / 3.0; vec4 mrs = texture2D(clMR, vMapUv); float rr = mix(r, qn, mrs.r > 0.5 ? 0.5 : 0.0); outgoingLight *= rr / max(r, 0.001); outgoingLight = max(outgoingLight, diffuseColor.rgb * clLift); float mt = mrs.b; vec3 nn = normalize(normal); float sp = pow(max(dot(nn, normalize(vec3(-0.35, 0.65, 0.68))), 0.0), 14.0); outgoingLight += diffuseColor.rgb * mt * sp * clMetal * 2.0; }\n#include <opaque_fragment>");
+    sh.fragmentShader = "uniform float clLift;\nuniform float clMetal;\nuniform sampler2D clMR;\n" + sh.fragmentShader.replace("#include <opaque_fragment>", "{ float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; float qn = floor(r * 3.0 + 0.5) / 3.0; vec4 mrs = texture2D(clMR, vMapUv); float rr = mix(r, qn, mrs.r > 0.5 ? 0.2 : 0.0); outgoingLight *= rr / max(r, 0.001); outgoingLight = max(outgoingLight, diffuseColor.rgb * clLift); float mt = mrs.b; vec3 nn = normalize(normal); float sp = pow(max(dot(nn, normalize(vec3(-0.35, 0.65, 0.68))), 0.0), 14.0); outgoingLight += diffuseColor.rgb * mt * sp * clMetal * 2.0; }\n#include <opaque_fragment>");
   };
   m.customProgramCacheKey = () => "classicChar";
   return m;
@@ -2184,9 +2183,9 @@ function humanEntryBase(L) {
       const LB = L.limb || {}, ak = L.doll ? 0.85 : 1.08, akY = y => ak * (y > elY ? (LB.upArm || 1) : (LB.foreArm || 1)), ar = (y, r, f, b, p) => ({ y, x: axX(Math.min(y, shY)), rx: r * gi * akY(y), rz: r * gi * akY(y), f: f || 1, b: b || 1, p: p || 2 });
       const aw = (x, y) => y > shY - 0.03 ? [["upArm" + sd, 1 - 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)], ["chest", 0.3 * smoothRange(shY - 0.03, shY + 0.02, y)]] : blendW(y, [[0, "foreArm" + sd, 0], [elY, "upArm" + sd, 0.035]]).map(([n, w]) => [n, w]);
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
-      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }), uA = L.ears === "ursan"; const upRings0 = [...(uA ? [tuck(ar(shY - 0.006, 0.032), 0.085), tuck(ar(shY - 0.02, 0.048), 0.055), tuck(ar(shY - 0.038, 0.058), 0.026)] : [tuck(ar(shY + 0.012, 0.04), 0.052), tuck(ar(shY - 0.004, 0.057), 0.032), tuck(ar(shY - 0.026, 0.063), 0.014)]), ar(shY - 0.05, 0.06, 1.02, 1.0), ar(shY - 0.085, 0.052), ar((shY + elY) / 2 - 0.01, 0.05, 1.12, 0.98), ar(elY + 0.035, 0.044), ar(elY, 0.042, 1, 1.08)];
+      const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }), uA = L.ears === "ursan"; const upRings0 = [...(uA ? [tuck(ar(shY - 0.006, 0.032), 0.085), tuck(ar(shY - 0.02, 0.048), 0.055), tuck(ar(shY - 0.038, 0.058), 0.026)] : [tuck(ar(shY + 0.012, 0.036), 0.06), tuck(ar(shY - 0.004, 0.052), 0.04), tuck(ar(shY - 0.026, 0.059), 0.02)]), ar(shY - 0.05, 0.061, 1.02, 1.0), ar(shY - 0.085, 0.055), ar((shY + elY) / 2 - 0.01, 0.053, 1.14, 0.98), ar(elY + 0.035, 0.045), ar(elY, 0.042, 1, 1.08)];
       const upRings = L.doll ? monoRings(upRings0) : upRings0;
-      const fa10 = [ar(elY, 0.042, 1, 1.08), ar(elY - 0.03, 0.045, 1.05, 1.0), ar(elY - 0.07, 0.043), ar(mid, 0.039)];
+      const fa10 = [ar(elY, 0.043, 1, 1.08), ar(elY - 0.03, 0.048, 1.08, 1.0), ar(elY - 0.07, 0.045, 1.04, 1), ar(mid, 0.039)];
       const fa1 = L.doll ? monoRings(fa10).map((r, i, a) => i === a.length - 1 ? Object.assign({}, r, { rx: r.rx * 0.92, rz: r.rz * 0.92 }) : r) : fa10;
       const WK = 1.16, fa20 = [ar(mid, 0.039), ar((mid + wrY) / 2, 0.035 * 1.06), ar(wrY + 0.018, 0.031 * WK, 1, 1, 2.4), ar(wrY - 0.004, 0.03 * WK, 1, 1, 2.4)];
       const fa2 = L.doll ? monoRings(fa20).map((r, i) => { const k = [0.92, 0.82, 0.72, 0.7][Math.min(i, 3)]; return Object.assign({}, r, { rx: r.rx * k, rz: r.rz * k }); }) : fa20;
@@ -2283,7 +2282,7 @@ function humanEntryBase(L) {
       const lz = y => y >= knee ? 0.012 * (hipJ - y) / (hipJ - knee) : 0.012 * (y - ank) / (knee - ank);
       const lx = y => y > hipJ - 0.06 ? hx * (0.72 + 0.28 * (hipJ + 0.06 - y) / 0.12) : hx;
       const LB = L.limb || {}, dk = L.doll ? (fem ? 1.02 : 0.95) : 1, dkY = y => dk * (y > knee ? (LB.thigh || 1) : (LB.calf || 1)), lr = (y, r, f, b) => ({ y, x: lx(y), z: lz(y), rx: r * gi * dkY(y), rz: r * gi * dkY(y), f: f || 1, b: b || 1, p: 2.1 });
-      const legRings = L.doll ? [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.04, 0.081 * fk, 1.02, 1.04), lr(knee + 0.03, 0.068, 1.04, 1), lr(knee, 0.06, 1.08, 0.95), lr(knee - 0.035, 0.056, 1.02, 1.1), lr(ank + 0.045, 0.047, 1, 1.12), lr(ank + 0.01, 0.04)] : [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.05, 0.081 * fk, 1.02, 1.04), lr((hipJ + knee) / 2, 0.071 * fk, 1.04, 1), lr(knee + 0.06, 0.06), lr(knee + 0.015, 0.055, 1.08, 0.95), lr(knee - 0.03, 0.055, 1.02, 1.12), lr(knee - 0.1, 0.055, 1, 1.22), lr(knee - 0.19, 0.047, 1, 1.12), lr(ank + 0.08, 0.038), lr(ank + 0.02, 0.037)];
+      const legRings = L.doll ? [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.04, 0.081 * fk, 1.02, 1.04), lr(knee + 0.03, 0.068, 1.04, 1), lr(knee, 0.06, 1.08, 0.95), lr(knee - 0.035, 0.056, 1.02, 1.1), lr(ank + 0.045, 0.047, 1, 1.12), lr(ank + 0.01, 0.04)] : [lr(hipJ + 0.06, 0.06 * fk), lr(hipJ + 0.02, 0.08 * fk, 1, 1.05), lr(hipJ - 0.05, 0.081 * fk, 1.02, 1.04), lr((hipJ + knee) / 2, 0.075 * fk, 1.08, 1), lr(knee + 0.06, 0.062, 1.04, 1), lr(knee + 0.015, 0.055, 1.08, 0.95), lr(knee - 0.03, 0.056, 1.02, 1.14), lr(knee - 0.1, 0.058, 1, 1.26), lr(knee - 0.19, 0.047, 1, 1.12), lr(ank + 0.08, 0.038), lr(ank + 0.02, 0.037)];
       const legW = (x, y) => y > hipJ ? [["thigh" + sd, 1 - 0.35 * smoothRange(hipJ, hipJ + 0.06, y)], ["hips", 0.35 * smoothRange(hipJ, hipJ + 0.06, y)]] : y < ank + 0.03 ? [["shin" + sd, 0.7], ["foot" + sd, 0.3]] : blendW(y, [[0, "shin" + sd, 0], [knee, "thigh" + sd, 0.04]]);
       R.addW(BODY.sculptLeg ? BODY.sculptLeg(gLoft(legRings.slice().reverse(), 32, true, false, 0, 1)) : gLoft(legRings.slice().reverse(), 18, true, false, 0, 1), "thigh" + sd, legC, legR, legW);
       BODY["leg" + sd] = { rings: legRings, w: legW };
